@@ -1,10 +1,13 @@
 package io.xj.gui.services;
 
+import io.xj.gui.WorkstationLogAppender;
 import jakarta.annotation.Nullable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringBinding;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -13,6 +16,7 @@ import java.util.Objects;
 public class UIStateServiceImpl implements UIStateService {
   private final FabricationService fabricationService;
   private final PreloaderService preloaderService;
+  private final StringProperty logLevel = new SimpleStringProperty(WorkstationLogAppender.LEVEL.get().toString());
 
   @Nullable
   private BooleanBinding fabricationActionDisabled;
@@ -38,6 +42,16 @@ public class UIStateServiceImpl implements UIStateService {
   ) {
     this.fabricationService = fabricationService;
     this.preloaderService = preloaderService;
+  }
+
+  @Override
+  public void onStageReady() {
+    logLevel.addListener((observable, prior, value) -> WorkstationLogAppender.setLevel(value));
+  }
+
+  @Override
+  public void onStageClose() {
+    // no op
   }
 
   @Override
@@ -125,5 +139,10 @@ public class UIStateServiceImpl implements UIStateService {
         fabricationService.isOutputModeFile());
 
     return isFileOutputActive;
+  }
+
+  @Override
+  public StringProperty logLevelProperty() {
+    return logLevel;
   }
 }

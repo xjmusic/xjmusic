@@ -1,9 +1,10 @@
 package io.xj.gui.services;
 
+import io.xj.gui.controllers.ReadyAfterBootController;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringBinding;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.property.StringProperty;
 
 /**
  This is an intermediary to compute the state of the UI based on the state of the application.
@@ -12,7 +13,7 @@ import javafx.beans.value.ObservableValue;
  <p>
  The GUI should use this service to determine some common states, e.g. "Should the fabrication settings appear disabled?"
  */
-public interface UIStateService {
+public interface UIStateService extends ReadyAfterBootController {
   /**
    Observable property of whether the fabrication action should appear disabled
 
@@ -54,4 +55,11 @@ public interface UIStateService {
    @return observable true if active in file output mode
    */
   BooleanBinding isFileOutputActiveProperty();
+
+  /**
+   Observable/settable property of the log level
+
+   @return observable/settable log level
+   */
+  StringProperty logLevelProperty();
 }

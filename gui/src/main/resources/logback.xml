@@ -13,7 +13,7 @@
   </appender>
 
   <!-- Reference the custom appender -->
-  <root level="INFO">
+  <root level="DEBUG">
     <appender-ref ref="MainWindowLogAppender"/>
   </root>
 </configuration>

@@ -5,20 +5,20 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.input.*?>
 <?import javafx.scene.layout.VBox?>
-<MenuBar VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/20.0.1"
-         xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainMenuController">
+<MenuBar VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
+         fx:controller="io.xj.gui.controllers.MainMenuController">
   <Menu text="_Fabrication">
     <MenuItem fx:id="itemFabricationMainAction" onAction="#handleFabricationMainAction" text="_Start"/>
-    <CheckMenuItem fx:id="checkboxFabricationFollow" text="_Follow" />
+    <CheckMenuItem fx:id="checkboxFabricationFollow" text="_Follow"/>
     <SeparatorMenuItem mnemonicParsing="false"/>
     <MenuItem fx:id="itemOpenFabricationSettings" onAction="#handleOpenFabricationSettings" text="S_ettings">
       <accelerator>
-        <KeyCodeCombination code="E" alt="UP" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+        <KeyCodeCombination alt="UP" code="E" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
       </accelerator>
     </MenuItem>
     <MenuItem fx:id="itemPreload" onAction="#handlePreload" text="_Preload">
       <accelerator>
-        <KeyCodeCombination code="P" alt="UP" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+        <KeyCodeCombination alt="UP" code="P" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
       </accelerator>
     </MenuItem>
     <SeparatorMenuItem mnemonicParsing="false"/>
@@ -27,13 +27,13 @@
   <Menu text="_Lab">
     <MenuItem onAction="#handleLabAuthentication" text="_Authentication">
       <accelerator>
-        <KeyCodeCombination code="L" alt="UP" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+        <KeyCodeCombination alt="UP" code="L" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
       </accelerator>
     </MenuItem>
     <SeparatorMenuItem mnemonicParsing="false"/>
     <MenuItem onAction="#handleLabOpenInBrowser" text="_Open in Browser">
       <accelerator>
-        <KeyCodeCombination code="L" alt="DOWN" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+        <KeyCodeCombination alt="DOWN" code="L" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
       </accelerator>
     </MenuItem>
   </Menu>
@@ -42,14 +42,22 @@
     <SeparatorMenuItem mnemonicParsing="false"/>
     <CheckMenuItem fx:id="checkboxShowLogs" text="Show _Logs">
       <accelerator>
-        <KeyCodeCombination code="F2" alt="UP" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+        <KeyCodeCombination alt="UP" code="F2" control="UP" meta="UP" shift="UP" shortcut="UP"/>
       </accelerator>
     </CheckMenuItem>
-    <CheckMenuItem fx:id="checkboxTailLogs" selected="true" text="Logs Auto-_scroll" disable="true">
+    <CheckMenuItem fx:id="checkboxTailLogs" disable="true" selected="true" text="Logs Auto-_scroll">
       <accelerator>
-        <KeyCodeCombination code="F2" alt="UP" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+        <KeyCodeCombination alt="UP" code="F2" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
       </accelerator>
     </CheckMenuItem>
+    <Menu text="Log Le_vel">
+      <items>
+        <RadioMenuItem text="_Debug" fx:id="logLevelDebug" onAction="#handleSetLogLevel" />
+        <RadioMenuItem text="_Info" fx:id="logLevelInfo" onAction="#handleSetLogLevel" />
+        <RadioMenuItem text="_Warn" fx:id="logLevelWarn" onAction="#handleSetLogLevel" />
+        <RadioMenuItem text="_Error" fx:id="logLevelError" onAction="#handleSetLogLevel" />
+      </items>
+    </Menu>
   </Menu>
   <Menu text="_Help">
     <MenuItem onAction="#onLaunchUserGuide" text="User _Guide"/>
@@ -57,4 +65,3 @@
     <MenuItem onAction="#onPressAbout" text="_About"/>
   </Menu>
 </MenuBar>
-

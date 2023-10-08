@@ -4,12 +4,12 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ThemeService;
+import io.xj.gui.services.UIStateService;
 import jakarta.annotation.Nullable;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +21,7 @@ public class MainController implements ReadyAfterBootController {
   final MainPaneTopController mainPaneTopController;
   final MainTimelineController mainTimelineController;
   final ThemeService themeService;
-
+  final UIStateService uiStateService;
 
   @Nullable
   Scene mainWindowScene;
@@ -32,7 +32,8 @@ public class MainController implements ReadyAfterBootController {
     MainPaneBottomController mainPaneBottomController,
     MainPaneTopController mainPaneTopController,
     MainTimelineController mainTimelineController,
-    ThemeService themeService
+    ThemeService themeService,
+    UIStateService uiStateService
   ) {
     this.fabricationService = fabricationService;
     this.mainMenuController = mainMenuController;
@@ -40,6 +41,7 @@ public class MainController implements ReadyAfterBootController {
     this.mainPaneTopController = mainPaneTopController;
     this.mainTimelineController = mainTimelineController;
     this.themeService = themeService;
+    this.uiStateService = uiStateService;
   }
 
 
@@ -64,6 +66,7 @@ public class MainController implements ReadyAfterBootController {
     mainPaneBottomController.onStageReady();
     mainPaneTopController.onStageReady();
     mainTimelineController.onStageReady();
+    uiStateService.onStageReady();
   }
 
   @Override
@@ -72,6 +75,7 @@ public class MainController implements ReadyAfterBootController {
     mainPaneBottomController.onStageClose();
     mainPaneTopController.onStageClose();
     mainTimelineController.onStageClose();
+    uiStateService.onStageClose();
   }
 
   public @Nullable Scene getMainWindowScene() {
