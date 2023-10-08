@@ -21,6 +21,11 @@
   -fx-background-color: #b0b0b0;
 }
 
+.log-viewer .list-cell {
+  -fx-text-fill: purple;
+  -fx-padding: 0 0 0 0;
+}
+
 .log-viewer .list-cell.debug {
   -fx-text-fill: purple;
 }
