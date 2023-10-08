@@ -5,8 +5,10 @@ package io.xj.gui;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
+import io.xj.hub.util.StringUtils;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -19,7 +21,7 @@ public class WorkstationLogAppender extends AppenderBase<ILoggingEvent> {
   }
 
   public static void setLevel(String value) {
-    LEVEL.set(Level.valueOf(value));
+    LEVEL.set(Level.valueOf(StringUtils.toAlphabetical(value).toUpperCase(Locale.ROOT)));
   }
 
   @Override
