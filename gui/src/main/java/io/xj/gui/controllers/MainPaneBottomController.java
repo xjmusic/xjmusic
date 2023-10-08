@@ -30,6 +30,7 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
   final LogQueue logQueue;
   final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
   static final int LOG_LIST_VIEW_HEIGHT = 368;
+  static final int LOG_LIST_ROW_HEIGHT = 20;
   static final int MAX_ENTRIES = 10_000;
   final MainMenuController mainMenuController;
 
@@ -93,6 +94,7 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
       }
     });
     logListView.setItems(logItems);
+    logListView.setFixedCellSize(LOG_LIST_ROW_HEIGHT);
 
     logListView.visibleProperty().bind(mainMenuController.logsVisibleProperty());
     logListView.minHeightProperty().bind(mainMenuController.logsVisibleProperty().map((v) -> v ? LOG_LIST_VIEW_HEIGHT : 0));
