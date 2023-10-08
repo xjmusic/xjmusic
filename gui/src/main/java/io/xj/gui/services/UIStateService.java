@@ -1,5 +1,6 @@
 package io.xj.gui.services;
 
+import io.xj.gui.controllers.ReadyAfterBootController;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringBinding;
@@ -12,7 +13,7 @@ import javafx.beans.value.ObservableValue;
  <p>
  The GUI should use this service to determine some common states, e.g. "Should the fabrication settings appear disabled?"
  */
-public interface UIStateService {
+public interface UIStateService extends ReadyAfterBootController {
   /**
    Observable property of whether the fabrication action should appear disabled
 

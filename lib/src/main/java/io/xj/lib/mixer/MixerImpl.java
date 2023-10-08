@@ -259,7 +259,11 @@ class MixerImpl implements Mixer {
       srcPutSpan[p] = (int) ((srcPut[p].getStopAtMicros() - srcPut[p].getStartAtMicros()) / microsPerFrame);
     }
 
-    try (var fileInputStream = FileUtils.openInputStream(new File(source.getAbsolutePath())); var bufferedInputStream = new BufferedInputStream(fileInputStream); var audioInputStream = AudioSystem.getAudioInputStream(bufferedInputStream)) {
+    try (
+      var fileInputStream = FileUtils.openInputStream(new File(source.getAbsolutePath()));
+      var bufferedInputStream = new BufferedInputStream(fileInputStream);
+      var audioInputStream = AudioSystem.getAudioInputStream(bufferedInputStream)
+    ) {
       var frameSize = fmt.getFrameSize();
       var channels = fmt.getChannels();
       var isStereo = 2 == channels;

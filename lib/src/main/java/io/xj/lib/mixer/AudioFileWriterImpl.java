@@ -91,13 +91,16 @@ public class AudioFileWriterImpl implements AudioFileWriter {
       }
 
       File outputFile = new File(outputPath.get());
-      var fileInputStream = FileUtils.openInputStream(new File(tempFilePath.get()));
-      var bufferedInputStream = new BufferedInputStream(fileInputStream);
-      AudioInputStream ais = new AudioInputStream(bufferedInputStream, format, tempFileByteCount.get());
-      AudioSystem.write(ais, AudioFileFormat.Type.WAVE, outputFile);
-      this.fileState.set(FileState.DONE);
-      LOG.info("Did write {} bytes of PCM data to output WAV container {}", tempFileByteCount.get(), outputPath.get());
-      return true;
+      try (
+        var fileInputStream = FileUtils.openInputStream(new File(tempFilePath.get()));
+        var bufferedInputStream = new BufferedInputStream(fileInputStream)
+      ) {
+        AudioInputStream ais = new AudioInputStream(bufferedInputStream, format, tempFileByteCount.get());
+        AudioSystem.write(ais, AudioFileFormat.Type.WAVE, outputFile);
+        this.fileState.set(FileState.DONE);
+        LOG.info("Did write {} bytes of PCM data to output WAV container {}", tempFileByteCount.get(), outputPath.get());
+        return true;
+      }
 
     } catch (IOException e) {
       LOG.error("Failed to close output file stream!", e);

@@ -23,13 +23,14 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   final BooleanProperty logsVisible = new SimpleBooleanProperty(false);
   final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
   final ConfigurableApplicationContext ac;
-  private final FabricationService fabricationService;
-  private final PreloaderService preloaderService;
+  final FabricationService fabricationService;
+  final PreloaderService preloaderService;
   final ThemeService themeService;
   final GuideService guideService;
+  final UIStateService uiStateService;
   final LabService labService;
   final UIStateService guiService;
-  private final ModalFabricationSettingsController modalFabricationSettingsController;
+  final ModalFabricationSettingsController modalFabricationSettingsController;
   final ModalAboutController modalAboutController;
   final ModalLabAuthenticationController modalLabAuthenticationController;
 
@@ -56,26 +57,28 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
   public MainMenuController(
     ConfigurableApplicationContext ac,
-    ModalFabricationSettingsController modalFabricationSettingsController,
-    ModalAboutController modalAboutController,
-    ModalLabAuthenticationController modalLabAuthenticationController,
     FabricationService fabricationService,
-    PreloaderService preloaderService,
-    ThemeService themeService,
     GuideService guideService,
     LabService labService,
-    UIStateService guiService
+    ModalAboutController modalAboutController,
+    ModalFabricationSettingsController modalFabricationSettingsController,
+    ModalLabAuthenticationController modalLabAuthenticationController,
+    PreloaderService preloaderService,
+    ThemeService themeService,
+    UIStateService guiService,
+    UIStateService uiStateService
   ) {
     this.ac = ac;
-    this.modalFabricationSettingsController = modalFabricationSettingsController;
-    this.modalAboutController = modalAboutController;
-    this.modalLabAuthenticationController = modalLabAuthenticationController;
     this.fabricationService = fabricationService;
-    this.preloaderService = preloaderService;
-    this.themeService = themeService;
+    this.guiService = guiService;
     this.guideService = guideService;
     this.labService = labService;
-    this.guiService = guiService;
+    this.modalAboutController = modalAboutController;
+    this.modalFabricationSettingsController = modalFabricationSettingsController;
+    this.modalLabAuthenticationController = modalLabAuthenticationController;
+    this.preloaderService = preloaderService;
+    this.themeService = themeService;
+    this.uiStateService = uiStateService;
   }
 
   @Override
@@ -101,7 +104,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     themeService.isDarkThemeProperty().bindBidirectional(checkboxDarkTheme.selectedProperty());
   }
 
-  private String addLeadingUnderscore(String s) {
+  String addLeadingUnderscore(String s) {
     return String.format("_%s", s);
   }
 
@@ -111,7 +114,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
    @return the accelerator
    */
-  private KeyCombination computeMainActionButtonAccelerator() {
+  KeyCombination computeMainActionButtonAccelerator() {
     return KeyCombination.valueOf("SHORTCUT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
   }
 
@@ -121,7 +124,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
    @return the accelerator
    */
-  private KeyCombination computeFabricationFollowButtonAccelerator() {
+  KeyCombination computeFabricationFollowButtonAccelerator() {
     return KeyCombination.valueOf("SHORTCUT+ALT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
   }
 

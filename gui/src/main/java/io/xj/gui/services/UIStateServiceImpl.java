@@ -41,6 +41,16 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
+  public void onStageReady() {
+    // no op
+  }
+
+  @Override
+  public void onStageClose() {
+    // no op
+  }
+
+  @Override
   public BooleanBinding fabricationActionDisabledProperty() {
     if (Objects.isNull(fabricationActionDisabled))
       fabricationActionDisabled = Bindings.createBooleanBinding(
