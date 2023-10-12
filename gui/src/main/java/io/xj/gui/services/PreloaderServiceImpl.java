@@ -3,16 +3,22 @@
 package io.xj.gui.services;
 
 import io.xj.hub.HubContent;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.dub.DubAudioCache;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.StringBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Objects;
 
 import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
@@ -22,6 +28,7 @@ public class PreloaderServiceImpl extends Service<Boolean> implements PreloaderS
   private final LabService labService;
   private final FabricationService fabricationService;
   private final DubAudioCache dubAudioCache;
+  private final BooleanProperty isServiceRunning = new SimpleBooleanProperty(false);
 
   public PreloaderServiceImpl(
     LabService labService,
@@ -31,6 +38,8 @@ public class PreloaderServiceImpl extends Service<Boolean> implements PreloaderS
     this.labService = labService;
     this.fabricationService = fabricationService;
     this.dubAudioCache = dubAudioCache;
+
+    isServiceRunning.bind(runningProperty());
   }
 
   protected Task<Boolean> createTask() {
@@ -45,20 +54,31 @@ public class PreloaderServiceImpl extends Service<Boolean> implements PreloaderS
         }
 
         try {
+          var instruments = new ArrayList<>(hubContent.getInstruments());
           var audios = new ArrayList<>(hubContent.getInstrumentAudios());
-          for (var i = 1; i < audios.size(); i++) {
-            if (!StringUtils.isNullOrEmpty(audios.get(i).getWaveformKey()))
-              dubAudioCache.load(
-                fabricationService.contentStoragePathPrefixProperty().get(),
-                labService.hubConfigProperty().get().getAudioBaseUrl(),
-                audios.get(i).getInstrumentId(),
-                audios.get(i).getWaveformKey(),
-                (int) Double.parseDouble(fabricationService.outputFrameRateProperty().get()),
-                FIXED_SAMPLE_BITS,
-                (int) Double.parseDouble(fabricationService.outputChannelsProperty().get()));
-            updateProgress((float) i / audios.size(), 1.0);
+          int loaded = 0;
+          for (Instrument instrument : instruments) {
+            for (InstrumentAudio audio : audios.stream()
+              .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
+              .sorted(Comparator.comparing(InstrumentAudio::getName))
+              .toList()) {
+              if (!isServiceRunning.get()) {
+                return false;
+              }
+              if (!StringUtils.isNullOrEmpty(audio.getWaveformKey()))
+                dubAudioCache.load(
+                  fabricationService.contentStoragePathPrefixProperty().get(),
+                  labService.hubConfigProperty().get().getAudioBaseUrl(),
+                  audio.getInstrumentId(),
+                  audio.getWaveformKey(),
+                  (int) Double.parseDouble(fabricationService.outputFrameRateProperty().get()),
+                  FIXED_SAMPLE_BITS,
+                  (int) Double.parseDouble(fabricationService.outputChannelsProperty().get()));
+              updateProgress((float) loaded++ / audios.size(), 1.0);
+            }
           }
           updateProgress(1.0, 1.0);
+          LOG.info("Preloaded {} audios from {} instruments", loaded, instruments.size());
 
         } catch (Exception e) {
           LOG.error("Failed to preload", e);
