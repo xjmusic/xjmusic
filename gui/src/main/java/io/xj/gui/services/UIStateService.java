@@ -5,6 +5,7 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableValue;
 
 /**
  This is an intermediary to compute the state of the UI based on the state of the application.
@@ -15,51 +16,47 @@ import javafx.beans.property.StringProperty;
  */
 public interface UIStateService extends ReadyAfterBootController {
   /**
-   Observable property of whether the fabrication action should appear disabled
-
-   @return observable true when the fabrication action should appear disabled
+   @return Observable property of whether the fabrication action should appear disabled
    */
   BooleanBinding fabricationActionDisabledProperty();
 
   /**
-   Observable property of whether the fabrication settings should appear disabled
-
-   @return observable true when the settings should appear disabled
+   @return Observable property of whether the fabrication settings should appear disabled
    */
   BooleanBinding fabricationSettingsDisabledProperty();
 
   /**
-   Observable property of the fabrication status text
-
-   @return observable fabrication status text
+   @return Observable property of the fabrication status text
    */
   StringBinding fabricationStatusTextProperty();
 
   /**
-   Observable property of the fabrication progress
-
-   @return observable fabrication progress
+   @return Observable property of the fabrication progress
    */
   DoubleBinding fabricationProgressProperty();
 
   /**
-   Observable property of whether the progress bar should be visible
-
-   @return observable true if the progress bar should be visible
+   @return Observable property of whether the progress bar should be visible
    */
   BooleanBinding fabricationProgressBarVisibleProperty();
 
   /**
-   Observable property of whether fabrication is active in file output mode
-
-   @return observable true if active in file output mode
+   @return Observable property of whether fabrication is active in file output mode
    */
-  BooleanBinding isFileOutputActiveProperty();
+  BooleanBinding fileOutputActiveProperty();
 
   /**
-   Observable/settable property of the log level
-
-   @return observable/settable log level
+   @return Observable/settable property of the log level
    */
   StringProperty logLevelProperty();
+
+  /**
+   @return Observable property of whether the fabrication input mode should appear disabled
+   */
+  BooleanBinding fabricationInputModeDisabledProperty();
+
+  /**
+   @return Observable property of whether the fabrication output file mode should appear disabled
+   */
+  BooleanBinding fabricationOutputFileModeDisabledProperty();
 }

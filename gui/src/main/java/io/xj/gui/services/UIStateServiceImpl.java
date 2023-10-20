@@ -1,6 +1,7 @@
 package io.xj.gui.services;
 
 import io.xj.gui.WorkstationLogAppender;
+import io.xj.nexus.OutputMode;
 import jakarta.annotation.Nullable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -16,6 +17,7 @@ import java.util.Objects;
 public class UIStateServiceImpl implements UIStateService {
   private final FabricationService fabricationService;
   private final PreloaderService preloaderService;
+  private final LabService labService;
   private final StringProperty logLevel = new SimpleStringProperty(WorkstationLogAppender.LEVEL.get().toString());
 
   @Nullable
@@ -34,14 +36,22 @@ public class UIStateServiceImpl implements UIStateService {
   private BooleanBinding fabricationProgressBarVisible;
 
   @Nullable
-  private BooleanBinding isFileOutputActive;
+  private BooleanBinding fileOutputActive;
+
+  @Nullable
+  private BooleanBinding fabricationInputModeDisabled;
+
+  @Nullable
+  private BooleanBinding fabricationOutputFileModeDisabled;
 
   public UIStateServiceImpl(
     FabricationService fabricationService,
-    PreloaderService preloaderService
+    PreloaderService preloaderService,
+    LabService labService
   ) {
     this.fabricationService = fabricationService;
     this.preloaderService = preloaderService;
+    this.labService = labService;
   }
 
   @Override
@@ -102,14 +112,14 @@ public class UIStateServiceImpl implements UIStateService {
         () -> {
           if (preloaderService.runningProperty().get()) {
             return preloaderService.progressProperty().get();
-          } else if (isFileOutputActiveProperty().get()) {
+          } else if (fileOutputActiveProperty().get()) {
             return fabricationService.progressProperty().get();
           } else {
             return 0.0;
           }
         },
 
-        isFileOutputActiveProperty(),
+        fileOutputActiveProperty(),
         fabricationService.progressProperty(),
         preloaderService.runningProperty(),
         preloaderService.progressProperty());
@@ -121,28 +131,44 @@ public class UIStateServiceImpl implements UIStateService {
   public BooleanBinding fabricationProgressBarVisibleProperty() {
     if (Objects.isNull(fabricationProgressBarVisible))
       fabricationProgressBarVisible = Bindings.createBooleanBinding(
-        () -> isFileOutputActiveProperty().get() || preloaderService.runningProperty().get(),
+        () -> fileOutputActiveProperty().get() || preloaderService.runningProperty().get(),
 
-        isFileOutputActiveProperty(),
+        fileOutputActiveProperty(),
         preloaderService.runningProperty());
 
     return fabricationProgressBarVisible;
   }
 
   @Override
-  public BooleanBinding isFileOutputActiveProperty() {
-    if (Objects.isNull(isFileOutputActive))
-      isFileOutputActive = Bindings.createBooleanBinding(
+  public BooleanBinding fileOutputActiveProperty() {
+    if (Objects.isNull(fileOutputActive))
+      fileOutputActive = Bindings.createBooleanBinding(
         () -> fabricationService.isStatusActive().get() && fabricationService.isOutputModeFile().get(),
 
         fabricationService.statusProperty(),
         fabricationService.isOutputModeFile());
 
-    return isFileOutputActive;
+    return fileOutputActive;
   }
 
   @Override
   public StringProperty logLevelProperty() {
     return logLevel;
+  }
+
+  @Override
+  public BooleanBinding fabricationInputModeDisabledProperty() {
+    if (Objects.isNull(fabricationInputModeDisabled))
+      fabricationInputModeDisabled = labService.statusProperty().isEqualTo(LabStatus.Authenticated).not();
+
+    return fabricationInputModeDisabled;
+  }
+
+  @Override
+  public BooleanBinding fabricationOutputFileModeDisabledProperty() {
+    if (Objects.isNull(fabricationOutputFileModeDisabled))
+      fabricationOutputFileModeDisabled = fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not();
+
+    return fabricationOutputFileModeDisabled;
   }
 }

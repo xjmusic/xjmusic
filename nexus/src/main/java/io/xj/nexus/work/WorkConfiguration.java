@@ -3,11 +3,13 @@
 package io.xj.nexus.work;
 
 import io.xj.nexus.InputMode;
+import io.xj.nexus.MacroMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 
 public class WorkConfiguration {
   private InputMode inputMode;
+  private MacroMode macroMode;
   private String inputTemplateKey;
   private String inputTemplateId;
   private OutputFileMode outputFileMode;
@@ -28,6 +30,15 @@ public class WorkConfiguration {
 
   public WorkConfiguration setInputMode(InputMode inputMode) {
     this.inputMode = inputMode;
+    return this;
+  }
+
+  public MacroMode getMacroMode() {
+    return macroMode;
+  }
+
+  public WorkConfiguration setMacroMode(MacroMode macroMode) {
+    this.macroMode = macroMode;
     return this;
   }
 

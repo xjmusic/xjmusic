@@ -10,6 +10,7 @@ import io.xj.hub.tables.pojos.*;
 import io.xj.hub.util.ValueException;
 import io.xj.lib.util.FormatUtils;
 import io.xj.nexus.InputMode;
+import io.xj.nexus.MacroMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.hub_client.HubClient;
@@ -72,6 +73,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   final StringProperty contentStoragePathPrefix = new SimpleStringProperty();
   final StringProperty outputPathPrefix = new SimpleStringProperty();
   final ObjectProperty<InputMode> inputMode = new SimpleObjectProperty<>();
+  final ObjectProperty<MacroMode> macroMode = new SimpleObjectProperty<>();
   final ObjectProperty<OutputFileMode> outputFileMode = new SimpleObjectProperty<>();
   final ObjectProperty<OutputMode> outputMode = new SimpleObjectProperty<>();
   final StringProperty outputSeconds = new SimpleStringProperty();
@@ -146,6 +148,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     craftAheadSeconds.addListener((o, ov, value) -> prefs.put("craftAheadSeconds", value));
     dubAheadSeconds.addListener((o, ov, value) -> prefs.put("dubAheadSeconds", value));
     inputMode.addListener((o, ov, value) -> prefs.put("inputMode", value.name()));
+    macroMode.addListener((o, ov, value) -> prefs.put("macroMode", value.name()));
     inputTemplateKey.addListener((o, ov, value) -> prefs.put("inputTemplateKey", value));
     outputChannels.addListener((o, ov, value) -> prefs.put("outputChannels", value));
     outputFileMode.addListener((o, ov, value) -> prefs.put("outputFileMode", value.name()));
@@ -162,6 +165,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     craftAheadSeconds.set(prefs.get("craftAheadSeconds", Integer.toString(defaultCraftAheadSeconds)));
     dubAheadSeconds.set(prefs.get("dubAheadSeconds", Integer.toString(defaultDubAheadSeconds)));
     inputMode.set(InputMode.valueOf(prefs.get("inputMode", InputMode.PRODUCTION.name())));
+    macroMode.set(MacroMode.valueOf(prefs.get("macroMode", MacroMode.AUTO.name())));
     inputTemplateKey.set(prefs.get("inputTemplateKey", defaultInputTemplateKey));
     outputChannels.set(prefs.get("outputChannels", Integer.toString(defaultOutputChannels)));
     outputFileMode.set(OutputFileMode.valueOf(prefs.get("outputFileMode", defaultOutputFileMode.toUpperCase(Locale.ROOT))));
@@ -208,6 +212,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
       .setCraftAheadSeconds(Integer.parseInt(craftAheadSeconds.get()))
       .setDubAheadSeconds(Integer.parseInt(dubAheadSeconds.get()))
       .setInputMode(inputMode.get())
+      .setMacroMode(macroMode.get())
       .setInputTemplateKey(inputTemplateKey.get())
       .setOutputChannels(Integer.parseInt(outputChannels.get()))
       .setOutputFileMode(outputFileMode.get())
@@ -241,6 +246,11 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   @Override
   public ObjectProperty<InputMode> inputModeProperty() {
     return inputMode;
+  }
+
+  @Override
+  public ObjectProperty<MacroMode> macroModeProperty() {
+    return macroMode;
   }
 
   @Override

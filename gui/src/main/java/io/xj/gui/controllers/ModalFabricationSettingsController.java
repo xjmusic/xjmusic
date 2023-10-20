@@ -2,11 +2,9 @@
 
 package io.xj.gui.controllers;
 
-import io.xj.gui.services.FabricationService;
-import io.xj.gui.services.LabService;
-import io.xj.gui.services.LabStatus;
-import io.xj.gui.services.ThemeService;
+import io.xj.gui.services.*;
 import io.xj.nexus.InputMode;
+import io.xj.nexus.MacroMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import javafx.collections.FXCollections;
@@ -30,12 +28,16 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   private final LabService labService;
   private final FabricationService fabricationService;
   private final ThemeService themeService;
+  private final UIStateService uiStateService;
 
   @FXML
   TextField fieldInputTemplateKey;
 
   @FXML
   ChoiceBox<InputMode> choiceInputMode;
+
+  @FXML
+  ChoiceBox<MacroMode> choiceMacroMode;
 
   @FXML
   ChoiceBox<OutputMode> choiceOutputMode;
@@ -45,6 +47,9 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
 
   @FXML
   Label labelInputMode;
+
+  @FXML
+  Label labelMacroMode;
 
   @FXML
   Label labelOutputFileMode;
@@ -93,20 +98,25 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
     ConfigurableApplicationContext ac,
     LabService labService,
     FabricationService fabricationService,
-    ThemeService themeService
+    ThemeService themeService,
+    UIStateService uiStateService
   ) {
     this.modalFabricationSettingsFxml = modalFabricationSettingsFxml;
     this.ac = ac;
     this.labService = labService;
     this.fabricationService = fabricationService;
     this.themeService = themeService;
+    this.uiStateService = uiStateService;
   }
 
   @Override
   public void onStageReady() {
     choiceInputMode.valueProperty().bindBidirectional(fabricationService.inputModeProperty());
-    choiceInputMode.disableProperty().bind(labService.statusProperty().isEqualTo(LabStatus.Authenticated).not());
-    labelInputMode.disableProperty().bind(labService.statusProperty().isEqualTo(LabStatus.Authenticated).not());
+    choiceInputMode.disableProperty().bind(uiStateService.fabricationInputModeDisabledProperty());
+    labelInputMode.disableProperty().bind(uiStateService.fabricationInputModeDisabledProperty());
+
+    choiceMacroMode.valueProperty().bindBidirectional(fabricationService.macroModeProperty());
+
     fieldInputTemplateKey.textProperty().bindBidirectional(fabricationService.inputTemplateKeyProperty());
 
     choiceOutputMode.getItems().setAll(OutputMode.values());
@@ -114,16 +124,16 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
 
     choiceOutputFileMode.getItems().setAll(OutputFileMode.values());
     choiceOutputFileMode.valueProperty().bindBidirectional(fabricationService.outputFileModeProperty());
-    choiceOutputFileMode.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
-    labelOutputFileMode.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
+    choiceOutputFileMode.disableProperty().bind(uiStateService.fabricationOutputFileModeDisabledProperty());
+    labelOutputFileMode.disableProperty().bind(uiStateService.fabricationOutputFileModeDisabledProperty());
 
     fieldOutputSeconds.textProperty().bindBidirectional(fabricationService.outputSecondsProperty());
-    fieldOutputSeconds.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
-    labelOutputSeconds.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
+    fieldOutputSeconds.disableProperty().bind(uiStateService.fabricationOutputFileModeDisabledProperty());
+    labelOutputSeconds.disableProperty().bind(uiStateService.fabricationOutputFileModeDisabledProperty());
 
     fieldOutputPathPrefix.textProperty().bindBidirectional(fabricationService.outputPathPrefixProperty());
-    fieldOutputPathPrefix.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
-    labelOutputPathPrefix.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
+    fieldOutputPathPrefix.disableProperty().bind(uiStateService.fabricationOutputFileModeDisabledProperty());
+    labelOutputPathPrefix.disableProperty().bind(uiStateService.fabricationOutputFileModeDisabledProperty());
 
     fieldContentStoragePathPrefix.textProperty().bindBidirectional(fabricationService.contentStoragePathPrefixProperty());
 
