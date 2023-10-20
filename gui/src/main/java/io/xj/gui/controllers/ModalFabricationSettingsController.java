@@ -129,7 +129,7 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
     }
 
     choiceMacroMode.valueProperty().bindBidirectional(fabricationService.macroModeProperty());
-    choiceMacroMode.getItems().setAll(MacroMode.values());
+    choiceMacroMode.setItems(FXCollections.observableArrayList(MacroMode.values()));
 
     fieldInputTemplateKey.textProperty().bindBidirectional(fabricationService.inputTemplateKeyProperty());
 
