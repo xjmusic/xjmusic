@@ -114,8 +114,16 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
     choiceInputMode.valueProperty().bindBidirectional(fabricationService.inputModeProperty());
     choiceInputMode.disableProperty().bind(uiStateService.fabricationInputModeDisabledProperty());
     labelInputMode.disableProperty().bind(uiStateService.fabricationInputModeDisabledProperty());
+    // Input mode is locked in PRODUCTION unless we are connected to a Lab
+    if (labService.isAuthenticated()) {
+      choiceInputMode.setItems(FXCollections.observableArrayList(InputMode.values()));
+    } else {
+      choiceInputMode.setItems(FXCollections.observableArrayList(InputMode.PRODUCTION));
+      choiceInputMode.setValue(InputMode.PRODUCTION);
+    }
 
     choiceMacroMode.valueProperty().bindBidirectional(fabricationService.macroModeProperty());
+    choiceMacroMode.setItems(FXCollections.observableArrayList(MacroMode.values()));
 
     fieldInputTemplateKey.textProperty().bindBidirectional(fabricationService.inputTemplateKeyProperty());
 
@@ -144,14 +152,6 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
     fieldOutputChannels.textProperty().bindBidirectional(fabricationService.outputChannelsProperty());
 
     fieldTimelineSegmentViewLimit.textProperty().bindBidirectional(fabricationService.timelineSegmentViewLimitProperty());
-
-    // Input mode is locked in PRODUCTION unless we are connected to a Lab
-    if (labService.isAuthenticated()) {
-      choiceInputMode.setItems(FXCollections.observableArrayList(InputMode.PREVIEW, InputMode.PRODUCTION));
-    } else {
-      choiceInputMode.setItems(FXCollections.observableArrayList(InputMode.PRODUCTION));
-      choiceInputMode.setValue(InputMode.PRODUCTION);
-    }
   }
 
   @Override
