@@ -105,16 +105,16 @@ public class UIStateServiceImpl implements UIStateService {
   public BooleanBinding isProgressBarVisibleProperty() {
     if (Objects.isNull(isProgressBarVisible))
       isProgressBarVisible = Bindings.createBooleanBinding(
-        () -> isFileOutputActiveProperty().get() || fabricationService.isStatusLoading().get(),
+        () -> fileOutputActiveProperty().get() || fabricationService.isStatusLoading().get(),
 
-        isFileOutputActiveProperty(),
+        fileOutputActiveProperty(),
         fabricationService.isStatusLoading());
 
     return isProgressBarVisible;
   }
 
   @Override
-  public BooleanBinding isFileOutputActiveProperty() {
+  public BooleanBinding fileOutputActiveProperty() {
     if (Objects.isNull(isFileOutputActive))
       isFileOutputActive = Bindings.createBooleanBinding(
         () -> fabricationService.isStatusActive().get() && fabricationService.isOutputModeFile().get(),

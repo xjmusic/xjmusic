@@ -9,6 +9,7 @@ import io.xj.hub.tables.pojos.*;
 import io.xj.hub.util.ValueException;
 import io.xj.lib.util.FormatUtils;
 import io.xj.nexus.InputMode;
+import io.xj.nexus.MacroMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.hub_client.HubClient;
@@ -59,6 +60,7 @@ public class FabricationServiceImpl implements FabricationService {
   private final int defaultOutputChannels;
   private final OutputFileMode defaultOutputFileMode;
   private final double defaultOutputFrameRate;
+  private final MacroMode defaultMacroMode;
   private final InputMode defaultInputMode;
   private final OutputMode defaultOutputMode;
   private final Integer defaultOutputSeconds;
@@ -71,6 +73,7 @@ public class FabricationServiceImpl implements FabricationService {
   final StringProperty contentStoragePathPrefix = new SimpleStringProperty();
   final StringProperty outputPathPrefix = new SimpleStringProperty();
   final ObjectProperty<InputMode> inputMode = new SimpleObjectProperty<>();
+  final ObjectProperty<MacroMode> macroMode = new SimpleObjectProperty<>();
   final ObjectProperty<OutputFileMode> outputFileMode = new SimpleObjectProperty<>();
   final ObjectProperty<OutputMode> outputMode = new SimpleObjectProperty<>();
   final StringProperty outputSeconds = new SimpleStringProperty();
@@ -110,6 +113,7 @@ public class FabricationServiceImpl implements FabricationService {
     @Value("${output.channels}") int defaultOutputChannels,
     @Value("${output.file.mode}") String defaultOutputFileMode,
     @Value("${output.frame.rate}") double defaultOutputFrameRate,
+    @Value("${macro.mode}") String defaultMacroMode,
     @Value("${input.mode}") String defaultInputMode,
     @Value("${output.mode}") String defaultOutputMode,
     @Value("${output.seconds}") int defaultOutputSeconds,
@@ -120,6 +124,7 @@ public class FabricationServiceImpl implements FabricationService {
   ) {
     this.defaultCraftAheadSeconds = defaultCraftAheadSeconds;
     this.defaultDubAheadSeconds = defaultDubAheadSeconds;
+    this.defaultMacroMode = MacroMode.valueOf(defaultMacroMode.toUpperCase(Locale.ROOT));
     this.defaultInputMode = InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT));
     this.defaultInputTemplateKey = defaultInputTemplateKey;
     this.defaultOutputChannels = defaultOutputChannels;
@@ -150,6 +155,7 @@ public class FabricationServiceImpl implements FabricationService {
       .setCraftAheadSeconds(Integer.parseInt(craftAheadSeconds.get()))
       .setDubAheadSeconds(Integer.parseInt(dubAheadSeconds.get()))
       .setInputMode(inputMode.get())
+      .setMacroMode(macroMode.get())
       .setInputTemplateKey(inputTemplateKey.get())
       .setOutputChannels(Integer.parseInt(outputChannels.get()))
       .setOutputFileMode(outputFileMode.get())
@@ -205,6 +211,11 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public ObjectProperty<InputMode> inputModeProperty() {
     return inputMode;
+  }
+
+  @Override
+  public ObjectProperty<MacroMode> macroModeProperty() {
+    return macroMode;
   }
 
   @Override
@@ -527,6 +538,7 @@ public class FabricationServiceImpl implements FabricationService {
     inputTemplateKey.set(templateKey);
     outputFileMode.set(defaultOutputFileMode);
     outputMode.set(defaultOutputMode);
+    macroMode.set(defaultMacroMode);
     inputMode.set(defaultInputMode);
 
     start();
@@ -550,6 +562,7 @@ public class FabricationServiceImpl implements FabricationService {
     dubAheadSeconds.addListener((o, ov, value) -> prefs.put("dubAheadSeconds", value));
     inputMode.addListener((o, ov, value) -> prefs.put("inputMode", Objects.nonNull(value) ? value.name() : ""));
     inputTemplateKey.addListener((o, ov, value) -> prefs.put("inputTemplateKey", value));
+    macroMode.addListener((o, ov, value) -> prefs.put("macroMode", Objects.nonNull(value) ? value.name() : ""));
     outputChannels.addListener((o, ov, value) -> prefs.put("outputChannels", value));
     outputFileMode.addListener((o, ov, value) -> prefs.put("outputFileMode", Objects.nonNull(value) ? value.name() : ""));
     outputFrameRate.addListener((o, ov, value) -> prefs.put("outputFrameRate", value));
@@ -571,6 +584,13 @@ public class FabricationServiceImpl implements FabricationService {
     outputSeconds.set(prefs.get("outputSeconds", Integer.toString(defaultOutputSeconds)));
     shipAheadSeconds.set(prefs.get("shipAheadSeconds", Integer.toString(defaultShipAheadSeconds)));
     timelineSegmentViewLimit.set(prefs.get("timelineSegmentViewLimit", Integer.toString(defaultTimelineSegmentViewLimit)));
+
+    try {
+      macroMode.set(MacroMode.valueOf(prefs.get("macroMode", defaultMacroMode.toString()).toUpperCase(Locale.ROOT)));
+    } catch (Exception e) {
+      LOG.error("Failed to set macro mode from preferences", e);
+      macroMode.set(defaultMacroMode);
+    }
 
     try {
       inputMode.set(InputMode.valueOf(prefs.get("inputMode", defaultInputMode.toString()).toUpperCase(Locale.ROOT)));

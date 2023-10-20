@@ -4,6 +4,7 @@ package io.xj.gui.services;
 
 import io.xj.hub.tables.pojos.*;
 import io.xj.nexus.InputMode;
+import io.xj.nexus.MacroMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.model.*;
@@ -34,6 +35,8 @@ public interface FabricationService {
   StringProperty outputPathPrefixProperty();
 
   ObjectProperty<InputMode> inputModeProperty();
+
+  ObjectProperty<MacroMode> macroModeProperty();
 
   ObjectProperty<OutputFileMode> outputFileModeProperty();
 

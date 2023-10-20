@@ -2,7 +2,6 @@ package io.xj.gui.services;
 
 import io.xj.gui.controllers.ReadyAfterBootController;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
@@ -28,37 +27,27 @@ public interface UIStateService extends ReadyAfterBootController {
   BooleanProperty logsVisibleProperty();
 
   /**
-   Observable property of whether the fabrication settings should appear disabled
-
-   @return observable true when the settings should appear disabled
+   @return Observable property of whether the fabrication settings should appear disabled
    */
   ObservableBooleanValue isFabricationSettingsDisabledProperty();
 
   /**
-   Observable property of the fabrication status text
-
-   @return observable fabrication status text
+   @return Observable property of the fabrication status text
    */
   StringBinding fabricationStatusTextProperty();
 
   /**
-   Observable property of whether the progress bar should be visible
-
-   @return observable true if the progress bar should be visible
+   @return Observable property of whether the progress bar should be visible
    */
   BooleanBinding isProgressBarVisibleProperty();
 
   /**
-   Observable property of whether fabrication is active in file output mode
-
-   @return observable true if active in file output mode
+   @return Observable property of whether fabrication is active in file output mode
    */
-  BooleanBinding isFileOutputActiveProperty();
+  BooleanBinding fileOutputActiveProperty();
 
   /**
-   Observable/settable property of the log level
-
-   @return observable/settable log level
+   @return Observable/settable property of the log level
    */
   StringProperty logLevelProperty();
 
