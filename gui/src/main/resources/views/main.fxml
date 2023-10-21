@@ -15,6 +15,9 @@
   <center>
     <fx:include fx:id="mainTimeline" source="main-timeline.fxml"/>
   </center>
+  <right>
+    <fx:include fx:id="mainPaneRight" source="main-pane-right.fxml"/>
+  </right>
   <bottom>
     <fx:include fx:id="mainPaneBottom" source="main-pane-bottom.fxml"/>
   </bottom>
