@@ -19,6 +19,7 @@ public class MainController implements ReadyAfterBootController {
   final MainMenuController mainMenuController;
   final MainPaneBottomController mainPaneBottomController;
   final MainPaneTopController mainPaneTopController;
+  final MainPaneRightController mainPaneRightController;
   final MainTimelineController mainTimelineController;
   final ThemeService themeService;
   final UIStateService uiStateService;
@@ -31,6 +32,7 @@ public class MainController implements ReadyAfterBootController {
     MainMenuController mainMenuController,
     MainPaneBottomController mainPaneBottomController,
     MainPaneTopController mainPaneTopController,
+    MainPaneRightController mainPaneRightController,
     MainTimelineController mainTimelineController,
     ThemeService themeService,
     UIStateService uiStateService
@@ -39,6 +41,7 @@ public class MainController implements ReadyAfterBootController {
     this.mainMenuController = mainMenuController;
     this.mainPaneBottomController = mainPaneBottomController;
     this.mainPaneTopController = mainPaneTopController;
+    this.mainPaneRightController = mainPaneRightController;
     this.mainTimelineController = mainTimelineController;
     this.themeService = themeService;
     this.uiStateService = uiStateService;
@@ -63,8 +66,9 @@ public class MainController implements ReadyAfterBootController {
     themeService.isDarkThemeProperty().addListener((observable, oldValue, newValue) -> themeService.setup(mainWindowScene));
 
     mainMenuController.onStageReady();
-    mainPaneBottomController.onStageReady();
     mainPaneTopController.onStageReady();
+    mainPaneRightController.onStageReady();
+    mainPaneBottomController.onStageReady();
     mainTimelineController.onStageReady();
     uiStateService.onStageReady();
   }

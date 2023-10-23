@@ -121,6 +121,7 @@ public class WorkFactoryImpl implements WorkFactory {
     WorkConfiguration workConfig,
     HubConfiguration hubConfig,
     Callable<HubContent> hubContentProvider,
+    Runnable sourceMaterialReadyCallback,
     Consumer<Double> progressUpdateCallback,
     Runnable onDone
   ) {
@@ -146,9 +147,22 @@ public class WorkFactoryImpl implements WorkFactory {
       jsonExpiresInSeconds,
       workConfig.getOutputFrameRate(),
       workConfig.getOutputChannels(),
-      workConfig.getCraftAheadSeconds()
+      workConfig.getCraftAheadSeconds(),
+      sourceMaterialReadyCallback
     );
-    dubWork = dub(hubConfig, workConfig);
+    dubWork = new DubWorkImpl(
+      craftWork,
+      dubAudioCache,
+      mixerFactory,
+      notification,
+      workConfig.getContentStoragePathPrefix(),
+      hubConfig.getAudioBaseUrl(),
+      mixerSeconds,
+      dubCycleMillis,
+      workConfig.getOutputFrameRate(),
+      workConfig.getOutputChannels(),
+      workConfig.getDubAheadSeconds()
+    );
     shipWork = new ShipWorkImpl(
       dubWork,
       notification,
@@ -190,22 +204,6 @@ public class WorkFactoryImpl implements WorkFactory {
 
     onDone.run();
     return true;
-  }
-
-  @Override
-  public DubWork dub(HubConfiguration hubConfig, WorkConfiguration workConfig) {
-    return new DubWorkImpl(
-      craftWork,
-      dubAudioCache,
-      mixerFactory,
-      notification,
-      workConfig.getContentStoragePathPrefix(),
-      hubConfig.getAudioBaseUrl(),
-      mixerSeconds,
-      dubCycleMillis,
-      workConfig.getOutputFrameRate(),
-      workConfig.getOutputChannels(),
-      workConfig.getDubAheadSeconds());
   }
 
   @Override

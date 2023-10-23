@@ -18,18 +18,9 @@ public interface WorkFactory {
     WorkConfiguration workConfig,
     HubConfiguration hubConfig,
     Callable<HubContent> hubContentProvider,
-    Consumer<Double> progressUpdateCallback,
+    Runnable sourceMaterialReadyCallback, Consumer<Double> progressUpdateCallback,
     Runnable onDone
   );
-
-  /**
-   Get a dub work instance
-
-   @param hubConfig  hub config
-   @param workConfig work config
-   @return dub work instance
-   */
-  DubWork dub(HubConfiguration hubConfig, WorkConfiguration workConfig);
 
   /**
    Stop work

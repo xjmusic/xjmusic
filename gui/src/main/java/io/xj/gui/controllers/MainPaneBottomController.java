@@ -5,6 +5,7 @@ package io.xj.gui.controllers;
 import ch.qos.logback.classic.Level;
 import io.xj.gui.WorkstationLogAppender;
 import io.xj.gui.services.LabService;
+import io.xj.gui.services.UIStateService;
 import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -29,10 +30,10 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
   final LabService labService;
   final LogQueue logQueue;
   final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
-  static final int LOG_LIST_VIEW_HEIGHT = 368;
   static final int LOG_LIST_ROW_HEIGHT = 20;
   static final int MAX_ENTRIES = 10_000;
   final MainMenuController mainMenuController;
+  final UIStateService uiStateService;
 
   @Nullable
   Timeline refresh;
@@ -44,11 +45,13 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
   public MainPaneBottomController(
     @Value("${gui.logs.refresh.seconds}") Integer refreshRateSeconds,
     LabService labService,
-    MainMenuController mainMenuController
+    MainMenuController mainMenuController,
+    UIStateService uiStateService
   ) {
     this.refreshRateSeconds = refreshRateSeconds;
     this.labService = labService;
     this.mainMenuController = mainMenuController;
+    this.uiStateService = uiStateService;
     logQueue = new LogQueue();
 
     // bind to the log appender
@@ -67,7 +70,7 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
             logItems.remove(0, logItems.size() - MAX_ENTRIES);
           }
 
-          if (mainMenuController.logsTailingProperty().get()) {
+          if (uiStateService.logsTailingProperty().get()) {
             logListView.scrollTo(logItems.size());
           }
         }
@@ -96,10 +99,8 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
     logListView.setItems(logItems);
     logListView.setFixedCellSize(LOG_LIST_ROW_HEIGHT);
 
-    logListView.visibleProperty().bind(mainMenuController.logsVisibleProperty());
-    logListView.minHeightProperty().bind(mainMenuController.logsVisibleProperty().map((v) -> v ? LOG_LIST_VIEW_HEIGHT : 0));
-    logListView.prefHeightProperty().bind(mainMenuController.logsVisibleProperty().map((v) -> v ? LOG_LIST_VIEW_HEIGHT : 0));
-    logListView.maxHeightProperty().bind(mainMenuController.logsVisibleProperty().map((v) -> v ? LOG_LIST_VIEW_HEIGHT : 0));
+    logListView.visibleProperty().bind(uiStateService.logsVisibleProperty());
+    logListView.managedProperty().bind(uiStateService.logsVisibleProperty());
   }
 
   @Override

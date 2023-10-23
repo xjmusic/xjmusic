@@ -119,7 +119,7 @@ public class WorkstationServiceApplication {
       .setToken(ingestToken);
 
     Callable<HubContent> hubContentProvider = new HubContentProvider(hubClient, hubConfig, hubAccess, inputMode, workConfig.getInputTemplateKey());
-    workFactory.start(workConfig, hubConfig, hubContentProvider, this::updateProgress, this::shutdown);
+    workFactory.start(workConfig, hubConfig, hubContentProvider, sourceMaterialReadyCallback, this::updateProgress, this::shutdown);
   }
 
   private void updateProgress(Double aDouble) {

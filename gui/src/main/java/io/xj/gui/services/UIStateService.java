@@ -4,6 +4,7 @@ import io.xj.gui.controllers.ReadyAfterBootController;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringBinding;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
 
 /**
@@ -14,19 +15,30 @@ import javafx.beans.property.StringProperty;
  The GUI should use this service to determine some common states, e.g. "Should the fabrication settings appear disabled?"
  */
 public interface UIStateService extends ReadyAfterBootController {
+
+  /**
+   @return Observable property of whether the logs should be tailing
+   */
+  BooleanProperty logsTailingProperty();
+
+  /**
+   @return Observable property of whether the logs are visible
+   */
+  BooleanProperty logsVisibleProperty();
+
   /**
    Observable property of whether the fabrication action should appear disabled
 
    @return observable true when the fabrication action should appear disabled
    */
-  BooleanBinding fabricationActionDisabledProperty();
+  BooleanBinding isFabricationActionDisabledProperty();
 
   /**
    Observable property of whether the fabrication settings should appear disabled
 
    @return observable true when the settings should appear disabled
    */
-  BooleanBinding fabricationSettingsDisabledProperty();
+  BooleanBinding isFabricationSettingsDisabledProperty();
 
   /**
    Observable property of the fabrication status text
@@ -47,7 +59,7 @@ public interface UIStateService extends ReadyAfterBootController {
 
    @return observable true if the progress bar should be visible
    */
-  BooleanBinding fabricationProgressBarVisibleProperty();
+  BooleanBinding isProgressBarVisibleProperty();
 
   /**
    Observable property of whether fabrication is active in file output mode
@@ -62,4 +74,14 @@ public interface UIStateService extends ReadyAfterBootController {
    @return observable/settable log level
    */
   StringProperty logLevelProperty();
+
+  /**
+   @return Observable property of whether the fabrication input mode should appear disabled
+   */
+  BooleanBinding isInputModeDisabledProperty();
+
+  /**
+   @return Observable property of whether the fabrication output file mode should appear disabled
+   */
+  BooleanBinding isOutputFileModeDisabledProperty();
 }

@@ -152,7 +152,8 @@ public class CraftWorkImpl implements CraftWork {
     int jsonExpiresInSeconds,
     double outputFrameRate,
     int outputChannels,
-    int craftAheadSeconds
+    int craftAheadSeconds,
+    Runnable sourceMaterialReadyCallback // TODO this should just be a fabrication state change
   ) {
     this.craftFactory = craftFactory;
     this.entityFactory = entityFactory;

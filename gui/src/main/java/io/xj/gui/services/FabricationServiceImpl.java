@@ -181,7 +181,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
           getWorkConfig(),
           labService.hubConfigProperty().get(),
           getHubContentProvider(),
-          (Double ratio) -> updateProgress(ratio, 1.0),
+          sourceMaterialReadyCallback, (Double ratio) -> updateProgress(ratio, 1.0),
           () -> updateProgress(1.0, 1.0));
       }
     };

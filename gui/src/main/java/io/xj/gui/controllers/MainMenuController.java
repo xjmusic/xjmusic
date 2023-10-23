@@ -3,8 +3,6 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.services.*;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -23,8 +21,6 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   final static String WARN = "WARN";
   final static String ERROR = "ERROR";
 
-  final BooleanProperty logsVisible = new SimpleBooleanProperty(false);
-  final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
   final PreloaderService preloaderService;
@@ -105,19 +101,19 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     checkboxFabricationFollow.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
     checkboxFabricationFollow.setAccelerator(computeFabricationFollowButtonAccelerator());
 
-    checkboxTailLogs.disableProperty().bind(logsVisible.not());
+    checkboxTailLogs.disableProperty().bind(uiStateService.logsVisibleProperty().not());
 
-    itemFabricationMainAction.disableProperty().bind(guiService.fabricationActionDisabledProperty());
+    itemFabricationMainAction.disableProperty().bind(guiService.isFabricationActionDisabledProperty());
     itemFabricationMainAction.setAccelerator(computeMainActionButtonAccelerator());
     itemFabricationMainAction.textProperty().bind(fabricationService.mainActionButtonTextProperty().map(this::addLeadingUnderscore));
 
-    itemOpenFabricationSettings.disableProperty().bind(guiService.fabricationSettingsDisabledProperty());
+    itemOpenFabricationSettings.disableProperty().bind(guiService.isFabricationSettingsDisabledProperty());
 
     itemPreload.disableProperty().bind(fabricationService.isStatusActive());
     itemPreload.textProperty().bind(preloaderService.actionTextProperty().map(this::addLeadingUnderscore));
 
-    logsTailing.bindBidirectional(checkboxTailLogs.selectedProperty());
-    logsVisible.bindBidirectional(checkboxShowLogs.selectedProperty());
+    checkboxTailLogs.selectedProperty().bindBidirectional(uiStateService.logsTailingProperty());
+    checkboxShowLogs.selectedProperty().bindBidirectional(uiStateService.logsVisibleProperty());
 
     themeService.isDarkThemeProperty().bindBidirectional(checkboxDarkTheme.selectedProperty());
 
@@ -178,14 +174,6 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     } else {
       preloaderService.resetAndStart();
     }
-  }
-
-  public BooleanProperty logsTailingProperty() {
-    return logsTailing;
-  }
-
-  public BooleanProperty logsVisibleProperty() {
-    return logsVisible;
   }
 
   @FXML

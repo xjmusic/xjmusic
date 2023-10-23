@@ -64,13 +64,13 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
   @Override
   public void onStageReady() {
-    buttonAction.disableProperty().bind(uiStateService.fabricationActionDisabledProperty());
+    buttonAction.disableProperty().bind(uiStateService.isFabricationActionDisabledProperty());
     buttonAction.textProperty().bind(fabricationService.mainActionButtonTextProperty());
 
     buttonPreload.disableProperty().bind(fabricationService.isStatusActive());
     buttonPreload.textProperty().bind(preloaderService.actionTextProperty());
 
-    buttonShowFabricationSettings.disableProperty().bind(uiStateService.fabricationSettingsDisabledProperty());
+    buttonShowFabricationSettings.disableProperty().bind(uiStateService.isFabricationSettingsDisabledProperty());
 
     buttonToggleFollowPlayback.disableProperty().bind(preloaderService.runningProperty());
     buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
@@ -84,7 +84,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     labelLabStatus.textProperty().bind(labService.statusProperty().map(Enum::toString));
 
     progressBarFabrication.progressProperty().bind(uiStateService.fabricationProgressProperty());
-    progressBarFabrication.visibleProperty().bind(uiStateService.fabricationProgressBarVisibleProperty());
+    progressBarFabrication.visibleProperty().bind(uiStateService.isProgressBarVisibleProperty());
   }
 
   @Override
