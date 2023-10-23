@@ -5,5 +5,5 @@
 <?import javafx.scene.layout.VBox?>
 <VBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.xj.gui.controllers.MainPaneRightController">
-  <VBox fx:id="mainPaneRight" prefWidth="300.0" styleClass="main-pane-right"/>
+  <VBox fx:id="macroSelectionContainer" prefWidth="220.0"/>
 </VBox>
