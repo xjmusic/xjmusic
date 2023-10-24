@@ -85,7 +85,6 @@ class FabricationServiceImplTest {
       defaultOutputFrameRate,
       defaultOutputMode,
       defaultOutputSeconds,
-      workFactory,
       hubClient,
       labService
     );

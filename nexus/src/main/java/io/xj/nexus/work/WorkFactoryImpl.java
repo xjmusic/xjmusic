@@ -116,12 +116,13 @@ public class WorkFactoryImpl implements WorkFactory {
     this.tempFilePathPrefix = tempFilePathPrefix;
   }
 
+
+  // TODO fuck this whole stupid implementation, it sucks-- Get all this threading bullshit out of here and use JavaFX for the main service and work loop
   @Override
   public boolean start(
     WorkConfiguration workConfig,
     HubConfiguration hubConfig,
     Callable<HubContent> hubContentProvider,
-    Runnable sourceMaterialReadyCallback,
     Consumer<Double> progressUpdateCallback,
     Runnable onDone
   ) {
@@ -147,8 +148,7 @@ public class WorkFactoryImpl implements WorkFactory {
       jsonExpiresInSeconds,
       workConfig.getOutputFrameRate(),
       workConfig.getOutputChannels(),
-      workConfig.getCraftAheadSeconds(),
-      sourceMaterialReadyCallback
+      workConfig.getCraftAheadSeconds()
     );
     dubWork = new DubWorkImpl(
       craftWork,

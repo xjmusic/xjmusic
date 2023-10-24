@@ -20,21 +20,18 @@ import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.nexus.work.WorkConfiguration;
-import io.xj.nexus.work.WorkFactory;
 import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.*;
@@ -42,8 +39,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
 
-@org.springframework.stereotype.Service
-public class FabricationServiceImpl extends Service<Boolean> implements FabricationService {
+@Service
+public class FabricationServiceImpl implements FabricationService { // TODO just use a Timeline from the main task.
   static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
   private static final String defaultPathPrefix = System.getProperty("user.home") + File.separator + "Documents" + File.separator + "XJ music" + File.separator;
   private final Preferences prefs = Preferences.userNodeForPackage(FabricationServiceImpl.class);
@@ -63,7 +60,6 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   private final double defaultOutputFrameRate;
   private final String defaultOutputMode;
   private final Integer defaultOutputSeconds;
-  final WorkFactory workFactory;
   final HubClient hubClient;
   final LabService labService;
   final Map<Integer, Integer> segmentBarBeats = new ConcurrentHashMap<>();
@@ -111,7 +107,6 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     @Value("${output.frame.rate}") double defaultOutputFrameRate,
     @Value("${output.mode}") String defaultOutputMode,
     @Value("${output.seconds}") Integer defaultOutputSeconds,
-    WorkFactory workFactory,
     HubClient hubClient,
     LabService labService
   ) {
@@ -126,19 +121,21 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     this.defaultOutputFrameRate = defaultOutputFrameRate;
     this.defaultOutputMode = defaultOutputMode;
     this.defaultOutputSeconds = defaultOutputSeconds;
-    this.workFactory = workFactory;
     this.hubClient = hubClient;
     this.labService = labService;
 
     attachPreferenceListeners();
     setAllFromPrefsOrDefaults();
 
+/*
+TODO handle these state changes
     setOnCancelled((WorkerStateEvent ignored) -> status.set(FabricationStatus.Cancelled));
     setOnFailed((WorkerStateEvent ignored) -> status.set(FabricationStatus.Failed));
     setOnReady((WorkerStateEvent ignored) -> status.set(FabricationStatus.Standby));
     setOnRunning((WorkerStateEvent ignored) -> status.set(FabricationStatus.Active));
     setOnScheduled((WorkerStateEvent ignored) -> status.set(FabricationStatus.Starting));
     setOnSucceeded((WorkerStateEvent ignored) -> status.set(FabricationStatus.Done));
+*/
   }
 
   private void attachPreferenceListeners() {
@@ -174,17 +171,16 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   }
 
   @Override
-  protected Task<Boolean> createTask() {
-    return new Task<>() {
-      protected Boolean call() {
-        return workFactory.start(
-          getWorkConfig(),
-          labService.hubConfigProperty().get(),
-          getHubContentProvider(),
-          sourceMaterialReadyCallback, (Double ratio) -> updateProgress(ratio, 1.0),
-          () -> updateProgress(1.0, 1.0));
-      }
-    };
+  public void start() {
+    /**
+     Implement this fucking shit some other way
+     return start(
+     getWorkConfig(),
+     labService.hubConfigProperty().get(),
+     getHubContentProvider(),
+     (Double ratio) -> updateProgress(ratio, 1.0),
+     () -> updateProgress(1.0, 1.0));
+     */
   }
 
   @Override
@@ -289,14 +285,9 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   }
 
   @Override
-  public WorkFactory getWorkFactory() {
-    return workFactory;
-  }
-
-  @Override
   public Collection<SegmentMeme> getSegmentMemes(Segment segment) {
     try {
-      return workFactory.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMeme.class);
+      return getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMeme.class);
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
       LOG.error("Failed to get segment memes", e);
       return List.of();
@@ -306,7 +297,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   @Override
   public Collection<SegmentChord> getSegmentChords(Segment segment) {
     try {
-      return workFactory.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentChord.class);
+      return getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentChord.class);
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
       LOG.error("Failed to get segment chords", e);
       return List.of();
@@ -316,7 +307,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   @Override
   public Collection<SegmentChoice> getSegmentChoices(Segment segment) {
     try {
-      return workFactory.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentChoice.class);
+      return getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentChoice.class);
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
       LOG.error("Failed to get segment choices", e);
       return List.of();
@@ -325,44 +316,43 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
 
   @Override
   public void reset() {
-    super.reset();
-    workFactory.reset();
+    // todo reset whatever you replace this with
   }
 
   @Override
   public Optional<Program> getProgram(UUID programId) {
-    return workFactory.getSourceMaterial().getProgram(programId);
+    return getSourceMaterial().getProgram(programId);
   }
 
   @Override
   public Optional<ProgramVoice> getProgramVoice(UUID programVoiceId) {
-    return workFactory.getSourceMaterial().getProgramVoice(programVoiceId);
+    return getSourceMaterial().getProgramVoice(programVoiceId);
   }
 
   @Override
   public Optional<ProgramSequence> getProgramSequence(UUID programSequenceId) {
-    return workFactory.getSourceMaterial().getProgramSequence(programSequenceId);
+    return getSourceMaterial().getProgramSequence(programSequenceId);
   }
 
   @Override
   public Optional<ProgramSequenceBinding> getProgramSequenceBinding(UUID programSequenceBindingId) {
-    return workFactory.getSourceMaterial().getProgramSequenceBinding(programSequenceBindingId);
+    return getSourceMaterial().getProgramSequenceBinding(programSequenceBindingId);
   }
 
   @Override
   public Optional<Instrument> getInstrument(UUID instrumentId) {
-    return workFactory.getSourceMaterial().getInstrument(instrumentId);
+    return getSourceMaterial().getInstrument(instrumentId);
   }
 
   @Override
   public Optional<InstrumentAudio> getInstrumentAudio(UUID instrumentAudioId) {
-    return workFactory.getSourceMaterial().getInstrumentAudio(instrumentAudioId);
+    return getSourceMaterial().getInstrumentAudio(instrumentAudioId);
   }
 
   @Override
   public Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice choice) {
     try {
-      return workFactory.getSegmentManager().readManySubEntitiesOfType(choice.getSegmentId(), SegmentChoiceArrangement.class)
+      return getSegmentManager().readManySubEntitiesOfType(choice.getSegmentId(), SegmentChoiceArrangement.class)
         .stream().filter(arrangement -> arrangement.getSegmentChoiceId().equals(choice.getId())).toList();
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
       LOG.error("Failed to get segment choice arrangements", e);
@@ -373,7 +363,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   @Override
   public Collection<SegmentChoiceArrangementPick> getPicks(SegmentChoiceArrangement arrangement) {
     try {
-      return workFactory.getSegmentManager().readManySubEntitiesOfType(arrangement.getSegmentId(), SegmentChoiceArrangementPick.class)
+      return getSegmentManager().readManySubEntitiesOfType(arrangement.getSegmentId(), SegmentChoiceArrangementPick.class)
         .stream().filter(pick -> pick.getSegmentChoiceArrangementId().equals(arrangement.getId())).toList();
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
       LOG.error("Failed to get segment choice arrangement picks", e);
@@ -384,7 +374,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   @Override
   public Collection<SegmentMessage> getSegmentMessages(Segment segment) {
     try {
-      return workFactory.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMessage.class);
+      return getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMessage.class);
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
       LOG.error("Failed to get segment messages", e);
       return List.of();
@@ -394,7 +384,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   @Override
   public Collection<SegmentMeta> getSegmentMetas(Segment segment) {
     try {
-      return workFactory.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMeta.class);
+      return getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMeta.class);
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
       LOG.error("Failed to get segment metas", e);
       return List.of();
@@ -451,11 +441,9 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   public List<Segment> getSegments(@Nullable Integer startIndex) {
     try {
       var viewLimit = Integer.parseInt(timelineSegmentViewLimit.getValue());
-      var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, workFactory.getSegmentManager().size() - viewLimit - 1);
-      var to = Math.min(workFactory.getSegmentManager().size() - 1, from + viewLimit);
-      return workFactory
-        .getSegmentManager()
-        .readManyFromToOffset(from, to);
+      var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, getSegmentManager().size() - viewLimit - 1);
+      var to = Math.min(getSegmentManager().size() - 1, from + viewLimit);
+      return getSegmentManager().readManyFromToOffset(from, to);
 
     } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException e) {
       LOG.error("Failed to get segments", e);
@@ -465,7 +453,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
 
   @Override
   public Boolean isEmpty() {
-    return workFactory.getSegmentManager().isEmpty();
+    return getSegmentManager().isEmpty();
   }
 
   @Override
@@ -552,14 +540,14 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
 
   @Override
   public String getChoiceHash(Segment segment) {
-    return workFactory.getSegmentManager().getChoiceHash(segment);
+    return getSegmentManager().getChoiceHash(segment);
   }
 
   @Override
   public Optional<Segment> getSegmentAtShipOutput() {
     return
-      workFactory.getShippedToChainMicros().flatMap(chainMicros ->
-        workFactory.getSegmentManager().readOneAtChainMicros(chainMicros));
+      getShippedToChainMicros().flatMap(chainMicros ->
+        getSegmentManager().readOneAtChainMicros(chainMicros));
   }
 
   private String formatTotalBars(int bars, String fraction) {
@@ -569,13 +557,13 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   private Optional<Integer> getBarBeats(Segment segment) {
     if (!segmentBarBeats.containsKey(segment.getId())) {
       try {
-        var choice = workFactory.getSegmentManager().readChoice(segment.getId(), ProgramType.Main);
+        var choice = getSegmentManager().readChoice(segment.getId(), ProgramType.Main);
         if (choice.isEmpty()) {
           LOG.error("Failed to retrieve main program choice to determine beats for Segment[{}]", segment.getId());
           return Optional.empty();
         }
 
-        var program = workFactory.getSourceMaterial().getProgram(choice.get().getProgramId());
+        var program = getSourceMaterial().getProgram(choice.get().getProgramId());
         if (program.isEmpty()) {
           LOG.error("Failed to retrieve main program to determine beats for Segment[{}]", segment.getId());
           return Optional.empty();
@@ -591,7 +579,6 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     }
     return Optional.of(segmentBarBeats.get(segment.getId()));
   }
-
 
   String computeProgramName(@Nullable Program program, @Nullable ProgramSequence programSequence, @Nullable ProgramSequenceBinding programSequenceBinding) {
     if (Objects.nonNull(program) && Objects.nonNull(programSequence) && Objects.nonNull(programSequenceBinding))

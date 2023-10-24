@@ -64,9 +64,6 @@ public class ComplexLibraryTest {
   @Mock
   Callable<HubContent> hubContentProvider;
 
-  @Mock
-  Runnable sourceMaterialReadyCallback;
-
   @BeforeEach
   public void setUp() throws Exception {
     NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
@@ -120,15 +117,14 @@ public class ComplexLibraryTest {
       audioBaseUrl,
       shipBaseUrl,
       InputMode.PRODUCTION,
-      OutputMode.PLAYBACK,  
+      OutputMode.PLAYBACK,
       "complex_library_test",
       false,
       "/tmp",
       86400,
       48000.0,
       2,
-      999999,
-      sourceMaterialReadyCallback
+      999999
     );
 
     workThread = new AppWorkThread(work);
