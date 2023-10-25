@@ -79,10 +79,7 @@ public class ShipWorkImpl implements ShipWork {
     this.shipAheadSeconds = shipAheadSeconds;
 
     timer = MultiStopwatch.start();
-  }
 
-  @Override
-  public void start() {
     var audioFormat = dubWork.getAudioFormat();
     if (audioFormat.isEmpty()) {
       LOG.debug("Waiting for audio format to be available.");

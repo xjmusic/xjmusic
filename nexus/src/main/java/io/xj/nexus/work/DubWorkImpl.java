@@ -83,10 +83,7 @@ public class DubWorkImpl implements DubWork {
     this.cycleMillis = cycleMillis;
 
     timer = MultiStopwatch.start();
-  }
 
-  @Override
-  public void start() {
     var templateConfig = craftWork.getTemplateConfig();
     var chain = craftWork.getChain();
     if (templateConfig.isEmpty() || chain.isEmpty()) {

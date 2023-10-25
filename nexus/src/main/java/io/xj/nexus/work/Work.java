@@ -2,11 +2,6 @@ package io.xj.nexus.work;
 
 public interface Work {
   /**
-   This initializes the work, ready to run the work cycle
-   */
-  void start();
-
-  /**
    Stop work
    */
   void finish();

@@ -140,14 +140,10 @@ public class CraftWorkImpl implements CraftWork {
     // Telemetry: # Segments Erased
     this.fileStore = fileStore;
 
-    timer = MultiStopwatch.start();
-  }
-
-  @Override
-  public void start() {
     chain = createChainForTemplate(sourceMaterial.getTemplate())
       .orElseThrow(() -> new RuntimeException("Failed to create chain"));
 
+    timer = MultiStopwatch.start();
     running.set(true);
   }
 
