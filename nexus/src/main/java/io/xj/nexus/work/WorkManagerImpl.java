@@ -53,7 +53,7 @@ public class WorkManagerImpl implements WorkManager {
   private final int cycleAudioBytes;
   private final long shipCycleMillis;
   private final String tempFilePathPrefix;
-  private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Initializing);
+  private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
   private final AtomicReference<Float> audioLoadingProgress = new AtomicReference<>(0.0f);
 
   @Nullable
@@ -124,6 +124,8 @@ public class WorkManagerImpl implements WorkManager {
     this.workConfig = workConfig;
     this.hubConfig = hubConfig;
     this.hubAccess = hubAccess;
+
+    state.set(WorkState.Starting);
   }
 
   @Override
@@ -251,12 +253,9 @@ public class WorkManagerImpl implements WorkManager {
           if (Objects.nonNull(craftWork)) {
             craftWork.runCycle();
           }
-          if (isDone()) {
+          if (shipWork.isFinished()) {
             state.set(WorkState.Done);
             LOG.info("Fabrication work done");
-          } else if (isFailed()) {
-            state.set(WorkState.Failed);
-            LOG.error("Fabrication work failed");
           }
         }
 
@@ -321,8 +320,7 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   private boolean isAudioLoaded() {
-    // TODO return true if audio is loaded
-    return false;
+    return audioLoadingProgress.get() >= 1.0f;
   }
 
   private void initialize() {
@@ -385,20 +383,8 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   private boolean isInitialized() {
-    // TODO return true if initialized
-    return false;
+    return Objects.nonNull(craftWork) && Objects.nonNull(dubWork) && Objects.nonNull(shipWork);
   }
-
-  private boolean isDone() {
-    // TODO return true if done
-    return false;
-  }
-
-  private boolean isFailed() {
-    // TODO return true if failed
-    return false;
-  }
-
 
   private class AudioPreloader implements Callable<Integer> {
     private final String contentStoragePathPrefix;
