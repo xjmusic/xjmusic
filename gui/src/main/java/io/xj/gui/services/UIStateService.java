@@ -6,6 +6,7 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableBooleanValue;
 
 /**
  This is an intermediary to compute the state of the UI based on the state of the application.
@@ -31,14 +32,14 @@ public interface UIStateService extends ReadyAfterBootController {
 
    @return observable true when the fabrication action should appear disabled
    */
-  BooleanBinding isFabricationActionDisabledProperty();
+  ObservableBooleanValue isFabricationActionDisabledProperty();
 
   /**
    Observable property of whether the fabrication settings should appear disabled
 
    @return observable true when the settings should appear disabled
    */
-  BooleanBinding isFabricationSettingsDisabledProperty();
+  ObservableBooleanValue isFabricationSettingsDisabledProperty();
 
   /**
    Observable property of the fabrication status text
@@ -46,13 +47,6 @@ public interface UIStateService extends ReadyAfterBootController {
    @return observable fabrication status text
    */
   StringBinding fabricationStatusTextProperty();
-
-  /**
-   Observable property of the fabrication progress
-
-   @return observable fabrication progress
-   */
-  DoubleBinding fabricationProgressProperty();
 
   /**
    Observable property of whether the progress bar should be visible

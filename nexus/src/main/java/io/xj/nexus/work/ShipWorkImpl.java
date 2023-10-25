@@ -49,7 +49,6 @@ public class ShipWorkImpl implements ShipWork {
   long targetChainMicros = 0;
   long nextCycleAtSystemMillis = System.currentTimeMillis();
   private final String shipKey;
-
   private float progress;
 
   public ShipWorkImpl(
@@ -134,7 +133,7 @@ public class ShipWorkImpl implements ShipWork {
 
   @Override
   public void runCycle() {
-    if (!dubWork.isRunning()) {
+    if (dubWork.isFinished()) {
       LOG.warn("DubWork not running, will stop");
       finish();
     }
@@ -166,8 +165,8 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   @Override
-  public boolean isRunning() {
-    return running.get();
+  public boolean isFinished() {
+    return !running.get();
   }
 
   @Override
@@ -333,6 +332,20 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   /**
+   Log and of segment message of error that job failed while (message)@param shipKey  (optional) ship key
+
+   @param msgWhile phrased like "Doing work"
+   @param e        exception (optional)
+   */
+  void didFailWhile(String msgWhile, Exception e) {
+    var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
+
+    LOG.error("Failed while {} because {}", msgWhile, msgCause, e);
+
+    finish();
+  }
+
+  /**
    If a finite number of seconds was specified, check if we have shipped that many seconds
    If we are shipped past the target seconds, exit
    */
@@ -355,20 +368,6 @@ public class ShipWorkImpl implements ShipWork {
     LOG.info("Overall performance at {} real-time", String.format("%.1fx", realtimeRatio));
     finish();
     return true;
-  }
-
-  /**
-   Log and of segment message of error that job failed while (message)@param shipKey  (optional) ship key
-
-   @param msgWhile phrased like "Doing work"
-   @param e        exception (optional)
-   */
-  void didFailWhile(String msgWhile, Exception e) {
-    var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
-
-    LOG.error("Failed while {} because {}", msgWhile, msgCause, e);
-
-    finish();
   }
 
   /**

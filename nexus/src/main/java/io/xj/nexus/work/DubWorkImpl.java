@@ -120,7 +120,7 @@ public class DubWorkImpl implements DubWork {
     }
     nextCycleAtSystemMillis = System.currentTimeMillis() + cycleMillis;
 
-    if (!craftWork.isRunning()) {
+    if (craftWork.isFinished()) {
       LOG.warn("must stop since CraftWork is no longer running");
       finish();
     }
@@ -150,8 +150,8 @@ public class DubWorkImpl implements DubWork {
   }
 
   @Override
-  public boolean isRunning() {
-    return running.get();
+  public boolean isFinished() {
+    return !running.get();
   }
 
   @Override
@@ -217,7 +217,7 @@ public class DubWorkImpl implements DubWork {
   }
 
   void doPlanFrame() {
-    if (!craftWork.isRunning()) {
+    if (craftWork.isFinished()) {
       LOG.warn("Craft is not running; will abort.");
       finish();
       return;

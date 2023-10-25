@@ -23,7 +23,6 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
-  final PreloaderService preloaderService;
   final ThemeService themeService;
   final GuideService guideService;
   final UIStateService uiStateService;
@@ -77,7 +76,6 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     ModalAboutController modalAboutController,
     ModalFabricationSettingsController modalFabricationSettingsController,
     ModalLabAuthenticationController modalLabAuthenticationController,
-    PreloaderService preloaderService,
     ThemeService themeService,
     UIStateService guiService,
     UIStateService uiStateService
@@ -90,14 +88,13 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     this.modalAboutController = modalAboutController;
     this.modalFabricationSettingsController = modalFabricationSettingsController;
     this.modalLabAuthenticationController = modalLabAuthenticationController;
-    this.preloaderService = preloaderService;
     this.themeService = themeService;
     this.uiStateService = uiStateService;
   }
 
   @Override
   public void onStageReady() {
-    checkboxFabricationFollow.disableProperty().bind(preloaderService.runningProperty());
+    // TODO in the new paradigm -- checkboxFabricationFollow.disableProperty().bind(preloaderService.runningProperty());
     checkboxFabricationFollow.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
     checkboxFabricationFollow.setAccelerator(computeFabricationFollowButtonAccelerator());
 
@@ -110,7 +107,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     itemOpenFabricationSettings.disableProperty().bind(guiService.isFabricationSettingsDisabledProperty());
 
     itemPreload.disableProperty().bind(fabricationService.isStatusActive());
-    itemPreload.textProperty().bind(preloaderService.actionTextProperty().map(this::addLeadingUnderscore));
+    // TODO in the new paradigm -- itemPreload.textProperty().bind(preloaderService.actionTextProperty().map(this::addLeadingUnderscore));
 
     checkboxTailLogs.selectedProperty().bindBidirectional(uiStateService.logsTailingProperty());
     checkboxShowLogs.selectedProperty().bindBidirectional(uiStateService.logsVisibleProperty());
@@ -169,11 +166,14 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
   @FXML
   protected void handlePreload() {
+/*
+  TODO in the new paradigm
     if (preloaderService.isRunning()) {
       preloaderService.cancel();
     } else {
       preloaderService.resetAndStart();
     }
+*/
   }
 
   @FXML

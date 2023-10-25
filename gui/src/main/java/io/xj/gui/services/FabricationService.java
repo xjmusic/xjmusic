@@ -110,6 +110,8 @@ public interface FabricationService {
 
   ObservableBooleanValue isStatusActive();
 
+  ObservableBooleanValue isStatusStarting();
+
   ObservableBooleanValue isStatusStandby();
 
   ObservableBooleanValue isOutputModeFile();

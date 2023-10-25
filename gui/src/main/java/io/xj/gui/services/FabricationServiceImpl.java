@@ -96,6 +96,10 @@ public class FabricationServiceImpl implements FabricationService { // TODO just
     Bindings.createBooleanBinding(() -> status.get() == FabricationStatus.Active, status);
   private final ObservableBooleanValue statusStandby =
     Bindings.createBooleanBinding(() -> status.get() == FabricationStatus.Standby, status);
+
+  private final ObservableBooleanValue statusStarting =
+    Bindings.createBooleanBinding(() -> status.get() == FabricationStatus.Starting, status);
+
   private final ObservableValue<String> mainActionButtonText = Bindings.createStringBinding(() ->
     switch (status.get()) {
       case Starting, Standby -> BUTTON_TEXT_START;
@@ -471,6 +475,11 @@ TODO handle these state changes
   @Override
   public ObservableBooleanValue isStatusActive() {
     return statusActive;
+  }
+
+  @Override
+  public ObservableBooleanValue isStatusStarting() {
+    return statusStarting;
   }
 
   @Override

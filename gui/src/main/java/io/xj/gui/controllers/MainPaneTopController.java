@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class MainPaneTopController extends VBox implements ReadyAfterBootController {
   final FabricationService fabricationService;
-  final PreloaderService preloaderService;
   final UIStateService uiStateService;
   final ModalFabricationSettingsController modalFabricationSettingsController;
   final ModalLabAuthenticationController modalLabAuthenticationController;
@@ -51,14 +50,12 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     LabService labService,
     ModalFabricationSettingsController modalFabricationSettingsController,
     ModalLabAuthenticationController modalLabAuthenticationController,
-    PreloaderService preloaderService,
     UIStateService uiStateService
   ) {
     this.fabricationService = fabricationService;
     this.labService = labService;
     this.modalFabricationSettingsController = modalFabricationSettingsController;
     this.modalLabAuthenticationController = modalLabAuthenticationController;
-    this.preloaderService = preloaderService;
     this.uiStateService = uiStateService;
   }
 
@@ -68,11 +65,11 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     buttonAction.textProperty().bind(fabricationService.mainActionButtonTextProperty());
 
     buttonPreload.disableProperty().bind(fabricationService.isStatusActive());
-    buttonPreload.textProperty().bind(preloaderService.actionTextProperty());
+    // TODO in the new paradigm -- buttonPreload.textProperty().bind(preloaderService.actionTextProperty());
 
     buttonShowFabricationSettings.disableProperty().bind(uiStateService.isFabricationSettingsDisabledProperty());
 
-    buttonToggleFollowPlayback.disableProperty().bind(preloaderService.runningProperty());
+    // TODO in the new paradigm -- buttonToggleFollowPlayback.disableProperty().bind(preloaderService.runningProperty());
     buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
 
     fabricationService.statusProperty().addListener(this::handleFabricationStatusChange);
@@ -83,7 +80,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
     labelLabStatus.textProperty().bind(labService.statusProperty().map(Enum::toString));
 
-    progressBarFabrication.progressProperty().bind(uiStateService.fabricationProgressProperty());
+    progressBarFabrication.progressProperty().bind(fabricationService.progressProperty());
     progressBarFabrication.visibleProperty().bind(uiStateService.isProgressBarVisibleProperty());
   }
 
@@ -99,11 +96,14 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
   @FXML
   public void handlePreloadButtonPress(ActionEvent ignored) {
+/*
+  TODO in the new paradigm --
     if (preloaderService.isRunning()) {
       preloaderService.cancel();
     } else {
       preloaderService.resetAndStart();
     }
+*/
   }
 
   @FXML

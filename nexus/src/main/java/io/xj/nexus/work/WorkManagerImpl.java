@@ -3,11 +3,11 @@ package io.xj.nexus.work;
 
 import io.xj.hub.HubConfiguration;
 import io.xj.hub.HubContent;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.util.StringUtils;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.lib.http.HttpClientProvider;
-import io.xj.lib.json.JsonProvider;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.mixer.MixerFactory;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.dub.DubAudioCache;
@@ -24,10 +24,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.Callable;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 @Service
 public class WorkManagerImpl implements WorkManager {
@@ -38,23 +42,19 @@ public class WorkManagerImpl implements WorkManager {
   private final EntityFactory entityFactory;
   private final FabricatorFactory fabricatorFactory;
   private final FileStoreProvider fileStore;
-  private final HttpClientProvider httpClientProvider;
   private final HubClient hubClient;
-  private final JsonProvider jsonProvider;
-  private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final MixerFactory mixerFactory;
   private final NexusEntityStore store;
   private final SegmentManager segmentManager;
   private final long dubCycleMillis;
-  private final int jsonExpiresInSeconds;
   private final int mixerSeconds;
   private final int outputFileNumberDigits;
-  private final boolean isJsonOutputEnabled;
   private final int pcmChunkSizeBytes;
   private final int cycleAudioBytes;
   private final long shipCycleMillis;
   private final String tempFilePathPrefix;
   private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Initializing);
+  private final AtomicReference<Float> audioLoadingProgress = new AtomicReference<>(0.0f);
 
   @Nullable
   private CraftWork craftWork;
@@ -72,10 +72,9 @@ public class WorkManagerImpl implements WorkManager {
   private HubConfiguration hubConfig;
 
   @Nullable
-  private HubContent hubContent;
-
-  @Nullable
   private HubClientAccess hubAccess;
+
+  private final AtomicReference<HubContent> hubContent = new AtomicReference<>();
 
   public WorkManagerImpl(
     BroadcastFactory broadcastFactory,
@@ -84,18 +83,13 @@ public class WorkManagerImpl implements WorkManager {
     EntityFactory entityFactory,
     FabricatorFactory fabricatorFactory,
     FileStoreProvider fileStore,
-    HttpClientProvider httpClientProvider,
     HubClient hubClient,
-    JsonProvider jsonProvider,
-    JsonapiPayloadFactory jsonapiPayloadFactory,
     MixerFactory mixerFactory,
     NexusEntityStore store,
     SegmentManager segmentManager,
     @Value("${dub.cycle.millis}") long dubCycleMillis,
-    @Value("${json.expires.in.seconds}") int jsonExpiresInSeconds,
     @Value("${mixer.timeline.seconds}") int mixerSeconds,
     @Value("${output.file.number.digits}") int outputFileNumberDigits,
-    @Value("${output.json.enabled}") boolean isJsonOutputEnabled,
     @Value("${output.pcm.chunk.size.bytes}") int pcmChunkSizeBytes,
     @Value("${ship.cycle.audio.bytes}") int cycleAudioBytes,
     @Value("${ship.cycle.millis}") long shipCycleMillis,
@@ -107,18 +101,13 @@ public class WorkManagerImpl implements WorkManager {
     this.entityFactory = entityFactory;
     this.fabricatorFactory = fabricatorFactory;
     this.fileStore = fileStore;
-    this.httpClientProvider = httpClientProvider;
     this.hubClient = hubClient;
-    this.jsonProvider = jsonProvider;
-    this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.mixerFactory = mixerFactory;
     this.store = store;
     this.segmentManager = segmentManager;
     this.dubCycleMillis = dubCycleMillis;
-    this.jsonExpiresInSeconds = jsonExpiresInSeconds;
     this.mixerSeconds = mixerSeconds;
     this.outputFileNumberDigits = outputFileNumberDigits;
-    this.isJsonOutputEnabled = isJsonOutputEnabled;
     this.pcmChunkSizeBytes = pcmChunkSizeBytes;
     this.cycleAudioBytes = cycleAudioBytes;
     this.shipCycleMillis = shipCycleMillis;
@@ -171,6 +160,16 @@ public class WorkManagerImpl implements WorkManager {
     craftWork = null;
     dubWork = null;
     shipWork = null;
+  }
+
+  @Override
+  public Float getAudioLoadingProgress() {
+    return switch (state.get()) {
+      case LoadingAudio -> audioLoadingProgress.get();
+      case LoadedAudio -> 1.0f;
+      case Active, Done, Failed -> Objects.nonNull(shipWork) ? shipWork.getProgress() : 0.0f;
+      default -> 0.0f;
+    };
   }
 
   @Override
@@ -267,25 +266,58 @@ public class WorkManagerImpl implements WorkManager {
       }
 
     } catch (Exception e) {
-      didFailWhile(e.getMessage());
+      didFailWhile("running work cycle", e);
     }
   }
 
-  private void startLoadingContent() throws Exception {
+  private void startLoadingContent() {
     assert Objects.nonNull(workConfig);
-    Callable<HubContent> hubContentProvider = new HubContentProvider(hubClient, hubConfig, hubAccess, workConfig.getInputMode(), workConfig.getInputTemplateKey());
-    hubContent = hubContentProvider.call();
-    // TODO start loading content
-    // TODO utilize hubAccess to load content
+    hubContent.set(null);
+
+    Callable<HubContent> hubContentProvider = new HubContentProvider(
+      hubClient,
+      hubConfig,
+      hubAccess,
+      workConfig.getInputMode(),
+      workConfig.getInputTemplateKey()
+    );
+
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    Future<HubContent> futureHubContent = executor.submit(hubContentProvider);
+
+    try {
+      hubContent.set(futureHubContent.get());  // This will block until the callable has finished execution
+    } catch (InterruptedException | ExecutionException e) {
+      didFailWhile("getting hub content", e);
+    } finally {
+      executor.shutdown();  // Always shut down the executor to free up resources
+    }
   }
 
   private boolean isContentLoaded() {
-    // TODO return true if content is loaded
-    return false;
+    return Objects.nonNull(hubContent.get());
   }
 
   private void startLoadingAudio() {
-    // TODO start loading audio
+    assert Objects.nonNull(workConfig);
+    assert Objects.nonNull(hubConfig);
+    AudioPreloader audioPreloader = new AudioPreloader(
+      workConfig.getContentStoragePathPrefix(),
+      hubConfig.getAudioBaseUrl(),
+      (int) workConfig.getOutputFrameRate(),
+      workConfig.getOutputChannels()
+    );
+
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    Future<Integer> futureAudioLoaded = executor.submit(audioPreloader);
+
+    try {
+      futureAudioLoaded.get();  // This will block until the callable has finished execution
+    } catch (InterruptedException | ExecutionException e) {
+      didFailWhile("getting hub content", e);
+    } finally {
+      executor.shutdown();  // Always shut down the executor to free up resources
+    }
   }
 
   private boolean isAudioLoaded() {
@@ -300,18 +332,16 @@ public class WorkManagerImpl implements WorkManager {
       craftFactory,
       entityFactory,
       fabricatorFactory,
-      fileStore,
-      store,
-      segmentManager,
-      hubConfig.getAudioBaseUrl(),
-      hubConfig.getShipBaseUrl(),
+      segmentManager, fileStore,
+      store, hubContent.get(),
       workConfig.getInputMode(),
       workConfig.getOutputMode(),
+      hubConfig.getAudioBaseUrl(),
+      hubConfig.getShipBaseUrl(),
       tempFilePathPrefix,
       workConfig.getOutputFrameRate(),
       workConfig.getOutputChannels(),
-      workConfig.getCraftAheadSeconds(),
-      hubContent
+      workConfig.getCraftAheadSeconds()
     );
     dubWork = new DubWorkImpl(
       craftWork,
@@ -341,9 +371,17 @@ public class WorkManagerImpl implements WorkManager {
     );
   }
 
-  private void didFailWhile(String message) {
-    LOG.error("Did fail: {}", message);
-    state.set(WorkState.Failed);
+  /**
+   Log and of segment message of error that job failed while (message)@param shipKey  (optional) ship key
+
+   @param msgWhile phrased like "Doing work"
+   @param e        exception (optional)
+   */
+  void didFailWhile(String msgWhile, Exception e) {
+    LOG.error("Failed while {} because {}",
+      msgWhile, StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage(),
+      e);
+    finish();
   }
 
   private boolean isInitialized() {
@@ -362,4 +400,60 @@ public class WorkManagerImpl implements WorkManager {
   }
 
 
+  private class AudioPreloader implements Callable<Integer> {
+    private final String contentStoragePathPrefix;
+    private final String audioBaseUrl;
+    private final int outputFrameRate;
+    private final int outputChannels;
+
+    private AudioPreloader(
+      String contentStoragePathPrefix,
+      String audioBaseUrl,
+      int outputFrameRate,
+      int outputChannels
+    ) {
+      this.contentStoragePathPrefix = contentStoragePathPrefix;
+      this.audioBaseUrl = audioBaseUrl;
+      this.outputFrameRate = outputFrameRate;
+      this.outputChannels = outputChannels;
+    }
+
+    @Override
+    public Integer call() {
+      int loaded = 0;
+
+      try {
+        var instruments = new ArrayList<>(hubContent.get().getInstruments());
+        var audios = new ArrayList<>(hubContent.get().getInstrumentAudios());
+        for (Instrument instrument : instruments) {
+          for (InstrumentAudio audio : audios.stream()
+            .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
+            .sorted(Comparator.comparing(InstrumentAudio::getName))
+            .toList()) {
+            if (isFinished()) {
+              return loaded;
+            }
+            if (!StringUtils.isNullOrEmpty(audio.getWaveformKey()))
+              dubAudioCache.load(
+                contentStoragePathPrefix,
+                audioBaseUrl,
+                audio.getInstrumentId(),
+                audio.getWaveformKey(),
+                outputFrameRate,
+                FIXED_SAMPLE_BITS,
+                outputChannels);
+
+            audioLoadingProgress.set((float) loaded++ / audios.size());
+          }
+        }
+        audioLoadingProgress.set(1.0f);
+        LOG.info("Preloaded {} audios from {} instruments", loaded, instruments.size());
+        return loaded;
+
+      } catch (Exception e) {
+        didFailWhile("preloading audio", e);
+        return loaded;
+      }
+    }
+  }
 }

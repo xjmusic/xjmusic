@@ -5,12 +5,12 @@ import io.xj.nexus.OutputMode;
 import jakarta.annotation.Nullable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableBooleanValue;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -18,25 +18,19 @@ import java.util.Objects;
 @Service
 public class UIStateServiceImpl implements UIStateService {
   private final FabricationService fabricationService;
-  private final PreloaderService preloaderService;
   private final LabService labService;
   private final StringProperty logLevel = new SimpleStringProperty(WorkstationLogAppender.LEVEL.get().toString());
-
   private final BooleanProperty logsVisible = new SimpleBooleanProperty(false);
-
   private final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
 
   @Nullable
-  private BooleanBinding isFabricationActionDisabled;
+  private ObservableBooleanValue isFabricationActionDisabled;
 
   @Nullable
-  private BooleanBinding isFabricationSettingsDisabled;
+  private ObservableBooleanValue isFabricationSettingsDisabled;
 
   @Nullable
   private StringBinding fabricationStatusText;
-
-  @Nullable
-  private DoubleBinding fabricationProgress;
 
   @Nullable
   private BooleanBinding isProgressBarVisible;
@@ -52,11 +46,9 @@ public class UIStateServiceImpl implements UIStateService {
 
   public UIStateServiceImpl(
     FabricationService fabricationService,
-    PreloaderService preloaderService,
     LabService labService
   ) {
     this.fabricationService = fabricationService;
-    this.preloaderService = preloaderService;
     this.labService = labService;
   }
 
@@ -81,25 +73,17 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public BooleanBinding isFabricationActionDisabledProperty() {
+  public ObservableBooleanValue isFabricationActionDisabledProperty() {
     if (Objects.isNull(isFabricationActionDisabled))
-      isFabricationActionDisabled = Bindings.createBooleanBinding(
-        () -> preloaderService.runningProperty().get() || fabricationService.statusProperty().get() == FabricationStatus.Starting,
-
-        fabricationService.statusProperty(),
-        preloaderService.runningProperty());
+      isFabricationActionDisabled = fabricationService.isStatusStarting();
 
     return isFabricationActionDisabled;
   }
 
   @Override
-  public BooleanBinding isFabricationSettingsDisabledProperty() {
+  public ObservableBooleanValue isFabricationSettingsDisabledProperty() {
     if (Objects.isNull(isFabricationSettingsDisabled))
-      isFabricationSettingsDisabled = Bindings.createBooleanBinding(
-        () -> fabricationService.isStatusActive().get() || preloaderService.runningProperty().get(),
-
-        fabricationService.isStatusActive(),
-        preloaderService.runningProperty());
+      isFabricationSettingsDisabled = fabricationService.isStatusActive();
 
     return isFabricationSettingsDisabled;
   }
@@ -109,48 +93,25 @@ public class UIStateServiceImpl implements UIStateService {
     if (Objects.isNull(fabricationStatusText))
       fabricationStatusText = Bindings.createStringBinding(
         () -> {
-          if (preloaderService.runningProperty().get())
-            return "Preloading";
+          if (fabricationService.isStatusActive().get())
+            return "Preparing";
           else
             return String.format("Fabrication %s", fabricationService.statusProperty().get().toString());
         },
 
-        fabricationService.statusProperty(),
-        preloaderService.runningProperty());
+        fabricationService.statusProperty());
 
     return fabricationStatusText;
-  }
-
-  @Override
-  public DoubleBinding fabricationProgressProperty() {
-    if (Objects.isNull(fabricationProgress))
-      fabricationProgress = Bindings.createDoubleBinding(
-        () -> {
-          if (preloaderService.runningProperty().get()) {
-            return preloaderService.progressProperty().get(); // TODO build the preloader service into the fabrication service
-          } else if (isFileOutputActiveProperty().get()) {
-            return fabricationService.progressProperty().get();
-          } else {
-            return 0.0;
-          }
-        },
-
-        isFileOutputActiveProperty(),
-        fabricationService.progressProperty(),
-        preloaderService.runningProperty(),
-        preloaderService.progressProperty());
-
-    return fabricationProgress;
   }
 
   @Override
   public BooleanBinding isProgressBarVisibleProperty() {
     if (Objects.isNull(isProgressBarVisible))
       isProgressBarVisible = Bindings.createBooleanBinding(
-        () -> isFileOutputActiveProperty().get() || preloaderService.runningProperty().get(),
+        () -> isFileOutputActiveProperty().get() || fabricationService.isStatusStarting().get(),
 
         isFileOutputActiveProperty(),
-        preloaderService.runningProperty());
+        fabricationService.isStatusStarting());
 
     return isProgressBarVisible;
   }

@@ -1,9 +1,5 @@
 package io.xj.nexus.work;
 
-import io.xj.nexus.ship.ShipException;
-
-import java.io.IOException;
-
 public interface Work {
   /**
    This initializes the work, ready to run the work cycle
@@ -21,9 +17,9 @@ public interface Work {
   void runCycle();
 
   /**
-   Check whether the craft work is running
+   Check whether the craft work is finished
 
-   @return true if running
+   @return true if finished (not running)
    */
-  boolean isRunning();
+  boolean isFinished();
 }

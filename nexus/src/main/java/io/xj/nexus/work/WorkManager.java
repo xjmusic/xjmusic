@@ -39,6 +39,11 @@ public interface WorkManager {
   void reset();
 
   /**
+   @return the current work step progress
+   */
+  Float getAudioLoadingProgress();
+
+  /**
    Get the Hub content source material
 
    @return source material

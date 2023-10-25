@@ -97,43 +97,41 @@ public class CraftWorkImpl implements CraftWork {
   final double outputFrameRate;
   final int outputChannels;
   final String audioBaseUrl;
-  final HubContent content;
   final String shipBaseUrl;
 
   @Nullable
-  UUID chainId;
+  private TemplateConfig templateConfig;
+
   @Nullable
-  TemplateConfig templateConfig;
+  private Chain chain;
 
   public CraftWorkImpl(
     CraftFactory craftFactory,
     EntityFactory entityFactory,
     FabricatorFactory fabricatorFactory,
-    FileStoreProvider fileStore,
-    NexusEntityStore store,
-    SegmentManager segmentManager,
-    String audioBaseUrl,
-    String shipBaseUrl,
+    SegmentManager segmentManager, FileStoreProvider fileStore,
+    NexusEntityStore store, HubContent sourceMaterial,
     InputMode inputMode,
     OutputMode outputMode,
+    String audioBaseUrl,
+    String shipBaseUrl,
     String tempFilePathPrefix,
     double outputFrameRate,
-    int outputChannels,
     int craftAheadSeconds,
-    HubContent content
+    int outputChannels
   ) {
+    this.audioBaseUrl = audioBaseUrl;
+    this.craftAheadSeconds = craftAheadSeconds;
     this.craftFactory = craftFactory;
     this.entityFactory = entityFactory;
     this.fabricatorFactory = fabricatorFactory;
-    this.segmentManager = segmentManager;
-    this.store = store;
-    this.content = content;
-    this.audioBaseUrl = audioBaseUrl;
-    this.shipBaseUrl = shipBaseUrl;
-    this.tempFilePathPrefix = tempFilePathPrefix;
-    this.craftAheadSeconds = craftAheadSeconds;
-    this.outputFrameRate = outputFrameRate;
     this.outputChannels = outputChannels;
+    this.outputFrameRate = outputFrameRate;
+    this.segmentManager = segmentManager;
+    this.shipBaseUrl = shipBaseUrl;
+    this.sourceMaterial = sourceMaterial;
+    this.store = store;
+    this.tempFilePathPrefix = tempFilePathPrefix;
 
     labPollNextSystemMillis = System.currentTimeMillis();
     this.inputMode = inputMode;
@@ -145,9 +143,8 @@ public class CraftWorkImpl implements CraftWork {
 
   @Override
   public void start() {
-    chainId = createChainForTemplate(sourceMaterial.getTemplate())
-      .orElseThrow(() -> new RuntimeException("Failed to create chain"))
-      .getId();
+    chain = createChainForTemplate(sourceMaterial.getTemplate())
+      .orElseThrow(() -> new RuntimeException("Failed to create chain"));
 
     timer = MultiStopwatch.start();
     running.set(true);
@@ -167,19 +164,14 @@ public class CraftWorkImpl implements CraftWork {
 
   @Override
   public Optional<Chain> getChain() {
-    try {
-      return store.getChain();
-    } catch (NexusException e) {
-      return Optional.empty();
-    }
+    return Optional.ofNullable(chain);
   }
 
   @Override
   public Optional<TemplateConfig> getTemplateConfig() {
     if (Objects.isNull(templateConfig)) {
       try {
-        var chain = getChain();
-        templateConfig = chain.isPresent() ? (new TemplateConfig(chain.get().getTemplateConfig())) : null;
+        templateConfig = Objects.nonNull(chain) ? (new TemplateConfig(chain.getTemplateConfig())) : null;
       } catch (ValueException e) {
         LOG.debug("Unable to retrieve template config because {}", e.getMessage());
       }
@@ -306,8 +298,8 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   @Override
-  public boolean isRunning() {
-    return running.get();
+  public boolean isFinished() {
+    return !running.get();
   }
 
   @Override
@@ -371,17 +363,7 @@ public class CraftWorkImpl implements CraftWork {
     nextCycleMillis = System.currentTimeMillis() + cycleMillis;
 
     try {
-
-      try {
-        var chain = getChain();
-        if (chain.isEmpty()) {
-          return;
-        }
-        fabricateChain(chain.get());
-
-      } catch (FabricationFatalException e) {
-        didFailWhile("fabricating", e, false);
-      }
+      fabricateChain(chain);
       if (medicEnabled) doMedic();
       if (janitorEnabled) doJanitor();
 
@@ -507,17 +489,26 @@ public class CraftWorkImpl implements CraftWork {
       seg.setState(SegmentState.PLANNED);
       return Optional.of(seg);
     }
-    var lastSegmentInChain = maybeLastSegmentInChain.get();
+    var seg = getSegment(target, maybeLastSegmentInChain.get());
+    return Optional.of(seg);
+  }
 
-    // Build the template of the segment that follows the last known one
+  /**
+   Build the template of the segment that follows the last known one
+
+   @param target                  chain
+   @param maybeLastSegmentInChain last segment in chain
+   @return segment
+   */
+  private static Segment getSegment(Chain target, Segment maybeLastSegmentInChain) {
     var seg = new Segment();
-    seg.setId(lastSegmentInChain.getId() + 1);
+    seg.setId(maybeLastSegmentInChain.getId() + 1);
     seg.setChainId(target.getId());
-    seg.setBeginAtChainMicros(lastSegmentInChain.getBeginAtChainMicros() + Objects.requireNonNull(lastSegmentInChain.getDurationMicros()));
-    seg.setDelta(lastSegmentInChain.getDelta());
+    seg.setBeginAtChainMicros(maybeLastSegmentInChain.getBeginAtChainMicros() + Objects.requireNonNull(maybeLastSegmentInChain.getDurationMicros()));
+    seg.setDelta(maybeLastSegmentInChain.getDelta());
     seg.setType(SegmentType.PENDING);
     seg.setState(SegmentState.PLANNED);
-    return Optional.of(seg);
+    return seg;
   }
 
   /**

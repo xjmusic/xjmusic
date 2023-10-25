@@ -26,12 +26,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
-import java.util.concurrent.Callable;
 
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAccount;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildLibrary;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ComplexLibraryTest {
@@ -42,8 +40,8 @@ public class ComplexLibraryTest {
   private static final int GENERATED_FIXTURE_COMPLEXITY = 3;
   private final static String audioBaseUrl = "https://audio.xj.io/";
   private final static String shipBaseUrl = "https://ship.xj.io/";
+  private static final long WORK_CYCLE_MILLIS = 120;
   long startTime = System.currentTimeMillis();
-  AppWorkThread workThread;
   SegmentManager segmentManager;
   CraftWork work;
 
@@ -52,9 +50,6 @@ public class ComplexLibraryTest {
 
   @Mock
   FileStoreProvider fileStoreProvider;
-
-  @Mock
-  Callable<HubContent> hubContentProvider;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -85,44 +80,35 @@ public class ComplexLibraryTest {
     NexusEntityStore test = new NexusEntityStoreImpl(entityFactory);
     test.deleteAll();
 
-    // Mock request via HubClient returns fake generated library of hub content
-    when(hubContentProvider.call()).thenReturn(content);
-
     // Dependencies
     CraftFactory craftFactory = new CraftFactoryImpl();
-
-    // Access
 
     // work
     work = new CraftWorkImpl(
       craftFactory,
       entityFactory,
       fabricatorFactory,
-      fileStoreProvider,
-      store,
-      segmentManager,
-      audioBaseUrl,
-      shipBaseUrl,
+      segmentManager, fileStoreProvider,
+      store, content,
       InputMode.PRODUCTION,
       OutputMode.PLAYBACK,
+      audioBaseUrl,
+      shipBaseUrl,
       "/tmp",
       48000.0,
-      2,
-      86400,
-      content
+      1000,
+      86400
     );
-
-    workThread = new AppWorkThread(work);
   }
 
   @Test
   public void fabricatesManySegments() throws Exception {
-    // Start app, wait for work, stop app
-    workThread.start();
-    while (!hasSegmentsDubbedPastMinimumOffset() && isWithinTimeLimit())
+    work.start();
+    while (!hasSegmentsDubbedPastMinimumOffset() && isWithinTimeLimit()) {
+      work.runCycle();
       //noinspection BusyWait
-      Thread.sleep(MILLIS_PER_SECOND);
-    work.finish();
+      Thread.sleep(WORK_CYCLE_MILLIS);
+    }
 
     // assertions
     assertTrue(hasSegmentsDubbedPastMinimumOffset());

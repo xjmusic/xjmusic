@@ -2,6 +2,7 @@
 
 package io.xj.gui.services;
 
+import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -89,6 +91,7 @@ class FabricationServiceImplTest {
       labService,
       workManager
     );
+    when(workManager.getSegmentManager()).thenReturn(segmentManager);
   }
 
   @Test
@@ -132,8 +135,10 @@ class FabricationServiceImplTest {
       120.0,
       "chain-segment-0.wav");
     var program = buildMainProgramWithBarBeats(barBeats);
+    var sourceMaterial = new HubContent(List.of(program));
     var choice = buildSegmentChoice(segment, program);
     when(segmentManager.readChoice(eq(segment.getId()), eq(ProgramType.Main))).thenReturn(Optional.of(choice));
+    when(workManager.getSourceMaterial()).thenReturn(sourceMaterial);
     return segment;
   }
 }
