@@ -42,9 +42,6 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   protected MenuItem itemOpenFabricationSettings;
 
   @FXML
-  protected MenuItem itemPreload;
-
-  @FXML
   protected CheckMenuItem checkboxDarkTheme;
 
   @FXML
@@ -94,7 +91,6 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
   @Override
   public void onStageReady() {
-    // TODO in the new paradigm -- checkboxFabricationFollow.disableProperty().bind(preloaderService.runningProperty());
     checkboxFabricationFollow.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
     checkboxFabricationFollow.setAccelerator(computeFabricationFollowButtonAccelerator());
 
@@ -105,9 +101,6 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     itemFabricationMainAction.textProperty().bind(fabricationService.mainActionButtonTextProperty().map(this::addLeadingUnderscore));
 
     itemOpenFabricationSettings.disableProperty().bind(guiService.isFabricationSettingsDisabledProperty());
-
-    itemPreload.disableProperty().bind(fabricationService.isStatusActive());
-    // TODO in the new paradigm -- itemPreload.textProperty().bind(preloaderService.actionTextProperty().map(this::addLeadingUnderscore));
 
     checkboxTailLogs.selectedProperty().bindBidirectional(uiStateService.logsTailingProperty());
     checkboxShowLogs.selectedProperty().bindBidirectional(uiStateService.logsVisibleProperty());
@@ -162,18 +155,6 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   @FXML
   protected void handleOpenFabricationSettings() {
     modalFabricationSettingsController.launchModal();
-  }
-
-  @FXML
-  protected void handlePreload() {
-/*
-  TODO in the new paradigm
-    if (preloaderService.isRunning()) {
-      preloaderService.cancel();
-    } else {
-      preloaderService.resetAndStart();
-    }
-*/
   }
 
   @FXML

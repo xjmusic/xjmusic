@@ -42,9 +42,6 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   @FXML
   protected Button buttonShowFabricationSettings;
 
-  @FXML
-  protected Button buttonPreload;
-
   public MainPaneTopController(
     FabricationService fabricationService,
     LabService labService,
@@ -64,12 +61,8 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     buttonAction.disableProperty().bind(uiStateService.isFabricationActionDisabledProperty());
     buttonAction.textProperty().bind(fabricationService.mainActionButtonTextProperty());
 
-    buttonPreload.disableProperty().bind(fabricationService.isStatusActive());
-    // TODO in the new paradigm -- buttonPreload.textProperty().bind(preloaderService.actionTextProperty());
-
     buttonShowFabricationSettings.disableProperty().bind(uiStateService.isFabricationSettingsDisabledProperty());
 
-    // TODO in the new paradigm -- buttonToggleFollowPlayback.disableProperty().bind(preloaderService.runningProperty());
     buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
 
     fabricationService.statusProperty().addListener(this::handleFabricationStatusChange);
@@ -92,18 +85,6 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   @FXML
   protected void handleButtonActionPress() {
     fabricationService.handleMainAction();
-  }
-
-  @FXML
-  public void handlePreloadButtonPress(ActionEvent ignored) {
-/*
-  TODO in the new paradigm --
-    if (preloaderService.isRunning()) {
-      preloaderService.cancel();
-    } else {
-      preloaderService.resetAndStart();
-    }
-*/
   }
 
   @FXML

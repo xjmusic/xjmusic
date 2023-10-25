@@ -6,11 +6,9 @@ import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 
-// TODO this abstraction may not be necessary, now that we are running all the work directly from the fabrication service
 public class WorkConfiguration {
   private InputMode inputMode;
   private String inputTemplateKey;
-  private String inputTemplateId;
   private OutputFileMode outputFileMode;
   private OutputMode outputMode;
   private String outputPathPrefix;
@@ -29,15 +27,6 @@ public class WorkConfiguration {
 
   public WorkConfiguration setInputMode(InputMode inputMode) {
     this.inputMode = inputMode;
-    return this;
-  }
-
-  public String getInputTemplateId() {
-    return inputTemplateId;
-  }
-
-  public WorkConfiguration setInputTemplateId(String inputTemplateId) {
-    this.inputTemplateId = inputTemplateId;
     return this;
   }
 

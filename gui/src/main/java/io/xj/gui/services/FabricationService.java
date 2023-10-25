@@ -26,8 +26,6 @@ import java.util.concurrent.Callable;
 
 public interface FabricationService {
 
-  Callable<HubContent> getHubContentProvider();
-
   ObjectProperty<FabricationStatus> statusProperty();
 
   StringProperty inputTemplateKeyProperty();

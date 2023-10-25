@@ -2,7 +2,6 @@
 
 package io.xj.gui.services;
 
-import io.xj.hub.HubContent;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.enums.UserRoleType;
@@ -14,7 +13,6 @@ import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.nexus.hub_client.HubContentProvider;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
@@ -41,12 +39,11 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
 
 @Service
-public class FabricationServiceImpl implements FabricationService { // TODO just use a Timeline from the main task.
+public class FabricationServiceImpl implements FabricationService {
   private static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
   private static final String defaultPathPrefix = System.getProperty("user.home") + File.separator + "Documents" + File.separator + "XJ music" + File.separator;
   private final Preferences prefs = Preferences.userNodeForPackage(FabricationServiceImpl.class);
@@ -145,16 +142,6 @@ public class FabricationServiceImpl implements FabricationService { // TODO just
 
     attachPreferenceListeners();
     setAllFromPrefsOrDefaults();
-
-/*
-TODO handle these state changes
-    setOnCancelled((WorkerStateEvent ignored) -> status.set(FabricationStatus.Cancelled));
-    setOnFailed((WorkerStateEvent ignored) -> status.set(FabricationStatus.Failed));
-    setOnReady((WorkerStateEvent ignored) -> status.set(FabricationStatus.Standby));
-    setOnRunning((WorkerStateEvent ignored) -> status.set(FabricationStatus.Active));
-    setOnScheduled((WorkerStateEvent ignored) -> status.set(FabricationStatus.Starting));
-    setOnSucceeded((WorkerStateEvent ignored) -> status.set(FabricationStatus.Done));
-*/
   }
 
   @Override
@@ -177,22 +164,6 @@ TODO handle these state changes
   public void reset() {
     workManager.reset();
     status.set(FabricationStatus.Standby);
-  }
-
-  @Override
-  public Callable<HubContent> getHubContentProvider() {
-    // TODO deprecate this method
-
-    var hubAccess = new HubClientAccess()
-      .setRoleTypes(List.of(UserRoleType.Internal))
-      .setToken(labService.accessTokenProperty().get());
-
-    return new HubContentProvider(
-      hubClient,
-      labService.hubConfigProperty().get(),
-      hubAccess,
-      inputMode.get(),
-      inputTemplateKey.get());
   }
 
   @Override
@@ -596,10 +567,16 @@ TODO handle these state changes
         }
       }
       case Active -> {
-        workManager.runCycle();
-        switch (workManager.getWorkState()) {
-          case Done -> status.set(FabricationStatus.Done);
-          case Failed -> status.set(FabricationStatus.Failed);
+        try {
+          workManager.runCycle();
+          switch (workManager.getWorkState()) {
+            case Done -> status.set(FabricationStatus.Done);
+            case Failed -> status.set(FabricationStatus.Failed);
+          }
+
+        } catch (Exception e) {
+          LOG.error("Failed to run work cycle!", e);
+          status.set(FabricationStatus.Failed);
         }
       }
       case Cancelled, Done, Failed -> stopTimeline();
