@@ -36,7 +36,7 @@ public class DubWorkImpl implements DubWork {
 
   @Nullable
   Mixer mixer;
-  MultiStopwatch timer;
+  final MultiStopwatch timer;
   final AtomicBoolean running = new AtomicBoolean(true);
   final CraftWork craftWork;
   final DubAudioCache dubAudioCache;
@@ -81,6 +81,8 @@ public class DubWorkImpl implements DubWork {
     this.mixerLengthMicros = mixerLengthSeconds * MICROS_PER_SECOND;
     this.mixerFactory = mixerFactory;
     this.cycleMillis = cycleMillis;
+
+    timer = MultiStopwatch.start();
   }
 
   @Override
@@ -101,7 +103,6 @@ public class DubWorkImpl implements DubWork {
     chunkFromChainMicros = 0;
     chunkToChainMicros = 0;
 
-    timer = MultiStopwatch.start();
     running.set(true);
   }
 
@@ -115,9 +116,10 @@ public class DubWorkImpl implements DubWork {
 
   @Override
   public void runCycle() {
-    if (System.currentTimeMillis() < nextCycleAtSystemMillis) {
-      return;
-    }
+    if (!running.get()) return;
+
+    if (System.currentTimeMillis() < nextCycleAtSystemMillis) return;
+
     nextCycleAtSystemMillis = System.currentTimeMillis() + cycleMillis;
 
     if (craftWork.isFinished()) {

@@ -83,6 +83,9 @@ public interface WorkManager {
    */
   void runCycle();
 
+  /**
+   @return the current work state
+   */
   WorkState getWorkState();
 
   /**

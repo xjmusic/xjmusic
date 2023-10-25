@@ -28,13 +28,6 @@ public interface UIStateService extends ReadyAfterBootController {
   BooleanProperty logsVisibleProperty();
 
   /**
-   Observable property of whether the fabrication action should appear disabled
-
-   @return observable true when the fabrication action should appear disabled
-   */
-  ObservableBooleanValue isFabricationActionDisabledProperty();
-
-  /**
    Observable property of whether the fabrication settings should appear disabled
 
    @return observable true when the settings should appear disabled

@@ -5,6 +5,7 @@ package io.xj.gui.services;
 public enum FabricationStatus {
   Standby,
   Starting,
+  Loading,
   Active,
   Cancelled,
   Done,

@@ -32,7 +32,7 @@ public class ShipWorkImpl implements ShipWork {
   OutputFile outputFile = null;
   @Nullable
   StreamPlayer playback;
-  MultiStopwatch timer;
+  final MultiStopwatch timer;
   final AtomicBoolean running = new AtomicBoolean(true);
   final BroadcastFactory broadcastFactory;
   final DubWork dubWork;
@@ -77,6 +77,8 @@ public class ShipWorkImpl implements ShipWork {
     this.outputSeconds = outputSeconds;
     this.pcmChunkSizeBytes = pcmChunkSizeBytes;
     this.shipAheadSeconds = shipAheadSeconds;
+
+    timer = MultiStopwatch.start();
   }
 
   @Override
@@ -109,7 +111,6 @@ public class ShipWorkImpl implements ShipWork {
       LOG.info("Will start in {} output mode and run indefinitely", outputMode);
     }
 
-    timer = MultiStopwatch.start();
     running.set(true);
   }
 
@@ -133,14 +134,14 @@ public class ShipWorkImpl implements ShipWork {
 
   @Override
   public void runCycle() {
+    if (!running.get()) return;
+
     if (dubWork.isFinished()) {
       LOG.warn("DubWork not running, will stop");
       finish();
     }
 
-    if (System.currentTimeMillis() < nextCycleAtSystemMillis) {
-      return;
-    }
+    if (System.currentTimeMillis() < nextCycleAtSystemMillis) return;
 
     nextCycleAtSystemMillis = System.currentTimeMillis() + cycleMillis;
 

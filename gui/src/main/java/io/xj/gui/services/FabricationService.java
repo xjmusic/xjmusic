@@ -2,13 +2,11 @@
 
 package io.xj.gui.services;
 
-import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.*;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.model.*;
-import io.xj.nexus.work.WorkConfiguration;
 import jakarta.annotation.Nullable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -22,7 +20,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 
 public interface FabricationService {
 
@@ -108,7 +105,7 @@ public interface FabricationService {
 
   ObservableBooleanValue isStatusActive();
 
-  ObservableBooleanValue isStatusStarting();
+  ObservableBooleanValue isStatusLoading();
 
   ObservableBooleanValue isStatusStandby();
 

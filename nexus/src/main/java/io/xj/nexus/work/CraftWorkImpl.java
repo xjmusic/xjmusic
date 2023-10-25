@@ -84,7 +84,7 @@ public class CraftWorkImpl implements CraftWork {
 
   final OutputMode outputMode;
   long labPollNextSystemMillis;
-  MultiStopwatch timer;
+  final MultiStopwatch timer;
   final AtomicBoolean running = new AtomicBoolean(true);
   boolean chainFabricatedAhead = true;
   long nextCycleMillis = System.currentTimeMillis();
@@ -139,6 +139,8 @@ public class CraftWorkImpl implements CraftWork {
 
     // Telemetry: # Segments Erased
     this.fileStore = fileStore;
+
+    timer = MultiStopwatch.start();
   }
 
   @Override
@@ -146,7 +148,6 @@ public class CraftWorkImpl implements CraftWork {
     chain = createChainForTemplate(sourceMaterial.getTemplate())
       .orElseThrow(() -> new RuntimeException("Failed to create chain"));
 
-    timer = MultiStopwatch.start();
     running.set(true);
   }
 
@@ -357,9 +358,10 @@ public class CraftWorkImpl implements CraftWork {
    This is the internal cycle that's run indefinitely
    */
   public void runCycle() {
-    if (System.currentTimeMillis() < nextCycleMillis) {
-      return;
-    }
+    if (!running.get()) return;
+
+    if (System.currentTimeMillis() < nextCycleMillis) return;
+
     nextCycleMillis = System.currentTimeMillis() + cycleMillis;
 
     try {

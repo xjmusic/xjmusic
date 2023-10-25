@@ -96,7 +96,6 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
     checkboxTailLogs.disableProperty().bind(uiStateService.logsVisibleProperty().not());
 
-    itemFabricationMainAction.disableProperty().bind(guiService.isFabricationActionDisabledProperty());
     itemFabricationMainAction.setAccelerator(computeMainActionButtonAccelerator());
     itemFabricationMainAction.textProperty().bind(fabricationService.mainActionButtonTextProperty().map(this::addLeadingUnderscore));
 

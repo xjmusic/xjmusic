@@ -24,9 +24,6 @@ public class UIStateServiceImpl implements UIStateService {
   private final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
 
   @Nullable
-  private ObservableBooleanValue isFabricationActionDisabled;
-
-  @Nullable
   private ObservableBooleanValue isFabricationSettingsDisabled;
 
   @Nullable
@@ -73,14 +70,6 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public ObservableBooleanValue isFabricationActionDisabledProperty() {
-    if (Objects.isNull(isFabricationActionDisabled))
-      isFabricationActionDisabled = fabricationService.isStatusStarting();
-
-    return isFabricationActionDisabled;
-  }
-
-  @Override
   public ObservableBooleanValue isFabricationSettingsDisabledProperty() {
     if (Objects.isNull(isFabricationSettingsDisabled))
       isFabricationSettingsDisabled = fabricationService.isStatusActive();
@@ -108,10 +97,10 @@ public class UIStateServiceImpl implements UIStateService {
   public BooleanBinding isProgressBarVisibleProperty() {
     if (Objects.isNull(isProgressBarVisible))
       isProgressBarVisible = Bindings.createBooleanBinding(
-        () -> isFileOutputActiveProperty().get() || fabricationService.isStatusStarting().get(),
+        () -> isFileOutputActiveProperty().get() || fabricationService.isStatusLoading().get(),
 
         isFileOutputActiveProperty(),
-        fabricationService.isStatusStarting());
+        fabricationService.isStatusLoading());
 
     return isProgressBarVisible;
   }

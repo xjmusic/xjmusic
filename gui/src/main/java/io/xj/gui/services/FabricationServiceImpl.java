@@ -19,6 +19,7 @@ import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkManager;
+import io.xj.nexus.work.WorkState;
 import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -62,6 +63,7 @@ public class FabricationServiceImpl implements FabricationService {
   private final int defaultOutputChannels;
   private final String defaultOutputFileMode;
   private final double defaultOutputFrameRate;
+  private final String defaultInputMode;
   private final String defaultOutputMode;
   private final Integer defaultOutputSeconds;
   final WorkManager workManager;
@@ -93,14 +95,13 @@ public class FabricationServiceImpl implements FabricationService {
     Bindings.createBooleanBinding(() -> status.get() == FabricationStatus.Active, status);
   private final ObservableBooleanValue statusStandby =
     Bindings.createBooleanBinding(() -> status.get() == FabricationStatus.Standby, status);
-
-  private final ObservableBooleanValue statusStarting =
-    Bindings.createBooleanBinding(() -> status.get() == FabricationStatus.Starting, status);
+  private final ObservableBooleanValue statusLoading =
+    Bindings.createBooleanBinding(() -> status.get() == FabricationStatus.Loading, status);
 
   private final ObservableValue<String> mainActionButtonText = Bindings.createStringBinding(() ->
     switch (status.get()) {
       case Starting, Standby -> BUTTON_TEXT_START;
-      case Active -> BUTTON_TEXT_STOP;
+      case Loading, Active -> BUTTON_TEXT_STOP;
       case Cancelled, Failed, Done -> BUTTON_TEXT_RESET;
     }, status);
 
@@ -117,6 +118,7 @@ public class FabricationServiceImpl implements FabricationService {
     @Value("${output.channels}") int defaultOutputChannels,
     @Value("${output.file.mode}") String defaultOutputFileMode,
     @Value("${output.frame.rate}") double defaultOutputFrameRate,
+    @Value("${input.mode}") String defaultInputMode,
     @Value("${output.mode}") String defaultOutputMode,
     @Value("${output.seconds}") int defaultOutputSeconds,
     @Value("${ship.ahead.seconds}") int defaultShipAheadSeconds,
@@ -127,6 +129,7 @@ public class FabricationServiceImpl implements FabricationService {
     this.cycleMillis = cycleMillis;
     this.defaultCraftAheadSeconds = defaultCraftAheadSeconds;
     this.defaultDubAheadSeconds = defaultDubAheadSeconds;
+    this.defaultInputMode = defaultInputMode;
     this.defaultInputTemplateKey = defaultInputTemplateKey;
     this.defaultOutputChannels = defaultOutputChannels;
     this.defaultOutputFileMode = defaultOutputFileMode;
@@ -449,8 +452,8 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
-  public ObservableBooleanValue isStatusStarting() {
-    return statusStarting;
+  public ObservableBooleanValue isStatusLoading() {
+    return statusLoading;
   }
 
   @Override
@@ -488,7 +491,7 @@ public class FabricationServiceImpl implements FabricationService {
   public void handleMainAction() {
     switch (status.get()) {
       case Standby -> start();
-      case Active -> cancel();
+      case Active, Starting -> cancel();
       case Cancelled, Done, Failed -> reset();
     }
   }
@@ -512,6 +515,7 @@ public class FabricationServiceImpl implements FabricationService {
     inputTemplateKey.set(templateKey);
     outputFileMode.set(OutputFileMode.valueOf(defaultOutputFileMode.toUpperCase(Locale.ROOT)));
     outputMode.set(OutputMode.valueOf(defaultOutputMode.toUpperCase(Locale.ROOT)));
+    inputMode.set(InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT)));
 
     start();
   }
@@ -559,11 +563,19 @@ public class FabricationServiceImpl implements FabricationService {
           workManager.start(config, labService.hubConfigProperty().get(), hubAccess);
 
           // OK
-          status.set(FabricationStatus.Active);
+          status.set(FabricationStatus.Loading);
 
         } catch (Exception e) {
           LOG.error("Failed to start work!", e);
           status.set(FabricationStatus.Failed);
+        }
+      }
+      case Loading -> {
+        progress.set(workManager.getAudioLoadingProgress());
+        // wait for the work to be ready
+        if (workManager.getWorkState() == WorkState.Active) {
+          // OK
+          status.set(FabricationStatus.Active);
         }
       }
       case Active -> {
@@ -606,12 +618,12 @@ public class FabricationServiceImpl implements FabricationService {
     contentStoragePathPrefix.addListener((o, ov, value) -> prefs.put("contentStoragePathPrefix", value));
     craftAheadSeconds.addListener((o, ov, value) -> prefs.put("craftAheadSeconds", value));
     dubAheadSeconds.addListener((o, ov, value) -> prefs.put("dubAheadSeconds", value));
-    inputMode.addListener((o, ov, value) -> prefs.put("inputMode", value.name()));
+    inputMode.addListener((o, ov, value) -> prefs.put("inputMode", Objects.nonNull(value) ? value.name() : ""));
     inputTemplateKey.addListener((o, ov, value) -> prefs.put("inputTemplateKey", value));
     outputChannels.addListener((o, ov, value) -> prefs.put("outputChannels", value));
-    outputFileMode.addListener((o, ov, value) -> prefs.put("outputFileMode", value.name()));
+    outputFileMode.addListener((o, ov, value) -> prefs.put("outputFileMode", Objects.nonNull(value) ? value.name() : ""));
     outputFrameRate.addListener((o, ov, value) -> prefs.put("outputFrameRate", value));
-    outputMode.addListener((o, ov, value) -> prefs.put("outputMode", value.name()));
+    outputMode.addListener((o, ov, value) -> prefs.put("outputMode", Objects.nonNull(value) ? value.name() : ""));
     outputPathPrefix.addListener((o, ov, value) -> prefs.put("outputPathPrefix", value));
     outputSeconds.addListener((o, ov, value) -> prefs.put("outputSeconds", value));
     shipAheadSeconds.addListener((o, ov, value) -> prefs.put("shipAheadSeconds", value));
@@ -622,7 +634,7 @@ public class FabricationServiceImpl implements FabricationService {
     contentStoragePathPrefix.set(prefs.get("contentStoragePathPrefix", defaultContentStoragePathPrefix));
     craftAheadSeconds.set(prefs.get("craftAheadSeconds", Integer.toString(defaultCraftAheadSeconds)));
     dubAheadSeconds.set(prefs.get("dubAheadSeconds", Integer.toString(defaultDubAheadSeconds)));
-    inputMode.set(InputMode.valueOf(prefs.get("inputMode", InputMode.PRODUCTION.name())));
+    inputMode.set(InputMode.valueOf(prefs.get("inputMode", defaultInputMode.toUpperCase(Locale.ROOT))));
     inputTemplateKey.set(prefs.get("inputTemplateKey", defaultInputTemplateKey));
     outputChannels.set(prefs.get("outputChannels", Integer.toString(defaultOutputChannels)));
     outputFileMode.set(OutputFileMode.valueOf(prefs.get("outputFileMode", defaultOutputFileMode.toUpperCase(Locale.ROOT))));

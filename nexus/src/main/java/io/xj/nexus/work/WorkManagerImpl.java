@@ -308,15 +308,7 @@ public class WorkManagerImpl implements WorkManager {
     );
 
     ExecutorService executor = Executors.newSingleThreadExecutor();
-    Future<Integer> futureAudioLoaded = executor.submit(audioPreloader);
-
-    try {
-      futureAudioLoaded.get();  // This will block until the callable has finished execution
-    } catch (InterruptedException | ExecutionException e) {
-      didFailWhile("getting hub content", e);
-    } finally {
-      executor.shutdown();  // Always shut down the executor to free up resources
-    }
+    executor.submit(audioPreloader);
   }
 
   private boolean isAudioLoaded() {
@@ -386,7 +378,7 @@ public class WorkManagerImpl implements WorkManager {
     return Objects.nonNull(craftWork) && Objects.nonNull(dubWork) && Objects.nonNull(shipWork);
   }
 
-  private class AudioPreloader implements Callable<Integer> {
+  private class AudioPreloader implements Runnable {
     private final String contentStoragePathPrefix;
     private final String audioBaseUrl;
     private final int outputFrameRate;
@@ -405,7 +397,7 @@ public class WorkManagerImpl implements WorkManager {
     }
 
     @Override
-    public Integer call() {
+    public void run() {
       int loaded = 0;
 
       try {
@@ -417,7 +409,7 @@ public class WorkManagerImpl implements WorkManager {
             .sorted(Comparator.comparing(InstrumentAudio::getName))
             .toList()) {
             if (isFinished()) {
-              return loaded;
+              return;
             }
             if (!StringUtils.isNullOrEmpty(audio.getWaveformKey()))
               dubAudioCache.load(
@@ -434,11 +426,9 @@ public class WorkManagerImpl implements WorkManager {
         }
         audioLoadingProgress.set(1.0f);
         LOG.info("Preloaded {} audios from {} instruments", loaded, instruments.size());
-        return loaded;
 
       } catch (Exception e) {
         didFailWhile("preloading audio", e);
-        return loaded;
       }
     }
   }
