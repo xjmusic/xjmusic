@@ -20,14 +20,20 @@ import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.nexus.work.WorkConfiguration;
+import io.xj.nexus.work.WorkManager;
 import jakarta.annotation.Nullable;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.HostServices;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
+import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,13 +47,14 @@ import java.util.prefs.Preferences;
 
 @Service
 public class FabricationServiceImpl implements FabricationService { // TODO just use a Timeline from the main task.
-  static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
   private static final String defaultPathPrefix = System.getProperty("user.home") + File.separator + "Documents" + File.separator + "XJ music" + File.separator;
   private final Preferences prefs = Preferences.userNodeForPackage(FabricationServiceImpl.class);
-  final static String BUTTON_TEXT_START = "Start";
-  final static String BUTTON_TEXT_STOP = "Stop";
-  final static String BUTTON_TEXT_RESET = "Reset";
-  final HostServices hostServices;
+  private final static String BUTTON_TEXT_START = "Start";
+  private final static String BUTTON_TEXT_STOP = "Stop";
+  private final static String BUTTON_TEXT_RESET = "Reset";
+  private final Integer cycleMillis;
+  private final HostServices hostServices;
   private final String defaultContentStoragePathPrefix = computeDefaultPathPrefix("content");
   private final String defaultOutputPathPrefix = computeDefaultPathPrefix("output");
   private final int defaultTimelineSegmentViewLimit;
@@ -60,6 +67,7 @@ public class FabricationServiceImpl implements FabricationService { // TODO just
   private final double defaultOutputFrameRate;
   private final String defaultOutputMode;
   private final Integer defaultOutputSeconds;
+  final WorkManager workManager;
   final HubClient hubClient;
   final LabService labService;
   final Map<Integer, Integer> segmentBarBeats = new ConcurrentHashMap<>();
@@ -79,48 +87,55 @@ public class FabricationServiceImpl implements FabricationService { // TODO just
 
   final StringProperty timelineSegmentViewLimit = new SimpleStringProperty();
   final BooleanProperty followPlayback = new SimpleBooleanProperty(true);
+  final DoubleProperty progress = new SimpleDoubleProperty(0.0);
   final ObservableBooleanValue outputModeSync = Bindings.createBooleanBinding(() ->
     outputMode.get().isSync(), outputMode);
-  final ObservableBooleanValue outputModeFile = Bindings.createBooleanBinding(() ->
+  private final ObservableBooleanValue outputModeFile = Bindings.createBooleanBinding(() ->
     outputMode.get() == OutputMode.FILE, outputMode);
-  final ObservableBooleanValue statusActive =
+  private final ObservableBooleanValue statusActive =
     Bindings.createBooleanBinding(() -> status.get() == FabricationStatus.Active, status);
-  final ObservableBooleanValue statusStandby =
+  private final ObservableBooleanValue statusStandby =
     Bindings.createBooleanBinding(() -> status.get() == FabricationStatus.Standby, status);
-  final ObservableValue<String> mainActionButtonText = Bindings.createStringBinding(() ->
+  private final ObservableValue<String> mainActionButtonText = Bindings.createStringBinding(() ->
     switch (status.get()) {
       case Starting, Standby -> BUTTON_TEXT_START;
       case Active -> BUTTON_TEXT_STOP;
       case Cancelled, Failed, Done -> BUTTON_TEXT_RESET;
     }, status);
 
+  @Nullable
+  Timeline timeline;
 
   public FabricationServiceImpl(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
+    @Value("${craft.ahead.seconds}") int defaultCraftAheadSeconds,
+    @Value("${dub.ahead.seconds}") int defaultDubAheadSeconds,
+    @Value("${fabrication.cycle.millis}") int cycleMillis,
     @Value("${gui.timeline.max.segments}") int defaultTimelineSegmentViewLimit,
-    @Value("${craft.ahead.seconds}") Integer defaultCraftAheadSeconds,
-    @Value("${dub.ahead.seconds}") Integer defaultDubAheadSeconds,
-    @Value("${ship.ahead.seconds}") Integer defaultShipAheadSeconds,
     @Value("${input.template.key}") String defaultInputTemplateKey,
     @Value("${output.channels}") int defaultOutputChannels,
     @Value("${output.file.mode}") String defaultOutputFileMode,
     @Value("${output.frame.rate}") double defaultOutputFrameRate,
     @Value("${output.mode}") String defaultOutputMode,
-    @Value("${output.seconds}") Integer defaultOutputSeconds,
+    @Value("${output.seconds}") int defaultOutputSeconds,
+    @Value("${ship.ahead.seconds}") int defaultShipAheadSeconds,
     HubClient hubClient,
-    LabService labService
+    LabService labService,
+    WorkManager workManager
   ) {
-    this.hostServices = hostServices;
-    this.defaultTimelineSegmentViewLimit = defaultTimelineSegmentViewLimit;
+    this.cycleMillis = cycleMillis;
     this.defaultCraftAheadSeconds = defaultCraftAheadSeconds;
     this.defaultDubAheadSeconds = defaultDubAheadSeconds;
-    this.defaultShipAheadSeconds = defaultShipAheadSeconds;
     this.defaultInputTemplateKey = defaultInputTemplateKey;
     this.defaultOutputChannels = defaultOutputChannels;
     this.defaultOutputFileMode = defaultOutputFileMode;
     this.defaultOutputFrameRate = defaultOutputFrameRate;
     this.defaultOutputMode = defaultOutputMode;
     this.defaultOutputSeconds = defaultOutputSeconds;
+    this.defaultShipAheadSeconds = defaultShipAheadSeconds;
+    this.defaultTimelineSegmentViewLimit = defaultTimelineSegmentViewLimit;
+    this.hostServices = hostServices;
+    this.workManager = workManager;
     this.hubClient = hubClient;
     this.labService = labService;
 
@@ -138,49 +153,20 @@ TODO handle these state changes
 */
   }
 
-  private void attachPreferenceListeners() {
-    contentStoragePathPrefix.addListener((o, ov, value) -> prefs.put("contentStoragePathPrefix", value));
-    craftAheadSeconds.addListener((o, ov, value) -> prefs.put("craftAheadSeconds", value));
-    dubAheadSeconds.addListener((o, ov, value) -> prefs.put("dubAheadSeconds", value));
-    inputMode.addListener((o, ov, value) -> prefs.put("inputMode", value.name()));
-    inputTemplateKey.addListener((o, ov, value) -> prefs.put("inputTemplateKey", value));
-    outputChannels.addListener((o, ov, value) -> prefs.put("outputChannels", value));
-    outputFileMode.addListener((o, ov, value) -> prefs.put("outputFileMode", value.name()));
-    outputFrameRate.addListener((o, ov, value) -> prefs.put("outputFrameRate", value));
-    outputMode.addListener((o, ov, value) -> prefs.put("outputMode", value.name()));
-    outputPathPrefix.addListener((o, ov, value) -> prefs.put("outputPathPrefix", value));
-    outputSeconds.addListener((o, ov, value) -> prefs.put("outputSeconds", value));
-    shipAheadSeconds.addListener((o, ov, value) -> prefs.put("shipAheadSeconds", value));
-    timelineSegmentViewLimit.addListener((o, ov, value) -> prefs.put("timelineSegmentViewLimit", value));
-  }
-
-  private void setAllFromPrefsOrDefaults() {
-    contentStoragePathPrefix.set(prefs.get("contentStoragePathPrefix", defaultContentStoragePathPrefix));
-    craftAheadSeconds.set(prefs.get("craftAheadSeconds", Integer.toString(defaultCraftAheadSeconds)));
-    dubAheadSeconds.set(prefs.get("dubAheadSeconds", Integer.toString(defaultDubAheadSeconds)));
-    inputMode.set(InputMode.valueOf(prefs.get("inputMode", InputMode.PRODUCTION.name())));
-    inputTemplateKey.set(prefs.get("inputTemplateKey", defaultInputTemplateKey));
-    outputChannels.set(prefs.get("outputChannels", Integer.toString(defaultOutputChannels)));
-    outputFileMode.set(OutputFileMode.valueOf(prefs.get("outputFileMode", defaultOutputFileMode.toUpperCase(Locale.ROOT))));
-    outputFrameRate.set(prefs.get("outputFrameRate", Double.toString(defaultOutputFrameRate)));
-    outputMode.set(OutputMode.valueOf(prefs.get("outputMode", defaultOutputMode.toUpperCase(Locale.ROOT))));
-    outputPathPrefix.set(prefs.get("outputPathPrefix", defaultOutputPathPrefix));
-    outputSeconds.set(prefs.get("outputSeconds", Integer.toString(defaultOutputSeconds)));
-    shipAheadSeconds.set(prefs.get("shipAheadSeconds", Integer.toString(defaultShipAheadSeconds)));
-    timelineSegmentViewLimit.set(prefs.get("timelineSegmentViewLimit", Integer.toString(defaultTimelineSegmentViewLimit)));
+  @Override
+  public void start() {
+    if (status.get() != FabricationStatus.Standby) {
+      LOG.error("Cannot start fabrication unless in Standby status");
+      return;
+    }
+    status.set(FabricationStatus.Starting);
+    startTimeline();
   }
 
   @Override
-  public void start() {
-    /**
-     Implement this fucking shit some other way
-     return start(
-     getWorkConfig(),
-     labService.hubConfigProperty().get(),
-     getHubContentProvider(),
-     (Double ratio) -> updateProgress(ratio, 1.0),
-     () -> updateProgress(1.0, 1.0));
-     */
+  public void reset() {
+    workManager.reset();
+    status.set(FabricationStatus.Standby);
   }
 
   @Override
@@ -195,23 +181,6 @@ TODO handle these state changes
       hubAccess,
       inputMode.get(),
       inputTemplateKey.get());
-  }
-
-  @Override
-  public WorkConfiguration getWorkConfig() {
-    return new WorkConfiguration()
-      .setContentStoragePathPrefix(contentStoragePathPrefix.get())
-      .setCraftAheadSeconds(Integer.parseInt(craftAheadSeconds.get()))
-      .setDubAheadSeconds(Integer.parseInt(dubAheadSeconds.get()))
-      .setInputMode(inputMode.get())
-      .setInputTemplateKey(inputTemplateKey.get())
-      .setOutputChannels(Integer.parseInt(outputChannels.get()))
-      .setOutputFileMode(outputFileMode.get())
-      .setOutputFrameRate(Double.parseDouble(outputFrameRate.get()))
-      .setOutputMode(outputMode.get())
-      .setOutputPathPrefix(outputPathPrefix.get())
-      .setOutputSeconds(Integer.parseInt(outputSeconds.get()))
-      .setShipAheadSeconds(Integer.parseInt(shipAheadSeconds.get()));
   }
 
   @Override
@@ -287,7 +256,7 @@ TODO handle these state changes
   @Override
   public Collection<SegmentMeme> getSegmentMemes(Segment segment) {
     try {
-      return getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMeme.class);
+      return workManager.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMeme.class);
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
       LOG.error("Failed to get segment memes", e);
       return List.of();
@@ -297,7 +266,7 @@ TODO handle these state changes
   @Override
   public Collection<SegmentChord> getSegmentChords(Segment segment) {
     try {
-      return getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentChord.class);
+      return workManager.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentChord.class);
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
       LOG.error("Failed to get segment chords", e);
       return List.of();
@@ -307,7 +276,7 @@ TODO handle these state changes
   @Override
   public Collection<SegmentChoice> getSegmentChoices(Segment segment) {
     try {
-      return getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentChoice.class);
+      return workManager.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentChoice.class);
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
       LOG.error("Failed to get segment choices", e);
       return List.of();
@@ -315,44 +284,39 @@ TODO handle these state changes
   }
 
   @Override
-  public void reset() {
-    // todo reset whatever you replace this with
-  }
-
-  @Override
   public Optional<Program> getProgram(UUID programId) {
-    return getSourceMaterial().getProgram(programId);
+    return workManager.getSourceMaterial().getProgram(programId);
   }
 
   @Override
   public Optional<ProgramVoice> getProgramVoice(UUID programVoiceId) {
-    return getSourceMaterial().getProgramVoice(programVoiceId);
+    return workManager.getSourceMaterial().getProgramVoice(programVoiceId);
   }
 
   @Override
   public Optional<ProgramSequence> getProgramSequence(UUID programSequenceId) {
-    return getSourceMaterial().getProgramSequence(programSequenceId);
+    return workManager.getSourceMaterial().getProgramSequence(programSequenceId);
   }
 
   @Override
   public Optional<ProgramSequenceBinding> getProgramSequenceBinding(UUID programSequenceBindingId) {
-    return getSourceMaterial().getProgramSequenceBinding(programSequenceBindingId);
+    return workManager.getSourceMaterial().getProgramSequenceBinding(programSequenceBindingId);
   }
 
   @Override
   public Optional<Instrument> getInstrument(UUID instrumentId) {
-    return getSourceMaterial().getInstrument(instrumentId);
+    return workManager.getSourceMaterial().getInstrument(instrumentId);
   }
 
   @Override
   public Optional<InstrumentAudio> getInstrumentAudio(UUID instrumentAudioId) {
-    return getSourceMaterial().getInstrumentAudio(instrumentAudioId);
+    return workManager.getSourceMaterial().getInstrumentAudio(instrumentAudioId);
   }
 
   @Override
   public Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice choice) {
     try {
-      return getSegmentManager().readManySubEntitiesOfType(choice.getSegmentId(), SegmentChoiceArrangement.class)
+      return workManager.getSegmentManager().readManySubEntitiesOfType(choice.getSegmentId(), SegmentChoiceArrangement.class)
         .stream().filter(arrangement -> arrangement.getSegmentChoiceId().equals(choice.getId())).toList();
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
       LOG.error("Failed to get segment choice arrangements", e);
@@ -363,7 +327,7 @@ TODO handle these state changes
   @Override
   public Collection<SegmentChoiceArrangementPick> getPicks(SegmentChoiceArrangement arrangement) {
     try {
-      return getSegmentManager().readManySubEntitiesOfType(arrangement.getSegmentId(), SegmentChoiceArrangementPick.class)
+      return workManager.getSegmentManager().readManySubEntitiesOfType(arrangement.getSegmentId(), SegmentChoiceArrangementPick.class)
         .stream().filter(pick -> pick.getSegmentChoiceArrangementId().equals(arrangement.getId())).toList();
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
       LOG.error("Failed to get segment choice arrangement picks", e);
@@ -374,7 +338,7 @@ TODO handle these state changes
   @Override
   public Collection<SegmentMessage> getSegmentMessages(Segment segment) {
     try {
-      return getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMessage.class);
+      return workManager.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMessage.class);
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
       LOG.error("Failed to get segment messages", e);
       return List.of();
@@ -384,7 +348,7 @@ TODO handle these state changes
   @Override
   public Collection<SegmentMeta> getSegmentMetas(Segment segment) {
     try {
-      return getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMeta.class);
+      return workManager.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMeta.class);
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
       LOG.error("Failed to get segment metas", e);
       return List.of();
@@ -441,9 +405,9 @@ TODO handle these state changes
   public List<Segment> getSegments(@Nullable Integer startIndex) {
     try {
       var viewLimit = Integer.parseInt(timelineSegmentViewLimit.getValue());
-      var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, getSegmentManager().size() - viewLimit - 1);
-      var to = Math.min(getSegmentManager().size() - 1, from + viewLimit);
-      return getSegmentManager().readManyFromToOffset(from, to);
+      var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, workManager.getSegmentManager().size() - viewLimit - 1);
+      var to = Math.min(workManager.getSegmentManager().size() - 1, from + viewLimit);
+      return workManager.getSegmentManager().readManyFromToOffset(from, to);
 
     } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException e) {
       LOG.error("Failed to get segments", e);
@@ -453,7 +417,7 @@ TODO handle these state changes
 
   @Override
   public Boolean isEmpty() {
-    return getSegmentManager().isEmpty();
+    return workManager.getSegmentManager().isEmpty();
   }
 
   @Override
@@ -487,6 +451,11 @@ TODO handle these state changes
   }
 
   @Override
+  public ObservableDoubleValue progressProperty() {
+    return progress;
+  }
+
+  @Override
   public ObservableBooleanValue isOutputModeSync() {
     return outputModeSync;
   }
@@ -505,6 +474,27 @@ TODO handle these state changes
   public ObservableBooleanValue isOutputModeFile() {
     return outputModeFile;
   }
+
+  @Override
+  public Optional<Long> getShippedToChainMicros() {
+    return workManager.getShippedToChainMicros();
+  }
+
+  @Override
+  public Optional<Long> getDubbedToChainMicros() {
+    return workManager.getDubbedToChainMicros();
+  }
+
+  @Override
+  public Optional<Long> getCraftedToChainMicros() {
+    return workManager.getCraftedToChainMicros();
+  }
+
+  @Override
+  public Optional<Long> getShipTargetChainMicros() {
+    return workManager.getShipTargetChainMicros();
+  }
+
 
   @Override
   public void handleMainAction() {
@@ -540,14 +530,110 @@ TODO handle these state changes
 
   @Override
   public String getChoiceHash(Segment segment) {
-    return getSegmentManager().getChoiceHash(segment);
+    return workManager.getSegmentManager().getChoiceHash(segment);
   }
 
   @Override
   public Optional<Segment> getSegmentAtShipOutput() {
     return
-      getShippedToChainMicros().flatMap(chainMicros ->
-        getSegmentManager().readOneAtChainMicros(chainMicros));
+      workManager.getShippedToChainMicros().flatMap(chainMicros ->
+        workManager.getSegmentManager().readOneAtChainMicros(chainMicros));
+  }
+
+  private void runWorkCycle(ActionEvent actionEvent) {
+    workManager.runCycle();
+    switch (status.get()) {
+      case Standby -> {
+        // no op
+      }
+      case Starting -> {
+        try {
+          // create work configuration
+          var config = new WorkConfiguration()
+            .setContentStoragePathPrefix(contentStoragePathPrefix.get())
+            .setCraftAheadSeconds(Integer.parseInt(craftAheadSeconds.get()))
+            .setDubAheadSeconds(Integer.parseInt(dubAheadSeconds.get()))
+            .setInputMode(inputMode.get())
+            .setInputTemplateKey(inputTemplateKey.get())
+            .setOutputChannels(Integer.parseInt(outputChannels.get()))
+            .setOutputFileMode(outputFileMode.get())
+            .setOutputFrameRate(Double.parseDouble(outputFrameRate.get()))
+            .setOutputMode(outputMode.get())
+            .setOutputPathPrefix(outputPathPrefix.get())
+            .setOutputSeconds(Integer.parseInt(outputSeconds.get()))
+            .setShipAheadSeconds(Integer.parseInt(shipAheadSeconds.get()));
+
+          // start the work with the given configuration
+          workManager.start(config, labService.hubConfigProperty().get(), hubAccess);
+
+          // OK
+          status.set(FabricationStatus.Active);
+
+        } catch (Exception e) {
+          LOG.error("Failed to start work!", e);
+          status.set(FabricationStatus.Failed);
+        }
+      }
+      case Active -> {
+        workManager.runCycle();
+        switch (workManager.getWorkState()) {
+          case Done -> status.set(FabricationStatus.Done);
+          case Failed -> status.set(FabricationStatus.Failed);
+        }
+      }
+      case Cancelled, Done, Failed -> stopTimeline();
+    }
+  }
+
+  private void startTimeline() {
+    stopTimeline(); // just to be sure
+    timeline = new Timeline(
+      new KeyFrame(
+        Duration.millis(cycleMillis),
+        this::runWorkCycle
+      )
+    );
+    timeline.setCycleCount(Timeline.INDEFINITE);
+    timeline.setRate(1.0);
+    timeline.play();
+  }
+
+  private void stopTimeline() {
+    if (Objects.nonNull(timeline)) {
+      timeline.stop();
+    }
+  }
+
+  private void attachPreferenceListeners() {
+    contentStoragePathPrefix.addListener((o, ov, value) -> prefs.put("contentStoragePathPrefix", value));
+    craftAheadSeconds.addListener((o, ov, value) -> prefs.put("craftAheadSeconds", value));
+    dubAheadSeconds.addListener((o, ov, value) -> prefs.put("dubAheadSeconds", value));
+    inputMode.addListener((o, ov, value) -> prefs.put("inputMode", value.name()));
+    inputTemplateKey.addListener((o, ov, value) -> prefs.put("inputTemplateKey", value));
+    outputChannels.addListener((o, ov, value) -> prefs.put("outputChannels", value));
+    outputFileMode.addListener((o, ov, value) -> prefs.put("outputFileMode", value.name()));
+    outputFrameRate.addListener((o, ov, value) -> prefs.put("outputFrameRate", value));
+    outputMode.addListener((o, ov, value) -> prefs.put("outputMode", value.name()));
+    outputPathPrefix.addListener((o, ov, value) -> prefs.put("outputPathPrefix", value));
+    outputSeconds.addListener((o, ov, value) -> prefs.put("outputSeconds", value));
+    shipAheadSeconds.addListener((o, ov, value) -> prefs.put("shipAheadSeconds", value));
+    timelineSegmentViewLimit.addListener((o, ov, value) -> prefs.put("timelineSegmentViewLimit", value));
+  }
+
+  private void setAllFromPrefsOrDefaults() {
+    contentStoragePathPrefix.set(prefs.get("contentStoragePathPrefix", defaultContentStoragePathPrefix));
+    craftAheadSeconds.set(prefs.get("craftAheadSeconds", Integer.toString(defaultCraftAheadSeconds)));
+    dubAheadSeconds.set(prefs.get("dubAheadSeconds", Integer.toString(defaultDubAheadSeconds)));
+    inputMode.set(InputMode.valueOf(prefs.get("inputMode", InputMode.PRODUCTION.name())));
+    inputTemplateKey.set(prefs.get("inputTemplateKey", defaultInputTemplateKey));
+    outputChannels.set(prefs.get("outputChannels", Integer.toString(defaultOutputChannels)));
+    outputFileMode.set(OutputFileMode.valueOf(prefs.get("outputFileMode", defaultOutputFileMode.toUpperCase(Locale.ROOT))));
+    outputFrameRate.set(prefs.get("outputFrameRate", Double.toString(defaultOutputFrameRate)));
+    outputMode.set(OutputMode.valueOf(prefs.get("outputMode", defaultOutputMode.toUpperCase(Locale.ROOT))));
+    outputPathPrefix.set(prefs.get("outputPathPrefix", defaultOutputPathPrefix));
+    outputSeconds.set(prefs.get("outputSeconds", Integer.toString(defaultOutputSeconds)));
+    shipAheadSeconds.set(prefs.get("shipAheadSeconds", Integer.toString(defaultShipAheadSeconds)));
+    timelineSegmentViewLimit.set(prefs.get("timelineSegmentViewLimit", Integer.toString(defaultTimelineSegmentViewLimit)));
   }
 
   private String formatTotalBars(int bars, String fraction) {
@@ -557,13 +643,13 @@ TODO handle these state changes
   private Optional<Integer> getBarBeats(Segment segment) {
     if (!segmentBarBeats.containsKey(segment.getId())) {
       try {
-        var choice = getSegmentManager().readChoice(segment.getId(), ProgramType.Main);
+        var choice = workManager.getSegmentManager().readChoice(segment.getId(), ProgramType.Main);
         if (choice.isEmpty()) {
           LOG.error("Failed to retrieve main program choice to determine beats for Segment[{}]", segment.getId());
           return Optional.empty();
         }
 
-        var program = getSourceMaterial().getProgram(choice.get().getProgramId());
+        var program = workManager.getSourceMaterial().getProgram(choice.get().getProgramId());
         if (program.isEmpty()) {
           LOG.error("Failed to retrieve main program to determine beats for Segment[{}]", segment.getId());
           return Optional.empty();
@@ -586,6 +672,10 @@ TODO handle these state changes
     else if (Objects.nonNull(program))
       return program.getName();
     else return "Not Loaded";
+  }
+
+  private void cancel() {
+    status.set(FabricationStatus.Cancelled);
   }
 
   private static String computeDefaultPathPrefix(String category) {

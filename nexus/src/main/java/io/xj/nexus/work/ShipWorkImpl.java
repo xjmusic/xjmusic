@@ -9,9 +9,7 @@ import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.model.Segment;
-import io.xj.nexus.ship.ShipException;
 import io.xj.nexus.ship.broadcast.BroadcastFactory;
-import io.xj.nexus.ship.broadcast.StreamEncoder;
 import io.xj.nexus.ship.broadcast.StreamPlayer;
 import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
@@ -23,13 +21,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 
 public class ShipWorkImpl implements ShipWork {
   static final Logger LOG = LoggerFactory.getLogger(ShipWorkImpl.class);
-  static final long INTERNAL_CYCLE_SLEEP_MILLIS = 50;
 
   @Nullable
   AudioFileWriter fileWriter;
@@ -37,10 +33,7 @@ public class ShipWorkImpl implements ShipWork {
   OutputFile outputFile = null;
   @Nullable
   StreamPlayer playback;
-  @Nullable
-  StreamEncoder encoder;
   MultiStopwatch timer;
-  WorkState state = WorkState.Initializing;
   final AtomicBoolean running = new AtomicBoolean(true);
   final BroadcastFactory broadcastFactory;
   final DubWork dubWork;
@@ -53,11 +46,13 @@ public class ShipWorkImpl implements ShipWork {
   final int outputSeconds;
   final int pcmChunkSizeBytes;
   final int shipAheadSeconds;
-  private final Consumer<Double> progressUpdateCallback;
   final long cycleMillis;
   int outputFileNum = 0;
   long targetChainMicros = 0;
   long nextCycleAtSystemMillis = System.currentTimeMillis();
+  private final String shipKey;
+
+  private float progress;
 
   public ShipWorkImpl(
     DubWork dubWork,
@@ -68,11 +63,11 @@ public class ShipWorkImpl implements ShipWork {
     int outputSeconds,
     long cycleMillis,
     int cycleAudioBytes,
+    String shipKey,
     String outputPathPrefix,
     int outputFileNumberDigits,
     int pcmChunkSizeBytes,
-    int shipAheadSeconds,
-    Consumer<Double> progressUpdateCallback
+    int shipAheadSeconds
   ) {
     this.broadcastFactory = broadcastFactory;
     this.cycleAudioBytes = cycleAudioBytes;
@@ -80,84 +75,17 @@ public class ShipWorkImpl implements ShipWork {
     this.dubWork = dubWork;
     this.notification = notification;
     this.outputFileMode = outputFileMode;
+    this.shipKey = shipKey;
     this.outputFileNumberDigits = outputFileNumberDigits;
     this.outputMode = outputMode;
     this.outputPathPrefix = outputPathPrefix;
     this.outputSeconds = outputSeconds;
     this.pcmChunkSizeBytes = pcmChunkSizeBytes;
     this.shipAheadSeconds = shipAheadSeconds;
-    this.progressUpdateCallback = progressUpdateCallback;
   }
 
   @Override
   public void start() {
-    timer = MultiStopwatch.start();
-    while (running.get()) {
-      if (dubWork.isFailed()) {
-        LOG.warn("DubWork failed, stopping");
-        finish();
-      }
-
-      try {
-        if (System.currentTimeMillis() < nextCycleAtSystemMillis) {
-          //noinspection BusyWait
-          Thread.sleep(INTERNAL_CYCLE_SLEEP_MILLIS);
-          continue;
-        }
-
-        nextCycleAtSystemMillis = System.currentTimeMillis() + cycleMillis;
-
-        // Action based on state and mode
-        try {
-          switch (state) {
-            case Initializing -> doInit();
-            case Working -> doWork();
-          }
-
-        } catch (Exception e) {
-          didFailWhile("running a work cycle", e);
-        }
-
-        // End lap & do telemetry on all fabricated chains
-        timer.lap();
-        LOG.debug("Lap time: {}", timer.lapToString());
-        timer.clearLapSections();
-        nextCycleAtSystemMillis = System.currentTimeMillis() + cycleMillis;
-      } catch (InterruptedException e) {
-        LOG.warn("Interrupted!", e);
-        running.set(false);
-      }
-    }
-  }
-
-  @Override
-  public void finish() {
-    if (Objects.nonNull(encoder)) {
-      encoder.finish();
-    }
-    if (Objects.nonNull(playback)) {
-      playback.finish();
-    }
-    if (Objects.nonNull(fileWriter)) {
-      try {
-        fileWriter.finish();
-      } catch (IOException e) {
-        LOG.error("Failed to finish file writer", e);
-      }
-    }
-    dubWork.finish();
-    if (Objects.nonNull(encoder)) {
-      encoder.finish();
-    }
-    if (!running.get()) return;
-    running.set(false);
-    LOG.info("Finished");
-  }
-
-  /**
-   Attempt to initialize the output method
-   */
-  void doInit() {
     var audioFormat = dubWork.getAudioFormat();
     if (audioFormat.isEmpty()) {
       LOG.debug("Waiting for audio format to be available.");
@@ -170,49 +98,101 @@ public class ShipWorkImpl implements ShipWork {
     }
 
     switch (outputMode) {
-      case HLS -> {
-        LOG.info("Will initialize HLS output");
-        encoder = broadcastFactory.encoder(audioFormat.get(), dubWork.getTemplateKey());
-        doInitializedOK();
-      }
       case PLAYBACK -> {
         LOG.info("Will initialize playback output");
         playback = broadcastFactory.player(audioFormat.get());
-        doInitializedOK();
       }
       case FILE -> {
         LOG.info("Will initialize file output");
         fileWriter = broadcastFactory.writer(audioFormat.get());
-        doInitializedOK();
       }
     }
-  }
 
-  /**
-   Do the output
-   */
-  void doWork() throws InterruptedException, ShipException, IOException {
-    if (dubWork.getMixerBuffer().isEmpty() || dubWork.getMixerOutputMicrosPerByte().isEmpty()) return;
-    if (isAheadOfSync()) return;
-    switch (outputMode) {
-      case HLS -> doShipOutputStream();
-      case PLAYBACK -> doShipOutputPlayback();
-      case FILE -> doShipOutputFile();
-    }
-    getShippedToChainMicros().ifPresent(dubWork::setNowAtToChainMicros);
-  }
-
-
-  /**
-   Called after initialization to start the work cycle
-   */
-  void doInitializedOK() {
     if (0 < outputSeconds) {
       LOG.info("Will start in {} output mode and run {} seconds", outputMode, outputSeconds);
     } else {
       LOG.info("Will start in {} output mode and run indefinitely", outputMode);
     }
-    state = WorkState.Working;
+
+    timer = MultiStopwatch.start();
+    running.set(true);
+  }
+
+  @Override
+  public void finish() {
+    if (Objects.nonNull(playback)) {
+      playback.finish();
+    }
+    if (Objects.nonNull(fileWriter)) {
+      try {
+        fileWriter.finish();
+      } catch (IOException e) {
+        LOG.error("Failed to finish file writer", e);
+      }
+    }
+    dubWork.finish();
+    if (!running.get()) return;
+    running.set(false);
+    LOG.info("Finished");
+  }
+
+  @Override
+  public void runCycle() {
+    if (!dubWork.isRunning()) {
+      LOG.warn("DubWork not running, will stop");
+      finish();
+    }
+
+    if (System.currentTimeMillis() < nextCycleAtSystemMillis) {
+      return;
+    }
+
+    nextCycleAtSystemMillis = System.currentTimeMillis() + cycleMillis;
+
+    // Action based on mode
+    try {
+      if (dubWork.getMixerBuffer().isEmpty() || dubWork.getMixerOutputMicrosPerByte().isEmpty()) return;
+      if (isAheadOfSync()) return;
+      switch (outputMode) {
+        case PLAYBACK -> doShipOutputPlayback();
+        case FILE -> doShipOutputFile();
+      }
+      getShippedToChainMicros().ifPresent(dubWork::setNowAtToChainMicros);
+    } catch (Exception e) {
+      didFailWhile("running a work cycle", e);
+    }
+
+    // End lap & do telemetry on all fabricated chains
+    timer.lap();
+    LOG.debug("Lap time: {}", timer.lapToString());
+    timer.clearLapSections();
+    nextCycleAtSystemMillis = System.currentTimeMillis() + cycleMillis;
+  }
+
+  @Override
+  public boolean isRunning() {
+    return running.get();
+  }
+
+  @Override
+  public float getProgress() {
+    return progress;
+  }
+
+  @Override
+  public Optional<Long> getShippedToChainMicros() {
+    return switch (outputMode) {
+      case PLAYBACK -> Objects.nonNull(playback) ? Optional.of(playback.getHeardAtChainMicros()) : Optional.empty();
+      case FILE -> Objects.nonNull(outputFile) ? Optional.of(outputFile.getToChainMicros()) : Optional.empty();
+    };
+  }
+
+  @Override
+  public Optional<Long> getShipTargetChainMicros() {
+    return switch (outputMode) {
+      case PLAYBACK -> Optional.of(targetChainMicros);
+      case FILE -> Objects.nonNull(outputFile) ? Optional.of(outputFile.getToChainMicros()) : Optional.empty();
+    };
   }
 
   /**
@@ -230,25 +210,6 @@ public class ShipWorkImpl implements ShipWork {
       }
     }
     return false;
-  }
-
-  /**
-   Ship available bytes from the dub mixer buffer to the output method
-   */
-  void doShipOutputStream() throws IOException, ShipException {
-    {
-      if (Objects.isNull(encoder)) {
-        didFailWhile("shipping bytes to local playback", new IllegalStateException("Player is null"));
-        return;
-      }
-      var availableBytes = dubWork.getMixerBuffer().orElseThrow().getAvailableByteCount();
-      if (availableBytes >= cycleAudioBytes) {
-        LOG.debug("Shipping {} bytes to local playback", cycleAudioBytes);
-        encoder.append(dubWork.getMixerBuffer().orElseThrow().consume(cycleAudioBytes));
-        targetChainMicros = (long) (targetChainMicros + cycleAudioBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow());
-        encoder.setPlaylistAtChainMicros(targetChainMicros);
-      }
-    }
   }
 
   /**
@@ -387,8 +348,7 @@ public class ShipWorkImpl implements ShipWork {
     }
 
     // Finite number-zero number of output seconds has been specified
-    var progress = shippedSeconds / outputSeconds;
-    progressUpdateCallback.accept((double) (shippedSeconds / outputSeconds));
+    progress = shippedSeconds / outputSeconds;
     LOG.debug("Shipped {} seconds ({})", String.format("%.2f", shippedSeconds), StringUtils.percentage(progress));
 
     // But leave if we have not yet shipped that many seconds
@@ -418,30 +378,6 @@ public class ShipWorkImpl implements ShipWork {
 
     finish();
   }
-
-  @Override
-  public boolean isHealthy() {
-    // future check whether ship work is actually healthy
-    return true;
-  }
-
-  @Override
-  public Optional<Long> getShippedToChainMicros() {
-    return switch (outputMode) {
-      case PLAYBACK -> Objects.nonNull(playback) ? Optional.of(playback.getHeardAtChainMicros()) : Optional.empty();
-      case HLS -> Optional.empty(); // future: this will be the actual chain micros of the HLS output
-      case FILE -> Objects.nonNull(outputFile) ? Optional.of(outputFile.getToChainMicros()) : Optional.empty();
-    };
-  }
-
-  @Override
-  public Optional<Long> getShipTargetChainMicros() {
-    return switch (outputMode) {
-      case PLAYBACK, HLS -> Optional.of(targetChainMicros);
-      case FILE -> Objects.nonNull(outputFile) ? Optional.of(outputFile.getToChainMicros()) : Optional.empty();
-    };
-  }
-
 
   /**
    Output File
@@ -478,7 +414,7 @@ public class ShipWorkImpl implements ShipWork {
 
     public String getPath() {
       return outputPathPrefix +
-        dubWork.getTemplateKey() +
+        shipKey +
         "-" + StringUtils.zeroPadded(outputFileNum, outputFileNumberDigits) +
         getPathDescriptionIfRelevant() +
         ".wav";

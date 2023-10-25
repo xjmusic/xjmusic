@@ -50,7 +50,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   final LabService labService;
   final MainTimelineSegmentFactory segmentFactory;
   final long refreshTimelineMillis;
-  final long refreshTimelineMicros;
   final SimpleFloatProperty microsPerPixel = new SimpleFloatProperty(0);
   final Timeline scrollPaneAnimationTimeline = new Timeline();
   final SimpleDoubleProperty demoImageWidth = new SimpleDoubleProperty();
@@ -110,7 +109,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     this.autoScrollBehindPixels = autoScrollBehindPixels;
     this.fabricationService = fabricationService;
     this.labService = labService;
-    this.refreshTimelineMicros = refreshTimelineMillis * MILLIS_PER_MICRO;
     this.refreshTimelineMillis = refreshTimelineMillis;
     this.segmentDisplayHashRecheckLimit = segmentDisplayHashRecheckLimit;
     this.segmentFactory = segmentFactory;
@@ -270,10 +268,10 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
         .map(id -> ds.get(id).getBeginAtChainMicros()).orElse(0L) - segmentHorizontalSpacing;
 
     // other markers continue increasing from there
-    var m1Past = fabricationService.getWorkFactory().getShippedToChainMicros().orElse(m0);
-    var m2Ship = fabricationService.getWorkFactory().getShipTargetChainMicros().orElse(m1Past);
-    var m3Dub = fabricationService.getWorkFactory().getDubbedToChainMicros().orElse(m2Ship);
-    var m4Craft = fabricationService.getWorkFactory().getCraftedToChainMicros().orElse(m3Dub);
+    var m1Past = fabricationService.getShippedToChainMicros().orElse(m0);
+    var m2Ship = fabricationService.getShipTargetChainMicros().orElse(m1Past);
+    var m3Dub = fabricationService.getDubbedToChainMicros().orElse(m2Ship);
+    var m4Craft = fabricationService.getCraftedToChainMicros().orElse(m3Dub);
 
     // This gets re-used for the follow position as well as past timeline width
     var pastTimelineWidth = (m1Past - m0) / microsPerPixel.get();

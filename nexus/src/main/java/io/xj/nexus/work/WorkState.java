@@ -3,9 +3,15 @@
 package io.xj.nexus.work;
 
 
-public enum WorkState {
+public enum WorkState { // TODO deprecate this once the entire work state is managed from the fabrication service
+  Standby,
+  Starting,
+  LoadingContent,
+  LoadedContent,
+  LoadingAudio,
+  LoadedAudio,
   Initializing,
-  Loading,
-  Working,
+  Active,
+  Done,
   Failed,
 }

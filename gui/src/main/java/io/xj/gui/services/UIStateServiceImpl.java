@@ -127,7 +127,7 @@ public class UIStateServiceImpl implements UIStateService {
       fabricationProgress = Bindings.createDoubleBinding(
         () -> {
           if (preloaderService.runningProperty().get()) {
-            return preloaderService.progressProperty().get();
+            return preloaderService.progressProperty().get(); // TODO build the preloader service into the fabrication service
           } else if (isFileOutputActiveProperty().get()) {
             return fabricationService.progressProperty().get();
           } else {

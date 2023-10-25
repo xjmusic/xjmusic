@@ -21,28 +21,8 @@ import java.util.Optional;
  Output audio chunks are dynamically sized. There is a default size, but the size is also determined by the
  duration of the segment. E.g., during gapless album output, the chunk will cut short if necessary to begin the next
  chunk at exactly the top of the following segment.
- <p>
- https://www.nurkiewicz.com/2014/11/executorservice-10-tips-and-tricks.html
  */
-public interface DubWork {
-
-  /**
-   This blocks for as long as the work is alive
-   */
-  void start();
-
-  /**
-   Stop work
-   */
-  void finish();
-
-  /**
-   Test whether all expected chains are healthy, depending on chain manager mode
-   Whether the next cycle nanos is above threshold, compared to System.nanoTime();
-
-   @return next cycle nanos
-   */
-  boolean isHealthy();
+public interface DubWork extends Work {
 
   /**
    Test whether the next cycle is planned ahead
@@ -50,20 +30,6 @@ public interface DubWork {
    @return true if planned ahead
    */
   boolean isPlannedAhead();
-
-  /**
-   Check whether the work is active
-
-   @return true if active
-   */
-  boolean isRunning();
-
-  /**
-   Whether the dub work has failed
-
-   @return true if faile
-   */
-  boolean isFailed();
 
   /**
    Get the mixer audio buffer to read the mix output
@@ -99,13 +65,6 @@ public interface DubWork {
    @return chain or empty if not yet available
    */
   Optional<Chain> getChain();
-
-  /**
-   Get the input template key
-
-   @return the input template key
-   */
-  String getTemplateKey();
 
   /**
    Get the segment at the given chain micros

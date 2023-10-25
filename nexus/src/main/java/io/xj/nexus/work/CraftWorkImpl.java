@@ -12,13 +12,7 @@ import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.lib.json.JsonProvider;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.MultiStopwatch;
-import io.xj.lib.telemetry.TelemetryMeasureCount;
-import io.xj.lib.telemetry.TelemetryMeasureGauge;
-import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.OutputMode;
@@ -29,15 +23,11 @@ import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.*;
 import jakarta.annotation.Nullable;
-import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -47,23 +37,13 @@ import static io.xj.hub.util.ValueUtils.MILLIS_PER_SECOND;
 
 public class CraftWorkImpl implements CraftWork {
   static final Logger LOG = LoggerFactory.getLogger(CraftWorkImpl.class);
-  static final String EXTENSION_JSON = "json";
-  static final long INTERNAL_CYCLE_SLEEP_MILLIS = 50;
   final CraftFactory craftFactory;
   final EntityFactory entityFactory;
   final FabricatorFactory fabricatorFactory;
-  final JsonProvider jsonProvider;
-  final JsonapiPayloadFactory jsonapiPayloadFactory;
   final FileStoreProvider fileStore;
   HubContent sourceMaterial;
-  Long chainNextIngestMillis = System.currentTimeMillis();
-  final TelemetryMeasureGauge METRIC_FABRICATED_AHEAD_SECONDS;
-  final TelemetryMeasureCount METRIC_SEGMENT_CREATED;
-  final TelemetryMeasureCount METRIC_SEGMENT_GC;
   final NexusEntityStore store;
-  final NotificationProvider notification;
   final SegmentManager segmentManager;
-  final TelemetryProvider telemetryProvider;
 
 
   @Value("${craft.janitor.enabled}")
@@ -104,8 +84,6 @@ public class CraftWorkImpl implements CraftWork {
 
   final OutputMode outputMode;
   long labPollNextSystemMillis;
-  long yardPollNextSystemMillis;
-  WorkState state = WorkState.Initializing;
   MultiStopwatch timer;
   final AtomicBoolean running = new AtomicBoolean(true);
   boolean chainFabricatedAhead = true;
@@ -114,15 +92,12 @@ public class CraftWorkImpl implements CraftWork {
   long nextMedicMillis = System.currentTimeMillis();
   long atChainMicros = 0;
   final InputMode inputMode;
-  final String inputTemplateKey;
-  final boolean isJsonOutputEnabled;
   final String tempFilePathPrefix;
-  final Integer jsonExpiresInSeconds;
   final int craftAheadSeconds;
   final double outputFrameRate;
   final int outputChannels;
   final String audioBaseUrl;
-  final Callable<HubContent> hubContentProvider;
+  final HubContent content;
   final String shipBaseUrl;
 
   @Nullable
@@ -135,69 +110,47 @@ public class CraftWorkImpl implements CraftWork {
     EntityFactory entityFactory,
     FabricatorFactory fabricatorFactory,
     FileStoreProvider fileStore,
-    JsonapiPayloadFactory jsonapiPayloadFactory,
-    JsonProvider jsonProvider,
     NexusEntityStore store,
-    NotificationProvider notification,
     SegmentManager segmentManager,
-    TelemetryProvider telemetryProvider,
-    Callable<HubContent> hubContentProvider,
     String audioBaseUrl,
     String shipBaseUrl,
     InputMode inputMode,
     OutputMode outputMode,
-    String templateKey,
-    boolean isJsonOutputEnabled,
     String tempFilePathPrefix,
-    int jsonExpiresInSeconds,
     double outputFrameRate,
     int outputChannels,
-    int craftAheadSeconds
+    int craftAheadSeconds,
+    HubContent content
   ) {
     this.craftFactory = craftFactory;
     this.entityFactory = entityFactory;
     this.fabricatorFactory = fabricatorFactory;
-    this.jsonProvider = jsonProvider;
-    this.jsonapiPayloadFactory = jsonapiPayloadFactory;
-    this.notification = notification;
     this.segmentManager = segmentManager;
     this.store = store;
-    this.telemetryProvider = telemetryProvider;
-    this.hubContentProvider = hubContentProvider;
+    this.content = content;
     this.audioBaseUrl = audioBaseUrl;
     this.shipBaseUrl = shipBaseUrl;
     this.tempFilePathPrefix = tempFilePathPrefix;
-    this.inputTemplateKey = templateKey;
-    this.isJsonOutputEnabled = isJsonOutputEnabled;
-    this.jsonExpiresInSeconds = jsonExpiresInSeconds;
     this.craftAheadSeconds = craftAheadSeconds;
     this.outputFrameRate = outputFrameRate;
     this.outputChannels = outputChannels;
 
     labPollNextSystemMillis = System.currentTimeMillis();
-    yardPollNextSystemMillis = System.currentTimeMillis();
     this.inputMode = inputMode;
     this.outputMode = outputMode;
 
     // Telemetry: # Segments Erased
-    METRIC_FABRICATED_AHEAD_SECONDS = telemetryProvider.gauge("fabricated_ahead_seconds", "Fabricated Ahead Seconds", "s");
-    METRIC_SEGMENT_CREATED = telemetryProvider.count("segment_created", "Segment Created", "");
-    METRIC_SEGMENT_GC = telemetryProvider.count("segment_gc", "Segment Garbage Collected", "");
     this.fileStore = fileStore;
   }
 
   @Override
   public void start() {
+    chainId = createChainForTemplate(sourceMaterial.getTemplate())
+      .orElseThrow(() -> new RuntimeException("Failed to create chain"))
+      .getId();
+
     timer = MultiStopwatch.start();
-    LOG.info("Will start Nexus");
-    while (running.get()) {
-      try {
-        runCycle();
-      } catch (InterruptedException e) {
-        LOG.warn("Nexus interrupted!", e);
-        running.set(false);
-      }
-    }
+    running.set(true);
   }
 
   @Override
@@ -205,13 +158,6 @@ public class CraftWorkImpl implements CraftWork {
     if (!running.get()) return;
     running.set(false);
     LOG.info("Finished");
-  }
-
-  @Override
-  public boolean isHealthy() {
-    return chainFabricatedAhead
-      && !WorkState.Failed.equals(state)
-      && nextCycleMillis > System.currentTimeMillis() - healthCycleStalenessThresholdSeconds * MILLIS_PER_SECOND;
   }
 
   @Override
@@ -344,11 +290,6 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   @Override
-  public String getTemplateKey() {
-    return inputTemplateKey;
-  }
-
-  @Override
   public boolean isMuted(SegmentChoiceArrangementPick pick) {
     try {
       var segment = segmentManager.readOne(pick.getSegmentId());
@@ -406,11 +347,6 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   @Override
-  public boolean isFailed() {
-    return state == WorkState.Failed;
-  }
-
-  @Override
   public HubContent getSourceMaterial() {
     return sourceMaterial;
   }
@@ -428,40 +364,29 @@ public class CraftWorkImpl implements CraftWork {
   /**
    This is the internal cycle that's run indefinitely
    */
-  void runCycle() throws InterruptedException {
+  public void runCycle() {
     if (System.currentTimeMillis() < nextCycleMillis) {
-      Thread.sleep(INTERNAL_CYCLE_SLEEP_MILLIS);
       return;
     }
-
     nextCycleMillis = System.currentTimeMillis() + cycleMillis;
 
-    // Action based on state and mode
     try {
-      switch (state) {
-        case Initializing -> {
-          if (InputMode.PREVIEW.equals(inputMode)) {
-            state = WorkState.Working;
-          } else {
-            loadYard();
-          }
+
+      try {
+        var chain = getChain();
+        if (chain.isEmpty()) {
+          return;
         }
-        case Loading -> {
-          // no op
-        }
-        case Working -> {
-          if (InputMode.PREVIEW.equals(inputMode)) {
-            runPreview();
-          } else {
-            runYard();
-          }
-        }
+        fabricateChain(chain.get());
+
+      } catch (FabricationFatalException e) {
+        didFailWhile("fabricating", e, false);
       }
       if (medicEnabled) doMedic();
       if (janitorEnabled) doJanitor();
 
     } catch (Exception e) {
-      didFailWhile(null, "running a work cycle", e, true);
+      didFailWhile("running a work cycle", e, true);
     }
 
     // End lap & do telemetry on all fabricated chains
@@ -469,94 +394,6 @@ public class CraftWorkImpl implements CraftWork {
     LOG.debug("Lap time: {}", timer.lapToString());
     timer.clearLapSections();
     nextCycleMillis = System.currentTimeMillis() + cycleMillis;
-  }
-
-  /**
-   Run all work when this Nexus is a sidecar to a hub, as in the Lab
-   */
-  void runPreview() {
-    if (System.currentTimeMillis() < labPollNextSystemMillis) {
-      return;
-    } else {
-      labPollNextSystemMillis = System.currentTimeMillis() + craftAheadSeconds * MILLIS_PER_SECOND;
-    }
-
-    ingestMaterialIfNecessary();
-    if (!maintainPreviewTemplate()) {
-      LOG.error("Failed to maintain preview template!");
-      state = WorkState.Failed;
-    }
-
-    // Fabricate active chain
-    var chain = getChain();
-    if (chain.isEmpty()) {
-      return;
-    }
-
-    try {
-      fabricateChain(chain.get());
-    } catch (
-      FabricationFatalException e) {
-      didFailWhile(chain.get().getShipKey(), "fabricating", e, false);
-    }
-  }
-
-  /**
-   Load static content to run nexus fabrication
-   <p>
-   Nexus production fabrication from static source (without Hub) https://www.pivotaltracker.com/story/show/177020318
-   */
-  void loadYard() {
-    try {
-      sourceMaterial = hubContentProvider.call();
-      chainId = createChainForTemplate(sourceMaterial.getTemplate())
-        .orElseThrow(() -> new RuntimeException(String.format("Failed to create chain for Template[%s]", inputTemplateKey)))
-        .getId();
-
-      LOG.debug("Ingested {} entities of source material", sourceMaterial.size());
-      state = WorkState.Working;
-
-    } catch (Exception e) {
-      didFailWhile(inputTemplateKey, "ingesting published source material", e, false);
-    }
-  }
-
-  /**
-   Run all work when this Nexus is in production, as in the Nexus
-   */
-  void runYard() {
-    if (System.currentTimeMillis() > yardPollNextSystemMillis) {
-      yardPollNextSystemMillis = System.currentTimeMillis() + asyncPollSeconds * MILLIS_PER_SECOND;
-    }
-
-    try {
-      var chain = getChain();
-      if (chain.isEmpty()) {
-        return;
-      }
-      fabricateChain(chain.get());
-    } catch (FabricationFatalException e) {
-      didFailWhile(inputTemplateKey, "fabricating", e, false);
-      state = WorkState.Failed;
-    }
-  }
-
-  /**
-   Ingest Content from Hub
-   */
-  void ingestMaterialIfNecessary() {
-    if (System.currentTimeMillis() < chainNextIngestMillis) return;
-    chainNextIngestMillis = System.currentTimeMillis() + ingestCycleSeconds * MILLIS_PER_SECOND;
-    timer.section("Ingest");
-
-    try {
-      // read the source material
-      sourceMaterial = hubContentProvider.call();
-      LOG.info("Ingested {} entities of source material", sourceMaterial.size());
-
-    } catch (Exception e) {
-      didFailWhile(inputTemplateKey, "ingesting source material from Hub", e, false);
-    }
   }
 
   /**
@@ -615,7 +452,6 @@ public class CraftWorkImpl implements CraftWork {
       var fabricatedToChainMicros = ChainUtils.computeFabricatedToChainMicros(segmentManager.readAll());
 
       double aheadSeconds = (double) ((fabricatedToChainMicros - atChainMicros) / MICROS_PER_SECOND);
-      telemetryProvider.put(METRIC_FABRICATED_AHEAD_SECONDS, aheadSeconds);
 
       var templateConfig = getTemplateConfig();
       if (templateConfig.isEmpty()) return;
@@ -627,7 +463,6 @@ public class CraftWorkImpl implements CraftWork {
 
       Segment segment = segmentManager.create(nextSegment.get());
       LOG.debug("Created Segment {}", segment);
-      telemetryProvider.put(METRIC_SEGMENT_CREATED, 1L);
 
       Fabricator fabricator;
       timer.section("Prepare");
@@ -641,7 +476,6 @@ public class CraftWorkImpl implements CraftWork {
       // Update the chain fabricated-ahead seconds before shipping data
       fabricatedToChainMicros = Objects.nonNull(segment.getDurationMicros()) ? fabricatedToChainMicros + segment.getDurationMicros() : fabricatedToChainMicros;
       aheadSeconds = (float) (fabricatedToChainMicros - atChainMicros) / MICROS_PER_SECOND;
-      telemetryProvider.put(METRIC_FABRICATED_AHEAD_SECONDS, aheadSeconds);
 
       finishWork(fabricator, segment);
 
@@ -655,18 +489,7 @@ public class CraftWorkImpl implements CraftWork {
       ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException |
       NexusException | ValueException e
     ) {
-      var body = String.format("Failed to create Segment of Chain[%s] (%s) because %s\n\n%s",
-        ChainUtils.getIdentifier(target),
-        target.getType(),
-        e.getMessage(),
-        StringUtils.formatStackTrace(e));
-
-      notification.publish(String.format("%s-Chain[%s] Failure",
-        target.getType(),
-        ChainUtils.getIdentifier(target)), body
-      );
-
-      LOG.error("Failed to created Segment in Chain[{}] reason={}", ChainUtils.getIdentifier(target), e.getMessage());
+      didFailWhile("fabricating", e, false);
     }
   }
 
@@ -706,7 +529,6 @@ public class CraftWorkImpl implements CraftWork {
    */
   void finishWork(Fabricator fabricator, Segment segment) throws NexusException {
     updateSegmentState(fabricator, segment, SegmentState.CRAFTING, SegmentState.CRAFTED);
-    doWriteJsonOutputs(fabricator);
     LOG.debug("[segId={}] Worked for {} seconds", segment.getId(), String.format("%.2f", (float) fabricator.getElapsedMicros() / MICROS_PER_SECOND));
   }
 
@@ -733,12 +555,11 @@ public class CraftWorkImpl implements CraftWork {
   /**
    Log and send notification of error that job failed while (message)
 
-   @param templateKey   (optional) ship key
    @param msgWhile      phrased like "Doing work"
    @param e             exception (optional)
    @param logStackTrace whether to show the whole stack trace in logs
    */
-  void didFailWhile(@Nullable String templateKey, String msgWhile, Exception e, boolean logStackTrace) {
+  void didFailWhile(String msgWhile, Exception e, boolean logStackTrace) {
     var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
 
     if (logStackTrace)
@@ -746,11 +567,6 @@ public class CraftWorkImpl implements CraftWork {
     else
       LOG.error("Failed while {} because {}", msgWhile, msgCause);
 
-    notification.publish(
-      StringUtils.isNullOrEmpty(templateKey) ? String.format("Chain[%s] Work Failure", templateKey) : "Chains Work Failure",
-      String.format("Failed while %s because %s\n\n%s", msgWhile, msgCause, StringUtils.formatStackTrace(e)));
-
-    state = WorkState.Failed;
     running.set(false);
     finish();
   }
@@ -775,29 +591,6 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
-   Maintain a single preview template by id
-   If we find no reason to perform work, we return false.
-   Returning false ultimately gracefully terminates the instance
-   https://www.pivotaltracker.com/story/show/185119448
-
-   @return true if all is well, false if something has failed
-   */
-  boolean maintainPreviewTemplate() {
-    try {
-      if (Objects.isNull(chainId)) {
-        chainId = createChainForTemplate(sourceMaterial.getTemplate())
-          .orElseThrow(() -> new ManagerFatalException(String.format("Failed to create chain for Template[%s]", TemplateUtils.getIdentifier(sourceMaterial.getTemplate()))))
-          .getId();
-      }
-    } catch (Exception e) {
-      LOG.error("Failed to start Chain for Template because {}", e.getMessage());
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
    Bootstrap a chain from JSON chain bootstrap data.
    */
   Optional<Chain> createChainForTemplate(Template template) {
@@ -813,54 +606,4 @@ public class CraftWorkImpl implements CraftWork {
       return Optional.empty();
     }
   }
-
-
-  /**
-   MasterDub implements Mixer module to write JSON outputs
-
-   @throws NexusException on error
-   */
-  void doWriteJsonOutputs(Fabricator fabricator) throws NexusException {
-    if (!isJsonOutputEnabled) return;
-    writeJsonFile(
-      fabricator.getSegmentJson(),
-      SegmentUtils.getStorageFilename(fabricator.getSegment(), EXTENSION_JSON));
-    writeJsonFile(
-      fabricator.getChainFullJson(),
-      ChainUtils.getShipKey(ChainUtils.getFullKey(ChainUtils.computeBaseKey(fabricator.getChain())), EXTENSION_JSON));
-    writeJsonFile(
-      fabricator.getChainJson(atChainMicros),
-      ChainUtils.getShipKey(ChainUtils.computeBaseKey(fabricator.getChain()), EXTENSION_JSON));
-  }
-
-  /**
-   Write json content to file
-
-   @param json     content
-   @param filename to write
-   */
-  void writeJsonFile(String json, String filename) {
-    var bytes = json.getBytes();
-    if (outputMode == OutputMode.HLS) {
-      try {
-        fileStore.putS3ObjectFromString(new String(bytes), shipBucket, filename, ContentType.APPLICATION_JSON.toString(), jsonExpiresInSeconds);
-        LOG.info("Uploaded {} bytes to {}", bytes.length, filename);
-      } catch (Exception e) {
-        LOG.error("Error writing {} bytes to {}", bytes.length, filename, e);
-      }
-    } else {
-      var path = computeTempFilePath(filename);
-      try {
-        Files.write(Paths.get(path), bytes);
-        LOG.info("Wrote {} bytes to {}", bytes.length, path);
-      } catch (Exception e) {
-        LOG.error("Error writing {} bytes to {}", bytes.length, path, e);
-      }
-    }
-  }
-
-  String computeTempFilePath(String filename) {
-    return String.format("%s%s", tempFilePathPrefix, filename);
-  }
-
 }

@@ -51,19 +51,6 @@ public class BroadcastFactoryImpl implements BroadcastFactory {
   }
 
   @Override
-  public StreamEncoder encoder(AudioFormat format, String shipKey) {
-    return new StreamEncoderImpl(shipKey, format, fileStoreProvider, playlistPublisher,
-      bitrate,
-      streamBucket,
-      shipChunkContentType,
-      chunkTargetDuration,
-      tempFilePathPrefix,
-      shipFFmpegVerbosity,
-      shipChunkAudioEncoder
-    );
-  }
-
-  @Override
   public StreamPlayer player(AudioFormat format) {
     return new StreamPlayerImpl(format);
   }

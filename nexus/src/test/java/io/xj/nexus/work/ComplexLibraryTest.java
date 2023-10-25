@@ -107,24 +107,17 @@ public class ComplexLibraryTest {
       entityFactory,
       fabricatorFactory,
       fileStoreProvider,
-      jsonapiPayloadFactory,
-      jsonProvider,
       store,
-      notificationProvider,
       segmentManager,
-      telemetryProvider,
-      hubContentProvider,
       audioBaseUrl,
       shipBaseUrl,
       InputMode.PRODUCTION,
       OutputMode.PLAYBACK,
-      "complex_library_test",
-      false,
       "/tmp",
-      86400,
       48000.0,
       2,
-      999999
+      86400,
+      content
     );
 
     workThread = new AppWorkThread(work);

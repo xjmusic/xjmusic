@@ -1,6 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.work;
 
+import io.xj.nexus.ship.ShipException;
+
+import java.io.IOException;
 import java.util.Optional;
 
 /**
@@ -16,25 +19,12 @@ import java.util.Optional;
  <p>
  https://www.nurkiewicz.com/2014/11/executorservice-10-tips-and-tricks.html
  */
-public interface ShipWork {
+public interface ShipWork extends Work {
 
   /**
-   This blocks for as long as the work is alive
+   @return ship progress ratio (0-1)
    */
-  void start();
-
-  /**
-   Stop work
-   */
-  void finish();
-
-  /**
-   Test whether all expected chains are healthy, depending on chain manager mode
-   Whether the next cycle nanos is above threshold, compared to System.nanoTime();
-
-   @return next cycle nanos
-   */
-  boolean isHealthy();
+  float getProgress();
 
   /**
    If the current work is realtime, e.g. playback or HLS, return the current chain micros

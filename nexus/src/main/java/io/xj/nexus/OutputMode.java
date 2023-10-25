@@ -3,7 +3,6 @@
 package io.xj.nexus;
 
 public enum OutputMode {
-  HLS,
   PLAYBACK,
   FILE;
 
@@ -12,7 +11,7 @@ public enum OutputMode {
   }
 
   public Boolean isSync() {
-    return this == HLS || this == PLAYBACK;
+    return this == PLAYBACK;
   }
 
   public Boolean isAsync() {

@@ -6,6 +6,7 @@ import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 
+// TODO this abstraction may not be necessary, now that we are running all the work directly from the fabrication service
 public class WorkConfiguration {
   private InputMode inputMode;
   private String inputTemplateKey;

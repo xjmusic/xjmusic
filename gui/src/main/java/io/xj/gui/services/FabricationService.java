@@ -8,17 +8,14 @@ import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.model.*;
-import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.work.WorkConfiguration;
-import io.xj.nexus.work.WorkState;
 import jakarta.annotation.Nullable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableValue;
-import javafx.concurrent.Worker;
-import javafx.event.EventTarget;
 import javafx.scene.Node;
 
 import java.util.Collection;
@@ -27,12 +24,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
-public interface FabricationService extends Worker<Boolean>, EventTarget {
-
+public interface FabricationService {
 
   Callable<HubContent> getHubContentProvider();
-
-  WorkConfiguration getWorkConfig();
 
   ObjectProperty<FabricationStatus> statusProperty();
 
@@ -69,6 +63,8 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
   Collection<SegmentChoice> getSegmentChoices(Segment segment);
 
   void start();
+
+  void reset();
 
   Optional<Program> getProgram(UUID programId);
 
@@ -108,6 +104,8 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
 
   BooleanProperty followPlaybackProperty();
 
+  ObservableDoubleValue progressProperty();
+
   ObservableBooleanValue isOutputModeSync();
 
   ObservableBooleanValue isStatusActive();
@@ -115,6 +113,35 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
   ObservableBooleanValue isStatusStandby();
 
   ObservableBooleanValue isOutputModeFile();
+
+  /**
+   Return the current shipped-to chain micros
+
+   @return chain micros, else empty
+   */
+  Optional<Long> getShippedToChainMicros();
+
+  /**
+   Return the current dubbed-to sync chain micros
+
+   @return chain micros, else empty
+   */
+  Optional<Long> getDubbedToChainMicros();
+
+  /**
+   Return the current crafted-to chain micros
+
+   @return chain micros, else empty
+   */
+  Optional<Long> getCraftedToChainMicros();
+
+  /**
+   If the current work is realtime, e.g. playback or HLS, return the target chain micros
+
+   @return chain micros if realtime, else empty
+   */
+  Optional<Long> getShipTargetChainMicros();
+
 
   /**
    The fabrication service has a main action that can be triggered by the user. This action is
@@ -152,65 +179,4 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
    @return the segment spanning the current ship output chain micros
    */
   Optional<Segment> getSegmentAtShipOutput();
-
-
-  /**
-   Stop work
-   */
-  void finish();
-
-  /**
-   Get work state
-   */
-  WorkState getWorkState();
-
-  /**
-   Whether the factory is healthy
-   */
-  boolean isHealthy();
-
-  /**
-   Get the segment manager
-   */
-  SegmentManager getSegmentManager();
-
-  /**
-   Reset the factory including the segment manager and its store
-   */
-  void reset();
-
-  /**
-   Get the Hub content source material
-
-   @return source material
-   */
-  HubContent getSourceMaterial();
-
-  /**
-   Return the current shipped-to chain micros
-
-   @return chain micros, else empty
-   */
-  Optional<Long> getShippedToChainMicros();
-
-  /**
-   Return the current dubbed-to sync chain micros
-
-   @return chain micros, else empty
-   */
-  Optional<Long> getDubbedToChainMicros();
-
-  /**
-   Return the current crafted-to chain micros
-
-   @return chain micros, else empty
-   */
-  Optional<Long> getCraftedToChainMicros();
-
-  /**
-   If the current work is realtime, e.g. playback or HLS, return the target chain micros
-
-   @return chain micros if realtime, else empty
-   */
-  Optional<Long> getShipTargetChainMicros();
 }

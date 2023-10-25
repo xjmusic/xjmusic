@@ -24,28 +24,8 @@ import java.util.Optional;
  Output audio chunks are dynamically sized. There is a default size, but the size is also determined by the
  duration of the segment. E.g., during gapless album output, the chunk will cut short if necessary to begin the next
  chunk at exactly the top of the following segment.
- <p>
- https://www.nurkiewicz.com/2014/11/executorservice-10-tips-and-tricks.html
  */
-public interface CraftWork {
-
-  /**
-   This blocks for as long as the work is alive
-   */
-  void start();
-
-  /**
-   Stop work
-   */
-  void finish();
-
-  /**
-   Test whether all expected chains are healthy, depending on chain manager mode
-   Whether the next cycle nanos is above threshold, compared to System.nanoTime();
-
-   @return next cycle nanos
-   */
-  boolean isHealthy();
+public interface CraftWork extends Work {
 
   /**
    Set the target plan to the given chain micros
@@ -126,24 +106,12 @@ public interface CraftWork {
   Optional<InstrumentAudio> getInstrumentAudio(SegmentChoiceArrangementPick pick);
 
   /**
-   @return the input template key
-   */
-  String getTemplateKey();
-
-  /**
    Check whether the given pick is muted (by its choice)
 
    @param pick the pick for which to get audio
    @return true if the given pick is muted
    */
   boolean isMuted(SegmentChoiceArrangementPick pick);
-
-  /**
-   Check whether the craft work is running
-
-   @return true if running
-   */
-  boolean isRunning();
 
   /**
    Get the main program for the given segment
@@ -160,13 +128,6 @@ public interface CraftWork {
    @return the macro program for the given segment, or empty if not chosen
    */
   Optional<Program> getMacroProgram(Segment segment);
-
-  /**
-   Whether craft work has failed
-
-   @return true if failed
-   */
-  boolean isFailed();
 
   /**
    Get the source material
