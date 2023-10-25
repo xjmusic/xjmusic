@@ -12,7 +12,6 @@ import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
@@ -42,8 +41,6 @@ public class MacroFromOverlappingMemeSequencesTest {
   static final int REPEAT_TIMES = 100;
   @Mock
   public HubClient hubClient;
-  @Mock
-  public NotificationProvider notificationProvider;
   MacroMainCraftImpl subject;
   Program macro2a;
 

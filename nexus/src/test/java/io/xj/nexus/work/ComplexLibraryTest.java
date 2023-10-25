@@ -7,8 +7,6 @@ import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.lib.notification.NotificationProvider;
-import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
@@ -51,12 +49,6 @@ public class ComplexLibraryTest {
 
   @Mock
   public HubClient hubClient;
-
-  @Mock
-  public NotificationProvider notificationProvider;
-
-  @Mock
-  public TelemetryProvider telemetryProvider;
 
   @Mock
   FileStoreProvider fileStoreProvider;

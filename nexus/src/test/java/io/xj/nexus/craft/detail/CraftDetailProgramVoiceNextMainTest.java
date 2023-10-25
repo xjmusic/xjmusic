@@ -8,7 +8,6 @@ import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
@@ -43,8 +42,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class CraftDetailProgramVoiceNextMainTest {
   @Mock
   public HubClient hubClient;
-  @Mock
-  public NotificationProvider notificationProvider;
   Chain chain1;
   CraftFactory craftFactory;
   FabricatorFactory fabricatorFactory;

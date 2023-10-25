@@ -4,7 +4,6 @@ package io.xj.nexus.work;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.util.StringUtils;
 import io.xj.lib.mixer.AudioFileWriter;
-import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
@@ -37,7 +36,6 @@ public class ShipWorkImpl implements ShipWork {
   final AtomicBoolean running = new AtomicBoolean(true);
   final BroadcastFactory broadcastFactory;
   final DubWork dubWork;
-  final NotificationProvider notification;
   final OutputFileMode outputFileMode;
   final OutputMode outputMode;
   final String outputPathPrefix;
@@ -56,7 +54,6 @@ public class ShipWorkImpl implements ShipWork {
 
   public ShipWorkImpl(
     DubWork dubWork,
-    NotificationProvider notification,
     BroadcastFactory broadcastFactory,
     OutputMode outputMode,
     OutputFileMode outputFileMode,
@@ -73,7 +70,6 @@ public class ShipWorkImpl implements ShipWork {
     this.cycleAudioBytes = cycleAudioBytes;
     this.cycleMillis = cycleMillis;
     this.dubWork = dubWork;
-    this.notification = notification;
     this.outputFileMode = outputFileMode;
     this.shipKey = shipKey;
     this.outputFileNumberDigits = outputFileNumberDigits;
@@ -371,10 +367,6 @@ public class ShipWorkImpl implements ShipWork {
     var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
 
     LOG.error("Failed while {} because {}", msgWhile, msgCause, e);
-
-    notification.publish(
-      "Ship Failure",
-      String.format("Failed while %s because %s\n\n%s", msgWhile, msgCause, StringUtils.formatStackTrace(e)));
 
     finish();
   }

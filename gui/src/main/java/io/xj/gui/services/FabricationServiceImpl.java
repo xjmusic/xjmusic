@@ -164,6 +164,12 @@ TODO handle these state changes
   }
 
   @Override
+  public void cancel() {
+    workManager.finish();
+    status.set(FabricationStatus.Cancelled);
+  }
+
+  @Override
   public void reset() {
     workManager.reset();
     status.set(FabricationStatus.Standby);
@@ -563,6 +569,10 @@ TODO handle these state changes
             .setOutputSeconds(Integer.parseInt(outputSeconds.get()))
             .setShipAheadSeconds(Integer.parseInt(shipAheadSeconds.get()));
 
+          var hubAccess = new HubClientAccess()
+            .setRoleTypes(List.of(UserRoleType.Internal))
+            .setToken(labService.accessTokenProperty().get());
+
           // start the work with the given configuration
           workManager.start(config, labService.hubConfigProperty().get(), hubAccess);
 
@@ -672,10 +682,6 @@ TODO handle these state changes
     else if (Objects.nonNull(program))
       return program.getName();
     else return "Not Loaded";
-  }
-
-  private void cancel() {
-    status.set(FabricationStatus.Cancelled);
   }
 
   private static String computeDefaultPathPrefix(String category) {

@@ -14,19 +14,16 @@ public class OutputModeTest {
   public void isLocal() {
     assertTrue(OutputMode.PLAYBACK.isLocal());
     assertTrue(OutputMode.FILE.isLocal());
-    assertFalse(OutputMode.HLS.isLocal());
   }
 
   @Test
   public void isSync() {
-    assertTrue(OutputMode.HLS.isSync());
     assertTrue(OutputMode.PLAYBACK.isSync());
     assertFalse(OutputMode.FILE.isSync());
   }
 
   @Test
   public void isAsync() {
-    assertFalse(OutputMode.HLS.isAsync());
     assertFalse(OutputMode.PLAYBACK.isAsync());
     assertTrue(OutputMode.FILE.isAsync());
   }

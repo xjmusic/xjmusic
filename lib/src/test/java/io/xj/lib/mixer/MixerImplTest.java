@@ -3,24 +3,18 @@ package io.xj.lib.mixer;
 
 
 import io.xj.hub.util.InternalResource;
-import io.xj.lib.notification.NotificationProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.sound.sampled.AudioFormat;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class MixerImplTest {
-  @Mock
-  NotificationProvider notificationProvider;
 
   MixerFactory mixerFactory;
 
@@ -33,7 +27,7 @@ public class MixerImplTest {
   @BeforeEach
   public void setUp() throws Exception {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, 1000000);
+    mixerFactory = new MixerFactoryImpl(envelopeProvider, 1000000);
     testMixer = mixerFactory.createMixer(
       new MixerConfig(
         new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
@@ -90,7 +84,5 @@ public class MixerImplTest {
     InternalResource internalResource = new InternalResource("test_audio/F32LSB_48kHz_6ch.wav");
     var audioId = UUID.randomUUID();
     testMixer.loadSource(audioId, internalResource.getFile().getAbsolutePath(), "test audio");
-
-    verify(notificationProvider).publish(eq("Chain Mix Source Failure"), eq("Failed to load source for Audio[" + audioId + "] \"test audio\" because more than 2 input audio channels not allowed"));
   }
 }

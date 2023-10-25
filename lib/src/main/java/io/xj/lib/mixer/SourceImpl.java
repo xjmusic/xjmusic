@@ -4,7 +4,6 @@ package io.xj.lib.mixer;
 
 import io.xj.hub.util.ValueException;
 import io.xj.hub.util.ValueUtils;
-import io.xj.lib.notification.NotificationProvider;
 import jakarta.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -44,7 +43,6 @@ class SourceImpl implements Source {
   final long lengthMicros;
 
   public SourceImpl(
-    NotificationProvider notification,
     UUID audioId,
     String absolutePath,
     String description
@@ -77,7 +75,6 @@ class SourceImpl implements Source {
 
     } catch (UnsupportedAudioFileException | IOException | ValueException e) {
       LOG.error("Failed to load source for Audio[{}] \"{}\" from {} because {}", audioId, description, absolutePath, e.getMessage(), e);
-      notification.publish("Chain Mix Source Failure", String.format("Failed to load source for Audio[%s] \"%s\" because %s", audioId, description, e.getMessage()));
       _audioFormat = null;
       _channels = 0;
       _frameRate = 0;

@@ -9,13 +9,12 @@ import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.mixer.MixerFactory;
-import io.xj.lib.notification.NotificationProvider;
-import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.dub.DubAudioCache;
 import io.xj.nexus.fabricator.FabricatorFactory;
+import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.nexus.hub_client.access.HubAccess;
+import io.xj.nexus.hub_client.HubContentProvider;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.ship.broadcast.BroadcastFactory;
@@ -27,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
@@ -39,13 +39,12 @@ public class WorkManagerImpl implements WorkManager {
   private final FabricatorFactory fabricatorFactory;
   private final FileStoreProvider fileStore;
   private final HttpClientProvider httpClientProvider;
+  private final HubClient hubClient;
   private final JsonProvider jsonProvider;
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final MixerFactory mixerFactory;
   private final NexusEntityStore store;
-  private final NotificationProvider notification;
   private final SegmentManager segmentManager;
-  private final TelemetryProvider telemetryProvider;
   private final long dubCycleMillis;
   private final int jsonExpiresInSeconds;
   private final int mixerSeconds;
@@ -86,13 +85,12 @@ public class WorkManagerImpl implements WorkManager {
     FabricatorFactory fabricatorFactory,
     FileStoreProvider fileStore,
     HttpClientProvider httpClientProvider,
+    HubClient hubClient,
     JsonProvider jsonProvider,
     JsonapiPayloadFactory jsonapiPayloadFactory,
     MixerFactory mixerFactory,
     NexusEntityStore store,
-    NotificationProvider notification,
     SegmentManager segmentManager,
-    TelemetryProvider telemetryProvider,
     @Value("${dub.cycle.millis}") long dubCycleMillis,
     @Value("${json.expires.in.seconds}") int jsonExpiresInSeconds,
     @Value("${mixer.timeline.seconds}") int mixerSeconds,
@@ -110,13 +108,12 @@ public class WorkManagerImpl implements WorkManager {
     this.fabricatorFactory = fabricatorFactory;
     this.fileStore = fileStore;
     this.httpClientProvider = httpClientProvider;
+    this.hubClient = hubClient;
     this.jsonProvider = jsonProvider;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.mixerFactory = mixerFactory;
     this.store = store;
-    this.notification = notification;
     this.segmentManager = segmentManager;
-    this.telemetryProvider = telemetryProvider;
     this.dubCycleMillis = dubCycleMillis;
     this.jsonExpiresInSeconds = jsonExpiresInSeconds;
     this.mixerSeconds = mixerSeconds;
@@ -142,6 +139,7 @@ public class WorkManagerImpl implements WorkManager {
 
   @Override
   public void finish() {
+    // This will cascade-send the finish() instruction to dub and ship
     if (Objects.nonNull(shipWork)) {
       shipWork.finish();
     }
@@ -202,73 +200,81 @@ public class WorkManagerImpl implements WorkManager {
 
   @Override
   public void runCycle() {
-    switch (state.get()) {
+    try {
+      switch (state.get()) {
 
-      case Starting -> {
-        startLoadingContent();
-        state.set(WorkState.LoadingContent);
-        LOG.info("Fabrication work starting");
-      }
+        case Starting -> {
+          startLoadingContent();
+          state.set(WorkState.LoadingContent);
+          LOG.info("Fabrication work starting");
+        }
 
-      case LoadingContent -> {
-        if (isContentLoaded()) {
-          state.set(WorkState.LoadedContent);
-          LOG.info("Fabrication work loaded content");
+        case LoadingContent -> {
+          if (isContentLoaded()) {
+            state.set(WorkState.LoadedContent);
+            LOG.info("Fabrication work loaded content");
+          }
+        }
+
+        case LoadedContent -> {
+          startLoadingAudio();
+          state.set(WorkState.LoadingAudio);
+          LOG.info("Fabrication work loading audio");
+        }
+
+        case LoadingAudio -> {
+          if (isAudioLoaded()) {
+            state.set(WorkState.LoadedAudio);
+            LOG.info("Fabrication work loaded audio");
+          }
+        }
+
+        case LoadedAudio -> {
+          initialize();
+          state.set(WorkState.Initializing);
+          LOG.info("Fabrication work initialized");
+        }
+
+        case Initializing -> {
+          if (isInitialized()) {
+            state.set(WorkState.Active);
+            LOG.info("Fabrication work active");
+          }
+        }
+
+        case Active -> {
+          if (Objects.nonNull(shipWork)) {
+            shipWork.runCycle();
+          }
+          if (Objects.nonNull(dubWork)) {
+            dubWork.runCycle();
+          }
+          if (Objects.nonNull(craftWork)) {
+            craftWork.runCycle();
+          }
+          if (isDone()) {
+            state.set(WorkState.Done);
+            LOG.info("Fabrication work done");
+          } else if (isFailed()) {
+            state.set(WorkState.Failed);
+            LOG.error("Fabrication work failed");
+          }
+        }
+
+        case Standby, Done, Failed -> {
+          // no op
         }
       }
 
-      case LoadedContent -> {
-        startLoadingAudio();
-        state.set(WorkState.LoadingAudio);
-        LOG.info("Fabrication work loading audio");
-      }
-
-      case LoadingAudio -> {
-        if (isAudioLoaded()) {
-          state.set(WorkState.LoadedAudio);
-          LOG.info("Fabrication work loaded audio");
-        }
-      }
-
-      case LoadedAudio -> {
-        initialize();
-        state.set(WorkState.Initializing);
-        LOG.info("Fabrication work initialized");
-      }
-
-      case Initializing -> {
-        if (isInitialized()) {
-          state.set(WorkState.Active);
-          LOG.info("Fabrication work active");
-        }
-      }
-
-      case Active -> {
-        if (Objects.nonNull(shipWork)) {
-          shipWork.runCycle();
-        }
-        if (Objects.nonNull(dubWork)) {
-          dubWork.runCycle();
-        }
-        if (Objects.nonNull(craftWork)) {
-          craftWork.runCycle();
-        }
-        if (isDone()) {
-          state.set(WorkState.Done);
-          LOG.info("Fabrication work done");
-        } else if (isFailed()) {
-          state.set(WorkState.Failed);
-          LOG.error("Fabrication work failed");
-        }
-      }
-
-      case Standby, Done, Failed -> {
-        // no op
-      }
+    } catch (Exception e) {
+      didFailWhile(e.getMessage());
     }
   }
 
-  private void startLoadingContent() {
+  private void startLoadingContent() throws Exception {
+    assert Objects.nonNull(workConfig);
+    Callable<HubContent> hubContentProvider = new HubContentProvider(hubClient, hubConfig, hubAccess, workConfig.getInputMode(), workConfig.getInputTemplateKey());
+    hubContent = hubContentProvider.call();
     // TODO start loading content
     // TODO utilize hubAccess to load content
   }
@@ -288,17 +294,8 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   private void initialize() {
-    if (Objects.isNull(hubContent)) {
-      didFail("Work configuration is null");
-      return;
-    } else if (Objects.isNull(workConfig)) {
-      didFail("Work configuration is null");
-      return;
-    } else if (Objects.isNull(hubConfig)) {
-      didFail("Hub configuration is null");
-      return;
-    }
-
+    assert Objects.nonNull(hubConfig);
+    assert Objects.nonNull(workConfig);
     craftWork = new CraftWorkImpl(
       craftFactory,
       entityFactory,
@@ -320,7 +317,6 @@ public class WorkManagerImpl implements WorkManager {
       craftWork,
       dubAudioCache,
       mixerFactory,
-      notification,
       workConfig.getContentStoragePathPrefix(),
       hubConfig.getAudioBaseUrl(),
       mixerSeconds,
@@ -331,7 +327,6 @@ public class WorkManagerImpl implements WorkManager {
     );
     shipWork = new ShipWorkImpl(
       dubWork,
-      notification,
       broadcastFactory,
       workConfig.getOutputMode(),
       workConfig.getOutputFileMode(),
@@ -346,7 +341,7 @@ public class WorkManagerImpl implements WorkManager {
     );
   }
 
-  private void didFail(String message) {
+  private void didFailWhile(String message) {
     LOG.error("Did fail: {}", message);
     state.set(WorkState.Failed);
   }

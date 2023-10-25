@@ -7,7 +7,6 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.util.StringUtils;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.mixer.*;
-import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.dub.DubAudioCache;
@@ -44,7 +43,6 @@ public class DubWorkImpl implements DubWork {
   final Map<InstrumentType, Integer> instrumentBusNumber = new ConcurrentHashMap<>();
   final Map<UUID, ActiveAudio> mixerActiveAudio = new ConcurrentHashMap<>();
   final MixerFactory mixerFactory;
-  final NotificationProvider notification;
   final int mixerLengthSeconds;
   final long cycleMillis;
   final long mixerLengthMicros;
@@ -64,7 +62,6 @@ public class DubWorkImpl implements DubWork {
     CraftWork craftWork,
     DubAudioCache dubAudioCache,
     MixerFactory mixerFactory,
-    NotificationProvider notification,
     String contentStoragePathPrefix,
     String audioBaseUrl,
     int mixerSeconds,
@@ -75,7 +72,6 @@ public class DubWorkImpl implements DubWork {
   ) {
     this.craftWork = craftWork;
     this.dubAudioCache = dubAudioCache;
-    this.notification = notification;
     this.contentStoragePathPrefix = contentStoragePathPrefix;
     this.audioBaseUrl = audioBaseUrl;
     this.mixerLengthSeconds = mixerSeconds;
@@ -435,12 +431,8 @@ public class DubWorkImpl implements DubWork {
     var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
     LOG.error("Failed while {} because {}", msgWhile, msgCause, e);
 
-    notification.publish(
-      "Dub Failure",
-      String.format("Failed while %s because %s\n\n%s", msgWhile, msgCause, StringUtils.formatStackTrace(e)));
-
     running.set(false);
     finish();
   }
-
+//
 }

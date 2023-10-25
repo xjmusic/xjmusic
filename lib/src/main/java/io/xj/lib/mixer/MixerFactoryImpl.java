@@ -2,7 +2,6 @@
 
 package io.xj.lib.mixer;
 
-import io.xj.lib.notification.NotificationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -12,18 +11,15 @@ import java.util.UUID;
 @Service
 public class MixerFactoryImpl implements MixerFactory {
   final EnvelopeProvider envelopeProvider;
-  final NotificationProvider notification;
 
   int mixerOutputPipeSize;
 
   @Autowired
   public MixerFactoryImpl(
     EnvelopeProvider envelopeProvider,
-    NotificationProvider notification,
     @Value("${mixer.output.pipe.size}") int mixerOutputPipeSize
   ) {
     this.envelopeProvider = envelopeProvider;
-    this.notification = notification;
     this.mixerOutputPipeSize = mixerOutputPipeSize;
   }
 
@@ -39,6 +35,6 @@ public class MixerFactoryImpl implements MixerFactory {
 
   @Override
   public Source createSource(UUID audioId, String absolutePath, String description) {
-    return new SourceImpl(notification, audioId, absolutePath, description);
+    return new SourceImpl(audioId, absolutePath, description);
   }
 }

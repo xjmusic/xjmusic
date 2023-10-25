@@ -179,4 +179,9 @@ public interface FabricationService {
    @return the segment spanning the current ship output chain micros
    */
   Optional<Segment> getSegmentAtShipOutput();
+
+  /**
+   Cancel the current fabrication process
+    */
+  void cancel();
 }

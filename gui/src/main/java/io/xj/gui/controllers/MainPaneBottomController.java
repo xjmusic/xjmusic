@@ -134,6 +134,6 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
     }
   }
 
-  record LogRecord(Level level, String context, String message) {
+  public record LogRecord(Level level, String context, String message) {
   }
 }
