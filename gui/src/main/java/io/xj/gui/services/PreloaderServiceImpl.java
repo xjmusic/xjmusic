@@ -42,6 +42,7 @@ public class PreloaderServiceImpl extends Service<Boolean> implements PreloaderS
     isServiceRunning.bind(runningProperty());
   }
 
+  // TODO get this preloading service outside of here and into a background task of the work manager
   protected Task<Boolean> createTask() {
     return new Task<>() {
       protected Boolean call() {

@@ -177,6 +177,8 @@ TODO handle these state changes
 
   @Override
   public Callable<HubContent> getHubContentProvider() {
+    // TODO deprecate this method
+
     var hubAccess = new HubClientAccess()
       .setRoleTypes(List.of(UserRoleType.Internal))
       .setToken(labService.accessTokenProperty().get());
