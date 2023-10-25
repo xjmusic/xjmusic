@@ -103,7 +103,6 @@ public class ComplexLibraryTest {
 
   @Test
   public void fabricatesManySegments() throws Exception {
-    work.start();
     while (!hasSegmentsDubbedPastMinimumOffset() && isWithinTimeLimit()) {
       work.runCycle();
       //noinspection BusyWait
