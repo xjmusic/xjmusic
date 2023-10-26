@@ -7,9 +7,9 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.mixer.MixerFactory;
+import io.xj.nexus.OutputMode;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.dub.DubAudioCache;
 import io.xj.nexus.fabricator.FabricatorFactory;
@@ -30,7 +30,9 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
@@ -54,8 +56,9 @@ public class WorkManagerImpl implements WorkManager {
   private final int cycleAudioBytes;
   private final long shipCycleMillis;
   private final String tempFilePathPrefix;
+  private boolean isFileOutputMode;
   private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
-  private final AtomicReference<Float> audioLoadingProgress = new AtomicReference<>(0.0f);
+  private final AtomicBoolean isAudioLoaded = new AtomicBoolean(false);
 
   @Nullable
   private CraftWork craftWork;
@@ -78,7 +81,7 @@ public class WorkManagerImpl implements WorkManager {
   private final AtomicReference<HubContent> hubContent = new AtomicReference<>();
 
   @Nullable
-  private Callable<Float> onProgress;
+  private Consumer<Float> onProgress;
 
   public WorkManagerImpl(
     BroadcastFactory broadcastFactory,
@@ -129,6 +132,8 @@ public class WorkManagerImpl implements WorkManager {
     this.hubConfig = hubConfig;
     this.hubAccess = hubAccess;
 
+    isFileOutputMode = workConfig.getOutputMode() == OutputMode.FILE;
+    isAudioLoaded.set(false);
     state.set(WorkState.Starting);
   }
 
@@ -156,7 +161,7 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public void setOnProgress(@Nullable Callable<Float> onProgress) {
+  public void setOnProgress(@Nullable Consumer<Float> onProgress) {
     this.onProgress = onProgress;
   }
 
@@ -171,16 +176,6 @@ public class WorkManagerImpl implements WorkManager {
     craftWork = null;
     dubWork = null;
     shipWork = null;
-  }
-
-  @Override
-  public Float getAudioLoadingProgress() {
-    return switch (state.get()) {
-      case LoadingAudio -> audioLoadingProgress.get();
-      case LoadedAudio -> 1.0f;
-      case Active, Done, Failed -> Objects.nonNull(shipWork) ? shipWork.getProgress() : 0.0f;
-      default -> 0.0f;
-    };
   }
 
   @Override
@@ -262,6 +257,9 @@ public class WorkManagerImpl implements WorkManager {
           if (Objects.nonNull(craftWork)) {
             craftWork.runCycle();
           }
+          if (Objects.nonNull(onProgress) && isFileOutputMode) {
+            onProgress.accept(shipWork.getProgress());
+          }
           if (shipWork.isFinished()) {
             state.set(WorkState.Done);
             LOG.info("Fabrication work done");
@@ -321,7 +319,7 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   private boolean isAudioLoaded() {
-    return audioLoadingProgress.get() >= 1.0f;
+    return isAudioLoaded.get();
   }
 
   private void initialize() {
@@ -430,10 +428,11 @@ public class WorkManagerImpl implements WorkManager {
                 FIXED_SAMPLE_BITS,
                 outputChannels);
 
-            audioLoadingProgress.set((float) loaded++ / audios.size());
+            if (Objects.nonNull(onProgress)) onProgress.accept((float) loaded / audios.size());
           }
         }
-        audioLoadingProgress.set(1.0f);
+        if (Objects.nonNull(onProgress)) onProgress.accept(1.0f);
+        isAudioLoaded.set(true);
         LOG.info("Preloaded {} audios from {} instruments", loaded, instruments.size());
 
       } catch (Exception e) {

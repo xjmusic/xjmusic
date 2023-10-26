@@ -9,6 +9,7 @@ import io.xj.nexus.persistence.SegmentManager;
 
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 
 public interface WorkManager {
   /**
@@ -38,11 +39,6 @@ public interface WorkManager {
    Reset the factory including the segment manager and its store
    */
   void reset();
-
-  /**
-   @return the current work step progress
-   */
-  Float getAudioLoadingProgress();
 
   /**
    Get the Hub content source material
@@ -104,5 +100,5 @@ public interface WorkManager {
 
    @param onProgress callback
    */
-  void setOnProgress(Callable<Float> onProgress);
+  void setOnProgress(Consumer<Float> onProgress);
 }

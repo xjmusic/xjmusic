@@ -37,7 +37,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
 
@@ -559,12 +558,7 @@ public class FabricationServiceImpl implements FabricationService {
             .setToken(labService.accessTokenProperty().get());
 
           // start the work with the given configuration
-          workManager.setOnProgress(new Callable<Float>() {
-            @Override
-            public Float call() throws Exception {
-              return null;
-            }
-          });
+          workManager.setOnProgress(progress::set);
           workManager.start(config, labService.hubConfigProperty().get(), hubAccess);
 
           // OK
