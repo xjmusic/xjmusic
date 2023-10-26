@@ -8,6 +8,7 @@ import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.persistence.SegmentManager;
 
 import java.util.Optional;
+import java.util.concurrent.Callable;
 
 public interface WorkManager {
   /**
@@ -97,4 +98,11 @@ public interface WorkManager {
    @return true if the current work is finished
    */
   boolean isFinished();
+
+  /**
+   Set the on progress callback
+
+   @param onProgress callback
+   */
+  void setOnProgress(Callable<Float> onProgress);
 }

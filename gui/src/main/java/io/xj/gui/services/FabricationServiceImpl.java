@@ -21,7 +21,6 @@ import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkManager;
 import io.xj.nexus.work.WorkState;
 import jakarta.annotation.Nullable;
-import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.HostServices;
 import javafx.beans.binding.Bindings;
@@ -29,10 +28,8 @@ import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
-import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,6 +37,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
 
@@ -532,7 +530,8 @@ public class FabricationServiceImpl implements FabricationService {
         workManager.getSegmentManager().readOneAtChainMicros(chainMicros));
   }
 
-  private void runWorkCycle(ActionEvent actionEvent) {
+  @Override
+  public void runCycle() {
     workManager.runCycle();
     switch (status.get()) {
       case Standby -> {
@@ -560,6 +559,12 @@ public class FabricationServiceImpl implements FabricationService {
             .setToken(labService.accessTokenProperty().get());
 
           // start the work with the given configuration
+          workManager.setOnProgress(new Callable<Float>() {
+            @Override
+            public Float call() throws Exception {
+              return null;
+            }
+          });
           workManager.start(config, labService.hubConfigProperty().get(), hubAccess);
 
           // OK
@@ -571,7 +576,6 @@ public class FabricationServiceImpl implements FabricationService {
         }
       }
       case Loading -> {
-        progress.set(workManager.getAudioLoadingProgress());
         // wait for the work to be ready
         if (workManager.getWorkState() == WorkState.Active) {
           // OK
@@ -596,6 +600,8 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   private void startTimeline() {
+/*
+TODO bring this back
     stopTimeline(); // just to be sure
     timeline = new Timeline(
       new KeyFrame(
@@ -606,6 +612,7 @@ public class FabricationServiceImpl implements FabricationService {
     timeline.setCycleCount(Timeline.INDEFINITE);
     timeline.setRate(1.0);
     timeline.play();
+*/
   }
 
   private void stopTimeline() {

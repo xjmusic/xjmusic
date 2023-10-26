@@ -7,6 +7,7 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.mixer.MixerFactory;
 import io.xj.nexus.craft.CraftFactory;
@@ -75,6 +76,9 @@ public class WorkManagerImpl implements WorkManager {
   private HubClientAccess hubAccess;
 
   private final AtomicReference<HubContent> hubContent = new AtomicReference<>();
+
+  @Nullable
+  private Callable<Float> onProgress;
 
   public WorkManagerImpl(
     BroadcastFactory broadcastFactory,
@@ -149,6 +153,11 @@ public class WorkManagerImpl implements WorkManager {
   @Override
   public boolean isFinished() {
     return getWorkState() == WorkState.Done || getWorkState() == WorkState.Failed;
+  }
+
+  @Override
+  public void setOnProgress(@Nullable Callable<Float> onProgress) {
+    this.onProgress = onProgress;
   }
 
   @Override

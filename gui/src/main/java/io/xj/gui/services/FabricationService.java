@@ -179,6 +179,11 @@ public interface FabricationService {
 
   /**
    Cancel the current fabrication process
-    */
+   */
   void cancel();
+
+  /**
+   Run the work cycle as a manual override
+   */
+  void runCycle();
 }
