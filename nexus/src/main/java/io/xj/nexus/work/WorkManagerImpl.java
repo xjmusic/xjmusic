@@ -249,19 +249,19 @@ public class WorkManagerImpl implements WorkManager {
         case Active -> {
           if (Objects.nonNull(shipWork)) {
             shipWork.runCycle();
+            if (isFileOutputMode) {
+              updateProgress(shipWork.getProgress());
+            }
+            if (shipWork.isFinished()) {
+              state.set(WorkState.Done);
+              LOG.info("Fabrication work done");
+            }
           }
           if (Objects.nonNull(dubWork)) {
             dubWork.runCycle();
           }
           if (Objects.nonNull(craftWork)) {
             craftWork.runCycle();
-          }
-          if (isFileOutputMode) {
-            updateProgress(shipWork.getProgress());
-          }
-          if (shipWork.isFinished()) {
-            state.set(WorkState.Done);
-            LOG.info("Fabrication work done");
           }
         }
 
@@ -380,9 +380,7 @@ public class WorkManagerImpl implements WorkManager {
    @param e        exception (optional)
    */
   void didFailWhile(String msgWhile, Exception e) {
-    LOG.error("Failed while {} because {}",
-      msgWhile, StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage(),
-      e);
+    LOG.error("Failed while {}", msgWhile, e);
     finish();
   }
 

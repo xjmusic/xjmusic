@@ -214,6 +214,9 @@ public class ShipWorkImpl implements ShipWork {
         didFailWhile("shipping bytes to local playback", new IllegalStateException("Player is null"));
         return;
       }
+
+      var butts=123;//todo remove
+
       var availableBytes = dubWork.getMixerBuffer().orElseThrow().getAvailableByteCount();
       if (availableBytes >= cycleAudioBytes) {
         LOG.debug("Shipping {} bytes to local playback", cycleAudioBytes);
@@ -237,6 +240,8 @@ public class ShipWorkImpl implements ShipWork {
       LOG.debug("No segment available at chain micros {}", targetChainMicros);
       return;
     }
+
+    var butts=123;//todo remove
 
     if (Objects.isNull(outputFile)) { // First output file
       doShipOutputFileStartNext(segment.get());

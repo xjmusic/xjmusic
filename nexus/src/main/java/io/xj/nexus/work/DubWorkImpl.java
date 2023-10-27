@@ -225,6 +225,9 @@ public class DubWorkImpl implements DubWork {
       LOG.debug("Waiting to catch up with {} second dub-ahead", dubAheadSeconds);
       return;
     }
+
+    var butts=123;//todo remove
+
     chunkToChainMicros = chunkFromChainMicros + mixerLengthMicros;
     craftWork.setAtChainMicros(chunkToChainMicros);
     LOG.debug("Planned frame {}s", String.format("%.1f", chunkToChainMicros / (double) MICROS_PER_SECOND));
@@ -245,6 +248,10 @@ public class DubWorkImpl implements DubWork {
       LOG.debug("Waiting for segments");
       return;
     }
+
+    var butts=123;//todo remove
+
+    // TODO investigate hang appears after this point
 
     try {
       var picks = craftWork.getPicks(segments);
