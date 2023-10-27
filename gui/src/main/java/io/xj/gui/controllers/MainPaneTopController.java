@@ -124,9 +124,4 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
       }
     }
   }
-
-  @FXML
-  public void handleRunCycleManualOverride(ActionEvent actionEvent) {
-    fabricationService.runCycle(); // todo remove this whole handler and the button
-  }
 }

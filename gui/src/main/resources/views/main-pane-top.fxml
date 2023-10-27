@@ -20,12 +20,6 @@
     <HBox alignment="CENTER_LEFT" spacing="9"
           xmlns:fx="http://javafx.com/fxml">
 
-      <Button mnemonicParsing="false" onAction="#handleRunCycleManualOverride" text="Run Cycle">
-        <font>
-          <Font name="System Bold"/>
-        </font>
-      </Button>
-
       <Button fx:id="buttonAction" mnemonicParsing="false" onAction="#handleButtonActionPress" text="Action">
         <font>
           <Font name="System Bold"/>

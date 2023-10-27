@@ -105,9 +105,9 @@ public class DubWorkImpl implements DubWork {
 
   @Override
   public void finish() {
-    craftWork.finish();
     if (!running.get()) return;
     running.set(false);
+    craftWork.finish();
     LOG.info("Finished");
   }
 

@@ -113,6 +113,8 @@ public class ShipWorkImpl implements ShipWork {
 
   @Override
   public void finish() {
+    if (!running.get()) return;
+    running.set(false);
     if (Objects.nonNull(playback)) {
       playback.finish();
     }
@@ -124,8 +126,6 @@ public class ShipWorkImpl implements ShipWork {
       }
     }
     dubWork.finish();
-    if (!running.get()) return;
-    running.set(false);
     LOG.info("Finished");
   }
 

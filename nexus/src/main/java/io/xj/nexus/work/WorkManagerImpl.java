@@ -62,6 +62,7 @@ public class WorkManagerImpl implements WorkManager {
   private boolean isFileOutputMode;
   private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
   private final AtomicBoolean isAudioLoaded = new AtomicBoolean(false);
+  private int engineCylinder = 0;
 
   @Nullable
   private CraftWork craftWork;
@@ -148,6 +149,7 @@ public class WorkManagerImpl implements WorkManager {
     if (Objects.nonNull(shipWork)) {
       shipWork.finish();
     }
+    state.set(WorkState.Done);
   }
 
   @Override
@@ -214,8 +216,8 @@ public class WorkManagerImpl implements WorkManager {
       switch (state.get()) {
 
         case Starting -> {
-          startLoadingContent();
           state.set(WorkState.LoadingContent);
+          startLoadingContent();
           LOG.info("Fabrication work starting");
         }
 
@@ -227,8 +229,8 @@ public class WorkManagerImpl implements WorkManager {
         }
 
         case LoadedContent -> {
-          startLoadingAudio();
           state.set(WorkState.LoadingAudio);
+          startLoadingAudio();
           LOG.info("Fabrication work loading audio");
         }
 
@@ -240,8 +242,8 @@ public class WorkManagerImpl implements WorkManager {
         }
 
         case LoadedAudio -> {
-          initialize();
           state.set(WorkState.Initializing);
+          initialize();
           LOG.info("Fabrication work initialized");
         }
 
@@ -252,7 +254,7 @@ public class WorkManagerImpl implements WorkManager {
           }
         }
 
-        case Active -> doActiveCycle();
+        case Active -> fireActiveEngineCylinder();
 
         case Standby, Done, Failed -> {
           // no op
@@ -359,25 +361,37 @@ public class WorkManagerImpl implements WorkManager {
     );
   }
 
-  private void doActiveCycle() {
-    if (Objects.nonNull(craftWork)) {
-      executor.submit(craftWork::runCycle);
-    }
-    if (Objects.nonNull(dubWork)) {
-      executor.submit(dubWork::runCycle);
-    }
-    executor.submit(() -> {
-      if (Objects.nonNull(shipWork)) {
-        shipWork.runCycle();
-        if (isFileOutputMode) {
-          updateProgress(shipWork.getProgress());
+  /**
+   The analogy here is an engine with multiple cylinders, where the cylinders (Craft, Dub, Ship) fire in sequence.
+   */
+  private void fireActiveEngineCylinder() {
+    engineCylinder = (engineCylinder + 1) % 3;
+    switch (engineCylinder) {
+
+      // Cylinder 0: Craft
+      case 0 -> executor.submit(() -> {
+        if (Objects.nonNull(craftWork)) craftWork.runCycle();
+      });
+
+      // Cylinder 1: Dub
+      case 1 -> executor.submit(() -> {
+        if (Objects.nonNull(dubWork)) dubWork.runCycle();
+      });
+
+      // Cylinder 2: Ship
+      case 2 -> executor.submit(() -> {
+        if (Objects.nonNull(shipWork)) {
+          shipWork.runCycle();
+          if (isFileOutputMode) {
+            updateProgress(shipWork.getProgress());
+          }
+          if (shipWork.isFinished()) {
+            state.set(WorkState.Done);
+            LOG.info("Fabrication work done");
+          }
         }
-        if (shipWork.isFinished()) {
-          state.set(WorkState.Done);
-          LOG.info("Fabrication work done");
-        }
-      }
-    });
+      });
+    }
   }
 
   /**

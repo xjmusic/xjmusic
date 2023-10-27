@@ -19,18 +19,19 @@ import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkManager;
-import io.xj.nexus.work.WorkState;
 import jakarta.annotation.Nullable;
+import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.HostServices;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
+import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -151,6 +152,30 @@ public class FabricationServiceImpl implements FabricationService {
       LOG.error("Cannot start fabrication unless in Standby status");
       return;
     }
+    // create work configuration
+    var config = new WorkConfiguration()
+      .setContentStoragePathPrefix(contentStoragePathPrefix.get())
+      .setCraftAheadSeconds(Integer.parseInt(craftAheadSeconds.get()))
+      .setDubAheadSeconds(Integer.parseInt(dubAheadSeconds.get()))
+      .setInputMode(inputMode.get())
+      .setInputTemplateKey(inputTemplateKey.get())
+      .setOutputChannels(Integer.parseInt(outputChannels.get()))
+      .setOutputFileMode(outputFileMode.get())
+      .setOutputFrameRate(Double.parseDouble(outputFrameRate.get()))
+      .setOutputMode(outputMode.get())
+      .setOutputPathPrefix(outputPathPrefix.get())
+      .setOutputSeconds(Integer.parseInt(outputSeconds.get()))
+      .setShipAheadSeconds(Integer.parseInt(shipAheadSeconds.get()));
+
+    var hubAccess = new HubClientAccess()
+      .setRoleTypes(List.of(UserRoleType.Internal))
+      .setToken(labService.accessTokenProperty().get());
+
+    // start the work with the given configuration
+    workManager.setOnProgress(progress::set);
+    workManager.start(config, labService.hubConfigProperty().get(), hubAccess);
+
+    // Start the timeline to run the work cycles
     status.set(FabricationStatus.Starting);
     startTimeline();
   }
@@ -530,88 +555,46 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
-  public void runCycle() {
-    Platform.runLater(workManager::runCycle);
+  public void runCycle(ActionEvent actionEvent) {
+    switch (workManager.getWorkState()) {
+      case Standby -> status.set(FabricationStatus.Standby);
+      case LoadingContent, LoadingAudio, LoadedContent, LoadedAudio -> status.set(FabricationStatus.Loading);
+      case Active -> status.set(FabricationStatus.Active);
+      case Done -> status.set(FabricationStatus.Done);
+      case Failed -> status.set(FabricationStatus.Failed);
+    }
+
+    try {
+      workManager.runCycle();
+    } catch (Exception e) {
+      LOG.error("Failed to run work cycle!", e);
+      status.set(FabricationStatus.Failed);
+    }
+
     switch (status.get()) {
-      case Standby -> {
-        // no op
-      }
-      case Starting -> {
-        try {
-          // create work configuration
-          var config = new WorkConfiguration()
-            .setContentStoragePathPrefix(contentStoragePathPrefix.get())
-            .setCraftAheadSeconds(Integer.parseInt(craftAheadSeconds.get()))
-            .setDubAheadSeconds(Integer.parseInt(dubAheadSeconds.get()))
-            .setInputMode(inputMode.get())
-            .setInputTemplateKey(inputTemplateKey.get())
-            .setOutputChannels(Integer.parseInt(outputChannels.get()))
-            .setOutputFileMode(outputFileMode.get())
-            .setOutputFrameRate(Double.parseDouble(outputFrameRate.get()))
-            .setOutputMode(outputMode.get())
-            .setOutputPathPrefix(outputPathPrefix.get())
-            .setOutputSeconds(Integer.parseInt(outputSeconds.get()))
-            .setShipAheadSeconds(Integer.parseInt(shipAheadSeconds.get()));
-
-          var hubAccess = new HubClientAccess()
-            .setRoleTypes(List.of(UserRoleType.Internal))
-            .setToken(labService.accessTokenProperty().get());
-
-          // start the work with the given configuration
-          workManager.setOnProgress(progress::set);
-          workManager.start(config, labService.hubConfigProperty().get(), hubAccess);
-
-          // OK
-          status.set(FabricationStatus.Loading);
-
-        } catch (Exception e) {
-          LOG.error("Failed to start work!", e);
-          status.set(FabricationStatus.Failed);
-        }
-      }
-      case Loading -> {
-        // wait for the work to be ready
-        if (workManager.getWorkState() == WorkState.Active) {
-          // OK
-          status.set(FabricationStatus.Active);
-        }
-      }
-      case Active -> {
-        try {
-          workManager.runCycle();
-          switch (workManager.getWorkState()) {
-            case Done -> status.set(FabricationStatus.Done);
-            case Failed -> status.set(FabricationStatus.Failed);
-          }
-
-        } catch (Exception e) {
-          LOG.error("Failed to run work cycle!", e);
-          status.set(FabricationStatus.Failed);
-        }
-      }
-      case Cancelled, Done, Failed -> stopTimeline();
+      case Cancelled, Done, Failed -> pauseTimeline();
     }
   }
 
   private void startTimeline() {
-/*
-TODO bring this back
-    stopTimeline(); // just to be sure
-    timeline = new Timeline(
-      new KeyFrame(
-        Duration.millis(cycleMillis),
-        this::runWorkCycle
-      )
-    );
-    timeline.setCycleCount(Timeline.INDEFINITE);
-    timeline.setRate(1.0);
-    timeline.play();
-*/
+    if (Objects.nonNull(timeline)) {
+      timeline.play();
+    } else {
+      timeline = new Timeline(
+        new KeyFrame(
+          Duration.millis(cycleMillis),
+          this::runCycle
+        )
+      );
+      timeline.setCycleCount(Timeline.INDEFINITE);
+      timeline.setRate(1.0);
+      timeline.play();
+    }
   }
 
-  private void stopTimeline() {
+  private void pauseTimeline() {
     if (Objects.nonNull(timeline)) {
-      timeline.stop();
+      timeline.pause();
     }
   }
 
@@ -695,7 +678,8 @@ TODO bring this back
     return Optional.of(segmentBarBeats.get(segment.getId()));
   }
 
-  String computeProgramName(@Nullable Program program, @Nullable ProgramSequence programSequence, @Nullable ProgramSequenceBinding programSequenceBinding) {
+  String computeProgramName(@Nullable Program program, @Nullable ProgramSequence
+    programSequence, @Nullable ProgramSequenceBinding programSequenceBinding) {
     if (Objects.nonNull(program) && Objects.nonNull(programSequence) && Objects.nonNull(programSequenceBinding))
       return String.format("%s (%s)", program.getName(), programSequence.getName());
     else if (Objects.nonNull(program))
