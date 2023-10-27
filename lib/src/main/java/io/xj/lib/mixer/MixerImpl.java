@@ -140,8 +140,11 @@ class MixerImpl implements Mixer {
     // Initial mix steps are done on individual busses
     // Multi-bus output with individual normalization REF https://www.pivotaltracker.com/story/show/179081795
     applySources();
+/*
+TODO individual bus compression should be a template config
     for (int b = 0; b < busBuf.length; b++)
       applyBusCompressor(b);
+*/
     mixOutputBus();
 
     // The dynamic range is forced into gentle logarithmic decay.
