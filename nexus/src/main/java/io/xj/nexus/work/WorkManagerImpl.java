@@ -29,7 +29,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -56,6 +58,7 @@ public class WorkManagerImpl implements WorkManager {
   private final int cycleAudioBytes;
   private final long shipCycleMillis;
   private final String tempFilePathPrefix;
+  private final ExecutorService executor;
   private boolean isFileOutputMode;
   private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
   private final AtomicBoolean isAudioLoaded = new AtomicBoolean(false);
@@ -100,7 +103,8 @@ public class WorkManagerImpl implements WorkManager {
     @Value("${output.pcm.chunk.size.bytes}") int pcmChunkSizeBytes,
     @Value("${ship.cycle.audio.bytes}") int cycleAudioBytes,
     @Value("${ship.cycle.millis}") long shipCycleMillis,
-    @Value("${temp.file.path.prefix}") String tempFilePathPrefix
+    @Value("${temp.file.path.prefix}") String tempFilePathPrefix,
+    @Value("${thread.pool.size}") int threadPoolSize
   ) {
     this.broadcastFactory = broadcastFactory;
     this.craftFactory = craftFactory;
@@ -119,6 +123,8 @@ public class WorkManagerImpl implements WorkManager {
     this.cycleAudioBytes = cycleAudioBytes;
     this.shipCycleMillis = shipCycleMillis;
     this.tempFilePathPrefix = tempFilePathPrefix;
+
+    executor = Executors.newFixedThreadPool(threadPoolSize);
   }
 
   @Override
@@ -246,24 +252,7 @@ public class WorkManagerImpl implements WorkManager {
           }
         }
 
-        case Active -> {
-          if (Objects.nonNull(shipWork)) {
-            shipWork.runCycle();
-            if (isFileOutputMode) {
-              updateProgress(shipWork.getProgress());
-            }
-            if (shipWork.isFinished()) {
-              state.set(WorkState.Done);
-              LOG.info("Fabrication work done");
-            }
-          }
-          if (Objects.nonNull(dubWork)) {
-            dubWork.runCycle();
-          }
-          if (Objects.nonNull(craftWork)) {
-            craftWork.runCycle();
-          }
-        }
+        case Active -> doActiveCycle();
 
         case Standby, Done, Failed -> {
           // no op
@@ -293,16 +282,14 @@ public class WorkManagerImpl implements WorkManager {
       workConfig.getInputTemplateKey()
     );
 
-    ExecutorService executor = Executors.newSingleThreadExecutor();
-    Future<HubContent> futureHubContent = executor.submit(hubContentProvider);
-
-    try {
-      hubContent.set(futureHubContent.get());  // This will block until the callable has finished execution
-    } catch (InterruptedException | ExecutionException e) {
-      didFailWhile("getting hub content", e);
-    } finally {
-      executor.shutdown();  // Always shut down the executor to free up resources
-    }
+    executor.submit(() -> {
+      try {
+        HubContent content = hubContentProvider.call();
+        hubContent.set(content);
+      } catch (Exception e) {
+        didFailWhile("loading content", e);
+      }
+    });
   }
 
   private boolean isContentLoaded() {
@@ -312,15 +299,14 @@ public class WorkManagerImpl implements WorkManager {
   private void startLoadingAudio() {
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(hubConfig);
-    AudioPreloader audioPreloader = new AudioPreloader(
+
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    executor.submit(new AudioPreloader(
       workConfig.getContentStoragePathPrefix(),
       hubConfig.getAudioBaseUrl(),
       (int) workConfig.getOutputFrameRate(),
       workConfig.getOutputChannels()
-    );
-
-    ExecutorService executor = Executors.newSingleThreadExecutor();
-    executor.submit(audioPreloader);
+    ));
   }
 
   private boolean isAudioLoaded() {
@@ -371,6 +357,27 @@ public class WorkManagerImpl implements WorkManager {
       pcmChunkSizeBytes,
       workConfig.getShipAheadSeconds()
     );
+  }
+
+  private void doActiveCycle() {
+    if (Objects.nonNull(craftWork)) {
+      executor.submit(craftWork::runCycle);
+    }
+    if (Objects.nonNull(dubWork)) {
+      executor.submit(dubWork::runCycle);
+    }
+    executor.submit(() -> {
+      if (Objects.nonNull(shipWork)) {
+        shipWork.runCycle();
+        if (isFileOutputMode) {
+          updateProgress(shipWork.getProgress());
+        }
+        if (shipWork.isFinished()) {
+          state.set(WorkState.Done);
+          LOG.info("Fabrication work done");
+        }
+      }
+    });
   }
 
   /**
