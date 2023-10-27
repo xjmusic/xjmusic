@@ -423,7 +423,7 @@ public class WorkManagerImpl implements WorkManager {
             if (isFinished()) {
               return;
             }
-            if (!StringUtils.isNullOrEmpty(audio.getWaveformKey()))
+            if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
               dubAudioCache.load(
                 contentStoragePathPrefix,
                 audioBaseUrl,
@@ -432,13 +432,14 @@ public class WorkManagerImpl implements WorkManager {
                 outputFrameRate,
                 FIXED_SAMPLE_BITS,
                 outputChannels);
-
-            updateProgress((float) loaded / audios.size());
+              updateProgress((float) loaded / audios.size());
+              loaded++;
+            }
           }
         }
         if (Objects.nonNull(onProgress)) onProgress.accept(1.0f);
         isAudioLoaded.set(true);
-        LOG.info("Preloaded {} audios from {} instruments", loaded, instruments.size());
+        LOG.info("Preloaded {}  audios from {} instruments", loaded, instruments.size());
 
       } catch (Exception e) {
         didFailWhile("preloading audio", e);

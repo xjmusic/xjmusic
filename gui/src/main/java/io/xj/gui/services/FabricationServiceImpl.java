@@ -48,7 +48,7 @@ public class FabricationServiceImpl implements FabricationService {
   private final static String BUTTON_TEXT_START = "Start";
   private final static String BUTTON_TEXT_STOP = "Stop";
   private final static String BUTTON_TEXT_RESET = "Reset";
-  private final Integer xcycleMillis;
+  private final Integer cycleMillis;
   private final HostServices hostServices;
   private final String defaultContentStoragePathPrefix = computeDefaultPathPrefix("content");
   private final String defaultOutputPathPrefix = computeDefaultPathPrefix("output");
@@ -58,10 +58,10 @@ public class FabricationServiceImpl implements FabricationService {
   private final Integer defaultShipAheadSeconds;
   private final String defaultInputTemplateKey;
   private final int defaultOutputChannels;
-  private final String defaultOutputFileMode;
+  private final OutputFileMode defaultOutputFileMode;
   private final double defaultOutputFrameRate;
-  private final String defaultInputMode;
-  private final String defaultOutputMode;
+  private final InputMode defaultInputMode;
+  private final OutputMode defaultOutputMode;
   private final Integer defaultOutputSeconds;
   final WorkManager workManager;
   final HubClient hubClient;
@@ -126,12 +126,12 @@ public class FabricationServiceImpl implements FabricationService {
     this.cycleMillis = cycleMillis;
     this.defaultCraftAheadSeconds = defaultCraftAheadSeconds;
     this.defaultDubAheadSeconds = defaultDubAheadSeconds;
-    this.defaultInputMode = defaultInputMode;
+    this.defaultInputMode = InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT));
     this.defaultInputTemplateKey = defaultInputTemplateKey;
     this.defaultOutputChannels = defaultOutputChannels;
-    this.defaultOutputFileMode = defaultOutputFileMode;
+    this.defaultOutputFileMode = OutputFileMode.valueOf(defaultOutputFileMode.toUpperCase(Locale.ROOT));
     this.defaultOutputFrameRate = defaultOutputFrameRate;
-    this.defaultOutputMode = defaultOutputMode;
+    this.defaultOutputMode = OutputMode.valueOf(defaultOutputMode.toUpperCase(Locale.ROOT));
     this.defaultOutputSeconds = defaultOutputSeconds;
     this.defaultShipAheadSeconds = defaultShipAheadSeconds;
     this.defaultTimelineSegmentViewLimit = defaultTimelineSegmentViewLimit;
@@ -488,8 +488,8 @@ public class FabricationServiceImpl implements FabricationService {
   public void handleMainAction() {
     switch (status.get()) {
       case Standby -> start();
-      case Active, Starting -> cancel();
       case Cancelled, Done, Failed -> reset();
+      default -> cancel();
     }
   }
 
@@ -510,9 +510,9 @@ public class FabricationServiceImpl implements FabricationService {
     shipAheadSeconds.set(Integer.toString(defaultShipAheadSeconds));
     inputMode.set(InputMode.PRODUCTION);
     inputTemplateKey.set(templateKey);
-    outputFileMode.set(OutputFileMode.valueOf(defaultOutputFileMode.toUpperCase(Locale.ROOT)));
-    outputMode.set(OutputMode.valueOf(defaultOutputMode.toUpperCase(Locale.ROOT)));
-    inputMode.set(InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT)));
+    outputFileMode.set(defaultOutputFileMode);
+    outputMode.set(defaultOutputMode);
+    inputMode.set(defaultInputMode);
 
     start();
   }
@@ -635,16 +635,34 @@ TODO bring this back
     contentStoragePathPrefix.set(prefs.get("contentStoragePathPrefix", defaultContentStoragePathPrefix));
     craftAheadSeconds.set(prefs.get("craftAheadSeconds", Integer.toString(defaultCraftAheadSeconds)));
     dubAheadSeconds.set(prefs.get("dubAheadSeconds", Integer.toString(defaultDubAheadSeconds)));
-    inputMode.set(InputMode.valueOf(prefs.get("inputMode", defaultInputMode.toUpperCase(Locale.ROOT))));
     inputTemplateKey.set(prefs.get("inputTemplateKey", defaultInputTemplateKey));
     outputChannels.set(prefs.get("outputChannels", Integer.toString(defaultOutputChannels)));
-    outputFileMode.set(OutputFileMode.valueOf(prefs.get("outputFileMode", defaultOutputFileMode.toUpperCase(Locale.ROOT))));
     outputFrameRate.set(prefs.get("outputFrameRate", Double.toString(defaultOutputFrameRate)));
-    outputMode.set(OutputMode.valueOf(prefs.get("outputMode", defaultOutputMode.toUpperCase(Locale.ROOT))));
     outputPathPrefix.set(prefs.get("outputPathPrefix", defaultOutputPathPrefix));
     outputSeconds.set(prefs.get("outputSeconds", Integer.toString(defaultOutputSeconds)));
     shipAheadSeconds.set(prefs.get("shipAheadSeconds", Integer.toString(defaultShipAheadSeconds)));
     timelineSegmentViewLimit.set(prefs.get("timelineSegmentViewLimit", Integer.toString(defaultTimelineSegmentViewLimit)));
+
+    try {
+      inputMode.set(InputMode.valueOf(prefs.get("inputMode", defaultInputMode.toString()).toUpperCase(Locale.ROOT)));
+    } catch (Exception e) {
+      LOG.error("Failed to set input mode from preferences", e);
+      inputMode.set(defaultInputMode);
+    }
+
+    try {
+      outputMode.set(OutputMode.valueOf(prefs.get("outputMode", defaultOutputMode.toString()).toUpperCase(Locale.ROOT)));
+    } catch (Exception e) {
+      LOG.error("Failed to set output mode from preferences", e);
+      outputMode.set(defaultOutputMode);
+    }
+
+    try {
+      outputFileMode.set(OutputFileMode.valueOf(prefs.get("outputFileMode", defaultOutputFileMode.toString()).toUpperCase(Locale.ROOT)));
+    } catch (Exception e) {
+      LOG.error("Failed to set output file mode from preferences", e);
+      outputFileMode.set(defaultOutputFileMode);
+    }
   }
 
   private String formatTotalBars(int bars, String fraction) {
