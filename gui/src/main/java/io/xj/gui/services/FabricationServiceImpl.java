@@ -48,7 +48,7 @@ public class FabricationServiceImpl implements FabricationService {
   private final static String BUTTON_TEXT_START = "Start";
   private final static String BUTTON_TEXT_STOP = "Stop";
   private final static String BUTTON_TEXT_RESET = "Reset";
-  private final Integer cycleMillis;
+  private final Integer xcycleMillis;
   private final HostServices hostServices;
   private final String defaultContentStoragePathPrefix = computeDefaultPathPrefix("content");
   private final String defaultOutputPathPrefix = computeDefaultPathPrefix("output");

@@ -121,7 +121,6 @@ public class WorkManagerImpl implements WorkManager {
     this.tempFilePathPrefix = tempFilePathPrefix;
   }
 
-
   @Override
   public void start(
     WorkConfiguration workConfig,
@@ -257,8 +256,8 @@ public class WorkManagerImpl implements WorkManager {
           if (Objects.nonNull(craftWork)) {
             craftWork.runCycle();
           }
-          if (Objects.nonNull(onProgress) && isFileOutputMode) {
-            onProgress.accept(shipWork.getProgress());
+          if (isFileOutputMode) {
+            updateProgress(shipWork.getProgress());
           }
           if (shipWork.isFinished()) {
             state.set(WorkState.Done);
@@ -273,6 +272,12 @@ public class WorkManagerImpl implements WorkManager {
 
     } catch (Exception e) {
       didFailWhile("running work cycle", e);
+    }
+  }
+
+  private void updateProgress(float progress) {
+    if (Objects.nonNull(onProgress)) {
+      onProgress.accept(progress);
     }
   }
 
@@ -428,7 +433,7 @@ public class WorkManagerImpl implements WorkManager {
                 FIXED_SAMPLE_BITS,
                 outputChannels);
 
-            if (Objects.nonNull(onProgress)) onProgress.accept((float) loaded / audios.size());
+            updateProgress((float) loaded / audios.size());
           }
         }
         if (Objects.nonNull(onProgress)) onProgress.accept(1.0f);
