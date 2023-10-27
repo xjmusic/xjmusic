@@ -249,10 +249,6 @@ public class DubWorkImpl implements DubWork {
       return;
     }
 
-    var butts=123;//todo remove
-
-    // TODO investigate hang appears after this point
-
     try {
       var picks = craftWork.getPicks(segments);
       List<ActiveAudio> activeAudios = segments.stream().flatMap(segment ->

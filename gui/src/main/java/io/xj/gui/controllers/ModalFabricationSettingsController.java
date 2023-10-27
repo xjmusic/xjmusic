@@ -2,7 +2,10 @@
 
 package io.xj.gui.controllers;
 
-import io.xj.gui.services.*;
+import io.xj.gui.services.FabricationService;
+import io.xj.gui.services.LabService;
+import io.xj.gui.services.ThemeService;
+import io.xj.gui.services.UIStateService;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
@@ -109,10 +112,10 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
     labelInputMode.disableProperty().bind(uiStateService.isInputModeDisabledProperty());
     // Input mode is locked in PRODUCTION unless we are connected to a Lab
     if (labService.isAuthenticated()) {
-      choiceInputMode.setItems(FXCollections.observableArrayList(InputMode.values()));
+      choiceInputMode.getItems().setAll(FXCollections.observableArrayList(InputMode.values()));
     } else {
-      choiceInputMode.setItems(FXCollections.observableArrayList(InputMode.PRODUCTION));
-      choiceInputMode.setValue(InputMode.PRODUCTION);
+      choiceInputMode.getItems().setAll(FXCollections.observableArrayList(InputMode.PRODUCTION));
+      fabricationService.inputModeProperty().set(InputMode.PRODUCTION);
     }
 
     fieldInputTemplateKey.textProperty().bindBidirectional(fabricationService.inputTemplateKeyProperty());
@@ -142,14 +145,6 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
     fieldOutputChannels.textProperty().bindBidirectional(fabricationService.outputChannelsProperty());
 
     fieldTimelineSegmentViewLimit.textProperty().bindBidirectional(fabricationService.timelineSegmentViewLimitProperty());
-
-    // Input mode is locked in PRODUCTION unless we are connected to a Lab
-    if (labService.isAuthenticated()) {
-      choiceInputMode.setItems(FXCollections.observableArrayList(InputMode.PREVIEW, InputMode.PRODUCTION));
-    } else {
-      choiceInputMode.setItems(FXCollections.observableArrayList(InputMode.PRODUCTION));
-      choiceInputMode.setValue(InputMode.PRODUCTION);
-    }
   }
 
   @Override

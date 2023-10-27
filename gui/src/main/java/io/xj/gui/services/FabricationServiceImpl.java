@@ -23,6 +23,7 @@ import io.xj.nexus.work.WorkState;
 import jakarta.annotation.Nullable;
 import javafx.animation.Timeline;
 import javafx.application.HostServices;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
@@ -508,7 +509,6 @@ public class FabricationServiceImpl implements FabricationService {
     this.craftAheadSeconds.set(craftAheadSeconds.toString());
     dubAheadSeconds.set(Integer.toString(defaultDubAheadSeconds));
     shipAheadSeconds.set(Integer.toString(defaultShipAheadSeconds));
-    inputMode.set(InputMode.PRODUCTION);
     inputTemplateKey.set(templateKey);
     outputFileMode.set(defaultOutputFileMode);
     outputMode.set(defaultOutputMode);
@@ -531,7 +531,7 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public void runCycle() {
-    workManager.runCycle();
+    Platform.runLater(workManager::runCycle);
     switch (status.get()) {
       case Standby -> {
         // no op
