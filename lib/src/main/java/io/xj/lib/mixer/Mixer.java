@@ -72,16 +72,6 @@ public interface Mixer {
   void loadSource(UUID audioId, String pathToFile, String description) throws FormatException, IOException, SourceException;
 
   /**
-   THE BIG SHOW
-   <p>
-   Mix out to a file
-
-   @return total # of seconds mixed (double floating-point)
-   @throws MixerException if something goes wrong
-   */
-  double mix() throws MixerException, IOException, FormatException, InterruptedException;
-
-  /**
    Get the current count of all sources.
 
    @return count
@@ -112,16 +102,21 @@ public interface Mixer {
   Source getSource(UUID audioId);
 
   /**
-   Get the shared audio buffer to read the mix output
-
-   @return the shared audio buffer
-   */
-  BytePipeline getBuffer();
-
-  /**
    Get the audio format of the mix output
 
    @return the audio format
    */
   AudioFormat getAudioFormat();
+
+  /**
+   THE BIG SHOW
+   <p>
+   Mix the next N bytes
+
+   @param bytes number of bytes to mix
+   @return mixed bytes
+   @throws MixerException  if something goes wrong
+   @throws FormatException if there's a format problem
+   */
+  byte[] mixNext(int bytes) throws MixerException, FormatException;
 }

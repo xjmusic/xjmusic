@@ -43,8 +43,6 @@ class MixerImpl implements Mixer {
   final Map<Integer, Double> busLevel = new ConcurrentHashMap<>();
   final int framesPerMilli;
   final EnvelopeProvider envelope;
-
-  final BytePipeline buffer;
   MixerState state = MixerState.Ready;
   /**
    Note: these buffers can't be constructed until after the sources are Put, ergo defining the total buffer length.
@@ -93,7 +91,6 @@ class MixerImpl implements Mixer {
       outBuf = new double[totalFrames][outputChannels];
       outputFrameSize = audioFormat.getFrameSize();
       int totalBytes = totalFrames * outputFrameSize;
-      buffer = new BytePipeline(outputPipeSize);
 
       LOG.debug(config.getLogPrefix() + "Did initialize mixer with " + "outputChannels: {}, " + "outputFrameRate: {}, " + "outputFrameSize: {}, " + "microsPerFrame: {}, " + "totalSeconds: {}, " + "totalFrames: {}, " + "totalBytes: {}", outputChannels, outputFrameRate, outputFrameSize, microsPerFrame, config.getTotalSeconds(), totalFrames, totalBytes);
 
@@ -129,7 +126,7 @@ class MixerImpl implements Mixer {
   }
 
   @Override
-  public double mix() throws MixerException, FormatException, IOException {
+  public byte[] mixNext(int bytes) throws MixerException, FormatException {
     // clear the mixing buffer and start the mixing process
     state = MixerState.Mixing;
     long startedAt = System.nanoTime();
@@ -140,11 +137,11 @@ class MixerImpl implements Mixer {
     // Initial mix steps are done on individual bus
     // Multi-bus output with individual normalization REF https://www.pivotaltracker.com/story/show/179081795
     applySources();
-/*
-  FUTURE: apply compression to each bus
-    for (int b = 0; b < busBuf.length; b++)
-      applyBusCompressor(b);
-*/
+
+//  FUTURE: apply compression to each bus
+//    for (int b = 0; b < busBuf.length; b++)
+//      applyBusCompressor(b);
+
     mixOutputBus();
 
     // The dynamic range is forced into gentle logarithmic decay.
@@ -161,9 +158,7 @@ class MixerImpl implements Mixer {
     state = MixerState.Done;
     LOG.debug(config.getLogPrefix() + "Did mix {} seconds of output audio at {} Hz from {} instances of {} sources in {}s", config.getTotalSeconds(), outputFrameRate, activePuts.size(), sources.size(), String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
 
-    // Write the output bytes to the shared buffer
-    buffer.produce(byteBufferOf(audioFormat, outBuf).array());
-    return config.getTotalSeconds();
+    return byteBufferOf(audioFormat, outBuf).array();
   }
 
   /**
@@ -219,11 +214,6 @@ class MixerImpl implements Mixer {
   @Override
   public Source getSource(UUID audioId) {
     return sources.get(audioId);
-  }
-
-  @Override
-  public BytePipeline getBuffer() {
-    return buffer;
   }
 
   @Override

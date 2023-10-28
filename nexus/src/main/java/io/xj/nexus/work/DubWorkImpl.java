@@ -126,9 +126,7 @@ public class DubWorkImpl implements DubWork {
 
     // Action based on state and mode
     try {
-      if (isPlannedAhead()) {
-        doDubFrame();
-      } else {
+      if (!isPlannedAhead()) {
         doPlanFrame();
       }
     } catch (
@@ -151,17 +149,6 @@ public class DubWorkImpl implements DubWork {
   @Override
   public boolean isFinished() {
     return !running.get();
-  }
-
-  @Override
-  @Nullable
-  public Optional<BytePipeline> getMixerBuffer() {
-    return Objects.nonNull(mixer) ? Optional.of(mixer.getBuffer()) : Optional.empty();
-  }
-
-  @Override
-  public int getMixerBufferAvailableBytesCount() throws IOException {
-    return Objects.nonNull(mixer) ? mixer.getBuffer().getAvailableByteCount() : 0;
   }
 
   @Override
@@ -226,8 +213,6 @@ public class DubWorkImpl implements DubWork {
       return;
     }
 
-    var butts=123;//todo remove
-
     chunkToChainMicros = chunkFromChainMicros + mixerLengthMicros;
     craftWork.setAtChainMicros(chunkToChainMicros);
     LOG.debug("Planned frame {}s", String.format("%.1f", chunkToChainMicros / (double) MICROS_PER_SECOND));
@@ -241,12 +226,13 @@ public class DubWorkImpl implements DubWork {
    <p>
    Ensure mixer has continuity of its processes/effects, e.g. the compressor levels at the last frame of the last chunk are carried over to the first frame of the next chunk
    */
-  void doDubFrame() {
-    if (Objects.isNull(mixer)) return;
+  @Override
+  public byte[] mixNext(int bytes) {
+    if (Objects.isNull(mixer)) return new byte[0];
     var segments = craftWork.getSegmentsIfReady(chunkFromChainMicros, chunkToChainMicros);
     if (segments.isEmpty()) {
       LOG.debug("Waiting for segments");
-      return;
+      return new byte[0];
     }
 
     try {
@@ -287,18 +273,11 @@ public class DubWorkImpl implements DubWork {
         })).toList();
 
       mixerSetAll(activeAudios);
-      try {
-        mixer.mix();
-      } catch (IOException e) {
-        LOG.debug("Cannot send to output because BytePipeline {}", e.getMessage());
-        finish();
-      }
-
-      chunkFromChainMicros = chunkToChainMicros;
-      LOG.debug("Dubbed to {}", String.format("%.1f", chunkToChainMicros / (double) MICROS_PER_SECOND));
+      return mixer.mixNext(bytes);
 
     } catch (Exception e) {
       didFailWhile("dubbing frame", e);
+      return new byte[0];
     }
   }
 

@@ -208,21 +208,16 @@ public class ShipWorkImpl implements ShipWork {
   /**
    Ship available bytes from the dub mixer buffer to the output method
    */
-  void doShipOutputPlayback() throws IOException {
+  void doShipOutputPlayback() {
     {
       if (Objects.isNull(playback)) {
         didFailWhile("shipping bytes to local playback", new IllegalStateException("Player is null"));
         return;
       }
 
-      var butts=123;//todo remove
-
-      var availableBytes = dubWork.getMixerBuffer().orElseThrow().getAvailableByteCount();
-      if (availableBytes >= cycleAudioBytes) {
-        LOG.debug("Shipping {} bytes to local playback", cycleAudioBytes);
-        playback.append(dubWork.getMixerBuffer().orElseThrow().consume(cycleAudioBytes));
-        targetChainMicros = (long) (targetChainMicros + cycleAudioBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow());
-      }
+      LOG.debug("Shipping {} bytes to local playback", cycleAudioBytes);
+      playback.append(dubWork.mixNext(cycleAudioBytes));
+      targetChainMicros = (long) (targetChainMicros + cycleAudioBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow());
     }
   }
 
@@ -240,8 +235,6 @@ public class ShipWorkImpl implements ShipWork {
       LOG.debug("No segment available at chain micros {}", targetChainMicros);
       return;
     }
-
-    var butts=123;//todo remove
 
     if (Objects.isNull(outputFile)) { // First output file
       doShipOutputFileStartNext(segment.get());
@@ -289,15 +282,14 @@ public class ShipWorkImpl implements ShipWork {
         }
       }
 
-      int availableBytes = Math.min(dubWork.getMixerBuffer().orElseThrow().getAvailableByteCount(), cycleAudioBytes);
       int currentFileMaxBytes = (int) ((outputFile.getToChainMicros() - targetChainMicros) / dubWork.getMixerOutputMicrosPerByte().orElseThrow());
-      int shipBytes = (int) (pcmChunkSizeBytes * Math.floor((float) Math.min(availableBytes, currentFileMaxBytes) / pcmChunkSizeBytes)); // rounded down to a multiple of pcm chunk size bytes
+      int shipBytes = (int) (pcmChunkSizeBytes * Math.floor((float) Math.min(cycleAudioBytes, currentFileMaxBytes) / pcmChunkSizeBytes)); // rounded down to a multiple of pcm chunk size bytes
       if (0 == shipBytes) {
         LOG.debug("Will not ship any bytes");
         return;
       }
       LOG.debug("Will ship {} bytes to local files", shipBytes);
-      fileWriter.append(dubWork.getMixerBuffer().orElseThrow().consume(shipBytes));
+      fileWriter.append(dubWork.mixNext(shipBytes));
       targetChainMicros = targetChainMicros + (long) (shipBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow());
       if (shippedEnoughSeconds()) {
         if (doShipOutputFileClose()) {

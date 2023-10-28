@@ -2,13 +2,10 @@
 package io.xj.nexus.work;
 
 import io.xj.hub.tables.pojos.Program;
-import io.xj.lib.mixer.BytePipeline;
-import io.xj.nexus.mixer.ActiveAudio;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 
 import javax.sound.sampled.AudioFormat;
-import java.io.IOException;
 import java.util.Optional;
 
 /**
@@ -30,20 +27,6 @@ public interface DubWork extends Work {
    @return true if planned ahead
    */
   boolean isPlannedAhead();
-
-  /**
-   Get the mixer audio buffer to read the mix output
-
-   @return the mixer audio buffer, or empty if not yet available
-   */
-  Optional<BytePipeline> getMixerBuffer();
-
-  /**
-   Get the number of bytes available from the mixer
-
-   @return the number of bytes available
-   */
-  int getMixerBufferAvailableBytesCount() throws IOException;
 
   /**
    Get the audio format of the mixer
@@ -113,4 +96,11 @@ public interface DubWork extends Work {
    */
   void setNowAtToChainMicros(Long micros);
 
+  /**
+   Mix the given number of audio bytes
+
+   @param bytes number of audio bytes to mix
+   @return the mixed audio bytes
+   */
+  byte[] mixNext(int bytes);
 }
