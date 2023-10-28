@@ -81,13 +81,7 @@ public class UIStateServiceImpl implements UIStateService {
   public StringBinding fabricationStatusTextProperty() {
     if (Objects.isNull(fabricationStatusText))
       fabricationStatusText = Bindings.createStringBinding(
-        () -> {
-          fabricationService.statusProperty()
-          if (fabricationService.isStatusActive().get())
-            return "Preparing";
-          else
-            return String.format("Fabrication %s", fabricationService.statusProperty().get().toString());
-        },
+        () -> fabricationService.statusProperty().get().toString(),
 
         fabricationService.statusProperty());
 

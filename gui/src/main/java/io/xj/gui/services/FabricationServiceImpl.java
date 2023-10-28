@@ -19,6 +19,7 @@ import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkManager;
+import io.xj.nexus.work.WorkState;
 import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -69,7 +70,7 @@ public class FabricationServiceImpl implements FabricationService {
   final HubClient hubClient;
   final LabService labService;
   final Map<Integer, Integer> segmentBarBeats = new ConcurrentHashMap<>();
-  final ObjectProperty<FabricationStatus> status = new SimpleObjectProperty<>(FabricationStatus.Standby);
+  final ObjectProperty<WorkState> status = new SimpleObjectProperty<>(WorkState.Standby);
   final StringProperty inputTemplateKey = new SimpleStringProperty();
   final StringProperty contentStoragePathPrefix = new SimpleStringProperty();
   final StringProperty outputPathPrefix = new SimpleStringProperty();
@@ -91,16 +92,16 @@ public class FabricationServiceImpl implements FabricationService {
   private final ObservableBooleanValue outputModeFile = Bindings.createBooleanBinding(() ->
     outputMode.get() == OutputMode.FILE, outputMode);
   private final ObservableBooleanValue statusActive =
-    Bindings.createBooleanBinding(() -> status.get() == FabricationStatus.Active, status);
+    Bindings.createBooleanBinding(() -> status.get() == WorkState.Active, status);
   private final ObservableBooleanValue statusStandby =
-    Bindings.createBooleanBinding(() -> status.get() == FabricationStatus.Standby, status);
+    Bindings.createBooleanBinding(() -> status.get() == WorkState.Standby, status);
   private final ObservableBooleanValue statusLoading =
-    Bindings.createBooleanBinding(() -> status.get() == FabricationStatus.Loading, status);
+    Bindings.createBooleanBinding(() -> status.get() == WorkState.LoadingContent || status.get() == WorkState.LoadedContent || status.get() == WorkState.LoadingAudio || status.get() == WorkState.LoadedAudio, status);
 
   private final ObservableValue<String> mainActionButtonText = Bindings.createStringBinding(() ->
     switch (status.get()) {
       case Starting, Standby -> BUTTON_TEXT_START;
-      case Loading, Active -> BUTTON_TEXT_STOP;
+      case LoadingContent, LoadedContent, LoadingAudio, LoadedAudio, Initializing, Active -> BUTTON_TEXT_STOP;
       case Cancelled, Failed, Done -> BUTTON_TEXT_RESET;
     }, status);
 
@@ -148,7 +149,7 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public void start() {
-    if (status.get() != FabricationStatus.Standby) {
+    if (status.get() != WorkState.Standby) {
       LOG.error("Cannot start fabrication unless in Standby status");
       return;
     }
@@ -176,24 +177,24 @@ public class FabricationServiceImpl implements FabricationService {
     workManager.start(config, labService.hubConfigProperty().get(), hubAccess);
 
     // Start the timeline to run the work cycles
-    status.set(FabricationStatus.Starting);
+    status.set(WorkState.Starting);
     startTimeline();
   }
 
   @Override
   public void cancel() {
-    workManager.finish();
-    status.set(FabricationStatus.Cancelled);
+    workManager.cancel();
+    status.set(WorkState.Cancelled);
   }
 
   @Override
   public void reset() {
     workManager.reset();
-    status.set(FabricationStatus.Standby);
+    status.set(WorkState.Standby);
   }
 
   @Override
-  public ObjectProperty<FabricationStatus> statusProperty() {
+  public ObjectProperty<WorkState> statusProperty() {
     return status;
   }
 
@@ -526,7 +527,7 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public void handleDemoPlay(String templateKey, Integer craftAheadSeconds) {
-    if (status.get() != FabricationStatus.Standby) {
+    if (status.get() != WorkState.Standby) {
       LOG.error("Cannot play demo unless fabrication is in Standby status");
       return;
     }
@@ -556,19 +557,16 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public void runCycle(ActionEvent actionEvent) {
-    switch (workManager.getWorkState()) {
-      case Standby -> status.set(FabricationStatus.Standby);
-      case LoadingContent, LoadingAudio, LoadedContent, LoadedAudio -> status.set(FabricationStatus.Loading);
-      case Active -> status.set(FabricationStatus.Active);
-      case Done -> status.set(FabricationStatus.Done);
-      case Failed -> status.set(FabricationStatus.Failed);
+    if (workManager.getWorkState() != status.get()) {
+      status.set(workManager.getWorkState());
+      LOG.info("status: {}", status.get());
     }
 
     try {
       workManager.runCycle();
     } catch (Exception e) {
       LOG.error("Failed to run work cycle!", e);
-      status.set(FabricationStatus.Failed);
+      status.set(WorkState.Failed);
     }
 
     switch (status.get()) {

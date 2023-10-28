@@ -153,6 +153,15 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
+  public void cancel() {
+    // This will cascade-send the finish() instruction to dub and ship
+    if (Objects.nonNull(shipWork)) {
+      shipWork.finish();
+    }
+    state.set(WorkState.Cancelled);
+  }
+
+  @Override
   public WorkState getWorkState() {
     return state.get();
   }
@@ -218,39 +227,33 @@ public class WorkManagerImpl implements WorkManager {
         case Starting -> {
           state.set(WorkState.LoadingContent);
           startLoadingContent();
-          LOG.info("Fabrication work starting");
         }
 
         case LoadingContent -> {
           if (isContentLoaded()) {
             state.set(WorkState.LoadedContent);
-            LOG.info("Fabrication work loaded content");
           }
         }
 
         case LoadedContent -> {
           state.set(WorkState.LoadingAudio);
           startLoadingAudio();
-          LOG.info("Fabrication work loading audio");
         }
 
         case LoadingAudio -> {
           if (isAudioLoaded()) {
             state.set(WorkState.LoadedAudio);
-            LOG.info("Fabrication work loaded audio");
           }
         }
 
         case LoadedAudio -> {
           state.set(WorkState.Initializing);
           initialize();
-          LOG.info("Fabrication work initialized");
         }
 
         case Initializing -> {
           if (isInitialized()) {
             state.set(WorkState.Active);
-            LOG.info("Fabrication work active");
           }
         }
 
@@ -302,7 +305,6 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(hubConfig);
 
-    ExecutorService executor = Executors.newSingleThreadExecutor();
     executor.submit(new AudioPreloader(
       workConfig.getContentStoragePathPrefix(),
       hubConfig.getAudioBaseUrl(),
@@ -394,6 +396,10 @@ public class WorkManagerImpl implements WorkManager {
     }
   }
 
+  private boolean isInitialized() {
+    return Objects.nonNull(craftWork) && Objects.nonNull(dubWork) && Objects.nonNull(shipWork);
+  }
+
   /**
    Log and of segment message of error that job failed while (message)@param shipKey  (optional) ship key
 
@@ -402,14 +408,15 @@ public class WorkManagerImpl implements WorkManager {
    */
   void didFailWhile(String msgWhile, Exception e) {
     LOG.error("Failed while {}", msgWhile, e);
-    finish();
-  }
-
-  private boolean isInitialized() {
-    return Objects.nonNull(craftWork) && Objects.nonNull(dubWork) && Objects.nonNull(shipWork);
+    // This will cascade-send the finish() instruction to dub and ship
+    if (Objects.nonNull(shipWork)) {
+      shipWork.finish();
+    }
+    state.set(WorkState.Failed);
   }
 
   private class AudioPreloader implements Runnable {
+
     private final String contentStoragePathPrefix;
     private final String audioBaseUrl;
     private final int outputFrameRate;

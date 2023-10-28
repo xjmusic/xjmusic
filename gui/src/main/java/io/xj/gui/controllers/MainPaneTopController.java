@@ -2,7 +2,11 @@
 
 package io.xj.gui.controllers;
 
-import io.xj.gui.services.*;
+import io.xj.gui.services.FabricationService;
+import io.xj.gui.services.LabService;
+import io.xj.gui.services.LabStatus;
+import io.xj.gui.services.UIStateService;
+import io.xj.nexus.work.WorkState;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -100,10 +104,12 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     }
   }
 
-  private void handleFabricationStatusChange(ObservableValue<? extends FabricationStatus> observable, FabricationStatus prior, FabricationStatus newValue) {
+  private void handleFabricationStatusChange(ObservableValue<? extends WorkState> observable, WorkState prior, WorkState newValue) {
     switch (newValue) {
-      case Standby, Failed, Done, Cancelled -> buttonAction.getStyleClass().remove("button-active");
-      case Starting, Active -> buttonAction.getStyleClass().add("button-active");
+      case Standby, Failed, Done, Cancelled ->
+        buttonAction.getStyleClass().remove("button-active");
+      case LoadingContent, Initializing, LoadedAudio, LoadingAudio, LoadedContent, Starting, Active ->
+        buttonAction.getStyleClass().add("button-active");
     }
   }
 

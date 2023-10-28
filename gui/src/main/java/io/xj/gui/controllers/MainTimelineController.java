@@ -3,10 +3,10 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.services.FabricationService;
-import io.xj.gui.services.FabricationStatus;
 import io.xj.gui.services.LabService;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.persistence.SegmentUtils;
+import io.xj.nexus.work.WorkState;
 import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -138,11 +138,11 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     fabricationService.statusProperty().addListener((ignored1, ignored2, status) -> handleUpdateFabricationStatus(status));
   }
 
-  private void handleUpdateFabricationStatus(FabricationStatus status) {
-    if (Objects.equals(FabricationStatus.Active, status)) {
+  private void handleUpdateFabricationStatus(WorkState status) {
+    if (Objects.equals(WorkState.Active, status)) {
       startTimelineAnimation();
 
-    } else if (Objects.equals(FabricationStatus.Standby, status)) {
+    } else if (Objects.equals(WorkState.Standby, status)) {
       stopTimelineAnimation();
       ds.clear();
       segmentListView.getChildren().clear();
@@ -228,7 +228,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
 
       // remove segments from the beginning of the list if their id is less than the updated first id
       int firstId;
-      while (ds.size() > 0) {
+      while (!ds.isEmpty()) {
         firstId = ds.keySet().stream().min(Comparator.comparingInt((id) -> id)).orElse(NO_ID);
         if (NO_ID == firstId || firstId >= freshFirstId)
           break;

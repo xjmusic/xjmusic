@@ -13,5 +13,6 @@ public enum WorkState {
   Initializing,
   Active,
   Done,
+  Cancelled,
   Failed,
 }
