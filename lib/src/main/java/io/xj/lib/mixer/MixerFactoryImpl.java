@@ -25,7 +25,7 @@ public class MixerFactoryImpl implements MixerFactory {
 
   @Override
   public Mixer createMixer(MixerConfig mixerConfig) throws MixerException {
-    return new MixerImpl(mixerConfig, this, envelopeProvider, mixerOutputPipeSize);
+    return new MixerImpl(mixerConfig, this, envelopeProvider);
   }
 
   @Override

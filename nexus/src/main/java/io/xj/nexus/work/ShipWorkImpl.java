@@ -144,7 +144,7 @@ public class ShipWorkImpl implements ShipWork {
 
     // Action based on mode
     try {
-      if (dubWork.getMixerBuffer().isEmpty() || dubWork.getMixerOutputMicrosPerByte().isEmpty()) return;
+      if (dubWork.getMixerOutputMicrosPerByte().isEmpty()) return;
       if (isAheadOfSync()) return;
       switch (outputMode) {
         case PLAYBACK -> doShipOutputPlayback();

@@ -43,6 +43,7 @@ class MixerImpl implements Mixer {
   final Map<Integer, Double> busLevel = new ConcurrentHashMap<>();
   final int framesPerMilli;
   final EnvelopeProvider envelope;
+  private final int maxMixBytes;
   MixerState state = MixerState.Ready;
   /**
    Note: these buffers can't be constructed until after the sources are Put, ergo defining the total buffer length.
@@ -56,16 +57,14 @@ class MixerImpl implements Mixer {
   /**
    Instantiate a single Mix instance
 
-   @param mixerConfig    configuration of mixer
-   @param mixerFactory   factory to of new mixer
-   @param outputPipeSize capacity of output buffer
+   @param mixerConfig  configuration of mixer
+   @param mixerFactory factory to of new mixer
    @throws MixerException on failure
    */
   public MixerImpl(
     MixerConfig mixerConfig,
     MixerFactory mixerFactory,
-    EnvelopeProvider envelopeProvider,
-    int outputPipeSize
+    EnvelopeProvider envelopeProvider
   ) throws MixerException {
     config = mixerConfig;
     factory = mixerFactory;
@@ -90,9 +89,9 @@ class MixerImpl implements Mixer {
       busCompRatio = new double[config.getTotalBuses()];
       outBuf = new double[totalFrames][outputChannels];
       outputFrameSize = audioFormat.getFrameSize();
-      int totalBytes = totalFrames * outputFrameSize;
+      maxMixBytes = totalFrames * outputFrameSize;
 
-      LOG.debug(config.getLogPrefix() + "Did initialize mixer with " + "outputChannels: {}, " + "outputFrameRate: {}, " + "outputFrameSize: {}, " + "microsPerFrame: {}, " + "totalSeconds: {}, " + "totalFrames: {}, " + "totalBytes: {}", outputChannels, outputFrameRate, outputFrameSize, microsPerFrame, config.getTotalSeconds(), totalFrames, totalBytes);
+      LOG.debug(config.getLogPrefix() + "Did initialize mixer with " + "outputChannels: {}, " + "outputFrameRate: {}, " + "outputFrameSize: {}, " + "microsPerFrame: {}, " + "totalSeconds: {}, " + "totalFrames: {}, " + "totalBytes: {}", outputChannels, outputFrameRate, outputFrameSize, microsPerFrame, config.getTotalSeconds(), totalFrames, maxMixBytes);
 
     } catch (Exception e) {
       throw new MixerException(config.getLogPrefix() + "unable to setup internal variables from output audio format", e);
@@ -127,29 +126,33 @@ class MixerImpl implements Mixer {
 
   @Override
   public byte[] mixNext(int bytes) throws MixerException, FormatException {
+    if (bytes > maxMixBytes)
+      throw new MixerException("requested mixNext() bytes " + bytes + " exceeds maxMixBytes " + maxMixBytes);
+    int frames = bytes / outputFrameSize;
+
     // clear the mixing buffer and start the mixing process
     state = MixerState.Mixing;
     long startedAt = System.nanoTime();
-    clearBuffers();
+    clearBuffers(frames);
     LOG.debug(config.getLogPrefix() + "Will mix {} seconds of output audio at {} Hz frame rate from {} instances of {} sources", config.getTotalSeconds(), outputFrameRate, activePuts.size(), sources.size());
 
     // Start with original sources summed up verbatim
     // Initial mix steps are done on individual bus
     // Multi-bus output with individual normalization REF https://www.pivotaltracker.com/story/show/179081795
-    applySources();
+    applySources(frames);
 
 //  FUTURE: apply compression to each bus
 //    for (int b = 0; b < busBuf.length; b++)
 //      applyBusCompressor(b);
 
-    mixOutputBus();
+    mixOutputBus(frames);
 
     // The dynamic range is forced into gentle logarithmic decay.
     // This alters the relative amplitudes from the previous step, implicitly normalizing them well below amplitude 1.0
-    applyLogarithmicDynamicRange();
+    applyLogarithmicDynamicRange(frames);
 
     // Compression is more predictable within the logarithmic range
-    applyFinalOutputCompressor();
+    applyFinalOutputCompressor(frames);
 
     // NO NORMALIZATION! See https://www.pivotaltracker.com/story/show/179257872
     // applyNormalization(outBuf);
@@ -158,18 +161,18 @@ class MixerImpl implements Mixer {
     state = MixerState.Done;
     LOG.debug(config.getLogPrefix() + "Did mix {} seconds of output audio at {} Hz from {} instances of {} sources in {}s", config.getTotalSeconds(), outputFrameRate, activePuts.size(), sources.size(), String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
 
-    return byteBufferOf(audioFormat, outBuf).array();
+    return byteBufferOf(audioFormat, outBuf, frames).array();
   }
 
   /**
    Zero all buffers
    */
-  void clearBuffers() {
+  void clearBuffers(int frames) {
     for (int b = 0; b < busBuf.length; b++)
-      for (int f = 0; f < busBuf[0].length; f++)
+      for (int f = 0; f < frames; f++)
         for (int c = 0; c < busBuf[0][0].length; c++)
           busBuf[b][f][c] = 0.0;
-    for (int f = 0; f < outBuf.length; f++)
+    for (int f = 0; f < frames; f++)
       for (int c = 0; c < outBuf[0].length; c++)
         outBuf[f][c] = 0.0;
   }
@@ -177,11 +180,11 @@ class MixerImpl implements Mixer {
   /**
    Mix input buffers to output buffer
    */
-  void mixOutputBus() {
+  void mixOutputBus(int frames) {
     double[] level = Stream.iterate(0, i -> i + 1).limit(busBuf.length).mapToDouble(i -> busLevel.getOrDefault(i, 1.0)).toArray();
     int b, f, c;
     for (b = 0; b < busBuf.length; b++)
-      for (f = 0; f < busBuf[0].length; f++)
+      for (f = 0; f < frames; f++)
         for (c = 0; c < busBuf[0][0].length; c++) {
           if (b > level.length - 1) {
             LOG.error(config.getLogPrefix() + "b > level.length - 1: " + b + " > " + (level.length - 1));
@@ -225,16 +228,17 @@ class MixerImpl implements Mixer {
    apply original sources to mixing buffer
    addition of all sources into initial mixed source frames
    */
-  void applySources() throws MixerException {
-    for (var source : sources.values()) applySource(source);
+  void applySources(int frames) throws MixerException {
+    for (var source : sources.values()) applySource(source, frames);
   }
 
   /**
    apply one source to the mixing buffer
 
    @param source to apply
+   @param frames total frames to apply
    */
-  void applySource(Source source) throws MixerException {
+  void applySource(Source source, int frames) throws MixerException {
     if (source.getAudioFormat().isEmpty()) return;
     AudioFormat fmt = source.getAudioFormat().get();
 
@@ -287,7 +291,6 @@ class MixerImpl implements Mixer {
       byte[] readBuffer = new byte[READ_BUFFER_BYTE_SIZE];
       while (-1 != (numBytesReadToBuffer = audioInputStream.read(readBuffer))) {
         for (b = 0; b < numBytesReadToBuffer; b += frameSize) {
-          // FUTURE: skip frame if unnecessary (source rate higher than target rate)
           for (tc = 0; tc < outputChannels; tc++) {
             System.arraycopy(readBuffer, b + (isStereo ? tc : 0) * sampleSize, sampleBuffer, 0, sampleSize);
             v = AudioSampleFormat.fromBytes(sampleBuffer, sampleFormat);
@@ -298,7 +301,7 @@ class MixerImpl implements Mixer {
                 ev = envelope.length(srcPut[p].getReleaseMillis() * framesPerMilli).out(sf - srcPutSpan[p], v * srcPut[p].getVelocity());
 
               ptf = srcPutFrom[p] + sf;
-              if (ptf < 0 || ptf >= busBuf[0].length) continue;
+              if (ptf < 0 || ptf >= frames) continue;
               busBuf[srcPut[p].getBus()][ptf][tc] += ev;
             }
           }
@@ -321,14 +324,14 @@ class MixerImpl implements Mixer {
    compression target uses a rate of change of rate of change
    to maintain inertia over time, required to preserve audio signal
    */
-  void applyFinalOutputCompressor() {
+  void applyFinalOutputCompressor(int frames) {
     // only set the comp ratio directly if it's never been set before, otherwise mixer effects are continuous between renders, so these ending values make their way back to the beginning of the next render
     if (0 == compRatio) {
       compRatio = computeCompressorTarget(outBuf, 0, framesAhead);
     }
     double compRatioDelta = 0; // rate of change
     double targetCompRatio = compRatio;
-    for (int i = 0; i < outBuf.length; i++) {
+    for (int i = 0; i < frames; i++) {
       if (0 == i % dspBufferSize) {
         targetCompRatio = computeCompressorTarget(outBuf, i, i + framesAhead);
       }
@@ -385,8 +388,8 @@ class MixerImpl implements Mixer {
   /**
    apply logarithmic dynamic range to mixing buffer
    */
-  void applyLogarithmicDynamicRange() {
-    for (int i = 0; i < outBuf.length; i++)
+  void applyLogarithmicDynamicRange(int frames) {
+    for (int i = 0; i < frames; i++)
       outBuf[i] = MathUtil.logarithmicCompression(outBuf[i]);
   }
 
@@ -419,13 +422,14 @@ class MixerImpl implements Mixer {
 
    @param fmt     to write
    @param samples [frame][channel] output to convert
+   @param frames  total frames to convert
    @return byte buffer of stream
    */
-  static ByteBuffer byteBufferOf(AudioFormat fmt, double[][] samples) throws FormatException {
-    ByteBuffer outputBytes = ByteBuffer.allocate(samples.length * fmt.getFrameSize());
-    for (double[] sample : samples)
-      for (double v : sample)
-        outputBytes.put(AudioSampleFormat.toBytes(v, AudioSampleFormat.typeOfOutput(fmt)));
+  static ByteBuffer byteBufferOf(AudioFormat fmt, double[][] samples, int frames) throws FormatException {
+    ByteBuffer outputBytes = ByteBuffer.allocate(frames * fmt.getFrameSize());
+    for (var i = 0; i < frames; i++)
+      for (var j = 0; j < samples[0].length; j++)
+        outputBytes.put(AudioSampleFormat.toBytes(samples[i][j], AudioSampleFormat.typeOfOutput(fmt)));
 
     return outputBytes;
   }
