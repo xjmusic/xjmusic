@@ -58,7 +58,6 @@ public class WorkManagerImpl implements WorkManager {
   private final int cycleAudioBytes;
   private final long shipCycleMillis;
   private final String tempFilePathPrefix;
-  private final ExecutorService executor;
   private boolean isFileOutputMode;
   private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
   private final AtomicBoolean isAudioLoaded = new AtomicBoolean(false);
@@ -104,8 +103,7 @@ public class WorkManagerImpl implements WorkManager {
     @Value("${output.pcm.chunk.size.bytes}") int pcmChunkSizeBytes,
     @Value("${ship.cycle.audio.bytes}") int cycleAudioBytes,
     @Value("${ship.cycle.millis}") long shipCycleMillis,
-    @Value("${temp.file.path.prefix}") String tempFilePathPrefix,
-    @Value("${thread.pool.size}") int threadPoolSize
+    @Value("${temp.file.path.prefix}") String tempFilePathPrefix
   ) {
     this.broadcastFactory = broadcastFactory;
     this.craftFactory = craftFactory;
@@ -124,8 +122,6 @@ public class WorkManagerImpl implements WorkManager {
     this.cycleAudioBytes = cycleAudioBytes;
     this.shipCycleMillis = shipCycleMillis;
     this.tempFilePathPrefix = tempFilePathPrefix;
-
-    executor = Executors.newFixedThreadPool(threadPoolSize);
   }
 
   @Override
@@ -287,12 +283,15 @@ public class WorkManagerImpl implements WorkManager {
       workConfig.getInputTemplateKey()
     );
 
+    ExecutorService executor = Executors.newSingleThreadExecutor();
     executor.submit(() -> {
       try {
         HubContent content = hubContentProvider.call();
         hubContent.set(content);
       } catch (Exception e) {
         didFailWhile("loading content", e);
+      } finally {
+        executor.shutdown();
       }
     });
   }
@@ -305,6 +304,7 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(hubConfig);
 
+    ExecutorService executor = Executors.newSingleThreadExecutor();
     executor.submit(new AudioPreloader(
       workConfig.getContentStoragePathPrefix(),
       hubConfig.getAudioBaseUrl(),
@@ -371,17 +371,17 @@ public class WorkManagerImpl implements WorkManager {
     switch (engineCylinder) {
 
       // Cylinder 0: Craft
-      case 0 -> executor.submit(() -> {
+      case 0 -> {
         if (Objects.nonNull(craftWork)) craftWork.runCycle();
-      });
+      }
 
       // Cylinder 1: Dub
-      case 1 -> executor.submit(() -> {
+      case 1 -> {
         if (Objects.nonNull(dubWork)) dubWork.runCycle();
-      });
+      }
 
       // Cylinder 2: Ship
-      case 2 -> executor.submit(() -> {
+      case 2 -> {
         if (Objects.nonNull(shipWork)) {
           shipWork.runCycle();
           if (isFileOutputMode) {
@@ -392,7 +392,7 @@ public class WorkManagerImpl implements WorkManager {
             LOG.info("Fabrication work done");
           }
         }
-      });
+      }
     }
   }
 
@@ -401,7 +401,7 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   /**
-   Log and of segment message of error that job failed while (message)@param shipKey  (optional) ship key
+   Log and of segment message of error that job failed while (message)
 
    @param msgWhile phrased like "Doing work"
    @param e        exception (optional)

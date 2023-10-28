@@ -24,6 +24,7 @@ import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.HostServices;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
@@ -563,7 +564,7 @@ public class FabricationServiceImpl implements FabricationService {
     }
 
     try {
-      workManager.runCycle();
+      Platform.runLater(workManager::runCycle);
     } catch (Exception e) {
       LOG.error("Failed to run work cycle!", e);
       status.set(WorkState.Failed);
