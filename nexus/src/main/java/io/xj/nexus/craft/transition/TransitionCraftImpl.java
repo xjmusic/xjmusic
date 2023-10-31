@@ -161,7 +161,13 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
    @throws NexusException on failure
    */
   @SuppressWarnings("DuplicatedCode")
-  void pickTransition(SegmentChoiceArrangement arrangement, InstrumentAudio audio, long startAtSegmentMicros, long lengthMicros, String name) throws NexusException {
+  void pickTransition
+  (SegmentChoiceArrangement arrangement,
+   InstrumentAudio audio,
+   long startAtSegmentMicros,
+   long lengthMicros,
+   String name
+  ) throws NexusException {
     var pick = new SegmentChoiceArrangementPick();
     pick.setId(UUID.randomUUID());
     pick.setSegmentId(fabricator.getSegment().getId());

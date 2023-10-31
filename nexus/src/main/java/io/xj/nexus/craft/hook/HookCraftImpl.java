@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-
 public class HookCraftImpl extends CraftImpl implements HookCraft {
   public HookCraftImpl(
     Fabricator fabricator
@@ -83,17 +81,19 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
     // Start at zero and keep laying down hook loops until we're out of here
     double pos = 0;
     while (pos < fabricator.getSegment().getTotal()) {
-      // Pick attributes are expressed "rendered" as actual seconds
-      double startSeconds = fabricator.getSegmentMicrosAtPosition(pos);
-      double lengthSeconds = fabricator.getSegmentMicrosAtPosition(pos + audio.getTotalBeats()) - startSeconds;
+      long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(pos);
+      long lengthMicros = Math.min(
+        fabricator.getTotalSegmentMicros() - startAtSegmentMicros,
+        (long) (audio.getTotalBeats() * fabricator.getMicrosPerBeat())
+      );
 
       // of pick
       var pick = new SegmentChoiceArrangementPick();
       pick.setId(UUID.randomUUID());
       pick.setSegmentId(fabricator.getSegment().getId());
       pick.setSegmentChoiceArrangementId(arrangement.getId());
-      pick.setStartAtSegmentMicros((long) (startSeconds * MICROS_PER_SECOND));
-      pick.setLengthMicros((long) (lengthSeconds * MICROS_PER_SECOND));
+      pick.setStartAtSegmentMicros(startAtSegmentMicros);
+      pick.setLengthMicros(lengthMicros);
       pick.setAmplitude(1.0);
       pick.setEvent("HOOK");
       pick.setInstrumentAudioId(audio.getId());

@@ -678,7 +678,16 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param volRatio                 ratio of volume
    @throws NexusException on failure
    */
-  void pickInstrumentAudio(String note, Instrument instrument, ProgramSequencePatternEvent event, SegmentChoiceArrangement segmentChoiceArrangement, Long startAtSegmentMicros, @Nullable Long lengthMicros, @Nullable UUID segmentChordVoicingId, double volRatio) throws NexusException {
+  void pickInstrumentAudio(
+    String note,
+    Instrument instrument,
+    ProgramSequencePatternEvent event,
+    SegmentChoiceArrangement segmentChoiceArrangement,
+    Long startAtSegmentMicros,
+    @Nullable Long lengthMicros,
+    @Nullable UUID segmentChordVoicingId,
+    double volRatio
+  ) throws NexusException {
     var audio = fabricator.getInstrumentConfig(instrument).isMultiphonic() ? selectMultiphonicInstrumentAudio(instrument, event, note) : selectMonophonicInstrumentAudio(instrument, event);
 
     // Should gracefully skip audio if unfulfilled by instrument https://www.pivotaltracker.com/story/show/176373977

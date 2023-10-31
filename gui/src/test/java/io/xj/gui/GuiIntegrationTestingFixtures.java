@@ -486,21 +486,6 @@ public class GuiIntegrationTestingFixtures {
     return segmentChoiceArrangement;
   }
 
-  public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(Segment segment, SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent event, InstrumentAudio instrumentAudio, String pickEvent) {
-    var pick = new SegmentChoiceArrangementPick();
-    pick.setId(UUID.randomUUID());
-    pick.setSegmentId(segmentChoiceArrangement.getSegmentId());
-    pick.setSegmentChoiceArrangementId(segmentChoiceArrangement.getId());
-    pick.setProgramSequencePatternEventId(event.getId());
-    pick.setInstrumentAudioId(instrumentAudio.getId());
-    pick.setStartAtSegmentMicros((long) (event.getPosition() * ValueUtils.MICROS_PER_SECOND / segment.getTempo()));
-    pick.setLengthMicros((long) (event.getDuration() * ValueUtils.MICROS_PER_SECOND / segment.getTempo()));
-    pick.setAmplitude(Double.valueOf(event.getVelocity()));
-    pick.setTones(event.getTones());
-    pick.setEvent(pickEvent);
-    return pick;
-  }
-
   /**
    Create a new HubAccess control object
 
