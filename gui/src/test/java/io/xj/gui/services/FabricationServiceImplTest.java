@@ -6,13 +6,14 @@ import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.SegmentManager;
-import io.xj.nexus.work.WorkFactory;
+import io.xj.nexus.work.WorkManager;
 import javafx.application.HostServices;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,28 +33,29 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class FabricationServiceImplTest {
-  Integer defaultTimelineSegmentViewLimit = 10;
-  Integer defaultCraftAheadSeconds = 5;
-  Integer defaultDubAheadSeconds = 5;
-  Integer defaultShipAheadSeconds = 5;
+  int defaultTimelineSegmentViewLimit = 10;
+  int defaultCraftAheadSeconds = 5;
+  int defaultDubAheadSeconds = 5;
+  int defaultShipAheadSeconds = 5;
   String defaultInputTemplateKey = "slaps_lofi";
   int defaultOutputChannels = 2;
+  String defaultInputMode = InputMode.PRODUCTION.toString();
   String defaultOutputFileMode = OutputFileMode.CONTINUOUS.toString();
   double defaultOutputFrameRate = 48000;
   String defaultOutputMode = OutputMode.PLAYBACK.toString();
-  Integer defaultOutputSeconds = 300;
+  int defaultOutputSeconds = 300;
 
   @Mock
   HostServices hostServices;
-
-  @Mock
-  WorkFactory workFactory;
 
   @Mock
   LabService labService;
 
   @Mock
   private SegmentManager segmentManager;
+
+  @Mock
+  private WorkManager workManager;
 
   @Mock
   private HubClient hubClient;
@@ -75,22 +77,22 @@ class FabricationServiceImplTest {
     );
     subject = new FabricationServiceImpl(
       hostServices,
-      defaultTimelineSegmentViewLimit,
       defaultCraftAheadSeconds,
       defaultDubAheadSeconds,
-      defaultShipAheadSeconds,
+      defaultTimelineSegmentViewLimit,
       defaultInputTemplateKey,
       defaultOutputChannels,
       defaultOutputFileMode,
       defaultOutputFrameRate,
+      defaultInputMode,
       defaultOutputMode,
       defaultOutputSeconds,
-      workFactory,
+      defaultShipAheadSeconds,
       hubClient,
-      labService
+      labService,
+      workManager
     );
-
-    when(workFactory.getSegmentManager()).thenReturn(segmentManager);
+    when(workManager.getSegmentManager()).thenReturn(segmentManager);
   }
 
   @Test
@@ -137,7 +139,7 @@ class FabricationServiceImplTest {
     var sourceMaterial = new HubContent(List.of(program));
     var choice = buildSegmentChoice(segment, program);
     when(segmentManager.readChoice(eq(segment.getId()), eq(ProgramType.Main))).thenReturn(Optional.of(choice));
-    when(workFactory.getSourceMaterial()).thenReturn(sourceMaterial);
+    when(workManager.getSourceMaterial()).thenReturn(sourceMaterial);
     return segment;
   }
 }

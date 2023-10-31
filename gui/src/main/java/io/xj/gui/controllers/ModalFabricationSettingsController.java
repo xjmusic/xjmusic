@@ -4,8 +4,8 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
-import io.xj.gui.services.LabStatus;
 import io.xj.gui.services.ThemeService;
+import io.xj.gui.services.UIStateService;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
@@ -30,6 +30,8 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   private final LabService labService;
   private final FabricationService fabricationService;
   private final ThemeService themeService;
+  private final UIStateService uiStateService;
+
 
   @FXML
   TextField fieldInputTemplateKey;
@@ -50,7 +52,10 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   Label labelOutputFileMode;
 
   @FXML
-  TextField fieldOutputSeconds;
+  Label labelShipAheadSeconds;
+
+  @FXML
+  Label fieldOutputSeconds;
 
   @FXML
   Label labelOutputSeconds;
@@ -93,20 +98,30 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
     ConfigurableApplicationContext ac,
     LabService labService,
     FabricationService fabricationService,
-    ThemeService themeService
+    ThemeService themeService,
+    UIStateService uiStateService
   ) {
     this.modalFabricationSettingsFxml = modalFabricationSettingsFxml;
     this.ac = ac;
     this.labService = labService;
     this.fabricationService = fabricationService;
     this.themeService = themeService;
+    this.uiStateService = uiStateService;
   }
 
   @Override
   public void onStageReady() {
     choiceInputMode.valueProperty().bindBidirectional(fabricationService.inputModeProperty());
-    choiceInputMode.disableProperty().bind(labService.statusProperty().isEqualTo(LabStatus.Authenticated).not());
-    labelInputMode.disableProperty().bind(labService.statusProperty().isEqualTo(LabStatus.Authenticated).not());
+    choiceInputMode.disableProperty().bind(uiStateService.isInputModeDisabledProperty());
+    labelInputMode.disableProperty().bind(uiStateService.isInputModeDisabledProperty());
+    // Input mode is locked in PRODUCTION unless we are connected to a Lab
+    if (labService.isAuthenticated()) {
+      choiceInputMode.getItems().setAll(FXCollections.observableArrayList(InputMode.values()));
+    } else {
+      choiceInputMode.getItems().setAll(FXCollections.observableArrayList(InputMode.PRODUCTION));
+      fabricationService.inputModeProperty().set(InputMode.PRODUCTION);
+    }
+
     fieldInputTemplateKey.textProperty().bindBidirectional(fabricationService.inputTemplateKeyProperty());
 
     choiceOutputMode.getItems().setAll(OutputMode.values());
@@ -114,34 +129,29 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
 
     choiceOutputFileMode.getItems().setAll(OutputFileMode.values());
     choiceOutputFileMode.valueProperty().bindBidirectional(fabricationService.outputFileModeProperty());
-    choiceOutputFileMode.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
-    labelOutputFileMode.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
+    choiceOutputFileMode.disableProperty().bind(uiStateService.isOutputFileModeDisabledProperty());
+    labelOutputFileMode.disableProperty().bind(uiStateService.isOutputFileModeDisabledProperty());
 
     fieldOutputSeconds.textProperty().bindBidirectional(fabricationService.outputSecondsProperty());
-    fieldOutputSeconds.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
-    labelOutputSeconds.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
+    fieldOutputSeconds.disableProperty().bind(uiStateService.isOutputFileModeDisabledProperty());
+    labelOutputSeconds.disableProperty().bind(uiStateService.isOutputFileModeDisabledProperty());
 
     fieldOutputPathPrefix.textProperty().bindBidirectional(fabricationService.outputPathPrefixProperty());
-    fieldOutputPathPrefix.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
-    labelOutputPathPrefix.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
+    fieldOutputPathPrefix.disableProperty().bind(uiStateService.isOutputFileModeDisabledProperty());
+    labelOutputPathPrefix.disableProperty().bind(uiStateService.isOutputFileModeDisabledProperty());
 
     fieldContentStoragePathPrefix.textProperty().bindBidirectional(fabricationService.contentStoragePathPrefixProperty());
 
     fieldCraftAheadSeconds.textProperty().bindBidirectional(fabricationService.craftAheadSecondsProperty());
     fieldDubAheadSeconds.textProperty().bindBidirectional(fabricationService.dubAheadSecondsProperty());
-    fieldShipAheadSeconds.textProperty().bindBidirectional(fabricationService.shipAheadSecondsProperty());
     fieldOutputFrameRate.textProperty().bindBidirectional(fabricationService.outputFrameRateProperty());
     fieldOutputChannels.textProperty().bindBidirectional(fabricationService.outputChannelsProperty());
 
-    fieldTimelineSegmentViewLimit.textProperty().bindBidirectional(fabricationService.timelineSegmentViewLimitProperty());
+    fieldShipAheadSeconds.textProperty().bindBidirectional(fabricationService.shipAheadSecondsProperty());
+    fieldShipAheadSeconds.disableProperty().bind(fabricationService.isOutputModeFile());
+    labelShipAheadSeconds.disableProperty().bind(fabricationService.isOutputModeFile());
 
-    // Input mode is locked in PRODUCTION unless we are connected to a Lab
-    if (labService.isAuthenticated()) {
-      choiceInputMode.setItems(FXCollections.observableArrayList(InputMode.PREVIEW, InputMode.PRODUCTION));
-    } else {
-      choiceInputMode.setItems(FXCollections.observableArrayList(InputMode.PRODUCTION));
-      choiceInputMode.setValue(InputMode.PRODUCTION);
-    }
+    fieldTimelineSegmentViewLimit.textProperty().bindBidirectional(fabricationService.timelineSegmentViewLimitProperty());
   }
 
   @Override

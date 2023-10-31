@@ -12,17 +12,6 @@ import javax.sound.sampled.AudioFormat;
 public interface BroadcastFactory {
 
   /**
-   Encode the stream for a ship key
-
-   @param format of audio
-   @return stream
-   */
-  StreamEncoder encoder(
-    AudioFormat format,
-    String shipKey
-  );
-
-  /**
    Play the stream locally
 
    @param format of audio

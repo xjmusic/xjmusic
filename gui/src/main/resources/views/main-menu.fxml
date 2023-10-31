@@ -16,11 +16,6 @@
         <KeyCodeCombination alt="UP" code="E" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
       </accelerator>
     </MenuItem>
-    <MenuItem fx:id="itemPreload" onAction="#handlePreload" text="_Preload">
-      <accelerator>
-        <KeyCodeCombination alt="UP" code="P" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
-      </accelerator>
-    </MenuItem>
     <SeparatorMenuItem mnemonicParsing="false"/>
     <MenuItem onAction="#onQuit" text="E_xit"/>
   </Menu>
@@ -52,10 +47,10 @@
     </CheckMenuItem>
     <Menu text="Log Le_vel">
       <items>
-        <RadioMenuItem text="_Debug" fx:id="logLevelDebug" onAction="#handleSetLogLevel" />
-        <RadioMenuItem text="_Info" fx:id="logLevelInfo" onAction="#handleSetLogLevel" />
-        <RadioMenuItem text="_Warn" fx:id="logLevelWarn" onAction="#handleSetLogLevel" />
-        <RadioMenuItem text="_Error" fx:id="logLevelError" onAction="#handleSetLogLevel" />
+        <RadioMenuItem text="_Debug" fx:id="logLevelDebug" onAction="#handleSetLogLevel"/>
+        <RadioMenuItem text="_Info" fx:id="logLevelInfo" onAction="#handleSetLogLevel"/>
+        <RadioMenuItem text="_Warn" fx:id="logLevelWarn" onAction="#handleSetLogLevel"/>
+        <RadioMenuItem text="_Error" fx:id="logLevelError" onAction="#handleSetLogLevel"/>
       </items>
     </Menu>
   </Menu>

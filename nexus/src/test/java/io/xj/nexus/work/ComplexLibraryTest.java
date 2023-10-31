@@ -2,16 +2,11 @@
 package io.xj.nexus.work;
 
 import io.xj.hub.HubContent;
-import io.xj.hub.enums.UserRoleType;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.lib.http.HttpClientProvider;
-import io.xj.lib.http.HttpClientProviderImpl;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.lib.notification.NotificationProvider;
-import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
@@ -20,7 +15,6 @@ import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.hub_client.HubClient;
-import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.persistence.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,14 +25,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Callable;
 
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAccount;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildLibrary;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ComplexLibraryTest {
@@ -49,22 +40,16 @@ public class ComplexLibraryTest {
   private static final int GENERATED_FIXTURE_COMPLEXITY = 3;
   private final static String audioBaseUrl = "https://audio.xj.io/";
   private final static String shipBaseUrl = "https://ship.xj.io/";
-  private final static String hubBaseUrl = "https://lab.xj.io/";
-  @Mock
-  public HubClient hubClient;
-  @Mock
-  public NotificationProvider notificationProvider;
-  @Mock
-  public TelemetryProvider telemetryProvider;
+  private static final long WORK_CYCLE_MILLIS = 120;
   long startTime = System.currentTimeMillis();
-  AppWorkThread workThread;
   SegmentManager segmentManager;
   CraftWork work;
-  @Mock
-  FileStoreProvider fileStoreProvider;
 
   @Mock
-  Callable<HubContent> hubContentProvider;
+  public HubClient hubClient;
+
+  @Mock
+  FileStoreProvider fileStoreProvider;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -95,51 +80,34 @@ public class ComplexLibraryTest {
     NexusEntityStore test = new NexusEntityStoreImpl(entityFactory);
     test.deleteAll();
 
-    // Mock request via HubClient returns fake generated library of hub content
-    when(hubContentProvider.call()).thenReturn(content);
-
     // Dependencies
     CraftFactory craftFactory = new CraftFactoryImpl();
-    HttpClientProvider httpClientProvider = new HttpClientProviderImpl(1, 1);
-
-    // Access
-    var access = new HubClientAccess(List.of(UserRoleType.Internal));
 
     // work
     work = new CraftWorkImpl(
       craftFactory,
       entityFactory,
       fabricatorFactory,
-      fileStoreProvider,
-      jsonapiPayloadFactory,
-      jsonProvider,
-      store,
-      notificationProvider,
-      segmentManager,
-      telemetryProvider,
-      hubContentProvider,
-      audioBaseUrl,
-      shipBaseUrl,
+      segmentManager, fileStoreProvider,
+      store, content,
       InputMode.PRODUCTION,
       OutputMode.PLAYBACK,
-      "complex_library_test",
-      false,
+      audioBaseUrl,
+      shipBaseUrl,
       "/tmp",
-      86400,
-      48000.0, 2, 999999
+      48000.0,
+      1000,
+      86400
     );
-
-    workThread = new AppWorkThread(work);
   }
 
   @Test
   public void fabricatesManySegments() throws Exception {
-    // Start app, wait for work, stop app
-    workThread.start();
-    while (!hasSegmentsDubbedPastMinimumOffset() && isWithinTimeLimit())
+    while (!hasSegmentsDubbedPastMinimumOffset() && isWithinTimeLimit()) {
+      work.runCycle();
       //noinspection BusyWait
-      Thread.sleep(MILLIS_PER_SECOND);
-    work.finish();
+      Thread.sleep(WORK_CYCLE_MILLIS);
+    }
 
     // assertions
     assertTrue(hasSegmentsDubbedPastMinimumOffset());

@@ -7,7 +7,6 @@ import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
@@ -40,8 +39,6 @@ import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
 public class CraftBackgroundNextMacroTest {
   @Mock
   public HubClient hubClient;
-  @Mock
-  public NotificationProvider notificationProvider;
   CraftFactory craftFactory;
   FabricatorFactory fabricatorFactory;
   NexusIntegrationTestingFixtures fake;

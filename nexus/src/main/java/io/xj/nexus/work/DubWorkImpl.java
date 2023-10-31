@@ -7,7 +7,6 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.util.StringUtils;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.mixer.*;
-import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.dub.DubAudioCache;
@@ -31,29 +30,24 @@ import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 public class DubWorkImpl implements DubWork {
   static final Logger LOG = LoggerFactory.getLogger(DubWorkImpl.class);
-  static final long INTERNAL_CYCLE_SLEEP_MILLIS = 50;
   static final long MICROS_PER_SECOND = 1000000L;
   static final int BITS_PER_BYTE = 8;
 
 
   @Nullable
   Mixer mixer;
-  MultiStopwatch timer;
-  WorkState state = WorkState.Initializing;
+  final MultiStopwatch timer;
   final AtomicBoolean running = new AtomicBoolean(true);
   final CraftWork craftWork;
   final DubAudioCache dubAudioCache;
   final Map<InstrumentType, Integer> instrumentBusNumber = new ConcurrentHashMap<>();
   final Map<UUID, ActiveAudio> mixerActiveAudio = new ConcurrentHashMap<>();
   final MixerFactory mixerFactory;
-  final NotificationProvider notification;
   final int mixerLengthSeconds;
-  final long cycleMillis;
   final long mixerLengthMicros;
   long nowAtChainMicros = 0; // Set from downstream, for dub work to understand how far "ahead" it is
   long chunkFromChainMicros = 0; // dubbing is done up to this point
   long chunkToChainMicros = 0; // plan ahead one dub frame at a time
-  long nextCycleAtSystemMillis = System.currentTimeMillis();
   @Nullable
   Float mixerOutputMicrosecondsPerByte;
   final int outputChannels;
@@ -66,18 +60,15 @@ public class DubWorkImpl implements DubWork {
     CraftWork craftWork,
     DubAudioCache dubAudioCache,
     MixerFactory mixerFactory,
-    NotificationProvider notification,
     String contentStoragePathPrefix,
     String audioBaseUrl,
     int mixerSeconds,
-    long cycleMillis,
     double outputFrameRate,
     int outputChannels,
     int dubAheadSeconds
   ) {
     this.craftWork = craftWork;
     this.dubAudioCache = dubAudioCache;
-    this.notification = notification;
     this.contentStoragePathPrefix = contentStoragePathPrefix;
     this.audioBaseUrl = audioBaseUrl;
     this.mixerLengthSeconds = mixerSeconds;
@@ -86,34 +77,61 @@ public class DubWorkImpl implements DubWork {
     this.dubAheadSeconds = dubAheadSeconds;
     this.mixerLengthMicros = mixerLengthSeconds * MICROS_PER_SECOND;
     this.mixerFactory = mixerFactory;
-    this.cycleMillis = cycleMillis;
-  }
 
-  @Override
-  public void start() {
     timer = MultiStopwatch.start();
-    while (running.get()) {
-      try {
-        doWorkCycle();
-      } catch (InterruptedException e) {
-        LOG.warn("Interrupted by {}", e.getMessage());
-        running.set(false);
-      }
+
+    var templateConfig = craftWork.getTemplateConfig();
+    var chain = craftWork.getChain();
+    if (templateConfig.isEmpty() || chain.isEmpty()) {
+      LOG.debug("Waiting for Craft to begin");
+      return;
     }
+    try {
+      mixer = mixerInit(templateConfig.get());
+    } catch (Exception e) {
+      didFailWhile("initializing mixer", e);
+      return;
+    }
+
+    chunkFromChainMicros = 0;
+    chunkToChainMicros = 0;
+
+    running.set(true);
   }
 
   @Override
   public void finish() {
-    craftWork.finish();
     if (!running.get()) return;
     running.set(false);
+    craftWork.finish();
     LOG.info("Finished");
   }
 
   @Override
-  public boolean isHealthy() {
-    // future whether dub work is actually healthy
-    return true;
+  public void runCycle() {
+    if (!running.get()) return;
+
+    if (craftWork.isFinished()) {
+      LOG.warn("must stop since CraftWork is no longer running");
+      finish();
+    }
+
+    // Action based on state and mode
+    try {
+      if (isPlannedAhead()) {
+        doDubFrame();
+      } else {
+        doPlanFrame();
+      }
+    } catch (
+      Exception e) {
+      didFailWhile("running a work cycle", e);
+    }
+
+    // End lap & do telemetry on all fabricated chains
+    timer.lap();
+    LOG.debug("Lap time: {}", timer.lapToString());
+    timer.clearLapSections();
   }
 
   @Override
@@ -122,13 +140,8 @@ public class DubWorkImpl implements DubWork {
   }
 
   @Override
-  public boolean isRunning() {
-    return running.get();
-  }
-
-  @Override
-  public boolean isFailed() {
-    return state == WorkState.Failed;
+  public boolean isFinished() {
+    return !running.get();
   }
 
   @Override
@@ -164,11 +177,6 @@ public class DubWorkImpl implements DubWork {
   }
 
   @Override
-  public String getTemplateKey() {
-    return craftWork.getTemplateKey();
-  }
-
-  @Override
   public Optional<Segment> getSegmentAtChainMicros(long atChainMicros) {
     return craftWork.getSegmentAtChainMicros(atChainMicros);
   }
@@ -198,61 +206,8 @@ public class DubWorkImpl implements DubWork {
     nowAtChainMicros = micros;
   }
 
-  /**
-   This is the internal cycle that's run indefinitely
-   */
-  void doWorkCycle() throws InterruptedException {
-    if (System.currentTimeMillis() < nextCycleAtSystemMillis) {
-      Thread.sleep(INTERNAL_CYCLE_SLEEP_MILLIS);
-      return;
-    }
-
-    if (craftWork.isFailed()) {
-      LOG.warn("must stop since CraftWork has failed");
-      finish();
-    }
-
-    nextCycleAtSystemMillis = System.currentTimeMillis() + cycleMillis;
-
-    // Action based on state and mode
-    try {
-      switch (state) {
-        case Initializing -> {
-          var templateConfig = craftWork.getTemplateConfig();
-          var chain = craftWork.getChain();
-          if (templateConfig.isEmpty() || chain.isEmpty()) {
-            LOG.debug("Waiting for Craft to begin");
-            return;
-          }
-          mixer = mixerInit(templateConfig.get());
-
-          chunkFromChainMicros = 0;
-          chunkToChainMicros = 0;
-          state = WorkState.Working;
-          LOG.info("Will start");
-        }
-        case Working -> {
-          if (isPlannedAhead()) {
-            doDubFrame();
-          } else {
-            doPlanFrame();
-          }
-        }
-      }
-
-    } catch (Exception e) {
-      didFailWhile("running a work cycle", e);
-    }
-
-    // End lap & do telemetry on all fabricated chains
-    timer.lap();
-    LOG.debug("Lap time: {}", timer.lapToString());
-    timer.clearLapSections();
-    nextCycleAtSystemMillis = System.currentTimeMillis() + cycleMillis;
-  }
-
   void doPlanFrame() {
-    if (!craftWork.isRunning()) {
+    if (craftWork.isFinished()) {
       LOG.warn("Craft is not running; will abort.");
       finish();
       return;
@@ -261,6 +216,7 @@ public class DubWorkImpl implements DubWork {
       LOG.debug("Waiting to catch up with {} second dub-ahead", dubAheadSeconds);
       return;
     }
+
     chunkToChainMicros = chunkFromChainMicros + mixerLengthMicros;
     craftWork.setAtChainMicros(chunkToChainMicros);
     LOG.debug("Planned frame {}s", String.format("%.1f", chunkToChainMicros / (double) MICROS_PER_SECOND));
@@ -466,13 +422,8 @@ public class DubWorkImpl implements DubWork {
     var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
     LOG.error("Failed while {} because {}", msgWhile, msgCause, e);
 
-    notification.publish(
-      "Dub Failure",
-      String.format("Failed while %s because %s\n\n%s", msgWhile, msgCause, StringUtils.formatStackTrace(e)));
-
-    state = WorkState.Failed;
     running.set(false);
     finish();
   }
-
+//
 }

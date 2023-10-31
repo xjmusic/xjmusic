@@ -114,13 +114,6 @@ public interface PlaylistPublisher {
   Long getMaxToChainMicros();
 
   /**
-   Send telemetry about current hls playlist
-   <p>
-   Ship should not enter permanent failure state unable to load segments https://www.pivotaltracker.com/story/show/180756082
-   */
-  void sendTelemetry();
-
-  /**
    Start the playlist publisher
 
    @param streamBaseUrl of the stream

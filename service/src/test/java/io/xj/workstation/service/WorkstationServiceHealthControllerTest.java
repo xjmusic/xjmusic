@@ -2,7 +2,7 @@
 
 package io.xj.workstation.service;
 
-import io.xj.nexus.work.WorkFactory;
+import io.xj.nexus.work.WorkManager;
 import io.xj.workstation.service.api.WorkstationServiceHealthController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,23 +19,23 @@ class WorkstationServiceHealthControllerTest {
   WorkstationServiceHealthController subject;
 
   @Mock
-  WorkFactory workFactory;
+  WorkManager workManager;
 
   @BeforeEach
   void setUp() {
-    subject = new WorkstationServiceHealthController(workFactory);
+    subject = new WorkstationServiceHealthController(workManager);
   }
 
   @Test
   void healthcheck() {
-    when(workFactory.isHealthy()).thenReturn(true);
+    when(workManager.isHealthy()).thenReturn(true);
 
     assertTrue(subject.index().getStatusCode().is2xxSuccessful());
   }
 
   @Test
   void healthcheck_failsWhenUnhealthy() {
-    when(workFactory.isHealthy()).thenReturn(false);
+    when(workManager.isHealthy()).thenReturn(false);
 
     assertFalse(subject.index().getStatusCode().is2xxSuccessful());
   }

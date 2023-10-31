@@ -2,7 +2,11 @@
 
 package io.xj.gui.controllers;
 
-import io.xj.gui.services.*;
+import io.xj.gui.services.FabricationService;
+import io.xj.gui.services.LabService;
+import io.xj.gui.services.LabStatus;
+import io.xj.gui.services.UIStateService;
+import io.xj.nexus.work.WorkState;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -16,7 +20,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class MainPaneTopController extends VBox implements ReadyAfterBootController {
   final FabricationService fabricationService;
-  final PreloaderService preloaderService;
   final UIStateService uiStateService;
   final ModalFabricationSettingsController modalFabricationSettingsController;
   final ModalLabAuthenticationController modalLabAuthenticationController;
@@ -43,36 +46,26 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   @FXML
   protected Button buttonShowFabricationSettings;
 
-  @FXML
-  protected Button buttonPreload;
-
   public MainPaneTopController(
     FabricationService fabricationService,
     LabService labService,
     ModalFabricationSettingsController modalFabricationSettingsController,
     ModalLabAuthenticationController modalLabAuthenticationController,
-    PreloaderService preloaderService,
     UIStateService uiStateService
   ) {
     this.fabricationService = fabricationService;
     this.labService = labService;
     this.modalFabricationSettingsController = modalFabricationSettingsController;
     this.modalLabAuthenticationController = modalLabAuthenticationController;
-    this.preloaderService = preloaderService;
     this.uiStateService = uiStateService;
   }
 
   @Override
   public void onStageReady() {
-    buttonAction.disableProperty().bind(uiStateService.fabricationActionDisabledProperty());
     buttonAction.textProperty().bind(fabricationService.mainActionButtonTextProperty());
 
-    buttonPreload.disableProperty().bind(fabricationService.isStatusActive());
-    buttonPreload.textProperty().bind(preloaderService.actionTextProperty());
+    buttonShowFabricationSettings.disableProperty().bind(uiStateService.isFabricationSettingsDisabledProperty());
 
-    buttonShowFabricationSettings.disableProperty().bind(uiStateService.fabricationSettingsDisabledProperty());
-
-    buttonToggleFollowPlayback.disableProperty().bind(preloaderService.runningProperty());
     buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
 
     fabricationService.statusProperty().addListener(this::handleFabricationStatusChange);
@@ -83,8 +76,8 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
     labelLabStatus.textProperty().bind(labService.statusProperty().map(Enum::toString));
 
-    progressBarFabrication.progressProperty().bind(uiStateService.fabricationProgressProperty());
-    progressBarFabrication.visibleProperty().bind(uiStateService.fabricationProgressBarVisibleProperty());
+    progressBarFabrication.progressProperty().bind(fabricationService.progressProperty());
+    progressBarFabrication.visibleProperty().bind(uiStateService.isProgressBarVisibleProperty());
   }
 
   @Override
@@ -95,15 +88,6 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   @FXML
   protected void handleButtonActionPress() {
     fabricationService.handleMainAction();
-  }
-
-  @FXML
-  public void handlePreloadButtonPress(ActionEvent ignored) {
-    if (preloaderService.isRunning()) {
-      preloaderService.cancel();
-    } else {
-      preloaderService.resetAndStart();
-    }
   }
 
   @FXML
@@ -120,10 +104,12 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     }
   }
 
-  private void handleFabricationStatusChange(ObservableValue<? extends FabricationStatus> observable, FabricationStatus prior, FabricationStatus newValue) {
+  private void handleFabricationStatusChange(ObservableValue<? extends WorkState> observable, WorkState prior, WorkState newValue) {
     switch (newValue) {
-      case Standby, Failed, Done, Cancelled -> buttonAction.getStyleClass().remove("button-active");
-      case Starting, Active -> buttonAction.getStyleClass().add("button-active");
+      case Standby, Failed, Done, Cancelled ->
+        buttonAction.getStyleClass().remove("button-active");
+      case LoadingContent, Initializing, LoadedAudio, LoadingAudio, LoadedContent, Starting, Active ->
+        buttonAction.getStyleClass().add("button-active");
     }
   }
 

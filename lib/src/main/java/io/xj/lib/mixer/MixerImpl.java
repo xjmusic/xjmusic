@@ -53,6 +53,7 @@ class MixerImpl implements Mixer {
   final double[][] outBuf; // final output buffer like [bus][frame][channel]
   final AudioFormat audioFormat;
   double compRatio = 0; // mixer effects are continuous between renders, so these ending values make their way back to the beginning of the next render
+  double[] busCompRatio; // mixer effects are continuous between renders, so these ending values make their way back to the beginning of the next render
 
   /**
    Instantiate a single Mix instance
@@ -88,6 +89,7 @@ class MixerImpl implements Mixer {
       microsPerFrame = MICROS_PER_SECOND / outputFrameRate;
       int totalFrames = (int) Math.floor(config.getTotalSeconds() * outputFrameRate);
       busBuf = new double[config.getTotalBuses()][totalFrames][outputChannels];
+      busCompRatio = new double[config.getTotalBuses()];
       outBuf = new double[totalFrames][outputChannels];
       outputFrameSize = audioFormat.getFrameSize();
       int totalBytes = totalFrames * outputFrameSize;
@@ -135,11 +137,14 @@ class MixerImpl implements Mixer {
     LOG.debug(config.getLogPrefix() + "Will mix {} seconds of output audio at {} Hz frame rate from {} instances of {} sources", config.getTotalSeconds(), outputFrameRate, activePuts.size(), sources.size());
 
     // Start with original sources summed up verbatim
-    // Initial mix steps are done on individual busses
+    // Initial mix steps are done on individual bus
     // Multi-bus output with individual normalization REF https://www.pivotaltracker.com/story/show/179081795
     applySources();
+/*
+  FUTURE: apply compression to each bus
     for (int b = 0; b < busBuf.length; b++)
-      applyFinalOutputCompressor();
+      applyBusCompressor(b);
+*/
     mixOutputBus();
 
     // The dynamic range is forced into gentle logarithmic decay.
@@ -346,7 +351,39 @@ class MixerImpl implements Mixer {
   }
 
   /*
-   Engineer wants high-pass and low-pass filters with gradual thresholds, in order to be optimally heard but not listened to. https://www.pivotaltracker.com/story/show/161670248
+   FUTURE: apply compressor to individual bus buffers
+   <p>
+   lookahead-attack compressor compresses entire buffer towards target amplitude https://www.pivotaltracker.com/story/show/154112129
+   <p>
+   only each major cycle, compute the new target compression ratio,
+   but modify the compression ratio *every* frame for max smoothness
+   <p>
+   compression target uses a rate of change of rate of change
+   to maintain inertia over time, required to preserve audio signal
+   *
+  private void applyBusCompressor(int b) {
+    // only set the comp ratio directly if it's never been set before, otherwise mixer effects are continuous between renders, so these ending values make their way back to the beginning of the next render
+    if (0 == busCompRatio[b]) {
+      busCompRatio[b] = computeCompressorTarget(busBuf[b], 0, framesAhead);
+    }
+    double compRatioDelta = 0; // rate of change
+    double targetCompRatio = busCompRatio[b];
+    for (int i = 0; i < busBuf[b].length; i++) {
+      if (0 == i % dspBufferSize) {
+        targetCompRatio = computeCompressorTarget(busBuf[b], i, i + framesAhead);
+      }
+      double compRatioDeltaDelta = MathUtil.delta(busCompRatio[b], targetCompRatio) / framesDecay;
+      compRatioDelta += MathUtil.delta(compRatioDelta, compRatioDeltaDelta) / dspBufferSize;
+      busCompRatio[b] += compRatioDelta;
+      for (int k = 0; k < outputChannels; k++)
+        busBuf[b][i][k] *= busCompRatio[b];
+    }
+  }
+   */
+
+
+  /*
+   FUTURE Engineer wants high-pass and low-pass filters with gradual thresholds, in order to be optimally heard but not listened to. https://www.pivotaltracker.com/story/show/161670248
    The lowpass filter ensures there are no screeching extra-high tones in the mix.
    The highpass filter ensures there are no distorting ultra-low tones in the mix.
    *

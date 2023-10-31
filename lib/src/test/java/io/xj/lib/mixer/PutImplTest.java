@@ -2,11 +2,9 @@
 package io.xj.lib.mixer;
 
 
-import io.xj.lib.notification.NotificationProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.UUID;
@@ -15,17 +13,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 public class PutImplTest {
-
   Put testPut;
-
-  @Mock
-  NotificationProvider notificationProvider;
   UUID audioId;
 
   @BeforeEach
   public void setUp() throws Exception {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, 1000000);
+    MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider, 1000000);
     audioId = UUID.randomUUID();
     testPut = mixerFactory.createPut(UUID.randomUUID(), audioId, 0, 1000000, 2000000, 1.0, 0, 5);
   }

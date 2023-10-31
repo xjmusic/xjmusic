@@ -6,8 +6,6 @@ import io.xj.hub.util.StringUtils;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
-import io.xj.lib.telemetry.TelemetryMeasureGauge;
-import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.nexus.ship.ShipException;
 import io.xj.nexus.ship.ShipMode;
 import jakarta.annotation.Nullable;
@@ -33,8 +31,6 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-
 /**
  Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
  */
@@ -49,8 +45,6 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   final FileStoreProvider fileStore;
   final HttpClientProvider httpClientProvider;
   final Map<Long/* mediaSequence */, Chunk> items = new ConcurrentHashMap<>();
-  final TelemetryMeasureGauge HLS_PLAYLIST_AHEAD_SECONDS;
-  final TelemetryMeasureGauge HLS_PLAYLIST_SIZE;
   final Pattern rgxFilename = Pattern.compile("^([A-Za-z0-9_]*)-([0-9]*)\\.([A-Za-z0-9]*)");
   final Pattern rgxSecondsValue = Pattern.compile("#EXTINF:([0-9.]*)");
   final Predicate<? super String> isSegmentFilename;
@@ -58,7 +52,6 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   final String m3u8ContentType;
   final String m3u8Key;
   final MediaSeqNumProvider mediaSeqNumProvider;
-  final TelemetryProvider telemetryProvider;
   final AtomicBoolean running = new AtomicBoolean(true);
   final int chunkDurationSeconds;
   final int m3u8MaxAgeSeconds;
@@ -73,7 +66,6 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     FileStoreProvider fileStoreProvider,
     HttpClientProvider httpClientProvider,
     MediaSeqNumProvider mediaSeqNumProvider,
-    TelemetryProvider telemetryProvider,
     @Value("${ship.mode}") String shipMode,
     @Value("${stream.bucket}") String streamBucket,
     @Value("${ship.chunk.duration.seconds}") int chunkDurationSeconds,
@@ -88,7 +80,6 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     this.fileStore = fileStoreProvider;
     this.httpClientProvider = httpClientProvider;
     this.mediaSeqNumProvider = mediaSeqNumProvider;
-    this.telemetryProvider = telemetryProvider;
 
     // Environment
     this.running.set(ShipMode.HLS.equals(shipMode));
@@ -108,10 +99,6 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     df.setRoundingMode(RoundingMode.FLOOR);
     df.setMinimumFractionDigits(6);
     df.setMaximumFractionDigits(6);
-
-    // Telemetry
-    HLS_PLAYLIST_SIZE = telemetryProvider.gauge("hls_playlist_size", "HLS Playlist Size", "");
-    HLS_PLAYLIST_AHEAD_SECONDS = telemetryProvider.gauge("hls_playlist_ahead_seconds", "HLS Playlist Ahead Seconds", "s");
   }
 
   @Override
@@ -267,12 +254,6 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   @Override
   public boolean isEmpty() {
     return items.isEmpty();
-  }
-
-  @Override
-  public void sendTelemetry() {
-    telemetryProvider.put(HLS_PLAYLIST_SIZE, (double) items.size());
-    telemetryProvider.put(HLS_PLAYLIST_AHEAD_SECONDS, (double) (getMaxToChainMicros() - toChainMicros.get()) / MICROS_PER_SECOND);
   }
 
   @Override

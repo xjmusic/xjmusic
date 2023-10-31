@@ -5,7 +5,6 @@ package io.xj.nexus.ship.broadcast;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.http.HttpClientProviderImpl;
-import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.nexus.ship.ShipException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,8 +26,6 @@ public class PlaylistPublisherImplTest {
   PlaylistPublisher playlistPublisher;
   @Mock
   FileStoreProvider fileStoreProvider;
-  @Mock
-  TelemetryProvider telemetryProvider;
   ChunkFactory chunkFactory;
 
   @BeforeEach
@@ -36,7 +33,7 @@ public class PlaylistPublisherImplTest {
     HttpClientProvider httpClientProvider = new HttpClientProviderImpl(1, 1);
     chunkFactory = new ChunkFactoryImpl("aac", 10);
     MediaSeqNumProvider mediaSeqNumProvider = new MediaSeqNumProvider(1);
-    playlistPublisher = new PlaylistPublisherImpl(chunkFactory, fileStoreProvider, httpClientProvider, mediaSeqNumProvider, telemetryProvider,
+    playlistPublisher = new PlaylistPublisherImpl(chunkFactory, fileStoreProvider, httpClientProvider, mediaSeqNumProvider,
       "nexus", "xj-prod-stream", 10, "", 0, 10,
             "aac", "coolair", "");
 

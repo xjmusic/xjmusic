@@ -4,8 +4,15 @@ package io.xj.nexus.work;
 
 
 public enum WorkState {
+  Standby,
+  Starting,
+  LoadingContent,
+  LoadedContent,
+  LoadingAudio,
+  LoadedAudio,
   Initializing,
-  Loading,
-  Working,
+  Active,
+  Done,
+  Cancelled,
   Failed,
 }

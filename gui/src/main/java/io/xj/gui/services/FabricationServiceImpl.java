@@ -2,7 +2,6 @@
 
 package io.xj.gui.services;
 
-import io.xj.hub.HubContent;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.enums.UserRoleType;
@@ -14,43 +13,42 @@ import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.nexus.hub_client.HubContentProvider;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.nexus.work.WorkConfiguration;
-import io.xj.nexus.work.WorkFactory;
+import io.xj.nexus.work.WorkManager;
+import io.xj.nexus.work.WorkState;
 import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableValue;
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
 
-@org.springframework.stereotype.Service
-public class FabricationServiceImpl extends Service<Boolean> implements FabricationService {
-  static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
+@Service
+public class FabricationServiceImpl implements FabricationService {
+  private static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
   private static final String defaultPathPrefix = System.getProperty("user.home") + File.separator + "Documents" + File.separator + "XJ music" + File.separator;
   private final Preferences prefs = Preferences.userNodeForPackage(FabricationServiceImpl.class);
-  final static String BUTTON_TEXT_START = "Start";
-  final static String BUTTON_TEXT_STOP = "Stop";
-  final static String BUTTON_TEXT_RESET = "Reset";
-  final HostServices hostServices;
+  private final static String BUTTON_TEXT_START = "Start";
+  private final static String BUTTON_TEXT_STOP = "Stop";
+  private final static String BUTTON_TEXT_RESET = "Reset";
+  private final HostServices hostServices;
   private final String defaultContentStoragePathPrefix = computeDefaultPathPrefix("content");
   private final String defaultOutputPathPrefix = computeDefaultPathPrefix("output");
   private final int defaultTimelineSegmentViewLimit;
@@ -59,15 +57,16 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   private final Integer defaultShipAheadSeconds;
   private final String defaultInputTemplateKey;
   private final int defaultOutputChannels;
-  private final String defaultOutputFileMode;
+  private final OutputFileMode defaultOutputFileMode;
   private final double defaultOutputFrameRate;
-  private final String defaultOutputMode;
+  private final InputMode defaultInputMode;
+  private final OutputMode defaultOutputMode;
   private final Integer defaultOutputSeconds;
-  final WorkFactory workFactory;
+  final WorkManager workManager;
   final HubClient hubClient;
   final LabService labService;
   final Map<Integer, Integer> segmentBarBeats = new ConcurrentHashMap<>();
-  final ObjectProperty<FabricationStatus> status = new SimpleObjectProperty<>(FabricationStatus.Standby);
+  final ObjectProperty<WorkState> status = new SimpleObjectProperty<>(WorkState.Standby);
   final StringProperty inputTemplateKey = new SimpleStringProperty();
   final StringProperty contentStoragePathPrefix = new SimpleStringProperty();
   final StringProperty outputPathPrefix = new SimpleStringProperty();
@@ -83,127 +82,70 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
 
   final StringProperty timelineSegmentViewLimit = new SimpleStringProperty();
   final BooleanProperty followPlayback = new SimpleBooleanProperty(true);
+  final DoubleProperty progress = new SimpleDoubleProperty(0.0);
   final ObservableBooleanValue outputModeSync = Bindings.createBooleanBinding(() ->
     outputMode.get().isSync(), outputMode);
-  final ObservableBooleanValue outputModeFile = Bindings.createBooleanBinding(() ->
+  private final ObservableBooleanValue outputModeFile = Bindings.createBooleanBinding(() ->
     outputMode.get() == OutputMode.FILE, outputMode);
-  final ObservableBooleanValue statusActive =
-    Bindings.createBooleanBinding(() -> status.get() == FabricationStatus.Active, status);
-  final ObservableBooleanValue statusStandby =
-    Bindings.createBooleanBinding(() -> status.get() == FabricationStatus.Standby, status);
-  final ObservableValue<String> mainActionButtonText = Bindings.createStringBinding(() ->
+  private final ObservableBooleanValue statusActive =
+    Bindings.createBooleanBinding(() -> status.get() == WorkState.Active, status);
+  private final ObservableBooleanValue statusStandby =
+    Bindings.createBooleanBinding(() -> status.get() == WorkState.Standby, status);
+  private final ObservableBooleanValue statusLoading =
+    Bindings.createBooleanBinding(() -> status.get() == WorkState.LoadingContent || status.get() == WorkState.LoadedContent || status.get() == WorkState.LoadingAudio || status.get() == WorkState.LoadedAudio, status);
+
+  private final ObservableValue<String> mainActionButtonText = Bindings.createStringBinding(() ->
     switch (status.get()) {
       case Starting, Standby -> BUTTON_TEXT_START;
-      case Active -> BUTTON_TEXT_STOP;
+      case LoadingContent, LoadedContent, LoadingAudio, LoadedAudio, Initializing, Active -> BUTTON_TEXT_STOP;
       case Cancelled, Failed, Done -> BUTTON_TEXT_RESET;
     }, status);
 
-
   public FabricationServiceImpl(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
+    @Value("${craft.ahead.seconds}") int defaultCraftAheadSeconds,
+    @Value("${dub.ahead.seconds}") int defaultDubAheadSeconds,
     @Value("${gui.timeline.max.segments}") int defaultTimelineSegmentViewLimit,
-    @Value("${craft.ahead.seconds}") Integer defaultCraftAheadSeconds,
-    @Value("${dub.ahead.seconds}") Integer defaultDubAheadSeconds,
-    @Value("${ship.ahead.seconds}") Integer defaultShipAheadSeconds,
     @Value("${input.template.key}") String defaultInputTemplateKey,
     @Value("${output.channels}") int defaultOutputChannels,
     @Value("${output.file.mode}") String defaultOutputFileMode,
     @Value("${output.frame.rate}") double defaultOutputFrameRate,
+    @Value("${input.mode}") String defaultInputMode,
     @Value("${output.mode}") String defaultOutputMode,
-    @Value("${output.seconds}") Integer defaultOutputSeconds,
-    WorkFactory workFactory,
+    @Value("${output.seconds}") int defaultOutputSeconds,
+    @Value("${ship.ahead.seconds}") int defaultShipAheadSeconds,
     HubClient hubClient,
-    LabService labService
+    LabService labService,
+    WorkManager workManager
   ) {
-    this.hostServices = hostServices;
-    this.defaultTimelineSegmentViewLimit = defaultTimelineSegmentViewLimit;
     this.defaultCraftAheadSeconds = defaultCraftAheadSeconds;
     this.defaultDubAheadSeconds = defaultDubAheadSeconds;
-    this.defaultShipAheadSeconds = defaultShipAheadSeconds;
+    this.defaultInputMode = InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT));
     this.defaultInputTemplateKey = defaultInputTemplateKey;
     this.defaultOutputChannels = defaultOutputChannels;
-    this.defaultOutputFileMode = defaultOutputFileMode;
+    this.defaultOutputFileMode = OutputFileMode.valueOf(defaultOutputFileMode.toUpperCase(Locale.ROOT));
     this.defaultOutputFrameRate = defaultOutputFrameRate;
-    this.defaultOutputMode = defaultOutputMode;
+    this.defaultOutputMode = OutputMode.valueOf(defaultOutputMode.toUpperCase(Locale.ROOT));
     this.defaultOutputSeconds = defaultOutputSeconds;
-    this.workFactory = workFactory;
+    this.defaultShipAheadSeconds = defaultShipAheadSeconds;
+    this.defaultTimelineSegmentViewLimit = defaultTimelineSegmentViewLimit;
+    this.hostServices = hostServices;
+    this.workManager = workManager;
     this.hubClient = hubClient;
     this.labService = labService;
 
     attachPreferenceListeners();
     setAllFromPrefsOrDefaults();
-
-    setOnCancelled((WorkerStateEvent ignored) -> status.set(FabricationStatus.Cancelled));
-    setOnFailed((WorkerStateEvent ignored) -> status.set(FabricationStatus.Failed));
-    setOnReady((WorkerStateEvent ignored) -> status.set(FabricationStatus.Standby));
-    setOnRunning((WorkerStateEvent ignored) -> status.set(FabricationStatus.Active));
-    setOnScheduled((WorkerStateEvent ignored) -> status.set(FabricationStatus.Starting));
-    setOnSucceeded((WorkerStateEvent ignored) -> status.set(FabricationStatus.Done));
-  }
-
-  private void attachPreferenceListeners() {
-    contentStoragePathPrefix.addListener((o, ov, value) -> prefs.put("contentStoragePathPrefix", value));
-    craftAheadSeconds.addListener((o, ov, value) -> prefs.put("craftAheadSeconds", value));
-    dubAheadSeconds.addListener((o, ov, value) -> prefs.put("dubAheadSeconds", value));
-    inputMode.addListener((o, ov, value) -> prefs.put("inputMode", value.name()));
-    inputTemplateKey.addListener((o, ov, value) -> prefs.put("inputTemplateKey", value));
-    outputChannels.addListener((o, ov, value) -> prefs.put("outputChannels", value));
-    outputFileMode.addListener((o, ov, value) -> prefs.put("outputFileMode", value.name()));
-    outputFrameRate.addListener((o, ov, value) -> prefs.put("outputFrameRate", value));
-    outputMode.addListener((o, ov, value) -> prefs.put("outputMode", value.name()));
-    outputPathPrefix.addListener((o, ov, value) -> prefs.put("outputPathPrefix", value));
-    outputSeconds.addListener((o, ov, value) -> prefs.put("outputSeconds", value));
-    shipAheadSeconds.addListener((o, ov, value) -> prefs.put("shipAheadSeconds", value));
-    timelineSegmentViewLimit.addListener((o, ov, value) -> prefs.put("timelineSegmentViewLimit", value));
-  }
-
-  private void setAllFromPrefsOrDefaults() {
-    contentStoragePathPrefix.set(prefs.get("contentStoragePathPrefix", defaultContentStoragePathPrefix));
-    craftAheadSeconds.set(prefs.get("craftAheadSeconds", Integer.toString(defaultCraftAheadSeconds)));
-    dubAheadSeconds.set(prefs.get("dubAheadSeconds", Integer.toString(defaultDubAheadSeconds)));
-    inputMode.set(InputMode.valueOf(prefs.get("inputMode", InputMode.PRODUCTION.name())));
-    inputTemplateKey.set(prefs.get("inputTemplateKey", defaultInputTemplateKey));
-    outputChannels.set(prefs.get("outputChannels", Integer.toString(defaultOutputChannels)));
-    outputFileMode.set(OutputFileMode.valueOf(prefs.get("outputFileMode", defaultOutputFileMode.toUpperCase(Locale.ROOT))));
-    outputFrameRate.set(prefs.get("outputFrameRate", Double.toString(defaultOutputFrameRate)));
-    outputMode.set(OutputMode.valueOf(prefs.get("outputMode", defaultOutputMode.toUpperCase(Locale.ROOT))));
-    outputPathPrefix.set(prefs.get("outputPathPrefix", defaultOutputPathPrefix));
-    outputSeconds.set(prefs.get("outputSeconds", Integer.toString(defaultOutputSeconds)));
-    shipAheadSeconds.set(prefs.get("shipAheadSeconds", Integer.toString(defaultShipAheadSeconds)));
-    timelineSegmentViewLimit.set(prefs.get("timelineSegmentViewLimit", Integer.toString(defaultTimelineSegmentViewLimit)));
   }
 
   @Override
-  protected Task<Boolean> createTask() {
-    return new Task<>() {
-      protected Boolean call() {
-        return workFactory.start(
-          getWorkConfig(),
-          labService.hubConfigProperty().get(),
-          getHubContentProvider(),
-          (Double ratio) -> updateProgress(ratio, 1.0),
-          () -> updateProgress(1.0, 1.0));
-      }
-    };
-  }
-
-  @Override
-  public Callable<HubContent> getHubContentProvider() {
-    var hubAccess = new HubClientAccess()
-      .setRoleTypes(List.of(UserRoleType.Internal))
-      .setToken(labService.accessTokenProperty().get());
-
-    return new HubContentProvider(
-      hubClient,
-      labService.hubConfigProperty().get(),
-      hubAccess,
-      inputMode.get(),
-      inputTemplateKey.get());
-  }
-
-  @Override
-  public WorkConfiguration getWorkConfig() {
-    return new WorkConfiguration()
+  public void start() {
+    if (status.get() != WorkState.Standby) {
+      LOG.error("Cannot start fabrication unless in Standby status");
+      return;
+    }
+    // create work configuration
+    var config = new WorkConfiguration()
       .setContentStoragePathPrefix(contentStoragePathPrefix.get())
       .setCraftAheadSeconds(Integer.parseInt(craftAheadSeconds.get()))
       .setDubAheadSeconds(Integer.parseInt(dubAheadSeconds.get()))
@@ -216,10 +158,32 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
       .setOutputPathPrefix(outputPathPrefix.get())
       .setOutputSeconds(Integer.parseInt(outputSeconds.get()))
       .setShipAheadSeconds(Integer.parseInt(shipAheadSeconds.get()));
+
+    var hubAccess = new HubClientAccess()
+      .setRoleTypes(List.of(UserRoleType.Internal))
+      .setToken(labService.accessTokenProperty().get());
+
+    // start the work with the given configuration
+    workManager.setOnProgress(progress::set);
+    workManager.setOnStateChange((WorkState state) -> Platform.runLater(() -> status.set(state)));
+    status.set(WorkState.Starting);
+    Platform.runLater(() -> workManager.start(config, labService.hubConfigProperty().get(), hubAccess));
   }
 
   @Override
-  public ObjectProperty<FabricationStatus> statusProperty() {
+  public void cancel() {
+    workManager.finish(true);
+    status.set(WorkState.Cancelled);
+  }
+
+  @Override
+  public void reset() {
+    workManager.reset();
+    status.set(WorkState.Standby);
+  }
+
+  @Override
+  public ObjectProperty<WorkState> statusProperty() {
     return status;
   }
 
@@ -289,14 +253,9 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   }
 
   @Override
-  public WorkFactory getWorkFactory() {
-    return workFactory;
-  }
-
-  @Override
   public Collection<SegmentMeme> getSegmentMemes(Segment segment) {
     try {
-      return workFactory.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMeme.class);
+      return workManager.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMeme.class);
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
       LOG.error("Failed to get segment memes", e);
       return List.of();
@@ -306,7 +265,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   @Override
   public Collection<SegmentChord> getSegmentChords(Segment segment) {
     try {
-      return workFactory.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentChord.class);
+      return workManager.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentChord.class);
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
       LOG.error("Failed to get segment chords", e);
       return List.of();
@@ -316,7 +275,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   @Override
   public Collection<SegmentChoice> getSegmentChoices(Segment segment) {
     try {
-      return workFactory.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentChoice.class);
+      return workManager.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentChoice.class);
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
       LOG.error("Failed to get segment choices", e);
       return List.of();
@@ -324,45 +283,39 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   }
 
   @Override
-  public void reset() {
-    super.reset();
-    workFactory.reset();
-  }
-
-  @Override
   public Optional<Program> getProgram(UUID programId) {
-    return workFactory.getSourceMaterial().getProgram(programId);
+    return workManager.getSourceMaterial().getProgram(programId);
   }
 
   @Override
   public Optional<ProgramVoice> getProgramVoice(UUID programVoiceId) {
-    return workFactory.getSourceMaterial().getProgramVoice(programVoiceId);
+    return workManager.getSourceMaterial().getProgramVoice(programVoiceId);
   }
 
   @Override
   public Optional<ProgramSequence> getProgramSequence(UUID programSequenceId) {
-    return workFactory.getSourceMaterial().getProgramSequence(programSequenceId);
+    return workManager.getSourceMaterial().getProgramSequence(programSequenceId);
   }
 
   @Override
   public Optional<ProgramSequenceBinding> getProgramSequenceBinding(UUID programSequenceBindingId) {
-    return workFactory.getSourceMaterial().getProgramSequenceBinding(programSequenceBindingId);
+    return workManager.getSourceMaterial().getProgramSequenceBinding(programSequenceBindingId);
   }
 
   @Override
   public Optional<Instrument> getInstrument(UUID instrumentId) {
-    return workFactory.getSourceMaterial().getInstrument(instrumentId);
+    return workManager.getSourceMaterial().getInstrument(instrumentId);
   }
 
   @Override
   public Optional<InstrumentAudio> getInstrumentAudio(UUID instrumentAudioId) {
-    return workFactory.getSourceMaterial().getInstrumentAudio(instrumentAudioId);
+    return workManager.getSourceMaterial().getInstrumentAudio(instrumentAudioId);
   }
 
   @Override
   public Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice choice) {
     try {
-      return workFactory.getSegmentManager().readManySubEntitiesOfType(choice.getSegmentId(), SegmentChoiceArrangement.class)
+      return workManager.getSegmentManager().readManySubEntitiesOfType(choice.getSegmentId(), SegmentChoiceArrangement.class)
         .stream().filter(arrangement -> arrangement.getSegmentChoiceId().equals(choice.getId())).toList();
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
       LOG.error("Failed to get segment choice arrangements", e);
@@ -373,7 +326,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   @Override
   public Collection<SegmentChoiceArrangementPick> getPicks(SegmentChoiceArrangement arrangement) {
     try {
-      return workFactory.getSegmentManager().readManySubEntitiesOfType(arrangement.getSegmentId(), SegmentChoiceArrangementPick.class)
+      return workManager.getSegmentManager().readManySubEntitiesOfType(arrangement.getSegmentId(), SegmentChoiceArrangementPick.class)
         .stream().filter(pick -> pick.getSegmentChoiceArrangementId().equals(arrangement.getId())).toList();
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
       LOG.error("Failed to get segment choice arrangement picks", e);
@@ -384,7 +337,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   @Override
   public Collection<SegmentMessage> getSegmentMessages(Segment segment) {
     try {
-      return workFactory.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMessage.class);
+      return workManager.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMessage.class);
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
       LOG.error("Failed to get segment messages", e);
       return List.of();
@@ -394,7 +347,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   @Override
   public Collection<SegmentMeta> getSegmentMetas(Segment segment) {
     try {
-      return workFactory.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMeta.class);
+      return workManager.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMeta.class);
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
       LOG.error("Failed to get segment metas", e);
       return List.of();
@@ -451,11 +404,9 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   public List<Segment> getSegments(@Nullable Integer startIndex) {
     try {
       var viewLimit = Integer.parseInt(timelineSegmentViewLimit.getValue());
-      var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, workFactory.getSegmentManager().size() - viewLimit - 1);
-      var to = Math.min(workFactory.getSegmentManager().size() - 1, from + viewLimit);
-      return workFactory
-        .getSegmentManager()
-        .readManyFromToOffset(from, to);
+      var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, workManager.getSegmentManager().size() - viewLimit - 1);
+      var to = Math.min(workManager.getSegmentManager().size() - 1, from + viewLimit);
+      return workManager.getSegmentManager().readManyFromToOffset(from, to);
 
     } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException e) {
       LOG.error("Failed to get segments", e);
@@ -465,7 +416,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
 
   @Override
   public Boolean isEmpty() {
-    return workFactory.getSegmentManager().isEmpty();
+    return workManager.getSegmentManager().isEmpty();
   }
 
   @Override
@@ -499,6 +450,11 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   }
 
   @Override
+  public ObservableDoubleValue progressProperty() {
+    return progress;
+  }
+
+  @Override
   public ObservableBooleanValue isOutputModeSync() {
     return outputModeSync;
   }
@@ -506,6 +462,11 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   @Override
   public ObservableBooleanValue isStatusActive() {
     return statusActive;
+  }
+
+  @Override
+  public ObservableBooleanValue isStatusLoading() {
+    return statusLoading;
   }
 
   @Override
@@ -519,11 +480,32 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   }
 
   @Override
+  public Optional<Long> getShippedToChainMicros() {
+    return workManager.getShippedToChainMicros();
+  }
+
+  @Override
+  public Optional<Long> getDubbedToChainMicros() {
+    return workManager.getDubbedToChainMicros();
+  }
+
+  @Override
+  public Optional<Long> getCraftedToChainMicros() {
+    return workManager.getCraftedToChainMicros();
+  }
+
+  @Override
+  public Optional<Long> getShipTargetChainMicros() {
+    return workManager.getShipTargetChainMicros();
+  }
+
+
+  @Override
   public void handleMainAction() {
     switch (status.get()) {
       case Standby -> start();
-      case Active -> cancel();
       case Cancelled, Done, Failed -> reset();
+      default -> cancel();
     }
   }
 
@@ -534,7 +516,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
 
   @Override
   public void handleDemoPlay(String templateKey, Integer craftAheadSeconds) {
-    if (status.get() != FabricationStatus.Standby) {
+    if (status.get() != WorkState.Standby) {
       LOG.error("Cannot play demo unless fabrication is in Standby status");
       return;
     }
@@ -542,24 +524,74 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     this.craftAheadSeconds.set(craftAheadSeconds.toString());
     dubAheadSeconds.set(Integer.toString(defaultDubAheadSeconds));
     shipAheadSeconds.set(Integer.toString(defaultShipAheadSeconds));
-    inputMode.set(InputMode.PRODUCTION);
     inputTemplateKey.set(templateKey);
-    outputFileMode.set(OutputFileMode.valueOf(defaultOutputFileMode.toUpperCase(Locale.ROOT)));
-    outputMode.set(OutputMode.valueOf(defaultOutputMode.toUpperCase(Locale.ROOT)));
+    outputFileMode.set(defaultOutputFileMode);
+    outputMode.set(defaultOutputMode);
+    inputMode.set(defaultInputMode);
 
     start();
   }
 
   @Override
   public String getChoiceHash(Segment segment) {
-    return workFactory.getSegmentManager().getChoiceHash(segment);
+    return workManager.getSegmentManager().getChoiceHash(segment);
   }
 
   @Override
   public Optional<Segment> getSegmentAtShipOutput() {
     return
-      workFactory.getShippedToChainMicros().flatMap(chainMicros ->
-        workFactory.getSegmentManager().readOneAtChainMicros(chainMicros));
+      workManager.getShippedToChainMicros().flatMap(chainMicros ->
+        workManager.getSegmentManager().readOneAtChainMicros(chainMicros));
+  }
+
+  private void attachPreferenceListeners() {
+    contentStoragePathPrefix.addListener((o, ov, value) -> prefs.put("contentStoragePathPrefix", value));
+    craftAheadSeconds.addListener((o, ov, value) -> prefs.put("craftAheadSeconds", value));
+    dubAheadSeconds.addListener((o, ov, value) -> prefs.put("dubAheadSeconds", value));
+    inputMode.addListener((o, ov, value) -> prefs.put("inputMode", Objects.nonNull(value) ? value.name() : ""));
+    inputTemplateKey.addListener((o, ov, value) -> prefs.put("inputTemplateKey", value));
+    outputChannels.addListener((o, ov, value) -> prefs.put("outputChannels", value));
+    outputFileMode.addListener((o, ov, value) -> prefs.put("outputFileMode", Objects.nonNull(value) ? value.name() : ""));
+    outputFrameRate.addListener((o, ov, value) -> prefs.put("outputFrameRate", value));
+    outputMode.addListener((o, ov, value) -> prefs.put("outputMode", Objects.nonNull(value) ? value.name() : ""));
+    outputPathPrefix.addListener((o, ov, value) -> prefs.put("outputPathPrefix", value));
+    outputSeconds.addListener((o, ov, value) -> prefs.put("outputSeconds", value));
+    shipAheadSeconds.addListener((o, ov, value) -> prefs.put("shipAheadSeconds", value));
+    timelineSegmentViewLimit.addListener((o, ov, value) -> prefs.put("timelineSegmentViewLimit", value));
+  }
+
+  private void setAllFromPrefsOrDefaults() {
+    contentStoragePathPrefix.set(prefs.get("contentStoragePathPrefix", defaultContentStoragePathPrefix));
+    craftAheadSeconds.set(prefs.get("craftAheadSeconds", Integer.toString(defaultCraftAheadSeconds)));
+    dubAheadSeconds.set(prefs.get("dubAheadSeconds", Integer.toString(defaultDubAheadSeconds)));
+    inputTemplateKey.set(prefs.get("inputTemplateKey", defaultInputTemplateKey));
+    outputChannels.set(prefs.get("outputChannels", Integer.toString(defaultOutputChannels)));
+    outputFrameRate.set(prefs.get("outputFrameRate", Double.toString(defaultOutputFrameRate)));
+    outputPathPrefix.set(prefs.get("outputPathPrefix", defaultOutputPathPrefix));
+    outputSeconds.set(prefs.get("outputSeconds", Integer.toString(defaultOutputSeconds)));
+    shipAheadSeconds.set(prefs.get("shipAheadSeconds", Integer.toString(defaultShipAheadSeconds)));
+    timelineSegmentViewLimit.set(prefs.get("timelineSegmentViewLimit", Integer.toString(defaultTimelineSegmentViewLimit)));
+
+    try {
+      inputMode.set(InputMode.valueOf(prefs.get("inputMode", defaultInputMode.toString()).toUpperCase(Locale.ROOT)));
+    } catch (Exception e) {
+      LOG.error("Failed to set input mode from preferences", e);
+      inputMode.set(defaultInputMode);
+    }
+
+    try {
+      outputMode.set(OutputMode.valueOf(prefs.get("outputMode", defaultOutputMode.toString()).toUpperCase(Locale.ROOT)));
+    } catch (Exception e) {
+      LOG.error("Failed to set output mode from preferences", e);
+      outputMode.set(defaultOutputMode);
+    }
+
+    try {
+      outputFileMode.set(OutputFileMode.valueOf(prefs.get("outputFileMode", defaultOutputFileMode.toString()).toUpperCase(Locale.ROOT)));
+    } catch (Exception e) {
+      LOG.error("Failed to set output file mode from preferences", e);
+      outputFileMode.set(defaultOutputFileMode);
+    }
   }
 
   private String formatTotalBars(int bars, String fraction) {
@@ -569,13 +601,13 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   private Optional<Integer> getBarBeats(Segment segment) {
     if (!segmentBarBeats.containsKey(segment.getId())) {
       try {
-        var choice = workFactory.getSegmentManager().readChoice(segment.getId(), ProgramType.Main);
+        var choice = workManager.getSegmentManager().readChoice(segment.getId(), ProgramType.Main);
         if (choice.isEmpty()) {
           LOG.error("Failed to retrieve main program choice to determine beats for Segment[{}]", segment.getId());
           return Optional.empty();
         }
 
-        var program = workFactory.getSourceMaterial().getProgram(choice.get().getProgramId());
+        var program = workManager.getSourceMaterial().getProgram(choice.get().getProgramId());
         if (program.isEmpty()) {
           LOG.error("Failed to retrieve main program to determine beats for Segment[{}]", segment.getId());
           return Optional.empty();
@@ -592,8 +624,8 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     return Optional.of(segmentBarBeats.get(segment.getId()));
   }
 
-
-  String computeProgramName(@Nullable Program program, @Nullable ProgramSequence programSequence, @Nullable ProgramSequenceBinding programSequenceBinding) {
+  String computeProgramName(@Nullable Program program, @Nullable ProgramSequence
+    programSequence, @Nullable ProgramSequenceBinding programSequenceBinding) {
     if (Objects.nonNull(program) && Objects.nonNull(programSequence) && Objects.nonNull(programSequenceBinding))
       return String.format("%s (%s)", program.getName(), programSequence.getName());
     else if (Objects.nonNull(program))

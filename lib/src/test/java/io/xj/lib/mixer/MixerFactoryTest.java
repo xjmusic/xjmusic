@@ -2,11 +2,9 @@
 package io.xj.lib.mixer;
 
 
-import io.xj.lib.notification.NotificationProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.sound.sampled.AudioFormat;
@@ -16,15 +14,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ExtendWith(MockitoExtension.class)
 public class MixerFactoryTest {
   MixerFactory mixerFactory;
-  @Mock
-  NotificationProvider notificationProvider;
-  @Mock
-  EnvelopeProvider envelopeProvider;
 
   @BeforeEach
   public void setUp() {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, 1000000);
+    mixerFactory = new MixerFactoryImpl(envelopeProvider, 1000000);
   }
 
   @Test

@@ -44,7 +44,6 @@ public class MainController implements ReadyAfterBootController {
     this.uiStateService = uiStateService;
   }
 
-
   @FXML
   public ScrollPane mainTimeline;
 
@@ -63,8 +62,8 @@ public class MainController implements ReadyAfterBootController {
     themeService.isDarkThemeProperty().addListener((observable, oldValue, newValue) -> themeService.setup(mainWindowScene));
 
     mainMenuController.onStageReady();
-    mainPaneBottomController.onStageReady();
     mainPaneTopController.onStageReady();
+    mainPaneBottomController.onStageReady();
     mainTimelineController.onStageReady();
     uiStateService.onStageReady();
   }

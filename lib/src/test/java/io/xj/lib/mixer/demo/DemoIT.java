@@ -2,10 +2,8 @@
 package io.xj.lib.mixer.demo;
 
 import io.xj.lib.mixer.*;
-import io.xj.lib.notification.NotificationProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.sound.sampled.AudioFormat;
@@ -61,12 +59,9 @@ public class DemoIT {
   static final String referenceAudioFilePrefix = "demo_reference_outputs/";
   static final int DEFAULT_BUS = 0;
 
-  @Mock
-  NotificationProvider notificationProvider;
-
   public DemoIT() {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    this.mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, 1000000);
+    this.mixerFactory = new MixerFactoryImpl(envelopeProvider, 1000000);
   }
 
   /**

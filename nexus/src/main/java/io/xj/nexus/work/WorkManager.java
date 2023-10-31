@@ -4,47 +4,30 @@ package io.xj.nexus.work;
 
 import io.xj.hub.HubConfiguration;
 import io.xj.hub.HubContent;
+import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.persistence.SegmentManager;
 
 import java.util.Optional;
-import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
-public interface WorkFactory {
+public interface WorkManager {
   /**
-   Start work
+   Start work.
+   <p>
+   This assigns the work configuration, hub configuration, and hub access.
+   However, in order to advance the state machine and perform work, the parent framework must repeatedly call
+   {@link #runCycle()} from its preferred work thread.
    */
-  boolean start(
+  void start(
     WorkConfiguration workConfig,
     HubConfiguration hubConfig,
-    Callable<HubContent> hubContentProvider,
-    Consumer<Double> progressUpdateCallback,
-    Runnable onDone
+    HubClientAccess hubAccess
   );
-
-  /**
-   Get a dub work instance
-
-   @param hubConfig  hub config
-   @param workConfig work config
-   @return dub work instance
-   */
-  DubWork dub(HubConfiguration hubConfig, WorkConfiguration workConfig);
 
   /**
    Stop work
    */
-  void finish();
-
-  /**
-   Get work state
-   */
-  WorkState getWorkState();
-
-  /**
-   Whether the factory is healthy
-   */
-  boolean isHealthy();
+  void finish(boolean cancelled);
 
   /**
    Get the segment manager
@@ -90,4 +73,45 @@ public interface WorkFactory {
    @return chain micros if realtime, else empty
    */
   Optional<Long> getShipTargetChainMicros();
+
+  /**
+   Run the current work cycle
+   */
+  void runCycle();
+
+  /**
+   @return the current work state
+   */
+  WorkState getWorkState();
+
+  /**
+   @return true if the current work is healthy
+   */
+  boolean isHealthy();
+
+  /**
+   @return true if the current work is finished
+   */
+  boolean isFinished();
+
+  /**
+   Set the on progress callback
+
+   @param onProgress callback
+   */
+  void setOnProgress(Consumer<Float> onProgress);
+
+  /**
+   Set the on status callback
+
+   @param onStatu callback
+   */
+  void setOnStateChange(Consumer<WorkState> onStatu);
+
+  /**
+   Set the on finish callback
+
+   @param afterFinished callback
+   */
+  void setAfterFinished(Runnable afterFinished);
 }

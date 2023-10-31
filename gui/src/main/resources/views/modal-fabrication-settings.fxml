@@ -131,7 +131,7 @@
         <TextField fx:id="fieldDubAheadSeconds" prefHeight="25.0" />
       </VBox>
       <VBox alignment="CENTER_LEFT">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Ship Ahead Seconds" textAlignment="RIGHT">
+        <Label fx:id="labelShipAheadSeconds" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Ship Ahead Seconds" textAlignment="RIGHT">
           <graphic>
             <Pane prefWidth="15.0" />
           </graphic>
