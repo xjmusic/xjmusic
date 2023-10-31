@@ -35,7 +35,7 @@
       </Button>
 
       <!-- Fabrication Status Text -->
-      <Label fx:id="labelFabricationStatus" text="Initializing"/>
+      <Label fx:id="labelFabricationStatus" prefWidth="180" text="Initializing"/>
 
       <ProgressBar fx:id="progressBarFabrication" prefWidth="100" progress="0.0"/>
 

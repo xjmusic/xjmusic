@@ -271,17 +271,17 @@ public class WorkManagerImpl implements WorkManager {
         }
 
         case LoadedContent -> {
-          updateState(WorkState.LoadingAudio);
+          updateState(WorkState.PreparingAudio);
           startLoadingAudio();
         }
 
-        case LoadingAudio -> {
+        case PreparingAudio -> {
           if (isAudioLoaded()) {
-            updateState(WorkState.LoadedAudio);
+            updateState(WorkState.PreparedAudio);
           }
         }
 
-        case LoadedAudio -> {
+        case PreparedAudio -> {
           updateState(WorkState.Initializing);
           initialize();
         }

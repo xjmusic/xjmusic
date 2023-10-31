@@ -108,7 +108,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     switch (newValue) {
       case Standby, Failed, Done, Cancelled ->
         buttonAction.getStyleClass().remove("button-active");
-      case LoadingContent, Initializing, LoadedAudio, LoadingAudio, LoadedContent, Starting, Active ->
+      case LoadingContent, Initializing, PreparedAudio, PreparingAudio, LoadedContent, Starting, Active ->
         buttonAction.getStyleClass().add("button-active");
     }
   }

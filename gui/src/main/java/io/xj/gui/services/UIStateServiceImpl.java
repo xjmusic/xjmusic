@@ -81,9 +81,22 @@ public class UIStateServiceImpl implements UIStateService {
   public StringBinding fabricationStatusTextProperty() {
     if (Objects.isNull(fabricationStatusText))
       fabricationStatusText = Bindings.createStringBinding(
-        () -> fabricationService.statusProperty().get().toString(),
-
-        fabricationService.statusProperty());
+        () -> switch (fabricationService.statusProperty().get()) {
+          case Standby -> "Ready";
+          case Starting -> "Starting";
+          case LoadingContent -> "Loading content";
+          case LoadedContent -> "Loaded content";
+          case PreparingAudio ->
+            String.format("Preparing audio (%.02f%%)", fabricationService.progressProperty().get() * 100);
+          case PreparedAudio -> "Prepared audio";
+          case Initializing -> "Initializing";
+          case Active -> "Active";
+          case Done -> "Done";
+          case Cancelled -> "Cancelled";
+          case Failed -> "Failed";
+        },
+        fabricationService.statusProperty(),
+        fabricationService.progressProperty());
 
     return fabricationStatusText;
   }
