@@ -30,8 +30,9 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -51,17 +52,27 @@ public class WorkManagerImpl implements WorkManager {
   private final MixerFactory mixerFactory;
   private final NexusEntityStore store;
   private final SegmentManager segmentManager;
-  private final long dubCycleMillis;
   private final int mixerSeconds;
   private final int outputFileNumberDigits;
   private final int pcmChunkSizeBytes;
   private final int cycleAudioBytes;
+  private final long cycleMillis;
+  private final long craftCycleMillis;
+  private long nextCraftCycleMillis;
+  private final long dubCycleMillis;
+  private long nextDubCycleMillis;
   private final long shipCycleMillis;
+  private long nextShipCycleMillis;
+
   private final String tempFilePathPrefix;
-  private boolean isFileOutputMode;
+  private final AtomicReference<HubContent> hubContent = new AtomicReference<>();
   private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
   private final AtomicBoolean isAudioLoaded = new AtomicBoolean(false);
-  private int engineCylinder = 0;
+
+  private boolean isFileOutputMode;
+
+  @Nullable
+  private ScheduledExecutorService scheduler;
 
   @Nullable
   private CraftWork craftWork;
@@ -81,10 +92,15 @@ public class WorkManagerImpl implements WorkManager {
   @Nullable
   private HubClientAccess hubAccess;
 
-  private final AtomicReference<HubContent> hubContent = new AtomicReference<>();
 
   @Nullable
   private Consumer<Float> onProgress;
+
+  @Nullable
+  private Consumer<WorkState> onStateChange;
+
+  @Nullable
+  private Runnable afterFinished;
 
   public WorkManagerImpl(
     BroadcastFactory broadcastFactory,
@@ -97,13 +113,15 @@ public class WorkManagerImpl implements WorkManager {
     MixerFactory mixerFactory,
     NexusEntityStore store,
     SegmentManager segmentManager,
-    @Value("${dub.cycle.millis}") long dubCycleMillis,
+    @Value("${fabrication.thread.pool.size}") int threadPoolSize,
     @Value("${mixer.timeline.seconds}") int mixerSeconds,
     @Value("${output.file.number.digits}") int outputFileNumberDigits,
     @Value("${output.pcm.chunk.size.bytes}") int pcmChunkSizeBytes,
     @Value("${ship.cycle.audio.bytes}") int cycleAudioBytes,
+    @Value("${temp.file.path.prefix}") String tempFilePathPrefix,
     @Value("${ship.cycle.millis}") long shipCycleMillis,
-    @Value("${temp.file.path.prefix}") String tempFilePathPrefix
+    @Value("${dub.cycle.millis}") long dubCycleMillis,
+    @Value("${craft.cycle.millis}") long craftCycleMillis
   ) {
     this.broadcastFactory = broadcastFactory;
     this.craftFactory = craftFactory;
@@ -115,13 +133,18 @@ public class WorkManagerImpl implements WorkManager {
     this.mixerFactory = mixerFactory;
     this.store = store;
     this.segmentManager = segmentManager;
-    this.dubCycleMillis = dubCycleMillis;
     this.mixerSeconds = mixerSeconds;
     this.outputFileNumberDigits = outputFileNumberDigits;
     this.pcmChunkSizeBytes = pcmChunkSizeBytes;
     this.cycleAudioBytes = cycleAudioBytes;
-    this.shipCycleMillis = shipCycleMillis;
     this.tempFilePathPrefix = tempFilePathPrefix;
+    this.shipCycleMillis = shipCycleMillis;
+    this.dubCycleMillis = dubCycleMillis;
+    this.craftCycleMillis = craftCycleMillis;
+
+    cycleMillis = Math.min(dubCycleMillis, Math.min(shipCycleMillis, craftCycleMillis));
+
+    scheduler = Executors.newScheduledThreadPool(threadPoolSize);
   }
 
   @Override
@@ -136,25 +159,34 @@ public class WorkManagerImpl implements WorkManager {
 
     isFileOutputMode = workConfig.getOutputMode() == OutputMode.FILE;
     isAudioLoaded.set(false);
-    state.set(WorkState.Starting);
+    updateState(WorkState.Starting);
+
+    scheduler = Executors.newScheduledThreadPool(1);
+    scheduler.scheduleAtFixedRate(this::runCycle, 0, cycleMillis, TimeUnit.MILLISECONDS);
+  }
+
+  private void updateState(WorkState workState) {
+    state.set(workState);
+    if (Objects.nonNull(onStateChange)) {
+      onStateChange.accept(workState);
+    }
   }
 
   @Override
-  public void finish() {
-    // This will cascade-send the finish() instruction to dub and ship
-    if (Objects.nonNull(shipWork)) {
-      shipWork.finish();
+  public void finish(boolean cancelled) {
+    if (Objects.nonNull(scheduler)) {
+      scheduler.shutdown();
     }
-    state.set(WorkState.Done);
-  }
 
-  @Override
-  public void cancel() {
-    // This will cascade-send the finish() instruction to dub and ship
+    // Shutting down ship work will cascade-send the finish() instruction to dub and ship
     if (Objects.nonNull(shipWork)) {
       shipWork.finish();
     }
-    state.set(WorkState.Cancelled);
+
+    updateState(cancelled ? WorkState.Cancelled : WorkState.Done);
+    if (Objects.nonNull(afterFinished)) {
+      afterFinished.run();
+    }
   }
 
   @Override
@@ -175,6 +207,16 @@ public class WorkManagerImpl implements WorkManager {
   @Override
   public void setOnProgress(@Nullable Consumer<Float> onProgress) {
     this.onProgress = onProgress;
+  }
+
+  @Override
+  public void setOnStateChange(@Nullable Consumer<WorkState> onStateChange) {
+    this.onStateChange = onStateChange;
+  }
+
+  @Override
+  public void setAfterFinished(@Nullable Runnable afterFinished) {
+    this.afterFinished = afterFinished;
   }
 
   @Override
@@ -221,39 +263,39 @@ public class WorkManagerImpl implements WorkManager {
       switch (state.get()) {
 
         case Starting -> {
-          state.set(WorkState.LoadingContent);
+          updateState(WorkState.LoadingContent);
           startLoadingContent();
         }
 
         case LoadingContent -> {
           if (isContentLoaded()) {
-            state.set(WorkState.LoadedContent);
+            updateState(WorkState.LoadedContent);
           }
         }
 
         case LoadedContent -> {
-          state.set(WorkState.LoadingAudio);
+          updateState(WorkState.LoadingAudio);
           startLoadingAudio();
         }
 
         case LoadingAudio -> {
           if (isAudioLoaded()) {
-            state.set(WorkState.LoadedAudio);
+            updateState(WorkState.LoadedAudio);
           }
         }
 
         case LoadedAudio -> {
-          state.set(WorkState.Initializing);
+          updateState(WorkState.Initializing);
           initialize();
         }
 
         case Initializing -> {
           if (isInitialized()) {
-            state.set(WorkState.Active);
+            updateState(WorkState.Active);
           }
         }
 
-        case Active -> fireActiveEngineCylinder();
+        case Active -> runFabricationCycle();
 
         case Standby, Done, Failed -> {
           // no op
@@ -283,17 +325,11 @@ public class WorkManagerImpl implements WorkManager {
       workConfig.getInputTemplateKey()
     );
 
-    ExecutorService executor = Executors.newSingleThreadExecutor();
-    executor.submit(() -> {
-      try {
-        HubContent content = hubContentProvider.call();
-        hubContent.set(content);
-      } catch (Exception e) {
-        didFailWhile("loading content", e);
-      } finally {
-        executor.shutdown();
-      }
-    });
+    try {
+      hubContent.set(hubContentProvider.call());
+    } catch (Exception e) {
+      didFailWhile("loading content", e);
+    }
   }
 
   private boolean isContentLoaded() {
@@ -304,13 +340,45 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(hubConfig);
 
-    ExecutorService executor = Executors.newSingleThreadExecutor();
-    executor.submit(new AudioPreloader(
-      workConfig.getContentStoragePathPrefix(),
-      hubConfig.getAudioBaseUrl(),
-      (int) workConfig.getOutputFrameRate(),
-      workConfig.getOutputChannels()
-    ));
+    var contentStoragePathPrefix = workConfig.getContentStoragePathPrefix();
+    var audioBaseUrl = hubConfig.getAudioBaseUrl();
+    var outputFrameRate = (int) workConfig.getOutputFrameRate();
+    var outputChannels = workConfig.getOutputChannels();
+
+    int loaded = 0;
+
+    try {
+      var instruments = new ArrayList<>(hubContent.get().getInstruments());
+      var audios = new ArrayList<>(hubContent.get().getInstrumentAudios());
+      for (Instrument instrument : instruments) {
+        for (InstrumentAudio audio : audios.stream()
+          .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
+          .sorted(Comparator.comparing(InstrumentAudio::getName))
+          .toList()) {
+          if (isFinished()) {
+            return;
+          }
+          if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
+            dubAudioCache.load(
+              contentStoragePathPrefix,
+              audioBaseUrl,
+              audio.getInstrumentId(),
+              audio.getWaveformKey(),
+              outputFrameRate,
+              FIXED_SAMPLE_BITS,
+              outputChannels);
+            updateProgress((float) loaded / audios.size());
+            loaded++;
+          }
+        }
+      }
+      if (Objects.nonNull(onProgress)) onProgress.accept(1.0f);
+      isAudioLoaded.set(true);
+      LOG.info("Preloaded {}  audios from {} instruments", loaded, instruments.size());
+
+    } catch (Exception e) {
+      didFailWhile("preloading audio", e);
+    }
   }
 
   private boolean isAudioLoaded() {
@@ -324,7 +392,8 @@ public class WorkManagerImpl implements WorkManager {
       craftFactory,
       entityFactory,
       fabricatorFactory,
-      segmentManager, fileStore,
+      segmentManager,
+      fileStore,
       store, hubContent.get(),
       workConfig.getInputMode(),
       workConfig.getOutputMode(),
@@ -342,7 +411,6 @@ public class WorkManagerImpl implements WorkManager {
       workConfig.getContentStoragePathPrefix(),
       hubConfig.getAudioBaseUrl(),
       mixerSeconds,
-      dubCycleMillis,
       workConfig.getOutputFrameRate(),
       workConfig.getOutputChannels(),
       workConfig.getDubAheadSeconds()
@@ -353,7 +421,6 @@ public class WorkManagerImpl implements WorkManager {
       workConfig.getOutputMode(),
       workConfig.getOutputFileMode(),
       workConfig.getOutputSeconds(),
-      shipCycleMillis,
       cycleAudioBytes,
       workConfig.getInputTemplateKey(),
       workConfig.getOutputPathPrefix(),
@@ -363,35 +430,31 @@ public class WorkManagerImpl implements WorkManager {
     );
   }
 
-  /**
-   The analogy here is an engine with multiple cylinders, where the cylinders (Craft, Dub, Ship) fire in sequence.
-   */
-  private void fireActiveEngineCylinder() {
-    engineCylinder = (engineCylinder + 1) % 3;
-    switch (engineCylinder) {
+  private void runFabricationCycle() {
+    var now = System.currentTimeMillis();
 
-      // Cylinder 0: Craft
-      case 0 -> {
-        if (Objects.nonNull(craftWork)) craftWork.runCycle();
+    // Craft
+    if (Objects.nonNull(craftWork) && now >= nextCraftCycleMillis) {
+      nextCraftCycleMillis = now + craftCycleMillis;
+      craftWork.runCycle();
+    }
+
+    // Dub
+    if (Objects.nonNull(dubWork) && now >= nextDubCycleMillis) {
+      nextDubCycleMillis = now + dubCycleMillis;
+      dubWork.runCycle();
+    }
+
+    // Ship
+    if (Objects.nonNull(shipWork) && now >= nextShipCycleMillis) {
+      nextShipCycleMillis = now + shipCycleMillis;
+      shipWork.runCycle();
+      if (isFileOutputMode) {
+        updateProgress(shipWork.getProgress());
       }
-
-      // Cylinder 1: Dub
-      case 1 -> {
-        if (Objects.nonNull(dubWork)) dubWork.runCycle();
-      }
-
-      // Cylinder 2: Ship
-      case 2 -> {
-        if (Objects.nonNull(shipWork)) {
-          shipWork.runCycle();
-          if (isFileOutputMode) {
-            updateProgress(shipWork.getProgress());
-          }
-          if (shipWork.isFinished()) {
-            state.set(WorkState.Done);
-            LOG.info("Fabrication work done");
-          }
-        }
+      if (shipWork.isFinished()) {
+        updateState(WorkState.Done);
+        LOG.info("Fabrication work done");
       }
     }
   }
@@ -412,64 +475,6 @@ public class WorkManagerImpl implements WorkManager {
     if (Objects.nonNull(shipWork)) {
       shipWork.finish();
     }
-    state.set(WorkState.Failed);
-  }
-
-  private class AudioPreloader implements Runnable {
-
-    private final String contentStoragePathPrefix;
-    private final String audioBaseUrl;
-    private final int outputFrameRate;
-    private final int outputChannels;
-
-    private AudioPreloader(
-      String contentStoragePathPrefix,
-      String audioBaseUrl,
-      int outputFrameRate,
-      int outputChannels
-    ) {
-      this.contentStoragePathPrefix = contentStoragePathPrefix;
-      this.audioBaseUrl = audioBaseUrl;
-      this.outputFrameRate = outputFrameRate;
-      this.outputChannels = outputChannels;
-    }
-
-    @Override
-    public void run() {
-      int loaded = 0;
-
-      try {
-        var instruments = new ArrayList<>(hubContent.get().getInstruments());
-        var audios = new ArrayList<>(hubContent.get().getInstrumentAudios());
-        for (Instrument instrument : instruments) {
-          for (InstrumentAudio audio : audios.stream()
-            .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
-            .sorted(Comparator.comparing(InstrumentAudio::getName))
-            .toList()) {
-            if (isFinished()) {
-              return;
-            }
-            if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
-              dubAudioCache.load(
-                contentStoragePathPrefix,
-                audioBaseUrl,
-                audio.getInstrumentId(),
-                audio.getWaveformKey(),
-                outputFrameRate,
-                FIXED_SAMPLE_BITS,
-                outputChannels);
-              updateProgress((float) loaded / audios.size());
-              loaded++;
-            }
-          }
-        }
-        if (Objects.nonNull(onProgress)) onProgress.accept(1.0f);
-        isAudioLoaded.set(true);
-        LOG.info("Preloaded {}  audios from {} instruments", loaded, instruments.size());
-
-      } catch (Exception e) {
-        didFailWhile("preloading audio", e);
-      }
-    }
+    updateState(WorkState.Failed);
   }
 }

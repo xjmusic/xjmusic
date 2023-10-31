@@ -21,8 +21,6 @@ import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkManager;
 import io.xj.nexus.work.WorkState;
 import jakarta.annotation.Nullable;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -30,10 +28,8 @@ import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
-import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,7 +48,6 @@ public class FabricationServiceImpl implements FabricationService {
   private final static String BUTTON_TEXT_START = "Start";
   private final static String BUTTON_TEXT_STOP = "Stop";
   private final static String BUTTON_TEXT_RESET = "Reset";
-  private final Integer cycleMillis;
   private final HostServices hostServices;
   private final String defaultContentStoragePathPrefix = computeDefaultPathPrefix("content");
   private final String defaultOutputPathPrefix = computeDefaultPathPrefix("output");
@@ -106,14 +101,10 @@ public class FabricationServiceImpl implements FabricationService {
       case Cancelled, Failed, Done -> BUTTON_TEXT_RESET;
     }, status);
 
-  @Nullable
-  Timeline timeline;
-
   public FabricationServiceImpl(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
     @Value("${craft.ahead.seconds}") int defaultCraftAheadSeconds,
     @Value("${dub.ahead.seconds}") int defaultDubAheadSeconds,
-    @Value("${fabrication.cycle.millis}") int cycleMillis,
     @Value("${gui.timeline.max.segments}") int defaultTimelineSegmentViewLimit,
     @Value("${input.template.key}") String defaultInputTemplateKey,
     @Value("${output.channels}") int defaultOutputChannels,
@@ -127,7 +118,6 @@ public class FabricationServiceImpl implements FabricationService {
     LabService labService,
     WorkManager workManager
   ) {
-    this.cycleMillis = cycleMillis;
     this.defaultCraftAheadSeconds = defaultCraftAheadSeconds;
     this.defaultDubAheadSeconds = defaultDubAheadSeconds;
     this.defaultInputMode = InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT));
@@ -175,16 +165,14 @@ public class FabricationServiceImpl implements FabricationService {
 
     // start the work with the given configuration
     workManager.setOnProgress(progress::set);
-    workManager.start(config, labService.hubConfigProperty().get(), hubAccess);
-
-    // Start the timeline to run the work cycles
+    workManager.setOnStateChange((WorkState state) -> Platform.runLater(() -> status.set(state)));
     status.set(WorkState.Starting);
-    startTimeline();
+    Platform.runLater(() -> workManager.start(config, labService.hubConfigProperty().get(), hubAccess));
   }
 
   @Override
   public void cancel() {
-    workManager.cancel();
+    workManager.finish(true);
     status.set(WorkState.Cancelled);
   }
 
@@ -554,47 +542,6 @@ public class FabricationServiceImpl implements FabricationService {
     return
       workManager.getShippedToChainMicros().flatMap(chainMicros ->
         workManager.getSegmentManager().readOneAtChainMicros(chainMicros));
-  }
-
-  @Override
-  public void runCycle(ActionEvent actionEvent) {
-    if (workManager.getWorkState() != status.get()) {
-      status.set(workManager.getWorkState());
-      LOG.info("status: {}", status.get());
-    }
-
-    try {
-      Platform.runLater(workManager::runCycle);
-    } catch (Exception e) {
-      LOG.error("Failed to run work cycle!", e);
-      status.set(WorkState.Failed);
-    }
-
-    switch (status.get()) {
-      case Cancelled, Done, Failed -> pauseTimeline();
-    }
-  }
-
-  private void startTimeline() {
-    if (Objects.nonNull(timeline)) {
-      timeline.play();
-    } else {
-      timeline = new Timeline(
-        new KeyFrame(
-          Duration.millis(cycleMillis),
-          this::runCycle
-        )
-      );
-      timeline.setCycleCount(Timeline.INDEFINITE);
-      timeline.setRate(1.0);
-      timeline.play();
-    }
-  }
-
-  private void pauseTimeline() {
-    if (Objects.nonNull(timeline)) {
-      timeline.pause();
-    }
   }
 
   private void attachPreferenceListeners() {

@@ -27,9 +27,6 @@ import org.springframework.context.event.EventListener;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 @ComponentScan(
@@ -43,7 +40,6 @@ public class WorkstationServiceApplication {
   final EntityFactory entityFactory;
   final WorkManager workManager;
   final ApplicationContext context;
-  private final long cycleMillis;
   final InputMode inputMode;
   final String inputTemplateKey;
   final OutputFileMode outputFileMode;
@@ -55,7 +51,6 @@ public class WorkstationServiceApplication {
   private final String labBaseUrl;
   private final String shipBaseUrl;
   private final String streamBaseUrl;
-  private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 
   @Autowired
@@ -63,7 +58,6 @@ public class WorkstationServiceApplication {
     ApplicationContext context,
     EntityFactory entityFactory,
     WorkManager workManager,
-    @Value("${work.cycle.millis}") long cycleMillis,
     @Value("${input.mode}") String inputMode,
     @Value("${input.template.key}") String inputTemplateKey,
     @Value("${output.file.mode}") String outputFileMode,
@@ -79,7 +73,6 @@ public class WorkstationServiceApplication {
     this.entityFactory = entityFactory;
     this.workManager = workManager;
     this.context = context;
-    this.cycleMillis = cycleMillis;
     this.inputMode = InputMode.valueOf(inputMode.toUpperCase(Locale.ROOT));
     this.inputTemplateKey = inputTemplateKey;
     this.outputFileMode = OutputFileMode.valueOf(outputFileMode.toUpperCase(Locale.ROOT));
@@ -119,17 +112,8 @@ public class WorkstationServiceApplication {
       .setRoleTypes(List.of(UserRoleType.Internal))
       .setToken(ingestToken);
 
+    workManager.setAfterFinished(this::shutdown);
     workManager.start(workConfig, hubConfig, hubAccess);
-
-    scheduler.scheduleAtFixedRate(this::runCycle, 0, cycleMillis, TimeUnit.MILLISECONDS);
-  }
-
-  private void runCycle() {
-    workManager.runCycle();
-    if (workManager.isFinished()) {
-      scheduler.shutdown();
-      shutdown();
-    }
   }
 
   void shutdown() {

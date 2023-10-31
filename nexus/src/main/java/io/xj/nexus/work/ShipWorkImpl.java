@@ -44,10 +44,8 @@ public class ShipWorkImpl implements ShipWork {
   final int outputSeconds;
   final int pcmChunkSizeBytes;
   final int shipAheadSeconds;
-  final long cycleMillis;
   int outputFileNum = 0;
   long targetChainMicros = 0;
-  long nextCycleAtSystemMillis = System.currentTimeMillis();
   private final String shipKey;
   private float progress;
 
@@ -57,7 +55,6 @@ public class ShipWorkImpl implements ShipWork {
     OutputMode outputMode,
     OutputFileMode outputFileMode,
     int outputSeconds,
-    long cycleMillis,
     int cycleAudioBytes,
     String shipKey,
     String outputPathPrefix,
@@ -67,7 +64,6 @@ public class ShipWorkImpl implements ShipWork {
   ) {
     this.broadcastFactory = broadcastFactory;
     this.cycleAudioBytes = cycleAudioBytes;
-    this.cycleMillis = cycleMillis;
     this.dubWork = dubWork;
     this.outputFileMode = outputFileMode;
     this.shipKey = shipKey;
@@ -138,10 +134,6 @@ public class ShipWorkImpl implements ShipWork {
       finish();
     }
 
-    if (System.currentTimeMillis() < nextCycleAtSystemMillis) return;
-
-    nextCycleAtSystemMillis = System.currentTimeMillis() + cycleMillis;
-
     // Action based on mode
     try {
       if (dubWork.getMixerBuffer().isEmpty() || dubWork.getMixerOutputMicrosPerByte().isEmpty()) return;
@@ -159,7 +151,6 @@ public class ShipWorkImpl implements ShipWork {
     timer.lap();
     LOG.debug("Lap time: {}", timer.lapToString());
     timer.clearLapSections();
-    nextCycleAtSystemMillis = System.currentTimeMillis() + cycleMillis;
   }
 
   @Override
@@ -215,7 +206,7 @@ public class ShipWorkImpl implements ShipWork {
         return;
       }
 
-      var butts=123;//todo remove
+      var butts = 123;//todo remove
 
       var availableBytes = dubWork.getMixerBuffer().orElseThrow().getAvailableByteCount();
       if (availableBytes >= cycleAudioBytes) {
@@ -240,8 +231,6 @@ public class ShipWorkImpl implements ShipWork {
       LOG.debug("No segment available at chain micros {}", targetChainMicros);
       return;
     }
-
-    var butts=123;//todo remove
 
     if (Objects.isNull(outputFile)) { // First output file
       doShipOutputFileStartNext(segment.get());

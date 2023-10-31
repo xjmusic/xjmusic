@@ -276,14 +276,18 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     // This gets re-used for the follow position as well as past timeline width
     var pastTimelineWidth = (m1Past - m0) / microsPerPixel.get();
 
-    // like the scroll pane target position, the past region is always moving at a predictable rate,
+    // In sync output, like the scroll pane target position, the past region is always moving at a predictable rate,
     // so we set its initial position as well as animation its target, which smooths over some
     // jumpiness caused by adding or removing segments to the list.
-    timelineRegion1Past.setWidth(pastTimelineWidth - MILLIS_PER_MICRO * refreshTimelineMillis / microsPerPixel.get());
-    scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
-      new KeyValue(timelineRegion1Past.widthProperty(), pastTimelineWidth)));
+    if (fabricationService.isOutputModeSync().getValue()) {
+      timelineRegion1Past.setWidth(pastTimelineWidth - MILLIS_PER_MICRO * refreshTimelineMillis / microsPerPixel.get());
+      scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
+        new KeyValue(timelineRegion1Past.widthProperty(), pastTimelineWidth)));
+    } else {
+      timelineRegion1Past.setWidth(pastTimelineWidth);
+    }
 
-    // the rest of these widths are always animated
+    // the rest of these widths are always animated relative to their starting position
     scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
       new KeyValue(timelineRegion2Ship.widthProperty(), (m2Ship - m1Past) / microsPerPixel.get())));
     scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
@@ -297,12 +301,16 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       var targetOffsetHorizontalPixels = Math.max(0, pastTimelineWidth - autoScrollBehindPixels);
 
       if (fabricationService.isOutputModeSync().getValue()) {
-        // the scroll pane is always moving at a predictable rate,
+        // in sync output, the scroll pane is always moving at a predictable rate,
         // so we set its initial position as well as animation its target, which smooths over some
         // jumpiness caused by adding or removing segments to the list.
-        scrollPane.setHvalue((targetOffsetHorizontalPixels - ((MILLIS_PER_MICRO * refreshTimelineMillis) / microsPerPixel.get())) / extraHorizontalPixels);
-        scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
-          new KeyValue(scrollPane.hvalueProperty(), targetOffsetHorizontalPixels / extraHorizontalPixels)));
+        if (fabricationService.isOutputModeSync().getValue()) {
+          scrollPane.setHvalue((targetOffsetHorizontalPixels - ((MILLIS_PER_MICRO * refreshTimelineMillis) / microsPerPixel.get())) / extraHorizontalPixels);
+          scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
+            new KeyValue(scrollPane.hvalueProperty(), targetOffsetHorizontalPixels / extraHorizontalPixels)));
+        } else {
+          scrollPane.setHvalue(targetOffsetHorizontalPixels / extraHorizontalPixels);
+        }
       } else {
         scrollPane.setHvalue(targetOffsetHorizontalPixels / extraHorizontalPixels);
       }
@@ -338,10 +346,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     DisplayedSegment(Segment segment) {
       this.segment.set(segment);
       this.choiceHash.set(fabricationService.getChoiceHash(segment));
-    }
-
-    public Segment getSegment() {
-      return segment.get();
     }
 
     public boolean isSameButUpdated(Segment segment) {

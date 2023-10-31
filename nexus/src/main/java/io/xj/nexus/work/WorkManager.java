@@ -8,7 +8,6 @@ import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.persistence.SegmentManager;
 
 import java.util.Optional;
-import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 public interface WorkManager {
@@ -28,7 +27,7 @@ public interface WorkManager {
   /**
    Stop work
    */
-  void finish();
+  void finish(boolean cancelled);
 
   /**
    Get the segment manager
@@ -81,11 +80,6 @@ public interface WorkManager {
   void runCycle();
 
   /**
-   Cancel the current work
-   */
-  void cancel();
-
-  /**
    @return the current work state
    */
   WorkState getWorkState();
@@ -106,4 +100,18 @@ public interface WorkManager {
    @param onProgress callback
    */
   void setOnProgress(Consumer<Float> onProgress);
+
+  /**
+   Set the on status callback
+
+   @param onStatu callback
+   */
+  void setOnStateChange(Consumer<WorkState> onStatu);
+
+  /**
+   Set the on finish callback
+
+   @param afterFinished callback
+   */
+  void setAfterFinished(Runnable afterFinished);
 }

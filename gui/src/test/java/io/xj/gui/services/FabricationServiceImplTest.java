@@ -33,7 +33,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class FabricationServiceImplTest {
-  int defaultCycleMillis = 150;
   int defaultTimelineSegmentViewLimit = 10;
   int defaultCraftAheadSeconds = 5;
   int defaultDubAheadSeconds = 5;
@@ -80,7 +79,6 @@ class FabricationServiceImplTest {
       hostServices,
       defaultCraftAheadSeconds,
       defaultDubAheadSeconds,
-      defaultCycleMillis,
       defaultTimelineSegmentViewLimit,
       defaultInputTemplateKey,
       defaultOutputChannels,

@@ -44,12 +44,10 @@ public class DubWorkImpl implements DubWork {
   final Map<UUID, ActiveAudio> mixerActiveAudio = new ConcurrentHashMap<>();
   final MixerFactory mixerFactory;
   final int mixerLengthSeconds;
-  final long cycleMillis;
   final long mixerLengthMicros;
   long nowAtChainMicros = 0; // Set from downstream, for dub work to understand how far "ahead" it is
   long chunkFromChainMicros = 0; // dubbing is done up to this point
   long chunkToChainMicros = 0; // plan ahead one dub frame at a time
-  long nextCycleAtSystemMillis = System.currentTimeMillis();
   @Nullable
   Float mixerOutputMicrosecondsPerByte;
   final int outputChannels;
@@ -65,7 +63,6 @@ public class DubWorkImpl implements DubWork {
     String contentStoragePathPrefix,
     String audioBaseUrl,
     int mixerSeconds,
-    long cycleMillis,
     double outputFrameRate,
     int outputChannels,
     int dubAheadSeconds
@@ -80,7 +77,6 @@ public class DubWorkImpl implements DubWork {
     this.dubAheadSeconds = dubAheadSeconds;
     this.mixerLengthMicros = mixerLengthSeconds * MICROS_PER_SECOND;
     this.mixerFactory = mixerFactory;
-    this.cycleMillis = cycleMillis;
 
     timer = MultiStopwatch.start();
 
@@ -115,10 +111,6 @@ public class DubWorkImpl implements DubWork {
   public void runCycle() {
     if (!running.get()) return;
 
-    if (System.currentTimeMillis() < nextCycleAtSystemMillis) return;
-
-    nextCycleAtSystemMillis = System.currentTimeMillis() + cycleMillis;
-
     if (craftWork.isFinished()) {
       LOG.warn("must stop since CraftWork is no longer running");
       finish();
@@ -140,7 +132,6 @@ public class DubWorkImpl implements DubWork {
     timer.lap();
     LOG.debug("Lap time: {}", timer.lapToString());
     timer.clearLapSections();
-    nextCycleAtSystemMillis = System.currentTimeMillis() + cycleMillis;
   }
 
   @Override
@@ -225,8 +216,6 @@ public class DubWorkImpl implements DubWork {
       LOG.debug("Waiting to catch up with {} second dub-ahead", dubAheadSeconds);
       return;
     }
-
-    var butts=123;//todo remove
 
     chunkToChainMicros = chunkFromChainMicros + mixerLengthMicros;
     craftWork.setAtChainMicros(chunkToChainMicros);
