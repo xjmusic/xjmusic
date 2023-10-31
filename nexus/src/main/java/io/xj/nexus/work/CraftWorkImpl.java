@@ -431,8 +431,6 @@ public class CraftWorkImpl implements CraftWork {
       timer.section("ComputeAhead");
       var fabricatedToChainMicros = ChainUtils.computeFabricatedToChainMicros(segmentManager.readAll());
 
-      var butts=123;//todo remove
-
       double aheadSeconds = (double) ((fabricatedToChainMicros - atChainMicros) / MICROS_PER_SECOND);
 
       var templateConfig = getTemplateConfig();

@@ -113,7 +113,6 @@ public class WorkManagerImpl implements WorkManager {
     MixerFactory mixerFactory,
     NexusEntityStore store,
     SegmentManager segmentManager,
-    @Value("${fabrication.thread.pool.size}") int threadPoolSize,
     @Value("${mixer.timeline.seconds}") int mixerSeconds,
     @Value("${output.file.number.digits}") int outputFileNumberDigits,
     @Value("${output.pcm.chunk.size.bytes}") int pcmChunkSizeBytes,
@@ -143,8 +142,6 @@ public class WorkManagerImpl implements WorkManager {
     this.craftCycleMillis = craftCycleMillis;
 
     cycleMillis = Math.min(dubCycleMillis, Math.min(shipCycleMillis, craftCycleMillis));
-
-    scheduler = Executors.newScheduledThreadPool(threadPoolSize);
   }
 
   @Override

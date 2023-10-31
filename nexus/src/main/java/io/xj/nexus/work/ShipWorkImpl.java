@@ -206,8 +206,6 @@ public class ShipWorkImpl implements ShipWork {
         return;
       }
 
-      var butts = 123;//todo remove
-
       var availableBytes = dubWork.getMixerBuffer().orElseThrow().getAvailableByteCount();
       if (availableBytes >= cycleAudioBytes) {
         LOG.debug("Shipping {} bytes to local playback", cycleAudioBytes);

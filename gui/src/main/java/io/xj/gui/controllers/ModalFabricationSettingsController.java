@@ -32,6 +32,7 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   private final ThemeService themeService;
   private final UIStateService uiStateService;
 
+
   @FXML
   TextField fieldInputTemplateKey;
 
@@ -51,7 +52,10 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   Label labelOutputFileMode;
 
   @FXML
-  TextField fieldOutputSeconds;
+  Label labelShipAheadSeconds;
+
+  @FXML
+  Label fieldOutputSeconds;
 
   @FXML
   Label labelOutputSeconds;
@@ -140,9 +144,12 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
 
     fieldCraftAheadSeconds.textProperty().bindBidirectional(fabricationService.craftAheadSecondsProperty());
     fieldDubAheadSeconds.textProperty().bindBidirectional(fabricationService.dubAheadSecondsProperty());
-    fieldShipAheadSeconds.textProperty().bindBidirectional(fabricationService.shipAheadSecondsProperty());
     fieldOutputFrameRate.textProperty().bindBidirectional(fabricationService.outputFrameRateProperty());
     fieldOutputChannels.textProperty().bindBidirectional(fabricationService.outputChannelsProperty());
+
+    fieldShipAheadSeconds.textProperty().bindBidirectional(fabricationService.shipAheadSecondsProperty());
+    fieldShipAheadSeconds.disableProperty().bind(fabricationService.isOutputModeFile());
+    labelShipAheadSeconds.disableProperty().bind(fabricationService.isOutputModeFile());
 
     fieldTimelineSegmentViewLimit.textProperty().bindBidirectional(fabricationService.timelineSegmentViewLimitProperty());
   }
