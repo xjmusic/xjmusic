@@ -55,10 +55,10 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   Label labelShipAheadSeconds;
 
   @FXML
-  Label fieldOutputSeconds;
+  Label labelOutputSeconds;
 
   @FXML
-  Label labelOutputSeconds;
+  TextField fieldOutputSeconds;
 
   @FXML
   TextField fieldContentStoragePathPrefix;
