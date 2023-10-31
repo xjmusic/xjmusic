@@ -123,7 +123,10 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
 
       // Pick attributes are expressed "rendered" as actual seconds
       long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(beats);
-      long lengthMicros = fabricator.getSegmentMicrosAtPosition(beats + audio.getTotalBeats()) - startAtSegmentMicros;
+      long lengthMicros = Math.min(
+        fabricator.getTotalSegmentMicros() - startAtSegmentMicros,
+        (long) (audio.getTotalBeats() * fabricator.getMicrosPerBeat())
+      );
 
       // of pick
       var pick = new SegmentChoiceArrangementPick();
