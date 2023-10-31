@@ -92,12 +92,12 @@ public class FabricationServiceImpl implements FabricationService {
   private final ObservableBooleanValue statusStandby =
     Bindings.createBooleanBinding(() -> status.get() == WorkState.Standby, status);
   private final ObservableBooleanValue statusLoading =
-    Bindings.createBooleanBinding(() -> status.get() == WorkState.LoadingContent || status.get() == WorkState.LoadedContent || status.get() == WorkState.LoadingAudio || status.get() == WorkState.LoadedAudio, status);
+    Bindings.createBooleanBinding(() -> status.get() == WorkState.LoadingContent || status.get() == WorkState.LoadedContent || status.get() == WorkState.PreparingAudio || status.get() == WorkState.PreparedAudio, status);
 
   private final ObservableValue<String> mainActionButtonText = Bindings.createStringBinding(() ->
     switch (status.get()) {
       case Starting, Standby -> BUTTON_TEXT_START;
-      case LoadingContent, LoadedContent, LoadingAudio, LoadedAudio, Initializing, Active -> BUTTON_TEXT_STOP;
+      case LoadingContent, LoadedContent, PreparingAudio, PreparedAudio, Initializing, Active -> BUTTON_TEXT_STOP;
       case Cancelled, Failed, Done -> BUTTON_TEXT_RESET;
     }, status);
 
@@ -164,7 +164,7 @@ public class FabricationServiceImpl implements FabricationService {
       .setToken(labService.accessTokenProperty().get());
 
     // start the work with the given configuration
-    workManager.setOnProgress(progress::set);
+    workManager.setOnProgress((Float progress) -> Platform.runLater(() -> this.progress.set(progress)));
     workManager.setOnStateChange((WorkState state) -> Platform.runLater(() -> status.set(state)));
     status.set(WorkState.Starting);
     Platform.runLater(() -> workManager.start(config, labService.hubConfigProperty().get(), hubAccess));
