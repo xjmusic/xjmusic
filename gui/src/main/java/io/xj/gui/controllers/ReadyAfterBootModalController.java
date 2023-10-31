@@ -9,12 +9,16 @@ import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 
 public abstract class ReadyAfterBootModalController implements ReadyAfterBootController {
+  private final static Logger LOG = LoggerFactory.getLogger(ReadyAfterBootModalController.class);
+
   /**
    Launches the modal.
    */
@@ -42,8 +46,9 @@ public abstract class ReadyAfterBootModalController implements ReadyAfterBootCon
       stage.initStyle(StageStyle.UTILITY);
       onStageReady();
       stage.showAndWait();
+
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.error("Failed to launch modal", e);
     }
   }
 }
