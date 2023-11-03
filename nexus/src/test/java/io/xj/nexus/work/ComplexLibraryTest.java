@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAccount;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildLibrary;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -96,15 +97,14 @@ public class ComplexLibraryTest {
       shipBaseUrl,
       "/tmp",
       48000.0,
-      1000,
-      86400
+      1000
     );
   }
 
   @Test
   public void fabricatesManySegments() throws Exception {
     while (!hasSegmentsDubbedPastMinimumOffset() && isWithinTimeLimit()) {
-      work.runCycle();
+      work.runCycle(1000000 * MICROS_PER_SECOND);
       //noinspection BusyWait
       Thread.sleep(WORK_CYCLE_MILLIS);
     }

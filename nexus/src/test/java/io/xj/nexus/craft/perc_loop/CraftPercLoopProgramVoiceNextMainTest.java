@@ -158,7 +158,7 @@ public class CraftPercLoopProgramVoiceNextMainTest {
   @Test
   public void craftPercLoopVoiceNextMain() throws Exception {
     insertSegments3and4();
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0, 2);
 
     craftFactory.percLoop(fabricator).doWork();
 

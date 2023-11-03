@@ -55,9 +55,6 @@ public class CraftWorkImpl implements CraftWork {
   @Value("${craft.chain.threshold.fabricated.behind.seconds}")
   int chainThresholdFabricatedBehindSeconds;
 
-  @Value("${craft.cycle.millis}")
-  int cycleMillis;
-
   @Value("${craft.erase.segments.older.than.seconds}")
   int eraseSegmentsOlderThanSeconds;
 
@@ -83,17 +80,13 @@ public class CraftWorkImpl implements CraftWork {
   String shipBucket;
 
   final OutputMode outputMode;
-  long labPollNextSystemMillis;
   final MultiStopwatch timer;
   final AtomicBoolean running = new AtomicBoolean(true);
   boolean chainFabricatedAhead = true;
-  long nextCycleMillis = System.currentTimeMillis();
   long nextJanitorMillis = System.currentTimeMillis();
   long nextMedicMillis = System.currentTimeMillis();
-  long atChainMicros = 0;
   final InputMode inputMode;
   final String tempFilePathPrefix;
-  final int craftAheadSeconds;
   final double outputFrameRate;
   final int outputChannels;
   final String audioBaseUrl;
@@ -103,7 +96,7 @@ public class CraftWorkImpl implements CraftWork {
   private TemplateConfig templateConfig;
 
   @Nullable
-  private Chain chain;
+  private final Chain chain;
 
   public CraftWorkImpl(
     CraftFactory craftFactory,
@@ -117,11 +110,9 @@ public class CraftWorkImpl implements CraftWork {
     String shipBaseUrl,
     String tempFilePathPrefix,
     double outputFrameRate,
-    int craftAheadSeconds,
     int outputChannels
   ) {
     this.audioBaseUrl = audioBaseUrl;
-    this.craftAheadSeconds = craftAheadSeconds;
     this.craftFactory = craftFactory;
     this.entityFactory = entityFactory;
     this.fabricatorFactory = fabricatorFactory;
@@ -133,7 +124,6 @@ public class CraftWorkImpl implements CraftWork {
     this.store = store;
     this.tempFilePathPrefix = tempFilePathPrefix;
 
-    labPollNextSystemMillis = System.currentTimeMillis();
     this.inputMode = inputMode;
     this.outputMode = outputMode;
 
@@ -152,11 +142,6 @@ public class CraftWorkImpl implements CraftWork {
     if (!running.get()) return;
     running.set(false);
     LOG.info("Finished");
-  }
-
-  @Override
-  public void setAtChainMicros(long chainMicros) {
-    atChainMicros = chainMicros;
   }
 
   @Override
@@ -209,7 +194,7 @@ public class CraftWorkImpl implements CraftWork {
 
     // if the end of the current segment is before the threshold, require next segment
     Optional<Segment> nextSegment = Optional.empty();
-    if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros + craftAheadSeconds * MICROS_PER_SECOND) {
+    if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros) { // todo make sure we don't need the removed bit: + craftAheadSeconds * MICROS_PER_SECOND
       nextSegment = segmentManager.readOneById(currentSegments.get(0).getId() + 1);
       if (nextSegment.isEmpty() || Objects.isNull(nextSegment.get().getDurationMicros()) || !SegmentState.CRAFTED.equals(nextSegment.get().getState())) {
         return List.of();
@@ -218,7 +203,7 @@ public class CraftWorkImpl implements CraftWork {
 
     // if the beginning of the current segment is after the threshold, require previous segment
     Optional<Segment> previousSegment = Optional.empty();
-    if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros + craftAheadSeconds * MICROS_PER_SECOND && currentSegments.get(0).getId() > 0) {
+    if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros && currentSegments.get(0).getId() > 0) {  // todo make sure we don't need the removed bit: + craftAheadSeconds * MICROS_PER_SECOND
       previousSegment = segmentManager.readOneById(currentSegments.get(0).getId() - 1);
       if (previousSegment.isEmpty()) {
         return List.of();
@@ -353,16 +338,12 @@ public class CraftWorkImpl implements CraftWork {
   /**
    This is the internal cycle that's run indefinitely
    */
-  public void runCycle() {
+  public void runCycle(long toChainMicros) {
     if (!running.get()) return;
 
-    if (System.currentTimeMillis() < nextCycleMillis) return;
-
-    nextCycleMillis = System.currentTimeMillis() + cycleMillis;
-
     try {
-      fabricateChain(chain);
-      if (medicEnabled) doMedic();
+      fabricateChain(chain, toChainMicros);
+      if (medicEnabled) doMedic(toChainMicros);
       if (janitorEnabled) doJanitor();
 
     } catch (Exception e) {
@@ -373,7 +354,6 @@ public class CraftWorkImpl implements CraftWork {
     timer.lap();
     LOG.debug("Lap time: {}", timer.lapToString());
     timer.clearLapSections();
-    nextCycleMillis = System.currentTimeMillis() + cycleMillis;
   }
 
   /**
@@ -382,7 +362,7 @@ public class CraftWorkImpl implements CraftWork {
    <p>
    Medic relies on precomputed  telemetry of fabrication latency https://www.pivotaltracker.com/story/show/177021797
    */
-  void doMedic() {
+  void doMedic(long toChainMicros) {
     if (System.currentTimeMillis() < nextMedicMillis) return;
     nextMedicMillis = System.currentTimeMillis() + (medicCycleSeconds * MILLIS_PER_SECOND);
     timer.section("Medic");
@@ -398,7 +378,7 @@ public class CraftWorkImpl implements CraftWork {
         chainFabricatedAhead = false;
         return;
       }
-      var aheadSeconds = (SegmentUtils.getEndAtChainMicros(lastCraftedSegment.get()) - atChainMicros) / MICROS_PER_SECOND;
+      var aheadSeconds = (SegmentUtils.getEndAtChainMicros(lastCraftedSegment.get()) - toChainMicros) / MICROS_PER_SECOND;
       if (aheadSeconds < chainThresholdFabricatedBehindSeconds) {
         LOG.debug("Fabrication is stalled, ahead {}s", aheadSeconds);
         chainFabricatedAhead = false;
@@ -426,16 +406,18 @@ public class CraftWorkImpl implements CraftWork {
   /**
    Do the work-- this is called by the underlying WorkerImpl run() hook
    */
-  public void fabricateChain(Chain target) throws FabricationFatalException {
+  public void fabricateChain(Chain target, long toChainMicros) throws FabricationFatalException {
     try {
       timer.section("ComputeAhead");
-      var fabricatedToChainMicros = ChainUtils.computeFabricatedToChainMicros(segmentManager.readAll());
 
-      double aheadSeconds = (double) ((fabricatedToChainMicros - atChainMicros) / MICROS_PER_SECOND);
+      // currently fabricated AT (vs target fabricated TO)
+      var atChainMicros = ChainUtils.computeFabricatedToChainMicros(segmentManager.readAll());
+
+      double aheadSeconds = (double) ((atChainMicros - toChainMicros) / MICROS_PER_SECOND);
 
       var templateConfig = getTemplateConfig();
       if (templateConfig.isEmpty()) return;
-      if (aheadSeconds > craftAheadSeconds) return;
+      if (aheadSeconds > 0) return;
 
       timer.section("BuildNext");
       Optional<Segment> nextSegment = buildNextSegment(target);
@@ -447,15 +429,15 @@ public class CraftWorkImpl implements CraftWork {
       Fabricator fabricator;
       timer.section("Prepare");
       LOG.debug("[segId={}] will prepare fabricator", segment.getId());
-      fabricator = fabricatorFactory.fabricate(sourceMaterial, segment, craftAheadSeconds, outputFrameRate, outputChannels);
+      fabricator = fabricatorFactory.fabricate(sourceMaterial, segment, outputFrameRate, outputChannels);
 
       timer.section("Craft");
       LOG.debug("[segId={}] will do craft work", segment.getId());
       segment = doCraftWork(fabricator, segment);
 
       // Update the chain fabricated-ahead seconds before shipping data
-      fabricatedToChainMicros = Objects.nonNull(segment.getDurationMicros()) ? fabricatedToChainMicros + segment.getDurationMicros() : fabricatedToChainMicros;
-      aheadSeconds = (float) (fabricatedToChainMicros - atChainMicros) / MICROS_PER_SECOND;
+      atChainMicros = Objects.nonNull(segment.getDurationMicros()) ? atChainMicros + segment.getDurationMicros() : atChainMicros;
+      aheadSeconds = (float) (atChainMicros - toChainMicros) / MICROS_PER_SECOND;
 
       finishWork(fabricator, segment);
 

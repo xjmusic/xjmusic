@@ -189,7 +189,7 @@ FUTURE goal
 
         // Fabricate: Craft Arrangements for Choices
         var sourceMaterial = new HubContent(content);
-        fabricator = fabrication.fabricate(sourceMaterial, segment, 10, 48000.0, 2);
+        fabricator = fabrication.fabricate(sourceMaterial, segment, 48000.0, 2);
         for (StickyBun bun : stickyBuns) {
           fabricator.putStickyBun(bun);
         }

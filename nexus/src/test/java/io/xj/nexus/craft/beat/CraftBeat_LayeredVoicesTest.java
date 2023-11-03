@@ -205,7 +205,7 @@ public class CraftBeat_LayeredVoicesTest {
 
   @Test
   public void craftBeatVoiceContinue() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0, 2);
 
     craftFactory.beat(fabricator).doWork();
 

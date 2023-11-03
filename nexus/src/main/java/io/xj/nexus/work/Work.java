@@ -9,7 +9,7 @@ public interface Work {
   /**
    Do the work cycle-- this should skip if called more frequently than the cycle duration
    */
-  void runCycle();
+  void runCycle(long toChainMicros);
 
   /**
    Check whether the craft work is finished

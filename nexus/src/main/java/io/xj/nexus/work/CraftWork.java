@@ -28,13 +28,6 @@ import java.util.Optional;
 public interface CraftWork extends Work {
 
   /**
-   Set the target plan to the given chain micros
-
-   @param chainMicros the target plan
-   */
-  void setAtChainMicros(long chainMicros);
-
-  /**
    Get the current chain, if loaded
 
    @return the current chain

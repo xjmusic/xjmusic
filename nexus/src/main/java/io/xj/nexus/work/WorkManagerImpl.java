@@ -34,9 +34,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+import static io.xj.hub.util.ValueUtils.MICROS_PER_MILLI;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 @Service
@@ -57,10 +60,18 @@ public class WorkManagerImpl implements WorkManager {
   private final int pcmChunkSizeBytes;
   private final int cycleAudioBytes;
   private final long cycleMillis;
+  private final long craftCycleMillis;
+  private long nextCraftCycleMillis;
+  private final long dubCycleMillis;
+  private long nextDubCycleMillis;
+  private final long shipCycleMillis;
+  private long nextShipCycleMillis;
+
   private final String tempFilePathPrefix;
   private final AtomicReference<HubContent> hubContent = new AtomicReference<>();
   private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
   private final AtomicBoolean isAudioLoaded = new AtomicBoolean(false);
+  private final AtomicLong startedAtMillis = new AtomicLong(0);
 
   private boolean isFileOutputMode;
 
@@ -130,6 +141,9 @@ public class WorkManagerImpl implements WorkManager {
     this.pcmChunkSizeBytes = pcmChunkSizeBytes;
     this.cycleAudioBytes = cycleAudioBytes;
     this.tempFilePathPrefix = tempFilePathPrefix;
+    this.shipCycleMillis = shipCycleMillis;
+    this.dubCycleMillis = dubCycleMillis;
+    this.craftCycleMillis = craftCycleMillis;
 
     cycleMillis = Math.min(dubCycleMillis, Math.min(shipCycleMillis, craftCycleMillis));
   }
@@ -144,6 +158,7 @@ public class WorkManagerImpl implements WorkManager {
     this.hubConfig = hubConfig;
     this.hubAccess = hubAccess;
 
+    startedAtMillis.set(System.currentTimeMillis());
     isFileOutputMode = workConfig.getOutputMode() == OutputMode.FILE;
     isAudioLoaded.set(false);
     updateState(WorkState.Starting);
@@ -388,8 +403,7 @@ public class WorkManagerImpl implements WorkManager {
       hubConfig.getShipBaseUrl(),
       tempFilePathPrefix,
       workConfig.getOutputFrameRate(),
-      workConfig.getOutputChannels(),
-      workConfig.getCraftAheadSeconds()
+      workConfig.getOutputChannels()
     );
     dubWork = new DubWorkImpl(
       craftWork,
@@ -399,8 +413,7 @@ public class WorkManagerImpl implements WorkManager {
       hubConfig.getAudioBaseUrl(),
       mixerSeconds,
       workConfig.getOutputFrameRate(),
-      workConfig.getOutputChannels(),
-      workConfig.getDubAheadSeconds()
+      workConfig.getOutputChannels()
     );
     shipWork = new ShipWorkImpl(
       dubWork,
@@ -412,25 +425,31 @@ public class WorkManagerImpl implements WorkManager {
       workConfig.getInputTemplateKey(),
       workConfig.getOutputPathPrefix(),
       outputFileNumberDigits,
-      pcmChunkSizeBytes,
-      workConfig.getShipAheadSeconds()
+      pcmChunkSizeBytes
     );
   }
 
   private void runFabricationCycle() {
+    assert Objects.nonNull(workConfig);
+    var now = System.currentTimeMillis();
+    var elapsedMicros = (now - startedAtMillis.get()) * MICROS_PER_MILLI;
+
     // Craft
-    if (Objects.nonNull(craftWork)) {
-      craftWork.runCycle();
+    if (Objects.nonNull(craftWork) && now >= nextCraftCycleMillis) {
+      nextCraftCycleMillis = now + craftCycleMillis;
+      craftWork.runCycle(elapsedMicros + workConfig.getCraftAheadSeconds() * MICROS_PER_SECOND);
     }
 
     // Dub
-    if (Objects.nonNull(dubWork)) {
-      dubWork.runCycle();
+    if (Objects.nonNull(dubWork) && now >= nextDubCycleMillis) {
+      nextDubCycleMillis = now + dubCycleMillis;
+      dubWork.runCycle(elapsedMicros + workConfig.getDubAheadSeconds() * MICROS_PER_SECOND);
     }
 
     // Ship
-    if (Objects.nonNull(shipWork)) {
-      shipWork.runCycle();
+    if (Objects.nonNull(shipWork) && now >= nextShipCycleMillis) {
+      nextShipCycleMillis = now + shipCycleMillis;
+      shipWork.runCycle(elapsedMicros + workConfig.getShipAheadSeconds() * MICROS_PER_SECOND);
       if (isFileOutputMode) {
         updateProgress(shipWork.getProgress());
       }

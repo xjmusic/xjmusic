@@ -26,11 +26,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 public class DubWorkImpl implements DubWork {
   static final Logger LOG = LoggerFactory.getLogger(DubWorkImpl.class);
-  static final long MICROS_PER_SECOND = 1000000L;
   static final int BITS_PER_BYTE = 8;
 
 
@@ -45,14 +45,12 @@ public class DubWorkImpl implements DubWork {
   final MixerFactory mixerFactory;
   final int mixerLengthSeconds;
   final long mixerLengthMicros;
-  long nowAtChainMicros = 0; // Set from downstream, for dub work to understand how far "ahead" it is
   long chunkFromChainMicros = 0; // dubbing is done up to this point
   long chunkToChainMicros = 0; // plan ahead one dub frame at a time
   @Nullable
   Float mixerOutputMicrosecondsPerByte;
   final int outputChannels;
   final double outputFrameRate;
-  final int dubAheadSeconds;
   final String audioBaseUrl;
   final String contentStoragePathPrefix;
 
@@ -64,8 +62,7 @@ public class DubWorkImpl implements DubWork {
     String audioBaseUrl,
     int mixerSeconds,
     double outputFrameRate,
-    int outputChannels,
-    int dubAheadSeconds
+    int outputChannels
   ) {
     this.craftWork = craftWork;
     this.dubAudioCache = dubAudioCache;
@@ -74,7 +71,6 @@ public class DubWorkImpl implements DubWork {
     this.mixerLengthSeconds = mixerSeconds;
     this.outputFrameRate = outputFrameRate;
     this.outputChannels = outputChannels;
-    this.dubAheadSeconds = dubAheadSeconds;
     this.mixerLengthMicros = mixerLengthSeconds * MICROS_PER_SECOND;
     this.mixerFactory = mixerFactory;
 
@@ -108,7 +104,7 @@ public class DubWorkImpl implements DubWork {
   }
 
   @Override
-  public void runCycle() {
+  public void runCycle(long toChainMicros) {
     if (!running.get()) return;
 
     if (craftWork.isFinished()) {
@@ -121,7 +117,7 @@ public class DubWorkImpl implements DubWork {
       if (isPlannedAhead()) {
         doDubFrame();
       } else {
-        doPlanFrame();
+        doPlanFrame(toChainMicros);
       }
     } catch (
       Exception e) {
@@ -201,24 +197,18 @@ public class DubWorkImpl implements DubWork {
     return Optional.of(chunkToChainMicros);
   }
 
-  @Override
-  public void setNowAtToChainMicros(Long micros) {
-    nowAtChainMicros = micros;
-  }
-
-  void doPlanFrame() {
+  void doPlanFrame(long toChainMicros) {
     if (craftWork.isFinished()) {
       LOG.warn("Craft is not running; will abort.");
       finish();
       return;
     }
-    if (chunkToChainMicros > nowAtChainMicros + (dubAheadSeconds * MICROS_PER_SECOND)) {
-      LOG.debug("Waiting to catch up with {} second dub-ahead", dubAheadSeconds);
+    if (chunkToChainMicros > toChainMicros) {
+      LOG.debug("Waiting to catch up with dub-ahead");
       return;
     }
 
     chunkToChainMicros = chunkFromChainMicros + mixerLengthMicros;
-    craftWork.setAtChainMicros(chunkToChainMicros);
     LOG.debug("Planned frame {}s", String.format("%.1f", chunkToChainMicros / (double) MICROS_PER_SECOND));
   }
 

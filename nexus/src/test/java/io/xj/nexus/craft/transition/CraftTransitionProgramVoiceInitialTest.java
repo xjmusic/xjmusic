@@ -92,7 +92,7 @@ public class CraftTransitionProgramVoiceInitialTest {
   public void craftTransitionVoiceInitial() throws Exception {
     insertSegment();
 
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0, 10, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0, 48000.0, 2);
 
     craftFactory.transition(fabricator).doWork();
 
@@ -123,7 +123,7 @@ public class CraftTransitionProgramVoiceInitialTest {
   @Test
   public void craftTransitionVoiceInitial_okWhenNoTransitionChoice() throws Exception {
     insertSegment();
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0, 10, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0, 48000.0, 2);
 
     craftFactory.transition(fabricator).doWork();
   }

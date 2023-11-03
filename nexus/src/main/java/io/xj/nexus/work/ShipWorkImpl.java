@@ -43,7 +43,6 @@ public class ShipWorkImpl implements ShipWork {
   final int outputFileNumberDigits;
   final int outputSeconds;
   final int pcmChunkSizeBytes;
-  final int shipAheadSeconds;
   int outputFileNum = 0;
   long targetChainMicros = 0;
   private final String shipKey;
@@ -59,8 +58,7 @@ public class ShipWorkImpl implements ShipWork {
     String shipKey,
     String outputPathPrefix,
     int outputFileNumberDigits,
-    int pcmChunkSizeBytes,
-    int shipAheadSeconds
+    int pcmChunkSizeBytes
   ) {
     this.broadcastFactory = broadcastFactory;
     this.cycleAudioBytes = cycleAudioBytes;
@@ -72,7 +70,6 @@ public class ShipWorkImpl implements ShipWork {
     this.outputPathPrefix = outputPathPrefix;
     this.outputSeconds = outputSeconds;
     this.pcmChunkSizeBytes = pcmChunkSizeBytes;
-    this.shipAheadSeconds = shipAheadSeconds;
 
     timer = MultiStopwatch.start();
 
@@ -126,7 +123,7 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   @Override
-  public void runCycle() {
+  public void runCycle(long toChainMicros) {
     if (!running.get()) return;
 
     if (dubWork.isFinished()) {
@@ -137,12 +134,11 @@ public class ShipWorkImpl implements ShipWork {
     // Action based on mode
     try {
       if (dubWork.getMixerBuffer().isEmpty() || dubWork.getMixerOutputMicrosPerByte().isEmpty()) return;
-      if (isAheadOfSync()) return;
+      if (isAheadOfSync(toChainMicros)) return;
       switch (outputMode) {
         case PLAYBACK -> doShipOutputPlayback();
         case FILE -> doShipOutputFile();
       }
-      getShippedToChainMicros().ifPresent(dubWork::setNowAtToChainMicros);
     } catch (Exception e) {
       didFailWhile("running a work cycle", e);
     }
@@ -184,14 +180,10 @@ public class ShipWorkImpl implements ShipWork {
 
    @return true if ahead of sync, false if not
    */
-  boolean isAheadOfSync() {
+  boolean isAheadOfSync(long toChainMicros) {
     var shippedToChainMicros = getShippedToChainMicros();
     if (outputMode.isSync() && shippedToChainMicros.isPresent()) {
-      var aheadSeconds = (float) (targetChainMicros - shippedToChainMicros.get()) / MICROS_PER_SECOND;
-      if (aheadSeconds > shipAheadSeconds) {
-        LOG.debug("Ahead by {}s in synchronous output; will skip work", String.format("%.1f", aheadSeconds));
-        return true;
-      }
+      return shippedToChainMicros.get() > toChainMicros;
     }
     return false;
   }
