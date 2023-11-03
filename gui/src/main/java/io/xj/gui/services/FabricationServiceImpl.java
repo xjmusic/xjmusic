@@ -545,7 +545,6 @@ public class FabricationServiceImpl implements FabricationService {
     inputTemplateKey.set(templateKey);
     outputFileMode.set(defaultOutputFileMode);
     outputMode.set(defaultOutputMode);
-    macroMode.set(defaultMacroMode);
     inputMode.set(defaultInputMode);
 
     start();

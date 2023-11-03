@@ -3,7 +3,6 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.services.FabricationService;
-import io.xj.gui.services.LabService;
 import io.xj.gui.services.UIStateService;
 import javafx.beans.Observable;
 import javafx.fxml.FXML;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MainPaneRightController extends VBox implements ReadyAfterBootController {
-  private final LabService labService;
   private final FabricationService fabricationService;
   private final UIStateService uiStateService;
 
@@ -21,11 +19,9 @@ public class MainPaneRightController extends VBox implements ReadyAfterBootContr
   protected VBox macroSelectionContainer;
 
   public MainPaneRightController(
-    LabService labService,
     FabricationService fabricationService,
     UIStateService uiStateService
   ) {
-    this.labService = labService;
     this.fabricationService = fabricationService;
     this.uiStateService = uiStateService;
   }
@@ -47,6 +43,7 @@ public class MainPaneRightController extends VBox implements ReadyAfterBootContr
       macroPrograms.forEach(macroProgram -> {
         // create a button
         var button = new Button(macroProgram.getName());
+        button.getStyleClass().add("button");
         // add the button to the vbox macroSelectionContainer
         macroSelectionContainer.getChildren().add(button);
       });

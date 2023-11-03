@@ -139,23 +139,21 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   }
 
   private void handleUpdateFabricationStatus(WorkState status) {
-    if (Objects.equals(WorkState.Active, status)) {
-      startTimelineAnimation();
-
-    } else if (Objects.equals(WorkState.Standby, status)) {
-      stopTimelineAnimation();
-      ds.clear();
-      segmentListView.getChildren().clear();
-      timelineRegion1Past.setWidth(0);
-      timelineRegion2Ship.setWidth(0);
-      timelineRegion3Dub.setWidth(0);
-      timelineRegion4Craft.setWidth(0);
-      scrollPane.setHvalue(0);
-      segmentListView.layout();
-      scrollPane.layout();
-
-    } else {
-      stopTimelineAnimation();
+    switch (status) {
+      case Standby -> {
+        stopTimelineAnimation();
+        ds.clear();
+        segmentListView.getChildren().clear();
+        timelineRegion1Past.setWidth(0);
+        timelineRegion2Ship.setWidth(0);
+        timelineRegion3Dub.setWidth(0);
+        timelineRegion4Craft.setWidth(0);
+        scrollPane.setHvalue(0);
+        segmentListView.layout();
+        scrollPane.layout();
+      }
+      case Active -> startTimelineAnimation();
+      case Done, Cancelled, Failed -> stopTimelineAnimation();
     }
   }
 
