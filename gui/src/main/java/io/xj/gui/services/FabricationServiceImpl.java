@@ -149,6 +149,8 @@ public class FabricationServiceImpl implements FabricationService {
       LOG.error("Cannot start fabrication unless in Standby status");
       return;
     }
+    status.set(WorkState.Starting);
+
     // create work configuration
     var config = new WorkConfiguration()
       .setContentStoragePathPrefix(contentStoragePathPrefix.get())
@@ -172,20 +174,19 @@ public class FabricationServiceImpl implements FabricationService {
     // start the work with the given configuration
     workManager.setOnProgress((Float progress) -> Platform.runLater(() -> this.progress.set(progress)));
     workManager.setOnStateChange((WorkState state) -> Platform.runLater(() -> status.set(state)));
-    status.set(WorkState.Starting);
     Platform.runLater(() -> workManager.start(config, labService.hubConfigProperty().get(), hubAccess));
   }
 
   @Override
   public void cancel() {
-    workManager.finish(true);
     status.set(WorkState.Cancelled);
+    workManager.finish(true);
   }
 
   @Override
   public void reset() {
-    workManager.reset();
     status.set(WorkState.Standby);
+    workManager.reset();
   }
 
   @Override

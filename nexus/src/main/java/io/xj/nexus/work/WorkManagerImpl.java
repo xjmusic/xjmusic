@@ -57,13 +57,6 @@ public class WorkManagerImpl implements WorkManager {
   private final int pcmChunkSizeBytes;
   private final int cycleAudioBytes;
   private final long cycleMillis;
-  private final long craftCycleMillis;
-  private long nextCraftCycleMillis;
-  private final long dubCycleMillis;
-  private long nextDubCycleMillis;
-  private final long shipCycleMillis;
-  private long nextShipCycleMillis;
-
   private final String tempFilePathPrefix;
   private final AtomicReference<HubContent> hubContent = new AtomicReference<>();
   private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
@@ -137,9 +130,6 @@ public class WorkManagerImpl implements WorkManager {
     this.pcmChunkSizeBytes = pcmChunkSizeBytes;
     this.cycleAudioBytes = cycleAudioBytes;
     this.tempFilePathPrefix = tempFilePathPrefix;
-    this.shipCycleMillis = shipCycleMillis;
-    this.dubCycleMillis = dubCycleMillis;
-    this.craftCycleMillis = craftCycleMillis;
 
     cycleMillis = Math.min(dubCycleMillis, Math.min(shipCycleMillis, craftCycleMillis));
   }
@@ -428,23 +418,18 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   private void runFabricationCycle() {
-    var now = System.currentTimeMillis();
-
     // Craft
-    if (Objects.nonNull(craftWork) && now >= nextCraftCycleMillis) {
-      nextCraftCycleMillis = now + craftCycleMillis;
+    if (Objects.nonNull(craftWork)) {
       craftWork.runCycle();
     }
 
     // Dub
-    if (Objects.nonNull(dubWork) && now >= nextDubCycleMillis) {
-      nextDubCycleMillis = now + dubCycleMillis;
+    if (Objects.nonNull(dubWork)) {
       dubWork.runCycle();
     }
 
     // Ship
-    if (Objects.nonNull(shipWork) && now >= nextShipCycleMillis) {
-      nextShipCycleMillis = now + shipCycleMillis;
+    if (Objects.nonNull(shipWork)) {
       shipWork.runCycle();
       if (isFileOutputMode) {
         updateProgress(shipWork.getProgress());

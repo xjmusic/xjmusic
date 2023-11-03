@@ -11,6 +11,7 @@ import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.event.ActionEvent;
@@ -23,6 +24,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
@@ -36,6 +39,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class MainTimelineController extends ScrollPane implements ReadyAfterBootController {
+  private static final Logger LOG = LoggerFactory.getLogger(MainTimelineController.class);
   private static final Long MILLIS_PER_MICRO = 1000L;
   private static final Integer NO_ID = -1;
   private static final Double DEMO_BUTTON_HEIGHT_LEFTOVER = 168.0;
@@ -136,25 +140,8 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     demoSelectionSpace.fitWidthProperty().bind(demoImageWidth);
 
     fabricationService.statusProperty().addListener((ignored1, ignored2, status) -> handleUpdateFabricationStatus(status));
-  }
 
-  private void handleUpdateFabricationStatus(WorkState status) {
-    switch (status) {
-      case Standby -> {
-        stopTimelineAnimation();
-        ds.clear();
-        segmentListView.getChildren().clear();
-        timelineRegion1Past.setWidth(0);
-        timelineRegion2Ship.setWidth(0);
-        timelineRegion3Dub.setWidth(0);
-        timelineRegion4Craft.setWidth(0);
-        scrollPane.setHvalue(0);
-        segmentListView.layout();
-        scrollPane.layout();
-      }
-      case Active -> startTimelineAnimation();
-      case Done, Cancelled, Failed -> stopTimelineAnimation();
-    }
+    resetTimeline();
   }
 
   @Override
@@ -178,9 +165,68 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   }
 
   /**
+   Called when the fabrication status is updated.
+
+   @param status the new status
+   */
+  private void handleUpdateFabricationStatus(WorkState status) {
+    try {
+      switch (status) {
+        case Standby -> resetTimeline();
+        case Active -> startTimelineAnimation();
+        case Done, Cancelled, Failed -> stopTimelineAnimation();
+      }
+    } catch (Exception e) {
+      LOG.error("Error handling fabrication status updated to {}", status, e);
+    }
+  }
+
+  /**
+   Called to reset the timeline (segment list).
+   */
+  private void resetTimeline() {
+    ds.clear();
+    scrollPane.setHvalue(0);
+    segmentListView.getChildren().clear();
+    timelineRegion1Past.setWidth(0);
+    timelineRegion2Ship.setWidth(0);
+    timelineRegion3Dub.setWidth(0);
+    timelineRegion4Craft.setWidth(0);
+    Platform.runLater(() -> {
+      segmentListView.layout();
+      scrollPane.layout();
+      segmentPositionRow.layout();
+    });
+  }
+
+  /**
+   Called to start the timeline animation.
+   */
+  private void startTimelineAnimation() {
+    refreshTimeline = new Timeline(
+      new KeyFrame(
+        Duration.millis(refreshTimelineMillis),
+        this::updateTimeline
+      )
+    );
+    refreshTimeline.setCycleCount(Timeline.INDEFINITE);
+    refreshTimeline.setRate(1.0);
+    refreshTimeline.play();
+  }
+
+  /**
+   Called to stop the timeline animation.
+   */
+  private void stopTimelineAnimation() {
+    if (Objects.nonNull(refreshTimeline)) {
+      refreshTimeline.stop();
+    }
+  }
+
+  /**
    Called to update the timeline (segment list).
    */
-  void updateTimeline(ActionEvent ignored) {
+  private void updateTimeline(ActionEvent ignored) {
     if (fabricationService.isEmpty()) {
       ds.clear();
       segmentListView.getChildren().clear();
@@ -316,24 +362,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
 
     // play the next leg of the animation timeline
     scrollPaneAnimationTimeline.play();
-  }
-
-  private void startTimelineAnimation() {
-    refreshTimeline = new Timeline(
-      new KeyFrame(
-        Duration.millis(refreshTimelineMillis),
-        this::updateTimeline
-      )
-    );
-    refreshTimeline.setCycleCount(Timeline.INDEFINITE);
-    refreshTimeline.setRate(1.0);
-    refreshTimeline.play();
-  }
-
-  private void stopTimelineAnimation() {
-    if (Objects.nonNull(refreshTimeline)) {
-      refreshTimeline.stop();
-    }
   }
 
   private class DisplayedSegment {
