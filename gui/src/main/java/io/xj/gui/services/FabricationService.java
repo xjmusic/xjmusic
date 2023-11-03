@@ -65,6 +65,11 @@ public interface FabricationService {
 
   void reset();
 
+  /**
+   @return all macro-type programs
+   */
+  List<Program> getAllMacroPrograms();
+
   Optional<Program> getProgram(UUID programId);
 
   Optional<ProgramSequence> getProgramSequence(UUID programSequenceId);
@@ -185,4 +190,5 @@ public interface FabricationService {
    Cancel the current fabrication process
    */
   void cancel();
+
 }

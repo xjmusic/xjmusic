@@ -65,4 +65,9 @@ public interface UIStateService extends ReadyAfterBootController {
    @return Observable property of whether the fabrication is in manual mode;
    */
   BooleanBinding isManualFabricationModeProperty();
+
+  /**
+   @return Observable property of whether the fabrication is active and in manual mode;
+   */
+  BooleanBinding isManualFabricationActiveProperty();
 }

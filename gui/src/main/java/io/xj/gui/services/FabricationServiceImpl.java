@@ -189,6 +189,13 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
+  public List<Program> getAllMacroPrograms() {
+    return workManager.getSourceMaterial().getPrograms(ProgramType.Macro).stream()
+      .sorted(Comparator.comparing(Program::getName))
+      .toList();
+  }
+
+  @Override
   public ObjectProperty<WorkState> statusProperty() {
     return status;
   }
