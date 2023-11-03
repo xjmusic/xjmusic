@@ -18,6 +18,7 @@ public class MainController implements ReadyAfterBootController {
   final FabricationService fabricationService;
   final MainMenuController mainMenuController;
   final MainPaneBottomController mainPaneBottomController;
+  final MainPaneRightController mainPaneRightController;
   final MainPaneTopController mainPaneTopController;
   final MainTimelineController mainTimelineController;
   final ThemeService themeService;
@@ -30,6 +31,7 @@ public class MainController implements ReadyAfterBootController {
     FabricationService fabricationService,
     MainMenuController mainMenuController,
     MainPaneBottomController mainPaneBottomController,
+    MainPaneRightController mainPaneRightController,
     MainPaneTopController mainPaneTopController,
     MainTimelineController mainTimelineController,
     ThemeService themeService,
@@ -38,6 +40,7 @@ public class MainController implements ReadyAfterBootController {
     this.fabricationService = fabricationService;
     this.mainMenuController = mainMenuController;
     this.mainPaneBottomController = mainPaneBottomController;
+    this.mainPaneRightController = mainPaneRightController;
     this.mainPaneTopController = mainPaneTopController;
     this.mainTimelineController = mainTimelineController;
     this.themeService = themeService;
@@ -64,6 +67,7 @@ public class MainController implements ReadyAfterBootController {
     mainMenuController.onStageReady();
     mainPaneTopController.onStageReady();
     mainPaneBottomController.onStageReady();
+    mainPaneRightController.onStageReady();
     mainTimelineController.onStageReady();
     uiStateService.onStageReady();
   }
@@ -72,6 +76,7 @@ public class MainController implements ReadyAfterBootController {
   public void onStageClose() {
     mainMenuController.onStageClose();
     mainPaneBottomController.onStageClose();
+    mainPaneRightController.onStageClose();
     mainPaneTopController.onStageClose();
     mainTimelineController.onStageClose();
     uiStateService.onStageClose();

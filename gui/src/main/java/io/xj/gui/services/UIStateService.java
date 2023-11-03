@@ -60,4 +60,9 @@ public interface UIStateService extends ReadyAfterBootController {
    @return Observable property of whether the fabrication output file mode should appear disabled
    */
   BooleanBinding isOutputFileModeDisabledProperty();
+
+  /**
+   @return Observable property of whether the fabrication is in manual mode;
+   */
+  BooleanBinding isManualFabricationModeProperty();
 }

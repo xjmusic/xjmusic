@@ -1,6 +1,7 @@
 package io.xj.gui.services;
 
 import io.xj.gui.WorkstationLogAppender;
+import io.xj.nexus.MacroMode;
 import io.xj.nexus.OutputMode;
 import jakarta.annotation.Nullable;
 import javafx.beans.binding.Bindings;
@@ -40,6 +41,9 @@ public class UIStateServiceImpl implements UIStateService {
 
   @Nullable
   private BooleanBinding isOutputFileModeDisabled;
+
+  @Nullable
+  private BooleanBinding isManualFabricationMode;
 
   public UIStateServiceImpl(
     FabricationService fabricationService,
@@ -144,5 +148,13 @@ public class UIStateServiceImpl implements UIStateService {
       isOutputFileModeDisabled = fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not();
 
     return isOutputFileModeDisabled;
+  }
+
+  @Override
+  public BooleanBinding isManualFabricationModeProperty() {
+    if (Objects.isNull(isManualFabricationMode))
+      isManualFabricationMode = fabricationService.macroModeProperty().isEqualTo(MacroMode.MANUAL);
+
+    return isManualFabricationMode;
   }
 }

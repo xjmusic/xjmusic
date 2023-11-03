@@ -7,6 +7,7 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.InputMode;
+import io.xj.nexus.MacroMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.hub_client.HubClient;
@@ -39,6 +40,7 @@ class FabricationServiceImplTest {
   int defaultShipAheadSeconds = 5;
   String defaultInputTemplateKey = "slaps_lofi";
   int defaultOutputChannels = 2;
+  private final String defaultMacroMode = MacroMode.AUTO.toString();
   String defaultInputMode = InputMode.PRODUCTION.toString();
   String defaultOutputFileMode = OutputFileMode.CONTINUOUS.toString();
   double defaultOutputFrameRate = 48000;
@@ -84,6 +86,7 @@ class FabricationServiceImplTest {
       defaultOutputChannels,
       defaultOutputFileMode,
       defaultOutputFrameRate,
+      defaultMacroMode,
       defaultInputMode,
       defaultOutputMode,
       defaultOutputSeconds,
