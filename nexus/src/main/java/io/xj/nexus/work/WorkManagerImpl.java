@@ -38,7 +38,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-import static io.xj.hub.util.ValueUtils.MICROS_PER_MILLI;
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
@@ -431,8 +430,9 @@ public class WorkManagerImpl implements WorkManager {
 
   private void runFabricationCycle() {
     assert Objects.nonNull(workConfig);
+
     var now = System.currentTimeMillis();
-    var elapsedMicros = (now - startedAtMillis.get()) * MICROS_PER_MILLI;
+    var elapsedMicros = Objects.nonNull(shipWork) ? shipWork.getShippedToChainMicros().orElse(0L) : 0L;
 
     // Craft
     if (Objects.nonNull(craftWork) && now >= nextCraftCycleMillis) {
