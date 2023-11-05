@@ -123,7 +123,7 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   @Override
-  public void runCycle(long toChainMicros) {
+  public void runCycle(long ignored) {
     if (!running.get()) return;
 
     if (dubWork.isFinished()) {
@@ -134,7 +134,7 @@ public class ShipWorkImpl implements ShipWork {
     // Action based on mode
     try {
       if (dubWork.getMixerBuffer().isEmpty() || dubWork.getMixerOutputMicrosPerByte().isEmpty()) return;
-      if (isAheadOfSync(toChainMicros)) return;
+      if (isAheadOfSync()) return;
       switch (outputMode) {
         case PLAYBACK -> doShipOutputPlayback();
         case FILE -> doShipOutputFile();
@@ -180,10 +180,14 @@ public class ShipWorkImpl implements ShipWork {
 
    @return true if ahead of sync, false if not
    */
-  boolean isAheadOfSync(long toChainMicros) {
+  boolean isAheadOfSync() {
     var shippedToChainMicros = getShippedToChainMicros();
     if (outputMode.isSync() && shippedToChainMicros.isPresent()) {
-      return shippedToChainMicros.get() > toChainMicros;
+      var aheadSeconds = (float) (targetChainMicros - shippedToChainMicros.get()) / MICROS_PER_SECOND;
+      if (aheadSeconds > 0) {
+        LOG.debug("Ahead by {}s in synchronous output; will skip work", String.format("%.1f", aheadSeconds));
+        return true;
+      }
     }
     return false;
   }

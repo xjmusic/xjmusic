@@ -38,7 +38,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 @Service
@@ -430,26 +429,17 @@ public class WorkManagerImpl implements WorkManager {
 
   private void runFabricationCycle() {
     assert Objects.nonNull(workConfig);
+    assert Objects.nonNull(shipWork);
+    assert Objects.nonNull(dubWork);
+    assert Objects.nonNull(craftWork);
 
-    var now = System.currentTimeMillis();
-    var elapsedMicros = Objects.nonNull(shipWork) ? shipWork.getShippedToChainMicros().orElse(0L) : 0L;
-
-    // Craft
-    if (Objects.nonNull(craftWork) && now >= nextCraftCycleMillis) {
-      nextCraftCycleMillis = now + craftCycleMillis;
-      craftWork.runCycle(elapsedMicros + workConfig.getCraftAheadSeconds() * MICROS_PER_SECOND);
-    }
-
-    // Dub
-    if (Objects.nonNull(dubWork) && now >= nextDubCycleMillis) {
-      nextDubCycleMillis = now + dubCycleMillis;
-      dubWork.runCycle(elapsedMicros + workConfig.getDubAheadSeconds() * MICROS_PER_SECOND);
-    }
+    long now = System.currentTimeMillis();
+    long elapsedMicros = shipWork.getShippedToChainMicros().orElse(0L);
 
     // Ship
-    if (Objects.nonNull(shipWork) && now >= nextShipCycleMillis) {
+    if (now >= nextShipCycleMillis) {
       nextShipCycleMillis = now + shipCycleMillis;
-      shipWork.runCycle(elapsedMicros + workConfig.getShipAheadSeconds() * MICROS_PER_SECOND);
+      shipWork.runCycle(0);
       if (isFileOutputMode) {
         updateProgress(shipWork.getProgress());
       }
@@ -457,6 +447,18 @@ public class WorkManagerImpl implements WorkManager {
         updateState(WorkState.Done);
         LOG.info("Fabrication work done");
       }
+    }
+
+    // Dub
+    if (now >= nextDubCycleMillis) {
+      nextDubCycleMillis = now + dubCycleMillis;
+      dubWork.runCycle(shipWork.getShippedToChainMicros().map(m -> m +workConfig.getDubAheadMicros()).orElse(0L));
+    }
+
+    // Craft
+    if (Objects.nonNull(craftWork) && now >= nextCraftCycleMillis) {
+      nextCraftCycleMillis = now + craftCycleMillis;
+      craftWork.runCycle(shipWork.getShippedToChainMicros().map(m -> m +workConfig.getCraftAheadMicros()).orElse(0L));
     }
   }
 

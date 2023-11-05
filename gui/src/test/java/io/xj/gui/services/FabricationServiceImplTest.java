@@ -37,7 +37,6 @@ class FabricationServiceImplTest {
   int defaultTimelineSegmentViewLimit = 10;
   int defaultCraftAheadSeconds = 5;
   int defaultDubAheadSeconds = 5;
-  int defaultShipAheadSeconds = 5;
   String defaultInputTemplateKey = "slaps_lofi";
   int defaultOutputChannels = 2;
   private final String defaultMacroMode = MacroMode.AUTO.toString();
@@ -90,7 +89,6 @@ class FabricationServiceImplTest {
       defaultInputMode,
       defaultOutputMode,
       defaultOutputSeconds,
-      defaultShipAheadSeconds,
       hubClient,
       labService,
       workManager

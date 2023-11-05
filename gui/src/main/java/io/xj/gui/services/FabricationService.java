@@ -47,8 +47,6 @@ public interface FabricationService {
 
   StringProperty dubAheadSecondsProperty();
 
-  StringProperty shipAheadSecondsProperty();
-
   StringProperty outputChannelsProperty();
 
   StringProperty outputFrameRateProperty();

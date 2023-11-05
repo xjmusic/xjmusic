@@ -41,6 +41,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
 
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+
 @Service
 public class FabricationServiceImpl implements FabricationService {
   private static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
@@ -55,7 +57,6 @@ public class FabricationServiceImpl implements FabricationService {
   private final int defaultTimelineSegmentViewLimit;
   private final Integer defaultCraftAheadSeconds;
   private final Integer defaultDubAheadSeconds;
-  private final Integer defaultShipAheadSeconds;
   private final String defaultInputTemplateKey;
   private final int defaultOutputChannels;
   private final OutputFileMode defaultOutputFileMode;
@@ -79,7 +80,6 @@ public class FabricationServiceImpl implements FabricationService {
   final StringProperty outputSeconds = new SimpleStringProperty();
   final StringProperty craftAheadSeconds = new SimpleStringProperty();
   final StringProperty dubAheadSeconds = new SimpleStringProperty();
-  final StringProperty shipAheadSeconds = new SimpleStringProperty();
   final StringProperty outputFrameRate = new SimpleStringProperty();
   final StringProperty outputChannels = new SimpleStringProperty();
 
@@ -117,7 +117,6 @@ public class FabricationServiceImpl implements FabricationService {
     @Value("${input.mode}") String defaultInputMode,
     @Value("${output.mode}") String defaultOutputMode,
     @Value("${output.seconds}") int defaultOutputSeconds,
-    @Value("${ship.ahead.seconds}") int defaultShipAheadSeconds,
     HubClient hubClient,
     LabService labService,
     WorkManager workManager
@@ -132,7 +131,6 @@ public class FabricationServiceImpl implements FabricationService {
     this.defaultOutputFrameRate = defaultOutputFrameRate;
     this.defaultOutputMode = OutputMode.valueOf(defaultOutputMode.toUpperCase(Locale.ROOT));
     this.defaultOutputSeconds = defaultOutputSeconds;
-    this.defaultShipAheadSeconds = defaultShipAheadSeconds;
     this.defaultTimelineSegmentViewLimit = defaultTimelineSegmentViewLimit;
     this.hostServices = hostServices;
     this.workManager = workManager;
@@ -154,8 +152,8 @@ public class FabricationServiceImpl implements FabricationService {
     // create work configuration
     var config = new WorkConfiguration()
       .setContentStoragePathPrefix(contentStoragePathPrefix.get())
-      .setCraftAheadSeconds(Integer.parseInt(craftAheadSeconds.get()))
-      .setDubAheadSeconds(Integer.parseInt(dubAheadSeconds.get()))
+      .setCraftAheadMicros(Long.parseLong(craftAheadSeconds.get()) * MICROS_PER_SECOND)
+      .setDubAheadMicros(Long.parseLong(dubAheadSeconds.get()) * MICROS_PER_SECOND)
       .setInputMode(inputMode.get())
       .setMacroMode(macroMode.get())
       .setInputTemplateKey(inputTemplateKey.get())
@@ -164,8 +162,7 @@ public class FabricationServiceImpl implements FabricationService {
       .setOutputFrameRate(Double.parseDouble(outputFrameRate.get()))
       .setOutputMode(outputMode.get())
       .setOutputPathPrefix(outputPathPrefix.get())
-      .setOutputSeconds(Integer.parseInt(outputSeconds.get()))
-      .setShipAheadSeconds(Integer.parseInt(shipAheadSeconds.get()));
+      .setOutputSeconds(Integer.parseInt(outputSeconds.get()));
 
     var hubAccess = new HubClientAccess()
       .setRoleTypes(List.of(UserRoleType.Internal))
@@ -249,11 +246,6 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public StringProperty dubAheadSecondsProperty() {
     return dubAheadSeconds;
-  }
-
-  @Override
-  public StringProperty shipAheadSecondsProperty() {
-    return shipAheadSeconds;
   }
 
   @Override
@@ -542,7 +534,6 @@ public class FabricationServiceImpl implements FabricationService {
 
     this.craftAheadSeconds.set(craftAheadSeconds.toString());
     dubAheadSeconds.set(Integer.toString(defaultDubAheadSeconds));
-    shipAheadSeconds.set(Integer.toString(defaultShipAheadSeconds));
     inputTemplateKey.set(templateKey);
     outputFileMode.set(defaultOutputFileMode);
     outputMode.set(defaultOutputMode);
@@ -576,7 +567,6 @@ public class FabricationServiceImpl implements FabricationService {
     outputMode.addListener((o, ov, value) -> prefs.put("outputMode", Objects.nonNull(value) ? value.name() : ""));
     outputPathPrefix.addListener((o, ov, value) -> prefs.put("outputPathPrefix", value));
     outputSeconds.addListener((o, ov, value) -> prefs.put("outputSeconds", value));
-    shipAheadSeconds.addListener((o, ov, value) -> prefs.put("shipAheadSeconds", value));
     timelineSegmentViewLimit.addListener((o, ov, value) -> prefs.put("timelineSegmentViewLimit", value));
   }
 
@@ -589,7 +579,6 @@ public class FabricationServiceImpl implements FabricationService {
     outputFrameRate.set(prefs.get("outputFrameRate", Double.toString(defaultOutputFrameRate)));
     outputPathPrefix.set(prefs.get("outputPathPrefix", defaultOutputPathPrefix));
     outputSeconds.set(prefs.get("outputSeconds", Integer.toString(defaultOutputSeconds)));
-    shipAheadSeconds.set(prefs.get("shipAheadSeconds", Integer.toString(defaultShipAheadSeconds)));
     timelineSegmentViewLimit.set(prefs.get("timelineSegmentViewLimit", Integer.toString(defaultTimelineSegmentViewLimit)));
 
     try {
