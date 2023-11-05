@@ -4,7 +4,6 @@ package io.xj.nexus.work;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.util.StringUtils;
 import io.xj.lib.mixer.AudioFileWriter;
-import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.model.Segment;
@@ -22,9 +21,11 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.MILLIS_PER_SECOND;
 
 public class ShipWorkImpl implements ShipWork {
   static final Logger LOG = LoggerFactory.getLogger(ShipWorkImpl.class);
+  private final long startedAtMillis;
 
   @Nullable
   AudioFileWriter fileWriter;
@@ -32,7 +33,6 @@ public class ShipWorkImpl implements ShipWork {
   OutputFile outputFile = null;
   @Nullable
   StreamPlayer playback;
-  final MultiStopwatch timer;
   final AtomicBoolean running = new AtomicBoolean(true);
   final BroadcastFactory broadcastFactory;
   final DubWork dubWork;
@@ -71,17 +71,13 @@ public class ShipWorkImpl implements ShipWork {
     this.outputSeconds = outputSeconds;
     this.pcmChunkSizeBytes = pcmChunkSizeBytes;
 
-    timer = MultiStopwatch.start();
-
     var audioFormat = dubWork.getAudioFormat();
     if (audioFormat.isEmpty()) {
-      LOG.debug("Waiting for audio format to be available.");
-      return;
+      throw new RuntimeException("Waiting for audio format to be available.");
     }
     var chain = dubWork.getChain();
     if (chain.isEmpty()) {
-      LOG.debug("Waiting for Dub to begin");
-      return;
+      throw new RuntimeException("Waiting for Dub to begin");
     }
 
     switch (outputMode) {
@@ -101,6 +97,7 @@ public class ShipWorkImpl implements ShipWork {
       LOG.info("Will start in {} output mode and run indefinitely", outputMode);
     }
 
+    startedAtMillis = System.currentTimeMillis();
     running.set(true);
   }
 
@@ -142,11 +139,6 @@ public class ShipWorkImpl implements ShipWork {
     } catch (Exception e) {
       didFailWhile("running a work cycle", e);
     }
-
-    // End lap & do telemetry on all fabricated chains
-    timer.lap();
-    LOG.debug("Lap time: {}", timer.lapToString());
-    timer.clearLapSections();
   }
 
   @Override
@@ -350,7 +342,8 @@ public class ShipWorkImpl implements ShipWork {
     if (shippedSeconds < outputSeconds) return false;
 
     // We're done! log performance info, close the wav container, and finish
-    var realtimeRatio = shippedSeconds / timer.getTotalSeconds();
+    double totalSeconds = (double) (System.currentTimeMillis() - startedAtMillis) / MILLIS_PER_SECOND;
+    var realtimeRatio = shippedSeconds / totalSeconds;
     LOG.info("Overall performance at {} real-time", String.format("%.1fx", realtimeRatio));
     finish();
     return true;

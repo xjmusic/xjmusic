@@ -83,5 +83,4 @@ public class MultiStopwatchTest {
     assertTrue(0.02 <= subject.getSectionLapSeconds().get("Right"));
     assertTrue(0.01 <= subject.getSectionLapSeconds().get(MultiStopwatch.STANDBY));
   }
-
 }

@@ -9,6 +9,7 @@ import io.xj.hub.util.StringUtils;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.mixer.MixerFactory;
+import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.dub.DubAudioCache;
@@ -64,6 +65,8 @@ public class WorkManagerImpl implements WorkManager {
   private long nextDubCycleMillis;
   private final long shipCycleMillis;
   private long nextShipCycleMillis;
+  private final long reportCycleMillis;
+  private long nextReportCycleMillis;
 
   private final String tempFilePathPrefix;
   private final AtomicReference<HubContent> hubContent = new AtomicReference<>();
@@ -72,6 +75,8 @@ public class WorkManagerImpl implements WorkManager {
   private final AtomicLong startedAtMillis = new AtomicLong(0);
 
   private boolean isFileOutputMode;
+
+  private MultiStopwatch timer;
 
   @Nullable
   private ScheduledExecutorService scheduler;
@@ -143,7 +148,10 @@ public class WorkManagerImpl implements WorkManager {
     this.dubCycleMillis = dubCycleMillis;
     this.craftCycleMillis = craftCycleMillis;
 
+    timer = MultiStopwatch.start();
+
     cycleMillis = Math.min(dubCycleMillis, Math.min(shipCycleMillis, craftCycleMillis));
+    reportCycleMillis = Math.max(dubCycleMillis, Math.max(shipCycleMillis, craftCycleMillis));
   }
 
   @Override
@@ -163,6 +171,8 @@ public class WorkManagerImpl implements WorkManager {
 
     scheduler = Executors.newScheduledThreadPool(1);
     scheduler.scheduleAtFixedRate(this::runCycle, 0, cycleMillis, TimeUnit.MILLISECONDS);
+
+    timer = MultiStopwatch.start();
   }
 
   private void updateState(WorkState workState) {
@@ -187,6 +197,8 @@ public class WorkManagerImpl implements WorkManager {
     if (Objects.nonNull(afterFinished)) {
       afterFinished.run();
     }
+
+    timer.stop();
   }
 
   @Override
@@ -434,9 +446,9 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(craftWork);
 
     long now = System.currentTimeMillis();
-    long elapsedMicros = shipWork.getShippedToChainMicros().orElse(0L);
 
     // Ship
+    timer.section("Ship");
     if (now >= nextShipCycleMillis) {
       nextShipCycleMillis = now + shipCycleMillis;
       shipWork.runCycle(0);
@@ -450,15 +462,27 @@ public class WorkManagerImpl implements WorkManager {
     }
 
     // Dub
+    timer.section("Dub");
     if (now >= nextDubCycleMillis) {
       nextDubCycleMillis = now + dubCycleMillis;
       dubWork.runCycle(shipWork.getShippedToChainMicros().map(m -> m +workConfig.getDubAheadMicros()).orElse(0L));
     }
 
     // Craft
+    timer.section("Craft");
     if (Objects.nonNull(craftWork) && now >= nextCraftCycleMillis) {
       nextCraftCycleMillis = now + craftCycleMillis;
       craftWork.runCycle(shipWork.getShippedToChainMicros().map(m -> m +workConfig.getCraftAheadMicros()).orElse(0L));
+    }
+
+    // End lap & report if needed
+    timer.section("Standby");
+    timer.lap();
+    LOG.debug("Lap time: {}", timer.lapToString());
+    timer.clearLapSections();
+    if (now >= nextReportCycleMillis) {
+      nextReportCycleMillis = now + reportCycleMillis;
+      LOG.info("Fabrication time: {}", timer.getTotalText());
     }
   }
 

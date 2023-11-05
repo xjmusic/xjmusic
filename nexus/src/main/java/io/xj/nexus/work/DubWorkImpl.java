@@ -7,7 +7,6 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.util.StringUtils;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.mixer.*;
-import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.dub.DubAudioCache;
 import io.xj.nexus.mixer.ActiveAudio;
@@ -36,7 +35,6 @@ public class DubWorkImpl implements DubWork {
 
   @Nullable
   Mixer mixer;
-  final MultiStopwatch timer;
   final AtomicBoolean running = new AtomicBoolean(true);
   final CraftWork craftWork;
   final DubAudioCache dubAudioCache;
@@ -73,8 +71,6 @@ public class DubWorkImpl implements DubWork {
     this.outputChannels = outputChannels;
     this.mixerLengthMicros = mixerLengthSeconds * MICROS_PER_SECOND;
     this.mixerFactory = mixerFactory;
-
-    timer = MultiStopwatch.start();
 
     var templateConfig = craftWork.getTemplateConfig();
     var chain = craftWork.getChain();
@@ -123,11 +119,6 @@ public class DubWorkImpl implements DubWork {
       Exception e) {
       didFailWhile("running a work cycle", e);
     }
-
-    // End lap & do telemetry on all fabricated chains
-    timer.lap();
-    LOG.debug("Lap time: {}", timer.lapToString());
-    timer.clearLapSections();
   }
 
   @Override
