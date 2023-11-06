@@ -22,8 +22,6 @@ import io.xj.nexus.ship.broadcast.BroadcastFactory;
 import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -40,7 +38,6 @@ import java.util.function.Consumer;
 
 import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
-@Service
 public class WorkManagerImpl implements WorkManager {
   private static final Logger LOG = LoggerFactory.getLogger(WorkManagerImpl.class);
   private final BroadcastFactory broadcastFactory;
@@ -53,22 +50,12 @@ public class WorkManagerImpl implements WorkManager {
   private final MixerFactory mixerFactory;
   private final NexusEntityStore store;
   private final SegmentManager segmentManager;
-  private final int mixerSeconds;
-  private final int outputFileNumberDigits;
-  private final int pcmChunkSizeBytes;
-  private final int cycleAudioBytes;
-  private final long cycleMillis;
-  private final long craftCycleMillis;
   private final WorkTelemetry telemetry;
   private long nextCraftCycleMillis;
-  private final long dubCycleMillis;
   private long nextDubCycleMillis;
-  private final long shipCycleMillis;
   private long nextShipCycleMillis;
-  private final long reportCycleMillis;
   private long nextReportCycleMillis;
 
-  private final String tempFilePathPrefix;
   private final AtomicReference<HubContent> hubContent = new AtomicReference<>();
   private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
   private final AtomicBoolean isAudioLoaded = new AtomicBoolean(false);
@@ -108,7 +95,8 @@ public class WorkManagerImpl implements WorkManager {
   private Runnable afterFinished;
 
   public WorkManagerImpl(
-    WorkTelemetry workTelemetry, BroadcastFactory broadcastFactory,
+    WorkTelemetry workTelemetry,
+    BroadcastFactory broadcastFactory,
     CraftFactory craftFactory,
     DubAudioCache dubAudioCache,
     EntityFactory entityFactory,
@@ -117,15 +105,7 @@ public class WorkManagerImpl implements WorkManager {
     HubClient hubClient,
     MixerFactory mixerFactory,
     NexusEntityStore store,
-    SegmentManager segmentManager,
-    @Value("${mixer.timeline.seconds}") int mixerSeconds,
-    @Value("${output.file.number.digits}") int outputFileNumberDigits,
-    @Value("${output.pcm.chunk.size.bytes}") int pcmChunkSizeBytes,
-    @Value("${ship.cycle.audio.bytes}") int cycleAudioBytes,
-    @Value("${temp.file.path.prefix}") String tempFilePathPrefix,
-    @Value("${ship.cycle.millis}") long shipCycleMillis,
-    @Value("${dub.cycle.millis}") long dubCycleMillis,
-    @Value("${craft.cycle.millis}") long craftCycleMillis
+    SegmentManager segmentManager
   ) {
     this.broadcastFactory = broadcastFactory;
     this.craftFactory = craftFactory;
@@ -137,18 +117,7 @@ public class WorkManagerImpl implements WorkManager {
     this.mixerFactory = mixerFactory;
     this.store = store;
     this.segmentManager = segmentManager;
-    this.mixerSeconds = mixerSeconds;
-    this.outputFileNumberDigits = outputFileNumberDigits;
-    this.pcmChunkSizeBytes = pcmChunkSizeBytes;
-    this.cycleAudioBytes = cycleAudioBytes;
-    this.tempFilePathPrefix = tempFilePathPrefix;
-    this.shipCycleMillis = shipCycleMillis;
-    this.dubCycleMillis = dubCycleMillis;
-    this.craftCycleMillis = craftCycleMillis;
     this.telemetry = workTelemetry;
-
-    cycleMillis = Math.min(dubCycleMillis, Math.min(shipCycleMillis, craftCycleMillis));
-    reportCycleMillis = Math.max(dubCycleMillis, Math.max(shipCycleMillis, craftCycleMillis));
   }
 
   @Override
@@ -167,7 +136,7 @@ public class WorkManagerImpl implements WorkManager {
     updateState(WorkState.Starting);
 
     scheduler = Executors.newScheduledThreadPool(1);
-    scheduler.scheduleAtFixedRate(this::runCycle, 0, cycleMillis, TimeUnit.MILLISECONDS);
+    scheduler.scheduleAtFixedRate(this::runCycle, 0, workConfig.getCycleMillis(), TimeUnit.MILLISECONDS);
 
     telemetry.startTimer();
   }
@@ -408,7 +377,7 @@ public class WorkManagerImpl implements WorkManager {
       workConfig.getOutputMode(),
       hubConfig.getAudioBaseUrl(),
       hubConfig.getShipBaseUrl(),
-      tempFilePathPrefix,
+      workConfig.getTempFilePathPrefix(),
       workConfig.getOutputFrameRate(),
       workConfig.getOutputChannels()
     );
@@ -418,7 +387,7 @@ public class WorkManagerImpl implements WorkManager {
       mixerFactory,
       workConfig.getContentStoragePathPrefix(),
       hubConfig.getAudioBaseUrl(),
-      mixerSeconds,
+      workConfig.getMixBufferLengthSeconds(),
       workConfig.getOutputFrameRate(),
       workConfig.getOutputChannels()
     );
@@ -428,11 +397,11 @@ public class WorkManagerImpl implements WorkManager {
       workConfig.getOutputMode(),
       workConfig.getOutputFileMode(),
       workConfig.getOutputSeconds(),
-      cycleAudioBytes,
+      workConfig.getShipCycleAudioBytes(),
       workConfig.getInputTemplateKey(),
       workConfig.getOutputPathPrefix(),
-      outputFileNumberDigits,
-      pcmChunkSizeBytes
+      workConfig.getShipOutputFileNumberDigits(),
+      workConfig.getShipOutputPcmChunkSizeBytes()
     );
   }
 
@@ -446,7 +415,7 @@ public class WorkManagerImpl implements WorkManager {
 
     // Ship
     if (now >= nextShipCycleMillis) {
-      nextShipCycleMillis = now + shipCycleMillis;
+      nextShipCycleMillis = now + workConfig.getShipCycleMillis();
       shipWork.runCycle(0);
       if (isFileOutputMode) {
         updateProgress(shipWork.getProgress());
@@ -459,21 +428,21 @@ public class WorkManagerImpl implements WorkManager {
 
     // Dub
     if (now >= nextDubCycleMillis) {
-      nextDubCycleMillis = now + dubCycleMillis;
-      dubWork.runCycle(shipWork.getShippedToChainMicros().map(m -> m +workConfig.getDubAheadMicros()).orElse(0L));
+      nextDubCycleMillis = now + workConfig.getDubCycleMillis();
+      dubWork.runCycle(shipWork.getShippedToChainMicros().map(m -> m + workConfig.getDubAheadMicros()).orElse(0L));
     }
 
     // Craft
     if (Objects.nonNull(craftWork) && now >= nextCraftCycleMillis) {
-      nextCraftCycleMillis = now + craftCycleMillis;
-      craftWork.runCycle(shipWork.getShippedToChainMicros().map(m -> m +workConfig.getCraftAheadMicros()).orElse(0L));
+      nextCraftCycleMillis = now + workConfig.getCraftCycleMillis();
+      craftWork.runCycle(shipWork.getShippedToChainMicros().map(m -> m + workConfig.getCraftAheadMicros()).orElse(0L));
     }
 
     // End lap & report if needed
     var lapText = telemetry.markLap();
     LOG.debug("Lap time: {}", lapText);
     if (now >= nextReportCycleMillis) {
-      nextReportCycleMillis = now + reportCycleMillis;
+      nextReportCycleMillis = now + workConfig.getReportCycleMillis();
       telemetry.report();
     }
   }

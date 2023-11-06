@@ -9,11 +9,8 @@ import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.entity.EntityUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.*;
-import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,7 +22,6 @@ import java.util.stream.Collectors;
  XJ Lab Distributed Architecture https://www.pivotaltracker.com/story/show/171553408
  Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in JSON:API record stored keyed by chain or segment id in memory
  */
-@Service
 public class NexusEntityStoreImpl implements NexusEntityStore {
   static final Logger LOG = LoggerFactory.getLogger(EntityStoreImpl.class);
   static final String SEGMENT_ID_ATTRIBUTE = EntityUtils.toIdAttribute(EntityUtils.toBelongsTo(Segment.class));
@@ -33,10 +29,8 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   final List<Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>>> store = new ArrayList<>();
   final EntityFactory entityFactory;
 
-  @Nullable
   Chain chain;
 
-  @Autowired
   public NexusEntityStoreImpl(EntityFactory entityFactory) {
     this.entityFactory = entityFactory;
   }

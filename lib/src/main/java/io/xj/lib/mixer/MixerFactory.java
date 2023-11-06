@@ -2,8 +2,6 @@
 package io.xj.lib.mixer;
 
 
-import org.springframework.beans.factory.annotation.Qualifier;
-
 import java.io.IOException;
 import java.util.UUID;
 
@@ -24,7 +22,7 @@ public interface MixerFactory {
    @throws MixerException if unable to of Mixer
    */
   Mixer createMixer(
-    @Qualifier("mixerConfig") MixerConfig mixerConfig
+    MixerConfig mixerConfig
   ) throws MixerException;
 
 

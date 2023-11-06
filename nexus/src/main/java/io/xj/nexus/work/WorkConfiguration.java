@@ -22,6 +22,16 @@ public class WorkConfiguration {
   private double outputFrameRate;
   private int outputChannels;
   private String contentStoragePathPrefix;
+  private int mixBufferLengthSeconds = 1;
+  private long cycleMillis = 100;
+  private String tempFilePathPrefix = "/tmp/";
+  private int shipCycleAudioBytes = 192000;
+  private int shipOutputFileNumberDigits = 7;
+  private int shipOutputPcmChunkSizeBytes = 1024;
+  private long shipCycleMillis = 100;
+  private long dubCycleMillis = 200;
+  private long craftCycleMillis = 400;
+  private long reportCycleMillis = 1000;
 
   public InputMode getInputMode() {
     return inputMode;
@@ -128,6 +138,96 @@ public class WorkConfiguration {
 
   public WorkConfiguration setContentStoragePathPrefix(String contentStoragePathPrefix) {
     this.contentStoragePathPrefix = contentStoragePathPrefix;
+    return this;
+  }
+
+  public int getMixBufferLengthSeconds() {
+    return mixBufferLengthSeconds;
+  }
+
+  public WorkConfiguration setMixBufferLengthSeconds(int mixBufferLengthSeconds) {
+    this.mixBufferLengthSeconds = mixBufferLengthSeconds;
+    return this;
+  }
+
+  public long getCycleMillis() {
+    return cycleMillis;
+  }
+
+  public WorkConfiguration setCycleMillis(long cycleMillis) {
+    this.cycleMillis = cycleMillis;
+    return this;
+  }
+
+  public String getTempFilePathPrefix() {
+    return tempFilePathPrefix;
+  }
+
+  public WorkConfiguration setTempFilePathPrefix(String tempFilePathPrefix) {
+    this.tempFilePathPrefix = tempFilePathPrefix;
+    return this;
+  }
+
+  public int getShipCycleAudioBytes() {
+    return shipCycleAudioBytes;
+  }
+
+  public WorkConfiguration setShipCycleAudioBytes(int shipCycleAudioBytes) {
+    this.shipCycleAudioBytes = shipCycleAudioBytes;
+    return this;
+  }
+
+  public int getShipOutputFileNumberDigits() {
+    return shipOutputFileNumberDigits;
+  }
+
+  public WorkConfiguration setShipOutputFileNumberDigits(int shipOutputFileNumberDigits) {
+    this.shipOutputFileNumberDigits = shipOutputFileNumberDigits;
+    return this;
+  }
+
+  public int getShipOutputPcmChunkSizeBytes() {
+    return shipOutputPcmChunkSizeBytes;
+  }
+
+  public WorkConfiguration setShipOutputPcmChunkSizeBytes(int shipOutputPcmChunkSizeBytes) {
+    this.shipOutputPcmChunkSizeBytes = shipOutputPcmChunkSizeBytes;
+    return this;
+  }
+
+  public long getShipCycleMillis() {
+    return shipCycleMillis;
+  }
+
+  public WorkConfiguration setShipCycleMillis(long shipCycleMillis) {
+    this.shipCycleMillis = shipCycleMillis;
+    return this;
+  }
+
+  public long getDubCycleMillis() {
+    return dubCycleMillis;
+  }
+
+  public WorkConfiguration setDubCycleMillis(long dubCycleMillis) {
+    this.dubCycleMillis = dubCycleMillis;
+    return this;
+  }
+
+  public long getCraftCycleMillis() {
+    return craftCycleMillis;
+  }
+
+  public WorkConfiguration setCraftCycleMillis(long craftCycleMillis) {
+    this.craftCycleMillis = craftCycleMillis;
+    return this;
+  }
+
+  public long getReportCycleMillis() {
+    return reportCycleMillis;
+  }
+
+  public WorkConfiguration setReportCycleMillis(long reportCycleMillis) {
+    this.reportCycleMillis = reportCycleMillis;
     return this;
   }
 }

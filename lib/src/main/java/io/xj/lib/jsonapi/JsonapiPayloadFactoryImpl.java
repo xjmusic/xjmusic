@@ -6,8 +6,6 @@ import io.xj.hub.util.ValueUtils;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.util.*;

@@ -3,7 +3,6 @@ package io.xj.nexus.work;
 import io.xj.lib.telemetry.MultiStopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 @Service
 public class WorkTelemetryImpl implements WorkTelemetry {

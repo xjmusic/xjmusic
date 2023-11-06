@@ -10,7 +10,6 @@ import io.xj.nexus.InputMode;
 import io.xj.nexus.MacroMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
-import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.SegmentManager;
@@ -58,9 +57,6 @@ class FabricationServiceImplTest {
   @Mock
   private WorkManager workManager;
 
-  @Mock
-  private HubClient hubClient;
-
   FabricationServiceImpl subject;
   private Chain chain;
   private final AtomicInteger offset = new AtomicInteger(0);
@@ -89,9 +85,7 @@ class FabricationServiceImplTest {
       defaultInputMode,
       defaultOutputMode,
       defaultOutputSeconds,
-      hubClient,
-      labService,
-      workManager
+      labService
     );
     when(workManager.getSegmentManager()).thenReturn(segmentManager);
   }

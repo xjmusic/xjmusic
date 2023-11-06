@@ -15,8 +15,6 @@ import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,14 +25,12 @@ import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 /**
  Nexus Managers are Singletons unless some other requirement changes that-- 'cuz here be cyclic dependencies...
  */
-@Service
 public class SegmentManagerImpl implements SegmentManager {
   static final Logger LOG = LoggerFactory.getLogger(SegmentManagerImpl.class);
   public static final Long LENGTH_MINIMUM_MICROS = MICROS_PER_SECOND;
   public static final Double AMPLITUDE_MINIMUM = 0.0;
   private final NexusEntityStore store;
 
-  @Autowired
   public SegmentManagerImpl(
     NexusEntityStore store
   ) {
@@ -264,7 +260,7 @@ public class SegmentManagerImpl implements SegmentManager {
   @Override
   public List<Segment> readManyFromToOffset(int fromOffset, int toOffset) throws ManagerFatalException {
     try {
-      if (store.getAllSegments().size() == 0
+      if (store.getAllSegments().isEmpty()
         || toOffset < fromOffset
         || fromOffset >= store.getAllSegments().size()
         || fromOffset < 0)

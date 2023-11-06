@@ -4,7 +4,6 @@ package io.xj.lib.entity;
 import io.xj.hub.util.ValueUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

@@ -18,8 +18,6 @@ import io.xj.nexus.craft.perc_loop.PercLoopCraftImpl;
 import io.xj.nexus.craft.transition.TransitionCraft;
 import io.xj.nexus.craft.transition.TransitionCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Service
 public class CraftFactoryImpl implements CraftFactory {

@@ -11,16 +11,12 @@ import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.SegmentManager;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-@Service
 public class FabricatorFactoryImpl implements FabricatorFactory {
   final JsonapiPayloadFactory jsonapiPayloadFactory;
   final SegmentManager segmentManager;
   final JsonProvider jsonProvider;
 
-  @Autowired
   public FabricatorFactoryImpl(
     SegmentManager segmentManager,
     JsonapiPayloadFactory jsonapiPayloadFactory,

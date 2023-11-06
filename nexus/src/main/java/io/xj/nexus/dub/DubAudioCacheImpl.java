@@ -13,8 +13,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -27,12 +25,10 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.UUID;
 
-@Service
 public class DubAudioCacheImpl implements DubAudioCache {
   final static Logger LOG = LoggerFactory.getLogger(DubAudioCacheImpl.class);
   final HttpClientProvider httpClientProvider;
 
-  @Autowired
   public DubAudioCacheImpl(
     HttpClientProvider httpClientProvider
   ) {

@@ -8,8 +8,6 @@ import io.xj.lib.json.JsonProvider;
 import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -21,14 +19,12 @@ import java.util.function.Supplier;
  <p>
  Created by Charney Kaye on 2020/03/09
  */
-@Service
 public class EntityFactoryImpl implements EntityFactory {
   static final Logger LOG = LoggerFactory.getLogger(EntityFactoryImpl.class);
   static final List<String> IGNORE_ATTRIBUTES = List.of("id", "class");
   final JsonProvider jsonProvider;
   Map<String, EntitySchema> schema = new ConcurrentHashMap<>();
 
-  @Autowired
   public EntityFactoryImpl(
     JsonProvider jsonProvider
   ) {

@@ -24,7 +24,6 @@ import io.xj.nexus.persistence.*;
 import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;

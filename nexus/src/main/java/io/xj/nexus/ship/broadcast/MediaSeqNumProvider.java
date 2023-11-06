@@ -2,9 +2,6 @@
 
 package io.xj.nexus.ship.broadcast;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 
