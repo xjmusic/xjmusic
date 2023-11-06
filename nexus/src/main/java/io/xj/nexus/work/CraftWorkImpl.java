@@ -33,9 +33,12 @@ import java.util.stream.Stream;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.hub.util.ValueUtils.MILLIS_PER_SECOND;
+import static io.xj.nexus.work.WorkTelemetry.TIMER_SECTION_STANDBY;
 
 public class CraftWorkImpl implements CraftWork {
   static final Logger LOG = LoggerFactory.getLogger(CraftWorkImpl.class);
+  public static final String TIMER_SECTION_CRAFT = "Craft";
+  private final WorkTelemetry telemetry;
   final CraftFactory craftFactory;
   final EntityFactory entityFactory;
   final FabricatorFactory fabricatorFactory;
@@ -97,6 +100,7 @@ public class CraftWorkImpl implements CraftWork {
   private final Chain chain;
 
   public CraftWorkImpl(
+    WorkTelemetry telemetry,
     CraftFactory craftFactory,
     EntityFactory entityFactory,
     FabricatorFactory fabricatorFactory,
@@ -110,6 +114,7 @@ public class CraftWorkImpl implements CraftWork {
     double outputFrameRate,
     int outputChannels
   ) {
+    this.telemetry = telemetry;
     this.audioBaseUrl = audioBaseUrl;
     this.craftFactory = craftFactory;
     this.entityFactory = entityFactory;
@@ -339,9 +344,11 @@ public class CraftWorkImpl implements CraftWork {
     if (!running.get()) return;
 
     try {
+      telemetry.markTimerSection(TIMER_SECTION_CRAFT);
       fabricateChain(chain, toChainMicros);
       if (medicEnabled) doMedic(toChainMicros);
       if (janitorEnabled) doJanitor();
+      telemetry.markTimerSection(TIMER_SECTION_STANDBY);
 
     } catch (Exception e) {
       didFailWhile("running a work cycle", e, true);

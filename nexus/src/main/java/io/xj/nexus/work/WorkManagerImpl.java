@@ -9,7 +9,6 @@ import io.xj.hub.util.StringUtils;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.mixer.MixerFactory;
-import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.dub.DubAudioCache;
@@ -60,6 +59,7 @@ public class WorkManagerImpl implements WorkManager {
   private final int cycleAudioBytes;
   private final long cycleMillis;
   private final long craftCycleMillis;
+  private final WorkTelemetry telemetry;
   private long nextCraftCycleMillis;
   private final long dubCycleMillis;
   private long nextDubCycleMillis;
@@ -75,8 +75,6 @@ public class WorkManagerImpl implements WorkManager {
   private final AtomicLong startedAtMillis = new AtomicLong(0);
 
   private boolean isFileOutputMode;
-
-  private MultiStopwatch timer;
 
   @Nullable
   private ScheduledExecutorService scheduler;
@@ -110,7 +108,7 @@ public class WorkManagerImpl implements WorkManager {
   private Runnable afterFinished;
 
   public WorkManagerImpl(
-    BroadcastFactory broadcastFactory,
+    WorkTelemetry workTelemetry, BroadcastFactory broadcastFactory,
     CraftFactory craftFactory,
     DubAudioCache dubAudioCache,
     EntityFactory entityFactory,
@@ -147,8 +145,7 @@ public class WorkManagerImpl implements WorkManager {
     this.shipCycleMillis = shipCycleMillis;
     this.dubCycleMillis = dubCycleMillis;
     this.craftCycleMillis = craftCycleMillis;
-
-    timer = MultiStopwatch.start();
+    this.telemetry = workTelemetry;
 
     cycleMillis = Math.min(dubCycleMillis, Math.min(shipCycleMillis, craftCycleMillis));
     reportCycleMillis = Math.max(dubCycleMillis, Math.max(shipCycleMillis, craftCycleMillis));
@@ -172,7 +169,7 @@ public class WorkManagerImpl implements WorkManager {
     scheduler = Executors.newScheduledThreadPool(1);
     scheduler.scheduleAtFixedRate(this::runCycle, 0, cycleMillis, TimeUnit.MILLISECONDS);
 
-    timer = MultiStopwatch.start();
+    telemetry.startTimer();
   }
 
   private void updateState(WorkState workState) {
@@ -198,7 +195,7 @@ public class WorkManagerImpl implements WorkManager {
       afterFinished.run();
     }
 
-    timer.stop();
+    telemetry.stopTimer();
   }
 
   @Override
@@ -401,7 +398,7 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(hubConfig);
     assert Objects.nonNull(workConfig);
     craftWork = new CraftWorkImpl(
-      craftFactory,
+      telemetry, craftFactory,
       entityFactory,
       fabricatorFactory,
       segmentManager,
@@ -416,7 +413,7 @@ public class WorkManagerImpl implements WorkManager {
       workConfig.getOutputChannels()
     );
     dubWork = new DubWorkImpl(
-      craftWork,
+      telemetry, craftWork,
       dubAudioCache,
       mixerFactory,
       workConfig.getContentStoragePathPrefix(),
@@ -426,7 +423,7 @@ public class WorkManagerImpl implements WorkManager {
       workConfig.getOutputChannels()
     );
     shipWork = new ShipWorkImpl(
-      dubWork,
+      telemetry, dubWork,
       broadcastFactory,
       workConfig.getOutputMode(),
       workConfig.getOutputFileMode(),
@@ -448,7 +445,6 @@ public class WorkManagerImpl implements WorkManager {
     long now = System.currentTimeMillis();
 
     // Ship
-    timer.section("Ship");
     if (now >= nextShipCycleMillis) {
       nextShipCycleMillis = now + shipCycleMillis;
       shipWork.runCycle(0);
@@ -462,27 +458,23 @@ public class WorkManagerImpl implements WorkManager {
     }
 
     // Dub
-    timer.section("Dub");
     if (now >= nextDubCycleMillis) {
       nextDubCycleMillis = now + dubCycleMillis;
       dubWork.runCycle(shipWork.getShippedToChainMicros().map(m -> m +workConfig.getDubAheadMicros()).orElse(0L));
     }
 
     // Craft
-    timer.section("Craft");
     if (Objects.nonNull(craftWork) && now >= nextCraftCycleMillis) {
       nextCraftCycleMillis = now + craftCycleMillis;
       craftWork.runCycle(shipWork.getShippedToChainMicros().map(m -> m +workConfig.getCraftAheadMicros()).orElse(0L));
     }
 
     // End lap & report if needed
-    timer.section("Standby");
-    timer.lap();
-    LOG.debug("Lap time: {}", timer.lapToString());
-    timer.clearLapSections();
+    var lapText = telemetry.markLap();
+    LOG.debug("Lap time: {}", lapText);
     if (now >= nextReportCycleMillis) {
       nextReportCycleMillis = now + reportCycleMillis;
-      LOG.info("Fabrication time: {}", timer.getTotalText());
+      telemetry.report();
     }
   }
 

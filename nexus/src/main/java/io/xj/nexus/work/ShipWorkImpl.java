@@ -22,9 +22,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.hub.util.ValueUtils.MILLIS_PER_SECOND;
+import static io.xj.nexus.work.WorkTelemetry.TIMER_SECTION_STANDBY;
 
 public class ShipWorkImpl implements ShipWork {
   static final Logger LOG = LoggerFactory.getLogger(ShipWorkImpl.class);
+  public static final String TIMER_SECTION_SHIP = "Ship";
   private final long startedAtMillis;
 
   @Nullable
@@ -34,6 +36,7 @@ public class ShipWorkImpl implements ShipWork {
   @Nullable
   StreamPlayer playback;
   final AtomicBoolean running = new AtomicBoolean(true);
+  final WorkTelemetry telemetry;
   final BroadcastFactory broadcastFactory;
   final DubWork dubWork;
   final OutputFileMode outputFileMode;
@@ -49,6 +52,7 @@ public class ShipWorkImpl implements ShipWork {
   private float progress;
 
   public ShipWorkImpl(
+    WorkTelemetry telemetry,
     DubWork dubWork,
     BroadcastFactory broadcastFactory,
     OutputMode outputMode,
@@ -60,6 +64,7 @@ public class ShipWorkImpl implements ShipWork {
     int outputFileNumberDigits,
     int pcmChunkSizeBytes
   ) {
+    this.telemetry = telemetry;
     this.broadcastFactory = broadcastFactory;
     this.cycleAudioBytes = cycleAudioBytes;
     this.dubWork = dubWork;
@@ -130,12 +135,14 @@ public class ShipWorkImpl implements ShipWork {
 
     // Action based on mode
     try {
+      telemetry.markTimerSection(TIMER_SECTION_SHIP);
       if (dubWork.getMixerBuffer().isEmpty() || dubWork.getMixerOutputMicrosPerByte().isEmpty()) return;
       if (isAheadOfSync()) return;
       switch (outputMode) {
         case PLAYBACK -> doShipOutputPlayback();
         case FILE -> doShipOutputFile();
       }
+      telemetry.markTimerSection(TIMER_SECTION_STANDBY);
     } catch (Exception e) {
       didFailWhile("running a work cycle", e);
     }

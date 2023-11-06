@@ -27,15 +27,19 @@ import java.util.stream.Stream;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
+import static io.xj.nexus.work.WorkTelemetry.TIMER_SECTION_STANDBY;
 
 public class DubWorkImpl implements DubWork {
   static final Logger LOG = LoggerFactory.getLogger(DubWorkImpl.class);
   static final int BITS_PER_BYTE = 8;
-
+  public static final String TIMER_SECTION_DUB = "Dub";
+  public static final String TIMER_SECTION_DUB_SETUP = "DubSetup";
+  public static final String TIMER_SECTION_DUB_MIX = "DubMix";
 
   @Nullable
   Mixer mixer;
   final AtomicBoolean running = new AtomicBoolean(true);
+  final WorkTelemetry telemetry;
   final CraftWork craftWork;
   final DubAudioCache dubAudioCache;
   final Map<InstrumentType, Integer> instrumentBusNumber = new ConcurrentHashMap<>();
@@ -53,6 +57,7 @@ public class DubWorkImpl implements DubWork {
   final String contentStoragePathPrefix;
 
   public DubWorkImpl(
+    WorkTelemetry telemetry,
     CraftWork craftWork,
     DubAudioCache dubAudioCache,
     MixerFactory mixerFactory,
@@ -62,6 +67,7 @@ public class DubWorkImpl implements DubWork {
     double outputFrameRate,
     int outputChannels
   ) {
+    this.telemetry = telemetry;
     this.craftWork = craftWork;
     this.dubAudioCache = dubAudioCache;
     this.contentStoragePathPrefix = contentStoragePathPrefix;
@@ -110,11 +116,13 @@ public class DubWorkImpl implements DubWork {
 
     // Action based on state and mode
     try {
+      telemetry.markTimerSection(TIMER_SECTION_DUB);
       if (isPlannedAhead()) {
         doDubFrame();
       } else {
         doPlanFrame(toChainMicros);
       }
+      telemetry.markTimerSection(TIMER_SECTION_STANDBY);
     } catch (
       Exception e) {
       didFailWhile("running a work cycle", e);
@@ -256,13 +264,16 @@ public class DubWorkImpl implements DubWork {
           return Stream.of(new ActiveAudio(pick, instrument.get(), audio.get(), startAtChainMicros, stopAtMicros));
         })).toList();
 
+      telemetry.markTimerSection(TIMER_SECTION_DUB_SETUP);
       mixerSetAll(activeAudios);
       try {
+        telemetry.markTimerSection(TIMER_SECTION_DUB_MIX);
         mixer.mix();
       } catch (IOException e) {
         LOG.debug("Cannot send to output because BytePipeline {}", e.getMessage());
         finish();
       }
+      telemetry.markTimerSection(TIMER_SECTION_DUB);
 
       chunkFromChainMicros = chunkToChainMicros;
       LOG.debug("Dubbed to {}", String.format("%.1f", chunkToChainMicros / (double) MICROS_PER_SECOND));

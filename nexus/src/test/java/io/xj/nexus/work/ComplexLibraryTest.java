@@ -52,6 +52,9 @@ public class ComplexLibraryTest {
   @Mock
   FileStoreProvider fileStoreProvider;
 
+  @Mock
+  WorkTelemetry telemetry;
+
   @BeforeEach
   public void setUp() throws Exception {
     NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
@@ -86,6 +89,7 @@ public class ComplexLibraryTest {
 
     // work
     work = new CraftWorkImpl(
+      telemetry,
       craftFactory,
       entityFactory,
       fabricatorFactory,
