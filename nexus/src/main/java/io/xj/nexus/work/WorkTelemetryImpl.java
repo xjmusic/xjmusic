@@ -4,7 +4,6 @@ import io.xj.lib.telemetry.MultiStopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Service
 public class WorkTelemetryImpl implements WorkTelemetry {
   private final static Logger LOG = LoggerFactory.getLogger(WorkTelemetryImpl.class);
   private MultiStopwatch timer;

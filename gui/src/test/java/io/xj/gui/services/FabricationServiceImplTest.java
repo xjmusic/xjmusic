@@ -85,7 +85,8 @@ class FabricationServiceImplTest {
       defaultInputMode,
       defaultOutputMode,
       defaultOutputSeconds,
-      labService
+      labService,
+      workManager
     );
     when(workManager.getSegmentManager()).thenReturn(segmentManager);
   }
@@ -133,8 +134,8 @@ class FabricationServiceImplTest {
     var program = buildMainProgramWithBarBeats(barBeats);
     var sourceMaterial = new HubContent(List.of(program));
     var choice = buildSegmentChoice(segment, program);
-    when(segmentManager.readChoice(eq(segment.getId()), eq(ProgramType.Main))).thenReturn(Optional.of(choice));
     when(workManager.getSourceMaterial()).thenReturn(sourceMaterial);
+    when(segmentManager.readChoice(eq(segment.getId()), eq(ProgramType.Main))).thenReturn(Optional.of(choice));
     return segment;
   }
 }

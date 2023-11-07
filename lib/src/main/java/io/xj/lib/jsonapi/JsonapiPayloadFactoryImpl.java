@@ -21,11 +21,9 @@ import java.util.stream.Collectors;
  <p>
  Created by Charney Kaye on 2020/03/09
  */
-@Service
 public class JsonapiPayloadFactoryImpl implements JsonapiPayloadFactory {
   final EntityFactory entityFactory;
 
-  @Autowired
   public JsonapiPayloadFactoryImpl(
     EntityFactory entityFactory
   ) {

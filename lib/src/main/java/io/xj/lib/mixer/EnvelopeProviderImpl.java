@@ -6,7 +6,6 @@ package io.xj.lib.mixer;
 import java.util.HashMap;
 import java.util.Map;
 
-@Service
 public class EnvelopeProviderImpl implements EnvelopeProvider {
   final Map<Integer, Envelope> envelopes;
 

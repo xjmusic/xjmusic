@@ -45,41 +45,6 @@ public class CraftWorkImpl implements CraftWork {
   HubContent sourceMaterial;
   final NexusEntityStore store;
   final SegmentManager segmentManager;
-
-
-  @Value("${craft.janitor.enabled}")
-  boolean janitorEnabled;
-
-  @Value("${craft.medic.enabled}")
-  boolean medicEnabled;
-
-  @Value("${craft.chain.threshold.fabricated.behind.seconds}")
-  int chainThresholdFabricatedBehindSeconds;
-
-  @Value("${craft.erase.segments.older.than.seconds}")
-  int eraseSegmentsOlderThanSeconds;
-
-  @Value("${craft.ignore.segments.older.than.seconds}")
-  int ignoreSegmentsOlderThanSeconds;
-
-  @Value("${craft.ingest.cycle.seconds}")
-  int ingestCycleSeconds;
-
-  @Value("${craft.janitor.cycle.seconds}")
-  int janitorCycleSeconds;
-
-  @Value("${craft.async.poll.seconds}")
-  int asyncPollSeconds;
-
-  @Value("${craft.medic.cycle.seconds}")
-  int medicCycleSeconds;
-
-  @Value("${craft.health.cycle.staleness.threshold.seconds}")
-  long healthCycleStalenessThresholdSeconds;
-
-  @Value("${ship.bucket}")
-  String shipBucket;
-
   final OutputMode outputMode;
   final AtomicBoolean running = new AtomicBoolean(true);
   boolean chainFabricatedAhead = true;
@@ -103,8 +68,10 @@ public class CraftWorkImpl implements CraftWork {
     CraftFactory craftFactory,
     EntityFactory entityFactory,
     FabricatorFactory fabricatorFactory,
-    SegmentManager segmentManager, FileStoreProvider fileStore,
-    NexusEntityStore store, HubContent sourceMaterial,
+    SegmentManager segmentManager,
+    FileStoreProvider fileStore,
+    NexusEntityStore store,
+    HubContent sourceMaterial,
     InputMode inputMode,
     OutputMode outputMode,
     String audioBaseUrl,
@@ -345,8 +312,8 @@ public class CraftWorkImpl implements CraftWork {
     try {
       telemetry.markTimerSection(TIMER_SECTION_CRAFT);
       fabricateChain(chain, toChainMicros);
-      if (medicEnabled) doMedic(toChainMicros);
-      if (janitorEnabled) doJanitor();
+      doMedic(toChainMicros);
+      doJanitor();
       telemetry.markTimerSection(TIMER_SECTION_STANDBY);
 
     } catch (Exception e) {
@@ -362,7 +329,8 @@ public class CraftWorkImpl implements CraftWork {
    */
   void doMedic(long toChainMicros) {
     if (System.currentTimeMillis() < nextMedicMillis) return;
-    nextMedicMillis = System.currentTimeMillis() + (medicCycleSeconds * MILLIS_PER_SECOND);
+    int MEDIC_CYCLE_SECONDS = 30;
+    nextMedicMillis = System.currentTimeMillis() + (MEDIC_CYCLE_SECONDS * MILLIS_PER_SECOND);
 
     var chain = getChain();
     if (chain.isEmpty()) {
@@ -376,7 +344,8 @@ public class CraftWorkImpl implements CraftWork {
         return;
       }
       var aheadSeconds = (SegmentUtils.getEndAtChainMicros(lastCraftedSegment.get()) - toChainMicros) / MICROS_PER_SECOND;
-      if (aheadSeconds < chainThresholdFabricatedBehindSeconds) {
+      int THRESHOLD_FABRICATED_BEHIND_SECONDS = 5;
+      if (aheadSeconds < THRESHOLD_FABRICATED_BEHIND_SECONDS) {
         LOG.debug("Fabrication is stalled, ahead {}s", aheadSeconds);
         chainFabricatedAhead = false;
         return;
@@ -394,7 +363,8 @@ public class CraftWorkImpl implements CraftWork {
    */
   protected void doJanitor() {
     if (System.currentTimeMillis() < nextJanitorMillis) return;
-    nextJanitorMillis = System.currentTimeMillis() + (janitorCycleSeconds * MILLIS_PER_SECOND);
+    int JANITOR_CYCLE_SECONDS = 30;
+    nextJanitorMillis = System.currentTimeMillis() + (JANITOR_CYCLE_SECONDS * MILLIS_PER_SECOND);
   }
 
   /**

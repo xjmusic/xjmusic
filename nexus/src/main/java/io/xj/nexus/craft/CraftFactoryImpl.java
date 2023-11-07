@@ -19,10 +19,8 @@ import io.xj.nexus.craft.transition.TransitionCraft;
 import io.xj.nexus.craft.transition.TransitionCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 
-@Service
 public class CraftFactoryImpl implements CraftFactory {
 
-  @Autowired
   public CraftFactoryImpl() {
   }
 

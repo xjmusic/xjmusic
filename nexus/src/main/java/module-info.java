@@ -18,6 +18,7 @@ module workstation.nexus.main {
   requires org.bytedeco.javacv;
   requires org.jooq;
   requires org.slf4j;
+  requires org.yaml.snakeyaml;
 
   // deps
   requires transitive hub.models.main;

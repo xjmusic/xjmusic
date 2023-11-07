@@ -7,37 +7,20 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.tables.pojos.*;
 import io.xj.hub.util.ValueException;
-import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.lib.filestore.FileStoreProviderImpl;
-import io.xj.lib.http.HttpClientProvider;
-import io.xj.lib.http.HttpClientProviderImpl;
-import io.xj.lib.json.JsonProvider;
-import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.lib.mixer.EnvelopeProvider;
-import io.xj.lib.mixer.EnvelopeProviderImpl;
-import io.xj.lib.mixer.MixerFactory;
-import io.xj.lib.mixer.MixerFactoryImpl;
 import io.xj.lib.util.FormatUtils;
-import io.xj.nexus.*;
-import io.xj.nexus.craft.CraftFactory;
-import io.xj.nexus.craft.CraftFactoryImpl;
-import io.xj.nexus.dub.DubAudioCache;
-import io.xj.nexus.dub.DubAudioCacheImpl;
-import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.nexus.hub_client.HubClient;
+import io.xj.nexus.InputMode;
+import io.xj.nexus.MacroMode;
+import io.xj.nexus.OutputFileMode;
+import io.xj.nexus.OutputMode;
 import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.nexus.hub_client.HubClientImpl;
-import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.model.*;
-import io.xj.nexus.persistence.*;
-import io.xj.nexus.ship.broadcast.BroadcastFactory;
-import io.xj.nexus.ship.broadcast.BroadcastFactoryImpl;
-import io.xj.nexus.work.*;
+import io.xj.nexus.persistence.ManagerExistenceException;
+import io.xj.nexus.persistence.ManagerFatalException;
+import io.xj.nexus.persistence.ManagerPrivilegeException;
+import io.xj.nexus.work.WorkConfiguration;
+import io.xj.nexus.work.WorkManager;
+import io.xj.nexus.work.WorkManagerImpl;
+import io.xj.nexus.work.WorkState;
 import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
 import javafx.application.Platform;
@@ -83,7 +66,6 @@ public class FabricationServiceImpl implements FabricationService {
   private final OutputMode defaultOutputMode;
   private final Integer defaultOutputSeconds;
   final WorkManager workManager;
-  final HubClient hubClient;
   final LabService labService;
   final Map<Integer, Integer> segmentBarBeats = new ConcurrentHashMap<>();
   final ObjectProperty<WorkState> status = new SimpleObjectProperty<>(WorkState.Standby);
@@ -134,7 +116,8 @@ public class FabricationServiceImpl implements FabricationService {
     @Value("${input.mode}") String defaultInputMode,
     @Value("${output.mode}") String defaultOutputMode,
     @Value("${output.seconds}") int defaultOutputSeconds,
-    LabService labService
+    LabService labService,
+    WorkManager workManager
   ) {
     this.defaultCraftAheadSeconds = defaultCraftAheadSeconds;
     this.defaultDubAheadSeconds = defaultDubAheadSeconds;
@@ -149,41 +132,7 @@ public class FabricationServiceImpl implements FabricationService {
     this.defaultTimelineSegmentViewLimit = defaultTimelineSegmentViewLimit;
     this.hostServices = hostServices;
     this.labService = labService;
-
-    FileStoreProvider fileStore = new FileStoreProviderImpl();
-    BroadcastFactory broadcastFactory = new BroadcastFactoryImpl();
-    WorkTelemetry workTelemetry = new WorkTelemetryImpl();
-    CraftFactory craftFactory = new CraftFactoryImpl();
-    HttpClientProvider httpClientProvider = new HttpClientProviderImpl();
-    DubAudioCache dubAudioCache = new DubAudioCacheImpl(httpClientProvider);
-    JsonProvider jsonProvider = new JsonProviderImpl();
-    EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
-    NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
-    SegmentManager segmentManager = new SegmentManagerImpl(nexusEntityStore);
-    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
-      segmentManager,
-      jsonapiPayloadFactory,
-      jsonProvider
-    );
-    EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider);
-    this.hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
-    this.workManager = new WorkManagerImpl(
-      workTelemetry,
-      broadcastFactory,
-      craftFactory,
-      dubAudioCache,
-      entityFactory,
-      fabricatorFactory,
-      fileStore,
-      hubClient,
-      mixerFactory,
-      nexusEntityStore,
-      segmentManager
-    );
-    HubTopology.buildHubApiTopology(entityFactory);
-    NexusTopology.buildNexusApiTopology(entityFactory);
+    this.workManager = workManager;
 
     attachPreferenceListeners();
     setAllFromPrefsOrDefaults();

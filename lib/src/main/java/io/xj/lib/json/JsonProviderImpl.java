@@ -16,11 +16,9 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@Service
 public class JsonProviderImpl implements JsonProvider {
   final ObjectMapper mapper = new ObjectMapper();
 
-  @Autowired
   public JsonProviderImpl() {
     mapper.registerModule(buildInstantSerDesModule());
     mapper.registerModule(buildJavaTimeModule());

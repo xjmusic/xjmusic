@@ -7,18 +7,34 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.filestore.FileStoreProviderImpl;
+import io.xj.lib.http.HttpClientProvider;
+import io.xj.lib.http.HttpClientProviderImpl;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.lib.mixer.EnvelopeProvider;
+import io.xj.lib.mixer.EnvelopeProviderImpl;
 import io.xj.lib.mixer.MixerFactory;
+import io.xj.lib.mixer.MixerFactoryImpl;
+import io.xj.nexus.NexusTopology;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.nexus.dub.DubAudioCache;
+import io.xj.nexus.dub.DubAudioCacheImpl;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.hub_client.HubClient;
-import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.nexus.hub_client.HubContentProvider;
+import io.xj.nexus.fabricator.FabricatorFactoryImpl;
+import io.xj.nexus.hub_client.*;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.nexus.ship.broadcast.BroadcastFactory;
+import io.xj.nexus.ship.broadcast.BroadcastFactoryImpl;
 import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,6 +134,43 @@ public class WorkManagerImpl implements WorkManager {
     this.store = store;
     this.segmentManager = segmentManager;
     this.telemetry = workTelemetry;
+  }
+
+  public static WorkManager createInstance() {
+    FileStoreProvider fileStore = new FileStoreProviderImpl();
+    BroadcastFactory broadcastFactory = new BroadcastFactoryImpl();
+    WorkTelemetry workTelemetry = new WorkTelemetryImpl();
+    CraftFactory craftFactory = new CraftFactoryImpl();
+    HttpClientProvider httpClientProvider = new HttpClientProviderImpl();
+    DubAudioCache dubAudioCache = new DubAudioCacheImpl(httpClientProvider);
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
+    NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
+    SegmentManager segmentManager = new SegmentManagerImpl(nexusEntityStore);
+    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
+      segmentManager,
+      jsonapiPayloadFactory,
+      jsonProvider
+    );
+    EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
+    MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider);
+    HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
+    HubTopology.buildHubApiTopology(entityFactory);
+    NexusTopology.buildNexusApiTopology(entityFactory);
+    return new WorkManagerImpl(
+      workTelemetry,
+      broadcastFactory,
+      craftFactory,
+      dubAudioCache,
+      entityFactory,
+      fabricatorFactory,
+      fileStore,
+      hubClient,
+      mixerFactory,
+      nexusEntityStore,
+      segmentManager
+    );
   }
 
   @Override

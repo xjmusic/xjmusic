@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
  XJ Lab Distributed Architecture https://www.pivotaltracker.com/story/show/171553408
  Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in JSON:API record stored keyed by chain or segment id in memory
  */
-@Service
 public class EntityStoreImpl implements EntityStore {
   static final Logger LOG = LoggerFactory.getLogger(EntityStoreImpl.class);
   final Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>> store = new ConcurrentHashMap<>();
