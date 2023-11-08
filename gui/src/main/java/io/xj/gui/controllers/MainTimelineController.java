@@ -293,7 +293,9 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       // iterate through all in segments, and update if the updated at time has changed from the source matching that id
       var limit = Math.min(ds.size(), freshSegments.size());
       for (var i = 0; i < limit; i++)
-        if (ds.get(freshSegments.get(i).getId()).isSameButUpdated(freshSegments.get(i))) {
+        if (Objects.nonNull(freshSegments.get(i)) &&
+          Objects.nonNull(ds.get(freshSegments.get(i).getId())) &&
+          ds.get(freshSegments.get(i).getId()).isSameButUpdated(freshSegments.get(i))) {
           ds.get(freshSegments.get(i).getId()).update(freshSegments.get(i));
           segmentListView.getChildren().set(i, segmentFactory.create(freshSegments.get(i), microsPerPixel.get(), segmentMinWidth, segmentHorizontalSpacing));
         }

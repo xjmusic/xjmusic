@@ -42,11 +42,15 @@ dependencies {
   implementation 'me.xdrop:fuzzywuzzy:1.4.0'
   implementation 'org.apache.httpcomponents:httpclient:4.5.14'
   implementation 'org.reflections:reflections:0.10.2'
-  implementation 'org.slf4j:slf4j-api:2.0.9'
+  implementation "ch.qos.logback:logback-classic:${rootProject.ext.logbackVersion}"
+  implementation "ch.qos.logback:logback-core:${rootProject.ext.logbackVersion}"
   implementation 'org.yaml:snakeyaml:2.2'
   testFixturesImplementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
-  testFixturesImplementation 'org.slf4j:slf4j-api:2.0.9'
+  testFixturesImplementation "ch.qos.logback:logback-classic:${rootProject.ext.logbackVersion}"
+  testFixturesImplementation "ch.qos.logback:logback-core:${rootProject.ext.logbackVersion}"
   testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"
+  testImplementation "ch.qos.logback:logback-classic:${rootProject.ext.logbackVersion}"
+  testImplementation "ch.qos.logback:logback-core:${rootProject.ext.logbackVersion}"
   testImplementation 'org.hamcrest:hamcrest-library:2.2'
   testImplementation 'org.mockito:mockito-core:5.7.0'
   testImplementation 'org.mockito:mockito-junit-jupiter:5.7.0'

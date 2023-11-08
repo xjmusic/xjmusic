@@ -21,7 +21,7 @@ public class WorkConfiguration {
   private double outputFrameRate;
   private int outputChannels;
   private String contentStoragePathPrefix;
-  private int mixBufferLengthSeconds = 1;
+  private int mixBufferLengthSeconds = 10;
   private long cycleMillis = 100;
   private String tempFilePathPrefix = "/tmp/";
   private int shipCycleAudioBytes = 192000;

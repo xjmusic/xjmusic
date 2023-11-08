@@ -46,9 +46,6 @@ class MixerImpl implements Mixer {
 
   final BytePipeline buffer;
   MixerState state = MixerState.Ready;
-  /**
-   Note: these buffers can't be constructed until after the sources are Put, ergo defining the total buffer length.
-   */
   final double[][][] busBuf; // buffer separated into busses like [bus][frame][channel]
   final double[][] outBuf; // final output buffer like [bus][frame][channel]
   final AudioFormat audioFormat;

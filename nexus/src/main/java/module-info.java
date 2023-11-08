@@ -19,6 +19,7 @@ module workstation.nexus.main {
   requires org.jooq;
   requires org.slf4j;
   requires org.yaml.snakeyaml;
+  requires ch.qos.logback.classic;
 
   // deps
   requires transitive hub.models.main;

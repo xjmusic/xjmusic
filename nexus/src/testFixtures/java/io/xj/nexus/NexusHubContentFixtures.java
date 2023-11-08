@@ -14,7 +14,7 @@ import java.util.stream.Stream;
  Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
  <p>
  Testing the hypothesis that, while unit tests are all independent,
- integration tests ought be as much about testing all features around a consensus model of the platform
+ integration tests ought to be as much about testing all features around a consensus model of the platform
  as they are about testing all resources.
  */
 @SuppressWarnings("SameParameterValue")
