@@ -261,6 +261,8 @@ class MixerImpl implements Mixer {
       srcPutSpan[p] = (int) ((srcPut[p].getStopAtMicros() - srcPut[p].getStartAtMicros()) / microsPerFrame);
     }
 
+/*
+TODO refactor the following to use the in-memory dub audio cache
     try (
       var fileInputStream = FileUtils.openInputStream(new File(source.getAbsolutePath()));
       var bufferedInputStream = new BufferedInputStream(fileInputStream);
@@ -315,6 +317,7 @@ class MixerImpl implements Mixer {
     } catch (UnsupportedAudioFileException | IOException | FormatException e) {
       throw new MixerException(String.format("Failed to apply Source[%s]", source.getAudioId()), e);
     }
+*/
   }
 
   /**

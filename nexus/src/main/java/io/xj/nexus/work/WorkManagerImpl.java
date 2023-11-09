@@ -136,6 +136,8 @@ public class WorkManagerImpl implements WorkManager {
     this.telemetry = workTelemetry;
   }
 
+  // todo: means of destroying the WorkManager instance on application exit (close button or Fabrication -> Exit)
+
   public static WorkManager createInstance() {
     FileStoreProvider fileStore = new FileStoreProviderImpl();
     BroadcastFactory broadcastFactory = new BroadcastFactoryImpl();
