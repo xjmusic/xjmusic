@@ -261,7 +261,6 @@ class MixerImpl implements Mixer {
       srcPutSpan[p] = (int) ((srcPut[p].getStopAtMicros() - srcPut[p].getStartAtMicros()) / microsPerFrame);
     }
 
-    // TODO don't read input files from beginning every time- we ought to be able to seek to the start of the put
     try (
       var fileInputStream = FileUtils.openInputStream(new File(source.getAbsolutePath()));
       var bufferedInputStream = new BufferedInputStream(fileInputStream);

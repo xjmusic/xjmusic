@@ -162,7 +162,7 @@ public class CraftWorkImpl implements CraftWork {
 
     // if the end of the current segment is before the threshold, require next segment
     Optional<Segment> nextSegment = Optional.empty();
-    if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros) { // todo make sure we don't need the removed bit: + craftAheadSeconds * MICROS_PER_SECOND
+    if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros) {
       nextSegment = segmentManager.readOneById(currentSegments.get(0).getId() + 1);
       if (nextSegment.isEmpty() || Objects.isNull(nextSegment.get().getDurationMicros()) || !SegmentState.CRAFTED.equals(nextSegment.get().getState())) {
         return List.of();
@@ -171,7 +171,7 @@ public class CraftWorkImpl implements CraftWork {
 
     // if the beginning of the current segment is after the threshold, require previous segment
     Optional<Segment> previousSegment = Optional.empty();
-    if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros && currentSegments.get(0).getId() > 0) {  // todo make sure we don't need the removed bit: + craftAheadSeconds * MICROS_PER_SECOND
+    if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros && currentSegments.get(0).getId() > 0) {
       previousSegment = segmentManager.readOneById(currentSegments.get(0).getId() - 1);
       if (previousSegment.isEmpty()) {
         return List.of();

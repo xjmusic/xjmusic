@@ -323,7 +323,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     var pastTimelineWidth = (m1Past - m0) / microsPerPixel.get();
 
     // only animated in sync
-    boolean animate = false;// todo compute fabricationService.isOutputModeSync().getValue();
+    boolean animate = fabricationService.isOutputModeSync().getValue();
 
     // In sync output, like the scroll pane target position, the past region is always moving at a predictable rate,
     // so we set its initial position as well as animation its target, which smooths over some
