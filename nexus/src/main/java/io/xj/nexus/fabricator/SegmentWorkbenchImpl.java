@@ -3,10 +3,10 @@ package io.xj.nexus.fabricator;
 
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.util.StringUtils;
-import io.xj.lib.entity.*;
-import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.entity.*;
+import io.xj.nexus.jsonapi.JsonapiException;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.*;
 import org.slf4j.Logger;

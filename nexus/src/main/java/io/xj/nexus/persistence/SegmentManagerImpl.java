@@ -6,10 +6,10 @@ import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
 import io.xj.hub.util.ValueUtils;
-import io.xj.lib.entity.EntityException;
-import io.xj.lib.entity.EntityUtils;
-import io.xj.lib.entity.common.ChordEntity;
-import io.xj.lib.entity.common.MessageEntity;
+import io.xj.nexus.entity.EntityException;
+import io.xj.nexus.entity.EntityUtils;
+import io.xj.nexus.entity.common.ChordEntity;
+import io.xj.nexus.entity.common.MessageEntity;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.model.*;
@@ -28,7 +28,7 @@ import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 public class SegmentManagerImpl implements SegmentManager {
   static final Logger LOG = LoggerFactory.getLogger(SegmentManagerImpl.class);
   public static final Long LENGTH_MINIMUM_MICROS = MICROS_PER_SECOND;
-  public static final Double AMPLITUDE_MINIMUM = 0.0;
+  public static final float AMPLITUDE_MINIMUM = 0.0f;
   private final NexusEntityStore store;
 
   public SegmentManagerImpl(
@@ -449,7 +449,7 @@ public class SegmentManagerImpl implements SegmentManager {
     if (Objects.nonNull(record.getLengthMicros()))
       ValueUtils.requireMinimum(LENGTH_MINIMUM_MICROS, record.getLengthMicros(), "Length");
     ValueUtils.require(record.getAmplitude(), "Amplitude");
-    ValueUtils.requireMinimum(AMPLITUDE_MINIMUM, record.getAmplitude(), "Amplitude");
+    ValueUtils.requireMinimum((double) AMPLITUDE_MINIMUM, (double) record.getAmplitude(), "Amplitude");
     ValueUtils.require(record.getTones(), "Note");
   }
 
@@ -471,8 +471,8 @@ public class SegmentManagerImpl implements SegmentManager {
   void validateSegment(Segment record) throws ValueException {
     ValueUtils.require(record.getChainId(), "Chain ID");
     ValueUtils.require(record.getId(), "Offset");
-    if (ValueUtils.isEmpty(record.getWaveformPreroll())) record.setWaveformPreroll(0.0);
-    if (ValueUtils.isEmpty(record.getWaveformPostroll())) record.setWaveformPostroll(0.0);
+    if (ValueUtils.isEmpty(record.getWaveformPreroll())) record.setWaveformPreroll(0.0f);
+    if (ValueUtils.isEmpty(record.getWaveformPostroll())) record.setWaveformPostroll(0.0f);
     if (ValueUtils.isEmpty(record.getDelta())) record.setDelta(0);
     ValueUtils.require(record.getType(), "Type");
     ValueUtils.require(record.getState(), "State");

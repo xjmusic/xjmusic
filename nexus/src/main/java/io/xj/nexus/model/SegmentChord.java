@@ -12,7 +12,7 @@ public class SegmentChord {
 
   UUID id;
   Integer segmentId;
-  Double position;
+  float position;
   String name;
 
   /**
@@ -51,18 +51,18 @@ public class SegmentChord {
 
   /**
    **/
-  public SegmentChord position(Double position) {
+  public SegmentChord position(float position) {
     this.position = position;
     return this;
   }
 
 
   @JsonProperty("position")
-  public Double getPosition() {
+  public float getPosition() {
     return position;
   }
 
-  public void setPosition(Double position) {
+  public void setPosition(float position) {
     this.position = position;
   }
 

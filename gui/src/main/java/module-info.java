@@ -28,7 +28,6 @@ module workstation.gui.main {
 
   // private
   requires transitive hub.models.main;
-  requires transitive workstation.lib.main;
   requires transitive workstation.nexus.main;
   requires component.inspector.fx;
     requires java.prefs;

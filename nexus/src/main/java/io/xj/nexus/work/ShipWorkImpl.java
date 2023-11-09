@@ -3,7 +3,7 @@ package io.xj.nexus.work;
 
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.util.StringUtils;
-import io.xj.lib.mixer.AudioFileWriter;
+import io.xj.nexus.mixer.AudioFileWriter;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.model.Segment;

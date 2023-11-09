@@ -15,11 +15,8 @@ plugins {
 
 dependencies {
   // peers
-  implementation project(":lib")
   implementation project(":nexus")
-  testImplementation project(path: ':lib')
   testImplementation project(path: ':nexus')
-  testImplementation(project(':lib').sourceSets.test.output)
   testImplementation(project(':nexus').sourceSets.test.output)
   // private
   implementation "io.xj:models:${xjModelsVersion}"

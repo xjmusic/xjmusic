@@ -2,11 +2,11 @@
 package io.xj.nexus.work;
 
 import io.xj.hub.HubContent;
-import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.nexus.entity.EntityFactoryImpl;
+import io.xj.nexus.filestore.FileStoreProvider;
+import io.xj.nexus.json.JsonProviderImpl;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
@@ -100,7 +100,7 @@ public class ComplexLibraryTest {
       audioBaseUrl,
       shipBaseUrl,
       "/tmp",
-      48000.0,
+      48000.0f,
       1000
     );
   }

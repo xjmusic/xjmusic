@@ -14,7 +14,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
-import javafx.beans.value.ObservableDoubleValue;
+import javafx.beans.value.ObservableFloatValue;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 
@@ -102,11 +102,11 @@ public interface FabricationService {
 
   String formatTotalBars(Segment segment, @Nullable Integer beats);
 
-  String formatPositionBarBeats(Segment segment, @Nullable Double position);
+  String formatPositionBarBeats(Segment segment, @Nullable Float position);
 
   BooleanProperty followPlaybackProperty();
 
-  ObservableDoubleValue progressProperty();
+  ObservableFloatValue progressProperty();
 
   ObservableBooleanValue isOutputModeSync();
 

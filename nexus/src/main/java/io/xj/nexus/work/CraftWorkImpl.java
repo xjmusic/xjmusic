@@ -10,8 +10,8 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
-import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.nexus.entity.EntityFactory;
+import io.xj.nexus.filestore.FileStoreProvider;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.OutputMode;
@@ -52,7 +52,7 @@ public class CraftWorkImpl implements CraftWork {
   long nextMedicMillis = System.currentTimeMillis();
   final InputMode inputMode;
   final String tempFilePathPrefix;
-  final double outputFrameRate;
+  final float outputFrameRate;
   final int outputChannels;
   final String audioBaseUrl;
   final String shipBaseUrl;
@@ -77,7 +77,7 @@ public class CraftWorkImpl implements CraftWork {
     String audioBaseUrl,
     String shipBaseUrl,
     String tempFilePathPrefix,
-    double outputFrameRate,
+    float outputFrameRate,
     int outputChannels
   ) {
     this.telemetry = telemetry;
@@ -375,7 +375,7 @@ public class CraftWorkImpl implements CraftWork {
       // currently fabricated AT (vs target fabricated TO)
       var atChainMicros = ChainUtils.computeFabricatedToChainMicros(segmentManager.readAll());
 
-      double aheadSeconds = (double) ((atChainMicros - toChainMicros) / MICROS_PER_SECOND);
+      float aheadSeconds = (float) ((atChainMicros - toChainMicros) / MICROS_PER_SECOND);
 
       var templateConfig = getTemplateConfig();
       if (templateConfig.isEmpty()) return;

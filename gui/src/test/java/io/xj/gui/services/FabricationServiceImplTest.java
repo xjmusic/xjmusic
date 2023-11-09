@@ -41,7 +41,7 @@ class FabricationServiceImplTest {
   private final String defaultMacroMode = MacroMode.AUTO.toString();
   String defaultInputMode = InputMode.PRODUCTION.toString();
   String defaultOutputFileMode = OutputFileMode.CONTINUOUS.toString();
-  double defaultOutputFrameRate = 48000;
+  float defaultOutputFrameRate = 48000;
   String defaultOutputMode = OutputMode.PLAYBACK.toString();
   int defaultOutputSeconds = 300;
 
@@ -107,18 +107,18 @@ class FabricationServiceImplTest {
   @Test
   void formatPositionBarBeats() throws ManagerFatalException {
     var segment4 = prepareSegmentManager(4);
-    assertEquals("1.1", subject.formatPositionBarBeats(segment4, 0.0));
-    assertEquals("2.1", subject.formatPositionBarBeats(segment4, 4.0));
-    assertEquals("2.2", subject.formatPositionBarBeats(segment4, 5.0));
-    assertEquals("2.3", subject.formatPositionBarBeats(segment4, 6.0));
-    assertEquals("2.3.5", subject.formatPositionBarBeats(segment4, 6.5));
-    assertEquals("2.3.523", subject.formatPositionBarBeats(segment4, 6.523));
-    assertEquals("3.1", subject.formatPositionBarBeats(segment4, 8.0));
-    assertEquals("4.1", subject.formatPositionBarBeats(segment4, 12.0));
+    assertEquals("1.1", subject.formatPositionBarBeats(segment4, 0.0f));
+    assertEquals("2.1", subject.formatPositionBarBeats(segment4, 4.0f));
+    assertEquals("2.2", subject.formatPositionBarBeats(segment4, 5.0f));
+    assertEquals("2.3", subject.formatPositionBarBeats(segment4, 6.0f));
+    assertEquals("2.3.5", subject.formatPositionBarBeats(segment4, 6.5f));
+    assertEquals("2.3.523", subject.formatPositionBarBeats(segment4, 6.523f));
+    assertEquals("3.1", subject.formatPositionBarBeats(segment4, 8.0f));
+    assertEquals("4.1", subject.formatPositionBarBeats(segment4, 12.0f));
 
     var segment3 = prepareSegmentManager(3);
-    assertEquals("5.1", subject.formatPositionBarBeats(segment3, 12.0));
-    assertEquals("5.3.5", subject.formatPositionBarBeats(segment3, 14.5));
+    assertEquals("5.1", subject.formatPositionBarBeats(segment3, 12.0f));
+    assertEquals("5.3.5", subject.formatPositionBarBeats(segment3, 14.5f));
   }
 
   private Segment prepareSegmentManager(int barBeats) throws ManagerFatalException {
@@ -128,8 +128,8 @@ class FabricationServiceImplTest {
       SegmentState.PLANNED,
       "C",
       8,
-      0.8,
-      120.0,
+      0.8f,
+      120.0f,
       "chain-segment-0.wav");
     var program = buildMainProgramWithBarBeats(barBeats);
     var sourceMaterial = new HubContent(List.of(program));

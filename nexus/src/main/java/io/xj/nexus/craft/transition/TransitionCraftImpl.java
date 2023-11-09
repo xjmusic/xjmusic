@@ -51,7 +51,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
       .map(SegmentChoice::getInstrumentId)
       .collect(Collectors.toList());
 
-    double targetDensity = isBigTransitionSegment() ? fabricator.getTemplateConfig().getDensityCeiling() : fabricator.getSegment().getDensity();
+    float targetDensity = isBigTransitionSegment() ? (float) fabricator.getTemplateConfig().getDensityCeiling() : fabricator.getSegment().getDensity();
 
     int targetLayers = (int) Math.floor(
       fabricator.getTemplateConfig().getTransitionLayerMin() +
@@ -174,7 +174,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     pick.setSegmentChoiceArrangementId(arrangement.getId());
     pick.setStartAtSegmentMicros(startAtSegmentMicros);
     pick.setLengthMicros(lengthMicros);
-    pick.setAmplitude(1.0);
+    pick.setAmplitude(1.0f);
     pick.setEvent(name);
     pick.setInstrumentAudioId(audio.getId());
     fabricator.put(pick);

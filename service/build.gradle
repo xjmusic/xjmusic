@@ -17,9 +17,6 @@ apply plugin: 'java'
 
 dependencies {
   // peers
-  implementation project(":lib")
-  testImplementation project(path: ':lib')
-  testImplementation(project(':lib').sourceSets.test.output)
   implementation project(":nexus")
   testImplementation project(path: ':nexus')
   testImplementation(project(':nexus').sourceSets.test.output)

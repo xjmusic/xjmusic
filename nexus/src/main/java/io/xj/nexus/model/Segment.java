@@ -28,11 +28,11 @@ public class Segment {
   Long durationMicros;
   String key;
   Integer total;
-  Double density;
-  Double tempo;
+  float density;
+  float tempo;
   String storageKey;
-  Double waveformPreroll;
-  Double waveformPostroll;
+  float waveformPreroll;
+  float waveformPostroll;
   Integer delta;
   String createdAt;
   String updatedAt;
@@ -182,35 +182,35 @@ public class Segment {
 
   /**
    **/
-  public Segment density(Double density) {
+  public Segment density(float density) {
     this.density = density;
     return this;
   }
 
 
   @JsonProperty("density")
-  public Double getDensity() {
+  public float getDensity() {
     return density;
   }
 
-  public void setDensity(Double density) {
+  public void setDensity(float density) {
     this.density = density;
   }
 
   /**
    **/
-  public Segment tempo(Double tempo) {
+  public Segment tempo(float tempo) {
     this.tempo = tempo;
     return this;
   }
 
 
   @JsonProperty("tempo")
-  public Double getTempo() {
+  public float getTempo() {
     return tempo;
   }
 
-  public void setTempo(Double tempo) {
+  public void setTempo(float tempo) {
     this.tempo = tempo;
   }
 
@@ -233,27 +233,27 @@ public class Segment {
 
   /**
    **/
-  public Segment waveformPreroll(Double waveformPreroll) {
+  public Segment waveformPreroll(float waveformPreroll) {
     this.waveformPreroll = waveformPreroll;
     return this;
   }
 
 
   @JsonProperty("waveformPreroll")
-  public Double getWaveformPreroll() {
+  public float getWaveformPreroll() {
     return waveformPreroll;
   }
 
-  public void setWaveformPreroll(Double waveformPreroll) {
+  public void setWaveformPreroll(float waveformPreroll) {
     this.waveformPreroll = waveformPreroll;
   }
 
   @JsonProperty("waveformPostroll")
-  public Double getWaveformPostroll() {
+  public float getWaveformPostroll() {
     return waveformPostroll;
   }
 
-  public void setWaveformPostroll(Double waveformPostroll) {
+  public void setWaveformPostroll(float waveformPostroll) {
     this.waveformPostroll = waveformPostroll;
   }
 

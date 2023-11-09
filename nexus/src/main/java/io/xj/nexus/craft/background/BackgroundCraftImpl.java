@@ -20,8 +20,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-
 /**
  Background craft for the current segment
  <p>
@@ -101,7 +99,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
     pick.setSegmentChoiceArrangementId(arrangement.getId());
     pick.setStartAtSegmentMicros(0L);
     pick.setLengthMicros(fabricator.getTotalSegmentMicros());
-    pick.setAmplitude(1.0);
+    pick.setAmplitude(1.0f);
     pick.setEvent("BACKGROUND");
     pick.setInstrumentAudioId(audio.get().getId());
     fabricator.put(pick);

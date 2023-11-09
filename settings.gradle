@@ -4,7 +4,6 @@ rootProject.name = 'workstation'
 
 String[] modules = [
   'gui',
-  'lib',
   'nexus',
   'service',
 ]

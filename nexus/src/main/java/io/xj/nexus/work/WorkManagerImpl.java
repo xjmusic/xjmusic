@@ -6,26 +6,26 @@ import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
-import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.lib.filestore.FileStoreProviderImpl;
-import io.xj.lib.http.HttpClientProvider;
-import io.xj.lib.http.HttpClientProviderImpl;
-import io.xj.lib.json.JsonProvider;
-import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.lib.mixer.EnvelopeProvider;
-import io.xj.lib.mixer.EnvelopeProviderImpl;
-import io.xj.lib.mixer.MixerFactory;
-import io.xj.lib.mixer.MixerFactoryImpl;
+import io.xj.nexus.entity.EntityFactory;
+import io.xj.nexus.entity.EntityFactoryImpl;
+import io.xj.nexus.filestore.FileStoreProvider;
+import io.xj.nexus.filestore.FileStoreProviderImpl;
+import io.xj.nexus.http.HttpClientProvider;
+import io.xj.nexus.http.HttpClientProviderImpl;
+import io.xj.nexus.json.JsonProvider;
+import io.xj.nexus.json.JsonProviderImpl;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.nexus.mixer.EnvelopeProvider;
+import io.xj.nexus.mixer.EnvelopeProviderImpl;
+import io.xj.nexus.mixer.MixerFactory;
+import io.xj.nexus.mixer.MixerFactoryImpl;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
-import io.xj.nexus.dub.DubAudioCache;
-import io.xj.nexus.dub.DubAudioCacheImpl;
+import io.xj.nexus.audio_cache.DubAudioCache;
+import io.xj.nexus.audio_cache.DubAudioCacheImpl;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.hub_client.*;
@@ -52,6 +52,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+import static io.xj.hub.util.StringUtils.formatStackTrace;
 import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 public class WorkManagerImpl implements WorkManager {
@@ -156,7 +157,7 @@ public class WorkManagerImpl implements WorkManager {
       jsonProvider
     );
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider);
+    MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider, dubAudioCache);
     HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
@@ -512,7 +513,7 @@ public class WorkManagerImpl implements WorkManager {
    @param e        exception (optional)
    */
   void didFailWhile(String msgWhile, Exception e) {
-    LOG.error("Failed while {}", msgWhile, e);
+    LOG.error("Failed while {}: {}", msgWhile, formatStackTrace(e), e);
     // This will cascade-send the finish() instruction to dub and ship
     if (Objects.nonNull(shipWork)) {
       shipWork.finish();

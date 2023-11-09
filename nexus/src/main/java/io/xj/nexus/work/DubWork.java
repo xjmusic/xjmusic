@@ -2,7 +2,7 @@
 package io.xj.nexus.work;
 
 import io.xj.hub.tables.pojos.Program;
-import io.xj.lib.mixer.BytePipeline;
+import io.xj.nexus.mixer.BytePipeline;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 

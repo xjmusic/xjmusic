@@ -9,7 +9,7 @@ import io.xj.hub.tables.pojos.AccountUser;
 import io.xj.hub.tables.pojos.User;
 import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.hub.util.CsvUtils;
-import io.xj.lib.entity.EntityUtils;
+import io.xj.nexus.entity.EntityUtils;
 import jakarta.annotation.Nullable;
 
 import java.util.*;

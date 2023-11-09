@@ -12,21 +12,26 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class ActiveAudio {
-  final InstrumentConfig instrumentConfig;
-  SegmentChoiceArrangementPick pick;
-  final InstrumentAudio audio;
-  final Long startAtMicros;
+  // TODO evaluate how many of these properties are actually needed
+  private final InstrumentConfig instrumentConfig;
+  private final SegmentChoiceArrangementPick pick;
+  private final InstrumentAudio audio;
+  private final Long startAtMixerMicros;
   @Nullable
-  final Long stopAtMicros;
-  MixerPickState state;
-  final Instrument instrument;
+  private final Long stopAtMixerMicros;
+  private final MixerPickState state;
+  private final Instrument instrument;
+  private final float amplitude;
 
-  public ActiveAudio(SegmentChoiceArrangementPick pick, Instrument instrument, InstrumentAudio audio, Long startAtMicros, @Nullable Long stopAtMicros) {
+  public ActiveAudio(SegmentChoiceArrangementPick pick, Instrument instrument, InstrumentAudio audio, Long startAtMixerMicros, @Nullable Long stopAtMixerMicros) {
     this.pick = pick;
     this.audio = audio;
-    this.startAtMicros = startAtMicros;
-    this.stopAtMicros = stopAtMicros;
+    this.startAtMixerMicros = startAtMixerMicros;
+    this.stopAtMixerMicros = stopAtMixerMicros;
     this.instrument = instrument;
+
+    // computed
+    this.amplitude = pick.getAmplitude();
     this.instrumentConfig = new InstrumentConfig(instrument);
     state = MixerPickState.PLANNED;
   }
@@ -47,12 +52,12 @@ public class ActiveAudio {
     return instrumentConfig;
   }
 
-  public Long getStartAtMicros() {
-    return startAtMicros;
+  public Long getStartAtMixerMicros() {
+    return startAtMixerMicros;
   }
 
-  public Optional<Long> getStopAtMicros() {
-    return Optional.ofNullable(stopAtMicros);
+  public Optional<Long> getStopAtMixerMicros() {
+    return Optional.ofNullable(stopAtMixerMicros);
   }
 
   public InstrumentAudio getAudio() {
@@ -73,5 +78,9 @@ public class ActiveAudio {
 
   public int getReleaseMillis() {
     return instrumentConfig.getReleaseMillis();
+  }
+
+  public float getAmplitude() {
+    return amplitude;
   }
 }

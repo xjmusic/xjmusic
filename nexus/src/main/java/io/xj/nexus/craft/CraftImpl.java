@@ -6,8 +6,8 @@ import io.xj.hub.enums.*;
 import io.xj.hub.music.*;
 import io.xj.hub.tables.pojos.*;
 import io.xj.hub.util.*;
-import io.xj.lib.entity.EntityUtils;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.entity.EntityUtils;
 import io.xj.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
@@ -71,7 +71,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param value   to test for within bounds
    @return true if value is within bounds (inclusive)
    */
-  static boolean inBounds(Integer floor, Integer ceiling, double value) {
+  static boolean inBounds(Integer floor, Integer ceiling, float value) {
     if (DELTA_UNLIMITED == floor && DELTA_UNLIMITED == ceiling) return true;
     if (DELTA_UNLIMITED == floor && value <= ceiling) return true;
     if (DELTA_UNLIMITED == ceiling && value >= floor) return true;
@@ -425,10 +425,10 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param defaultAtonal whether to default to a single atonal note, if no voicings are available
    @throws NexusException on failure
    */
-  void craftNoteEventSection(SegmentChoice choice, double fromPos, double maxPos, NoteRange range, boolean defaultAtonal) throws NexusException {
+  void craftNoteEventSection(SegmentChoice choice, float fromPos, float maxPos, NoteRange range, boolean defaultAtonal) throws NexusException {
 
     // begin at the beginning and fabricate events for the segment of beginning to end
-    double curPos = fromPos;
+    float curPos = fromPos;
 
     // choose loop patterns until arrive at the out point or end of segment
     while (curPos < maxPos) {
@@ -450,9 +450,9 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param defaultAtonal whether to default to a single atonal note, if no voicings are available
    @return deltaPos of start, after crafting this batch of pattern events
    */
-  double craftPatternEvents(SegmentChoice choice, ProgramSequencePattern pattern, double fromPosition, double toPosition, NoteRange range, boolean defaultAtonal) throws NexusException {
+  float craftPatternEvents(SegmentChoice choice, ProgramSequencePattern pattern, float fromPosition, float toPosition, NoteRange range, boolean defaultAtonal) throws NexusException {
     if (Objects.isNull(pattern)) throw new NexusException("Cannot craft create null pattern");
-    double totalBeats = toPosition - fromPosition;
+    float totalBeats = toPosition - fromPosition;
     List<ProgramSequencePatternEvent> events = fabricator.sourceMaterial().getEvents(pattern);
 
     var arrangement = new SegmentChoiceArrangement();
@@ -479,14 +479,14 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param range         used to keep voicing in the tightest range possible
    @param defaultAtonal whether to default to a single atonal note, if no voicings are available
    */
-  void pickNotesAndInstrumentAudioForEvent(Instrument instrument, SegmentChoice choice, SegmentChoiceArrangement arrangement, double fromPosition, double toPosition, ProgramSequencePatternEvent event, NoteRange range, boolean defaultAtonal) throws NexusException {
+  void pickNotesAndInstrumentAudioForEvent(Instrument instrument, SegmentChoice choice, SegmentChoiceArrangement arrangement, float fromPosition, float toPosition, ProgramSequencePatternEvent event, NoteRange range, boolean defaultAtonal) throws NexusException {
     // Segment position is expressed in beats
-    double segmentPosition = fromPosition + event.getPosition();
+    float segmentPosition = fromPosition + event.getPosition();
 
     // Should never place segment events outside of segment time range https://www.pivotaltracker.com/story/show/180245354
     if (segmentPosition < 0 || segmentPosition >= fabricator.getSegment().getTotal()) return;
 
-    double duration = Math.min(event.getDuration(), toPosition - segmentPosition);
+    float duration = Math.min(event.getDuration(), toPosition - segmentPosition);
     var chord = fabricator.getChordAt(segmentPosition);
     Optional<SegmentChordVoicing> voicing = chord.isPresent() ? fabricator.getVoicing(chord.get(), instrument.getType()) : Optional.empty();
 
@@ -561,9 +561,9 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param segmentPosition at which to compute
    @return volume ratio
    */
-  double computeVolumeRatioForPickedNote(SegmentChoice choice, double segmentPosition) {
-    if (!fabricator.getTemplateConfig().isDeltaArcEnabled()) return 1.0;
-    return inBounds(choice.getDeltaIn(), choice.getDeltaOut(), fabricator.getSegment().getDelta() + segmentPosition) ? 1.0 : 0.0;
+  float computeVolumeRatioForPickedNote(SegmentChoice choice, float segmentPosition) {
+    if (!fabricator.getTemplateConfig().isDeltaArcEnabled()) return 1.0f;
+    return inBounds(choice.getDeltaIn(), choice.getDeltaOut(), fabricator.getSegment().getDelta() + segmentPosition) ? 1.0f : 0.0f;
   }
 
   /**
@@ -686,7 +686,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     Long startAtSegmentMicros,
     @Nullable Long lengthMicros,
     @Nullable UUID segmentChordVoicingId,
-    double volRatio
+    float volRatio
   ) throws NexusException {
     var audio = fabricator.getInstrumentConfig(instrument).isMultiphonic() ? selectMultiphonicInstrumentAudio(instrument, event, note) : selectMonophonicInstrumentAudio(instrument, event);
 
@@ -1104,8 +1104,8 @@ public class CraftImpl extends FabricationWrapperImpl {
   static class Section {
 
     public SegmentChord chord;
-    public double fromPos;
-    public double toPos;
+    public float fromPos;
+    public float toPos;
   }
 
   /**

@@ -53,13 +53,13 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    @param mainSequence  of which to compute segment tempo
    @return density
    */
-  double computeSegmentDensity(Integer delta, @Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
+  float computeSegmentDensity(Integer delta, @Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
     return ValueUtils.limitDecimalPrecision(ValueUtils.interpolate(
       fabricator.getTemplateConfig().getDensityFloor(),
       fabricator.getTemplateConfig().getDensityCeiling(),
-      (double) delta / fabricator.getTemplateConfig().getMainProgramLengthMaxDelta(),
+      (float) delta / fabricator.getTemplateConfig().getMainProgramLengthMaxDelta(),
       computeDensity(macroSequence, mainSequence)
-    ));
+    )).floatValue();
   }
 
   /**
@@ -152,7 +152,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
           SegmentChord chord = new SegmentChord();
           chord.setId(UUID.randomUUID());
           chord.setSegmentId(fabricator.getSegment().getId());
-          chord.setPosition(sequenceChord.getPosition());
+          chord.setPosition(sequenceChord.getPosition().floatValue());
           chord.setName(name);
           fabricator.put(chord);
           for (var voicing : fabricator.sourceMaterial().getVoicings(sequenceChord)) {
@@ -171,7 +171,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     if (mainSequence.isPresent()) {
       var seg = fabricator.getSegment();
       seg.setType(fabricator.getType());
-      seg.setTempo(Double.valueOf(mainProgram.getTempo()));
+      seg.setTempo(mainProgram.getTempo());
       seg.setKey(computeSegmentKey(mainSequence.get()).strip());
       seg.setTotal(Integer.valueOf(mainSequence.get().getTotal()));
       fabricator.putSegment(seg);

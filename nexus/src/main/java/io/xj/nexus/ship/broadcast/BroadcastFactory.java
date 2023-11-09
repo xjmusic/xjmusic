@@ -2,7 +2,7 @@
 package io.xj.nexus.ship.broadcast;
 
 
-import io.xj.lib.mixer.AudioFileWriter;
+import io.xj.nexus.mixer.AudioFileWriter;
 
 import javax.sound.sampled.AudioFormat;
 

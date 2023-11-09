@@ -5,11 +5,8 @@ import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.util.StringUtils;
-import io.xj.lib.filestore.FileStoreException;
-import io.xj.lib.mixer.*;
-import io.xj.nexus.NexusException;
-import io.xj.nexus.dub.DubAudioCache;
-import io.xj.nexus.mixer.ActiveAudio;
+import io.xj.nexus.audio_cache.DubAudioCache;
+import io.xj.nexus.mixer.*;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import jakarta.annotation.Nullable;
@@ -18,11 +15,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
@@ -42,8 +38,6 @@ public class DubWorkImpl implements DubWork {
   final WorkTelemetry telemetry;
   final CraftWork craftWork;
   final DubAudioCache dubAudioCache;
-  final Map<InstrumentType, Integer> instrumentBusNumber = new ConcurrentHashMap<>();
-  final Map<UUID, ActiveAudio> mixerActiveAudio = new ConcurrentHashMap<>();
   final MixerFactory mixerFactory;
   final int mixerLengthSeconds;
   final long mixerLengthMicros;
@@ -261,14 +255,13 @@ public class DubWorkImpl implements DubWork {
             LOG.warn("No Instrument for SegmentChoiceArrangementPick[{}] and InstrumentAudio[{}]", pick.getId(), audio.get().getId());
             return Stream.empty();
           }
-          return Stream.of(new ActiveAudio(pick, instrument.get(), audio.get(), startAtChainMicros, stopAtMicros));
+          return Stream.of(new ActiveAudio(pick, instrument.get(), audio.get(), startAtChainMicros - chunkFromChainMicros, Objects.nonNull(stopAtMicros) ? stopAtMicros - chunkFromChainMicros : null));
         })).toList();
 
       telemetry.markTimerSection(TIMER_SECTION_DUB_SETUP);
-      mixerSetAll(activeAudios);
       try {
         telemetry.markTimerSection(TIMER_SECTION_DUB_MIX);
-        mixer.mix();
+        mixer.mix(activeAudios);
       } catch (IOException e) {
         LOG.debug("Cannot send to output because BytePipeline {}", e.getMessage());
         finish();
@@ -297,111 +290,25 @@ public class DubWorkImpl implements DubWork {
     MixerConfig config = new MixerConfig(audioFormat)
       .setTotalSeconds(mixerLengthSeconds)
       .setTotalBuses(InstrumentType.values().length)
-      .setCompressAheadSeconds(templateConfig.getMixerCompressAheadSeconds())
-      .setCompressDecaySeconds(templateConfig.getMixerCompressDecaySeconds())
-      .setCompressRatioMax(templateConfig.getMixerCompressRatioMax())
-      .setCompressRatioMin(templateConfig.getMixerCompressRatioMin())
-      .setCompressToAmplitude(templateConfig.getMixerCompressToAmplitude())
+      .setCompressAheadSeconds((float) templateConfig.getMixerCompressAheadSeconds())
+      .setCompressDecaySeconds((float) templateConfig.getMixerCompressDecaySeconds())
+      .setCompressRatioMax((float) templateConfig.getMixerCompressRatioMax())
+      .setCompressRatioMin((float) templateConfig.getMixerCompressRatioMin())
+      .setCompressToAmplitude((float) templateConfig.getMixerCompressToAmplitude())
       .setDSPBufferSize(templateConfig.getMixerDspBufferSize())
-      .setHighpassThresholdHz(templateConfig.getMixerHighpassThresholdHz())
-      .setLowpassThresholdHz(templateConfig.getMixerLowpassThresholdHz())
-      .setNormalizationBoostThreshold(templateConfig.getMixerNormalizationBoostThreshold())
-      .setNormalizationCeiling(templateConfig.getMixerNormalizationCeiling());
+      .setHighpassThresholdHz((float) templateConfig.getMixerHighpassThresholdHz())
+      .setLowpassThresholdHz((float) templateConfig.getMixerLowpassThresholdHz())
+      .setNormalizationBoostThreshold((float) templateConfig.getMixerNormalizationBoostThreshold())
+      .setNormalizationCeiling((float) templateConfig.getMixerNormalizationCeiling())
+      .setContentStoragePathPrefix(contentStoragePathPrefix)
+      .setAudioBaseUrl(audioBaseUrl);
 
     var M = mixerFactory.createMixer(config);
     LOG.info("Created mixer with config {}", config);
     for (var instrumentType : InstrumentType.values())
-      M.setBusLevel(mixerGetBusNumber(instrumentType), templateConfig.getDubMasterVolume(instrumentType));
+      M.setBusLevel(M.getBusNumber(instrumentType), (float) templateConfig.getDubMasterVolume(instrumentType));
 
     return M;
-  }
-
-  /**
-   Mixer set all active audios, remove any that are no longer active
-
-   @param activeAudios to set up
-   */
-  void mixerSetAll(List<ActiveAudio> activeAudios) {
-    for (ActiveAudio active : activeAudios) {
-      LOG.debug("----------> ADD @{} {} {}", (float) active.getStartAtMicros() / MICROS_PER_SECOND, active.getInstrument().getName(), active.getAudio().getName());
-      mixerSetupTarget(active);
-      mixerActiveAudio.put(active.getId(), active);
-    }
-    // garbage collect any active audios that are no longer active
-    var activeIds = activeAudios.stream().map(ActiveAudio::getId).collect(Collectors.toSet());
-    for (ActiveAudio active : mixerActiveAudio.values().stream().filter(aa -> !activeIds.contains(aa.getId())).toList()) {
-      LOG.debug("----------> DEL {} {}", active.getInstrument().getName(), active.getAudio().getName());
-      mixerRemoveTarget(active);
-      mixerActiveAudio.remove(active.getId());
-    }
-  }
-
-  final AtomicInteger computedBusNumber = new AtomicInteger(0);
-
-  /**
-   Set playback for a pick
-   <p>
-   [#341] Dub process takes into account the start offset of each audio, in order to ensure that it is mixed such that the hit is exactly on the meter
-   Dubbed audio can begin before segment start https://www.pivotaltracker.com/story/show/165799913
-   - During dub work, output audio includes the head start, and `waveform_preroll` value is persisted to segment
-   Duration of events should include segment preroll https://www.pivotaltracker.com/story/show/171224848
-
-   @param active audio to setup
-   */
-  private void mixerSetupTarget(ActiveAudio active) {
-    if (Objects.isNull(mixer)) return;
-    try {
-      String key = active.getAudio().getWaveformKey();
-      if (StringUtils.isNullOrEmpty(key)) return;
-      if (!mixer.hasLoadedSource(active.getAudio().getId())) {
-        mixer.loadSource(
-          active.getAudio().getId(),
-          dubAudioCache.load(
-            contentStoragePathPrefix,
-            audioBaseUrl,
-            active.getInstrument().getId(),
-            key,
-            (int) mixer.getAudioFormat().getFrameRate(),
-            mixer.getAudioFormat().getSampleSizeInBits(),
-            mixer.getAudioFormat().getChannels()),
-          active.getAudio().getName()
-        );
-      }
-      mixer.put(
-        active.getId(),
-        active.getAudio().getId(),
-        mixerGetBusNumber(active.getInstrument().getType()),
-        active.getStartAtMicros(),
-        active.getStopAtMicros().orElse(active.getStartAtMicros() + mixer.getSource(active.getAudio().getId()).getLengthMicros()),
-        active.getPick().getAmplitude() * active.getAudioVolume(),
-        active.getAttackMillis(),
-        active.getReleaseMillis());
-
-    } catch (FormatException | NexusException | FileStoreException | SourceException | IOException | PutException e) {
-      LOG.error("Failed to setup mixer target for {} because {}", active, e.getCause().getMessage());
-    }
-  }
-
-  /**
-   Remove a source put from the mixer
-
-   @param active audio to remove
-   */
-  void mixerRemoveTarget(ActiveAudio active) {
-    if (Objects.isNull(mixer)) return;
-    mixer.del(active.getId());
-  }
-
-  /**
-   Assign a bus number to an instrument type, in no particular order
-
-   @param instrumentType for which to get bus number
-   @return bus number
-   */
-  int mixerGetBusNumber(InstrumentType instrumentType) {
-    if (!instrumentBusNumber.containsKey(instrumentType))
-      instrumentBusNumber.put(instrumentType, computedBusNumber.getAndIncrement());
-    return instrumentBusNumber.get(instrumentType);
   }
 
   /**

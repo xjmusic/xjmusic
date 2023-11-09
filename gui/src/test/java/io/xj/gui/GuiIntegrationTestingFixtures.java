@@ -6,8 +6,8 @@ import io.xj.hub.enums.*;
 import io.xj.hub.tables.pojos.*;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueUtils;
-import io.xj.lib.entity.EntityException;
-import io.xj.lib.entity.EntityUtils;
+import io.xj.nexus.entity.EntityException;
+import io.xj.nexus.entity.EntityUtils;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.hub_client.access.Users;
 import io.xj.nexus.model.*;
@@ -26,8 +26,8 @@ import java.util.*;
  */
 public class GuiIntegrationTestingFixtures {
   static final Logger LOG = LoggerFactory.getLogger(GuiIntegrationTestingFixtures.class);
-  static final double RANDOM_VALUE_FROM = 0.3;
-  static final double RANDOM_VALUE_TO = 0.8;
+  static final float RANDOM_VALUE_FROM = 0.3f;
+  static final float RANDOM_VALUE_TO = 0.8f;
 
   // These are fully exposed (no getters/setters) for ease of use in testing
   public Account account1;
@@ -235,7 +235,7 @@ public class GuiIntegrationTestingFixtures {
    @param B ceiling
    @return A <= value <= B
    */
-  protected static Float random(double A, double B) {
+  protected static Float random(float A, float B) {
     return (float) (A + StrictMath.random() * (B - A));
   }
 
@@ -303,14 +303,14 @@ public class GuiIntegrationTestingFixtures {
     return seg;
   }
 
-  public static Segment buildSegment(Chain chain, int offset, SegmentState state, String key, int total, double density, double tempo, String storageKey) {
+  public static Segment buildSegment(Chain chain, int offset, SegmentState state, String key, int total, float density, float tempo, String storageKey) {
     return buildSegment(chain,
       0 < offset ? SegmentType.CONTINUE : SegmentType.INITIAL,
       offset, 0, state, key, total, density, tempo, storageKey, state == SegmentState.CRAFTED);
   }
 
 
-  public static Segment buildSegment(Chain chain, SegmentType type, int id, int delta, SegmentState state, String key, int total, double density, double tempo, String storageKey, boolean hasEndSet) {
+  public static Segment buildSegment(Chain chain, SegmentType type, int id, int delta, SegmentState state, String key, int total, float density, float tempo, String storageKey, boolean hasEndSet) {
     var segment = new Segment();
     segment.setChainId(chain.getId());
     segment.setType(type);
@@ -323,8 +323,8 @@ public class GuiIntegrationTestingFixtures {
     segment.setDensity(density);
     segment.setTempo(tempo);
     segment.setStorageKey(storageKey);
-    segment.setWaveformPreroll(0.0);
-    segment.setWaveformPostroll(0.0);
+    segment.setWaveformPreroll(0.0f);
+    segment.setWaveformPostroll(0.0f);
 
     var durationMicros = (long) (ValueUtils.MICROS_PER_SECOND * total * ValueUtils.SECONDS_PER_MINUTE / tempo);
     if (hasEndSet)
@@ -459,7 +459,7 @@ public class GuiIntegrationTestingFixtures {
     return segmentMeme;
   }
 
-  public static SegmentChord buildSegmentChord(Segment segment, Double atPosition, String name) {
+  public static SegmentChord buildSegmentChord(Segment segment, float atPosition, String name) {
     var segmentChord = new SegmentChord();
     segmentChord.setId(UUID.randomUUID());
     segmentChord.setSegmentId(segment.getId());
@@ -1043,7 +1043,7 @@ public class GuiIntegrationTestingFixtures {
       add(entities, GuiHubIntegrationTestingFixtures.buildInstrumentMeme(instrument, minorMemeName));
       // audios of instrument
       for (int k = 0; k < N; k++)
-        add(entities, GuiHubIntegrationTestingFixtures.buildAudio(instrument, StringUtils.toProper(percussiveNames[k]), String.format("%s.wav", StringUtils.toLowerSlug(percussiveNames[k])), random(0, 0.05), random(0.25, 2), random(80, 120), 0.62f, percussiveNames[k], "X", random(0.8, 1)));
+        add(entities, GuiHubIntegrationTestingFixtures.buildAudio(instrument, StringUtils.toProper(percussiveNames[k]), String.format("%s.wav", StringUtils.toLowerSlug(percussiveNames[k])), random(0, 0.05f), random(0.25f, 2), random(80, 120), 0.62f, percussiveNames[k], "X", random(0.8f, 1)));
       //
       LOG.debug("Generated Drum-type Instrument id={}, minorMeme={}, majorMeme={}", instrument.getId(), minorMemeName, majorMemeName);
     }
@@ -1063,7 +1063,7 @@ public class GuiIntegrationTestingFixtures {
       String[] twoKeys = listOfUniqueRandom(2, LoremIpsum.MUSICAL_KEYS);
       String keyFrom = twoKeys[0];
       String keyTo = twoKeys[1];
-      float densityFrom = random(0.3, 0.9);
+      float densityFrom = random(0.3f, 0.9f);
       float tempoFrom = random(80, 120);
       //
       Program program = add(entities, GuiHubIntegrationTestingFixtures.buildProgram(library1, ProgramType.Macro, ProgramState.Published, String.format("%s, create %s to %s", minorMemeName, majorMemeFromName, majorMemeToName), keyFrom, tempoFrom, 0.6f));
@@ -1073,7 +1073,7 @@ public class GuiIntegrationTestingFixtures {
       var binding0 = add(entities, GuiHubIntegrationTestingFixtures.buildProgramSequenceBinding(sequence0, 0));
       add(entities, GuiHubIntegrationTestingFixtures.buildProgramSequenceBindingMeme(binding0, majorMemeFromName));
       // to offset 1
-      float densityTo = random(0.3, 0.9);
+      float densityTo = random(0.3f, 0.9f);
       var sequence1 = add(entities, GuiHubIntegrationTestingFixtures.buildSequence(program, 0, String.format("Finish %s", majorMemeToName), densityTo, keyTo));
       var binding1 = add(entities, GuiHubIntegrationTestingFixtures.buildProgramSequenceBinding(sequence1, 1));
       add(entities, GuiHubIntegrationTestingFixtures.buildProgramSequenceBindingMeme(binding1, majorMemeToName));
@@ -1119,7 +1119,7 @@ public class GuiIntegrationTestingFixtures {
       String majorMemeName = majorMemeNames[i];
       float tempo = random(80, 120);
       String key = random(LoremIpsum.MUSICAL_KEYS);
-      float density = random(0.4, 0.9);
+      float density = random(0.4f, 0.9f);
       //
       Program program = add(entities, GuiHubIntegrationTestingFixtures.buildProgram(library1, ProgramType.Beat, ProgramState.Published, String.format("%s Beat", majorMemeName), key, tempo, 0.6f));
       trackMap.clear();
@@ -1142,7 +1142,7 @@ public class GuiIntegrationTestingFixtures {
             String name = percussiveNames[num];
             if (!trackMap.containsKey(name))
               trackMap.put(name, add(entities, GuiHubIntegrationTestingFixtures.buildTrack(voices[num], name)));
-            add(entities, GuiHubIntegrationTestingFixtures.buildEvent(pattern, trackMap.get(name), (float) StrictMath.floor((double) iPE * total * 4 / N), random(0.25, 1.0), "X", random(0.4, 0.9)));
+            add(entities, GuiHubIntegrationTestingFixtures.buildEvent(pattern, trackMap.get(name), (float) StrictMath.floor((float) iPE * total * 4 / N), random(0.25f, 1.0f), "X", random(0.4f, 0.9f)));
           }
         }
       }
