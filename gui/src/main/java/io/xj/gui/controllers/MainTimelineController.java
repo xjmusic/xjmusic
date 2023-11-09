@@ -11,6 +11,7 @@ import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.event.ActionEvent;
@@ -23,6 +24,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
@@ -36,15 +39,17 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class MainTimelineController extends ScrollPane implements ReadyAfterBootController {
-  private static final Long MILLIS_PER_MICRO = 1000L;
-  private static final Integer NO_ID = -1;
-  private static final Double DEMO_BUTTON_HEIGHT_LEFTOVER = 168.0;
-  private static final Double DEMO_BUTTON_SPACING = 10.0;
-  private static final Double DEMO_BUTTON_MARGIN = 30.0;
-  private final Integer segmentMinWidth;
-  private final Integer segmentHorizontalSpacing;
-  private final Integer autoScrollBehindPixels;
-  private final Integer segmentDisplayHashRecheckLimit;
+  private static final Logger LOG = LoggerFactory.getLogger(MainTimelineController.class);
+  private static final long MILLIS_PER_MICRO = 1000L;
+  private static final int NO_ID = -1;
+  private static final double DEMO_BUTTON_HEIGHT_LEFTOVER = 168.0;
+  private static final double DEMO_BUTTON_SPACING = 10.0;
+  private static final double DEMO_BUTTON_MARGIN = 30.0;
+  private static final double ACTIVE_SHIP_REGION_WIDTH = 5.0;
+  private final int segmentMinWidth;
+  private final int segmentHorizontalSpacing;
+  private final int autoScrollBehindPixels;
+  private final int segmentDisplayHashRecheckLimit;
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
   final LabService labService;
@@ -83,10 +88,10 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   Rectangle timelineRegion2Ship;
 
   @FXML
-  Rectangle timelineRegion4Craft;
+  Rectangle timelineRegion3Dub;
 
   @FXML
-  Rectangle timelineRegion3Dub;
+  Rectangle timelineRegion4Craft;
 
   @FXML
   HBox segmentListView;
@@ -136,27 +141,8 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     demoSelectionSpace.fitWidthProperty().bind(demoImageWidth);
 
     fabricationService.statusProperty().addListener((ignored1, ignored2, status) -> handleUpdateFabricationStatus(status));
-  }
 
-  private void handleUpdateFabricationStatus(WorkState status) {
-    if (Objects.equals(WorkState.Active, status)) {
-      startTimelineAnimation();
-
-    } else if (Objects.equals(WorkState.Standby, status)) {
-      stopTimelineAnimation();
-      ds.clear();
-      segmentListView.getChildren().clear();
-      timelineRegion1Past.setWidth(0);
-      timelineRegion2Ship.setWidth(0);
-      timelineRegion3Dub.setWidth(0);
-      timelineRegion4Craft.setWidth(0);
-      scrollPane.setHvalue(0);
-      segmentListView.layout();
-      scrollPane.layout();
-
-    } else {
-      stopTimelineAnimation();
-    }
+    resetTimeline();
   }
 
   @Override
@@ -180,9 +166,68 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   }
 
   /**
+   Called when the fabrication status is updated.
+
+   @param status the new status
+   */
+  private void handleUpdateFabricationStatus(WorkState status) {
+    try {
+      switch (status) {
+        case Standby -> resetTimeline();
+        case Active -> startTimelineAnimation();
+        case Done, Cancelled, Failed -> stopTimelineAnimation();
+      }
+    } catch (Exception e) {
+      LOG.error("Error handling fabrication status updated to {}", status, e);
+    }
+  }
+
+  /**
+   Called to reset the timeline (segment list).
+   */
+  private void resetTimeline() {
+    ds.clear();
+    scrollPane.setHvalue(0);
+    segmentListView.getChildren().clear();
+    timelineRegion1Past.setWidth(0);
+    timelineRegion2Ship.setWidth(ACTIVE_SHIP_REGION_WIDTH);
+    timelineRegion3Dub.setWidth(0);
+    timelineRegion4Craft.setWidth(0);
+    Platform.runLater(() -> {
+      segmentListView.layout();
+      scrollPane.layout();
+      segmentPositionRow.layout();
+    });
+  }
+
+  /**
+   Called to start the timeline animation.
+   */
+  private void startTimelineAnimation() {
+    refreshTimeline = new Timeline(
+      new KeyFrame(
+        Duration.millis(refreshTimelineMillis),
+        this::updateTimeline
+      )
+    );
+    refreshTimeline.setCycleCount(Timeline.INDEFINITE);
+    refreshTimeline.setRate(1.0);
+    refreshTimeline.play();
+  }
+
+  /**
+   Called to stop the timeline animation.
+   */
+  private void stopTimelineAnimation() {
+    if (Objects.nonNull(refreshTimeline)) {
+      refreshTimeline.stop();
+    }
+  }
+
+  /**
    Called to update the timeline (segment list).
    */
-  void updateTimeline(ActionEvent ignored) {
+  private void updateTimeline(ActionEvent ignored) {
     if (fabricationService.isEmpty()) {
       ds.clear();
       segmentListView.getChildren().clear();
@@ -248,7 +293,9 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       // iterate through all in segments, and update if the updated at time has changed from the source matching that id
       var limit = Math.min(ds.size(), freshSegments.size());
       for (var i = 0; i < limit; i++)
-        if (ds.get(freshSegments.get(i).getId()).isSameButUpdated(freshSegments.get(i))) {
+        if (Objects.nonNull(freshSegments.get(i)) &&
+          Objects.nonNull(ds.get(freshSegments.get(i).getId())) &&
+          ds.get(freshSegments.get(i).getId()).isSameButUpdated(freshSegments.get(i))) {
           ds.get(freshSegments.get(i).getId()).update(freshSegments.get(i));
           segmentListView.getChildren().set(i, segmentFactory.create(freshSegments.get(i), microsPerPixel.get(), segmentMinWidth, segmentHorizontalSpacing));
         }
@@ -269,38 +316,38 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
 
     // other markers continue increasing from there
     var m1Past = fabricationService.getShippedToChainMicros().orElse(m0);
-    var m2Ship = fabricationService.getShipTargetChainMicros().orElse(m1Past);
-    var m3Dub = fabricationService.getDubbedToChainMicros().orElse(m2Ship);
+    var m3Dub = fabricationService.getDubbedToChainMicros().orElse(m1Past);
     var m4Craft = fabricationService.getCraftedToChainMicros().orElse(m3Dub);
 
     // This gets re-used for the follow position as well as past timeline width
     var pastTimelineWidth = (m1Past - m0) / microsPerPixel.get();
 
+    // only animated in sync
+    boolean animate = fabricationService.isOutputModeSync().getValue();
+
     // In sync output, like the scroll pane target position, the past region is always moving at a predictable rate,
     // so we set its initial position as well as animation its target, which smooths over some
     // jumpiness caused by adding or removing segments to the list.
-    if (fabricationService.isOutputModeSync().getValue()) {
+    if (animate) {
       timelineRegion1Past.setWidth(pastTimelineWidth - MILLIS_PER_MICRO * refreshTimelineMillis / microsPerPixel.get());
       scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
         new KeyValue(timelineRegion1Past.widthProperty(), pastTimelineWidth)));
+      scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
+        new KeyValue(timelineRegion3Dub.widthProperty(), (m3Dub - m1Past) / microsPerPixel.get())));
+      scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
+        new KeyValue(timelineRegion4Craft.widthProperty(), (m4Craft - m3Dub) / microsPerPixel.get())));
     } else {
       timelineRegion1Past.setWidth(pastTimelineWidth);
+      timelineRegion3Dub.setWidth((m3Dub - m1Past) / microsPerPixel.get());
+      timelineRegion4Craft.setWidth((m4Craft - m3Dub) / microsPerPixel.get());
     }
-
-    // the rest of these widths are always animated relative to their starting position
-    scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
-      new KeyValue(timelineRegion2Ship.widthProperty(), (m2Ship - m1Past) / microsPerPixel.get())));
-    scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
-      new KeyValue(timelineRegion3Dub.widthProperty(), (m3Dub - m2Ship) / microsPerPixel.get())));
-    scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
-      new KeyValue(timelineRegion4Craft.widthProperty(), (m4Craft - m3Dub) / microsPerPixel.get())));
 
     // auto-scroll if enabled, animating to the scroll pane position
     if (fabricationService.followPlaybackProperty().getValue() && 0 < segmentListView.getWidth()) {
       var extraHorizontalPixels = Math.max(0, segmentListView.getWidth() - scrollPane.getWidth());
       var targetOffsetHorizontalPixels = Math.max(0, pastTimelineWidth - autoScrollBehindPixels);
 
-      if (fabricationService.isOutputModeSync().getValue()) {
+      if (animate) {
         // in sync output, the scroll pane is always moving at a predictable rate,
         // so we set its initial position as well as animation its target, which smooths over some
         // jumpiness caused by adding or removing segments to the list.
@@ -318,24 +365,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
 
     // play the next leg of the animation timeline
     scrollPaneAnimationTimeline.play();
-  }
-
-  private void startTimelineAnimation() {
-    refreshTimeline = new Timeline(
-      new KeyFrame(
-        Duration.millis(refreshTimelineMillis),
-        this::updateTimeline
-      )
-    );
-    refreshTimeline.setCycleCount(Timeline.INDEFINITE);
-    refreshTimeline.setRate(1.0);
-    refreshTimeline.play();
-  }
-
-  private void stopTimelineAnimation() {
-    if (Objects.nonNull(refreshTimeline)) {
-      refreshTimeline.stop();
-    }
   }
 
   private class DisplayedSegment {

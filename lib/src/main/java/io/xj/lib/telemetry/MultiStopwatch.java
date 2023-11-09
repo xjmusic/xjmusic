@@ -148,7 +148,7 @@ public class MultiStopwatch {
 
    @return stopwatch as string
    */
-  public String lapToString() {
+  public String getLapText() {
     return toString(lapTotalSeconds, sectionLapSeconds);
   }
 
@@ -157,7 +157,7 @@ public class MultiStopwatch {
 
    @return stopwatch as string
    */
-  public String totalsToString() {
+  public String getTotalText() {
     return toString(getTotalSeconds(), sectionTotalSeconds);
   }
 

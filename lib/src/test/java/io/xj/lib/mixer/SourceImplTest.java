@@ -29,7 +29,7 @@ public class SourceImplTest {
   @BeforeEach
   public void setUp() throws Exception {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    mixerFactory = new MixerFactoryImpl(envelopeProvider, 1000000);
+    mixerFactory = new MixerFactoryImpl(envelopeProvider);
 
 
     F32LSB_48kHz_Stereo = mixerFactory.createSource(

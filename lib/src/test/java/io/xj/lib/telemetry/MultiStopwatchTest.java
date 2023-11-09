@@ -37,7 +37,7 @@ public class MultiStopwatchTest {
     assertTrue(0.02 <= subject.getTotalSeconds());
     assertTrue(0.01 <= subject.getSectionLapSeconds().get("One"));
     assertTrue(0.01 <= subject.getSectionLapSeconds().get("Two"));
-    var str = subject.lapToString();
+    var str = subject.getLapText();
     assertTrue(str.contains("One"));
     assertTrue(str.contains("Two"));
   }
@@ -83,5 +83,4 @@ public class MultiStopwatchTest {
     assertTrue(0.02 <= subject.getSectionLapSeconds().get("Right"));
     assertTrue(0.01 <= subject.getSectionLapSeconds().get(MultiStopwatch.STANDBY));
   }
-
 }

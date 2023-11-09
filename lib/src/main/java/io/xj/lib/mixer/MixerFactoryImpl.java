@@ -2,30 +2,23 @@
 
 package io.xj.lib.mixer;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-@Service
 public class MixerFactoryImpl implements MixerFactory {
   final EnvelopeProvider envelopeProvider;
 
-  int mixerOutputPipeSize;
+  final int MIXER_OUTPUT_PIPE_SIZE = 10000000;
 
-  @Autowired
   public MixerFactoryImpl(
-    EnvelopeProvider envelopeProvider,
-    @Value("${mixer.output.pipe.size}") int mixerOutputPipeSize
+    EnvelopeProvider envelopeProvider
   ) {
     this.envelopeProvider = envelopeProvider;
-    this.mixerOutputPipeSize = mixerOutputPipeSize;
   }
 
   @Override
   public Mixer createMixer(MixerConfig mixerConfig) throws MixerException {
-    return new MixerImpl(mixerConfig, this, envelopeProvider, mixerOutputPipeSize);
+    return new MixerImpl(mixerConfig, this, envelopeProvider, MIXER_OUTPUT_PIPE_SIZE);
   }
 
   @Override

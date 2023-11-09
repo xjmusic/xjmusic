@@ -11,18 +11,14 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import io.xj.lib.entity.InstantDeserializer;
 import io.xj.lib.entity.InstantSerializer;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@Service
 public class JsonProviderImpl implements JsonProvider {
   final ObjectMapper mapper = new ObjectMapper();
 
-  @Autowired
   public JsonProviderImpl() {
     mapper.registerModule(buildInstantSerDesModule());
     mapper.registerModule(buildJavaTimeModule());

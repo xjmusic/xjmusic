@@ -33,7 +33,7 @@ public abstract class YamlTest {
    */
   @AfterEach
   public void reportFailures() {
-    if (0 == failures.size()) {
+    if (failures.isEmpty()) {
       System.out.println("\nAll assertions OK");
       return;
     }

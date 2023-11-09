@@ -7,9 +7,9 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.InputMode;
+import io.xj.nexus.MacroMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
-import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.SegmentManager;
@@ -36,9 +36,9 @@ class FabricationServiceImplTest {
   int defaultTimelineSegmentViewLimit = 10;
   int defaultCraftAheadSeconds = 5;
   int defaultDubAheadSeconds = 5;
-  int defaultShipAheadSeconds = 5;
   String defaultInputTemplateKey = "slaps_lofi";
   int defaultOutputChannels = 2;
+  private final String defaultMacroMode = MacroMode.AUTO.toString();
   String defaultInputMode = InputMode.PRODUCTION.toString();
   String defaultOutputFileMode = OutputFileMode.CONTINUOUS.toString();
   double defaultOutputFrameRate = 48000;
@@ -56,9 +56,6 @@ class FabricationServiceImplTest {
 
   @Mock
   private WorkManager workManager;
-
-  @Mock
-  private HubClient hubClient;
 
   FabricationServiceImpl subject;
   private Chain chain;
@@ -84,11 +81,10 @@ class FabricationServiceImplTest {
       defaultOutputChannels,
       defaultOutputFileMode,
       defaultOutputFrameRate,
+      defaultMacroMode,
       defaultInputMode,
       defaultOutputMode,
       defaultOutputSeconds,
-      defaultShipAheadSeconds,
-      hubClient,
       labService,
       workManager
     );
@@ -138,8 +134,8 @@ class FabricationServiceImplTest {
     var program = buildMainProgramWithBarBeats(barBeats);
     var sourceMaterial = new HubContent(List.of(program));
     var choice = buildSegmentChoice(segment, program);
-    when(segmentManager.readChoice(eq(segment.getId()), eq(ProgramType.Main))).thenReturn(Optional.of(choice));
     when(workManager.getSourceMaterial()).thenReturn(sourceMaterial);
+    when(segmentManager.readChoice(eq(segment.getId()), eq(ProgramType.Main))).thenReturn(Optional.of(choice));
     return segment;
   }
 }

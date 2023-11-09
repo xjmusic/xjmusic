@@ -9,9 +9,9 @@ import io.xj.hub.tables.pojos.*;
 import io.xj.hub.util.ValueException;
 import io.xj.lib.util.FormatUtils;
 import io.xj.nexus.InputMode;
+import io.xj.nexus.MacroMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
-import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.ManagerExistenceException;
@@ -19,6 +19,7 @@ import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkManager;
+import io.xj.nexus.work.WorkManagerImpl;
 import io.xj.nexus.work.WorkState;
 import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
@@ -40,6 +41,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
 
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+
 @Service
 public class FabricationServiceImpl implements FabricationService {
   private static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
@@ -54,16 +57,15 @@ public class FabricationServiceImpl implements FabricationService {
   private final int defaultTimelineSegmentViewLimit;
   private final Integer defaultCraftAheadSeconds;
   private final Integer defaultDubAheadSeconds;
-  private final Integer defaultShipAheadSeconds;
   private final String defaultInputTemplateKey;
   private final int defaultOutputChannels;
   private final OutputFileMode defaultOutputFileMode;
   private final double defaultOutputFrameRate;
+  private final MacroMode defaultMacroMode;
   private final InputMode defaultInputMode;
   private final OutputMode defaultOutputMode;
   private final Integer defaultOutputSeconds;
   final WorkManager workManager;
-  final HubClient hubClient;
   final LabService labService;
   final Map<Integer, Integer> segmentBarBeats = new ConcurrentHashMap<>();
   final ObjectProperty<WorkState> status = new SimpleObjectProperty<>(WorkState.Standby);
@@ -71,12 +73,12 @@ public class FabricationServiceImpl implements FabricationService {
   final StringProperty contentStoragePathPrefix = new SimpleStringProperty();
   final StringProperty outputPathPrefix = new SimpleStringProperty();
   final ObjectProperty<InputMode> inputMode = new SimpleObjectProperty<>();
+  final ObjectProperty<MacroMode> macroMode = new SimpleObjectProperty<>();
   final ObjectProperty<OutputFileMode> outputFileMode = new SimpleObjectProperty<>();
   final ObjectProperty<OutputMode> outputMode = new SimpleObjectProperty<>();
   final StringProperty outputSeconds = new SimpleStringProperty();
   final StringProperty craftAheadSeconds = new SimpleStringProperty();
   final StringProperty dubAheadSeconds = new SimpleStringProperty();
-  final StringProperty shipAheadSeconds = new SimpleStringProperty();
   final StringProperty outputFrameRate = new SimpleStringProperty();
   final StringProperty outputChannels = new SimpleStringProperty();
 
@@ -110,16 +112,16 @@ public class FabricationServiceImpl implements FabricationService {
     @Value("${output.channels}") int defaultOutputChannels,
     @Value("${output.file.mode}") String defaultOutputFileMode,
     @Value("${output.frame.rate}") double defaultOutputFrameRate,
+    @Value("${macro.mode}") String defaultMacroMode,
     @Value("${input.mode}") String defaultInputMode,
     @Value("${output.mode}") String defaultOutputMode,
     @Value("${output.seconds}") int defaultOutputSeconds,
-    @Value("${ship.ahead.seconds}") int defaultShipAheadSeconds,
-    HubClient hubClient,
     LabService labService,
     WorkManager workManager
   ) {
     this.defaultCraftAheadSeconds = defaultCraftAheadSeconds;
     this.defaultDubAheadSeconds = defaultDubAheadSeconds;
+    this.defaultMacroMode = MacroMode.valueOf(defaultMacroMode.toUpperCase(Locale.ROOT));
     this.defaultInputMode = InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT));
     this.defaultInputTemplateKey = defaultInputTemplateKey;
     this.defaultOutputChannels = defaultOutputChannels;
@@ -127,12 +129,10 @@ public class FabricationServiceImpl implements FabricationService {
     this.defaultOutputFrameRate = defaultOutputFrameRate;
     this.defaultOutputMode = OutputMode.valueOf(defaultOutputMode.toUpperCase(Locale.ROOT));
     this.defaultOutputSeconds = defaultOutputSeconds;
-    this.defaultShipAheadSeconds = defaultShipAheadSeconds;
     this.defaultTimelineSegmentViewLimit = defaultTimelineSegmentViewLimit;
     this.hostServices = hostServices;
-    this.workManager = workManager;
-    this.hubClient = hubClient;
     this.labService = labService;
+    this.workManager = workManager;
 
     attachPreferenceListeners();
     setAllFromPrefsOrDefaults();
@@ -144,20 +144,22 @@ public class FabricationServiceImpl implements FabricationService {
       LOG.error("Cannot start fabrication unless in Standby status");
       return;
     }
+    status.set(WorkState.Starting);
+
     // create work configuration
     var config = new WorkConfiguration()
       .setContentStoragePathPrefix(contentStoragePathPrefix.get())
-      .setCraftAheadSeconds(Integer.parseInt(craftAheadSeconds.get()))
-      .setDubAheadSeconds(Integer.parseInt(dubAheadSeconds.get()))
+      .setCraftAheadMicros(Long.parseLong(craftAheadSeconds.get()) * MICROS_PER_SECOND)
+      .setDubAheadMicros(Long.parseLong(dubAheadSeconds.get()) * MICROS_PER_SECOND)
       .setInputMode(inputMode.get())
+      .setMacroMode(macroMode.get())
       .setInputTemplateKey(inputTemplateKey.get())
       .setOutputChannels(Integer.parseInt(outputChannels.get()))
       .setOutputFileMode(outputFileMode.get())
       .setOutputFrameRate(Double.parseDouble(outputFrameRate.get()))
       .setOutputMode(outputMode.get())
       .setOutputPathPrefix(outputPathPrefix.get())
-      .setOutputSeconds(Integer.parseInt(outputSeconds.get()))
-      .setShipAheadSeconds(Integer.parseInt(shipAheadSeconds.get()));
+      .setOutputSeconds(Integer.parseInt(outputSeconds.get()));
 
     var hubAccess = new HubClientAccess()
       .setRoleTypes(List.of(UserRoleType.Internal))
@@ -166,20 +168,26 @@ public class FabricationServiceImpl implements FabricationService {
     // start the work with the given configuration
     workManager.setOnProgress((Float progress) -> Platform.runLater(() -> this.progress.set(progress)));
     workManager.setOnStateChange((WorkState state) -> Platform.runLater(() -> status.set(state)));
-    status.set(WorkState.Starting);
     Platform.runLater(() -> workManager.start(config, labService.hubConfigProperty().get(), hubAccess));
   }
 
   @Override
   public void cancel() {
-    workManager.finish(true);
     status.set(WorkState.Cancelled);
+    workManager.finish(true);
   }
 
   @Override
   public void reset() {
-    workManager.reset();
     status.set(WorkState.Standby);
+    workManager.reset();
+  }
+
+  @Override
+  public List<Program> getAllMacroPrograms() {
+    return workManager.getSourceMaterial().getPrograms(ProgramType.Macro).stream()
+      .sorted(Comparator.comparing(Program::getName))
+      .toList();
   }
 
   @Override
@@ -208,6 +216,11 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
+  public ObjectProperty<MacroMode> macroModeProperty() {
+    return macroMode;
+  }
+
+  @Override
   public ObjectProperty<OutputFileMode> outputFileModeProperty() {
     return outputFileMode;
   }
@@ -230,11 +243,6 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public StringProperty dubAheadSecondsProperty() {
     return dubAheadSeconds;
-  }
-
-  @Override
-  public StringProperty shipAheadSecondsProperty() {
-    return shipAheadSeconds;
   }
 
   @Override
@@ -523,7 +531,6 @@ public class FabricationServiceImpl implements FabricationService {
 
     this.craftAheadSeconds.set(craftAheadSeconds.toString());
     dubAheadSeconds.set(Integer.toString(defaultDubAheadSeconds));
-    shipAheadSeconds.set(Integer.toString(defaultShipAheadSeconds));
     inputTemplateKey.set(templateKey);
     outputFileMode.set(defaultOutputFileMode);
     outputMode.set(defaultOutputMode);
@@ -550,13 +557,13 @@ public class FabricationServiceImpl implements FabricationService {
     dubAheadSeconds.addListener((o, ov, value) -> prefs.put("dubAheadSeconds", value));
     inputMode.addListener((o, ov, value) -> prefs.put("inputMode", Objects.nonNull(value) ? value.name() : ""));
     inputTemplateKey.addListener((o, ov, value) -> prefs.put("inputTemplateKey", value));
+    macroMode.addListener((o, ov, value) -> prefs.put("macroMode", Objects.nonNull(value) ? value.name() : ""));
     outputChannels.addListener((o, ov, value) -> prefs.put("outputChannels", value));
     outputFileMode.addListener((o, ov, value) -> prefs.put("outputFileMode", Objects.nonNull(value) ? value.name() : ""));
     outputFrameRate.addListener((o, ov, value) -> prefs.put("outputFrameRate", value));
     outputMode.addListener((o, ov, value) -> prefs.put("outputMode", Objects.nonNull(value) ? value.name() : ""));
     outputPathPrefix.addListener((o, ov, value) -> prefs.put("outputPathPrefix", value));
     outputSeconds.addListener((o, ov, value) -> prefs.put("outputSeconds", value));
-    shipAheadSeconds.addListener((o, ov, value) -> prefs.put("shipAheadSeconds", value));
     timelineSegmentViewLimit.addListener((o, ov, value) -> prefs.put("timelineSegmentViewLimit", value));
   }
 
@@ -569,8 +576,14 @@ public class FabricationServiceImpl implements FabricationService {
     outputFrameRate.set(prefs.get("outputFrameRate", Double.toString(defaultOutputFrameRate)));
     outputPathPrefix.set(prefs.get("outputPathPrefix", defaultOutputPathPrefix));
     outputSeconds.set(prefs.get("outputSeconds", Integer.toString(defaultOutputSeconds)));
-    shipAheadSeconds.set(prefs.get("shipAheadSeconds", Integer.toString(defaultShipAheadSeconds)));
     timelineSegmentViewLimit.set(prefs.get("timelineSegmentViewLimit", Integer.toString(defaultTimelineSegmentViewLimit)));
+
+    try {
+      macroMode.set(MacroMode.valueOf(prefs.get("macroMode", defaultMacroMode.toString()).toUpperCase(Locale.ROOT)));
+    } catch (Exception e) {
+      LOG.error("Failed to set macro mode from preferences", e);
+      macroMode.set(defaultMacroMode);
+    }
 
     try {
       inputMode.set(InputMode.valueOf(prefs.get("inputMode", defaultInputMode.toString()).toUpperCase(Locale.ROOT)));

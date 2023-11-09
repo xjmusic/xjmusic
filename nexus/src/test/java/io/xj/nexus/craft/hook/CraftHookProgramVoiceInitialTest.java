@@ -92,7 +92,7 @@ public class CraftHookProgramVoiceInitialTest {
   public void craftHookVoiceInitial() throws Exception {
     insertSegment();
 
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0, 10, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0, 48000.0, 2);
 
     craftFactory.hook(fabricator).doWork();
 
@@ -123,7 +123,7 @@ public class CraftHookProgramVoiceInitialTest {
   @Test
   public void craftHookVoiceInitial_okWhenNoHookChoice() throws Exception {
     insertSegment();
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0, 10, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0, 48000.0, 2);
 
     craftFactory.hook(fabricator).doWork();
   }

@@ -19,7 +19,7 @@ public class PutImplTest {
   @BeforeEach
   public void setUp() throws Exception {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider, 1000000);
+    MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider);
     audioId = UUID.randomUUID();
     testPut = mixerFactory.createPut(UUID.randomUUID(), audioId, 0, 1000000, 2000000, 1.0, 0, 5);
   }

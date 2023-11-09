@@ -4,7 +4,6 @@ package io.xj.nexus.work;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.util.StringUtils;
 import io.xj.lib.mixer.AudioFileWriter;
-import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.model.Segment;
@@ -22,9 +21,13 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.MILLIS_PER_SECOND;
+import static io.xj.nexus.work.WorkTelemetry.TIMER_SECTION_STANDBY;
 
 public class ShipWorkImpl implements ShipWork {
   static final Logger LOG = LoggerFactory.getLogger(ShipWorkImpl.class);
+  public static final String TIMER_SECTION_SHIP = "Ship";
+  private final long startedAtMillis;
 
   @Nullable
   AudioFileWriter fileWriter;
@@ -32,38 +35,35 @@ public class ShipWorkImpl implements ShipWork {
   OutputFile outputFile = null;
   @Nullable
   StreamPlayer playback;
-  final MultiStopwatch timer;
   final AtomicBoolean running = new AtomicBoolean(true);
+  final WorkTelemetry telemetry;
   final BroadcastFactory broadcastFactory;
   final DubWork dubWork;
   final OutputFileMode outputFileMode;
   final OutputMode outputMode;
   final String outputPathPrefix;
-  final int cycleAudioBytes;
   final int outputFileNumberDigits;
   final int outputSeconds;
   final int pcmChunkSizeBytes;
-  final int shipAheadSeconds;
   int outputFileNum = 0;
   long targetChainMicros = 0;
   private final String shipKey;
   private float progress;
 
   public ShipWorkImpl(
+    WorkTelemetry telemetry,
     DubWork dubWork,
     BroadcastFactory broadcastFactory,
     OutputMode outputMode,
     OutputFileMode outputFileMode,
     int outputSeconds,
-    int cycleAudioBytes,
     String shipKey,
     String outputPathPrefix,
     int outputFileNumberDigits,
-    int pcmChunkSizeBytes,
-    int shipAheadSeconds
+    int pcmChunkSizeBytes
   ) {
+    this.telemetry = telemetry;
     this.broadcastFactory = broadcastFactory;
-    this.cycleAudioBytes = cycleAudioBytes;
     this.dubWork = dubWork;
     this.outputFileMode = outputFileMode;
     this.shipKey = shipKey;
@@ -72,19 +72,14 @@ public class ShipWorkImpl implements ShipWork {
     this.outputPathPrefix = outputPathPrefix;
     this.outputSeconds = outputSeconds;
     this.pcmChunkSizeBytes = pcmChunkSizeBytes;
-    this.shipAheadSeconds = shipAheadSeconds;
-
-    timer = MultiStopwatch.start();
 
     var audioFormat = dubWork.getAudioFormat();
     if (audioFormat.isEmpty()) {
-      LOG.debug("Waiting for audio format to be available.");
-      return;
+      throw new RuntimeException("Waiting for audio format to be available.");
     }
     var chain = dubWork.getChain();
     if (chain.isEmpty()) {
-      LOG.debug("Waiting for Dub to begin");
-      return;
+      throw new RuntimeException("Waiting for Dub to begin");
     }
 
     switch (outputMode) {
@@ -104,6 +99,7 @@ public class ShipWorkImpl implements ShipWork {
       LOG.info("Will start in {} output mode and run indefinitely", outputMode);
     }
 
+    startedAtMillis = System.currentTimeMillis();
     running.set(true);
   }
 
@@ -126,7 +122,7 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   @Override
-  public void runCycle() {
+  public void runCycle(long ignored) {
     if (!running.get()) return;
 
     if (dubWork.isFinished()) {
@@ -136,21 +132,17 @@ public class ShipWorkImpl implements ShipWork {
 
     // Action based on mode
     try {
+      telemetry.markTimerSection(TIMER_SECTION_SHIP);
       if (dubWork.getMixerBuffer().isEmpty() || dubWork.getMixerOutputMicrosPerByte().isEmpty()) return;
       if (isAheadOfSync()) return;
       switch (outputMode) {
         case PLAYBACK -> doShipOutputPlayback();
         case FILE -> doShipOutputFile();
       }
-      getShippedToChainMicros().ifPresent(dubWork::setNowAtToChainMicros);
+      telemetry.markTimerSection(TIMER_SECTION_STANDBY);
     } catch (Exception e) {
       didFailWhile("running a work cycle", e);
     }
-
-    // End lap & do telemetry on all fabricated chains
-    timer.lap();
-    LOG.debug("Lap time: {}", timer.lapToString());
-    timer.clearLapSections();
   }
 
   @Override
@@ -188,7 +180,7 @@ public class ShipWorkImpl implements ShipWork {
     var shippedToChainMicros = getShippedToChainMicros();
     if (outputMode.isSync() && shippedToChainMicros.isPresent()) {
       var aheadSeconds = (float) (targetChainMicros - shippedToChainMicros.get()) / MICROS_PER_SECOND;
-      if (aheadSeconds > shipAheadSeconds) {
+      if (aheadSeconds > 0) {
         LOG.debug("Ahead by {}s in synchronous output; will skip work", String.format("%.1f", aheadSeconds));
         return true;
       }
@@ -207,11 +199,8 @@ public class ShipWorkImpl implements ShipWork {
       }
 
       var availableBytes = dubWork.getMixerBuffer().orElseThrow().getAvailableByteCount();
-      if (availableBytes >= cycleAudioBytes) {
-        LOG.debug("Shipping {} bytes to local playback", cycleAudioBytes);
-        playback.append(dubWork.getMixerBuffer().orElseThrow().consume(cycleAudioBytes));
-        targetChainMicros = (long) (targetChainMicros + cycleAudioBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow());
-      }
+      playback.append(dubWork.getMixerBuffer().orElseThrow().consume(availableBytes));
+      targetChainMicros = (long) (targetChainMicros + availableBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow());
     }
   }
 
@@ -276,7 +265,7 @@ public class ShipWorkImpl implements ShipWork {
         }
       }
 
-      int availableBytes = Math.min(dubWork.getMixerBuffer().orElseThrow().getAvailableByteCount(), cycleAudioBytes);
+      int availableBytes = dubWork.getMixerBuffer().orElseThrow().getAvailableByteCount();
       int currentFileMaxBytes = (int) ((outputFile.getToChainMicros() - targetChainMicros) / dubWork.getMixerOutputMicrosPerByte().orElseThrow());
       int shipBytes = (int) (pcmChunkSizeBytes * Math.floor((float) Math.min(availableBytes, currentFileMaxBytes) / pcmChunkSizeBytes)); // rounded down to a multiple of pcm chunk size bytes
       if (0 == shipBytes) {
@@ -354,7 +343,8 @@ public class ShipWorkImpl implements ShipWork {
     if (shippedSeconds < outputSeconds) return false;
 
     // We're done! log performance info, close the wav container, and finish
-    var realtimeRatio = shippedSeconds / timer.getTotalSeconds();
+    double totalSeconds = (double) (System.currentTimeMillis() - startedAtMillis) / MILLIS_PER_SECOND;
+    var realtimeRatio = shippedSeconds / totalSeconds;
     LOG.info("Overall performance at {} real-time", String.format("%.1fx", realtimeRatio));
     finish();
     return true;

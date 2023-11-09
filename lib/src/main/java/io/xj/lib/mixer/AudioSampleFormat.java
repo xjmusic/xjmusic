@@ -177,7 +177,7 @@ public enum AudioSampleFormat {
 
    @param value to encode
    @return encoded bytes
-   */
+   */ 
   static byte[] toBytesS8(double value) {
     return new byte[]{(byte) (SIGNED_8BIT_MAX * value)};
   }

@@ -3,23 +3,33 @@
 package io.xj.nexus.work;
 
 import io.xj.nexus.InputMode;
+import io.xj.nexus.MacroMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 
 public class WorkConfiguration {
   private InputMode inputMode;
+  private MacroMode macroMode;
   private String inputTemplateKey;
   private OutputFileMode outputFileMode;
   private OutputMode outputMode;
   private String outputPathPrefix;
   private int outputSeconds;
 
-  private int craftAheadSeconds;
-  private int dubAheadSeconds;
-  private int shipAheadSeconds;
+  private long craftAheadMicros;
+  private long dubAheadMicros;
   private double outputFrameRate;
   private int outputChannels;
   private String contentStoragePathPrefix;
+  private int mixBufferLengthSeconds = 10;
+  private long cycleMillis = 100;
+  private String tempFilePathPrefix = "/tmp/";
+  private int shipOutputFileNumberDigits = 7;
+  private int shipOutputPcmChunkSizeBytes = 1024;
+  private long shipCycleMillis = 100;
+  private long dubCycleMillis = 200;
+  private long craftCycleMillis = 400;
+  private long reportCycleMillis = 1000;
 
   public InputMode getInputMode() {
     return inputMode;
@@ -27,6 +37,15 @@ public class WorkConfiguration {
 
   public WorkConfiguration setInputMode(InputMode inputMode) {
     this.inputMode = inputMode;
+    return this;
+  }
+
+  public MacroMode getMacroMode() {
+    return macroMode;
+  }
+
+  public WorkConfiguration setMacroMode(MacroMode macroMode) {
+    this.macroMode = macroMode;
     return this;
   }
 
@@ -75,30 +94,21 @@ public class WorkConfiguration {
     return this;
   }
 
-  public int getCraftAheadSeconds() {
-    return craftAheadSeconds;
+  public long getCraftAheadMicros() {
+    return craftAheadMicros;
   }
 
-  public WorkConfiguration setCraftAheadSeconds(int craftAheadSeconds) {
-    this.craftAheadSeconds = craftAheadSeconds;
+  public WorkConfiguration setCraftAheadMicros(long craftAheadMicros) {
+    this.craftAheadMicros = craftAheadMicros;
     return this;
   }
 
-  public int getDubAheadSeconds() {
-    return dubAheadSeconds;
+  public long getDubAheadMicros() {
+    return dubAheadMicros;
   }
 
-  public WorkConfiguration setDubAheadSeconds(int dubAheadSeconds) {
-    this.dubAheadSeconds = dubAheadSeconds;
-    return this;
-  }
-
-  public int getShipAheadSeconds() {
-    return shipAheadSeconds;
-  }
-
-  public WorkConfiguration setShipAheadSeconds(int shipAheadSeconds) {
-    this.shipAheadSeconds = shipAheadSeconds;
+  public WorkConfiguration setDubAheadMicros(long dubAheadMicros) {
+    this.dubAheadMicros = dubAheadMicros;
     return this;
   }
 
@@ -126,6 +136,87 @@ public class WorkConfiguration {
 
   public WorkConfiguration setContentStoragePathPrefix(String contentStoragePathPrefix) {
     this.contentStoragePathPrefix = contentStoragePathPrefix;
+    return this;
+  }
+
+  public int getMixBufferLengthSeconds() {
+    return mixBufferLengthSeconds;
+  }
+
+  public WorkConfiguration setMixBufferLengthSeconds(int mixBufferLengthSeconds) {
+    this.mixBufferLengthSeconds = mixBufferLengthSeconds;
+    return this;
+  }
+
+  public long getCycleMillis() {
+    return cycleMillis;
+  }
+
+  public WorkConfiguration setCycleMillis(long cycleMillis) {
+    this.cycleMillis = cycleMillis;
+    return this;
+  }
+
+  public String getTempFilePathPrefix() {
+    return tempFilePathPrefix;
+  }
+
+  public WorkConfiguration setTempFilePathPrefix(String tempFilePathPrefix) {
+    this.tempFilePathPrefix = tempFilePathPrefix;
+    return this;
+  }
+
+  public int getShipOutputFileNumberDigits() {
+    return shipOutputFileNumberDigits;
+  }
+
+  public WorkConfiguration setShipOutputFileNumberDigits(int shipOutputFileNumberDigits) {
+    this.shipOutputFileNumberDigits = shipOutputFileNumberDigits;
+    return this;
+  }
+
+  public int getShipOutputPcmChunkSizeBytes() {
+    return shipOutputPcmChunkSizeBytes;
+  }
+
+  public WorkConfiguration setShipOutputPcmChunkSizeBytes(int shipOutputPcmChunkSizeBytes) {
+    this.shipOutputPcmChunkSizeBytes = shipOutputPcmChunkSizeBytes;
+    return this;
+  }
+
+  public long getShipCycleMillis() {
+    return shipCycleMillis;
+  }
+
+  public WorkConfiguration setShipCycleMillis(long shipCycleMillis) {
+    this.shipCycleMillis = shipCycleMillis;
+    return this;
+  }
+
+  public long getDubCycleMillis() {
+    return dubCycleMillis;
+  }
+
+  public WorkConfiguration setDubCycleMillis(long dubCycleMillis) {
+    this.dubCycleMillis = dubCycleMillis;
+    return this;
+  }
+
+  public long getCraftCycleMillis() {
+    return craftCycleMillis;
+  }
+
+  public WorkConfiguration setCraftCycleMillis(long craftCycleMillis) {
+    this.craftCycleMillis = craftCycleMillis;
+    return this;
+  }
+
+  public long getReportCycleMillis() {
+    return reportCycleMillis;
+  }
+
+  public WorkConfiguration setReportCycleMillis(long reportCycleMillis) {
+    this.reportCycleMillis = reportCycleMillis;
     return this;
   }
 }

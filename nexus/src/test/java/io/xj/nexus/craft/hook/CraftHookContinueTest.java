@@ -111,7 +111,7 @@ public class CraftHookContinueTest {
   @Test
   public void craftHookContinue() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0, 2);
 
 //    craftFactory.hook(fabricator).doWork();
 //    // assert choice of hook-type sequence
@@ -193,7 +193,7 @@ public class CraftHookContinueTest {
   @Test
   public void craftHookContinue_okEvenWithoutPreviousSegmentHookChoice() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0, 2);
     craftFactory.hook(fabricator).doWork();
 
 /*

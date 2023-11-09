@@ -45,6 +45,15 @@
         <Pane prefWidth="15.0" />
         <ChoiceBox fx:id="choiceInputMode" prefHeight="25.0" prefWidth="120" />
       </VBox>
+      <VBox alignment="CENTER_LEFT" prefHeight="60.0">
+        <Label fx:id="labelMacroMode" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Macro Mode" textAlignment="RIGHT">
+          <graphic>
+            <Pane prefWidth="15.0" />
+          </graphic>
+        </Label>
+        <Pane prefWidth="15.0" />
+        <ChoiceBox fx:id="choiceMacroMode" prefHeight="25.0" prefWidth="120" />
+      </VBox>
     </HBox>
 
     <HBox alignment="CENTER_LEFT" prefHeight="60" spacing="10">
@@ -85,7 +94,7 @@
           </graphic>
         </Label>
         <Pane prefWidth="15.0" />
-        <TextField fx:id="fieldOutputPathPrefix" prefHeight="25.0" />
+        <TextField fx:id="fieldOutputPathPrefix" prefHeight="25.0" prefWidth="300" />
       </VBox>
     </HBox>
 
@@ -129,15 +138,6 @@
         </Label>
         <Pane prefWidth="15.0" />
         <TextField fx:id="fieldDubAheadSeconds" prefHeight="25.0" />
-      </VBox>
-      <VBox alignment="CENTER_LEFT">
-        <Label fx:id="labelShipAheadSeconds" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Ship Ahead Seconds" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0" />
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0" />
-        <TextField fx:id="fieldShipAheadSeconds" prefHeight="25.0" />
       </VBox>
     </HBox>
 

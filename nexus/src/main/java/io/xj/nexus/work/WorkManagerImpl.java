@@ -7,23 +7,37 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.filestore.FileStoreProviderImpl;
+import io.xj.lib.http.HttpClientProvider;
+import io.xj.lib.http.HttpClientProviderImpl;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.lib.mixer.EnvelopeProvider;
+import io.xj.lib.mixer.EnvelopeProviderImpl;
 import io.xj.lib.mixer.MixerFactory;
+import io.xj.lib.mixer.MixerFactoryImpl;
+import io.xj.nexus.NexusTopology;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.nexus.dub.DubAudioCache;
+import io.xj.nexus.dub.DubAudioCacheImpl;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.hub_client.HubClient;
-import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.nexus.hub_client.HubContentProvider;
+import io.xj.nexus.fabricator.FabricatorFactoryImpl;
+import io.xj.nexus.hub_client.*;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.nexus.ship.broadcast.BroadcastFactory;
+import io.xj.nexus.ship.broadcast.BroadcastFactoryImpl;
 import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -34,12 +48,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
-@Service
 public class WorkManagerImpl implements WorkManager {
   private static final Logger LOG = LoggerFactory.getLogger(WorkManagerImpl.class);
   private final BroadcastFactory broadcastFactory;
@@ -52,22 +66,16 @@ public class WorkManagerImpl implements WorkManager {
   private final MixerFactory mixerFactory;
   private final NexusEntityStore store;
   private final SegmentManager segmentManager;
-  private final int mixerSeconds;
-  private final int outputFileNumberDigits;
-  private final int pcmChunkSizeBytes;
-  private final int cycleAudioBytes;
-  private final long cycleMillis;
-  private final long craftCycleMillis;
+  private final WorkTelemetry telemetry;
   private long nextCraftCycleMillis;
-  private final long dubCycleMillis;
   private long nextDubCycleMillis;
-  private final long shipCycleMillis;
   private long nextShipCycleMillis;
+  private long nextReportCycleMillis;
 
-  private final String tempFilePathPrefix;
   private final AtomicReference<HubContent> hubContent = new AtomicReference<>();
   private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
   private final AtomicBoolean isAudioLoaded = new AtomicBoolean(false);
+  private final AtomicLong startedAtMillis = new AtomicLong(0);
 
   private boolean isFileOutputMode;
 
@@ -103,6 +111,7 @@ public class WorkManagerImpl implements WorkManager {
   private Runnable afterFinished;
 
   public WorkManagerImpl(
+    WorkTelemetry workTelemetry,
     BroadcastFactory broadcastFactory,
     CraftFactory craftFactory,
     DubAudioCache dubAudioCache,
@@ -112,15 +121,7 @@ public class WorkManagerImpl implements WorkManager {
     HubClient hubClient,
     MixerFactory mixerFactory,
     NexusEntityStore store,
-    SegmentManager segmentManager,
-    @Value("${mixer.timeline.seconds}") int mixerSeconds,
-    @Value("${output.file.number.digits}") int outputFileNumberDigits,
-    @Value("${output.pcm.chunk.size.bytes}") int pcmChunkSizeBytes,
-    @Value("${ship.cycle.audio.bytes}") int cycleAudioBytes,
-    @Value("${temp.file.path.prefix}") String tempFilePathPrefix,
-    @Value("${ship.cycle.millis}") long shipCycleMillis,
-    @Value("${dub.cycle.millis}") long dubCycleMillis,
-    @Value("${craft.cycle.millis}") long craftCycleMillis
+    SegmentManager segmentManager
   ) {
     this.broadcastFactory = broadcastFactory;
     this.craftFactory = craftFactory;
@@ -132,16 +133,44 @@ public class WorkManagerImpl implements WorkManager {
     this.mixerFactory = mixerFactory;
     this.store = store;
     this.segmentManager = segmentManager;
-    this.mixerSeconds = mixerSeconds;
-    this.outputFileNumberDigits = outputFileNumberDigits;
-    this.pcmChunkSizeBytes = pcmChunkSizeBytes;
-    this.cycleAudioBytes = cycleAudioBytes;
-    this.tempFilePathPrefix = tempFilePathPrefix;
-    this.shipCycleMillis = shipCycleMillis;
-    this.dubCycleMillis = dubCycleMillis;
-    this.craftCycleMillis = craftCycleMillis;
+    this.telemetry = workTelemetry;
+  }
 
-    cycleMillis = Math.min(dubCycleMillis, Math.min(shipCycleMillis, craftCycleMillis));
+  public static WorkManager createInstance() {
+    FileStoreProvider fileStore = new FileStoreProviderImpl();
+    BroadcastFactory broadcastFactory = new BroadcastFactoryImpl();
+    WorkTelemetry workTelemetry = new WorkTelemetryImpl();
+    CraftFactory craftFactory = new CraftFactoryImpl();
+    HttpClientProvider httpClientProvider = new HttpClientProviderImpl();
+    DubAudioCache dubAudioCache = new DubAudioCacheImpl(httpClientProvider);
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
+    NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
+    SegmentManager segmentManager = new SegmentManagerImpl(nexusEntityStore);
+    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
+      segmentManager,
+      jsonapiPayloadFactory,
+      jsonProvider
+    );
+    EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
+    MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider);
+    HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
+    HubTopology.buildHubApiTopology(entityFactory);
+    NexusTopology.buildNexusApiTopology(entityFactory);
+    return new WorkManagerImpl(
+      workTelemetry,
+      broadcastFactory,
+      craftFactory,
+      dubAudioCache,
+      entityFactory,
+      fabricatorFactory,
+      fileStore,
+      hubClient,
+      mixerFactory,
+      nexusEntityStore,
+      segmentManager
+    );
   }
 
   @Override
@@ -154,12 +183,15 @@ public class WorkManagerImpl implements WorkManager {
     this.hubConfig = hubConfig;
     this.hubAccess = hubAccess;
 
+    startedAtMillis.set(System.currentTimeMillis());
     isFileOutputMode = workConfig.getOutputMode() == OutputMode.FILE;
     isAudioLoaded.set(false);
     updateState(WorkState.Starting);
 
     scheduler = Executors.newScheduledThreadPool(1);
-    scheduler.scheduleAtFixedRate(this::runCycle, 0, cycleMillis, TimeUnit.MILLISECONDS);
+    scheduler.scheduleAtFixedRate(this::runCycle, 0, workConfig.getCycleMillis(), TimeUnit.MILLISECONDS);
+
+    telemetry.startTimer();
   }
 
   private void updateState(WorkState workState) {
@@ -184,6 +216,8 @@ public class WorkManagerImpl implements WorkManager {
     if (Objects.nonNull(afterFinished)) {
       afterFinished.run();
     }
+
+    telemetry.stopTimer();
   }
 
   @Override
@@ -386,7 +420,7 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(hubConfig);
     assert Objects.nonNull(workConfig);
     craftWork = new CraftWorkImpl(
-      craftFactory,
+      telemetry, craftFactory,
       entityFactory,
       fabricatorFactory,
       segmentManager,
@@ -396,56 +430,45 @@ public class WorkManagerImpl implements WorkManager {
       workConfig.getOutputMode(),
       hubConfig.getAudioBaseUrl(),
       hubConfig.getShipBaseUrl(),
-      tempFilePathPrefix,
+      workConfig.getTempFilePathPrefix(),
       workConfig.getOutputFrameRate(),
-      workConfig.getOutputChannels(),
-      workConfig.getCraftAheadSeconds()
+      workConfig.getOutputChannels()
     );
     dubWork = new DubWorkImpl(
-      craftWork,
+      telemetry, craftWork,
       dubAudioCache,
       mixerFactory,
       workConfig.getContentStoragePathPrefix(),
       hubConfig.getAudioBaseUrl(),
-      mixerSeconds,
+      workConfig.getMixBufferLengthSeconds(),
       workConfig.getOutputFrameRate(),
-      workConfig.getOutputChannels(),
-      workConfig.getDubAheadSeconds()
+      workConfig.getOutputChannels()
     );
     shipWork = new ShipWorkImpl(
-      dubWork,
+      telemetry, dubWork,
       broadcastFactory,
       workConfig.getOutputMode(),
       workConfig.getOutputFileMode(),
       workConfig.getOutputSeconds(),
-      cycleAudioBytes,
       workConfig.getInputTemplateKey(),
       workConfig.getOutputPathPrefix(),
-      outputFileNumberDigits,
-      pcmChunkSizeBytes,
-      workConfig.getShipAheadSeconds()
+      workConfig.getShipOutputFileNumberDigits(),
+      workConfig.getShipOutputPcmChunkSizeBytes()
     );
   }
 
   private void runFabricationCycle() {
-    var now = System.currentTimeMillis();
+    assert Objects.nonNull(workConfig);
+    assert Objects.nonNull(shipWork);
+    assert Objects.nonNull(dubWork);
+    assert Objects.nonNull(craftWork);
 
-    // Craft
-    if (Objects.nonNull(craftWork) && now >= nextCraftCycleMillis) {
-      nextCraftCycleMillis = now + craftCycleMillis;
-      craftWork.runCycle();
-    }
-
-    // Dub
-    if (Objects.nonNull(dubWork) && now >= nextDubCycleMillis) {
-      nextDubCycleMillis = now + dubCycleMillis;
-      dubWork.runCycle();
-    }
+    long now = System.currentTimeMillis();
 
     // Ship
-    if (Objects.nonNull(shipWork) && now >= nextShipCycleMillis) {
-      nextShipCycleMillis = now + shipCycleMillis;
-      shipWork.runCycle();
+    if (now >= nextShipCycleMillis) {
+      nextShipCycleMillis = now + workConfig.getShipCycleMillis();
+      shipWork.runCycle(0);
       if (isFileOutputMode) {
         updateProgress(shipWork.getProgress());
       }
@@ -453,6 +476,26 @@ public class WorkManagerImpl implements WorkManager {
         updateState(WorkState.Done);
         LOG.info("Fabrication work done");
       }
+    }
+
+    // Dub
+    if (now >= nextDubCycleMillis) {
+      nextDubCycleMillis = now + workConfig.getDubCycleMillis();
+      dubWork.runCycle(shipWork.getShippedToChainMicros().map(m -> m + workConfig.getDubAheadMicros()).orElse(0L));
+    }
+
+    // Craft
+    if (Objects.nonNull(craftWork) && now >= nextCraftCycleMillis) {
+      nextCraftCycleMillis = now + workConfig.getCraftCycleMillis();
+      craftWork.runCycle(shipWork.getShippedToChainMicros().map(m -> m + workConfig.getCraftAheadMicros()).orElse(0L));
+    }
+
+    // End lap & report if needed
+    var lapText = telemetry.markLap();
+    LOG.debug("Lap time: {}", lapText);
+    if (now >= nextReportCycleMillis) {
+      nextReportCycleMillis = now + workConfig.getReportCycleMillis();
+      telemetry.report();
     }
   }
 

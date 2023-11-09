@@ -17,7 +17,6 @@ import io.xj.hub.util.*;
 import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.*;
@@ -40,16 +39,13 @@ import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 public class FabricatorImpl implements Fabricator {
   static final String KEY_VOICE_NOTE_TEMPLATE = "voice-%s_note-%s";
   static final String KEY_VOICE_TRACK_TEMPLATE = "voice-%s_track-%s";
-  static final String EXTENSION_JSON = "json";
   static final String NAME_SEPARATOR = "-";
   static final String UNKNOWN_KEY = "unknown";
-  private static final long CHAIN_JSON_SHOW_EXTRA_SECONDS = 5;
   final Logger LOG = LoggerFactory.getLogger(FabricatorImpl.class);
   final Chain chain;
   final TemplateConfig templateConfig;
   final Collection<TemplateBinding> templateBindings;
   final HubContent sourceMaterial;
-  final int craftAheadSeconds;
   final double outputFrameRate;
   final int outputChannels;
   final JsonapiPayloadFactory jsonapiPayloadFactory;
@@ -91,7 +87,6 @@ public class FabricatorImpl implements Fabricator {
     SegmentManager segmentManager,
     JsonapiPayloadFactory jsonapiPayloadFactory,
     JsonProvider jsonProvider,
-    int craftAheadSeconds,
     double outputFrameRate,
     int outputChannels
   ) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException {
@@ -99,7 +94,6 @@ public class FabricatorImpl implements Fabricator {
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.jsonProvider = jsonProvider;
     this.sourceMaterial = sourceMaterial;
-    this.craftAheadSeconds = craftAheadSeconds;
     this.outputFrameRate = outputFrameRate;
     this.outputChannels = outputChannels;
 
@@ -212,33 +206,6 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public TemplateConfig getTemplateConfig() {
     return templateConfig;
-  }
-
-  @Override
-  public String getChainFullJson() throws NexusException {
-    return computeChainJson(segmentManager.readAll());
-  }
-
-  @Override
-  public String getChainFullJsonOutputKey() {
-    return ChainUtils.getShipKey(ChainUtils.getFullKey(ChainUtils.computeBaseKey(getChain())), EXTENSION_JSON);
-  }
-
-  @Override
-  public String getChainJson(long atChainMicros) throws NexusException {
-    var beforeThresholdChainMicros = atChainMicros + craftAheadSeconds * MICROS_PER_SECOND;
-    var afterThresholdChainMicros = atChainMicros - CHAIN_JSON_SHOW_EXTRA_SECONDS * MICROS_PER_SECOND;
-    return computeChainJson(
-      segmentManager.readAll().stream()
-        .filter(segment ->
-          segment.getBeginAtChainMicros() < beforeThresholdChainMicros
-            && (Objects.nonNull(segment.getDurationMicros()) ? segment.getDurationMicros() : 0) > afterThresholdChainMicros)
-        .toList());
-  }
-
-  @Override
-  public String getChainJsonOutputKey() {
-    return ChainUtils.getShipKey(ChainUtils.computeBaseKey(getChain()), EXTENSION_JSON);
   }
 
   @Override
@@ -503,27 +470,6 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public AudioFormat getOutputAudioFormat() {
-    return new AudioFormat(computeOutputEncoding(), (float) outputFrameRate, computeOutputSampleBits(), outputChannels, outputChannels * computeOutputSampleBits() / 8, (float) outputFrameRate, false);
-  }
-
-  public Optional<SegmentChoice> getChoice(SegmentChoiceArrangement pick) {
-    return workbench.getSegmentChoices().stream().filter(choice -> choice.getId().equals(pick.getSegmentChoiceId())).findFirst();
-  }
-
-  public Optional<SegmentChoiceArrangement> getArrangement(SegmentChoiceArrangementPick pick) {
-    return workbench.getSegmentChoiceArrangements().stream().filter(choice -> choice.getId().equals(pick.getSegmentChoiceArrangementId())).findFirst();
-  }
-
-  @Override
-  public Collection<InstrumentAudio> getPickedAudios() {
-    Collection<InstrumentAudio> audios = new ArrayList<>();
-    for (SegmentChoiceArrangementPick pick : workbench.getSegmentChoiceArrangementPicks())
-      sourceMaterial.getInstrumentAudio(pick.getInstrumentAudioId()).ifPresent(audios::add);
-    return audios;
-  }
-
-  @Override
   public Collection<SegmentChoiceArrangementPick> getPicks() {
     return workbench.getSegmentChoiceArrangementPicks();
   }
@@ -748,36 +694,6 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public String getSegmentJson() throws NexusException {
-    try {
-      return jsonapiPayloadFactory.serialize(
-        jsonapiPayloadFactory.newJsonapiPayload()
-          .setDataOne(jsonapiPayloadFactory.toPayloadObject(workbench.getSegment()))
-          .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChoiceArrangementPicks()))
-          .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChoiceArrangements()))
-          .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChoices()))
-          .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChords()))
-          .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMemes()))
-          .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMessages()))
-          .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMetas()))
-      );
-
-    } catch (JsonapiException e) {
-      throw new NexusException(e);
-    }
-  }
-
-  @Override
-  public String getSegmentJsonOutputKey() {
-    return getSegmentShipKey(EXTENSION_JSON);
-  }
-
-  @Override
-  public String getSegmentOutputWaveformKey() {
-    return SegmentUtils.getStorageFilename(getSegment());
-  }
-
-  @Override
   public String getSegmentShipKey(String extension) {
     return SegmentUtils.getStorageFilename(getSegment(), extension);
   }
@@ -874,16 +790,6 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public boolean isOneShotCutoffEnabled(Instrument instrument) {
     return getInstrumentConfig(instrument).isOneShotCutoffEnabled();
-  }
-
-  @Override
-  public Integer getAttackMillis(SegmentChoiceArrangementPick pick) throws NexusException {
-    return getInstrumentConfig(pick).getAttackMillis();
-  }
-
-  @Override
-  public Integer getReleaseMillis(SegmentChoiceArrangementPick pick) throws NexusException {
-    return getInstrumentConfig(pick).getReleaseMillis();
   }
 
   @Override
@@ -1005,28 +911,6 @@ public class FabricatorImpl implements Fabricator {
    */
   String formatLog(String message) {
     return String.format("[segId=%s] %s", workbench.getSegment().getId(), message);
-  }
-
-  /**
-   Get the Chain Metadata JSON file from a set of segments
-
-   @param segments to include in metadata JSON
-   @return metadata JSON
-   @throws NexusException on failure
-   */
-  String computeChainJson(Collection<Segment> segments) throws NexusException {
-    try {
-      JsonapiPayload jsonapiPayload = new JsonapiPayload();
-      jsonapiPayload.setDataOne(jsonapiPayloadFactory.toPayloadObject(chain));
-      for (TemplateBinding binding : templateBindings)
-        jsonapiPayload.addToIncluded(jsonapiPayloadFactory.toPayloadObject(binding));
-      for (Segment segment : segments)
-        jsonapiPayload.addToIncluded(jsonapiPayloadFactory.toPayloadObject(segment));
-      return jsonapiPayloadFactory.serialize(jsonapiPayload);
-
-    } catch (JsonapiException e) {
-      throw new NexusException(e);
-    }
   }
 
   /**

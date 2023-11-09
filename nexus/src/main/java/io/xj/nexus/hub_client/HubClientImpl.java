@@ -6,7 +6,7 @@ import io.xj.hub.HubContent;
 import io.xj.hub.HubContentPayload;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.http.HttpClientProvider;
-import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.json.JsonProvider;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import org.apache.commons.io.IOUtils;
@@ -17,9 +17,6 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URI;
@@ -32,29 +29,24 @@ import java.util.UUID;
 /**
  Implementation of a Hub Client for connecting to Hub and accessing contents
  */
-@Service
 public class HubClientImpl implements HubClient {
   static final String API_PATH_INGEST_FORMAT = "api/1/ingest/%s";
   static final String API_PATH_TEMPLATE_BY_ID_FORMAT = "api/1/templates/%s";
   static final String HEADER_COOKIE = "Cookie";
   final Logger LOG = LoggerFactory.getLogger(HubClientImpl.class);
   final HttpClientProvider httpClientProvider;
-  final JsonProviderImpl jsonProvider;
+  final JsonProvider jsonProvider;
   final JsonapiPayloadFactory jsonapiPayloadFactory;
-  final String hubAccessTokenName;
+  final String hubAccessTokenName = "access_token";
 
-
-  @Autowired
   public HubClientImpl(
     HttpClientProvider httpClientProvider,
-    JsonProviderImpl jsonProvider,
-    JsonapiPayloadFactory jsonapiPayloadFactory,
-    @Value("${hub.access.token.name}") String hubAccessTokenName
+    JsonProvider jsonProvider,
+    JsonapiPayloadFactory jsonapiPayloadFactory
   ) {
     this.httpClientProvider = httpClientProvider;
     this.jsonProvider = jsonProvider;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
-    this.hubAccessTokenName = hubAccessTokenName;
   }
 
   @Override

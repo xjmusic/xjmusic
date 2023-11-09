@@ -1,7 +1,9 @@
 package io.xj.gui.services;
 
 import io.xj.gui.WorkstationLogAppender;
+import io.xj.nexus.MacroMode;
 import io.xj.nexus.OutputMode;
+import io.xj.nexus.work.WorkState;
 import jakarta.annotation.Nullable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -40,6 +42,12 @@ public class UIStateServiceImpl implements UIStateService {
 
   @Nullable
   private BooleanBinding isOutputFileModeDisabled;
+
+  @Nullable
+  private BooleanBinding isManualFabricationMode;
+
+  @Nullable
+  private BooleanBinding isManualFabricationActive;
 
   public UIStateServiceImpl(
     FabricationService fabricationService,
@@ -105,16 +113,16 @@ public class UIStateServiceImpl implements UIStateService {
   public BooleanBinding isProgressBarVisibleProperty() {
     if (Objects.isNull(isProgressBarVisible))
       isProgressBarVisible = Bindings.createBooleanBinding(
-        () -> isFileOutputActiveProperty().get() || fabricationService.isStatusLoading().get(),
+        () -> fileOutputActiveProperty().get() || fabricationService.isStatusLoading().get(),
 
-        isFileOutputActiveProperty(),
+        fileOutputActiveProperty(),
         fabricationService.isStatusLoading());
 
     return isProgressBarVisible;
   }
 
   @Override
-  public BooleanBinding isFileOutputActiveProperty() {
+  public BooleanBinding fileOutputActiveProperty() {
     if (Objects.isNull(isFileOutputActive))
       isFileOutputActive = Bindings.createBooleanBinding(
         () -> fabricationService.isStatusActive().get() && fabricationService.isOutputModeFile().get(),
@@ -144,5 +152,23 @@ public class UIStateServiceImpl implements UIStateService {
       isOutputFileModeDisabled = fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not();
 
     return isOutputFileModeDisabled;
+  }
+
+  @Override
+  public BooleanBinding isManualFabricationModeProperty() {
+    if (Objects.isNull(isManualFabricationMode))
+      isManualFabricationMode = fabricationService.macroModeProperty().isEqualTo(MacroMode.MANUAL);
+
+    return isManualFabricationMode;
+  }
+
+  @Override
+  public BooleanBinding isManualFabricationActiveProperty() {
+    if (Objects.isNull(isManualFabricationActive))
+      isManualFabricationActive =
+        fabricationService.macroModeProperty().isEqualTo(MacroMode.MANUAL)
+          .and(fabricationService.statusProperty().isEqualTo(WorkState.Active));
+
+    return isManualFabricationActive;
   }
 }

@@ -4,6 +4,7 @@ package io.xj.gui.services;
 
 import io.xj.hub.tables.pojos.*;
 import io.xj.nexus.InputMode;
+import io.xj.nexus.MacroMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.model.*;
@@ -15,7 +16,6 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.scene.Node;
 
 import java.util.Collection;
@@ -35,6 +35,8 @@ public interface FabricationService {
 
   ObjectProperty<InputMode> inputModeProperty();
 
+  ObjectProperty<MacroMode> macroModeProperty();
+
   ObjectProperty<OutputFileMode> outputFileModeProperty();
 
   ObjectProperty<OutputMode> outputModeProperty();
@@ -44,8 +46,6 @@ public interface FabricationService {
   StringProperty craftAheadSecondsProperty();
 
   StringProperty dubAheadSecondsProperty();
-
-  StringProperty shipAheadSecondsProperty();
 
   StringProperty outputChannelsProperty();
 
@@ -62,6 +62,11 @@ public interface FabricationService {
   void start();
 
   void reset();
+
+  /**
+   @return all macro-type programs
+   */
+  List<Program> getAllMacroPrograms();
 
   Optional<Program> getProgram(UUID programId);
 
@@ -183,4 +188,5 @@ public interface FabricationService {
    Cancel the current fabrication process
    */
   void cancel();
+
 }

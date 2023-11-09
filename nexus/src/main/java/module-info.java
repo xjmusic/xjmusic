@@ -18,23 +18,12 @@ module workstation.nexus.main {
   requires org.bytedeco.javacv;
   requires org.jooq;
   requires org.slf4j;
-  requires spring.beans;
-  requires spring.boot.autoconfigure;
-  requires spring.boot;
-  requires spring.context;
-  requires spring.core;
+  requires org.yaml.snakeyaml;
+  requires ch.qos.logback.classic;
 
   // deps
   requires transitive hub.models.main;
   requires transitive workstation.lib.main;
-
-  // open
-  opens io.xj.nexus to spring.core;
-  opens io.xj.nexus.craft to spring.beans;
-  opens io.xj.nexus.dub to spring.beans;
-  opens io.xj.nexus.fabricator to spring.beans;
-  opens io.xj.nexus.ship.broadcast to spring.beans;
-  opens io.xj.nexus.work to spring.beans;
 
   // export
   exports io.xj.nexus.craft.background;

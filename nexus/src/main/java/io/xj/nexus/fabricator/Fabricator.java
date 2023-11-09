@@ -106,38 +106,6 @@ public interface Fabricator {
   TemplateConfig getTemplateConfig();
 
   /**
-   Get a JSON:API payload of the entire result of Chain Fabrication
-   Including ALL segments
-
-   @return JSON:API payload of the entire result of Chain Fabrication
-   */
-  String getChainFullJson() throws NexusException;
-
-  /**
-   Returns the ship key concatenated with JSON as its file extension
-   Including ALL segments
-
-   @return Output Metadata Key
-   */
-  String getChainFullJsonOutputKey();
-
-  /**
-   Get a JSON:API payload of the entire result of Chain Fabrication
-   Including only the next 90 seconds worth of segments- to the keep the player load focused on the near-future
-
-   @return JSON:API payload of the entire result of Chain Fabrication
-   */
-  String getChainJson(long atChainMicros) throws NexusException;
-
-  /**
-   Returns the ship key concatenated with JSON as its file extension
-   Including only the next 90 seconds worth of segments- to the keep the player load focused on the near-future
-
-   @return Output Metadata Key
-   */
-  String getChainJsonOutputKey();
-
-  /**
    Get choices for segment
 
    @return choices for segment
@@ -331,36 +299,6 @@ public interface Fabricator {
   Collection<String> getNotes(SegmentChordVoicing voicing) throws NexusException;
 
   /**
-   Output Audio Format
-
-   @return output audio format
-   */
-  AudioFormat getOutputAudioFormat() throws NexusException;
-
-  /**
-   Get the choice for a given pick
-
-   @param pick for which to get choice
-   @return choice for pick
-   */
-  Optional<SegmentChoice> getChoice(SegmentChoiceArrangement pick) throws NexusException;
-
-  /**
-   Get the choice for a given pick
-
-   @param pick for which to get choice
-   @return choice for pick
-   */
-  Optional<SegmentChoiceArrangement> getArrangement(SegmentChoiceArrangementPick pick) throws NexusException;
-
-  /**
-   id of all audio picked for current segment
-
-   @return list of audio ids
-   */
-  Collection<InstrumentAudio> getPickedAudios();
-
-  /**
    Get arrangement picks for segment
 
    @return arrangement picks for segment
@@ -551,27 +489,6 @@ public interface Fabricator {
   Collection<SegmentMeme> getSegmentMemes();
 
   /**
-   Get a JSON:API payload of the entire result of Segment Fabrication
-
-   @return JSON:API payload of the entire result of Segment Fabrication
-   */
-  String getSegmentJson() throws NexusException;
-
-  /**
-   Returns the ship key concatenated with JSON as its file extension
-
-   @return Output Metadata Key
-   */
-  String getSegmentJsonOutputKey();
-
-  /**
-   Returns the ship key concatenated with the output encoder as its file extension
-
-   @return Output Waveform Key
-   */
-  String getSegmentOutputWaveformKey();
-
-  /**
    Returns the segment ship key concatenated with a specified extension
 
    @return Output Metadata Key
@@ -610,7 +527,7 @@ public interface Fabricator {
   /**
    Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
    - Sticky bun is a simple coded key-value in segment meta
-   --- key by pattern Id
+   --- key by pattern ID
    --- value is a comma-separated list of integers, one integer for each note in the pattern, where
    ----- tonal note is coded as a `0` value
    ----- atonal note has a random integer value generated ranging from -50 to 50
@@ -740,24 +657,6 @@ public interface Fabricator {
    @throws NexusException on failure
    */
   boolean isOneShotCutoffEnabled(Instrument instrument) throws NexusException;
-
-  /**
-   One-shot fadeout mode https://www.pivotaltracker.com/story/show/183385397
-
-   @param pick for which to get audio volume
-   @return attack millis from instrument config
-   @throws NexusException on failure
-   */
-  Integer getAttackMillis(SegmentChoiceArrangementPick pick) throws NexusException;
-
-  /**
-   One-shot fadeout mode https://www.pivotaltracker.com/story/show/183385397
-
-   @param pick for which to get audio volume
-   @return release millis from instrument config
-   @throws NexusException on failure
-   */
-  Integer getReleaseMillis(SegmentChoiceArrangementPick pick) throws NexusException;
 
   /**
    is initial segment?

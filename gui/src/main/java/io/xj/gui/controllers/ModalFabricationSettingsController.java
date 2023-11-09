@@ -7,6 +7,7 @@ import io.xj.gui.services.LabService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.InputMode;
+import io.xj.nexus.MacroMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import javafx.collections.FXCollections;
@@ -32,12 +33,14 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   private final ThemeService themeService;
   private final UIStateService uiStateService;
 
-
   @FXML
   TextField fieldInputTemplateKey;
 
   @FXML
   ChoiceBox<InputMode> choiceInputMode;
+
+  @FXML
+  ChoiceBox<MacroMode> choiceMacroMode;
 
   @FXML
   ChoiceBox<OutputMode> choiceOutputMode;
@@ -49,10 +52,10 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   Label labelInputMode;
 
   @FXML
-  Label labelOutputFileMode;
+  Label labelMacroMode;
 
   @FXML
-  Label labelShipAheadSeconds;
+  Label labelOutputFileMode;
 
   @FXML
   Label labelOutputSeconds;
@@ -77,9 +80,6 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
 
   @FXML
   TextField fieldDubAheadSeconds;
-
-  @FXML
-  TextField fieldShipAheadSeconds;
 
   @FXML
   TextField fieldOutputChannels;
@@ -122,6 +122,9 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
       fabricationService.inputModeProperty().set(InputMode.PRODUCTION);
     }
 
+    choiceMacroMode.valueProperty().bindBidirectional(fabricationService.macroModeProperty());
+    choiceMacroMode.setItems(FXCollections.observableArrayList(MacroMode.values()));
+
     fieldInputTemplateKey.textProperty().bindBidirectional(fabricationService.inputTemplateKeyProperty());
 
     choiceOutputMode.getItems().setAll(OutputMode.values());
@@ -146,10 +149,6 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
     fieldDubAheadSeconds.textProperty().bindBidirectional(fabricationService.dubAheadSecondsProperty());
     fieldOutputFrameRate.textProperty().bindBidirectional(fabricationService.outputFrameRateProperty());
     fieldOutputChannels.textProperty().bindBidirectional(fabricationService.outputChannelsProperty());
-
-    fieldShipAheadSeconds.textProperty().bindBidirectional(fabricationService.shipAheadSecondsProperty());
-    fieldShipAheadSeconds.disableProperty().bind(fabricationService.isOutputModeFile());
-    labelShipAheadSeconds.disableProperty().bind(fabricationService.isOutputModeFile());
 
     fieldTimelineSegmentViewLimit.textProperty().bindBidirectional(fabricationService.timelineSegmentViewLimitProperty());
   }

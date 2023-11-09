@@ -11,16 +11,12 @@ import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.SegmentManager;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-@Service
 public class FabricatorFactoryImpl implements FabricatorFactory {
   final JsonapiPayloadFactory jsonapiPayloadFactory;
   final SegmentManager segmentManager;
   final JsonProvider jsonProvider;
 
-  @Autowired
   public FabricatorFactoryImpl(
     SegmentManager segmentManager,
     JsonapiPayloadFactory jsonapiPayloadFactory,
@@ -32,8 +28,8 @@ public class FabricatorFactoryImpl implements FabricatorFactory {
   }
 
   @Override
-  public Fabricator fabricate(HubContent sourceMaterial, Segment segment, int craftAheadSeconds, double outputFrameRate, int outputChannels) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException {
-    return new FabricatorImpl(sourceMaterial, segment, this, segmentManager, jsonapiPayloadFactory, jsonProvider, craftAheadSeconds, outputFrameRate, outputChannels);
+  public Fabricator fabricate(HubContent sourceMaterial, Segment segment, double outputFrameRate, int outputChannels) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException {
+    return new FabricatorImpl(sourceMaterial, segment, this, segmentManager, jsonapiPayloadFactory, jsonProvider, outputFrameRate, outputChannels);
   }
 
   @Override

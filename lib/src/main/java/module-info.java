@@ -18,21 +18,12 @@ module workstation.lib.main {
   requires org.bytedeco.javacv;
   requires org.reflections;
   requires org.slf4j;
-  requires spring.beans;
-  requires spring.context;
-  requires spring.core;
   requires typesafe.config;
 
   // private
   requires transitive hub.models.main;
 
-  // open
-  opens io.xj.lib.filestore to spring.core;
-  opens io.xj.lib.telemetry to spring.core;
-  opens io.xj.lib to spring.core;
-
   // export
-  exports io.xj.lib;
   exports io.xj.lib.app;
   exports io.xj.lib.entity.common;
   exports io.xj.lib.entity;
