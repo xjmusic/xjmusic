@@ -450,7 +450,6 @@ public class WorkManagerImpl implements WorkManager {
       workConfig.getOutputMode(),
       workConfig.getOutputFileMode(),
       workConfig.getOutputSeconds(),
-      workConfig.getShipCycleAudioBytes(),
       workConfig.getInputTemplateKey(),
       workConfig.getOutputPathPrefix(),
       workConfig.getShipOutputFileNumberDigits(),

@@ -42,7 +42,6 @@ public class ShipWorkImpl implements ShipWork {
   final OutputFileMode outputFileMode;
   final OutputMode outputMode;
   final String outputPathPrefix;
-  final int cycleAudioBytes;
   final int outputFileNumberDigits;
   final int outputSeconds;
   final int pcmChunkSizeBytes;
@@ -58,7 +57,6 @@ public class ShipWorkImpl implements ShipWork {
     OutputMode outputMode,
     OutputFileMode outputFileMode,
     int outputSeconds,
-    int cycleAudioBytes,
     String shipKey,
     String outputPathPrefix,
     int outputFileNumberDigits,
@@ -66,7 +64,6 @@ public class ShipWorkImpl implements ShipWork {
   ) {
     this.telemetry = telemetry;
     this.broadcastFactory = broadcastFactory;
-    this.cycleAudioBytes = cycleAudioBytes;
     this.dubWork = dubWork;
     this.outputFileMode = outputFileMode;
     this.shipKey = shipKey;
@@ -202,11 +199,8 @@ public class ShipWorkImpl implements ShipWork {
       }
 
       var availableBytes = dubWork.getMixerBuffer().orElseThrow().getAvailableByteCount();
-      if (availableBytes >= cycleAudioBytes) {
-        LOG.debug("Shipping {} bytes to local playback", cycleAudioBytes);
-        playback.append(dubWork.getMixerBuffer().orElseThrow().consume(cycleAudioBytes));
-        targetChainMicros = (long) (targetChainMicros + cycleAudioBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow());
-      }
+      playback.append(dubWork.getMixerBuffer().orElseThrow().consume(availableBytes));
+      targetChainMicros = (long) (targetChainMicros + availableBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow());
     }
   }
 
@@ -271,7 +265,7 @@ public class ShipWorkImpl implements ShipWork {
         }
       }
 
-      int availableBytes = Math.min(dubWork.getMixerBuffer().orElseThrow().getAvailableByteCount(), cycleAudioBytes);
+      int availableBytes = dubWork.getMixerBuffer().orElseThrow().getAvailableByteCount();
       int currentFileMaxBytes = (int) ((outputFile.getToChainMicros() - targetChainMicros) / dubWork.getMixerOutputMicrosPerByte().orElseThrow());
       int shipBytes = (int) (pcmChunkSizeBytes * Math.floor((float) Math.min(availableBytes, currentFileMaxBytes) / pcmChunkSizeBytes)); // rounded down to a multiple of pcm chunk size bytes
       if (0 == shipBytes) {

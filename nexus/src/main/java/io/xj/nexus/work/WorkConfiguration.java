@@ -24,7 +24,6 @@ public class WorkConfiguration {
   private int mixBufferLengthSeconds = 10;
   private long cycleMillis = 100;
   private String tempFilePathPrefix = "/tmp/";
-  private int shipCycleAudioBytes = 192000;
   private int shipOutputFileNumberDigits = 7;
   private int shipOutputPcmChunkSizeBytes = 1024;
   private long shipCycleMillis = 100;
@@ -164,15 +163,6 @@ public class WorkConfiguration {
 
   public WorkConfiguration setTempFilePathPrefix(String tempFilePathPrefix) {
     this.tempFilePathPrefix = tempFilePathPrefix;
-    return this;
-  }
-
-  public int getShipCycleAudioBytes() {
-    return shipCycleAudioBytes;
-  }
-
-  public WorkConfiguration setShipCycleAudioBytes(int shipCycleAudioBytes) {
-    this.shipCycleAudioBytes = shipCycleAudioBytes;
     return this;
   }
 
