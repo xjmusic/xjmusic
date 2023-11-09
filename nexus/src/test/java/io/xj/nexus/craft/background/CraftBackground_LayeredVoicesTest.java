@@ -92,8 +92,8 @@ public class CraftBackground_LayeredVoicesTest {
       SegmentState.CRAFTED,
       "D major",
       64,
-      0.73,
-      120.0,
+      0.73f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892",
       true));
     store.put(buildSegment(
@@ -104,8 +104,8 @@ public class CraftBackground_LayeredVoicesTest {
       SegmentState.CRAFTING,
       "Db minor",
       64,
-      0.85,
-      120.0,
+      0.85f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892.wav",
       true));
 
@@ -119,8 +119,8 @@ public class CraftBackground_LayeredVoicesTest {
       SegmentState.CRAFTED,
       "F Major",
       64,
-      0.30,
-      120.0,
+      0.30f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892.wav",
       true));
     store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, ProgramType.Macro, fake.program4_sequence0_binding0));
@@ -135,8 +135,8 @@ public class CraftBackground_LayeredVoicesTest {
       SegmentState.CRAFTING,
       "D Major",
       16,
-      0.45,
-      120.0,
+      0.45f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892.wav",
       true));
     store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment4, ProgramType.Macro, fake.program4_sequence0_binding0));
@@ -145,8 +145,8 @@ public class CraftBackground_LayeredVoicesTest {
     for (String memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
       store.put(NexusIntegrationTestingFixtures.buildSegmentMeme(segment4, memeName));
 
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment4, 0.0, "A minor"));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment4, 8.0, "D Major"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment4, 0.0f, "A minor"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment4, 8.0f, "D Major"));
   }
 
 
@@ -178,7 +178,7 @@ public class CraftBackground_LayeredVoicesTest {
 
   @Test
   public void craftBackgroundVoiceContinue() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
 
     craftFactory.background(fabricator).doWork();
 

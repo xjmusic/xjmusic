@@ -4,6 +4,8 @@ package io.xj.nexus.util;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 class FormatUtilsTest {
 
   @Test
@@ -64,9 +66,9 @@ class FormatUtilsTest {
 
   @Test
   void formatMinDecimal() {
-    assertEquals("1.5", FormatUtils.formatMinDecimal(1.5));
-    assertEquals("1.522", FormatUtils.formatMinDecimal(1.522));
-    assertEquals("1.522", FormatUtils.formatMinDecimal(1.522346));
+    assertEquals("1.5", FormatUtils.formatMinDecimal(1.5f));
+    assertEquals("1.522", FormatUtils.formatMinDecimal(1.522f));
+    assertEquals("1.522", FormatUtils.formatMinDecimal(1.522346f));
   }
 
   @Test

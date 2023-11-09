@@ -100,7 +100,7 @@ public class CraftDetailProgramVoiceInitialTest {
   public void craftDetailVoiceInitial() throws Exception {
     insertSegments();
 
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment1, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment1, 48000.0f, 2);
 
     craftFactory.detail(fabricator).doWork();
 
@@ -118,7 +118,7 @@ public class CraftDetailProgramVoiceInitialTest {
   @Test
   public void craftDetailVoiceInitial_okWhenNoDetailChoice() throws Exception {
     insertSegments();
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment1, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment1, 48000.0f, 2);
 
     craftFactory.detail(fabricator).doWork();
   }
@@ -136,8 +136,8 @@ public class CraftDetailProgramVoiceInitialTest {
       SegmentState.CRAFTED,
       "D Major",
       32,
-      0.55,
-      130.0,
+      0.55f,
+      130.0f,
       "chains-1-segments-0970305977172.wav", true));
     store.put(buildSegmentChoice(
       segment0,
@@ -160,8 +160,8 @@ public class CraftDetailProgramVoiceInitialTest {
       SegmentState.CRAFTING,
       "D Major",
       32,
-      0.55,
-      130.0,
+      0.55f,
+      130.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment1,
@@ -177,9 +177,9 @@ public class CraftDetailProgramVoiceInitialTest {
       fake.program5_sequence0_binding0));
     for (String memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
       store.put(buildSegmentMeme(segment1, memeName));
-    SegmentChord chord0 = store.put(buildSegmentChord(segment1, 0.0, "C minor"));
+    SegmentChord chord0 = store.put(buildSegmentChord(segment1, 0.0f, "C minor"));
     store.put(buildSegmentChordVoicing(chord0, InstrumentType.Bass, "C2, Eb2, G2"));
-    SegmentChord chord1 = store.put(buildSegmentChord(segment1, 8.0, "Db minor"));
+    SegmentChord chord1 = store.put(buildSegmentChord(segment1, 8.0f, "Db minor"));
     store.put(buildSegmentChordVoicing(chord1, InstrumentType.Bass, "Db2, E2, Ab2"));
   }
 

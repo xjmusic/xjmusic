@@ -4,7 +4,7 @@ package io.xj.nexus.jsonapi;
 
 import io.xj.nexus.Widget;
 import io.xj.nexus.entity.EntityFactoryImpl;
-import io.xj.lib.json.JsonProviderImpl;
+import io.xj.nexus.json.JsonProviderImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  Payload test

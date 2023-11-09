@@ -89,17 +89,17 @@ public class CraftSegmentPatternMemeTest {
         SegmentState.CRAFTING,
         "F Major",
         64,
-        0.30,
-        120.0,
+        0.30f,
+        120.0f,
         "chains-1-segments-9f7s89d8a7892.wav"
       ));
       store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(previousSegment, ProgramType.Macro, fake.program4_sequence1_binding0));
       store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(previousSegment, ProgramType.Main, fake.program5_sequence1_binding0));
 
       // Following Segment
-      Segment segment = store.put(buildSegment(chain, 2, SegmentState.PLANNED, "C", 8, 0.8, 120, "chain-1-waveform-12345"));
+      Segment segment = store.put(buildSegment(chain, 2, SegmentState.PLANNED, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
 
-      craftFactory.macroMain(fabricatorFactory.fabricate(sourceMaterial, segment, 48000.0, 2)).doWork();
+      craftFactory.macroMain(fabricatorFactory.fabricate(sourceMaterial, segment, 48000.0f, 2)).doWork();
 
       var result = store.getSegment(segment.getId()).orElseThrow();
       assertEquals(SegmentType.NEXTMACRO, result.getType());

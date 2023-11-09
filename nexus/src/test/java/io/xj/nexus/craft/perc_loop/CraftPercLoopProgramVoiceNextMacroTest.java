@@ -94,8 +94,8 @@ public class CraftPercLoopProgramVoiceNextMacroTest {
       SegmentState.CRAFTED,
       "D major",
       64,
-      0.73,
-      120.0,
+      0.73f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892",
       true));
     store.put(buildSegment(
@@ -106,8 +106,8 @@ public class CraftPercLoopProgramVoiceNextMacroTest {
       SegmentState.CRAFTING,
       "Db minor",
       64,
-      0.85,
-      120.0,
+      0.85f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
   }
 
@@ -134,7 +134,7 @@ public class CraftPercLoopProgramVoiceNextMacroTest {
   @Test
   public void craftPercLoopVoiceNextMacro() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
 
     craftFactory.percLoop(fabricator).doWork();
 
@@ -173,8 +173,8 @@ public class CraftPercLoopProgramVoiceNextMacroTest {
       SegmentState.CRAFTED,
       "Ab minor",
       64,
-      0.30,
-      120.0,
+      0.30f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment3,
@@ -206,8 +206,8 @@ public class CraftPercLoopProgramVoiceNextMacroTest {
       SegmentState.CRAFTING,
       "F minor",
       16,
-      0.45,
-      125.0,
+      0.45f,
+      125.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment4,
@@ -223,8 +223,8 @@ public class CraftPercLoopProgramVoiceNextMacroTest {
       fake.program15_sequence0_binding0));
     for (String memeName : List.of("Hindsight", "Chunky", "Regret", "Tangy"))
       store.put(buildSegmentMeme(segment4, memeName));
-    store.put(buildSegmentChord(segment4, 0.0, "F minor"));
-    store.put(buildSegmentChord(segment4, 8.0, "Gb minor"));
+    store.put(buildSegmentChord(segment4, 0.0f, "F minor"));
+    store.put(buildSegmentChord(segment4, 8.0f, "Gb minor"));
   }
 
 }

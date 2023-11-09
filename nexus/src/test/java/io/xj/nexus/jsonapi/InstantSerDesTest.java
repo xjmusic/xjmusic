@@ -6,7 +6,7 @@ package io.xj.nexus.jsonapi;
 import io.xj.nexus.entity.EntityException;
 import io.xj.nexus.entity.EntityFactory;
 import io.xj.nexus.entity.EntityFactoryImpl;
-import io.xj.lib.json.JsonProviderImpl;
+import io.xj.nexus.json.JsonProviderImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

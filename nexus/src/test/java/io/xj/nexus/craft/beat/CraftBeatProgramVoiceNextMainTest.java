@@ -100,8 +100,8 @@ public class CraftBeatProgramVoiceNextMainTest {
       SegmentState.CRAFTED,
       "D major",
       64,
-      0.73,
-      120.0,
+      0.73f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892"
     ));
     store.put(buildSegment(
@@ -162,7 +162,7 @@ public class CraftBeatProgramVoiceNextMainTest {
   @Test
   public void craftBeatVoiceNextMain() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
 
     craftFactory.beat(fabricator).doWork();
 
@@ -185,7 +185,7 @@ public class CraftBeatProgramVoiceNextMainTest {
   @Test
   public void craftBeatVoiceNextMain_okIfNoBeatChoice() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
 
     craftFactory.beat(fabricator).doWork();
   }
@@ -206,8 +206,8 @@ public class CraftBeatProgramVoiceNextMainTest {
       SegmentState.CRAFTED,
       "F Major",
       64,
-      0.30,
-      120.0,
+      0.30f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892",
       true));
     store.put(buildSegmentChoice(
@@ -238,8 +238,8 @@ public class CraftBeatProgramVoiceNextMainTest {
       SegmentState.CRAFTING,
       "G minor",
       16,
-      0.45,
-      120.0,
+      0.45f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment4,
@@ -256,8 +256,8 @@ public class CraftBeatProgramVoiceNextMainTest {
     for (String memeName : List.of("Regret", "Sky", "Hindsight", "Tropical"))
       store.put(buildSegmentMeme(segment4, memeName));
 
-    store.put(buildSegmentChord(segment4, 0.0, "G minor"));
-    store.put(buildSegmentChord(segment4, 8.0, "Ab minor"));
+    store.put(buildSegmentChord(segment4, 0.0f, "G minor"));
+    store.put(buildSegmentChord(segment4, 8.0f, "Ab minor"));
   }
 
 }

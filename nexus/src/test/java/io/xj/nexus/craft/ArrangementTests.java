@@ -188,7 +188,7 @@ FUTURE goal
 
         // Fabricate: Craft Arrangements for Choices
         var sourceMaterial = new HubContent(content);
-        fabricator = fabrication.fabricate(sourceMaterial, segment, 48000.0, 2);
+        fabricator = fabrication.fabricate(sourceMaterial, segment, 48000.0f, 2);
         for (StickyBun bun : stickyBuns) {
           fabricator.putStickyBun(bun);
         }
@@ -341,7 +341,7 @@ FUTURE goal
 
     for (Map<?, ?> cObj : (List<Map<?, ?>>) obj.get("chords")) {
       var chord = store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment,
-        getDouble(cObj),
+        Objects.requireNonNull(getFloat(cObj)),
         getStr(cObj, "name")));
       Map<?, ?> vObj = (Map<?, ?>) cObj.get("voicings");
       for (var instrumentType : instruments.keySet()) {

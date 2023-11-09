@@ -78,14 +78,14 @@ public class CraftSegmentOutputEncoderTest {
       SegmentState.PLANNED,
       "C",
       8,
-      0.8,
-      120.0,
+      0.8f,
+      120.0f,
       "chain-1-waveform-12345.wav"));
   }
 
   @Test
   public void craftFoundationInitial() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 48000.0f, 2);
 
     craftFactory.macroMain(fabricator).doWork();
 

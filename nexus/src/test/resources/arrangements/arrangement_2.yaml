@@ -2,7 +2,7 @@
 #  https://docs.google.com/document/d/1r-gpTbJV7vl-nRuJkb9Y1-Fgw8A2uD1uy6VzbAXZfX4/
 #
 #  This test is similar to Test #1 except the following:
-#   - The second chord, F, occurs at 1.5 instead of 2.0
+#   - The second chord, , occurs at 1.5 instead of 2.0
 #   - The Pad/Stab starting chord is in root position rather than second inversion
 #
 #  XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738

@@ -22,12 +22,12 @@ public class MixerConfigTest {
 
   @Test
   public void getCompressAheadFrames() {
-    assertEquals(72000, config.setCompressAheadSeconds(1.5).getCompressAheadFrames());
+    assertEquals(72000, config.setCompressAheadSeconds(1.5f).getCompressAheadFrames());
   }
 
   @Test
   public void getCompressDecayFrames() {
-    assertEquals(96000, config.setCompressDecaySeconds(2.0).getCompressDecayFrames());
+    assertEquals(96000, config.setCompressDecaySeconds(2.0f).getCompressDecayFrames());
   }
 
   @Test

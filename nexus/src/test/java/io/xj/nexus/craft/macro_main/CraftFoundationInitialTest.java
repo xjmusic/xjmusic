@@ -85,15 +85,15 @@ public class CraftFoundationInitialTest {
       SegmentState.PLANNED,
       "C",
       8,
-      0.8,
-      120.0,
+      0.8f,
+      120.0f,
       "chain-1-waveform-12345.wav"
     ));
   }
 
   @Test
   public void craftFoundationInitial() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 48000.0f, 2);
 
     craftFactory.macroMain(fabricator).doWork();
 
@@ -104,7 +104,7 @@ public class CraftFoundationInitialTest {
     assertEquals(Integer.valueOf(16), result.getTotal());
     assertEquals(0.1, result.getDensity(), 0.01);
     assertEquals("G", result.getKey());
-    assertEquals(140.0, result.getTempo(), 0.01);
+    assertEquals(140.0f, result.getTempo(), 0.01);
     // assert memes
     assertSameItems(
       List.of("TROPICAL", "WILD", "OUTLOOK", "OPTIMISM"),

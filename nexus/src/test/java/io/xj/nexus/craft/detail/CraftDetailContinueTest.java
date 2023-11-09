@@ -90,8 +90,8 @@ public class CraftDetailContinueTest {
       SegmentState.CRAFTED,
       "D major",
       64,
-      0.73,
-      120.0,
+      0.73f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892",
       true));
     store.put(buildSegment(
@@ -102,8 +102,8 @@ public class CraftDetailContinueTest {
       SegmentState.CRAFTING,
       "Db minor",
       64,
-      0.85,
-      120.0,
+      0.85f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892",
       true));
   }
@@ -115,7 +115,7 @@ public class CraftDetailContinueTest {
   @Test
   public void craftDetailContinue() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
 
     craftFactory.detail(fabricator).doWork();
     // assert choice of detail-type sequence
@@ -127,7 +127,7 @@ public class CraftDetailContinueTest {
   @Test
   public void craftDetailContinue_okEvenWithoutPreviousSegmentDetailChoice() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
     craftFactory.detail(fabricator).doWork();
 
     // assert choice of detail-type sequence
@@ -150,8 +150,8 @@ public class CraftDetailContinueTest {
       SegmentState.CRAFTED,
       "F Major",
       64,
-      0.30,
-      120.0,
+      0.30f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892",
       true));
     store.put(buildSegmentChoice(
@@ -182,8 +182,8 @@ public class CraftDetailContinueTest {
       SegmentState.CRAFTING,
       "D Major",
       16,
-      0.45,
-      120.0,
+      0.45f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892",
       true));
     store.put(buildSegmentChoice(
@@ -200,9 +200,9 @@ public class CraftDetailContinueTest {
       fake.program5_sequence1_binding0));
     for (String memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
       store.put(buildSegmentMeme(segment4, memeName));
-    SegmentChord chord0 = store.put(buildSegmentChord(segment4, 0.0, "A minor"));
+    SegmentChord chord0 = store.put(buildSegmentChord(segment4, 0.0f, "A minor"));
     store.put(buildSegmentChordVoicing(chord0, InstrumentType.Bass, "A2, C3, E3"));
-    SegmentChord chord1 = store.put(buildSegmentChord(segment4, 8.0, "D major"));
+    SegmentChord chord1 = store.put(buildSegmentChord(segment4, 8.0f, "D major"));
     store.put(buildSegmentChordVoicing(chord1, InstrumentType.Bass, "D2, F#2, A2"));
   }
 }

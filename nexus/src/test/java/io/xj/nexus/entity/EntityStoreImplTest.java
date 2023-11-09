@@ -4,7 +4,7 @@ package io.xj.nexus.entity;
 
 import io.xj.nexus.Superwidget;
 import io.xj.nexus.Widget;
-import io.xj.lib.json.JsonProviderImpl;
+import io.xj.nexus.json.JsonProviderImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

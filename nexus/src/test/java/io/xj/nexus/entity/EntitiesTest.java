@@ -3,7 +3,7 @@ package io.xj.nexus.entity;
 
 import io.xj.nexus.Superwidget;
 import io.xj.nexus.Widget;
-import io.xj.lib.json.JsonProviderImpl;
+import io.xj.nexus.json.JsonProviderImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -248,11 +249,11 @@ public class EntitiesTest extends TestTemplate {
   @Test
   public void flatMapIds() {
     List<UUID> result =
-      List.of(
+      Stream.of(
           new Widget().setId(UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e")),
           new Widget().setId(UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a")),
           new Widget().setId(UUID.fromString("e23fb542-b0fc-4773-9848-772f64cbc5a4"))
-        ).stream()
+        )
         .flatMap(EntityUtils::flatMapIds)
         .collect(Collectors.toList());
 

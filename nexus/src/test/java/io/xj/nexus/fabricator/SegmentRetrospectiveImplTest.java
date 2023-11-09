@@ -92,8 +92,8 @@ public class SegmentRetrospectiveImplTest {
       SegmentState.CRAFTED,
       "D major",
       SEQUENCE_TOTAL_BEATS,
-      0.73,
-      120.0,
+      0.73f,
+      120.0f,
       String.format("chains-%s-segments-%s", ChainUtils.getIdentifier(chain), offset),
       true));
     store.put(buildSegmentChoice(

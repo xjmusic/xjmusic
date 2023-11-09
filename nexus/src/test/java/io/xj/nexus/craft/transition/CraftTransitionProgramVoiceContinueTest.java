@@ -95,8 +95,8 @@ public class CraftTransitionProgramVoiceContinueTest {
       SegmentState.CRAFTED,
       "D major",
       64,
-      0.73,
-      120.0,
+      0.73f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892",
       true));
     store.put(buildSegment(
@@ -107,8 +107,8 @@ public class CraftTransitionProgramVoiceContinueTest {
       SegmentState.CRAFTING,
       "Db minor",
       64,
-      0.85,
-      120.0,
+      0.85f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
   }
 
@@ -139,7 +139,7 @@ public class CraftTransitionProgramVoiceContinueTest {
   @Test
   public void craftTransitionVoiceContinue_okIfNoTransitionChoice() throws Exception {
     insertSegments3and4();
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
 
     craftFactory.transition(fabricator).doWork();
   }
@@ -158,8 +158,8 @@ public class CraftTransitionProgramVoiceContinueTest {
       SegmentState.CRAFTED,
       "F Major",
       64,
-      0.30,
-      120.0,
+      0.30f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment3,
@@ -183,8 +183,8 @@ public class CraftTransitionProgramVoiceContinueTest {
       SegmentState.CRAFTING,
       "D Major",
       16,
-      0.45,
-      120.0,
+      0.45f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment4,
@@ -200,8 +200,8 @@ public class CraftTransitionProgramVoiceContinueTest {
       fake.program5_sequence1_binding0));
     for (String memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
       store.put(buildSegmentMeme(segment4, memeName));
-    store.put(buildSegmentChord(segment4, 0.0, "A minor"));
-    store.put(buildSegmentChord(segment4, 8.0, "D Major"));
+    store.put(buildSegmentChord(segment4, 0.0f, "A minor"));
+    store.put(buildSegmentChord(segment4, 8.0f, "D Major"));
   }
 
 

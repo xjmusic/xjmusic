@@ -88,8 +88,8 @@ public class NexusEntityStoreImplTest {
     segment.durationMicros(32 * MICROS_PER_SECOND);
     segment.setKey("D Major");
     segment.setTotal(64);
-    segment.setDensity(0.73);
-    segment.setTempo(120.0);
+    segment.setDensity(0.73f);
+    segment.setTempo(120.0f);
     segment.storageKey("chains-1-segments-9f7s89d8a7892.wav");
 
     subject.put(segment);
@@ -104,8 +104,8 @@ public class NexusEntityStoreImplTest {
     assertEquals(32 * MICROS_PER_SECOND, (long) Objects.requireNonNull(result.getDurationMicros()));
     assertEquals("D Major", result.getKey());
     assertEquals(Integer.valueOf(64), result.getTotal());
-    assertEquals(0.73, result.getDensity(), 0.01);
-    assertEquals(120.0, result.getTempo(), 0.01);
+    assertEquals(0.73f, result.getDensity(), 0.01);
+    assertEquals(120.0f, result.getTempo(), 0.01);
     assertEquals("chains-1-segments-9f7s89d8a7892.wav", result.getStorageKey());
   }
 
@@ -139,8 +139,8 @@ public class NexusEntityStoreImplTest {
     segment.durationMicros(32 * MICROS_PER_SECOND);
     segment.setKey("D Major");
     segment.setTotal(64);
-    segment.setDensity(0.73);
-    segment.setTempo(120.0);
+    segment.setDensity(0.73f);
+    segment.setTempo(120.0f);
     segment.storageKey("chains-1-segments-9f7s89d8a7892.wav");
     subject.put(segment);
   }
@@ -207,8 +207,8 @@ public class NexusEntityStoreImplTest {
       SegmentState.CRAFTED,
       "D Major",
       64,
-      0.73,
-      120.0,
+      0.73f,
+      120.0f,
       "chains-3-segments-9f7s89d8a7892.wav"
     ));
     subject.put(buildSegmentChoice(chain3_segment0, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, program, programSequenceBinding));
@@ -218,8 +218,8 @@ public class NexusEntityStoreImplTest {
       SegmentState.CRAFTED,
       "D Major",
       48,
-      0.73,
-      120.0,
+      0.73f,
+      120.0f,
       "chains-3-segments-d8a78929f7s89.wav"
     ));
 
@@ -246,8 +246,8 @@ public class NexusEntityStoreImplTest {
       SegmentState.CRAFTED,
       "D Major",
       64,
-      0.73,
-      120.0,
+      0.73f,
+      120.0f,
       "chains-3-segments-9f7s89d8a7892.wav"
     ));
     subject.put(buildSegment(fakeChain,
@@ -255,8 +255,8 @@ public class NexusEntityStoreImplTest {
       SegmentState.CRAFTED,
       "D Major",
       64,
-      0.73,
-      120.0,
+      0.73f,
+      120.0f,
       "chains-3-segments-9f7s89d8a7892.wav"
     ));
     subject.put(buildSegment(fakeChain,
@@ -264,8 +264,8 @@ public class NexusEntityStoreImplTest {
       SegmentState.CRAFTED,
       "D Major",
       64,
-      0.73,
-      120.0,
+      0.73f,
+      120.0f,
       "chains-3-segments-9f7s89d8a7892.wav"
     ));
 
@@ -284,8 +284,8 @@ public class NexusEntityStoreImplTest {
       SegmentState.CRAFTED,
       "D Major",
       64,
-      0.73,
-      120.0,
+      0.73f,
+      120.0f,
       "chains-3-segments-9f7s89d8a7892.wav"
     ));
 

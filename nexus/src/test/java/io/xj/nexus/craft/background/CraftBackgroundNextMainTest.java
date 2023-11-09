@@ -82,8 +82,8 @@ public class CraftBackgroundNextMainTest {
       SegmentState.CRAFTED,
       "D major",
       64,
-      0.73,
-      120.0,
+      0.73f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892"
     ));
     store.put(buildSegment(
@@ -92,8 +92,8 @@ public class CraftBackgroundNextMainTest {
       SegmentState.CRAFTING,
       "Db minor",
       64,
-      0.85,
-      120.0,
+      0.85f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892.wav"
     ));
   }
@@ -106,7 +106,7 @@ public class CraftBackgroundNextMainTest {
   @Test
   public void craftBackgroundNextMain_okEvenWithoutPreviousSegmentBackgroundChoice() throws Exception {
     insertSegments3and4();
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
 
     craftFactory.background(fabricator).doWork();
   }
@@ -123,8 +123,8 @@ public class CraftBackgroundNextMainTest {
       SegmentState.CRAFTED,
       "F Major",
       64,
-      0.30,
-      120.0,
+      0.30f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892.wav"
     ));
     store.put(buildSegmentChoice(
@@ -149,8 +149,8 @@ public class CraftBackgroundNextMainTest {
       SegmentState.CRAFTING,
       "G minor",
       16,
-      0.45,
-      120.0,
+      0.45f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(segment4,
       Segment.DELTA_UNLIMITED,
@@ -165,8 +165,8 @@ public class CraftBackgroundNextMainTest {
     for (String memeName : List.of("Regret", "Sky", "Hindsight", "Tropical")) {
       store.put(buildSegmentMeme(segment4, memeName));
     }
-    store.put(buildSegmentChord(segment4, 0.0, "G minor"));
-    store.put(buildSegmentChord(segment4, 8.0, "Ab minor"));
+    store.put(buildSegmentChord(segment4, 0.0f, "G minor"));
+    store.put(buildSegmentChord(segment4, 8.0f, "Ab minor"));
   }
 
 

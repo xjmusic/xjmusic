@@ -90,8 +90,8 @@ public class CraftBeatInitialTest {
       SegmentState.CRAFTING,
       "C minor",
       16,
-      0.55,
-      130.0,
+      0.55f,
+      130.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment6,
@@ -108,8 +108,8 @@ public class CraftBeatInitialTest {
     for (String memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
       store.put(NexusIntegrationTestingFixtures.buildSegmentMeme(segment6, memeName));
 
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment6, 0.0, "C minor"));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment6, 8.0, "Db minor"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment6, 0.0f, "C minor"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment6, 8.0f, "Db minor"));
   }
 
   @AfterEach
@@ -119,7 +119,7 @@ public class CraftBeatInitialTest {
 
   @Test
   public void craftBeatInitial() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 48000.0f, 2);
 
     craftFactory.beat(fabricator).doWork();
 
