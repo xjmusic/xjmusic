@@ -14,6 +14,5 @@ check() {
 }
 
 check hub/src
-check lib/src
 check nexus/src
 check ship/src

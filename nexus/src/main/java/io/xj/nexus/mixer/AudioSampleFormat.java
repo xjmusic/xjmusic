@@ -229,7 +229,7 @@ public enum AudioSampleFormat {
    @return encoded bytes
    */
   static byte[] toBytesF32LSB(float value) {
-    return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat((float) value).array();
+    return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(value).array();
   }
 
   /**
@@ -239,7 +239,7 @@ public enum AudioSampleFormat {
    @return encoded bytes
    */
   static byte[] toBytesF32MSB(float value) {
-    return ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putFloat((float) value).array();
+    return ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putFloat(value).array();
   }
 
   /**
