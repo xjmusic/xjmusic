@@ -6,8 +6,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- Utilities for converting back and forth between a `float` and various `byte[]` for different bit-rates
- a float is a single value for a channel of a frame of some audio.
+ Utilities for converting back and forth between a `double` and various `byte[]` for different bit-rates
+ a double is a single value for a channel of a frame of some audio.
 
  @link https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html */
 @SuppressWarnings("CommentedOutCode")
@@ -42,7 +42,7 @@ public enum AudioSampleFormat {
 
   /**
    Get the proprietary (to this class) type for output audio
-   which can be used later to quickly build sample bytes from `float` values
+   which can be used later to quickly build sample bytes from `double` values
 
    @param format of audio from which to extract proprietary sample format
    @return proprietary sample format
@@ -54,7 +54,7 @@ public enum AudioSampleFormat {
 
   /**
    Get the proprietary (to this class) type for input audio
-   which can be used later to quickly build sample bytes from `float` values
+   which can be used later to quickly build sample bytes from `double` values
 
    @param format of audio from which to extract proprietary sample format
    @return proprietary sample format
@@ -66,7 +66,7 @@ public enum AudioSampleFormat {
 
   /**
    Get the proprietary (to this class) type
-   which can be used later to quickly build sample bytes from `float` values
+   which can be used later to quickly build sample bytes from `double` values
 
    @param format   of audio from which to extract proprietary sample format
    @param isOutput whether this format will be used for output (which affects rules)
@@ -125,13 +125,13 @@ public enum AudioSampleFormat {
   }
 
   /**
-   Convert a `float` value to output bytes based on its proprietary sample type
+   Convert a `double` value to output bytes based on its proprietary sample type
 
    @param value to convert
    @param type  of sample
    @return output bytes
    */
-  public static byte[] toBytes(float value, AudioSampleFormat type) {
+  public static byte[] toBytes(double value, AudioSampleFormat type) {
     return switch (type) {
       case S8 -> toBytesS8(value);
       case S16LSB -> toBytesS16LSB(value);
@@ -147,13 +147,13 @@ public enum AudioSampleFormat {
   }
 
   /**
-   Convert input bytes to a `float` value based on its proprietary sample type
+   Convert input bytes to a `double` value based on its proprietary sample type
 
    @param value to convert
    @param type  of sample
    @return value
    */
-  public static float fromBytes(byte[] value, AudioSampleFormat type) {
+  public static double fromBytes(byte[] value, AudioSampleFormat type) {
     return switch (type) {
       case U8 -> fromBytesU8(value);
       case S8 -> fromBytesS8(value);
@@ -178,7 +178,7 @@ public enum AudioSampleFormat {
    @param value to encode
    @return encoded bytes
    */
-  static byte[] toBytesS8(float value) {
+  static byte[] toBytesS8(double value) {
     return new byte[]{(byte) (SIGNED_8BIT_MAX * value)};
   }
 
@@ -188,7 +188,7 @@ public enum AudioSampleFormat {
    @param value to encode
    @return encoded bytes
    */
-  static byte[] toBytesS16LSB(float value) {
+  static byte[] toBytesS16LSB(double value) {
     return ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort((short) (SIGNED_16BIT_MAX * value)).array();
   }
 
@@ -198,7 +198,7 @@ public enum AudioSampleFormat {
    @param value to encode
    @return encoded bytes
    */
-  static byte[] toBytesS16MSB(float value) {
+  static byte[] toBytesS16MSB(double value) {
     return ByteBuffer.allocate(2).order(ByteOrder.BIG_ENDIAN).putShort((short) (SIGNED_16BIT_MAX * value)).array();
   }
 
@@ -208,7 +208,7 @@ public enum AudioSampleFormat {
    @param value to encode
    @return encoded bytes
    */
-  static byte[] toBytesS32LSB(float value) {
+  static byte[] toBytesS32LSB(double value) {
     return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt((int) (SIGNED_32BIT_MAX * value)).array();
   }
 
@@ -218,7 +218,7 @@ public enum AudioSampleFormat {
    @param value to encode
    @return encoded bytes
    */
-  static byte[] toBytesS32MSB(float value) {
+  static byte[] toBytesS32MSB(double value) {
     return ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt((int) (SIGNED_32BIT_MAX * value)).array();
   }
 
@@ -228,8 +228,8 @@ public enum AudioSampleFormat {
    @param value to encode
    @return encoded bytes
    */
-  static byte[] toBytesF32LSB(float value) {
-    return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(value).array();
+  static byte[] toBytesF32LSB(double value) {
+    return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat((float) value).array();
   }
 
   /**
@@ -238,8 +238,8 @@ public enum AudioSampleFormat {
    @param value to encode
    @return encoded bytes
    */
-  static byte[] toBytesF32MSB(float value) {
-    return ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putFloat(value).array();
+  static byte[] toBytesF32MSB(double value) {
+    return ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putFloat((float) value).array();
   }
 
   /**
@@ -248,8 +248,8 @@ public enum AudioSampleFormat {
    @param value to encode
    @return encoded bytes
    */
-  static byte[] toBytesF64LSB(float value) {
-    return ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putFloat(value).array();
+  static byte[] toBytesF64LSB(double value) {
+    return ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putDouble(value).array();
   }
 
   /**
@@ -258,8 +258,8 @@ public enum AudioSampleFormat {
    @param value to encode
    @return encoded bytes
    */
-  static byte[] toBytesF64MSB(float value) {
-    return ByteBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN).putFloat(value).array();
+  static byte[] toBytesF64MSB(double value) {
+    return ByteBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN).putDouble(value).array();
   }
 
   /**
@@ -268,10 +268,10 @@ public enum AudioSampleFormat {
    @param sample to decode
    @return value
    */
-  static float fromBytesU8(byte[] sample) {
-    return (float) (ByteBuffer.wrap(sample)
+  static double fromBytesU8(byte[] sample) {
+    return (double) (ByteBuffer.wrap(sample)
       .order(ByteOrder.LITTLE_ENDIAN)
-      .get() & UNSIGNED_8BIT_MAX) / (float) SIGNED_8BIT_MAX - 1;
+      .get() & UNSIGNED_8BIT_MAX) / (double) SIGNED_8BIT_MAX - 1;
   }
 
   /**
@@ -280,10 +280,10 @@ public enum AudioSampleFormat {
    @param sample to decode
    @return value
    */
-  static float fromBytesS8(byte[] sample) {
-    return (float) ByteBuffer.wrap(sample)
+  static double fromBytesS8(byte[] sample) {
+    return (double) ByteBuffer.wrap(sample)
       .order(ByteOrder.LITTLE_ENDIAN)
-      .get() / (float) SIGNED_8BIT_MAX;
+      .get() / (double) SIGNED_8BIT_MAX;
   }
 
   /**
@@ -292,10 +292,10 @@ public enum AudioSampleFormat {
    @param sample to decode
    @return value
    */
-  static float fromBytesU16LSB(byte[] sample) {
-    return (float) (ByteBuffer.wrap(sample)
+  static double fromBytesU16LSB(byte[] sample) {
+    return (double) (ByteBuffer.wrap(sample)
       .order(ByteOrder.LITTLE_ENDIAN)
-      .getShort() & UNSIGNED_16BIT_MAX) / (float) SIGNED_16BIT_MAX - 1;
+      .getShort() & UNSIGNED_16BIT_MAX) / (double) SIGNED_16BIT_MAX - 1;
   }
 
   /**
@@ -304,10 +304,10 @@ public enum AudioSampleFormat {
    @param sample to decode
    @return value
    */
-  static float fromBytesU16MSB(byte[] sample) {
-    return (float) (ByteBuffer.wrap(sample)
+  static double fromBytesU16MSB(byte[] sample) {
+    return (double) (ByteBuffer.wrap(sample)
       .order(ByteOrder.BIG_ENDIAN)
-      .getShort() & UNSIGNED_16BIT_MAX) / (float) SIGNED_16BIT_MAX - 1;
+      .getShort() & UNSIGNED_16BIT_MAX) / (double) SIGNED_16BIT_MAX - 1;
   }
 
   /**
@@ -316,10 +316,10 @@ public enum AudioSampleFormat {
    @param sample to decode
    @return value
    */
-  static float fromBytesS16LSB(byte[] sample) {
-    return (float) ByteBuffer.wrap(sample)
+  static double fromBytesS16LSB(byte[] sample) {
+    return (double) ByteBuffer.wrap(sample)
       .order(ByteOrder.LITTLE_ENDIAN)
-      .getShort() / (float) SIGNED_16BIT_MAX;
+      .getShort() / (double) SIGNED_16BIT_MAX;
   }
 
   /**
@@ -328,10 +328,10 @@ public enum AudioSampleFormat {
    @param sample to decode
    @return value
    */
-  static float fromBytesS16MSB(byte[] sample) {
-    return (float) ByteBuffer.wrap(sample)
+  static double fromBytesS16MSB(byte[] sample) {
+    return (double) ByteBuffer.wrap(sample)
       .order(ByteOrder.BIG_ENDIAN)
-      .getShort() / (float) SIGNED_16BIT_MAX;
+      .getShort() / (double) SIGNED_16BIT_MAX;
   }
 
   /**
@@ -340,12 +340,12 @@ public enum AudioSampleFormat {
    @param sample to decode
    @return value
    */
-  static float fromBytesS24LSB(byte[] sample) {
-    return (float) ((sample[2]) << 16 | (sample[1] & 0xFF) << 8 | (sample[0] & 0xFF)) / (float) SIGNED_24BIT_MAX;
+  static double fromBytesS24LSB(byte[] sample) {
+    return (double) ((sample[2]) << 16 | (sample[1] & 0xFF) << 8 | (sample[0] & 0xFF)) / (double) SIGNED_24BIT_MAX;
 /*
-    return (float) ByteBuffer.wrap(sample)
+    return (double) ByteBuffer.wrap(sample)
       .order(ByteOrder.LITTLE_ENDIAN)
-      .getShort() / (float) 0x8000;
+      .getShort() / (double) 0x8000;
 */
   }
 
@@ -356,13 +356,13 @@ public enum AudioSampleFormat {
    @param sample to decode
    @return value
    */
-  static float fromBytesS24MSB(byte[] sample) {
-    return (float) ((sample[0]) << 16 | (sample[1] & 0xFF) << 8 | (sample[2] & 0xFF)) / (float) SIGNED_24BIT_MAX;
+  static double fromBytesS24MSB(byte[] sample) {
+    return (double) ((sample[0]) << 16 | (sample[1] & 0xFF) << 8 | (sample[2] & 0xFF)) / (double) SIGNED_24BIT_MAX;
 
     /*
-    return (float) ByteBuffer.wrap(sample)
+    return (double) ByteBuffer.wrap(sample)
       .order(ByteOrder.BIG_ENDIAN)
-      .getShort() / (float) 0x800000;
+      .getShort() / (double) 0x800000;
 */
   }
 
@@ -372,10 +372,10 @@ public enum AudioSampleFormat {
    @param sample to decode
    @return value
    */
-  static float fromBytesS32LSB(byte[] sample) {
-    return (float) ByteBuffer.wrap(sample)
+  static double fromBytesS32LSB(byte[] sample) {
+    return (double) ByteBuffer.wrap(sample)
       .order(ByteOrder.LITTLE_ENDIAN)
-      .getInt() / (float) SIGNED_32BIT_MAX;
+      .getInt() / (double) SIGNED_32BIT_MAX;
   }
 
   /**
@@ -384,10 +384,10 @@ public enum AudioSampleFormat {
    @param sample to decode
    @return value
    */
-  static float fromBytesS32MSB(byte[] sample) {
-    return (float) ByteBuffer.wrap(sample)
+  static double fromBytesS32MSB(byte[] sample) {
+    return (double) ByteBuffer.wrap(sample)
       .order(ByteOrder.BIG_ENDIAN)
-      .getInt() / (float) SIGNED_32BIT_MAX;
+      .getInt() / (double) SIGNED_32BIT_MAX;
   }
 
   /**
@@ -396,7 +396,7 @@ public enum AudioSampleFormat {
    @param sample to decode
    @return value
    */
-  static float fromBytesF32LSB(byte[] sample) {
+  static double fromBytesF32LSB(byte[] sample) {
     return ByteBuffer.wrap(sample)
       .order(ByteOrder.LITTLE_ENDIAN)
       .getFloat();
@@ -408,7 +408,7 @@ public enum AudioSampleFormat {
    @param sample to decode
    @return value
    */
-  static float fromBytesF32MSB(byte[] sample) {
+  static double fromBytesF32MSB(byte[] sample) {
     return ByteBuffer.wrap(sample)
       .order(ByteOrder.BIG_ENDIAN)
       .getFloat();
@@ -420,10 +420,10 @@ public enum AudioSampleFormat {
    @param sample to decode
    @return value
    */
-  static float fromBytesF64LSB(byte[] sample) {
+  static double fromBytesF64LSB(byte[] sample) {
     return ByteBuffer.wrap(sample)
       .order(ByteOrder.LITTLE_ENDIAN)
-      .getFloat();
+      .getDouble();
   }
 
   /**
@@ -432,10 +432,10 @@ public enum AudioSampleFormat {
    @param sample to decode
    @return value
    */
-  static float fromBytesF64MSB(byte[] sample) {
+  static double fromBytesF64MSB(byte[] sample) {
     return ByteBuffer.wrap(sample)
       .order(ByteOrder.BIG_ENDIAN)
-      .getFloat();
+      .getDouble();
   }
 
 }

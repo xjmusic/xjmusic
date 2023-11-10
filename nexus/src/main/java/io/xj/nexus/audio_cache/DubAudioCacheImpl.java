@@ -107,7 +107,7 @@ public class DubAudioCacheImpl implements DubAudioCache {
         for (b = 0; b < numBytesReadToBuffer && sf < audio.length; b += frameSize) {
           for (tc = 0; tc < fileSpec.format.getChannels(); tc++) {
             System.arraycopy(readBuffer, b + (isStereo ? tc : 0) * sampleSize, sampleBuffer, 0, sampleSize); // TODO triage
-            audio[sf][tc] = AudioSampleFormat.fromBytes(sampleBuffer, sampleFormat);
+            audio[sf][tc] = (float) AudioSampleFormat.fromBytes(sampleBuffer, sampleFormat);
           }
           sf++;
         }
