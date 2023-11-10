@@ -2,7 +2,7 @@
 package io.xj.nexus.mixer;
 
 
-import io.xj.hub.util.InternalResource;
+import io.xj.nexus.util.InternalResource;
 import io.xj.nexus.audio_cache.DubAudioCache;
 import io.xj.nexus.audio_cache.DubAudioCacheImpl;
 import io.xj.nexus.http.HttpClientProvider;

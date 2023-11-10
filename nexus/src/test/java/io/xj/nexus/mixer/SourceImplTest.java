@@ -2,7 +2,7 @@
 package io.xj.nexus.mixer;
 
 
-import io.xj.hub.util.InternalResource;
+import io.xj.nexus.util.InternalResource;
 import io.xj.nexus.audio_cache.DubAudioCache;
 import io.xj.nexus.audio_cache.DubAudioCacheImpl;
 import io.xj.nexus.http.HttpClientProvider;
@@ -42,11 +42,11 @@ public class SourceImplTest {
 
     F32LSB_48kHz_Stereo = mixerFactory.createSource(
       audioId_F32LSB_48kHz_Stereo,
-      new InternalResource("test_audio/F32LSB_48kHz_Stereo.wav").getFile().getAbsolutePath(), "test audio");
+      new InternalResource("/test_audio/F32LSB_48kHz_Stereo.wav").getFile().getAbsolutePath(), "test audio");
 
     S16LSB_44100Hz_Mono = mixerFactory.createSource(
       audioId_S16LSB_44100Hz_Mono,
-      new InternalResource("test_audio/S16LSB_44100Hz_Mono.wav").getFile().getAbsolutePath(), "test audio");
+      new InternalResource("/test_audio/S16LSB_44100Hz_Mono.wav").getFile().getAbsolutePath(), "test audio");
 
     empty = mixerFactory.createSource(UUID.randomUUID(), "/does/not/exists", "will fail surely");
   }
@@ -55,14 +55,14 @@ public class SourceImplTest {
   public void unsupported_over2channels() throws IOException, SourceException, FormatException {
     mixerFactory.createSource(
       audioId_F32LSB_48kHz_6ch,
-      new InternalResource("test_audio/F32LSB_48kHz_6ch.wav").getFile().getAbsolutePath(), "test audio");
+      new InternalResource("/test_audio/F32LSB_48kHz_6ch.wav").getFile().getAbsolutePath(), "test audio");
   }
 
   @Test
   public void load24BitSourceAudio() throws Exception {
     assertNotNull(mixerFactory.createSource(
       audioId_F32LSB_48kHz_Stereo,
-      new InternalResource("test_audio/S24LSB_44100Hz_Stereo.wav").getFile().getAbsolutePath(), "test audio"));
+      new InternalResource("/test_audio/S24LSB_44100Hz_Stereo.wav").getFile().getAbsolutePath(), "test audio"));
   }
 
   @Test
