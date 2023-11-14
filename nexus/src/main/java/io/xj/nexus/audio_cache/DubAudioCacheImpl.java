@@ -124,40 +124,45 @@ public class DubAudioCacheImpl implements DubAudioCache {
     // compute a key based on the target frame rate, sample bits, channels, and waveform key.
     String originalCachePath = computeCachePath(contentStoragePathPrefix, instrumentId, waveformKey);
     String finalCachePath = computeCachePath(contentStoragePathPrefix, instrumentId, String.format("%d-%d-%d-%s", targetFrameRate, targetSampleBits, targetChannels, waveformKey));
-    if (existsOnDisk(originalCachePath) && existsOnDisk(finalCachePath)) {
-      LOG.debug("Found dub cache audio existing {} and final {}", originalCachePath, finalCachePath);
-      var currentFormat = getAudioFormat(originalCachePath);
+    if (existsOnDisk(finalCachePath)) {
+      LOG.debug("Found fully prepared audio at {}", finalCachePath);
+      var currentFormat = getAudioFormat(finalCachePath);
       return new AudioPreparedOnDisk(finalCachePath, currentFormat);
     }
+
+    // Create the directory if it doesn't exist
     Files.createDirectories(Path.of(computeCachePath(contentStoragePathPrefix, instrumentId, "")));
 
-    CloseableHttpClient client = httpClientProvider.getClient();
-    try (
-      CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", audioBaseUrl, waveformKey)))
-    ) {
-      if (Objects.isNull(response.getEntity().getContent()))
-        throw new NexusException(String.format("Unable to write bytes to disk cache: %s", originalCachePath));
+    // Fetch via HTTP if original does not exist
+    if (!existsOnDisk(originalCachePath)) {
+      CloseableHttpClient client = httpClientProvider.getClient();
+      try (
+        CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", audioBaseUrl, waveformKey)))
+      ) {
+        if (Objects.isNull(response.getEntity().getContent()))
+          throw new NexusException(String.format("Unable to write bytes to disk cache: %s", originalCachePath));
 
-      try (OutputStream toFile = FileUtils.openOutputStream(new File(originalCachePath))) {
-        var size = IOUtils.copy(response.getEntity().getContent(), toFile); // stores number of bytes copied
-        LOG.debug("Did write media item to disk cache: {} ({} bytes)", originalCachePath, size);
+        try (OutputStream toFile = FileUtils.openOutputStream(new File(originalCachePath))) {
+          var size = IOUtils.copy(response.getEntity().getContent(), toFile); // stores number of bytes copied
+          LOG.debug("Did write media item to disk cache: {} ({} bytes)", originalCachePath, size);
+        }
+      } catch (IOException e) {
+        throw new NexusException(String.format("Dub audio cache failed to stream audio from %s%s", audioBaseUrl, waveformKey), e);
+      } catch (NexusException e) {
+        throw new RuntimeException(e);
       }
-
-      // Check if the audio file has the target frame rate
-      var currentFormat = getAudioFormat(originalCachePath);
-      if (currentFormat.getFrameRate() != targetFrameRate) {
-        LOG.debug("Will resample audio file to {}Hz {}-bit {}-channel", targetFrameRate, targetSampleBits, targetChannels);
-        FFmpegUtils.resampleAudio(originalCachePath, finalCachePath, targetFrameRate, targetSampleBits, targetChannels);
-      } else {
-        LOG.debug("Will copy audio file from {} to {}", originalCachePath, finalCachePath);
-        Files.copy(Path.of(originalCachePath), Path.of(finalCachePath));
-      }
-      return new AudioPreparedOnDisk(finalCachePath, currentFormat);
-    } catch (IOException e) {
-      throw new NexusException(String.format("Dub audio cache failed to stream audio from %s%s", audioBaseUrl, waveformKey), e);
-    } catch (NexusException e) {
-      throw new RuntimeException(e);
     }
+
+    // Check if the audio file has the target frame rate
+    var currentFormat = getAudioFormat(originalCachePath);
+    if (currentFormat.getFrameRate() != targetFrameRate) {
+      LOG.debug("Will resample audio file to {}Hz {}-bit {}-channel", targetFrameRate, targetSampleBits, targetChannels);
+      FFmpegUtils.resampleAudio(originalCachePath, finalCachePath, targetFrameRate, targetSampleBits, targetChannels);
+    } else {
+      LOG.debug("Will copy audio file from {} to {}", originalCachePath, finalCachePath);
+      Files.copy(Path.of(originalCachePath), Path.of(finalCachePath));
+    }
+    return new AudioPreparedOnDisk(finalCachePath, currentFormat);
   }
 
   /**

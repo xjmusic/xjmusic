@@ -259,7 +259,7 @@ TODO something with
       var cached = dubAudioCache.load(
         config.getContentStoragePathPrefix(),
         config.getAudioBaseUrl(),
-        active.getAudio().getId(),
+        active.getInstrument().getId(),
         active.getAudio().getWaveformKey(),
         (int) outputFrameRate,
         audioFormat.getSampleSizeInBits(),
