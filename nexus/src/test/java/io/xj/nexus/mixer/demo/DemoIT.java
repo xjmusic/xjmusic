@@ -1,11 +1,16 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.mixer.demo;
 
-import io.xj.hub.util.InternalResource;
+import io.xj.hub.enums.InstrumentMode;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.*;
 import io.xj.nexus.audio_cache.DubAudioCache;
 import io.xj.nexus.audio_cache.DubAudioCacheImpl;
 import io.xj.nexus.http.HttpClientProvider;
 import io.xj.nexus.mixer.*;
+import io.xj.nexus.model.*;
+import io.xj.nexus.util.InternalResource;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -17,9 +22,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.*;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,14 +36,26 @@ public class DemoIT {
   static final Duration step = beat.dividedBy(4);
   static final String filePrefix = "/demo_source_audio/";
   static final String sourceFileSuffix = ".wav";
-  static final DemoSource kick1 = new DemoSource(UUID.randomUUID(), "808/kick1");
-  static final DemoSource kick2 = new DemoSource(UUID.randomUUID(), "808/kick2");
-  static final DemoSource marac = new DemoSource(UUID.randomUUID(), "808/maracas");
-  static final DemoSource snare = new DemoSource(UUID.randomUUID(), "808/snare");
-  static final DemoSource lotom = new DemoSource(UUID.randomUUID(), "808/tom1");
-  static final DemoSource clhat = new DemoSource(UUID.randomUUID(), "808/cl_hihat");
-  static final DemoSource ding = new DemoSource(UUID.randomUUID(), "instrument7-audio9-24bit-88200hz");
-  static final DemoSource[] sources = {
+  static final Account account = buildAccount();
+  static final Template template = buildTemplate(account, "Demo");
+  static final Chain chain = buildChain(template);
+  static final Program program = buildProgram(ProgramType.Beat, "C", 120, 1);
+  static final ProgramSequence sequence = buildProgramSequence(program, 4, "Demo", 1.0f, "C");
+  static final ProgramVoice voice = buildProgramVoice(program, InstrumentType.Drum, "Demo Beat");
+  static final ProgramVoiceTrack track = buildProgramVoiceTrack(voice, "Demo Beat");
+  static final ProgramSequencePattern pattern = buildProgramSequencePattern(sequence, voice, 4, "Demo Beat");
+  static final Segment segment = buildSegment(chain, 0, "C", 4, 1, 120);
+  static final SegmentChoice choice = buildSegmentChoice(segment, program);
+  static final SegmentChoiceArrangement arrangement = buildSegmentChoiceArrangement(choice);
+  static final Instrument instrument = buildInstrument(InstrumentType.Drum, InstrumentMode.Event, false, false);
+  static final InstrumentAudio kick1 = buildAudio(instrument, "kick1", "808/kick1", 0, .701f, 120, 1.0f, "X", "C5", 1.0f);
+  static final InstrumentAudio kick2 = buildAudio(instrument, "kick2", "808/kick2", 0, .865f, 120, 1.0f, "X", "C5", 1.0f);
+  static final InstrumentAudio marac = buildAudio(instrument, "marac", "808/maracas", 0, .025f, 120, 1.0f, "X", "C5", 1.0f);
+  static final InstrumentAudio snare = buildAudio(instrument, "snare", "808/snare", 0, .092f, 120, 1.0f, "X", "C5", 1.0f);
+  static final InstrumentAudio lotom = buildAudio(instrument, "lotom", "808/tom1", 0, .360f, 120, 1.0f, "X", "C5", 1.0f);
+  static final InstrumentAudio clhat = buildAudio(instrument, "clhat", "808/cl_hihat", 0, .052f, 120, 1.0f, "X", "C5", 1.0f);
+  static final InstrumentAudio ding = buildAudio(instrument, "ding", "instrument7-audio9-24bit-88200hz", 0, 3.733f, 120, 1.0f, "X", "C5", 1.0f);
+  static final InstrumentAudio[] sources = {
     kick1,
     kick2,
     marac,
@@ -45,7 +64,7 @@ public class DemoIT {
     clhat,
     ding
   };
-  static final DemoSource[] demoSequence = {
+  static final InstrumentAudio[] demoSequence = {
     kick2,
     marac,
     clhat,
@@ -127,18 +146,37 @@ public class DemoIT {
     mixerConfig.setTotalSeconds(outputSeconds);
     Mixer mixer = mixerFactory.createMixer(mixerConfig);
 
+
+    List<SegmentChoiceArrangementPick> picks = new ArrayList<>();
+
+    /*
     // set up the sources
-    for (DemoSource source : sources) {
-      // TODO: pass this path in as an active audio source mixer.loadSource(source.id(), getResourceFile(filePrefix + source.key() + sourceFileSuffix).getAbsolutePath(), "test audio");
-    }
+    TODO: pass this path in as an active audio source
+      for (InstrumentAudio source : sources) {
+        // mixer.loadSource(source.id(), getResourceFile(filePrefix + source.key() + sourceFileSuffix).getAbsolutePath(), "test audio");
+      }
+     */
 
     // set up the music
     int iL = demoSequence.length;
-/*
- TODO: add to active audios array
-    for (int i = 0; i < iL; i++)
-      mixer.put(UUID.randomUUID(), demoSequence[i].id(), DEFAULT_BUS, atMicros(i), atMicros(i + 3), 1.0f, 1, 5);
-*/
+    for (int i = 0; i < iL; i++) {
+      // TODO new version of:  mixer.put(UUID.randomUUID(), demoSequence[i].id(), DEFAULT_BUS, atMicros(i), atMicros(i + 3), 1.0f, 1, 5);
+      ProgramSequencePatternEvent event = buildProgramSequencePatternEvent(
+        pattern,
+        track,
+        (float) i / 4,
+        0.25f,
+        "X",
+        1.0f
+      );
+      picks.add(buildSegmentChoiceArrangementPick(
+        segment,
+        arrangement,
+        event,
+        demoSequence[i],
+        demoSequence[i].getName()
+      ));
+    }
 
 /*
  TODO: add to active audios array
@@ -147,8 +185,10 @@ public class DemoIT {
 */
 
     // mix it
-    List<ActiveAudio> activeAudios = List.of(); // TODO: actual list of active audios
-    mixer.mix(activeAudios);
+    mixer.mix(picks.stream()
+      .map((SegmentChoiceArrangementPick pick) ->
+        new ActiveAudio(pick, instrument, audio, startAtMixerMicros, stopAtMixerMicros))
+      .toList());
 
     // Write the demo file output
     audioFileWriter.open(outputFilePath);

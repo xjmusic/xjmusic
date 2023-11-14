@@ -23,7 +23,13 @@ public class ActiveAudio {
   private final Instrument instrument;
   private final float amplitude;
 
-  public ActiveAudio(SegmentChoiceArrangementPick pick, Instrument instrument, InstrumentAudio audio, Long startAtMixerMicros, @Nullable Long stopAtMixerMicros) {
+  public ActiveAudio(
+    SegmentChoiceArrangementPick pick,
+    Instrument instrument,
+    InstrumentAudio audio,
+    Long startAtMixerMicros,
+    @Nullable Long stopAtMixerMicros
+  ) {
     this.pick = pick;
     this.audio = audio;
     this.startAtMixerMicros = startAtMixerMicros;
