@@ -169,10 +169,10 @@ public class AudioMathUtilFormatTest {
 
   @Test
   public void toBytes_S32LSB() {
-    assertArrayEquals(new byte[]{106, -4, 52, -2}, AudioSampleFormat.toBytes(0.014007995849482712f, AudioSampleFormat.S32LSB));
-    assertArrayEquals(new byte[]{90, -4, 44, -2}, AudioSampleFormat.toBytes(0.01425214392529069f, AudioSampleFormat.S32LSB));
-    assertArrayEquals(new byte[]{29, -55, -12, -54}, AudioSampleFormat.toBytes(0.414404736472670675f, AudioSampleFormat.S32LSB));
-    assertArrayEquals(new byte[]{95, -99, 124, 91}, AudioSampleFormat.toBytes(-0.714740440076906645f, AudioSampleFormat.S32LSB));
+    assertArrayEquals(new byte[]{106, -4, 52, -2}, AudioSampleFormat.toBytes(0.014007995849482712, AudioSampleFormat.S32LSB));
+    assertArrayEquals(new byte[]{90, -4, 44, -2}, AudioSampleFormat.toBytes(0.01425214392529069, AudioSampleFormat.S32LSB));
+    assertArrayEquals(new byte[]{29, -55, -12, -54}, AudioSampleFormat.toBytes(0.414404736472670675, AudioSampleFormat.S32LSB));
+    assertArrayEquals(new byte[]{95, -99, 124, 91}, AudioSampleFormat.toBytes(-0.714740440076906645, AudioSampleFormat.S32LSB));
     assertArrayEquals(new byte[]{0, 0, 0, -128}, AudioSampleFormat.toBytes(1, AudioSampleFormat.S32LSB));
     assertArrayEquals(new byte[]{-1, -1, -1, 127}, AudioSampleFormat.toBytes(-1, AudioSampleFormat.S32LSB));
   }
@@ -215,14 +215,14 @@ public class AudioMathUtilFormatTest {
 
   @Test
   public void toBytes_F64LSB() {
-    assertArrayEquals(new byte[]{101, -82, 50, 87, -103, 123, 41, -66}, AudioSampleFormat.toBytes(-2.9665893574863208E-9f, AudioSampleFormat.F64LSB));
-    assertArrayEquals(new byte[]{58, -57, -100, 99, -50, -31, 34, -66}, AudioSampleFormat.toBytes(-2.1981605675431764E-9f, AudioSampleFormat.F64LSB));
-    assertArrayEquals(new byte[]{91, 75, -83, -91, -42, -30, 65, -66}, AudioSampleFormat.toBytes(-8.328858649346046E-9f, AudioSampleFormat.F64LSB));
-    assertArrayEquals(new byte[]{-37, 115, -19, -71, -10, 28, 58, -66}, AudioSampleFormat.toBytes(-6.079939134478311E-9f, AudioSampleFormat.F64LSB));
+    assertArrayEquals(new byte[]{101, -82, 50, 87, -103, 123, 41, -66}, AudioSampleFormat.toBytes(-2.9665893574863208E-9, AudioSampleFormat.F64LSB));
+    assertArrayEquals(new byte[]{58, -57, -100, 99, -50, -31, 34, -66}, AudioSampleFormat.toBytes(-2.1981605675431764E-9, AudioSampleFormat.F64LSB));
+    assertArrayEquals(new byte[]{91, 75, -83, -91, -42, -30, 65, -66}, AudioSampleFormat.toBytes(-8.328858649346046E-9, AudioSampleFormat.F64LSB));
+    assertArrayEquals(new byte[]{-37, 115, -19, -71, -10, 28, 58, -66}, AudioSampleFormat.toBytes(-6.079939134478311E-9, AudioSampleFormat.F64LSB));
     assertArrayEquals(new byte[]{0, 0, 0, 0, 0, 0, -16, -65}, AudioSampleFormat.toBytes(-1, AudioSampleFormat.F64LSB));
-    assertArrayEquals(new byte[]{0, 0, 0, 0, 0, 0, -32, -65}, AudioSampleFormat.toBytes(-0.5f, AudioSampleFormat.F64LSB));
+    assertArrayEquals(new byte[]{0, 0, 0, 0, 0, 0, -32, -65}, AudioSampleFormat.toBytes(-0.5, AudioSampleFormat.F64LSB));
     assertArrayEquals(new byte[]{0, 0, 0, 0, 0, 0, 0, 0}, AudioSampleFormat.toBytes(0, AudioSampleFormat.F64LSB));
-    assertArrayEquals(new byte[]{0, 0, 0, 0, 0, 0, -32, 63}, AudioSampleFormat.toBytes(0.5f, AudioSampleFormat.F64LSB));
+    assertArrayEquals(new byte[]{0, 0, 0, 0, 0, 0, -32, 63}, AudioSampleFormat.toBytes(0.5, AudioSampleFormat.F64LSB));
     assertArrayEquals(new byte[]{0, 0, 0, 0, 0, 0, -16, 63}, AudioSampleFormat.toBytes(1, AudioSampleFormat.F64LSB));
   }
 
@@ -269,10 +269,10 @@ public class AudioMathUtilFormatTest {
 
   @Test
   public void toBytes_S32MSB() {
-    assertArrayEquals(new byte[]{-2, 52, -4, 106}, AudioSampleFormat.toBytes(0.014007995849482712f, AudioSampleFormat.S32MSB));
-    assertArrayEquals(new byte[]{-2, 44, -4, 90}, AudioSampleFormat.toBytes(0.01425214392529069f, AudioSampleFormat.S32MSB));
-    assertArrayEquals(new byte[]{-54, -12, -55, 29}, AudioSampleFormat.toBytes(0.414404736472670675f, AudioSampleFormat.S32MSB));
-    assertArrayEquals(new byte[]{91, 124, -99, 95}, AudioSampleFormat.toBytes(-0.714740440076906645f, AudioSampleFormat.S32MSB));
+    assertArrayEquals(new byte[]{-2, 52, -4, 106}, AudioSampleFormat.toBytes(0.014007995849482712, AudioSampleFormat.S32MSB));
+    assertArrayEquals(new byte[]{-2, 44, -4, 90}, AudioSampleFormat.toBytes(0.01425214392529069, AudioSampleFormat.S32MSB));
+    assertArrayEquals(new byte[]{-54, -12, -55, 29}, AudioSampleFormat.toBytes(0.414404736472670675, AudioSampleFormat.S32MSB));
+    assertArrayEquals(new byte[]{91, 124, -99, 95}, AudioSampleFormat.toBytes(-0.714740440076906645, AudioSampleFormat.S32MSB));
     assertArrayEquals(new byte[]{-128, 0, 0, 0}, AudioSampleFormat.toBytes(1, AudioSampleFormat.S32MSB));
     assertArrayEquals(new byte[]{127, -1, -1, -1}, AudioSampleFormat.toBytes(-1, AudioSampleFormat.S32MSB));
   }
@@ -315,14 +315,14 @@ public class AudioMathUtilFormatTest {
 
   @Test
   public void toBytes_F64MSB() {
-    assertArrayEquals(new byte[]{-66, 41, 123, -103, 87, 50, -82, 101}, AudioSampleFormat.toBytes(-2.9665893574863208E-9f, AudioSampleFormat.F64MSB));
-    assertArrayEquals(new byte[]{-66, 34, -31, -50, 99, -100, -57, 58}, AudioSampleFormat.toBytes(-2.1981605675431764E-9f, AudioSampleFormat.F64MSB));
-    assertArrayEquals(new byte[]{-66, 65, -30, -42, -91, -83, 75, 91}, AudioSampleFormat.toBytes(-8.328858649346046E-9f, AudioSampleFormat.F64MSB));
-    assertArrayEquals(new byte[]{-66, 58, 28, -10, -71, -19, 115, -37}, AudioSampleFormat.toBytes(-6.079939134478311E-9f, AudioSampleFormat.F64MSB));
+    assertArrayEquals(new byte[]{-66, 41, 123, -103, 87, 50, -82, 101}, AudioSampleFormat.toBytes(-2.9665893574863208E-9, AudioSampleFormat.F64MSB));
+    assertArrayEquals(new byte[]{-66, 34, -31, -50, 99, -100, -57, 58}, AudioSampleFormat.toBytes(-2.1981605675431764E-9, AudioSampleFormat.F64MSB));
+    assertArrayEquals(new byte[]{-66, 65, -30, -42, -91, -83, 75, 91}, AudioSampleFormat.toBytes(-8.328858649346046E-9, AudioSampleFormat.F64MSB));
+    assertArrayEquals(new byte[]{-66, 58, 28, -10, -71, -19, 115, -37}, AudioSampleFormat.toBytes(-6.079939134478311E-9, AudioSampleFormat.F64MSB));
     assertArrayEquals(new byte[]{-65, -16, 0, 0, 0, 0, 0, 0}, AudioSampleFormat.toBytes(-1, AudioSampleFormat.F64MSB));
-    assertArrayEquals(new byte[]{-65, -32, 0, 0, 0, 0, 0, 0}, AudioSampleFormat.toBytes(-0.5f, AudioSampleFormat.F64MSB));
+    assertArrayEquals(new byte[]{-65, -32, 0, 0, 0, 0, 0, 0}, AudioSampleFormat.toBytes(-0.5, AudioSampleFormat.F64MSB));
     assertArrayEquals(new byte[]{0, 0, 0, 0, 0, 0, 0, 0}, AudioSampleFormat.toBytes(0, AudioSampleFormat.F64MSB));
-    assertArrayEquals(new byte[]{63, -32, 0, 0, 0, 0, 0, 0}, AudioSampleFormat.toBytes(0.5f, AudioSampleFormat.F64MSB));
+    assertArrayEquals(new byte[]{63, -32, 0, 0, 0, 0, 0, 0}, AudioSampleFormat.toBytes(0.5, AudioSampleFormat.F64MSB));
     assertArrayEquals(new byte[]{63, -16, 0, 0, 0, 0, 0, 0}, AudioSampleFormat.toBytes(1, AudioSampleFormat.F64MSB));
   }
 

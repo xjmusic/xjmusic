@@ -119,6 +119,18 @@ public class JsonapiPayload {
   }
 
   /**
+   Set errors
+
+   @param values to set
+   @return this Payload (for chaining methods)
+   */
+  public <N extends PayloadError> JsonapiPayload setDataOne(Collection<N> values) {
+    errors.clear();
+    errors.addAll(values);
+    return this;
+  }
+
+  /**
    Get container type, ambiguous, has-one, or has-many
 
    @return container type

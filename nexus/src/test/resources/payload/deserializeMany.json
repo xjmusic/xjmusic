@@ -2,9 +2,9 @@
   "data": [
     {
       "attributes": {
-        "name": "Test Program"
+        "name": "Test Widget"
       },
-      "type": "programs",
+      "type": "widgets",
       "id": "716f0033-e7fe-4242-b993-1f840e4a242f"
     }
   ]

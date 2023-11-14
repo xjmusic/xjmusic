@@ -8,8 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-import static io.xj.hub.util.Assertion.assertFileMatchesResourceFile;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 class FFmpegUtilsTest {
 
@@ -20,6 +22,10 @@ class FFmpegUtilsTest {
 
     FFmpegUtils.resampleAudio(inputAudioFilePath, outputAudioFilePath, 22000, 8, 1);
 
-    assertFileMatchesResourceFile("test_audio_resampled/ffmpeg-test-resample-output-22000-8bit-1ch.wav", outputAudioFilePath);
+    Path generatedFilePath = Paths.get(outputAudioFilePath);
+    InternalResource resource = new InternalResource("/test_audio_resampled/ffmpeg-test-resample-output-22000-8bit-1ch.wav");
+    byte[] generatedFileBytes = Files.readAllBytes(generatedFilePath);
+    byte[] testFileBytes = Files.readAllBytes(resource.getFile().toPath());
+    assertArrayEquals(testFileBytes, generatedFileBytes);
   }
 }

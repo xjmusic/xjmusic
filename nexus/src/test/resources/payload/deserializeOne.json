@@ -1,9 +1,9 @@
 {
   "data": {
     "attributes": {
-      "name": "Test Program"
+      "name": "Test Widget"
     },
-    "type": "programs",
+    "type": "widgets",
     "id": "19f3fced-2c3f-405d-bde8-f7ef71f9ad9d"
   }
 }

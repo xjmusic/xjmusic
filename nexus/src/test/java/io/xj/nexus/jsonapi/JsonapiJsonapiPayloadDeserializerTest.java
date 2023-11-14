@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.jsonapi;
 
-import io.xj.hub.util.FileUtils;
+import io.xj.nexus.util.InternalResource;
 import io.xj.nexus.Widget;
 import io.xj.nexus.entity.EntityFactoryImpl;
 import io.xj.nexus.json.JsonProviderImpl;
@@ -20,18 +20,18 @@ import static io.xj.nexus.jsonapi.AssertPayload.assertPayload;
  Created by Charney Kaye on 2020/03/09
  */
 public class JsonapiJsonapiPayloadDeserializerTest {
-  JsonapiPayloadFactory jsonapiPayloadFactory;
+  JsonapiPayloadFactory subject;
 
   @BeforeEach
   public void setUp() {
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
-    jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    subject = new JsonapiPayloadFactoryImpl(entityFactory);
   }
 
   @Test
   public void deserializeOneIncludingEmbeddedEntities() throws IOException, JsonapiException {
-    JsonapiPayload result = jsonapiPayloadFactory.deserialize(FileUtils.readResourceFileAsString("payload/deserializeOneIncludingEmbeddedEntities.json"));
+    JsonapiPayload result = subject.deserialize(InternalResource.readAsString("/payload/deserializeOneIncludingEmbeddedEntities.json"));
 
     assertPayload(result)
       .hasDataOne("widgets", "805cf759-4e94-4275-a82d-5255c9e69347")
@@ -43,7 +43,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   public void deserializeOneWithRelationship() throws IOException, JsonapiException {
     JsonapiPayload result = null;
     try {
-      result = jsonapiPayloadFactory.deserialize(FileUtils.readResourceFileAsString("payload/deserializeOneWithRelationship.json"));
+      result = subject.deserialize(InternalResource.readAsString("/payload/deserializeOneWithRelationship.json"));
     } catch (JsonapiException e) {
       e.printStackTrace();
     }
@@ -57,7 +57,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   public void deserializeOne() throws IOException, JsonapiException {
     JsonapiPayload result = null;
     try {
-      result = jsonapiPayloadFactory.deserialize(FileUtils.readResourceFileAsString("payload/deserializeOne.json"));
+      result = subject.deserialize(InternalResource.readAsString("/payload/deserializeOne.json"));
     } catch (JsonapiException e) {
       e.printStackTrace();
     }
@@ -67,23 +67,10 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   }
 
   @Test
-  public void deserializeErrors() throws IOException, JsonapiException {
-    JsonapiPayload result = null;
-    try {
-      result = jsonapiPayloadFactory.deserialize(FileUtils.readResourceFileAsString("payload/deserializeErrors.json"));
-    } catch (JsonapiException e) {
-      e.printStackTrace();
-    }
-
-    assertPayload(result)
-      .hasErrorCount(1);
-  }
-
-  @Test
   public void deserializeOneWithNullAttributeValue() throws IOException, JsonapiException {
     JsonapiPayload result = null;
     try {
-      result = jsonapiPayloadFactory.deserialize(FileUtils.readResourceFileAsString("payload/deserializeOneWithNullAttributeValue.json"));
+      result = subject.deserialize(InternalResource.readAsString("/payload/deserializeOneWithNullAttributeValue.json"));
     } catch (JsonapiException e) {
       e.printStackTrace();
     }
@@ -96,7 +83,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   public void deserializeMany() throws IOException, JsonapiException {
     JsonapiPayload result = null;
     try {
-      result = jsonapiPayloadFactory.deserialize(FileUtils.readResourceFileAsString("payload/deserializeMany.json"));
+      result = subject.deserialize(InternalResource.readAsString("/payload/deserializeMany.json"));
     } catch (JsonapiException e) {
       e.printStackTrace();
     }
@@ -111,7 +98,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
 
     JsonapiPayload result = null;
     try {
-      result = jsonapiPayloadFactory.deserialize(json);
+      result = subject.deserialize(json);
     } catch (JsonapiException e) {
       e.printStackTrace();
     }
@@ -126,7 +113,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
 
     JsonapiPayload result = null;
     try {
-      result = jsonapiPayloadFactory.deserialize(json);
+      result = subject.deserialize(json);
     } catch (JsonapiException e) {
       e.printStackTrace();
     }

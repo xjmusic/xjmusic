@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.mixer.demo;
 
+import io.xj.hub.util.InternalResource;
 import io.xj.nexus.audio_cache.DubAudioCache;
 import io.xj.nexus.audio_cache.DubAudioCacheImpl;
 import io.xj.nexus.http.HttpClientProvider;
@@ -11,19 +12,22 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.sound.sampled.AudioFormat;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
-import static io.xj.hub.util.Assertion.assertFileMatchesResourceFile;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 @ExtendWith(MockitoExtension.class)
 public class DemoIT {
   static final long bpm = 121;
   static final Duration beat = Duration.ofMinutes(1).dividedBy(bpm);
   static final Duration step = beat.dividedBy(4);
-  static final String filePrefix = "demo_source_audio/";
+  static final String filePrefix = "/demo_source_audio/";
   static final String sourceFileSuffix = ".wav";
   static final DemoSource kick1 = new DemoSource(UUID.randomUUID(), "808/kick1");
   static final DemoSource kick2 = new DemoSource(UUID.randomUUID(), "808/kick2");
@@ -60,7 +64,7 @@ public class DemoIT {
     marac
   };
   final MixerFactory mixerFactory;
-  static final String referenceAudioFilePrefix = "demo_reference_outputs/";
+  static final String referenceAudioFilePrefix = "/demo_reference_outputs/";
   static final int DEFAULT_BUS = 0;
 
   @Mock
@@ -87,6 +91,21 @@ public class DemoIT {
     String filename = Files.createTempFile("demo-output", ".wav").toAbsolutePath().toString();
     mixAndWriteOutput(encoding, frameRate, sampleBits, channels, seconds, filename);
     assertFileMatchesResourceFile(getReferenceAudioFilename(referenceName), filename);
+  }
+
+  /**
+   assert file matches resource file
+
+   @param referenceFilePath expected
+   @param targetFilePath    actual
+   @throws IOException on failure
+   */
+  private void assertFileMatchesResourceFile(String referenceFilePath, String targetFilePath) throws IOException {
+    Path generatedFilePath = Paths.get(targetFilePath);
+    InternalResource resource = new InternalResource(referenceFilePath);
+    byte[] generatedFileBytes = Files.readAllBytes(generatedFilePath);
+    byte[] testFileBytes = Files.readAllBytes(resource.getFile().toPath());
+    assertArrayEquals(testFileBytes, generatedFileBytes);
   }
 
   /**

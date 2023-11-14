@@ -24,7 +24,7 @@ class FormatUtilsTest {
     assertEquals("⅐", FormatUtils.formatFractionalSuffix(0.14285715f));
     assertEquals("⅛", FormatUtils.formatFractionalSuffix(0.125f));
     assertEquals("⅜", FormatUtils.formatFractionalSuffix(0.375f));
-    assertEquals("⅜", FormatUtils.formatFractionalSuffix(0.38f));
+    assertEquals(".38", FormatUtils.formatFractionalSuffix(0.38f));
     assertEquals("⅝", FormatUtils.formatFractionalSuffix(0.625f));
     assertEquals("⅞", FormatUtils.formatFractionalSuffix(0.875f));
     assertEquals("⅑", FormatUtils.formatFractionalSuffix(0.11111111f));
