@@ -52,7 +52,7 @@ public class CraftWorkImpl implements CraftWork {
   long nextMedicMillis = System.currentTimeMillis();
   final InputMode inputMode;
   final String tempFilePathPrefix;
-  final float outputFrameRate;
+  final double outputFrameRate;
   final int outputChannels;
   final String audioBaseUrl;
   final String shipBaseUrl;
@@ -77,7 +77,7 @@ public class CraftWorkImpl implements CraftWork {
     String audioBaseUrl,
     String shipBaseUrl,
     String tempFilePathPrefix,
-    float outputFrameRate,
+    double outputFrameRate,
     int outputChannels
   ) {
     this.telemetry = telemetry;
@@ -375,7 +375,7 @@ public class CraftWorkImpl implements CraftWork {
       // currently fabricated AT (vs target fabricated TO)
       var atChainMicros = ChainUtils.computeFabricatedToChainMicros(segmentManager.readAll());
 
-      float aheadSeconds = (float) ((atChainMicros - toChainMicros) / MICROS_PER_SECOND);
+      double aheadSeconds = ((double) (atChainMicros - toChainMicros) / MICROS_PER_SECOND);
 
       var templateConfig = getTemplateConfig();
       if (templateConfig.isEmpty()) return;

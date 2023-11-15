@@ -28,7 +28,7 @@ public class FabricatorFactoryImpl implements FabricatorFactory {
   }
 
   @Override
-  public Fabricator fabricate(HubContent sourceMaterial, Segment segment, float outputFrameRate, int outputChannels) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException {
+  public Fabricator fabricate(HubContent sourceMaterial, Segment segment, double outputFrameRate, int outputChannels) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException {
     return new FabricatorImpl(sourceMaterial, segment, this, segmentManager, jsonapiPayloadFactory, jsonProvider, outputFrameRate, outputChannels);
   }
 

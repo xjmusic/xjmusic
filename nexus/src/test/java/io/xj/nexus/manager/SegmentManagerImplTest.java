@@ -77,8 +77,8 @@ public class SegmentManagerImplTest {
       .state(SegmentState.CRAFTED)
       .key("D major")
       .total(64)
-      .density(0.73f)
-      .tempo(120.0f)
+      .density(0.73)
+      .tempo(120.0)
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
       .beginAtChainMicros(0L)
       .durationMicros(32 * MICROS_PER_SECOND));
@@ -90,11 +90,11 @@ public class SegmentManagerImplTest {
       .state(SegmentState.CRAFTING)
       .key("Db minor")
       .total(64)
-      .density(0.85f)
-      .tempo(120.0f)
+      .density(0.85)
+      .tempo(120.0)
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
       .beginAtChainMicros(32 * MICROS_PER_SECOND)
-      .waveformPreroll(1.523f)
+      .waveformPreroll(1.523)
       .durationMicros(32 * MICROS_PER_SECOND));
     store.put(new Segment()
       .id(2)
@@ -104,8 +104,8 @@ public class SegmentManagerImplTest {
       .state(SegmentState.CRAFTED)
       .key("F major")
       .total(64)
-      .density(0.30f)
-      .tempo(120.0f)
+      .density(0.30)
+      .tempo(120.0)
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
       .beginAtChainMicros(2 * 32 * MICROS_PER_SECOND)
       .durationMicros(32 * MICROS_PER_SECOND));
@@ -117,8 +117,8 @@ public class SegmentManagerImplTest {
       .total(64)
       .delta(192)
       .type(SegmentType.CONTINUE)
-      .density(0.41f)
-      .tempo(120.0f)
+      .density(0.41)
+      .tempo(120.0)
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
       .beginAtChainMicros(3 * 32 * MICROS_PER_SECOND)
       .durationMicros(32 * MICROS_PER_SECOND));
@@ -131,8 +131,8 @@ public class SegmentManagerImplTest {
       .state(SegmentState.PLANNED)
       .key("E minor")
       .total(64)
-      .density(0.41f)
-      .tempo(120.0f)
+      .density(0.41)
+      .tempo(120.0)
       .storageKey("chains-1-segments-9f7s89d8a7892"));
   }
 
@@ -150,11 +150,11 @@ public class SegmentManagerImplTest {
       .beginAtChainMicros(5 * 32 * MICROS_PER_SECOND)
       .durationMicros(32 * MICROS_PER_SECOND)
       .total(64)
-      .density(0.74f)
-      .waveformPreroll(2.898f)
+      .density(0.74)
+      .waveformPreroll(2.898)
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
       .key("C# minor 7 b9")
-      .tempo(120.0f);
+      .tempo(120.0);
 
     Segment result = testService.create(inputData);
 
@@ -188,9 +188,9 @@ public class SegmentManagerImplTest {
       .durationMicros(32 * MICROS_PER_SECOND)
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
       .total(64)
-      .density(0.74f)
+      .density(0.74)
       .key("C# minor 7 b9")
-      .tempo(120.0f);
+      .tempo(120.0);
 
     Segment result = testService.create(inputData);
 
@@ -218,9 +218,9 @@ public class SegmentManagerImplTest {
       .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
       .durationMicros(32 * MICROS_PER_SECOND)
       .total(64)
-      .density(0.74f)
+      .density(0.74)
       .key("C# minor 7 b9")
-      .tempo(120.0f);
+      .tempo(120.0);
 
     Exception thrown = assertThrows(ManagerValidationException.class, () ->
       testService.create(inputData));
@@ -238,9 +238,9 @@ public class SegmentManagerImplTest {
       .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
       .durationMicros(32 * MICROS_PER_SECOND)
       .total(64)
-      .density(0.74f)
+      .density(0.74)
       .key("C# minor 7 b9")
-      .tempo(120.0f);
+      .tempo(120.0);
 
     Exception thrown = assertThrows(ManagerValidationException.class, () ->
       testService.create(inputData));
@@ -305,9 +305,9 @@ public class SegmentManagerImplTest {
         .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
         .durationMicros(32 * MICROS_PER_SECOND)
         .total(64)
-        .density(0.74f)
+        .density(0.74)
         .key("C# minor 7 b9")
-        .tempo(120.0f));
+        .tempo(120.0));
 
     Collection<Segment> result = testService.readAll();
 
@@ -392,10 +392,10 @@ public class SegmentManagerImplTest {
       .durationMicros(32 * MICROS_PER_SECOND)
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
       .total(64)
-      .density(0.74f)
-      .waveformPreroll(0.0123f)
+      .density(0.74)
+      .waveformPreroll(0.0123)
       .key("C# minor 7 b9")
-      .tempo(120.0f);
+      .tempo(120.0);
 
     testService.update(segment2.getId(), inputData);
 
@@ -423,10 +423,10 @@ public class SegmentManagerImplTest {
       .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
       .durationMicros(32 * MICROS_PER_SECOND)
       .total(64)
-      .density(0.74f)
+      .density(0.74)
       .key("C# minor 7 b9")
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .tempo(120.0f));
+      .tempo(120.0));
 
     testService.update(segment4.getId(), segment4);
 
@@ -445,9 +445,9 @@ public class SegmentManagerImplTest {
       .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
       .durationMicros(32 * MICROS_PER_SECOND)
       .total(64)
-      .density(0.74f)
+      .density(0.74)
       .key("C# minor 7 b9")
-      .tempo(120.0f);
+      .tempo(120.0);
 
     Exception thrown = assertThrows(ManagerValidationException.class, () ->
       testService.update(segment5.getId(), inputData));
@@ -465,9 +465,9 @@ public class SegmentManagerImplTest {
       .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
       .durationMicros(32 * MICROS_PER_SECOND)
       .total(64)
-      .density(0.74f)
+      .density(0.74)
       .key("C# minor 7 b9")
-      .tempo(120.0f));
+      .tempo(120.0));
 
     Exception thrown = assertThrows(ManagerValidationException.class, () ->
       testService.update(segment2.getId(), inputData));
@@ -486,9 +486,9 @@ public class SegmentManagerImplTest {
       .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
       .durationMicros(32 * MICROS_PER_SECOND)
       .total(64)
-      .density(0.74f)
+      .density(0.74)
       .key("C# minor 7 b9")
-      .tempo(120.0f);
+      .tempo(120.0);
 
     Exception thrown = assertThrows(ManagerValidationException.class, () ->
       testService.update(segment2.getId(), inputData));

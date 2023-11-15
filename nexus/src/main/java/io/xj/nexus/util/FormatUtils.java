@@ -13,7 +13,7 @@ public interface FormatUtils {
    @param value number to format
    @return human-readable string like "½", "¼", or "⅔".
    */
-  static String formatFractionalSuffix(float value) {
+  static String formatFractionalSuffix(Double value) {
     if (value <= 0 || value >= 1) {
       return "";
     }
@@ -47,7 +47,7 @@ public interface FormatUtils {
    @param value number to format
    @return human-readable string like ".5", ".25", or ".333".
    */
-  static String formatDecimalSuffix(float value) {
+  static String formatDecimalSuffix(Double value) {
     if (value <= 0 || value >= 1) {
       return "";
     }
@@ -62,7 +62,7 @@ public interface FormatUtils {
    @param number number to format
    @return human-readable string like "5", "4.5", or "1.27".
    */
-  static String formatMinDecimal(@Nullable float number) {
+  static String formatMinDecimal(@Nullable Double number) {
     if (Objects.isNull(number)) {
       return "N/A";
     }

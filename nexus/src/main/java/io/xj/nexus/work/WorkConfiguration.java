@@ -18,7 +18,7 @@ public class WorkConfiguration {
 
   private long craftAheadMicros;
   private long dubAheadMicros;
-  private float outputFrameRate;
+  private double outputFrameRate;
   private int outputChannels;
   private String contentStoragePathPrefix;
   private int mixBufferLengthSeconds = 10;
@@ -112,11 +112,11 @@ public class WorkConfiguration {
     return this;
   }
 
-  public float getOutputFrameRate() {
+  public double getOutputFrameRate() {
     return outputFrameRate;
   }
 
-  public WorkConfiguration setOutputFrameRate(float outputFrameRate) {
+  public WorkConfiguration setOutputFrameRate(double outputFrameRate) {
     this.outputFrameRate = outputFrameRate;
     return this;
   }

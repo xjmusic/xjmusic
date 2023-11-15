@@ -46,11 +46,11 @@ public class FabricatorImpl implements Fabricator {
   final TemplateConfig templateConfig;
   final Collection<TemplateBinding> templateBindings;
   final HubContent sourceMaterial;
-  final float outputFrameRate;
+  final double outputFrameRate;
   final int outputChannels;
   final JsonapiPayloadFactory jsonapiPayloadFactory;
   final JsonProvider jsonProvider;
-  final Map<Float, Optional<SegmentChord>> chordAtPosition;
+  final Map<Double, Optional<SegmentChord>> chordAtPosition;
   final Map<InstrumentType, NoteRange> voicingNoteRange;
   final Map<SegmentChoice, ProgramSequence> sequenceForChoice;
   final Map<String, InstrumentAudio> preferredAudios;
@@ -75,7 +75,7 @@ public class FabricatorImpl implements Fabricator {
   Optional<SegmentChoice> mainChoiceOfPreviousSegment;
 
   @Nullable
-  float microsPerBeat;
+  Double microsPerBeat;
 
   @Nullable
   Set<InstrumentType> distinctChordVoicingTypes;
@@ -87,7 +87,7 @@ public class FabricatorImpl implements Fabricator {
     SegmentManager segmentManager,
     JsonapiPayloadFactory jsonapiPayloadFactory,
     JsonProvider jsonProvider,
-    float outputFrameRate,
+    double outputFrameRate,
     int outputChannels
   ) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException {
     this.segmentManager = segmentManager;
@@ -191,7 +191,7 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public float getAudioVolume(SegmentChoiceArrangementPick pick) {
+  public double getAudioVolume(SegmentChoiceArrangementPick pick) {
     return MarbleBag.quickPick(sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()).stream()
         .map(audio -> audio.getVolume() * sourceMaterial().getInstrument(audio.getInstrumentId()).orElseThrow().getVolume())
         .collect(Collectors.toList()))
@@ -214,10 +214,10 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Optional<SegmentChord> getChordAt(float position) {
+  public Optional<SegmentChord> getChordAt(Double position) {
     if (!chordAtPosition.containsKey(position)) {
       Optional<SegmentChord> foundChord = Optional.empty();
-      Float foundPosition = null;
+      Double foundPosition = null;
 
       // we assume that these entities are in order of position ascending
       for (SegmentChord segmentChord : workbench.getSegmentChords()) {
@@ -511,13 +511,13 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public Collection<ProgramSequenceChord> getProgramSequenceChords(ProgramSequence programSequence) {
     if (!completeChordsForProgramSequence.containsKey(programSequence.getId())) {
-      Map<Float, ProgramSequenceChord> chordForPosition = new HashMap<>();
-      Map<Float, Integer> validVoicingsForPosition = new HashMap<>();
+      Map<Double, ProgramSequenceChord> chordForPosition = new HashMap<>();
+      Map<Double, Integer> validVoicingsForPosition = new HashMap<>();
       for (ProgramSequenceChord chord : sourceMaterial.getChords(programSequence)) {
         int validVoicings = sourceMaterial.getVoicings(chord).stream().map(V -> CsvUtils.split(V.getNotes()).size()).reduce(0, Integer::sum);
-        if (!validVoicingsForPosition.containsKey(chord.getPosition().floatValue()) || validVoicingsForPosition.get(chord.getPosition().floatValue()) < validVoicings) {
-          validVoicingsForPosition.put(chord.getPosition().floatValue(), validVoicings);
-          chordForPosition.put(chord.getPosition().floatValue(), chord);
+        if (!validVoicingsForPosition.containsKey(chord.getPosition()) || validVoicingsForPosition.get(chord.getPosition()) < validVoicings) {
+          validVoicingsForPosition.put(chord.getPosition(), validVoicings);
+          chordForPosition.put(chord.getPosition(), chord);
         }
       }
       completeChordsForProgramSequence.put(programSequence.getId(), chordForPosition.values());
@@ -669,7 +669,7 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public long getSegmentMicrosAtPosition(float p) throws NexusException {
+  public long getSegmentMicrosAtPosition(double p) throws NexusException {
     return (long) (getMicrosPerBeat() * p);
   }
 
@@ -864,9 +864,9 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public float getMicrosPerBeat() throws NexusException {
+  public Double getMicrosPerBeat() throws NexusException {
     if (Objects.isNull(microsPerBeat))
-      microsPerBeat = (float) MICROS_PER_SECOND * SECONDS_PER_MINUTE / getCurrentMainProgram().getTempo();
+      microsPerBeat = (double) MICROS_PER_SECOND * SECONDS_PER_MINUTE / getCurrentMainProgram().getTempo();
     return microsPerBeat;
   }
 

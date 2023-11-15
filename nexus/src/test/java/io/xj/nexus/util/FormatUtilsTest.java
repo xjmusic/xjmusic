@@ -10,65 +10,65 @@ class FormatUtilsTest {
 
   @Test
   void formatFractionalSuffix() {
-    assertEquals("½", FormatUtils.formatFractionalSuffix(0.5f));
-    assertEquals("¼", FormatUtils.formatFractionalSuffix(0.25f));
-    assertEquals("¾", FormatUtils.formatFractionalSuffix(0.75f));
-    assertEquals("⅓", FormatUtils.formatFractionalSuffix(0.33333334f));
-    assertEquals("⅔", FormatUtils.formatFractionalSuffix(0.6666667f));
-    assertEquals("⅕", FormatUtils.formatFractionalSuffix(0.2f));
-    assertEquals("⅖", FormatUtils.formatFractionalSuffix(0.4f));
-    assertEquals("⅗", FormatUtils.formatFractionalSuffix(0.6f));
-    assertEquals("⅘", FormatUtils.formatFractionalSuffix(0.8f));
-    assertEquals("⅙", FormatUtils.formatFractionalSuffix(0.16666667f));
-    assertEquals("⅚", FormatUtils.formatFractionalSuffix(0.8333333f));
-    assertEquals("⅐", FormatUtils.formatFractionalSuffix(0.14285715f));
-    assertEquals("⅛", FormatUtils.formatFractionalSuffix(0.125f));
-    assertEquals("⅜", FormatUtils.formatFractionalSuffix(0.375f));
-    assertEquals(".38", FormatUtils.formatFractionalSuffix(0.38f));
-    assertEquals("⅝", FormatUtils.formatFractionalSuffix(0.625f));
-    assertEquals("⅞", FormatUtils.formatFractionalSuffix(0.875f));
-    assertEquals("⅑", FormatUtils.formatFractionalSuffix(0.11111111f));
-    assertEquals("⅒", FormatUtils.formatFractionalSuffix(0.1f));
-    assertEquals("", FormatUtils.formatFractionalSuffix(0.0f));
-    assertEquals("", FormatUtils.formatFractionalSuffix(1.0f));
-    assertEquals(".15", FormatUtils.formatFractionalSuffix(0.15f));
-    assertEquals(".39", FormatUtils.formatFractionalSuffix(0.39f));
-    assertEquals(".381", FormatUtils.formatFractionalSuffix(0.381239f));
+    assertEquals("½", FormatUtils.formatFractionalSuffix(0.5));
+    assertEquals("¼", FormatUtils.formatFractionalSuffix(0.25));
+    assertEquals("¾", FormatUtils.formatFractionalSuffix(0.75));
+    assertEquals("⅓", FormatUtils.formatFractionalSuffix(0.33333334));
+    assertEquals("⅔", FormatUtils.formatFractionalSuffix(0.6666667));
+    assertEquals("⅕", FormatUtils.formatFractionalSuffix(0.2));
+    assertEquals("⅖", FormatUtils.formatFractionalSuffix(0.4));
+    assertEquals("⅗", FormatUtils.formatFractionalSuffix(0.6));
+    assertEquals("⅘", FormatUtils.formatFractionalSuffix(0.8));
+    assertEquals("⅙", FormatUtils.formatFractionalSuffix(0.16666667));
+    assertEquals("⅚", FormatUtils.formatFractionalSuffix(0.8333333));
+    assertEquals("⅐", FormatUtils.formatFractionalSuffix(0.14285715));
+    assertEquals("⅛", FormatUtils.formatFractionalSuffix(0.125));
+    assertEquals("⅜", FormatUtils.formatFractionalSuffix(0.375));
+    assertEquals(".38", FormatUtils.formatFractionalSuffix(0.38));
+    assertEquals("⅝", FormatUtils.formatFractionalSuffix(0.625));
+    assertEquals("⅞", FormatUtils.formatFractionalSuffix(0.875));
+    assertEquals("⅑", FormatUtils.formatFractionalSuffix(0.11111111));
+    assertEquals("⅒", FormatUtils.formatFractionalSuffix(0.1));
+    assertEquals("", FormatUtils.formatFractionalSuffix(0.0));
+    assertEquals("", FormatUtils.formatFractionalSuffix(1.0));
+    assertEquals(".15", FormatUtils.formatFractionalSuffix(0.15));
+    assertEquals(".39", FormatUtils.formatFractionalSuffix(0.39));
+    assertEquals(".381", FormatUtils.formatFractionalSuffix(0.381239));
   }
 
   @Test
   void formatDecimalSuffix() {
-    assertEquals(".5", FormatUtils.formatDecimalSuffix(0.5f));
-    assertEquals(".25", FormatUtils.formatDecimalSuffix(0.25f));
-    assertEquals(".75", FormatUtils.formatDecimalSuffix(0.75f));
-    assertEquals(".333", FormatUtils.formatDecimalSuffix(0.33333334f));
-    assertEquals(".667", FormatUtils.formatDecimalSuffix(0.6666667f));
-    assertEquals(".2", FormatUtils.formatDecimalSuffix(0.2f));
-    assertEquals(".4", FormatUtils.formatDecimalSuffix(0.4f));
-    assertEquals(".6", FormatUtils.formatDecimalSuffix(0.6f));
-    assertEquals(".8", FormatUtils.formatDecimalSuffix(0.8f));
-    assertEquals(".167", FormatUtils.formatDecimalSuffix(0.16666667f));
-    assertEquals(".833", FormatUtils.formatDecimalSuffix(0.8333333f));
-    assertEquals(".143", FormatUtils.formatDecimalSuffix(0.14285715f));
-    assertEquals(".125", FormatUtils.formatDecimalSuffix(0.125f));
-    assertEquals(".375", FormatUtils.formatDecimalSuffix(0.375f));
-    assertEquals(".38", FormatUtils.formatDecimalSuffix(0.38f));
-    assertEquals(".625", FormatUtils.formatDecimalSuffix(0.625f));
-    assertEquals(".875", FormatUtils.formatDecimalSuffix(0.875f));
-    assertEquals(".111", FormatUtils.formatDecimalSuffix(0.11111111f));
-    assertEquals(".1", FormatUtils.formatDecimalSuffix(0.1f));
-    assertEquals("", FormatUtils.formatDecimalSuffix(0.0f));
-    assertEquals("", FormatUtils.formatDecimalSuffix(1.0f));
-    assertEquals(".15", FormatUtils.formatDecimalSuffix(0.15f));
-    assertEquals(".39", FormatUtils.formatDecimalSuffix(0.39f));
-    assertEquals(".381", FormatUtils.formatDecimalSuffix(0.381239f));
+    assertEquals(".5", FormatUtils.formatDecimalSuffix(0.5));
+    assertEquals(".25", FormatUtils.formatDecimalSuffix(0.25));
+    assertEquals(".75", FormatUtils.formatDecimalSuffix(0.75));
+    assertEquals(".333", FormatUtils.formatDecimalSuffix(0.33333334));
+    assertEquals(".667", FormatUtils.formatDecimalSuffix(0.6666667));
+    assertEquals(".2", FormatUtils.formatDecimalSuffix(0.2));
+    assertEquals(".4", FormatUtils.formatDecimalSuffix(0.4));
+    assertEquals(".6", FormatUtils.formatDecimalSuffix(0.6));
+    assertEquals(".8", FormatUtils.formatDecimalSuffix(0.8));
+    assertEquals(".167", FormatUtils.formatDecimalSuffix(0.16666667));
+    assertEquals(".833", FormatUtils.formatDecimalSuffix(0.8333333));
+    assertEquals(".143", FormatUtils.formatDecimalSuffix(0.14285715));
+    assertEquals(".125", FormatUtils.formatDecimalSuffix(0.125));
+    assertEquals(".375", FormatUtils.formatDecimalSuffix(0.375));
+    assertEquals(".38", FormatUtils.formatDecimalSuffix(0.38));
+    assertEquals(".625", FormatUtils.formatDecimalSuffix(0.625));
+    assertEquals(".875", FormatUtils.formatDecimalSuffix(0.875));
+    assertEquals(".111", FormatUtils.formatDecimalSuffix(0.11111111));
+    assertEquals(".1", FormatUtils.formatDecimalSuffix(0.1));
+    assertEquals("", FormatUtils.formatDecimalSuffix(0.0));
+    assertEquals("", FormatUtils.formatDecimalSuffix(1.0));
+    assertEquals(".15", FormatUtils.formatDecimalSuffix(0.15));
+    assertEquals(".39", FormatUtils.formatDecimalSuffix(0.39));
+    assertEquals(".381", FormatUtils.formatDecimalSuffix(0.381239));
   }
 
   @Test
   void formatMinDecimal() {
-    assertEquals("1.5", FormatUtils.formatMinDecimal(1.5f));
-    assertEquals("1.522", FormatUtils.formatMinDecimal(1.522f));
-    assertEquals("1.522", FormatUtils.formatMinDecimal(1.522346f));
+    assertEquals("1.5", FormatUtils.formatMinDecimal(1.5));
+    assertEquals("1.522", FormatUtils.formatMinDecimal(1.522));
+    assertEquals("1.522", FormatUtils.formatMinDecimal(1.522346));
   }
 
   @Test

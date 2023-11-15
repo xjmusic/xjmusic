@@ -471,8 +471,8 @@ public class SegmentManagerImpl implements SegmentManager {
   void validateSegment(Segment record) throws ValueException {
     ValueUtils.require(record.getChainId(), "Chain ID");
     ValueUtils.require(record.getId(), "Offset");
-    if (ValueUtils.isEmpty(record.getWaveformPreroll())) record.setWaveformPreroll(0.0f);
-    if (ValueUtils.isEmpty(record.getWaveformPostroll())) record.setWaveformPostroll(0.0f);
+    if (ValueUtils.isEmpty(record.getWaveformPreroll())) record.setWaveformPreroll(0.0);
+    if (ValueUtils.isEmpty(record.getWaveformPostroll())) record.setWaveformPostroll(0.0);
     if (ValueUtils.isEmpty(record.getDelta())) record.setDelta(0);
     ValueUtils.require(record.getType(), "Type");
     ValueUtils.require(record.getState(), "State");

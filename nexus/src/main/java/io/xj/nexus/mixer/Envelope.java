@@ -8,15 +8,14 @@ import java.util.stream.IntStream;
  Use this to apply an exponential envelope fade to the ends of audio put into a mix.
  */
 public class Envelope {
-  static float HALF_PI = 1.57079632679f;
-  final float[] exponential;
+  static double HALF_PI = 1.57079632679;
+  final double[] exponential;
 
   /**
    Cached result of exponential envelope over N frames
    */
   public Envelope(Integer frames) {
-    exponential = new float[frames];
-    IntStream.range(1, frames).forEach(i -> exponential[i - 1] = (float) Math.sin(HALF_PI * i / frames));
+    exponential = IntStream.range(1, frames).mapToDouble(i -> Math.sin(HALF_PI * i / frames)).toArray();
   }
 
   /**
@@ -28,7 +27,7 @@ public class Envelope {
    */
   public float in(int delta, float value) {
     if (delta < 0) return 0;
-    return delta < exponential.length ? exponential[delta] * value : value;
+    return delta < exponential.length ? (float) (exponential[delta] * value) : value;
   }
 
   /**
@@ -40,6 +39,6 @@ public class Envelope {
    */
   public float out(int delta, float value) {
     if (delta > exponential.length) return 0;
-    return delta > 0 ? exponential[exponential.length - delta] * value : value;
+    return delta > 0 ? (float) (exponential[exponential.length - delta] * value) : value;
   }
 }

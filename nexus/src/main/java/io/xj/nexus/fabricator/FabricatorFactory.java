@@ -31,7 +31,7 @@ public interface FabricatorFactory {
   Fabricator fabricate(
     HubContent sourceMaterial,
     Segment segment,
-    float outputFrameRate,
+    double outputFrameRate,
     int outputChannels
   ) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException;
 

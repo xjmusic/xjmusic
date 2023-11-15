@@ -88,8 +88,8 @@ public class NexusEntityStoreImplTest {
     segment.durationMicros(32 * MICROS_PER_SECOND);
     segment.setKey("D Major");
     segment.setTotal(64);
-    segment.setDensity(0.73f);
-    segment.setTempo(120.0f);
+    segment.setDensity(0.73);
+    segment.setTempo(120.0);
     segment.storageKey("chains-1-segments-9f7s89d8a7892.wav");
 
     subject.put(segment);
@@ -139,8 +139,8 @@ public class NexusEntityStoreImplTest {
     segment.durationMicros(32 * MICROS_PER_SECOND);
     segment.setKey("D Major");
     segment.setTotal(64);
-    segment.setDensity(0.73f);
-    segment.setTempo(120.0f);
+    segment.setDensity(0.73);
+    segment.setTempo(120.0);
     segment.storageKey("chains-1-segments-9f7s89d8a7892.wav");
     subject.put(segment);
   }

@@ -219,14 +219,14 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     subject = new FabricatorImpl(sourceMaterial, segment, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider, 48000.0f, 2);
 
-    assertEquals("C", subject.getChordAt(0.0f).orElseThrow().getName());
-    assertEquals("C", subject.getChordAt(1.0f).orElseThrow().getName());
-    assertEquals("F", subject.getChordAt(2.0f).orElseThrow().getName());
-    assertEquals("F", subject.getChordAt(3.0f).orElseThrow().getName());
-    assertEquals("F", subject.getChordAt(5.0f).orElseThrow().getName());
-    assertEquals("Gm", subject.getChordAt(5.5f).orElseThrow().getName());
-    assertEquals("Gm", subject.getChordAt(6.0f).orElseThrow().getName());
-    assertEquals("Gm", subject.getChordAt(7.5f).orElseThrow().getName());
+    assertEquals("C", subject.getChordAt(0.0).orElseThrow().getName());
+    assertEquals("C", subject.getChordAt(1.0).orElseThrow().getName());
+    assertEquals("F", subject.getChordAt(2.0).orElseThrow().getName());
+    assertEquals("F", subject.getChordAt(3.0).orElseThrow().getName());
+    assertEquals("F", subject.getChordAt(5.0).orElseThrow().getName());
+    assertEquals("Gm", subject.getChordAt(5.5).orElseThrow().getName());
+    assertEquals("Gm", subject.getChordAt(6.0).orElseThrow().getName());
+    assertEquals("Gm", subject.getChordAt(7.5).orElseThrow().getName());
   }
 
   @Test

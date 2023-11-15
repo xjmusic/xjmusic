@@ -320,11 +320,11 @@ public class GuiIntegrationTestingFixtures {
     segment.setBeginAtChainMicros((long) (id * ValueUtils.MICROS_PER_SECOND * total * ValueUtils.SECONDS_PER_MINUTE / tempo));
     segment.setKey(key);
     segment.setTotal(total);
-    segment.setDensity(density);
-    segment.setTempo(tempo);
+    segment.setDensity((double) density);
+    segment.setTempo((double) tempo);
     segment.setStorageKey(storageKey);
-    segment.setWaveformPreroll(0.0f);
-    segment.setWaveformPostroll(0.0f);
+    segment.setWaveformPreroll(0.0);
+    segment.setWaveformPostroll(0.0);
 
     var durationMicros = (long) (ValueUtils.MICROS_PER_SECOND * total * ValueUtils.SECONDS_PER_MINUTE / tempo);
     if (hasEndSet)
@@ -459,7 +459,7 @@ public class GuiIntegrationTestingFixtures {
     return segmentMeme;
   }
 
-  public static SegmentChord buildSegmentChord(Segment segment, float atPosition, String name) {
+  public static SegmentChord buildSegmentChord(Segment segment, double atPosition, String name) {
     var segmentChord = new SegmentChord();
     segmentChord.setId(UUID.randomUUID());
     segmentChord.setSegmentId(segment.getId());

@@ -7,7 +7,6 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.tables.pojos.*;
 import io.xj.hub.util.ValueException;
-import io.xj.nexus.util.FormatUtils;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.MacroMode;
 import io.xj.nexus.OutputFileMode;
@@ -17,6 +16,7 @@ import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
+import io.xj.nexus.util.FormatUtils;
 import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkManager;
 import io.xj.nexus.work.WorkState;
@@ -26,7 +26,7 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
-import javafx.beans.value.ObservableFloatValue;
+import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
@@ -59,7 +59,7 @@ public class FabricationServiceImpl implements FabricationService {
   private final String defaultInputTemplateKey;
   private final int defaultOutputChannels;
   private final OutputFileMode defaultOutputFileMode;
-  private final float defaultOutputFrameRate;
+  private final double defaultOutputFrameRate;
   private final MacroMode defaultMacroMode;
   private final InputMode defaultInputMode;
   private final OutputMode defaultOutputMode;
@@ -83,7 +83,7 @@ public class FabricationServiceImpl implements FabricationService {
 
   final StringProperty timelineSegmentViewLimit = new SimpleStringProperty();
   final BooleanProperty followPlayback = new SimpleBooleanProperty(true);
-  final FloatProperty progress = new SimpleFloatProperty(0.0f);
+  final DoubleProperty progress = new SimpleDoubleProperty(0.0);
   final ObservableBooleanValue outputModeSync = Bindings.createBooleanBinding(() ->
     outputMode.get().isSync(), outputMode);
   private final ObservableBooleanValue outputModeFile = Bindings.createBooleanBinding(() ->
@@ -110,7 +110,7 @@ public class FabricationServiceImpl implements FabricationService {
     @Value("${input.template.key}") String defaultInputTemplateKey,
     @Value("${output.channels}") int defaultOutputChannels,
     @Value("${output.file.mode}") String defaultOutputFileMode,
-    @Value("${output.frame.rate}") float defaultOutputFrameRate,
+    @Value("${output.frame.rate}") double defaultOutputFrameRate,
     @Value("${macro.mode}") String defaultMacroMode,
     @Value("${input.mode}") String defaultInputMode,
     @Value("${output.mode}") String defaultOutputMode,
@@ -155,7 +155,7 @@ public class FabricationServiceImpl implements FabricationService {
       .setInputTemplateKey(inputTemplateKey.get())
       .setOutputChannels(Integer.parseInt(outputChannels.get()))
       .setOutputFileMode(outputFileMode.get())
-      .setOutputFrameRate(Float.parseFloat(outputFrameRate.get()))
+      .setOutputFrameRate(Double.parseDouble(outputFrameRate.get()))
       .setOutputMode(outputMode.get())
       .setOutputPathPrefix(outputPathPrefix.get())
       .setOutputSeconds(Integer.parseInt(outputSeconds.get()));
@@ -431,13 +431,13 @@ public class FabricationServiceImpl implements FabricationService {
     return Objects.nonNull(beats)
       ? getBarBeats(segment)
       .map(barBeats -> formatTotalBars((int) Math.floor((float) beats / barBeats),
-        FormatUtils.formatFractionalSuffix((float) (beats % barBeats) / barBeats)))
+        FormatUtils.formatFractionalSuffix((double) (beats % barBeats) / barBeats)))
       .orElse(String.format("%d beat%s", beats, beats == 1 ? "" : "s"))
       : "N/A";
   }
 
   @Override
-  public String formatPositionBarBeats(Segment segment, @Nullable Float position) {
+  public String formatPositionBarBeats(Segment segment, @Nullable Double position) {
     return
       Objects.nonNull(position) ?
         getBarBeats(segment)
@@ -457,7 +457,7 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
-  public ObservableFloatValue progressProperty() {
+  public ObservableDoubleValue progressProperty() {
     return progress;
   }
 
@@ -572,7 +572,7 @@ public class FabricationServiceImpl implements FabricationService {
     dubAheadSeconds.set(prefs.get("dubAheadSeconds", Integer.toString(defaultDubAheadSeconds)));
     inputTemplateKey.set(prefs.get("inputTemplateKey", defaultInputTemplateKey));
     outputChannels.set(prefs.get("outputChannels", Integer.toString(defaultOutputChannels)));
-    outputFrameRate.set(prefs.get("outputFrameRate", Float.toString(defaultOutputFrameRate)));
+    outputFrameRate.set(prefs.get("outputFrameRate", Double.toString(defaultOutputFrameRate)));
     outputPathPrefix.set(prefs.get("outputPathPrefix", defaultOutputPathPrefix));
     outputSeconds.set(prefs.get("outputSeconds", Integer.toString(defaultOutputSeconds)));
     timelineSegmentViewLimit.set(prefs.get("timelineSegmentViewLimit", Integer.toString(defaultTimelineSegmentViewLimit)));

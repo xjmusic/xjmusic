@@ -88,7 +88,7 @@ public interface Fabricator {
    @param pick for which to get audio volume
    @return audio volume of pick
    */
-  float getAudioVolume(SegmentChoiceArrangementPick pick);
+  double getAudioVolume(SegmentChoiceArrangementPick pick);
 
   /**
    Get the Chain
@@ -153,7 +153,7 @@ public interface Fabricator {
    @param position in segment
    @return ChordEntity
    */
-  Optional<SegmentChord> getChordAt(float position);
+  Optional<SegmentChord> getChordAt(Double position);
 
   /**
    fetch the main-type choice for the current segment in the chain
@@ -460,7 +460,7 @@ public interface Fabricator {
    @param p position in beats
    @return seconds of start
    */
-  long getSegmentMicrosAtPosition(float p) throws NexusException;
+  long getSegmentMicrosAtPosition(double p) throws NexusException;
 
   /**
    @return the total number of seconds in the segment
@@ -741,5 +741,5 @@ public interface Fabricator {
 
    @return micros per beat
    */
-  float getMicrosPerBeat() throws NexusException;
+  Double getMicrosPerBeat() throws NexusException;
 }
