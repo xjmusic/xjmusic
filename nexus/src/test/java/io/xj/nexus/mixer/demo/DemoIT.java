@@ -6,6 +6,7 @@ import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.*;
+import io.xj.hub.util.ValueUtils;
 import io.xj.nexus.audio_cache.DubAudioCache;
 import io.xj.nexus.audio_cache.DubAudioCacheImpl;
 import io.xj.nexus.http.HttpClientProvider;
@@ -31,8 +32,19 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.nexus.NexusHubIntegrationTestingFixtures.*;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAccount;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAudio;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgram;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgramSequence;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgramSequencePattern;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgramSequencePatternEvent;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgramVoice;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgramVoiceTrack;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildTemplate;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoiceArrangement;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 @ExtendWith(MockitoExtension.class)
@@ -196,39 +208,19 @@ public class DemoIT {
     // mix it
     mixer.mix(picks.stream()
       .map((SegmentChoiceArrangementPick pick) ->
-        new ActiveAudio(pick, instrument, audioById.get(pick.getInstrumentAudioId()), pick.getStartAtSegmentMicros(), pick.getStartAtSegmentMicros() + pick.getLengthMicros()))
+        new ActiveAudio(
+          pick,
+          instrument,
+          audioById.get(pick.getInstrumentAudioId()),
+          pick.getStartAtSegmentMicros(),
+          pick.getStartAtSegmentMicros() + pick.getLengthMicros()
+        ))
       .toList());
 
     // Write the demo file output
     audioFileWriter.open(outputFilePath);
     audioFileWriter.append(mixer.getBuffer().consume(mixer.getBuffer().getAvailableByteCount()));
     audioFileWriter.finish();
-  }
-
-  /**
-   create a pick
-
-   @param audio    to pick
-   @param position in beats
-   @param duration in beats
-   @return pick
-   */
-  private static SegmentChoiceArrangementPick buildPick(InstrumentAudio audio, float position, float duration) {
-    ProgramSequencePatternEvent event = buildProgramSequencePatternEvent(
-      pattern,
-      track,
-      position,
-      duration,
-      "X",
-      1.0f
-    );
-    return buildSegmentChoiceArrangementPick(
-      segment,
-      arrangement,
-      event,
-      audio,
-      audio.getName()
-    );
   }
 
   private static Instrument buildInstrument() {
@@ -253,6 +245,39 @@ public class DemoIT {
   }
 
   /**
+   create a pick
+
+   @param audio    to pick
+   @param position in beats
+   @param duration in beats
+   @return pick
+   */
+  private SegmentChoiceArrangementPick buildPick(InstrumentAudio audio, float position, float duration) {
+    ProgramSequencePatternEvent event = buildProgramSequencePatternEvent(
+      pattern,
+      track,
+      position,
+      duration,
+      "X",
+      1.0f
+    );
+
+    var microsPerBeat = ValueUtils.MICROS_PER_SECOND * ValueUtils.SECONDS_PER_MINUTE / DemoIT.segment.getTempo();
+    var pick = new SegmentChoiceArrangementPick();
+    pick.setId(UUID.randomUUID());
+    pick.setSegmentId(DemoIT.arrangement.getSegmentId());
+    pick.setSegmentChoiceArrangementId(DemoIT.arrangement.getId());
+    pick.setProgramSequencePatternEventId(event.getId());
+    pick.setInstrumentAudioId(audio.getId());
+    pick.setStartAtSegmentMicros((long) (event.getPosition() * microsPerBeat));
+    pick.setLengthMicros((long) (event.getDuration() * microsPerBeat));
+    pick.setAmplitude(event.getVelocity());
+    pick.setTones(event.getTones());
+    pick.setEvent("X");
+    return pick;
+  }
+
+  /**
    FLOATING-POINT OUTPUT IS NOT SUPPORTED.
    [#137] Support for floating-point output encoding.
 
@@ -272,5 +297,4 @@ public class DemoIT {
   public void demo_48000Hz_Signed_8bit_1ch() throws Exception {
     assertMixOutputEqualsReferenceAudio(AudioFormat.Encoding.PCM_SIGNED, 22000, 8, 1, 2.231404f, "22000Hz_Signed_8bit_1ch.wav");
   }
-
 }

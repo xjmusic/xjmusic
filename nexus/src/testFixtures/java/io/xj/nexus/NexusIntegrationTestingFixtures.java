@@ -486,14 +486,15 @@ public class NexusIntegrationTestingFixtures {
   }
 
   public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(Segment segment, SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent event, InstrumentAudio instrumentAudio, String pickEvent) {
+    var microsPerBeat = ValueUtils.MICROS_PER_SECOND * ValueUtils.SECONDS_PER_MINUTE / segment.getTempo();
     var pick = new SegmentChoiceArrangementPick();
     pick.setId(UUID.randomUUID());
     pick.setSegmentId(segmentChoiceArrangement.getSegmentId());
     pick.setSegmentChoiceArrangementId(segmentChoiceArrangement.getId());
     pick.setProgramSequencePatternEventId(event.getId());
     pick.setInstrumentAudioId(instrumentAudio.getId());
-    pick.setStartAtSegmentMicros((long) (event.getPosition() * ValueUtils.MICROS_PER_SECOND / segment.getTempo()));
-    pick.setLengthMicros((long) (event.getDuration() * ValueUtils.MICROS_PER_SECOND / segment.getTempo()));
+    pick.setStartAtSegmentMicros((long) (event.getPosition() * microsPerBeat));
+    pick.setLengthMicros((long) (event.getDuration() * microsPerBeat));
     pick.setAmplitude(event.getVelocity());
     pick.setTones(event.getTones());
     pick.setEvent(pickEvent);
