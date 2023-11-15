@@ -153,7 +153,7 @@ public class DubAudioCacheImpl implements DubAudioCache {
       }
     }
 
-    // If the audio format does not match, resample
+    // If the audio format does not match, resample. FUTURE: don't increase # of channels unnecessarily
     var currentFormat = getAudioFormat(originalCachePath);
     if (!matchesAudioFormat(currentFormat, targetFrameRate, targetSampleBits, targetChannels)) {
       LOG.debug("Will resample audio file to {}Hz {}-bit {}-channel", targetFrameRate, targetSampleBits, targetChannels);

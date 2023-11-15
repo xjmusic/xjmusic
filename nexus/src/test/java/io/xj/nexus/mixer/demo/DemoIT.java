@@ -205,7 +205,7 @@ public class DemoIT {
 */
     picks.add(buildPick(ding, 0.0f, 4.0f));
 
-    // mix it
+    // mix it -- for the demo, 1 segment = the mixer buffer length
     mixer.mix(picks.stream()
       .map((SegmentChoiceArrangementPick pick) ->
         new ActiveAudio(

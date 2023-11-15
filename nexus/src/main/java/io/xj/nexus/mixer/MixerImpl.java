@@ -238,22 +238,6 @@ TODO something with
    @param active to apply
    */
   void addToMix(ActiveAudio active) throws MixerException {
-    int tf; // target frame (in mix buffer)
-    int tc; // iterators: source channel, target channel
-    float v, ev; // a single sample value, and the enveloped value
-
-    int bus = getBusNumber(active.getInstrument().getType());
-
-    // source frame (from source audio)
-    // determine beginning frame in the source audio from which to start
-    int sf = (int) (0 - active.getStartAtMixerMicros() / microsPerFrame);
-
-    // determine end frame
-    int ef = (int) (0 - active.getStartAtMixerMicros() / microsPerFrame);
-
-    var attackEnvelope = envelope.length(active.getAttackMillis() * framesPerMilli);
-    var releaseEnvelope = envelope.length(active.getReleaseMillis() * framesPerMilli);
-
     try {
       var cached = dubAudioCache.load(
         config.getContentStoragePathPrefix(),
@@ -263,6 +247,26 @@ TODO something with
         (int) outputFrameRate,
         audioFormat.getSampleSizeInBits(),
         audioFormat.getChannels());
+
+      int tf; // target frame (in mix buffer)
+      int tc; // iterators: source channel, target channel
+      float v, ev; // a single sample value, and the enveloped value
+
+      int bus = getBusNumber(active.getInstrument().getType());
+
+      // source frame (from source audio)
+      // determine beginning frame in the source audio from which to start
+      int sf = (int) (0 - active.getStartAtMixerMicros() / microsPerFrame);
+
+      // determine end frame
+      // if none present, play to end of source audio
+      int ef =
+// todo        active.getStopAtMixerMicros().isPresent() ?
+       // todo   (int) (0 - active.getStopAtMixerMicros().get() / microsPerFrame) :
+          cached.audio().length;
+
+      var attackEnvelope = envelope.length(active.getAttackMillis() * framesPerMilli);
+      var releaseEnvelope = envelope.length(active.getReleaseMillis() * framesPerMilli);
 
       for (tc = 0; tc < outputChannels; tc++) {
         for (tf = 0; tf < totalMixFrames; tf++) {
