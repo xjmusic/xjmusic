@@ -112,7 +112,7 @@ public class DubAudioCacheImpl implements DubAudioCache {
           sf++;
         }
       }
-      return new CachedAudio(audio, fileSpec.format);
+      return new CachedAudio(audio, fileSpec.format, fileSpec.path);
     } catch (UnsupportedAudioFileException | FormatException e) {
       throw new IOException(String.format("Failed to read and compute float array for file %s", fileSpec.path), e);
     }
@@ -153,9 +153,9 @@ public class DubAudioCacheImpl implements DubAudioCache {
       }
     }
 
-    // Check if the audio file has the target frame rate
+    // If the audio format does not match, resample
     var currentFormat = getAudioFormat(originalCachePath);
-    if (currentFormat.getFrameRate() != targetFrameRate) {
+    if (!matchesAudioFormat(currentFormat, targetFrameRate, targetSampleBits, targetChannels)) {
       LOG.debug("Will resample audio file to {}Hz {}-bit {}-channel", targetFrameRate, targetSampleBits, targetChannels);
       FFmpegUtils.resampleAudio(originalCachePath, finalCachePath, targetFrameRate, targetSampleBits, targetChannels);
     } else {
@@ -165,6 +165,7 @@ public class DubAudioCacheImpl implements DubAudioCache {
     var finalFormat = getAudioFormat(finalCachePath);
     return new AudioPreparedOnDisk(finalCachePath, finalFormat);
   }
+
 
   /**
    compute the cache path for this audio item
@@ -192,7 +193,7 @@ public class DubAudioCacheImpl implements DubAudioCache {
    @return frame rate of audio file
    @throws NexusException if unable to get frame rate
    */
-  static AudioFormat getAudioFormat(String inputAudioFilePath) throws NexusException {
+  private static AudioFormat getAudioFormat(String inputAudioFilePath) throws NexusException {
     try {
       return AudioSystem.getAudioFileFormat(new File(inputAudioFilePath)).getFormat();
 
@@ -200,6 +201,21 @@ public class DubAudioCacheImpl implements DubAudioCache {
       LOG.error("Unable to get audio format from file: {}", inputAudioFilePath, e);
       throw new NexusException(String.format("Unable to get audio frame rate from file: %s", inputAudioFilePath), e);
     }
+  }
+
+  /**
+   Whether the audio format matches the target frame rate, sample bits, and channels
+
+   @param currentFormat    current audio format
+   @param targetFrameRate  target frame rate
+   @param targetSampleBits target sample bits
+   @param targetChannels   target channels
+   @return true if matches
+   */
+  private boolean matchesAudioFormat(AudioFormat currentFormat, int targetFrameRate, int targetSampleBits, int targetChannels) {
+    return currentFormat.getFrameRate() == targetFrameRate
+      && currentFormat.getSampleSizeInBits() == targetSampleBits
+      && currentFormat.getChannels() == targetChannels;
   }
 
   /**
