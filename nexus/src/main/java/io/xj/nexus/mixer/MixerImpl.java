@@ -239,7 +239,6 @@ TODO something with
    */
   void addToMix(ActiveAudio active) throws MixerException {
     int tf; // target frame (in mix buffer)
-    int b, p; // iterators: byte, put
     int tc; // iterators: source channel, target channel
     float v, ev; // a single sample value, and the enveloped value
 

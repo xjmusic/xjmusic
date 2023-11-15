@@ -2,7 +2,6 @@ package io.xj.nexus.util;
 
 import java.io.*;
 import java.net.URL;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class InternalResource {

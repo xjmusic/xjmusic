@@ -37,29 +37,29 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 @ExtendWith(MockitoExtension.class)
 public class DemoIT {
-  static final long bpm = 121;
-  static final String referenceAudioFilePrefix = File.separator + "demo_reference_outputs" + File.separator;
-  static final String internalResourcePrefix = "/demo_source_audio/";
-  static final String sourceFileSuffix = ".wav";
+  static final long TEMPO = 121;
+  static final String INTERNAL_RESOURCE_REFERENCE_AUDIO_FILE_PREFIX = "/demo_reference_outputs/";
+  static final String INTERNAL_RESOURCE_INSTRUMENT_AUDIO_PREFIX = "/demo_source_audio/";
+  static final String SOURCE_FILE_SUFFIX = ".wav";
   static final Account account = buildAccount();
   static final Template template = buildTemplate(account, "Demo");
   static final Chain chain = buildChain(template);
-  static final Program program = buildProgram(ProgramType.Beat, "C", bpm, 1);
+  static final Program program = buildProgram(ProgramType.Beat, "C", TEMPO, 1);
   static final ProgramSequence sequence = buildProgramSequence(program, 4, "Demo", 1.0f, "C");
   static final ProgramVoice voice = buildProgramVoice(program, InstrumentType.Drum, "Demo Beat");
   static final ProgramVoiceTrack track = buildProgramVoiceTrack(voice, "Demo Beat");
   static final ProgramSequencePattern pattern = buildProgramSequencePattern(sequence, voice, 4, "Demo Beat");
-  static final Segment segment = buildSegment(chain, 0, "C", 4, 1, bpm);
+  static final Segment segment = buildSegment(chain, 0, "C", 4, 1, TEMPO);
   static final SegmentChoice choice = buildSegmentChoice(segment, program);
   static final SegmentChoiceArrangement arrangement = buildSegmentChoiceArrangement(choice);
   static final Instrument instrument = buildInstrument();
-  static final InstrumentAudio kick1 = buildAudio(instrument, "kick1", "kick1" + sourceFileSuffix, 0, .701f, 120, 1.0f, "X", "C5", 1.0f);
-  static final InstrumentAudio kick2 = buildAudio(instrument, "kick2", "kick2" + sourceFileSuffix, 0, .865f, 120, 1.0f, "X", "C5", 1.0f);
-  static final InstrumentAudio marac = buildAudio(instrument, "marac", "maracas" + sourceFileSuffix, 0, .025f, 120, 1.0f, "X", "C5", 1.0f);
-  static final InstrumentAudio snare = buildAudio(instrument, "snare", "snare" + sourceFileSuffix, 0, .092f, 120, 1.0f, "X", "C5", 1.0f);
-  static final InstrumentAudio lotom = buildAudio(instrument, "lotom", "tom1" + sourceFileSuffix, 0, .360f, 120, 1.0f, "X", "C5", 1.0f);
-  static final InstrumentAudio clhat = buildAudio(instrument, "clhat", "cl_hihat" + sourceFileSuffix, 0, .052f, 120, 1.0f, "X", "C5", 1.0f);
-  static final InstrumentAudio ding = buildAudio(instrument, "ding", "ding" + sourceFileSuffix, 0, 3.733f, 120, 1.0f, "X", "C5", 1.0f);
+  static final InstrumentAudio kick1 = buildAudio(instrument, "kick1", "kick1" + SOURCE_FILE_SUFFIX, 0, .701f, 120, 1.0f, "X", "C5", 1.0f);
+  static final InstrumentAudio kick2 = buildAudio(instrument, "kick2", "kick2" + SOURCE_FILE_SUFFIX, 0, .865f, 120, 1.0f, "X", "C5", 1.0f);
+  static final InstrumentAudio marac = buildAudio(instrument, "marac", "maracas" + SOURCE_FILE_SUFFIX, 0, .025f, 120, 1.0f, "X", "C5", 1.0f);
+  static final InstrumentAudio snare = buildAudio(instrument, "snare", "snare" + SOURCE_FILE_SUFFIX, 0, .092f, 120, 1.0f, "X", "C5", 1.0f);
+  static final InstrumentAudio lotom = buildAudio(instrument, "lotom", "tom1" + SOURCE_FILE_SUFFIX, 0, .360f, 120, 1.0f, "X", "C5", 1.0f);
+  static final InstrumentAudio clhat = buildAudio(instrument, "clhat", "cl_hihat" + SOURCE_FILE_SUFFIX, 0, .052f, 120, 1.0f, "X", "C5", 1.0f);
+  static final InstrumentAudio ding = buildAudio(instrument, "ding", "ding" + SOURCE_FILE_SUFFIX, 0, 3.733f, 120, 1.0f, "X", "C5", 1.0f);
   static final Map<UUID, InstrumentAudio> audioById = Stream.of(
     kick1,
     kick2,
@@ -100,7 +100,7 @@ public class DemoIT {
     instrumentPathPrefix = Files.createDirectory(Paths.get(contentStoragePathPrefix, "instrument", instrument.getId().toString())).toAbsolutePath().toString();
     audioById.values().forEach(audio -> {
       try {
-        var from = new InternalResource(internalResourcePrefix + audio.getWaveformKey()).getFile().toPath();
+        var from = new InternalResource(INTERNAL_RESOURCE_INSTRUMENT_AUDIO_PREFIX + audio.getWaveformKey()).getFile().toPath();
         var to = Paths.get(instrumentPathPrefix, audio.getWaveformKey());
         Files.copy(from, to);
       } catch (IOException e) {
@@ -145,7 +145,7 @@ public class DemoIT {
     InternalResource resource = new InternalResource(referenceFilePath);
     byte[] generatedFileBytes = Files.readAllBytes(generatedFilePath);
     byte[] testFileBytes = Files.readAllBytes(resource.getFile().toPath());
-    assertArrayEquals(testFileBytes, generatedFileBytes);
+    assertArrayEquals(testFileBytes, generatedFileBytes, String.format("Generated file %s does not match reference file %s", generatedFilePath, referenceFilePath));
   }
 
   /**
@@ -249,7 +249,7 @@ public class DemoIT {
    @return filename
    */
   public static String getReferenceAudioFilename(String referenceName) {
-    return referenceAudioFilePrefix + referenceName;
+    return INTERNAL_RESOURCE_REFERENCE_AUDIO_FILE_PREFIX + referenceName;
   }
 
   /**

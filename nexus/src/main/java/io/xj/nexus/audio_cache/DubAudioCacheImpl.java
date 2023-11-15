@@ -162,7 +162,8 @@ public class DubAudioCacheImpl implements DubAudioCache {
       LOG.debug("Will copy audio file from {} to {}", originalCachePath, finalCachePath);
       Files.copy(Path.of(originalCachePath), Path.of(finalCachePath));
     }
-    return new AudioPreparedOnDisk(finalCachePath, currentFormat);
+    var finalFormat = getAudioFormat(finalCachePath);
+    return new AudioPreparedOnDisk(finalCachePath, finalFormat);
   }
 
   /**
