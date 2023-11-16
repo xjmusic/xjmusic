@@ -5,13 +5,35 @@ import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.util.ValueUtils;
 import io.xj.nexus.audio_cache.DubAudioCache;
 import io.xj.nexus.audio_cache.DubAudioCacheImpl;
 import io.xj.nexus.http.HttpClientProvider;
-import io.xj.nexus.mixer.*;
-import io.xj.nexus.model.*;
+import io.xj.nexus.mixer.ActiveAudio;
+import io.xj.nexus.mixer.AudioFileWriter;
+import io.xj.nexus.mixer.AudioFileWriterImpl;
+import io.xj.nexus.mixer.EnvelopeProvider;
+import io.xj.nexus.mixer.EnvelopeProviderImpl;
+import io.xj.nexus.mixer.FormatException;
+import io.xj.nexus.mixer.Mixer;
+import io.xj.nexus.mixer.MixerConfig;
+import io.xj.nexus.mixer.MixerFactory;
+import io.xj.nexus.mixer.MixerFactoryImpl;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.util.InternalResource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -183,27 +205,11 @@ public class DemoIT {
 
     List<SegmentChoiceArrangementPick> picks = new ArrayList<>();
 
-    /*
-    // set up the sources
-    TODO: pass this path in as an active audio source
-      for (InstrumentAudio source : sources) {
-        // mixer.loadSource(source.id(), getResourceFile(filePrefix + source.key() + sourceFileSuffix).getAbsolutePath(), "test audio");
-      }
-     */
-
     // set up the music
-    int iL = demoSequence.length;
-    for (int i = 0; i < iL; i++) {
-      // TODO new version of:  mixer.put(UUID.randomUUID(), demoSequence[i].id(), DEFAULT_BUS, atMicros(i), atMicros(i + 3), 1.0f, 1, 5);
+    picks.add(buildPick(ding, 0.0f, 4.0f));
+    for (int i = 0; i < demoSequence.length; i++) {
       picks.add(buildPick(demoSequence[i], (float) i / 4, 0.25f));
     }
-
-/*
- TODO: add to active audios array
-    // To also test high rate inputs being added to the mix
-    mixer.put(UUID.randomUUID(), ding.id(), DEFAULT_BUS, atMicros(0), atMicros(4), 1.0f, 1, 5);
-*/
-    picks.add(buildPick(ding, 0.0f, 4.0f));
 
     // mix it -- for the demo, 1 segment = the mixer buffer length
     mixer.mix(picks.stream()
