@@ -262,7 +262,7 @@ public class DemoIT {
       1.0f
     );
 
-    var microsPerBeat = ValueUtils.MICROS_PER_SECOND * ValueUtils.SECONDS_PER_MINUTE / DemoIT.segment.getTempo();
+    var microsPerBeat = ValueUtils.MICROS_PER_SECOND * ValueUtils.SECONDS_PER_MINUTE / segment.getTempo();
     var pick = new SegmentChoiceArrangementPick();
     pick.setId(UUID.randomUUID());
     pick.setSegmentId(DemoIT.arrangement.getSegmentId());

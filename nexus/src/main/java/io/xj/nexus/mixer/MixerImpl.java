@@ -248,44 +248,60 @@ TODO something with
         audioFormat.getSampleSizeInBits(),
         audioFormat.getChannels());
 
-      int tf; // target frame (in mix buffer)
-      int tc; // iterators: source channel, target channel
-      float v, ev; // a single sample value, and the enveloped value
-
+      // determine the bus number for this instrument type
       int bus = getBusNumber(active.getInstrument().getType());
 
-      // source frame (from source audio)
-      // determine beginning frame in the source audio from which to start
-      int sf = (int) (0 - active.getStartAtMixerMicros() / microsPerFrame);
-
-      // determine end frame
-      // if none present, play to end of source audio
-      int ef =
-// todo        active.getStopAtMixerMicros().isPresent() ?
-       // todo   (int) (0 - active.getStopAtMixerMicros().get() / microsPerFrame) :
-          cached.audio().length;
-
+      // create the attack and release envelopes
       var attackEnvelope = envelope.length(active.getAttackMillis() * framesPerMilli);
       var releaseEnvelope = envelope.length(active.getReleaseMillis() * framesPerMilli);
 
-      for (tc = 0; tc < outputChannels; tc++) {
-        for (tf = 0; tf < totalMixFrames; tf++) {
-          sf++;
-          if (tf < cached.audio().length) {
-            v = cached.audio()[tf][tc];
+      // determine the theoretical frame in the mixing buffer at which the source audio will be added
+      // these numbers may be below zero or past the limit of the mixing buffer
+      int sourceBeginsAtMixerFrame = (int) (active.getStartAtMixerMicros() / microsPerFrame);
+      int sourceEndsAtMixerFrame = active.getStopAtMixerMicros().isPresent() ?
+        (int) (active.getStopAtMixerMicros().get() / microsPerFrame) :
+        sourceBeginsAtMixerFrame + cached.audio().length;
 
-            if (sf < ef) // attack phase
+      // reusable variables
+      int c; // channel
+      int tf; // target frame (in mix buffer)
+      int sf; // source frame (from source audio)
+      float v, ev; // a single sample value, and the enveloped value
+
+      // determine the actual start and end frames in the mixing buffer and source audio
+      int tf_min = bufferIndexLimit(sourceBeginsAtMixerFrame); // initial target frame (in mix buffer)
+      int tf_max = bufferIndexLimit(sourceEndsAtMixerFrame + releaseEnvelope.exponential.length); // final target frame (in mix buffer)
+      sf = tf_min - sourceBeginsAtMixerFrame; // initial source frame (from source audio)
+
+      // iterate over all frames overlapping from the source audio and the target mixing buffer
+      for (tf = tf_min; tf < tf_max; tf++) {
+        for (c = 0; c < outputChannels; c++) {
+          if (sf < cached.audio().length) {
+            v = cached.audio()[sf][c];
+
+            if (sf < sourceEndsAtMixerFrame) // attack phase
               ev = attackEnvelope.in(sf, v * active.getAmplitude());
             else // release phase
-              ev = releaseEnvelope.out(sf - ef, v * active.getAmplitude());
+              ev = releaseEnvelope.out(sf - sourceEndsAtMixerFrame, v * active.getAmplitude());
 
-            busBuf[bus][tf][tc] += ev;
+            busBuf[bus][tf][c] += ev;
           }
         }
+        sf++;
       }
     } catch (IOException | FileStoreException | NexusException e) {
       throw new MixerException(String.format("Failed to apply Source[%s]", active.getAudio().getId()), e);
     }
+  }
+
+  /**
+   Limit a frame number between 0 and the actual final mix buffer index
+
+   @param frame to limit
+   @return limited frame
+   */
+  private int bufferIndexLimit(float frame) {
+    return (int) Math.min(Math.max(0, frame), totalMixFrames - 1);
   }
 
   /**
