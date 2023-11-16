@@ -56,6 +56,59 @@ public class DubAudioCacheImpl implements DubAudioCache {
     return cache.get(new AudioCacheRequest(instrumentId, waveformKey, contentStoragePathPrefix, audioBaseUrl, targetFrameRate, targetSampleBits, targetChannels));
   }
 
+  @Override
+  public void prepare(String contentStoragePathPrefix, String audioBaseUrl, UUID instrumentId, String waveformKey, int targetFrameRate, int targetSampleBits, int targetChannels) throws FileStoreException, IOException, NexusException {
+    fetchAndPrepareOnDisk(contentStoragePathPrefix, audioBaseUrl, instrumentId, waveformKey, targetFrameRate, targetSampleBits, targetChannels);
+  }
+
+  private AudioPreparedOnDisk fetchAndPrepareOnDisk(String contentStoragePathPrefix, String audioBaseUrl, UUID instrumentId, String waveformKey, int targetFrameRate, int targetSampleBits, int targetChannels) throws FileStoreException, IOException, NexusException {
+    if (StringUtils.isNullOrEmpty(waveformKey)) throw new FileStoreException("Can't load null or empty audio key!");
+
+    // compute a key based on the target frame rate, sample bits, channels, and waveform key.
+    String originalCachePath = computeCachePath(contentStoragePathPrefix, instrumentId, waveformKey);
+    String finalCachePath = computeCachePath(contentStoragePathPrefix, instrumentId, String.format("%d-%d-%d-%s", targetFrameRate, targetSampleBits, targetChannels, waveformKey));
+    if (existsOnDisk(finalCachePath)) {
+      LOG.debug("Found fully prepared audio at {}", finalCachePath);
+      var currentFormat = getAudioFormat(finalCachePath);
+      return new AudioPreparedOnDisk(finalCachePath, currentFormat);
+    }
+
+    // Create the directory if it doesn't exist
+    Files.createDirectories(Path.of(computeCachePath(contentStoragePathPrefix, instrumentId, "")));
+
+    // Fetch via HTTP if original does not exist
+    if (!existsOnDisk(originalCachePath)) {
+      CloseableHttpClient client = httpClientProvider.getClient();
+      try (
+        CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", audioBaseUrl, waveformKey)))
+      ) {
+        if (Objects.isNull(response.getEntity().getContent()))
+          throw new NexusException(String.format("Unable to write bytes to disk cache: %s", originalCachePath));
+
+        try (OutputStream toFile = FileUtils.openOutputStream(new File(originalCachePath))) {
+          var size = IOUtils.copy(response.getEntity().getContent(), toFile); // stores number of bytes copied
+          LOG.debug("Did write media item to disk cache: {} ({} bytes)", originalCachePath, size);
+        }
+      } catch (IOException e) {
+        throw new NexusException(String.format("Dub audio cache failed to stream audio from %s%s", audioBaseUrl, waveformKey), e);
+      } catch (NexusException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    // If the audio format does not match, resample. FUTURE: don't increase # of channels unnecessarily
+    var currentFormat = getAudioFormat(originalCachePath);
+    if (!matchesAudioFormat(currentFormat, targetFrameRate, targetSampleBits, targetChannels)) {
+      LOG.debug("Will resample audio file to {}Hz {}-bit {}-channel", targetFrameRate, targetSampleBits, targetChannels);
+      FFmpegUtils.resampleAudio(originalCachePath, finalCachePath, targetFrameRate, targetSampleBits, targetChannels);
+    } else {
+      LOG.debug("Will copy audio file from {} to {}", originalCachePath, finalCachePath);
+      Files.copy(Path.of(originalCachePath), Path.of(finalCachePath));
+    }
+    var finalFormat = getAudioFormat(finalCachePath);
+    return new AudioPreparedOnDisk(finalCachePath, finalFormat);
+  }
+
   private CachedAudio compute(AudioCacheRequest request) throws FileStoreException, IOException, NexusException {
     var fileSpec = fetchAndPrepareOnDisk(
       request.contentStoragePathPrefix,
@@ -116,54 +169,6 @@ public class DubAudioCacheImpl implements DubAudioCache {
     } catch (UnsupportedAudioFileException | FormatException e) {
       throw new IOException(String.format("Failed to read and compute float array for file %s", fileSpec.path), e);
     }
-  }
-
-  private AudioPreparedOnDisk fetchAndPrepareOnDisk(String contentStoragePathPrefix, String audioBaseUrl, UUID instrumentId, String waveformKey, int targetFrameRate, int targetSampleBits, int targetChannels) throws FileStoreException, IOException, NexusException {
-    if (StringUtils.isNullOrEmpty(waveformKey)) throw new FileStoreException("Can't load null or empty audio key!");
-
-    // compute a key based on the target frame rate, sample bits, channels, and waveform key.
-    String originalCachePath = computeCachePath(contentStoragePathPrefix, instrumentId, waveformKey);
-    String finalCachePath = computeCachePath(contentStoragePathPrefix, instrumentId, String.format("%d-%d-%d-%s", targetFrameRate, targetSampleBits, targetChannels, waveformKey));
-    if (existsOnDisk(finalCachePath)) {
-      LOG.debug("Found fully prepared audio at {}", finalCachePath);
-      var currentFormat = getAudioFormat(finalCachePath);
-      return new AudioPreparedOnDisk(finalCachePath, currentFormat);
-    }
-
-    // Create the directory if it doesn't exist
-    Files.createDirectories(Path.of(computeCachePath(contentStoragePathPrefix, instrumentId, "")));
-
-    // Fetch via HTTP if original does not exist
-    if (!existsOnDisk(originalCachePath)) {
-      CloseableHttpClient client = httpClientProvider.getClient();
-      try (
-        CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", audioBaseUrl, waveformKey)))
-      ) {
-        if (Objects.isNull(response.getEntity().getContent()))
-          throw new NexusException(String.format("Unable to write bytes to disk cache: %s", originalCachePath));
-
-        try (OutputStream toFile = FileUtils.openOutputStream(new File(originalCachePath))) {
-          var size = IOUtils.copy(response.getEntity().getContent(), toFile); // stores number of bytes copied
-          LOG.debug("Did write media item to disk cache: {} ({} bytes)", originalCachePath, size);
-        }
-      } catch (IOException e) {
-        throw new NexusException(String.format("Dub audio cache failed to stream audio from %s%s", audioBaseUrl, waveformKey), e);
-      } catch (NexusException e) {
-        throw new RuntimeException(e);
-      }
-    }
-
-    // If the audio format does not match, resample. FUTURE: don't increase # of channels unnecessarily
-    var currentFormat = getAudioFormat(originalCachePath);
-    if (!matchesAudioFormat(currentFormat, targetFrameRate, targetSampleBits, targetChannels)) {
-      LOG.debug("Will resample audio file to {}Hz {}-bit {}-channel", targetFrameRate, targetSampleBits, targetChannels);
-      FFmpegUtils.resampleAudio(originalCachePath, finalCachePath, targetFrameRate, targetSampleBits, targetChannels);
-    } else {
-      LOG.debug("Will copy audio file from {} to {}", originalCachePath, finalCachePath);
-      Files.copy(Path.of(originalCachePath), Path.of(finalCachePath));
-    }
-    var finalFormat = getAudioFormat(finalCachePath);
-    return new AudioPreparedOnDisk(finalCachePath, finalFormat);
   }
 
 

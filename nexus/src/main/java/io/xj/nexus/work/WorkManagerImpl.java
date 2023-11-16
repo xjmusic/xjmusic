@@ -393,7 +393,7 @@ public class WorkManagerImpl implements WorkManager {
             return;
           }
           if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
-            dubAudioCache.load(
+            dubAudioCache.prepare(
               contentStoragePathPrefix,
               audioBaseUrl,
               audio.getInstrumentId(),
@@ -423,12 +423,14 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(hubConfig);
     assert Objects.nonNull(workConfig);
     craftWork = new CraftWorkImpl(
-      telemetry, craftFactory,
+      telemetry,
+      craftFactory,
       entityFactory,
       fabricatorFactory,
       segmentManager,
       fileStore,
-      store, hubContent.get(),
+      store,
+      hubContent.get(),
       workConfig.getInputMode(),
       workConfig.getOutputMode(),
       hubConfig.getAudioBaseUrl(),
@@ -438,7 +440,8 @@ public class WorkManagerImpl implements WorkManager {
       workConfig.getOutputChannels()
     );
     dubWork = new DubWorkImpl(
-      telemetry, craftWork,
+      telemetry,
+      craftWork,
       dubAudioCache,
       mixerFactory,
       workConfig.getContentStoragePathPrefix(),
@@ -448,7 +451,8 @@ public class WorkManagerImpl implements WorkManager {
       workConfig.getOutputChannels()
     );
     shipWork = new ShipWorkImpl(
-      telemetry, dubWork,
+      telemetry,
+      dubWork,
       broadcastFactory,
       workConfig.getOutputMode(),
       workConfig.getOutputFileMode(),

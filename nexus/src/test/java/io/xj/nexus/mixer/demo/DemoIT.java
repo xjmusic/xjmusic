@@ -202,7 +202,6 @@ public class DemoIT {
     mixerConfig.setContentStoragePathPrefix(contentStoragePathPrefix);
     Mixer mixer = mixerFactory.createMixer(mixerConfig);
 
-
     List<SegmentChoiceArrangementPick> picks = new ArrayList<>();
 
     // set up the music
