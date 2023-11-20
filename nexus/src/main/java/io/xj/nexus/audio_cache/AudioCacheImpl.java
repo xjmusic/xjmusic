@@ -31,14 +31,14 @@ import java.time.Duration;
 import java.util.Objects;
 import java.util.UUID;
 
-public class DubAudioCacheImpl implements DubAudioCache {
-  final static Logger LOG = LoggerFactory.getLogger(DubAudioCacheImpl.class);
+public class AudioCacheImpl implements AudioCache {
+  final static Logger LOG = LoggerFactory.getLogger(AudioCacheImpl.class);
   public static final int MAX_INT_LENGTH_ARRAY_SIZE = 2147483647;
   static final int READ_BUFFER_BYTE_SIZE = 1024;
   final HttpClientProvider httpClientProvider;
   private final LoadingCache<AudioCacheRequest, CachedAudio> cache;
 
-  public DubAudioCacheImpl(
+  public AudioCacheImpl(
     HttpClientProvider httpClientProvider
   ) {
     this.httpClientProvider = httpClientProvider;
@@ -159,7 +159,7 @@ public class DubAudioCacheImpl implements DubAudioCache {
       while (-1 != (numBytesReadToBuffer = audioInputStream.read(readBuffer))) {
         for (b = 0; b < numBytesReadToBuffer && sf < audio.length; b += frameSize) {
           for (tc = 0; tc < fileSpec.format.getChannels(); tc++) {
-            System.arraycopy(readBuffer, b + (isStereo ? tc : 0) * sampleSize, sampleBuffer, 0, sampleSize); // TODO triage
+            System.arraycopy(readBuffer, b + (isStereo ? tc : 0) * sampleSize, sampleBuffer, 0, sampleSize);
             audio[sf][tc] = (float) AudioSampleFormat.fromBytes(sampleBuffer, sampleFormat);
           }
           sf++;

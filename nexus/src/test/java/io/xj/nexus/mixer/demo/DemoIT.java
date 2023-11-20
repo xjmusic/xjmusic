@@ -16,8 +16,8 @@ import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.util.ValueUtils;
-import io.xj.nexus.audio_cache.DubAudioCache;
-import io.xj.nexus.audio_cache.DubAudioCacheImpl;
+import io.xj.nexus.audio_cache.AudioCache;
+import io.xj.nexus.audio_cache.AudioCacheImpl;
 import io.xj.nexus.http.HttpClientProvider;
 import io.xj.nexus.mixer.ActiveAudio;
 import io.xj.nexus.mixer.AudioFileWriter;
@@ -146,8 +146,8 @@ public class DemoIT {
   @BeforeEach
   public void beforeEach() {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    DubAudioCache dubAudioCache = new DubAudioCacheImpl(httpClientProvider);
-    this.mixerFactory = new MixerFactoryImpl(envelopeProvider, dubAudioCache);
+    AudioCache audioCache = new AudioCacheImpl(httpClientProvider);
+    this.mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
   }
 
   /**

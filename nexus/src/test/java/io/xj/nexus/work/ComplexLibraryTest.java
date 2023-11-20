@@ -2,20 +2,19 @@
 package io.xj.nexus.work;
 
 import io.xj.hub.HubContent;
+import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.nexus.NexusTopology;
+import io.xj.nexus.audio_cache.AudioCache;
+import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.nexus.entity.EntityFactoryImpl;
+import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.filestore.FileStoreProvider;
+import io.xj.nexus.hub_client.HubClient;
+import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.nexus.InputMode;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
-import io.xj.nexus.NexusTopology;
-import io.xj.nexus.OutputMode;
-import io.xj.nexus.craft.CraftFactory;
-import io.xj.nexus.craft.CraftFactoryImpl;
-import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.nexus.hub_client.HubClient;
-import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.persistence.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,6 +54,9 @@ public class ComplexLibraryTest {
   @Mock
   WorkTelemetry telemetry;
 
+  @Mock
+  AudioCache audioCache;
+
   @BeforeEach
   public void setUp() throws Exception {
     NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
@@ -91,15 +93,11 @@ public class ComplexLibraryTest {
     work = new CraftWorkImpl(
       telemetry,
       craftFactory,
-      entityFactory,
       fabricatorFactory,
-      segmentManager, fileStoreProvider,
-      store, content,
-      InputMode.PRODUCTION,
-      OutputMode.PLAYBACK,
-      audioBaseUrl,
-      shipBaseUrl,
-      "/tmp",
+      segmentManager,
+      store,
+      audioCache,
+      content,
       48000.0f,
       1000
     );

@@ -24,8 +24,8 @@ import io.xj.nexus.NexusTopology;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
-import io.xj.nexus.audio_cache.DubAudioCache;
-import io.xj.nexus.audio_cache.DubAudioCacheImpl;
+import io.xj.nexus.audio_cache.AudioCache;
+import io.xj.nexus.audio_cache.AudioCacheImpl;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.hub_client.*;
@@ -59,7 +59,7 @@ public class WorkManagerImpl implements WorkManager {
   private static final Logger LOG = LoggerFactory.getLogger(WorkManagerImpl.class);
   private final BroadcastFactory broadcastFactory;
   private final CraftFactory craftFactory;
-  private final DubAudioCache dubAudioCache;
+  private final AudioCache audioCache;
   private final EntityFactory entityFactory;
   private final FabricatorFactory fabricatorFactory;
   private final FileStoreProvider fileStore;
@@ -115,7 +115,7 @@ public class WorkManagerImpl implements WorkManager {
     WorkTelemetry workTelemetry,
     BroadcastFactory broadcastFactory,
     CraftFactory craftFactory,
-    DubAudioCache dubAudioCache,
+    AudioCache audioCache,
     EntityFactory entityFactory,
     FabricatorFactory fabricatorFactory,
     FileStoreProvider fileStore,
@@ -126,7 +126,7 @@ public class WorkManagerImpl implements WorkManager {
   ) {
     this.broadcastFactory = broadcastFactory;
     this.craftFactory = craftFactory;
-    this.dubAudioCache = dubAudioCache;
+    this.audioCache = audioCache;
     this.entityFactory = entityFactory;
     this.fabricatorFactory = fabricatorFactory;
     this.fileStore = fileStore;
@@ -145,7 +145,7 @@ public class WorkManagerImpl implements WorkManager {
     WorkTelemetry workTelemetry = new WorkTelemetryImpl();
     CraftFactory craftFactory = new CraftFactoryImpl();
     HttpClientProvider httpClientProvider = new HttpClientProviderImpl();
-    DubAudioCache dubAudioCache = new DubAudioCacheImpl(httpClientProvider);
+    AudioCache audioCache = new AudioCacheImpl(httpClientProvider);
     JsonProvider jsonProvider = new JsonProviderImpl();
     EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
     NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
@@ -157,7 +157,7 @@ public class WorkManagerImpl implements WorkManager {
       jsonProvider
     );
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider, dubAudioCache);
+    MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
     HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
@@ -165,7 +165,7 @@ public class WorkManagerImpl implements WorkManager {
       workTelemetry,
       broadcastFactory,
       craftFactory,
-      dubAudioCache,
+      audioCache,
       entityFactory,
       fabricatorFactory,
       fileStore,
@@ -393,7 +393,7 @@ public class WorkManagerImpl implements WorkManager {
             return;
           }
           if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
-            dubAudioCache.prepare(
+            audioCache.prepare(
               contentStoragePathPrefix,
               audioBaseUrl,
               audio.getInstrumentId(),
@@ -425,27 +425,20 @@ public class WorkManagerImpl implements WorkManager {
     craftWork = new CraftWorkImpl(
       telemetry,
       craftFactory,
-      entityFactory,
       fabricatorFactory,
       segmentManager,
-      fileStore,
       store,
+      audioCache,
       hubContent.get(),
-      workConfig.getInputMode(),
-      workConfig.getOutputMode(),
-      hubConfig.getAudioBaseUrl(),
-      hubConfig.getShipBaseUrl(),
-      workConfig.getTempFilePathPrefix(),
       workConfig.getOutputFrameRate(),
       workConfig.getOutputChannels()
     );
     dubWork = new DubWorkImpl(
       telemetry,
       craftWork,
-      dubAudioCache,
       mixerFactory,
-      workConfig.getContentStoragePathPrefix(),
       hubConfig.getAudioBaseUrl(),
+      workConfig.getContentStoragePathPrefix(),
       workConfig.getMixBufferLengthSeconds(),
       workConfig.getOutputFrameRate(),
       workConfig.getOutputChannels()

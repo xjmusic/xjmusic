@@ -2,8 +2,8 @@
 package io.xj.nexus.mixer;
 
 
-import io.xj.nexus.audio_cache.DubAudioCache;
-import io.xj.nexus.audio_cache.DubAudioCacheImpl;
+import io.xj.nexus.audio_cache.AudioCache;
+import io.xj.nexus.audio_cache.AudioCacheImpl;
 import io.xj.nexus.http.HttpClientProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,8 +26,8 @@ public class PutImplTest {
   @BeforeEach
   public void setUp() throws Exception {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    DubAudioCache dubAudioCache = new DubAudioCacheImpl(httpClientProvider);
-    MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider, dubAudioCache);
+    AudioCache audioCache = new AudioCacheImpl(httpClientProvider);
+    MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
     audioId = UUID.randomUUID();
     testPut = mixerFactory.createPut(UUID.randomUUID(), audioId, 0, 1000000, 2000000, 1.0, 0, 5);
   }

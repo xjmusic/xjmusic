@@ -10,18 +10,14 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
-import io.xj.nexus.entity.EntityFactory;
-import io.xj.nexus.filestore.FileStoreProvider;
-import io.xj.nexus.InputMode;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.OutputMode;
+import io.xj.nexus.audio_cache.AudioCache;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.FabricationFatalException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.*;
-import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,72 +31,55 @@ import static io.xj.hub.util.ValueUtils.MILLIS_PER_SECOND;
 import static io.xj.nexus.work.WorkTelemetry.TIMER_SECTION_STANDBY;
 
 public class CraftWorkImpl implements CraftWork {
-  static final Logger LOG = LoggerFactory.getLogger(CraftWorkImpl.class);
-  public static final String TIMER_SECTION_CRAFT = "Craft";
+  private static final Logger LOG = LoggerFactory.getLogger(CraftWorkImpl.class);
+  private static final String TIMER_SECTION_CRAFT = "Craft";
   private final WorkTelemetry telemetry;
-  final CraftFactory craftFactory;
-  final EntityFactory entityFactory;
-  final FabricatorFactory fabricatorFactory;
-  final FileStoreProvider fileStore;
-  HubContent sourceMaterial;
-  final NexusEntityStore store;
-  final SegmentManager segmentManager;
-  final OutputMode outputMode;
-  final AtomicBoolean running = new AtomicBoolean(true);
-  boolean chainFabricatedAhead = true;
-  long nextJanitorMillis = System.currentTimeMillis();
-  long nextMedicMillis = System.currentTimeMillis();
-  final InputMode inputMode;
-  final String tempFilePathPrefix;
-  final double outputFrameRate;
-  final int outputChannels;
-  final String audioBaseUrl;
-  final String shipBaseUrl;
-
-  @Nullable
-  private TemplateConfig templateConfig;
-
-  @Nullable
+  private final CraftFactory craftFactory;
+  private final FabricatorFactory fabricatorFactory;
+  private final HubContent sourceMaterial;
+  private final NexusEntityStore store;
+  private final SegmentManager segmentManager;
+  private final AudioCache audioCache; // TODO craft reaches ahead and pokes all known-to-be-upcoming audio to cache
+  private final AtomicBoolean running = new AtomicBoolean(true);
+  private final double outputFrameRate;
+  private final int outputChannels;
+  private final TemplateConfig templateConfig;
   private final Chain chain;
+
+  private long nextJanitorMillis = System.currentTimeMillis();
+  private long nextMedicMillis = System.currentTimeMillis();
 
   public CraftWorkImpl(
     WorkTelemetry telemetry,
     CraftFactory craftFactory,
-    EntityFactory entityFactory,
     FabricatorFactory fabricatorFactory,
     SegmentManager segmentManager,
-    FileStoreProvider fileStore,
     NexusEntityStore store,
+    AudioCache audioCache,
     HubContent sourceMaterial,
-    InputMode inputMode,
-    OutputMode outputMode,
-    String audioBaseUrl,
-    String shipBaseUrl,
-    String tempFilePathPrefix,
     double outputFrameRate,
     int outputChannels
   ) {
     this.telemetry = telemetry;
-    this.audioBaseUrl = audioBaseUrl;
     this.craftFactory = craftFactory;
-    this.entityFactory = entityFactory;
     this.fabricatorFactory = fabricatorFactory;
+    this.audioCache = audioCache;
     this.outputChannels = outputChannels;
     this.outputFrameRate = outputFrameRate;
     this.segmentManager = segmentManager;
-    this.shipBaseUrl = shipBaseUrl;
     this.sourceMaterial = sourceMaterial;
     this.store = store;
-    this.tempFilePathPrefix = tempFilePathPrefix;
-
-    this.inputMode = inputMode;
-    this.outputMode = outputMode;
 
     // Telemetry: # Segments Erased
-    this.fileStore = fileStore;
 
     chain = createChainForTemplate(sourceMaterial.getTemplate())
       .orElseThrow(() -> new RuntimeException("Failed to create chain"));
+
+    try {
+      templateConfig = Objects.nonNull(chain) ? (new TemplateConfig(chain.getTemplateConfig())) : null;
+    } catch (ValueException e) {
+      throw new RuntimeException("Could not start craft without template config", e);
+    }
 
     running.set(true);
   }
@@ -118,15 +97,8 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   @Override
-  public Optional<TemplateConfig> getTemplateConfig() {
-    if (Objects.isNull(templateConfig)) {
-      try {
-        templateConfig = Objects.nonNull(chain) ? (new TemplateConfig(chain.getTemplateConfig())) : null;
-      } catch (ValueException e) {
-        LOG.debug("Unable to retrieve template config because {}", e.getMessage());
-      }
-    }
-    return Optional.ofNullable(templateConfig);
+  public TemplateConfig getTemplateConfig() {
+    return templateConfig;
   }
 
   @Override
@@ -340,22 +312,17 @@ public class CraftWorkImpl implements CraftWork {
     try {
       var lastCraftedSegment = segmentManager.readLastCraftedSegment();
       if (lastCraftedSegment.isEmpty()) {
-        chainFabricatedAhead = false;
         return;
       }
       var aheadSeconds = (SegmentUtils.getEndAtChainMicros(lastCraftedSegment.get()) - toChainMicros) / MICROS_PER_SECOND;
       int THRESHOLD_FABRICATED_BEHIND_SECONDS = 5;
       if (aheadSeconds < THRESHOLD_FABRICATED_BEHIND_SECONDS) {
         LOG.debug("Fabrication is stalled, ahead {}s", aheadSeconds);
-        chainFabricatedAhead = false;
-        return;
       }
 
     } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException e) {
       throw new RuntimeException(e);
     }
-
-    chainFabricatedAhead = true;
   }
 
   /**
@@ -377,8 +344,6 @@ public class CraftWorkImpl implements CraftWork {
 
       double aheadSeconds = ((double) (atChainMicros - toChainMicros) / MICROS_PER_SECOND);
 
-      var templateConfig = getTemplateConfig();
-      if (templateConfig.isEmpty()) return;
       if (aheadSeconds > 0) return;
 
       Optional<Segment> nextSegment = buildNextSegment(target);

@@ -56,7 +56,7 @@ public interface DubWork extends Work {
 
    @return the number of bytes per microsecond, or empty if not yet available
    */
-  Optional<Float> getMixerOutputMicrosPerByte();
+  Float getMixerOutputMicrosPerByte();
 
   /**
    Get the chain from craft work

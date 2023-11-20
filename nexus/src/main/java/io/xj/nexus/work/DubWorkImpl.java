@@ -5,7 +5,6 @@ import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.util.StringUtils;
-import io.xj.nexus.audio_cache.DubAudioCache;
 import io.xj.nexus.mixer.*;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
@@ -26,44 +25,39 @@ import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 import static io.xj.nexus.work.WorkTelemetry.TIMER_SECTION_STANDBY;
 
 public class DubWorkImpl implements DubWork {
-  static final Logger LOG = LoggerFactory.getLogger(DubWorkImpl.class);
-  static final int BITS_PER_BYTE = 8;
-  public static final String TIMER_SECTION_DUB = "Dub";
-  public static final String TIMER_SECTION_DUB_SETUP = "DubSetup";
-  public static final String TIMER_SECTION_DUB_MIX = "DubMix";
+  private static final Logger LOG = LoggerFactory.getLogger(DubWorkImpl.class);
+  private static final int BITS_PER_BYTE = 8;
+  private static final String TIMER_SECTION_DUB = "Dub";
+  private static final String TIMER_SECTION_DUB_SETUP = "DubSetup";
+  private static final String TIMER_SECTION_DUB_MIX = "DubMix";
+  private final AtomicBoolean running = new AtomicBoolean(true);
+  private final WorkTelemetry telemetry;
+  private final CraftWork craftWork;
+  private final MixerFactory mixerFactory;
+  private final int mixerLengthSeconds;
+  private final long mixerLengthMicros;
+  private final int outputChannels;
+  private final double outputFrameRate;
+  private final String audioBaseUrl;
+  private final String contentStoragePathPrefix;
+  private final Float mixerOutputMicrosecondsPerByte;
+  private final Mixer mixer;
 
-  @Nullable
-  Mixer mixer;
-  final AtomicBoolean running = new AtomicBoolean(true);
-  final WorkTelemetry telemetry;
-  final CraftWork craftWork;
-  final DubAudioCache dubAudioCache;
-  final MixerFactory mixerFactory;
-  final int mixerLengthSeconds;
-  final long mixerLengthMicros;
-  long chunkFromChainMicros = 0; // dubbing is done up to this point
-  long chunkToChainMicros = 0; // plan ahead one dub frame at a time
-  @Nullable
-  Float mixerOutputMicrosecondsPerByte;
-  final int outputChannels;
-  final double outputFrameRate;
-  final String audioBaseUrl;
-  final String contentStoragePathPrefix;
+  private long chunkFromChainMicros; // dubbing is done up to this point
+  private long chunkToChainMicros; // plan ahead one dub frame at a time
 
   public DubWorkImpl(
     WorkTelemetry telemetry,
     CraftWork craftWork,
-    DubAudioCache dubAudioCache,
     MixerFactory mixerFactory,
-    String contentStoragePathPrefix,
     String audioBaseUrl,
+    String contentStoragePathPrefix,
     int mixerSeconds,
     double outputFrameRate,
     int outputChannels
   ) {
     this.telemetry = telemetry;
     this.craftWork = craftWork;
-    this.dubAudioCache = dubAudioCache;
     this.contentStoragePathPrefix = contentStoragePathPrefix;
     this.audioBaseUrl = audioBaseUrl;
     this.mixerLengthSeconds = mixerSeconds;
@@ -74,15 +68,15 @@ public class DubWorkImpl implements DubWork {
 
     var templateConfig = craftWork.getTemplateConfig();
     var chain = craftWork.getChain();
-    if (templateConfig.isEmpty() || chain.isEmpty()) {
-      LOG.debug("Waiting for Craft to begin");
-      return;
+    if (chain.isEmpty()) {
+      throw new RuntimeException("Cannot initialize DubWork without TemplateConfig and Chain");
     }
     try {
-      mixer = mixerInit(templateConfig.get());
+      mixer = mixerInit(templateConfig);
+      mixerOutputMicrosecondsPerByte = MICROS_PER_SECOND / (mixer.getAudioFormat().getFrameSize() * mixer.getAudioFormat().getFrameRate());
     } catch (Exception e) {
       didFailWhile("initializing mixer", e);
-      return;
+      throw new RuntimeException(e);
     }
 
     chunkFromChainMicros = 0;
@@ -150,14 +144,8 @@ public class DubWorkImpl implements DubWork {
   }
 
   @Override
-  public Optional<Float> getMixerOutputMicrosPerByte() {
-    if (Objects.isNull(mixerOutputMicrosecondsPerByte)) {
-      if (Objects.isNull(mixer)) {
-        return Optional.empty();
-      }
-      mixerOutputMicrosecondsPerByte = MICROS_PER_SECOND / (mixer.getAudioFormat().getFrameSize() * mixer.getAudioFormat().getFrameRate());
-    }
-    return Optional.of(mixerOutputMicrosecondsPerByte);
+  public Float getMixerOutputMicrosPerByte() {
+    return mixerOutputMicrosecondsPerByte;
   }
 
   @Override

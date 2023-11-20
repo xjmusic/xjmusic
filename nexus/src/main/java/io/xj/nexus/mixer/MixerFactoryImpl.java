@@ -3,27 +3,27 @@
 package io.xj.nexus.mixer;
 
 
-import io.xj.nexus.audio_cache.DubAudioCache;
+import io.xj.nexus.audio_cache.AudioCache;
 
 import java.util.UUID;
 
 public class MixerFactoryImpl implements MixerFactory {
   final EnvelopeProvider envelopeProvider;
-  final DubAudioCache dubAudioCache;
+  final AudioCache audioCache;
 
   final int MIXER_OUTPUT_PIPE_SIZE = 10000000;
 
   public MixerFactoryImpl(
     EnvelopeProvider envelopeProvider,
-    DubAudioCache dubAudioCache
+    AudioCache audioCache
   ) {
     this.envelopeProvider = envelopeProvider;
-    this.dubAudioCache = dubAudioCache;
+    this.audioCache = audioCache;
   }
 
   @Override
   public Mixer createMixer(MixerConfig mixerConfig) throws MixerException {
-    return new MixerImpl(dubAudioCache, mixerConfig, this, envelopeProvider, MIXER_OUTPUT_PIPE_SIZE);
+    return new MixerImpl(audioCache, mixerConfig, this, envelopeProvider, MIXER_OUTPUT_PIPE_SIZE);
   }
 
   @Override

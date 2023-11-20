@@ -7,7 +7,7 @@ import io.xj.nexus.filestore.FileStoreException;
 import java.io.IOException;
 import java.util.UUID;
 
-public interface DubAudioCache {
+public interface AudioCache {
 
   /**
    Workstation caches all audio as float array in memory

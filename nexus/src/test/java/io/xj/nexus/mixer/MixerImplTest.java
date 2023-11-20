@@ -2,9 +2,8 @@
 package io.xj.nexus.mixer;
 
 
-import io.xj.nexus.util.InternalResource;
-import io.xj.nexus.audio_cache.DubAudioCache;
-import io.xj.nexus.audio_cache.DubAudioCacheImpl;
+import io.xj.nexus.audio_cache.AudioCache;
+import io.xj.nexus.audio_cache.AudioCacheImpl;
 import io.xj.nexus.http.HttpClientProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.sound.sampled.AudioFormat;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,8 +31,8 @@ public class MixerImplTest {
   @BeforeEach
   public void setUp() throws Exception {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    DubAudioCache dubAudioCache = new DubAudioCacheImpl(httpClientProvider);
-    mixerFactory = new MixerFactoryImpl(envelopeProvider, dubAudioCache);
+    AudioCache audioCache = new AudioCacheImpl(httpClientProvider);
+    mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
     testMixer = mixerFactory.createMixer(
       new MixerConfig(
         new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
@@ -63,38 +61,4 @@ public class MixerImplTest {
 
     assertTrue(e.getCause().getMessage().contains("less than 1 output audio channels not allowed"));
   }
-
-  @Test
-  public void put() {
-    // FUTURE test: MixerImpl.put(...)
-  }
-
-/*
-
-TODO bring back these tests in the new paradigm
-
-  @Test
-  public void loadSource() throws Exception {
-    InternalResource internalResource = new InternalResource("test_audio/F32LSB_48kHz_Stereo.wav");
-    testMixer.loadSource(UUID.randomUUID(), internalResource.getFile().getAbsolutePath(), "test audio");
-    assertEquals(1, testMixer.getSourceCount());
-  }
-
-  @Test
-  public void hasLoadedSource() throws Exception {
-    InternalResource internalResource = new InternalResource("test_audio/F32LSB_48kHz_Stereo.wav");
-    var audioId = UUID.randomUUID();
-    testMixer.loadSource(audioId, internalResource.getFile().getAbsolutePath(), "test audio");
-
-    assertTrue(testMixer.hasLoadedSource(audioId));
-    assertFalse(testMixer.hasLoadedSource(UUID.randomUUID()));
-  }
-
-  @Test
-  public void loadSource_failsIfMoreThan2InputChannels() throws Exception {
-    InternalResource internalResource = new InternalResource("test_audio/F32LSB_48kHz_6ch.wav");
-    var audioId = UUID.randomUUID();
-    testMixer.loadSource(audioId, internalResource.getFile().getAbsolutePath(), "test audio");
-  }
-*/
 }

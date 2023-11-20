@@ -3,7 +3,7 @@ package io.xj.nexus.mixer;
 
 import io.xj.hub.enums.InstrumentType;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.audio_cache.DubAudioCache;
+import io.xj.nexus.audio_cache.AudioCache;
 import io.xj.nexus.filestore.FileStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ class MixerImpl implements Mixer {
   final int outputChannels;
   final int outputFrameSize;
   final MixerFactory factory;
-  private final DubAudioCache dubAudioCache;
+  private final AudioCache audioCache;
   final MixerConfig config;
   final float compressToAmplitude;
   final float compressRatioMin;
@@ -55,20 +55,20 @@ class MixerImpl implements Mixer {
   /**
    Instantiate a single Mix instance
 
-   @param dubAudioCache  cache of audio
+   @param audioCache     cache of audio
    @param mixerConfig    configuration of mixer
    @param mixerFactory   factory to of new mixer
    @param outputPipeSize capacity of output buffer
    @throws MixerException on failure
    */
   public MixerImpl(
-    DubAudioCache dubAudioCache,
+    AudioCache audioCache,
     MixerConfig mixerConfig,
     MixerFactory mixerFactory,
     EnvelopeProvider envelopeProvider,
     int outputPipeSize
   ) throws MixerException {
-    this.dubAudioCache = dubAudioCache;
+    this.audioCache = audioCache;
     config = mixerConfig;
     factory = mixerFactory;
     envelope = envelopeProvider;
@@ -102,40 +102,10 @@ class MixerImpl implements Mixer {
     }
   }
 
-/*
-TODO something with
-  @Override
-  public void put(UUID id, UUID audioId, int busId, long startAtMicros, long stopAtMicros, float velocity, int attackMillis, int releaseMillis) throws PutException {
-    activePuts.put(id, factory.createPut(id, audioId, busId, startAtMicros, stopAtMicros, velocity, attackMillis, releaseMillis));
-  }
-*/
-
-/*
-TODO something with
-  @Override
-  public void del(UUID id) {
-    activePuts.remove(id);
-  }
-*/
-
   @Override
   public void setBusLevel(int busId, float level) {
     busLevel.put(busId, level);
   }
-
-/*
-TODO something with
-  @Override
-  public void loadSource(UUID audioId, String pathToFile, String description) throws SourceException, FormatException, IOException {
-    if (sources.containsKey(audioId)) {
-      LOG.debug(config.getLogPrefix() + "Already loaded Source[" + audioId + "] \"" + description + "\"");
-      return;
-    }
-
-    Source source = factory.createSource(audioId, pathToFile, description);
-    sources.put(audioId, source);
-  }
-*/
 
   @Override
   public float mix(List<ActiveAudio> active) throws MixerException, FormatException, IOException {
@@ -239,7 +209,7 @@ TODO something with
    */
   void addToMix(ActiveAudio active) throws MixerException {
     try {
-      var cached = dubAudioCache.load(
+      var cached = audioCache.load(
         config.getContentStoragePathPrefix(),
         config.getAudioBaseUrl(),
         active.getInstrument().getId(),
