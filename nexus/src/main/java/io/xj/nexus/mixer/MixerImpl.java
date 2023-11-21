@@ -249,6 +249,7 @@ class MixerImpl implements Mixer {
           if (sf < cached.audio().length) {
             v = cached.audio()[sf][c];
 
+            // todo confirm envelope works
             if (sf < sourceEndsAtMixerFrame) // attack phase
               ev = attackEnvelope.in(sf, v * active.getAmplitude());
             else // release phase

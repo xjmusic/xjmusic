@@ -208,8 +208,7 @@ public class AudioCacheImpl implements AudioCache {
       return AudioSystem.getAudioFileFormat(new File(inputAudioFilePath)).getFormat();
 
     } catch (UnsupportedAudioFileException | IOException e) {
-      LOG.error("Unable to get audio format from file: {}", inputAudioFilePath, e);
-      throw new NexusException(String.format("Unable to get audio frame rate from file: %s", inputAudioFilePath), e);
+      throw new NexusException(String.format("Unable to get audio format from %s", inputAudioFilePath), e);
     }
   }
 

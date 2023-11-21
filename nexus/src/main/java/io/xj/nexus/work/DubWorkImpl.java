@@ -220,7 +220,9 @@ public class DubWorkImpl implements DubWork {
 
     InstrumentAudio audio;
     long transientMicros;
-    long startAtChainMicros;
+    long startAtMixerMicros;
+    @Nullable Long lengthMicros;
+    @Nullable Long stopAtMixerMicros;
     try {
       List<SegmentChoiceArrangementPick> picks =
         craftWork.getPicks(segments).stream().filter(pick -> !craftWork.isMuted(pick)).toList();
@@ -228,21 +230,21 @@ public class DubWorkImpl implements DubWork {
       for (SegmentChoiceArrangementPick pick : picks) {
         audio = craftWork.getInstrumentAudio(pick).orElseThrow();
         transientMicros = Objects.nonNull(audio.getTransientSeconds()) ? (long) (audio.getTransientSeconds() * MICROS_PER_SECOND) : 0; // audio transient microseconds (to start audio before picked time)
-        @Nullable Long lengthMicros = Objects.nonNull(pick.getLengthMicros()) ? pick.getLengthMicros() : null; // pick length microseconds, or empty if infinite
-        startAtChainMicros =
+        lengthMicros = Objects.nonNull(pick.getLengthMicros()) ? pick.getLengthMicros() : null; // pick length microseconds, or empty if infinite
+        startAtMixerMicros =
           segmentById.get(pick.getSegmentId())
             .getBeginAtChainMicros() // segment begin at chain microseconds
             + pick.getStartAtSegmentMicros()  // plus pick start microseconds
             - transientMicros // minus transient microseconds
             - chunkFromChainMicros; // relative to beginning of this chunk
-        @Nullable Long stopAtMicros =
+        stopAtMixerMicros =
           Objects.nonNull(lengthMicros) ?
-            startAtChainMicros // from start of this active audio
+            startAtMixerMicros // from start of this active audio
               + transientMicros // revert transient microseconds from previous computation
               + lengthMicros
             : null; // add length of pick in microseconds
-        if (startAtChainMicros <= mixerLengthMicros && (Objects.isNull(stopAtMicros) || stopAtMicros >= 0)) {
-          activeAudios.add(new ActiveAudio(pick, craftWork.getInstrument(audio).orElseThrow(), audio, startAtChainMicros - chunkFromChainMicros, Objects.nonNull(stopAtMicros) ? stopAtMicros - chunkFromChainMicros : null));
+        if (startAtMixerMicros <= mixerLengthMicros && (Objects.isNull(stopAtMixerMicros) || stopAtMixerMicros >= 0)) {
+          activeAudios.add(new ActiveAudio(pick, craftWork.getInstrument(audio).orElseThrow(), audio, startAtMixerMicros, Objects.nonNull(stopAtMixerMicros) ? stopAtMixerMicros : null));
         }
       }
 

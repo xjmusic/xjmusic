@@ -22,6 +22,7 @@
 }
 
 .log-viewer .list-cell {
+  -fx-font-family: 'Roboto Mono';
   -fx-text-fill: purple;
   -fx-padding: 0 0 0 0;
 }
