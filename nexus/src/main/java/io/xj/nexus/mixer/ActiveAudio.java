@@ -12,7 +12,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class ActiveAudio {
-  // TODO evaluate how many of these properties are actually needed
   private final InstrumentConfig instrumentConfig;
   private final SegmentChoiceArrangementPick pick;
   private final InstrumentAudio audio;
@@ -54,10 +53,6 @@ public class ActiveAudio {
     return instrument;
   }
 
-  public InstrumentConfig getInstrumentConfig() {
-    return instrumentConfig;
-  }
-
   public Long getStartAtMixerMicros() {
     return startAtMixerMicros;
   }
@@ -72,10 +67,6 @@ public class ActiveAudio {
 
   public MixerPickState getState() {
     return state;
-  }
-
-  public double getAudioVolume() {
-    return audio.getVolume() * instrument.getVolume();
   }
 
   public int getAttackMillis() {
