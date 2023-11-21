@@ -32,10 +32,11 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class AudioCacheImpl implements AudioCache {
-  final static Logger LOG = LoggerFactory.getLogger(AudioCacheImpl.class);
-  public static final int MAX_INT_LENGTH_ARRAY_SIZE = 2147483647;
-  static final int READ_BUFFER_BYTE_SIZE = 1024;
-  final HttpClientProvider httpClientProvider;
+  private final static Logger LOG = LoggerFactory.getLogger(AudioCacheImpl.class);
+  private static final int MAX_INT_LENGTH_ARRAY_SIZE = 2147483647;
+  private static final int MAX_CACHE_SIZE = 10_000;
+  private static final int READ_BUFFER_BYTE_SIZE = 1024;
+  private final HttpClientProvider httpClientProvider;
   private final LoadingCache<AudioCacheRequest, CachedAudio> cache;
 
   public AudioCacheImpl(
@@ -44,11 +45,10 @@ public class AudioCacheImpl implements AudioCache {
     this.httpClientProvider = httpClientProvider;
 
     cache = Caffeine.newBuilder()
-      .maximumSize(10_000)
+      .maximumSize(MAX_CACHE_SIZE)
       .expireAfterWrite(Duration.ofMinutes(5))
       .refreshAfterWrite(Duration.ofMinutes(1))
       .build(this::compute);
-    // TODO: clear (ensure garbage collection) of the aforementioned cache before exiting the application
   }
 
   @Override
@@ -59,6 +59,11 @@ public class AudioCacheImpl implements AudioCache {
   @Override
   public void prepare(String contentStoragePathPrefix, String audioBaseUrl, UUID instrumentId, String waveformKey, int targetFrameRate, int targetSampleBits, int targetChannels) throws FileStoreException, IOException, NexusException {
     fetchAndPrepareOnDisk(contentStoragePathPrefix, audioBaseUrl, instrumentId, waveformKey, targetFrameRate, targetSampleBits, targetChannels);
+  }
+
+  @Override
+  public void invalidateAll() {
+    cache.invalidateAll();
   }
 
   private AudioPreparedOnDisk fetchAndPrepareOnDisk(String contentStoragePathPrefix, String audioBaseUrl, UUID instrumentId, String waveformKey, int targetFrameRate, int targetSampleBits, int targetChannels) throws FileStoreException, IOException, NexusException {

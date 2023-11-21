@@ -9,7 +9,6 @@ import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.nexus.entity.EntityFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.nexus.filestore.FileStoreProvider;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.json.JsonProviderImpl;
@@ -39,7 +38,7 @@ public class ComplexLibraryTest {
   static final int MILLIS_PER_SECOND = 1000;
   private static final int GENERATED_FIXTURE_COMPLEXITY = 3;
   private final static String audioBaseUrl = "https://audio.xj.io/";
-  private final static String shipBaseUrl = "https://ship.xj.io/";
+  private final static String contentStoragePathPrefix = System.getProperty("java.io.tmpdir");
   private static final long WORK_CYCLE_MILLIS = 120;
   long startTime = System.currentTimeMillis();
   SegmentManager segmentManager;
@@ -47,9 +46,6 @@ public class ComplexLibraryTest {
 
   @Mock
   public HubClient hubClient;
-
-  @Mock
-  FileStoreProvider fileStoreProvider;
 
   @Mock
   WorkTelemetry telemetry;
@@ -98,8 +94,10 @@ public class ComplexLibraryTest {
       store,
       audioCache,
       content,
+      audioBaseUrl,
       48000.0f,
-      1000
+      1000,
+      contentStoragePathPrefix
     );
   }
 

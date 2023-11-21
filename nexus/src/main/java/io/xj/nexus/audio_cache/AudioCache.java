@@ -36,4 +36,9 @@ public interface AudioCache {
    * @param targetChannels           to resample if necessary
    */
   void prepare(String contentStoragePathPrefix, String audioBaseUrl, UUID instrumentId, String waveformKey, int targetFrameRate, int targetSampleBits, int targetChannels) throws FileStoreException, IOException, NexusException;
+
+  /**
+   Invalidate all cache entries
+   */
+  void invalidateAll();
 }

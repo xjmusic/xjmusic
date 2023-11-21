@@ -16,11 +16,13 @@ import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.FabricationFatalException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
+import io.xj.nexus.filestore.FileStoreException;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -28,6 +30,7 @@ import java.util.stream.Stream;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.hub.util.ValueUtils.MILLIS_PER_SECOND;
+import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 import static io.xj.nexus.work.WorkTelemetry.TIMER_SECTION_STANDBY;
 
 public class CraftWorkImpl implements CraftWork {
@@ -39,10 +42,12 @@ public class CraftWorkImpl implements CraftWork {
   private final HubContent sourceMaterial;
   private final NexusEntityStore store;
   private final SegmentManager segmentManager;
-  private final AudioCache audioCache; // TODO craft reaches ahead and pokes all known-to-be-upcoming audio to cache
+  private final AudioCache audioCache;
   private final AtomicBoolean running = new AtomicBoolean(true);
   private final double outputFrameRate;
   private final int outputChannels;
+  private final String contentStoragePathPrefix;
+  private final String audioBaseUrl;
   private final TemplateConfig templateConfig;
   private final Chain chain;
 
@@ -57,9 +62,9 @@ public class CraftWorkImpl implements CraftWork {
     NexusEntityStore store,
     AudioCache audioCache,
     HubContent sourceMaterial,
-    double outputFrameRate,
-    int outputChannels
-  ) {
+    String audioBaseUrl, double outputFrameRate,
+    int outputChannels,
+    String contentStoragePathPrefix) {
     this.telemetry = telemetry;
     this.craftFactory = craftFactory;
     this.fabricatorFactory = fabricatorFactory;
@@ -69,6 +74,8 @@ public class CraftWorkImpl implements CraftWork {
     this.segmentManager = segmentManager;
     this.sourceMaterial = sourceMaterial;
     this.store = store;
+    this.contentStoragePathPrefix = contentStoragePathPrefix;
+    this.audioBaseUrl = audioBaseUrl;
 
     // Telemetry: # Segments Erased
 
@@ -363,8 +370,24 @@ public class CraftWorkImpl implements CraftWork {
       atChainMicros = Objects.nonNull(segment.getDurationMicros()) ? atChainMicros + segment.getDurationMicros() : atChainMicros;
       aheadSeconds = (float) (atChainMicros - toChainMicros) / MICROS_PER_SECOND;
 
-      finishWork(fabricator, segment);
+      // Poke the audio cache to load all known-to-be-upcoming audio to cache; this is a no-op for already-cache audio
+      getAllInstrumentAudio(segment).forEach(audio -> {
+        try {
+          audioCache.prepare(
+            contentStoragePathPrefix,
+            audioBaseUrl,
+            audio.getInstrumentId(),
+            audio.getWaveformKey(),
+            (int) outputFrameRate,
+            FIXED_SAMPLE_BITS,
+            outputChannels
+          );
+        } catch (NexusException | FileStoreException | IOException e) {
+          LOG.error("Failed to prepare audio for InstrumentAudio[{}] because {}", audio.getId(), e.getMessage());
+        }
+      });
 
+      finishWork(fabricator, segment);
       LOG.debug("Fabricated Segment[offset={}] {}s long (ahead {}s)",
         segment.getId(),
         String.format("%.1f", (float) (Objects.requireNonNull(segment.getDurationMicros()) / MICROS_PER_SECOND)),
@@ -379,7 +402,32 @@ public class CraftWorkImpl implements CraftWork {
     }
   }
 
-  Optional<Segment> buildNextSegment(Chain target) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException {
+  /**
+   Get all InstrumentAudio for Segment
+
+   @param segment for which to get audio
+   @return collection of audio
+   */
+  private Collection<InstrumentAudio> getAllInstrumentAudio(Segment segment) {
+    try {
+      return store.getAll(segment.getId(), InstrumentAudio.class);
+
+    } catch (NexusException e) {
+      LOG.error("Failed to get all InstrumentAudio for Segment[{}] because {}", segment.getId(), e.getMessage());
+      return List.of();
+    }
+  }
+
+  /**
+   Build the next segment in the chain
+
+   @param target chain
+   @return segment
+   @throws ManagerFatalException     if the segment cannot be created
+   @throws ManagerExistenceException if the segment cannot be created
+   @throws ManagerPrivilegeException if the segment cannot be created
+   */
+  private Optional<Segment> buildNextSegment(Chain target) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException {
     // Get the last segment in the chain
     // If the chain had no last segment, it must be empty; return a template for its first segment
     var maybeLastSegmentInChain = segmentManager.readLastSegment();

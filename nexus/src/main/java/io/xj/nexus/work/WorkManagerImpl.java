@@ -6,12 +6,19 @@ import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
+import io.xj.nexus.NexusTopology;
+import io.xj.nexus.OutputMode;
+import io.xj.nexus.audio_cache.AudioCache;
+import io.xj.nexus.audio_cache.AudioCacheImpl;
+import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.nexus.entity.EntityFactory;
 import io.xj.nexus.entity.EntityFactoryImpl;
-import io.xj.nexus.filestore.FileStoreProvider;
-import io.xj.nexus.filestore.FileStoreProviderImpl;
+import io.xj.nexus.fabricator.FabricatorFactory;
+import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.http.HttpClientProvider;
 import io.xj.nexus.http.HttpClientProviderImpl;
+import io.xj.nexus.hub_client.*;
 import io.xj.nexus.json.JsonProvider;
 import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
@@ -20,15 +27,6 @@ import io.xj.nexus.mixer.EnvelopeProvider;
 import io.xj.nexus.mixer.EnvelopeProviderImpl;
 import io.xj.nexus.mixer.MixerFactory;
 import io.xj.nexus.mixer.MixerFactoryImpl;
-import io.xj.nexus.NexusTopology;
-import io.xj.nexus.OutputMode;
-import io.xj.nexus.craft.CraftFactory;
-import io.xj.nexus.craft.CraftFactoryImpl;
-import io.xj.nexus.audio_cache.AudioCache;
-import io.xj.nexus.audio_cache.AudioCacheImpl;
-import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.nexus.hub_client.*;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
@@ -60,9 +58,7 @@ public class WorkManagerImpl implements WorkManager {
   private final BroadcastFactory broadcastFactory;
   private final CraftFactory craftFactory;
   private final AudioCache audioCache;
-  private final EntityFactory entityFactory;
   private final FabricatorFactory fabricatorFactory;
-  private final FileStoreProvider fileStore;
   private final HubClient hubClient;
   private final MixerFactory mixerFactory;
   private final NexusEntityStore store;
@@ -116,9 +112,7 @@ public class WorkManagerImpl implements WorkManager {
     BroadcastFactory broadcastFactory,
     CraftFactory craftFactory,
     AudioCache audioCache,
-    EntityFactory entityFactory,
     FabricatorFactory fabricatorFactory,
-    FileStoreProvider fileStore,
     HubClient hubClient,
     MixerFactory mixerFactory,
     NexusEntityStore store,
@@ -127,9 +121,7 @@ public class WorkManagerImpl implements WorkManager {
     this.broadcastFactory = broadcastFactory;
     this.craftFactory = craftFactory;
     this.audioCache = audioCache;
-    this.entityFactory = entityFactory;
     this.fabricatorFactory = fabricatorFactory;
-    this.fileStore = fileStore;
     this.hubClient = hubClient;
     this.mixerFactory = mixerFactory;
     this.store = store;
@@ -137,10 +129,7 @@ public class WorkManagerImpl implements WorkManager {
     this.telemetry = workTelemetry;
   }
 
-  // todo: means of destroying the WorkManager instance on application exit (close button or Fabrication -> Exit)
-
   public static WorkManager createInstance() {
-    FileStoreProvider fileStore = new FileStoreProviderImpl();
     BroadcastFactory broadcastFactory = new BroadcastFactoryImpl();
     WorkTelemetry workTelemetry = new WorkTelemetryImpl();
     CraftFactory craftFactory = new CraftFactoryImpl();
@@ -166,9 +155,7 @@ public class WorkManagerImpl implements WorkManager {
       broadcastFactory,
       craftFactory,
       audioCache,
-      entityFactory,
       fabricatorFactory,
-      fileStore,
       hubClient,
       mixerFactory,
       nexusEntityStore,
@@ -219,6 +206,8 @@ public class WorkManagerImpl implements WorkManager {
     if (Objects.nonNull(afterFinished)) {
       afterFinished.run();
     }
+
+    audioCache.invalidateAll();
 
     telemetry.stopTimer();
   }
@@ -430,8 +419,10 @@ public class WorkManagerImpl implements WorkManager {
       store,
       audioCache,
       hubContent.get(),
+      hubConfig.getAudioBaseUrl(),
       workConfig.getOutputFrameRate(),
-      workConfig.getOutputChannels()
+      workConfig.getOutputChannels(),
+      workConfig.getContentStoragePathPrefix()
     );
     dubWork = new DubWorkImpl(
       telemetry,
