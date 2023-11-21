@@ -3,22 +3,30 @@ package io.xj.nexus.work;
 
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.util.StringUtils;
-import io.xj.nexus.mixer.*;
+import io.xj.nexus.mixer.ActiveAudio;
+import io.xj.nexus.mixer.BytePipeline;
+import io.xj.nexus.mixer.Mixer;
+import io.xj.nexus.mixer.MixerConfig;
+import io.xj.nexus.mixer.MixerFactory;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
@@ -203,48 +211,40 @@ public class DubWorkImpl implements DubWork {
    */
   void doDubFrame() {
     if (Objects.isNull(mixer)) return;
-    var segments = craftWork.getSegmentsIfReady(chunkFromChainMicros, chunkToChainMicros);
+    List<Segment> segments = craftWork.getSegmentsIfReady(chunkFromChainMicros, chunkToChainMicros);
+    Map<Integer, Segment> segmentById = segments.stream().collect(Collectors.toMap(Segment::getId, segment -> segment));
     if (segments.isEmpty()) {
       LOG.debug("Waiting for segments");
       return;
     }
 
+    InstrumentAudio audio;
+    long transientMicros;
+    long startAtChainMicros;
     try {
-      var picks = craftWork.getPicks(segments);
-      List<ActiveAudio> activeAudios = segments.stream().flatMap(segment ->
-        picks.stream().filter(pick -> Objects.equals(pick.getSegmentId(), segment.getId())).flatMap(pick -> {
-          var audio = craftWork.getInstrumentAudio(pick);
-          if (craftWork.isMuted(pick)) {
-            LOG.debug("Skipping muted pick {}", pick.getId());
-            return Stream.empty();
-          }
-          if (audio.isEmpty()) {
-            LOG.warn("No InstrumentAudio for SegmentChoiceArrangementPick[{}]", pick.getId());
-            return Stream.empty();
-          }
-          long transientMicros = Objects.nonNull(audio.get().getTransientSeconds()) ? (long) (audio.get().getTransientSeconds() * MICROS_PER_SECOND) : 0; // audio transient microseconds (to start audio before picked time)
-          @Nullable Long lengthMicros = Objects.nonNull(pick.getLengthMicros()) ? pick.getLengthMicros() : null; // pick length microseconds, or empty if infinite
-          long startAtChainMicros =
-            segment.getBeginAtChainMicros() // segment begin at chain microseconds
-              + pick.getStartAtSegmentMicros()  // plus pick start microseconds
-              - transientMicros // minus transient microseconds
-              - chunkFromChainMicros; // relative to beginning of this chunk
-          @Nullable Long stopAtMicros =
-            Objects.nonNull(lengthMicros) ?
-              startAtChainMicros // from start of this active audio
-                + transientMicros // revert transient microseconds from previous computation
-                + lengthMicros
-              : null; // add length of pick in microseconds
-          if (startAtChainMicros > mixerLengthMicros || (Objects.nonNull(stopAtMicros) && stopAtMicros < 0)) {
-            return Stream.empty();
-          }
-          var instrument = craftWork.getInstrument(audio.get());
-          if (instrument.isEmpty()) {
-            LOG.warn("No Instrument for SegmentChoiceArrangementPick[{}] and InstrumentAudio[{}]", pick.getId(), audio.get().getId());
-            return Stream.empty();
-          }
-          return Stream.of(new ActiveAudio(pick, instrument.get(), audio.get(), startAtChainMicros - chunkFromChainMicros, Objects.nonNull(stopAtMicros) ? stopAtMicros - chunkFromChainMicros : null));
-        })).toList();
+      List<SegmentChoiceArrangementPick> picks =
+        craftWork.getPicks(segments).stream().filter(pick -> !craftWork.isMuted(pick)).toList();
+      List<ActiveAudio> activeAudios = new ArrayList<>();
+      for (SegmentChoiceArrangementPick pick : picks) {
+        audio = craftWork.getInstrumentAudio(pick).orElseThrow();
+        transientMicros = Objects.nonNull(audio.getTransientSeconds()) ? (long) (audio.getTransientSeconds() * MICROS_PER_SECOND) : 0; // audio transient microseconds (to start audio before picked time)
+        @Nullable Long lengthMicros = Objects.nonNull(pick.getLengthMicros()) ? pick.getLengthMicros() : null; // pick length microseconds, or empty if infinite
+        startAtChainMicros =
+          segmentById.get(pick.getSegmentId())
+            .getBeginAtChainMicros() // segment begin at chain microseconds
+            + pick.getStartAtSegmentMicros()  // plus pick start microseconds
+            - transientMicros // minus transient microseconds
+            - chunkFromChainMicros; // relative to beginning of this chunk
+        @Nullable Long stopAtMicros =
+          Objects.nonNull(lengthMicros) ?
+            startAtChainMicros // from start of this active audio
+              + transientMicros // revert transient microseconds from previous computation
+              + lengthMicros
+            : null; // add length of pick in microseconds
+        if (startAtChainMicros <= mixerLengthMicros && (Objects.isNull(stopAtMicros) || stopAtMicros >= 0)) {
+          activeAudios.add(new ActiveAudio(pick, craftWork.getInstrument(audio).orElseThrow(), audio, startAtChainMicros - chunkFromChainMicros, Objects.nonNull(stopAtMicros) ? stopAtMicros - chunkFromChainMicros : null));
+        }
+      }
 
       telemetry.markTimerSection(TIMER_SECTION_DUB_SETUP);
       try {
