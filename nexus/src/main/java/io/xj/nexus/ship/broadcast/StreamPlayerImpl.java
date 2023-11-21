@@ -61,5 +61,4 @@ public class StreamPlayerImpl implements StreamPlayer {
   public long getHeardAtChainMicros() {
     return line.getMicrosecondPosition();
   }
-
 }
