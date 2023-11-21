@@ -243,6 +243,8 @@ class MixerImpl implements Mixer {
       int tf_max = bufferIndexLimit(sourceEndsAtMixerFrame + releaseEnvelope.exponential.length); // final target frame (in mix buffer)
       sf = tf_min - sourceBeginsAtMixerFrame; // initial source frame (from source audio)
 
+      // todo fix the mixer timing- we're still seeing weird gaps and pops
+
       // iterate over all frames overlapping from the source audio and the target mixing buffer
       for (tf = tf_min; tf < tf_max; tf++) {
         for (c = 0; c < outputChannels; c++) {
