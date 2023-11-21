@@ -276,11 +276,6 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public Optional<Long> getShipTargetChainMicros() {
-    return Objects.nonNull(shipWork) ? shipWork.getShipTargetChainMicros() : Optional.empty();
-  }
-
-  @Override
   public void runCycle() {
     try {
       switch (state.get()) {
@@ -430,7 +425,7 @@ public class WorkManagerImpl implements WorkManager {
       mixerFactory,
       hubConfig.getAudioBaseUrl(),
       workConfig.getContentStoragePathPrefix(),
-      workConfig.getMixBufferLengthSeconds(),
+      workConfig.getMixerLengthSeconds(),
       workConfig.getOutputFrameRate(),
       workConfig.getOutputChannels()
     );

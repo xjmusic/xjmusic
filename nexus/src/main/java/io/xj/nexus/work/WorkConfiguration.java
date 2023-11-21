@@ -21,7 +21,7 @@ public class WorkConfiguration {
   private double outputFrameRate;
   private int outputChannels;
   private String contentStoragePathPrefix;
-  private int mixBufferLengthSeconds = 10;
+  private int mixerLengthSeconds = 2;
   private long cycleMillis = 100;
   private String tempFilePathPrefix = "/tmp/";
   private int shipOutputFileNumberDigits = 7;
@@ -139,12 +139,12 @@ public class WorkConfiguration {
     return this;
   }
 
-  public int getMixBufferLengthSeconds() {
-    return mixBufferLengthSeconds;
+  public int getMixerLengthSeconds() {
+    return mixerLengthSeconds;
   }
 
-  public WorkConfiguration setMixBufferLengthSeconds(int mixBufferLengthSeconds) {
-    this.mixBufferLengthSeconds = mixBufferLengthSeconds;
+  public WorkConfiguration setMixerLengthSeconds(int mixerLengthSeconds) {
+    this.mixerLengthSeconds = mixerLengthSeconds;
     return this;
   }
 

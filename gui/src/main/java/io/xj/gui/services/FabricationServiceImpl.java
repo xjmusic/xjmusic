@@ -56,6 +56,7 @@ public class FabricationServiceImpl implements FabricationService {
   private final int defaultTimelineSegmentViewLimit;
   private final Integer defaultCraftAheadSeconds;
   private final Integer defaultDubAheadSeconds;
+  private final Integer defaultMixerLengthSeconds;
   private final String defaultInputTemplateKey;
   private final int defaultOutputChannels;
   private final OutputFileMode defaultOutputFileMode;
@@ -78,6 +79,7 @@ public class FabricationServiceImpl implements FabricationService {
   final StringProperty outputSeconds = new SimpleStringProperty();
   final StringProperty craftAheadSeconds = new SimpleStringProperty();
   final StringProperty dubAheadSeconds = new SimpleStringProperty();
+  final StringProperty mixerLengthSeconds = new SimpleStringProperty();
   final StringProperty outputFrameRate = new SimpleStringProperty();
   final StringProperty outputChannels = new SimpleStringProperty();
 
@@ -106,6 +108,7 @@ public class FabricationServiceImpl implements FabricationService {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
     @Value("${craft.ahead.seconds}") int defaultCraftAheadSeconds,
     @Value("${dub.ahead.seconds}") int defaultDubAheadSeconds,
+    @Value("${mixer.length.seconds}") int defaultMixerLengthSeconds,
     @Value("${gui.timeline.max.segments}") int defaultTimelineSegmentViewLimit,
     @Value("${input.template.key}") String defaultInputTemplateKey,
     @Value("${output.channels}") int defaultOutputChannels,
@@ -120,6 +123,7 @@ public class FabricationServiceImpl implements FabricationService {
   ) {
     this.defaultCraftAheadSeconds = defaultCraftAheadSeconds;
     this.defaultDubAheadSeconds = defaultDubAheadSeconds;
+    this.defaultMixerLengthSeconds = defaultMixerLengthSeconds;
     this.defaultMacroMode = MacroMode.valueOf(defaultMacroMode.toUpperCase(Locale.ROOT));
     this.defaultInputMode = InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT));
     this.defaultInputTemplateKey = defaultInputTemplateKey;
@@ -150,6 +154,7 @@ public class FabricationServiceImpl implements FabricationService {
       .setContentStoragePathPrefix(contentStoragePathPrefix.get())
       .setCraftAheadMicros(Long.parseLong(craftAheadSeconds.get()) * MICROS_PER_SECOND)
       .setDubAheadMicros(Long.parseLong(dubAheadSeconds.get()) * MICROS_PER_SECOND)
+      .setMixerLengthSeconds(Integer.parseInt(mixerLengthSeconds.get()))
       .setInputMode(inputMode.get())
       .setMacroMode(macroMode.get())
       .setInputTemplateKey(inputTemplateKey.get())
@@ -242,6 +247,11 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public StringProperty dubAheadSecondsProperty() {
     return dubAheadSeconds;
+  }
+
+  @Override
+  public StringProperty mixerLengthSecondsProperty() {
+    return mixerLengthSeconds;
   }
 
   @Override
@@ -502,12 +512,6 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
-  public Optional<Long> getShipTargetChainMicros() {
-    return workManager.getShipTargetChainMicros();
-  }
-
-
-  @Override
   public void handleMainAction() {
     switch (status.get()) {
       case Standby -> start();
@@ -554,6 +558,7 @@ public class FabricationServiceImpl implements FabricationService {
     contentStoragePathPrefix.addListener((o, ov, value) -> prefs.put("contentStoragePathPrefix", value));
     craftAheadSeconds.addListener((o, ov, value) -> prefs.put("craftAheadSeconds", value));
     dubAheadSeconds.addListener((o, ov, value) -> prefs.put("dubAheadSeconds", value));
+    mixerLengthSeconds.addListener((o, ov, value) -> prefs.put("mixerLengthSeconds", value));
     inputMode.addListener((o, ov, value) -> prefs.put("inputMode", Objects.nonNull(value) ? value.name() : ""));
     inputTemplateKey.addListener((o, ov, value) -> prefs.put("inputTemplateKey", value));
     macroMode.addListener((o, ov, value) -> prefs.put("macroMode", Objects.nonNull(value) ? value.name() : ""));
@@ -570,6 +575,7 @@ public class FabricationServiceImpl implements FabricationService {
     contentStoragePathPrefix.set(prefs.get("contentStoragePathPrefix", defaultContentStoragePathPrefix));
     craftAheadSeconds.set(prefs.get("craftAheadSeconds", Integer.toString(defaultCraftAheadSeconds)));
     dubAheadSeconds.set(prefs.get("dubAheadSeconds", Integer.toString(defaultDubAheadSeconds)));
+    mixerLengthSeconds.set(prefs.get("mixerLengthSeconds", Integer.toString(defaultMixerLengthSeconds)));
     inputTemplateKey.set(prefs.get("inputTemplateKey", defaultInputTemplateKey));
     outputChannels.set(prefs.get("outputChannels", Integer.toString(defaultOutputChannels)));
     outputFrameRate.set(prefs.get("outputFrameRate", Double.toString(defaultOutputFrameRate)));
