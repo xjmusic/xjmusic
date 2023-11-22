@@ -18,7 +18,11 @@ import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.http.HttpClientProvider;
 import io.xj.nexus.http.HttpClientProviderImpl;
-import io.xj.nexus.hub_client.*;
+import io.xj.nexus.hub_client.HubClient;
+import io.xj.nexus.hub_client.HubClientAccess;
+import io.xj.nexus.hub_client.HubClientImpl;
+import io.xj.nexus.hub_client.HubContentProvider;
+import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.json.JsonProvider;
 import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
@@ -64,11 +68,6 @@ public class WorkManagerImpl implements WorkManager {
   private final NexusEntityStore store;
   private final SegmentManager segmentManager;
   private final WorkTelemetry telemetry;
-  private long nextCraftCycleMillis;
-  private long nextDubCycleMillis;
-  private long nextShipCycleMillis;
-  private long nextReportCycleMillis;
-
   private final AtomicReference<HubContent> hubContent = new AtomicReference<>();
   private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
   private final AtomicBoolean isAudioLoaded = new AtomicBoolean(false);
@@ -96,7 +95,6 @@ public class WorkManagerImpl implements WorkManager {
 
   @Nullable
   private HubClientAccess hubAccess;
-
 
   @Nullable
   private Consumer<Float> onProgress;
@@ -178,17 +176,14 @@ public class WorkManagerImpl implements WorkManager {
     isAudioLoaded.set(false);
     updateState(WorkState.Starting);
 
-    scheduler = Executors.newScheduledThreadPool(1);
-    scheduler.scheduleAtFixedRate(this::runCycle, 0, workConfig.getCycleMillis(), TimeUnit.MILLISECONDS);
+    scheduler = Executors.newScheduledThreadPool(5);
+    scheduler.scheduleWithFixedDelay(this::runControlCycle, 0, workConfig.getControlCycleMillis(), TimeUnit.MILLISECONDS);
+    scheduler.scheduleWithFixedDelay(this::runCraftCycle, 0, workConfig.getCraftCycleMillis(), TimeUnit.MILLISECONDS);
+    scheduler.scheduleWithFixedDelay(this::runDubCycle, 0, workConfig.getDubCycleMillis(), TimeUnit.MILLISECONDS);
+    scheduler.scheduleWithFixedDelay(this::runShipCycle, 0, workConfig.getShipCycleMillis(), TimeUnit.MILLISECONDS);
+    scheduler.scheduleWithFixedDelay(this::runTelemetryCycle, 0, workConfig.getTelemetryCycleMillis(), TimeUnit.MILLISECONDS);
 
     telemetry.startTimer();
-  }
-
-  private void updateState(WorkState workState) {
-    state.set(workState);
-    if (Objects.nonNull(onStateChange)) {
-      onStateChange.accept(workState);
-    }
   }
 
   @Override
@@ -275,8 +270,22 @@ public class WorkManagerImpl implements WorkManager {
     return Objects.nonNull(craftWork) ? craftWork.getCraftedToChainMicros() : Optional.empty();
   }
 
-  @Override
-  public void runCycle() {
+  /**
+   Update the current work state
+
+   @param workState work state
+   */
+  private void updateState(WorkState workState) {
+    state.set(workState);
+    if (Objects.nonNull(onStateChange)) {
+      onStateChange.accept(workState);
+    }
+  }
+
+  /**
+   Run the control cycle, which prepares fabrication and moves the machine into the active state
+   */
+  private void runControlCycle() {
     try {
       switch (state.get()) {
 
@@ -313,9 +322,7 @@ public class WorkManagerImpl implements WorkManager {
           }
         }
 
-        case Active -> runFabricationCycle();
-
-        case Standby, Done, Failed -> {
+        case Active, Standby, Done, Failed -> {
           // no op
         }
       }
@@ -325,12 +332,63 @@ public class WorkManagerImpl implements WorkManager {
     }
   }
 
+  /**
+   Run the craft cycle
+   */
+  private void runCraftCycle() {
+    assert Objects.nonNull(workConfig);
+    assert Objects.nonNull(craftWork);
+    assert Objects.nonNull(shipWork);
+    craftWork.runCycle(shipWork.getShippedToChainMicros().map(m -> m + workConfig.getCraftAheadMicros()).orElse(0L));
+  }
+
+  /**
+   Run the dub cycle
+   */
+  private void runDubCycle() {
+    assert Objects.nonNull(workConfig);
+    assert Objects.nonNull(dubWork);
+    assert Objects.nonNull(shipWork);
+    dubWork.runCycle(shipWork.getShippedToChainMicros().map(m -> m + workConfig.getDubAheadMicros()).orElse(0L));
+  }
+
+  /**
+   Run the ship cycle
+   */
+  private void runShipCycle() {
+    assert Objects.nonNull(workConfig);
+    assert Objects.nonNull(shipWork);
+    shipWork.runCycle(0);
+    if (isFileOutputMode) {
+      updateProgress(shipWork.getProgress());
+    }
+    if (shipWork.isFinished()) {
+      updateState(WorkState.Done);
+      LOG.info("Fabrication work done");
+    }
+  }
+
+  /**
+   Run the telemetry cycle
+   */
+  private void runTelemetryCycle() {
+    telemetry.report();
+  }
+
+  /**
+   Update the progress
+
+   @param progress progress
+   */
   private void updateProgress(float progress) {
     if (Objects.nonNull(onProgress)) {
       onProgress.accept(progress);
     }
   }
 
+  /**
+   Start loading content
+   */
   private void startLoadingContent() {
     assert Objects.nonNull(workConfig);
     hubContent.set(null);
@@ -350,10 +408,16 @@ public class WorkManagerImpl implements WorkManager {
     }
   }
 
+  /**
+   @return true if content is loaded
+   */
   private boolean isContentLoaded() {
     return Objects.nonNull(hubContent.get());
   }
 
+  /**
+   Start loading audio
+   */
   private void startLoadingAudio() {
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(hubConfig);
@@ -399,10 +463,16 @@ public class WorkManagerImpl implements WorkManager {
     }
   }
 
+  /**
+   @return true if audio is loaded
+   */
   private boolean isAudioLoaded() {
     return isAudioLoaded.get();
   }
 
+  /**
+   Initialize the work
+   */
   private void initialize() {
     assert Objects.nonNull(hubConfig);
     assert Objects.nonNull(workConfig);
@@ -443,48 +513,9 @@ public class WorkManagerImpl implements WorkManager {
     );
   }
 
-  private void runFabricationCycle() {
-    assert Objects.nonNull(workConfig);
-    assert Objects.nonNull(shipWork);
-    assert Objects.nonNull(dubWork);
-    assert Objects.nonNull(craftWork);
-
-    long now = System.currentTimeMillis();
-
-    // Ship
-    if (now >= nextShipCycleMillis) {
-      nextShipCycleMillis = now + workConfig.getShipCycleMillis();
-      shipWork.runCycle(0);
-      if (isFileOutputMode) {
-        updateProgress(shipWork.getProgress());
-      }
-      if (shipWork.isFinished()) {
-        updateState(WorkState.Done);
-        LOG.info("Fabrication work done");
-      }
-    }
-
-    // Dub
-    if (now >= nextDubCycleMillis) {
-      nextDubCycleMillis = now + workConfig.getDubCycleMillis();
-      dubWork.runCycle(shipWork.getShippedToChainMicros().map(m -> m + workConfig.getDubAheadMicros()).orElse(0L));
-    }
-
-    // Craft
-    if (Objects.nonNull(craftWork) && now >= nextCraftCycleMillis) {
-      nextCraftCycleMillis = now + workConfig.getCraftCycleMillis();
-      craftWork.runCycle(shipWork.getShippedToChainMicros().map(m -> m + workConfig.getCraftAheadMicros()).orElse(0L));
-    }
-
-    // End lap & report if needed
-    var lapText = telemetry.markLap();
-    LOG.debug("Lap time: {}", lapText);
-    if (now >= nextReportCycleMillis) {
-      nextReportCycleMillis = now + workConfig.getReportCycleMillis();
-      telemetry.report();
-    }
-  }
-
+  /**
+   @return true if initialized
+   */
   private boolean isInitialized() {
     return Objects.nonNull(craftWork) && Objects.nonNull(dubWork) && Objects.nonNull(shipWork);
   }

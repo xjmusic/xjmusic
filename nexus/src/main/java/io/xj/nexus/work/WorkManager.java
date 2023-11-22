@@ -15,8 +15,6 @@ public interface WorkManager {
    Start work.
    <p>
    This assigns the work configuration, hub configuration, and hub access.
-   However, in order to advance the state machine and perform work, the parent framework must repeatedly call
-   {@link #runCycle()} from its preferred work thread.
    */
   void start(
     WorkConfiguration workConfig,
@@ -68,11 +66,6 @@ public interface WorkManager {
   Optional<Long> getCraftedToChainMicros();
 
   /**
-   Run the current work cycle
-   */
-  void runCycle();
-
-  /**
    @return the current work state
    */
   WorkState getWorkState();
@@ -97,9 +90,9 @@ public interface WorkManager {
   /**
    Set the on status callback
 
-   @param onStatu callback
+   @param onStateChange callback
    */
-  void setOnStateChange(Consumer<WorkState> onStatu);
+  void setOnStateChange(Consumer<WorkState> onStateChange);
 
   /**
    Set the on finish callback
