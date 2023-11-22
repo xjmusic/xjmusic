@@ -13,8 +13,8 @@ public class BroadcastFactoryImpl implements BroadcastFactory {
   }
 
   @Override
-  public StreamPlayer player(AudioFormat format) {
-    return new StreamPlayerImpl(format);
+  public StreamPlayer player(AudioFormat format, int bufferSize) {
+    return new StreamPlayerImpl(format, bufferSize);
   }
 
   @Override

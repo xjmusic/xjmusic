@@ -20,7 +20,8 @@ public class StreamPlayerImpl implements StreamPlayer {
   final AtomicBoolean running = new AtomicBoolean(true);
 
   public StreamPlayerImpl(
-    AudioFormat format
+    AudioFormat format,
+    int bufferSize
   ) {
     try {
       DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
@@ -30,7 +31,7 @@ public class StreamPlayerImpl implements StreamPlayer {
         return;
       }
       line = (SourceDataLine) AudioSystem.getLine(info);
-      line.open(format);
+      line.open(format, bufferSize);
       line.start();
       LOG.info("Did open audio system line out: {}", info);
 

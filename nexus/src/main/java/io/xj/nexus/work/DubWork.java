@@ -105,4 +105,8 @@ public interface DubWork extends Work {
    */
   Optional<Long> getDubbedToChainMicros();
 
+  /**
+   @return the length of the mixer buffer in seconds
+   */
+  int getMixerLengthSeconds();
 }

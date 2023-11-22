@@ -186,6 +186,11 @@ public class DubWorkImpl implements DubWork {
     return Optional.of(chunkToChainMicros);
   }
 
+  @Override
+  public int getMixerLengthSeconds() {
+    return mixerLengthSeconds;
+  }
+
   void doPlanFrame(long toChainMicros) {
     if (craftWork.isFinished()) {
       LOG.warn("Craft is not running; will abort.");

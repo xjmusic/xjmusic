@@ -74,23 +74,20 @@ public class ShipWorkImpl implements ShipWork {
     this.outputSeconds = outputSeconds;
     this.pcmChunkSizeBytes = pcmChunkSizeBytes;
 
-    var audioFormat = dubWork.getAudioFormat();
-    if (audioFormat.isEmpty()) {
-      throw new RuntimeException("Waiting for audio format to be available.");
-    }
-    var chain = dubWork.getChain();
-    if (chain.isEmpty()) {
-      throw new RuntimeException("Waiting for Dub to begin");
-    }
+    var audioFormat = dubWork.getAudioFormat().orElseThrow(() ->
+      new RuntimeException("Unable to get audio format from dub work"));
 
     switch (outputMode) {
       case PLAYBACK -> {
         LOG.info("Will initialize playback output");
-        playback = broadcastFactory.player(audioFormat.get());
+        playback = broadcastFactory.player(
+          audioFormat,
+          (int) (dubWork.getMixerLengthSeconds() * audioFormat.getFrameRate() * audioFormat.getFrameSize())
+        );
       }
       case FILE -> {
         LOG.info("Will initialize file output");
-        fileWriter = broadcastFactory.writer(audioFormat.get());
+        fileWriter = broadcastFactory.writer(audioFormat);
       }
     }
 
