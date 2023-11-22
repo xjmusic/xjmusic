@@ -3,12 +3,12 @@ package io.xj.nexus.craft.macro_main;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramType;
-import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.entity.EntityUtils;
-import io.xj.lib.json.JsonProvider;
-import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.nexus.entity.EntityFactoryImpl;
+import io.xj.nexus.entity.EntityUtils;
+import io.xj.nexus.json.JsonProvider;
+import io.xj.nexus.json.JsonProviderImpl;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
@@ -83,8 +83,8 @@ public class CraftFoundationContinueTest {
       SegmentState.CRAFTED,
       "D major",
       64,
-      0.73,
-      120.0,
+      0.73f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892"
     ));
     store.put(buildSegment(
@@ -93,8 +93,8 @@ public class CraftFoundationContinueTest {
       SegmentState.CRAFTING,
       "Db minor",
       64,
-      0.85,
-      120.0,
+      0.85f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892"
     ));
     // Chain "Test Print #1" has this segment that was just crafted
@@ -128,8 +128,8 @@ public class CraftFoundationContinueTest {
       SegmentState.PLANNED,
       "C",
       4,
-      1.0,
-      120.0,
+      1.0f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892"
     ));
   }
@@ -139,7 +139,7 @@ public class CraftFoundationContinueTest {
    */
   @Test
   public void craftFoundationContinue() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
 
     craftFactory.macroMain(fabricator).doWork();
 

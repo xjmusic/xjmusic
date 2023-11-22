@@ -2,11 +2,11 @@
 package io.xj.nexus.craft.macro_main;
 
 import io.xj.hub.HubContent;
-import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.json.JsonProvider;
-import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.nexus.entity.EntityFactoryImpl;
+import io.xj.nexus.json.JsonProvider;
+import io.xj.nexus.json.JsonProviderImpl;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
@@ -78,14 +78,14 @@ public class CraftSegmentOutputEncoderTest {
       SegmentState.PLANNED,
       "C",
       8,
-      0.8,
-      120.0,
+      0.8f,
+      120.0f,
       "chain-1-waveform-12345.wav"));
   }
 
   @Test
   public void craftFoundationInitial() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 48000.0f, 2);
 
     craftFactory.macroMain(fabricator).doWork();
 

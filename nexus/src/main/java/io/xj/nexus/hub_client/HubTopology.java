@@ -2,7 +2,7 @@
 package io.xj.nexus.hub_client;
 
 import io.xj.hub.tables.pojos.*;
-import io.xj.lib.entity.EntityFactory;
+import io.xj.nexus.entity.EntityFactory;
 
 /**
  In the future, we will simplify JSON payload

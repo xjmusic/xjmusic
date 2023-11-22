@@ -1,6 +1,6 @@
 package io.xj.nexus.work;
 
-import io.xj.lib.telemetry.MultiStopwatch;
+import io.xj.nexus.telemetry.MultiStopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

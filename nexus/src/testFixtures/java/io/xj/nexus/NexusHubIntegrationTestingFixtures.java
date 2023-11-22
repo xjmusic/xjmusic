@@ -428,7 +428,7 @@ public class NexusHubIntegrationTestingFixtures {
     return programSequencePattern;
   }
 
-  public static ProgramSequencePatternEvent buildProgramSequencePatternEvent(ProgramSequencePattern programSequencePattern, ProgramVoiceTrack programVoiceTrack, float position, float duration, String note, float velocity) {
+  public static ProgramSequencePatternEvent buildProgramSequencePatternEvent(ProgramSequencePattern programSequencePattern, ProgramVoiceTrack programVoiceTrack, float position, float duration, String tones, float velocity) {
     var programSequencePatternEvent = new ProgramSequencePatternEvent();
     programSequencePatternEvent.setId(UUID.randomUUID());
     programSequencePatternEvent.setProgramId(programSequencePattern.getProgramId());
@@ -436,7 +436,7 @@ public class NexusHubIntegrationTestingFixtures {
     programSequencePatternEvent.setProgramVoiceTrackId(programVoiceTrack.getId());
     programSequencePatternEvent.setPosition(position);
     programSequencePatternEvent.setDuration(duration);
-    programSequencePatternEvent.setTones(note);
+    programSequencePatternEvent.setTones(tones);
     programSequencePatternEvent.setVelocity(velocity);
     return programSequencePatternEvent;
   }

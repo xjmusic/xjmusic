@@ -2,12 +2,24 @@
 
 package io.xj.gui.services;
 
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.MacroMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
-import io.xj.nexus.model.*;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentMessage;
+import io.xj.nexus.model.SegmentMeta;
 import io.xj.nexus.work.WorkState;
 import jakarta.annotation.Nullable;
 import javafx.beans.property.BooleanProperty;
@@ -46,6 +58,8 @@ public interface FabricationService {
   StringProperty craftAheadSecondsProperty();
 
   StringProperty dubAheadSecondsProperty();
+
+  StringProperty mixerLengthSecondsProperty();
 
   StringProperty outputChannelsProperty();
 
@@ -138,14 +152,6 @@ public interface FabricationService {
    @return chain micros, else empty
    */
   Optional<Long> getCraftedToChainMicros();
-
-  /**
-   If the current work is realtime, e.g. playback or HLS, return the target chain micros
-
-   @return chain micros if realtime, else empty
-   */
-  Optional<Long> getShipTargetChainMicros();
-
 
   /**
    The fabrication service has a main action that can be triggered by the user. This action is

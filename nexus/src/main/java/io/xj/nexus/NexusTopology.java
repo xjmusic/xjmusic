@@ -2,7 +2,7 @@
 package io.xj.nexus;
 
 import io.xj.hub.tables.pojos.*;
-import io.xj.lib.entity.EntityFactory;
+import io.xj.nexus.entity.EntityFactory;
 import io.xj.nexus.model.*;
 
 /**

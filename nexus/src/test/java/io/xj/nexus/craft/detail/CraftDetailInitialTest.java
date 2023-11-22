@@ -4,11 +4,11 @@ package io.xj.nexus.craft.detail;
 import io.xj.hub.HubContent;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
-import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.json.JsonProvider;
-import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.nexus.entity.EntityFactoryImpl;
+import io.xj.nexus.json.JsonProvider;
+import io.xj.nexus.json.JsonProviderImpl;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
@@ -93,8 +93,8 @@ public class CraftDetailInitialTest {
       SegmentState.CRAFTING,
       "C minor",
       16,
-      0.55,
-      130.0,
+      0.55f,
+      130.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment6,
@@ -110,9 +110,9 @@ public class CraftDetailInitialTest {
       fake.program5_sequence0_binding0));
     for (String memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
       store.put(buildSegmentMeme(segment6, memeName));
-    SegmentChord chord0 = store.put(buildSegmentChord(segment6, 0.0, "C minor"));
+    SegmentChord chord0 = store.put(buildSegmentChord(segment6, 0.0f, "C minor"));
     store.put(buildSegmentChordVoicing(chord0, InstrumentType.Bass, "C2, Eb2, G2"));
-    SegmentChord chord1 = store.put(buildSegmentChord(segment6, 8.0, "Db minor"));
+    SegmentChord chord1 = store.put(buildSegmentChord(segment6, 8.0f, "Db minor"));
     store.put(buildSegmentChordVoicing(chord1, InstrumentType.Bass, "Db2, E2, Ab2"));
   }
 
@@ -123,7 +123,7 @@ public class CraftDetailInitialTest {
 
   @Test
   public void craftDetailInitial() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 48000.0f, 2);
 
     craftFactory.detail(fabricator).doWork();
 

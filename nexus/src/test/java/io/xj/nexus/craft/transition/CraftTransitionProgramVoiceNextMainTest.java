@@ -7,12 +7,12 @@ import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.entity.EntityUtils;
-import io.xj.lib.json.JsonProvider;
-import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.nexus.entity.EntityFactoryImpl;
+import io.xj.nexus.entity.EntityUtils;
+import io.xj.nexus.json.JsonProvider;
+import io.xj.nexus.json.JsonProviderImpl;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
@@ -98,8 +98,8 @@ public class CraftTransitionProgramVoiceNextMainTest {
       SegmentState.CRAFTED,
       "D major",
       64,
-      0.73,
-      120.0,
+      0.73f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892"
     ));
     store.put(buildSegment(
@@ -110,8 +110,8 @@ public class CraftTransitionProgramVoiceNextMainTest {
       SegmentState.CRAFTING,
       "Db minor",
       64,
-      0.85,
-      120.0,
+      0.85f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
   }
 
@@ -158,7 +158,7 @@ public class CraftTransitionProgramVoiceNextMainTest {
   @Test
   public void craftTransitionVoiceNextMain() throws Exception {
     insertSegments3and4();
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
 
     craftFactory.transition(fabricator).doWork();
 
@@ -190,8 +190,8 @@ public class CraftTransitionProgramVoiceNextMainTest {
       SegmentState.CRAFTED,
       "F Major",
       64,
-      0.30,
-      120.0,
+      0.30f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892",
       true));
     store.put(buildSegmentChoice(
@@ -216,8 +216,8 @@ public class CraftTransitionProgramVoiceNextMainTest {
       SegmentState.CRAFTING,
       "G minor",
       16,
-      0.45,
-      120.0,
+      0.45f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment4,
@@ -234,8 +234,8 @@ public class CraftTransitionProgramVoiceNextMainTest {
     for (String memeName : List.of("Regret", "Sky", "Hindsight", "Tropical"))
       store.put(buildSegmentMeme(segment4, memeName));
 
-    store.put(buildSegmentChord(segment4, 0.0, "G minor"));
-    store.put(buildSegmentChord(segment4, 8.0, "Ab minor"));
+    store.put(buildSegmentChord(segment4, 0.0f, "G minor"));
+    store.put(buildSegmentChord(segment4, 8.0f, "Ab minor"));
   }
 
 }

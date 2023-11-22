@@ -6,12 +6,12 @@ import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.*;
-import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.entity.EntityStore;
-import io.xj.lib.entity.EntityStoreImpl;
-import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.nexus.entity.EntityFactoryImpl;
+import io.xj.nexus.entity.EntityStore;
+import io.xj.nexus.entity.EntityStoreImpl;
+import io.xj.nexus.json.JsonProviderImpl;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
@@ -143,8 +143,8 @@ public class MacroFromOverlappingMemeSequencesTest {
       SegmentState.CRAFTED,
       "D major",
       64,
-      0.73,
-      120.0,
+      0.73f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892"
     ));
     store.put(buildSegmentChoice(segment1, ProgramType.Macro, macro1_sequenceA_binding));
@@ -156,12 +156,12 @@ public class MacroFromOverlappingMemeSequencesTest {
       SegmentState.CRAFTING,
       "Db minor",
       64,
-      0.85,
-      120.0,
+      0.85f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892.wav"
     ));
 
-    subject = new MacroMainCraftImpl(fabricatorFactory.fabricate(sourceMaterial, segment2, 48000.0, 2));
+    subject = new MacroMainCraftImpl(fabricatorFactory.fabricate(sourceMaterial, segment2, 48000.0f, 2));
   }
 
   @Test

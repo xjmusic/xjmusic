@@ -29,7 +29,6 @@ import java.util.Locale;
 @SpringBootApplication
 @ComponentScan(
   basePackages = {
-    "io.xj.lib",
     "io.xj.hub",
     "io.xj.nexus",
   })

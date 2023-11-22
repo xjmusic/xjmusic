@@ -39,7 +39,7 @@ public interface CraftWork extends Work {
 
    @return the template config
    */
-  Optional<TemplateConfig> getTemplateConfig();
+  TemplateConfig getTemplateConfig();
 
   /**
    Get all ready segments - if none are ready, return an empty list

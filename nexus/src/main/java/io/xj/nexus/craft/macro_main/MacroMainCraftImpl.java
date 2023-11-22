@@ -167,31 +167,28 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
         }
       }
 
+    var segment = fabricator.getSegment();
+
     // Update the segment with fabricated content
     if (mainSequence.isPresent()) {
-      var seg = fabricator.getSegment();
-      seg.setType(fabricator.getType());
-      seg.setTempo(Double.valueOf(mainProgram.getTempo()));
-      seg.setKey(computeSegmentKey(mainSequence.get()).strip());
-      seg.setTotal(Integer.valueOf(mainSequence.get().getTotal()));
-      fabricator.putSegment(seg);
+      segment.setType(fabricator.getType());
+      segment.setTempo(Double.valueOf(mainProgram.getTempo()));
+      segment.setKey(computeSegmentKey(mainSequence.get()).strip());
+      segment.setTotal(Integer.valueOf(mainSequence.get().getTotal()));
+      segment.setDurationMicros(segmentLengthMicros(mainSequence.get()));
     }
 
-    // then, set the end-at time.
-    if (mainSequence.isPresent())
-      fabricator.putSegment(fabricator.getSegment()
-        .durationMicros(segmentLengthMicros(mainSequence.get())));
-
     // If the type is not Continue, we will reset the offset main
-    var segment = fabricator.getSegment();
     if (SegmentType.CONTINUE.equals(fabricator.getType()))
       segment.setDelta(fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal());
     else
       segment.setDelta(0);
-    segment.density(computeSegmentDensity(segment.getDelta(), macroSequence.orElse(null), mainSequence.orElse(null)));
-    fabricator.putSegment(segment);
 
-    // done
+    // Set the density
+    segment.setDensity(computeSegmentDensity(segment.getDelta(), macroSequence.orElse(null), mainSequence.orElse(null)));
+
+    // Finished
+    fabricator.putSegment(segment);
     fabricator.done();
   }
 

@@ -2,11 +2,11 @@
 package io.xj.nexus.craft.background;
 
 import io.xj.hub.HubContent;
-import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.json.JsonProvider;
-import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.nexus.entity.EntityFactoryImpl;
+import io.xj.nexus.json.JsonProvider;
+import io.xj.nexus.json.JsonProviderImpl;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
@@ -90,8 +90,8 @@ public class CraftBackgroundInitialTest {
       SegmentState.CRAFTING,
       "C minor",
       16,
-      0.55,
-      130.0,
+      0.55f,
+      130.0f,
       "chains-1-segments-9f7s89d8a7892.wav",
       true));
     store.put(buildSegmentChoice(
@@ -109,8 +109,8 @@ public class CraftBackgroundInitialTest {
     for (String memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
       store.put(NexusIntegrationTestingFixtures.buildSegmentMeme(segment6, memeName));
 
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment6, 0.0, "C minor"));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment6, 8.0, "Db minor"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment6, 0.0f, "C minor"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment6, 8.0f, "Db minor"));
   }
 
   @AfterEach
@@ -120,7 +120,7 @@ public class CraftBackgroundInitialTest {
 
   @Test
   public void craftBackgroundInitial() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 48000.0f, 2);
 
     craftFactory.background(fabricator).doWork();
 

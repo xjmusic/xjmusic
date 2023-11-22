@@ -2,7 +2,7 @@
 package io.xj.nexus.work;
 
 import io.xj.hub.tables.pojos.Program;
-import io.xj.lib.mixer.BytePipeline;
+import io.xj.nexus.mixer.BytePipeline;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 
@@ -56,7 +56,7 @@ public interface DubWork extends Work {
 
    @return the number of bytes per microsecond, or empty if not yet available
    */
-  Optional<Float> getMixerOutputMicrosPerByte();
+  Float getMixerOutputMicrosPerByte();
 
   /**
    Get the chain from craft work
@@ -105,4 +105,8 @@ public interface DubWork extends Work {
    */
   Optional<Long> getDubbedToChainMicros();
 
+  /**
+   @return the length of the mixer buffer in seconds
+   */
+  int getMixerLengthSeconds();
 }

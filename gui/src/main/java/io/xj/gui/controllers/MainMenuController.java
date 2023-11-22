@@ -2,20 +2,25 @@
 
 package io.xj.gui.controllers;
 
-import io.xj.gui.services.*;
+import io.xj.gui.WorkstationGuiFxApplication;
+import io.xj.gui.services.FabricationService;
+import io.xj.gui.services.GuideService;
+import io.xj.gui.services.LabService;
+import io.xj.gui.services.ThemeService;
+import io.xj.gui.services.UIStateService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyCombination;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 
 @Service
 public class MainMenuController extends MenuBar implements ReadyAfterBootController {
-  Logger LOG = LoggerFactory.getLogger(MainMenuController.class);
   final static String DEBUG = "DEBUG";
   final static String INFO = "INFO";
   final static String WARN = "WARN";
@@ -126,9 +131,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
   @FXML
   protected void onQuit() {
-    var exitCode = SpringApplication.exit(ac, () -> 0);
-    LOG.info("Will exit with code {}", exitCode);
-    System.exit(exitCode);
+    WorkstationGuiFxApplication.exit(ac);
   }
 
   @FXML

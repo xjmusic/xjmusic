@@ -44,10 +44,10 @@ public class NameIsometryTest {
 
   @Test
   public void similarity() {
-    assertEquals(300.0, NameIsometry.similarity("KICK", "KICK"), 0.1);
-    assertEquals(300.0, NameIsometry.similarity("KICK", "KCK"), 0.1);
-    assertEquals(300.0, NameIsometry.similarity("HIHATCLOSED", "HIHATCL"), 0.1);
-    assertEquals(0.0, NameIsometry.similarity("ONE", "TWO"), 0.1);
+    assertEquals(300.0f, NameIsometry.similarity("KICK", "KICK"), 0.1);
+    assertEquals(300.0f, NameIsometry.similarity("KICK", "KCK"), 0.1);
+    assertEquals(300.0f, NameIsometry.similarity("HIHATCLOSED", "HIHATCL"), 0.1);
+    assertEquals(0.0f, NameIsometry.similarity("ONE", "TWO"), 0.1);
   }
 
 }

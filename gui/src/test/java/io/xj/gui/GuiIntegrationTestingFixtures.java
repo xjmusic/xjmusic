@@ -6,8 +6,8 @@ import io.xj.hub.enums.*;
 import io.xj.hub.tables.pojos.*;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueUtils;
-import io.xj.lib.entity.EntityException;
-import io.xj.lib.entity.EntityUtils;
+import io.xj.nexus.entity.EntityException;
+import io.xj.nexus.entity.EntityUtils;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.hub_client.access.Users;
 import io.xj.nexus.model.*;
@@ -26,8 +26,8 @@ import java.util.*;
  */
 public class GuiIntegrationTestingFixtures {
   static final Logger LOG = LoggerFactory.getLogger(GuiIntegrationTestingFixtures.class);
-  static final double RANDOM_VALUE_FROM = 0.3;
-  static final double RANDOM_VALUE_TO = 0.8;
+  static final float RANDOM_VALUE_FROM = 0.3f;
+  static final float RANDOM_VALUE_TO = 0.8f;
 
   // These are fully exposed (no getters/setters) for ease of use in testing
   public Account account1;
@@ -235,7 +235,7 @@ public class GuiIntegrationTestingFixtures {
    @param B ceiling
    @return A <= value <= B
    */
-  protected static Float random(double A, double B) {
+  protected static Float random(float A, float B) {
     return (float) (A + StrictMath.random() * (B - A));
   }
 
@@ -303,14 +303,14 @@ public class GuiIntegrationTestingFixtures {
     return seg;
   }
 
-  public static Segment buildSegment(Chain chain, int offset, SegmentState state, String key, int total, double density, double tempo, String storageKey) {
+  public static Segment buildSegment(Chain chain, int offset, SegmentState state, String key, int total, float density, float tempo, String storageKey) {
     return buildSegment(chain,
       0 < offset ? SegmentType.CONTINUE : SegmentType.INITIAL,
       offset, 0, state, key, total, density, tempo, storageKey, state == SegmentState.CRAFTED);
   }
 
 
-  public static Segment buildSegment(Chain chain, SegmentType type, int id, int delta, SegmentState state, String key, int total, double density, double tempo, String storageKey, boolean hasEndSet) {
+  public static Segment buildSegment(Chain chain, SegmentType type, int id, int delta, SegmentState state, String key, int total, float density, float tempo, String storageKey, boolean hasEndSet) {
     var segment = new Segment();
     segment.setChainId(chain.getId());
     segment.setType(type);
@@ -320,8 +320,8 @@ public class GuiIntegrationTestingFixtures {
     segment.setBeginAtChainMicros((long) (id * ValueUtils.MICROS_PER_SECOND * total * ValueUtils.SECONDS_PER_MINUTE / tempo));
     segment.setKey(key);
     segment.setTotal(total);
-    segment.setDensity(density);
-    segment.setTempo(tempo);
+    segment.setDensity((double) density);
+    segment.setTempo((double) tempo);
     segment.setStorageKey(storageKey);
     segment.setWaveformPreroll(0.0);
     segment.setWaveformPostroll(0.0);
@@ -459,7 +459,7 @@ public class GuiIntegrationTestingFixtures {
     return segmentMeme;
   }
 
-  public static SegmentChord buildSegmentChord(Segment segment, Double atPosition, String name) {
+  public static SegmentChord buildSegmentChord(Segment segment, double atPosition, String name) {
     var segmentChord = new SegmentChord();
     segmentChord.setId(UUID.randomUUID());
     segmentChord.setSegmentId(segment.getId());
@@ -632,9 +632,9 @@ public class GuiIntegrationTestingFixtures {
     program5_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program5, "Outlook");
     //
     program5_sequence0 = GuiHubIntegrationTestingFixtures.buildSequence(program5, 16, "Intro", 0.5f, "G major");
-    program5_sequence0_chord0 = GuiHubIntegrationTestingFixtures.buildChord(program5_sequence0, 0.0, "G major");
+    program5_sequence0_chord0 = GuiHubIntegrationTestingFixtures.buildChord(program5_sequence0, 0.0f, "G major");
     program5_sequence0_chord0_voicing = GuiHubIntegrationTestingFixtures.buildVoicing(program5_sequence0_chord0, program5_voiceBass, "G3, B3, D4");
-    program5_sequence0_chord1 = GuiHubIntegrationTestingFixtures.buildChord(program5_sequence0, 8.0, "Ab minor");
+    program5_sequence0_chord1 = GuiHubIntegrationTestingFixtures.buildChord(program5_sequence0, 8.0f, "Ab minor");
     program5_sequence0_chord1_voicing = GuiHubIntegrationTestingFixtures.buildVoicing(program5_sequence0_chord1, program5_voiceBass, "Ab3, Db3, F4");
     program5_sequence0_chord2 = GuiHubIntegrationTestingFixtures.buildChord(program5_sequence0, 75.0, "G-9"); // this ChordEntity should be ignored, because it's past the end of the main-pattern total https://www.pivotaltracker.com/story/show/154090557
     program5_sequence0_chord2_voicing = GuiHubIntegrationTestingFixtures.buildVoicing(program5_sequence0_chord2, program5_voiceBass, "G3, Bb3, D4, A4");
@@ -642,10 +642,10 @@ public class GuiIntegrationTestingFixtures {
     program5_sequence0_binding0_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program5_sequence0_binding0, "Optimism");
     //
     program5_sequence1 = GuiHubIntegrationTestingFixtures.buildSequence(program5, 32, "Drop", 0.5f, "G minor");
-    program5_sequence1_chord0 = GuiHubIntegrationTestingFixtures.buildChord(program5_sequence1, 0.0, "C major");
+    program5_sequence1_chord0 = GuiHubIntegrationTestingFixtures.buildChord(program5_sequence1, 0.0f, "C major");
     //
     program5_sequence1_chord0_voicing = GuiHubIntegrationTestingFixtures.buildVoicing(program5_sequence1_chord0, program5_voiceBass, "Ab3, Db3, F4");
-    program5_sequence1_chord1 = GuiHubIntegrationTestingFixtures.buildChord(program5_sequence1, 8.0, "Bb minor");
+    program5_sequence1_chord1 = GuiHubIntegrationTestingFixtures.buildChord(program5_sequence1, 8.0f, "Bb minor");
     //
     program5_sequence1_chord1_voicing = GuiHubIntegrationTestingFixtures.buildVoicing(program5_sequence1_chord1, program5_voiceBass, "Ab3, Db3, F4");
     program5_sequence1_binding0 = GuiHubIntegrationTestingFixtures.buildBinding(program5_sequence1, 1);
@@ -764,17 +764,17 @@ public class GuiIntegrationTestingFixtures {
     program15_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program15, "Hindsight");
     //
     program15_sequence0 = GuiHubIntegrationTestingFixtures.buildSequence(program15, 16, "Intro", 0.5f, "G minor");
-    program15_sequence0_chord0 = GuiHubIntegrationTestingFixtures.buildChord(program15_sequence0, 0.0, "G minor");
+    program15_sequence0_chord0 = GuiHubIntegrationTestingFixtures.buildChord(program15_sequence0, 0.0f, "G minor");
     program15_sequence0_chord0_voicing = GuiHubIntegrationTestingFixtures.buildVoicing(program15_sequence0_chord0, program15_voiceBass, "G3, Bb3, D4");
-    program15_sequence0_chord1 = GuiHubIntegrationTestingFixtures.buildChord(program15_sequence0, 8.0, "Ab minor");
+    program15_sequence0_chord1 = GuiHubIntegrationTestingFixtures.buildChord(program15_sequence0, 8.0f, "Ab minor");
     program15_sequence0_chord1_voicing = GuiHubIntegrationTestingFixtures.buildVoicing(program15_sequence0_chord1, program15_voiceBass, "Ab3, C3, Eb4");
     program15_sequence0_binding0 = GuiHubIntegrationTestingFixtures.buildBinding(program15_sequence0, 0);
     program15_sequence0_binding0_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program15_sequence0_binding0, "Regret");
     //
     program15_sequence1 = GuiHubIntegrationTestingFixtures.buildSequence(program15, 32, "Outro", 0.5f, "A major");
-    program15_sequence1_chord0 = GuiHubIntegrationTestingFixtures.buildChord(program15_sequence1, 0.0, "C major");
+    program15_sequence1_chord0 = GuiHubIntegrationTestingFixtures.buildChord(program15_sequence1, 0.0f, "C major");
     program15_sequence1_chord0_voicing = GuiHubIntegrationTestingFixtures.buildVoicing(program15_sequence0_chord0, program15_voiceBass, "E3, G3, C4");
-    program15_sequence1_chord1 = GuiHubIntegrationTestingFixtures.buildChord(program15_sequence1, 8.0, "Bb major");
+    program15_sequence1_chord1 = GuiHubIntegrationTestingFixtures.buildChord(program15_sequence1, 8.0f, "Bb major");
     program15_sequence1_chord1_voicing = GuiHubIntegrationTestingFixtures.buildVoicing(program15_sequence0_chord1, program15_voiceBass, "F3, Bb3, D4");
     program15_sequence1_binding0 = GuiHubIntegrationTestingFixtures.buildBinding(program15_sequence1, 1);
     program15_sequence1_binding0_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program15_sequence1_binding0, "Pride");
@@ -1043,7 +1043,7 @@ public class GuiIntegrationTestingFixtures {
       add(entities, GuiHubIntegrationTestingFixtures.buildInstrumentMeme(instrument, minorMemeName));
       // audios of instrument
       for (int k = 0; k < N; k++)
-        add(entities, GuiHubIntegrationTestingFixtures.buildAudio(instrument, StringUtils.toProper(percussiveNames[k]), String.format("%s.wav", StringUtils.toLowerSlug(percussiveNames[k])), random(0, 0.05), random(0.25, 2), random(80, 120), 0.62f, percussiveNames[k], "X", random(0.8, 1)));
+        add(entities, GuiHubIntegrationTestingFixtures.buildAudio(instrument, StringUtils.toProper(percussiveNames[k]), String.format("%s.wav", StringUtils.toLowerSlug(percussiveNames[k])), random(0, 0.05f), random(0.25f, 2), random(80, 120), 0.62f, percussiveNames[k], "X", random(0.8f, 1)));
       //
       LOG.debug("Generated Drum-type Instrument id={}, minorMeme={}, majorMeme={}", instrument.getId(), minorMemeName, majorMemeName);
     }
@@ -1063,7 +1063,7 @@ public class GuiIntegrationTestingFixtures {
       String[] twoKeys = listOfUniqueRandom(2, LoremIpsum.MUSICAL_KEYS);
       String keyFrom = twoKeys[0];
       String keyTo = twoKeys[1];
-      float densityFrom = random(0.3, 0.9);
+      float densityFrom = random(0.3f, 0.9f);
       float tempoFrom = random(80, 120);
       //
       Program program = add(entities, GuiHubIntegrationTestingFixtures.buildProgram(library1, ProgramType.Macro, ProgramState.Published, String.format("%s, create %s to %s", minorMemeName, majorMemeFromName, majorMemeToName), keyFrom, tempoFrom, 0.6f));
@@ -1073,7 +1073,7 @@ public class GuiIntegrationTestingFixtures {
       var binding0 = add(entities, GuiHubIntegrationTestingFixtures.buildProgramSequenceBinding(sequence0, 0));
       add(entities, GuiHubIntegrationTestingFixtures.buildProgramSequenceBindingMeme(binding0, majorMemeFromName));
       // to offset 1
-      float densityTo = random(0.3, 0.9);
+      float densityTo = random(0.3f, 0.9f);
       var sequence1 = add(entities, GuiHubIntegrationTestingFixtures.buildSequence(program, 0, String.format("Finish %s", majorMemeToName), densityTo, keyTo));
       var binding1 = add(entities, GuiHubIntegrationTestingFixtures.buildProgramSequenceBinding(sequence1, 1));
       add(entities, GuiHubIntegrationTestingFixtures.buildProgramSequenceBindingMeme(binding1, majorMemeToName));
@@ -1119,7 +1119,7 @@ public class GuiIntegrationTestingFixtures {
       String majorMemeName = majorMemeNames[i];
       float tempo = random(80, 120);
       String key = random(LoremIpsum.MUSICAL_KEYS);
-      float density = random(0.4, 0.9);
+      float density = random(0.4f, 0.9f);
       //
       Program program = add(entities, GuiHubIntegrationTestingFixtures.buildProgram(library1, ProgramType.Beat, ProgramState.Published, String.format("%s Beat", majorMemeName), key, tempo, 0.6f));
       trackMap.clear();
@@ -1142,7 +1142,7 @@ public class GuiIntegrationTestingFixtures {
             String name = percussiveNames[num];
             if (!trackMap.containsKey(name))
               trackMap.put(name, add(entities, GuiHubIntegrationTestingFixtures.buildTrack(voices[num], name)));
-            add(entities, GuiHubIntegrationTestingFixtures.buildEvent(pattern, trackMap.get(name), (float) StrictMath.floor((double) iPE * total * 4 / N), random(0.25, 1.0), "X", random(0.4, 0.9)));
+            add(entities, GuiHubIntegrationTestingFixtures.buildEvent(pattern, trackMap.get(name), (float) StrictMath.floor((float) iPE * total * 4 / N), random(0.25f, 1.0f), "X", random(0.4f, 0.9f)));
           }
         }
       }

@@ -6,7 +6,6 @@ import io.xj.hub.enums.*;
 import io.xj.hub.music.*;
 import io.xj.hub.tables.pojos.*;
 import io.xj.hub.util.*;
-import io.xj.lib.entity.EntityUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.nexus.fabricator.Fabricator;
@@ -561,9 +560,9 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param segmentPosition at which to compute
    @return volume ratio
    */
-  double computeVolumeRatioForPickedNote(SegmentChoice choice, double segmentPosition) {
-    if (!fabricator.getTemplateConfig().isDeltaArcEnabled()) return 1.0;
-    return inBounds(choice.getDeltaIn(), choice.getDeltaOut(), fabricator.getSegment().getDelta() + segmentPosition) ? 1.0 : 0.0;
+  float computeVolumeRatioForPickedNote(SegmentChoice choice, double segmentPosition) {
+    if (!fabricator.getTemplateConfig().isDeltaArcEnabled()) return 1.0f;
+    return (float) (inBounds(choice.getDeltaIn(), choice.getDeltaOut(), fabricator.getSegment().getDelta() + segmentPosition) ? 1.0 : 0.0);
   }
 
   /**
@@ -686,7 +685,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     Long startAtSegmentMicros,
     @Nullable Long lengthMicros,
     @Nullable UUID segmentChordVoicingId,
-    double volRatio
+    float volRatio
   ) throws NexusException {
     var audio = fabricator.getInstrumentConfig(instrument).isMultiphonic() ? selectMultiphonicInstrumentAudio(instrument, event, note) : selectMonophonicInstrumentAudio(instrument, event);
 
@@ -1104,8 +1103,8 @@ public class CraftImpl extends FabricationWrapperImpl {
   static class Section {
 
     public SegmentChord chord;
-    public double fromPos;
-    public double toPos;
+    public Double fromPos;
+    public Double toPos;
   }
 
   /**

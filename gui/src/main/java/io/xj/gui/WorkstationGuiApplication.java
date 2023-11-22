@@ -9,7 +9,6 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @ComponentScan(
   basePackages = {
-    "io.xj.lib",
     "io.xj.hub",
     "io.xj.nexus",
     "io.xj.gui",

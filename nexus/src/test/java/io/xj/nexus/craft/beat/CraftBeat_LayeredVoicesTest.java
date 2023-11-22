@@ -7,12 +7,12 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.entity.EntityUtils;
-import io.xj.lib.json.JsonProvider;
-import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.nexus.entity.EntityFactoryImpl;
+import io.xj.nexus.entity.EntityUtils;
+import io.xj.nexus.json.JsonProvider;
+import io.xj.nexus.json.JsonProviderImpl;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
@@ -99,8 +99,8 @@ public class CraftBeat_LayeredVoicesTest {
       SegmentState.CRAFTED,
       "D major",
       64,
-      0.73,
-      120.0,
+      0.73f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892",
       true));
     store.put(buildSegment(
@@ -111,8 +111,8 @@ public class CraftBeat_LayeredVoicesTest {
       SegmentState.CRAFTING,
       "Db minor",
       64,
-      0.85,
-      120.0,
+      0.85f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
 
     // segment just crafted
@@ -125,8 +125,8 @@ public class CraftBeat_LayeredVoicesTest {
       SegmentState.CRAFTED,
       "F Major",
       64,
-      0.30,
-      120.0,
+      0.30f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(segment3, ProgramType.Macro, fake.program4_sequence0_binding0));
     store.put(buildSegmentChoice(segment3, ProgramType.Main, fake.program5_sequence0_binding0));
@@ -141,8 +141,8 @@ public class CraftBeat_LayeredVoicesTest {
       SegmentState.CRAFTING,
       "D Major",
       16,
-      0.45,
-      120.0,
+      0.45f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(segment4, ProgramType.Macro, fake.program4_sequence0_binding0));
     store.put(buildSegmentChoice(segment4, ProgramType.Main, fake.program5_sequence1_binding0));
@@ -150,8 +150,8 @@ public class CraftBeat_LayeredVoicesTest {
     for (String memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
       store.put(buildSegmentMeme(segment4, memeName));
 
-    store.put(buildSegmentChord(segment4, 0.0, "A minor"));
-    store.put(buildSegmentChord(segment4, 8.0, "D Major"));
+    store.put(buildSegmentChord(segment4, 0.0f, "A minor"));
+    store.put(buildSegmentChord(segment4, 8.0f, "D Major"));
   }
 
 
@@ -205,7 +205,7 @@ public class CraftBeat_LayeredVoicesTest {
 
   @Test
   public void craftBeatVoiceContinue() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
 
     craftFactory.beat(fabricator).doWork();
 

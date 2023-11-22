@@ -6,8 +6,8 @@ import io.xj.hub.enums.*;
 import io.xj.hub.tables.pojos.*;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueUtils;
-import io.xj.lib.entity.EntityException;
-import io.xj.lib.entity.EntityUtils;
+import io.xj.nexus.entity.EntityException;
+import io.xj.nexus.entity.EntityUtils;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.hub_client.access.Users;
 import io.xj.nexus.model.*;
@@ -25,8 +25,8 @@ import java.util.*;
  */
 public class NexusIntegrationTestingFixtures {
   static final Logger LOG = LoggerFactory.getLogger(NexusIntegrationTestingFixtures.class);
-  static final double RANDOM_VALUE_FROM = 0.3;
-  static final double RANDOM_VALUE_TO = 0.8;
+  static final float RANDOM_VALUE_FROM = 0.3f;
+  static final float RANDOM_VALUE_TO = 0.8f;
 
   // These are fully exposed (no getters/setters) for ease of use in testing
   public Account account1;
@@ -234,7 +234,7 @@ public class NexusIntegrationTestingFixtures {
    @param B ceiling
    @return A <= value <= B
    */
-  protected static Float random(double A, double B) {
+  protected static Float random(float A, float B) {
     return (float) (A + StrictMath.random() * (B - A));
   }
 
@@ -302,14 +302,14 @@ public class NexusIntegrationTestingFixtures {
     return seg;
   }
 
-  public static Segment buildSegment(Chain chain, int offset, SegmentState state, String key, int total, double density, double tempo, String storageKey) {
+  public static Segment buildSegment(Chain chain, int offset, SegmentState state, String key, int total, float density, float tempo, String storageKey) {
     return buildSegment(chain,
       0 < offset ? SegmentType.CONTINUE : SegmentType.INITIAL,
       offset, 0, state, key, total, density, tempo, storageKey, state == SegmentState.CRAFTED);
   }
 
 
-  public static Segment buildSegment(Chain chain, SegmentType type, int id, int delta, SegmentState state, String key, int total, double density, double tempo, String storageKey, boolean hasEndSet) {
+  public static Segment buildSegment(Chain chain, SegmentType type, int id, int delta, SegmentState state, String key, int total, float density, float tempo, String storageKey, boolean hasEndSet) {
     var segment = new Segment();
     segment.setChainId(chain.getId());
     segment.setType(type);
@@ -319,10 +319,10 @@ public class NexusIntegrationTestingFixtures {
     segment.setBeginAtChainMicros((long) (id * ValueUtils.MICROS_PER_SECOND * total * ValueUtils.SECONDS_PER_MINUTE / tempo));
     segment.setKey(key);
     segment.setTotal(total);
-    segment.setDensity(density);
-    segment.setTempo(tempo);
+    segment.setDensity((double) density);
+    segment.setTempo((double) tempo);
     segment.setStorageKey(storageKey);
-    segment.setWaveformPreroll(0.0);
+    segment.setWaveformPreroll((double) 0.0f);
     segment.setWaveformPostroll(0.0);
 
     var durationMicros = (long) (ValueUtils.MICROS_PER_SECOND * total * ValueUtils.SECONDS_PER_MINUTE / tempo);
@@ -458,7 +458,7 @@ public class NexusIntegrationTestingFixtures {
     return segmentMeme;
   }
 
-  public static SegmentChord buildSegmentChord(Segment segment, Double atPosition, String name) {
+  public static SegmentChord buildSegmentChord(Segment segment, double atPosition, String name) {
     var segmentChord = new SegmentChord();
     segmentChord.setId(UUID.randomUUID());
     segmentChord.setSegmentId(segment.getId());
@@ -486,15 +486,16 @@ public class NexusIntegrationTestingFixtures {
   }
 
   public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(Segment segment, SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent event, InstrumentAudio instrumentAudio, String pickEvent) {
+    var microsPerBeat = ValueUtils.MICROS_PER_SECOND * ValueUtils.SECONDS_PER_MINUTE / segment.getTempo();
     var pick = new SegmentChoiceArrangementPick();
     pick.setId(UUID.randomUUID());
     pick.setSegmentId(segmentChoiceArrangement.getSegmentId());
     pick.setSegmentChoiceArrangementId(segmentChoiceArrangement.getId());
     pick.setProgramSequencePatternEventId(event.getId());
     pick.setInstrumentAudioId(instrumentAudio.getId());
-    pick.setStartAtSegmentMicros((long) (event.getPosition() * ValueUtils.MICROS_PER_SECOND / segment.getTempo()));
-    pick.setLengthMicros((long) (event.getDuration() * ValueUtils.MICROS_PER_SECOND / segment.getTempo()));
-    pick.setAmplitude(Double.valueOf(event.getVelocity()));
+    pick.setStartAtSegmentMicros((long) (event.getPosition() * microsPerBeat));
+    pick.setLengthMicros((long) (event.getDuration() * microsPerBeat));
+    pick.setAmplitude(event.getVelocity());
     pick.setTones(event.getTones());
     pick.setEvent(pickEvent);
     return pick;
@@ -646,9 +647,9 @@ public class NexusIntegrationTestingFixtures {
     program5_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program5, "Outlook");
     //
     program5_sequence0 = NexusHubIntegrationTestingFixtures.buildSequence(program5, 16, "Intro", 0.5f, "G major");
-    program5_sequence0_chord0 = NexusHubIntegrationTestingFixtures.buildChord(program5_sequence0, 0.0, "G major");
+    program5_sequence0_chord0 = NexusHubIntegrationTestingFixtures.buildChord(program5_sequence0, 0.0f, "G major");
     program5_sequence0_chord0_voicing = NexusHubIntegrationTestingFixtures.buildVoicing(program5_sequence0_chord0, program5_voiceBass, "G3, B3, D4");
-    program5_sequence0_chord1 = NexusHubIntegrationTestingFixtures.buildChord(program5_sequence0, 8.0, "Ab minor");
+    program5_sequence0_chord1 = NexusHubIntegrationTestingFixtures.buildChord(program5_sequence0, 8.0f, "Ab minor");
     program5_sequence0_chord1_voicing = NexusHubIntegrationTestingFixtures.buildVoicing(program5_sequence0_chord1, program5_voiceBass, "Ab3, Db3, F4");
     program5_sequence0_chord2 = NexusHubIntegrationTestingFixtures.buildChord(program5_sequence0, 75.0, "G-9"); // this ChordEntity should be ignored, because it's past the end of the main-pattern total https://www.pivotaltracker.com/story/show/154090557
     program5_sequence0_chord2_voicing = NexusHubIntegrationTestingFixtures.buildVoicing(program5_sequence0_chord2, program5_voiceBass, "G3, Bb3, D4, A4");
@@ -656,10 +657,10 @@ public class NexusIntegrationTestingFixtures {
     program5_sequence0_binding0_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program5_sequence0_binding0, "Optimism");
     //
     program5_sequence1 = NexusHubIntegrationTestingFixtures.buildSequence(program5, 32, "Drop", 0.5f, "G minor");
-    program5_sequence1_chord0 = NexusHubIntegrationTestingFixtures.buildChord(program5_sequence1, 0.0, "C major");
+    program5_sequence1_chord0 = NexusHubIntegrationTestingFixtures.buildChord(program5_sequence1, 0.0f, "C major");
     //
     program5_sequence1_chord0_voicing = NexusHubIntegrationTestingFixtures.buildVoicing(program5_sequence1_chord0, program5_voiceBass, "Ab3, Db3, F4");
-    program5_sequence1_chord1 = NexusHubIntegrationTestingFixtures.buildChord(program5_sequence1, 8.0, "Bb minor");
+    program5_sequence1_chord1 = NexusHubIntegrationTestingFixtures.buildChord(program5_sequence1, 8.0f, "Bb minor");
     //
     program5_sequence1_chord1_voicing = NexusHubIntegrationTestingFixtures.buildVoicing(program5_sequence1_chord1, program5_voiceBass, "Ab3, Db3, F4");
     program5_sequence1_binding0 = NexusHubIntegrationTestingFixtures.buildBinding(program5_sequence1, 1);
@@ -778,17 +779,17 @@ public class NexusIntegrationTestingFixtures {
     program15_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program15, "Hindsight");
     //
     program15_sequence0 = NexusHubIntegrationTestingFixtures.buildSequence(program15, 16, "Intro", 0.5f, "G minor");
-    program15_sequence0_chord0 = NexusHubIntegrationTestingFixtures.buildChord(program15_sequence0, 0.0, "G minor");
+    program15_sequence0_chord0 = NexusHubIntegrationTestingFixtures.buildChord(program15_sequence0, 0.0f, "G minor");
     program15_sequence0_chord0_voicing = NexusHubIntegrationTestingFixtures.buildVoicing(program15_sequence0_chord0, program15_voiceBass, "G3, Bb3, D4");
-    program15_sequence0_chord1 = NexusHubIntegrationTestingFixtures.buildChord(program15_sequence0, 8.0, "Ab minor");
+    program15_sequence0_chord1 = NexusHubIntegrationTestingFixtures.buildChord(program15_sequence0, 8.0f, "Ab minor");
     program15_sequence0_chord1_voicing = NexusHubIntegrationTestingFixtures.buildVoicing(program15_sequence0_chord1, program15_voiceBass, "Ab3, C3, Eb4");
     program15_sequence0_binding0 = NexusHubIntegrationTestingFixtures.buildBinding(program15_sequence0, 0);
     program15_sequence0_binding0_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program15_sequence0_binding0, "Regret");
     //
     program15_sequence1 = NexusHubIntegrationTestingFixtures.buildSequence(program15, 32, "Outro", 0.5f, "A major");
-    program15_sequence1_chord0 = NexusHubIntegrationTestingFixtures.buildChord(program15_sequence1, 0.0, "C major");
+    program15_sequence1_chord0 = NexusHubIntegrationTestingFixtures.buildChord(program15_sequence1, 0.0f, "C major");
     program15_sequence1_chord0_voicing = NexusHubIntegrationTestingFixtures.buildVoicing(program15_sequence0_chord0, program15_voiceBass, "E3, G3, C4");
-    program15_sequence1_chord1 = NexusHubIntegrationTestingFixtures.buildChord(program15_sequence1, 8.0, "Bb major");
+    program15_sequence1_chord1 = NexusHubIntegrationTestingFixtures.buildChord(program15_sequence1, 8.0f, "Bb major");
     program15_sequence1_chord1_voicing = NexusHubIntegrationTestingFixtures.buildVoicing(program15_sequence0_chord1, program15_voiceBass, "F3, Bb3, D4");
     program15_sequence1_binding0 = NexusHubIntegrationTestingFixtures.buildBinding(program15_sequence1, 1);
     program15_sequence1_binding0_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program15_sequence1_binding0, "Pride");
@@ -1044,7 +1045,7 @@ public class NexusIntegrationTestingFixtures {
 
     // Create a N-magnitude set of unique major memes
     String[] majorMemeNames = listOfUniqueRandom(N, LoremIpsum.COLORS);
-    String[] minorMemeNames = listOfUniqueRandom((long) StrictMath.ceil(N >> 1), LoremIpsum.VARIANTS);
+    String[] minorMemeNames = listOfUniqueRandom((long) (double) (N >> 1), LoremIpsum.VARIANTS);
     String[] percussiveNames = listOfUniqueRandom(N, LoremIpsum.PERCUSSIVE_NAMES);
 
     // Generate a Drum Instrument for each meme
@@ -1057,7 +1058,7 @@ public class NexusIntegrationTestingFixtures {
       add(entities, NexusHubIntegrationTestingFixtures.buildInstrumentMeme(instrument, minorMemeName));
       // audios of instrument
       for (int k = 0; k < N; k++)
-        add(entities, NexusHubIntegrationTestingFixtures.buildAudio(instrument, StringUtils.toProper(percussiveNames[k]), String.format("%s.wav", StringUtils.toLowerSlug(percussiveNames[k])), random(0, 0.05), random(0.25, 2), random(80, 120), 0.62f, percussiveNames[k], "X", random(0.8, 1)));
+        add(entities, NexusHubIntegrationTestingFixtures.buildAudio(instrument, StringUtils.toProper(percussiveNames[k]), String.format("%s.wav", StringUtils.toLowerSlug(percussiveNames[k])), random(0, 0.05f), random(0.25f, 2), random(80, 120), 0.62f, percussiveNames[k], "X", random(0.8f, 1)));
       //
       LOG.debug("Generated Drum-type Instrument id={}, minorMeme={}, majorMeme={}", instrument.getId(), minorMemeName, majorMemeName);
     }
@@ -1077,7 +1078,7 @@ public class NexusIntegrationTestingFixtures {
       String[] twoKeys = listOfUniqueRandom(2, LoremIpsum.MUSICAL_KEYS);
       String keyFrom = twoKeys[0];
       String keyTo = twoKeys[1];
-      float densityFrom = random(0.3, 0.9);
+      float densityFrom = random(0.3f, 0.9f);
       float tempoFrom = random(80, 120);
       //
       Program program = add(entities, NexusHubIntegrationTestingFixtures.buildProgram(library1, ProgramType.Macro, ProgramState.Published, String.format("%s, create %s to %s", minorMemeName, majorMemeFromName, majorMemeToName), keyFrom, tempoFrom, 0.6f));
@@ -1087,7 +1088,7 @@ public class NexusIntegrationTestingFixtures {
       var binding0 = add(entities, NexusHubIntegrationTestingFixtures.buildProgramSequenceBinding(sequence0, 0));
       add(entities, NexusHubIntegrationTestingFixtures.buildProgramSequenceBindingMeme(binding0, majorMemeFromName));
       // to offset 1
-      float densityTo = random(0.3, 0.9);
+      float densityTo = random(0.3f, 0.9f);
       var sequence1 = add(entities, NexusHubIntegrationTestingFixtures.buildSequence(program, 0, String.format("Finish %s", majorMemeToName), densityTo, keyTo));
       var binding1 = add(entities, NexusHubIntegrationTestingFixtures.buildProgramSequenceBinding(sequence1, 1));
       add(entities, NexusHubIntegrationTestingFixtures.buildProgramSequenceBindingMeme(binding1, majorMemeToName));
@@ -1133,7 +1134,7 @@ public class NexusIntegrationTestingFixtures {
       String majorMemeName = majorMemeNames[i];
       float tempo = random(80, 120);
       String key = random(LoremIpsum.MUSICAL_KEYS);
-      float density = random(0.4, 0.9);
+      float density = random(0.4f, 0.9f);
       //
       Program program = add(entities, NexusHubIntegrationTestingFixtures.buildProgram(library1, ProgramType.Beat, ProgramState.Published, String.format("%s Beat", majorMemeName), key, tempo, 0.6f));
       trackMap.clear();
@@ -1156,7 +1157,7 @@ public class NexusIntegrationTestingFixtures {
             String name = percussiveNames[num];
             if (!trackMap.containsKey(name))
               trackMap.put(name, add(entities, NexusHubIntegrationTestingFixtures.buildTrack(voices[num], name)));
-            add(entities, NexusHubIntegrationTestingFixtures.buildEvent(pattern, trackMap.get(name), (float) StrictMath.floor((double) iPE * total * 4 / N), random(0.25, 1.0), "X", random(0.4, 0.9)));
+            add(entities, NexusHubIntegrationTestingFixtures.buildEvent(pattern, trackMap.get(name), (float) StrictMath.floor((float) iPE * total * 4 / N), random(0.25f, 1.0f), "X", random(0.4f, 0.9f)));
           }
         }
       }

@@ -6,10 +6,10 @@
       "mockChildEntities": {
         "data": []
       },
-      "program": {
+      "widget": {
         "data": {
           "id": "69ea1325-9dfc-423b-b8a6-9cf72f419aa5",
-          "type": "programs"
+          "type": "widgets"
         }
       }
     },
@@ -22,7 +22,7 @@
     {
       "links": {},
       "code": "RestApiException",
-      "title": "Library requires name!",
+      "title": "Superwidget requires name!",
       "detail": null,
       "id": null
     }

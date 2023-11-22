@@ -188,9 +188,9 @@ public class GuiHubContentFixtures {
     program5_meme0 = GuiHubIntegrationTestingFixtures.buildProgramMeme(program5, "Outlook");
     //
     program5_sequence0 = GuiHubIntegrationTestingFixtures.buildProgramSequence(program5, (short) 16, "Intro", 0.5f, "G major");
-    program5_sequence0_chord0 = GuiHubIntegrationTestingFixtures.buildProgramSequenceChord(program5_sequence0, 0.0, "G major");
+    program5_sequence0_chord0 = GuiHubIntegrationTestingFixtures.buildProgramSequenceChord(program5_sequence0, 0.0f, "G major");
     program5_sequence0_chord0_voicing = GuiHubIntegrationTestingFixtures.buildProgramSequenceChordVoicing(program5_sequence0_chord0, voice1, "G3, B3, D4");
-    program5_sequence0_chord1 = GuiHubIntegrationTestingFixtures.buildProgramSequenceChord(program5_sequence0, 8.0, "Ab minor");
+    program5_sequence0_chord1 = GuiHubIntegrationTestingFixtures.buildProgramSequenceChord(program5_sequence0, 8.0f, "Ab minor");
     program5_sequence0_chord1_voicing = GuiHubIntegrationTestingFixtures.buildProgramSequenceChordVoicing(program5_sequence0_chord1, voice1, "Ab3, Db3, F4");
     program5_sequence0_chord2 = GuiHubIntegrationTestingFixtures.buildProgramSequenceChord(program5_sequence0, 75.0, "G-9"); // this ChordEntity should be ignored, because it's past the end of the main-pattern total https://www.pivotaltracker.com/story/show/154090557
     program5_sequence0_chord2_voicing = GuiHubIntegrationTestingFixtures.buildProgramSequenceChordVoicing(program5_sequence0_chord2, voice1, "G3, Bb3, D4, A4");
@@ -198,8 +198,8 @@ public class GuiHubContentFixtures {
     program5_sequence0_binding0_meme0 = GuiHubIntegrationTestingFixtures.buildProgramSequenceBindingMeme(program5_sequence0_binding0, "Optimism");
     //
     program5_sequence1 = GuiHubIntegrationTestingFixtures.buildProgramSequence(program5, (short) 32, "Drop", 0.5f, "G minor");
-    program5_sequence1_chord0 = GuiHubIntegrationTestingFixtures.buildProgramSequenceChord(program5_sequence1, 0.0, "C major");
-    program5_sequence1_chord1 = GuiHubIntegrationTestingFixtures.buildProgramSequenceChord(program5_sequence1, 8.0, "Bb minor");
+    program5_sequence1_chord0 = GuiHubIntegrationTestingFixtures.buildProgramSequenceChord(program5_sequence1, 0.0f, "C major");
+    program5_sequence1_chord1 = GuiHubIntegrationTestingFixtures.buildProgramSequenceChord(program5_sequence1, 8.0f, "Bb minor");
     program5_sequence1_binding1 = GuiHubIntegrationTestingFixtures.buildProgramSequenceBinding(program5_sequence1, 1);
     program5_sequence1_binding1_meme0 = GuiHubIntegrationTestingFixtures.buildProgramSequenceBindingMeme(program5_sequence1_binding1, "Pessimism");
 
@@ -320,14 +320,14 @@ public class GuiHubContentFixtures {
     program15_meme0 = GuiHubIntegrationTestingFixtures.buildProgramMeme(program15, "Hindsight");
     //
     program15_sequence0 = GuiHubIntegrationTestingFixtures.buildProgramSequence(program15, (short) 16, "Intro", 0.5f, "G minor");
-    program15_sequence0_chord0 = GuiHubIntegrationTestingFixtures.buildProgramSequenceChord(program15_sequence0, 0.0, "G minor");
-    program15_sequence0_chord1 = GuiHubIntegrationTestingFixtures.buildProgramSequenceChord(program15_sequence0, 8.0, "Ab minor");
+    program15_sequence0_chord0 = GuiHubIntegrationTestingFixtures.buildProgramSequenceChord(program15_sequence0, 0.0f, "G minor");
+    program15_sequence0_chord1 = GuiHubIntegrationTestingFixtures.buildProgramSequenceChord(program15_sequence0, 8.0f, "Ab minor");
     program15_sequence0_binding0 = GuiHubIntegrationTestingFixtures.buildProgramSequenceBinding(program15_sequence0, 0);
     program15_sequence0_binding0_meme0 = GuiHubIntegrationTestingFixtures.buildProgramSequenceBindingMeme(program15_sequence0_binding0, "Regret");
     //
     program15_sequence1 = GuiHubIntegrationTestingFixtures.buildProgramSequence(program15, (short) 32, "Outro", 0.5f, "A major");
-    program15_sequence1_chord0 = GuiHubIntegrationTestingFixtures.buildProgramSequenceChord(program15_sequence1, 0.0, "C major");
-    program15_sequence1_chord1 = GuiHubIntegrationTestingFixtures.buildProgramSequenceChord(program15_sequence1, 8.0, "Bb major");
+    program15_sequence1_chord0 = GuiHubIntegrationTestingFixtures.buildProgramSequenceChord(program15_sequence1, 0.0f, "C major");
+    program15_sequence1_chord1 = GuiHubIntegrationTestingFixtures.buildProgramSequenceChord(program15_sequence1, 8.0f, "Bb major");
     program15_sequence1_binding0 = GuiHubIntegrationTestingFixtures.buildProgramSequenceBinding(program15_sequence1, 1);
     program15_sequence1_binding0_meme0 = GuiHubIntegrationTestingFixtures.buildProgramSequenceBindingMeme(program15_sequence1_binding0, "Pride");
     program15_sequence1_binding0_meme1 = GuiHubIntegrationTestingFixtures.buildProgramSequenceBindingMeme(program15_sequence1_binding0, "Shame");

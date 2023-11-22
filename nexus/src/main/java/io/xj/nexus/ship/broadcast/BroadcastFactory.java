@@ -2,7 +2,7 @@
 package io.xj.nexus.ship.broadcast;
 
 
-import io.xj.lib.mixer.AudioFileWriter;
+import io.xj.nexus.mixer.AudioFileWriter;
 
 import javax.sound.sampled.AudioFormat;
 
@@ -14,11 +14,13 @@ public interface BroadcastFactory {
   /**
    Play the stream locally
 
-   @param format of audio
+   @param format     of audio
+   @param bufferSize of audio
    @return stream player
    */
   StreamPlayer player(
-    AudioFormat format
+    AudioFormat format,
+    int bufferSize
   );
 
   /**

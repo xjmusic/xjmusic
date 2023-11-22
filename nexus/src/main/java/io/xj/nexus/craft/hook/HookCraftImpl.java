@@ -79,7 +79,7 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
     fabricator.put(arrangement);
 
     // Start at zero and keep laying down hook loops until we're out of here
-    double pos = 0;
+    float pos = 0;
     while (pos < fabricator.getSegment().getTotal()) {
       long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(pos);
       long lengthMicros = Math.min(
@@ -94,7 +94,7 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
       pick.setSegmentChoiceArrangementId(arrangement.getId());
       pick.setStartAtSegmentMicros(startAtSegmentMicros);
       pick.setLengthMicros(lengthMicros);
-      pick.setAmplitude(1.0);
+      pick.setAmplitude(1.0f);
       pick.setEvent("HOOK");
       pick.setInstrumentAudioId(audio.getId());
       fabricator.put(pick);

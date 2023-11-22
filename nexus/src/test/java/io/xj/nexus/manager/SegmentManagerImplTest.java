@@ -4,10 +4,10 @@ package io.xj.nexus.manager;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.json.JsonProvider;
-import io.xj.lib.json.JsonProviderImpl;
+import io.xj.nexus.entity.EntityFactory;
+import io.xj.nexus.entity.EntityFactoryImpl;
+import io.xj.nexus.json.JsonProvider;
+import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.hub_client.HubTopology;
@@ -167,7 +167,7 @@ public class SegmentManagerImplTest {
     assertEquals(Integer.valueOf(64), result.getTotal());
     assertEquals(0.74, result.getDensity(), 0.01);
     assertEquals("C# minor 7 b9", result.getKey());
-    assertEquals(120.0, result.getTempo(), 0.01);
+    assertEquals(120.0f, result.getTempo(), 0.01);
     assertEquals(2.898, result.getWaveformPreroll(), 0.01);
     assertNotNull(result.getStorageKey());
   }
@@ -203,7 +203,7 @@ public class SegmentManagerImplTest {
     assertEquals(Integer.valueOf(64), result.getTotal());
     assertEquals(0.74, result.getDensity(), 0.01);
     assertEquals("C# minor 7 b9", result.getKey());
-    assertEquals(120.0, result.getTempo(), 0.1);
+    assertEquals(120.0f, result.getTempo(), 0.1);
     assertNotNull(result.getStorageKey());
   }
 
@@ -260,9 +260,9 @@ public class SegmentManagerImplTest {
     assertEquals(32 * MICROS_PER_SECOND, (long) result.getBeginAtChainMicros());
     assertEquals(32 * MICROS_PER_SECOND, (long) Objects.requireNonNull(result.getDurationMicros()));
     assertEquals(Integer.valueOf(64), result.getTotal());
-    assertEquals(0.85, result.getDensity(), 0.01);
+    assertEquals(0.85f, result.getDensity(), 0.01);
     assertEquals("Db minor", result.getKey());
-    assertEquals(120.0, result.getTempo(), 0.01);
+    assertEquals(120.0f, result.getTempo(), 0.01);
     assertEquals(1.523, result.getWaveformPreroll(), 0.01);
   }
 

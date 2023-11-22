@@ -3,7 +3,7 @@ package io.xj.nexus.fabricator;
 
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.util.ValueException;
-import io.xj.lib.jsonapi.JsonapiException;
+import io.xj.nexus.jsonapi.JsonapiException;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.*;
 

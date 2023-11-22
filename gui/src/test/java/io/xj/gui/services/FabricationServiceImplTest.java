@@ -10,7 +10,11 @@ import io.xj.nexus.InputMode;
 import io.xj.nexus.MacroMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
-import io.xj.nexus.model.*;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.work.WorkManager;
@@ -25,8 +29,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.xj.gui.GuiHubIntegrationTestingFixtures.*;
-import static io.xj.gui.GuiIntegrationTestingFixtures.*;
+import static io.xj.gui.GuiHubIntegrationTestingFixtures.buildAccount;
+import static io.xj.gui.GuiHubIntegrationTestingFixtures.buildMainProgramWithBarBeats;
+import static io.xj.gui.GuiHubIntegrationTestingFixtures.buildTemplate;
+import static io.xj.gui.GuiIntegrationTestingFixtures.buildChain;
+import static io.xj.gui.GuiIntegrationTestingFixtures.buildSegment;
+import static io.xj.gui.GuiIntegrationTestingFixtures.buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -36,6 +44,7 @@ class FabricationServiceImplTest {
   int defaultTimelineSegmentViewLimit = 10;
   int defaultCraftAheadSeconds = 5;
   int defaultDubAheadSeconds = 5;
+  int defaultMixerLengthSeconds = 10;
   String defaultInputTemplateKey = "slaps_lofi";
   int defaultOutputChannels = 2;
   private final String defaultMacroMode = MacroMode.AUTO.toString();
@@ -76,6 +85,7 @@ class FabricationServiceImplTest {
       hostServices,
       defaultCraftAheadSeconds,
       defaultDubAheadSeconds,
+      defaultMixerLengthSeconds,
       defaultTimelineSegmentViewLimit,
       defaultInputTemplateKey,
       defaultOutputChannels,
@@ -128,8 +138,8 @@ class FabricationServiceImplTest {
       SegmentState.PLANNED,
       "C",
       8,
-      0.8,
-      120.0,
+      0.8f,
+      120.0f,
       "chain-segment-0.wav");
     var program = buildMainProgramWithBarBeats(barBeats);
     var sourceMaterial = new HubContent(List.of(program));

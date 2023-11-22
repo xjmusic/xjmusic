@@ -82,6 +82,9 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   TextField fieldDubAheadSeconds;
 
   @FXML
+  TextField fieldMixerLengthSeconds;
+
+  @FXML
   TextField fieldOutputChannels;
 
   @FXML
@@ -147,6 +150,7 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
 
     fieldCraftAheadSeconds.textProperty().bindBidirectional(fabricationService.craftAheadSecondsProperty());
     fieldDubAheadSeconds.textProperty().bindBidirectional(fabricationService.dubAheadSecondsProperty());
+    fieldMixerLengthSeconds.textProperty().bindBidirectional(fabricationService.mixerLengthSecondsProperty());
     fieldOutputFrameRate.textProperty().bindBidirectional(fabricationService.outputFrameRateProperty());
     fieldOutputChannels.textProperty().bindBidirectional(fabricationService.outputChannelsProperty());
 

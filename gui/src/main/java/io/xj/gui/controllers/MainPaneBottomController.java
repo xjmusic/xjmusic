@@ -26,6 +26,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 @Service
 public class MainPaneBottomController extends VBox implements ReadyAfterBootController {
+  private static final String INDENT_SUB_LINES = "  ";
   final Integer refreshRateSeconds;
   final LabService labService;
   final LogQueue logQueue;
@@ -110,10 +111,16 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
     }
   }
 
-  public void appendLogLine(Level level, String context, String line) {
-    if (Objects.nonNull(line))
+  public void appendLogLine(Level level, String context, String message) {
+    if (Objects.nonNull(message))
       try {
-        logQueue.offer(new LogRecord(level, context, line));
+        String[] lines = message.split("\n");
+        logQueue.offer(new LogRecord(level, context, lines[0]));
+        if (lines.length > 1) {
+          for (int i = 1; i < lines.length; i++) {
+            logQueue.offer(new LogRecord(level, INDENT_SUB_LINES, lines[i]));
+          }
+        }
       } catch (Exception e) {
         // no op
       }

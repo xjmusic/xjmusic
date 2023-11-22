@@ -5,22 +5,22 @@
       "name": "Cool"
     },
     "relationships": {
-      "library": {
+      "superwidget": {
         "data": {
-          "type": "libraries",
+          "type": "superwidgets",
           "id": "f94290f4-537c-4444-92e5-dc0b0df352e5"
         }
       },
-      "programSequences": {
+      "widgetSequences": {
         "data": [
           {
-            "type": "program-sequences",
+            "type": "widget-sequences",
             "id": "9b862c2f-192f-4041-b849-442a2ec50218"
           }
         ]
       }
     },
-    "type": "programs"
+    "type": "widgets"
   },
   "included": [
     {
@@ -29,14 +29,14 @@
         "name": "Test #5"
       },
       "relationships": {
-        "program": {
+        "widget": {
           "data": {
-            "type": "programs",
+            "type": "widgets",
             "id": "805cf759-4e94-4275-a82d-5255c9e69347"
           }
         }
       },
-      "type": "program-sequences"
+      "type": "widget-sequences"
     }
   ]
 }

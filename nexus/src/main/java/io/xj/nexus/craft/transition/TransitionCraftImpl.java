@@ -174,7 +174,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     pick.setSegmentChoiceArrangementId(arrangement.getId());
     pick.setStartAtSegmentMicros(startAtSegmentMicros);
     pick.setLengthMicros(lengthMicros);
-    pick.setAmplitude(1.0);
+    pick.setAmplitude(1.0f);
     pick.setEvent(name);
     pick.setInstrumentAudioId(audio.getId());
     fabricator.put(pick);

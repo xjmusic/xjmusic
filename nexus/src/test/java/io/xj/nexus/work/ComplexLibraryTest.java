@@ -2,20 +2,18 @@
 package io.xj.nexus.work;
 
 import io.xj.hub.HubContent;
-import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.nexus.InputMode;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.OutputMode;
+import io.xj.nexus.audio_cache.AudioCache;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
+import io.xj.nexus.entity.EntityFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubTopology;
+import io.xj.nexus.json.JsonProviderImpl;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.persistence.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +38,7 @@ public class ComplexLibraryTest {
   static final int MILLIS_PER_SECOND = 1000;
   private static final int GENERATED_FIXTURE_COMPLEXITY = 3;
   private final static String audioBaseUrl = "https://audio.xj.io/";
-  private final static String shipBaseUrl = "https://ship.xj.io/";
+  private final static String contentStoragePathPrefix = System.getProperty("java.io.tmpdir");
   private static final long WORK_CYCLE_MILLIS = 120;
   long startTime = System.currentTimeMillis();
   SegmentManager segmentManager;
@@ -50,10 +48,10 @@ public class ComplexLibraryTest {
   public HubClient hubClient;
 
   @Mock
-  FileStoreProvider fileStoreProvider;
+  WorkTelemetry telemetry;
 
   @Mock
-  WorkTelemetry telemetry;
+  AudioCache audioCache;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -91,17 +89,15 @@ public class ComplexLibraryTest {
     work = new CraftWorkImpl(
       telemetry,
       craftFactory,
-      entityFactory,
       fabricatorFactory,
-      segmentManager, fileStoreProvider,
-      store, content,
-      InputMode.PRODUCTION,
-      OutputMode.PLAYBACK,
+      segmentManager,
+      store,
+      audioCache,
+      content,
       audioBaseUrl,
-      shipBaseUrl,
-      "/tmp",
-      48000.0,
-      1000
+      48000.0f,
+      1000,
+      contentStoragePathPrefix
     );
   }
 

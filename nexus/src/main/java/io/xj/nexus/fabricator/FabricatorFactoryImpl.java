@@ -4,8 +4,8 @@ package io.xj.nexus.fabricator;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.util.ValueException;
-import io.xj.lib.json.JsonProvider;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.nexus.json.JsonProvider;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;

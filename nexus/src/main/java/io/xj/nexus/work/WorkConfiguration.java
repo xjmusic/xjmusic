@@ -15,21 +15,20 @@ public class WorkConfiguration {
   private OutputMode outputMode;
   private String outputPathPrefix;
   private int outputSeconds;
-
   private long craftAheadMicros;
   private long dubAheadMicros;
   private double outputFrameRate;
   private int outputChannels;
   private String contentStoragePathPrefix;
-  private int mixBufferLengthSeconds = 10;
-  private long cycleMillis = 100;
+  private int mixerLengthSeconds = 2;
   private String tempFilePathPrefix = "/tmp/";
   private int shipOutputFileNumberDigits = 7;
   private int shipOutputPcmChunkSizeBytes = 1024;
-  private long shipCycleMillis = 100;
-  private long dubCycleMillis = 200;
+  private long controlCycleMillis = 100;
   private long craftCycleMillis = 400;
-  private long reportCycleMillis = 1000;
+  private long dubCycleMillis = 200;
+  private long shipCycleMillis = 50;
+  private long telemetryCycleMillis = 1000;
 
   public InputMode getInputMode() {
     return inputMode;
@@ -139,21 +138,21 @@ public class WorkConfiguration {
     return this;
   }
 
-  public int getMixBufferLengthSeconds() {
-    return mixBufferLengthSeconds;
+  public int getMixerLengthSeconds() {
+    return mixerLengthSeconds;
   }
 
-  public WorkConfiguration setMixBufferLengthSeconds(int mixBufferLengthSeconds) {
-    this.mixBufferLengthSeconds = mixBufferLengthSeconds;
+  public WorkConfiguration setMixerLengthSeconds(int mixerLengthSeconds) {
+    this.mixerLengthSeconds = mixerLengthSeconds;
     return this;
   }
 
-  public long getCycleMillis() {
-    return cycleMillis;
+  public long getControlCycleMillis() {
+    return controlCycleMillis;
   }
 
-  public WorkConfiguration setCycleMillis(long cycleMillis) {
-    this.cycleMillis = cycleMillis;
+  public WorkConfiguration setControlCycleMillis(long controlCycleMillis) {
+    this.controlCycleMillis = controlCycleMillis;
     return this;
   }
 
@@ -211,12 +210,12 @@ public class WorkConfiguration {
     return this;
   }
 
-  public long getReportCycleMillis() {
-    return reportCycleMillis;
+  public long getTelemetryCycleMillis() {
+    return telemetryCycleMillis;
   }
 
-  public WorkConfiguration setReportCycleMillis(long reportCycleMillis) {
-    this.reportCycleMillis = reportCycleMillis;
+  public WorkConfiguration setTelemetryCycleMillis(long telemetryCycleMillis) {
+    this.telemetryCycleMillis = telemetryCycleMillis;
     return this;
   }
 }

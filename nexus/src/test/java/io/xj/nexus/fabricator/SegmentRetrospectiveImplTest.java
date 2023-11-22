@@ -8,11 +8,11 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.hub.music.StickyBun;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.json.JsonProvider;
-import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.nexus.entity.EntityFactoryImpl;
+import io.xj.nexus.json.JsonProvider;
+import io.xj.nexus.json.JsonProviderImpl;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
@@ -92,8 +92,8 @@ public class SegmentRetrospectiveImplTest {
       SegmentState.CRAFTED,
       "D major",
       SEQUENCE_TOTAL_BEATS,
-      0.73,
-      120.0,
+      0.73f,
+      120.0f,
       String.format("chains-%s-segments-%s", ChainUtils.getIdentifier(chain), offset),
       true));
     store.put(buildSegmentChoice(

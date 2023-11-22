@@ -139,6 +139,15 @@
         <Pane prefWidth="15.0" />
         <TextField fx:id="fieldDubAheadSeconds" prefHeight="25.0" />
       </VBox>
+      <VBox alignment="CENTER_LEFT">
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Mixer Length Seconds" textAlignment="RIGHT">
+          <graphic>
+            <Pane prefWidth="15.0" />
+          </graphic>
+        </Label>
+        <Pane prefWidth="15.0" />
+        <TextField fx:id="fieldMixerLengthSeconds" prefHeight="25.0" />
+      </VBox>
     </HBox>
 
     <HBox alignment="CENTER_LEFT" prefHeight="60" spacing="10">

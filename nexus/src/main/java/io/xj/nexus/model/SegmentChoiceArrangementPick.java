@@ -18,7 +18,7 @@ public class SegmentChoiceArrangementPick {
   UUID programSequencePatternEventId;
   Long startAtSegmentMicros;
   Long lengthMicros;
-  Double amplitude;
+  float amplitude;
   String tones;
   String event;
 
@@ -160,18 +160,18 @@ public class SegmentChoiceArrangementPick {
 
   /**
    **/
-  public SegmentChoiceArrangementPick amplitude(Double amplitude) {
+  public SegmentChoiceArrangementPick amplitude(float amplitude) {
     this.amplitude = amplitude;
     return this;
   }
 
 
   @JsonProperty("amplitude")
-  public Double getAmplitude() {
+  public float getAmplitude() {
     return amplitude;
   }
 
-  public void setAmplitude(Double amplitude) {
+  public void setAmplitude(float amplitude) {
     this.amplitude = amplitude;
   }
 

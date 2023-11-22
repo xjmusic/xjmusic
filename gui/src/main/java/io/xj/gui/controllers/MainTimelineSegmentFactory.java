@@ -6,7 +6,7 @@ import io.xj.gui.services.FabricationService;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
-import io.xj.lib.util.FormatUtils;
+import io.xj.nexus.util.FormatUtils;
 import io.xj.nexus.model.*;
 import javafx.geometry.Insets;
 import javafx.scene.Node;

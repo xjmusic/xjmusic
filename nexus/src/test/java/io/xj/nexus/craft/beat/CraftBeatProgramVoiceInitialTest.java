@@ -2,12 +2,12 @@
 package io.xj.nexus.craft.beat;
 
 import io.xj.hub.HubContent;
-import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.entity.EntityUtils;
-import io.xj.lib.json.JsonProvider;
-import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.nexus.entity.EntityFactoryImpl;
+import io.xj.nexus.entity.EntityUtils;
+import io.xj.nexus.json.JsonProvider;
+import io.xj.nexus.json.JsonProviderImpl;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
@@ -91,7 +91,7 @@ public class CraftBeatProgramVoiceInitialTest {
   public void craftBeatVoiceInitial() throws Exception {
     insertSegment();
 
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0, 48000.0f, 2);
 
     craftFactory.beat(fabricator).doWork();
 
@@ -103,7 +103,7 @@ public class CraftBeatProgramVoiceInitialTest {
   @Test
   public void craftBeatVoiceInitial_okWhenNoBeatChoice() throws Exception {
     insertSegment();
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0, 48000.0f, 2);
 
     craftFactory.beat(fabricator).doWork();
   }
@@ -120,8 +120,8 @@ public class CraftBeatProgramVoiceInitialTest {
       SegmentState.CRAFTING,
       "D Major",
       32,
-      0.55,
-      130.0,
+      0.55f,
+      130.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment0,
@@ -138,8 +138,8 @@ public class CraftBeatProgramVoiceInitialTest {
     for (String memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
       store.put(buildSegmentMeme(segment0, memeName));
 
-    store.put(buildSegmentChord(segment0, 0.0, "C minor"));
-    store.put(buildSegmentChord(segment0, 8.0, "Db minor"));
+    store.put(buildSegmentChord(segment0, 0.0f, "C minor"));
+    store.put(buildSegmentChord(segment0, 8.0f, "Db minor"));
   }
 
 }

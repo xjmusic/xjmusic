@@ -7,7 +7,7 @@ public interface Work {
   void finish();
 
   /**
-   Do the work cycle-- this should skip if called more frequently than the cycle duration
+   Run the work cycle
    */
   void runCycle(long toChainMicros);
 

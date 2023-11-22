@@ -4,11 +4,11 @@ package io.xj.nexus.craft.detail;
 import io.xj.hub.HubContent;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
-import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.json.JsonProvider;
-import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.nexus.entity.EntityFactoryImpl;
+import io.xj.nexus.json.JsonProvider;
+import io.xj.nexus.json.JsonProviderImpl;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
@@ -88,8 +88,8 @@ public class CraftDetailProgramVoiceNextMacroTest {
       SegmentState.CRAFTED,
       "D major",
       64,
-      0.73,
-      120.0,
+      0.73f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892",
       true));
     store.put(buildSegment(
@@ -100,15 +100,15 @@ public class CraftDetailProgramVoiceNextMacroTest {
       SegmentState.CRAFTING,
       "Db minor",
       64,
-      0.85,
-      120.0,
+      0.85f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
   }
 
   @Test
   public void craftDetailVoiceNextMacro() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
 
     craftFactory.detail(fabricator).doWork();
 
@@ -131,7 +131,7 @@ public class CraftDetailProgramVoiceNextMacroTest {
   @Test
   public void craftDetailVoiceNextMacro_okIfNoDetailChoice() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
 
     craftFactory.detail(fabricator).doWork();
   }
@@ -151,8 +151,8 @@ public class CraftDetailProgramVoiceNextMacroTest {
       SegmentState.CRAFTED,
       "Ab minor",
       64,
-      0.30,
-      120.0,
+      0.30f,
+      120.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment3,
@@ -182,8 +182,8 @@ public class CraftDetailProgramVoiceNextMacroTest {
       SegmentState.CRAFTING,
       "F minor",
       16,
-      0.45,
-      125.0,
+      0.45f,
+      125.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment4,
@@ -199,9 +199,9 @@ public class CraftDetailProgramVoiceNextMacroTest {
       fake.program15_sequence0_binding0));
     for (String memeName : List.of("Hindsight", "Chunky", "Regret", "Tangy"))
       store.put(buildSegmentMeme(segment4, memeName));
-    SegmentChord chord0 = store.put(buildSegmentChord(segment4, 0.0, "F minor"));
+    SegmentChord chord0 = store.put(buildSegmentChord(segment4, 0.0f, "F minor"));
     store.put(buildSegmentChordVoicing(chord0, InstrumentType.Bass, "F2, Ab2, B2"));
-    SegmentChord chord1 = store.put(buildSegmentChord(segment4, 8.0, "Gb minor"));
+    SegmentChord chord1 = store.put(buildSegmentChord(segment4, 8.0f, "Gb minor"));
     store.put(buildSegmentChordVoicing(chord1, InstrumentType.Bass, "Gb2, A2, Db3"));
   }
 
