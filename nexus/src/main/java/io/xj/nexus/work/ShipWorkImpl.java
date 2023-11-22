@@ -132,7 +132,6 @@ public class ShipWorkImpl implements ShipWork {
     try {
       telemetry.markTimerSection(TIMER_SECTION_SHIP);
       if (dubWork.getMixerBuffer().isEmpty()) return;
-      if (isAheadOfSync()) return;
       switch (outputMode) {
         case PLAYBACK -> doShipOutputPlayback();
         case FILE -> doShipOutputFile();
@@ -170,36 +169,13 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   /**
-   Whether the ship service is ahead of sync (e.g. in realtime playback mode)
-
-   @return true if ahead of sync, false if not
-   */
-  boolean isAheadOfSync() {
-    var shippedToChainMicros = getShippedToChainMicros();
-    if (outputMode.isSync() && shippedToChainMicros.isPresent()) {
-      var aheadSeconds = (float) (targetChainMicros - shippedToChainMicros.get()) / MICROS_PER_SECOND;
-      if (aheadSeconds > 0) {
-        LOG.debug("Ahead by {}s in synchronous output; will skip work", String.format("%.1f", aheadSeconds));
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
    Ship available bytes from the dub mixer buffer to the output method
    */
   void doShipOutputPlayback() throws IOException {
-    {
-      if (Objects.isNull(playback)) {
-        didFailWhile("shipping bytes to local playback", new IllegalStateException("Player is null"));
-        return;
-      }
-
-      var availableBytes = dubWork.getMixerBuffer().orElseThrow().getAvailableByteCount();
-      playback.append(dubWork.getMixerBuffer().orElseThrow().consume(availableBytes));
-      targetChainMicros = (long) (targetChainMicros + availableBytes * dubWork.getMixerOutputMicrosPerByte());
-    }
+    assert Objects.nonNull(playback);
+    var availableBytes = dubWork.getMixerBuffer().orElseThrow().getAvailableByteCount();
+    playback.write(dubWork.getMixerBuffer().orElseThrow().consume(availableBytes));
+    targetChainMicros = (long) (targetChainMicros + availableBytes * dubWork.getMixerOutputMicrosPerByte());
   }
 
   /**

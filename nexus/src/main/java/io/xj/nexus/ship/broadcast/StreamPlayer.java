@@ -12,7 +12,7 @@ public interface StreamPlayer {
 
    @param samples of audio to append
    */
-  void append(byte[] samples);
+  void write(byte[] samples);
 
   /**
    Close the player and release resources

@@ -42,7 +42,7 @@ public class StreamPlayerImpl implements StreamPlayer {
   }
 
   @Override
-  public void append(byte[] samples) {
+  public void write(byte[] samples) {
     if (!running.get())
       return;
 
