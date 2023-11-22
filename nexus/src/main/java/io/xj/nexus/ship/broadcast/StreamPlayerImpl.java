@@ -41,13 +41,11 @@ public class StreamPlayerImpl implements StreamPlayer {
   }
 
   @Override
-  public byte[] append(byte[] samples) {
+  public void append(byte[] samples) {
     if (!running.get())
-      return samples;
+      return;
 
     line.write(samples, 0, samples.length);
-    return samples;
-
   }
 
   @Override
