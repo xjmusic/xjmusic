@@ -336,6 +336,7 @@ public class WorkManagerImpl implements WorkManager {
    Run the craft cycle
    */
   private void runCraftCycle() {
+    if (!Objects.equals(state.get(), WorkState.Active)) return;
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(craftWork);
     assert Objects.nonNull(shipWork);
@@ -346,6 +347,7 @@ public class WorkManagerImpl implements WorkManager {
    Run the dub cycle
    */
   private void runDubCycle() {
+    if (!Objects.equals(state.get(), WorkState.Active)) return;
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(dubWork);
     assert Objects.nonNull(shipWork);
@@ -356,6 +358,7 @@ public class WorkManagerImpl implements WorkManager {
    Run the ship cycle
    */
   private void runShipCycle() {
+    if (!Objects.equals(state.get(), WorkState.Active)) return;
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(shipWork);
     shipWork.runCycle(0);
@@ -372,6 +375,7 @@ public class WorkManagerImpl implements WorkManager {
    Run the telemetry cycle
    */
   private void runTelemetryCycle() {
+    if (!Objects.equals(state.get(), WorkState.Active)) return;
     telemetry.report();
   }
 

@@ -15,7 +15,6 @@ public class WorkConfiguration {
   private OutputMode outputMode;
   private String outputPathPrefix;
   private int outputSeconds;
-
   private long craftAheadMicros;
   private long dubAheadMicros;
   private double outputFrameRate;
@@ -28,7 +27,7 @@ public class WorkConfiguration {
   private long controlCycleMillis = 100;
   private long craftCycleMillis = 400;
   private long dubCycleMillis = 200;
-  private long shipCycleMillis = 100;
+  private long shipCycleMillis = 50;
   private long telemetryCycleMillis = 1000;
 
   public InputMode getInputMode() {
