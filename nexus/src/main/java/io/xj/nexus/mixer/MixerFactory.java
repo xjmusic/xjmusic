@@ -25,30 +25,6 @@ public interface MixerFactory {
     MixerConfig mixerConfig
   ) throws MixerException;
 
-
-  /**
-   Create a single Put to represent a single audio source playing at a specific time in the future.
-
-   @param id            to uniquely identify this put
-   @param audioId       by which to reference source
-   @param bus           to output into
-   @param startAtMicros duration from beginning of mix
-   @param stopAtMicros  duration from beginning of mix
-   @param velocity      0 to 1
-   @return Put
-   @throws PutException on failure
-   */
-  Put createPut(
-    UUID id,
-    UUID audioId,
-    int bus,
-    long startAtMicros,
-    long stopAtMicros,
-    double velocity,
-    int attackMillis,
-    int releaseMillis
-  ) throws PutException;
-
   /**
    models a single audio source, a series of Samples in Channels across Time, for audio playback.
    attempt to source audio file from input stream

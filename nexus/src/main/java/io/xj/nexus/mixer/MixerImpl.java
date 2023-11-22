@@ -221,8 +221,7 @@ class MixerImpl implements Mixer {
       // determine the bus number for this instrument type
       int bus = getBusNumber(active.getInstrument().getType());
 
-      // create the attack and release envelopes
-      var attackEnvelope = envelope.length(active.getAttackMillis() * framesPerMilli);
+      // create the release envelope
       var releaseEnvelope = envelope.length(active.getReleaseMillis() * framesPerMilli);
 
       // determine the theoretical frame in the mixing buffer at which the source audio will be added
@@ -236,7 +235,7 @@ class MixerImpl implements Mixer {
       int c; // channel
       int tf; // target frame (in mix buffer)
       int sf; // source frame (from source audio)
-      float v, ev; // a single sample value, and the enveloped value
+      int rf = 0; // release envelope frame (start counting at end of source)
 
       // determine the actual start and end frames in the mixing buffer and source audio
       int tf_min = bufferIndexLimit(sourceBeginsAtMixerFrame); // initial target frame (in mix buffer)
@@ -249,15 +248,13 @@ class MixerImpl implements Mixer {
       for (tf = tf_min; tf < tf_max; tf++) {
         for (c = 0; c < outputChannels; c++) {
           if (sf < cached.audio().length) {
-            v = cached.audio()[sf][c];
-
-            // todo confirm envelope works
-            if (sf < sourceEndsAtMixerFrame) // attack phase
-              ev = attackEnvelope.in(sf, v * active.getAmplitude());
-            else // release phase
-              ev = releaseEnvelope.out(sf - sourceEndsAtMixerFrame, v * active.getAmplitude());
-
-            busBuf[bus][tf][c] += ev;
+            if (tf < sourceEndsAtMixerFrame) {
+              busBuf[bus][tf][c] += cached.audio()[sf][c] * active.getAmplitude();
+            } else {
+              // release envelope
+              busBuf[bus][tf][c] += releaseEnvelope.out(rf, cached.audio()[sf][c] * active.getAmplitude());
+              rf++;
+            }
           }
         }
         sf++;

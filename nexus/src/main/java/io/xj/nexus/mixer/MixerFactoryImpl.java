@@ -27,11 +27,6 @@ public class MixerFactoryImpl implements MixerFactory {
   }
 
   @Override
-  public Put createPut(UUID id, UUID audioId, int bus, long startAtMicros, long stopAtMicros, double velocity, int attackMillis, int releaseMillis) {
-    return new PutImpl(id, audioId, bus, attackMillis, releaseMillis, startAtMicros, stopAtMicros, velocity);
-  }
-
-  @Override
   public Source createSource(UUID audioId, String absolutePath, String description) {
     return new SourceImpl(audioId, absolutePath, description);
   }

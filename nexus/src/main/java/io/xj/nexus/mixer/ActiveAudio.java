@@ -69,10 +69,6 @@ public class ActiveAudio {
     return state;
   }
 
-  public int getAttackMillis() {
-    return instrumentConfig.getAttackMillis();
-  }
-
   public int getReleaseMillis() {
     return instrumentConfig.getReleaseMillis();
   }
