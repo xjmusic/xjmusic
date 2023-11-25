@@ -232,30 +232,32 @@ class MixerImpl implements Mixer {
         sourceBeginsAtMixerFrame + cached.audio().length;
 
       // reusable variables
-      int c; // channel
+      int tc; // target channel
       int tf; // target frame (in mix buffer)
+      int sc; // source channel
       int sf; // source frame (from source audio)
       int rf = 0; // release envelope frame (start counting at end of source)
 
       // determine the actual start and end frames in the mixing buffer and source audio
       int tf_min = bufferIndexLimit(sourceBeginsAtMixerFrame); // initial target frame (in mix buffer)
       int tf_max = bufferIndexLimit(sourceEndsAtMixerFrame + releaseEnvelope.exponential.length); // final target frame (in mix buffer)
-      sf = tf_min - sourceBeginsAtMixerFrame; // initial source frame (from source audio)
 
       // iterate over all frames overlapping from the source audio and the target mixing buffer
-      for (tf = tf_min; tf < tf_max; tf++) {
-        for (c = 0; c < outputChannels; c++) {
+      for (tc = 0; tc < outputChannels; tc++) {
+        sf = tf_min - sourceBeginsAtMixerFrame; // initial source frame (from source audio)
+        sc = tc % cached.audio()[sf].length; // source channel (from source audio)
+        for (tf = tf_min; tf < tf_max; tf++) {
           if (sf < cached.audio().length) {
             if (tf < sourceEndsAtMixerFrame) {
-              busBuf[bus][tf][c] += cached.audio()[sf][c] * active.getAmplitude();
+              busBuf[bus][tf][tc] += cached.audio()[sf][sc] * active.getAmplitude();
             } else {
               // release envelope
-              busBuf[bus][tf][c] += releaseEnvelope.out(rf, cached.audio()[sf][c] * active.getAmplitude());
+              busBuf[bus][tf][tc] += releaseEnvelope.out(rf, cached.audio()[sf][sc] * active.getAmplitude());
               rf++;
             }
           }
+          sf++;
         }
-        sf++;
       }
 
     } catch (IOException | NexusException | AudioCacheException e) {
