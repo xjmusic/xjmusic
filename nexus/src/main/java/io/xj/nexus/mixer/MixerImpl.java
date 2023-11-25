@@ -247,7 +247,7 @@ class MixerImpl implements Mixer {
         sf = tf_min - sourceBeginsAtMixerFrame; // initial source frame (from source audio)
         sc = tc % cached.audio()[0].length; // source channel (from source audio)
         while (sf < 0) {
-          sf++; // skip source frames before the start of the mixing buffer
+          sf++; // skip source frames before the start of the source audio
           tf_min++;
         }
         for (tf = tf_min; tf < tf_max; tf++) {
