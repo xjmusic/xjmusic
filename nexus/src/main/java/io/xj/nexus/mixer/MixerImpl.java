@@ -245,7 +245,11 @@ class MixerImpl implements Mixer {
       // iterate over all frames overlapping from the source audio and the target mixing buffer
       for (tc = 0; tc < outputChannels; tc++) {
         sf = tf_min - sourceBeginsAtMixerFrame; // initial source frame (from source audio)
-        sc = tc % cached.audio()[sf].length; // source channel (from source audio)
+        sc = tc % cached.audio()[0].length; // source channel (from source audio)
+        while (sf < 0) {
+          sf++; // skip source frames before the start of the mixing buffer
+          tf_min++;
+        }
         for (tf = tf_min; tf < tf_max; tf++) {
           if (sf < cached.audio().length) {
             if (tf < sourceEndsAtMixerFrame) {
