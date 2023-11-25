@@ -2,7 +2,6 @@
 package io.xj.nexus.audio_cache;
 
 import io.xj.nexus.NexusException;
-import io.xj.nexus.filestore.FileStoreException;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -22,20 +21,20 @@ public interface AudioCache {
    @param targetChannels           to resample if necessary
    @return stream if cached; null if not
    */
-  CachedAudio load(String contentStoragePathPrefix, String audioBaseUrl, UUID instrumentId, String key, int targetFrameRate, int targetSampleBits, int targetChannels) throws FileStoreException, IOException, NexusException;
+  CachedAudio load(String contentStoragePathPrefix, String audioBaseUrl, UUID instrumentId, String key, int targetFrameRate, int targetSampleBits, int targetChannels) throws AudioCacheException, IOException, NexusException;
 
   /**
    Prepare audio on disk -- download and resample
 
-   * @param contentStoragePathPrefix to retrieve from
-   * @param audioBaseUrl             to retrieve from
-   * @param instrumentId             to retrieve
-   * @param waveformKey              to retrieve
-   * @param targetFrameRate          to resample if necessary
-   * @param targetSampleBits         to resample if necessary
-   * @param targetChannels           to resample if necessary
+   @param contentStoragePathPrefix to retrieve from
+   @param audioBaseUrl             to retrieve from
+   @param instrumentId             to retrieve
+   @param waveformKey              to retrieve
+   @param targetFrameRate          to resample if necessary
+   @param targetSampleBits         to resample if necessary
+   @param targetChannels           to resample if necessary
    */
-  void prepare(String contentStoragePathPrefix, String audioBaseUrl, UUID instrumentId, String waveformKey, int targetFrameRate, int targetSampleBits, int targetChannels) throws FileStoreException, IOException, NexusException;
+  void prepare(String contentStoragePathPrefix, String audioBaseUrl, UUID instrumentId, String waveformKey, int targetFrameRate, int targetSampleBits, int targetChannels) throws AudioCacheException, IOException, NexusException;
 
   /**
    Invalidate all cache entries

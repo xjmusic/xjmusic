@@ -12,11 +12,11 @@ import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.audio_cache.AudioCache;
+import io.xj.nexus.audio_cache.AudioCacheException;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.FabricationFatalException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.filestore.FileStoreException;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.*;
 import org.slf4j.Logger;
@@ -382,7 +382,7 @@ public class CraftWorkImpl implements CraftWork {
             FIXED_SAMPLE_BITS,
             outputChannels
           );
-        } catch (NexusException | FileStoreException | IOException e) {
+        } catch (NexusException | IOException | AudioCacheException e) {
           LOG.error("Failed to prepare audio for InstrumentAudio[{}] because {}", audio.getId(), e.getMessage());
         }
       });

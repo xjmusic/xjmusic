@@ -4,7 +4,7 @@ package io.xj.nexus.mixer;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.audio_cache.AudioCache;
-import io.xj.nexus.filestore.FileStoreException;
+import io.xj.nexus.audio_cache.AudioCacheException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -258,7 +258,7 @@ class MixerImpl implements Mixer {
         sf++;
       }
 
-    } catch (IOException | FileStoreException | NexusException e) {
+    } catch (IOException | NexusException | AudioCacheException e) {
       throw new MixerException(String.format("Failed to apply Source[%s]", active.getAudio().getId()), e);
     }
   }
