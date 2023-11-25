@@ -75,7 +75,6 @@ public class AudioCacheImpl implements AudioCache {
       } catch (Exception e) {
         attempts++;
         if (attempts == 3) {
-          LOG.error("Failed to fetch and prepare audio on disk (attempt {} of 3)", attempts, e);
           throw new NexusException(String.format("Failed to fetch and prepare audio on disk (attempt %d of 3, contentStoragePathPrefix=%s, audioBaseUrl=%s, instrumentId=%s, waveformKey=%s, targetFrameRate=%d, targetSampleBits=%d, targetChannels=%d): %s", attempts,
             contentStoragePathPrefix, audioBaseUrl, instrumentId, waveformKey, targetFrameRate, targetSampleBits, targetChannels, e.getMessage()));
         } else {

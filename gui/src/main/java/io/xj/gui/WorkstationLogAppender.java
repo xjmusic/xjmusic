@@ -17,7 +17,12 @@ public class WorkstationLogAppender extends AppenderBase<ILoggingEvent> {
   public static final AtomicReference<Level> LEVEL = new AtomicReference<>(Level.INFO);
 
   public interface LogListener {
+
     void onLog(Level level, String context, String message);
+  }
+
+  public static void setListener(LogListener listener) {
+    LISTENER.set(listener);
   }
 
   public static void setLevel(String value) {
