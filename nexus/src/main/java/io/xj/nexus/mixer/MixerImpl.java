@@ -242,7 +242,6 @@ class MixerImpl implements Mixer {
       int tf; // target frame (in mix buffer)
       int sc; // source channel
       int sf; // source frame (from source audio)
-      int rf = 0; // release envelope frame (start counting at end of source)
 
       // determine the actual start and end frames in the mixing buffer and source audio
       int tf_min = bufferIndexLimit(sourceBeginsAtMixerFrame); // initial target frame (in mix buffer)
@@ -250,6 +249,7 @@ class MixerImpl implements Mixer {
 
       // iterate over all frames overlapping from the source audio and the target mixing buffer
       for (tc = 0; tc < outputChannels; tc++) {
+        int rf = 0; // release envelope frame (start counting at end of source)
         sf = tf_min - sourceBeginsAtMixerFrame; // initial source frame (from source audio)
         sc = tc % cached.audio()[0].length; // source channel (from source audio)
         while (sf < 0) {
