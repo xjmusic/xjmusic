@@ -148,6 +148,7 @@ public class FabricationServiceImpl implements FabricationService {
       return;
     }
     status.set(WorkState.Starting);
+    progress.set(0.0);
 
     // create work configuration
     var config = new WorkConfiguration()
