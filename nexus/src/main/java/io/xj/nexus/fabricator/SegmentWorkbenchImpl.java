@@ -169,7 +169,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
     try {
       benchStore.delete(entity.getClass(), EntityUtils.getId(entity));
     } catch (EntityException e) {
-      LOG.error("Failed to delete {}", entity);
+      LOG.warn("Failed to delete {}", entity);
     }
   }
 

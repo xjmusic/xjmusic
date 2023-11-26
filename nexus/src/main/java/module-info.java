@@ -43,7 +43,6 @@ module workstation.nexus.main {
   exports io.xj.nexus.entity.common;
   exports io.xj.nexus.entity;
   exports io.xj.nexus.fabricator;
-  exports io.xj.nexus.filestore;
   exports io.xj.nexus.http;
   exports io.xj.nexus.hub_client.access;
   exports io.xj.nexus.hub_client;

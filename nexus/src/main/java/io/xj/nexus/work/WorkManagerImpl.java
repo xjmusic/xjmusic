@@ -377,6 +377,7 @@ public class WorkManagerImpl implements WorkManager {
   private void runTelemetryCycle() {
     if (!Objects.equals(state.get(), WorkState.Active)) return;
     telemetry.report();
+    telemetry.markLap();
   }
 
   /**

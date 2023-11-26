@@ -2,9 +2,10 @@
 package io.xj.nexus.mixer;
 
 import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.audio_cache.AudioCache;
-import io.xj.nexus.filestore.FileStoreException;
+import io.xj.nexus.audio_cache.AudioCacheException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,15 +165,16 @@ class MixerImpl implements Mixer {
   void mixOutputBus() {
     double[] level = Stream.iterate(0, i -> i + 1).limit(busBuf.length).mapToDouble(i -> busLevel.getOrDefault(i, 1.0f)).toArray();
     int b, f, c;
-    for (b = 0; b < busBuf.length; b++)
+    for (b = 0; b < busBuf.length; b++) {
+      if (b > level.length - 1) {
+        LOG.warn(config.getLogPrefix() + "b > level.length - 1: " + b + " > " + (level.length - 1));
+        continue;
+      }
       for (f = 0; f < busBuf[0].length; f++)
         for (c = 0; c < busBuf[0][0].length; c++) {
-          if (b > level.length - 1) {
-            LOG.error(config.getLogPrefix() + "b > level.length - 1: " + b + " > " + (level.length - 1));
-          }
           outBuf[f][c] += (float) (busBuf[b][f][c] * level[b]);
         }
-
+    }
   }
 
   @Override
@@ -209,6 +211,10 @@ class MixerImpl implements Mixer {
    */
   void addToMix(ActiveAudio active) throws MixerException {
     try {
+      if (StringUtils.isNullOrEmpty(active.getAudio().getWaveformKey())) {
+        LOG.warn("Active audio has empty waveform key! instrumentId: {}, audioId: {}", active.getInstrument().getId(), active.getAudio().getId());
+        return;
+      }
       var cached = audioCache.load(
         config.getContentStoragePathPrefix(),
         config.getAudioBaseUrl(),
@@ -232,33 +238,39 @@ class MixerImpl implements Mixer {
         sourceBeginsAtMixerFrame + cached.audio().length;
 
       // reusable variables
-      int c; // channel
+      int tc; // target channel
       int tf; // target frame (in mix buffer)
+      int sc; // source channel
       int sf; // source frame (from source audio)
-      int rf = 0; // release envelope frame (start counting at end of source)
 
       // determine the actual start and end frames in the mixing buffer and source audio
       int tf_min = bufferIndexLimit(sourceBeginsAtMixerFrame); // initial target frame (in mix buffer)
       int tf_max = bufferIndexLimit(sourceEndsAtMixerFrame + releaseEnvelope.exponential.length); // final target frame (in mix buffer)
-      sf = tf_min - sourceBeginsAtMixerFrame; // initial source frame (from source audio)
 
       // iterate over all frames overlapping from the source audio and the target mixing buffer
-      for (tf = tf_min; tf < tf_max; tf++) {
-        for (c = 0; c < outputChannels; c++) {
+      for (tc = 0; tc < outputChannels; tc++) {
+        int rf = 0; // release envelope frame (start counting at end of source)
+        sf = tf_min - sourceBeginsAtMixerFrame; // initial source frame (from source audio)
+        sc = tc % cached.audio()[0].length; // source channel (from source audio)
+        while (sf < 0) {
+          sf++; // skip source frames before the start of the source audio
+          tf_min++;
+        }
+        for (tf = tf_min; tf < tf_max; tf++) {
           if (sf < cached.audio().length) {
             if (tf < sourceEndsAtMixerFrame) {
-              busBuf[bus][tf][c] += cached.audio()[sf][c] * active.getAmplitude();
+              busBuf[bus][tf][tc] += cached.audio()[sf][sc] * active.getAmplitude();
             } else {
               // release envelope
-              busBuf[bus][tf][c] += releaseEnvelope.out(rf, cached.audio()[sf][c] * active.getAmplitude());
+              busBuf[bus][tf][tc] += releaseEnvelope.out(rf, cached.audio()[sf][sc] * active.getAmplitude());
               rf++;
             }
           }
+          sf++;
         }
-        sf++;
       }
 
-    } catch (IOException | FileStoreException | NexusException e) {
+    } catch (IOException | NexusException | AudioCacheException e) {
       throw new MixerException(String.format("Failed to apply Source[%s]", active.getAudio().getId()), e);
     }
   }

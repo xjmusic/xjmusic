@@ -81,7 +81,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
           .filter(c -> programType.equals(c.getProgramType()))
           .findFirst();
     } catch (ManagerFatalException e) {
-      LOG.error("Failed to read choice for Segment[{}]!", SegmentUtils.getIdentifier(segment));
+      LOG.warn("Failed to read choice for Segment[{}]!", SegmentUtils.getIdentifier(segment));
       return Optional.empty();
     }
   }
@@ -113,7 +113,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
           && c.getInstrumentMode().equals(instrumentMode))
         .collect(Collectors.toList());
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
-      LOG.error("Failed to read choices for Segment[{}]!", SegmentUtils.getIdentifier(previousSegment));
+      LOG.warn("Failed to read choices for Segment[{}]!", SegmentUtils.getIdentifier(previousSegment));
       return List.of();
     }
   }
@@ -129,7 +129,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
           && c.getInstrumentMode().equals(instrumentMode))
         .collect(Collectors.toList());
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
-      LOG.error("Failed to read choices for Segment[{}]!", SegmentUtils.getIdentifier(previousSegment));
+      LOG.warn("Failed to read choices for Segment[{}]!", SegmentUtils.getIdentifier(previousSegment));
       return List.of();
     }
   }
@@ -220,7 +220,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
             .collect(Collectors.toList())
         );
       } catch (ManagerPrivilegeException | ManagerFatalException e) {
-        LOG.error("Failed to read chords for Segment[{}]!", segmentId);
+        LOG.warn("Failed to read chords for Segment[{}]!", segmentId);
         return List.of();
       }
     }

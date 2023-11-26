@@ -18,7 +18,6 @@ public class ActiveAudio {
   private final Long startAtMixerMicros;
   @Nullable
   private final Long stopAtMixerMicros;
-  private final MixerPickState state;
   private final Instrument instrument;
   private final float amplitude;
 
@@ -38,7 +37,6 @@ public class ActiveAudio {
     // computed
     this.amplitude = pick.getAmplitude();
     this.instrumentConfig = new InstrumentConfig(instrument);
-    state = MixerPickState.PLANNED;
   }
 
   public UUID getId() {
@@ -63,10 +61,6 @@ public class ActiveAudio {
 
   public InstrumentAudio getAudio() {
     return audio;
-  }
-
-  public MixerPickState getState() {
-    return state;
   }
 
   public int getReleaseMillis() {

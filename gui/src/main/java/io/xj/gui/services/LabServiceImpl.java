@@ -127,8 +127,8 @@ public class LabServiceImpl implements LabService {
   }
 
   @Override
-  public void onConnectionFailure(WebClientResponseException error) {
-    if (Objects.equals(error.getStatusCode(), UNAUTHORIZED)) {
+  public void onConnectionFailure(Exception error) {
+    if (error instanceof WebClientResponseException && Objects.equals(((WebClientResponseException) error).getStatusCode(), UNAUTHORIZED)) {
       LOG.warn("Unauthorized for connection to lab!", error);
       this.authenticatedUser.set(null);
       this.status.set(LabStatus.Unauthorized);

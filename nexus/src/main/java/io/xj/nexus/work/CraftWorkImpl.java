@@ -12,11 +12,11 @@ import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.audio_cache.AudioCache;
+import io.xj.nexus.audio_cache.AudioCacheException;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.FabricationFatalException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.filestore.FileStoreException;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.*;
 import org.slf4j.Logger;
@@ -277,7 +277,7 @@ public class CraftWorkImpl implements CraftWork {
     try {
       return store.getAllSegments().stream().filter(segment -> SegmentState.CRAFTED.equals(segment.getState())).max(Comparator.comparing(Segment::getId)).map(SegmentUtils::getEndAtChainMicros);
     } catch (NexusException e) {
-      LOG.error("Unable to get crafted-to chain micros because {}", e.getMessage());
+      LOG.warn("Unable to get crafted-to chain micros because {}", e.getMessage());
       return Optional.empty();
     }
   }
@@ -373,16 +373,18 @@ public class CraftWorkImpl implements CraftWork {
       // Poke the audio cache to load all known-to-be-upcoming audio to cache; this is a no-op for already-cache audio
       getAllInstrumentAudio(segment).forEach(audio -> {
         try {
-          audioCache.prepare(
-            contentStoragePathPrefix,
-            audioBaseUrl,
-            audio.getInstrumentId(),
-            audio.getWaveformKey(),
-            (int) outputFrameRate,
-            FIXED_SAMPLE_BITS,
-            outputChannels
-          );
-        } catch (NexusException | FileStoreException | IOException e) {
+          if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
+            audioCache.load(
+              contentStoragePathPrefix,
+              audioBaseUrl,
+              audio.getInstrumentId(),
+              audio.getWaveformKey(),
+              (int) outputFrameRate,
+              FIXED_SAMPLE_BITS,
+              outputChannels
+            );
+          }
+        } catch (NexusException | IOException | AudioCacheException e) {
           LOG.error("Failed to prepare audio for InstrumentAudio[{}] because {}", audio.getId(), e.getMessage());
         }
       });
@@ -413,7 +415,7 @@ public class CraftWorkImpl implements CraftWork {
       return store.getAll(segment.getId(), InstrumentAudio.class);
 
     } catch (NexusException e) {
-      LOG.error("Failed to get all InstrumentAudio for Segment[{}] because {}", segment.getId(), e.getMessage());
+      LOG.warn("Failed to get all InstrumentAudio for Segment[{}] because {}", segment.getId(), e.getMessage());
       return List.of();
     }
   }
@@ -545,7 +547,7 @@ public class CraftWorkImpl implements CraftWork {
       return Optional.ofNullable(store.put(entity));
 
     } catch (NexusException e) {
-      LOG.error("Failed to bootstrap Template[{}] because {}", TemplateUtils.getIdentifier(template), e.getMessage());
+      LOG.warn("Failed to bootstrap Template[{}] because {}", TemplateUtils.getIdentifier(template), e.getMessage());
       return Optional.empty();
     }
   }
