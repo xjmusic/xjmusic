@@ -52,11 +52,9 @@ public interface FFmpegUtils {
         LOG.info("Did resample audio to {} ({}Hz {}-bit {}-channel)", outputAudioFilePath, output.getSampleRate(), targetSampleBits, targetChannels);
 
       } catch (IOException e) {
-        LOG.error("Unable to resample audio file: {}", inputAudioFilePath, e);
         throw new RuntimeException(String.format("Unable to resample audio file: %s", inputAudioFilePath));
       }
     } catch (IOException e) {
-      LOG.error("Unable to resample audio file: {}", inputAudioFilePath, e);
       throw new RuntimeException(String.format("Unable to resample audio file: %s", inputAudioFilePath));
     }
   }

@@ -145,7 +145,7 @@ public class FabricatorImpl implements Fabricator {
       msg.setBody(body);
       put(msg);
     } catch (NexusException e) {
-      LOG.error("Failed to add message!", e);
+      LOG.warn("Failed to add message!", e);
     }
   }
 
@@ -258,7 +258,7 @@ public class FabricatorImpl implements Fabricator {
         try {
           return Stream.of(getProgramVoiceType(voicing));
         } catch (NexusException e) {
-          LOG.error("Failed to get distinct chord voicing type!", e);
+          LOG.warn("Failed to get distinct chord voicing type!", e);
           return Stream.empty();
         }
       }).collect(Collectors.toSet());
@@ -839,7 +839,7 @@ public class FabricatorImpl implements Fabricator {
 
     } catch (ManagerFatalException | ManagerExistenceException | ManagerPrivilegeException |
              ManagerValidationException e) {
-      LOG.error("Failed to update Segment", e);
+      LOG.warn("Failed to update Segment", e);
     }
   }
 

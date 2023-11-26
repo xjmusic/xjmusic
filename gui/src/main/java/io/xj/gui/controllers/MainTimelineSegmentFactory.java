@@ -82,7 +82,7 @@ public class MainTimelineSegmentFactory {
       return box;
 
     } catch (Exception e) {
-      LOG.error("Failed to update choices because {}!\n\n{}", e.getMessage(), formatStackTrace(e));
+      LOG.warn("Failed to update choices because {}!\n\n{}", e.getMessage(), formatStackTrace(e));
       return new VBox();
     }
   }

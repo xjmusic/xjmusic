@@ -184,7 +184,7 @@ public class SegmentManagerImpl implements SegmentManager {
     try {
       return store.getSegment(id);
     } catch (Exception e) {
-      LOG.error("Failed to read Segment at offset " + id, e);
+      LOG.warn("Failed to read Segment at offset " + id, e);
       return Optional.empty();
     }
   }
@@ -339,7 +339,7 @@ public class SegmentManagerImpl implements SegmentManager {
           .collect(Collectors.joining("_"));
 
     } catch (ManagerFatalException e) {
-      LOG.error("Failed to get choice hash for Segment #" + segment.getId(), e);
+      LOG.warn("Failed to get choice hash for Segment #" + segment.getId(), e);
       return String.format("%s_%d", segment.getChainId(), segment.getId());
     }
   }

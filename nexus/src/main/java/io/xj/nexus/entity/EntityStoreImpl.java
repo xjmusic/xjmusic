@@ -56,7 +56,7 @@ public class EntityStoreImpl implements EntityStore {
       return (Optional<N>) Optional.of(store.get(type).get(id));
 
     } catch (Exception e) {
-      LOG.error("Failed to get {}[{}}", type.getSimpleName(), id);
+      LOG.warn("Failed to get {}[{}}", type.getSimpleName(), id);
       return Optional.empty();
     }
   }

@@ -277,7 +277,7 @@ public class CraftWorkImpl implements CraftWork {
     try {
       return store.getAllSegments().stream().filter(segment -> SegmentState.CRAFTED.equals(segment.getState())).max(Comparator.comparing(Segment::getId)).map(SegmentUtils::getEndAtChainMicros);
     } catch (NexusException e) {
-      LOG.error("Unable to get crafted-to chain micros because {}", e.getMessage());
+      LOG.warn("Unable to get crafted-to chain micros because {}", e.getMessage());
       return Optional.empty();
     }
   }
@@ -413,7 +413,7 @@ public class CraftWorkImpl implements CraftWork {
       return store.getAll(segment.getId(), InstrumentAudio.class);
 
     } catch (NexusException e) {
-      LOG.error("Failed to get all InstrumentAudio for Segment[{}] because {}", segment.getId(), e.getMessage());
+      LOG.warn("Failed to get all InstrumentAudio for Segment[{}] because {}", segment.getId(), e.getMessage());
       return List.of();
     }
   }
@@ -545,7 +545,7 @@ public class CraftWorkImpl implements CraftWork {
       return Optional.ofNullable(store.put(entity));
 
     } catch (NexusException e) {
-      LOG.error("Failed to bootstrap Template[{}] because {}", TemplateUtils.getIdentifier(template), e.getMessage());
+      LOG.warn("Failed to bootstrap Template[{}] because {}", TemplateUtils.getIdentifier(template), e.getMessage());
       return Optional.empty();
     }
   }

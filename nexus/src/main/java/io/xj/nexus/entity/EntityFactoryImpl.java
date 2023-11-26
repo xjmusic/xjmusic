@@ -111,7 +111,7 @@ public class EntityFactoryImpl implements EntityFactory {
       try {
         EntityUtils.set(target, String.valueOf(name), attribute);
       } catch (EntityException e) {
-        LOG.error("Failed to set {}", attribute, e);
+        LOG.warn("Failed to set {}", attribute, e);
       }
     });
   }
@@ -124,7 +124,7 @@ public class EntityFactoryImpl implements EntityFactory {
         if (tgtVal.isEmpty() || ValueUtils.isEmpty(tgtVal.get()))
           EntityUtils.set(target, String.valueOf(name), value);
       } catch (EntityException e) {
-        LOG.error("Failed to set {}", value, e);
+        LOG.warn("Failed to set {}", value, e);
       }
     });
   }

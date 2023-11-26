@@ -274,7 +274,7 @@ public class FabricationServiceImpl implements FabricationService {
     try {
       return workManager.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMeme.class);
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
-      LOG.error("Failed to get segment memes", e);
+      LOG.warn("Failed to get segment memes", e);
       return List.of();
     }
   }
@@ -284,7 +284,7 @@ public class FabricationServiceImpl implements FabricationService {
     try {
       return workManager.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentChord.class);
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
-      LOG.error("Failed to get segment chords", e);
+      LOG.warn("Failed to get segment chords", e);
       return List.of();
     }
   }
@@ -294,7 +294,7 @@ public class FabricationServiceImpl implements FabricationService {
     try {
       return workManager.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentChoice.class);
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
-      LOG.error("Failed to get segment choices", e);
+      LOG.warn("Failed to get segment choices", e);
       return List.of();
     }
   }
@@ -335,7 +335,7 @@ public class FabricationServiceImpl implements FabricationService {
       return workManager.getSegmentManager().readManySubEntitiesOfType(choice.getSegmentId(), SegmentChoiceArrangement.class)
         .stream().filter(arrangement -> arrangement.getSegmentChoiceId().equals(choice.getId())).toList();
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
-      LOG.error("Failed to get segment choice arrangements", e);
+      LOG.warn("Failed to get segment choice arrangements", e);
       return List.of();
     }
   }
@@ -346,7 +346,7 @@ public class FabricationServiceImpl implements FabricationService {
       return workManager.getSegmentManager().readManySubEntitiesOfType(arrangement.getSegmentId(), SegmentChoiceArrangementPick.class)
         .stream().filter(pick -> pick.getSegmentChoiceArrangementId().equals(arrangement.getId())).toList();
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
-      LOG.error("Failed to get segment choice arrangement picks", e);
+      LOG.warn("Failed to get segment choice arrangement picks", e);
       return List.of();
     }
   }
@@ -356,7 +356,7 @@ public class FabricationServiceImpl implements FabricationService {
     try {
       return workManager.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMessage.class);
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
-      LOG.error("Failed to get segment messages", e);
+      LOG.warn("Failed to get segment messages", e);
       return List.of();
     }
   }
@@ -366,7 +366,7 @@ public class FabricationServiceImpl implements FabricationService {
     try {
       return workManager.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMeta.class);
     } catch (ManagerPrivilegeException | ManagerFatalException e) {
-      LOG.error("Failed to get segment metas", e);
+      LOG.warn("Failed to get segment metas", e);
       return List.of();
     }
   }
@@ -426,7 +426,7 @@ public class FabricationServiceImpl implements FabricationService {
       return workManager.getSegmentManager().readManyFromToOffset(from, to);
 
     } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException e) {
-      LOG.error("Failed to get segments", e);
+      LOG.warn("Failed to get segments", e);
       return List.of();
     }
   }
@@ -621,13 +621,13 @@ public class FabricationServiceImpl implements FabricationService {
       try {
         var choice = workManager.getSegmentManager().readChoice(segment.getId(), ProgramType.Main);
         if (choice.isEmpty()) {
-          LOG.error("Failed to retrieve main program choice to determine beats for Segment[{}]", segment.getId());
+          LOG.warn("Failed to retrieve main program choice to determine beats for Segment[{}]", segment.getId());
           return Optional.empty();
         }
 
         var program = workManager.getSourceMaterial().getProgram(choice.get().getProgramId());
         if (program.isEmpty()) {
-          LOG.error("Failed to retrieve main program to determine beats for Segment[{}]", segment.getId());
+          LOG.warn("Failed to retrieve main program to determine beats for Segment[{}]", segment.getId());
           return Optional.empty();
         }
 
@@ -635,7 +635,7 @@ public class FabricationServiceImpl implements FabricationService {
         segmentBarBeats.put(segment.getId(), config.getBarBeats());
 
       } catch (ManagerFatalException | ValueException e) {
-        LOG.error("Failed to format beats duration for Segment[{}]", segment.getId(), e);
+        LOG.warn("Failed to format beats duration for Segment[{}]", segment.getId(), e);
         return Optional.empty();
       }
     }
