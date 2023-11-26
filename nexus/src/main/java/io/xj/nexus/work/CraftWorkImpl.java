@@ -373,15 +373,17 @@ public class CraftWorkImpl implements CraftWork {
       // Poke the audio cache to load all known-to-be-upcoming audio to cache; this is a no-op for already-cache audio
       getAllInstrumentAudio(segment).forEach(audio -> {
         try {
-          audioCache.prepare(
-            contentStoragePathPrefix,
-            audioBaseUrl,
-            audio.getInstrumentId(),
-            audio.getWaveformKey(),
-            (int) outputFrameRate,
-            FIXED_SAMPLE_BITS,
-            outputChannels
-          );
+          if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
+            audioCache.load(
+              contentStoragePathPrefix,
+              audioBaseUrl,
+              audio.getInstrumentId(),
+              audio.getWaveformKey(),
+              (int) outputFrameRate,
+              FIXED_SAMPLE_BITS,
+              outputChannels
+            );
+          }
         } catch (NexusException | IOException | AudioCacheException e) {
           LOG.error("Failed to prepare audio for InstrumentAudio[{}] because {}", audio.getId(), e.getMessage());
         }

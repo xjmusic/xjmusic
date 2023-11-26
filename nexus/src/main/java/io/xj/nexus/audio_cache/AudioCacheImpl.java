@@ -86,7 +86,11 @@ public class AudioCacheImpl implements AudioCache {
   }
 
   private AudioPreparedOnDisk fetchAndPrepareOnDisk(String contentStoragePathPrefix, String audioBaseUrl, UUID instrumentId, String waveformKey, int targetFrameRate, int targetSampleBits, int targetChannels) throws AudioCacheException {
-    if (StringUtils.isNullOrEmpty(waveformKey)) throw new AudioCacheException("Can't load null or empty audio key!");
+    if (StringUtils.isNullOrEmpty(waveformKey)) {
+      LOG.error("Can't load null or empty audio key! (contentStoragePathPrefix={}, audioBaseUrl={}, instrumentId={}, waveformKey={}, targetFrameRate={}, targetSampleBits={}, targetChannels={})",
+        contentStoragePathPrefix, audioBaseUrl, instrumentId, waveformKey, targetFrameRate, targetSampleBits, targetChannels);
+      throw new AudioCacheException("Can't load null or empty audio key!");
+    }
 
     // compute a key based on the target frame rate, sample bits, channels, and waveform key.
     String originalCachePath = computeCachePath(contentStoragePathPrefix, instrumentId, waveformKey);

@@ -2,6 +2,7 @@
 package io.xj.nexus.mixer;
 
 import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.audio_cache.AudioCache;
 import io.xj.nexus.audio_cache.AudioCacheException;
@@ -210,6 +211,10 @@ class MixerImpl implements Mixer {
    */
   void addToMix(ActiveAudio active) throws MixerException {
     try {
+      if (StringUtils.isNullOrEmpty(active.getAudio().getWaveformKey())) {
+        LOG.warn("Active audio has empty waveform key! instrumentId: {}, audioId: {}", active.getInstrument().getId(), active.getAudio().getId());
+        return;
+      }
       var cached = audioCache.load(
         config.getContentStoragePathPrefix(),
         config.getAudioBaseUrl(),
