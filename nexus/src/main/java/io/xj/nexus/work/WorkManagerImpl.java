@@ -37,6 +37,8 @@ import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.nexus.ship.broadcast.BroadcastFactory;
 import io.xj.nexus.ship.broadcast.BroadcastFactoryImpl;
+import io.xj.nexus.telemetry.Telemetry;
+import io.xj.nexus.telemetry.TelemetryImpl;
 import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +69,7 @@ public class WorkManagerImpl implements WorkManager {
   private final MixerFactory mixerFactory;
   private final NexusEntityStore store;
   private final SegmentManager segmentManager;
-  private final WorkTelemetry telemetry;
+  private final Telemetry telemetry;
   private final AtomicReference<HubContent> hubContent = new AtomicReference<>();
   private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
   private final AtomicBoolean isAudioLoaded = new AtomicBoolean(false);
@@ -106,7 +108,7 @@ public class WorkManagerImpl implements WorkManager {
   private Runnable afterFinished;
 
   public WorkManagerImpl(
-    WorkTelemetry workTelemetry,
+    Telemetry telemetry,
     BroadcastFactory broadcastFactory,
     CraftFactory craftFactory,
     AudioCache audioCache,
@@ -124,12 +126,12 @@ public class WorkManagerImpl implements WorkManager {
     this.mixerFactory = mixerFactory;
     this.store = store;
     this.segmentManager = segmentManager;
-    this.telemetry = workTelemetry;
+    this.telemetry = telemetry;
   }
 
   public static WorkManager createInstance() {
     BroadcastFactory broadcastFactory = new BroadcastFactoryImpl();
-    WorkTelemetry workTelemetry = new WorkTelemetryImpl();
+    Telemetry telemetry = new TelemetryImpl();
     CraftFactory craftFactory = new CraftFactoryImpl();
     HttpClientProvider httpClientProvider = new HttpClientProviderImpl();
     AudioCache audioCache = new AudioCacheImpl(httpClientProvider);
@@ -149,7 +151,7 @@ public class WorkManagerImpl implements WorkManager {
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
     return new WorkManagerImpl(
-      workTelemetry,
+      telemetry,
       broadcastFactory,
       craftFactory,
       audioCache,
@@ -203,8 +205,6 @@ public class WorkManagerImpl implements WorkManager {
     }
 
     audioCache.invalidateAll();
-
-    telemetry.stopTimer();
   }
 
   @Override
@@ -377,7 +377,6 @@ public class WorkManagerImpl implements WorkManager {
   private void runTelemetryCycle() {
     if (!Objects.equals(state.get(), WorkState.Active)) return;
     telemetry.report();
-    telemetry.markLap();
   }
 
   /**

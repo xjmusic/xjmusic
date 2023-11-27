@@ -19,6 +19,7 @@ import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.*;
+import io.xj.nexus.telemetry.Telemetry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,12 +32,11 @@ import java.util.stream.Stream;
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.hub.util.ValueUtils.MILLIS_PER_SECOND;
 import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
-import static io.xj.nexus.work.WorkTelemetry.TIMER_SECTION_STANDBY;
 
 public class CraftWorkImpl implements CraftWork {
   private static final Logger LOG = LoggerFactory.getLogger(CraftWorkImpl.class);
   private static final String TIMER_SECTION_CRAFT = "Craft";
-  private final WorkTelemetry telemetry;
+  private final Telemetry telemetry;
   private final CraftFactory craftFactory;
   private final FabricatorFactory fabricatorFactory;
   private final HubContent sourceMaterial;
@@ -55,7 +55,7 @@ public class CraftWorkImpl implements CraftWork {
   private long nextMedicMillis = System.currentTimeMillis();
 
   public CraftWorkImpl(
-    WorkTelemetry telemetry,
+    Telemetry telemetry,
     CraftFactory craftFactory,
     FabricatorFactory fabricatorFactory,
     SegmentManager segmentManager,
@@ -289,14 +289,14 @@ public class CraftWorkImpl implements CraftWork {
     if (!running.get()) return;
 
     try {
-      telemetry.markTimerSection(TIMER_SECTION_CRAFT);
+      long startedAtMillis = System.currentTimeMillis();
       fabricateChain(chain, toChainMicros);
       doMedic(toChainMicros);
       doJanitor();
-      telemetry.markTimerSection(TIMER_SECTION_STANDBY);
+      telemetry.record(TIMER_SECTION_CRAFT, System.currentTimeMillis() - startedAtMillis);
 
     } catch (Exception e) {
-      didFailWhile("running a work cycle", e, true);
+      didFailWhile("running craft work", e);
     }
   }
 
@@ -400,7 +400,7 @@ public class CraftWorkImpl implements CraftWork {
       ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException |
       NexusException | ValueException e
     ) {
-      didFailWhile("fabricating", e, false);
+      didFailWhile("fabricating", e);
     }
   }
 
@@ -500,18 +500,12 @@ public class CraftWorkImpl implements CraftWork {
   /**
    Log and send notification of error that job failed while (message)
 
-   @param msgWhile      phrased like "Doing work"
-   @param e             exception (optional)
-   @param logStackTrace whether to show the whole stack trace in logs
+   @param msgWhile phrased like "Doing work"
+   @param e        exception (optional)
    */
-  void didFailWhile(String msgWhile, Exception e, boolean logStackTrace) {
+  void didFailWhile(String msgWhile, Exception e) {
     var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
-
-    if (logStackTrace)
-      LOG.error("Failed while {} because {}", msgWhile, msgCause, e);
-    else
-      LOG.error("Failed while {} because {}", msgWhile, msgCause);
-
+    LOG.error("Failed while {} because {}", msgWhile, msgCause, e);
     running.set(false);
     finish();
   }

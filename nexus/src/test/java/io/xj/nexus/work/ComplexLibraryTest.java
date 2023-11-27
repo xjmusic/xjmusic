@@ -15,6 +15,7 @@ import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.persistence.*;
+import io.xj.nexus.telemetry.Telemetry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,7 +49,7 @@ public class ComplexLibraryTest {
   public HubClient hubClient;
 
   @Mock
-  WorkTelemetry telemetry;
+  Telemetry telemetry;
 
   @Mock
   AudioCache audioCache;
