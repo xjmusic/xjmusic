@@ -5,7 +5,6 @@ module workstation.nexus.main {
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;
   requires com.fasterxml.jackson.datatype.jsr310;
-  requires com.github.benmanes.caffeine;
   requires jakarta.annotation;
   requires java.desktop;
   requires java.prefs;

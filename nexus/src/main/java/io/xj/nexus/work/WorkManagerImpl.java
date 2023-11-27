@@ -18,11 +18,7 @@ import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.http.HttpClientProvider;
 import io.xj.nexus.http.HttpClientProviderImpl;
-import io.xj.nexus.hub_client.HubClient;
-import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.nexus.hub_client.HubClientImpl;
-import io.xj.nexus.hub_client.HubContentProvider;
-import io.xj.nexus.hub_client.HubTopology;
+import io.xj.nexus.hub_client.*;
 import io.xj.nexus.json.JsonProvider;
 import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
@@ -172,6 +168,14 @@ public class WorkManagerImpl implements WorkManager {
     this.workConfig = workConfig;
     this.hubConfig = hubConfig;
     this.hubAccess = hubAccess;
+
+    audioCache.initialize(
+      workConfig.getContentStoragePathPrefix(),
+      hubConfig.getAudioBaseUrl(),
+      workConfig.getOutputFrameRate(),
+      FIXED_SAMPLE_BITS,
+      workConfig.getOutputChannels()
+    );
 
     startedAtMillis.set(System.currentTimeMillis());
     isFileOutputMode = workConfig.getOutputMode() == OutputMode.FILE;
@@ -426,11 +430,6 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(hubConfig);
 
-    var contentStoragePathPrefix = workConfig.getContentStoragePathPrefix();
-    var audioBaseUrl = hubConfig.getAudioBaseUrl();
-    var outputFrameRate = (int) workConfig.getOutputFrameRate();
-    var outputChannels = workConfig.getOutputChannels();
-
     int loaded = 0;
 
     try {
@@ -445,14 +444,7 @@ public class WorkManagerImpl implements WorkManager {
             return;
           }
           if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
-            audioCache.prepare(
-              contentStoragePathPrefix,
-              audioBaseUrl,
-              audio.getInstrumentId(),
-              audio.getWaveformKey(),
-              outputFrameRate,
-              FIXED_SAMPLE_BITS,
-              outputChannels);
+            audioCache.prepare(audio);
             updateProgress((float) loaded / audios.size());
             loaded++;
           }
@@ -488,10 +480,8 @@ public class WorkManagerImpl implements WorkManager {
       store,
       audioCache,
       hubContent.get(),
-      hubConfig.getAudioBaseUrl(),
       workConfig.getOutputFrameRate(),
-      workConfig.getOutputChannels(),
-      workConfig.getContentStoragePathPrefix()
+      workConfig.getOutputChannels()
     );
     dubWork = new DubWorkImpl(
       telemetry,

@@ -1,8 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.audio_cache;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
+import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.http.HttpClientProvider;
@@ -26,57 +25,70 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AudioCacheImpl implements AudioCache {
   private final static Logger LOG = LoggerFactory.getLogger(AudioCacheImpl.class);
   private static final int MAX_INT_LENGTH_ARRAY_SIZE = 2147483647;
-  private static final int MAX_CACHE_SIZE = 10_000;
   private static final int READ_BUFFER_BYTE_SIZE = 1024;
   private final HttpClientProvider httpClientProvider;
-  private final LoadingCache<AudioCacheRequest, CachedAudio> cache;
+  private final Map<String, CachedAudio> cache;
+  private String contentStoragePathPrefix;
+  private String audioBaseUrl;
+  private int targetFrameRate;
+  private int targetSampleBits;
+  private int targetChannels;
 
   public AudioCacheImpl(
     HttpClientProvider httpClientProvider
   ) {
     this.httpClientProvider = httpClientProvider;
 
-    cache = Caffeine.newBuilder()
-      .maximumSize(MAX_CACHE_SIZE)
-      .expireAfterWrite(Duration.ofMinutes(5))
-      .refreshAfterWrite(Duration.ofMinutes(1))
-      .build(this::compute);
+    cache = new ConcurrentHashMap<>();
   }
 
   @Override
-  public CachedAudio load(String contentStoragePathPrefix, String audioBaseUrl, UUID instrumentId, String waveformKey, int targetFrameRate, int targetSampleBits, int targetChannels) throws AudioCacheException, IOException, NexusException {
-    return cache.get(new AudioCacheRequest(instrumentId, waveformKey, contentStoragePathPrefix, audioBaseUrl, targetFrameRate, targetSampleBits, targetChannels));
+  public CachedAudio load(InstrumentAudio audio) throws AudioCacheException, IOException, NexusException {
+    if (!cache.containsKey(audio.getId().toString())) {
+      cache.put(audio.getId().toString(), compute(audio));
+    }
+    return cache.get(audio.getId().toString());
   }
 
   @Override
-  public void prepare(String contentStoragePathPrefix, String audioBaseUrl, UUID instrumentId, String waveformKey, int targetFrameRate, int targetSampleBits, int targetChannels) throws NexusException {
-    fetchAndPrepareOnDiskThreeAttempts(contentStoragePathPrefix, audioBaseUrl, instrumentId, waveformKey, targetFrameRate, targetSampleBits, targetChannels);
+  public void prepare(InstrumentAudio audio) throws NexusException {
+    fetchAndPrepareOnDiskThreeAttempts(audio);
+  }
+
+  @Override
+  public void initialize(String contentStoragePathPrefix, String audioBaseUrl, int targetFrameRate, int targetSampleBits, int targetChannels) {
+    this.contentStoragePathPrefix = contentStoragePathPrefix;
+    this.audioBaseUrl = audioBaseUrl;
+    this.targetFrameRate = targetFrameRate;
+    this.targetSampleBits = targetSampleBits;
+    this.targetChannels = targetChannels;
   }
 
   @Override
   public void invalidateAll() {
-    cache.invalidateAll();
+    cache.clear();
   }
 
-  private void fetchAndPrepareOnDiskThreeAttempts(String contentStoragePathPrefix, String audioBaseUrl, UUID instrumentId, String waveformKey, int targetFrameRate, int targetSampleBits, int targetChannels) throws NexusException {
+  private void fetchAndPrepareOnDiskThreeAttempts(InstrumentAudio audio) throws NexusException {
     int attempts = 0;
     while (attempts < 3) {
       try {
-        fetchAndPrepareOnDisk(contentStoragePathPrefix, audioBaseUrl, instrumentId, waveformKey, targetFrameRate, targetSampleBits, targetChannels);
+        fetchAndPrepareOnDisk(audio);
         return;
 
       } catch (Exception e) {
         attempts++;
         if (attempts == 3) {
           throw new NexusException(String.format("Failed to fetch and prepare audio on disk (attempt %d of 3, contentStoragePathPrefix=%s, audioBaseUrl=%s, instrumentId=%s, waveformKey=%s, targetFrameRate=%d, targetSampleBits=%d, targetChannels=%d): %s", attempts,
-            contentStoragePathPrefix, audioBaseUrl, instrumentId, waveformKey, targetFrameRate, targetSampleBits, targetChannels, e.getMessage()));
+            contentStoragePathPrefix, audioBaseUrl, audio.getInstrumentId(), audio.getWaveformKey(), targetFrameRate, targetSampleBits, targetChannels, e.getMessage()));
         } else {
           LOG.warn("Failed to fetch and prepare audio on disk (attempt {} of 3)", attempts, e);
         }
@@ -85,17 +97,17 @@ public class AudioCacheImpl implements AudioCache {
     throw new NexusException(String.format("Failed to fetch and prepare audio on disk (attempt %d of 3): %s", attempts, "Unknown error"));
   }
 
-  private AudioPreparedOnDisk fetchAndPrepareOnDisk(String contentStoragePathPrefix, String audioBaseUrl, UUID instrumentId, String waveformKey, int targetFrameRate, int targetSampleBits, int targetChannels) throws AudioCacheException {
-    if (StringUtils.isNullOrEmpty(waveformKey)) {
+  private AudioPreparedOnDisk fetchAndPrepareOnDisk(InstrumentAudio audio) throws AudioCacheException {
+    if (StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
       LOG.error("Can't load null or empty audio key! (contentStoragePathPrefix={}, audioBaseUrl={}, instrumentId={}, waveformKey={}, targetFrameRate={}, targetSampleBits={}, targetChannels={})",
-        contentStoragePathPrefix, audioBaseUrl, instrumentId, waveformKey, targetFrameRate, targetSampleBits, targetChannels);
+        contentStoragePathPrefix, audioBaseUrl, audio.getInstrumentId(), audio.getWaveformKey(), targetFrameRate, targetSampleBits, targetChannels);
       throw new AudioCacheException("Can't load null or empty audio key!");
     }
 
     // compute a key based on the target frame rate, sample bits, channels, and waveform key.
-    String originalCachePath = computeCachePath(contentStoragePathPrefix, instrumentId, waveformKey);
-    String resampledCachePrefix = computeResampledCachePrefix(contentStoragePathPrefix, instrumentId, targetFrameRate, targetSampleBits, targetChannels);
-    String finalCachePath = computeResampledCachePath(resampledCachePrefix, targetFrameRate, targetSampleBits, targetChannels, waveformKey);
+    String originalCachePath = computeCachePath(contentStoragePathPrefix, audio.getInstrumentId(), audio.getWaveformKey());
+    String resampledCachePrefix = computeResampledCachePrefix(contentStoragePathPrefix, audio.getInstrumentId(), targetFrameRate, targetSampleBits, targetChannels);
+    String finalCachePath = computeResampledCachePath(resampledCachePrefix, targetFrameRate, targetSampleBits, targetChannels, audio.getWaveformKey());
     if (existsOnDisk(finalCachePath)) {
       LOG.debug("Found fully prepared audio at {}", finalCachePath);
       try {
@@ -117,7 +129,7 @@ public class AudioCacheImpl implements AudioCache {
     if (!existsOnDisk(originalCachePath)) {
       CloseableHttpClient client = httpClientProvider.getClient();
       try (
-        CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", audioBaseUrl, waveformKey)))
+        CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", audioBaseUrl, audio.getWaveformKey())))
       ) {
         if (Objects.isNull(response.getEntity().getContent()))
           throw new NexusException(String.format("Unable to write bytes to disk cache: %s", originalCachePath));
@@ -164,16 +176,8 @@ public class AudioCacheImpl implements AudioCache {
     }
   }
 
-  private CachedAudio compute(AudioCacheRequest request) throws AudioCacheException, IOException {
-    var fileSpec = fetchAndPrepareOnDisk(
-      request.contentStoragePathPrefix,
-      request.audioBaseUrl,
-      request.instrumentId,
-      request.waveformKey,
-      request.targetFrameRate,
-      request.targetSampleBits,
-      request.targetChannels
-    );
+  private CachedAudio compute(InstrumentAudio audio) throws AudioCacheException, IOException {
+    var fileSpec = fetchAndPrepareOnDisk(audio);
     try (
       var fileInputStream = FileUtils.openInputStream(new File(fileSpec.path));
       var bufferedInputStream = new BufferedInputStream(fileInputStream);
@@ -210,17 +214,17 @@ public class AudioCacheImpl implements AudioCache {
       int numBytesReadToBuffer;
       byte[] sampleBuffer = new byte[sampleSize];
       byte[] readBuffer = new byte[actualReadBufferSize];
-      float[][] audio = new float[expectFrames][channels];
+      float[][] data = new float[expectFrames][channels];
       while (-1 != (numBytesReadToBuffer = audioInputStream.read(readBuffer))) {
-        for (b = 0; b < numBytesReadToBuffer && sf < audio.length; b += frameSize) {
+        for (b = 0; b < numBytesReadToBuffer && sf < data.length; b += frameSize) {
           for (tc = 0; tc < fileSpec.format.getChannels(); tc++) {
             System.arraycopy(readBuffer, b + (isStereo ? tc : 0) * sampleSize, sampleBuffer, 0, sampleSize);
-            audio[sf][tc] = (float) AudioSampleFormat.fromBytes(sampleBuffer, sampleFormat);
+            data[sf][tc] = (float) AudioSampleFormat.fromBytes(sampleBuffer, sampleFormat);
           }
           sf++;
         }
       }
-      return new CachedAudio(audio, fileSpec.format, fileSpec.path);
+      return new CachedAudio(data, fileSpec.format, fileSpec.path);
     } catch (UnsupportedAudioFileException | FormatException e) {
       throw new IOException(String.format("Failed to read and compute float array for file %s", fileSpec.path), e);
     }
@@ -300,23 +304,6 @@ public class AudioCacheImpl implements AudioCache {
       // Mono source audio should be resampled and cached as mono
       // https://www.pivotaltracker.com/story/show/186551859
       && currentFormat.getChannels() <= targetChannels;
-  }
-
-  /**
-   Record of a request to load audio from cache
-   */
-  private record AudioCacheRequest(
-    UUID instrumentId,
-    String waveformKey,
-    String contentStoragePathPrefix,
-    String audioBaseUrl,
-    int targetFrameRate,
-    int targetSampleBits,
-    int targetChannels
-  ) {
-    public String toString() {
-      return String.format("%s-%s-%s-%s-%d-%d-%d", contentStoragePathPrefix, audioBaseUrl, instrumentId, waveformKey, targetFrameRate, targetSampleBits, targetChannels);
-    }
   }
 
   /**

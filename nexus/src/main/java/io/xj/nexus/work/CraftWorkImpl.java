@@ -31,7 +31,6 @@ import java.util.stream.Stream;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.hub.util.ValueUtils.MILLIS_PER_SECOND;
-import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 public class CraftWorkImpl implements CraftWork {
   private static final Logger LOG = LoggerFactory.getLogger(CraftWorkImpl.class);
@@ -46,8 +45,6 @@ public class CraftWorkImpl implements CraftWork {
   private final AtomicBoolean running = new AtomicBoolean(true);
   private final double outputFrameRate;
   private final int outputChannels;
-  private final String contentStoragePathPrefix;
-  private final String audioBaseUrl;
   private final TemplateConfig templateConfig;
   private final Chain chain;
 
@@ -62,9 +59,8 @@ public class CraftWorkImpl implements CraftWork {
     NexusEntityStore store,
     AudioCache audioCache,
     HubContent sourceMaterial,
-    String audioBaseUrl, double outputFrameRate,
-    int outputChannels,
-    String contentStoragePathPrefix) {
+    double outputFrameRate,
+    int outputChannels) {
     this.telemetry = telemetry;
     this.craftFactory = craftFactory;
     this.fabricatorFactory = fabricatorFactory;
@@ -74,8 +70,6 @@ public class CraftWorkImpl implements CraftWork {
     this.segmentManager = segmentManager;
     this.sourceMaterial = sourceMaterial;
     this.store = store;
-    this.contentStoragePathPrefix = contentStoragePathPrefix;
-    this.audioBaseUrl = audioBaseUrl;
 
     // Telemetry: # Segments Erased
 
@@ -374,15 +368,7 @@ public class CraftWorkImpl implements CraftWork {
       getAllInstrumentAudio(segment).forEach(audio -> {
         try {
           if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
-            audioCache.load(
-              contentStoragePathPrefix,
-              audioBaseUrl,
-              audio.getInstrumentId(),
-              audio.getWaveformKey(),
-              (int) outputFrameRate,
-              FIXED_SAMPLE_BITS,
-              outputChannels
-            );
+            audioCache.load(audio);
           }
         } catch (NexusException | IOException | AudioCacheException e) {
           LOG.error("Failed to prepare audio for InstrumentAudio[{}] because {}", audio.getId(), e.getMessage());
