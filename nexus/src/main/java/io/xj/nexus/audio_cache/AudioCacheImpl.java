@@ -60,7 +60,6 @@ public class AudioCacheImpl implements AudioCache {
 
   @Override
   public void loadTheseAndForgetTheRest(List<InstrumentAudio> audios) {
-    var test = 123; // todo remove
     for (InstrumentAudio audio : audios) {
       if (!cache.containsKey(audio.getId().toString())) {
         try {
@@ -250,6 +249,7 @@ public class AudioCacheImpl implements AudioCache {
         }
       }
       return new CachedAudio(data, fileSpec.format, fileSpec.path);
+
     } catch (UnsupportedAudioFileException | FormatException e) {
       throw new IOException(String.format("Failed to read and compute float array for file %s", fileSpec.path), e);
     }

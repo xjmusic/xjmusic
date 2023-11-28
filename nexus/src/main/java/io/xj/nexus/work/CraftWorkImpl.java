@@ -12,19 +12,39 @@ import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.audio_cache.AudioCache;
-import io.xj.nexus.audio_cache.AudioCacheException;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.FabricationFatalException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.model.*;
-import io.xj.nexus.persistence.*;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.persistence.ChainUtils;
+import io.xj.nexus.persistence.ManagerExistenceException;
+import io.xj.nexus.persistence.ManagerFatalException;
+import io.xj.nexus.persistence.ManagerPrivilegeException;
+import io.xj.nexus.persistence.ManagerValidationException;
+import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.SegmentUtils;
+import io.xj.nexus.persistence.TemplateUtils;
 import io.xj.nexus.telemetry.Telemetry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -49,9 +69,6 @@ public class CraftWorkImpl implements CraftWork {
   private final long craftAheadMicros;
   private final TemplateConfig templateConfig;
   private final Chain chain;
-
-  private long nextJanitorMillis = System.currentTimeMillis();
-  private long nextMedicMillis = System.currentTimeMillis();
 
   public CraftWorkImpl(
     Telemetry telemetry,
@@ -304,8 +321,12 @@ public class CraftWorkImpl implements CraftWork {
     if (currentSegment.isEmpty()) {
       return;
     }
+    var previousSegment = segmentManager.readOneById(currentSegment.get().getId() - 1);
     var nextSegment = segmentManager.readOneById(currentSegment.get().getId() + 1);
-    var segments = nextSegment.map(segment -> List.of(currentSegment.get(), segment)).orElseGet(() -> List.of(currentSegment.get()));
+    var segments = Stream.of(previousSegment, currentSegment, nextSegment)
+      .filter(Optional::isPresent)
+      .map(Optional::get)
+      .collect(Collectors.toList());
     Set<UUID> seen = new HashSet<>();
     List<InstrumentAudio> currentAudios = new ArrayList<>();
     getPicks(segments).stream()
