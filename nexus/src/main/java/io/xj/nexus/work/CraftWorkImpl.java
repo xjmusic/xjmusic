@@ -12,31 +12,50 @@ import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.audio_cache.AudioCache;
-import io.xj.nexus.audio_cache.AudioCacheException;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.FabricationFatalException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.model.*;
-import io.xj.nexus.persistence.*;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.persistence.ChainUtils;
+import io.xj.nexus.persistence.ManagerExistenceException;
+import io.xj.nexus.persistence.ManagerFatalException;
+import io.xj.nexus.persistence.ManagerPrivilegeException;
+import io.xj.nexus.persistence.ManagerValidationException;
+import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.SegmentUtils;
+import io.xj.nexus.persistence.TemplateUtils;
+import io.xj.nexus.telemetry.Telemetry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.hub.util.ValueUtils.MILLIS_PER_SECOND;
-import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
-import static io.xj.nexus.work.WorkTelemetry.TIMER_SECTION_STANDBY;
 
 public class CraftWorkImpl implements CraftWork {
   private static final Logger LOG = LoggerFactory.getLogger(CraftWorkImpl.class);
   private static final String TIMER_SECTION_CRAFT = "Craft";
-  private final WorkTelemetry telemetry;
+  private static final String TIMER_SECTION_CRAFT_CACHE = "CraftAudioPrecache";
+  private final Telemetry telemetry;
   private final CraftFactory craftFactory;
   private final FabricatorFactory fabricatorFactory;
   private final HubContent sourceMaterial;
@@ -46,27 +65,26 @@ public class CraftWorkImpl implements CraftWork {
   private final AtomicBoolean running = new AtomicBoolean(true);
   private final double outputFrameRate;
   private final int outputChannels;
-  private final String contentStoragePathPrefix;
-  private final String audioBaseUrl;
+
+  private final long craftAheadMicros;
   private final TemplateConfig templateConfig;
   private final Chain chain;
 
-  private long nextJanitorMillis = System.currentTimeMillis();
-  private long nextMedicMillis = System.currentTimeMillis();
-
   public CraftWorkImpl(
-    WorkTelemetry telemetry,
+    Telemetry telemetry,
     CraftFactory craftFactory,
     FabricatorFactory fabricatorFactory,
     SegmentManager segmentManager,
     NexusEntityStore store,
     AudioCache audioCache,
     HubContent sourceMaterial,
-    String audioBaseUrl, double outputFrameRate,
-    int outputChannels,
-    String contentStoragePathPrefix) {
+    long craftAheadMicros,
+    double outputFrameRate,
+    int outputChannels
+  ) {
     this.telemetry = telemetry;
     this.craftFactory = craftFactory;
+    this.craftAheadMicros = craftAheadMicros;
     this.fabricatorFactory = fabricatorFactory;
     this.audioCache = audioCache;
     this.outputChannels = outputChannels;
@@ -74,8 +92,6 @@ public class CraftWorkImpl implements CraftWork {
     this.segmentManager = segmentManager;
     this.sourceMaterial = sourceMaterial;
     this.store = store;
-    this.contentStoragePathPrefix = contentStoragePathPrefix;
-    this.audioBaseUrl = audioBaseUrl;
 
     // Telemetry: # Segments Erased
 
@@ -106,17 +122,6 @@ public class CraftWorkImpl implements CraftWork {
   @Override
   public TemplateConfig getTemplateConfig() {
     return templateConfig;
-  }
-
-  @Override
-  public List<Segment> getAllSegments() {
-    // require chain
-    var chain = getChain();
-    if (chain.isEmpty()) {
-      return List.of();
-    }
-
-    return segmentManager.readAll();
   }
 
   @Override
@@ -201,13 +206,15 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   @Override
-  public Optional<Instrument> getInstrument(InstrumentAudio audio) {
-    return sourceMaterial.getInstrument(audio.getInstrumentId());
+  public Instrument getInstrument(InstrumentAudio audio) {
+    return sourceMaterial.getInstrument(audio.getInstrumentId())
+      .orElseThrow(() -> new RuntimeException("Failed to get Instrument[" + audio.getInstrumentId() + "]"));
   }
 
   @Override
-  public Optional<InstrumentAudio> getInstrumentAudio(SegmentChoiceArrangementPick pick) {
-    return sourceMaterial.getInstrumentAudio(pick.getInstrumentAudioId());
+  public InstrumentAudio getInstrumentAudio(SegmentChoiceArrangementPick pick) {
+    return sourceMaterial.getInstrumentAudio(pick.getInstrumentAudioId())
+      .orElseThrow(() -> new RuntimeException("Failed to get InstrumentAudio[" + pick.getInstrumentAudioId() + "]"));
   }
 
   @Override
@@ -285,18 +292,20 @@ public class CraftWorkImpl implements CraftWork {
   /**
    This is the internal cycle that's run indefinitely
    */
-  public void runCycle(long toChainMicros) {
+  public void runCycle(long shippedToChainMicros) {
     if (!running.get()) return;
 
     try {
-      telemetry.markTimerSection(TIMER_SECTION_CRAFT);
-      fabricateChain(chain, toChainMicros);
-      doMedic(toChainMicros);
-      doJanitor();
-      telemetry.markTimerSection(TIMER_SECTION_STANDBY);
+      long startedAtMillis = System.currentTimeMillis();
+      fabricateChain(chain, shippedToChainMicros + craftAheadMicros);
+      telemetry.record(TIMER_SECTION_CRAFT, System.currentTimeMillis() - startedAtMillis);
+
+      startedAtMillis = System.currentTimeMillis();
+      doAudioCacheMaintenance(shippedToChainMicros);
+      telemetry.record(TIMER_SECTION_CRAFT_CACHE, System.currentTimeMillis() - startedAtMillis);
 
     } catch (Exception e) {
-      didFailWhile("running a work cycle", e, true);
+      didFailWhile("running craft work", e);
     }
   }
 
@@ -306,39 +315,32 @@ public class CraftWorkImpl implements CraftWork {
    <p>
    Medic relies on precomputed  telemetry of fabrication latency https://www.pivotaltracker.com/story/show/177021797
    */
-  void doMedic(long toChainMicros) {
-    if (System.currentTimeMillis() < nextMedicMillis) return;
-    int MEDIC_CYCLE_SECONDS = 30;
-    nextMedicMillis = System.currentTimeMillis() + (MEDIC_CYCLE_SECONDS * MILLIS_PER_SECOND);
-
-    var chain = getChain();
-    if (chain.isEmpty()) {
+  void doAudioCacheMaintenance(long shippedToChainMicros) throws NexusException {
+    // Poke the audio cache to load all known-to-be-upcoming audio to cache; this is a no-op for already-cache audio
+    var currentSegment = segmentManager.readOneAtChainMicros(shippedToChainMicros);
+    if (currentSegment.isEmpty()) {
       return;
     }
-
-    try {
-      var lastCraftedSegment = segmentManager.readLastCraftedSegment();
-      if (lastCraftedSegment.isEmpty()) {
-        return;
-      }
-      var aheadSeconds = (SegmentUtils.getEndAtChainMicros(lastCraftedSegment.get()) - toChainMicros) / MICROS_PER_SECOND;
-      int THRESHOLD_FABRICATED_BEHIND_SECONDS = 5;
-      if (aheadSeconds < THRESHOLD_FABRICATED_BEHIND_SECONDS) {
-        LOG.debug("Fabrication is stalled, ahead {}s", aheadSeconds);
-      }
-
-    } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  /**
-   Do the work-- this is called by the underlying WorkerImpl run() hook
-   */
-  protected void doJanitor() {
-    if (System.currentTimeMillis() < nextJanitorMillis) return;
-    int JANITOR_CYCLE_SECONDS = 30;
-    nextJanitorMillis = System.currentTimeMillis() + (JANITOR_CYCLE_SECONDS * MILLIS_PER_SECOND);
+    var previousSegment = segmentManager.readOneById(currentSegment.get().getId() - 1);
+    var nextSegment = segmentManager.readOneById(currentSegment.get().getId() + 1);
+    var segments = Stream.of(previousSegment, currentSegment, nextSegment)
+      .filter(Optional::isPresent)
+      .map(Optional::get)
+      .collect(Collectors.toList());
+    Set<UUID> seen = new HashSet<>();
+    List<InstrumentAudio> currentAudios = new ArrayList<>();
+    getPicks(segments).stream()
+      .sorted(Comparator.comparing(SegmentChoiceArrangementPick::getStartAtSegmentMicros))
+      .map(this::getInstrumentAudio)
+      .forEach(audio -> {
+        if (!seen.contains(audio.getId())) {
+          if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
+            currentAudios.add(audio);
+          }
+          seen.add(audio.getId());
+        }
+      });
+    audioCache.loadTheseAndForgetTheRest(currentAudios);
   }
 
   /**
@@ -370,25 +372,6 @@ public class CraftWorkImpl implements CraftWork {
       atChainMicros = Objects.nonNull(segment.getDurationMicros()) ? atChainMicros + segment.getDurationMicros() : atChainMicros;
       aheadSeconds = (float) (atChainMicros - toChainMicros) / MICROS_PER_SECOND;
 
-      // Poke the audio cache to load all known-to-be-upcoming audio to cache; this is a no-op for already-cache audio
-      getAllInstrumentAudio(segment).forEach(audio -> {
-        try {
-          if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
-            audioCache.load(
-              contentStoragePathPrefix,
-              audioBaseUrl,
-              audio.getInstrumentId(),
-              audio.getWaveformKey(),
-              (int) outputFrameRate,
-              FIXED_SAMPLE_BITS,
-              outputChannels
-            );
-          }
-        } catch (NexusException | IOException | AudioCacheException e) {
-          LOG.error("Failed to prepare audio for InstrumentAudio[{}] because {}", audio.getId(), e.getMessage());
-        }
-      });
-
       finishWork(fabricator, segment);
       LOG.debug("Fabricated Segment[offset={}] {}s long (ahead {}s)",
         segment.getId(),
@@ -400,23 +383,7 @@ public class CraftWorkImpl implements CraftWork {
       ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException |
       NexusException | ValueException e
     ) {
-      didFailWhile("fabricating", e, false);
-    }
-  }
-
-  /**
-   Get all InstrumentAudio for Segment
-
-   @param segment for which to get audio
-   @return collection of audio
-   */
-  private Collection<InstrumentAudio> getAllInstrumentAudio(Segment segment) {
-    try {
-      return store.getAll(segment.getId(), InstrumentAudio.class);
-
-    } catch (NexusException e) {
-      LOG.warn("Failed to get all InstrumentAudio for Segment[{}] because {}", segment.getId(), e.getMessage());
-      return List.of();
+      didFailWhile("fabricating", e);
     }
   }
 
@@ -500,18 +467,12 @@ public class CraftWorkImpl implements CraftWork {
   /**
    Log and send notification of error that job failed while (message)
 
-   @param msgWhile      phrased like "Doing work"
-   @param e             exception (optional)
-   @param logStackTrace whether to show the whole stack trace in logs
+   @param msgWhile phrased like "Doing work"
+   @param e        exception (optional)
    */
-  void didFailWhile(String msgWhile, Exception e, boolean logStackTrace) {
+  void didFailWhile(String msgWhile, Exception e) {
     var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
-
-    if (logStackTrace)
-      LOG.error("Failed while {} because {}", msgWhile, msgCause, e);
-    else
-      LOG.error("Failed while {} because {}", msgWhile, msgCause);
-
+    LOG.error("Failed while {} because {}", msgWhile, msgCause, e);
     running.set(false);
     finish();
   }

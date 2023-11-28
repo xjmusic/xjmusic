@@ -9,6 +9,7 @@ import io.xj.nexus.mixer.AudioFileWriter;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.ship.broadcast.BroadcastFactory;
 import io.xj.nexus.ship.broadcast.StreamPlayer;
+import io.xj.nexus.telemetry.Telemetry;
 import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,14 +23,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.hub.util.ValueUtils.MILLIS_PER_SECOND;
-import static io.xj.nexus.work.WorkTelemetry.TIMER_SECTION_STANDBY;
 
 public class ShipWorkImpl implements ShipWork {
   private static final Logger LOG = LoggerFactory.getLogger(ShipWorkImpl.class);
   private static final String TIMER_SECTION_SHIP = "Ship";
   private final long startedAtMillis;
   private final AtomicBoolean running = new AtomicBoolean(true);
-  private final WorkTelemetry telemetry;
+  private final Telemetry telemetry;
   private final DubWork dubWork;
   private final OutputFileMode outputFileMode;
   private final OutputMode outputMode;
@@ -53,7 +53,7 @@ public class ShipWorkImpl implements ShipWork {
   StreamPlayer playback;
 
   public ShipWorkImpl(
-    WorkTelemetry telemetry,
+    Telemetry telemetry,
     DubWork dubWork,
     BroadcastFactory broadcastFactory,
     OutputMode outputMode,
@@ -102,6 +102,30 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   @Override
+  public void runCycle() {
+    if (!running.get()) return;
+
+    if (dubWork.isFinished()) {
+      LOG.warn("DubWork not running, will stop");
+      finish();
+    }
+
+    // Action based on mode
+    try {
+      if (dubWork.getMixerBuffer().isEmpty()) return;
+      long startedAtMillis = System.currentTimeMillis();
+      switch (outputMode) {
+        case PLAYBACK -> doShipOutputPlayback();
+        case FILE -> doShipOutputFile();
+      }
+      telemetry.record(TIMER_SECTION_SHIP, System.currentTimeMillis() - startedAtMillis);
+
+    } catch (Exception e) {
+      didFailWhile("running ship work", e);
+    }
+  }
+
+  @Override
   public void finish() {
     if (!running.get()) return;
     running.set(false);
@@ -117,29 +141,6 @@ public class ShipWorkImpl implements ShipWork {
     }
     dubWork.finish();
     LOG.info("Finished");
-  }
-
-  @Override
-  public void runCycle(long ignored) {
-    if (!running.get()) return;
-
-    if (dubWork.isFinished()) {
-      LOG.warn("DubWork not running, will stop");
-      finish();
-    }
-
-    // Action based on mode
-    try {
-      telemetry.markTimerSection(TIMER_SECTION_SHIP);
-      if (dubWork.getMixerBuffer().isEmpty()) return;
-      switch (outputMode) {
-        case PLAYBACK -> doShipOutputPlayback();
-        case FILE -> doShipOutputFile();
-      }
-      telemetry.markTimerSection(TIMER_SECTION_STANDBY);
-    } catch (Exception e) {
-      didFailWhile("running a work cycle", e);
-    }
   }
 
   @Override

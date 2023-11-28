@@ -15,6 +15,7 @@ import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.persistence.*;
+import io.xj.nexus.telemetry.Telemetry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,8 +38,6 @@ public class ComplexLibraryTest {
   static final int MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
   static final int MILLIS_PER_SECOND = 1000;
   private static final int GENERATED_FIXTURE_COMPLEXITY = 3;
-  private final static String audioBaseUrl = "https://audio.xj.io/";
-  private final static String contentStoragePathPrefix = System.getProperty("java.io.tmpdir");
   private static final long WORK_CYCLE_MILLIS = 120;
   long startTime = System.currentTimeMillis();
   SegmentManager segmentManager;
@@ -48,7 +47,7 @@ public class ComplexLibraryTest {
   public HubClient hubClient;
 
   @Mock
-  WorkTelemetry telemetry;
+  Telemetry telemetry;
 
   @Mock
   AudioCache audioCache;
@@ -94,10 +93,9 @@ public class ComplexLibraryTest {
       store,
       audioCache,
       content,
-      audioBaseUrl,
-      48000.0f,
-      1000,
-      contentStoragePathPrefix
+      100000000,
+      48000,
+      2
     );
   }
 

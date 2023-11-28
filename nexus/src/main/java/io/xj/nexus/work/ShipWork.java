@@ -20,6 +20,10 @@ import java.util.Optional;
  https://www.nurkiewicz.com/2014/11/executorservice-10-tips-and-tricks.html
  */
 public interface ShipWork extends Work {
+  /**
+   Run the work cycle
+   */
+  void runCycle();
 
   /**
    @return ship progress ratio (0-1)

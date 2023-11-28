@@ -17,7 +17,7 @@ public class WorkConfiguration {
   private int outputSeconds;
   private long craftAheadMicros;
   private long dubAheadMicros;
-  private double outputFrameRate;
+  private int outputFrameRate;
   private int outputChannels;
   private String contentStoragePathPrefix;
   private int mixerLengthSeconds = 2;
@@ -28,7 +28,7 @@ public class WorkConfiguration {
   private long craftCycleMillis = 400;
   private long dubCycleMillis = 200;
   private long shipCycleMillis = 50;
-  private long telemetryCycleMillis = 1000;
+  private long telemetryCycleMillis = 5000;
 
   public InputMode getInputMode() {
     return inputMode;
@@ -111,11 +111,11 @@ public class WorkConfiguration {
     return this;
   }
 
-  public double getOutputFrameRate() {
+  public int getOutputFrameRate() {
     return outputFrameRate;
   }
 
-  public WorkConfiguration setOutputFrameRate(double outputFrameRate) {
+  public WorkConfiguration setOutputFrameRate(int outputFrameRate) {
     this.outputFrameRate = outputFrameRate;
     return this;
   }

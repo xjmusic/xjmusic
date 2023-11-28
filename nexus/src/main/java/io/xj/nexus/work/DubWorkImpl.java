@@ -6,46 +6,37 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.util.StringUtils;
-import io.xj.nexus.mixer.ActiveAudio;
-import io.xj.nexus.mixer.BytePipeline;
-import io.xj.nexus.mixer.Mixer;
-import io.xj.nexus.mixer.MixerConfig;
-import io.xj.nexus.mixer.MixerFactory;
+import io.xj.nexus.mixer.*;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.telemetry.Telemetry;
 import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
-import static io.xj.nexus.work.WorkTelemetry.TIMER_SECTION_STANDBY;
 
 public class DubWorkImpl implements DubWork {
   private static final Logger LOG = LoggerFactory.getLogger(DubWorkImpl.class);
   private static final int BITS_PER_BYTE = 8;
   private static final String TIMER_SECTION_DUB = "Dub";
-  private static final String TIMER_SECTION_DUB_SETUP = "DubSetup";
-  private static final String TIMER_SECTION_DUB_MIX = "DubMix";
   private final AtomicBoolean running = new AtomicBoolean(true);
-  private final WorkTelemetry telemetry;
+  private final Telemetry telemetry;
   private final CraftWork craftWork;
   private final MixerFactory mixerFactory;
   private final int mixerLengthSeconds;
   private final long mixerLengthMicros;
   private final int outputChannels;
   private final double outputFrameRate;
+  private final long dubAheadMicros;
   private final String audioBaseUrl;
   private final String contentStoragePathPrefix;
   private final Float mixerOutputMicrosecondsPerByte;
@@ -55,12 +46,13 @@ public class DubWorkImpl implements DubWork {
   private long chunkToChainMicros; // plan ahead one dub frame at a time
 
   public DubWorkImpl(
-    WorkTelemetry telemetry,
+    Telemetry telemetry,
     CraftWork craftWork,
     MixerFactory mixerFactory,
     String audioBaseUrl,
     String contentStoragePathPrefix,
     int mixerSeconds,
+    long dubAheadMicros,
     double outputFrameRate,
     int outputChannels
   ) {
@@ -69,6 +61,7 @@ public class DubWorkImpl implements DubWork {
     this.contentStoragePathPrefix = contentStoragePathPrefix;
     this.audioBaseUrl = audioBaseUrl;
     this.mixerLengthSeconds = mixerSeconds;
+    this.dubAheadMicros = dubAheadMicros;
     this.outputFrameRate = outputFrameRate;
     this.outputChannels = outputChannels;
     this.mixerLengthMicros = mixerLengthSeconds * MICROS_PER_SECOND;
@@ -102,7 +95,7 @@ public class DubWorkImpl implements DubWork {
   }
 
   @Override
-  public void runCycle(long toChainMicros) {
+  public void runCycle(long shippedToChainMicros) {
     if (!running.get()) return;
 
     if (craftWork.isFinished()) {
@@ -112,16 +105,17 @@ public class DubWorkImpl implements DubWork {
 
     // Action based on state and mode
     try {
-      telemetry.markTimerSection(TIMER_SECTION_DUB);
+      long startedAtMillis = System.currentTimeMillis();
       if (isPlannedAhead()) {
         doDubFrame();
       } else {
-        doPlanFrame(toChainMicros);
+        doPlanFrame(shippedToChainMicros + dubAheadMicros);
       }
-      telemetry.markTimerSection(TIMER_SECTION_STANDBY);
+      telemetry.record(TIMER_SECTION_DUB, System.currentTimeMillis() - startedAtMillis);
+
     } catch (
       Exception e) {
-      didFailWhile("running a work cycle", e);
+      didFailWhile("running dub work", e);
     }
   }
 
@@ -233,7 +227,10 @@ public class DubWorkImpl implements DubWork {
         craftWork.getPicks(segments).stream().filter(pick -> !craftWork.isMuted(pick)).toList();
       List<ActiveAudio> activeAudios = new ArrayList<>();
       for (SegmentChoiceArrangementPick pick : picks) {
-        audio = craftWork.getInstrumentAudio(pick).orElseThrow();
+        audio = craftWork.getInstrumentAudio(pick);
+        if (StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
+          continue;
+        }
         transientMicros = Objects.nonNull(audio.getTransientSeconds()) ? (long) (audio.getTransientSeconds() * MICROS_PER_SECOND) : 0; // audio transient microseconds (to start audio before picked time)
         lengthMicros = Objects.nonNull(pick.getLengthMicros()) ? pick.getLengthMicros() : null; // pick length microseconds, or empty if infinite
         startAtMixerMicros =
@@ -249,19 +246,21 @@ public class DubWorkImpl implements DubWork {
               + lengthMicros
             : null; // add length of pick in microseconds
         if (startAtMixerMicros <= mixerLengthMicros && (Objects.isNull(stopAtMixerMicros) || stopAtMixerMicros >= 0)) {
-          activeAudios.add(new ActiveAudio(pick, craftWork.getInstrument(audio).orElseThrow(), audio, startAtMixerMicros, Objects.nonNull(stopAtMixerMicros) ? stopAtMixerMicros : null));
+          activeAudios.add(new ActiveAudio(pick, craftWork.getInstrument(audio), audio, startAtMixerMicros, Objects.nonNull(stopAtMixerMicros) ? stopAtMixerMicros : null));
         }
       }
 
-      telemetry.markTimerSection(TIMER_SECTION_DUB_SETUP);
+      if (!mixer.areAllReady(activeAudios)) {
+        LOG.warn("Waiting for cache to load audio into memory");
+        return;
+      }
+
       try {
-        telemetry.markTimerSection(TIMER_SECTION_DUB_MIX);
         mixer.mix(activeAudios);
       } catch (IOException e) {
-        LOG.debug("Cannot send to output because BytePipeline {}", e.getMessage());
+        LOG.error("Cannot send to output because BytePipeline {}", e.getMessage());
         finish();
       }
-      telemetry.markTimerSection(TIMER_SECTION_DUB);
 
       chunkFromChainMicros = chunkToChainMicros;
       LOG.debug("Dubbed to {}", String.format("%.1f", chunkToChainMicros / (double) MICROS_PER_SECOND));

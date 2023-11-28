@@ -161,7 +161,7 @@ public class FabricationServiceImpl implements FabricationService {
       .setInputTemplateKey(inputTemplateKey.get())
       .setOutputChannels(Integer.parseInt(outputChannels.get()))
       .setOutputFileMode(outputFileMode.get())
-      .setOutputFrameRate(Double.parseDouble(outputFrameRate.get()))
+      .setOutputFrameRate(Integer.parseInt(outputFrameRate.get()))
       .setOutputMode(outputMode.get())
       .setOutputPathPrefix(outputPathPrefix.get())
       .setOutputSeconds(Integer.parseInt(outputSeconds.get()));

@@ -204,6 +204,11 @@ class MixerImpl implements Mixer {
     return instrumentBusNumber.get(instrumentType);
   }
 
+  @Override
+  public boolean areAllReady(List<ActiveAudio> activeAudios) {
+    return audioCache.areAllReady(activeAudios);
+  }
+
   /**
    apply one source to the mixing buffer
 
@@ -215,14 +220,7 @@ class MixerImpl implements Mixer {
         LOG.warn("Active audio has empty waveform key! instrumentId: {}, audioId: {}", active.getInstrument().getId(), active.getAudio().getId());
         return;
       }
-      var cached = audioCache.load(
-        config.getContentStoragePathPrefix(),
-        config.getAudioBaseUrl(),
-        active.getInstrument().getId(),
-        active.getAudio().getWaveformKey(),
-        (int) outputFrameRate,
-        audioFormat.getSampleSizeInBits(),
-        audioFormat.getChannels());
+      var cached = audioCache.load(active.getAudio());
 
       // determine the bus number for this instrument type
       int bus = getBusNumber(active.getInstrument().getType());

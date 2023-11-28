@@ -123,7 +123,8 @@ public class DemoIT {
   };
   private final String contentStoragePathPrefix;
   private final String instrumentPathPrefix;
-  MixerFactory mixerFactory;
+  private MixerFactory mixerFactory;
+  private AudioCache audioCache;
 
   @Mock
   HttpClientProvider httpClientProvider;
@@ -146,7 +147,7 @@ public class DemoIT {
   @BeforeEach
   public void beforeEach() {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    AudioCache audioCache = new AudioCacheImpl(httpClientProvider);
+    audioCache = new AudioCacheImpl(httpClientProvider);
     this.mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
   }
 
@@ -194,6 +195,13 @@ public class DemoIT {
    @throws Exception on failure
    */
   void mixAndWriteOutput(AudioFormat.Encoding outputEncoding, int outputFrameRate, int outputSampleBits, int outputChannels, float outputSeconds, String outputFilePath) throws Exception {
+    audioCache.initialize(
+      contentStoragePathPrefix,
+      "https://audio.xj.io/",
+      outputFrameRate,
+      outputSampleBits,
+      outputChannels
+    );
     AudioFormat audioFormat = new AudioFormat(outputEncoding, outputFrameRate, outputSampleBits, outputChannels,
       (outputChannels * outputSampleBits / 8), outputFrameRate, false);
     AudioFileWriter audioFileWriter = new AudioFileWriterImpl(audioFormat);
