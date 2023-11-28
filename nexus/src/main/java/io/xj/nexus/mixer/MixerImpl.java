@@ -204,6 +204,11 @@ class MixerImpl implements Mixer {
     return instrumentBusNumber.get(instrumentType);
   }
 
+  @Override
+  public boolean areAllReady(List<ActiveAudio> activeAudios) {
+    return audioCache.areAllReady(activeAudios);
+  }
+
   /**
    apply one source to the mixing buffer
 

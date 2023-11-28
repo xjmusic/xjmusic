@@ -28,6 +28,11 @@ import java.util.Optional;
 public interface CraftWork extends Work {
 
   /**
+   Run the work cycle
+   */
+  void runCycle(long shippedToChainMicros);
+
+  /**
    Get the current chain, if loaded
 
    @return the current chain
@@ -40,13 +45,6 @@ public interface CraftWork extends Work {
    @return the template config
    */
   TemplateConfig getTemplateConfig();
-
-  /**
-   Get all ready segments - if none are ready, return an empty list
-
-   @return all ready segments
-   */
-  List<Segment> getAllSegments();
 
   /**
    Get the segments spanning the given time range, if they are ready- if not, return an empty list
@@ -88,7 +86,7 @@ public interface CraftWork extends Work {
    @param audio the audio for which to get instrument
    @return the instrument for the given pick
    */
-  Optional<Instrument> getInstrument(InstrumentAudio audio);
+  Instrument getInstrument(InstrumentAudio audio);
 
   /**
    Get the audio for the given pick
@@ -96,7 +94,7 @@ public interface CraftWork extends Work {
    @param pick the pick for which to get audio
    @return the audio for the given pick
    */
-  Optional<InstrumentAudio> getInstrumentAudio(SegmentChoiceArrangementPick pick);
+  InstrumentAudio getInstrumentAudio(SegmentChoiceArrangementPick pick);
 
   /**
    Check whether the given pick is muted (by its choice)

@@ -28,7 +28,7 @@ public class WorkConfiguration {
   private long craftCycleMillis = 400;
   private long dubCycleMillis = 200;
   private long shipCycleMillis = 50;
-  private long telemetryCycleMillis = 1000;
+  private long telemetryCycleMillis = 5000;
 
   public InputMode getInputMode() {
     return inputMode;

@@ -69,4 +69,12 @@ public interface Mixer {
    @return bus number
    */
   int getBusNumber(InstrumentType instrumentType);
+
+  /**
+   Check if all the provided audios are loaded into memory
+
+   @param activeAudios the audios to check
+   @return true if all the audios are loaded into memory
+   */
+  boolean areAllReady(List<ActiveAudio> activeAudios);
 }

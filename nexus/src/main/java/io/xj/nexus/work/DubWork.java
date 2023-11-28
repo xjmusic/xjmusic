@@ -24,6 +24,11 @@ import java.util.Optional;
 public interface DubWork extends Work {
 
   /**
+   Run the work cycle
+   */
+  void runCycle(long shippedToChainMicros);
+
+  /**
    Test whether the next cycle is planned ahead
 
    @return true if planned ahead

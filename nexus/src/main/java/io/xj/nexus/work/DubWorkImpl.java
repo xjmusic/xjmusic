@@ -36,6 +36,7 @@ public class DubWorkImpl implements DubWork {
   private final long mixerLengthMicros;
   private final int outputChannels;
   private final double outputFrameRate;
+  private final long dubAheadMicros;
   private final String audioBaseUrl;
   private final String contentStoragePathPrefix;
   private final Float mixerOutputMicrosecondsPerByte;
@@ -51,6 +52,7 @@ public class DubWorkImpl implements DubWork {
     String audioBaseUrl,
     String contentStoragePathPrefix,
     int mixerSeconds,
+    long dubAheadMicros,
     double outputFrameRate,
     int outputChannels
   ) {
@@ -59,6 +61,7 @@ public class DubWorkImpl implements DubWork {
     this.contentStoragePathPrefix = contentStoragePathPrefix;
     this.audioBaseUrl = audioBaseUrl;
     this.mixerLengthSeconds = mixerSeconds;
+    this.dubAheadMicros = dubAheadMicros;
     this.outputFrameRate = outputFrameRate;
     this.outputChannels = outputChannels;
     this.mixerLengthMicros = mixerLengthSeconds * MICROS_PER_SECOND;
@@ -92,7 +95,7 @@ public class DubWorkImpl implements DubWork {
   }
 
   @Override
-  public void runCycle(long toChainMicros) {
+  public void runCycle(long shippedToChainMicros) {
     if (!running.get()) return;
 
     if (craftWork.isFinished()) {
@@ -106,7 +109,7 @@ public class DubWorkImpl implements DubWork {
       if (isPlannedAhead()) {
         doDubFrame();
       } else {
-        doPlanFrame(toChainMicros);
+        doPlanFrame(shippedToChainMicros + dubAheadMicros);
       }
       telemetry.record(TIMER_SECTION_DUB, System.currentTimeMillis() - startedAtMillis);
 
@@ -224,7 +227,10 @@ public class DubWorkImpl implements DubWork {
         craftWork.getPicks(segments).stream().filter(pick -> !craftWork.isMuted(pick)).toList();
       List<ActiveAudio> activeAudios = new ArrayList<>();
       for (SegmentChoiceArrangementPick pick : picks) {
-        audio = craftWork.getInstrumentAudio(pick).orElseThrow();
+        audio = craftWork.getInstrumentAudio(pick);
+        if (StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
+          continue;
+        }
         transientMicros = Objects.nonNull(audio.getTransientSeconds()) ? (long) (audio.getTransientSeconds() * MICROS_PER_SECOND) : 0; // audio transient microseconds (to start audio before picked time)
         lengthMicros = Objects.nonNull(pick.getLengthMicros()) ? pick.getLengthMicros() : null; // pick length microseconds, or empty if infinite
         startAtMixerMicros =
@@ -240,14 +246,19 @@ public class DubWorkImpl implements DubWork {
               + lengthMicros
             : null; // add length of pick in microseconds
         if (startAtMixerMicros <= mixerLengthMicros && (Objects.isNull(stopAtMixerMicros) || stopAtMixerMicros >= 0)) {
-          activeAudios.add(new ActiveAudio(pick, craftWork.getInstrument(audio).orElseThrow(), audio, startAtMixerMicros, Objects.nonNull(stopAtMixerMicros) ? stopAtMixerMicros : null));
+          activeAudios.add(new ActiveAudio(pick, craftWork.getInstrument(audio), audio, startAtMixerMicros, Objects.nonNull(stopAtMixerMicros) ? stopAtMixerMicros : null));
         }
+      }
+
+      if (!mixer.areAllReady(activeAudios)) {
+        LOG.warn("Waiting for cache to load audio into memory");
+        return;
       }
 
       try {
         mixer.mix(activeAudios);
       } catch (IOException e) {
-        LOG.debug("Cannot send to output because BytePipeline {}", e.getMessage());
+        LOG.error("Cannot send to output because BytePipeline {}", e.getMessage());
         finish();
       }
 

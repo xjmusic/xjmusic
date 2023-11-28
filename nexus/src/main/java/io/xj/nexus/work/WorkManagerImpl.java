@@ -344,7 +344,7 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(craftWork);
     assert Objects.nonNull(shipWork);
-    craftWork.runCycle(shipWork.getShippedToChainMicros().map(m -> m + workConfig.getCraftAheadMicros()).orElse(0L));
+    craftWork.runCycle(shipWork.getShippedToChainMicros().orElse(0L));
   }
 
   /**
@@ -355,7 +355,7 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(dubWork);
     assert Objects.nonNull(shipWork);
-    dubWork.runCycle(shipWork.getShippedToChainMicros().map(m -> m + workConfig.getDubAheadMicros()).orElse(0L));
+    dubWork.runCycle(shipWork.getShippedToChainMicros().orElse(0L));
   }
 
   /**
@@ -365,7 +365,7 @@ public class WorkManagerImpl implements WorkManager {
     if (!Objects.equals(state.get(), WorkState.Active)) return;
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(shipWork);
-    shipWork.runCycle(0);
+    shipWork.runCycle();
     if (isFileOutputMode) {
       updateProgress(shipWork.getProgress());
     }
@@ -440,7 +440,8 @@ public class WorkManagerImpl implements WorkManager {
           .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
           .sorted(Comparator.comparing(InstrumentAudio::getName))
           .toList()) {
-          if (isFinished()) {
+          if (!Objects.equals(state.get(), WorkState.PreparingAudio)) {
+            // Workstation canceling preloading should cease resampling audio files https://www.pivotaltracker.com/story/show/186209135
             return;
           }
           if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
@@ -480,6 +481,7 @@ public class WorkManagerImpl implements WorkManager {
       store,
       audioCache,
       hubContent.get(),
+      workConfig.getCraftAheadMicros(),
       workConfig.getOutputFrameRate(),
       workConfig.getOutputChannels()
     );
@@ -490,6 +492,7 @@ public class WorkManagerImpl implements WorkManager {
       hubConfig.getAudioBaseUrl(),
       workConfig.getContentStoragePathPrefix(),
       workConfig.getMixerLengthSeconds(),
+      workConfig.getDubAheadMicros(),
       workConfig.getOutputFrameRate(),
       workConfig.getOutputChannels()
     );

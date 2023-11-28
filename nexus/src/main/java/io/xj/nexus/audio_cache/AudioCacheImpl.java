@@ -5,6 +5,7 @@ import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.http.HttpClientProvider;
+import io.xj.nexus.mixer.ActiveAudio;
 import io.xj.nexus.mixer.AudioSampleFormat;
 import io.xj.nexus.mixer.FFmpegUtils;
 import io.xj.nexus.mixer.FormatException;
@@ -25,10 +26,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class AudioCacheImpl implements AudioCache {
   private final static Logger LOG = LoggerFactory.getLogger(AudioCacheImpl.class);
@@ -59,6 +59,26 @@ public class AudioCacheImpl implements AudioCache {
   }
 
   @Override
+  public void loadTheseAndForgetTheRest(List<InstrumentAudio> audios) {
+    var test = 123; // todo remove
+    for (InstrumentAudio audio : audios) {
+      if (!cache.containsKey(audio.getId().toString())) {
+        try {
+          cache.put(audio.getId().toString(), compute(audio));
+        } catch (AudioCacheException | IOException e) {
+          LOG.error("Failed to load audio into cache: {}", audio.getId(), e);
+        }
+      }
+    }
+    Set<String> audioIds = audios.stream().map(InstrumentAudio::getId).map(UUID::toString).collect(Collectors.toSet());
+    for (String key : cache.keySet()) {
+      if (!audioIds.contains(key)) {
+        cache.remove(key);
+      }
+    }
+  }
+
+  @Override
   public void prepare(InstrumentAudio audio) throws NexusException {
     fetchAndPrepareOnDiskThreeAttempts(audio);
   }
@@ -75,6 +95,11 @@ public class AudioCacheImpl implements AudioCache {
   @Override
   public void invalidateAll() {
     cache.clear();
+  }
+
+  @Override
+  public boolean areAllReady(List<ActiveAudio> activeAudios) {
+    return activeAudios.stream().allMatch(activeAudio -> cache.containsKey(activeAudio.getAudio().getId().toString()));
   }
 
   private void fetchAndPrepareOnDiskThreeAttempts(InstrumentAudio audio) throws NexusException {

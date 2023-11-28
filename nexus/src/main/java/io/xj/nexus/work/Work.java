@@ -7,11 +7,6 @@ public interface Work {
   void finish();
 
   /**
-   Run the work cycle
-   */
-  void runCycle(long toChainMicros);
-
-  /**
    Check whether the craft work is finished
 
    @return true if finished (not running)

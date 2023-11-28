@@ -34,12 +34,12 @@ public class TelemetryImpl implements Telemetry {
   @Override
   public void report() {
     long totalMillis = System.currentTimeMillis() - startedAtMillis;
-    LOG.info("Fabrication time: {}",  String.format("%s (%s)",
+    LOG.info("({}) {}",
       formatHoursMinutesFromMillis(totalMillis),
       sectionTotalMillis.entrySet().stream()
         .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-        .map(entry -> String.format("%d%% %s", (int) Math.floor((double) (100 * entry.getValue()) / totalMillis), entry.getKey()))
-        .collect(Collectors.joining(", "))));
+        .map(entry -> String.format("%s %d%%", (int) Math.floor((double) (100 * entry.getValue()) / totalMillis), entry.getKey()))
+        .collect(Collectors.joining(" | ")));
   }
 
   /**

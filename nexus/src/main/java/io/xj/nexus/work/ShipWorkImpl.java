@@ -102,25 +102,7 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   @Override
-  public void finish() {
-    if (!running.get()) return;
-    running.set(false);
-    if (Objects.nonNull(playback)) {
-      playback.finish();
-    }
-    if (Objects.nonNull(fileWriter)) {
-      try {
-        fileWriter.finish();
-      } catch (IOException e) {
-        LOG.error("Failed to finish file writer", e);
-      }
-    }
-    dubWork.finish();
-    LOG.info("Finished");
-  }
-
-  @Override
-  public void runCycle(long ignored) {
+  public void runCycle() {
     if (!running.get()) return;
 
     if (dubWork.isFinished()) {
@@ -141,6 +123,24 @@ public class ShipWorkImpl implements ShipWork {
     } catch (Exception e) {
       didFailWhile("running ship work", e);
     }
+  }
+
+  @Override
+  public void finish() {
+    if (!running.get()) return;
+    running.set(false);
+    if (Objects.nonNull(playback)) {
+      playback.finish();
+    }
+    if (Objects.nonNull(fileWriter)) {
+      try {
+        fileWriter.finish();
+      } catch (IOException e) {
+        LOG.error("Failed to finish file writer", e);
+      }
+    }
+    dubWork.finish();
+    LOG.info("Finished");
   }
 
   @Override

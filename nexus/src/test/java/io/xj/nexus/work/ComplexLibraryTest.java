@@ -93,6 +93,7 @@ public class ComplexLibraryTest {
       store,
       audioCache,
       content,
+      100000000,
       48000,
       2
     );
