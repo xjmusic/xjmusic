@@ -46,7 +46,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
@@ -125,47 +124,22 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   @Override
-  public List<Segment> getSegmentsIfReady(Long planFromChainMicros, Long planToChainMicros) {
+  public List<Segment> getSegmentsIfReady(Long fromChainMicros, Long toChainMicros) {
     // require chain
     var chain = getChain();
     if (chain.isEmpty()) {
       return List.of();
     }
 
-    // require current segment with end-at time and crafted state
-    var currentSegments = segmentManager.readAllSpanning(planFromChainMicros, planToChainMicros);
-    if (currentSegments.isEmpty() || currentSegments.stream().anyMatch(segment -> !SegmentState.CRAFTED.equals(segment.getState()))) {
+    var currentSegments = segmentManager.readAllSpanning(fromChainMicros, toChainMicros);
+    if (currentSegments.isEmpty()) {
       return List.of();
     }
-
-    // If we are already spanning two segments, return them
-    if (1 < currentSegments.size()) {
-      return currentSegments;
-    }
-    var firstSegment = Objects.requireNonNull(currentSegments.get(0));
-
-    // if the end of the current segment is before the threshold, require next segment
-    Optional<Segment> nextSegment = Optional.empty();
-    if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros) {
-      nextSegment = segmentManager.readOneById(currentSegments.get(0).getId() + 1);
-      if (nextSegment.isEmpty() || Objects.isNull(nextSegment.get().getDurationMicros()) || !SegmentState.CRAFTED.equals(nextSegment.get().getState())) {
-        return List.of();
-      }
-    }
-
-    // if the beginning of the current segment is after the threshold, require previous segment
-    Optional<Segment> previousSegment = Optional.empty();
-    if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros && currentSegments.get(0).getId() > 0) {
-      previousSegment = segmentManager.readOneById(currentSegments.get(0).getId() - 1);
-      if (previousSegment.isEmpty()) {
-        return List.of();
-      }
-    }
-
-    return Stream.of(currentSegments.stream().findFirst(), nextSegment, previousSegment)
-      .filter(Optional::isPresent)
-      .map(Optional::get)
-      .collect(Collectors.toList());
+    var previousSegment = segmentManager.readOneById(currentSegments.get(0).getId() - 1);
+    var nextSegment = segmentManager.readOneById(currentSegments.get(currentSegments.size() - 1).getId() + 1);
+    return Stream.concat(Stream.concat(previousSegment.stream(), currentSegments.stream()), nextSegment.stream())
+      .filter(segment -> SegmentState.CRAFTED.equals(segment.getState()))
+      .toList();
   }
 
   @Override
@@ -317,16 +291,7 @@ public class CraftWorkImpl implements CraftWork {
    */
   void doAudioCacheMaintenance(long shippedToChainMicros) throws NexusException {
     // Poke the audio cache to load all known-to-be-upcoming audio to cache; this is a no-op for already-cache audio
-    var currentSegment = segmentManager.readOneAtChainMicros(shippedToChainMicros);
-    if (currentSegment.isEmpty()) {
-      return;
-    }
-    var previousSegment = segmentManager.readOneById(currentSegment.get().getId() - 1);
-    var nextSegment = segmentManager.readOneById(currentSegment.get().getId() + 1);
-    var segments = Stream.of(previousSegment, currentSegment, nextSegment)
-      .filter(Optional::isPresent)
-      .map(Optional::get)
-      .collect(Collectors.toList());
+    var segments = getSegmentsIfReady(shippedToChainMicros, shippedToChainMicros);
     Set<UUID> seen = new HashSet<>();
     List<InstrumentAudio> currentAudios = new ArrayList<>();
     getPicks(segments).stream()
