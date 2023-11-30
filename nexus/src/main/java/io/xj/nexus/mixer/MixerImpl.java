@@ -254,7 +254,7 @@ class MixerImpl implements Mixer {
           sf++; // skip source frames before the start of the source audio
           tf_min++;
         }
-        for (tf = tf_min; tf < tf_max; tf++) {
+        for (tf = tf_min; tf <= tf_max; tf++) {
           if (sf < cached.audio().length) {
             if (tf < sourceEndsAtMixerFrame) {
               busBuf[bus][tf][tc] += cached.audio()[sf][sc] * active.getAmplitude();
