@@ -6,7 +6,11 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.util.StringUtils;
-import io.xj.nexus.mixer.*;
+import io.xj.nexus.mixer.ActiveAudio;
+import io.xj.nexus.mixer.BytePipeline;
+import io.xj.nexus.mixer.Mixer;
+import io.xj.nexus.mixer.MixerConfig;
+import io.xj.nexus.mixer.MixerFactory;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
@@ -17,7 +21,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -42,8 +50,7 @@ public class DubWorkImpl implements DubWork {
   private final Float mixerOutputMicrosecondsPerByte;
   private final Mixer mixer;
 
-  private long chunkFromChainMicros; // dubbing is done up to this point
-  private long chunkToChainMicros; // plan ahead one dub frame at a time
+  private long atChainMicros; // dubbing is done up to this point
 
   public DubWorkImpl(
     Telemetry telemetry,
@@ -80,8 +87,7 @@ public class DubWorkImpl implements DubWork {
       throw new RuntimeException(e);
     }
 
-    chunkFromChainMicros = 0;
-    chunkToChainMicros = 0;
+    atChainMicros = 0;
 
     running.set(true);
   }
@@ -99,29 +105,26 @@ public class DubWorkImpl implements DubWork {
     if (!running.get()) return;
 
     if (craftWork.isFinished()) {
-      LOG.warn("must stop since CraftWork is no longer running");
+      LOG.warn("Craft is finished. Dub will finish.");
       finish();
+      return;
+    }
+
+    if (atChainMicros >= shippedToChainMicros + dubAheadMicros) {
+      LOG.debug("Waiting to catch up with dub-ahead");
+      return;
     }
 
     // Action based on state and mode
     try {
       long startedAtMillis = System.currentTimeMillis();
-      if (isPlannedAhead()) {
-        doDubFrame();
-      } else {
-        doPlanFrame(shippedToChainMicros + dubAheadMicros);
-      }
+      doDubFrame();
       telemetry.record(TIMER_SECTION_DUB, System.currentTimeMillis() - startedAtMillis);
 
     } catch (
       Exception e) {
       didFailWhile("running dub work", e);
     }
-  }
-
-  @Override
-  public boolean isPlannedAhead() {
-    return chunkToChainMicros > chunkFromChainMicros;
   }
 
   @Override
@@ -177,27 +180,12 @@ public class DubWorkImpl implements DubWork {
 
   @Override
   public Optional<Long> getDubbedToChainMicros() {
-    return Optional.of(chunkToChainMicros);
+    return Optional.of(atChainMicros);
   }
 
   @Override
   public int getMixerLengthSeconds() {
     return mixerLengthSeconds;
-  }
-
-  void doPlanFrame(long toChainMicros) {
-    if (craftWork.isFinished()) {
-      LOG.warn("Craft is not running; will abort.");
-      finish();
-      return;
-    }
-    if (chunkToChainMicros > toChainMicros) {
-      LOG.debug("Waiting to catch up with dub-ahead");
-      return;
-    }
-
-    chunkToChainMicros = chunkFromChainMicros + mixerLengthMicros;
-    LOG.debug("Planned frame {}s", String.format("%.1f", chunkToChainMicros / (double) MICROS_PER_SECOND));
   }
 
   /**
@@ -210,7 +198,9 @@ public class DubWorkImpl implements DubWork {
    */
   void doDubFrame() {
     if (Objects.isNull(mixer)) return;
-    List<Segment> segments = craftWork.getSegmentsIfReady(chunkFromChainMicros, chunkToChainMicros);
+
+    var toChainMicros = atChainMicros + mixerLengthMicros;
+    List<Segment> segments = craftWork.getSegmentsIfReady(atChainMicros, toChainMicros);
     Map<Integer, Segment> segmentById = segments.stream().collect(Collectors.toMap(Segment::getId, segment -> segment));
     if (segments.isEmpty()) {
       LOG.debug("Waiting for segments");
@@ -238,7 +228,7 @@ public class DubWorkImpl implements DubWork {
             .getBeginAtChainMicros() // segment begin at chain microseconds
             + pick.getStartAtSegmentMicros()  // plus pick start microseconds
             - transientMicros // minus transient microseconds
-            - chunkFromChainMicros; // relative to beginning of this chunk
+            - atChainMicros; // relative to beginning of this chunk
         stopAtMixerMicros =
           Objects.nonNull(lengthMicros) ?
             startAtMixerMicros // from start of this active audio
@@ -262,8 +252,8 @@ public class DubWorkImpl implements DubWork {
         finish();
       }
 
-      chunkFromChainMicros = chunkToChainMicros;
-      LOG.debug("Dubbed to {}", String.format("%.1f", chunkToChainMicros / (double) MICROS_PER_SECOND));
+      atChainMicros = toChainMicros;
+      LOG.debug("Dubbed to {}", String.format("%.1f", toChainMicros / (double) MICROS_PER_SECOND));
 
     } catch (Exception e) {
       didFailWhile("dubbing frame", e);
