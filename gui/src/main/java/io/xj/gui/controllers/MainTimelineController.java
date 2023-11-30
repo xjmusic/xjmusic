@@ -185,20 +185,22 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
    Called to reset the timeline (segment list).
    */
   private void resetTimeline() {
-    Platform.runLater(() -> {
+    final KeyFrame kf1 = new KeyFrame(Duration.millis(0), e -> {
       ds.clear();
-      scrollPane.setHvalue(0);
       segmentListView.getChildren().clear();
+      scrollPane.setHvalue(0);
       timelineRegion1Past.setWidth(0);
       timelineRegion2Ship.setWidth(ACTIVE_SHIP_REGION_WIDTH);
       timelineRegion3Dub.setWidth(0);
       timelineRegion4Craft.setWidth(0);
-      Platform.runLater(() -> {
-        segmentListView.layout();
-        scrollPane.layout();
-        segmentPositionRow.layout();
-      });
     });
+    final KeyFrame kf2 = new KeyFrame(Duration.millis(200), e -> {
+      segmentListView.layout();
+      scrollPane.layout();
+      segmentPositionRow.layout();
+    });
+    final Timeline timeline = new Timeline(kf1, kf2);
+    Platform.runLater(timeline::play);
   }
 
   /**
