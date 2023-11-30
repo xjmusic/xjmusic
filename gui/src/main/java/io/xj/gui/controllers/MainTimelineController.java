@@ -48,7 +48,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   private static final double ACTIVE_SHIP_REGION_WIDTH = 5.0;
   private final int segmentMinWidth;
   private final int segmentHorizontalSpacing;
-  private final int autoScrollBehindPixels;
   private final int segmentDisplayHashRecheckLimit;
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
@@ -104,14 +103,12 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     @Value("${gui.timeline.segment.hash.recheck.limit}") Integer segmentDisplayHashRecheckLimit,
     @Value("${gui.timeline.segment.spacing.horizontal}") Integer segmentSpacingHorizontal,
     @Value("${gui.timeline.segment.width.min}") Integer segmentWidthMin,
-    @Value("${gui.timeline.auto.scroll.behind.pixels}") Integer autoScrollBehindPixels,
     ConfigurableApplicationContext ac,
     FabricationService fabricationService,
     LabService labService,
     MainTimelineSegmentFactory segmentFactory
   ) {
     this.ac = ac;
-    this.autoScrollBehindPixels = autoScrollBehindPixels;
     this.fabricationService = fabricationService;
     this.labService = labService;
     this.refreshTimelineMillis = refreshTimelineMillis;
@@ -125,6 +122,8 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   public void onStageReady() {
     segmentListView.setSpacing(segmentHorizontalSpacing);
     segmentListView.setPadding(new Insets(0, segmentMinWidth * 3, 0, segmentHorizontalSpacing));
+
+    segmentListView.paddingProperty().bind(scrollPane.widthProperty().map(width -> new Insets(0, width.doubleValue(), 0, segmentHorizontalSpacing)));
 
     scrollPane.hbarPolicyProperty().bind(fabricationService.followPlaybackProperty().map(followPlayback -> followPlayback ? ScrollPane.ScrollBarPolicy.NEVER : ScrollPane.ScrollBarPolicy.AS_NEEDED));
 
@@ -186,17 +185,19 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
    Called to reset the timeline (segment list).
    */
   private void resetTimeline() {
-    ds.clear();
-    scrollPane.setHvalue(0);
-    segmentListView.getChildren().clear();
-    timelineRegion1Past.setWidth(0);
-    timelineRegion2Ship.setWidth(ACTIVE_SHIP_REGION_WIDTH);
-    timelineRegion3Dub.setWidth(0);
-    timelineRegion4Craft.setWidth(0);
     Platform.runLater(() -> {
-      segmentListView.layout();
-      scrollPane.layout();
-      segmentPositionRow.layout();
+      ds.clear();
+      scrollPane.setHvalue(0);
+      segmentListView.getChildren().clear();
+      timelineRegion1Past.setWidth(0);
+      timelineRegion2Ship.setWidth(ACTIVE_SHIP_REGION_WIDTH);
+      timelineRegion3Dub.setWidth(0);
+      timelineRegion4Craft.setWidth(0);
+      Platform.runLater(() -> {
+        segmentListView.layout();
+        scrollPane.layout();
+        segmentPositionRow.layout();
+      });
     });
   }
 
@@ -345,7 +346,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     // auto-scroll if enabled, animating to the scroll pane position
     if (fabricationService.followPlaybackProperty().getValue() && 0 < segmentListView.getWidth()) {
       var extraHorizontalPixels = Math.max(0, segmentListView.getWidth() - scrollPane.getWidth());
-      var targetOffsetHorizontalPixels = Math.max(0, pastTimelineWidth - autoScrollBehindPixels);
+      var targetOffsetHorizontalPixels = Math.max(0, pastTimelineWidth - segmentMinWidth);
 
       if (animate) {
         // in sync output, the scroll pane is always moving at a predictable rate,
