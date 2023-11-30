@@ -48,7 +48,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   private static final double ACTIVE_SHIP_REGION_WIDTH = 5.0;
   private final int segmentMinWidth;
   private final int segmentHorizontalSpacing;
-  private final int autoScrollBehindPixels;
   private final int segmentDisplayHashRecheckLimit;
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
@@ -104,14 +103,12 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     @Value("${gui.timeline.segment.hash.recheck.limit}") Integer segmentDisplayHashRecheckLimit,
     @Value("${gui.timeline.segment.spacing.horizontal}") Integer segmentSpacingHorizontal,
     @Value("${gui.timeline.segment.width.min}") Integer segmentWidthMin,
-    @Value("${gui.timeline.auto.scroll.behind.pixels}") Integer autoScrollBehindPixels,
     ConfigurableApplicationContext ac,
     FabricationService fabricationService,
     LabService labService,
     MainTimelineSegmentFactory segmentFactory
   ) {
     this.ac = ac;
-    this.autoScrollBehindPixels = autoScrollBehindPixels;
     this.fabricationService = fabricationService;
     this.labService = labService;
     this.refreshTimelineMillis = refreshTimelineMillis;
@@ -345,7 +342,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     // auto-scroll if enabled, animating to the scroll pane position
     if (fabricationService.followPlaybackProperty().getValue() && 0 < segmentListView.getWidth()) {
       var extraHorizontalPixels = Math.max(0, segmentListView.getWidth() - scrollPane.getWidth());
-      var targetOffsetHorizontalPixels = Math.max(0, pastTimelineWidth - autoScrollBehindPixels);
+      var targetOffsetHorizontalPixels = Math.max(0, pastTimelineWidth - segmentMinWidth);
 
       if (animate) {
         // in sync output, the scroll pane is always moving at a predictable rate,
