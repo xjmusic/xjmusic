@@ -29,13 +29,6 @@ public interface DubWork extends Work {
   void runCycle(long shippedToChainMicros);
 
   /**
-   Test whether the next cycle is planned ahead
-
-   @return true if planned ahead
-   */
-  boolean isPlannedAhead();
-
-  /**
    Get the mixer audio buffer to read the mix output
 
    @return the mixer audio buffer, or empty if not yet available
