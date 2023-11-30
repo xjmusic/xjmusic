@@ -123,6 +123,8 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     segmentListView.setSpacing(segmentHorizontalSpacing);
     segmentListView.setPadding(new Insets(0, segmentMinWidth * 3, 0, segmentHorizontalSpacing));
 
+    segmentListView.paddingProperty().bind(scrollPane.widthProperty().map(width -> new Insets(0, width.doubleValue(), 0, segmentHorizontalSpacing)));
+
     scrollPane.hbarPolicyProperty().bind(fabricationService.followPlaybackProperty().map(followPlayback -> followPlayback ? ScrollPane.ScrollBarPolicy.NEVER : ScrollPane.ScrollBarPolicy.AS_NEEDED));
 
     demoContainer.visibleProperty().bind(fabricationService.isStatusStandby());
@@ -183,17 +185,19 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
    Called to reset the timeline (segment list).
    */
   private void resetTimeline() {
-    ds.clear();
-    scrollPane.setHvalue(0);
-    segmentListView.getChildren().clear();
-    timelineRegion1Past.setWidth(0);
-    timelineRegion2Ship.setWidth(ACTIVE_SHIP_REGION_WIDTH);
-    timelineRegion3Dub.setWidth(0);
-    timelineRegion4Craft.setWidth(0);
     Platform.runLater(() -> {
-      segmentListView.layout();
-      scrollPane.layout();
-      segmentPositionRow.layout();
+      ds.clear();
+      scrollPane.setHvalue(0);
+      segmentListView.getChildren().clear();
+      timelineRegion1Past.setWidth(0);
+      timelineRegion2Ship.setWidth(ACTIVE_SHIP_REGION_WIDTH);
+      timelineRegion3Dub.setWidth(0);
+      timelineRegion4Craft.setWidth(0);
+      Platform.runLater(() -> {
+        segmentListView.layout();
+        scrollPane.layout();
+        segmentPositionRow.layout();
+      });
     });
   }
 
