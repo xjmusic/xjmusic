@@ -168,12 +168,9 @@ public interface FabricationService {
   ObservableValue<String> mainActionButtonTextProperty();
 
   /**
-   Play the demo for the given template key.
-
-   @param templateKey       the template key to play
-   @param craftAheadSeconds the number of seconds to craft ahead of the current position
+   Play the demo for the given template key.@param templateKey       the template key to play
    */
-  void handleDemoPlay(String templateKey, Integer craftAheadSeconds);
+  void handleDemoPlay(String templateKey);
 
   /**
    Get a hash of all the choices for the given segment

@@ -527,14 +527,12 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
-  public void handleDemoPlay(String templateKey, Integer craftAheadSeconds) {
+  public void handleDemoPlay(String templateKey) {
     if (status.get() != WorkState.Standby) {
       LOG.error("Cannot play demo unless fabrication is in Standby status");
       return;
     }
 
-    this.craftAheadSeconds.set(craftAheadSeconds.toString());
-    dubAheadSeconds.set(Integer.toString(defaultDubAheadSeconds));
     inputTemplateKey.set(templateKey);
     outputFileMode.set(defaultOutputFileMode);
     outputMode.set(defaultOutputMode);
