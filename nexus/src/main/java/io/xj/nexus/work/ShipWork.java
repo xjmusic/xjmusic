@@ -37,10 +37,4 @@ public interface ShipWork extends Work {
    */
   Optional<Long> getShippedToChainMicros();
 
-  /**
-   If the current work is realtime, e.g. playback or HLS, return the target chain micros
-
-   @return chain micros if realtime, else empty
-   */
-  Optional<Long> getShipTargetChainMicros();
 }
