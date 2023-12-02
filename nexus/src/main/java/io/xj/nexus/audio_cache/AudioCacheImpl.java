@@ -138,6 +138,8 @@ public class AudioCacheImpl implements AudioCache {
         AudioFormat currentFormat = getAudioFormat(finalCachePath);
         return new AudioPreparedOnDisk(finalCachePath, currentFormat);
       } catch (UnsupportedAudioFileException | IOException e) {
+        deleteIfExists(originalCachePath);
+        deleteIfExists(resampledCachePrefix);
         deleteIfExists(finalCachePath);
       }
     }
