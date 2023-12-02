@@ -375,6 +375,9 @@ public class CraftWorkImpl implements CraftWork {
       seg.setState(SegmentState.PLANNED);
       return Optional.of(seg);
     }
+    if (Objects.isNull(maybeLastSegmentInChain.get().getDurationMicros())) {
+      return Optional.empty();
+    }
     var seg = getSegment(target, maybeLastSegmentInChain.get());
     return Optional.of(seg);
   }

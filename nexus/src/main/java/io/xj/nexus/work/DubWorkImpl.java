@@ -241,7 +241,7 @@ public class DubWorkImpl implements DubWork {
       }
 
       if (!mixer.areAllReady(activeAudios)) {
-        LOG.warn("Waiting for cache to load audio into memory");
+        LOG.info("Waiting for cache to load audio into memory...");
         return;
       }
 
@@ -250,6 +250,7 @@ public class DubWorkImpl implements DubWork {
       } catch (IOException e) {
         LOG.error("Cannot send to output because BytePipeline {}", e.getMessage());
         finish();
+        return;
       }
 
       atChainMicros = toChainMicros;
