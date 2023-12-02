@@ -151,17 +151,17 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
 
   @FXML
   public void handleDemoPlayBump(MouseEvent ignored) {
-    fabricationService.handleDemoPlay("bump_deep", 60);
+    fabricationService.handleDemoPlay("bump_deep");
   }
 
   @FXML
   public void handleDemoPlaySlaps(MouseEvent ignored) {
-    fabricationService.handleDemoPlay("slaps_lofi", 60);
+    fabricationService.handleDemoPlay("slaps_lofi");
   }
 
   @FXML
   public void handleDemoPlaySpace(MouseEvent ignored) {
-    fabricationService.handleDemoPlay("space_flow", 300);
+    fabricationService.handleDemoPlay("space_flow");
   }
 
   /**
