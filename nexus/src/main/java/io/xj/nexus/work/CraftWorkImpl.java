@@ -68,6 +68,7 @@ public class CraftWorkImpl implements CraftWork {
   private final long craftAheadMicros;
   private final TemplateConfig templateConfig;
   private final Chain chain;
+  private final long mixerLengthMicros;
 
   public CraftWorkImpl(
     Telemetry telemetry,
@@ -78,12 +79,14 @@ public class CraftWorkImpl implements CraftWork {
     AudioCache audioCache,
     HubContent sourceMaterial,
     long craftAheadMicros,
+    long mixerLengthSeconds,
     double outputFrameRate,
     int outputChannels
   ) {
     this.telemetry = telemetry;
     this.craftFactory = craftFactory;
     this.craftAheadMicros = craftAheadMicros;
+    this.mixerLengthMicros = mixerLengthSeconds * MICROS_PER_SECOND;
     this.fabricatorFactory = fabricatorFactory;
     this.audioCache = audioCache;
     this.outputChannels = outputChannels;
@@ -266,7 +269,7 @@ public class CraftWorkImpl implements CraftWork {
   /**
    This is the internal cycle that's run indefinitely
    */
-  public void runCycle(long shippedToChainMicros) {
+  public void runCycle(long shippedToChainMicros, long dubbedToChainMicros) {
     if (!running.get()) return;
 
     try {
@@ -275,7 +278,7 @@ public class CraftWorkImpl implements CraftWork {
       telemetry.record(TIMER_SECTION_CRAFT, System.currentTimeMillis() - startedAtMillis);
 
       startedAtMillis = System.currentTimeMillis();
-      doAudioCacheMaintenance(shippedToChainMicros);
+      doAudioCacheMaintenance(Math.min(shippedToChainMicros, dubbedToChainMicros), Math.max(shippedToChainMicros, dubbedToChainMicros) + mixerLengthMicros);
       telemetry.record(TIMER_SECTION_CRAFT_CACHE, System.currentTimeMillis() - startedAtMillis);
 
     } catch (Exception e) {
@@ -289,9 +292,9 @@ public class CraftWorkImpl implements CraftWork {
    <p>
    Medic relies on precomputed  telemetry of fabrication latency https://www.pivotaltracker.com/story/show/177021797
    */
-  void doAudioCacheMaintenance(long shippedToChainMicros) throws NexusException {
+  void doAudioCacheMaintenance(long minChainMicros, long maxChainMicros) throws NexusException {
     // Poke the audio cache to load all known-to-be-upcoming audio to cache; this is a no-op for already-cache audio
-    var segments = getSegmentsIfReady(shippedToChainMicros, shippedToChainMicros);
+    var segments = getSegmentsIfReady(minChainMicros, maxChainMicros);
     Set<UUID> seen = new HashSet<>();
     List<InstrumentAudio> currentAudios = new ArrayList<>();
     getPicks(segments).stream()

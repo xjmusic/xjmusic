@@ -57,6 +57,7 @@ import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 public class WorkManagerImpl implements WorkManager {
   private static final Logger LOG = LoggerFactory.getLogger(WorkManagerImpl.class);
+  private static final int THREAD_POOL_SIZE = 50;
   private final BroadcastFactory broadcastFactory;
   private final CraftFactory craftFactory;
   private final AudioCache audioCache;
@@ -182,7 +183,7 @@ public class WorkManagerImpl implements WorkManager {
     isAudioLoaded.set(false);
     updateState(WorkState.Starting);
 
-    scheduler = Executors.newScheduledThreadPool(5);
+    scheduler = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);
     scheduler.scheduleWithFixedDelay(this::runControlCycle, 0, workConfig.getControlCycleMillis(), TimeUnit.MILLISECONDS);
     scheduler.scheduleWithFixedDelay(this::runCraftCycle, 0, workConfig.getCraftCycleMillis(), TimeUnit.MILLISECONDS);
     scheduler.scheduleWithFixedDelay(this::runDubCycle, 0, workConfig.getDubCycleMillis(), TimeUnit.MILLISECONDS);
@@ -344,7 +345,11 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(craftWork);
     assert Objects.nonNull(shipWork);
-    craftWork.runCycle(shipWork.getShippedToChainMicros().orElse(0L));
+    assert Objects.nonNull(dubWork);
+    craftWork.runCycle(
+      shipWork.getShippedToChainMicros().orElse(0L),
+      dubWork.getDubbedToChainMicros().orElse(0L)
+    );
   }
 
   /**
@@ -482,6 +487,7 @@ public class WorkManagerImpl implements WorkManager {
       audioCache,
       hubContent.get(),
       workConfig.getCraftAheadMicros(),
+      workConfig.getMixerLengthSeconds(),
       workConfig.getOutputFrameRate(),
       workConfig.getOutputChannels()
     );

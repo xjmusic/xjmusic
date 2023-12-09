@@ -30,7 +30,7 @@ public interface CraftWork extends Work {
   /**
    Run the work cycle
    */
-  void runCycle(long shippedToChainMicros);
+  void runCycle(long shippedToChainMicros, long dubbedToChainMicros);
 
   /**
    Get the current chain, if loaded
