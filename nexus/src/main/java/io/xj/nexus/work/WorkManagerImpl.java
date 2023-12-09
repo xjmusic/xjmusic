@@ -18,7 +18,11 @@ import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.http.HttpClientProvider;
 import io.xj.nexus.http.HttpClientProviderImpl;
-import io.xj.nexus.hub_client.*;
+import io.xj.nexus.hub_client.HubClient;
+import io.xj.nexus.hub_client.HubClientAccess;
+import io.xj.nexus.hub_client.HubClientImpl;
+import io.xj.nexus.hub_client.HubContentProvider;
+import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.json.JsonProvider;
 import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
@@ -184,11 +188,7 @@ public class WorkManagerImpl implements WorkManager {
     updateState(WorkState.Starting);
 
     scheduler = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);
-    scheduler.scheduleWithFixedDelay(this::runControlCycle, 0, workConfig.getControlCycleMillis(), TimeUnit.MILLISECONDS);
-    scheduler.scheduleWithFixedDelay(this::runCraftCycle, 0, workConfig.getCraftCycleMillis(), TimeUnit.MILLISECONDS);
-    scheduler.scheduleWithFixedDelay(this::runDubCycle, 0, workConfig.getDubCycleMillis(), TimeUnit.MILLISECONDS);
-    scheduler.scheduleWithFixedDelay(this::runShipCycle, 0, workConfig.getShipCycleMillis(), TimeUnit.MILLISECONDS);
-    scheduler.scheduleWithFixedDelay(this::runTelemetryCycle, 0, workConfig.getTelemetryCycleMillis(), TimeUnit.MILLISECONDS);
+    scheduler.scheduleAtFixedRate(this::runCycle, 0, workConfig.getCycleMillis(), TimeUnit.MILLISECONDS);
 
     telemetry.startTimer();
   }
@@ -288,6 +288,17 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   /**
+   Run the work cycle
+   */
+  private void runCycle() {
+    runControlCycle();
+    runCraftCycle();
+    runDubCycle();
+    runShipCycle();
+  }
+
+
+  /**
    Run the control cycle, which prepares fabrication and moves the machine into the active state
    */
   private void runControlCycle() {
@@ -378,14 +389,6 @@ public class WorkManagerImpl implements WorkManager {
       updateState(WorkState.Done);
       LOG.info("Fabrication work done");
     }
-  }
-
-  /**
-   Run the telemetry cycle
-   */
-  private void runTelemetryCycle() {
-    if (!Objects.equals(state.get(), WorkState.Active)) return;
-    telemetry.report();
   }
 
   /**

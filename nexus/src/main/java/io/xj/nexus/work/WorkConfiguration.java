@@ -24,11 +24,7 @@ public class WorkConfiguration {
   private String tempFilePathPrefix = "/tmp/";
   private int shipOutputFileNumberDigits = 7;
   private int shipOutputPcmChunkSizeBytes = 1024;
-  private long controlCycleMillis = 100;
-  private long craftCycleMillis = 400;
-  private long dubCycleMillis = 200;
-  private long shipCycleMillis = 50;
-  private long telemetryCycleMillis = 5000;
+  private long cycleMillis = 50;
 
   public InputMode getInputMode() {
     return inputMode;
@@ -147,12 +143,12 @@ public class WorkConfiguration {
     return this;
   }
 
-  public long getControlCycleMillis() {
-    return controlCycleMillis;
+  public long getCycleMillis() {
+    return cycleMillis;
   }
 
-  public WorkConfiguration setControlCycleMillis(long controlCycleMillis) {
-    this.controlCycleMillis = controlCycleMillis;
+  public WorkConfiguration setCycleMillis(long cycleMillis) {
+    this.cycleMillis = cycleMillis;
     return this;
   }
 
@@ -180,42 +176,6 @@ public class WorkConfiguration {
 
   public WorkConfiguration setShipOutputPcmChunkSizeBytes(int shipOutputPcmChunkSizeBytes) {
     this.shipOutputPcmChunkSizeBytes = shipOutputPcmChunkSizeBytes;
-    return this;
-  }
-
-  public long getShipCycleMillis() {
-    return shipCycleMillis;
-  }
-
-  public WorkConfiguration setShipCycleMillis(long shipCycleMillis) {
-    this.shipCycleMillis = shipCycleMillis;
-    return this;
-  }
-
-  public long getDubCycleMillis() {
-    return dubCycleMillis;
-  }
-
-  public WorkConfiguration setDubCycleMillis(long dubCycleMillis) {
-    this.dubCycleMillis = dubCycleMillis;
-    return this;
-  }
-
-  public long getCraftCycleMillis() {
-    return craftCycleMillis;
-  }
-
-  public WorkConfiguration setCraftCycleMillis(long craftCycleMillis) {
-    this.craftCycleMillis = craftCycleMillis;
-    return this;
-  }
-
-  public long getTelemetryCycleMillis() {
-    return telemetryCycleMillis;
-  }
-
-  public WorkConfiguration setTelemetryCycleMillis(long telemetryCycleMillis) {
-    this.telemetryCycleMillis = telemetryCycleMillis;
     return this;
   }
 }
