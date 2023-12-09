@@ -42,11 +42,6 @@ public interface UIStateService extends ReadyAfterBootController {
   BooleanBinding isProgressBarVisibleProperty();
 
   /**
-   @return Observable property of whether fabrication is active in file output mode
-   */
-  BooleanBinding fileOutputActiveProperty();
-
-  /**
    @return Observable/settable property of the log level
    */
   StringProperty logLevelProperty();
@@ -55,11 +50,6 @@ public interface UIStateService extends ReadyAfterBootController {
    @return Observable property of whether the fabrication input mode should appear disabled
    */
   BooleanBinding isInputModeDisabledProperty();
-
-  /**
-   @return Observable property of whether the fabrication output file mode should appear disabled
-   */
-  BooleanBinding isOutputFileModeDisabledProperty();
 
   /**
    @return Observable property of whether the fabrication is in manual mode;

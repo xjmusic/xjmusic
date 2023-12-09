@@ -10,8 +10,6 @@ import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.MacroMode;
-import io.xj.nexus.OutputFileMode;
-import io.xj.nexus.OutputMode;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
@@ -43,17 +41,9 @@ public interface FabricationService {
 
   StringProperty contentStoragePathPrefixProperty();
 
-  StringProperty outputPathPrefixProperty();
-
   ObjectProperty<InputMode> inputModeProperty();
 
   ObjectProperty<MacroMode> macroModeProperty();
-
-  ObjectProperty<OutputFileMode> outputFileModeProperty();
-
-  ObjectProperty<OutputMode> outputModeProperty();
-
-  StringProperty outputSecondsProperty();
 
   StringProperty craftAheadSecondsProperty();
 
@@ -122,15 +112,11 @@ public interface FabricationService {
 
   ObservableDoubleValue progressProperty();
 
-  ObservableBooleanValue isOutputModeSync();
-
   ObservableBooleanValue isStatusActive();
 
   ObservableBooleanValue isStatusLoading();
 
   ObservableBooleanValue isStatusStandby();
-
-  ObservableBooleanValue isOutputModeFile();
 
   /**
    Return the current shipped-to chain micros

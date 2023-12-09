@@ -5,8 +5,6 @@ package io.xj.workstation.service;
 import io.xj.hub.HubConfiguration;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.nexus.InputMode;
-import io.xj.nexus.OutputFileMode;
-import io.xj.nexus.OutputMode;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkManager;
@@ -38,10 +36,6 @@ public class WorkstationServiceApplication {
   final ApplicationContext context;
   final InputMode inputMode;
   final String inputTemplateKey;
-  final OutputFileMode outputFileMode;
-  final OutputMode outputMode;
-  final String outputPathPrefix;
-  final int outputSeconds;
   private final String ingestToken;
   private final String audioBaseUrl;
   private final String labBaseUrl;
@@ -54,10 +48,6 @@ public class WorkstationServiceApplication {
     ApplicationContext context,
     @Value("${input.mode}") String inputMode,
     @Value("${input.template.key}") String inputTemplateKey,
-    @Value("${output.file.mode}") String outputFileMode,
-    @Value("${output.mode}") String outputMode,
-    @Value("${output.path.prefix}") String outputPathPrefix,
-    @Value("${output.seconds}") int outputSeconds,
     @Value("${ingest.token}") String ingestToken,
     @Value("${audio.base.url}") String audioBaseUrl,
     @Value("${lab.base.url}") String labBaseUrl,
@@ -67,10 +57,6 @@ public class WorkstationServiceApplication {
     this.context = context;
     this.inputMode = InputMode.valueOf(inputMode.toUpperCase(Locale.ROOT));
     this.inputTemplateKey = inputTemplateKey;
-    this.outputFileMode = OutputFileMode.valueOf(outputFileMode.toUpperCase(Locale.ROOT));
-    this.outputMode = OutputMode.valueOf(outputMode.toUpperCase(Locale.ROOT));
-    this.outputPathPrefix = outputPathPrefix;
-    this.outputSeconds = outputSeconds;
     this.ingestToken = ingestToken;
     this.audioBaseUrl = audioBaseUrl;
     this.labBaseUrl = labBaseUrl;
@@ -83,11 +69,7 @@ public class WorkstationServiceApplication {
   public void start() {
     var workConfig = new WorkConfiguration()
       .setInputMode(inputMode)
-      .setInputTemplateKey(inputTemplateKey)
-      .setOutputFileMode(outputFileMode)
-      .setOutputMode(outputMode)
-      .setOutputPathPrefix(outputPathPrefix)
-      .setOutputSeconds(outputSeconds);
+      .setInputTemplateKey(inputTemplateKey);
 
     var hubConfig = new HubConfiguration()
       .setApiBaseUrl(labBaseUrl)

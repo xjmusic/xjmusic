@@ -325,45 +325,28 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     // This gets re-used for the follow position as well as past timeline width
     var pastTimelineWidth = (m1Past - m0) / microsPerPixel.get();
 
-    // only animated in sync
-    boolean animate = fabricationService.isOutputModeSync().getValue();
-
     // In sync output, like the scroll pane target position, the past region is always moving at a predictable rate,
     // so we set its initial position as well as animation its target, which smooths over some
     // jumpiness caused by adding or removing segments to the list.
-    if (animate) {
-      timelineRegion1Past.setWidth(pastTimelineWidth - MILLIS_PER_MICRO * refreshTimelineMillis / microsPerPixel.get());
-      scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
-        new KeyValue(timelineRegion1Past.widthProperty(), pastTimelineWidth)));
-      scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
-        new KeyValue(timelineRegion3Dub.widthProperty(), (m3Dub - m1Past) / microsPerPixel.get())));
-      scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
-        new KeyValue(timelineRegion4Craft.widthProperty(), (m4Craft - m3Dub) / microsPerPixel.get())));
-    } else {
-      timelineRegion1Past.setWidth(pastTimelineWidth);
-      timelineRegion3Dub.setWidth((m3Dub - m1Past) / microsPerPixel.get());
-      timelineRegion4Craft.setWidth((m4Craft - m3Dub) / microsPerPixel.get());
-    }
+    timelineRegion1Past.setWidth(pastTimelineWidth - MILLIS_PER_MICRO * refreshTimelineMillis / microsPerPixel.get());
+    scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
+      new KeyValue(timelineRegion1Past.widthProperty(), pastTimelineWidth)));
+    scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
+      new KeyValue(timelineRegion3Dub.widthProperty(), (m3Dub - m1Past) / microsPerPixel.get())));
+    scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
+      new KeyValue(timelineRegion4Craft.widthProperty(), (m4Craft - m3Dub) / microsPerPixel.get())));
 
     // auto-scroll if enabled, animating to the scroll pane position
     if (fabricationService.followPlaybackProperty().getValue() && 0 < segmentListView.getWidth()) {
       var extraHorizontalPixels = Math.max(0, segmentListView.getWidth() - scrollPane.getWidth());
       var targetOffsetHorizontalPixels = Math.max(0, pastTimelineWidth - segmentMinWidth);
 
-      if (animate) {
-        // in sync output, the scroll pane is always moving at a predictable rate,
-        // so we set its initial position as well as animation its target, which smooths over some
-        // jumpiness caused by adding or removing segments to the list.
-        if (fabricationService.isOutputModeSync().getValue()) {
-          scrollPane.setHvalue((targetOffsetHorizontalPixels - ((MILLIS_PER_MICRO * refreshTimelineMillis) / microsPerPixel.get())) / extraHorizontalPixels);
-          scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
-            new KeyValue(scrollPane.hvalueProperty(), targetOffsetHorizontalPixels / extraHorizontalPixels)));
-        } else {
-          scrollPane.setHvalue(targetOffsetHorizontalPixels / extraHorizontalPixels);
-        }
-      } else {
-        scrollPane.setHvalue(targetOffsetHorizontalPixels / extraHorizontalPixels);
-      }
+      // in sync output, the scroll pane is always moving at a predictable rate,
+      // so we set its initial position as well as animation its target, which smooths over some
+      // jumpiness caused by adding or removing segments to the list.
+      scrollPane.setHvalue((targetOffsetHorizontalPixels - ((MILLIS_PER_MICRO * refreshTimelineMillis) / microsPerPixel.get())) / extraHorizontalPixels);
+      scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
+        new KeyValue(scrollPane.hvalueProperty(), targetOffsetHorizontalPixels / extraHorizontalPixels)));
     }
 
     // play the next leg of the animation timeline

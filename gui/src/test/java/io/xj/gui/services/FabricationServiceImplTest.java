@@ -8,8 +8,6 @@ import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.MacroMode;
-import io.xj.nexus.OutputFileMode;
-import io.xj.nexus.OutputMode;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -49,10 +47,7 @@ class FabricationServiceImplTest {
   int defaultOutputChannels = 2;
   private final String defaultMacroMode = MacroMode.AUTO.toString();
   String defaultInputMode = InputMode.PRODUCTION.toString();
-  String defaultOutputFileMode = OutputFileMode.CONTINUOUS.toString();
   double defaultOutputFrameRate = 48000;
-  String defaultOutputMode = OutputMode.PLAYBACK.toString();
-  int defaultOutputSeconds = 300;
 
   @Mock
   HostServices hostServices;
@@ -89,12 +84,9 @@ class FabricationServiceImplTest {
       defaultTimelineSegmentViewLimit,
       defaultInputTemplateKey,
       defaultOutputChannels,
-      defaultOutputFileMode,
       defaultOutputFrameRate,
       defaultMacroMode,
       defaultInputMode,
-      defaultOutputMode,
-      defaultOutputSeconds,
       labService,
       workManager
     );

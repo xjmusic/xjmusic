@@ -94,6 +94,7 @@ public class ComplexLibraryTest {
       audioCache,
       content,
       100000000,
+      10,
       48000,
       2
     );
@@ -102,7 +103,7 @@ public class ComplexLibraryTest {
   @Test
   public void fabricatesManySegments() throws Exception {
     while (!hasSegmentsDubbedPastMinimumOffset() && isWithinTimeLimit()) {
-      work.runCycle(1000000 * MICROS_PER_SECOND);
+      work.runCycle(1000000 * MICROS_PER_SECOND, 1000000 * MICROS_PER_SECOND);
       //noinspection BusyWait
       Thread.sleep(WORK_CYCLE_MILLIS);
     }

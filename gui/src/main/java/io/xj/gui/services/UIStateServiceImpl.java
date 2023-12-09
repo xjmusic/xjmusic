@@ -2,7 +2,6 @@ package io.xj.gui.services;
 
 import io.xj.gui.WorkstationLogAppender;
 import io.xj.nexus.MacroMode;
-import io.xj.nexus.OutputMode;
 import io.xj.nexus.work.WorkState;
 import jakarta.annotation.Nullable;
 import javafx.beans.binding.Bindings;
@@ -35,13 +34,7 @@ public class UIStateServiceImpl implements UIStateService {
   private BooleanBinding isProgressBarVisible;
 
   @Nullable
-  private BooleanBinding isFileOutputActive;
-
-  @Nullable
   private BooleanBinding isInputModeDisabled;
-
-  @Nullable
-  private BooleanBinding isOutputFileModeDisabled;
 
   @Nullable
   private BooleanBinding isManualFabricationMode;
@@ -113,24 +106,11 @@ public class UIStateServiceImpl implements UIStateService {
   public BooleanBinding isProgressBarVisibleProperty() {
     if (Objects.isNull(isProgressBarVisible))
       isProgressBarVisible = Bindings.createBooleanBinding(
-        () -> fileOutputActiveProperty().get() || fabricationService.isStatusLoading().get(),
+        () -> fabricationService.isStatusLoading().get(),
 
-        fileOutputActiveProperty(),
         fabricationService.isStatusLoading());
 
     return isProgressBarVisible;
-  }
-
-  @Override
-  public BooleanBinding fileOutputActiveProperty() {
-    if (Objects.isNull(isFileOutputActive))
-      isFileOutputActive = Bindings.createBooleanBinding(
-        () -> fabricationService.isStatusActive().get() && fabricationService.isOutputModeFile().get(),
-
-        fabricationService.statusProperty(),
-        fabricationService.isOutputModeFile());
-
-    return isFileOutputActive;
   }
 
   @Override
@@ -144,14 +124,6 @@ public class UIStateServiceImpl implements UIStateService {
       isInputModeDisabled = labService.statusProperty().isEqualTo(LabStatus.Authenticated).not();
 
     return isInputModeDisabled;
-  }
-
-  @Override
-  public BooleanBinding isOutputFileModeDisabledProperty() {
-    if (Objects.isNull(isOutputFileModeDisabled))
-      isOutputFileModeDisabled = fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not();
-
-    return isOutputFileModeDisabled;
   }
 
   @Override

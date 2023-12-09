@@ -11,10 +11,10 @@ public interface AudioFileWriter {
   /**
    Open a file for audio writing
 
-   @param outputPath to write to
+   @param targetPath to write to
    @throws IOException if the file cannot be opened
    */
-  void open(String outputPath) throws IOException;
+  void open(String targetPath) throws IOException;
 
   /**
    Append bytes to the currently open file

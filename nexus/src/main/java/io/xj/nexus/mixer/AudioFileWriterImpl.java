@@ -27,7 +27,7 @@ public class AudioFileWriterImpl implements AudioFileWriter {
   FileOutputStream tempFile;
   final AtomicLong tempFileByteCount = new AtomicLong(0);
   final AtomicReference<String> tempFilePath = new AtomicReference<>("");
-  final AtomicReference<String> outputPath = new AtomicReference<>("");
+  final AtomicReference<String> targetPath = new AtomicReference<>("");
 
   enum FileState {
     INITIAL,
@@ -45,14 +45,13 @@ public class AudioFileWriterImpl implements AudioFileWriter {
   }
 
   @Override
-  public void open(String outputPath) {
-    this.outputPath.set(outputPath);
+  public void open(String targetPath) {
+    this.targetPath.set(targetPath);
     tempFileByteCount.set(0);
     try {
       tempFilePath.set(Files.createTempFile("file-output", ".pcm").toString());
       deleteIfExists(Path.of(tempFilePath.get()));
       tempFile = new FileOutputStream(tempFilePath.get(), true);
-
 
     } catch (IOException e) {
       LOG.error("Failed to write bytes to output file!", e);
@@ -86,11 +85,11 @@ public class AudioFileWriterImpl implements AudioFileWriter {
       this.fileState.set(FileState.CLOSING);
       tempFile.close();
       if (tempFileByteCount.get() == 0) {
-        LOG.warn("Will not write zero-byte {}", outputPath.get());
+        LOG.warn("Will not write zero-byte {}", targetPath.get());
         return false;
       }
 
-      File outputFile = new File(outputPath.get());
+      File outputFile = new File(targetPath.get());
       try (
         var fileInputStream = FileUtils.openInputStream(new File(tempFilePath.get()));
         var bufferedInputStream = new BufferedInputStream(fileInputStream)
@@ -98,7 +97,7 @@ public class AudioFileWriterImpl implements AudioFileWriter {
         AudioInputStream ais = new AudioInputStream(bufferedInputStream, format, tempFileByteCount.get());
         AudioSystem.write(ais, AudioFileFormat.Type.WAVE, outputFile);
         this.fileState.set(FileState.DONE);
-        LOG.info("Did write {} bytes of PCM data to output WAV container {}", tempFileByteCount.get(), outputPath.get());
+        LOG.info("Did write {} bytes of PCM data to output WAV container {}", tempFileByteCount.get(), targetPath.get());
         return true;
       }
 

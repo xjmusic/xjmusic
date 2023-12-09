@@ -175,7 +175,6 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
    */
   void reset();
 
-
   /**
    Create a new Record
 

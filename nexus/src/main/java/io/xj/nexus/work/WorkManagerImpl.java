@@ -7,7 +7,6 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.OutputMode;
 import io.xj.nexus.audio_cache.AudioCache;
 import io.xj.nexus.audio_cache.AudioCacheImpl;
 import io.xj.nexus.craft.CraftFactory;
@@ -18,7 +17,11 @@ import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.http.HttpClientProvider;
 import io.xj.nexus.http.HttpClientProviderImpl;
-import io.xj.nexus.hub_client.*;
+import io.xj.nexus.hub_client.HubClient;
+import io.xj.nexus.hub_client.HubClientAccess;
+import io.xj.nexus.hub_client.HubClientImpl;
+import io.xj.nexus.hub_client.HubContentProvider;
+import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.json.JsonProvider;
 import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
@@ -57,6 +60,7 @@ import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 public class WorkManagerImpl implements WorkManager {
   private static final Logger LOG = LoggerFactory.getLogger(WorkManagerImpl.class);
+  private static final int THREAD_POOL_SIZE = 50;
   private final BroadcastFactory broadcastFactory;
   private final CraftFactory craftFactory;
   private final AudioCache audioCache;
@@ -70,8 +74,6 @@ public class WorkManagerImpl implements WorkManager {
   private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
   private final AtomicBoolean isAudioLoaded = new AtomicBoolean(false);
   private final AtomicLong startedAtMillis = new AtomicLong(0);
-
-  private boolean isFileOutputMode;
 
   @Nullable
   private ScheduledExecutorService scheduler;
@@ -178,16 +180,11 @@ public class WorkManagerImpl implements WorkManager {
     );
 
     startedAtMillis.set(System.currentTimeMillis());
-    isFileOutputMode = workConfig.getOutputMode() == OutputMode.FILE;
     isAudioLoaded.set(false);
     updateState(WorkState.Starting);
 
-    scheduler = Executors.newScheduledThreadPool(5);
-    scheduler.scheduleWithFixedDelay(this::runControlCycle, 0, workConfig.getControlCycleMillis(), TimeUnit.MILLISECONDS);
-    scheduler.scheduleWithFixedDelay(this::runCraftCycle, 0, workConfig.getCraftCycleMillis(), TimeUnit.MILLISECONDS);
-    scheduler.scheduleWithFixedDelay(this::runDubCycle, 0, workConfig.getDubCycleMillis(), TimeUnit.MILLISECONDS);
-    scheduler.scheduleWithFixedDelay(this::runShipCycle, 0, workConfig.getShipCycleMillis(), TimeUnit.MILLISECONDS);
-    scheduler.scheduleWithFixedDelay(this::runTelemetryCycle, 0, workConfig.getTelemetryCycleMillis(), TimeUnit.MILLISECONDS);
+    scheduler = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);
+    scheduler.scheduleAtFixedRate(this::runCycle, 0, workConfig.getCycleMillis(), TimeUnit.MILLISECONDS);
 
     telemetry.startTimer();
   }
@@ -287,6 +284,17 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   /**
+   Run the work cycle
+   */
+  private void runCycle() {
+    runControlCycle();
+    runCraftCycle();
+    runDubCycle();
+    runShipCycle();
+  }
+
+
+  /**
    Run the control cycle, which prepares fabrication and moves the machine into the active state
    */
   private void runControlCycle() {
@@ -344,7 +352,11 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(craftWork);
     assert Objects.nonNull(shipWork);
-    craftWork.runCycle(shipWork.getShippedToChainMicros().orElse(0L));
+    assert Objects.nonNull(dubWork);
+    craftWork.runCycle(
+      shipWork.getShippedToChainMicros().orElse(0L),
+      dubWork.getDubbedToChainMicros().orElse(0L)
+    );
   }
 
   /**
@@ -366,21 +378,10 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(shipWork);
     shipWork.runCycle();
-    if (isFileOutputMode) {
-      updateProgress(shipWork.getProgress());
-    }
     if (shipWork.isFinished()) {
       updateState(WorkState.Done);
       LOG.info("Fabrication work done");
     }
-  }
-
-  /**
-   Run the telemetry cycle
-   */
-  private void runTelemetryCycle() {
-    if (!Objects.equals(state.get(), WorkState.Active)) return;
-    telemetry.report();
   }
 
   /**
@@ -482,6 +483,7 @@ public class WorkManagerImpl implements WorkManager {
       audioCache,
       hubContent.get(),
       workConfig.getCraftAheadMicros(),
+      workConfig.getMixerLengthSeconds(),
       workConfig.getOutputFrameRate(),
       workConfig.getOutputChannels()
     );
@@ -499,14 +501,7 @@ public class WorkManagerImpl implements WorkManager {
     shipWork = new ShipWorkImpl(
       telemetry,
       dubWork,
-      broadcastFactory,
-      workConfig.getOutputMode(),
-      workConfig.getOutputFileMode(),
-      workConfig.getOutputSeconds(),
-      workConfig.getInputTemplateKey(),
-      workConfig.getOutputPathPrefix(),
-      workConfig.getShipOutputFileNumberDigits(),
-      workConfig.getShipOutputPcmChunkSizeBytes()
+      broadcastFactory
     );
   }
 
