@@ -7,7 +7,6 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.OutputMode;
 import io.xj.nexus.audio_cache.AudioCache;
 import io.xj.nexus.audio_cache.AudioCacheImpl;
 import io.xj.nexus.craft.CraftFactory;
@@ -75,8 +74,6 @@ public class WorkManagerImpl implements WorkManager {
   private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
   private final AtomicBoolean isAudioLoaded = new AtomicBoolean(false);
   private final AtomicLong startedAtMillis = new AtomicLong(0);
-
-  private boolean isFileOutputMode;
 
   @Nullable
   private ScheduledExecutorService scheduler;
@@ -183,7 +180,6 @@ public class WorkManagerImpl implements WorkManager {
     );
 
     startedAtMillis.set(System.currentTimeMillis());
-    isFileOutputMode = workConfig.getOutputMode() == OutputMode.FILE;
     isAudioLoaded.set(false);
     updateState(WorkState.Starting);
 
@@ -382,9 +378,6 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(shipWork);
     shipWork.runCycle();
-    if (isFileOutputMode) {
-      updateProgress(shipWork.getProgress());
-    }
     if (shipWork.isFinished()) {
       updateState(WorkState.Done);
       LOG.info("Fabrication work done");
@@ -508,14 +501,7 @@ public class WorkManagerImpl implements WorkManager {
     shipWork = new ShipWorkImpl(
       telemetry,
       dubWork,
-      broadcastFactory,
-      workConfig.getOutputMode(),
-      workConfig.getOutputFileMode(),
-      workConfig.getOutputSeconds(),
-      workConfig.getInputTemplateKey(),
-      workConfig.getOutputPathPrefix(),
-      workConfig.getShipOutputFileNumberDigits(),
-      workConfig.getShipOutputPcmChunkSizeBytes()
+      broadcastFactory
     );
   }
 

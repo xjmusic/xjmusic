@@ -26,11 +26,6 @@ public interface ShipWork extends Work {
   void runCycle();
 
   /**
-   @return ship progress ratio (0-1)
-   */
-  float getProgress();
-
-  /**
    If the current work is realtime, e.g. playback or HLS, return the current chain micros
 
    @return chain micros if realtime, else empty

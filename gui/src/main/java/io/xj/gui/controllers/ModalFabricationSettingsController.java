@@ -8,8 +8,6 @@ import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.MacroMode;
-import io.xj.nexus.OutputFileMode;
-import io.xj.nexus.OutputMode;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -43,37 +41,16 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   ChoiceBox<MacroMode> choiceMacroMode;
 
   @FXML
-  ChoiceBox<OutputMode> choiceOutputMode;
-
-  @FXML
-  ChoiceBox<OutputFileMode> choiceOutputFileMode;
-
-  @FXML
   Label labelInputMode;
 
   @FXML
   Label labelMacroMode;
 
   @FXML
-  Label labelOutputFileMode;
-
-  @FXML
-  Label labelOutputSeconds;
-
-  @FXML
-  TextField fieldOutputSeconds;
-
-  @FXML
   TextField fieldContentStoragePathPrefix;
 
   @FXML
-  TextField fieldOutputPathPrefix;
-
-  @FXML
   Label labelContentStoragePathPrefix;
-
-  @FXML
-  Label labelOutputPathPrefix;
 
   @FXML
   TextField fieldCraftAheadSeconds;
@@ -129,22 +106,6 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
     choiceMacroMode.setItems(FXCollections.observableArrayList(MacroMode.values()));
 
     fieldInputTemplateKey.textProperty().bindBidirectional(fabricationService.inputTemplateKeyProperty());
-
-    choiceOutputMode.getItems().setAll(OutputMode.values());
-    choiceOutputMode.valueProperty().bindBidirectional(fabricationService.outputModeProperty());
-
-    choiceOutputFileMode.getItems().setAll(OutputFileMode.values());
-    choiceOutputFileMode.valueProperty().bindBidirectional(fabricationService.outputFileModeProperty());
-    choiceOutputFileMode.disableProperty().bind(uiStateService.isOutputFileModeDisabledProperty());
-    labelOutputFileMode.disableProperty().bind(uiStateService.isOutputFileModeDisabledProperty());
-
-    fieldOutputSeconds.textProperty().bindBidirectional(fabricationService.outputSecondsProperty());
-    fieldOutputSeconds.disableProperty().bind(uiStateService.isOutputFileModeDisabledProperty());
-    labelOutputSeconds.disableProperty().bind(uiStateService.isOutputFileModeDisabledProperty());
-
-    fieldOutputPathPrefix.textProperty().bindBidirectional(fabricationService.outputPathPrefixProperty());
-    fieldOutputPathPrefix.disableProperty().bind(uiStateService.isOutputFileModeDisabledProperty());
-    labelOutputPathPrefix.disableProperty().bind(uiStateService.isOutputFileModeDisabledProperty());
 
     fieldContentStoragePathPrefix.textProperty().bindBidirectional(fabricationService.contentStoragePathPrefixProperty());
 

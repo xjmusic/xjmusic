@@ -5,14 +5,24 @@ package io.xj.gui.services;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.enums.UserRoleType;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.util.ValueException;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.MacroMode;
-import io.xj.nexus.OutputFileMode;
-import io.xj.nexus.OutputMode;
 import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.nexus.model.*;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentMessage;
+import io.xj.nexus.model.SegmentMeta;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
@@ -24,7 +34,14 @@ import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableValue;
@@ -36,7 +53,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
 
@@ -52,31 +76,23 @@ public class FabricationServiceImpl implements FabricationService {
   private final static String BUTTON_TEXT_RESET = "Reset";
   private final HostServices hostServices;
   private final String defaultContentStoragePathPrefix = computeDefaultPathPrefix("content");
-  private final String defaultOutputPathPrefix = computeDefaultPathPrefix("output");
   private final int defaultTimelineSegmentViewLimit;
   private final Integer defaultCraftAheadSeconds;
   private final Integer defaultDubAheadSeconds;
   private final Integer defaultMixerLengthSeconds;
   private final String defaultInputTemplateKey;
   private final int defaultOutputChannels;
-  private final OutputFileMode defaultOutputFileMode;
   private final double defaultOutputFrameRate;
   private final MacroMode defaultMacroMode;
   private final InputMode defaultInputMode;
-  private final OutputMode defaultOutputMode;
-  private final Integer defaultOutputSeconds;
   final WorkManager workManager;
   final LabService labService;
   final Map<Integer, Integer> segmentBarBeats = new ConcurrentHashMap<>();
   final ObjectProperty<WorkState> status = new SimpleObjectProperty<>(WorkState.Standby);
   final StringProperty inputTemplateKey = new SimpleStringProperty();
   final StringProperty contentStoragePathPrefix = new SimpleStringProperty();
-  final StringProperty outputPathPrefix = new SimpleStringProperty();
   final ObjectProperty<InputMode> inputMode = new SimpleObjectProperty<>();
   final ObjectProperty<MacroMode> macroMode = new SimpleObjectProperty<>();
-  final ObjectProperty<OutputFileMode> outputFileMode = new SimpleObjectProperty<>();
-  final ObjectProperty<OutputMode> outputMode = new SimpleObjectProperty<>();
-  final StringProperty outputSeconds = new SimpleStringProperty();
   final StringProperty craftAheadSeconds = new SimpleStringProperty();
   final StringProperty dubAheadSeconds = new SimpleStringProperty();
   final StringProperty mixerLengthSeconds = new SimpleStringProperty();
@@ -86,10 +102,6 @@ public class FabricationServiceImpl implements FabricationService {
   final StringProperty timelineSegmentViewLimit = new SimpleStringProperty();
   final BooleanProperty followPlayback = new SimpleBooleanProperty(true);
   final DoubleProperty progress = new SimpleDoubleProperty(0.0);
-  final ObservableBooleanValue outputModeSync = Bindings.createBooleanBinding(() ->
-    outputMode.get().isSync(), outputMode);
-  private final ObservableBooleanValue outputModeFile = Bindings.createBooleanBinding(() ->
-    outputMode.get() == OutputMode.FILE, outputMode);
   private final ObservableBooleanValue statusActive =
     Bindings.createBooleanBinding(() -> status.get() == WorkState.Active, status);
   private final ObservableBooleanValue statusStandby =
@@ -112,12 +124,9 @@ public class FabricationServiceImpl implements FabricationService {
     @Value("${gui.timeline.max.segments}") int defaultTimelineSegmentViewLimit,
     @Value("${input.template.key}") String defaultInputTemplateKey,
     @Value("${output.channels}") int defaultOutputChannels,
-    @Value("${output.file.mode}") String defaultOutputFileMode,
     @Value("${output.frame.rate}") double defaultOutputFrameRate,
     @Value("${macro.mode}") String defaultMacroMode,
     @Value("${input.mode}") String defaultInputMode,
-    @Value("${output.mode}") String defaultOutputMode,
-    @Value("${output.seconds}") int defaultOutputSeconds,
     LabService labService,
     WorkManager workManager
   ) {
@@ -128,10 +137,7 @@ public class FabricationServiceImpl implements FabricationService {
     this.defaultInputMode = InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT));
     this.defaultInputTemplateKey = defaultInputTemplateKey;
     this.defaultOutputChannels = defaultOutputChannels;
-    this.defaultOutputFileMode = OutputFileMode.valueOf(defaultOutputFileMode.toUpperCase(Locale.ROOT));
     this.defaultOutputFrameRate = defaultOutputFrameRate;
-    this.defaultOutputMode = OutputMode.valueOf(defaultOutputMode.toUpperCase(Locale.ROOT));
-    this.defaultOutputSeconds = defaultOutputSeconds;
     this.defaultTimelineSegmentViewLimit = defaultTimelineSegmentViewLimit;
     this.hostServices = hostServices;
     this.labService = labService;
@@ -160,11 +166,7 @@ public class FabricationServiceImpl implements FabricationService {
       .setMacroMode(macroMode.get())
       .setInputTemplateKey(inputTemplateKey.get())
       .setOutputChannels(Integer.parseInt(outputChannels.get()))
-      .setOutputFileMode(outputFileMode.get())
-      .setOutputFrameRate(Integer.parseInt(outputFrameRate.get()))
-      .setOutputMode(outputMode.get())
-      .setOutputPathPrefix(outputPathPrefix.get())
-      .setOutputSeconds(Integer.parseInt(outputSeconds.get()));
+      .setOutputFrameRate(Integer.parseInt(outputFrameRate.get()));
 
     var hubAccess = new HubClientAccess()
       .setRoleTypes(List.of(UserRoleType.Internal))
@@ -211,11 +213,6 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
-  public StringProperty outputPathPrefixProperty() {
-    return outputPathPrefix;
-  }
-
-  @Override
   public ObjectProperty<InputMode> inputModeProperty() {
     return inputMode;
   }
@@ -223,21 +220,6 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public ObjectProperty<MacroMode> macroModeProperty() {
     return macroMode;
-  }
-
-  @Override
-  public ObjectProperty<OutputFileMode> outputFileModeProperty() {
-    return outputFileMode;
-  }
-
-  @Override
-  public ObjectProperty<OutputMode> outputModeProperty() {
-    return outputMode;
-  }
-
-  @Override
-  public StringProperty outputSecondsProperty() {
-    return outputSeconds;
   }
 
   @Override
@@ -473,11 +455,6 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
-  public ObservableBooleanValue isOutputModeSync() {
-    return outputModeSync;
-  }
-
-  @Override
   public ObservableBooleanValue isStatusActive() {
     return statusActive;
   }
@@ -490,11 +467,6 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public ObservableBooleanValue isStatusStandby() {
     return statusStandby;
-  }
-
-  @Override
-  public ObservableBooleanValue isOutputModeFile() {
-    return outputModeFile;
   }
 
   @Override
@@ -534,8 +506,6 @@ public class FabricationServiceImpl implements FabricationService {
     }
 
     inputTemplateKey.set(templateKey);
-    outputFileMode.set(defaultOutputFileMode);
-    outputMode.set(defaultOutputMode);
     inputMode.set(defaultInputMode);
 
     start();
@@ -562,11 +532,7 @@ public class FabricationServiceImpl implements FabricationService {
     inputTemplateKey.addListener((o, ov, value) -> prefs.put("inputTemplateKey", value));
     macroMode.addListener((o, ov, value) -> prefs.put("macroMode", Objects.nonNull(value) ? value.name() : ""));
     outputChannels.addListener((o, ov, value) -> prefs.put("outputChannels", value));
-    outputFileMode.addListener((o, ov, value) -> prefs.put("outputFileMode", Objects.nonNull(value) ? value.name() : ""));
     outputFrameRate.addListener((o, ov, value) -> prefs.put("outputFrameRate", value));
-    outputMode.addListener((o, ov, value) -> prefs.put("outputMode", Objects.nonNull(value) ? value.name() : ""));
-    outputPathPrefix.addListener((o, ov, value) -> prefs.put("outputPathPrefix", value));
-    outputSeconds.addListener((o, ov, value) -> prefs.put("outputSeconds", value));
     timelineSegmentViewLimit.addListener((o, ov, value) -> prefs.put("timelineSegmentViewLimit", value));
   }
 
@@ -578,8 +544,6 @@ public class FabricationServiceImpl implements FabricationService {
     inputTemplateKey.set(prefs.get("inputTemplateKey", defaultInputTemplateKey));
     outputChannels.set(prefs.get("outputChannels", Integer.toString(defaultOutputChannels)));
     outputFrameRate.set(prefs.get("outputFrameRate", Double.toString(defaultOutputFrameRate)));
-    outputPathPrefix.set(prefs.get("outputPathPrefix", defaultOutputPathPrefix));
-    outputSeconds.set(prefs.get("outputSeconds", Integer.toString(defaultOutputSeconds)));
     timelineSegmentViewLimit.set(prefs.get("timelineSegmentViewLimit", Integer.toString(defaultTimelineSegmentViewLimit)));
 
     try {
@@ -594,20 +558,6 @@ public class FabricationServiceImpl implements FabricationService {
     } catch (Exception e) {
       LOG.error("Failed to set input mode from preferences", e);
       inputMode.set(defaultInputMode);
-    }
-
-    try {
-      outputMode.set(OutputMode.valueOf(prefs.get("outputMode", defaultOutputMode.toString()).toUpperCase(Locale.ROOT)));
-    } catch (Exception e) {
-      LOG.error("Failed to set output mode from preferences", e);
-      outputMode.set(defaultOutputMode);
-    }
-
-    try {
-      outputFileMode.set(OutputFileMode.valueOf(prefs.get("outputFileMode", defaultOutputFileMode.toString()).toUpperCase(Locale.ROOT)));
-    } catch (Exception e) {
-      LOG.error("Failed to set output file mode from preferences", e);
-      outputFileMode.set(defaultOutputFileMode);
     }
   }
 

@@ -60,48 +60,6 @@
       <padding>
         <Insets left="10" right="10" />
       </padding>
-      <VBox alignment="CENTER_LEFT" prefHeight="60.0">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Output Mode" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0" />
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0" />
-        <ChoiceBox fx:id="choiceOutputMode" prefHeight="25.0" />
-      </VBox>
-      <VBox alignment="CENTER_LEFT" prefHeight="41.0">
-        <Label fx:id="labelOutputFileMode" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Output File Mode" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0" />
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0" />
-        <ChoiceBox fx:id="choiceOutputFileMode" prefHeight="25.0" />
-      </VBox>
-      <VBox alignment="CENTER_LEFT" prefHeight="60">
-        <Label fx:id="labelOutputSeconds" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Output File Seconds" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0" />
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0" />
-        <TextField fx:id="fieldOutputSeconds" prefHeight="25.0" />
-      </VBox>
-      <VBox alignment="CENTER_LEFT" prefHeight="41.0">
-        <Label fx:id="labelOutputPathPrefix" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Output File Path Prefix" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0" />
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0" />
-        <TextField fx:id="fieldOutputPathPrefix" prefHeight="25.0" prefWidth="300" />
-      </VBox>
-    </HBox>
-
-    <HBox alignment="CENTER_LEFT" prefHeight="60" spacing="10">
-      <padding>
-        <Insets left="10" right="10" />
-      </padding>
       <VBox alignment="CENTER_LEFT">
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Output Frame Rate" textAlignment="RIGHT">
           <graphic>
