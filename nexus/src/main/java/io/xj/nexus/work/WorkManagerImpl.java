@@ -185,10 +185,10 @@ public class WorkManagerImpl implements WorkManager {
     updateState(WorkState.Starting);
 
     scheduler = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);
-    scheduler.scheduleAtFixedRate(this::runControlCycle, 0, workConfig.getControlCycleMillis(), TimeUnit.MILLISECONDS);
-    scheduler.scheduleAtFixedRate(this::runCraftCycle, 0, workConfig.getCraftCycleMillis(), TimeUnit.MILLISECONDS);
-    scheduler.scheduleAtFixedRate(this::runDubCycle, 0, workConfig.getDubCycleMillis(), TimeUnit.MILLISECONDS);
-    scheduler.scheduleAtFixedRate(this::runShipCycle, 0, workConfig.getShipCycleMillis(), TimeUnit.MILLISECONDS);
+    scheduler.scheduleWithFixedDelay(this::runControlCycle, 0, workConfig.getControlCycleDelayMillis(), TimeUnit.MILLISECONDS);
+    scheduler.scheduleWithFixedDelay(this::runCraftCycle, 0, workConfig.getCraftCycleDelayMillis(), TimeUnit.MILLISECONDS);
+    scheduler.scheduleAtFixedRate(this::runDubCycle, 0, workConfig.getDubCycleRateMillis(), TimeUnit.MILLISECONDS);
+    scheduler.scheduleAtFixedRate(this::runShipCycle, 0, workConfig.getShipCycleRateMillis(), TimeUnit.MILLISECONDS);
 
     telemetry.startTimer();
   }

@@ -159,8 +159,8 @@ public class FabricationServiceImpl implements FabricationService {
     // create work configuration
     var config = new WorkConfiguration()
       .setContentStoragePathPrefix(contentStoragePathPrefix.get())
-      .setCraftAheadSeconds(Long.parseLong(craftAheadSeconds.get()) * MICROS_PER_SECOND)
-      .setDubAheadSeconds(Long.parseLong(dubAheadSeconds.get()) * MICROS_PER_SECOND)
+      .setCraftAheadSeconds(Integer.parseInt(craftAheadSeconds.get()))
+      .setDubAheadSeconds(Integer.parseInt(dubAheadSeconds.get()))
       .setMixerLengthSeconds(Integer.parseInt(mixerLengthSeconds.get()))
       .setInputMode(inputMode.get())
       .setMacroMode(macroMode.get())

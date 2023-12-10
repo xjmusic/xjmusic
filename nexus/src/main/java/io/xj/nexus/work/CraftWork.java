@@ -133,6 +133,13 @@ public interface CraftWork extends Work {
   Optional<Long> getCraftedToChainMicros();
 
   /**
+   Whether the current craft state is ready
+
+   @return true if ready
+   */
+  boolean isReady();
+
+  /**
    Go to the given macro program right now
 
    @param macroProgram        the macro program to go to

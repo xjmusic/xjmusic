@@ -236,7 +236,7 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
 
    @param lastSegmentId segment id
    */
-  void deleteSegmentsBefore(int lastSegmentId); // TODO garbage collection of segments that before some threshold
+  void deleteSegmentsBefore(int lastSegmentId);
 
   /**
    Delete all segments after the given segment id

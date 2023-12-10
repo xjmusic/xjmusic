@@ -46,6 +46,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
@@ -71,6 +72,12 @@ public class CraftWorkImpl implements CraftWork {
   private final Chain chain;
   private final long mixerLengthMicros;
   private final long persistenceWindowMicros;
+
+  // Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub
+  // Workstation has live performance modulation https://www.pivotaltracker.com/story/show/186003440
+  private final AtomicReference<CraftState> craftState = new AtomicReference<>(CraftState.INITIAL);
+  private final AtomicReference<Program> nextMacroProgram = new AtomicReference<>();
+  private final AtomicReference<Segment> lastDubbedSegment = new AtomicReference<>();
 
   public CraftWorkImpl(
     Telemetry telemetry,
@@ -272,18 +279,6 @@ public class CraftWorkImpl implements CraftWork {
     }
   }
 
-  @Override
-  public void gotoMacroProgram(Program macroProgram, long dubbedToChainMicros) {
-    var currentSegment = getSegmentAtChainMicros(dubbedToChainMicros);
-    if (currentSegment.isEmpty()) {
-      LOG.warn("Unable to go to macro program because no segment at dubbed-to chain micros");
-      return;
-    }
-    segmentManager.deleteSegmentsAfter(currentSegment.get().getId());
-    // TODO delete all segments after current segment
-    // TODO create new segment starting with macro program
-  }
-
   /**
    This is the internal cycle that's run indefinitely
    */
@@ -303,9 +298,26 @@ public class CraftWorkImpl implements CraftWork {
       doSegmentCleanup(shippedToChainMicros);
       telemetry.record(TIMER_SECTION_CRAFT_CLEANUP, System.currentTimeMillis() - startedAtMillis);
 
+      // Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub
+      // Workstation has live performance modulation https://www.pivotaltracker.com/story/show/186003440
+      craftState.set(CraftState.READY);
+
     } catch (Exception e) {
       didFailWhile("running craft work", e);
     }
+  }
+
+  @Override
+  public boolean isReady() {
+    return Objects.equals(craftState.get(), CraftState.READY);
+  }
+
+  @Override
+  public void gotoMacroProgram(Program macroProgram, long dubbedToChainMicros) {
+    LOG.info("Going to macro program {}", macroProgram.getName());
+    craftState.set(CraftState.GOTO_MACRO);
+    nextMacroProgram.set(macroProgram);
+    lastDubbedSegment.set(getSegmentAtChainMicros(dubbedToChainMicros).orElse(null));
   }
 
   /**
@@ -353,7 +365,20 @@ public class CraftWorkImpl implements CraftWork {
 
       double aheadSeconds = ((double) (atChainMicros - toChainMicros) / MICROS_PER_SECOND);
 
-      if (aheadSeconds > 0) return;
+      // TODO switch here based on craft state-- if we have a macro program change to handle, do it
+/*
+  TODO this logic during the next actual craft cycle
+    var currentSegment = getSegmentAtChainMicros(dubbedToChainMicros);
+    if (currentSegment.isEmpty()) {
+      LOG.warn("Unable to go to macro program because no segment at dubbed-to chain micros");
+      return;
+    }
+    segmentManager.deleteSegmentsAfter(currentSegment.get().getId());
+    // TODO delete all segments after the last-dubbed segment
+    // TODO create new NextMacro segment starting with macro program, and following segments
+*/
+
+      if (aheadSeconds > 0) return; // TODO don't return if we have a macro program change to handle
 
       Optional<Segment> nextSegment = buildNextSegment(target);
       if (nextSegment.isEmpty()) return;

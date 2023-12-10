@@ -9,8 +9,8 @@ public class WorkConfiguration {
   private InputMode inputMode;
   private MacroMode macroMode;
   private String inputTemplateKey;
-  private long craftAheadSeconds;
-  private long dubAheadSeconds;
+  private int craftAheadSeconds;
+  private int dubAheadSeconds;
   private int outputFrameRate;
   private int outputChannels;
   private String contentStoragePathPrefix;
@@ -18,10 +18,10 @@ public class WorkConfiguration {
   private String tempFilePathPrefix = "/tmp/";
   private int shipOutputFileNumberDigits = 7;
   private int shipOutputPcmChunkSizeBytes = 1024;
-  private long controlCycleMillis = 100;
-  private long craftCycleMillis = 400;
-  private long dubCycleMillis = 200;
-  private long shipCycleMillis = 50;
+  private long controlCycleDelayMillis = 100;
+  private long craftCycleDelayMillis = 200;
+  private long dubCycleRateMillis = 200;
+  private long shipCycleRateMillis = 50;
   private long persistenceWindowSeconds = 300;
 
   public InputMode getInputMode() {
@@ -51,20 +51,20 @@ public class WorkConfiguration {
     return this;
   }
 
-  public long getCraftAheadSeconds() {
+  public int getCraftAheadSeconds() {
     return craftAheadSeconds;
   }
 
-  public WorkConfiguration setCraftAheadSeconds(long craftAheadSeconds) {
+  public WorkConfiguration setCraftAheadSeconds(int craftAheadSeconds) {
     this.craftAheadSeconds = craftAheadSeconds;
     return this;
   }
 
-  public long getDubAheadSeconds() {
+  public int getDubAheadSeconds() {
     return dubAheadSeconds;
   }
 
-  public WorkConfiguration setDubAheadSeconds(long dubAheadSeconds) {
+  public WorkConfiguration setDubAheadSeconds(int dubAheadSeconds) {
     this.dubAheadSeconds = dubAheadSeconds;
     return this;
   }
@@ -105,12 +105,12 @@ public class WorkConfiguration {
     return this;
   }
 
-  public long getControlCycleMillis() {
-    return controlCycleMillis;
+  public long getControlCycleDelayMillis() {
+    return controlCycleDelayMillis;
   }
 
-  public WorkConfiguration setControlCycleMillis(long controlCycleMillis) {
-    this.controlCycleMillis = controlCycleMillis;
+  public WorkConfiguration setControlCycleDelayMillis(long controlCycleDelayMillis) {
+    this.controlCycleDelayMillis = controlCycleDelayMillis;
     return this;
   }
 
@@ -141,30 +141,30 @@ public class WorkConfiguration {
     return this;
   }
 
-  public long getShipCycleMillis() {
-    return shipCycleMillis;
+  public long getShipCycleRateMillis() {
+    return shipCycleRateMillis;
   }
 
-  public WorkConfiguration setShipCycleMillis(long shipCycleMillis) {
-    this.shipCycleMillis = shipCycleMillis;
+  public WorkConfiguration setShipCycleRateMillis(long shipCycleRateMillis) {
+    this.shipCycleRateMillis = shipCycleRateMillis;
     return this;
   }
 
-  public long getDubCycleMillis() {
-    return dubCycleMillis;
+  public long getDubCycleRateMillis() {
+    return dubCycleRateMillis;
   }
 
-  public WorkConfiguration setDubCycleMillis(long dubCycleMillis) {
-    this.dubCycleMillis = dubCycleMillis;
+  public WorkConfiguration setDubCycleRateMillis(long dubCycleRateMillis) {
+    this.dubCycleRateMillis = dubCycleRateMillis;
     return this;
   }
 
-  public long getCraftCycleMillis() {
-    return craftCycleMillis;
+  public long getCraftCycleDelayMillis() {
+    return craftCycleDelayMillis;
   }
 
-  public WorkConfiguration setCraftCycleMillis(long craftCycleMillis) {
-    this.craftCycleMillis = craftCycleMillis;
+  public WorkConfiguration setCraftCycleDelayMillis(long craftCycleDelayMillis) {
+    this.craftCycleDelayMillis = craftCycleDelayMillis;
     return this;
   }
 
