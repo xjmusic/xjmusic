@@ -150,4 +150,18 @@ public interface NexusEntityStore {
    @return true if there are zero segments
    */
   Boolean isSegmentsEmpty();
+
+  /**
+   Delete all segments before the given segment id
+
+   @param lastSegmentId segment id
+   */
+  void deleteSegmentsBefore(int lastSegmentId);
+
+  /**
+   Delete all segments after the given segment id
+
+   @param lastSegmentId segment id
+   */
+  void deleteSegmentsAfter(int lastSegmentId);
 }

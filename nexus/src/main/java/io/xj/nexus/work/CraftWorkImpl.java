@@ -53,7 +53,8 @@ import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 public class CraftWorkImpl implements CraftWork {
   private static final Logger LOG = LoggerFactory.getLogger(CraftWorkImpl.class);
   private static final String TIMER_SECTION_CRAFT = "Craft";
-  private static final String TIMER_SECTION_CRAFT_CACHE = "CraftAudioPrecache";
+  private static final String TIMER_SECTION_CRAFT_CACHE = "CraftCache";
+  private static final String TIMER_SECTION_CRAFT_CLEANUP = "CraftCleanup";
   private final Telemetry telemetry;
   private final CraftFactory craftFactory;
   private final FabricatorFactory fabricatorFactory;
@@ -69,6 +70,7 @@ public class CraftWorkImpl implements CraftWork {
   private final TemplateConfig templateConfig;
   private final Chain chain;
   private final long mixerLengthMicros;
+  private final long persistenceWindowMicros;
 
   public CraftWorkImpl(
     Telemetry telemetry,
@@ -78,15 +80,14 @@ public class CraftWorkImpl implements CraftWork {
     NexusEntityStore store,
     AudioCache audioCache,
     HubContent sourceMaterial,
-    long craftAheadMicros,
+    long persistenceWindowSeconds,
+    long craftAheadSeconds,
     long mixerLengthSeconds,
     double outputFrameRate,
     int outputChannels
   ) {
     this.telemetry = telemetry;
     this.craftFactory = craftFactory;
-    this.craftAheadMicros = craftAheadMicros;
-    this.mixerLengthMicros = mixerLengthSeconds * MICROS_PER_SECOND;
     this.fabricatorFactory = fabricatorFactory;
     this.audioCache = audioCache;
     this.outputChannels = outputChannels;
@@ -95,8 +96,11 @@ public class CraftWorkImpl implements CraftWork {
     this.sourceMaterial = sourceMaterial;
     this.store = store;
 
-    // Telemetry: # Segments Erased
+    craftAheadMicros = craftAheadSeconds * MICROS_PER_SECOND;
+    mixerLengthMicros = mixerLengthSeconds * MICROS_PER_SECOND;
+    persistenceWindowMicros = persistenceWindowSeconds * MICROS_PER_SECOND;
 
+    // Telemetry: # Segments Erased
     chain = createChainForTemplate(sourceMaterial.getTemplate())
       .orElseThrow(() -> new RuntimeException("Failed to create chain"));
 
@@ -204,6 +208,7 @@ public class CraftWorkImpl implements CraftWork {
       }
       var choice = store.get(segment.getId(), SegmentChoice.class, arrangement.get().getSegmentChoiceId());
       return choice.isPresent() ? choice.get().getMute() : false;
+
     } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException | NexusException e) {
       LOG.warn("Unable to determine if SegmentChoiceArrangementPick[{}] is muted because {}", pick.getId(), e.getMessage());
       return false;
@@ -227,6 +232,7 @@ public class CraftWorkImpl implements CraftWork {
         return Optional.empty();
       }
       return sourceMaterial.getProgram(mainChoice.get().getProgramId());
+
     } catch (NexusException e) {
       LOG.warn("Unable to get main program for segment[{}] because {}", segment.getId(), e.getMessage());
       return Optional.empty();
@@ -266,6 +272,18 @@ public class CraftWorkImpl implements CraftWork {
     }
   }
 
+  @Override
+  public void gotoMacroProgram(Program macroProgram, long dubbedToChainMicros) {
+    var currentSegment = getSegmentAtChainMicros(dubbedToChainMicros);
+    if (currentSegment.isEmpty()) {
+      LOG.warn("Unable to go to macro program because no segment at dubbed-to chain micros");
+      return;
+    }
+    segmentManager.deleteSegmentsAfter(currentSegment.get().getId());
+    // TODO delete all segments after current segment
+    // TODO create new segment starting with macro program
+  }
+
   /**
    This is the internal cycle that's run indefinitely
    */
@@ -281,9 +299,23 @@ public class CraftWorkImpl implements CraftWork {
       doAudioCacheMaintenance(Math.min(shippedToChainMicros, dubbedToChainMicros), Math.max(shippedToChainMicros, dubbedToChainMicros) + mixerLengthMicros);
       telemetry.record(TIMER_SECTION_CRAFT_CACHE, System.currentTimeMillis() - startedAtMillis);
 
+      startedAtMillis = System.currentTimeMillis();
+      doSegmentCleanup(shippedToChainMicros);
+      telemetry.record(TIMER_SECTION_CRAFT_CLEANUP, System.currentTimeMillis() - startedAtMillis);
+
     } catch (Exception e) {
       didFailWhile("running craft work", e);
     }
+  }
+
+  /**
+   Delete segments before the given shipped-to chain micros
+
+   @param shippedToChainMicros the shipped-to chain micros
+   */
+  private void doSegmentCleanup(long shippedToChainMicros) {
+    getSegmentAtChainMicros(shippedToChainMicros - persistenceWindowMicros)
+      .ifPresent(segment -> segmentManager.deleteSegmentsBefore(segment.getId()));
   }
 
   /**

@@ -178,4 +178,8 @@ public interface FabricationService {
    */
   void cancel();
 
+  /**
+   * @param macroProgram the macro program to go to
+   */
+  void gotoMacroProgram(Program macroProgram);
 }

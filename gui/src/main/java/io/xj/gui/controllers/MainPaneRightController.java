@@ -31,8 +31,8 @@ public class MainPaneRightController extends VBox implements ReadyAfterBootContr
     macroSelectionContainer.visibleProperty().bind(uiStateService.isManualFabricationModeProperty());
     macroSelectionContainer.managedProperty().bind(uiStateService.isManualFabricationModeProperty());
 
-    uiStateService.isManualFabricationActiveProperty().addListener(this::onActivityChanged);
     // bind a listener to changes in the fabrication service source material
+    uiStateService.isManualFabricationActiveProperty().addListener(this::onActivityChanged);
   }
 
   private void onActivityChanged(Observable observable, Boolean ignored, Boolean value) {
@@ -44,6 +44,10 @@ public class MainPaneRightController extends VBox implements ReadyAfterBootContr
         // create a button
         var button = new Button(macroProgram.getName());
         button.getStyleClass().add("button");
+        button.onActionProperty().setValue(event -> {
+          // when the button is clicked, set the macro program in the fabrication service
+          fabricationService.gotoMacroProgram(macroProgram);
+        });
         // add the button to the vbox macroSelectionContainer
         macroSelectionContainer.getChildren().add(button);
       });

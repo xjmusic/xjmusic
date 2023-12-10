@@ -59,7 +59,7 @@ public class DubWorkImpl implements DubWork {
     String audioBaseUrl,
     String contentStoragePathPrefix,
     int mixerSeconds,
-    long dubAheadMicros,
+    long dubAheadSeconds,
     double outputFrameRate,
     int outputChannels
   ) {
@@ -68,11 +68,12 @@ public class DubWorkImpl implements DubWork {
     this.contentStoragePathPrefix = contentStoragePathPrefix;
     this.audioBaseUrl = audioBaseUrl;
     this.mixerLengthSeconds = mixerSeconds;
-    this.dubAheadMicros = dubAheadMicros;
     this.outputFrameRate = outputFrameRate;
     this.outputChannels = outputChannels;
-    this.mixerLengthMicros = mixerLengthSeconds * MICROS_PER_SECOND;
     this.mixerFactory = mixerFactory;
+
+    dubAheadMicros = dubAheadSeconds * MICROS_PER_SECOND;
+    mixerLengthMicros = mixerLengthSeconds * MICROS_PER_SECOND;
 
     var templateConfig = craftWork.getTemplateConfig();
     var chain = craftWork.getChain();

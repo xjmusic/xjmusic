@@ -159,8 +159,8 @@ public class FabricationServiceImpl implements FabricationService {
     // create work configuration
     var config = new WorkConfiguration()
       .setContentStoragePathPrefix(contentStoragePathPrefix.get())
-      .setCraftAheadMicros(Long.parseLong(craftAheadSeconds.get()) * MICROS_PER_SECOND)
-      .setDubAheadMicros(Long.parseLong(dubAheadSeconds.get()) * MICROS_PER_SECOND)
+      .setCraftAheadSeconds(Long.parseLong(craftAheadSeconds.get()) * MICROS_PER_SECOND)
+      .setDubAheadSeconds(Long.parseLong(dubAheadSeconds.get()) * MICROS_PER_SECOND)
       .setMixerLengthSeconds(Integer.parseInt(mixerLengthSeconds.get()))
       .setInputMode(inputMode.get())
       .setMacroMode(macroMode.get())
@@ -182,6 +182,11 @@ public class FabricationServiceImpl implements FabricationService {
   public void cancel() {
     status.set(WorkState.Cancelled);
     workManager.finish(true);
+  }
+
+  @Override
+  public void gotoMacroProgram(Program macroProgram) {
+    workManager.gotoMacroProgram(macroProgram);
   }
 
   @Override

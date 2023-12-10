@@ -9,8 +9,8 @@ public class WorkConfiguration {
   private InputMode inputMode;
   private MacroMode macroMode;
   private String inputTemplateKey;
-  private long craftAheadMicros;
-  private long dubAheadMicros;
+  private long craftAheadSeconds;
+  private long dubAheadSeconds;
   private int outputFrameRate;
   private int outputChannels;
   private String contentStoragePathPrefix;
@@ -22,6 +22,7 @@ public class WorkConfiguration {
   private long craftCycleMillis = 400;
   private long dubCycleMillis = 200;
   private long shipCycleMillis = 50;
+  private long persistenceWindowSeconds = 300;
 
   public InputMode getInputMode() {
     return inputMode;
@@ -50,21 +51,21 @@ public class WorkConfiguration {
     return this;
   }
 
-  public long getCraftAheadMicros() {
-    return craftAheadMicros;
+  public long getCraftAheadSeconds() {
+    return craftAheadSeconds;
   }
 
-  public WorkConfiguration setCraftAheadMicros(long craftAheadMicros) {
-    this.craftAheadMicros = craftAheadMicros;
+  public WorkConfiguration setCraftAheadSeconds(long craftAheadSeconds) {
+    this.craftAheadSeconds = craftAheadSeconds;
     return this;
   }
 
-  public long getDubAheadMicros() {
-    return dubAheadMicros;
+  public long getDubAheadSeconds() {
+    return dubAheadSeconds;
   }
 
-  public WorkConfiguration setDubAheadMicros(long dubAheadMicros) {
-    this.dubAheadMicros = dubAheadMicros;
+  public WorkConfiguration setDubAheadSeconds(long dubAheadSeconds) {
+    this.dubAheadSeconds = dubAheadSeconds;
     return this;
   }
 
@@ -165,5 +166,13 @@ public class WorkConfiguration {
   public WorkConfiguration setCraftCycleMillis(long craftCycleMillis) {
     this.craftCycleMillis = craftCycleMillis;
     return this;
+  }
+
+  public long getPersistenceWindowSeconds() {
+    return persistenceWindowSeconds;
+  }
+
+  public void setPersistenceWindowSeconds(long persistenceWindowSeconds) {
+    this.persistenceWindowSeconds = persistenceWindowSeconds;
   }
 }

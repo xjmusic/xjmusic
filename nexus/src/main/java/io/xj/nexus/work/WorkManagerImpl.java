@@ -5,6 +5,7 @@ import io.xj.hub.HubConfiguration;
 import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.audio_cache.AudioCache;
@@ -242,6 +243,13 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
+  public void gotoMacroProgram(Program macroProgram) {
+    assert Objects.nonNull(craftWork);
+    assert Objects.nonNull(dubWork);
+    craftWork.gotoMacroProgram(macroProgram, dubWork.getDubbedToChainMicros().orElse(0L));
+  }
+
+  @Override
   public SegmentManager getSegmentManager() {
     return segmentManager;
   }
@@ -474,11 +482,11 @@ public class WorkManagerImpl implements WorkManager {
       store,
       audioCache,
       hubContent.get(),
-      workConfig.getCraftAheadMicros(),
+      workConfig.getPersistenceWindowSeconds(),
+      workConfig.getCraftAheadSeconds(),
       workConfig.getMixerLengthSeconds(),
       workConfig.getOutputFrameRate(),
-      workConfig.getOutputChannels()
-    );
+      workConfig.getOutputChannels());
     dubWork = new DubWorkImpl(
       telemetry,
       craftWork,
@@ -486,7 +494,7 @@ public class WorkManagerImpl implements WorkManager {
       hubConfig.getAudioBaseUrl(),
       workConfig.getContentStoragePathPrefix(),
       workConfig.getMixerLengthSeconds(),
-      workConfig.getDubAheadMicros(),
+      workConfig.getDubAheadSeconds(),
       workConfig.getOutputFrameRate(),
       workConfig.getOutputChannels()
     );
