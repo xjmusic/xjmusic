@@ -34,6 +34,7 @@ import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentUtils;
 import io.xj.nexus.persistence.TemplateUtils;
 import io.xj.nexus.telemetry.Telemetry;
+import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -298,10 +299,6 @@ public class CraftWorkImpl implements CraftWork {
       doSegmentCleanup(shippedToChainMicros);
       telemetry.record(TIMER_SECTION_CRAFT_CLEANUP, System.currentTimeMillis() - startedAtMillis);
 
-      // Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub
-      // Workstation has live performance modulation https://www.pivotaltracker.com/story/show/186003440
-      craftState.set(CraftState.READY);
-
     } catch (Exception e) {
       didFailWhile("running craft work", e);
     }
@@ -336,6 +333,10 @@ public class CraftWorkImpl implements CraftWork {
         fabricateOverrideMacro();
         break;
     }
+
+    // Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub
+    // Workstation has live performance modulation https://www.pivotaltracker.com/story/show/186003440
+    craftState.set(CraftState.READY);
   }
 
   /**
@@ -365,16 +366,7 @@ public class CraftWorkImpl implements CraftWork {
         segment = buildSegmentFollowing(existing.get());
       }
       segment = segmentManager.create(segment);
-      LOG.debug("Created Segment {}", segment);
-
-      Fabricator fabricator;
-      LOG.debug("[segId={}] will prepare fabricator", segment.getId());
-      fabricator = fabricatorFactory.fabricate(sourceMaterial, segment, outputFrameRate, outputChannels);
-
-      LOG.debug("[segId={}] will do craft work", segment.getId());
-      segment = doCraftWork(fabricator, segment);
-      finishWork(fabricator, segment);
-      LOG.debug("Fabricated Segment[{}]", segment.getId());
+      doCraftWork(segment, null);
 
     } catch (
       ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException |
@@ -395,16 +387,8 @@ public class CraftWorkImpl implements CraftWork {
       Segment segment = buildSegmentFollowing(lastDubbedSegment.get());
       segment = segmentManager.create(segment);
       lastDubbedSegment.set(null);
-
-      // TODO create new NextMacro segment starting with macro program, and following segments
-      Fabricator fabricator;
-      LOG.debug("[segId={}] will prepare fabricator", segment.getId());
-      fabricator = fabricatorFactory.fabricate(sourceMaterial, segment, outputFrameRate, outputChannels);
-
-      LOG.debug("[segId={}] will do craft work", segment.getId());
-      segment = doCraftWork(fabricator, segment);
-      finishWork(fabricator, segment);
-      LOG.debug("Fabricated Segment[{}]", segment.getId());
+      doCraftWork(segment, nextMacroProgram.get());
+      nextMacroProgram.set(null);
 
     } catch (
       ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException |
@@ -452,6 +436,33 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
+   Craft a Segment, or fail
+
+   @param segment      to craft
+   @param macroProgram to use for crafting
+   @throws NexusException on configuration failure
+   @throws NexusException on craft failure
+   */
+  void doCraftWork(Segment segment, @Nullable Program macroProgram) throws NexusException, ManagerFatalException, ValueException, FabricationFatalException {
+    LOG.debug("[segId={}] will prepare fabricator", segment.getId());
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment, outputFrameRate, outputChannels);
+
+    LOG.debug("[segId={}] will do craft work", segment.getId());
+    updateSegmentState(fabricator, segment, SegmentState.PLANNED, SegmentState.CRAFTING);
+    craftFactory.macroMain(fabricator).doWork(null);
+    craftFactory.beat(fabricator).doWork();
+    craftFactory.hook(fabricator).doWork();
+    craftFactory.detail(fabricator).doWork();
+    craftFactory.percLoop(fabricator).doWork();
+    craftFactory.transition(fabricator).doWork();
+    craftFactory.background(fabricator).doWork();
+    LOG.debug("Fabricated Segment[{}]", segment.getId());
+
+    updateSegmentState(fabricator, segment, SegmentState.CRAFTING, SegmentState.CRAFTED);
+    LOG.debug("[segId={}] Worked for {} seconds", segment.getId(), String.format("%.2f", (float) fabricator.getElapsedMicros() / MICROS_PER_SECOND));
+  }
+
+  /**
    Delete segments before the given shipped-to chain micros
 
    @param shippedToChainMicros the shipped-to chain micros
@@ -484,38 +495,6 @@ public class CraftWorkImpl implements CraftWork {
         }
       });
     audioCache.loadTheseAndForgetTheRest(currentAudios);
-  }
-
-  /**
-   Finish work on Segment
-
-   @param fabricator to craft
-   @param segment    fabricating
-   @throws NexusException on failure
-   */
-  void finishWork(Fabricator fabricator, Segment segment) throws NexusException {
-    updateSegmentState(fabricator, segment, SegmentState.CRAFTING, SegmentState.CRAFTED);
-    LOG.debug("[segId={}] Worked for {} seconds", segment.getId(), String.format("%.2f", (float) fabricator.getElapsedMicros() / MICROS_PER_SECOND));
-  }
-
-  /**
-   Craft a Segment, or fail
-
-   @param fabricator to craft
-   @param segment    fabricating
-   @throws NexusException on configuration failure
-   @throws NexusException on craft failure
-   */
-  Segment doCraftWork(Fabricator fabricator, Segment segment) throws NexusException {
-    var updated = updateSegmentState(fabricator, segment, SegmentState.PLANNED, SegmentState.CRAFTING);
-    craftFactory.macroMain(fabricator).doWork();
-    craftFactory.beat(fabricator).doWork();
-    craftFactory.hook(fabricator).doWork();
-    craftFactory.detail(fabricator).doWork();
-    craftFactory.percLoop(fabricator).doWork();
-    craftFactory.transition(fabricator).doWork();
-    craftFactory.background(fabricator).doWork();
-    return updated;
   }
 
   /**

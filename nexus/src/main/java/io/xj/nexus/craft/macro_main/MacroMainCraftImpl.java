@@ -13,10 +13,18 @@ import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
-import io.xj.nexus.model.*;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentType;
 import jakarta.annotation.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
@@ -92,10 +100,13 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   @Override
-  public void doWork() throws NexusException {
-    var macroProgram = chooseNextMacroProgram()
-      .orElseThrow(() -> new NexusException("Failed to choose a Macro-program by any means!"));
-    Integer macroSequenceBindingOffset = computeMacroProgramSequenceBindingOffset();
+  public void doWork(@Nullable Program forceMacroProgram) throws NexusException {
+    var macroProgram = Objects.nonNull(forceMacroProgram)
+      ? forceMacroProgram
+      : chooseNextMacroProgram().orElseThrow(() -> new NexusException("Failed to choose a Macro-program by any means!"));
+    Integer macroSequenceBindingOffset = Objects.nonNull(forceMacroProgram)
+      ? fabricator.getSecondMacroSequenceBindingOffset(forceMacroProgram)
+      : computeMacroSequenceBindingOffset();
     var macroSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format(
         "Unable to determine sequence binding offset for Macro-Program[%s] %s",
@@ -197,7 +208,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
    @return macroSequenceBindingOffset
    */
-  Integer computeMacroProgramSequenceBindingOffset() throws NexusException {
+  Integer computeMacroSequenceBindingOffset() throws NexusException {
     var previousMacroChoice = fabricator.getMacroChoiceOfPreviousSegment();
     return switch (fabricator.getType()) {
       case INITIAL, NEXTMACRO -> 0;

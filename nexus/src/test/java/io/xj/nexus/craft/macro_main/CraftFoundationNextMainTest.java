@@ -131,7 +131,7 @@ public class CraftFoundationNextMainTest {
   public void craftFoundationNextMain() throws Exception {
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
 
-    craftFactory.macroMain(fabricator).doWork();
+    craftFactory.macroMain(fabricator).doWork(null);
 
     Segment result = store.getSegment(segment4.getId()).orElseThrow();
     assertEquals(SegmentType.NEXTMAIN, result.getType());
