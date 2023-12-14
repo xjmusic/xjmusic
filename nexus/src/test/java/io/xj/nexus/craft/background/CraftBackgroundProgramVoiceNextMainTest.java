@@ -158,7 +158,7 @@ public class CraftBackgroundProgramVoiceNextMainTest {
   @Test
   public void craftBackgroundVoiceNextMain() throws Exception {
     insertSegments3and4();
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2, null);
 
     craftFactory.background(fabricator).doWork();
 
@@ -210,7 +210,7 @@ public class CraftBackgroundProgramVoiceNextMainTest {
     // segment crafting
     segment4 = store.put(buildSegment(
       chain1,
-      SegmentType.NEXTMAIN,
+      SegmentType.NEXT_MAIN,
       0,
       3,
       SegmentState.CRAFTING,

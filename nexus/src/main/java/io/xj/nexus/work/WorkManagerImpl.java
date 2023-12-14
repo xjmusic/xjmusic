@@ -5,6 +5,7 @@ import io.xj.hub.HubConfiguration;
 import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.audio_cache.AudioCache;
@@ -60,6 +61,7 @@ import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 public class WorkManagerImpl implements WorkManager {
   private static final Logger LOG = LoggerFactory.getLogger(WorkManagerImpl.class);
+  private static final double DEFAULT_MIN_SEQUENCE_DURATION_MICROS = 4_000_000.0;
   private static final int THREAD_POOL_SIZE = 50;
   private final BroadcastFactory broadcastFactory;
   private final CraftFactory craftFactory;
@@ -184,10 +186,10 @@ public class WorkManagerImpl implements WorkManager {
     updateState(WorkState.Starting);
 
     scheduler = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);
-    scheduler.scheduleAtFixedRate(this::runControlCycle, 0, workConfig.getControlCycleMillis(), TimeUnit.MILLISECONDS);
-    scheduler.scheduleAtFixedRate(this::runCraftCycle, 0, workConfig.getCraftCycleMillis(), TimeUnit.MILLISECONDS);
-    scheduler.scheduleAtFixedRate(this::runDubCycle, 0, workConfig.getDubCycleMillis(), TimeUnit.MILLISECONDS);
-    scheduler.scheduleAtFixedRate(this::runShipCycle, 0, workConfig.getShipCycleMillis(), TimeUnit.MILLISECONDS);
+    scheduler.scheduleWithFixedDelay(this::runControlCycle, 0, workConfig.getControlCycleDelayMillis(), TimeUnit.MILLISECONDS);
+    scheduler.scheduleWithFixedDelay(this::runCraftCycle, 0, workConfig.getCraftCycleDelayMillis(), TimeUnit.MILLISECONDS);
+    scheduler.scheduleAtFixedRate(this::runDubCycle, 0, workConfig.getDubCycleRateMillis(), TimeUnit.MILLISECONDS);
+    scheduler.scheduleAtFixedRate(this::runShipCycle, 0, workConfig.getShipCycleRateMillis(), TimeUnit.MILLISECONDS);
 
     telemetry.startTimer();
   }
@@ -239,6 +241,21 @@ public class WorkManagerImpl implements WorkManager {
   @Override
   public void setAfterFinished(@Nullable Runnable afterFinished) {
     this.afterFinished = afterFinished;
+  }
+
+  @Override
+  public void gotoMacroProgram(Program macroProgram) {
+    assert Objects.nonNull(craftWork);
+    assert Objects.nonNull(dubWork);
+    craftWork.gotoMacroProgram(macroProgram, dubWork.getDubbedToChainMicros().orElse(0L));
+  }
+
+  @Override
+  public double getMinSequenceDurationMicros() {
+    return getSourceMaterial().getProgramSequences().stream()
+      .mapToDouble(s -> s.getTotal() * 1_000_000.0 / getSourceMaterial().getProgram(s.getProgramId()).orElseThrow().getTempo())
+      .min()
+      .orElse(DEFAULT_MIN_SEQUENCE_DURATION_MICROS);
   }
 
   @Override
@@ -474,11 +491,11 @@ public class WorkManagerImpl implements WorkManager {
       store,
       audioCache,
       hubContent.get(),
-      workConfig.getCraftAheadMicros(),
+      workConfig.getPersistenceWindowSeconds(),
+      workConfig.getCraftAheadSeconds(),
       workConfig.getMixerLengthSeconds(),
       workConfig.getOutputFrameRate(),
-      workConfig.getOutputChannels()
-    );
+      workConfig.getOutputChannels());
     dubWork = new DubWorkImpl(
       telemetry,
       craftWork,
@@ -486,7 +503,7 @@ public class WorkManagerImpl implements WorkManager {
       hubConfig.getAudioBaseUrl(),
       workConfig.getContentStoragePathPrefix(),
       workConfig.getMixerLengthSeconds(),
-      workConfig.getDubAheadMicros(),
+      workConfig.getDubAheadSeconds(),
       workConfig.getOutputFrameRate(),
       workConfig.getOutputChannels()
     );

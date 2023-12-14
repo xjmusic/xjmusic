@@ -111,7 +111,7 @@ public class CraftPercLoopContinueTest {
   @Test
   public void craftPercLoopContinue() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2, null);
 
 //    craftFactory.percLoop(fabricator).doWork();
 //    // assert choice of percLoop-type sequence
@@ -193,7 +193,7 @@ public class CraftPercLoopContinueTest {
   @Test
   public void craftPercLoopContinue_okEvenWithoutPreviousSegmentPercLoopChoice() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2, null);
     craftFactory.percLoop(fabricator).doWork();
 
 /*

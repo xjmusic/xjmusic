@@ -4,7 +4,12 @@ package io.xj.nexus.persistence;
 import io.xj.hub.enums.ProgramType;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.nexus.model.*;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentMessage;
+import io.xj.nexus.model.SegmentMeta;
+import io.xj.nexus.model.SegmentState;
 
 import java.util.Collection;
 import java.util.List;
@@ -225,4 +230,18 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
    @return hash of all the ids of the choices for the given segment
    */
   String getChoiceHash(Segment segment);
+
+  /**
+   Delete all segments before the given segment id
+
+   @param lastSegmentId segment id
+   */
+  void deleteSegmentsBefore(int lastSegmentId);
+
+  /**
+   Delete all segments after the given segment id
+
+   @param lastSegmentId segment id
+   */
+  void deleteSegmentsAfter(int lastSegmentId);
 }

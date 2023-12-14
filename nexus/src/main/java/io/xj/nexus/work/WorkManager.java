@@ -4,6 +4,7 @@ package io.xj.nexus.work;
 
 import io.xj.hub.HubConfiguration;
 import io.xj.hub.HubContent;
+import io.xj.hub.tables.pojos.Program;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.persistence.SegmentManager;
 
@@ -100,4 +101,18 @@ public interface WorkManager {
    @param afterFinished callback
    */
   void setAfterFinished(Runnable afterFinished);
+
+  /**
+   Go to the given macro program right away
+
+   @param macroProgram to go to
+   */
+  void gotoMacroProgram(Program macroProgram);
+
+  /**
+   Out of all the source material main programs, get the minimum sequence duration (in microseconds)
+
+   @return the minimum sequence duration (in microseconds)
+   */
+  double getMinSequenceDurationMicros();
 }

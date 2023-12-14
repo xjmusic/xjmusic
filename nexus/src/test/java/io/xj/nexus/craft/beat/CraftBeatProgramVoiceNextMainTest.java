@@ -162,7 +162,7 @@ public class CraftBeatProgramVoiceNextMainTest {
   @Test
   public void craftBeatVoiceNextMain() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2, null);
 
     craftFactory.beat(fabricator).doWork();
 
@@ -185,7 +185,7 @@ public class CraftBeatProgramVoiceNextMainTest {
   @Test
   public void craftBeatVoiceNextMain_okIfNoBeatChoice() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2, null);
 
     craftFactory.beat(fabricator).doWork();
   }
@@ -232,7 +232,7 @@ public class CraftBeatProgramVoiceNextMainTest {
     // segment crafting
     segment4 = store.put(buildSegment(
       chain1,
-      SegmentType.NEXTMAIN,
+      SegmentType.NEXT_MAIN,
       0,
       3,
       SegmentState.CRAFTING,

@@ -68,11 +68,11 @@ public class NexusEntityStoreImplTest {
   @Test
   public void internal_entityFactoryClonesSegmentTypeOK() throws EntityException {
     Segment segment = new Segment();
-    segment.setType(SegmentType.NEXTMACRO);
+    segment.setType(SegmentType.NEXT_MACRO);
 
     Segment result = entityFactory.clone(segment);
 
-    assertEquals(SegmentType.NEXTMACRO, result.getType());
+    assertEquals(SegmentType.NEXT_MACRO, result.getType());
   }
 
 
@@ -82,7 +82,7 @@ public class NexusEntityStoreImplTest {
     Segment segment = new Segment();
     segment.setChainId(chainId);
     segment.setId(0);
-    segment.setType(SegmentType.NEXTMACRO);
+    segment.setType(SegmentType.NEXT_MACRO);
     segment.setState(SegmentState.CRAFTED);
     segment.beginAtChainMicros(0L);
     segment.durationMicros(32 * MICROS_PER_SECOND);
@@ -98,7 +98,7 @@ public class NexusEntityStoreImplTest {
     assertEquals(segment.getId(), result.getId());
     assertEquals(chainId, result.getChainId());
     assertEquals(0, result.getId());
-    assertEquals(SegmentType.NEXTMACRO, result.getType());
+    assertEquals(SegmentType.NEXT_MACRO, result.getType());
     assertEquals(SegmentState.CRAFTED, result.getState());
     assertEquals(0, (long) result.getBeginAtChainMicros());
     assertEquals(32 * MICROS_PER_SECOND, (long) Objects.requireNonNull(result.getDurationMicros()));

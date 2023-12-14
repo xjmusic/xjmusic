@@ -108,7 +108,7 @@ public class CraftDetailProgramVoiceNextMainTest {
   @Test
   public void craftDetailVoiceNextMain() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2, null);
 
     craftFactory.detail(fabricator).doWork();
 
@@ -127,7 +127,7 @@ public class CraftDetailProgramVoiceNextMainTest {
   @Test
   public void craftDetailVoiceNextMain_okIfNoDetailChoice() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2, null);
 
     craftFactory.detail(fabricator).doWork();
   }
@@ -171,7 +171,7 @@ public class CraftDetailProgramVoiceNextMainTest {
         fake.program10));
     segment4 = store.put(buildSegment(
       chain1,
-      SegmentType.NEXTMAIN,
+      SegmentType.NEXT_MAIN,
       3,
       3,
       SegmentState.CRAFTING,

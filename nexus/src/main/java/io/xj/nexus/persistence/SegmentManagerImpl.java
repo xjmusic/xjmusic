@@ -145,7 +145,6 @@ public class SegmentManagerImpl implements SegmentManager {
       return store.getAllSegments()
         .stream()
         .filter(s -> SegmentUtils.isSpanning(s, fromChainMicros, toChainMicros))
-        .sorted(Comparator.comparing(Segment::getId))
         .toList();
 
     } catch (NexusException e) {
@@ -342,6 +341,16 @@ public class SegmentManagerImpl implements SegmentManager {
       LOG.warn("Failed to get choice hash for Segment #" + segment.getId(), e);
       return String.format("%s_%d", segment.getChainId(), segment.getId());
     }
+  }
+
+  @Override
+  public void deleteSegmentsBefore(int lastSegmentId) {
+    store.deleteSegmentsBefore(lastSegmentId);
+  }
+
+  @Override
+  public void deleteSegmentsAfter(int lastSegmentId) {
+    store.deleteSegmentsAfter(lastSegmentId);
   }
 
   @Override

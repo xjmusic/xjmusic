@@ -742,4 +742,12 @@ public interface Fabricator {
    @return micros per beat
    */
   Double getMicrosPerBeat() throws NexusException;
+
+  /**
+   Get the second macro sequence binding offset of a given macro program
+
+   @param macroProgram for which to get second macro sequence binding offset
+   @return second macro sequence binding offset
+   */
+  int getSecondMacroSequenceBindingOffset(Program macroProgram);
 }

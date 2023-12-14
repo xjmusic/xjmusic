@@ -92,7 +92,7 @@ public class CraftPercLoopProgramVoiceInitialTest {
   public void craftPercLoopVoiceInitial() throws Exception {
     insertSegment();
 
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0, 48000.0f, 2, null);
 
     craftFactory.percLoop(fabricator).doWork();
 
@@ -123,7 +123,7 @@ public class CraftPercLoopProgramVoiceInitialTest {
   @Test
   public void craftPercLoopVoiceInitial_okWhenNoPercLoopChoice() throws Exception {
     insertSegment();
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0, 48000.0f, 2, null);
 
     craftFactory.percLoop(fabricator).doWork();
   }

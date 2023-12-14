@@ -112,7 +112,7 @@ public class CraftDetailNextMainTest {
   @Test
   public void craftDetailNextMain() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2, null);
 
     craftFactory.detail(fabricator).doWork();
 
@@ -125,7 +125,7 @@ public class CraftDetailNextMainTest {
   @Test
   public void craftDetailNextMain_okEvenWithoutPreviousSegmentDetailChoice() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2, null);
 
     craftFactory.detail(fabricator).doWork();
 
@@ -145,7 +145,7 @@ public class CraftDetailNextMainTest {
     // Testing entities for reference
     Segment segment3 = store.put(buildSegment(
       chain1,
-      SegmentType.NEXTMAIN,
+      SegmentType.NEXT_MAIN,
       2,
       2,
       SegmentState.CRAFTED,

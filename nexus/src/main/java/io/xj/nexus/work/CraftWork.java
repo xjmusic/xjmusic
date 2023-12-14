@@ -131,4 +131,19 @@ public interface CraftWork extends Work {
    @return the crafted-to chain micros
    */
   Optional<Long> getCraftedToChainMicros();
+
+  /**
+   Whether the current craft state is ready
+
+   @return true if ready
+   */
+  boolean isReady();
+
+  /**
+   Go to the given macro program right now
+
+   @param macroProgram        the macro program to go to
+   @param dubbedToChainMicros the chain micros at which to dub
+   */
+  void gotoMacroProgram(Program macroProgram, long dubbedToChainMicros);
 }

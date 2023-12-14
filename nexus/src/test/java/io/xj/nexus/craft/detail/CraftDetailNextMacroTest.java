@@ -112,7 +112,7 @@ public class CraftDetailNextMacroTest {
   @Test
   public void craftDetailNextMacro() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2, null);
 
     craftFactory.detail(fabricator).doWork();
 
@@ -125,7 +125,7 @@ public class CraftDetailNextMacroTest {
   @Test
   public void craftDetailNextMacro_okEvenWithoutPreviousSegmentDetailChoice() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2, null);
 
     craftFactory.detail(fabricator).doWork();
 
@@ -176,7 +176,7 @@ public class CraftDetailNextMacroTest {
     // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
     segment4 = store.put(buildSegment(
       chain1,
-      SegmentType.NEXTMACRO,
+      SegmentType.NEXT_MACRO,
       3,
       0,
       SegmentState.CRAFTING,

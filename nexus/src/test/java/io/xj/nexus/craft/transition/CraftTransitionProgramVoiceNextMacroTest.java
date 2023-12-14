@@ -134,7 +134,7 @@ public class CraftTransitionProgramVoiceNextMacroTest {
   @Test
   public void craftTransitionVoiceNextMacro() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2, null);
 
     craftFactory.transition(fabricator).doWork();
 
@@ -199,7 +199,7 @@ public class CraftTransitionProgramVoiceNextMacroTest {
     // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
     segment4 = store.put(buildSegment(
       chain1,
-      SegmentType.NEXTMACRO,
+      SegmentType.NEXT_MACRO,
       3,
       0,
       SegmentState.CRAFTING,

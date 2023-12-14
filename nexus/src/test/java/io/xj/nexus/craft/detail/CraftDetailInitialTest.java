@@ -123,7 +123,7 @@ public class CraftDetailInitialTest {
 
   @Test
   public void craftDetailInitial() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 48000.0f, 2, null);
 
     craftFactory.detail(fabricator).doWork();
 

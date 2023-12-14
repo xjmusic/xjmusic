@@ -11,26 +11,77 @@ import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.meme.MemeStack;
-import io.xj.hub.music.*;
-import io.xj.hub.tables.pojos.*;
-import io.xj.hub.util.*;
+import io.xj.hub.music.Accidental;
+import io.xj.hub.music.Chord;
+import io.xj.hub.music.Note;
+import io.xj.hub.music.NoteRange;
+import io.xj.hub.music.PitchClass;
+import io.xj.hub.music.StickyBun;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.util.CsvUtils;
+import io.xj.hub.util.MarbleBag;
+import io.xj.hub.util.StringUtils;
+import io.xj.hub.util.ValueException;
+import io.xj.hub.util.ValueUtils;
+import io.xj.nexus.NexusException;
 import io.xj.nexus.entity.EntityUtils;
 import io.xj.nexus.json.JsonProvider;
 import io.xj.nexus.jsonapi.JsonapiException;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
-import io.xj.nexus.NexusException;
-import io.xj.nexus.model.*;
-import io.xj.nexus.persistence.*;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentMessage;
+import io.xj.nexus.model.SegmentMessageType;
+import io.xj.nexus.model.SegmentMeta;
+import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.persistence.ChainUtils;
+import io.xj.nexus.persistence.ManagerExistenceException;
+import io.xj.nexus.persistence.ManagerFatalException;
+import io.xj.nexus.persistence.ManagerPrivilegeException;
+import io.xj.nexus.persistence.ManagerValidationException;
+import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.SegmentUtils;
 import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.AudioFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.hub.util.ValueUtils.*;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.NANOS_PER_MICRO;
+import static io.xj.hub.util.ValueUtils.SECONDS_PER_MINUTE;
 import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 /**
@@ -88,7 +139,8 @@ public class FabricatorImpl implements Fabricator {
     JsonapiPayloadFactory jsonapiPayloadFactory,
     JsonProvider jsonProvider,
     double outputFrameRate,
-    int outputChannels
+    int outputChannels,
+    @Nullable SegmentType overrideSegmentType
   ) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException {
     this.segmentManager = segmentManager;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
@@ -130,9 +182,14 @@ public class FabricatorImpl implements Fabricator {
     // get the current segment on the workbench
     workbench = fabricatorFactory.setupWorkbench(chain, segment);
 
+    // Override the segment type by passing the fabricator a segment type on creation
+    // Workstation has live performance modulation https://www.pivotaltracker.com/story/show/186003440
+    if (Objects.nonNull(overrideSegmentType)) {
+      type = overrideSegmentType;
+    }
+
     // final pre-flight check
     ensureShipKey();
-
   }
 
   @Override
@@ -309,7 +366,7 @@ public class FabricatorImpl implements Fabricator {
   public Optional<SegmentChoice> getChoiceIfContinued(InstrumentType instrumentType) {
     try {
       return switch (getSegment().getType()) {
-        case INITIAL, NEXTMAIN, NEXTMACRO, PENDING -> Optional.empty();
+        case INITIAL, NEXT_MAIN, NEXT_MACRO, PENDING -> Optional.empty();
         case CONTINUE ->
           retrospective.getChoices().stream().filter(choice -> Objects.equals(instrumentType, choice.getInstrumentType())).findFirst();
       };
@@ -324,7 +381,7 @@ public class FabricatorImpl implements Fabricator {
   public Optional<SegmentChoice> getChoiceIfContinued(InstrumentType instrumentType, InstrumentMode instrumentMode) {
     try {
       return switch (getSegment().getType()) {
-        case INITIAL, NEXTMAIN, NEXTMACRO, PENDING -> Optional.empty();
+        case INITIAL, NEXT_MAIN, NEXT_MACRO, PENDING -> Optional.empty();
         case CONTINUE ->
           retrospective.getChoices().stream().filter(choice -> Objects.equals(instrumentType, choice.getInstrumentType()) && Objects.equals(instrumentMode, choice.getInstrumentMode())).findFirst();
       };
@@ -339,7 +396,7 @@ public class FabricatorImpl implements Fabricator {
   public Optional<SegmentChoice> getChoiceIfContinued(ProgramType programType) {
     try {
       return switch (getSegment().getType()) {
-        case PENDING, INITIAL, NEXTMAIN, NEXTMACRO -> Optional.empty();
+        case PENDING, INITIAL, NEXT_MAIN, NEXT_MACRO -> Optional.empty();
         case CONTINUE ->
           retrospective.getChoices().stream().filter(choice -> Objects.equals(programType, choice.getProgramType())).findFirst();
       };
@@ -769,7 +826,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public boolean isContinuationOfMacroProgram() throws NexusException {
-    return SegmentType.CONTINUE.equals(getType()) || SegmentType.NEXTMAIN.equals(getType());
+    return SegmentType.CONTINUE.equals(getType()) || SegmentType.NEXT_MAIN.equals(getType());
   }
 
   @Override
@@ -870,6 +927,14 @@ public class FabricatorImpl implements Fabricator {
     return microsPerBeat;
   }
 
+  @Override
+  public int getSecondMacroSequenceBindingOffset(Program macroProgram) {
+    var offsets = sourceMaterial.getSequenceBindingsForProgram(macroProgram.getId()).stream()
+      .map(ProgramSequenceBinding::getOffset)
+      .collect(Collectors.toSet()).stream().sorted().toList();
+    return offsets.size() > 1 ? offsets.get(1) : offsets.get(0);
+  }
+
   /**
    Compute the lowest optimal range shift octaves
 
@@ -945,9 +1010,9 @@ public class FabricatorImpl implements Fabricator {
     var previousMacroChoice = getMacroChoiceOfPreviousSegment();
 
     if (previousMacroChoice.isPresent() && hasTwoMoreSequenceBindingOffsets(previousMacroChoice.get()))
-      return SegmentType.NEXTMAIN;
+      return SegmentType.NEXT_MAIN;
 
-    return SegmentType.NEXTMACRO;
+    return SegmentType.NEXT_MACRO;
   }
 
   /**

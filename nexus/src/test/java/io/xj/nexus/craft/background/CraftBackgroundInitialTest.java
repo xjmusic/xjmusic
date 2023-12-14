@@ -120,7 +120,7 @@ public class CraftBackgroundInitialTest {
 
   @Test
   public void craftBackgroundInitial() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 48000.0f, 2, null);
 
     craftFactory.background(fabricator).doWork();
 

@@ -114,7 +114,7 @@ public class CraftDetailProgramVoiceContinueTest {
   @Test
   public void craftDetailVoiceContinue() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2, null);
 
     craftFactory.detail(fabricator).doWork();
 
@@ -134,7 +134,7 @@ public class CraftDetailProgramVoiceContinueTest {
   @Test
   public void craftDetailVoiceContinue_okIfNoDetailChoice() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2, null);
 
     craftFactory.detail(fabricator).doWork();
   }

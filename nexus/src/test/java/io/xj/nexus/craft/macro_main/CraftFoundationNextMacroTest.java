@@ -117,12 +117,12 @@ public class CraftFoundationNextMacroTest {
       // Chain "Test Print #1" has a planned segment
       Segment segment4 = store.put(buildSegment(chain1, 3, SegmentState.PLANNED, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
 
-      Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
+      Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2, null);
 
-      craftFactory.macroMain(fabricator).doWork();
+      craftFactory.macroMain(fabricator, null).doWork();
 
       Segment result = store.getSegment(segment4.getId()).orElseThrow();
-      assertEquals(SegmentType.NEXTMACRO, result.getType());
+      assertEquals(SegmentType.NEXT_MACRO, result.getType());
       assertEquals(16 * MICROS_PER_SECOND * SECONDS_PER_MINUTE / 140, (long) Objects.requireNonNull(result.getDurationMicros()));
       assertEquals(Integer.valueOf(16), result.getTotal());
       assertEquals(0.1, result.getDensity(), 0.01);

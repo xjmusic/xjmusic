@@ -336,7 +336,7 @@ public class CraftImpl extends FabricationWrapperImpl {
         // No Op
       }
 
-      case INITIAL, NEXTMAIN, NEXTMACRO -> {
+      case INITIAL, NEXT_MAIN, NEXT_MACRO -> {
         // randomly override N incoming (deltaIn unlimited) and N outgoing (deltaOut unlimited)
         // shuffle the layers into a random order, then step through them, assigning delta ins and then outs
         // random order in
