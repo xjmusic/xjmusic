@@ -50,7 +50,7 @@ public class SegmentUtilsTest {
     true);
   final Segment seg2 = buildSegment(
     chain,
-    SegmentType.NEXTMAIN,
+    SegmentType.NEXT_MAIN,
     2,
     0,
     SegmentState.CRAFTED,
@@ -62,7 +62,7 @@ public class SegmentUtilsTest {
     true);
   final Segment seg3 = buildSegment(
     chain,
-    SegmentType.NEXTMAIN,
+    SegmentType.NEXT_MAIN,
     3,
     0,
     SegmentState.CRAFTING,

@@ -16,9 +16,9 @@ public enum SegmentType {
 
   CONTINUE("Continue"),
 
-  NEXTMAIN("NextMain"),
+  NEXT_MAIN("NextMain"),
 
-  NEXTMACRO("NextMacro");
+  NEXT_MACRO("NextMacro");
 
   String value;
 

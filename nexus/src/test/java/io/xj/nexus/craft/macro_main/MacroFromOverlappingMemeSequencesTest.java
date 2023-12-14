@@ -161,7 +161,7 @@ public class MacroFromOverlappingMemeSequencesTest {
       "chains-1-segments-9f7s89d8a7892.wav"
     ));
 
-    subject = new MacroMainCraftImpl(fabricatorFactory.fabricate(sourceMaterial, segment2, 48000.0f, 2));
+    subject = new MacroMainCraftImpl(fabricatorFactory.fabricate(sourceMaterial, segment2, 48000.0f, 2), null);
   }
 
   @Test

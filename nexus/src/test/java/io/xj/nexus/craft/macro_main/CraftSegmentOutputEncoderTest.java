@@ -87,7 +87,7 @@ public class CraftSegmentOutputEncoderTest {
   public void craftFoundationInitial() throws Exception {
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 48000.0f, 2);
 
-    craftFactory.macroMain(fabricator).doWork(null);
+    craftFactory.macroMain(fabricator, null).doWork();
 
     Segment result = store.getSegment(segment6.getId()).orElseThrow();
     assertEquals(segment6.getId(), result.getId());

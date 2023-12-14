@@ -88,7 +88,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
   boolean isBigTransitionSegment() throws NexusException {
     return switch (fabricator.getType()) {
       case PENDING, CONTINUE -> false;
-      case INITIAL, NEXTMAIN, NEXTMACRO -> true;
+      case INITIAL, NEXT_MAIN, NEXT_MACRO -> true;
     };
   }
 
@@ -101,7 +101,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
    */
   boolean isMediumTransitionSegment() throws NexusException {
     return switch (fabricator.getType()) {
-      case PENDING, INITIAL, NEXTMAIN, NEXTMACRO -> false;
+      case PENDING, INITIAL, NEXT_MAIN, NEXT_MACRO -> false;
       case CONTINUE -> !fabricator.getCurrentMainSequence().orElseThrow().getId()
         .equals(fabricator.getPreviousMainSequence().orElseThrow().getId());
     };

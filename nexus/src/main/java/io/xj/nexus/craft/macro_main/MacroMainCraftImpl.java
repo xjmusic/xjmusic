@@ -31,10 +31,15 @@ import java.util.UUID;
  */
 public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
+  @Nullable
+  private final Program selectedMacroProgram;
+
   public MacroMainCraftImpl(
-    Fabricator fabricator
+    Fabricator fabricator,
+    @Nullable Program selectedMacroProgram
   ) {
     super(fabricator);
+    this.selectedMacroProgram = selectedMacroProgram;
   }
 
   /**
@@ -100,12 +105,12 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   @Override
-  public void doWork(@Nullable Program forceMacroProgram) throws NexusException {
-    var macroProgram = Objects.nonNull(forceMacroProgram)
-      ? forceMacroProgram
+  public void doWork() throws NexusException {
+    var macroProgram = Objects.nonNull(selectedMacroProgram)
+      ? selectedMacroProgram
       : chooseNextMacroProgram().orElseThrow(() -> new NexusException("Failed to choose a Macro-program by any means!"));
-    Integer macroSequenceBindingOffset = Objects.nonNull(forceMacroProgram)
-      ? fabricator.getSecondMacroSequenceBindingOffset(forceMacroProgram)
+    Integer macroSequenceBindingOffset = Objects.nonNull(selectedMacroProgram)
+      ? fabricator.getSecondMacroSequenceBindingOffset(selectedMacroProgram)
       : computeMacroSequenceBindingOffset();
     var macroSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format(
@@ -211,10 +216,10 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   Integer computeMacroSequenceBindingOffset() throws NexusException {
     var previousMacroChoice = fabricator.getMacroChoiceOfPreviousSegment();
     return switch (fabricator.getType()) {
-      case INITIAL, NEXTMACRO -> 0;
+      case INITIAL, NEXT_MACRO -> 0;
       case CONTINUE -> previousMacroChoice.isPresent() ?
         fabricator.getSequenceBindingOffsetForChoice(previousMacroChoice.get()) : 0;
-      case NEXTMAIN -> previousMacroChoice.isPresent() ?
+      case NEXT_MAIN -> previousMacroChoice.isPresent() ?
         fabricator.getNextSequenceBindingOffset(previousMacroChoice.get()) : 0;
       default ->
         throw new NexusException(String.format("Cannot get Macro-type sequence for known fabricator type=%s", fabricator.getType()));
@@ -228,7 +233,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    */
   Integer computeMainProgramSequenceBindingOffset() throws NexusException {
     switch (fabricator.getType()) {
-      case INITIAL, NEXTMAIN, NEXTMACRO -> {
+      case INITIAL, NEXT_MAIN, NEXT_MACRO -> {
         return 0;
       }
       case CONTINUE -> {

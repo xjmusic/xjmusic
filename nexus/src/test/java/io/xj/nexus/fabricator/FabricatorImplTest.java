@@ -185,7 +185,7 @@ public class FabricatorImplTest {
 
     var result = subject.getType();
 
-    assertEquals(SegmentType.NEXTMACRO, result);
+    assertEquals(SegmentType.NEXT_MACRO, result);
   }
 
   // FUTURE: test getChoicesOfPreviousSegments

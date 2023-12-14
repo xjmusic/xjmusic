@@ -145,7 +145,7 @@ public class CraftDetailNextMainTest {
     // Testing entities for reference
     Segment segment3 = store.put(buildSegment(
       chain1,
-      SegmentType.NEXTMAIN,
+      SegmentType.NEXT_MAIN,
       2,
       2,
       SegmentState.CRAFTED,

@@ -210,7 +210,7 @@ public class CraftTransitionProgramVoiceNextMainTest {
     // segment crafting
     segment4 = store.put(buildSegment(
       chain1,
-      SegmentType.NEXTMAIN,
+      SegmentType.NEXT_MAIN,
       0,
       3,
       SegmentState.CRAFTING,

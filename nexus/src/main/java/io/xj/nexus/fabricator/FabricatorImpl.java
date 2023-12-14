@@ -360,7 +360,7 @@ public class FabricatorImpl implements Fabricator {
   public Optional<SegmentChoice> getChoiceIfContinued(InstrumentType instrumentType) {
     try {
       return switch (getSegment().getType()) {
-        case INITIAL, NEXTMAIN, NEXTMACRO, PENDING -> Optional.empty();
+        case INITIAL, NEXT_MAIN, NEXT_MACRO, PENDING -> Optional.empty();
         case CONTINUE ->
           retrospective.getChoices().stream().filter(choice -> Objects.equals(instrumentType, choice.getInstrumentType())).findFirst();
       };
@@ -375,7 +375,7 @@ public class FabricatorImpl implements Fabricator {
   public Optional<SegmentChoice> getChoiceIfContinued(InstrumentType instrumentType, InstrumentMode instrumentMode) {
     try {
       return switch (getSegment().getType()) {
-        case INITIAL, NEXTMAIN, NEXTMACRO, PENDING -> Optional.empty();
+        case INITIAL, NEXT_MAIN, NEXT_MACRO, PENDING -> Optional.empty();
         case CONTINUE ->
           retrospective.getChoices().stream().filter(choice -> Objects.equals(instrumentType, choice.getInstrumentType()) && Objects.equals(instrumentMode, choice.getInstrumentMode())).findFirst();
       };
@@ -390,7 +390,7 @@ public class FabricatorImpl implements Fabricator {
   public Optional<SegmentChoice> getChoiceIfContinued(ProgramType programType) {
     try {
       return switch (getSegment().getType()) {
-        case PENDING, INITIAL, NEXTMAIN, NEXTMACRO -> Optional.empty();
+        case PENDING, INITIAL, NEXT_MAIN, NEXT_MACRO -> Optional.empty();
         case CONTINUE ->
           retrospective.getChoices().stream().filter(choice -> Objects.equals(programType, choice.getProgramType())).findFirst();
       };
@@ -820,7 +820,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public boolean isContinuationOfMacroProgram() throws NexusException {
-    return SegmentType.CONTINUE.equals(getType()) || SegmentType.NEXTMAIN.equals(getType());
+    return SegmentType.CONTINUE.equals(getType()) || SegmentType.NEXT_MAIN.equals(getType());
   }
 
   @Override
@@ -993,6 +993,11 @@ public class FabricatorImpl implements Fabricator {
     if (isInitialSegment())
       return SegmentType.INITIAL;
 
+    // Override the segment type by passing the fabricator a segment that already has a type (not pending)
+    // Workstation has live performance modulation https://www.pivotaltracker.com/story/show/186003440
+    if (!Objects.equals(workbench.getSegment().getType(), SegmentType.PENDING))
+      return workbench.getSegment().getType();
+
     // previous main choice having at least one more pattern?
     var previousMainChoice = getPreviousMainChoice();
 
@@ -1004,9 +1009,9 @@ public class FabricatorImpl implements Fabricator {
     var previousMacroChoice = getMacroChoiceOfPreviousSegment();
 
     if (previousMacroChoice.isPresent() && hasTwoMoreSequenceBindingOffsets(previousMacroChoice.get()))
-      return SegmentType.NEXTMAIN;
+      return SegmentType.NEXT_MAIN;
 
-    return SegmentType.NEXTMACRO;
+    return SegmentType.NEXT_MACRO;
   }
 
   /**

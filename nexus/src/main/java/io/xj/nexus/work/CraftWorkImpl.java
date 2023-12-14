@@ -311,7 +311,6 @@ public class CraftWorkImpl implements CraftWork {
 
   @Override
   public void gotoMacroProgram(Program macroProgram, long dubbedToChainMicros) {
-    LOG.info("Going to macro program {}", macroProgram.getName());
     craftState.set(CraftState.GOTO_MACRO);
     nextMacroProgram.set(macroProgram);
     lastDubbedSegment.set(getSegmentAtChainMicros(dubbedToChainMicros).orElse(null));
@@ -383,8 +382,11 @@ public class CraftWorkImpl implements CraftWork {
    */
   private void fabricateOverrideMacro() throws FabricationFatalException {
     try {
+      LOG.info("Will delete segments after #{} and craft using macro-program {}",
+        lastDubbedSegment.get().getId(), nextMacroProgram.get().getName());
       segmentManager.deleteSegmentsAfter(lastDubbedSegment.get().getId());
       Segment segment = buildSegmentFollowing(lastDubbedSegment.get());
+      segment.setType(SegmentType.NEXT_MACRO);
       segment = segmentManager.create(segment);
       lastDubbedSegment.set(null);
       doCraftWork(segment, nextMacroProgram.get());
@@ -449,7 +451,7 @@ public class CraftWorkImpl implements CraftWork {
 
     LOG.debug("[segId={}] will do craft work", segment.getId());
     updateSegmentState(fabricator, segment, SegmentState.PLANNED, SegmentState.CRAFTING);
-    craftFactory.macroMain(fabricator).doWork(null);
+    craftFactory.macroMain(fabricator, macroProgram).doWork();
     craftFactory.beat(fabricator).doWork();
     craftFactory.hook(fabricator).doWork();
     craftFactory.detail(fabricator).doWork();

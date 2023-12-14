@@ -152,7 +152,7 @@ public class CraftTransitionNextMacroTest {
     // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
     segment4 = store.put(buildSegment(
       chain1,
-      SegmentType.NEXTMACRO,
+      SegmentType.NEXT_MACRO,
       3,
       0,
       SegmentState.CRAFTING,

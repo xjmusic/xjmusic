@@ -172,7 +172,7 @@ public class CraftBeatNextMainTest {
     // segment crafting
     segment4 = store.put(buildSegment(
       chain1,
-      SegmentType.NEXTMAIN,
+      SegmentType.NEXT_MAIN,
       3,
       0,
       SegmentState.CRAFTING,

@@ -2,6 +2,7 @@
 package io.xj.nexus.craft;
 
 
+import io.xj.hub.tables.pojos.Program;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.background.BackgroundCraft;
 import io.xj.nexus.craft.beat.BeatCraft;
@@ -11,6 +12,7 @@ import io.xj.nexus.craft.macro_main.MacroMainCraft;
 import io.xj.nexus.craft.perc_loop.PercLoopCraft;
 import io.xj.nexus.craft.transition.TransitionCraft;
 import io.xj.nexus.fabricator.Fabricator;
+import jakarta.annotation.Nullable;
 
 /**
  Craft is performed in order:
@@ -74,12 +76,14 @@ public interface CraftFactory {
    Create Foundation Craft instance for a particular segment
    [#138] Foundation craft for Segment of a Chain
 
-   @param fabricator of craft
+   @param fabricator           of craft
+   @param selectedMacroProgram already selected to use for craft
    @return MacroMainCraft
    @throws NexusException on failure
    */
   MacroMainCraft macroMain(
-    Fabricator fabricator
+    Fabricator fabricator,
+    @Nullable Program selectedMacroProgram
   ) throws NexusException;
 
   /**

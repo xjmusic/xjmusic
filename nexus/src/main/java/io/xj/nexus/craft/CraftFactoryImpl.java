@@ -2,6 +2,7 @@
 
 package io.xj.nexus.craft;
 
+import io.xj.hub.tables.pojos.Program;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.background.BackgroundCraft;
 import io.xj.nexus.craft.background.BackgroundCraftImpl;
@@ -18,6 +19,7 @@ import io.xj.nexus.craft.perc_loop.PercLoopCraftImpl;
 import io.xj.nexus.craft.transition.TransitionCraft;
 import io.xj.nexus.craft.transition.TransitionCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
+import jakarta.annotation.Nullable;
 
 public class CraftFactoryImpl implements CraftFactory {
 
@@ -45,8 +47,8 @@ public class CraftFactoryImpl implements CraftFactory {
   }
 
   @Override
-  public MacroMainCraft macroMain(Fabricator fabricator) {
-    return new MacroMainCraftImpl(fabricator);
+  public MacroMainCraft macroMain(Fabricator fabricator, @Nullable Program selectedMacroProgram) {
+    return new MacroMainCraftImpl(fabricator, selectedMacroProgram);
   }
 
   @Override

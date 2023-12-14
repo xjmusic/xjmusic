@@ -131,10 +131,10 @@ public class CraftFoundationNextMainTest {
   public void craftFoundationNextMain() throws Exception {
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
 
-    craftFactory.macroMain(fabricator).doWork(null);
+    craftFactory.macroMain(fabricator, null).doWork();
 
     Segment result = store.getSegment(segment4.getId()).orElseThrow();
-    assertEquals(SegmentType.NEXTMAIN, result.getType());
+    assertEquals(SegmentType.NEXT_MAIN, result.getType());
     assertEquals(16 * MICROS_PER_SECOND * SECONDS_PER_MINUTE / 140, (long) Objects.requireNonNull(result.getDurationMicros()));
     assertEquals(Integer.valueOf(16), result.getTotal());
     assertEquals(0.1, result.getDensity(), 0.01);

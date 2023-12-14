@@ -171,7 +171,7 @@ public class CraftDetailProgramVoiceNextMainTest {
         fake.program10));
     segment4 = store.put(buildSegment(
       chain1,
-      SegmentType.NEXTMAIN,
+      SegmentType.NEXT_MAIN,
       3,
       3,
       SegmentState.CRAFTING,
