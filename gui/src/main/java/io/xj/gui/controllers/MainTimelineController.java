@@ -37,6 +37,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 @Service
 public class MainTimelineController extends ScrollPane implements ReadyAfterBootController {
@@ -61,8 +62,8 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   final SimpleDoubleProperty demoImageWidth = new SimpleDoubleProperty();
   final SimpleDoubleProperty demoImageHeight = new SimpleDoubleProperty();
 
-  // Keep track of Displayed Segments (DS) so we can update them in place
-  final Map<Integer, DisplayedSegment> ds = new ConcurrentHashMap<>();
+  // Keep track of Displayed Segments (DS), keyed by id, so we can update them in place
+  final Map<Integer, DisplayedSegment> dsMap = new ConcurrentHashMap<>();
 
   @FXML
   ImageView demoSelectionBump;
@@ -195,7 +196,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
    */
   private void resetTimeline() {
     final KeyFrame kf1 = new KeyFrame(Duration.millis(0), e -> {
-      ds.clear();
+      dsMap.clear();
       segmentListView.getChildren().clear();
       scrollPane.setHvalue(0);
       timelineRegion1Past.setWidth(0);
@@ -241,7 +242,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
    */
   private void updateTimeline(ActionEvent ignored) {
     if (fabricationService.isEmpty()) {
-      ds.clear();
+      dsMap.clear();
       segmentListView.getChildren().clear();
       return;
     }
@@ -254,42 +255,42 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     // get the current first index of the view
     var viewStartIndex = Math.max(0, fabricationService.getSegmentAtShipOutput().map((s) -> s.getId() - 1).orElse(NO_ID));
 
+    // Fresh Segment (FS) map keyed by id
     // get updated segments and compute updated first id (to clean up segments before that id)
-    var freshSegments = fabricationService.getSegments(viewStartIndex);
+    var fsMap = fabricationService.getSegments(viewStartIndex).stream()
+      .collect(Collectors.toMap(Segment::getId, (s) -> s, (s1, s2) -> s1, ConcurrentHashMap::new));
 
-    // TODO compare all segments to see if they any have been updated, re-render those segments
-
-    // if the micros per pixel has not changed, we will update the segments in place as efficiently as possible
+    // we will update the segments in place as efficiently as possible
     // get the fresh first and last ids of the current and fresh segments
-    int freshFirstId = freshSegments.stream().min(Comparator.comparing(Segment::getId)).map(Segment::getId).orElse(NO_ID);
+    int freshFirstId = fsMap.values().stream().min(Comparator.comparing(Segment::getId)).map(Segment::getId).orElse(NO_ID);
 
     // remove segments from the beginning of the list if their id is less than the updated first id
     int firstId;
-    while (!ds.isEmpty()) {
-      firstId = ds.keySet().stream().min(Comparator.comparingInt((id) -> id)).orElse(NO_ID);
+    while (!dsMap.isEmpty()) {
+      firstId = dsMap.keySet().stream().min(Comparator.comparingInt((id) -> id)).orElse(NO_ID);
       if (NO_ID == firstId || firstId >= freshFirstId)
         break;
-      ds.remove(firstId);
+      dsMap.remove(firstId);
       segmentListView.getChildren().remove(0);
     }
 
     // add current segments to end of list if their id is greater than the existing last id
-    int currentLastId = ds.keySet().stream().max(Comparator.comparingInt((i) -> i)).orElse(NO_ID);
-    for (Segment freshSegment : freshSegments) {
+    int currentLastId = dsMap.keySet().stream().max(Comparator.comparingInt((i) -> i)).orElse(NO_ID);
+    for (Segment freshSegment : fsMap.values()) {
       if (freshSegment.getId() > currentLastId) {
-        ds.put(freshSegment.getId(), new DisplayedSegment(freshSegment));
+        dsMap.put(freshSegment.getId(), new DisplayedSegment(freshSegment));
         segmentListView.getChildren().add(segmentFactory.create(freshSegment, microsPerPixel.get(), segmentMinWidth, segmentHorizontalSpacing));
       }
     }
 
     // iterate through all in segments, and update if the updated at time has changed from the source matching that id
-    var limit = Math.min(ds.size(), freshSegments.size());
+    var limit = Math.min(dsMap.size(), fsMap.size());
     for (var i = 0; i < limit; i++)
-      if (Objects.nonNull(freshSegments.get(i)) &&
-        Objects.nonNull(ds.get(freshSegments.get(i).getId())) &&
-        ds.get(freshSegments.get(i).getId()).isSameButUpdated(freshSegments.get(i))) {
-        ds.get(freshSegments.get(i).getId()).update(freshSegments.get(i));
-        segmentListView.getChildren().set(i, segmentFactory.create(freshSegments.get(i), microsPerPixel.get(), segmentMinWidth, segmentHorizontalSpacing));
+      if (Objects.nonNull(fsMap.get(i)) &&
+        Objects.nonNull(dsMap.get(fsMap.get(i).getId())) &&
+        dsMap.get(fsMap.get(i).getId()).isSameButUpdated(fsMap.get(i))) {
+        dsMap.get(fsMap.get(i).getId()).update(fsMap.get(i));
+        segmentListView.getChildren().set(i, segmentFactory.create(fsMap.get(i), microsPerPixel.get(), segmentMinWidth, segmentHorizontalSpacing));
       }
 
 
@@ -302,9 +303,9 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     scrollPaneAnimationTimeline.getKeyFrames().clear();
 
     // marker 0 is the beginAtChainMicros of the first displayed segment
-    var m0 = ds.isEmpty() ? 0 :
-      ds.keySet().stream().min(Comparator.comparingInt((id) -> id))
-        .map(id -> ds.get(id).getBeginAtChainMicros()).orElse(0L) - segmentHorizontalSpacing;
+    var m0 = dsMap.isEmpty() ? 0 :
+      dsMap.keySet().stream().min(Comparator.comparingInt((id) -> id))
+        .map(id -> dsMap.get(id).getBeginAtChainMicros()).orElse(0L) - segmentHorizontalSpacing;
 
     // other markers continue increasing from there
     var m1Past = fabricationService.getShippedToChainMicros().orElse(m0);
