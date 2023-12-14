@@ -139,7 +139,8 @@ public class FabricatorImpl implements Fabricator {
     JsonapiPayloadFactory jsonapiPayloadFactory,
     JsonProvider jsonProvider,
     double outputFrameRate,
-    int outputChannels
+    int outputChannels,
+    @Nullable SegmentType overrideSegmentType
   ) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException {
     this.segmentManager = segmentManager;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
@@ -181,9 +182,14 @@ public class FabricatorImpl implements Fabricator {
     // get the current segment on the workbench
     workbench = fabricatorFactory.setupWorkbench(chain, segment);
 
+    // Override the segment type by passing the fabricator a segment type on creation
+    // Workstation has live performance modulation https://www.pivotaltracker.com/story/show/186003440
+    if (Objects.nonNull(overrideSegmentType)) {
+      type = overrideSegmentType;
+    }
+
     // final pre-flight check
     ensureShipKey();
-
   }
 
   @Override
@@ -992,11 +998,6 @@ public class FabricatorImpl implements Fabricator {
   SegmentType computeType() {
     if (isInitialSegment())
       return SegmentType.INITIAL;
-
-    // Override the segment type by passing the fabricator a segment that already has a type (not pending)
-    // Workstation has live performance modulation https://www.pivotaltracker.com/story/show/186003440
-    if (!Objects.equals(workbench.getSegment().getType(), SegmentType.PENDING))
-      return workbench.getSegment().getType();
 
     // previous main choice having at least one more pattern?
     var previousMainChoice = getPreviousMainChoice();

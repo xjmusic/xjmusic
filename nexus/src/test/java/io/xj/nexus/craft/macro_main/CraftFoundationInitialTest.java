@@ -93,7 +93,7 @@ public class CraftFoundationInitialTest {
 
   @Test
   public void craftFoundationInitial() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 48000.0f, 2, null);
 
     craftFactory.macroMain(fabricator, null).doWork();
 

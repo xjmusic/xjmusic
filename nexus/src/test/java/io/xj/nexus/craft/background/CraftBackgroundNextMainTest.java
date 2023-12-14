@@ -106,7 +106,7 @@ public class CraftBackgroundNextMainTest {
   @Test
   public void craftBackgroundNextMain_okEvenWithoutPreviousSegmentBackgroundChoice() throws Exception {
     insertSegments3and4();
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2, null);
 
     craftFactory.background(fabricator).doWork();
   }

@@ -92,7 +92,7 @@ public class CraftBackgroundProgramVoiceInitialTest {
   public void craftBackgroundVoiceInitial() throws Exception {
     insertSegment();
 
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0, 48000.0f, 2, null);
 
     craftFactory.background(fabricator).doWork();
 
@@ -123,7 +123,7 @@ public class CraftBackgroundProgramVoiceInitialTest {
   @Test
   public void craftBackgroundVoiceInitial_okWhenNoBackgroundChoice() throws Exception {
     insertSegment();
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0, 48000.0f, 2, null);
 
     craftFactory.background(fabricator).doWork();
   }

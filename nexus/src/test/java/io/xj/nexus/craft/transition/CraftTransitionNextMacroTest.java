@@ -110,7 +110,7 @@ public class CraftTransitionNextMacroTest {
   @Test
   public void craftTransitionNextMacro() throws Exception {
     insertSegments3and4();
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2, null);
 
     craftFactory.transition(fabricator).doWork();
 

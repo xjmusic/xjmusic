@@ -7,7 +7,9 @@ import io.xj.hub.util.ValueException;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.ManagerFatalException;
+import jakarta.annotation.Nullable;
 
 /**
  Fabricator content = contentFactory.fabricate(segment);
@@ -20,10 +22,11 @@ public interface FabricatorFactory {
   /**
    Create a fabricator to fabricate a segment
 
-   @param sourceMaterial  from which to fabricate
-   @param segment         segment to be fabricated
-   @param outputFrameRate output frame rate
-   @param outputChannels  output channels
+   @param sourceMaterial      from which to fabricate
+   @param segment             segment to be fabricated
+   @param outputFrameRate     output frame rate
+   @param outputChannels      output channels
+   @param overrideSegmentType override segment type
    @return Fabricator
    @throws NexusException            on retry-able network or service failure
    @throws FabricationFatalException on failure requiring a chain restart https://www.pivotaltracker.com/story/show/182131722
@@ -32,7 +35,8 @@ public interface FabricatorFactory {
     HubContent sourceMaterial,
     Segment segment,
     double outputFrameRate,
-    int outputChannels
+    int outputChannels,
+    @Nullable SegmentType overrideSegmentType
   ) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException;
 
   /**

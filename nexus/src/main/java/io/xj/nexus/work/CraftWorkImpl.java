@@ -365,7 +365,7 @@ public class CraftWorkImpl implements CraftWork {
         segment = buildSegmentFollowing(existing.get());
       }
       segment = segmentManager.create(segment);
-      doCraftWork(segment, null);
+      doCraftWork(segment, null, null);
 
     } catch (
       ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException |
@@ -389,7 +389,7 @@ public class CraftWorkImpl implements CraftWork {
       segment.setType(SegmentType.NEXT_MACRO);
       segment = segmentManager.create(segment);
       lastDubbedSegment.set(null);
-      doCraftWork(segment, nextMacroProgram.get());
+      doCraftWork(segment, nextMacroProgram.get(), SegmentType.NEXT_MACRO);
       nextMacroProgram.set(null);
 
     } catch (
@@ -440,18 +440,19 @@ public class CraftWorkImpl implements CraftWork {
   /**
    Craft a Segment, or fail
 
-   @param segment      to craft
-   @param macroProgram to use for crafting
+   @param segment              to craft
+   @param overrideMacroProgram to use for crafting
+   @param overrideSegmentType  to use for crafting
    @throws NexusException on configuration failure
    @throws NexusException on craft failure
    */
-  void doCraftWork(Segment segment, @Nullable Program macroProgram) throws NexusException, ManagerFatalException, ValueException, FabricationFatalException {
+  void doCraftWork(Segment segment, @Nullable Program overrideMacroProgram, @Nullable SegmentType overrideSegmentType) throws NexusException, ManagerFatalException, ValueException, FabricationFatalException {
     LOG.debug("[segId={}] will prepare fabricator", segment.getId());
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment, outputFrameRate, outputChannels);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment, outputFrameRate, outputChannels, overrideSegmentType);
 
     LOG.debug("[segId={}] will do craft work", segment.getId());
     updateSegmentState(fabricator, segment, SegmentState.PLANNED, SegmentState.CRAFTING);
-    craftFactory.macroMain(fabricator, macroProgram).doWork();
+    craftFactory.macroMain(fabricator, overrideMacroProgram).doWork();
     craftFactory.beat(fabricator).doWork();
     craftFactory.hook(fabricator).doWork();
     craftFactory.detail(fabricator).doWork();
