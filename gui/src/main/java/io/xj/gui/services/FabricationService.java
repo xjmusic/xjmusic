@@ -25,6 +25,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableDoubleValue;
+import javafx.beans.value.ObservableFloatValue;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 
@@ -119,6 +120,11 @@ public interface FabricationService {
   ObservableBooleanValue isStatusStandby();
 
   /**
+   @return The minimum duration (in microseconds) of any known main program sequence (which is used as the segment template)
+   */
+  ObservableDoubleValue getMinSequenceDurationMicrosProperty();
+
+  /**
    Return the current shipped-to chain micros
 
    @return chain micros, else empty
@@ -179,7 +185,8 @@ public interface FabricationService {
   void cancel();
 
   /**
-   * @param macroProgram the macro program to go to
+   @param macroProgram the macro program to go to
    */
   void gotoMacroProgram(Program macroProgram);
+
 }

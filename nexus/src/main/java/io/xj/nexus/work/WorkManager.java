@@ -108,4 +108,11 @@ public interface WorkManager {
    @param macroProgram to go to
    */
   void gotoMacroProgram(Program macroProgram);
+
+  /**
+   Out of all the source material main programs, get the minimum sequence duration (in microseconds)
+
+   @return the minimum sequence duration (in microseconds)
+   */
+  double getMinSequenceDurationMicros();
 }
