@@ -51,7 +51,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   private static final float DEFAULT_MICROS_PER_PIXEL = 25000;
   private final int segmentMinWidth;
   private final int segmentHorizontalSpacing;
-  private final int segmentDisplayHashRecheckLimit;
+  private final int segmentDisplayChoiceHashRecheckLimit;
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
   final LabService labService;
@@ -103,7 +103,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
 
   public MainTimelineController(
     @Value("${gui.timeline.refresh.millis}") Integer refreshTimelineMillis,
-    @Value("${gui.timeline.segment.hash.recheck.limit}") Integer segmentDisplayHashRecheckLimit,
+    @Value("${gui.timeline.segment.hash.recheck.limit}") Integer segmentDisplayChoiceHashRecheckLimit,
     @Value("${gui.timeline.segment.spacing.horizontal}") Integer segmentSpacingHorizontal,
     @Value("${gui.timeline.segment.width.min}") Integer segmentWidthMin,
     ConfigurableApplicationContext ac,
@@ -115,7 +115,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     this.fabricationService = fabricationService;
     this.labService = labService;
     this.refreshTimelineMillis = refreshTimelineMillis;
-    this.segmentDisplayHashRecheckLimit = segmentDisplayHashRecheckLimit;
+    this.segmentDisplayChoiceHashRecheckLimit = segmentDisplayChoiceHashRecheckLimit;
     this.segmentFactory = segmentFactory;
     this.segmentHorizontalSpacing = segmentSpacingHorizontal;
     this.segmentMinWidth = segmentWidthMin;
@@ -346,7 +346,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   private class DisplayedSegment {
     private final AtomicReference<Segment> segment = new AtomicReference<>();
     private final AtomicReference<String> choiceHash = new AtomicReference<>();
-    private final AtomicInteger recheckCount = new AtomicInteger(0);
+    private final AtomicInteger hashRecheckCount = new AtomicInteger(0);
 
     DisplayedSegment(Segment segment) {
       this.segment.set(segment);
@@ -354,12 +354,14 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     }
 
     public boolean isSameButUpdated(Segment segment) {
-      if (!(recheckCount.getAndIncrement() < segmentDisplayHashRecheckLimit))
-        return false;
-
+      // Before worrying about the choice hash, test if the segment updated time is updated
       if (SegmentUtils.isSameButUpdated(this.segment.get(), segment))
         return true;
 
+      // For performance, limit how many times we recheck the choice hash
+      if (!(hashRecheckCount.get() < segmentDisplayChoiceHashRecheckLimit))
+        return false;
+      hashRecheckCount.incrementAndGet();
       return
         !Objects.equals(this.choiceHash.get(), fabricationService.getChoiceHash(segment));
     }
