@@ -302,7 +302,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     var m3Dub = fabricationService.getDubbedToChainMicros().orElse(m1Past);
     var m4Craft = fabricationService.getCraftedToChainMicros().orElse(m3Dub);
 
-    // width of each region must be computed based on the actual displayed segments
+    // TODO width of each region must be computed based on the actual displayed segments
     var w1Past = dsList.stream().filter((ds) -> ds.getBeginAtChainMicros() < m1Past).mapToDouble((ds) -> (ds.getBeginAtChainMicros() - m0) / DEFAULT_MICROS_PER_PIXEL).sum();
     var w2Ship = dsList.stream().filter((ds) -> ds.getBeginAtChainMicros() < m3Dub).mapToDouble((ds) -> (ds.getBeginAtChainMicros() - m1Past) / DEFAULT_MICROS_PER_PIXEL).sum();
     var w3Dub = dsList.stream().filter((ds) -> ds.getBeginAtChainMicros() < m4Craft).mapToDouble((ds) -> (ds.getBeginAtChainMicros() - m3Dub) / DEFAULT_MICROS_PER_PIXEL).sum();
