@@ -44,7 +44,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableDoubleValue;
-import javafx.beans.value.ObservableFloatValue;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
@@ -69,7 +68,6 @@ import java.util.prefs.Preferences;
 public class FabricationServiceImpl implements FabricationService {
   private static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
   private static final String defaultPathPrefix = System.getProperty("user.home") + File.separator + "Documents" + File.separator + "XJ music" + File.separator;
-  private static final double DEFAULT_MIN_SEQUENCE_DURATION_MICROS = 4_000_000.0;
   private final Preferences prefs = Preferences.userNodeForPackage(FabricationServiceImpl.class);
   private final static String BUTTON_TEXT_START = "Start";
   private final static String BUTTON_TEXT_STOP = "Stop";
@@ -109,8 +107,6 @@ public class FabricationServiceImpl implements FabricationService {
   private final ObservableBooleanValue statusLoading =
     Bindings.createBooleanBinding(() -> status.get() == WorkState.LoadingContent || status.get() == WorkState.LoadedContent || status.get() == WorkState.PreparingAudio || status.get() == WorkState.PreparedAudio, status);
 
-  private final DoubleProperty minSequenceDurationMicros = new SimpleDoubleProperty(DEFAULT_MIN_SEQUENCE_DURATION_MICROS);
-
   private final ObservableValue<String> mainActionButtonText = Bindings.createStringBinding(() ->
     switch (status.get()) {
       case Starting, Standby -> BUTTON_TEXT_START;
@@ -144,12 +140,6 @@ public class FabricationServiceImpl implements FabricationService {
     this.hostServices = hostServices;
     this.labService = labService;
     this.workManager = workManager;
-
-    status.addListener((o, ov, nv) -> {
-      if (nv == WorkState.Active) {
-        minSequenceDurationMicros.set(workManager.getMinSequenceDurationMicros());
-      }
-    });
 
     attachPreferenceListeners();
     setAllFromPrefsOrDefaults();
@@ -480,11 +470,6 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public ObservableBooleanValue isStatusStandby() {
     return statusStandby;
-  }
-
-  @Override
-  public ObservableDoubleValue getMinSequenceDurationMicrosProperty() {
-    return minSequenceDurationMicros;
   }
 
   @Override

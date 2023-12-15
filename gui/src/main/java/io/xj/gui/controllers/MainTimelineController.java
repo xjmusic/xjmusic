@@ -12,9 +12,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleFloatProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -42,7 +40,6 @@ import java.util.stream.Collectors;
 @Service
 public class MainTimelineController extends ScrollPane implements ReadyAfterBootController {
   private static final Logger LOG = LoggerFactory.getLogger(MainTimelineController.class);
-  private static final long MILLIS_PER_MICRO = 1000L;
   private static final int NO_ID = -1;
   private static final double DEMO_BUTTON_HEIGHT_LEFTOVER = 168.0;
   private static final double DEMO_BUTTON_SPACING = 10.0;
@@ -57,7 +54,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   final LabService labService;
   final MainTimelineSegmentFactory segmentFactory;
   final long refreshTimelineMillis;
-  final SimpleFloatProperty microsPerPixel = new SimpleFloatProperty(DEFAULT_MICROS_PER_PIXEL);
   final Timeline scrollPaneAnimationTimeline = new Timeline();
   final SimpleDoubleProperty demoImageWidth = new SimpleDoubleProperty();
   final SimpleDoubleProperty demoImageHeight = new SimpleDoubleProperty();
@@ -143,13 +139,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     demoSelectionSpace.fitWidthProperty().bind(demoImageWidth);
 
     fabricationService.statusProperty().addListener((ignored1, ignored2, status) -> handleUpdateFabricationStatus(status));
-
-    // Bind micros-per-pixel to computation based on fabrication service which only changes when the whole content changes
-    microsPerPixel.bind(Bindings.createFloatBinding(() ->
-        fabricationService.getMinSequenceDurationMicrosProperty().get() == 0
-          ? DEFAULT_MICROS_PER_PIXEL
-          : (float) fabricationService.getMinSequenceDurationMicrosProperty().get() / segmentMinWidth,
-      fabricationService.getMinSequenceDurationMicrosProperty()));
 
     resetTimeline();
   }
@@ -279,7 +268,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     for (Segment freshSegment : fsMap.values()) {
       if (freshSegment.getId() > currentLastId) {
         dsMap.put(freshSegment.getId(), new DisplayedSegment(freshSegment));
-        segmentListView.getChildren().add(segmentFactory.create(freshSegment, microsPerPixel.get(), segmentMinWidth, segmentHorizontalSpacing));
+        segmentListView.getChildren().add(segmentFactory.create(freshSegment, segmentMinWidth));
       }
     }
 
@@ -290,7 +279,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
         Objects.nonNull(dsMap.get(fsMap.get(i).getId())) &&
         dsMap.get(fsMap.get(i).getId()).isSameButUpdated(fsMap.get(i))) {
         dsMap.get(fsMap.get(i).getId()).update(fsMap.get(i));
-        segmentListView.getChildren().set(i, segmentFactory.create(fsMap.get(i), microsPerPixel.get(), segmentMinWidth, segmentHorizontalSpacing));
+        segmentListView.getChildren().set(i, segmentFactory.create(fsMap.get(i), segmentMinWidth));
       }
 
 
@@ -302,39 +291,40 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     scrollPaneAnimationTimeline.stop();
     scrollPaneAnimationTimeline.getKeyFrames().clear();
 
-    // marker 0 is the beginAtChainMicros of the first displayed segment
-    var m0 = dsMap.isEmpty() ? 0 :
-      dsMap.keySet().stream().min(Comparator.comparingInt((id) -> id))
-        .map(id -> dsMap.get(id).getBeginAtChainMicros()).orElse(0L) - segmentHorizontalSpacing;
+    // Build a list of displayed segments in order of their id
+    var dsList = dsMap.keySet().stream().sorted().map(dsMap::get).toList();
 
-    // other markers continue increasing from there
+    // marker 0 is the beginAtChainMicros of the first displayed segment
+    var m0 = dsList.isEmpty() ? 0 : dsList.get(0).getBeginAtChainMicros();
+
+    // markers 1-3 are the shippedToChainMicros, dubbedToChainMicros, and craftedToChainMicros
     var m1Past = fabricationService.getShippedToChainMicros().orElse(m0);
     var m3Dub = fabricationService.getDubbedToChainMicros().orElse(m1Past);
     var m4Craft = fabricationService.getCraftedToChainMicros().orElse(m3Dub);
 
-    // This gets re-used for the follow position as well as past timeline width
-    var pastTimelineWidth = (m1Past - m0) / microsPerPixel.get();
+    // width of each region must be computed based on the actual displayed segments
+    var w1Past = dsList.stream().filter((ds) -> ds.getBeginAtChainMicros() < m1Past).mapToDouble((ds) -> (ds.getBeginAtChainMicros() - m0) / DEFAULT_MICROS_PER_PIXEL).sum();
+    var w2Ship = dsList.stream().filter((ds) -> ds.getBeginAtChainMicros() < m3Dub).mapToDouble((ds) -> (ds.getBeginAtChainMicros() - m1Past) / DEFAULT_MICROS_PER_PIXEL).sum();
+    var w3Dub = dsList.stream().filter((ds) -> ds.getBeginAtChainMicros() < m4Craft).mapToDouble((ds) -> (ds.getBeginAtChainMicros() - m3Dub) / DEFAULT_MICROS_PER_PIXEL).sum();
 
     // In sync output, like the scroll pane target position, the past region is always moving at a predictable rate,
     // so we set its initial position as well as animation its target, which smooths over some
     // jumpiness caused by adding or removing segments to the list.
-    timelineRegion1Past.setWidth(pastTimelineWidth - MILLIS_PER_MICRO * refreshTimelineMillis / microsPerPixel.get());
     scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
-      new KeyValue(timelineRegion1Past.widthProperty(), pastTimelineWidth)));
+      new KeyValue(timelineRegion1Past.widthProperty(), w1Past)));
     scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
-      new KeyValue(timelineRegion3Dub.widthProperty(), (m3Dub - m1Past) / microsPerPixel.get())));
+      new KeyValue(timelineRegion3Dub.widthProperty(), w2Ship)));
     scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
-      new KeyValue(timelineRegion4Craft.widthProperty(), (m4Craft - m3Dub) / microsPerPixel.get())));
+      new KeyValue(timelineRegion4Craft.widthProperty(), w3Dub)));
 
     // auto-scroll if enabled, animating to the scroll pane position
     if (fabricationService.followPlaybackProperty().getValue() && 0 < segmentListView.getWidth()) {
       var extraHorizontalPixels = Math.max(0, segmentListView.getWidth() - scrollPane.getWidth());
-      var targetOffsetHorizontalPixels = Math.max(0, pastTimelineWidth - segmentMinWidth);
+      var targetOffsetHorizontalPixels = Math.max(0, w1Past - segmentMinWidth);
 
       // in sync output, the scroll pane is always moving at a predictable rate,
       // so we set its initial position as well as animation its target, which smooths over some
       // jumpiness caused by adding or removing segments to the list.
-      scrollPane.setHvalue((targetOffsetHorizontalPixels - ((MILLIS_PER_MICRO * refreshTimelineMillis) / microsPerPixel.get())) / extraHorizontalPixels);
       scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
         new KeyValue(scrollPane.hvalueProperty(), targetOffsetHorizontalPixels / extraHorizontalPixels)));
     }
