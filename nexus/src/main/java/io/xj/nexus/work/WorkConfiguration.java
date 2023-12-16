@@ -22,7 +22,7 @@ public class WorkConfiguration {
   private long craftCycleDelayMillis = 200;
   private long dubCycleRateMillis = 200;
   private long shipCycleRateMillis = 50;
-  private long persistenceWindowSeconds = 300;
+  private long persistenceWindowSeconds = 3600;
 
   public InputMode getInputMode() {
     return inputMode;
