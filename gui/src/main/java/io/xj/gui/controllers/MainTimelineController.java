@@ -257,6 +257,12 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       segmentListView.getChildren().remove(0);
     }
 
+    // remove segments from the end of the displayed segment list if the fresh segment list is shorter
+    while (ds.size() > fs.size()) {
+      ds.remove(ds.size() - 1);
+      segmentListView.getChildren().remove(segmentListView.getChildren().size() - 1);
+    }
+
     // add current segments to end of list if their id is greater than the existing last id
     int dsLastId = ds.isEmpty() ? NO_ID : ds.get(ds.size() - 1).getId();
     for (Segment freshSegment : fs) {
