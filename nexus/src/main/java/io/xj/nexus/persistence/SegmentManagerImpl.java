@@ -259,13 +259,10 @@ public class SegmentManagerImpl implements SegmentManager {
   @Override
   public List<Segment> readManyFromToOffset(int fromOffset, int toOffset) throws ManagerFatalException {
     try {
-      if (store.getAllSegments().isEmpty()
-        || toOffset < fromOffset
-        || fromOffset >= store.getAllSegments().size()
-        || fromOffset < 0)
-        return new ArrayList<>();
-
-      return new ArrayList<>(store.getAllSegments().subList(fromOffset, Math.min(store.getAllSegments().size(), toOffset + 1)));
+      return store.getAllSegments()
+        .stream()
+        .filter(s -> s.getId() >= fromOffset && s.getId() <= toOffset)
+        .toList();
 
     } catch (NexusException e) {
       throw new ManagerFatalException(e);
@@ -351,6 +348,11 @@ public class SegmentManagerImpl implements SegmentManager {
   @Override
   public void deleteSegmentsAfter(int lastSegmentId) {
     store.deleteSegmentsAfter(lastSegmentId);
+  }
+
+  @Override
+  public int lastSegmentId() {
+    return store.lastSegmentId();
   }
 
   @Override

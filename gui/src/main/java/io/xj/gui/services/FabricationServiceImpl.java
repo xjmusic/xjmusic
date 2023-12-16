@@ -407,8 +407,8 @@ public class FabricationServiceImpl implements FabricationService {
   public List<Segment> getSegments(@Nullable Integer startIndex) {
     try {
       var viewLimit = Integer.parseInt(timelineSegmentViewLimit.getValue());
-      var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, workManager.getSegmentManager().size() - viewLimit - 1);
-      var to = Math.min(workManager.getSegmentManager().size() - 1, from + viewLimit);
+      var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, workManager.getSegmentManager().lastSegmentId() - viewLimit - 1);
+      var to = Math.min(workManager.getSegmentManager().lastSegmentId() - 1, from + viewLimit);
       return workManager.getSegmentManager().readManyFromToOffset(from, to);
 
     } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException e) {

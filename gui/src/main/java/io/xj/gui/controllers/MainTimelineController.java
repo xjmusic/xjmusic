@@ -47,6 +47,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   private final int segmentWidth;
   private final int segmentGutter;
   private final int segmentDisplayChoiceHashRecheckLimit;
+  private final int displaySegmentsBeforeShip;
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
   final LabService labService;
@@ -100,11 +101,13 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     @Value("${gui.timeline.segment.hash.recheck.limit}") Integer segmentDisplayChoiceHashRecheckLimit,
     @Value("${gui.timeline.segment.spacing.horizontal}") Integer segmentSpacingHorizontal,
     @Value("${gui.timeline.segment.width.min}") Integer segmentWidthMin,
+    @Value("${gui.timeline.display.segments.before.now}") int displaySegmentsBeforeNow,
     ConfigurableApplicationContext ac,
     FabricationService fabricationService,
     LabService labService,
     MainTimelineSegmentFactory segmentFactory
   ) {
+    this.displaySegmentsBeforeShip = displaySegmentsBeforeNow;
     this.ac = ac;
     this.fabricationService = fabricationService;
     this.labService = labService;
@@ -237,7 +240,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     }
 
     // get the current first index of the view
-    var viewStartIndex = Math.max(0, fabricationService.getSegmentAtShipOutput().map((s) -> s.getId() - 1).orElse(NO_ID));
+    var viewStartIndex = Math.max(0, fabricationService.getSegmentAtShipOutput().map((s) -> s.getId() - displaySegmentsBeforeShip).orElse(NO_ID));
 
     // Fresh Segment (FS) list
     // get updated segments and compute updated first id (to clean up segments before that id)

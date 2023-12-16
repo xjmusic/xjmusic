@@ -61,7 +61,6 @@ import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 public class WorkManagerImpl implements WorkManager {
   private static final Logger LOG = LoggerFactory.getLogger(WorkManagerImpl.class);
-  private static final int THREAD_POOL_SIZE = 50;
   private final BroadcastFactory broadcastFactory;
   private final CraftFactory craftFactory;
   private final AudioCache audioCache;
@@ -77,7 +76,16 @@ public class WorkManagerImpl implements WorkManager {
   private final AtomicLong startedAtMillis = new AtomicLong(0);
 
   @Nullable
-  private ScheduledExecutorService scheduler;
+  private ScheduledExecutorService controlScheduler;
+
+  @Nullable
+  private ScheduledExecutorService craftScheduler;
+
+  @Nullable
+  private ScheduledExecutorService dubScheduler;
+
+  @Nullable
+  private ScheduledExecutorService shipScheduler;
 
   @Nullable
   private CraftWork craftWork;
@@ -184,19 +192,37 @@ public class WorkManagerImpl implements WorkManager {
     isAudioLoaded.set(false);
     updateState(WorkState.Starting);
 
-    scheduler = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);
-    scheduler.scheduleWithFixedDelay(this::runControlCycle, 0, workConfig.getControlCycleDelayMillis(), TimeUnit.MILLISECONDS);
-    scheduler.scheduleWithFixedDelay(this::runCraftCycle, 0, workConfig.getCraftCycleDelayMillis(), TimeUnit.MILLISECONDS);
-    scheduler.scheduleAtFixedRate(this::runDubCycle, 0, workConfig.getDubCycleRateMillis(), TimeUnit.MILLISECONDS);
-    scheduler.scheduleAtFixedRate(this::runShipCycle, 0, workConfig.getShipCycleRateMillis(), TimeUnit.MILLISECONDS);
+    controlScheduler = Executors.newScheduledThreadPool(1);
+    controlScheduler.scheduleWithFixedDelay(this::runControlCycle, 0, workConfig.getControlCycleDelayMillis(), TimeUnit.MILLISECONDS);
+
+    craftScheduler = Executors.newScheduledThreadPool(1);
+    craftScheduler.scheduleWithFixedDelay(this::runCraftCycle, 0, workConfig.getCraftCycleDelayMillis(), TimeUnit.MILLISECONDS);
+
+    dubScheduler = Executors.newScheduledThreadPool(1);
+    dubScheduler.scheduleAtFixedRate(this::runDubCycle, 0, workConfig.getDubCycleRateMillis(), TimeUnit.MILLISECONDS);
+
+    shipScheduler = Executors.newScheduledThreadPool(1);
+    shipScheduler.scheduleAtFixedRate(this::runShipCycle, 0, workConfig.getShipCycleRateMillis(), TimeUnit.MILLISECONDS);
 
     telemetry.startTimer();
   }
 
   @Override
   public void finish(boolean cancelled) {
-    if (Objects.nonNull(scheduler)) {
-      scheduler.shutdown();
+    if (Objects.nonNull(controlScheduler)) {
+      controlScheduler.shutdown();
+    }
+
+    if (Objects.nonNull(craftScheduler)) {
+      craftScheduler.shutdown();
+    }
+
+    if (Objects.nonNull(dubScheduler)) {
+      dubScheduler.shutdown();
+    }
+
+    if (Objects.nonNull(shipScheduler)) {
+      shipScheduler.shutdown();
     }
 
     // Shutting down ship work will cascade-send the finish() instruction to dub and ship
