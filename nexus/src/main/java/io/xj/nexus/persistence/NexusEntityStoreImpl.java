@@ -145,15 +145,6 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
       chain = (Chain) entity;
       return entity;
     } else if (entity instanceof Segment) {
-      while (segments.size() <= ((Segment) entity).getId()) {
-        var id = segments.size();
-        segments.put(id,
-          new Segment()
-            .id(id)
-            .chainId(chain.getId())
-            .type(SegmentType.PENDING)
-            .state(SegmentState.PLANNED));
-      }
       segments.put(((Segment) entity).getId(), (Segment) entity);
       return entity;
     }

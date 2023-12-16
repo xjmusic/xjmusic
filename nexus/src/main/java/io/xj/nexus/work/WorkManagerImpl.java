@@ -182,39 +182,47 @@ public class WorkManagerImpl implements WorkManager {
     telemetry.startTimer();
 
     running.set(true);
-    Task<Void> task = new Task<>() {
-        @Override
-        protected Void call() {
-            long lastControlCycleMillis = startedAtMillis.get();
-            long lastCraftCycleMillis = startedAtMillis.get();
-            long lastDubCycleMillis = startedAtMillis.get();
-            long lastShipCycleMillis = startedAtMillis.get();
-            while (running.get()) {
-                if (System.currentTimeMillis() - lastControlCycleMillis > workConfig.getControlCycleDelayMillis()) {
-                    lastControlCycleMillis = System.currentTimeMillis();
-                    runControlCycle();
-                }
+    Task<Void> craftDubTask = new Task<>() {
+      @Override
+      protected Void call() {
+        long lastCraftCycleMillis = startedAtMillis.get();
+        long lastDubCycleMillis = startedAtMillis.get();
+        while (running.get()) {
+          if (System.currentTimeMillis() - lastCraftCycleMillis > workConfig.getCraftCycleDelayMillis()) {
+            lastCraftCycleMillis = System.currentTimeMillis();
+            runCraftCycle();
+          }
 
-                if (System.currentTimeMillis() - lastCraftCycleMillis > workConfig.getCraftCycleDelayMillis()) {
-                    lastCraftCycleMillis = System.currentTimeMillis();
-                    runCraftCycle();
-                }
-
-                if (System.currentTimeMillis() - lastDubCycleMillis > workConfig.getDubCycleRateMillis()) {
-                    lastDubCycleMillis = System.currentTimeMillis();
-                    runDubCycle();
-                }
-
-                if (System.currentTimeMillis() - lastShipCycleMillis > workConfig.getShipCycleRateMillis()) {
-                    lastShipCycleMillis = System.currentTimeMillis();
-                    runShipCycle();
-                }
-            }
-            return null;
+          if (System.currentTimeMillis() - lastDubCycleMillis > workConfig.getDubCycleRateMillis()) {
+            lastDubCycleMillis = System.currentTimeMillis();
+            runDubCycle();
+          }
         }
+        return null;
+      }
     };
 
-    new Thread(task).start();
+    Task<Void> controlShipTask = new Task<>() {
+      @Override
+      protected Void call() {
+        long lastControlCycleMillis = startedAtMillis.get();
+        long lastShipCycleMillis = startedAtMillis.get();
+        while (running.get()) {
+          if (System.currentTimeMillis() - lastControlCycleMillis > workConfig.getControlCycleDelayMillis()) {
+            lastControlCycleMillis = System.currentTimeMillis();
+            runControlCycle();
+          }
+          if (System.currentTimeMillis() - lastShipCycleMillis > workConfig.getShipCycleRateMillis()) {
+            lastShipCycleMillis = System.currentTimeMillis();
+            runShipCycle();
+          }
+        }
+        return null;
+      }
+    };
+
+    new Thread(controlShipTask,"Control/Ship").start();
+    new Thread(craftDubTask,"Craft/Dub").start();
   }
 
   @Override
