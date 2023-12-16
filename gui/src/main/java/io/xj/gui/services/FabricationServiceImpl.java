@@ -515,7 +515,7 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
-  public String getChoiceHash(Segment segment) {
+  public String computeChoiceHash(Segment segment) {
     return workManager.getSegmentManager().getChoiceHash(segment);
   }
 

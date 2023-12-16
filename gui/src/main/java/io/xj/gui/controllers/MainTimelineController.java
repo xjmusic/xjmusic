@@ -30,6 +30,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,9 +46,9 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   private static final double DEMO_BUTTON_SPACING = 10.0;
   private static final double DEMO_BUTTON_MARGIN = 30.0;
   private static final double ACTIVE_SHIP_REGION_WIDTH = 5.0;
-  private static final float DEFAULT_MICROS_PER_PIXEL = 25000;
-  private final int segmentMinWidth;
-  private final int segmentHorizontalSpacing;
+  private static final long MILLIS_PER_MICRO = 1000L;
+  private final int segmentWidth;
+  private final int segmentGutter;
   private final int segmentDisplayChoiceHashRecheckLimit;
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
@@ -113,16 +114,16 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     this.refreshTimelineMillis = refreshTimelineMillis;
     this.segmentDisplayChoiceHashRecheckLimit = segmentDisplayChoiceHashRecheckLimit;
     this.segmentFactory = segmentFactory;
-    this.segmentHorizontalSpacing = segmentSpacingHorizontal;
-    this.segmentMinWidth = segmentWidthMin;
+    this.segmentGutter = segmentSpacingHorizontal;
+    this.segmentWidth = segmentWidthMin;
   }
 
   @Override
   public void onStageReady() {
-    segmentListView.setSpacing(segmentHorizontalSpacing);
-    segmentListView.setPadding(new Insets(0, segmentMinWidth * 3, 0, segmentHorizontalSpacing));
+    segmentListView.setSpacing(segmentGutter);
+    segmentListView.setPadding(new Insets(0, segmentWidth * 3, 0, segmentGutter));
 
-    segmentListView.paddingProperty().bind(scrollPane.widthProperty().map(width -> new Insets(0, width.doubleValue(), 0, segmentHorizontalSpacing)));
+    segmentListView.paddingProperty().bind(scrollPane.widthProperty().map(width -> new Insets(0, width.doubleValue(), 0, segmentGutter)));
 
     scrollPane.hbarPolicyProperty().bind(fabricationService.followPlaybackProperty().map(followPlayback -> followPlayback ? ScrollPane.ScrollBarPolicy.NEVER : ScrollPane.ScrollBarPolicy.AS_NEEDED));
 
@@ -184,7 +185,8 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
    Called to reset the timeline (segment list).
    */
   private void resetTimeline() {
-    final KeyFrame kf1 = new KeyFrame(Duration.millis(0), e -> {
+    scrollPaneAnimationTimeline.stop();
+    Platform.runLater(() -> {
       dsMap.clear();
       segmentListView.getChildren().clear();
       scrollPane.setHvalue(0);
@@ -192,14 +194,10 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       timelineRegion2Ship.setWidth(ACTIVE_SHIP_REGION_WIDTH);
       timelineRegion3Dub.setWidth(0);
       timelineRegion4Craft.setWidth(0);
-    });
-    final KeyFrame kf2 = new KeyFrame(Duration.millis(200), e -> {
       segmentListView.layout();
       scrollPane.layout();
       segmentPositionRow.layout();
     });
-    final Timeline timeline = new Timeline(kf1, kf2);
-    Platform.runLater(timeline::play);
   }
 
   /**
@@ -267,8 +265,8 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     int currentLastId = dsMap.keySet().stream().max(Comparator.comparingInt((i) -> i)).orElse(NO_ID);
     for (Segment freshSegment : fsMap.values()) {
       if (freshSegment.getId() > currentLastId) {
-        dsMap.put(freshSegment.getId(), new DisplayedSegment(freshSegment));
-        segmentListView.getChildren().add(segmentFactory.create(freshSegment, segmentMinWidth));
+        dsMap.put(freshSegment.getId(), new DisplayedSegment(freshSegment, fabricationService, segmentDisplayChoiceHashRecheckLimit));
+        segmentListView.getChildren().add(segmentFactory.create(freshSegment, segmentWidth));
       }
     }
 
@@ -279,9 +277,8 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
         Objects.nonNull(dsMap.get(fsMap.get(i).getId())) &&
         dsMap.get(fsMap.get(i).getId()).isSameButUpdated(fsMap.get(i))) {
         dsMap.get(fsMap.get(i).getId()).update(fsMap.get(i));
-        segmentListView.getChildren().set(i, segmentFactory.create(fsMap.get(i), segmentMinWidth));
+        segmentListView.getChildren().set(i, segmentFactory.create(fsMap.get(i), segmentWidth));
       }
-
 
     // Recompute the width of the timeline
     segmentListView.layout();
@@ -298,33 +295,42 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     var m0 = dsList.isEmpty() ? 0 : dsList.get(0).getBeginAtChainMicros();
 
     // markers 1-3 are the shippedToChainMicros, dubbedToChainMicros, and craftedToChainMicros
-    var m1Past = fabricationService.getShippedToChainMicros().orElse(m0);
-    var m3Dub = fabricationService.getDubbedToChainMicros().orElse(m1Past);
-    var m4Craft = fabricationService.getCraftedToChainMicros().orElse(m3Dub);
+    var m1Now = fabricationService.getShippedToChainMicros().orElse(m0);
+    var m2Dub = fabricationService.getDubbedToChainMicros().orElse(m1Now);
+    var m3Craft = fabricationService.getCraftedToChainMicros().orElse(m2Dub);
 
-    // TODO width of each region must be computed based on the actual displayed segments
-    var w1Past = dsList.stream().filter((ds) -> ds.getBeginAtChainMicros() < m1Past).mapToDouble((ds) -> (ds.getBeginAtChainMicros() - m0) / DEFAULT_MICROS_PER_PIXEL).sum();
-    var w2Ship = dsList.stream().filter((ds) -> ds.getBeginAtChainMicros() < m3Dub).mapToDouble((ds) -> (ds.getBeginAtChainMicros() - m1Past) / DEFAULT_MICROS_PER_PIXEL).sum();
-    var w3Dub = dsList.stream().filter((ds) -> ds.getBeginAtChainMicros() < m4Craft).mapToDouble((ds) -> (ds.getBeginAtChainMicros() - m3Dub) / DEFAULT_MICROS_PER_PIXEL).sum();
+    // Compute the delta pixels per timeline refresh
+    var deltaPixelsPerTimelineRefresh = computeCurrentDeltaPixelsPerTimelineRefresh(dsList, m1Now);
+
+    // position of each region must be computed based on the actual displayed segments
+    var p1Now = computeTimelineX(dsList, m1Now);
+    var p2Dub = computeTimelineX(dsList, m2Dub);
+    var p3Craft = computeTimelineX(dsList, m3Craft);
+
+    // width based on positions
+    var w2Dub = p2Dub - p1Now;
+    var w3Craft = p3Craft - p2Dub;
 
     // In sync output, like the scroll pane target position, the past region is always moving at a predictable rate,
     // so we set its initial position as well as animation its target, which smooths over some
     // jumpiness caused by adding or removing segments to the list.
+    timelineRegion1Past.setWidth(p1Now - deltaPixelsPerTimelineRefresh);
     scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
-      new KeyValue(timelineRegion1Past.widthProperty(), w1Past)));
+      new KeyValue(timelineRegion1Past.widthProperty(), p1Now)));
     scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
-      new KeyValue(timelineRegion3Dub.widthProperty(), w2Ship)));
+      new KeyValue(timelineRegion3Dub.widthProperty(), w2Dub)));
     scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
-      new KeyValue(timelineRegion4Craft.widthProperty(), w3Dub)));
+      new KeyValue(timelineRegion4Craft.widthProperty(), w3Craft)));
 
     // auto-scroll if enabled, animating to the scroll pane position
     if (fabricationService.followPlaybackProperty().getValue() && 0 < segmentListView.getWidth()) {
       var extraHorizontalPixels = Math.max(0, segmentListView.getWidth() - scrollPane.getWidth());
-      var targetOffsetHorizontalPixels = Math.max(0, w1Past - segmentMinWidth);
+      var targetOffsetHorizontalPixels = Math.max(0, p1Now - segmentWidth);
 
       // in sync output, the scroll pane is always moving at a predictable rate,
       // so we set its initial position as well as animation its target, which smooths over some
       // jumpiness caused by adding or removing segments to the list.
+      scrollPane.setHvalue((targetOffsetHorizontalPixels - deltaPixelsPerTimelineRefresh) / extraHorizontalPixels);
       scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
         new KeyValue(scrollPane.hvalueProperty(), targetOffsetHorizontalPixels / extraHorizontalPixels)));
     }
@@ -333,14 +339,57 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     scrollPaneAnimationTimeline.play();
   }
 
-  private class DisplayedSegment {
+  /**
+   Compute the delta pixels per timeline refresh based on the current displayed segments and the given chain micros.
+
+   @param dsList      the list of displayed segments, in order of id
+   @param chainMicros the chain micros for which compute the delta pixels per timeline refresh
+   @return the delta pixels per timeline refresh
+   */
+  private long computeCurrentDeltaPixelsPerTimelineRefresh(List<DisplayedSegment> dsList, long chainMicros) {
+    return dsList.stream().filter(ds -> ds.isIntersecting(chainMicros)).findFirst()
+      .map(displayedSegment -> segmentWidth * refreshTimelineMillis / (displayedSegment.getDurationMicros() / MILLIS_PER_MICRO))
+      .orElse(0L);
+  }
+
+  /**
+   compute timeline X of any given chain micros based on the displayed segments
+
+   @param dsList      the list of displayed segments, in order of id
+   @param chainMicros the chain micros for which compute the timeline X
+   @return the timeline X
+   */
+  private int computeTimelineX(List<DisplayedSegment> dsList, long chainMicros) {
+    return dsList.stream()
+      .filter((ds) -> ds.fromChainMicros < chainMicros)
+      .mapToInt((ds) -> {
+        if (ds.toChainMicros < chainMicros)
+          return segmentWidth + segmentGutter;
+        else
+          return (int) (ds.computePositionRatio(chainMicros) * segmentWidth);
+      })
+      .sum();
+  }
+
+  /**
+   A displayed segment is a segment that is currently displayed in the timeline.
+   It is identified by its id, and it is updated in place when the segment is updated.
+   It is also updated in place when the segment is unchanged but its choice hash has changed.
+   */
+  public static class DisplayedSegment {
     private final AtomicReference<Segment> segment = new AtomicReference<>();
     private final AtomicReference<String> choiceHash = new AtomicReference<>();
     private final AtomicInteger hashRecheckCount = new AtomicInteger(0);
+    private final FabricationService fabricationService;
+    private final int choiceHashRecheckLimit;
+    private long fromChainMicros;
+    private long toChainMicros;
+    private long durationMicros;
 
-    DisplayedSegment(Segment segment) {
-      this.segment.set(segment);
-      this.choiceHash.set(fabricationService.getChoiceHash(segment));
+    DisplayedSegment(Segment segment, FabricationService fabricationService, int choiceHashRecheckLimit) {
+      this.fabricationService = fabricationService;
+      this.choiceHashRecheckLimit = choiceHashRecheckLimit;
+      update(segment);
     }
 
     public boolean isSameButUpdated(Segment segment) {
@@ -349,20 +398,45 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
         return true;
 
       // For performance, limit how many times we recheck the choice hash
-      if (!(hashRecheckCount.get() < segmentDisplayChoiceHashRecheckLimit))
+      if (!(hashRecheckCount.get() < choiceHashRecheckLimit))
         return false;
       hashRecheckCount.incrementAndGet();
       return
-        !Objects.equals(this.choiceHash.get(), fabricationService.getChoiceHash(segment));
+        !Objects.equals(this.choiceHash.get(), fabricationService.computeChoiceHash(segment));
     }
 
     public void update(Segment segment) {
       this.segment.set(segment);
-      this.choiceHash.set(fabricationService.getChoiceHash(segment));
+      this.choiceHash.set(fabricationService.computeChoiceHash(segment));
+      fromChainMicros = segment.getBeginAtChainMicros();
+      toChainMicros = Objects.nonNull(segment.getDurationMicros()) ? segment.getBeginAtChainMicros() + segment.getDurationMicros() : fromChainMicros;
+      durationMicros = toChainMicros - fromChainMicros;
     }
 
     public Long getBeginAtChainMicros() {
       return segment.get().getBeginAtChainMicros();
+    }
+
+    public boolean isIntersecting(long chainMicros) {
+      return fromChainMicros <= chainMicros && toChainMicros > chainMicros;
+    }
+
+    public boolean isBefore(long chainMicros) {
+      return toChainMicros < chainMicros;
+    }
+
+    public boolean isAfter(long chainMicros) {
+      return fromChainMicros >= chainMicros;
+    }
+
+    public double computePositionRatio(long chainMicros) {
+      if (durationMicros == 0)
+        return 0;
+      return (double) (chainMicros - fromChainMicros) / durationMicros;
+    }
+
+    public long getDurationMicros() {
+      return durationMicros;
     }
   }
 }

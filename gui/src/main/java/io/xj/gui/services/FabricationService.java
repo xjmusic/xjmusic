@@ -164,7 +164,7 @@ public interface FabricationService {
    @param segment for which to get the choice hash
    @return hash of all the ids of the choices for the given segment
    */
-  String getChoiceHash(Segment segment);
+  String computeChoiceHash(Segment segment);
 
   /**
    Get the segment spanning the current ship output chain micros
