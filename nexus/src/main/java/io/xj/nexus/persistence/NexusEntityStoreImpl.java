@@ -232,4 +232,11 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
       entities.remove(segmentId);
     }
   }
+
+  @Override
+  public int lastSegmentId() {
+    return segments.keySet().stream()
+      .max(Integer::compareTo)
+      .orElse(0);
+  }
 }

@@ -354,6 +354,11 @@ public class SegmentManagerImpl implements SegmentManager {
   }
 
   @Override
+  public int lastSegmentId() {
+    return store.lastSegmentId();
+  }
+
+  @Override
   public Optional<Segment> readLastSegment() throws ManagerFatalException {
     try {
       return store.getAllSegments()

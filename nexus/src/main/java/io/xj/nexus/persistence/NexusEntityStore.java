@@ -164,4 +164,11 @@ public interface NexusEntityStore {
    @param lastSegmentId segment id
    */
   void deleteSegmentsAfter(int lastSegmentId);
+
+  /**
+   Get the last known segment id
+
+   @return last segment id
+   */
+  int lastSegmentId();
 }

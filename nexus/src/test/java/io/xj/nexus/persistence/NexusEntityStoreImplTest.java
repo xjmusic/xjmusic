@@ -291,4 +291,19 @@ public class NexusEntityStoreImplTest {
 
     assertFalse(subject.isSegmentsEmpty());
   }
+
+  @Test
+  public void lastSegmentId() throws NexusException {
+    subject.put(buildSegment(fakeChain,
+      4,
+      SegmentState.CRAFTED,
+      "D Major",
+      64,
+      0.73f,
+      120.0f,
+      "chains-3-segments-9f7s89d8a7892.wav"
+    ));
+
+    assertEquals(4, subject.lastSegmentId());
+  }
 }
