@@ -6,8 +6,15 @@ import io.xj.gui.services.FabricationService;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentMessage;
+import io.xj.nexus.model.SegmentMessageType;
+import io.xj.nexus.model.SegmentMeta;
 import io.xj.nexus.util.FormatUtils;
-import io.xj.nexus.model.*;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -54,15 +61,12 @@ public class MainTimelineSegmentFactory {
   /**
    Every time we need a segment, build it from scratch
 
-   @param segment        from which to compute JavaFX node
-   @param microsPerPixel pixels per microsecond
-   @param minWidth       minimum width of the segment
-   @param spacing        between segments
+   @param segment from which to compute JavaFX node
+   @param width   minimum width of the segment
    @return JavaFX node
    */
-  public Node create(Segment segment, float microsPerPixel, int minWidth, int spacing) {
+  public Node create(Segment segment, int width) {
     try {
-      int width = Objects.nonNull(segment.getDurationMicros()) && 0 < microsPerPixel ? (int) (segment.getDurationMicros() / microsPerPixel) - spacing : minWidth - spacing;
       var box = new VBox();
       box.setMinWidth(width);
       box.setMaxWidth(width);
@@ -70,7 +74,7 @@ public class MainTimelineSegmentFactory {
       box.setMaxHeight(Double.MAX_VALUE);
       box.setPadding(new Insets(SEGMENT_CONTAINER_PADDING_VERTICAL, SEGMENT_CONTAINER_PADDING_HORIZONTAL, SEGMENT_CONTAINER_PADDING_VERTICAL, SEGMENT_CONTAINER_PADDING_HORIZONTAL));
       VBox.setVgrow(box, Priority.ALWAYS);
-      int innerMinWidth = minWidth - SEGMENT_CONTAINER_PADDING_HORIZONTAL * 2;
+      int innerMinWidth = width - SEGMENT_CONTAINER_PADDING_HORIZONTAL * 2;
       int innerFullWidth = width - SEGMENT_CONTAINER_PADDING_HORIZONTAL * 2;
       box.getChildren().addAll(
         computeSegmentSectionHeaderNode(segment, innerMinWidth),

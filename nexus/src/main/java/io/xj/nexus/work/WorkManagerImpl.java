@@ -61,7 +61,6 @@ import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 public class WorkManagerImpl implements WorkManager {
   private static final Logger LOG = LoggerFactory.getLogger(WorkManagerImpl.class);
-  private static final double DEFAULT_MIN_SEQUENCE_DURATION_MICROS = 4_000_000.0;
   private static final int THREAD_POOL_SIZE = 50;
   private final BroadcastFactory broadcastFactory;
   private final CraftFactory craftFactory;
@@ -248,14 +247,6 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(craftWork);
     assert Objects.nonNull(dubWork);
     craftWork.gotoMacroProgram(macroProgram, dubWork.getDubbedToChainMicros().orElse(0L));
-  }
-
-  @Override
-  public double getMinSequenceDurationMicros() {
-    return getSourceMaterial().getProgramSequences().stream()
-      .mapToDouble(s -> s.getTotal() * 1_000_000.0 / getSourceMaterial().getProgram(s.getProgramId()).orElseThrow().getTempo())
-      .min()
-      .orElse(DEFAULT_MIN_SEQUENCE_DURATION_MICROS);
   }
 
   @Override
