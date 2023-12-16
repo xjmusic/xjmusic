@@ -402,6 +402,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     public void update(Segment segment) {
       this.segment.set(segment);
       this.choiceHash.set(fabricationService.computeChoiceHash(segment));
+      this.hashRecheckCount.set(0);
       fromChainMicros = segment.getBeginAtChainMicros();
       toChainMicros = Objects.nonNull(segment.getDurationMicros()) ? segment.getBeginAtChainMicros() + segment.getDurationMicros() : fromChainMicros;
       durationMicros = toChainMicros - fromChainMicros;
