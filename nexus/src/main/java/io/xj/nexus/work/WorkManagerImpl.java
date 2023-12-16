@@ -59,7 +59,6 @@ import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 public class WorkManagerImpl implements WorkManager {
   private static final Logger LOG = LoggerFactory.getLogger(WorkManagerImpl.class);
-  private static final int THREAD_POOL_SIZE = 50; // TODO wrap up experiment to use a while loop instead of a scheduler
   private final BroadcastFactory broadcastFactory;
   private final CraftFactory craftFactory;
   private final AudioCache audioCache;
@@ -73,13 +72,7 @@ public class WorkManagerImpl implements WorkManager {
   private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
   private final AtomicBoolean isAudioLoaded = new AtomicBoolean(false);
   private final AtomicLong startedAtMillis = new AtomicLong(0);
-  private final AtomicBoolean running = new AtomicBoolean(false); // TODO wrap up experiment to use a while loop instead of a scheduler
-
-/*
-  TODO wrap up experiment to use a while loop instead of a scheduler
-    @Nullable
-    private ScheduledExecutorService scheduler;
-*/
+  private final AtomicBoolean running = new AtomicBoolean(false);
 
   @Nullable
   private CraftWork craftWork;
@@ -188,59 +181,45 @@ public class WorkManagerImpl implements WorkManager {
 
     telemetry.startTimer();
 
-    running.set(true); // TODO wrap up experiment to use a while loop instead of a scheduler
-    Task<Void> task = new Task<Void>() {
-      @Override
-      protected Void call() throws Exception {
-        long lastControlCycleMillis = startedAtMillis.get();
-        long lastCraftCycleMillis = startedAtMillis.get();
-        long lastDubCycleMillis = startedAtMillis.get();
-        long lastShipCycleMillis = startedAtMillis.get();
-        while (running.get()) {
-          if (System.currentTimeMillis() - lastControlCycleMillis > workConfig.getControlCycleDelayMillis()) {
-            lastControlCycleMillis = System.currentTimeMillis();
-            runControlCycle();
-          }
+    running.set(true);
+    Task<Void> task = new Task<>() {
+        @Override
+        protected Void call() {
+            long lastControlCycleMillis = startedAtMillis.get();
+            long lastCraftCycleMillis = startedAtMillis.get();
+            long lastDubCycleMillis = startedAtMillis.get();
+            long lastShipCycleMillis = startedAtMillis.get();
+            while (running.get()) {
+                if (System.currentTimeMillis() - lastControlCycleMillis > workConfig.getControlCycleDelayMillis()) {
+                    lastControlCycleMillis = System.currentTimeMillis();
+                    runControlCycle();
+                }
 
-          if (System.currentTimeMillis() - lastCraftCycleMillis > workConfig.getCraftCycleDelayMillis()) {
-            lastCraftCycleMillis = System.currentTimeMillis();
-            runCraftCycle();
-          }
+                if (System.currentTimeMillis() - lastCraftCycleMillis > workConfig.getCraftCycleDelayMillis()) {
+                    lastCraftCycleMillis = System.currentTimeMillis();
+                    runCraftCycle();
+                }
 
-          if (System.currentTimeMillis() - lastDubCycleMillis > workConfig.getDubCycleRateMillis()) {
-            lastDubCycleMillis = System.currentTimeMillis();
-            runDubCycle();
-          }
+                if (System.currentTimeMillis() - lastDubCycleMillis > workConfig.getDubCycleRateMillis()) {
+                    lastDubCycleMillis = System.currentTimeMillis();
+                    runDubCycle();
+                }
 
-          if (System.currentTimeMillis() - lastShipCycleMillis > workConfig.getShipCycleRateMillis()) {
-            lastShipCycleMillis = System.currentTimeMillis();
-            runShipCycle();
-          }
+                if (System.currentTimeMillis() - lastShipCycleMillis > workConfig.getShipCycleRateMillis()) {
+                    lastShipCycleMillis = System.currentTimeMillis();
+                    runShipCycle();
+                }
+            }
+            return null;
         }
-        return null;
-      }
     };
 
     new Thread(task).start();
-/*
-  TODO wrap up experiment to use a while loop instead of a scheduler
-    scheduler = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);
-    scheduler.scheduleWithFixedDelay(this::runControlCycle, 0, workConfig.getControlCycleDelayMillis(), TimeUnit.MILLISECONDS);
-    scheduler.scheduleWithFixedDelay(this::runCraftCycle, 0, workConfig.getCraftCycleDelayMillis(), TimeUnit.MILLISECONDS);
-    scheduler.scheduleAtFixedRate(this::runDubCycle, 0, workConfig.getDubCycleRateMillis(), TimeUnit.MILLISECONDS);
-    scheduler.scheduleAtFixedRate(this::runShipCycle, 0, workConfig.getShipCycleRateMillis(), TimeUnit.MILLISECONDS);
-*/
   }
 
   @Override
   public void finish(boolean cancelled) {
-    running.set(false); // TODO wrap up experiment to use a while loop instead of a scheduler
-/*
-  TODO wrap up experiment to use a while loop instead of a scheduler
-    if (Objects.nonNull(scheduler)) {
-      scheduler.shutdown();
-    }
-*/
+    running.set(false);
 
     // Shutting down ship work will cascade-send the finish() instruction to dub and ship
     if (Objects.nonNull(shipWork)) {
