@@ -302,10 +302,10 @@ public class NexusIntegrationTestingFixtures {
     return seg;
   }
 
-  public static Segment buildSegment(Chain chain, int offset, SegmentState state, String key, int total, float density, float tempo, String storageKey) {
+  public static Segment buildSegment(Chain chain, int id, SegmentState state, String key, int total, float density, float tempo, String storageKey) {
     return buildSegment(chain,
-      0 < offset ? SegmentType.CONTINUE : SegmentType.INITIAL,
-      offset, 0, state, key, total, density, tempo, storageKey, state == SegmentState.CRAFTED);
+      0 < id ? SegmentType.CONTINUE : SegmentType.INITIAL,
+      id, 0, state, key, total, density, tempo, storageKey, state == SegmentState.CRAFTED);
   }
 
 

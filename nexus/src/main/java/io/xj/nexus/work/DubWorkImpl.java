@@ -108,12 +108,12 @@ public class DubWorkImpl implements DubWork {
     // Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub
     // Workstation has live performance modulation https://www.pivotaltracker.com/story/show/186003440
     if (!craftWork.isReady()) {
-      LOG.warn("Craft is not ready. Dub will wait.");
+      LOG.info("Waiting for Craft readiness...");
       return;
     }
 
     if (craftWork.isFinished()) {
-      LOG.warn("Craft is finished. Dub will finish.");
+      LOG.info("Craft is finished. Dub will finish.");
       finish();
       return;
     }

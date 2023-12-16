@@ -18,8 +18,6 @@ import io.xj.nexus.model.SegmentChordVoicing;
 import io.xj.nexus.model.SegmentMeme;
 import io.xj.nexus.model.SegmentMessage;
 import io.xj.nexus.model.SegmentMeta;
-import io.xj.nexus.model.SegmentState;
-import io.xj.nexus.model.SegmentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +54,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
 
   @Override
   public <N> void delete(int segmentId, Class<N> type, UUID id) {
-    if (entities.size() > segmentId && entities.get(segmentId).containsKey(type))
+    if (entities.containsKey(segmentId) && entities.get(segmentId).containsKey(type))
       entities.get(segmentId).get(type).remove(id);
   }
 
@@ -86,14 +84,15 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
 
   @Override
   public Optional<Segment> getSegment(int id) throws NexusException {
-    return 0 <= id && segments.size() > id ? Optional.of(segments.get(id)) : Optional.empty();
+    return segments.containsKey(id) ? Optional.of(segments.get(id)) : Optional.empty();
   }
 
   @Override
   public <N> Optional<N> get(int segmentId, Class<N> type, UUID id) throws NexusException {
     try {
-      if (entities.size() <= segmentId || !entities.get(segmentId).containsKey(type))
-        if (!entities.get(segmentId).get(type).containsKey(id)) return Optional.empty();
+      if (!entities.containsKey(segmentId)
+        || !entities.get(segmentId).containsKey(type)
+        || !entities.get(segmentId).get(type).containsKey(id)) return Optional.empty();
       //noinspection unchecked
       return (Optional<N>) Optional.ofNullable(entities.get(segmentId).get(type).get(id));
 
@@ -105,7 +104,8 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   @Override
   public <N> Collection<N> getAll(int segmentId, Class<N> type) throws NexusException {
     try {
-      if (entities.size() <= segmentId || !entities.get(segmentId).containsKey(type))
+      if (!entities.containsKey(segmentId)
+        || !entities.get(segmentId).containsKey(type))
         return List.of();
       //noinspection unchecked
       return (Collection<N>) entities.get(segmentId).get(type).values().stream()
@@ -120,7 +120,8 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   @Override
   public <N, B> Collection<N> getAll(int segmentId, Class<N> type, Class<B> belongsToType, Collection<UUID> belongsToIds) throws NexusException {
     try {
-      if (entities.size() <= segmentId || !entities.get(segmentId).containsKey(type))
+      if (!entities.containsKey(segmentId)
+        || !entities.get(segmentId).containsKey(type))
         return List.of();
       //noinspection unchecked
       return (Collection<N>) entities.get(segmentId).get(type).values().stream()

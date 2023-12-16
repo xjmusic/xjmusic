@@ -298,6 +298,8 @@ public class CraftWorkImpl implements CraftWork {
       startedAtMillis = System.currentTimeMillis();
       doSegmentCleanup(shippedToChainMicros);
       telemetry.record(TIMER_SECTION_CRAFT_CLEANUP, System.currentTimeMillis() - startedAtMillis);
+    } catch (FabricationFatalException e) {
+      LOG.warn("Failed to fabricate because {}", e.getMessage());
 
     } catch (Exception e) {
       didFailWhile("running craft work", e);
