@@ -40,6 +40,7 @@ import io.xj.nexus.ship.broadcast.BroadcastFactoryImpl;
 import io.xj.nexus.telemetry.Telemetry;
 import io.xj.nexus.telemetry.TelemetryImpl;
 import jakarta.annotation.Nullable;
+import javafx.concurrent.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,9 +49,6 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -61,7 +59,7 @@ import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 public class WorkManagerImpl implements WorkManager {
   private static final Logger LOG = LoggerFactory.getLogger(WorkManagerImpl.class);
-  private static final int THREAD_POOL_SIZE = 50;
+  private static final int THREAD_POOL_SIZE = 50; // TODO wrap up experiment to use a while loop instead of a scheduler
   private final BroadcastFactory broadcastFactory;
   private final CraftFactory craftFactory;
   private final AudioCache audioCache;
@@ -75,9 +73,13 @@ public class WorkManagerImpl implements WorkManager {
   private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
   private final AtomicBoolean isAudioLoaded = new AtomicBoolean(false);
   private final AtomicLong startedAtMillis = new AtomicLong(0);
+  private final AtomicBoolean running = new AtomicBoolean(false); // TODO wrap up experiment to use a while loop instead of a scheduler
 
-  @Nullable
-  private ScheduledExecutorService scheduler;
+/*
+  TODO wrap up experiment to use a while loop instead of a scheduler
+    @Nullable
+    private ScheduledExecutorService scheduler;
+*/
 
   @Nullable
   private CraftWork craftWork;
@@ -184,20 +186,61 @@ public class WorkManagerImpl implements WorkManager {
     isAudioLoaded.set(false);
     updateState(WorkState.Starting);
 
+    telemetry.startTimer();
+
+    running.set(true); // TODO wrap up experiment to use a while loop instead of a scheduler
+    Task<Void> task = new Task<Void>() {
+      @Override
+      protected Void call() throws Exception {
+        long lastControlCycleMillis = startedAtMillis.get();
+        long lastCraftCycleMillis = startedAtMillis.get();
+        long lastDubCycleMillis = startedAtMillis.get();
+        long lastShipCycleMillis = startedAtMillis.get();
+        while (running.get()) {
+          if (System.currentTimeMillis() - lastControlCycleMillis > workConfig.getControlCycleDelayMillis()) {
+            lastControlCycleMillis = System.currentTimeMillis();
+            runControlCycle();
+          }
+
+          if (System.currentTimeMillis() - lastCraftCycleMillis > workConfig.getCraftCycleDelayMillis()) {
+            lastCraftCycleMillis = System.currentTimeMillis();
+            runCraftCycle();
+          }
+
+          if (System.currentTimeMillis() - lastDubCycleMillis > workConfig.getDubCycleRateMillis()) {
+            lastDubCycleMillis = System.currentTimeMillis();
+            runDubCycle();
+          }
+
+          if (System.currentTimeMillis() - lastShipCycleMillis > workConfig.getShipCycleRateMillis()) {
+            lastShipCycleMillis = System.currentTimeMillis();
+            runShipCycle();
+          }
+        }
+        return null;
+      }
+    };
+
+    new Thread(task).start();
+/*
+  TODO wrap up experiment to use a while loop instead of a scheduler
     scheduler = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);
     scheduler.scheduleWithFixedDelay(this::runControlCycle, 0, workConfig.getControlCycleDelayMillis(), TimeUnit.MILLISECONDS);
     scheduler.scheduleWithFixedDelay(this::runCraftCycle, 0, workConfig.getCraftCycleDelayMillis(), TimeUnit.MILLISECONDS);
     scheduler.scheduleAtFixedRate(this::runDubCycle, 0, workConfig.getDubCycleRateMillis(), TimeUnit.MILLISECONDS);
     scheduler.scheduleAtFixedRate(this::runShipCycle, 0, workConfig.getShipCycleRateMillis(), TimeUnit.MILLISECONDS);
-
-    telemetry.startTimer();
+*/
   }
 
   @Override
   public void finish(boolean cancelled) {
+    running.set(false); // TODO wrap up experiment to use a while loop instead of a scheduler
+/*
+  TODO wrap up experiment to use a while loop instead of a scheduler
     if (Objects.nonNull(scheduler)) {
       scheduler.shutdown();
     }
+*/
 
     // Shutting down ship work will cascade-send the finish() instruction to dub and ship
     if (Objects.nonNull(shipWork)) {
