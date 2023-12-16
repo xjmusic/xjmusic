@@ -265,7 +265,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     int currentLastId = dsMap.keySet().stream().max(Comparator.comparingInt((i) -> i)).orElse(NO_ID);
     for (Segment freshSegment : fsMap.values()) {
       if (freshSegment.getId() > currentLastId) {
-        dsMap.put(freshSegment.getId(), new DisplayedSegment(freshSegment, fabricationService, segmentDisplayChoiceHashRecheckLimit));
+        dsMap.put(freshSegment.getId(), new DisplayedSegment(freshSegment));
         segmentListView.getChildren().add(segmentFactory.create(freshSegment, segmentWidth));
       }
     }
@@ -376,19 +376,15 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
    It is identified by its id, and it is updated in place when the segment is updated.
    It is also updated in place when the segment is unchanged but its choice hash has changed.
    */
-  public static class DisplayedSegment {
+  private class DisplayedSegment {
     private final AtomicReference<Segment> segment = new AtomicReference<>();
     private final AtomicReference<String> choiceHash = new AtomicReference<>();
     private final AtomicInteger hashRecheckCount = new AtomicInteger(0);
-    private final FabricationService fabricationService;
-    private final int choiceHashRecheckLimit;
     private long fromChainMicros;
     private long toChainMicros;
     private long durationMicros;
 
-    DisplayedSegment(Segment segment, FabricationService fabricationService, int choiceHashRecheckLimit) {
-      this.fabricationService = fabricationService;
-      this.choiceHashRecheckLimit = choiceHashRecheckLimit;
+    DisplayedSegment(Segment segment) {
       update(segment);
     }
 
@@ -398,7 +394,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
         return true;
 
       // For performance, limit how many times we recheck the choice hash
-      if (!(hashRecheckCount.get() < choiceHashRecheckLimit))
+      if (!(hashRecheckCount.get() < segmentDisplayChoiceHashRecheckLimit))
         return false;
       hashRecheckCount.incrementAndGet();
       return
@@ -419,14 +415,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
 
     public boolean isIntersecting(long chainMicros) {
       return fromChainMicros <= chainMicros && toChainMicros > chainMicros;
-    }
-
-    public boolean isBefore(long chainMicros) {
-      return toChainMicros < chainMicros;
-    }
-
-    public boolean isAfter(long chainMicros) {
-      return fromChainMicros >= chainMicros;
     }
 
     public double computePositionRatio(long chainMicros) {
