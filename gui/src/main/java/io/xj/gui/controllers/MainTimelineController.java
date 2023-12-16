@@ -47,7 +47,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   private final int segmentWidth;
   private final int segmentGutter;
   private final int segmentDisplayChoiceHashRecheckLimit;
-  private final int displayTimelineAheadPixels;
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
   final LabService labService;
@@ -101,13 +100,11 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     @Value("${gui.timeline.segment.hash.recheck.limit}") Integer segmentDisplayChoiceHashRecheckLimit,
     @Value("${gui.timeline.segment.spacing.horizontal}") Integer segmentSpacingHorizontal,
     @Value("${gui.timeline.segment.width.min}") Integer segmentWidthMin,
-    @Value("${gui.timeline.display.ahead.pixels}") int displayTimelineAheadPixels,
     ConfigurableApplicationContext ac,
     FabricationService fabricationService,
     LabService labService,
     MainTimelineSegmentFactory segmentFactory
   ) {
-    this.displayTimelineAheadPixels = displayTimelineAheadPixels;
     this.ac = ac;
     this.fabricationService = fabricationService;
     this.labService = labService;
@@ -298,9 +295,10 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     var deltaPixelsPerTimelineRefresh = computeCurrentDeltaPixelsPerTimelineRefresh(ds, m1Now);
 
     // position of each region must be computed based on the actual displayed segments
-    var p1Now = computeTimelineX(ds, m1Now);
-    var p2Dub = computeTimelineX(ds, m2Dub);
-    var p3Craft = computeTimelineX(ds, m3Craft);
+    // position of each region is the timeline X of the marker plus the delta pixels per timeline refresh
+    var p1Now = computeTimelineX(ds, m1Now) + deltaPixelsPerTimelineRefresh;
+    var p2Dub = computeTimelineX(ds, m2Dub) + deltaPixelsPerTimelineRefresh;
+    var p3Craft = computeTimelineX(ds, m3Craft) + deltaPixelsPerTimelineRefresh;
 
     // width based on positions
     var w2Dub = p2Dub - p1Now;
@@ -356,7 +354,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
    */
   private int computeTimelineX(List<DisplayedSegment> dsList, long chainMicros) {
     return
-      displayTimelineAheadPixels +
       segmentGutter +
       dsList.stream()
         .filter((ds) -> ds.fromChainMicros < chainMicros)
