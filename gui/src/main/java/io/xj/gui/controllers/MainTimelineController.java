@@ -355,15 +355,15 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   private int computeTimelineX(List<DisplayedSegment> dsList, long chainMicros) {
     return
       segmentGutter +
-      dsList.stream()
-        .filter((ds) -> ds.fromChainMicros < chainMicros)
-        .mapToInt((ds) -> {
-          if (ds.toChainMicros < chainMicros)
-            return segmentWidth + segmentGutter;
-          else
-            return (int) (ds.computePositionRatio(chainMicros) * segmentWidth);
-        })
-        .sum();
+        dsList.stream()
+          .filter((ds) -> ds.isSegmentReady() && ds.getBeginAtChainMicros() < chainMicros)
+          .mapToInt((ds) -> {
+            if (ds.getEndAtChainMicros() < chainMicros)
+              return segmentWidth + segmentGutter;
+            else
+              return (int) (ds.computePositionRatio(chainMicros) * segmentWidth);
+          })
+          .sum();
   }
 
   /**
@@ -375,9 +375,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     private final AtomicReference<Segment> segment = new AtomicReference<>();
     private final AtomicReference<String> choiceHash = new AtomicReference<>();
     private final AtomicInteger hashRecheckCount = new AtomicInteger(0);
-    private long fromChainMicros;
-    private long toChainMicros;
-    private long durationMicros;
 
     DisplayedSegment(Segment segment) {
       update(segment);
@@ -400,27 +397,39 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       this.segment.set(segment);
       this.choiceHash.set(fabricationService.computeChoiceHash(segment));
       this.hashRecheckCount.set(0);
-      fromChainMicros = segment.getBeginAtChainMicros();
-      toChainMicros = Objects.nonNull(segment.getDurationMicros()) ? segment.getBeginAtChainMicros() + segment.getDurationMicros() : fromChainMicros;
-      durationMicros = toChainMicros - fromChainMicros;
     }
 
-    public Long getBeginAtChainMicros() {
+    public long getBeginAtChainMicros() {
+      if (!isSegmentReady()) return 0;
       return segment.get().getBeginAtChainMicros();
     }
 
+    public long getEndAtChainMicros() {
+      if (!isSegmentReady()) return 0;
+      // noinspection DataFlowIssue
+      return segment.get().getBeginAtChainMicros() + segment.get().getDurationMicros();
+    }
+
     public boolean isIntersecting(long chainMicros) {
-      return fromChainMicros <= chainMicros && toChainMicros > chainMicros;
+      if (!isSegmentReady()) return false;
+      return segment.get().getBeginAtChainMicros() <= chainMicros && getEndAtChainMicros() > chainMicros;
     }
 
     public double computePositionRatio(long chainMicros) {
-      if (durationMicros == 0)
-        return 0;
-      return (double) (chainMicros - fromChainMicros) / durationMicros;
+      if (!isSegmentReady()) return 0;
+      //noinspection DataFlowIssue
+      return (double) (chainMicros - segment.get().getBeginAtChainMicros()) / segment.get().getDurationMicros();
     }
 
     public long getDurationMicros() {
-      return durationMicros;
+      if (!isSegmentReady())
+        return 0;
+      //noinspection DataFlowIssue
+      return segment.get().getDurationMicros();
+    }
+
+    private boolean isSegmentReady() {
+      return Objects.nonNull(segment.get()) && Objects.nonNull(segment.get().getBeginAtChainMicros()) && Objects.nonNull(segment.get().getDurationMicros());
     }
 
     public int getId() {
