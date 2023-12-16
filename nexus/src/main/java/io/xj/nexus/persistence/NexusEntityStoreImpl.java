@@ -177,9 +177,8 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
           .orElseThrow(() -> new NexusException(String.format("Can't store %s without Segment ID!",
             entity.getClass().getSimpleName())));
         int segmentId = Integer.parseInt(String.valueOf(segmentIdValue));
-        while (entities.size() <= segmentId) {
-          entities.put(entities.size(), new ConcurrentHashMap<>());
-        }
+        if (!entities.containsKey(segmentId))
+          entities.put(segmentId, new ConcurrentHashMap<>());
         entities.get(segmentId).putIfAbsent(entity.getClass(), new ConcurrentHashMap<>());
         entities.get(segmentId).get(entity.getClass()).put(id, entity);
       } catch (EntityException e) {
