@@ -2,19 +2,59 @@
 
 package io.xj.nexus;
 
-import io.xj.hub.enums.*;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.enums.InstrumentMode;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.AccountUser;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentMeme;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.tables.pojos.User;
+import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueUtils;
 import io.xj.nexus.entity.EntityException;
-import io.xj.nexus.entity.EntityUtils;
 import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.nexus.hub_client.access.Users;
-import io.xj.nexus.model.*;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentMeta;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
@@ -506,95 +546,32 @@ public class NexusIntegrationTestingFixtures {
 
    @param user     for access
    @param userAuth for access
-   @param accounts for access
-   @param rolesCSV for access
    @return access control object
    */
-  public static HubClientAccess buildHubClientAccess(User user, UserAuth userAuth, List<Account> accounts, String rolesCSV) {
+  public static HubClientAccess buildHubClientAccess(User user, UserAuth userAuth) {
     return new HubClientAccess()
       .setUserId(user.getId())
-      .setUserAuthId(userAuth.getId())
-      .setAccountIds(EntityUtils.idsOf(accounts))
-      .setRoleTypes(Users.userRoleTypesFromCsv(rolesCSV));
+      .setUserAuthId(userAuth.getId());
   }
 
   /**
    Create a new HubAccess control object
 
-   @param user     for access
-   @param rolesCSV for access
+   @param user for access
    @return access control object
    */
-  public static HubClientAccess buildHubClientAccess(User user, String rolesCSV) {
+  public static HubClientAccess buildHubClientAccess(User user) {
     return new HubClientAccess()
-      .setUserId(user.getId())
-      .setRoleTypes(Users.userRoleTypesFromCsv(rolesCSV));
+      .setUserId(user.getId());
   }
 
   /**
    Create a new HubAccess control object
 
-   @param user     for access
-   @param accounts for access
-   @param rolesCSV for access
    @return access control object
    */
-  public static HubClientAccess buildHubClientAccess(User user, List<Account> accounts, String rolesCSV) {
-    return new HubClientAccess()
-      .setUserId(user.getId())
-      .setAccountIds(EntityUtils.idsOf(accounts))
-      .setRoleTypes(Users.userRoleTypesFromCsv(rolesCSV));
-  }
-
-  /**
-   Create a new HubAccess control object
-
-   @param user     for access
-   @param userAuth for access
-   @param accounts for access
-   @return access control object
-   */
-  public static HubClientAccess buildHubClientAccess(User user, UserAuth userAuth, List<Account> accounts) {
-    return new HubClientAccess()
-      .setUserId(user.getId())
-      .setUserAuthId(userAuth.getId())
-      .setAccountIds(EntityUtils.idsOf(accounts));
-  }
-
-  /**
-   Create a new HubAccess control object
-
-   @param user     for access
-   @param accounts for access
-   @return access control object
-   */
-  public static HubClientAccess buildHubClientAccess(User user, List<Account> accounts) {
-    return new HubClientAccess()
-      .setUserId(user.getId())
-      .setAccountIds(EntityUtils.idsOf(accounts));
-  }
-
-  /**
-   Create a new HubAccess control object
-
-   @param accounts for access
-   @param rolesCSV for access
-   @return access control object
-   */
-  public static HubClientAccess buildHubClientAccess(List<Account> accounts, String rolesCSV) {
-    return new HubClientAccess()
-      .setAccountIds(EntityUtils.idsOf(accounts))
-      .setRoleTypes(Users.userRoleTypesFromCsv(rolesCSV));
-  }
-
-  /**
-   Create a new HubAccess control object
-
-   @param rolesCSV for access
-   @return access control object
-   */
-  public static HubClientAccess buildHubClientAccess(String rolesCSV) {
-    return new HubClientAccess().setRoleTypes(Users.userRoleTypesFromCsv(rolesCSV));
+  public static HubClientAccess buildHubClientAccess() {
+    return new HubClientAccess();
   }
 
   /**
@@ -615,10 +592,10 @@ public class NexusIntegrationTestingFixtures {
     templateBinding1 = NexusHubIntegrationTestingFixtures.buildTemplateBinding(template1, library2);
 
     // John has "user" and "admin" roles, belongs to account "bananas"
-    user2 = NexusHubIntegrationTestingFixtures.buildUser("john", "john@email.com", "https://pictures.com/john.gif", "Admin");
+    user2 = NexusHubIntegrationTestingFixtures.buildUser("john", "john@email.com", "https://pictures.com/john.gif");
 
     // Jenny has a "user" role and belongs to account "bananas"
-    user3 = NexusHubIntegrationTestingFixtures.buildUser("jenny", "jenny@email.com", "https://pictures.com/jenny.gif", "User");
+    user3 = NexusHubIntegrationTestingFixtures.buildUser("jenny", "jenny@email.com", "https://pictures.com/jenny.gif");
     accountUser1a = NexusHubIntegrationTestingFixtures.buildAccountUser(account1, user3);
 
     // "Tropical, Wild to Cozy" macro-program in house library
@@ -1036,7 +1013,7 @@ public class NexusIntegrationTestingFixtures {
     Collection<Object> entities = new ArrayList<>();
 
     account1 = add(entities, NexusHubIntegrationTestingFixtures.buildAccount("Generated"));
-    user1 = add(entities, NexusHubIntegrationTestingFixtures.buildUser("generated", "generated@email.com", "https://pictures.com/generated.gif", "Admin"));
+    user1 = add(entities, NexusHubIntegrationTestingFixtures.buildUser("generated", "generated@email.com", "https://pictures.com/generated.gif"));
     library1 = add(entities, NexusHubIntegrationTestingFixtures.buildLibrary(account1, "generated"));
 
     template1 = NexusHubIntegrationTestingFixtures.buildTemplate(account1, "Complex Library Test", "complex");

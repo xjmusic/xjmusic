@@ -69,8 +69,8 @@ public class MacroFromOverlappingMemeSequencesTest {
     Library library2 = buildLibrary(account1, "house");
     var template1 = buildTemplate(account1, "Test Template 1", "test1");
     TemplateBinding templateBinding1 = buildTemplateBinding(template1, library2);
-    User user2 = buildUser("john", "john@email.com", "https://pictures.com/john.gif", "User");
-    User user3 = buildUser("jenny", "jenny@email.com", "https://pictures.com/jenny.gif", "User");
+    User user2 = buildUser("john", "john@email.com", "https://pictures.com/john.gif");
+    User user3 = buildUser("jenny", "jenny@email.com", "https://pictures.com/jenny.gif");
     AccountUser accountUser1a = buildAccountUser(account1, user3);
 
     // Macro Program already chosen for previous segment

@@ -3,10 +3,13 @@ package io.xj.nexus.work;
 
 import io.xj.hub.HubConfiguration;
 import io.xj.hub.HubContent;
+import io.xj.hub.TemplateConfig;
+import io.xj.hub.meme.MemeTaxonomy;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.util.StringUtils;
+import io.xj.hub.util.ValueException;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.audio_cache.AudioCache;
 import io.xj.nexus.audio_cache.AudioCacheImpl;
@@ -44,7 +47,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -249,11 +254,6 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public boolean isFinished() {
-    return getWorkState() == WorkState.Done || getWorkState() == WorkState.Failed;
-  }
-
-  @Override
   public void setOnProgress(@Nullable Consumer<Float> onProgress) {
     this.onProgress = onProgress;
   }
@@ -273,6 +273,24 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(craftWork);
     assert Objects.nonNull(dubWork);
     craftWork.gotoMacroProgram(macroProgram, dubWork.getDubbedToChainMicros().orElse(0L));
+  }
+
+    @Override
+    public Optional<MemeTaxonomy> getMemeTaxonomy() {
+      try {
+        var templateConfig = new TemplateConfig(getSourceMaterial().getTemplate());
+        return Optional.of(templateConfig.getMemeTaxonomy());
+      } catch (ValueException e) {
+        LOG.error("Failed to get meme taxonomy from template config", e);
+        return Optional.empty();
+      }
+    }
+
+  @Override
+  public void gotoTaxonomyCategoryMemes(Collection<String> memes) {
+    assert Objects.nonNull(craftWork);
+    assert Objects.nonNull(dubWork);
+    craftWork.gotoTaxonomyCategoryMemes(memes, dubWork.getDubbedToChainMicros().orElse(0L));
   }
 
   @Override

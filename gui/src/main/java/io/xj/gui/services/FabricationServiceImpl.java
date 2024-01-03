@@ -4,7 +4,7 @@ package io.xj.gui.services;
 
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.enums.UserRoleType;
+import io.xj.hub.meme.MemeTaxonomy;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
@@ -167,7 +167,6 @@ public class FabricationServiceImpl implements FabricationService {
       .setOutputFrameRate(Integer.parseInt(outputFrameRate.get()));
 
     var hubAccess = new HubClientAccess()
-      .setRoleTypes(List.of(UserRoleType.Internal))
       .setToken(labService.accessTokenProperty().get());
 
     // start the work with the given configuration
@@ -185,6 +184,16 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public void gotoMacroProgram(Program macroProgram) {
     workManager.gotoMacroProgram(macroProgram);
+  }
+
+  @Override
+  public Optional<MemeTaxonomy> getMemeTaxonomy() {
+    return workManager.getMemeTaxonomy();
+  }
+
+  @Override
+  public void gotoTaxonomyCategoryMeme(Collection<String> memes) {
+    workManager.gotoTaxonomyCategoryMemes(memes);
   }
 
   @Override

@@ -357,7 +357,7 @@ public class SegmentManagerImplTest {
 
   @Test
   public void readOneInState() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Internal");
+    HubClientAccess access = buildHubClientAccess();
 
     Segment result = testService.readFirstInState(access, SegmentState.PLANNED, 4 * 32 * MICROS_PER_SECOND);
 
@@ -371,7 +371,7 @@ public class SegmentManagerImplTest {
 
   @Test
   public void readOneInState_failIfNoneInChain() {
-    HubClientAccess access = buildHubClientAccess("Internal");
+    HubClientAccess access = buildHubClientAccess();
     buildChain(account1, "Test Print #2", ChainType.PRODUCTION, ChainState.FABRICATE, template1, null);
 
     Exception thrown = assertThrows(ManagerExistenceException.class, () ->

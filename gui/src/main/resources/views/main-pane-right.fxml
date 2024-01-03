@@ -5,5 +5,6 @@
 <?import javafx.scene.layout.VBox?>
 <VBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.xj.gui.controllers.MainPaneRightController">
+  <VBox fx:id="taxonomySelectionContainer" styleClass="taxonomy-selection-container" prefWidth="220.0"/>
   <VBox fx:id="macroSelectionContainer" styleClass="macro-selection-container" prefWidth="220.0"/>
 </VBox>
