@@ -480,7 +480,7 @@ public class WorkManagerImpl implements WorkManager {
       }
       if (Objects.nonNull(onProgress)) onProgress.accept(1.0f);
       isAudioLoaded.set(true);
-      LOG.info("Preloaded {}  audios from {} instruments", loaded, instruments.size());
+      LOG.info("Preloaded {} audios from {} instruments", loaded, instruments.size());
 
     } catch (Exception e) {
       didFailWhile("preloading audio", e);
