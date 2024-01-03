@@ -110,7 +110,8 @@ public class FabricationServiceImpl implements FabricationService {
   private final ObservableValue<String> mainActionButtonText = Bindings.createStringBinding(() ->
     switch (status.get()) {
       case Standby -> BUTTON_TEXT_START;
-      case Starting, LoadingContent, LoadedContent, PreparingAudio, PreparedAudio, Initializing, Active -> BUTTON_TEXT_STOP;
+      case Starting, LoadingContent, LoadedContent, PreparingAudio, PreparedAudio, Initializing, Active ->
+        BUTTON_TEXT_STOP;
       case Cancelled, Failed, Done -> BUTTON_TEXT_RESET;
     }, status);
 
@@ -496,10 +497,14 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public void handleMainAction() {
-    switch (status.get()) {
-      case Standby -> start();
-      case Cancelled, Done, Failed -> reset();
-      default -> cancel();
+    try {
+      switch (status.get()) {
+        case Standby -> start();
+        case Cancelled, Done, Failed -> reset();
+        default -> cancel();
+      }
+    } catch (Exception e) {
+      LOG.error("Failed to handle main action", e);
     }
   }
 
