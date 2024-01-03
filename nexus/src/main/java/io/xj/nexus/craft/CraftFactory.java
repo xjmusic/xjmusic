@@ -14,6 +14,8 @@ import io.xj.nexus.craft.transition.TransitionCraft;
 import io.xj.nexus.fabricator.Fabricator;
 import jakarta.annotation.Nullable;
 
+import java.util.Collection;
+
 /**
  Craft is performed in order:
  1. High
@@ -77,13 +79,15 @@ public interface CraftFactory {
    [#138] Foundation craft for Segment of a Chain
 
    @param fabricator           of craft
-   @param selectedMacroProgram already selected to use for craft
+   @param overrideMacroProgram already selected to use for craft
+   @param overrideMemes        already selected to use for craft
    @return MacroMainCraft
    @throws NexusException on failure
    */
   MacroMainCraft macroMain(
     Fabricator fabricator,
-    @Nullable Program selectedMacroProgram
+    @Nullable Program overrideMacroProgram,
+    @Nullable Collection<String> overrideMemes
   ) throws NexusException;
 
   /**

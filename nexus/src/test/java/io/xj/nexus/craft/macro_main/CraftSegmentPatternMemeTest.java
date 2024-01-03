@@ -99,7 +99,7 @@ public class CraftSegmentPatternMemeTest {
       // Following Segment
       Segment segment = store.put(buildSegment(chain, 2, SegmentState.PLANNED, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
 
-      craftFactory.macroMain(fabricatorFactory.fabricate(sourceMaterial, segment, 48000.0f, 2, null), null).doWork();
+      craftFactory.macroMain(fabricatorFactory.fabricate(sourceMaterial, segment, 48000.0f, 2, null), null, null).doWork();
 
       var result = store.getSegment(segment.getId()).orElseThrow();
       assertEquals(SegmentType.NEXT_MACRO, result.getType());
