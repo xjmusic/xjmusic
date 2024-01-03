@@ -47,7 +47,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -254,16 +253,16 @@ public class WorkManagerImpl implements WorkManager {
     craftWork.gotoMacroProgram(macroProgram, dubWork.getDubbedToChainMicros().orElse(0L));
   }
 
-    @Override
-    public Optional<MemeTaxonomy> getMemeTaxonomy() {
-      try {
-        var templateConfig = new TemplateConfig(getSourceMaterial().getTemplate());
-        return Optional.of(templateConfig.getMemeTaxonomy());
-      } catch (ValueException e) {
-        LOG.error("Failed to get meme taxonomy from template config", e);
-        return Optional.empty();
-      }
+  @Override
+  public Optional<MemeTaxonomy> getMemeTaxonomy() {
+    try {
+      var templateConfig = new TemplateConfig(getSourceMaterial().getTemplate());
+      return Optional.of(templateConfig.getMemeTaxonomy());
+    } catch (ValueException e) {
+      LOG.error("Failed to get meme taxonomy from template config", e);
+      return Optional.empty();
     }
+  }
 
   @Override
   public void gotoTaxonomyCategoryMemes(Collection<String> memes) {

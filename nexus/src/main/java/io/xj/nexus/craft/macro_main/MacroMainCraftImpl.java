@@ -34,14 +34,18 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   private static final Logger LOG = LoggerFactory.getLogger(MacroMainCraftImpl.class);
 
   @Nullable
-  private final Program selectedMacroProgram;
+  private final Program overrideMacroProgram;
+  @Nullable
+  private final Collection<String> overrideMemes;
 
   public MacroMainCraftImpl(
     Fabricator fabricator,
-    @Nullable Program selectedMacroProgram
+    @Nullable Program overrideMacroProgram,
+    @Nullable Collection<String> overrideMemes
   ) {
     super(fabricator);
-    this.selectedMacroProgram = selectedMacroProgram;
+    this.overrideMacroProgram = overrideMacroProgram;
+    this.overrideMemes = overrideMemes;
   }
 
   @Override
@@ -50,12 +54,12 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
     //
     // 1. Macro
-    var macroProgram = Objects.nonNull(selectedMacroProgram)
-      ? selectedMacroProgram
+    var macroProgram = Objects.nonNull(overrideMacroProgram)
+      ? overrideMacroProgram
       : chooseMacroProgram();
     //
-    Integer macroSequenceBindingOffset = Objects.nonNull(selectedMacroProgram)
-      ? fabricator.getSecondMacroSequenceBindingOffset(selectedMacroProgram)
+    Integer macroSequenceBindingOffset = Objects.nonNull(overrideMacroProgram)
+      ? fabricator.getSecondMacroSequenceBindingOffset(overrideMacroProgram)
       : computeMacroSequenceBindingOffset();
     var macroSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format("Unable to determine macro sequence binding for Segment[%d]", segment.getId())));

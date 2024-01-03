@@ -50,7 +50,7 @@ public class CraftFactoryImpl implements CraftFactory {
 
   @Override
   public MacroMainCraft macroMain(Fabricator fabricator, @Nullable Program overrideMacroProgram, @Nullable Collection<String> overrideMemes) {
-    return new MacroMainCraftImpl(fabricator, overrideMacroProgram);
+    return new MacroMainCraftImpl(fabricator, overrideMacroProgram, overrideMemes);
   }
 
   @Override
