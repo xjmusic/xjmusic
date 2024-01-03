@@ -322,16 +322,9 @@ public class CraftWorkImpl implements CraftWork {
    */
   private void fabricateTo(long toChainMicros) throws FabricationFatalException {
     switch (craftState.get()) {
-      case INITIAL:
-      case READY:
-        fabricateDefault(toChainMicros);
-        break;
-      case GOTO_MACRO:
-        fabricateOverrideMacro();
-        break;
-      case GOTO_MEMES:
-        fabricateOverrideMemes();
-        break;
+      case INITIAL, READY -> fabricateDefault(toChainMicros);
+      case GOTO_MACRO -> fabricateOverrideMacro();
+      case GOTO_MEMES -> fabricateOverrideMemes();
     }
 
     // Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub
@@ -366,7 +359,7 @@ public class CraftWorkImpl implements CraftWork {
         segment = buildSegmentFollowing(existing.get());
       }
       segment = store.createSegment(segment);
-      doCraftWork(segment, null, null);
+      doCraftWork(segment, null, null, null);
 
     } catch (
       ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException |
@@ -391,7 +384,7 @@ public class CraftWorkImpl implements CraftWork {
       segment.setType(SegmentType.NEXT_MACRO);
       segment = store.createSegment(segment);
       lastDubbedSegment.set(null);
-      doCraftWork(segment, nextMacroProgram.get(), SegmentType.NEXT_MACRO);
+      doCraftWork(segment, SegmentType.NEXT_MACRO, nextMacroProgram.get(), null);
       nextMacroProgram.set(null);
 
     } catch (
@@ -417,10 +410,11 @@ public class CraftWorkImpl implements CraftWork {
       segment.setType(SegmentType.NEXT_MACRO);
       segment = segmentManager.create(segment);
       lastDubbedSegment.set(null);
-      doCraftWork(segment, nextMemesProgram.get(), SegmentType.NEXT_MACRO);
+      doCraftWork(segment, SegmentType.NEXT_MACRO, null, nextMemes.get());
       nextMemes.set(null);
     } catch (
-      ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException e
+      ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException |
+      NexusException | ValueException e
     ) {
       didFailWhile("fabricating", e);
     }
@@ -467,18 +461,24 @@ public class CraftWorkImpl implements CraftWork {
    Craft a Segment, or fail
 
    @param segment              to craft
-   @param overrideMacroProgram to use for crafting
    @param overrideSegmentType  to use for crafting
+   @param overrideMacroProgram to use for crafting
+   @param overrideMemes        to use for crafting
    @throws NexusException on configuration failure
    @throws NexusException on craft failure
    */
-  void doCraftWork(Segment segment, @Nullable Program overrideMacroProgram, @Nullable SegmentType overrideSegmentType) throws NexusException, ManagerFatalException, ValueException, FabricationFatalException {
+  private void doCraftWork(
+    Segment segment,
+    @Nullable SegmentType overrideSegmentType,
+    @Nullable Program overrideMacroProgram,
+    @Nullable Collection<String> overrideMemes
+  ) throws NexusException, ManagerFatalException, ValueException, FabricationFatalException {
     LOG.debug("[segId={}] will prepare fabricator", segment.getId());
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment.getId(), outputFrameRate, outputChannels, overrideSegmentType);
 
     LOG.debug("[segId={}] will do craft work", segment.getId());
     updateSegmentState(fabricator, segment, SegmentState.PLANNED, SegmentState.CRAFTING);
-    craftFactory.macroMain(fabricator, overrideMacroProgram).doWork();
+    craftFactory.macroMain(fabricator, overrideMacroProgram, overrideMemes).doWork();
     craftFactory.beat(fabricator).doWork();
     craftFactory.hook(fabricator).doWork();
     craftFactory.detail(fabricator).doWork();
