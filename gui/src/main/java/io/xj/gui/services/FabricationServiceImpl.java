@@ -109,8 +109,8 @@ public class FabricationServiceImpl implements FabricationService {
 
   private final ObservableValue<String> mainActionButtonText = Bindings.createStringBinding(() ->
     switch (status.get()) {
-      case Starting, Standby -> BUTTON_TEXT_START;
-      case LoadingContent, LoadedContent, PreparingAudio, PreparedAudio, Initializing, Active -> BUTTON_TEXT_STOP;
+      case Standby -> BUTTON_TEXT_START;
+      case Starting, LoadingContent, LoadedContent, PreparingAudio, PreparedAudio, Initializing, Active -> BUTTON_TEXT_STOP;
       case Cancelled, Failed, Done -> BUTTON_TEXT_RESET;
     }, status);
 
