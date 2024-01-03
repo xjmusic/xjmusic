@@ -176,6 +176,10 @@
   -fx-cursor: hand;
 }
 
+.macro-selection-container {
+  -fx-padding: 10 10 10 10;
+}
+
 .macro-selection-container .button {
   -fx-padding: 10 20 10 20;
   -fx-max-width: Infinity;

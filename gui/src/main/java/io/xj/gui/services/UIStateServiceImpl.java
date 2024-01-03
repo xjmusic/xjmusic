@@ -1,7 +1,7 @@
 package io.xj.gui.services;
 
 import io.xj.gui.WorkstationLogAppender;
-import io.xj.nexus.MacroMode;
+import io.xj.nexus.ControlMode;
 import io.xj.nexus.work.WorkState;
 import jakarta.annotation.Nullable;
 import javafx.beans.binding.Bindings;
@@ -129,7 +129,7 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public BooleanBinding isManualFabricationModeProperty() {
     if (Objects.isNull(isManualFabricationMode))
-      isManualFabricationMode = fabricationService.macroModeProperty().isEqualTo(MacroMode.MANUAL);
+      isManualFabricationMode = fabricationService.controlModeProperty().isNotEqualTo(ControlMode.AUTO);
 
     return isManualFabricationMode;
   }
@@ -138,7 +138,7 @@ public class UIStateServiceImpl implements UIStateService {
   public BooleanBinding isManualFabricationActiveProperty() {
     if (Objects.isNull(isManualFabricationActive))
       isManualFabricationActive =
-        fabricationService.macroModeProperty().isEqualTo(MacroMode.MANUAL)
+        fabricationService.controlModeProperty().isNotEqualTo(ControlMode.AUTO)
           .and(fabricationService.statusProperty().isEqualTo(WorkState.Active));
 
     return isManualFabricationActive;

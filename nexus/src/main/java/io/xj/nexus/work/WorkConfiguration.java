@@ -3,11 +3,11 @@
 package io.xj.nexus.work;
 
 import io.xj.nexus.InputMode;
-import io.xj.nexus.MacroMode;
+import io.xj.nexus.ControlMode;
 
 public class WorkConfiguration {
   private InputMode inputMode;
-  private MacroMode macroMode;
+  private ControlMode controlMode;
   private String inputTemplateKey;
   private int craftAheadSeconds;
   private int dubAheadSeconds;
@@ -29,12 +29,12 @@ public class WorkConfiguration {
     return this;
   }
 
-  public MacroMode getMacroMode() {
-    return macroMode;
+  public ControlMode getMacroMode() {
+    return controlMode;
   }
 
-  public WorkConfiguration setMacroMode(MacroMode macroMode) {
-    this.macroMode = macroMode;
+  public WorkConfiguration setMacroMode(ControlMode controlMode) {
+    this.controlMode = controlMode;
     return this;
   }
 
