@@ -2,6 +2,7 @@
 
 package io.xj.gui.services;
 
+import io.xj.hub.meme.MemeTaxonomy;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
@@ -179,8 +180,21 @@ public interface FabricationService {
   void cancel();
 
   /**
+   Manually go to a specific macro program
+   https://www.pivotaltracker.com/story/show/186003440
+
    @param macroProgram the macro program to go to
    */
   void gotoMacroProgram(Program macroProgram);
 
+  /**
+   Get all meme taxonomies in the source template
+   */
+  Optional<MemeTaxonomy> getMemeTaxonomy();
+
+  /**
+   Manually go to a specific taxonomy category meme
+   https://www.pivotaltracker.com/story/show/186714075@param memes     the meme
+   */
+  void gotoTaxonomyCategoryMeme(Collection<String> memes);
 }

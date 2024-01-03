@@ -159,10 +159,10 @@ public class NexusHubContentFixtures {
     library2 = NexusHubIntegrationTestingFixtures.buildLibrary(account1, "house");
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    user2 = NexusHubIntegrationTestingFixtures.buildUser("john", "john@email.com", "https://pictures.com/john.gif", "Admin");
+    user2 = NexusHubIntegrationTestingFixtures.buildUser("john", "john@email.com", "https://pictures.com/john.gif");
 
     // Jenny has a "user" role and belongs to account "bananas"
-    user3 = NexusHubIntegrationTestingFixtures.buildUser("jenny", "jenny@email.com", "https://pictures.com/jenny.gif", "User");
+    user3 = NexusHubIntegrationTestingFixtures.buildUser("jenny", "jenny@email.com", "https://pictures.com/jenny.gif");
     accountUser1a = NexusHubIntegrationTestingFixtures.buildAccountUser(account1, user3);
 
     // "Tropical, Wild to Cozy" macro-program in house library

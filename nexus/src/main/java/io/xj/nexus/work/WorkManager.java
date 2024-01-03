@@ -4,10 +4,12 @@ package io.xj.nexus.work;
 
 import io.xj.hub.HubConfiguration;
 import io.xj.hub.HubContent;
+import io.xj.hub.meme.MemeTaxonomy;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.persistence.NexusEntityStore;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -99,9 +101,22 @@ public interface WorkManager {
 
   /**
    Go to the given macro program right away
+   https://www.pivotaltracker.com/story/show/186003440
 
    @param macroProgram to go to
    */
   void gotoMacroProgram(Program macroProgram);
 
+  /**
+   @return the meme taxonomy from the current template configuration
+   */
+  Optional<MemeTaxonomy> getMemeTaxonomy();
+
+  /**
+   Manually go to a specific taxonomy category meme
+   https://www.pivotaltracker.com/story/show/186714075
+
+   @param memes specific (assumed allowably) set of taxonomy category memes
+   */
+  void gotoTaxonomyCategoryMemes(Collection<String> memes);
 }

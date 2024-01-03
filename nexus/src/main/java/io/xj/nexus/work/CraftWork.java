@@ -11,6 +11,7 @@ import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -141,9 +142,19 @@ public interface CraftWork extends Work {
 
   /**
    Go to the given macro program right now
+   https://www.pivotaltracker.com/story/show/186003440
 
    @param macroProgram        the macro program to go to
    @param dubbedToChainMicros the chain micros at which to dub
    */
   void gotoMacroProgram(Program macroProgram, long dubbedToChainMicros);
+
+  /**
+   Go to the given set of taxonomy category memes right now
+   https://www.pivotaltracker.com/story/show/186714075
+
+   @param memes               to go to
+   @param dubbedToChainMicros the chain micros at which to dub
+   */
+  void gotoTaxonomyCategoryMemes(Collection<String> memes, Long dubbedToChainMicros);
 }

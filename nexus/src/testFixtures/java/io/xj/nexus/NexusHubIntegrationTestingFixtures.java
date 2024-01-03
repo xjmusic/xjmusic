@@ -71,13 +71,12 @@ public class NexusHubIntegrationTestingFixtures {
     return instrumentAudio;
   }
 
-  public static User buildUser(String name, String email, String avatarUrl, String roles) {
+  public static User buildUser(String name, String email, String avatarUrl) {
     var user = new User();
     user.setId(UUID.randomUUID());
     user.setEmail(email);
     user.setAvatarUrl(avatarUrl);
     user.setName(name);
-    user.setRoles(roles);
     return user;
   }
 

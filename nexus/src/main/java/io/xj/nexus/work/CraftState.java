@@ -4,4 +4,5 @@ public enum CraftState {
   INITIAL,
   READY,
   GOTO_MACRO,
+  GOTO_MEMES,
 }

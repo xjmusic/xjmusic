@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -76,6 +77,7 @@ public class CraftWorkImpl implements CraftWork {
   // Workstation has live performance modulation https://www.pivotaltracker.com/story/show/186003440
   private final AtomicReference<CraftState> craftState = new AtomicReference<>(CraftState.INITIAL);
   private final AtomicReference<Program> nextMacroProgram = new AtomicReference<>();
+  private final AtomicReference<Collection<String>> nextMemes = new AtomicReference<>();
   private final AtomicReference<Segment> lastDubbedSegment = new AtomicReference<>();
 
   public CraftWorkImpl(
@@ -305,6 +307,14 @@ public class CraftWorkImpl implements CraftWork {
     lastDubbedSegment.set(getSegmentAtChainMicros(dubbedToChainMicros).orElse(null));
   }
 
+  @Override
+  public void gotoTaxonomyCategoryMemes(Collection<String> memes, Long dubbedToChainMicros) {
+    craftState.set(CraftState.GOTO_MEMES);
+    nextMemes.set(memes);
+    lastDubbedSegment.set(getSegmentAtChainMicros(dubbedToChainMicros).orElse(null));
+    // todo go to the taxonomy category meme https://www.pivotaltracker.com/story/show/186714075
+  }
+
   /**
    Fabricate the chain based on craft state
 
@@ -313,8 +323,16 @@ public class CraftWorkImpl implements CraftWork {
    */
   private void fabricateTo(long toChainMicros) throws FabricationFatalException {
     switch (craftState.get()) {
-      case INITIAL, READY -> fabricateDefault(toChainMicros);
-      case GOTO_MACRO -> fabricateOverrideMacro();
+      case INITIAL:
+      case READY:
+        fabricateDefault(toChainMicros);
+        break;
+      case GOTO_MACRO:
+        fabricateOverrideMacro();
+        break;
+      case GOTO_MEMES:
+        fabricateOverrideMemes();
+        break;
     }
 
     // Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub
@@ -361,6 +379,7 @@ public class CraftWorkImpl implements CraftWork {
 
   /**
    Macro override behavior deletes all future segments and re-fabricates starting with the given macro program
+   https://www.pivotaltracker.com/story/show/186003440
 
    @throws FabricationFatalException if the chain cannot be fabricated
    */
@@ -379,6 +398,34 @@ public class CraftWorkImpl implements CraftWork {
     } catch (
       ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException |
       NexusException | ValueException e
+    ) {
+      didFailWhile("fabricating", e);
+    }
+  }
+
+  /**
+   Memes override behavior deletes all future segments and re-fabricates starting with the given memes
+   https://www.pivotaltracker.com/story/show/186714075
+
+   @throws FabricationFatalException if the chain cannot be fabricated
+   */
+  private void fabricateOverrideMemes() throws FabricationFatalException {
+    try {
+      LOG.info("Will delete segments after #{} and craft using memes {}",
+        lastDubbedSegment.get().getId(), StringUtils.toProperCsvAnd(nextMemes.get().stream().sorted().toList()));
+      segmentManager.deleteSegmentsAfter(lastDubbedSegment.get().getId());
+      Segment segment = buildSegmentFollowing(lastDubbedSegment.get());
+/*
+TODO
+      segment.setType(SegmentType.NEXT_MEMES);
+      segment = segmentManager.create(segment);
+      lastDubbedSegment.set(null);
+      doCraftWork(segment, nextMemesProgram.get(), SegmentType.NEXT_MEMES);
+      nextMemesProgram.set(null);
+*/
+
+    } catch (
+      ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException e
     ) {
       didFailWhile("fabricating", e);
     }
