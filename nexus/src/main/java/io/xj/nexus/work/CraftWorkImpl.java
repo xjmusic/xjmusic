@@ -325,7 +325,6 @@ public class CraftWorkImpl implements CraftWork {
     craftState.set(CraftState.GOTO_MEMES);
     nextMemes.set(memes);
     lastDubbedSegment.set(getSegmentAtChainMicros(dubbedToChainMicros).orElse(null));
-    // todo go to the taxonomy category meme https://www.pivotaltracker.com/story/show/186714075
   }
 
   /**
@@ -428,15 +427,11 @@ public class CraftWorkImpl implements CraftWork {
         lastDubbedSegment.get().getId(), StringUtils.toProperCsvAnd(nextMemes.get().stream().sorted().toList()));
       segmentManager.deleteSegmentsAfter(lastDubbedSegment.get().getId());
       Segment segment = buildSegmentFollowing(lastDubbedSegment.get());
-/*
-TODO
-      segment.setType(SegmentType.NEXT_MEMES);
+      segment.setType(SegmentType.NEXT_MACRO);
       segment = segmentManager.create(segment);
       lastDubbedSegment.set(null);
-      doCraftWork(segment, nextMemesProgram.get(), SegmentType.NEXT_MEMES);
-      nextMemesProgram.set(null);
-*/
-
+      doCraftWork(segment, nextMemesProgram.get(), SegmentType.NEXT_MACRO);
+      nextMemes.set(null);
     } catch (
       ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException e
     ) {
