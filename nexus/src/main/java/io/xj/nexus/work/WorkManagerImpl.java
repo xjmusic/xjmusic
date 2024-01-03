@@ -18,11 +18,7 @@ import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.http.HttpClientProvider;
 import io.xj.nexus.http.HttpClientProviderImpl;
-import io.xj.nexus.hub_client.HubClient;
-import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.nexus.hub_client.HubClientImpl;
-import io.xj.nexus.hub_client.HubContentProvider;
-import io.xj.nexus.hub_client.HubTopology;
+import io.xj.nexus.hub_client.*;
 import io.xj.nexus.json.JsonProvider;
 import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
@@ -177,8 +173,13 @@ public class WorkManagerImpl implements WorkManager {
     HubClientAccess hubAccess
   ) {
     this.workConfig = workConfig;
+    LOG.debug("Did set work configuration: {}", workConfig);
+
     this.hubConfig = hubConfig;
+    LOG.debug("Did set hub configuration: {}", hubConfig);
+
     this.hubAccess = hubAccess;
+    LOG.debug("Did set hub access: {}", hubAccess);
 
     audioCache.initialize(
       workConfig.getContentStoragePathPrefix(),
@@ -187,22 +188,28 @@ public class WorkManagerImpl implements WorkManager {
       FIXED_SAMPLE_BITS,
       workConfig.getOutputChannels()
     );
+    LOG.debug("Did initialize audio cache");
 
     startedAtMillis.set(System.currentTimeMillis());
     isAudioLoaded.set(false);
     updateState(WorkState.Starting);
+    LOG.debug("Did update work state to Starting");
 
     controlScheduler = Executors.newScheduledThreadPool(1);
     controlScheduler.scheduleWithFixedDelay(this::runControlCycle, 0, workConfig.getControlCycleDelayMillis(), TimeUnit.MILLISECONDS);
+    LOG.debug("Did schedule control cycle");
 
     craftScheduler = Executors.newScheduledThreadPool(1);
     craftScheduler.scheduleWithFixedDelay(this::runCraftCycle, 0, workConfig.getCraftCycleDelayMillis(), TimeUnit.MILLISECONDS);
+    LOG.debug("Did schedule craft cycle");
 
     dubScheduler = Executors.newScheduledThreadPool(1);
     dubScheduler.scheduleAtFixedRate(this::runDubCycle, 0, workConfig.getDubCycleRateMillis(), TimeUnit.MILLISECONDS);
+    LOG.debug("Did schedule dub cycle");
 
     shipScheduler = Executors.newScheduledThreadPool(1);
     shipScheduler.scheduleAtFixedRate(this::runShipCycle, 0, workConfig.getShipCycleRateMillis(), TimeUnit.MILLISECONDS);
+    LOG.debug("Did schedule ship cycle");
 
     telemetry.startTimer();
   }
@@ -317,6 +324,9 @@ public class WorkManagerImpl implements WorkManager {
     state.set(workState);
     if (Objects.nonNull(onStateChange)) {
       onStateChange.accept(workState);
+      LOG.debug("Did update work state to {} and notify listener", workState);
+    } else {
+      LOG.debug("Did update work state to {} but there is no listener to notify", workState);
     }
   }
 
@@ -324,6 +334,7 @@ public class WorkManagerImpl implements WorkManager {
    Run the control cycle, which prepares fabrication and moves the machine into the active state
    */
   private void runControlCycle() {
+    LOG.debug("Will run control cycle");
     try {
       switch (state.get()) {
 
@@ -364,6 +375,7 @@ public class WorkManagerImpl implements WorkManager {
           // no op
         }
       }
+      LOG.debug("Did run control cycle");
 
     } catch (Exception e) {
       didFailWhile("running work cycle", e);
@@ -374,36 +386,55 @@ public class WorkManagerImpl implements WorkManager {
    Run the craft cycle
    */
   private void runCraftCycle() {
-    if (!Objects.equals(state.get(), WorkState.Active)) return;
+    if (!Objects.equals(state.get(), WorkState.Active)) {
+      LOG.debug("Will not run craft cycle because work state is {}", state.get());
+      return;
+    }
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(craftWork);
     assert Objects.nonNull(shipWork);
     assert Objects.nonNull(dubWork);
+
+    LOG.debug("Will run craft cycle");
     craftWork.runCycle(
       shipWork.getShippedToChainMicros().orElse(0L),
       dubWork.getDubbedToChainMicros().orElse(0L)
     );
+    LOG.debug("Did run craft cycle");
   }
 
   /**
    Run the dub cycle
    */
   private void runDubCycle() {
-    if (!Objects.equals(state.get(), WorkState.Active)) return;
+    if (!Objects.equals(state.get(), WorkState.Active)) {
+      LOG.debug("Will not run dub cycle because work state is {}", state.get());
+      return;
+    }
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(dubWork);
     assert Objects.nonNull(shipWork);
+
+    LOG.debug("Will run dub cycle");
     dubWork.runCycle(shipWork.getShippedToChainMicros().orElse(0L));
+    LOG.debug("Did run dub cycle");
   }
 
   /**
    Run the ship cycle
    */
   private void runShipCycle() {
-    if (!Objects.equals(state.get(), WorkState.Active)) return;
+    if (!Objects.equals(state.get(), WorkState.Active)) {
+      LOG.debug("Will not run ship cycle because work state is {}", state.get());
+      return;
+    }
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(shipWork);
+
+    LOG.debug("Will run ship cycle");
     shipWork.runCycle();
+    LOG.debug("Did run ship cycle");
+
     if (shipWork.isFinished()) {
       updateState(WorkState.Done);
       LOG.info("Fabrication work done");
@@ -418,6 +449,9 @@ public class WorkManagerImpl implements WorkManager {
   private void updateProgress(float progress) {
     if (Objects.nonNull(onProgress)) {
       onProgress.accept(progress);
+      LOG.debug("Did update progress to {} and notify listener", progress);
+    } else {
+      LOG.debug("Did not update progress to {} because there is no listener to notify", progress);
     }
   }
 
@@ -427,6 +461,7 @@ public class WorkManagerImpl implements WorkManager {
   private void startLoadingContent() {
     assert Objects.nonNull(workConfig);
     hubContent.set(null);
+    LOG.debug("Will start loading content");
 
     Callable<HubContent> hubContentProvider = new HubContentProvider(
       hubClient,
@@ -438,6 +473,7 @@ public class WorkManagerImpl implements WorkManager {
 
     try {
       hubContent.set(hubContentProvider.call());
+      LOG.debug("Did load content");
     } catch (Exception e) {
       didFailWhile("loading content", e);
     }
@@ -459,6 +495,7 @@ public class WorkManagerImpl implements WorkManager {
 
     int loaded = 0;
 
+    LOG.debug("Will start loading audio");
     try {
       var instruments = new ArrayList<>(hubContent.get().getInstruments());
       var audios = new ArrayList<>(hubContent.get().getInstrumentAudios());
@@ -472,7 +509,9 @@ public class WorkManagerImpl implements WorkManager {
             return;
           }
           if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
+            LOG.debug("Will preload audio for instrument {} with waveform key {}", instrument.getName(), audio.getWaveformKey());
             audioCache.prepare(audio);
+            LOG.debug("Did preload audio OK");
             updateProgress((float) loaded / audios.size());
             loaded++;
           }

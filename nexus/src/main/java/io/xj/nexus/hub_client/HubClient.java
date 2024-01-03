@@ -29,16 +29,6 @@ public interface HubClient {
   HubContent ingest(String baseUrl, HubClientAccess access, UUID templateId) throws HubClientException;
 
   /**
-   Read preview template by ID
-
-   @param baseUrl     of Hub
-   @param accessToken to use for authentication
-   @param templateId  of template to read
-   @return Template
-   */
-  Optional<Template> readPreviewTemplate(String baseUrl, String accessToken, UUID templateId) throws HubClientException;
-
-  /**
    Load shipped content from a static file
    <p>
    Nexus production fabrication from static source (without Hub) https://www.pivotaltracker.com/story/show/177020318

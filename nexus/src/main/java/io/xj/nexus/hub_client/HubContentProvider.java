@@ -3,11 +3,14 @@ package io.xj.nexus.hub_client;
 import io.xj.hub.HubConfiguration;
 import io.xj.hub.HubContent;
 import io.xj.nexus.InputMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
 public class HubContentProvider implements Callable<HubContent> {
+  private static final Logger LOG = LoggerFactory.getLogger(HubContentProvider.class);
   private final HubClient hubClient;
   private final HubConfiguration hubConfig;
   private final HubClientAccess hubAccess;
@@ -20,6 +23,7 @@ public class HubContentProvider implements Callable<HubContent> {
     this.hubAccess = hubAccess;
     this.inputMode = inputMode;
     this.inputTemplateKey = inputTemplateKey;
+    LOG.debug("Did instantiate HubContentProvider with inputMode: {}, inputTemplateKey: {}", inputMode, inputTemplateKey);
   }
 
   @Override
