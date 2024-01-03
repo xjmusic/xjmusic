@@ -4,10 +4,8 @@ package io.xj.nexus.hub_client;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.HubContentPayload;
-import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.http.HttpClientProvider;
 import io.xj.nexus.json.JsonProvider;
-import io.xj.nexus.jsonapi.JsonapiException;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
@@ -18,12 +16,10 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -31,7 +27,6 @@ import java.util.UUID;
  */
 public class HubClientImpl implements HubClient {
   static final String API_PATH_INGEST_FORMAT = "api/1/ingest/%s";
-  static final String API_PATH_TEMPLATE_BY_ID_FORMAT = "api/1/templates/%s";
   static final String HEADER_COOKIE = "Cookie";
   final Logger LOG = LoggerFactory.getLogger(HubClientImpl.class);
   final HttpClientProvider httpClientProvider;
@@ -53,6 +48,7 @@ public class HubClientImpl implements HubClient {
   public HubContent ingest(String baseUrl, HubClientAccess access, UUID templateId) throws HubClientException {
     CloseableHttpClient client = httpClientProvider.getClient();
     var uri = buildURI(baseUrl, String.format(API_PATH_INGEST_FORMAT, templateId.toString()));
+    LOG.info("Will ingest content from {}", uri);
     try (
       CloseableHttpResponse response = client.execute(buildGetRequest(uri, access.getToken()))
     ) {
@@ -61,32 +57,11 @@ public class HubClientImpl implements HubClient {
         throw buildException(uri.toString(), response);
 
       String json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
+      LOG.debug("Did ingest content; will read bytes of JSON");
       return HubContent.from(jsonProvider.getMapper().readValue(json, HubContentPayload.class));
 
     } catch (Exception e) {
       throw new HubClientException(e);
-    }
-  }
-
-  @Override
-  public Optional<Template> readPreviewTemplate(String baseUrl, String accessToken, UUID templateId) throws HubClientException {
-    CloseableHttpClient client = httpClientProvider.getClient();
-    var uri = buildURI(baseUrl, String.format(API_PATH_TEMPLATE_BY_ID_FORMAT, templateId));
-    var request = buildGetRequest(uri, accessToken);
-    try (
-      CloseableHttpResponse response = client.execute(request)
-    ) {
-      if (!Objects.equals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode()))
-        throw buildException(uri.toString(), response);
-
-      var json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
-
-      var payload = jsonapiPayloadFactory.deserialize(json);
-
-      return payload.isEmpty() ? Optional.empty() : Optional.of(jsonapiPayloadFactory.toOne(payload));
-
-    } catch (IOException | JsonapiException e) {
-      throw new HubClientException(String.format("Failed executing Hub API request to %s", uri), e);
     }
   }
 
@@ -103,6 +78,7 @@ public class HubClientImpl implements HubClient {
         throw buildException(url, response);
 
       String json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
+      LOG.debug("Did load content; will read bytes of JSON");
       return HubContent.from(jsonProvider.getMapper().readValue(json, HubContentPayload.class));
 
     } catch (Exception e) {
@@ -146,8 +122,6 @@ public class HubClientImpl implements HubClient {
    @param response to log and throw
    */
   HubClientException buildException(String uri, CloseableHttpResponse response) throws HubClientException {
-    // if we got here, it's a failure
-    LOG.error("Request failed to {}\n response: {} {}", uri, response.getAllHeaders(), response);
     throw new HubClientException(String.format("Request failed to %s\nresponse: %d %s", uri, response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase()));
   }
 }

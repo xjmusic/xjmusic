@@ -151,8 +151,10 @@ public class FabricationServiceImpl implements FabricationService {
       LOG.error("Cannot start fabrication unless in Standby status");
       return;
     }
-    status.set(WorkState.Starting);
+
+    // reset progress
     progress.set(0.0);
+    LOG.debug("Did reset progress");
 
     // create work configuration
     var config = new WorkConfiguration()
@@ -165,15 +167,24 @@ public class FabricationServiceImpl implements FabricationService {
       .setInputTemplateKey(inputTemplateKey.get())
       .setOutputChannels(Integer.parseInt(outputChannels.get()))
       .setOutputFrameRate(Integer.parseInt(outputFrameRate.get()));
+    LOG.debug("Did instantiate work configuration");
 
+<<<<<<< Updated upstream
     var hubAccess = new HubClientAccess()
       .setRoleTypes(List.of(UserRoleType.Internal))
       .setToken(labService.accessTokenProperty().get());
+=======
+    var hubAccess = new HubClientAccess().setToken(labService.accessTokenProperty().get());
+    LOG.debug("Did instantiate hub client access");
+>>>>>>> Stashed changes
 
     // start the work with the given configuration
     workManager.setOnProgress((Float progress) -> Platform.runLater(() -> this.progress.set(progress)));
     workManager.setOnStateChange((WorkState state) -> Platform.runLater(() -> status.set(state)));
+    LOG.debug("Did bind progress listeners");
+
     Platform.runLater(() -> workManager.start(config, labService.hubConfigProperty().get(), hubAccess));
+    LOG.debug("Did send start signal to work manager");
   }
 
   @Override
@@ -603,6 +614,7 @@ public class FabricationServiceImpl implements FabricationService {
     else return "Not Loaded";
   }
 
+  @SuppressWarnings("SameParameterValue")
   private static String computeDefaultPathPrefix(String category) {
     return defaultPathPrefix + category + File.separator;
   }
