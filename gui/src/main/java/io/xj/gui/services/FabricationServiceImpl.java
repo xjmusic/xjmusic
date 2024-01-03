@@ -169,14 +169,10 @@ public class FabricationServiceImpl implements FabricationService {
       .setOutputFrameRate(Integer.parseInt(outputFrameRate.get()));
     LOG.debug("Did instantiate work configuration");
 
-<<<<<<< Updated upstream
     var hubAccess = new HubClientAccess()
       .setRoleTypes(List.of(UserRoleType.Internal))
       .setToken(labService.accessTokenProperty().get());
-=======
-    var hubAccess = new HubClientAccess().setToken(labService.accessTokenProperty().get());
     LOG.debug("Did instantiate hub client access");
->>>>>>> Stashed changes
 
     // start the work with the given configuration
     workManager.setOnProgress((Float progress) -> Platform.runLater(() -> this.progress.set(progress)));
