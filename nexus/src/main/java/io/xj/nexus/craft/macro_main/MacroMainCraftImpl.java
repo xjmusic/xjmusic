@@ -32,14 +32,18 @@ import java.util.UUID;
 public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
   @Nullable
-  private final Program selectedMacroProgram;
+  private final Program overrideMacroProgram;
+  @Nullable
+  private final Collection<String> overrideMemes;
 
   public MacroMainCraftImpl(
     Fabricator fabricator,
-    @Nullable Program selectedMacroProgram
+    @Nullable Program overrideMacroProgram,
+    @Nullable Collection<String> overrideMemes
   ) {
     super(fabricator);
-    this.selectedMacroProgram = selectedMacroProgram;
+    this.overrideMacroProgram = overrideMacroProgram;
+    this.overrideMemes = overrideMemes;
   }
 
   /**
@@ -106,11 +110,11 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
   @Override
   public void doWork() throws NexusException {
-    var macroProgram = Objects.nonNull(selectedMacroProgram)
-      ? selectedMacroProgram
+    var macroProgram = Objects.nonNull(overrideMacroProgram)
+      ? overrideMacroProgram
       : chooseNextMacroProgram().orElseThrow(() -> new NexusException("Failed to choose a Macro-program by any means!"));
-    Integer macroSequenceBindingOffset = Objects.nonNull(selectedMacroProgram)
-      ? fabricator.getSecondMacroSequenceBindingOffset(selectedMacroProgram)
+    Integer macroSequenceBindingOffset = Objects.nonNull(overrideMacroProgram)
+      ? fabricator.getSecondMacroSequenceBindingOffset(overrideMacroProgram)
       : computeMacroSequenceBindingOffset();
     var macroSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format(
