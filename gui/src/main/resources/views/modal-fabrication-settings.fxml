@@ -46,13 +46,13 @@
         <ChoiceBox fx:id="choiceInputMode" prefHeight="25.0" prefWidth="120" />
       </VBox>
       <VBox alignment="CENTER_LEFT" prefHeight="60.0">
-        <Label fx:id="labelMacroMode" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Macro Mode" textAlignment="RIGHT">
+        <Label fx:id="labelControlMode" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Control Mode" textAlignment="RIGHT">
           <graphic>
             <Pane prefWidth="15.0" />
           </graphic>
         </Label>
         <Pane prefWidth="15.0" />
-        <ChoiceBox fx:id="choiceMacroMode" prefHeight="25.0" prefWidth="120" />
+        <ChoiceBox fx:id="choiceControlMode" prefHeight="25.0" prefWidth="120" />
       </VBox>
     </HBox>
 

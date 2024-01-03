@@ -2,7 +2,8 @@
 
 package io.xj.nexus;
 
-public enum MacroMode {
+public enum ControlMode {
   AUTO,
-  MANUAL;
+  MACRO,
+  TAXONOMY;
 }

@@ -10,7 +10,7 @@ import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.nexus.InputMode;
-import io.xj.nexus.MacroMode;
+import io.xj.nexus.ControlMode;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
@@ -44,7 +44,7 @@ public interface FabricationService {
 
   ObjectProperty<InputMode> inputModeProperty();
 
-  ObjectProperty<MacroMode> macroModeProperty();
+  ObjectProperty<ControlMode> controlModeProperty();
 
   StringProperty craftAheadSecondsProperty();
 
@@ -196,5 +196,5 @@ public interface FabricationService {
    Manually go to a specific taxonomy category meme
    https://www.pivotaltracker.com/story/show/186714075@param memes     the meme
    */
-  void gotoTaxonomyCategoryMeme(Collection<String> memes);
+  void gotoTaxonomyCategoryMemes(Collection<String> memes);
 }

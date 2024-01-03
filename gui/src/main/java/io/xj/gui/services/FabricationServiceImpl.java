@@ -13,7 +13,7 @@ import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.util.ValueException;
 import io.xj.nexus.InputMode;
-import io.xj.nexus.MacroMode;
+import io.xj.nexus.ControlMode;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
@@ -81,7 +81,7 @@ public class FabricationServiceImpl implements FabricationService {
   private final String defaultInputTemplateKey;
   private final int defaultOutputChannels;
   private final double defaultOutputFrameRate;
-  private final MacroMode defaultMacroMode;
+  private final ControlMode defaultControlMode;
   private final InputMode defaultInputMode;
   final WorkManager workManager;
   final LabService labService;
@@ -90,7 +90,7 @@ public class FabricationServiceImpl implements FabricationService {
   final StringProperty inputTemplateKey = new SimpleStringProperty();
   final StringProperty contentStoragePathPrefix = new SimpleStringProperty();
   final ObjectProperty<InputMode> inputMode = new SimpleObjectProperty<>();
-  final ObjectProperty<MacroMode> macroMode = new SimpleObjectProperty<>();
+  final ObjectProperty<ControlMode> controlMode = new SimpleObjectProperty<>();
   final StringProperty craftAheadSeconds = new SimpleStringProperty();
   final StringProperty dubAheadSeconds = new SimpleStringProperty();
   final StringProperty mixerLengthSeconds = new SimpleStringProperty();
@@ -131,7 +131,7 @@ public class FabricationServiceImpl implements FabricationService {
     this.defaultCraftAheadSeconds = defaultCraftAheadSeconds;
     this.defaultDubAheadSeconds = defaultDubAheadSeconds;
     this.defaultMixerLengthSeconds = defaultMixerLengthSeconds;
-    this.defaultMacroMode = MacroMode.valueOf(defaultMacroMode.toUpperCase(Locale.ROOT));
+    this.defaultControlMode = ControlMode.valueOf(defaultMacroMode.toUpperCase(Locale.ROOT));
     this.defaultInputMode = InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT));
     this.defaultInputTemplateKey = defaultInputTemplateKey;
     this.defaultOutputChannels = defaultOutputChannels;
@@ -161,7 +161,7 @@ public class FabricationServiceImpl implements FabricationService {
       .setDubAheadSeconds(Integer.parseInt(dubAheadSeconds.get()))
       .setMixerLengthSeconds(Integer.parseInt(mixerLengthSeconds.get()))
       .setInputMode(inputMode.get())
-      .setMacroMode(macroMode.get())
+      .setMacroMode(controlMode.get())
       .setInputTemplateKey(inputTemplateKey.get())
       .setOutputChannels(Integer.parseInt(outputChannels.get()))
       .setOutputFrameRate(Integer.parseInt(outputFrameRate.get()));
@@ -192,7 +192,7 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
-  public void gotoTaxonomyCategoryMeme(Collection<String> memes) {
+  public void gotoTaxonomyCategoryMemes(Collection<String> memes) {
     workManager.gotoTaxonomyCategoryMemes(memes);
   }
 
@@ -230,8 +230,8 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
-  public ObjectProperty<MacroMode> macroModeProperty() {
-    return macroMode;
+  public ObjectProperty<ControlMode> controlModeProperty() {
+    return controlMode;
   }
 
   @Override
@@ -542,7 +542,7 @@ public class FabricationServiceImpl implements FabricationService {
     mixerLengthSeconds.addListener((o, ov, value) -> prefs.put("mixerLengthSeconds", value));
     inputMode.addListener((o, ov, value) -> prefs.put("inputMode", Objects.nonNull(value) ? value.name() : ""));
     inputTemplateKey.addListener((o, ov, value) -> prefs.put("inputTemplateKey", value));
-    macroMode.addListener((o, ov, value) -> prefs.put("macroMode", Objects.nonNull(value) ? value.name() : ""));
+    controlMode.addListener((o, ov, value) -> prefs.put("macroMode", Objects.nonNull(value) ? value.name() : ""));
     outputChannels.addListener((o, ov, value) -> prefs.put("outputChannels", value));
     outputFrameRate.addListener((o, ov, value) -> prefs.put("outputFrameRate", value));
     timelineSegmentViewLimit.addListener((o, ov, value) -> prefs.put("timelineSegmentViewLimit", value));
@@ -559,10 +559,10 @@ public class FabricationServiceImpl implements FabricationService {
     timelineSegmentViewLimit.set(prefs.get("timelineSegmentViewLimit", Integer.toString(defaultTimelineSegmentViewLimit)));
 
     try {
-      macroMode.set(MacroMode.valueOf(prefs.get("macroMode", defaultMacroMode.toString()).toUpperCase(Locale.ROOT)));
+      controlMode.set(ControlMode.valueOf(prefs.get("macroMode", defaultControlMode.toString()).toUpperCase(Locale.ROOT)));
     } catch (Exception e) {
       LOG.error("Failed to set macro mode from preferences", e);
-      macroMode.set(defaultMacroMode);
+      controlMode.set(defaultControlMode);
     }
 
     try {
