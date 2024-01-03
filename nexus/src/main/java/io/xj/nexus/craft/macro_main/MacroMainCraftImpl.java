@@ -110,6 +110,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
   @Override
   public void doWork() throws NexusException {
+    // TODO use overrideMemes if present
     var macroProgram = Objects.nonNull(overrideMacroProgram)
       ? overrideMacroProgram
       : chooseNextMacroProgram().orElseThrow(() -> new NexusException("Failed to choose a Macro-program by any means!"));
