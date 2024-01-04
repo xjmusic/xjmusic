@@ -148,46 +148,56 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public void start() {
-    if (status.get() != WorkState.Standby) {
-      LOG.error("Cannot start fabrication unless in Standby status");
-      return;
+    try {
+      if (status.get() != WorkState.Standby) {
+        LOG.error("Cannot start fabrication unless in Standby status");
+        return;
+      }
+
+      // reset progress
+      progress.set(0.0);
+      LOG.debug("Did reset progress");
+
+      // create work configuration
+      var config = new WorkConfiguration()
+        .setContentStoragePathPrefix(contentStoragePathPrefix.get())
+        .setCraftAheadSeconds(parseIntegerValue(craftAheadSeconds.get(), "fabrication setting for Craft Ahead Seconds"))
+        .setDubAheadSeconds(parseIntegerValue(dubAheadSeconds.get(), "fabrication setting for Dub Ahead Seconds"))
+        .setMixerLengthSeconds(parseIntegerValue(mixerLengthSeconds.get(), "fabrication setting for Mixer Length Seconds"))
+        .setInputMode(inputMode.get())
+        .setMacroMode(macroMode.get())
+        .setInputTemplateKey(inputTemplateKey.get())
+        .setOutputChannels(parseIntegerValue(outputChannels.get(), "fabrication setting for Output Channels"))
+        .setOutputFrameRate(parseIntegerValue(outputFrameRate.get(), "fabrication setting for Output Frame Rate"));
+      LOG.debug("Did instantiate work configuration");
+
+      var hubAccess = new HubClientAccess()
+        .setRoleTypes(List.of(UserRoleType.Internal))
+        .setToken(labService.accessTokenProperty().get());
+      LOG.debug("Did instantiate hub client access");
+
+      // start the work with the given configuration
+      workManager.setOnProgress((Float progress) -> Platform.runLater(() -> this.progress.set(progress)));
+      workManager.setOnStateChange((WorkState state) -> Platform.runLater(() -> status.set(state)));
+      LOG.debug("Did bind progress listeners");
+
+      Platform.runLater(() -> workManager.start(config, labService.hubConfigProperty().get(), hubAccess));
+      LOG.debug("Did send start signal to work manager");
+
+    } catch (Exception e) {
+      LOG.error("Failed to start fabrication", e);
     }
-
-    // reset progress
-    progress.set(0.0);
-    LOG.debug("Did reset progress");
-
-    // create work configuration
-    var config = new WorkConfiguration()
-      .setContentStoragePathPrefix(contentStoragePathPrefix.get())
-      .setCraftAheadSeconds(Integer.parseInt(craftAheadSeconds.get()))
-      .setDubAheadSeconds(Integer.parseInt(dubAheadSeconds.get()))
-      .setMixerLengthSeconds(Integer.parseInt(mixerLengthSeconds.get()))
-      .setInputMode(inputMode.get())
-      .setMacroMode(macroMode.get())
-      .setInputTemplateKey(inputTemplateKey.get())
-      .setOutputChannels(Integer.parseInt(outputChannels.get()))
-      .setOutputFrameRate(Integer.parseInt(outputFrameRate.get()));
-    LOG.debug("Did instantiate work configuration");
-
-    var hubAccess = new HubClientAccess()
-      .setRoleTypes(List.of(UserRoleType.Internal))
-      .setToken(labService.accessTokenProperty().get());
-    LOG.debug("Did instantiate hub client access");
-
-    // start the work with the given configuration
-    workManager.setOnProgress((Float progress) -> Platform.runLater(() -> this.progress.set(progress)));
-    workManager.setOnStateChange((WorkState state) -> Platform.runLater(() -> status.set(state)));
-    LOG.debug("Did bind progress listeners");
-
-    Platform.runLater(() -> workManager.start(config, labService.hubConfigProperty().get(), hubAccess));
-    LOG.debug("Did send start signal to work manager");
   }
 
   @Override
   public void cancel() {
-    status.set(WorkState.Cancelled);
-    workManager.finish(true);
+    try {
+      status.set(WorkState.Cancelled);
+      workManager.finish(true);
+
+    } catch (Exception e) {
+      LOG.error("Failed to cancel fabrication", e);
+    }
   }
 
   @Override
@@ -197,8 +207,13 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public void reset() {
-    status.set(WorkState.Standby);
-    workManager.reset();
+    try {
+      status.set(WorkState.Standby);
+      workManager.reset();
+
+    } catch (Exception e) {
+      LOG.error("Failed to reset fabrication", e);
+    }
   }
 
   @Override
@@ -497,14 +512,10 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public void handleMainAction() {
-    try {
-      switch (status.get()) {
-        case Standby -> start();
-        case Cancelled, Done, Failed -> reset();
-        default -> cancel();
-      }
-    } catch (Exception e) {
-      LOG.error("Failed to handle main action", e);
+    switch (status.get()) {
+      case Standby -> start();
+      case Cancelled, Done, Failed -> reset();
+      default -> cancel();
     }
   }
 
@@ -538,6 +549,9 @@ public class FabricationServiceImpl implements FabricationService {
         workManager.getSegmentManager().readOneAtChainMicros(chainMicros));
   }
 
+  /**
+   Attach preference listeners.
+   */
   private void attachPreferenceListeners() {
     contentStoragePathPrefix.addListener((o, ov, value) -> prefs.put("contentStoragePathPrefix", value));
     craftAheadSeconds.addListener((o, ov, value) -> prefs.put("craftAheadSeconds", value));
@@ -551,6 +565,9 @@ public class FabricationServiceImpl implements FabricationService {
     timelineSegmentViewLimit.addListener((o, ov, value) -> prefs.put("timelineSegmentViewLimit", value));
   }
 
+  /**
+   Set all properties from preferences, else defaults.
+   */
   private void setAllFromPrefsOrDefaults() {
     contentStoragePathPrefix.set(prefs.get("contentStoragePathPrefix", defaultContentStoragePathPrefix));
     craftAheadSeconds.set(prefs.get("craftAheadSeconds", Integer.toString(defaultCraftAheadSeconds)));
@@ -576,10 +593,23 @@ public class FabricationServiceImpl implements FabricationService {
     }
   }
 
+  /**
+   Format total bars for the given beats.
+
+   @param bars     to format
+   @param fraction to format
+   @return formatted total bars
+   */
   private String formatTotalBars(int bars, String fraction) {
     return String.format("%d%s bar%s", bars, fraction, bars == 1 ? "" : "s");
   }
 
+  /**
+   Get the bar beats for the given segment.
+
+   @param segment for which to get the bar beats
+   @return bar beats, else empty
+   */
   private Optional<Integer> getBarBeats(Segment segment) {
     if (!segmentBarBeats.containsKey(segment.getId())) {
       try {
@@ -606,7 +636,15 @@ public class FabricationServiceImpl implements FabricationService {
     return Optional.of(segmentBarBeats.get(segment.getId()));
   }
 
-  String computeProgramName(@Nullable Program program, @Nullable ProgramSequence
+  /**
+   Compute program name from program, program sequence, and program sequence binding.
+
+   @param program                to compute name from
+   @param programSequence        to compute name from
+   @param programSequenceBinding to compute name from
+   @return program name
+   */
+  private String computeProgramName(@Nullable Program program, @Nullable ProgramSequence
     programSequence, @Nullable ProgramSequenceBinding programSequenceBinding) {
     if (Objects.nonNull(program) && Objects.nonNull(programSequence) && Objects.nonNull(programSequenceBinding))
       return String.format("%s (%s)", program.getName(), programSequence.getName());
@@ -615,6 +653,27 @@ public class FabricationServiceImpl implements FabricationService {
     else return "Not Loaded";
   }
 
+  /**
+   Parse integer value from string.
+
+   @param value             string
+   @param sourceDescription of value
+   @return integer value
+   */
+  private int parseIntegerValue(String value, String sourceDescription) {
+    try {
+      return Integer.parseInt(value);
+    } catch (Exception e) {
+      throw new RuntimeException(String.format("Failed to parse integer value of '%s' from %s", value, sourceDescription));
+    }
+  }
+
+  /**
+   Compute default path prefix for a particular category.
+
+   @param category of path
+   @return path prefix
+   */
   @SuppressWarnings("SameParameterValue")
   private static String computeDefaultPathPrefix(String category) {
     return defaultPathPrefix + category + File.separator;
