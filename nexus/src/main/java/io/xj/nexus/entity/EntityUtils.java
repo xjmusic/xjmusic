@@ -224,9 +224,11 @@ public enum EntityUtils {
    @param value of enum
    @return enum of given class and value
    */
-  public static <T extends Enum<T>> T enumValue(Class<?> type, String value) {
+  private static <T extends Enum<T>> T enumValue(Class<?> type, String value) throws EntityException {
     //noinspection unchecked
-    return (T) Arrays.stream(type.getEnumConstants()).filter(n -> n.toString().equals(value)).findFirst().orElseThrow();
+    return (T) Arrays.stream(type.getEnumConstants()).filter(n -> n.toString().equals(value)).findFirst().orElseThrow(
+      () -> new EntityException(String.format("No such enum value '%s' for enum %s", value, type.getSimpleName()))
+    );
   }
 
   /**
@@ -253,33 +255,6 @@ public enum EntityUtils {
       return entityClass.getInterfaces()[0].getSimpleName();
     else
       return entityClass.getSimpleName();
-  }
-
-
-  /**
-   Get resource type for any class, which is hyphenated lowercase pluralized
-   + Chain.class -> "chains"
-   + AccountUser.class -> "account-users"
-   + Library.class -> "libraries"
-
-   @param resource to get resource type of
-   @return resource type of object
-   */
-  public static String toResourceType(Class<?> resource) {
-    return toResourceType(StringUtils.getSimpleName(resource));
-  }
-
-  /**
-   Get resource type for any class, which is hyphenated lowercase pluralized
-   + Chain.class -> "chains"
-   + AccountUser.class -> "account-users"
-   + Library.class -> "libraries"
-
-   @param type to conform
-   @return conformed resource type
-   */
-  static String toResourceType(String type) {
-    return StringUtils.toPlural(StringUtils.camelToKebabCase(type));
   }
 
   /**
@@ -686,22 +661,13 @@ public enum EntityUtils {
     return memeEntities.stream()
       .flatMap(e -> {
         try {
-          return Stream.of(String.valueOf(get(e, NAME_KEY).orElseThrow()));
+          return Stream.of(String.valueOf(get(e, NAME_KEY).orElseThrow(
+            () -> new EntityException(String.format("No name for %s", e.getClass().getSimpleName()))
+          )));
         } catch (EntityException ignored) {
           return Stream.empty();
         }
       }).collect(Collectors.toList());
-  }
-
-  /**
-   Whether an entity is a given type
-
-   @param entity to test
-   @param type   for which to test
-   @return true if entity is this type
-   */
-  public static boolean isType(Object entity, Class<?> type) {
-    return getType(entity).equals(toType(type));
   }
 
   /**

@@ -7,16 +7,12 @@ import io.xj.hub.util.ValueException;
 
 import java.util.Collection;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public enum MessageType {
   Debug,
   Info,
   Warning,
   Error;
-
-  static final String TYPE_KEY = "type";
 
   /**
    cast string to enum
@@ -51,22 +47,6 @@ public enum MessageType {
   }
 
   /**
-   Get the most severe type out of a collection of messages
-
-   @param messages to get most severe type of
-   @return most severe type out of the collection
-   */
-  public static MessageType mostSevereType(Collection<?> messages) {
-    return mostSevere(messages.stream().flatMap(e -> {
-      try {
-        return Stream.of(MessageType.valueOf(String.valueOf(EntityUtils.get(e, TYPE_KEY).orElseThrow())));
-      } catch (Exception ignore) {
-        return Stream.empty();
-      }
-    }).collect(Collectors.toList()));
-  }
-
-  /**
    Whether one type is more severe than another type
 
    @param type        to check for most severity
@@ -74,16 +54,11 @@ public enum MessageType {
    @return true if type is more severe than anotherType
    */
   public static boolean isMoreSevere(MessageType type, MessageType anotherType) {
-    switch (type) {
-      default:
-      case Debug:
-        return false;
-      case Info:
-        return Debug == anotherType;
-      case Warning:
-        return Debug == anotherType || Info == anotherType;
-      case Error:
-        return Debug == anotherType || Info == anotherType || Warning == anotherType;
-    }
+    return switch (type) {
+      default -> false;
+      case Info -> Debug == anotherType;
+      case Warning -> Debug == anotherType || Info == anotherType;
+      case Error -> Debug == anotherType || Info == anotherType || Warning == anotherType;
+    };
   }
 }

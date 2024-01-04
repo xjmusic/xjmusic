@@ -160,7 +160,7 @@ public class JsonapiPayloadFactoryImpl implements JsonapiPayloadFactory {
         break;
       case One:
         if (jsonapiPayload.getDataOne().isPresent())
-          addIfRelated(jsonapiPayload.getDataOne().orElseThrow(), jsonapiPayloadObject);
+          addIfRelated(jsonapiPayload.getDataOne().get(), jsonapiPayloadObject);
         break;
       case Ambiguous:
         break;
@@ -220,133 +220,110 @@ public class JsonapiPayloadFactoryImpl implements JsonapiPayloadFactory {
 
   @Override
   public JsonapiPayload filter(JsonapiPayload jsonapiPayload, Class<?> type, Predicate<? super JsonapiPayloadObject> condition) throws JsonapiException {
-    switch (jsonapiPayload.getDataType()) {
-
-      case Many:
-        Collection<JsonapiPayloadObject> hasMany =
-          jsonapiPayload.getDataMany().stream()
-            .filter(condition)
-            .collect(Collectors.toList());
-        Collection<JsonapiPayloadObject> included =
-          jsonapiPayload.getIncluded().stream()
-            .filter(obj -> obj.belongsTo(type, hasMany.stream()
-              .filter(par -> par.isType(type))
-              .map(JsonapiPayloadObject::getId)
-              .collect(Collectors.joining())))
-            .collect(Collectors.toList());
-        return newJsonapiPayload()
-          .setDataMany(hasMany)
-          .setIncluded(included);
-
-      case Ambiguous:
-      case One:
-      default:
-        throw new JsonapiException("I only know how to filter data-many payloads!");
+    if (Objects.requireNonNull(jsonapiPayload.getDataType()) == PayloadDataType.Many) {
+      Collection<JsonapiPayloadObject> hasMany =
+        jsonapiPayload.getDataMany().stream()
+          .filter(condition)
+          .collect(Collectors.toList());
+      Collection<JsonapiPayloadObject> included =
+        jsonapiPayload.getIncluded().stream()
+          .filter(obj -> obj.belongsTo(type, hasMany.stream()
+            .filter(par -> par.isType(type))
+            .map(JsonapiPayloadObject::getId)
+            .collect(Collectors.joining())))
+          .collect(Collectors.toList());
+      return newJsonapiPayload()
+        .setDataMany(hasMany)
+        .setIncluded(included);
     }
+
+    throw new JsonapiException("I only know how to filter data-many payloads!");
   }
 
   @Override
   public JsonapiPayload filterIncluded(JsonapiPayload jsonapiPayload, Predicate<? super JsonapiPayloadObject> condition) throws JsonapiException {
-    switch (jsonapiPayload.getDataType()) {
+    if (Objects.requireNonNull(jsonapiPayload.getDataType()) == PayloadDataType.One) {
+      return newJsonapiPayload()
+        .setDataOne(jsonapiPayload.getDataOne().orElseThrow(() ->
+          new JsonapiException("cannot filter included entities of empty data-one payload!")))
+        .setIncluded(jsonapiPayload.getIncluded().stream()
+          .filter(condition)
+          .collect(Collectors.toList()));
 
-      case One:
-        return newJsonapiPayload()
-          .setDataOne(jsonapiPayload.getDataOne().orElseThrow(() ->
-            new JsonapiException("cannot filter included entities of empty data-one payload!")))
-          .setIncluded(jsonapiPayload.getIncluded().stream()
-            .filter(condition)
-            .collect(Collectors.toList()));
-
-      case Many:
-        return newJsonapiPayload()
-          .setDataMany(jsonapiPayload.getDataMany())
-          .setIncluded(jsonapiPayload.getIncluded().stream()
-            .filter(condition)
-            .collect(Collectors.toList()));
-
-      case Ambiguous:
-      default:
-        throw new JsonapiException("cannot filter the included entities of an ambiguous payload!");
+    } else if (jsonapiPayload.getDataType() == PayloadDataType.Many) {
+      return newJsonapiPayload()
+        .setDataMany(jsonapiPayload.getDataMany())
+        .setIncluded(jsonapiPayload.getIncluded().stream()
+          .filter(condition)
+          .collect(Collectors.toList()));
     }
+
+    throw new JsonapiException("cannot filter the included entities of an ambiguous payload!");
   }
 
   @Override
   public JsonapiPayload sort(JsonapiPayload jsonapiPayload, Class<?> type, Function<? super JsonapiPayloadObject, Long> keyExtractor) throws JsonapiException {
-    switch (jsonapiPayload.getDataType()) {
-
-      case Many:
-        Collection<JsonapiPayloadObject> hasMany =
-          jsonapiPayload.getDataMany().stream()
-            .sorted(Comparator.comparing(keyExtractor))
-            .collect(Collectors.toList());
-        Collection<JsonapiPayloadObject> included =
-          jsonapiPayload.getIncluded().stream()
-            .filter(obj -> obj.belongsTo(type, hasMany.stream()
-              .filter(par -> par.isType(type))
-              .map(JsonapiPayloadObject::getId)
-              .collect(Collectors.joining())))
-            .collect(Collectors.toList());
-        return newJsonapiPayload()
-          .setDataMany(hasMany)
-          .setIncluded(included);
-
-      case Ambiguous:
-      case One:
-      default:
-        throw new JsonapiException("I only know how to filter data-many payloads!");
+    if (Objects.requireNonNull(jsonapiPayload.getDataType()) == PayloadDataType.Many) {
+      Collection<JsonapiPayloadObject> hasMany =
+        jsonapiPayload.getDataMany().stream()
+          .sorted(Comparator.comparing(keyExtractor))
+          .collect(Collectors.toList());
+      Collection<JsonapiPayloadObject> included =
+        jsonapiPayload.getIncluded().stream()
+          .filter(obj -> obj.belongsTo(type, hasMany.stream()
+            .filter(par -> par.isType(type))
+            .map(JsonapiPayloadObject::getId)
+            .collect(Collectors.joining())))
+          .collect(Collectors.toList());
+      return newJsonapiPayload()
+        .setDataMany(hasMany)
+        .setIncluded(included);
     }
+
+    throw new JsonapiException("I only know how to filter data-many payloads!");
   }
 
   @Override
   public JsonapiPayload limit(JsonapiPayload jsonapiPayload, Class<?> type, long limit) throws JsonapiException {
-    switch (jsonapiPayload.getDataType()) {
-
-      case Many:
-        Collection<JsonapiPayloadObject> hasMany =
-          jsonapiPayload.getDataMany().stream()
-            .limit(limit)
-            .collect(Collectors.toList());
-        Collection<JsonapiPayloadObject> included =
-          jsonapiPayload.getIncluded().stream()
-            .filter(obj -> obj.belongsTo(type, hasMany.stream()
-              .filter(par -> par.isType(type))
-              .map(JsonapiPayloadObject::getId)
-              .collect(Collectors.joining())))
-            .collect(Collectors.toList());
-        return newJsonapiPayload()
-          .setDataMany(hasMany)
-          .setIncluded(included);
-
-      case Ambiguous:
-      case One:
-      default:
-        throw new JsonapiException("can only filter data-many payloads!");
+    if (Objects.requireNonNull(jsonapiPayload.getDataType()) == PayloadDataType.Many) {
+      Collection<JsonapiPayloadObject> hasMany =
+        jsonapiPayload.getDataMany().stream()
+          .limit(limit)
+          .collect(Collectors.toList());
+      Collection<JsonapiPayloadObject> included =
+        jsonapiPayload.getIncluded().stream()
+          .filter(obj -> obj.belongsTo(type, hasMany.stream()
+            .filter(par -> par.isType(type))
+            .map(JsonapiPayloadObject::getId)
+            .collect(Collectors.joining())))
+          .collect(Collectors.toList());
+      return newJsonapiPayload()
+        .setDataMany(hasMany)
+        .setIncluded(included);
     }
+
+    throw new JsonapiException("can only filter data-many payloads!");
   }
 
   @Override
   public JsonapiPayload find(JsonapiPayload jsonapiPayload, Class<?> type, Predicate<? super JsonapiPayloadObject> condition) throws JsonapiException {
-    switch (jsonapiPayload.getDataType()) {
-
-      case Many:
-        JsonapiPayloadObject one =
-          jsonapiPayload.getDataMany().stream()
-            .filter(condition)
-            .findFirst()
-            .orElseThrow();
-        Collection<JsonapiPayloadObject> included =
-          jsonapiPayload.getIncluded().stream()
-            .filter(obj -> obj.belongsTo(type, List.of(one.getId())))
-            .collect(Collectors.toList());
-        return newJsonapiPayload()
-          .setDataOne(one)
-          .setIncluded(included);
-
-      case Ambiguous:
-      case One:
-      default:
-        throw new JsonapiException("can only find one from data-many payloads!");
+    if (Objects.requireNonNull(jsonapiPayload.getDataType()) == PayloadDataType.Many) {
+      Optional<JsonapiPayloadObject> one =
+        jsonapiPayload.getDataMany().stream()
+          .filter(condition)
+          .findFirst();
+      if (one.isEmpty())
+        throw new JsonapiException("cannot find any matching entities!");
+      Collection<JsonapiPayloadObject> included =
+        jsonapiPayload.getIncluded().stream()
+          .filter(obj -> obj.belongsTo(type, one.get().getId()))
+          .collect(Collectors.toList());
+      return newJsonapiPayload()
+        .setDataOne(one.get())
+        .setIncluded(included);
     }
+
+    throw new JsonapiException("can only find one from data-many payloads!");
   }
 
   @Override

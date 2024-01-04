@@ -54,6 +54,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ArrangementTests extends YamlTest {
   static final String TEST_PATH_PREFIX = "/arrangements/";
   static final int REPEAT_EACH_TEST_TIMES = 7;
+
+  static final int TEMPO = 120;
   static final Set<InstrumentType> INSTRUMENT_TYPES_TO_TEST = Set.of(
     InstrumentType.Bass,
     InstrumentType.Pad,
@@ -165,9 +167,7 @@ FUTURE goal
   }
 
   /**
-   Load the specified test YAML file and run it repeatedly.
-
-   @param filename of test YAML file
+   Load the specified test YAML file and run it repeatedly.@param tempo@param filename of test YAML file
    */
   void loadAndRunTest(String filename) {
     for (int i = 0; i < REPEAT_EACH_TEST_TIMES; i++)
@@ -194,7 +194,7 @@ FUTURE goal
         }
         fabricator.put(buildSegmentChoice(segment, mainProgram1));
         CraftImpl subject = new CraftImpl(fabricator);
-        for (var choice : segmentChoices.values()) subject.craftNoteEventArrangements(choice, false);
+        for (var choice : segmentChoices.values()) subject.craftNoteEventArrangements(ArrangementTests.TEMPO, choice, false);
 
         // assert final picks
         loadAndPerformAssertions(data);

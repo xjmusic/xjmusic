@@ -103,8 +103,10 @@ public class ShipWorkImpl implements ShipWork {
    */
   void doShipOutputPlayback() throws IOException {
     assert Objects.nonNull(playback);
-    var availableBytes = dubWork.getMixerBuffer().orElseThrow().getAvailableByteCount();
-    playback.write(dubWork.getMixerBuffer().orElseThrow().consume(availableBytes));
+    if (dubWork.getMixerBuffer().isEmpty())
+      throw new IOException("Mixer buffer is empty");
+    var availableBytes = dubWork.getMixerBuffer().get().getAvailableByteCount();
+    playback.write(dubWork.getMixerBuffer().get().consume(availableBytes));
     shippedToChainMicros = (long) (shippedToChainMicros + availableBytes * dubWork.getMixerOutputMicrosPerByte());
   }
 

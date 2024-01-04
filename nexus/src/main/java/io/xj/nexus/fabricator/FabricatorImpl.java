@@ -64,7 +64,6 @@ import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sound.sampled.AudioFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -82,7 +81,6 @@ import java.util.stream.Stream;
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.hub.util.ValueUtils.NANOS_PER_MICRO;
 import static io.xj.hub.util.ValueUtils.SECONDS_PER_MINUTE;
-import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 /**
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
@@ -248,14 +246,6 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public double getAudioVolume(SegmentChoiceArrangementPick pick) {
-    return MarbleBag.quickPick(sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()).stream()
-        .map(audio -> audio.getVolume() * sourceMaterial().getInstrument(audio.getInstrumentId()).orElseThrow().getVolume())
-        .collect(Collectors.toList()))
-      .orElse(1.0f);
-  }
-
-  @Override
   public Chain getChain() {
     return chain;
   }
@@ -334,17 +324,6 @@ public class FabricatorImpl implements Fabricator {
     if (!instrumentConfigs.containsKey(instrument.getId().toString()))
       instrumentConfigs.put(instrument.getId().toString(), new InstrumentConfig(instrument));
     return instrumentConfigs.get(instrument.getId().toString());
-  }
-
-  @Override
-  public InstrumentConfig getInstrumentConfig(SegmentChoiceArrangementPick pick) throws NexusException {
-    if (!pickInstrumentConfigs.containsKey(pick.getId().toString()))
-      pickInstrumentConfigs.put(pick.getId().toString(),
-        getInstrumentConfig(sourceMaterial.getInstrument(sourceMaterial.getInstrumentAudio(pick.getInstrumentAudioId())
-            .orElseThrow(() -> new NexusException("Failed to retrieve audio for pick")).getInstrumentId())
-          .orElseThrow(() -> new NexusException("Failed to retrieve instrument for audio"))));
-    return pickInstrumentConfigs.get(pick.getId().toString());
-
   }
 
   @Override
@@ -454,7 +433,8 @@ public class FabricatorImpl implements Fabricator {
   public ProgramConfig getCurrentMainProgramConfig() throws NexusException {
     try {
       return new ProgramConfig(
-        sourceMaterial.getProgram(getCurrentMainChoice().orElseThrow(() -> new NexusException("No current main choice!")).getProgramId())
+        sourceMaterial.getProgram(getCurrentMainChoice()
+            .orElseThrow(() -> new NexusException("No current main choice!")).getProgramId())
           .orElseThrow(() -> new NexusException("Failed to retrieve current main program!")));
 
     } catch (ValueException e) {
@@ -465,7 +445,8 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public Program getCurrentMainProgram() throws NexusException {
     return
-      sourceMaterial.getProgram(getCurrentMainChoice().orElseThrow(() -> new NexusException("No current main choice!")).getProgramId())
+      sourceMaterial.getProgram(getCurrentMainChoice()
+          .orElseThrow(() -> new NexusException("No current main choice!")).getProgramId())
         .orElseThrow(() -> new NexusException("Failed to retrieve current main program!"));
   }
 
@@ -485,18 +466,23 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public MemeIsometry getMemeIsometryOfNextSequenceInPreviousMacro() {
-    try {
-      var previousMacroChoice = getMacroChoiceOfPreviousSegment().orElseThrow(NexusException::new);
-      var previousSequenceBinding = sourceMaterial().getProgramSequenceBinding(previousMacroChoice.getProgramSequenceBindingId()).orElseThrow(NexusException::new);
-
-      var nextSequenceBinding = sourceMaterial().getBindingsAtOffset(previousMacroChoice.getProgramId(), previousSequenceBinding.getOffset() + 1);
-
-      return MemeIsometry.of(templateConfig.getMemeTaxonomy(), Stream.concat(sourceMaterial.getProgramMemes(previousMacroChoice.getProgramId()).stream().map(ProgramMeme::getName), nextSequenceBinding.stream().flatMap(programSequenceBinding -> sourceMaterial.getMemesForProgramSequenceBindingId(programSequenceBinding.getId()).stream().map(ProgramSequenceBindingMeme::getName))).collect(Collectors.toList()));
-
-    } catch (NexusException e) {
-      LOG.warn("Could not get meme isometry of next sequence in previous macro", e);
+    var previousMacroChoice = getMacroChoiceOfPreviousSegment();
+    if (previousMacroChoice.isEmpty())
       return MemeIsometry.none();
-    }
+
+    var previousSequenceBinding = sourceMaterial().getProgramSequenceBinding(previousMacroChoice.get().getProgramSequenceBindingId());
+    if (previousSequenceBinding.isEmpty())
+      return MemeIsometry.none();
+
+    var nextSequenceBinding = sourceMaterial().getBindingsAtOffset(previousMacroChoice.get().getProgramId(),
+      previousSequenceBinding.get().getOffset() + 1);
+
+    return MemeIsometry.of(templateConfig.getMemeTaxonomy(),
+      Stream.concat(
+        sourceMaterial.getProgramMemes(previousMacroChoice.get().getProgramId()).stream().map(ProgramMeme::getName),
+        nextSequenceBinding.stream().flatMap(programSequenceBinding ->
+          sourceMaterial.getMemesForProgramSequenceBindingId(programSequenceBinding.getId()).stream().map(ProgramSequenceBindingMeme::getName))
+      ).collect(Collectors.toList()));
   }
 
   @Override
@@ -714,7 +700,12 @@ public class FabricatorImpl implements Fabricator {
         addErrorMessage(String.format("Failed to deserialize previous segment meta value StickyBun JSON for Event[%s]", eventId));
       }
     }
-    var bun = new StickyBun(eventId, CsvUtils.split(sourceMaterial.getProgramSequencePatternEvent(eventId).orElseThrow().getTones()).size());
+    var event = sourceMaterial.getProgramSequencePatternEvent(eventId);
+    if (event.isEmpty()) {
+      addErrorMessage(String.format("Failed to get StickyBun for Event[%s] because it does not exist", eventId));
+      return Optional.empty();
+    }
+    var bun = new StickyBun(eventId, CsvUtils.split(event.get().getTones()).size());
     try {
       putStickyBun(bun);
     } catch (NexusException e) {
@@ -726,13 +717,13 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public long getSegmentMicrosAtPosition(double p) throws NexusException {
-    return (long) (getMicrosPerBeat() * p);
+  public long getSegmentMicrosAtPosition(double tempo, double position) {
+    return (long) (getMicrosPerBeat(tempo) * position);
   }
 
   @Override
-  public long getTotalSegmentMicros() throws NexusException {
-    return getSegmentMicrosAtPosition(getSegment().getTotal());
+  public long getTotalSegmentMicros() {
+    return Objects.requireNonNull(getSegment().getDurationMicros());
   }
 
   @Override
@@ -748,11 +739,6 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public Collection<SegmentMeme> getSegmentMemes() {
     return workbench.getSegmentMemes();
-  }
-
-  @Override
-  public String getSegmentShipKey(String extension) {
-    return SegmentUtils.getStorageFilename(getSegment(), extension);
   }
 
   @Override
@@ -911,19 +897,9 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public AudioFormat.Encoding computeOutputEncoding() {
-    return AudioFormat.Encoding.PCM_SIGNED;
-  }
-
-  @Override
-  public int computeOutputSampleBits() {
-    return FIXED_SAMPLE_BITS;
-  }
-
-  @Override
-  public Double getMicrosPerBeat() throws NexusException {
+  public Double getMicrosPerBeat(double tempo) {
     if (Objects.isNull(microsPerBeat))
-      microsPerBeat = (double) MICROS_PER_SECOND * SECONDS_PER_MINUTE / getCurrentMainProgram().getTempo();
+      microsPerBeat = (double) MICROS_PER_SECOND * SECONDS_PER_MINUTE / tempo;
     return microsPerBeat;
   }
 
@@ -933,6 +909,11 @@ public class FabricatorImpl implements Fabricator {
       .map(ProgramSequenceBinding::getOffset)
       .collect(Collectors.toSet()).stream().sorted().toList();
     return offsets.size() > 1 ? offsets.get(1) : offsets.get(0);
+  }
+
+  @Override
+  public double getTempo() throws NexusException {
+    return getSegment().getTempo();
   }
 
   /**

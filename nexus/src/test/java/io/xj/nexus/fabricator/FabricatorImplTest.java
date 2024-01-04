@@ -93,29 +93,6 @@ public class FabricatorImplTest {
     subject = new FabricatorImpl(sourceMaterial, segment, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider, 48000.0f, 2, null);
   }
 
-  /**
-   Instrument has overall volume parameter https://www.pivotaltracker.com/story/show/179215413
-   */
-  @Test
-  public void computeAudioVolume() throws Exception {
-    buildTemplateBinding(fake.template1, fake.library2);
-    var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE));
-    store.put(buildSegment(chain, 1, SegmentState.CRAFTED, "F major", 8, 0.6f, 120.0f, "seg123"));
-    segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
-    var choice = store.put(buildSegmentChoice(segment, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, fake.program9, fake.program9_voice0, fake.instrument8));
-    var arrangement = store.put(buildSegmentChoiceArrangement(choice));
-    var pick = store.put(buildSegmentChoiceArrangementPick(segment, arrangement, fake.program9_sequence0_pattern0_event0, fake.instrument8_audio8kick, "KICK"));
-    when(mockFabricatorFactory.loadRetrospective(any(), any())).thenReturn(mockRetrospective);
-    when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
-    when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
-    subject = new FabricatorImpl(sourceMaterial, segment, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,
-            48000.0f, 2, null);
-
-    double result = subject.getAudioVolume(pick); // instantiates a time computer; see expectation above
-
-    assertEquals(0.76, result, 0.01);
-  }
-
   @Test
   public void pick_returned_by_picks() throws Exception {
     buildTemplateBinding(fake.template1, fake.library2);
