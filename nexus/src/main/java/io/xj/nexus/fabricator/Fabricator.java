@@ -9,6 +9,7 @@ import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.meme.MemeTaxonomy;
 import io.xj.hub.music.Chord;
 import io.xj.hub.music.Note;
 import io.xj.hub.music.NoteRange;
@@ -750,4 +751,9 @@ public interface Fabricator {
    @return second macro sequence binding offset
    */
   int getSecondMacroSequenceBindingOffset(Program macroProgram);
+
+  /**
+   @return the meme taxonomy for the source material
+   */
+  MemeTaxonomy getMemeTaxonomy();
 }

@@ -76,6 +76,12 @@ public class SegmentManagerImpl implements SegmentManager {
 
   @Override
   public Segment create(Segment segment) throws ManagerPrivilegeException, ManagerFatalException, ManagerValidationException {
+    // create segment with Chain ID and offset are read-only, set at creation
+    var existing = readOneById(segment.getId());
+    if (existing.isPresent()) {
+      store.deleteSegment(segment.getId());
+    }
+
     try {
       validate(segment);
 
@@ -84,11 +90,6 @@ public class SegmentManagerImpl implements SegmentManager {
 
       // Updated at is always now
       segment.setUpdatedNow();
-
-      // create segment with Chain ID and offset are read-only, set at creation
-      if (readOneById(segment.getId()).isPresent()) {
-        throw new ManagerValidationException("Found Segment at same offset in Chain!");
-      }
 
       return store.put(segment);
 

@@ -159,6 +159,13 @@ public interface NexusEntityStore {
   void deleteSegmentsBefore(int lastSegmentId);
 
   /**
+   Delete a segment by id
+
+   @param segmentId segment id
+   */
+  void deleteSegment(int segmentId);
+
+  /**
    Delete all segments after the given segment id
 
    @param lastSegmentId segment id

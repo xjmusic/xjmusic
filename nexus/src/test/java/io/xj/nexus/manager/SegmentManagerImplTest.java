@@ -208,7 +208,7 @@ public class SegmentManagerImplTest {
   }
 
   @Test
-  public void create_FailsIfNotUniqueChainOffset() {
+  public void create_overwriteUniqueChainOffset() throws ManagerFatalException, ManagerValidationException, ManagerExistenceException, ManagerPrivilegeException {
     Segment inputData = new Segment()
       .chainId(chain3.getId())
       .id(4)
@@ -222,10 +222,7 @@ public class SegmentManagerImplTest {
       .key("C# minor 7 b9")
       .tempo(120.0);
 
-    Exception thrown = assertThrows(ManagerValidationException.class, () ->
-      testService.create(inputData));
-
-    assertEquals("Found Segment at same offset in Chain!", thrown.getMessage());
+    testService.create(inputData);
   }
 
   @Test

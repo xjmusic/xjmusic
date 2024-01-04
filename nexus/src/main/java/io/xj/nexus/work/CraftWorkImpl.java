@@ -558,17 +558,15 @@ public class CraftWorkImpl implements CraftWork {
    @param fabricator to update
    @param fromState  of existing segment
    @param toState    of new segment
-   @return updated Segment
    @throws NexusException if record is invalid
    */
-  Segment updateSegmentState(Fabricator fabricator, Segment segment, SegmentState fromState, SegmentState toState) throws NexusException {
+  void updateSegmentState(Fabricator fabricator, Segment segment, SegmentState fromState, SegmentState toState) throws NexusException {
     if (fromState != segment.getState())
       throw new NexusException(String.format("Segment[%s] %s requires Segment must be in %s state.", segment.getId(), toState, fromState));
     var seg = fabricator.getSegment();
     seg.setState(toState);
     fabricator.putSegment(seg);
     LOG.debug("[segId={}] Segment transitioned to state {} OK", segment.getId(), toState);
-    return fabricator.getSegment();
   }
 
   /**

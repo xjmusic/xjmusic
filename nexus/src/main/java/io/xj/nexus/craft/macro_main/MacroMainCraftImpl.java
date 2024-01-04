@@ -17,6 +17,7 @@ import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentMeme;
 import io.xj.nexus.model.SegmentType;
 import jakarta.annotation.Nullable;
 
@@ -110,13 +111,19 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
   @Override
   public void doWork() throws NexusException {
-    // TODO use overrideMemes if present
-    var macroProgram = Objects.nonNull(overrideMacroProgram)
-      ? overrideMacroProgram
-      : chooseNextMacroProgram().orElseThrow(() -> new NexusException("Failed to choose a Macro-program by any means!"));
-    Integer macroSequenceBindingOffset = Objects.nonNull(overrideMacroProgram)
-      ? fabricator.getSecondMacroSequenceBindingOffset(overrideMacroProgram)
-      : computeMacroSequenceBindingOffset();
+    // If we are overriding memes, start by adding them to the workbench segment
+    if (Objects.nonNull(overrideMemes))
+      for (String meme : overrideMemes) {
+        var segmentMeme = new SegmentMeme();
+        segmentMeme.setId(UUID.randomUUID());
+        segmentMeme.setSegmentId(fabricator.getSegment().getId());
+        segmentMeme.setName(meme);
+        fabricator.put(segmentMeme);
+      }
+
+    // 1. Macro
+    var macroProgram = chooseNextMacroProgram().orElseThrow(() -> new NexusException("Failed to choose a Macro-program by any means!"));
+    Integer macroSequenceBindingOffset = computeMacroSequenceBindingOffset();
     var macroSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format(
         "Unable to determine sequence binding offset for Macro-Program[%s] %s",
@@ -218,17 +225,21 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
    @return macroSequenceBindingOffset
    */
-  Integer computeMacroSequenceBindingOffset() throws NexusException {
+  private Integer computeMacroSequenceBindingOffset() throws NexusException {
+    if (List.of(SegmentType.INITIAL, SegmentType.NEXT_MACRO).contains(fabricator.getType()))
+      return 0;
+
     var previousMacroChoice = fabricator.getMacroChoiceOfPreviousSegment();
-    return switch (fabricator.getType()) {
-      case INITIAL, NEXT_MACRO -> 0;
-      case CONTINUE -> previousMacroChoice.isPresent() ?
-        fabricator.getSequenceBindingOffsetForChoice(previousMacroChoice.get()) : 0;
-      case NEXT_MAIN -> previousMacroChoice.isPresent() ?
-        fabricator.getNextSequenceBindingOffset(previousMacroChoice.get()) : 0;
-      default ->
-        throw new NexusException(String.format("Cannot get Macro-type sequence for known fabricator type=%s", fabricator.getType()));
-    };
+    if (previousMacroChoice.isEmpty())
+      return 0;
+
+    if (SegmentType.CONTINUE == fabricator.getType())
+      return fabricator.getSequenceBindingOffsetForChoice(previousMacroChoice.get());
+
+    if (SegmentType.NEXT_MAIN == fabricator.getType())
+      return fabricator.getNextSequenceBindingOffset(previousMacroChoice.get());
+
+    throw new NexusException(String.format("Cannot get Macro-type sequence for known fabricator type=%s", fabricator.getType()));
   }
 
   /**
@@ -263,18 +274,18 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     var bag = MarbleBag.empty();
 
     // Phase 1: Directly Bound Programs, besides those we should avoid
-    // Phase 3: Any Directly Bound Programs
+    // Phase 2: Any Directly Bound Programs
     for (Program program : programsDirectlyBound(programs)) {
       if (!avoid.contains(program.getId()))
         bag.add(1, program.getId());
-      bag.add(3, program.getId());
+      bag.add(2, program.getId());
     }
 
-    // Phase 2: All Published Programs, besides those we should avoid
-    // Phase 3: Any Published Programs
+    // Phase 3: All Published Programs, besides those we should avoid
+    // Phase 4: Any Published Programs
     for (Program program : programsPublished(programs)) {
       if (!avoid.contains(program.getId()))
-        bag.add(2, program.getId());
+        bag.add(3, program.getId());
       bag.add(4, program.getId());
     }
 
@@ -294,6 +305,9 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    @return macro-type program
    */
   public Optional<Program> chooseNextMacroProgram() throws NexusException {
+    if (Objects.nonNull(overrideMacroProgram))
+      return Optional.of(overrideMacroProgram);
+
     var bag = MarbleBag.empty();
     var candidates = fabricator.sourceMaterial().getPrograms(ProgramType.Macro);
 
@@ -305,30 +319,39 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
       && fabricator.getMacroChoiceOfPreviousSegment().isPresent())
       return fabricator.getProgram(fabricator.getMacroChoiceOfPreviousSegment().get());
 
-    // add candidates to the bag
-    MemeIsometry iso = fabricator.getMemeIsometryOfNextSequenceInPreviousMacro();
+    // Compute the meme isometry for use in selecting programs from the bag
+    MemeIsometry iso =
+      Objects.nonNull(overrideMemes) ?
+        MemeIsometry.of(fabricator.getMemeTaxonomy(), overrideMemes)
+        : fabricator.getMemeIsometryOfNextSequenceInPreviousMacro();
+
+    // Compute any program id to avoid
     var avoidProgramId = fabricator.getMacroChoiceOfPreviousSegment()
       .map(SegmentChoice::getProgramId);
 
+    // Add candidates to the bag
     // Phase 1: Directly Bound Programs besides any that should be avoided, with a meme match
-    // Phase 3: Any Directly Bound Programs besides any that should be avoided, meme match is a bonus
-    // Phase 5: Any Directly Bound Programs
+    // Phase 2: Any Directly Bound Programs besides any that should be avoided, meme match is a bonus
+    // Phase 3: Any Directly Bound Programs
     for (Program program : programsDirectlyBound(candidates)) {
       bag.add(1, program.getId(), iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
-      bag.add(3, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
-      bag.add(5, program.getId());
+      bag.add(2, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
+      bag.add(3, program.getId());
     }
 
-    // Phase 2: All Published Programs with a meme match, besides any that should be avoided
-    // Phase 4: Any Published Programs, meme match is a bonus
+    // Add candidates to the bag
+    // Phase 4: All Published Programs with a meme match, besides any that should be avoided
+    // Phase 5: Any Published Programs, meme match is a bonus
+    // Phase 6: Programs we are supposed to avoid
     for (Program program : programsPublished(candidates)) {
       if (avoidProgramId.isEmpty() || !avoidProgramId.get().equals(program.getId())) {
-        bag.add(2, program.getId(), iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
-        bag.add(4, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
+        bag.add(4, program.getId(), iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
+        bag.add(5, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
       }
       bag.add(6, program.getId());
     }
 
+    // Add candidates to the bag
     // Phase 7: Literally Any Programs
     for (Program program : candidates)
       bag.add(5, program.getId());
@@ -358,16 +381,21 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
       && fabricator.getPreviousMainChoice().isPresent())
       return fabricator.getProgram(fabricator.getPreviousMainChoice().get());
 
-    // add candidates to the bag
+
+    // Compute the meme isometry for use in selecting programs from the bag
     MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
+
+    // Compute any program id to avoid
     var avoidProgramId = fabricator.getPreviousMainChoice().map(SegmentChoice::getProgramId);
 
+    // Add candidates to the bag
     // Phase 1: Directly Bound Programs, memes allowed, bonus for meme match, besides any that should be avoided
     for (Program program : programsDirectlyBound(candidates)) {
       if (!iso.isAllowed(fabricator.sourceMaterial().getMemesAtBeginning(program))) continue;
       bag.add(1, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
     }
 
+    // Add candidates to the bag
     // Phase 2: All Published Programs, memes allowed, bonus for meme match, besides any that should be avoided
     // Phase 3: Any Published Programs, memes allowed, bonus for meme match
     var published = programsPublished(candidates);
@@ -381,11 +409,15 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
         bag.add(3, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
     }
 
+    // Add candidates to the bag
+    // Phase 4: Literally Any Programs
+    for (Program program : candidates)
+      bag.add(4, program.getId());
+
     // if the bag is empty, problems
     if (bag.isEmpty()) {
       throw new NexusException("Failed to choose any next main program. No candidates available!");
     }
-
 
     // report and pick
     fabricator.putReport("mainChoice", bag.toString());

@@ -11,6 +11,7 @@ import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.meme.MemeStack;
+import io.xj.hub.meme.MemeTaxonomy;
 import io.xj.hub.music.Accidental;
 import io.xj.hub.music.Chord;
 import io.xj.hub.music.Note;
@@ -935,6 +936,16 @@ public class FabricatorImpl implements Fabricator {
     return offsets.size() > 1 ? offsets.get(1) : offsets.get(0);
   }
 
+  @Override
+  public MemeTaxonomy getMemeTaxonomy() {
+    try {
+      var templateConfig = new TemplateConfig(sourceMaterial.getTemplate());
+      return templateConfig.getMemeTaxonomy();
+    } catch (ValueException e) {
+      return MemeTaxonomy.empty();
+    }
+  }
+
   /**
    Compute the lowest optimal range shift octaves
 
@@ -1075,11 +1086,11 @@ public class FabricatorImpl implements Fabricator {
     }
 
     for (String name : names) {
-      var segMeme = new SegmentMeme();
-      segMeme.setId(UUID.randomUUID());
-      segMeme.setSegmentId(getSegment().getId());
-      segMeme.setName(name);
-      put(segMeme);
+      var segmentMeme = new SegmentMeme();
+      segmentMeme.setId(UUID.randomUUID());
+      segmentMeme.setSegmentId(getSegment().getId());
+      segmentMeme.setName(name);
+      put(segmentMeme);
     }
 
     return true;
