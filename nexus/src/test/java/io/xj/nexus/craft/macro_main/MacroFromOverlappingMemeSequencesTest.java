@@ -169,7 +169,7 @@ public class MacroFromOverlappingMemeSequencesTest {
     // This test is repeated many times to ensure the correct function of macro choice
     // At 100 repetitions, false positive is 2^100:1 against
     for (int i = 0; i < REPEAT_TIMES; i++) {
-      var result = subject.chooseNextMacroProgram().orElseThrow();
+      var result = subject.chooseMacroProgram();
       assertEquals(macro2a.getId(), result.getId());
     }
   }

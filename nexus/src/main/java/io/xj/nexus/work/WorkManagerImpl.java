@@ -18,7 +18,11 @@ import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.http.HttpClientProvider;
 import io.xj.nexus.http.HttpClientProviderImpl;
-import io.xj.nexus.hub_client.*;
+import io.xj.nexus.hub_client.HubClient;
+import io.xj.nexus.hub_client.HubClientAccess;
+import io.xj.nexus.hub_client.HubClientImpl;
+import io.xj.nexus.hub_client.HubContentProvider;
+import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.json.JsonProvider;
 import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
@@ -44,9 +48,6 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -70,18 +71,7 @@ public class WorkManagerImpl implements WorkManager {
   private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
   private final AtomicBoolean isAudioLoaded = new AtomicBoolean(false);
   private final AtomicLong startedAtMillis = new AtomicLong(0);
-
-  @Nullable
-  private ScheduledExecutorService controlScheduler;
-
-  @Nullable
-  private ScheduledExecutorService craftScheduler;
-
-  @Nullable
-  private ScheduledExecutorService dubScheduler;
-
-  @Nullable
-  private ScheduledExecutorService shipScheduler;
+  private final AtomicBoolean running = new AtomicBoolean(false);
 
   @Nullable
   private CraftWork craftWork;
@@ -195,42 +185,31 @@ public class WorkManagerImpl implements WorkManager {
     updateState(WorkState.Starting);
     LOG.debug("Did update work state to Starting");
 
-    controlScheduler = Executors.newScheduledThreadPool(1);
-    controlScheduler.scheduleWithFixedDelay(this::runControlCycle, 0, workConfig.getControlCycleDelayMillis(), TimeUnit.MILLISECONDS);
-    LOG.debug("Did schedule control cycle");
+    running.set(true);
+    LOG.debug("Did set running to true");
 
-    craftScheduler = Executors.newScheduledThreadPool(1);
-    craftScheduler.scheduleWithFixedDelay(this::runCraftCycle, 0, workConfig.getCraftCycleDelayMillis(), TimeUnit.MILLISECONDS);
-    LOG.debug("Did schedule craft cycle");
+    new Thread(() -> {
+      while (running.get()) {
+        this.runControlCycle();
+        this.runCraftCycle();
+        this.runDubCycle();
+      }
+    }).start();
+    LOG.debug("Did start thread with control/craft/dub cycles");
 
-    dubScheduler = Executors.newScheduledThreadPool(1);
-    dubScheduler.scheduleAtFixedRate(this::runDubCycle, 0, workConfig.getDubCycleRateMillis(), TimeUnit.MILLISECONDS);
-    LOG.debug("Did schedule dub cycle");
-
-    shipScheduler = Executors.newScheduledThreadPool(1);
-    shipScheduler.scheduleAtFixedRate(this::runShipCycle, 0, workConfig.getShipCycleRateMillis(), TimeUnit.MILLISECONDS);
-    LOG.debug("Did schedule ship cycle");
+    new Thread(() -> {
+      while (running.get()) {
+        this.runShipCycle();
+      }
+    }).start();
+    LOG.debug("Did start thread with ship cycle");
 
     telemetry.startTimer();
   }
 
   @Override
   public void finish(boolean cancelled) {
-    if (Objects.nonNull(controlScheduler)) {
-      controlScheduler.shutdown();
-    }
-
-    if (Objects.nonNull(craftScheduler)) {
-      craftScheduler.shutdown();
-    }
-
-    if (Objects.nonNull(dubScheduler)) {
-      dubScheduler.shutdown();
-    }
-
-    if (Objects.nonNull(shipScheduler)) {
-      shipScheduler.shutdown();
-    }
+    running.set(false);
 
     // Shutting down ship work will cascade-send the finish() instruction to dub and ship
     if (Objects.nonNull(shipWork)) {

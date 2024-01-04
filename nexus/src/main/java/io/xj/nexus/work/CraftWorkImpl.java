@@ -356,7 +356,7 @@ public class CraftWorkImpl implements CraftWork {
       if (existing.isEmpty()) {
         segment = buildSegmentInitial();
       } else if (Objects.isNull(existing.get().getDurationMicros())) {
-        LOG.warn("Last segment in chain has no duration, cannot fabricate next segment");
+        LOG.debug("Last segment in chain has no duration, cannot fabricate next segment");
         return;
       } else {
         segment = buildSegmentFollowing(existing.get());

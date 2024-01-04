@@ -18,10 +18,6 @@ public class WorkConfiguration {
   private String tempFilePathPrefix = "/tmp/";
   private int shipOutputFileNumberDigits = 7;
   private int shipOutputPcmChunkSizeBytes = 1024;
-  private long controlCycleDelayMillis = 100;
-  private long craftCycleDelayMillis = 200;
-  private long dubCycleRateMillis = 200;
-  private long shipCycleRateMillis = 50;
   private long persistenceWindowSeconds = 3600;
 
   public InputMode getInputMode() {
@@ -105,14 +101,6 @@ public class WorkConfiguration {
     return this;
   }
 
-  public long getControlCycleDelayMillis() {
-    return controlCycleDelayMillis;
-  }
-
-  public WorkConfiguration setControlCycleDelayMillis(long controlCycleDelayMillis) {
-    this.controlCycleDelayMillis = controlCycleDelayMillis;
-    return this;
-  }
 
   public String getTempFilePathPrefix() {
     return tempFilePathPrefix;
@@ -138,33 +126,6 @@ public class WorkConfiguration {
 
   public WorkConfiguration setShipOutputPcmChunkSizeBytes(int shipOutputPcmChunkSizeBytes) {
     this.shipOutputPcmChunkSizeBytes = shipOutputPcmChunkSizeBytes;
-    return this;
-  }
-
-  public long getShipCycleRateMillis() {
-    return shipCycleRateMillis;
-  }
-
-  public WorkConfiguration setShipCycleRateMillis(long shipCycleRateMillis) {
-    this.shipCycleRateMillis = shipCycleRateMillis;
-    return this;
-  }
-
-  public long getDubCycleRateMillis() {
-    return dubCycleRateMillis;
-  }
-
-  public WorkConfiguration setDubCycleRateMillis(long dubCycleRateMillis) {
-    this.dubCycleRateMillis = dubCycleRateMillis;
-    return this;
-  }
-
-  public long getCraftCycleDelayMillis() {
-    return craftCycleDelayMillis;
-  }
-
-  public WorkConfiguration setCraftCycleDelayMillis(long craftCycleDelayMillis) {
-    this.craftCycleDelayMillis = craftCycleDelayMillis;
     return this;
   }
 
