@@ -3,26 +3,31 @@ package io.xj.nexus.craft.detail;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.nexus.entity.EntityFactoryImpl;
-import io.xj.nexus.json.JsonProvider;
-import io.xj.nexus.json.JsonProviderImpl;
-import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
-import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
+import io.xj.nexus.entity.EntityFactoryImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubTopology;
-import io.xj.nexus.model.*;
+import io.xj.nexus.json.JsonProvider;
+import io.xj.nexus.json.JsonProviderImpl;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
-import io.xj.nexus.persistence.SegmentManager;
-import io.xj.nexus.persistence.SegmentManagerImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +40,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChordVoicing;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -60,15 +69,14 @@ public class CraftDetailProgramVoiceContinueTest {
     NexusTopology.buildNexusApiTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     store = new NexusEntityStoreImpl(entityFactory);
-    SegmentManager segmentManager = new SegmentManagerImpl(store);
     fabricatorFactory = new FabricatorFactoryImpl(
-      segmentManager,
+      store,
       jsonapiPayloadFactory,
       jsonProvider
     );
 
     // Manipulate the underlying entity store; reset before each test
-    store.deleteAll();
+    store.clear();
 
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
@@ -114,11 +122,11 @@ public class CraftDetailProgramVoiceContinueTest {
   @Test
   public void craftDetailVoiceContinue() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2, null);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
 
     craftFactory.detail(fabricator).doWork();
 
-    store.getSegment(segment4.getId()).orElseThrow();
+    store.readSegment(segment4.getId()).orElseThrow();
     assertFalse(fabricator.getChoices().isEmpty());
     // test vector for persist Audio pick in memory https://www.pivotaltracker.com/story/show/154014731
     int pickedBloop = 0;
@@ -134,7 +142,7 @@ public class CraftDetailProgramVoiceContinueTest {
   @Test
   public void craftDetailVoiceContinue_okIfNoDetailChoice() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2, null);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
 
     craftFactory.detail(fabricator).doWork();
   }

@@ -23,9 +23,6 @@ import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentMeme;
 import io.xj.nexus.model.SegmentMessage;
 import io.xj.nexus.model.SegmentMeta;
-import io.xj.nexus.persistence.ManagerExistenceException;
-import io.xj.nexus.persistence.ManagerFatalException;
-import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.nexus.util.FormatUtils;
 import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkManager;
@@ -280,32 +277,17 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public Collection<SegmentMeme> getSegmentMemes(Segment segment) {
-    try {
-      return workManager.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMeme.class);
-    } catch (ManagerPrivilegeException | ManagerFatalException e) {
-      LOG.warn("Failed to get segment memes", e);
-      return List.of();
-    }
+    return workManager.getEntityStore().readManySubEntitiesOfType(segment.getId(), SegmentMeme.class);
   }
 
   @Override
   public Collection<SegmentChord> getSegmentChords(Segment segment) {
-    try {
-      return workManager.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentChord.class);
-    } catch (ManagerPrivilegeException | ManagerFatalException e) {
-      LOG.warn("Failed to get segment chords", e);
-      return List.of();
-    }
+    return workManager.getEntityStore().readManySubEntitiesOfType(segment.getId(), SegmentChord.class);
   }
 
   @Override
   public Collection<SegmentChoice> getSegmentChoices(Segment segment) {
-    try {
-      return workManager.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentChoice.class);
-    } catch (ManagerPrivilegeException | ManagerFatalException e) {
-      LOG.warn("Failed to get segment choices", e);
-      return List.of();
-    }
+    return workManager.getEntityStore().readManySubEntitiesOfType(segment.getId(), SegmentChoice.class);
   }
 
   @Override
@@ -340,44 +322,24 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice choice) {
-    try {
-      return workManager.getSegmentManager().readManySubEntitiesOfType(choice.getSegmentId(), SegmentChoiceArrangement.class)
-        .stream().filter(arrangement -> arrangement.getSegmentChoiceId().equals(choice.getId())).toList();
-    } catch (ManagerPrivilegeException | ManagerFatalException e) {
-      LOG.warn("Failed to get segment choice arrangements", e);
-      return List.of();
-    }
+    return workManager.getEntityStore().readManySubEntitiesOfType(choice.getSegmentId(), SegmentChoiceArrangement.class)
+      .stream().filter(arrangement -> arrangement.getSegmentChoiceId().equals(choice.getId())).toList();
   }
 
   @Override
   public Collection<SegmentChoiceArrangementPick> getPicks(SegmentChoiceArrangement arrangement) {
-    try {
-      return workManager.getSegmentManager().readManySubEntitiesOfType(arrangement.getSegmentId(), SegmentChoiceArrangementPick.class)
-        .stream().filter(pick -> pick.getSegmentChoiceArrangementId().equals(arrangement.getId())).toList();
-    } catch (ManagerPrivilegeException | ManagerFatalException e) {
-      LOG.warn("Failed to get segment choice arrangement picks", e);
-      return List.of();
-    }
+    return workManager.getEntityStore().readManySubEntitiesOfType(arrangement.getSegmentId(), SegmentChoiceArrangementPick.class)
+      .stream().filter(pick -> pick.getSegmentChoiceArrangementId().equals(arrangement.getId())).toList();
   }
 
   @Override
   public Collection<SegmentMessage> getSegmentMessages(Segment segment) {
-    try {
-      return workManager.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMessage.class);
-    } catch (ManagerPrivilegeException | ManagerFatalException e) {
-      LOG.warn("Failed to get segment messages", e);
-      return List.of();
-    }
+    return workManager.getEntityStore().readManySubEntitiesOfType(segment.getId(), SegmentMessage.class);
   }
 
   @Override
   public Collection<SegmentMeta> getSegmentMetas(Segment segment) {
-    try {
-      return workManager.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMeta.class);
-    } catch (ManagerPrivilegeException | ManagerFatalException e) {
-      LOG.warn("Failed to get segment metas", e);
-      return List.of();
-    }
+    return workManager.getEntityStore().readManySubEntitiesOfType(segment.getId(), SegmentMeta.class);
   }
 
   @Override
@@ -428,21 +390,15 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public List<Segment> getSegments(@Nullable Integer startIndex) {
-    try {
-      var viewLimit = Integer.parseInt(timelineSegmentViewLimit.getValue());
-      var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, workManager.getSegmentManager().lastSegmentId() - viewLimit - 1);
-      var to = Math.min(workManager.getSegmentManager().lastSegmentId() - 1, from + viewLimit);
-      return workManager.getSegmentManager().readManyFromToOffset(from, to);
-
-    } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException e) {
-      LOG.warn("Failed to get segments", e);
-      return List.of();
-    }
+    var viewLimit = Integer.parseInt(timelineSegmentViewLimit.getValue());
+    var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, workManager.getEntityStore().readLastSegmentId() - viewLimit - 1);
+    var to = Math.min(workManager.getEntityStore().readLastSegmentId() - 1, from + viewLimit);
+    return workManager.getEntityStore().readSegmentsFromToOffset(from, to);
   }
 
   @Override
   public Boolean isEmpty() {
-    return workManager.getSegmentManager().isEmpty();
+    return workManager.getEntityStore().isEmpty();
   }
 
   @Override
@@ -539,14 +495,14 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public String computeChoiceHash(Segment segment) {
-    return workManager.getSegmentManager().getChoiceHash(segment);
+    return workManager.getEntityStore().readChoiceHash(segment);
   }
 
   @Override
   public Optional<Segment> getSegmentAtShipOutput() {
     return
       workManager.getShippedToChainMicros().flatMap(chainMicros ->
-        workManager.getSegmentManager().readOneAtChainMicros(chainMicros));
+        workManager.getEntityStore().readSegmentAtChainMicros(chainMicros));
   }
 
   /**
@@ -613,7 +569,7 @@ public class FabricationServiceImpl implements FabricationService {
   private Optional<Integer> getBarBeats(Segment segment) {
     if (!segmentBarBeats.containsKey(segment.getId())) {
       try {
-        var choice = workManager.getSegmentManager().readChoice(segment.getId(), ProgramType.Main);
+        var choice = workManager.getEntityStore().readChoice(segment.getId(), ProgramType.Main);
         if (choice.isEmpty()) {
           LOG.warn("Failed to retrieve main program choice to determine beats for Segment[{}]", segment.getId());
           return Optional.empty();
@@ -628,7 +584,7 @@ public class FabricationServiceImpl implements FabricationService {
         var config = new ProgramConfig(program.get());
         segmentBarBeats.put(segment.getId(), config.getBarBeats());
 
-      } catch (ManagerFatalException | ValueException e) {
+      } catch (ValueException e) {
         LOG.warn("Failed to format beats duration for Segment[{}]", segment.getId(), e);
         return Optional.empty();
       }

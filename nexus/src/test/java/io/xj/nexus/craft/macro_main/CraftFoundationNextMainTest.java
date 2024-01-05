@@ -3,25 +3,32 @@ package io.xj.nexus.craft.macro_main;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramType;
-import io.xj.nexus.entity.EntityFactoryImpl;
-import io.xj.nexus.entity.EntityUtils;
-import io.xj.nexus.json.JsonProviderImpl;
-import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
-import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
+import io.xj.nexus.entity.EntityFactoryImpl;
+import io.xj.nexus.entity.EntityUtils;
 import io.xj.nexus.fabricator.FabricationFatalException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubTopology;
-import io.xj.nexus.model.*;
+import io.xj.nexus.json.JsonProviderImpl;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
-import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.nexus.persistence.SegmentUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,10 +67,9 @@ public class CraftFoundationNextMainTest {
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     store = new NexusEntityStoreImpl(entityFactory);
-    var segmentManager = new SegmentManagerImpl(store);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     fabricatorFactory = new FabricatorFactoryImpl(
-      segmentManager,
+      store,
       jsonapiPayloadFactory,
       jsonProvider
     );
@@ -72,7 +78,7 @@ public class CraftFoundationNextMainTest {
     NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
-    store.deleteAll();
+    store.clear();
 
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
@@ -129,11 +135,11 @@ public class CraftFoundationNextMainTest {
 
   @Test
   public void craftFoundationNextMain() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2, null);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
 
     craftFactory.macroMain(fabricator, null).doWork();
 
-    Segment result = store.getSegment(segment4.getId()).orElseThrow();
+    Segment result = store.readSegment(segment4.getId()).orElseThrow();
     assertEquals(SegmentType.NEXT_MAIN, result.getType());
     assertEquals(16 * MICROS_PER_SECOND * SECONDS_PER_MINUTE / 140, (long) Objects.requireNonNull(result.getDurationMicros()));
     assertEquals(Integer.valueOf(16), result.getTotal());
@@ -142,13 +148,13 @@ public class CraftFoundationNextMainTest {
     assertEquals(140, result.getTempo(), 0.01);
     // assert memes
     assertSameItems(List.of("HINDSIGHT", "TROPICAL", "COZY", "WILD", "REGRET"),
-      EntityUtils.namesOf(store.getAll(result.getId(), SegmentMeme.class)));
+      EntityUtils.namesOf(store.readAll(result.getId(), SegmentMeme.class)));
     // assert chords
     assertSameItems(List.of("G -", "Ab -"),
-      EntityUtils.namesOf(store.getAll(result.getId(), SegmentChord.class)));
+      EntityUtils.namesOf(store.readAll(result.getId(), SegmentChord.class)));
     // assert choices
     Collection<SegmentChoice> segmentChoices =
-      store.getAll(result.getId(), SegmentChoice.class);
+      store.readAll(result.getId(), SegmentChoice.class);
     // assert macro choice
     SegmentChoice macroChoice = SegmentUtils.findFirstOfType(segmentChoices, ProgramType.Macro);
     assertEquals(fake.program4_sequence1_binding0.getId(), macroChoice.getProgramSequenceBindingId());
@@ -177,7 +183,7 @@ public class CraftFoundationNextMainTest {
     ));
 
     assertThrows(FabricationFatalException.class, () ->
-      fabricatorFactory.fabricate(sourceMaterial, segment5, 48000.0f, 2, null));
+      fabricatorFactory.fabricate(sourceMaterial, segment5.getId(), 48000.0f, 2, null));
   }
 
 }

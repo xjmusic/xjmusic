@@ -7,7 +7,12 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.music.StickyBun;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
@@ -29,8 +34,6 @@ import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
-import io.xj.nexus.persistence.SegmentManager;
-import io.xj.nexus.persistence.SegmentManagerImpl;
 import jakarta.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,10 +43,30 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.nexus.NexusHubIntegrationTestingFixtures.*;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAccount;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildDetailProgram;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildEvent;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildInstrument;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildInstrumentWithAudios;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildLibrary;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildPattern;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgram;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildSequence;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildTemplate;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildTrack;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildVoice;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -54,6 +77,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ArrangementTests extends YamlTest {
   static final String TEST_PATH_PREFIX = "/arrangements/";
   static final int REPEAT_EACH_TEST_TIMES = 7;
+
+  static final int TEMPO = 60; // 60 BPM such that 1 beat = 1 second
   static final Set<InstrumentType> INSTRUMENT_TYPES_TO_TEST = Set.of(
     InstrumentType.Bass,
     InstrumentType.Pad,
@@ -188,13 +213,14 @@ FUTURE goal
 
         // Fabricate: Craft Arrangements for Choices
         var sourceMaterial = new HubContent(content);
-        fabricator = fabrication.fabricate(sourceMaterial, segment, 48000.0f, 2, null);
+        fabricator = fabrication.fabricate(sourceMaterial, segment.getId(), 48000.0f, 2, null);
         for (StickyBun bun : stickyBuns) {
           fabricator.putStickyBun(bun);
         }
-        fabricator.put(buildSegmentChoice(segment, mainProgram1));
+        fabricator.put(buildSegmentChoice(segment, mainProgram1), false);
         CraftImpl subject = new CraftImpl(fabricator);
-        for (var choice : segmentChoices.values()) subject.craftNoteEventArrangements(choice, false);
+        for (var choice : segmentChoices.values())
+          subject.craftNoteEventArrangements(TEMPO, choice, false);
 
         // assert final picks
         loadAndPerformAssertions(data);
@@ -211,10 +237,9 @@ FUTURE goal
     JsonProvider jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     store = new NexusEntityStoreImpl(entityFactory);
-    SegmentManager segmentManager = new SegmentManagerImpl(store);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     fabrication = new FabricatorFactoryImpl(
-      segmentManager,
+      store,
       jsonapiPayloadFactory,
       jsonProvider
     );
@@ -222,7 +247,7 @@ FUTURE goal
     NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
-    store.deleteAll();
+    store.clear();
 
     var account1 = buildAccount("fish");
     Template template1 = buildTemplate(account1, "Test Template 1", "test1");
@@ -324,7 +349,7 @@ FUTURE goal
       Objects.requireNonNull(getStr(obj, "key")),
       Objects.requireNonNull(getInt(obj, "total")),
       Objects.requireNonNull(getFloat(obj, "density")),
-      60)); // 60 BPM such that 1 beat = 1 second
+      TEMPO));
 
     if (obj.containsKey("stickyBuns")) {
       for (Map<?, ?> sbObj : (List<Map<?, ?>>) obj.get("stickyBuns")) {

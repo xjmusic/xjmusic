@@ -13,8 +13,7 @@ import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentState;
-import io.xj.nexus.persistence.ManagerFatalException;
-import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.work.WorkManager;
 import javafx.application.HostServices;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,7 +55,7 @@ class FabricationServiceImplTest {
   LabService labService;
 
   @Mock
-  private SegmentManager segmentManager;
+  private NexusEntityStore entityStore;
 
   @Mock
   private WorkManager workManager;
@@ -90,25 +89,24 @@ class FabricationServiceImplTest {
       labService,
       workManager
     );
-    when(workManager.getSegmentManager()).thenReturn(segmentManager);
   }
 
   @Test
-  void formatTotalBars() throws ManagerFatalException {
-    var segment4 = prepareSegmentManager(4);
+  void formatTotalBars() {
+    var segment4 = prepareStore(4);
     assertEquals("1 bar", subject.formatTotalBars(segment4, 4));
     assertEquals("1¼ bar", subject.formatTotalBars(segment4, 5));
     assertEquals("1½ bar", subject.formatTotalBars(segment4, 6));
     assertEquals("2 bars", subject.formatTotalBars(segment4, 8));
     assertEquals("3 bars", subject.formatTotalBars(segment4, 12));
 
-    var segment3 = prepareSegmentManager(3);
+    var segment3 = prepareStore(3);
     assertEquals("4 bars", subject.formatTotalBars(segment3, 12));
   }
 
   @Test
-  void formatPositionBarBeats() throws ManagerFatalException {
-    var segment4 = prepareSegmentManager(4);
+  void formatPositionBarBeats() {
+    var segment4 = prepareStore(4);
     assertEquals("1.1", subject.formatPositionBarBeats(segment4, 0.0));
     assertEquals("2.1", subject.formatPositionBarBeats(segment4, 4.0));
     assertEquals("2.2", subject.formatPositionBarBeats(segment4, 5.0));
@@ -118,12 +116,12 @@ class FabricationServiceImplTest {
     assertEquals("3.1", subject.formatPositionBarBeats(segment4, 8.0));
     assertEquals("4.1", subject.formatPositionBarBeats(segment4, 12.0));
 
-    var segment3 = prepareSegmentManager(3);
+    var segment3 = prepareStore(3);
     assertEquals("5.1", subject.formatPositionBarBeats(segment3, 12.0));
     assertEquals("5.3.5", subject.formatPositionBarBeats(segment3, 14.5));
   }
 
-  private Segment prepareSegmentManager(int barBeats) throws ManagerFatalException {
+  private Segment prepareStore(int barBeats) {
     var segment = buildSegment(
       chain,
       offset.getAndIncrement(),
@@ -137,7 +135,8 @@ class FabricationServiceImplTest {
     var sourceMaterial = new HubContent(List.of(program));
     var choice = buildSegmentChoice(segment, program);
     when(workManager.getSourceMaterial()).thenReturn(sourceMaterial);
-    when(segmentManager.readChoice(eq(segment.getId()), eq(ProgramType.Main))).thenReturn(Optional.of(choice));
+    when(workManager.getEntityStore()).thenReturn(entityStore);
+    when(entityStore.readChoice(eq(segment.getId()), eq(ProgramType.Main))).thenReturn(Optional.of(choice));
     return segment;
   }
 }

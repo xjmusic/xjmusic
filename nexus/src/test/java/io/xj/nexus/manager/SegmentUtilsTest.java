@@ -6,7 +6,20 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.model.*;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentMessage;
+import io.xj.nexus.model.SegmentMeta;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.SegmentUtils;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +31,10 @@ import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAccount;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SegmentUtilsTest {
   final Account account = buildAccount("Test");
@@ -168,5 +184,36 @@ public class SegmentUtilsTest {
   @Test
   void testGetDurationMinMicros() {
     assertEquals(32000000L, SegmentUtils.getDurationMinMicros(List.of(seg0, seg1, seg2, seg3)));
+  }
+
+  @Test
+  void getSegmentId() {
+    SegmentChoice segmentChoice = new SegmentChoice();
+    segmentChoice.setSegmentId(seg3.getId());
+    SegmentChoiceArrangement segmentChoiceArrangement = new SegmentChoiceArrangement();
+    segmentChoiceArrangement.setSegmentId(seg3.getId());
+    SegmentChoiceArrangementPick segmentChoiceArrangementPick = new SegmentChoiceArrangementPick();
+    segmentChoiceArrangementPick.setSegmentId(seg3.getId());
+    SegmentChord segmentChord = new SegmentChord();
+    segmentChord.setSegmentId(seg3.getId());
+    SegmentChordVoicing segmentChordVoicing = new SegmentChordVoicing();
+    segmentChordVoicing.setSegmentId(seg3.getId());
+    SegmentMeme segmentMeme = new SegmentMeme();
+    segmentMeme.setSegmentId(seg3.getId());
+    SegmentMessage segmentMessage = new SegmentMessage();
+    segmentMessage.setSegmentId(seg3.getId());
+    SegmentMeta segmentMeta = new SegmentMeta();
+    segmentMeta.setSegmentId(seg3.getId());
+
+    assertEquals(seg3.getId(), SegmentUtils.getSegmentId(seg3));
+    assertEquals(seg3.getId(), SegmentUtils.getSegmentId(segmentChoice));
+    assertEquals(seg3.getId(), SegmentUtils.getSegmentId(segmentChoiceArrangement));
+    assertEquals(seg3.getId(), SegmentUtils.getSegmentId(segmentChoiceArrangementPick));
+    assertEquals(seg3.getId(), SegmentUtils.getSegmentId(segmentChord));
+    assertEquals(seg3.getId(), SegmentUtils.getSegmentId(segmentChordVoicing));
+    assertEquals(seg3.getId(), SegmentUtils.getSegmentId(segmentMeme));
+    assertEquals(seg3.getId(), SegmentUtils.getSegmentId(segmentMessage));
+    assertEquals(seg3.getId(), SegmentUtils.getSegmentId(segmentMeta));
+    assertThrows(IllegalArgumentException.class, () -> SegmentUtils.getSegmentId(new Object()));
   }
 }

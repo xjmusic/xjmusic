@@ -6,7 +6,7 @@ import io.xj.hub.HubConfiguration;
 import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.NexusEntityStore;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -29,9 +29,9 @@ public interface WorkManager {
   void finish(boolean cancelled);
 
   /**
-   Get the segment manager
+   Get the entity store
    */
-  SegmentManager getSegmentManager();
+  NexusEntityStore getEntityStore();
 
   /**
    Reset the factory including the segment manager and its store
@@ -75,11 +75,6 @@ public interface WorkManager {
    @return true if the current work is healthy
    */
   boolean isHealthy();
-
-  /**
-   @return true if the current work is finished
-   */
-  boolean isFinished();
 
   /**
    Set the on progress callback

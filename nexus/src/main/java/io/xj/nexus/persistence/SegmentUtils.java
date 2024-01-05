@@ -10,12 +10,22 @@ import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentMessage;
+import io.xj.nexus.model.SegmentMeta;
 import io.xj.nexus.model.SegmentState;
 import jakarta.annotation.Nullable;
-import javafx.collections.ObservableList;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -203,5 +213,18 @@ public enum SegmentUtils {
       if (Objects.nonNull(s.getDurationMicros()) && (micros == 0 || s.getDurationMicros() < micros))
         micros = s.getDurationMicros();
     return micros;
+  }
+
+  public static <N> Integer getSegmentId(N entity) {
+    if (entity instanceof Segment) return ((Segment) entity).getId();
+    if (entity instanceof SegmentChoice) return ((SegmentChoice) entity).getSegmentId();
+    if (entity instanceof SegmentChoiceArrangement) return ((SegmentChoiceArrangement) entity).getSegmentId();
+    if (entity instanceof SegmentChoiceArrangementPick) return ((SegmentChoiceArrangementPick) entity).getSegmentId();
+    if (entity instanceof SegmentChord) return ((SegmentChord) entity).getSegmentId();
+    if (entity instanceof SegmentChordVoicing) return ((SegmentChordVoicing) entity).getSegmentId();
+    if (entity instanceof SegmentMeme) return ((SegmentMeme) entity).getSegmentId();
+    if (entity instanceof SegmentMessage) return ((SegmentMessage) entity).getSegmentId();
+    if (entity instanceof SegmentMeta) return ((SegmentMeta) entity).getSegmentId();
+    throw new IllegalArgumentException(String.format("Can't get segment id for %s", entity.getClass()));
   }
 }

@@ -49,8 +49,8 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
     if (instrumentIds.size() > targetLayers)
       instrumentIds = ValueUtils.withIdsRemoved(instrumentIds, instrumentIds.size() - targetLayers);
 
-    for (UUID backgroundId : instrumentIds)
-      craftBackground(backgroundId);
+    for (UUID instrumentId : instrumentIds)
+      craftBackground(instrumentId);
 
     Optional<Instrument> chosen;
     if (instrumentIds.size() < targetLayers)
@@ -61,9 +61,6 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
           craftBackground(chosen.get().getId());
         }
       }
-
-    // Finally, update the segment with the crafted content
-    fabricator.done();
   }
 
   /**
@@ -82,12 +79,12 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
     choice.setInstrumentType(instrument.getType());
     choice.setInstrumentMode(instrument.getMode());
     choice.setInstrumentId(instrumentId);
-    fabricator.put(choice);
+    fabricator.put(choice, false);
     var arrangement = new SegmentChoiceArrangement();
     arrangement.setId(UUID.randomUUID());
     arrangement.setSegmentId(fabricator.getSegment().getId());
     arrangement.segmentChoiceId(choice.getId());
-    fabricator.put(arrangement);
+    fabricator.put(arrangement, false);
 
     // Start at zero and keep laying down perc loops until we're out of here
     var audio = pickAudioForInstrument(instrument);
@@ -102,7 +99,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
     pick.setAmplitude(1.0f);
     pick.setEvent("BACKGROUND");
     pick.setInstrumentAudioId(audio.get().getId());
-    fabricator.put(pick);
+    fabricator.put(pick, false);
   }
 
   /**

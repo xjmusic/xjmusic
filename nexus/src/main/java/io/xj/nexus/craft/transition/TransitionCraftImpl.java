@@ -64,7 +64,9 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     if (instrumentIds.size() > targetLayers)
       instrumentIds = ValueUtils.withIdsRemoved(instrumentIds, instrumentIds.size() - targetLayers);
 
-    for (UUID id : instrumentIds) craftTransition(id);
+    var tempo = fabricator.getTempo();
+
+    for (UUID id : instrumentIds) craftTransition(tempo, id);
 
     Optional<Instrument> chosen;
     if (instrumentIds.size() < targetLayers)
@@ -72,12 +74,9 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
         chosen = chooseFreshInstrument(List.of(), List.of(InstrumentMode.Transition), instrumentIds, null, List.of());
         if (chosen.isPresent()) {
           instrumentIds.add(chosen.get().getId());
-          craftTransition(chosen.get().getId());
+          craftTransition(tempo, chosen.get().getId());
         }
       }
-
-    // Finally, update the segment with the crafted content
-    fabricator.done();
   }
 
   /**
@@ -102,18 +101,22 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
   boolean isMediumTransitionSegment() throws NexusException {
     return switch (fabricator.getType()) {
       case PENDING, INITIAL, NEXT_MAIN, NEXT_MACRO -> false;
-      case CONTINUE -> !fabricator.getCurrentMainSequence().orElseThrow().getId()
-        .equals(fabricator.getPreviousMainSequence().orElseThrow().getId());
+      case CONTINUE -> !fabricator.getCurrentMainSequence()
+        .orElseThrow(() -> new NexusException("Can't get current main sequence"))
+        .getId()
+        .equals(fabricator.getPreviousMainSequence().orElseThrow(() ->
+          new NexusException("Can't get previous main sequence")).getId());
     };
   }
 
   /**
    Craft percussion loop
 
+   @param tempo        of main program
    @param instrumentId of percussion loop instrument to craft
    */
   @SuppressWarnings("DuplicatedCode")
-  void craftTransition(UUID instrumentId) throws NexusException {
+  void craftTransition(double tempo, UUID instrumentId) throws NexusException {
     var choice = new SegmentChoice();
     var instrument = fabricator.sourceMaterial().getInstrument(instrumentId)
       .orElseThrow(() -> new NexusException("Can't get Instrument Audio!"));
@@ -123,12 +126,12 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     choice.setInstrumentType(instrument.getType());
     choice.setInstrumentMode(instrument.getMode());
     choice.setInstrumentId(instrumentId);
-    fabricator.put(choice);
+    fabricator.put(choice, false);
     var arrangement = new SegmentChoiceArrangement();
     arrangement.setId(UUID.randomUUID());
     arrangement.setSegmentId(fabricator.getSegment().getId());
     arrangement.segmentChoiceId(choice.getId());
-    fabricator.put(arrangement);
+    fabricator.put(arrangement, false);
 
     var small = pickAudioForInstrument(instrument, smallNames);
     var medium = pickAudioForInstrument(instrument, mediumNames);
@@ -145,7 +148,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     var pos = deltaUnits;
     while (pos < fabricator.getSegment().getTotal()) {
       if (small.isPresent())
-        pickTransition(arrangement, small.get(), fabricator.getSegmentMicrosAtPosition(pos), fabricator.getTotalSegmentMicros(), smallNames.get(0));
+        pickTransition(arrangement, small.get(), fabricator.getSegmentMicrosAtPosition(tempo, pos), fabricator.getTotalSegmentMicros(), smallNames.get(0));
       pos += deltaUnits;
     }
   }
@@ -177,7 +180,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     pick.setAmplitude(1.0f);
     pick.setEvent(name);
     pick.setInstrumentAudioId(audio.getId());
-    fabricator.put(pick);
+    fabricator.put(pick, false);
   }
 
   /**

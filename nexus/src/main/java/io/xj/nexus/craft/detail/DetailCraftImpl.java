@@ -67,20 +67,17 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
             reportMissing(Program.class, String.format("%s-type Program", voicingType));
             continue;
           }
-          craftEventParts(instrument.get(), program.get());
+          craftEventParts(fabricator.getTempo(), instrument.get(), program.get());
         }
 
         // Chord instrument mode
         // https://www.pivotaltracker.com/story/show/181631275
-        case Chord -> craftChordParts(instrument.get());
+        case Chord -> craftChordParts(fabricator.getTempo(), instrument.get());
 
         // As-yet Unsupported Modes
         default ->
           fabricator.addWarningMessage(String.format("Cannot craft unsupported mode %s for Instrument[%s]", instrument.get().getMode(), instrument.get().getId()));
       }
     }
-
-    // Finally, update the segment with the crafted content
-    fabricator.done();
   }
 }

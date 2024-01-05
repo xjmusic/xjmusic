@@ -18,7 +18,11 @@ import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.http.HttpClientProvider;
 import io.xj.nexus.http.HttpClientProviderImpl;
-import io.xj.nexus.hub_client.*;
+import io.xj.nexus.hub_client.HubClient;
+import io.xj.nexus.hub_client.HubClientAccess;
+import io.xj.nexus.hub_client.HubClientImpl;
+import io.xj.nexus.hub_client.HubContentProvider;
+import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.json.JsonProvider;
 import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
@@ -29,8 +33,6 @@ import io.xj.nexus.mixer.MixerFactory;
 import io.xj.nexus.mixer.MixerFactoryImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
-import io.xj.nexus.persistence.SegmentManager;
-import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.nexus.ship.broadcast.BroadcastFactory;
 import io.xj.nexus.ship.broadcast.BroadcastFactoryImpl;
 import io.xj.nexus.telemetry.Telemetry;
@@ -44,9 +46,6 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -63,25 +62,13 @@ public class WorkManagerImpl implements WorkManager {
   private final FabricatorFactory fabricatorFactory;
   private final HubClient hubClient;
   private final MixerFactory mixerFactory;
-  private final NexusEntityStore store;
-  private final SegmentManager segmentManager;
+  private final NexusEntityStore entityStore;
   private final Telemetry telemetry;
   private final AtomicReference<HubContent> hubContent = new AtomicReference<>();
   private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
   private final AtomicBoolean isAudioLoaded = new AtomicBoolean(false);
   private final AtomicLong startedAtMillis = new AtomicLong(0);
-
-  @Nullable
-  private ScheduledExecutorService controlScheduler;
-
-  @Nullable
-  private ScheduledExecutorService craftScheduler;
-
-  @Nullable
-  private ScheduledExecutorService dubScheduler;
-
-  @Nullable
-  private ScheduledExecutorService shipScheduler;
+  private final AtomicBoolean running = new AtomicBoolean(false);
 
   @Nullable
   private CraftWork craftWork;
@@ -118,8 +105,7 @@ public class WorkManagerImpl implements WorkManager {
     FabricatorFactory fabricatorFactory,
     HubClient hubClient,
     MixerFactory mixerFactory,
-    NexusEntityStore store,
-    SegmentManager segmentManager
+    NexusEntityStore store
   ) {
     this.broadcastFactory = broadcastFactory;
     this.craftFactory = craftFactory;
@@ -127,8 +113,7 @@ public class WorkManagerImpl implements WorkManager {
     this.fabricatorFactory = fabricatorFactory;
     this.hubClient = hubClient;
     this.mixerFactory = mixerFactory;
-    this.store = store;
-    this.segmentManager = segmentManager;
+    this.entityStore = store;
     this.telemetry = telemetry;
   }
 
@@ -141,10 +126,9 @@ public class WorkManagerImpl implements WorkManager {
     JsonProvider jsonProvider = new JsonProviderImpl();
     EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
     NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
-    SegmentManager segmentManager = new SegmentManagerImpl(nexusEntityStore);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
-      segmentManager,
+      nexusEntityStore,
       jsonapiPayloadFactory,
       jsonProvider
     );
@@ -161,8 +145,7 @@ public class WorkManagerImpl implements WorkManager {
       fabricatorFactory,
       hubClient,
       mixerFactory,
-      nexusEntityStore,
-      segmentManager
+      nexusEntityStore
     );
   }
 
@@ -195,42 +178,31 @@ public class WorkManagerImpl implements WorkManager {
     updateState(WorkState.Starting);
     LOG.debug("Did update work state to Starting");
 
-    controlScheduler = Executors.newScheduledThreadPool(1);
-    controlScheduler.scheduleWithFixedDelay(this::runControlCycle, 0, workConfig.getControlCycleDelayMillis(), TimeUnit.MILLISECONDS);
-    LOG.debug("Did schedule control cycle");
+    running.set(true);
+    LOG.debug("Did set running to true");
 
-    craftScheduler = Executors.newScheduledThreadPool(1);
-    craftScheduler.scheduleWithFixedDelay(this::runCraftCycle, 0, workConfig.getCraftCycleDelayMillis(), TimeUnit.MILLISECONDS);
-    LOG.debug("Did schedule craft cycle");
+    new Thread(() -> {
+      while (running.get()) {
+        this.runControlCycle();
+        this.runCraftCycle();
+        this.runDubCycle();
+      }
+    }).start();
+    LOG.debug("Did start thread with control/craft/dub cycles");
 
-    dubScheduler = Executors.newScheduledThreadPool(1);
-    dubScheduler.scheduleAtFixedRate(this::runDubCycle, 0, workConfig.getDubCycleRateMillis(), TimeUnit.MILLISECONDS);
-    LOG.debug("Did schedule dub cycle");
-
-    shipScheduler = Executors.newScheduledThreadPool(1);
-    shipScheduler.scheduleAtFixedRate(this::runShipCycle, 0, workConfig.getShipCycleRateMillis(), TimeUnit.MILLISECONDS);
-    LOG.debug("Did schedule ship cycle");
+    new Thread(() -> {
+      while (running.get()) {
+        this.runShipCycle();
+      }
+    }).start();
+    LOG.debug("Did start thread with ship cycle");
 
     telemetry.startTimer();
   }
 
   @Override
   public void finish(boolean cancelled) {
-    if (Objects.nonNull(controlScheduler)) {
-      controlScheduler.shutdown();
-    }
-
-    if (Objects.nonNull(craftScheduler)) {
-      craftScheduler.shutdown();
-    }
-
-    if (Objects.nonNull(dubScheduler)) {
-      dubScheduler.shutdown();
-    }
-
-    if (Objects.nonNull(shipScheduler)) {
-      shipScheduler.shutdown();
-    }
+    running.set(false);
 
     // Shutting down ship work will cascade-send the finish() instruction to dub and ship
     if (Objects.nonNull(shipWork)) {
@@ -256,11 +228,6 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public boolean isFinished() {
-    return getWorkState() == WorkState.Done || getWorkState() == WorkState.Failed;
-  }
-
-  @Override
   public void setOnProgress(@Nullable Consumer<Float> onProgress) {
     this.onProgress = onProgress;
   }
@@ -283,13 +250,17 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public SegmentManager getSegmentManager() {
-    return segmentManager;
+  public NexusEntityStore getEntityStore() {
+    return entityStore;
   }
 
   @Override
   public void reset() {
-    segmentManager.reset();
+    try {
+      entityStore.clear();
+    } catch (Exception e) {
+      LOG.error("Failed to clear entity store", e);
+    }
     craftWork = null;
     dubWork = null;
     shipWork = null;
@@ -378,7 +349,7 @@ public class WorkManagerImpl implements WorkManager {
       LOG.debug("Did run control cycle");
 
     } catch (Exception e) {
-      didFailWhile("running work cycle", e);
+      didFailWhile("running control cycle", e);
     }
   }
 
@@ -395,12 +366,17 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(shipWork);
     assert Objects.nonNull(dubWork);
 
-    LOG.debug("Will run craft cycle");
-    craftWork.runCycle(
-      shipWork.getShippedToChainMicros().orElse(0L),
-      dubWork.getDubbedToChainMicros().orElse(0L)
-    );
-    LOG.debug("Did run craft cycle");
+    try {
+      LOG.debug("Will run craft cycle");
+      craftWork.runCycle(
+        shipWork.getShippedToChainMicros().orElse(0L),
+        dubWork.getDubbedToChainMicros().orElse(0L)
+      );
+      LOG.debug("Did run craft cycle");
+
+    } catch (Exception e) {
+      didFailWhile("running craft cycle", e);
+    }
   }
 
   /**
@@ -415,9 +391,14 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(dubWork);
     assert Objects.nonNull(shipWork);
 
-    LOG.debug("Will run dub cycle");
-    dubWork.runCycle(shipWork.getShippedToChainMicros().orElse(0L));
-    LOG.debug("Did run dub cycle");
+    try {
+      LOG.debug("Will run dub cycle");
+      dubWork.runCycle(shipWork.getShippedToChainMicros().orElse(0L));
+      LOG.debug("Did run dub cycle");
+
+    } catch (Exception e) {
+      didFailWhile("running dub cycle", e);
+    }
   }
 
   /**
@@ -431,9 +412,14 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(shipWork);
 
-    LOG.debug("Will run ship cycle");
-    shipWork.runCycle();
-    LOG.debug("Did run ship cycle");
+    try {
+      LOG.debug("Will run ship cycle");
+      shipWork.runCycle();
+      LOG.debug("Did run ship cycle");
+
+    } catch (Exception e) {
+      didFailWhile("running ship cycle", e);
+    }
 
     if (shipWork.isFinished()) {
       updateState(WorkState.Done);
@@ -543,8 +529,7 @@ public class WorkManagerImpl implements WorkManager {
       telemetry,
       craftFactory,
       fabricatorFactory,
-      segmentManager,
-      store,
+      entityStore,
       audioCache,
       hubContent.get(),
       workConfig.getPersistenceWindowSeconds(),

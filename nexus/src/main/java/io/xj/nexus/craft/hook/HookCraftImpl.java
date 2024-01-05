@@ -50,20 +50,18 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
 
     // Loop instrument mode https://www.pivotaltracker.com/story/show/181815619
     // Should gracefully skip audio in unfulfilled by instrument https://www.pivotaltracker.com/story/show/176373977
-    if (instrument.isPresent() && instrumentAudio.isPresent()) craftHook(instrument.get(), instrumentAudio.get());
-
-    // Finally, update the segment with the crafted content
-    fabricator.done();
+    if (instrument.isPresent() && instrumentAudio.isPresent()) craftHook(fabricator.getTempo(), instrument.get(), instrumentAudio.get());
   }
 
   /**
    Craft hook loop
 
+   @param tempo of main program
    @param instrument to craft
    @param audio      to craft
    @throws NexusException on failure
    */
-  void craftHook(Instrument instrument, InstrumentAudio audio) throws NexusException {
+  void craftHook(double tempo, Instrument instrument, InstrumentAudio audio) throws NexusException {
     var choice = new SegmentChoice();
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());
@@ -71,20 +69,20 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
     choice.setInstrumentType(instrument.getType());
     choice.setInstrumentMode(instrument.getMode());
     choice.setInstrumentId(instrument.getId());
-    fabricator.put(choice);
+    fabricator.put(choice, false);
     var arrangement = new SegmentChoiceArrangement();
     arrangement.setId(UUID.randomUUID());
     arrangement.setSegmentId(fabricator.getSegment().getId());
     arrangement.segmentChoiceId(choice.getId());
-    fabricator.put(arrangement);
+    fabricator.put(arrangement, false);
 
     // Start at zero and keep laying down hook loops until we're out of here
     float pos = 0;
     while (pos < fabricator.getSegment().getTotal()) {
-      long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(pos);
+      long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(tempo, pos);
       long lengthMicros = Math.min(
         fabricator.getTotalSegmentMicros() - startAtSegmentMicros,
-        (long) (audio.getTotalBeats() * fabricator.getMicrosPerBeat())
+        (long) (audio.getTotalBeats() * fabricator.getMicrosPerBeat(tempo))
       );
 
       // of pick
@@ -97,7 +95,7 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
       pick.setAmplitude(1.0f);
       pick.setEvent("HOOK");
       pick.setInstrumentAudioId(audio.getId());
-      fabricator.put(pick);
+      fabricator.put(pick, false);
 
       pos += audio.getTotalBeats();
     }

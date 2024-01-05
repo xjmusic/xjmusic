@@ -144,11 +144,4 @@ public interface EntityFactory {
    @throws EntityException on failure to serialize
    */
   String serialize(Object obj) throws EntityException;
-
-  /**
-   Create an Entity Store
-
-   @return Entity Store
-   */
-  EntityStore createEntityStore();
 }

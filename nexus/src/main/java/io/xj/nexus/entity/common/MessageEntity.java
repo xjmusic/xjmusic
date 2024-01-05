@@ -20,7 +20,6 @@ public abstract class MessageEntity {
   static int BODY_LENGTH_LIMIT = 65535;
   static String BODY_TRUNCATE_SUFFIX = " (truncated to fit character limit)";
   protected ValueException typeException;
-  String body;
   MessageType type;
 
   /**
@@ -32,7 +31,8 @@ public abstract class MessageEntity {
   public static void validate(Object message) throws ValueException {
     try {
       ValueUtils.require(EntityUtils.get(message, "type"), "Type");
-      String body = String.valueOf(EntityUtils.get(message, "body").orElseThrow());
+      String body = String.valueOf(EntityUtils.get(message, "body")
+        .orElseThrow(() -> new ValueException("Body is required")));
       ValueUtils.require(body, "Body");
       if (BODY_LENGTH_LIMIT < body.length())
         EntityUtils.set(message, "body", body.substring(0, BODY_LENGTH_LIMIT - BODY_TRUNCATE_SUFFIX.length()) + BODY_TRUNCATE_SUFFIX);
@@ -40,26 +40,6 @@ public abstract class MessageEntity {
     } catch (EntityException e) {
       throw new ValueException(e);
     }
-  }
-
-  /**
-   Get message body
-
-   @return body
-   */
-  public String getBody() {
-    return body;
-  }
-
-  /**
-   Set message body
-
-   @param body to set
-   @return this message (for chaining setters)
-   */
-  public MessageEntity setBody(String body) {
-    this.body = body;
-    return this;
   }
 
   /**

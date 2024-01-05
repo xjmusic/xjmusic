@@ -5,21 +5,29 @@ package io.xj.nexus.craft.macro_main;
 import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.*;
-import io.xj.nexus.entity.EntityFactoryImpl;
-import io.xj.nexus.entity.EntityStore;
-import io.xj.nexus.entity.EntityStoreImpl;
-import io.xj.nexus.json.JsonProviderImpl;
-import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
-import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.AccountUser;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.tables.pojos.User;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusTopology;
+import io.xj.nexus.entity.EntityFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubTopology;
-import io.xj.nexus.model.*;
+import io.xj.nexus.json.JsonProviderImpl;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
-import io.xj.nexus.persistence.SegmentManagerImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,8 +36,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static io.xj.nexus.NexusHubIntegrationTestingFixtures.*;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAccount;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAccountUser;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildBinding;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildLibrary;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildMeme;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgram;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildSequence;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildTemplate;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildTemplateBinding;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildUser;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -49,11 +68,9 @@ public class MacroFromOverlappingMemeSequencesTest {
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     var store = new NexusEntityStoreImpl(entityFactory);
-    var segmentManager = new SegmentManagerImpl(store);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    EntityStore entityStore = new EntityStoreImpl();
     var fabricatorFactory = new FabricatorFactoryImpl(
-      segmentManager,
+      store,
       jsonapiPayloadFactory,
       jsonProvider
     );
@@ -61,7 +78,7 @@ public class MacroFromOverlappingMemeSequencesTest {
     NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
-    store.deleteAll();
+    store.clear();
 
     // Mock request via HubClient returns fake generated library of hub content
     // Account "bananas"
@@ -161,7 +178,7 @@ public class MacroFromOverlappingMemeSequencesTest {
       "chains-1-segments-9f7s89d8a7892.wav"
     ));
 
-    subject = new MacroMainCraftImpl(fabricatorFactory.fabricate(sourceMaterial, segment2, 48000.0f, 2, null), null);
+    subject = new MacroMainCraftImpl(fabricatorFactory.fabricate(sourceMaterial, segment2.getId(), 48000.0f, 2, null), null);
   }
 
   @Test
@@ -169,7 +186,7 @@ public class MacroFromOverlappingMemeSequencesTest {
     // This test is repeated many times to ensure the correct function of macro choice
     // At 100 repetitions, false positive is 2^100:1 against
     for (int i = 0; i < REPEAT_TIMES; i++) {
-      var result = subject.chooseNextMacroProgram().orElseThrow();
+      var result = subject.chooseMacroProgram();
       assertEquals(macro2a.getId(), result.getId());
     }
   }

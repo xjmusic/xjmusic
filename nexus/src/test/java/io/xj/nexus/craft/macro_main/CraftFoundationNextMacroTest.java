@@ -3,23 +3,29 @@ package io.xj.nexus.craft.macro_main;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramType;
-import io.xj.nexus.entity.EntityFactoryImpl;
-import io.xj.nexus.entity.EntityUtils;
-import io.xj.nexus.json.JsonProvider;
-import io.xj.nexus.json.JsonProviderImpl;
-import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
-import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactoryImpl;
+import io.xj.nexus.entity.EntityFactoryImpl;
+import io.xj.nexus.entity.EntityUtils;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubTopology;
-import io.xj.nexus.model.*;
+import io.xj.nexus.json.JsonProvider;
+import io.xj.nexus.json.JsonProviderImpl;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
+import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
-import io.xj.nexus.persistence.SegmentManager;
-import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.nexus.persistence.SegmentUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,15 +66,14 @@ public class CraftFoundationNextMacroTest {
       NexusTopology.buildNexusApiTopology(entityFactory);
       JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
       var store = new NexusEntityStoreImpl(entityFactory);
-      SegmentManager segmentManager = new SegmentManagerImpl(store);
-      var fabricatorFactory = new FabricatorFactoryImpl(
-        segmentManager,
+        var fabricatorFactory = new FabricatorFactoryImpl(
+        store,
         jsonapiPayloadFactory,
         jsonProvider
       );
 
       // Manipulate the underlying entity store; reset before each test
-      store.deleteAll();
+      store.clear();
 
       // Mock request via HubClient returns fake generated library of hub content
       NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
@@ -117,11 +122,11 @@ public class CraftFoundationNextMacroTest {
       // Chain "Test Print #1" has a planned segment
       Segment segment4 = store.put(buildSegment(chain1, 3, SegmentState.PLANNED, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
 
-      Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 48000.0f, 2, null);
+      Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
 
       craftFactory.macroMain(fabricator, null).doWork();
 
-      Segment result = store.getSegment(segment4.getId()).orElseThrow();
+      Segment result = store.readSegment(segment4.getId()).orElseThrow();
       assertEquals(SegmentType.NEXT_MACRO, result.getType());
       assertEquals(16 * MICROS_PER_SECOND * SECONDS_PER_MINUTE / 140, (long) Objects.requireNonNull(result.getDurationMicros()));
       assertEquals(Integer.valueOf(16), result.getTotal());
@@ -131,13 +136,13 @@ public class CraftFoundationNextMacroTest {
       // assert memes
       assertSameItems(
         List.of("REGRET", "CHUNKY", "HINDSIGHT", "TANGY"),
-        EntityUtils.namesOf(store.getAll(result.getId(), SegmentMeme.class)));
+        EntityUtils.namesOf(store.readAll(result.getId(), SegmentMeme.class)));
       // assert chords
       assertSameItems(List.of("Ab -", "G -"),
-        EntityUtils.namesOf(store.getAll(result.getId(), SegmentChord.class)));
+        EntityUtils.namesOf(store.readAll(result.getId(), SegmentChord.class)));
       // assert choices
       Collection<SegmentChoice> segmentChoices =
-        store.getAll(result.getId(), SegmentChoice.class);
+        store.readAll(result.getId(), SegmentChoice.class);
       // assert macro choice
       SegmentChoice macroChoice = SegmentUtils.findFirstOfType(segmentChoices, ProgramType.Macro);
       assertEquals(fake.program3_sequence0_binding0.getId(), macroChoice.getProgramSequenceBindingId());

@@ -13,12 +13,33 @@ import io.xj.hub.music.Chord;
 import io.xj.hub.music.Note;
 import io.xj.hub.music.NoteRange;
 import io.xj.hub.music.StickyBun;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.model.*;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentMessageType;
+import io.xj.nexus.model.SegmentType;
 
-import javax.sound.sampled.AudioFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 public interface Fabricator {
 
@@ -51,19 +72,14 @@ public interface Fabricator {
   void addInfoMessage(String body);
 
   /**
-   Remove an Entity by type and id
+   Delete an entity specified by Segment id, class and id
 
-   @param entity to delete
+   @param <N>       type of entity
+   @param segmentId partition (segment id) of entity
+   @param type      of class to delete
+   @param id        to delete
    */
-  <N> void delete(N entity);
-
-  /**
-   Update the original Segment submitted for craft,
-   cache it in the internal in-memory object, and persisted in the database
-   ALWAYS persist Segment content as JSON when work is performed https://www.pivotaltracker.com/story/show/162361525
-   musical evolution depends on segments that continue the use of a main sequence https://www.pivotaltracker.com/story/show/162361534
-   */
-  void done() throws NexusException;
+  <N> void delete(int segmentId, Class<N> type, UUID id) throws NexusException;
 
   /**
    Get arrangements for segment
@@ -79,16 +95,6 @@ public interface Fabricator {
    @return segments arrangements for the given segment choice
    */
   Collection<SegmentChoiceArrangement> getArrangements(Collection<SegmentChoice> choices);
-
-  /**
-   Compute the audio volume for a given pick
-   <p>
-   Instrument has overall volume parameter https://www.pivotaltracker.com/story/show/179215413
-
-   @param pick for which to get audio volume
-   @return audio volume of pick
-   */
-  double getAudioVolume(SegmentChoiceArrangementPick pick);
 
   /**
    Get the Chain
@@ -209,14 +215,6 @@ public interface Fabricator {
    @return InstrumentConfig from a given instrument, with fallback values
    */
   InstrumentConfig getInstrumentConfig(Instrument instrument);
-
-  /**
-   Get the InstrumentConfig for a given pick, with fallback to instrument section of injected config values
-
-   @param pick to get config of
-   @return InstrumentConfig from a given instrument, with fallback values
-   */
-  InstrumentConfig getInstrumentConfig(SegmentChoiceArrangementPick pick) throws NexusException;
 
   /**
    Key for any pick designed to collide at same voice id + name
@@ -457,15 +455,16 @@ public interface Fabricator {
    Segment should *never* be fabricated longer than its total beats. https://www.pivotaltracker.com/story/show/166370833
    Segment wherein tempo changes expect perfectly smooth sound of previous segment through to following segment https://www.pivotaltracker.com/story/show/153542275
 
-   @param p position in beats
+   @param tempo    in beats per minute
+   @param position in beats
    @return seconds of start
    */
-  long getSegmentMicrosAtPosition(double p) throws NexusException;
+  long getSegmentMicrosAtPosition(double tempo, double position);
 
   /**
    @return the total number of seconds in the segment
    */
-  long getTotalSegmentMicros() throws NexusException;
+  long getTotalSegmentMicros();
 
   /**
    The segment being fabricated
@@ -482,18 +481,18 @@ public interface Fabricator {
   List<SegmentChord> getSegmentChords();
 
   /**
+   Get all segment chord voicings
+
+   @return segment chord voicings
+   */
+  Collection<SegmentChordVoicing> getChordVoicings();
+
+  /**
    Get all segment memes
 
    @return segment memes
    */
   Collection<SegmentMeme> getSegmentMemes();
-
-  /**
-   Returns the segment ship key concatenated with a specified extension
-
-   @return Output Metadata Key
-   */
-  String getSegmentShipKey(String extension);
 
   /**
    Get the sequence for a Choice either directly (beat- and detail-type sequences), or by sequence-pattern (macro- or main-type sequences) https://www.pivotaltracker.com/story/show/165954619
@@ -567,7 +566,7 @@ public interface Fabricator {
    @param chord to get voicing for
    @return chord voicing for chord
    */
-  Optional<SegmentChordVoicing> getVoicing(SegmentChord chord, InstrumentType type);
+  Optional<SegmentChordVoicing> chooseVoicing(SegmentChord chord, InstrumentType type);
 
   /**
    Does the program of the specified Choice have at least N more sequence binding offsets available?
@@ -671,15 +670,16 @@ public interface Fabricator {
    If it's a SegmentChoice...
    Should add meme from ALL program and instrument types! https://www.pivotaltracker.com/story/show/181336704
    - Add memes of choices to segment in order to affect further choices.
-   - Add all memes of this choice to the workbench, from target program, program sequence binding, or instrument if present
+   - Add all memes of this choice, from target program, program sequence binding, or instrument if present
    - Enhances: Straightforward meme logic https://www.pivotaltracker.com/story/show/179078533
    - Enhances: XJ should not add memes to Segment for program/instrument that was not successfully chosen https://www.pivotaltracker.com/story/show/180468224
    <p>
 
    @param entity to put
+   @param force overriding safeguards (e.g. choices must not violate meme stack, memes must be unique)
    @return entity successfully put
    */
-  <N> N put(N entity) throws NexusException;
+  <N> N put(N entity, boolean force) throws NexusException;
 
   /**
    Set the preferred audio for a key
@@ -706,7 +706,7 @@ public interface Fabricator {
 
    @param segment to set
    */
-  void putSegment(Segment segment) throws NexusException;
+  void updateSegment(Segment segment) throws NexusException;
 
   /**
    Get the Segment Retrospective
@@ -723,25 +723,11 @@ public interface Fabricator {
   HubContent sourceMaterial();
 
   /**
-   If in local mode, use PCM, else use the template config
-
-   @return output encoding
-   */
-  AudioFormat.Encoding computeOutputEncoding();
-
-  /**
-   If in local mode, use 16, else use the template config
-
-   @return output sample bits
-   */
-  int computeOutputSampleBits();
-
-  /**
    Get the number of micros per beat for the current segment
 
    @return micros per beat
    */
-  Double getMicrosPerBeat() throws NexusException;
+  Double getMicrosPerBeat(double tempo) throws NexusException;
 
   /**
    Get the second macro sequence binding offset of a given macro program
@@ -750,4 +736,9 @@ public interface Fabricator {
    @return second macro sequence binding offset
    */
   int getSecondMacroSequenceBindingOffset(Program macroProgram);
+
+  /**
+   @return the tempo of the current main program
+   */
+  double getTempo() throws NexusException;
 }

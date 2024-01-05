@@ -65,10 +65,7 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
     for (InstrumentAudio audio : audioIds.stream()
       .flatMap(audioId -> fabricator.sourceMaterial().getInstrumentAudio(audioId).stream())
       .toList())
-      craftPercLoop(audio);
-
-    // Finally, update the segment with the crafted content
-    fabricator.done();
+      craftPercLoop(fabricator.getTempo(), audio);
   }
 
   /**
@@ -97,10 +94,11 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
   /**
    Craft percussion loop
 
+   @param tempo of main program
    @param audio for which to craft segment
    */
   @SuppressWarnings("DuplicatedCode")
-  void craftPercLoop(InstrumentAudio audio) throws NexusException {
+  void craftPercLoop(double tempo, InstrumentAudio audio) throws NexusException {
     var choice = new SegmentChoice();
     var instrument = fabricator.sourceMaterial().getInstrument(audio.getInstrumentId())
       .orElseThrow(() -> new NexusException("Can't get Instrument Audio!"));
@@ -110,22 +108,22 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
     choice.setInstrumentType(instrument.getType());
     choice.setInstrumentMode(instrument.getMode());
     choice.setInstrumentId(audio.getInstrumentId());
-    fabricator.put(choice);
+    fabricator.put(choice, false);
     var arrangement = new SegmentChoiceArrangement();
     arrangement.setId(UUID.randomUUID());
     arrangement.setSegmentId(fabricator.getSegment().getId());
     arrangement.segmentChoiceId(choice.getId());
-    fabricator.put(arrangement);
+    fabricator.put(arrangement, false);
 
     // Start at zero and keep laying down perc loops until we're out of here
     float beats = 0;
     while (beats < fabricator.getSegment().getTotal()) {
 
       // Pick attributes are expressed "rendered" as actual seconds
-      long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(beats);
+      long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(tempo, beats);
       long lengthMicros = Math.min(
         fabricator.getTotalSegmentMicros() - startAtSegmentMicros,
-        (long) (audio.getTotalBeats() * fabricator.getMicrosPerBeat())
+        (long) (audio.getTotalBeats() * fabricator.getMicrosPerBeat(tempo))
       );
 
       // of pick
@@ -138,7 +136,7 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
       pick.setAmplitude(1.0f);
       pick.setEvent("PERCLOOP");
       pick.setInstrumentAudioId(audio.getId());
-      fabricator.put(pick);
+      fabricator.put(pick, false);
 
       beats += audio.getTotalBeats();
     }

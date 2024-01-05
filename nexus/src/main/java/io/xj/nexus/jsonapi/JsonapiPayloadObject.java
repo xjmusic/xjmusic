@@ -4,11 +4,16 @@ package io.xj.nexus.jsonapi;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.xj.nexus.entity.EntityUtils;
 import io.xj.nexus.entity.EntityException;
+import io.xj.nexus.entity.EntityUtils;
 
-import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  Object in a Payload sent/received to/from a XJ Music REST JSON:API service
@@ -135,19 +140,6 @@ public class JsonapiPayloadObject {
   }
 
   /**
-   Get the primary object of a relationship payload
-
-   @param relationshipName to get payload for, and extract many payload resource object
-   @return (optional) payload resource object if found, or empty
-   */
-  public Collection<JsonapiPayloadObject> getRelationshipDataMany(String relationshipName) {
-    if (!getRelationships().containsKey(relationshipName))
-      return new ArrayList<>();
-
-    return getRelationships().get(relationshipName).getDataMany();
-  }
-
-  /**
    get Relationships
 
    @return Relationships
@@ -253,19 +245,6 @@ public class JsonapiPayloadObject {
   /**
    Test whether this payload object has the requested belongs-to relationship
 
-   @param parentType of relationship
-   @param parentIds  of relationship
-   @return true if this payload object has the requested belongs-to relationship
-   */
-  public boolean belongsTo(Class<?> parentType, Collection<String> parentIds) {
-    String key = EntityUtils.toBelongsTo(type);
-    return relationships.containsKey(key) &&
-      relationships.get(key).hasDataOne(EntityUtils.toType(type), parentIds);
-  }
-
-  /**
-   Test whether this payload object has the requested belongs-to relationship
-
    @param type of relationship
    @param id   of relationship
    @return true if this payload object has the requested belongs-to relationship
@@ -334,88 +313,5 @@ public class JsonapiPayloadObject {
    */
   public boolean isType(Class<?> type) {
     return this.type.equals(EntityUtils.toType(type));
-  }
-
-  /**
-   Check whether an attribute value matches the given Long value
-
-   @param attrName to check value of
-   @param value    to check for equality to
-   @return true if attribute value is equal to specified Long value
-   */
-  public boolean isAttrEqual(String attrName, Long value) {
-    try {
-      return Objects.nonNull(value) &&
-        value.equals(Long.valueOf(String.valueOf(getAttribute(attrName))));
-    } catch (Exception e) {
-      return false;
-    }
-  }
-
-  /**
-   Check whether an attribute value matches the given String value
-
-   @param attrName to check value of
-   @param value    to check for equality to
-   @return true if attribute value is equal to specified String value
-   */
-  public boolean isAttrEqual(String attrName, String value) {
-    try {
-      return Objects.nonNull(value) &&
-        value.equals(String.valueOf(getAttribute(attrName)));
-    } catch (Exception e) {
-      return false;
-    }
-  }
-
-  /**
-   Check whether an attribute value, parsed as an Instant, is before the given Instant value
-
-   @param attrName to check value of
-   @param value    to check for Instant before
-   @return true if attribute value, parsed as an Instant, is before the given Instant value
-   */
-  public boolean isAttrBefore(String attrName, Instant value) {
-    try {
-      return Objects.nonNull(value) &&
-        Instant.parse(String.valueOf(getAttribute(attrName))).isBefore(value);
-    } catch (Exception e) {
-      return false;
-    }
-  }
-
-  /**
-   Check whether an attribute value is null
-
-   @param attrName to check for null
-   @return true if attribute value is null
-   */
-  public boolean isAttrNull(String attrName) {
-    return Objects.isNull(getAttribute(attrName));
-  }
-
-
-  /**
-   Get the Long value with the given attribute name
-
-   @param attrName to get long value of
-   @return long value of given attribute name
-   */
-  public Long getAttrLongValue(String attrName) {
-    return Long.valueOf(String.valueOf(getAttribute(attrName).orElse(-1L)));
-  }
-
-  /**
-   Get the Instant value with the given attribute name
-
-   @param attrName to get instant value of
-   @return instant value of given attribute name
-   */
-  public Instant getAttrInstantValue(String attrName) {
-    try {
-      return Instant.parse(String.valueOf(getAttribute(attrName).orElseThrow()));
-    } catch (Exception e) {
-      return Instant.MIN;
-    }
   }
 }
