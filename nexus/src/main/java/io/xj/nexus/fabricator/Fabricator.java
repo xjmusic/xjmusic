@@ -9,6 +9,7 @@ import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.meme.MemeTaxonomy;
 import io.xj.hub.music.Chord;
 import io.xj.hub.music.Note;
 import io.xj.hub.music.NoteRange;
@@ -741,4 +742,9 @@ public interface Fabricator {
    @return the tempo of the current main program
    */
   double getTempo() throws NexusException;
+
+  /**
+   @return the meme taxonomy for the source material
+   */
+  MemeTaxonomy getMemeTaxonomy();
 }

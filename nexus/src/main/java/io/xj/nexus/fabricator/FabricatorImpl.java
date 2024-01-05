@@ -11,6 +11,7 @@ import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.meme.MemeStack;
+import io.xj.hub.meme.MemeTaxonomy;
 import io.xj.hub.music.Accidental;
 import io.xj.hub.music.Chord;
 import io.xj.hub.music.Note;
@@ -919,6 +920,16 @@ public class FabricatorImpl implements Fabricator {
       .map(ProgramSequenceBinding::getOffset)
       .collect(Collectors.toSet()).stream().sorted().toList();
     return offsets.size() > 1 ? offsets.get(1) : offsets.get(0);
+  }
+
+  @Override
+  public MemeTaxonomy getMemeTaxonomy() {
+    try {
+      var templateConfig = new TemplateConfig(sourceMaterial.getTemplate());
+      return templateConfig.getMemeTaxonomy();
+    } catch (ValueException e) {
+      return MemeTaxonomy.empty();
+    }
   }
 
   @Override

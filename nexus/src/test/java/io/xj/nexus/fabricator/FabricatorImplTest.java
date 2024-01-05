@@ -388,5 +388,12 @@ public class FabricatorImplTest {
     assertArrayEquals(bun1.getValues().toArray(), result1.getValues().toArray());
   }
 
+  @Test
+  public void getMemeTaxonomy() {
+    var result = subject.getMemeTaxonomy();
 
+    assertEquals(2, result.getCategories().size());
+    assertEquals("COLOR", result.getCategories().get(0).getName());
+    assertEquals("SEASON", result.getCategories().get(1).getName());
+  }
 }
