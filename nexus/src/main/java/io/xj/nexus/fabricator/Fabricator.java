@@ -170,13 +170,6 @@ public interface Fabricator {
   Optional<SegmentChoice> getCurrentMainChoice();
 
   /**
-   Get the current main program
-
-   @return main program if present
-   */
-  Program getCurrentMainProgram() throws NexusException;
-
-  /**
    Get the sequence targeted by the current main choice
 
    @return current main sequence

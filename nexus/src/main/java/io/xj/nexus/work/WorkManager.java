@@ -105,7 +105,13 @@ public interface WorkManager {
 
    @param macroProgram to go to
    */
-  void gotoMacroProgram(Program macroProgram);
+  void doOverrideMacro(Program macroProgram);
+
+  /**
+   Reset the macro program override
+   https://www.pivotaltracker.com/story/show/186003440
+   */
+  void resetOverrideMacro();
 
   /**
    @return the meme taxonomy from the current template configuration
@@ -113,10 +119,16 @@ public interface WorkManager {
   Optional<MemeTaxonomy> getMemeTaxonomy();
 
   /**
-   Manually go to a specific taxonomy category meme
+   Manually go to a specific taxonomy category meme, and force until reset
    https://www.pivotaltracker.com/story/show/186714075
 
    @param memes specific (assumed allowably) set of taxonomy category memes
    */
-  void gotoTaxonomyCategoryMemes(Collection<String> memes);
+  void doOverrideMemes(Collection<String> memes);
+
+  /**
+   Reset the taxonomy category memes
+   https://www.pivotaltracker.com/story/show/186714075
+   */
+  void resetOverrideMemes();
 }

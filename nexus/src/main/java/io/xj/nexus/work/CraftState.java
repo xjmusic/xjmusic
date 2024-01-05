@@ -2,7 +2,6 @@ package io.xj.nexus.work;
 
 public enum CraftState {
   INITIAL,
-  READY,
-  GOTO_MACRO,
-  GOTO_MEMES,
+  CONTINUE,
+  REWRITE,
 }

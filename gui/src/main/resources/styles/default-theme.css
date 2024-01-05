@@ -176,25 +176,21 @@
   -fx-cursor: hand;
 }
 
-.macro-selection-container {
+.selection-container {
   -fx-padding: 10 10 10 10;
 }
 
-.macro-selection-container .button {
+.selection-container .button {
   -fx-padding: 10 20 10 20;
   -fx-max-width: Infinity;
 }
 
-.taxonomy-selection-container {
-  -fx-padding: 10 10 10 10;
+/*noinspection CssInvalidPseudoSelector*/
+.selection-container .button:engaged {
+  -fx-background-color: green;
 }
 
-.taxonomy-selection-container .button {
-  -fx-padding: 10 20 10 20;
-  -fx-max-width: Infinity;
-}
-
-.taxonomy-selection-container .category-label {
+.selection-container .group-label {
   -fx-max-width: Infinity;
   -fx-padding: 30 20 7 20;
   -fx-font-size: 1.2em;

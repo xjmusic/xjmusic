@@ -177,6 +177,13 @@ public class WorkManagerImpl implements WorkManager {
     );
     LOG.debug("Did initialize audio cache");
 
+    try {
+      entityStore.clear();
+    } catch (Exception e) {
+      LOG.error("Failed to clear entity store", e);
+    }
+    LOG.debug("Did clear entity store");
+
     startedAtMillis.set(System.currentTimeMillis());
     isAudioLoaded.set(false);
     updateState(WorkState.Starting);
@@ -247,10 +254,16 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public void gotoMacroProgram(Program macroProgram) {
+  public void doOverrideMacro(Program macroProgram) {
     assert Objects.nonNull(craftWork);
     assert Objects.nonNull(dubWork);
-    craftWork.gotoMacroProgram(macroProgram, dubWork.getDubbedToChainMicros().orElse(0L));
+    craftWork.doOverrideMacro(macroProgram, dubWork.getDubbedToChainMicros().orElse(0L));
+  }
+
+  @Override
+  public void resetOverrideMacro() {
+    assert Objects.nonNull(craftWork);
+    craftWork.resetOverrideMacro();
   }
 
   @Override
@@ -265,10 +278,16 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public void gotoTaxonomyCategoryMemes(Collection<String> memes) {
+  public void doOverrideMemes(Collection<String> memes) {
     assert Objects.nonNull(craftWork);
     assert Objects.nonNull(dubWork);
-    craftWork.gotoTaxonomyCategoryMemes(memes, dubWork.getDubbedToChainMicros().orElse(0L));
+    craftWork.doOverrideMemes(memes, dubWork.getDubbedToChainMicros().orElse(0L));
+  }
+
+  @Override
+  public void resetOverrideMemes() {
+    assert Objects.nonNull(craftWork);
+    craftWork.resetOverrideMemes();
   }
 
   @Override
@@ -278,11 +297,6 @@ public class WorkManagerImpl implements WorkManager {
 
   @Override
   public void reset() {
-    try {
-      entityStore.clear();
-    } catch (Exception e) {
-      LOG.error("Failed to clear entity store", e);
-    }
     craftWork = null;
     dubWork = null;
     shipWork = null;
