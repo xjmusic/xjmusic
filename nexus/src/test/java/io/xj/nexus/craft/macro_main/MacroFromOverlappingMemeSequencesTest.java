@@ -16,8 +16,6 @@ import io.xj.hub.tables.pojos.User;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.entity.EntityFactoryImpl;
-import io.xj.nexus.entity.EntityStore;
-import io.xj.nexus.entity.EntityStoreImpl;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubTopology;
@@ -71,7 +69,6 @@ public class MacroFromOverlappingMemeSequencesTest {
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     var store = new NexusEntityStoreImpl(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    EntityStore entityStore = new EntityStoreImpl();
     var fabricatorFactory = new FabricatorFactoryImpl(
       store,
       jsonapiPayloadFactory,

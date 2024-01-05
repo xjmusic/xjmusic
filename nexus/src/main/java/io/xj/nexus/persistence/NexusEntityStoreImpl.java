@@ -10,7 +10,6 @@ import io.xj.hub.util.ValueUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.entity.EntityException;
 import io.xj.nexus.entity.EntityFactory;
-import io.xj.nexus.entity.EntityStoreImpl;
 import io.xj.nexus.entity.EntityUtils;
 import io.xj.nexus.entity.common.ChordEntity;
 import io.xj.nexus.entity.common.MessageEntity;
@@ -53,7 +52,7 @@ import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
  Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in JSON:API record stored keyed by chain or segment id in memory
  */
 public class NexusEntityStoreImpl implements NexusEntityStore {
-  static final Logger LOG = LoggerFactory.getLogger(EntityStoreImpl.class);
+  static final Logger LOG = LoggerFactory.getLogger(NexusEntityStoreImpl.class);
   static final String SEGMENT_ID_ATTRIBUTE = EntityUtils.toIdAttribute(EntityUtils.toBelongsTo(Segment.class));
   public static final Long LENGTH_MINIMUM_MICROS = MICROS_PER_SECOND;
   public static final float AMPLITUDE_MINIMUM = 0.0f;

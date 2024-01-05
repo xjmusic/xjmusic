@@ -169,11 +169,6 @@ public class EntityFactoryImpl implements EntityFactory {
     }
   }
 
-  @Override
-  public EntityStore createEntityStore() {
-    return new EntityStoreImpl();
-  }
-
   /**
    Ensure the given type exists in the inner schema, else add it
 
