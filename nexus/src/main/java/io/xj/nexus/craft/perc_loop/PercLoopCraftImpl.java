@@ -66,9 +66,6 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
       .flatMap(audioId -> fabricator.sourceMaterial().getInstrumentAudio(audioId).stream())
       .toList())
       craftPercLoop(fabricator.getTempo(), audio);
-
-    // Finally, update the segment with the crafted content
-    fabricator.done();
   }
 
   /**

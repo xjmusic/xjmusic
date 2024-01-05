@@ -79,8 +79,5 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
           fabricator.addWarningMessage(String.format("Cannot craft unsupported mode %s for Instrument[%s]", instrument.get().getMode(), instrument.get().getId()));
       }
     }
-
-    // Finally, update the segment with the crafted content
-    fabricator.done();
   }
 }

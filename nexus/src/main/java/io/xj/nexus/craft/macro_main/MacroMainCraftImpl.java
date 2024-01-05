@@ -138,8 +138,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     segment.setDensity(computeSegmentDensity(segment.getDelta(), macroSequence, mainSequence));
 
     // Finished
-    fabricator.putSegment(segment);
-    fabricator.done();
+    fabricator.updateSegment(segment);
   }
 
   /**

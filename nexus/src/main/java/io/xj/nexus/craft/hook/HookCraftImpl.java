@@ -51,9 +51,6 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
     // Loop instrument mode https://www.pivotaltracker.com/story/show/181815619
     // Should gracefully skip audio in unfulfilled by instrument https://www.pivotaltracker.com/story/show/176373977
     if (instrument.isPresent() && instrumentAudio.isPresent()) craftHook(fabricator.getTempo(), instrument.get(), instrumentAudio.get());
-
-    // Finally, update the segment with the crafted content
-    fabricator.done();
   }
 
   /**

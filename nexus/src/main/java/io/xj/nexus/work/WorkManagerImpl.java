@@ -33,8 +33,6 @@ import io.xj.nexus.mixer.MixerFactory;
 import io.xj.nexus.mixer.MixerFactoryImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
-import io.xj.nexus.persistence.SegmentManager;
-import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.nexus.ship.broadcast.BroadcastFactory;
 import io.xj.nexus.ship.broadcast.BroadcastFactoryImpl;
 import io.xj.nexus.telemetry.Telemetry;
@@ -64,8 +62,7 @@ public class WorkManagerImpl implements WorkManager {
   private final FabricatorFactory fabricatorFactory;
   private final HubClient hubClient;
   private final MixerFactory mixerFactory;
-  private final NexusEntityStore store;
-  private final SegmentManager segmentManager;
+  private final NexusEntityStore entityStore;
   private final Telemetry telemetry;
   private final AtomicReference<HubContent> hubContent = new AtomicReference<>();
   private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
@@ -108,8 +105,7 @@ public class WorkManagerImpl implements WorkManager {
     FabricatorFactory fabricatorFactory,
     HubClient hubClient,
     MixerFactory mixerFactory,
-    NexusEntityStore store,
-    SegmentManager segmentManager
+    NexusEntityStore store
   ) {
     this.broadcastFactory = broadcastFactory;
     this.craftFactory = craftFactory;
@@ -117,8 +113,7 @@ public class WorkManagerImpl implements WorkManager {
     this.fabricatorFactory = fabricatorFactory;
     this.hubClient = hubClient;
     this.mixerFactory = mixerFactory;
-    this.store = store;
-    this.segmentManager = segmentManager;
+    this.entityStore = store;
     this.telemetry = telemetry;
   }
 
@@ -131,10 +126,9 @@ public class WorkManagerImpl implements WorkManager {
     JsonProvider jsonProvider = new JsonProviderImpl();
     EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
     NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
-    SegmentManager segmentManager = new SegmentManagerImpl(nexusEntityStore);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
-      segmentManager,
+      nexusEntityStore,
       jsonapiPayloadFactory,
       jsonProvider
     );
@@ -151,8 +145,7 @@ public class WorkManagerImpl implements WorkManager {
       fabricatorFactory,
       hubClient,
       mixerFactory,
-      nexusEntityStore,
-      segmentManager
+      nexusEntityStore
     );
   }
 
@@ -235,11 +228,6 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public boolean isFinished() {
-    return getWorkState() == WorkState.Done || getWorkState() == WorkState.Failed;
-  }
-
-  @Override
   public void setOnProgress(@Nullable Consumer<Float> onProgress) {
     this.onProgress = onProgress;
   }
@@ -262,13 +250,17 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public SegmentManager getSegmentManager() {
-    return segmentManager;
+  public NexusEntityStore getEntityStore() {
+    return entityStore;
   }
 
   @Override
   public void reset() {
-    segmentManager.reset();
+    try {
+      entityStore.clear();
+    } catch (Exception e) {
+      LOG.error("Failed to clear entity store", e);
+    }
     craftWork = null;
     dubWork = null;
     shipWork = null;
@@ -522,8 +514,7 @@ public class WorkManagerImpl implements WorkManager {
       telemetry,
       craftFactory,
       fabricatorFactory,
-      segmentManager,
-      store,
+      entityStore,
       audioCache,
       hubContent.get(),
       workConfig.getPersistenceWindowSeconds(),

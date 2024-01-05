@@ -5,8 +5,6 @@ package io.xj.nexus.fabricator;
 import io.xj.hub.HubContent;
 import io.xj.hub.util.ValueException;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.ManagerFatalException;
 import jakarta.annotation.Nullable;
@@ -23,7 +21,7 @@ public interface FabricatorFactory {
    Create a fabricator to fabricate a segment
 
    @param sourceMaterial      from which to fabricate
-   @param segment             segment to be fabricated
+   @param segmentId           segment to be fabricated
    @param outputFrameRate     output frame rate
    @param outputChannels      output channels
    @param overrideSegmentType override segment type
@@ -33,7 +31,7 @@ public interface FabricatorFactory {
    */
   Fabricator fabricate(
     HubContent sourceMaterial,
-    Segment segment,
+    Integer segmentId,
     double outputFrameRate,
     int outputChannels,
     @Nullable SegmentType overrideSegmentType
@@ -46,26 +44,12 @@ public interface FabricatorFactory {
    ... do things with this content, like craft or dub ...
    content.putReport();
 
-   @param segment        Segment that's on the workbench
-   @param sourceMaterial to get answers about the segment content
+   @param segmentId Segment that's currently on the workbench
    @return SegmentRetrospective
    @throws NexusException            on retry-able network or service failure
    @throws FabricationFatalException on failure requiring a chain restart https://www.pivotaltracker.com/story/show/182131722
    */
   SegmentRetrospective loadRetrospective(
-    Segment segment,
-    HubContent sourceMaterial
+    Integer segmentId
   ) throws NexusException, FabricationFatalException;
-
-  /**
-   Create a workbench to fabricate a particular segment
-
-   @param segment Segment to be worked on
-   @return SegmentWorkbench
-   @throws NexusException on failure
-   */
-  SegmentWorkbench setupWorkbench(
-    Chain chain,
-    Segment segment
-  ) throws NexusException;
 }

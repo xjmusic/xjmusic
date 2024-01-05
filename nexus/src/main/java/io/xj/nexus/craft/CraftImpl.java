@@ -2,20 +2,55 @@
 
 package io.xj.nexus.craft;
 
-import io.xj.hub.enums.*;
-import io.xj.hub.music.*;
-import io.xj.hub.tables.pojos.*;
-import io.xj.hub.util.*;
+import io.xj.hub.enums.InstrumentMode;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.music.Accidental;
+import io.xj.hub.music.Bar;
+import io.xj.hub.music.Chord;
+import io.xj.hub.music.Note;
+import io.xj.hub.music.NoteRange;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.util.CsvUtils;
+import io.xj.hub.util.EntityUtils;
+import io.xj.hub.util.MarbleBag;
+import io.xj.hub.util.StringUtils;
+import io.xj.hub.util.TremendouslyRandom;
+import io.xj.hub.util.ValueUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
 import io.xj.nexus.fabricator.NameIsometry;
 import io.xj.nexus.hub_client.HubClientException;
-import io.xj.nexus.model.*;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentType;
 import jakarta.annotation.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -495,7 +530,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     double duration = Math.min(event.getDuration(), toPosition - segmentPosition);
     var chord = fabricator.getChordAt(segmentPosition);
-    Optional<SegmentChordVoicing> voicing = chord.isPresent() ? fabricator.getVoicing(chord.get(), instrument.getType()) : Optional.empty();
+    Optional<SegmentChordVoicing> voicing = chord.isPresent() ? fabricator.chooseVoicing(chord.get(), instrument.getType()) : Optional.empty();
 
     var volRatio = computeVolumeRatioForPickedNote(choice, segmentPosition);
     if (0 >= volRatio) return;
@@ -557,7 +592,7 @@ public class CraftImpl extends FabricationWrapperImpl {
         continue;
       }
 
-      fabricator.delete(pick);
+      fabricator.delete(pick.getSegmentId(), SegmentChoiceArrangementPick.class, pick.getId());
     }
   }
 

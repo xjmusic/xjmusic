@@ -2,6 +2,7 @@
 package io.xj.nexus.work;
 
 import io.xj.hub.HubContent;
+import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.audio_cache.AudioCache;
@@ -14,7 +15,9 @@ import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.nexus.persistence.*;
+import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.persistence.SegmentUtils;
 import io.xj.nexus.telemetry.Telemetry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +43,7 @@ public class ComplexLibraryTest {
   private static final int GENERATED_FIXTURE_COMPLEXITY = 3;
   private static final long WORK_CYCLE_MILLIS = 120;
   long startTime = System.currentTimeMillis();
-  SegmentManager segmentManager;
+  NexusEntityStore entityStore;
   CraftWork work;
 
   @Mock
@@ -67,11 +70,10 @@ public class ComplexLibraryTest {
 
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
-    var store = new NexusEntityStoreImpl(entityFactory);
-    segmentManager = new SegmentManagerImpl(store);
+    entityStore = new NexusEntityStoreImpl(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     var fabricatorFactory = new FabricatorFactoryImpl(
-      segmentManager,
+      entityStore,
       jsonapiPayloadFactory,
       jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
@@ -79,7 +81,7 @@ public class ComplexLibraryTest {
 
     // Manipulate the underlying entity store; reset before each test
     NexusEntityStore test = new NexusEntityStoreImpl(entityFactory);
-    test.deleteAll();
+    test.clear();
 
     // Dependencies
     CraftFactory craftFactory = new CraftFactoryImpl();
@@ -89,8 +91,7 @@ public class ComplexLibraryTest {
       telemetry,
       craftFactory,
       fabricatorFactory,
-      segmentManager,
-      store,
+      entityStore,
       audioCache,
       content,
       100,
@@ -129,16 +130,11 @@ public class ComplexLibraryTest {
 
    @return true if it has at least N segments
    */
-  boolean hasSegmentsDubbedPastMinimumOffset() {
-    try {
-      var chain = work.getChain();
-      if (chain.isEmpty())
-        return false;
-      return segmentManager.readLastCraftedSegment()
-        .filter(value -> MARATHON_NUMBER_OF_SEGMENTS <= value.getId()).isPresent();
-
-    } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException ignored) {
+  boolean hasSegmentsDubbedPastMinimumOffset() throws NexusException {
+    var chain = work.getChain();
+    if (chain.isEmpty())
       return false;
-    }
+    return SegmentUtils.getLastCrafted(entityStore.readAllSegments())
+      .filter(value -> MARATHON_NUMBER_OF_SEGMENTS <= value.getId()).isPresent();
   }
 }

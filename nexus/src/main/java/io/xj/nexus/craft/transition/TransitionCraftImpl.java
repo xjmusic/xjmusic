@@ -77,9 +77,6 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
           craftTransition(tempo, chosen.get().getId());
         }
       }
-
-    // Finally, update the segment with the crafted content
-    fabricator.done();
   }
 
   /**

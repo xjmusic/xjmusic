@@ -8,18 +8,26 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.hub.music.StickyBun;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.nexus.NexusException;
+import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.nexus.NexusTopology;
 import io.xj.nexus.entity.EntityFactoryImpl;
+import io.xj.nexus.hub_client.HubClient;
+import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.json.JsonProvider;
 import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.nexus.NexusException;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
-import io.xj.nexus.NexusTopology;
-import io.xj.nexus.hub_client.HubClient;
-import io.xj.nexus.hub_client.HubTopology;
-import io.xj.nexus.model.*;
-import io.xj.nexus.persistence.*;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.persistence.ChainUtils;
+import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,8 +38,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeta;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 public class SegmentRetrospectiveImplTest {
@@ -53,11 +65,10 @@ public class SegmentRetrospectiveImplTest {
   public void setUp() throws Exception {
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     store = new NexusEntityStoreImpl(entityFactory);
-    var segmentManager = new SegmentManagerImpl(store);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     jsonProvider = new JsonProviderImpl();
     fabricatorFactory = new FabricatorFactoryImpl(
-      segmentManager,
+      store,
       jsonapiPayloadFactory,
       jsonProvider
     );
@@ -65,7 +76,7 @@ public class SegmentRetrospectiveImplTest {
     NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
-    store.deleteAll();
+    store.clear();
 
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
@@ -114,7 +125,7 @@ public class SegmentRetrospectiveImplTest {
 
   @Test
   public void getPreviousChoiceOfType() throws NexusException, FabricationFatalException {
-    var subject = fabricatorFactory.loadRetrospective(segment3, sourceMaterial);
+    var subject = fabricatorFactory.loadRetrospective(segment3.getId());
 
     var result = subject.getPreviousChoiceOfType(ProgramType.Main);
 
@@ -124,7 +135,7 @@ public class SegmentRetrospectiveImplTest {
 
   @Test
   public void getPreviousChoiceOfType_forNextMacroSegment() throws NexusException, FabricationFatalException {
-    var subject = fabricatorFactory.loadRetrospective(segment4, sourceMaterial);
+    var subject = fabricatorFactory.loadRetrospective(segment4.getId());
 
     var result = subject.getPreviousChoiceOfType(ProgramType.Main);
 
@@ -134,7 +145,7 @@ public class SegmentRetrospectiveImplTest {
 
   @Test
   public void getPreviousChoiceOfType_forNextMainSegment() throws NexusException, FabricationFatalException {
-    var subject = fabricatorFactory.loadRetrospective(segment1, sourceMaterial);
+    var subject = fabricatorFactory.loadRetrospective(segment1.getId());
 
     var result = subject.getPreviousChoiceOfType(ProgramType.Main);
 
@@ -147,11 +158,11 @@ public class SegmentRetrospectiveImplTest {
    */
   @Test
   public void failureToReadMainChoiceIsFatal() throws NexusException {
-    for (SegmentChoice c : store.getAll(segment0.getId(), SegmentChoice.class))
+    for (SegmentChoice c : store.readAll(segment0.getId(), SegmentChoice.class))
       if (c.getProgramType().equals(ProgramType.Main))
         store.delete(segment0.getId(), SegmentChoice.class, c.getId());
 
-    var e = assertThrows(FabricationFatalException.class, () -> fabricatorFactory.loadRetrospective(segment1, sourceMaterial));
+    var e = assertThrows(FabricationFatalException.class, () -> fabricatorFactory.loadRetrospective(segment1.getId()));
 
     assertEquals("Retrospective sees no main choice!", e.getMessage());
   }
@@ -164,7 +175,7 @@ public class SegmentRetrospectiveImplTest {
     var bun = new StickyBun(patternId, 1);
     var json = jsonProvider.getMapper().writeValueAsString(bun);
     store.put(buildSegmentMeta(segment3, "StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e", json));
-    var subject = fabricatorFactory.loadRetrospective(segment4, sourceMaterial);
+    var subject = fabricatorFactory.loadRetrospective(segment4.getId());
 
     var result = subject.getPreviousMeta("StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e");
 

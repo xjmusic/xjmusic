@@ -77,9 +77,6 @@ public class BeatCraftImpl extends DetailCraftImpl implements BeatCraft {
 
       craftNoteEvents(fabricator.getTempo(), sequence.get(), voices, voice -> chooseFreshInstrument(List.of(voice.getType()), List.of(InstrumentMode.Event), List.of(), voice.getName(), fabricator.sourceMaterial().getTrackNames(voice)), true);
     }
-
-    // Finally, update the segment with the crafted content
-    fabricator.done();
   }
 
 }

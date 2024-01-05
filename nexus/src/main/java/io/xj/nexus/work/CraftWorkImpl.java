@@ -30,7 +30,6 @@ import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.nexus.persistence.ManagerValidationException;
 import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentUtils;
 import io.xj.nexus.persistence.TemplateUtils;
 import io.xj.nexus.telemetry.Telemetry;
@@ -62,7 +61,6 @@ public class CraftWorkImpl implements CraftWork {
   private final FabricatorFactory fabricatorFactory;
   private final HubContent sourceMaterial;
   private final NexusEntityStore store;
-  private final SegmentManager segmentManager;
   private final AudioCache audioCache;
   private final AtomicBoolean running = new AtomicBoolean(true);
   private final double outputFrameRate;
@@ -84,7 +82,6 @@ public class CraftWorkImpl implements CraftWork {
     Telemetry telemetry,
     CraftFactory craftFactory,
     FabricatorFactory fabricatorFactory,
-    SegmentManager segmentManager,
     NexusEntityStore store,
     AudioCache audioCache,
     HubContent sourceMaterial,
@@ -100,7 +97,6 @@ public class CraftWorkImpl implements CraftWork {
     this.audioCache = audioCache;
     this.outputChannels = outputChannels;
     this.outputFrameRate = outputFrameRate;
-    this.segmentManager = segmentManager;
     this.sourceMaterial = sourceMaterial;
     this.store = store;
 
@@ -146,12 +142,12 @@ public class CraftWorkImpl implements CraftWork {
       return List.of();
     }
 
-    var currentSegments = segmentManager.readAllSpanning(fromChainMicros, toChainMicros);
+    var currentSegments = store.readAllSegmentsSpanning(fromChainMicros, toChainMicros);
     if (currentSegments.isEmpty()) {
       return List.of();
     }
-    var previousSegment = segmentManager.readOneById(currentSegments.get(0).getId() - 1);
-    var nextSegment = segmentManager.readOneById(currentSegments.get(currentSegments.size() - 1).getId() + 1);
+    var previousSegment = store.readSegment(currentSegments.get(0).getId() - 1);
+    var nextSegment = store.readSegment(currentSegments.get(currentSegments.size() - 1).getId() + 1);
     return Stream.concat(Stream.concat(previousSegment.stream(), currentSegments.stream()), nextSegment.stream())
       .filter(segment -> SegmentState.CRAFTED.equals(segment.getState()))
       .toList();
@@ -166,7 +162,7 @@ public class CraftWorkImpl implements CraftWork {
     }
 
     // require current segment in crafted state
-    var currentSegment = segmentManager.readOneAtChainMicros(chainMicros);
+    var currentSegment = store.readSegmentAtChainMicros(chainMicros);
     if (currentSegment.isEmpty() || currentSegment.get().getState() != SegmentState.CRAFTED) {
       return Optional.empty();
     }
@@ -182,7 +178,7 @@ public class CraftWorkImpl implements CraftWork {
     }
 
     // require current segment in crafted state
-    var currentSegment = segmentManager.readOneById(offset);
+    var currentSegment = store.readSegment(offset);
     if (currentSegment.isEmpty() || currentSegment.get().getState() != SegmentState.CRAFTED) {
       return Optional.empty();
     }
@@ -191,7 +187,7 @@ public class CraftWorkImpl implements CraftWork {
 
   @Override
   public List<SegmentChoiceArrangementPick> getPicks(List<Segment> segments) throws NexusException {
-    return store.getPicks(segments);
+    return store.readPicks(segments);
   }
 
   @Override
@@ -209,15 +205,16 @@ public class CraftWorkImpl implements CraftWork {
   @Override
   public boolean isMuted(SegmentChoiceArrangementPick pick) {
     try {
-      var segment = segmentManager.readOne(pick.getSegmentId());
-      var arrangement = store.get(segment.getId(), SegmentChoiceArrangement.class, pick.getSegmentChoiceArrangementId());
+      var segment = store.readSegment(pick.getSegmentId())
+        .orElseThrow(() -> new NexusException("Failed to get Segment[" + pick.getSegmentId() + "]"));
+      var arrangement = store.read(segment.getId(), SegmentChoiceArrangement.class, pick.getSegmentChoiceArrangementId());
       if (arrangement.isEmpty()) {
         return false;
       }
-      var choice = store.get(segment.getId(), SegmentChoice.class, arrangement.get().getSegmentChoiceId());
+      var choice = store.read(segment.getId(), SegmentChoice.class, arrangement.get().getSegmentChoiceId());
       return choice.isPresent() ? choice.get().getMute() : false;
 
-    } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException | NexusException e) {
+    } catch (NexusException e) {
       LOG.warn("Unable to determine if SegmentChoiceArrangementPick[{}] is muted because {}", pick.getId(), e.getMessage());
       return false;
     }
@@ -230,39 +227,29 @@ public class CraftWorkImpl implements CraftWork {
 
   @Override
   public Optional<Program> getMainProgram(Segment segment) {
-    try {
-      var chain = getChain();
-      if (chain.isEmpty()) {
-        return Optional.empty();
-      }
-      var mainChoice = store.getAll(segment.getId(), SegmentChoice.class).stream().filter(choice -> ProgramType.Main.equals(choice.getProgramType())).findFirst();
-      if (mainChoice.isEmpty()) {
-        return Optional.empty();
-      }
-      return sourceMaterial.getProgram(mainChoice.get().getProgramId());
-
-    } catch (NexusException e) {
-      LOG.warn("Unable to get main program for segment[{}] because {}", segment.getId(), e.getMessage());
+    var chain = getChain();
+    if (chain.isEmpty()) {
       return Optional.empty();
     }
+    var mainChoice = store.readAll(segment.getId(), SegmentChoice.class).stream().filter(choice -> ProgramType.Main.equals(choice.getProgramType())).findFirst();
+    if (mainChoice.isEmpty()) {
+      return Optional.empty();
+    }
+    return sourceMaterial.getProgram(mainChoice.get().getProgramId());
+
   }
 
   @Override
   public Optional<Program> getMacroProgram(Segment segment) {
-    try {
-      var chain = getChain();
-      if (chain.isEmpty()) {
-        return Optional.empty();
-      }
-      var macroChoice = store.getAll(segment.getId(), SegmentChoice.class).stream().filter(choice -> ProgramType.Macro.equals(choice.getProgramType())).findFirst();
-      if (macroChoice.isEmpty()) {
-        return Optional.empty();
-      }
-      return sourceMaterial.getProgram(macroChoice.get().getProgramId());
-    } catch (NexusException e) {
-      LOG.warn("Unable to get main program for segment[{}] because {}", segment.getId(), e.getMessage());
+    var chain = getChain();
+    if (chain.isEmpty()) {
       return Optional.empty();
     }
+    var macroChoice = store.readAll(segment.getId(), SegmentChoice.class).stream().filter(choice -> ProgramType.Macro.equals(choice.getProgramType())).findFirst();
+    if (macroChoice.isEmpty()) {
+      return Optional.empty();
+    }
+    return sourceMaterial.getProgram(macroChoice.get().getProgramId());
   }
 
   @Override
@@ -273,7 +260,7 @@ public class CraftWorkImpl implements CraftWork {
   @Override
   public Optional<Long> getCraftedToChainMicros() {
     try {
-      return store.getAllSegments().stream().filter(segment -> SegmentState.CRAFTED.equals(segment.getState())).max(Comparator.comparing(Segment::getId)).map(SegmentUtils::getEndAtChainMicros);
+      return store.readAllSegments().stream().filter(segment -> SegmentState.CRAFTED.equals(segment.getState())).max(Comparator.comparing(Segment::getId)).map(SegmentUtils::getEndAtChainMicros);
     } catch (NexusException e) {
       LOG.warn("Unable to get crafted-to chain micros because {}", e.getMessage());
       return Optional.empty();
@@ -344,7 +331,7 @@ public class CraftWorkImpl implements CraftWork {
   public void fabricateDefault(long toChainMicros) throws FabricationFatalException {
     try {
       // currently fabricated AT (vs target fabricated TO)
-      long atChainMicros = ChainUtils.computeFabricatedToChainMicros(segmentManager.readAll());
+      long atChainMicros = ChainUtils.computeFabricatedToChainMicros(store.readAllSegments());
       double aheadSeconds = ((double) (atChainMicros - toChainMicros) / MICROS_PER_SECOND);
       if (aheadSeconds > 0) return;
 
@@ -352,7 +339,7 @@ public class CraftWorkImpl implements CraftWork {
       // Get the last segment in the chain
       // If the chain had no last segment, it must be empty; return a template for its first segment
       Segment segment;
-      var existing = segmentManager.readLastSegment();
+      var existing = store.readSegmentLast();
       if (existing.isEmpty()) {
         segment = buildSegmentInitial();
       } else if (Objects.isNull(existing.get().getDurationMicros())) {
@@ -361,7 +348,7 @@ public class CraftWorkImpl implements CraftWork {
       } else {
         segment = buildSegmentFollowing(existing.get());
       }
-      segment = segmentManager.create(segment);
+      segment = store.createSegment(segment);
       doCraftWork(segment, null, null);
 
     } catch (
@@ -381,10 +368,10 @@ public class CraftWorkImpl implements CraftWork {
     try {
       LOG.info("Will delete segments after #{} and craft using macro-program {}",
         lastDubbedSegment.get().getId(), nextMacroProgram.get().getName());
-      segmentManager.deleteSegmentsAfter(lastDubbedSegment.get().getId());
+      store.deleteSegmentsAfter(lastDubbedSegment.get().getId());
       Segment segment = buildSegmentFollowing(lastDubbedSegment.get());
       segment.setType(SegmentType.NEXT_MACRO);
-      segment = segmentManager.create(segment);
+      segment = store.createSegment(segment);
       lastDubbedSegment.set(null);
       doCraftWork(segment, nextMacroProgram.get(), SegmentType.NEXT_MACRO);
       nextMacroProgram.set(null);
@@ -445,7 +432,7 @@ public class CraftWorkImpl implements CraftWork {
    */
   void doCraftWork(Segment segment, @Nullable Program overrideMacroProgram, @Nullable SegmentType overrideSegmentType) throws NexusException, ManagerFatalException, ValueException, FabricationFatalException {
     LOG.debug("[segId={}] will prepare fabricator", segment.getId());
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment, outputFrameRate, outputChannels, overrideSegmentType);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment.getId(), outputFrameRate, outputChannels, overrideSegmentType);
 
     LOG.debug("[segId={}] will do craft work", segment.getId());
     updateSegmentState(fabricator, segment, SegmentState.PLANNED, SegmentState.CRAFTING);
@@ -469,7 +456,7 @@ public class CraftWorkImpl implements CraftWork {
    */
   private void doSegmentCleanup(long shippedToChainMicros) {
     getSegmentAtChainMicros(shippedToChainMicros - persistenceWindowMicros)
-      .ifPresent(segment -> segmentManager.deleteSegmentsBefore(segment.getId()));
+      .ifPresent(segment -> store.deleteSegmentsBefore(segment.getId()));
   }
 
   /**
@@ -523,7 +510,7 @@ public class CraftWorkImpl implements CraftWork {
       throw new NexusException(String.format("Segment[%s] %s requires Segment must be in %s state.", segment.getId(), toState, fromState));
     var seg = fabricator.getSegment();
     seg.setState(toState);
-    fabricator.putSegment(seg);
+    fabricator.updateSegment(seg);
     LOG.debug("[segId={}] Segment transitioned to state {} OK", segment.getId(), toState);
   }
 

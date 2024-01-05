@@ -49,8 +49,8 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
     if (instrumentIds.size() > targetLayers)
       instrumentIds = ValueUtils.withIdsRemoved(instrumentIds, instrumentIds.size() - targetLayers);
 
-    for (UUID backgroundId : instrumentIds)
-      craftBackground(backgroundId);
+    for (UUID instrumentId : instrumentIds)
+      craftBackground(instrumentId);
 
     Optional<Instrument> chosen;
     if (instrumentIds.size() < targetLayers)
@@ -61,9 +61,6 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
           craftBackground(chosen.get().getId());
         }
       }
-
-    // Finally, update the segment with the crafted content
-    fabricator.done();
   }
 
   /**

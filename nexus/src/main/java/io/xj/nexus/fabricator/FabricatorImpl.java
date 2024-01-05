@@ -39,7 +39,6 @@ import io.xj.hub.util.ValueUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.entity.EntityUtils;
 import io.xj.nexus.json.JsonProvider;
-import io.xj.nexus.jsonapi.JsonapiException;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
@@ -58,7 +57,7 @@ import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.nexus.persistence.ManagerValidationException;
-import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.SegmentUtils;
 import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
@@ -111,12 +110,12 @@ public class FabricatorImpl implements Fabricator {
   final Map<String, Optional<Note>> rootNotesByVoicingAndChord;
   final Map<UUID, Collection<ProgramSequenceChord>> completeChordsForProgramSequence;
   final Map<UUID, List<SegmentChoiceArrangementPick>> picksForChoice;
-  final SegmentManager segmentManager;
+  private final NexusEntityStore store;
   final SegmentRetrospective retrospective;
-  final SegmentWorkbench workbench;
   final Set<UUID> boundInstrumentIds;
   final Set<UUID> boundProgramIds;
   final long startAtSystemNanoTime;
+  private final Integer segmentId;
   SegmentType type;
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   Optional<SegmentChoice> macroChoiceOfPreviousSegment;
@@ -130,17 +129,17 @@ public class FabricatorImpl implements Fabricator {
   Set<InstrumentType> distinctChordVoicingTypes;
 
   public FabricatorImpl(
-    HubContent sourceMaterial,
-    Segment segment,
     FabricatorFactory fabricatorFactory,
-    SegmentManager segmentManager,
+    NexusEntityStore store,
+    HubContent sourceMaterial,
+    Integer segmentId,
     JsonapiPayloadFactory jsonapiPayloadFactory,
     JsonProvider jsonProvider,
     double outputFrameRate,
     int outputChannels,
     @Nullable SegmentType overrideSegmentType
-  ) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException {
-    this.segmentManager = segmentManager;
+  ) throws NexusException, FabricationFatalException, ValueException {
+    this.store = store;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.jsonProvider = jsonProvider;
     this.sourceMaterial = sourceMaterial;
@@ -164,21 +163,22 @@ public class FabricatorImpl implements Fabricator {
     startAtSystemNanoTime = System.nanoTime();
 
     // read the chain, configs, and bindings
-    chain = segmentManager.getChain(segment);
+    chain = store.readChain()
+      .orElseThrow(() -> new FabricationFatalException("No chain found"));
     templateConfig = new TemplateConfig(sourceMaterial.getTemplate());
     templateBindings = sourceMaterial.getTemplateBindings();
     boundProgramIds = ChainUtils.targetIdsOfType(templateBindings, ContentBindingType.Program);
     boundInstrumentIds = ChainUtils.targetIdsOfType(templateBindings, ContentBindingType.Instrument);
-    LOG.debug("[segId={}] Chain {} configured with {} and bound to {} ", segment.getId(), chain.getId(), templateConfig, CsvUtils.prettyFrom(templateBindings, "and"));
+    LOG.debug("[segId={}] Chain {} configured with {} and bound to {} ", segmentId, chain.getId(), templateConfig, CsvUtils.prettyFrom(templateBindings, "and"));
 
     // set up the segment retrospective
-    retrospective = fabricatorFactory.loadRetrospective(segment, sourceMaterial);
+    retrospective = fabricatorFactory.loadRetrospective(segmentId);
 
     // digest previous instrument audio
     preferredAudios = computePreferredInstrumentAudio();
 
-    // get the current segment on the workbench
-    workbench = fabricatorFactory.setupWorkbench(chain, segment);
+    // the current segment on the workbench
+    this.segmentId = segmentId;
 
     // Override the segment type by passing the fabricator a segment type on creation
     // Workstation has live performance modulation https://www.pivotaltracker.com/story/show/186003440
@@ -220,23 +220,13 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public <N> void delete(N entity) {
-    workbench.delete(entity);
-  }
-
-  @Override
-  public void done() throws NexusException {
-    try {
-      workbench.setSegment(workbench.getSegment().type(getType()));
-      workbench.done();
-    } catch (JsonapiException | ValueException e) {
-      throw new NexusException("Could not complete Segment fabrication", e);
-    }
+  public <N> void delete(int segmentId, Class<N> type, UUID id) throws NexusException {
+    store.delete(segmentId, type, id);
   }
 
   @Override
   public Collection<SegmentChoiceArrangement> getArrangements() {
-    return workbench.getSegmentChoiceArrangements();
+    return store.readAll(segmentId, SegmentChoiceArrangement.class);
   }
 
   @Override
@@ -257,7 +247,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public Collection<SegmentChoice> getChoices() {
-    return workbench.getSegmentChoices();
+    return store.readAll(segmentId, SegmentChoice.class);
   }
 
   @Override
@@ -267,7 +257,7 @@ public class FabricatorImpl implements Fabricator {
       Double foundPosition = null;
 
       // we assume that these entities are in order of position ascending
-      for (SegmentChord segmentChord : workbench.getSegmentChords()) {
+      for (SegmentChord segmentChord : getSegmentChords()) {
         // if it's a better match (or no match has yet been found) then use it
         if (Objects.isNull(foundPosition) || (segmentChord.getPosition() > foundPosition && segmentChord.getPosition() <= position)) {
           foundPosition = segmentChord.getPosition();
@@ -282,17 +272,17 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public Optional<SegmentChoice> getCurrentMainChoice() {
-    return workbench.getChoiceOfType(ProgramType.Main);
+    return getChoiceOfType(ProgramType.Main);
   }
 
   @Override
   public Collection<SegmentChoice> getCurrentDetailChoices() {
-    return workbench.getChoicesOfType(ProgramType.Beat);
+    return getBeatChoices();
   }
 
   @Override
   public Optional<SegmentChoice> getCurrentBeatChoice() {
-    return workbench.getChoiceOfType(ProgramType.Beat);
+    return getChoiceOfType(ProgramType.Beat);
   }
 
   @Override
@@ -487,7 +477,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public MemeIsometry getMemeIsometryOfSegment() {
-    return MemeIsometry.of(templateConfig.getMemeTaxonomy(), EntityUtils.namesOf(workbench.getSegmentMemes()));
+    return MemeIsometry.of(templateConfig.getMemeTaxonomy(), EntityUtils.namesOf(getSegmentMemes()));
   }
 
   @Override
@@ -514,14 +504,14 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public Collection<SegmentChoiceArrangementPick> getPicks() {
-    return workbench.getSegmentChoiceArrangementPicks();
+    return store.readAll(segmentId, SegmentChoiceArrangementPick.class);
   }
 
   @Override
   public List<SegmentChoiceArrangementPick> getPicks(SegmentChoice choice) {
     if (!picksForChoice.containsKey(choice.getId())) {
-      var arrangementIds = workbench.getSegmentChoiceArrangements().stream().filter(a -> a.getSegmentChoiceId().equals(choice.getId())).map(SegmentChoiceArrangement::getId).toList();
-      picksForChoice.put(choice.getId(), workbench.getSegmentChoiceArrangementPicks().stream()
+      var arrangementIds = getArrangements().stream().filter(a -> a.getSegmentChoiceId().equals(choice.getId())).map(SegmentChoiceArrangement::getId).toList();
+      picksForChoice.put(choice.getId(), getPicks().stream()
         .filter(p -> arrangementIds.contains(p.getSegmentChoiceArrangementId()))
         .sorted(Comparator.comparing(SegmentChoiceArrangementPick::getStartAtSegmentMicros)).toList());
     }
@@ -633,7 +623,7 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public NoteRange getProgramVoicingNoteRange(InstrumentType type) {
     if (!voicingNoteRange.containsKey(type)) {
-      voicingNoteRange.put(type, NoteRange.ofStrings(workbench.getSegmentChordVoicings().stream().filter(SegmentUtils::containsAnyValidNotes).filter(segmentChordVoicing -> Objects.equals(segmentChordVoicing.getType(), type.toString())).flatMap(segmentChordVoicing -> getNotes(segmentChordVoicing).stream()).collect(Collectors.toList())));
+      voicingNoteRange.put(type, NoteRange.ofStrings(getChordVoicings().stream().filter(SegmentUtils::containsAnyValidNotes).filter(segmentChordVoicing -> Objects.equals(segmentChordVoicing.getType(), type.toString())).flatMap(segmentChordVoicing -> getNotes(segmentChordVoicing).stream()).collect(Collectors.toList())));
     }
 
     return voicingNoteRange.get(type);
@@ -672,7 +662,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public void putStickyBun(StickyBun bun) throws JsonProcessingException, NexusException {
-    workbench.put(new SegmentMeta()
+    store.put(new SegmentMeta()
       .id(UUID.randomUUID())
       .segmentId(getSegment().getId())
       .key(bun.computeMetaKey())
@@ -683,7 +673,7 @@ public class FabricatorImpl implements Fabricator {
   public Optional<StickyBun> getStickyBun(UUID eventId) {
     if (!templateConfig.isStickyBunEnabled()) return Optional.empty();
     //
-    var currentMeta = workbench.getSegmentMeta(StickyBun.computeMetaKey(eventId));
+    var currentMeta = getSegmentMeta(StickyBun.computeMetaKey(eventId));
     if (currentMeta.isPresent()) {
       try {
         return Optional.of(jsonProvider.getMapper().readValue(currentMeta.get().getValue(), StickyBun.class));
@@ -716,6 +706,12 @@ public class FabricatorImpl implements Fabricator {
     return Optional.of(bun);
   }
 
+  private Optional<SegmentMeta> getSegmentMeta(String key) {
+    return store.readAll(segmentId, SegmentMeta.class).stream()
+      .filter(m -> Objects.equals(key, m.getKey()))
+      .findAny();
+  }
+
   @Override
   public long getSegmentMicrosAtPosition(double tempo, double position) {
     return (long) (getMicrosPerBeat(tempo) * position);
@@ -728,17 +724,24 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public Segment getSegment() {
-    return workbench.getSegment();
+    return store.readSegment(segmentId).orElseThrow(() -> new RuntimeException(String.format("Found no Segment[%d]", segmentId)));
   }
 
   @Override
   public List<SegmentChord> getSegmentChords() {
-    return workbench.getSegmentChords();
+    return store.readAll(segmentId, SegmentChord.class).stream()
+      .sorted(Comparator.comparing(SegmentChord::getPosition))
+      .collect(Collectors.toList());
+  }
+
+  @Override
+  public Collection<SegmentChordVoicing> getChordVoicings() {
+    return store.readAll(segmentId, SegmentChordVoicing.class);
   }
 
   @Override
   public Collection<SegmentMeme> getSegmentMemes() {
-    return workbench.getSegmentMemes();
+    return store.readAll(segmentId, SegmentMeme.class);
   }
 
   @Override
@@ -776,8 +779,8 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Optional<SegmentChordVoicing> getVoicing(SegmentChord chord, InstrumentType type) {
-    Collection<SegmentChordVoicing> voicings = workbench.getSegmentChordVoicings();
+  public Optional<SegmentChordVoicing> chooseVoicing(SegmentChord chord, InstrumentType type) {
+    Collection<SegmentChordVoicing> voicings = store.readAll(segmentId, SegmentChordVoicing.class);
     return MarbleBag.quickPick(voicings.stream()
       .filter(SegmentUtils::containsAnyValidNotes)
       .filter(voicing -> Objects.equals(type.toString(), voicing.getType()))
@@ -847,7 +850,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public Boolean isInitialSegment() {
-    return 0L == workbench.getSegment().getId();
+    return 0L == getSegment().getId();
   }
 
   @Override
@@ -857,7 +860,7 @@ public class FabricatorImpl implements Fabricator {
       if (!addMemes((SegmentChoice) entity))
         return entity;
 
-    workbench.put(entity);
+    store.put(entity);
 
     return entity;
   }
@@ -871,14 +874,13 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public void putReport(String key, Object value) {
-    workbench.putReport(key, value);
+    addMessage(SegmentMessageType.INFO, String.format("%s: %s", key, value));
   }
 
   @Override
-  public void putSegment(Segment segment) {
+  public void updateSegment(Segment segment) {
     try {
-      segmentManager.update(segment.getId(), segment);
-      workbench.setSegment(segment);
+      store.updateSegment(segment.getId(), segment);
 
     } catch (ManagerFatalException | ManagerExistenceException | ManagerPrivilegeException |
              ManagerValidationException e) {
@@ -917,13 +919,32 @@ public class FabricatorImpl implements Fabricator {
   }
 
   /**
+   Get the choices of the current segment of the given type
+
+   @param programType of choices to get
+   @return choices of the current segment of the given type
+   */
+  private Optional<SegmentChoice> getChoiceOfType(ProgramType programType) {
+    return getChoices().stream().filter(c -> Objects.equals(c.getProgramType(), programType)).findFirst();
+  }
+
+  /**
+   Get the choices of the current segment of the given type
+
+   @return choices of the current segment of the given type
+   */
+  private List<SegmentChoice> getBeatChoices() {
+    return getChoices().stream().filter(c -> Objects.equals(c.getProgramType(), ProgramType.Beat)).toList();
+  }
+
+  /**
    Compute the lowest optimal range shift octaves
 
    @param sourceRange from
    @param targetRange to
    @return lowest optimal range shift octaves
    */
-  Integer computeLowestOptimalRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange) throws NexusException {
+  private int computeLowestOptimalRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange) throws NexusException {
     var shiftOctave = 0; // search for optimal value
     var baselineDelta = 100; // optimal is the lowest possible integer zero or above
     for (var o = 10; o >= -10; o--) {
@@ -943,7 +964,7 @@ public class FabricatorImpl implements Fabricator {
    @param segment for which to compute segment ship key
    @return Segment ship key computed for the given chain and Segment
    */
-  String computeShipKey(Chain chain, Segment segment) {
+  private String computeShipKey(Chain chain, Segment segment) {
     String chainName = StringUtils.isNullOrEmpty(chain.getShipKey()) ? "chain" + NAME_SEPARATOR + chain.getId() : chain.getShipKey();
     String segmentName = String.valueOf(segment.getBeginAtChainMicros());
     return chainName + NAME_SEPARATOR + segmentName;
@@ -955,19 +976,18 @@ public class FabricatorImpl implements Fabricator {
    @param message to format
    @return formatted message with segmentId as prefix
    */
-  String formatLog(String message) {
-    return String.format("[segId=%s] %s", workbench.getSegment().getId(), message);
+  private String formatLog(String message) {
+    return String.format("[segId=%s] %s", getSegment().getId(), message);
   }
 
   /**
    Ensure the current segment has a storage key; if not, add a storage key to this Segment
    */
-  void ensureShipKey() {
-    if (ValueUtils.isEmpty(workbench.getSegment().getStorageKey()) || workbench.getSegment().getStorageKey().isEmpty()) {
-      var seg = workbench.getSegment();
-      seg.setStorageKey(computeShipKey(workbench.getChain(), workbench.getSegment()));
-      workbench.setSegment(seg);
-      LOG.debug("[segId={}] Generated ship key {}", workbench.getSegment().getId(), workbench.getSegment().getStorageKey());
+  private void ensureShipKey() throws NexusException {
+    if (ValueUtils.isEmpty(getSegment().getStorageKey()) || getSegment().getStorageKey().isEmpty()) {
+      var seg = getSegment();
+      seg.setStorageKey(computeShipKey(store.readChain().orElseThrow(() -> new NexusException("No chain")), getSegment()));
+      LOG.debug("[segId={}] Generated ship key {}", getSegment().getId(), getSegment().getStorageKey());
     }
   }
 
@@ -976,7 +996,7 @@ public class FabricatorImpl implements Fabricator {
 
    @return type of the current segment
    */
-  SegmentType computeType() {
+  private SegmentType computeType() {
     if (isInitialSegment())
       return SegmentType.INITIAL;
 
@@ -1001,7 +1021,7 @@ public class FabricatorImpl implements Fabricator {
 
    @return delta from previous segment
    */
-  int getPreviousSegmentDelta() {
+  private int getPreviousSegmentDelta() {
     return retrospective.getPreviousSegment()
       .map(Segment::getDelta)
       .orElse(0);
@@ -1012,7 +1032,7 @@ public class FabricatorImpl implements Fabricator {
 
    @return preferred instrument audio
    */
-  Map<String, InstrumentAudio> computePreferredInstrumentAudio() {
+  private Map<String, InstrumentAudio> computePreferredInstrumentAudio() {
     Map<String, InstrumentAudio> audios = new HashMap<>();
 
     retrospective.getPicks()
@@ -1029,7 +1049,7 @@ public class FabricatorImpl implements Fabricator {
    @param choice for which to add memes
    @return true if adding memes was successful
    */
-  boolean addMemes(SegmentChoice choice) throws NexusException {
+  private boolean addMemes(SegmentChoice choice) throws NexusException {
     Set<String> names = new HashSet<>();
 
     if (Objects.nonNull(choice.getProgramId()))

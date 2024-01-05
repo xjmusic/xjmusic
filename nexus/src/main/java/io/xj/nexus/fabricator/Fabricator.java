@@ -72,19 +72,14 @@ public interface Fabricator {
   void addInfoMessage(String body);
 
   /**
-   Remove an Entity by type and id
+   Delete an entity specified by Segment id, class and id
 
-   @param entity to delete
+   @param <N>       type of entity
+   @param segmentId partition (segment id) of entity
+   @param type      of class to delete
+   @param id        to delete
    */
-  <N> void delete(N entity);
-
-  /**
-   Update the original Segment submitted for craft,
-   cache it in the internal in-memory object, and persisted in the database
-   ALWAYS persist Segment content as JSON when work is performed https://www.pivotaltracker.com/story/show/162361525
-   musical evolution depends on segments that continue the use of a main sequence https://www.pivotaltracker.com/story/show/162361534
-   */
-  void done() throws NexusException;
+  <N> void delete(int segmentId, Class<N> type, UUID id) throws NexusException;
 
   /**
    Get arrangements for segment
@@ -486,6 +481,13 @@ public interface Fabricator {
   List<SegmentChord> getSegmentChords();
 
   /**
+   Get all segment chord voicings
+
+   @return segment chord voicings
+   */
+  Collection<SegmentChordVoicing> getChordVoicings();
+
+  /**
    Get all segment memes
 
    @return segment memes
@@ -564,7 +566,7 @@ public interface Fabricator {
    @param chord to get voicing for
    @return chord voicing for chord
    */
-  Optional<SegmentChordVoicing> getVoicing(SegmentChord chord, InstrumentType type);
+  Optional<SegmentChordVoicing> chooseVoicing(SegmentChord chord, InstrumentType type);
 
   /**
    Does the program of the specified Choice have at least N more sequence binding offsets available?
@@ -668,7 +670,7 @@ public interface Fabricator {
    If it's a SegmentChoice...
    Should add meme from ALL program and instrument types! https://www.pivotaltracker.com/story/show/181336704
    - Add memes of choices to segment in order to affect further choices.
-   - Add all memes of this choice to the workbench, from target program, program sequence binding, or instrument if present
+   - Add all memes of this choice, from target program, program sequence binding, or instrument if present
    - Enhances: Straightforward meme logic https://www.pivotaltracker.com/story/show/179078533
    - Enhances: XJ should not add memes to Segment for program/instrument that was not successfully chosen https://www.pivotaltracker.com/story/show/180468224
    <p>
@@ -703,7 +705,7 @@ public interface Fabricator {
 
    @param segment to set
    */
-  void putSegment(Segment segment) throws NexusException;
+  void updateSegment(Segment segment) throws NexusException;
 
   /**
    Get the Segment Retrospective
