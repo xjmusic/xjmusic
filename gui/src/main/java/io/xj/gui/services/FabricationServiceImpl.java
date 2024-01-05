@@ -42,6 +42,8 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
 import org.slf4j.Logger;
@@ -80,23 +82,24 @@ public class FabricationServiceImpl implements FabricationService {
   private final double defaultOutputFrameRate;
   private final ControlMode defaultControlMode;
   private final InputMode defaultInputMode;
-  final WorkManager workManager;
-  final LabService labService;
-  final Map<Integer, Integer> segmentBarBeats = new ConcurrentHashMap<>();
-  final ObjectProperty<WorkState> status = new SimpleObjectProperty<>(WorkState.Standby);
-  final StringProperty inputTemplateKey = new SimpleStringProperty();
-  final StringProperty contentStoragePathPrefix = new SimpleStringProperty();
-  final ObjectProperty<InputMode> inputMode = new SimpleObjectProperty<>();
-  final ObjectProperty<ControlMode> controlMode = new SimpleObjectProperty<>();
-  final StringProperty craftAheadSeconds = new SimpleStringProperty();
-  final StringProperty dubAheadSeconds = new SimpleStringProperty();
-  final StringProperty mixerLengthSeconds = new SimpleStringProperty();
-  final StringProperty outputFrameRate = new SimpleStringProperty();
-  final StringProperty outputChannels = new SimpleStringProperty();
-
-  final StringProperty timelineSegmentViewLimit = new SimpleStringProperty();
-  final BooleanProperty followPlayback = new SimpleBooleanProperty(true);
-  final DoubleProperty progress = new SimpleDoubleProperty(0.0);
+  private final WorkManager workManager;
+  private final LabService labService;
+  private final Map<Integer, Integer> segmentBarBeats = new ConcurrentHashMap<>();
+  private final ObjectProperty<WorkState> status = new SimpleObjectProperty<>(WorkState.Standby);
+  private final StringProperty inputTemplateKey = new SimpleStringProperty();
+  private final StringProperty contentStoragePathPrefix = new SimpleStringProperty();
+  private final ObjectProperty<InputMode> inputMode = new SimpleObjectProperty<>();
+  private final ObjectProperty<ControlMode> controlMode = new SimpleObjectProperty<>();
+  private final StringProperty craftAheadSeconds = new SimpleStringProperty();
+  private final StringProperty dubAheadSeconds = new SimpleStringProperty();
+  private final StringProperty mixerLengthSeconds = new SimpleStringProperty();
+  private final StringProperty outputFrameRate = new SimpleStringProperty();
+  private final StringProperty outputChannels = new SimpleStringProperty();
+  private final StringProperty timelineSegmentViewLimit = new SimpleStringProperty();
+  private final BooleanProperty followPlayback = new SimpleBooleanProperty(true);
+  private final DoubleProperty progress = new SimpleDoubleProperty(0.0);
+  private final ObservableList<String> overrideMemes = FXCollections.observableArrayList();
+  private final ObjectProperty<UUID> overrideMacroProgramId = new SimpleObjectProperty<>();
   private final ObservableBooleanValue statusActive =
     Bindings.createBooleanBinding(() -> status.get() == WorkState.Active, status);
   private final ObservableBooleanValue statusStandby =
@@ -197,8 +200,14 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
-  public void gotoMacroProgram(Program macroProgram) {
-    workManager.gotoMacroProgram(macroProgram);
+  public void doOverrideMacro(Program macroProgram) {
+    workManager.doOverrideMacro(macroProgram);
+    overrideMacroProgramId.set(macroProgram.getId());
+  }
+
+  @Override
+  public void resetOverrideMacro() {
+    workManager.resetOverrideMacro();
   }
 
   @Override
@@ -207,8 +216,15 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
-  public void gotoTaxonomyCategoryMemes(Collection<String> memes) {
-    workManager.gotoTaxonomyCategoryMemes(memes);
+  public void doOverrideMemes(Collection<String> memes) {
+    workManager.doOverrideMemes(memes);
+    overrideMemes.setAll(memes.stream().sorted().toList());
+  }
+
+  @Override
+  public void resetOverrideMemes() {
+    workManager.resetOverrideMemes();
+    overrideMemes.clear();
   }
 
   @Override
@@ -216,6 +232,8 @@ public class FabricationServiceImpl implements FabricationService {
     try {
       status.set(WorkState.Standby);
       workManager.reset();
+      overrideMacroProgramId.set(null);
+      overrideMemes.clear();
 
     } catch (Exception e) {
       LOG.error("Failed to reset fabrication", e);
@@ -438,6 +456,16 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public BooleanProperty followPlaybackProperty() {
     return followPlayback;
+  }
+
+  @Override
+  public ObservableList<String> overrideMemesProperty() {
+    return overrideMemes;
+  }
+
+  @Override
+  public ObjectProperty<UUID> overrideMacroProgramIdProperty() {
+    return overrideMacroProgramId;
   }
 
   @Override

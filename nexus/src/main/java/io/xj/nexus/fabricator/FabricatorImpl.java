@@ -434,14 +434,6 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Program getCurrentMainProgram() throws NexusException {
-    return
-      sourceMaterial.getProgram(getCurrentMainChoice()
-          .orElseThrow(() -> new NexusException("No current main choice!")).getProgramId())
-        .orElseThrow(() -> new NexusException("Failed to retrieve current main program!"));
-  }
-
-  @Override
   public Optional<ProgramSequence> getCurrentMainSequence() {
     var mc = getCurrentMainChoice();
     if (mc.isEmpty()) return Optional.empty();

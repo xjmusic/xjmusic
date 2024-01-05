@@ -147,14 +147,24 @@ public interface CraftWork extends Work {
    @param macroProgram        the macro program to go to
    @param dubbedToChainMicros the chain micros at which to dub
    */
-  void gotoMacroProgram(Program macroProgram, long dubbedToChainMicros);
+  void doOverrideMacro(Program macroProgram, long dubbedToChainMicros);
 
   /**
-   Go to the given set of taxonomy category memes right now
+   Reset the macro program override
+   */
+  void resetOverrideMacro();
+
+  /**
+   Manually go to a specific taxonomy category meme, and force until reset
    https://www.pivotaltracker.com/story/show/186714075
 
-   @param memes               to go to
-   @param dubbedToChainMicros the chain micros at which to dub
+   @param memes specific (assumed allowably) set of taxonomy category memes
    */
-  void gotoTaxonomyCategoryMemes(Collection<String> memes, Long dubbedToChainMicros);
+  void doOverrideMemes(Collection<String> memes, long dubbedToChainMicros);
+
+  /**
+   Reset the taxonomy category memes
+   https://www.pivotaltracker.com/story/show/186714075
+   */
+  void resetOverrideMemes();
 }

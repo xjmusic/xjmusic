@@ -27,6 +27,7 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 
 import java.util.Collection;
@@ -111,6 +112,10 @@ public interface FabricationService {
 
   BooleanProperty followPlaybackProperty();
 
+  ObservableList<String> overrideMemesProperty();
+
+  ObjectProperty<UUID> overrideMacroProgramIdProperty();
+
   ObservableDoubleValue progressProperty();
 
   ObservableBooleanValue isStatusActive();
@@ -180,12 +185,18 @@ public interface FabricationService {
   void cancel();
 
   /**
-   Manually go to a specific macro program
+   Manually go to a specific macro program, and force until reset
    https://www.pivotaltracker.com/story/show/186003440
 
    @param macroProgram the macro program to go to
    */
-  void gotoMacroProgram(Program macroProgram);
+  void doOverrideMacro(Program macroProgram);
+
+  /**
+   Reset the macro program override
+   https://www.pivotaltracker.com/story/show/186003440
+   */
+  void resetOverrideMacro();
 
   /**
    Get all meme taxonomies in the source template
@@ -193,8 +204,16 @@ public interface FabricationService {
   Optional<MemeTaxonomy> getMemeTaxonomy();
 
   /**
-   Manually go to a specific taxonomy category meme
-   https://www.pivotaltracker.com/story/show/186714075@param memes     the meme
+   Manually go to a specific taxonomy category meme, and force until reset
+   https://www.pivotaltracker.com/story/show/186714075
+
+   @param memes specific (assumed allowably) set of taxonomy category memes
    */
-  void gotoTaxonomyCategoryMemes(Collection<String> memes);
+  void doOverrideMemes(Collection<String> memes);
+
+  /**
+   Reset the taxonomy category memes
+   https://www.pivotaltracker.com/story/show/186714075
+   */
+  void resetOverrideMemes();
 }

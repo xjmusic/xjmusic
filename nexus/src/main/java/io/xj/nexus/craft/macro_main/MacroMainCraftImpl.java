@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -66,16 +65,10 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
     //
     // 1. Macro
-    var macroProgram = Objects.nonNull(overrideMacroProgram)
-      ? overrideMacroProgram
-      : chooseMacroProgram();
-    //
-    Integer macroSequenceBindingOffset = Objects.nonNull(overrideMacroProgram)
-      ? fabricator.getSecondMacroSequenceBindingOffset(overrideMacroProgram)
-      : computeMacroSequenceBindingOffset();
+    var macroProgram = chooseMacroProgram();
+    Integer macroSequenceBindingOffset = computeMacroSequenceBindingOffset();
     var macroSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format("Unable to determine macro sequence binding for Segment[%d]", segment.getId())));
-    //
     var macroSequence = fabricator.sourceMaterial().getProgramSequence(macroSequenceBinding)
       .orElseThrow(() -> new NexusException(String.format("Unable to determine macro sequence for Segment[%d]", segment.getId())));
     //
@@ -93,14 +86,12 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     //
     // 2. Main
     var mainProgram = chooseMainProgram();
-    //
     Integer mainSequenceBindingOffset = computeMainProgramSequenceBindingOffset();
     var mainSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format("Unable to determine main sequence binding for Segment[%d]", segment.getId())));
-    //
     var mainSequence = fabricator.sourceMaterial().getProgramSequence(mainSequenceBinding)
       .orElseThrow(() -> new NexusException(String.format("Unable to determine main sequence for Segment[%d]", segment.getId())));
-
+    //
     var mainChoice = new SegmentChoice();
     mainChoice.setId(UUID.randomUUID());
     mainChoice.setSegmentId(segment.getId());
@@ -242,7 +233,9 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    */
   private Integer computeMacroSequenceBindingOffset() throws NexusException {
     if (List.of(SegmentType.INITIAL, SegmentType.NEXT_MACRO).contains(fabricator.getType()))
-      return 0;
+      return Objects.nonNull(overrideMacroProgram)
+        ? fabricator.getSecondMacroSequenceBindingOffset(overrideMacroProgram)
+        : 0;
 
     var previousMacroChoice = fabricator.getMacroChoiceOfPreviousSegment();
     if (previousMacroChoice.isEmpty())
