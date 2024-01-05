@@ -272,24 +272,6 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public Optional<MemeTaxonomy> getMemeTaxonomy() {
-    try {
-      var templateConfig = new TemplateConfig(getSourceMaterial().getTemplate());
-      return Optional.of(templateConfig.getMemeTaxonomy());
-    } catch (ValueException e) {
-      LOG.error("Failed to get meme taxonomy from template config", e);
-      return Optional.empty();
-    }
-  }
-
-  @Override
-  public void gotoTaxonomyCategoryMemes(Collection<String> memes) {
-    assert Objects.nonNull(craftWork);
-    assert Objects.nonNull(dubWork);
-    craftWork.gotoTaxonomyCategoryMemes(memes, dubWork.getDubbedToChainMicros().orElse(0L));
-  }
-
-  @Override
   public NexusEntityStore getEntityStore() {
     return entityStore;
   }

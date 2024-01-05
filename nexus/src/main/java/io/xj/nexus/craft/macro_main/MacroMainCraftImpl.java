@@ -379,7 +379,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     // Add candidates to the bag
     // Phase 4: All Published Programs with a meme match, besides any that should be avoided
     // Phase 5: Any Published Programs, meme match is a bonus
-    // Phase 6: Programs we are supposed to avoid
+    // Phase 6: Any Published Programs
     for (Program program : programsPublished(candidates)) {
       if (avoidProgramId.isEmpty() || !avoidProgramId.get().equals(program.getId())) {
         bag.add(4, program.getId(), iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
@@ -391,7 +391,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     // Add candidates to the bag
     // Phase 7: Literally Any Programs
     for (Program program : candidates)
-      bag.add(5, program.getId());
+      bag.add(7, program.getId());
 
     // if the bag is empty, problems
     if (bag.isEmpty())

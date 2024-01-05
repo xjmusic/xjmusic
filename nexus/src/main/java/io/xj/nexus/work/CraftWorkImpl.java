@@ -405,10 +405,10 @@ public class CraftWorkImpl implements CraftWork {
     try {
       LOG.info("Will delete segments after #{} and craft using memes {}",
         lastDubbedSegment.get().getId(), StringUtils.toProperCsvAnd(nextMemes.get().stream().sorted().toList()));
-      segmentManager.deleteSegmentsAfter(lastDubbedSegment.get().getId());
+      store.deleteSegmentsAfter(lastDubbedSegment.get().getId());
       Segment segment = buildSegmentFollowing(lastDubbedSegment.get());
       segment.setType(SegmentType.NEXT_MACRO);
-      segment = segmentManager.create(segment);
+      segment = store.createSegment(segment);
       lastDubbedSegment.set(null);
       doCraftWork(segment, SegmentType.NEXT_MACRO, null, nextMemes.get());
       nextMemes.set(null);

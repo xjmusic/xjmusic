@@ -426,7 +426,7 @@ public class FabricatorImpl implements Fabricator {
       return new ProgramConfig(
         sourceMaterial.getProgram(getCurrentMainChoice()
             .orElseThrow(() -> new NexusException("No current main choice!")).getProgramId())
-          .orElseThrow(() -> new NexusException("Failed to retrieve current main program!")));
+          .orElseThrow(() -> new NexusException("Failed to retrieve current main program config!")));
 
     } catch (ValueException e) {
       throw new NexusException(e);
@@ -924,12 +924,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public MemeTaxonomy getMemeTaxonomy() {
-    try {
-      var templateConfig = new TemplateConfig(sourceMaterial.getTemplate());
-      return templateConfig.getMemeTaxonomy();
-    } catch (ValueException e) {
-      return MemeTaxonomy.empty();
-    }
+    return templateConfig.getMemeTaxonomy();
   }
 
   @Override
