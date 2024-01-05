@@ -349,7 +349,7 @@ public class WorkManagerImpl implements WorkManager {
       LOG.debug("Did run control cycle");
 
     } catch (Exception e) {
-      didFailWhile("running work cycle", e);
+      didFailWhile("running control cycle", e);
     }
   }
 
@@ -366,12 +366,17 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(shipWork);
     assert Objects.nonNull(dubWork);
 
-    LOG.debug("Will run craft cycle");
-    craftWork.runCycle(
-      shipWork.getShippedToChainMicros().orElse(0L),
-      dubWork.getDubbedToChainMicros().orElse(0L)
-    );
-    LOG.debug("Did run craft cycle");
+    try {
+      LOG.debug("Will run craft cycle");
+      craftWork.runCycle(
+        shipWork.getShippedToChainMicros().orElse(0L),
+        dubWork.getDubbedToChainMicros().orElse(0L)
+      );
+      LOG.debug("Did run craft cycle");
+
+    } catch (Exception e) {
+      didFailWhile("running craft cycle", e);
+    }
   }
 
   /**
@@ -386,9 +391,14 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(dubWork);
     assert Objects.nonNull(shipWork);
 
-    LOG.debug("Will run dub cycle");
-    dubWork.runCycle(shipWork.getShippedToChainMicros().orElse(0L));
-    LOG.debug("Did run dub cycle");
+    try {
+      LOG.debug("Will run dub cycle");
+      dubWork.runCycle(shipWork.getShippedToChainMicros().orElse(0L));
+      LOG.debug("Did run dub cycle");
+
+    } catch (Exception e) {
+      didFailWhile("running dub cycle", e);
+    }
   }
 
   /**
@@ -402,9 +412,14 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(shipWork);
 
-    LOG.debug("Will run ship cycle");
-    shipWork.runCycle();
-    LOG.debug("Did run ship cycle");
+    try {
+      LOG.debug("Will run ship cycle");
+      shipWork.runCycle();
+      LOG.debug("Did run ship cycle");
+
+    } catch (Exception e) {
+      didFailWhile("running ship cycle", e);
+    }
 
     if (shipWork.isFinished()) {
       updateState(WorkState.Done);
