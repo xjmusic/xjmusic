@@ -69,12 +69,12 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
     choice.setInstrumentType(instrument.getType());
     choice.setInstrumentMode(instrument.getMode());
     choice.setInstrumentId(instrument.getId());
-    fabricator.put(choice);
+    fabricator.put(choice, false);
     var arrangement = new SegmentChoiceArrangement();
     arrangement.setId(UUID.randomUUID());
     arrangement.setSegmentId(fabricator.getSegment().getId());
     arrangement.segmentChoiceId(choice.getId());
-    fabricator.put(arrangement);
+    fabricator.put(arrangement, false);
 
     // Start at zero and keep laying down hook loops until we're out of here
     float pos = 0;
@@ -95,7 +95,7 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
       pick.setAmplitude(1.0f);
       pick.setEvent("HOOK");
       pick.setInstrumentAudioId(audio.getId());
-      fabricator.put(pick);
+      fabricator.put(pick, false);
 
       pos += audio.getTotalBeats();
     }

@@ -200,9 +200,9 @@ public class FabricatorImplTest {
     segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
     subject = new FabricatorImpl(mockFabricatorFactory, store, sourceMaterial, segment.getId(), mockJsonapiPayloadFactory, jsonProvider, 48000.0f, 2, null);
-    subject.put(buildSegmentChord(segment, 0.0f, "C"));
-    subject.put(buildSegmentChord(segment, 2.0f, "F"));
-    subject.put(buildSegmentChord(segment, 5.5f, "Gm"));
+    subject.put(buildSegmentChord(segment, 0.0f, "C"), false);
+    subject.put(buildSegmentChord(segment, 2.0f, "F"), false);
+    subject.put(buildSegmentChord(segment, 5.5f, "Gm"), false);
 
     assertEquals("C", subject.getChordAt(0.0).orElseThrow().getName());
     assertEquals("C", subject.getChordAt(1.0).orElseThrow().getName());
@@ -299,8 +299,8 @@ public class FabricatorImplTest {
    */
   @Test
   public void put_addsMemesForChoice() throws NexusException {
-    subject.put(buildSegmentChoice(segment, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, fake.program9, fake.program9_voice0, fake.instrument8));
-    subject.put(buildSegmentChoice(segment, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, fake.program4, fake.program4_sequence1_binding0));
+    subject.put(buildSegmentChoice(segment, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, fake.program9, fake.program9_voice0, fake.instrument8), false);
+    subject.put(buildSegmentChoice(segment, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, fake.program4, fake.program4_sequence1_binding0), false);
 
     var resultMemes = store.readAll(segment.getId(), SegmentMeme.class).stream().sorted(Comparator.comparing(SegmentMeme::getName)).toList();
     assertEquals("BASIC", (resultMemes.get(0)).getName());

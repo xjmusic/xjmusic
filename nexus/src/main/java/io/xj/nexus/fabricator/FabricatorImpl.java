@@ -198,7 +198,7 @@ public class FabricatorImpl implements Fabricator {
       msg.setSegmentId(getSegment().getId());
       msg.setType(messageType);
       msg.setBody(body);
-      put(msg);
+      put(msg, false);
     } catch (NexusException e) {
       LOG.warn("Failed to add message!", e);
     }
@@ -854,10 +854,18 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public <N> N put(N entity) throws NexusException {
+  public <N> N put(N entity, boolean force) throws NexusException {
+    var memeStack = MemeStack.from(templateConfig.getMemeTaxonomy(),
+      getSegmentMemes().stream().map(SegmentMeme::getName).toList());
+
     // For a SegmentChoice, add memes from program, program sequence binding, and instrument if present
     if (SegmentChoice.class.equals(entity.getClass()))
-      if (!addMemes((SegmentChoice) entity))
+      if (!isValidChoiceAndMemesHaveBeenAdded((SegmentChoice) entity, memeStack, force))
+        return entity;
+
+    // For a SegmentMeme, don't put a duplicate of an existing meme
+    if (SegmentMeme.class.equals(entity.getClass()))
+      if (!isValidMemeAddition((SegmentMeme) entity, memeStack, force))
         return entity;
 
     store.put(entity);
@@ -874,7 +882,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public void putReport(String key, Object value) {
-    addMessage(SegmentMessageType.INFO, String.format("%s: %s", key, value));
+    addMessage(SegmentMessageType.DEBUG, String.format("%s: %s", key, value));
   }
 
   @Override
@@ -1046,10 +1054,12 @@ public class FabricatorImpl implements Fabricator {
   /**
    For a SegmentChoice, add memes from program, program sequence binding, and instrument if present https://www.pivotaltracker.com/story/show/181336704
 
-   @param choice for which to add memes
-   @return true if adding memes was successful
+   @param choice    to test for validity, and add its memes
+   @param memeStack to use for validation
+   @param force     whether to force the addition of this choice
+   @return true if valid and adding memes was successful
    */
-  private boolean addMemes(SegmentChoice choice) throws NexusException {
+  private boolean isValidChoiceAndMemesHaveBeenAdded(SegmentChoice choice, MemeStack memeStack, boolean force) throws NexusException {
     Set<String> names = new HashSet<>();
 
     if (Objects.nonNull(choice.getProgramId()))
@@ -1064,10 +1074,7 @@ public class FabricatorImpl implements Fabricator {
       sourceMaterial().getMemesForInstrumentId(choice.getInstrumentId())
         .forEach(meme -> names.add(StringUtils.toMeme(meme.getName())));
 
-    var memeStack = MemeStack.from(templateConfig.getMemeTaxonomy(),
-      getSegmentMemes().stream().map(SegmentMeme::getName).toList());
-
-    if (!memeStack.isAllowed(names)) {
+    if (!force && !memeStack.isAllowed(names)) {
       addMessage(SegmentMessageType.ERROR, String.format("Refused to add Choice[%s] because adding Memes[%s] to MemeStack[%s] would result in an invalid meme stack theorem!",
         SegmentUtils.describe(choice),
         CsvUtils.join(names.stream().toList()),
@@ -1076,13 +1083,28 @@ public class FabricatorImpl implements Fabricator {
     }
 
     for (String name : names) {
-      var segMeme = new SegmentMeme();
-      segMeme.setId(UUID.randomUUID());
-      segMeme.setSegmentId(getSegment().getId());
-      segMeme.setName(name);
-      put(segMeme);
+      var segmentMeme = new SegmentMeme();
+      segmentMeme.setId(UUID.randomUUID());
+      segmentMeme.setSegmentId(getSegment().getId());
+      segmentMeme.setName(name);
+      put(segmentMeme, false);
     }
 
+    return true;
+  }
+
+  /**
+   For a SegmentMeme, don't put a duplicate of an existing meme
+
+   @param meme      to test for validity
+   @param memeStack to use for validation
+   @param force     whether to force the addition of this meme
+   @return true if okay to add
+   */
+  @SuppressWarnings("RedundantIfStatement")
+  private boolean isValidMemeAddition(SegmentMeme meme, MemeStack memeStack, boolean force) {
+    if (!force && !memeStack.isAllowed(List.of(meme.getName()))) return false;
+    if (!force && getSegmentMemes().stream().anyMatch(m -> Objects.equals(m.getName(), meme.getName()))) return false;
     return true;
   }
 }

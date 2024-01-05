@@ -217,7 +217,7 @@ FUTURE goal
         for (StickyBun bun : stickyBuns) {
           fabricator.putStickyBun(bun);
         }
-        fabricator.put(buildSegmentChoice(segment, mainProgram1));
+        fabricator.put(buildSegmentChoice(segment, mainProgram1), false);
         CraftImpl subject = new CraftImpl(fabricator);
         for (var choice : segmentChoices.values())
           subject.craftNoteEventArrangements(TEMPO, choice, false);

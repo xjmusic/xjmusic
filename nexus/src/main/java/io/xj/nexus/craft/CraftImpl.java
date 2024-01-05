@@ -145,7 +145,7 @@ public class CraftImpl extends FabricationWrapperImpl {
           choice.setDeltaOut(priorChoice.get().getDeltaOut());
           choice.setInstrumentId(priorChoice.get().getInstrumentId());
           choice.setInstrumentMode(priorChoice.get().getInstrumentMode());
-          this.craftNoteEventArrangements(tempo, fabricator.put(choice), defaultAtonal);
+          this.craftNoteEventArrangements(tempo, fabricator.put(choice, false), defaultAtonal);
           continue;
         }
 
@@ -160,7 +160,7 @@ public class CraftImpl extends FabricationWrapperImpl {
         choice.setDeltaOut(computeDeltaOut(choice));
         choice.setInstrumentId(instrument.get().getId());
         choice.setInstrumentMode(instrument.get().getMode());
-        this.craftNoteEventArrangements(tempo, fabricator.put(choice), defaultAtonal);
+        this.craftNoteEventArrangements(tempo, fabricator.put(choice, false), defaultAtonal);
       }
 
     } catch (HubClientException e) {
@@ -194,7 +194,7 @@ public class CraftImpl extends FabricationWrapperImpl {
       choice.setDeltaIn(priorChoice.get().getDeltaIn());
       choice.setDeltaOut(priorChoice.get().getDeltaOut());
       choice.setInstrumentId(priorChoice.get().getInstrumentId());
-      this.craftChordParts(tempo, instrument, fabricator.put(choice));
+      this.craftChordParts(tempo, instrument, fabricator.put(choice, false));
       return;
     }
 
@@ -202,7 +202,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     choice.setDeltaIn(computeDeltaIn(choice));
     choice.setDeltaOut(computeDeltaOut(choice));
     choice.setInstrumentId(instrument.getId());
-    this.craftChordParts(tempo, instrument, fabricator.put(choice));
+    this.craftChordParts(tempo, instrument, fabricator.put(choice, false));
   }
 
   /**
@@ -222,7 +222,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     arrangement.setId(UUID.randomUUID());
     arrangement.setSegmentId(choice.getSegmentId());
     arrangement.segmentChoiceId(choice.getId());
-    fabricator.put(arrangement);
+    fabricator.put(arrangement, false);
 
     // Pick for each section
     for (var section : computeSections()) {
@@ -250,7 +250,7 @@ public class CraftImpl extends FabricationWrapperImpl {
       pick.setEvent(StringUtils.toEvent(instrument.getType().toString()));
       pick.setLengthMicros(lengthMicros);
       pick.setAmplitude(volRatio);
-      fabricator.put(pick);
+      fabricator.put(pick, false);
     }
 
     // Final pass to set the actual length of one-shot audio picks
@@ -502,7 +502,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     arrangement.setSegmentId(choice.getSegmentId());
     arrangement.segmentChoiceId(choice.getId());
     arrangement.setProgramSequencePatternId(pattern.getId());
-    fabricator.put(arrangement);
+    fabricator.put(arrangement, false);
 
     var instrument = fabricator.sourceMaterial().getInstrument(choice.getInstrumentId()).orElseThrow(() -> new NexusException("Failed to retrieve instrument"));
     for (ProgramSequencePatternEvent event : events)
@@ -582,13 +582,13 @@ public class CraftImpl extends FabricationWrapperImpl {
 
       if (nextCutoffAtSegmentMicros.isPresent()) {
         pick.setLengthMicros(nextCutoffAtSegmentMicros.get() - pick.getStartAtSegmentMicros());
-        fabricator.put(pick);
+        fabricator.put(pick, false);
         continue;
       }
 
       if (pick.getStartAtSegmentMicros() < fabricator.getTotalSegmentMicros()) {
         pick.setLengthMicros(fabricator.getTotalSegmentMicros() - pick.getStartAtSegmentMicros());
-        fabricator.put(pick);
+        fabricator.put(pick, false);
         continue;
       }
 
@@ -748,7 +748,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     pick.setAmplitude(event.getVelocity() * volRatio);
     pick.setTones(fabricator.getInstrumentConfig(instrument).isTonal() ? note : Note.ATONAL);
     if (Objects.nonNull(segmentChordVoicingId)) pick.setSegmentChordVoicingId(segmentChordVoicingId);
-    fabricator.put(pick);
+    fabricator.put(pick, false);
   }
 
   /**

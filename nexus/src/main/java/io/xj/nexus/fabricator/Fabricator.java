@@ -676,9 +676,10 @@ public interface Fabricator {
    <p>
 
    @param entity to put
+   @param force overriding safeguards (e.g. choices must not violate meme stack, memes must be unique)
    @return entity successfully put
    */
-  <N> N put(N entity) throws NexusException;
+  <N> N put(N entity, boolean force) throws NexusException;
 
   /**
    Set the preferred audio for a key
