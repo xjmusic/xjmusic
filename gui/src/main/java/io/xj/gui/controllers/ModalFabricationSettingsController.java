@@ -7,7 +7,7 @@ import io.xj.gui.services.LabService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.InputMode;
-import io.xj.nexus.MacroMode;
+import io.xj.nexus.ControlMode;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -38,13 +38,13 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   ChoiceBox<InputMode> choiceInputMode;
 
   @FXML
-  ChoiceBox<MacroMode> choiceMacroMode;
+  ChoiceBox<ControlMode> choiceControlMode;
 
   @FXML
   Label labelInputMode;
 
   @FXML
-  Label labelMacroMode;
+  Label labelControlMode;
 
   @FXML
   TextField fieldContentStoragePathPrefix;
@@ -102,8 +102,8 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
       fabricationService.inputModeProperty().set(InputMode.PRODUCTION);
     }
 
-    choiceMacroMode.valueProperty().bindBidirectional(fabricationService.macroModeProperty());
-    choiceMacroMode.setItems(FXCollections.observableArrayList(MacroMode.values()));
+    choiceControlMode.valueProperty().bindBidirectional(fabricationService.controlModeProperty());
+    choiceControlMode.setItems(FXCollections.observableArrayList(ControlMode.values()));
 
     fieldInputTemplateKey.textProperty().bindBidirectional(fabricationService.inputTemplateKeyProperty());
 

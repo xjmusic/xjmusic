@@ -11,6 +11,7 @@ import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.meme.MemeStack;
+import io.xj.hub.meme.MemeTaxonomy;
 import io.xj.hub.music.Accidental;
 import io.xj.hub.music.Chord;
 import io.xj.hub.music.Note;
@@ -425,7 +426,7 @@ public class FabricatorImpl implements Fabricator {
       return new ProgramConfig(
         sourceMaterial.getProgram(getCurrentMainChoice()
             .orElseThrow(() -> new NexusException("No current main choice!")).getProgramId())
-          .orElseThrow(() -> new NexusException("Failed to retrieve current main program!")));
+          .orElseThrow(() -> new NexusException("Failed to retrieve current main program config!")));
 
     } catch (ValueException e) {
       throw new NexusException(e);
@@ -919,6 +920,11 @@ public class FabricatorImpl implements Fabricator {
       .map(ProgramSequenceBinding::getOffset)
       .collect(Collectors.toSet()).stream().sorted().toList();
     return offsets.size() > 1 ? offsets.get(1) : offsets.get(0);
+  }
+
+  @Override
+  public MemeTaxonomy getMemeTaxonomy() {
+    return templateConfig.getMemeTaxonomy();
   }
 
   @Override

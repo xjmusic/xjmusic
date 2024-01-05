@@ -86,8 +86,8 @@ public class MacroFromOverlappingMemeSequencesTest {
     Library library2 = buildLibrary(account1, "house");
     var template1 = buildTemplate(account1, "Test Template 1", "test1");
     TemplateBinding templateBinding1 = buildTemplateBinding(template1, library2);
-    User user2 = buildUser("john", "john@email.com", "https://pictures.com/john.gif", "User");
-    User user3 = buildUser("jenny", "jenny@email.com", "https://pictures.com/jenny.gif", "User");
+    User user2 = buildUser("john", "john@email.com", "https://pictures.com/john.gif");
+    User user3 = buildUser("jenny", "jenny@email.com", "https://pictures.com/jenny.gif");
     AccountUser accountUser1a = buildAccountUser(account1, user3);
 
     // Macro Program already chosen for previous segment
@@ -178,7 +178,7 @@ public class MacroFromOverlappingMemeSequencesTest {
       "chains-1-segments-9f7s89d8a7892.wav"
     ));
 
-    subject = new MacroMainCraftImpl(fabricatorFactory.fabricate(sourceMaterial, segment2.getId(), 48000.0f, 2, null), null);
+    subject = new MacroMainCraftImpl(fabricatorFactory.fabricate(sourceMaterial, segment2.getId(), 48000.0f, 2, null), null, null);
   }
 
   @Test

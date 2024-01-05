@@ -378,13 +378,17 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   }
 
   @Override
+  public void deleteSegment(int segmentId) {
+    segments.remove(segmentId);
+    entities.remove(segmentId);
+  }
+
+  @Override
   public void deleteSegmentsAfter(int lastSegmentId) {
     for (var segmentId : segments.keySet().stream()
       .filter(segmentId -> segmentId > lastSegmentId)
-      .toList()) {
-      segments.remove(segmentId);
-      entities.remove(segmentId);
-    }
+      .toList())
+      deleteSegment(segmentId);
   }
 
   @Override

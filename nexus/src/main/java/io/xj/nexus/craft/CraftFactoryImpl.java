@@ -21,6 +21,8 @@ import io.xj.nexus.craft.transition.TransitionCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import jakarta.annotation.Nullable;
 
+import java.util.Collection;
+
 public class CraftFactoryImpl implements CraftFactory {
 
   public CraftFactoryImpl() {
@@ -47,8 +49,8 @@ public class CraftFactoryImpl implements CraftFactory {
   }
 
   @Override
-  public MacroMainCraft macroMain(Fabricator fabricator, @Nullable Program selectedMacroProgram) {
-    return new MacroMainCraftImpl(fabricator, selectedMacroProgram);
+  public MacroMainCraft macroMain(Fabricator fabricator, @Nullable Program overrideMacroProgram, @Nullable Collection<String> overrideMemes) {
+    return new MacroMainCraftImpl(fabricator, overrideMacroProgram, overrideMemes);
   }
 
   @Override

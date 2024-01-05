@@ -7,7 +7,7 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.InputMode;
-import io.xj.nexus.MacroMode;
+import io.xj.nexus.ControlMode;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -44,7 +44,7 @@ class FabricationServiceImplTest {
   int defaultMixerLengthSeconds = 10;
   String defaultInputTemplateKey = "slaps_lofi";
   int defaultOutputChannels = 2;
-  private final String defaultMacroMode = MacroMode.AUTO.toString();
+  private final String defaultMacroMode = ControlMode.AUTO.toString();
   String defaultInputMode = InputMode.PRODUCTION.toString();
   double defaultOutputFrameRate = 48000;
 

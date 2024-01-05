@@ -685,4 +685,80 @@ public class NexusEntityStoreImplTest {
 
     assertFalse(subject.isEmpty());
   }
+
+  @Test
+  public void deleteSegment() throws NexusException {
+    for (int i = 0; i < 10; i++)
+      subject.put(buildSegment(fakeChain,
+        i,
+        SegmentState.CRAFTED,
+        "D Major",
+        64,
+        0.73f,
+        120.0f,
+        "chains-3-segments-9f7s89d8a7892.wav"
+      ));
+
+    subject.deleteSegment(5);
+
+    assertEquals(9, subject.getSegmentCount());
+    assertFalse(subject.readSegment(5).isPresent());
+  }
+
+  @Test
+  public void deleteSegmentsAfter() throws NexusException {
+    for (int i = 0; i < 10; i++)
+      subject.put(buildSegment(fakeChain,
+        i,
+        SegmentState.CRAFTED,
+        "D Major",
+        64,
+        0.73f,
+        120.0f,
+        "chains-3-segments-9f7s89d8a7892.wav"
+      ));
+
+    subject.deleteSegmentsAfter(5);
+
+    assertEquals(6, subject.getSegmentCount());
+    assertTrue(subject.readSegment(0).isPresent());
+    assertTrue(subject.readSegment(1).isPresent());
+    assertTrue(subject.readSegment(2).isPresent());
+    assertTrue(subject.readSegment(3).isPresent());
+    assertTrue(subject.readSegment(4).isPresent());
+    assertTrue(subject.readSegment(5).isPresent());
+    assertFalse(subject.readSegment(6).isPresent());
+    assertFalse(subject.readSegment(7).isPresent());
+    assertFalse(subject.readSegment(8).isPresent());
+    assertFalse(subject.readSegment(9).isPresent());
+  }
+
+  @Test
+  public void deleteSegmentsBefore() throws NexusException {
+    for (int i = 0; i < 10; i++)
+      subject.put(buildSegment(fakeChain,
+        i,
+        SegmentState.CRAFTED,
+        "D Major",
+        64,
+        0.73f,
+        120.0f,
+        "chains-3-segments-9f7s89d8a7892.wav"
+      ));
+
+    subject.deleteSegmentsBefore(5);
+
+    assertEquals(5, subject.getSegmentCount());
+    assertFalse(subject.readSegment(0).isPresent());
+    assertFalse(subject.readSegment(1).isPresent());
+    assertFalse(subject.readSegment(2).isPresent());
+    assertFalse(subject.readSegment(3).isPresent());
+    assertFalse(subject.readSegment(4).isPresent());
+    assertTrue(subject.readSegment(5).isPresent());
+    assertTrue(subject.readSegment(6).isPresent());
+    assertTrue(subject.readSegment(7).isPresent());
+    assertTrue(subject.readSegment(8).isPresent());
+    assertTrue(subject.readSegment(9).isPresent());
+  }
+
 }

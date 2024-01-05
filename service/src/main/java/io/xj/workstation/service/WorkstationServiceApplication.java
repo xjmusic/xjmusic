@@ -3,7 +3,6 @@
 package io.xj.workstation.service;
 
 import io.xj.hub.HubConfiguration;
-import io.xj.hub.enums.UserRoleType;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.work.WorkConfiguration;
@@ -21,7 +20,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.event.EventListener;
 
-import java.util.List;
 import java.util.Locale;
 
 @SpringBootApplication
@@ -80,7 +78,6 @@ public class WorkstationServiceApplication {
       .setStreamBaseUrl(streamBaseUrl);
 
     var hubAccess = new HubClientAccess()
-      .setRoleTypes(List.of(UserRoleType.Internal))
       .setToken(ingestToken);
 
     workManager.setAfterFinished(this::shutdown);

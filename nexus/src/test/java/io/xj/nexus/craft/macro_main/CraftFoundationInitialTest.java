@@ -104,7 +104,7 @@ public class CraftFoundationInitialTest {
   public void craftFoundationInitial() throws Exception {
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6.getId(), 48000.0f, 2, null);
 
-    craftFactory.macroMain(fabricator, null).doWork();
+    craftFactory.macroMain(fabricator, null, null).doWork();
 
     Segment result = store.readSegment(segment6.getId()).orElseThrow();
     assertEquals(segment6.getId(), result.getId());
