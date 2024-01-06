@@ -11,10 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -25,6 +25,7 @@ public class ThemeService {
   private final String defaultThemePath;
   private final String darkThemePath;
   private final String fontPathPattern;
+  private final ResourceLoader resourceLoader;
 
   final BooleanProperty isDarkTheme = new SimpleBooleanProperty(true);
   private final PathMatchingResourcePatternResolver pathMatchingResourcePatternResolver;
@@ -32,11 +33,13 @@ public class ThemeService {
   public ThemeService(
     @Value("${gui.theme.default}") String defaultThemePath,
     @Value("${gui.theme.dark}") String darkThemePath,
-    @Value("${gui.resources.font.path.pattern}") String fontPathPattern
+    @Value("${gui.resources.font.path.pattern}") String fontPathPattern,
+    ResourceLoader resourceLoader
   ) {
     this.defaultThemePath = defaultThemePath;
     this.darkThemePath = darkThemePath;
     this.fontPathPattern = fontPathPattern;
+    this.resourceLoader = resourceLoader;
     this.pathMatchingResourcePatternResolver = new PathMatchingResourcePatternResolver();
   }
 
@@ -64,22 +67,9 @@ public class ThemeService {
    */
   public void setupFonts() {
     try {
-      Resource[] resources = pathMatchingResourcePatternResolver.getResources(fontPathPattern);
-
-      for (Resource resource : resources) {
-        if (!resource.isReadable()) {
-          continue;
-        }
-
-        File file = resource.getFile();
-
-        if (file.isDirectory()) {
-          continue; // Skip directories
-        }
-
-        // Here you can load the font file as needed
-        Font.loadFont(file.toURI().toString(), DEFAULT_FONT_SIZE);
-      }
+      for (Resource resource : pathMatchingResourcePatternResolver.getResources(fontPathPattern))
+        if (resource.isReadable())
+          Font.loadFont(resourceLoader.getResource(resource.getURI().toString()).getInputStream(), DEFAULT_FONT_SIZE);
 
     } catch (IOException e) {
       LOG.error("Failed to load fonts from {}", fontPathPattern, e);
