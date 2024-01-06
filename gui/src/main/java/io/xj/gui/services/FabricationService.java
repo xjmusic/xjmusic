@@ -9,8 +9,8 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.nexus.InputMode;
 import io.xj.nexus.ControlMode;
+import io.xj.nexus.InputMode;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
@@ -216,4 +216,9 @@ public interface FabricationService {
    https://www.pivotaltracker.com/story/show/186714075
    */
   void resetOverrideMemes();
+
+  /**
+   Reset all fabrication settings to their defaults
+   */
+  void resetSettingsToDefaults();
 }

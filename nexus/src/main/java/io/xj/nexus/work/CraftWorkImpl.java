@@ -2,8 +2,10 @@
 package io.xj.nexus.work;
 
 import io.xj.hub.HubContent;
+import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.music.Bar;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
@@ -50,6 +52,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
+import static io.xj.hub.util.ValueUtils.MICROS_PER_MINUTE;
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 
 public class CraftWorkImpl implements CraftWork {
@@ -78,7 +81,6 @@ public class CraftWorkImpl implements CraftWork {
   private final AtomicReference<CraftState> craftState = new AtomicReference<>(CraftState.INITIAL);
   private final AtomicReference<Program> overrideMacroProgram = new AtomicReference<>();
   private final AtomicReference<Collection<String>> overrideMemes = new AtomicReference<>();
-  private final AtomicReference<Segment> lastDubbedSegment = new AtomicReference<>();
 
   public CraftWorkImpl(
     Telemetry telemetry,
@@ -277,7 +279,7 @@ public class CraftWorkImpl implements CraftWork {
 
     try {
       long startedAtMillis = System.currentTimeMillis();
-      fabricateTo(shippedToChainMicros + craftAheadMicros);
+      doFabrication(dubbedToChainMicros, shippedToChainMicros + craftAheadMicros);
       telemetry.record(TIMER_SECTION_CRAFT, System.currentTimeMillis() - startedAtMillis);
 
       startedAtMillis = System.currentTimeMillis();
@@ -287,6 +289,7 @@ public class CraftWorkImpl implements CraftWork {
       startedAtMillis = System.currentTimeMillis();
       doSegmentCleanup(shippedToChainMicros);
       telemetry.record(TIMER_SECTION_CRAFT_CLEANUP, System.currentTimeMillis() - startedAtMillis);
+
     } catch (FabricationFatalException e) {
       LOG.warn("Failed to fabricate because {}", e.getMessage());
 
@@ -301,10 +304,9 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   @Override
-  public void doOverrideMacro(Program macroProgram, long dubbedToChainMicros) {
+  public void doOverrideMacro(Program macroProgram) {
     craftState.set(CraftState.REWRITE);
     overrideMacroProgram.set(macroProgram);
-    lastDubbedSegment.set(getSegmentAtChainMicros(dubbedToChainMicros).orElse(null));
   }
 
   @Override
@@ -313,10 +315,9 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   @Override
-  public void doOverrideMemes(Collection<String> memes, long dubbedToChainMicros) {
+  public void doOverrideMemes(Collection<String> memes) {
     craftState.set(CraftState.REWRITE);
     overrideMemes.set(memes);
-    lastDubbedSegment.set(getSegmentAtChainMicros(dubbedToChainMicros).orElse(null));
   }
 
   @Override
@@ -327,13 +328,14 @@ public class CraftWorkImpl implements CraftWork {
   /**
    Fabricate the chain based on craft state
 
-   @param toChainMicros to target chain micros
+   @param dubbedToChainMicros already dubbed to here
+   @param craftToChainMicros  target to craft until
    @throws FabricationFatalException if the chain cannot be fabricated
    */
-  private void fabricateTo(long toChainMicros) throws FabricationFatalException {
+  private void doFabrication(long dubbedToChainMicros, long craftToChainMicros) throws FabricationFatalException {
     switch (craftState.get()) {
-      case INITIAL, CONTINUE -> fabricateDefault(toChainMicros);
-      case REWRITE -> fabricateOverride();
+      case INITIAL, CONTINUE -> doFabricationDefault(craftToChainMicros);
+      case REWRITE -> doFabricationOverride(dubbedToChainMicros);
     }
 
     // Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub
@@ -347,7 +349,7 @@ public class CraftWorkImpl implements CraftWork {
    @param toChainMicros to target chain micros
    @throws FabricationFatalException if the chain cannot be fabricated
    */
-  public void fabricateDefault(long toChainMicros) throws FabricationFatalException {
+  private void doFabricationDefault(long toChainMicros) throws FabricationFatalException {
     try {
       // currently fabricated AT (vs target fabricated TO)
       long atChainMicros = ChainUtils.computeFabricatedToChainMicros(store.readAllSegments());
@@ -367,8 +369,8 @@ public class CraftWorkImpl implements CraftWork {
       } else {
         segment = buildSegmentFollowing(existing.get());
       }
-      segment = store.createSegment(segment);
-      doCraftWork(segment, null);
+      segment = store.put(segment);
+      doFabricationWork(segment, null);
 
     } catch (
       ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException |
@@ -389,23 +391,41 @@ public class CraftWorkImpl implements CraftWork {
 
    @throws FabricationFatalException if the chain cannot be fabricated
    */
-  private void fabricateOverride() throws FabricationFatalException {
+  private void doFabricationOverride(long dubbedToChainMicros) throws FabricationFatalException {
     try {
-      if (Objects.isNull(lastDubbedSegment.get())) {
+      // Determine the segment we are currently in the middle of dubbing
+      var lastSegment = getSegmentAtChainMicros(dubbedToChainMicros);
+      if (lastSegment.isEmpty()) {
         LOG.warn("Will not delete any segments because fabrication is already at the end of the known chain.");
         return;
       }
-      LOG.info("Will delete segments after #{} and re-fabricate.", lastDubbedSegment.get().getId());
+
+      // Determine whether the current segment can be cut short
+      var currentMainProgram = getMainProgram(lastSegment.get());
+      if (currentMainProgram.isEmpty()) {
+        LOG.warn("Will not delete any segments because current segment has no main program.");
+        return;
+      }
+      var subBeats = Bar.of(new ProgramConfig(currentMainProgram.get().getConfig()).getBarBeats()).computeSubsectionBeats(lastSegment.get().getTotal());
+      var dubbedToSegmentMicros = dubbedToChainMicros - lastSegment.get().getBeginAtChainMicros();
+      var microsPerBeat = (long) (MICROS_PER_MINUTE / currentMainProgram.get().getTempo());
+      var dubbedToSegmentBeats = dubbedToSegmentMicros / microsPerBeat;
+      var cutoffAfterBeats = subBeats * Math.ceil((double) dubbedToSegmentBeats / subBeats);
+      if (cutoffAfterBeats < lastSegment.get().getTotal()) {
+        doFabricationOverrideCutoffLastSegment(lastSegment.get(), cutoffAfterBeats);
+      }
+
+      // Delete all segments after the current segment and fabricate the next segment
+      LOG.info("Will delete segments after #{} and re-fabricate.", lastSegment.get().getId());
       if (Objects.nonNull(overrideMacroProgram.get()))
         LOG.info("Will override macro program with {}", overrideMacroProgram.get().getName());
       if (Objects.nonNull(overrideMemes.get()))
         LOG.info("Will override memes with {}", StringUtils.toProperCsvAnd(overrideMemes.get().stream().sorted().toList()));
-      store.deleteSegmentsAfter(lastDubbedSegment.get().getId());
-      Segment segment = buildSegmentFollowing(lastDubbedSegment.get());
+      store.deleteSegmentsAfter(lastSegment.get().getId());
+      Segment segment = buildSegmentFollowing(lastSegment.get());
       segment.setType(SegmentType.NEXT_MACRO);
-      segment = store.createSegment(segment);
-      lastDubbedSegment.set(null);
-      doCraftWork(segment, SegmentType.NEXT_MACRO);
+      segment = store.put(segment);
+      doFabricationWork(segment, SegmentType.NEXT_MACRO);
 
     } catch (
       ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException |
@@ -416,40 +436,26 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
-   Create the initial template segment
+   Cut the current segment short after the given number of beats
 
-   @return initial template segment
+   @param segment          to cut short
+   @param cutoffAfterBeats number of beats to cut short after
    */
-  private Segment buildSegmentInitial() {
-    Segment segment = new Segment();
-    segment.setId(0);
-    segment.setChainId(chain.getId());
-    segment.setBeginAtChainMicros(0L);
-    segment.setDelta(0);
-    segment.setType(SegmentType.PENDING);
-    segment.setState(SegmentState.PLANNED);
-    return segment;
-  }
+  private void doFabricationOverrideCutoffLastSegment(Segment segment, double cutoffAfterBeats) throws NexusException {
+    try {
+      var durationMicros = cutoffAfterBeats * MICROS_PER_MINUTE / segment.getTempo();
+      LOG.info("Will cut current segment short after {} beats.", cutoffAfterBeats);
+      segment.setTotal((int) cutoffAfterBeats);
+      segment.setDurationMicros((long) (durationMicros));
+      store.updateSegment(segment);
+      store.readAll(segment.getId(), SegmentChoiceArrangementPick.class).stream()
+        .filter(pick -> pick.getStartAtSegmentMicros() >= durationMicros)
+        .forEach((pick) ->
+          store.delete(segment.getId(), SegmentChoiceArrangementPick.class, pick.getId()));
 
-  /**
-   Create the next segment in the chain, following the last segment
-
-   @param last segment
-   @return next segment
-   @throws ManagerFatalException      on a fatal error
-   @throws ManagerValidationException on a validation error
-   @throws ManagerExistenceException  if the segment does not exist
-   @throws ManagerPrivilegeException  if access is prohibited
-   */
-  private Segment buildSegmentFollowing(Segment last) throws ManagerFatalException, ManagerValidationException, ManagerExistenceException, ManagerPrivilegeException {
-    Segment segment = new Segment();
-    segment.setId(last.getId() + 1);
-    segment.setChainId(chain.getId());
-    segment.setBeginAtChainMicros(last.getBeginAtChainMicros() + Objects.requireNonNull(last.getDurationMicros()));
-    segment.setDelta(last.getDelta());
-    segment.setType(SegmentType.PENDING);
-    segment.setState(SegmentState.PLANNED);
-    return segment;
+    } catch (Exception e) {
+      throw new NexusException(String.format("Failed to cut Segment[%d] short to %f beats", segment.getId(), cutoffAfterBeats), e);
+    }
   }
 
   /**
@@ -460,7 +466,7 @@ public class CraftWorkImpl implements CraftWork {
    @throws NexusException on configuration failure
    @throws NexusException on craft failure
    */
-  private void doCraftWork(
+  private void doFabricationWork(
     Segment segment,
     @Nullable SegmentType overrideSegmentType
   ) throws NexusException, ManagerFatalException, ValueException, FabricationFatalException {
@@ -515,6 +521,43 @@ public class CraftWorkImpl implements CraftWork {
         }
       });
     audioCache.loadTheseAndForgetTheRest(currentAudios);
+  }
+
+  /**
+   Create the initial template segment
+
+   @return initial template segment
+   */
+  private Segment buildSegmentInitial() {
+    Segment segment = new Segment();
+    segment.setId(0);
+    segment.setChainId(chain.getId());
+    segment.setBeginAtChainMicros(0L);
+    segment.setDelta(0);
+    segment.setType(SegmentType.PENDING);
+    segment.setState(SegmentState.PLANNED);
+    return segment;
+  }
+
+  /**
+   Create the next segment in the chain, following the last segment
+
+   @param last segment
+   @return next segment
+   @throws ManagerFatalException      on a fatal error
+   @throws ManagerValidationException on a validation error
+   @throws ManagerExistenceException  if the segment does not exist
+   @throws ManagerPrivilegeException  if access is prohibited
+   */
+  private Segment buildSegmentFollowing(Segment last) throws ManagerFatalException, ManagerValidationException, ManagerExistenceException, ManagerPrivilegeException {
+    Segment segment = new Segment();
+    segment.setId(last.getId() + 1);
+    segment.setChainId(chain.getId());
+    segment.setBeginAtChainMicros(last.getBeginAtChainMicros() + Objects.requireNonNull(last.getDurationMicros()));
+    segment.setDelta(last.getDelta());
+    segment.setType(SegmentType.PENDING);
+    segment.setState(SegmentState.PLANNED);
+    return segment;
   }
 
   /**

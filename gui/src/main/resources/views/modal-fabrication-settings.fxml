@@ -136,5 +136,6 @@
   <HBox alignment="BOTTOM_LEFT" prefHeight="50.0" prefWidth="640.0">
     <Pane layoutX="192.0" layoutY="10.0" prefHeight="50.0" prefWidth="9.0" />
     <Button fx:id="buttonClose" onAction="#handleClose" prefHeight="25.0" prefWidth="56.0" text="_OK" />
+    <Button fx:id="buttonReset" onAction="#handleReset" prefHeight="25.0" prefWidth="56.0" text="_Reset" />
   </HBox>
 </VBox>

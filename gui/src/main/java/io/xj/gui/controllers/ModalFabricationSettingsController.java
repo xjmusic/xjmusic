@@ -73,6 +73,9 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   @FXML
   public Button buttonClose;
 
+  @FXML
+  public Button buttonReset;
+
   public ModalFabricationSettingsController(
     @Value("classpath:/views/modal-fabrication-settings.fxml") Resource modalFabricationSettingsFxml,
     ConfigurableApplicationContext ac,
@@ -128,6 +131,11 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
     Stage stage = (Stage) buttonClose.getScene().getWindow();
     stage.close();
     onStageClose();
+  }
+
+  @FXML
+  void handleReset() {
+    fabricationService.resetSettingsToDefaults();
   }
 
   @Override

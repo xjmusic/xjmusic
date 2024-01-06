@@ -180,7 +180,7 @@ public class NexusEntityStoreImplTest {
       .key("C# minor 7 b9")
       .tempo(120.0);
 
-    Segment result = subject.createSegment(inputData);
+    Segment result = subject.put(inputData);
 
     assertNotNull(result);
     assertEquals(chain3.getId(), result.getChainId());
@@ -194,82 +194,6 @@ public class NexusEntityStoreImplTest {
     assertEquals(120.0f, result.getTempo(), 0.01);
     assertEquals(2.898, result.getWaveformPreroll(), 0.01);
     assertNotNull(result.getStorageKey());
-  }
-
-  /**
-   Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation https://www.pivotaltracker.com/story/show/162361712
-   [#126] Segments are always readMany in PLANNED state
-   */
-  @Test
-  public void create_alwaysInPlannedState() throws Exception {
-    Segment inputData = new Segment()
-      .chainId(chain3.getId())
-      .id(5)
-      .state(SegmentState.CRAFTING)
-      .delta(0)
-      .type(SegmentType.CONTINUE)
-      .beginAtChainMicros(5 * 32 * MICROS_PER_SECOND)
-      .durationMicros(32 * MICROS_PER_SECOND)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .total(64)
-      .density(0.74)
-      .key("C# minor 7 b9")
-      .tempo(120.0);
-
-    Segment result = subject.createSegment(inputData);
-
-    assertNotNull(result);
-    assertEquals(chain3.getId(), result.getChainId());
-    assertEquals(5, result.getId());
-    assertEquals(SegmentState.PLANNED, result.getState());
-    assertEquals(5 * 32 * MICROS_PER_SECOND, (long) result.getBeginAtChainMicros());
-    assertEquals(32 * MICROS_PER_SECOND, (long) Objects.requireNonNull(result.getDurationMicros()));
-    assertEquals(Integer.valueOf(64), result.getTotal());
-    assertEquals(0.74, result.getDensity(), 0.01);
-    assertEquals("C# minor 7 b9", result.getKey());
-    assertEquals(120.0f, result.getTempo(), 0.1);
-    assertNotNull(result.getStorageKey());
-  }
-
-  @Test
-  public void create_FailsIfNotUniqueChainOffset() {
-    Segment inputData = new Segment()
-      .chainId(chain3.getId())
-      .id(4)
-      .delta(0)
-      .type(SegmentType.CONTINUE)
-      .state(SegmentState.CRAFTING)
-      .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
-      .durationMicros(32 * MICROS_PER_SECOND)
-      .total(64)
-      .density(0.74)
-      .key("C# minor 7 b9")
-      .tempo(120.0);
-
-    Exception thrown = assertThrows(ManagerValidationException.class, () ->
-      subject.createSegment(inputData));
-
-    assertEquals("Found Segment at same offset in Chain!", thrown.getMessage());
-  }
-
-  @Test
-  public void create_FailsWithoutChainID() {
-    Segment inputData = new Segment()
-      .id(4)
-      .delta(0)
-      .type(SegmentType.CONTINUE)
-      .state(SegmentState.CRAFTING)
-      .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
-      .durationMicros(32 * MICROS_PER_SECOND)
-      .total(64)
-      .density(0.74)
-      .key("C# minor 7 b9")
-      .tempo(120.0);
-
-    Exception thrown = assertThrows(ManagerValidationException.class, () ->
-      subject.createSegment(inputData));
-
-    assertEquals("Chain ID is required.", thrown.getMessage());
   }
 
   @Test
@@ -544,7 +468,7 @@ public class NexusEntityStoreImplTest {
   @Test
   public void updateSegment() throws Exception {
     Segment inputData = new Segment()
-      .id(5)
+      .id(1)
       .chainId(chain3.getId())
       .state(SegmentState.CRAFTED)
       .delta(0)
@@ -558,7 +482,7 @@ public class NexusEntityStoreImplTest {
       .key("C# minor 7 b9")
       .tempo(120.0);
 
-    subject.updateSegment(segment2.getId(), inputData);
+    subject.updateSegment(inputData);
 
     Segment result = subject.readSegment(segment2.getId()).orElseThrow();
     assertNotNull(result);
@@ -589,7 +513,7 @@ public class NexusEntityStoreImplTest {
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
       .tempo(120.0));
 
-    subject.updateSegment(segment4.getId(), segment4);
+    subject.updateSegment(segment4);
 
     Segment result = subject.readSegment(segment2.getId()).orElseThrow();
     assertNotNull(result);
@@ -611,29 +535,9 @@ public class NexusEntityStoreImplTest {
       .tempo(120.0);
 
     Exception thrown = assertThrows(ManagerValidationException.class, () ->
-      subject.updateSegment(segment5.getId(), inputData));
+      subject.updateSegment(inputData));
 
     assertTrue(thrown.getMessage().contains("transition to Crafted not in allowed"));
-  }
-
-  @Test
-  public void updateSegment_FailsWithoutChainID() throws Exception {
-    Segment inputData = subject.put(new Segment()
-      .id(4)
-      .state(SegmentState.CRAFTING)
-      .delta(0)
-      .type(SegmentType.CONTINUE)
-      .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
-      .durationMicros(32 * MICROS_PER_SECOND)
-      .total(64)
-      .density(0.74)
-      .key("C# minor 7 b9")
-      .tempo(120.0));
-
-    Exception thrown = assertThrows(ManagerValidationException.class, () ->
-      subject.updateSegment(segment2.getId(), inputData));
-
-    assertEquals("Chain ID is required.", thrown.getMessage());
   }
 
   @Test
@@ -652,7 +556,7 @@ public class NexusEntityStoreImplTest {
       .tempo(120.0);
 
     Exception thrown = assertThrows(ManagerValidationException.class, () ->
-      subject.updateSegment(segment2.getId(), inputData));
+      subject.updateSegment(inputData));
 
     assertTrue(thrown.getMessage().contains("cannot change chainId create a segment"));
     Segment result = subject.readSegment(segment2.getId()).orElseThrow();

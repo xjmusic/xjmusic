@@ -12,8 +12,8 @@ import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.util.ValueException;
-import io.xj.nexus.InputMode;
 import io.xj.nexus.ControlMode;
+import io.xj.nexus.InputMode;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
@@ -225,6 +225,18 @@ public class FabricationServiceImpl implements FabricationService {
   public void resetOverrideMemes() {
     workManager.resetOverrideMemes();
     overrideMemes.clear();
+  }
+
+  @Override
+  public void resetSettingsToDefaults() {
+    contentStoragePathPrefix.set(defaultContentStoragePathPrefix);
+    craftAheadSeconds.set(String.valueOf(defaultCraftAheadSeconds));
+    dubAheadSeconds.set(String.valueOf(defaultDubAheadSeconds));
+    mixerLengthSeconds.set(String.valueOf(defaultMixerLengthSeconds));
+    inputMode.set(defaultInputMode);
+    controlMode.set(defaultControlMode);
+    outputChannels.set(String.valueOf(defaultOutputChannels));
+    outputFrameRate.set(String.valueOf(defaultOutputFrameRate));
   }
 
   @Override

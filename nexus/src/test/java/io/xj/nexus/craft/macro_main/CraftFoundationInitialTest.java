@@ -41,8 +41,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static io.xj.hub.util.Assertion.assertSameItems;
-import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.hub.util.ValueUtils.SECONDS_PER_MINUTE;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_MINUTE;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -109,7 +108,7 @@ public class CraftFoundationInitialTest {
     Segment result = store.readSegment(segment6.getId()).orElseThrow();
     assertEquals(segment6.getId(), result.getId());
     assertEquals(SegmentType.INITIAL, result.getType());
-    assertEquals(16 * MICROS_PER_SECOND * SECONDS_PER_MINUTE / 140, (long) Objects.requireNonNull(result.getDurationMicros()));
+    assertEquals(16 * MICROS_PER_MINUTE / 140, (long) Objects.requireNonNull(result.getDurationMicros()));
     assertEquals(Integer.valueOf(16), result.getTotal());
     assertEquals(0.1, result.getDensity(), 0.01);
     assertEquals("G", result.getKey());

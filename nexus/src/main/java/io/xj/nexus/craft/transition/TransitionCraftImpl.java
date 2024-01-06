@@ -6,7 +6,6 @@ import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.music.Bar;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.util.MarbleBag;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueUtils;
 import io.xj.nexus.NexusException;
@@ -15,6 +14,7 @@ import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.util.MarbleBag;
 
 import java.util.Collection;
 import java.util.List;
