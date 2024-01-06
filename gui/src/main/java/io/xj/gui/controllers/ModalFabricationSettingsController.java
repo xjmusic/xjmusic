@@ -97,6 +97,7 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
     choiceInputMode.valueProperty().bindBidirectional(fabricationService.inputModeProperty());
     choiceInputMode.disableProperty().bind(uiStateService.isInputModeDisabledProperty());
     labelInputMode.disableProperty().bind(uiStateService.isInputModeDisabledProperty());
+
     // Input mode is locked in PRODUCTION unless we are connected to a Lab
     if (labService.isAuthenticated()) {
       choiceInputMode.getItems().setAll(FXCollections.observableArrayList(InputMode.values()));

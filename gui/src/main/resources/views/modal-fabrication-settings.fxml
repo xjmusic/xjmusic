@@ -133,9 +133,9 @@
     </HBox>
   </VBox>
 
-  <HBox alignment="BOTTOM_LEFT" prefHeight="50.0" prefWidth="640.0">
+  <HBox alignment="BOTTOM_LEFT" prefHeight="50.0" prefWidth="640.0" spacing="20">
     <Pane layoutX="192.0" layoutY="10.0" prefHeight="50.0" prefWidth="9.0" />
-    <Button fx:id="buttonClose" onAction="#handleClose" prefHeight="25.0" prefWidth="56.0" text="_OK" />
-    <Button fx:id="buttonReset" onAction="#handleReset" prefHeight="25.0" prefWidth="56.0" text="_Reset" />
+    <Button fx:id="buttonClose" styleClass="button" onAction="#handleClose" prefHeight="25.0" prefWidth="56.0" text="_OK" />
+    <Button fx:id="buttonReset" styleClass="button" onAction="#handleReset" prefHeight="25.0" prefWidth="56.0" text="_Reset" />
   </HBox>
 </VBox>

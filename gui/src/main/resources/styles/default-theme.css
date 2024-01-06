@@ -185,9 +185,13 @@
   -fx-max-width: Infinity;
 }
 
+.selection-container .engage-button {
+  -fx-font-weight: bold;
+}
+
 /*noinspection CssInvalidPseudoSelector*/
-.selection-container .button:engaged {
-  -fx-background-color: green;
+.selection-container .toggle-button:engaged {
+  -fx-background-color: #008000;
 }
 
 .selection-container .group-label {

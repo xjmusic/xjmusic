@@ -28,6 +28,7 @@ import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
 import javafx.scene.Node;
 
 import java.util.Collection;
@@ -112,7 +113,7 @@ public interface FabricationService {
 
   BooleanProperty followPlaybackProperty();
 
-  ObservableList<String> overrideMemesProperty();
+  ObservableSet<String> overrideMemesProperty();
 
   ObjectProperty<UUID> overrideMacroProgramIdProperty();
 

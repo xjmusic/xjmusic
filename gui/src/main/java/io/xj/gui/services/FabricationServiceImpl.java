@@ -43,7 +43,7 @@ import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
 import org.slf4j.Logger;
@@ -54,6 +54,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -62,6 +63,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
+import java.util.stream.Collectors;
 
 @Service
 public class FabricationServiceImpl implements FabricationService {
@@ -74,12 +76,12 @@ public class FabricationServiceImpl implements FabricationService {
   private final HostServices hostServices;
   private final String defaultContentStoragePathPrefix = computeDefaultPathPrefix("content");
   private final int defaultTimelineSegmentViewLimit;
-  private final Integer defaultCraftAheadSeconds;
-  private final Integer defaultDubAheadSeconds;
-  private final Integer defaultMixerLengthSeconds;
+  private final int defaultCraftAheadSeconds;
+  private final int defaultDubAheadSeconds;
+  private final int defaultMixerLengthSeconds;
   private final String defaultInputTemplateKey;
   private final int defaultOutputChannels;
-  private final double defaultOutputFrameRate;
+  private final int defaultOutputFrameRate;
   private final ControlMode defaultControlMode;
   private final InputMode defaultInputMode;
   private final WorkManager workManager;
@@ -98,7 +100,7 @@ public class FabricationServiceImpl implements FabricationService {
   private final StringProperty timelineSegmentViewLimit = new SimpleStringProperty();
   private final BooleanProperty followPlayback = new SimpleBooleanProperty(true);
   private final DoubleProperty progress = new SimpleDoubleProperty(0.0);
-  private final ObservableList<String> overrideMemes = FXCollections.observableArrayList();
+  private final ObservableSet<String> overrideMemes = FXCollections.observableSet();
   private final ObjectProperty<UUID> overrideMacroProgramId = new SimpleObjectProperty<>();
   private final ObservableBooleanValue statusActive =
     Bindings.createBooleanBinding(() -> status.get() == WorkState.Active, status);
@@ -123,7 +125,7 @@ public class FabricationServiceImpl implements FabricationService {
     @Value("${gui.timeline.max.segments}") int defaultTimelineSegmentViewLimit,
     @Value("${input.template.key}") String defaultInputTemplateKey,
     @Value("${output.channels}") int defaultOutputChannels,
-    @Value("${output.frame.rate}") double defaultOutputFrameRate,
+    @Value("${output.frame.rate}") int defaultOutputFrameRate,
     @Value("${macro.mode}") String defaultMacroMode,
     @Value("${input.mode}") String defaultInputMode,
     LabService labService,
@@ -143,7 +145,7 @@ public class FabricationServiceImpl implements FabricationService {
     this.workManager = workManager;
 
     attachPreferenceListeners();
-    setAllFromPrefsOrDefaults();
+    setAllFromPreferencesOrDefaults();
   }
 
   @Override
@@ -208,6 +210,7 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public void resetOverrideMacro() {
     workManager.resetOverrideMacro();
+    overrideMacroProgramId.set(null);
   }
 
   @Override
@@ -218,7 +221,8 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public void doOverrideMemes(Collection<String> memes) {
     workManager.doOverrideMemes(memes);
-    overrideMemes.setAll(memes.stream().sorted().toList());
+    overrideMemes.clear();
+    overrideMemes.addAll(memes.stream().sorted().collect(Collectors.toCollection(LinkedHashSet::new)));
   }
 
   @Override
@@ -471,7 +475,7 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
-  public ObservableList<String> overrideMemesProperty() {
+  public ObservableSet<String> overrideMemesProperty() {
     return overrideMemes;
   }
 
@@ -573,7 +577,7 @@ public class FabricationServiceImpl implements FabricationService {
   /**
    Set all properties from preferences, else defaults.
    */
-  private void setAllFromPrefsOrDefaults() {
+  private void setAllFromPreferencesOrDefaults() {
     contentStoragePathPrefix.set(prefs.get("contentStoragePathPrefix", defaultContentStoragePathPrefix));
     craftAheadSeconds.set(prefs.get("craftAheadSeconds", Integer.toString(defaultCraftAheadSeconds)));
     dubAheadSeconds.set(prefs.get("dubAheadSeconds", Integer.toString(defaultDubAheadSeconds)));
