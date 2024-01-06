@@ -6,8 +6,8 @@ import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.nexus.InputMode;
 import io.xj.nexus.ControlMode;
+import io.xj.nexus.InputMode;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+
+import java.io.File;
 
 @Service
 public class ModalFabricationSettingsController extends ReadyAfterBootModalController {
@@ -111,8 +113,6 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
 
     fieldInputTemplateKey.textProperty().bindBidirectional(fabricationService.inputTemplateKeyProperty());
 
-    fieldContentStoragePathPrefix.textProperty().bindBidirectional(fabricationService.contentStoragePathPrefixProperty());
-
     fieldCraftAheadSeconds.textProperty().bindBidirectional(fabricationService.craftAheadSecondsProperty());
     fieldDubAheadSeconds.textProperty().bindBidirectional(fabricationService.dubAheadSecondsProperty());
     fieldMixerLengthSeconds.textProperty().bindBidirectional(fabricationService.mixerLengthSecondsProperty());
@@ -120,6 +120,14 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
     fieldOutputChannels.textProperty().bindBidirectional(fabricationService.outputChannelsProperty());
 
     fieldTimelineSegmentViewLimit.textProperty().bindBidirectional(fabricationService.timelineSegmentViewLimitProperty());
+
+    // Add slash to end of "file output path prefix" https://www.pivotaltracker.com/story/show/186555998
+    fieldContentStoragePathPrefix.textProperty().bindBidirectional(fabricationService.contentStoragePathPrefixProperty());
+    fieldContentStoragePathPrefix.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+      if (!isNowFocused) {
+        addTrailingSlash(fieldContentStoragePathPrefix);
+      }
+    });
   }
 
   @Override
@@ -142,5 +150,18 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   @Override
   void launchModal() {
     doLaunchModal(ac, themeService, modalFabricationSettingsFxml, FABRICATION_SERVICE_WINDOW_NAME);
+  }
+
+  /**
+   Add slash to end of "file output path prefix"
+   https://www.pivotaltracker.com/story/show/186555998
+
+   @param textField in which to add a trailing slash
+   */
+  private void addTrailingSlash(TextField textField) {
+    String text = textField.getText();
+    if (!text.endsWith(File.separator)) {
+      textField.setText(text + File.separator);
+    }
   }
 }
