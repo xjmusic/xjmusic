@@ -2,7 +2,6 @@
 
 package io.xj.nexus.util;
 
-import io.xj.hub.util.MarbleBag;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -35,7 +34,7 @@ public class MarbleBagTest {
    */
   @Test
   public void addAll() {
-    var bag = io.xj.hub.util.MarbleBag.empty();
+    var bag = MarbleBag.empty();
     bag.addAll(1, Map.of(
       frogId, 1000,
       bearId, 30,
@@ -48,12 +47,12 @@ public class MarbleBagTest {
    */
   @Test
   public void add_pick() {
-    var bag = io.xj.hub.util.MarbleBag.empty();
+    var bag = MarbleBag.empty();
     bag.add(1, frogId, 1000);
     bag.add(1, bearId, 30);
     bag.add(1, zebraId, 5);
     LOG.info("will pick 100 marbles from {}", bag);
-    var result = io.xj.hub.util.MarbleBag.empty();
+    var result = MarbleBag.empty();
     var allowed = Set.of(frogId, bearId, zebraId);
     for (var i = 0; i < 100; i++) {
       var pick = bag.pick();
@@ -75,7 +74,7 @@ public class MarbleBagTest {
    */
   @Test
   public void pick_phaseLowerPreferred() {
-    var bag = io.xj.hub.util.MarbleBag.empty();
+    var bag = MarbleBag.empty();
     bag.add(1, frogId, 1000);
     bag.add(1, bearId, 30);
     bag.add(2, zebraId, 5);
@@ -89,7 +88,7 @@ public class MarbleBagTest {
 
   @Test
   public void pick_skipEmptyPhases() {
-    var bag = io.xj.hub.util.MarbleBag.empty();
+    var bag = MarbleBag.empty();
     bag.add(4, frogId, 1000);
     bag.add(5, bearId, 30);
     bag.add(6, zebraId, 5);
@@ -106,7 +105,7 @@ public class MarbleBagTest {
    */
   @Test
   public void size() {
-    var bag = io.xj.hub.util.MarbleBag.empty();
+    var bag = MarbleBag.empty();
     bag.add(1, frogId, 1000);
     bag.add(1, bearId, 30);
     bag.add(1, zebraId, 5);
@@ -115,7 +114,7 @@ public class MarbleBagTest {
 
   @Test
   public void isEmpty() {
-    var bag = io.xj.hub.util.MarbleBag.empty();
+    var bag = MarbleBag.empty();
     assertTrue(bag.isEmpty());
     bag.add(1, frogId, 1000);
     assertFalse(bag.isEmpty());
@@ -123,7 +122,7 @@ public class MarbleBagTest {
 
   @Test
   public void isEmpty_notIfAnyPhasesHaveMarbles() {
-    var bag = io.xj.hub.util.MarbleBag.empty();
+    var bag = MarbleBag.empty();
     assertTrue(bag.isEmpty());
     bag.add(1, bearId, 0);
     bag.add(2, frogId, 1000);
@@ -132,7 +131,7 @@ public class MarbleBagTest {
 
   @Test
   public void quickPick() {
-    var pick = io.xj.hub.util.MarbleBag.quickPick(List.of(frogId, bearId, zebraId));
+    var pick = MarbleBag.quickPick(List.of(frogId, bearId, zebraId));
     assertTrue(List.of(frogId, bearId, zebraId).contains(pick.orElseThrow()));
     assertTrue(MarbleBag.quickPick(List.of()).isEmpty());
   }

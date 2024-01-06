@@ -39,8 +39,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.hub.util.Assertion.assertSameItems;
-import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.hub.util.ValueUtils.SECONDS_PER_MINUTE;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_MINUTE;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -61,12 +60,12 @@ public class CraftFoundationNextMacroTest {
     for (int i = 0; i < TEST_REPEAT_ITERATIONS; i++) {
       JsonProvider jsonProvider = new JsonProviderImpl();
       var entityFactory = new EntityFactoryImpl(jsonProvider);
-        var craftFactory = new CraftFactoryImpl();
+      var craftFactory = new CraftFactoryImpl();
       HubTopology.buildHubApiTopology(entityFactory);
       NexusTopology.buildNexusApiTopology(entityFactory);
       JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
       var store = new NexusEntityStoreImpl(entityFactory);
-        var fabricatorFactory = new FabricatorFactoryImpl(
+      var fabricatorFactory = new FabricatorFactoryImpl(
         store,
         jsonapiPayloadFactory,
         jsonProvider
@@ -128,7 +127,7 @@ public class CraftFoundationNextMacroTest {
 
       Segment result = store.readSegment(segment4.getId()).orElseThrow();
       assertEquals(SegmentType.NEXT_MACRO, result.getType());
-      assertEquals(16 * MICROS_PER_SECOND * SECONDS_PER_MINUTE / 140, (long) Objects.requireNonNull(result.getDurationMicros()));
+      assertEquals(16 * MICROS_PER_MINUTE / 140, (long) Objects.requireNonNull(result.getDurationMicros()));
       assertEquals(Integer.valueOf(16), result.getTotal());
       assertEquals(0.1, result.getDensity(), 0.01);
       assertEquals("G -", result.getKey());

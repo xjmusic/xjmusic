@@ -9,8 +9,8 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.nexus.InputMode;
 import io.xj.nexus.ControlMode;
+import io.xj.nexus.InputMode;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
@@ -28,6 +28,7 @@ import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
 import javafx.scene.Node;
 
 import java.util.Collection;
@@ -112,7 +113,7 @@ public interface FabricationService {
 
   BooleanProperty followPlaybackProperty();
 
-  ObservableList<String> overrideMemesProperty();
+  ObservableSet<String> overrideMemesProperty();
 
   ObjectProperty<UUID> overrideMacroProgramIdProperty();
 
@@ -216,4 +217,16 @@ public interface FabricationService {
    https://www.pivotaltracker.com/story/show/186714075
    */
   void resetOverrideMemes();
+
+  /**
+   Get whether an override happened, and reset its state after getting
+
+   @return true if an override happened
+   */
+  boolean getAndResetDidOverride();
+
+  /**
+   Reset all fabrication settings to their defaults
+   */
+  void resetSettingsToDefaults();
 }

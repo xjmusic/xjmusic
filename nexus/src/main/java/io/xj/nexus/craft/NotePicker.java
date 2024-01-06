@@ -5,7 +5,7 @@ package io.xj.nexus.craft;
 import io.xj.hub.music.Note;
 import io.xj.hub.music.NoteRange;
 import io.xj.hub.music.PitchClass;
-import io.xj.hub.util.MarbleBag;
+import io.xj.nexus.util.MarbleBag;
 
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;

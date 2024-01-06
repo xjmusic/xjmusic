@@ -11,8 +11,6 @@ import io.xj.nexus.NexusException;
 import io.xj.nexus.entity.EntityException;
 import io.xj.nexus.entity.EntityFactory;
 import io.xj.nexus.entity.EntityUtils;
-import io.xj.nexus.entity.common.ChordEntity;
-import io.xj.nexus.entity.common.MessageEntity;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
@@ -41,8 +39,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-
 /**
  NexusEntityStore segments and child entities partitioned by segment id for rapid addressing
  https://www.pivotaltracker.com/story/show/175880468
@@ -54,8 +50,6 @@ import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 public class NexusEntityStoreImpl implements NexusEntityStore {
   static final Logger LOG = LoggerFactory.getLogger(NexusEntityStoreImpl.class);
   static final String SEGMENT_ID_ATTRIBUTE = EntityUtils.toIdAttribute(EntityUtils.toBelongsTo(Segment.class));
-  public static final Long LENGTH_MINIMUM_MICROS = MICROS_PER_SECOND;
-  public static final float AMPLITUDE_MINIMUM = 0.0f;
   final Map<Integer, Segment> segments = new ConcurrentHashMap<>();
   final Map<Integer, Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>>> entities = new ConcurrentHashMap<>();
   final EntityFactory entityFactory;
@@ -68,10 +62,14 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
 
   @Override
   public <N> N put(N entity) throws NexusException {
+    validate(entity);
+
     if (entity instanceof Chain) {
       chain = (Chain) entity;
       return entity;
-    } else if (entity instanceof Segment) {
+    }
+
+    if (entity instanceof Segment) {
       segments.put(((Segment) entity).getId(), (Segment) entity);
       return entity;
     }
@@ -113,34 +111,6 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
     else return entity;
 
     return entity;
-  }
-
-  @Override
-  public <N> void createAll(Collection<N> entities) throws NexusException {
-    for (N entity : entities) put(entity);
-  }
-
-  @Override
-  public Segment createSegment(Segment segment) throws ManagerFatalException, ManagerValidationException {
-    try {
-      validate(segment);
-
-      // [#126] Segments are always readMany in PLANNED state
-      segment.setState(SegmentState.PLANNED);
-
-      // Updated at is always now
-      segment.setUpdatedNow();
-
-      // create segment with Chain ID and offset are read-only, set at creation
-      if (readSegment(segment.getId()).isPresent()) {
-        throw new ManagerValidationException("Found Segment at same offset in Chain!");
-      }
-
-      return put(segment);
-
-    } catch (NexusException e) {
-      throw new ManagerFatalException(e);
-    }
   }
 
   @Override
@@ -306,16 +276,16 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   }
 
   @Override
-  public void updateSegment(int segmentId, Segment segment) throws ManagerFatalException, ManagerExistenceException, ManagerValidationException {
+  public void updateSegment(Segment segment) throws ManagerFatalException, ManagerExistenceException, ManagerValidationException {
     try {
       // validate and cache to-state
       validate(segment);
       SegmentState toState = segment.getState();
 
       // fetch existing segment; further logic is based on its current state
-      Segment existing = readSegment(segmentId)
-        .orElseThrow(() -> new ManagerExistenceException(Segment.class, Integer.toString(segmentId)));
-      requireExists("Segment #" + segmentId, existing);
+      Segment existing = readSegment(segment.getId())
+        .orElseThrow(() -> new ManagerExistenceException(Segment.class, Integer.toString(segment.getId())));
+      requireExists("Segment #" + segment.getId(), existing);
 
       // logic based on existing Segment State
       protectSegmentStateTransition(existing.getState(), toState);
@@ -326,7 +296,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
         throw new ManagerValidationException("cannot change chainId create a segment");
 
       // Never change id
-      segment.setId(segmentId);
+      segment.setId(segment.getId());
 
       // Updated at is always now
       segment.setUpdatedNow();
@@ -349,12 +319,12 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   }
 
   @Override
-  public <N> void clear(Integer segmentId, Class<N> type) throws NexusException {
+  public <N> void clear(Integer segmentId, Class<N> type) {
     for (N entity : readAll(segmentId, type)) {
       try {
         delete(segmentId, type, EntityUtils.getId(entity));
       } catch (EntityException e) {
-        throw new NexusException(e);
+        LOG.error("Failed to delete {} in Segment[{}]", type.getName(), segmentId, e);
       }
     }
   }
@@ -453,92 +423,42 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
    Validate a segment or child entity
 
    @param entity to validate
-   @throws ManagerValidationException if invalid
+   @throws NexusException if invalid
    */
-  private void validate(Object entity) throws ManagerValidationException {
+  private void validate(Object entity) throws NexusException {
     try {
       if (entity instanceof Segment)
         validateSegment((Segment) entity);
       else if (entity instanceof SegmentChoice)
         validateSegmentChoice((SegmentChoice) entity);
-      else if (entity instanceof SegmentChoiceArrangement)
-        validateSegmentChoiceArrangement((SegmentChoiceArrangement) entity);
-      else if (entity instanceof SegmentChoiceArrangementPick)
-        validateSegmentChoiceArrangementPick((SegmentChoiceArrangementPick) entity);
-      else if (entity instanceof SegmentChord)
-        validateSegmentChord((SegmentChord) entity);
       else if (entity instanceof SegmentMeme)
         validateSegmentMeme((SegmentMeme) entity);
-      else if (entity instanceof SegmentMessage)
-        validateSegmentMessage((SegmentMessage) entity);
-      else if (entity instanceof SegmentMeta)
-        validateSegmentMeta((SegmentMeta) entity);
 
     } catch (ValueException e) {
-      throw new ManagerValidationException(e);
+      throw new NexusException(e);
     }
   }
 
-  private void validateSegmentMessage(SegmentMessage record) throws ValueException {
-    ValueUtils.require(record.getSegmentId(), "Segment ID");
-    ValueUtils.require(record.getType(), "Type");
-    MessageEntity.validate(record);
+  private void validateSegmentMeme(SegmentMeme entity) throws ValueException {
+    entity.setName(StringUtils.toMeme(entity.getName()));
   }
 
-  private void validateSegmentMeta(SegmentMeta record) throws ValueException {
-    ValueUtils.require(record.getSegmentId(), "Segment ID");
-    ValueUtils.require(record.getKey(), "Key");
-    ValueUtils.require(record.getValue(), "Value");
+
+  private void validateSegmentChoice(SegmentChoice entity) throws ValueException {
+    if (ValueUtils.isUnset(entity.getDeltaIn())) entity.setDeltaIn(Segment.DELTA_UNLIMITED);
+    if (ValueUtils.isUnset(entity.getDeltaOut())) entity.setDeltaOut(Segment.DELTA_UNLIMITED);
   }
 
-  private void validateSegmentMeme(SegmentMeme record) throws ValueException {
-    ValueUtils.require(record.getSegmentId(), "Segment ID");
-    ValueUtils.require(record.getName(), "Meme name");
-    record.setName(StringUtils.toMeme(record.getName()));
-  }
+  private void validateSegment(Segment entity) throws ValueException {
+    if (ValueUtils.isEmpty(entity.getWaveformPreroll())) entity.setWaveformPreroll(0.0);
+    if (ValueUtils.isEmpty(entity.getWaveformPostroll())) entity.setWaveformPostroll(0.0);
+    if (ValueUtils.isEmpty(entity.getDelta())) entity.setDelta(0);
 
-  private void validateSegmentChord(SegmentChord record) throws ValueException {
-    ValueUtils.require(record.getSegmentId(), "Segment ID");
-    ChordEntity.validate(record);
-  }
+    // Segments not in pending state must have begin-at chain micros
+    if (!SegmentType.PENDING.equals(entity.getType()))
+      ValueUtils.require(entity.getBeginAtChainMicros(), "Begin-at");
 
-  private void validateSegmentChoiceArrangementPick(SegmentChoiceArrangementPick record) throws ValueException {
-    ValueUtils.require(record.getSegmentId(), "Segment ID");
-    ValueUtils.require(record.getSegmentChoiceArrangementId(), "Arrangement ID");
-    ValueUtils.require(record.getProgramSequencePatternEventId(), "Pattern Event ID");
-    ValueUtils.require(record.getInstrumentAudioId(), "Audio ID");
-    ValueUtils.require(record.getStartAtSegmentMicros(), "Start");
-    if (Objects.nonNull(record.getLengthMicros()))
-      ValueUtils.requireMinimum(LENGTH_MINIMUM_MICROS, record.getLengthMicros(), "Length");
-    ValueUtils.require(record.getAmplitude(), "Amplitude");
-    ValueUtils.requireMinimum((double) AMPLITUDE_MINIMUM, (double) record.getAmplitude(), "Amplitude");
-    ValueUtils.require(record.getTones(), "Note");
-  }
-
-  private void validateSegmentChoiceArrangement(SegmentChoiceArrangement record) throws ValueException {
-    ValueUtils.require(record.getSegmentId(), "Segment ID");
-    ValueUtils.require(record.getSegmentChoiceId(), "Choice ID");
-    ValueUtils.require(record.getProgramSequencePatternId(), "Program Sequence Pattern ID");
-  }
-
-  private void validateSegmentChoice(SegmentChoice record) throws ValueException {
-    ValueUtils.require(record.getSegmentId(), "Segment ID");
-    ValueUtils.require(record.getProgramId(), "Program ID");
-    ValueUtils.require(record.getProgramType(), "Program Type");
-    ValueUtils.require(record.getInstrumentId(), "Instrument ID");
-    if (ValueUtils.isUnset(record.getDeltaIn())) record.setDeltaIn(Segment.DELTA_UNLIMITED);
-    if (ValueUtils.isUnset(record.getDeltaOut())) record.setDeltaOut(Segment.DELTA_UNLIMITED);
-  }
-
-  private void validateSegment(Segment record) throws ValueException {
-    ValueUtils.require(record.getChainId(), "Chain ID");
-    ValueUtils.require(record.getId(), "Offset");
-    if (ValueUtils.isEmpty(record.getWaveformPreroll())) record.setWaveformPreroll(0.0);
-    if (ValueUtils.isEmpty(record.getWaveformPostroll())) record.setWaveformPostroll(0.0);
-    if (ValueUtils.isEmpty(record.getDelta())) record.setDelta(0);
-    ValueUtils.require(record.getType(), "Type");
-    ValueUtils.require(record.getState(), "State");
-    if (!SegmentType.PENDING.equals(record.getType()))
-      ValueUtils.require(record.getBeginAtChainMicros(), "Begin-at");
+    // Updated at is always now
+    entity.setUpdatedNow();
   }
 }

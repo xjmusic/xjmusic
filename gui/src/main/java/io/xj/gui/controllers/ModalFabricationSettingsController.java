@@ -73,6 +73,9 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   @FXML
   public Button buttonClose;
 
+  @FXML
+  public Button buttonReset;
+
   public ModalFabricationSettingsController(
     @Value("classpath:/views/modal-fabrication-settings.fxml") Resource modalFabricationSettingsFxml,
     ConfigurableApplicationContext ac,
@@ -94,6 +97,7 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
     choiceInputMode.valueProperty().bindBidirectional(fabricationService.inputModeProperty());
     choiceInputMode.disableProperty().bind(uiStateService.isInputModeDisabledProperty());
     labelInputMode.disableProperty().bind(uiStateService.isInputModeDisabledProperty());
+
     // Input mode is locked in PRODUCTION unless we are connected to a Lab
     if (labService.isAuthenticated()) {
       choiceInputMode.getItems().setAll(FXCollections.observableArrayList(InputMode.values()));
@@ -128,6 +132,11 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
     Stage stage = (Stage) buttonClose.getScene().getWindow();
     stage.close();
     onStageClose();
+  }
+
+  @FXML
+  void handleReset() {
+    fabricationService.resetSettingsToDefaults();
   }
 
   @Override

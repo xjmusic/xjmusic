@@ -257,7 +257,7 @@ public class WorkManagerImpl implements WorkManager {
   public void doOverrideMacro(Program macroProgram) {
     assert Objects.nonNull(craftWork);
     assert Objects.nonNull(dubWork);
-    craftWork.doOverrideMacro(macroProgram, dubWork.getDubbedToChainMicros().orElse(0L));
+    craftWork.doOverrideMacro(macroProgram);
   }
 
   @Override
@@ -281,13 +281,19 @@ public class WorkManagerImpl implements WorkManager {
   public void doOverrideMemes(Collection<String> memes) {
     assert Objects.nonNull(craftWork);
     assert Objects.nonNull(dubWork);
-    craftWork.doOverrideMemes(memes, dubWork.getDubbedToChainMicros().orElse(0L));
+    craftWork.doOverrideMemes(memes);
   }
 
   @Override
   public void resetOverrideMemes() {
     assert Objects.nonNull(craftWork);
     craftWork.resetOverrideMemes();
+  }
+
+  @Override
+  public boolean getAndResetDidOverride() {
+    if (Objects.isNull(craftWork)) return false;
+    return craftWork.getAndResetDidOverride();
   }
 
   @Override

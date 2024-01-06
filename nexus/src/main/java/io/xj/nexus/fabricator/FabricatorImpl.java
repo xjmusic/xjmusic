@@ -33,7 +33,6 @@ import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.util.CsvUtils;
-import io.xj.hub.util.MarbleBag;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
 import io.xj.hub.util.ValueUtils;
@@ -60,6 +59,7 @@ import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.nexus.persistence.ManagerValidationException;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.SegmentUtils;
+import io.xj.nexus.util.MarbleBag;
 import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,9 +78,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_MINUTE;
 import static io.xj.hub.util.ValueUtils.NANOS_PER_MICRO;
-import static io.xj.hub.util.ValueUtils.SECONDS_PER_MINUTE;
 
 /**
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
@@ -881,7 +880,7 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public void updateSegment(Segment segment) {
     try {
-      store.updateSegment(segment.getId(), segment);
+      store.updateSegment(segment);
 
     } catch (ManagerFatalException | ManagerExistenceException | ManagerPrivilegeException |
              ManagerValidationException e) {
@@ -902,7 +901,7 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public Double getMicrosPerBeat(double tempo) {
     if (Objects.isNull(microsPerBeat))
-      microsPerBeat = (double) MICROS_PER_SECOND * SECONDS_PER_MINUTE / tempo;
+      microsPerBeat = (double) MICROS_PER_MINUTE / tempo;
     return microsPerBeat;
   }
 

@@ -46,7 +46,7 @@ class FabricationServiceImplTest {
   int defaultOutputChannels = 2;
   private final String defaultMacroMode = ControlMode.AUTO.toString();
   String defaultInputMode = InputMode.PRODUCTION.toString();
-  double defaultOutputFrameRate = 48000;
+  int defaultOutputFrameRate = 48000;
 
   @Mock
   HostServices hostServices;

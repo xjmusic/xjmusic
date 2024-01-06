@@ -21,7 +21,6 @@ import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.EntityUtils;
-import io.xj.hub.util.MarbleBag;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.TremendouslyRandom;
 import io.xj.hub.util.ValueUtils;
@@ -37,6 +36,7 @@ import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentChordVoicing;
 import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.util.MarbleBag;
 import jakarta.annotation.Nullable;
 
 import java.util.ArrayList;

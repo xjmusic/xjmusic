@@ -34,23 +34,6 @@ public interface NexusEntityStore {
   <N> N put(N entity) throws NexusException;
 
   /**
-   Put all entities into the store, keyed by their individual type and id
-
-   @param <N>      types of entities
-   @param entities to put into the store
-   */
-  <N> void createAll(Collection<N> entities) throws NexusException;
-
-  /**
-   Create a new Record
-
-   @param segment for the new Record
-   @return newly readMany record
-   @throws ManagerFatalException on failure
-   */
-  Segment createSegment(Segment segment) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, ManagerValidationException;
-
-  /**
    Get an entity by partition (segment id), type, and id from the record store
 
    @param <N>       type of entity
@@ -213,13 +196,12 @@ public interface NexusEntityStore {
   /**
    Update a specified Entity
 
-   @param segmentId of specific Entity to update.
-   @param segment   for the updated Entity.
+   @param segment for the updated Entity.
    @throws ManagerFatalException     on failure
    @throws ManagerExistenceException if the entity does not exist
    @throws ManagerPrivilegeException if access is prohibited
    */
-  void updateSegment(int segmentId, Segment segment) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, ManagerValidationException;
+  void updateSegment(Segment segment) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, ManagerValidationException;
 
   /**
    Delete a Segment entity specified by partition (segment id), class and id
@@ -229,7 +211,7 @@ public interface NexusEntityStore {
    @param type      of class to delete
    @param id        to delete
    */
-  <N> void delete(int segmentId, Class<N> type, UUID id) throws NexusException;
+  <N> void delete(int segmentId, Class<N> type, UUID id);
 
   /**
    Delete all entities for a Segment of a given type

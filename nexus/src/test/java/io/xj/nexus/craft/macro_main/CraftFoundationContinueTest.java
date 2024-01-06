@@ -43,8 +43,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.hub.util.Assertion.assertSameItems;
-import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.hub.util.ValueUtils.SECONDS_PER_MINUTE;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_MINUTE;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
@@ -156,7 +155,7 @@ public class CraftFoundationContinueTest {
 
     Segment result = store.readSegment(segment4.getId()).orElseThrow();
     assertEquals(SegmentType.CONTINUE, result.getType());
-    assertEquals(32 * MICROS_PER_SECOND * SECONDS_PER_MINUTE / 140, (long) Objects.requireNonNull(result.getDurationMicros()));
+    assertEquals(32 * MICROS_PER_MINUTE / 140, (long) Objects.requireNonNull(result.getDurationMicros()));
     assertEquals(Integer.valueOf(32), result.getTotal());
     assertEquals(0.14, result.getDensity(), 0.001);
     assertEquals("G -", result.getKey());

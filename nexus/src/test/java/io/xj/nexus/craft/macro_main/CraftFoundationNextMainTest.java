@@ -44,8 +44,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.hub.util.Assertion.assertSameItems;
-import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.hub.util.ValueUtils.SECONDS_PER_MINUTE;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_MINUTE;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -141,7 +140,7 @@ public class CraftFoundationNextMainTest {
 
     Segment result = store.readSegment(segment4.getId()).orElseThrow();
     assertEquals(SegmentType.NEXT_MAIN, result.getType());
-    assertEquals(16 * MICROS_PER_SECOND * SECONDS_PER_MINUTE / 140, (long) Objects.requireNonNull(result.getDurationMicros()));
+    assertEquals(16 * MICROS_PER_MINUTE / 140, (long) Objects.requireNonNull(result.getDurationMicros()));
     assertEquals(Integer.valueOf(16), result.getTotal());
     assertEquals(0.1, result.getDensity(), 0.01);
     assertEquals("G -", result.getKey());
