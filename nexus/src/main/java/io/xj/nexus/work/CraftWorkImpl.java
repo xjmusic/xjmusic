@@ -418,7 +418,7 @@ public class CraftWorkImpl implements CraftWork {
       var dubbedToSegmentBeats = dubbedToSegmentMicros / microsPerBeat;
       var cutoffAfterBeats = subBeats * Math.ceil((double) dubbedToSegmentBeats / subBeats);
       if (cutoffAfterBeats < lastSegment.get().getTotal()) {
-        doFabricationOverrideCutoffLastSegment(lastSegment.get(), cutoffAfterBeats);
+        doCutoffLastSegment(lastSegment.get(), cutoffAfterBeats);
       }
 
       // Delete all segments after the current segment and fabricate the next segment
@@ -448,17 +448,24 @@ public class CraftWorkImpl implements CraftWork {
    @param segment          to cut short
    @param cutoffAfterBeats number of beats to cut short after
    */
-  private void doFabricationOverrideCutoffLastSegment(Segment segment, double cutoffAfterBeats) throws NexusException {
+  private void doCutoffLastSegment(Segment segment, double cutoffAfterBeats) throws NexusException {
     try {
       var durationMicros = cutoffAfterBeats * MICROS_PER_MINUTE / segment.getTempo();
       LOG.info("Will cut current segment short after {} beats.", cutoffAfterBeats);
       segment.setTotal((int) cutoffAfterBeats);
       segment.setDurationMicros((long) (durationMicros));
       store.updateSegment(segment);
-      store.readAll(segment.getId(), SegmentChoiceArrangementPick.class).stream()
-        .filter(pick -> pick.getStartAtSegmentMicros() >= durationMicros)
-        .forEach((pick) ->
-          store.delete(segment.getId(), SegmentChoiceArrangementPick.class, pick.getId()));
+      store.readAll(segment.getId(), SegmentChoiceArrangementPick.class)
+        .forEach((pick) -> {
+          try {
+            if (pick.getStartAtSegmentMicros() >= durationMicros)
+              store.delete(segment.getId(), SegmentChoiceArrangementPick.class, pick.getId());
+            else if (Objects.nonNull(pick.getLengthMicros()) && pick.getStartAtSegmentMicros() + pick.getLengthMicros() > durationMicros)
+              store.put(pick.lengthMicros((long) (durationMicros - pick.getStartAtSegmentMicros())));
+          } catch (NexusException e) {
+            LOG.error("Failed to cut SegmentChoiceArrangementPick[{}] short to {} beats because {}", pick.getId(), cutoffAfterBeats, e.getMessage());
+          }
+        });
 
     } catch (Exception e) {
       throw new NexusException(String.format("Failed to cut Segment[%d] short to %f beats", segment.getId(), cutoffAfterBeats), e);
