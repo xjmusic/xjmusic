@@ -219,6 +219,13 @@ public interface FabricationService {
   void resetOverrideMemes();
 
   /**
+   Get whether an override happened, and reset its state after getting
+
+   @return true if an override happened
+   */
+  boolean getAndResetDidOverride();
+
+  /**
    Reset all fabrication settings to their defaults
    */
   void resetSettingsToDefaults();

@@ -276,10 +276,10 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     }
 
     // iterate through all in segments, and update if the updated at time has changed from the source matching that id
+    var didOverride = fabricationService.getAndResetDidOverride();
     var limit = Math.min(ds.size(), fs.size());
     for (var i = 0; i < limit; i++)
-      if (
-        ds.get(i).isSameButUpdated(fs.get(i))) {
+      if (didOverride || ds.get(i).isSameButUpdated(fs.get(i))) {
         ds.get(i).update(fs.get(i));
         segmentListView.getChildren().set(i, segmentFactory.create(fs.get(i), segmentWidth));
       }

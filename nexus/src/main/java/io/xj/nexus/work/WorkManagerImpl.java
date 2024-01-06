@@ -291,6 +291,12 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
+  public boolean getAndResetDidOverride() {
+    if (Objects.isNull(craftWork)) return false;
+    return craftWork.getAndResetDidOverride();
+  }
+
+  @Override
   public NexusEntityStore getEntityStore() {
     return entityStore;
   }

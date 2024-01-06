@@ -81,6 +81,7 @@ public class CraftWorkImpl implements CraftWork {
   private final AtomicReference<CraftState> craftState = new AtomicReference<>(CraftState.INITIAL);
   private final AtomicReference<Program> overrideMacroProgram = new AtomicReference<>();
   private final AtomicReference<Collection<String>> overrideMemes = new AtomicReference<>();
+  private final AtomicBoolean didOverride = new AtomicBoolean(false);
 
   public CraftWorkImpl(
     Telemetry telemetry,
@@ -325,6 +326,11 @@ public class CraftWorkImpl implements CraftWork {
     overrideMemes.set(null);
   }
 
+  @Override
+  public boolean getAndResetDidOverride() {
+    return didOverride.getAndSet(false);
+  }
+
   /**
    Fabricate the chain based on craft state
 
@@ -426,6 +432,7 @@ public class CraftWorkImpl implements CraftWork {
       segment.setType(SegmentType.NEXT_MACRO);
       segment = store.put(segment);
       doFabricationWork(segment, SegmentType.NEXT_MACRO);
+      didOverride.set(true);
 
     } catch (
       ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException |

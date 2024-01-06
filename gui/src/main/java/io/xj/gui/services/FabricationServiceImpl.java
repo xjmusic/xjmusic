@@ -232,6 +232,11 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
+  public boolean getAndResetDidOverride() {
+    return workManager.getAndResetDidOverride();
+  }
+
+  @Override
   public void resetSettingsToDefaults() {
     contentStoragePathPrefix.set(defaultContentStoragePathPrefix);
     craftAheadSeconds.set(String.valueOf(defaultCraftAheadSeconds));
