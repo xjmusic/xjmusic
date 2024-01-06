@@ -246,7 +246,7 @@ public class MainTimelineSegmentFactory {
     var row = new HBox();
     row.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
     row.getChildren().add(computeLabeledPropertyNode(String.format("[%d]", segment.getId()), FormatUtils.formatTimeFromMicros(segment.getBeginAtChainMicros()), width / 2));
-    row.getChildren().add(computeLabeledPropertyNode(String.format("+%d", segment.getDelta()), segment.getType().toString(), width / 2));
+    row.getChildren().add(computeLabeledPropertyNode(fabricationService.formatPositionBarBeats(segment, Double.valueOf(segment.getDelta())), segment.getType().toString(), width / 2));
     //
     var pane = new AnchorPane();
     pane.getChildren().add(row);
@@ -364,7 +364,7 @@ public class MainTimelineSegmentFactory {
 
     var instrumentBox = new HBox();
     instrumentBox.getStyleClass().add("choice-instrument");
-    computeShowDeltaNode(choice).ifPresent(instrumentBox.getChildren()::add);
+    computeShowDeltaNode(segment, choice).ifPresent(instrumentBox.getChildren()::add);
     if (Objects.nonNull(choice.getInstrumentId())) {
       instrumentBox.getChildren().add(fabricationService.computeInstrumentReferenceNode(choice.getInstrumentId()));
     }
@@ -377,7 +377,7 @@ public class MainTimelineSegmentFactory {
     return box;
   }
 
-  Optional<Node> computeShowDeltaNode(SegmentChoice choice) {
+  Optional<Node> computeShowDeltaNode(Segment segment, SegmentChoice choice) {
     if (ProgramType.Macro == choice.getProgramType() || ProgramType.Main == choice.getProgramType()) {
       return Optional.empty();
     }
@@ -389,7 +389,7 @@ public class MainTimelineSegmentFactory {
     box.getStyleClass().add("delta-container");
     if (Objects.nonNull(choice.getDeltaIn())) {
       var deltaIn = new Text();
-      deltaIn.setText(computeChoiceDeltaValue(choice.getDeltaIn()));
+      deltaIn.setText(computeChoiceDeltaValue(segment, choice.getDeltaIn()));
       deltaIn.getStyleClass().add("delta");
       deltaIn.getStyleClass().add("delta-in");
       box.getChildren().add(deltaIn);
@@ -401,7 +401,7 @@ public class MainTimelineSegmentFactory {
     box.getChildren().add(connector);
     if (Objects.nonNull(choice.getDeltaOut())) {
       var deltaOut = new Text();
-      deltaOut.setText(computeChoiceDeltaValue(choice.getDeltaOut()));
+      deltaOut.setText(computeChoiceDeltaValue(segment, choice.getDeltaOut()));
       deltaOut.getStyleClass().add("delta");
       deltaOut.getStyleClass().add("delta-out");
       box.getChildren().add(deltaOut);
@@ -409,9 +409,9 @@ public class MainTimelineSegmentFactory {
     return Optional.of(box);
   }
 
-  String computeChoiceDeltaValue(Integer value) {
+  String computeChoiceDeltaValue(Segment segment, Integer value) {
     if (-1 == value) return "∞";
-    return Integer.toString(value);
+    return fabricationService.formatPositionBarBeats(segment, Double.valueOf(value));
   }
 
   Stream<Node> computeChoiceListItemPickNode(SegmentChoiceArrangementPick pick) {
