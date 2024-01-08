@@ -4,7 +4,7 @@ package io.xj.nexus.persistence;
 
 
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
@@ -39,7 +39,7 @@ public class NexusEntityStoreImplTest {
   private Chain fakeChain;
 
   Chain chain3;
-  Account account1;
+  Project project1;
   Segment segment1;
   Segment segment2;
   Segment segment4;
@@ -57,21 +57,21 @@ public class NexusEntityStoreImplTest {
     subject = new NexusEntityStoreImpl(entityFactory);
 
     // add base fixtures
-    Account fakeAccount = buildAccount("fake");
+    Project fakeProject = buildProject("fake");
     fakeChain = buildChain(
-      fakeAccount,
+      fakeProject,
       "Print #2",
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
-      buildTemplate(fakeAccount, "Test")
+      buildTemplate(fakeProject, "Test")
     );
     subject.put(fakeChain);
-    account1 = buildAccount("Testing");
-    template1 = buildTemplate(account1, "Test Template 1", "test1");
+    project1 = buildProject("Testing");
+    template1 = buildTemplate(project1, "Test Template 1", "test1");
 
     chain3 = subject.put(new Chain()
       .id(UUID.randomUUID())
-      .accountId(account1.getId())
+      .projectId(project1.getId())
       .name("Test Print #1")
       .type(ChainType.PRODUCTION)
       .state(ChainState.FABRICATE));
@@ -231,10 +231,10 @@ public class NexusEntityStoreImplTest {
 
   @Test
   public void create_get_Chain() throws NexusException {
-    UUID accountId = UUID.randomUUID();
+    UUID projectId = UUID.randomUUID();
     var chain = new Chain();
     chain.setId(UUID.randomUUID());
-    chain.setAccountId(accountId);
+    chain.setProjectId(projectId);
     chain.setType(ChainType.PREVIEW);
     chain.setState(ChainState.FABRICATE);
     chain.shipKey("super");
@@ -243,7 +243,7 @@ public class NexusEntityStoreImplTest {
     var result = subject.readChain().orElseThrow();
 
     assertEquals(chain.getId(), result.getId());
-    assertEquals(accountId, result.getAccountId());
+    assertEquals(projectId, result.getProjectId());
     assertEquals(ChainType.PREVIEW, result.getType());
     assertEquals(ChainState.FABRICATE, result.getState());
     assertEquals("super", result.getShipKey());
@@ -253,7 +253,7 @@ public class NexusEntityStoreImplTest {
   public void create_passThroughIfNotNexusEntity() throws NexusException {
     var library = new Library();
     library.setId(UUID.randomUUID());
-    library.setAccountId(UUID.randomUUID());
+    library.setProjectId(UUID.randomUUID());
     library.setName("helm");
 
     var result = subject.put(library);
@@ -295,10 +295,10 @@ public class NexusEntityStoreImplTest {
   @Test
   public void createAll_readAll() throws NexusException {
     subject.clear();
-    var account1 = buildAccount("fish");
-    var template = buildTemplate(account1, "fishy");
+    var project1 = buildProject("fish");
+    var template = buildTemplate(project1, "fishy");
     var chain3 = subject.put(buildChain(
-      account1,
+      project1,
       "Test Print #3",
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
@@ -336,9 +336,9 @@ public class NexusEntityStoreImplTest {
 
   @Test
   public void create_nonSegmentEntity() throws NexusException {
-    Account account1 = buildAccount("testing");
-    Library library1 = buildLibrary(account1, "leaves");
-    Template template = buildTemplate(buildAccount("Test"), "Test", "key123");
+    Project project1 = buildProject("testing");
+    Library library1 = buildLibrary(project1, "leaves");
+    Template template = buildTemplate(buildProject("Test"), "Test", "key123");
     TemplateBinding templateBinding = buildTemplateBinding(template, library1);
 
     subject.put(templateBinding);
@@ -446,7 +446,7 @@ public class NexusEntityStoreImplTest {
    */
   @Test
   public void readAll_hasNoLimit() throws NexusException {
-    Chain chain5 = subject.put(buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, "barnacles"));
+    Chain chain5 = subject.put(buildChain(project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, "barnacles"));
     for (int i = 0; i < 20; i++)
       subject.put(new Segment()
         .chainId(chain5.getId())

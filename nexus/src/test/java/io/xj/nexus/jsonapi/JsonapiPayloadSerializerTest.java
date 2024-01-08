@@ -132,24 +132,24 @@ public class JsonapiPayloadSerializerTest {
   @Test
   public void serializeMany() throws JsonapiException {
     JsonapiPayload jsonapiPayload = jsonapiPayloadFactory.newJsonapiPayload();
-    Widget accountA = new Widget()
+    Widget projectA = new Widget()
       .setId(UUID.randomUUID())
       .setName("Test Widget A");
-    Widget accountB = new Widget()
+    Widget projectB = new Widget()
       .setId(UUID.randomUUID())
       .setName("Test Widget B");
-    Widget accountC = new Widget()
+    Widget projectC = new Widget()
       .setId(UUID.randomUUID())
       .setName("Test Widget C");
-    jsonapiPayloadFactory.setDataEntities(jsonapiPayload, List.of(accountA, accountB, accountC));
+    jsonapiPayloadFactory.setDataEntities(jsonapiPayload, List.of(projectA, projectB, projectC));
 
     String result = jsonapiPayloadFactory.serialize(jsonapiPayload);
 
     AssertPayload.assertPayload(jsonapiPayloadFactory.deserialize(result))
       .hasDataMany("widgets", List.of(
-        accountA.getId().toString(),
-        accountB.getId().toString(),
-        accountC.getId().toString()))
+        projectA.getId().toString(),
+        projectB.getId().toString(),
+        projectC.getId().toString()))
       .hasIncluded("widgets", List.of());
   }
 

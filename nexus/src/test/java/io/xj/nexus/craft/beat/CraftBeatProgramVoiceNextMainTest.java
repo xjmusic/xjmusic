@@ -97,7 +97,7 @@ public class CraftBeatProgramVoiceNextMainTest {
 
     // Chain "Test Print #1" has 5 total segments
     chain1 = store.put(buildChain(
-      fake.account1,
+      fake.project1,
       fake.template1,
       "Test Print #1",
       ChainType.PRODUCTION,

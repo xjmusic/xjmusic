@@ -20,7 +20,7 @@ public class GuiHubIntegrationTestingFixtures {
   public static final String TEST_TEMPLATE_CONFIG = "outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n";
 
   // These are fully exposed (no getters/setters) for ease of use in testing
-  public Account account1;
+  public Project project1;
   public Library library2;
   public Program program15;
   public Program program35;
@@ -80,18 +80,18 @@ public class GuiHubIntegrationTestingFixtures {
     return user;
   }
 
-  public static Account buildAccount() {
-    var account = new Account();
-    account.setId(UUID.randomUUID());
-    return account;
+  public static Project buildProject() {
+    var project = new Project();
+    project.setId(UUID.randomUUID());
+    return project;
   }
 
-  public static AccountUser buildAccountUser(Account account, User user) {
-    var accountUser = new AccountUser();
-    accountUser.setId(UUID.randomUUID());
-    accountUser.setAccountId(account.getId());
-    accountUser.setUserId(user.getId());
-    return accountUser;
+  public static ProjectUser buildProjectUser(Project project, User user) {
+    var projectUser = new ProjectUser();
+    projectUser.setId(UUID.randomUUID());
+    projectUser.setProjectId(project.getId());
+    projectUser.setUserId(user.getId());
+    return projectUser;
   }
 
   public static Program buildProgram(Library library, ProgramType type, ProgramState state, String name, String key, float tempo, float density) {
@@ -306,19 +306,19 @@ public class GuiHubIntegrationTestingFixtures {
     return instrumentAudio;
   }
 
-  public static Library buildLibrary(Account account, String name) {
+  public static Library buildLibrary(Project project, String name) {
     var library = new Library();
     library.setId(UUID.randomUUID());
-    library.setAccountId(account.getId());
+    library.setProjectId(project.getId());
     library.setName(name);
     return library;
   }
 
-  public static Account buildAccount(String name) {
-    var account = new Account();
-    account.setId(UUID.randomUUID());
-    account.setName(name);
-    return account;
+  public static Project buildProject(String name) {
+    var project = new Project();
+    project.setId(UUID.randomUUID());
+    project.setName(name);
+    return project;
   }
 
   /**
@@ -326,24 +326,24 @@ public class GuiHubIntegrationTestingFixtures {
    e.g. `deltaArcEnabled = false` to disable choice delta randomness,
    otherwise tests may sporadically fail.
    */
-  public static Template buildTemplate(Account account1, String name, String shipKey) {
+  public static Template buildTemplate(Project project1, String name, String shipKey) {
     var template = new Template();
     template.setId(UUID.randomUUID());
     template.setShipKey(shipKey);
     template.setConfig(TEST_TEMPLATE_CONFIG);
-    template.setAccountId(account1.getId());
+    template.setProjectId(project1.getId());
     template.setName(name);
     return template;
   }
 
-  public static Template buildTemplate(Account account1, String name, String shipKey, String config) {
-    var template = buildTemplate(account1, name, shipKey);
+  public static Template buildTemplate(Project project1, String name, String shipKey, String config) {
+    var template = buildTemplate(project1, name, shipKey);
     template.setConfig(config);
     return template;
   }
 
-  public static Template buildTemplate(Account account1, String name) {
-    return buildTemplate(account1, name, String.format("%s123", name));
+  public static Template buildTemplate(Project project1, String name) {
+    return buildTemplate(project1, name, String.format("%s123", name));
   }
 
   public static TemplateBinding buildTemplateBinding(Template template, Library library) {

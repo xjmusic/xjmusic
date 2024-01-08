@@ -20,9 +20,9 @@ import java.util.stream.Stream;
 @SuppressWarnings("SameParameterValue")
 public class NexusHubContentFixtures {
   // These are fully exposed (no getters/setters) for ease of use in testing
-  public Account account1;
-  public Account account2;
-  public AccountUser accountUser1a;
+  public Project project1;
+  public Project project2;
+  public ProjectUser projectUser1a;
   public Instrument instrument8;
   public InstrumentAudio instrument8_audio8bleep;
   public InstrumentAudio instrument8_audio8kick;
@@ -152,18 +152,18 @@ public class NexusHubContentFixtures {
    */
   public Collection<Object> setupFixtureB1(Boolean returnParentEntities) {
 
-    // Account "bananas"
-    account1 = NexusHubIntegrationTestingFixtures.buildAccount("bananas");
+    // Project "bananas"
+    project1 = NexusHubIntegrationTestingFixtures.buildProject("bananas");
 
     // Library "house"
-    library2 = NexusHubIntegrationTestingFixtures.buildLibrary(account1, "house");
+    library2 = NexusHubIntegrationTestingFixtures.buildLibrary(project1, "house");
 
-    // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
+    // John has "user" and "admin" roles, belongs to project "bananas", has "google" auth
     user2 = NexusHubIntegrationTestingFixtures.buildUser("john", "john@email.com", "https://pictures.com/john.gif");
 
-    // Jenny has a "user" role and belongs to account "bananas"
+    // Jenny has a "user" role and belongs to project "bananas"
     user3 = NexusHubIntegrationTestingFixtures.buildUser("jenny", "jenny@email.com", "https://pictures.com/jenny.gif");
-    accountUser1a = NexusHubIntegrationTestingFixtures.buildAccountUser(account1, user3);
+    projectUser1a = NexusHubIntegrationTestingFixtures.buildProjectUser(project1, user3);
 
     // "Tropical, Wild to Cozy" macro-program in house library
     program4 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Tropical, Wild to Cozy", "C", 120.0f, 0.6f);
@@ -232,11 +232,11 @@ public class NexusHubContentFixtures {
     // List of all parent entities including the library
     // ORDER IS IMPORTANT because this list will be used for real database inserts, so ordered from parent -> child
     List<Object> parentEntities = List.of(
-      account1,
+      project1,
       library2,
       user2,
       user3,
-      accountUser1a
+      projectUser1a
     );
 
     // List of all entities in the library

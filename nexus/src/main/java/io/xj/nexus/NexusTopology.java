@@ -27,7 +27,7 @@ public enum NexusTopology {
       .withAttribute("type")
       .withAttribute("shipKey")
       .withAttribute("templateConfig")
-      .belongsTo(Account.class)
+      .belongsTo(Project.class)
       .belongsTo(Template.class);
 
     // Segment

@@ -3,7 +3,7 @@
 package io.xj.nexus.manager;
 
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Chain;
@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAccount;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProject;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
@@ -37,9 +37,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SegmentUtilsTest {
-  final Account account = buildAccount("Test");
-  final Template template = buildTemplate(account, "Test");
-  final Chain chain = buildChain(account, "Test", ChainType.PRODUCTION, ChainState.FABRICATE, template);
+  final Project project = buildProject("Test");
+  final Template template = buildTemplate(project, "Test");
+  final Chain chain = buildChain(project, "Test", ChainType.PRODUCTION, ChainState.FABRICATE, template);
   final Segment seg0 = buildSegment(
     chain,
     SegmentType.INITIAL,

@@ -5,8 +5,8 @@ package io.xj.nexus.craft.macro_main;
 import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.Account;
-import io.xj.hub.tables.pojos.AccountUser;
+import io.xj.hub.tables.pojos.Project;
+import io.xj.hub.tables.pojos.ProjectUser;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
@@ -36,8 +36,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAccount;
-import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAccountUser;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProject;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProjectUser;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildBinding;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildLibrary;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildMeme;
@@ -81,14 +81,14 @@ public class MacroFromOverlappingMemeSequencesTest {
     store.clear();
 
     // Mock request via HubClient returns fake generated library of hub content
-    // Account "bananas"
-    Account account1 = buildAccount("bananas");
-    Library library2 = buildLibrary(account1, "house");
-    var template1 = buildTemplate(account1, "Test Template 1", "test1");
+    // Project "bananas"
+    Project project1 = buildProject("bananas");
+    Library library2 = buildLibrary(project1, "house");
+    var template1 = buildTemplate(project1, "Test Template 1", "test1");
     TemplateBinding templateBinding1 = buildTemplateBinding(template1, library2);
     User user2 = buildUser("john", "john@email.com", "https://pictures.com/john.gif");
     User user3 = buildUser("jenny", "jenny@email.com", "https://pictures.com/jenny.gif");
-    AccountUser accountUser1a = buildAccountUser(account1, user3);
+    ProjectUser projectUser1a = buildProjectUser(project1, user3);
 
     // Macro Program already chosen for previous segment
     var macro1 = buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Chosen Macro", "C", 120.0f, 0.6f);
@@ -121,11 +121,11 @@ public class MacroFromOverlappingMemeSequencesTest {
     var macro2b_sequenceA_bindingMeme = buildMeme(macro2b_sequenceA_binding, "Purple");
 
     HubContent sourceMaterial = new HubContent(List.of(
-      account1,
+      project1,
       library2,
       user2,
       user3,
-      accountUser1a,
+      projectUser1a,
       macro1,
       macro1_meme,
       macro1_sequenceA,
@@ -153,7 +153,7 @@ public class MacroFromOverlappingMemeSequencesTest {
     ));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, null));
+    Chain chain1 = store.put(buildChain(project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, null));
     Segment segment1 = store.put(buildSegment(
       chain1,
       0,

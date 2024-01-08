@@ -5,7 +5,7 @@ import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
@@ -54,7 +54,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAccount;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProject;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAudio;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgram;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgramSequence;
@@ -75,8 +75,8 @@ public class DemoIT {
   static final String INTERNAL_RESOURCE_REFERENCE_AUDIO_FILE_PREFIX = "/demo_reference_outputs/";
   static final String INTERNAL_RESOURCE_INSTRUMENT_AUDIO_PREFIX = "/demo_source_audio/";
   static final String SOURCE_FILE_SUFFIX = ".wav";
-  static final Account account = buildAccount();
-  static final Template template = buildTemplate(account, "Demo");
+  static final Project project = buildProject();
+  static final Template template = buildTemplate(project, "Demo");
   static final Chain chain = buildChain(template);
   static final Program program = buildProgram(ProgramType.Beat, "C", TEMPO, 1);
   static final ProgramSequence sequence = buildProgramSequence(program, 4, "Demo", 1.0f, "C");

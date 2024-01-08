@@ -9,10 +9,10 @@
       "templateConfigs": {
         "data": []
       },
-      "account": {
+      "project": {
         "data": {
           "id": "25",
-          "type": "accounts"
+          "type": "projects"
         }
       }
     },

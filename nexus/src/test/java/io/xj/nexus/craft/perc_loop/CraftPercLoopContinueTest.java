@@ -82,7 +82,7 @@ public class CraftPercLoopContinueTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" is fabricating segments
-    chain1 = store.put(buildChain(fake.account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
+    chain1 = store.put(buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
     store.put(buildSegment(
       chain1,
       SegmentType.INITIAL,
