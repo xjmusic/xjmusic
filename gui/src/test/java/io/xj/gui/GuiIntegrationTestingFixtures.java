@@ -5,7 +5,7 @@ package io.xj.gui;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
@@ -41,7 +41,7 @@ public class GuiIntegrationTestingFixtures {
   public static Chain buildChain(Template template, ChainState state) {
     var chain = new Chain();
     chain.setId(UUID.randomUUID());
-    chain.setAccountId(UUID.randomUUID());
+    chain.setProjectId(UUID.randomUUID());
     chain.setTemplateId(template.getId());
     chain.setName("Test Chain");
     chain.setType(ChainType.PRODUCTION);
@@ -50,19 +50,19 @@ public class GuiIntegrationTestingFixtures {
     return chain;
   }
 
-  public static Chain buildChain(Account account, String name, ChainType type, ChainState state, Template template) {
-    return buildChain(account, name, type, state, template, StringUtils.toShipKey(name));
+  public static Chain buildChain(Project project, String name, ChainType type, ChainState state, Template template) {
+    return buildChain(project, name, type, state, template, StringUtils.toShipKey(name));
   }
 
-  public static Chain buildChain(Account account, Template template, String name, ChainType type, ChainState state) {
-    return buildChain(account, name, type, state, template, StringUtils.toShipKey(name));
+  public static Chain buildChain(Project project, Template template, String name, ChainType type, ChainState state) {
+    return buildChain(project, name, type, state, template, StringUtils.toShipKey(name));
   }
 
-  public static Chain buildChain(Account account, String name, ChainType type, ChainState state, Template template, /*@Nullable*/ String shipKey) {
+  public static Chain buildChain(Project project, String name, ChainType type, ChainState state, Template template, /*@Nullable*/ String shipKey) {
     var chain = new Chain();
     chain.setId(UUID.randomUUID());
     chain.setTemplateId(template.getId());
-    chain.setAccountId(account.getId());
+    chain.setProjectId(project.getId());
     chain.setName(name);
     chain.setType(type);
     chain.setState(state);

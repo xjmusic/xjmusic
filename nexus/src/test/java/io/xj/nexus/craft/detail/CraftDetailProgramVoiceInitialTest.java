@@ -92,7 +92,7 @@ public class CraftDetailProgramVoiceInitialTest {
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
     chain2 = store.put(buildChain(
-      fake.account1,
+      fake.project1,
       fake.template1,
       "Print #2",
       ChainType.PRODUCTION,

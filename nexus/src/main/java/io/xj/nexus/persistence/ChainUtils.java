@@ -88,7 +88,7 @@ public enum ChainUtils {
     chain.setTemplateId(template.getId());
     chain.setTemplateConfig(template.getConfig());
     chain.setShipKey(template.getShipKey());
-    chain.setAccountId(template.getAccountId());
+    chain.setProjectId(template.getProjectId());
     chain.setName(template.getName());
     return chain;
   }

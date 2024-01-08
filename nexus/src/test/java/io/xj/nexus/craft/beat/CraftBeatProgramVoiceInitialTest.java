@@ -86,11 +86,11 @@ public class CraftBeatProgramVoiceInitialTest {
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
     chain2 = store.put(buildChain(
-      fake.account1,
+      fake.project1,
       "Print #2",
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
-      buildTemplate(fake.account1, "Tests")
+      buildTemplate(fake.project1, "Tests")
     ));
   }
 

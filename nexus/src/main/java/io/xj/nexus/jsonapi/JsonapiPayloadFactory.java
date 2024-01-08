@@ -15,11 +15,11 @@ import java.util.function.Predicate;
  <p>
  Entity types are casified differently for different contexts.
  + The type of an entity in any context is enough information to compute its type in another context.
- + Java Bean/POJO name is upper camel singular, e.g. Entity or AccountUser
- + Belongs-to type is lower camel singular, e.g. "entity" or "accountUser"
- + Has-many type is lower camel plural, e.g. "entities" or "accountUsers"
- + Payload object type is lower hyphen plural, e.g. "entities" or "account-users"
- + REST API endpoint path type is lower hyphen plural, e.g. "/entities" or "/account-users"
+ + Java Bean/POJO name is upper camel singular, e.g. Entity or ProjectUser
+ + Belongs-to type is lower camel singular, e.g. "entity" or "projectUser"
+ + Has-many type is lower camel plural, e.g. "entities" or "projectUsers"
+ + Payload object type is lower hyphen plural, e.g. "entities" or "project-users"
+ + REST API endpoint path type is lower hyphen plural, e.g. "/entities" or "/project-users"
  <p>
  Created by Charney Kaye on 2020/03/09
  */
@@ -49,7 +49,7 @@ public interface JsonapiPayloadFactory {
    |  @Override
    |  public PayloadObject toResourceObject() {
    |    return super.toResourceObject()
-   |      .add("account", ResourceRelationship.of("accounts", accountId));
+   |      .add("project", ResourceRelationship.of("projects", projectId));
    |  }
    |
 
@@ -87,7 +87,7 @@ public interface JsonapiPayloadFactory {
    |  @Override
    |  public PayloadObject toPayloadObject() {
    |    return super.toPayloadObject()
-   |      .add("account", ResourceRelationship.of("accounts", accountId));
+   |      .add("project", ResourceRelationship.of("projects", projectId));
    |  }
    |
    <p>

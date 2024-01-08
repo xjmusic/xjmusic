@@ -290,7 +290,7 @@ public enum EntityUtils {
   /**
    get belongs-to relationship name of object, the key to use when this class is the target of a belongs-to relationship
    + Chain.class -> "chain"
-   + AccountUser.class -> "accountUser"
+   + ProjectUser.class -> "projectUser"
    + Object.class -> "entity"
 
    @param belongsTo to get resource belongsTo of
@@ -303,7 +303,7 @@ public enum EntityUtils {
   /**
    get belongs-to relationship name of class, the key to use when this class is the target of a belongs-to relationship
    + Chain.class -> "chain"
-   + AccountUser.class -> "accountUser"
+   + ProjectUser.class -> "projectUser"
    + Object.class -> "entity"
 
    @param belongsTo to get resource belongsTo of
@@ -316,7 +316,7 @@ public enum EntityUtils {
   /**
    get belongs-to relationship name, to use when this key is the target of a belongs-to relationship
    + Chain.class -> "chain"
-   + AccountUser.class -> "accountUser"
+   + ProjectUser.class -> "projectUser"
    + Object.class -> "entity"
 
    @param belongsTo to conform
@@ -330,7 +330,7 @@ public enum EntityUtils {
    get belongs-to relationship name, to use when this key is the target of a belongs-to relationship
    FROM a resource type
    + "chains" -> "chain"
-   + "account-users" -> "accountUser"
+   + "project-users" -> "projectUser"
    + "entities" -> "entity"
 
    @param type to conform
@@ -343,7 +343,7 @@ public enum EntityUtils {
   /**
    get has-many relationship name of class, the key to use when this class is the target of a has-many relationship
    + Chain.class -> "chains"
-   + AccountUser.class -> "accountUsers"
+   + ProjectUser.class -> "projectUsers"
    + Object.class -> "entities"
 
    @param resource to get resource hasMany of
@@ -356,7 +356,7 @@ public enum EntityUtils {
   /**
    get has-many relationship name of object, the key to use when this class is the target of a has-many relationship
    + Chain.class -> "chains"
-   + AccountUser.class -> "accountUsers"
+   + ProjectUser.class -> "projectUsers"
    + Object.class -> "entities"
 
    @param resource to get resource hasMany of
@@ -369,7 +369,7 @@ public enum EntityUtils {
   /**
    get has-many relationship name, to use when this key is the target of a has-many relationship
    + Chain.class -> "chains"
-   + AccountUser.class -> "accountUsers"
+   + ProjectUser.class -> "projectUsers"
    + Object.class -> "entities"
 
    @param hasMany to conform
@@ -383,7 +383,7 @@ public enum EntityUtils {
    get has-many relationship name, to use when this key is the target of a has-many relationship
    FROM a resource type
    + "chains" -> "chains"
-   + "account-users" -> "accountUsers"
+   + "project-users" -> "projectUsers"
    + "entities" -> "entities"
 
    @param type to conform
@@ -396,7 +396,7 @@ public enum EntityUtils {
   /**
    Get resource type for any class, which is hyphenated lowercase pluralized
    + Chain.class -> "chains"
-   + AccountUser.class -> "account-users"
+   + ProjectUser.class -> "project-users"
    + Object.class -> "entities"
 
    @param resource to get resource type of
@@ -409,7 +409,7 @@ public enum EntityUtils {
   /**
    Get resource type for any object, which is hyphenated lowercase pluralized
    + Chain.class -> "chains"
-   + AccountUser.class -> "account-users"
+   + ProjectUser.class -> "project-users"
    + Object.class -> "entities"
 
    @param resource to get resource type of
@@ -422,7 +422,7 @@ public enum EntityUtils {
   /**
    Get resource type for any class, which is hyphenated lowercase pluralized
    + Chain.class -> "chains"
-   + AccountUser.class -> "account-users"
+   + ProjectUser.class -> "project-users"
    + Object.class -> "entities"
 
    @param type to conform
@@ -673,10 +673,10 @@ public enum EntityUtils {
   /**
    Get CSV of a collection of UUIDs
 
-   @param accountIds for which to get CSV
+   @param projectIds for which to get CSV
    @return CSV of uuids
    */
-  public static String csvOf(Collection<UUID> accountIds) {
-    return CsvUtils.join(accountIds.stream().map(UUID::toString).toList());
+  public static String csvOf(Collection<UUID> projectIds) {
+    return CsvUtils.join(projectIds.stream().map(UUID::toString).toList());
   }
 }

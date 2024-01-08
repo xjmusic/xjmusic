@@ -77,11 +77,11 @@ public class CraftBackgroundInitialTest {
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
     var chain2 = store.put(buildChain(
-      fake.account1,
+      fake.project1,
       "Print #2",
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
-      buildTemplate(fake.account1, "Test")
+      buildTemplate(fake.project1, "Test")
     ));
 
     // segment crafting

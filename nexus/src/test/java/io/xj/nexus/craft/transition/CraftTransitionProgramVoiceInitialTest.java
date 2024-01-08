@@ -84,7 +84,7 @@ public class CraftTransitionProgramVoiceInitialTest {
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
     chain2 = new Chain();
     chain2.setId(UUID.randomUUID());
-    chain2.setAccountId(fake.account1.getId());
+    chain2.setProjectId(fake.project1.getId());
     chain2.name("Print #2");
     chain2.setTemplateConfig(TemplateConfig.DEFAULT);
     chain2.setType(ChainType.PRODUCTION);

@@ -1,9 +1,9 @@
 {
   "data": {
     "attributes": {
-      "name": "Test Account"
+      "name": "Test Project"
     },
-    "type": "accounts",
+    "type": "projects",
     "id": "67"
   }
 }

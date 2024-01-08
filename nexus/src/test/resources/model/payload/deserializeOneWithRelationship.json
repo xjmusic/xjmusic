@@ -1,9 +1,9 @@
 {
   "data": {
     "relationships": {
-      "account": {
+      "project": {
         "data": {
-          "type": "accounts",
+          "type": "projects",
           "id": "1"
         }
       },
@@ -14,7 +14,7 @@
         }
       }
     },
-    "type": "account-users",
+    "type": "project-users",
     "id": "14"
   }
 }

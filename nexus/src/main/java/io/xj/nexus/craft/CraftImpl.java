@@ -668,7 +668,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     var dpRange = fabricator.getProgramRange(choice.getProgramId(), instrumentType);
     var voicingListRange = fabricator.getProgramVoicingNoteRange(instrumentType);
 
-    // take semitone shift into account before computing octave shift! https://www.pivotaltracker.com/story/show/181975107
+    // take semitone shift into project before computing octave shift! https://www.pivotaltracker.com/story/show/181975107
     var dpTransposeSemitones = fabricator.getProgramTargetShift(instrumentType, dpKey, segChord);
     var dpTransposeOctaveSemitones = 12 * fabricator.getProgramRangeShiftOctaves(instrumentType, dpRange.shifted(dpTransposeSemitones), voicingListRange);
 

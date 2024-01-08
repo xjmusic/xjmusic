@@ -55,7 +55,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAccount;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProject;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildDetailProgram;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildEvent;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildInstrument;
@@ -249,9 +249,9 @@ FUTURE goal
     // Manipulate the underlying entity store; reset before each test
     store.clear();
 
-    var account1 = buildAccount("fish");
-    Template template1 = buildTemplate(account1, "Test Template 1", "test1");
-    var library1 = buildLibrary(account1, "palm tree");
+    var project1 = buildProject("fish");
+    Template template1 = buildTemplate(project1, "Test Template 1", "test1");
+    var library1 = buildLibrary(project1, "palm tree");
     mainProgram1 = buildProgram(library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 60.0f, 0.6f); // 60 BPM such that 1 beat = 1 second
     chain = store.put(NexusIntegrationTestingFixtures.buildChain(template1));
 
