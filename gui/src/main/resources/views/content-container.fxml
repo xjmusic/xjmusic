@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<BorderPane prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/20.0.1"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.ContentContainerController">
+  <center>
+    <Label>
+      Content Goes Here
+    </Label>
+  </center>
+</BorderPane>

@@ -2,53 +2,57 @@
 
 package io.xj.gui.controllers;
 
-import io.xj.gui.services.FabricationService;
+import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.ProjectViewMode;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import jakarta.annotation.Nullable;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Service;
 
 @Service
 public class MainController implements ReadyAfterBootController {
-  final FabricationService fabricationService;
-  final MainMenuController mainMenuController;
-  final MainPaneBottomController mainPaneBottomController;
-  final MainPaneRightController mainPaneRightController;
-  final MainPaneTopController mainPaneTopController;
-  final MainTimelineController mainTimelineController;
-  final ThemeService themeService;
-  final UIStateService uiStateService;
+  private final ContentContainerController contentContainerController;
+  private final FabricationContainerController fabricationContainerController;
+  private final MainMenuController mainMenuController;
+  private final MainPaneBottomController mainPaneBottomController;
+  private final MainPaneTopController mainPaneTopController;
+  private final ProjectService projectService;
+  private final ThemeService themeService;
+  private final UIStateService uiStateService;
 
   @Nullable
   Scene mainWindowScene;
 
   public MainController(
-    FabricationService fabricationService,
+    ContentContainerController contentContainerController,
+    FabricationContainerController fabricationContainerController,
     MainMenuController mainMenuController,
     MainPaneBottomController mainPaneBottomController,
-    MainPaneRightController mainPaneRightController,
     MainPaneTopController mainPaneTopController,
-    MainTimelineController mainTimelineController,
+    ProjectService projectService,
     ThemeService themeService,
     UIStateService uiStateService
   ) {
-    this.fabricationService = fabricationService;
+    this.contentContainerController = contentContainerController;
+    this.fabricationContainerController = fabricationContainerController;
     this.mainMenuController = mainMenuController;
     this.mainPaneBottomController = mainPaneBottomController;
-    this.mainPaneRightController = mainPaneRightController;
     this.mainPaneTopController = mainPaneTopController;
-    this.mainTimelineController = mainTimelineController;
+    this.projectService = projectService;
     this.themeService = themeService;
     this.uiStateService = uiStateService;
   }
 
   @FXML
-  public ScrollPane mainTimeline;
+  public BorderPane fabricationContainer;
+
+  @FXML
+  public BorderPane contentContainer;
 
   @FXML
   public VBox mainPaneBottom;
@@ -65,20 +69,26 @@ public class MainController implements ReadyAfterBootController {
     themeService.isDarkThemeProperty().addListener((observable, oldValue, newValue) -> themeService.setup(mainWindowScene));
 
     mainMenuController.onStageReady();
-    mainPaneTopController.onStageReady();
     mainPaneBottomController.onStageReady();
-    mainPaneRightController.onStageReady();
-    mainTimelineController.onStageReady();
+    mainPaneTopController.onStageReady();
     uiStateService.onStageReady();
+
+    contentContainerController.onStageReady();
+    contentContainer.visibleProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.CONTENT));
+    contentContainer.managedProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.CONTENT));
+
+    fabricationContainerController.onStageReady();
+    fabricationContainer.visibleProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.FABRICATION));
+    fabricationContainer.managedProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.FABRICATION));
   }
 
   @Override
   public void onStageClose() {
+    contentContainerController.onStageClose();
+    fabricationContainerController.onStageClose();
     mainMenuController.onStageClose();
     mainPaneBottomController.onStageClose();
-    mainPaneRightController.onStageClose();
     mainPaneTopController.onStageClose();
-    mainTimelineController.onStageClose();
     uiStateService.onStageClose();
   }
 

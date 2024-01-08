@@ -2,23 +2,12 @@
 
 <!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
 
-<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
-<BorderPane prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/20.0.1"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainController">
-  <top>
-    <VBox>
-      <fx:include fx:id="mainMenu" source="main-menu.fxml"/>
-      <fx:include fx:id="mainPaneTop" source="main-pane-top.fxml"/>
-    </VBox>
-  </top>
-  <center>
-    <fx:include fx:id="mainTimeline" source="main-timeline.fxml"/>
-  </center>
-  <right>
-    <fx:include fx:id="mainPaneRight" source="main-pane-right.fxml"/>
-  </right>
-  <bottom>
-    <fx:include fx:id="mainPaneBottom" source="main-pane-bottom.fxml"/>
-  </bottom>
-</BorderPane>
+<VBox prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/20.0.1"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainController">
+  <fx:include fx:id="mainMenu" source="main-menu.fxml"/>
+  <fx:include fx:id="mainPaneTop" source="main-pane-top.fxml"/>
+  <fx:include fx:id="fabricationContainer" source="fabrication-container.fxml"/>
+  <fx:include fx:id="contentContainer" source="content-container.fxml"/>
+  <fx:include fx:id="mainPaneBottom" source="main-pane-bottom.fxml"/>
+</VBox>

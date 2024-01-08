@@ -33,6 +33,7 @@ import java.util.UUID;
 
 @Service
 public class MainPaneRightController extends VBox implements ReadyAfterBootController {
+  private static final PseudoClass ENGAGED_PSEUDO_CLASS = PseudoClass.getPseudoClass("engaged");
   private final FabricationService fabricationService;
   private final UIStateService uiStateService;
 
@@ -42,7 +43,6 @@ public class MainPaneRightController extends VBox implements ReadyAfterBootContr
   private final ObservableMap<String, String> taxonomyCategoryToggleSelections = FXCollections.observableHashMap();
   private final Set<ToggleGroup> taxonomyToggleGroups = new HashSet<>();
 
-  private static final PseudoClass ENGAGED_PSEUDO_CLASS = PseudoClass.getPseudoClass("engaged");
 
   public MainPaneRightController(
     FabricationService fabricationService,

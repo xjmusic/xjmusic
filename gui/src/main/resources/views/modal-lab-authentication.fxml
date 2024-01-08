@@ -56,7 +56,7 @@
       <Text fx:id="textUserName" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="user-name"
             wrappingWidth="316.80348777770996">
         <font>
-          <Font name="System Bold" size="18.0"/>
+          <Font name="Roboto" size="18.0"/>
         </font>
       </Text>
       <Text fx:id="textUserEmail" layoutX="10.0" layoutY="23.0" strokeType="OUTSIDE" strokeWidth="0.0"

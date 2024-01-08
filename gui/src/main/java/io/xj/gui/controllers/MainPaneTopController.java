@@ -5,28 +5,68 @@ package io.xj.gui.controllers;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.LabStatus;
+import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.ProjectViewMode;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.work.WorkState;
 import javafx.beans.value.ObservableValue;
+import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+import java.util.Set;
+
 @Service
 public class MainPaneTopController extends VBox implements ReadyAfterBootController {
-  final FabricationService fabricationService;
-  final UIStateService uiStateService;
-  final ModalFabricationSettingsController modalFabricationSettingsController;
-  final ModalLabAuthenticationController modalLabAuthenticationController;
-  final LabService labService;
+  private static final PseudoClass ACTIVE_PSEUDO_CLASS = PseudoClass.getPseudoClass("active");
+  private static final PseudoClass PENDING_PSEUDO_CLASS = PseudoClass.getPseudoClass("pending");
+  private static final PseudoClass FAILED_PSEUDO_CLASS = PseudoClass.getPseudoClass("failed");
+  private static final Set<WorkState> WORK_PENDING_STATES = Set.of(
+    WorkState.LoadingContent,
+    WorkState.Initializing,
+    WorkState.PreparedAudio,
+    WorkState.PreparingAudio,
+    WorkState.LoadedContent,
+    WorkState.Starting
+  );
+  private static final Set<LabStatus> LAB_PENDING_STATES = Set.of(
+    LabStatus.Connecting,
+    LabStatus.Configuring
+  );
+  private static final Set<LabStatus> LAB_FAILED_STATES = Set.of(
+    LabStatus.Unauthorized,
+    LabStatus.Failed
+  );
+  private final ProjectService projectService;
+  private final FabricationService fabricationService;
+  private final UIStateService uiStateService;
+  private final ModalFabricationSettingsController modalFabricationSettingsController;
+  private final ModalLabAuthenticationController modalLabAuthenticationController;
+  private final LabService labService;
+
+  @FXML
+  protected HBox fabricationControlContainer;
 
   @FXML
   protected ProgressBar progressBarFabrication;
+
+  @FXML
+  protected ToggleGroup viewMode;
+
+  @FXML
+  protected ToggleButton buttonContent;
+
+  @FXML
+  protected ToggleButton buttonFabrication;
 
   @FXML
   protected Button buttonAction;
@@ -47,12 +87,14 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   protected Button buttonShowFabricationSettings;
 
   public MainPaneTopController(
+    ProjectService projectService,
     FabricationService fabricationService,
     LabService labService,
     ModalFabricationSettingsController modalFabricationSettingsController,
     ModalLabAuthenticationController modalLabAuthenticationController,
     UIStateService uiStateService
   ) {
+    this.projectService = projectService;
     this.fabricationService = fabricationService;
     this.labService = labService;
     this.modalFabricationSettingsController = modalFabricationSettingsController;
@@ -78,6 +120,10 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
     progressBarFabrication.progressProperty().bind(fabricationService.progressProperty());
     progressBarFabrication.visibleProperty().bind(uiStateService.isProgressBarVisibleProperty());
+
+    buttonContent.setSelected(true);
+    fabricationControlContainer.visibleProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.FABRICATION));
+    fabricationControlContainer.managedProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.FABRICATION));
   }
 
   @Override
@@ -88,6 +134,16 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   @FXML
   protected void handleButtonActionPress() {
     fabricationService.handleMainAction();
+  }
+
+  @FXML
+  protected void handleButtonContentPress() {
+    projectService.viewModeProperty().set(ProjectViewMode.CONTENT);
+  }
+
+  @FXML
+  protected void handleButtonFabricationPress() {
+    projectService.viewModeProperty().set(ProjectViewMode.FABRICATION);
   }
 
   @FXML
@@ -104,30 +160,15 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     }
   }
 
-  private void handleFabricationStatusChange(ObservableValue<? extends WorkState> observable, WorkState prior, WorkState newValue) {
-    switch (newValue) {
-      case Standby, Failed, Done, Cancelled ->
-        buttonAction.getStyleClass().remove("button-active");
-      case LoadingContent, Initializing, PreparedAudio, PreparingAudio, LoadedContent, Starting, Active ->
-        buttonAction.getStyleClass().add("button-active");
-    }
+  private void handleFabricationStatusChange(ObservableValue<? extends WorkState> ignored1, WorkState ignored2, WorkState value) {
+    buttonAction.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, Objects.equals(value, WorkState.Active));
+    buttonAction.pseudoClassStateChanged(FAILED_PSEUDO_CLASS, Objects.equals(value, WorkState.Failed));
+    buttonAction.pseudoClassStateChanged(PENDING_PSEUDO_CLASS, WORK_PENDING_STATES.contains(value));
   }
 
-  private void handleLabStatusChange(ObservableValue<? extends LabStatus> observable, LabStatus prior, LabStatus newValue) {
-    switch (newValue) {
-      case Offline -> buttonLab.getStyleClass().removeAll("button-active", "button-pending", "button-failed");
-      case Connecting, Configuring -> {
-        buttonLab.getStyleClass().removeAll("button-active", "button-failed");
-        buttonLab.getStyleClass().add("button-pending");
-      }
-      case Authenticated -> {
-        buttonLab.getStyleClass().removeAll("button-pending", "button-failed");
-        buttonLab.getStyleClass().add("button-active");
-      }
-      case Unauthorized, Failed -> {
-        buttonLab.getStyleClass().removeAll("button-active", "button-pending");
-        buttonLab.getStyleClass().add("button-failed");
-      }
-    }
+  private void handleLabStatusChange(ObservableValue<? extends LabStatus> ignored1, LabStatus ignored2, LabStatus value) {
+    buttonLab.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, Objects.equals(value, LabStatus.Authenticated));
+    buttonLab.pseudoClassStateChanged(FAILED_PSEUDO_CLASS, LAB_FAILED_STATES.contains(value));
+    buttonLab.pseudoClassStateChanged(PENDING_PSEUDO_CLASS, LAB_PENDING_STATES.contains(value));
   }
 }

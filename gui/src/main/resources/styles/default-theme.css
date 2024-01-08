@@ -153,15 +153,18 @@
   -fx-background-color: #99999999;
 }
 
-.button-active {
+/*noinspection CssInvalidPseudoSelector*/
+.button:active {
   -fx-background-color: rgba(0, 255, 0, 0.38);
 }
 
-.button-pending {
+/*noinspection CssInvalidPseudoSelector*/
+.button:pending {
   -fx-background-color: rgba(255, 128, 0, 0.38);
 }
 
-.button-failed {
+/*noinspection CssInvalidPseudoSelector*/
+.button:failed {
   -fx-background-color: rgba(255, 0, 0, 0.38);
 }
 
