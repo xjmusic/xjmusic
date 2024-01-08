@@ -10,9 +10,9 @@
       "shipKey": "coolambience"
     },
     "relationships": {
-      "account": {
+      "project": {
         "data": {
-          "type": "accounts",
+          "type": "projects",
           "id": "1"
         }
       },

@@ -7,8 +7,8 @@ import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.Account;
-import io.xj.hub.tables.pojos.AccountUser;
+import io.xj.hub.tables.pojos.Project;
+import io.xj.hub.tables.pojos.ProjectUser;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.InstrumentMeme;
@@ -69,8 +69,8 @@ public class NexusIntegrationTestingFixtures {
   static final float RANDOM_VALUE_TO = 0.8f;
 
   // These are fully exposed (no getters/setters) for ease of use in testing
-  public Account account1;
-  public AccountUser accountUser1a;
+  public Project project1;
+  public ProjectUser projectUser1a;
   public Instrument instrument8;
   public Instrument instrument9;
   public InstrumentAudio instrument8_audio8bleep;
@@ -305,7 +305,7 @@ public class NexusIntegrationTestingFixtures {
   public static Chain buildChain(Template template, ChainState state) {
     var chain = new Chain();
     chain.setId(UUID.randomUUID());
-    chain.setAccountId(UUID.randomUUID());
+    chain.setProjectId(UUID.randomUUID());
     chain.setTemplateId(template.getId());
     chain.setName("Test Chain");
     chain.setType(ChainType.PRODUCTION);
@@ -314,19 +314,19 @@ public class NexusIntegrationTestingFixtures {
     return chain;
   }
 
-  public static Chain buildChain(Account account, String name, ChainType type, ChainState state, Template template) {
-    return buildChain(account, name, type, state, template, StringUtils.toShipKey(name));
+  public static Chain buildChain(Project project, String name, ChainType type, ChainState state, Template template) {
+    return buildChain(project, name, type, state, template, StringUtils.toShipKey(name));
   }
 
-  public static Chain buildChain(Account account, Template template, String name, ChainType type, ChainState state) {
-    return buildChain(account, name, type, state, template, StringUtils.toShipKey(name));
+  public static Chain buildChain(Project project, Template template, String name, ChainType type, ChainState state) {
+    return buildChain(project, name, type, state, template, StringUtils.toShipKey(name));
   }
 
-  public static Chain buildChain(Account account, String name, ChainType type, ChainState state, Template template, /*@Nullable*/ String shipKey) {
+  public static Chain buildChain(Project project, String name, ChainType type, ChainState state, Template template, /*@Nullable*/ String shipKey) {
     var chain = new Chain();
     chain.setId(UUID.randomUUID());
     chain.setTemplateId(template.getId());
-    chain.setAccountId(account.getId());
+    chain.setProjectId(project.getId());
     chain.setName(name);
     chain.setType(type);
     chain.setState(state);
@@ -581,22 +581,22 @@ public class NexusIntegrationTestingFixtures {
    */
   public Collection<Object> setupFixtureB1() throws EntityException {
 
-    // Account "bananas"
-    account1 = NexusHubIntegrationTestingFixtures.buildAccount("bananas");
+    // Project "bananas"
+    project1 = NexusHubIntegrationTestingFixtures.buildProject("bananas");
 
     // Library "house"
-    library2 = NexusHubIntegrationTestingFixtures.buildLibrary(account1, "house");
+    library2 = NexusHubIntegrationTestingFixtures.buildLibrary(project1, "house");
 
     // Template Binding to library 2
-    template1 = NexusHubIntegrationTestingFixtures.buildTemplate(account1, "Test Template 1", "test1");
+    template1 = NexusHubIntegrationTestingFixtures.buildTemplate(project1, "Test Template 1", "test1");
     templateBinding1 = NexusHubIntegrationTestingFixtures.buildTemplateBinding(template1, library2);
 
-    // John has "user" and "admin" roles, belongs to account "bananas"
+    // John has "user" and "admin" roles, belongs to project "bananas"
     user2 = NexusHubIntegrationTestingFixtures.buildUser("john", "john@email.com", "https://pictures.com/john.gif");
 
-    // Jenny has a "user" role and belongs to account "bananas"
+    // Jenny has a "user" role and belongs to project "bananas"
     user3 = NexusHubIntegrationTestingFixtures.buildUser("jenny", "jenny@email.com", "https://pictures.com/jenny.gif");
-    accountUser1a = NexusHubIntegrationTestingFixtures.buildAccountUser(account1, user3);
+    projectUser1a = NexusHubIntegrationTestingFixtures.buildProjectUser(project1, user3);
 
     // "Tropical, Wild to Cozy" macro-program in house library
     program4 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Tropical, Wild to Cozy", "C", 120.0f, 0.6f);
@@ -670,11 +670,11 @@ public class NexusIntegrationTestingFixtures {
     // List of all parent entities including the library
     // ORDER IS IMPORTANT because this list will be used for real database entities, so ordered from parent -> child
     return List.of(
-      account1,
+      project1,
       library2,
       user2,
       user3,
-      accountUser1a,
+      projectUser1a,
       program35,
       program35_voice0,
       program35_voice0_track0,
@@ -1012,11 +1012,11 @@ public class NexusIntegrationTestingFixtures {
   public Collection<Object> generatedFixture(int N) {
     Collection<Object> entities = new ArrayList<>();
 
-    account1 = add(entities, NexusHubIntegrationTestingFixtures.buildAccount("Generated"));
+    project1 = add(entities, NexusHubIntegrationTestingFixtures.buildProject("Generated"));
     user1 = add(entities, NexusHubIntegrationTestingFixtures.buildUser("generated", "generated@email.com", "https://pictures.com/generated.gif"));
-    library1 = add(entities, NexusHubIntegrationTestingFixtures.buildLibrary(account1, "generated"));
+    library1 = add(entities, NexusHubIntegrationTestingFixtures.buildLibrary(project1, "generated"));
 
-    template1 = NexusHubIntegrationTestingFixtures.buildTemplate(account1, "Complex Library Test", "complex");
+    template1 = NexusHubIntegrationTestingFixtures.buildTemplate(project1, "Complex Library Test", "complex");
     entities.add(template1);
     entities.add(NexusHubIntegrationTestingFixtures.buildTemplateBinding(template1, library1));
 

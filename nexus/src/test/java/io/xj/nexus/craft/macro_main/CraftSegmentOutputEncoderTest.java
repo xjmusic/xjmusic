@@ -68,7 +68,7 @@ public class CraftSegmentOutputEncoderTest {
 
     // Chain "Print #2" has 1 initial planned segment
     Chain chain2 = store.put(buildChain(
-      fake.account1,
+      fake.project1,
       "Print #2",
       ChainType.PRODUCTION,
       ChainState.FABRICATE,

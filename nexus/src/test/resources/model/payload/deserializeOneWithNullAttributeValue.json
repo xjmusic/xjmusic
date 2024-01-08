@@ -3,10 +3,10 @@
     "id": "17",
     "type": "chains",
     "relationships": {
-      "account": {
+      "project": {
         "data": {
           "id": "25",
-          "type": "accounts"
+          "type": "projects"
         }
       }
     },

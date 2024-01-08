@@ -18,17 +18,17 @@ public enum HubTopology {
    @param entityFactory to build topology on
    */
   public static void buildHubApiTopology(EntityFactory entityFactory) {
-    // Account
-    entityFactory.register(Account.class)
-      .createdBy(Account::new)
+    // Project
+    entityFactory.register(Project.class)
+      .createdBy(Project::new)
       .withAttribute("name")
       .hasMany(Library.class)
-      .hasMany(AccountUser.class);
+      .hasMany(ProjectUser.class);
 
-    // AccountUser
-    entityFactory.register(AccountUser.class)
-      .createdBy(AccountUser::new)
-      .belongsTo(Account.class)
+    // ProjectUser
+    entityFactory.register(ProjectUser.class)
+      .createdBy(ProjectUser::new)
+      .belongsTo(Project.class)
       .belongsTo(User.class);
 
     // Instrument
@@ -70,7 +70,7 @@ public enum HubTopology {
     entityFactory.register(Library.class)
       .createdBy(Library::new)
       .withAttribute("name")
-      .belongsTo(Account.class)
+      .belongsTo(Project.class)
       .hasMany(Instrument.class)
       .hasMany(Program.class);
 
@@ -200,7 +200,7 @@ public enum HubTopology {
       .withAttribute("type")
       .withAttribute("externalAccessToken")
       .withAttribute("externalRefreshToken")
-      .withAttribute("externalAccount")
+      .withAttribute("externalProject")
       .belongsTo(User.class);
 
     // UserAuthToken
@@ -217,7 +217,7 @@ public enum HubTopology {
       .withAttribute("name")
       .withAttribute("config")
       .withAttribute("shipKey")
-      .belongsTo(Account.class)
+      .belongsTo(Project.class)
       .hasMany(TemplateBinding.class)
       .hasMany(TemplatePublication.class);
 

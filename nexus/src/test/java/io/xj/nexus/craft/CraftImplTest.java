@@ -11,7 +11,7 @@ import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.meme.MemeTaxonomy;
 import io.xj.hub.music.Chord;
-import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.InstrumentMeme;
@@ -39,7 +39,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAccount;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProject;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildInstrument;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildInstrumentAudio;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildInstrumentMeme;
@@ -72,12 +72,12 @@ public class CraftImplTest {
 
   @BeforeEach
   public void setUp() throws Exception {
-    Account account1 = buildAccount("fish");
-    Library library1 = buildLibrary(account1, "sea");
+    Project project1 = buildProject("fish");
+    Library library1 = buildLibrary(project1, "sea");
     program1 = buildProgram(library1, ProgramType.Detail, ProgramState.Published, "swimming", "C", 120.0f, 0.6f);
-    Template template1 = buildTemplate(account1, "Test Template 1", "test1");
+    Template template1 = buildTemplate(project1, "Test Template 1", "test1");
     // Chain "Test Print #1" is fabricating segments
-    Chain chain1 = buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, null);
+    Chain chain1 = buildChain(project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, null);
 
     segment0 = buildSegment(chain1, SegmentType.INITIAL, 2, 128, SegmentState.CRAFTED, "D major", 64, 0.73f, 120.0f, "chains-1-segments-9f7s89d8a7892", true);
 
@@ -168,8 +168,8 @@ public class CraftImplTest {
   public void chooseFreshInstrumentAudio() {
     when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
 
-    Account account1 = buildAccount("testing");
-    Library library1 = buildLibrary(account1, "leaves");
+    Project project1 = buildProject("testing");
+    Library library1 = buildLibrary(project1, "leaves");
     Instrument instrument1 = buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Event, InstrumentState.Published, "Loop 75 beats per minute");
     InstrumentMeme instrument1meme = buildInstrumentMeme(instrument1, "70BPM");
     InstrumentAudio instrument1audio = buildInstrumentAudio(instrument1, "slow loop", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", "X", 1.0f);
@@ -232,8 +232,8 @@ public class CraftImplTest {
    @param match      chord name
    */
   void selectNewChordPartInstrumentAudio(String expectThis, String notThat, String match) {
-    Account account1 = buildAccount("testing");
-    Library library1 = buildLibrary(account1, "leaves");
+    Project project1 = buildProject("testing");
+    Library library1 = buildLibrary(project1, "leaves");
     Instrument instrument1 = buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Chord, InstrumentState.Published, "Test chord audio");
     InstrumentAudio instrument1audio1 = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", expectThis, 1.0f);
     InstrumentAudio instrument1audio2 = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", notThat, 1.0f);

@@ -13,7 +13,7 @@ public class Chain {
   @JsonIgnore
   public static final String EXTENSION_SEPARATOR = ".";
   UUID id;
-  UUID accountId;
+  UUID projectId;
   UUID templateId;
   ChainType type;
   ChainState state;
@@ -40,19 +40,19 @@ public class Chain {
 
   /**
    **/
-  public Chain accountId(UUID accountId) {
-    this.accountId = accountId;
+  public Chain projectId(UUID projectId) {
+    this.projectId = projectId;
     return this;
   }
 
 
-  @JsonProperty("accountId")
-  public UUID getAccountId() {
-    return accountId;
+  @JsonProperty("projectId")
+  public UUID getProjectId() {
+    return projectId;
   }
 
-  public void setAccountId(UUID accountId) {
-    this.accountId = accountId;
+  public void setProjectId(UUID projectId) {
+    this.projectId = projectId;
   }
 
   /**
@@ -167,7 +167,7 @@ public class Chain {
     }
     Chain chain = (Chain) o;
     return Objects.equals(this.id, chain.id) &&
-      Objects.equals(this.accountId, chain.accountId) &&
+      Objects.equals(this.projectId, chain.projectId) &&
       Objects.equals(this.templateId, chain.templateId) &&
       Objects.equals(this.type, chain.type) &&
       Objects.equals(this.state, chain.state) &&
@@ -178,7 +178,7 @@ public class Chain {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, accountId, templateId, type, state, shipKey, templateConfig, name);
+    return Objects.hash(id, projectId, templateId, type, state, shipKey, templateConfig, name);
   }
 
   @Override
@@ -186,7 +186,7 @@ public class Chain {
 
     return "class Chain {\n" +
       "    id: " + toIndentedString(id) + "\n" +
-      "    accountId: " + toIndentedString(accountId) + "\n" +
+      "    projectId: " + toIndentedString(projectId) + "\n" +
       "    templateId: " + toIndentedString(templateId) + "\n" +
       "    type: " + toIndentedString(type) + "\n" +
       "    state: " + toIndentedString(state) + "\n" +

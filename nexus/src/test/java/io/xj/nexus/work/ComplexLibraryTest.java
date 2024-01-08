@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAccount;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProject;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildLibrary;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -58,8 +58,8 @@ public class ComplexLibraryTest {
   @BeforeEach
   public void setUp() throws Exception {
     NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
-    fake.account1 = buildAccount("fish");
-    fake.library1 = buildLibrary(fake.account1, "test");
+    fake.project1 = buildProject("fish");
+    fake.library1 = buildLibrary(fake.project1, "test");
     var generatedFixtures = fake.generatedFixture(GENERATED_FIXTURE_COMPLEXITY);
     HubContent content = new HubContent(generatedFixtures.stream().filter(Objects::nonNull).toList());
 

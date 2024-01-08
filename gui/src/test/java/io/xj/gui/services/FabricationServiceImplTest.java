@@ -4,7 +4,7 @@ package io.xj.gui.services;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.ControlMode;
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.xj.gui.GuiHubIntegrationTestingFixtures.buildAccount;
+import static io.xj.gui.GuiHubIntegrationTestingFixtures.buildProject;
 import static io.xj.gui.GuiHubIntegrationTestingFixtures.buildMainProgramWithBarBeats;
 import static io.xj.gui.GuiHubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.gui.GuiIntegrationTestingFixtures.buildChain;
@@ -66,10 +66,10 @@ class FabricationServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    Account account = buildAccount();
-    Template template = buildTemplate(account, "Test Template");
+    Project project = buildProject();
+    Template template = buildTemplate(project, "Test Template");
     chain = buildChain(
-      account,
+      project,
       "Test",
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
