@@ -5,7 +5,6 @@ import io.xj.hub.HubContent;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.music.Bar;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
@@ -412,7 +411,8 @@ public class CraftWorkImpl implements CraftWork {
         LOG.warn("Will not delete any segments because current segment has no main program.");
         return;
       }
-      var subBeats = Bar.of(new ProgramConfig(currentMainProgram.get().getConfig()).getBarBeats()).computeSubsectionBeats(lastSegment.get().getTotal());
+      var mainProgramConfig = new ProgramConfig(currentMainProgram.get().getConfig());
+      var subBeats = mainProgramConfig.getBarBeats() * mainProgramConfig.getCutoffMinimumBars();
       var dubbedToSegmentMicros = dubbedToChainMicros - lastSegment.get().getBeginAtChainMicros();
       var microsPerBeat = (long) (MICROS_PER_MINUTE / currentMainProgram.get().getTempo());
       var dubbedToSegmentBeats = dubbedToSegmentMicros / microsPerBeat;
