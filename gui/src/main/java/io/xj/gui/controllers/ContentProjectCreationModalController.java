@@ -6,7 +6,11 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.utils.DirectoryChooserUtils;
 import io.xj.gui.utils.TextParsingUtils;
+import io.xj.hub.util.StringUtils;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
@@ -24,6 +28,7 @@ public class ContentProjectCreationModalController extends ReadyAfterBootModalCo
   private final ConfigurableApplicationContext ac;
   private final ProjectService projectService;
   private final ThemeService themeService;
+  private final ObjectProperty<ContentProjectCreationMode> mode = new SimpleObjectProperty<>(ContentProjectCreationMode.NEW_PROJECT);
 
   @FXML
   protected TextField fieldProjectName;
@@ -69,6 +74,20 @@ public class ContentProjectCreationModalController extends ReadyAfterBootModalCo
     // no op
   }
 
+  @Override
+  public void launchModal() {
+    doLaunchModal(ac, themeService, contentProjectCreationModalFxml, WINDOW_TITLE);
+  }
+
+  /**
+   Set the mode for project creation, e.g. New Project vs Clone Project
+
+   @param mode of project creation
+   */
+  public void setMode(ContentProjectCreationMode mode) {
+    this.mode.set(mode);
+  }
+
   @FXML
   protected void handlePressSelectDirectory() {
     var path = DirectoryChooserUtils.chooseDirectory(
@@ -81,7 +100,15 @@ public class ContentProjectCreationModalController extends ReadyAfterBootModalCo
 
   @FXML
   protected void handlePressOK() {
-    // TODO require non-empty fieldProjectName
+    if (StringUtils.isNullOrEmpty(fieldProjectName.getText())) {
+      Alert alert = new Alert(Alert.AlertType.WARNING);
+      alert.setGraphic(null);
+      alert.setTitle("Cannot create project");
+      alert.setHeaderText("Project Name cannot be empty");
+      alert.setContentText("You must specify a project name to create a new project.");
+      alert.showAndWait();
+      return;
+    }
     projectService.createProject(fieldPathPrefix.getText(), fieldProjectName.getText());
     Stage stage = (Stage) buttonOK.getScene().getWindow();
     stage.close();
@@ -93,10 +120,5 @@ public class ContentProjectCreationModalController extends ReadyAfterBootModalCo
     Stage stage = (Stage) buttonCancel.getScene().getWindow();
     stage.close();
     onStageClose();
-  }
-
-  @Override
-  public void launchModal() {
-    doLaunchModal(ac, themeService, contentProjectCreationModalFxml, WINDOW_TITLE);
   }
 }
