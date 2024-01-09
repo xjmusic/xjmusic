@@ -3,8 +3,6 @@
 package io.xj.gui.controllers.impl;
 
 import io.xj.gui.controllers.MainController;
-import io.xj.gui.controllers.MainPaneBottomController;
-import io.xj.gui.controllers.MainPaneTopController;
 import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ProjectViewMode;
@@ -20,8 +18,8 @@ public class MainControllerImpl implements ReadyAfterBootController, MainControl
   private final ContentContainerControllerImpl contentContainerController;
   private final FabricationContainerControllerImpl fabricationContainerController;
   private final MainMenuControllerImpl mainMenuController;
-  private final MainPaneBottomController mainPaneBottomController;
-  private final MainPaneTopController mainPaneTopController;
+  private final MainPaneBottomControllerImpl mainPaneBottomController;
+  private final MainPaneTopControllerImpl mainPaneTopController;
   private final ProjectService projectService;
   private final UIStateService uiStateService;
 
@@ -29,8 +27,8 @@ public class MainControllerImpl implements ReadyAfterBootController, MainControl
     ContentContainerControllerImpl contentContainerController,
     FabricationContainerControllerImpl fabricationContainerController,
     MainMenuControllerImpl mainMenuController,
-    MainPaneBottomController mainPaneBottomController,
-    MainPaneTopController mainPaneTopController,
+    MainPaneBottomControllerImpl mainPaneBottomController,
+    MainPaneTopControllerImpl mainPaneTopController,
     ProjectService projectService,
     UIStateService uiStateService
   ) {

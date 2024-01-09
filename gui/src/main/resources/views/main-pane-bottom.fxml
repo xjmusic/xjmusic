@@ -5,6 +5,6 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.VBox?>
 <VBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="io.xj.gui.controllers.MainPaneBottomController">
+      fx:controller="io.xj.gui.controllers.impl.MainPaneBottomControllerImpl">
   <ListView fx:id="logListView" prefHeight="400.0" prefWidth="769.0" styleClass="log-viewer"/>
 </VBox>
