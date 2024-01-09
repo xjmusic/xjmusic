@@ -3,6 +3,8 @@
 package io.xj.gui.controllers.impl;
 
 import io.xj.gui.controllers.FabricationContainerController;
+import io.xj.gui.controllers.MainPaneRightController;
+import io.xj.gui.controllers.MainTimelineController;
 import io.xj.gui.controllers.ReadyAfterBootController;
 import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
@@ -11,12 +13,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class FabricationContainerControllerImpl implements ReadyAfterBootController, FabricationContainerController {
-  final MainPaneRightControllerImpl mainPaneRightController;
-  final MainTimelineControllerImpl mainTimelineController;
+  final MainPaneRightController mainPaneRightController;
+  final MainTimelineController mainTimelineController;
 
   public FabricationContainerControllerImpl(
-    MainPaneRightControllerImpl mainPaneRightController,
-    MainTimelineControllerImpl mainTimelineController
+    MainPaneRightController mainPaneRightController,
+    MainTimelineController mainTimelineController
   ) {
     this.mainPaneRightController = mainPaneRightController;
     this.mainTimelineController = mainTimelineController;
