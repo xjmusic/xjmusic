@@ -81,6 +81,7 @@ public class ContentProjectCreationModalController extends ReadyAfterBootModalCo
 
   @FXML
   protected void handlePressOK() {
+    // TODO require non-empty fieldProjectName
     projectService.createProject(fieldPathPrefix.getText(), fieldProjectName.getText());
     Stage stage = (Stage) buttonOK.getScene().getWindow();
     stage.close();

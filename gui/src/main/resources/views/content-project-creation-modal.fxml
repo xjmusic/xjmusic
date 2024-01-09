@@ -16,7 +16,9 @@
 
   <GridPane hgap="10" vgap="10">
     <Label
-      text="Project Name"
+      contentDisplay="TEXT_ONLY"
+      text="Project Name:"
+      GridPane.halignment="RIGHT"
       GridPane.rowIndex="0"
       GridPane.columnIndex="0"/>
     <TextField
@@ -25,12 +27,11 @@
       GridPane.columnIndex="1"
       GridPane.columnSpan="2"/>
 
-    <Label GridPane.rowIndex="1"
-           GridPane.columnIndex="0"
-           alignment="CENTER_RIGHT"
-           contentDisplay="TEXT_ONLY"
-           text="Folder Location"
-           textAlignment="RIGHT"/>
+    <Label contentDisplay="TEXT_ONLY"
+           text="Folder Location:"
+           GridPane.halignment="RIGHT"
+           GridPane.rowIndex="1"
+           GridPane.columnIndex="0"/>
     <TextField fx:id="fieldPathPrefix"
                GridPane.rowIndex="1"
                GridPane.columnIndex="1"
