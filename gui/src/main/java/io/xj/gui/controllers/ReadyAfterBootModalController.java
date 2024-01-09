@@ -27,7 +27,7 @@ public abstract class ReadyAfterBootModalController implements ReadyAfterBootCon
   /**
    Launches the modal.
    */
-  protected void doLaunchModal(ApplicationContext ac, ThemeService themeService, Resource fxml, String windowName) {
+  protected void createAndShowModal(ApplicationContext ac, ThemeService themeService, Resource fxml, String windowName) {
     try {
       // Load the FXML file
       FXMLLoader loader = new FXMLLoader(fxml.getURL());

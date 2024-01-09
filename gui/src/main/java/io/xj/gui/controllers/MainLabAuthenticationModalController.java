@@ -143,6 +143,6 @@ public class MainLabAuthenticationModalController extends ReadyAfterBootModalCon
 
   @Override
   void launchModal() {
-    doLaunchModal(ac, themeService, modalLabAuthenticationFxml, CONNECT_TO_LAB_WINDOW_NAME);
+    createAndShowModal(ac, themeService, modalLabAuthenticationFxml, CONNECT_TO_LAB_WINDOW_NAME);
   }
 }

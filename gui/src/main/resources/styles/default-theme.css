@@ -48,7 +48,6 @@
 }
 
 .main-timeline,
-.demo-container,
 .timeline-position-spacer {
   -fx-background-color: #e0e0e0;
 }
@@ -210,4 +209,8 @@
 
 .startup-container .button {
   -fx-font-size: 18px;
+}
+
+.demo-container {
+  -fx-padding: 0 0 20 0;
 }

@@ -48,16 +48,13 @@ public class ContentContainerController implements ReadyAfterBootController {
 
   @FXML
   protected void handlePressNewProject() {
+    contentProjectCreationModalController.setMode(ContentProjectCreationMode.NEW_PROJECT);
     contentProjectCreationModalController.launchModal();
   }
 
   @FXML
-  protected void handlePressCloneProjectFromLab() {
-    // todo implement modal to handle Clone Project From Lab
-  }
-
-  @FXML
   protected void handlePressCloneProject() {
-    // todo implement modal to handle Clone Demo Project
+    contentProjectCreationModalController.setMode(ContentProjectCreationMode.CLONE_PROJECT);
+    contentProjectCreationModalController.launchModal();
   }
 }

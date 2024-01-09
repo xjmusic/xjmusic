@@ -148,7 +148,7 @@ public class FabricationSettingsModalController extends ReadyAfterBootModalContr
 
   @Override
   void launchModal() {
-    doLaunchModal(ac, themeService, fabricationSettingsModalFxml, FABRICATION_SERVICE_WINDOW_NAME);
+    createAndShowModal(ac, themeService, fabricationSettingsModalFxml, FABRICATION_SERVICE_WINDOW_NAME);
   }
 
 }

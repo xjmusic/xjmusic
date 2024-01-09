@@ -63,6 +63,6 @@ public class MainAboutModalController extends ReadyAfterBootModalController {
 
   @Override
   void launchModal() {
-    doLaunchModal(ac, themeService, modalAboutFxml, ABOUT_WINDOW_NAME);
+    createAndShowModal(ac, themeService, modalAboutFxml, ABOUT_WINDOW_NAME);
   }
 }

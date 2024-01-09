@@ -10,14 +10,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class FabricationContainerController implements ReadyAfterBootController {
   final MainPaneRightController mainPaneRightController;
-  final MainTimelineController mainTimelineController;
+  final FabricationTimelineController fabricationTimelineController;
 
   public FabricationContainerController(
     MainPaneRightController mainPaneRightController,
-    MainTimelineController mainTimelineController
+    FabricationTimelineController fabricationTimelineController
   ) {
     this.mainPaneRightController = mainPaneRightController;
-    this.mainTimelineController = mainTimelineController;
+    this.fabricationTimelineController = fabricationTimelineController;
   }
 
   @FXML
@@ -29,12 +29,12 @@ public class FabricationContainerController implements ReadyAfterBootController 
   @Override
   public void onStageReady() {
     mainPaneRightController.onStageReady();
-    mainTimelineController.onStageReady();
+    fabricationTimelineController.onStageReady();
   }
 
   @Override
   public void onStageClose() {
     mainPaneRightController.onStageClose();
-    mainTimelineController.onStageClose();
+    fabricationTimelineController.onStageClose();
   }
 }
