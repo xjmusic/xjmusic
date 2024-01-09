@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="10" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.impl.FabricationSettingsModalControllerImpl">
+<VBox spacing="10" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.FabricationSettingsModalController">
   <padding>
     <Insets bottom="15" left="15" right="15" top="15" /> <!-- Padding values -->
   </padding>
