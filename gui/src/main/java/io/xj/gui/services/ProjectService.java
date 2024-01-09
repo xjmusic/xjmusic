@@ -1,6 +1,8 @@
 package io.xj.gui.services;
 
+import io.xj.hub.tables.pojos.Project;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.StringProperty;
 
 public interface ProjectService {
   /**
@@ -9,4 +11,26 @@ public interface ProjectService {
    @return the project view mode
    */
   ObjectProperty<ProjectViewMode> viewModeProperty();
+
+  /**
+   @return the current project
+   */
+  ObjectProperty<Project> currentProjectProperty();
+
+  /**
+   Open a Project from disk
+   */
+  void openProject(String path);
+
+  /**
+   Start a new Project
+   */
+  void createProject(String pathPrefix, String name);
+
+  /**
+   Clone a Project from the Lab
+   */
+  void cloneProject();
+
+  StringProperty pathPrefixProperty();
 }

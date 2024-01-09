@@ -6,6 +6,7 @@ import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.utils.TextParsingUtils;
 import io.xj.nexus.ControlMode;
 import io.xj.nexus.InputMode;
 import javafx.collections.FXCollections;
@@ -20,13 +21,11 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-
 @Service
-public class ModalFabricationSettingsController extends ReadyAfterBootModalController {
+public class FabricationSettingsModalController extends ReadyAfterBootModalController {
 
   static final String FABRICATION_SERVICE_WINDOW_NAME = "Fabrication Settings";
-  private final Resource modalFabricationSettingsFxml;
+  private final Resource fabricationSettingsModalFxml;
   private final ConfigurableApplicationContext ac;
   private final LabService labService;
   private final FabricationService fabricationService;
@@ -78,15 +77,15 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   @FXML
   public Button buttonReset;
 
-  public ModalFabricationSettingsController(
-    @Value("classpath:/views/modal-fabrication-settings.fxml") Resource modalFabricationSettingsFxml,
+  public FabricationSettingsModalController(
+    @Value("classpath:/views/fabrication-settings-modal.fxml") Resource fabricationSettingsModalFxml,
     ConfigurableApplicationContext ac,
     LabService labService,
     FabricationService fabricationService,
     ThemeService themeService,
     UIStateService uiStateService
   ) {
-    this.modalFabricationSettingsFxml = modalFabricationSettingsFxml;
+    this.fabricationSettingsModalFxml = fabricationSettingsModalFxml;
     this.ac = ac;
     this.labService = labService;
     this.fabricationService = fabricationService;
@@ -125,7 +124,7 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
     fieldContentStoragePathPrefix.textProperty().bindBidirectional(fabricationService.contentStoragePathPrefixProperty());
     fieldContentStoragePathPrefix.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
       if (!isNowFocused) {
-        addTrailingSlash(fieldContentStoragePathPrefix);
+        TextParsingUtils.addTrailingSlash(fieldContentStoragePathPrefix);
       }
     });
   }
@@ -149,19 +148,7 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
 
   @Override
   void launchModal() {
-    doLaunchModal(ac, themeService, modalFabricationSettingsFxml, FABRICATION_SERVICE_WINDOW_NAME);
+    doLaunchModal(ac, themeService, fabricationSettingsModalFxml, FABRICATION_SERVICE_WINDOW_NAME);
   }
 
-  /**
-   Add slash to end of "file output path prefix"
-   https://www.pivotaltracker.com/story/show/186555998
-
-   @param textField in which to add a trailing slash
-   */
-  private void addTrailingSlash(TextField textField) {
-    String text = textField.getText();
-    if (!text.endsWith(File.separator)) {
-      textField.setText(text + File.separator);
-    }
-  }
 }

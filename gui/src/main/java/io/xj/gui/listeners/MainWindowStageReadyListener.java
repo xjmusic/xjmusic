@@ -23,11 +23,11 @@ import java.io.IOException;
 @Component
 public class MainWindowStageReadyListener implements ApplicationListener<StageReadyEvent> {
   static final Logger LOG = LoggerFactory.getLogger(MainWindowStageReadyListener.class);
-  final Resource mainWindowFxml;
-  final String debug;
-  final MainController mainController;
-  final ApplicationContext ac;
-  final ThemeService themeService;
+  private final Resource mainWindowFxml;
+  private final String debug;
+  private final MainController mainController;
+  private final ApplicationContext ac;
+  private final ThemeService themeService;
 
   public MainWindowStageReadyListener(
     @Value("classpath:/views/main.fxml") Resource mainWindowFxml,
@@ -49,12 +49,16 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
       var primaryStage = event.getStage();
       FXMLLoader mainWindowFxmlLoader = new FXMLLoader(mainWindowFxml.getURL());
       mainWindowFxmlLoader.setControllerFactory(ac::getBean);
-      mainController.setMainWindowScene(new Scene(mainWindowFxmlLoader.load()));
-      primaryStage.setScene(mainController.getMainWindowScene());
+
+      var scene = new Scene(mainWindowFxmlLoader.load());
+      primaryStage.setScene(scene);
       primaryStage.initStyle(StageStyle.DECORATED);
+
       WorkstationIcon.setup(primaryStage, null);
       WorkstationIcon.setupTaskbar();
 
+      themeService.setup(scene);
+      themeService.isDarkThemeProperty().addListener((observable, oldValue, newValue) -> themeService.setup(scene));
       themeService.setupFonts();
 
       mainController.onStageReady();

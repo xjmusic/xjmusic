@@ -1,11 +1,10 @@
 package io.xj.gui.services;
 
 import io.xj.gui.controllers.ReadyAfterBootController;
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableStringValue;
 
 /**
  This is an intermediary to compute the state of the UI based on the state of the application.
@@ -34,12 +33,12 @@ public interface UIStateService extends ReadyAfterBootController {
   /**
    @return Observable property of the fabrication status text
    */
-  StringBinding fabricationStatusTextProperty();
+  ObservableStringValue fabricationStatusTextProperty();
 
   /**
    @return Observable property of whether the progress bar should be visible
    */
-  BooleanBinding isProgressBarVisibleProperty();
+  ObservableBooleanValue isProgressBarVisibleProperty();
 
   /**
    @return Observable/settable property of the log level
@@ -49,15 +48,17 @@ public interface UIStateService extends ReadyAfterBootController {
   /**
    @return Observable property of whether the fabrication input mode should appear disabled
    */
-  BooleanBinding isInputModeDisabledProperty();
+  ObservableBooleanValue isInputModeDisabledProperty();
 
   /**
    @return Observable property of whether the fabrication is in manual mode;
    */
-  BooleanBinding isManualFabricationModeProperty();
+  ObservableBooleanValue isManualFabricationModeProperty();
 
   /**
    @return Observable property of whether the fabrication is active and in manual mode;
    */
-  BooleanBinding isManualFabricationActiveProperty();
+  ObservableBooleanValue isManualFabricationActiveProperty();
+
+  ObservableBooleanValue isFabricationDisabledProperty();
 }

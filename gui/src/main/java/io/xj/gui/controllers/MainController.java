@@ -4,11 +4,8 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ProjectViewMode;
-import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import jakarta.annotation.Nullable;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -22,11 +19,7 @@ public class MainController implements ReadyAfterBootController {
   private final MainPaneBottomController mainPaneBottomController;
   private final MainPaneTopController mainPaneTopController;
   private final ProjectService projectService;
-  private final ThemeService themeService;
   private final UIStateService uiStateService;
-
-  @Nullable
-  Scene mainWindowScene;
 
   public MainController(
     ContentContainerController contentContainerController,
@@ -35,7 +28,6 @@ public class MainController implements ReadyAfterBootController {
     MainPaneBottomController mainPaneBottomController,
     MainPaneTopController mainPaneTopController,
     ProjectService projectService,
-    ThemeService themeService,
     UIStateService uiStateService
   ) {
     this.contentContainerController = contentContainerController;
@@ -44,7 +36,6 @@ public class MainController implements ReadyAfterBootController {
     this.mainPaneBottomController = mainPaneBottomController;
     this.mainPaneTopController = mainPaneTopController;
     this.projectService = projectService;
-    this.themeService = themeService;
     this.uiStateService = uiStateService;
   }
 
@@ -65,9 +56,6 @@ public class MainController implements ReadyAfterBootController {
 
   @Override
   public void onStageReady() {
-    themeService.setup(mainWindowScene);
-    themeService.isDarkThemeProperty().addListener((observable, oldValue, newValue) -> themeService.setup(mainWindowScene));
-
     mainMenuController.onStageReady();
     mainPaneBottomController.onStageReady();
     mainPaneTopController.onStageReady();
@@ -91,13 +79,4 @@ public class MainController implements ReadyAfterBootController {
     mainPaneTopController.onStageClose();
     uiStateService.onStageClose();
   }
-
-  public @Nullable Scene getMainWindowScene() {
-    return mainWindowScene;
-  }
-
-  public void setMainWindowScene(@Nullable Scene mainWindowScene) {
-    this.mainWindowScene = mainWindowScene;
-  }
-
 }

@@ -33,9 +33,9 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   final UIStateService uiStateService;
   final LabService labService;
   final UIStateService guiService;
-  final ModalFabricationSettingsController modalFabricationSettingsController;
-  final ModalAboutController modalAboutController;
-  final ModalLabAuthenticationController modalLabAuthenticationController;
+  final FabricationSettingsModalController fabricationSettingsModalController;
+  final MainAboutModalController mainAboutModalController;
+  final MainLabAuthenticationModalController mainLabAuthenticationModalController;
 
   @FXML
   protected MenuItem itemFabricationMainAction;
@@ -75,9 +75,9 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     FabricationService fabricationService,
     GuideService guideService,
     LabService labService,
-    ModalAboutController modalAboutController,
-    ModalFabricationSettingsController modalFabricationSettingsController,
-    ModalLabAuthenticationController modalLabAuthenticationController,
+    MainAboutModalController mainAboutModalController,
+    FabricationSettingsModalController fabricationSettingsModalController,
+    MainLabAuthenticationModalController mainLabAuthenticationModalController,
     ThemeService themeService,
     UIStateService guiService,
     UIStateService uiStateService
@@ -87,9 +87,9 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     this.guiService = guiService;
     this.guideService = guideService;
     this.labService = labService;
-    this.modalAboutController = modalAboutController;
-    this.modalFabricationSettingsController = modalFabricationSettingsController;
-    this.modalLabAuthenticationController = modalLabAuthenticationController;
+    this.mainAboutModalController = mainAboutModalController;
+    this.fabricationSettingsModalController = fabricationSettingsModalController;
+    this.mainLabAuthenticationModalController = mainLabAuthenticationModalController;
     this.themeService = themeService;
     this.uiStateService = uiStateService;
   }
@@ -116,7 +116,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     logLevelInfo.setToggleGroup(logLevelToggleGroup);
     logLevelWarn.setToggleGroup(logLevelToggleGroup);
     logLevelError.setToggleGroup(logLevelToggleGroup);
-    switch (uiStateService.logLevelProperty().get()) {
+    switch (uiStateService.logLevelProperty().getValue()) {
       case DEBUG -> logLevelDebug.setSelected(true);
       case INFO -> logLevelInfo.setSelected(true);
       case WARN -> logLevelWarn.setSelected(true);
@@ -141,12 +141,12 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
   @FXML
   protected void onPressAbout() {
-    modalAboutController.launchModal();
+    mainAboutModalController.launchModal();
   }
 
   @FXML
   protected void handleLabAuthentication() {
-    modalLabAuthenticationController.launchModal();
+    mainLabAuthenticationModalController.launchModal();
   }
 
   @FXML
@@ -156,7 +156,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
   @FXML
   protected void handleOpenFabricationSettings() {
-    modalFabricationSettingsController.launchModal();
+    fabricationSettingsModalController.launchModal();
   }
 
   @FXML

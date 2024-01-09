@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-public class ModalLabAuthenticationController extends ReadyAfterBootModalController {
+public class MainLabAuthenticationModalController extends ReadyAfterBootModalController {
   static final List<LabStatus> BUTTON_CONNECT_ACTIVE_IN_LAB_STATES = Arrays.asList(
     LabStatus.Authenticated,
     LabStatus.Unauthorized,
@@ -66,8 +66,8 @@ public class ModalLabAuthenticationController extends ReadyAfterBootModalControl
   @FXML
   Text textUserEmail;
 
-  public ModalLabAuthenticationController(
-    @Value("classpath:/views/modal-lab-authentication.fxml") Resource modalLabAuthenticationFxml,
+  public MainLabAuthenticationModalController(
+    @Value("classpath:/views/main-lab-authentication-modal.fxml") Resource modalLabAuthenticationFxml,
     ConfigurableApplicationContext ac,
     LabService labService,
     ThemeService themeService

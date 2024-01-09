@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+<VBox spacing="10" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="io.xj.gui.controllers.ContentProjectCreationModalController">
+  <padding>
+    <Insets bottom="15" left="15" right="15" top="15"/> <!-- Padding values -->
+  </padding>
+
+  <GridPane hgap="10" vgap="10">
+    <Label
+      text="Project Name"
+      GridPane.rowIndex="0"
+      GridPane.columnIndex="0"/>
+    <TextField
+      fx:id="fieldProjectName"
+      GridPane.rowIndex="0"
+      GridPane.columnIndex="1"
+      GridPane.columnSpan="2"/>
+
+    <Label GridPane.rowIndex="1"
+           GridPane.columnIndex="0"
+           alignment="CENTER_RIGHT"
+           contentDisplay="TEXT_ONLY"
+           text="Folder Location"
+           textAlignment="RIGHT"/>
+    <TextField fx:id="fieldPathPrefix"
+               GridPane.rowIndex="1"
+               GridPane.columnIndex="1"
+               prefHeight="25.0"
+               prefWidth="300"
+               GridPane.columnSpan="2"/>
+    <Button fx:id="buttonSelectDirectory"
+            onAction="#handlePressSelectDirectory"
+            text="Browse..."
+            GridPane.rowIndex="1"
+            GridPane.columnIndex="3"/>
+
+    <Button
+      fx:id="buttonOK"
+      onAction="#handlePressOK"
+      text="OK"
+      GridPane.rowIndex="2"
+      GridPane.columnIndex="1"/>
+    <Button fx:id="buttonCancel"
+            onAction="#handlePressCancel"
+            text="Cancel"
+            GridPane.rowIndex="2"
+            GridPane.columnIndex="2"/>
+  </GridPane>
+</VBox>

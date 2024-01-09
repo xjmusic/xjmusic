@@ -1,7 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.gui.services;
+package io.xj.gui.services.impl;
 
+import io.xj.gui.services.GuideService;
 import javafx.application.HostServices;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

@@ -4,11 +4,22 @@
 
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
 <BorderPane prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/20.0.1"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.ContentContainerController">
   <center>
-    <Label>
-      Content Goes Here
-    </Label>
+    <VBox fx:id="startupContainer" styleClass="startup-container" spacing="10">
+      <HBox>
+        <Button onAction="#handlePressNewProject" text="New Project"/>
+      </HBox>
+      <HBox>
+        <Button onAction="#handlePressOpenProject" text="Open Project"/>
+      </HBox>
+      <HBox>
+        <Button onAction="#handlePressCloneProject" text="Clone Project"/>
+      </HBox>
+    </VBox>
   </center>
 </BorderPane>

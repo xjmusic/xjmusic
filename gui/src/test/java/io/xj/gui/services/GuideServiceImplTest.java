@@ -2,6 +2,7 @@
 
 package io.xj.gui.services;
 
+import io.xj.gui.services.impl.GuideServiceImpl;
 import javafx.application.HostServices;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

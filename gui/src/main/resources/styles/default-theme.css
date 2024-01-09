@@ -203,3 +203,11 @@
   -fx-font-size: 1.2em;
   -fx-font-weight: bold;
 }
+
+.startup-container {
+  -fx-padding: 10 10 10 10;
+}
+
+.startup-container .button {
+  -fx-font-size: 18px;
+}

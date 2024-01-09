@@ -1,6 +1,11 @@
-package io.xj.gui.services;
+package io.xj.gui.services.impl;
 
 import io.xj.gui.WorkstationLogAppender;
+import io.xj.gui.services.FabricationService;
+import io.xj.gui.services.LabService;
+import io.xj.gui.services.LabStatus;
+import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.UIStateService;
 import io.xj.nexus.ControlMode;
 import io.xj.nexus.work.WorkState;
 import jakarta.annotation.Nullable;
@@ -12,6 +17,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableStringValue;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -20,6 +26,7 @@ import java.util.Objects;
 public class UIStateServiceImpl implements UIStateService {
   private final FabricationService fabricationService;
   private final LabService labService;
+  private final ProjectService projectService;
   private final StringProperty logLevel = new SimpleStringProperty(WorkstationLogAppender.LEVEL.get().toString());
   private final BooleanProperty logsVisible = new SimpleBooleanProperty(false);
   private final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
@@ -42,12 +49,17 @@ public class UIStateServiceImpl implements UIStateService {
   @Nullable
   private BooleanBinding isManualFabricationActive;
 
+  @Nullable
+  private BooleanBinding isFabricationDisabled;
+
   public UIStateServiceImpl(
     FabricationService fabricationService,
-    LabService labService
+    LabService labService,
+    ProjectService projectService
   ) {
     this.fabricationService = fabricationService;
     this.labService = labService;
+    this.projectService = projectService;
   }
 
   @Override
@@ -79,7 +91,7 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public StringBinding fabricationStatusTextProperty() {
+  public ObservableStringValue fabricationStatusTextProperty() {
     if (Objects.isNull(fabricationStatusText))
       fabricationStatusText = Bindings.createStringBinding(
         () -> switch (fabricationService.statusProperty().get()) {
@@ -103,7 +115,7 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public BooleanBinding isProgressBarVisibleProperty() {
+  public ObservableBooleanValue isProgressBarVisibleProperty() {
     if (Objects.isNull(isProgressBarVisible))
       isProgressBarVisible = Bindings.createBooleanBinding(
         () -> fabricationService.isStatusLoading().get(),
@@ -119,7 +131,7 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public BooleanBinding isInputModeDisabledProperty() {
+  public ObservableBooleanValue isInputModeDisabledProperty() {
     if (Objects.isNull(isInputModeDisabled))
       isInputModeDisabled = labService.statusProperty().isEqualTo(LabStatus.Authenticated).not();
 
@@ -127,7 +139,7 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public BooleanBinding isManualFabricationModeProperty() {
+  public ObservableBooleanValue isManualFabricationModeProperty() {
     if (Objects.isNull(isManualFabricationMode))
       isManualFabricationMode = fabricationService.controlModeProperty().isNotEqualTo(ControlMode.AUTO);
 
@@ -135,12 +147,20 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public BooleanBinding isManualFabricationActiveProperty() {
+  public ObservableBooleanValue isManualFabricationActiveProperty() {
     if (Objects.isNull(isManualFabricationActive))
       isManualFabricationActive =
         fabricationService.controlModeProperty().isNotEqualTo(ControlMode.AUTO)
           .and(fabricationService.statusProperty().isEqualTo(WorkState.Active));
 
     return isManualFabricationActive;
+  }
+
+  @Override
+  public ObservableBooleanValue isFabricationDisabledProperty() {
+    if (Objects.isNull(isFabricationDisabled))
+      isFabricationDisabled = projectService.currentProjectProperty().isNull();
+
+    return isFabricationDisabled;
   }
 }

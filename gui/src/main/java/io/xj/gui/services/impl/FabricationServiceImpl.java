@@ -1,7 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.gui.services;
+package io.xj.gui.services.impl;
 
+import io.xj.gui.services.FabricationService;
+import io.xj.gui.services.LabService;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.meme.MemeTaxonomy;
@@ -68,13 +70,12 @@ import java.util.stream.Collectors;
 @Service
 public class FabricationServiceImpl implements FabricationService {
   private static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
-  private static final String defaultPathPrefix = System.getProperty("user.home") + File.separator + "Documents" + File.separator + "XJ music" + File.separator;
   private final Preferences prefs = Preferences.userNodeForPackage(FabricationServiceImpl.class);
   private final static String BUTTON_TEXT_START = "Start";
   private final static String BUTTON_TEXT_STOP = "Stop";
   private final static String BUTTON_TEXT_RESET = "Reset";
   private final HostServices hostServices;
-  private final String defaultContentStoragePathPrefix = computeDefaultPathPrefix("content");
+  private final String defaultContentStoragePathPrefix = computeDefaultPathPrefix();
   private final int defaultTimelineSegmentViewLimit;
   private final int defaultCraftAheadSeconds;
   private final int defaultDubAheadSeconds;
@@ -685,11 +686,9 @@ public class FabricationServiceImpl implements FabricationService {
   /**
    Compute default path prefix for a particular category.
 
-   @param category of path
    @return path prefix
    */
-  @SuppressWarnings("SameParameterValue")
-  private static String computeDefaultPathPrefix(String category) {
-    return defaultPathPrefix + category + File.separator;
+  private static String computeDefaultPathPrefix() {
+    return System.getProperty("user.home") + File.separator + "Documents" + File.separator + "XJ music" + File.separator + "content" + File.separator;
   }
 }

@@ -15,7 +15,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ModalAboutController extends ReadyAfterBootModalController {
+public class MainAboutModalController extends ReadyAfterBootModalController {
   static final String ABOUT_WINDOW_NAME = "About";
   final ConfigurableApplicationContext ac;
   final Resource modalAboutFxml;
@@ -30,8 +30,8 @@ public class ModalAboutController extends ReadyAfterBootModalController {
   Label labelVersion;
 
 
-  public ModalAboutController(
-    @Value("classpath:/views/modal-about.fxml") Resource modalAboutFxml,
+  public MainAboutModalController(
+    @Value("classpath:/views/main-about-modal.fxml") Resource modalAboutFxml,
     ConfigurableApplicationContext ac,
     LabService labService,
     ThemeService themeService,

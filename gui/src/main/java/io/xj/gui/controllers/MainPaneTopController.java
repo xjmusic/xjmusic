@@ -49,8 +49,8 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   private final ProjectService projectService;
   private final FabricationService fabricationService;
   private final UIStateService uiStateService;
-  private final ModalFabricationSettingsController modalFabricationSettingsController;
-  private final ModalLabAuthenticationController modalLabAuthenticationController;
+  private final FabricationSettingsModalController fabricationSettingsModalController;
+  private final MainLabAuthenticationModalController mainLabAuthenticationModalController;
   private final LabService labService;
 
   @FXML
@@ -87,18 +87,18 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   protected Button buttonShowFabricationSettings;
 
   public MainPaneTopController(
-    ProjectService projectService,
     FabricationService fabricationService,
+    FabricationSettingsModalController fabricationSettingsModalController,
     LabService labService,
-    ModalFabricationSettingsController modalFabricationSettingsController,
-    ModalLabAuthenticationController modalLabAuthenticationController,
+    MainLabAuthenticationModalController mainLabAuthenticationModalController,
+    ProjectService projectService,
     UIStateService uiStateService
   ) {
-    this.projectService = projectService;
     this.fabricationService = fabricationService;
+    this.fabricationSettingsModalController = fabricationSettingsModalController;
     this.labService = labService;
-    this.modalFabricationSettingsController = modalFabricationSettingsController;
-    this.modalLabAuthenticationController = modalLabAuthenticationController;
+    this.mainLabAuthenticationModalController = mainLabAuthenticationModalController;
+    this.projectService = projectService;
     this.uiStateService = uiStateService;
   }
 
@@ -122,6 +122,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     progressBarFabrication.visibleProperty().bind(uiStateService.isProgressBarVisibleProperty());
 
     buttonContent.setSelected(true);
+    buttonFabrication.disableProperty().bind(uiStateService.isFabricationDisabledProperty());
     fabricationControlContainer.visibleProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.FABRICATION));
     fabricationControlContainer.managedProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.FABRICATION));
   }
@@ -148,7 +149,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
   @FXML
   public void handleShowFabricationSettings(ActionEvent ignored) {
-    modalFabricationSettingsController.launchModal();
+    fabricationSettingsModalController.launchModal();
   }
 
   @FXML
@@ -156,7 +157,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     if (labService.isAuthenticated()) {
       labService.launchInBrowser();
     } else {
-      modalLabAuthenticationController.launchModal();
+      mainLabAuthenticationModalController.launchModal();
     }
   }
 

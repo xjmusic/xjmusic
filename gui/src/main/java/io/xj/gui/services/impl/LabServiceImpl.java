@@ -1,8 +1,10 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.gui.services;
+package io.xj.gui.services.impl;
 
 import io.netty.resolver.DefaultAddressResolverGroup;
+import io.xj.gui.services.LabService;
+import io.xj.gui.services.LabStatus;
 import io.xj.hub.HubConfiguration;
 import io.xj.hub.tables.pojos.User;
 import io.xj.hub.util.StringUtils;
