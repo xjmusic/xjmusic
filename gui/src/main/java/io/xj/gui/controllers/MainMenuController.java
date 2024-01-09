@@ -3,6 +3,8 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.WorkstationGuiFxApplication;
+import io.xj.gui.controllers.impl.MainAboutModalControllerImpl;
+import io.xj.gui.controllers.impl.MainLabAuthenticationModalControllerImpl;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.GuideService;
 import io.xj.gui.services.LabService;
@@ -34,8 +36,8 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   final LabService labService;
   final UIStateService guiService;
   final FabricationSettingsModalController fabricationSettingsModalController;
-  final MainAboutModalController mainAboutModalController;
-  final MainLabAuthenticationModalController mainLabAuthenticationModalController;
+  final MainAboutModalControllerImpl mainAboutModalController;
+  final MainLabAuthenticationModalControllerImpl mainLabAuthenticationModalController;
 
   @FXML
   protected MenuItem itemFabricationMainAction;
@@ -75,9 +77,9 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     FabricationService fabricationService,
     GuideService guideService,
     LabService labService,
-    MainAboutModalController mainAboutModalController,
+    MainAboutModalControllerImpl mainAboutModalController,
     FabricationSettingsModalController fabricationSettingsModalController,
-    MainLabAuthenticationModalController mainLabAuthenticationModalController,
+    MainLabAuthenticationModalControllerImpl mainLabAuthenticationModalController,
     ThemeService themeService,
     UIStateService guiService,
     UIStateService uiStateService

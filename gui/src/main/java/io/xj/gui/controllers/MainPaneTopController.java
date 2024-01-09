@@ -2,6 +2,7 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.gui.controllers.impl.MainLabAuthenticationModalControllerImpl;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.LabStatus;
@@ -50,7 +51,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   private final FabricationService fabricationService;
   private final UIStateService uiStateService;
   private final FabricationSettingsModalController fabricationSettingsModalController;
-  private final MainLabAuthenticationModalController mainLabAuthenticationModalController;
+  private final MainLabAuthenticationModalControllerImpl mainLabAuthenticationModalController;
   private final LabService labService;
 
   @FXML
@@ -90,7 +91,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     FabricationService fabricationService,
     FabricationSettingsModalController fabricationSettingsModalController,
     LabService labService,
-    MainLabAuthenticationModalController mainLabAuthenticationModalController,
+    MainLabAuthenticationModalControllerImpl mainLabAuthenticationModalController,
     ProjectService projectService,
     UIStateService uiStateService
   ) {

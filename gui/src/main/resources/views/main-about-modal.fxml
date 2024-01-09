@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <VBox spacing="10" xmlns="http://javafx.com/javafx/20.0.1"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainAboutModalController">
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.impl.MainAboutModalControllerImpl">
   <padding>
     <Insets bottom="15" left="15" right="15" top="40"/> <!-- Padding values -->
   </padding>

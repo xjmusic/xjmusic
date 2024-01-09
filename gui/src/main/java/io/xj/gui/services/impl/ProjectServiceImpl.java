@@ -17,7 +17,7 @@ import java.util.prefs.Preferences;
 @Service
 public class ProjectServiceImpl implements ProjectService {
   static final Logger LOG = LoggerFactory.getLogger(ProjectServiceImpl.class);
-  private static final String defaultPathPrefix = System.getProperty("user.home") + File.separator + "Documents";
+  private static final String defaultPathPrefix = System.getProperty("user.home") + File.separator + "Documents" + File.separator;
   private final Preferences prefs = Preferences.userNodeForPackage(ProjectServiceImpl.class);
   private final ObjectProperty<ProjectViewMode> viewMode = new SimpleObjectProperty<>(ProjectViewMode.CONTENT);
   private final ObjectProperty<Project> currentProject = new SimpleObjectProperty<>();
