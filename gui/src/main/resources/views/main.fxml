@@ -4,7 +4,7 @@
 
 <?import javafx.scene.layout.VBox?>
 <VBox prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/20.0.1"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.impl.MainControllerImpl">
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainController">
   <fx:include fx:id="mainMenu" source="main-menu.fxml"/>
   <fx:include fx:id="mainPaneTop" source="main-pane-top.fxml"/>
   <fx:include fx:id="fabricationContainer" source="fabrication-container.fxml"/>

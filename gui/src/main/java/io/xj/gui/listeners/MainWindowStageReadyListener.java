@@ -4,7 +4,7 @@ package io.xj.gui.listeners;
 
 import com.tangorabox.componentinspector.fx.FXComponentInspectorHandler;
 import io.xj.gui.WorkstationIcon;
-import io.xj.gui.controllers.impl.MainControllerImpl;
+import io.xj.gui.controllers.MainController;
 import io.xj.gui.events.StageReadyEvent;
 import io.xj.gui.services.ThemeService;
 import javafx.fxml.FXMLLoader;
@@ -25,14 +25,14 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
   static final Logger LOG = LoggerFactory.getLogger(MainWindowStageReadyListener.class);
   private final Resource mainWindowFxml;
   private final String debug;
-  private final MainControllerImpl mainController;
+  private final MainController mainController;
   private final ApplicationContext ac;
   private final ThemeService themeService;
 
   public MainWindowStageReadyListener(
     @Value("classpath:/views/main.fxml") Resource mainWindowFxml,
     @Value("${gui.debug}") String debug,
-    MainControllerImpl mainController,
+    MainController mainController,
     ApplicationContext ac,
     ThemeService themeService
   ) {

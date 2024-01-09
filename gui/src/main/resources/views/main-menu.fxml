@@ -6,7 +6,7 @@
 <?import javafx.scene.input.*?>
 <?import javafx.scene.layout.VBox?>
 <MenuBar VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
-         fx:controller="io.xj.gui.controllers.impl.MainMenuControllerImpl">
+         fx:controller="io.xj.gui.controllers.MainMenuController">
   <Menu text="_Fabrication">
     <MenuItem fx:id="itemFabricationMainAction" onAction="#handleFabricationMainAction" text="_Start"/>
     <CheckMenuItem fx:id="checkboxFabricationFollow" text="_Follow"/>

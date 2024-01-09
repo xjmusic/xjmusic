@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.Button?>
 <BorderPane prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/20.0.1"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.impl.ContentContainerControllerImpl">
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.ContentContainerController">
   <center>
     <VBox fx:id="startupContainer" styleClass="startup-container" spacing="10">
       <HBox>
