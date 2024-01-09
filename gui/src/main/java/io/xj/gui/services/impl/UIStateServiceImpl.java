@@ -50,7 +50,7 @@ public class UIStateServiceImpl implements UIStateService {
   private BooleanBinding isManualFabricationActive;
 
   @Nullable
-  private BooleanBinding isFabricationDisabled;
+  private BooleanBinding hasCurrentProject;
 
   public UIStateServiceImpl(
     FabricationService fabricationService,
@@ -157,10 +157,10 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public ObservableBooleanValue isFabricationDisabledProperty() {
-    if (Objects.isNull(isFabricationDisabled))
-      isFabricationDisabled = projectService.currentProjectProperty().isNull();
+  public ObservableBooleanValue hasCurrentProjectProperty() {
+    if (Objects.isNull(hasCurrentProject))
+      hasCurrentProject = projectService.currentProjectProperty().isNotNull();
 
-    return isFabricationDisabled;
+    return hasCurrentProject;
   }
 }

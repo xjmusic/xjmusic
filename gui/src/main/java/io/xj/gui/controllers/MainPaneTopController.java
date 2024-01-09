@@ -9,6 +9,7 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ProjectViewMode;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.work.WorkState;
+import javafx.beans.binding.Bindings;
 import javafx.beans.value.ObservableValue;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
@@ -122,7 +123,8 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     progressBarFabrication.visibleProperty().bind(uiStateService.isProgressBarVisibleProperty());
 
     buttonContent.setSelected(true);
-    buttonFabrication.disableProperty().bind(uiStateService.isFabricationDisabledProperty());
+    var isFabricationDisabled = Bindings.createBooleanBinding(() -> !uiStateService.hasCurrentProjectProperty().get(), uiStateService.hasCurrentProjectProperty());
+    buttonFabrication.disableProperty().bind(isFabricationDisabled);
     fabricationControlContainer.visibleProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.FABRICATION));
     fabricationControlContainer.managedProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.FABRICATION));
   }

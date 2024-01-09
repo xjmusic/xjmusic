@@ -60,5 +60,8 @@ public interface UIStateService extends ReadyAfterBootController {
    */
   ObservableBooleanValue isManualFabricationActiveProperty();
 
-  ObservableBooleanValue isFabricationDisabledProperty();
+  /**
+   * @return Observable property of whether a project is currently open
+   */
+  ObservableBooleanValue hasCurrentProjectProperty();
 }

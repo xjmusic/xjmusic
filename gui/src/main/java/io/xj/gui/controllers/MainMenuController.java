@@ -10,6 +10,7 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.DirectoryChooserUtils;
+import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckMenuItem;
@@ -44,6 +45,9 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
   @FXML
   protected MenuBar container;
+
+  @FXML
+  protected MenuItem itemProjectSave;
 
   @FXML
   protected MenuItem itemFabricationMainAction;
@@ -134,6 +138,9 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
       case WARN -> logLevelWarn.setSelected(true);
       case ERROR -> logLevelError.setSelected(true);
     }
+
+    var hasNoProject = Bindings.createBooleanBinding(() -> !uiStateService.hasCurrentProjectProperty().get(), uiStateService.hasCurrentProjectProperty());
+    itemProjectSave.disableProperty().bind(hasNoProject);
   }
 
   @Override
