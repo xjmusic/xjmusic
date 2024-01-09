@@ -20,7 +20,6 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,21 +29,22 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
-public class ContentProjectCreationModalController extends ReadyAfterBootModalController {
-  static final Map<ContentProjectCreationMode, String> WINDOW_TITLE = Map.of(
-    ContentProjectCreationMode.NEW_PROJECT, "Create New Project",
-    ContentProjectCreationMode.CLONE_PROJECT, "Clone Project"
+public class ProjectCreationModalController extends ReadyAfterBootModalController {
+  static final Map<ProjectCreationMode, String> WINDOW_TITLE = Map.of(
+    ProjectCreationMode.NEW_PROJECT, "Create New Project",
+    ProjectCreationMode.CLONE_PROJECT, "Clone Project"
   );
   private final SimpleDoubleProperty demoImageSize = new SimpleDoubleProperty(120);
   private final Resource contentProjectCreationModalFxml;
   private final ConfigurableApplicationContext ac;
   private final ProjectService projectService;
   private final ThemeService themeService;
-  private final ObjectProperty<ContentProjectCreationMode> mode = new SimpleObjectProperty<>(ContentProjectCreationMode.NEW_PROJECT);
+  private final ObjectProperty<ProjectCreationMode> mode = new SimpleObjectProperty<>(ProjectCreationMode.NEW_PROJECT);
   private final ObservableBooleanValue isDemoVisible = Bindings.createBooleanBinding(
-    () -> mode.get() == ContentProjectCreationMode.CLONE_PROJECT, mode
+    () -> mode.get() == ProjectCreationMode.CLONE_PROJECT, mode
   );
 
   @FXML
@@ -89,8 +89,8 @@ public class ContentProjectCreationModalController extends ReadyAfterBootModalCo
   @FXML
   VBox demoContainer;
 
-  public ContentProjectCreationModalController(
-    @Value("classpath:/views/content-project-creation-modal.fxml") Resource contentProjectCreationModalFxml,
+  public ProjectCreationModalController(
+    @Value("classpath:/views/project-creation-modal.fxml") Resource contentProjectCreationModalFxml,
     ConfigurableApplicationContext ac,
     ProjectService projectService,
     ThemeService themeService
@@ -137,7 +137,7 @@ public class ContentProjectCreationModalController extends ReadyAfterBootModalCo
 
    @param mode of project creation
    */
-  public void setMode(ContentProjectCreationMode mode) {
+  public void setMode(ProjectCreationMode mode) {
     this.mode.set(mode);
   }
 
@@ -153,8 +153,8 @@ public class ContentProjectCreationModalController extends ReadyAfterBootModalCo
 
   @FXML
   protected void handlePressOK() {
-    if (Objects.equals(mode.get(), ContentProjectCreationMode.CLONE_PROJECT)
-      && Objects.isNull(demoSelection.getSelectedToggle()) ) {
+    if (Objects.equals(mode.get(), ProjectCreationMode.CLONE_PROJECT)
+      && Objects.isNull(demoSelection.getSelectedToggle())) {
       Alert alert = new Alert(Alert.AlertType.WARNING);
       alert.setGraphic(null);
       alert.setTitle("Cannot clone project");
@@ -173,7 +173,15 @@ public class ContentProjectCreationModalController extends ReadyAfterBootModalCo
       alert.showAndWait();
       return;
     }
-    projectService.createProject(fieldPathPrefix.getText(), fieldProjectName.getText());
+
+    switch (mode.get()) {
+      case CLONE_PROJECT -> {
+        var projectId = UUID.fromString(((ToggleButton) demoSelection.getSelectedToggle()).getId());
+        projectService.cloneProject(fieldPathPrefix.getText(), projectId, fieldProjectName.getText());
+      }
+      case NEW_PROJECT -> projectService.createProject(fieldPathPrefix.getText(), fieldProjectName.getText());
+    }
+
     Stage stage = (Stage) buttonOK.getScene().getWindow();
     stage.close();
     onStageClose();

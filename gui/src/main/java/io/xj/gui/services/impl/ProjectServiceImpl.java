@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.UUID;
 import java.util.prefs.Preferences;
 
 @Service
@@ -42,18 +43,25 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public void openProject(String path) {
     LOG.info("Opening project at {}", path);
-    // todo implement projectService.openProject()
+    // TODO implement projectService.openProject()
   }
 
   @Override
   public void createProject(String pathPrefix, String name) {
     LOG.info("Creating project {} at {}", name, pathPrefix);
-    // todo implement projectService.newProject()
+    // TODO implement projectService.newProject()
   }
 
   @Override
-  public void cloneProject() {
-    // todo implement projectService.cloneProjectFromLab()
+  public void cloneProject(String pathPrefix, UUID projectId, String name) {
+    LOG.info("Cloning project {} ({}) at {}", name, projectId, pathPrefix);
+    // TODO implement projectService.cloneProjectFromLab()
+  }
+
+  @Override
+  public void saveProject() {
+    LOG.info("Saving project");
+    // TODO implement projectService.saveProject()
   }
 
   @Override

@@ -18,7 +18,7 @@
 <?import javafx.scene.control.ToggleButton?>
 <VBox
   fx:id="container"
-  fx:controller="io.xj.gui.controllers.ContentProjectCreationModalController"
+  fx:controller="io.xj.gui.controllers.ProjectCreationModalController"
   spacing="10"
   xmlns="http://javafx.com/javafx/20.0.1"
   xmlns:fx="http://javafx.com/fxml/1">
@@ -40,7 +40,7 @@
           onMouseClicked="#handleDemoPressedBump">
           <Image url="@/images/demo-bump.jpg"/>
         </ImageView>
-        <ToggleButton maxWidth="Infinity" fx:id="buttonDemoBump" toggleGroup="$demoSelection" text="Deep House"/>
+        <ToggleButton maxWidth="Infinity" id="118f4674-3ea9-11ed-9bc0-57a70d1fbb35" fx:id="buttonDemoBump" toggleGroup="$demoSelection" text="Deep House"/>
       </VBox>
       <VBox>
         <ImageView
@@ -50,7 +50,7 @@
           onMouseClicked="#handleDemoPressedSlaps">
           <Image url="@/images/demo-slaps.jpg"/>
         </ImageView>
-        <ToggleButton maxWidth="Infinity" fx:id="buttonDemoSlaps" toggleGroup="$demoSelection" text="Lofi Hip Hop"/>
+        <ToggleButton maxWidth="Infinity" id="18979e94-3ea9-11ed-9bc0-7b15c211b25f" fx:id="buttonDemoSlaps" toggleGroup="$demoSelection" text="Lofi Hip Hop"/>
       </VBox>
       <VBox>
         <ImageView
@@ -60,7 +60,7 @@
           onMouseClicked="#handleDemoPressedSpace">
           <Image url="@/images/demo-space.jpg"/>
         </ImageView>
-        <ToggleButton maxWidth="Infinity" fx:id="buttonDemoSpace" toggleGroup="$demoSelection" text="Ambient Flow"/>
+        <ToggleButton maxWidth="Infinity" id="16d7ed8e-3ea9-11ed-9bc0-e7d200ad7135" fx:id="buttonDemoSpace" toggleGroup="$demoSelection" text="Ambient Flow"/>
       </VBox>
     </HBox>
   </VBox>

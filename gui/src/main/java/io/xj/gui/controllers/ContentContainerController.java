@@ -12,17 +12,17 @@ import java.util.Objects;
 
 @Service
 public class ContentContainerController implements ReadyAfterBootController {
-  private final ContentProjectCreationModalController contentProjectCreationModalController;
+  private final ProjectCreationModalController projectCreationModalController;
   private final ProjectService projectService;
 
   @FXML
   protected VBox startupContainer;
 
   public ContentContainerController(
-    ContentProjectCreationModalController contentProjectCreationModalController,
+    ProjectCreationModalController projectCreationModalController,
     ProjectService projectService
   ) {
-    this.contentProjectCreationModalController = contentProjectCreationModalController;
+    this.projectCreationModalController = projectCreationModalController;
     this.projectService = projectService;
   }
 
@@ -48,13 +48,13 @@ public class ContentContainerController implements ReadyAfterBootController {
 
   @FXML
   protected void handlePressNewProject() {
-    contentProjectCreationModalController.setMode(ContentProjectCreationMode.NEW_PROJECT);
-    contentProjectCreationModalController.launchModal();
+    projectCreationModalController.setMode(ProjectCreationMode.NEW_PROJECT);
+    projectCreationModalController.launchModal();
   }
 
   @FXML
   protected void handlePressCloneProject() {
-    contentProjectCreationModalController.setMode(ContentProjectCreationMode.CLONE_PROJECT);
-    contentProjectCreationModalController.launchModal();
+    projectCreationModalController.setMode(ProjectCreationMode.CLONE_PROJECT);
+    projectCreationModalController.launchModal();
   }
 }

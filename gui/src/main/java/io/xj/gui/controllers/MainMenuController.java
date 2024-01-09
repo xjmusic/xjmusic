@@ -6,8 +6,10 @@ import io.xj.gui.WorkstationGuiFxApplication;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.GuideService;
 import io.xj.gui.services.LabService;
+import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.utils.DirectoryChooserUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckMenuItem;
@@ -19,23 +21,29 @@ import javafx.scene.input.KeyCombination;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 public class MainMenuController extends MenuBar implements ReadyAfterBootController {
   final static String DEBUG = "DEBUG";
   final static String INFO = "INFO";
   final static String WARN = "WARN";
   final static String ERROR = "ERROR";
-
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
   final ThemeService themeService;
   final GuideService guideService;
   final UIStateService uiStateService;
   final LabService labService;
+  private final ProjectCreationModalController projectCreationModalController;
+  private final ProjectService projectService;
   final UIStateService guiService;
   final FabricationSettingsModalController fabricationSettingsModalController;
   final MainAboutModalController mainAboutModalController;
   final MainLabAuthenticationModalController mainLabAuthenticationModalController;
+
+  @FXML
+  protected MenuBar container;
 
   @FXML
   protected MenuItem itemFabricationMainAction;
@@ -73,22 +81,26 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   public MainMenuController(
     ConfigurableApplicationContext ac,
     FabricationService fabricationService,
+    FabricationSettingsModalController fabricationSettingsModalController,
     GuideService guideService,
     LabService labService,
     MainAboutModalController mainAboutModalController,
-    FabricationSettingsModalController fabricationSettingsModalController,
     MainLabAuthenticationModalController mainLabAuthenticationModalController,
+    ProjectCreationModalController projectCreationModalController,
+    ProjectService projectService,
     ThemeService themeService,
     UIStateService guiService,
     UIStateService uiStateService
   ) {
     this.ac = ac;
     this.fabricationService = fabricationService;
+    this.fabricationSettingsModalController = fabricationSettingsModalController;
+    this.projectCreationModalController = projectCreationModalController;
+    this.projectService = projectService;
     this.guiService = guiService;
     this.guideService = guideService;
     this.labService = labService;
     this.mainAboutModalController = mainAboutModalController;
-    this.fabricationSettingsModalController = fabricationSettingsModalController;
     this.mainLabAuthenticationModalController = mainLabAuthenticationModalController;
     this.themeService = themeService;
     this.uiStateService = uiStateService;
@@ -140,9 +152,37 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   }
 
   @FXML
-  protected void onPressAbout() {
+  protected void handleAbout() {
     mainAboutModalController.launchModal();
   }
+
+  @FXML
+  protected void handleProjectNew() {
+    projectCreationModalController.setMode(ProjectCreationMode.NEW_PROJECT);
+    projectCreationModalController.launchModal();
+  }
+
+  @FXML
+  protected void handleProjectOpen() {
+    var path = DirectoryChooserUtils.chooseDirectory(
+      container.getScene().getWindow(), "Choose project folder", projectService.pathPrefixProperty().getValue()
+    );
+    if (Objects.nonNull(path)) {
+      projectService.openProject(path);
+    }
+  }
+
+  @FXML
+  protected void handleProjectClone() {
+    projectCreationModalController.setMode(ProjectCreationMode.CLONE_PROJECT);
+    projectCreationModalController.launchModal();
+  }
+
+  @FXML
+  protected void handleProjectSave() {
+    projectService.saveProject();
+  }
+
 
   @FXML
   protected void handleLabAuthentication() {
