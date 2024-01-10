@@ -126,6 +126,8 @@ public class AudioCacheImpl implements AudioCache {
   }
 
   private AudioPreparedOnDisk fetchAndPrepareOnDisk(InstrumentAudio audio) throws AudioCacheException {
+    // TODO no HTTP fetching, only source from project source audio folder and resample into render audio folder
+
     if (StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
       LOG.error("Can't load null or empty audio key! (contentStoragePathPrefix={}, audioBaseUrl={}, instrumentId={}, waveformKey={}, targetFrameRate={}, targetSampleBits={}, targetChannels={})",
         contentStoragePathPrefix, audioBaseUrl, audio.getInstrumentId(), audio.getWaveformKey(), targetFrameRate, targetSampleBits, targetChannels);

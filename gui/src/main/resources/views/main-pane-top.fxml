@@ -23,6 +23,7 @@
     <HBox.hgrow>
       <Priority fx:constant="ALWAYS"/>
     </HBox.hgrow>
+
     <HBox alignment="CENTER_LEFT" spacing="10"
           xmlns:fx="http://javafx.com/fxml">
       <HBox.hgrow>
@@ -74,13 +75,15 @@
             <SVGPath styleClass="icon" content="M3 6h12v2h-12zM3 11h12v2h-12zM3 16h12v2h-12z"/>
           </graphic>
         </Button>
+      </HBox>
 
+      <HBox>
         <!-- Fabrication Status Text -->
         <Label fx:id="labelFabricationStatus" prefWidth="180" text="Initializing"/>
 
         <ProgressBar fx:id="progressBarFabrication" prefWidth="100" progress="0.0"/>
-
       </HBox>
+
     </HBox>
 
     <HBox alignment="CENTER_RIGHT" spacing="10"

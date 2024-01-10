@@ -39,7 +39,7 @@ public class ContentContainerController implements ReadyAfterBootController {
   @FXML
   protected void handlePressOpenProject() {
     var path = DirectoryChooserUtils.chooseDirectory(
-      startupContainer.getScene().getWindow(), "Choose project folder", projectService.pathPrefixProperty().getValue()
+      startupContainer.getScene().getWindow(), "Choose project folder", projectService.basePathPrefixProperty().getValue()
     );
     if (Objects.nonNull(path)) {
       projectService.openProject(path);

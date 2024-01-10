@@ -29,7 +29,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 @Service
 public class ProjectCreationModalController extends ReadyAfterBootModalController {
@@ -105,7 +104,7 @@ public class ProjectCreationModalController extends ReadyAfterBootModalControlle
   public void onStageReady() {
     // Add slash to end of "file output path prefix"
     // https://www.pivotaltracker.com/story/show/186555998
-    fieldPathPrefix.textProperty().bindBidirectional(projectService.pathPrefixProperty());
+    fieldPathPrefix.textProperty().bindBidirectional(projectService.basePathPrefixProperty());
     fieldPathPrefix.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
       if (!isNowFocused) {
         TextParsingUtils.addTrailingSlash(fieldPathPrefix);
@@ -175,11 +174,10 @@ public class ProjectCreationModalController extends ReadyAfterBootModalControlle
     }
 
     switch (mode.get()) {
-      case CLONE_PROJECT -> {
-        var projectId = UUID.fromString(((ToggleButton) demoSelection.getSelectedToggle()).getId());
-        projectService.cloneProject(fieldPathPrefix.getText(), projectId, fieldProjectName.getText());
-      }
-      case NEW_PROJECT -> projectService.createProject(fieldPathPrefix.getText(), fieldProjectName.getText());
+      case CLONE_PROJECT ->
+        projectService.cloneFromDemoTemplate(fieldPathPrefix.getText(), ((ToggleButton) demoSelection.getSelectedToggle()).getId(), fieldProjectName.getText());
+      case NEW_PROJECT ->
+        projectService.createProject(fieldPathPrefix.getText(), fieldProjectName.getText());
     }
 
     Stage stage = (Stage) buttonOK.getScene().getWindow();

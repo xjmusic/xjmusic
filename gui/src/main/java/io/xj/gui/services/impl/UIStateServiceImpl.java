@@ -5,6 +5,7 @@ import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.LabStatus;
 import io.xj.gui.services.ProjectService;
+import io.xj.nexus.project.ProjectState;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.ControlMode;
 import io.xj.nexus.work.WorkState;
@@ -159,7 +160,7 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public ObservableBooleanValue hasCurrentProjectProperty() {
     if (Objects.isNull(hasCurrentProject))
-      hasCurrentProject = projectService.currentProjectProperty().isNotNull();
+      hasCurrentProject = projectService.stateProperty().isNotEqualTo(ProjectState.Standby);
 
     return hasCurrentProject;
   }

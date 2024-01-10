@@ -172,7 +172,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   @FXML
   protected void handleProjectOpen() {
     var path = DirectoryChooserUtils.chooseDirectory(
-      container.getScene().getWindow(), "Choose project folder", projectService.pathPrefixProperty().getValue()
+      container.getScene().getWindow(), "Choose project folder", projectService.basePathPrefixProperty().getValue()
     );
     if (Objects.nonNull(path)) {
       projectService.openProject(path);

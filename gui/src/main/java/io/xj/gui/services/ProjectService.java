@@ -1,6 +1,8 @@
 package io.xj.gui.services;
 
 import io.xj.hub.tables.pojos.Project;
+import io.xj.nexus.project.ProjectState;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 
@@ -20,27 +22,55 @@ public interface ProjectService {
   ObjectProperty<Project> currentProjectProperty();
 
   /**
-   Open a Project from disk
+   Open a project
+
+   @param path on disk
    */
   void openProject(String path);
 
   /**
-   Start a new Project
+   Create a new project
+
+   @param pathPrefix on disk
+   @param name       of the project
    */
   void createProject(String pathPrefix, String name);
 
   /**
-   Clone a Project from the Lab
+   Clone from a Lab Project
+
+   @param pathPrefix on disk
+   @param projectId  in the lab
+   @param name       of the project
    */
-  void cloneProject(String pathPrefix, UUID projectId, String name);
+  void cloneFromLabProject(String pathPrefix, UUID projectId, String name);
 
   /**
-   @return Path prefix
+   Clone from a demo template
+
+   @param pathPrefix      on disk
+   @param templateShipKey of the demo
+   @param name            of the project
    */
-  StringProperty pathPrefixProperty();
+  void cloneFromDemoTemplate(String pathPrefix, String templateShipKey, String name);
 
   /**
    Save the project
    */
   void saveProject();
+
+  /**
+   @return Path prefix
+   */
+  StringProperty basePathPrefixProperty();
+
+  /**
+   @return observable progress property
+   */
+  DoubleProperty progressProperty();
+
+  /**
+   @return observable state property
+   */
+  ObjectProperty<ProjectState> stateProperty();
 }

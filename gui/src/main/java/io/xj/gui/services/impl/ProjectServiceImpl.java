@@ -1,9 +1,16 @@
 package io.xj.gui.services.impl;
 
+import io.xj.gui.services.LabService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ProjectViewMode;
 import io.xj.hub.tables.pojos.Project;
+import io.xj.nexus.project.ProjectManager;
+import io.xj.nexus.project.ProjectManagerImpl;
+import io.xj.nexus.project.ProjectState;
+import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -22,12 +29,22 @@ public class ProjectServiceImpl implements ProjectService {
   private final Preferences prefs = Preferences.userNodeForPackage(ProjectServiceImpl.class);
   private final ObjectProperty<ProjectViewMode> viewMode = new SimpleObjectProperty<>(ProjectViewMode.CONTENT);
   private final ObjectProperty<Project> currentProject = new SimpleObjectProperty<>();
-  private final StringProperty pathPrefix = new SimpleStringProperty();
+  private final StringProperty basePathPrefix = new SimpleStringProperty();
+  private final DoubleProperty progress = new SimpleDoubleProperty();
+  private final ObjectProperty<ProjectState> state = new SimpleObjectProperty<>(ProjectState.Standby);
+  private final LabService labService;
+  private final ProjectManager projectManager;
 
   public ProjectServiceImpl(
+    LabService labService
   ) {
+    this.labService = labService;
     attachPreferenceListeners();
     setAllFromPreferencesOrDefaults();
+    this.projectManager = new ProjectManagerImpl(
+      this.progress::set,
+      this.state::set
+    );
   }
 
   @Override
@@ -53,9 +70,17 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public void cloneProject(String pathPrefix, UUID projectId, String name) {
-    LOG.info("Cloning project {} ({}) at {}", name, projectId, pathPrefix);
+  public void cloneFromLabProject(String pathPrefix, UUID projectId, String name) {
+    LOG.info("Cloning from lab project {} ({}) at {}", name, projectId, pathPrefix);
     // TODO implement projectService.cloneProjectFromLab()
+  }
+
+  @Override
+  public void cloneFromDemoTemplate(String pathPrefix, String templateShipKey, String name) {
+    LOG.info("Will clone from demo template \"{}\" ({}) at {}", name, templateShipKey, pathPrefix);
+    projectManager.setPathPrefix(pathPrefix + File.separator + name + File.separator);
+    projectManager.setAudioBaseUrl(labService.hubConfigProperty().get().getAudioBaseUrl());
+    Platform.runLater(() -> projectManager.cloneFromDemoTemplate(templateShipKey, name));
   }
 
   @Override
@@ -65,22 +90,31 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public StringProperty pathPrefixProperty() {
-    return pathPrefix;
+  public StringProperty basePathPrefixProperty() {
+    return basePathPrefix;
+  }
+
+  @Override
+  public DoubleProperty progressProperty() {
+    return progress;
+  }
+
+  @Override
+  public ObjectProperty<ProjectState> stateProperty() {
+    return state;
   }
 
   /**
    Attach preference listeners.
    */
   private void attachPreferenceListeners() {
-    pathPrefix.addListener((o, ov, value) -> prefs.put("pathPrefix", value));
+    basePathPrefix.addListener((o, ov, value) -> prefs.put("pathPrefix", value));
   }
 
   /**
    Set all properties from preferences, else defaults.
    */
   private void setAllFromPreferencesOrDefaults() {
-    pathPrefix.set(prefs.get("pathPrefix", defaultPathPrefix));
+    basePathPrefix.set(prefs.get("pathPrefix", defaultPathPrefix));
   }
-
 }
