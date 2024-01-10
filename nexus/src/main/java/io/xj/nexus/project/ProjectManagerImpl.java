@@ -94,7 +94,6 @@ public class ProjectManagerImpl implements ProjectManager {
         int loaded = 0;
         var instruments = new ArrayList<>(content.getInstruments());
         var audios = new ArrayList<>(content.getInstrumentAudios());
-
         // TODO Button to cancel cloning project
         // TODO When downloading each audio, check size on disk after downloading, delete and retry 3X if failed to match correct size
         // TODO When downloading each audio, if audio already exists on disk, check size on disk, delete and retry 3X if failed to match correct size
@@ -140,16 +139,17 @@ public class ProjectManagerImpl implements ProjectManager {
         updateState(ProjectState.LoadedAudio);
         LOG.info("Preloaded {} audios from {} instruments", loaded, instruments.size());
 
-        // TODO save hub content as json in project folder
         var json = jsonProvider.getMapper().writeValueAsString(content);
-        var my_butt=123; //todo
+        var jsonPath = pathPrefix.get() + "content.json";
+        Files.writeString(Path.of(jsonPath), json);
+        LOG.info("Did write {} bytes of content to {}", json.length(), jsonPath);
 
       } catch (HubClientException e) {
-        LOG.error("Failed to load content from demo template!", e);
+        LOG.error("Failed to load content from demo template!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
         updateState(ProjectState.Failed);
 
       } catch (IOException e) {
-        LOG.error("Failed to preload audio from demo template!", e);
+        LOG.error("Failed to preload audio from demo template!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
         updateState(ProjectState.Failed);
       }
     }).start();

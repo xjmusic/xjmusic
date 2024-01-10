@@ -121,6 +121,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     labelStatus.textProperty().bind(uiStateService.statusTextProperty());
     progressBar.progressProperty().bind(uiStateService.progressProperty());
     progressBar.visibleProperty().bind(uiStateService.isProgressBarVisibleProperty());
+    progressBar.managedProperty().bind(uiStateService.isProgressBarVisibleProperty());
 
     buttonContent.setSelected(true);
     buttonFabrication.disableProperty().bind(Bindings.createBooleanBinding(() -> !projectService.isStateReadyProperty().get(), projectService.isStateReadyProperty()));
