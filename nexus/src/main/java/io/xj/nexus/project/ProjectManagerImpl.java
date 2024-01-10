@@ -94,6 +94,10 @@ public class ProjectManagerImpl implements ProjectManager {
         int loaded = 0;
         var instruments = new ArrayList<>(content.getInstruments());
         var audios = new ArrayList<>(content.getInstrumentAudios());
+
+        // TODO Button to cancel cloning project
+        // TODO When downloading each audio, check size on disk after downloading, delete and retry 3X if failed to match correct size
+        // TODO When downloading each audio, if audio already exists on disk, check size on disk, delete and retry 3X if failed to match correct size
         for (Instrument instrument : instruments) {
           for (InstrumentAudio audio : audios.stream()
             .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
@@ -116,11 +120,11 @@ public class ProjectManagerImpl implements ProjectManager {
                   CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", audioBaseUrl, audio.getWaveformKey())))
                 ) {
                   if (Objects.isNull(response.getEntity().getContent()))
-                    throw new NexusException(String.format("Unable to write bytes to disk cache: %s", originalCachePath));
+                    throw new NexusException(String.format("Unable to write bytes to disk: %s", originalCachePath));
 
                   try (OutputStream toFile = FileUtils.openOutputStream(new File(originalCachePath))) {
                     var size = IOUtils.copy(response.getEntity().getContent(), toFile); // stores number of bytes copied
-                    LOG.debug("Did write media item to disk cache: {} ({} bytes)", originalCachePath, size);
+                    LOG.debug("Did write media item to disk: {} ({} bytes)", originalCachePath, size);
                   }
                 } catch (NexusException | IOException e) {
                   throw new RuntimeException(e);
@@ -137,6 +141,8 @@ public class ProjectManagerImpl implements ProjectManager {
         LOG.info("Preloaded {} audios from {} instruments", loaded, instruments.size());
 
         // TODO save hub content as json in project folder
+        var json = jsonProvider.getMapper().writeValueAsString(content);
+        var my_butt=123; //todo
 
       } catch (HubClientException e) {
         LOG.error("Failed to load content from demo template!", e);

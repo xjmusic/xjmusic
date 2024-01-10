@@ -43,7 +43,8 @@
           fx:id="buttonDemoBump"
           toggleGroup="$demoSelection"
           focusTraversable="false"
-          text="Deep House"/>
+          text="Deep House"
+          onMouseClicked="#handleDemoPressedBump"/>
       </VBox>
       <VBox>
         <ImageView
@@ -59,7 +60,8 @@
           fx:id="buttonDemoSlaps"
           toggleGroup="$demoSelection"
           focusTraversable="false"
-          text="Lofi Hip Hop"/>
+          text="Lofi Hip Hop"
+          onMouseClicked="#handleDemoPressedSlaps"/>
       </VBox>
       <VBox>
         <ImageView
@@ -75,7 +77,8 @@
           fx:id="buttonDemoSpace"
           toggleGroup="$demoSelection"
           focusTraversable="false"
-          text="Ambient Flow"/>
+          text="Ambient Flow"
+          onMouseClicked="#handleDemoPressedSpace"/>
       </VBox>
     </HBox>
   </VBox>

@@ -165,7 +165,8 @@ public class FabricatorImpl implements Fabricator {
     // read the chain, configs, and bindings
     chain = store.readChain()
       .orElseThrow(() -> new FabricationFatalException("No chain found"));
-    templateConfig = new TemplateConfig(sourceMaterial.getTemplate());
+    templateConfig = new TemplateConfig(sourceMaterial.getTemplates().stream().findFirst()
+      .orElseThrow(() -> new FabricationFatalException("No template found")));
     templateBindings = sourceMaterial.getTemplateBindings();
     boundProgramIds = ChainUtils.targetIdsOfType(templateBindings, ContentBindingType.Program);
     boundInstrumentIds = ChainUtils.targetIdsOfType(templateBindings, ContentBindingType.Instrument);
@@ -378,7 +379,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public String computeCacheKeyForVoiceTrack(SegmentChoiceArrangementPick pick) {
-    String cacheKey = sourceMaterial().getProgramSequencePatternEvent(pick.getProgramSequencePatternEventId()).flatMap(event -> sourceMaterial().getTrack(event).map(ProgramVoiceTrack::getProgramVoiceId)).map(UUID::toString).orElse(UNKNOWN_KEY);
+    String cacheKey = sourceMaterial().getProgramSequencePatternEvent(pick.getProgramSequencePatternEventId()).flatMap(event -> sourceMaterial().getTrackForEvent(event).map(ProgramVoiceTrack::getProgramVoiceId)).map(UUID::toString).orElse(UNKNOWN_KEY);
 
     return String.format(KEY_VOICE_TRACK_TEMPLATE, cacheKey, pick.getEvent());
   }
@@ -456,7 +457,7 @@ public class FabricatorImpl implements Fabricator {
     if (previousSequenceBinding.isEmpty())
       return MemeIsometry.none();
 
-    var nextSequenceBinding = sourceMaterial().getBindingsAtOffset(previousMacroChoice.get().getProgramId(),
+    var nextSequenceBinding = sourceMaterial().getBindingsAtOffsetForProgramId(previousMacroChoice.get().getProgramId(),
       previousSequenceBinding.get().getOffset() + 1);
 
     return MemeIsometry.of(templateConfig.getMemeTaxonomy(),
