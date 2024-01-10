@@ -32,7 +32,6 @@ public class HubContentProvider implements Callable<HubContent> {
       case PREVIEW -> hubClient.ingest(hubConfig.getBaseUrl(), hubAccess, UUID.fromString(inputTemplateKey));
       case PRODUCTION -> {
         var material = hubClient.load(inputTemplateKey, hubConfig.getAudioBaseUrl());
-        material.setTemplateShipKey(inputTemplateKey);
         yield material;
       }
     };

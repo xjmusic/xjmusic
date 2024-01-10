@@ -269,7 +269,8 @@ public class WorkManagerImpl implements WorkManager {
   @Override
   public Optional<MemeTaxonomy> getMemeTaxonomy() {
     try {
-      var templateConfig = new TemplateConfig(getSourceMaterial().getTemplate());
+      var templateConfig = new TemplateConfig(getSourceMaterial().getTemplates().stream().findFirst()
+        .orElseThrow(() -> new ValueException("No template found in source material")));
       return Optional.of(templateConfig.getMemeTaxonomy());
     } catch (ValueException e) {
       LOG.error("Failed to get meme taxonomy from template config", e);

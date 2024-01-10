@@ -280,7 +280,7 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public List<Program> getAllMacroPrograms() {
-    return workManager.getSourceMaterial().getPrograms(ProgramType.Macro).stream()
+    return workManager.getSourceMaterial().getProgramsByType(ProgramType.Macro).stream()
       .sorted(Comparator.comparing(Program::getName))
       .toList();
   }

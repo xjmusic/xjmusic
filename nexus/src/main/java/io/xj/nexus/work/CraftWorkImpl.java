@@ -109,7 +109,8 @@ public class CraftWorkImpl implements CraftWork {
     persistenceWindowMicros = persistenceWindowSeconds * MICROS_PER_SECOND;
 
     // Telemetry: # Segments Erased
-    chain = createChainForTemplate(sourceMaterial.getTemplate())
+    chain = createChainForTemplate(sourceMaterial.getTemplates().stream().findFirst()
+      .orElseThrow(() -> new RuntimeException("Failed to get template")))
       .orElseThrow(() -> new RuntimeException("Failed to create chain"));
 
     try {
