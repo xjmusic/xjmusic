@@ -5,9 +5,9 @@ import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.LabStatus;
 import io.xj.gui.services.ProjectService;
-import io.xj.nexus.project.ProjectState;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.ControlMode;
+import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.work.WorkState;
 import jakarta.annotation.Nullable;
 import javafx.beans.binding.Bindings;
@@ -18,6 +18,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableStringValue;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +37,7 @@ public class UIStateServiceImpl implements UIStateService {
   private ObservableBooleanValue isFabricationSettingsDisabled;
 
   @Nullable
-  private StringBinding fabricationStatusText;
+  private StringBinding statusText;
 
   @Nullable
   private BooleanBinding isProgressBarVisible;
@@ -52,6 +53,9 @@ public class UIStateServiceImpl implements UIStateService {
 
   @Nullable
   private BooleanBinding hasCurrentProject;
+
+  @Nullable
+  private ObservableDoubleValue progress;
 
   public UIStateServiceImpl(
     FabricationService fabricationService,
@@ -86,44 +90,56 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public ObservableBooleanValue isFabricationSettingsDisabledProperty() {
     if (Objects.isNull(isFabricationSettingsDisabled))
-      isFabricationSettingsDisabled = fabricationService.isStatusActive();
+      isFabricationSettingsDisabled = fabricationService.isStateActiveProperty();
 
     return isFabricationSettingsDisabled;
   }
 
   @Override
-  public ObservableStringValue fabricationStatusTextProperty() {
-    if (Objects.isNull(fabricationStatusText))
-      fabricationStatusText = Bindings.createStringBinding(
-        () -> switch (fabricationService.statusProperty().get()) {
-          case Standby -> "Ready";
-          case Starting -> "Starting";
-          case LoadingContent -> "Loading content";
-          case LoadedContent -> "Loaded content";
-          case PreparingAudio ->
-            String.format("Preparing audio (%.02f%%)", fabricationService.progressProperty().get() * 100);
-          case PreparedAudio -> "Prepared audio";
-          case Initializing -> "Initializing";
-          case Active -> "Active";
-          case Done -> "Done";
-          case Cancelled -> "Cancelled";
-          case Failed -> "Failed";
-        },
-        fabricationService.statusProperty(),
-        fabricationService.progressProperty());
+  public ObservableStringValue statusTextProperty() {
+    // TODO is it necessary for all these UI state properties to be constructed lazily? Let's try all of them during construction
+    if (Objects.isNull(statusText))
+      statusText = Bindings.createStringBinding(
+        () -> Objects.equals(projectService.stateProperty().get(), ProjectState.Ready)
+          ? fabricationService.stateTextProperty().getValue() : projectService.stateTextProperty().getValue(),
+        projectService.stateProperty(),
+        projectService.stateTextProperty(),
+        fabricationService.stateTextProperty());
 
-    return fabricationStatusText;
+    return statusText;
   }
 
   @Override
   public ObservableBooleanValue isProgressBarVisibleProperty() {
     if (Objects.isNull(isProgressBarVisible))
       isProgressBarVisible = Bindings.createBooleanBinding(
-        () -> fabricationService.isStatusLoading().get(),
+        () ->
+          projectService.isStateLoadingProperty().get() ||
+            fabricationService.isStateLoadingProperty().get(),
 
-        fabricationService.isStatusLoading());
+        projectService.isStateLoadingProperty(),
+        fabricationService.isStateLoadingProperty());
 
     return isProgressBarVisible;
+  }
+
+  @Override
+  public ObservableDoubleValue progressProperty() {
+    if (Objects.isNull(progress))
+      progress = Bindings.createDoubleBinding(
+        () ->
+          projectService.isStateLoadingProperty().get() ?
+            projectService.progressProperty().get() :
+            fabricationService.isStateLoadingProperty().get() ?
+              fabricationService.progressProperty().get() :
+              0.0,
+
+        projectService.isStateLoadingProperty(),
+        projectService.progressProperty(),
+        fabricationService.isStateLoadingProperty(),
+        fabricationService.progressProperty());
+
+    return progress;
   }
 
   @Override
@@ -152,7 +168,7 @@ public class UIStateServiceImpl implements UIStateService {
     if (Objects.isNull(isManualFabricationActive))
       isManualFabricationActive =
         fabricationService.controlModeProperty().isNotEqualTo(ControlMode.AUTO)
-          .and(fabricationService.statusProperty().isEqualTo(WorkState.Active));
+          .and(fabricationService.stateProperty().isEqualTo(WorkState.Active));
 
     return isManualFabricationActive;
   }

@@ -77,11 +77,11 @@
         </Button>
       </HBox>
 
-      <HBox>
-        <!-- Fabrication Status Text -->
-        <Label fx:id="labelFabricationStatus" prefWidth="180" text="Initializing"/>
-
-        <ProgressBar fx:id="progressBarFabrication" prefWidth="100" progress="0.0"/>
+      <HBox
+        alignment="CENTER_LEFT" spacing="10"
+        xmlns:fx="http://javafx.com/fxml">
+        <ProgressBar fx:id="progressBar" prefWidth="100" progress="0.0"/>
+        <Label fx:id="labelStatus" prefWidth="180" text="Initializing"/>
       </HBox>
 
     </HBox>

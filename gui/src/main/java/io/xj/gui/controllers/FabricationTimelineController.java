@@ -134,7 +134,7 @@ public class FabricationTimelineController extends ScrollPane implements ReadyAf
 
     scrollPane.hbarPolicyProperty().bind(fabricationService.followPlaybackProperty().map(followPlayback -> followPlayback ? ScrollPane.ScrollBarPolicy.NEVER : ScrollPane.ScrollBarPolicy.AS_NEEDED));
 
-    fabricationService.statusProperty().addListener((ignored1, ignored2, status) -> handleUpdateFabricationStatus(status));
+    fabricationService.stateProperty().addListener((ignored1, ignored2, status) -> handleUpdateFabricationStatus(status));
 
     resetTimeline();
   }
@@ -215,7 +215,7 @@ public class FabricationTimelineController extends ScrollPane implements ReadyAf
     }
 
     // If we aren't active, none of the rest of this matters
-    if (!fabricationService.isStatusActive().getValue()) {
+    if (!fabricationService.isStateActiveProperty().getValue()) {
       return;
     }
 

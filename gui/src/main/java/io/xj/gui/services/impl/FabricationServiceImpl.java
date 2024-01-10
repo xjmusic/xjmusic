@@ -43,6 +43,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableDoubleValue;
+import javafx.beans.value.ObservableStringValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
@@ -88,7 +89,30 @@ public class FabricationServiceImpl implements FabricationService {
   private final WorkManager workManager;
   private final LabService labService;
   private final Map<Integer, Integer> segmentBarBeats = new ConcurrentHashMap<>();
-  private final ObjectProperty<WorkState> status = new SimpleObjectProperty<>(WorkState.Standby);
+  private final DoubleProperty progress = new SimpleDoubleProperty(0.0);
+  private final ObjectProperty<WorkState> state = new SimpleObjectProperty<>(WorkState.Standby);
+  private final ObservableStringValue stateText = Bindings.createStringBinding(
+    () -> switch (state.get()) {
+      case Standby -> "Ready";
+      case Starting -> "Starting";
+      case LoadingContent -> "Loading content";
+      case LoadedContent -> "Loaded content";
+      case PreparingAudio -> String.format("Preparing audio (%.02f%%)", progress.get() * 100);
+      case PreparedAudio -> "Prepared audio";
+      case Initializing -> "Initializing";
+      case Active -> "Active";
+      case Done -> "Done";
+      case Cancelled -> "Cancelled";
+      case Failed -> "Failed";
+    },
+    state,
+    progress);
+  private final ObservableBooleanValue stateActive =
+    Bindings.createBooleanBinding(() -> state.get() == WorkState.Active, state);
+  private final ObservableBooleanValue stateStandby =
+    Bindings.createBooleanBinding(() -> state.get() == WorkState.Standby, state);
+  private final ObservableBooleanValue stateLoading =
+    Bindings.createBooleanBinding(() -> state.get() == WorkState.LoadingContent || state.get() == WorkState.LoadedContent || state.get() == WorkState.PreparingAudio || state.get() == WorkState.PreparedAudio, state);
   private final StringProperty inputTemplateKey = new SimpleStringProperty();
   private final StringProperty contentStoragePathPrefix = new SimpleStringProperty();
   private final ObjectProperty<InputMode> inputMode = new SimpleObjectProperty<>();
@@ -100,23 +124,15 @@ public class FabricationServiceImpl implements FabricationService {
   private final StringProperty outputChannels = new SimpleStringProperty();
   private final StringProperty timelineSegmentViewLimit = new SimpleStringProperty();
   private final BooleanProperty followPlayback = new SimpleBooleanProperty(true);
-  private final DoubleProperty progress = new SimpleDoubleProperty(0.0);
   private final ObservableSet<String> overrideMemes = FXCollections.observableSet();
   private final ObjectProperty<UUID> overrideMacroProgramId = new SimpleObjectProperty<>();
-  private final ObservableBooleanValue statusActive =
-    Bindings.createBooleanBinding(() -> status.get() == WorkState.Active, status);
-  private final ObservableBooleanValue statusStandby =
-    Bindings.createBooleanBinding(() -> status.get() == WorkState.Standby, status);
-  private final ObservableBooleanValue statusLoading =
-    Bindings.createBooleanBinding(() -> status.get() == WorkState.LoadingContent || status.get() == WorkState.LoadedContent || status.get() == WorkState.PreparingAudio || status.get() == WorkState.PreparedAudio, status);
-
   private final ObservableValue<String> mainActionButtonText = Bindings.createStringBinding(() ->
-    switch (status.get()) {
+    switch (state.get()) {
       case Standby -> BUTTON_TEXT_START;
       case Starting, LoadingContent, LoadedContent, PreparingAudio, PreparedAudio, Initializing, Active ->
         BUTTON_TEXT_STOP;
       case Cancelled, Failed, Done -> BUTTON_TEXT_RESET;
-    }, status);
+    }, state);
 
   public FabricationServiceImpl(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
@@ -152,7 +168,7 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public void start() {
     try {
-      if (status.get() != WorkState.Standby) {
+      if (state.get() != WorkState.Standby) {
         LOG.error("Cannot start fabrication unless in Standby status");
         return;
       }
@@ -180,7 +196,7 @@ public class FabricationServiceImpl implements FabricationService {
 
       // start the work with the given configuration
       workManager.setOnProgress((Float progress) -> Platform.runLater(() -> this.progress.set(progress)));
-      workManager.setOnStateChange((WorkState state) -> Platform.runLater(() -> status.set(state)));
+      workManager.setOnStateChange((WorkState state) -> Platform.runLater(() -> this.state.set(state)));
       LOG.debug("Did bind progress listeners");
 
       Platform.runLater(() -> workManager.start(config, labService.hubConfigProperty().get(), hubAccess));
@@ -194,7 +210,7 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public void cancel() {
     try {
-      status.set(WorkState.Cancelled);
+      state.set(WorkState.Cancelled);
       workManager.finish(true);
 
     } catch (Exception e) {
@@ -252,7 +268,7 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public void reset() {
     try {
-      status.set(WorkState.Standby);
+      state.set(WorkState.Standby);
       workManager.reset();
       overrideMacroProgramId.set(null);
       overrideMemes.clear();
@@ -270,8 +286,13 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
-  public ObjectProperty<WorkState> statusProperty() {
-    return status;
+  public ObjectProperty<WorkState> stateProperty() {
+    return state;
+  }
+
+  @Override
+  public ObservableStringValue stateTextProperty() {
+    return stateText;
   }
 
   @Override
@@ -496,18 +517,18 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
-  public ObservableBooleanValue isStatusActive() {
-    return statusActive;
+  public ObservableBooleanValue isStateActiveProperty() {
+    return stateActive;
   }
 
   @Override
-  public ObservableBooleanValue isStatusLoading() {
-    return statusLoading;
+  public ObservableBooleanValue isStateLoadingProperty() {
+    return stateLoading;
   }
 
   @Override
-  public ObservableBooleanValue isStatusStandby() {
-    return statusStandby;
+  public ObservableBooleanValue isStateStandbyProperty() {
+    return stateStandby;
   }
 
   @Override
@@ -527,7 +548,7 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public void handleMainAction() {
-    switch (status.get()) {
+    switch (state.get()) {
       case Standby -> start();
       case Cancelled, Done, Failed -> reset();
       default -> cancel();
@@ -541,7 +562,7 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public void handleDemoPlay(String templateKey) {
-    if (status.get() != WorkState.Standby) {
+    if (state.get() != WorkState.Standby) {
       LOG.error("Cannot play demo unless fabrication is in Standby status");
       return;
     }

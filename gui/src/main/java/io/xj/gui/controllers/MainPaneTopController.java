@@ -58,7 +58,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   protected HBox fabricationControlContainer;
 
   @FXML
-  protected ProgressBar progressBarFabrication;
+  protected ProgressBar progressBar;
 
   @FXML
   protected ToggleGroup viewMode;
@@ -73,7 +73,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   protected Button buttonAction;
 
   @FXML
-  protected Label labelFabricationStatus;
+  protected Label labelStatus;
 
   @FXML
   protected Button buttonLab;
@@ -111,20 +111,19 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
     buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
 
-    fabricationService.statusProperty().addListener(this::handleFabricationStatusChange);
+    fabricationService.stateProperty().addListener(this::handleFabricationStatusChange);
 
     labService.statusProperty().addListener(this::handleLabStatusChange);
 
-    labelFabricationStatus.textProperty().bind(uiStateService.fabricationStatusTextProperty());
 
     labelLabStatus.textProperty().bind(labService.statusProperty().map(Enum::toString));
 
-    progressBarFabrication.progressProperty().bind(fabricationService.progressProperty());
-    progressBarFabrication.visibleProperty().bind(uiStateService.isProgressBarVisibleProperty());
+    labelStatus.textProperty().bind(uiStateService.statusTextProperty());
+    progressBar.progressProperty().bind(uiStateService.progressProperty());
+    progressBar.visibleProperty().bind(uiStateService.isProgressBarVisibleProperty());
 
     buttonContent.setSelected(true);
-    var isFabricationDisabled = Bindings.createBooleanBinding(() -> !uiStateService.hasCurrentProjectProperty().get(), uiStateService.hasCurrentProjectProperty());
-    buttonFabrication.disableProperty().bind(isFabricationDisabled);
+    buttonFabrication.disableProperty().bind(Bindings.createBooleanBinding(() -> !projectService.isStateReadyProperty().get(), projectService.isStateReadyProperty()));
     fabricationControlContainer.visibleProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.FABRICATION));
     fabricationControlContainer.managedProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.FABRICATION));
   }

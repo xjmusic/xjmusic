@@ -2,9 +2,12 @@ package io.xj.gui.services;
 
 import io.xj.hub.tables.pojos.Project;
 import io.xj.nexus.project.ProjectState;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableStringValue;
 
 import java.util.UUID;
 
@@ -73,4 +76,19 @@ public interface ProjectService {
    @return observable state property
    */
   ObjectProperty<ProjectState> stateProperty();
+
+  /**
+   @return observable state text property
+   */
+  ObservableStringValue stateTextProperty();
+
+  /**
+   @return Observable property for whether the project is in a loading state
+   */
+  ObservableBooleanValue isStateLoadingProperty();
+
+  /**
+   @return Observable property for whether the project is in a ready state
+   */
+  ObservableBooleanValue isStateReadyProperty();
 }

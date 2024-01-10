@@ -4,6 +4,7 @@ import io.xj.gui.controllers.ReadyAfterBootController;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableStringValue;
 
 /**
@@ -33,12 +34,17 @@ public interface UIStateService extends ReadyAfterBootController {
   /**
    @return Observable property of the fabrication status text
    */
-  ObservableStringValue fabricationStatusTextProperty();
+  ObservableStringValue statusTextProperty();
 
   /**
    @return Observable property of whether the progress bar should be visible
    */
   ObservableBooleanValue isProgressBarVisibleProperty();
+
+  /**
+   * @return Observable property of the progress
+   */
+  ObservableDoubleValue progressProperty();
 
   /**
    @return Observable/settable property of the log level

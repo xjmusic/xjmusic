@@ -8,12 +8,15 @@ import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.project.ProjectManagerImpl;
 import io.xj.nexus.project.ProjectState;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableStringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -32,6 +35,25 @@ public class ProjectServiceImpl implements ProjectService {
   private final StringProperty basePathPrefix = new SimpleStringProperty();
   private final DoubleProperty progress = new SimpleDoubleProperty();
   private final ObjectProperty<ProjectState> state = new SimpleObjectProperty<>(ProjectState.Standby);
+  private final ObservableStringValue stateText = Bindings.createStringBinding(
+    () -> switch (state.get()) {
+      case Standby -> "Standby";
+      case CreatingFolder -> "Creating Folder";
+      case CreatedFolder -> "Created Folder";
+      case LoadingContent -> "Loading Content";
+      case LoadedContent -> "Loaded Content";
+      case LoadingAudio -> String.format("Loading Audio (%.02f%%)", progress.get() * 100);
+      case LoadedAudio -> "Loaded Audio";
+      case Ready -> "Ready";
+      case Saving -> "Saving";
+      case Failed -> "Failed";
+    },
+    state,
+    progress);
+  private final ObservableBooleanValue isStateLoading =
+    Bindings.createBooleanBinding(() -> state.get() == ProjectState.LoadingContent || state.get() == ProjectState.LoadedContent || state.get() == ProjectState.LoadingAudio || state.get() == ProjectState.LoadedAudio, state);
+  private final ObservableBooleanValue isStateReady =
+    Bindings.createBooleanBinding(() -> state.get() == ProjectState.Ready, state);
   private final LabService labService;
   private final ProjectManager projectManager;
 
@@ -42,8 +64,8 @@ public class ProjectServiceImpl implements ProjectService {
     attachPreferenceListeners();
     setAllFromPreferencesOrDefaults();
     this.projectManager = new ProjectManagerImpl(
-      this.progress::set,
-      this.state::set
+      (progress) -> Platform.runLater(() -> this.progress.set(progress)),
+      (state) -> Platform.runLater(() -> this.state.set(state))
     );
   }
 
@@ -77,8 +99,7 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void cloneFromDemoTemplate(String pathPrefix, String templateShipKey, String name) {
-    LOG.info("Will clone from demo template \"{}\" ({}) at {}", name, templateShipKey, pathPrefix);
-    projectManager.setPathPrefix(pathPrefix + File.separator + name + File.separator);
+    projectManager.setPathPrefix(pathPrefix + name + File.separator);
     projectManager.setAudioBaseUrl(labService.hubConfigProperty().get().getAudioBaseUrl());
     Platform.runLater(() -> projectManager.cloneFromDemoTemplate(templateShipKey, name));
   }
@@ -102,6 +123,21 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public ObjectProperty<ProjectState> stateProperty() {
     return state;
+  }
+
+  @Override
+  public ObservableStringValue stateTextProperty() {
+    return stateText;
+  }
+
+  @Override
+  public ObservableBooleanValue isStateLoadingProperty() {
+    return isStateLoading;
+  }
+
+  @Override
+  public ObservableBooleanValue isStateReadyProperty() {
+    return isStateReady;
   }
 
   /**

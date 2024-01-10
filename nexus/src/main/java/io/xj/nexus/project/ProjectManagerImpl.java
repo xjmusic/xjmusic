@@ -64,6 +64,8 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public void cloneFromDemoTemplate(String templateShipKey, String name) {
+    LOG.info("Will clone from demo template \"{}\" ({}) to {}", name, templateShipKey, pathPrefix.get());
+
     new Thread(() -> {
       HubContent content;
 
@@ -87,6 +89,7 @@ public class ProjectManagerImpl implements ProjectManager {
         LOG.info("Did load content from demo template \"{}\"", templateShipKey);
 
         LOG.info("Will load {} audio for {} instruments", content.getInstrumentAudios().size(), content.getInstruments().size());
+        updateProgress(0.0);
         updateState(ProjectState.LoadingAudio);
         int loaded = 0;
         var instruments = new ArrayList<>(content.getInstruments());
@@ -133,6 +136,8 @@ public class ProjectManagerImpl implements ProjectManager {
         updateState(ProjectState.LoadedAudio);
         LOG.info("Preloaded {} audios from {} instruments", loaded, instruments.size());
 
+        // TODO save hub content as json in project folder
+
       } catch (HubClientException e) {
         LOG.error("Failed to load content from demo template!", e);
         updateState(ProjectState.Failed);
@@ -141,7 +146,7 @@ public class ProjectManagerImpl implements ProjectManager {
         LOG.error("Failed to preload audio from demo template!", e);
         updateState(ProjectState.Failed);
       }
-    });
+    }).start();
   }
 
   /**
