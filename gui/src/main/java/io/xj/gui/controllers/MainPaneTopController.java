@@ -104,6 +104,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   @Override
   public void onStageReady() {
     buttonAction.textProperty().bind(fabricationService.mainActionButtonTextProperty());
+    buttonAction.disableProperty().bind(uiStateService.isMainActionButtonDisabledProperty());
 
     buttonShowFabricationSettings.disableProperty().bind(uiStateService.isFabricationSettingsDisabledProperty());
 

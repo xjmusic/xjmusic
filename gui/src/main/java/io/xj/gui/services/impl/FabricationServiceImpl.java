@@ -105,8 +105,6 @@ public class FabricationServiceImpl implements FabricationService {
     progress);
   private final ObservableBooleanValue stateActive =
     Bindings.createBooleanBinding(() -> state.get() == WorkState.Active, state);
-  private final ObservableBooleanValue stateStandby =
-    Bindings.createBooleanBinding(() -> state.get() == WorkState.Standby, state);
   private final ObservableBooleanValue stateLoading =
     Bindings.createBooleanBinding(() -> state.get() == WorkState.PreparingAudio || state.get() == WorkState.PreparedAudio, state);
   private final ObjectProperty<Template> inputTemplate = new SimpleObjectProperty<>();
@@ -509,11 +507,6 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public ObservableBooleanValue isStateLoadingProperty() {
     return stateLoading;
-  }
-
-  @Override
-  public ObservableBooleanValue isStateStandbyProperty() {
-    return stateStandby;
   }
 
   @Override

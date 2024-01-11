@@ -42,7 +42,7 @@ public interface UIStateService extends ReadyAfterBootController {
   ObservableBooleanValue isProgressBarVisibleProperty();
 
   /**
-   * @return Observable property of the progress
+   @return Observable property of the progress
    */
   ObservableDoubleValue progressProperty();
 
@@ -67,7 +67,12 @@ public interface UIStateService extends ReadyAfterBootController {
   ObservableBooleanValue isManualFabricationActiveProperty();
 
   /**
-   * @return Observable property of whether a project is currently open
+   @return Observable property of whether a project is currently open
    */
   ObservableBooleanValue hasCurrentProjectProperty();
+
+  /**
+   @return Observable property of whether the main action button should appear disabled
+   */
+  ObservableBooleanValue isMainActionButtonDisabledProperty();
 }

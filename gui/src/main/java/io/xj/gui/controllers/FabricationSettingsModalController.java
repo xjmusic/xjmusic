@@ -10,6 +10,7 @@ import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.ControlMode;
 import io.xj.nexus.InputMode;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -21,6 +22,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Service
 public class FabricationSettingsModalController extends ReadyAfterBootModalController {
@@ -35,16 +38,13 @@ public class FabricationSettingsModalController extends ReadyAfterBootModalContr
   private final UIStateService uiStateService;
 
   @FXML
-  TextField fieldInputTemplateKey;
-
-  @FXML
   ChoiceBox<InputMode> choiceInputMode;
 
   @FXML
   ChoiceBox<ControlMode> choiceControlMode;
 
   @FXML
-  ChoiceBox<Template> choiceTemplate;
+  ChoiceBox<TemplateChoice> choiceTemplate;
 
   @FXML
   Label labelInputMode;
@@ -110,8 +110,20 @@ public class FabricationSettingsModalController extends ReadyAfterBootModalContr
     choiceControlMode.valueProperty().bindBidirectional(fabricationService.controlModeProperty());
     choiceControlMode.setItems(FXCollections.observableArrayList(ControlMode.values()));
 
-    choiceTemplate.valueProperty().bindBidirectional(fabricationService.inputTemplateProperty());
-    choiceTemplate.setItems(FXCollections.observableArrayList(projectService.getContent().getTemplates()));
+/*
+    choiceTemplate.valueProperty().bind(Bindings.createObjectBinding(() -> {
+      Template template = fabricationService.inputTemplateProperty().get();
+      return new TemplateChoice(template);
+    }, fabricationService.inputTemplateProperty()));
+*/
+    choiceTemplate.setItems(FXCollections.observableArrayList(projectService.getContent().getTemplates().stream().map(TemplateChoice::new).toList()));
+    choiceTemplate.setOnAction(event -> {
+      TemplateChoice templateChoice = choiceTemplate.getValue();
+      if (templateChoice != null) {
+        fabricationService.inputTemplateProperty().set(templateChoice.template());
+      }
+    });
+    choiceTemplate.setValue(new TemplateChoice(fabricationService.inputTemplateProperty().get()));
 
     fieldCraftAheadSeconds.textProperty().bindBidirectional(fabricationService.craftAheadSecondsProperty());
     fieldDubAheadSeconds.textProperty().bindBidirectional(fabricationService.dubAheadSecondsProperty());
@@ -144,4 +156,13 @@ public class FabricationSettingsModalController extends ReadyAfterBootModalContr
     createAndShowModal(ac, themeService, fabricationSettingsModalFxml, FABRICATION_SERVICE_WINDOW_NAME);
   }
 
+  /**
+   This class is used to display the template name in the ChoiceBox while preserving the underlying ID
+   */
+  public record TemplateChoice(Template template) {
+    @Override
+    public String toString() {
+      return Objects.nonNull(template) ? template.getName() : "Select...";
+    }
+  }
 }

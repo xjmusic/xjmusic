@@ -10,19 +10,22 @@ import java.awt.*;
 import java.util.List;
 import java.util.Objects;
 
-public interface WorkstationIcon {
+public interface WorkstationWindow {
   String APPLICATION_TITLE = "XJ music workstation";
   String PATH_TO_ICON_ICNS = "/icons/icon.icns";
   String PATH_TO_ICON_ICO = "/icons/icon.ico";
   String PATH_TO_ICON_PNG = "/icons/icon.png";
 
-  static void setup(Stage primaryStage, @Nullable String windowName) {
-    primaryStage.setTitle(Objects.nonNull(windowName) ? String.format("%s - %s", windowName, APPLICATION_TITLE) : APPLICATION_TITLE);
+  static void setupIcon(Stage primaryStage, @Nullable String windowName) {
     primaryStage.getIcons().addAll(List.of(
       new Image(PATH_TO_ICON_ICNS),
       new Image(PATH_TO_ICON_ICO),
       new Image(PATH_TO_ICON_PNG)
     ));
+  }
+
+  static String computeTitle(@Nullable String windowName) {
+    return Objects.nonNull(windowName) ? String.format("%s - %s", windowName, APPLICATION_TITLE) : APPLICATION_TITLE;
   }
 
   static void setupTaskbar() {
@@ -31,7 +34,7 @@ public interface WorkstationIcon {
 
       if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
         final Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
-        var dockIcon = defaultToolkit.getImage(WorkstationIcon.class.getResource(PATH_TO_ICON_PNG));
+        var dockIcon = defaultToolkit.getImage(WorkstationWindow.class.getResource(PATH_TO_ICON_PNG));
         taskbar.setIconImage(dockIcon);
       }
     }

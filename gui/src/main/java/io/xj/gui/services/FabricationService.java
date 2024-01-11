@@ -124,8 +124,6 @@ public interface FabricationService {
 
   ObservableBooleanValue isStateLoadingProperty();
 
-  ObservableBooleanValue isStateStandbyProperty();
-
   /**
    Return the current shipped-to chain micros
 

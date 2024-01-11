@@ -1,14 +1,12 @@
 package io.xj.gui.services;
 
 import io.xj.hub.HubContent;
-import io.xj.hub.tables.pojos.Project;
 import io.xj.nexus.project.ProjectState;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableStringValue;
-import javafx.beans.value.ObservableValue;
 
 import java.util.UUID;
 
@@ -19,11 +17,6 @@ public interface ProjectService {
    @return the project view mode
    */
   ObjectProperty<ProjectViewMode> viewModeProperty();
-
-  /**
-   @return the current project
-   */
-  ObjectProperty<Project> currentProjectProperty();
 
   /**
    Open a project

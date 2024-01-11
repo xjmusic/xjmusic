@@ -56,6 +56,7 @@ public class UIStateServiceImpl implements UIStateService {
 
   @Nullable
   private ObservableDoubleValue progress;
+  private final ObservableBooleanValue isMainActionButtonDisabled;
 
   public UIStateServiceImpl(
     FabricationService fabricationService,
@@ -65,6 +66,7 @@ public class UIStateServiceImpl implements UIStateService {
     this.fabricationService = fabricationService;
     this.labService = labService;
     this.projectService = projectService;
+    isMainActionButtonDisabled = fabricationService.inputTemplateProperty().isNull();
   }
 
   @Override
@@ -179,5 +181,10 @@ public class UIStateServiceImpl implements UIStateService {
       hasCurrentProject = projectService.stateProperty().isNotEqualTo(ProjectState.Standby);
 
     return hasCurrentProject;
+  }
+
+  @Override
+  public ObservableBooleanValue isMainActionButtonDisabledProperty() {
+    return isMainActionButtonDisabled;
   }
 }

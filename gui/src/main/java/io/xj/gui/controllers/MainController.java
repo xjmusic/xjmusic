@@ -57,8 +57,6 @@ public class MainController implements ReadyAfterBootController {
 
   @Override
   public void onStageReady() {
-    ((Stage) mainMenuController.getScene().getWindow()).titleProperty().bind(projectService.windowTitleProperty());
-
     mainMenuController.onStageReady();
     mainPaneBottomController.onStageReady();
     mainPaneTopController.onStageReady();

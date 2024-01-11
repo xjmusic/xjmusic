@@ -16,6 +16,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableStringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public class ProjectServiceImpl implements ProjectService {
   private static final String defaultPathPrefix = System.getProperty("user.home") + File.separator + "Documents";
   private final Preferences prefs = Preferences.userNodeForPackage(ProjectServiceImpl.class);
   private final ObjectProperty<ProjectViewMode> viewMode = new SimpleObjectProperty<>(ProjectViewMode.CONTENT);
-  private final ObjectProperty<Project> currentProject = new SimpleObjectProperty<>();
+  private final ObservableObjectValue<Project> currentProject;
   private final StringProperty basePathPrefix = new SimpleStringProperty();
   private final DoubleProperty progress = new SimpleDoubleProperty();
   private final ObjectProperty<ProjectState> state = new SimpleObjectProperty<>(ProjectState.Standby);
@@ -69,6 +70,13 @@ public class ProjectServiceImpl implements ProjectService {
     projectManager.setOnStateChange((state) -> Platform.runLater(() -> this.state.set(state)));
     attachPreferenceListeners();
     setAllFromPreferencesOrDefaults();
+    currentProject = Bindings.createObjectBinding(() -> {
+      if (Objects.equals(state.get(), ProjectState.Ready)) {
+        return projectManager.getContent().getProjects().stream().findFirst().orElse(null);
+      } else {
+        return null;
+      }
+    }, state);
     windowTitle = Bindings.createStringBinding(
       () -> Objects.nonNull(currentProject.get())
         ? String.format("%s - XJ music workstation", currentProject.get().getName())
@@ -80,11 +88,6 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public ObjectProperty<ProjectViewMode> viewModeProperty() {
     return viewMode;
-  }
-
-  @Override
-  public ObjectProperty<Project> currentProjectProperty() {
-    return currentProject;
   }
 
   @Override

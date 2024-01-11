@@ -3,12 +3,14 @@
 package io.xj.gui.listeners;
 
 import com.tangorabox.componentinspector.fx.FXComponentInspectorHandler;
-import io.xj.gui.WorkstationIcon;
+import io.xj.gui.WorkstationWindow;
 import io.xj.gui.controllers.MainController;
 import io.xj.gui.events.StageReadyEvent;
+import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,7 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
   private final String debug;
   private final MainController mainController;
   private final ApplicationContext ac;
+  private final ProjectService projectService;
   private final ThemeService themeService;
 
   public MainWindowStageReadyListener(
@@ -34,12 +37,14 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
     @Value("${gui.debug}") String debug,
     MainController mainController,
     ApplicationContext ac,
+    ProjectService projectService,
     ThemeService themeService
   ) {
     this.mainWindowFxml = mainWindowFxml;
     this.debug = debug;
     this.mainController = mainController;
     this.ac = ac;
+    this.projectService = projectService;
     this.themeService = themeService;
   }
 
@@ -54,8 +59,9 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
       primaryStage.setScene(scene);
       primaryStage.initStyle(StageStyle.DECORATED);
 
-      WorkstationIcon.setup(primaryStage, null);
-      WorkstationIcon.setupTaskbar();
+      WorkstationWindow.setupIcon(primaryStage, null);
+      WorkstationWindow.setupTaskbar();
+      primaryStage.titleProperty().bind(projectService.windowTitleProperty());
 
       themeService.setup(scene);
       themeService.isDarkThemeProperty().addListener((observable, oldValue, newValue) -> themeService.setup(scene));
