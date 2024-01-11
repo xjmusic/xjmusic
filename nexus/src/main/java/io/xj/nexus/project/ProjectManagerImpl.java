@@ -104,7 +104,6 @@ public class ProjectManagerImpl implements ProjectManager {
         EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
         JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
         HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
-        // TODO create a hub content storage mechanism that can function as a complete in-memory store
         content.set(hubClient.load(templateShipKey, audioBaseUrl.get()));
         updateState(ProjectState.LoadedContent);
         LOG.info("Did load content from demo template \"{}\"", templateShipKey);
