@@ -4,6 +4,7 @@ package io.xj.gui.services.impl;
 
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
+import io.xj.gui.services.ProjectService;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.meme.MemeTaxonomy;
@@ -26,6 +27,7 @@ import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentMeme;
 import io.xj.nexus.model.SegmentMessage;
 import io.xj.nexus.model.SegmentMeta;
+import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.util.FormatUtils;
 import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkManager;
@@ -84,6 +86,7 @@ public class FabricationServiceImpl implements FabricationService {
   private final int defaultOutputFrameRate;
   private final ControlMode defaultControlMode;
   private final InputMode defaultInputMode;
+  private final ProjectService projectService;
   private final WorkManager workManager;
   private final LabService labService;
   private final Map<Integer, Integer> segmentBarBeats = new ConcurrentHashMap<>();
@@ -137,6 +140,7 @@ public class FabricationServiceImpl implements FabricationService {
     @Value("${macro.mode}") String defaultMacroMode,
     @Value("${input.mode}") String defaultInputMode,
     LabService labService,
+    ProjectService projectService,
     WorkManager workManager
   ) {
     this.defaultCraftAheadSeconds = defaultCraftAheadSeconds;
@@ -149,7 +153,14 @@ public class FabricationServiceImpl implements FabricationService {
     this.defaultTimelineSegmentViewLimit = defaultTimelineSegmentViewLimit;
     this.hostServices = hostServices;
     this.labService = labService;
+    this.projectService = projectService;
     this.workManager = workManager;
+
+    projectService.stateProperty().addListener((observable, prior, value) -> {
+      if (value == ProjectState.Ready) {
+        inputTemplate.set(projectService.getContent().getTemplates().stream().findFirst().orElse(null));
+      }
+    });
 
     attachPreferenceListeners();
     setAllFromPreferencesOrDefaults();
