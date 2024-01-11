@@ -58,6 +58,9 @@ class FabricationServiceImplTest {
   private NexusEntityStore entityStore;
 
   @Mock
+  ProjectService projectService;
+
+  @Mock
   private WorkManager workManager;
 
   FabricationServiceImpl subject;
@@ -86,6 +89,7 @@ class FabricationServiceImplTest {
       defaultMacroMode,
       defaultInputMode,
       labService,
+      projectService,
       workManager
     );
   }
