@@ -115,7 +115,6 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
     labService.statusProperty().addListener(this::handleLabStatusChange);
 
-
     labelLabStatus.textProperty().bind(labService.statusProperty().map(Enum::toString));
 
     labelStatus.textProperty().bind(uiStateService.statusTextProperty());

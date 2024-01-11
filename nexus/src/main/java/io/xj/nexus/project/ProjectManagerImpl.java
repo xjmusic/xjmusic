@@ -16,6 +16,7 @@ import io.xj.nexus.json.JsonProvider;
 import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
+import jakarta.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -38,23 +39,45 @@ import java.util.function.Consumer;
 
 public class ProjectManagerImpl implements ProjectManager {
   static final Logger LOG = LoggerFactory.getLogger(ProjectManagerImpl.class);
-  private final Consumer<Double> onProgress;
-  private final Consumer<ProjectState> onStateChange;
   private final AtomicReference<ProjectState> state = new AtomicReference<>(ProjectState.Standby);
   private final AtomicReference<String> pathPrefix = new AtomicReference<>(File.separator);
   private final AtomicReference<String> audioBaseUrl = new AtomicReference<>("https://audio.xj.io/");
+  private final AtomicReference<HubContent> content = new AtomicReference<>();
 
-  public ProjectManagerImpl(
-    Consumer<Double> onProgress,
-    Consumer<ProjectState> onStateChange
+  @Nullable
+  private Consumer<Double> onProgress;
+
+  @Nullable
+  private Consumer<ProjectState> onStateChange;
+
+  /**
+   Private constructor
+   */
+  private ProjectManagerImpl(
   ) {
-    this.onProgress = onProgress;
-    this.onStateChange = onStateChange;
+    // no op
+  }
+
+  /**
+   @return a new instance of the project manager
+   */
+  public static ProjectManager createInstance() {
+    return new ProjectManagerImpl();
+  }
+
+  @Override
+  public String getPathPrefix() {
+    return this.pathPrefix.get();
   }
 
   @Override
   public void setPathPrefix(String pathPrefix) {
     this.pathPrefix.set(pathPrefix);
+  }
+
+  @Override
+  public String getAudioBaseUrl() {
+    return this.audioBaseUrl.get();
   }
 
   @Override
@@ -67,8 +90,6 @@ public class ProjectManagerImpl implements ProjectManager {
     LOG.info("Will clone from demo template \"{}\" ({}) to {}", name, templateShipKey, pathPrefix.get());
 
     new Thread(() -> {
-      HubContent content;
-
       try {
         LOG.info("Will create project folder at {}", pathPrefix.get());
         updateState(ProjectState.CreatingFolder);
@@ -84,16 +105,16 @@ public class ProjectManagerImpl implements ProjectManager {
         JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
         HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
         // TODO create a hub content storage mechanism that can function as a complete in-memory store
-        content = hubClient.load(templateShipKey, audioBaseUrl.get());
+        content.set(hubClient.load(templateShipKey, audioBaseUrl.get()));
         updateState(ProjectState.LoadedContent);
         LOG.info("Did load content from demo template \"{}\"", templateShipKey);
 
-        LOG.info("Will load {} audio for {} instruments", content.getInstrumentAudios().size(), content.getInstruments().size());
+        LOG.info("Will load {} audio for {} instruments", content.get().getInstrumentAudios().size(), content.get().getInstruments().size());
         updateProgress(0.0);
         updateState(ProjectState.LoadingAudio);
         int loaded = 0;
-        var instruments = new ArrayList<>(content.getInstruments());
-        var audios = new ArrayList<>(content.getInstrumentAudios());
+        var instruments = new ArrayList<>(content.get().getInstruments());
+        var audios = new ArrayList<>(content.get().getInstrumentAudios());
         // TODO Button to cancel cloning project
         // TODO When downloading each audio, check size on disk after downloading, delete and retry 3X if failed to match correct size
         // TODO When downloading each audio, if audio already exists on disk, check size on disk, delete and retry 3X if failed to match correct size
@@ -109,7 +130,7 @@ public class ProjectManagerImpl implements ProjectManager {
             if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
               LOG.debug("Will preload audio for instrument {} with waveform key {}", instrument.getName(), audio.getWaveformKey());
               // Fetch via HTTP if original does not exist
-              var originalCachePath = computeSourceAudioPath(
+              var originalCachePath = getPathToInstrumentAudio(
                 instrument.getId(),
                 audio.getWaveformKey()
               );
@@ -136,13 +157,15 @@ public class ProjectManagerImpl implements ProjectManager {
           }
         }
         updateProgress(1.0);
-        updateState(ProjectState.LoadedAudio);
         LOG.info("Preloaded {} audios from {} instruments", loaded, instruments.size());
+        updateState(ProjectState.LoadedAudio);
 
+        updateState(ProjectState.Saving);
         var json = jsonProvider.getMapper().writeValueAsString(content);
         var jsonPath = pathPrefix.get() + "content.json";
         Files.writeString(Path.of(jsonPath), json);
         LOG.info("Did write {} bytes of content to {}", json.length(), jsonPath);
+        updateState(ProjectState.Ready);
 
       } catch (HubClientException e) {
         LOG.error("Failed to load content from demo template!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
@@ -155,22 +178,31 @@ public class ProjectManagerImpl implements ProjectManager {
     }).start();
   }
 
+  @Override
+  public HubContent getContent() {
+    return content.get();
+  }
+
+  @Override
+  public String getPathToInstrumentAudio(UUID instrumentId, String waveformKey) {
+    return pathPrefix.get() + "instrument" + File.separator + instrumentId.toString() + File.separator + waveformKey;
+  }
+
+  @Override
+  public void setOnProgress(@Nullable Consumer<Double> onProgress) {
+    this.onProgress = onProgress;
+  }
+
+  @Override
+  public void setOnStateChange(@Nullable Consumer<ProjectState> onStateChange) {
+    this.onStateChange = onStateChange;
+  }
+
   /**
    @return true if this dub audio cache item exists (as audio waveform data) on disk
    */
   private boolean existsOnDisk(String absolutePath) {
     return new File(absolutePath).exists();
-  }
-
-  /**
-   compute the cache path for this audio item
-
-   @param instrumentId instrument id
-   @param key          key
-   @return cache path
-   */
-  private String computeSourceAudioPath(UUID instrumentId, String key) {
-    return pathPrefix.get() + "instrument" + File.separator + instrumentId.toString() + File.separator + key;
   }
 
   /**
@@ -180,7 +212,8 @@ public class ProjectManagerImpl implements ProjectManager {
    */
   private void updateState(ProjectState state) {
     this.state.set(state);
-    onStateChange.accept(state);
+    if (Objects.nonNull(onStateChange))
+      onStateChange.accept(state);
   }
 
   /**
@@ -189,6 +222,7 @@ public class ProjectManagerImpl implements ProjectManager {
    @param progress new value
    */
   private void updateProgress(double progress) {
-    this.onProgress.accept(progress);
+    if (Objects.nonNull(onProgress))
+      this.onProgress.accept(progress);
   }
 }

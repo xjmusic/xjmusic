@@ -36,6 +36,7 @@ import io.xj.nexus.mixer.MixerFactory;
 import io.xj.nexus.mixer.MixerFactoryImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.ship.broadcast.BroadcastFactory;
 import io.xj.nexus.ship.broadcast.BroadcastFactoryImpl;
 import io.xj.nexus.telemetry.Telemetry;
@@ -121,12 +122,12 @@ public class WorkManagerImpl implements WorkManager {
     this.telemetry = telemetry;
   }
 
-  public static WorkManager createInstance() {
+  public static WorkManager createInstance(ProjectManager projectManager) {
     BroadcastFactory broadcastFactory = new BroadcastFactoryImpl();
     Telemetry telemetry = new TelemetryImpl();
     CraftFactory craftFactory = new CraftFactoryImpl();
     HttpClientProvider httpClientProvider = new HttpClientProviderImpl();
-    AudioCache audioCache = new AudioCacheImpl(httpClientProvider);
+    AudioCache audioCache = new AudioCacheImpl(projectManager);
     JsonProvider jsonProvider = new JsonProviderImpl();
     EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
     NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
@@ -169,8 +170,6 @@ public class WorkManagerImpl implements WorkManager {
     LOG.debug("Did set hub access: {}", hubAccess);
 
     audioCache.initialize(
-      workConfig.getContentStoragePathPrefix(),
-      hubConfig.getAudioBaseUrl(),
       workConfig.getOutputFrameRate(),
       FIXED_SAMPLE_BITS,
       workConfig.getOutputChannels()
@@ -584,8 +583,6 @@ public class WorkManagerImpl implements WorkManager {
       telemetry,
       craftWork,
       mixerFactory,
-      hubConfig.getAudioBaseUrl(),
-      workConfig.getContentStoragePathPrefix(),
       workConfig.getMixerLengthSeconds(),
       workConfig.getDubAheadSeconds(),
       workConfig.getOutputFrameRate(),

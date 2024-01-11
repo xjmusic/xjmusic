@@ -5,7 +5,6 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ProjectViewMode;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.nexus.project.ProjectManager;
-import io.xj.nexus.project.ProjectManagerImpl;
 import io.xj.nexus.project.ProjectState;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -58,15 +57,15 @@ public class ProjectServiceImpl implements ProjectService {
   private final ProjectManager projectManager;
 
   public ProjectServiceImpl(
-    LabService labService
+    LabService labService,
+    ProjectManager projectManager
   ) {
     this.labService = labService;
+    this.projectManager = projectManager;
+    projectManager.setOnProgress((progress) -> Platform.runLater(() -> this.progress.set(progress)));
+    projectManager.setOnStateChange((state) -> Platform.runLater(() -> this.state.set(state)));
     attachPreferenceListeners();
     setAllFromPreferencesOrDefaults();
-    this.projectManager = new ProjectManagerImpl(
-      (progress) -> Platform.runLater(() -> this.progress.set(progress)),
-      (state) -> Platform.runLater(() -> this.state.set(state))
-    );
   }
 
   @Override

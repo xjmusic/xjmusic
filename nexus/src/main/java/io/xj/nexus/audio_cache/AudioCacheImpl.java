@@ -4,16 +4,12 @@ package io.xj.nexus.audio_cache;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.http.HttpClientProvider;
 import io.xj.nexus.mixer.ActiveAudio;
 import io.xj.nexus.mixer.AudioSampleFormat;
 import io.xj.nexus.mixer.FFmpegUtils;
 import io.xj.nexus.mixer.FormatException;
+import io.xj.nexus.project.ProjectManager;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,12 +19,10 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,18 +32,16 @@ public class AudioCacheImpl implements AudioCache {
   private final static Logger LOG = LoggerFactory.getLogger(AudioCacheImpl.class);
   private static final int MAX_INT_LENGTH_ARRAY_SIZE = 2147483647;
   private static final int READ_BUFFER_BYTE_SIZE = 1024;
-  private final HttpClientProvider httpClientProvider;
+  private final ProjectManager projectManager;
   private final Map<String, CachedAudio> cache;
-  private String contentStoragePathPrefix;
-  private String audioBaseUrl;
   private int targetFrameRate;
   private int targetSampleBits;
   private int targetChannels;
 
   public AudioCacheImpl(
-    HttpClientProvider httpClientProvider
+    ProjectManager projectManager
   ) {
-    this.httpClientProvider = httpClientProvider;
+    this.projectManager = projectManager;
 
     cache = new ConcurrentHashMap<>();
   }
@@ -82,61 +74,16 @@ public class AudioCacheImpl implements AudioCache {
   }
 
   @Override
-  public void prepare(InstrumentAudio audio) throws NexusException {
-    fetchAndPrepareOnDiskThreeAttempts(audio);
-  }
-
-  @Override
-  public void initialize(String contentStoragePathPrefix, String audioBaseUrl, int targetFrameRate, int targetSampleBits, int targetChannels) {
-    this.contentStoragePathPrefix = contentStoragePathPrefix;
-    this.audioBaseUrl = audioBaseUrl;
-    this.targetFrameRate = targetFrameRate;
-    this.targetSampleBits = targetSampleBits;
-    this.targetChannels = targetChannels;
-  }
-
-  @Override
-  public void invalidateAll() {
-    cache.clear();
-  }
-
-  @Override
-  public boolean areAllReady(List<ActiveAudio> activeAudios) {
-    return activeAudios.stream().allMatch(activeAudio -> cache.containsKey(activeAudio.getAudio().getId().toString()));
-  }
-
-  private void fetchAndPrepareOnDiskThreeAttempts(InstrumentAudio audio) throws NexusException {
-    int attempts = 0;
-    while (attempts < 3) {
-      try {
-        fetchAndPrepareOnDisk(audio);
-        return;
-
-      } catch (Exception e) {
-        attempts++;
-        if (attempts == 3) {
-          throw new NexusException(String.format("Failed to fetch and prepare audio on disk (attempt %d of 3, contentStoragePathPrefix=%s, audioBaseUrl=%s, instrumentId=%s, waveformKey=%s, targetFrameRate=%d, targetSampleBits=%d, targetChannels=%d): %s", attempts,
-            contentStoragePathPrefix, audioBaseUrl, audio.getInstrumentId(), audio.getWaveformKey(), targetFrameRate, targetSampleBits, targetChannels, e.getMessage()));
-        } else {
-          LOG.warn("Failed to fetch and prepare audio on disk (attempt {} of 3)", attempts, e);
-        }
-      }
-    }
-    throw new NexusException(String.format("Failed to fetch and prepare audio on disk (attempt %d of 3): %s", attempts, "Unknown error"));
-  }
-
-  private AudioPreparedOnDisk fetchAndPrepareOnDisk(InstrumentAudio audio) throws AudioCacheException {
-    // TODO no HTTP fetching, only source from project source audio folder and resample into render audio folder
-
+  public AudioPreparedOnDisk prepare(InstrumentAudio audio) throws AudioCacheException {
     if (StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
-      LOG.error("Can't load null or empty audio key! (contentStoragePathPrefix={}, audioBaseUrl={}, instrumentId={}, waveformKey={}, targetFrameRate={}, targetSampleBits={}, targetChannels={})",
-        contentStoragePathPrefix, audioBaseUrl, audio.getInstrumentId(), audio.getWaveformKey(), targetFrameRate, targetSampleBits, targetChannels);
+      LOG.error("Can't load null or empty audio key! (audioRenderPathPrefix={}, audioBaseUrl={}, instrumentId={}, waveformKey={}, targetFrameRate={}, targetSampleBits={}, targetChannels={})",
+        getAudioRenderPathPrefix(), projectManager.getAudioBaseUrl(), audio.getInstrumentId(), audio.getWaveformKey(), targetFrameRate, targetSampleBits, targetChannels);
       throw new AudioCacheException("Can't load null or empty audio key!");
     }
 
     // compute a key based on the target frame rate, sample bits, channels, and waveform key.
-    String originalCachePath = computeCachePath(contentStoragePathPrefix, audio.getInstrumentId(), audio.getWaveformKey());
-    String resampledCachePrefix = computeResampledCachePrefix(contentStoragePathPrefix, audio.getInstrumentId(), targetFrameRate, targetSampleBits, targetChannels);
+    String originalCachePath = projectManager.getPathToInstrumentAudio(audio.getInstrumentId(), audio.getWaveformKey());
+    String resampledCachePrefix = computeResampledCachePrefix(audio.getInstrumentId(), targetFrameRate, targetSampleBits, targetChannels);
     String finalCachePath = computeResampledCachePath(resampledCachePrefix, targetFrameRate, targetSampleBits, targetChannels, audio.getWaveformKey());
     if (existsOnDisk(finalCachePath)) {
       LOG.debug("Found fully prepared audio at {}", finalCachePath);
@@ -153,24 +100,6 @@ public class AudioCacheImpl implements AudioCache {
       Files.createDirectories(Path.of(resampledCachePrefix));
     } catch (IOException e) {
       throw new RuntimeException(e);
-    }
-
-    // Fetch via HTTP if original does not exist
-    if (!existsOnDisk(originalCachePath)) {
-      CloseableHttpClient client = httpClientProvider.getClient();
-      try (
-        CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", audioBaseUrl, audio.getWaveformKey())))
-      ) {
-        if (Objects.isNull(response.getEntity().getContent()))
-          throw new NexusException(String.format("Unable to write bytes to disk cache: %s", originalCachePath));
-
-        try (OutputStream toFile = FileUtils.openOutputStream(new File(originalCachePath))) {
-          var size = IOUtils.copy(response.getEntity().getContent(), toFile); // stores number of bytes copied
-          LOG.debug("Did write media item to disk cache: {} ({} bytes)", originalCachePath, size);
-        }
-      } catch (NexusException | IOException e) {
-        throw new RuntimeException(e);
-      }
     }
 
     // If the audio format does not match, resample. FUTURE: don't increase # of channels unnecessarily
@@ -192,12 +121,35 @@ public class AudioCacheImpl implements AudioCache {
       }
       var finalFormat = getAudioFormat(finalCachePath);
       return new AudioPreparedOnDisk(finalCachePath, finalFormat);
+
     } catch (RuntimeException | UnsupportedAudioFileException | IOException e) {
       deleteIfExists(finalCachePath);
       throw new RuntimeException(e);
     }
   }
 
+  @Override
+  public void initialize(int targetFrameRate, int targetSampleBits, int targetChannels) {
+    this.targetFrameRate = targetFrameRate;
+    this.targetSampleBits = targetSampleBits;
+    this.targetChannels = targetChannels;
+  }
+
+  @Override
+  public void invalidateAll() {
+    cache.clear();
+  }
+
+  @Override
+  public boolean areAllReady(List<ActiveAudio> activeAudios) {
+    return activeAudios.stream().allMatch(activeAudio -> cache.containsKey(activeAudio.getAudio().getId().toString()));
+  }
+
+  /**
+   Delete the path if it exists
+
+   @param path to delete
+   */
   private void deleteIfExists(String path) {
     try {
       Files.deleteIfExists(Path.of(path));
@@ -206,8 +158,16 @@ public class AudioCacheImpl implements AudioCache {
     }
   }
 
+  /**
+   Compute the rendered audio
+
+   @param audio audio
+   @return audio prepared on disk
+   @throws AudioCacheException audio cache exception
+   @throws IOException         io exception
+   */
   private CachedAudio compute(InstrumentAudio audio) throws AudioCacheException, IOException {
-    var fileSpec = fetchAndPrepareOnDisk(audio);
+    var fileSpec = prepare(audio);
     try (
       var fileInputStream = FileUtils.openInputStream(new File(fileSpec.path));
       var bufferedInputStream = new BufferedInputStream(fileInputStream);
@@ -261,31 +221,17 @@ public class AudioCacheImpl implements AudioCache {
     }
   }
 
-
   /**
    compute the cache path for this audio item
 
-   @param contentStoragePathPrefix content storage path prefix
-   @param instrumentId             instrument id
-   @param key                      key
+   @param instrumentId     instrument id
+   @param targetFrameRate  target frame rate
+   @param targetSampleBits target sample bits
+   @param targetChannels   target channels
    @return cache path
    */
-  private String computeCachePath(String contentStoragePathPrefix, UUID instrumentId, String key) {
-    return contentStoragePathPrefix + "instrument" + File.separator + instrumentId.toString() + File.separator + key;
-  }
-
-  /**
-   compute the cache path for this audio item
-
-   @param contentStoragePathPrefix content storage path prefix
-   @param instrumentId             instrument id
-   @param targetFrameRate          target frame rate
-   @param targetSampleBits         target sample bits
-   @param targetChannels           target channels
-   @return cache path
-   */
-  private String computeResampledCachePrefix(String contentStoragePathPrefix, UUID instrumentId, int targetFrameRate, int targetSampleBits, int targetChannels) {
-    return contentStoragePathPrefix + "instrument" + File.separator + instrumentId.toString() + File.separator + String.format("%d-%d-%d", targetFrameRate, targetSampleBits, targetChannels) + File.separator;
+  private String computeResampledCachePrefix(UUID instrumentId, int targetFrameRate, int targetSampleBits, int targetChannels) {
+    return getAudioRenderPathPrefix() + "instrument" + File.separator + instrumentId.toString() + File.separator + String.format("%d-%d-%d", targetFrameRate, targetSampleBits, targetChannels) + File.separator;
   }
 
   /**
@@ -340,6 +286,13 @@ public class AudioCacheImpl implements AudioCache {
   /**
    Record of an audio file prepared on disk for caching
    */
-  private record AudioPreparedOnDisk(String path, AudioFormat format) {
+  public record AudioPreparedOnDisk(String path, AudioFormat format) {
+  }
+
+  /**
+   @return audio render path prefix
+   */
+  private String getAudioRenderPathPrefix() {
+    return projectManager.getPathPrefix() + "render" + File.separator;
   }
 }

@@ -54,7 +54,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -76,7 +75,6 @@ public class FabricationServiceImpl implements FabricationService {
   private final static String BUTTON_TEXT_STOP = "Stop";
   private final static String BUTTON_TEXT_RESET = "Reset";
   private final HostServices hostServices;
-  private final String defaultContentStoragePathPrefix = computeDefaultPathPrefix();
   private final int defaultTimelineSegmentViewLimit;
   private final int defaultCraftAheadSeconds;
   private final int defaultDubAheadSeconds;
@@ -114,7 +112,6 @@ public class FabricationServiceImpl implements FabricationService {
   private final ObservableBooleanValue stateLoading =
     Bindings.createBooleanBinding(() -> state.get() == WorkState.LoadingContent || state.get() == WorkState.LoadedContent || state.get() == WorkState.PreparingAudio || state.get() == WorkState.PreparedAudio, state);
   private final StringProperty inputTemplateKey = new SimpleStringProperty();
-  private final StringProperty contentStoragePathPrefix = new SimpleStringProperty();
   private final ObjectProperty<InputMode> inputMode = new SimpleObjectProperty<>();
   private final ObjectProperty<ControlMode> controlMode = new SimpleObjectProperty<>();
   private final StringProperty craftAheadSeconds = new SimpleStringProperty();
@@ -179,7 +176,6 @@ public class FabricationServiceImpl implements FabricationService {
 
       // create work configuration
       var config = new WorkConfiguration()
-        .setContentStoragePathPrefix(contentStoragePathPrefix.get())
         .setCraftAheadSeconds(parseIntegerValue(craftAheadSeconds.get(), "fabrication setting for Craft Ahead Seconds"))
         .setDubAheadSeconds(parseIntegerValue(dubAheadSeconds.get(), "fabrication setting for Dub Ahead Seconds"))
         .setMixerLengthSeconds(parseIntegerValue(mixerLengthSeconds.get(), "fabrication setting for Mixer Length Seconds"))
@@ -255,7 +251,6 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public void resetSettingsToDefaults() {
-    contentStoragePathPrefix.set(defaultContentStoragePathPrefix);
     craftAheadSeconds.set(String.valueOf(defaultCraftAheadSeconds));
     dubAheadSeconds.set(String.valueOf(defaultDubAheadSeconds));
     mixerLengthSeconds.set(String.valueOf(defaultMixerLengthSeconds));
@@ -298,11 +293,6 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public StringProperty inputTemplateKeyProperty() {
     return inputTemplateKey;
-  }
-
-  @Override
-  public StringProperty contentStoragePathPrefixProperty() {
-    return contentStoragePathPrefix;
   }
 
   @Override
@@ -589,7 +579,6 @@ public class FabricationServiceImpl implements FabricationService {
    Attach preference listeners.
    */
   private void attachPreferenceListeners() {
-    contentStoragePathPrefix.addListener((o, ov, value) -> prefs.put("contentStoragePathPrefix", value));
     craftAheadSeconds.addListener((o, ov, value) -> prefs.put("craftAheadSeconds", value));
     dubAheadSeconds.addListener((o, ov, value) -> prefs.put("dubAheadSeconds", value));
     mixerLengthSeconds.addListener((o, ov, value) -> prefs.put("mixerLengthSeconds", value));
@@ -605,7 +594,6 @@ public class FabricationServiceImpl implements FabricationService {
    Set all properties from preferences, else defaults.
    */
   private void setAllFromPreferencesOrDefaults() {
-    contentStoragePathPrefix.set(prefs.get("contentStoragePathPrefix", defaultContentStoragePathPrefix));
     craftAheadSeconds.set(prefs.get("craftAheadSeconds", Integer.toString(defaultCraftAheadSeconds)));
     dubAheadSeconds.set(prefs.get("dubAheadSeconds", Integer.toString(defaultDubAheadSeconds)));
     mixerLengthSeconds.set(prefs.get("mixerLengthSeconds", Integer.toString(defaultMixerLengthSeconds)));
@@ -702,14 +690,5 @@ public class FabricationServiceImpl implements FabricationService {
     } catch (Exception e) {
       throw new RuntimeException(String.format("Failed to parse integer value of '%s' from %s", value, sourceDescription));
     }
-  }
-
-  /**
-   Compute default path prefix for a particular category.
-
-   @return path prefix
-   */
-  private static String computeDefaultPathPrefix() {
-    return System.getProperty("user.home") + File.separator + "Documents" + File.separator + "XJ music" + File.separator + "content" + File.separator;
   }
 }

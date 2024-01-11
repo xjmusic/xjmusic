@@ -44,8 +44,6 @@ public interface FabricationService {
 
   StringProperty inputTemplateKeyProperty();
 
-  StringProperty contentStoragePathPrefixProperty();
-
   ObjectProperty<InputMode> inputModeProperty();
 
   ObjectProperty<ControlMode> controlModeProperty();

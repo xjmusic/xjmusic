@@ -2,8 +2,8 @@
 
 package io.xj.nexus.work;
 
-import io.xj.nexus.InputMode;
 import io.xj.nexus.ControlMode;
+import io.xj.nexus.InputMode;
 
 public class WorkConfiguration {
   private InputMode inputMode;
@@ -13,9 +13,7 @@ public class WorkConfiguration {
   private int dubAheadSeconds;
   private int outputFrameRate;
   private int outputChannels;
-  private String contentStoragePathPrefix;
   private int mixerLengthSeconds = 2;
-  private String tempFilePathPrefix = "/tmp/";
   private int shipOutputFileNumberDigits = 7;
   private int shipOutputPcmChunkSizeBytes = 1024;
   private long persistenceWindowSeconds = 3600;
@@ -83,31 +81,12 @@ public class WorkConfiguration {
     return this;
   }
 
-  public String getContentStoragePathPrefix() {
-    return contentStoragePathPrefix;
-  }
-
-  public WorkConfiguration setContentStoragePathPrefix(String contentStoragePathPrefix) {
-    this.contentStoragePathPrefix = contentStoragePathPrefix;
-    return this;
-  }
-
   public int getMixerLengthSeconds() {
     return mixerLengthSeconds;
   }
 
   public WorkConfiguration setMixerLengthSeconds(int mixerLengthSeconds) {
     this.mixerLengthSeconds = mixerLengthSeconds;
-    return this;
-  }
-
-
-  public String getTempFilePathPrefix() {
-    return tempFilePathPrefix;
-  }
-
-  public WorkConfiguration setTempFilePathPrefix(String tempFilePathPrefix) {
-    this.tempFilePathPrefix = tempFilePathPrefix;
     return this;
   }
 

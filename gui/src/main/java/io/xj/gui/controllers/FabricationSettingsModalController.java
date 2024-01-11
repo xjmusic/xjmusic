@@ -6,7 +6,6 @@ import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.gui.utils.TextParsingUtils;
 import io.xj.nexus.ControlMode;
 import io.xj.nexus.InputMode;
 import javafx.collections.FXCollections;
@@ -46,12 +45,6 @@ public class FabricationSettingsModalController extends ReadyAfterBootModalContr
 
   @FXML
   Label labelControlMode;
-
-  @FXML
-  TextField fieldContentStoragePathPrefix;
-
-  @FXML
-  Label labelContentStoragePathPrefix;
 
   @FXML
   TextField fieldCraftAheadSeconds;
@@ -119,14 +112,6 @@ public class FabricationSettingsModalController extends ReadyAfterBootModalContr
     fieldOutputChannels.textProperty().bindBidirectional(fabricationService.outputChannelsProperty());
 
     fieldTimelineSegmentViewLimit.textProperty().bindBidirectional(fabricationService.timelineSegmentViewLimitProperty());
-
-    // Add slash to end of "file output path prefix" https://www.pivotaltracker.com/story/show/186555998
-    fieldContentStoragePathPrefix.textProperty().bindBidirectional(fabricationService.contentStoragePathPrefixProperty());
-    fieldContentStoragePathPrefix.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
-      if (!isNowFocused) {
-        TextParsingUtils.addTrailingSlash(fieldContentStoragePathPrefix);
-      }
-    });
   }
 
   @Override

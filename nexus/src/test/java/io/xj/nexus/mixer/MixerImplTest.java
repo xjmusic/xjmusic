@@ -31,7 +31,7 @@ public class MixerImplTest {
   @BeforeEach
   public void setUp() throws Exception {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    AudioCache audioCache = new AudioCacheImpl(httpClientProvider);
+    AudioCache audioCache = new AudioCacheImpl(projectManager);
     mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
     testMixer = mixerFactory.createMixer(
       new MixerConfig(

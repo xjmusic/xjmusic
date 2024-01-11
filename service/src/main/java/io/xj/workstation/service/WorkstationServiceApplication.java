@@ -5,6 +5,8 @@ package io.xj.workstation.service;
 import io.xj.hub.HubConfiguration;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.hub_client.HubClientAccess;
+import io.xj.nexus.project.ProjectManager;
+import io.xj.nexus.project.ProjectManagerImpl;
 import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkManager;
 import io.xj.nexus.work.WorkManagerImpl;
@@ -60,7 +62,8 @@ public class WorkstationServiceApplication {
     this.labBaseUrl = labBaseUrl;
     this.shipBaseUrl = shipBaseUrl;
     this.streamBaseUrl = streamBaseUrl;
-    this.workManager = WorkManagerImpl.createInstance();
+    ProjectManager projectManager = ProjectManagerImpl.createInstance();
+    this.workManager = WorkManagerImpl.createInstance(projectManager);
   }
 
   @EventListener(ApplicationStartedEvent.class)

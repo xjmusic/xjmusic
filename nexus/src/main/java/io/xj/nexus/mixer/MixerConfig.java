@@ -24,8 +24,6 @@ public class MixerConfig {
   float lowpassThresholdHz = 12000;
 
   float normalizationBoostThreshold = 1.38f;
-  private String contentStoragePathPrefix;
-  private String audioBaseUrl;
 
   /**
    Instantiate a new mixer configuration with format and length (and default compression settings)
@@ -323,24 +321,6 @@ public class MixerConfig {
    */
   public MixerConfig setTotalSeconds(float totalSeconds) {
     this.totalSeconds = totalSeconds;
-    return this;
-  }
-
-  public String getContentStoragePathPrefix() {
-    return contentStoragePathPrefix;
-  }
-
-  public MixerConfig setContentStoragePathPrefix(String contentStoragePathPrefix) {
-    this.contentStoragePathPrefix = contentStoragePathPrefix;
-    return this;
-  }
-
-  public String getAudioBaseUrl() {
-    return audioBaseUrl;
-  }
-
-  public MixerConfig setAudioBaseUrl(String audioBaseUrl) {
-    this.audioBaseUrl = audioBaseUrl;
     return this;
   }
 

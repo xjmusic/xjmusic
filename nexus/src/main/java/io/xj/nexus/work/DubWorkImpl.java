@@ -45,8 +45,6 @@ public class DubWorkImpl implements DubWork {
   private final int outputChannels;
   private final double outputFrameRate;
   private final long dubAheadMicros;
-  private final String audioBaseUrl;
-  private final String contentStoragePathPrefix;
   private final Float mixerOutputMicrosecondsPerByte;
   private final Mixer mixer;
 
@@ -56,8 +54,6 @@ public class DubWorkImpl implements DubWork {
     Telemetry telemetry,
     CraftWork craftWork,
     MixerFactory mixerFactory,
-    String audioBaseUrl,
-    String contentStoragePathPrefix,
     int mixerSeconds,
     int dubAheadSeconds,
     double outputFrameRate,
@@ -65,8 +61,6 @@ public class DubWorkImpl implements DubWork {
   ) {
     this.telemetry = telemetry;
     this.craftWork = craftWork;
-    this.contentStoragePathPrefix = contentStoragePathPrefix;
-    this.audioBaseUrl = audioBaseUrl;
     this.mixerLengthSeconds = mixerSeconds;
     this.outputFrameRate = outputFrameRate;
     this.outputChannels = outputChannels;
@@ -291,9 +285,7 @@ public class DubWorkImpl implements DubWork {
       .setHighpassThresholdHz((float) templateConfig.getMixerHighpassThresholdHz())
       .setLowpassThresholdHz((float) templateConfig.getMixerLowpassThresholdHz())
       .setNormalizationBoostThreshold((float) templateConfig.getMixerNormalizationBoostThreshold())
-      .setNormalizationCeiling((float) templateConfig.getMixerNormalizationCeiling())
-      .setContentStoragePathPrefix(contentStoragePathPrefix)
-      .setAudioBaseUrl(audioBaseUrl);
+      .setNormalizationCeiling((float) templateConfig.getMixerNormalizationCeiling());
 
     var M = mixerFactory.createMixer(config);
     LOG.info("Created mixer with config {}", config);
