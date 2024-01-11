@@ -33,8 +33,7 @@ public class UIStateServiceImpl implements UIStateService {
   private final BooleanProperty logsVisible = new SimpleBooleanProperty(false);
   private final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
 
-  @Nullable
-  private ObservableBooleanValue isFabricationSettingsDisabled;
+  private final ObservableBooleanValue isFabricationSettingsDisabled;
 
   @Nullable
   private StringBinding statusText;
@@ -66,6 +65,7 @@ public class UIStateServiceImpl implements UIStateService {
     this.fabricationService = fabricationService;
     this.labService = labService;
     this.projectService = projectService;
+    isFabricationSettingsDisabled = fabricationService.isStateActiveProperty();
     isMainActionButtonDisabled = fabricationService.inputTemplateProperty().isNull();
   }
 
@@ -91,9 +91,6 @@ public class UIStateServiceImpl implements UIStateService {
 
   @Override
   public ObservableBooleanValue isFabricationSettingsDisabledProperty() {
-    if (Objects.isNull(isFabricationSettingsDisabled))
-      isFabricationSettingsDisabled = fabricationService.isStateActiveProperty();
-
     return isFabricationSettingsDisabled;
   }
 
