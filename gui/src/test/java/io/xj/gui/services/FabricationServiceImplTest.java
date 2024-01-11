@@ -7,8 +7,8 @@ import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.nexus.InputMode;
 import io.xj.nexus.ControlMode;
+import io.xj.nexus.InputMode;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.xj.gui.GuiHubIntegrationTestingFixtures.buildProject;
 import static io.xj.gui.GuiHubIntegrationTestingFixtures.buildMainProgramWithBarBeats;
+import static io.xj.gui.GuiHubIntegrationTestingFixtures.buildProject;
 import static io.xj.gui.GuiHubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.gui.GuiIntegrationTestingFixtures.buildChain;
 import static io.xj.gui.GuiIntegrationTestingFixtures.buildSegment;
@@ -43,7 +43,6 @@ class FabricationServiceImplTest {
   int defaultCraftAheadSeconds = 5;
   int defaultDubAheadSeconds = 5;
   int defaultMixerLengthSeconds = 10;
-  String defaultInputTemplateKey = "slaps_lofi";
   int defaultOutputChannels = 2;
   private final String defaultMacroMode = ControlMode.AUTO.toString();
   String defaultInputMode = InputMode.PRODUCTION.toString();
@@ -82,7 +81,6 @@ class FabricationServiceImplTest {
       defaultDubAheadSeconds,
       defaultMixerLengthSeconds,
       defaultTimelineSegmentViewLimit,
-      defaultInputTemplateKey,
       defaultOutputChannels,
       defaultOutputFrameRate,
       defaultMacroMode,

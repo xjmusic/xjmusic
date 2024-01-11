@@ -32,11 +32,9 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   private static final PseudoClass PENDING_PSEUDO_CLASS = PseudoClass.getPseudoClass("pending");
   private static final PseudoClass FAILED_PSEUDO_CLASS = PseudoClass.getPseudoClass("failed");
   private static final Set<WorkState> WORK_PENDING_STATES = Set.of(
-    WorkState.LoadingContent,
     WorkState.Initializing,
     WorkState.PreparedAudio,
     WorkState.PreparingAudio,
-    WorkState.LoadedContent,
     WorkState.Starting
   );
   private static final Set<LabStatus> LAB_PENDING_STATES = Set.of(

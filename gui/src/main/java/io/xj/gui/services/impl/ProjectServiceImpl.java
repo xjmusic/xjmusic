@@ -3,6 +3,7 @@ package io.xj.gui.services.impl;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ProjectViewMode;
+import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.project.ProjectState;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.prefs.Preferences;
 
@@ -55,6 +57,7 @@ public class ProjectServiceImpl implements ProjectService {
     Bindings.createBooleanBinding(() -> state.get() == ProjectState.Ready, state);
   private final LabService labService;
   private final ProjectManager projectManager;
+  private final ObservableStringValue windowTitle;
 
   public ProjectServiceImpl(
     LabService labService,
@@ -66,6 +69,12 @@ public class ProjectServiceImpl implements ProjectService {
     projectManager.setOnStateChange((state) -> Platform.runLater(() -> this.state.set(state)));
     attachPreferenceListeners();
     setAllFromPreferencesOrDefaults();
+    windowTitle = Bindings.createStringBinding(
+      () -> Objects.nonNull(currentProject.get())
+        ? String.format("%s - XJ music workstation", currentProject.get().getName())
+        : "XJ music workstation",
+      currentProject
+    );
   }
 
   @Override
@@ -137,6 +146,16 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public ObservableBooleanValue isStateReadyProperty() {
     return isStateReady;
+  }
+
+  @Override
+  public HubContent getContent() {
+    return projectManager.getContent();
+  }
+
+  @Override
+  public ObservableStringValue windowTitleProperty() {
+    return windowTitle;
   }
 
   /**

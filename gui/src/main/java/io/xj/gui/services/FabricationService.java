@@ -9,6 +9,7 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.ControlMode;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.model.Segment;
@@ -42,7 +43,7 @@ public interface FabricationService {
 
   ObservableStringValue stateTextProperty();
 
-  StringProperty inputTemplateKeyProperty();
+  ObjectProperty<Template> inputTemplateProperty();
 
   ObjectProperty<InputMode> inputModeProperty();
 
@@ -159,11 +160,6 @@ public interface FabricationService {
    will be "Start".
    */
   ObservableValue<String> mainActionButtonTextProperty();
-
-  /**
-   Play the demo for the given template key.@param templateKey       the template key to play
-   */
-  void handleDemoPlay(String templateKey);
 
   /**
    Get a hash of all the choices for the given segment

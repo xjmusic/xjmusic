@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.MenuBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -56,6 +57,8 @@ public class MainController implements ReadyAfterBootController {
 
   @Override
   public void onStageReady() {
+    ((Stage) mainMenuController.getScene().getWindow()).titleProperty().bind(projectService.windowTitleProperty());
+
     mainMenuController.onStageReady();
     mainPaneBottomController.onStageReady();
     mainPaneTopController.onStageReady();

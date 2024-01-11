@@ -19,12 +19,7 @@ import io.xj.nexus.entity.EntityFactory;
 import io.xj.nexus.entity.EntityFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.nexus.http.HttpClientProvider;
-import io.xj.nexus.http.HttpClientProviderImpl;
-import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.nexus.hub_client.HubClientImpl;
-import io.xj.nexus.hub_client.HubContentProvider;
 import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.json.JsonProvider;
 import io.xj.nexus.json.JsonProviderImpl;
@@ -50,7 +45,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -61,15 +55,14 @@ import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 public class WorkManagerImpl implements WorkManager {
   private static final Logger LOG = LoggerFactory.getLogger(WorkManagerImpl.class);
+  private final ProjectManager projectManager;
   private final BroadcastFactory broadcastFactory;
   private final CraftFactory craftFactory;
   private final AudioCache audioCache;
   private final FabricatorFactory fabricatorFactory;
-  private final HubClient hubClient;
   private final MixerFactory mixerFactory;
   private final NexusEntityStore entityStore;
   private final Telemetry telemetry;
-  private final AtomicReference<HubContent> hubContent = new AtomicReference<>();
   private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
   private final AtomicBoolean isAudioLoaded = new AtomicBoolean(false);
   private final AtomicLong startedAtMillis = new AtomicLong(0);
@@ -91,9 +84,6 @@ public class WorkManagerImpl implements WorkManager {
   private HubConfiguration hubConfig;
 
   @Nullable
-  private HubClientAccess hubAccess;
-
-  @Nullable
   private Consumer<Float> onProgress;
 
   @Nullable
@@ -103,20 +93,20 @@ public class WorkManagerImpl implements WorkManager {
   private Runnable afterFinished;
 
   public WorkManagerImpl(
+    ProjectManager projectManager,
     Telemetry telemetry,
     BroadcastFactory broadcastFactory,
     CraftFactory craftFactory,
     AudioCache audioCache,
     FabricatorFactory fabricatorFactory,
-    HubClient hubClient,
     MixerFactory mixerFactory,
     NexusEntityStore store
   ) {
+    this.projectManager = projectManager;
     this.broadcastFactory = broadcastFactory;
     this.craftFactory = craftFactory;
     this.audioCache = audioCache;
     this.fabricatorFactory = fabricatorFactory;
-    this.hubClient = hubClient;
     this.mixerFactory = mixerFactory;
     this.entityStore = store;
     this.telemetry = telemetry;
@@ -126,7 +116,6 @@ public class WorkManagerImpl implements WorkManager {
     BroadcastFactory broadcastFactory = new BroadcastFactoryImpl();
     Telemetry telemetry = new TelemetryImpl();
     CraftFactory craftFactory = new CraftFactoryImpl();
-    HttpClientProvider httpClientProvider = new HttpClientProviderImpl();
     AudioCache audioCache = new AudioCacheImpl(projectManager);
     JsonProvider jsonProvider = new JsonProviderImpl();
     EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
@@ -139,16 +128,14 @@ public class WorkManagerImpl implements WorkManager {
     );
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
     MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
-    HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
     return new WorkManagerImpl(
-      telemetry,
+      projectManager, telemetry,
       broadcastFactory,
       craftFactory,
       audioCache,
       fabricatorFactory,
-      hubClient,
       mixerFactory,
       nexusEntityStore
     );
@@ -165,9 +152,6 @@ public class WorkManagerImpl implements WorkManager {
 
     this.hubConfig = hubConfig;
     LOG.debug("Did set hub configuration: {}", hubConfig);
-
-    this.hubAccess = hubAccess;
-    LOG.debug("Did set hub access: {}", hubAccess);
 
     audioCache.initialize(
       workConfig.getOutputFrameRate(),
@@ -352,19 +336,8 @@ public class WorkManagerImpl implements WorkManager {
       switch (state.get()) {
 
         case Starting -> {
-          updateState(WorkState.LoadingContent);
-          startLoadingContent();
-        }
-
-        case LoadingContent -> {
-          if (isContentLoaded()) {
-            updateState(WorkState.LoadedContent);
-          }
-        }
-
-        case LoadedContent -> {
           updateState(WorkState.PreparingAudio);
-          startLoadingAudio();
+          startPreparingAudio();
         }
 
         case PreparingAudio -> {
@@ -484,40 +457,9 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   /**
-   Start loading content
-   */
-  private void startLoadingContent() {
-    assert Objects.nonNull(workConfig);
-    hubContent.set(null);
-    LOG.debug("Will start loading content");
-
-    Callable<HubContent> hubContentProvider = new HubContentProvider(
-      hubClient,
-      hubConfig,
-      hubAccess,
-      workConfig.getInputMode(),
-      workConfig.getInputTemplateKey()
-    );
-
-    try {
-      hubContent.set(hubContentProvider.call());
-      LOG.debug("Did load content");
-    } catch (Exception e) {
-      didFailWhile("loading content", e);
-    }
-  }
-
-  /**
-   @return true if content is loaded
-   */
-  private boolean isContentLoaded() {
-    return Objects.nonNull(hubContent.get());
-  }
-
-  /**
    Start loading audio
    */
-  private void startLoadingAudio() {
+  private void startPreparingAudio() {
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(hubConfig);
 
@@ -525,8 +467,8 @@ public class WorkManagerImpl implements WorkManager {
 
     LOG.debug("Will start loading audio");
     try {
-      var instruments = new ArrayList<>(hubContent.get().getInstruments());
-      var audios = new ArrayList<>(hubContent.get().getInstrumentAudios());
+      var instruments = new ArrayList<>(projectManager.getContent().getInstruments());
+      var audios = new ArrayList<>(projectManager.getContent().getInstrumentAudios());
       for (Instrument instrument : instruments) {
         for (InstrumentAudio audio : audios.stream()
           .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
@@ -573,7 +515,7 @@ public class WorkManagerImpl implements WorkManager {
       fabricatorFactory,
       entityStore,
       audioCache,
-      hubContent.get(),
+      projectManager.getContent(),
       workConfig.getPersistenceWindowSeconds(),
       workConfig.getCraftAheadSeconds(),
       workConfig.getMixerLengthSeconds(),

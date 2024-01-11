@@ -26,10 +26,6 @@ public class Error {
     return title;
   }
 
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
   /**
    A human-readable explanation specific to this occurrence of the problem. Like title, this field’s value can be localized.
    **/

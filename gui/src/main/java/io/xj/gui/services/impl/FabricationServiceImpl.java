@@ -13,6 +13,7 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.util.ValueException;
 import io.xj.nexus.ControlMode;
 import io.xj.nexus.InputMode;
@@ -79,7 +80,6 @@ public class FabricationServiceImpl implements FabricationService {
   private final int defaultCraftAheadSeconds;
   private final int defaultDubAheadSeconds;
   private final int defaultMixerLengthSeconds;
-  private final String defaultInputTemplateKey;
   private final int defaultOutputChannels;
   private final int defaultOutputFrameRate;
   private final ControlMode defaultControlMode;
@@ -93,8 +93,6 @@ public class FabricationServiceImpl implements FabricationService {
     () -> switch (state.get()) {
       case Standby -> "Ready";
       case Starting -> "Starting";
-      case LoadingContent -> "Loading content";
-      case LoadedContent -> "Loaded content";
       case PreparingAudio -> String.format("Preparing audio (%.02f%%)", progress.get() * 100);
       case PreparedAudio -> "Prepared audio";
       case Initializing -> "Initializing";
@@ -110,8 +108,8 @@ public class FabricationServiceImpl implements FabricationService {
   private final ObservableBooleanValue stateStandby =
     Bindings.createBooleanBinding(() -> state.get() == WorkState.Standby, state);
   private final ObservableBooleanValue stateLoading =
-    Bindings.createBooleanBinding(() -> state.get() == WorkState.LoadingContent || state.get() == WorkState.LoadedContent || state.get() == WorkState.PreparingAudio || state.get() == WorkState.PreparedAudio, state);
-  private final StringProperty inputTemplateKey = new SimpleStringProperty();
+    Bindings.createBooleanBinding(() -> state.get() == WorkState.PreparingAudio || state.get() == WorkState.PreparedAudio, state);
+  private final ObjectProperty<Template> inputTemplate = new SimpleObjectProperty<>();
   private final ObjectProperty<InputMode> inputMode = new SimpleObjectProperty<>();
   private final ObjectProperty<ControlMode> controlMode = new SimpleObjectProperty<>();
   private final StringProperty craftAheadSeconds = new SimpleStringProperty();
@@ -126,8 +124,7 @@ public class FabricationServiceImpl implements FabricationService {
   private final ObservableValue<String> mainActionButtonText = Bindings.createStringBinding(() ->
     switch (state.get()) {
       case Standby -> BUTTON_TEXT_START;
-      case Starting, LoadingContent, LoadedContent, PreparingAudio, PreparedAudio, Initializing, Active ->
-        BUTTON_TEXT_STOP;
+      case Starting, PreparingAudio, PreparedAudio, Initializing, Active -> BUTTON_TEXT_STOP;
       case Cancelled, Failed, Done -> BUTTON_TEXT_RESET;
     }, state);
 
@@ -137,7 +134,6 @@ public class FabricationServiceImpl implements FabricationService {
     @Value("${dub.ahead.seconds}") int defaultDubAheadSeconds,
     @Value("${mixer.length.seconds}") int defaultMixerLengthSeconds,
     @Value("${gui.timeline.max.segments}") int defaultTimelineSegmentViewLimit,
-    @Value("${input.template.key}") String defaultInputTemplateKey,
     @Value("${output.channels}") int defaultOutputChannels,
     @Value("${output.frame.rate}") int defaultOutputFrameRate,
     @Value("${macro.mode}") String defaultMacroMode,
@@ -150,7 +146,6 @@ public class FabricationServiceImpl implements FabricationService {
     this.defaultMixerLengthSeconds = defaultMixerLengthSeconds;
     this.defaultControlMode = ControlMode.valueOf(defaultMacroMode.toUpperCase(Locale.ROOT));
     this.defaultInputMode = InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT));
-    this.defaultInputTemplateKey = defaultInputTemplateKey;
     this.defaultOutputChannels = defaultOutputChannels;
     this.defaultOutputFrameRate = defaultOutputFrameRate;
     this.defaultTimelineSegmentViewLimit = defaultTimelineSegmentViewLimit;
@@ -181,7 +176,7 @@ public class FabricationServiceImpl implements FabricationService {
         .setMixerLengthSeconds(parseIntegerValue(mixerLengthSeconds.get(), "fabrication setting for Mixer Length Seconds"))
         .setInputMode(inputMode.get())
         .setMacroMode(controlMode.get())
-        .setInputTemplateKey(inputTemplateKey.get())
+        .setInputTemplate(inputTemplate.get())
         .setOutputChannels(parseIntegerValue(outputChannels.get(), "fabrication setting for Output Channels"))
         .setOutputFrameRate(parseIntegerValue(outputFrameRate.get(), "fabrication setting for Output Frame Rate"));
       LOG.debug("Did instantiate work configuration");
@@ -291,8 +286,8 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
-  public StringProperty inputTemplateKeyProperty() {
-    return inputTemplateKey;
+  public ObjectProperty<Template> inputTemplateProperty() {
+    return inputTemplate;
   }
 
   @Override
@@ -551,19 +546,6 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
-  public void handleDemoPlay(String templateKey) {
-    if (state.get() != WorkState.Standby) {
-      LOG.error("Cannot play demo unless fabrication is in Standby status");
-      return;
-    }
-
-    inputTemplateKey.set(templateKey);
-    inputMode.set(defaultInputMode);
-
-    start();
-  }
-
-  @Override
   public String computeChoiceHash(Segment segment) {
     return workManager.getEntityStore().readChoiceHash(segment);
   }
@@ -583,7 +565,6 @@ public class FabricationServiceImpl implements FabricationService {
     dubAheadSeconds.addListener((o, ov, value) -> prefs.put("dubAheadSeconds", value));
     mixerLengthSeconds.addListener((o, ov, value) -> prefs.put("mixerLengthSeconds", value));
     inputMode.addListener((o, ov, value) -> prefs.put("inputMode", Objects.nonNull(value) ? value.name() : ""));
-    inputTemplateKey.addListener((o, ov, value) -> prefs.put("inputTemplateKey", value));
     controlMode.addListener((o, ov, value) -> prefs.put("macroMode", Objects.nonNull(value) ? value.name() : ""));
     outputChannels.addListener((o, ov, value) -> prefs.put("outputChannels", value));
     outputFrameRate.addListener((o, ov, value) -> prefs.put("outputFrameRate", value));
@@ -597,7 +578,6 @@ public class FabricationServiceImpl implements FabricationService {
     craftAheadSeconds.set(prefs.get("craftAheadSeconds", Integer.toString(defaultCraftAheadSeconds)));
     dubAheadSeconds.set(prefs.get("dubAheadSeconds", Integer.toString(defaultDubAheadSeconds)));
     mixerLengthSeconds.set(prefs.get("mixerLengthSeconds", Integer.toString(defaultMixerLengthSeconds)));
-    inputTemplateKey.set(prefs.get("inputTemplateKey", defaultInputTemplateKey));
     outputChannels.set(prefs.get("outputChannels", Integer.toString(defaultOutputChannels)));
     outputFrameRate.set(prefs.get("outputFrameRate", Double.toString(defaultOutputFrameRate)));
     timelineSegmentViewLimit.set(prefs.get("timelineSegmentViewLimit", Integer.toString(defaultTimelineSegmentViewLimit)));

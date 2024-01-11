@@ -28,13 +28,13 @@
         <Insets left="10" right="10" />
       </padding>
       <VBox alignment="CENTER_LEFT" prefHeight="60.0">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Input Template ID" textAlignment="RIGHT">
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Template" textAlignment="RIGHT">
           <graphic>
             <Pane prefWidth="15.0" />
           </graphic>
         </Label>
         <Pane prefWidth="15.0" />
-        <TextField fx:id="fieldInputTemplateKey" prefWidth="300" />
+        <ChoiceBox fx:id="choiceTemplate" prefHeight="25.0" prefWidth="120" />
       </VBox>
       <VBox alignment="CENTER_LEFT" prefHeight="60.0">
         <Label fx:id="labelInputMode" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Input Mode" textAlignment="RIGHT">

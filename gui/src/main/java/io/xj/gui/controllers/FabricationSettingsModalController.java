@@ -4,8 +4,10 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
+import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.ControlMode;
 import io.xj.nexus.InputMode;
 import javafx.collections.FXCollections;
@@ -28,6 +30,7 @@ public class FabricationSettingsModalController extends ReadyAfterBootModalContr
   private final ConfigurableApplicationContext ac;
   private final LabService labService;
   private final FabricationService fabricationService;
+  private final ProjectService projectService;
   private final ThemeService themeService;
   private final UIStateService uiStateService;
 
@@ -39,6 +42,9 @@ public class FabricationSettingsModalController extends ReadyAfterBootModalContr
 
   @FXML
   ChoiceBox<ControlMode> choiceControlMode;
+
+  @FXML
+  ChoiceBox<Template> choiceTemplate;
 
   @FXML
   Label labelInputMode;
@@ -75,13 +81,14 @@ public class FabricationSettingsModalController extends ReadyAfterBootModalContr
     ConfigurableApplicationContext ac,
     LabService labService,
     FabricationService fabricationService,
-    ThemeService themeService,
+    ProjectService projectService, ThemeService themeService,
     UIStateService uiStateService
   ) {
     this.fabricationSettingsModalFxml = fabricationSettingsModalFxml;
     this.ac = ac;
     this.labService = labService;
     this.fabricationService = fabricationService;
+    this.projectService = projectService;
     this.themeService = themeService;
     this.uiStateService = uiStateService;
   }
@@ -103,7 +110,8 @@ public class FabricationSettingsModalController extends ReadyAfterBootModalContr
     choiceControlMode.valueProperty().bindBidirectional(fabricationService.controlModeProperty());
     choiceControlMode.setItems(FXCollections.observableArrayList(ControlMode.values()));
 
-    fieldInputTemplateKey.textProperty().bindBidirectional(fabricationService.inputTemplateKeyProperty());
+    choiceTemplate.valueProperty().bindBidirectional(fabricationService.inputTemplateProperty());
+    choiceTemplate.setItems(FXCollections.observableArrayList(projectService.getContent().getTemplates()));
 
     fieldCraftAheadSeconds.textProperty().bindBidirectional(fabricationService.craftAheadSecondsProperty());
     fieldDubAheadSeconds.textProperty().bindBidirectional(fabricationService.dubAheadSecondsProperty());

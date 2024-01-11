@@ -70,7 +70,7 @@ public class WorkstationServiceApplication {
   public void start() {
     var workConfig = new WorkConfiguration()
       .setInputMode(inputMode)
-      .setInputTemplateKey(inputTemplateKey);
+      .setInputTemplate(null); // FUTURE: read template
 
     var hubConfig = new HubConfiguration()
       .setApiBaseUrl(labBaseUrl)

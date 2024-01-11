@@ -2,13 +2,14 @@
 
 package io.xj.nexus.work;
 
+import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.ControlMode;
 import io.xj.nexus.InputMode;
 
 public class WorkConfiguration {
   private InputMode inputMode;
   private ControlMode controlMode;
-  private String inputTemplateKey;
+  private Template inputTemplate;
   private int craftAheadSeconds;
   private int dubAheadSeconds;
   private int outputFrameRate;
@@ -36,12 +37,12 @@ public class WorkConfiguration {
     return this;
   }
 
-  public String getInputTemplateKey() {
-    return inputTemplateKey;
+  public Template getInputTemplate() {
+    return inputTemplate;
   }
 
-  public WorkConfiguration setInputTemplateKey(String inputTemplateKey) {
-    this.inputTemplateKey = inputTemplateKey;
+  public WorkConfiguration setInputTemplate(Template inputTemplate) {
+    this.inputTemplate = inputTemplate;
     return this;
   }
 
