@@ -510,12 +510,12 @@ public class WorkManagerImpl implements WorkManager {
     assert Objects.nonNull(hubConfig);
     assert Objects.nonNull(workConfig);
     craftWork = new CraftWorkImpl(
+      projectManager,
       telemetry,
       craftFactory,
       fabricatorFactory,
       entityStore,
       audioCache,
-      projectManager.getContent(),
       workConfig.getPersistenceWindowSeconds(),
       workConfig.getCraftAheadSeconds(),
       workConfig.getMixerLengthSeconds(),
