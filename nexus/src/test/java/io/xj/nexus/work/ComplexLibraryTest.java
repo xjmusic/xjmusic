@@ -63,7 +63,7 @@ public class ComplexLibraryTest {
     var generatedFixtures = fake.generatedFixture(GENERATED_FIXTURE_COMPLEXITY);
     HubContent content = new HubContent(generatedFixtures.stream().filter(Objects::nonNull).toList());
 
-    var template = content.getTemplate();
+    var template = content.getTemplates().stream().findFirst().orElseThrow();
     template.setShipKey("complex_library_test");
     template.setConfig("outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n");
     content.put(template);
