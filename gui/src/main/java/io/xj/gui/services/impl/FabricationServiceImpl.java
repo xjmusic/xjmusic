@@ -156,7 +156,7 @@ public class FabricationServiceImpl implements FabricationService {
     this.projectService = projectService;
     this.workManager = workManager;
 
-    projectService.stateProperty().addListener((observable, prior, value) -> {
+    projectService.stateProperty().addListener((o, ov, value) -> {
       if (value == ProjectState.Ready) {
         inputTemplate.set(projectService.getContent().getTemplates().stream().findFirst().orElse(null));
       }

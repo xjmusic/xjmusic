@@ -64,7 +64,7 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
       primaryStage.titleProperty().bind(projectService.windowTitleProperty());
 
       themeService.setup(scene);
-      themeService.isDarkThemeProperty().addListener((observable, oldValue, newValue) -> themeService.setup(scene));
+      themeService.isDarkThemeProperty().addListener((o, ov, value) -> themeService.setup(scene));
       themeService.setupFonts();
 
       mainController.onStageReady();

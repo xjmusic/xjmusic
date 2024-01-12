@@ -57,7 +57,7 @@ public class LabServiceImpl implements LabService {
     this.hostServices = hostServices;
 
     baseUrl.set(prefs.get("baseUrl", defaultLabBaseUrl));
-    baseUrl.addListener((observable, prior, value) -> {
+    baseUrl.addListener((o, ov, value) -> {
       prefs.put("baseUrl", value);
       if (Objects.isNull(value)) {
         return;
@@ -79,7 +79,7 @@ public class LabServiceImpl implements LabService {
       .setBaseUrl(defaultLabBaseUrl)
       .setShipBaseUrl(shipBaseUrl)
       .setStreamBaseUrl(streamBaseUrl));
-    hubConfig.addListener((observable, prior, value) ->
+    hubConfig.addListener((o, ov, value) ->
       LOG.info("Lab configured: " +
         "Base: " + value.getBaseUrl() + ", " +
         "API: " + value.getApiBaseUrl() + ", " +
@@ -87,7 +87,7 @@ public class LabServiceImpl implements LabService {
         "Ship: " + value.getShipBaseUrl() + ", " +
         "Stream: " + value.getStreamBaseUrl() + ", "));
 
-    accessToken.addListener((observable, prior, value) -> prefs.put("accessToken", value));
+    accessToken.addListener((o, ov, value) -> prefs.put("accessToken", value));
     var savedAccessToken = prefs.get("accessToken", null);
     if (!StringUtils.isNullOrEmpty(savedAccessToken)) {
       LOG.info("Found saved access token, connecting to lab...");

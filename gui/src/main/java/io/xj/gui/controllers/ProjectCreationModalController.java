@@ -4,7 +4,7 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
-import io.xj.gui.utils.DirectoryChooserUtils;
+import io.xj.gui.utils.ProjectUtils;
 import io.xj.gui.utils.TextParsingUtils;
 import io.xj.hub.util.StringUtils;
 import javafx.beans.binding.Bindings;
@@ -142,11 +142,11 @@ public class ProjectCreationModalController extends ReadyAfterBootModalControlle
 
   @FXML
   protected void handlePressSelectDirectory() {
-    var path = DirectoryChooserUtils.chooseDirectory(
+    var path = ProjectUtils.chooseDirectory(
       buttonSelectDirectory.getScene().getWindow(), "Choose destination folder", fieldPathPrefix.getText()
     );
     if (Objects.nonNull(path)) {
-      fieldPathPrefix.setText(path);
+      fieldPathPrefix.setText(TextParsingUtils.addTrailingSlash(path));
     }
   }
 

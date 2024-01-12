@@ -24,7 +24,7 @@
       <!-- Recent projects will be added here dynamically -->
     </Menu>
     <SeparatorMenuItem mnemonicParsing="false"/>
-    <MenuItem fx:id="itemProjectSave" onAction="#handleProjectSave" text="_Save Project"/>
+    <MenuItem fx:id="itemProjectSave" onAction="#handleProjectSave" text="_Save"/>
     <SeparatorMenuItem mnemonicParsing="false"/>
     <MenuItem onAction="#onQuit" text="E_xit"/>
   </Menu>

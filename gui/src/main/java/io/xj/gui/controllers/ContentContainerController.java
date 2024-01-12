@@ -3,7 +3,7 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.services.ProjectService;
-import io.xj.gui.utils.DirectoryChooserUtils;
+import io.xj.gui.utils.ProjectUtils;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Service;
@@ -38,11 +38,11 @@ public class ContentContainerController implements ReadyAfterBootController {
 
   @FXML
   protected void handlePressOpenProject() {
-    var path = DirectoryChooserUtils.chooseDirectory(
-      startupContainer.getScene().getWindow(), "Choose project folder", projectService.basePathPrefixProperty().getValue()
+    var projectFilePath = ProjectUtils.chooseXJProjectFile(
+      startupContainer.getScene().getWindow(), "Choose project", projectService.basePathPrefixProperty().getValue()
     );
-    if (Objects.nonNull(path)) {
-      projectService.openProject(path);
+    if (Objects.nonNull(projectFilePath)) {
+      projectService.openProject(projectFilePath);
     }
   }
 

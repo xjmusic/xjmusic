@@ -97,7 +97,7 @@ public class UIStateServiceImpl implements UIStateService {
 
   @Override
   public void onStageReady() {
-    logLevel.addListener((observable, prior, value) -> WorkstationLogAppender.setLevel(value));
+    logLevel.addListener((o, ov, value) -> WorkstationLogAppender.setLevel(value));
   }
 
   @Override

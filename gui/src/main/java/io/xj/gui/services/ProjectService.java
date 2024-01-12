@@ -22,9 +22,9 @@ public interface ProjectService {
   /**
    Open a project
 
-   @param path on disk
+   @param projectFilePath to .XJ project file on disk
    */
-  void openProject(String path);
+  void openProject(String projectFilePath);
 
   /**
    Create a new project

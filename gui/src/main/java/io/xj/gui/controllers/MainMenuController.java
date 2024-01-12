@@ -10,9 +10,10 @@ import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.gui.utils.DirectoryChooserUtils;
-import javafx.beans.InvalidationListener;
+import io.xj.gui.utils.ProjectUtils;
 import javafx.beans.binding.Bindings;
+import javafx.beans.value.ChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckMenuItem;
@@ -148,7 +149,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     var hasNoProject = Bindings.createBooleanBinding(() -> !uiStateService.hasCurrentProjectProperty().get(), uiStateService.hasCurrentProjectProperty());
     itemProjectSave.disableProperty().bind(hasNoProject);
 
-    projectService.recentProjectsProperty().addListener((InvalidationListener) observable -> updateRecentProjectsMenu());
+    projectService.recentProjectsProperty().addListener((ChangeListener<? super ObservableList<ProjectDescriptor>>) (o, ov, value) -> updateRecentProjectsMenu());
     updateRecentProjectsMenu();
   }
 
@@ -180,11 +181,11 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
   @FXML
   protected void handleProjectOpen() {
-    var path = DirectoryChooserUtils.chooseDirectory(
-      container.getScene().getWindow(), "Choose project folder", projectService.basePathPrefixProperty().getValue()
+    var projectFilePath = ProjectUtils.chooseXJProjectFile(
+      container.getScene().getWindow(), "Choose project", projectService.basePathPrefixProperty().getValue()
     );
-    if (Objects.nonNull(path)) {
-      projectService.openProject(path);
+    if (Objects.nonNull(projectFilePath)) {
+      projectService.openProject(projectFilePath);
     }
   }
 

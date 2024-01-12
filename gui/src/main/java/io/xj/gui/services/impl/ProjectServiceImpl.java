@@ -23,11 +23,14 @@ import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableListValue;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableStringValue;
+import javafx.collections.FXCollections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.prefs.Preferences;
@@ -39,7 +42,7 @@ public class ProjectServiceImpl implements ProjectService {
   private final Preferences prefs = Preferences.userNodeForPackage(ProjectServiceImpl.class);
   private final ObjectProperty<ProjectViewMode> viewMode = new SimpleObjectProperty<>(ProjectViewMode.CONTENT);
   private final ObservableObjectValue<Project> currentProject;
-  private final ObservableListValue<ProjectDescriptor> recentProjects = new SimpleListProperty<>();
+  private final ObservableListValue<ProjectDescriptor> recentProjects = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
   private final StringProperty basePathPrefix = new SimpleStringProperty();
   private final DoubleProperty progress = new SimpleDoubleProperty();
   private final ObjectProperty<ProjectState> state = new SimpleObjectProperty<>(ProjectState.Standby);
@@ -62,15 +65,18 @@ public class ProjectServiceImpl implements ProjectService {
     Bindings.createBooleanBinding(() -> state.get() == ProjectState.LoadingContent || state.get() == ProjectState.LoadedContent || state.get() == ProjectState.LoadingAudio || state.get() == ProjectState.LoadedAudio, state);
   private final ObservableBooleanValue isStateReady =
     Bindings.createBooleanBinding(() -> state.get() == ProjectState.Ready, state);
+  private final int maxRecentProjects;
   private final LabService labService;
   private final ProjectManager projectManager;
   private final ObservableStringValue windowTitle;
   private final JsonProvider jsonProvider;
 
   public ProjectServiceImpl(
+    @Value("${gui.recent.projects.max}") int maxRecentProjects,
     LabService labService,
     ProjectManager projectManager
   ) {
+    this.maxRecentProjects = maxRecentProjects;
     this.labService = labService;
     this.projectManager = projectManager;
     this.jsonProvider = new JsonProviderImpl();
@@ -99,8 +105,8 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public void openProject(String path) {
-    LOG.info("Opening project at {}", path);
+  public void openProject(String projectFilePath) {
+    LOG.info("Opening project at {}", projectFilePath);
     // TODO implement projectService.openProject()
   }
 
@@ -121,8 +127,8 @@ public class ProjectServiceImpl implements ProjectService {
     projectManager.setup(pathPrefix, name, labService.hubConfigProperty().get().getAudioBaseUrl());
     Platform.runLater(() -> {
       projectManager.cloneFromDemoTemplate(templateShipKey, name);
-      projectManager.getProject().ifPresent(value -> recentProjects.add(0,
-        new ProjectDescriptor(value, projectManager.getProjectFilename(), projectManager.getProjectFilePath())));
+      projectManager.getProject().ifPresent(value ->
+        addRecentProject(value, projectManager.getProjectFilename(), projectManager.getProjectFilePath()));
     });
   }
 
@@ -184,7 +190,7 @@ public class ProjectServiceImpl implements ProjectService {
     basePathPrefix.addListener((o, ov, value) -> prefs.put("pathPrefix", value));
     recentProjects.addListener((o, ov, value) -> {
       try {
-        prefs.put("pathPrefix", jsonProvider.getMapper().writeValueAsString(value));
+        prefs.put("recentProjects", jsonProvider.getMapper().writeValueAsString(value));
       } catch (Exception e) {
         LOG.warn("Failed to serialize recent projects!", e);
       }
@@ -203,4 +209,19 @@ public class ProjectServiceImpl implements ProjectService {
     }
   }
 
+  /**
+   Add a recent project to the list of recent projects.
+
+   @param project         the project
+   @param projectFilename the project filename
+   @param projectFilePath the project file path
+   */
+  private void addRecentProject(Project project, String projectFilename, String projectFilePath) {
+    var descriptor = new ProjectDescriptor(project, projectFilename, projectFilePath);
+    this.recentProjects.get().removeIf(existing -> Objects.equals(existing.path(), descriptor.path()));
+    this.recentProjects.get().add(0, descriptor);
+    if (this.recentProjects.get().size() > maxRecentProjects) {
+      this.recentProjects.get().remove(maxRecentProjects);
+    }
+  }
 }
