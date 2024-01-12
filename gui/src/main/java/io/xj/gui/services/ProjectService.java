@@ -6,6 +6,7 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableListValue;
 import javafx.beans.value.ObservableStringValue;
 
 import java.util.UUID;
@@ -95,4 +96,9 @@ public interface ProjectService {
    @return the window title
    */
   ObservableStringValue windowTitleProperty();
+
+  /**
+   @return the list of recent projects
+   */
+  ObservableListValue<ProjectDescriptor> recentProjectsProperty();
 }

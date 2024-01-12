@@ -3,6 +3,7 @@ package io.xj.nexus.project;
 import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.entity.EntityFactory;
@@ -33,6 +34,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -40,7 +42,9 @@ import java.util.function.Consumer;
 public class ProjectManagerImpl implements ProjectManager {
   static final Logger LOG = LoggerFactory.getLogger(ProjectManagerImpl.class);
   private final AtomicReference<ProjectState> state = new AtomicReference<>(ProjectState.Standby);
-  private final AtomicReference<String> pathPrefix = new AtomicReference<>(File.separator);
+  private final AtomicReference<Project> project = new AtomicReference<>();
+  private final AtomicReference<String> projectPathPrefix = new AtomicReference<>(File.separator);
+  private final AtomicReference<String> projectName = new AtomicReference<>("Project");
   private final AtomicReference<String> audioBaseUrl = new AtomicReference<>("https://audio.xj.io/");
   private final AtomicReference<HubContent> content = new AtomicReference<>();
 
@@ -66,13 +70,20 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public String getPathPrefix() {
-    return this.pathPrefix.get();
+  public String getProjectPathPrefix() {
+    return this.projectPathPrefix.get();
   }
 
   @Override
-  public void setPathPrefix(String pathPrefix) {
-    this.pathPrefix.set(pathPrefix);
+  public void setup(String pathPrefix, String projectName, String audioBaseUrl) {
+    this.projectPathPrefix.set(pathPrefix + projectName + File.separator);
+    this.projectName.set(projectName);
+    this.audioBaseUrl.set(audioBaseUrl);
+  }
+
+  @Override
+  public Optional<Project> getProject() {
+    return Optional.ofNullable(project.get());
   }
 
   @Override
@@ -81,21 +92,16 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public void setAudioBaseUrl(String audioBaseUrl) {
-    this.audioBaseUrl.set(audioBaseUrl);
-  }
-
-  @Override
   public void cloneFromDemoTemplate(String templateShipKey, String name) {
-    LOG.info("Will clone from demo template \"{}\" ({}) to {}", name, templateShipKey, pathPrefix.get());
+    LOG.info("Will clone from demo template \"{}\" ({}) to {}", name, templateShipKey, projectPathPrefix.get());
 
     new Thread(() -> {
       try {
-        LOG.info("Will create project folder at {}", pathPrefix.get());
+        LOG.info("Will create project folder at {}", projectPathPrefix.get());
         updateState(ProjectState.CreatingFolder);
-        Files.createDirectories(Path.of(pathPrefix.get()));
+        Files.createDirectories(Path.of(projectPathPrefix.get()));
         updateState(ProjectState.CreatedFolder);
-        LOG.info("Did create project folder at {}", pathPrefix.get());
+        LOG.info("Did create project folder at {}", projectPathPrefix.get());
 
         LOG.info("Will load content from demo template \"{}\"", templateShipKey);
         updateState(ProjectState.LoadingContent);
@@ -105,6 +111,7 @@ public class ProjectManagerImpl implements ProjectManager {
         JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
         HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
         content.set(hubClient.load(templateShipKey, audioBaseUrl.get()));
+        project.set(content.get().getProjects().stream().findFirst().orElse(null));
         updateState(ProjectState.LoadedContent);
         LOG.info("Did load content from demo template \"{}\"", templateShipKey);
 
@@ -161,7 +168,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
         updateState(ProjectState.Saving);
         var json = jsonProvider.getMapper().writeValueAsString(content);
-        var jsonPath = pathPrefix.get() + "content.json";
+        var jsonPath = getProjectFilePath();
         Files.writeString(Path.of(jsonPath), json);
         LOG.info("Did write {} bytes of content to {}", json.length(), jsonPath);
         updateState(ProjectState.Ready);
@@ -178,13 +185,23 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
+  public String getProjectFilename() {
+    return projectName.get() + ".xj";
+  }
+
+  @Override
+  public String getProjectFilePath() {
+    return projectPathPrefix.get() + getProjectFilename();
+  }
+
+  @Override
   public HubContent getContent() {
     return content.get();
   }
 
   @Override
   public String getPathToInstrumentAudio(UUID instrumentId, String waveformKey) {
-    return pathPrefix.get() + "instrument" + File.separator + instrumentId.toString() + File.separator + waveformKey;
+    return projectPathPrefix.get() + "instrument" + File.separator + instrumentId.toString() + File.separator + waveformKey;
   }
 
   @Override

@@ -2,8 +2,13 @@
 
 <!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.input.*?>
+<?import javafx.scene.control.CheckMenuItem?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioMenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.VBox?>
 <MenuBar
   fx:id="container"
@@ -12,9 +17,12 @@
   xmlns:fx="http://javafx.com/fxml/1">
 
   <Menu text="_Project">
-    <MenuItem onAction="#handleProjectNew" text="_New Project"/>
-    <MenuItem onAction="#handleProjectOpen" text="_Open Project"/>
-    <MenuItem onAction="#handleProjectClone" text="_Clone Project"/>
+    <MenuItem onAction="#handleProjectNew" text="_New..."/>
+    <MenuItem onAction="#handleProjectClone" text="_Clone..."/>
+    <MenuItem onAction="#handleProjectOpen" text="_Open..."/>
+    <Menu fx:id="menuOpenRecent" text="Open _Recent">
+      <!-- Recent projects will be added here dynamically -->
+    </Menu>
     <SeparatorMenuItem mnemonicParsing="false"/>
     <MenuItem fx:id="itemProjectSave" onAction="#handleProjectSave" text="_Save Project"/>
     <SeparatorMenuItem mnemonicParsing="false"/>

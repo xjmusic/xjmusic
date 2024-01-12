@@ -130,7 +130,7 @@ public class DemoIT {
     String contentStoragePathPrefix = Files.createTempDirectory("xj_demo").toFile().getAbsolutePath() + File.separator;
     Files.createDirectory(Paths.get(contentStoragePathPrefix, "instrument"));
     projectManager = ProjectManagerImpl.createInstance();
-    projectManager.setPathPrefix(contentStoragePathPrefix);
+    projectManager.setup(contentStoragePathPrefix);
     instrumentPathPrefix = Files.createDirectory(Paths.get(contentStoragePathPrefix, "instrument", instrument.getId().toString())).toAbsolutePath().toString();
     audioById.values().forEach(audio -> {
       try {

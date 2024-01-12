@@ -293,6 +293,6 @@ public class AudioCacheImpl implements AudioCache {
    @return audio render path prefix
    */
   private String getAudioRenderPathPrefix() {
-    return projectManager.getPathPrefix() + "render" + File.separator;
+    return projectManager.getProjectPathPrefix() + "render" + File.separator;
   }
 }

@@ -1,8 +1,10 @@
 package io.xj.nexus.project;
 
 import io.xj.hub.HubContent;
+import io.xj.hub.tables.pojos.Project;
 import jakarta.annotation.Nullable;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -16,13 +18,6 @@ public interface ProjectManager {
   String getAudioBaseUrl();
 
   /**
-   Set the audio base URL
-
-   @param audioBaseUrl new value
-   */
-  void setAudioBaseUrl(String audioBaseUrl);
-
-  /**
    Clone from a demo template@param templateShipKey of the demo
 
    @param name of the project
@@ -32,14 +27,31 @@ public interface ProjectManager {
   /**
    @return the path prefix of the project
    */
-  String getPathPrefix();
+  String getProjectPathPrefix();
 
   /**
-   Set the project path prefix
+   Set the path by project path prefix and project name
 
-   @param pathPrefix on disk, with trailing slash
+   @param pathPrefix   on disk, with trailing slash
+   @param projectName  of the project
+   @param audioBaseUrl the audio base URL
    */
-  void setPathPrefix(String pathPrefix);
+  void setup(String pathPrefix, String projectName, String audioBaseUrl);
+
+  /**
+   @return the current project, or empty if not set
+   */
+  Optional<Project> getProject();
+
+  /**
+   @return the project file name
+   */
+  String getProjectFilename();
+
+  /**
+   @return the project file absolute path
+   */
+  String getProjectFilePath();
 
   /**
    @return a reference to the current content

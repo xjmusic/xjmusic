@@ -1,10 +1,13 @@
 package io.xj.gui.services.impl;
 
 import io.xj.gui.services.LabService;
+import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ProjectViewMode;
 import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Project;
+import io.xj.nexus.json.JsonProvider;
+import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.project.ProjectState;
 import javafx.application.Platform;
@@ -12,10 +15,12 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableListValue;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableStringValue;
 import org.slf4j.Logger;
@@ -34,6 +39,7 @@ public class ProjectServiceImpl implements ProjectService {
   private final Preferences prefs = Preferences.userNodeForPackage(ProjectServiceImpl.class);
   private final ObjectProperty<ProjectViewMode> viewMode = new SimpleObjectProperty<>(ProjectViewMode.CONTENT);
   private final ObservableObjectValue<Project> currentProject;
+  private final ObservableListValue<ProjectDescriptor> recentProjects = new SimpleListProperty<>();
   private final StringProperty basePathPrefix = new SimpleStringProperty();
   private final DoubleProperty progress = new SimpleDoubleProperty();
   private final ObjectProperty<ProjectState> state = new SimpleObjectProperty<>(ProjectState.Standby);
@@ -59,6 +65,7 @@ public class ProjectServiceImpl implements ProjectService {
   private final LabService labService;
   private final ProjectManager projectManager;
   private final ObservableStringValue windowTitle;
+  private final JsonProvider jsonProvider;
 
   public ProjectServiceImpl(
     LabService labService,
@@ -66,13 +73,14 @@ public class ProjectServiceImpl implements ProjectService {
   ) {
     this.labService = labService;
     this.projectManager = projectManager;
+    this.jsonProvider = new JsonProviderImpl();
     projectManager.setOnProgress((progress) -> Platform.runLater(() -> this.progress.set(progress)));
     projectManager.setOnStateChange((state) -> Platform.runLater(() -> this.state.set(state)));
     attachPreferenceListeners();
     setAllFromPreferencesOrDefaults();
     currentProject = Bindings.createObjectBinding(() -> {
       if (Objects.equals(state.get(), ProjectState.Ready)) {
-        return projectManager.getContent().getProjects().stream().findFirst().orElse(null);
+        return projectManager.getProject().orElse(null);
       } else {
         return null;
       }
@@ -110,9 +118,12 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void cloneFromDemoTemplate(String pathPrefix, String templateShipKey, String name) {
-    projectManager.setPathPrefix(pathPrefix + name + File.separator);
-    projectManager.setAudioBaseUrl(labService.hubConfigProperty().get().getAudioBaseUrl());
-    Platform.runLater(() -> projectManager.cloneFromDemoTemplate(templateShipKey, name));
+    projectManager.setup(pathPrefix, name, labService.hubConfigProperty().get().getAudioBaseUrl());
+    Platform.runLater(() -> {
+      projectManager.cloneFromDemoTemplate(templateShipKey, name);
+      projectManager.getProject().ifPresent(value -> recentProjects.add(0,
+        new ProjectDescriptor(value, projectManager.getProjectFilename(), projectManager.getProjectFilePath())));
+    });
   }
 
   @Override
@@ -161,11 +172,23 @@ public class ProjectServiceImpl implements ProjectService {
     return windowTitle;
   }
 
+  @Override
+  public ObservableListValue<ProjectDescriptor> recentProjectsProperty() {
+    return recentProjects;
+  }
+
   /**
    Attach preference listeners.
    */
   private void attachPreferenceListeners() {
     basePathPrefix.addListener((o, ov, value) -> prefs.put("pathPrefix", value));
+    recentProjects.addListener((o, ov, value) -> {
+      try {
+        prefs.put("pathPrefix", jsonProvider.getMapper().writeValueAsString(value));
+      } catch (Exception e) {
+        LOG.warn("Failed to serialize recent projects!", e);
+      }
+    });
   }
 
   /**
@@ -173,5 +196,11 @@ public class ProjectServiceImpl implements ProjectService {
    */
   private void setAllFromPreferencesOrDefaults() {
     basePathPrefix.set(prefs.get("pathPrefix", defaultPathPrefix));
+    try {
+      recentProjects.setAll(jsonProvider.getMapper().readValue(prefs.get("recentProjects", "[]"), ProjectDescriptor[].class));
+    } catch (Exception e) {
+      LOG.warn("Failed to deserialize recent projects!", e);
+    }
   }
+
 }

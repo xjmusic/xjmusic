@@ -6,14 +6,17 @@ import io.xj.gui.WorkstationGuiFxApplication;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.GuideService;
 import io.xj.gui.services.LabService;
+import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.DirectoryChooserUtils;
+import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
@@ -51,6 +54,9 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
   @FXML
   protected MenuItem itemFabricationMainAction;
+
+  @FXML
+  protected Menu menuOpenRecent;
 
   @FXML
   protected CheckMenuItem checkboxFabricationFollow;
@@ -141,6 +147,9 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
     var hasNoProject = Bindings.createBooleanBinding(() -> !uiStateService.hasCurrentProjectProperty().get(), uiStateService.hasCurrentProjectProperty());
     itemProjectSave.disableProperty().bind(hasNoProject);
+
+    projectService.recentProjectsProperty().addListener((InvalidationListener) observable -> updateRecentProjectsMenu());
+    updateRecentProjectsMenu();
   }
 
   @Override
@@ -216,7 +225,25 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     uiStateService.logLevelProperty().set(((RadioMenuItem) logLevelToggleGroup.getSelectedToggle()).getText());
   }
 
-  String addLeadingUnderscore(String s) {
+  /**
+   Update the recent projects menu.
+   */
+  private void updateRecentProjectsMenu() {
+    menuOpenRecent.getItems().clear();
+    for (ProjectDescriptor project : projectService.recentProjectsProperty().getValue()) {
+      MenuItem menuItem = new MenuItem(project.filename());
+      menuItem.setOnAction(event -> projectService.openProject(project.path()));
+      menuOpenRecent.getItems().add(menuItem);
+    }
+  }
+
+  /**
+   Add a leading underscore to a string.
+
+   @param s the string
+   @return the string with a leading underscore
+   */
+  private String addLeadingUnderscore(String s) {
     return String.format("_%s", s);
   }
 
@@ -226,7 +253,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
    @return the accelerator
    */
-  KeyCombination computeMainActionButtonAccelerator() {
+  private KeyCombination computeMainActionButtonAccelerator() {
     return KeyCombination.valueOf("SHORTCUT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
   }
 
@@ -236,7 +263,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
    @return the accelerator
    */
-  KeyCombination computeFabricationFollowButtonAccelerator() {
+  private KeyCombination computeFabricationFollowButtonAccelerator() {
     return KeyCombination.valueOf("SHORTCUT+ALT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
   }
 }
