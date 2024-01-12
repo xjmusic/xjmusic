@@ -69,7 +69,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     Integer macroSequenceBindingOffset = computeMacroSequenceBindingOffset();
     var macroSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format("Unable to determine macro sequence binding for Segment[%d]", segment.getId())));
-    var macroSequence = fabricator.sourceMaterial().getProgramSequence(macroSequenceBinding)
+    var macroSequence = fabricator.sourceMaterial().getSequenceForBinding(macroSequenceBinding)
       .orElseThrow(() -> new NexusException(String.format("Unable to determine macro sequence for Segment[%d]", segment.getId())));
     //
     var macroChoice = new SegmentChoice();
@@ -89,7 +89,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     Integer mainSequenceBindingOffset = computeMainProgramSequenceBindingOffset();
     var mainSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format("Unable to determine main sequence binding for Segment[%d]", segment.getId())));
-    var mainSequence = fabricator.sourceMaterial().getProgramSequence(mainSequenceBinding)
+    var mainSequence = fabricator.sourceMaterial().getSequenceForBinding(mainSequenceBinding)
       .orElseThrow(() -> new NexusException(String.format("Unable to determine main sequence for Segment[%d]", segment.getId())));
     //
     var mainChoice = new SegmentChoice();
@@ -116,7 +116,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
         chord.setPosition(sequenceChord.getPosition());
         chord.setName(name);
         fabricator.put(chord, false);
-        for (var voicing : fabricator.sourceMaterial().getVoicings(sequenceChord)) {
+        for (var voicing : fabricator.sourceMaterial().getVoicingsForChord(sequenceChord)) {
           var segmentChordVoicing = new SegmentChordVoicing();
           segmentChordVoicing.setId(UUID.randomUUID());
           segmentChordVoicing.setSegmentId(segment.getId());
@@ -328,7 +328,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
       return overrideMacroProgram;
 
     var bag = MarbleBag.empty();
-    var candidates = fabricator.sourceMaterial().getPrograms(ProgramType.Macro);
+    var candidates = fabricator.sourceMaterial().getProgramsByType(ProgramType.Macro);
 
     // initial segment is completely random
     if (fabricator.isInitialSegment()) return chooseRandomProgram(candidates, List.of());
@@ -414,7 +414,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    */
   protected Program chooseMainProgram() throws NexusException {
     var bag = MarbleBag.empty();
-    var candidates = fabricator.sourceMaterial().getPrograms(ProgramType.Main);
+    var candidates = fabricator.sourceMaterial().getProgramsByType(ProgramType.Main);
 
     // if continuing the macro program, use the same one
     if (SegmentType.CONTINUE == fabricator.getType()

@@ -30,11 +30,7 @@ public class HubContentProvider implements Callable<HubContent> {
   public HubContent call() throws Exception {
     return switch (inputMode) {
       case PREVIEW -> hubClient.ingest(hubConfig.getBaseUrl(), hubAccess, UUID.fromString(inputTemplateKey));
-      case PRODUCTION -> {
-        var material = hubClient.load(inputTemplateKey, hubConfig.getAudioBaseUrl());
-        material.setTemplateShipKey(inputTemplateKey);
-        yield material;
-      }
+      case PRODUCTION -> hubClient.load(inputTemplateKey, hubConfig.getAudioBaseUrl());
     };
   }
 }

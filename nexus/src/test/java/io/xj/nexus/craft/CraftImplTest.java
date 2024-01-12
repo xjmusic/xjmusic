@@ -179,7 +179,7 @@ public class CraftImplTest {
     //
     when(sourceMaterial.getInstrument(eq(instrument1.getId()))).thenReturn(Optional.of(instrument1));
     when(sourceMaterial.getInstrument(eq(instrument2.getId()))).thenReturn(Optional.of(instrument2));
-    when(sourceMaterial.getInstrumentAudios(eq(List.of(InstrumentType.Percussion)), eq(List.of(InstrumentMode.Loop)))).thenReturn(List.of(instrument1audio, instrument2audio));
+    when(sourceMaterial.getAudiosForInstrumentTypesAndModes(eq(List.of(InstrumentType.Percussion)), eq(List.of(InstrumentMode.Loop)))).thenReturn(List.of(instrument1audio, instrument2audio));
     when(fabricator.getMemeIsometryOfSegment()).thenReturn(MemeIsometry.of(MemeTaxonomy.empty(), List.of("70BPM")));
     when(sourceMaterial.getMemesForInstrumentId(eq(instrument1.getId()))).thenReturn(List.of(instrument1meme));
     when(sourceMaterial.getMemesForInstrumentId(eq(instrument2.getId()))).thenReturn(List.of(instrument2meme));
@@ -238,7 +238,7 @@ public class CraftImplTest {
     InstrumentAudio instrument1audio1 = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", expectThis, 1.0f);
     InstrumentAudio instrument1audio2 = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", notThat, 1.0f);
     //
-    when(sourceMaterial.getAudios(same(instrument1))).thenReturn(List.of(instrument1audio1, instrument1audio2));
+    when(sourceMaterial.getAudiosForInstrument(same(instrument1))).thenReturn(List.of(instrument1audio1, instrument1audio2));
     when(sourceMaterial.getInstrumentAudio(eq(instrument1audio1.getId()))).thenReturn(Optional.of(instrument1audio1));
 
     for (var i = 0; i < TEST_REPEAT_TIMES; i++) {
