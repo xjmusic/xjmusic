@@ -97,6 +97,8 @@ public class ProjectManagerImpl implements ProjectManager {
     LOG.info("Will clone from demo template \"{}\" in parent folder {}", templateShipKey, parentPathPrefix);
 
     try {
+      unloadProject();
+
       createProjectFolder(parentPathPrefix, projectName);
 
       LOG.info("Will load content from demo template \"{}\"", templateShipKey);
@@ -208,6 +210,8 @@ public class ProjectManagerImpl implements ProjectManager {
     LOG.info("Will create new project \"{}\" in parent folder {}", projectName, parentPathPrefix);
 
     try {
+      unloadProject();
+
       createProjectFolder(parentPathPrefix, projectName);
 
       // Create the new project
@@ -272,6 +276,14 @@ public class ProjectManagerImpl implements ProjectManager {
   @Override
   public void setOnStateChange(@Nullable Consumer<ProjectState> onStateChange) {
     this.onStateChange = onStateChange;
+  }
+
+  /**
+   Unload the current project
+   */
+  private void unloadProject() {
+    project.set(null);
+    content.set(null);
   }
 
   /**
