@@ -56,6 +56,13 @@ public interface ProjectManager {
   String getPathToProjectFile();
 
   /**
+   Set the project path prefix
+
+   @param contentStoragePathPrefix the project path prefix
+   */
+  void setProjectPathPrefix(String contentStoragePathPrefix);
+
+  /**
    @return a reference to the current content
    */
   HubContent getContent();

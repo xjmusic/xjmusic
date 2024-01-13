@@ -14,8 +14,10 @@ import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.work.WorkManager;
 import javafx.application.HostServices;
+import javafx.beans.property.SimpleObjectProperty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -76,6 +78,7 @@ class FabricationServiceImplTest {
       ChainState.FABRICATE,
       template
     );
+    when(projectService.stateProperty()).thenReturn(new SimpleObjectProperty<>(ProjectState.Standby));
     subject = new FabricationServiceImpl(
       hostServices,
       defaultCraftAheadSeconds,

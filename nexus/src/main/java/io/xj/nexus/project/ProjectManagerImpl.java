@@ -78,7 +78,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public String getProjectPathPrefix() {
-    return this.projectPathPrefix.get();
+    return projectPathPrefix.get();
   }
 
   @Override
@@ -221,6 +221,11 @@ public class ProjectManagerImpl implements ProjectManager {
   @Override
   public String getPathToProjectFile() {
     return projectPathPrefix.get() + getProjectFilename();
+  }
+
+  @Override
+  public void setProjectPathPrefix(String projectPathPrefix) {
+    this.projectPathPrefix.set(projectPathPrefix);
   }
 
   @Override
