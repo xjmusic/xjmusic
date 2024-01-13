@@ -37,7 +37,7 @@
       <ToggleButton fx:id="buttonContent"
                     toggleGroup="$viewMode"
                     mnemonicParsing="false"
-                    onAction="#handleButtonContentPress"
+                    onAction="#handlePressedButtonContent"
                     text="Content">
         <font>
           <Font name="Roboto"/>
@@ -47,12 +47,21 @@
       <ToggleButton fx:id="buttonFabrication"
                     toggleGroup="$viewMode"
                     mnemonicParsing="false"
-                    onAction="#handleButtonFabricationPress"
+                    onAction="#handlePressedButtonFabrication"
                     text="Fabrication">
         <font>
           <Font name="Roboto"/>
         </font>
       </ToggleButton>
+
+      <Button fx:id="buttonCancelLoading"
+              mnemonicParsing="false"
+              onAction="#handlePressedCancelLoading"
+              text="Cancel">
+        <font>
+          <Font name="Roboto"/>
+        </font>
+      </Button>
 
       <HBox
         fx:id="fabricationControlContainer"

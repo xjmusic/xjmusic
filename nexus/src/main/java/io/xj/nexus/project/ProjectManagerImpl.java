@@ -214,6 +214,11 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
+  public void cancelProjectLoading() {
+    updateState(ProjectState.Cancelled);
+  }
+
+  @Override
   public String getProjectFilename() {
     return projectName.get() + ".xj";
   }

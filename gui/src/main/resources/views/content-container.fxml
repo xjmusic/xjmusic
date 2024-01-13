@@ -5,14 +5,27 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
-<BorderPane prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/20.0.1"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.ContentContainerController">
+<?import javafx.scene.layout.StackPane?>
+<BorderPane
+  fx:id="container"
+  prefWidth="10000"
+  prefHeight="10000"
+  maxHeight="Infinity"
+  maxWidth="Infinity"
+  xmlns="http://javafx.com/javafx/20.0.1"
+  xmlns:fx="http://javafx.com/fxml/1"
+  fx:controller="io.xj.gui.controllers.ContentContainerController">
   <center>
-    <VBox fx:id="startupContainer" styleClass="startup-container" spacing="10">
-      <ImageView fitHeight="200" fitWidth="200" pickOnBounds="true" preserveRatio="true">
+    <StackPane>
+      <ImageView
+        fx:id="startupContainer"
+        fitHeight="200"
+        fitWidth="200"
+        pickOnBounds="true"
+        preserveRatio="true"
+        opacity="0.1">
         <Image url="@/images/xj-music-logo.png"/>
       </ImageView>
-    </VBox>
+    </StackPane>
   </center>
 </BorderPane>

@@ -4,7 +4,8 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.services.ProjectService;
 import javafx.fxml.FXML;
-import javafx.scene.layout.VBox;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,7 +13,10 @@ public class ContentContainerController implements ReadyAfterBootController {
   private final ProjectService projectService;
 
   @FXML
-  protected VBox startupContainer;
+  protected BorderPane container;
+
+  @FXML
+  protected ImageView startupContainer;
 
   public ContentContainerController(
     ProjectService projectService
@@ -24,6 +28,8 @@ public class ContentContainerController implements ReadyAfterBootController {
   public void onStageReady() {
     startupContainer.visibleProperty().bind(projectService.getIsStateStandby());
     startupContainer.managedProperty().bind(projectService.getIsStateStandby());
+
+
   }
 
   @Override

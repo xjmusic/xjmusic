@@ -57,6 +57,7 @@ public class ProjectServiceImpl implements ProjectService {
       case LoadedAudio -> "Loaded Audio";
       case Ready -> "Ready";
       case Saving -> "Saving";
+      case Cancelled -> "Cancelled";
       case Failed -> "Failed";
     },
     state,
@@ -148,7 +149,11 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public void saveProject() {
     LOG.info("Saving project");
-    // TODO implement projectService.saveProject()
+  }
+
+  @Override
+  public void cancelProjectLoading() {
+    projectManager.cancelProjectLoading();
   }
 
   @Override

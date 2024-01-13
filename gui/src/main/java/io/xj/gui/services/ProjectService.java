@@ -58,6 +58,11 @@ public interface ProjectService {
   void saveProject();
 
   /**
+   Cancel the project loading
+   */
+  void cancelProjectLoading();
+
+  /**
    @return Path prefix
    */
   StringProperty basePathPrefixProperty();

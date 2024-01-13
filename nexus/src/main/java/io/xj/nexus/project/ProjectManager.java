@@ -36,6 +36,11 @@ public interface ProjectManager {
   boolean openProjectFromLocalFile(String projectFilePath);
 
   /**
+   Cancel the project loading
+   */
+  void cancelProjectLoading();
+
+  /**
    @return the path prefix of the project
    */
   String getProjectPathPrefix();
