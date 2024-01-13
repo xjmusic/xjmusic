@@ -35,6 +35,7 @@ import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -43,7 +44,6 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableStringValue;
 import javafx.beans.value.ObservableValue;
@@ -103,9 +103,9 @@ public class FabricationServiceImpl implements FabricationService {
     },
     state,
     progress);
-  private final ObservableBooleanValue stateActive =
+  private final BooleanBinding stateActive =
     Bindings.createBooleanBinding(() -> state.get() == WorkState.Active, state);
-  private final ObservableBooleanValue stateLoading =
+  private final BooleanBinding stateLoading =
     Bindings.createBooleanBinding(() -> state.get() == WorkState.PreparingAudio || state.get() == WorkState.PreparedAudio, state);
   private final ObjectProperty<Template> inputTemplate = new SimpleObjectProperty<>();
   private final ObjectProperty<ControlMode> controlMode = new SimpleObjectProperty<>();
@@ -497,12 +497,12 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
-  public ObservableBooleanValue isStateActiveProperty() {
+  public BooleanBinding isStateActiveProperty() {
     return stateActive;
   }
 
   @Override
-  public ObservableBooleanValue isStateLoadingProperty() {
+  public BooleanBinding isStateLoadingProperty() {
     return stateLoading;
   }
 

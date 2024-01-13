@@ -2,7 +2,6 @@ package io.xj.gui.services.impl;
 
 import io.xj.gui.WorkstationLogAppender;
 import io.xj.gui.services.FabricationService;
-import io.xj.gui.services.LabService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.ControlMode;
@@ -38,7 +37,6 @@ public class UIStateServiceImpl implements UIStateService {
 
   public UIStateServiceImpl(
     FabricationService fabricationService,
-    LabService labService,
     ProjectService projectService
   ) {
 
@@ -60,25 +58,22 @@ public class UIStateServiceImpl implements UIStateService {
         .and(fabricationService.stateProperty().isEqualTo(WorkState.Active));
 
     // Is the progress bar visible?
-    isProgressBarVisible = Bindings.createBooleanBinding(
-      () ->
-        projectService.isStateLoadingProperty().get() ||
-          fabricationService.isStateLoadingProperty().get(),
-      projectService.isStateLoadingProperty(),
-      fabricationService.isStateLoadingProperty());
+    isProgressBarVisible =
+      projectService.isStateLoadingProperty().or(fabricationService.isStateLoadingProperty());
 
     // Progress
-    progress = Bindings.createDoubleBinding(
-      () ->
-        projectService.isStateLoadingProperty().get() ?
-          projectService.progressProperty().get() :
-          fabricationService.isStateLoadingProperty().get() ?
-            fabricationService.progressProperty().get() :
-            0.0,
-      projectService.isStateLoadingProperty(),
-      projectService.progressProperty(),
-      fabricationService.isStateLoadingProperty(),
-      fabricationService.progressProperty());
+    progress =
+      Bindings.createDoubleBinding(
+        () ->
+          projectService.isStateLoadingProperty().get() ?
+            projectService.progressProperty().get() :
+            fabricationService.isStateLoadingProperty().get() ?
+              fabricationService.progressProperty().get() :
+              0.0,
+        projectService.isStateLoadingProperty(),
+        projectService.progressProperty(),
+        fabricationService.isStateLoadingProperty(),
+        fabricationService.progressProperty());
 
     // Status Text
     statusText = Bindings.createStringBinding(

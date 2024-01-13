@@ -12,6 +12,7 @@ import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.project.ProjectState;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -19,7 +20,6 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableListValue;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableStringValue;
@@ -61,10 +61,13 @@ public class ProjectServiceImpl implements ProjectService {
     },
     state,
     progress);
-  private final ObservableBooleanValue isStateLoading =
-    Bindings.createBooleanBinding(() -> state.get() == ProjectState.LoadingContent || state.get() == ProjectState.LoadedContent || state.get() == ProjectState.LoadingAudio || state.get() == ProjectState.LoadedAudio, state);
-  private final ObservableBooleanValue isStateReady =
-    Bindings.createBooleanBinding(() -> state.get() == ProjectState.Ready, state);
+  private final BooleanBinding isStateLoading =
+    state.isEqualTo(ProjectState.LoadingContent)
+      .or(state.isEqualTo(ProjectState.LoadingAudio))
+      .or(state.isEqualTo(ProjectState.LoadingAudio))
+      .or(state.isEqualTo(ProjectState.LoadedAudio));
+  private final BooleanBinding isStateReady = state.isEqualTo(ProjectState.Ready);
+  private final BooleanBinding isStateStandby = state.isEqualTo(ProjectState.Standby);
   private final int maxRecentProjects;
   private final ProjectManager projectManager;
   private final ObservableStringValue windowTitle;
@@ -169,13 +172,18 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public ObservableBooleanValue isStateLoadingProperty() {
+  public BooleanBinding isStateLoadingProperty() {
     return isStateLoading;
   }
 
   @Override
-  public ObservableBooleanValue isStateReadyProperty() {
+  public BooleanBinding isStateReadyProperty() {
     return isStateReady;
+  }
+
+  @Override
+  public BooleanBinding getIsStateStandby() {
+    return isStateStandby;
   }
 
   @Override
@@ -238,5 +246,9 @@ public class ProjectServiceImpl implements ProjectService {
    */
   private void removeFromRecentProjects(String projectFilePath) {
     this.recentProjects.get().removeIf(existing -> Objects.equals(existing.projectFilePath(), projectFilePath));
+  }
+
+  public BooleanBinding isStateStandbyProperty() {
+    return isStateStandby;
   }
 }

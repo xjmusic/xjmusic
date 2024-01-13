@@ -2,10 +2,10 @@ package io.xj.gui.services;
 
 import io.xj.hub.HubContent;
 import io.xj.nexus.project.ProjectState;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableListValue;
 import javafx.beans.value.ObservableStringValue;
 
@@ -48,7 +48,7 @@ public interface ProjectService {
 
    @param parentPathPrefix on disk, parent of the project folder
    @param templateShipKey  of the demo
-   @param projectName             of the project folder and the project
+   @param projectName      of the project folder and the project
    */
   void cloneFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName);
 
@@ -80,12 +80,17 @@ public interface ProjectService {
   /**
    @return Observable property for whether the project is in a loading state
    */
-  ObservableBooleanValue isStateLoadingProperty();
+  BooleanBinding isStateLoadingProperty();
 
   /**
    @return Observable property for whether the project is in a ready state
    */
-  ObservableBooleanValue isStateReadyProperty();
+  BooleanBinding isStateReadyProperty();
+
+  /**
+   @return Observable property for whether the project is in a standby state
+   */
+  BooleanBinding getIsStateStandby();
 
   /**
    @return Get the project content

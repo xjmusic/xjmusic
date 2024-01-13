@@ -8,8 +8,8 @@ import io.xj.gui.services.LabStatus;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ProjectViewMode;
 import io.xj.gui.services.UIStateService;
+import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.work.WorkState;
-import javafx.beans.binding.Bindings;
 import javafx.beans.value.ObservableValue;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
@@ -110,9 +110,9 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
     buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
 
-    fabricationService.stateProperty().addListener(this::handleFabricationStatusChange);
-
-    labService.statusProperty().addListener(this::handleLabStatusChange);
+    fabricationService.stateProperty().addListener(this::handleFabricationStateChange);
+    projectService.stateProperty().addListener(this::handleProjectStateChange);
+    labService.statusProperty().addListener(this::handleLabStateChange);
 
     labelLabStatus.textProperty().bind(labService.statusProperty().map(Enum::toString));
 
@@ -121,8 +121,8 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     progressBar.visibleProperty().bind(uiStateService.isProgressBarVisibleProperty());
     progressBar.managedProperty().bind(uiStateService.isProgressBarVisibleProperty());
 
-    buttonContent.setSelected(true);
-    buttonFabrication.disableProperty().bind(Bindings.createBooleanBinding(() -> !projectService.isStateReadyProperty().get(), projectService.isStateReadyProperty()));
+    buttonContent.disableProperty().bind(projectService.isStateReadyProperty().not());
+    buttonFabrication.disableProperty().bind(projectService.isStateReadyProperty().not());
     fabricationControlContainer.visibleProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.FABRICATION));
     fabricationControlContainer.managedProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.FABRICATION));
   }
@@ -161,13 +161,19 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     }
   }
 
-  private void handleFabricationStatusChange(ObservableValue<? extends WorkState> ignored1, WorkState ignored2, WorkState value) {
+  private void handleProjectStateChange(ObservableValue<? extends ProjectState> o, ProjectState ov, ProjectState value) {
+    if (Objects.equals(value, ProjectState.Ready)) {
+      buttonContent.setSelected(true);
+    }
+  }
+
+  private void handleFabricationStateChange(ObservableValue<? extends WorkState> o, WorkState ov, WorkState value) {
     buttonAction.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, Objects.equals(value, WorkState.Active));
     buttonAction.pseudoClassStateChanged(FAILED_PSEUDO_CLASS, Objects.equals(value, WorkState.Failed));
     buttonAction.pseudoClassStateChanged(PENDING_PSEUDO_CLASS, WORK_PENDING_STATES.contains(value));
   }
 
-  private void handleLabStatusChange(ObservableValue<? extends LabStatus> ignored1, LabStatus ignored2, LabStatus value) {
+  private void handleLabStateChange(ObservableValue<? extends LabStatus> o, LabStatus ov, LabStatus value) {
     buttonLab.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, Objects.equals(value, LabStatus.Authenticated));
     buttonLab.pseudoClassStateChanged(FAILED_PSEUDO_CLASS, LAB_FAILED_STATES.contains(value));
     buttonLab.pseudoClassStateChanged(PENDING_PSEUDO_CLASS, LAB_PENDING_STATES.contains(value));
