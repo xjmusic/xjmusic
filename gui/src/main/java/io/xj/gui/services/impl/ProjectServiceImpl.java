@@ -123,14 +123,19 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public void createProject(String pathPrefix, String name) {
-    LOG.info("Creating project {} at {}", name, pathPrefix);
-    // TODO implement projectService.newProject()
+  public void createProject(String parentPathPrefix, String projectName) {
+    LOG.info("Creating project {} at {}", projectName, parentPathPrefix);
+    new Thread(() -> {
+      if (projectManager.createProject(parentPathPrefix, projectName)) {
+        projectManager.getProject().ifPresent(project ->
+          addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile()));
+      }
+    }).start();
   }
 
   @Override
-  public void cloneFromLabProject(String pathPrefix, UUID projectId, String name) {
-    LOG.info("Cloning from lab project {} ({}) at {}", name, projectId, pathPrefix);
+  public void cloneFromLabProject(String parentPathPrefix, UUID projectId, String projectName) {
+    LOG.info("Cloning from lab project {} ({}) at {}", projectName, projectId, parentPathPrefix);
     // TODO implement projectService.cloneProjectFromLab()
   }
 

@@ -36,6 +36,15 @@ public interface ProjectManager {
   boolean openProjectFromLocalFile(String projectFilePath);
 
   /**
+   Create a project on the local disk
+
+   @param parentPathPrefix the path prefix of the project
+   @param projectName      the name of the project
+   @return true if successful
+   */
+  boolean createProject(String parentPathPrefix, String projectName);
+
+  /**
    Cancel the project loading
    */
   void cancelProjectLoading();

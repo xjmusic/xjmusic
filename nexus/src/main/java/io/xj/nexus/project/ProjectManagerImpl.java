@@ -33,6 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -93,16 +94,10 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public boolean cloneProjectFromDemoTemplate(String templateShipKey, String parentPathPrefix, String projectName) {
-    projectPathPrefix.set(parentPathPrefix + projectName + File.separator);
-    this.projectName.set(projectName);
-    LOG.info("Will clone from demo template \"{}\" ({}) to {}", parentPathPrefix, templateShipKey, projectPathPrefix.get());
+    LOG.info("Will clone from demo template \"{}\" in parent folder {}", templateShipKey, parentPathPrefix);
 
     try {
-      LOG.info("Will create project folder at {}", projectPathPrefix.get());
-      updateState(ProjectState.CreatingFolder);
-      Files.createDirectories(Path.of(projectPathPrefix.get()));
-      updateState(ProjectState.CreatedFolder);
-      LOG.info("Did create project folder at {}", projectPathPrefix.get());
+      createProjectFolder(parentPathPrefix, projectName);
 
       LOG.info("Will load content from demo template \"{}\"", templateShipKey);
       updateState(ProjectState.LoadingContent);
@@ -165,12 +160,7 @@ public class ProjectManagerImpl implements ProjectManager {
       LOG.info("Preloaded {} audios from {} instruments", loaded, instruments.size());
       updateState(ProjectState.LoadedAudio);
 
-      updateState(ProjectState.Saving);
-      var json = jsonProvider.getMapper().writeValueAsString(content);
-      var jsonPath = getPathToProjectFile();
-      Files.writeString(Path.of(jsonPath), json);
-      LOG.info("Did write {} bytes of content to {}", json.length(), jsonPath);
-      updateState(ProjectState.Ready);
+      saveProjectContent();
       return true;
 
     } catch (HubClientException e) {
@@ -209,8 +199,34 @@ public class ProjectManagerImpl implements ProjectManager {
     } catch (Exception e) {
       LOG.error("Failed to open project from local file!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
       updateState(ProjectState.Failed);
+      return false;
     }
-    return false;
+  }
+
+  @Override
+  public boolean createProject(String parentPathPrefix, String projectName) {
+    LOG.info("Will create new project \"{}\" in parent folder {}", projectName, parentPathPrefix);
+
+    try {
+      createProjectFolder(parentPathPrefix, projectName);
+
+      // Create the new project
+      project.set(new Project());
+      project.get().setId(UUID.randomUUID());
+      project.get().setName(projectName);
+
+      // Create the new content
+      content.set(new HubContent());
+      content.get().setProjects(List.of(project.get()));
+
+      saveProjectContent();
+      return true;
+
+    } catch (Exception e) {
+      LOG.error("Failed to open project from local file!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      updateState(ProjectState.Failed);
+      return false;
+    }
   }
 
   @Override
@@ -256,6 +272,38 @@ public class ProjectManagerImpl implements ProjectManager {
   @Override
   public void setOnStateChange(@Nullable Consumer<ProjectState> onStateChange) {
     this.onStateChange = onStateChange;
+  }
+
+  /**
+   Create the project folder on disk
+
+   @param parentPathPrefix parent folder of the project folder
+   @param projectName      name of the project folder
+   @throws IOException if the project folder could not be created
+   */
+  private void createProjectFolder(String parentPathPrefix, String projectName) throws IOException {
+    projectPathPrefix.set(parentPathPrefix + projectName + File.separator);
+    this.projectName.set(projectName);
+
+    LOG.info("Will create project folder at {}", projectPathPrefix.get());
+    updateState(ProjectState.CreatingFolder);
+    Files.createDirectories(Path.of(projectPathPrefix.get()));
+    updateState(ProjectState.CreatedFolder);
+    LOG.info("Did create project folder at {}", projectPathPrefix.get());
+  }
+
+  /**
+   Save the project content to disk
+
+   @throws IOException if the project content could not be saved
+   */
+  private void saveProjectContent() throws IOException {
+    updateState(ProjectState.Saving);
+    var json = jsonProvider.getMapper().writeValueAsString(content);
+    var jsonPath = getPathToProjectFile();
+    Files.writeString(Path.of(jsonPath), json);
+    LOG.info("Did write {} bytes of content to {}", json.length(), jsonPath);
+    updateState(ProjectState.Ready);
   }
 
   /**

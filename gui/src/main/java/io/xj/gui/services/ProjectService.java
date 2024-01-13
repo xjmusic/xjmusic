@@ -29,19 +29,19 @@ public interface ProjectService {
   /**
    Create a new project
 
-   @param pathPrefix on disk
-   @param name       of the project
+   @param parentPathPrefix on disk
+   @param projectName      of the project
    */
-  void createProject(String pathPrefix, String name);
+  void createProject(String parentPathPrefix, String projectName);
 
   /**
    Clone from a Lab Project
 
-   @param pathPrefix on disk
-   @param projectId  in the lab
-   @param name       of the project
+   @param parentPathPrefix on disk
+   @param projectId        in the lab
+   @param projectName      of the project
    */
-  void cloneFromLabProject(String pathPrefix, UUID projectId, String name);
+  void cloneFromLabProject(String parentPathPrefix, UUID projectId, String projectName);
 
   /**
    Clone from a demo template

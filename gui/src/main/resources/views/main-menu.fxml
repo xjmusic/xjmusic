@@ -18,13 +18,14 @@
 
   <Menu text="_Project">
     <MenuItem onAction="#handleProjectNew" text="_New..."/>
-    <MenuItem onAction="#handleProjectClone" text="_Clone..."/>
     <MenuItem onAction="#handleProjectOpen" text="_Open..."/>
     <Menu fx:id="menuOpenRecent" text="Open _Recent">
       <!-- Recent projects will be added here dynamically -->
     </Menu>
     <SeparatorMenuItem mnemonicParsing="false"/>
     <MenuItem fx:id="itemProjectSave" onAction="#handleProjectSave" text="_Save"/>
+    <SeparatorMenuItem mnemonicParsing="false"/>
+    <MenuItem onAction="#handleProjectClone" text="_Clone..."/>
     <SeparatorMenuItem mnemonicParsing="false"/>
     <MenuItem onAction="#onQuit" text="E_xit"/>
   </Menu>
