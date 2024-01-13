@@ -66,7 +66,6 @@ public class ProjectServiceImpl implements ProjectService {
   private final ObservableBooleanValue isStateReady =
     Bindings.createBooleanBinding(() -> state.get() == ProjectState.Ready, state);
   private final int maxRecentProjects;
-  private final LabService labService;
   private final ProjectManager projectManager;
   private final ObservableStringValue windowTitle;
   private final JsonProvider jsonProvider;
@@ -77,13 +76,16 @@ public class ProjectServiceImpl implements ProjectService {
     ProjectManager projectManager
   ) {
     this.maxRecentProjects = maxRecentProjects;
-    this.labService = labService;
     this.projectManager = projectManager;
     this.jsonProvider = new JsonProviderImpl();
-    projectManager.setOnProgress((progress) -> Platform.runLater(() -> this.progress.set(progress)));
-    projectManager.setOnStateChange((state) -> Platform.runLater(() -> this.state.set(state)));
     attachPreferenceListeners();
     setAllFromPreferencesOrDefaults();
+
+    projectManager.setOnProgress((progress) -> Platform.runLater(() -> this.progress.set(progress)));
+    projectManager.setOnStateChange((state) -> Platform.runLater(() -> this.state.set(state)));
+    projectManager.setAudioBaseUrl(labService.hubConfigProperty().get().getAudioBaseUrl());
+    labService.hubConfigProperty().addListener((o, ov, value) -> projectManager.setAudioBaseUrl(value.getAudioBaseUrl()));
+
     currentProject = Bindings.createObjectBinding(() -> {
       if (Objects.equals(state.get(), ProjectState.Ready)) {
         return projectManager.getProject().orElse(null);
@@ -106,8 +108,14 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void openProject(String projectFilePath) {
-    LOG.info("Opening project at {}", projectFilePath);
-    // TODO implement projectService.openProject()
+    new Thread(() -> {
+      if (projectManager.openProjectFromLocalFile(projectFilePath)) {
+        projectManager.getProject().ifPresent(project ->
+          addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile()));
+      } else {
+        removeFromRecentProjects(projectFilePath);
+      }
+    }).start();
   }
 
   @Override
@@ -123,13 +131,15 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public void cloneFromDemoTemplate(String pathPrefix, String templateShipKey, String name) {
-    projectManager.setup(pathPrefix, name, labService.hubConfigProperty().get().getAudioBaseUrl());
-    Platform.runLater(() -> {
-      projectManager.cloneFromDemoTemplate(templateShipKey, name);
-      projectManager.getProject().ifPresent(value ->
-        addRecentProject(value, projectManager.getProjectFilename(), projectManager.getProjectFilePath()));
-    });
+  public void cloneFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
+    new Thread(() -> {
+      if (projectManager.cloneProjectFromDemoTemplate(templateShipKey, parentPathPrefix, projectName)) {
+        projectManager.getProject().ifPresent(project ->
+          addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile()));
+      } else {
+        removeFromRecentProjects(parentPathPrefix + projectName + ".xj");
+      }
+    }).start();
   }
 
   @Override
@@ -210,18 +220,23 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   /**
-   Add a recent project to the list of recent projects.
-
-   @param project         the project
-   @param projectFilename the project filename
-   @param projectFilePath the project file path
+   Add the current project to the list of recent projects.
    */
-  private void addRecentProject(Project project, String projectFilename, String projectFilePath) {
+  private void addToRecentProjects(Project project, String projectFilename, String projectFilePath) {
     var descriptor = new ProjectDescriptor(project, projectFilename, projectFilePath);
-    this.recentProjects.get().removeIf(existing -> Objects.equals(existing.path(), descriptor.path()));
+    this.recentProjects.get().removeIf(existing -> Objects.equals(existing.projectFilePath(), descriptor.projectFilePath()));
     this.recentProjects.get().add(0, descriptor);
     if (this.recentProjects.get().size() > maxRecentProjects) {
       this.recentProjects.get().remove(maxRecentProjects);
     }
+  }
+
+  /**
+   Remove the current project from the list of recent projects.
+
+   @param projectFilePath the path to the project file
+   */
+  private void removeFromRecentProjects(String projectFilePath) {
+    this.recentProjects.get().removeIf(existing -> Objects.equals(existing.projectFilePath(), projectFilePath));
   }
 }

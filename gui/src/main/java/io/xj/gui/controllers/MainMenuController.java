@@ -232,8 +232,8 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   private void updateRecentProjectsMenu() {
     menuOpenRecent.getItems().clear();
     for (ProjectDescriptor project : projectService.recentProjectsProperty().getValue()) {
-      MenuItem menuItem = new MenuItem(project.filename());
-      menuItem.setOnAction(event -> projectService.openProject(project.path()));
+      MenuItem menuItem = new MenuItem(project.projectFilename());
+      menuItem.setOnAction(event -> projectService.openProject(project.projectFilePath()));
       menuOpenRecent.getItems().add(menuItem);
     }
   }

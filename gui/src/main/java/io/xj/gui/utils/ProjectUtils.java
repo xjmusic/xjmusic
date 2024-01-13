@@ -9,6 +9,14 @@ import java.io.File;
 import java.util.Objects;
 
 public class ProjectUtils {
+  /**
+   Choose a directory
+
+   @param stage            the stage
+   @param title            the title of the chooser window
+   @param initialDirectory the initial directory
+   @return the absolute path of the chosen directory, or null if none chosen
+   */
   public static @Nullable String chooseDirectory(Window stage, String title, String initialDirectory) {
     DirectoryChooser directoryChooser = new DirectoryChooser();
     directoryChooser.setTitle(title);
@@ -17,6 +25,14 @@ public class ProjectUtils {
     return Objects.nonNull(selectedDirectory) ? selectedDirectory.getAbsolutePath() : null;
   }
 
+  /**
+   Choose a file
+
+   @param stage            the stage
+   @param title            the title of the chooser window
+   @param initialDirectory the initial directory
+   @return the absolute path of the chosen file, or null if none chosen
+   */
   public static @Nullable String chooseXJProjectFile(Window stage, String title, String initialDirectory) {
     FileChooser fileChooser = new FileChooser();
     fileChooser.setInitialDirectory(new File(initialDirectory));

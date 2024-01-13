@@ -18,25 +18,27 @@ public interface ProjectManager {
   String getAudioBaseUrl();
 
   /**
-   Clone from a demo template@param templateShipKey of the demo
+   Clone from a demo template
 
-   @param name of the project
+   @param templateShipKey  of the demo
+   @param parentPathPrefix parent folder to the project folder
+   @param projectName      of the project folder and the project
+   @return true if successful
    */
-  void cloneFromDemoTemplate(String templateShipKey, String name);
+  boolean cloneProjectFromDemoTemplate(String templateShipKey, String parentPathPrefix, String projectName);
+
+  /**
+   Open a project from a local file
+
+   @param projectFilePath the path prefix of the project
+   @return true if successful
+   */
+  boolean openProjectFromLocalFile(String projectFilePath);
 
   /**
    @return the path prefix of the project
    */
   String getProjectPathPrefix();
-
-  /**
-   Set the path by project path prefix and project name
-
-   @param pathPrefix   on disk, with trailing slash
-   @param projectName  of the project
-   @param audioBaseUrl the audio base URL
-   */
-  void setup(String pathPrefix, String projectName, String audioBaseUrl);
 
   /**
    @return the current project, or empty if not set
@@ -51,7 +53,7 @@ public interface ProjectManager {
   /**
    @return the project file absolute path
    */
-  String getProjectFilePath();
+  String getPathToProjectFile();
 
   /**
    @return a reference to the current content
@@ -66,6 +68,13 @@ public interface ProjectManager {
    @return the path to the audio
    */
   String getPathToInstrumentAudio(UUID instrumentId, String waveformKey);
+
+  /**
+   Set the audio base URL
+
+   @param audioBaseUrl the audio base URL
+   */
+  void setAudioBaseUrl(String audioBaseUrl);
 
   /**
    Set the callback to be invoked when the progress changes

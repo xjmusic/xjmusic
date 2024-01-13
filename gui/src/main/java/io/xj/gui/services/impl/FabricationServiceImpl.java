@@ -17,7 +17,6 @@ import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.util.ValueException;
 import io.xj.nexus.ControlMode;
-import io.xj.nexus.InputMode;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
@@ -85,8 +84,6 @@ public class FabricationServiceImpl implements FabricationService {
   private final int defaultOutputChannels;
   private final int defaultOutputFrameRate;
   private final ControlMode defaultControlMode;
-  private final InputMode defaultInputMode;
-  private final ProjectService projectService;
   private final WorkManager workManager;
   private final LabService labService;
   private final Map<Integer, Integer> segmentBarBeats = new ConcurrentHashMap<>();
@@ -111,7 +108,6 @@ public class FabricationServiceImpl implements FabricationService {
   private final ObservableBooleanValue stateLoading =
     Bindings.createBooleanBinding(() -> state.get() == WorkState.PreparingAudio || state.get() == WorkState.PreparedAudio, state);
   private final ObjectProperty<Template> inputTemplate = new SimpleObjectProperty<>();
-  private final ObjectProperty<InputMode> inputMode = new SimpleObjectProperty<>();
   private final ObjectProperty<ControlMode> controlMode = new SimpleObjectProperty<>();
   private final StringProperty craftAheadSeconds = new SimpleStringProperty();
   private final StringProperty dubAheadSeconds = new SimpleStringProperty();
@@ -138,7 +134,6 @@ public class FabricationServiceImpl implements FabricationService {
     @Value("${output.channels}") int defaultOutputChannels,
     @Value("${output.frame.rate}") int defaultOutputFrameRate,
     @Value("${macro.mode}") String defaultMacroMode,
-    @Value("${input.mode}") String defaultInputMode,
     LabService labService,
     ProjectService projectService,
     WorkManager workManager
@@ -147,13 +142,11 @@ public class FabricationServiceImpl implements FabricationService {
     this.defaultDubAheadSeconds = defaultDubAheadSeconds;
     this.defaultMixerLengthSeconds = defaultMixerLengthSeconds;
     this.defaultControlMode = ControlMode.valueOf(defaultMacroMode.toUpperCase(Locale.ROOT));
-    this.defaultInputMode = InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT));
     this.defaultOutputChannels = defaultOutputChannels;
     this.defaultOutputFrameRate = defaultOutputFrameRate;
     this.defaultTimelineSegmentViewLimit = defaultTimelineSegmentViewLimit;
     this.hostServices = hostServices;
     this.labService = labService;
-    this.projectService = projectService;
     this.workManager = workManager;
 
     projectService.stateProperty().addListener((o, ov, value) -> {
@@ -183,7 +176,6 @@ public class FabricationServiceImpl implements FabricationService {
         .setCraftAheadSeconds(parseIntegerValue(craftAheadSeconds.get(), "fabrication setting for Craft Ahead Seconds"))
         .setDubAheadSeconds(parseIntegerValue(dubAheadSeconds.get(), "fabrication setting for Dub Ahead Seconds"))
         .setMixerLengthSeconds(parseIntegerValue(mixerLengthSeconds.get(), "fabrication setting for Mixer Length Seconds"))
-        .setInputMode(inputMode.get())
         .setMacroMode(controlMode.get())
         .setInputTemplate(inputTemplate.get())
         .setOutputChannels(parseIntegerValue(outputChannels.get(), "fabrication setting for Output Channels"))
@@ -258,7 +250,6 @@ public class FabricationServiceImpl implements FabricationService {
     craftAheadSeconds.set(String.valueOf(defaultCraftAheadSeconds));
     dubAheadSeconds.set(String.valueOf(defaultDubAheadSeconds));
     mixerLengthSeconds.set(String.valueOf(defaultMixerLengthSeconds));
-    inputMode.set(defaultInputMode);
     controlMode.set(defaultControlMode);
     outputChannels.set(String.valueOf(defaultOutputChannels));
     outputFrameRate.set(String.valueOf(defaultOutputFrameRate));
@@ -297,11 +288,6 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public ObjectProperty<Template> inputTemplateProperty() {
     return inputTemplate;
-  }
-
-  @Override
-  public ObjectProperty<InputMode> inputModeProperty() {
-    return inputMode;
   }
 
   @Override
@@ -568,7 +554,6 @@ public class FabricationServiceImpl implements FabricationService {
     craftAheadSeconds.addListener((o, ov, value) -> prefs.put("craftAheadSeconds", value));
     dubAheadSeconds.addListener((o, ov, value) -> prefs.put("dubAheadSeconds", value));
     mixerLengthSeconds.addListener((o, ov, value) -> prefs.put("mixerLengthSeconds", value));
-    inputMode.addListener((o, ov, value) -> prefs.put("inputMode", Objects.nonNull(value) ? value.name() : ""));
     controlMode.addListener((o, ov, value) -> prefs.put("macroMode", Objects.nonNull(value) ? value.name() : ""));
     outputChannels.addListener((o, ov, value) -> prefs.put("outputChannels", value));
     outputFrameRate.addListener((o, ov, value) -> prefs.put("outputFrameRate", value));
@@ -589,15 +574,8 @@ public class FabricationServiceImpl implements FabricationService {
     try {
       controlMode.set(ControlMode.valueOf(prefs.get("macroMode", defaultControlMode.toString()).toUpperCase(Locale.ROOT)));
     } catch (Exception e) {
-      LOG.error("Failed to set macro mode from preferences", e);
+      LOG.error("Failed to set control mode from preferences", e);
       controlMode.set(defaultControlMode);
-    }
-
-    try {
-      inputMode.set(InputMode.valueOf(prefs.get("inputMode", defaultInputMode.toString()).toUpperCase(Locale.ROOT)));
-    } catch (Exception e) {
-      LOG.error("Failed to set input mode from preferences", e);
-      inputMode.set(defaultInputMode);
     }
   }
 

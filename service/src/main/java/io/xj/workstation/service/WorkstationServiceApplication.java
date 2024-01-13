@@ -3,7 +3,6 @@
 package io.xj.workstation.service;
 
 import io.xj.hub.HubConfiguration;
-import io.xj.nexus.InputMode;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.project.ProjectManagerImpl;
@@ -22,8 +21,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.event.EventListener;
 
-import java.util.Locale;
-
 @SpringBootApplication
 @ComponentScan(
   basePackages = {
@@ -34,7 +31,6 @@ public class WorkstationServiceApplication {
   final Logger LOG = LoggerFactory.getLogger(WorkstationServiceApplication.class);
   final WorkManager workManager;
   final ApplicationContext context;
-  final InputMode inputMode;
   final String inputTemplateKey;
   private final String ingestToken;
   private final String audioBaseUrl;
@@ -46,7 +42,6 @@ public class WorkstationServiceApplication {
   @Autowired
   public WorkstationServiceApplication(
     ApplicationContext context,
-    @Value("${input.mode}") String inputMode,
     @Value("${input.template.key}") String inputTemplateKey,
     @Value("${ingest.token}") String ingestToken,
     @Value("${audio.base.url}") String audioBaseUrl,
@@ -55,7 +50,6 @@ public class WorkstationServiceApplication {
     @Value("${stream.base.url}") String streamBaseUrl
   ) {
     this.context = context;
-    this.inputMode = InputMode.valueOf(inputMode.toUpperCase(Locale.ROOT));
     this.inputTemplateKey = inputTemplateKey;
     this.ingestToken = ingestToken;
     this.audioBaseUrl = audioBaseUrl;
@@ -69,7 +63,6 @@ public class WorkstationServiceApplication {
   @EventListener(ApplicationStartedEvent.class)
   public void start() {
     var workConfig = new WorkConfiguration()
-      .setInputMode(inputMode)
       .setInputTemplate(null); // FUTURE: read template
 
     var hubConfig = new HubConfiguration()

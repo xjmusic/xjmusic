@@ -7,127 +7,134 @@
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.VBox?>
-
-<VBox spacing="10" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.FabricationSettingsModalController">
+<VBox spacing="10" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="io.xj.gui.controllers.FabricationSettingsModalController">
   <padding>
-    <Insets bottom="15" left="15" right="15" top="15" /> <!-- Padding values -->
+    <Insets bottom="15" left="15" right="15" top="15"/> <!-- Padding values -->
   </padding>
 
-  <VBox BorderPane.alignment="CENTER" spacing="10">
-    <VBox.vgrow>
-      <Priority fx:constant="ALWAYS" />
-    </VBox.vgrow>
+  <GridPane hgap="10" vgap="10">
 
-    <HBox alignment="CENTER_LEFT" prefHeight="60" spacing="10">
-      <padding>
-        <Insets left="10" right="10" />
-      </padding>
-      <VBox alignment="CENTER_LEFT" prefHeight="60.0">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Template" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0" />
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0" />
-        <ChoiceBox fx:id="choiceTemplate" prefHeight="25.0" prefWidth="120" />
-      </VBox>
-      <VBox alignment="CENTER_LEFT" prefHeight="60.0">
-        <Label fx:id="labelInputMode" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Input Mode" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0" />
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0" />
-        <ChoiceBox fx:id="choiceInputMode" prefHeight="25.0" prefWidth="120" />
-      </VBox>
-      <VBox alignment="CENTER_LEFT" prefHeight="60.0">
-        <Label fx:id="labelControlMode" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Control Mode" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0" />
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0" />
-        <ChoiceBox fx:id="choiceControlMode" prefHeight="25.0" prefWidth="120" />
-      </VBox>
-    </HBox>
+    <VBox
+      alignment="CENTER_LEFT"
+      prefHeight="60.0"
+      GridPane.rowIndex="0"
+      GridPane.columnIndex="0">
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Template" textAlignment="RIGHT">
+        <graphic>
+          <Pane prefWidth="15.0"/>
+        </graphic>
+      </Label>
+      <Pane prefWidth="15.0"/>
+      <ChoiceBox fx:id="choiceTemplate" prefHeight="25.0" prefWidth="120"/>
+    </VBox>
 
-    <HBox alignment="CENTER_LEFT" prefHeight="60" spacing="10">
-      <padding>
-        <Insets left="10" right="10" />
-      </padding>
-      <VBox alignment="CENTER_LEFT">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Output Frame Rate" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0" />
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0" />
-        <TextField fx:id="fieldOutputFrameRate" prefHeight="25.0" />
-      </VBox>
-      <VBox alignment="CENTER_LEFT">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Output Channels" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0" />
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0" />
-        <TextField fx:id="fieldOutputChannels" prefHeight="25.0" />
-      </VBox>
-      <Pane prefWidth="20" />
-      <VBox alignment="CENTER_LEFT">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Craft Ahead Seconds" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0" />
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0" />
-        <TextField fx:id="fieldCraftAheadSeconds" prefHeight="25.0" />
-      </VBox>
-      <VBox alignment="CENTER_LEFT">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Dub Ahead Seconds" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0" />
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0" />
-        <TextField fx:id="fieldDubAheadSeconds" prefHeight="25.0" />
-      </VBox>
-      <VBox alignment="CENTER_LEFT">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Mixer Length Seconds" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0" />
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0" />
-        <TextField fx:id="fieldMixerLengthSeconds" prefHeight="25.0" />
-      </VBox>
-    </HBox>
+    <VBox
+      alignment="CENTER_LEFT"
+      prefHeight="60.0"
+      GridPane.rowIndex="0"
+      GridPane.columnIndex="1">
+      <Label fx:id="labelControlMode" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Control Mode"
+             textAlignment="RIGHT">
+        <graphic>
+          <Pane prefWidth="15.0"/>
+        </graphic>
+      </Label>
+      <Pane prefWidth="15.0"/>
+      <ChoiceBox fx:id="choiceControlMode" prefHeight="25.0" prefWidth="120"/>
+    </VBox>
 
-    <HBox alignment="CENTER_LEFT" prefHeight="60" spacing="10">
-      <padding>
-        <Insets left="10" right="10" />
-      </padding>
-      <VBox alignment="CENTER_LEFT">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Timeline Segment View Limit" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0" />
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0" />
-        <TextField fx:id="fieldTimelineSegmentViewLimit" prefHeight="25.0" />
-      </VBox>
-    </HBox>
-  </VBox>
+    <VBox
+      alignment="CENTER_LEFT"
+      GridPane.rowIndex="0"
+      GridPane.columnIndex="2">
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Output Frame Rate" textAlignment="RIGHT">
+        <graphic>
+          <Pane prefWidth="15.0"/>
+        </graphic>
+      </Label>
+      <Pane prefWidth="15.0"/>
+      <TextField fx:id="fieldOutputFrameRate" prefHeight="25.0"/>
+    </VBox>
+
+    <VBox
+      alignment="CENTER_LEFT"
+      GridPane.rowIndex="0"
+      GridPane.columnIndex="3">
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Output Channels" textAlignment="RIGHT">
+        <graphic>
+          <Pane prefWidth="15.0"/>
+        </graphic>
+      </Label>
+      <Pane prefWidth="15.0"/>
+      <TextField fx:id="fieldOutputChannels" prefHeight="25.0"/>
+    </VBox>
+
+    <VBox
+      alignment="CENTER_LEFT"
+      GridPane.rowIndex="1"
+      GridPane.columnIndex="0">
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Craft Ahead Seconds" textAlignment="RIGHT">
+        <graphic>
+          <Pane prefWidth="15.0"/>
+        </graphic>
+      </Label>
+      <Pane prefWidth="15.0"/>
+      <TextField fx:id="fieldCraftAheadSeconds" prefHeight="25.0"/>
+    </VBox>
+
+    <VBox
+      alignment="CENTER_LEFT"
+      GridPane.rowIndex="1"
+      GridPane.columnIndex="1">
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Dub Ahead Seconds" textAlignment="RIGHT">
+        <graphic>
+          <Pane prefWidth="15.0"/>
+        </graphic>
+      </Label>
+      <Pane prefWidth="15.0"/>
+      <TextField fx:id="fieldDubAheadSeconds" prefHeight="25.0"/>
+    </VBox>
+
+    <VBox
+      alignment="CENTER_LEFT"
+      GridPane.rowIndex="1"
+      GridPane.columnIndex="2">
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Mixer Length Seconds" textAlignment="RIGHT">
+        <graphic>
+          <Pane prefWidth="15.0"/>
+        </graphic>
+      </Label>
+      <Pane prefWidth="15.0"/>
+      <TextField fx:id="fieldMixerLengthSeconds" prefHeight="25.0"/>
+    </VBox>
+
+    <VBox
+      alignment="CENTER_LEFT"
+      GridPane.rowIndex="1"
+      GridPane.columnIndex="3">
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Timeline Segment View Limit"
+             textAlignment="RIGHT">
+        <graphic>
+          <Pane prefWidth="15.0"/>
+        </graphic>
+      </Label>
+      <Pane prefWidth="15.0"/>
+      <TextField fx:id="fieldTimelineSegmentViewLimit" prefHeight="25.0"/>
+    </VBox>
+
+  </GridPane>
 
   <HBox alignment="BOTTOM_LEFT" prefHeight="50.0" prefWidth="640.0">
-    <Pane prefWidth="9.0" />
-    <Button fx:id="buttonClose" styleClass="button" onAction="#handleClose" prefHeight="25.0" prefWidth="56.0" text="_OK" />
-    <Pane prefWidth="15.0" />
-    <Button fx:id="buttonReset" styleClass="button" onAction="#handleReset" prefHeight="25.0" prefWidth="56.0" text="_Reset" />
+    <Pane prefWidth="9.0"/>
+    <Button fx:id="buttonClose" styleClass="button" onAction="#handleClose" prefHeight="25.0" prefWidth="56.0"
+            text="_OK"/>
+    <Pane prefWidth="15.0"/>
+    <Button fx:id="buttonReset" styleClass="button" onAction="#handleReset" prefHeight="25.0" prefWidth="56.0"
+            text="_Reset"/>
   </HBox>
 </VBox>

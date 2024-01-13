@@ -7,6 +7,7 @@ import io.xj.gui.services.ThemeService;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.gui.utils.TextParsingUtils;
 import io.xj.hub.util.StringUtils;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -102,7 +103,7 @@ public class ProjectCreationModalController extends ReadyAfterBootModalControlle
 
   @Override
   public void onStageReady() {
-    // Add slash to end of "file output path prefix"
+    // Add slash to end of "file output projectFilePath prefix"
     // https://www.pivotaltracker.com/story/show/186555998
     fieldPathPrefix.textProperty().bindBidirectional(projectService.basePathPrefixProperty());
     fieldPathPrefix.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
@@ -173,12 +174,13 @@ public class ProjectCreationModalController extends ReadyAfterBootModalControlle
       return;
     }
 
-    switch (mode.get()) {
-      case CLONE_PROJECT ->
-        projectService.cloneFromDemoTemplate(fieldPathPrefix.getText(), ((ToggleButton) demoSelection.getSelectedToggle()).getId(), fieldProjectName.getText());
-      case NEW_PROJECT ->
-        projectService.createProject(fieldPathPrefix.getText(), fieldProjectName.getText());
-    }
+    Platform.runLater(() -> {
+      switch (mode.get()) {
+        case CLONE_PROJECT ->
+          projectService.cloneFromDemoTemplate(fieldPathPrefix.getText(), ((ToggleButton) demoSelection.getSelectedToggle()).getId(), fieldProjectName.getText());
+        case NEW_PROJECT -> projectService.createProject(fieldPathPrefix.getText(), fieldProjectName.getText());
+      }
+    });
 
     Stage stage = (Stage) buttonOK.getScene().getWindow();
     stage.close();

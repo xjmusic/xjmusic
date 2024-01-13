@@ -38,15 +38,21 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ProjectManagerImpl implements ProjectManager {
   static final Logger LOG = LoggerFactory.getLogger(ProjectManagerImpl.class);
+  private final String escapedFileSeparator = File.separator.equals("\\") ? "\\\\" : File.separator;
+  private final Pattern xjProjectPathAndFilenameRgx = Pattern.compile("(.*" + escapedFileSeparator + ")([^" + escapedFileSeparator + "]+)" + ".xj$");
   private final AtomicReference<ProjectState> state = new AtomicReference<>(ProjectState.Standby);
   private final AtomicReference<Project> project = new AtomicReference<>();
   private final AtomicReference<String> projectPathPrefix = new AtomicReference<>(File.separator);
   private final AtomicReference<String> projectName = new AtomicReference<>("Project");
   private final AtomicReference<String> audioBaseUrl = new AtomicReference<>("https://audio.xj.io/");
   private final AtomicReference<HubContent> content = new AtomicReference<>();
+  private final JsonProvider jsonProvider;
+  private final EntityFactory entityFactory;
 
   @Nullable
   private Consumer<Double> onProgress;
@@ -59,7 +65,8 @@ public class ProjectManagerImpl implements ProjectManager {
    */
   private ProjectManagerImpl(
   ) {
-    // no op
+    jsonProvider = new JsonProviderImpl();
+    entityFactory = new EntityFactoryImpl(jsonProvider);
   }
 
   /**
@@ -75,13 +82,6 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public void setup(String pathPrefix, String projectName, String audioBaseUrl) {
-    this.projectPathPrefix.set(pathPrefix + projectName + File.separator);
-    this.projectName.set(projectName);
-    this.audioBaseUrl.set(audioBaseUrl);
-  }
-
-  @Override
   public Optional<Project> getProject() {
     return Optional.ofNullable(project.get());
   }
@@ -92,96 +92,125 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public void cloneFromDemoTemplate(String templateShipKey, String name) {
-    LOG.info("Will clone from demo template \"{}\" ({}) to {}", name, templateShipKey, projectPathPrefix.get());
+  public boolean cloneProjectFromDemoTemplate(String templateShipKey, String parentPathPrefix, String projectName) {
+    projectPathPrefix.set(parentPathPrefix + projectName + File.separator);
+    this.projectName.set(projectName);
+    LOG.info("Will clone from demo template \"{}\" ({}) to {}", parentPathPrefix, templateShipKey, projectPathPrefix.get());
 
-    new Thread(() -> {
-      try {
-        LOG.info("Will create project folder at {}", projectPathPrefix.get());
-        updateState(ProjectState.CreatingFolder);
-        Files.createDirectories(Path.of(projectPathPrefix.get()));
-        updateState(ProjectState.CreatedFolder);
-        LOG.info("Did create project folder at {}", projectPathPrefix.get());
+    try {
+      LOG.info("Will create project folder at {}", projectPathPrefix.get());
+      updateState(ProjectState.CreatingFolder);
+      Files.createDirectories(Path.of(projectPathPrefix.get()));
+      updateState(ProjectState.CreatedFolder);
+      LOG.info("Did create project folder at {}", projectPathPrefix.get());
 
-        LOG.info("Will load content from demo template \"{}\"", templateShipKey);
-        updateState(ProjectState.LoadingContent);
-        HttpClientProvider httpClientProvider = new HttpClientProviderImpl();
-        JsonProvider jsonProvider = new JsonProviderImpl();
-        EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
-        JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-        HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
-        content.set(hubClient.load(templateShipKey, audioBaseUrl.get()));
-        project.set(content.get().getProjects().stream().findFirst().orElse(null));
-        updateState(ProjectState.LoadedContent);
-        LOG.info("Did load content from demo template \"{}\"", templateShipKey);
+      LOG.info("Will load content from demo template \"{}\"", templateShipKey);
+      updateState(ProjectState.LoadingContent);
+      HttpClientProvider httpClientProvider = new HttpClientProviderImpl();
+      JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+      HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
+      content.set(hubClient.load(templateShipKey, this.audioBaseUrl.get()));
+      project.set(content.get().getProjects().stream().findFirst().orElse(null));
+      updateState(ProjectState.LoadedContent);
+      LOG.info("Did load content from demo template \"{}\"", templateShipKey);
 
-        LOG.info("Will load {} audio for {} instruments", content.get().getInstrumentAudios().size(), content.get().getInstruments().size());
-        updateProgress(0.0);
-        updateState(ProjectState.LoadingAudio);
-        int loaded = 0;
-        var instruments = new ArrayList<>(content.get().getInstruments());
-        var audios = new ArrayList<>(content.get().getInstrumentAudios());
-        // TODO Button to cancel cloning project
-        // TODO When downloading each audio, check size on disk after downloading, delete and retry 3X if failed to match correct size
-        // TODO When downloading each audio, if audio already exists on disk, check size on disk, delete and retry 3X if failed to match correct size
-        for (Instrument instrument : instruments) {
-          for (InstrumentAudio audio : audios.stream()
-            .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
-            .sorted(Comparator.comparing(InstrumentAudio::getName))
-            .toList()) {
-            if (!Objects.equals(state.get(), ProjectState.LoadingAudio)) {
-              // Workstation canceling preloading should cease resampling audio files https://www.pivotaltracker.com/story/show/186209135
-              return;
-            }
-            if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
-              LOG.debug("Will preload audio for instrument {} with waveform key {}", instrument.getName(), audio.getWaveformKey());
-              // Fetch via HTTP if original does not exist
-              var originalCachePath = getPathToInstrumentAudio(
-                instrument.getId(),
-                audio.getWaveformKey()
-              );
-              if (!existsOnDisk(originalCachePath)) {
-                CloseableHttpClient client = httpClientProvider.getClient();
-                try (
-                  CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", audioBaseUrl, audio.getWaveformKey())))
-                ) {
-                  if (Objects.isNull(response.getEntity().getContent()))
-                    throw new NexusException(String.format("Unable to write bytes to disk: %s", originalCachePath));
+      LOG.info("Will load {} audio for {} instruments", content.get().getInstrumentAudios().size(), content.get().getInstruments().size());
+      updateProgress(0.0);
+      updateState(ProjectState.LoadingAudio);
+      int loaded = 0;
+      var instruments = new ArrayList<>(content.get().getInstruments());
+      var audios = new ArrayList<>(content.get().getInstrumentAudios());
+      // TODO Button to cancel cloning project
+      // TODO When downloading each audio, check size on disk after downloading, delete and retry 3X if failed to match correct size
+      // TODO When downloading each audio, if audio already exists on disk, check size on disk, delete and retry 3X if failed to match correct size
+      for (Instrument instrument : instruments) {
+        for (InstrumentAudio audio : audios.stream()
+          .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
+          .sorted(Comparator.comparing(InstrumentAudio::getName))
+          .toList()) {
+          if (!Objects.equals(state.get(), ProjectState.LoadingAudio)) {
+            // Workstation canceling preloading should cease resampling audio files https://www.pivotaltracker.com/story/show/186209135
+            return false;
+          }
+          if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
+            LOG.debug("Will preload audio for instrument {} with waveform key {}", instrument.getName(), audio.getWaveformKey());
+            // Fetch via HTTP if original does not exist
+            var originalCachePath = getPathToInstrumentAudio(
+              instrument.getId(),
+              audio.getWaveformKey()
+            );
+            if (!existsOnDisk(originalCachePath)) {
+              CloseableHttpClient client = httpClientProvider.getClient();
+              try (
+                CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey())))
+              ) {
+                if (Objects.isNull(response.getEntity().getContent()))
+                  throw new NexusException(String.format("Unable to write bytes to disk: %s", originalCachePath));
 
-                  try (OutputStream toFile = FileUtils.openOutputStream(new File(originalCachePath))) {
-                    var size = IOUtils.copy(response.getEntity().getContent(), toFile); // stores number of bytes copied
-                    LOG.debug("Did write media item to disk: {} ({} bytes)", originalCachePath, size);
-                  }
-                } catch (NexusException | IOException e) {
-                  throw new RuntimeException(e);
+                try (OutputStream toFile = FileUtils.openOutputStream(new File(originalCachePath))) {
+                  var size = IOUtils.copy(response.getEntity().getContent(), toFile); // stores number of bytes copied
+                  LOG.debug("Did write media item to disk: {} ({} bytes)", originalCachePath, size);
                 }
+              } catch (NexusException | IOException e) {
+                throw new RuntimeException(e);
               }
-              LOG.debug("Did preload audio OK");
-              updateProgress((float) loaded / audios.size());
-              loaded++;
             }
+            LOG.debug("Did preload audio OK");
+            updateProgress((float) loaded / audios.size());
+            loaded++;
           }
         }
-        updateProgress(1.0);
-        LOG.info("Preloaded {} audios from {} instruments", loaded, instruments.size());
-        updateState(ProjectState.LoadedAudio);
-
-        updateState(ProjectState.Saving);
-        var json = jsonProvider.getMapper().writeValueAsString(content);
-        var jsonPath = getProjectFilePath();
-        Files.writeString(Path.of(jsonPath), json);
-        LOG.info("Did write {} bytes of content to {}", json.length(), jsonPath);
-        updateState(ProjectState.Ready);
-
-      } catch (HubClientException e) {
-        LOG.error("Failed to load content from demo template!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
-        updateState(ProjectState.Failed);
-
-      } catch (IOException e) {
-        LOG.error("Failed to preload audio from demo template!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
-        updateState(ProjectState.Failed);
       }
-    }).start();
+      updateProgress(1.0);
+      LOG.info("Preloaded {} audios from {} instruments", loaded, instruments.size());
+      updateState(ProjectState.LoadedAudio);
+
+      updateState(ProjectState.Saving);
+      var json = jsonProvider.getMapper().writeValueAsString(content);
+      var jsonPath = getPathToProjectFile();
+      Files.writeString(Path.of(jsonPath), json);
+      LOG.info("Did write {} bytes of content to {}", json.length(), jsonPath);
+      updateState(ProjectState.Ready);
+      return true;
+
+    } catch (HubClientException e) {
+      LOG.error("Failed to load content from demo template!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      updateState(ProjectState.Failed);
+      return false;
+
+    } catch (IOException e) {
+      LOG.error("Failed to preload audio from demo template!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      updateState(ProjectState.Failed);
+      return false;
+    }
+  }
+
+  @Override
+  public boolean openProjectFromLocalFile(String projectFilePath) {
+    Matcher matcher = xjProjectPathAndFilenameRgx.matcher(projectFilePath);
+    if (!matcher.find()) {
+      LOG.error("Failed to parse project path prefix and name from file path: {}", projectFilePath);
+      return false;
+    }
+    projectPathPrefix.set(matcher.group(1));
+    projectName.set(matcher.group(2));
+
+    try {
+      LOG.info("Will load project \"{}\" from {}", projectName.get(), projectFilePath);
+      updateState(ProjectState.LoadingContent);
+      var json = Files.readString(Path.of(projectFilePath));
+      content.set(jsonProvider.getMapper().readValue(json, HubContent.class));
+      project.set(content.get().getProjects().stream().findFirst().orElse(null));
+      updateState(ProjectState.LoadedContent);
+      LOG.info("Did load content for project \"{}\" from {}", projectName.get(), projectFilePath);
+      updateState(ProjectState.Ready);
+      return true;
+
+    } catch (Exception e) {
+      LOG.error("Failed to open project from local file!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      updateState(ProjectState.Failed);
+    }
+    return false;
   }
 
   @Override
@@ -190,7 +219,7 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public String getProjectFilePath() {
+  public String getPathToProjectFile() {
     return projectPathPrefix.get() + getProjectFilename();
   }
 
@@ -202,6 +231,11 @@ public class ProjectManagerImpl implements ProjectManager {
   @Override
   public String getPathToInstrumentAudio(UUID instrumentId, String waveformKey) {
     return projectPathPrefix.get() + "instrument" + File.separator + instrumentId.toString() + File.separator + waveformKey;
+  }
+
+  @Override
+  public void setAudioBaseUrl(String audioBaseUrl) {
+    this.audioBaseUrl.set(audioBaseUrl);
   }
 
   @Override

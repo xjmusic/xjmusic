@@ -3,7 +3,6 @@ package io.xj.gui.services.impl;
 import io.xj.gui.WorkstationLogAppender;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
-import io.xj.gui.services.LabStatus;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.ControlMode;
@@ -26,7 +25,6 @@ import java.util.Objects;
 @Service
 public class UIStateServiceImpl implements UIStateService {
   private final BooleanBinding hasCurrentProject;
-  private final BooleanBinding isInputModeDisabled;
   private final BooleanBinding isManualFabricationActive;
   private final BooleanBinding isManualFabricationMode;
   private final BooleanBinding isProgressBarVisible;
@@ -49,9 +47,6 @@ public class UIStateServiceImpl implements UIStateService {
 
     // Is the fabrication settings button disabled?
     isFabricationSettingsDisabled = fabricationService.isStateActiveProperty();
-
-    // Is the input mode selection dropdown disabled?
-    isInputModeDisabled = labService.statusProperty().isEqualTo(LabStatus.Authenticated).not();
 
     // Is the main action button disabled?
     isMainActionButtonDisabled = fabricationService.inputTemplateProperty().isNull();
@@ -138,11 +133,6 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public StringProperty logLevelProperty() {
     return logLevel;
-  }
-
-  @Override
-  public ObservableBooleanValue isInputModeDisabledProperty() {
-    return isInputModeDisabled;
   }
 
   @Override

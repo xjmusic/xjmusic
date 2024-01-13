@@ -46,11 +46,11 @@ public interface ProjectService {
   /**
    Clone from a demo template
 
-   @param pathPrefix      on disk
-   @param templateShipKey of the demo
-   @param name            of the project
+   @param parentPathPrefix on disk, parent of the project folder
+   @param templateShipKey  of the demo
+   @param projectName             of the project folder and the project
    */
-  void cloneFromDemoTemplate(String pathPrefix, String templateShipKey, String name);
+  void cloneFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName);
 
   /**
    Save the project

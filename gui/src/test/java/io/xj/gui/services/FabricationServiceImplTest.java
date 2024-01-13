@@ -8,7 +8,6 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.ControlMode;
-import io.xj.nexus.InputMode;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -45,7 +44,6 @@ class FabricationServiceImplTest {
   int defaultMixerLengthSeconds = 10;
   int defaultOutputChannels = 2;
   private final String defaultMacroMode = ControlMode.AUTO.toString();
-  String defaultInputMode = InputMode.PRODUCTION.toString();
   int defaultOutputFrameRate = 48000;
 
   @Mock
@@ -87,7 +85,6 @@ class FabricationServiceImplTest {
       defaultOutputChannels,
       defaultOutputFrameRate,
       defaultMacroMode,
-      defaultInputMode,
       labService,
       projectService,
       workManager

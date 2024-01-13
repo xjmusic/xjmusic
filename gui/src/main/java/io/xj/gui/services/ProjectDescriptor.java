@@ -5,9 +5,9 @@ import io.xj.hub.tables.pojos.Project;
 /**
  Store a recent project
  */
-public record ProjectDescriptor(Project project, String filename, String path) {
+public record ProjectDescriptor(Project project, String projectFilename, String projectFilePath) {
   @Override
   public String toString() {
-    return filename;
+    return projectFilename;
   }
 }

@@ -4,10 +4,8 @@ package io.xj.nexus.work;
 
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.ControlMode;
-import io.xj.nexus.InputMode;
 
 public class WorkConfiguration {
-  private InputMode inputMode;
   private ControlMode controlMode;
   private Template inputTemplate;
   private int craftAheadSeconds;
@@ -18,15 +16,6 @@ public class WorkConfiguration {
   private int shipOutputFileNumberDigits = 7;
   private int shipOutputPcmChunkSizeBytes = 1024;
   private long persistenceWindowSeconds = 3600;
-
-  public InputMode getInputMode() {
-    return inputMode;
-  }
-
-  public WorkConfiguration setInputMode(InputMode inputMode) {
-    this.inputMode = inputMode;
-    return this;
-  }
 
   public ControlMode getMacroMode() {
     return controlMode;

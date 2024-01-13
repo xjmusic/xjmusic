@@ -11,7 +11,6 @@ import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.ControlMode;
-import io.xj.nexus.InputMode;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
@@ -44,8 +43,6 @@ public interface FabricationService {
   ObservableStringValue stateTextProperty();
 
   ObjectProperty<Template> inputTemplateProperty();
-
-  ObjectProperty<InputMode> inputModeProperty();
 
   ObjectProperty<ControlMode> controlModeProperty();
 
