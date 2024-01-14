@@ -15,10 +15,15 @@
   xmlns="http://javafx.com/javafx/20.0.1"
   xmlns:fx="http://javafx.com/fxml/1"
   fx:controller="io.xj.gui.controllers.ContentContainerController">
+
+  <left>
+    <fx:include fx:id="contentBrowser" source="content-browser.fxml"/>
+  </left>
+
   <center>
-    <StackPane>
+    <StackPane
+      fx:id="startupContainer">
       <ImageView
-        fx:id="startupContainer"
         fitHeight="200"
         fitWidth="200"
         pickOnBounds="true"
@@ -28,4 +33,5 @@
       </ImageView>
     </StackPane>
   </center>
+
 </BorderPane>
