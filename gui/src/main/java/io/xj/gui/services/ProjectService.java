@@ -1,7 +1,12 @@
 package io.xj.gui.services;
 
 import io.xj.hub.HubContent;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.project.ProjectState;
+import io.xj.nexus.project.ProjectUpdate;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -9,6 +14,7 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableListValue;
 import javafx.beans.value.ObservableStringValue;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface ProjectService {
@@ -95,7 +101,7 @@ public interface ProjectService {
   /**
    @return Observable property for whether the project is in a standby state
    */
-  BooleanBinding getIsStateStandby();
+  BooleanBinding isStateStandbyProperty();
 
   /**
    @return Get the project content
@@ -111,4 +117,40 @@ public interface ProjectService {
    @return the list of recent projects
    */
   ObservableListValue<ProjectDescriptor> recentProjectsProperty();
+
+  /**
+   Attach a listener to project updates
+
+   @param type     the type of update to listen for
+   @param listener the listener to attach
+   */
+  void addProjectUpdateListener(ProjectUpdate type, Runnable listener);
+
+  /**
+   Get the current list of non-deleted libraries sorted by name
+
+   @return the list of libraries
+   */
+  List<Library> getLibraries();
+
+  /**
+   Get the current list of non-deleted programs sorted by name
+
+   @return the list of programs
+   */
+  List<Program> getPrograms();
+
+  /**
+   Get the current list of non-deleted instruments sorted by name
+
+   @return the list of instruments
+   */
+  List<Instrument> getInstruments();
+
+  /**
+   Get the current list of non-deleted templates sorted by name
+
+   @return the list of templates
+   */
+  List<Template> getTemplates();
 }

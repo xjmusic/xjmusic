@@ -8,11 +8,11 @@ import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Service;
 
 @Service
-public class FabricationContainerController implements ReadyAfterBootController {
+public class FabricationController implements ReadyAfterBootController {
   final MainPaneRightController mainPaneRightController;
   final FabricationTimelineController fabricationTimelineController;
 
-  public FabricationContainerController(
+  public FabricationController(
     MainPaneRightController mainPaneRightController,
     FabricationTimelineController fabricationTimelineController
   ) {

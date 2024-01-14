@@ -8,7 +8,7 @@ import io.xj.gui.services.LabStatus;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ProjectViewMode;
 import io.xj.gui.services.UIStateService;
-import io.xj.nexus.work.WorkState;
+import io.xj.nexus.work.FabricationState;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.css.PseudoClass;
@@ -31,11 +31,11 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   private static final PseudoClass ACTIVE_PSEUDO_CLASS = PseudoClass.getPseudoClass("active");
   private static final PseudoClass PENDING_PSEUDO_CLASS = PseudoClass.getPseudoClass("pending");
   private static final PseudoClass FAILED_PSEUDO_CLASS = PseudoClass.getPseudoClass("failed");
-  private static final Set<WorkState> WORK_PENDING_STATES = Set.of(
-    WorkState.Initializing,
-    WorkState.PreparedAudio,
-    WorkState.PreparingAudio,
-    WorkState.Starting
+  private static final Set<FabricationState> WORK_PENDING_STATES = Set.of(
+    FabricationState.Initializing,
+    FabricationState.PreparedAudio,
+    FabricationState.PreparingAudio,
+    FabricationState.Starting
   );
   private static final Set<LabStatus> LAB_PENDING_STATES = Set.of(
     LabStatus.Connecting,
@@ -176,9 +176,9 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     }
   }
 
-  private void handleFabricationStateChange(ObservableValue<? extends WorkState> o, WorkState ov, WorkState value) {
-    buttonAction.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, Objects.equals(value, WorkState.Active));
-    buttonAction.pseudoClassStateChanged(FAILED_PSEUDO_CLASS, Objects.equals(value, WorkState.Failed));
+  private void handleFabricationStateChange(ObservableValue<? extends FabricationState> o, FabricationState ov, FabricationState value) {
+    buttonAction.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, Objects.equals(value, FabricationState.Active));
+    buttonAction.pseudoClassStateChanged(FAILED_PSEUDO_CLASS, Objects.equals(value, FabricationState.Failed));
     buttonAction.pseudoClassStateChanged(PENDING_PSEUDO_CLASS, WORK_PENDING_STATES.contains(value));
   }
 

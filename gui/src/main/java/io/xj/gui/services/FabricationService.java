@@ -19,13 +19,12 @@ import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentMeme;
 import io.xj.nexus.model.SegmentMessage;
 import io.xj.nexus.model.SegmentMeta;
-import io.xj.nexus.work.WorkState;
+import io.xj.nexus.work.FabricationState;
 import jakarta.annotation.Nullable;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableStringValue;
 import javafx.beans.value.ObservableValue;
@@ -39,7 +38,7 @@ import java.util.UUID;
 
 public interface FabricationService {
 
-  ObjectProperty<WorkState> stateProperty();
+  ObjectProperty<FabricationState> stateProperty();
 
   ObservableStringValue stateTextProperty();
 
@@ -146,13 +145,13 @@ public interface FabricationService {
   /**
    The fabrication service has a main action that can be triggered by the user. This action is
    dependent on the current status of the service. For example, if the service is currently
-   {@link WorkState#Standby}, then the main action will be to start the fabrication process.
+   {@link FabricationState#Standby}, then the main action will be to start the fabrication process.
    */
   void handleMainAction();
 
   /**
    The main action button text is dependent on the current status of the service. For example, if
-   the service is currently {@link WorkState#Standby}, then the main action button text
+   the service is currently {@link FabricationState#Standby}, then the main action button text
    will be "Start".
    */
   ObservableValue<String> mainActionButtonTextProperty();

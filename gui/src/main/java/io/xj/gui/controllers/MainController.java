@@ -17,8 +17,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class MainController implements ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(MainController.class);
-  private final ContentContainerController contentContainerController;
-  private final FabricationContainerController fabricationContainerController;
+  private final ContentController contentController;
+  private final FabricationController fabricationController;
   private final MainMenuController mainMenuController;
   private final MainPaneBottomController mainPaneBottomController;
   private final MainPaneTopController mainPaneTopController;
@@ -26,16 +26,16 @@ public class MainController implements ReadyAfterBootController {
   private final UIStateService uiStateService;
 
   public MainController(
-    ContentContainerController contentContainerController,
-    FabricationContainerController fabricationContainerController,
+    ContentController contentController,
+    FabricationController fabricationController,
     MainMenuController mainMenuController,
     MainPaneBottomController mainPaneBottomController,
     MainPaneTopController mainPaneTopController,
     ProjectService projectService,
     UIStateService uiStateService
   ) {
-    this.contentContainerController = contentContainerController;
-    this.fabricationContainerController = fabricationContainerController;
+    this.contentController = contentController;
+    this.fabricationController = fabricationController;
     this.mainMenuController = mainMenuController;
     this.mainPaneBottomController = mainPaneBottomController;
     this.mainPaneTopController = mainPaneTopController;
@@ -66,11 +66,11 @@ public class MainController implements ReadyAfterBootController {
       mainPaneTopController.onStageReady();
       uiStateService.onStageReady();
 
-      contentContainerController.onStageReady();
+      contentController.onStageReady();
       contentContainer.visibleProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.CONTENT));
       contentContainer.managedProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.CONTENT));
 
-      fabricationContainerController.onStageReady();
+      fabricationController.onStageReady();
       fabricationContainer.visibleProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.FABRICATION));
       fabricationContainer.managedProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.FABRICATION));
 
@@ -81,8 +81,8 @@ public class MainController implements ReadyAfterBootController {
 
   @Override
   public void onStageClose() {
-    contentContainerController.onStageClose();
-    fabricationContainerController.onStageClose();
+    contentController.onStageClose();
+    fabricationController.onStageClose();
     mainMenuController.onStageClose();
     mainPaneBottomController.onStageClose();
     mainPaneTopController.onStageClose();

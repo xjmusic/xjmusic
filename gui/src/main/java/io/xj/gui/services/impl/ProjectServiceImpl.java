@@ -5,11 +5,16 @@ import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ProjectViewMode;
 import io.xj.hub.HubContent;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Project;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.json.JsonProvider;
 import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.project.ProjectState;
+import io.xj.nexus.project.ProjectUpdate;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -31,6 +36,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.prefs.Preferences;
@@ -192,7 +199,7 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public BooleanBinding getIsStateStandby() {
+  public BooleanBinding isStateStandbyProperty() {
     return isStateStandby;
   }
 
@@ -209,6 +216,51 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public ObservableListValue<ProjectDescriptor> recentProjectsProperty() {
     return recentProjects;
+  }
+
+  @Override
+  public void addProjectUpdateListener(ProjectUpdate type, Runnable listener) {
+    projectManager.addProjectUpdateListener(type, listener);
+  }
+
+  @Override
+  public List<Library> getLibraries() {
+    return Objects.nonNull(projectManager.getContent()) ?
+      projectManager.getContent().getLibraries().stream()
+        .filter(library -> !library.getIsDeleted())
+        .sorted(Comparator.comparing(Library::getName))
+        .toList()
+      : new ArrayList<>();
+  }
+
+  @Override
+  public List<Program> getPrograms() {
+    return Objects.nonNull(projectManager.getContent()) ?
+      projectManager.getContent().getPrograms().stream()
+        .filter(program -> !program.getIsDeleted())
+        .sorted(Comparator.comparing(Program::getName))
+        .toList()
+      : new ArrayList<>();
+  }
+
+  @Override
+  public List<Instrument> getInstruments() {
+    return Objects.nonNull(projectManager.getContent()) ?
+      projectManager.getContent().getInstruments().stream()
+        .filter(instrument -> !instrument.getIsDeleted())
+        .sorted(Comparator.comparing(Instrument::getName))
+        .toList()
+      : new ArrayList<>();
+  }
+
+  @Override
+  public List<Template> getTemplates() {
+    return Objects.nonNull(projectManager.getContent()) ?
+      projectManager.getContent().getTemplates().stream()
+        .filter(template -> !template.getIsDeleted())
+        .sorted(Comparator.comparing(Template::getName))
+        .toList()
+      : new ArrayList<>();
   }
 
   /**
@@ -256,9 +308,5 @@ public class ProjectServiceImpl implements ProjectService {
    */
   private void removeFromRecentProjects(String projectFilePath) {
     this.recentProjects.get().removeIf(existing -> Objects.equals(existing.projectFilePath(), projectFilePath));
-  }
-
-  public BooleanBinding isStateStandbyProperty() {
-    return isStateStandby;
   }
 }

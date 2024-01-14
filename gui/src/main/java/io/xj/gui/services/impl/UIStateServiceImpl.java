@@ -6,7 +6,7 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.ControlMode;
 import io.xj.nexus.project.ProjectState;
-import io.xj.nexus.work.WorkState;
+import io.xj.nexus.work.FabricationState;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.StringBinding;
@@ -55,7 +55,7 @@ public class UIStateServiceImpl implements UIStateService {
     // Is manual fabrication active?
     isManualFabricationActive =
       fabricationService.controlModeProperty().isNotEqualTo(ControlMode.AUTO)
-        .and(fabricationService.stateProperty().isEqualTo(WorkState.Active));
+        .and(fabricationService.stateProperty().isEqualTo(FabricationState.Active));
 
     // Is the progress bar visible?
     isProgressBarVisible =

@@ -13,7 +13,7 @@
   fx:controller="io.xj.gui.controllers.MainController">
   <fx:include fx:id="mainMenu" source="main-menu.fxml"/>
   <fx:include fx:id="mainPaneTop" source="main-pane-top.fxml"/>
-  <fx:include fx:id="fabricationContainer" source="fabrication-container.fxml"/>
-  <fx:include fx:id="contentContainer" source="content-container.fxml"/>
+  <fx:include fx:id="fabricationContainer" source="fabrication.fxml"/>
+  <fx:include fx:id="contentContainer" source="content.fxml"/>
   <fx:include fx:id="mainPaneBottom" source="main-pane-bottom.fxml"/>
 </VBox>

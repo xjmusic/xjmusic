@@ -53,8 +53,8 @@ import java.util.function.Consumer;
 import static io.xj.hub.util.StringUtils.formatStackTrace;
 import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
-public class WorkManagerImpl implements WorkManager {
-  private static final Logger LOG = LoggerFactory.getLogger(WorkManagerImpl.class);
+public class FabricationManagerImpl implements FabricationManager {
+  private static final Logger LOG = LoggerFactory.getLogger(FabricationManagerImpl.class);
   private final ProjectManager projectManager;
   private final BroadcastFactory broadcastFactory;
   private final CraftFactory craftFactory;
@@ -63,7 +63,7 @@ public class WorkManagerImpl implements WorkManager {
   private final MixerFactory mixerFactory;
   private final NexusEntityStore entityStore;
   private final Telemetry telemetry;
-  private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
+  private final AtomicReference<FabricationState> state = new AtomicReference<>(FabricationState.Standby);
   private final AtomicBoolean isAudioLoaded = new AtomicBoolean(false);
   private final AtomicLong startedAtMillis = new AtomicLong(0);
   private final AtomicBoolean running = new AtomicBoolean(false);
@@ -78,7 +78,7 @@ public class WorkManagerImpl implements WorkManager {
   private ShipWork shipWork;
 
   @Nullable
-  private WorkConfiguration workConfig;
+  private FabricationConfiguration workConfig;
 
   @Nullable
   private HubConfiguration hubConfig;
@@ -87,12 +87,12 @@ public class WorkManagerImpl implements WorkManager {
   private Consumer<Float> onProgress;
 
   @Nullable
-  private Consumer<WorkState> onStateChange;
+  private Consumer<FabricationState> onStateChange;
 
   @Nullable
   private Runnable afterFinished;
 
-  public WorkManagerImpl(
+  public FabricationManagerImpl(
     ProjectManager projectManager,
     Telemetry telemetry,
     BroadcastFactory broadcastFactory,
@@ -112,7 +112,7 @@ public class WorkManagerImpl implements WorkManager {
     this.telemetry = telemetry;
   }
 
-  public static WorkManager createInstance(ProjectManager projectManager) {
+  public static FabricationManager createInstance(ProjectManager projectManager) {
     BroadcastFactory broadcastFactory = new BroadcastFactoryImpl();
     Telemetry telemetry = new TelemetryImpl();
     CraftFactory craftFactory = new CraftFactoryImpl();
@@ -130,7 +130,7 @@ public class WorkManagerImpl implements WorkManager {
     MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
-    return new WorkManagerImpl(
+    return new FabricationManagerImpl(
       projectManager, telemetry,
       broadcastFactory,
       craftFactory,
@@ -143,7 +143,7 @@ public class WorkManagerImpl implements WorkManager {
 
   @Override
   public void start(
-    WorkConfiguration workConfig,
+    FabricationConfiguration workConfig,
     HubConfiguration hubConfig,
     HubClientAccess hubAccess
   ) {
@@ -169,7 +169,7 @@ public class WorkManagerImpl implements WorkManager {
 
     startedAtMillis.set(System.currentTimeMillis());
     isAudioLoaded.set(false);
-    updateState(WorkState.Starting);
+    updateState(FabricationState.Starting);
     LOG.debug("Did update work state to Starting");
 
     running.set(true);
@@ -203,7 +203,7 @@ public class WorkManagerImpl implements WorkManager {
       shipWork.finish();
     }
 
-    updateState(cancelled ? WorkState.Cancelled : WorkState.Done);
+    updateState(cancelled ? FabricationState.Cancelled : FabricationState.Done);
     if (Objects.nonNull(afterFinished)) {
       afterFinished.run();
     }
@@ -212,13 +212,13 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public WorkState getWorkState() {
+  public FabricationState getWorkState() {
     return state.get();
   }
 
   @Override
   public boolean isHealthy() {
-    return getWorkState() != WorkState.Failed;
+    return getWorkState() != FabricationState.Failed;
   }
 
   @Override
@@ -227,7 +227,7 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public void setOnStateChange(@Nullable Consumer<WorkState> onStateChange) {
+  public void setOnStateChange(@Nullable Consumer<FabricationState> onStateChange) {
     this.onStateChange = onStateChange;
   }
 
@@ -315,15 +315,15 @@ public class WorkManagerImpl implements WorkManager {
   /**
    Update the current work state
 
-   @param workState work state
+   @param fabricationState work state
    */
-  private void updateState(WorkState workState) {
-    state.set(workState);
+  private void updateState(FabricationState fabricationState) {
+    state.set(fabricationState);
     if (Objects.nonNull(onStateChange)) {
-      onStateChange.accept(workState);
-      LOG.debug("Did update work state to {} and notify listener", workState);
+      onStateChange.accept(fabricationState);
+      LOG.debug("Did update work state to {} and notify listener", fabricationState);
     } else {
-      LOG.debug("Did update work state to {} but there is no listener to notify", workState);
+      LOG.debug("Did update work state to {} but there is no listener to notify", fabricationState);
     }
   }
 
@@ -336,24 +336,24 @@ public class WorkManagerImpl implements WorkManager {
       switch (state.get()) {
 
         case Starting -> {
-          updateState(WorkState.PreparingAudio);
+          updateState(FabricationState.PreparingAudio);
           startPreparingAudio();
         }
 
         case PreparingAudio -> {
           if (isAudioLoaded()) {
-            updateState(WorkState.PreparedAudio);
+            updateState(FabricationState.PreparedAudio);
           }
         }
 
         case PreparedAudio -> {
-          updateState(WorkState.Initializing);
+          updateState(FabricationState.Initializing);
           initialize();
         }
 
         case Initializing -> {
           if (isInitialized()) {
-            updateState(WorkState.Active);
+            updateState(FabricationState.Active);
           }
         }
 
@@ -372,7 +372,7 @@ public class WorkManagerImpl implements WorkManager {
    Run the craft cycle
    */
   private void runCraftCycle() {
-    if (!Objects.equals(state.get(), WorkState.Active)) {
+    if (!Objects.equals(state.get(), FabricationState.Active)) {
       LOG.debug("Will not run craft cycle because work state is {}", state.get());
       return;
     }
@@ -398,7 +398,7 @@ public class WorkManagerImpl implements WorkManager {
    Run the dub cycle
    */
   private void runDubCycle() {
-    if (!Objects.equals(state.get(), WorkState.Active)) {
+    if (!Objects.equals(state.get(), FabricationState.Active)) {
       LOG.debug("Will not run dub cycle because work state is {}", state.get());
       return;
     }
@@ -420,7 +420,7 @@ public class WorkManagerImpl implements WorkManager {
    Run the ship cycle
    */
   private void runShipCycle() {
-    if (!Objects.equals(state.get(), WorkState.Active)) {
+    if (!Objects.equals(state.get(), FabricationState.Active)) {
       LOG.debug("Will not run ship cycle because work state is {}", state.get());
       return;
     }
@@ -437,7 +437,7 @@ public class WorkManagerImpl implements WorkManager {
     }
 
     if (shipWork.isFinished()) {
-      updateState(WorkState.Done);
+      updateState(FabricationState.Done);
       LOG.info("Fabrication work done");
     }
   }
@@ -474,7 +474,7 @@ public class WorkManagerImpl implements WorkManager {
           .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
           .sorted(Comparator.comparing(InstrumentAudio::getName))
           .toList()) {
-          if (!Objects.equals(state.get(), WorkState.PreparingAudio)) {
+          if (!Objects.equals(state.get(), FabricationState.PreparingAudio)) {
             // Workstation canceling preloading should cease resampling audio files https://www.pivotaltracker.com/story/show/186209135
             return;
           }
@@ -556,6 +556,6 @@ public class WorkManagerImpl implements WorkManager {
     if (Objects.nonNull(shipWork)) {
       shipWork.finish();
     }
-    updateState(WorkState.Failed);
+    updateState(FabricationState.Failed);
   }
 }

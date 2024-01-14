@@ -110,4 +110,12 @@ public interface ProjectManager {
    @param onStateChange the callback
    */
   void setOnStateChange(@Nullable Consumer<ProjectState> onStateChange);
+
+  /**
+   Attach a listener to project updates
+
+   @param type     the type of update to listen for
+   @param listener the listener to attach
+   */
+  void addProjectUpdateListener(ProjectUpdate type, Runnable listener);
 }

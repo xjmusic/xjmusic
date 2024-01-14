@@ -17,7 +17,7 @@ import io.xj.nexus.model.SegmentMessageType;
 import io.xj.nexus.model.SegmentMeta;
 import io.xj.nexus.persistence.SegmentUtils;
 import io.xj.nexus.util.FormatUtils;
-import io.xj.nexus.work.WorkState;
+import io.xj.nexus.work.FabricationState;
 import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -149,7 +149,7 @@ public class FabricationTimelineController extends ScrollPane implements ReadyAf
 
    @param status the new status
    */
-  private void handleUpdateFabricationStatus(WorkState status) {
+  private void handleUpdateFabricationStatus(FabricationState status) {
     try {
       switch (status) {
         case Standby -> resetTimeline();

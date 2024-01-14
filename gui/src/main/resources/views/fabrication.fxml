@@ -4,13 +4,12 @@
 
 <?import javafx.scene.layout.BorderPane?>
 <BorderPane
-  prefWidth="10000"
-  prefHeight="10000"
+  prefHeight="99999"
   maxWidth="Infinity"
   maxHeight="Infinity"
   xmlns="http://javafx.com/javafx/20.0.1"
   xmlns:fx="http://javafx.com/fxml/1"
-  fx:controller="io.xj.gui.controllers.FabricationContainerController">
+  fx:controller="io.xj.gui.controllers.FabricationController">
   <center>
     <fx:include fx:id="mainTimeline" source="fabrication-timeline.fxml"/>
   </center>

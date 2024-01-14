@@ -13,14 +13,14 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public interface WorkManager {
+public interface FabricationManager {
   /**
    Start work.
    <p>
    This assigns the work configuration, hub configuration, and hub access.
    */
   void start(
-    WorkConfiguration workConfig,
+    FabricationConfiguration workConfig,
     HubConfiguration hubConfig,
     HubClientAccess hubAccess
   );
@@ -71,7 +71,7 @@ public interface WorkManager {
   /**
    @return the current work state
    */
-  WorkState getWorkState();
+  FabricationState getWorkState();
 
   /**
    @return true if the current work is healthy
@@ -90,7 +90,7 @@ public interface WorkManager {
 
    @param onStateChange callback
    */
-  void setOnStateChange(Consumer<WorkState> onStateChange);
+  void setOnStateChange(Consumer<FabricationState> onStateChange);
 
   /**
    Set the on finish callback

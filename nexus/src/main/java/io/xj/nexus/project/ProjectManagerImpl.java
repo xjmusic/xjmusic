@@ -33,9 +33,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -52,6 +56,7 @@ public class ProjectManagerImpl implements ProjectManager {
   private final AtomicReference<String> projectName = new AtomicReference<>("Project");
   private final AtomicReference<String> audioBaseUrl = new AtomicReference<>("https://audio.xj.io/");
   private final AtomicReference<HubContent> content = new AtomicReference<>();
+  private final Map<ProjectUpdate, Set<Runnable>> projectUpdateListeners = new HashMap<>();
   private final JsonProvider jsonProvider;
   private final EntityFactory entityFactory;
 
@@ -278,6 +283,23 @@ public class ProjectManagerImpl implements ProjectManager {
     this.onStateChange = onStateChange;
   }
 
+  @Override
+  public void addProjectUpdateListener(ProjectUpdate type, Runnable listener) {
+    projectUpdateListeners.computeIfAbsent(type, k -> new HashSet<>());
+    projectUpdateListeners.get(type).add(listener);
+  }
+
+  /**
+   Notify all listeners of a project update
+
+   @param type the type of update
+   */
+  private void notifyProjectUpdateListeners(ProjectUpdate type) {
+    if (projectUpdateListeners.containsKey(type)) {
+      projectUpdateListeners.get(type).forEach(Runnable::run);
+    }
+  }
+
   /**
    Unload the current project
    */
@@ -334,6 +356,12 @@ public class ProjectManagerImpl implements ProjectManager {
     this.state.set(state);
     if (Objects.nonNull(onStateChange))
       onStateChange.accept(state);
+    if (state == ProjectState.Ready) {
+      notifyProjectUpdateListeners(ProjectUpdate.LIBRARIES);
+      notifyProjectUpdateListeners(ProjectUpdate.PROGRAMS);
+      notifyProjectUpdateListeners(ProjectUpdate.INSTRUMENTS);
+      notifyProjectUpdateListeners(ProjectUpdate.TEMPLATES);
+    }
   }
 
   /**

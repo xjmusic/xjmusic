@@ -3,7 +3,7 @@
 package io.xj.nexus.work;
 
 
-public enum WorkState {
+public enum FabricationState {
   Standby,
   Starting,
   PreparingAudio,

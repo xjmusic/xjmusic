@@ -6,9 +6,9 @@ import io.xj.hub.HubConfiguration;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.project.ProjectManagerImpl;
-import io.xj.nexus.work.WorkConfiguration;
-import io.xj.nexus.work.WorkManager;
-import io.xj.nexus.work.WorkManagerImpl;
+import io.xj.nexus.work.FabricationConfiguration;
+import io.xj.nexus.work.FabricationManager;
+import io.xj.nexus.work.FabricationManagerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ import org.springframework.context.event.EventListener;
   })
 public class WorkstationServiceApplication {
   final Logger LOG = LoggerFactory.getLogger(WorkstationServiceApplication.class);
-  final WorkManager workManager;
+  final FabricationManager fabricationManager;
   final ApplicationContext context;
   final String inputTemplateKey;
   private final String ingestToken;
@@ -57,12 +57,12 @@ public class WorkstationServiceApplication {
     this.shipBaseUrl = shipBaseUrl;
     this.streamBaseUrl = streamBaseUrl;
     ProjectManager projectManager = ProjectManagerImpl.createInstance();
-    this.workManager = WorkManagerImpl.createInstance(projectManager);
+    this.fabricationManager = FabricationManagerImpl.createInstance(projectManager);
   }
 
   @EventListener(ApplicationStartedEvent.class)
   public void start() {
-    var workConfig = new WorkConfiguration()
+    var workConfig = new FabricationConfiguration()
       .setInputTemplate(null); // FUTURE: read template
 
     var hubConfig = new HubConfiguration()
@@ -76,8 +76,8 @@ public class WorkstationServiceApplication {
     var hubAccess = new HubClientAccess()
       .setToken(ingestToken);
 
-    workManager.setAfterFinished(this::shutdown);
-    workManager.start(workConfig, hubConfig, hubAccess);
+    fabricationManager.setAfterFinished(this::shutdown);
+    fabricationManager.start(workConfig, hubConfig, hubAccess);
   }
 
   void shutdown() {
