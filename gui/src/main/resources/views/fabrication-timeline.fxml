@@ -14,9 +14,10 @@
   xmlns="http://javafx.com/javafx/20.0.1"
   xmlns:fx="http://javafx.com/fxml/1"
   maxHeight="Infinity"
-  maxWidth="Infinity"
-  fitToHeight="true"
-  fitToWidth="true">
+  maxWidth="Infinity">
+  <HBox.hgrow>
+    <Priority fx:constant="ALWAYS"/>
+  </HBox.hgrow>
   <VBox>
     <HBox fx:id="segmentPositionRow" maxHeight="8" minHeight="8" styleClass="timeline-position-indicator">
       <Rectangle fx:id="timelineRegion1Past" fill="#17EF1720" height="8"/>

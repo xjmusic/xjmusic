@@ -31,8 +31,9 @@ public class FabricationController implements ReadyAfterBootController {
   public void onStageReady() {
     mainPaneRightController.onStageReady();
     fabricationTimelineController.onStageReady();
-    container.visibleProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.FABRICATION));
-    container.managedProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.FABRICATION));
+
+    container.visibleProperty().bind(projectService.isStateReadyProperty().and(projectService.isViewModeFabricationProperty()));
+    container.managedProperty().bind(projectService.isStateReadyProperty().and(projectService.isViewModeFabricationProperty()));
   }
 
   @Override
