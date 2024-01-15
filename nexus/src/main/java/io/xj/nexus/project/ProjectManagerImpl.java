@@ -99,11 +99,9 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public boolean cloneProjectFromDemoTemplate(String templateShipKey, String parentPathPrefix, String projectName) {
-    LOG.info("Will clone from demo template \"{}\" in parent folder {}", templateShipKey, parentPathPrefix);
+    LOG.info("Cloning from demo template \"{}\" in parent folder {}", templateShipKey, parentPathPrefix);
 
     try {
-      unloadProject();
-
       createProjectFolder(parentPathPrefix, projectName);
 
       LOG.info("Will load content from demo template \"{}\"", templateShipKey);
@@ -184,6 +182,8 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public boolean openProjectFromLocalFile(String projectFilePath) {
+    LOG.info("Opening project at {}", projectFilePath);
+
     Matcher matcher = xjProjectPathAndFilenameRgx.matcher(projectFilePath);
     if (!matcher.find()) {
       LOG.error("Failed to parse project path prefix and name from file path: {}", projectFilePath);
@@ -212,11 +212,9 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public boolean createProject(String parentPathPrefix, String projectName) {
-    LOG.info("Will create new project \"{}\" in parent folder {}", projectName, parentPathPrefix);
+    LOG.info("Create new project \"{}\" in parent folder {}", projectName, parentPathPrefix);
 
     try {
-      unloadProject();
-
       createProjectFolder(parentPathPrefix, projectName);
 
       // Create the new project
@@ -289,6 +287,16 @@ public class ProjectManagerImpl implements ProjectManager {
     projectUpdateListeners.get(type).add(listener);
   }
 
+  @Override
+  public void closeProject() {
+    project.set(null);
+    content.set(null);
+    notifyProjectUpdateListeners(ProjectUpdate.Templates);
+    notifyProjectUpdateListeners(ProjectUpdate.Libraries);
+    notifyProjectUpdateListeners(ProjectUpdate.Programs);
+    notifyProjectUpdateListeners(ProjectUpdate.Instruments);
+  }
+
   /**
    Notify all listeners of a project update
 
@@ -298,14 +306,6 @@ public class ProjectManagerImpl implements ProjectManager {
     if (projectUpdateListeners.containsKey(type)) {
       projectUpdateListeners.get(type).forEach(Runnable::run);
     }
-  }
-
-  /**
-   Unload the current project
-   */
-  private void unloadProject() {
-    project.set(null);
-    content.set(null);
   }
 
   /**
@@ -357,10 +357,10 @@ public class ProjectManagerImpl implements ProjectManager {
     if (Objects.nonNull(onStateChange))
       onStateChange.accept(state);
     if (state == ProjectState.Ready) {
-      notifyProjectUpdateListeners(ProjectUpdate.LIBRARIES);
-      notifyProjectUpdateListeners(ProjectUpdate.PROGRAMS);
-      notifyProjectUpdateListeners(ProjectUpdate.INSTRUMENTS);
-      notifyProjectUpdateListeners(ProjectUpdate.TEMPLATES);
+      notifyProjectUpdateListeners(ProjectUpdate.Libraries);
+      notifyProjectUpdateListeners(ProjectUpdate.Programs);
+      notifyProjectUpdateListeners(ProjectUpdate.Instruments);
+      notifyProjectUpdateListeners(ProjectUpdate.Templates);
     }
   }
 

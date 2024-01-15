@@ -31,6 +31,7 @@ import java.util.function.Consumer;
 public class ContentBrowserController implements ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(ContentBrowserController.class);
   private final ProjectService projectService;
+  private final ContentEditorController contentEditorController;
   private final ObservableList<Library> libraries = FXCollections.observableList(new ArrayList<>());
   private final ObservableList<Program> programs = FXCollections.observableList(new ArrayList<>());
   private final ObservableList<Instrument> instruments = FXCollections.observableList(new ArrayList<>());
@@ -65,9 +66,11 @@ public class ContentBrowserController implements ReadyAfterBootController {
   protected Tab instrumentsTab;
 
   public ContentBrowserController(
-    ProjectService projectService
+    ProjectService projectService,
+    ContentEditorController contentEditorController
   ) {
     this.projectService = projectService;
+    this.contentEditorController = contentEditorController;
   }
 
   @Override
@@ -95,6 +98,27 @@ public class ContentBrowserController implements ReadyAfterBootController {
   }
 
   /**
+   Initialize the templates table.
+   */
+  private void initTemplates() {
+    addColumn(templatesTable, 200, "name", "Name");
+    setupData(
+      templatesTable,
+      templates,
+      template -> LOG.info("Did select Template"),
+      contentEditorController::openTemplate
+    );
+    projectService.addProjectUpdateListener(ProjectUpdate.Templates, this::updateTemplates);
+  }
+
+  /**
+   Update the templates table data.
+   */
+  private void updateTemplates() {
+    templates.setAll(projectService.getTemplates());
+  }
+
+  /**
    Initialize the libraries table.
    */
   private void initLibraries() {
@@ -103,9 +127,9 @@ public class ContentBrowserController implements ReadyAfterBootController {
       librariesTable,
       libraries,
       viewedLibrary::set,
-      library -> LOG.info("Did request to open Library")
+      contentEditorController::openLibrary
     );
-    projectService.addProjectUpdateListener(ProjectUpdate.LIBRARIES, this::updateLibraries);
+    projectService.addProjectUpdateListener(ProjectUpdate.Libraries, this::updateLibraries);
   }
 
   /**
@@ -128,9 +152,9 @@ public class ContentBrowserController implements ReadyAfterBootController {
       programsTable,
       programs,
       program -> LOG.info("Did select Program"),
-      program -> LOG.info("Did request to open Program")
+      contentEditorController::openProgram
     );
-    projectService.addProjectUpdateListener(ProjectUpdate.PROGRAMS, this::updatePrograms);
+    projectService.addProjectUpdateListener(ProjectUpdate.Programs, this::updatePrograms);
   }
 
   /**
@@ -155,9 +179,9 @@ public class ContentBrowserController implements ReadyAfterBootController {
       instrumentsTable,
       instruments,
       instrument -> LOG.info("Did select Instrument"),
-      instrument -> LOG.info("Did request to open Instrument")
+      contentEditorController::openInstrument
     );
-    projectService.addProjectUpdateListener(ProjectUpdate.INSTRUMENTS, this::updateInstruments);
+    projectService.addProjectUpdateListener(ProjectUpdate.Instruments, this::updateInstruments);
   }
 
   /**
@@ -167,27 +191,6 @@ public class ContentBrowserController implements ReadyAfterBootController {
     instruments.setAll(projectService.getInstruments().stream()
       .filter(instrument -> Objects.isNull(viewedLibrary.get()) || Objects.equals(instrument.getLibraryId(), viewedLibrary.get().getId()))
       .toList());
-  }
-
-  /**
-   Initialize the templates table.
-   */
-  private void initTemplates() {
-    addColumn(templatesTable, 200, "name", "Name");
-    setupData(
-      templatesTable,
-      templates,
-      template -> LOG.info("Did select Template"),
-      template -> LOG.info("Did request to open Template")
-    );
-    projectService.addProjectUpdateListener(ProjectUpdate.TEMPLATES, this::updateTemplates);
-  }
-
-  /**
-   Update the templates table data.
-   */
-  private void updateTemplates() {
-    templates.setAll(projectService.getTemplates());
   }
 
   /**

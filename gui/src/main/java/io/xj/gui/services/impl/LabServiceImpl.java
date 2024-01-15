@@ -4,7 +4,7 @@ package io.xj.gui.services.impl;
 
 import io.netty.resolver.DefaultAddressResolverGroup;
 import io.xj.gui.services.LabService;
-import io.xj.gui.services.LabStatus;
+import io.xj.gui.services.LabState;
 import io.xj.hub.HubConfiguration;
 import io.xj.hub.tables.pojos.User;
 import io.xj.hub.util.StringUtils;
@@ -38,7 +38,7 @@ public class LabServiceImpl implements LabService {
   private final Preferences prefs = Preferences.userNodeForPackage(LabServiceImpl.class);
   private final HostServices hostServices;
   final WebClient webClient;
-  final ObjectProperty<LabStatus> status = new SimpleObjectProperty<>(LabStatus.Offline);
+  final ObjectProperty<LabState> state = new SimpleObjectProperty<>(LabState.Offline);
   static final Pattern rgxStripLeadingSlash = Pattern.compile("^/");
   final StringProperty baseUrl = new SimpleStringProperty();
   final StringProperty accessToken = new SimpleStringProperty();
@@ -98,7 +98,7 @@ public class LabServiceImpl implements LabService {
 
   @Override
   public void connect() {
-    this.status.set(LabStatus.Connecting);
+    this.state.set(LabState.Connecting);
     makeAuthenticatedRequest("api/2/users/me", HttpMethod.GET, User.class)
       .subscribe(
         (User user) -> Platform.runLater(() -> this.onConnectionSuccess(user)),
@@ -114,7 +114,7 @@ public class LabServiceImpl implements LabService {
   @Override
   public void onConnectionSuccess(User user) {
     this.authenticatedUser.set(user);
-    this.status.set(LabStatus.Configuring);
+    this.state.set(LabState.Configuring);
     makeAuthenticatedRequest("api/2/config", HttpMethod.GET, HubConfiguration.class)
       .subscribe(
         (HubConfiguration config) -> Platform.runLater(() -> this.onConfigurationSuccess(config)),
@@ -125,7 +125,7 @@ public class LabServiceImpl implements LabService {
   @Override
   public void onConfigurationSuccess(HubConfiguration config) {
     this.hubConfig.set(config);
-    this.status.set(LabStatus.Authenticated);
+    this.state.set(LabState.Authenticated);
   }
 
   @Override
@@ -133,10 +133,10 @@ public class LabServiceImpl implements LabService {
     if (error instanceof WebClientResponseException && Objects.equals(((WebClientResponseException) error).getStatusCode(), UNAUTHORIZED)) {
       LOG.warn("Unauthorized for connection to lab!", error);
       this.authenticatedUser.set(null);
-      this.status.set(LabStatus.Unauthorized);
+      this.state.set(LabState.Unauthorized);
     } else {
       LOG.error("Failed to connect to lab!", error);
-      this.status.set(LabStatus.Failed);
+      this.state.set(LabState.Failed);
     }
   }
 
@@ -151,7 +151,7 @@ public class LabServiceImpl implements LabService {
 
   @Override
   public void disconnect() {
-    this.status.set(LabStatus.Offline);
+    this.state.set(LabState.Offline);
     this.authenticatedUser.set(null);
   }
 
@@ -161,8 +161,8 @@ public class LabServiceImpl implements LabService {
   }
 
   @Override
-  public ObjectProperty<LabStatus> statusProperty() {
-    return status;
+  public ObjectProperty<LabState> stateProperty() {
+    return state;
   }
 
   @Override
@@ -192,7 +192,7 @@ public class LabServiceImpl implements LabService {
 
   @Override
   public boolean isAuthenticated() {
-    return Objects.equals(status.get(), LabStatus.Authenticated);
+    return Objects.equals(state.get(), LabState.Authenticated);
   }
 
   @Override

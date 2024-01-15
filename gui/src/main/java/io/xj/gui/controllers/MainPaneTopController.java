@@ -4,7 +4,7 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
-import io.xj.gui.services.LabStatus;
+import io.xj.gui.services.LabState;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ProjectViewMode;
 import io.xj.gui.services.UIStateService;
@@ -37,13 +37,13 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     FabricationState.PreparingAudio,
     FabricationState.Starting
   );
-  private static final Set<LabStatus> LAB_PENDING_STATES = Set.of(
-    LabStatus.Connecting,
-    LabStatus.Configuring
+  private static final Set<LabState> LAB_PENDING_STATES = Set.of(
+    LabState.Connecting,
+    LabState.Configuring
   );
-  private static final Set<LabStatus> LAB_FAILED_STATES = Set.of(
-    LabStatus.Unauthorized,
-    LabStatus.Failed
+  private static final Set<LabState> LAB_FAILED_STATES = Set.of(
+    LabState.Unauthorized,
+    LabState.Failed
   );
   private final ProjectService projectService;
   private final FabricationService fabricationService;
@@ -114,9 +114,9 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
 
     fabricationService.stateProperty().addListener(this::handleFabricationStateChange);
-    labService.statusProperty().addListener(this::handleLabStateChange);
+    labService.stateProperty().addListener(this::handleLabStateChange);
 
-    labelLabStatus.textProperty().bind(labService.statusProperty().map(Enum::toString));
+    labelLabStatus.textProperty().bind(labService.stateProperty().map(Enum::toString));
 
     labelStatus.textProperty().bind(uiStateService.statusTextProperty());
     progressBar.progressProperty().bind(uiStateService.progressProperty());
@@ -133,8 +133,9 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     buttonFabrication.visibleProperty().bind(projectService.isStateReadyProperty());
     buttonFabrication.managedProperty().bind(projectService.isStateReadyProperty());
 
-    fabricationControlContainer.visibleProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.FABRICATION));
-    fabricationControlContainer.managedProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.FABRICATION));
+    fabricationControlContainer.visibleProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.Fabrication));
+    fabricationControlContainer.managedProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.Fabrication));
+
   }
 
   @Override
@@ -149,12 +150,12 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
   @FXML
   protected void handlePressedButtonContent() {
-    projectService.viewModeProperty().set(ProjectViewMode.CONTENT);
+    projectService.viewModeProperty().set(ProjectViewMode.Content);
   }
 
   @FXML
   protected void handlePressedButtonFabrication() {
-    projectService.viewModeProperty().set(ProjectViewMode.FABRICATION);
+    projectService.viewModeProperty().set(ProjectViewMode.Fabrication);
   }
 
   @FXML
@@ -182,8 +183,8 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     buttonAction.pseudoClassStateChanged(PENDING_PSEUDO_CLASS, WORK_PENDING_STATES.contains(value));
   }
 
-  private void handleLabStateChange(ObservableValue<? extends LabStatus> o, LabStatus ov, LabStatus value) {
-    buttonLab.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, Objects.equals(value, LabStatus.Authenticated));
+  private void handleLabStateChange(ObservableValue<? extends LabState> o, LabState ov, LabState value) {
+    buttonLab.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, Objects.equals(value, LabState.Authenticated));
     buttonLab.pseudoClassStateChanged(FAILED_PSEUDO_CLASS, LAB_FAILED_STATES.contains(value));
     buttonLab.pseudoClassStateChanged(PENDING_PSEUDO_CLASS, LAB_PENDING_STATES.contains(value));
   }

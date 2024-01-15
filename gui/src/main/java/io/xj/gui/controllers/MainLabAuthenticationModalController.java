@@ -3,7 +3,7 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.services.LabService;
-import io.xj.gui.services.LabStatus;
+import io.xj.gui.services.LabState;
 import io.xj.gui.services.ThemeService;
 import io.xj.hub.tables.pojos.User;
 import javafx.beans.binding.Bindings;
@@ -27,11 +27,11 @@ import java.util.Objects;
 
 @Service
 public class MainLabAuthenticationModalController extends ReadyAfterBootModalController {
-  static final List<LabStatus> BUTTON_CONNECT_ACTIVE_IN_LAB_STATES = Arrays.asList(
-    LabStatus.Authenticated,
-    LabStatus.Unauthorized,
-    LabStatus.Failed,
-    LabStatus.Offline
+  static final List<LabState> BUTTON_CONNECT_ACTIVE_IN_LAB_STATES = Arrays.asList(
+    LabState.Authenticated,
+    LabState.Unauthorized,
+    LabState.Failed,
+    LabState.Offline
   );
   static final String CONNECT_TO_LAB_WINDOW_NAME = "Lab Authentication";
   static final String BUTTON_DISCONNECT_TEXT = "Disconnect";
@@ -81,16 +81,16 @@ public class MainLabAuthenticationModalController extends ReadyAfterBootModalCon
   @Override
   public void onStageReady() {
     buttonConnect.disableProperty().bind(Bindings.createBooleanBinding(() ->
-        BUTTON_CONNECT_ACTIVE_IN_LAB_STATES.contains(labService.statusProperty().get()),
-      labService.statusProperty()).not());
+        BUTTON_CONNECT_ACTIVE_IN_LAB_STATES.contains(labService.stateProperty().get()),
+      labService.stateProperty()).not());
 
     buttonConnect.textProperty().bind(Bindings.createStringBinding(() ->
-        labService.statusProperty().get() == LabStatus.Authenticated ? BUTTON_DISCONNECT_TEXT : BUTTON_CONNECT_TEXT,
-      labService.statusProperty()));
+        labService.stateProperty().get() == LabState.Authenticated ? BUTTON_DISCONNECT_TEXT : BUTTON_CONNECT_TEXT,
+      labService.stateProperty()));
 
     fieldLabUrl.textProperty().bindBidirectional(labService.baseUrlProperty());
     fieldLabAccessToken.textProperty().bindBidirectional(labService.accessTokenProperty());
-    labelStatus.textProperty().bind(labService.statusProperty().asString());
+    labelStatus.textProperty().bind(labService.stateProperty().asString());
 
     textUserName.textProperty().bind(Bindings.createStringBinding(() -> {
       User user = labService.authenticatedUserProperty().get();
@@ -134,7 +134,7 @@ public class MainLabAuthenticationModalController extends ReadyAfterBootModalCon
 
   @FXML
   void handleConnect() {
-    if (labService.statusProperty().get() == LabStatus.Authenticated) {
+    if (labService.stateProperty().get() == LabState.Authenticated) {
       labService.disconnect();
     } else {
       labService.connect();

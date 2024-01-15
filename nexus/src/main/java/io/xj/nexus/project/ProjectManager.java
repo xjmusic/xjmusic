@@ -18,6 +18,11 @@ public interface ProjectManager {
   String getAudioBaseUrl();
 
   /**
+   Close the current project
+   */
+  void closeProject();
+
+  /**
    Clone from a demo template
 
    @param templateShipKey  of the demo

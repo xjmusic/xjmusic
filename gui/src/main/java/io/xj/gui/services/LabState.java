@@ -2,7 +2,7 @@
 
 package io.xj.gui.services;
 
-public enum LabStatus {
+public enum LabState {
   Offline,
   Connecting,
   Configuring,

@@ -2,6 +2,7 @@ package io.xj.gui.services.impl;
 
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.ProjectDescriptor;
+import io.xj.gui.services.ProjectEditMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ProjectViewMode;
 import io.xj.hub.HubContent;
@@ -47,7 +48,8 @@ public class ProjectServiceImpl implements ProjectService {
   static final Logger LOG = LoggerFactory.getLogger(ProjectServiceImpl.class);
   private static final String defaultPathPrefix = System.getProperty("user.home") + File.separator + "Documents";
   private final Preferences prefs = Preferences.userNodeForPackage(ProjectServiceImpl.class);
-  private final ObjectProperty<ProjectViewMode> viewMode = new SimpleObjectProperty<>(ProjectViewMode.CONTENT);
+  private final ObjectProperty<ProjectViewMode> viewMode = new SimpleObjectProperty<>(ProjectViewMode.Content);
+  private final ObjectProperty<ProjectEditMode> editMode = new SimpleObjectProperty<>(ProjectEditMode.None);
   private final ObservableObjectValue<Project> currentProject;
   private final ObservableListValue<ProjectDescriptor> recentProjects = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
   private final StringProperty basePathPrefix = new SimpleStringProperty();
@@ -97,6 +99,13 @@ public class ProjectServiceImpl implements ProjectService {
     projectManager.setAudioBaseUrl(labService.hubConfigProperty().get().getAudioBaseUrl());
     labService.hubConfigProperty().addListener((o, ov, value) -> projectManager.setAudioBaseUrl(value.getAudioBaseUrl()));
 
+    state.addListener((o, ov, value) -> {
+      if (Objects.equals(value, ProjectState.Standby)) {
+        viewMode.set(ProjectViewMode.Content);
+        editMode.set(ProjectEditMode.None);
+      }
+    });
+
     currentProject = Bindings.createObjectBinding(() -> {
       if (Objects.equals(state.get(), ProjectState.Ready)) {
         return projectManager.getProject().orElse(null);
@@ -118,8 +127,22 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
+  public ObjectProperty<ProjectEditMode> editModeProperty() {
+    return editMode;
+  }
+
+  @Override
+  public void closeProject() {
+    projectManager.closeProject();
+    viewMode.set(ProjectViewMode.Content);
+    editMode.set(ProjectEditMode.None);
+    state.set(ProjectState.Standby);
+  }
+
+  @Override
   public void openProject(String projectFilePath) {
     new Thread(() -> {
+      closeProject();
       if (projectManager.openProjectFromLocalFile(projectFilePath)) {
         projectManager.getProject().ifPresent(project ->
           addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile()));
@@ -131,8 +154,8 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void createProject(String parentPathPrefix, String projectName) {
-    LOG.info("Creating project {} at {}", projectName, parentPathPrefix);
     new Thread(() -> {
+      closeProject();
       if (projectManager.createProject(parentPathPrefix, projectName)) {
         projectManager.getProject().ifPresent(project ->
           addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile()));
@@ -142,13 +165,15 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void cloneFromLabProject(String parentPathPrefix, UUID projectId, String projectName) {
-    LOG.info("Cloning from lab project {} ({}) at {}", projectName, projectId, parentPathPrefix);
+    closeProject();
     // TODO implement projectService.cloneProjectFromLab()
+    LOG.info("Cloning from lab project {} ({}) at {}", projectName, projectId, parentPathPrefix);
   }
 
   @Override
   public void cloneFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
     new Thread(() -> {
+      closeProject();
       if (projectManager.cloneProjectFromDemoTemplate(templateShipKey, parentPathPrefix, projectName)) {
         projectManager.getProject().ifPresent(project ->
           addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile()));
@@ -205,12 +230,12 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public BooleanBinding isViewModeContentProperty() {
-    return viewMode.isEqualTo(ProjectViewMode.CONTENT);
+    return viewMode.isEqualTo(ProjectViewMode.Content);
   }
 
   @Override
   public BooleanBinding isViewModeFabricationProperty() {
-    return viewMode.isEqualTo(ProjectViewMode.FABRICATION);
+    return viewMode.isEqualTo(ProjectViewMode.Fabrication);
   }
 
   @Override

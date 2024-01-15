@@ -190,6 +190,11 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   }
 
   @FXML
+  protected void handleProjectClose() {
+    projectService.closeProject();
+  }
+
+  @FXML
   protected void handleProjectClone() {
     projectCreationModalController.setMode(ProjectCreationMode.CLONE_PROJECT);
     projectCreationModalController.launchModal();

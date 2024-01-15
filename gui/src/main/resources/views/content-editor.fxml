@@ -4,5 +4,8 @@
 <StackPane xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
            fx:controller="io.xj.gui.controllers.ContentEditorController">
-  <!-- TODO content editor -->
+  <fx:include fx:id="templateEditor" source="content-template-editor.fxml"/>
+  <fx:include fx:id="libraryEditor" source="content-library-editor.fxml"/>
+  <fx:include fx:id="programEditor" source="content-program-editor.fxml"/>
+  <fx:include fx:id="instrumentEditor" source="content-instrument-editor.fxml"/>
 </StackPane>

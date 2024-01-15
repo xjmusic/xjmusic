@@ -26,6 +26,18 @@ public interface ProjectService {
   ObjectProperty<ProjectViewMode> viewModeProperty();
 
   /**
+   The Project Edit Mode
+
+   @return the project edit mode
+   */
+  ObjectProperty<ProjectEditMode> editModeProperty();
+
+  /**
+   Close the project
+   */
+  void closeProject();
+
+  /**
    Open a project
 
    @param projectFilePath to .XJ project file on disk
