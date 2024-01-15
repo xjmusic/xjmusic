@@ -1,6 +1,6 @@
-package io.xj.gui.services;
+package io.xj.gui.modes;
 
-public enum ProjectViewContentMode {
+public enum ContentMode {
   LibraryBrowser,
   ProgramBrowser,
   InstrumentBrowser,

@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.gui.events;
+package io.xj.gui;
 
 import javafx.stage.Stage;
 import org.springframework.context.ApplicationEvent;

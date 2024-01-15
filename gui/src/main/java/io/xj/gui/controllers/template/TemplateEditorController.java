@@ -4,7 +4,8 @@ package io.xj.gui.controllers.template;
 
 import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.services.ProjectService;
-import io.xj.gui.services.ProjectViewTemplateMode;
+import io.xj.gui.modes.ViewMode;
+import io.xj.gui.modes.TemplateMode;
 import io.xj.hub.tables.pojos.Template;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -12,6 +13,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,9 @@ public class TemplateEditorController implements ReadyAfterBootController {
   private final StringProperty name = new SimpleStringProperty("");
 
   @FXML
+  protected VBox container;
+
+  @FXML
   protected TextField fieldName;
 
   public TemplateEditorController(
@@ -36,6 +41,12 @@ public class TemplateEditorController implements ReadyAfterBootController {
 
   @Override
   public void onStageReady() {
+    var visible = projectService.isStateReadyProperty()
+      .and(projectService.viewModeProperty().isEqualTo(ViewMode.Template))
+      .and(projectService.templateModeProperty().isEqualTo(TemplateMode.TemplateEditor));
+    container.visibleProperty().bind(visible);
+    container.managedProperty().bind(visible);
+
     fieldName.textProperty().bindBidirectional(name);
   }
 
@@ -56,6 +67,6 @@ public class TemplateEditorController implements ReadyAfterBootController {
     this.id.set(template.getId());
     this.name.set(template.getName());
 
-    projectService.viewTemplateModeProperty().set(ProjectViewTemplateMode.TemplateEditor);
+    projectService.templateModeProperty().set(TemplateMode.TemplateEditor);
   }
 }

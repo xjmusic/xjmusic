@@ -7,7 +7,9 @@ import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.LabState;
 import io.xj.gui.services.ProjectService;
-import io.xj.gui.services.ProjectViewMode;
+import io.xj.gui.modes.ContentMode;
+import io.xj.gui.modes.ViewMode;
+import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.work.FabricationState;
 import javafx.application.Platform;
@@ -140,8 +142,8 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     buttonFabrication.visibleProperty().bind(projectService.isStateReadyProperty());
     buttonFabrication.managedProperty().bind(projectService.isStateReadyProperty());
 
-    fabricationControlContainer.visibleProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.Fabrication));
-    fabricationControlContainer.managedProperty().bind(projectService.viewModeProperty().isEqualTo(ProjectViewMode.Fabrication));
+    fabricationControlContainer.visibleProperty().bind(projectService.viewModeProperty().isEqualTo(ViewMode.Fabrication));
+    fabricationControlContainer.managedProperty().bind(projectService.viewModeProperty().isEqualTo(ViewMode.Fabrication));
 
   }
 
@@ -157,17 +159,28 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
   @FXML
   protected void handlePressedButtonContent() {
-    projectService.viewModeProperty().set(ProjectViewMode.Content);
+    if (!buttonContent.isSelected()) {
+      buttonContent.setSelected(true);
+      projectService.contentModeProperty().set(ContentMode.LibraryBrowser);
+    }
+    projectService.viewModeProperty().set(ViewMode.Content);
   }
 
   @FXML
   protected void handlePressedButtonTemplate() {
-    projectService.viewModeProperty().set(ProjectViewMode.Template);
+    if (!buttonTemplate.isSelected()) {
+      buttonTemplate.setSelected(true);
+      projectService.templateModeProperty().set(TemplateMode.TemplateBrowser);
+    }
+    projectService.viewModeProperty().set(ViewMode.Template);
   }
 
   @FXML
   protected void handlePressedButtonFabrication() {
-    projectService.viewModeProperty().set(ProjectViewMode.Fabrication);
+    if (!buttonFabrication.isSelected()) {
+      buttonFabrication.setSelected(true);
+    }
+    projectService.viewModeProperty().set(ViewMode.Fabrication);
   }
 
   @FXML

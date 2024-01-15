@@ -3,9 +3,9 @@ package io.xj.gui.services.impl;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
-import io.xj.gui.services.ProjectViewContentMode;
-import io.xj.gui.services.ProjectViewMode;
-import io.xj.gui.services.ProjectViewTemplateMode;
+import io.xj.gui.modes.ContentMode;
+import io.xj.gui.modes.ViewMode;
+import io.xj.gui.modes.TemplateMode;
 import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
@@ -49,9 +49,9 @@ public class ProjectServiceImpl implements ProjectService {
   static final Logger LOG = LoggerFactory.getLogger(ProjectServiceImpl.class);
   private static final String defaultPathPrefix = System.getProperty("user.home") + File.separator + "Documents";
   private final Preferences prefs = Preferences.userNodeForPackage(ProjectServiceImpl.class);
-  private final ObjectProperty<ProjectViewMode> viewMode = new SimpleObjectProperty<>(ProjectViewMode.Content);
-  private final ObjectProperty<ProjectViewContentMode> viewContentMode = new SimpleObjectProperty<>(ProjectViewContentMode.LibraryBrowser);
-  private final ObjectProperty<ProjectViewTemplateMode> viewTemplateMode = new SimpleObjectProperty<>(ProjectViewTemplateMode.TemplateBrowser);
+  private final ObjectProperty<ViewMode> viewMode = new SimpleObjectProperty<>(ViewMode.Content);
+  private final ObjectProperty<ContentMode> contentMode = new SimpleObjectProperty<>(ContentMode.LibraryBrowser);
+  private final ObjectProperty<TemplateMode> templateMode = new SimpleObjectProperty<>(TemplateMode.TemplateBrowser);
   private final ObservableObjectValue<Project> currentProject;
   private final ObservableListValue<ProjectDescriptor> recentProjects = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
   private final StringProperty basePathPrefix = new SimpleStringProperty();
@@ -103,9 +103,9 @@ public class ProjectServiceImpl implements ProjectService {
 
     state.addListener((o, ov, value) -> {
       if (Objects.equals(value, ProjectState.Standby)) {
-        viewMode.set(ProjectViewMode.Content);
-        viewContentMode.set(ProjectViewContentMode.LibraryBrowser);
-        viewTemplateMode.set(ProjectViewTemplateMode.TemplateBrowser);
+        viewMode.set(ViewMode.Content);
+        contentMode.set(ContentMode.LibraryBrowser);
+        templateMode.set(TemplateMode.TemplateBrowser);
       }
     });
 
@@ -125,16 +125,16 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public ObjectProperty<ProjectViewMode> viewModeProperty() {
+  public ObjectProperty<ViewMode> viewModeProperty() {
     return viewMode;
   }
 
   @Override
   public void closeProject() {
     projectManager.closeProject();
-    viewMode.set(ProjectViewMode.Content);
-    viewContentMode.set(ProjectViewContentMode.LibraryBrowser);
-    viewTemplateMode.set(ProjectViewTemplateMode.TemplateBrowser);
+    viewMode.set(ViewMode.Content);
+    contentMode.set(ContentMode.LibraryBrowser);
+    templateMode.set(TemplateMode.TemplateBrowser);
     state.set(ProjectState.Standby);
   }
 
@@ -229,12 +229,12 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public BooleanBinding isViewModeContentProperty() {
-    return viewMode.isEqualTo(ProjectViewMode.Content);
+    return viewMode.isEqualTo(ViewMode.Content);
   }
 
   @Override
   public BooleanBinding isViewModeFabricationProperty() {
-    return viewMode.isEqualTo(ProjectViewMode.Fabrication);
+    return viewMode.isEqualTo(ViewMode.Fabrication);
   }
 
   @Override
@@ -345,12 +345,12 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public ObjectProperty<ProjectViewContentMode> viewContentModeProperty() {
-    return viewContentMode;
+  public ObjectProperty<ContentMode> contentModeProperty() {
+    return contentMode;
   }
 
   @Override
-  public ObjectProperty<ProjectViewTemplateMode> viewTemplateModeProperty() {
-    return viewTemplateMode;
+  public ObjectProperty<TemplateMode> templateModeProperty() {
+    return templateMode;
   }
 }

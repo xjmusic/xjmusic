@@ -2,7 +2,6 @@
 
 package io.xj.gui;
 
-import io.xj.gui.events.StageReadyEvent;
 import jakarta.annotation.Nullable;
 import javafx.application.Application;
 import javafx.application.HostServices;

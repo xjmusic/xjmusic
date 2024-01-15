@@ -1,16 +1,13 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.gui.listeners;
+package io.xj.gui;
 
 import com.tangorabox.componentinspector.fx.FXComponentInspectorHandler;
-import io.xj.gui.WorkstationWindow;
 import io.xj.gui.controllers.MainController;
-import io.xj.gui.events.StageReadyEvent;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

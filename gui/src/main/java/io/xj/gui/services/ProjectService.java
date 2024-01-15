@@ -1,5 +1,8 @@
 package io.xj.gui.services;
 
+import io.xj.gui.modes.ContentMode;
+import io.xj.gui.modes.TemplateMode;
+import io.xj.gui.modes.ViewMode;
 import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
@@ -23,7 +26,7 @@ public interface ProjectService {
 
    @return the project view mode
    */
-  ObjectProperty<ProjectViewMode> viewModeProperty();
+  ObjectProperty<ViewMode> viewModeProperty();
 
   /**
    Close the project
@@ -136,12 +139,12 @@ public interface ProjectService {
   /**
    * @return Observable property for the view content mode
    */
-  ObjectProperty<ProjectViewContentMode> viewContentModeProperty();
+  ObjectProperty<ContentMode> contentModeProperty();
 
   /**
    * @return Observable property for the view template mode
    */
-  ObjectProperty<ProjectViewTemplateMode> viewTemplateModeProperty();
+  ObjectProperty<TemplateMode> templateModeProperty();
 
   /**
    Attach a listener to project updates
