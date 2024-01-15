@@ -1,9 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.gui.controllers;
+package io.xj.gui.controllers.content;
 
+import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.services.ProjectService;
-import io.xj.hub.tables.pojos.Template;
+import io.xj.gui.services.ProjectViewContentMode;
+import io.xj.hub.tables.pojos.Instrument;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -17,8 +19,8 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 @Service
-public class ContentTemplateEditorController implements ReadyAfterBootController {
-  static final Logger LOG = LoggerFactory.getLogger(ContentTemplateEditorController.class);
+public class InstrumentEditorController implements ReadyAfterBootController {
+  static final Logger LOG = LoggerFactory.getLogger(InstrumentEditorController.class);
   private final ProjectService projectService;
   private final ObjectProperty<UUID> id = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
@@ -26,7 +28,7 @@ public class ContentTemplateEditorController implements ReadyAfterBootController
   @FXML
   protected TextField fieldName;
 
-  public ContentTemplateEditorController(
+  public InstrumentEditorController(
     ProjectService projectService
   ) {
     this.projectService = projectService;
@@ -43,13 +45,17 @@ public class ContentTemplateEditorController implements ReadyAfterBootController
   }
 
   /**
-   Open the given template in the content editor.
+   Open the given instrument in the content editor.
 
-   @param template to open
+   @param ref instrument to open
    */
-  public void setTemplate(Template template) {
-    LOG.info("Will open Template \"{}\"", template.getName());
-    this.id.set(template.getId());
-    this.name.set(template.getName());
+  public void openInstrument(Instrument ref) {
+    var instrument = projectService.getContent().getInstrument(ref.getId())
+      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
+    LOG.info("Will open Instrument \"{}\"", instrument.getName());
+    this.id.set(instrument.getId());
+    this.name.set(instrument.getName());
+
+    projectService.viewContentModeProperty().set(ProjectViewContentMode.InstrumentEditor);
   }
 }

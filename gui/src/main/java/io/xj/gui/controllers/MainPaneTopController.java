@@ -2,6 +2,7 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.gui.controllers.fabrication.FabricationSettingsModalController;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.LabState;
@@ -63,6 +64,9 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
   @FXML
   protected ToggleButton buttonContent;
+
+  @FXML
+  protected ToggleButton buttonTemplate;
 
   @FXML
   protected Button buttonCancelLoading;
@@ -130,6 +134,9 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     buttonContent.visibleProperty().bind(projectService.isStateReadyProperty());
     buttonContent.managedProperty().bind(projectService.isStateReadyProperty());
 
+    buttonTemplate.visibleProperty().bind(projectService.isStateReadyProperty());
+    buttonTemplate.managedProperty().bind(projectService.isStateReadyProperty());
+
     buttonFabrication.visibleProperty().bind(projectService.isStateReadyProperty());
     buttonFabrication.managedProperty().bind(projectService.isStateReadyProperty());
 
@@ -151,6 +158,11 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   @FXML
   protected void handlePressedButtonContent() {
     projectService.viewModeProperty().set(ProjectViewMode.Content);
+  }
+
+  @FXML
+  protected void handlePressedButtonTemplate() {
+    projectService.viewModeProperty().set(ProjectViewMode.Template);
   }
 
   @FXML

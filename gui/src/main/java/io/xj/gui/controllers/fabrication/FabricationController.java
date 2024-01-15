@@ -1,7 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.gui.controllers;
+package io.xj.gui.controllers.fabrication;
 
+import io.xj.gui.controllers.MainPaneRightController;
+import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.services.ProjectService;
 import javafx.fxml.FXML;
 import javafx.scene.layout.BorderPane;

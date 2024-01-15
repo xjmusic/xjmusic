@@ -31,8 +31,9 @@
       AnchorPane.bottomAnchor="0"
       AnchorPane.leftAnchor="0"
       BorderPane.alignment="CENTER">
-      <fx:include source="fabrication.fxml"/>
-      <fx:include source="content.fxml"/>
+      <fx:include source="fabrication/fabrication.fxml"/>
+      <fx:include source="content/content-browser.fxml"/>
+      <fx:include source="content/content-editor.fxml"/>
       <ImageView
         fx:id="startupContainer"
         fitHeight="200"

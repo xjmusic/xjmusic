@@ -1,7 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.gui.controllers;
+package io.xj.gui.controllers.fabrication;
 
+import io.xj.gui.controllers.ReadyAfterBootModalController;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
@@ -66,7 +67,7 @@ public class FabricationSettingsModalController extends ReadyAfterBootModalContr
   public Button buttonReset;
 
   public FabricationSettingsModalController(
-    @Value("classpath:/views/fabrication-settings-modal.fxml") Resource fabricationSettingsModalFxml,
+    @Value("classpath:/views/fabrication/fabrication-settings-modal.fxml") Resource fabricationSettingsModalFxml,
     ConfigurableApplicationContext ac,
     FabricationService fabricationService,
     ProjectService projectService,
@@ -120,7 +121,7 @@ public class FabricationSettingsModalController extends ReadyAfterBootModalContr
   }
 
   @Override
-  void launchModal() {
+  public void launchModal() {
     createAndShowModal(ac, themeService, fabricationSettingsModalFxml, FABRICATION_SERVICE_WINDOW_NAME);
   }
 

@@ -45,6 +45,16 @@
       </font>
     </ToggleButton>
 
+    <ToggleButton fx:id="buttonTemplate"
+                  toggleGroup="$viewMode"
+                  mnemonicParsing="false"
+                  onAction="#handlePressedButtonTemplate"
+                  text="Templates">
+      <font>
+        <Font name="Roboto"/>
+      </font>
+    </ToggleButton>
+
     <ToggleButton fx:id="buttonFabrication"
                   toggleGroup="$viewMode"
                   mnemonicParsing="false"

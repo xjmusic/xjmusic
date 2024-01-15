@@ -1,9 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.gui.controllers;
+package io.xj.gui.controllers.template;
 
+import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.services.ProjectService;
-import io.xj.hub.tables.pojos.Program;
+import io.xj.gui.services.ProjectViewTemplateMode;
+import io.xj.hub.tables.pojos.Template;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -17,8 +19,8 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 @Service
-public class ContentProgramEditorController implements ReadyAfterBootController {
-  static final Logger LOG = LoggerFactory.getLogger(ContentProgramEditorController.class);
+public class TemplateEditorController implements ReadyAfterBootController {
+  static final Logger LOG = LoggerFactory.getLogger(TemplateEditorController.class);
   private final ProjectService projectService;
   private final ObjectProperty<UUID> id = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
@@ -26,7 +28,7 @@ public class ContentProgramEditorController implements ReadyAfterBootController 
   @FXML
   protected TextField fieldName;
 
-  public ContentProgramEditorController(
+  public TemplateEditorController(
     ProjectService projectService
   ) {
     this.projectService = projectService;
@@ -43,13 +45,17 @@ public class ContentProgramEditorController implements ReadyAfterBootController 
   }
 
   /**
-   Open the given program in the content editor.
+   Open the given template in the content editor.
 
-   @param program to open
+   @param ref template to open
    */
-  public void setProgram(Program program) {
-    LOG.info("Will open Program \"{}\"", program.getName());
-    this.id.set(program.getId());
-    this.name.set(program.getName());
+  public void openTemplate(Template ref) {
+    var template = projectService.getContent().getTemplate(ref.getId())
+      .orElseThrow(() -> new RuntimeException("Could not find Template"));
+    LOG.info("Will open Template \"{}\"", template.getName());
+    this.id.set(template.getId());
+    this.name.set(template.getName());
+
+    projectService.viewTemplateModeProperty().set(ProjectViewTemplateMode.TemplateEditor);
   }
 }

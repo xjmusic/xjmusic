@@ -3,6 +3,7 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.WorkstationGuiFxApplication;
+import io.xj.gui.controllers.fabrication.FabricationSettingsModalController;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.GuideService;
 import io.xj.gui.services.LabService;

@@ -2,9 +2,10 @@ package io.xj.gui.services.impl;
 
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.ProjectDescriptor;
-import io.xj.gui.services.ProjectEditMode;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.ProjectViewContentMode;
 import io.xj.gui.services.ProjectViewMode;
+import io.xj.gui.services.ProjectViewTemplateMode;
 import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
@@ -49,7 +50,8 @@ public class ProjectServiceImpl implements ProjectService {
   private static final String defaultPathPrefix = System.getProperty("user.home") + File.separator + "Documents";
   private final Preferences prefs = Preferences.userNodeForPackage(ProjectServiceImpl.class);
   private final ObjectProperty<ProjectViewMode> viewMode = new SimpleObjectProperty<>(ProjectViewMode.Content);
-  private final ObjectProperty<ProjectEditMode> editMode = new SimpleObjectProperty<>(ProjectEditMode.None);
+  private final ObjectProperty<ProjectViewContentMode> viewContentMode = new SimpleObjectProperty<>(ProjectViewContentMode.LibraryBrowser);
+  private final ObjectProperty<ProjectViewTemplateMode> viewTemplateMode = new SimpleObjectProperty<>(ProjectViewTemplateMode.TemplateBrowser);
   private final ObservableObjectValue<Project> currentProject;
   private final ObservableListValue<ProjectDescriptor> recentProjects = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
   private final StringProperty basePathPrefix = new SimpleStringProperty();
@@ -102,7 +104,8 @@ public class ProjectServiceImpl implements ProjectService {
     state.addListener((o, ov, value) -> {
       if (Objects.equals(value, ProjectState.Standby)) {
         viewMode.set(ProjectViewMode.Content);
-        editMode.set(ProjectEditMode.None);
+        viewContentMode.set(ProjectViewContentMode.LibraryBrowser);
+        viewTemplateMode.set(ProjectViewTemplateMode.TemplateBrowser);
       }
     });
 
@@ -127,15 +130,11 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public ObjectProperty<ProjectEditMode> editModeProperty() {
-    return editMode;
-  }
-
-  @Override
   public void closeProject() {
     projectManager.closeProject();
     viewMode.set(ProjectViewMode.Content);
-    editMode.set(ProjectEditMode.None);
+    viewContentMode.set(ProjectViewContentMode.LibraryBrowser);
+    viewTemplateMode.set(ProjectViewTemplateMode.TemplateBrowser);
     state.set(ProjectState.Standby);
   }
 
@@ -343,5 +342,15 @@ public class ProjectServiceImpl implements ProjectService {
    */
   private void removeFromRecentProjects(String projectFilePath) {
     this.recentProjects.get().removeIf(existing -> Objects.equals(existing.projectFilePath(), projectFilePath));
+  }
+
+  @Override
+  public ObjectProperty<ProjectViewContentMode> viewContentModeProperty() {
+    return viewContentMode;
+  }
+
+  @Override
+  public ObjectProperty<ProjectViewTemplateMode> viewTemplateModeProperty() {
+    return viewTemplateMode;
   }
 }

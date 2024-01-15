@@ -1,7 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.gui.controllers;
+package io.xj.gui.controllers.fabrication;
 
+import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.hub.enums.InstrumentMode;

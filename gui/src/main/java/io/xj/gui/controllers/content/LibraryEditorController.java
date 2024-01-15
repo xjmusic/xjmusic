@@ -1,9 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.gui.controllers;
+package io.xj.gui.controllers.content;
 
+import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.services.ProjectService;
-import io.xj.hub.tables.pojos.Instrument;
+import io.xj.gui.services.ProjectViewContentMode;
+import io.xj.hub.tables.pojos.Library;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -17,8 +19,8 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 @Service
-public class ContentInstrumentEditorController implements ReadyAfterBootController {
-  static final Logger LOG = LoggerFactory.getLogger(ContentInstrumentEditorController.class);
+public class LibraryEditorController implements ReadyAfterBootController {
+  static final Logger LOG = LoggerFactory.getLogger(LibraryEditorController.class);
   private final ProjectService projectService;
   private final ObjectProperty<UUID> id = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
@@ -26,7 +28,7 @@ public class ContentInstrumentEditorController implements ReadyAfterBootControll
   @FXML
   protected TextField fieldName;
 
-  public ContentInstrumentEditorController(
+  public LibraryEditorController(
     ProjectService projectService
   ) {
     this.projectService = projectService;
@@ -43,13 +45,17 @@ public class ContentInstrumentEditorController implements ReadyAfterBootControll
   }
 
   /**
-   Open the given instrument in the content editor.
+   Open the given library in the content editor.
 
-   @param instrument to open
+   @param ref library to open
    */
-  public void setInstrument(Instrument instrument) {
-    LOG.info("Will open Instrument \"{}\"", instrument.getName());
-    this.id.set(instrument.getId());
-    this.name.set(instrument.getName());
+  public void openLibrary(Library ref) {
+    var library = projectService.getContent().getLibrary(ref.getId())
+      .orElseThrow(() -> new RuntimeException("Could not find Library"));
+    LOG.info("Will open Library \"{}\"", library.getName());
+    this.id.set(library.getId());
+    this.name.set(library.getName());
+
+    projectService.viewContentModeProperty().set(ProjectViewContentMode.LibraryEditor);
   }
 }

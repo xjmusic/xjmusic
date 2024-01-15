@@ -26,13 +26,6 @@ public interface ProjectService {
   ObjectProperty<ProjectViewMode> viewModeProperty();
 
   /**
-   The Project Edit Mode
-
-   @return the project edit mode
-   */
-  ObjectProperty<ProjectEditMode> editModeProperty();
-
-  /**
    Close the project
    */
   void closeProject();
@@ -139,6 +132,16 @@ public interface ProjectService {
    @return the list of recent projects
    */
   ObservableListValue<ProjectDescriptor> recentProjectsProperty();
+
+  /**
+   * @return Observable property for the view content mode
+   */
+  ObjectProperty<ProjectViewContentMode> viewContentModeProperty();
+
+  /**
+   * @return Observable property for the view template mode
+   */
+  ObjectProperty<ProjectViewTemplateMode> viewTemplateModeProperty();
 
   /**
    Attach a listener to project updates

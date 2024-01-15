@@ -8,7 +8,7 @@
   maxHeight="Infinity"
   xmlns="http://javafx.com/javafx/20.0.1"
   xmlns:fx="http://javafx.com/fxml/1"
-  fx:controller="io.xj.gui.controllers.FabricationController"
+  fx:controller="io.xj.gui.controllers.fabrication.FabricationController"
   fx:id="container">
   <center>
     <fx:include source="fabrication-timeline.fxml"/>

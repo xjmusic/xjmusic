@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.control.TableView?>
 <TabPane
-  fx:controller="io.xj.gui.controllers.ContentBrowserController"
+  fx:controller="io.xj.gui.controllers.content.LibraryBrowserController"
   fx:id="container"
   xmlns="http://javafx.com/javafx"
   xmlns:fx="http://javafx.com/fxml"

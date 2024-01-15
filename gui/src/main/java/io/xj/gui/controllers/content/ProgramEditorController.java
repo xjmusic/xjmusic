@@ -1,10 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.gui.controllers;
+package io.xj.gui.controllers.content;
 
+import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.services.ProjectService;
-import io.xj.hub.tables.pojos.Library;
-import javafx.beans.binding.Bindings;
+import io.xj.gui.services.ProjectViewContentMode;
+import io.xj.hub.tables.pojos.Program;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -15,12 +16,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
-public class ContentLibraryEditorController implements ReadyAfterBootController {
-  static final Logger LOG = LoggerFactory.getLogger(ContentLibraryEditorController.class);
+public class ProgramEditorController implements ReadyAfterBootController {
+  static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
   private final ProjectService projectService;
   private final ObjectProperty<UUID> id = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
@@ -28,7 +28,7 @@ public class ContentLibraryEditorController implements ReadyAfterBootController 
   @FXML
   protected TextField fieldName;
 
-  public ContentLibraryEditorController(
+  public ProgramEditorController(
     ProjectService projectService
   ) {
     this.projectService = projectService;
@@ -45,13 +45,17 @@ public class ContentLibraryEditorController implements ReadyAfterBootController 
   }
 
   /**
-   Open the given library in the content editor.
+   Open the given program in the content editor.
 
-   @param library to open
+   @param ref program to open
    */
-  public void setLibrary(Library library) {
-    LOG.info("Will open Library \"{}\"", library.getName());
-    this.id.set(library.getId());
-    this.name.set(library.getName());
+  public void openProgram(Program ref) {
+    var program = projectService.getContent().getProgram(ref.getId())
+      .orElseThrow(() -> new RuntimeException("Could not find Program"));
+    LOG.info("Will open Program \"{}\"", program.getName());
+    this.id.set(program.getId());
+    this.name.set(program.getName());
+
+    projectService.viewContentModeProperty().set(ProjectViewContentMode.ProgramEditor);
   }
 }
