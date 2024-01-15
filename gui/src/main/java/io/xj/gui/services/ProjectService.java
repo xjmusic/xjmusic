@@ -104,6 +104,16 @@ public interface ProjectService {
   BooleanBinding isStateStandbyProperty();
 
   /**
+   @return Observable property for whether the project is in content view mode
+   */
+  BooleanBinding isViewModeContentProperty();
+
+  /**
+   @return Observable property for whether the project is in fabrication view mode
+   */
+  BooleanBinding isViewModeFabricationProperty();
+
+  /**
    @return Get the project content
    */
   HubContent getContent();

@@ -56,9 +56,6 @@ public class ContentBrowserController implements ReadyAfterBootController {
     initProgramsTable();
     initInstrumentsTable();
     initTemplatesTable();
-
-    container.visibleProperty().bind(projectService.isStateReadyProperty());
-    container.managedProperty().bind(projectService.isStateReadyProperty());
   }
 
   @Override

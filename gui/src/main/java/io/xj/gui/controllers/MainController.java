@@ -2,8 +2,11 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.util.StringUtils;
+import javafx.fxml.FXML;
+import javafx.scene.image.ImageView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,10 @@ public class MainController implements ReadyAfterBootController {
   private final MainPaneBottomController mainPaneBottomController;
   private final MainPaneTopController mainPaneTopController;
   private final UIStateService uiStateService;
+  private final ProjectService projectService;
+
+  @FXML
+  protected ImageView startupContainer;
 
   public MainController(
     ContentController contentController,
@@ -24,6 +31,7 @@ public class MainController implements ReadyAfterBootController {
     MainMenuController mainMenuController,
     MainPaneBottomController mainPaneBottomController,
     MainPaneTopController mainPaneTopController,
+    ProjectService projectService,
     UIStateService uiStateService
   ) {
     this.contentController = contentController;
@@ -31,6 +39,7 @@ public class MainController implements ReadyAfterBootController {
     this.mainMenuController = mainMenuController;
     this.mainPaneBottomController = mainPaneBottomController;
     this.mainPaneTopController = mainPaneTopController;
+    this.projectService = projectService;
     this.uiStateService = uiStateService;
   }
 
@@ -43,6 +52,9 @@ public class MainController implements ReadyAfterBootController {
       uiStateService.onStageReady();
       contentController.onStageReady();
       fabricationController.onStageReady();
+
+      startupContainer.visibleProperty().bind(projectService.isStateStandbyProperty());
+      startupContainer.managedProperty().bind(projectService.isStateStandbyProperty());
     } catch (Exception e) {
       LOG.error("Error initializing main controller!\n{}", StringUtils.formatStackTrace(e), e);
     }

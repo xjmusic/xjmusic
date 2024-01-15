@@ -2,41 +2,14 @@
 
 <!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
 
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.StackPane?>
-<!-- TODO Replace this BorderPane with a SplitPane -->
-<BorderPane
+<?import javafx.scene.control.SplitPane?>
+<SplitPane
   fx:controller="io.xj.gui.controllers.ContentController"
   fx:id="container"
   xmlns="http://javafx.com/javafx/20.0.1"
   xmlns:fx="http://javafx.com/fxml/1"
   maxWidth="Infinity"
   maxHeight="Infinity">
-
-  <left>
-    <fx:include source="content-browser.fxml"/>
-  </left>
-
-  <center>
-    <StackPane
-      fx:id="startupContainer"
-      AnchorPane.topAnchor="0"
-      AnchorPane.rightAnchor="0"
-      AnchorPane.bottomAnchor="0"
-      AnchorPane.leftAnchor="0"
-      BorderPane.alignment="CENTER">
-      <ImageView
-        fitHeight="200"
-        fitWidth="200"
-        pickOnBounds="true"
-        preserveRatio="true"
-        opacity="0.1">
-        <Image url="@/images/xj-music-logo.png"/>
-      </ImageView>
-    </StackPane>
-  </center>
-
-</BorderPane>
+  <fx:include source="content-browser.fxml"/>
+  <fx:include source="content-editor.fxml"/>
+</SplitPane>

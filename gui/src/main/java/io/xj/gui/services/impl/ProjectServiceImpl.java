@@ -204,6 +204,16 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
+  public BooleanBinding isViewModeContentProperty() {
+    return viewMode.isEqualTo(ProjectViewMode.CONTENT);
+  }
+
+  @Override
+  public BooleanBinding isViewModeFabricationProperty() {
+    return viewMode.isEqualTo(ProjectViewMode.FABRICATION);
+  }
+
+  @Override
   public HubContent getContent() {
     return projectManager.getContent();
   }
