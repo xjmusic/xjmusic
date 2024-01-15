@@ -8,11 +8,13 @@ import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.project.ProjectUpdate;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -21,13 +23,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 @Service
 public class ContentBrowserController implements ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(ContentBrowserController.class);
   private final ProjectService projectService;
-  private final ObjectProperty<Library> selectedLibrary = new SimpleObjectProperty<>();
+  private final ObservableList<Library> libraries = FXCollections.observableList(new ArrayList<>());
+  private final ObservableList<Program> programs = FXCollections.observableList(new ArrayList<>());
+  private final ObservableList<Instrument> instruments = FXCollections.observableList(new ArrayList<>());
+  private final ObservableList<Template> templates = FXCollections.observableList(new ArrayList<>());
+  private final ObjectProperty<Library> viewedLibrary = new SimpleObjectProperty<>(null);
 
   @FXML
   protected TabPane container;
@@ -44,6 +52,18 @@ public class ContentBrowserController implements ReadyAfterBootController {
   @FXML
   protected TableView<Template> templatesTable;
 
+  @FXML
+  protected Tab templatesTab;
+
+  @FXML
+  protected Tab librariesTab;
+
+  @FXML
+  protected Tab programsTab;
+
+  @FXML
+  protected Tab instrumentsTab;
+
   public ContentBrowserController(
     ProjectService projectService
   ) {
@@ -52,10 +72,21 @@ public class ContentBrowserController implements ReadyAfterBootController {
 
   @Override
   public void onStageReady() {
-    initLibrariesTable();
-    initProgramsTable();
-    initInstrumentsTable();
-    initTemplatesTable();
+    initLibraries();
+    initPrograms();
+    initInstruments();
+    initTemplates();
+
+    viewedLibrary.addListener((o, ov, value) -> {
+      updatePrograms();
+      updateInstruments();
+    });
+
+    // FUTURE: after content creation/editing, we should not need to update the tables
+    templatesTab.disableProperty().bind(Bindings.createBooleanBinding(templates::isEmpty, templates));
+    librariesTab.disableProperty().bind(Bindings.createBooleanBinding(libraries::isEmpty, libraries));
+    programsTab.disableProperty().bind(Bindings.createBooleanBinding(programs::isEmpty, programs));
+    instrumentsTab.disableProperty().bind(Bindings.createBooleanBinding(instruments::isEmpty, instruments));
   }
 
   @Override
@@ -66,95 +97,129 @@ public class ContentBrowserController implements ReadyAfterBootController {
   /**
    Initialize the libraries table.
    */
-  private void initLibrariesTable() {
-    // Library Name
-    TableColumn<Library, String> nameColumn = new TableColumn<>("Name");
-    nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-    nameColumn.setPrefWidth(300);
-    librariesTable.getColumns().add(nameColumn);
+  private void initLibraries() {
+    addColumn(librariesTable, 200, "name", "Name");
+    setupData(
+      librariesTable,
+      libraries,
+      viewedLibrary::set,
+      library -> LOG.info("Did request to open Library")
+    );
+    projectService.addProjectUpdateListener(ProjectUpdate.LIBRARIES, this::updateLibraries);
+  }
 
-    // Data and update listener
-    ObservableList<Library> data = FXCollections.observableList(projectService.getLibraries());
-    librariesTable.setItems(data);
-    librariesTable.setOnMousePressed(event -> {
-      if (event.isPrimaryButtonDown())
-        selectedLibrary.set(librariesTable.getSelectionModel().getSelectedItem());
-      if (event.getClickCount() == 2) {
-        LOG.info("Will open Library in editor");
-      }
-    });
-    projectService.addProjectUpdateListener(ProjectUpdate.LIBRARIES, () -> {
-      data.setAll(projectService.getContent().getLibraries().stream().sorted(Comparator.comparing(Library::getName)).toList());
-    });
+  /**
+   Update the libraries table data.
+   */
+  private void updateLibraries() {
+    libraries.setAll(projectService.getLibraries());
   }
 
   /**
    Initialize the programs table.
    */
-  private void initProgramsTable() {
-    // Program Name
-    TableColumn<Program, String> nameColumn = new TableColumn<>("Name");
-    nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-    nameColumn.setPrefWidth(300);
-    programsTable.getColumns().add(nameColumn);
+  private void initPrograms() {
+    addColumn(programsTable, 200, "name", "Name");
+    addColumn(programsTable, 90, "type", "Type");
+    addColumn(programsTable, 50, "key", "Key");
+    addColumn(programsTable, 50, "tempo", "Tempo");
+    addColumn(programsTable, 50, "density", "Density");
+    setupData(
+      programsTable,
+      programs,
+      program -> LOG.info("Did select Program"),
+      program -> LOG.info("Did request to open Program")
+    );
+    projectService.addProjectUpdateListener(ProjectUpdate.PROGRAMS, this::updatePrograms);
+  }
 
-    // Data and update listener
-    ObservableList<Program> data = FXCollections.observableList(projectService.getPrograms());
-    programsTable.setItems(data);
-    programsTable.setOnMousePressed(event -> {
-      if (event.getClickCount() == 2) {
-        LOG.info("Will open Program in editor");
-      }
-    });
-    projectService.addProjectUpdateListener(ProjectUpdate.PROGRAMS, () -> {
-      data.setAll(projectService.getContent().getPrograms().stream().sorted(Comparator.comparing(Program::getName)).toList());
-    });
+  /**
+   Update the programs table data.
+   */
+  private void updatePrograms() {
+    programs.setAll(projectService.getPrograms().stream()
+      .filter(program -> Objects.isNull(viewedLibrary.get()) || Objects.equals(program.getLibraryId(), viewedLibrary.get().getId()))
+      .toList());
   }
 
   /**
    Initialize the instruments table.
    */
-  private void initInstrumentsTable() {
-    // Instrument Name
-    TableColumn<Instrument, String> nameColumn = new TableColumn<>("Name");
-    nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-    nameColumn.setPrefWidth(300);
-    instrumentsTable.getColumns().add(nameColumn);
+  private void initInstruments() {
+    addColumn(instrumentsTable, 200, "name", "Name");
+    addColumn(instrumentsTable, 90, "type", "Type");
+    addColumn(instrumentsTable, 90, "mode", "Mode");
+    addColumn(instrumentsTable, 50, "density", "Density");
+    addColumn(instrumentsTable, 50, "volume", "Volume");
+    setupData(
+      instrumentsTable,
+      instruments,
+      instrument -> LOG.info("Did select Instrument"),
+      instrument -> LOG.info("Did request to open Instrument")
+    );
+    projectService.addProjectUpdateListener(ProjectUpdate.INSTRUMENTS, this::updateInstruments);
+  }
 
-    // Data and update listener
-    ObservableList<Instrument> data = FXCollections.observableList(projectService.getInstruments());
-    instrumentsTable.setItems(data);
-    instrumentsTable.setOnMousePressed(event -> {
-      if (event.getClickCount() == 2) {
-        LOG.info("Will open Instrument in editor");
-      }
-    });
-    projectService.addProjectUpdateListener(ProjectUpdate.INSTRUMENTS, () -> {
-      data.setAll(projectService.getContent().getInstruments().stream().sorted(Comparator.comparing(Instrument::getName)).toList());
-    });
+  /**
+   Update the instruments table data.
+   */
+  private void updateInstruments() {
+    instruments.setAll(projectService.getInstruments().stream()
+      .filter(instrument -> Objects.isNull(viewedLibrary.get()) || Objects.equals(instrument.getLibraryId(), viewedLibrary.get().getId()))
+      .toList());
   }
 
   /**
    Initialize the templates table.
    */
-  private void initTemplatesTable() {
-    // Template Name
-    TableColumn<Template, String> nameColumn = new TableColumn<>("Name");
-    nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-    nameColumn.setPrefWidth(300);
-    templatesTable.getColumns().add(nameColumn);
-
-    // Data and update listener
-    ObservableList<Template> data = FXCollections.observableList(projectService.getTemplates());
-    templatesTable.setItems(data);
-    templatesTable.setOnMousePressed(event -> {
-      if (event.getClickCount() == 2) {
-        LOG.info("Will open Template in editor");
-      }
-    });
-    projectService.addProjectUpdateListener(ProjectUpdate.TEMPLATES, () -> {
-      data.setAll(projectService.getContent().getTemplates().stream().sorted(Comparator.comparing(Template::getName)).toList());
-    });
+  private void initTemplates() {
+    addColumn(templatesTable, 200, "name", "Name");
+    setupData(
+      templatesTable,
+      templates,
+      template -> LOG.info("Did select Template"),
+      template -> LOG.info("Did request to open Template")
+    );
+    projectService.addProjectUpdateListener(ProjectUpdate.TEMPLATES, this::updateTemplates);
   }
 
+  /**
+   Update the templates table data.
+   */
+  private void updateTemplates() {
+    templates.setAll(projectService.getTemplates());
+  }
+
+  /**
+   Add a column to a table
+
+   @param <N>      type of table
+   @param table    for which to add column
+   @param property of column
+   @param name     of column
+   */
+  private <N> void addColumn(TableView<N> table, int width, String property, String name) {
+    TableColumn<N, String> nameColumn = new TableColumn<>(name);
+    nameColumn.setCellValueFactory(new PropertyValueFactory<>(property));
+    nameColumn.setPrefWidth(width);
+    table.getColumns().add(nameColumn);
+  }
+
+  /**
+   Setup the data for the libraries table.@param <N>   type of table
+
+   @param table for which to setup data
+   @param data  observable list
+   */
+  private <N> void setupData(TableView<N> table, ObservableList<N> data, Consumer<N> setSelectedItem, Consumer<N> openItem) {
+    table.setItems(data);
+    table.setOnMousePressed(
+      event -> {
+        if (event.isPrimaryButtonDown())
+          switch (event.getClickCount()) {
+            case 1 -> setSelectedItem.accept(table.getSelectionModel().getSelectedItem());
+            case 2 -> openItem.accept(table.getSelectionModel().getSelectedItem());
+          }
+      });
+  }
 }

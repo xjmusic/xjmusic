@@ -3,10 +3,8 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.services.ProjectService;
-import io.xj.gui.services.ProjectViewMode;
 import javafx.fxml.FXML;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import org.springframework.stereotype.Service;
 
 @Service

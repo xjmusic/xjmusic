@@ -14,7 +14,21 @@
   AnchorPane.bottomAnchor="0"
   AnchorPane.leftAnchor="0"
   tabClosingPolicy="UNAVAILABLE">
-  <Tab text="Libraries">
+  <Tab text="Templates"
+       fx:id="templatesTab">
+    <TableView
+      fx:id="templatesTable"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      AnchorPane.topAnchor="0"
+      AnchorPane.rightAnchor="0"
+      AnchorPane.bottomAnchor="0"
+      AnchorPane.leftAnchor="0"
+      maxHeight="Infinity"
+      maxWidth="Infinity"/>
+  </Tab>
+  <Tab text="Libraries"
+       fx:id="librariesTab">
     <TableView
       fx:id="librariesTable"
       xmlns="http://javafx.com/javafx"
@@ -26,7 +40,8 @@
       maxHeight="Infinity"
       maxWidth="Infinity"/>
   </Tab>
-  <Tab text="Programs">
+  <Tab text="Programs"
+       fx:id="programsTab">
     <TableView
       fx:id="programsTable"
       xmlns="http://javafx.com/javafx"
@@ -38,21 +53,10 @@
       maxHeight="Infinity"
       maxWidth="Infinity"/>
   </Tab>
-  <Tab text="Instruments">
+  <Tab text="Instruments"
+       fx:id="instrumentsTab">
     <TableView
       fx:id="instrumentsTable"
-      xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      AnchorPane.topAnchor="0"
-      AnchorPane.rightAnchor="0"
-      AnchorPane.bottomAnchor="0"
-      AnchorPane.leftAnchor="0"
-      maxHeight="Infinity"
-      maxWidth="Infinity"/>
-  </Tab>
-  <Tab text="Templates">
-    <TableView
-      fx:id="templatesTable"
       xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       AnchorPane.topAnchor="0"
