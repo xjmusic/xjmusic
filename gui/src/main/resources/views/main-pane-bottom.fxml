@@ -3,8 +3,11 @@
 <!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
 
 <?import javafx.scene.control.ListView?>
-<?import javafx.scene.layout.VBox?>
-<VBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="io.xj.gui.controllers.MainPaneBottomController">
-  <ListView fx:id="logListView" prefHeight="400.0" prefWidth="769.0" styleClass="log-viewer"/>
-</VBox>
+<ListView
+  fx:controller="io.xj.gui.controllers.MainPaneBottomController"
+  fx:id="logListView"
+  xmlns="http://javafx.com/javafx/20.0.1"
+  xmlns:fx="http://javafx.com/fxml/1"
+  prefHeight="400.0"
+  styleClass="log-viewer"
+/>

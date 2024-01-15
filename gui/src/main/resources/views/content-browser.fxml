@@ -1,36 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.Tab?>
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="io.xj.gui.controllers.ContentBrowserController"
-            maxWidth="Infinity"
-            maxHeight="Infinity">
-  <TabPane tabClosingPolicy="UNAVAILABLE">
-    <tabs>
-      <Tab text="Libraries">
-        <content>
-          <fx:include fx:id="browserLibraries" source="content-browser-libraries.fxml"/>
-        </content>
-      </Tab>
-      <Tab text="Programs">
-        <content>
-          <!-- TODO: content browser, Programs Tab -->
-        </content>
-      </Tab>
-      <Tab text="Instruments">
-        <content>
-          <!-- TODO: content browser, Instruments Tab -->
-        </content>
-      </Tab>
-      <Tab text="Templates">
-        <content>
-          <!-- TODO: content browser, Templates Tab -->
-        </content>
-      </Tab>
-    </tabs>
-  </TabPane>
-
-</AnchorPane>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.TableView?>
+<TabPane
+  fx:controller="io.xj.gui.controllers.ContentBrowserController"
+  fx:id="container"
+  xmlns="http://javafx.com/javafx"
+  xmlns:fx="http://javafx.com/fxml"
+  AnchorPane.topAnchor="0"
+  AnchorPane.rightAnchor="0"
+  AnchorPane.bottomAnchor="0"
+  AnchorPane.leftAnchor="0"
+  tabClosingPolicy="UNAVAILABLE">
+  <Tab text="Libraries">
+    <TableView
+      fx:id="librariesTable"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      AnchorPane.topAnchor="0"
+      AnchorPane.rightAnchor="0"
+      AnchorPane.bottomAnchor="0"
+      AnchorPane.leftAnchor="0"
+      maxHeight="Infinity"
+      maxWidth="Infinity"/>
+  </Tab>
+  <Tab text="Programs">
+    <TableView
+      fx:id="programsTable"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      AnchorPane.topAnchor="0"
+      AnchorPane.rightAnchor="0"
+      AnchorPane.bottomAnchor="0"
+      AnchorPane.leftAnchor="0"
+      maxHeight="Infinity"
+      maxWidth="Infinity"/>
+  </Tab>
+  <Tab text="Instruments">
+    <TableView
+      fx:id="instrumentsTable"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      AnchorPane.topAnchor="0"
+      AnchorPane.rightAnchor="0"
+      AnchorPane.bottomAnchor="0"
+      AnchorPane.leftAnchor="0"
+      maxHeight="Infinity"
+      maxWidth="Infinity"/>
+  </Tab>
+  <Tab text="Templates">
+    <TableView
+      fx:id="templatesTable"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      AnchorPane.topAnchor="0"
+      AnchorPane.rightAnchor="0"
+      AnchorPane.bottomAnchor="0"
+      AnchorPane.leftAnchor="0"
+      maxHeight="Infinity"
+      maxWidth="Infinity"/>
+  </Tab>
+</TabPane>

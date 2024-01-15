@@ -214,3 +214,15 @@
 .demo-container {
   -fx-padding: 0 0 20 0;
 }
+
+/* TODO remove these */
+.debug-red-box {
+  -fx-background-color: '#ff000033';
+}
+.debug-green-box {
+  -fx-background-color: '#00ff0033';
+}
+.debug-blue-box {
+  -fx-background-color: '#0000ff33';
+}
+

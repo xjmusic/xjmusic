@@ -4,24 +4,30 @@
 
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.StackPane?>
+<!-- TODO Replace this BorderPane with a SplitPane -->
 <BorderPane
+  fx:controller="io.xj.gui.controllers.ContentController"
   fx:id="container"
-  prefHeight="99999"
-  maxHeight="Infinity"
-  maxWidth="Infinity"
   xmlns="http://javafx.com/javafx/20.0.1"
   xmlns:fx="http://javafx.com/fxml/1"
-  fx:controller="io.xj.gui.controllers.ContentController">
+  maxWidth="Infinity"
+  maxHeight="Infinity">
 
   <left>
-    <fx:include fx:id="contentBrowser" source="content-browser.fxml"/>
+    <fx:include source="content-browser.fxml"/>
   </left>
 
   <center>
     <StackPane
-      fx:id="startupContainer">
+      fx:id="startupContainer"
+      AnchorPane.topAnchor="0"
+      AnchorPane.rightAnchor="0"
+      AnchorPane.bottomAnchor="0"
+      AnchorPane.leftAnchor="0"
+      BorderPane.alignment="CENTER">
       <ImageView
         fitHeight="200"
         fitWidth="200"

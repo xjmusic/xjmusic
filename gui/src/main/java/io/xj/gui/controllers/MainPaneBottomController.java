@@ -45,7 +45,6 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
   @FXML
   protected ListView<MainPaneBottomController.LogRecord> logListView;
 
-
   public MainPaneBottomController(
     @Value("${gui.logs.refresh.seconds}") Integer refreshRateSeconds,
     ThemeService themeService,
