@@ -3,15 +3,16 @@
 package io.xj.gui.controllers.template;
 
 import io.xj.gui.controllers.ReadyAfterBootController;
-import io.xj.gui.services.ProjectService;
-import io.xj.gui.modes.ViewMode;
 import io.xj.gui.modes.TemplateMode;
+import io.xj.gui.modes.ViewMode;
+import io.xj.gui.services.ProjectService;
 import io.xj.hub.tables.pojos.Template;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
@@ -33,6 +34,9 @@ public class TemplateEditorController implements ReadyAfterBootController {
   @FXML
   protected TextField fieldName;
 
+  @FXML
+  protected Button backButton;
+
   public TemplateEditorController(
     ProjectService projectService
   ) {
@@ -47,6 +51,8 @@ public class TemplateEditorController implements ReadyAfterBootController {
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
+    backButton.textProperty().set("« Templates");
+
     fieldName.textProperty().bindBidirectional(name);
   }
 
@@ -60,7 +66,7 @@ public class TemplateEditorController implements ReadyAfterBootController {
 
    @param ref template to open
    */
-  public void openTemplate(Template ref) {
+  public void editTemplate(Template ref) {
     var template = projectService.getContent().getTemplate(ref.getId())
       .orElseThrow(() -> new RuntimeException("Could not find Template"));
     LOG.info("Will open Template \"{}\"", template.getName());
@@ -68,5 +74,10 @@ public class TemplateEditorController implements ReadyAfterBootController {
     this.name.set(template.getName());
 
     projectService.templateModeProperty().set(TemplateMode.TemplateEditor);
+  }
+
+  @FXML
+  protected void handleBackToTemplateBrowser() {
+    projectService.templateModeProperty().set(TemplateMode.TemplateBrowser);
   }
 }

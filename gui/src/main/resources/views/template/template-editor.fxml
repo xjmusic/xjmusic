@@ -5,6 +5,9 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.Priority?>
 <VBox
   fx:controller="io.xj.gui.controllers.template.TemplateEditorController"
   fx:id="container"
@@ -12,20 +15,34 @@
   xmlns:fx="http://javafx.com/fxml/1"
   spacing="5.0"
 >
-  <padding>
-    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-  </padding>
+  <VBox.vgrow>
+    <Priority fx:constant="ALWAYS"/>
+  </VBox.vgrow>
+  <HBox alignment="CENTER_LEFT"
+        styleClass="back-bar">
+    <Button
+      fx:id="backButton"
+      onMouseClicked="#handleBackToTemplateBrowser"
+      styleClass="content-header-label"/>
+  </HBox>
 
   <VBox>
-    <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Name" textAlignment="RIGHT">
-      <graphic>
-        <Pane prefWidth="15.0"/>
-      </graphic>
-    </Label>
-    <Pane prefWidth="15.0"/>
-    <TextField fx:id="fieldName" prefHeight="25.0" disable="true"/>
-  </VBox>
+    <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+    </padding>
 
-  <Label>FUTURE: Template Editor</Label>
+    <VBox>
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Name" textAlignment="RIGHT">
+        <graphic>
+          <Pane prefWidth="15.0"/>
+        </graphic>
+      </Label>
+      <Pane prefWidth="15.0"/>
+      <TextField fx:id="fieldName" prefHeight="25.0" disable="true"/>
+    </VBox>
+
+    <Label>FUTURE: Template Editor</Label>
+
+  </VBox>
 
 </VBox>

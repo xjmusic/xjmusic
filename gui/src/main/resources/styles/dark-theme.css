@@ -155,3 +155,8 @@
 .demo-title {
   -fx-fill: #ffffff;
 }
+
+.back-bar,
+.tab-pane .tab-header-area .tab-header-background {
+  -fx-background-color: #303030;
+}

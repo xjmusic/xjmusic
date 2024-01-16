@@ -53,8 +53,8 @@ public class TemplateBrowserController extends BrowserController implements Read
     setupData(
       table,
       templates,
-      template -> LOG.debug("Did select Template"),
-      templateEditorController::openTemplate
+      template -> LOG.debug("Did select Template \"{}\"", template.getName()),
+      templateEditorController::editTemplate
     );
     projectService.addProjectUpdateListener(ProjectUpdate.Templates, this::updateTemplates);
   }

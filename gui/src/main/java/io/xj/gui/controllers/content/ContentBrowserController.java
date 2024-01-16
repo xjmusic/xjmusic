@@ -2,10 +2,11 @@
 
 package io.xj.gui.controllers.content;
 
+import io.xj.gui.controllers.BrowserController;
 import io.xj.gui.controllers.ReadyAfterBootController;
-import io.xj.gui.services.ProjectService;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
+import io.xj.gui.services.ProjectService;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
@@ -16,21 +17,22 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 @Service
-public class ContentBrowserController implements ReadyAfterBootController {
+public class ContentBrowserController extends BrowserController implements ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(ContentBrowserController.class);
   private final ProjectService projectService;
   private final LibraryEditorController libraryEditorController;
@@ -39,10 +41,18 @@ public class ContentBrowserController implements ReadyAfterBootController {
   private final ObservableList<Library> libraries = FXCollections.observableList(new ArrayList<>());
   private final ObservableList<Program> programs = FXCollections.observableList(new ArrayList<>());
   private final ObservableList<Instrument> instruments = FXCollections.observableList(new ArrayList<>());
-  private final ObjectProperty<Library> viewedLibrary = new SimpleObjectProperty<>(null);
+  private final ObjectProperty<Library> viewingLibrary = new SimpleObjectProperty<>(null);
 
   @FXML
-  protected TabPane container;
+  protected StackPane container;
+
+  @FXML
+  protected VBox libraryBrowser;
+
+  @FXML
+  protected VBox libraryContentBrowser;
+  @FXML
+  protected Button backButton;
 
   @FXML
   protected TableView<Library> librariesTable;
@@ -54,7 +64,7 @@ public class ContentBrowserController implements ReadyAfterBootController {
   protected TableView<Instrument> instrumentsTable;
 
   @FXML
-  protected Tab librariesTab;
+  protected TabPane libraryContentTabPane;
 
   @FXML
   protected Tab programsTab;
@@ -80,6 +90,17 @@ public class ContentBrowserController implements ReadyAfterBootController {
     initPrograms();
     initInstruments();
 
+    libraryBrowser.visibleProperty().bind(Bindings.isNull(viewingLibrary));
+    libraryBrowser.managedProperty().bind(Bindings.isNull(viewingLibrary));
+    libraryContentBrowser.visibleProperty().bind(Bindings.isNotNull(viewingLibrary));
+    libraryContentBrowser.managedProperty().bind(Bindings.isNotNull(viewingLibrary));
+
+    backButton.textProperty().bind(Bindings.createStringBinding(
+      () -> Objects.nonNull(viewingLibrary.get()) ?
+        String.format("« \"%s\" Library", viewingLibrary.get().getName())
+        : "",
+      viewingLibrary));
+
     var visible = projectService.isStateReadyProperty()
       .and(projectService.viewModeProperty().isEqualTo(ViewMode.Content))
       .and(
@@ -89,15 +110,10 @@ public class ContentBrowserController implements ReadyAfterBootController {
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
-    viewedLibrary.addListener((o, ov, value) -> {
+    viewingLibrary.addListener((o, ov, value) -> {
       updatePrograms();
       updateInstruments();
     });
-
-    // FUTURE: after content creation/editing, we should not need to update the tables
-    librariesTab.disableProperty().bind(Bindings.createBooleanBinding(libraries::isEmpty, libraries));
-    programsTab.disableProperty().bind(Bindings.createBooleanBinding(programs::isEmpty, programs));
-    instrumentsTab.disableProperty().bind(Bindings.createBooleanBinding(instruments::isEmpty, instruments));
   }
 
   @Override
@@ -113,8 +129,8 @@ public class ContentBrowserController implements ReadyAfterBootController {
     setupData(
       librariesTable,
       libraries,
-      viewedLibrary::set,
-      libraryEditorController::openLibrary
+      library -> LOG.debug("Did select Library \"{}\"", library.getName()),
+      this::openLibrary
     );
     projectService.addProjectUpdateListener(ProjectUpdate.Libraries, this::updateLibraries);
   }
@@ -138,8 +154,8 @@ public class ContentBrowserController implements ReadyAfterBootController {
     setupData(
       programsTable,
       programs,
-      program -> LOG.info("Did select Program"),
-      programEditorController::openProgram
+      program -> LOG.debug("Did select Program \"{}\"", program.getName()),
+      programEditorController::editProgram
     );
     projectService.addProjectUpdateListener(ProjectUpdate.Programs, this::updatePrograms);
   }
@@ -149,7 +165,7 @@ public class ContentBrowserController implements ReadyAfterBootController {
    */
   private void updatePrograms() {
     programs.setAll(projectService.getPrograms().stream()
-      .filter(program -> Objects.isNull(viewedLibrary.get()) || Objects.equals(program.getLibraryId(), viewedLibrary.get().getId()))
+      .filter(program -> Objects.isNull(viewingLibrary.get()) || Objects.equals(program.getLibraryId(), viewingLibrary.get().getId()))
       .toList());
   }
 
@@ -165,8 +181,8 @@ public class ContentBrowserController implements ReadyAfterBootController {
     setupData(
       instrumentsTable,
       instruments,
-      instrument -> LOG.info("Did select Instrument"),
-      instrumentEditorController::openInstrument
+      instrument -> LOG.debug("Did select Instrument \"{}\"", instrument.getName()),
+      instrumentEditorController::editInstrument
     );
     projectService.addProjectUpdateListener(ProjectUpdate.Instruments, this::updateInstruments);
   }
@@ -176,40 +192,29 @@ public class ContentBrowserController implements ReadyAfterBootController {
    */
   private void updateInstruments() {
     instruments.setAll(projectService.getInstruments().stream()
-      .filter(instrument -> Objects.isNull(viewedLibrary.get()) || Objects.equals(instrument.getLibraryId(), viewedLibrary.get().getId()))
+      .filter(instrument -> Objects.isNull(viewingLibrary.get()) || Objects.equals(instrument.getLibraryId(), viewingLibrary.get().getId()))
       .toList());
   }
 
   /**
-   Add a column to a table
+   Open the given library in the content browser.
 
-   @param <N>      type of table
-   @param table    for which to add column
-   @param property of column
-   @param name     of column
+   @param library library to open
    */
-  private <N> void addColumn(TableView<N> table, int width, String property, String name) {
-    TableColumn<N, String> nameColumn = new TableColumn<>(name);
-    nameColumn.setCellValueFactory(new PropertyValueFactory<>(property));
-    nameColumn.setPrefWidth(width);
-    table.getColumns().add(nameColumn);
+  private void openLibrary(Library library) {
+    viewingLibrary.set(library);
+    if (projectService.getContent().getInstruments().stream()
+      .anyMatch(instrument -> Objects.equals(instrument.getLibraryId(), library.getId())))
+      libraryContentTabPane.selectionModelProperty().get().select(instrumentsTab);
+    else
+      libraryContentTabPane.selectionModelProperty().get().select(programsTab);
   }
 
   /**
-   Set up the data for the libraries table.@param <N>   type of table
-
-   @param table for which to set up data
-   @param data  observable list
+   Handle the pressed back button.
    */
-  private <N> void setupData(TableView<N> table, ObservableList<N> data, Consumer<N> setSelectedItem, Consumer<N> openItem) {
-    table.setItems(data);
-    table.setOnMousePressed(
-      event -> {
-        if (event.isPrimaryButtonDown())
-          switch (event.getClickCount()) {
-            case 1 -> setSelectedItem.accept(table.getSelectionModel().getSelectedItem());
-            case 2 -> openItem.accept(table.getSelectionModel().getSelectedItem());
-          }
-      });
+  @FXML
+  private void handleBackToLibraryBrowser() {
+    viewingLibrary.set(null);
   }
 }

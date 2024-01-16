@@ -3,15 +3,16 @@
 package io.xj.gui.controllers.content;
 
 import io.xj.gui.controllers.ReadyAfterBootController;
-import io.xj.gui.services.ProjectService;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
+import io.xj.gui.services.ProjectService;
 import io.xj.hub.tables.pojos.Library;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
@@ -33,6 +34,9 @@ public class LibraryEditorController implements ReadyAfterBootController {
   @FXML
   protected TextField fieldName;
 
+  @FXML
+  protected Button backButton;
+
   public LibraryEditorController(
     ProjectService projectService
   ) {
@@ -47,6 +51,8 @@ public class LibraryEditorController implements ReadyAfterBootController {
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
+    backButton.textProperty().set("« Libraries");
+
     fieldName.textProperty().bindBidirectional(name);
   }
 
@@ -60,7 +66,7 @@ public class LibraryEditorController implements ReadyAfterBootController {
 
    @param ref library to open
    */
-  public void openLibrary(Library ref) {
+  public void editLibrary(Library ref) {
     var library = projectService.getContent().getLibrary(ref.getId())
       .orElseThrow(() -> new RuntimeException("Could not find Library"));
     LOG.info("Will open Library \"{}\"", library.getName());
@@ -68,5 +74,10 @@ public class LibraryEditorController implements ReadyAfterBootController {
     this.name.set(library.getName());
 
     projectService.contentModeProperty().set(ContentMode.LibraryEditor);
+  }
+
+  @FXML
+  protected void handleBackToLibraryBrowser() {
+    projectService.contentModeProperty().set(ContentMode.LibraryBrowser);
   }
 }

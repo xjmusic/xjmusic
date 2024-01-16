@@ -215,14 +215,24 @@
   -fx-padding: 0 0 20 0;
 }
 
-/* TODO remove these */
-.debug-red-box {
-  -fx-background-color: '#ff000033';
-}
-.debug-green-box {
-  -fx-background-color: '#00ff0033';
-}
-.debug-blue-box {
-  -fx-background-color: '#0000ff33';
+.content-header-label {
+  -fx-font-weight: bold;
 }
 
+.button.content-header-label,
+.button:focused.content-header-label,
+.button:pressed.content-header-label{
+  -fx-border-color: transparent;
+  -fx-border-width: 0;
+  -fx-background-radius: 0;
+  -fx-background-color: transparent;
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+  -fx-effect: null;
+}
+
+.back-bar,
+.tab-pane .tab-header-area .tab-header-background {
+  -fx-background-color: #d0d0d0;
+}

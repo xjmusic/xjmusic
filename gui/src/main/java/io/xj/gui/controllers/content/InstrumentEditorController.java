@@ -3,15 +3,17 @@
 package io.xj.gui.controllers.content;
 
 import io.xj.gui.controllers.ReadyAfterBootController;
-import io.xj.gui.services.ProjectService;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
+import io.xj.gui.services.ProjectService;
 import io.xj.hub.tables.pojos.Instrument;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
@@ -25,6 +27,7 @@ public class InstrumentEditorController implements ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(InstrumentEditorController.class);
   private final ProjectService projectService;
   private final ObjectProperty<UUID> id = new SimpleObjectProperty<>(null);
+  private final ObjectProperty<UUID> libraryId = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
 
   @FXML
@@ -32,6 +35,9 @@ public class InstrumentEditorController implements ReadyAfterBootController {
 
   @FXML
   protected TextField fieldName;
+
+  @FXML
+  protected Button backButton;
 
   public InstrumentEditorController(
     ProjectService projectService
@@ -47,6 +53,13 @@ public class InstrumentEditorController implements ReadyAfterBootController {
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
+    backButton.textProperty().bind(Bindings.createStringBinding(
+      () -> String.format("« Instruments of \"%s\" Library", projectService.getContent().getLibrary(libraryId.get())
+        .orElseThrow(() -> new RuntimeException("Could not find Library for Program"))
+        .getName()),
+      libraryId
+    ));
+
     fieldName.textProperty().bindBidirectional(name);
   }
 
@@ -60,13 +73,19 @@ public class InstrumentEditorController implements ReadyAfterBootController {
 
    @param ref instrument to open
    */
-  public void openInstrument(Instrument ref) {
+  public void editInstrument(Instrument ref) {
     var instrument = projectService.getContent().getInstrument(ref.getId())
       .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
     LOG.info("Will open Instrument \"{}\"", instrument.getName());
     this.id.set(instrument.getId());
+    this.libraryId.set(instrument.getLibraryId());
     this.name.set(instrument.getName());
 
     projectService.contentModeProperty().set(ContentMode.InstrumentEditor);
+  }
+
+  @FXML
+  protected void handleBackToInstrumentBrowser() {
+    projectService.contentModeProperty().set(ContentMode.InstrumentBrowser);
   }
 }
