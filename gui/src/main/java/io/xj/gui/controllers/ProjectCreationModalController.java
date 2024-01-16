@@ -7,7 +7,6 @@ import io.xj.gui.services.ThemeService;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.gui.utils.TextParsingUtils;
 import io.xj.hub.util.StringUtils;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -174,13 +173,11 @@ public class ProjectCreationModalController extends ReadyAfterBootModalControlle
       return;
     }
 
-    Platform.runLater(() -> {
-      switch (mode.get()) {
-        case CLONE_PROJECT ->
-          projectService.cloneFromDemoTemplate(fieldPathPrefix.getText(), ((ToggleButton) demoSelection.getSelectedToggle()).getId(), fieldProjectName.getText());
-        case NEW_PROJECT -> projectService.createProject(fieldPathPrefix.getText(), fieldProjectName.getText());
-      }
-    });
+    switch (mode.get()) {
+      case CLONE_PROJECT ->
+        projectService.cloneFromDemoTemplate(fieldPathPrefix.getText(), ((ToggleButton) demoSelection.getSelectedToggle()).getId(), fieldProjectName.getText());
+      case NEW_PROJECT -> projectService.createProject(fieldPathPrefix.getText(), fieldProjectName.getText());
+    }
 
     Stage stage = (Stage) buttonOK.getScene().getWindow();
     stage.close();

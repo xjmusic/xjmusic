@@ -6,14 +6,11 @@ import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
-import io.xj.hub.tables.pojos.Program;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
@@ -36,9 +33,6 @@ public class ProgramEditorController implements ReadyAfterBootController {
   @FXML
   protected TextField fieldName;
 
-  @FXML
-  protected Button backButton;
-
   public ProgramEditorController(
     ProjectService projectService
   ) {
@@ -53,13 +47,6 @@ public class ProgramEditorController implements ReadyAfterBootController {
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
-    backButton.textProperty().bind(Bindings.createStringBinding(
-      () -> String.format("« \"%s\" Library", projectService.getContent().getLibrary(libraryId.get())
-        .orElseThrow(() -> new RuntimeException("Could not find Library for Program"))
-        .getName()),
-      libraryId
-    ));
-
     fieldName.textProperty().bindBidirectional(name);
   }
 
@@ -71,10 +58,10 @@ public class ProgramEditorController implements ReadyAfterBootController {
   /**
    Open the given program in the content editor.
 
-   @param ref program to open
+   @param programId program to open
    */
-  public void editProgram(Program ref) {
-    var program = projectService.getContent().getProgram(ref.getId())
+  public void editProgram(UUID programId) {
+    var program = projectService.getContent().getProgram(programId)
       .orElseThrow(() -> new RuntimeException("Could not find Program"));
     LOG.info("Will open Program \"{}\"", program.getName());
     this.id.set(program.getId());
@@ -82,10 +69,6 @@ public class ProgramEditorController implements ReadyAfterBootController {
     this.name.set(program.getName());
 
     projectService.contentModeProperty().set(ContentMode.ProgramEditor);
-  }
-
-  @FXML
-  protected void handleBackToProgramBrowser() {
-    projectService.contentModeProperty().set(ContentMode.ProgramBrowser);
+    projectService.viewModeProperty().set(ViewMode.Content);
   }
 }

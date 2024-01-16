@@ -11,19 +11,15 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.nexus.project.ProjectUpdate;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -45,14 +41,6 @@ public class ContentBrowserController extends BrowserController implements Ready
 
   @FXML
   protected StackPane container;
-
-  @FXML
-  protected VBox libraryBrowser;
-
-  @FXML
-  protected VBox libraryContentBrowser;
-  @FXML
-  protected Button backButton;
 
   @FXML
   protected TableView<Library> librariesTable;
@@ -90,16 +78,16 @@ public class ContentBrowserController extends BrowserController implements Ready
     initPrograms();
     initInstruments();
 
-    libraryBrowser.visibleProperty().bind(Bindings.isNull(viewingLibrary));
-    libraryBrowser.managedProperty().bind(Bindings.isNull(viewingLibrary));
-    libraryContentBrowser.visibleProperty().bind(Bindings.isNotNull(viewingLibrary));
-    libraryContentBrowser.managedProperty().bind(Bindings.isNotNull(viewingLibrary));
 
-    backButton.textProperty().bind(Bindings.createStringBinding(
-      () -> Objects.nonNull(viewingLibrary.get()) ?
-        String.format("« \"%s\" Library", viewingLibrary.get().getName())
-        : "",
-      viewingLibrary));
+    var isLibraryBrowser = projectService.contentModeProperty().isEqualTo(ContentMode.LibraryBrowser);
+    librariesTable.visibleProperty().bind(isLibraryBrowser);
+    librariesTable.managedProperty().bind(isLibraryBrowser);
+
+    var isProgramOrInstrumentBrowser =
+      projectService.contentModeProperty().isEqualTo(ContentMode.ProgramBrowser)
+        .or(projectService.contentModeProperty().isEqualTo(ContentMode.InstrumentBrowser));
+    libraryContentTabPane.visibleProperty().bind(isProgramOrInstrumentBrowser);
+    libraryContentTabPane.managedProperty().bind(isProgramOrInstrumentBrowser);
 
     var visible = projectService.isStateReadyProperty()
       .and(projectService.viewModeProperty().isEqualTo(ViewMode.Content))
@@ -155,7 +143,7 @@ public class ContentBrowserController extends BrowserController implements Ready
       programsTable,
       programs,
       program -> LOG.debug("Did select Program \"{}\"", program.getName()),
-      programEditorController::editProgram
+      program -> programEditorController.editProgram(program.getId())
     );
     projectService.addProjectUpdateListener(ProjectUpdate.Programs, this::updatePrograms);
   }
@@ -182,7 +170,7 @@ public class ContentBrowserController extends BrowserController implements Ready
       instrumentsTable,
       instruments,
       instrument -> LOG.debug("Did select Instrument \"{}\"", instrument.getName()),
-      instrumentEditorController::editInstrument
+      instrument -> instrumentEditorController.editInstrument(instrument.getId())
     );
     projectService.addProjectUpdateListener(ProjectUpdate.Instruments, this::updateInstruments);
   }
@@ -204,17 +192,12 @@ public class ContentBrowserController extends BrowserController implements Ready
   private void openLibrary(Library library) {
     viewingLibrary.set(library);
     if (projectService.getContent().getInstruments().stream()
-      .anyMatch(instrument -> Objects.equals(instrument.getLibraryId(), library.getId())))
+      .anyMatch(instrument -> Objects.equals(instrument.getLibraryId(), library.getId()))) {
       libraryContentTabPane.selectionModelProperty().get().select(instrumentsTab);
-    else
+      projectService.contentModeProperty().set(ContentMode.InstrumentBrowser);
+    } else {
       libraryContentTabPane.selectionModelProperty().get().select(programsTab);
-  }
-
-  /**
-   Handle the pressed back button.
-   */
-  @FXML
-  private void handleBackToLibraryBrowser() {
-    viewingLibrary.set(null);
+      projectService.contentModeProperty().set(ContentMode.ProgramBrowser);
+    }
   }
 }

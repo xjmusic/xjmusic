@@ -140,7 +140,7 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void openProject(String projectFilePath) {
-    new Thread(() -> {
+    Platform.runLater(new Thread(() -> {
       closeProject();
       if (projectManager.openProjectFromLocalFile(projectFilePath)) {
         projectManager.getProject().ifPresent(project ->
@@ -148,18 +148,18 @@ public class ProjectServiceImpl implements ProjectService {
       } else {
         removeFromRecentProjects(projectFilePath);
       }
-    }).start();
+    }));
   }
 
   @Override
   public void createProject(String parentPathPrefix, String projectName) {
-    new Thread(() -> {
+    Platform.runLater(new Thread(() -> {
       closeProject();
       if (projectManager.createProject(parentPathPrefix, projectName)) {
         projectManager.getProject().ifPresent(project ->
           addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile()));
       }
-    }).start();
+    }));
   }
 
   @Override
@@ -171,7 +171,7 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void cloneFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
-    new Thread(() -> {
+    Platform.runLater(new Thread(() -> {
       closeProject();
       if (projectManager.cloneProjectFromDemoTemplate(templateShipKey, parentPathPrefix, projectName)) {
         projectManager.getProject().ifPresent(project ->
@@ -179,7 +179,7 @@ public class ProjectServiceImpl implements ProjectService {
       } else {
         removeFromRecentProjects(parentPathPrefix + projectName + ".xj");
       }
-    }).start();
+    }));
   }
 
   @Override

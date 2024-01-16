@@ -2,6 +2,7 @@
 
 package io.xj.gui.controllers;
 
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -37,8 +38,8 @@ public abstract class BrowserController implements ReadyAfterBootController {
       event -> {
         if (event.isPrimaryButtonDown())
           switch (event.getClickCount()) {
-            case 1 -> setSelectedItem.accept(table.getSelectionModel().getSelectedItem());
-            case 2 -> openItem.accept(table.getSelectionModel().getSelectedItem());
+            case 1 -> Platform.runLater(() -> setSelectedItem.accept(table.getSelectionModel().getSelectedItem()));
+            case 2 -> Platform.runLater(() -> openItem.accept(table.getSelectionModel().getSelectedItem()));
           }
       });
   }

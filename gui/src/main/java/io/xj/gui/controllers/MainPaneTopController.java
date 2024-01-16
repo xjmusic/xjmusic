@@ -3,13 +3,13 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.controllers.fabrication.FabricationSettingsModalController;
+import io.xj.gui.modes.ContentMode;
+import io.xj.gui.modes.TemplateMode;
+import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.LabState;
 import io.xj.gui.services.ProjectService;
-import io.xj.gui.modes.ContentMode;
-import io.xj.gui.modes.ViewMode;
-import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.work.FabricationState;
 import javafx.application.Platform;
@@ -145,6 +145,13 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     fabricationControlContainer.visibleProperty().bind(projectService.viewModeProperty().isEqualTo(ViewMode.Fabrication));
     fabricationControlContainer.managedProperty().bind(projectService.viewModeProperty().isEqualTo(ViewMode.Fabrication));
 
+    projectService.viewModeProperty().addListener((o, ov, value) -> {
+      switch (value) {
+        case Content -> buttonContent.setSelected(true);
+        case Template -> buttonTemplate.setSelected(true);
+        case Fabrication -> buttonFabrication.setSelected(true);
+      }
+    });
   }
 
   @Override
@@ -161,9 +168,17 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   protected void handlePressedButtonContent() {
     if (!buttonContent.isSelected()) {
       buttonContent.setSelected(true);
-      projectService.contentModeProperty().set(ContentMode.LibraryBrowser);
     }
-    projectService.viewModeProperty().set(ViewMode.Content);
+    if (projectService.viewModeProperty().get() == ViewMode.Content) {
+      switch (projectService.contentModeProperty().get()) {
+        case LibraryEditor, InstrumentBrowser, LibraryBrowser, ProgramBrowser ->
+          projectService.contentModeProperty().set(ContentMode.LibraryBrowser);
+        case ProgramEditor -> projectService.contentModeProperty().set(ContentMode.ProgramBrowser);
+        case InstrumentEditor -> projectService.contentModeProperty().set(ContentMode.InstrumentBrowser);
+      }
+    } else {
+      projectService.viewModeProperty().set(ViewMode.Content);
+    }
   }
 
   @FXML

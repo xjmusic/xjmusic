@@ -215,24 +215,19 @@
   -fx-padding: 0 0 20 0;
 }
 
-.content-header-label {
-  -fx-font-weight: bold;
-}
-
-.button.content-header-label,
-.button:focused.content-header-label,
-.button:pressed.content-header-label{
-  -fx-border-color: transparent;
-  -fx-border-width: 0;
-  -fx-background-radius: 0;
-  -fx-background-color: transparent;
-}
-
 .tab-pane .tab-header-area .tab-header-background {
   -fx-effect: null;
+}
+
+.back-bar {
+  -fx-padding: 3 0 3 5;
 }
 
 .back-bar,
 .tab-pane .tab-header-area .tab-header-background {
   -fx-background-color: #d0d0d0;
+}
+
+.bold {
+  -fx-font-weight: bold;
 }
