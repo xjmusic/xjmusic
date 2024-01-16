@@ -54,7 +54,7 @@ public class InstrumentEditorController implements ReadyAfterBootController {
     container.managedProperty().bind(visible);
 
     backButton.textProperty().bind(Bindings.createStringBinding(
-      () -> String.format("« Instruments of \"%s\" Library", projectService.getContent().getLibrary(libraryId.get())
+      () -> String.format("« \"%s\" Library", projectService.getContent().getLibrary(libraryId.get())
         .orElseThrow(() -> new RuntimeException("Could not find Library for Program"))
         .getName()),
       libraryId
