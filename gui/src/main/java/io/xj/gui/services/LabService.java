@@ -3,11 +3,10 @@ package io.xj.gui.services;
 import io.xj.hub.HubConfiguration;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.User;
+import io.xj.nexus.hub_client.HubClientAccess;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
 import org.springframework.http.HttpMethod;
 import reactor.core.publisher.Mono;
 
@@ -77,4 +76,11 @@ public interface LabService {
    Fetch all projects from the lab
    */
   void fetchProjects(Consumer<Collection<Project>> callback);
+
+  /**
+   Get an access token for the lab (Hub API)
+
+   @return the access token
+   */
+  HubClientAccess getHubClientAccess();
 }

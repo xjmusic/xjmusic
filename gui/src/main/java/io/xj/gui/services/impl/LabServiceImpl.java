@@ -10,6 +10,7 @@ import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.User;
 import io.xj.hub.util.StringUtils;
+import io.xj.nexus.hub_client.HubClientAccess;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
@@ -217,5 +218,12 @@ public class LabServiceImpl implements LabService {
         (HubContent content) -> Platform.runLater(() -> callback.accept(content.getProjects())),
         error -> Platform.runLater(() -> this.onConnectionFailure((WebClientResponseException) error)),
         () -> Platform.runLater(this::onConnectionChanged));
+  }
+
+  @Override
+  public HubClientAccess getHubClientAccess() {
+    return new HubClientAccess()
+      .setUserId(authenticatedUser.get().getId())
+      .setToken(accessToken.get());
   }
 }

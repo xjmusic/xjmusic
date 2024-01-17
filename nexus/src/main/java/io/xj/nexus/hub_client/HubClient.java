@@ -3,9 +3,7 @@
 package io.xj.nexus.hub_client;
 
 import io.xj.hub.HubContent;
-import io.xj.hub.tables.pojos.Template;
 
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -14,22 +12,24 @@ import java.util.UUID;
 public interface HubClient {
 
   /**
+   Ingest content from the API v2 (HubContent)
+   <p>
    Make a remote call to Hub, and ingest the specified entities
    <p>
    HubClient allows a service that depends on Hub (e.g. Nexus) to connect to the Hub REST API via an HTTP client and deserialize results into usable entities
    <p>
    HubAccess entity contains the token itself, such that one of these entities can also be used (e.g. by a HubClient) in order to make a request to a Hub API
 
-   @param baseUrl    of Hub
-   @param access     control
-   @param templateId to ingest
+   @param baseUrl   of Hub
+   @param access    control
+   @param projectId to ingest
    @return HubClient comprising ingested entities, including all child sub-entities
    @throws HubClientException on failure to perform request
    */
-  HubContent ingest(String baseUrl, HubClientAccess access, UUID templateId) throws HubClientException;
+  HubContent ingestApiV2(String baseUrl, HubClientAccess access, UUID projectId) throws HubClientException;
 
   /**
-   Load shipped content from a static file
+   Load shipped content from a static file in API v1 (HubContentPayload a.k.a. JSONAPI)
    <p>
    Nexus production fabrication from static source (without Hub) https://www.pivotaltracker.com/story/show/177020318
 
@@ -37,5 +37,5 @@ public interface HubClient {
    @param audioBaseUrl to use for audio
    @return hub content
    */
-  HubContent load(String shipKey, String audioBaseUrl) throws HubClientException;
+  HubContent loadApiV1(String shipKey, String audioBaseUrl) throws HubClientException;
 }

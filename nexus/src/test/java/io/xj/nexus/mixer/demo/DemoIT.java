@@ -18,6 +18,11 @@ import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.util.ValueUtils;
 import io.xj.nexus.audio_cache.AudioCache;
 import io.xj.nexus.audio_cache.AudioCacheImpl;
+import io.xj.nexus.entity.EntityFactory;
+import io.xj.nexus.entity.EntityFactoryImpl;
+import io.xj.nexus.http.HttpClientProvider;
+import io.xj.nexus.json.JsonProvider;
+import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.mixer.ActiveAudio;
 import io.xj.nexus.mixer.AudioFileWriter;
 import io.xj.nexus.mixer.AudioFileWriterImpl;
@@ -39,6 +44,7 @@ import io.xj.nexus.util.InternalResource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.sound.sampled.AudioFormat;
@@ -126,10 +132,15 @@ public class DemoIT {
   private MixerFactory mixerFactory;
   private AudioCache audioCache;
 
+  @Mock
+  private HttpClientProvider httpClientProvider;
+
   public DemoIT() throws IOException {
     String contentStoragePathPrefix = Files.createTempDirectory("xj_demo").toFile().getAbsolutePath() + File.separator;
     Files.createDirectory(Paths.get(contentStoragePathPrefix, "instrument"));
-    projectManager = ProjectManagerImpl.createInstance();
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
+    projectManager = new ProjectManagerImpl(httpClientProvider, jsonProvider, entityFactory);
     projectManager.setProjectPathPrefix(contentStoragePathPrefix);
     instrumentPathPrefix = Files.createDirectory(Paths.get(contentStoragePathPrefix, "instrument", instrument.getId().toString())).toAbsolutePath().toString();
     audioById.values().forEach(audio -> {

@@ -2,6 +2,7 @@ package io.xj.nexus.project;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Project;
+import io.xj.nexus.hub_client.HubClientAccess;
 import jakarta.annotation.Nullable;
 
 import java.util.Optional;
@@ -35,12 +36,14 @@ public interface ProjectManager {
   /**
    Clone from a Lab Project
 
+   @param access           control
+   @param labBaseUrl       of the lab
    @param parentPathPrefix parent folder to the project folder
    @param projectId        in the lab
    @param projectName      of the project folder and the project
    @return true if successful
    */
-  boolean cloneFromLabProject(String parentPathPrefix, UUID projectId, String projectName);
+  boolean cloneFromLabProject(HubClientAccess access, String labBaseUrl, String parentPathPrefix, UUID projectId, String projectName);
 
   /**
    Open a project from a local file

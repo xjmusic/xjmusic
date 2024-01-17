@@ -388,7 +388,7 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public List<Segment> getSegments(@Nullable Integer startIndex) {
-    var viewLimit = Integer.parseInt(timelineSegmentViewLimit.getValue());
+    var viewLimit = parseIntegerValue(timelineSegmentViewLimit.getValue(), "Timeline Segment View Limit");
     var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, fabricationManager.getEntityStore().readLastSegmentId() - viewLimit - 1);
     var to = Math.min(fabricationManager.getEntityStore().readLastSegmentId() - 1, from + viewLimit);
     return fabricationManager.getEntityStore().readSegmentsFromToOffset(from, to);
@@ -579,7 +579,7 @@ public class FabricationServiceImpl implements FabricationService {
    */
   private int parseIntegerValue(String value, String sourceDescription) {
     try {
-      return Integer.parseInt(value);
+      return (int) Double.parseDouble(value);
     } catch (Exception e) {
       throw new RuntimeException(String.format("Failed to parse integer value of '%s' from %s", value, sourceDescription));
     }

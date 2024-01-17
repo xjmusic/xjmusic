@@ -85,6 +85,7 @@ public class ProjectServiceImpl implements ProjectService {
   private final BooleanBinding isStateReady = state.isEqualTo(ProjectState.Ready);
   private final BooleanBinding isStateStandby = state.isEqualTo(ProjectState.Standby);
   private final int maxRecentProjects;
+  private final LabService labService;
   private final ProjectManager projectManager;
   private final ObservableStringValue windowTitle;
   private final JsonProvider jsonProvider;
@@ -95,6 +96,7 @@ public class ProjectServiceImpl implements ProjectService {
     ProjectManager projectManager
   ) {
     this.maxRecentProjects = maxRecentProjects;
+    this.labService = labService;
     this.projectManager = projectManager;
     this.jsonProvider = new JsonProviderImpl();
     attachPreferenceListeners();
@@ -157,7 +159,7 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void createProject(String parentPathPrefix, String projectName) {
-    if (!confirmOverwriteIfExists(parentPathPrefix, projectName)) return;
+    if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName)) return;
     Platform.runLater(new Thread(() -> {
       closeProject();
       if (projectManager.createProject(parentPathPrefix, projectName)) {
@@ -172,7 +174,13 @@ public class ProjectServiceImpl implements ProjectService {
     closeProject();
     Platform.runLater(new Thread(() -> {
       closeProject();
-      if (projectManager.cloneFromLabProject(parentPathPrefix, templateShipKey, projectName)) {
+      if (projectManager.cloneFromLabProject(
+        labService.getHubClientAccess(),
+        labService.hubConfigProperty().get().getApiBaseUrl(),
+        parentPathPrefix,
+        projectId,
+        projectName
+      )) {
         projectManager.getProject().ifPresent(project ->
           addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile()));
       } else {
@@ -183,10 +191,14 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void cloneFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
-    if (!confirmOverwriteIfExists(parentPathPrefix, projectName)) return;
+    if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName)) return;
     Platform.runLater(new Thread(() -> {
       closeProject();
-      if (projectManager.cloneProjectFromDemoTemplate(parentPathPrefix, templateShipKey, projectName)) {
+      if (projectManager.cloneProjectFromDemoTemplate(
+        parentPathPrefix,
+        templateShipKey,
+        projectName
+      )) {
         projectManager.getProject().ifPresent(project ->
           addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile()));
       } else {
@@ -327,9 +339,9 @@ public class ProjectServiceImpl implements ProjectService {
    @param projectName      project name
    @return true if overwrite confirmed
    */
-  private boolean confirmOverwriteIfExists(String parentPathPrefix, String projectName) {
+  private boolean promptToSkipOverwriteIfExists(String parentPathPrefix, String projectName) {
     if (!Files.exists(Path.of(parentPathPrefix + projectName))) {
-      return true;
+      return false;
     }
     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
     alert.setTitle("Project Already Exists");
@@ -341,7 +353,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     // Show the dialog and capture the result
     var result = alert.showAndWait();
-    return result.isPresent() && result.get() == ButtonType.YES;
+    return result.isEmpty() || result.get() != ButtonType.YES;
   }
 
   /**

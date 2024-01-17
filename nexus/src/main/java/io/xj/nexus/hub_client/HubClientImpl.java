@@ -26,7 +26,7 @@ import java.util.UUID;
  Implementation of a Hub Client for connecting to Hub and accessing contents
  */
 public class HubClientImpl implements HubClient {
-  static final String API_PATH_INGEST_FORMAT = "api/1/ingest/%s";
+  static final String API_PATH_INGEST_FORMAT = "api/2/project/%s";
   static final String HEADER_COOKIE = "Cookie";
   final Logger LOG = LoggerFactory.getLogger(HubClientImpl.class);
   final HttpClientProvider httpClientProvider;
@@ -45,9 +45,9 @@ public class HubClientImpl implements HubClient {
   }
 
   @Override
-  public HubContent ingest(String baseUrl, HubClientAccess access, UUID templateId) throws HubClientException {
+  public HubContent ingestApiV2(String baseUrl, HubClientAccess access, UUID projectId) throws HubClientException {
     CloseableHttpClient client = httpClientProvider.getClient();
-    var uri = buildURI(baseUrl, String.format(API_PATH_INGEST_FORMAT, templateId.toString()));
+    var uri = buildURI(baseUrl, String.format(API_PATH_INGEST_FORMAT, projectId.toString()));
     LOG.info("Will ingest content from {}", uri);
     try (
       CloseableHttpResponse response = client.execute(buildGetRequest(uri, access.getToken()))
@@ -58,7 +58,7 @@ public class HubClientImpl implements HubClient {
 
       String json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
       LOG.debug("Did ingest content; will read bytes of JSON");
-      return HubContent.from(jsonProvider.getMapper().readValue(json, HubContentPayload.class));
+      return jsonProvider.getMapper().readValue(json, HubContent.class);
 
     } catch (Exception e) {
       throw new HubClientException(e);
@@ -66,7 +66,7 @@ public class HubClientImpl implements HubClient {
   }
 
   @Override
-  public HubContent load(String shipKey, String audioBaseUrl) throws HubClientException {
+  public HubContent loadApiV1(String shipKey, String audioBaseUrl) throws HubClientException {
     var url = String.format("%s%s.json", audioBaseUrl, shipKey);
     LOG.info("Will load content from {}", url);
     CloseableHttpClient client = httpClientProvider.getClient();
