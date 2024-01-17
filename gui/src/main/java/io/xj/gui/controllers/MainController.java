@@ -2,92 +2,103 @@
 
 package io.xj.gui.controllers;
 
-import io.xj.gui.services.FabricationService;
-import io.xj.gui.services.ThemeService;
+import io.xj.gui.controllers.content.ContentBrowserController;
+import io.xj.gui.controllers.content.InstrumentEditorController;
+import io.xj.gui.controllers.content.LibraryEditorController;
+import io.xj.gui.controllers.content.ProgramEditorController;
+import io.xj.gui.controllers.fabrication.FabricationController;
+import io.xj.gui.controllers.template.TemplateBrowserController;
+import io.xj.gui.controllers.template.TemplateEditorController;
+import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
-import jakarta.annotation.Nullable;
+import io.xj.hub.util.StringUtils;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.image.ImageView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class MainController implements ReadyAfterBootController {
-  final FabricationService fabricationService;
-  final MainMenuController mainMenuController;
-  final MainPaneBottomController mainPaneBottomController;
-  final MainPaneRightController mainPaneRightController;
-  final MainPaneTopController mainPaneTopController;
-  final MainTimelineController mainTimelineController;
-  final ThemeService themeService;
-  final UIStateService uiStateService;
+  static final Logger LOG = LoggerFactory.getLogger(MainController.class);
+  private final FabricationController fabricationController;
+  private final MainMenuController mainMenuController;
+  private final MainPaneBottomController mainPaneBottomController;
+  private final MainPaneTopController mainPaneTopController;
+  private final UIStateService uiStateService;
+  private final ProjectService projectService;
+  private final ContentBrowserController contentBrowserController;
+  private final LibraryEditorController libraryEditorController;
+  private final ProgramEditorController programEditorController;
+  private final InstrumentEditorController instrumentEditorController;
+  private final TemplateEditorController templateEditorController;
+  private final TemplateBrowserController templateBrowserController;
 
-  @Nullable
-  Scene mainWindowScene;
+  @FXML
+  protected ImageView startupContainer;
 
   public MainController(
-    FabricationService fabricationService,
+    ContentBrowserController contentBrowserController,
+    FabricationController fabricationController,
+    InstrumentEditorController instrumentEditorController,
+    LibraryEditorController libraryEditorController,
     MainMenuController mainMenuController,
     MainPaneBottomController mainPaneBottomController,
-    MainPaneRightController mainPaneRightController,
     MainPaneTopController mainPaneTopController,
-    MainTimelineController mainTimelineController,
-    ThemeService themeService,
+    ProgramEditorController programEditorController,
+    ProjectService projectService,
+    TemplateBrowserController templateBrowserController,
+    TemplateEditorController templateEditorController,
     UIStateService uiStateService
   ) {
-    this.fabricationService = fabricationService;
+    this.contentBrowserController = contentBrowserController;
+    this.fabricationController = fabricationController;
+    this.instrumentEditorController = instrumentEditorController;
+    this.libraryEditorController = libraryEditorController;
     this.mainMenuController = mainMenuController;
     this.mainPaneBottomController = mainPaneBottomController;
-    this.mainPaneRightController = mainPaneRightController;
     this.mainPaneTopController = mainPaneTopController;
-    this.mainTimelineController = mainTimelineController;
-    this.themeService = themeService;
+    this.programEditorController = programEditorController;
+    this.projectService = projectService;
+    this.templateBrowserController = templateBrowserController;
+    this.templateEditorController = templateEditorController;
     this.uiStateService = uiStateService;
   }
 
-  @FXML
-  public ScrollPane mainTimeline;
-
-  @FXML
-  public VBox mainPaneBottom;
-
-  @FXML
-  public VBox mainPaneTop;
-
-  @FXML
-  public MenuBar mainMenu;
-
   @Override
   public void onStageReady() {
-    themeService.setup(mainWindowScene);
-    themeService.isDarkThemeProperty().addListener((observable, oldValue, newValue) -> themeService.setup(mainWindowScene));
+    try {
+      contentBrowserController.onStageReady();
+      fabricationController.onStageReady();
+      instrumentEditorController.onStageReady();
+      libraryEditorController.onStageReady();
+      mainMenuController.onStageReady();
+      mainPaneBottomController.onStageReady();
+      mainPaneTopController.onStageReady();
+      programEditorController.onStageReady();
+      templateBrowserController.onStageReady();
+      templateEditorController.onStageReady();
+      uiStateService.onStageReady();
 
-    mainMenuController.onStageReady();
-    mainPaneTopController.onStageReady();
-    mainPaneBottomController.onStageReady();
-    mainPaneRightController.onStageReady();
-    mainTimelineController.onStageReady();
-    uiStateService.onStageReady();
+      startupContainer.visibleProperty().bind(projectService.isStateStandbyProperty());
+      startupContainer.managedProperty().bind(projectService.isStateStandbyProperty());
+    } catch (Exception e) {
+      LOG.error("Error initializing main controller!\n{}", StringUtils.formatStackTrace(e), e);
+    }
   }
 
   @Override
   public void onStageClose() {
+    contentBrowserController.onStageClose();
+    fabricationController.onStageClose();
+    instrumentEditorController.onStageClose();
+    libraryEditorController.onStageClose();
     mainMenuController.onStageClose();
     mainPaneBottomController.onStageClose();
-    mainPaneRightController.onStageClose();
     mainPaneTopController.onStageClose();
-    mainTimelineController.onStageClose();
+    programEditorController.onStageClose();
+    templateBrowserController.onStageClose();
+    templateEditorController.onStageClose();
     uiStateService.onStageClose();
   }
-
-  public @Nullable Scene getMainWindowScene() {
-    return mainWindowScene;
-  }
-
-  public void setMainWindowScene(@Nullable Scene mainWindowScene) {
-    this.mainWindowScene = mainWindowScene;
-  }
-
 }

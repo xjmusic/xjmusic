@@ -2,11 +2,11 @@
 
 package io.xj.gui.services;
 
+import io.xj.gui.services.impl.FabricationServiceImpl;
 import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.nexus.InputMode;
 import io.xj.nexus.ControlMode;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
@@ -14,8 +14,10 @@ import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.work.WorkManager;
+import io.xj.nexus.project.ProjectState;
+import io.xj.nexus.work.FabricationManager;
 import javafx.application.HostServices;
+import javafx.beans.property.SimpleObjectProperty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,8 +28,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.xj.gui.GuiHubIntegrationTestingFixtures.buildProject;
 import static io.xj.gui.GuiHubIntegrationTestingFixtures.buildMainProgramWithBarBeats;
+import static io.xj.gui.GuiHubIntegrationTestingFixtures.buildProject;
 import static io.xj.gui.GuiHubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.gui.GuiIntegrationTestingFixtures.buildChain;
 import static io.xj.gui.GuiIntegrationTestingFixtures.buildSegment;
@@ -42,14 +44,9 @@ class FabricationServiceImplTest {
   int defaultCraftAheadSeconds = 5;
   int defaultDubAheadSeconds = 5;
   int defaultMixerLengthSeconds = 10;
-  String defaultInputTemplateKey = "slaps_lofi";
   int defaultOutputChannels = 2;
   private final String defaultMacroMode = ControlMode.AUTO.toString();
-  String defaultInputMode = InputMode.PRODUCTION.toString();
   int defaultOutputFrameRate = 48000;
-
-  @Mock
-  HostServices hostServices;
 
   @Mock
   LabService labService;
@@ -58,7 +55,10 @@ class FabricationServiceImplTest {
   private NexusEntityStore entityStore;
 
   @Mock
-  private WorkManager workManager;
+  ProjectService projectService;
+
+  @Mock
+  private FabricationManager fabricationManager;
 
   FabricationServiceImpl subject;
   private Chain chain;
@@ -75,19 +75,18 @@ class FabricationServiceImplTest {
       ChainState.FABRICATE,
       template
     );
+    when(projectService.stateProperty()).thenReturn(new SimpleObjectProperty<>(ProjectState.Standby));
     subject = new FabricationServiceImpl(
-      hostServices,
       defaultCraftAheadSeconds,
       defaultDubAheadSeconds,
       defaultMixerLengthSeconds,
       defaultTimelineSegmentViewLimit,
-      defaultInputTemplateKey,
       defaultOutputChannels,
       defaultOutputFrameRate,
       defaultMacroMode,
-      defaultInputMode,
       labService,
-      workManager
+      projectService,
+      fabricationManager
     );
   }
 
@@ -134,8 +133,8 @@ class FabricationServiceImplTest {
     var program = buildMainProgramWithBarBeats(barBeats);
     var sourceMaterial = new HubContent(List.of(program));
     var choice = buildSegmentChoice(segment, program);
-    when(workManager.getSourceMaterial()).thenReturn(sourceMaterial);
-    when(workManager.getEntityStore()).thenReturn(entityStore);
+    when(fabricationManager.getSourceMaterial()).thenReturn(sourceMaterial);
+    when(fabricationManager.getEntityStore()).thenReturn(entityStore);
     when(entityStore.readChoice(eq(segment.getId()), eq(ProgramType.Main))).thenReturn(Optional.of(choice));
     return segment;
   }

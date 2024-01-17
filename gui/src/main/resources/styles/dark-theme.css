@@ -101,7 +101,6 @@
 }
 
 .main-timeline,
-.demo-container,
 .timeline-position-spacer {
   -fx-background-color: #202020;
 }
@@ -155,4 +154,9 @@
 
 .demo-title {
   -fx-fill: #ffffff;
+}
+
+.back-bar,
+.tab-pane .tab-header-area .tab-header-background {
+  -fx-background-color: #303030;
 }

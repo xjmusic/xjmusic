@@ -30,20 +30,15 @@ public interface AudioCache {
 
    @param audio to prepare
    */
-  void prepare(InstrumentAudio audio) throws AudioCacheException, IOException, NexusException;
+  AudioCacheImpl.AudioPreparedOnDisk prepare(InstrumentAudio audio) throws AudioCacheException, IOException, NexusException;
 
   /**
-   Initialize the audio cache with the given parameters
+   Initialize the audio cache with the given parameters@param targetFrameRate          to resample if necessary
 
-   @param contentStoragePathPrefix to retrieve from
-   @param audioBaseUrl             to retrieve from
-   @param targetFrameRate          to resample if necessary
-   @param targetSampleBits         to resample if necessary
-   @param targetChannels           to resample if necessary
+   @param targetSampleBits to resample if necessary
+   @param targetChannels   to resample if necessary
    */
   void initialize(
-    String contentStoragePathPrefix,
-    String audioBaseUrl,
     int targetFrameRate,
     int targetSampleBits,
     int targetChannels

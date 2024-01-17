@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
+
+<?import javafx.scene.layout.VBox?>
+<VBox
+  xmlns="http://javafx.com/javafx/20.0.1"
+  xmlns:fx="http://javafx.com/fxml/1"
+  fx:controller="io.xj.gui.controllers.MainPaneRightController"
+  fx:id="container"
+  styleClass="selection-container"
+  minWidth="220.0"
+  prefWidth="220.0"
+  maxWidth="220.0"
+/>

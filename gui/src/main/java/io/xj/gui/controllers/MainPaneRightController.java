@@ -33,6 +33,7 @@ import java.util.UUID;
 
 @Service
 public class MainPaneRightController extends VBox implements ReadyAfterBootController {
+  private static final PseudoClass ENGAGED_PSEUDO_CLASS = PseudoClass.getPseudoClass("engaged");
   private final FabricationService fabricationService;
   private final UIStateService uiStateService;
 
@@ -42,7 +43,6 @@ public class MainPaneRightController extends VBox implements ReadyAfterBootContr
   private final ObservableMap<String, String> taxonomyCategoryToggleSelections = FXCollections.observableHashMap();
   private final Set<ToggleGroup> taxonomyToggleGroups = new HashSet<>();
 
-  private static final PseudoClass ENGAGED_PSEUDO_CLASS = PseudoClass.getPseudoClass("engaged");
 
   public MainPaneRightController(
     FabricationService fabricationService,
@@ -119,7 +119,7 @@ public class MainPaneRightController extends VBox implements ReadyAfterBootContr
     // for each macro program, create a toggle button in a toggle group
     macroPrograms.forEach(macroProgram -> {
       var button = addToggleButton(group, macroProgram.getName(), macroProgram.getId().toString());
-      fabricationService.overrideMacroProgramIdProperty().addListener((ChangeListener<? super UUID>) (ignored0, ignored1, ignored2) ->
+      fabricationService.overrideMacroProgramIdProperty().addListener((ChangeListener<? super UUID>) (o, ov, value) ->
         updateButtonEngaged(button, Objects.equals(fabricationService.overrideMacroProgramIdProperty().get(), macroProgram.getId())));
     });
   }
@@ -158,11 +158,11 @@ public class MainPaneRightController extends VBox implements ReadyAfterBootContr
     taxonomy.get().getCategories().forEach(category -> {
       ToggleGroup group = new ToggleGroup();
       taxonomyToggleGroups.add(group);
-      group.selectedToggleProperty().addListener((ChangeListener<? super Toggle>) (ignored0, ignored1, newToggle) -> {
-        if (Objects.isNull(newToggle)) {
+      group.selectedToggleProperty().addListener((ChangeListener<? super Toggle>) (o, ov, value) -> {
+        if (Objects.isNull(value)) {
           taxonomyCategoryToggleSelections.remove(category.getName());
         } else {
-          taxonomyCategoryToggleSelections.put(category.getName(), ((ToggleButton) newToggle).getId());
+          taxonomyCategoryToggleSelections.put(category.getName(), ((ToggleButton) value).getId());
         }
       });
       addGroupLabel(category.getName());

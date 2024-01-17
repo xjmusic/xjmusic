@@ -2,23 +2,56 @@
 
 <!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
 
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<BorderPane prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/20.0.1"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainController">
+<BorderPane
+  fx:controller="io.xj.gui.controllers.MainController"
+  maxHeight="Infinity"
+  maxWidth="Infinity"
+  prefHeight="768.0"
+  prefWidth="1024.0"
+  xmlns="http://javafx.com/javafx/20.0.1"
+  xmlns:fx="http://javafx.com/fxml/1">
+
   <top>
     <VBox>
-      <fx:include fx:id="mainMenu" source="main-menu.fxml"/>
-      <fx:include fx:id="mainPaneTop" source="main-pane-top.fxml"/>
+      <fx:include source="main-menu.fxml"/>
+      <fx:include source="main-pane-top.fxml"/>
     </VBox>
   </top>
+
   <center>
-    <fx:include fx:id="mainTimeline" source="main-timeline.fxml"/>
+    <StackPane
+      AnchorPane.topAnchor="0"
+      AnchorPane.rightAnchor="0"
+      AnchorPane.bottomAnchor="0"
+      AnchorPane.leftAnchor="0"
+      BorderPane.alignment="CENTER">
+      <fx:include source="fabrication/fabrication.fxml"/>
+      <fx:include source="content/content-browser.fxml"/>
+      <fx:include source="content/library-editor.fxml"/>
+      <fx:include source="content/program-editor.fxml"/>
+      <fx:include source="content/instrument-editor.fxml"/>
+      <fx:include source="template/template-browser.fxml"/>
+      <fx:include source="template/template-editor.fxml"/>
+      <ImageView
+        fx:id="startupContainer"
+        fitHeight="200"
+        fitWidth="200"
+        pickOnBounds="true"
+        preserveRatio="true"
+        opacity="0.1">
+        <Image url="@/images/xj-music-logo.png"/>
+      </ImageView>
+    </StackPane>
   </center>
-  <right>
-    <fx:include fx:id="mainPaneRight" source="main-pane-right.fxml"/>
-  </right>
+
   <bottom>
-    <fx:include fx:id="mainPaneBottom" source="main-pane-bottom.fxml"/>
+    <fx:include source="main-pane-bottom.fxml"/>
   </bottom>
+
 </BorderPane>

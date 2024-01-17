@@ -4,7 +4,7 @@ package io.xj.nexus.mixer;
 
 import io.xj.nexus.audio_cache.AudioCache;
 import io.xj.nexus.audio_cache.AudioCacheImpl;
-import io.xj.nexus.http.HttpClientProvider;
+import io.xj.nexus.project.ProjectManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,12 +20,12 @@ public class MixerFactoryTest {
   MixerFactory mixerFactory;
 
   @Mock
-  HttpClientProvider httpClientProvider;
+  ProjectManager projectManager;
 
   @BeforeEach
   public void setUp() {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    AudioCache audioCache = new AudioCacheImpl(httpClientProvider);
+    AudioCache audioCache = new AudioCacheImpl(projectManager);
     mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
   }
 

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+<StackPane
+  xmlns="http://javafx.com/javafx"
+  xmlns:fx="http://javafx.com/fxml"
+  fx:controller="io.xj.gui.controllers.template.TemplateBrowserController"
+  fx:id="container"
+  AnchorPane.topAnchor="0"
+  AnchorPane.rightAnchor="0"
+  AnchorPane.bottomAnchor="0"
+  AnchorPane.leftAnchor="0">
+  <TableView
+    fx:id="table"
+    AnchorPane.topAnchor="0"
+    AnchorPane.rightAnchor="0"
+    AnchorPane.bottomAnchor="0"
+    AnchorPane.leftAnchor="0"
+    maxHeight="Infinity"
+    maxWidth="Infinity"/>
+</StackPane>

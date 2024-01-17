@@ -2,37 +2,85 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.gui.controllers.fabrication.FabricationSettingsModalController;
+import io.xj.gui.modes.ContentMode;
+import io.xj.gui.modes.TemplateMode;
+import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
-import io.xj.gui.services.LabStatus;
+import io.xj.gui.services.LabState;
+import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
-import io.xj.nexus.work.WorkState;
+import io.xj.nexus.work.FabricationState;
+import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
+import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+import java.util.Set;
+
 @Service
 public class MainPaneTopController extends VBox implements ReadyAfterBootController {
-  final FabricationService fabricationService;
-  final UIStateService uiStateService;
-  final ModalFabricationSettingsController modalFabricationSettingsController;
-  final ModalLabAuthenticationController modalLabAuthenticationController;
-  final LabService labService;
+  private static final PseudoClass ACTIVE_PSEUDO_CLASS = PseudoClass.getPseudoClass("active");
+  private static final PseudoClass PENDING_PSEUDO_CLASS = PseudoClass.getPseudoClass("pending");
+  private static final PseudoClass FAILED_PSEUDO_CLASS = PseudoClass.getPseudoClass("failed");
+  private static final Set<FabricationState> WORK_PENDING_STATES = Set.of(
+    FabricationState.Initializing,
+    FabricationState.PreparedAudio,
+    FabricationState.PreparingAudio,
+    FabricationState.Starting
+  );
+  private static final Set<LabState> LAB_PENDING_STATES = Set.of(
+    LabState.Connecting,
+    LabState.Configuring
+  );
+  private static final Set<LabState> LAB_FAILED_STATES = Set.of(
+    LabState.Unauthorized,
+    LabState.Failed
+  );
+  private final ProjectService projectService;
+  private final FabricationService fabricationService;
+  private final UIStateService uiStateService;
+  private final FabricationSettingsModalController fabricationSettingsModalController;
+  private final MainLabAuthenticationModalController mainLabAuthenticationModalController;
+  private final LabService labService;
 
   @FXML
-  protected ProgressBar progressBarFabrication;
+  protected HBox fabricationControlContainer;
+
+  @FXML
+  protected ProgressBar progressBar;
+
+  @FXML
+  protected ToggleGroup viewMode;
+
+  @FXML
+  protected ToggleButton buttonContent;
+
+  @FXML
+  protected ToggleButton buttonTemplate;
+
+  @FXML
+  protected Button buttonCancelLoading;
+
+  @FXML
+  protected ToggleButton buttonFabrication;
 
   @FXML
   protected Button buttonAction;
 
   @FXML
-  protected Label labelFabricationStatus;
+  protected Label labelStatus;
 
   @FXML
   protected Button buttonLab;
@@ -48,36 +96,62 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
   public MainPaneTopController(
     FabricationService fabricationService,
+    FabricationSettingsModalController fabricationSettingsModalController,
     LabService labService,
-    ModalFabricationSettingsController modalFabricationSettingsController,
-    ModalLabAuthenticationController modalLabAuthenticationController,
+    MainLabAuthenticationModalController mainLabAuthenticationModalController,
+    ProjectService projectService,
     UIStateService uiStateService
   ) {
     this.fabricationService = fabricationService;
+    this.fabricationSettingsModalController = fabricationSettingsModalController;
     this.labService = labService;
-    this.modalFabricationSettingsController = modalFabricationSettingsController;
-    this.modalLabAuthenticationController = modalLabAuthenticationController;
+    this.mainLabAuthenticationModalController = mainLabAuthenticationModalController;
+    this.projectService = projectService;
     this.uiStateService = uiStateService;
   }
 
   @Override
   public void onStageReady() {
     buttonAction.textProperty().bind(fabricationService.mainActionButtonTextProperty());
+    buttonAction.disableProperty().bind(uiStateService.isMainActionButtonDisabledProperty());
 
     buttonShowFabricationSettings.disableProperty().bind(uiStateService.isFabricationSettingsDisabledProperty());
 
     buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
 
-    fabricationService.statusProperty().addListener(this::handleFabricationStatusChange);
+    fabricationService.stateProperty().addListener(this::handleFabricationStateChange);
+    labService.stateProperty().addListener(this::handleLabStateChange);
 
-    labService.statusProperty().addListener(this::handleLabStatusChange);
+    labelLabStatus.textProperty().bind(labService.stateProperty().map(Enum::toString));
 
-    labelFabricationStatus.textProperty().bind(uiStateService.fabricationStatusTextProperty());
+    labelStatus.textProperty().bind(uiStateService.statusTextProperty());
+    progressBar.progressProperty().bind(uiStateService.progressProperty());
+    progressBar.visibleProperty().bind(uiStateService.isProgressBarVisibleProperty());
+    progressBar.managedProperty().bind(uiStateService.isProgressBarVisibleProperty());
 
-    labelLabStatus.textProperty().bind(labService.statusProperty().map(Enum::toString));
+    buttonCancelLoading.visibleProperty().bind(projectService.isStateLoadingProperty());
+    buttonCancelLoading.managedProperty().bind(projectService.isStateLoadingProperty());
 
-    progressBarFabrication.progressProperty().bind(fabricationService.progressProperty());
-    progressBarFabrication.visibleProperty().bind(uiStateService.isProgressBarVisibleProperty());
+    buttonContent.setSelected(true);
+    buttonContent.visibleProperty().bind(projectService.isStateReadyProperty());
+    buttonContent.managedProperty().bind(projectService.isStateReadyProperty());
+
+    buttonTemplate.visibleProperty().bind(projectService.isStateReadyProperty());
+    buttonTemplate.managedProperty().bind(projectService.isStateReadyProperty());
+
+    buttonFabrication.visibleProperty().bind(projectService.isStateReadyProperty());
+    buttonFabrication.managedProperty().bind(projectService.isStateReadyProperty());
+
+    fabricationControlContainer.visibleProperty().bind(projectService.viewModeProperty().isEqualTo(ViewMode.Fabrication));
+    fabricationControlContainer.managedProperty().bind(projectService.viewModeProperty().isEqualTo(ViewMode.Fabrication));
+
+    projectService.viewModeProperty().addListener((o, ov, value) -> {
+      switch (value) {
+        case Content -> buttonContent.setSelected(true);
+        case Template -> buttonTemplate.setSelected(true);
+        case Fabrication -> buttonFabrication.setSelected(true);
+      }
+    });
   }
 
   @Override
@@ -91,43 +165,67 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   }
 
   @FXML
+  protected void handlePressedButtonContent() {
+    if (!buttonContent.isSelected()) {
+      buttonContent.setSelected(true);
+    }
+    if (projectService.viewModeProperty().get() == ViewMode.Content) {
+      switch (projectService.contentModeProperty().get()) {
+        case LibraryEditor, InstrumentBrowser, LibraryBrowser, ProgramBrowser ->
+          projectService.contentModeProperty().set(ContentMode.LibraryBrowser);
+        case ProgramEditor -> projectService.contentModeProperty().set(ContentMode.ProgramBrowser);
+        case InstrumentEditor -> projectService.contentModeProperty().set(ContentMode.InstrumentBrowser);
+      }
+    } else {
+      projectService.viewModeProperty().set(ViewMode.Content);
+    }
+  }
+
+  @FXML
+  protected void handlePressedButtonTemplate() {
+    if (!buttonTemplate.isSelected()) {
+      buttonTemplate.setSelected(true);
+      projectService.templateModeProperty().set(TemplateMode.TemplateBrowser);
+    }
+    projectService.viewModeProperty().set(ViewMode.Template);
+  }
+
+  @FXML
+  protected void handlePressedButtonFabrication() {
+    if (!buttonFabrication.isSelected()) {
+      buttonFabrication.setSelected(true);
+    }
+    projectService.viewModeProperty().set(ViewMode.Fabrication);
+  }
+
+  @FXML
+  protected void handlePressedCancelLoading() {
+    Platform.runLater(projectService::cancelProjectLoading);
+  }
+
+  @FXML
   public void handleShowFabricationSettings(ActionEvent ignored) {
-    modalFabricationSettingsController.launchModal();
+    fabricationSettingsModalController.launchModal();
   }
 
   @FXML
   public void handleButtonLabPressed(ActionEvent ignored) {
-    if (labService.isAuthenticated()) {
+    if (labService.isAuthenticated().get()) {
       labService.launchInBrowser();
     } else {
-      modalLabAuthenticationController.launchModal();
+      mainLabAuthenticationModalController.launchModal();
     }
   }
 
-  private void handleFabricationStatusChange(ObservableValue<? extends WorkState> observable, WorkState prior, WorkState newValue) {
-    switch (newValue) {
-      case Standby, Failed, Done, Cancelled ->
-        buttonAction.getStyleClass().remove("button-active");
-      case LoadingContent, Initializing, PreparedAudio, PreparingAudio, LoadedContent, Starting, Active ->
-        buttonAction.getStyleClass().add("button-active");
-    }
+  private void handleFabricationStateChange(ObservableValue<? extends FabricationState> o, FabricationState ov, FabricationState value) {
+    buttonAction.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, Objects.equals(value, FabricationState.Active));
+    buttonAction.pseudoClassStateChanged(FAILED_PSEUDO_CLASS, Objects.equals(value, FabricationState.Failed));
+    buttonAction.pseudoClassStateChanged(PENDING_PSEUDO_CLASS, WORK_PENDING_STATES.contains(value));
   }
 
-  private void handleLabStatusChange(ObservableValue<? extends LabStatus> observable, LabStatus prior, LabStatus newValue) {
-    switch (newValue) {
-      case Offline -> buttonLab.getStyleClass().removeAll("button-active", "button-pending", "button-failed");
-      case Connecting, Configuring -> {
-        buttonLab.getStyleClass().removeAll("button-active", "button-failed");
-        buttonLab.getStyleClass().add("button-pending");
-      }
-      case Authenticated -> {
-        buttonLab.getStyleClass().removeAll("button-pending", "button-failed");
-        buttonLab.getStyleClass().add("button-active");
-      }
-      case Unauthorized, Failed -> {
-        buttonLab.getStyleClass().removeAll("button-active", "button-pending");
-        buttonLab.getStyleClass().add("button-failed");
-      }
-    }
+  private void handleLabStateChange(ObservableValue<? extends LabState> o, LabState ov, LabState value) {
+    buttonLab.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, Objects.equals(value, LabState.Authenticated));
+    buttonLab.pseudoClassStateChanged(FAILED_PSEUDO_CLASS, LAB_FAILED_STATES.contains(value));
+    buttonLab.pseudoClassStateChanged(PENDING_PSEUDO_CLASS, LAB_PENDING_STATES.contains(value));
   }
 }

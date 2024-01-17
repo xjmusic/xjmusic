@@ -2,11 +2,35 @@
 
 <!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.input.*?>
+<?import javafx.scene.control.CheckMenuItem?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioMenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.VBox?>
-<MenuBar VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
-         fx:controller="io.xj.gui.controllers.MainMenuController">
+<MenuBar
+  fx:id="container"
+  fx:controller="io.xj.gui.controllers.MainMenuController"
+  VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/20.0.1"
+  xmlns:fx="http://javafx.com/fxml/1">
+
+  <Menu text="_Project">
+    <MenuItem onAction="#handleProjectNew" text="_New..."/>
+    <MenuItem onAction="#handleProjectOpen" text="_Open..."/>
+    <Menu fx:id="menuOpenRecent" text="Open _Recent">
+      <!-- Recent projects will be added here dynamically -->
+    </Menu>
+    <MenuItem fx:id="itemProjectClose" onAction="#handleProjectClose" text="_Close"/>
+    <SeparatorMenuItem mnemonicParsing="false"/>
+    <MenuItem fx:id="itemProjectSave" onAction="#handleProjectSave" text="_Save"/>
+    <SeparatorMenuItem mnemonicParsing="false"/>
+    <MenuItem onAction="#handleProjectClone" text="_Clone..."/>
+    <SeparatorMenuItem mnemonicParsing="false"/>
+    <MenuItem onAction="#onQuit" text="E_xit"/>
+  </Menu>
+
   <Menu text="_Fabrication">
     <MenuItem fx:id="itemFabricationMainAction" onAction="#handleFabricationMainAction" text="_Start"/>
     <CheckMenuItem fx:id="checkboxFabricationFollow" text="_Follow"/>
@@ -16,9 +40,8 @@
         <KeyCodeCombination alt="UP" code="E" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
       </accelerator>
     </MenuItem>
-    <SeparatorMenuItem mnemonicParsing="false"/>
-    <MenuItem onAction="#onQuit" text="E_xit"/>
   </Menu>
+
   <Menu text="_Lab">
     <MenuItem onAction="#handleLabAuthentication" text="_Authentication">
       <accelerator>
@@ -32,6 +55,7 @@
       </accelerator>
     </MenuItem>
   </Menu>
+
   <Menu text="_View">
     <CheckMenuItem fx:id="checkboxDarkTheme" selected="true" text="_Dark Theme"/>
     <SeparatorMenuItem mnemonicParsing="false"/>
@@ -46,17 +70,17 @@
       </accelerator>
     </CheckMenuItem>
     <Menu text="Log Le_vel">
-      <items>
-        <RadioMenuItem text="_Debug" fx:id="logLevelDebug" onAction="#handleSetLogLevel"/>
-        <RadioMenuItem text="_Info" fx:id="logLevelInfo" onAction="#handleSetLogLevel"/>
-        <RadioMenuItem text="_Warn" fx:id="logLevelWarn" onAction="#handleSetLogLevel"/>
-        <RadioMenuItem text="_Error" fx:id="logLevelError" onAction="#handleSetLogLevel"/>
-      </items>
+      <RadioMenuItem text="_Debug" fx:id="logLevelDebug" onAction="#handleSetLogLevel"/>
+      <RadioMenuItem text="_Info" fx:id="logLevelInfo" onAction="#handleSetLogLevel"/>
+      <RadioMenuItem text="_Warn" fx:id="logLevelWarn" onAction="#handleSetLogLevel"/>
+      <RadioMenuItem text="_Error" fx:id="logLevelError" onAction="#handleSetLogLevel"/>
     </Menu>
   </Menu>
+
   <Menu text="_Help">
     <MenuItem onAction="#onLaunchUserGuide" text="User _Guide"/>
     <SeparatorMenuItem mnemonicParsing="false"/>
-    <MenuItem onAction="#onPressAbout" text="_About"/>
+    <MenuItem onAction="#handleAbout" text="_About"/>
   </Menu>
+
 </MenuBar>

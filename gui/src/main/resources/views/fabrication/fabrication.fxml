@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
+
+<?import javafx.scene.layout.BorderPane?>
+<BorderPane
+  maxWidth="Infinity"
+  maxHeight="Infinity"
+  xmlns="http://javafx.com/javafx/20.0.1"
+  xmlns:fx="http://javafx.com/fxml/1"
+  fx:controller="io.xj.gui.controllers.fabrication.FabricationController"
+  fx:id="container">
+  <center>
+    <fx:include source="fabrication-timeline.fxml"/>
+  </center>
+  <right>
+    <fx:include source="fabrication-pane-right.fxml"/>
+  </right>
+</BorderPane>

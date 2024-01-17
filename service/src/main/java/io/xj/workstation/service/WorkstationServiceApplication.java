@@ -3,11 +3,12 @@
 package io.xj.workstation.service;
 
 import io.xj.hub.HubConfiguration;
-import io.xj.nexus.InputMode;
 import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.nexus.work.WorkConfiguration;
-import io.xj.nexus.work.WorkManager;
-import io.xj.nexus.work.WorkManagerImpl;
+import io.xj.nexus.project.ProjectManager;
+import io.xj.nexus.project.ProjectManagerImpl;
+import io.xj.nexus.work.FabricationConfiguration;
+import io.xj.nexus.work.FabricationManager;
+import io.xj.nexus.work.FabricationManagerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +21,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.event.EventListener;
 
-import java.util.Locale;
-
 @SpringBootApplication
 @ComponentScan(
   basePackages = {
@@ -30,9 +29,8 @@ import java.util.Locale;
   })
 public class WorkstationServiceApplication {
   final Logger LOG = LoggerFactory.getLogger(WorkstationServiceApplication.class);
-  final WorkManager workManager;
+  final FabricationManager fabricationManager;
   final ApplicationContext context;
-  final InputMode inputMode;
   final String inputTemplateKey;
   private final String ingestToken;
   private final String audioBaseUrl;
@@ -44,7 +42,6 @@ public class WorkstationServiceApplication {
   @Autowired
   public WorkstationServiceApplication(
     ApplicationContext context,
-    @Value("${input.mode}") String inputMode,
     @Value("${input.template.key}") String inputTemplateKey,
     @Value("${ingest.token}") String ingestToken,
     @Value("${audio.base.url}") String audioBaseUrl,
@@ -53,21 +50,20 @@ public class WorkstationServiceApplication {
     @Value("${stream.base.url}") String streamBaseUrl
   ) {
     this.context = context;
-    this.inputMode = InputMode.valueOf(inputMode.toUpperCase(Locale.ROOT));
     this.inputTemplateKey = inputTemplateKey;
     this.ingestToken = ingestToken;
     this.audioBaseUrl = audioBaseUrl;
     this.labBaseUrl = labBaseUrl;
     this.shipBaseUrl = shipBaseUrl;
     this.streamBaseUrl = streamBaseUrl;
-    this.workManager = WorkManagerImpl.createInstance();
+    ProjectManager projectManager = ProjectManagerImpl.createInstance();
+    this.fabricationManager = FabricationManagerImpl.createInstance(projectManager);
   }
 
   @EventListener(ApplicationStartedEvent.class)
   public void start() {
-    var workConfig = new WorkConfiguration()
-      .setInputMode(inputMode)
-      .setInputTemplateKey(inputTemplateKey);
+    var workConfig = new FabricationConfiguration()
+      .setInputTemplate(null); // FUTURE: read template
 
     var hubConfig = new HubConfiguration()
       .setApiBaseUrl(labBaseUrl)
@@ -80,8 +76,8 @@ public class WorkstationServiceApplication {
     var hubAccess = new HubClientAccess()
       .setToken(ingestToken);
 
-    workManager.setAfterFinished(this::shutdown);
-    workManager.start(workConfig, hubConfig, hubAccess);
+    fabricationManager.setAfterFinished(this::shutdown);
+    fabricationManager.start(workConfig, hubConfig, hubAccess);
   }
 
   void shutdown() {

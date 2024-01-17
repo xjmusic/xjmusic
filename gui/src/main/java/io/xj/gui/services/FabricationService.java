@@ -9,8 +9,8 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.ControlMode;
-import io.xj.nexus.InputMode;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
@@ -19,17 +19,16 @@ import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentMeme;
 import io.xj.nexus.model.SegmentMessage;
 import io.xj.nexus.model.SegmentMeta;
-import io.xj.nexus.work.WorkState;
+import io.xj.nexus.work.FabricationState;
 import jakarta.annotation.Nullable;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableDoubleValue;
+import javafx.beans.value.ObservableStringValue;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
-import javafx.scene.Node;
 
 import java.util.Collection;
 import java.util.List;
@@ -38,13 +37,11 @@ import java.util.UUID;
 
 public interface FabricationService {
 
-  ObjectProperty<WorkState> statusProperty();
+  ObjectProperty<FabricationState> stateProperty();
 
-  StringProperty inputTemplateKeyProperty();
+  ObservableStringValue stateTextProperty();
 
-  StringProperty contentStoragePathPrefixProperty();
-
-  ObjectProperty<InputMode> inputModeProperty();
+  ObjectProperty<Template> inputTemplateProperty();
 
   ObjectProperty<ControlMode> controlModeProperty();
 
@@ -95,14 +92,6 @@ public interface FabricationService {
 
   Collection<SegmentMeta> getSegmentMetas(Segment segment);
 
-  Node computeProgramReferenceNode(UUID programId, @Nullable UUID programSequenceBindingId);
-
-  Node computeProgramVoiceReferenceNode(UUID programVoiceId);
-
-  Node computeInstrumentReferenceNode(UUID instrumentId);
-
-  Node computeInstrumentAudioReferenceNode(UUID instrumentAudioId);
-
   List<Segment> getSegments(@Nullable Integer startIndex);
 
   Boolean isEmpty();
@@ -119,11 +108,9 @@ public interface FabricationService {
 
   ObservableDoubleValue progressProperty();
 
-  ObservableBooleanValue isStatusActive();
+  BooleanBinding isStateActiveProperty();
 
-  ObservableBooleanValue isStatusLoading();
-
-  ObservableBooleanValue isStatusStandby();
+  BooleanBinding isStateLoadingProperty();
 
   /**
    Return the current shipped-to chain micros
@@ -149,21 +136,16 @@ public interface FabricationService {
   /**
    The fabrication service has a main action that can be triggered by the user. This action is
    dependent on the current status of the service. For example, if the service is currently
-   {@link WorkState#Standby}, then the main action will be to start the fabrication process.
+   {@link FabricationState#Standby}, then the main action will be to start the fabrication process.
    */
   void handleMainAction();
 
   /**
    The main action button text is dependent on the current status of the service. For example, if
-   the service is currently {@link WorkState#Standby}, then the main action button text
+   the service is currently {@link FabricationState#Standby}, then the main action button text
    will be "Start".
    */
   ObservableValue<String> mainActionButtonTextProperty();
-
-  /**
-   Play the demo for the given template key.@param templateKey       the template key to play
-   */
-  void handleDemoPlay(String templateKey);
 
   /**
    Get a hash of all the choices for the given segment

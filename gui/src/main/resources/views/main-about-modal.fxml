@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox spacing="10" xmlns="http://javafx.com/javafx/20.0.1"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainAboutModalController">
+  <padding>
+    <Insets bottom="15" left="15" right="15" top="40"/> <!-- Padding values -->
+  </padding>
+  <VBox alignment="TOP_CENTER" prefHeight="41.0" prefWidth="320.0">
+    <opaqueInsets>
+      <Insets/>
+    </opaqueInsets>
+    <Label alignment="TOP_CENTER" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0"
+           text="XJ music workstation"
+           textAlignment="CENTER">
+    </Label>
+    <Label alignment="TOP_CENTER" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0"
+           textAlignment="CENTER" fx:id="labelVersion">
+    </Label>
+  </VBox>
+  <HBox alignment="TOP_CENTER" prefHeight="50.0" prefWidth="320.0">
+    <Button fx:id="buttonClose" onAction="#handleClose" prefHeight="25.0" prefWidth="56.0" text="OK"/>
+  </HBox>
+</VBox>

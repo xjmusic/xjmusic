@@ -5,7 +5,6 @@ import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
@@ -14,11 +13,16 @@ import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.util.ValueUtils;
 import io.xj.nexus.audio_cache.AudioCache;
 import io.xj.nexus.audio_cache.AudioCacheImpl;
+import io.xj.nexus.entity.EntityFactory;
+import io.xj.nexus.entity.EntityFactoryImpl;
 import io.xj.nexus.http.HttpClientProvider;
+import io.xj.nexus.json.JsonProvider;
+import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.mixer.ActiveAudio;
 import io.xj.nexus.mixer.AudioFileWriter;
 import io.xj.nexus.mixer.AudioFileWriterImpl;
@@ -34,6 +38,8 @@ import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.project.ProjectManager;
+import io.xj.nexus.project.ProjectManagerImpl;
 import io.xj.nexus.util.InternalResource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,7 +60,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProject;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAudio;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgram;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgramSequence;
@@ -62,6 +67,7 @@ import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgramSequenc
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgramSequencePatternEvent;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgramVoice;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgramVoiceTrack;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProject;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
@@ -121,17 +127,21 @@ public class DemoIT {
     clhat,
     marac
   };
-  private final String contentStoragePathPrefix;
   private final String instrumentPathPrefix;
+  private final ProjectManager projectManager;
   private MixerFactory mixerFactory;
   private AudioCache audioCache;
 
   @Mock
-  HttpClientProvider httpClientProvider;
+  private HttpClientProvider httpClientProvider;
 
   public DemoIT() throws IOException {
-    contentStoragePathPrefix = Files.createTempDirectory("xj_demo").toFile().getAbsolutePath() + File.separator;
+    String contentStoragePathPrefix = Files.createTempDirectory("xj_demo").toFile().getAbsolutePath() + File.separator;
     Files.createDirectory(Paths.get(contentStoragePathPrefix, "instrument"));
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
+    projectManager = new ProjectManagerImpl(httpClientProvider, jsonProvider, entityFactory);
+    projectManager.setProjectPathPrefix(contentStoragePathPrefix);
     instrumentPathPrefix = Files.createDirectory(Paths.get(contentStoragePathPrefix, "instrument", instrument.getId().toString())).toAbsolutePath().toString();
     audioById.values().forEach(audio -> {
       try {
@@ -147,7 +157,7 @@ public class DemoIT {
   @BeforeEach
   public void beforeEach() {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    audioCache = new AudioCacheImpl(httpClientProvider);
+    audioCache = new AudioCacheImpl(projectManager);
     this.mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
   }
 
@@ -196,8 +206,6 @@ public class DemoIT {
    */
   void mixAndWriteOutput(AudioFormat.Encoding outputEncoding, int outputFrameRate, int outputSampleBits, int outputChannels, float outputSeconds, String outputFilePath) throws Exception {
     audioCache.initialize(
-      contentStoragePathPrefix,
-      "https://audio.xj.io/",
       outputFrameRate,
       outputSampleBits,
       outputChannels
@@ -207,7 +215,6 @@ public class DemoIT {
     AudioFileWriter audioFileWriter = new AudioFileWriterImpl(audioFormat);
     MixerConfig mixerConfig = new MixerConfig(audioFormat);
     mixerConfig.setTotalSeconds(outputSeconds);
-    mixerConfig.setContentStoragePathPrefix(contentStoragePathPrefix);
     Mixer mixer = mixerFactory.createMixer(mixerConfig);
 
     List<SegmentChoiceArrangementPick> picks = new ArrayList<>();

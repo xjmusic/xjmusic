@@ -3,14 +3,21 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.WorkstationGuiFxApplication;
+import io.xj.gui.controllers.fabrication.FabricationSettingsModalController;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.GuideService;
 import io.xj.gui.services.LabService;
+import io.xj.gui.services.ProjectDescriptor;
+import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.utils.ProjectUtils;
+import javafx.beans.value.ChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
@@ -19,26 +26,41 @@ import javafx.scene.input.KeyCombination;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 public class MainMenuController extends MenuBar implements ReadyAfterBootController {
   final static String DEBUG = "DEBUG";
   final static String INFO = "INFO";
   final static String WARN = "WARN";
   final static String ERROR = "ERROR";
-
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
   final ThemeService themeService;
   final GuideService guideService;
   final UIStateService uiStateService;
   final LabService labService;
+  private final ProjectCreationModalController projectCreationModalController;
+  private final ProjectService projectService;
   final UIStateService guiService;
-  final ModalFabricationSettingsController modalFabricationSettingsController;
-  final ModalAboutController modalAboutController;
-  final ModalLabAuthenticationController modalLabAuthenticationController;
+  final FabricationSettingsModalController fabricationSettingsModalController;
+  final MainAboutModalController mainAboutModalController;
+  final MainLabAuthenticationModalController mainLabAuthenticationModalController;
+
+  @FXML
+  protected MenuBar container;
+
+  @FXML
+  protected MenuItem itemProjectClose;
+
+  @FXML
+  protected MenuItem itemProjectSave;
 
   @FXML
   protected MenuItem itemFabricationMainAction;
+
+  @FXML
+  protected Menu menuOpenRecent;
 
   @FXML
   protected CheckMenuItem checkboxFabricationFollow;
@@ -73,23 +95,27 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   public MainMenuController(
     ConfigurableApplicationContext ac,
     FabricationService fabricationService,
+    FabricationSettingsModalController fabricationSettingsModalController,
     GuideService guideService,
     LabService labService,
-    ModalAboutController modalAboutController,
-    ModalFabricationSettingsController modalFabricationSettingsController,
-    ModalLabAuthenticationController modalLabAuthenticationController,
+    MainAboutModalController mainAboutModalController,
+    MainLabAuthenticationModalController mainLabAuthenticationModalController,
+    ProjectCreationModalController projectCreationModalController,
+    ProjectService projectService,
     ThemeService themeService,
     UIStateService guiService,
     UIStateService uiStateService
   ) {
     this.ac = ac;
     this.fabricationService = fabricationService;
+    this.fabricationSettingsModalController = fabricationSettingsModalController;
+    this.projectCreationModalController = projectCreationModalController;
+    this.projectService = projectService;
     this.guiService = guiService;
     this.guideService = guideService;
     this.labService = labService;
-    this.modalAboutController = modalAboutController;
-    this.modalFabricationSettingsController = modalFabricationSettingsController;
-    this.modalLabAuthenticationController = modalLabAuthenticationController;
+    this.mainAboutModalController = mainAboutModalController;
+    this.mainLabAuthenticationModalController = mainLabAuthenticationModalController;
     this.themeService = themeService;
     this.uiStateService = uiStateService;
   }
@@ -116,12 +142,19 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     logLevelInfo.setToggleGroup(logLevelToggleGroup);
     logLevelWarn.setToggleGroup(logLevelToggleGroup);
     logLevelError.setToggleGroup(logLevelToggleGroup);
-    switch (uiStateService.logLevelProperty().get()) {
+    switch (uiStateService.logLevelProperty().getValue()) {
       case DEBUG -> logLevelDebug.setSelected(true);
       case INFO -> logLevelInfo.setSelected(true);
       case WARN -> logLevelWarn.setSelected(true);
       case ERROR -> logLevelError.setSelected(true);
     }
+
+    var hasNoProject = uiStateService.hasCurrentProjectProperty().not();
+    itemProjectClose.disableProperty().bind(hasNoProject);
+    itemProjectSave.disableProperty().bind(hasNoProject);
+
+    projectService.recentProjectsProperty().addListener((ChangeListener<? super ObservableList<ProjectDescriptor>>) (o, ov, value) -> updateRecentProjectsMenu());
+    updateRecentProjectsMenu();
   }
 
   @Override
@@ -140,13 +173,46 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   }
 
   @FXML
-  protected void onPressAbout() {
-    modalAboutController.launchModal();
+  protected void handleAbout() {
+    mainAboutModalController.launchModal();
   }
 
   @FXML
+  protected void handleProjectNew() {
+    projectCreationModalController.setMode(ProjectCreationMode.NEW_PROJECT);
+    projectCreationModalController.launchModal();
+  }
+
+  @FXML
+  protected void handleProjectOpen() {
+    var projectFilePath = ProjectUtils.chooseXJProjectFile(
+      container.getScene().getWindow(), "Choose project", projectService.basePathPrefixProperty().getValue()
+    );
+    if (Objects.nonNull(projectFilePath)) {
+      projectService.openProject(projectFilePath);
+    }
+  }
+
+  @FXML
+  protected void handleProjectClose() {
+    projectService.closeProject();
+  }
+
+  @FXML
+  protected void handleProjectClone() {
+    projectCreationModalController.setMode(ProjectCreationMode.CLONE_PROJECT);
+    projectCreationModalController.launchModal();
+  }
+
+  @FXML
+  protected void handleProjectSave() {
+    projectService.saveProject();
+  }
+
+
+  @FXML
   protected void handleLabAuthentication() {
-    modalLabAuthenticationController.launchModal();
+    mainLabAuthenticationModalController.launchModal();
   }
 
   @FXML
@@ -156,7 +222,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
   @FXML
   protected void handleOpenFabricationSettings() {
-    modalFabricationSettingsController.launchModal();
+    fabricationSettingsModalController.launchModal();
   }
 
   @FXML
@@ -169,7 +235,25 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     uiStateService.logLevelProperty().set(((RadioMenuItem) logLevelToggleGroup.getSelectedToggle()).getText());
   }
 
-  String addLeadingUnderscore(String s) {
+  /**
+   Update the recent projects menu.
+   */
+  private void updateRecentProjectsMenu() {
+    menuOpenRecent.getItems().clear();
+    for (ProjectDescriptor project : projectService.recentProjectsProperty().getValue()) {
+      MenuItem menuItem = new MenuItem(project.projectFilename());
+      menuItem.setOnAction(event -> projectService.openProject(project.projectFilePath()));
+      menuOpenRecent.getItems().add(menuItem);
+    }
+  }
+
+  /**
+   Add a leading underscore to a string.
+
+   @param s the string
+   @return the string with a leading underscore
+   */
+  private String addLeadingUnderscore(String s) {
     return String.format("_%s", s);
   }
 
@@ -179,7 +263,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
    @return the accelerator
    */
-  KeyCombination computeMainActionButtonAccelerator() {
+  private KeyCombination computeMainActionButtonAccelerator() {
     return KeyCombination.valueOf("SHORTCUT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
   }
 
@@ -189,7 +273,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
    @return the accelerator
    */
-  KeyCombination computeFabricationFollowButtonAccelerator() {
+  private KeyCombination computeFabricationFollowButtonAccelerator() {
     return KeyCombination.valueOf("SHORTCUT+ALT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
   }
 }

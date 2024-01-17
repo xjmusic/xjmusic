@@ -4,7 +4,7 @@ package io.xj.nexus.mixer;
 
 import io.xj.nexus.audio_cache.AudioCache;
 import io.xj.nexus.audio_cache.AudioCacheImpl;
-import io.xj.nexus.http.HttpClientProvider;
+import io.xj.nexus.project.ProjectManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,7 +13,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.sound.sampled.AudioFormat;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 public class MixerImplTest {
@@ -23,7 +24,7 @@ public class MixerImplTest {
   Mixer testMixer;
 
   @Mock
-  HttpClientProvider httpClientProvider;
+  ProjectManager projectManager;
 
   // FUTURE test compression settings
   // FUTURE test compression special getters for ahead/decay frames
@@ -31,7 +32,7 @@ public class MixerImplTest {
   @BeforeEach
   public void setUp() throws Exception {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    AudioCache audioCache = new AudioCacheImpl(httpClientProvider);
+    AudioCache audioCache = new AudioCacheImpl(projectManager);
     mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
     testMixer = mixerFactory.createMixer(
       new MixerConfig(

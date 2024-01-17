@@ -2,7 +2,7 @@
 
 package io.xj.gui.controllers;
 
-import io.xj.gui.WorkstationIcon;
+import io.xj.gui.WorkstationWindow;
 import io.xj.gui.services.ThemeService;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -22,12 +22,12 @@ public abstract class ReadyAfterBootModalController implements ReadyAfterBootCon
   /**
    Launches the modal.
    */
-  abstract void launchModal();
+  public abstract void launchModal();
 
   /**
    Launches the modal.
    */
-  protected void doLaunchModal(ApplicationContext ac, ThemeService themeService, Resource fxml, String windowName) {
+  public  void createAndShowModal(ApplicationContext ac, ThemeService themeService, Resource fxml, String windowName) {
     try {
       // Load the FXML file
       FXMLLoader loader = new FXMLLoader(fxml.getURL());
@@ -35,7 +35,8 @@ public abstract class ReadyAfterBootModalController implements ReadyAfterBootCon
 
       // Create a new stage (window)
       Stage stage = new Stage();
-      WorkstationIcon.setup(stage, windowName);
+      WorkstationWindow.setupIcon(stage, windowName);
+      stage.setTitle(WorkstationWindow.computeTitle(windowName));
 
       Scene scene = new Scene(loader.load());
       themeService.setup(scene);

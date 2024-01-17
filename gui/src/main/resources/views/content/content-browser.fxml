@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<StackPane
+  fx:controller="io.xj.gui.controllers.content.ContentBrowserController"
+  fx:id="container"
+  xmlns="http://javafx.com/javafx"
+  xmlns:fx="http://javafx.com/fxml">
+
+  <TableView
+    fx:id="librariesTable"
+    xmlns="http://javafx.com/javafx"
+    xmlns:fx="http://javafx.com/fxml">
+    <VBox.vgrow>
+      <Priority fx:constant="ALWAYS"/>
+    </VBox.vgrow>
+    <placeholder>
+      <Label text="Project has no Libraries"/>
+    </placeholder>
+  </TableView>
+
+  <AnchorPane
+    fx:id="libraryContentBrowser"
+    AnchorPane.topAnchor="0"
+    AnchorPane.rightAnchor="0"
+    AnchorPane.bottomAnchor="0"
+    AnchorPane.leftAnchor="0"
+    maxHeight="Infinity"
+    maxWidth="Infinity">
+
+    <VBox.vgrow>
+      <Priority fx:constant="ALWAYS"/>
+    </VBox.vgrow>
+
+    <TabPane
+      fx:id="libraryContentTabPane"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      tabClosingPolicy="UNAVAILABLE"
+      AnchorPane.topAnchor="0"
+      AnchorPane.rightAnchor="0"
+      AnchorPane.bottomAnchor="0"
+      AnchorPane.leftAnchor="0"
+      maxHeight="Infinity"
+      maxWidth="Infinity">
+
+      <VBox.vgrow>
+        <Priority fx:constant="ALWAYS"/>
+      </VBox.vgrow>
+      <Tab text="Programs"
+           fx:id="programsTab">
+        <TableView
+          fx:id="programsTable"
+          xmlns="http://javafx.com/javafx"
+          xmlns:fx="http://javafx.com/fxml">
+          <VBox.vgrow>
+            <Priority fx:constant="ALWAYS"/>
+          </VBox.vgrow>
+          <placeholder>
+            <Label text="Library has no Programs"/>
+          </placeholder>
+        </TableView>
+      </Tab>
+      <Tab text="Instruments"
+           fx:id="instrumentsTab">
+        <TableView
+          fx:id="instrumentsTable"
+          xmlns="http://javafx.com/javafx"
+          xmlns:fx="http://javafx.com/fxml">
+          <VBox.vgrow>
+            <Priority fx:constant="ALWAYS"/>
+          </VBox.vgrow>
+          <placeholder>
+            <Label text="Library has no Instruments"/>
+          </placeholder>
+        </TableView>
+      </Tab>
+    </TabPane>
+    <StackPane
+      AnchorPane.topAnchor="3"
+      AnchorPane.rightAnchor="10"
+      prefHeight="30">
+      <Label textAlignment="RIGHT" fx:id="libraryTitle" styleClass="bold"/>
+    </StackPane>
+  </AnchorPane>
+
+</StackPane>
