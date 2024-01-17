@@ -147,6 +147,8 @@ public class ProjectCreationModalController extends ReadyAfterBootModalControlle
         ProjectChoice choice = choiceCloneProject.getValue();
         if (Objects.nonNull(choice)) {
           selectedProject.set(choice.project());
+          if (StringUtils.isNullOrEmpty(fieldProjectName.getText()))
+            fieldProjectName.setText(choice.project().getName());
         }
       });
     }
@@ -230,19 +232,22 @@ public class ProjectCreationModalController extends ReadyAfterBootModalControlle
 
   @FXML
   public void handleDemoPressedBump(MouseEvent ignored) {
-    fieldProjectName.setText("Deep House Demo");
+    if (StringUtils.isNullOrEmpty(fieldProjectName.getText()))
+      fieldProjectName.setText("Deep House Demo");
     buttonDemoBump.setSelected(true);
   }
 
   @FXML
   public void handleDemoPressedSlaps(MouseEvent ignored) {
-    fieldProjectName.setText("Lofi Hip Hop Demo");
+    if (StringUtils.isNullOrEmpty(fieldProjectName.getText()))
+      fieldProjectName.setText("Lofi Hip Hop Demo");
     buttonDemoSlaps.setSelected(true);
   }
 
   @FXML
   public void handleDemoPressedSpace(MouseEvent ignored) {
-    fieldProjectName.setText("Ambient Flow Demo");
+    if (StringUtils.isNullOrEmpty(fieldProjectName.getText()))
+      fieldProjectName.setText("Ambient Flow Demo");
     buttonDemoSpace.setSelected(true);
   }
 

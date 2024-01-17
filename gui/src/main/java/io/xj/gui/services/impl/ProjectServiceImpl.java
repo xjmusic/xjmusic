@@ -147,7 +147,7 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void openProject(String projectFilePath) {
-    Platform.runLater(new Thread(() -> {
+    executeInBackground("Open Project", () -> {
       closeProject();
       if (projectManager.openProjectFromLocalFile(projectFilePath)) {
         projectManager.getProject().ifPresent(project ->
@@ -155,19 +155,19 @@ public class ProjectServiceImpl implements ProjectService {
       } else {
         removeFromRecentProjects(projectFilePath);
       }
-    }));
+    });
   }
 
   @Override
   public void createProject(String parentPathPrefix, String projectName) {
     if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName)) return;
-    Platform.runLater(new Thread(() -> {
+    executeInBackground("Create Project", () -> {
       closeProject();
       if (projectManager.createProject(parentPathPrefix, projectName)) {
         projectManager.getProject().ifPresent(project ->
           addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile()));
       }
-    }));
+    });
   }
 
   @Override
@@ -324,7 +324,7 @@ public class ProjectServiceImpl implements ProjectService {
    */
   private void cloneProject(String parentPathPrefix, String projectName, Callable<Boolean> clone) {
     if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName)) return;
-    Platform.runLater(new Thread(() -> {
+    executeInBackground("Clone Project", () -> {
       try {
         closeProject();
         if (clone.call()) {
@@ -336,7 +336,19 @@ public class ProjectServiceImpl implements ProjectService {
       } catch (Exception e) {
         LOG.warn("Failed to clone project", e);
       }
-    }));
+    });
+  }
+
+  /**
+   Execute a runnable in a background thread. Use JavaFX Platform.runLater(...) as well as spawning an additional thread.
+
+   @param threadName           the name of the thread
+   @param failedToCloneProject the runnable
+   */
+  private void executeInBackground(String threadName, Runnable failedToCloneProject) {
+    var thread = new Thread(failedToCloneProject);
+    thread.setName(threadName);
+    Platform.runLater(thread::start);
   }
 
   /**
