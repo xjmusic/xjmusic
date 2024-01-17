@@ -25,12 +25,22 @@ public interface ProjectManager {
   /**
    Clone from a demo template
 
-   @param templateShipKey  of the demo
    @param parentPathPrefix parent folder to the project folder
+   @param templateShipKey  of the demo
    @param projectName      of the project folder and the project
    @return true if successful
    */
-  boolean cloneProjectFromDemoTemplate(String templateShipKey, String parentPathPrefix, String projectName);
+  boolean cloneProjectFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName);
+
+  /**
+   Clone from a Lab Project
+
+   @param parentPathPrefix parent folder to the project folder
+   @param projectId        in the lab
+   @param projectName      of the project folder and the project
+   @return true if successful
+   */
+  boolean cloneFromLabProject(String parentPathPrefix, UUID projectId, String projectName);
 
   /**
    Open a project from a local file

@@ -24,8 +24,6 @@ import java.util.Objects;
 
 @Service
 public class FabricationSettingsModalController extends ReadyAfterBootModalController {
-
-  // TODO deprecate inputMode
   static final String FABRICATION_SERVICE_WINDOW_NAME = "Fabrication Settings";
   private final Resource fabricationSettingsModalFxml;
   private final ConfigurableApplicationContext ac;
@@ -87,9 +85,9 @@ public class FabricationSettingsModalController extends ReadyAfterBootModalContr
 
     choiceTemplate.setItems(FXCollections.observableArrayList(projectService.getContent().getTemplates().stream().map(TemplateChoice::new).toList()));
     choiceTemplate.setOnAction(event -> {
-      TemplateChoice templateChoice = choiceTemplate.getValue();
-      if (templateChoice != null) {
-        fabricationService.inputTemplateProperty().set(templateChoice.template());
+      TemplateChoice choice = choiceTemplate.getValue();
+      if (Objects.nonNull(choice)) {
+        fabricationService.inputTemplateProperty().set(choice.template());
       }
     });
     choiceTemplate.setValue(new TemplateChoice(fabricationService.inputTemplateProperty().get()));

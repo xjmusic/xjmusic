@@ -170,8 +170,15 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public void cloneFromLabProject(String parentPathPrefix, UUID projectId, String projectName) {
     closeProject();
-    // TODO implement projectService.cloneProjectFromLab()
-    LOG.info("Cloning from lab project {} ({}) at {}", projectName, projectId, parentPathPrefix);
+    Platform.runLater(new Thread(() -> {
+      closeProject();
+      if (projectManager.cloneFromLabProject(parentPathPrefix, templateShipKey, projectName)) {
+        projectManager.getProject().ifPresent(project ->
+          addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile()));
+      } else {
+        removeFromRecentProjects(parentPathPrefix + projectName + ".xj");
+      }
+    }));
   }
 
   @Override
@@ -179,7 +186,7 @@ public class ProjectServiceImpl implements ProjectService {
     if (!confirmOverwriteIfExists(parentPathPrefix, projectName)) return;
     Platform.runLater(new Thread(() -> {
       closeProject();
-      if (projectManager.cloneProjectFromDemoTemplate(templateShipKey, parentPathPrefix, projectName)) {
+      if (projectManager.cloneProjectFromDemoTemplate(parentPathPrefix, templateShipKey, projectName)) {
         projectManager.getProject().ifPresent(project ->
           addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile()));
       } else {

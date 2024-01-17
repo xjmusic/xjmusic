@@ -210,7 +210,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
   @FXML
   public void handleButtonLabPressed(ActionEvent ignored) {
-    if (labService.isAuthenticated()) {
+    if (labService.isAuthenticated().get()) {
       labService.launchInBrowser();
     } else {
       mainLabAuthenticationModalController.launchModal();

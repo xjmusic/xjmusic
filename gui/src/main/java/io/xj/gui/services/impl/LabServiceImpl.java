@@ -6,10 +6,13 @@ import io.netty.resolver.DefaultAddressResolverGroup;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.LabState;
 import io.xj.hub.HubConfiguration;
+import io.xj.hub.HubContent;
+import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.User;
 import io.xj.hub.util.StringUtils;
 import javafx.application.HostServices;
 import javafx.application.Platform;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -26,7 +29,9 @@ import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
 
@@ -99,9 +104,9 @@ public class LabServiceImpl implements LabService {
   @Override
   public void connect() {
     this.state.set(LabState.Connecting);
-    makeAuthenticatedRequest("api/2/users/me", HttpMethod.GET, User.class)
+    makeAuthenticatedRequest("api/2/users/me", HttpMethod.GET, HubContent.class)
       .subscribe(
-        (User user) -> Platform.runLater(() -> this.onConnectionSuccess(user)),
+        (HubContent content) -> Platform.runLater(() -> this.onConnectionSuccess(content.getUsers().stream().findFirst().orElseThrow(() -> new RuntimeException("No user found!")))),
         error -> Platform.runLater(() -> this.onConnectionFailure((WebClientResponseException) error)),
         () -> Platform.runLater(this::onConnectionChanged));
   }
@@ -191,8 +196,8 @@ public class LabServiceImpl implements LabService {
   }
 
   @Override
-  public boolean isAuthenticated() {
-    return Objects.equals(state.get(), LabState.Authenticated);
+  public BooleanBinding isAuthenticated() {
+    return state.isEqualTo(LabState.Authenticated);
   }
 
   @Override
@@ -203,5 +208,14 @@ public class LabServiceImpl implements LabService {
   @Override
   public void launchInBrowser() {
     hostServices.showDocument(baseUrl.get());
+  }
+
+  @Override
+  public void fetchProjects(Consumer<Collection<Project>> callback) {
+    makeAuthenticatedRequest("api/2/projects", HttpMethod.GET, HubContent.class)
+      .subscribe(
+        (HubContent content) -> Platform.runLater(() -> callback.accept(content.getProjects())),
+        error -> Platform.runLater(() -> this.onConnectionFailure((WebClientResponseException) error)),
+        () -> Platform.runLater(this::onConnectionChanged));
   }
 }

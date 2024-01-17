@@ -1,13 +1,19 @@
 package io.xj.gui.services;
 
 import io.xj.hub.HubConfiguration;
+import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.User;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import org.springframework.http.HttpMethod;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.util.Collection;
+import java.util.function.Consumer;
 
 public interface LabService {
   void connect();
@@ -55,7 +61,7 @@ public interface LabService {
 
    @return UUID for the lab
    */
-  boolean isAuthenticated();
+  BooleanBinding isAuthenticated();
 
   /**
    Launch the lab preferences window in a browser
@@ -66,4 +72,9 @@ public interface LabService {
    Launch the lab in a browser
    */
   void launchInBrowser();
+
+  /**
+   Fetch all projects from the lab
+   */
+  void fetchProjects(Consumer<Collection<Project>> callback);
 }

@@ -291,7 +291,7 @@ public class FabricatorImpl implements Fabricator {
     if (Objects.isNull(distinctChordVoicingTypes)) {
       var mainChoice = getCurrentMainChoice();
       if (mainChoice.isEmpty()) return Set.of();
-      var voicings = sourceMaterial.getProgramSequenceChordVoicings(mainChoice.get().getProgramId());
+      var voicings = sourceMaterial.getVoicingsOfProgramId(mainChoice.get().getProgramId());
       distinctChordVoicingTypes = voicings.stream().flatMap(voicing -> {
         try {
           return Stream.of(getProgramVoiceType(voicing));
@@ -379,7 +379,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public String computeCacheKeyForVoiceTrack(SegmentChoiceArrangementPick pick) {
-    String cacheKey = sourceMaterial().getProgramSequencePatternEvent(pick.getProgramSequencePatternEventId()).flatMap(event -> sourceMaterial().getTrackForEvent(event).map(ProgramVoiceTrack::getProgramVoiceId)).map(UUID::toString).orElse(UNKNOWN_KEY);
+    String cacheKey = sourceMaterial().getProgramSequencePatternEvent(pick.getProgramSequencePatternEventId()).flatMap(event -> sourceMaterial().getTrackOfEvent(event).map(ProgramVoiceTrack::getProgramVoiceId)).map(UUID::toString).orElse(UNKNOWN_KEY);
 
     return String.format(KEY_VOICE_TRACK_TEMPLATE, cacheKey, pick.getEvent());
   }
@@ -457,14 +457,14 @@ public class FabricatorImpl implements Fabricator {
     if (previousSequenceBinding.isEmpty())
       return MemeIsometry.none();
 
-    var nextSequenceBinding = sourceMaterial().getBindingsAtOffsetForProgramId(previousMacroChoice.get().getProgramId(),
+    var nextSequenceBinding = sourceMaterial().getBindingsAtOffsetOfProgramId(previousMacroChoice.get().getProgramId(),
       previousSequenceBinding.get().getOffset() + 1);
 
     return MemeIsometry.of(templateConfig.getMemeTaxonomy(),
       Stream.concat(
-        sourceMaterial.getMemesForProgramId(previousMacroChoice.get().getProgramId()).stream().map(ProgramMeme::getName),
+        sourceMaterial.getMemesOfProgramId(previousMacroChoice.get().getProgramId()).stream().map(ProgramMeme::getName),
         nextSequenceBinding.stream().flatMap(programSequenceBinding ->
-          sourceMaterial.getMemesForProgramSequenceBindingId(programSequenceBinding.getId()).stream().map(ProgramSequenceBindingMeme::getName))
+          sourceMaterial.getMemesOfProgramSequenceBindingId(programSequenceBinding.getId()).stream().map(ProgramSequenceBindingMeme::getName))
       ).collect(Collectors.toList()));
   }
 
@@ -539,8 +539,8 @@ public class FabricatorImpl implements Fabricator {
     if (!completeChordsForProgramSequence.containsKey(programSequence.getId())) {
       Map<Double, ProgramSequenceChord> chordForPosition = new HashMap<>();
       Map<Double, Integer> validVoicingsForPosition = new HashMap<>();
-      for (ProgramSequenceChord chord : sourceMaterial.getChordsForSequence(programSequence)) {
-        int validVoicings = sourceMaterial.getVoicingsForChord(chord).stream().map(V -> CsvUtils.split(V.getNotes()).size()).reduce(0, Integer::sum);
+      for (ProgramSequenceChord chord : sourceMaterial.getChordsOfSequence(programSequence)) {
+        int validVoicings = sourceMaterial.getVoicingsOfChord(chord).stream().map(V -> CsvUtils.split(V.getNotes()).size()).reduce(0, Integer::sum);
         if (!validVoicingsForPosition.containsKey(chord.getPosition()) || validVoicingsForPosition.get(chord.getPosition()) < validVoicings) {
           validVoicingsForPosition.put(chord.getPosition(), validVoicings);
           chordForPosition.put(chord.getPosition(), chord);
@@ -565,8 +565,8 @@ public class FabricatorImpl implements Fabricator {
 
   NoteRange computeProgramRange(UUID programId, InstrumentType instrumentType) {
     return NoteRange.ofStrings(
-      sourceMaterial.getEventsForProgramId(programId).stream()
-        .filter(event -> sourceMaterial.getVoiceForEvent(event).map(voice -> Objects.equals(voice.getType(), instrumentType)).orElse(false)
+      sourceMaterial.getEventsOfProgramId(programId).stream()
+        .filter(event -> sourceMaterial.getVoiceOfEvent(event).map(voice -> Objects.equals(voice.getType(), instrumentType)).orElse(false)
           && !Objects.equals(Note.of(event.getTones()).getPitchClass(), PitchClass.None))
         .flatMap(programSequencePatternEvent -> CsvUtils.split(programSequencePatternEvent.getTones()).stream())
         .collect(Collectors.toList()));
@@ -633,7 +633,7 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public Optional<ProgramSequenceBinding> getRandomlySelectedSequenceBindingAtOffset(Program program, Integer offset) {
     var bag = MarbleBag.empty();
-    for (ProgramSequenceBinding sequenceBinding : sourceMaterial.getBindingsAtOffsetForProgram(program, offset))
+    for (ProgramSequenceBinding sequenceBinding : sourceMaterial.getBindingsAtOffsetOfProgram(program, offset))
       bag.add(1, sequenceBinding.getId());
     if (bag.isEmpty()) return Optional.empty();
     return sourceMaterial.getProgramSequenceBinding(bag.pick());
@@ -762,7 +762,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public String getTrackName(ProgramSequencePatternEvent event) {
-    return sourceMaterial().getTrackForEvent(event).map(ProgramVoiceTrack::getName).orElse(UNKNOWN_KEY);
+    return sourceMaterial().getTrackOfEvent(event).map(ProgramVoiceTrack::getName).orElse(UNKNOWN_KEY);
   }
 
   @Override
@@ -908,7 +908,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public int getSecondMacroSequenceBindingOffset(Program macroProgram) {
-    var offsets = sourceMaterial.getSequenceBindingsForProgramId(macroProgram.getId()).stream()
+    var offsets = sourceMaterial.getSequenceBindingsOfProgramId(macroProgram.getId()).stream()
       .map(ProgramSequenceBinding::getOffset)
       .collect(Collectors.toSet()).stream().sorted().toList();
     return offsets.size() > 1 ? offsets.get(1) : offsets.get(0);
@@ -1061,15 +1061,15 @@ public class FabricatorImpl implements Fabricator {
     Set<String> names = new HashSet<>();
 
     if (Objects.nonNull(choice.getProgramId()))
-      sourceMaterial().getMemesForProgramId(choice.getProgramId())
+      sourceMaterial().getMemesOfProgramId(choice.getProgramId())
         .forEach(meme -> names.add(StringUtils.toMeme(meme.getName())));
 
     if (Objects.nonNull(choice.getProgramSequenceBindingId()))
-      sourceMaterial().getMemesForProgramSequenceBindingId(choice.getProgramSequenceBindingId())
+      sourceMaterial().getMemesOfProgramSequenceBindingId(choice.getProgramSequenceBindingId())
         .forEach(meme -> names.add(StringUtils.toMeme(meme.getName())));
 
     if (Objects.nonNull(choice.getInstrumentId()))
-      sourceMaterial().getMemesForInstrumentId(choice.getInstrumentId())
+      sourceMaterial().getMemesOfInstrumentId(choice.getInstrumentId())
         .forEach(meme -> names.add(StringUtils.toMeme(meme.getName())));
 
     if (!force && !memeStack.isAllowed(names)) {

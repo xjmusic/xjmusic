@@ -98,7 +98,7 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public boolean cloneProjectFromDemoTemplate(String templateShipKey, String parentPathPrefix, String projectName) {
+  public boolean cloneProjectFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
     LOG.info("Cloning from demo template \"{}\" in parent folder {}", templateShipKey, parentPathPrefix);
 
     try {
@@ -120,9 +120,6 @@ public class ProjectManagerImpl implements ProjectManager {
       int loaded = 0;
       var instruments = new ArrayList<>(content.get().getInstruments());
       var audios = new ArrayList<>(content.get().getInstrumentAudios());
-      // TODO Button to cancel cloning project
-      // TODO When downloading each audio, check size on disk after downloading, delete and retry 3X if failed to match correct size
-      // TODO When downloading each audio, if audio already exists on disk, check size on disk, delete and retry 3X if failed to match correct size
       for (Instrument instrument : instruments) {
         for (InstrumentAudio audio : audios.stream()
           .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
@@ -178,6 +175,12 @@ public class ProjectManagerImpl implements ProjectManager {
       updateState(ProjectState.Failed);
       return false;
     }
+  }
+
+  @Override
+  public boolean cloneFromLabProject(String parentPathPrefix, UUID projectId, String projectName) {
+    // todo implement
+    return false;
   }
 
   @Override

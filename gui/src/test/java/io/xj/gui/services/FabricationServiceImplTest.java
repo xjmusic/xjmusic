@@ -49,9 +49,6 @@ class FabricationServiceImplTest {
   int defaultOutputFrameRate = 48000;
 
   @Mock
-  HostServices hostServices;
-
-  @Mock
   LabService labService;
 
   @Mock
@@ -80,7 +77,6 @@ class FabricationServiceImplTest {
     );
     when(projectService.stateProperty()).thenReturn(new SimpleObjectProperty<>(ProjectState.Standby));
     subject = new FabricationServiceImpl(
-      hostServices,
       defaultCraftAheadSeconds,
       defaultDubAheadSeconds,
       defaultMixerLengthSeconds,

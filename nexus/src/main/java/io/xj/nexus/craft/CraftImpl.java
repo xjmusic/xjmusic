@@ -272,7 +272,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Event voice arrangements
     if (sequence.isPresent()) {
-      var voices = fabricator.sourceMaterial().getVoicesForProgram(program);
+      var voices = fabricator.sourceMaterial().getVoicesOfProgram(program);
       if (voices.isEmpty())
         reportMissing(ProgramVoice.class, String.format("in Detail-choice Instrument[%s]", instrument.getId()));
       craftNoteEvents(tempo, sequence.get(), voices, ignored -> Optional.of(instrument), false);
@@ -495,7 +495,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   double craftPatternEvents(double tempo, SegmentChoice choice, ProgramSequencePattern pattern, double fromPosition, double toPosition, NoteRange range, boolean defaultAtonal) throws NexusException {
     if (Objects.isNull(pattern)) throw new NexusException("Cannot craft create null pattern");
     double totalBeats = toPosition - fromPosition;
-    List<ProgramSequencePatternEvent> events = fabricator.sourceMaterial().getEventsForPattern(pattern);
+    List<ProgramSequencePatternEvent> events = fabricator.sourceMaterial().getEventsOfPattern(pattern);
 
     var arrangement = new SegmentChoiceArrangement();
     arrangement.setId(UUID.randomUUID());
@@ -829,10 +829,10 @@ public class CraftImpl extends FabricationWrapperImpl {
     Map<UUID, Integer> score = new HashMap<>();
 
     // add all audio to chooser
-    fabricator.sourceMaterial().getAudiosForInstrument(instrument).forEach(a -> score.put(a.getId(), 0));
+    fabricator.sourceMaterial().getAudiosOfInstrument(instrument).forEach(a -> score.put(a.getId(), 0));
 
     // score each audio against the current voice event, with some variability
-    for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosForInstrument(instrument))
+    for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosOfInstrument(instrument))
       if (instrument.getType() == InstrumentType.Drum)
         score.put(audio.getId(), NameIsometry.similarity(fabricator.getTrackName(event), audio.getEvent()));
       else if (Note.of(audio.getTones()).sameAs(Note.of(event.getTones())))
@@ -855,7 +855,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     var bag = MarbleBag.empty();
 
     Chord audioChord;
-    for (var a : fabricator.sourceMaterial().getAudiosForInstrument(instrument)) {
+    for (var a : fabricator.sourceMaterial().getAudiosOfInstrument(instrument)) {
       audioChord = Chord.of(a.getTones());
       if (audioChord.isSame(chord)) {
         bag.add(0, a.getId());
@@ -879,7 +879,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @return matched new audio
    */
   Optional<InstrumentAudio> selectNewMultiphonicInstrumentAudio(Instrument instrument, String note) {
-    var instrumentAudios = fabricator.sourceMaterial().getAudiosForInstrument(instrument);
+    var instrumentAudios = fabricator.sourceMaterial().getAudiosOfInstrument(instrument);
     var a = Note.of(note);
     var audio = MarbleBag.quickPick(instrumentAudios.stream().filter(candidate -> {
       if (Objects.isNull(candidate) || StringUtils.isNullOrEmpty(candidate.getTones())) return false;
@@ -906,7 +906,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     var bag = MarbleBag.empty();
 
     // Retrieve programs bound to chain having a voice of the specified type
-    Map<UUID/*ID*/, Program> programMap = fabricator.sourceMaterial().getProgramsByType(programType).stream().collect(Collectors.toMap(Program::getId, program -> program));
+    Map<UUID/*ID*/, Program> programMap = fabricator.sourceMaterial().getProgramsOfType(programType).stream().collect(Collectors.toMap(Program::getId, program -> program));
     Collection<Program> candidates = fabricator.sourceMaterial().getProgramVoices().stream().filter(programVoice -> Objects.nonNull(voicingType) && voicingType.equals(programVoice.getType()) && programMap.containsKey(programVoice.getProgramId())).map(ProgramVoice::getProgramId).distinct().map(programMap::get).toList();
 
     // (3) score each source program based on meme isometry
@@ -915,14 +915,14 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Phase 1: Directly Bound Programs
     for (Program program : programsDirectlyBound(candidates)) {
-      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesForProgramId(program.getId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfProgramId(program.getId()));
       // FUTURE consider meme isometry, but for now, just use the meme stack
       if (iso.isAllowed(memes)) bag.add(1, program.getId(), 1 + iso.score(memes));
     }
 
     // Phase 2: All Published Programs
     for (Program program : programsPublished(candidates)) {
-      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesForProgramId(program.getId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfProgramId(program.getId()));
       // FUTURE consider meme isometry, but for now, just use the meme stack
       if (iso.isAllowed(memes)) bag.add(2, program.getId(), 1 + iso.score(memes));
     }
@@ -952,7 +952,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     var bag = MarbleBag.empty();
 
     // Retrieve instruments bound to chain
-    Collection<Instrument> candidates = fabricator.sourceMaterial().getInstrumentsByTypesAndModes(types, modes).stream().filter(i -> !avoidIds.contains(i.getId())).filter(i -> instrumentContainsAudioEventsLike(i, requireEventNames)).toList();
+    Collection<Instrument> candidates = fabricator.sourceMaterial().getInstrumentsOfTypesAndModes(types, modes).stream().filter(i -> !avoidIds.contains(i.getId())).filter(i -> instrumentContainsAudioEventsLike(i, requireEventNames)).toList();
 
     // Retrieve meme isometry of segment
     MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
@@ -960,13 +960,13 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Phase 1: Directly Bound Instruments
     for (Instrument instrument : instrumentsDirectlyBound(candidates)) {
-      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(instrument.getId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfInstrumentId(instrument.getId()));
       if (iso.isAllowed(memes)) bag.add(1, instrument.getId(), 1 + iso.score(memes));
     }
 
     // Phase 2: All Published Instruments
     for (Instrument instrument : instrumentsPublished(candidates)) {
-      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(instrument.getId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfInstrumentId(instrument.getId()));
       if (iso.isAllowed(memes)) bag.add(2, instrument.getId(), 1 + iso.score(memes));
     }
 
@@ -1010,7 +1010,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     var bag = MarbleBag.empty();
 
     // (2) retrieve instruments bound to chain
-    Collection<InstrumentAudio> candidates = fabricator.sourceMaterial().getAudiosForInstrumentTypesAndModes(types, modes).stream().filter(a -> !avoidIds.contains(a.getId())).toList();
+    Collection<InstrumentAudio> candidates = fabricator.sourceMaterial().getAudiosOfInstrumentTypesAndModes(types, modes).stream().filter(a -> !avoidIds.contains(a.getId())).toList();
 
     // (3) score each source instrument based on meme isometry
     MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
@@ -1018,14 +1018,14 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Phase 1: Directly Bound Audios (Preferred)
     for (InstrumentAudio audio : audiosDirectlyBound(candidates)) {
-      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(audio.getInstrumentId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfInstrumentId(audio.getInstrumentId()));
       if (iso.isAllowed(memes))
         bag.add(preferredEvents.contains(audio.getEvent()) ? 1 : 3, audio.getId(), 1 + iso.score(memes));
     }
 
     // Phase 2: All Published Audios (Preferred)
     for (InstrumentAudio audio : audiosPublished(candidates)) {
-      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(audio.getInstrumentId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfInstrumentId(audio.getInstrumentId()));
       if (iso.isAllowed(memes))
         bag.add(preferredEvents.contains(audio.getEvent()) ? 2 : 4, audio.getId(), 1 + iso.score(memes));
     }
@@ -1120,7 +1120,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   boolean instrumentContainsAudioEventsLike(Instrument instrument, Collection<String> requireEvents) {
     if (requireEvents.isEmpty()) return true;
     for (var event : requireEvents)
-      if (fabricator.sourceMaterial().getAudiosForInstrumentId(instrument.getId()).stream().noneMatch(a -> 100 < NameIsometry.similarity(event, a.getEvent())))
+      if (fabricator.sourceMaterial().getAudiosOfInstrumentId(instrument.getId()).stream().noneMatch(a -> 100 < NameIsometry.similarity(event, a.getEvent())))
         return false;
     return true;
   }

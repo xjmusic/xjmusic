@@ -264,7 +264,7 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public List<Program> getAllMacroPrograms() {
-    return fabricationManager.getSourceMaterial().getProgramsByType(ProgramType.Macro).stream()
+    return fabricationManager.getSourceMaterial().getProgramsOfType(ProgramType.Macro).stream()
       .sorted(Comparator.comparing(Program::getName))
       .toList();
   }
