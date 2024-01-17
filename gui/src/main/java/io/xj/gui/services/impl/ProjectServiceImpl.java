@@ -1,11 +1,11 @@
 package io.xj.gui.services.impl;
 
+import io.xj.gui.modes.ContentMode;
+import io.xj.gui.modes.TemplateMode;
+import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
-import io.xj.gui.modes.ContentMode;
-import io.xj.gui.modes.ViewMode;
-import io.xj.gui.modes.TemplateMode;
 import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
@@ -31,12 +31,16 @@ import javafx.beans.value.ObservableListValue;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableStringValue;
 import javafx.collections.FXCollections;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -153,6 +157,7 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void createProject(String parentPathPrefix, String projectName) {
+    if (!confirmOverwriteIfExists(parentPathPrefix, projectName)) return;
     Platform.runLater(new Thread(() -> {
       closeProject();
       if (projectManager.createProject(parentPathPrefix, projectName)) {
@@ -171,6 +176,7 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void cloneFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
+    if (!confirmOverwriteIfExists(parentPathPrefix, projectName)) return;
     Platform.runLater(new Thread(() -> {
       closeProject();
       if (projectManager.cloneProjectFromDemoTemplate(templateShipKey, parentPathPrefix, projectName)) {
@@ -297,6 +303,40 @@ public class ProjectServiceImpl implements ProjectService {
       : new ArrayList<>();
   }
 
+  @Override
+  public ObjectProperty<ContentMode> contentModeProperty() {
+    return contentMode;
+  }
+
+  @Override
+  public ObjectProperty<TemplateMode> templateModeProperty() {
+    return templateMode;
+  }
+
+  /**
+   If the directory already exists then pop up a confirmation dialog
+
+   @param parentPathPrefix parent folder
+   @param projectName      project name
+   @return true if overwrite confirmed
+   */
+  private boolean confirmOverwriteIfExists(String parentPathPrefix, String projectName) {
+    if (!Files.exists(Path.of(parentPathPrefix + projectName))) {
+      return true;
+    }
+    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+    alert.setTitle("Project Already Exists");
+    alert.setHeaderText("Will update (and may overwrite) existing project");
+    alert.setContentText("Are you sure you want to proceed?");
+
+    // Optional: Customize the buttons (optional)
+    alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
+
+    // Show the dialog and capture the result
+    var result = alert.showAndWait();
+    return result.isPresent() && result.get() == ButtonType.YES;
+  }
+
   /**
    Attach preference listeners.
    */
@@ -342,15 +382,5 @@ public class ProjectServiceImpl implements ProjectService {
    */
   private void removeFromRecentProjects(String projectFilePath) {
     this.recentProjects.get().removeIf(existing -> Objects.equals(existing.projectFilePath(), projectFilePath));
-  }
-
-  @Override
-  public ObjectProperty<ContentMode> contentModeProperty() {
-    return contentMode;
-  }
-
-  @Override
-  public ObjectProperty<TemplateMode> templateModeProperty() {
-    return templateMode;
   }
 }
