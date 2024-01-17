@@ -12,7 +12,6 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.ProjectUtils;
-import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -50,6 +49,9 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
   @FXML
   protected MenuBar container;
+
+  @FXML
+  protected MenuItem itemProjectClose;
 
   @FXML
   protected MenuItem itemProjectSave;
@@ -147,7 +149,8 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
       case ERROR -> logLevelError.setSelected(true);
     }
 
-    var hasNoProject = Bindings.createBooleanBinding(() -> !uiStateService.hasCurrentProjectProperty().get(), uiStateService.hasCurrentProjectProperty());
+    var hasNoProject = uiStateService.hasCurrentProjectProperty().not();
+    itemProjectClose.disableProperty().bind(hasNoProject);
     itemProjectSave.disableProperty().bind(hasNoProject);
 
     projectService.recentProjectsProperty().addListener((ChangeListener<? super ObservableList<ProjectDescriptor>>) (o, ov, value) -> updateRecentProjectsMenu());

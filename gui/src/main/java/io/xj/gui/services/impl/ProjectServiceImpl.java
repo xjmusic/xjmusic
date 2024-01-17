@@ -46,6 +46,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.prefs.Preferences;
 
 @Service
@@ -171,40 +172,22 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void cloneFromLabProject(String parentPathPrefix, UUID projectId, String projectName) {
-    closeProject();
-    Platform.runLater(new Thread(() -> {
-      closeProject();
-      if (projectManager.cloneFromLabProject(
-        labService.getHubClientAccess(),
-        labService.hubConfigProperty().get().getApiBaseUrl(),
-        parentPathPrefix,
-        projectId,
-        projectName
-      )) {
-        projectManager.getProject().ifPresent(project ->
-          addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile()));
-      } else {
-        removeFromRecentProjects(parentPathPrefix + projectName + ".xj");
-      }
-    }));
+    cloneProject(parentPathPrefix, projectName, () -> projectManager.cloneFromLabProject(
+      labService.getHubClientAccess(),
+      labService.hubConfigProperty().get().getApiBaseUrl(),
+      parentPathPrefix,
+      projectId,
+      projectName
+    ));
   }
 
   @Override
   public void cloneFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
-    if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName)) return;
-    Platform.runLater(new Thread(() -> {
-      closeProject();
-      if (projectManager.cloneProjectFromDemoTemplate(
-        parentPathPrefix,
-        templateShipKey,
-        projectName
-      )) {
-        projectManager.getProject().ifPresent(project ->
-          addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile()));
-      } else {
-        removeFromRecentProjects(parentPathPrefix + projectName + ".xj");
-      }
-    }));
+    cloneProject(parentPathPrefix, projectName, () -> projectManager.cloneProjectFromDemoTemplate(
+      parentPathPrefix,
+      templateShipKey,
+      projectName
+    ));
   }
 
   @Override
@@ -330,6 +313,30 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public ObjectProperty<TemplateMode> templateModeProperty() {
     return templateMode;
+  }
+
+  /**
+   Clone a project from a remote source.
+
+   @param parentPathPrefix parent folder
+   @param projectName      project name
+   @param clone            the clone callable
+   */
+  private void cloneProject(String parentPathPrefix, String projectName, Callable<Boolean> clone) {
+    if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName)) return;
+    Platform.runLater(new Thread(() -> {
+      try {
+        closeProject();
+        if (clone.call()) {
+          projectManager.getProject().ifPresent(project ->
+            addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile()));
+        } else {
+          removeFromRecentProjects(parentPathPrefix + projectName + ".xj");
+        }
+      } catch (Exception e) {
+        LOG.warn("Failed to clone project", e);
+      }
+    }));
   }
 
   /**

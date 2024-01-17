@@ -9,6 +9,7 @@ import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.work.FabricationState;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -29,9 +30,9 @@ public class UIStateServiceImpl implements UIStateService {
   private final BooleanBinding isProgressBarVisible;
   private final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
   private final BooleanProperty logsVisible = new SimpleBooleanProperty(false);
-  private final ObservableBooleanValue isFabricationSettingsDisabled;
-  private final ObservableBooleanValue isMainActionButtonDisabled;
-  private final ObservableDoubleValue progress;
+  private final BooleanBinding isFabricationSettingsDisabled;
+  private final BooleanBinding isMainActionButtonDisabled;
+  private final DoubleBinding progress;
   private final StringBinding statusText;
   private final StringProperty logLevel = new SimpleStringProperty(WorkstationLogAppender.LEVEL.get().toString());
 
@@ -106,22 +107,22 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public ObservableBooleanValue isFabricationSettingsDisabledProperty() {
+  public BooleanBinding isFabricationSettingsDisabledProperty() {
     return isFabricationSettingsDisabled;
   }
 
   @Override
-  public ObservableStringValue statusTextProperty() {
+  public StringBinding statusTextProperty() {
     return statusText;
   }
 
   @Override
-  public ObservableBooleanValue isProgressBarVisibleProperty() {
+  public BooleanBinding isProgressBarVisibleProperty() {
     return isProgressBarVisible;
   }
 
   @Override
-  public ObservableDoubleValue progressProperty() {
+  public DoubleBinding progressProperty() {
     return progress;
   }
 
@@ -131,22 +132,22 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public ObservableBooleanValue isManualFabricationModeProperty() {
+  public BooleanBinding isManualFabricationModeProperty() {
     return isManualFabricationMode;
   }
 
   @Override
-  public ObservableBooleanValue isManualFabricationActiveProperty() {
+  public BooleanBinding isManualFabricationActiveProperty() {
     return isManualFabricationActive;
   }
 
   @Override
-  public ObservableBooleanValue hasCurrentProjectProperty() {
+  public BooleanBinding hasCurrentProjectProperty() {
     return hasCurrentProject;
   }
 
   @Override
-  public ObservableBooleanValue isMainActionButtonDisabledProperty() {
+  public BooleanBinding isMainActionButtonDisabledProperty() {
     return isMainActionButtonDisabled;
   }
 }
