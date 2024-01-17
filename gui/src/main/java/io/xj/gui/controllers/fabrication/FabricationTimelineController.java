@@ -3,11 +3,16 @@
 package io.xj.gui.controllers.fabrication;
 
 import io.xj.gui.controllers.ReadyAfterBootController;
+import io.xj.gui.controllers.content.InstrumentEditorController;
+import io.xj.gui.controllers.content.ProgramEditorController;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
@@ -28,6 +33,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.ScrollPane;
@@ -50,6 +56,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -73,6 +80,8 @@ public class FabricationTimelineController extends ScrollPane implements ReadyAf
   private final int segmentGutter;
   private final int segmentDisplayChoiceHashRecheckLimit;
   private final int displaySegmentsBeforeShip;
+  private final ProgramEditorController programEditorController;
+  private final InstrumentEditorController instrumentEditorController;
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
   final LabService labService;
@@ -112,11 +121,15 @@ public class FabricationTimelineController extends ScrollPane implements ReadyAf
     @Value("${gui.timeline.segment.spacing.horizontal}") Integer segmentSpacingHorizontal,
     @Value("${gui.timeline.segment.width.min}") Integer segmentWidthMin,
     @Value("${gui.timeline.display.segments.before.now}") int displaySegmentsBeforeNow,
+    ProgramEditorController programEditorController,
+    InstrumentEditorController instrumentEditorController,
     ConfigurableApplicationContext ac,
     FabricationService fabricationService,
     LabService labService
   ) {
     this.displaySegmentsBeforeShip = displaySegmentsBeforeNow;
+    this.programEditorController = programEditorController;
+    this.instrumentEditorController = instrumentEditorController;
     this.ac = ac;
     this.fabricationService = fabricationService;
     this.labService = labService;
@@ -724,18 +737,18 @@ public class FabricationTimelineController extends ScrollPane implements ReadyAf
       box.getStyleClass().add("choice-group-item-muted");
 
     if (showProgram) {
-      box.getChildren().add(fabricationService.computeProgramReferenceNode(choice.getProgramId(), choice.getProgramSequenceBindingId()));
+      box.getChildren().add(computeProgramReferenceNode(choice.getProgramId(), choice.getProgramSequenceBindingId()));
     }
 
     if (showProgramVoice) {
-      box.getChildren().add(fabricationService.computeProgramVoiceReferenceNode(choice.getProgramVoiceId()));
+      box.getChildren().add(computeProgramVoiceReferenceNode(choice.getProgramVoiceId()));
     }
 
     var instrumentBox = new HBox();
     instrumentBox.getStyleClass().add("choice-instrument");
     computeShowDeltaNode(segment, choice).ifPresent(instrumentBox.getChildren()::add);
     if (Objects.nonNull(choice.getInstrumentId())) {
-      instrumentBox.getChildren().add(fabricationService.computeInstrumentReferenceNode(choice.getInstrumentId()));
+      instrumentBox.getChildren().add(computeInstrumentReferenceNode(choice.getInstrumentId()));
     }
     box.getChildren().add(instrumentBox);
 
@@ -786,7 +799,7 @@ public class FabricationTimelineController extends ScrollPane implements ReadyAf
   Stream<Node> computeChoiceListItemPickNode(SegmentChoiceArrangementPick pick) {
     if (Objects.isNull(pick.getInstrumentAudioId()))
       return Stream.empty();
-    return Stream.of(fabricationService.computeInstrumentAudioReferenceNode(pick.getInstrumentAudioId()));
+    return Stream.of(computeInstrumentAudioReferenceNode(pick.getInstrumentAudioId()));
   }
 
   /**
@@ -800,5 +813,83 @@ public class FabricationTimelineController extends ScrollPane implements ReadyAf
       .filter(pick -> Objects.nonNull(pick.getInstrumentAudioId()))
       .collect(Collectors.toMap(SegmentChoiceArrangementPick::getInstrumentAudioId, pick -> pick, (pick1, pick2) -> pick2))
       .values();
+  }
+
+  /**
+   Compute a Program Reference Node
+
+   @param programId                program id
+   @param programSequenceBindingId program sequence binding id
+   @return node
+   */
+  private Node computeProgramReferenceNode(UUID programId, @Nullable UUID programSequenceBindingId) {
+    var program = fabricationService.getProgram(programId);
+    Optional<ProgramSequenceBinding> programSequenceBinding = Objects.nonNull(programSequenceBindingId) ? fabricationService.getProgramSequenceBinding(programSequenceBindingId) : Optional.empty();
+    var programSequence = programSequenceBinding.map(ProgramSequenceBinding::getProgramSequenceId).flatMap(fabricationService::getProgramSequence);
+
+    var hyperlink = new Hyperlink(computeProgramName(program.orElse(null), programSequence.orElse(null), programSequenceBinding.orElse(null)));
+    hyperlink.setOnAction(event -> programEditorController.editProgram(programId));
+    return hyperlink;
+  }
+
+  /**
+   Compute a Program Voice Reference Node
+
+   @param programVoiceId program voice id
+   @return node
+   */
+  private Node computeProgramVoiceReferenceNode(UUID programVoiceId) {
+    var programVoice = fabricationService.getProgramVoice(programVoiceId)
+      .orElseThrow(() -> new RuntimeException(String.format("Program Voice %s not found", programVoiceId)));
+
+    var hyperlink = new Hyperlink(programVoice.getName());
+    hyperlink.setOnAction(event -> programEditorController.editProgram(programVoice.getProgramId()));
+    return hyperlink;
+  }
+
+  /**
+   Compute an Instrument Reference Node
+
+   @param instrumentId instrument id
+   @return node
+   */
+  private Node computeInstrumentReferenceNode(UUID instrumentId) {
+    var instrument = fabricationService.getInstrument(instrumentId);
+
+    var hyperlink = new Hyperlink(instrument.orElseThrow().getName());
+    hyperlink.setOnAction(event -> instrumentEditorController.editInstrument(instrumentId));
+    return hyperlink;
+  }
+
+  /**
+   Compute an Instrument Audio Reference Node
+
+   @param instrumentAudioId instrument audio id
+   @return node
+   */
+  private Node computeInstrumentAudioReferenceNode(UUID instrumentAudioId) {
+    var instrumentAudio = fabricationService.getInstrumentAudio(instrumentAudioId)
+      .orElseThrow(() -> new RuntimeException(String.format("Instrument Audio %s not found", instrumentAudioId)));
+
+    var hyperlink = new Hyperlink(instrumentAudio.getName());
+    hyperlink.setOnAction(event -> instrumentEditorController.editInstrument(instrumentAudio.getInstrumentId()));
+    return hyperlink;
+  }
+
+  /**
+   Compute program name from program, program sequence, and program sequence binding.
+
+   @param program                to compute name from
+   @param programSequence        to compute name from
+   @param programSequenceBinding to compute name from
+   @return program name
+   */
+  private String computeProgramName(@Nullable Program program, @Nullable ProgramSequence
+    programSequence, @Nullable ProgramSequenceBinding programSequenceBinding) {
+    if (Objects.nonNull(program) && Objects.nonNull(programSequence) && Objects.nonNull(programSequenceBinding))
+      return String.format("%s (%s)", program.getName(), programSequence.getName());
+    else if (Objects.nonNull(program))
+      return program.getName();
+    else return "Not Loaded";
   }
 }

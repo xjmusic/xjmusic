@@ -29,7 +29,6 @@ import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableStringValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableSet;
-import javafx.scene.Node;
 
 import java.util.Collection;
 import java.util.List;
@@ -92,14 +91,6 @@ public interface FabricationService {
   Collection<SegmentMessage> getSegmentMessages(Segment segment);
 
   Collection<SegmentMeta> getSegmentMetas(Segment segment);
-
-  Node computeProgramReferenceNode(UUID programId, @Nullable UUID programSequenceBindingId);
-
-  Node computeProgramVoiceReferenceNode(UUID programVoiceId);
-
-  Node computeInstrumentReferenceNode(UUID instrumentId);
-
-  Node computeInstrumentAudioReferenceNode(UUID instrumentAudioId);
 
   List<Segment> getSegments(@Nullable Integer startIndex);
 

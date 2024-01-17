@@ -32,7 +32,6 @@ import io.xj.nexus.work.FabricationConfiguration;
 import io.xj.nexus.work.FabricationManager;
 import io.xj.nexus.work.FabricationState;
 import jakarta.annotation.Nullable;
-import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -49,8 +48,6 @@ import javafx.beans.value.ObservableStringValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
-import javafx.scene.Node;
-import javafx.scene.control.Hyperlink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -76,7 +73,6 @@ public class FabricationServiceImpl implements FabricationService {
   private final static String BUTTON_TEXT_START = "Start";
   private final static String BUTTON_TEXT_STOP = "Stop";
   private final static String BUTTON_TEXT_RESET = "Reset";
-  private final HostServices hostServices;
   private final int defaultTimelineSegmentViewLimit;
   private final int defaultCraftAheadSeconds;
   private final int defaultDubAheadSeconds;
@@ -126,7 +122,6 @@ public class FabricationServiceImpl implements FabricationService {
     }, state);
 
   public FabricationServiceImpl(
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
     @Value("${craft.ahead.seconds}") int defaultCraftAheadSeconds,
     @Value("${dub.ahead.seconds}") int defaultDubAheadSeconds,
     @Value("${mixer.length.seconds}") int defaultMixerLengthSeconds,
@@ -145,7 +140,6 @@ public class FabricationServiceImpl implements FabricationService {
     this.defaultOutputChannels = defaultOutputChannels;
     this.defaultOutputFrameRate = defaultOutputFrameRate;
     this.defaultTimelineSegmentViewLimit = defaultTimelineSegmentViewLimit;
-    this.hostServices = hostServices;
     this.labService = labService;
     this.fabricationManager = fabricationManager;
 
@@ -393,52 +387,6 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
-  public Node computeProgramReferenceNode(UUID programId, @Nullable UUID programSequenceBindingId) {
-    var program = getProgram(programId);
-    Optional<ProgramSequenceBinding> programSequenceBinding = Objects.nonNull(programSequenceBindingId) ? getProgramSequenceBinding(programSequenceBindingId) : Optional.empty();
-    var programSequence = programSequenceBinding.map(ProgramSequenceBinding::getProgramSequenceId).flatMap(this::getProgramSequence);
-
-    var programUrl = labService.computeUrl(String.format("programs/%s", programId));
-
-    var hyperlink = new Hyperlink(computeProgramName(program.orElse(null), programSequence.orElse(null), programSequenceBinding.orElse(null)));
-    hyperlink.setOnAction(event -> hostServices.showDocument(programUrl));
-    return hyperlink;
-  }
-
-  @Override
-  public Node computeProgramVoiceReferenceNode(UUID programVoiceId) {
-    var programVoice = getProgramVoice(programVoiceId);
-
-    var programUrl = labService.computeUrl(String.format("programs/%s", programVoice.orElseThrow().getProgramId()));
-
-    var hyperlink = new Hyperlink(programVoice.orElseThrow().getName());
-    hyperlink.setOnAction(event -> hostServices.showDocument(programUrl));
-    return hyperlink;
-  }
-
-  @Override
-  public Node computeInstrumentReferenceNode(UUID instrumentId) {
-    var instrument = getInstrument(instrumentId);
-
-    var instrumentUrl = labService.computeUrl(String.format("instruments/%s", instrumentId));
-
-    var hyperlink = new Hyperlink(instrument.orElseThrow().getName());
-    hyperlink.setOnAction(event -> hostServices.showDocument(instrumentUrl));
-    return hyperlink;
-  }
-
-  @Override
-  public Node computeInstrumentAudioReferenceNode(UUID instrumentAudioId) {
-    var instrumentAudio = getInstrumentAudio(instrumentAudioId);
-
-    var instrumentUrl = labService.computeUrl(String.format("instruments/%s", instrumentAudio.orElseThrow().getInstrumentId()));
-
-    var hyperlink = new Hyperlink(instrumentAudio.orElseThrow().getName());
-    hyperlink.setOnAction(event -> hostServices.showDocument(instrumentUrl));
-    return hyperlink;
-  }
-
-  @Override
   public List<Segment> getSegments(@Nullable Integer startIndex) {
     var viewLimit = Integer.parseInt(timelineSegmentViewLimit.getValue());
     var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, fabricationManager.getEntityStore().readLastSegmentId() - viewLimit - 1);
@@ -620,23 +568,6 @@ public class FabricationServiceImpl implements FabricationService {
       }
     }
     return Optional.of(segmentBarBeats.get(segment.getId()));
-  }
-
-  /**
-   Compute program name from program, program sequence, and program sequence binding.
-
-   @param program                to compute name from
-   @param programSequence        to compute name from
-   @param programSequenceBinding to compute name from
-   @return program name
-   */
-  private String computeProgramName(@Nullable Program program, @Nullable ProgramSequence
-    programSequence, @Nullable ProgramSequenceBinding programSequenceBinding) {
-    if (Objects.nonNull(program) && Objects.nonNull(programSequence) && Objects.nonNull(programSequenceBinding))
-      return String.format("%s (%s)", program.getName(), programSequence.getName());
-    else if (Objects.nonNull(program))
-      return program.getName();
-    else return "Not Loaded";
   }
 
   /**

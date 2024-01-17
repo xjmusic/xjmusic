@@ -11,14 +11,17 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.nexus.project.ProjectUpdate;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +41,12 @@ public class ContentBrowserController extends BrowserController implements Ready
   private final ObservableList<Program> programs = FXCollections.observableList(new ArrayList<>());
   private final ObservableList<Instrument> instruments = FXCollections.observableList(new ArrayList<>());
   private final ObjectProperty<Library> viewingLibrary = new SimpleObjectProperty<>(null);
+
+  @FXML
+  protected AnchorPane libraryContentBrowser;
+
+  @FXML
+  protected Label libraryTitle;
 
   @FXML
   protected StackPane container;
@@ -78,7 +87,6 @@ public class ContentBrowserController extends BrowserController implements Ready
     initPrograms();
     initInstruments();
 
-
     var isLibraryBrowser = projectService.contentModeProperty().isEqualTo(ContentMode.LibraryBrowser);
     librariesTable.visibleProperty().bind(isLibraryBrowser);
     librariesTable.managedProperty().bind(isLibraryBrowser);
@@ -86,8 +94,8 @@ public class ContentBrowserController extends BrowserController implements Ready
     var isProgramOrInstrumentBrowser =
       projectService.contentModeProperty().isEqualTo(ContentMode.ProgramBrowser)
         .or(projectService.contentModeProperty().isEqualTo(ContentMode.InstrumentBrowser));
-    libraryContentTabPane.visibleProperty().bind(isProgramOrInstrumentBrowser);
-    libraryContentTabPane.managedProperty().bind(isProgramOrInstrumentBrowser);
+    libraryContentBrowser.visibleProperty().bind(isProgramOrInstrumentBrowser);
+    libraryContentBrowser.managedProperty().bind(isProgramOrInstrumentBrowser);
 
     var visible = projectService.isStateReadyProperty()
       .and(projectService.viewModeProperty().isEqualTo(ViewMode.Content))
@@ -102,6 +110,9 @@ public class ContentBrowserController extends BrowserController implements Ready
       updatePrograms();
       updateInstruments();
     });
+    libraryTitle.textProperty().bind(Bindings.createStringBinding(
+      () -> Objects.isNull(viewingLibrary.get()) ? "" : viewingLibrary.get().getName(),
+      viewingLibrary));
   }
 
   @Override
@@ -189,15 +200,16 @@ public class ContentBrowserController extends BrowserController implements Ready
 
    @param library library to open
    */
-  private void openLibrary(Library library) {
+  public void openLibrary(Library library) {
     viewingLibrary.set(library);
-    if (projectService.getContent().getInstruments().stream()
-      .anyMatch(instrument -> Objects.equals(instrument.getLibraryId(), library.getId()))) {
-      libraryContentTabPane.selectionModelProperty().get().select(instrumentsTab);
-      projectService.contentModeProperty().set(ContentMode.InstrumentBrowser);
-    } else {
-      libraryContentTabPane.selectionModelProperty().get().select(programsTab);
-      projectService.contentModeProperty().set(ContentMode.ProgramBrowser);
-    }
+    if (Objects.nonNull(library))
+      if (projectService.getContent().getInstruments().stream()
+        .anyMatch(instrument -> Objects.equals(instrument.getLibraryId(), library.getId()))) {
+        libraryContentTabPane.selectionModelProperty().get().select(instrumentsTab);
+        projectService.contentModeProperty().set(ContentMode.InstrumentBrowser);
+      } else {
+        libraryContentTabPane.selectionModelProperty().get().select(programsTab);
+        projectService.contentModeProperty().set(ContentMode.ProgramBrowser);
+      }
   }
 }
