@@ -82,6 +82,7 @@ public class MainController implements ReadyAfterBootController {
 
       startupContainer.visibleProperty().bind(projectService.isStateStandbyProperty());
       startupContainer.managedProperty().bind(projectService.isStateStandbyProperty());
+
     } catch (Exception e) {
       LOG.error("Error initializing main controller!\n{}", StringUtils.formatStackTrace(e), e);
     }
