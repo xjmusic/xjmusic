@@ -3,6 +3,7 @@
 package io.xj.gui;
 
 import com.tangorabox.componentinspector.fx.FXComponentInspectorHandler;
+import io.xj.gui.controllers.EulaModalController;
 import io.xj.gui.controllers.MainController;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
@@ -24,6 +25,7 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
   static final Logger LOG = LoggerFactory.getLogger(MainWindowStageReadyListener.class);
   private final Resource mainWindowFxml;
   private final String debug;
+  private final EulaModalController eulaModalController;
   private final MainController mainController;
   private final ApplicationContext ac;
   private final ProjectService projectService;
@@ -32,6 +34,7 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
   public MainWindowStageReadyListener(
     @Value("classpath:/views/main.fxml") Resource mainWindowFxml,
     @Value("${gui.debug}") String debug,
+    EulaModalController eulaModalController,
     MainController mainController,
     ApplicationContext ac,
     ProjectService projectService,
@@ -39,6 +42,7 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
   ) {
     this.mainWindowFxml = mainWindowFxml;
     this.debug = debug;
+    this.eulaModalController = eulaModalController;
     this.mainController = mainController;
     this.ac = ac;
     this.projectService = projectService;
@@ -46,34 +50,38 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
   }
 
   @Override
+  @SuppressWarnings("NullableProblems")
   public void onApplicationEvent(StageReadyEvent event) {
-    try {
-      var primaryStage = event.getStage();
-      FXMLLoader mainWindowFxmlLoader = new FXMLLoader(mainWindowFxml.getURL());
-      mainWindowFxmlLoader.setControllerFactory(ac::getBean);
+    WorkstationWindow.setupTaskbar();
 
-      var scene = new Scene(mainWindowFxmlLoader.load());
-      primaryStage.setScene(scene);
-      primaryStage.initStyle(StageStyle.DECORATED);
+    eulaModalController.ensureAcceptance(() -> {
+      try {
+        var primaryStage = event.getStage();
+        WorkstationWindow.setupIcon(primaryStage);
+        primaryStage.titleProperty().bind(projectService.windowTitleProperty());
 
-      WorkstationWindow.setupIcon(primaryStage, null);
-      WorkstationWindow.setupTaskbar();
-      primaryStage.titleProperty().bind(projectService.windowTitleProperty());
+        FXMLLoader mainWindowFxmlLoader = new FXMLLoader(mainWindowFxml.getURL());
+        mainWindowFxmlLoader.setControllerFactory(ac::getBean);
 
-      themeService.setup(scene);
-      themeService.isDarkThemeProperty().addListener((o, ov, value) -> themeService.setup(scene));
-      themeService.setupFonts();
+        var scene = new Scene(mainWindowFxmlLoader.load());
+        primaryStage.setScene(scene);
+        primaryStage.initStyle(StageStyle.DECORATED);
 
-      mainController.onStageReady();
-      primaryStage.show();
+        themeService.setup(scene);
+        themeService.isDarkThemeProperty().addListener((o, ov, value) -> themeService.setup(scene));
+        themeService.setupFonts();
 
-      // See https://github.com/TangoraBox/ComponentInspector/
-      if (debug.equals("true")) {
-        FXComponentInspectorHandler.handleAll();
+        mainController.onStageReady();
+        primaryStage.show();
+
+        // See https://github.com/TangoraBox/ComponentInspector/
+        if (debug.equals("true")) {
+          FXComponentInspectorHandler.handleAll();
+        }
+
+      } catch (IOException e) {
+        LOG.error("Failed to set the scene on the primary stage!", e);
       }
-
-    } catch (IOException e) {
-      LOG.error("Failed to set the scene on the primary stage!", e);
-    }
+    });
   }
 }

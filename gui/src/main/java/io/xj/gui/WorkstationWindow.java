@@ -16,7 +16,7 @@ public interface WorkstationWindow {
   String PATH_TO_ICON_ICO = "/icons/icon.ico";
   String PATH_TO_ICON_PNG = "/icons/icon.png";
 
-  static void setupIcon(Stage primaryStage, @Nullable String windowName) {
+  static void setupIcon(Stage primaryStage) {
     primaryStage.getIcons().addAll(List.of(
       new Image(PATH_TO_ICON_ICNS),
       new Image(PATH_TO_ICON_ICO),
