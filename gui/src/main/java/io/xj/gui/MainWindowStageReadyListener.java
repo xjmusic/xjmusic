@@ -7,8 +7,7 @@ import io.xj.gui.controllers.EulaModalController;
 import io.xj.gui.controllers.MainController;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
+import io.xj.gui.utils.WindowUtils;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,22 +49,18 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
   }
 
   @Override
-  @SuppressWarnings("NullableProblems")
   public void onApplicationEvent(StageReadyEvent event) {
-    WorkstationWindow.setupTaskbar();
+    WindowUtils.setupTaskbar();
+    var primaryStage = event.getStage();
+    WindowUtils.setupIcon(primaryStage);
+    primaryStage.initStyle(StageStyle.DECORATED);
 
-    eulaModalController.ensureAcceptance(() -> {
+    eulaModalController.ensureAcceptance(primaryStage, () -> {
       try {
-        var primaryStage = event.getStage();
-        WorkstationWindow.setupIcon(primaryStage);
+        var scene = WindowUtils.loadSceneFxml(ac, mainWindowFxml);
+
         primaryStage.titleProperty().bind(projectService.windowTitleProperty());
-
-        FXMLLoader mainWindowFxmlLoader = new FXMLLoader(mainWindowFxml.getURL());
-        mainWindowFxmlLoader.setControllerFactory(ac::getBean);
-
-        var scene = new Scene(mainWindowFxmlLoader.load());
         primaryStage.setScene(scene);
-        primaryStage.initStyle(StageStyle.DECORATED);
 
         themeService.setup(scene);
         themeService.isDarkThemeProperty().addListener((o, ov, value) -> themeService.setup(scene));
