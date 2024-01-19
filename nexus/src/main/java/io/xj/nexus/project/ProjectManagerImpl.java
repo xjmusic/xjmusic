@@ -273,22 +273,20 @@ public class ProjectManagerImpl implements ProjectManager {
               instrument.getId(),
               audio.getWaveformKey()
             );
-            var remoteUrl = String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey());
-            // todo var remoteFileSize = getRemoteFileSize(remoteUrl);
-            var localFileSize = getFileSizeIfExistsOnDisk(originalCachePath);
-            boolean shouldDownload = false;
-            if (localFileSize.isEmpty()) {
-              shouldDownload = true;
-/*
-  TODO
-            } else if (localFileSize.get() != remoteFileSize) {
-              LOG.info("File size of {} does not match remote {} - Will download {} bytes from {}", originalCachePath, remoteFileSize, remoteFileSize, remoteUrl);
-              shouldDownload = true;
-*/
-            }
-            if (shouldDownload) {
-              if (!downloadRemoteFileWithRetry(remoteUrl, originalCachePath, 0 /* todo remoteFileSize*/)) {
-                return false;
+            if (!existsOnDisk(originalCachePath)) {
+              CloseableHttpClient client = httpClientProvider.getClient();
+              try (
+                CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey())))
+              ) {
+                if (Objects.isNull(response.getEntity().getContent()))
+                  throw new NexusException(String.format("Unable to write bytes to disk: %s", originalCachePath));
+
+                try (OutputStream toFile = FileUtils.openOutputStream(new File(originalCachePath))) {
+                  var size = IOUtils.copy(response.getEntity().getContent(), toFile); // stores number of bytes copied
+                  LOG.debug("Did write media item to disk: {} ({} bytes)", originalCachePath, size);
+                }
+              } catch (NexusException | IOException e) {
+                throw new RuntimeException(e);
               }
             }
             LOG.debug("Did preload audio OK");
@@ -365,16 +363,10 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   Get the file size on disk if it exists
-
-   @return optional true if this dub audio cache item exists (as audio waveform data) on disk
+   @return true if this dub audio cache item exists (as audio waveform data) on disk
    */
-  private Optional<Integer> getFileSizeIfExistsOnDisk(String absolutePath) {
-    try {
-      return Optional.of((int) Files.size(Path.of(absolutePath)));
-    } catch (IOException e) {
-      return Optional.empty();
-    }
+  private boolean existsOnDisk(String absolutePath) {
+    return new File(absolutePath).exists();
   }
 
   /**
