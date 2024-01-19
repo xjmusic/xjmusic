@@ -6,7 +6,6 @@ import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
-import io.xj.gui.utils.WindowUtils;
 import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
@@ -369,7 +368,7 @@ public class ProjectServiceImpl implements ProjectService {
     alert.setContentText("Are you sure you want to proceed?");
 
     // Optional: Customize the buttons (optional)
-    alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
+    alert.getButtonTypes().setAll(ButtonType.NO, ButtonType.YES);
 
     // Show the dialog and capture the result
     var result = alert.showAndWait();

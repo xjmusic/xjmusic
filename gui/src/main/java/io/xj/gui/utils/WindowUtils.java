@@ -76,7 +76,7 @@ public interface WindowUtils {
     if (Taskbar.isTaskbarSupported()) {
       var taskbar = Taskbar.getTaskbar();
       if (taskbar.isSupported(Taskbar.Feature.PROGRESS_VALUE)) {
-        taskbar.setProgressValue(progress == 1.0 ? -1 : (int) (progress * 100));
+        taskbar.setProgressValue(progress < 1.0 && progress > 0.0 ? (int) (progress * 100) : -1);
       } else {
         LOG.info("Taskbar does not support setting the progress value");
       }
