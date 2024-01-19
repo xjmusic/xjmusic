@@ -390,7 +390,7 @@ public class FabricationServiceImpl implements FabricationService {
   public List<Segment> getSegments(@Nullable Integer startIndex) {
     var viewLimit = parseIntegerValue(timelineSegmentViewLimit.getValue(), "Timeline Segment View Limit");
     var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, fabricationManager.getEntityStore().readLastSegmentId() - viewLimit - 1);
-    var to = Math.min(fabricationManager.getEntityStore().readLastSegmentId() - 1, from + viewLimit);
+    var to = Math.min(fabricationManager.getEntityStore().readLastSegmentId() , from + viewLimit);
     return fabricationManager.getEntityStore().readSegmentsFromToOffset(from, to);
   }
 
