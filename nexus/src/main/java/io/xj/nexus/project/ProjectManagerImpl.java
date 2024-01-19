@@ -19,7 +19,6 @@ import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
 import jakarta.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
@@ -278,20 +277,18 @@ public class ProjectManagerImpl implements ProjectManager {
               audio.getWaveformKey()
             );
             var remoteUrl = String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey());
-            try (var httpClient = httpClientProvider.getClient()) {
-              var remoteFileSize = getRemoteFileSize(httpClient, remoteUrl);
-              var localFileSize = getFileSizeIfExistsOnDisk(originalCachePath);
-              boolean shouldDownload = false;
-              if (localFileSize.isEmpty()) {
-                shouldDownload = true;
-              } else if (localFileSize.get() != remoteFileSize) {
-                LOG.info("File size of {} does not match remote {} - Will download {} bytes from {}", originalCachePath, remoteFileSize, remoteFileSize, remoteUrl);
-                shouldDownload = true;
-              }
-              if (shouldDownload) {
-                if (!downloadRemoteFileWithRetry(httpClient, remoteUrl, originalCachePath, remoteFileSize)) {
-                  return false;
-                }
+            var remoteFileSize = getRemoteFileSize(remoteUrl);
+            var localFileSize = getFileSizeIfExistsOnDisk(originalCachePath);
+            boolean shouldDownload = false;
+            if (localFileSize.isEmpty()) {
+              shouldDownload = true;
+            } else if (localFileSize.get() != remoteFileSize) {
+              LOG.info("File size of {} does not match remote {} - Will download {} bytes from {}", originalCachePath, remoteFileSize, remoteFileSize, remoteUrl);
+              shouldDownload = true;
+            }
+            if (shouldDownload) {
+              if (!downloadRemoteFileWithRetry(remoteUrl, originalCachePath, remoteFileSize)) {
+                return false;
               }
             }
             LOG.debug("Did preload audio OK");
@@ -414,12 +411,12 @@ public class ProjectManagerImpl implements ProjectManager {
    @param outputPath path to write to
    @return true if the file was downloaded successfully
    */
-  private boolean downloadRemoteFileWithRetry(CloseableHttpClient httpClient, String url, String outputPath, long expectedSize) {
+  private boolean downloadRemoteFileWithRetry(String url, String outputPath, long expectedSize) {
     for (int attempt = 1; attempt <= downloadAudioRetries; attempt++) {
       try {
         Path path = Paths.get(outputPath);
         Files.deleteIfExists(path);
-        downloadRemoteFile(httpClient, url, outputPath);
+        downloadRemoteFile(url, outputPath);
         long downloadedSize = Files.size(path);
         if (downloadedSize == expectedSize) {
           return true;
@@ -436,26 +433,27 @@ public class ProjectManagerImpl implements ProjectManager {
   /**
    Get the size of the file at the given URL
 
-   @param httpClient http client
-   @param url        url
+   @param url url
    @return size of the file
    @throws Exception if the file size could not be determined
    */
-  private long getRemoteFileSize(CloseableHttpClient httpClient, String url) throws Exception {
-    HttpHead request = new HttpHead(url);
-    HttpResponse response = httpClient.execute(request);
-    return Long.parseLong(response.getFirstHeader("Content-Length").getValue());
+  private long getRemoteFileSize(String url) throws Exception {
+    try (
+      CloseableHttpClient httpClient = httpClientProvider.getClient();
+      CloseableHttpResponse response = httpClient.execute(new HttpHead(url))
+    ) {
+      return Long.parseLong(response.getFirstHeader("Content-Length").getValue());
+    }
   }
 
   /**
-   Download a file from the given URL to the given output path
+   Download a file from the given URL to the given output path@param url        url
 
-   @param httpClient http client
-   @param url        url
    @param outputPath output path
    */
-  private void downloadRemoteFile(CloseableHttpClient httpClient, String url, String outputPath) throws IOException, NexusException {
+  private void downloadRemoteFile(String url, String outputPath) throws IOException, NexusException {
     try (
+      CloseableHttpClient httpClient = httpClientProvider.getClient();
       CloseableHttpResponse response = httpClient.execute(new HttpGet(url))
     ) {
       if (Objects.isNull(response.getEntity().getContent()))
