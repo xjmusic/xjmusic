@@ -8,7 +8,6 @@ import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.entity.EntityFactory;
 import io.xj.nexus.http.HttpClientProvider;
-import io.xj.nexus.http.HttpClientProviderImpl;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.hub_client.HubClientException;
@@ -103,7 +102,6 @@ public class ProjectManagerImpl implements ProjectManager {
   @Override
   public boolean cloneProjectFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
     LOG.info("Cloning from demo template \"{}\" in parent folder {}", templateShipKey, parentPathPrefix);
-    HttpClientProvider httpClientProvider = new HttpClientProviderImpl();
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
     return cloneProject(parentPathPrefix, () -> hubClient.loadApiV1(templateShipKey, this.audioBaseUrl.get()), projectName);
@@ -112,7 +110,6 @@ public class ProjectManagerImpl implements ProjectManager {
   @Override
   public boolean cloneFromLabProject(HubClientAccess access, String labBaseUrl, String parentPathPrefix, UUID projectId, String projectName) {
     LOG.info("Cloning from lab Project[{}] in parent folder {}", projectId, parentPathPrefix);
-    HttpClientProvider httpClientProvider = new HttpClientProviderImpl();
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
     return cloneProject(parentPathPrefix, () -> hubClient.ingestApiV2(labBaseUrl, access, projectId), projectName);
@@ -277,17 +274,20 @@ public class ProjectManagerImpl implements ProjectManager {
               audio.getWaveformKey()
             );
             var remoteUrl = String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey());
-            var remoteFileSize = getRemoteFileSize(remoteUrl);
+            // todo var remoteFileSize = getRemoteFileSize(remoteUrl);
             var localFileSize = getFileSizeIfExistsOnDisk(originalCachePath);
             boolean shouldDownload = false;
             if (localFileSize.isEmpty()) {
               shouldDownload = true;
+/*
+  TODO
             } else if (localFileSize.get() != remoteFileSize) {
               LOG.info("File size of {} does not match remote {} - Will download {} bytes from {}", originalCachePath, remoteFileSize, remoteFileSize, remoteUrl);
               shouldDownload = true;
+*/
             }
             if (shouldDownload) {
-              if (!downloadRemoteFileWithRetry(remoteUrl, originalCachePath, remoteFileSize)) {
+              if (!downloadRemoteFileWithRetry(remoteUrl, originalCachePath, 0 /* todo remoteFileSize*/)) {
                 return false;
               }
             }
@@ -418,10 +418,10 @@ public class ProjectManagerImpl implements ProjectManager {
         Files.deleteIfExists(path);
         downloadRemoteFile(url, outputPath);
         long downloadedSize = Files.size(path);
-        if (downloadedSize == expectedSize) {
-          return true;
-        }
-        LOG.info("File size does not match! Attempt " + attempt + " of " + downloadAudioRetries + " to download " + url + " to " + outputPath + " failed. Expected " + expectedSize + " bytes, but got " + downloadedSize + " bytes.");
+// todo       if (downloadedSize == expectedSize) {
+        return true;
+// todo        }
+// todo        LOG.info("File size does not match! Attempt " + attempt + " of " + downloadAudioRetries + " to download " + url + " to " + outputPath + " failed. Expected " + expectedSize + " bytes, but got " + downloadedSize + " bytes.");
 
       } catch (Exception e) {
         LOG.info("Attempt " + attempt + " of " + downloadAudioRetries + " to download " + url + " to " + outputPath + " failed because " + e.getMessage());
