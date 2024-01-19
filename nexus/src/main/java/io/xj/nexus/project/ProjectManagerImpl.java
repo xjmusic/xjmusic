@@ -7,15 +7,12 @@ import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.entity.EntityFactory;
-import io.xj.nexus.entity.EntityFactoryImpl;
 import io.xj.nexus.http.HttpClientProvider;
-import io.xj.nexus.http.HttpClientProviderImpl;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.hub_client.HubClientException;
 import io.xj.nexus.hub_client.HubClientImpl;
 import io.xj.nexus.json.JsonProvider;
-import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
 import jakarta.annotation.Nullable;
@@ -23,6 +20,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +30,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -61,6 +60,7 @@ public class ProjectManagerImpl implements ProjectManager {
   private final Map<ProjectUpdate, Set<Runnable>> projectUpdateListeners = new HashMap<>();
   private final JsonProvider jsonProvider;
   private final EntityFactory entityFactory;
+  private final int downloadAudioRetries;
   private final HttpClientProvider httpClientProvider;
 
   @Nullable
@@ -75,21 +75,13 @@ public class ProjectManagerImpl implements ProjectManager {
   public ProjectManagerImpl(
     HttpClientProvider httpClientProvider,
     JsonProvider jsonProvider,
-    EntityFactory entityFactory
+    EntityFactory entityFactory,
+    int downloadAudioRetries
   ) {
     this.httpClientProvider = httpClientProvider;
     this.jsonProvider = jsonProvider;
     this.entityFactory = entityFactory;
-  }
-
-  /**
-   @return a new instance of the project manager
-   */
-  public static ProjectManager createInstance() {
-    HttpClientProvider httpClientProvider = new HttpClientProviderImpl();
-    JsonProvider jsonProvider = new JsonProviderImpl();
-    EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
-    return new ProjectManagerImpl(httpClientProvider, jsonProvider, entityFactory);
+    this.downloadAudioRetries = downloadAudioRetries;
   }
 
   @Override
@@ -110,7 +102,6 @@ public class ProjectManagerImpl implements ProjectManager {
   @Override
   public boolean cloneProjectFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
     LOG.info("Cloning from demo template \"{}\" in parent folder {}", templateShipKey, parentPathPrefix);
-    HttpClientProvider httpClientProvider = new HttpClientProviderImpl();
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
     return cloneProject(parentPathPrefix, () -> hubClient.loadApiV1(templateShipKey, this.audioBaseUrl.get()), projectName);
@@ -119,7 +110,6 @@ public class ProjectManagerImpl implements ProjectManager {
   @Override
   public boolean cloneFromLabProject(HubClientAccess access, String labBaseUrl, String parentPathPrefix, UUID projectId, String projectName) {
     LOG.info("Cloning from lab Project[{}] in parent folder {}", projectId, parentPathPrefix);
-    HttpClientProvider httpClientProvider = new HttpClientProviderImpl();
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
     return cloneProject(parentPathPrefix, () -> hubClient.ingestApiV2(labBaseUrl, access, projectId), projectName);
@@ -267,6 +257,10 @@ public class ProjectManagerImpl implements ProjectManager {
       int loaded = 0;
       var instruments = new ArrayList<>(content.get().getInstruments());
       var audios = new ArrayList<>(content.get().getInstrumentAudios());
+
+      // Don't close the client, only close the responses from it
+      CloseableHttpClient httpClient = httpClientProvider.getClient();
+
       for (Instrument instrument : instruments) {
         for (InstrumentAudio audio : audios.stream()
           .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
@@ -283,22 +277,26 @@ public class ProjectManagerImpl implements ProjectManager {
               instrument.getId(),
               audio.getWaveformKey()
             );
-            if (!existsOnDisk(originalCachePath)) {
-              CloseableHttpClient client = httpClientProvider.getClient();
-              try (
-                CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey())))
-              ) {
-                if (Objects.isNull(response.getEntity().getContent()))
-                  throw new NexusException(String.format("Unable to write bytes to disk: %s", originalCachePath));
 
-                try (OutputStream toFile = FileUtils.openOutputStream(new File(originalCachePath))) {
-                  var size = IOUtils.copy(response.getEntity().getContent(), toFile); // stores number of bytes copied
-                  LOG.debug("Did write media item to disk: {} ({} bytes)", originalCachePath, size);
-                }
-              } catch (NexusException | IOException e) {
-                throw new RuntimeException(e);
+            var remoteUrl = String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey());
+            var remoteFileSize = getRemoteFileSize(httpClient, remoteUrl);
+            var localFileSize = getFileSizeIfExistsOnDisk(originalCachePath);
+
+            boolean shouldDownload = false;
+
+            if (localFileSize.isEmpty()) {
+              shouldDownload = true;
+            } else if (localFileSize.get() != remoteFileSize) {
+              LOG.info("File size of {} does not match remote {} - Will download {} bytes from {}", originalCachePath, remoteFileSize, remoteFileSize, remoteUrl);
+              shouldDownload = true;
+            }
+
+            if (shouldDownload) {
+              if (!downloadRemoteFileWithRetry(httpClient, remoteUrl, originalCachePath, remoteFileSize)) {
+                return false;
               }
             }
+
             LOG.debug("Did preload audio OK");
             updateProgress((float) loaded / audios.size());
             loaded++;
@@ -373,10 +371,16 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   @return true if this dub audio cache item exists (as audio waveform data) on disk
+   Get the file size on disk if it exists
+
+   @return optional true if this dub audio cache item exists (as audio waveform data) on disk
    */
-  private boolean existsOnDisk(String absolutePath) {
-    return new File(absolutePath).exists();
+  private Optional<Integer> getFileSizeIfExistsOnDisk(String absolutePath) {
+    try {
+      return Optional.of((int) Files.size(Path.of(absolutePath)));
+    } catch (IOException e) {
+      return Optional.empty();
+    }
   }
 
   /**
@@ -404,5 +408,69 @@ public class ProjectManagerImpl implements ProjectManager {
   private void updateProgress(double progress) {
     if (Objects.nonNull(onProgress))
       this.onProgress.accept(progress);
+  }
+
+  /**
+   Download a file from the given URL to the given output path, retrying some number of times
+
+   @param httpClient http client (don't close the client; only close the responses from it)
+   @param url        URL to download from
+   @param outputPath path to write to
+   @return true if the file was downloaded successfully
+   */
+  private boolean downloadRemoteFileWithRetry(CloseableHttpClient httpClient, String url, String outputPath, long expectedSize) {
+    for (int attempt = 1; attempt <= downloadAudioRetries; attempt++) {
+      try {
+        Path path = Paths.get(outputPath);
+        Files.deleteIfExists(path);
+        downloadRemoteFile(httpClient, url, outputPath);
+        long downloadedSize = Files.size(path);
+        if (downloadedSize == expectedSize) {
+          return true;
+        }
+        LOG.info("File size does not match! Attempt " + attempt + " of " + downloadAudioRetries + " to download " + url + " to " + outputPath + " failed. Expected " + expectedSize + " bytes, but got " + downloadedSize + " bytes.");
+
+      } catch (Exception e) {
+        LOG.info("Attempt " + attempt + " of " + downloadAudioRetries + " to download " + url + " to " + outputPath + " failed because " + e.getMessage());
+      }
+    }
+    return false;
+  }
+
+  /**
+   Get the size of the file at the given URL
+
+   @param httpClient http client (don't close the client; only close the responses from it)
+   @param url        url
+   @return size of the file
+   @throws Exception if the file size could not be determined
+   */
+  private long getRemoteFileSize(CloseableHttpClient httpClient, String url) throws Exception {
+    try (
+      CloseableHttpResponse response = httpClient.execute(new HttpHead(url))
+    ) {
+      return Long.parseLong(response.getFirstHeader("Content-Length").getValue());
+    }
+  }
+
+  /**
+   Download a file from the given URL to the given output path
+
+   @param httpClient http client (don't close the client; only close the responses from it)
+   @param url        url
+   @param outputPath output path
+   */
+  private void downloadRemoteFile(CloseableHttpClient httpClient, String url, String outputPath) throws IOException, NexusException {
+    try (
+      CloseableHttpResponse response = httpClient.execute(new HttpGet(url))
+    ) {
+      if (Objects.isNull(response.getEntity().getContent()))
+        throw new NexusException(String.format("Unable to write bytes to disk: %s", outputPath));
+
+      try (OutputStream toFile = FileUtils.openOutputStream(new File(outputPath))) {
+        var size = IOUtils.copy(response.getEntity().getContent(), toFile); // stores number of bytes copied
+        LOG.debug("Did write media item to disk: {} ({} bytes)", outputPath, size);
+      }
+    }
   }
 }

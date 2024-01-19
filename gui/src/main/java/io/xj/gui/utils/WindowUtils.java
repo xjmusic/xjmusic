@@ -78,10 +78,10 @@ public interface WindowUtils {
       if (taskbar.isSupported(Taskbar.Feature.PROGRESS_VALUE)) {
         taskbar.setProgressValue(progress < 1.0 && progress > 0.0 ? (int) (progress * 100) : -1);
       } else {
-        LOG.info("Taskbar does not support setting the progress value");
+        LOG.debug("Taskbar does not support setting the progress value");
       }
     } else {
-      LOG.info("Taskbar is not supported");
+      LOG.debug("Taskbar is not supported");
     }
   }
 
