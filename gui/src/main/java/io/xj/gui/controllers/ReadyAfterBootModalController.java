@@ -2,7 +2,7 @@
 
 package io.xj.gui.controllers;
 
-import io.xj.gui.WorkstationWindow;
+import io.xj.gui.utils.WindowUtils;
 import io.xj.gui.services.ThemeService;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -35,8 +35,8 @@ public abstract class ReadyAfterBootModalController implements ReadyAfterBootCon
 
       // Create a new stage (window)
       Stage stage = new Stage();
-      WorkstationWindow.setupIcon(stage);
-      stage.setTitle(WorkstationWindow.computeTitle(windowName));
+      WindowUtils.setupIcon(stage);
+      stage.setTitle(WindowUtils.computeTitle(windowName));
 
       Scene scene = new Scene(loader.load());
       themeService.setup(scene);

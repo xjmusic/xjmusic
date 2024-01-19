@@ -4,6 +4,7 @@ import io.xj.gui.WorkstationLogAppender;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.utils.WindowUtils;
 import io.xj.nexus.ControlMode;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.work.FabricationState;
@@ -84,6 +85,9 @@ public class UIStateServiceImpl implements UIStateService {
       projectService.stateTextProperty(),
       fabricationService.stateTextProperty());
 
+    progress.addListener((o, ov, value) -> {
+      WindowUtils.setTaskbarProgress(value.floatValue());
+    });
   }
 
   @Override
