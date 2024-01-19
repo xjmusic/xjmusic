@@ -3,7 +3,13 @@
 package io.xj.workstation.service;
 
 import io.xj.hub.HubConfiguration;
+import io.xj.nexus.entity.EntityFactory;
+import io.xj.nexus.entity.EntityFactoryImpl;
+import io.xj.nexus.http.HttpClientProvider;
+import io.xj.nexus.http.HttpClientProviderImpl;
 import io.xj.nexus.hub_client.HubClientAccess;
+import io.xj.nexus.json.JsonProvider;
+import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.project.ProjectManagerImpl;
 import io.xj.nexus.work.FabricationConfiguration;
@@ -42,21 +48,27 @@ public class WorkstationServiceApplication {
   @Autowired
   public WorkstationServiceApplication(
     ApplicationContext context,
-    @Value("${input.template.key}") String inputTemplateKey,
-    @Value("${ingest.token}") String ingestToken,
     @Value("${audio.base.url}") String audioBaseUrl,
+    @Value("${download.audio.retries}") int downloadAudioRetries,
+    @Value("${ingest.token}") String ingestToken,
+    @Value("${input.template.key}") String inputTemplateKey,
     @Value("${lab.base.url}") String labBaseUrl,
     @Value("${ship.base.url}") String shipBaseUrl,
     @Value("${stream.base.url}") String streamBaseUrl
   ) {
-    this.context = context;
-    this.inputTemplateKey = inputTemplateKey;
-    this.ingestToken = ingestToken;
     this.audioBaseUrl = audioBaseUrl;
+    this.context = context;
+    this.ingestToken = ingestToken;
+    this.inputTemplateKey = inputTemplateKey;
     this.labBaseUrl = labBaseUrl;
     this.shipBaseUrl = shipBaseUrl;
     this.streamBaseUrl = streamBaseUrl;
-    ProjectManager projectManager = ProjectManagerImpl.createInstance();
+
+    HttpClientProvider httpClientProvider = new HttpClientProviderImpl();
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
+    ProjectManager projectManager = new ProjectManagerImpl(httpClientProvider, jsonProvider, entityFactory, downloadAudioRetries);
+
     this.fabricationManager = FabricationManagerImpl.createInstance(projectManager);
   }
 

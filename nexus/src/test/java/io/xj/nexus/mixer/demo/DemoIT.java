@@ -140,7 +140,7 @@ public class DemoIT {
     Files.createDirectory(Paths.get(contentStoragePathPrefix, "instrument"));
     JsonProvider jsonProvider = new JsonProviderImpl();
     EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
-    projectManager = new ProjectManagerImpl(httpClientProvider, jsonProvider, entityFactory);
+    projectManager = new ProjectManagerImpl(httpClientProvider, jsonProvider, entityFactory, 3);
     projectManager.setProjectPathPrefix(contentStoragePathPrefix);
     instrumentPathPrefix = Files.createDirectory(Paths.get(contentStoragePathPrefix, "instrument", instrument.getId().toString())).toAbsolutePath().toString();
     audioById.values().forEach(audio -> {
