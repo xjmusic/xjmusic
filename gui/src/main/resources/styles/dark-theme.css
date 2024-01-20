@@ -156,6 +156,7 @@
   -fx-fill: #ffffff;
 }
 
+#mainTopPaneContainer,
 .back-bar,
 .tab-pane .tab-header-area .tab-header-background {
   -fx-background-color: #303030;

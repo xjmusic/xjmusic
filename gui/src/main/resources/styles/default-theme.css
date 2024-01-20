@@ -11,10 +11,17 @@
 .menu, .menu-bar, .menu, .menu-item, .menu-button, .context-menu, .main-menu-container {
   -fx-background-color: #e0e0e0;
   -fx-border-color: transparent;
+  -fx-border-width: 0;
 }
 
 .menu-item:hover, .menu-button:hover {
   -fx-background-color: #c0c0c0;
+}
+
+#mainMenuButtonLab,
+.main-top-pane-controls .button,
+.main-top-pane-controls .toggle-button{
+  -fx-padding: 2 8 2 8;
 }
 
 .log-viewer {
@@ -223,6 +230,7 @@
   -fx-padding: 3 0 3 5;
 }
 
+#mainTopPaneContainer,
 .back-bar,
 .tab-pane .tab-header-area .tab-header-background {
   -fx-background-color: #d0d0d0;
@@ -230,5 +238,9 @@
 
 .bold {
   -fx-font-weight: bold;
+}
+
+#mainTabPane .tab {
+  -fx-padding: 0 12 0 12;
 }
 

@@ -88,7 +88,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   protected CheckMenuItem checkboxTailLogs;
 
   @FXML
-  protected Button buttonLab;
+  protected Button mainMenuButtonLab;
 
   @FXML
   protected Label labelLabStatus;
@@ -172,11 +172,8 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     projectService.recentProjectsProperty().addListener((ChangeListener<? super ObservableList<ProjectDescriptor>>) (o, ov, value) -> updateRecentProjectsMenu());
     updateRecentProjectsMenu();
 
-    labService.stateProperty().addListener((o, ov, value) -> {
-      buttonLab.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, Objects.equals(value, LabState.Authenticated));
-      buttonLab.pseudoClassStateChanged(FAILED_PSEUDO_CLASS, LAB_FAILED_STATES.contains(value));
-      buttonLab.pseudoClassStateChanged(PENDING_PSEUDO_CLASS, LAB_PENDING_STATES.contains(value));
-    });
+    labService.stateProperty().addListener((o, ov, value) -> updateLabButtonState(value));
+    updateLabButtonState(labService.stateProperty().get());
 
     labelLabStatus.textProperty().bind(labService.stateProperty().map(Enum::toString));
   }
@@ -250,11 +247,18 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
   @FXML
   public void handleButtonLabPressed(ActionEvent ignored) {
-    if (labService.isAuthenticated().get()) {
-      labService.launchInBrowser();
-    } else {
-      mainLabAuthenticationModalController.launchModal();
-    }
+    mainLabAuthenticationModalController.launchModal();
+  }
+
+  /**
+   Update the state of the lab button.
+
+   @param value the new state
+   */
+  private void updateLabButtonState(LabState value) {
+    mainMenuButtonLab.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, Objects.equals(value, LabState.Authenticated));
+    mainMenuButtonLab.pseudoClassStateChanged(FAILED_PSEUDO_CLASS, LAB_FAILED_STATES.contains(value));
+    mainMenuButtonLab.pseudoClassStateChanged(PENDING_PSEUDO_CLASS, LAB_PENDING_STATES.contains(value));
   }
 
   /**

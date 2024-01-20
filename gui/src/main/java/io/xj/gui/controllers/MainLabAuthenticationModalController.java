@@ -132,10 +132,6 @@ public class MainLabAuthenticationModalController extends ReadyAfterBootModalCon
     labService.launchPreferencesInBrowser();
   }
 
-  @FXML
-  protected void handleLabOpenInBrowser() {
-    labService.launchInBrowser();
-  }
 
   @FXML
   void handleConnect() {

@@ -99,7 +99,7 @@
       <Label fx:id="labelLabStatus" text="Initializing"/>
 
       <!-- Lab Button -->
-      <Button fx:id="buttonLab" onAction="#handleButtonLabPressed" text="Lab"/>
+      <Button fx:id="mainMenuButtonLab" onAction="#handleButtonLabPressed" text="Lab"/>
 
     </HBox>
   </StackPane>

@@ -15,9 +15,7 @@
   xmlns:fx="http://javafx.com/fxml">
 
   <TableView
-    fx:id="librariesTable"
-    xmlns="http://javafx.com/javafx"
-    xmlns:fx="http://javafx.com/fxml">
+    fx:id="librariesTable">
     <VBox.vgrow>
       <Priority fx:constant="ALWAYS"/>
     </VBox.vgrow>
@@ -41,8 +39,6 @@
 
     <TabPane
       fx:id="libraryContentTabPane"
-      xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
       tabClosingPolicy="UNAVAILABLE"
       AnchorPane.topAnchor="0"
       AnchorPane.rightAnchor="0"
