@@ -44,7 +44,7 @@ public class TemplateBrowserController extends BrowserController implements Read
   @Override
   public void onStageReady() {
     var visible = projectService.isStateReadyProperty()
-      .and(projectService.viewModeProperty().isEqualTo(ViewMode.Template))
+      .and(projectService.viewModeProperty().isEqualTo(ViewMode.Templates))
       .and(projectService.templateModeProperty().isEqualTo(TemplateMode.TemplateBrowser));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);

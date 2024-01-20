@@ -4,6 +4,7 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.WorkstationGuiFxApplication;
 import io.xj.gui.controllers.fabrication.FabricationSettingsModalController;
+import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.GuideService;
 import io.xj.gui.services.LabService;
@@ -106,7 +107,19 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   protected RadioMenuItem logLevelError;
 
   @FXML
+  protected RadioMenuItem radioViewModeContent;
+
+  @FXML
+  protected RadioMenuItem radioViewModeTemplates;
+
+  @FXML
+  protected RadioMenuItem radioViewModeFabrication;
+
+  @FXML
   ToggleGroup logLevelToggleGroup;
+
+  @FXML
+  ToggleGroup viewModeToggleGroup;
 
   public MainMenuController(
     ConfigurableApplicationContext ac,
@@ -153,11 +166,6 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
     themeService.isDarkThemeProperty().bindBidirectional(checkboxDarkTheme.selectedProperty());
 
-    logLevelToggleGroup = new ToggleGroup();
-    logLevelDebug.setToggleGroup(logLevelToggleGroup);
-    logLevelInfo.setToggleGroup(logLevelToggleGroup);
-    logLevelWarn.setToggleGroup(logLevelToggleGroup);
-    logLevelError.setToggleGroup(logLevelToggleGroup);
     switch (uiStateService.logLevelProperty().getValue()) {
       case DEBUG -> logLevelDebug.setSelected(true);
       case INFO -> logLevelInfo.setSelected(true);
@@ -176,6 +184,22 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     updateLabButtonState(labService.stateProperty().get());
 
     labelLabStatus.textProperty().bind(labService.stateProperty().map(Enum::toString));
+
+    activateViewRadio(projectService.viewModeProperty().get());
+    projectService.viewModeProperty().addListener((o, ov, value) -> activateViewRadio(value));
+    viewModeToggleGroup.selectedToggleProperty().addListener((o, ov, value) -> {
+      if (Objects.equals(value, radioViewModeContent)) {
+        projectService.viewModeProperty().set(ViewMode.Content);
+      } else if (Objects.equals(value, radioViewModeTemplates)) {
+        projectService.viewModeProperty().set(ViewMode.Templates);
+      } else if (Objects.equals(value, radioViewModeFabrication)) {
+        projectService.viewModeProperty().set(ViewMode.Fabrication);
+      }
+    });
+
+    radioViewModeContent.disableProperty().bind(projectService.isStateReadyProperty().not());
+    radioViewModeTemplates.disableProperty().bind(projectService.isStateReadyProperty().not());
+    radioViewModeFabrication.disableProperty().bind(projectService.isStateReadyProperty().not());
   }
 
   @Override
@@ -248,6 +272,35 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   @FXML
   public void handleButtonLabPressed(ActionEvent ignored) {
     mainLabAuthenticationModalController.launchModal();
+  }
+
+  @FXML
+  public void handleViewContent(ActionEvent ignored) {
+    // todo implement handleViewContent
+  }
+
+  @FXML
+  public void handleViewTemplates(ActionEvent ignored) {
+    // todo implement handleViewTemplates
+  }
+
+  @FXML
+  public void handleViewFabrication(ActionEvent ignored) {
+
+  }// todo implement handleViewFabrication
+
+
+  /**
+   Activate the tab corresponding to the given view mode.
+
+   @param value the view mode
+   */
+  private void activateViewRadio(ViewMode value) {
+    switch (value) {
+      case Content -> radioViewModeContent.setSelected(true);
+      case Templates -> radioViewModeTemplates.setSelected(true);
+      case Fabrication -> radioViewModeFabrication.setSelected(true);
+    }
   }
 
   /**

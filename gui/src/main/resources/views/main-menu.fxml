@@ -16,6 +16,7 @@
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ToggleGroup?>
 <AnchorPane
   fx:id="container"
   fx:controller="io.xj.gui.controllers.MainMenuController"
@@ -58,23 +59,45 @@
     </Menu>
 
     <Menu text="_View">
+      <fx:define>
+        <ToggleGroup fx:id="viewModeToggleGroup"/>
+      </fx:define>
+      <RadioMenuItem text="_Content" fx:id="radioViewModeContent" toggleGroup="$viewModeToggleGroup">
+        <accelerator>
+          <KeyCodeCombination alt="UP" code="F4" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+        </accelerator>
+      </RadioMenuItem>
+      <RadioMenuItem text="_Templates" fx:id="radioViewModeTemplates" toggleGroup="$viewModeToggleGroup">
+        <accelerator>
+          <KeyCodeCombination alt="UP" code="F5" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+        </accelerator>
+      </RadioMenuItem>
+      <RadioMenuItem text="_Fabrication" fx:id="radioViewModeFabrication" toggleGroup="$viewModeToggleGroup">
+        <accelerator>
+          <KeyCodeCombination alt="UP" code="F6" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+        </accelerator>
+      </RadioMenuItem>
+      <SeparatorMenuItem mnemonicParsing="false"/>
       <CheckMenuItem fx:id="checkboxDarkTheme" selected="true" text="_Dark Theme"/>
       <SeparatorMenuItem mnemonicParsing="false"/>
       <CheckMenuItem fx:id="checkboxShowLogs" text="Show _Logs">
         <accelerator>
-          <KeyCodeCombination alt="UP" code="F2" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+          <KeyCodeCombination alt="UP" code="F3" control="UP" meta="UP" shift="UP" shortcut="UP"/>
         </accelerator>
       </CheckMenuItem>
       <CheckMenuItem fx:id="checkboxTailLogs" disable="true" selected="true" text="Logs Auto-_scroll">
         <accelerator>
-          <KeyCodeCombination alt="UP" code="F2" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+          <KeyCodeCombination alt="UP" code="F3" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
         </accelerator>
       </CheckMenuItem>
       <Menu text="Log Le_vel">
-        <RadioMenuItem text="_Debug" fx:id="logLevelDebug" onAction="#handleSetLogLevel"/>
-        <RadioMenuItem text="_Info" fx:id="logLevelInfo" onAction="#handleSetLogLevel"/>
-        <RadioMenuItem text="_Warn" fx:id="logLevelWarn" onAction="#handleSetLogLevel"/>
-        <RadioMenuItem text="_Error" fx:id="logLevelError" onAction="#handleSetLogLevel"/>
+        <fx:define>
+          <ToggleGroup fx:id="logLevelToggleGroup"/>
+        </fx:define>
+        <RadioMenuItem text="_Debug" fx:id="logLevelDebug" onAction="#handleSetLogLevel" toggleGroup="$logLevelToggleGroup"/>
+        <RadioMenuItem text="_Info" fx:id="logLevelInfo" onAction="#handleSetLogLevel" toggleGroup="$logLevelToggleGroup"/>
+        <RadioMenuItem text="_Warn" fx:id="logLevelWarn" onAction="#handleSetLogLevel" toggleGroup="$logLevelToggleGroup"/>
+        <RadioMenuItem text="_Error" fx:id="logLevelError" onAction="#handleSetLogLevel" toggleGroup="$logLevelToggleGroup"/>
       </Menu>
     </Menu>
 

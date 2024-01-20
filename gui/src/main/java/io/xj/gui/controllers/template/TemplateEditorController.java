@@ -69,7 +69,7 @@ public class TemplateEditorController implements ReadyAfterBootController {
   @Override
   public void onStageReady() {
     var visible = projectService.isStateReadyProperty()
-      .and(projectService.viewModeProperty().isEqualTo(ViewMode.Template))
+      .and(projectService.viewModeProperty().isEqualTo(ViewMode.Templates))
       .and(projectService.templateModeProperty().isEqualTo(TemplateMode.TemplateEditor));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);

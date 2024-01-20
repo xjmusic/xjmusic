@@ -16,8 +16,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -46,18 +44,6 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
   @FXML
   protected AnchorPane mainTopPaneContainer;
-
-  @FXML
-  protected TabPane mainTabPane;
-
-  @FXML
-  protected Tab tabContent;
-
-  @FXML
-  protected Tab tabTemplates;
-
-  @FXML
-  protected Tab tabFabrication;
 
   @FXML
   protected HBox fabricationControlContainer;
@@ -97,6 +83,8 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 //    mainTopPaneContainer.visibleProperty().bind(projectService.isStateReadyProperty());
 //    mainTopPaneContainer.managedProperty().bind(projectService.isStateReadyProperty());
 
+/*
+todo remove after implemented in main menu
     mainTabPane.getSelectionModel().selectedItemProperty().addListener((o, ov, value) -> {
       if (Objects.equals(value, tabContent)) {
         handlePressedButtonContent();
@@ -106,7 +94,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
         handlePressedButtonFabrication();
       }
     });
-
+*/
     fabricationControlContainer.visibleProperty().bind(projectService.viewModeProperty().isEqualTo(ViewMode.Fabrication));
     fabricationControlContainer.managedProperty().bind(projectService.viewModeProperty().isEqualTo(ViewMode.Fabrication));
 
@@ -119,9 +107,6 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
     buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
 
-    tabContent.disableProperty().bind(projectService.isStateReadyProperty().not());
-    tabTemplates.disableProperty().bind(projectService.isStateReadyProperty().not());
-    tabFabrication.disableProperty().bind(projectService.isStateReadyProperty().not());
 
     labelStatus.textProperty().bind(uiStateService.statusTextProperty());
     labelStatus.visibleProperty().bind(uiStateService.isStatusTextVisibleProperty());
@@ -132,9 +117,6 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
     buttonCancelLoading.visibleProperty().bind(projectService.isStateLoadingProperty());
     buttonCancelLoading.managedProperty().bind(projectService.isStateLoadingProperty());
-
-    projectService.viewModeProperty().addListener((o, ov, value) -> activateTab(value));
-    activateTab(projectService.viewModeProperty().get());
   }
 
   @Override
@@ -148,23 +130,9 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   }
 
   @FXML
-  protected void handlePressedButtonContent() {
-    if (projectService.viewModeProperty().get() == ViewMode.Content) {
-      switch (projectService.contentModeProperty().get()) {
-        case LibraryEditor, InstrumentBrowser, LibraryBrowser, ProgramBrowser ->
-          projectService.contentModeProperty().set(ContentMode.LibraryBrowser);
-        case ProgramEditor -> projectService.contentModeProperty().set(ContentMode.ProgramBrowser);
-        case InstrumentEditor -> projectService.contentModeProperty().set(ContentMode.InstrumentBrowser);
-      }
-    } else {
-      projectService.viewModeProperty().set(ViewMode.Content);
-    }
-  }
-
-  @FXML
   protected void handlePressedButtonTemplate() {
     projectService.templateModeProperty().set(TemplateMode.TemplateBrowser);
-    projectService.viewModeProperty().set(ViewMode.Template);
+    projectService.viewModeProperty().set(ViewMode.Templates);
   }
 
   @FXML
@@ -183,22 +151,9 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   }
 
   /**
-   Activate the tab corresponding to the given view mode.
-
-   @param value the view mode
-   */
-  private void activateTab(ViewMode value) {
-    switch (value) {
-      case Content -> mainTabPane.getSelectionModel().select(tabContent);
-      case Template -> mainTabPane.getSelectionModel().select(tabTemplates);
-      case Fabrication -> mainTabPane.getSelectionModel().select(tabFabrication);
-    }
-  }
-
-  /**
    Handle a change in the fabrication state.
 
-   @param value      the new value
+   @param value the new value
    */
   private void activateFabricationState(FabricationState value) {
     buttonAction.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, Objects.equals(value, FabricationState.Active));
