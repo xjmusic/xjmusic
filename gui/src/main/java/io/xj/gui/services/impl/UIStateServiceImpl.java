@@ -82,7 +82,11 @@ public class UIStateServiceImpl implements UIStateService {
       projectService.stateProperty(),
       projectService.stateTextProperty(),
       fabricationService.stateTextProperty());
-    isStatusTextVisible = projectService.isStateReadyProperty().not().or(projectService.isViewModeFabricationProperty());
+
+    // Status text is only visible in fabrication view or if project is between standby or ready states
+    isStatusTextVisible = projectService.isStateReadyProperty().not()
+      .and(projectService.isStateStandbyProperty().not())
+      .or(projectService.isViewModeFabricationProperty());
 
     progress.addListener((o, ov, value) -> {
       WindowUtils.setTaskbarProgress(value.floatValue());

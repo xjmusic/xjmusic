@@ -14,14 +14,16 @@
   -fx-border-width: 0;
 }
 
-.menu-item:hover, .menu-button:hover {
-  -fx-background-color: #c0c0c0;
+.main-menu-container .button,
+.main-menu-container .toggle-button {
+  -fx-font-size: 0.8em;
+  -fx-border-color: transparent;
+  -fx-border-width: 0;
+  -fx-padding: 2 6 2 6;
 }
 
-#mainMenuButtonLab,
-.main-top-pane-controls .button,
-.main-top-pane-controls .toggle-button {
-  -fx-padding: 2 8 2 8;
+.menu-item:hover, .menu-button:hover {
+  -fx-background-color: #c0c0c0;
 }
 
 .log-viewer {
@@ -161,13 +163,28 @@
 }
 
 /*noinspection CssInvalidPseudoSelector*/
+.button:active:hover {
+  -fx-background-color: rgba(0, 255, 0, 0.62);
+}
+
+/*noinspection CssInvalidPseudoSelector*/
 .button:pending {
   -fx-background-color: rgba(255, 128, 0, 0.38);
 }
 
 /*noinspection CssInvalidPseudoSelector*/
+.button:pending:hover {
+  -fx-background-color: rgba(255, 128, 0, 0.62);
+}
+
+/*noinspection CssInvalidPseudoSelector*/
 .button:failed {
   -fx-background-color: rgba(255, 0, 0, 0.38);
+}
+
+/*noinspection CssInvalidPseudoSelector*/
+.button:failed:hover {
+  -fx-background-color: rgba(255, 0, 0, 0.62);
 }
 
 .demo-title {
@@ -232,15 +249,8 @@
   -fx-background-color: #d0d0d0;
 }
 
-#labelStatus {
-  -fx-padding: 3 0 0 0;
-}
-
 .bold {
   -fx-font-weight: bold;
 }
 
-#mainTabPane .tab {
-  -fx-padding: 0 12 0 12;
-}
 

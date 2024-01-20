@@ -17,18 +17,20 @@
   fx:id="mainTopPaneContainer"
   fx:controller="io.xj.gui.controllers.MainPaneTopController"
   xmlns:fx="http://javafx.com/fxml"
-  xmlns="http://javafx.com/javafx/20.0.1">
+  xmlns="http://javafx.com/javafx/20.0.1"
+  minHeight="32">
 
   <StackPane
     AnchorPane.rightAnchor="0"
     AnchorPane.topAnchor="0"
-    styleClass="main-top-pane-controls">
+    AnchorPane.bottomAnchor="0"
+    alignment="CENTER_RIGHT">
     <HBox
       fx:id="fabricationControlContainer"
       alignment="CENTER_LEFT"
       spacing="6">
       <padding>
-        <Insets top="4" left="9" right="9" bottom="4"/>
+        <Insets top="4" left="9" right="9" bottom="3"/>
       </padding>
       <Button fx:id="buttonAction" mnemonicParsing="false" onAction="#handleButtonActionPress" text="Action">
         <font>
@@ -47,11 +49,11 @@
   <StackPane
     AnchorPane.leftAnchor="0"
     AnchorPane.topAnchor="0"
-    styleClass="main-top-pane-controls">
-    <HBox
-      alignment="CENTER">
+    AnchorPane.bottomAnchor="0"
+    alignment="CENTER_LEFT">
+    <HBox alignment="CENTER_LEFT">
       <padding>
-        <Insets top="5" left="9" right="9"/>
+        <Insets top="4" left="9" right="9" bottom="3"/>
       </padding>
       <HBox.hgrow>
         <Priority fx:constant="ALWAYS"/>
@@ -71,8 +73,7 @@
           </font>
         </Button>
 
-        <HBox
-          alignment="CENTER_LEFT" spacing="10">
+        <HBox alignment="CENTER_LEFT" spacing="10">
           <ProgressBar fx:id="progressBar" prefWidth="100" progress="0.0"/>
           <Label fx:id="labelStatus" prefWidth="180" text="Initializing"/>
         </HBox>

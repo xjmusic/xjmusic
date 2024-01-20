@@ -17,6 +17,9 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <AnchorPane
   fx:id="container"
   fx:controller="io.xj.gui.controllers.MainMenuController"
@@ -28,6 +31,39 @@
   AnchorPane.bottomAnchor="0"
   AnchorPane.leftAnchor="0"
   styleClass="main-menu-container">
+
+  <StackPane
+    fx:id="viewModeToggleContainer"
+    AnchorPane.topAnchor="0"
+    AnchorPane.bottomAnchor="0"
+    translateX="300">
+    <HBox alignment="CENTER">
+      <fx:define>
+        <ToggleGroup fx:id="buttonViewModeToggleGroup"/>
+      </fx:define>
+      <ToggleButton text="CONTENT" fx:id="buttonViewModeContent" toggleGroup="$buttonViewModeToggleGroup">
+        <graphic>
+          <ImageView fitWidth="20" fitHeight="20">
+            <Image url="@/icons/menu-content.png"/>
+          </ImageView>
+        </graphic>
+      </ToggleButton>
+      <ToggleButton text="TEMPLATES" fx:id="buttonViewModeTemplates" toggleGroup="$buttonViewModeToggleGroup">
+        <graphic>
+          <ImageView fitWidth="20" fitHeight="20">
+            <Image url="@/icons/menu-templates.png"/>
+          </ImageView>
+        </graphic>
+      </ToggleButton>
+      <ToggleButton text="FABRICATION" fx:id="buttonViewModeFabrication" toggleGroup="$buttonViewModeToggleGroup">
+        <graphic>
+          <ImageView fitWidth="20" fitHeight="20">
+            <Image url="@/icons/menu-fabrication.png"/>
+          </ImageView>
+        </graphic>
+      </ToggleButton>
+    </HBox>
+  </StackPane>
 
   <MenuBar
     VBox.vgrow="NEVER">
@@ -60,21 +96,21 @@
 
     <Menu text="_View">
       <fx:define>
-        <ToggleGroup fx:id="viewModeToggleGroup"/>
+        <ToggleGroup fx:id="menuViewModeToggleGroup"/>
       </fx:define>
-      <RadioMenuItem text="_Content" fx:id="radioViewModeContent" toggleGroup="$viewModeToggleGroup">
+      <RadioMenuItem text="_Content" fx:id="menuViewModeContent" toggleGroup="$menuViewModeToggleGroup">
+        <accelerator>
+          <KeyCodeCombination alt="UP" code="F3" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+        </accelerator>
+      </RadioMenuItem>
+      <RadioMenuItem text="_Templates" fx:id="menuViewModeTemplates" toggleGroup="$menuViewModeToggleGroup">
         <accelerator>
           <KeyCodeCombination alt="UP" code="F4" control="UP" meta="UP" shift="UP" shortcut="UP"/>
         </accelerator>
       </RadioMenuItem>
-      <RadioMenuItem text="_Templates" fx:id="radioViewModeTemplates" toggleGroup="$viewModeToggleGroup">
+      <RadioMenuItem text="_Fabrication" fx:id="menuViewModeFabrication" toggleGroup="$menuViewModeToggleGroup">
         <accelerator>
           <KeyCodeCombination alt="UP" code="F5" control="UP" meta="UP" shift="UP" shortcut="UP"/>
-        </accelerator>
-      </RadioMenuItem>
-      <RadioMenuItem text="_Fabrication" fx:id="radioViewModeFabrication" toggleGroup="$viewModeToggleGroup">
-        <accelerator>
-          <KeyCodeCombination alt="UP" code="F6" control="UP" meta="UP" shift="UP" shortcut="UP"/>
         </accelerator>
       </RadioMenuItem>
       <SeparatorMenuItem mnemonicParsing="false"/>
@@ -82,22 +118,26 @@
       <SeparatorMenuItem mnemonicParsing="false"/>
       <CheckMenuItem fx:id="checkboxShowLogs" text="Show _Logs">
         <accelerator>
-          <KeyCodeCombination alt="UP" code="F3" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+          <KeyCodeCombination alt="UP" code="F10" control="UP" meta="UP" shift="UP" shortcut="UP"/>
         </accelerator>
       </CheckMenuItem>
       <CheckMenuItem fx:id="checkboxTailLogs" disable="true" selected="true" text="Logs Auto-_scroll">
         <accelerator>
-          <KeyCodeCombination alt="UP" code="F3" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+          <KeyCodeCombination alt="UP" code="F10" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
         </accelerator>
       </CheckMenuItem>
       <Menu text="Log Le_vel">
         <fx:define>
           <ToggleGroup fx:id="logLevelToggleGroup"/>
         </fx:define>
-        <RadioMenuItem text="_Debug" fx:id="logLevelDebug" onAction="#handleSetLogLevel" toggleGroup="$logLevelToggleGroup"/>
-        <RadioMenuItem text="_Info" fx:id="logLevelInfo" onAction="#handleSetLogLevel" toggleGroup="$logLevelToggleGroup"/>
-        <RadioMenuItem text="_Warn" fx:id="logLevelWarn" onAction="#handleSetLogLevel" toggleGroup="$logLevelToggleGroup"/>
-        <RadioMenuItem text="_Error" fx:id="logLevelError" onAction="#handleSetLogLevel" toggleGroup="$logLevelToggleGroup"/>
+        <RadioMenuItem text="_Debug" fx:id="logLevelDebug" onAction="#handleSetLogLevel"
+                       toggleGroup="$logLevelToggleGroup"/>
+        <RadioMenuItem text="_Info" fx:id="logLevelInfo" onAction="#handleSetLogLevel"
+                       toggleGroup="$logLevelToggleGroup"/>
+        <RadioMenuItem text="_Warn" fx:id="logLevelWarn" onAction="#handleSetLogLevel"
+                       toggleGroup="$logLevelToggleGroup"/>
+        <RadioMenuItem text="_Error" fx:id="logLevelError" onAction="#handleSetLogLevel"
+                       toggleGroup="$logLevelToggleGroup"/>
       </Menu>
     </Menu>
 
@@ -110,10 +150,11 @@
   </MenuBar>
 
   <StackPane
-    AnchorPane.topAnchor="3"
-    AnchorPane.rightAnchor="10">
-    <HBox alignment="CENTER_RIGHT" spacing="10"
-          xmlns:fx="http://javafx.com/fxml">
+    AnchorPane.topAnchor="0"
+    AnchorPane.rightAnchor="10"
+    AnchorPane.bottomAnchor="0"
+    alignment="CENTER_RIGHT">
+    <HBox alignment="CENTER_RIGHT" spacing="10">
       <HBox.hgrow>
         <Priority fx:constant="ALWAYS"/>
       </HBox.hgrow>
@@ -122,7 +163,7 @@
       <Label fx:id="labelLabStatus" text="Initializing"/>
 
       <!-- Lab Button -->
-      <Button fx:id="mainMenuButtonLab" onAction="#handleButtonLabPressed" text="Lab"/>
+      <Button fx:id="mainMenuButtonLab" onAction="#handleButtonLabPressed" text="LAB"/>
 
     </HBox>
   </StackPane>

@@ -9,6 +9,7 @@ import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.utils.WindowUtils;
 import io.xj.nexus.work.FabricationState;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -20,6 +21,8 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -31,6 +34,7 @@ import static io.xj.gui.services.UIStateService.PENDING_PSEUDO_CLASS;
 
 @Service
 public class MainPaneTopController extends VBox implements ReadyAfterBootController {
+  Logger LOG = LoggerFactory.getLogger(MainPaneTopController.class);
   private static final Set<FabricationState> WORK_PENDING_STATES = Set.of(
     FabricationState.Initializing,
     FabricationState.PreparedAudio,
@@ -80,21 +84,6 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
   @Override
   public void onStageReady() {
-//    mainTopPaneContainer.visibleProperty().bind(projectService.isStateReadyProperty());
-//    mainTopPaneContainer.managedProperty().bind(projectService.isStateReadyProperty());
-
-/*
-todo remove after implemented in main menu
-    mainTabPane.getSelectionModel().selectedItemProperty().addListener((o, ov, value) -> {
-      if (Objects.equals(value, tabContent)) {
-        handlePressedButtonContent();
-      } else if (Objects.equals(value, tabTemplates)) {
-        handlePressedButtonTemplate();
-      } else if (Objects.equals(value, tabFabrication)) {
-        handlePressedButtonFabrication();
-      }
-    });
-*/
     fabricationControlContainer.visibleProperty().bind(projectService.viewModeProperty().isEqualTo(ViewMode.Fabrication));
     fabricationControlContainer.managedProperty().bind(projectService.viewModeProperty().isEqualTo(ViewMode.Fabrication));
 

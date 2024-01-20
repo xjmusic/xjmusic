@@ -25,9 +25,12 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 
@@ -41,22 +44,22 @@ import static io.xj.gui.services.UIStateService.PENDING_PSEUDO_CLASS;
 
 @Service
 public class MainMenuController extends MenuBar implements ReadyAfterBootController {
-  final static String DEBUG = "DEBUG";
-  final static String INFO = "INFO";
-  final static String WARN = "WARN";
-  final static String ERROR = "ERROR";
-  final ConfigurableApplicationContext ac;
-  final FabricationService fabricationService;
-  final ThemeService themeService;
-  final GuideService guideService;
-  final UIStateService uiStateService;
-  final LabService labService;
+  private final static String DEBUG = "DEBUG";
+  private final static String INFO = "INFO";
+  private final static String WARN = "WARN";
+  private final static String ERROR = "ERROR";
+  private final ConfigurableApplicationContext ac;
+  private final FabricationService fabricationService;
+  private final ThemeService themeService;
+  private final GuideService guideService;
+  private final UIStateService uiStateService;
+  private final LabService labService;
   private final ProjectCreationModalController projectCreationModalController;
   private final ProjectService projectService;
-  final UIStateService guiService;
-  final FabricationSettingsModalController fabricationSettingsModalController;
-  final MainAboutModalController mainAboutModalController;
-  final MainLabAuthenticationModalController mainLabAuthenticationModalController;
+  private final UIStateService guiService;
+  private final FabricationSettingsModalController fabricationSettingsModalController;
+  private final MainAboutModalController mainAboutModalController;
+  private final MainLabAuthenticationModalController mainLabAuthenticationModalController;
 
   @FXML
   protected AnchorPane container;
@@ -107,19 +110,28 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   protected RadioMenuItem logLevelError;
 
   @FXML
-  protected RadioMenuItem radioViewModeContent;
+  ToggleGroup menuViewModeToggleGroup;
+  @FXML
+  protected RadioMenuItem menuViewModeContent;
+  @FXML
+  protected RadioMenuItem menuViewModeTemplates;
+  @FXML
+  protected RadioMenuItem menuViewModeFabrication;
 
   @FXML
-  protected RadioMenuItem radioViewModeTemplates;
-
+  StackPane viewModeToggleContainer;
   @FXML
-  protected RadioMenuItem radioViewModeFabrication;
+  ToggleGroup buttonViewModeToggleGroup;
+  @FXML
+  protected ToggleButton buttonViewModeContent;
+  @FXML
+  protected ToggleButton buttonViewModeTemplates;
+  @FXML
+  protected ToggleButton buttonViewModeFabrication;
 
   @FXML
   ToggleGroup logLevelToggleGroup;
 
-  @FXML
-  ToggleGroup viewModeToggleGroup;
 
   public MainMenuController(
     ConfigurableApplicationContext ac,
@@ -185,21 +197,17 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
     labelLabStatus.textProperty().bind(labService.stateProperty().map(Enum::toString));
 
-    activateViewRadio(projectService.viewModeProperty().get());
-    projectService.viewModeProperty().addListener((o, ov, value) -> activateViewRadio(value));
-    viewModeToggleGroup.selectedToggleProperty().addListener((o, ov, value) -> {
-      if (Objects.equals(value, radioViewModeContent)) {
-        projectService.viewModeProperty().set(ViewMode.Content);
-      } else if (Objects.equals(value, radioViewModeTemplates)) {
-        projectService.viewModeProperty().set(ViewMode.Templates);
-      } else if (Objects.equals(value, radioViewModeFabrication)) {
-        projectService.viewModeProperty().set(ViewMode.Fabrication);
-      }
-    });
+    setupViewModeToggle(menuViewModeToggleGroup, menuViewModeContent, menuViewModeTemplates, menuViewModeFabrication);
+    menuViewModeContent.disableProperty().bind(projectService.isStateReadyProperty().not());
+    menuViewModeTemplates.disableProperty().bind(projectService.isStateReadyProperty().not());
+    menuViewModeFabrication.disableProperty().bind(projectService.isStateReadyProperty().not());
 
-    radioViewModeContent.disableProperty().bind(projectService.isStateReadyProperty().not());
-    radioViewModeTemplates.disableProperty().bind(projectService.isStateReadyProperty().not());
-    radioViewModeFabrication.disableProperty().bind(projectService.isStateReadyProperty().not());
+    setupViewModeToggle(buttonViewModeToggleGroup, buttonViewModeContent, buttonViewModeTemplates, buttonViewModeFabrication);
+    buttonViewModeContent.disableProperty().bind(projectService.isStateReadyProperty().not());
+    buttonViewModeTemplates.disableProperty().bind(projectService.isStateReadyProperty().not());
+    buttonViewModeFabrication.disableProperty().bind(projectService.isStateReadyProperty().not());
+
+    viewModeToggleContainer.translateXProperty().bind(container.widthProperty().subtract(viewModeToggleContainer.widthProperty()).divide(2));
   }
 
   @Override
@@ -274,32 +282,46 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     mainLabAuthenticationModalController.launchModal();
   }
 
-  @FXML
-  public void handleViewContent(ActionEvent ignored) {
-    // todo implement handleViewContent
+  /**
+   Set up the view mode toggle.
+
+   @param toggleGroup       the toggle group
+   @param toggleContent     the content toggle
+   @param toggleTemplates   the templates toggle
+   @param toggleFabrication the fabrication toggle
+   */
+  private void setupViewModeToggle(
+    ToggleGroup toggleGroup,
+    Toggle toggleContent,
+    Toggle toggleTemplates,
+    Toggle toggleFabrication
+  ) {
+    activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, projectService.viewModeProperty().getValue());
+    projectService.viewModeProperty().addListener((o, ov, value) -> activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, value));
+    toggleGroup.selectedToggleProperty().addListener((o, ov, value) -> {
+      if (Objects.equals(value, toggleContent)) {
+        projectService.viewModeProperty().set(ViewMode.Content);
+      } else if (Objects.equals(value, toggleTemplates)) {
+        projectService.viewModeProperty().set(ViewMode.Templates);
+      } else if (Objects.equals(value, toggleFabrication)) {
+        projectService.viewModeProperty().set(ViewMode.Fabrication);
+      }
+    });
   }
-
-  @FXML
-  public void handleViewTemplates(ActionEvent ignored) {
-    // todo implement handleViewTemplates
-  }
-
-  @FXML
-  public void handleViewFabrication(ActionEvent ignored) {
-
-  }// todo implement handleViewFabrication
-
 
   /**
-   Activate the tab corresponding to the given view mode.
+   Activate the toggle in a group corresponding to the given view mode
 
-   @param value the view mode
+   @param toggleContent     the content toggle
+   @param toggleTemplates   the templates toggle
+   @param toggleFabrication the fabrication toggle
+   @param value             the view mode
    */
-  private void activateViewRadio(ViewMode value) {
+  private void activateViewModeToggle(Toggle toggleContent, Toggle toggleTemplates, Toggle toggleFabrication, ViewMode value) {
     switch (value) {
-      case Content -> radioViewModeContent.setSelected(true);
-      case Templates -> radioViewModeTemplates.setSelected(true);
-      case Fabrication -> radioViewModeFabrication.setSelected(true);
+      case Content -> toggleContent.setSelected(true);
+      case Templates -> toggleTemplates.setSelected(true);
+      case Fabrication -> toggleFabrication.setSelected(true);
     }
   }
 
@@ -315,7 +337,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   }
 
   /**
-   Update the recent projects menu.
+   Update the recent project menu.
    */
   private void updateRecentProjectsMenu() {
     menuOpenRecent.getItems().clear();
