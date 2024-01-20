@@ -49,7 +49,8 @@
       AnchorPane.bottomAnchor="0"
       AnchorPane.leftAnchor="0"
       maxHeight="Infinity"
-      maxWidth="Infinity">
+      maxWidth="Infinity"
+      nodeOrientation="RIGHT_TO_LEFT">
 
       <VBox.vgrow>
         <Priority fx:constant="ALWAYS"/>
@@ -59,7 +60,8 @@
         <TableView
           fx:id="programsTable"
           xmlns="http://javafx.com/javafx"
-          xmlns:fx="http://javafx.com/fxml">
+          xmlns:fx="http://javafx.com/fxml"
+          nodeOrientation="LEFT_TO_RIGHT">
           <VBox.vgrow>
             <Priority fx:constant="ALWAYS"/>
           </VBox.vgrow>
@@ -73,7 +75,8 @@
         <TableView
           fx:id="instrumentsTable"
           xmlns="http://javafx.com/javafx"
-          xmlns:fx="http://javafx.com/fxml">
+          xmlns:fx="http://javafx.com/fxml"
+          nodeOrientation="LEFT_TO_RIGHT">
           <VBox.vgrow>
             <Priority fx:constant="ALWAYS"/>
           </VBox.vgrow>
@@ -83,12 +86,14 @@
         </TableView>
       </Tab>
     </TabPane>
+
     <StackPane
       AnchorPane.topAnchor="3"
-      AnchorPane.rightAnchor="10"
+      AnchorPane.leftAnchor="10"
       prefHeight="30">
       <Label textAlignment="RIGHT" fx:id="libraryTitle" styleClass="bold"/>
     </StackPane>
+
   </AnchorPane>
 
 </StackPane>

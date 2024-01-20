@@ -219,10 +219,6 @@
   -fx-font-weight: bold;
 }
 
-.tab-pane .tab-header-area .tab-header-background {
-  -fx-effect: null;
-}
-
 .back-bar {
   -fx-padding: 3 0 3 5;
 }
