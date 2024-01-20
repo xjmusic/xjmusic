@@ -4,11 +4,14 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.text.Font?>
@@ -27,23 +30,22 @@
     AnchorPane.bottomAnchor="0"
     maxHeight="Infinity"
     maxWidth="Infinity"
-    nodeOrientation="RIGHT_TO_LEFT">
+    nodeOrientation="LEFT_TO_RIGHT">
     <padding>
       <Insets top="2"/>
     </padding>
-    <Tab text="Fabrication"
-         fx:id="tabFabrication"/>
-    <Tab text="Templates"
-         fx:id="tabTemplates"/>
     <Tab text="Content"
          fx:id="tabContent"/>
+    <Tab text="Templates"
+         fx:id="tabTemplates"/>
+    <Tab text="Fabrication"
+         fx:id="tabFabrication"/>
   </TabPane>
 
   <StackPane
-    AnchorPane.leftAnchor="0"
+    AnchorPane.rightAnchor="0"
     AnchorPane.topAnchor="0"
     styleClass="main-top-pane-controls">
-
     <HBox
       fx:id="fabricationControlContainer"
       alignment="CENTER_LEFT"
@@ -63,49 +65,46 @@
         </graphic>
       </Button>
     </HBox>
+  </StackPane>
 
-    <!--
+  <StackPane
+    AnchorPane.leftAnchor="300"
+    AnchorPane.topAnchor="0"
+    styleClass="main-top-pane-controls">
+    <HBox
+      styleClass="top-pane-status-container"
+      alignment="CENTER">
+      <padding>
+        <Insets top="6" left="9" right="9" bottom="6"/>
+      </padding>
+      <HBox.hgrow>
+        <Priority fx:constant="ALWAYS"/>
+      </HBox.hgrow>
+
+      <HBox alignment="CENTER_LEFT" spacing="10">
+        <HBox.hgrow>
+          <Priority fx:constant="ALWAYS"/>
+        </HBox.hgrow>
+
+        <Button fx:id="buttonCancelLoading"
+                mnemonicParsing="false"
+                onAction="#handlePressedCancelLoading"
+                text="Cancel">
+          <font>
+            <Font name="Roboto"/>
+          </font>
+        </Button>
+
         <HBox
-          styleClass="top-pane-status-container"
-          alignment="CENTER">
-          <padding>
-            <Insets top="6" left="9" right="9" bottom="6"/>
-          </padding>
-          <HBox.hgrow>
-            <Priority fx:constant="ALWAYS"/>
-          </HBox.hgrow>
-
-          <HBox alignment="CENTER_LEFT" spacing="10"
-                xmlns:fx="http://javafx.com/fxml">
-            <HBox.hgrow>
-              <Priority fx:constant="ALWAYS"/>
-            </HBox.hgrow>
-
-            <fx:define>
-              <ToggleGroup fx:id="viewMode"/>
-            </fx:define>
-
-            <Button fx:id="buttonCancelLoading"
-                    mnemonicParsing="false"
-                    onAction="#handlePressedCancelLoading"
-                    text="Cancel">
-              <font>
-                <Font name="Roboto"/>
-              </font>
-            </Button>
-
-            <HBox
-              alignment="CENTER_LEFT" spacing="10"
-              xmlns:fx="http://javafx.com/fxml">
-              <ProgressBar fx:id="progressBar" prefWidth="100" progress="0.0"/>
-              <Label fx:id="labelStatus" prefWidth="180" text="Initializing"/>
-            </HBox>
-
-          </HBox>
-
+          alignment="CENTER_LEFT" spacing="10">
+          <ProgressBar fx:id="progressBar" prefWidth="100" progress="0.0"/>
+          <Label fx:id="labelStatus" prefWidth="180" text="Initializing"/>
         </HBox>
 
-    -->
+      </HBox>
+
+    </HBox>
+
   </StackPane>
 
 </AnchorPane>

@@ -119,7 +119,6 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
     buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
 
-/*
     labelStatus.textProperty().bind(uiStateService.statusTextProperty());
     progressBar.progressProperty().bind(uiStateService.progressProperty());
     progressBar.visibleProperty().bind(uiStateService.isProgressBarVisibleProperty());
@@ -127,7 +126,6 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
     buttonCancelLoading.visibleProperty().bind(projectService.isStateLoadingProperty());
     buttonCancelLoading.managedProperty().bind(projectService.isStateLoadingProperty());
-*/
 
     projectService.viewModeProperty().addListener((o, ov, value) -> activateTab(value));
     activateTab(projectService.viewModeProperty().get());
