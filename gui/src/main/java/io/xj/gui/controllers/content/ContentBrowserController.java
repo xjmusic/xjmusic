@@ -156,7 +156,10 @@ public class ContentBrowserController extends BrowserController implements Ready
     setupData(
       programsTable,
       programs,
-      program -> LOG.debug("Did select Program \"{}\"", program.getName()),
+      program -> {
+        if (Objects.nonNull(program))
+          LOG.debug("Did select Program \"{}\"", program.getName());
+      },
       program -> programEditorController.editProgram(program.getId())
     );
     projectService.addProjectUpdateListener(ProjectUpdate.Programs, this::updatePrograms);
@@ -183,7 +186,10 @@ public class ContentBrowserController extends BrowserController implements Ready
     setupData(
       instrumentsTable,
       instruments,
-      instrument -> LOG.debug("Did select Instrument \"{}\"", instrument.getName()),
+      instrument -> {
+        if (Objects.nonNull(instrument))
+          LOG.debug("Did select Instrument \"{}\"", instrument.getName());
+      },
       instrument -> instrumentEditorController.editInstrument(instrument.getId())
     );
     projectService.addProjectUpdateListener(ProjectUpdate.Instruments, this::updateInstruments);

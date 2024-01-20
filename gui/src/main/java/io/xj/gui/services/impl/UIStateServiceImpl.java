@@ -85,6 +85,7 @@ public class UIStateServiceImpl implements UIStateService {
       projectService.stateTextProperty(),
       fabricationService.stateTextProperty());
 
+
     progress.addListener((o, ov, value) -> {
       WindowUtils.setTaskbarProgress(value.floatValue());
     });

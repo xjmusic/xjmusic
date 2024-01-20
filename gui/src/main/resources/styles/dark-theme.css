@@ -84,10 +84,6 @@
   -fx-table-cell-border-color: transparent;
 }
 
-.top-pane-status-container {
-  -fx-background-color: #494949;
-}
-
 .log-viewer .list-cell {
   -fx-background-color: #191919;
 }

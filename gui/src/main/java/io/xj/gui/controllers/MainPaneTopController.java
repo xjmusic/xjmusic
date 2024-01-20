@@ -94,8 +94,8 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
   @Override
   public void onStageReady() {
-    mainTopPaneContainer.visibleProperty().bind(projectService.isStateReadyProperty());
-    mainTopPaneContainer.managedProperty().bind(projectService.isStateReadyProperty());
+//    mainTopPaneContainer.visibleProperty().bind(projectService.isStateReadyProperty());
+//    mainTopPaneContainer.managedProperty().bind(projectService.isStateReadyProperty());
 
     mainTabPane.getSelectionModel().selectedItemProperty().addListener((o, ov, value) -> {
       if (Objects.equals(value, tabContent)) {
@@ -119,7 +119,13 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
     buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
 
+    tabContent.disableProperty().bind(projectService.isStateReadyProperty().not());
+    tabTemplates.disableProperty().bind(projectService.isStateReadyProperty().not());
+    tabFabrication.disableProperty().bind(projectService.isStateReadyProperty().not());
+
     labelStatus.textProperty().bind(uiStateService.statusTextProperty());
+    labelStatus.visibleProperty().bind(uiStateService.isStatusTextVisibleProperty());
+
     progressBar.progressProperty().bind(uiStateService.progressProperty());
     progressBar.visibleProperty().bind(uiStateService.isProgressBarVisibleProperty());
     progressBar.managedProperty().bind(uiStateService.isProgressBarVisibleProperty());

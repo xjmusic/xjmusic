@@ -20,7 +20,7 @@
 
 #mainMenuButtonLab,
 .main-top-pane-controls .button,
-.main-top-pane-controls .toggle-button{
+.main-top-pane-controls .toggle-button {
   -fx-padding: 2 8 2 8;
 }
 
@@ -48,10 +48,6 @@
 
 .log-viewer .list-cell.error {
   -fx-text-fill: red;
-}
-
-.top-pane-status-container {
-  -fx-background-color: #c9c9c9;
 }
 
 .main-timeline,
@@ -234,6 +230,10 @@
 .back-bar,
 .tab-pane .tab-header-area .tab-header-background {
   -fx-background-color: #d0d0d0;
+}
+
+#labelStatus {
+  -fx-padding: 3 0 0 0;
 }
 
 .bold {

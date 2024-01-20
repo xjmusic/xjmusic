@@ -147,8 +147,8 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void openProject(String projectFilePath) {
+    closeProject();
     executeInBackground("Open Project", () -> {
-      closeProject();
       if (projectManager.openProjectFromLocalFile(projectFilePath)) {
         projectManager.getProject().ifPresent(project ->
           addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile()));
@@ -160,9 +160,9 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void createProject(String parentPathPrefix, String projectName) {
+    closeProject();
     if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName)) return;
     executeInBackground("Create Project", () -> {
-      closeProject();
       if (projectManager.createProject(parentPathPrefix, projectName)) {
         projectManager.getProject().ifPresent(project ->
           addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile()));
@@ -324,9 +324,9 @@ public class ProjectServiceImpl implements ProjectService {
    */
   private void cloneProject(String parentPathPrefix, String projectName, Callable<Boolean> clone) {
     if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName)) return;
+    closeProject();
     executeInBackground("Clone Project", () -> {
       try {
-        closeProject();
         if (clone.call()) {
           projectManager.getProject().ifPresent(project ->
             addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile()));

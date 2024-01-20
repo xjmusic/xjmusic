@@ -72,10 +72,9 @@
     AnchorPane.topAnchor="0"
     styleClass="main-top-pane-controls">
     <HBox
-      styleClass="top-pane-status-container"
       alignment="CENTER">
       <padding>
-        <Insets top="6" left="9" right="9" bottom="6"/>
+        <Insets top="5" left="9" right="9"/>
       </padding>
       <HBox.hgrow>
         <Priority fx:constant="ALWAYS"/>
