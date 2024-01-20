@@ -16,9 +16,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableBooleanValue;
-import javafx.beans.value.ObservableDoubleValue;
-import javafx.beans.value.ObservableStringValue;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -36,6 +33,7 @@ public class UIStateServiceImpl implements UIStateService {
   private final DoubleBinding progress;
   private final StringBinding statusText;
   private final StringProperty logLevel = new SimpleStringProperty(WorkstationLogAppender.LEVEL.get().toString());
+  private final BooleanBinding isStatusTextVisible;
 
   public UIStateServiceImpl(
     FabricationService fabricationService,
@@ -84,7 +82,7 @@ public class UIStateServiceImpl implements UIStateService {
       projectService.stateProperty(),
       projectService.stateTextProperty(),
       fabricationService.stateTextProperty());
-
+    isStatusTextVisible = projectService.isStateReadyProperty().not().or(projectService.isViewModeFabricationProperty());
 
     progress.addListener((o, ov, value) -> {
       WindowUtils.setTaskbarProgress(value.floatValue());
@@ -154,5 +152,10 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public BooleanBinding isMainActionButtonDisabledProperty() {
     return isMainActionButtonDisabled;
+  }
+
+  @Override
+  public BooleanBinding isStatusTextVisibleProperty() {
+    return isStatusTextVisible;
   }
 }

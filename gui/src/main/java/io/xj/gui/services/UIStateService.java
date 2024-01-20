@@ -84,4 +84,9 @@ public interface UIStateService extends ReadyAfterBootController {
    @return Observable property of whether the main action button should appear disabled
    */
   BooleanBinding isMainActionButtonDisabledProperty();
+
+  /**
+   @return Observable property of whether the status text should be visible
+   */
+  BooleanBinding isStatusTextVisibleProperty();
 }

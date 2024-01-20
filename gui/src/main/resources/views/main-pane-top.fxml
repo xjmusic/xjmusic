@@ -68,7 +68,7 @@
   </StackPane>
 
   <StackPane
-    AnchorPane.leftAnchor="300"
+    AnchorPane.leftAnchor="240"
     AnchorPane.topAnchor="0"
     styleClass="main-top-pane-controls">
     <HBox
