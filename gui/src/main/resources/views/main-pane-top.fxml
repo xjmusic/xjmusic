@@ -106,17 +106,4 @@
 
   </HBox>
 
-  <HBox alignment="CENTER_RIGHT" spacing="10"
-        xmlns:fx="http://javafx.com/fxml">
-    <HBox.hgrow>
-      <Priority fx:constant="ALWAYS"/>
-    </HBox.hgrow>
-
-    <!-- Lab Connection Status Text -->
-    <Label fx:id="labelLabStatus" text="Initializing"/>
-
-    <!-- Lab Button -->
-    <Button fx:id="buttonLab" onAction="#handleButtonLabPressed" text="Lab"/>
-
-  </HBox>
 </HBox>

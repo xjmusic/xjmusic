@@ -7,6 +7,7 @@ import io.xj.gui.controllers.fabrication.FabricationSettingsModalController;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.GuideService;
 import io.xj.gui.services.LabService;
+import io.xj.gui.services.LabState;
 import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
@@ -16,17 +17,26 @@ import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.AnchorPane;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+
+import static io.xj.gui.services.UIStateService.ACTIVE_PSEUDO_CLASS;
+import static io.xj.gui.services.UIStateService.FAILED_PSEUDO_CLASS;
+import static io.xj.gui.services.UIStateService.LAB_FAILED_STATES;
+import static io.xj.gui.services.UIStateService.LAB_PENDING_STATES;
+import static io.xj.gui.services.UIStateService.PENDING_PSEUDO_CLASS;
 
 @Service
 public class MainMenuController extends MenuBar implements ReadyAfterBootController {
@@ -48,7 +58,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   final MainLabAuthenticationModalController mainLabAuthenticationModalController;
 
   @FXML
-  protected MenuBar container;
+  protected AnchorPane container;
 
   @FXML
   protected MenuItem itemProjectClose;
@@ -78,16 +88,22 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   protected CheckMenuItem checkboxTailLogs;
 
   @FXML
-  RadioMenuItem logLevelDebug;
+  protected Button buttonLab;
 
   @FXML
-  RadioMenuItem logLevelInfo;
+  protected Label labelLabStatus;
 
   @FXML
-  RadioMenuItem logLevelWarn;
+  protected RadioMenuItem logLevelDebug;
 
   @FXML
-  RadioMenuItem logLevelError;
+  protected RadioMenuItem logLevelInfo;
+
+  @FXML
+  protected RadioMenuItem logLevelWarn;
+
+  @FXML
+  protected RadioMenuItem logLevelError;
 
   @FXML
   ToggleGroup logLevelToggleGroup;
@@ -155,6 +171,14 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
     projectService.recentProjectsProperty().addListener((ChangeListener<? super ObservableList<ProjectDescriptor>>) (o, ov, value) -> updateRecentProjectsMenu());
     updateRecentProjectsMenu();
+
+    labService.stateProperty().addListener((o, ov, value) -> {
+      buttonLab.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, Objects.equals(value, LabState.Authenticated));
+      buttonLab.pseudoClassStateChanged(FAILED_PSEUDO_CLASS, LAB_FAILED_STATES.contains(value));
+      buttonLab.pseudoClassStateChanged(PENDING_PSEUDO_CLASS, LAB_PENDING_STATES.contains(value));
+    });
+
+    labelLabStatus.textProperty().bind(labService.stateProperty().map(Enum::toString));
   }
 
   @Override
@@ -209,17 +233,6 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     projectService.saveProject();
   }
 
-
-  @FXML
-  protected void handleLabAuthentication() {
-    mainLabAuthenticationModalController.launchModal();
-  }
-
-  @FXML
-  protected void handleLabOpenInBrowser() {
-    labService.launchInBrowser();
-  }
-
   @FXML
   protected void handleOpenFabricationSettings() {
     fabricationSettingsModalController.launchModal();
@@ -233,6 +246,15 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   @FXML
   public void handleSetLogLevel(ActionEvent ignored) {
     uiStateService.logLevelProperty().set(((RadioMenuItem) logLevelToggleGroup.getSelectedToggle()).getText());
+  }
+
+  @FXML
+  public void handleButtonLabPressed(ActionEvent ignored) {
+    if (labService.isAuthenticated().get()) {
+      labService.launchInBrowser();
+    } else {
+      mainLabAuthenticationModalController.launchModal();
+    }
   }
 
   /**

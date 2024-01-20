@@ -6,6 +6,9 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
+import javafx.css.PseudoClass;
+
+import java.util.Set;
 
 /**
  This is an intermediary to compute the state of the UI based on the state of the application.
@@ -15,6 +18,17 @@ import javafx.beans.property.StringProperty;
  The GUI should use this service to determine some common states, e.g. "Should the fabrication settings appear disabled?"
  */
 public interface UIStateService extends ReadyAfterBootController {
+  PseudoClass ACTIVE_PSEUDO_CLASS = PseudoClass.getPseudoClass("active");
+  PseudoClass PENDING_PSEUDO_CLASS = PseudoClass.getPseudoClass("pending");
+  PseudoClass FAILED_PSEUDO_CLASS = PseudoClass.getPseudoClass("failed");
+  Set<LabState> LAB_PENDING_STATES = Set.of(
+    LabState.Connecting,
+    LabState.Configuring
+  );
+  Set<LabState> LAB_FAILED_STATES = Set.of(
+    LabState.Unauthorized,
+    LabState.Failed
+  );
 
   /**
    @return Observable property of whether the logs should be tailing

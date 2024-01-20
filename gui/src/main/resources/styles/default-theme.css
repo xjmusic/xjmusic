@@ -8,7 +8,7 @@
   -fx-font-family: 'Roboto';
 }
 
-.menu, .menu-bar, .menu, .menu-item, .menu-button, .context-menu {
+.menu, .menu-bar, .menu, .menu-item, .menu-button, .context-menu, .main-menu-container {
   -fx-background-color: #e0e0e0;
   -fx-border-color: transparent;
 }
@@ -231,3 +231,4 @@
 .bold {
   -fx-font-weight: bold;
 }
+

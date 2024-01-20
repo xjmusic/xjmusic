@@ -128,7 +128,10 @@ public class ContentBrowserController extends BrowserController implements Ready
     setupData(
       librariesTable,
       libraries,
-      library -> LOG.debug("Did select Library \"{}\"", library.getName()),
+      library -> {
+        if (Objects.nonNull(library))
+          LOG.debug("Did select Library \"{}\"", library.getName());
+      },
       this::openLibrary
     );
     projectService.addProjectUpdateListener(ProjectUpdate.Libraries, this::updateLibraries);

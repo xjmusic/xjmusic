@@ -11,7 +11,7 @@
   -fx-background-color: #404040;
 }
 
-.menu, .menu-bar, .menu, .menu-item, .menu-button, .context-menu {
+.menu, .menu-bar, .menu, .menu-item, .menu-button, .context-menu, .main-menu-container {
   -fx-background-color: #373737;
   -fx-border-color: transparent;
 }
