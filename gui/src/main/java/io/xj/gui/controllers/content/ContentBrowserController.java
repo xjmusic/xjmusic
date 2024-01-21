@@ -7,21 +7,16 @@ import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.nexus.project.ProjectUpdate;
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import jakarta.annotation.Nullable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,19 +29,10 @@ import java.util.Objects;
 public class ContentBrowserController extends BrowserController implements ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(ContentBrowserController.class);
   private final ProjectService projectService;
-  private final LibraryEditorController libraryEditorController;
-  private final ProgramEditorController programEditorController;
-  private final InstrumentEditorController instrumentEditorController;
+  private final UIStateService uiStateService;
   private final ObservableList<Library> libraries = FXCollections.observableList(new ArrayList<>());
   private final ObservableList<Program> programs = FXCollections.observableList(new ArrayList<>());
   private final ObservableList<Instrument> instruments = FXCollections.observableList(new ArrayList<>());
-  private final ObjectProperty<Library> viewingLibrary = new SimpleObjectProperty<>(null);
-
-  @FXML
-  protected AnchorPane libraryContentBrowser;
-
-  @FXML
-  protected Label libraryTitle;
 
   @FXML
   protected StackPane container;
@@ -60,25 +46,12 @@ public class ContentBrowserController extends BrowserController implements Ready
   @FXML
   protected TableView<Instrument> instrumentsTable;
 
-  @FXML
-  protected TabPane libraryContentTabPane;
-
-  @FXML
-  protected Tab programsTab;
-
-  @FXML
-  protected Tab instrumentsTab;
-
   public ContentBrowserController(
     ProjectService projectService,
-    LibraryEditorController libraryEditorController,
-    ProgramEditorController programEditorController,
-    InstrumentEditorController instrumentEditorController
+    UIStateService uiStateService
   ) {
     this.projectService = projectService;
-    this.libraryEditorController = libraryEditorController;
-    this.programEditorController = programEditorController;
-    this.instrumentEditorController = instrumentEditorController;
+    this.uiStateService = uiStateService;
   }
 
   @Override
@@ -87,32 +60,31 @@ public class ContentBrowserController extends BrowserController implements Ready
     initPrograms();
     initInstruments();
 
-    var isLibraryBrowser = projectService.contentModeProperty().isEqualTo(ContentMode.LibraryBrowser);
+    var isLibraryBrowser = uiStateService.contentModeProperty().isEqualTo(ContentMode.LibraryBrowser);
     librariesTable.visibleProperty().bind(isLibraryBrowser);
     librariesTable.managedProperty().bind(isLibraryBrowser);
 
-    var isProgramOrInstrumentBrowser =
-      projectService.contentModeProperty().isEqualTo(ContentMode.ProgramBrowser)
-        .or(projectService.contentModeProperty().isEqualTo(ContentMode.InstrumentBrowser));
-    libraryContentBrowser.visibleProperty().bind(isProgramOrInstrumentBrowser);
-    libraryContentBrowser.managedProperty().bind(isProgramOrInstrumentBrowser);
+    var isProgramBrowser = uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramBrowser);
+    programsTable.visibleProperty().bind(isProgramBrowser);
+    programsTable.managedProperty().bind(isProgramBrowser);
+
+    var isInstrumentBrowser = uiStateService.contentModeProperty().isEqualTo(ContentMode.InstrumentBrowser);
+    instrumentsTable.visibleProperty().bind(isInstrumentBrowser);
+    instrumentsTable.managedProperty().bind(isInstrumentBrowser);
 
     var visible = projectService.isStateReadyProperty()
-      .and(projectService.viewModeProperty().isEqualTo(ViewMode.Content))
+      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
       .and(
-        projectService.contentModeProperty().isEqualTo(ContentMode.LibraryBrowser)
-          .or(projectService.contentModeProperty().isEqualTo(ContentMode.ProgramBrowser))
-          .or(projectService.contentModeProperty().isEqualTo(ContentMode.InstrumentBrowser)));
+        uiStateService.contentModeProperty().isEqualTo(ContentMode.LibraryBrowser)
+          .or(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramBrowser))
+          .or(uiStateService.contentModeProperty().isEqualTo(ContentMode.InstrumentBrowser)));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
-    viewingLibrary.addListener((o, ov, value) -> {
-      updatePrograms();
-      updateInstruments();
+    uiStateService.currentLibraryProperty().addListener((o, ov, value) -> {
+      updatePrograms(value);
+      updateInstruments(value);
     });
-    libraryTitle.textProperty().bind(Bindings.createStringBinding(
-      () -> Objects.isNull(viewingLibrary.get()) ? "" : viewingLibrary.get().getName(),
-      viewingLibrary));
   }
 
   @Override
@@ -128,8 +100,14 @@ public class ContentBrowserController extends BrowserController implements Ready
     setupData(
       librariesTable,
       libraries,
-      library -> LOG.debug("Did select Library \"{}\"", library.getName()),
-      this::openLibrary
+      library -> {
+        if (Objects.nonNull(library))
+          LOG.debug("Did select Library \"{}\"", library.getName());
+      },
+      library -> {
+        if (Objects.nonNull(library))
+          uiStateService.viewLibrary(library.getId());
+      }
     );
     projectService.addProjectUpdateListener(ProjectUpdate.Libraries, this::updateLibraries);
   }
@@ -153,18 +131,24 @@ public class ContentBrowserController extends BrowserController implements Ready
     setupData(
       programsTable,
       programs,
-      program -> LOG.debug("Did select Program \"{}\"", program.getName()),
-      program -> programEditorController.editProgram(program.getId())
+      program -> {
+        if (Objects.nonNull(program))
+          LOG.debug("Did select Program \"{}\"", program.getName());
+      },
+      program -> {
+        if (Objects.nonNull(program))
+          uiStateService.editProgram(program.getId());
+      }
     );
-    projectService.addProjectUpdateListener(ProjectUpdate.Programs, this::updatePrograms);
+    projectService.addProjectUpdateListener(ProjectUpdate.Programs, () -> updatePrograms(uiStateService.currentLibraryProperty().get()));
   }
 
   /**
    Update the programs table data.
    */
-  private void updatePrograms() {
+  private void updatePrograms(@Nullable Library library) {
     programs.setAll(projectService.getPrograms().stream()
-      .filter(program -> Objects.isNull(viewingLibrary.get()) || Objects.equals(program.getLibraryId(), viewingLibrary.get().getId()))
+      .filter(program -> Objects.isNull(library) || Objects.equals(program.getLibraryId(), library.getId()))
       .toList());
   }
 
@@ -180,36 +164,25 @@ public class ContentBrowserController extends BrowserController implements Ready
     setupData(
       instrumentsTable,
       instruments,
-      instrument -> LOG.debug("Did select Instrument \"{}\"", instrument.getName()),
-      instrument -> instrumentEditorController.editInstrument(instrument.getId())
+      instrument -> {
+        if (Objects.nonNull(instrument))
+          LOG.debug("Did select Instrument \"{}\"", instrument.getName());
+      },
+      instrument -> {
+        if (Objects.nonNull(instrument))
+          uiStateService.editInstrument(instrument.getId());
+      }
     );
-    projectService.addProjectUpdateListener(ProjectUpdate.Instruments, this::updateInstruments);
+    projectService.addProjectUpdateListener(ProjectUpdate.Instruments,
+      () -> updateInstruments(uiStateService.currentLibraryProperty().get()));
   }
 
   /**
    Update the instruments table data.
    */
-  private void updateInstruments() {
+  private void updateInstruments(@Nullable Library library) {
     instruments.setAll(projectService.getInstruments().stream()
-      .filter(instrument -> Objects.isNull(viewingLibrary.get()) || Objects.equals(instrument.getLibraryId(), viewingLibrary.get().getId()))
+      .filter(instrument -> Objects.isNull(library) || Objects.equals(instrument.getLibraryId(), library.getId()))
       .toList());
-  }
-
-  /**
-   Open the given library in the content browser.
-
-   @param library library to open
-   */
-  public void openLibrary(Library library) {
-    viewingLibrary.set(library);
-    if (Objects.nonNull(library))
-      if (projectService.getContent().getInstruments().stream()
-        .anyMatch(instrument -> Objects.equals(instrument.getLibraryId(), library.getId()))) {
-        libraryContentTabPane.selectionModelProperty().get().select(instrumentsTab);
-        projectService.contentModeProperty().set(ContentMode.InstrumentBrowser);
-      } else {
-        libraryContentTabPane.selectionModelProperty().get().select(programsTab);
-        projectService.contentModeProperty().set(ContentMode.ProgramBrowser);
-      }
   }
 }

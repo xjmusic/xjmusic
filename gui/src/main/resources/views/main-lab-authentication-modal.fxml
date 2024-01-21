@@ -22,8 +22,8 @@
     </Label>
     <Pane prefHeight="100.0" prefWidth="15.0"/>
     <TextField fx:id="fieldLabUrl" prefHeight="25.0" prefWidth="275.0"/>
-    <Pane layoutX="187.0" layoutY="10.0" prefHeight="100.0" prefWidth="15.0"/>
-    <Button onAction="#handleLaunchLabPreferences" text="Get _Access Token"/>
+    <Pane prefHeight="100.0" prefWidth="15.0"/>
+    <Button onAction="#handleLabOpenInBrowser" text="_Open in Browser"/>
   </HBox>
   <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
     <opaqueInsets>
@@ -33,7 +33,9 @@
            textAlignment="RIGHT">
     </Label>
     <Pane prefHeight="100.0" prefWidth="15.0"/>
-    <PasswordField fx:id="fieldLabAccessToken" prefHeight="25.0" prefWidth="401.0"/>
+    <PasswordField fx:id="fieldLabAccessToken" prefHeight="25.0" prefWidth="275.0"/>
+    <Pane prefHeight="100.0" prefWidth="15.0"/>
+    <Button onAction="#handleLaunchLabPreferences" text="Get _Access Token"/>
   </HBox>
   <HBox alignment="CENTER_LEFT" prefHeight="43.0" prefWidth="640.0">
     <opaqueInsets>

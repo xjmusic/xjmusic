@@ -4,9 +4,11 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.WorkstationGuiFxApplication;
 import io.xj.gui.controllers.fabrication.FabricationSettingsModalController;
+import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.GuideService;
 import io.xj.gui.services.LabService;
+import io.xj.gui.services.LabState;
 import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
@@ -16,39 +18,51 @@ import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
+import static io.xj.gui.services.UIStateService.ACTIVE_PSEUDO_CLASS;
+import static io.xj.gui.services.UIStateService.FAILED_PSEUDO_CLASS;
+import static io.xj.gui.services.UIStateService.LAB_FAILED_STATES;
+import static io.xj.gui.services.UIStateService.LAB_PENDING_STATES;
+import static io.xj.gui.services.UIStateService.PENDING_PSEUDO_CLASS;
+
 @Service
 public class MainMenuController extends MenuBar implements ReadyAfterBootController {
-  final static String DEBUG = "DEBUG";
-  final static String INFO = "INFO";
-  final static String WARN = "WARN";
-  final static String ERROR = "ERROR";
-  final ConfigurableApplicationContext ac;
-  final FabricationService fabricationService;
-  final ThemeService themeService;
-  final GuideService guideService;
-  final UIStateService uiStateService;
-  final LabService labService;
+  private final static String DEBUG = "DEBUG";
+  private final static String INFO = "INFO";
+  private final static String WARN = "WARN";
+  private final static String ERROR = "ERROR";
+  private final ConfigurableApplicationContext ac;
+  private final FabricationService fabricationService;
+  private final ThemeService themeService;
+  private final GuideService guideService;
+  private final UIStateService uiStateService;
+  private final LabService labService;
   private final ProjectCreationModalController projectCreationModalController;
   private final ProjectService projectService;
-  final UIStateService guiService;
-  final FabricationSettingsModalController fabricationSettingsModalController;
-  final MainAboutModalController mainAboutModalController;
-  final MainLabAuthenticationModalController mainLabAuthenticationModalController;
+  private final UIStateService guiService;
+  private final FabricationSettingsModalController fabricationSettingsModalController;
+  private final MainAboutModalController mainAboutModalController;
+  private final MainLabAuthenticationModalController mainLabAuthenticationModalController;
 
   @FXML
-  protected MenuBar container;
+  protected AnchorPane container;
 
   @FXML
   protected MenuItem itemProjectClose;
@@ -78,19 +92,46 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   protected CheckMenuItem checkboxTailLogs;
 
   @FXML
-  RadioMenuItem logLevelDebug;
+  protected Button mainMenuButtonLab;
 
   @FXML
-  RadioMenuItem logLevelInfo;
+  protected Label labelLabStatus;
 
   @FXML
-  RadioMenuItem logLevelWarn;
+  protected RadioMenuItem logLevelDebug;
 
   @FXML
-  RadioMenuItem logLevelError;
+  protected RadioMenuItem logLevelInfo;
+
+  @FXML
+  protected RadioMenuItem logLevelWarn;
+
+  @FXML
+  protected RadioMenuItem logLevelError;
+
+  @FXML
+  ToggleGroup menuViewModeToggleGroup;
+  @FXML
+  protected RadioMenuItem menuViewModeContent;
+  @FXML
+  protected RadioMenuItem menuViewModeTemplates;
+  @FXML
+  protected RadioMenuItem menuViewModeFabrication;
+
+  @FXML
+  StackPane viewModeToggleContainer;
+  @FXML
+  ToggleGroup buttonViewModeToggleGroup;
+  @FXML
+  protected ToggleButton buttonViewModeContent;
+  @FXML
+  protected ToggleButton buttonViewModeTemplates;
+  @FXML
+  protected ToggleButton buttonViewModeFabrication;
 
   @FXML
   ToggleGroup logLevelToggleGroup;
+
 
   public MainMenuController(
     ConfigurableApplicationContext ac,
@@ -137,11 +178,6 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
     themeService.isDarkThemeProperty().bindBidirectional(checkboxDarkTheme.selectedProperty());
 
-    logLevelToggleGroup = new ToggleGroup();
-    logLevelDebug.setToggleGroup(logLevelToggleGroup);
-    logLevelInfo.setToggleGroup(logLevelToggleGroup);
-    logLevelWarn.setToggleGroup(logLevelToggleGroup);
-    logLevelError.setToggleGroup(logLevelToggleGroup);
     switch (uiStateService.logLevelProperty().getValue()) {
       case DEBUG -> logLevelDebug.setSelected(true);
       case INFO -> logLevelInfo.setSelected(true);
@@ -155,6 +191,23 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
     projectService.recentProjectsProperty().addListener((ChangeListener<? super ObservableList<ProjectDescriptor>>) (o, ov, value) -> updateRecentProjectsMenu());
     updateRecentProjectsMenu();
+
+    labService.stateProperty().addListener((o, ov, value) -> updateLabButtonState(value));
+    updateLabButtonState(labService.stateProperty().get());
+
+    labelLabStatus.textProperty().bind(labService.stateProperty().map(Enum::toString));
+
+    setupViewModeToggle(menuViewModeToggleGroup, menuViewModeContent, menuViewModeTemplates, menuViewModeFabrication);
+    menuViewModeContent.disableProperty().bind(projectService.isStateReadyProperty().not());
+    menuViewModeTemplates.disableProperty().bind(projectService.isStateReadyProperty().not());
+    menuViewModeFabrication.disableProperty().bind(projectService.isStateReadyProperty().not());
+
+    setupViewModeToggle(buttonViewModeToggleGroup, buttonViewModeContent, buttonViewModeTemplates, buttonViewModeFabrication);
+    buttonViewModeContent.disableProperty().bind(projectService.isStateReadyProperty().not());
+    buttonViewModeTemplates.disableProperty().bind(projectService.isStateReadyProperty().not());
+    buttonViewModeFabrication.disableProperty().bind(projectService.isStateReadyProperty().not());
+
+    viewModeToggleContainer.translateXProperty().bind(container.widthProperty().subtract(viewModeToggleContainer.widthProperty()).divide(2));
   }
 
   @Override
@@ -209,17 +262,6 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     projectService.saveProject();
   }
 
-
-  @FXML
-  protected void handleLabAuthentication() {
-    mainLabAuthenticationModalController.launchModal();
-  }
-
-  @FXML
-  protected void handleLabOpenInBrowser() {
-    labService.launchInBrowser();
-  }
-
   @FXML
   protected void handleOpenFabricationSettings() {
     fabricationSettingsModalController.launchModal();
@@ -235,8 +277,67 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     uiStateService.logLevelProperty().set(((RadioMenuItem) logLevelToggleGroup.getSelectedToggle()).getText());
   }
 
+  @FXML
+  public void handleButtonLabPressed(ActionEvent ignored) {
+    mainLabAuthenticationModalController.launchModal();
+  }
+
   /**
-   Update the recent projects menu.
+   Set up the view mode toggle.
+
+   @param toggleGroup       the toggle group
+   @param toggleContent     the content toggle
+   @param toggleTemplates   the templates toggle
+   @param toggleFabrication the fabrication toggle
+   */
+  private void setupViewModeToggle(
+    ToggleGroup toggleGroup,
+    Toggle toggleContent,
+    Toggle toggleTemplates,
+    Toggle toggleFabrication
+  ) {
+    activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, uiStateService.viewModeProperty().getValue());
+    uiStateService.viewModeProperty().addListener((o, ov, value) -> activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, value));
+    toggleGroup.selectedToggleProperty().addListener((o, ov, value) -> {
+      if (Objects.equals(value, toggleContent)) {
+        uiStateService.viewModeProperty().set(ViewMode.Content);
+      } else if (Objects.equals(value, toggleTemplates)) {
+        uiStateService.viewModeProperty().set(ViewMode.Templates);
+      } else if (Objects.equals(value, toggleFabrication)) {
+        uiStateService.viewModeProperty().set(ViewMode.Fabrication);
+      }
+    });
+  }
+
+  /**
+   Activate the toggle in a group corresponding to the given view mode
+
+   @param toggleContent     the content toggle
+   @param toggleTemplates   the templates toggle
+   @param toggleFabrication the fabrication toggle
+   @param value             the view mode
+   */
+  private void activateViewModeToggle(Toggle toggleContent, Toggle toggleTemplates, Toggle toggleFabrication, ViewMode value) {
+    switch (value) {
+      case Content -> toggleContent.setSelected(true);
+      case Templates -> toggleTemplates.setSelected(true);
+      case Fabrication -> toggleFabrication.setSelected(true);
+    }
+  }
+
+  /**
+   Update the state of the lab button.
+
+   @param value the new state
+   */
+  private void updateLabButtonState(LabState value) {
+    mainMenuButtonLab.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, Objects.equals(value, LabState.Authenticated));
+    mainMenuButtonLab.pseudoClassStateChanged(FAILED_PSEUDO_CLASS, LAB_FAILED_STATES.contains(value));
+    mainMenuButtonLab.pseudoClassStateChanged(PENDING_PSEUDO_CLASS, LAB_PENDING_STATES.contains(value));
+  }
+
+  /**
+   Update the recent project menu.
    */
   private void updateRecentProjectsMenu() {
     menuOpenRecent.getItems().clear();

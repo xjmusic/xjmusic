@@ -3,13 +3,11 @@
 package io.xj.gui.controllers.template;
 
 import io.xj.gui.controllers.ReadyAfterBootController;
-import io.xj.gui.controllers.content.InstrumentEditorController;
-import io.xj.gui.controllers.content.LibraryEditorController;
-import io.xj.gui.controllers.content.ProgramEditorController;
+import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
-import io.xj.hub.tables.pojos.Template;
+import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -38,9 +36,7 @@ import java.util.UUID;
 public class TemplateEditorController implements ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(TemplateEditorController.class);
   private final ProjectService projectService;
-  private final LibraryEditorController libraryEditorController;
-  private final ProgramEditorController programEditorController;
-  private final InstrumentEditorController instrumentEditorController;
+  private final UIStateService uiStateService;
   private final ObjectProperty<UUID> id = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
   private final ObservableList<TemplateBinding> bindings = FXCollections.observableList(new ArrayList<>());
@@ -56,21 +52,17 @@ public class TemplateEditorController implements ReadyAfterBootController {
 
   public TemplateEditorController(
     ProjectService projectService,
-    LibraryEditorController libraryEditorController,
-    ProgramEditorController programEditorController,
-    InstrumentEditorController instrumentEditorController
+    UIStateService uiStateService
   ) {
     this.projectService = projectService;
-    this.libraryEditorController = libraryEditorController;
-    this.programEditorController = programEditorController;
-    this.instrumentEditorController = instrumentEditorController;
+    this.uiStateService = uiStateService;
   }
 
   @Override
   public void onStageReady() {
     var visible = projectService.isStateReadyProperty()
-      .and(projectService.viewModeProperty().isEqualTo(ViewMode.Template))
-      .and(projectService.templateModeProperty().isEqualTo(TemplateMode.TemplateEditor));
+      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Templates))
+      .and(uiStateService.templateModeProperty().isEqualTo(TemplateMode.TemplateEditor));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
@@ -94,13 +86,18 @@ public class TemplateEditorController implements ReadyAfterBootController {
           Platform.runLater(() -> {
             var binding = bindingsTable.getSelectionModel().getSelectedItem();
             switch (binding.getType()) {
-              case Library -> libraryEditorController.editLibrary(binding.getTargetId());
-              case Program -> programEditorController.editProgram(binding.getTargetId());
-              case Instrument -> instrumentEditorController.editInstrument(binding.getTargetId());
+              case Library -> uiStateService.editLibrary(binding.getTargetId());
+              case Program -> uiStateService.editProgram(binding.getTargetId());
+              case Instrument -> uiStateService.editInstrument(binding.getTargetId());
             }
           });
         }
       });
+
+    uiStateService.templateModeProperty().addListener((o, ov, v) -> {
+      if (Objects.equals(uiStateService.templateModeProperty().get(), TemplateMode.TemplateEditor))
+        update();
+    });
   }
 
   /**
@@ -129,20 +126,18 @@ public class TemplateEditorController implements ReadyAfterBootController {
   }
 
   /**
-   Open the given template in the content editor.
-
-   @param ref template to open
+   Update the Template Editor with the current Template.
    */
-  public void editTemplate(Template ref) {
-    var template = projectService.getContent().getTemplate(ref.getId())
+  private void update() {
+    if (Objects.isNull(uiStateService.currentTemplateProperty().get()))
+      return;
+    var template = projectService.getContent().getTemplate(uiStateService.currentTemplateProperty().get().getId())
       .orElseThrow(() -> new RuntimeException("Could not find Template"));
-    LOG.info("Will open Template \"{}\"", template.getName());
+    LOG.info("Will edit Template \"{}\"", template.getName());
     this.id.set(template.getId());
     this.name.set(template.getName());
     bindings.setAll(projectService.getContent().getTemplateBindings().stream()
-      .filter(binding -> Objects.equals(ref.getId(), binding.getTemplateId()))
+      .filter(binding -> Objects.equals(template.getId(), binding.getTemplateId()))
       .toList());
-
-    projectService.templateModeProperty().set(TemplateMode.TemplateEditor);
   }
 }

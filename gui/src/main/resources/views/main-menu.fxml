@@ -2,85 +2,170 @@
 
 <!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
 
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckMenuItem?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.RadioMenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<MenuBar
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<AnchorPane
   fx:id="container"
   fx:controller="io.xj.gui.controllers.MainMenuController"
-  VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/20.0.1"
-  xmlns:fx="http://javafx.com/fxml/1">
+  VBox.vgrow="NEVER"
+  xmlns="http://javafx.com/javafx/20.0.1"
+  xmlns:fx="http://javafx.com/fxml/1"
+  AnchorPane.topAnchor="0"
+  AnchorPane.rightAnchor="0"
+  AnchorPane.bottomAnchor="0"
+  AnchorPane.leftAnchor="0"
+  styleClass="main-menu-container">
 
-  <Menu text="_Project">
-    <MenuItem onAction="#handleProjectNew" text="_New..."/>
-    <MenuItem onAction="#handleProjectOpen" text="_Open..."/>
-    <Menu fx:id="menuOpenRecent" text="Open _Recent">
-      <!-- Recent projects will be added here dynamically -->
+  <StackPane
+    fx:id="viewModeToggleContainer"
+    AnchorPane.topAnchor="0"
+    AnchorPane.bottomAnchor="0"
+    translateX="300">
+    <HBox alignment="CENTER">
+      <fx:define>
+        <ToggleGroup fx:id="buttonViewModeToggleGroup"/>
+      </fx:define>
+      <ToggleButton text="CONTENT" fx:id="buttonViewModeContent" toggleGroup="$buttonViewModeToggleGroup">
+        <graphic>
+          <ImageView fitWidth="18" fitHeight="18">
+            <Image url="@/icons/folder-open.png"/>
+          </ImageView>
+        </graphic>
+      </ToggleButton>
+      <ToggleButton text="TEMPLATES" fx:id="buttonViewModeTemplates" toggleGroup="$buttonViewModeToggleGroup">
+        <graphic>
+          <ImageView fitWidth="18" fitHeight="18">
+            <Image url="@/icons/flask-gear.png"/>
+          </ImageView>
+        </graphic>
+      </ToggleButton>
+      <ToggleButton text="FABRICATION" fx:id="buttonViewModeFabrication" toggleGroup="$buttonViewModeToggleGroup">
+        <graphic>
+          <ImageView fitWidth="18" fitHeight="18">
+            <Image url="@/icons/conveyor-arm.png"/>
+          </ImageView>
+        </graphic>
+      </ToggleButton>
+    </HBox>
+  </StackPane>
+
+  <MenuBar
+    VBox.vgrow="NEVER">
+
+    <Menu text="_Project">
+      <MenuItem onAction="#handleProjectNew" text="_New..."/>
+      <MenuItem onAction="#handleProjectOpen" text="_Open..."/>
+      <Menu fx:id="menuOpenRecent" text="Open _Recent">
+        <!-- Recent projects will be added here dynamically -->
+      </Menu>
+      <MenuItem fx:id="itemProjectClose" onAction="#handleProjectClose" text="_Close"/>
+      <SeparatorMenuItem mnemonicParsing="false"/>
+      <MenuItem fx:id="itemProjectSave" onAction="#handleProjectSave" text="_Save"/>
+      <SeparatorMenuItem mnemonicParsing="false"/>
+      <MenuItem onAction="#handleProjectClone" text="_Clone..."/>
+      <SeparatorMenuItem mnemonicParsing="false"/>
+      <MenuItem onAction="#onQuit" text="E_xit"/>
     </Menu>
-    <MenuItem fx:id="itemProjectClose" onAction="#handleProjectClose" text="_Close"/>
-    <SeparatorMenuItem mnemonicParsing="false"/>
-    <MenuItem fx:id="itemProjectSave" onAction="#handleProjectSave" text="_Save"/>
-    <SeparatorMenuItem mnemonicParsing="false"/>
-    <MenuItem onAction="#handleProjectClone" text="_Clone..."/>
-    <SeparatorMenuItem mnemonicParsing="false"/>
-    <MenuItem onAction="#onQuit" text="E_xit"/>
-  </Menu>
 
-  <Menu text="_Fabrication">
-    <MenuItem fx:id="itemFabricationMainAction" onAction="#handleFabricationMainAction" text="_Start"/>
-    <CheckMenuItem fx:id="checkboxFabricationFollow" text="_Follow"/>
-    <SeparatorMenuItem mnemonicParsing="false"/>
-    <MenuItem fx:id="itemOpenFabricationSettings" onAction="#handleOpenFabricationSettings" text="S_ettings">
-      <accelerator>
-        <KeyCodeCombination alt="UP" code="E" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
-      </accelerator>
-    </MenuItem>
-  </Menu>
-
-  <Menu text="_Lab">
-    <MenuItem onAction="#handleLabAuthentication" text="_Authentication">
-      <accelerator>
-        <KeyCodeCombination alt="UP" code="L" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
-      </accelerator>
-    </MenuItem>
-    <SeparatorMenuItem mnemonicParsing="false"/>
-    <MenuItem onAction="#handleLabOpenInBrowser" text="_Open in Browser">
-      <accelerator>
-        <KeyCodeCombination alt="DOWN" code="L" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
-      </accelerator>
-    </MenuItem>
-  </Menu>
-
-  <Menu text="_View">
-    <CheckMenuItem fx:id="checkboxDarkTheme" selected="true" text="_Dark Theme"/>
-    <SeparatorMenuItem mnemonicParsing="false"/>
-    <CheckMenuItem fx:id="checkboxShowLogs" text="Show _Logs">
-      <accelerator>
-        <KeyCodeCombination alt="UP" code="F2" control="UP" meta="UP" shift="UP" shortcut="UP"/>
-      </accelerator>
-    </CheckMenuItem>
-    <CheckMenuItem fx:id="checkboxTailLogs" disable="true" selected="true" text="Logs Auto-_scroll">
-      <accelerator>
-        <KeyCodeCombination alt="UP" code="F2" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
-      </accelerator>
-    </CheckMenuItem>
-    <Menu text="Log Le_vel">
-      <RadioMenuItem text="_Debug" fx:id="logLevelDebug" onAction="#handleSetLogLevel"/>
-      <RadioMenuItem text="_Info" fx:id="logLevelInfo" onAction="#handleSetLogLevel"/>
-      <RadioMenuItem text="_Warn" fx:id="logLevelWarn" onAction="#handleSetLogLevel"/>
-      <RadioMenuItem text="_Error" fx:id="logLevelError" onAction="#handleSetLogLevel"/>
+    <Menu text="_Fabrication">
+      <MenuItem fx:id="itemFabricationMainAction" onAction="#handleFabricationMainAction" text="_Start"/>
+      <CheckMenuItem fx:id="checkboxFabricationFollow" text="_Follow"/>
+      <SeparatorMenuItem mnemonicParsing="false"/>
+      <MenuItem fx:id="itemOpenFabricationSettings" onAction="#handleOpenFabricationSettings" text="S_ettings">
+        <accelerator>
+          <KeyCodeCombination alt="UP" code="E" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+        </accelerator>
+      </MenuItem>
     </Menu>
-  </Menu>
 
-  <Menu text="_Help">
-    <MenuItem onAction="#onLaunchUserGuide" text="User _Guide"/>
-    <SeparatorMenuItem mnemonicParsing="false"/>
-    <MenuItem onAction="#handleAbout" text="_About"/>
-  </Menu>
+    <Menu text="_View">
+      <fx:define>
+        <ToggleGroup fx:id="menuViewModeToggleGroup"/>
+      </fx:define>
+      <RadioMenuItem text="_Content" fx:id="menuViewModeContent" toggleGroup="$menuViewModeToggleGroup">
+        <accelerator>
+          <KeyCodeCombination alt="UP" code="F3" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+        </accelerator>
+      </RadioMenuItem>
+      <RadioMenuItem text="_Templates" fx:id="menuViewModeTemplates" toggleGroup="$menuViewModeToggleGroup">
+        <accelerator>
+          <KeyCodeCombination alt="UP" code="F4" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+        </accelerator>
+      </RadioMenuItem>
+      <RadioMenuItem text="_Fabrication" fx:id="menuViewModeFabrication" toggleGroup="$menuViewModeToggleGroup">
+        <accelerator>
+          <KeyCodeCombination alt="UP" code="F5" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+        </accelerator>
+      </RadioMenuItem>
+      <SeparatorMenuItem mnemonicParsing="false"/>
+      <CheckMenuItem fx:id="checkboxDarkTheme" selected="true" text="_Dark Theme"/>
+      <SeparatorMenuItem mnemonicParsing="false"/>
+      <CheckMenuItem fx:id="checkboxShowLogs" text="Show _Logs">
+        <accelerator>
+          <KeyCodeCombination alt="UP" code="F10" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+        </accelerator>
+      </CheckMenuItem>
+      <CheckMenuItem fx:id="checkboxTailLogs" disable="true" selected="true" text="Logs Auto-_scroll">
+        <accelerator>
+          <KeyCodeCombination alt="UP" code="F10" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+        </accelerator>
+      </CheckMenuItem>
+      <Menu text="Log Le_vel">
+        <fx:define>
+          <ToggleGroup fx:id="logLevelToggleGroup"/>
+        </fx:define>
+        <RadioMenuItem text="_Debug" fx:id="logLevelDebug" onAction="#handleSetLogLevel"
+                       toggleGroup="$logLevelToggleGroup"/>
+        <RadioMenuItem text="_Info" fx:id="logLevelInfo" onAction="#handleSetLogLevel"
+                       toggleGroup="$logLevelToggleGroup"/>
+        <RadioMenuItem text="_Warn" fx:id="logLevelWarn" onAction="#handleSetLogLevel"
+                       toggleGroup="$logLevelToggleGroup"/>
+        <RadioMenuItem text="_Error" fx:id="logLevelError" onAction="#handleSetLogLevel"
+                       toggleGroup="$logLevelToggleGroup"/>
+      </Menu>
+    </Menu>
 
-</MenuBar>
+    <Menu text="_Help">
+      <MenuItem onAction="#onLaunchUserGuide" text="User _Guide"/>
+      <SeparatorMenuItem mnemonicParsing="false"/>
+      <MenuItem onAction="#handleAbout" text="_About"/>
+    </Menu>
+
+  </MenuBar>
+
+  <StackPane
+    AnchorPane.topAnchor="0"
+    AnchorPane.rightAnchor="10"
+    AnchorPane.bottomAnchor="0"
+    alignment="CENTER_RIGHT">
+    <HBox alignment="CENTER_RIGHT" spacing="10">
+      <HBox.hgrow>
+        <Priority fx:constant="ALWAYS"/>
+      </HBox.hgrow>
+
+      <!-- Lab Connection Status Text -->
+      <Label fx:id="labelLabStatus" text="Initializing"/>
+
+      <!-- Lab Button -->
+      <Button fx:id="mainMenuButtonLab" onAction="#handleButtonLabPressed" text="LAB"/>
+
+    </HBox>
+  </StackPane>
+
+</AnchorPane>

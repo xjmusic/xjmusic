@@ -5,8 +5,8 @@ package io.xj.gui;
 import com.tangorabox.componentinspector.fx.FXComponentInspectorHandler;
 import io.xj.gui.controllers.EulaModalController;
 import io.xj.gui.controllers.MainController;
-import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
+import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.WindowUtils;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
@@ -27,7 +27,7 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
   private final EulaModalController eulaModalController;
   private final MainController mainController;
   private final ApplicationContext ac;
-  private final ProjectService projectService;
+  private final UIStateService uiStateService;
   private final ThemeService themeService;
 
   public MainWindowStageReadyListener(
@@ -36,7 +36,7 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
     EulaModalController eulaModalController,
     MainController mainController,
     ApplicationContext ac,
-    ProjectService projectService,
+    UIStateService uiStateService,
     ThemeService themeService
   ) {
     this.mainWindowFxml = mainWindowFxml;
@@ -44,7 +44,7 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
     this.eulaModalController = eulaModalController;
     this.mainController = mainController;
     this.ac = ac;
-    this.projectService = projectService;
+    this.uiStateService = uiStateService;
     this.themeService = themeService;
   }
 
@@ -59,7 +59,7 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
       try {
         var scene = WindowUtils.loadSceneFxml(ac, mainWindowFxml);
 
-        primaryStage.titleProperty().bind(projectService.windowTitleProperty());
+        primaryStage.titleProperty().bind(uiStateService.windowTitleProperty());
         primaryStage.setScene(scene);
 
         themeService.setup(scene);

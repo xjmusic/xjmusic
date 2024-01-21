@@ -1,8 +1,5 @@
 package io.xj.gui.services.impl;
 
-import io.xj.gui.modes.ContentMode;
-import io.xj.gui.modes.TemplateMode;
-import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
@@ -42,21 +39,26 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.prefs.Preferences;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
-  static final Logger LOG = LoggerFactory.getLogger(ProjectServiceImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectServiceImpl.class);
   private static final String defaultPathPrefix = System.getProperty("user.home") + File.separator + "Documents";
+  private static final Collection<ProjectState> PROJECT_LOADING_STATES = Set.of(
+    ProjectState.LoadingContent,
+    ProjectState.LoadedContent,
+    ProjectState.LoadingAudio,
+    ProjectState.LoadedAudio
+  );
   private final Preferences prefs = Preferences.userNodeForPackage(ProjectServiceImpl.class);
-  private final ObjectProperty<ViewMode> viewMode = new SimpleObjectProperty<>(ViewMode.Content);
-  private final ObjectProperty<ContentMode> contentMode = new SimpleObjectProperty<>(ContentMode.LibraryBrowser);
-  private final ObjectProperty<TemplateMode> templateMode = new SimpleObjectProperty<>(TemplateMode.TemplateBrowser);
   private final ObservableObjectValue<Project> currentProject;
   private final ObservableListValue<ProjectDescriptor> recentProjects = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
   private final StringProperty basePathPrefix = new SimpleStringProperty();
@@ -78,17 +80,14 @@ public class ProjectServiceImpl implements ProjectService {
     },
     state,
     progress);
-  private final BooleanBinding isStateLoading =
-    state.isEqualTo(ProjectState.LoadingContent)
-      .or(state.isEqualTo(ProjectState.LoadingAudio))
-      .or(state.isEqualTo(ProjectState.LoadingAudio))
-      .or(state.isEqualTo(ProjectState.LoadedAudio));
+  private final BooleanBinding isStateLoading = Bindings.createBooleanBinding(
+    () -> PROJECT_LOADING_STATES.contains(state.get()),
+    state);
   private final BooleanBinding isStateReady = state.isEqualTo(ProjectState.Ready);
   private final BooleanBinding isStateStandby = state.isEqualTo(ProjectState.Standby);
   private final int maxRecentProjects;
   private final LabService labService;
   private final ProjectManager projectManager;
-  private final ObservableStringValue windowTitle;
   private final JsonProvider jsonProvider;
 
   public ProjectServiceImpl(
@@ -108,14 +107,6 @@ public class ProjectServiceImpl implements ProjectService {
     projectManager.setAudioBaseUrl(labService.hubConfigProperty().get().getAudioBaseUrl());
     labService.hubConfigProperty().addListener((o, ov, value) -> projectManager.setAudioBaseUrl(value.getAudioBaseUrl()));
 
-    state.addListener((o, ov, value) -> {
-      if (Objects.equals(value, ProjectState.Standby)) {
-        viewMode.set(ViewMode.Content);
-        contentMode.set(ContentMode.LibraryBrowser);
-        templateMode.set(TemplateMode.TemplateBrowser);
-      }
-    });
-
     currentProject = Bindings.createObjectBinding(() -> {
       if (Objects.equals(state.get(), ProjectState.Ready)) {
         return projectManager.getProject().orElse(null);
@@ -123,32 +114,18 @@ public class ProjectServiceImpl implements ProjectService {
         return null;
       }
     }, state);
-    windowTitle = Bindings.createStringBinding(
-      () -> Objects.nonNull(currentProject.get())
-        ? String.format("%s - XJ music workstation", currentProject.get().getName())
-        : "XJ music workstation",
-      currentProject
-    );
-  }
-
-  @Override
-  public ObjectProperty<ViewMode> viewModeProperty() {
-    return viewMode;
   }
 
   @Override
   public void closeProject() {
     projectManager.closeProject();
-    viewMode.set(ViewMode.Content);
-    contentMode.set(ContentMode.LibraryBrowser);
-    templateMode.set(TemplateMode.TemplateBrowser);
     state.set(ProjectState.Standby);
   }
 
   @Override
   public void openProject(String projectFilePath) {
+    closeProject();
     executeInBackground("Open Project", () -> {
-      closeProject();
       if (projectManager.openProjectFromLocalFile(projectFilePath)) {
         projectManager.getProject().ifPresent(project ->
           addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile()));
@@ -160,9 +137,9 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void createProject(String parentPathPrefix, String projectName) {
+    closeProject();
     if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName)) return;
     executeInBackground("Create Project", () -> {
-      closeProject();
       if (projectManager.createProject(parentPathPrefix, projectName)) {
         projectManager.getProject().ifPresent(project ->
           addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile()));
@@ -236,23 +213,8 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public BooleanBinding isViewModeContentProperty() {
-    return viewMode.isEqualTo(ViewMode.Content);
-  }
-
-  @Override
-  public BooleanBinding isViewModeFabricationProperty() {
-    return viewMode.isEqualTo(ViewMode.Fabrication);
-  }
-
-  @Override
   public HubContent getContent() {
     return projectManager.getContent();
-  }
-
-  @Override
-  public ObservableStringValue windowTitleProperty() {
-    return windowTitle;
   }
 
   @Override
@@ -306,13 +268,8 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public ObjectProperty<ContentMode> contentModeProperty() {
-    return contentMode;
-  }
-
-  @Override
-  public ObjectProperty<TemplateMode> templateModeProperty() {
-    return templateMode;
+  public ObservableObjectValue<Project> currentProjectProperty() {
+    return currentProject;
   }
 
   /**
@@ -324,9 +281,9 @@ public class ProjectServiceImpl implements ProjectService {
    */
   private void cloneProject(String parentPathPrefix, String projectName, Callable<Boolean> clone) {
     if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName)) return;
+    closeProject();
     executeInBackground("Clone Project", () -> {
       try {
-        closeProject();
         if (clone.call()) {
           projectManager.getProject().ifPresent(project ->
             addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile()));

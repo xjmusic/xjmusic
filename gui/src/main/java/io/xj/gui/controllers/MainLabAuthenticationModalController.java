@@ -133,6 +133,11 @@ public class MainLabAuthenticationModalController extends ReadyAfterBootModalCon
   }
 
   @FXML
+  protected void handleLabOpenInBrowser() {
+    labService.launchInBrowser();
+  }
+
+  @FXML
   void handleConnect() {
     if (labService.stateProperty().get() == LabState.Authenticated) {
       labService.disconnect();

@@ -21,9 +21,9 @@ import java.util.Objects;
 public interface WindowUtils {
   Logger LOG = LoggerFactory.getLogger(WindowUtils.class);
   String APPLICATION_TITLE = "XJ music workstation";
-  String PATH_TO_ICON_ICNS = "/icons/icon.icns";
-  String PATH_TO_ICON_ICO = "/icons/icon.ico";
-  String PATH_TO_ICON_PNG = "/icons/icon.png";
+  String PATH_TO_ICON_ICNS = "/icons/xj-symbol.icns";
+  String PATH_TO_ICON_ICO = "/icons/xj-symbol.ico";
+  String PATH_TO_ICON_PNG = "/icons/xj-symbol.png";
 
   /**
    Sets up the icon for the given stage.
