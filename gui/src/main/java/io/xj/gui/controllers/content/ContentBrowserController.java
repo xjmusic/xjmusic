@@ -12,8 +12,7 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.nexus.project.ProjectUpdate;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import jakarta.annotation.Nullable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -31,13 +30,9 @@ public class ContentBrowserController extends BrowserController implements Ready
   static final Logger LOG = LoggerFactory.getLogger(ContentBrowserController.class);
   private final ProjectService projectService;
   private final UIStateService uiStateService;
-  private final LibraryEditorController libraryEditorController;
-  private final ProgramEditorController programEditorController;
-  private final InstrumentEditorController instrumentEditorController;
   private final ObservableList<Library> libraries = FXCollections.observableList(new ArrayList<>());
   private final ObservableList<Program> programs = FXCollections.observableList(new ArrayList<>());
   private final ObservableList<Instrument> instruments = FXCollections.observableList(new ArrayList<>());
-  private final ObjectProperty<Library> viewingLibrary = new SimpleObjectProperty<>(null);
 
 /*
 todo move to top pane
@@ -57,31 +52,12 @@ todo move to top pane
   @FXML
   protected TableView<Instrument> instrumentsTable;
 
-/*
-todo move to top pane
-  //
-  @FXML
-  protected TabPane libraryContentTabPane;
-  //
-  @FXML
-  protected Tab programsTab;
-  //
-  @FXML
-  protected Tab instrumentsTab;
-*/
-
   public ContentBrowserController(
     ProjectService projectService,
-    UIStateService uiStateService,
-    LibraryEditorController libraryEditorController,
-    ProgramEditorController programEditorController,
-    InstrumentEditorController instrumentEditorController
+    UIStateService uiStateService
   ) {
     this.projectService = projectService;
     this.uiStateService = uiStateService;
-    this.libraryEditorController = libraryEditorController;
-    this.programEditorController = programEditorController;
-    this.instrumentEditorController = instrumentEditorController;
   }
 
   @Override
@@ -111,16 +87,10 @@ todo move to top pane
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
-    viewingLibrary.addListener((o, ov, value) -> {
-      updatePrograms();
-      updateInstruments();
+    uiStateService.currentLibraryProperty().addListener((o, ov, value) -> {
+      updatePrograms(value);
+      updateInstruments(value);
     });
-/*
-TODO move to top pane
-    libraryTitle.textProperty().bind(Bindings.createStringBinding(
-      () -> Objects.isNull(viewingLibrary.get()) ? "" : viewingLibrary.get().getName(),
-      viewingLibrary));
-*/
   }
 
   @Override
@@ -140,7 +110,10 @@ TODO move to top pane
         if (Objects.nonNull(library))
           LOG.debug("Did select Library \"{}\"", library.getName());
       },
-      this::openLibrary
+      library -> {
+        if (Objects.nonNull(library))
+          uiStateService.viewLibrary(library.getId());
+      }
     );
     projectService.addProjectUpdateListener(ProjectUpdate.Libraries, this::updateLibraries);
   }
@@ -168,17 +141,20 @@ TODO move to top pane
         if (Objects.nonNull(program))
           LOG.debug("Did select Program \"{}\"", program.getName());
       },
-      program -> programEditorController.editProgram(program.getId())
+      program -> {
+        if (Objects.nonNull(program))
+          uiStateService.editProgram(program.getId());
+      }
     );
-    projectService.addProjectUpdateListener(ProjectUpdate.Programs, this::updatePrograms);
+    projectService.addProjectUpdateListener(ProjectUpdate.Programs, () -> updatePrograms(uiStateService.currentLibraryProperty().get()));
   }
 
   /**
    Update the programs table data.
    */
-  private void updatePrograms() {
+  private void updatePrograms(@Nullable Library library) {
     programs.setAll(projectService.getPrograms().stream()
-      .filter(program -> Objects.isNull(viewingLibrary.get()) || Objects.equals(program.getLibraryId(), viewingLibrary.get().getId()))
+      .filter(program -> Objects.isNull(library) || Objects.equals(program.getLibraryId(), library.getId()))
       .toList());
   }
 
@@ -198,35 +174,21 @@ TODO move to top pane
         if (Objects.nonNull(instrument))
           LOG.debug("Did select Instrument \"{}\"", instrument.getName());
       },
-      instrument -> instrumentEditorController.editInstrument(instrument.getId())
+      instrument -> {
+        if (Objects.nonNull(instrument))
+          uiStateService.editInstrument(instrument.getId());
+      }
     );
-    projectService.addProjectUpdateListener(ProjectUpdate.Instruments, this::updateInstruments);
+    projectService.addProjectUpdateListener(ProjectUpdate.Instruments,
+      () -> updateInstruments(uiStateService.currentLibraryProperty().get()));
   }
 
   /**
    Update the instruments table data.
    */
-  private void updateInstruments() {
+  private void updateInstruments(@Nullable Library library) {
     instruments.setAll(projectService.getInstruments().stream()
-      .filter(instrument -> Objects.isNull(viewingLibrary.get()) || Objects.equals(instrument.getLibraryId(), viewingLibrary.get().getId()))
+      .filter(instrument -> Objects.isNull(library) || Objects.equals(instrument.getLibraryId(), library.getId()))
       .toList());
-  }
-
-  /**
-   Open the given library in the content browser.
-
-   @param library library to open
-   */
-  public void openLibrary(Library library) {
-    viewingLibrary.set(library);
-    if (Objects.nonNull(library))
-      if (projectService.getContent().getInstruments().stream()
-        .anyMatch(instrument -> Objects.equals(instrument.getLibraryId(), library.getId()))) {
-        // todo move to top pane libraryContentTabPane.selectionModelProperty().get().select(instrumentsTab);
-        uiStateService.contentModeProperty().set(ContentMode.InstrumentBrowser);
-      } else {
-        // todo move to top pane libraryContentTabPane.selectionModelProperty().get().select(programsTab);
-        uiStateService.contentModeProperty().set(ContentMode.ProgramBrowser);
-      }
   }
 }

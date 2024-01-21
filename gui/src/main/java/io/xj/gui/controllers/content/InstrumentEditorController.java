@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -26,7 +27,6 @@ public class InstrumentEditorController implements ReadyAfterBootController {
   private final ProjectService projectService;
   private final UIStateService uiStateService;
   private final ObjectProperty<UUID> id = new SimpleObjectProperty<>(null);
-  private final ObjectProperty<UUID> libraryId = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
 
   @FXML
@@ -52,27 +52,20 @@ public class InstrumentEditorController implements ReadyAfterBootController {
     container.managedProperty().bind(visible);
 
     fieldName.textProperty().bindBidirectional(name);
+
+    uiStateService.contentModeProperty().addListener((o, ov, value) -> {
+      if (Objects.equals(value, ContentMode.InstrumentEditor)) {
+        var instrument = projectService.getContent().getInstrument(uiStateService.currentInstrumentProperty().get().getId())
+          .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
+        LOG.info("Will edit Instrument \"{}\"", instrument.getName());
+        this.id.set(instrument.getId());
+        this.name.set(instrument.getName());
+      }
+    });
   }
 
   @Override
   public void onStageClose() {
     // FUTURE: on stage close
-  }
-
-  /**
-   Open the given instrument in the content editor.
-
-   @param instrumentId instrument to open
-   */
-  public void editInstrument(UUID instrumentId) {
-    var instrument = projectService.getContent().getInstrument(instrumentId)
-      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
-    LOG.info("Will open Instrument \"{}\"", instrument.getName());
-    this.id.set(instrument.getId());
-    this.libraryId.set(instrument.getLibraryId());
-    this.name.set(instrument.getName());
-
-    uiStateService.contentModeProperty().set(ContentMode.InstrumentEditor);
-    uiStateService.viewModeProperty().set(ViewMode.Content);
   }
 }

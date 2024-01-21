@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -51,26 +52,20 @@ public class LibraryEditorController implements ReadyAfterBootController {
     container.managedProperty().bind(visible);
 
     fieldName.textProperty().bindBidirectional(name);
+
+    uiStateService.contentModeProperty().addListener((o, ov, value) -> {
+      if (Objects.equals(value, ContentMode.LibraryEditor)) {
+        var library = projectService.getContent().getLibrary(uiStateService.currentLibraryProperty().get().getId())
+          .orElseThrow(() -> new RuntimeException("Could not find Library"));
+        LOG.info("Will edit Library \"{}\"", library.getName());
+        this.id.set(library.getId());
+        this.name.set(library.getName());
+      }
+    });
   }
 
   @Override
   public void onStageClose() {
     // FUTURE: on stage close
-  }
-
-  /**
-   Open the given library in the content editor.
-
-   @param libraryId library to open
-   */
-  public void editLibrary(UUID libraryId) {
-    var library = projectService.getContent().getLibrary(libraryId)
-      .orElseThrow(() -> new RuntimeException("Could not find Library"));
-    LOG.info("Will open Library \"{}\"", library.getName());
-    this.id.set(library.getId());
-    this.name.set(library.getName());
-
-    uiStateService.contentModeProperty().set(ContentMode.LibraryEditor);
-    uiStateService.viewModeProperty().set(ViewMode.Content);
   }
 }

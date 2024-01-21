@@ -4,9 +4,9 @@ package io.xj.gui.controllers.template;
 
 import io.xj.gui.controllers.BrowserController;
 import io.xj.gui.controllers.ReadyAfterBootController;
-import io.xj.gui.services.ProjectService;
-import io.xj.gui.modes.ViewMode;
 import io.xj.gui.modes.TemplateMode;
+import io.xj.gui.modes.ViewMode;
+import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.project.ProjectUpdate;
@@ -20,13 +20,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 @Service
 public class TemplateBrowserController extends BrowserController implements ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(TemplateBrowserController.class);
   private final ProjectService projectService;
   private final UIStateService uiStateService;
-  private final TemplateEditorController templateEditorController;
   private final ObservableList<Template> templates = FXCollections.observableList(new ArrayList<>());
 
   @FXML
@@ -37,12 +37,10 @@ public class TemplateBrowserController extends BrowserController implements Read
 
   public TemplateBrowserController(
     ProjectService projectService,
-    UIStateService uiStateService,
-    TemplateEditorController templateEditorController
+    UIStateService uiStateService
   ) {
     this.projectService = projectService;
     this.uiStateService = uiStateService;
-    this.templateEditorController = templateEditorController;
   }
 
   @Override
@@ -57,8 +55,14 @@ public class TemplateBrowserController extends BrowserController implements Read
     setupData(
       table,
       templates,
-      template -> LOG.debug("Did select Template \"{}\"", template.getName()),
-      templateEditorController::editTemplate
+      template -> {
+        if (Objects.nonNull(template))
+          LOG.debug("Did select Template \"{}\"", template.getName());
+      },
+      template -> {
+        if (Objects.nonNull(template))
+          uiStateService.editTemplate(template.getId());
+      }
     );
     projectService.addProjectUpdateListener(ProjectUpdate.Templates, this::updateTemplates);
   }

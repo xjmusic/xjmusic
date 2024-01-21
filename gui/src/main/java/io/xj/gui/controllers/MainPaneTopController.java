@@ -82,6 +82,15 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   @FXML
   protected Button buttonGoUpContentLevel;
 
+  @FXML
+  protected Label labelViewingLibrary;
+
+  @FXML
+  protected Label labelViewingEntitySeparator;
+
+  @FXML
+  protected Label labelViewingEntity;
+
   public MainPaneTopController(
     FabricationService fabricationService,
     FabricationSettingsModalController fabricationSettingsModalController,
@@ -132,6 +141,14 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     contentContainer.managedProperty().bind(isContentVisible);
     buttonGoUpContentLevel.visibleProperty().bind(uiStateService.isContentLevelUpPossibleProperty());
     buttonGoUpContentLevel.managedProperty().bind(uiStateService.isContentLevelUpPossibleProperty());
+    labelViewingLibrary.visibleProperty().bind(uiStateService.isViewingLibraryProperty());
+    labelViewingLibrary.managedProperty().bind(uiStateService.isViewingLibraryProperty());
+    labelViewingLibrary.textProperty().bind(uiStateService.currentLibraryNameProperty());
+    labelViewingEntitySeparator.visibleProperty().bind(uiStateService.isViewingEntityProperty());
+    labelViewingEntitySeparator.managedProperty().bind(uiStateService.isViewingEntityProperty());
+    labelViewingEntity.visibleProperty().bind(uiStateService.isViewingEntityProperty());
+    labelViewingEntity.managedProperty().bind(uiStateService.isViewingEntityProperty());
+    labelViewingEntity.textProperty().bind(uiStateService.currentEntityNameProperty());
   }
 
   @Override

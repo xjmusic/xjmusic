@@ -7,6 +7,7 @@ import io.xj.gui.controllers.content.InstrumentEditorController;
 import io.xj.gui.controllers.content.ProgramEditorController;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
+import io.xj.gui.services.UIStateService;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
@@ -82,14 +83,15 @@ public class FabricationTimelineController extends ScrollPane implements ReadyAf
   private final int displaySegmentsBeforeShip;
   private final ProgramEditorController programEditorController;
   private final InstrumentEditorController instrumentEditorController;
-  final ConfigurableApplicationContext ac;
-  final FabricationService fabricationService;
-  final LabService labService;
-  final long refreshTimelineMillis;
-  final Timeline scrollPaneAnimationTimeline = new Timeline();
+  private final ConfigurableApplicationContext ac;
+  private final FabricationService fabricationService;
+  private final UIStateService uiStateService;
+  private final LabService labService;
+  private final long refreshTimelineMillis;
+  private final Timeline scrollPaneAnimationTimeline = new Timeline();
 
   // Keep track of Displayed Segments (DS), keyed by id, so we can update them in place
-  final List<DisplayedSegment> ds = new ArrayList<>();
+  private final List<DisplayedSegment> ds = new ArrayList<>();
 
   @FXML
   ScrollPane scrollPane;
@@ -125,13 +127,14 @@ public class FabricationTimelineController extends ScrollPane implements ReadyAf
     InstrumentEditorController instrumentEditorController,
     ConfigurableApplicationContext ac,
     FabricationService fabricationService,
-    LabService labService
+    UIStateService uiStateService, LabService labService
   ) {
     this.displaySegmentsBeforeShip = displaySegmentsBeforeNow;
     this.programEditorController = programEditorController;
     this.instrumentEditorController = instrumentEditorController;
     this.ac = ac;
     this.fabricationService = fabricationService;
+    this.uiStateService = uiStateService;
     this.labService = labService;
     this.refreshTimelineMillis = refreshTimelineMillis;
     this.segmentDisplayChoiceHashRecheckLimit = segmentDisplayChoiceHashRecheckLimit;
@@ -828,7 +831,7 @@ public class FabricationTimelineController extends ScrollPane implements ReadyAf
     var programSequence = programSequenceBinding.map(ProgramSequenceBinding::getProgramSequenceId).flatMap(fabricationService::getProgramSequence);
 
     var hyperlink = new Hyperlink(computeProgramName(program.orElse(null), programSequence.orElse(null), programSequenceBinding.orElse(null)));
-    hyperlink.setOnAction(event -> programEditorController.editProgram(programId));
+    hyperlink.setOnAction(event -> uiStateService.editProgram(programId));
     return hyperlink;
   }
 
@@ -843,7 +846,7 @@ public class FabricationTimelineController extends ScrollPane implements ReadyAf
       .orElseThrow(() -> new RuntimeException(String.format("Program Voice %s not found", programVoiceId)));
 
     var hyperlink = new Hyperlink(programVoice.getName());
-    hyperlink.setOnAction(event -> programEditorController.editProgram(programVoice.getProgramId()));
+    hyperlink.setOnAction(event -> uiStateService.editProgram(programVoice.getProgramId()));
     return hyperlink;
   }
 
@@ -857,7 +860,7 @@ public class FabricationTimelineController extends ScrollPane implements ReadyAf
     var instrument = fabricationService.getInstrument(instrumentId);
 
     var hyperlink = new Hyperlink(instrument.orElseThrow().getName());
-    hyperlink.setOnAction(event -> instrumentEditorController.editInstrument(instrumentId));
+    hyperlink.setOnAction(event -> uiStateService.editInstrument(instrumentId));
     return hyperlink;
   }
 
@@ -872,7 +875,7 @@ public class FabricationTimelineController extends ScrollPane implements ReadyAf
       .orElseThrow(() -> new RuntimeException(String.format("Instrument Audio %s not found", instrumentAudioId)));
 
     var hyperlink = new Hyperlink(instrumentAudio.getName());
-    hyperlink.setOnAction(event -> instrumentEditorController.editInstrument(instrumentAudio.getInstrumentId()));
+    hyperlink.setOnAction(event -> uiStateService.editInstrument(instrumentAudio.getInstrumentId()));
     return hyperlink;
   }
 

@@ -4,6 +4,10 @@ import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.Template;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringBinding;
@@ -14,6 +18,7 @@ import javafx.beans.value.ObservableStringValue;
 import javafx.css.PseudoClass;
 
 import java.util.Set;
+import java.util.UUID;
 
 /**
  This is an intermediary to compute the state of the UI based on the state of the application.
@@ -118,12 +123,12 @@ public interface UIStateService extends ReadyAfterBootController {
   ObservableStringValue windowTitleProperty();
 
   /**
-   * @return Observable property for the view content mode
+   @return Observable property for the view content mode
    */
   ObjectProperty<ContentMode> contentModeProperty();
 
   /**
-   * @return Observable property for the view template mode
+   @return Observable property for the view template mode
    */
   ObjectProperty<TemplateMode> templateModeProperty();
 
@@ -133,7 +138,82 @@ public interface UIStateService extends ReadyAfterBootController {
   void goUpContentLevel();
 
   /**
-   * @return binding for whether it's possible to go up a content level
+   @return binding for whether it's possible to go up a content level
    */
   BooleanBinding isContentLevelUpPossibleProperty();
+
+  /**
+   @return Observable property for the current library being viewed
+   */
+  ObjectProperty<Library> currentLibraryProperty();
+
+  /**
+   @return Observable property for the current program being viewed
+   */
+  ObjectProperty<Program> currentProgramProperty();
+
+  /**
+   @return Observable property for the current instrument being viewed
+   */
+  ObjectProperty<Instrument> currentInstrumentProperty();
+
+  /**
+   @return Observable property for the current template being viewed
+   */
+  ObjectProperty<Template> currentTemplateProperty();
+
+  /**
+   View the given library in the content browser.
+
+   @param libraryId ID of the Library to view
+   */
+  void viewLibrary(UUID libraryId);
+
+  /**
+   Edit the given library in the content browser.
+
+   @param libraryId ID of the Library to edit
+   */
+  void editLibrary(UUID libraryId);
+
+  /**
+   Edit the given program in the content browser.
+
+   @param programId ID of the Program to edit
+   */
+  void editProgram(UUID programId);
+
+  /**
+   Edit the given instrument in the content browser.
+
+   @param instrumentId ID of the Instrument to edit
+   */
+  void editInstrument(UUID instrumentId);
+
+  /**
+   Edit the given template in the content browser.
+
+   @param templateId ID of the Template to edit
+   */
+  void editTemplate(UUID templateId);
+
+  /**
+   @return Observable property for whether we are currently viewing a library
+   */
+  BooleanBinding isViewingLibraryProperty();
+
+  /**
+   @return Observable property for whether we are currently viewing an entity
+   */
+  BooleanBinding isViewingEntityProperty();
+
+  /**
+   @return Observable property for the name of the current library
+   */
+  StringBinding currentLibraryNameProperty();
+
+  /**
+   @return Observable property for the name of the current entity
+   */
+  StringBinding currentEntityNameProperty();
 }

@@ -8,6 +8,10 @@ import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.WindowUtils;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.ControlMode;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.work.FabricationState;
@@ -27,21 +31,28 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class UIStateServiceImpl implements UIStateService {
   private final BooleanBinding hasCurrentProject;
   private final BooleanBinding isManualFabricationActive;
+  private final ProjectService projectService;
   private final BooleanBinding isManualFabricationMode;
   private final BooleanBinding isProgressBarVisible;
   private static final Collection<ContentMode> CONTENT_MODES_WITH_PARENT = Set.of(
     ContentMode.ProgramBrowser,
     ContentMode.ProgramEditor,
     ContentMode.InstrumentBrowser,
-    ContentMode.InstrumentEditor
+    ContentMode.InstrumentEditor,
+    ContentMode.LibraryEditor
   );
   private final StringBinding windowTitle;
   private final ObjectProperty<ViewMode> viewMode = new SimpleObjectProperty<>(ViewMode.Content);
+  private final ObjectProperty<Library> currentLibrary = new SimpleObjectProperty<>(null);
+  private final ObjectProperty<Program> currentProgram = new SimpleObjectProperty<>(null);
+  private final ObjectProperty<Instrument> currentInstrument = new SimpleObjectProperty<>(null);
+  private final ObjectProperty<Template> currentTemplate = new SimpleObjectProperty<>(null);
   private final ObjectProperty<ContentMode> contentMode = new SimpleObjectProperty<>(ContentMode.LibraryBrowser);
   private final ObjectProperty<TemplateMode> templateMode = new SimpleObjectProperty<>(TemplateMode.TemplateBrowser);
   private final BooleanBinding isContentLevelUpPossible = Bindings.createBooleanBinding(
@@ -57,6 +68,10 @@ public class UIStateServiceImpl implements UIStateService {
   private final StringProperty logLevel = new SimpleStringProperty(WorkstationLogAppender.LEVEL.get().toString());
   private final BooleanBinding isStateTextVisible;
   private final BooleanBinding isViewModeFabrication = viewMode.isEqualTo(ViewMode.Fabrication);
+  private final BooleanBinding isViewingLibrary;
+  private final BooleanBinding isViewingEntity;
+  private final StringBinding currentLibraryName;
+  private final StringBinding currentEntityName;
 
   public UIStateServiceImpl(
     FabricationService fabricationService,
@@ -78,6 +93,7 @@ public class UIStateServiceImpl implements UIStateService {
     isManualFabricationActive =
       fabricationService.controlModeProperty().isNotEqualTo(ControlMode.AUTO)
         .and(fabricationService.stateProperty().isEqualTo(FabricationState.Active));
+    this.projectService = projectService;
 
     // Is the progress bar visible?
     isProgressBarVisible =
@@ -126,6 +142,26 @@ public class UIStateServiceImpl implements UIStateService {
         : "XJ music workstation",
       projectService.currentProjectProperty()
     );
+
+    isViewingLibrary = currentLibrary.isNotNull();
+    currentLibraryName = Bindings.createStringBinding(
+      () -> Objects.nonNull(currentLibrary.get()) ? currentLibrary.get().getName() : "",
+      currentLibrary
+    );
+
+    isViewingEntity = currentProgram.isNotNull().or(currentInstrument.isNotNull()).or(currentTemplate.isNotNull());
+    currentEntityName = Bindings.createStringBinding(
+      () -> {
+        if (Objects.nonNull(currentProgram.get())) {
+          return currentProgram.get().getName();
+        } else if (Objects.nonNull(currentInstrument.get())) {
+          return currentInstrument.get().getName();
+        } else if (Objects.nonNull(currentTemplate.get())) {
+          return currentTemplate.get().getName();
+        } else {
+          return "";
+        }
+      }, currentProgram, currentInstrument, currentTemplate);
   }
 
   @Override
@@ -220,7 +256,42 @@ public class UIStateServiceImpl implements UIStateService {
 
   @Override
   public void goUpContentLevel() {
-    // TODO implement going up a level in the content browser, handled from the project service
+    switch (viewMode.get()) {
+      case Content -> {
+        switch (contentMode.get()) {
+          case ProgramBrowser, InstrumentBrowser, LibraryEditor -> {
+            currentLibrary.set(null);
+            contentMode.set(ContentMode.LibraryBrowser);
+          }
+          case ProgramEditor -> {
+            currentProgram.set(null);
+            contentMode.set(ContentMode.ProgramBrowser);
+          }
+          case InstrumentEditor -> {
+            currentInstrument.set(null);
+            contentMode.set(ContentMode.InstrumentBrowser);
+          }
+        }
+      }
+      case Templates -> {
+        if (Objects.equals(templateMode.get(), TemplateMode.TemplateEditor)) {
+          currentTemplate.set(null);
+          templateMode.set(TemplateMode.TemplateBrowser);
+        }
+      }
+    }
+
+    if (Objects.equals(viewMode.get(), ViewMode.Content)) {
+      if (Objects.equals(contentMode.get(), ContentMode.ProgramEditor)) {
+        contentMode.set(ContentMode.ProgramBrowser);
+      } else if (Objects.equals(contentMode.get(), ContentMode.InstrumentEditor)) {
+        contentMode.set(ContentMode.InstrumentBrowser);
+      }
+    } else if (Objects.equals(viewMode.get(), ViewMode.Templates)) {
+      if (Objects.equals(templateMode.get(), TemplateMode.TemplateEditor)) {
+        templateMode.set(TemplateMode.TemplateBrowser);
+      }
+    }
   }
 
   @Override
@@ -238,4 +309,93 @@ public class UIStateServiceImpl implements UIStateService {
     return templateMode;
   }
 
+  @Override
+  public ObjectProperty<Library> currentLibraryProperty() {
+    return currentLibrary;
+  }
+
+  @Override
+  public ObjectProperty<Program> currentProgramProperty() {
+    return currentProgram;
+  }
+
+  @Override
+  public ObjectProperty<Instrument> currentInstrumentProperty() {
+    return currentInstrument;
+  }
+
+  @Override
+  public ObjectProperty<Template> currentTemplateProperty() {
+    return currentTemplate;
+  }
+
+  @Override
+  public void viewLibrary(UUID libraryId) {
+    var library = projectService.getContent().getLibrary(libraryId)
+      .orElseThrow(() -> new RuntimeException("Could not find Library!"));
+    currentLibrary.set(library);
+    if (Objects.nonNull(library))
+      if (projectService.getContent().getInstruments().stream()
+        .anyMatch(instrument -> Objects.equals(instrument.getLibraryId(), library.getId()))) {
+        contentMode.set(ContentMode.InstrumentBrowser);
+      } else {
+        contentMode.set(ContentMode.ProgramBrowser);
+      }
+  }
+
+  @Override
+  public void editLibrary(UUID libraryId) {
+    var library = projectService.getContent().getLibrary(libraryId)
+      .orElseThrow(() -> new RuntimeException("Could not find Library!"));
+    currentLibrary.set(library);
+    contentMode.set(ContentMode.LibraryEditor);
+    viewMode.set(ViewMode.Content);
+  }
+
+  @Override
+  public void editProgram(UUID programId) {
+    var program = projectService.getContent().getProgram(programId)
+      .orElseThrow(() -> new RuntimeException("Could not find Program!"));
+    currentProgram.set(program);
+    contentMode.set(ContentMode.ProgramEditor);
+    viewMode.set(ViewMode.Content);
+  }
+
+  @Override
+  public void editInstrument(UUID instrumentId) {
+    var instrument = projectService.getContent().getInstrument(instrumentId)
+      .orElseThrow(() -> new RuntimeException("Could not find Instrument!"));
+    currentInstrument.set(instrument);
+    contentMode.set(ContentMode.InstrumentEditor);
+    viewMode.set(ViewMode.Content);
+  }
+
+  @Override
+  public void editTemplate(UUID templateId) {
+    var template = projectService.getContent().getTemplate(templateId)
+      .orElseThrow(() -> new RuntimeException("Could not find Template!"));
+    currentTemplate.set(template);
+    templateMode.set(TemplateMode.TemplateEditor);
+    viewMode.set(ViewMode.Templates);
+  }
+
+  @Override
+  public BooleanBinding isViewingLibraryProperty() {
+    return isViewingLibrary;
+  }
+
+  @Override
+  public BooleanBinding isViewingEntityProperty() {
+    return isViewingEntity;
+  }
+
+  @Override
+  public StringBinding currentLibraryNameProperty() {
+    return currentLibraryName;
+  }
+
+  @Override
+  public StringBinding currentEntityNameProperty() {
+    return currentEntityName;
+  }
 }

@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -25,7 +26,6 @@ public class ProgramEditorController implements ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
   private final ProjectService projectService;
   private final UIStateService uiStateService;
-  private final ObjectProperty<UUID> libraryId = new SimpleObjectProperty<>(null);
   private final ObjectProperty<UUID> id = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
 
@@ -52,27 +52,20 @@ public class ProgramEditorController implements ReadyAfterBootController {
     container.managedProperty().bind(visible);
 
     fieldName.textProperty().bindBidirectional(name);
+
+    uiStateService.contentModeProperty().addListener((o, ov, value) -> {
+      if (Objects.equals(value, ContentMode.ProgramEditor)) {
+        var program = projectService.getContent().getProgram(uiStateService.currentProgramProperty().get().getId())
+          .orElseThrow(() -> new RuntimeException("Could not find Program"));
+        LOG.info("Will edit Program \"{}\"", program.getName());
+        this.id.set(program.getId());
+        this.name.set(program.getName());
+      }
+    });
   }
 
   @Override
   public void onStageClose() {
     // FUTURE: on stage close
-  }
-
-  /**
-   Open the given program in the content editor.
-
-   @param programId program to open
-   */
-  public void editProgram(UUID programId) {
-    var program = projectService.getContent().getProgram(programId)
-      .orElseThrow(() -> new RuntimeException("Could not find Program"));
-    LOG.info("Will open Program \"{}\"", program.getName());
-    this.id.set(program.getId());
-    this.libraryId.set(program.getLibraryId());
-    this.name.set(program.getName());
-
-    uiStateService.contentModeProperty().set(ContentMode.ProgramEditor);
-    uiStateService.viewModeProperty().set(ViewMode.Content);
   }
 }
