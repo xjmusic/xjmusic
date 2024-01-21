@@ -91,7 +91,7 @@
                 onAction="#handlePressedGoUpContentLevel"
                 styleClass="back-button">
           <graphic>
-            <ImageView fitHeight="16" fitWidth="16" pickOnBounds="true" preserveRatio="true">
+            <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
               <Image url="@/icons/folder-arrow-back.png"/>
             </ImageView>
           </graphic>

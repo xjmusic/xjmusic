@@ -16,6 +16,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableListValue;
 import javafx.beans.value.ObservableStringValue;
+import javafx.beans.value.ObservableValue;
 
 import java.util.List;
 import java.util.UUID;
@@ -186,4 +187,9 @@ public interface ProjectService {
    Go up a content level in the browser
    */
   void goUpContentLevel();
+
+  /**
+   * @return binding for whether it's possible to go up a content level
+   */
+  BooleanBinding isContentLevelUpPossibleProperty();
 }

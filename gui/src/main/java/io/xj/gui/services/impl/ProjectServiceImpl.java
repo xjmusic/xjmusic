@@ -42,17 +42,31 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.prefs.Preferences;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
-  static final Logger LOG = LoggerFactory.getLogger(ProjectServiceImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectServiceImpl.class);
   private static final String defaultPathPrefix = System.getProperty("user.home") + File.separator + "Documents";
+  private static final Collection<ProjectState> PROJECT_LOADING_STATES = Set.of(
+    ProjectState.LoadingContent,
+    ProjectState.LoadedContent,
+    ProjectState.LoadingAudio,
+    ProjectState.LoadedAudio
+  );
+  private static final Collection<ContentMode> CONTENT_MODES_WITH_PARENT = Set.of(
+    ContentMode.ProgramBrowser,
+    ContentMode.ProgramEditor,
+    ContentMode.InstrumentBrowser,
+    ContentMode.InstrumentEditor
+  );
   private final Preferences prefs = Preferences.userNodeForPackage(ProjectServiceImpl.class);
   private final ObjectProperty<ViewMode> viewMode = new SimpleObjectProperty<>(ViewMode.Content);
   private final ObjectProperty<ContentMode> contentMode = new SimpleObjectProperty<>(ContentMode.LibraryBrowser);
@@ -78,13 +92,15 @@ public class ProjectServiceImpl implements ProjectService {
     },
     state,
     progress);
-  private final BooleanBinding isStateLoading =
-    state.isEqualTo(ProjectState.LoadingContent)
-      .or(state.isEqualTo(ProjectState.LoadingAudio))
-      .or(state.isEqualTo(ProjectState.LoadingAudio))
-      .or(state.isEqualTo(ProjectState.LoadedAudio));
+  private final BooleanBinding isStateLoading = Bindings.createBooleanBinding(
+    () -> PROJECT_LOADING_STATES.contains(state.get()),
+    state);
   private final BooleanBinding isStateReady = state.isEqualTo(ProjectState.Ready);
   private final BooleanBinding isStateStandby = state.isEqualTo(ProjectState.Standby);
+  private final BooleanBinding isContentLevelUpPossible = Bindings.createBooleanBinding(
+    () -> (Objects.equals(viewMode.get(), ViewMode.Content) && CONTENT_MODES_WITH_PARENT.contains(contentMode.get()))
+      || (Objects.equals(viewMode.get(), ViewMode.Templates) && Objects.equals(templateMode.get(), TemplateMode.TemplateEditor)),
+    viewMode, contentMode, templateMode);
   private final int maxRecentProjects;
   private final LabService labService;
   private final ProjectManager projectManager;
@@ -308,6 +324,11 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public void goUpContentLevel() {
     // TODO implement going up a level in the content browser, handled from the project service
+  }
+
+  @Override
+  public BooleanBinding isContentLevelUpPossibleProperty() {
+    return isContentLevelUpPossible;
   }
 
   @Override

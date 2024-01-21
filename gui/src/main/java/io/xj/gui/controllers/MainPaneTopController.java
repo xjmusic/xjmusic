@@ -12,6 +12,8 @@ import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.WindowUtils;
 import io.xj.nexus.work.FabricationState;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -42,10 +44,17 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     FabricationState.PreparingAudio,
     FabricationState.Starting
   );
+  private static final Set<ViewMode> CONTENT_MODES = Set.of(
+    ViewMode.Content,
+    ViewMode.Templates
+  );
   private final ProjectService projectService;
   private final FabricationService fabricationService;
   private final UIStateService uiStateService;
   private final FabricationSettingsModalController fabricationSettingsModalController;
+  private final BooleanBinding isFabricationVisible;
+  private final BooleanBinding isStatusVisible;
+  private final BooleanBinding isContentVisible;
 
   @FXML
   protected AnchorPane mainTopPaneContainer;
@@ -90,11 +99,24 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     this.fabricationSettingsModalController = fabricationSettingsModalController;
     this.projectService = projectService;
     this.uiStateService = uiStateService;
+
+    isFabricationVisible = projectService.viewModeProperty().isEqualTo(ViewMode.Fabrication);
+
+    isStatusVisible = uiStateService.isStatusTextVisibleProperty()
+      .or(uiStateService.isProgressBarVisibleProperty())
+      .or(projectService.isStateLoadingProperty());
+
+    isContentVisible = Bindings.createBooleanBinding(
+      () -> isStatusVisible.not().get() && CONTENT_MODES.contains(projectService.viewModeProperty().get()),
+      isStatusVisible, projectService.viewModeProperty());
+
+    isStatusVisible.not().and(
+      projectService.viewModeProperty().isEqualTo(ViewMode.Content)
+        .or(projectService.viewModeProperty().isEqualTo(ViewMode.Templates)));
   }
 
   @Override
   public void onStageReady() {
-    var isFabricationVisible = projectService.viewModeProperty().isEqualTo(ViewMode.Fabrication);
     fabricationControlContainer.visibleProperty().bind(isFabricationVisible);
     fabricationControlContainer.managedProperty().bind(isFabricationVisible);
     buttonAction.textProperty().bind(fabricationService.mainActionButtonTextProperty());
@@ -103,9 +125,6 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     fabricationService.stateProperty().addListener((o, ov, value) -> activateFabricationState(value));
     buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
 
-    var isStatusVisible = uiStateService.isStatusTextVisibleProperty()
-      .or(uiStateService.isProgressBarVisibleProperty())
-      .or(projectService.isStateLoadingProperty());
     statusContainer.visibleProperty().bind(isStatusVisible);
     statusContainer.managedProperty().bind(isStatusVisible);
     labelStatus.textProperty().bind(uiStateService.statusTextProperty());
@@ -116,10 +135,10 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     buttonCancelLoading.visibleProperty().bind(projectService.isStateLoadingProperty());
     buttonCancelLoading.managedProperty().bind(projectService.isStateLoadingProperty());
 
-    var isContentVisible = projectService.viewModeProperty().isEqualTo(ViewMode.Content)
-      .and(isStatusVisible.not());
     contentContainer.visibleProperty().bind(isContentVisible);
     contentContainer.managedProperty().bind(isContentVisible);
+    buttonGoUpContentLevel.visibleProperty().bind(projectService.isContentLevelUpPossibleProperty());
+    buttonGoUpContentLevel.managedProperty().bind(projectService.isContentLevelUpPossibleProperty());
   }
 
   @Override

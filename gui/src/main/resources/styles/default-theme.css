@@ -261,6 +261,9 @@
 }
 
 #contentContainer .back-button:hover {
-  -fx-background-color: #d0d0d0;
+  -fx-background-color: #c0c0c0;
 }
 
+#contentContainer .back-button:pressed {
+  -fx-background-color: #a0a0a0;
+}
