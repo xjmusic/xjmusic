@@ -80,6 +80,9 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   protected CheckMenuItem checkboxFabricationFollow;
 
   @FXML
+  protected Menu menuFabrication;
+
+  @FXML
   protected MenuItem itemOpenFabricationSettings;
 
   @FXML
@@ -206,6 +209,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     buttonViewModeContent.disableProperty().bind(projectService.isStateReadyProperty().not());
     buttonViewModeTemplates.disableProperty().bind(projectService.isStateReadyProperty().not());
     buttonViewModeFabrication.disableProperty().bind(projectService.isStateReadyProperty().not());
+    menuFabrication.disableProperty().bind(projectService.isStateReadyProperty().not());
 
     viewModeToggleContainer.translateXProperty().bind(container.widthProperty().subtract(viewModeToggleContainer.widthProperty()).divide(2));
   }
