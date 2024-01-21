@@ -83,7 +83,7 @@
       <MenuItem onAction="#onQuit" text="E_xit"/>
     </Menu>
 
-    <Menu text="_Fabrication">
+    <Menu fx:id="menuFabrication" text="_Fabrication">
       <MenuItem fx:id="itemFabricationMainAction" onAction="#handleFabricationMainAction" text="_Start"/>
       <CheckMenuItem fx:id="checkboxFabricationFollow" text="_Follow"/>
       <SeparatorMenuItem mnemonicParsing="false"/>

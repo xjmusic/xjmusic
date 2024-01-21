@@ -146,29 +146,42 @@ public class UIStateServiceImpl implements UIStateService {
       () -> switch (viewMode.get()) {
         case Content -> switch (contentMode.get()) {
           case LibraryBrowser, LibraryEditor -> "Libraries";
-          case ProgramBrowser, InstrumentBrowser, ProgramEditor, InstrumentEditor -> currentLibrary.get().getName();
+          case ProgramBrowser, InstrumentBrowser, ProgramEditor, InstrumentEditor -> currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
         };
         case Templates -> switch (templateMode.get()) {
           case TemplateBrowser -> "Templates";
-          case TemplateEditor -> currentTemplate.get().getName();
+          case TemplateEditor -> currentTemplate.isNotNull().get() ? currentTemplate.get().getName() : "";
         };
         case Fabrication -> "";
       },
       viewMode, contentMode, currentLibrary
     );
 
-    isViewingEntity = currentProgram.isNotNull().or(currentInstrument.isNotNull()).or(currentTemplate.isNotNull());
+    isViewingEntity = Bindings.createBooleanBinding(
+      () -> switch (viewMode.get()) {
+        case Content -> switch (contentMode.get()) {
+          case LibraryBrowser, ProgramBrowser, InstrumentBrowser -> false;
+          case LibraryEditor, ProgramEditor, InstrumentEditor -> true;
+        };
+        case Templates -> switch (templateMode.get()) {
+          case TemplateBrowser -> false;
+          case TemplateEditor -> true;
+        };
+        case Fabrication -> false;
+      },
+      viewMode, contentMode, templateMode
+    );
     currentEntityName = Bindings.createStringBinding(
       () -> switch (viewMode.get()) {
         case Content -> switch (contentMode.get()) {
           case LibraryBrowser, ProgramBrowser, InstrumentBrowser -> "";
-          case LibraryEditor -> currentLibrary.get().getName();
-          case ProgramEditor -> currentProgram.get().getName();
-          case InstrumentEditor -> currentInstrument.get().getName();
+          case LibraryEditor -> currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
+          case ProgramEditor -> currentProgram.isNotNull().get() ? currentProgram.get().getName() : "";
+          case InstrumentEditor -> currentInstrument.isNotNull().get() ? currentInstrument.get().getName() : "";
         };
         case Templates -> switch (templateMode.get()) {
           case TemplateBrowser -> "";
-          case TemplateEditor -> currentTemplate.get().getName();
+          case TemplateEditor -> currentTemplate.isNotNull().get() ? currentTemplate.get().getName() : "";
         };
         case Fabrication -> "";
       },
