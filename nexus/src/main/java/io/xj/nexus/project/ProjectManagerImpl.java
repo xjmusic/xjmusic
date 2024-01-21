@@ -100,7 +100,8 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public boolean cloneProjectFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
+  public boolean cloneProjectFromDemoTemplate(String audioBaseUrl, String parentPathPrefix, String templateShipKey, String projectName) {
+    this.audioBaseUrl.set(audioBaseUrl);
     LOG.info("Cloning from demo template \"{}\" in parent folder {}", templateShipKey, parentPathPrefix);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
@@ -108,7 +109,8 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public boolean cloneFromLabProject(HubClientAccess access, String labBaseUrl, String parentPathPrefix, UUID projectId, String projectName) {
+  public boolean cloneFromLabProject(HubClientAccess access, String labBaseUrl, String audioBaseUrl, String parentPathPrefix, UUID projectId, String projectName) {
+    this.audioBaseUrl.set(audioBaseUrl);
     LOG.info("Cloning from lab Project[{}] in parent folder {}", projectId, parentPathPrefix);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
@@ -450,6 +452,8 @@ public class ProjectManagerImpl implements ProjectManager {
       CloseableHttpResponse response = httpClient.execute(new HttpHead(url))
     ) {
       return Long.parseLong(response.getFirstHeader("Content-Length").getValue());
+    } catch (Exception e) {
+      throw new NexusException(String.format("Unable to get %s", url), e);
     }
   }
 

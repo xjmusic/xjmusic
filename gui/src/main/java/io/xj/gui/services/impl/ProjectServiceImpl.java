@@ -104,8 +104,6 @@ public class ProjectServiceImpl implements ProjectService {
 
     projectManager.setOnProgress((progress) -> Platform.runLater(() -> this.progress.set(progress)));
     projectManager.setOnStateChange((state) -> Platform.runLater(() -> this.state.set(state)));
-    projectManager.setAudioBaseUrl(labService.hubConfigProperty().get().getAudioBaseUrl());
-    labService.hubConfigProperty().addListener((o, ov, value) -> projectManager.setAudioBaseUrl(value.getAudioBaseUrl()));
 
     currentProject = Bindings.createObjectBinding(() -> {
       if (Objects.equals(state.get(), ProjectState.Ready)) {
@@ -152,6 +150,7 @@ public class ProjectServiceImpl implements ProjectService {
     cloneProject(parentPathPrefix, projectName, () -> projectManager.cloneFromLabProject(
       labService.getHubClientAccess(),
       labService.hubConfigProperty().get().getApiBaseUrl(),
+      labService.hubConfigProperty().get().getAudioBaseUrl(),
       parentPathPrefix,
       projectId,
       projectName
@@ -161,6 +160,7 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public void cloneFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
     cloneProject(parentPathPrefix, projectName, () -> projectManager.cloneProjectFromDemoTemplate(
+      labService.hubConfigProperty().get().getAudioBaseUrl(),
       parentPathPrefix,
       templateShipKey,
       projectName
