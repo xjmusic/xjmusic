@@ -34,12 +34,6 @@ public class ContentBrowserController extends BrowserController implements Ready
   private final ObservableList<Program> programs = FXCollections.observableList(new ArrayList<>());
   private final ObservableList<Instrument> instruments = FXCollections.observableList(new ArrayList<>());
 
-/*
-todo move to top pane
-  @FXML
-  protected Label libraryTitle;
-*/
-
   @FXML
   protected StackPane container;
 
