@@ -7,6 +7,7 @@ import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
@@ -29,6 +30,7 @@ import java.util.Objects;
 public class ContentBrowserController extends BrowserController implements ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(ContentBrowserController.class);
   private final ProjectService projectService;
+  private final UIStateService uiStateService;
   private final LibraryEditorController libraryEditorController;
   private final ProgramEditorController programEditorController;
   private final InstrumentEditorController instrumentEditorController;
@@ -70,11 +72,13 @@ todo move to top pane
 
   public ContentBrowserController(
     ProjectService projectService,
+    UIStateService uiStateService,
     LibraryEditorController libraryEditorController,
     ProgramEditorController programEditorController,
     InstrumentEditorController instrumentEditorController
   ) {
     this.projectService = projectService;
+    this.uiStateService = uiStateService;
     this.libraryEditorController = libraryEditorController;
     this.programEditorController = programEditorController;
     this.instrumentEditorController = instrumentEditorController;
@@ -86,24 +90,24 @@ todo move to top pane
     initPrograms();
     initInstruments();
 
-    var isLibraryBrowser = projectService.contentModeProperty().isEqualTo(ContentMode.LibraryBrowser);
+    var isLibraryBrowser = uiStateService.contentModeProperty().isEqualTo(ContentMode.LibraryBrowser);
     librariesTable.visibleProperty().bind(isLibraryBrowser);
     librariesTable.managedProperty().bind(isLibraryBrowser);
 
-    var isProgramBrowser = projectService.contentModeProperty().isEqualTo(ContentMode.ProgramBrowser);
+    var isProgramBrowser = uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramBrowser);
     programsTable.visibleProperty().bind(isProgramBrowser);
     programsTable.managedProperty().bind(isProgramBrowser);
 
-    var isInstrumentBrowser = projectService.contentModeProperty().isEqualTo(ContentMode.InstrumentBrowser);
+    var isInstrumentBrowser = uiStateService.contentModeProperty().isEqualTo(ContentMode.InstrumentBrowser);
     instrumentsTable.visibleProperty().bind(isInstrumentBrowser);
     instrumentsTable.managedProperty().bind(isInstrumentBrowser);
 
     var visible = projectService.isStateReadyProperty()
-      .and(projectService.viewModeProperty().isEqualTo(ViewMode.Content))
+      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
       .and(
-        projectService.contentModeProperty().isEqualTo(ContentMode.LibraryBrowser)
-          .or(projectService.contentModeProperty().isEqualTo(ContentMode.ProgramBrowser))
-          .or(projectService.contentModeProperty().isEqualTo(ContentMode.InstrumentBrowser)));
+        uiStateService.contentModeProperty().isEqualTo(ContentMode.LibraryBrowser)
+          .or(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramBrowser))
+          .or(uiStateService.contentModeProperty().isEqualTo(ContentMode.InstrumentBrowser)));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
@@ -219,10 +223,10 @@ TODO move to top pane
       if (projectService.getContent().getInstruments().stream()
         .anyMatch(instrument -> Objects.equals(instrument.getLibraryId(), library.getId()))) {
         // todo move to top pane libraryContentTabPane.selectionModelProperty().get().select(instrumentsTab);
-        projectService.contentModeProperty().set(ContentMode.InstrumentBrowser);
+        uiStateService.contentModeProperty().set(ContentMode.InstrumentBrowser);
       } else {
         // todo move to top pane libraryContentTabPane.selectionModelProperty().get().select(programsTab);
-        projectService.contentModeProperty().set(ContentMode.ProgramBrowser);
+        uiStateService.contentModeProperty().set(ContentMode.ProgramBrowser);
       }
   }
 }

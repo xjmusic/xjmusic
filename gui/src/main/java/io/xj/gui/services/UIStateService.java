@@ -1,11 +1,16 @@
 package io.xj.gui.services;
 
 import io.xj.gui.controllers.ReadyAfterBootController;
+import io.xj.gui.modes.ContentMode;
+import io.xj.gui.modes.TemplateMode;
+import io.xj.gui.modes.ViewMode;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableStringValue;
 import javafx.css.PseudoClass;
 
 import java.util.Set;
@@ -46,9 +51,9 @@ public interface UIStateService extends ReadyAfterBootController {
   BooleanBinding isFabricationSettingsDisabledProperty();
 
   /**
-   @return Observable property of the fabrication status text
+   @return Observable property of the fabrication state text
    */
-  StringBinding statusTextProperty();
+  StringBinding stateTextProperty();
 
   /**
    @return Observable property of whether the progress bar should be visible
@@ -86,7 +91,49 @@ public interface UIStateService extends ReadyAfterBootController {
   BooleanBinding isMainActionButtonDisabledProperty();
 
   /**
-   @return Observable property of whether the status text should be visible
+   @return Observable property of whether the state text should be visible
    */
-  BooleanBinding isStatusTextVisibleProperty();
+  BooleanBinding isStateTextVisibleProperty();
+
+  /**
+   The View Mode
+
+   @return the project view mode
+   */
+  ObjectProperty<ViewMode> viewModeProperty();
+
+  /**
+   @return Observable property for whether the project is in content view mode
+   */
+  BooleanBinding isViewModeContentProperty();
+
+  /**
+   @return Observable property for whether the project is in fabrication view mode
+   */
+  BooleanBinding isViewModeFabricationProperty();
+
+  /**
+   @return the window title
+   */
+  ObservableStringValue windowTitleProperty();
+
+  /**
+   * @return Observable property for the view content mode
+   */
+  ObjectProperty<ContentMode> contentModeProperty();
+
+  /**
+   * @return Observable property for the view template mode
+   */
+  ObjectProperty<TemplateMode> templateModeProperty();
+
+  /**
+   Go up a content level in the browser
+   */
+  void goUpContentLevel();
+
+  /**
+   * @return binding for whether it's possible to go up a content level
+   */
+  BooleanBinding isContentLevelUpPossibleProperty();
 }

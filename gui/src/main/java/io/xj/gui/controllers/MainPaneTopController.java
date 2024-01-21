@@ -3,13 +3,10 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.controllers.fabrication.FabricationSettingsModalController;
-import io.xj.gui.modes.ContentMode;
-import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
-import io.xj.gui.utils.WindowUtils;
 import io.xj.nexus.work.FabricationState;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -21,11 +18,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -37,7 +31,6 @@ import static io.xj.gui.services.UIStateService.PENDING_PSEUDO_CLASS;
 
 @Service
 public class MainPaneTopController extends VBox implements ReadyAfterBootController {
-  Logger LOG = LoggerFactory.getLogger(MainPaneTopController.class);
   private static final Set<FabricationState> WORK_PENDING_STATES = Set.of(
     FabricationState.Initializing,
     FabricationState.PreparedAudio,
@@ -100,19 +93,19 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     this.projectService = projectService;
     this.uiStateService = uiStateService;
 
-    isFabricationVisible = projectService.viewModeProperty().isEqualTo(ViewMode.Fabrication);
+    isFabricationVisible = uiStateService.viewModeProperty().isEqualTo(ViewMode.Fabrication);
 
-    isStatusVisible = uiStateService.isStatusTextVisibleProperty()
+    isStatusVisible = uiStateService.isStateTextVisibleProperty()
       .or(uiStateService.isProgressBarVisibleProperty())
       .or(projectService.isStateLoadingProperty());
 
     isContentVisible = Bindings.createBooleanBinding(
-      () -> isStatusVisible.not().get() && CONTENT_MODES.contains(projectService.viewModeProperty().get()),
-      isStatusVisible, projectService.viewModeProperty());
+      () -> isStatusVisible.not().get() && CONTENT_MODES.contains(uiStateService.viewModeProperty().get()),
+      isStatusVisible, uiStateService.viewModeProperty());
 
     isStatusVisible.not().and(
-      projectService.viewModeProperty().isEqualTo(ViewMode.Content)
-        .or(projectService.viewModeProperty().isEqualTo(ViewMode.Templates)));
+      uiStateService.viewModeProperty().isEqualTo(ViewMode.Content)
+        .or(uiStateService.viewModeProperty().isEqualTo(ViewMode.Templates)));
   }
 
   @Override
@@ -127,8 +120,8 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
     statusContainer.visibleProperty().bind(isStatusVisible);
     statusContainer.managedProperty().bind(isStatusVisible);
-    labelStatus.textProperty().bind(uiStateService.statusTextProperty());
-    labelStatus.visibleProperty().bind(uiStateService.isStatusTextVisibleProperty());
+    labelStatus.textProperty().bind(uiStateService.stateTextProperty());
+    labelStatus.visibleProperty().bind(uiStateService.isStateTextVisibleProperty());
     progressBar.progressProperty().bind(uiStateService.progressProperty());
     progressBar.visibleProperty().bind(uiStateService.isProgressBarVisibleProperty());
     progressBar.managedProperty().bind(uiStateService.isProgressBarVisibleProperty());
@@ -137,8 +130,8 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
     contentContainer.visibleProperty().bind(isContentVisible);
     contentContainer.managedProperty().bind(isContentVisible);
-    buttonGoUpContentLevel.visibleProperty().bind(projectService.isContentLevelUpPossibleProperty());
-    buttonGoUpContentLevel.managedProperty().bind(projectService.isContentLevelUpPossibleProperty());
+    buttonGoUpContentLevel.visibleProperty().bind(uiStateService.isContentLevelUpPossibleProperty());
+    buttonGoUpContentLevel.managedProperty().bind(uiStateService.isContentLevelUpPossibleProperty());
   }
 
   @Override
@@ -153,7 +146,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
   @FXML
   protected void handlePressedGoUpContentLevel() {
-    projectService.goUpContentLevel();
+    uiStateService.goUpContentLevel();
   }
 
   @FXML

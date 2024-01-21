@@ -6,6 +6,7 @@ import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.UIStateService;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -23,6 +24,7 @@ import java.util.UUID;
 public class LibraryEditorController implements ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(LibraryEditorController.class);
   private final ProjectService projectService;
+  private final UIStateService uiStateService;
   private final ObjectProperty<UUID> id = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
 
@@ -33,16 +35,18 @@ public class LibraryEditorController implements ReadyAfterBootController {
   protected TextField fieldName;
 
   public LibraryEditorController(
-    ProjectService projectService
+    ProjectService projectService,
+    UIStateService uiStateService
   ) {
     this.projectService = projectService;
+    this.uiStateService = uiStateService;
   }
 
   @Override
   public void onStageReady() {
     var visible = projectService.isStateReadyProperty()
-      .and(projectService.viewModeProperty().isEqualTo(ViewMode.Content))
-      .and(projectService.contentModeProperty().isEqualTo(ContentMode.LibraryEditor));
+      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
+      .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.LibraryEditor));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
@@ -66,7 +70,7 @@ public class LibraryEditorController implements ReadyAfterBootController {
     this.id.set(library.getId());
     this.name.set(library.getName());
 
-    projectService.contentModeProperty().set(ContentMode.LibraryEditor);
-    projectService.viewModeProperty().set(ViewMode.Content);
+    uiStateService.contentModeProperty().set(ContentMode.LibraryEditor);
+    uiStateService.viewModeProperty().set(ViewMode.Content);
   }
 }

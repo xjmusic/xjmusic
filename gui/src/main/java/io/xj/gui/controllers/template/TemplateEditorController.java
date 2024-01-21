@@ -9,6 +9,7 @@ import io.xj.gui.controllers.content.ProgramEditorController;
 import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import javafx.application.Platform;
@@ -38,6 +39,7 @@ import java.util.UUID;
 public class TemplateEditorController implements ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(TemplateEditorController.class);
   private final ProjectService projectService;
+  private final UIStateService uiStateService;
   private final LibraryEditorController libraryEditorController;
   private final ProgramEditorController programEditorController;
   private final InstrumentEditorController instrumentEditorController;
@@ -56,11 +58,13 @@ public class TemplateEditorController implements ReadyAfterBootController {
 
   public TemplateEditorController(
     ProjectService projectService,
+    UIStateService uiStateService,
     LibraryEditorController libraryEditorController,
     ProgramEditorController programEditorController,
     InstrumentEditorController instrumentEditorController
   ) {
     this.projectService = projectService;
+    this.uiStateService = uiStateService;
     this.libraryEditorController = libraryEditorController;
     this.programEditorController = programEditorController;
     this.instrumentEditorController = instrumentEditorController;
@@ -69,8 +73,8 @@ public class TemplateEditorController implements ReadyAfterBootController {
   @Override
   public void onStageReady() {
     var visible = projectService.isStateReadyProperty()
-      .and(projectService.viewModeProperty().isEqualTo(ViewMode.Templates))
-      .and(projectService.templateModeProperty().isEqualTo(TemplateMode.TemplateEditor));
+      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Templates))
+      .and(uiStateService.templateModeProperty().isEqualTo(TemplateMode.TemplateEditor));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
@@ -143,6 +147,6 @@ public class TemplateEditorController implements ReadyAfterBootController {
       .filter(binding -> Objects.equals(ref.getId(), binding.getTemplateId()))
       .toList());
 
-    projectService.templateModeProperty().set(TemplateMode.TemplateEditor);
+    uiStateService.templateModeProperty().set(TemplateMode.TemplateEditor);
   }
 }

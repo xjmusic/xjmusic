@@ -7,6 +7,7 @@ import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.modes.TemplateMode;
+import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.project.ProjectUpdate;
 import javafx.collections.FXCollections;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 public class TemplateBrowserController extends BrowserController implements ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(TemplateBrowserController.class);
   private final ProjectService projectService;
+  private final UIStateService uiStateService;
   private final TemplateEditorController templateEditorController;
   private final ObservableList<Template> templates = FXCollections.observableList(new ArrayList<>());
 
@@ -35,17 +37,19 @@ public class TemplateBrowserController extends BrowserController implements Read
 
   public TemplateBrowserController(
     ProjectService projectService,
+    UIStateService uiStateService,
     TemplateEditorController templateEditorController
   ) {
     this.projectService = projectService;
+    this.uiStateService = uiStateService;
     this.templateEditorController = templateEditorController;
   }
 
   @Override
   public void onStageReady() {
     var visible = projectService.isStateReadyProperty()
-      .and(projectService.viewModeProperty().isEqualTo(ViewMode.Templates))
-      .and(projectService.templateModeProperty().isEqualTo(TemplateMode.TemplateBrowser));
+      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Templates))
+      .and(uiStateService.templateModeProperty().isEqualTo(TemplateMode.TemplateBrowser));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 

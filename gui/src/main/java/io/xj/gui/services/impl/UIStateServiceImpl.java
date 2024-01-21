@@ -1,6 +1,9 @@
 package io.xj.gui.services.impl;
 
 import io.xj.gui.WorkstationLogAppender;
+import io.xj.gui.modes.ContentMode;
+import io.xj.gui.modes.TemplateMode;
+import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
@@ -13,12 +16,17 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableStringValue;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.Objects;
+import java.util.Set;
 
 @Service
 public class UIStateServiceImpl implements UIStateService {
@@ -26,20 +34,34 @@ public class UIStateServiceImpl implements UIStateService {
   private final BooleanBinding isManualFabricationActive;
   private final BooleanBinding isManualFabricationMode;
   private final BooleanBinding isProgressBarVisible;
+  private static final Collection<ContentMode> CONTENT_MODES_WITH_PARENT = Set.of(
+    ContentMode.ProgramBrowser,
+    ContentMode.ProgramEditor,
+    ContentMode.InstrumentBrowser,
+    ContentMode.InstrumentEditor
+  );
+  private final StringBinding windowTitle;
+  private final ObjectProperty<ViewMode> viewMode = new SimpleObjectProperty<>(ViewMode.Content);
+  private final ObjectProperty<ContentMode> contentMode = new SimpleObjectProperty<>(ContentMode.LibraryBrowser);
+  private final ObjectProperty<TemplateMode> templateMode = new SimpleObjectProperty<>(TemplateMode.TemplateBrowser);
+  private final BooleanBinding isContentLevelUpPossible = Bindings.createBooleanBinding(
+    () -> (Objects.equals(viewMode.get(), ViewMode.Content) && CONTENT_MODES_WITH_PARENT.contains(contentMode.get()))
+      || (Objects.equals(viewMode.get(), ViewMode.Templates) && Objects.equals(templateMode.get(), TemplateMode.TemplateEditor)),
+    viewMode, contentMode, templateMode);
   private final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
   private final BooleanProperty logsVisible = new SimpleBooleanProperty(false);
   private final BooleanBinding isFabricationSettingsDisabled;
   private final BooleanBinding isMainActionButtonDisabled;
   private final DoubleBinding progress;
-  private final StringBinding statusText;
+  private final StringBinding stateText;
   private final StringProperty logLevel = new SimpleStringProperty(WorkstationLogAppender.LEVEL.get().toString());
-  private final BooleanBinding isStatusTextVisible;
+  private final BooleanBinding isStateTextVisible;
+  private final BooleanBinding isViewModeFabrication = viewMode.isEqualTo(ViewMode.Fabrication);
 
   public UIStateServiceImpl(
     FabricationService fabricationService,
     ProjectService projectService
   ) {
-
     // Has a current project?
     hasCurrentProject = projectService.stateProperty().isNotEqualTo(ProjectState.Standby);
 
@@ -75,22 +97,35 @@ public class UIStateServiceImpl implements UIStateService {
         fabricationService.isStateLoadingProperty(),
         fabricationService.progressProperty());
 
-    // Status Text
-    statusText = Bindings.createStringBinding(
+    // State Text
+    stateText = Bindings.createStringBinding(
       () -> Objects.equals(projectService.stateProperty().get(), ProjectState.Ready)
         ? fabricationService.stateTextProperty().getValue() : projectService.stateTextProperty().getValue(),
       projectService.stateProperty(),
       projectService.stateTextProperty(),
       fabricationService.stateTextProperty());
 
-    // Status text is only visible in fabrication view or if project is between standby or ready states
-    isStatusTextVisible = projectService.isStateReadyProperty().not()
+    // State text is only visible in fabrication view or if project is between standby or ready states
+    isStateTextVisible = projectService.isStateReadyProperty().not()
       .and(projectService.isStateStandbyProperty().not())
-      .or(projectService.isViewModeFabricationProperty());
+      .or(isViewModeFabrication);
 
-    progress.addListener((o, ov, value) -> {
-      WindowUtils.setTaskbarProgress(value.floatValue());
+    progress.addListener((o, ov, value) -> WindowUtils.setTaskbarProgress(value.floatValue()));
+
+    projectService.stateProperty().addListener((o, ov, value) -> {
+      if (Objects.equals(value, ProjectState.Standby)) {
+        viewMode.set(ViewMode.Content);
+        contentMode.set(ContentMode.LibraryBrowser);
+        templateMode.set(TemplateMode.TemplateBrowser);
+      }
     });
+
+    windowTitle = Bindings.createStringBinding(
+      () -> Objects.nonNull(projectService.currentProjectProperty().get())
+        ? String.format("%s - XJ music workstation", projectService.currentProjectProperty().get().getName())
+        : "XJ music workstation",
+      projectService.currentProjectProperty()
+    );
   }
 
   @Override
@@ -119,8 +154,8 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public StringBinding statusTextProperty() {
-    return statusText;
+  public StringBinding stateTextProperty() {
+    return stateText;
   }
 
   @Override
@@ -159,7 +194,48 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public BooleanBinding isStatusTextVisibleProperty() {
-    return isStatusTextVisible;
+  public BooleanBinding isStateTextVisibleProperty() {
+    return isStateTextVisible;
   }
+
+  @Override
+  public ObjectProperty<ViewMode> viewModeProperty() {
+    return viewMode;
+  }
+
+  @Override
+  public BooleanBinding isViewModeContentProperty() {
+    return viewMode.isEqualTo(ViewMode.Content);
+  }
+
+  @Override
+  public BooleanBinding isViewModeFabricationProperty() {
+    return isViewModeFabrication;
+  }
+
+  @Override
+  public ObservableStringValue windowTitleProperty() {
+    return windowTitle;
+  }
+
+  @Override
+  public void goUpContentLevel() {
+    // TODO implement going up a level in the content browser, handled from the project service
+  }
+
+  @Override
+  public BooleanBinding isContentLevelUpPossibleProperty() {
+    return isContentLevelUpPossible;
+  }
+
+  @Override
+  public ObjectProperty<ContentMode> contentModeProperty() {
+    return contentMode;
+  }
+
+  @Override
+  public ObjectProperty<TemplateMode> templateModeProperty() {
+    return templateMode;
+  }
+
 }

@@ -6,6 +6,7 @@ import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.UIStateService;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -23,6 +24,7 @@ import java.util.UUID;
 public class InstrumentEditorController implements ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(InstrumentEditorController.class);
   private final ProjectService projectService;
+  private final UIStateService uiStateService;
   private final ObjectProperty<UUID> id = new SimpleObjectProperty<>(null);
   private final ObjectProperty<UUID> libraryId = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
@@ -34,16 +36,18 @@ public class InstrumentEditorController implements ReadyAfterBootController {
   protected TextField fieldName;
 
   public InstrumentEditorController(
-    ProjectService projectService
+    ProjectService projectService,
+    UIStateService uiStateService
   ) {
     this.projectService = projectService;
+    this.uiStateService = uiStateService;
   }
 
   @Override
   public void onStageReady() {
     var visible = projectService.isStateReadyProperty()
-      .and(projectService.viewModeProperty().isEqualTo(ViewMode.Content))
-      .and(projectService.contentModeProperty().isEqualTo(ContentMode.InstrumentEditor));
+      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
+      .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.InstrumentEditor));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
@@ -68,7 +72,7 @@ public class InstrumentEditorController implements ReadyAfterBootController {
     this.libraryId.set(instrument.getLibraryId());
     this.name.set(instrument.getName());
 
-    projectService.contentModeProperty().set(ContentMode.InstrumentEditor);
-    projectService.viewModeProperty().set(ViewMode.Content);
+    uiStateService.contentModeProperty().set(ContentMode.InstrumentEditor);
+    uiStateService.viewModeProperty().set(ViewMode.Content);
   }
 }

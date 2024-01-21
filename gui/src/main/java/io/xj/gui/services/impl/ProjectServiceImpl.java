@@ -1,8 +1,5 @@
 package io.xj.gui.services.impl;
 
-import io.xj.gui.modes.ContentMode;
-import io.xj.gui.modes.TemplateMode;
-import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
@@ -61,16 +58,7 @@ public class ProjectServiceImpl implements ProjectService {
     ProjectState.LoadingAudio,
     ProjectState.LoadedAudio
   );
-  private static final Collection<ContentMode> CONTENT_MODES_WITH_PARENT = Set.of(
-    ContentMode.ProgramBrowser,
-    ContentMode.ProgramEditor,
-    ContentMode.InstrumentBrowser,
-    ContentMode.InstrumentEditor
-  );
   private final Preferences prefs = Preferences.userNodeForPackage(ProjectServiceImpl.class);
-  private final ObjectProperty<ViewMode> viewMode = new SimpleObjectProperty<>(ViewMode.Content);
-  private final ObjectProperty<ContentMode> contentMode = new SimpleObjectProperty<>(ContentMode.LibraryBrowser);
-  private final ObjectProperty<TemplateMode> templateMode = new SimpleObjectProperty<>(TemplateMode.TemplateBrowser);
   private final ObservableObjectValue<Project> currentProject;
   private final ObservableListValue<ProjectDescriptor> recentProjects = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
   private final StringProperty basePathPrefix = new SimpleStringProperty();
@@ -97,14 +85,9 @@ public class ProjectServiceImpl implements ProjectService {
     state);
   private final BooleanBinding isStateReady = state.isEqualTo(ProjectState.Ready);
   private final BooleanBinding isStateStandby = state.isEqualTo(ProjectState.Standby);
-  private final BooleanBinding isContentLevelUpPossible = Bindings.createBooleanBinding(
-    () -> (Objects.equals(viewMode.get(), ViewMode.Content) && CONTENT_MODES_WITH_PARENT.contains(contentMode.get()))
-      || (Objects.equals(viewMode.get(), ViewMode.Templates) && Objects.equals(templateMode.get(), TemplateMode.TemplateEditor)),
-    viewMode, contentMode, templateMode);
   private final int maxRecentProjects;
   private final LabService labService;
   private final ProjectManager projectManager;
-  private final ObservableStringValue windowTitle;
   private final JsonProvider jsonProvider;
 
   public ProjectServiceImpl(
@@ -124,14 +107,6 @@ public class ProjectServiceImpl implements ProjectService {
     projectManager.setAudioBaseUrl(labService.hubConfigProperty().get().getAudioBaseUrl());
     labService.hubConfigProperty().addListener((o, ov, value) -> projectManager.setAudioBaseUrl(value.getAudioBaseUrl()));
 
-    state.addListener((o, ov, value) -> {
-      if (Objects.equals(value, ProjectState.Standby)) {
-        viewMode.set(ViewMode.Content);
-        contentMode.set(ContentMode.LibraryBrowser);
-        templateMode.set(TemplateMode.TemplateBrowser);
-      }
-    });
-
     currentProject = Bindings.createObjectBinding(() -> {
       if (Objects.equals(state.get(), ProjectState.Ready)) {
         return projectManager.getProject().orElse(null);
@@ -139,25 +114,11 @@ public class ProjectServiceImpl implements ProjectService {
         return null;
       }
     }, state);
-    windowTitle = Bindings.createStringBinding(
-      () -> Objects.nonNull(currentProject.get())
-        ? String.format("%s - XJ music workstation", currentProject.get().getName())
-        : "XJ music workstation",
-      currentProject
-    );
-  }
-
-  @Override
-  public ObjectProperty<ViewMode> viewModeProperty() {
-    return viewMode;
   }
 
   @Override
   public void closeProject() {
     projectManager.closeProject();
-    viewMode.set(ViewMode.Content);
-    contentMode.set(ContentMode.LibraryBrowser);
-    templateMode.set(TemplateMode.TemplateBrowser);
     state.set(ProjectState.Standby);
   }
 
@@ -252,23 +213,8 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public BooleanBinding isViewModeContentProperty() {
-    return viewMode.isEqualTo(ViewMode.Content);
-  }
-
-  @Override
-  public BooleanBinding isViewModeFabricationProperty() {
-    return viewMode.isEqualTo(ViewMode.Fabrication);
-  }
-
-  @Override
   public HubContent getContent() {
     return projectManager.getContent();
-  }
-
-  @Override
-  public ObservableStringValue windowTitleProperty() {
-    return windowTitle;
   }
 
   @Override
@@ -322,23 +268,8 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public void goUpContentLevel() {
-    // TODO implement going up a level in the content browser, handled from the project service
-  }
-
-  @Override
-  public BooleanBinding isContentLevelUpPossibleProperty() {
-    return isContentLevelUpPossible;
-  }
-
-  @Override
-  public ObjectProperty<ContentMode> contentModeProperty() {
-    return contentMode;
-  }
-
-  @Override
-  public ObjectProperty<TemplateMode> templateModeProperty() {
-    return templateMode;
+  public ObservableObjectValue<Project> currentProjectProperty() {
+    return currentProject;
   }
 
   /**

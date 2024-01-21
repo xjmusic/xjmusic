@@ -296,15 +296,15 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     Toggle toggleTemplates,
     Toggle toggleFabrication
   ) {
-    activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, projectService.viewModeProperty().getValue());
-    projectService.viewModeProperty().addListener((o, ov, value) -> activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, value));
+    activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, uiStateService.viewModeProperty().getValue());
+    uiStateService.viewModeProperty().addListener((o, ov, value) -> activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, value));
     toggleGroup.selectedToggleProperty().addListener((o, ov, value) -> {
       if (Objects.equals(value, toggleContent)) {
-        projectService.viewModeProperty().set(ViewMode.Content);
+        uiStateService.viewModeProperty().set(ViewMode.Content);
       } else if (Objects.equals(value, toggleTemplates)) {
-        projectService.viewModeProperty().set(ViewMode.Templates);
+        uiStateService.viewModeProperty().set(ViewMode.Templates);
       } else if (Objects.equals(value, toggleFabrication)) {
-        projectService.viewModeProperty().set(ViewMode.Fabrication);
+        uiStateService.viewModeProperty().set(ViewMode.Fabrication);
       }
     });
   }

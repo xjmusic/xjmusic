@@ -1,12 +1,10 @@
 package io.xj.gui.services;
 
-import io.xj.gui.modes.ContentMode;
-import io.xj.gui.modes.TemplateMode;
-import io.xj.gui.modes.ViewMode;
 import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.project.ProjectUpdate;
@@ -15,20 +13,13 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableListValue;
+import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableStringValue;
-import javafx.beans.value.ObservableValue;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface ProjectService {
-  /**
-   The Project View Mode
-
-   @return the project view mode
-   */
-  ObjectProperty<ViewMode> viewModeProperty();
-
   /**
    Close the project
    */
@@ -113,39 +104,14 @@ public interface ProjectService {
   BooleanBinding isStateStandbyProperty();
 
   /**
-   @return Observable property for whether the project is in content view mode
-   */
-  BooleanBinding isViewModeContentProperty();
-
-  /**
-   @return Observable property for whether the project is in fabrication view mode
-   */
-  BooleanBinding isViewModeFabricationProperty();
-
-  /**
    @return Get the project content
    */
   HubContent getContent();
 
   /**
-   @return the window title
-   */
-  ObservableStringValue windowTitleProperty();
-
-  /**
    @return the list of recent projects
    */
   ObservableListValue<ProjectDescriptor> recentProjectsProperty();
-
-  /**
-   * @return Observable property for the view content mode
-   */
-  ObjectProperty<ContentMode> contentModeProperty();
-
-  /**
-   * @return Observable property for the view template mode
-   */
-  ObjectProperty<TemplateMode> templateModeProperty();
 
   /**
    Attach a listener to project updates
@@ -184,12 +150,7 @@ public interface ProjectService {
   List<Template> getTemplates();
 
   /**
-   Go up a content level in the browser
+   @return the current project property
    */
-  void goUpContentLevel();
-
-  /**
-   * @return binding for whether it's possible to go up a content level
-   */
-  BooleanBinding isContentLevelUpPossibleProperty();
+  ObservableObjectValue<Project> currentProjectProperty();
 }
