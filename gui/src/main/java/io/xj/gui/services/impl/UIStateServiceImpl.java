@@ -68,9 +68,8 @@ public class UIStateServiceImpl implements UIStateService {
   private final StringProperty logLevel = new SimpleStringProperty(WorkstationLogAppender.LEVEL.get().toString());
   private final BooleanBinding isStateTextVisible;
   private final BooleanBinding isViewModeFabrication = viewMode.isEqualTo(ViewMode.Fabrication);
-  private final BooleanBinding isViewingLibrary;
   private final BooleanBinding isViewingEntity;
-  private final StringBinding currentLibraryName;
+  private final StringBinding currentParentName;
   private final StringBinding currentEntityName;
 
   public UIStateServiceImpl(
@@ -143,25 +142,37 @@ public class UIStateServiceImpl implements UIStateService {
       projectService.currentProjectProperty()
     );
 
-    isViewingLibrary = currentLibrary.isNotNull();
-    currentLibraryName = Bindings.createStringBinding(
-      () -> Objects.nonNull(currentLibrary.get()) ? currentLibrary.get().getName() : "",
-      currentLibrary
+    currentParentName = Bindings.createStringBinding(
+      () -> switch (viewMode.get()) {
+        case Content -> switch (contentMode.get()) {
+          case LibraryBrowser, LibraryEditor -> "Libraries";
+          case ProgramBrowser, InstrumentBrowser, ProgramEditor, InstrumentEditor -> currentLibrary.get().getName();
+        };
+        case Templates -> switch (templateMode.get()) {
+          case TemplateBrowser -> "Templates";
+          case TemplateEditor -> currentTemplate.get().getName();
+        };
+        case Fabrication -> "";
+      },
+      viewMode, contentMode, currentLibrary
     );
 
     isViewingEntity = currentProgram.isNotNull().or(currentInstrument.isNotNull()).or(currentTemplate.isNotNull());
     currentEntityName = Bindings.createStringBinding(
-      () -> {
-        if (Objects.nonNull(currentProgram.get())) {
-          return currentProgram.get().getName();
-        } else if (Objects.nonNull(currentInstrument.get())) {
-          return currentInstrument.get().getName();
-        } else if (Objects.nonNull(currentTemplate.get())) {
-          return currentTemplate.get().getName();
-        } else {
-          return "";
-        }
-      }, currentProgram, currentInstrument, currentTemplate);
+      () -> switch (viewMode.get()) {
+        case Content -> switch (contentMode.get()) {
+          case LibraryBrowser, ProgramBrowser, InstrumentBrowser -> "";
+          case LibraryEditor -> currentLibrary.get().getName();
+          case ProgramEditor -> currentProgram.get().getName();
+          case InstrumentEditor -> currentInstrument.get().getName();
+        };
+        case Templates -> switch (templateMode.get()) {
+          case TemplateBrowser -> "";
+          case TemplateEditor -> currentTemplate.get().getName();
+        };
+        case Fabrication -> "";
+      },
+      viewMode, contentMode, templateMode, currentProgram, currentInstrument, currentTemplate);
   }
 
   @Override
@@ -356,7 +367,10 @@ public class UIStateServiceImpl implements UIStateService {
   public void editProgram(UUID programId) {
     var program = projectService.getContent().getProgram(programId)
       .orElseThrow(() -> new RuntimeException("Could not find Program!"));
+    var library = projectService.getContent().getLibrary(program.getLibraryId())
+      .orElseThrow(() -> new RuntimeException("Could not find Library!"));
     currentProgram.set(program);
+    currentLibrary.set(library);
     contentMode.set(ContentMode.ProgramEditor);
     viewMode.set(ViewMode.Content);
   }
@@ -365,7 +379,10 @@ public class UIStateServiceImpl implements UIStateService {
   public void editInstrument(UUID instrumentId) {
     var instrument = projectService.getContent().getInstrument(instrumentId)
       .orElseThrow(() -> new RuntimeException("Could not find Instrument!"));
+    var library = projectService.getContent().getLibrary(instrument.getLibraryId())
+      .orElseThrow(() -> new RuntimeException("Could not find Library!"));
     currentInstrument.set(instrument);
+    currentLibrary.set(library);
     contentMode.set(ContentMode.InstrumentEditor);
     viewMode.set(ViewMode.Content);
   }
@@ -380,18 +397,13 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public BooleanBinding isViewingLibraryProperty() {
-    return isViewingLibrary;
-  }
-
-  @Override
   public BooleanBinding isViewingEntityProperty() {
     return isViewingEntity;
   }
 
   @Override
-  public StringBinding currentLibraryNameProperty() {
-    return currentLibraryName;
+  public StringBinding currentParentNameProperty() {
+    return currentParentName;
   }
 
   @Override

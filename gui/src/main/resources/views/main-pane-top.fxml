@@ -95,8 +95,8 @@
             </ImageView>
           </graphic>
         </Button>
-        <Label fx:id="labelViewingLibrary"/>
-        <Label fx:id="labelViewingEntitySeparator">
+        <Label fx:id="labelViewingParent"/>
+        <Label fx:id="labelViewingSeparator">
           ➔
         </Label>
         <Label fx:id="labelViewingEntity"/>

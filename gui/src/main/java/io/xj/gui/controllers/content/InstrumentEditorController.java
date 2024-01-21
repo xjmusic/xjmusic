@@ -53,19 +53,27 @@ public class InstrumentEditorController implements ReadyAfterBootController {
 
     fieldName.textProperty().bindBidirectional(name);
 
-    uiStateService.contentModeProperty().addListener((o, ov, value) -> {
-      if (Objects.equals(value, ContentMode.InstrumentEditor)) {
-        var instrument = projectService.getContent().getInstrument(uiStateService.currentInstrumentProperty().get().getId())
-          .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
-        LOG.info("Will edit Instrument \"{}\"", instrument.getName());
-        this.id.set(instrument.getId());
-        this.name.set(instrument.getName());
-      }
+    uiStateService.contentModeProperty().addListener((o, ov, v) -> {
+      if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.InstrumentEditor))
+        update();
     });
   }
 
   @Override
   public void onStageClose() {
     // FUTURE: on stage close
+  }
+
+  /**
+   Update the Instrument Editor with the current Instrument.
+   */
+  private void update() {
+    if (Objects.isNull(uiStateService.currentInstrumentProperty().get()))
+      return;
+    var instrument = projectService.getContent().getInstrument(uiStateService.currentInstrumentProperty().get().getId())
+      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
+    LOG.info("Will edit Instrument \"{}\"", instrument.getName());
+    this.id.set(instrument.getId());
+    this.name.set(instrument.getName());
   }
 }

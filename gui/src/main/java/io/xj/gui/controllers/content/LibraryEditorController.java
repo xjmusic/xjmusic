@@ -53,14 +53,9 @@ public class LibraryEditorController implements ReadyAfterBootController {
 
     fieldName.textProperty().bindBidirectional(name);
 
-    uiStateService.contentModeProperty().addListener((o, ov, value) -> {
-      if (Objects.equals(value, ContentMode.LibraryEditor)) {
-        var library = projectService.getContent().getLibrary(uiStateService.currentLibraryProperty().get().getId())
-          .orElseThrow(() -> new RuntimeException("Could not find Library"));
-        LOG.info("Will edit Library \"{}\"", library.getName());
-        this.id.set(library.getId());
-        this.name.set(library.getName());
-      }
+    uiStateService.contentModeProperty().addListener((o, ov, v) -> {
+      if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.LibraryEditor))
+        update();
     });
   }
 
@@ -68,4 +63,18 @@ public class LibraryEditorController implements ReadyAfterBootController {
   public void onStageClose() {
     // FUTURE: on stage close
   }
+
+  /**
+   Update the Library Editor with the current Library.
+   */
+  private void update() {
+    if (Objects.isNull(uiStateService.currentLibraryProperty().get()))
+      return;
+    var library = projectService.getContent().getLibrary(uiStateService.currentLibraryProperty().get().getId())
+      .orElseThrow(() -> new RuntimeException("Could not find Library"));
+    LOG.info("Will edit Library \"{}\"", library.getName());
+    this.id.set(library.getId());
+    this.name.set(library.getName());
+  }
+
 }

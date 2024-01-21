@@ -3,6 +3,7 @@
 package io.xj.gui.controllers.template;
 
 import io.xj.gui.controllers.ReadyAfterBootController;
+import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
@@ -93,17 +94,9 @@ public class TemplateEditorController implements ReadyAfterBootController {
         }
       });
 
-    uiStateService.templateModeProperty().addListener((o, ov, value) -> {
-      if (Objects.equals(value, TemplateMode.TemplateEditor)) {
-        var template = projectService.getContent().getTemplate(uiStateService.currentTemplateProperty().get().getId())
-          .orElseThrow(() -> new RuntimeException("Could not find Template"));
-        LOG.info("Will edit Template \"{}\"", template.getName());
-        this.id.set(template.getId());
-        this.name.set(template.getName());
-        bindings.setAll(projectService.getContent().getTemplateBindings().stream()
-          .filter(binding -> Objects.equals(template.getId(), binding.getTemplateId()))
-          .toList());
-      }
+    uiStateService.templateModeProperty().addListener((o, ov, v) -> {
+      if (Objects.equals(uiStateService.templateModeProperty().get(), TemplateMode.TemplateEditor))
+        update();
     });
   }
 
@@ -130,5 +123,21 @@ public class TemplateEditorController implements ReadyAfterBootController {
   @Override
   public void onStageClose() {
     // FUTURE: on stage close
+  }
+
+  /**
+   Update the Template Editor with the current Template.
+   */
+  private void update() {
+    if (Objects.isNull(uiStateService.currentTemplateProperty().get()))
+      return;
+    var template = projectService.getContent().getTemplate(uiStateService.currentTemplateProperty().get().getId())
+      .orElseThrow(() -> new RuntimeException("Could not find Template"));
+    LOG.info("Will edit Template \"{}\"", template.getName());
+    this.id.set(template.getId());
+    this.name.set(template.getName());
+    bindings.setAll(projectService.getContent().getTemplateBindings().stream()
+      .filter(binding -> Objects.equals(template.getId(), binding.getTemplateId()))
+      .toList());
   }
 }

@@ -198,11 +198,6 @@ public interface UIStateService extends ReadyAfterBootController {
   void editTemplate(UUID templateId);
 
   /**
-   @return Observable property for whether we are currently viewing a library
-   */
-  BooleanBinding isViewingLibraryProperty();
-
-  /**
    @return Observable property for whether we are currently viewing an entity
    */
   BooleanBinding isViewingEntityProperty();
@@ -210,7 +205,7 @@ public interface UIStateService extends ReadyAfterBootController {
   /**
    @return Observable property for the name of the current library
    */
-  StringBinding currentLibraryNameProperty();
+  StringBinding currentParentNameProperty();
 
   /**
    @return Observable property for the name of the current entity

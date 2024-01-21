@@ -83,10 +83,10 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   protected Button buttonGoUpContentLevel;
 
   @FXML
-  protected Label labelViewingLibrary;
+  protected Label labelViewingParent;
 
   @FXML
-  protected Label labelViewingEntitySeparator;
+  protected Label labelViewingSeparator;
 
   @FXML
   protected Label labelViewingEntity;
@@ -141,11 +141,9 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     contentContainer.managedProperty().bind(isContentVisible);
     buttonGoUpContentLevel.visibleProperty().bind(uiStateService.isContentLevelUpPossibleProperty());
     buttonGoUpContentLevel.managedProperty().bind(uiStateService.isContentLevelUpPossibleProperty());
-    labelViewingLibrary.visibleProperty().bind(uiStateService.isViewingLibraryProperty());
-    labelViewingLibrary.managedProperty().bind(uiStateService.isViewingLibraryProperty());
-    labelViewingLibrary.textProperty().bind(uiStateService.currentLibraryNameProperty());
-    labelViewingEntitySeparator.visibleProperty().bind(uiStateService.isViewingEntityProperty());
-    labelViewingEntitySeparator.managedProperty().bind(uiStateService.isViewingEntityProperty());
+    labelViewingParent.textProperty().bind(uiStateService.currentParentNameProperty());
+    labelViewingSeparator.visibleProperty().bind(uiStateService.isViewingEntityProperty());
+    labelViewingSeparator.managedProperty().bind(uiStateService.isViewingEntityProperty());
     labelViewingEntity.visibleProperty().bind(uiStateService.isViewingEntityProperty());
     labelViewingEntity.managedProperty().bind(uiStateService.isViewingEntityProperty());
     labelViewingEntity.textProperty().bind(uiStateService.currentEntityNameProperty());

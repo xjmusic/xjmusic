@@ -53,19 +53,27 @@ public class ProgramEditorController implements ReadyAfterBootController {
 
     fieldName.textProperty().bindBidirectional(name);
 
-    uiStateService.contentModeProperty().addListener((o, ov, value) -> {
-      if (Objects.equals(value, ContentMode.ProgramEditor)) {
-        var program = projectService.getContent().getProgram(uiStateService.currentProgramProperty().get().getId())
-          .orElseThrow(() -> new RuntimeException("Could not find Program"));
-        LOG.info("Will edit Program \"{}\"", program.getName());
-        this.id.set(program.getId());
-        this.name.set(program.getName());
-      }
+    uiStateService.contentModeProperty().addListener((o, ov, v) -> {
+      if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.ProgramEditor))
+        update();
     });
   }
 
   @Override
   public void onStageClose() {
     // FUTURE: on stage close
+  }
+
+  /**
+   Update the Program Editor with the current Program.
+   */
+  private void update() {
+    if (Objects.isNull(uiStateService.currentProgramProperty().get()))
+      return;
+    var program = projectService.getContent().getProgram(uiStateService.currentProgramProperty().get().getId())
+      .orElseThrow(() -> new RuntimeException("Could not find Program"));
+    LOG.info("Will edit Program \"{}\"", program.getName());
+    this.id.set(program.getId());
+    this.name.set(program.getName());
   }
 }
