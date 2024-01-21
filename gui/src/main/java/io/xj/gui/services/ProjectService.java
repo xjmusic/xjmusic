@@ -181,4 +181,9 @@ public interface ProjectService {
    @return the list of templates
    */
   List<Template> getTemplates();
+
+  /**
+   Go up a content level in the browser
+   */
+  void goUpContentLevel();
 }

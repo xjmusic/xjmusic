@@ -13,6 +13,8 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <AnchorPane
   fx:id="mainTopPaneContainer"
   fx:controller="io.xj.gui.controllers.MainPaneTopController"
@@ -21,12 +23,12 @@
   minHeight="32">
 
   <StackPane
+    fx:id="fabricationControlContainer"
     AnchorPane.rightAnchor="0"
     AnchorPane.topAnchor="0"
     AnchorPane.bottomAnchor="0"
     alignment="CENTER_RIGHT">
     <HBox
-      fx:id="fabricationControlContainer"
       alignment="CENTER_LEFT"
       spacing="6">
       <padding>
@@ -47,6 +49,7 @@
   </StackPane>
 
   <StackPane
+    fx:id="statusContainer"
     AnchorPane.leftAnchor="0"
     AnchorPane.topAnchor="0"
     AnchorPane.bottomAnchor="0"
@@ -55,15 +58,7 @@
       <padding>
         <Insets top="4" left="9" right="9" bottom="3"/>
       </padding>
-      <HBox.hgrow>
-        <Priority fx:constant="ALWAYS"/>
-      </HBox.hgrow>
-
       <HBox alignment="CENTER_LEFT" spacing="10">
-        <HBox.hgrow>
-          <Priority fx:constant="ALWAYS"/>
-        </HBox.hgrow>
-
         <Button fx:id="buttonCancelLoading"
                 mnemonicParsing="false"
                 onAction="#handlePressedCancelLoading"
@@ -72,16 +67,37 @@
             <Font name="Roboto"/>
           </font>
         </Button>
-
         <HBox alignment="CENTER_LEFT" spacing="10">
           <ProgressBar fx:id="progressBar" prefWidth="100" progress="0.0"/>
           <Label fx:id="labelStatus" prefWidth="180" text="Initializing"/>
         </HBox>
-
       </HBox>
-
     </HBox>
+  </StackPane>
 
+  <StackPane
+    fx:id="contentContainer"
+    AnchorPane.leftAnchor="0"
+    AnchorPane.topAnchor="0"
+    AnchorPane.bottomAnchor="0"
+    alignment="CENTER_LEFT">
+    <HBox alignment="CENTER_LEFT">
+      <padding>
+        <Insets top="4" left="9" right="9" bottom="3"/>
+      </padding>
+      <HBox alignment="CENTER_LEFT" spacing="10">
+        <Button fx:id="buttonGoUpContentLevel"
+                mnemonicParsing="false"
+                onAction="#handlePressedGoUpContentLevel"
+                styleClass="back-button">
+          <graphic>
+            <ImageView fitHeight="16" fitWidth="16" pickOnBounds="true" preserveRatio="true">
+              <Image url="@/icons/folder-arrow-back.png"/>
+            </ImageView>
+          </graphic>
+        </Button>
+      </HBox>
+    </HBox>
   </StackPane>
 
 </AnchorPane>

@@ -157,3 +157,7 @@
 .tab-pane .tab-header-area .tab-header-background {
   -fx-background-color: #303030;
 }
+
+#contentContainer .back-button:hover {
+  -fx-background-color: #404040;
+}

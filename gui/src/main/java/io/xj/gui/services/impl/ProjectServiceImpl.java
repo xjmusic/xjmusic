@@ -306,6 +306,11 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
+  public void goUpContentLevel() {
+    // TODO implement going up a level in the content browser, handled from the project service
+  }
+
+  @Override
   public ObjectProperty<ContentMode> contentModeProperty() {
     return contentMode;
   }

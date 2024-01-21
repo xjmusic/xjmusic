@@ -44,21 +44,21 @@
       <ToggleButton text="CONTENT" fx:id="buttonViewModeContent" toggleGroup="$buttonViewModeToggleGroup">
         <graphic>
           <ImageView fitWidth="20" fitHeight="20">
-            <Image url="@/icons/menu-content.png"/>
+            <Image url="@/icons/folder-open.png"/>
           </ImageView>
         </graphic>
       </ToggleButton>
       <ToggleButton text="TEMPLATES" fx:id="buttonViewModeTemplates" toggleGroup="$buttonViewModeToggleGroup">
         <graphic>
           <ImageView fitWidth="20" fitHeight="20">
-            <Image url="@/icons/menu-templates.png"/>
+            <Image url="@/icons/flask-gear.png"/>
           </ImageView>
         </graphic>
       </ToggleButton>
       <ToggleButton text="FABRICATION" fx:id="buttonViewModeFabrication" toggleGroup="$buttonViewModeToggleGroup">
         <graphic>
           <ImageView fitWidth="20" fitHeight="20">
-            <Image url="@/icons/menu-fabrication.png"/>
+            <Image url="@/icons/conveyor-arm.png"/>
           </ImageView>
         </graphic>
       </ToggleButton>

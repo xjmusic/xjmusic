@@ -253,4 +253,14 @@
   -fx-font-weight: bold;
 }
 
+#contentContainer .back-button {
+  -fx-background-color: transparent;
+  -fx-border-color: transparent;
+  -fx-border-width: 0;
+  -fx-padding: 0 0 0 0;
+}
+
+#contentContainer .back-button:hover {
+  -fx-background-color: #d0d0d0;
+}
 
