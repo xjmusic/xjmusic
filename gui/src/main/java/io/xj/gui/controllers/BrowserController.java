@@ -2,6 +2,7 @@
 
 package io.xj.gui.controllers;
 
+import jakarta.annotation.Nullable;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
@@ -13,6 +14,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public abstract class BrowserController implements ReadyAfterBootController {
@@ -43,10 +45,10 @@ public abstract class BrowserController implements ReadyAfterBootController {
   protected <N> void addActionsColumn(
     Class<N> type,
     TableView<N> table,
-    Consumer<N> onEdit,
-    Consumer<N> onMove,
-    Consumer<N> onClone,
-    Consumer<N> onDelete
+    @Nullable Consumer<N> onEdit,
+    @Nullable Consumer<N> onMove,
+    @Nullable Consumer<N> onClone,
+    @Nullable Consumer<N> onDelete
   ) {
     TableColumn<N, N> buttonsColumn = new TableColumn<>("Actions");
     buttonsColumn.setCellFactory(param -> new ButtonCell<>(type, onEdit, onMove, onClone, onDelete));
@@ -87,12 +89,22 @@ public abstract class BrowserController implements ReadyAfterBootController {
      @param onClone  action
      @param onDelete action
      */
-    public ButtonCell(Class<N> type, Consumer<N> onEdit, Consumer<N> onMove, Consumer<N> onClone, Consumer<N> onDelete) {
-      var editButton = buildButton(String.format("Edit %s", type.getSimpleName()), "icons/pen-to-square.png", onEdit);
-      var moveButton = buildButton(String.format("Move %s", type.getSimpleName()), "icons/move.png", onMove);
-      var cloneButton = buildButton(String.format("Clone %s", type.getSimpleName()), "icons/copy.png", onClone);
-      var deleteButton = buildButton(String.format("Delete %s", type.getSimpleName()), "icons/document-xmark.png", onDelete);
-      var buttons = new HBox(editButton, moveButton, cloneButton, deleteButton);
+    public ButtonCell(
+      Class<N> type,
+      @Nullable Consumer<N> onEdit,
+      @Nullable Consumer<N> onMove,
+      @Nullable Consumer<N> onClone,
+      @Nullable Consumer<N> onDelete
+    ) {
+      var buttons = new HBox();
+      if (Objects.nonNull(onEdit))
+        buttons.getChildren().add(buildButton(String.format("Edit %s", type.getSimpleName()), "icons/pen-to-square.png", onEdit));
+      if (Objects.nonNull(onMove))
+        buttons.getChildren().add(buildButton(String.format("Move %s", type.getSimpleName()), "icons/move.png", onMove));
+      if (Objects.nonNull(onClone))
+        buttons.getChildren().add(buildButton(String.format("Clone %s", type.getSimpleName()), "icons/copy.png", onClone));
+      if (Objects.nonNull(onDelete))
+        buttons.getChildren().add(buildButton(String.format("Delete %s", type.getSimpleName()), "icons/document-xmark.png", onDelete));
       buttons.setSpacing(5);
       buttons.visibleProperty().bind(emptyProperty().not());
       setGraphic(buttons);

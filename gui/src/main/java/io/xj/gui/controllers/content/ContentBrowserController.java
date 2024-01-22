@@ -99,10 +99,7 @@ public class ContentBrowserController extends BrowserController implements Ready
     addColumn(librariesTable, 200, "name", "Name");
     addActionsColumn(Library.class, librariesTable,
       library -> uiStateService.editLibrary(library.getId()),
-      library -> {
-        LOG.info("move {}", library.getName());
-        /* todo move */
-      },
+      null,
       library -> {
         LOG.info("clone {}", library.getName());
         /* todo clone */

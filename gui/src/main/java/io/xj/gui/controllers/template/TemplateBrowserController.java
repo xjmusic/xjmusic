@@ -53,10 +53,7 @@ public class TemplateBrowserController extends BrowserController implements Read
     addColumn(table, 200, "name", "Name");
     addActionsColumn(Template.class, table,
       template -> uiStateService.editTemplate(template.getId()),
-      template -> {
-        LOG.info("move {}", template.getName());
-        /* todo move */
-      },
+      null,
       template -> {
         LOG.info("clone {}", template.getName());
         /* todo clone */
