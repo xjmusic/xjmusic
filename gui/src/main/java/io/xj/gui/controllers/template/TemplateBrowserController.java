@@ -50,8 +50,21 @@ public class TemplateBrowserController extends BrowserController implements Read
       .and(uiStateService.templateModeProperty().isEqualTo(TemplateMode.TemplateBrowser));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
-
     addColumn(table, 200, "name", "Name");
+    addActionsColumn(Template.class, table,
+      template -> uiStateService.editTemplate(template.getId()),
+      template -> {
+        LOG.info("move {}", template.getName());
+        /* todo move */
+      },
+      template -> {
+        LOG.info("clone {}", template.getName());
+        /* todo clone */
+      },
+      template -> {
+        LOG.info("delete {}", template.getName());
+        /* todo delete */
+      });
     setupData(
       table,
       templates,

@@ -8,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -31,16 +32,16 @@ public abstract class BrowserController implements ReadyAfterBootController {
   }
 
   /**
-   Add a column to a table with control buttons
+   Add a column to a table with control buttons@param <N>      type of table@param type     of table
 
    @param table    for which to add column
    @param onEdit   action to perform when editing an item
    @param onMove   action to perform when moving an item
    @param onClone  action to perform when cloning an item
    @param onDelete action to perform when deleting an item
-   @param <N>      type of table
    */
   protected <N> void addActionsColumn(
+    Class<N> type,
     TableView<N> table,
     Consumer<N> onEdit,
     Consumer<N> onMove,
@@ -48,7 +49,7 @@ public abstract class BrowserController implements ReadyAfterBootController {
     Consumer<N> onDelete
   ) {
     TableColumn<N, N> buttonsColumn = new TableColumn<>("Actions");
-    buttonsColumn.setCellFactory(param -> new ButtonCell<>(onEdit, onMove, onClone, onDelete));
+    buttonsColumn.setCellFactory(param -> new ButtonCell<>(type, onEdit, onMove, onClone, onDelete));
     buttonsColumn.setPrefWidth(100);
     table.getColumns().add(buttonsColumn);
   }
@@ -79,18 +80,18 @@ public abstract class BrowserController implements ReadyAfterBootController {
   protected static class ButtonCell<N> extends TableCell<N, N> {
 
     /**
-     Constructor
+     Constructor@param type
 
      @param onEdit   action
      @param onMove   action
      @param onClone  action
      @param onDelete action
      */
-    public ButtonCell(Consumer<N> onEdit, Consumer<N> onMove, Consumer<N> onClone, Consumer<N> onDelete) {
-      var editButton = buildButton("Edit", "icons/pen-to-square.png", onEdit);
-      var moveButton = buildButton("Move", "icons/move.png", onMove);
-      var cloneButton = buildButton("Clone", "icons/copy.png", onClone);
-      var deleteButton = buildButton("Delete", "icons/document-xmark.png", onDelete);
+    public ButtonCell(Class<N> type, Consumer<N> onEdit, Consumer<N> onMove, Consumer<N> onClone, Consumer<N> onDelete) {
+      var editButton = buildButton(String.format("Edit %s", type.getSimpleName()), "icons/pen-to-square.png", onEdit);
+      var moveButton = buildButton(String.format("Move %s", type.getSimpleName()), "icons/move.png", onMove);
+      var cloneButton = buildButton(String.format("Clone %s", type.getSimpleName()), "icons/copy.png", onClone);
+      var deleteButton = buildButton(String.format("Delete %s", type.getSimpleName()), "icons/document-xmark.png", onDelete);
       var buttons = new HBox(editButton, moveButton, cloneButton, deleteButton);
       buttons.setSpacing(5);
       buttons.visibleProperty().bind(emptyProperty().not());
@@ -105,13 +106,13 @@ public abstract class BrowserController implements ReadyAfterBootController {
     /**
      Build a button
 
-     @param name     of button
+     @param tooltip  text of tooltip
      @param onAction callback
      @return button
      */
-    private Button buildButton(String name, String imageSource, Consumer<N> onAction) {
+    private Button buildButton(String tooltip, String imageSource, Consumer<N> onAction) {
       var button = new Button();
-      button.setAccessibleText(name);
+      button.setTooltip(new Tooltip(tooltip));
       button.getStyleClass().add("icon-button");
       var image = new ImageView(imageSource);
       image.setFitWidth(16);

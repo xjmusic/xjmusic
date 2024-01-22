@@ -97,11 +97,8 @@ public class ContentBrowserController extends BrowserController implements Ready
    */
   private void initLibraries() {
     addColumn(librariesTable, 200, "name", "Name");
-    addActionsColumn(librariesTable,
-      library -> {
-        LOG.info("edit {}", library.getName());
-        /* todo edit */
-      },
+    addActionsColumn(Library.class, librariesTable,
+      library -> uiStateService.editLibrary(library.getId()),
       library -> {
         LOG.info("move {}", library.getName());
         /* todo move */
@@ -145,11 +142,8 @@ public class ContentBrowserController extends BrowserController implements Ready
     addColumn(programsTable, 50, "key", "Key");
     addColumn(programsTable, 50, "tempo", "Tempo");
     addColumn(programsTable, 50, "density", "Density");
-    addActionsColumn(programsTable,
-      program -> {
-        LOG.info("edit {}", program.getName());
-        /* todo edit */
-      },
+    addActionsColumn(Program.class, programsTable,
+      program -> uiStateService.editProgram(program.getId()),
       program -> {
         LOG.info("move {}", program.getName());
         /* todo move */
@@ -195,11 +189,8 @@ public class ContentBrowserController extends BrowserController implements Ready
     addColumn(instrumentsTable, 90, "mode", "Mode");
     addColumn(instrumentsTable, 50, "density", "Density");
     addColumn(instrumentsTable, 50, "volume", "Volume");
-    addActionsColumn(instrumentsTable,
-      instrument -> {
-        LOG.info("edit {}", instrument.getName());
-        /* todo edit */
-      },
+    addActionsColumn(Instrument.class, instrumentsTable,
+      instrument -> uiStateService.editInstrument(instrument.getId()),
       instrument -> {
         LOG.info("move {}", instrument.getName());
         /* todo move */
