@@ -97,6 +97,23 @@ public class ContentBrowserController extends BrowserController implements Ready
    */
   private void initLibraries() {
     addColumn(librariesTable, 200, "name", "Name");
+    addActionsColumn(librariesTable,
+      library -> {
+        LOG.info("edit {}", library.getName());
+        /* todo edit */
+      },
+      library -> {
+        LOG.info("move {}", library.getName());
+        /* todo move */
+      },
+      library -> {
+        LOG.info("clone {}", library.getName());
+        /* todo clone */
+      },
+      library -> {
+        LOG.info("delete {}", library.getName());
+        /* todo delete */
+      });
     setupData(
       librariesTable,
       libraries,
@@ -128,6 +145,23 @@ public class ContentBrowserController extends BrowserController implements Ready
     addColumn(programsTable, 50, "key", "Key");
     addColumn(programsTable, 50, "tempo", "Tempo");
     addColumn(programsTable, 50, "density", "Density");
+    addActionsColumn(programsTable,
+      program -> {
+        LOG.info("edit {}", program.getName());
+        /* todo edit */
+      },
+      program -> {
+        LOG.info("move {}", program.getName());
+        /* todo move */
+      },
+      program -> {
+        LOG.info("clone {}", program.getName());
+        /* todo clone */
+      },
+      program -> {
+        LOG.info("delete {}", program.getName());
+        /* todo delete */
+      });
     setupData(
       programsTable,
       programs,
@@ -161,6 +195,23 @@ public class ContentBrowserController extends BrowserController implements Ready
     addColumn(instrumentsTable, 90, "mode", "Mode");
     addColumn(instrumentsTable, 50, "density", "Density");
     addColumn(instrumentsTable, 50, "volume", "Volume");
+    addActionsColumn(instrumentsTable,
+      instrument -> {
+        LOG.info("edit {}", instrument.getName());
+        /* todo edit */
+      },
+      instrument -> {
+        LOG.info("move {}", instrument.getName());
+        /* todo move */
+      },
+      instrument -> {
+        LOG.info("clone {}", instrument.getName());
+        /* todo clone */
+      },
+      instrument -> {
+        LOG.info("delete {}", instrument.getName());
+        /* todo delete */
+      });
     setupData(
       instrumentsTable,
       instruments,

@@ -25,11 +25,8 @@ import java.util.Objects;
 @Service
 public class FabricationSettingsModalController extends ReadyAfterBootModalController {
   static final String FABRICATION_SERVICE_WINDOW_NAME = "Fabrication Settings";
-  private final Resource fabricationSettingsModalFxml;
-  private final ConfigurableApplicationContext ac;
   private final FabricationService fabricationService;
   private final ProjectService projectService;
-  private final ThemeService themeService;
 
   @FXML
   ChoiceBox<ControlMode> choiceControlMode;
@@ -65,17 +62,15 @@ public class FabricationSettingsModalController extends ReadyAfterBootModalContr
   public Button buttonReset;
 
   public FabricationSettingsModalController(
-    @Value("classpath:/views/fabrication/fabrication-settings-modal.fxml") Resource fabricationSettingsModalFxml,
+    @Value("classpath:/views/fabrication/fabrication-settings-modal.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
     FabricationService fabricationService,
     ProjectService projectService,
     ThemeService themeService
   ) {
-    this.fabricationSettingsModalFxml = fabricationSettingsModalFxml;
-    this.ac = ac;
+    super(ac, themeService, fxml);
     this.fabricationService = fabricationService;
     this.projectService = projectService;
-    this.themeService = themeService;
   }
 
   @Override
@@ -120,7 +115,7 @@ public class FabricationSettingsModalController extends ReadyAfterBootModalContr
 
   @Override
   public void launchModal() {
-    createAndShowModal(ac, themeService, fabricationSettingsModalFxml, FABRICATION_SERVICE_WINDOW_NAME);
+    createAndShowModal(FABRICATION_SERVICE_WINDOW_NAME);
   }
 
   /**

@@ -216,7 +216,7 @@ public class LabServiceImpl implements LabService {
     makeAuthenticatedRequest("api/2/projects", HttpMethod.GET, HubContent.class)
       .subscribe(
         (HubContent content) -> Platform.runLater(() -> callback.accept(content.getProjects())),
-        error -> Platform.runLater(() -> this.onConnectionFailure((WebClientResponseException) error)),
+        error -> Platform.runLater(() -> this.onConnectionFailure((Exception) error)),
         () -> Platform.runLater(this::onConnectionChanged));
   }
 

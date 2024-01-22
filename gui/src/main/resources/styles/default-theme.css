@@ -149,6 +149,11 @@
   -fx-background-color: #eaeaea;
 }
 
+.button,
+.toggle-button {
+  -fx-cursor: hand;
+}
+
 .icon {
   -fx-fill: #000;
 }
@@ -266,4 +271,20 @@
 
 #contentContainer .back-button:pressed {
   -fx-background-color: #a0a0a0;
+}
+
+.icon-button {
+  -fx-background-color: transparent;
+  -fx-border-color: transparent;
+  -fx-border-width: 0;
+  -fx-padding: 0 0 0 0;
+  -fx-opacity: 0.6;
+}
+
+.icon-button:hover {
+  -fx-opacity: 0.8;
+}
+
+.icon-button:pressed {
+  -fx-opacity: 1.0;
 }

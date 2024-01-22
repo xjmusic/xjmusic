@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+<VBox
+  fx:id="container"
+  fx:controller="io.xj.gui.controllers.EntityModificationModalController"
+  spacing="10"
+  xmlns="http://javafx.com/javafx/20.0.1"
+  xmlns:fx="http://javafx.com/fxml/1">
+
+  <GridPane hgap="10" vgap="10">
+    <padding>
+      <Insets bottom="15" left="15" right="15" top="15"/>
+    </padding>
+    <Label
+      contentDisplay="TEXT_ONLY"
+      text="Project Name:"
+      GridPane.halignment="RIGHT"
+      GridPane.rowIndex="0"
+      GridPane.columnIndex="0"/>
+    <TextField
+      fx:id="fieldEntityName"
+      GridPane.rowIndex="0"
+      GridPane.columnIndex="1"
+      GridPane.columnSpan="2"/>
+
+    <!-- TODO -->
+
+  </GridPane>
+
+</VBox>
