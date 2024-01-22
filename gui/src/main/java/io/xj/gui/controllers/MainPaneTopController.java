@@ -141,11 +141,10 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     contentContainer.managedProperty().bind(isContentVisible);
     buttonGoUpContentLevel.visibleProperty().bind(uiStateService.isContentLevelUpPossibleProperty());
     buttonGoUpContentLevel.managedProperty().bind(uiStateService.isContentLevelUpPossibleProperty());
+    labelViewingParent.visibleProperty().bind(projectService.isStateReadyProperty());
     labelViewingParent.textProperty().bind(uiStateService.currentParentNameProperty());
     labelViewingSeparator.visibleProperty().bind(uiStateService.isViewingEntityProperty());
-    labelViewingSeparator.managedProperty().bind(uiStateService.isViewingEntityProperty());
     labelViewingEntity.visibleProperty().bind(uiStateService.isViewingEntityProperty());
-    labelViewingEntity.managedProperty().bind(uiStateService.isViewingEntityProperty());
     labelViewingEntity.textProperty().bind(uiStateService.currentEntityNameProperty());
   }
 

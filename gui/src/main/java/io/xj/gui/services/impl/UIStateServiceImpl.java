@@ -114,7 +114,7 @@ public class UIStateServiceImpl implements UIStateService {
 
     // State Text
     stateText = Bindings.createStringBinding(
-      () -> Objects.equals(projectService.stateProperty().get(), ProjectState.Ready)
+      () -> projectService.isStateReadyProperty().get()
         ? fabricationService.stateTextProperty().getValue() : projectService.stateTextProperty().getValue(),
       projectService.stateProperty(),
       projectService.stateTextProperty(),
