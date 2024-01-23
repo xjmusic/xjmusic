@@ -194,7 +194,7 @@ public interface ProjectService {
    Create a new template
 
    @param name of the new template
-   @return
+   @return the new template
    */
   Template createTemplate(String name);
 
@@ -202,7 +202,7 @@ public interface ProjectService {
    Create a new library
 
    @param name of the new library
-   @return
+   @return the new library
    */
   Library createLibrary(String name);
 
@@ -211,7 +211,7 @@ public interface ProjectService {
 
    @param library the library
    @param name    of the new program
-   @return
+   @return the new program
    */
   Program createProgram(Library library, String name);
 
@@ -220,7 +220,25 @@ public interface ProjectService {
 
    @param library the library
    @param name    of the new instrument
-   @return
+   @return the new instrument
    */
   Instrument createInstrument(Library library, String name);
+
+  /**
+   Move the program to the given library
+
+   @param uuid    the program uuid
+   @param library the library
+   @return the program
+   */
+  Program moveProgram(UUID uuid, Library library);
+
+  /**
+   Move the instrument to the given library
+
+   @param uuid    the instrument uuid
+   @param library the library
+   @return the instrument
+   */
+  Instrument moveInstrument(UUID uuid, Library library);
 }

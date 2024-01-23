@@ -379,6 +379,38 @@ public class ProjectServiceImpl implements ProjectService {
     return instrument;
   }
 
+  @Override
+  public Program moveProgram(UUID uuid, Library library) {
+    var program = projectManager.getContent().getPrograms().stream()
+      .filter(p -> Objects.equals(p.getId(), uuid))
+      .findFirst()
+      .orElseThrow(() -> new RuntimeException("Program not found!"));
+    program.setLibraryId(library.getId());
+    try {
+      projectManager.getContent().put(program);
+    } catch (Exception e) {
+      LOG.error("Failed to move Program!", e);
+      return program;
+    }
+    return program;
+  }
+
+  @Override
+  public Instrument moveInstrument(UUID uuid, Library library) {
+    var instrument = projectManager.getContent().getInstruments().stream()
+      .filter(p -> Objects.equals(p.getId(), uuid))
+      .findFirst()
+      .orElseThrow(() -> new RuntimeException("Instrument not found!"));
+    instrument.setLibraryId(library.getId());
+    try {
+      projectManager.getContent().put(instrument);
+    } catch (Exception e) {
+      LOG.error("Failed to move Instrument!", e);
+      return instrument;
+    }
+    return instrument;
+  }
+
   /**
    Clone a project from a remote source.
 

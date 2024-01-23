@@ -6,20 +6,24 @@ import io.xj.gui.modes.CmdMode;
 import io.xj.gui.modes.CmdType;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
+import io.xj.gui.services.UIStateService;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.util.StringUtils;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.TextField;
@@ -33,7 +37,10 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 /**
@@ -41,11 +48,18 @@ import java.util.stream.Stream;
  */
 @Service
 public class CmdModalController extends ReadyAfterBootModalController {
-  static final Logger LOG = LoggerFactory.getLogger(CmdModalController.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CmdModalController.class);
+  private static final Set<CmdMode> NAME_DISABLED_MODES = Set.of(
+    CmdMode.Delete,
+    CmdMode.Move
+  );
   private final StringProperty windowTitle = new SimpleStringProperty();
   private final ObjectProperty<CmdMode> mode = new SimpleObjectProperty<>();
   private final ObjectProperty<CmdType> type = new SimpleObjectProperty<>();
+  private final StringProperty name = new SimpleStringProperty();
   private final ObjectProperty<Library> parentLibrary = new SimpleObjectProperty<>();
+  private final ObjectProperty<UUID> currentId = new SimpleObjectProperty<>();
+  private final UIStateService uiStateService;
   private final ProjectService projectService;
 
   @FXML
@@ -60,20 +74,33 @@ public class CmdModalController extends ReadyAfterBootModalController {
   @FXML
   protected Button buttonCancel;
 
+  @FXML
+  protected VBox libraryChoiceContainer;
+
+  @FXML
+  protected ChoiceBox<LibraryChoice> choiceLibrary;
+
 
   public CmdModalController(
     @Value("classpath:/views/cmd-modal.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
+    UIStateService uiStateService,
     ThemeService themeService,
     ProjectService projectService
   ) {
     super(ac, themeService, fxml);
+    this.uiStateService = uiStateService;
     this.projectService = projectService;
   }
 
   @Override
   public void onStageReady() {
-    // no op
+    choiceLibrary.setItems(FXCollections.observableList(projectService.getLibraries().stream().sorted(Comparator.comparing(Library::getName)).map(LibraryChoice::new).toList()));
+    if (parentLibrary.isNotNull().get())
+      choiceLibrary.setValue(new LibraryChoice(parentLibrary.get()));
+    choiceLibrary.setOnAction(event -> parentLibrary.set(choiceLibrary.getValue().library()));
+    fieldName.textProperty().bindBidirectional(name);
+    fieldName.disableProperty().bind(Bindings.createBooleanBinding(() -> NAME_DISABLED_MODES.contains(mode.get()), mode));
   }
 
   @Override
@@ -90,7 +117,7 @@ public class CmdModalController extends ReadyAfterBootModalController {
   protected void handlePressOK() {
     switch (mode.get()) {
       case Create:
-        if (StringUtils.isNullOrEmpty(fieldName.getText())) {
+        if (StringUtils.isNullOrEmpty(name.getValue())) {
           Alert alert = new Alert(Alert.AlertType.ERROR);
           alert.setTitle("Error");
           alert.setHeaderText("Name cannot be blank");
@@ -100,16 +127,32 @@ public class CmdModalController extends ReadyAfterBootModalController {
         }
         switch (type.get()) {
           case Template:
-            projectService.createTemplate(fieldName.getText());
+            var template = projectService.createTemplate(name.getValue());
+            uiStateService.editTemplate(template.getId());
             break;
           case Library:
-            projectService.createLibrary(fieldName.getText());
+            var library = projectService.createLibrary(name.getValue());
+            uiStateService.editLibrary(library.getId());
             break;
           case Program:
-            projectService.createProgram(parentLibrary.get(), fieldName.getText());
+            var program = projectService.createProgram(parentLibrary.get(), name.getValue());
+            uiStateService.editProgram(program.getId());
             break;
           case Instrument:
-            projectService.createInstrument(parentLibrary.get(), fieldName.getText());
+            var instrument = projectService.createInstrument(parentLibrary.get(), name.getValue());
+            uiStateService.editInstrument(instrument.getId());
+            break;
+        }
+        break;
+      case Move:
+        switch (type.get()) {
+          case Program:
+            var program = projectService.moveProgram(currentId.get(), parentLibrary.get());
+            uiStateService.viewLibrary(program.getLibraryId());
+            break;
+          case Instrument:
+            var instrument = projectService.moveInstrument(currentId.get(), parentLibrary.get());
+            uiStateService.viewLibrary(instrument.getLibraryId());
             break;
         }
         break;
@@ -121,16 +164,6 @@ public class CmdModalController extends ReadyAfterBootModalController {
           case Library:
             // TODO
             break;
-          case Program:
-            // TODO
-            break;
-          case Instrument:
-            // TODO
-            break;
-        }
-        break;
-      case Move:
-        switch (type.get()) {
           case Program:
             // TODO
             break;
@@ -240,7 +273,10 @@ public class CmdModalController extends ReadyAfterBootModalController {
    */
   public void moveProgram(Program program) {
     setup(CmdMode.Move, CmdType.Program);
-    LOG.info("Will move Program \"{}\"", program.getName()); // TODO
+    currentId.set(program.getId());
+    name.set(program.getName());
+    parentLibrary.set(projectService.getContent().getLibrary(program.getLibraryId()).orElseThrow(() -> new RuntimeException("Could not find Library")));
+    launchModal();
   }
 
   /**
@@ -284,8 +320,10 @@ public class CmdModalController extends ReadyAfterBootModalController {
    */
   public void moveInstrument(Instrument instrument) {
     setup(CmdMode.Move, CmdType.Instrument);
-
-    LOG.info("Will move Instrument \"{}\"", instrument.getName()); // TODO
+    currentId.set(instrument.getId());
+    name.set(instrument.getName());
+    parentLibrary.set(projectService.getContent().getLibrary(instrument.getLibraryId()).orElseThrow(() -> new RuntimeException("Could not find Library")));
+    launchModal();
   }
 
   /**
@@ -448,5 +486,15 @@ public class CmdModalController extends ReadyAfterBootModalController {
    */
   private String describeCount(String name, long count) {
     return String.format("%d %s", count, count > 1 ? StringUtils.toPlural(name) : name);
+  }
+
+  /**
+   This class is used to display the library name in the ChoiceBox while preserving the underlying ID
+   */
+  public record LibraryChoice(Library library) {
+    @Override
+    public String toString() {
+      return Objects.nonNull(library) ? library.getName() : "Select...";
+    }
   }
 }
