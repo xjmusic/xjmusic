@@ -6,6 +6,7 @@ import io.xj.nexus.hub_client.HubClientAccess;
 import jakarta.annotation.Nullable;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -150,4 +151,13 @@ public interface ProjectManager {
    @param type the type of update
    */
   void notifyProjectUpdateListeners(ProjectUpdate type);
+
+  /**
+   Clone an entity and reassign any references from source relationships to the clone relationships
+
+   @param type                of entity
+   @param sourceRelationships list of entities related to the source object
+   @param cloneRelationships  list of entities related to the clone object
+   */
+  <N, SR, CR> void cloneAll(Class<N> type, Set<SR> sourceRelationships, Set<CR> cloneRelationships);
 }

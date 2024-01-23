@@ -30,8 +30,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
@@ -48,7 +46,6 @@ import java.util.stream.Stream;
  */
 @Service
 public class CmdModalController extends ReadyAfterBootModalController {
-  private static final Logger LOG = LoggerFactory.getLogger(CmdModalController.class);
   private static final Set<CmdMode> NAME_DISABLED_MODES = Set.of(
     CmdMode.Delete,
     CmdMode.Move
@@ -95,6 +92,13 @@ public class CmdModalController extends ReadyAfterBootModalController {
 
   @Override
   public void onStageReady() {
+    var hasLibrary = Bindings.createBooleanBinding(
+      () -> switch (type.get()) {
+        case Program, Instrument -> true;
+        default -> false;
+      }, type);
+    libraryChoiceContainer.visibleProperty().bind(hasLibrary);
+    libraryChoiceContainer.managedProperty().bind(hasLibrary);
     choiceLibrary.setItems(FXCollections.observableList(projectService.getLibraries().stream().sorted(Comparator.comparing(Library::getName)).map(LibraryChoice::new).toList()));
     if (parentLibrary.isNotNull().get())
       choiceLibrary.setValue(new LibraryChoice(parentLibrary.get()));
@@ -159,16 +163,20 @@ public class CmdModalController extends ReadyAfterBootModalController {
       case Clone:
         switch (type.get()) {
           case Template:
-            // TODO
+            var template = projectService.cloneTemplate(currentId.get(), name.getValue());
+            uiStateService.editTemplate(template.getId());
             break;
           case Library:
-            // TODO
+            var library = projectService.cloneLibrary(currentId.get(), name.getValue());
+            uiStateService.editLibrary(library.getId());
             break;
           case Program:
-            // TODO
+            var program = projectService.cloneProgram(currentId.get(), parentLibrary.get(), name.getValue());
+            uiStateService.editProgram(program.getId());
             break;
           case Instrument:
-            // TODO
+            var instrument = projectService.cloneInstrument(currentId.get(), parentLibrary.get(), name.getValue());
+            uiStateService.editInstrument(instrument.getId());
             break;
         }
         break;
@@ -190,6 +198,7 @@ public class CmdModalController extends ReadyAfterBootModalController {
    Create a new Template.
    */
   public void createTemplate() {
+    name.set("");
     setup(CmdMode.Create, CmdType.Template);
     launchModal();
   }
@@ -198,6 +207,7 @@ public class CmdModalController extends ReadyAfterBootModalController {
    Create a new Library.
    */
   public void createLibrary() {
+    name.set("");
     setup(CmdMode.Create, CmdType.Library);
     launchModal();
   }
@@ -206,6 +216,7 @@ public class CmdModalController extends ReadyAfterBootModalController {
    Create a new Program.
    */
   public void createProgram(Library inLibrary) {
+    name.set("");
     parentLibrary.set(inLibrary);
     setup(CmdMode.Create, CmdType.Program);
     launchModal();
@@ -215,6 +226,7 @@ public class CmdModalController extends ReadyAfterBootModalController {
    Create a new Instrument.
    */
   public void createInstrument(Library inLibrary) {
+    name.set("");
     parentLibrary.set(inLibrary);
     setup(CmdMode.Create, CmdType.Instrument);
     launchModal();
@@ -263,7 +275,9 @@ public class CmdModalController extends ReadyAfterBootModalController {
    */
   public void cloneLibrary(Library library) {
     setup(CmdMode.Clone, CmdType.Library);
-    LOG.info("Will clone Library \"{}\"", library.getName()); // TODO
+    currentId.set(library.getId());
+    name.set(String.format("Copy of %s", library.getName()));
+    launchModal();
   }
 
   /**
@@ -286,7 +300,10 @@ public class CmdModalController extends ReadyAfterBootModalController {
    */
   public void cloneProgram(Program program) {
     setup(CmdMode.Clone, CmdType.Program);
-    LOG.info("Will clone Program \"{}\"", program.getName()); // TODO
+    currentId.set(program.getId());
+    name.set(String.format("Copy of %s", program.getName()));
+    parentLibrary.set(projectService.getContent().getLibrary(program.getLibraryId()).orElseThrow(() -> new RuntimeException("Could not find Library")));
+    launchModal();
   }
 
   /**
@@ -333,8 +350,10 @@ public class CmdModalController extends ReadyAfterBootModalController {
    */
   public void cloneInstrument(Instrument instrument) {
     setup(CmdMode.Clone, CmdType.Instrument);
-
-    LOG.info("Will clone Instrument \"{}\"", instrument.getName()); // TODO
+    currentId.set(instrument.getId());
+    name.set(String.format("Copy of %s", instrument.getName()));
+    parentLibrary.set(projectService.getContent().getLibrary(instrument.getLibraryId()).orElseThrow(() -> new RuntimeException("Could not find Library")));
+    launchModal();
   }
 
   /**
@@ -368,8 +387,9 @@ public class CmdModalController extends ReadyAfterBootModalController {
    */
   public void cloneTemplate(Template template) {
     setup(CmdMode.Clone, CmdType.Template);
-
-    LOG.info("Will clone Template \"{}\"", template.getName()); // TODO
+    currentId.set(template.getId());
+    name.set(String.format("Copy of %s", template.getName()));
+    launchModal();
   }
 
   /**

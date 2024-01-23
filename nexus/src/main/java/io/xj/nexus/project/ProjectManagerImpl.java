@@ -8,6 +8,8 @@ import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Project;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.util.EntityUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.http.HttpClientProvider;
@@ -250,6 +252,23 @@ public class ProjectManagerImpl implements ProjectManager {
     if (projectUpdateListeners.containsKey(type)) {
       projectUpdateListeners.get(type).forEach(Runnable::run);
     }
+  }
+
+  @Override
+  public <N, SR, CR> void cloneAll(Class<N> type, Set<SR> sourceRelationships, Set<CR> cloneRelationships) {
+    Map<String> setIds = new HashMap<String, > // todo later
+    var sourceEntities = content.get().getAll(type).stream()
+      .filter(entity -> {
+        try {
+          for (SR sourceRelationship : sourceRelationships) {
+            var id = EntityUtils.toBelongsTo(sourceRelationship);
+          }
+        } catch (Exception e) {
+          LOG.error("Failed to obtain source entities!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+          return false;
+        }
+      })
+      .toList();
   }
 
   /**

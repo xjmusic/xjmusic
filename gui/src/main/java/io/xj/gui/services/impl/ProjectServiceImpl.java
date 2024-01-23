@@ -12,6 +12,11 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.entity.EntityFactory;
+import io.xj.hub.entity.EntityFactoryImpl;
+import io.xj.hub.entity.EntityUtils;
+import io.xj.hub.json.JsonProvider;
+import io.xj.hub.json.JsonProviderImpl;
 import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.project.ProjectUpdate;
@@ -89,6 +94,7 @@ public class ProjectServiceImpl implements ProjectService {
   private final int maxRecentProjects;
   private final LabService labService;
   private final ProjectManager projectManager;
+  private final EntityFactory entityFactory;
   private final JsonProvider jsonProvider;
 
   public ProjectServiceImpl(
@@ -100,6 +106,7 @@ public class ProjectServiceImpl implements ProjectService {
     this.labService = labService;
     this.projectManager = projectManager;
     this.jsonProvider = new JsonProviderImpl();
+    this.entityFactory = new EntityFactoryImpl(jsonProvider);
     attachPreferenceListeners();
     setAllFromPreferencesOrDefaults();
 
@@ -380,9 +387,9 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public Program moveProgram(UUID uuid, Library library) {
+  public Program moveProgram(UUID id, Library library) {
     var program = projectManager.getContent().getPrograms().stream()
-      .filter(p -> Objects.equals(p.getId(), uuid))
+      .filter(p -> Objects.equals(p.getId(), id))
       .findFirst()
       .orElseThrow(() -> new RuntimeException("Program not found!"));
     program.setLibraryId(library.getId());
@@ -396,9 +403,9 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public Instrument moveInstrument(UUID uuid, Library library) {
+  public Instrument moveInstrument(UUID id, Library library) {
     var instrument = projectManager.getContent().getInstruments().stream()
-      .filter(p -> Objects.equals(p.getId(), uuid))
+      .filter(p -> Objects.equals(p.getId(), id))
       .findFirst()
       .orElseThrow(() -> new RuntimeException("Instrument not found!"));
     instrument.setLibraryId(library.getId());
@@ -409,6 +416,46 @@ public class ProjectServiceImpl implements ProjectService {
       return instrument;
     }
     return instrument;
+  }
+
+  @Override
+  public Template cloneTemplate(UUID id, String name) {
+    var source = projectManager.getContent().getTemplates().stream()
+      .filter(p -> Objects.equals(p.getId(), id))
+      .findFirst()
+      .orElseThrow(() -> new RuntimeException("Template not found!"));
+    var clone = new Template();
+    clone.setId(UUID.randomUUID());
+    clone.setName(name);
+    try {
+      entityFactory.setAllEmptyAttributes(source, clone);
+      projectManager.getContent().put(clone);
+      projectManager.cloneAll(TemplateBinding.class, Set.of(source), Set.of(clone));
+/*
+TODO remove
+      projectManager.getContent().getTemplateBindings().stream()
+        .filter(binding -> Objects.equals(binding.getTemplateId(), source.getId()))
+        .toList()
+        .forEach(binding -> {
+          var cloneBinding = new TemplateBinding();
+          cloneBinding.setId(UUID.randomUUID());
+          cloneBinding.setTemplateId(clone.getId());
+          entityFactory.setAllEmptyAttributes(binding, cloneBinding);
+          try {
+            projectManager.getContent().put(cloneBinding);
+          } catch (Exception e) {
+            LOG.error("Failed to clone Template Binding!", e);
+          }
+        });
+*/
+
+    } catch (Exception e) {
+      LOG.error("Failed to clone Template!", e);
+      return clone;
+    }
+    projectManager.notifyProjectUpdateListeners(ProjectUpdate.Templates);
+    LOG.info("Cloned template \"{}\"", name);
+    return clone;
   }
 
   /**

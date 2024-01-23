@@ -227,18 +227,56 @@ public interface ProjectService {
   /**
    Move the program to the given library
 
-   @param uuid    the program uuid
+   @param id      the program uuid
    @param library the library
    @return the program
    */
-  Program moveProgram(UUID uuid, Library library);
+  Program moveProgram(UUID id, Library library);
 
   /**
    Move the instrument to the given library
 
-   @param uuid    the instrument uuid
+   @param id      the instrument uuid
    @param library the library
    @return the instrument
    */
-  Instrument moveInstrument(UUID uuid, Library library);
+  Instrument moveInstrument(UUID id, Library library);
+
+  /**
+   Clone the given template with a new nam
+
+   @param id   clone from template
+   @param name the new name
+   @return the new template
+   */
+  Template cloneTemplate(UUID id, String name);
+
+  /**
+   Clone the given library with a new name
+
+   @param id   clone from library
+   @param name the new name
+   @return the new library
+   */
+  Library cloneLibrary(UUID id, String name);
+
+  /**
+   Clone the given program with a new name
+
+   @param id      clone from program
+   @param library the library
+   @param name    the new name
+   @return the new program
+   */
+  Program cloneProgram(UUID id, Library library, String name);
+
+  /**
+   Clone the given instrument with a new name
+
+   @param id      clone from instrument
+   @param library the library
+   @param name    the new name
+   @return the new instrument
+   */
+  Instrument cloneInstrument(UUID id, Library library, String name);
 }

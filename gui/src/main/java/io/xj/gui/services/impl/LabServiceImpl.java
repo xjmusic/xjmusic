@@ -58,11 +58,11 @@ public class LabServiceImpl implements LabService {
     @Value("${lab.base.url}") String defaultLabBaseUrl,
     @Value("${audio.base.url}") String audioBaseUrl,
     @Value("${ship.base.url}") String shipBaseUrl,
-    @Value("${stream.base.url}") String streamBaseUrl
+    @Value("${stream.base.url}") String streamBaseUrl,
+    @Value("${prefs.load}") Boolean loadPrefs
   ) {
     this.hostServices = hostServices;
 
-    baseUrl.set(prefs.get("baseUrl", defaultLabBaseUrl));
     baseUrl.addListener((o, ov, value) -> {
       prefs.put("baseUrl", value);
       if (Objects.isNull(value)) {
@@ -73,6 +73,10 @@ public class LabServiceImpl implements LabService {
       }
       LOG.info("Lab URL changed to: " + this.baseUrl.getValue());
     });
+    if (loadPrefs)
+      baseUrl.set(prefs.get("baseUrl", defaultLabBaseUrl));
+    else
+      baseUrl.set(defaultLabBaseUrl);
 
     HttpClient httpClient = HttpClient.create().resolver(DefaultAddressResolverGroup.INSTANCE);
     webClient = WebClient.builder()
@@ -95,7 +99,7 @@ public class LabServiceImpl implements LabService {
 
     accessToken.addListener((o, ov, value) -> prefs.put("accessToken", value));
     var savedAccessToken = prefs.get("accessToken", null);
-    if (!StringUtils.isNullOrEmpty(savedAccessToken)) {
+    if (loadPrefs && !StringUtils.isNullOrEmpty(savedAccessToken)) {
       LOG.info("Found saved access token, connecting to lab...");
       accessToken.set(savedAccessToken);
       this.connect();
@@ -108,7 +112,7 @@ public class LabServiceImpl implements LabService {
     makeAuthenticatedRequest("api/2/users/me", HttpMethod.GET, HubContent.class)
       .subscribe(
         (HubContent content) -> Platform.runLater(() -> this.onConnectionSuccess(content.getUsers().stream().findFirst().orElseThrow(() -> new RuntimeException("No user found!")))),
-        error -> Platform.runLater(() -> this.onConnectionFailure((WebClientResponseException) error)),
+        error -> Platform.runLater(() -> this.onConnectionFailure((Exception) error)),
         () -> Platform.runLater(this::onConnectionChanged));
   }
 
@@ -124,7 +128,7 @@ public class LabServiceImpl implements LabService {
     makeAuthenticatedRequest("api/2/config", HttpMethod.GET, HubConfiguration.class)
       .subscribe(
         (HubConfiguration config) -> Platform.runLater(() -> this.onConfigurationSuccess(config)),
-        error -> Platform.runLater(() -> this.onConnectionFailure((WebClientResponseException) error)),
+        error -> Platform.runLater(() -> this.onConnectionFailure((Exception) error)),
         () -> Platform.runLater(this::onConnectionChanged));
   }
 
