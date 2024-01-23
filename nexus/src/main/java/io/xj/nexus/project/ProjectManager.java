@@ -1,12 +1,13 @@
 package io.xj.nexus.project;
 
 import io.xj.hub.HubContent;
+import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Project;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.hub_client.HubClientAccess;
 import jakarta.annotation.Nullable;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -117,13 +118,6 @@ public interface ProjectManager {
   String getPathToInstrumentAudio(UUID instrumentId, String waveformKey);
 
   /**
-   Set the audio base URL
-
-   @param audioBaseUrl the audio base URL
-   */
-  void setAudioBaseUrl(String audioBaseUrl);
-
-  /**
    Set the callback to be invoked when the progress changes
 
    @param onProgress the callback
@@ -153,11 +147,18 @@ public interface ProjectManager {
   void notifyProjectUpdateListeners(ProjectUpdate type);
 
   /**
-   Clone an entity and reassign any references from source relationships to the clone relationships
+   Create a new template
 
-   @param type                of entity
-   @param sourceRelationships list of entities related to the source object
-   @param cloneRelationships  list of entities related to the clone object
+   @param name of the template
+   @return the new template
    */
-  <N, SR, CR> void cloneAll(Class<N> type, Set<SR> sourceRelationships, Set<CR> cloneRelationships);
+  Template createTemplate(String name) throws Exception;
+
+  /**
+   Create a new library
+
+   @param name of the library
+   @return the new library
+   */
+  Library createLibrary(String name) throws Exception;
 }

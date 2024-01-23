@@ -196,7 +196,7 @@ public interface ProjectService {
    @param name of the new template
    @return the new template
    */
-  Template createTemplate(String name);
+  Template createTemplate(String name) throws Exception;
 
   /**
    Create a new library
@@ -204,7 +204,7 @@ public interface ProjectService {
    @param name of the new library
    @return the new library
    */
-  Library createLibrary(String name);
+  Library createLibrary(String name) throws Exception;
 
   /**
    Create a new program

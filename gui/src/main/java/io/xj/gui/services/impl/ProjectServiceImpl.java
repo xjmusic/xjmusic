@@ -317,34 +317,16 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public Template createTemplate(String name) {
-    var template = new Template();
-    template.setId(UUID.randomUUID());
-    template.setName(name);
-    template.setIsDeleted(false);
-    try {
-      projectManager.getContent().put(template);
-    } catch (Exception e) {
-      LOG.error("Failed to create Template!", e);
-      return template;
-    }
+  public Template createTemplate(String name) throws Exception {
+    var template = projectManager.createTemplate(name);
     projectManager.notifyProjectUpdateListeners(ProjectUpdate.Templates);
     LOG.info("Created template \"{}\"", name);
     return template;
   }
 
   @Override
-  public Library createLibrary(String name) {
-    var library = new Library();
-    library.setId(UUID.randomUUID());
-    library.setName(name);
-    library.setIsDeleted(false);
-    try {
-      projectManager.getContent().put(library);
-    } catch (Exception e) {
-      LOG.error("Failed to create Library!", e);
-      return library;
-    }
+  public Library createLibrary(String name) throws Exception {
+    var library = projectManager.createLibrary(name);
     projectManager.notifyProjectUpdateListeners(ProjectUpdate.Libraries);
     LOG.info("Created library \"{}\"", name);
     return library;
@@ -420,42 +402,17 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public Template cloneTemplate(UUID id, String name) {
-    var source = projectManager.getContent().getTemplates().stream()
-      .filter(p -> Objects.equals(p.getId(), id))
-      .findFirst()
-      .orElseThrow(() -> new RuntimeException("Template not found!"));
-    var clone = new Template();
-    clone.setId(UUID.randomUUID());
-    clone.setName(name);
     try {
       entityFactory.setAllEmptyAttributes(source, clone);
       projectManager.getContent().put(clone);
-      projectManager.cloneAll(TemplateBinding.class, Set.of(source), Set.of(clone));
-/*
-TODO remove
-      projectManager.getContent().getTemplateBindings().stream()
-        .filter(binding -> Objects.equals(binding.getTemplateId(), source.getId()))
-        .toList()
-        .forEach(binding -> {
-          var cloneBinding = new TemplateBinding();
-          cloneBinding.setId(UUID.randomUUID());
-          cloneBinding.setTemplateId(clone.getId());
-          entityFactory.setAllEmptyAttributes(binding, cloneBinding);
-          try {
-            projectManager.getContent().put(cloneBinding);
-          } catch (Exception e) {
-            LOG.error("Failed to clone Template Binding!", e);
-          }
-        });
-*/
+      projectManager.cloneAllTemplateBindings(source, clone);
+      projectManager.notifyProjectUpdateListeners(ProjectUpdate.Templates);
+      LOG.info("Cloned template \"{}\"", name);
+      return clone;
 
     } catch (Exception e) {
       LOG.error("Failed to clone Template!", e);
-      return clone;
     }
-    projectManager.notifyProjectUpdateListeners(ProjectUpdate.Templates);
-    LOG.info("Cloned template \"{}\"", name);
-    return clone;
   }
 
   /**

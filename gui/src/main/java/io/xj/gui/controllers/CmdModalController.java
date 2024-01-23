@@ -13,6 +13,7 @@ import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.util.StringUtils;
+import io.xj.nexus.work.ShipWorkImpl;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -30,6 +31,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
@@ -46,6 +49,7 @@ import java.util.stream.Stream;
  */
 @Service
 public class CmdModalController extends ReadyAfterBootModalController {
+  private static final Logger LOG = LoggerFactory.getLogger(CmdModalController.class);
   private static final Set<CmdMode> NAME_DISABLED_MODES = Set.of(
     CmdMode.Delete,
     CmdMode.Move
@@ -119,72 +123,76 @@ public class CmdModalController extends ReadyAfterBootModalController {
 
   @FXML
   protected void handlePressOK() {
-    switch (mode.get()) {
-      case Create:
-        if (StringUtils.isNullOrEmpty(name.getValue())) {
-          Alert alert = new Alert(Alert.AlertType.ERROR);
-          alert.setTitle("Error");
-          alert.setHeaderText("Name cannot be blank");
-          alert.setContentText("Please enter a name for the new entity.");
-          alert.showAndWait();
-          return;
+    try {
+      switch (mode.get()) {
+        case Create -> {
+          if (StringUtils.isNullOrEmpty(name.getValue())) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Name cannot be blank");
+            alert.setContentText("Please enter a name for the new entity.");
+            alert.showAndWait();
+            return;
+          }
+          switch (type.get()) {
+            case Template -> {
+              var template = projectService.createTemplate(name.getValue());
+              uiStateService.editTemplate(template.getId());
+            }
+            case Library -> {
+              var library = projectService.createLibrary(name.getValue());
+              uiStateService.editLibrary(library.getId());
+            }
+            case Program -> {
+              var program = projectService.createProgram(parentLibrary.get(), name.getValue());
+              uiStateService.editProgram(program.getId());
+            }
+            case Instrument -> {
+              var instrument = projectService.createInstrument(parentLibrary.get(), name.getValue());
+              uiStateService.editInstrument(instrument.getId());
+            }
+          }
         }
-        switch (type.get()) {
-          case Template:
-            var template = projectService.createTemplate(name.getValue());
-            uiStateService.editTemplate(template.getId());
-            break;
-          case Library:
-            var library = projectService.createLibrary(name.getValue());
-            uiStateService.editLibrary(library.getId());
-            break;
-          case Program:
-            var program = projectService.createProgram(parentLibrary.get(), name.getValue());
-            uiStateService.editProgram(program.getId());
-            break;
-          case Instrument:
-            var instrument = projectService.createInstrument(parentLibrary.get(), name.getValue());
-            uiStateService.editInstrument(instrument.getId());
-            break;
+        case Move -> {
+          switch (type.get()) {
+            case Program -> {
+              var program = projectService.moveProgram(currentId.get(), parentLibrary.get());
+              uiStateService.viewLibrary(program.getLibraryId());
+            }
+            case Instrument -> {
+              var instrument = projectService.moveInstrument(currentId.get(), parentLibrary.get());
+              uiStateService.viewLibrary(instrument.getLibraryId());
+            }
+          }
         }
-        break;
-      case Move:
-        switch (type.get()) {
-          case Program:
-            var program = projectService.moveProgram(currentId.get(), parentLibrary.get());
-            uiStateService.viewLibrary(program.getLibraryId());
-            break;
-          case Instrument:
-            var instrument = projectService.moveInstrument(currentId.get(), parentLibrary.get());
-            uiStateService.viewLibrary(instrument.getLibraryId());
-            break;
+        case Clone -> {
+          switch (type.get()) {
+            case Template -> {
+              var template = projectService.cloneTemplate(currentId.get(), name.getValue());
+              uiStateService.editTemplate(template.getId());
+            }
+            case Library -> {
+              var library = projectService.cloneLibrary(currentId.get(), name.getValue());
+              uiStateService.editLibrary(library.getId());
+            }
+            case Program -> {
+              var program = projectService.cloneProgram(currentId.get(), parentLibrary.get(), name.getValue());
+              uiStateService.editProgram(program.getId());
+            }
+            case Instrument -> {
+              var instrument = projectService.cloneInstrument(currentId.get(), parentLibrary.get(), name.getValue());
+              uiStateService.editInstrument(instrument.getId());
+            }
+          }
         }
-        break;
-      case Clone:
-        switch (type.get()) {
-          case Template:
-            var template = projectService.cloneTemplate(currentId.get(), name.getValue());
-            uiStateService.editTemplate(template.getId());
-            break;
-          case Library:
-            var library = projectService.cloneLibrary(currentId.get(), name.getValue());
-            uiStateService.editLibrary(library.getId());
-            break;
-          case Program:
-            var program = projectService.cloneProgram(currentId.get(), parentLibrary.get(), name.getValue());
-            uiStateService.editProgram(program.getId());
-            break;
-          case Instrument:
-            var instrument = projectService.cloneInstrument(currentId.get(), parentLibrary.get(), name.getValue());
-            uiStateService.editInstrument(instrument.getId());
-            break;
-        }
-        break;
-    }
+      }
+      Stage stage = (Stage) buttonOK.getScene().getWindow();
+      stage.close();
+      onStageClose();
 
-    Stage stage = (Stage) buttonOK.getScene().getWindow();
-    stage.close();
-    onStageClose();
+    } catch (Exception e) {
+      LOG.error("Error creating entity!\n{}", StringUtils.formatStackTrace(e), e);
+    }
   }
 
   @FXML
