@@ -2,7 +2,6 @@
 
 package io.xj.gui.controllers;
 
-import io.xj.gui.controllers.template.TemplateBrowserController;
 import io.xj.gui.services.ThemeService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -25,7 +24,7 @@ public class EntityModificationModalController extends ReadyAfterBootModalContro
   protected VBox container;
 
   @FXML
-  protected TextField fieldEntityName;
+  protected TextField fieldName;
 
   public EntityModificationModalController(
     @Value("classpath:/views/entity-modification-modal.fxml") Resource fxml,

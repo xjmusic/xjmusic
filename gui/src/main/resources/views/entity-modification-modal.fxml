@@ -20,12 +20,12 @@
     </padding>
     <Label
       contentDisplay="TEXT_ONLY"
-      text="Project Name:"
+      text="Name:"
       GridPane.halignment="RIGHT"
       GridPane.rowIndex="0"
       GridPane.columnIndex="0"/>
     <TextField
-      fx:id="fieldEntityName"
+      fx:id="fieldName"
       GridPane.rowIndex="0"
       GridPane.columnIndex="1"
       GridPane.columnSpan="2"/>
