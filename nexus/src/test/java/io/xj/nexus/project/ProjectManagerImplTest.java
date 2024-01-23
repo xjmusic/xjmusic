@@ -1,10 +1,10 @@
 package io.xj.nexus.project;
 
-import io.xj.nexus.entity.EntityFactory;
-import io.xj.nexus.entity.EntityFactoryImpl;
+import io.xj.hub.entity.EntityFactory;
+import io.xj.hub.entity.EntityFactoryImpl;
 import io.xj.nexus.http.HttpClientProvider;
-import io.xj.nexus.json.JsonProvider;
-import io.xj.nexus.json.JsonProviderImpl;
+import io.xj.hub.json.JsonProvider;
+import io.xj.hub.json.JsonProviderImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

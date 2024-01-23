@@ -123,6 +123,13 @@ public interface ProjectService {
   void addProjectUpdateListener(ProjectUpdate type, Runnable listener);
 
   /**
+   Notify all listeners of a project update
+
+   @param type the type of update
+   */
+  void notifyProjectUpdateListeners(ProjectUpdate type);
+
+  /**
    Get the current list of non-deleted libraries sorted by name
 
    @return the list of libraries
@@ -213,7 +220,7 @@ public interface ProjectService {
    @param name    of the new program
    @return the new program
    */
-  Program createProgram(Library library, String name);
+  Program createProgram(Library library, String name) throws Exception;
 
   /**
    Create a new instrument
@@ -222,7 +229,7 @@ public interface ProjectService {
    @param name    of the new instrument
    @return the new instrument
    */
-  Instrument createInstrument(Library library, String name);
+  Instrument createInstrument(Library library, String name) throws Exception;
 
   /**
    Move the program to the given library
@@ -231,7 +238,7 @@ public interface ProjectService {
    @param library the library
    @return the program
    */
-  Program moveProgram(UUID id, Library library);
+  Program moveProgram(UUID id, Library library) throws Exception;
 
   /**
    Move the instrument to the given library
@@ -240,7 +247,7 @@ public interface ProjectService {
    @param library the library
    @return the instrument
    */
-  Instrument moveInstrument(UUID id, Library library);
+  Instrument moveInstrument(UUID id, Library library) throws Exception;
 
   /**
    Clone the given template with a new nam

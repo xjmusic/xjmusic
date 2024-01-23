@@ -1,7 +1,9 @@
 package io.xj.nexus.project;
 
 import io.xj.hub.HubContent;
+import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.hub_client.HubClientAccess;
@@ -132,21 +134,6 @@ public interface ProjectManager {
   void setOnStateChange(@Nullable Consumer<ProjectState> onStateChange);
 
   /**
-   Attach a listener to project updates
-
-   @param type     the type of update to listen for
-   @param listener the listener to attach
-   */
-  void addProjectUpdateListener(ProjectUpdate type, Runnable listener);
-
-  /**
-   Notify all listeners of a project update
-
-   @param type the type of update
-   */
-  void notifyProjectUpdateListeners(ProjectUpdate type);
-
-  /**
    Create a new template
 
    @param name of the template
@@ -161,4 +148,40 @@ public interface ProjectManager {
    @return the new library
    */
   Library createLibrary(String name) throws Exception;
+
+  /**
+   Create a new program
+
+   @param library parent containing program
+   @param name    of the program
+   @return the new program
+   */
+  Program createProgram(Library library, String name) throws Exception;
+
+  /**
+   Create a new instrument
+
+   @param library parent containing instrument
+   @param name    of the instrument
+   @return the new instrument
+   */
+  Instrument createInstrument(Library library, String name) throws Exception;
+
+  /**
+   Move a program to a new library
+
+   @param id        of program to move
+   @param libraryId new library id
+   @return the moved program
+   */
+  Program moveProgram(UUID id, UUID libraryId) throws Exception;
+
+  /**
+   Move a instrument to a new library
+
+   @param id        of instrument to move
+   @param libraryId new library id
+   @return the moved instrument
+   */
+  Instrument moveInstrument(UUID id, UUID libraryId) throws Exception;
 }

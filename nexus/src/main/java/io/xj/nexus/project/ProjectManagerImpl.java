@@ -8,6 +8,7 @@ import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.util.StringUtils;
@@ -35,13 +36,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
@@ -59,7 +56,6 @@ public class ProjectManagerImpl implements ProjectManager {
   private final AtomicReference<String> projectName = new AtomicReference<>("Project");
   private final AtomicReference<String> audioBaseUrl = new AtomicReference<>("https://audio.xj.io/");
   private final AtomicReference<HubContent> content = new AtomicReference<>();
-  private final Map<ProjectUpdate, Set<Runnable>> projectUpdateListeners = new HashMap<>();
   private final JsonProvider jsonProvider;
   private final EntityFactory entityFactory;
   private final int downloadAudioRetries;
@@ -227,26 +223,9 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public void addProjectUpdateListener(ProjectUpdate type, Runnable listener) {
-    projectUpdateListeners.computeIfAbsent(type, k -> new HashSet<>());
-    projectUpdateListeners.get(type).add(listener);
-  }
-
-  @Override
   public void closeProject() {
     project.set(null);
     content.set(null);
-    notifyProjectUpdateListeners(ProjectUpdate.Templates);
-    notifyProjectUpdateListeners(ProjectUpdate.Libraries);
-    notifyProjectUpdateListeners(ProjectUpdate.Programs);
-    notifyProjectUpdateListeners(ProjectUpdate.Instruments);
-  }
-
-  @Override
-  public void notifyProjectUpdateListeners(ProjectUpdate type) {
-    if (projectUpdateListeners.containsKey(type)) {
-      projectUpdateListeners.get(type).forEach(Runnable::run);
-    }
   }
 
   @Override
@@ -267,6 +246,50 @@ public class ProjectManagerImpl implements ProjectManager {
     library.setIsDeleted(false);
     content.get().put(library);
     return library;
+  }
+
+  @Override
+  public Program createProgram(Library library, String name) throws Exception {
+    var program = new Program();
+    program.setId(UUID.randomUUID());
+    program.setName(name);
+    program.setLibraryId(library.getId());
+    program.setIsDeleted(false);
+    content.get().put(program);
+    return program;
+  }
+
+  @Override
+  public Instrument createInstrument(Library library, String name) throws Exception {
+    var instrument = new Instrument();
+    instrument.setId(UUID.randomUUID());
+    instrument.setName(name);
+    instrument.setLibraryId(library.getId());
+    instrument.setIsDeleted(false);
+    content.get().put(instrument);
+    return instrument;
+  }
+
+  @Override
+  public Program moveProgram(UUID id, UUID libraryId) throws Exception {
+    var program = content.get().getPrograms().stream()
+      .filter(p -> Objects.equals(p.getId(), id))
+      .findFirst()
+      .orElseThrow(() -> new RuntimeException("Program not found!"));
+    program.setLibraryId(libraryId);
+    content.get().put(program);
+    return program;
+  }
+
+  @Override
+  public Instrument moveInstrument(UUID id, UUID libraryId) throws Exception {
+    var instrument = content.get().getInstruments().stream()
+      .filter(p -> Objects.equals(p.getId(), id))
+      .findFirst()
+      .orElseThrow(() -> new RuntimeException("Instrument not found!"));
+    instrument.setLibraryId(libraryId);
+    content.get().put(instrument);
+    return instrument;
   }
 
   /**
@@ -419,12 +442,6 @@ public class ProjectManagerImpl implements ProjectManager {
     this.state.set(state);
     if (Objects.nonNull(onStateChange))
       onStateChange.accept(state);
-    if (state == ProjectState.Ready) {
-      notifyProjectUpdateListeners(ProjectUpdate.Libraries);
-      notifyProjectUpdateListeners(ProjectUpdate.Programs);
-      notifyProjectUpdateListeners(ProjectUpdate.Instruments);
-      notifyProjectUpdateListeners(ProjectUpdate.Templates);
-    }
   }
 
   /**
