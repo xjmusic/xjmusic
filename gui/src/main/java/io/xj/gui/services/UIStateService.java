@@ -15,6 +15,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
+import javafx.beans.value.ObservableValue;
 import javafx.css.PseudoClass;
 
 import java.util.Set;
@@ -221,4 +222,9 @@ public interface UIStateService extends ReadyAfterBootController {
    @return Observable property for the text of the create entity button
    */
   StringBinding createEntityButtonTextProperty();
+
+  /**
+   @return observable binding whether we are viewing Library content, either Programs or Instruments
+   */
+  BooleanBinding isLibraryContentBrowserProperty();
 }

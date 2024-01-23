@@ -3,6 +3,7 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.controllers.fabrication.FabricationSettingsModalController;
+import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
@@ -17,11 +18,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -33,7 +34,6 @@ import static io.xj.gui.services.UIStateService.PENDING_PSEUDO_CLASS;
 
 @Service
 public class MainPaneTopController extends VBox implements ReadyAfterBootController {
-  static final Logger LOG = LoggerFactory.getLogger(MainPaneTopController.class);
   private static final Set<FabricationState> WORK_PENDING_STATES = Set.of(
     FabricationState.Initializing,
     FabricationState.PreparedAudio,
@@ -69,6 +69,9 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   protected StackPane browserControlContainer;
 
   @FXML
+  protected HBox libraryContentSelectionContainer;
+
+  @FXML
   protected ProgressBar progressBar;
 
   @FXML
@@ -101,6 +104,15 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   @FXML
   protected Label labelViewingEntity;
 
+  @FXML
+  protected ToggleGroup libraryContentSelectionToggle;
+
+  @FXML
+  protected ToggleButton buttonLibraryContentPrograms;
+
+  @FXML
+  protected ToggleButton buttonLibraryContentInstruments;
+
   public MainPaneTopController(
     FabricationService fabricationService,
     FabricationSettingsModalController fabricationSettingsModalController,
@@ -127,6 +139,14 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     isStatusVisible.not().and(
       uiStateService.viewModeProperty().isEqualTo(ViewMode.Content)
         .or(uiStateService.viewModeProperty().isEqualTo(ViewMode.Templates)));
+
+    uiStateService.contentModeProperty().addListener((o, ov, v) -> {
+      if (Objects.equals(v, ContentMode.ProgramBrowser)) {
+        libraryContentSelectionToggle.selectToggle(buttonLibraryContentPrograms);
+      } else if (Objects.equals(v, ContentMode.InstrumentBrowser)) {
+        libraryContentSelectionToggle.selectToggle(buttonLibraryContentInstruments);
+      }
+    });
   }
 
   @Override
@@ -154,9 +174,20 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     buttonGoUpContentLevel.managedProperty().bind(uiStateService.isContentLevelUpPossibleProperty());
     labelViewingParent.visibleProperty().bind(projectService.isStateReadyProperty());
     labelViewingParent.textProperty().bind(uiStateService.currentParentNameProperty());
-    labelViewingSeparator.visibleProperty().bind(uiStateService.isViewingEntityProperty());
+    var isSeparatorVisible = uiStateService.isViewingEntityProperty().or(uiStateService.isLibraryContentBrowserProperty());
+    labelViewingSeparator.visibleProperty().bind(isSeparatorVisible);
+    labelViewingSeparator.managedProperty().bind(isSeparatorVisible);
     labelViewingEntity.visibleProperty().bind(uiStateService.isViewingEntityProperty());
+    labelViewingEntity.managedProperty().bind(uiStateService.isViewingEntityProperty());
     labelViewingEntity.textProperty().bind(uiStateService.currentEntityNameProperty());
+    libraryContentSelectionContainer.visibleProperty().bind(uiStateService.isLibraryContentBrowserProperty());
+    libraryContentSelectionToggle.selectedToggleProperty().addListener((o, ov, v) -> {
+      if (Objects.equals(v, buttonLibraryContentPrograms)) {
+        Platform.runLater(() -> uiStateService.contentModeProperty().set(ContentMode.ProgramBrowser));
+      } else if (Objects.equals(v, buttonLibraryContentInstruments)) {
+        Platform.runLater(() -> uiStateService.contentModeProperty().set(ContentMode.InstrumentBrowser));
+      }
+    });
 
     browserControlContainer.visibleProperty().bind(isContentVisible);
     buttonCreateEntity.visibleProperty().bind(uiStateService.isCreateEntityButtonVisibleProperty());

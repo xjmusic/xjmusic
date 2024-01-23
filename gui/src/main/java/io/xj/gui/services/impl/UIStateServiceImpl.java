@@ -73,6 +73,7 @@ public class UIStateServiceImpl implements UIStateService {
   private final StringBinding currentEntityName;
   private final BooleanBinding isCreateEntityButtonVisible;
   private final StringBinding createEntityButtonText;
+  private final BooleanBinding isLibraryContentBrowser;
 
   public UIStateServiceImpl(
     FabricationService fabricationService,
@@ -187,14 +188,14 @@ public class UIStateServiceImpl implements UIStateService {
     isCreateEntityButtonVisible = Bindings.createBooleanBinding(
       () ->
         projectService.isStateReadyProperty().get() &&
-        switch (viewMode.get()) {
-          case Content -> switch (contentMode.get()) {
-            case LibraryBrowser, ProgramBrowser, InstrumentBrowser -> true;
+          switch (viewMode.get()) {
+            case Content -> switch (contentMode.get()) {
+              case LibraryBrowser, ProgramBrowser, InstrumentBrowser -> true;
+              default -> false;
+            };
+            case Templates -> Objects.equals(TemplateMode.TemplateBrowser, templateMode.get());
             default -> false;
-          };
-          case Templates -> Objects.equals(TemplateMode.TemplateBrowser, templateMode.get());
-          default -> false;
-        },
+          },
       viewMode, contentMode, templateMode, projectService.isStateReadyProperty()
     );
     createEntityButtonText = Bindings.createStringBinding(
@@ -208,6 +209,15 @@ public class UIStateServiceImpl implements UIStateService {
         default -> "";
       },
       viewMode, contentMode, templateMode
+    );
+
+    isLibraryContentBrowser = Bindings.createBooleanBinding(
+      () -> Objects.equals(ViewMode.Content, viewMode.get()) &&
+        switch (contentMode.get()) {
+          case ProgramBrowser, InstrumentBrowser -> true;
+          default -> false;
+        },
+      viewMode, contentMode
     );
   }
 
@@ -455,5 +465,10 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public StringBinding createEntityButtonTextProperty() {
     return createEntityButtonText;
+  }
+
+  @Override
+  public BooleanBinding isLibraryContentBrowserProperty() {
+    return isLibraryContentBrowser;
   }
 }
