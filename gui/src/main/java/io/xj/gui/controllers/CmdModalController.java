@@ -12,18 +12,20 @@ import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.util.StringUtils;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,6 +54,13 @@ public class CmdModalController extends ReadyAfterBootModalController {
   @FXML
   protected TextField fieldName;
 
+  @FXML
+  protected Button buttonOK;
+
+  @FXML
+  protected Button buttonCancel;
+
+
   public CmdModalController(
     @Value("classpath:/views/cmd-modal.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
@@ -64,10 +73,7 @@ public class CmdModalController extends ReadyAfterBootModalController {
 
   @Override
   public void onStageReady() {
-    windowTitle.bind(Bindings.createStringBinding(
-      () -> String.format("%s %s", mode.get(), type.get()),
-      mode, type
-    ));
+    // no op
   }
 
   @Override
@@ -80,47 +86,114 @@ public class CmdModalController extends ReadyAfterBootModalController {
     createAndShowModal(windowTitle.get());
   }
 
+  @FXML
+  protected void handlePressOK() {
+    switch (mode.get()) {
+      case Create:
+        if (StringUtils.isNullOrEmpty(fieldName.getText())) {
+          Alert alert = new Alert(Alert.AlertType.ERROR);
+          alert.setTitle("Error");
+          alert.setHeaderText("Name cannot be blank");
+          alert.setContentText("Please enter a name for the new entity.");
+          alert.showAndWait();
+          return;
+        }
+        switch (type.get()) {
+          case Template:
+            projectService.createTemplate(fieldName.getText());
+            break;
+          case Library:
+            projectService.createLibrary(fieldName.getText());
+            break;
+          case Program:
+            projectService.createProgram(parentLibrary.get(), fieldName.getText());
+            break;
+          case Instrument:
+            projectService.createInstrument(parentLibrary.get(), fieldName.getText());
+            break;
+        }
+        break;
+      case Clone:
+        switch (type.get()) {
+          case Template:
+            // TODO
+            break;
+          case Library:
+            // TODO
+            break;
+          case Program:
+            // TODO
+            break;
+          case Instrument:
+            // TODO
+            break;
+        }
+        break;
+      case Move:
+        switch (type.get()) {
+          case Program:
+            // TODO
+            break;
+          case Instrument:
+            // TODO
+            break;
+        }
+        break;
+    }
+
+    Stage stage = (Stage) buttonOK.getScene().getWindow();
+    stage.close();
+    onStageClose();
+  }
+
+  @FXML
+  protected void handlePressCancel() {
+    Stage stage = (Stage) buttonCancel.getScene().getWindow();
+    stage.close();
+    onStageClose();
+  }
+
   /**
    Create a new Template.
    */
   public void createTemplate() {
-    LOG.info("Will create Template"); // TODO
-    mode.set(CmdMode.Create);
-    type.set(CmdType.Template);
+    setup(CmdMode.Create, CmdType.Template);
+    launchModal();
   }
 
   /**
    Create a new Library.
    */
   public void createLibrary() {
-    LOG.info("Will create Library"); // TODO
-    mode.set(CmdMode.Create);
-    type.set(CmdType.Library);
+    setup(CmdMode.Create, CmdType.Library);
+    launchModal();
   }
 
   /**
    Create a new Program.
    */
   public void createProgram(Library inLibrary) {
-    LOG.info("Will create Program in Library \"{}\"", inLibrary.getName()); // TODO
     parentLibrary.set(inLibrary);
-    mode.set(CmdMode.Create);
-    type.set(CmdType.Program);
+    setup(CmdMode.Create, CmdType.Program);
+    launchModal();
   }
 
   /**
    Create a new Instrument.
    */
   public void createInstrument(Library inLibrary) {
-    LOG.info("Will create Instrument in Library \"{}\"", inLibrary.getName()); // TODO
     parentLibrary.set(inLibrary);
-    mode.set(CmdMode.Create);
-    type.set(CmdType.Instrument);
+    setup(CmdMode.Create, CmdType.Instrument);
+    launchModal();
   }
 
+  /**
+   Delete a library
+
+   @param library to delete
+   */
   public void deleteLibrary(Library library) {
-    mode.set(CmdMode.Delete);
-    type.set(CmdType.Library);
+    setup(CmdMode.Delete, CmdType.Library);
 
     var programs = projectService.getContent().getPrograms().stream().filter(program -> program.getLibraryId().equals(library.getId())).count();
     var instruments = projectService.getContent().getInstruments().stream().filter(instrument -> instrument.getLibraryId().equals(library.getId())).count();
@@ -150,27 +223,43 @@ public class CmdModalController extends ReadyAfterBootModalController {
     projectService.deleteLibrary(library);
   }
 
+  /**
+   Clone a library
+
+   @param library to clone
+   */
   public void cloneLibrary(Library library) {
+    setup(CmdMode.Clone, CmdType.Library);
     LOG.info("Will clone Library \"{}\"", library.getName()); // TODO
-    mode.set(CmdMode.Clone);
-    type.set(CmdType.Library);
   }
 
+  /**
+   Move a program
+
+   @param program to move
+   */
   public void moveProgram(Program program) {
+    setup(CmdMode.Move, CmdType.Program);
     LOG.info("Will move Program \"{}\"", program.getName()); // TODO
-    mode.set(CmdMode.Move);
-    type.set(CmdType.Program);
   }
 
+  /**
+   Clone a program
+
+   @param program to clone
+   */
   public void cloneProgram(Program program) {
+    setup(CmdMode.Clone, CmdType.Program);
     LOG.info("Will clone Program \"{}\"", program.getName()); // TODO
-    mode.set(CmdMode.Clone);
-    type.set(CmdType.Program);
   }
 
+  /**
+   Delete a program
+
+   @param program to delete
+   */
   public void deleteProgram(Program program) {
-    mode.set(CmdMode.Delete);
-    type.set(CmdType.Program);
+    setup(CmdMode.Delete, CmdType.Program);
 
     var bindings = projectService.getContent().getTemplateBindings().stream()
       .filter(binding -> Objects.equals(ContentBindingType.Program, binding.getType()) && Objects.equals(binding.getTargetId(), program.getId()))
@@ -188,21 +277,35 @@ public class CmdModalController extends ReadyAfterBootModalController {
     projectService.deleteProgram(program);
   }
 
+  /**
+   Move an instrument
+
+   @param instrument to move
+   */
   public void moveInstrument(Instrument instrument) {
+    setup(CmdMode.Move, CmdType.Instrument);
+
     LOG.info("Will move Instrument \"{}\"", instrument.getName()); // TODO
-    mode.set(CmdMode.Move);
-    type.set(CmdType.Instrument);
   }
 
+  /**
+   Clone an instrument
+
+   @param instrument to clone
+   */
   public void cloneInstrument(Instrument instrument) {
+    setup(CmdMode.Clone, CmdType.Instrument);
+
     LOG.info("Will clone Instrument \"{}\"", instrument.getName()); // TODO
-    mode.set(CmdMode.Clone);
-    type.set(CmdType.Instrument);
   }
 
+  /**
+   Delete an instrument
+
+   @param instrument to delete
+   */
   public void deleteInstrument(Instrument instrument) {
-    mode.set(CmdMode.Delete);
-    type.set(CmdType.Instrument);
+    setup(CmdMode.Delete, CmdType.Instrument);
 
     var bindings = projectService.getContent().getTemplateBindings().stream()
       .filter(binding -> Objects.equals(ContentBindingType.Instrument, binding.getType()) && Objects.equals(binding.getTargetId(), instrument.getId()))
@@ -220,15 +323,24 @@ public class CmdModalController extends ReadyAfterBootModalController {
     projectService.deleteInstrument(instrument);
   }
 
+  /**
+   Clone a template
+
+   @param template to clone
+   */
   public void cloneTemplate(Template template) {
+    setup(CmdMode.Clone, CmdType.Template);
+
     LOG.info("Will clone Template \"{}\"", template.getName()); // TODO
-    mode.set(CmdMode.Clone);
-    type.set(CmdType.Template);
   }
 
+  /**
+   Delete a template
+
+   @param template to delete
+   */
   public void deleteTemplate(Template template) {
-    mode.set(CmdMode.Delete);
-    type.set(CmdType.Template);
+    setup(CmdMode.Delete, CmdType.Template);
 
     var bindings = projectService.getContent().getTemplateBindings().stream().filter(program -> program.getTemplateId().equals(template.getId())).toList();
     var programBindings = bindings.stream().filter(binding -> Objects.equals(ContentBindingType.Program, binding.getType())).count();
@@ -250,6 +362,18 @@ public class CmdModalController extends ReadyAfterBootModalController {
       return;
 
     projectService.deleteTemplate(template);
+  }
+
+  /**
+   Setup the modal for the given mode and type.
+
+   @param mode of modal
+   @param type of modal
+   */
+  private void setup(CmdMode mode, CmdType type) {
+    this.mode.set(mode);
+    this.type.set(type);
+    windowTitle.set(String.format("%s %s", StringUtils.toProper(mode.name()), StringUtils.toProper(type.name())));
   }
 
   /**

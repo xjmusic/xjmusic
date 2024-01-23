@@ -171,7 +171,7 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public void saveProject() {
     LOG.info("Will save project");
-    executeInBackground("Save Project", () -> projectManager.saveProject());
+    executeInBackground("Save Project", projectManager::saveProject);
   }
 
   @Override
@@ -307,6 +307,76 @@ public class ProjectServiceImpl implements ProjectService {
     projectManager.getContent().getInstruments().removeIf(binding -> Objects.equals(binding.getId(), instrument.getId()));
     projectManager.notifyProjectUpdateListeners(ProjectUpdate.Instruments);
     LOG.info("Deleted instrument \"{}\"", instrument.getName());
+  }
+
+  @Override
+  public Template createTemplate(String name) {
+    var template = new Template();
+    template.setId(UUID.randomUUID());
+    template.setName(name);
+    template.setIsDeleted(false);
+    try {
+      projectManager.getContent().put(template);
+    } catch (Exception e) {
+      LOG.error("Failed to create Template!", e);
+      return template;
+    }
+    projectManager.notifyProjectUpdateListeners(ProjectUpdate.Templates);
+    LOG.info("Created template \"{}\"", name);
+    return template;
+  }
+
+  @Override
+  public Library createLibrary(String name) {
+    var library = new Library();
+    library.setId(UUID.randomUUID());
+    library.setName(name);
+    library.setIsDeleted(false);
+    try {
+      projectManager.getContent().put(library);
+    } catch (Exception e) {
+      LOG.error("Failed to create Library!", e);
+      return library;
+    }
+    projectManager.notifyProjectUpdateListeners(ProjectUpdate.Libraries);
+    LOG.info("Created library \"{}\"", name);
+    return library;
+  }
+
+  @Override
+  public Program createProgram(Library library, String name) {
+    var program = new Program();
+    program.setId(UUID.randomUUID());
+    program.setName(name);
+    program.setLibraryId(library.getId());
+    program.setIsDeleted(false);
+    try {
+      projectManager.getContent().put(program);
+    } catch (Exception e) {
+      LOG.error("Failed to create Program!", e);
+      return program;
+    }
+    projectManager.notifyProjectUpdateListeners(ProjectUpdate.Programs);
+    LOG.info("Created program \"{}\"", name);
+    return program;
+  }
+
+  @Override
+  public Instrument createInstrument(Library library, String name) {
+    var instrument = new Instrument();
+    instrument.setId(UUID.randomUUID());
+    instrument.setName(name);
+    instrument.setLibraryId(library.getId());
+    instrument.setIsDeleted(false);
+    try {
+      projectManager.getContent().put(instrument);
+    } catch (Exception e) {
+      LOG.error("Failed to create Instrument!", e);
+      return instrument;
+    }
+    projectManager.notifyProjectUpdateListeners(ProjectUpdate.Instruments);
+    LOG.info("Created instrument \"{}\"", name);
+    return instrument;
   }
 
   /**

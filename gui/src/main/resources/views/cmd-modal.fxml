@@ -7,6 +7,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
 <VBox
   fx:id="container"
   fx:controller="io.xj.gui.controllers.CmdModalController"
@@ -32,6 +33,17 @@
 
     <!-- TODO -->
 
+    <Button
+      fx:id="buttonOK"
+      onAction="#handlePressOK"
+      text="OK"
+      GridPane.rowIndex="2"
+      GridPane.columnIndex="1"/>
+    <Button fx:id="buttonCancel"
+            onAction="#handlePressCancel"
+            text="Cancel"
+            GridPane.rowIndex="2"
+            GridPane.columnIndex="2"/>
   </GridPane>
 
 </VBox>

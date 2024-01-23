@@ -189,4 +189,38 @@ public interface ProjectService {
    @param instrument the instrument
    */
   void deleteInstrument(Instrument instrument);
+
+  /**
+   Create a new template
+
+   @param name of the new template
+   @return
+   */
+  Template createTemplate(String name);
+
+  /**
+   Create a new library
+
+   @param name of the new library
+   @return
+   */
+  Library createLibrary(String name);
+
+  /**
+   Create a new program
+
+   @param library the library
+   @param name    of the new program
+   @return
+   */
+  Program createProgram(Library library, String name);
+
+  /**
+   Create a new instrument
+
+   @param library the library
+   @param name    of the new instrument
+   @return
+   */
+  Instrument createInstrument(Library library, String name);
 }
