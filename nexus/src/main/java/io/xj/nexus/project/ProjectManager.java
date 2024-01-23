@@ -65,6 +65,11 @@ public interface ProjectManager {
   boolean createProject(String parentPathPrefix, String projectName);
 
   /**
+   Save the project
+   */
+  void saveProject();
+
+  /**
    Cancel the project loading
    */
   void cancelProjectLoading();
@@ -138,4 +143,11 @@ public interface ProjectManager {
    @param listener the listener to attach
    */
   void addProjectUpdateListener(ProjectUpdate type, Runnable listener);
+
+  /**
+   Notify all listeners of a project update
+
+   @param type the type of update
+   */
+  void notifyProjectUpdateListeners(ProjectUpdate type);
 }

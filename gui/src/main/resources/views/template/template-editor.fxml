@@ -49,6 +49,9 @@
       <VBox.vgrow>
         <Priority fx:constant="ALWAYS"/>
       </VBox.vgrow>
+      <placeholder>
+        <Label text="Template has no Bindings"/>
+      </placeholder>
     </TableView>
   </VBox>
 

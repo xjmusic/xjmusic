@@ -174,6 +174,17 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
+  public void saveProject() {
+    try {
+      saveProjectContent();
+
+    } catch (IOException e) {
+      LOG.error("Failed to save project!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      updateState(ProjectState.Failed);
+    }
+  }
+
+  @Override
   public void cancelProjectLoading() {
     updateState(ProjectState.Cancelled);
   }
@@ -232,6 +243,13 @@ public class ProjectManagerImpl implements ProjectManager {
     notifyProjectUpdateListeners(ProjectUpdate.Libraries);
     notifyProjectUpdateListeners(ProjectUpdate.Programs);
     notifyProjectUpdateListeners(ProjectUpdate.Instruments);
+  }
+
+  @Override
+  public void notifyProjectUpdateListeners(ProjectUpdate type) {
+    if (projectUpdateListeners.containsKey(type)) {
+      projectUpdateListeners.get(type).forEach(Runnable::run);
+    }
   }
 
   /**
@@ -330,17 +348,6 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   Notify all listeners of a project update
-
-   @param type the type of update
-   */
-  private void notifyProjectUpdateListeners(ProjectUpdate type) {
-    if (projectUpdateListeners.containsKey(type)) {
-      projectUpdateListeners.get(type).forEach(Runnable::run);
-    }
-  }
-
-  /**
    Create the project folder on disk
 
    @param parentPathPrefix parent folder of the project folder
@@ -365,6 +372,7 @@ public class ProjectManagerImpl implements ProjectManager {
    */
   private void saveProjectContent() throws IOException {
     updateState(ProjectState.Saving);
+    LOG.info("Will save project \"{}\" to {}", projectName.get(), getPathToProjectFile());
     var json = jsonProvider.getMapper().writeValueAsString(content);
     var jsonPath = getPathToProjectFile();
     Files.writeString(Path.of(jsonPath), json);

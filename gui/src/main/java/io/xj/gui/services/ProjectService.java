@@ -6,6 +6,7 @@ import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.project.ProjectUpdate;
 import javafx.beans.binding.BooleanBinding;
@@ -153,4 +154,39 @@ public interface ProjectService {
    @return the current project property
    */
   ObservableObjectValue<Project> currentProjectProperty();
+
+  /**
+   Delete the template by id
+
+   @param template the template
+   */
+  void deleteTemplate(Template template);
+
+  /**
+   Delete the template binding by id
+
+   @param binding the template binding
+   */
+  void deleteTemplateBinding(TemplateBinding binding);
+
+  /**
+   Delete the library by id
+
+   @param library the library
+   */
+  void deleteLibrary(Library library);
+
+  /**
+   Delete the program by id
+
+   @param program the program
+   */
+  void deleteProgram(Program program);
+
+  /**
+   Delete the instrument by id
+
+   @param instrument the instrument
+   */
+  void deleteInstrument(Instrument instrument);
 }

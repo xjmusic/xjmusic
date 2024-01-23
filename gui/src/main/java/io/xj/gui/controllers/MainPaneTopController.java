@@ -44,7 +44,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     ViewMode.Content,
     ViewMode.Templates
   );
-  private final EntityModificationModalController entityModificationModalController;
+  private final CmdModalController cmdModalController;
   private final ProjectService projectService;
   private final FabricationService fabricationService;
   private final UIStateService uiStateService;
@@ -104,13 +104,13 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   public MainPaneTopController(
     FabricationService fabricationService,
     FabricationSettingsModalController fabricationSettingsModalController,
-    EntityModificationModalController entityModificationModalController,
+    CmdModalController cmdModalController,
     ProjectService projectService,
     UIStateService uiStateService
   ) {
     this.fabricationService = fabricationService;
     this.fabricationSettingsModalController = fabricationSettingsModalController;
-    this.entityModificationModalController = entityModificationModalController;
+    this.cmdModalController = cmdModalController;
     this.projectService = projectService;
     this.uiStateService = uiStateService;
 
@@ -193,12 +193,12 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     switch (uiStateService.viewModeProperty().get()) {
       case Content -> {
         switch (uiStateService.contentModeProperty().get()) {
-          case LibraryBrowser -> entityModificationModalController.createLibrary();
-          case ProgramBrowser -> entityModificationModalController.createProgram();
-          case InstrumentBrowser -> entityModificationModalController.createInstrument();
+          case LibraryBrowser -> cmdModalController.createLibrary();
+          case ProgramBrowser -> cmdModalController.createProgram(uiStateService.currentLibraryProperty().get());
+          case InstrumentBrowser -> cmdModalController.createInstrument(uiStateService.currentLibraryProperty().get());
         }
       }
-      case Templates -> entityModificationModalController.createTemplate();
+      case Templates -> cmdModalController.createTemplate();
     }
   }
 

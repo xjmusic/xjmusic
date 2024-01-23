@@ -3,6 +3,7 @@
 package io.xj.gui.controllers.content;
 
 import io.xj.gui.controllers.BrowserController;
+import io.xj.gui.controllers.CmdModalController;
 import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
@@ -30,6 +31,7 @@ public class ContentBrowserController extends BrowserController implements Ready
   static final Logger LOG = LoggerFactory.getLogger(ContentBrowserController.class);
   private final ProjectService projectService;
   private final UIStateService uiStateService;
+  private final CmdModalController cmdModalController;
   private final ObservableList<Library> libraries = FXCollections.observableList(new ArrayList<>());
   private final ObservableList<Program> programs = FXCollections.observableList(new ArrayList<>());
   private final ObservableList<Instrument> instruments = FXCollections.observableList(new ArrayList<>());
@@ -48,10 +50,12 @@ public class ContentBrowserController extends BrowserController implements Ready
 
   public ContentBrowserController(
     ProjectService projectService,
-    UIStateService uiStateService
+    UIStateService uiStateService,
+    CmdModalController cmdModalController
   ) {
     this.projectService = projectService;
     this.uiStateService = uiStateService;
+    this.cmdModalController = cmdModalController;
   }
 
   @Override
@@ -100,14 +104,8 @@ public class ContentBrowserController extends BrowserController implements Ready
     addActionsColumn(Library.class, librariesTable,
       library -> uiStateService.editLibrary(library.getId()),
       null,
-      library -> {
-        LOG.info("clone {}", library.getName());
-        /* todo clone */
-      },
-      library -> {
-        LOG.info("delete {}", library.getName());
-        /* todo delete */
-      });
+      cmdModalController::cloneLibrary,
+      cmdModalController::deleteLibrary);
     setupData(
       librariesTable,
       libraries,
@@ -141,18 +139,9 @@ public class ContentBrowserController extends BrowserController implements Ready
     addColumn(programsTable, 50, "density", "Density");
     addActionsColumn(Program.class, programsTable,
       program -> uiStateService.editProgram(program.getId()),
-      program -> {
-        LOG.info("move {}", program.getName());
-        /* todo move */
-      },
-      program -> {
-        LOG.info("clone {}", program.getName());
-        /* todo clone */
-      },
-      program -> {
-        LOG.info("delete {}", program.getName());
-        /* todo delete */
-      });
+      cmdModalController::moveProgram,
+      cmdModalController::cloneProgram,
+      cmdModalController::deleteProgram);
     setupData(
       programsTable,
       programs,
@@ -188,18 +177,9 @@ public class ContentBrowserController extends BrowserController implements Ready
     addColumn(instrumentsTable, 50, "volume", "Volume");
     addActionsColumn(Instrument.class, instrumentsTable,
       instrument -> uiStateService.editInstrument(instrument.getId()),
-      instrument -> {
-        LOG.info("move {}", instrument.getName());
-        /* todo move */
-      },
-      instrument -> {
-        LOG.info("clone {}", instrument.getName());
-        /* todo clone */
-      },
-      instrument -> {
-        LOG.info("delete {}", instrument.getName());
-        /* todo delete */
-      });
+      cmdModalController::moveInstrument,
+      cmdModalController::cloneInstrument,
+      cmdModalController::deleteInstrument);
     setupData(
       instrumentsTable,
       instruments,

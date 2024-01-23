@@ -2,12 +2,14 @@
 
 package io.xj.gui.controllers.template;
 
+import io.xj.gui.controllers.BrowserController;
 import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.nexus.project.ProjectUpdate;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -32,7 +34,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Service
-public class TemplateEditorController implements ReadyAfterBootController {
+public class TemplateEditorController extends BrowserController implements ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(TemplateEditorController.class);
   private final ProjectService projectService;
   private final UIStateService uiStateService;
@@ -93,6 +95,17 @@ public class TemplateEditorController implements ReadyAfterBootController {
         }
       });
 
+    addActionsColumn(TemplateBinding.class, bindingsTable,
+      null,
+      null,
+      null,
+      binding -> {
+        if (Objects.nonNull(binding))
+          projectService.deleteTemplateBinding(binding);
+      });
+
+    projectService.addProjectUpdateListener(ProjectUpdate.TemplateBindings, this::updateBindings);
+
     uiStateService.templateModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.templateModeProperty().get(), TemplateMode.TemplateEditor))
         update();
@@ -128,15 +141,24 @@ public class TemplateEditorController implements ReadyAfterBootController {
    Update the Template Editor with the current Template.
    */
   private void update() {
-    if (Objects.isNull(uiStateService.currentTemplateProperty().get()))
+    if (uiStateService.currentTemplateProperty().isNull().get())
       return;
     var template = projectService.getContent().getTemplate(uiStateService.currentTemplateProperty().get().getId())
       .orElseThrow(() -> new RuntimeException("Could not find Template"));
     LOG.info("Will edit Template \"{}\"", template.getName());
     this.id.set(template.getId());
     this.name.set(template.getName());
+    updateBindings();
+  }
+
+  /**
+   Update the libraries table data.
+   */
+  private void updateBindings() {
+    if (uiStateService.currentTemplateProperty().isNull().get())
+      return;
     bindings.setAll(projectService.getContent().getTemplateBindings().stream()
-      .filter(binding -> Objects.equals(template.getId(), binding.getTemplateId()))
+      .filter(binding -> Objects.equals(uiStateService.currentTemplateProperty().get().getId(), binding.getTemplateId()))
       .toList());
   }
 }

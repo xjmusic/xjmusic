@@ -11,6 +11,7 @@ import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.project.ProjectUpdate;
@@ -169,7 +170,8 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void saveProject() {
-    LOG.info("Saving project");
+    LOG.info("Will save project");
+    executeInBackground("Save Project", () -> projectManager.saveProject());
   }
 
   @Override
@@ -270,6 +272,41 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public ObservableObjectValue<Project> currentProjectProperty() {
     return currentProject;
+  }
+
+  @Override
+  public void deleteTemplate(Template template) {
+    projectManager.getContent().getTemplates().removeIf(binding -> Objects.equals(binding.getId(), template.getId()));
+    projectManager.notifyProjectUpdateListeners(ProjectUpdate.Templates);
+    LOG.info("Deleted template \"{}\"", template.getName());
+  }
+
+  @Override
+  public void deleteTemplateBinding(TemplateBinding binding) {
+    projectManager.getContent().getTemplateBindings().removeIf(templateBinding -> Objects.equals(templateBinding.getId(), binding.getId()));
+    projectManager.notifyProjectUpdateListeners(ProjectUpdate.TemplateBindings);
+    LOG.info("Deleted {} template binding", binding.getType());
+  }
+
+  @Override
+  public void deleteLibrary(Library library) {
+    projectManager.getContent().getLibraries().removeIf(binding -> Objects.equals(binding.getId(), library.getId()));
+    projectManager.notifyProjectUpdateListeners(ProjectUpdate.Libraries);
+    LOG.info("Deleted library \"{}\"", library.getName());
+  }
+
+  @Override
+  public void deleteProgram(Program program) {
+    projectManager.getContent().getPrograms().removeIf(binding -> Objects.equals(binding.getId(), program.getId()));
+    projectManager.notifyProjectUpdateListeners(ProjectUpdate.Programs);
+    LOG.info("Deleted program \"{}\"", program.getName());
+  }
+
+  @Override
+  public void deleteInstrument(Instrument instrument) {
+    projectManager.getContent().getInstruments().removeIf(binding -> Objects.equals(binding.getId(), instrument.getId()));
+    projectManager.notifyProjectUpdateListeners(ProjectUpdate.Instruments);
+    LOG.info("Deleted instrument \"{}\"", instrument.getName());
   }
 
   /**
