@@ -71,6 +71,8 @@ public class UIStateServiceImpl implements UIStateService {
   private final BooleanBinding isViewingEntity;
   private final StringBinding currentParentName;
   private final StringBinding currentEntityName;
+  private final BooleanBinding isCreateEntityButtonVisible;
+  private final StringBinding createEntityButtonText;
 
   public UIStateServiceImpl(
     FabricationService fabricationService,
@@ -146,7 +148,8 @@ public class UIStateServiceImpl implements UIStateService {
       () -> switch (viewMode.get()) {
         case Content -> switch (contentMode.get()) {
           case LibraryBrowser, LibraryEditor -> "Libraries";
-          case ProgramBrowser, InstrumentBrowser, ProgramEditor, InstrumentEditor -> currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
+          case ProgramBrowser, InstrumentBrowser, ProgramEditor, InstrumentEditor ->
+            currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
         };
         case Templates -> switch (templateMode.get()) {
           case TemplateBrowser -> "Templates";
@@ -160,32 +163,52 @@ public class UIStateServiceImpl implements UIStateService {
     isViewingEntity = Bindings.createBooleanBinding(
       () -> switch (viewMode.get()) {
         case Content -> switch (contentMode.get()) {
-          case LibraryBrowser, ProgramBrowser, InstrumentBrowser -> false;
           case LibraryEditor, ProgramEditor, InstrumentEditor -> true;
+          default -> false;
         };
-        case Templates -> switch (templateMode.get()) {
-          case TemplateBrowser -> false;
-          case TemplateEditor -> true;
-        };
-        case Fabrication -> false;
+        case Templates -> Objects.equals(TemplateMode.TemplateEditor, templateMode.get());
+        default -> false;
       },
       viewMode, contentMode, templateMode
     );
     currentEntityName = Bindings.createStringBinding(
       () -> switch (viewMode.get()) {
         case Content -> switch (contentMode.get()) {
-          case LibraryBrowser, ProgramBrowser, InstrumentBrowser -> "";
           case LibraryEditor -> currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
           case ProgramEditor -> currentProgram.isNotNull().get() ? currentProgram.get().getName() : "";
           case InstrumentEditor -> currentInstrument.isNotNull().get() ? currentInstrument.get().getName() : "";
+          default -> "";
         };
-        case Templates -> switch (templateMode.get()) {
-          case TemplateBrowser -> "";
-          case TemplateEditor -> currentTemplate.isNotNull().get() ? currentTemplate.get().getName() : "";
-        };
-        case Fabrication -> "";
+        case Templates ->
+          Objects.equals(TemplateMode.TemplateEditor, templateMode.get()) && currentTemplate.isNotNull().get() ? currentTemplate.get().getName() : "";
+        default -> "";
       },
       viewMode, contentMode, templateMode, currentProgram, currentInstrument, currentTemplate);
+    isCreateEntityButtonVisible = Bindings.createBooleanBinding(
+      () ->
+        projectService.isStateReadyProperty().get() &&
+        switch (viewMode.get()) {
+          case Content -> switch (contentMode.get()) {
+            case LibraryBrowser, ProgramBrowser, InstrumentBrowser -> true;
+            default -> false;
+          };
+          case Templates -> Objects.equals(TemplateMode.TemplateBrowser, templateMode.get());
+          default -> false;
+        },
+      viewMode, contentMode, templateMode, projectService.isStateReadyProperty()
+    );
+    createEntityButtonText = Bindings.createStringBinding(
+      () -> switch (viewMode.get()) {
+        case Content -> switch (contentMode.get()) {
+          case LibraryBrowser, LibraryEditor -> "New Library";
+          case ProgramBrowser, ProgramEditor -> "New Program";
+          case InstrumentBrowser, InstrumentEditor -> "New Instrument";
+        };
+        case Templates -> "New Template";
+        default -> "";
+      },
+      viewMode, contentMode, templateMode
+    );
   }
 
   @Override
@@ -422,5 +445,15 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public StringBinding currentEntityNameProperty() {
     return currentEntityName;
+  }
+
+  @Override
+  public BooleanBinding isCreateEntityButtonVisibleProperty() {
+    return isCreateEntityButtonVisible;
+  }
+
+  @Override
+  public StringBinding createEntityButtonTextProperty() {
+    return createEntityButtonText;
   }
 }

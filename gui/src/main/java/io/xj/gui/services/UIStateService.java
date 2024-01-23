@@ -211,4 +211,14 @@ public interface UIStateService extends ReadyAfterBootController {
    @return Observable property for the name of the current entity
    */
   StringBinding currentEntityNameProperty();
+
+  /**
+   @return Observable property for whether the create entity button should be visible
+   */
+  BooleanBinding isCreateEntityButtonVisibleProperty();
+
+  /**
+   @return Observable property for the text of the create entity button
+   */
+  StringBinding createEntityButtonTextProperty();
 }

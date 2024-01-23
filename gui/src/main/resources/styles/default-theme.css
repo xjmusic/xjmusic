@@ -258,18 +258,18 @@
   -fx-font-weight: bold;
 }
 
-#contentContainer .back-button {
+.top-pane .button {
   -fx-background-color: transparent;
   -fx-border-color: transparent;
   -fx-border-width: 0;
   -fx-padding: 0 0 0 0;
 }
 
-#contentContainer .back-button:hover {
+.top-pane .button:hover {
   -fx-background-color: #c0c0c0;
 }
 
-#contentContainer .back-button:pressed {
+.top-pane .button:pressed {
   -fx-background-color: #a0a0a0;
 }
 

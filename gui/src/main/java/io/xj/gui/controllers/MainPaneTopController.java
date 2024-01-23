@@ -20,6 +20,8 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -31,6 +33,7 @@ import static io.xj.gui.services.UIStateService.PENDING_PSEUDO_CLASS;
 
 @Service
 public class MainPaneTopController extends VBox implements ReadyAfterBootController {
+  static final Logger LOG = LoggerFactory.getLogger(MainPaneTopController.class);
   private static final Set<FabricationState> WORK_PENDING_STATES = Set.of(
     FabricationState.Initializing,
     FabricationState.PreparedAudio,
@@ -41,6 +44,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     ViewMode.Content,
     ViewMode.Templates
   );
+  private final EntityModificationModalController entityModificationModalController;
   private final ProjectService projectService;
   private final FabricationService fabricationService;
   private final UIStateService uiStateService;
@@ -59,7 +63,10 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   protected StackPane statusContainer;
 
   @FXML
-  protected StackPane contentContainer;
+  protected StackPane browserStatusContainer;
+
+  @FXML
+  protected StackPane browserControlContainer;
 
   @FXML
   protected ProgressBar progressBar;
@@ -83,6 +90,9 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   protected Button buttonGoUpContentLevel;
 
   @FXML
+  protected Button buttonCreateEntity;
+
+  @FXML
   protected Label labelViewingParent;
 
   @FXML
@@ -94,11 +104,13 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   public MainPaneTopController(
     FabricationService fabricationService,
     FabricationSettingsModalController fabricationSettingsModalController,
+    EntityModificationModalController entityModificationModalController,
     ProjectService projectService,
     UIStateService uiStateService
   ) {
     this.fabricationService = fabricationService;
     this.fabricationSettingsModalController = fabricationSettingsModalController;
+    this.entityModificationModalController = entityModificationModalController;
     this.projectService = projectService;
     this.uiStateService = uiStateService;
 
@@ -137,8 +149,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     buttonCancelLoading.visibleProperty().bind(projectService.isStateLoadingProperty());
     buttonCancelLoading.managedProperty().bind(projectService.isStateLoadingProperty());
 
-    contentContainer.visibleProperty().bind(isContentVisible);
-    contentContainer.managedProperty().bind(isContentVisible);
+    browserStatusContainer.visibleProperty().bind(isContentVisible);
     buttonGoUpContentLevel.visibleProperty().bind(uiStateService.isContentLevelUpPossibleProperty());
     buttonGoUpContentLevel.managedProperty().bind(uiStateService.isContentLevelUpPossibleProperty());
     labelViewingParent.visibleProperty().bind(projectService.isStateReadyProperty());
@@ -146,6 +157,10 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     labelViewingSeparator.visibleProperty().bind(uiStateService.isViewingEntityProperty());
     labelViewingEntity.visibleProperty().bind(uiStateService.isViewingEntityProperty());
     labelViewingEntity.textProperty().bind(uiStateService.currentEntityNameProperty());
+
+    browserControlContainer.visibleProperty().bind(isContentVisible);
+    buttonCreateEntity.visibleProperty().bind(uiStateService.isCreateEntityButtonVisibleProperty());
+    buttonCreateEntity.textProperty().bind(uiStateService.createEntityButtonTextProperty());
   }
 
   @Override
@@ -171,6 +186,20 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   @FXML
   public void handleShowFabricationSettings(ActionEvent ignored) {
     fabricationSettingsModalController.launchModal();
+  }
+
+  @FXML
+  private void handleCreateEntity(ActionEvent ignored) {
+    switch (uiStateService.viewModeProperty().get()) {
+      case Content -> {
+        switch (uiStateService.contentModeProperty().get()) {
+          case LibraryBrowser -> entityModificationModalController.createLibrary();
+          case ProgramBrowser -> entityModificationModalController.createProgram();
+          case InstrumentBrowser -> entityModificationModalController.createInstrument();
+        }
+      }
+      case Templates -> entityModificationModalController.createTemplate();
+    }
   }
 
   /**
