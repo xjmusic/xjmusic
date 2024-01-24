@@ -59,12 +59,13 @@ public class LabServiceImpl implements LabService {
     @Value("${audio.base.url}") String audioBaseUrl,
     @Value("${ship.base.url}") String shipBaseUrl,
     @Value("${stream.base.url}") String streamBaseUrl,
-    @Value("${prefs.load}") Boolean loadPrefs
+    @Value("${prefs.load}") Boolean usePrefs
   ) {
     this.hostServices = hostServices;
 
     baseUrl.addListener((o, ov, value) -> {
-      prefs.put("baseUrl", value);
+      if (usePrefs)
+        prefs.put("baseUrl", value);
       if (Objects.isNull(value)) {
         return;
       }
@@ -73,7 +74,7 @@ public class LabServiceImpl implements LabService {
       }
       LOG.info("Lab URL changed to: " + this.baseUrl.getValue());
     });
-    if (loadPrefs)
+    if (usePrefs)
       baseUrl.set(prefs.get("baseUrl", defaultLabBaseUrl));
     else
       baseUrl.set(defaultLabBaseUrl);
@@ -97,9 +98,12 @@ public class LabServiceImpl implements LabService {
         "Ship: " + value.getShipBaseUrl() + ", " +
         "Stream: " + value.getStreamBaseUrl() + ", "));
 
-    accessToken.addListener((o, ov, value) -> prefs.put("accessToken", value));
-    var savedAccessToken = prefs.get("accessToken", null);
-    if (loadPrefs && !StringUtils.isNullOrEmpty(savedAccessToken)) {
+    accessToken.addListener((o, ov, value) -> {
+      if (usePrefs)
+        prefs.put("accessToken", value);
+    });
+    var savedAccessToken = usePrefs ? prefs.get("accessToken", null) : null;
+    if (!StringUtils.isNullOrEmpty(savedAccessToken)) {
       LOG.info("Found saved access token, connecting to lab...");
       accessToken.set(savedAccessToken);
       this.connect();
