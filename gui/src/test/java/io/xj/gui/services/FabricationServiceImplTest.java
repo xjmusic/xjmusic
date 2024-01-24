@@ -16,7 +16,6 @@ import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.work.FabricationManager;
-import javafx.application.HostServices;
 import javafx.beans.property.SimpleObjectProperty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -13,7 +13,7 @@ plugins {
 }
 
 ext {
-  jacksonAnnotationsVersion = '2.15.0'
+  jacksonAnnotationsVersion = '2.15.2'
   javaFxVersion = '20.0.2'
   jooqVersion = '3.18.5'
   junitVersion = '5.9.2'
@@ -23,7 +23,7 @@ ext {
   springBootVersion = '3.1.2'
   springTestVersion = '6.0.11'
   // private
-  xjModelsVersion = '1.7.3'
+  xjModelsVersion = '1.7.21'
 }
 
 Properties localProperties = new Properties()

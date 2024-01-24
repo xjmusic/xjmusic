@@ -10,32 +10,15 @@ import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
-import io.xj.nexus.NexusTopology;
 import io.xj.nexus.audio_cache.AudioCache;
-import io.xj.nexus.audio_cache.AudioCacheImpl;
 import io.xj.nexus.craft.CraftFactory;
-import io.xj.nexus.craft.CraftFactoryImpl;
-import io.xj.nexus.entity.EntityFactory;
-import io.xj.nexus.entity.EntityFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.nexus.hub_client.HubTopology;
-import io.xj.nexus.json.JsonProvider;
-import io.xj.nexus.json.JsonProviderImpl;
-import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
-import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.nexus.mixer.EnvelopeProvider;
-import io.xj.nexus.mixer.EnvelopeProviderImpl;
 import io.xj.nexus.mixer.MixerFactory;
-import io.xj.nexus.mixer.MixerFactoryImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.ship.broadcast.BroadcastFactory;
-import io.xj.nexus.ship.broadcast.BroadcastFactoryImpl;
 import io.xj.nexus.telemetry.Telemetry;
-import io.xj.nexus.telemetry.TelemetryImpl;
 import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,35 +93,6 @@ public class FabricationManagerImpl implements FabricationManager {
     this.mixerFactory = mixerFactory;
     this.entityStore = store;
     this.telemetry = telemetry;
-  }
-
-  public static FabricationManager createInstance(ProjectManager projectManager) {
-    BroadcastFactory broadcastFactory = new BroadcastFactoryImpl();
-    Telemetry telemetry = new TelemetryImpl();
-    CraftFactory craftFactory = new CraftFactoryImpl();
-    AudioCache audioCache = new AudioCacheImpl(projectManager);
-    JsonProvider jsonProvider = new JsonProviderImpl();
-    EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
-    NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
-    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
-      nexusEntityStore,
-      jsonapiPayloadFactory,
-      jsonProvider
-    );
-    EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
-    HubTopology.buildHubApiTopology(entityFactory);
-    NexusTopology.buildNexusApiTopology(entityFactory);
-    return new FabricationManagerImpl(
-      projectManager, telemetry,
-      broadcastFactory,
-      craftFactory,
-      audioCache,
-      fabricatorFactory,
-      mixerFactory,
-      nexusEntityStore
-    );
   }
 
   @Override

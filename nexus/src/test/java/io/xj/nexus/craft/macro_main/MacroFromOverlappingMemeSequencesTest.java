@@ -3,25 +3,25 @@
 package io.xj.nexus.craft.macro_main;
 
 import io.xj.hub.HubContent;
+import io.xj.hub.HubTopology;
+import io.xj.hub.entity.EntityFactoryImpl;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.Project;
-import io.xj.hub.tables.pojos.ProjectUser;
+import io.xj.hub.json.JsonProviderImpl;
+import io.xj.hub.jsonapi.JsonapiPayloadFactory;
+import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.Project;
+import io.xj.hub.tables.pojos.ProjectUser;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.tables.pojos.User;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.entity.EntityFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.hub_client.HubClient;
-import io.xj.nexus.hub_client.HubTopology;
-import io.xj.nexus.json.JsonProviderImpl;
-import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
-import io.xj.nexus.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -36,12 +36,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProject;
-import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProjectUser;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildBinding;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildLibrary;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildMeme;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgram;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProject;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProjectUser;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildSequence;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildTemplateBinding;

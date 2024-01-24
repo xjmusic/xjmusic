@@ -1,12 +1,12 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
+import io.xj.hub.entity.EntityException;
+import io.xj.hub.entity.EntityUtils;
 import io.xj.hub.meme.Isometry;
 import io.xj.hub.meme.MemeStack;
 import io.xj.hub.meme.MemeTaxonomy;
 import io.xj.hub.util.StringUtils;
-import io.xj.nexus.entity.EntityException;
-import io.xj.nexus.entity.EntityUtils;
 
 import java.util.Collection;
 import java.util.List;

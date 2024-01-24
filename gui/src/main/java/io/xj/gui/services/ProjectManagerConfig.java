@@ -1,10 +1,10 @@
 package io.xj.gui.services;
 
-import io.xj.nexus.entity.EntityFactory;
-import io.xj.nexus.entity.EntityFactoryImpl;
+import io.xj.hub.entity.EntityFactory;
+import io.xj.hub.entity.EntityFactoryImpl;
+import io.xj.hub.json.JsonProvider;
+import io.xj.hub.json.JsonProviderImpl;
 import io.xj.nexus.http.HttpClientProvider;
-import io.xj.nexus.json.JsonProvider;
-import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.project.ProjectManagerImpl;
 import org.springframework.beans.factory.annotation.Value;

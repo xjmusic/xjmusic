@@ -2,8 +2,8 @@
 
 package io.xj.gui.controllers;
 
-import io.xj.gui.utils.WindowUtils;
 import io.xj.gui.services.ThemeService;
+import io.xj.gui.utils.WindowUtils;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Modality;

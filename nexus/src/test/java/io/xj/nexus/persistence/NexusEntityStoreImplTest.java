@@ -3,20 +3,26 @@
 package io.xj.nexus.persistence;
 
 
+import io.xj.hub.HubTopology;
+import io.xj.hub.entity.EntityException;
+import io.xj.hub.entity.EntityFactory;
+import io.xj.hub.entity.EntityFactoryImpl;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.Project;
+import io.xj.hub.json.JsonProvider;
+import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.nexus.entity.EntityException;
-import io.xj.nexus.entity.EntityFactory;
-import io.xj.nexus.entity.EntityFactoryImpl;
-import io.xj.nexus.json.JsonProvider;
-import io.xj.nexus.json.JsonProviderImpl;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.hub_client.HubTopology;
-import io.xj.nexus.model.*;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,9 +34,21 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.nexus.NexusHubIntegrationTestingFixtures.*;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildLibrary;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgram;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgramSequence;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgramSequenceBinding;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProject;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildTemplate;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildTemplateBinding;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 public class NexusEntityStoreImplTest {
@@ -142,22 +160,6 @@ public class NexusEntityStoreImplTest {
       .density(0.41)
       .tempo(120.0)
       .storageKey("chains-1-segments-9f7s89d8a7892"));
-  }
-
-  /**
-   This should ostensibly be a test inside the Entity library-- and it is, except for this bug that
-   at the time of this writing, we couldn't isolate to that library, and are therefore reproducing it here.
-
-   @throws EntityException on failure
-   */
-  @Test
-  public void internal_entityFactoryClonesSegmentTypeOK() throws EntityException {
-    Segment segment = new Segment();
-    segment.setType(SegmentType.NEXT_MACRO);
-
-    Segment result = entityFactory.clone(segment);
-
-    assertEquals(SegmentType.NEXT_MACRO, result.getType());
   }
 
   /**
