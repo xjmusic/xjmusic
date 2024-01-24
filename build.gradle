@@ -26,11 +26,25 @@ ext {
   xjModelsVersion = '1.7.21'
 }
 
+// Load the local properties if present
 Properties localProperties = new Properties()
 def localPropertiesFile = project.rootProject.file('gradle-local.properties')
 if (localPropertiesFile.exists()) {
   localProperties.load(localPropertiesFile.newDataInputStream())
 }
+
+// Determine the private packages username and password
+def privatePackagesUsername = localPropertiesFile.exists() ? localProperties.getProperty('repo.username') : System.getenv("REPO_USERNAME")
+def privatePackagesPassword = localPropertiesFile.exists() ? localProperties.getProperty('repo.token') : System.getenv("REPO_TOKEN")
+
+// Log the username and (masked) password
+println "+--------------------------------------------+"
+println "|   GitHub Private Packages Authentication   |"
+println "+--------------------------------------------+"
+println localPropertiesFile.exists() ? "Using gradle-local.properties" : "Using environment variables"
+println "Username: $privatePackagesUsername"
+def maskedPassword = privatePackagesPassword ? privatePackagesPassword.replaceAll(/./, '*') : null
+println "Password: $maskedPassword"
 
 allprojects {
   group = 'io.xj'
