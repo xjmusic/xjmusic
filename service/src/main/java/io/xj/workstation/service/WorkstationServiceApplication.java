@@ -3,23 +3,23 @@
 package io.xj.workstation.service;
 
 import io.xj.hub.HubConfiguration;
-import io.xj.hub.HubTopology;
-import io.xj.hub.entity.EntityFactory;
-import io.xj.hub.entity.EntityFactoryImpl;
-import io.xj.hub.json.JsonProvider;
-import io.xj.hub.json.JsonProviderImpl;
-import io.xj.hub.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.audio_cache.AudioCache;
 import io.xj.nexus.audio_cache.AudioCacheImpl;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
+import io.xj.hub.entity.EntityFactory;
+import io.xj.hub.entity.EntityFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.http.HttpClientProvider;
 import io.xj.nexus.http.HttpClientProviderImpl;
 import io.xj.nexus.hub_client.HubClientAccess;
+import io.xj.hub.HubTopology;
+import io.xj.hub.json.JsonProvider;
+import io.xj.hub.json.JsonProviderImpl;
+import io.xj.hub.jsonapi.JsonapiPayloadFactory;
+import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.mixer.EnvelopeProvider;
 import io.xj.nexus.mixer.EnvelopeProviderImpl;
 import io.xj.nexus.mixer.MixerFactory;
@@ -32,7 +32,7 @@ import io.xj.nexus.ship.broadcast.BroadcastFactory;
 import io.xj.nexus.ship.broadcast.BroadcastFactoryImpl;
 import io.xj.nexus.telemetry.Telemetry;
 import io.xj.nexus.telemetry.TelemetryImpl;
-import io.xj.nexus.work.FabricationConfiguration;
+import io.xj.nexus.work.FabricationSettings;
 import io.xj.nexus.work.FabricationManager;
 import io.xj.nexus.work.FabricationManagerImpl;
 import org.slf4j.Logger;
@@ -116,7 +116,7 @@ public class WorkstationServiceApplication {
 
   @EventListener(ApplicationStartedEvent.class)
   public void start() {
-    var workConfig = new FabricationConfiguration()
+    var workConfig = new FabricationSettings()
       .setInputTemplate(null); // FUTURE: read template
 
     var hubConfig = new HubConfiguration()

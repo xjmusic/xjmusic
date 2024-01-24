@@ -15,6 +15,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
+import javafx.beans.value.ObservableValue;
 import javafx.css.PseudoClass;
 
 import java.util.Set;
@@ -163,6 +164,16 @@ public interface UIStateService extends ReadyAfterBootController {
   ObjectProperty<Template> currentTemplateProperty();
 
   /**
+   View all templates
+   */
+  void viewTemplates();
+
+  /**
+   View all libraries
+   */
+  void viewLibraries();
+
+  /**
    View the given library in the content browser.
 
    @param libraryId ID of the Library to view
@@ -211,4 +222,19 @@ public interface UIStateService extends ReadyAfterBootController {
    @return Observable property for the name of the current entity
    */
   StringBinding currentEntityNameProperty();
+
+  /**
+   @return Observable property for whether the create entity button should be visible
+   */
+  BooleanBinding isCreateEntityButtonVisibleProperty();
+
+  /**
+   @return Observable property for the text of the create entity button
+   */
+  StringBinding createEntityButtonTextProperty();
+
+  /**
+   @return observable binding whether we are viewing Library content, either Programs or Instruments
+   */
+  BooleanBinding isLibraryContentBrowserProperty();
 }

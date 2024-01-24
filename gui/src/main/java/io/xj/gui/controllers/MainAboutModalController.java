@@ -17,10 +17,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MainAboutModalController extends ReadyAfterBootModalController {
   static final String ABOUT_WINDOW_NAME = "About";
-  final ConfigurableApplicationContext ac;
-  final Resource modalAboutFxml;
   final LabService labService;
-  final ThemeService themeService;
   private final VersionService versionService;
 
   @FXML
@@ -31,16 +28,14 @@ public class MainAboutModalController extends ReadyAfterBootModalController {
 
 
   public MainAboutModalController(
-    @Value("classpath:/views/main-about-modal.fxml") Resource modalAboutFxml,
+    @Value("classpath:/views/main-about-modal.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
     LabService labService,
     ThemeService themeService,
     VersionService versionService
   ) {
-    this.ac = ac;
-    this.modalAboutFxml = modalAboutFxml;
+    super(ac, themeService, fxml);
     this.labService = labService;
-    this.themeService = themeService;
     this.versionService = versionService;
   }
 
@@ -63,6 +58,6 @@ public class MainAboutModalController extends ReadyAfterBootModalController {
 
   @Override
   public void launchModal() {
-    createAndShowModal(ac, themeService, modalAboutFxml, ABOUT_WINDOW_NAME);
+    createAndShowModal(ABOUT_WINDOW_NAME);
   }
 }

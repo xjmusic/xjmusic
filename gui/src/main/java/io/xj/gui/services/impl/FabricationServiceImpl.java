@@ -28,7 +28,7 @@ import io.xj.nexus.model.SegmentMessage;
 import io.xj.nexus.model.SegmentMeta;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.util.FormatUtils;
-import io.xj.nexus.work.FabricationConfiguration;
+import io.xj.nexus.work.FabricationSettings;
 import io.xj.nexus.work.FabricationManager;
 import io.xj.nexus.work.FabricationState;
 import jakarta.annotation.Nullable;
@@ -166,7 +166,7 @@ public class FabricationServiceImpl implements FabricationService {
       LOG.debug("Did reset progress");
 
       // create work configuration
-      var config = new FabricationConfiguration()
+      var config = new FabricationSettings()
         .setCraftAheadSeconds(parseIntegerValue(craftAheadSeconds.get(), "fabrication setting for Craft Ahead Seconds"))
         .setDubAheadSeconds(parseIntegerValue(dubAheadSeconds.get(), "fabrication setting for Dub Ahead Seconds"))
         .setMixerLengthSeconds(parseIntegerValue(mixerLengthSeconds.get(), "fabrication setting for Mixer Length Seconds"))

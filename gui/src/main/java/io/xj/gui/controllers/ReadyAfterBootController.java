@@ -2,6 +2,8 @@
 
 package io.xj.gui.controllers;
 
+import javafx.beans.binding.BooleanBinding;
+
 public interface ReadyAfterBootController {
 
   /**

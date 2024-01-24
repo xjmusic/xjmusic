@@ -4,8 +4,11 @@ import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.project.ProjectUpdate;
 import javafx.beans.binding.BooleanBinding;
@@ -122,6 +125,13 @@ public interface ProjectService {
   void addProjectUpdateListener(ProjectUpdate type, Runnable listener);
 
   /**
+   Notify all listeners of a project update
+
+   @param type the type of update
+   */
+  void notifyProjectUpdateListeners(ProjectUpdate type);
+
+  /**
    Get the current list of non-deleted libraries sorted by name
 
    @return the list of libraries
@@ -153,4 +163,179 @@ public interface ProjectService {
    @return the current project property
    */
   ObservableObjectValue<Project> currentProjectProperty();
+
+  /**
+   Delete the template by id
+
+   @param template the template
+   */
+  void deleteTemplate(Template template);
+
+  /**
+   Delete the template binding by id
+
+   @param binding the template binding
+   */
+  void deleteTemplateBinding(TemplateBinding binding);
+
+  /**
+   Delete the library by id
+
+   @param library the library
+   */
+  void deleteLibrary(Library library);
+
+  /**
+   Delete the program by id
+
+   @param program the program
+   */
+  void deleteProgram(Program program);
+
+  /**
+   Delete the instrument by id
+
+   @param instrument the instrument
+   */
+  void deleteInstrument(Instrument instrument);
+
+  /**
+   Create a new template
+
+   @param name of the new template
+   @return the new template
+   */
+  Template createTemplate(String name) throws Exception;
+
+  /**
+   Create a new library
+
+   @param name of the new library
+   @return the new library
+   */
+  Library createLibrary(String name) throws Exception;
+
+  /**
+   Create a new program
+
+   @param library the library
+   @param name    of the new program
+   @return the new program
+   */
+  Program createProgram(Library library, String name) throws Exception;
+
+  /**
+   Create a new instrument
+
+   @param library the library
+   @param name    of the new instrument
+   @return the new instrument
+   */
+  Instrument createInstrument(Library library, String name) throws Exception;
+
+  /**
+   Move the program to the given library
+
+   @param id      the program uuid
+   @param library the library
+   @return the program
+   */
+  Program moveProgram(UUID id, Library library) throws Exception;
+
+  /**
+   Move the instrument to the given library
+
+   @param id      the instrument uuid
+   @param library the library
+   @return the instrument
+   */
+  Instrument moveInstrument(UUID id, Library library) throws Exception;
+
+  /**
+   Clone the given template with a new nam
+
+   @param fromId clone from template
+   @param name   the new name
+   @return the new template
+   */
+  Template cloneTemplate(UUID fromId, String name) throws Exception;
+
+  /**
+   Clone the given library with a new name
+
+   @param fromId clone from library
+   @param name   the new name
+   @return the new library
+   */
+  Library cloneLibrary(UUID fromId, String name) throws Exception;
+
+  /**
+   Clone the given program with a new name
+
+   @param fromId    clone from program
+   @param libraryId the new library id
+   @param name      the new name
+   @return the new program
+   */
+  Program cloneProgram(UUID fromId, UUID libraryId, String name) throws Exception;
+
+  /**
+   Clone the given program sequence with a new name
+
+   @param fromId clone from program sequence
+   @param name   the new name
+   @return the new program
+   */
+  ProgramSequence cloneProgramSequence(UUID fromId, String name) throws Exception;
+
+  /**
+   Clone the given program sequence pattern with a new name
+
+   @param fromId clone from program sequence pattern
+   @param name   the new name
+   @return the new program sequence pattern
+   */
+  ProgramSequencePattern cloneProgramSequencePattern(UUID fromId, String name) throws Exception;
+
+  /**
+   Clone the given instrument with a new name
+
+   @param fromId    clone from instrument
+   @param libraryId the new library id
+   @param name      the new name
+   @return the new instrument
+   */
+  Instrument cloneInstrument(UUID fromId, UUID libraryId, String name) throws Exception;
+
+  /**
+   Update the given library
+
+   @param library to update
+   @return true if successful
+   */
+  boolean updateLibrary(Library library);
+
+  /**
+   Update the given program
+
+   @param program to update
+   @return true if successful
+   */
+  boolean updateProgram(Program program);
+
+  /**
+   Update the given instrument
+
+   @param instrument to update
+   @return true if successful
+   */
+  boolean updateInstrument(Instrument instrument);
+
+  /**
+   Update the given template
+
+   @param template to update
+   @return true if successful
+   */
+  boolean updateTemplate(Template template);
 }

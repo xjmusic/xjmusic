@@ -149,6 +149,11 @@
   -fx-background-color: #eaeaea;
 }
 
+.button,
+.toggle-button {
+  -fx-cursor: hand;
+}
+
 .icon {
   -fx-fill: #000;
 }
@@ -253,17 +258,48 @@
   -fx-font-weight: bold;
 }
 
-#contentContainer .back-button {
+.top-pane .button,
+.top-pane .toggle-button {
+  -fx-background-color: transparent;
+  -fx-border-color: transparent;
+  -fx-border-width: 0;
+  -fx-padding: 1 4 1 4;
+}
+
+.top-pane .button:hover,
+.top-pane .toggle-button:hover {
+  -fx-background-color: #c0c0c0;
+}
+
+.top-pane .button:pressed,
+.top-pane .toggle-button:pressed {
+  -fx-background-color: #a0a0a0;
+}
+
+.top-pane .button:selected,
+.top-pane .toggle-button:selected {
+  -fx-background-color: #a0a0a0;
+}
+
+.icon-button {
   -fx-background-color: transparent;
   -fx-border-color: transparent;
   -fx-border-width: 0;
   -fx-padding: 0 0 0 0;
+  -fx-opacity: 0.6;
 }
 
-#contentContainer .back-button:hover {
-  -fx-background-color: #c0c0c0;
+.icon-button:hover {
+  -fx-opacity: 0.8;
 }
 
-#contentContainer .back-button:pressed {
-  -fx-background-color: #a0a0a0;
+.icon-button:pressed {
+  -fx-opacity: 1.0;
+}
+
+#libraryContentSelectionContainer .toggle-button {
+  -fx-font-size: 0.8em;
+  -fx-border-color: transparent;
+  -fx-border-width: 0;
+  -fx-padding: 2 6 2 6;
 }

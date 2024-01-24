@@ -9,8 +9,11 @@ import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.project.ProjectUpdate;
@@ -41,7 +44,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -58,6 +64,7 @@ public class ProjectServiceImpl implements ProjectService {
     ProjectState.LoadingAudio,
     ProjectState.LoadedAudio
   );
+  private final Map<ProjectUpdate, Set<Runnable>> projectUpdateListeners = new HashMap<>();
   private final Preferences prefs = Preferences.userNodeForPackage(ProjectServiceImpl.class);
   private final ObservableObjectValue<Project> currentProject;
   private final ObservableListValue<ProjectDescriptor> recentProjects = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
@@ -104,8 +111,6 @@ public class ProjectServiceImpl implements ProjectService {
 
     projectManager.setOnProgress((progress) -> Platform.runLater(() -> this.progress.set(progress)));
     projectManager.setOnStateChange((state) -> Platform.runLater(() -> this.state.set(state)));
-    projectManager.setAudioBaseUrl(labService.hubConfigProperty().get().getAudioBaseUrl());
-    labService.hubConfigProperty().addListener((o, ov, value) -> projectManager.setAudioBaseUrl(value.getAudioBaseUrl()));
 
     currentProject = Bindings.createObjectBinding(() -> {
       if (Objects.equals(state.get(), ProjectState.Ready)) {
@@ -114,11 +119,24 @@ public class ProjectServiceImpl implements ProjectService {
         return null;
       }
     }, state);
+
+    state.addListener((o, ov, nv) -> {
+      if (nv == ProjectState.Ready) {
+        notifyProjectUpdateListeners(ProjectUpdate.Libraries);
+        notifyProjectUpdateListeners(ProjectUpdate.Programs);
+        notifyProjectUpdateListeners(ProjectUpdate.Instruments);
+        notifyProjectUpdateListeners(ProjectUpdate.Templates);
+      }
+    });
   }
 
   @Override
   public void closeProject() {
     projectManager.closeProject();
+    notifyProjectUpdateListeners(ProjectUpdate.Templates);
+    notifyProjectUpdateListeners(ProjectUpdate.Libraries);
+    notifyProjectUpdateListeners(ProjectUpdate.Programs);
+    notifyProjectUpdateListeners(ProjectUpdate.Instruments);
     state.set(ProjectState.Standby);
   }
 
@@ -152,6 +170,7 @@ public class ProjectServiceImpl implements ProjectService {
     cloneProject(parentPathPrefix, projectName, () -> projectManager.cloneFromLabProject(
       labService.getHubClientAccess(),
       labService.hubConfigProperty().get().getApiBaseUrl(),
+      labService.hubConfigProperty().get().getAudioBaseUrl(),
       parentPathPrefix,
       projectId,
       projectName
@@ -161,6 +180,7 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public void cloneFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
     cloneProject(parentPathPrefix, projectName, () -> projectManager.cloneProjectFromDemoTemplate(
+      labService.hubConfigProperty().get().getAudioBaseUrl(),
       parentPathPrefix,
       templateShipKey,
       projectName
@@ -169,7 +189,8 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void saveProject() {
-    LOG.info("Saving project");
+    LOG.info("Will save project");
+    executeInBackground("Save Project", projectManager::saveProject);
   }
 
   @Override
@@ -224,7 +245,15 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void addProjectUpdateListener(ProjectUpdate type, Runnable listener) {
-    projectManager.addProjectUpdateListener(type, listener);
+    projectUpdateListeners.computeIfAbsent(type, k -> new HashSet<>());
+    projectUpdateListeners.get(type).add(listener);
+  }
+
+  @Override
+  public void notifyProjectUpdateListeners(ProjectUpdate type) {
+    if (projectUpdateListeners.containsKey(type)) {
+      projectUpdateListeners.get(type).forEach(Runnable::run);
+    }
   }
 
   @Override
@@ -270,6 +299,187 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public ObservableObjectValue<Project> currentProjectProperty() {
     return currentProject;
+  }
+
+  @Override
+  public void deleteTemplate(Template template) {
+    projectManager.getContent().getTemplates().removeIf(binding -> Objects.equals(binding.getId(), template.getId()));
+    notifyProjectUpdateListeners(ProjectUpdate.Templates);
+    LOG.info("Deleted template \"{}\"", template.getName());
+  }
+
+  @Override
+  public void deleteTemplateBinding(TemplateBinding binding) {
+    projectManager.getContent().getTemplateBindings().removeIf(templateBinding -> Objects.equals(templateBinding.getId(), binding.getId()));
+    notifyProjectUpdateListeners(ProjectUpdate.TemplateBindings);
+    LOG.info("Deleted {} template binding", binding.getType());
+  }
+
+  @Override
+  public void deleteLibrary(Library library) {
+    projectManager.getContent().getLibraries().removeIf(binding -> Objects.equals(binding.getId(), library.getId()));
+    notifyProjectUpdateListeners(ProjectUpdate.Libraries);
+    LOG.info("Deleted library \"{}\"", library.getName());
+  }
+
+  @Override
+  public void deleteProgram(Program program) {
+    projectManager.getContent().getPrograms().removeIf(binding -> Objects.equals(binding.getId(), program.getId()));
+    notifyProjectUpdateListeners(ProjectUpdate.Programs);
+    LOG.info("Deleted program \"{}\"", program.getName());
+  }
+
+  @Override
+  public void deleteInstrument(Instrument instrument) {
+    projectManager.getContent().getInstruments().removeIf(binding -> Objects.equals(binding.getId(), instrument.getId()));
+    notifyProjectUpdateListeners(ProjectUpdate.Instruments);
+    LOG.info("Deleted instrument \"{}\"", instrument.getName());
+  }
+
+  @Override
+  public Template createTemplate(String name) throws Exception {
+    var template = projectManager.createTemplate(name);
+    notifyProjectUpdateListeners(ProjectUpdate.Templates);
+    LOG.info("Created template \"{}\"", name);
+    return template;
+  }
+
+  @Override
+  public Library createLibrary(String name) throws Exception {
+    var library = projectManager.createLibrary(name);
+    notifyProjectUpdateListeners(ProjectUpdate.Libraries);
+    LOG.info("Created library \"{}\"", name);
+    return library;
+  }
+
+  @Override
+  public Program createProgram(Library library, String name) throws Exception {
+    var program = projectManager.createProgram(library, name);
+    notifyProjectUpdateListeners(ProjectUpdate.Programs);
+    LOG.info("Created program \"{}\"", name);
+    return program;
+  }
+
+  @Override
+  public Instrument createInstrument(Library library, String name) throws Exception {
+    var instrument = projectManager.createInstrument(library, name);
+    notifyProjectUpdateListeners(ProjectUpdate.Instruments);
+    LOG.info("Created instrument \"{}\"", name);
+    return instrument;
+  }
+
+  @Override
+  public Program moveProgram(UUID id, Library library) throws Exception {
+    var program = projectManager.moveProgram(id, library.getId());
+    notifyProjectUpdateListeners(ProjectUpdate.Programs);
+    LOG.info("Moved program \"{}\" to library \"{}\"", program.getName(), library.getName());
+    return program;
+  }
+
+  @Override
+  public Instrument moveInstrument(UUID id, Library library) throws Exception {
+    var instrument = projectManager.moveInstrument(id, library.getId());
+    notifyProjectUpdateListeners(ProjectUpdate.Instruments);
+    LOG.info("Moved instrument \"{}\" to library \"{}\"", instrument.getName(), library.getName());
+    return instrument;
+  }
+
+  @Override
+  public Template cloneTemplate(UUID fromId, String name) throws Exception {
+    var template = projectManager.cloneTemplate(fromId, name);
+    notifyProjectUpdateListeners(ProjectUpdate.Templates);
+    LOG.info("Cloned template to \"{}\"", name);
+    return template;
+  }
+
+  @Override
+  public Library cloneLibrary(UUID fromId, String name) throws Exception {
+    var library = projectManager.cloneLibrary(fromId, name);
+    notifyProjectUpdateListeners(ProjectUpdate.Libraries);
+    LOG.info("Cloned library to \"{}\"", name);
+    return library;
+  }
+
+  @Override
+  public Program cloneProgram(UUID fromId, UUID libraryId, String name) throws Exception {
+    var program = projectManager.cloneProgram(fromId, libraryId, name);
+    notifyProjectUpdateListeners(ProjectUpdate.Programs);
+    LOG.info("Cloned program to \"{}\"", name);
+    return program;
+  }
+
+  @Override
+  public ProgramSequence cloneProgramSequence(UUID fromId, String name) throws Exception {
+    var sequence = projectManager.cloneProgramSequence(fromId, name);
+    LOG.info("Cloned program sequence to \"{}\"", name);
+    return sequence;
+  }
+
+  @Override
+  public ProgramSequencePattern cloneProgramSequencePattern(UUID fromId, String name) throws Exception {
+    var pattern = projectManager.cloneProgramSequencePattern(fromId, name);
+    LOG.info("Cloned program sequence pattern to \"{}\"", name);
+    return pattern;
+  }
+
+  @Override
+  public Instrument cloneInstrument(UUID fromId, UUID libraryId, String name) throws Exception {
+    var instrument = projectManager.cloneInstrument(fromId, libraryId, name);
+    notifyProjectUpdateListeners(ProjectUpdate.Instruments);
+    LOG.info("Cloned instrument to \"{}\"", name);
+    return instrument;
+  }
+
+  @Override
+  public boolean updateLibrary(Library library) {
+    try {
+      projectManager.getContent().put(library);
+      notifyProjectUpdateListeners(ProjectUpdate.Libraries);
+      return true;
+
+    } catch (Exception e) {
+      LOG.error("Could not save Library", e);
+      return false;
+    }
+  }
+
+  @Override
+  public boolean updateProgram(Program program) {
+    try {
+      projectManager.getContent().put(program);
+      notifyProjectUpdateListeners(ProjectUpdate.Programs);
+      return true;
+
+    } catch (Exception e) {
+      LOG.error("Could not save Program", e);
+      return false;
+    }
+  }
+
+  @Override
+  public boolean updateInstrument(Instrument instrument) {
+    try {
+      projectManager.getContent().put(instrument);
+      notifyProjectUpdateListeners(ProjectUpdate.Instruments);
+      return true;
+
+    } catch (Exception e) {
+      LOG.error("Could not save Instrument", e);
+      return false;
+    }
+  }
+
+  @Override
+  public boolean updateTemplate(Template template) {
+    try {
+      projectManager.getContent().put(template);
+      notifyProjectUpdateListeners(ProjectUpdate.Templates);
+      return true;
+
+    } catch (Exception e) {
+      LOG.error("Could not save Template", e);
+      return false;
+    }
   }
 
   /**

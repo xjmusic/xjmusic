@@ -4,5 +4,6 @@ public enum ProjectUpdate {
   Libraries,
   Programs,
   Instruments,
-    Templates
+  Templates,
+  TemplateBindings
 }

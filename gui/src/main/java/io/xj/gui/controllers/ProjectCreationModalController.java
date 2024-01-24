@@ -43,10 +43,7 @@ public class ProjectCreationModalController extends ReadyAfterBootModalControlle
     ProjectCreationMode.CLONE_PROJECT, "Clone Project"
   );
   private final SimpleDoubleProperty demoImageSize = new SimpleDoubleProperty(120);
-  private final Resource contentProjectCreationModalFxml;
-  private final ConfigurableApplicationContext ac;
   private final ProjectService projectService;
-  private final ThemeService themeService;
   private final LabService labService;
   private final ObjectProperty<ProjectCreationMode> mode = new SimpleObjectProperty<>(ProjectCreationMode.NEW_PROJECT);
   private final ObservableBooleanValue isDemoVisible = Bindings.createBooleanBinding(
@@ -106,16 +103,14 @@ public class ProjectCreationModalController extends ReadyAfterBootModalControlle
   ChoiceBox<ProjectChoice> choiceCloneProject;
 
   public ProjectCreationModalController(
-    @Value("classpath:/views/project-creation-modal.fxml") Resource contentProjectCreationModalFxml,
+    @Value("classpath:/views/project-creation-modal.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
     ProjectService projectService,
     ThemeService themeService,
     LabService labService
   ) {
-    this.contentProjectCreationModalFxml = contentProjectCreationModalFxml;
-    this.ac = ac;
+    super(ac, themeService, fxml);
     this.projectService = projectService;
-    this.themeService = themeService;
     this.labService = labService;
   }
 
@@ -161,7 +156,7 @@ public class ProjectCreationModalController extends ReadyAfterBootModalControlle
 
   @Override
   public void launchModal() {
-    createAndShowModal(ac, themeService, contentProjectCreationModalFxml, WINDOW_TITLE.get(mode.get()));
+    createAndShowModal(WINDOW_TITLE.get(mode.get()));
   }
 
   /**

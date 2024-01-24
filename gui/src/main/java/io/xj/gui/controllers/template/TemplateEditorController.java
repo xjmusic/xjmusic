@@ -2,15 +2,19 @@
 
 package io.xj.gui.controllers.template;
 
+import io.xj.gui.controllers.BrowserController;
 import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.nexus.project.ProjectUpdate;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -18,6 +22,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -32,12 +37,13 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Service
-public class TemplateEditorController implements ReadyAfterBootController {
+public class TemplateEditorController extends BrowserController implements ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(TemplateEditorController.class);
   private final ProjectService projectService;
   private final UIStateService uiStateService;
   private final ObjectProperty<UUID> id = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
+  private final BooleanProperty dirty = new SimpleBooleanProperty(false);
   private final ObservableList<TemplateBinding> bindings = FXCollections.observableList(new ArrayList<>());
 
   @FXML
@@ -45,6 +51,12 @@ public class TemplateEditorController implements ReadyAfterBootController {
 
   @FXML
   protected TextField fieldName;
+
+  @FXML
+  protected Button buttonOK;
+
+  @FXML
+  protected Button buttonCancel;
 
   @FXML
   protected TableView<TemplateBinding> bindingsTable;
@@ -66,6 +78,8 @@ public class TemplateEditorController implements ReadyAfterBootController {
     container.managedProperty().bind(visible);
 
     fieldName.textProperty().bindBidirectional(name);
+
+    name.addListener((o, ov, v) -> dirty.set(true));
 
     bindingsTable.setItems(bindings);
 
@@ -93,10 +107,23 @@ public class TemplateEditorController implements ReadyAfterBootController {
         }
       });
 
+    addActionsColumn(TemplateBinding.class, bindingsTable,
+      null,
+      null,
+      null,
+      binding -> {
+        if (Objects.nonNull(binding))
+          projectService.deleteTemplateBinding(binding);
+      });
+
+    projectService.addProjectUpdateListener(ProjectUpdate.TemplateBindings, this::updateBindings);
+
     uiStateService.templateModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.templateModeProperty().get(), TemplateMode.TemplateEditor))
         update();
     });
+
+    buttonOK.disableProperty().bind(dirty.not());
   }
 
   /**
@@ -124,19 +151,43 @@ public class TemplateEditorController implements ReadyAfterBootController {
     // FUTURE: on stage close
   }
 
+  @FXML
+  protected void handlePressOK() {
+    var template = projectService.getContent().getTemplate(id.get())
+      .orElseThrow(() -> new RuntimeException("Could not find Template"));
+    template.setName(name.get());
+    if (projectService.updateTemplate(template))
+      uiStateService.viewTemplates();
+  }
+
+  @FXML
+  protected void handlePressCancel() {
+    uiStateService.viewLibrary(id.get());
+  }
+
   /**
    Update the Template Editor with the current Template.
    */
   private void update() {
-    if (Objects.isNull(uiStateService.currentTemplateProperty().get()))
+    if (uiStateService.currentTemplateProperty().isNull().get())
       return;
     var template = projectService.getContent().getTemplate(uiStateService.currentTemplateProperty().get().getId())
       .orElseThrow(() -> new RuntimeException("Could not find Template"));
     LOG.info("Will edit Template \"{}\"", template.getName());
     this.id.set(template.getId());
     this.name.set(template.getName());
+    this.dirty.set(false);
+    updateBindings();
+  }
+
+  /**
+   Update the libraries table data.
+   */
+  private void updateBindings() {
+    if (uiStateService.currentTemplateProperty().isNull().get())
+      return;
     bindings.setAll(projectService.getContent().getTemplateBindings().stream()
-      .filter(binding -> Objects.equals(template.getId(), binding.getTemplateId()))
+      .filter(binding -> Objects.equals(uiStateService.currentTemplateProperty().get().getId(), binding.getTemplateId()))
       .toList());
   }
 }

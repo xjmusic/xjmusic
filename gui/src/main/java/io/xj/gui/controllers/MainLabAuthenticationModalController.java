@@ -37,10 +37,7 @@ public class MainLabAuthenticationModalController extends ReadyAfterBootModalCon
   static final String BUTTON_DISCONNECT_TEXT = "Disconnect";
   static final String BUTTON_CONNECT_TEXT = "Connect";
   private static final Integer USER_AVATAR_SIZE = 120;
-  final ConfigurableApplicationContext ac;
-  final Resource modalLabAuthenticationFxml;
   final LabService labService;
-  final ThemeService themeService;
 
   @FXML
   public Button buttonClose;
@@ -67,15 +64,13 @@ public class MainLabAuthenticationModalController extends ReadyAfterBootModalCon
   Text textUserEmail;
 
   public MainLabAuthenticationModalController(
-    @Value("classpath:/views/main-lab-authentication-modal.fxml") Resource modalLabAuthenticationFxml,
+    @Value("classpath:/views/main-lab-authentication-modal.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
     LabService labService,
     ThemeService themeService
   ) {
-    this.ac = ac;
-    this.modalLabAuthenticationFxml = modalLabAuthenticationFxml;
+    super(ac, themeService, fxml);
     this.labService = labService;
-    this.themeService = themeService;
   }
 
   @Override
@@ -148,6 +143,6 @@ public class MainLabAuthenticationModalController extends ReadyAfterBootModalCon
 
   @Override
   public void launchModal() {
-    createAndShowModal(ac, themeService, modalLabAuthenticationFxml, CONNECT_TO_LAB_WINDOW_NAME);
+    createAndShowModal(CONNECT_TO_LAB_WINDOW_NAME);
   }
 }

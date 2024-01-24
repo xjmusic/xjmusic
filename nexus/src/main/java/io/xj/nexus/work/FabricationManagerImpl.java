@@ -61,7 +61,7 @@ public class FabricationManagerImpl implements FabricationManager {
   private ShipWork shipWork;
 
   @Nullable
-  private FabricationConfiguration workConfig;
+  private FabricationSettings workConfig;
 
   @Nullable
   private HubConfiguration hubConfig;
@@ -97,7 +97,7 @@ public class FabricationManagerImpl implements FabricationManager {
 
   @Override
   public void start(
-    FabricationConfiguration workConfig,
+    FabricationSettings workConfig,
     HubConfiguration hubConfig,
     HubClientAccess hubAccess
   ) {

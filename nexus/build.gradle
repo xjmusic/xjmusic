@@ -27,6 +27,8 @@ dependencies {
   testImplementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
   testFixturesImplementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
   // vendor
+  implementation "ch.qos.logback:logback-classic:${rootProject.ext.logbackVersion}"
+  implementation "ch.qos.logback:logback-core:${rootProject.ext.logbackVersion}"
   implementation "com.fasterxml.jackson.core:jackson-annotations:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${rootProject.ext.jacksonAnnotationsVersion}"
@@ -40,20 +42,18 @@ dependencies {
   implementation 'me.xdrop:fuzzywuzzy:1.4.0'
   implementation 'org.apache.httpcomponents:httpclient:4.5.14'
   implementation 'org.reflections:reflections:0.10.2'
-  implementation "ch.qos.logback:logback-classic:${rootProject.ext.logbackVersion}"
-  implementation "ch.qos.logback:logback-core:${rootProject.ext.logbackVersion}"
   implementation 'org.yaml:snakeyaml:2.2'
-  testFixturesImplementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
   testFixturesImplementation "ch.qos.logback:logback-classic:${rootProject.ext.logbackVersion}"
   testFixturesImplementation "ch.qos.logback:logback-core:${rootProject.ext.logbackVersion}"
-  testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"
+  testFixturesImplementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
   testImplementation "ch.qos.logback:logback-classic:${rootProject.ext.logbackVersion}"
   testImplementation "ch.qos.logback:logback-core:${rootProject.ext.logbackVersion}"
+  testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"
+  testImplementation 'commons-logging:commons-logging:1.2'
   testImplementation 'org.hamcrest:hamcrest-library:2.2'
   testImplementation 'org.mockito:mockito-core:5.7.0'
   testImplementation 'org.mockito:mockito-junit-jupiter:5.3.1'
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.10.0-M1"
-
 }
 
 test {

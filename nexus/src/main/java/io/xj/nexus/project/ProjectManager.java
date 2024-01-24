@@ -1,7 +1,14 @@
 package io.xj.nexus.project;
 
 import io.xj.hub.HubContent;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Project;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.nexus.NexusException;
 import io.xj.nexus.hub_client.HubClientAccess;
 import jakarta.annotation.Nullable;
 
@@ -26,24 +33,26 @@ public interface ProjectManager {
   /**
    Clone from a demo template
 
+   @param audioBaseUrl     of the demo
    @param parentPathPrefix parent folder to the project folder
    @param templateShipKey  of the demo
    @param projectName      of the project folder and the project
    @return true if successful
    */
-  boolean cloneProjectFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName);
+  boolean cloneProjectFromDemoTemplate(String audioBaseUrl, String parentPathPrefix, String templateShipKey, String projectName);
 
   /**
    Clone from a Lab Project
 
    @param access           control
    @param labBaseUrl       of the lab
+   @param audioBaseUrl     of the lab
    @param parentPathPrefix parent folder to the project folder
    @param projectId        in the lab
    @param projectName      of the project folder and the project
    @return true if successful
    */
-  boolean cloneFromLabProject(HubClientAccess access, String labBaseUrl, String parentPathPrefix, UUID projectId, String projectName);
+  boolean cloneFromLabProject(HubClientAccess access, String labBaseUrl, String audioBaseUrl, String parentPathPrefix, UUID projectId, String projectName);
 
   /**
    Open a project from a local file
@@ -61,6 +70,11 @@ public interface ProjectManager {
    @return true if successful
    */
   boolean createProject(String parentPathPrefix, String projectName);
+
+  /**
+   Save the project
+   */
+  void saveProject();
 
   /**
    Cancel the project loading
@@ -109,13 +123,6 @@ public interface ProjectManager {
   String getPathToInstrumentAudio(UUID instrumentId, String waveformKey);
 
   /**
-   Set the audio base URL
-
-   @param audioBaseUrl the audio base URL
-   */
-  void setAudioBaseUrl(String audioBaseUrl);
-
-  /**
    Set the callback to be invoked when the progress changes
 
    @param onProgress the callback
@@ -130,10 +137,112 @@ public interface ProjectManager {
   void setOnStateChange(@Nullable Consumer<ProjectState> onStateChange);
 
   /**
-   Attach a listener to project updates
+   Create a new template
 
-   @param type     the type of update to listen for
-   @param listener the listener to attach
+   @param name of the template
+   @return the new template
    */
-  void addProjectUpdateListener(ProjectUpdate type, Runnable listener);
+  Template createTemplate(String name) throws Exception;
+
+  /**
+   Create a new library
+
+   @param name of the library
+   @return the new library
+   */
+  Library createLibrary(String name) throws Exception;
+
+  /**
+   Create a new program
+
+   @param library parent containing program
+   @param name    of the program
+   @return the new program
+   */
+  Program createProgram(Library library, String name) throws Exception;
+
+  /**
+   Create a new instrument
+
+   @param library parent containing instrument
+   @param name    of the instrument
+   @return the new instrument
+   */
+  Instrument createInstrument(Library library, String name) throws Exception;
+
+  /**
+   Move a program to a new library
+
+   @param id        of program to move
+   @param libraryId new library id
+   @return the moved program
+   */
+  Program moveProgram(UUID id, UUID libraryId) throws Exception;
+
+  /**
+   Move a instrument to a new library
+
+   @param id        of instrument to move
+   @param libraryId new library id
+   @return the moved instrument
+   */
+  Instrument moveInstrument(UUID id, UUID libraryId) throws Exception;
+
+  /**
+   Clone a Template from a source template by id
+
+   @param fromId source template id
+   @param name   name of the new template
+   @return the new template
+   */
+  Template cloneTemplate(UUID fromId, String name) throws Exception;
+
+  /**
+   Clone a Library from a source library by id
+
+   @param fromId source library id
+   @param name   name of the new library
+   @return the new library
+   */
+  Library cloneLibrary(UUID fromId, String name) throws Exception;
+
+  /**
+   Clone a Program from a source program by id
+
+   @param fromId    source program id
+   @param libraryId new library id
+   @param name      name of the new program
+   @return the new program
+   */
+  Program cloneProgram(UUID fromId, UUID libraryId, String name) throws Exception;
+
+  /**
+   Clone a Program Sequence from a source program sequence by id
+   Note: Does not clone the program sequence bindings (that would cause duplicate bindings at all the same offsets)
+
+   @param fromId source program sequence id
+   @param name   name of the new program sequence
+   @return the new program sequence
+   */
+  ProgramSequence cloneProgramSequence(UUID fromId, String name) throws Exception;
+
+  /**
+   Clone a Program Sequence Pattern from a source program sequence pattern by id
+
+   @param fromId source program sequence pattern id
+   @param name   name of the new program sequence pattern
+   @return the new program sequence pattern
+   */
+  ProgramSequencePattern cloneProgramSequencePattern(UUID fromId, String name) throws Exception;
+
+  /**
+   Clone a Instrument from a source instrument by id
+
+   @param fromId    source instrument id
+   @param libraryId new library id
+   @param name      name of the new instrument
+   @return the new instrument
+   */
+  Instrument cloneInstrument(UUID fromId, UUID libraryId, String name) throws Exception;
 }
+

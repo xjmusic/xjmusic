@@ -20,7 +20,7 @@ public interface FabricationManager {
    This assigns the work configuration, hub configuration, and hub access.
    */
   void start(
-    FabricationConfiguration workConfig,
+    FabricationSettings workConfig,
     HubConfiguration hubConfig,
     HubClientAccess hubAccess
   );

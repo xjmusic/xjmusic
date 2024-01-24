@@ -3,6 +3,7 @@
 package io.xj.gui.controllers.template;
 
 import io.xj.gui.controllers.BrowserController;
+import io.xj.gui.controllers.CmdModalController;
 import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
@@ -27,6 +28,7 @@ public class TemplateBrowserController extends BrowserController implements Read
   static final Logger LOG = LoggerFactory.getLogger(TemplateBrowserController.class);
   private final ProjectService projectService;
   private final UIStateService uiStateService;
+  private final CmdModalController cmdModalController;
   private final ObservableList<Template> templates = FXCollections.observableList(new ArrayList<>());
 
   @FXML
@@ -37,10 +39,12 @@ public class TemplateBrowserController extends BrowserController implements Read
 
   public TemplateBrowserController(
     ProjectService projectService,
-    UIStateService uiStateService
+    UIStateService uiStateService,
+    CmdModalController cmdModalController
   ) {
     this.projectService = projectService;
     this.uiStateService = uiStateService;
+    this.cmdModalController = cmdModalController;
   }
 
   @Override
@@ -50,8 +54,12 @@ public class TemplateBrowserController extends BrowserController implements Read
       .and(uiStateService.templateModeProperty().isEqualTo(TemplateMode.TemplateBrowser));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
-
     addColumn(table, 200, "name", "Name");
+    addActionsColumn(Template.class, table,
+      template -> uiStateService.editTemplate(template.getId()),
+      null,
+      cmdModalController::cloneTemplate,
+      cmdModalController::deleteTemplate);
     setupData(
       table,
       templates,

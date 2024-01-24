@@ -158,10 +158,18 @@
   -fx-background-color: #303030;
 }
 
-#contentContainer .back-button:hover {
+.top-pane .button:hover,
+.top-pane .toggle-button:hover{
   -fx-background-color: #606060;
 }
 
-#contentContainer .back-button:pressed {
+.top-pane .button:pressed,
+.top-pane .toggle-button:pressed{
   -fx-background-color: #909090;
 }
+
+.top-pane .button:selected,
+.top-pane .toggle-button:selected {
+  -fx-background-color: #606060;
+}
+

@@ -58,13 +58,14 @@ public class LabServiceImpl implements LabService {
     @Value("${lab.base.url}") String defaultLabBaseUrl,
     @Value("${audio.base.url}") String audioBaseUrl,
     @Value("${ship.base.url}") String shipBaseUrl,
-    @Value("${stream.base.url}") String streamBaseUrl
+    @Value("${stream.base.url}") String streamBaseUrl,
+    @Value("${prefs.load}") Boolean usePrefs
   ) {
     this.hostServices = hostServices;
 
-    baseUrl.set(prefs.get("baseUrl", defaultLabBaseUrl));
     baseUrl.addListener((o, ov, value) -> {
-      prefs.put("baseUrl", value);
+      if (usePrefs)
+        prefs.put("baseUrl", value);
       if (Objects.isNull(value)) {
         return;
       }
@@ -73,6 +74,10 @@ public class LabServiceImpl implements LabService {
       }
       LOG.info("Lab URL changed to: " + this.baseUrl.getValue());
     });
+    if (usePrefs)
+      baseUrl.set(prefs.get("baseUrl", defaultLabBaseUrl));
+    else
+      baseUrl.set(defaultLabBaseUrl);
 
     HttpClient httpClient = HttpClient.create().resolver(DefaultAddressResolverGroup.INSTANCE);
     webClient = WebClient.builder()
@@ -93,8 +98,11 @@ public class LabServiceImpl implements LabService {
         "Ship: " + value.getShipBaseUrl() + ", " +
         "Stream: " + value.getStreamBaseUrl() + ", "));
 
-    accessToken.addListener((o, ov, value) -> prefs.put("accessToken", value));
-    var savedAccessToken = prefs.get("accessToken", null);
+    accessToken.addListener((o, ov, value) -> {
+      if (usePrefs)
+        prefs.put("accessToken", value);
+    });
+    var savedAccessToken = usePrefs ? prefs.get("accessToken", null) : null;
     if (!StringUtils.isNullOrEmpty(savedAccessToken)) {
       LOG.info("Found saved access token, connecting to lab...");
       accessToken.set(savedAccessToken);
@@ -108,7 +116,7 @@ public class LabServiceImpl implements LabService {
     makeAuthenticatedRequest("api/2/users/me", HttpMethod.GET, HubContent.class)
       .subscribe(
         (HubContent content) -> Platform.runLater(() -> this.onConnectionSuccess(content.getUsers().stream().findFirst().orElseThrow(() -> new RuntimeException("No user found!")))),
-        error -> Platform.runLater(() -> this.onConnectionFailure((WebClientResponseException) error)),
+        error -> Platform.runLater(() -> this.onConnectionFailure((Exception) error)),
         () -> Platform.runLater(this::onConnectionChanged));
   }
 
@@ -124,7 +132,7 @@ public class LabServiceImpl implements LabService {
     makeAuthenticatedRequest("api/2/config", HttpMethod.GET, HubConfiguration.class)
       .subscribe(
         (HubConfiguration config) -> Platform.runLater(() -> this.onConfigurationSuccess(config)),
-        error -> Platform.runLater(() -> this.onConnectionFailure((WebClientResponseException) error)),
+        error -> Platform.runLater(() -> this.onConnectionFailure((Exception) error)),
         () -> Platform.runLater(this::onConnectionChanged));
   }
 
@@ -216,7 +224,7 @@ public class LabServiceImpl implements LabService {
     makeAuthenticatedRequest("api/2/projects", HttpMethod.GET, HubContent.class)
       .subscribe(
         (HubContent content) -> Platform.runLater(() -> callback.accept(content.getProjects())),
-        error -> Platform.runLater(() -> this.onConnectionFailure((WebClientResponseException) error)),
+        error -> Platform.runLater(() -> this.onConnectionFailure((Exception) error)),
         () -> Platform.runLater(this::onConnectionChanged));
   }
 

@@ -7,11 +7,14 @@ import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
@@ -27,6 +30,7 @@ public class InstrumentEditorController implements ReadyAfterBootController {
   private final ProjectService projectService;
   private final UIStateService uiStateService;
   private final ObjectProperty<UUID> id = new SimpleObjectProperty<>(null);
+  private final BooleanProperty dirty = new SimpleBooleanProperty(false);
   private final StringProperty name = new SimpleStringProperty("");
 
   @FXML
@@ -34,6 +38,12 @@ public class InstrumentEditorController implements ReadyAfterBootController {
 
   @FXML
   protected TextField fieldName;
+
+  @FXML
+  protected Button buttonOK;
+
+  @FXML
+  protected Button buttonCancel;
 
   public InstrumentEditorController(
     ProjectService projectService,
@@ -53,15 +63,33 @@ public class InstrumentEditorController implements ReadyAfterBootController {
 
     fieldName.textProperty().bindBidirectional(name);
 
+    name.addListener((o, ov, v) -> dirty.set(true));
+
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.InstrumentEditor))
         update();
     });
+
+    buttonOK.disableProperty().bind(dirty.not());
   }
 
   @Override
   public void onStageClose() {
     // FUTURE: on stage close
+  }
+
+  @FXML
+  protected void handlePressOK() {
+    var instrument = projectService.getContent().getInstrument(id.get())
+      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
+    instrument.setName(name.get());
+    if (projectService.updateInstrument(instrument))
+      uiStateService.viewLibrary(instrument.getLibraryId());
+  }
+
+  @FXML
+  protected void handlePressCancel() {
+    uiStateService.viewLibrary(id.get());
   }
 
   /**
@@ -75,5 +103,6 @@ public class InstrumentEditorController implements ReadyAfterBootController {
     LOG.info("Will edit Instrument \"{}\"", instrument.getName());
     this.id.set(instrument.getId());
     this.name.set(instrument.getName());
+    this.dirty.set(false);
   }
 }

@@ -7,7 +7,20 @@ import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.tables.pojos.Project;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.http.HttpClientProvider;
@@ -32,9 +45,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -57,7 +70,6 @@ public class ProjectManagerImpl implements ProjectManager {
   private final AtomicReference<String> projectName = new AtomicReference<>("Project");
   private final AtomicReference<String> audioBaseUrl = new AtomicReference<>("https://audio.xj.io/");
   private final AtomicReference<HubContent> content = new AtomicReference<>();
-  private final Map<ProjectUpdate, Set<Runnable>> projectUpdateListeners = new HashMap<>();
   private final JsonProvider jsonProvider;
   private final EntityFactory entityFactory;
   private final int downloadAudioRetries;
@@ -100,7 +112,8 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public boolean cloneProjectFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
+  public boolean cloneProjectFromDemoTemplate(String audioBaseUrl, String parentPathPrefix, String templateShipKey, String projectName) {
+    this.audioBaseUrl.set(audioBaseUrl);
     LOG.info("Cloning from demo template \"{}\" in parent folder {}", templateShipKey, parentPathPrefix);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
@@ -108,7 +121,8 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public boolean cloneFromLabProject(HubClientAccess access, String labBaseUrl, String parentPathPrefix, UUID projectId, String projectName) {
+  public boolean cloneFromLabProject(HubClientAccess access, String labBaseUrl, String audioBaseUrl, String parentPathPrefix, UUID projectId, String projectName) {
+    this.audioBaseUrl.set(audioBaseUrl);
     LOG.info("Cloning from lab Project[{}] in parent folder {}", projectId, parentPathPrefix);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
@@ -172,6 +186,17 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
+  public void saveProject() {
+    try {
+      saveProjectContent();
+
+    } catch (IOException e) {
+      LOG.error("Failed to save project!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      updateState(ProjectState.Failed);
+    }
+  }
+
+  @Override
   public void cancelProjectLoading() {
     updateState(ProjectState.Cancelled);
   }
@@ -202,11 +227,6 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public void setAudioBaseUrl(String audioBaseUrl) {
-
-  }
-
-  @Override
   public void setOnProgress(@Nullable Consumer<Double> onProgress) {
     this.onProgress = onProgress;
   }
@@ -217,19 +237,303 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public void addProjectUpdateListener(ProjectUpdate type, Runnable listener) {
-    projectUpdateListeners.computeIfAbsent(type, k -> new HashSet<>());
-    projectUpdateListeners.get(type).add(listener);
-  }
-
-  @Override
   public void closeProject() {
     project.set(null);
     content.set(null);
-    notifyProjectUpdateListeners(ProjectUpdate.Templates);
-    notifyProjectUpdateListeners(ProjectUpdate.Libraries);
-    notifyProjectUpdateListeners(ProjectUpdate.Programs);
-    notifyProjectUpdateListeners(ProjectUpdate.Instruments);
+  }
+
+  @Override
+  public Template createTemplate(String name) throws Exception {
+    var template = new Template();
+    template.setId(UUID.randomUUID());
+    template.setName(name);
+    template.setIsDeleted(false);
+    content.get().put(template);
+    return template;
+  }
+
+  @Override
+  public Library createLibrary(String name) throws Exception {
+    var library = new Library();
+    library.setId(UUID.randomUUID());
+    library.setName(name);
+    library.setIsDeleted(false);
+    content.get().put(library);
+    return library;
+  }
+
+  @Override
+  public Program createProgram(Library library, String name) throws Exception {
+    var program = new Program();
+    program.setId(UUID.randomUUID());
+    program.setName(name);
+    program.setLibraryId(library.getId());
+    program.setIsDeleted(false);
+    content.get().put(program);
+    return program;
+  }
+
+  @Override
+  public Instrument createInstrument(Library library, String name) throws Exception {
+    var instrument = new Instrument();
+    instrument.setId(UUID.randomUUID());
+    instrument.setName(name);
+    instrument.setLibraryId(library.getId());
+    instrument.setIsDeleted(false);
+    content.get().put(instrument);
+    return instrument;
+  }
+
+  @Override
+  public Program moveProgram(UUID id, UUID libraryId) throws Exception {
+    var program = content.get().getProgram(id).orElseThrow(() -> new NexusException("Program not found"));
+    program.setLibraryId(libraryId);
+    content.get().put(program);
+    return program;
+  }
+
+  @Override
+  public Instrument moveInstrument(UUID id, UUID libraryId) throws Exception {
+    var instrument = content.get().getInstrument(id).orElseThrow(() -> new NexusException("Instrument not found"));
+    instrument.setLibraryId(libraryId);
+    content.get().put(instrument);
+    return instrument;
+  }
+
+  @Override
+  public Template cloneTemplate(UUID fromId, String name) throws Exception {
+    var source = content.get().getTemplate(fromId).orElseThrow(() -> new NexusException("Template not found"));
+
+    // Clone the Template
+    var clone = new Template();
+    clone.setId(UUID.randomUUID());
+    entityFactory.setAllEmptyAttributes(source, clone);
+    content.get().put(clone);
+
+    // Clone the Template's Bindings
+    var clonedBindings = entityFactory.cloneAll(content.get().getBindingsOfTemplate(fromId), Set.of(clone));
+    content.get().putAll(clonedBindings.values());
+
+    return clone;
+  }
+
+  @Override
+  public Library cloneLibrary(UUID fromId, String name) throws Exception {
+    var source = content.get().getLibrary(fromId).orElseThrow(() -> new NexusException("Library not found"));
+
+    // Clone the Library and put it in the store
+    var library = entityFactory.clone(source);
+    library.setName(name);
+    content.get().put(library);
+
+    // Clone the Library's Programs
+    for (Program program : content.get().getProgramsOfLibrary(fromId)) {
+      cloneProgram(program.getId(), library.getId(), String.format("Copy of %s", program.getName()));
+    }
+
+    // Clone the Library's Instruments
+    for (Instrument instrument : content.get().getInstrumentsOfLibrary(fromId)) {
+      cloneInstrument(instrument.getId(), library.getId(), String.format("Copy of %s", instrument.getName()));
+    }
+
+    // Return the library
+    return library;
+  }
+
+  @SuppressWarnings("CollectionAddAllCanBeReplacedWithConstructor")
+  @Override
+  public Program cloneProgram(UUID fromId, UUID libraryId, String name) throws Exception {
+    var program = content.get().getProgram(fromId).orElseThrow(() -> new NexusException("Program not found"));
+
+    // Clone Program
+    var clonedProgram = entityFactory.clone(program);
+    clonedProgram.setLibraryId(libraryId);
+    clonedProgram.setName(name);
+
+    // Prepare all maps of cloned sub-entities to avoid putting more than once to store
+    Map<UUID, ProgramMeme> clonedProgramMemes = new HashMap<>();
+    Map<UUID, ProgramSequence> clonedProgramSequences = new HashMap<>();
+    Map<UUID, ProgramSequenceBinding> clonedProgramSequenceBindings = new HashMap<>();
+    Map<UUID, ProgramSequenceBindingMeme> clonedProgramSequenceBindingMemes = new HashMap<>();
+    Map<UUID, ProgramSequenceChord> clonedProgramSequenceChords = new HashMap<>();
+    Map<UUID, ProgramSequenceChordVoicing> clonedProgramSequenceChordVoicings = new HashMap<>();
+    Map<UUID, ProgramSequencePattern> clonedProgramSequencePatterns = new HashMap<>();
+    Map<UUID, ProgramSequencePatternEvent> clonedProgramSequencePatternEvents = new HashMap<>();
+    Map<UUID, ProgramVoice> clonedProgramVoices = new HashMap<>();
+    Map<UUID, ProgramVoiceTrack> clonedProgramVoiceTracks = new HashMap<>();
+
+    // Clone the Program's Sequences
+    var sequences = content.get().getSequencesOfProgram(fromId);
+    clonedProgramSequences.putAll(entityFactory.cloneAll(sequences, Set.of(clonedProgram)));
+
+    // Clone the Program's Memes
+    clonedProgramMemes.putAll(entityFactory.cloneAll(content.get().getMemesOfProgram(fromId), Set.of(clonedProgram)));
+
+    // Clone the Program's Voices
+    var voices = content.get().getVoicesOfProgram(fromId);
+    clonedProgramVoices.putAll(entityFactory.cloneAll(voices, Set.of(clonedProgram)));
+
+    // Iterate through the cloned voices and clone all the Program's Voice's Tracks
+    Collection<ProgramVoiceTrack> tracks = content.get().getTracksOfProgram(fromId);
+    for (ProgramVoice voice : voices) {
+      var clonedVoice = clonedProgramVoices.get(voice.getId());
+      clonedProgramVoiceTracks.putAll(entityFactory.cloneAll(content.get().getTracksOfVoice(voice.getId()), Set.of(clonedProgram, clonedVoice)));
+    }
+
+    // Iterate through the cloned sequences
+    for (ProgramSequence sequence : sequences) {
+      var clonedSequence = clonedProgramSequences.get(sequence.getId());
+
+      // Clone the Program's Sequence's Patterns
+      var patterns = content.get().getPatternsOfSequence(sequence.getId());
+      var clonedPatterns = entityFactory.cloneAll(patterns, Set.of(clonedProgram, clonedSequence));
+      clonedProgramSequencePatterns.putAll(clonedPatterns);
+
+      // Iterate through the cloned patterns and tracks and clone all the Program's Sequences' Patterns' Events
+      for (ProgramSequencePattern pattern : patterns) {
+        var clonedPattern = clonedPatterns.get(pattern.getId());
+        for (ProgramVoiceTrack track : tracks) {
+          var clonedTrack = clonedProgramVoiceTracks.get(track.getId());
+          clonedProgramSequencePatternEvents.putAll(entityFactory.cloneAll(content.get().getEventsOfPatternAndTrack(pattern.getId(), track.getId()), Set.of(clonedProgram, clonedPattern, clonedTrack)));
+        }
+      }
+
+      // Clone the Program's Sequence's Bindings
+      var bindings = content.get().getBindingsOfSequence(sequence.getId());
+      clonedProgramSequenceBindings.putAll(entityFactory.cloneAll(bindings, Set.of(clonedProgram, clonedSequence)));
+
+      // Iterate through the cloned sequence's bindings
+      for (ProgramSequenceBinding binding : bindings) {
+        var clonedBinding = clonedProgramSequenceBindings.get(binding.getId());
+
+        // Clone the Program's Sequence's Bindings' Memes
+        clonedProgramSequenceBindingMemes.putAll(entityFactory.cloneAll(content.get().getMemesOfSequenceBinding(binding.getId()), Set.of(clonedProgram, clonedBinding)));
+      }
+
+      // Clone the Program's Sequence's Chords
+      var chords = content.get().getChordsOfSequence(sequence.getId());
+      Map<UUID, ProgramSequenceChord> clonedChords = entityFactory.cloneAll(chords, Set.of(clonedProgram, clonedSequence));
+      clonedProgramSequenceChords.putAll(clonedChords);
+
+      // Iterate through the cloned chords and clone the Program's Sequences' Chords' Voicings
+      for (ProgramSequenceChord chord : chords) {
+        var clonedChord = clonedChords.get(chord.getId());
+        for (ProgramVoice voice : voices) {
+          var clonedVoice = clonedProgramVoices.get(voice.getId());
+          clonedProgramSequenceChordVoicings.putAll(entityFactory.cloneAll(content.get().getVoicingsOfChordAndVoice(chord.getId(), voice.getId()), Set.of(clonedProgram, clonedChord, clonedVoice)));
+        }
+      }
+    }
+
+    // Put everything in the store and return the program
+    content.get().put(clonedProgram);
+    content.get().putAll(clonedProgramMemes.values());
+    content.get().putAll(clonedProgramSequences.values());
+    content.get().putAll(clonedProgramSequenceBindings.values());
+    content.get().putAll(clonedProgramSequenceBindingMemes.values());
+    content.get().putAll(clonedProgramSequenceChords.values());
+    content.get().putAll(clonedProgramSequenceChordVoicings.values());
+    content.get().putAll(clonedProgramSequencePatterns.values());
+    content.get().putAll(clonedProgramSequencePatternEvents.values());
+    content.get().putAll(clonedProgramVoices.values());
+    content.get().putAll(clonedProgramVoiceTracks.values());
+
+    return clonedProgram;
+  }
+
+  @SuppressWarnings("CollectionAddAllCanBeReplacedWithConstructor")
+  @Override
+  public ProgramSequence cloneProgramSequence(UUID fromId, String name) throws Exception {
+    var source = content.get().getProgramSequence(fromId).orElseThrow(() -> new NexusException("Program Sequence not found"));
+
+    // Clone Program
+    var clonedSequence = entityFactory.clone(source);
+    clonedSequence.setName(name);
+
+    // Prepare all maps of cloned sub-entities to avoid putting more than once to store
+    Map<UUID, ProgramSequenceBinding> clonedProgramSequenceBindings = new HashMap<>();
+    Map<UUID, ProgramSequenceBindingMeme> clonedProgramSequenceBindingMemes = new HashMap<>();
+    Map<UUID, ProgramSequenceChord> clonedProgramSequenceChords = new HashMap<>();
+    Map<UUID, ProgramSequenceChordVoicing> clonedProgramSequenceChordVoicings = new HashMap<>();
+    Map<UUID, ProgramSequencePattern> clonedProgramSequencePatterns = new HashMap<>();
+    Map<UUID, ProgramSequencePatternEvent> clonedProgramSequencePatternEvents = new HashMap<>();
+
+    // Clone the Program's Sequence's Patterns
+    var patterns = content.get().getPatternsOfSequence(fromId);
+    clonedProgramSequencePatterns.putAll(entityFactory.cloneAll(patterns, Set.of(clonedSequence)));
+
+    // Iterate through the cloned patterns and tracks and clone all the Program's Sequences' Patterns' Events
+    for (ProgramSequencePattern pattern : patterns) {
+      var clonedPattern = clonedProgramSequencePatterns.get(pattern.getId());
+      for (ProgramVoiceTrack track : content.get().getTracksOfProgram(source.getProgramId())) {
+        clonedProgramSequencePatternEvents.putAll(entityFactory.cloneAll(content.get().getEventsOfPatternAndTrack(pattern.getId(), track.getId()), Set.of(clonedPattern)));
+      }
+    }
+
+    // Clone the Program's Sequence's Chords
+    var chords = content.get().getChordsOfSequence(fromId);
+    Map<UUID, ProgramSequenceChord> clonedChords = entityFactory.cloneAll(chords, Set.of(clonedSequence));
+    clonedProgramSequenceChords.putAll(clonedChords);
+
+    // Iterate through the cloned chords and clone the Program's Sequences' Chords' Voicings
+    var voices = content.get().getVoicesOfProgram(source.getProgramId());
+    for (ProgramSequenceChord chord : chords) {
+      var clonedChord = clonedChords.get(chord.getId());
+      for (ProgramVoice voice : voices) {
+        clonedProgramSequenceChordVoicings.putAll(entityFactory.cloneAll(content.get().getVoicingsOfChordAndVoice(chord.getId(), voice.getId()), Set.of(clonedChord)));
+      }
+    }
+
+    // Put everything in the store and return the program
+    content.get().put(clonedSequence);
+    content.get().putAll(clonedProgramSequenceBindings.values());
+    content.get().putAll(clonedProgramSequenceBindingMemes.values());
+    content.get().putAll(clonedProgramSequenceChords.values());
+    content.get().putAll(clonedProgramSequenceChordVoicings.values());
+    content.get().putAll(clonedProgramSequencePatterns.values());
+    content.get().putAll(clonedProgramSequencePatternEvents.values());
+
+    return clonedSequence;
+  }
+
+  @Override
+  public ProgramSequencePattern cloneProgramSequencePattern(UUID fromId, String name) throws Exception {
+    var source = content.get().getProgramSequencePattern(fromId).orElseThrow(() -> new NexusException("Program Sequence Pattern not found"));
+
+    // Clone Program
+    var clonedPattern = entityFactory.clone(source);
+    clonedPattern.setName(name);
+
+    // Iterate through the tracks and clone all the Program's Sequences' Patterns' Events
+    Map<UUID, ProgramSequencePatternEvent> clonedProgramSequencePatternEvents = new HashMap<>(entityFactory.cloneAll(content.get().getEventsOfPattern(source.getId()), Set.of(clonedPattern)));
+
+    // Put everything in the store and return the program
+    content.get().put(clonedPattern);
+    content.get().putAll(clonedProgramSequencePatternEvents.values());
+
+    return clonedPattern;
+  }
+
+  @Override
+  public Instrument cloneInstrument(UUID fromId, UUID libraryId, String name) throws Exception {
+    var source = content.get().getInstrument(fromId).orElseThrow(() -> new NexusException("Instrument not found"));
+
+    // Clone the Instrument
+    var instrument = entityFactory.clone(source);
+    instrument.setLibraryId(libraryId);
+    instrument.setName(name);
+
+    // Clone the Instrument's Audios
+    var clonedAudios = entityFactory.cloneAll(content.get().getAudiosOfInstrument(fromId), Set.of(instrument));
+
+    // Clone the Instrument's Memes
+    var clonedMemes = entityFactory.cloneAll(content.get().getMemesOfInstrument(fromId), Set.of(instrument));
+
+    // Put everything in the store and return the instrument
+    content.get().put(instrument);
+    content.get().putAll(clonedMemes.values());
+    content.get().putAll(clonedAudios.values());
+    return instrument;
   }
 
   /**
@@ -328,17 +632,6 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   Notify all listeners of a project update
-
-   @param type the type of update
-   */
-  private void notifyProjectUpdateListeners(ProjectUpdate type) {
-    if (projectUpdateListeners.containsKey(type)) {
-      projectUpdateListeners.get(type).forEach(Runnable::run);
-    }
-  }
-
-  /**
    Create the project folder on disk
 
    @param parentPathPrefix parent folder of the project folder
@@ -363,6 +656,7 @@ public class ProjectManagerImpl implements ProjectManager {
    */
   private void saveProjectContent() throws IOException {
     updateState(ProjectState.Saving);
+    LOG.info("Will save project \"{}\" to {}", projectName.get(), getPathToProjectFile());
     var json = jsonProvider.getMapper().writeValueAsString(content);
     var jsonPath = getPathToProjectFile();
     Files.writeString(Path.of(jsonPath), json);
@@ -392,12 +686,6 @@ public class ProjectManagerImpl implements ProjectManager {
     this.state.set(state);
     if (Objects.nonNull(onStateChange))
       onStateChange.accept(state);
-    if (state == ProjectState.Ready) {
-      notifyProjectUpdateListeners(ProjectUpdate.Libraries);
-      notifyProjectUpdateListeners(ProjectUpdate.Programs);
-      notifyProjectUpdateListeners(ProjectUpdate.Instruments);
-      notifyProjectUpdateListeners(ProjectUpdate.Templates);
-    }
   }
 
   /**
@@ -450,6 +738,8 @@ public class ProjectManagerImpl implements ProjectManager {
       CloseableHttpResponse response = httpClient.execute(new HttpHead(url))
     ) {
       return Long.parseLong(response.getFirstHeader("Content-Length").getValue());
+    } catch (Exception e) {
+      throw new NexusException(String.format("Unable to get %s", url), e);
     }
   }
 
