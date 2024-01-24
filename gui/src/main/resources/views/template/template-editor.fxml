@@ -8,6 +8,8 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
 <VBox
   fx:controller="io.xj.gui.controllers.template.TemplateEditorController"
   fx:id="container"
@@ -30,8 +32,19 @@
       </graphic>
     </Label>
     <Pane prefWidth="15.0"/>
-    <TextField fx:id="fieldName" prefHeight="25.0" disable="true"/>
+    <TextField fx:id="fieldName" prefHeight="25.0"/>
   </VBox>
+
+  <HBox spacing="10">
+    <Button
+      fx:id="buttonOK"
+      onAction="#handlePressOK"
+      text="OK"/>
+    <Button fx:id="buttonCancel"
+            onAction="#handlePressCancel"
+            text="Cancel"/>
+
+  </HBox>
 
   <VBox>
     <VBox.vgrow>

@@ -3,9 +3,11 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
 <VBox
   fx:controller="io.xj.gui.controllers.content.LibraryEditorController"
   fx:id="container"
@@ -28,9 +30,18 @@
       </graphic>
     </Label>
     <Pane prefWidth="15.0"/>
-    <TextField fx:id="fieldName" prefHeight="25.0" disable="true"/>
+    <TextField fx:id="fieldName" prefHeight="25.0"/>
   </VBox>
 
-  <Label>FUTURE: Library Editor</Label>
+  <HBox spacing="10">
+    <Button
+      fx:id="buttonOK"
+      onAction="#handlePressOK"
+      text="OK"/>
+    <Button fx:id="buttonCancel"
+            onAction="#handlePressCancel"
+            text="Cancel"/>
+
+  </HBox>
 
 </VBox>

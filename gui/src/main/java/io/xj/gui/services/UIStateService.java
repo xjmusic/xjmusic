@@ -164,6 +164,16 @@ public interface UIStateService extends ReadyAfterBootController {
   ObjectProperty<Template> currentTemplateProperty();
 
   /**
+   View all templates
+   */
+  void viewTemplates();
+
+  /**
+   View all libraries
+   */
+  void viewLibraries();
+
+  /**
    View the given library in the content browser.
 
    @param libraryId ID of the Library to view

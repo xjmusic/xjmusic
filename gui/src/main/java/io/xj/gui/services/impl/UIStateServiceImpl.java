@@ -387,6 +387,18 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
+  public void viewTemplates() {
+    viewMode.set(ViewMode.Templates);
+    templateMode.set(TemplateMode.TemplateBrowser);
+  }
+
+  @Override
+  public void viewLibraries() {
+    viewMode.set(ViewMode.Content);
+    contentMode.set(ContentMode.LibraryBrowser);
+  }
+
+  @Override
   public void viewLibrary(UUID libraryId) {
     var library = projectService.getContent().getLibrary(libraryId)
       .orElseThrow(() -> new RuntimeException("Could not find Library!"));

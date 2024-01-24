@@ -11,8 +11,10 @@ import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.nexus.project.ProjectUpdate;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -20,6 +22,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -40,6 +43,7 @@ public class TemplateEditorController extends BrowserController implements Ready
   private final UIStateService uiStateService;
   private final ObjectProperty<UUID> id = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
+  private final BooleanProperty dirty = new SimpleBooleanProperty(false);
   private final ObservableList<TemplateBinding> bindings = FXCollections.observableList(new ArrayList<>());
 
   @FXML
@@ -47,6 +51,12 @@ public class TemplateEditorController extends BrowserController implements Ready
 
   @FXML
   protected TextField fieldName;
+
+  @FXML
+  protected Button buttonOK;
+
+  @FXML
+  protected Button buttonCancel;
 
   @FXML
   protected TableView<TemplateBinding> bindingsTable;
@@ -68,6 +78,8 @@ public class TemplateEditorController extends BrowserController implements Ready
     container.managedProperty().bind(visible);
 
     fieldName.textProperty().bindBidirectional(name);
+
+    name.addListener((o, ov, v) -> dirty.set(true));
 
     bindingsTable.setItems(bindings);
 
@@ -110,6 +122,8 @@ public class TemplateEditorController extends BrowserController implements Ready
       if (Objects.equals(uiStateService.templateModeProperty().get(), TemplateMode.TemplateEditor))
         update();
     });
+
+    buttonOK.disableProperty().bind(dirty.not());
   }
 
   /**
@@ -137,6 +151,20 @@ public class TemplateEditorController extends BrowserController implements Ready
     // FUTURE: on stage close
   }
 
+  @FXML
+  protected void handlePressOK() {
+    var template = projectService.getContent().getTemplate(id.get())
+      .orElseThrow(() -> new RuntimeException("Could not find Template"));
+    template.setName(name.get());
+    if (projectService.updateTemplate(template))
+      uiStateService.viewTemplates();
+  }
+
+  @FXML
+  protected void handlePressCancel() {
+    uiStateService.viewLibrary(id.get());
+  }
+
   /**
    Update the Template Editor with the current Template.
    */
@@ -148,6 +176,7 @@ public class TemplateEditorController extends BrowserController implements Ready
     LOG.info("Will edit Template \"{}\"", template.getName());
     this.id.set(template.getId());
     this.name.set(template.getName());
+    this.dirty.set(false);
     updateBindings();
   }
 

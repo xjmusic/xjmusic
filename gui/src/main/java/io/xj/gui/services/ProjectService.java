@@ -1,10 +1,10 @@
 package io.xj.gui.services;
 
 import io.xj.hub.HubContent;
-import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
@@ -282,8 +282,8 @@ public interface ProjectService {
   /**
    Clone the given program sequence with a new name
 
-   @param fromId    clone from program sequence
-   @param name      the new name
+   @param fromId clone from program sequence
+   @param name   the new name
    @return the new program
    */
   ProgramSequence cloneProgramSequence(UUID fromId, String name) throws Exception;
@@ -291,8 +291,8 @@ public interface ProjectService {
   /**
    Clone the given program sequence pattern with a new name
 
-   @param fromId    clone from program sequence pattern
-   @param name      the new name
+   @param fromId clone from program sequence pattern
+   @param name   the new name
    @return the new program sequence pattern
    */
   ProgramSequencePattern cloneProgramSequencePattern(UUID fromId, String name) throws Exception;
@@ -306,4 +306,36 @@ public interface ProjectService {
    @return the new instrument
    */
   Instrument cloneInstrument(UUID fromId, UUID libraryId, String name) throws Exception;
+
+  /**
+   Update the given library
+
+   @param library to update
+   @return true if successful
+   */
+  boolean updateLibrary(Library library);
+
+  /**
+   Update the given program
+
+   @param program to update
+   @return true if successful
+   */
+  boolean updateProgram(Program program);
+
+  /**
+   Update the given instrument
+
+   @param instrument to update
+   @return true if successful
+   */
+  boolean updateInstrument(Instrument instrument);
+
+  /**
+   Update the given template
+
+   @param template to update
+   @return true if successful
+   */
+  boolean updateTemplate(Template template);
 }

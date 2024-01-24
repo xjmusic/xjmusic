@@ -430,6 +430,58 @@ public class ProjectServiceImpl implements ProjectService {
     return instrument;
   }
 
+  @Override
+  public boolean updateLibrary(Library library) {
+    try {
+      projectManager.getContent().put(library);
+      notifyProjectUpdateListeners(ProjectUpdate.Libraries);
+      return true;
+
+    } catch (Exception e) {
+      LOG.error("Could not save Library", e);
+      return false;
+    }
+  }
+
+  @Override
+  public boolean updateProgram(Program program) {
+    try {
+      projectManager.getContent().put(program);
+      notifyProjectUpdateListeners(ProjectUpdate.Programs);
+      return true;
+
+    } catch (Exception e) {
+      LOG.error("Could not save Program", e);
+      return false;
+    }
+  }
+
+  @Override
+  public boolean updateInstrument(Instrument instrument) {
+    try {
+      projectManager.getContent().put(instrument);
+      notifyProjectUpdateListeners(ProjectUpdate.Instruments);
+      return true;
+
+    } catch (Exception e) {
+      LOG.error("Could not save Instrument", e);
+      return false;
+    }
+  }
+
+  @Override
+  public boolean updateTemplate(Template template) {
+    try {
+      projectManager.getContent().put(template);
+      notifyProjectUpdateListeners(ProjectUpdate.Templates);
+      return true;
+
+    } catch (Exception e) {
+      LOG.error("Could not save Template", e);
+      return false;
+    }
+  }
+
   /**
    Clone a project from a remote source.
 
