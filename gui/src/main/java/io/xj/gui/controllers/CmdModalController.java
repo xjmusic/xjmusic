@@ -166,22 +166,14 @@ public class CmdModalController extends ReadyAfterBootModalController {
         }
         case Clone -> {
           switch (type.get()) {
-            case Template -> {
-              var template = projectService.cloneTemplate(currentId.get(), name.getValue());
-              uiStateService.editTemplate(template.getId());
-            }
+            case Template -> projectService.cloneTemplate(currentId.get(), name.getValue());
             case Library -> {
               var library = projectService.cloneLibrary(currentId.get(), name.getValue());
-              uiStateService.editLibrary(library.getId());
+              uiStateService.viewLibrary(library.getId());
             }
-            case Program -> {
-              var program = projectService.cloneProgram(currentId.get(), parentLibrary.get().getId(), name.getValue());
-              uiStateService.editProgram(program.getId());
-            }
-            case Instrument -> {
-              var instrument = projectService.cloneInstrument(currentId.get(), parentLibrary.get().getId(), name.getValue());
-              uiStateService.editInstrument(instrument.getId());
-            }
+            case Program -> projectService.cloneProgram(currentId.get(), parentLibrary.get().getId(), name.getValue());
+            case Instrument ->
+              projectService.cloneInstrument(currentId.get(), parentLibrary.get().getId(), name.getValue());
           }
         }
       }

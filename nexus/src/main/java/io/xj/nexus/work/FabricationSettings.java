@@ -5,7 +5,7 @@ package io.xj.nexus.work;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.ControlMode;
 
-public class FabricationConfiguration {
+public class FabricationSettings {
   private ControlMode controlMode;
   private Template inputTemplate;
   private int craftAheadSeconds;
@@ -21,7 +21,7 @@ public class FabricationConfiguration {
     return controlMode;
   }
 
-  public FabricationConfiguration setMacroMode(ControlMode controlMode) {
+  public FabricationSettings setMacroMode(ControlMode controlMode) {
     this.controlMode = controlMode;
     return this;
   }
@@ -30,7 +30,7 @@ public class FabricationConfiguration {
     return inputTemplate;
   }
 
-  public FabricationConfiguration setInputTemplate(Template inputTemplate) {
+  public FabricationSettings setInputTemplate(Template inputTemplate) {
     this.inputTemplate = inputTemplate;
     return this;
   }
@@ -39,7 +39,7 @@ public class FabricationConfiguration {
     return craftAheadSeconds;
   }
 
-  public FabricationConfiguration setCraftAheadSeconds(int craftAheadSeconds) {
+  public FabricationSettings setCraftAheadSeconds(int craftAheadSeconds) {
     this.craftAheadSeconds = craftAheadSeconds;
     return this;
   }
@@ -48,7 +48,7 @@ public class FabricationConfiguration {
     return dubAheadSeconds;
   }
 
-  public FabricationConfiguration setDubAheadSeconds(int dubAheadSeconds) {
+  public FabricationSettings setDubAheadSeconds(int dubAheadSeconds) {
     this.dubAheadSeconds = dubAheadSeconds;
     return this;
   }
@@ -57,7 +57,7 @@ public class FabricationConfiguration {
     return outputFrameRate;
   }
 
-  public FabricationConfiguration setOutputFrameRate(int outputFrameRate) {
+  public FabricationSettings setOutputFrameRate(int outputFrameRate) {
     this.outputFrameRate = outputFrameRate;
     return this;
   }
@@ -66,7 +66,7 @@ public class FabricationConfiguration {
     return outputChannels;
   }
 
-  public FabricationConfiguration setOutputChannels(int outputChannels) {
+  public FabricationSettings setOutputChannels(int outputChannels) {
     this.outputChannels = outputChannels;
     return this;
   }
@@ -75,7 +75,7 @@ public class FabricationConfiguration {
     return mixerLengthSeconds;
   }
 
-  public FabricationConfiguration setMixerLengthSeconds(int mixerLengthSeconds) {
+  public FabricationSettings setMixerLengthSeconds(int mixerLengthSeconds) {
     this.mixerLengthSeconds = mixerLengthSeconds;
     return this;
   }
@@ -84,7 +84,7 @@ public class FabricationConfiguration {
     return shipOutputFileNumberDigits;
   }
 
-  public FabricationConfiguration setShipOutputFileNumberDigits(int shipOutputFileNumberDigits) {
+  public FabricationSettings setShipOutputFileNumberDigits(int shipOutputFileNumberDigits) {
     this.shipOutputFileNumberDigits = shipOutputFileNumberDigits;
     return this;
   }
@@ -93,7 +93,7 @@ public class FabricationConfiguration {
     return shipOutputPcmChunkSizeBytes;
   }
 
-  public FabricationConfiguration setShipOutputPcmChunkSizeBytes(int shipOutputPcmChunkSizeBytes) {
+  public FabricationSettings setShipOutputPcmChunkSizeBytes(int shipOutputPcmChunkSizeBytes) {
     this.shipOutputPcmChunkSizeBytes = shipOutputPcmChunkSizeBytes;
     return this;
   }

@@ -328,12 +328,12 @@ public class ProjectManagerImpl implements ProjectManager {
 
     // Clone the Library's Programs
     for (Program program : content.get().getProgramsOfLibrary(fromId)) {
-      cloneProgram(program.getId(), library.getId(), program.getName());
+      cloneProgram(program.getId(), library.getId(), String.format("Copy of %s", program.getName()));
     }
 
     // Clone the Library's Instruments
     for (Instrument instrument : content.get().getInstrumentsOfLibrary(fromId)) {
-      cloneInstrument(instrument.getId(), library.getId(), instrument.getName());
+      cloneInstrument(instrument.getId(), library.getId(), String.format("Copy of %s", instrument.getName()));
     }
 
     // Return the library

@@ -32,7 +32,7 @@ import io.xj.nexus.ship.broadcast.BroadcastFactory;
 import io.xj.nexus.ship.broadcast.BroadcastFactoryImpl;
 import io.xj.nexus.telemetry.Telemetry;
 import io.xj.nexus.telemetry.TelemetryImpl;
-import io.xj.nexus.work.FabricationConfiguration;
+import io.xj.nexus.work.FabricationSettings;
 import io.xj.nexus.work.FabricationManager;
 import io.xj.nexus.work.FabricationManagerImpl;
 import org.slf4j.Logger;
@@ -116,7 +116,7 @@ public class WorkstationServiceApplication {
 
   @EventListener(ApplicationStartedEvent.class)
   public void start() {
-    var workConfig = new FabricationConfiguration()
+    var workConfig = new FabricationSettings()
       .setInputTemplate(null); // FUTURE: read template
 
     var hubConfig = new HubConfiguration()

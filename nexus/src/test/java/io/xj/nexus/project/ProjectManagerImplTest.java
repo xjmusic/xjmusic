@@ -185,9 +185,9 @@ class ProjectManagerImplTest {
     assertEquals(2, subject.getContent().getProgramsOfLibrary(clone.getId()).size());
     var programs = subject.getContent().getProgramsOfLibrary(clone.getId()).stream().sorted(Comparator.comparing(Program::getName)).toList();
     var program1 = programs.get(0);
-    assertEquals("coconuts", program1.getName());
+    assertEquals("Copy of coconuts", program1.getName());
     var program2 = programs.get(1);
-    assertEquals("leaves", program2.getName());
+    assertEquals("Copy of leaves", program2.getName());
     // 1 meme per program
     assertEquals(1, subject.getContent().getMemesOfProgram(program1.getId()).size());
     var program1_meme = subject.getContent().getMemesOfProgram(program1.getId()).stream().findFirst().orElseThrow();
@@ -276,9 +276,9 @@ class ProjectManagerImplTest {
     assertEquals(2, subject.getContent().getInstrumentsOfLibrary(clone.getId()).size());
     var instruments = subject.getContent().getInstrumentsOfLibrary(clone.getId()).stream().sorted(Comparator.comparing(Instrument::getName)).toList();
     var instrument1 = instruments.get(0);
-    assertEquals("808 Drums", instrument1.getName());
+    assertEquals("Copy of 808 Drums", instrument1.getName());
     var instrument2 = instruments.get(1);
-    assertEquals("Pad", instrument2.getName());
+    assertEquals("Copy of Pad", instrument2.getName());
     // 1 meme per instrument
     assertEquals(1, subject.getContent().getMemesOfInstrument(instrument1.getId()).size());
     var instrument1_meme = subject.getContent().getMemesOfInstrument(instrument1.getId()).stream().findFirst().orElseThrow();
