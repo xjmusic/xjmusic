@@ -4,9 +4,9 @@ package io.xj.nexus.hub_client;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.HubContentPayload;
+import io.xj.hub.json.JsonProvider;
+import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.http.HttpClientProvider;
-import io.xj.nexus.json.JsonProvider;
-import io.xj.nexus.jsonapi.JsonapiPayloadFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;

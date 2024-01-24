@@ -200,7 +200,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
 
     var bag = MarbleBag.empty();
 
-    for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosOfInstrumentId(instrument.getId())
+    for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosOfInstrument(instrument.getId())
       .stream().filter(instrumentAudio -> names.contains(StringUtils.toMeme(instrumentAudio.getEvent()))).toList())
       bag.add(1, audio.getId());
 

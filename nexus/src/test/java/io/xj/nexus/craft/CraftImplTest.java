@@ -11,12 +11,12 @@ import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.meme.MemeTaxonomy;
 import io.xj.hub.music.Chord;
-import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.InstrumentMeme;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.Fabricator;
@@ -39,12 +39,12 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProject;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildInstrument;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildInstrumentAudio;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildInstrumentMeme;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildLibrary;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgram;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProject;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
@@ -181,13 +181,13 @@ public class CraftImplTest {
     when(sourceMaterial.getInstrument(eq(instrument2.getId()))).thenReturn(Optional.of(instrument2));
     when(sourceMaterial.getAudiosOfInstrumentTypesAndModes(eq(List.of(InstrumentType.Percussion)), eq(List.of(InstrumentMode.Loop)))).thenReturn(List.of(instrument1audio, instrument2audio));
     when(fabricator.getMemeIsometryOfSegment()).thenReturn(MemeIsometry.of(MemeTaxonomy.empty(), List.of("70BPM")));
-    when(sourceMaterial.getMemesOfInstrumentId(eq(instrument1.getId()))).thenReturn(List.of(instrument1meme));
-    when(sourceMaterial.getMemesOfInstrumentId(eq(instrument2.getId()))).thenReturn(List.of(instrument2meme));
+    when(sourceMaterial.getMemesOfInstrument(eq(instrument1.getId()))).thenReturn(List.of(instrument1meme));
+    when(sourceMaterial.getMemesOfInstrument(eq(instrument2.getId()))).thenReturn(List.of(instrument2meme));
     when(sourceMaterial.getInstrumentAudio(eq(instrument1audio.getId()))).thenReturn(Optional.of(instrument1audio));
 
     var result = subject.chooseFreshInstrumentAudio(List.of(InstrumentType.Percussion), List.of(InstrumentMode.Loop), List.of(instrument1audio.getInstrumentId()), List.of("PRIMARY"));
 
-    verify(sourceMaterial, times(1)).getMemesOfInstrumentId(eq(instrument1.getId()));
+    verify(sourceMaterial, times(1)).getMemesOfInstrument(eq(instrument1.getId()));
     assertTrue(result.isPresent());
   }
 

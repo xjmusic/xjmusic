@@ -2,6 +2,7 @@
 
 package io.xj.nexus.craft;
 
+import io.xj.hub.entity.EntityUtils;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
@@ -20,7 +21,6 @@ import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.util.CsvUtils;
-import io.xj.hub.util.EntityUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.TremendouslyRandom;
 import io.xj.hub.util.ValueUtils;
@@ -915,14 +915,14 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Phase 1: Directly Bound Programs
     for (Program program : programsDirectlyBound(candidates)) {
-      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfProgramId(program.getId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfProgram(program.getId()));
       // FUTURE consider meme isometry, but for now, just use the meme stack
       if (iso.isAllowed(memes)) bag.add(1, program.getId(), 1 + iso.score(memes));
     }
 
     // Phase 2: All Published Programs
     for (Program program : programsPublished(candidates)) {
-      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfProgramId(program.getId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfProgram(program.getId()));
       // FUTURE consider meme isometry, but for now, just use the meme stack
       if (iso.isAllowed(memes)) bag.add(2, program.getId(), 1 + iso.score(memes));
     }
@@ -960,13 +960,13 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Phase 1: Directly Bound Instruments
     for (Instrument instrument : instrumentsDirectlyBound(candidates)) {
-      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfInstrumentId(instrument.getId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfInstrument(instrument.getId()));
       if (iso.isAllowed(memes)) bag.add(1, instrument.getId(), 1 + iso.score(memes));
     }
 
     // Phase 2: All Published Instruments
     for (Instrument instrument : instrumentsPublished(candidates)) {
-      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfInstrumentId(instrument.getId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfInstrument(instrument.getId()));
       if (iso.isAllowed(memes)) bag.add(2, instrument.getId(), 1 + iso.score(memes));
     }
 
@@ -1018,14 +1018,14 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Phase 1: Directly Bound Audios (Preferred)
     for (InstrumentAudio audio : audiosDirectlyBound(candidates)) {
-      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfInstrumentId(audio.getInstrumentId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfInstrument(audio.getInstrumentId()));
       if (iso.isAllowed(memes))
         bag.add(preferredEvents.contains(audio.getEvent()) ? 1 : 3, audio.getId(), 1 + iso.score(memes));
     }
 
     // Phase 2: All Published Audios (Preferred)
     for (InstrumentAudio audio : audiosPublished(candidates)) {
-      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfInstrumentId(audio.getInstrumentId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfInstrument(audio.getInstrumentId()));
       if (iso.isAllowed(memes))
         bag.add(preferredEvents.contains(audio.getEvent()) ? 2 : 4, audio.getId(), 1 + iso.score(memes));
     }
@@ -1120,7 +1120,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   boolean instrumentContainsAudioEventsLike(Instrument instrument, Collection<String> requireEvents) {
     if (requireEvents.isEmpty()) return true;
     for (var event : requireEvents)
-      if (fabricator.sourceMaterial().getAudiosOfInstrumentId(instrument.getId()).stream().noneMatch(a -> 100 < NameIsometry.similarity(event, a.getEvent())))
+      if (fabricator.sourceMaterial().getAudiosOfInstrument(instrument.getId()).stream().noneMatch(a -> 100 < NameIsometry.similarity(event, a.getEvent())))
         return false;
     return true;
   }

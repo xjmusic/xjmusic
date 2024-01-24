@@ -3,7 +3,6 @@
 package io.xj.gui.controllers.template;
 
 import io.xj.gui.controllers.ReadyAfterBootController;
-import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;

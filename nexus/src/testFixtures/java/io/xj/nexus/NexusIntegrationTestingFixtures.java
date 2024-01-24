@@ -2,6 +2,7 @@
 
 package io.xj.nexus;
 
+import io.xj.hub.entity.EntityException;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
@@ -30,7 +31,6 @@ import io.xj.hub.tables.pojos.User;
 import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueUtils;
-import io.xj.nexus.entity.EntityException;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;

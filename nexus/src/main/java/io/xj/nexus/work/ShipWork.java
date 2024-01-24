@@ -1,9 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.work;
 
-import io.xj.nexus.ship.ShipException;
-
-import java.io.IOException;
 import java.util.Optional;
 
 /**
