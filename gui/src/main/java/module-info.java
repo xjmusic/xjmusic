@@ -2,12 +2,8 @@ module workstation.gui.main {
   // vendor
   requires ch.qos.logback.classic;
   requires ch.qos.logback.core;
-  requires com.fasterxml.jackson.annotation;
-  requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;
-  requires com.fasterxml.jackson.datatype.jsr310;
   requires jakarta.annotation;
-  requires java.annotation;
   requires java.desktop;
   requires javafx.base;
   requires javafx.controls;
