@@ -34,7 +34,7 @@ the [GitHub documentation](https://docs.github.com/en/packages/working-with-a-gi
 Once you have created a personal access token, you can authenticate with the GitHub Packages registry by adding the
 token to a **gradle-local.properties** file you create in the root of this project.
 
-NOTE: the **gradle-local.properties** file is ***NOT*** checked in to Git because it contains a secret.
+NOTE: the **gradle-local.properties** file is ***NOT*** checked in to Git because it contains a secret. However, there is a [gradle-local.example.properties](gradle-local.example.properties) file that you can copy and use as a template.
 
 Your **gradle-local.properties** file should look like this:
 
