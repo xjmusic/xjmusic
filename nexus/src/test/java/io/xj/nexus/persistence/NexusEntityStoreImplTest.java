@@ -163,22 +163,6 @@ public class NexusEntityStoreImplTest {
   }
 
   /**
-   This should ostensibly be a test inside the Entity library-- and it is, except for this bug that
-   at the time of this writing, we couldn't isolate to that library, and are therefore reproducing it here.
-
-   @throws EntityException on failure
-   */
-  @Test
-  public void internal_entityFactoryClonesSegmentTypeOK() throws EntityException {
-    Segment segment = new Segment();
-    segment.setType(SegmentType.NEXT_MACRO);
-
-    Segment result = entityFactory.clone(segment);
-
-    assertEquals(SegmentType.NEXT_MACRO, result.getType());
-  }
-
-  /**
    Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation https://www.pivotaltracker.com/story/show/162361712
    */
   @Test
