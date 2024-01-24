@@ -9,6 +9,16 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.util.StringUtils;
@@ -36,9 +46,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
@@ -272,10 +285,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public Program moveProgram(UUID id, UUID libraryId) throws Exception {
-    var program = content.get().getPrograms().stream()
-      .filter(p -> Objects.equals(p.getId(), id))
-      .findFirst()
-      .orElseThrow(() -> new RuntimeException("Program not found!"));
+    var program = content.get().getProgram(id).orElseThrow(() -> new NexusException("Program not found"));
     program.setLibraryId(libraryId);
     content.get().put(program);
     return program;
@@ -283,12 +293,242 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public Instrument moveInstrument(UUID id, UUID libraryId) throws Exception {
-    var instrument = content.get().getInstruments().stream()
-      .filter(p -> Objects.equals(p.getId(), id))
-      .findFirst()
-      .orElseThrow(() -> new RuntimeException("Instrument not found!"));
+    var instrument = content.get().getInstrument(id).orElseThrow(() -> new NexusException("Instrument not found"));
     instrument.setLibraryId(libraryId);
     content.get().put(instrument);
+    return instrument;
+  }
+
+  @Override
+  public Template cloneTemplate(UUID fromId, String name) throws Exception {
+    var source = content.get().getTemplate(fromId).orElseThrow(() -> new NexusException("Template not found"));
+
+    // Clone the Template
+    var clone = new Template();
+    clone.setId(UUID.randomUUID());
+    entityFactory.setAllEmptyAttributes(source, clone);
+    content.get().put(clone);
+
+    // Clone the Template's Bindings
+    var clonedBindings = entityFactory.cloneAll(content.get().getBindingsOfTemplate(fromId), Set.of(clone));
+    content.get().putAll(clonedBindings.values());
+
+    return clone;
+  }
+
+  @Override
+  public Library cloneLibrary(UUID fromId, String name) throws Exception {
+    var source = content.get().getLibrary(fromId).orElseThrow(() -> new NexusException("Library not found"));
+
+    // Clone the Library and put it in the store
+    var library = entityFactory.clone(source);
+    library.setName(name);
+    content.get().put(library);
+
+    // Clone the Library's Programs
+    for (Program program : content.get().getProgramsOfLibrary(fromId)) {
+      cloneProgram(program.getId(), library.getId(), program.getName());
+    }
+
+    // Clone the Library's Instruments
+    for (Instrument instrument : content.get().getInstrumentsOfLibrary(fromId)) {
+      cloneInstrument(instrument.getId(), library.getId(), instrument.getName());
+    }
+
+    // Return the library
+    return library;
+  }
+
+  @SuppressWarnings("CollectionAddAllCanBeReplacedWithConstructor")
+  @Override
+  public Program cloneProgram(UUID fromId, UUID libraryId, String name) throws Exception {
+    var source = content.get().getProgram(fromId).orElseThrow(() -> new NexusException("Program not found"));
+
+    // Clone Program
+    var program = entityFactory.clone(source);
+    program.setName(name);
+
+    // Prepare all maps of cloned sub-entities to avoid putting more than once to store
+    Map<UUID, ProgramMeme> clonedProgramMemes = new HashMap<>();
+    Map<UUID, ProgramSequence> clonedProgramSequences = new HashMap<>();
+    Map<UUID, ProgramSequenceBinding> clonedProgramSequenceBindings = new HashMap<>();
+    Map<UUID, ProgramSequenceBindingMeme> clonedProgramSequenceBindingMemes = new HashMap<>();
+    Map<UUID, ProgramSequenceChord> clonedProgramSequenceChords = new HashMap<>();
+    Map<UUID, ProgramSequenceChordVoicing> clonedProgramSequenceChordVoicings = new HashMap<>();
+    Map<UUID, ProgramSequencePattern> clonedProgramSequencePatterns = new HashMap<>();
+    Map<UUID, ProgramSequencePatternEvent> clonedProgramSequencePatternEvents = new HashMap<>();
+    Map<UUID, ProgramVoice> clonedProgramVoices = new HashMap<>();
+    Map<UUID, ProgramVoiceTrack> clonedProgramVoiceTracks = new HashMap<>();
+
+    // Clone the Program's Sequences
+    clonedProgramSequences.putAll(entityFactory.cloneAll(content.get().getSequencesOfProgram(fromId), Set.of(program)));
+
+    // Clone the Program's Memes
+    clonedProgramMemes.putAll(entityFactory.cloneAll(content.get().getMemesOfProgram(fromId), Set.of(program)));
+
+    // Clone the Program's Voices
+    clonedProgramVoices.putAll(entityFactory.cloneAll(content.get().getVoicesOfProgram(fromId), Set.of(program)));
+
+    // Iterate through the cloned voices and clone all the Program's Voice's Tracks
+    for (ProgramVoice voice : clonedProgramVoices.values()) {
+      clonedProgramVoiceTracks.putAll(entityFactory.cloneAll(content.get().getTracksOfVoice(voice.getId()), Set.of(program, voice)));
+    }
+
+    // Iterate through the cloned sequences
+    for (ProgramSequence sequence : clonedProgramSequences.values()) {
+
+      // Clone the Program's Sequence's Patterns
+      var patterns = entityFactory.cloneAll(content.get().getPatternsOfSequence(sequence.getId()), Set.of(program, sequence));
+      clonedProgramSequencePatterns.putAll(patterns);
+
+      // Iterate through the cloned patterns and tracks and clone all the Program's Sequences' Patterns' Events
+      for (ProgramSequencePattern pattern : patterns.values()) {
+        for (ProgramVoiceTrack track : clonedProgramVoiceTracks.values()) {
+          clonedProgramSequencePatternEvents.putAll(entityFactory.cloneAll(content.get().getEventsOfPatternAndTrack(pattern.getId(), track.getId()), Set.of(program, pattern, track)));
+        }
+      }
+
+      // Clone the Program's Sequence's Bindings
+      var bindings = entityFactory.cloneAll(content.get().getBindingsOfSequence(sequence.getId()), Set.of(program, sequence));
+      clonedProgramSequenceBindings.putAll(bindings);
+
+      // Iterate through the cloned sequence's bindings
+      for (ProgramSequenceBinding binding : bindings.values()) {
+
+        // Clone the Program's Sequence's Bindings' Memes
+        clonedProgramSequenceBindingMemes.putAll(entityFactory.cloneAll(content.get().getMemesOfSequenceBinding(binding.getId()), Set.of(program, binding)));
+      }
+    }
+
+    // Iterate through the cloned sequences and clone the Program's Sequence's Chords
+    for (ProgramSequence sequence : clonedProgramSequences.values()) {
+      Map<UUID, ProgramSequenceChord> clonedChords = entityFactory.cloneAll(content.get().getChordsOfSequence(sequence.getId()), Set.of(program, sequence));
+
+      // Iterate through the cloned chords and clone the Program's Sequences' Chords' Voicings
+      for (ProgramSequenceChord chord : clonedChords.values()) {
+        for (ProgramVoice voice : clonedProgramVoices.values()) {
+          clonedProgramSequenceChordVoicings.putAll(entityFactory.cloneAll(content.get().getVoicingsOfChordAndVoice(chord.getId(), voice.getId()), Set.of(program, chord, voice)));
+        }
+      }
+    }
+
+    // Put everything in the store and return the program
+    content.get().put(program);
+    content.get().putAll(clonedProgramMemes.values());
+    content.get().putAll(clonedProgramSequences.values());
+    content.get().putAll(clonedProgramSequenceBindings.values());
+    content.get().putAll(clonedProgramSequenceBindingMemes.values());
+    content.get().putAll(clonedProgramSequenceChords.values());
+    content.get().putAll(clonedProgramSequenceChordVoicings.values());
+    content.get().putAll(clonedProgramSequencePatterns.values());
+    content.get().putAll(clonedProgramSequencePatternEvents.values());
+    content.get().putAll(clonedProgramVoices.values());
+    content.get().putAll(clonedProgramVoiceTracks.values());
+
+    return program;
+  }
+
+  @SuppressWarnings("CollectionAddAllCanBeReplacedWithConstructor")
+  @Override
+  public ProgramSequence cloneProgramSequence(UUID fromId, String name) throws Exception {
+    var source = content.get().getProgramSequence(fromId).orElseThrow(() -> new NexusException("Program Sequence not found"));
+
+    // Clone Program
+    var sequence = entityFactory.clone(source);
+    sequence.setName(name);
+
+    // Prepare all maps of cloned sub-entities to avoid putting more than once to store
+    Map<UUID, ProgramSequenceBinding> clonedProgramSequenceBindings = new HashMap<>();
+    Map<UUID, ProgramSequenceBindingMeme> clonedProgramSequenceBindingMemes = new HashMap<>();
+    Map<UUID, ProgramSequenceChord> clonedProgramSequenceChords = new HashMap<>();
+    Map<UUID, ProgramSequenceChordVoicing> clonedProgramSequenceChordVoicings = new HashMap<>();
+    Map<UUID, ProgramSequencePattern> clonedProgramSequencePatterns = new HashMap<>();
+    Map<UUID, ProgramSequencePatternEvent> clonedProgramSequencePatternEvents = new HashMap<>();
+
+    // Clone the Program's Sequence's Patterns
+    var patterns = entityFactory.cloneAll(content.get().getPatternsOfSequence(fromId), Set.of(sequence));
+    clonedProgramSequencePatterns.putAll(patterns);
+
+    // Iterate through the cloned patterns and tracks and clone all the Program's Sequences' Patterns' Events
+    for (ProgramSequencePattern pattern : patterns.values()) {
+      for (ProgramVoiceTrack track : content.get().getTracksOfProgram(source.getProgramId())) {
+        clonedProgramSequencePatternEvents.putAll(entityFactory.cloneAll(content.get().getEventsOfPatternAndTrack(pattern.getId(), track.getId()), Set.of(pattern, track)));
+      }
+    }
+
+    // Clone the Program's Sequence's Bindings
+    var bindings = entityFactory.cloneAll(content.get().getBindingsOfSequence(fromId), Set.of(sequence));
+    clonedProgramSequenceBindings.putAll(bindings);
+
+    // Iterate through the cloned sequence's bindings
+    for (ProgramSequenceBinding binding : bindings.values()) {
+
+      // Clone the Program's Sequence's Bindings' Memes
+      clonedProgramSequenceBindingMemes.putAll(entityFactory.cloneAll(content.get().getMemesOfSequenceBinding(binding.getId()), Set.of(binding)));
+    }
+
+    // Clone the Program's Sequence's Chords
+    Map<UUID, ProgramSequenceChord> clonedChords = entityFactory.cloneAll(content.get().getChordsOfSequence(fromId), Set.of(sequence));
+
+    // Iterate through the cloned chords and clone the Program's Sequences' Chords' Voicings
+    for (ProgramSequenceChord chord : clonedChords.values()) {
+      for (ProgramVoice voice : content.get().getVoicesOfProgram(source.getProgramId())) {
+        clonedProgramSequenceChordVoicings.putAll(entityFactory.cloneAll(content.get().getVoicingsOfChordAndVoice(chord.getId(), voice.getId()), Set.of(chord, voice)));
+      }
+    }
+
+    // Put everything in the store and return the program
+    content.get().put(sequence);
+    content.get().putAll(clonedProgramSequenceBindings.values());
+    content.get().putAll(clonedProgramSequenceBindingMemes.values());
+    content.get().putAll(clonedProgramSequenceChords.values());
+    content.get().putAll(clonedProgramSequenceChordVoicings.values());
+    content.get().putAll(clonedProgramSequencePatterns.values());
+    content.get().putAll(clonedProgramSequencePatternEvents.values());
+
+    return sequence;
+  }
+
+  @Override
+  public ProgramSequencePattern cloneProgramSequencePattern(UUID fromId, String name) throws Exception {
+    var source = content.get().getProgramSequencePattern(fromId).orElseThrow(() -> new NexusException("Program Sequence Pattern not found"));
+
+    // Clone Program
+    var pattern = entityFactory.clone(source);
+    pattern.setName(name);
+
+    // Prepare all maps of cloned sub-entities to avoid putting more than once to store
+    Map<UUID, ProgramSequencePatternEvent> clonedProgramSequencePatternEvents = new HashMap<>();
+
+    // Iterate through the tracks and clone all the Program's Sequences' Patterns' Events
+    for (ProgramVoiceTrack track : content.get().getTracksOfProgram(source.getProgramId())) {
+      clonedProgramSequencePatternEvents.putAll(entityFactory.cloneAll(content.get().getEventsOfPatternAndTrack(pattern.getId(), track.getId()), Set.of(pattern, track)));
+    }
+
+    // Put everything in the store and return the program
+    content.get().putAll(clonedProgramSequencePatternEvents.values());
+
+    return pattern;
+  }
+
+  @Override
+  public Instrument cloneInstrument(UUID fromId, UUID libraryId, String name) throws Exception {
+    var source = content.get().getInstrument(fromId).orElseThrow(() -> new NexusException("Instrument not found"));
+
+    // Clone the Instrument
+    var instrument = entityFactory.clone(source);
+    instrument.setName(name);
+
+    // Clone the Instrument's Audios
+    var clonedAudios = entityFactory.cloneAll(content.get().getAudiosOfInstrument(fromId), Set.of(instrument));
+
+    // Clone the Instrument's Memes
+    var clonedMemes = entityFactory.cloneAll(content.get().getMemesOfInstrument(fromId), Set.of(instrument));
+
+    // Put everything in the store and return the instrument
+    content.get().put(instrument);
+    content.get().putAll(clonedMemes.values());
+    content.get().putAll(clonedAudios.values());
     return instrument;
   }
 

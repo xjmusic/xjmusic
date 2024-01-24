@@ -4,8 +4,11 @@ import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.nexus.NexusException;
 import io.xj.nexus.hub_client.HubClientAccess;
 import jakarta.annotation.Nullable;
 
@@ -184,4 +187,61 @@ public interface ProjectManager {
    @return the moved instrument
    */
   Instrument moveInstrument(UUID id, UUID libraryId) throws Exception;
+
+  /**
+   Clone a Template from a source template by id
+
+   @param fromId source template id
+   @param name   name of the new template
+   @return the new template
+   */
+  Template cloneTemplate(UUID fromId, String name) throws Exception;
+
+  /**
+   Clone a Library from a source library by id
+
+   @param fromId source library id
+   @param name   name of the new library
+   @return the new library
+   */
+  Library cloneLibrary(UUID fromId, String name) throws Exception;
+
+  /**
+   Clone a Program from a source program by id
+
+   @param fromId    source program id
+   @param libraryId new library id
+   @param name      name of the new program
+   @return the new program
+   */
+  Program cloneProgram(UUID fromId, UUID libraryId, String name) throws Exception;
+
+  /**
+   Clone a Program Sequence from a source program sequence by id
+
+   @param fromId source program sequence id
+   @param name   name of the new program sequence
+   @return the new program sequence
+   */
+  ProgramSequence cloneProgramSequence(UUID fromId, String name) throws Exception;
+
+  /**
+   Clone a Program Sequence Pattern from a source program sequence pattern by id
+
+   @param fromId source program sequence pattern id
+   @param name   name of the new program sequence pattern
+   @return the new program sequence pattern
+   */
+  ProgramSequencePattern cloneProgramSequencePattern(UUID fromId, String name) throws Exception;
+
+  /**
+   Clone a Instrument from a source instrument by id
+
+   @param fromId    source instrument id
+   @param libraryId new library id
+   @param name      name of the new instrument
+   @return the new instrument
+   */
+  Instrument cloneInstrument(UUID fromId, UUID libraryId, String name) throws Exception;
 }
+

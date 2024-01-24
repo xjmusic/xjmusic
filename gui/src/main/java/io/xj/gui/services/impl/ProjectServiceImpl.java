@@ -94,7 +94,6 @@ public class ProjectServiceImpl implements ProjectService {
   private final int maxRecentProjects;
   private final LabService labService;
   private final ProjectManager projectManager;
-  private final EntityFactory entityFactory;
   private final JsonProvider jsonProvider;
 
   public ProjectServiceImpl(
@@ -106,7 +105,6 @@ public class ProjectServiceImpl implements ProjectService {
     this.labService = labService;
     this.projectManager = projectManager;
     this.jsonProvider = new JsonProviderImpl();
-    this.entityFactory = new EntityFactoryImpl(jsonProvider);
     attachPreferenceListeners();
     setAllFromPreferencesOrDefaults();
 
@@ -401,18 +399,35 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public Template cloneTemplate(UUID id, String name) {
-    try {
-      entityFactory.setAllEmptyAttributes(source, clone);
-      projectManager.getContent().put(clone);
-      projectManager.cloneAllTemplateBindings(source, clone);
-      projectManager.notifyProjectUpdateListeners(ProjectUpdate.Templates);
-      LOG.info("Cloned template \"{}\"", name);
-      return clone;
+  public Template cloneTemplate(UUID fromId, String name) throws Exception {
+    var template = projectManager.cloneTemplate(fromId, name);
+    notifyProjectUpdateListeners(ProjectUpdate.Templates);
+    LOG.info("Cloned template to \"{}\"", name);
+    return template;
+  }
 
-    } catch (Exception e) {
-      LOG.error("Failed to clone Template!", e);
-    }
+  @Override
+  public Library cloneLibrary(UUID fromId, String name) throws Exception {
+    var library = projectManager.cloneLibrary(fromId, name);
+    projectManager.notifyProjectUpdateListeners(ProjectUpdate.Libraries);
+    LOG.info("Cloned library to \"{}\"", name);
+    return library;
+  }
+
+  @Override
+  public Program cloneProgram(UUID fromId, UUID libraryId, String name) throws Exception {
+    var program = projectManager.cloneProgram(fromId, libraryId, name);
+    notifyProjectUpdateListeners(ProjectUpdate.Programs);
+    LOG.info("Cloned program to \"{}\"", name);
+    return program;
+  }
+
+  @Override
+  public Instrument cloneInstrument(UUID fromId, UUID libraryId, String name) throws Exception {
+    var instrument = projectManager.cloneInstrument(fromId, libraryId, name);
+    notifyProjectUpdateListeners(ProjectUpdate.Instruments);
+    LOG.info("Cloned instrument to \"{}\"", name);
+    return instrument;
   }
 
   /**

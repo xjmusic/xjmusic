@@ -13,7 +13,6 @@ import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.util.StringUtils;
-import io.xj.nexus.work.ShipWorkImpl;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -176,11 +175,11 @@ public class CmdModalController extends ReadyAfterBootModalController {
               uiStateService.editLibrary(library.getId());
             }
             case Program -> {
-              var program = projectService.cloneProgram(currentId.get(), parentLibrary.get(), name.getValue());
+              var program = projectService.cloneProgram(currentId.get(), parentLibrary.get().getId(), name.getValue());
               uiStateService.editProgram(program.getId());
             }
             case Instrument -> {
-              var instrument = projectService.cloneInstrument(currentId.get(), parentLibrary.get(), name.getValue());
+              var instrument = projectService.cloneInstrument(currentId.get(), parentLibrary.get().getId(), name.getValue());
               uiStateService.editInstrument(instrument.getId());
             }
           }

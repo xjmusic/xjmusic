@@ -252,38 +252,38 @@ public interface ProjectService {
   /**
    Clone the given template with a new nam
 
-   @param id   clone from template
-   @param name the new name
+   @param fromId clone from template
+   @param name   the new name
    @return the new template
    */
-  Template cloneTemplate(UUID id, String name);
+  Template cloneTemplate(UUID fromId, String name) throws Exception;
 
   /**
    Clone the given library with a new name
 
-   @param id   clone from library
-   @param name the new name
+   @param fromId clone from library
+   @param name   the new name
    @return the new library
    */
-  Library cloneLibrary(UUID id, String name);
+  Library cloneLibrary(UUID fromId, String name) throws Exception;
 
   /**
    Clone the given program with a new name
 
-   @param id      clone from program
-   @param library the library
-   @param name    the new name
+   @param fromId    clone from program
+   @param libraryId the new library id
+   @param name      the new name
    @return the new program
    */
-  Program cloneProgram(UUID id, Library library, String name);
+  Program cloneProgram(UUID fromId, UUID libraryId, String name) throws Exception;
 
   /**
    Clone the given instrument with a new name
 
-   @param id      clone from instrument
-   @param library the library
-   @param name    the new name
+   @param fromId    clone from instrument
+   @param libraryId the new library id
+   @param name      the new name
    @return the new instrument
    */
-  Instrument cloneInstrument(UUID id, Library library, String name);
+  Instrument cloneInstrument(UUID fromId, UUID libraryId, String name) throws Exception;
 }
