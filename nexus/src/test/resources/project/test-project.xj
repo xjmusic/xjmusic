@@ -1,0 +1,1221 @@
+{
+  "errors": [
+    {
+      "cause": null,
+      "stackTrace": [
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "setUp",
+          "fileName": "HubContentTest.java",
+          "lineNumber": 173,
+          "nativeMethod": false,
+          "className": "io.xj.hub.HubContentTest"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": "java.base",
+          "moduleVersion": "17.0.8.1",
+          "methodName": "invoke0",
+          "fileName": "NativeMethodAccessorImpl.java",
+          "lineNumber": -2,
+          "nativeMethod": true,
+          "className": "jdk.internal.reflect.NativeMethodAccessorImpl"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": "java.base",
+          "moduleVersion": "17.0.8.1",
+          "methodName": "invoke",
+          "fileName": "NativeMethodAccessorImpl.java",
+          "lineNumber": 77,
+          "nativeMethod": false,
+          "className": "jdk.internal.reflect.NativeMethodAccessorImpl"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": "java.base",
+          "moduleVersion": "17.0.8.1",
+          "methodName": "invoke",
+          "fileName": "DelegatingMethodAccessorImpl.java",
+          "lineNumber": 43,
+          "nativeMethod": false,
+          "className": "jdk.internal.reflect.DelegatingMethodAccessorImpl"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": "java.base",
+          "moduleVersion": "17.0.8.1",
+          "methodName": "invoke",
+          "fileName": "Method.java",
+          "lineNumber": 568,
+          "nativeMethod": false,
+          "className": "java.lang.reflect.Method"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "invokeMethod",
+          "fileName": "ReflectionUtils.java",
+          "lineNumber": 728,
+          "nativeMethod": false,
+          "className": "org.junit.platform.commons.util.ReflectionUtils"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "proceed",
+          "fileName": "MethodInvocation.java",
+          "lineNumber": 60,
+          "nativeMethod": false,
+          "className": "org.junit.jupiter.engine.execution.MethodInvocation"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "proceed",
+          "fileName": "InvocationInterceptorChain.java",
+          "lineNumber": 131,
+          "nativeMethod": false,
+          "className": "org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "intercept",
+          "fileName": "TimeoutExtension.java",
+          "lineNumber": 156,
+          "nativeMethod": false,
+          "className": "org.junit.jupiter.engine.extension.TimeoutExtension"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "interceptLifecycleMethod",
+          "fileName": "TimeoutExtension.java",
+          "lineNumber": 128,
+          "nativeMethod": false,
+          "className": "org.junit.jupiter.engine.extension.TimeoutExtension"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "interceptBeforeEachMethod",
+          "fileName": "TimeoutExtension.java",
+          "lineNumber": 78,
+          "nativeMethod": false,
+          "className": "org.junit.jupiter.engine.extension.TimeoutExtension"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "lambda$ofVoidMethod$0",
+          "fileName": "InterceptingExecutableInvoker.java",
+          "lineNumber": 103,
+          "nativeMethod": false,
+          "className": "org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "lambda$invoke$0",
+          "fileName": "InterceptingExecutableInvoker.java",
+          "lineNumber": 93,
+          "nativeMethod": false,
+          "className": "org.junit.jupiter.engine.execution.InterceptingExecutableInvoker"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "proceed",
+          "fileName": "InvocationInterceptorChain.java",
+          "lineNumber": 106,
+          "nativeMethod": false,
+          "className": "org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "proceed",
+          "fileName": "InvocationInterceptorChain.java",
+          "lineNumber": 64,
+          "nativeMethod": false,
+          "className": "org.junit.jupiter.engine.execution.InvocationInterceptorChain"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "chainAndInvoke",
+          "fileName": "InvocationInterceptorChain.java",
+          "lineNumber": 45,
+          "nativeMethod": false,
+          "className": "org.junit.jupiter.engine.execution.InvocationInterceptorChain"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "invoke",
+          "fileName": "InvocationInterceptorChain.java",
+          "lineNumber": 37,
+          "nativeMethod": false,
+          "className": "org.junit.jupiter.engine.execution.InvocationInterceptorChain"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "invoke",
+          "fileName": "InterceptingExecutableInvoker.java",
+          "lineNumber": 92,
+          "nativeMethod": false,
+          "className": "org.junit.jupiter.engine.execution.InterceptingExecutableInvoker"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "invoke",
+          "fileName": "InterceptingExecutableInvoker.java",
+          "lineNumber": 86,
+          "nativeMethod": false,
+          "className": "org.junit.jupiter.engine.execution.InterceptingExecutableInvoker"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "invokeMethodInExtensionContext",
+          "fileName": "ClassBasedTestDescriptor.java",
+          "lineNumber": 521,
+          "nativeMethod": false,
+          "className": "org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "lambda$synthesizeBeforeEachMethodAdapter$23",
+          "fileName": "ClassBasedTestDescriptor.java",
+          "lineNumber": 506,
+          "nativeMethod": false,
+          "className": "org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "lambda$invokeBeforeEachMethods$3",
+          "fileName": "TestMethodTestDescriptor.java",
+          "lineNumber": 175,
+          "nativeMethod": false,
+          "className": "org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "lambda$invokeBeforeMethodsOrCallbacksUntilExceptionOccurs$6",
+          "fileName": "TestMethodTestDescriptor.java",
+          "lineNumber": 203,
+          "nativeMethod": false,
+          "className": "org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "ThrowableCollector.java",
+          "lineNumber": 73,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.ThrowableCollector"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "invokeBeforeMethodsOrCallbacksUntilExceptionOccurs",
+          "fileName": "TestMethodTestDescriptor.java",
+          "lineNumber": 203,
+          "nativeMethod": false,
+          "className": "org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "invokeBeforeEachMethods",
+          "fileName": "TestMethodTestDescriptor.java",
+          "lineNumber": 172,
+          "nativeMethod": false,
+          "className": "org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "TestMethodTestDescriptor.java",
+          "lineNumber": 135,
+          "nativeMethod": false,
+          "className": "org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "TestMethodTestDescriptor.java",
+          "lineNumber": 69,
+          "nativeMethod": false,
+          "className": "org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "lambda$executeRecursively$6",
+          "fileName": "NodeTestTask.java",
+          "lineNumber": 151,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.NodeTestTask"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "ThrowableCollector.java",
+          "lineNumber": 73,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.ThrowableCollector"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "lambda$executeRecursively$8",
+          "fileName": "NodeTestTask.java",
+          "lineNumber": 141,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.NodeTestTask"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "around",
+          "fileName": "Node.java",
+          "lineNumber": 137,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.Node"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "lambda$executeRecursively$9",
+          "fileName": "NodeTestTask.java",
+          "lineNumber": 139,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.NodeTestTask"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "ThrowableCollector.java",
+          "lineNumber": 73,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.ThrowableCollector"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "executeRecursively",
+          "fileName": "NodeTestTask.java",
+          "lineNumber": 138,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.NodeTestTask"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "NodeTestTask.java",
+          "lineNumber": 95,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.NodeTestTask"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": "java.base",
+          "moduleVersion": "17.0.8.1",
+          "methodName": "forEach",
+          "fileName": "ArrayList.java",
+          "lineNumber": 1511,
+          "nativeMethod": false,
+          "className": "java.util.ArrayList"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "invokeAll",
+          "fileName": "SameThreadHierarchicalTestExecutorService.java",
+          "lineNumber": 41,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "lambda$executeRecursively$6",
+          "fileName": "NodeTestTask.java",
+          "lineNumber": 155,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.NodeTestTask"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "ThrowableCollector.java",
+          "lineNumber": 73,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.ThrowableCollector"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "lambda$executeRecursively$8",
+          "fileName": "NodeTestTask.java",
+          "lineNumber": 141,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.NodeTestTask"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "around",
+          "fileName": "Node.java",
+          "lineNumber": 137,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.Node"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "lambda$executeRecursively$9",
+          "fileName": "NodeTestTask.java",
+          "lineNumber": 139,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.NodeTestTask"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "ThrowableCollector.java",
+          "lineNumber": 73,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.ThrowableCollector"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "executeRecursively",
+          "fileName": "NodeTestTask.java",
+          "lineNumber": 138,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.NodeTestTask"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "NodeTestTask.java",
+          "lineNumber": 95,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.NodeTestTask"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": "java.base",
+          "moduleVersion": "17.0.8.1",
+          "methodName": "forEach",
+          "fileName": "ArrayList.java",
+          "lineNumber": 1511,
+          "nativeMethod": false,
+          "className": "java.util.ArrayList"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "invokeAll",
+          "fileName": "SameThreadHierarchicalTestExecutorService.java",
+          "lineNumber": 41,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "lambda$executeRecursively$6",
+          "fileName": "NodeTestTask.java",
+          "lineNumber": 155,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.NodeTestTask"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "ThrowableCollector.java",
+          "lineNumber": 73,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.ThrowableCollector"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "lambda$executeRecursively$8",
+          "fileName": "NodeTestTask.java",
+          "lineNumber": 141,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.NodeTestTask"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "around",
+          "fileName": "Node.java",
+          "lineNumber": 137,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.Node"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "lambda$executeRecursively$9",
+          "fileName": "NodeTestTask.java",
+          "lineNumber": 139,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.NodeTestTask"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "ThrowableCollector.java",
+          "lineNumber": 73,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.ThrowableCollector"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "executeRecursively",
+          "fileName": "NodeTestTask.java",
+          "lineNumber": 138,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.NodeTestTask"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "NodeTestTask.java",
+          "lineNumber": 95,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.NodeTestTask"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "submit",
+          "fileName": "SameThreadHierarchicalTestExecutorService.java",
+          "lineNumber": 35,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "HierarchicalTestExecutor.java",
+          "lineNumber": 57,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "HierarchicalTestEngine.java",
+          "lineNumber": 54,
+          "nativeMethod": false,
+          "className": "org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "EngineExecutionOrchestrator.java",
+          "lineNumber": 107,
+          "nativeMethod": false,
+          "className": "org.junit.platform.launcher.core.EngineExecutionOrchestrator"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "EngineExecutionOrchestrator.java",
+          "lineNumber": 88,
+          "nativeMethod": false,
+          "className": "org.junit.platform.launcher.core.EngineExecutionOrchestrator"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "lambda$execute$0",
+          "fileName": "EngineExecutionOrchestrator.java",
+          "lineNumber": 54,
+          "nativeMethod": false,
+          "className": "org.junit.platform.launcher.core.EngineExecutionOrchestrator"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "withInterceptedStreams",
+          "fileName": "EngineExecutionOrchestrator.java",
+          "lineNumber": 67,
+          "nativeMethod": false,
+          "className": "org.junit.platform.launcher.core.EngineExecutionOrchestrator"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "EngineExecutionOrchestrator.java",
+          "lineNumber": 52,
+          "nativeMethod": false,
+          "className": "org.junit.platform.launcher.core.EngineExecutionOrchestrator"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "DefaultLauncher.java",
+          "lineNumber": 114,
+          "nativeMethod": false,
+          "className": "org.junit.platform.launcher.core.DefaultLauncher"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "DefaultLauncher.java",
+          "lineNumber": 86,
+          "nativeMethod": false,
+          "className": "org.junit.platform.launcher.core.DefaultLauncher"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "DefaultLauncherSession.java",
+          "lineNumber": 86,
+          "nativeMethod": false,
+          "className": "org.junit.platform.launcher.core.DefaultLauncherSession$DelegatingLauncher"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "processAllTestClasses",
+          "fileName": "JUnitPlatformTestClassProcessor.java",
+          "lineNumber": 110,
+          "nativeMethod": false,
+          "className": "org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestClassProcessor$CollectAllTestClassesExecutor"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "access$000",
+          "fileName": "JUnitPlatformTestClassProcessor.java",
+          "lineNumber": 90,
+          "nativeMethod": false,
+          "className": "org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestClassProcessor$CollectAllTestClassesExecutor"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "stop",
+          "fileName": "JUnitPlatformTestClassProcessor.java",
+          "lineNumber": 85,
+          "nativeMethod": false,
+          "className": "org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestClassProcessor"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "stop",
+          "fileName": "SuiteTestClassProcessor.java",
+          "lineNumber": 62,
+          "nativeMethod": false,
+          "className": "org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": "java.base",
+          "moduleVersion": "17.0.8.1",
+          "methodName": "invoke0",
+          "fileName": "NativeMethodAccessorImpl.java",
+          "lineNumber": -2,
+          "nativeMethod": true,
+          "className": "jdk.internal.reflect.NativeMethodAccessorImpl"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": "java.base",
+          "moduleVersion": "17.0.8.1",
+          "methodName": "invoke",
+          "fileName": "NativeMethodAccessorImpl.java",
+          "lineNumber": 77,
+          "nativeMethod": false,
+          "className": "jdk.internal.reflect.NativeMethodAccessorImpl"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": "java.base",
+          "moduleVersion": "17.0.8.1",
+          "methodName": "invoke",
+          "fileName": "DelegatingMethodAccessorImpl.java",
+          "lineNumber": 43,
+          "nativeMethod": false,
+          "className": "jdk.internal.reflect.DelegatingMethodAccessorImpl"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": "java.base",
+          "moduleVersion": "17.0.8.1",
+          "methodName": "invoke",
+          "fileName": "Method.java",
+          "lineNumber": 568,
+          "nativeMethod": false,
+          "className": "java.lang.reflect.Method"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "dispatch",
+          "fileName": "ReflectionDispatch.java",
+          "lineNumber": 36,
+          "nativeMethod": false,
+          "className": "org.gradle.internal.dispatch.ReflectionDispatch"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "dispatch",
+          "fileName": "ReflectionDispatch.java",
+          "lineNumber": 24,
+          "nativeMethod": false,
+          "className": "org.gradle.internal.dispatch.ReflectionDispatch"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "dispatch",
+          "fileName": "ContextClassLoaderDispatch.java",
+          "lineNumber": 33,
+          "nativeMethod": false,
+          "className": "org.gradle.internal.dispatch.ContextClassLoaderDispatch"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "invoke",
+          "fileName": "ProxyDispatchAdapter.java",
+          "lineNumber": 94,
+          "nativeMethod": false,
+          "className": "org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": "jdk.proxy1",
+          "moduleVersion": null,
+          "methodName": "stop",
+          "fileName": null,
+          "lineNumber": -1,
+          "nativeMethod": false,
+          "className": "jdk.proxy1.$Proxy2"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "run",
+          "fileName": "TestWorker.java",
+          "lineNumber": 193,
+          "nativeMethod": false,
+          "className": "org.gradle.api.internal.tasks.testing.worker.TestWorker$3"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "executeAndMaintainThreadName",
+          "fileName": "TestWorker.java",
+          "lineNumber": 129,
+          "nativeMethod": false,
+          "className": "org.gradle.api.internal.tasks.testing.worker.TestWorker"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "TestWorker.java",
+          "lineNumber": 100,
+          "nativeMethod": false,
+          "className": "org.gradle.api.internal.tasks.testing.worker.TestWorker"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "TestWorker.java",
+          "lineNumber": 60,
+          "nativeMethod": false,
+          "className": "org.gradle.api.internal.tasks.testing.worker.TestWorker"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "execute",
+          "fileName": "ActionExecutionWorker.java",
+          "lineNumber": 56,
+          "nativeMethod": false,
+          "className": "org.gradle.process.internal.worker.child.ActionExecutionWorker"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "call",
+          "fileName": "SystemApplicationClassLoaderWorker.java",
+          "lineNumber": 113,
+          "nativeMethod": false,
+          "className": "org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker"
+        },
+        {
+          "classLoaderName": null,
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "call",
+          "fileName": "SystemApplicationClassLoaderWorker.java",
+          "lineNumber": 65,
+          "nativeMethod": false,
+          "className": "org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "run",
+          "fileName": "GradleWorkerMain.java",
+          "lineNumber": 69,
+          "nativeMethod": false,
+          "className": "worker.org.gradle.process.internal.worker.GradleWorkerMain"
+        },
+        {
+          "classLoaderName": "app",
+          "moduleName": null,
+          "moduleVersion": null,
+          "methodName": "main",
+          "fileName": "GradleWorkerMain.java",
+          "lineNumber": 74,
+          "nativeMethod": false,
+          "className": "worker.org.gradle.process.internal.worker.GradleWorkerMain"
+        }
+      ],
+      "message": "test",
+      "suppressed": [],
+      "localizedMessage": "test"
+    }
+  ],
+  "programs": [
+    {
+      "id": "28d2208b-0a5f-44d5-9096-cc4157c36fb3",
+      "libraryId": "aa613771-358d-4960-b5de-690ff6fd3a55",
+      "state": "Published",
+      "key": "C#",
+      "tempo": 120.4,
+      "type": "Main",
+      "name": "leaves",
+      "density": 0.5,
+      "config": null,
+      "isDeleted": null,
+      "updatedAt": 1706076228129
+    },
+    {
+      "id": "7ad65895-27b8-453d-84f1-ef2a2a2f09eb",
+      "libraryId": "aa613771-358d-4960-b5de-690ff6fd3a55",
+      "state": "Published",
+      "key": "F#",
+      "tempo": 110.3,
+      "type": "Beat",
+      "name": "coconuts",
+      "density": 0.6,
+      "config": null,
+      "isDeleted": null,
+      "updatedAt": 1706076228129
+    }
+  ],
+  "programMemes": [
+    {
+      "id": "8734580d-6121-4891-b9e2-8de877874b47",
+      "name": "Ants",
+      "programId": "28d2208b-0a5f-44d5-9096-cc4157c36fb3"
+    },
+    {
+      "id": "3bb62183-0925-41a2-8f14-74e22aa1a06a",
+      "name": "Bells",
+      "programId": "7ad65895-27b8-453d-84f1-ef2a2a2f09eb"
+    }
+  ],
+  "instrumentMemes": [
+    {
+      "id": "8e0a4a41-21a4-49e3-8429-f880f34b9140",
+      "instrumentId": "9097d757-ae8f-4d68-b449-8ec96602ca83",
+      "name": "Ants"
+    },
+    {
+      "id": "87dd1ba2-0c58-4b8e-8887-29ece3791bd4",
+      "instrumentId": "5cd9560b-e577-4f71-b263-ccf604b3bb30",
+      "name": "Peanuts"
+    }
+  ],
+  "templates": [
+    {
+      "id": "4823ad0a-6ac5-442f-b0d0-6d7fd706f2b8",
+      "projectId": "23bcaded-2186-4697-912e-5f47bae9e9a0",
+      "name": "test2",
+      "config": "deltaArcEnabled = false\n",
+      "shipKey": "4d95d742-e641-415b-b6fc-4861d062b05f",
+      "isDeleted": null,
+      "updatedAt": 1706076228129
+    },
+    {
+      "id": "6cfd24de-dc92-436e-9a7e-def8c9e2d351",
+      "projectId": "23bcaded-2186-4697-912e-5f47bae9e9a0",
+      "name": "test1",
+      "config": "deltaArcEnabled = false\n",
+      "shipKey": "07799456-6fbc-4f6c-8543-0f42235410b2",
+      "isDeleted": null,
+      "updatedAt": 1706076228129
+    }
+  ],
+  "instruments": [
+    {
+      "id": "5cd9560b-e577-4f71-b263-ccf604b3bb30",
+      "libraryId": "aa613771-358d-4960-b5de-690ff6fd3a55",
+      "type": "Pad",
+      "state": "Published",
+      "name": "Pad",
+      "density": 0.6,
+      "config": null,
+      "isDeleted": null,
+      "volume": null,
+      "mode": "Chord",
+      "updatedAt": 1706076228129
+    },
+    {
+      "id": "9097d757-ae8f-4d68-b449-8ec96602ca83",
+      "libraryId": "aa613771-358d-4960-b5de-690ff6fd3a55",
+      "type": "Drum",
+      "state": "Published",
+      "name": "808 Drums",
+      "density": 0.6,
+      "config": null,
+      "isDeleted": null,
+      "volume": null,
+      "mode": "Event",
+      "updatedAt": 1706076228129
+    }
+  ],
+  "libraries": [
+    {
+      "id": "aa613771-358d-4960-b5de-690ff6fd3a55",
+      "name": "leaves",
+      "projectId": "23bcaded-2186-4697-912e-5f47bae9e9a0",
+      "isDeleted": null,
+      "updatedAt": 1706076228129
+    }
+  ],
+  "projects": [
+    {
+      "id": "23bcaded-2186-4697-912e-5f47bae9e9a0",
+      "name": "testing",
+      "updatedAt": 1706076228129
+    }
+  ],
+  "programVoices": [
+    {
+      "id": "4a03f763-5bba-42ff-b0fc-f4e703d62ba8",
+      "programId": "7ad65895-27b8-453d-84f1-ef2a2a2f09eb",
+      "type": "Drum",
+      "name": "Drums",
+      "order": null
+    },
+    {
+      "id": "10756a50-8109-4510-9320-facb55c85abd",
+      "programId": "28d2208b-0a5f-44d5-9096-cc4157c36fb3",
+      "type": "Stripe",
+      "name": "Birds",
+      "order": null
+    }
+  ],
+  "users": [
+    {
+      "id": "68849bb8-4fd8-417b-a461-4c4bbfa99e7b",
+      "name": "Test Person",
+      "email": null,
+      "avatarUrl": null,
+      "isAdmin": null
+    }
+  ],
+  "projectUsers": [
+    {
+      "id": "5aa73b96-c42b-4255-87ea-3f0ece823e7e",
+      "userId": "68849bb8-4fd8-417b-a461-4c4bbfa99e7b",
+      "projectId": "23bcaded-2186-4697-912e-5f47bae9e9a0",
+      "role": null
+    }
+  ],
+  "programSequences": [
+    {
+      "id": "d1be946c-ea2c-4f74-a9df-18a659b99fc8",
+      "programId": "28d2208b-0a5f-44d5-9096-cc4157c36fb3",
+      "name": "decay",
+      "key": "F#",
+      "density": 0.25,
+      "total": 8
+    },
+    {
+      "id": "2ff1c4e0-0f45-4457-900d-c7efef699e86",
+      "programId": "7ad65895-27b8-453d-84f1-ef2a2a2f09eb",
+      "name": "Base",
+      "key": "C",
+      "density": 0.5,
+      "total": 16
+    }
+  ],
+  "programSequenceChords": [
+    {
+      "id": "461a97d0-3e28-49b9-b727-512160d92bfd",
+      "programId": "28d2208b-0a5f-44d5-9096-cc4157c36fb3",
+      "programSequenceId": "d1be946c-ea2c-4f74-a9df-18a659b99fc8",
+      "name": "G minor",
+      "position": 0.0
+    },
+    {
+      "id": "151a815a-803b-42f2-84b8-2afb9293df24",
+      "programId": "28d2208b-0a5f-44d5-9096-cc4157c36fb3",
+      "programSequenceId": "d1be946c-ea2c-4f74-a9df-18a659b99fc8",
+      "name": "A minor",
+      "position": 2.0
+    }
+  ],
+  "programSequenceChordVoicings": [
+    {
+      "id": "66900b64-16d5-45d9-8a19-e7ba1342b4de",
+      "programId": "28d2208b-0a5f-44d5-9096-cc4157c36fb3",
+      "programSequenceChordId": "461a97d0-3e28-49b9-b727-512160d92bfd",
+      "notes": "Bb",
+      "programVoiceId": "10756a50-8109-4510-9320-facb55c85abd"
+    },
+    {
+      "id": "162a47a5-cce7-4514-b52f-aa00517e50d1",
+      "programId": "28d2208b-0a5f-44d5-9096-cc4157c36fb3",
+      "programSequenceChordId": "461a97d0-3e28-49b9-b727-512160d92bfd",
+      "notes": "G",
+      "programVoiceId": "10756a50-8109-4510-9320-facb55c85abd"
+    }
+  ],
+  "templateBindings": [
+    {
+      "id": "2bf8a7e2-5cc3-498a-9193-65387ec9b06d",
+      "type": "Library",
+      "templateId": "6cfd24de-dc92-436e-9a7e-def8c9e2d351",
+      "targetId": "aa613771-358d-4960-b5de-690ff6fd3a55"
+    }
+  ],
+  "instrumentAudios": [
+    {
+      "id": "c0071d8f-ace6-4ebc-b4b8-db6d77b225c0",
+      "instrumentId": "9097d757-ae8f-4d68-b449-8ec96602ca83",
+      "name": "Chords Cm to D",
+      "waveformKey": "a0b9f74kf9b4h8d9e0g73k107s09f7-g0e73982.wav",
+      "transientSeconds": 0.01,
+      "totalBeats": 2.123,
+      "tempo": 120.0,
+      "density": 0.62,
+      "event": "KICK",
+      "volume": 1.0,
+      "tones": "Eb"
+    },
+    {
+      "id": "99d5655f-85cd-49b2-85c7-046ef08c15ce",
+      "instrumentId": "5cd9560b-e577-4f71-b263-ccf604b3bb30",
+      "name": "Chord Fm",
+      "waveformKey": "a0b9fg73k107s74kf9b4h8d9e009f7-g0e73982.wav",
+      "transientSeconds": 0.02,
+      "totalBeats": 1.123,
+      "tempo": 140.0,
+      "density": 0.52,
+      "event": "BING",
+      "volume": 0.9,
+      "tones": "F,A,C"
+    }
+  ],
+  "programSequencePatternEvents": [
+    {
+      "id": "bd44bb07-8ad4-46c7-833d-2b9b92406e13",
+      "programId": "7ad65895-27b8-453d-84f1-ef2a2a2f09eb",
+      "programSequencePatternId": "9ed7fbaa-540e-4539-b886-8788caf3dbff",
+      "programVoiceTrackId": "a36e41ac-2c2f-4953-a4bc-75a0167eab52",
+      "velocity": 0.9,
+      "position": 0.5,
+      "duration": 1.1,
+      "tones": "D"
+    },
+    {
+      "id": "2e88cbcb-d324-4b0e-b6de-9cc6dd3b2560",
+      "programId": "7ad65895-27b8-453d-84f1-ef2a2a2f09eb",
+      "programSequencePatternId": "9ed7fbaa-540e-4539-b886-8788caf3dbff",
+      "programVoiceTrackId": "e89c48da-d704-4702-aea9-d46e56600e7f",
+      "velocity": 1.0,
+      "position": 0.0,
+      "duration": 1.0,
+      "tones": "C"
+    }
+  ],
+  "programSequencePatterns": [
+    {
+      "id": "9ed7fbaa-540e-4539-b886-8788caf3dbff",
+      "programId": "7ad65895-27b8-453d-84f1-ef2a2a2f09eb",
+      "programSequenceId": "2ff1c4e0-0f45-4457-900d-c7efef699e86",
+      "programVoiceId": "4a03f763-5bba-42ff-b0fc-f4e703d62ba8",
+      "name": "growth",
+      "total": 16
+    },
+    {
+      "id": "0457d46f-5d6c-495e-a3e8-8bb9740cee18",
+      "programId": "7ad65895-27b8-453d-84f1-ef2a2a2f09eb",
+      "programSequenceId": "2ff1c4e0-0f45-4457-900d-c7efef699e86",
+      "programVoiceId": "4a03f763-5bba-42ff-b0fc-f4e703d62ba8",
+      "name": "decay",
+      "total": 12
+    }
+  ],
+  "programSequenceBindings": [
+    {
+      "id": "16fb741f-2302-4589-84a2-760e22f1bcd2",
+      "programId": "28d2208b-0a5f-44d5-9096-cc4157c36fb3",
+      "programSequenceId": "d1be946c-ea2c-4f74-a9df-18a659b99fc8",
+      "offset": 5
+    },
+    {
+      "id": "6e7bd963-d695-4269-9613-856b46db74b3",
+      "programId": "28d2208b-0a5f-44d5-9096-cc4157c36fb3",
+      "programSequenceId": "d1be946c-ea2c-4f74-a9df-18a659b99fc8",
+      "offset": 0
+    }
+  ],
+  "programVoiceTracks": [
+    {
+      "id": "e89c48da-d704-4702-aea9-d46e56600e7f",
+      "programId": "7ad65895-27b8-453d-84f1-ef2a2a2f09eb",
+      "programVoiceId": "4a03f763-5bba-42ff-b0fc-f4e703d62ba8",
+      "name": "BOOM",
+      "order": null
+    },
+    {
+      "id": "a36e41ac-2c2f-4953-a4bc-75a0167eab52",
+      "programId": "7ad65895-27b8-453d-84f1-ef2a2a2f09eb",
+      "programVoiceId": "4a03f763-5bba-42ff-b0fc-f4e703d62ba8",
+      "name": "SMACK",
+      "order": null
+    }
+  ],
+  "programSequenceBindingMemes": [
+    {
+      "id": "8c6b71b0-a2a6-4db2-a94f-ac3014b021b2",
+      "programId": "28d2208b-0a5f-44d5-9096-cc4157c36fb3",
+      "programSequenceBindingId": "6e7bd963-d695-4269-9613-856b46db74b3",
+      "name": "Road"
+    },
+    {
+      "id": "224c8d49-d0c9-499b-a903-6dfb440a4e40",
+      "programId": "28d2208b-0a5f-44d5-9096-cc4157c36fb3",
+      "programSequenceBindingId": "6e7bd963-d695-4269-9613-856b46db74b3",
+      "name": "Gravel"
+    }
+  ]
+}
