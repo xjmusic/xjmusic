@@ -2,14 +2,13 @@
 
 package io.xj.gui.services;
 
+import io.xj.gui.services.impl.LabServiceImpl;
 import javafx.application.HostServices;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.prefs.Preferences;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -22,11 +21,13 @@ public class LabServiceImplTest {
 
   @BeforeEach
   public void setUp() {
-    subject = new LabServiceImpl(hostServices,
+    subject = new LabServiceImpl(
+      hostServices,
       "https://lab.test.xj.io/",
       "https://audio.test.xj.io/",
       "https://ship.test.xj.io/",
-      "https://stream.test.xj.io/"
+      "https://stream.test.xj.io/",
+      false
     );
   }
 

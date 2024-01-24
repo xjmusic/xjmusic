@@ -4,7 +4,7 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
-import io.xj.gui.services.LabStatus;
+import io.xj.gui.services.LabState;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.work.WorkState;
 import javafx.beans.value.ObservableValue;
@@ -68,13 +68,13 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
     buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
 
-    fabricationService.statusProperty().addListener(this::handleFabricationStatusChange);
+    fabricationService.stateProperty().addListener(this::handleFabricationStatusChange);
 
-    labService.statusProperty().addListener(this::handleLabStatusChange);
+    labService.stateProperty().addListener(this::handleLabStatusChange);
 
     labelFabricationStatus.textProperty().bind(uiStateService.fabricationStatusTextProperty());
 
-    labelLabStatus.textProperty().bind(labService.statusProperty().map(Enum::toString));
+    labelLabStatus.textProperty().bind(labService.stateProperty().map(Enum::toString));
 
     progressBarFabrication.progressProperty().bind(fabricationService.progressProperty());
     progressBarFabrication.visibleProperty().bind(uiStateService.isProgressBarVisibleProperty());
@@ -113,7 +113,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     }
   }
 
-  private void handleLabStatusChange(ObservableValue<? extends LabStatus> observable, LabStatus prior, LabStatus newValue) {
+  private void handleLabStatusChange(ObservableValue<? extends LabState> observable, LabState prior, LabState newValue) {
     switch (newValue) {
       case Offline -> buttonLab.getStyleClass().removeAll("button-active", "button-pending", "button-failed");
       case Connecting, Configuring -> {

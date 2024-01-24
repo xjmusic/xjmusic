@@ -26,11 +26,8 @@ import java.io.File;
 public class ModalFabricationSettingsController extends ReadyAfterBootModalController {
 
   static final String FABRICATION_SERVICE_WINDOW_NAME = "Fabrication Settings";
-  private final Resource modalFabricationSettingsFxml;
-  private final ConfigurableApplicationContext ac;
   private final LabService labService;
   private final FabricationService fabricationService;
-  private final ThemeService themeService;
   private final UIStateService uiStateService;
 
   @FXML
@@ -79,18 +76,16 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   public Button buttonReset;
 
   public ModalFabricationSettingsController(
-    @Value("classpath:/views/modal-fabrication-settings.fxml") Resource modalFabricationSettingsFxml,
+    @Value("classpath:/views/modal-fabrication-settings.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
     LabService labService,
     FabricationService fabricationService,
     ThemeService themeService,
     UIStateService uiStateService
   ) {
-    this.modalFabricationSettingsFxml = modalFabricationSettingsFxml;
-    this.ac = ac;
+    super(ac, themeService, fxml);
     this.labService = labService;
     this.fabricationService = fabricationService;
-    this.themeService = themeService;
     this.uiStateService = uiStateService;
   }
 
@@ -148,8 +143,8 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   }
 
   @Override
-  void launchModal() {
-    doLaunchModal(ac, themeService, modalFabricationSettingsFxml, FABRICATION_SERVICE_WINDOW_NAME);
+  public void launchModal() {
+    createAndShowModal(FABRICATION_SERVICE_WINDOW_NAME);
   }
 
   /**

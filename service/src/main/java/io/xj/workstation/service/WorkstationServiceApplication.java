@@ -3,8 +3,35 @@
 package io.xj.workstation.service;
 
 import io.xj.hub.HubConfiguration;
-import io.xj.nexus.InputMode;
+import io.xj.hub.HubTopology;
+import io.xj.hub.entity.EntityFactory;
+import io.xj.hub.entity.EntityFactoryImpl;
+import io.xj.hub.json.JsonProvider;
+import io.xj.hub.json.JsonProviderImpl;
+import io.xj.hub.jsonapi.JsonapiPayloadFactory;
+import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.nexus.NexusTopology;
+import io.xj.nexus.audio_cache.AudioCache;
+import io.xj.nexus.audio_cache.AudioCacheImpl;
+import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.craft.CraftFactoryImpl;
+import io.xj.nexus.fabricator.FabricatorFactory;
+import io.xj.nexus.fabricator.FabricatorFactoryImpl;
+import io.xj.nexus.http.HttpClientProvider;
+import io.xj.nexus.http.HttpClientProviderImpl;
+import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubClientAccess;
+import io.xj.nexus.hub_client.HubClientImpl;
+import io.xj.nexus.mixer.EnvelopeProvider;
+import io.xj.nexus.mixer.EnvelopeProviderImpl;
+import io.xj.nexus.mixer.MixerFactory;
+import io.xj.nexus.mixer.MixerFactoryImpl;
+import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.ship.broadcast.BroadcastFactory;
+import io.xj.nexus.ship.broadcast.BroadcastFactoryImpl;
+import io.xj.nexus.telemetry.Telemetry;
+import io.xj.nexus.telemetry.TelemetryImpl;
 import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkManager;
 import io.xj.nexus.work.WorkManagerImpl;
@@ -20,8 +47,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.event.EventListener;
 
-import java.util.Locale;
-
 @SpringBootApplication
 @ComponentScan(
   basePackages = {
@@ -32,7 +57,6 @@ public class WorkstationServiceApplication {
   final Logger LOG = LoggerFactory.getLogger(WorkstationServiceApplication.class);
   final WorkManager workManager;
   final ApplicationContext context;
-  final InputMode inputMode;
   final String inputTemplateKey;
   private final String ingestToken;
   private final String audioBaseUrl;
@@ -44,30 +68,56 @@ public class WorkstationServiceApplication {
   @Autowired
   public WorkstationServiceApplication(
     ApplicationContext context,
-    @Value("${input.mode}") String inputMode,
-    @Value("${input.template.key}") String inputTemplateKey,
-    @Value("${ingest.token}") String ingestToken,
     @Value("${audio.base.url}") String audioBaseUrl,
+    @Value("${ingest.token}") String ingestToken,
+    @Value("${input.template.key}") String inputTemplateKey,
     @Value("${lab.base.url}") String labBaseUrl,
     @Value("${ship.base.url}") String shipBaseUrl,
     @Value("${stream.base.url}") String streamBaseUrl
   ) {
-    this.context = context;
-    this.inputMode = InputMode.valueOf(inputMode.toUpperCase(Locale.ROOT));
-    this.inputTemplateKey = inputTemplateKey;
-    this.ingestToken = ingestToken;
     this.audioBaseUrl = audioBaseUrl;
+    this.context = context;
+    this.ingestToken = ingestToken;
+    this.inputTemplateKey = inputTemplateKey;
     this.labBaseUrl = labBaseUrl;
     this.shipBaseUrl = shipBaseUrl;
     this.streamBaseUrl = streamBaseUrl;
-    this.workManager = WorkManagerImpl.createInstance();
+
+    HttpClientProvider httpClientProvider = new HttpClientProviderImpl();
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
+    BroadcastFactory broadcastFactory = new BroadcastFactoryImpl();
+    Telemetry telemetry = new TelemetryImpl();
+    CraftFactory craftFactory = new CraftFactoryImpl();
+    AudioCache audioCache = new AudioCacheImpl(httpClientProvider);
+    NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
+    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
+      nexusEntityStore,
+      jsonapiPayloadFactory,
+      jsonProvider
+    );
+    EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
+    MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
+    HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
+    HubTopology.buildHubApiTopology(entityFactory);
+    NexusTopology.buildNexusApiTopology(entityFactory);
+    workManager = new WorkManagerImpl(
+      telemetry,
+      broadcastFactory,
+      craftFactory,
+      audioCache,
+      fabricatorFactory,
+      hubClient,
+      mixerFactory,
+      nexusEntityStore
+    );
   }
 
   @EventListener(ApplicationStartedEvent.class)
   public void start() {
     var workConfig = new WorkConfiguration()
-      .setInputMode(inputMode)
-      .setInputTemplateKey(inputTemplateKey);
+      .setInputTemplateKey(null); // FUTURE: read template
 
     var hubConfig = new HubConfiguration()
       .setApiBaseUrl(labBaseUrl)

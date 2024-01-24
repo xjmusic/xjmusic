@@ -53,7 +53,7 @@ public class BeatCraftImpl extends DetailCraftImpl implements BeatCraft {
         .map(ProgramVoice::getName)
         .orElse("Unknown");
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.Beat.equals(choice.getProgramType());
-    var programNames = fabricator.sourceMaterial().getVoicesForProgram(program.get()).stream()
+    var programNames = fabricator.sourceMaterial().getVoicesOfProgram(program.get()).stream()
       .map(ProgramVoice::getName)
       .collect(Collectors.toList());
     precomputeDeltas(
@@ -70,12 +70,12 @@ public class BeatCraftImpl extends DetailCraftImpl implements BeatCraft {
 
     // voice arrangements
     if (sequence.isPresent()) {
-      var voices = fabricator.sourceMaterial().getVoicesForProgram(program.get());
+      var voices = fabricator.sourceMaterial().getVoicesOfProgram(program.get());
       if (voices.isEmpty())
         reportMissing(ProgramVoice.class,
           String.format("in Beat-choice Program[%s]", program.get().getId()));
 
-      craftNoteEvents(fabricator.getTempo(), sequence.get(), voices, voice -> chooseFreshInstrument(List.of(voice.getType()), List.of(InstrumentMode.Event), List.of(), voice.getName(), fabricator.sourceMaterial().getTrackNamesForVoice(voice)), true);
+      craftNoteEvents(fabricator.getTempo(), sequence.get(), voices, voice -> chooseFreshInstrument(List.of(voice.getType()), List.of(InstrumentMode.Event), List.of(), voice.getName(), fabricator.sourceMaterial().getTrackNamesOfVoice(voice)), true);
     }
   }
 

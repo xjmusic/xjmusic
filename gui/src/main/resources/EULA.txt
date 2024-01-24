@@ -1,0 +1,74 @@
+End-User License Agreement (EULA) for the XJ music workstation
+
+This End-User License Agreement ("EULA") is a legal agreement between you (either an individual or an entity) and XJ Music Inc., regarding the use of the "XJ music workstation" software ("the Software"). Please read this agreement carefully before using the Software.
+
+1. License Grant
+
+XJ Music Inc. grants you a non-exclusive, non-transferable, limited license to use the Software in accordance with the terms and conditions of this EULA.
+
+2. Permitted Usage
+
+2.1 You may use the Software for personal, commercial, or educational purposes.
+
+2.2 You may install and use the Software on a single computer or device.
+
+3. Restrictions on Use
+
+3.1 You may not sublicense, sell, rent, lease, or distribute the Software.
+
+3.2 You may not modify, adapt, translate, reverse engineer, decompile, disassemble, or create derivative works based on the Software.
+
+4. Intellectual Property Rights
+
+4.1 The Software is protected by copyright and other intellectual property laws and treaties.
+
+4.2 You acknowledge that all rights, title, and interest in and to the Software and any modifications, enhancements, or derivatives thereof are owned exclusively by XJ Music Inc.
+
+5. Updates and Support
+
+5.1 XJ Music Inc. may provide updates, bug fixes, and support for the Software at its discretion.
+
+5.2 You are encouraged to regularly check for updates to the Software and install them to ensure optimal performance.
+
+6. Privacy and Data Collection
+
+6.1 The Software may collect certain information necessary for its operation and improvement. Please refer to the Privacy Policy for details on data collection and usage.
+
+7. Termination
+
+7.1 This EULA is effective until terminated.
+
+7.2 XJ Music Inc. reserves the right to terminate this license at any time for any reason.
+
+7.3 Upon termination, you must cease using the Software and destroy all copies of the Software in your possession.
+
+8. Disclaimer of Warranty
+
+8.1 The Software is provided "as is" without warranty of any kind, express or implied.
+
+8.2 XJ Music Inc. disclaims all warranties, including but not limited to the implied warranties of merchantability, fitness for a particular purpose, and non-infringement.
+
+9. Limitation of Liability
+
+9.1 In no event shall XJ Music Inc. be liable for any damages arising out of the use or inability to use the Software.
+
+9.2 XJ Music Inc. shall not be liable for any indirect, consequential, special, incidental, or punitive damages.
+
+10. Governing Law
+
+This EULA shall be governed by and construed in accordance with the laws of the United States. Any disputes arising under or in connection with this EULA shall be subject to the exclusive jurisdiction of the courts located in the United States and the State of California.
+
+11. Entire Agreement
+
+This EULA constitutes the entire agreement between you and XJ Music Inc. concerning the Software and supersedes all prior agreements and understandings.
+
+By using the Software, you acknowledge that you have read, understood, and agree to be bound by the terms and conditions of this EULA.
+
+For inquiries or questions regarding this EULA, please contact:
+
+XJ music
+7190 W. Sunset Blvd #72
+Los Angeles, CA 90046
+212-960-8811
+legal@xjmusic.com
+

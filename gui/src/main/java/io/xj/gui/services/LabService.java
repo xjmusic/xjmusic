@@ -26,7 +26,7 @@ public interface LabService {
 
   ObjectProperty<HubConfiguration> hubConfigProperty();
 
-  ObjectProperty<LabStatus> statusProperty();
+  ObjectProperty<LabState> stateProperty();
 
   StringProperty baseUrlProperty();
 

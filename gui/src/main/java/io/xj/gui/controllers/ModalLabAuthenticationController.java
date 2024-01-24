@@ -3,7 +3,7 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.services.LabService;
-import io.xj.gui.services.LabStatus;
+import io.xj.gui.services.LabState;
 import io.xj.gui.services.ThemeService;
 import io.xj.hub.tables.pojos.User;
 import javafx.beans.binding.Bindings;
@@ -27,20 +27,17 @@ import java.util.Objects;
 
 @Service
 public class ModalLabAuthenticationController extends ReadyAfterBootModalController {
-  static final List<LabStatus> BUTTON_CONNECT_ACTIVE_IN_LAB_STATES = Arrays.asList(
-    LabStatus.Authenticated,
-    LabStatus.Unauthorized,
-    LabStatus.Failed,
-    LabStatus.Offline
+  static final List<LabState> BUTTON_CONNECT_ACTIVE_IN_LAB_STATES = Arrays.asList(
+    LabState.Authenticated,
+    LabState.Unauthorized,
+    LabState.Failed,
+    LabState.Offline
   );
   static final String CONNECT_TO_LAB_WINDOW_NAME = "Lab Authentication";
   static final String BUTTON_DISCONNECT_TEXT = "Disconnect";
   static final String BUTTON_CONNECT_TEXT = "Connect";
   private static final Integer USER_AVATAR_SIZE = 120;
-  final ConfigurableApplicationContext ac;
-  final Resource modalLabAuthenticationFxml;
   final LabService labService;
-  final ThemeService themeService;
 
   @FXML
   public Button buttonClose;
@@ -67,30 +64,28 @@ public class ModalLabAuthenticationController extends ReadyAfterBootModalControl
   Text textUserEmail;
 
   public ModalLabAuthenticationController(
-    @Value("classpath:/views/modal-lab-authentication.fxml") Resource modalLabAuthenticationFxml,
+    @Value("classpath:/views/modal-lab-authentication.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
     LabService labService,
     ThemeService themeService
   ) {
-    this.ac = ac;
-    this.modalLabAuthenticationFxml = modalLabAuthenticationFxml;
+    super(ac, themeService, fxml);
     this.labService = labService;
-    this.themeService = themeService;
   }
 
   @Override
   public void onStageReady() {
     buttonConnect.disableProperty().bind(Bindings.createBooleanBinding(() ->
-        BUTTON_CONNECT_ACTIVE_IN_LAB_STATES.contains(labService.statusProperty().get()),
-      labService.statusProperty()).not());
+        BUTTON_CONNECT_ACTIVE_IN_LAB_STATES.contains(labService.stateProperty().get()),
+      labService.stateProperty()).not());
 
     buttonConnect.textProperty().bind(Bindings.createStringBinding(() ->
-        labService.statusProperty().get() == LabStatus.Authenticated ? BUTTON_DISCONNECT_TEXT : BUTTON_CONNECT_TEXT,
-      labService.statusProperty()));
+        labService.stateProperty().get() == LabState.Authenticated ? BUTTON_DISCONNECT_TEXT : BUTTON_CONNECT_TEXT,
+      labService.stateProperty()));
 
     fieldLabUrl.textProperty().bindBidirectional(labService.baseUrlProperty());
     fieldLabAccessToken.textProperty().bindBidirectional(labService.accessTokenProperty());
-    labelStatus.textProperty().bind(labService.statusProperty().asString());
+    labelStatus.textProperty().bind(labService.stateProperty().asString());
 
     textUserName.textProperty().bind(Bindings.createStringBinding(() -> {
       User user = labService.authenticatedUserProperty().get();
@@ -134,7 +129,7 @@ public class ModalLabAuthenticationController extends ReadyAfterBootModalControl
 
   @FXML
   void handleConnect() {
-    if (labService.statusProperty().get() == LabStatus.Authenticated) {
+    if (labService.stateProperty().get() == LabState.Authenticated) {
       labService.disconnect();
     } else {
       labService.connect();
@@ -142,7 +137,7 @@ public class ModalLabAuthenticationController extends ReadyAfterBootModalControl
   }
 
   @Override
-  void launchModal() {
-    doLaunchModal(ac, themeService, modalLabAuthenticationFxml, CONNECT_TO_LAB_WINDOW_NAME);
+  public void launchModal() {
+    createAndShowModal(CONNECT_TO_LAB_WINDOW_NAME);
   }
 }

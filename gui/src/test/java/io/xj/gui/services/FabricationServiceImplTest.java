@@ -2,6 +2,7 @@
 
 package io.xj.gui.services;
 
+import io.xj.gui.services.impl.FabricationServiceImpl;
 import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Project;

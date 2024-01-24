@@ -139,7 +139,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     demoSelectionSpace.fitHeightProperty().bind(demoImageHeight);
     demoSelectionSpace.fitWidthProperty().bind(demoImageWidth);
 
-    fabricationService.statusProperty().addListener((ignored1, ignored2, status) -> handleUpdateFabricationStatus(status));
+    fabricationService.stateProperty().addListener((ignored1, ignored2, status) -> handleUpdateFabricationStatus(status));
 
     resetTimeline();
   }

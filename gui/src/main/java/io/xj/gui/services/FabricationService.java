@@ -38,7 +38,7 @@ import java.util.UUID;
 
 public interface FabricationService {
 
-  ObjectProperty<WorkState> statusProperty();
+  ObjectProperty<WorkState> stateProperty();
 
   StringProperty inputTemplateKeyProperty();
 

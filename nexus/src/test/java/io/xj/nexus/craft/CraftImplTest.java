@@ -179,15 +179,15 @@ public class CraftImplTest {
     //
     when(sourceMaterial.getInstrument(eq(instrument1.getId()))).thenReturn(Optional.of(instrument1));
     when(sourceMaterial.getInstrument(eq(instrument2.getId()))).thenReturn(Optional.of(instrument2));
-    when(sourceMaterial.getAudiosForInstrumentTypesAndModes(eq(List.of(InstrumentType.Percussion)), eq(List.of(InstrumentMode.Loop)))).thenReturn(List.of(instrument1audio, instrument2audio));
+    when(sourceMaterial.getAudiosOfInstrumentTypesAndModes(eq(List.of(InstrumentType.Percussion)), eq(List.of(InstrumentMode.Loop)))).thenReturn(List.of(instrument1audio, instrument2audio));
     when(fabricator.getMemeIsometryOfSegment()).thenReturn(MemeIsometry.of(MemeTaxonomy.empty(), List.of("70BPM")));
-    when(sourceMaterial.getMemesForInstrumentId(eq(instrument1.getId()))).thenReturn(List.of(instrument1meme));
-    when(sourceMaterial.getMemesForInstrumentId(eq(instrument2.getId()))).thenReturn(List.of(instrument2meme));
+    when(sourceMaterial.getMemesOfInstrument(eq(instrument1.getId()))).thenReturn(List.of(instrument1meme));
+    when(sourceMaterial.getMemesOfInstrument(eq(instrument2.getId()))).thenReturn(List.of(instrument2meme));
     when(sourceMaterial.getInstrumentAudio(eq(instrument1audio.getId()))).thenReturn(Optional.of(instrument1audio));
 
     var result = subject.chooseFreshInstrumentAudio(List.of(InstrumentType.Percussion), List.of(InstrumentMode.Loop), List.of(instrument1audio.getInstrumentId()), List.of("PRIMARY"));
 
-    verify(sourceMaterial, times(1)).getMemesForInstrumentId(eq(instrument1.getId()));
+    verify(sourceMaterial, times(1)).getMemesOfInstrument(eq(instrument1.getId()));
     assertTrue(result.isPresent());
   }
 
@@ -238,7 +238,7 @@ public class CraftImplTest {
     InstrumentAudio instrument1audio1 = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", expectThis, 1.0f);
     InstrumentAudio instrument1audio2 = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", notThat, 1.0f);
     //
-    when(sourceMaterial.getAudiosForInstrument(same(instrument1))).thenReturn(List.of(instrument1audio1, instrument1audio2));
+    when(sourceMaterial.getAudiosOfInstrument(same(instrument1))).thenReturn(List.of(instrument1audio1, instrument1audio2));
     when(sourceMaterial.getInstrumentAudio(eq(instrument1audio1.getId()))).thenReturn(Optional.of(instrument1audio1));
 
     for (var i = 0; i < TEST_REPEAT_TIMES; i++) {

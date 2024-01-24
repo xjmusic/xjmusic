@@ -30,6 +30,7 @@ module workstation.nexus.main {
   requires transitive hub.models.main;
 
   // export
+  exports io.xj.nexus.audio_cache;
   exports io.xj.nexus.craft.background;
   exports io.xj.nexus.craft.beat;
   exports io.xj.nexus.craft.detail;
@@ -38,15 +39,10 @@ module workstation.nexus.main {
   exports io.xj.nexus.craft.perc_loop;
   exports io.xj.nexus.craft.transition;
   exports io.xj.nexus.craft;
-  exports io.xj.nexus.audio_cache;
-  exports io.xj.nexus.entity.common;
-  exports io.xj.nexus.entity;
   exports io.xj.nexus.fabricator;
   exports io.xj.nexus.http;
   exports io.xj.nexus.hub_client.access;
   exports io.xj.nexus.hub_client;
-  exports io.xj.nexus.json;
-  exports io.xj.nexus.jsonapi;
   exports io.xj.nexus.mixer;
   exports io.xj.nexus.model;
   exports io.xj.nexus.persistence;

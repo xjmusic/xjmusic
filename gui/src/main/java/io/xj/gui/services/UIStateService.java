@@ -6,6 +6,7 @@ import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableStringValue;
 
 /**
  This is an intermediary to compute the state of the UI based on the state of the application.
@@ -60,4 +61,9 @@ public interface UIStateService extends ReadyAfterBootController {
    @return Observable property of whether the fabrication is active and in manual mode;
    */
   BooleanBinding isManualFabricationActiveProperty();
+
+  /**
+   @return the window title
+   */
+  ObservableStringValue windowTitleProperty();
 }
