@@ -45,6 +45,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -342,11 +343,12 @@ public class ProjectManagerImpl implements ProjectManager {
   @SuppressWarnings("CollectionAddAllCanBeReplacedWithConstructor")
   @Override
   public Program cloneProgram(UUID fromId, UUID libraryId, String name) throws Exception {
-    var source = content.get().getProgram(fromId).orElseThrow(() -> new NexusException("Program not found"));
+    var program = content.get().getProgram(fromId).orElseThrow(() -> new NexusException("Program not found"));
 
     // Clone Program
-    var program = entityFactory.clone(source);
-    program.setName(name);
+    var clonedProgram = entityFactory.clone(program);
+    clonedProgram.setLibraryId(libraryId);
+    clonedProgram.setName(name);
 
     // Prepare all maps of cloned sub-entities to avoid putting more than once to store
     Map<UUID, ProgramMeme> clonedProgramMemes = new HashMap<>();
@@ -361,59 +363,70 @@ public class ProjectManagerImpl implements ProjectManager {
     Map<UUID, ProgramVoiceTrack> clonedProgramVoiceTracks = new HashMap<>();
 
     // Clone the Program's Sequences
-    clonedProgramSequences.putAll(entityFactory.cloneAll(content.get().getSequencesOfProgram(fromId), Set.of(program)));
+    var sequences = content.get().getSequencesOfProgram(fromId);
+    clonedProgramSequences.putAll(entityFactory.cloneAll(sequences, Set.of(clonedProgram)));
 
     // Clone the Program's Memes
-    clonedProgramMemes.putAll(entityFactory.cloneAll(content.get().getMemesOfProgram(fromId), Set.of(program)));
+    clonedProgramMemes.putAll(entityFactory.cloneAll(content.get().getMemesOfProgram(fromId), Set.of(clonedProgram)));
 
     // Clone the Program's Voices
-    clonedProgramVoices.putAll(entityFactory.cloneAll(content.get().getVoicesOfProgram(fromId), Set.of(program)));
+    var voices = content.get().getVoicesOfProgram(fromId);
+    clonedProgramVoices.putAll(entityFactory.cloneAll(voices, Set.of(clonedProgram)));
 
     // Iterate through the cloned voices and clone all the Program's Voice's Tracks
-    for (ProgramVoice voice : clonedProgramVoices.values()) {
-      clonedProgramVoiceTracks.putAll(entityFactory.cloneAll(content.get().getTracksOfVoice(voice.getId()), Set.of(program, voice)));
+    Collection<ProgramVoiceTrack> tracks = content.get().getTracksOfProgram(fromId);
+    for (ProgramVoice voice : voices) {
+      var clonedVoice = clonedProgramVoices.get(voice.getId());
+      clonedProgramVoiceTracks.putAll(entityFactory.cloneAll(content.get().getTracksOfVoice(voice.getId()), Set.of(clonedProgram, clonedVoice)));
     }
 
     // Iterate through the cloned sequences
-    for (ProgramSequence sequence : clonedProgramSequences.values()) {
+    for (ProgramSequence sequence : sequences) {
+      var clonedSequence = clonedProgramSequences.get(sequence.getId());
 
       // Clone the Program's Sequence's Patterns
-      var patterns = entityFactory.cloneAll(content.get().getPatternsOfSequence(sequence.getId()), Set.of(program, sequence));
-      clonedProgramSequencePatterns.putAll(patterns);
+      var patterns = content.get().getPatternsOfSequence(sequence.getId());
+      var clonedPatterns = entityFactory.cloneAll(patterns, Set.of(clonedProgram, clonedSequence));
+      clonedProgramSequencePatterns.putAll(clonedPatterns);
 
       // Iterate through the cloned patterns and tracks and clone all the Program's Sequences' Patterns' Events
-      for (ProgramSequencePattern pattern : patterns.values()) {
-        for (ProgramVoiceTrack track : clonedProgramVoiceTracks.values()) {
-          clonedProgramSequencePatternEvents.putAll(entityFactory.cloneAll(content.get().getEventsOfPatternAndTrack(pattern.getId(), track.getId()), Set.of(program, pattern, track)));
+      for (ProgramSequencePattern pattern : patterns) {
+        var clonedPattern = clonedPatterns.get(pattern.getId());
+        for (ProgramVoiceTrack track : tracks) {
+          var clonedTrack = clonedProgramVoiceTracks.get(track.getId());
+          clonedProgramSequencePatternEvents.putAll(entityFactory.cloneAll(content.get().getEventsOfPatternAndTrack(pattern.getId(), track.getId()), Set.of(clonedProgram, clonedPattern, clonedTrack)));
         }
       }
 
       // Clone the Program's Sequence's Bindings
-      var bindings = entityFactory.cloneAll(content.get().getBindingsOfSequence(sequence.getId()), Set.of(program, sequence));
-      clonedProgramSequenceBindings.putAll(bindings);
+      var bindings = content.get().getBindingsOfSequence(sequence.getId());
+      clonedProgramSequenceBindings.putAll(entityFactory.cloneAll(bindings, Set.of(clonedProgram, clonedSequence)));
 
       // Iterate through the cloned sequence's bindings
-      for (ProgramSequenceBinding binding : bindings.values()) {
+      for (ProgramSequenceBinding binding : bindings) {
+        var clonedBinding = clonedProgramSequenceBindings.get(binding.getId());
 
         // Clone the Program's Sequence's Bindings' Memes
-        clonedProgramSequenceBindingMemes.putAll(entityFactory.cloneAll(content.get().getMemesOfSequenceBinding(binding.getId()), Set.of(program, binding)));
+        clonedProgramSequenceBindingMemes.putAll(entityFactory.cloneAll(content.get().getMemesOfSequenceBinding(binding.getId()), Set.of(clonedProgram, clonedBinding)));
       }
-    }
 
-    // Iterate through the cloned sequences and clone the Program's Sequence's Chords
-    for (ProgramSequence sequence : clonedProgramSequences.values()) {
-      Map<UUID, ProgramSequenceChord> clonedChords = entityFactory.cloneAll(content.get().getChordsOfSequence(sequence.getId()), Set.of(program, sequence));
+      // Clone the Program's Sequence's Chords
+      var chords = content.get().getChordsOfSequence(sequence.getId());
+      Map<UUID, ProgramSequenceChord> clonedChords = entityFactory.cloneAll(chords, Set.of(clonedProgram, clonedSequence));
+      clonedProgramSequenceChords.putAll(clonedChords);
 
       // Iterate through the cloned chords and clone the Program's Sequences' Chords' Voicings
-      for (ProgramSequenceChord chord : clonedChords.values()) {
-        for (ProgramVoice voice : clonedProgramVoices.values()) {
-          clonedProgramSequenceChordVoicings.putAll(entityFactory.cloneAll(content.get().getVoicingsOfChordAndVoice(chord.getId(), voice.getId()), Set.of(program, chord, voice)));
+      for (ProgramSequenceChord chord : chords) {
+        var clonedChord = clonedChords.get(chord.getId());
+        for (ProgramVoice voice : voices) {
+          var clonedVoice = clonedProgramVoices.get(voice.getId());
+          clonedProgramSequenceChordVoicings.putAll(entityFactory.cloneAll(content.get().getVoicingsOfChordAndVoice(chord.getId(), voice.getId()), Set.of(clonedProgram, clonedChord, clonedVoice)));
         }
       }
     }
 
     // Put everything in the store and return the program
-    content.get().put(program);
+    content.get().put(clonedProgram);
     content.get().putAll(clonedProgramMemes.values());
     content.get().putAll(clonedProgramSequences.values());
     content.get().putAll(clonedProgramSequenceBindings.values());
@@ -425,7 +438,7 @@ public class ProjectManagerImpl implements ProjectManager {
     content.get().putAll(clonedProgramVoices.values());
     content.get().putAll(clonedProgramVoiceTracks.values());
 
-    return program;
+    return clonedProgram;
   }
 
   @SuppressWarnings("CollectionAddAllCanBeReplacedWithConstructor")
@@ -434,8 +447,8 @@ public class ProjectManagerImpl implements ProjectManager {
     var source = content.get().getProgramSequence(fromId).orElseThrow(() -> new NexusException("Program Sequence not found"));
 
     // Clone Program
-    var sequence = entityFactory.clone(source);
-    sequence.setName(name);
+    var clonedSequence = entityFactory.clone(source);
+    clonedSequence.setName(name);
 
     // Prepare all maps of cloned sub-entities to avoid putting more than once to store
     Map<UUID, ProgramSequenceBinding> clonedProgramSequenceBindings = new HashMap<>();
@@ -446,39 +459,33 @@ public class ProjectManagerImpl implements ProjectManager {
     Map<UUID, ProgramSequencePatternEvent> clonedProgramSequencePatternEvents = new HashMap<>();
 
     // Clone the Program's Sequence's Patterns
-    var patterns = entityFactory.cloneAll(content.get().getPatternsOfSequence(fromId), Set.of(sequence));
-    clonedProgramSequencePatterns.putAll(patterns);
+    var patterns = content.get().getPatternsOfSequence(fromId);
+    clonedProgramSequencePatterns.putAll(entityFactory.cloneAll(patterns, Set.of(clonedSequence)));
 
     // Iterate through the cloned patterns and tracks and clone all the Program's Sequences' Patterns' Events
-    for (ProgramSequencePattern pattern : patterns.values()) {
+    for (ProgramSequencePattern pattern : patterns) {
+      var clonedPattern = clonedProgramSequencePatterns.get(pattern.getId());
       for (ProgramVoiceTrack track : content.get().getTracksOfProgram(source.getProgramId())) {
-        clonedProgramSequencePatternEvents.putAll(entityFactory.cloneAll(content.get().getEventsOfPatternAndTrack(pattern.getId(), track.getId()), Set.of(pattern, track)));
+        clonedProgramSequencePatternEvents.putAll(entityFactory.cloneAll(content.get().getEventsOfPatternAndTrack(pattern.getId(), track.getId()), Set.of(clonedPattern)));
       }
     }
 
-    // Clone the Program's Sequence's Bindings
-    var bindings = entityFactory.cloneAll(content.get().getBindingsOfSequence(fromId), Set.of(sequence));
-    clonedProgramSequenceBindings.putAll(bindings);
-
-    // Iterate through the cloned sequence's bindings
-    for (ProgramSequenceBinding binding : bindings.values()) {
-
-      // Clone the Program's Sequence's Bindings' Memes
-      clonedProgramSequenceBindingMemes.putAll(entityFactory.cloneAll(content.get().getMemesOfSequenceBinding(binding.getId()), Set.of(binding)));
-    }
-
     // Clone the Program's Sequence's Chords
-    Map<UUID, ProgramSequenceChord> clonedChords = entityFactory.cloneAll(content.get().getChordsOfSequence(fromId), Set.of(sequence));
+    var chords = content.get().getChordsOfSequence(fromId);
+    Map<UUID, ProgramSequenceChord> clonedChords = entityFactory.cloneAll(chords, Set.of(clonedSequence));
+    clonedProgramSequenceChords.putAll(clonedChords);
 
     // Iterate through the cloned chords and clone the Program's Sequences' Chords' Voicings
-    for (ProgramSequenceChord chord : clonedChords.values()) {
-      for (ProgramVoice voice : content.get().getVoicesOfProgram(source.getProgramId())) {
-        clonedProgramSequenceChordVoicings.putAll(entityFactory.cloneAll(content.get().getVoicingsOfChordAndVoice(chord.getId(), voice.getId()), Set.of(chord, voice)));
+    var voices = content.get().getVoicesOfProgram(source.getProgramId());
+    for (ProgramSequenceChord chord : chords) {
+      var clonedChord = clonedChords.get(chord.getId());
+      for (ProgramVoice voice : voices) {
+        clonedProgramSequenceChordVoicings.putAll(entityFactory.cloneAll(content.get().getVoicingsOfChordAndVoice(chord.getId(), voice.getId()), Set.of(clonedChord)));
       }
     }
 
     // Put everything in the store and return the program
-    content.get().put(sequence);
+    content.get().put(clonedSequence);
     content.get().putAll(clonedProgramSequenceBindings.values());
     content.get().putAll(clonedProgramSequenceBindingMemes.values());
     content.get().putAll(clonedProgramSequenceChords.values());
@@ -486,7 +493,7 @@ public class ProjectManagerImpl implements ProjectManager {
     content.get().putAll(clonedProgramSequencePatterns.values());
     content.get().putAll(clonedProgramSequencePatternEvents.values());
 
-    return sequence;
+    return clonedSequence;
   }
 
   @Override
@@ -494,21 +501,17 @@ public class ProjectManagerImpl implements ProjectManager {
     var source = content.get().getProgramSequencePattern(fromId).orElseThrow(() -> new NexusException("Program Sequence Pattern not found"));
 
     // Clone Program
-    var pattern = entityFactory.clone(source);
-    pattern.setName(name);
-
-    // Prepare all maps of cloned sub-entities to avoid putting more than once to store
-    Map<UUID, ProgramSequencePatternEvent> clonedProgramSequencePatternEvents = new HashMap<>();
+    var clonedPattern = entityFactory.clone(source);
+    clonedPattern.setName(name);
 
     // Iterate through the tracks and clone all the Program's Sequences' Patterns' Events
-    for (ProgramVoiceTrack track : content.get().getTracksOfProgram(source.getProgramId())) {
-      clonedProgramSequencePatternEvents.putAll(entityFactory.cloneAll(content.get().getEventsOfPatternAndTrack(pattern.getId(), track.getId()), Set.of(pattern, track)));
-    }
+    Map<UUID, ProgramSequencePatternEvent> clonedProgramSequencePatternEvents = new HashMap<>(entityFactory.cloneAll(content.get().getEventsOfPattern(source.getId()), Set.of(clonedPattern)));
 
     // Put everything in the store and return the program
+    content.get().put(clonedPattern);
     content.get().putAll(clonedProgramSequencePatternEvents.values());
 
-    return pattern;
+    return clonedPattern;
   }
 
   @Override
@@ -517,6 +520,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
     // Clone the Instrument
     var instrument = entityFactory.clone(source);
+    instrument.setLibraryId(libraryId);
     instrument.setName(name);
 
     // Clone the Instrument's Audios

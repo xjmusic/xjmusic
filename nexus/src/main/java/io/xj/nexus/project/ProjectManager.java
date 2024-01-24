@@ -218,6 +218,7 @@ public interface ProjectManager {
 
   /**
    Clone a Program Sequence from a source program sequence by id
+   Note: Does not clone the program sequence bindings (that would cause duplicate bindings at all the same offsets)
 
    @param fromId source program sequence id
    @param name   name of the new program sequence
