@@ -34,15 +34,16 @@ if (localPropertiesFile.exists()) {
 }
 
 // Determine the private packages username and password
-def privatePackagesUsername = localProperties.getProperty('repo.username') ?: System.getenv("REPO_USERNAME")
-def privatePackagesPassword = localProperties.getProperty('repo.token') ?: System.getenv("REPO_TOKEN")
+def privatePackagesUsername = localPropertiesFile.exists() ? localProperties.getProperty('repo.username') : System.getenv("REPO_USERNAME")
+def privatePackagesPassword = localPropertiesFile.exists() ? localProperties.getProperty('repo.token') : System.getenv("REPO_TOKEN")
 
 // Log the username and (masked) password
 println "+--------------------------------------------+"
 println "|   GitHub Private Packages Authentication   |"
 println "+--------------------------------------------+"
+println localPropertiesFile.exists() ? "Using gradle-local.properties" : "Using environment variables"
 println "Username: $privatePackagesUsername"
-def maskedPassword = privatePackagesPassword.replaceAll(/./, '*')
+def maskedPassword = privatePackagesPassword ? privatePackagesPassword.replaceAll(/./, '*') : null
 println "Password: $maskedPassword"
 
 allprojects {
