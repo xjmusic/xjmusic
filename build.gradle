@@ -26,11 +26,24 @@ ext {
   xjModelsVersion = '1.7.21'
 }
 
+// Load the local properties if present
 Properties localProperties = new Properties()
 def localPropertiesFile = project.rootProject.file('gradle-local.properties')
 if (localPropertiesFile.exists()) {
   localProperties.load(localPropertiesFile.newDataInputStream())
 }
+
+// Determine the private packages username and password
+def privatePackagesUsername = localProperties.getProperty('repo.username') ?: System.getenv("REPO_USERNAME")
+def privatePackagesPassword = localProperties.getProperty('repo.token') ?: System.getenv("REPO_TOKEN")
+
+// Log the username and (masked) password
+println "+--------------------------------------------+"
+println "|   GitHub Private Packages Authentication   |"
+println "+--------------------------------------------+"
+println "Username: $privatePackagesUsername"
+def maskedPassword = privatePackagesPassword.replaceAll(/./, '*')
+println "Password: $maskedPassword"
 
 allprojects {
   group = 'io.xj'
@@ -78,8 +91,8 @@ subprojects {
       name = "ReadPrivatePackages"
       url = uri("https://maven.pkg.github.com/xjmusic/hub")
       credentials {
-        username = localProperties.getProperty('repo.username') ?: System.getenv("REPO_USERNAME")
-        password = localProperties.getProperty('repo.token') ?: System.getenv("REPO_TOKEN")
+        username = privatePackagesUsername
+        password = privatePackagesPassword
       }
     }
     //org.pantelev mvn repo link
