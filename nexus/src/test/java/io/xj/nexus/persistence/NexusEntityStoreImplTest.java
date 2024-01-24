@@ -4,7 +4,6 @@ package io.xj.nexus.persistence;
 
 
 import io.xj.hub.HubTopology;
-import io.xj.hub.entity.EntityException;
 import io.xj.hub.entity.EntityFactory;
 import io.xj.hub.entity.EntityFactoryImpl;
 import io.xj.hub.enums.ProgramType;

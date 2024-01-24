@@ -1,9 +1,11 @@
 package io.xj.gui.services;
 
 import io.xj.hub.HubContent;
+import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
@@ -276,6 +278,24 @@ public interface ProjectService {
    @return the new program
    */
   Program cloneProgram(UUID fromId, UUID libraryId, String name) throws Exception;
+
+  /**
+   Clone the given program sequence with a new name
+
+   @param fromId    clone from program sequence
+   @param name      the new name
+   @return the new program
+   */
+  ProgramSequence cloneProgramSequence(UUID fromId, String name) throws Exception;
+
+  /**
+   Clone the given program sequence pattern with a new name
+
+   @param fromId    clone from program sequence pattern
+   @param name      the new name
+   @return the new program sequence pattern
+   */
+  ProgramSequencePattern cloneProgramSequencePattern(UUID fromId, String name) throws Exception;
 
   /**
    Clone the given instrument with a new name
