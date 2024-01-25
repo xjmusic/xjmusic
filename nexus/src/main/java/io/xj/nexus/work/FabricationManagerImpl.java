@@ -10,36 +10,16 @@ import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
-import io.xj.nexus.NexusTopology;
 import io.xj.nexus.audio_cache.AudioCache;
-import io.xj.nexus.audio_cache.AudioCacheImpl;
 import io.xj.nexus.craft.CraftFactory;
-import io.xj.nexus.craft.CraftFactoryImpl;
-import io.xj.hub.entity.EntityFactory;
-import io.xj.hub.entity.EntityFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.nexus.http.HttpClientProvider;
-import io.xj.nexus.http.HttpClientProviderImpl;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.nexus.hub_client.HubClientImpl;
 import io.xj.nexus.hub_client.HubContentProvider;
-import io.xj.hub.HubTopology;
-import io.xj.hub.json.JsonProvider;
-import io.xj.hub.json.JsonProviderImpl;
-import io.xj.hub.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.nexus.mixer.EnvelopeProvider;
-import io.xj.nexus.mixer.EnvelopeProviderImpl;
 import io.xj.nexus.mixer.MixerFactory;
-import io.xj.nexus.mixer.MixerFactoryImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.ship.broadcast.BroadcastFactory;
-import io.xj.nexus.ship.broadcast.BroadcastFactoryImpl;
 import io.xj.nexus.telemetry.Telemetry;
-import io.xj.nexus.telemetry.TelemetryImpl;
 import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,8 +38,8 @@ import java.util.function.Consumer;
 import static io.xj.hub.util.StringUtils.formatStackTrace;
 import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
-public class WorkManagerImpl implements WorkManager {
-  private static final Logger LOG = LoggerFactory.getLogger(WorkManagerImpl.class);
+public class FabricationManagerImpl implements FabricationManager {
+  private static final Logger LOG = LoggerFactory.getLogger(FabricationManagerImpl.class);
   private final BroadcastFactory broadcastFactory;
   private final CraftFactory craftFactory;
   private final AudioCache audioCache;
@@ -69,7 +49,7 @@ public class WorkManagerImpl implements WorkManager {
   private final NexusEntityStore entityStore;
   private final Telemetry telemetry;
   private final AtomicReference<HubContent> hubContent = new AtomicReference<>();
-  private final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Standby);
+  private final AtomicReference<FabricationState> state = new AtomicReference<>(FabricationState.Standby);
   private final AtomicBoolean isAudioLoaded = new AtomicBoolean(false);
   private final AtomicLong startedAtMillis = new AtomicLong(0);
   private final AtomicBoolean running = new AtomicBoolean(false);
@@ -84,7 +64,7 @@ public class WorkManagerImpl implements WorkManager {
   private ShipWork shipWork;
 
   @Nullable
-  private WorkConfiguration workConfig;
+  private FabricationSettings workConfig;
 
   @Nullable
   private HubConfiguration hubConfig;
@@ -96,12 +76,12 @@ public class WorkManagerImpl implements WorkManager {
   private Consumer<Float> onProgress;
 
   @Nullable
-  private Consumer<WorkState> onStateChange;
+  private Consumer<FabricationState> onStateChange;
 
   @Nullable
   private Runnable afterFinished;
 
-  public WorkManagerImpl(
+  public FabricationManagerImpl(
     Telemetry telemetry,
     BroadcastFactory broadcastFactory,
     CraftFactory craftFactory,
@@ -123,7 +103,7 @@ public class WorkManagerImpl implements WorkManager {
 
   @Override
   public void start(
-    WorkConfiguration workConfig,
+    FabricationSettings workConfig,
     HubConfiguration hubConfig,
     HubClientAccess hubAccess
   ) {
@@ -154,7 +134,7 @@ public class WorkManagerImpl implements WorkManager {
 
     startedAtMillis.set(System.currentTimeMillis());
     isAudioLoaded.set(false);
-    updateState(WorkState.Starting);
+    updateState(FabricationState.Starting);
     LOG.debug("Did update work state to Starting");
 
     running.set(true);
@@ -188,7 +168,7 @@ public class WorkManagerImpl implements WorkManager {
       shipWork.finish();
     }
 
-    updateState(cancelled ? WorkState.Cancelled : WorkState.Done);
+    updateState(cancelled ? FabricationState.Cancelled : FabricationState.Done);
     if (Objects.nonNull(afterFinished)) {
       afterFinished.run();
     }
@@ -197,13 +177,13 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public WorkState getWorkState() {
+  public FabricationState getWorkState() {
     return state.get();
   }
 
   @Override
   public boolean isHealthy() {
-    return getWorkState() != WorkState.Failed;
+    return getWorkState() != FabricationState.Failed;
   }
 
   @Override
@@ -212,7 +192,7 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public void setOnStateChange(@Nullable Consumer<WorkState> onStateChange) {
+  public void setOnStateChange(@Nullable Consumer<FabricationState> onStateChange) {
     this.onStateChange = onStateChange;
   }
 
@@ -300,15 +280,15 @@ public class WorkManagerImpl implements WorkManager {
   /**
    Update the current work state
 
-   @param workState work state
+   @param fabricationState work state
    */
-  private void updateState(WorkState workState) {
-    state.set(workState);
+  private void updateState(FabricationState fabricationState) {
+    state.set(fabricationState);
     if (Objects.nonNull(onStateChange)) {
-      onStateChange.accept(workState);
-      LOG.debug("Did update work state to {} and notify listener", workState);
+      onStateChange.accept(fabricationState);
+      LOG.debug("Did update work state to {} and notify listener", fabricationState);
     } else {
-      LOG.debug("Did update work state to {} but there is no listener to notify", workState);
+      LOG.debug("Did update work state to {} but there is no listener to notify", fabricationState);
     }
   }
 
@@ -321,35 +301,35 @@ public class WorkManagerImpl implements WorkManager {
       switch (state.get()) {
 
         case Starting -> {
-          updateState(WorkState.LoadingContent);
+          updateState(FabricationState.LoadingContent);
           startLoadingContent();
         }
 
         case LoadingContent -> {
           if (isContentLoaded()) {
-            updateState(WorkState.LoadedContent);
+            updateState(FabricationState.LoadedContent);
           }
         }
 
         case LoadedContent -> {
-          updateState(WorkState.PreparingAudio);
+          updateState(FabricationState.PreparingAudio);
           startLoadingAudio();
         }
 
         case PreparingAudio -> {
           if (isAudioLoaded()) {
-            updateState(WorkState.PreparedAudio);
+            updateState(FabricationState.PreparedAudio);
           }
         }
 
         case PreparedAudio -> {
-          updateState(WorkState.Initializing);
+          updateState(FabricationState.Initializing);
           initialize();
         }
 
         case Initializing -> {
           if (isInitialized()) {
-            updateState(WorkState.Active);
+            updateState(FabricationState.Active);
           }
         }
 
@@ -368,7 +348,7 @@ public class WorkManagerImpl implements WorkManager {
    Run the craft cycle
    */
   private void runCraftCycle() {
-    if (!Objects.equals(state.get(), WorkState.Active)) {
+    if (!Objects.equals(state.get(), FabricationState.Active)) {
       LOG.debug("Will not run craft cycle because work state is {}", state.get());
       return;
     }
@@ -394,7 +374,7 @@ public class WorkManagerImpl implements WorkManager {
    Run the dub cycle
    */
   private void runDubCycle() {
-    if (!Objects.equals(state.get(), WorkState.Active)) {
+    if (!Objects.equals(state.get(), FabricationState.Active)) {
       LOG.debug("Will not run dub cycle because work state is {}", state.get());
       return;
     }
@@ -416,7 +396,7 @@ public class WorkManagerImpl implements WorkManager {
    Run the ship cycle
    */
   private void runShipCycle() {
-    if (!Objects.equals(state.get(), WorkState.Active)) {
+    if (!Objects.equals(state.get(), FabricationState.Active)) {
       LOG.debug("Will not run ship cycle because work state is {}", state.get());
       return;
     }
@@ -433,7 +413,7 @@ public class WorkManagerImpl implements WorkManager {
     }
 
     if (shipWork.isFinished()) {
-      updateState(WorkState.Done);
+      updateState(FabricationState.Done);
       LOG.info("Fabrication work done");
     }
   }
@@ -501,7 +481,7 @@ public class WorkManagerImpl implements WorkManager {
           .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
           .sorted(Comparator.comparing(InstrumentAudio::getName))
           .toList()) {
-          if (!Objects.equals(state.get(), WorkState.PreparingAudio)) {
+          if (!Objects.equals(state.get(), FabricationState.PreparingAudio)) {
             // Workstation canceling preloading should cease resampling audio files https://www.pivotaltracker.com/story/show/186209135
             return;
           }
@@ -585,6 +565,6 @@ public class WorkManagerImpl implements WorkManager {
     if (Objects.nonNull(shipWork)) {
       shipWork.finish();
     }
-    updateState(WorkState.Failed);
+    updateState(FabricationState.Failed);
   }
 }

@@ -6,7 +6,7 @@ import io.xj.gui.services.LabService;
 import io.xj.gui.services.LabState;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.ControlMode;
-import io.xj.nexus.work.WorkState;
+import io.xj.nexus.work.FabricationState;
 import jakarta.annotation.Nullable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -147,7 +147,7 @@ public class UIStateServiceImpl implements UIStateService {
     if (Objects.isNull(isManualFabricationActive))
       isManualFabricationActive =
         fabricationService.controlModeProperty().isNotEqualTo(ControlMode.AUTO)
-          .and(fabricationService.stateProperty().isEqualTo(WorkState.Active));
+          .and(fabricationService.stateProperty().isEqualTo(FabricationState.Active));
 
     return isManualFabricationActive;
   }

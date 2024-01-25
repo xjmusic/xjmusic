@@ -1,11 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.telemetry;
 
-import jakarta.annotation.Nullable;
-
-import java.util.Arrays;
-import java.util.Objects;
-
 import static io.xj.hub.util.StringUtils.formatStackTrace;
 
 public class TelemetryException extends Exception {

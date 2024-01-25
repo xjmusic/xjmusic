@@ -26,9 +26,9 @@ import io.xj.nexus.model.SegmentMeme;
 import io.xj.nexus.model.SegmentMessage;
 import io.xj.nexus.model.SegmentMeta;
 import io.xj.nexus.util.FormatUtils;
-import io.xj.nexus.work.WorkConfiguration;
-import io.xj.nexus.work.WorkManager;
-import io.xj.nexus.work.WorkState;
+import io.xj.nexus.work.FabricationSettings;
+import io.xj.nexus.work.FabricationManager;
+import io.xj.nexus.work.FabricationState;
 import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
 import javafx.application.Platform;
@@ -86,10 +86,10 @@ public class FabricationServiceImpl implements FabricationService {
   private final int defaultOutputFrameRate;
   private final ControlMode defaultControlMode;
   private final InputMode defaultInputMode;
-  private final WorkManager workManager;
+  private final FabricationManager fabricationManager;
   private final LabService labService;
   private final Map<Integer, Integer> segmentBarBeats = new ConcurrentHashMap<>();
-  private final ObjectProperty<WorkState> state = new SimpleObjectProperty<>(WorkState.Standby);
+  private final ObjectProperty<FabricationState> state = new SimpleObjectProperty<>(FabricationState.Standby);
   private final StringProperty inputTemplateKey = new SimpleStringProperty();
   private final StringProperty contentStoragePathPrefix = new SimpleStringProperty();
   private final ObjectProperty<InputMode> inputMode = new SimpleObjectProperty<>();
@@ -105,11 +105,11 @@ public class FabricationServiceImpl implements FabricationService {
   private final ObservableSet<String> overrideMemes = FXCollections.observableSet();
   private final ObjectProperty<UUID> overrideMacroProgramId = new SimpleObjectProperty<>();
   private final ObservableBooleanValue statusActive =
-    Bindings.createBooleanBinding(() -> state.get() == WorkState.Active, state);
+    Bindings.createBooleanBinding(() -> state.get() == FabricationState.Active, state);
   private final ObservableBooleanValue statusStandby =
-    Bindings.createBooleanBinding(() -> state.get() == WorkState.Standby, state);
+    Bindings.createBooleanBinding(() -> state.get() == FabricationState.Standby, state);
   private final ObservableBooleanValue statusLoading =
-    Bindings.createBooleanBinding(() -> state.get() == WorkState.LoadingContent || state.get() == WorkState.LoadedContent || state.get() == WorkState.PreparingAudio || state.get() == WorkState.PreparedAudio, state);
+    Bindings.createBooleanBinding(() -> state.get() == FabricationState.LoadingContent || state.get() == FabricationState.LoadedContent || state.get() == FabricationState.PreparingAudio || state.get() == FabricationState.PreparedAudio, state);
 
   private final ObservableValue<String> mainActionButtonText = Bindings.createStringBinding(() ->
     switch (state.get()) {
@@ -131,7 +131,7 @@ public class FabricationServiceImpl implements FabricationService {
     @Value("${macro.mode}") String defaultMacroMode,
     @Value("${input.mode}") String defaultInputMode,
     LabService labService,
-    WorkManager workManager
+    FabricationManager fabricationManager
   ) {
     this.defaultCraftAheadSeconds = defaultCraftAheadSeconds;
     this.defaultDubAheadSeconds = defaultDubAheadSeconds;
@@ -144,7 +144,7 @@ public class FabricationServiceImpl implements FabricationService {
     this.defaultTimelineSegmentViewLimit = defaultTimelineSegmentViewLimit;
     this.hostServices = hostServices;
     this.labService = labService;
-    this.workManager = workManager;
+    this.fabricationManager = fabricationManager;
 
     attachPreferenceListeners();
     setAllFromPreferencesOrDefaults();
@@ -153,7 +153,7 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public void start() {
     try {
-      if (state.get() != WorkState.Standby) {
+      if (state.get() != FabricationState.Standby) {
         LOG.error("Cannot start fabrication unless in Standby status");
         return;
       }
@@ -163,7 +163,7 @@ public class FabricationServiceImpl implements FabricationService {
       LOG.debug("Did reset progress");
 
       // create work configuration
-      var config = new WorkConfiguration()
+      var config = new FabricationSettings()
         .setContentStoragePathPrefix(contentStoragePathPrefix.get())
         .setCraftAheadSeconds(parseIntegerValue(craftAheadSeconds.get(), "fabrication setting for Craft Ahead Seconds"))
         .setDubAheadSeconds(parseIntegerValue(dubAheadSeconds.get(), "fabrication setting for Dub Ahead Seconds"))
@@ -180,11 +180,11 @@ public class FabricationServiceImpl implements FabricationService {
       LOG.debug("Did instantiate hub client access");
 
       // start the work with the given configuration
-      workManager.setOnProgress((Float progress) -> Platform.runLater(() -> this.progress.set(progress)));
-      workManager.setOnStateChange((WorkState state) -> Platform.runLater(() -> this.state.set(state)));
+      fabricationManager.setOnProgress((Float progress) -> Platform.runLater(() -> this.progress.set(progress)));
+      fabricationManager.setOnStateChange((FabricationState state) -> Platform.runLater(() -> this.state.set(state)));
       LOG.debug("Did bind progress listeners");
 
-      Platform.runLater(() -> workManager.start(config, labService.hubConfigProperty().get(), hubAccess));
+      Platform.runLater(() -> fabricationManager.start(config, labService.hubConfigProperty().get(), hubAccess));
       LOG.debug("Did send start signal to work manager");
 
     } catch (Exception e) {
@@ -195,8 +195,8 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public void cancel() {
     try {
-      state.set(WorkState.Cancelled);
-      workManager.finish(true);
+      state.set(FabricationState.Cancelled);
+      fabricationManager.finish(true);
 
     } catch (Exception e) {
       LOG.error("Failed to cancel fabrication", e);
@@ -205,37 +205,37 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public void doOverrideMacro(Program macroProgram) {
-    workManager.doOverrideMacro(macroProgram);
+    fabricationManager.doOverrideMacro(macroProgram);
     overrideMacroProgramId.set(macroProgram.getId());
   }
 
   @Override
   public void resetOverrideMacro() {
-    workManager.resetOverrideMacro();
+    fabricationManager.resetOverrideMacro();
     overrideMacroProgramId.set(null);
   }
 
   @Override
   public Optional<MemeTaxonomy> getMemeTaxonomy() {
-    return workManager.getMemeTaxonomy();
+    return fabricationManager.getMemeTaxonomy();
   }
 
   @Override
   public void doOverrideMemes(Collection<String> memes) {
-    workManager.doOverrideMemes(memes);
+    fabricationManager.doOverrideMemes(memes);
     overrideMemes.clear();
     overrideMemes.addAll(memes.stream().sorted().collect(Collectors.toCollection(LinkedHashSet::new)));
   }
 
   @Override
   public void resetOverrideMemes() {
-    workManager.resetOverrideMemes();
+    fabricationManager.resetOverrideMemes();
     overrideMemes.clear();
   }
 
   @Override
   public boolean getAndResetDidOverride() {
-    return workManager.getAndResetDidOverride();
+    return fabricationManager.getAndResetDidOverride();
   }
 
   @Override
@@ -253,8 +253,8 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public void reset() {
     try {
-      state.set(WorkState.Standby);
-      workManager.reset();
+      state.set(FabricationState.Standby);
+      fabricationManager.reset();
       overrideMacroProgramId.set(null);
       overrideMemes.clear();
 
@@ -265,13 +265,13 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public List<Program> getAllMacroPrograms() {
-    return workManager.getSourceMaterial().getProgramsOfType(ProgramType.Macro).stream()
+    return fabricationManager.getSourceMaterial().getProgramsOfType(ProgramType.Macro).stream()
       .sorted(Comparator.comparing(Program::getName))
       .toList();
   }
 
   @Override
-  public ObjectProperty<WorkState> stateProperty() {
+  public ObjectProperty<FabricationState> stateProperty() {
     return state;
   }
 
@@ -327,69 +327,69 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public Collection<SegmentMeme> getSegmentMemes(Segment segment) {
-    return workManager.getEntityStore().readManySubEntitiesOfType(segment.getId(), SegmentMeme.class);
+    return fabricationManager.getEntityStore().readManySubEntitiesOfType(segment.getId(), SegmentMeme.class);
   }
 
   @Override
   public Collection<SegmentChord> getSegmentChords(Segment segment) {
-    return workManager.getEntityStore().readManySubEntitiesOfType(segment.getId(), SegmentChord.class);
+    return fabricationManager.getEntityStore().readManySubEntitiesOfType(segment.getId(), SegmentChord.class);
   }
 
   @Override
   public Collection<SegmentChoice> getSegmentChoices(Segment segment) {
-    return workManager.getEntityStore().readManySubEntitiesOfType(segment.getId(), SegmentChoice.class);
+    return fabricationManager.getEntityStore().readManySubEntitiesOfType(segment.getId(), SegmentChoice.class);
   }
 
   @Override
   public Optional<Program> getProgram(UUID programId) {
-    return workManager.getSourceMaterial().getProgram(programId);
+    return fabricationManager.getSourceMaterial().getProgram(programId);
   }
 
   @Override
   public Optional<ProgramVoice> getProgramVoice(UUID programVoiceId) {
-    return workManager.getSourceMaterial().getProgramVoice(programVoiceId);
+    return fabricationManager.getSourceMaterial().getProgramVoice(programVoiceId);
   }
 
   @Override
   public Optional<ProgramSequence> getProgramSequence(UUID programSequenceId) {
-    return workManager.getSourceMaterial().getProgramSequence(programSequenceId);
+    return fabricationManager.getSourceMaterial().getProgramSequence(programSequenceId);
   }
 
   @Override
   public Optional<ProgramSequenceBinding> getProgramSequenceBinding(UUID programSequenceBindingId) {
-    return workManager.getSourceMaterial().getProgramSequenceBinding(programSequenceBindingId);
+    return fabricationManager.getSourceMaterial().getProgramSequenceBinding(programSequenceBindingId);
   }
 
   @Override
   public Optional<Instrument> getInstrument(UUID instrumentId) {
-    return workManager.getSourceMaterial().getInstrument(instrumentId);
+    return fabricationManager.getSourceMaterial().getInstrument(instrumentId);
   }
 
   @Override
   public Optional<InstrumentAudio> getInstrumentAudio(UUID instrumentAudioId) {
-    return workManager.getSourceMaterial().getInstrumentAudio(instrumentAudioId);
+    return fabricationManager.getSourceMaterial().getInstrumentAudio(instrumentAudioId);
   }
 
   @Override
   public Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice choice) {
-    return workManager.getEntityStore().readManySubEntitiesOfType(choice.getSegmentId(), SegmentChoiceArrangement.class)
+    return fabricationManager.getEntityStore().readManySubEntitiesOfType(choice.getSegmentId(), SegmentChoiceArrangement.class)
       .stream().filter(arrangement -> arrangement.getSegmentChoiceId().equals(choice.getId())).toList();
   }
 
   @Override
   public Collection<SegmentChoiceArrangementPick> getPicks(SegmentChoiceArrangement arrangement) {
-    return workManager.getEntityStore().readManySubEntitiesOfType(arrangement.getSegmentId(), SegmentChoiceArrangementPick.class)
+    return fabricationManager.getEntityStore().readManySubEntitiesOfType(arrangement.getSegmentId(), SegmentChoiceArrangementPick.class)
       .stream().filter(pick -> pick.getSegmentChoiceArrangementId().equals(arrangement.getId())).toList();
   }
 
   @Override
   public Collection<SegmentMessage> getSegmentMessages(Segment segment) {
-    return workManager.getEntityStore().readManySubEntitiesOfType(segment.getId(), SegmentMessage.class);
+    return fabricationManager.getEntityStore().readManySubEntitiesOfType(segment.getId(), SegmentMessage.class);
   }
 
   @Override
   public Collection<SegmentMeta> getSegmentMetas(Segment segment) {
-    return workManager.getEntityStore().readManySubEntitiesOfType(segment.getId(), SegmentMeta.class);
+    return fabricationManager.getEntityStore().readManySubEntitiesOfType(segment.getId(), SegmentMeta.class);
   }
 
   @Override
@@ -441,14 +441,14 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public List<Segment> getSegments(@Nullable Integer startIndex) {
     var viewLimit = Integer.parseInt(timelineSegmentViewLimit.getValue());
-    var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, workManager.getEntityStore().readLastSegmentId() - viewLimit - 1);
-    var to = Math.min(workManager.getEntityStore().readLastSegmentId() - 1, from + viewLimit);
-    return workManager.getEntityStore().readSegmentsFromToOffset(from, to);
+    var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, fabricationManager.getEntityStore().readLastSegmentId() - viewLimit - 1);
+    var to = Math.min(fabricationManager.getEntityStore().readLastSegmentId() - 1, from + viewLimit);
+    return fabricationManager.getEntityStore().readSegmentsFromToOffset(from, to);
   }
 
   @Override
   public Boolean isEmpty() {
-    return workManager.getEntityStore().isEmpty();
+    return fabricationManager.getEntityStore().isEmpty();
   }
 
   @Override
@@ -513,17 +513,17 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public Optional<Long> getShippedToChainMicros() {
-    return workManager.getShippedToChainMicros();
+    return fabricationManager.getShippedToChainMicros();
   }
 
   @Override
   public Optional<Long> getDubbedToChainMicros() {
-    return workManager.getDubbedToChainMicros();
+    return fabricationManager.getDubbedToChainMicros();
   }
 
   @Override
   public Optional<Long> getCraftedToChainMicros() {
-    return workManager.getCraftedToChainMicros();
+    return fabricationManager.getCraftedToChainMicros();
   }
 
   @Override
@@ -542,7 +542,7 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public void handleDemoPlay(String templateKey) {
-    if (state.get() != WorkState.Standby) {
+    if (state.get() != FabricationState.Standby) {
       LOG.error("Cannot play demo unless fabrication is in Standby status");
       return;
     }
@@ -555,14 +555,14 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public String computeChoiceHash(Segment segment) {
-    return workManager.getEntityStore().readChoiceHash(segment);
+    return fabricationManager.getEntityStore().readChoiceHash(segment);
   }
 
   @Override
   public Optional<Segment> getSegmentAtShipOutput() {
     return
-      workManager.getShippedToChainMicros().flatMap(chainMicros ->
-        workManager.getEntityStore().readSegmentAtChainMicros(chainMicros));
+      fabricationManager.getShippedToChainMicros().flatMap(chainMicros ->
+        fabricationManager.getEntityStore().readSegmentAtChainMicros(chainMicros));
   }
 
   /**
@@ -629,13 +629,13 @@ public class FabricationServiceImpl implements FabricationService {
   private Optional<Integer> getBarBeats(Segment segment) {
     if (!segmentBarBeats.containsKey(segment.getId())) {
       try {
-        var choice = workManager.getEntityStore().readChoice(segment.getId(), ProgramType.Main);
+        var choice = fabricationManager.getEntityStore().readChoice(segment.getId(), ProgramType.Main);
         if (choice.isEmpty()) {
           LOG.warn("Failed to retrieve main program choice to determine beats for Segment[{}]", segment.getId());
           return Optional.empty();
         }
 
-        var program = workManager.getSourceMaterial().getProgram(choice.get().getProgramId());
+        var program = fabricationManager.getSourceMaterial().getProgram(choice.get().getProgramId());
         if (program.isEmpty()) {
           LOG.warn("Failed to retrieve main program to determine beats for Segment[{}]", segment.getId());
           return Optional.empty();

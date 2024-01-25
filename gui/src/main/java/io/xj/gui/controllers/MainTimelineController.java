@@ -6,7 +6,7 @@ import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.persistence.SegmentUtils;
-import io.xj.nexus.work.WorkState;
+import io.xj.nexus.work.FabricationState;
 import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -169,7 +169,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
 
    @param status the new status
    */
-  private void handleUpdateFabricationStatus(WorkState status) {
+  private void handleUpdateFabricationStatus(FabricationState status) {
     try {
       switch (status) {
         case Standby -> resetTimeline();

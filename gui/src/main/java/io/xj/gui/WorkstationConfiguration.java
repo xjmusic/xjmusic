@@ -28,8 +28,8 @@ import io.xj.nexus.ship.broadcast.BroadcastFactory;
 import io.xj.nexus.ship.broadcast.BroadcastFactoryImpl;
 import io.xj.nexus.telemetry.Telemetry;
 import io.xj.nexus.telemetry.TelemetryImpl;
-import io.xj.nexus.work.WorkManager;
-import io.xj.nexus.work.WorkManagerImpl;
+import io.xj.nexus.work.FabricationManager;
+import io.xj.nexus.work.FabricationManagerImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -38,7 +38,7 @@ import java.util.Objects;
 @Configuration
 public class WorkstationConfiguration {
   private HttpClientProvider _httpClientProvider;
-  private WorkManager _workManager = null;
+  private FabricationManager _fabricationManager = null;
   private EntityFactoryImpl _entityFactory;
   private JsonProviderImpl _jsonProvider;
 
@@ -75,12 +75,12 @@ public class WorkstationConfiguration {
   }
 
   @Bean
-  public WorkManager workManager(
+  public FabricationManager workManager(
     EntityFactory entityFactory,
     JsonProvider jsonProvider,
     HttpClientProvider httpClientProvider
   ) {
-    if (_workManager == null) {
+    if (_fabricationManager == null) {
       BroadcastFactory broadcastFactory = new BroadcastFactoryImpl();
       Telemetry telemetry = new TelemetryImpl();
       CraftFactory craftFactory = new CraftFactoryImpl();
@@ -95,7 +95,7 @@ public class WorkstationConfiguration {
       );
       EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
       MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
-      _workManager = new WorkManagerImpl(
+      _fabricationManager = new FabricationManagerImpl(
         telemetry,
         broadcastFactory,
         craftFactory,
@@ -106,6 +106,6 @@ public class WorkstationConfiguration {
         nexusEntityStore
       );
     }
-    return _workManager;
+    return _fabricationManager;
   }
 }

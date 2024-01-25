@@ -15,7 +15,7 @@ import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.work.WorkManager;
+import io.xj.nexus.work.FabricationManager;
 import javafx.application.HostServices;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,7 +59,7 @@ class FabricationServiceImplTest {
   private NexusEntityStore entityStore;
 
   @Mock
-  private WorkManager workManager;
+  private FabricationManager fabricationManager;
 
   FabricationServiceImpl subject;
   private Chain chain;
@@ -88,7 +88,7 @@ class FabricationServiceImplTest {
       defaultMacroMode,
       defaultInputMode,
       labService,
-      workManager
+      fabricationManager
     );
   }
 
@@ -135,8 +135,8 @@ class FabricationServiceImplTest {
     var program = buildMainProgramWithBarBeats(barBeats);
     var sourceMaterial = new HubContent(List.of(program));
     var choice = buildSegmentChoice(segment, program);
-    when(workManager.getSourceMaterial()).thenReturn(sourceMaterial);
-    when(workManager.getEntityStore()).thenReturn(entityStore);
+    when(fabricationManager.getSourceMaterial()).thenReturn(sourceMaterial);
+    when(fabricationManager.getEntityStore()).thenReturn(entityStore);
     when(entityStore.readChoice(eq(segment.getId()), eq(ProgramType.Main))).thenReturn(Optional.of(choice));
     return segment;
   }

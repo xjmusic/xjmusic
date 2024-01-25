@@ -2,15 +2,15 @@
 
 package io.xj.nexus.persistence;
 
+import io.xj.hub.entity.EntityException;
+import io.xj.hub.entity.EntityFactory;
+import io.xj.hub.entity.EntityUtils;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
 import io.xj.hub.util.ValueUtils;
 import io.xj.nexus.NexusException;
-import io.xj.hub.entity.EntityException;
-import io.xj.hub.entity.EntityFactory;
-import io.xj.hub.entity.EntityUtils;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
