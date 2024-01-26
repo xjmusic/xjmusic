@@ -20,7 +20,7 @@ possibilities for streams, games, and spaces.
 
 ### Dependencies
 
-* Java 17
+* Java 21
 * Gradle 8
 
 ### Gradle (Maven) Package Repository

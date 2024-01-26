@@ -10,6 +10,7 @@ jobs:
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+      JAVA_VERSION: 21
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get-version.outputs.version }}
@@ -20,12 +21,12 @@ jobs:
       - uses: burrunan/gradle-cache-action@v1
         name: Cache Gradle
         with:
-          job-id: jdk17
+          job-id: jdk${{ env.JAVA_VERSION }}
 
-      - name: Setup JDK 17
+      - name: Setup JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v1
         with:
-          java-version: 17
+          java-version: ${{ env.JAVA_VERSION }}
           java-package: jdk
 
       - uses: actions/cache@v2
@@ -33,9 +34,9 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle8-java17-${{ hashFiles('**/*.gradle*') }}
+          key: ${{ runner.os }}-gradle8-java${{ env.JAVA_VERSION }}-${{ hashFiles('**/*.gradle*') }}
           restore-keys: |
-            ${{ runner.os }}-gradle8-java17-
+            ${{ runner.os }}-gradle8-java${{ env.JAVA_VERSION }}-
 
       - name: Nothing left TODO
         run: .github/nothing_left_todo.sh
@@ -81,12 +82,12 @@ jobs:
       - uses: burrunan/gradle-cache-action@v1
         name: Cache Gradle
         with:
-          job-id: jdk17
+          job-id: jdk${{ env.JAVA_VERSION }}
 
-      - name: Setup JDK 17
+      - name: Setup JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v1
         with:
-          java-version: 17
+          java-version: ${{ env.JAVA_VERSION }}
           java-package: jdk
 
       - uses: actions/cache@v2
@@ -94,9 +95,9 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle8-java17-${{ hashFiles('**/*.gradle*') }}
+          key: ${{ runner.os }}-gradle8-java${{ env.JAVA_VERSION }}-${{ hashFiles('**/*.gradle*') }}
           restore-keys: |
-            ${{ runner.os }}-gradle8-java17-
+            ${{ runner.os }}-gradle8-java${{ env.JAVA_VERSION }}-
 
       - name: (GCP) Authenticate and setup Google Cloud SDK
         uses: 'google-github-actions/auth@v1'
@@ -126,7 +127,7 @@ jobs:
 #    strategy:
 #      matrix:
 #        os: [ ubuntu-latest, macOS-latest, windows-latest ]
-#        java: [ '17' ]
+#        java: [ '21' ]
 #      fail-fast: false
 #    steps:
 #
@@ -167,7 +168,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, macOS-latest, windows-latest ]
-        java: [ '17' ]
+        java: [ '21' ]
       fail-fast: false
     steps:
 
