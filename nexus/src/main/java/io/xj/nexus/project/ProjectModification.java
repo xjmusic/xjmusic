@@ -1,9 +1,11 @@
 package io.xj.nexus.project;
 
-public enum ProjectUpdate {
+public enum ProjectModification {
   Libraries,
   Programs,
+  ProgramEntities,
   Instruments,
+  InstrumentEntities,
   Templates,
   TemplateBindings
 }

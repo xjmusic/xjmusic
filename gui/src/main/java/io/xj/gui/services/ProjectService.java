@@ -10,8 +10,9 @@ import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.nexus.project.ProjectState;
-import io.xj.nexus.project.ProjectUpdate;
+import io.xj.nexus.project.ProjectModification;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
@@ -122,14 +123,14 @@ public interface ProjectService {
    @param type     the type of update to listen for
    @param listener the listener to attach
    */
-  void addProjectUpdateListener(ProjectUpdate type, Runnable listener);
+  void addProjectUpdateListener(ProjectModification type, Runnable listener);
 
   /**
    Notify all listeners of a project update
 
    @param type the type of update
    */
-  void notifyProjectUpdateListeners(ProjectUpdate type);
+  void didModify(ProjectModification type);
 
   /**
    Get the current list of non-deleted libraries sorted by name
@@ -338,4 +339,18 @@ public interface ProjectService {
    @return true if successful
    */
   boolean updateTemplate(Template template);
+
+  /**
+   Whether the project has been modified since loading content
+
+   @return observable boolean property
+   */
+  BooleanProperty isModifiedProperty();
+
+  /**
+   Prompt to close a modified project
+
+   @return true if user approves request to close project
+   */
+  boolean promptToCloseModifiedProject();
 }

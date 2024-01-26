@@ -5,10 +5,13 @@ package io.xj.gui;
 import com.tangorabox.componentinspector.fx.FXComponentInspectorHandler;
 import io.xj.gui.controllers.EulaModalController;
 import io.xj.gui.controllers.MainController;
+import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.WindowUtils;
+import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +30,7 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
   private final EulaModalController eulaModalController;
   private final MainController mainController;
   private final ApplicationContext ac;
+  private final ProjectService projectService;
   private final UIStateService uiStateService;
   private final ThemeService themeService;
 
@@ -36,6 +40,7 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
     EulaModalController eulaModalController,
     MainController mainController,
     ApplicationContext ac,
+    ProjectService projectService,
     UIStateService uiStateService,
     ThemeService themeService
   ) {
@@ -44,6 +49,7 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
     this.eulaModalController = eulaModalController;
     this.mainController = mainController;
     this.ac = ac;
+    this.projectService = projectService;
     this.uiStateService = uiStateService;
     this.themeService = themeService;
   }
@@ -55,28 +61,47 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
     WindowUtils.setupIcon(primaryStage);
     primaryStage.initStyle(StageStyle.DECORATED);
 
-    eulaModalController.ensureAcceptance(primaryStage, () -> {
-      try {
-        var scene = WindowUtils.loadSceneFxml(ac, mainWindowFxml);
+    eulaModalController.ensureAcceptance(primaryStage, () -> onEulaAccepted(primaryStage));
+  }
 
-        primaryStage.titleProperty().bind(uiStateService.windowTitleProperty());
-        primaryStage.setScene(scene);
+  /**
+   Called when the EULA has been accepted.
 
-        themeService.setup(scene);
-        themeService.isDarkThemeProperty().addListener((o, ov, value) -> themeService.setup(scene));
-        themeService.setupFonts();
+   @param primaryStage the primary stage
+   */
+  private void onEulaAccepted(Stage primaryStage) {
+    try {
+      var scene = WindowUtils.loadSceneFxml(ac, mainWindowFxml);
 
-        mainController.onStageReady();
-        primaryStage.show();
+      primaryStage.titleProperty().bind(uiStateService.windowTitleProperty());
+      primaryStage.setScene(scene);
 
-        // See https://github.com/TangoraBox/ComponentInspector/
-        if (debug.equals("true")) {
-          FXComponentInspectorHandler.handleAll();
-        }
+      themeService.setup(scene);
+      themeService.isDarkThemeProperty().addListener((o, ov, value) -> themeService.setup(scene));
+      themeService.setupFonts();
 
-      } catch (IOException e) {
-        LOG.error("Failed to set the scene on the primary stage!", e);
+      primaryStage.setOnCloseRequest(this::onCloseRequest);
+
+      mainController.onStageReady();
+      primaryStage.show();
+
+      // See https://github.com/TangoraBox/ComponentInspector/
+      if (debug.equals("true")) {
+        FXComponentInspectorHandler.handleAll();
       }
-    });
+
+    } catch (IOException e) {
+      LOG.error("Failed to set the scene on the primary stage!", e);
+    }
+  }
+
+  /**
+   Called when the user requests to close the application.
+
+   @param event the window event
+   */
+  private void onCloseRequest(WindowEvent event) {
+    LOG.info("Closing the application...");
+    if (!projectService.promptToCloseModifiedProject()) event.consume();
   }
 }

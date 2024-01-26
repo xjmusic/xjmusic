@@ -9,7 +9,7 @@ import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.nexus.project.ProjectUpdate;
+import io.xj.nexus.project.ProjectModification;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -116,7 +116,7 @@ public class TemplateEditorController extends BrowserController implements Ready
           projectService.deleteTemplateBinding(binding);
       });
 
-    projectService.addProjectUpdateListener(ProjectUpdate.TemplateBindings, this::updateBindings);
+    projectService.addProjectUpdateListener(ProjectModification.TemplateBindings, this::updateBindings);
 
     uiStateService.templateModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.templateModeProperty().get(), TemplateMode.TemplateEditor))

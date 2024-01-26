@@ -12,7 +12,7 @@ import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.nexus.project.ProjectUpdate;
+import io.xj.nexus.project.ProjectModification;
 import jakarta.annotation.Nullable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -118,7 +118,7 @@ public class ContentBrowserController extends BrowserController implements Ready
           uiStateService.viewLibrary(library.getId());
       }
     );
-    projectService.addProjectUpdateListener(ProjectUpdate.Libraries, this::updateLibraries);
+    projectService.addProjectUpdateListener(ProjectModification.Libraries, this::updateLibraries);
   }
 
   /**
@@ -154,7 +154,7 @@ public class ContentBrowserController extends BrowserController implements Ready
           uiStateService.editProgram(program.getId());
       }
     );
-    projectService.addProjectUpdateListener(ProjectUpdate.Programs, () -> updatePrograms(uiStateService.currentLibraryProperty().get()));
+    projectService.addProjectUpdateListener(ProjectModification.Programs, () -> updatePrograms(uiStateService.currentLibraryProperty().get()));
   }
 
   /**
@@ -192,7 +192,7 @@ public class ContentBrowserController extends BrowserController implements Ready
           uiStateService.editInstrument(instrument.getId());
       }
     );
-    projectService.addProjectUpdateListener(ProjectUpdate.Instruments,
+    projectService.addProjectUpdateListener(ProjectModification.Instruments,
       () -> updateInstruments(uiStateService.currentLibraryProperty().get()));
   }
 

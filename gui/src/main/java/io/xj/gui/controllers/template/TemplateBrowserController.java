@@ -10,7 +10,7 @@ import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.nexus.project.ProjectUpdate;
+import io.xj.nexus.project.ProjectModification;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -72,7 +72,7 @@ public class TemplateBrowserController extends BrowserController implements Read
           uiStateService.editTemplate(template.getId());
       }
     );
-    projectService.addProjectUpdateListener(ProjectUpdate.Templates, this::updateTemplates);
+    projectService.addProjectUpdateListener(ProjectModification.Templates, this::updateTemplates);
   }
 
   @Override
