@@ -10,6 +10,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <VBox
   fx:controller="io.xj.gui.controllers.template.TemplateEditorController"
   fx:id="container"
@@ -50,7 +53,48 @@
     <VBox.vgrow>
       <Priority fx:constant="ALWAYS"/>
     </VBox.vgrow>
-    <Label styleClass="bold">Bindings</Label>
+
+    <!-- Bindings header -->
+    <AnchorPane
+      minHeight="32">
+      <StackPane
+        AnchorPane.leftAnchor="0"
+        AnchorPane.topAnchor="0"
+        AnchorPane.bottomAnchor="0"
+        alignment="CENTER_LEFT">
+        <padding>
+          <Insets top="4" left="9" right="9" bottom="3"/>
+        </padding>
+        <Label styleClass="bold">Bindings</Label>
+      </StackPane>
+
+      <StackPane
+        AnchorPane.rightAnchor="0"
+        AnchorPane.topAnchor="0"
+        AnchorPane.bottomAnchor="0"
+        alignment="CENTER_RIGHT">
+        <HBox alignment="CENTER_RIGHT">
+          <padding>
+            <Insets top="4" left="9" right="9" bottom="3"/>
+          </padding>
+          <HBox alignment="CENTER_RIGHT" spacing="10">
+            <Button
+                    mnemonicParsing="false"
+                    onAction="#handlePressAddBinding"
+                    text="Add Binding">
+              <graphic>
+                <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
+                  <Image url="@/icons/square-plus.png"/>
+                </ImageView>
+              </graphic>
+            </Button>
+          </HBox>
+        </HBox>
+      </StackPane>
+
+    </AnchorPane>
+
+
     <TableView
       fx:id="bindingsTable"
       AnchorPane.topAnchor="0"
