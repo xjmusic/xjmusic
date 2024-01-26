@@ -135,6 +135,7 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void closeProject() {
+    if (isModified.get() && !promptToCloseModifiedProject()) return;
     projectManager.closeProject();
     didModify(ProjectModification.Templates);
     didModify(ProjectModification.Libraries);
@@ -524,8 +525,8 @@ public class ProjectServiceImpl implements ProjectService {
    @param clone            the clone callable
    */
   private void cloneProject(String parentPathPrefix, String projectName, Callable<Boolean> clone) {
-    if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName)) return;
     closeProject();
+    if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName)) return;
     executeInBackground("Clone Project", () -> {
       try {
         if (clone.call()) {
