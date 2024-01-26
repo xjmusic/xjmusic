@@ -29,7 +29,7 @@ public class InstrumentEditorController implements ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(InstrumentEditorController.class);
   private final ProjectService projectService;
   private final UIStateService uiStateService;
-  private final ObjectProperty<UUID> id = new SimpleObjectProperty<>(null);
+  private final ObjectProperty<UUID> instrumentId = new SimpleObjectProperty<>(null);
   private final BooleanProperty dirty = new SimpleBooleanProperty(false);
   private final StringProperty name = new SimpleStringProperty("");
 
@@ -80,7 +80,7 @@ public class InstrumentEditorController implements ReadyAfterBootController {
 
   @FXML
   protected void handlePressOK() {
-    var instrument = projectService.getContent().getInstrument(id.get())
+    var instrument = projectService.getContent().getInstrument(instrumentId.get())
       .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
     instrument.setName(name.get());
     if (projectService.updateInstrument(instrument))
@@ -89,7 +89,9 @@ public class InstrumentEditorController implements ReadyAfterBootController {
 
   @FXML
   protected void handlePressCancel() {
-    uiStateService.viewLibrary(id.get());
+    var instrument = projectService.getContent().getInstrument(instrumentId.get())
+      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
+    uiStateService.viewLibrary(instrument.getLibraryId());
   }
 
   /**
@@ -101,7 +103,7 @@ public class InstrumentEditorController implements ReadyAfterBootController {
     var instrument = projectService.getContent().getInstrument(uiStateService.currentInstrumentProperty().get().getId())
       .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
     LOG.info("Will edit Instrument \"{}\"", instrument.getName());
-    this.id.set(instrument.getId());
+    this.instrumentId.set(instrument.getId());
     this.name.set(instrument.getName());
     this.dirty.set(false);
   }

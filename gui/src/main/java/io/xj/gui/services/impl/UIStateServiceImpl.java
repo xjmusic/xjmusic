@@ -140,8 +140,11 @@ public class UIStateServiceImpl implements UIStateService {
 
     windowTitle = Bindings.createStringBinding(
       () -> Objects.nonNull(projectService.currentProjectProperty().get())
-        ? String.format("%s - XJ music workstation", projectService.currentProjectProperty().get().getName())
+        ? String.format("%s%s - XJ music workstation",
+        projectService.isModifiedProperty().get() ? "* " : "",
+        projectService.currentProjectProperty().get().getName())
         : "XJ music workstation",
+      projectService.isModifiedProperty(),
       projectService.currentProjectProperty()
     );
 

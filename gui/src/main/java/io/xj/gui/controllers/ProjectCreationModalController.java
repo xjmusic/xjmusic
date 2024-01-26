@@ -156,6 +156,7 @@ public class ProjectCreationModalController extends ReadyAfterBootModalControlle
 
   @Override
   public void launchModal() {
+    if (!projectService.confirmCloseIfModified()) return;
     createAndShowModal(WINDOW_TITLE.get(mode.get()));
   }
 

@@ -29,7 +29,7 @@ public class ProgramEditorController implements ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
   private final ProjectService projectService;
   private final UIStateService uiStateService;
-  private final ObjectProperty<UUID> id = new SimpleObjectProperty<>(null);
+  private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
   private final BooleanProperty dirty = new SimpleBooleanProperty(false);
   private final StringProperty name = new SimpleStringProperty("");
 
@@ -80,7 +80,7 @@ public class ProgramEditorController implements ReadyAfterBootController {
 
   @FXML
   protected void handlePressOK() {
-    var program = projectService.getContent().getProgram(id.get())
+    var program = projectService.getContent().getProgram(programId.get())
       .orElseThrow(() -> new RuntimeException("Could not find Program"));
     program.setName(name.get());
     if (projectService.updateProgram(program))
@@ -89,7 +89,9 @@ public class ProgramEditorController implements ReadyAfterBootController {
 
   @FXML
   protected void handlePressCancel() {
-    uiStateService.viewLibrary(id.get());
+    var program = projectService.getContent().getProgram(programId.get())
+      .orElseThrow(() -> new RuntimeException("Could not find Program"));
+    uiStateService.viewLibrary(program.getLibraryId());
   }
 
   /**
@@ -101,7 +103,7 @@ public class ProgramEditorController implements ReadyAfterBootController {
     var program = projectService.getContent().getProgram(uiStateService.currentProgramProperty().get().getId())
       .orElseThrow(() -> new RuntimeException("Could not find Program"));
     LOG.info("Will edit Program \"{}\"", program.getName());
-    this.id.set(program.getId());
+    this.programId.set(program.getId());
     this.name.set(program.getName());
     this.dirty.set(false);
   }

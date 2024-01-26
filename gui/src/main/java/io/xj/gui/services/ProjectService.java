@@ -12,6 +12,7 @@ import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.project.ProjectUpdate;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
@@ -25,8 +26,10 @@ import java.util.UUID;
 public interface ProjectService {
   /**
    Close the project
+
+   @return true if the project was closed, or false if the user cancelled the close (maybe because the project has unsaved modifications)
    */
-  void closeProject();
+  boolean closeProject();
 
   /**
    Open a project
@@ -125,11 +128,11 @@ public interface ProjectService {
   void addProjectUpdateListener(ProjectUpdate type, Runnable listener);
 
   /**
-   Notify all listeners of a project update
+   Notify all listeners of a project update@param type the type of update
 
-   @param type the type of update
+   @param modified
    */
-  void notifyProjectUpdateListeners(ProjectUpdate type);
+  void didUpdate(ProjectUpdate type, boolean modified);
 
   /**
    Get the current list of non-deleted libraries sorted by name
@@ -338,4 +341,18 @@ public interface ProjectService {
    @return true if successful
    */
   boolean updateTemplate(Template template);
+
+  /**
+   Whether the project has been modified since loading content
+
+   @return observable boolean property
+   */
+  BooleanProperty isModifiedProperty();
+
+  /**
+   Prompt to close a modified project
+
+   @return true if user approves request to close project
+   */
+  boolean confirmCloseIfModified();
 }

@@ -41,7 +41,7 @@ public class TemplateEditorController extends BrowserController implements Ready
   static final Logger LOG = LoggerFactory.getLogger(TemplateEditorController.class);
   private final ProjectService projectService;
   private final UIStateService uiStateService;
-  private final ObjectProperty<UUID> id = new SimpleObjectProperty<>(null);
+  private final ObjectProperty<UUID> templateId = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
   private final BooleanProperty dirty = new SimpleBooleanProperty(false);
   private final ObservableList<TemplateBinding> bindings = FXCollections.observableList(new ArrayList<>());
@@ -153,7 +153,7 @@ public class TemplateEditorController extends BrowserController implements Ready
 
   @FXML
   protected void handlePressOK() {
-    var template = projectService.getContent().getTemplate(id.get())
+    var template = projectService.getContent().getTemplate(templateId.get())
       .orElseThrow(() -> new RuntimeException("Could not find Template"));
     template.setName(name.get());
     if (projectService.updateTemplate(template))
@@ -162,7 +162,7 @@ public class TemplateEditorController extends BrowserController implements Ready
 
   @FXML
   protected void handlePressCancel() {
-    uiStateService.viewLibrary(id.get());
+    uiStateService.viewTemplates();
   }
 
   /**
@@ -174,7 +174,7 @@ public class TemplateEditorController extends BrowserController implements Ready
     var template = projectService.getContent().getTemplate(uiStateService.currentTemplateProperty().get().getId())
       .orElseThrow(() -> new RuntimeException("Could not find Template"));
     LOG.info("Will edit Template \"{}\"", template.getName());
-    this.id.set(template.getId());
+    this.templateId.set(template.getId());
     this.name.set(template.getName());
     this.dirty.set(false);
     updateBindings();

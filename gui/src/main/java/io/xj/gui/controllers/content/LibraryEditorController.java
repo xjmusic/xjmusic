@@ -29,7 +29,7 @@ public class LibraryEditorController implements ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(LibraryEditorController.class);
   private final ProjectService projectService;
   private final UIStateService uiStateService;
-  private final ObjectProperty<UUID> id = new SimpleObjectProperty<>(null);
+  private final ObjectProperty<UUID> libraryId = new SimpleObjectProperty<>(null);
   private final BooleanProperty dirty = new SimpleBooleanProperty(false);
   private final StringProperty name = new SimpleStringProperty("");
 
@@ -80,7 +80,7 @@ public class LibraryEditorController implements ReadyAfterBootController {
 
   @FXML
   protected void handlePressOK() {
-    var library = projectService.getContent().getLibrary(id.get())
+    var library = projectService.getContent().getLibrary(libraryId.get())
       .orElseThrow(() -> new RuntimeException("Could not find Library"));
     library.setName(name.get());
     if (projectService.updateLibrary(library))
@@ -89,7 +89,7 @@ public class LibraryEditorController implements ReadyAfterBootController {
 
   @FXML
   protected void handlePressCancel() {
-    uiStateService.viewLibrary(id.get());
+    uiStateService.viewLibraries();
   }
 
   /**
@@ -101,7 +101,7 @@ public class LibraryEditorController implements ReadyAfterBootController {
     var library = projectService.getContent().getLibrary(uiStateService.currentLibraryProperty().get().getId())
       .orElseThrow(() -> new RuntimeException("Could not find Library"));
     LOG.info("Will edit Library \"{}\"", library.getName());
-    this.id.set(library.getId());
+    this.libraryId.set(library.getId());
     this.name.set(library.getName());
     this.dirty.set(false);
   }
