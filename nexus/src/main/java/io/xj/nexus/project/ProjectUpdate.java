@@ -1,6 +1,6 @@
 package io.xj.nexus.project;
 
-public enum ProjectModification {
+public enum ProjectUpdate {
   Libraries,
   Programs,
   ProgramEntities,

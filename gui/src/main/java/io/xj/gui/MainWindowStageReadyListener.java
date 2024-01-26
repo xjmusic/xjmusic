@@ -102,6 +102,6 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
    */
   private void onCloseRequest(WindowEvent event) {
     LOG.info("Closing the application...");
-    if (!projectService.promptToCloseModifiedProject()) event.consume();
+    if (!projectService.confirmCloseIfModified()) event.consume();
   }
 }
