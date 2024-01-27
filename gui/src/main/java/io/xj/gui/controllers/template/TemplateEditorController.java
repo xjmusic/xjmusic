@@ -21,6 +21,7 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
@@ -41,6 +42,7 @@ public class TemplateEditorController extends BrowserController implements Ready
   static final Logger LOG = LoggerFactory.getLogger(TemplateEditorController.class);
   private final ProjectService projectService;
   private final UIStateService uiStateService;
+  private final TemplateAddBindingController templateAddBindingController;
   private final ObjectProperty<UUID> templateId = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
   private final BooleanProperty dirty = new SimpleBooleanProperty(false);
@@ -63,10 +65,12 @@ public class TemplateEditorController extends BrowserController implements Ready
 
   public TemplateEditorController(
     ProjectService projectService,
-    UIStateService uiStateService
+    UIStateService uiStateService,
+    TemplateAddBindingController templateAddBindingController
   ) {
     this.projectService = projectService;
     this.uiStateService = uiStateService;
+    this.templateAddBindingController = templateAddBindingController;
   }
 
   @Override
@@ -163,6 +167,11 @@ public class TemplateEditorController extends BrowserController implements Ready
   @FXML
   protected void handlePressCancel() {
     uiStateService.viewTemplates();
+  }
+
+  @FXML
+  private void handlePressAddBinding(ActionEvent ignored) {
+    templateAddBindingController.addBindingToTemplate(templateId.get());
   }
 
   /**
