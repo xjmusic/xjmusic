@@ -24,6 +24,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -49,7 +50,7 @@ public class TemplateEditorController extends BrowserController implements Ready
   private final ObservableList<TemplateBinding> bindings = FXCollections.observableList(new ArrayList<>());
 
   @FXML
-  protected VBox container;
+  protected SplitPane container;
 
   @FXML
   protected TextField fieldName;
