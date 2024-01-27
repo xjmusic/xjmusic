@@ -259,7 +259,8 @@
 }
 
 .top-pane .button,
-.top-pane .toggle-button {
+.top-pane .toggle-button,
+.template-bindings-pane .button {
   -fx-background-color: transparent;
   -fx-border-color: transparent;
   -fx-border-width: 0;
@@ -267,17 +268,20 @@
 }
 
 .top-pane .button:hover,
-.top-pane .toggle-button:hover {
+.top-pane .toggle-button:hover,
+.template-bindings-pane .button:hover {
   -fx-background-color: #c0c0c0;
 }
 
 .top-pane .button:pressed,
-.top-pane .toggle-button:pressed {
+.top-pane .toggle-button:pressed,
+.template-bindings-pane .button:pressed {
   -fx-background-color: #a0a0a0;
 }
 
 .top-pane .button:selected,
-.top-pane .toggle-button:selected {
+.top-pane .toggle-button:selected,
+.template-bindings-pane .button:selected {
   -fx-background-color: #a0a0a0;
 }
 

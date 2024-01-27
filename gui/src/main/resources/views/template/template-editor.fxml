@@ -56,7 +56,8 @@
 
     <!-- Bindings header -->
     <AnchorPane
-      minHeight="32">
+      minHeight="32"
+      styleClass="template-bindings-pane">
       <StackPane
         AnchorPane.leftAnchor="0"
         AnchorPane.topAnchor="0"

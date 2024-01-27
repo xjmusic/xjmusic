@@ -3,9 +3,6 @@
 package io.xj.gui.controllers.template;
 
 import io.xj.gui.controllers.ReadyAfterBootModalController;
-import io.xj.gui.modes.CmdMode;
-import io.xj.gui.modes.CmdType;
-import io.xj.gui.modes.ContentMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
@@ -13,27 +10,16 @@ import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.Template;
-import io.xj.hub.util.StringUtils;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -46,7 +32,6 @@ import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 /**
  Modal to Create/Clone/Move/Delete (CcMD) an Entity.
@@ -59,7 +44,7 @@ public class TemplateAddBindingController extends ReadyAfterBootModalController 
   private final ObjectProperty<Program> program = new SimpleObjectProperty<>();
   private final ObjectProperty<Instrument> instrument = new SimpleObjectProperty<>();
   private final ObjectProperty<UUID> templateId = new SimpleObjectProperty<>();
-  private final ObjectProperty<LibraryContentType> libraryContentType = new SimpleObjectProperty<>(LibraryContentType.Program);
+  private final ObjectProperty<ContentBindingType> libraryContentType = new SimpleObjectProperty<>(ContentBindingType.Library);
   private final UIStateService uiStateService;
   private final ProjectService projectService;
 
@@ -119,27 +104,42 @@ public class TemplateAddBindingController extends ReadyAfterBootModalController 
   public void onStageReady() {
     libraryContentSelectionContainer.visibleProperty().bind(library.isNotNull());
     libraryContentSelectionContainer.managedProperty().bind(library.isNotNull());
-    programChoiceContainer.visibleProperty().bind(library.isNotNull().and(libraryContentType.isEqualTo(LibraryContentType.Program)));
-    programChoiceContainer.managedProperty().bind(library.isNotNull().and(libraryContentType.isEqualTo(LibraryContentType.Program)));
-    instrumentChoiceContainer.visibleProperty().bind(library.isNotNull().and(libraryContentType.isEqualTo(LibraryContentType.Instrument)));
-    instrumentChoiceContainer.managedProperty().bind(library.isNotNull().and(libraryContentType.isEqualTo(LibraryContentType.Instrument)));
+    var programsVisible = library.isNotNull().and(libraryContentType.isEqualTo(ContentBindingType.Program));
+    var instrumentsVisible = library.isNotNull().and(libraryContentType.isEqualTo(ContentBindingType.Instrument));
+    programChoiceContainer.visibleProperty().bind(programsVisible);
+    programChoiceContainer.managedProperty().bind(programsVisible);
+    instrumentChoiceContainer.visibleProperty().bind(instrumentsVisible);
+    instrumentChoiceContainer.managedProperty().bind(instrumentsVisible);
 
     choiceLibrary.setItems(FXCollections.observableList(projectService.getLibraries().stream().sorted(Comparator.comparing(Library::getName)).map(LibraryChoice::new).toList()));
 
     choiceLibrary.setOnAction(event -> {
       library.set(choiceLibrary.getValue().library());
-      // TODO scan library name to see it if says programs or instruments
-      choiceProgram.setItems(FXCollections.observableList(projectService.getContent().getProgramsOfLibrary(library.get().getId()).stream().sorted(Comparator.comparing(Program::getName)).map(ProgramChoice::new).toList()));
-      choiceInstrument.setItems(FXCollections.observableList(projectService.getContent().getInstrumentsOfLibrary(library.get().getId()).stream().sorted(Comparator.comparing(Instrument::getName)).map(InstrumentChoice::new).toList()));
+
+      var programs = projectService.getContent().getProgramsOfLibrary(library.get().getId()).stream().sorted(Comparator.comparing(Program::getName)).map(ProgramChoice::new).toList();
+      choiceProgram.setItems(FXCollections.observableList(programs));
+      buttonLibraryContentPrograms.setDisable(programs.isEmpty());
+
+      var instruments = projectService.getContent().getInstrumentsOfLibrary(library.get().getId()).stream().sorted(Comparator.comparing(Instrument::getName)).map(InstrumentChoice::new).toList();
+      choiceInstrument.setItems(FXCollections.observableList(instruments));
+      buttonLibraryContentInstruments.setDisable(instruments.isEmpty());
+
+      program.set(null);
+      choiceProgram.setValue(null);
+      instrument.set(null);
+      choiceInstrument.setValue(null);
+      libraryContentType.set(ContentBindingType.Library);
+      libraryContentSelectionToggle.selectToggle(null);
     });
-    choiceProgram.setOnAction(event -> program.set(choiceProgram.getValue().program()));
-    choiceInstrument.setOnAction(event -> instrument.set(choiceInstrument.getValue().instrument()));
+
+    choiceProgram.setOnAction(event -> program.set(Objects.nonNull(choiceProgram.getValue()) ? choiceProgram.getValue().program() : null));
+    choiceInstrument.setOnAction(event -> instrument.set(Objects.nonNull(choiceInstrument.getValue()) ? choiceInstrument.getValue().instrument() : null));
 
     libraryContentSelectionToggle.selectedToggleProperty().addListener((o, ov, v) -> {
       if (Objects.equals(v, buttonLibraryContentPrograms)) {
-        Platform.runLater(() -> libraryContentType.set(LibraryContentType.Program));
+        Platform.runLater(() -> libraryContentType.set(ContentBindingType.Program));
       } else if (Objects.equals(v, buttonLibraryContentInstruments)) {
-        Platform.runLater(() -> libraryContentType.set(LibraryContentType.Instrument));
+        Platform.runLater(() -> libraryContentType.set(ContentBindingType.Instrument));
       }
     });
   }
@@ -156,7 +156,25 @@ public class TemplateAddBindingController extends ReadyAfterBootModalController 
 
   @FXML
   protected void handlePressOK() {
-// TODO bind that shit
+    if (Objects.nonNull(library.get())) Platform.runLater(() -> {
+      switch (libraryContentType.get()) {
+        case Library -> projectService.addTemplateBinding(
+          templateId.get(),
+          ContentBindingType.Library,
+          library.get().getId());
+        case Program -> projectService.addTemplateBinding(
+          templateId.get(),
+          ContentBindingType.Program,
+          program.get().getId());
+        case Instrument -> projectService.addTemplateBinding(
+          templateId.get(),
+          ContentBindingType.Instrument,
+          instrument.get().getId());
+      }
+    });
+    Stage stage = (Stage) buttonOK.getScene().getWindow();
+    stage.close();
+    onStageClose();
   }
 
   @FXML
@@ -174,14 +192,6 @@ public class TemplateAddBindingController extends ReadyAfterBootModalController 
   public void addBindingToTemplate(UUID templateId) {
     this.templateId.set(templateId);
     launchModal();
-  }
-
-  /**
-   Whether to bind a Program or an Instrument
-   */
-  enum LibraryContentType {
-    Program,
-    Instrument
   }
 
   /**

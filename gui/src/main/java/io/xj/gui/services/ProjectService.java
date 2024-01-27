@@ -1,6 +1,7 @@
 package io.xj.gui.services;
 
 import io.xj.hub.HubContent;
+import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
@@ -341,6 +342,15 @@ public interface ProjectService {
    @return true if successful
    */
   boolean updateTemplate(Template template);
+
+  /**
+   Create a new template binding
+
+   @param templateId         template id
+   @param contentBindingType content binding type
+   @param targetId           target id
+   */
+  void addTemplateBinding(UUID templateId, ContentBindingType contentBindingType, UUID targetId);
 
   /**
    Whether the project has been modified since loading content

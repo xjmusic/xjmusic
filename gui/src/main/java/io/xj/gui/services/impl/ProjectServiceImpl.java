@@ -4,6 +4,7 @@ import io.xj.gui.services.LabService;
 import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
 import io.xj.hub.HubContent;
+import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.json.JsonProvider;
 import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.tables.pojos.Instrument;
@@ -14,6 +15,7 @@ import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.util.StringUtils;
 import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.project.ProjectUpdate;
@@ -495,6 +497,23 @@ public class ProjectServiceImpl implements ProjectService {
     } catch (Exception e) {
       LOG.error("Could not save Template", e);
       return false;
+    }
+  }
+
+  @Override
+  public void addTemplateBinding(UUID templateId, ContentBindingType contentBindingType, UUID targetId) {
+    try {
+      var binding = new TemplateBinding();
+      binding.setId(UUID.randomUUID());
+      binding.setTemplateId(templateId);
+      binding.setType(contentBindingType);
+      binding.setTargetId(targetId);
+      projectManager.getContent().put(binding);
+      didUpdate(ProjectUpdate.TemplateBindings, true);
+      LOG.info("Added {} template binding", contentBindingType);
+
+    } catch (Exception e) {
+      LOG.error("Could not add Template Binding!\n{}", StringUtils.formatStackTrace(e), e);
     }
   }
 
