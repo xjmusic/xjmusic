@@ -16,6 +16,7 @@ import javafx.scene.layout.HBox;
 
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public abstract class BrowserController implements ReadyAfterBootController {
   /**
@@ -34,8 +35,10 @@ public abstract class BrowserController implements ReadyAfterBootController {
   }
 
   /**
-   Add a column to a table with control buttons@param <N>      type of table@param type     of table
+   Add a column to a table with control buttons
 
+   @param <N>      type of table
+   @param type     of table
    @param table    for which to add column
    @param onEdit   action to perform when editing an item
    @param onMove   action to perform when moving an item
@@ -50,15 +53,16 @@ public abstract class BrowserController implements ReadyAfterBootController {
     @Nullable Consumer<N> onClone,
     @Nullable Consumer<N> onDelete
   ) {
-    TableColumn<N, N> buttonsColumn = new TableColumn<>("Actions");
+    TableColumn<N, N> buttonsColumn = new TableColumn<>();
     buttonsColumn.setCellFactory(param -> new ButtonCell<>(type, onEdit, onMove, onClone, onDelete));
-    buttonsColumn.setPrefWidth(100);
+    buttonsColumn.setPrefWidth(Stream.of(onEdit, onMove, onClone, onDelete).filter(Objects::nonNull).count() * 25 + 5);
     table.getColumns().add(buttonsColumn);
   }
 
   /**
-   Setup the data for the libraries table.@param <N>   type of table
+   Setup the data for the libraries table.
 
+   @param <N>   type of table
    @param table for which to setup data
    @param data  observable list
    */

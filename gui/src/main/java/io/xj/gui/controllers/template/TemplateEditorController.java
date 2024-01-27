@@ -89,12 +89,12 @@ public class TemplateEditorController extends BrowserController implements Ready
 
     TableColumn<TemplateBinding, String> typeColumn = new TableColumn<>("Type");
     typeColumn.setCellValueFactory(new PropertyValueFactory<>("type"));
-    typeColumn.setPrefWidth(200);
+    typeColumn.setPrefWidth(100);
     bindingsTable.getColumns().add(typeColumn);
 
     TableColumn<TemplateBinding, String> nameColumn = new TableColumn<>("Name");
     nameColumn.setCellValueFactory(row -> getTargetName(row.getValue()));
-    nameColumn.setPrefWidth(200);
+    nameColumn.setPrefWidth(300);
     bindingsTable.getColumns().add(nameColumn);
 
     bindingsTable.setOnMousePressed(

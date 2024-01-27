@@ -307,3 +307,7 @@
   -fx-border-width: 0;
   -fx-padding: 2 6 2 6;
 }
+
+.split-pane {
+  -fx-background-color: transparent;
+}

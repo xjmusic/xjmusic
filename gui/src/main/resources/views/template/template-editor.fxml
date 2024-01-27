@@ -13,104 +13,117 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.control.SplitPane?>
 <VBox
   fx:controller="io.xj.gui.controllers.template.TemplateEditorController"
   fx:id="container"
   xmlns="http://javafx.com/javafx/17.0.2-ea"
   xmlns:fx="http://javafx.com/fxml/1"
-  spacing="5.0"
->
+  spacing="5.0">
   <VBox.vgrow>
     <Priority fx:constant="ALWAYS"/>
   </VBox.vgrow>
 
-  <padding>
-    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-  </padding>
+  <SplitPane>
 
-  <VBox>
-    <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Name" textAlignment="RIGHT">
-      <graphic>
-        <Pane prefWidth="15.0"/>
-      </graphic>
-    </Label>
-    <Pane prefWidth="15.0"/>
-    <TextField fx:id="fieldName" prefHeight="25.0"/>
-  </VBox>
-
-  <HBox spacing="10">
-    <Button
-      fx:id="buttonOK"
-      onAction="#handlePressOK"
-      text="OK"/>
-    <Button fx:id="buttonCancel"
-            onAction="#handlePressCancel"
-            text="Cancel"/>
-
-  </HBox>
-
-  <VBox>
-    <VBox.vgrow>
-      <Priority fx:constant="ALWAYS"/>
-    </VBox.vgrow>
-
-    <!-- Bindings header -->
-    <AnchorPane
-      minHeight="32"
-      styleClass="template-bindings-pane">
-      <StackPane
-        AnchorPane.leftAnchor="0"
-        AnchorPane.topAnchor="0"
-        AnchorPane.bottomAnchor="0"
-        alignment="CENTER_LEFT">
-        <padding>
-          <Insets top="4" left="9" right="9" bottom="3"/>
-        </padding>
-        <Label styleClass="bold">Bindings</Label>
-      </StackPane>
-
-      <StackPane
-        AnchorPane.rightAnchor="0"
-        AnchorPane.topAnchor="0"
-        AnchorPane.bottomAnchor="0"
-        alignment="CENTER_RIGHT">
-        <HBox alignment="CENTER_RIGHT">
-          <padding>
-            <Insets top="4" left="9" right="9" bottom="3"/>
-          </padding>
-          <HBox alignment="CENTER_RIGHT" spacing="10">
-            <Button
-                    mnemonicParsing="false"
-                    onAction="#handlePressAddBinding"
-                    text="Add Binding">
-              <graphic>
-                <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
-                  <Image url="@/icons/square-plus.png"/>
-                </ImageView>
-              </graphic>
-            </Button>
-          </HBox>
-        </HBox>
-      </StackPane>
-
-    </AnchorPane>
-
-
-    <TableView
-      fx:id="bindingsTable"
-      AnchorPane.topAnchor="0"
-      AnchorPane.rightAnchor="0"
-      AnchorPane.bottomAnchor="0"
-      AnchorPane.leftAnchor="0"
-      maxHeight="Infinity"
-      maxWidth="Infinity">
+    <VBox spacing="5.0">
       <VBox.vgrow>
         <Priority fx:constant="ALWAYS"/>
       </VBox.vgrow>
-      <placeholder>
-        <Label text="Template has no Bindings"/>
-      </placeholder>
-    </TableView>
-  </VBox>
+      <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+      </padding>
+
+      <VBox>
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Name" textAlignment="RIGHT">
+          <graphic>
+            <Pane prefWidth="15.0"/>
+          </graphic>
+        </Label>
+        <Pane prefWidth="15.0"/>
+        <TextField fx:id="fieldName" prefHeight="25.0"/>
+      </VBox>
+
+      <HBox spacing="10">
+        <Button
+          fx:id="buttonOK"
+          onAction="#handlePressOK"
+          text="OK"/>
+        <Button fx:id="buttonCancel"
+                onAction="#handlePressCancel"
+                text="Cancel"/>
+      </HBox>
+    </VBox>
+
+    <VBox>
+      <VBox.vgrow>
+        <Priority fx:constant="ALWAYS"/>
+      </VBox.vgrow>
+
+      <!-- Bindings header -->
+      <AnchorPane
+        minHeight="32"
+        styleClass="template-bindings-pane">
+        <StackPane
+          AnchorPane.leftAnchor="0"
+          AnchorPane.topAnchor="0"
+          AnchorPane.bottomAnchor="0"
+          alignment="CENTER_LEFT">
+          <padding>
+            <Insets top="4" left="9" right="9" bottom="3"/>
+          </padding>
+          <Label styleClass="bold">Bindings</Label>
+        </StackPane>
+
+        <StackPane
+          AnchorPane.rightAnchor="0"
+          AnchorPane.topAnchor="0"
+          AnchorPane.bottomAnchor="0"
+          alignment="CENTER_RIGHT">
+          <HBox alignment="CENTER_RIGHT">
+            <padding>
+              <Insets top="4" left="9" right="9" bottom="3"/>
+            </padding>
+            <HBox alignment="CENTER_RIGHT" spacing="10">
+              <Button
+                mnemonicParsing="false"
+                onAction="#handlePressAddBinding"
+                text="Add Binding">
+                <graphic>
+                  <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
+                    <Image url="@/icons/square-plus.png"/>
+                  </ImageView>
+                </graphic>
+              </Button>
+            </HBox>
+          </HBox>
+        </StackPane>
+
+      </AnchorPane>
+
+      <StackPane
+        AnchorPane.topAnchor="0"
+        AnchorPane.rightAnchor="0"
+        AnchorPane.bottomAnchor="0"
+        AnchorPane.leftAnchor="0">
+        <TableView
+          fx:id="bindingsTable"
+          AnchorPane.topAnchor="0"
+          AnchorPane.rightAnchor="0"
+          AnchorPane.bottomAnchor="0"
+          AnchorPane.leftAnchor="0"
+          maxHeight="Infinity"
+          maxWidth="Infinity">
+          <VBox.vgrow>
+            <Priority fx:constant="ALWAYS"/>
+          </VBox.vgrow>
+          <placeholder>
+            <Label text="Template has no Bindings"/>
+          </placeholder>
+        </TableView>
+      </StackPane>
+    </VBox>
+
+  </SplitPane>
 
 </VBox>
