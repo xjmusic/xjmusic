@@ -50,55 +50,49 @@
     </HBox>
   </VBox>
 
-  <VBox style="-fx-background-color: red">
-    <VBox.vgrow>
-      <Priority fx:constant="ALWAYS"/>
-    </VBox.vgrow>
-
+  <AnchorPane
+    AnchorPane.topAnchor="0"
+    AnchorPane.rightAnchor="0"
+    AnchorPane.bottomAnchor="0"
+    AnchorPane.leftAnchor="0"
+    styleClass="template-bindings-pane">
     <!-- Bindings header -->
-    <AnchorPane
-      minHeight="32"
-      styleClass="template-bindings-pane">
-      <StackPane
-        AnchorPane.leftAnchor="0"
-        AnchorPane.topAnchor="0"
-        AnchorPane.bottomAnchor="0"
-        alignment="CENTER_LEFT">
+    <StackPane
+      AnchorPane.leftAnchor="0"
+      AnchorPane.topAnchor="0"
+      prefHeight="32">
+      <padding>
+        <Insets top="4" left="9" right="9" bottom="3"/>
+      </padding>
+      <Label styleClass="bold">Bindings</Label>
+    </StackPane>
+    <StackPane
+      AnchorPane.rightAnchor="0"
+      AnchorPane.topAnchor="0"
+      prefHeight="32">
+      <HBox alignment="CENTER_RIGHT">
         <padding>
           <Insets top="4" left="9" right="9" bottom="3"/>
         </padding>
-        <Label styleClass="bold">Bindings</Label>
-      </StackPane>
-
-      <StackPane
-        AnchorPane.rightAnchor="0"
-        AnchorPane.topAnchor="0"
-        AnchorPane.bottomAnchor="0"
-        alignment="CENTER_RIGHT">
-        <HBox alignment="CENTER_RIGHT">
-          <padding>
-            <Insets top="4" left="9" right="9" bottom="3"/>
-          </padding>
-          <HBox alignment="CENTER_RIGHT" spacing="10">
-            <Button
-              mnemonicParsing="false"
-              onAction="#handlePressAddBinding"
-              text="Add Binding">
-              <graphic>
-                <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
-                  <Image url="@/icons/square-plus.png"/>
-                </ImageView>
-              </graphic>
-            </Button>
-          </HBox>
+        <HBox alignment="CENTER_RIGHT" spacing="10">
+          <Button
+            mnemonicParsing="false"
+            onAction="#handlePressAddBinding"
+            text="Add Binding">
+            <graphic>
+              <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
+                <Image url="@/icons/square-plus.png"/>
+              </ImageView>
+            </graphic>
+          </Button>
         </HBox>
-      </StackPane>
+      </HBox>
+    </StackPane>
 
-    </AnchorPane>
-
+    <!-- Bindings -->
     <TableView
       fx:id="bindingsTable"
-      AnchorPane.topAnchor="0"
+      AnchorPane.topAnchor="32"
       AnchorPane.rightAnchor="0"
       AnchorPane.bottomAnchor="0"
       AnchorPane.leftAnchor="0"
@@ -108,6 +102,6 @@
         <Label text="Template has no Bindings"/>
       </placeholder>
     </TableView>
-  </VBox>
+  </AnchorPane>
 
 </SplitPane>
