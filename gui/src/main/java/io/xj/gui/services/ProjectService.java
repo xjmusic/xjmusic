@@ -3,6 +3,7 @@ package io.xj.gui.services;
 import io.xj.hub.HubContent;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
@@ -169,39 +170,45 @@ public interface ProjectService {
   ObservableObjectValue<Project> currentProjectProperty();
 
   /**
-   Delete the template by id
+   Delete a template
 
-   @param template the template
+   @param template to delete
    */
   void deleteTemplate(Template template);
 
   /**
-   Delete the template binding by id
+   Delete a template binding
 
-   @param binding the template binding
+   @param binding to delete
    */
   void deleteTemplateBinding(TemplateBinding binding);
 
   /**
-   Delete the library by id
+   Delete a library
 
-   @param library the library
+   @param library to delete
    */
   void deleteLibrary(Library library);
 
   /**
-   Delete the program by id
+   Delete a program
 
-   @param program the program
+   @param program to delete
    */
   void deleteProgram(Program program);
 
   /**
-   Delete the instrument by id
+   Delete an instrument
 
-   @param instrument the instrument
+   @param instrument to delete
    */
   void deleteInstrument(Instrument instrument);
+
+  /**
+   Delete an Instrument Audio
+   * @param audio to delete
+   */
+  void deleteInstrumentAudio(InstrumentAudio audio);
 
   /**
    Create a new template

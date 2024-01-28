@@ -9,6 +9,7 @@ import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.json.JsonProvider;
 import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
@@ -328,37 +329,44 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void deleteTemplate(Template template) {
-    projectManager.getContent().getTemplates().removeIf(binding -> Objects.equals(binding.getId(), template.getId()));
+    projectManager.getContent().getTemplates().removeIf(n -> Objects.equals(n.getId(), template.getId()));
     didUpdate(ProjectUpdate.Templates, true);
     LOG.info("Deleted template \"{}\"", template.getName());
   }
 
   @Override
   public void deleteTemplateBinding(TemplateBinding binding) {
-    projectManager.getContent().getTemplateBindings().removeIf(templateBinding -> Objects.equals(templateBinding.getId(), binding.getId()));
+    projectManager.getContent().getTemplateBindings().removeIf(n -> Objects.equals(n.getId(), binding.getId()));
     didUpdate(ProjectUpdate.TemplateBindings, true);
     LOG.info("Deleted {} template binding", binding.getType());
   }
 
   @Override
   public void deleteLibrary(Library library) {
-    projectManager.getContent().getLibraries().removeIf(binding -> Objects.equals(binding.getId(), library.getId()));
+    projectManager.getContent().getLibraries().removeIf(n -> Objects.equals(n.getId(), library.getId()));
     didUpdate(ProjectUpdate.Libraries, true);
     LOG.info("Deleted library \"{}\"", library.getName());
   }
 
   @Override
   public void deleteProgram(Program program) {
-    projectManager.getContent().getPrograms().removeIf(binding -> Objects.equals(binding.getId(), program.getId()));
+    projectManager.getContent().getPrograms().removeIf(n -> Objects.equals(n.getId(), program.getId()));
     didUpdate(ProjectUpdate.Programs, true);
     LOG.info("Deleted program \"{}\"", program.getName());
   }
 
   @Override
   public void deleteInstrument(Instrument instrument) {
-    projectManager.getContent().getInstruments().removeIf(binding -> Objects.equals(binding.getId(), instrument.getId()));
+    projectManager.getContent().getInstruments().removeIf(n -> Objects.equals(n.getId(), instrument.getId()));
     didUpdate(ProjectUpdate.Instruments, true);
     LOG.info("Deleted instrument \"{}\"", instrument.getName());
+  }
+
+  @Override
+  public void deleteInstrumentAudio(InstrumentAudio audio) {
+    projectManager.getContent().getInstrumentAudios().removeIf(n -> Objects.equals(n.getId(), n.getId()));
+    didUpdate(ProjectUpdate.InstrumentAudios, true);
+    LOG.info("Deleted instrument audio \"{}\"", audio.getName());
   }
 
   @Override

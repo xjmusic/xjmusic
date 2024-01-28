@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.control.SplitPane?>
+
+<?import javafx.scene.control.TextArea?>
+<SplitPane
+  fx:controller="io.xj.gui.controllers.instrument.InstrumentEditorController"
+  fx:id="container"
+  xmlns="http://javafx.com/javafx/17.0.2-ea"
+  xmlns:fx="http://javafx.com/fxml/1">
+
+  <VBox
+    fx:id="fieldsContainer"
+    spacing="10.0">
+    <VBox.vgrow>
+      <Priority fx:constant="ALWAYS"/>
+    </VBox.vgrow>
+    <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+    </padding>
+
+    <VBox>
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Name" textAlignment="RIGHT"/>
+      <TextField fx:id="fieldName" prefHeight="25.0"/>
+    </VBox>
+
+    <VBox>
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Configuration" textAlignment="RIGHT"/>
+      <TextArea fx:id="fieldConfig" maxHeight="Infinity"/>
+    </VBox>
+
+    <HBox spacing="10">
+      <Button
+        fx:id="buttonSave"
+        onAction="#handlePressSave"
+        text="Save"/>
+    </HBox>
+  </VBox>
+
+  <AnchorPane
+    AnchorPane.topAnchor="0"
+    AnchorPane.rightAnchor="0"
+    AnchorPane.bottomAnchor="0"
+    AnchorPane.leftAnchor="0"
+    styleClass="instrument-audios-pane">
+    <!-- Audios header -->
+    <StackPane
+      AnchorPane.leftAnchor="0"
+      AnchorPane.topAnchor="0"
+      prefHeight="32">
+      <padding>
+        <Insets top="4" left="9" right="9" bottom="3"/>
+      </padding>
+      <Label styleClass="bold">Audios</Label>
+    </StackPane>
+    <StackPane
+      AnchorPane.rightAnchor="0"
+      AnchorPane.topAnchor="0"
+      prefHeight="32">
+      <HBox alignment="CENTER_RIGHT">
+        <padding>
+          <Insets top="4" left="9" right="9" bottom="3"/>
+        </padding>
+        <HBox alignment="CENTER_RIGHT" spacing="10">
+          <Button
+            mnemonicParsing="false"
+            onAction="#handlePressAddAudio"
+            text="Add Audio">
+            <graphic>
+              <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
+                <Image url="@/icons/square-plus.png"/>
+              </ImageView>
+            </graphic>
+          </Button>
+        </HBox>
+      </HBox>
+    </StackPane>
+
+    <!-- Audios -->
+    <TableView
+      fx:id="audiosTable"
+      AnchorPane.topAnchor="32"
+      AnchorPane.rightAnchor="0"
+      AnchorPane.bottomAnchor="0"
+      AnchorPane.leftAnchor="0"
+      maxHeight="Infinity"
+      maxWidth="Infinity">
+      <placeholder>
+        <Label text="Instrument has no Audios"/>
+      </placeholder>
+    </TableView>
+  </AnchorPane>
+
+</SplitPane>
