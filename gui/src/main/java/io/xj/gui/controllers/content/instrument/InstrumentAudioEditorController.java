@@ -35,8 +35,6 @@ import java.util.UUID;
 @Service
 public class InstrumentAudioEditorController extends BrowserController {
   static final Logger LOG = LoggerFactory.getLogger(InstrumentAudioEditorController.class);
-  private final ProjectService projectService;
-  private final UIStateService uiStateService;
   private final ObjectProperty<UUID> instrumentAudioId = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
   private final StringProperty event = new SimpleStringProperty("");
@@ -89,9 +87,7 @@ public class InstrumentAudioEditorController extends BrowserController {
     ProjectService projectService,
     UIStateService uiStateService
   ) {
-    super(fxml, ac, themeService);
-    this.projectService = projectService;
-    this.uiStateService = uiStateService;
+    super(fxml, ac, themeService, uiStateService, projectService);
   }
 
   @Override

@@ -44,8 +44,6 @@ import java.util.UUID;
 @Service
 public class InstrumentEditorController extends BrowserController {
   static final Logger LOG = LoggerFactory.getLogger(InstrumentEditorController.class);
-  private final ProjectService projectService;
-  private final UIStateService uiStateService;
   private final ObjectProperty<UUID> instrumentId = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
   private final StringProperty config = new SimpleStringProperty("");
@@ -77,9 +75,7 @@ public class InstrumentEditorController extends BrowserController {
     ProjectService projectService,
     UIStateService uiStateService
     ) {
-    super(fxml, ac, themeService);
-    this.projectService = projectService;
-    this.uiStateService = uiStateService;
+    super(fxml, ac, themeService, uiStateService, projectService);
   }
 
   @Override

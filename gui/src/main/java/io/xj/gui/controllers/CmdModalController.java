@@ -2,6 +2,7 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.gui.ProjectModalController;
 import io.xj.gui.modes.CmdMode;
 import io.xj.gui.modes.CmdType;
 import io.xj.gui.services.ProjectService;
@@ -47,7 +48,7 @@ import java.util.stream.Stream;
  Modal to Create/Clone/Move/Delete (CcMD) an Entity.
  */
 @Service
-public class CmdModalController extends ReadyAfterBootModalController {
+public class CmdModalController extends ProjectModalController {
   private static final Logger LOG = LoggerFactory.getLogger(CmdModalController.class);
   private static final Set<CmdMode> NAME_DISABLED_MODES = Set.of(
     CmdMode.Delete,
@@ -59,8 +60,6 @@ public class CmdModalController extends ReadyAfterBootModalController {
   private final StringProperty name = new SimpleStringProperty();
   private final ObjectProperty<Library> parentLibrary = new SimpleObjectProperty<>();
   private final ObjectProperty<UUID> currentId = new SimpleObjectProperty<>();
-  private final UIStateService uiStateService;
-  private final ProjectService projectService;
 
   @FXML
   protected VBox container;
@@ -88,9 +87,7 @@ public class CmdModalController extends ReadyAfterBootModalController {
     ThemeService themeService,
     ProjectService projectService
   ) {
-    super(fxml, ac, themeService);
-    this.uiStateService = uiStateService;
-    this.projectService = projectService;
+    super(fxml, ac, themeService, uiStateService, projectService);
   }
 
   @Override

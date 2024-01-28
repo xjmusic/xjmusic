@@ -3,7 +3,9 @@
 package io.xj.gui.controllers;
 
 import ch.qos.logback.classic.Level;
+import io.xj.gui.ProjectController;
 import io.xj.gui.WorkstationLogAppender;
+import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import jakarta.annotation.Nullable;
@@ -33,7 +35,7 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
 @Service
-public class MainPaneBottomController extends ReadyAfterBootController {
+public class MainPaneBottomController extends ProjectController {
   private static final String INDENT_SUB_LINES = "  ";
   private static final double ERROR_DIALOG_WIDTH = 800.0;
   private static final double ERROR_DIALOG_HEIGHT = 600.0;
@@ -42,7 +44,6 @@ public class MainPaneBottomController extends ReadyAfterBootController {
   private final Integer refreshRateSeconds;
   private final LogQueue logQueue;
   private final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
-  private final UIStateService uiStateService;
 
   @Nullable
   Timeline refresh;
@@ -55,11 +56,11 @@ public class MainPaneBottomController extends ReadyAfterBootController {
     @Value("${gui.logs.refresh.seconds}") Integer refreshRateSeconds,
     ApplicationContext ac,
     ThemeService themeService,
-    UIStateService uiStateService
+    UIStateService uiStateService,
+    ProjectService projectService
   ) {
-    super(fxml, ac, themeService);
+    super(fxml, ac, themeService, uiStateService, projectService);
     this.refreshRateSeconds = refreshRateSeconds;
-    this.uiStateService = uiStateService;
     logQueue = new LogQueue();
 
     // bind to the log appender

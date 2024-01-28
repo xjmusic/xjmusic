@@ -31,8 +31,6 @@ import java.util.Objects;
 @Service
 public class ContentBrowserController extends BrowserController {
   static final Logger LOG = LoggerFactory.getLogger(ContentBrowserController.class);
-  private final ProjectService projectService;
-  private final UIStateService uiStateService;
   private final CmdModalController cmdModalController;
   private final ObservableList<Library> libraries = FXCollections.observableList(new ArrayList<>());
   private final ObservableList<Program> programs = FXCollections.observableList(new ArrayList<>());
@@ -58,9 +56,7 @@ public class ContentBrowserController extends BrowserController {
     UIStateService uiStateService,
     CmdModalController cmdModalController
   ) {
-    super(fxml, ac, themeService);
-    this.projectService = projectService;
-    this.uiStateService = uiStateService;
+    super(fxml, ac, themeService, uiStateService, projectService);
     this.cmdModalController = cmdModalController;
   }
 

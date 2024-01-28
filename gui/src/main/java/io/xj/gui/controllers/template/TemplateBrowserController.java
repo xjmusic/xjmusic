@@ -28,8 +28,6 @@ import java.util.Objects;
 @Service
 public class TemplateBrowserController extends BrowserController {
   static final Logger LOG = LoggerFactory.getLogger(TemplateBrowserController.class);
-  private final ProjectService projectService;
-  private final UIStateService uiStateService;
   private final CmdModalController cmdModalController;
   private final ObservableList<Template> templates = FXCollections.observableList(new ArrayList<>());
 
@@ -47,9 +45,7 @@ public class TemplateBrowserController extends BrowserController {
     UIStateService uiStateService,
     CmdModalController cmdModalController
   ) {
-    super(fxml, ac, themeService);
-    this.projectService = projectService;
-    this.uiStateService = uiStateService;
+    super(fxml, ac, themeService, uiStateService, projectService);
     this.cmdModalController = cmdModalController;
   }
 

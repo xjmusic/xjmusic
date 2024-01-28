@@ -1,6 +1,5 @@
 package io.xj.gui.services;
 
-import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
@@ -11,13 +10,11 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
-import javafx.beans.binding.ListExpression;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
-import javafx.beans.value.ObservableValue;
 import javafx.css.PseudoClass;
 
 import java.util.Set;

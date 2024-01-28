@@ -2,9 +2,10 @@
 
 package io.xj.gui.controllers.template;
 
-import io.xj.gui.controllers.ReadyAfterBootModalController;
+import io.xj.gui.ProjectModalController;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
+import io.xj.gui.services.UIStateService;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
@@ -34,14 +35,13 @@ import java.util.UUID;
  Modal to Create/Clone/Move/Delete (CcMD) an Entity.
  */
 @Service
-public class TemplateAddBindingModalController extends ReadyAfterBootModalController {
+public class TemplateAddBindingModalController extends ProjectModalController {
   private static final String WINDOW_TITLE = "Add Template Binding";
   private final ObjectProperty<Library> library = new SimpleObjectProperty<>();
   private final ObjectProperty<Program> program = new SimpleObjectProperty<>();
   private final ObjectProperty<Instrument> instrument = new SimpleObjectProperty<>();
   private final ObjectProperty<UUID> templateId = new SimpleObjectProperty<>();
   private final ObjectProperty<ContentBindingType> libraryContentType = new SimpleObjectProperty<>(ContentBindingType.Library);
-  private final ProjectService projectService;
 
   @FXML
   protected VBox container;
@@ -87,10 +87,10 @@ public class TemplateAddBindingModalController extends ReadyAfterBootModalContro
     @Value("classpath:/views/template/template-add-binding-modal.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
     ThemeService themeService,
+    UIStateService uiStateService,
     ProjectService projectService
   ) {
-    super(fxml, ac, themeService);
-    this.projectService = projectService;
+    super(fxml, ac, themeService, uiStateService, projectService);
   }
 
   @Override

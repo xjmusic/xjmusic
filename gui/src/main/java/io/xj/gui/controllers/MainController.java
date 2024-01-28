@@ -2,6 +2,7 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.gui.ProjectController;
 import io.xj.gui.controllers.content.ContentBrowserController;
 import io.xj.gui.controllers.content.LibraryEditorController;
 import io.xj.gui.controllers.content.instrument.InstrumentAudioEditorController;
@@ -24,14 +25,12 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MainController extends ReadyAfterBootController {
+public class MainController extends ProjectController {
   static final Logger LOG = LoggerFactory.getLogger(MainController.class);
   private final FabricationController fabricationController;
   private final MainMenuController mainMenuController;
   private final MainPaneBottomController mainPaneBottomController;
   private final MainPaneTopController mainPaneTopController;
-  private final UIStateService uiStateService;
-  private final ProjectService projectService;
   private final ContentBrowserController contentBrowserController;
   private final LibraryEditorController libraryEditorController;
   private final ProgramEditorController programEditorController;
@@ -61,7 +60,7 @@ public class MainController extends ReadyAfterBootController {
     UIStateService uiStateService,
     InstrumentAudioEditorController instrumentAudioEditorController
   ) {
-    super(fxml, ac, themeService);
+    super(fxml, ac, themeService, uiStateService, projectService);
     this.contentBrowserController = contentBrowserController;
     this.fabricationController = fabricationController;
     this.instrumentEditorController = instrumentEditorController;
@@ -70,10 +69,8 @@ public class MainController extends ReadyAfterBootController {
     this.mainPaneBottomController = mainPaneBottomController;
     this.mainPaneTopController = mainPaneTopController;
     this.programEditorController = programEditorController;
-    this.projectService = projectService;
     this.templateBrowserController = templateBrowserController;
     this.templateEditorController = templateEditorController;
-    this.uiStateService = uiStateService;
     this.instrumentAudioEditorController = instrumentAudioEditorController;
   }
 

@@ -2,7 +2,9 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.gui.ProjectController;
 import io.xj.gui.services.FabricationService;
+import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.ControlMode;
@@ -36,10 +38,9 @@ import java.util.Set;
 import java.util.UUID;
 
 @Service
-public class MainPaneRightController extends ReadyAfterBootController {
+public class MainPaneRightController extends ProjectController {
   private static final PseudoClass ENGAGED_PSEUDO_CLASS = PseudoClass.getPseudoClass("engaged");
   private final FabricationService fabricationService;
-  private final UIStateService uiStateService;
 
   @FXML
   protected VBox container;
@@ -53,11 +54,11 @@ public class MainPaneRightController extends ReadyAfterBootController {
     ApplicationContext ac,
     ThemeService themeService,
     FabricationService fabricationService,
-    UIStateService uiStateService
+    UIStateService uiStateService,
+    ProjectService projectService
   ) {
-    super(fxml, ac, themeService);
+    super(fxml, ac, themeService, uiStateService, projectService);
     this.fabricationService = fabricationService;
-    this.uiStateService = uiStateService;
   }
 
   @Override

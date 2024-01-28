@@ -2,6 +2,7 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.gui.ProjectController;
 import io.xj.gui.WorkstationGuiFxApplication;
 import io.xj.gui.controllers.fabrication.FabricationSettingsModalController;
 import io.xj.gui.modes.ViewMode;
@@ -44,17 +45,15 @@ import static io.xj.gui.services.UIStateService.LAB_PENDING_STATES;
 import static io.xj.gui.services.UIStateService.PENDING_PSEUDO_CLASS;
 
 @Service
-public class MainMenuController extends ReadyAfterBootController {
+public class MainMenuController extends ProjectController {
   private final static String DEBUG = "DEBUG";
   private final static String INFO = "INFO";
   private final static String WARN = "WARN";
   private final static String ERROR = "ERROR";
   private final FabricationService fabricationService;
   private final GuideService guideService;
-  private final UIStateService uiStateService;
   private final LabService labService;
   private final ProjectCreationModalController projectCreationModalController;
-  private final ProjectService projectService;
   private final UIStateService guiService;
   private final FabricationSettingsModalController fabricationSettingsModalController;
   private final MainAboutModalController mainAboutModalController;
@@ -150,17 +149,15 @@ public class MainMenuController extends ReadyAfterBootController {
     UIStateService guiService,
     UIStateService uiStateService
   ) {
-    super(fxml, ac, themeService);
+    super(fxml, ac, themeService, uiStateService, projectService);
     this.fabricationService = fabricationService;
     this.fabricationSettingsModalController = fabricationSettingsModalController;
     this.projectCreationModalController = projectCreationModalController;
-    this.projectService = projectService;
     this.guiService = guiService;
     this.guideService = guideService;
     this.labService = labService;
     this.mainAboutModalController = mainAboutModalController;
     this.mainLabAuthenticationModalController = mainLabAuthenticationModalController;
-    this.uiStateService = uiStateService;
   }
 
   @Override

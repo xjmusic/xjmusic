@@ -45,8 +45,6 @@ import java.util.UUID;
 @Service
 public class TemplateEditorController extends BrowserController {
   static final Logger LOG = LoggerFactory.getLogger(TemplateEditorController.class);
-  private final ProjectService projectService;
-  private final UIStateService uiStateService;
   private final TemplateAddBindingModalController templateAddBindingModalController;
   private final ObjectProperty<UUID> templateId = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
@@ -80,9 +78,7 @@ public class TemplateEditorController extends BrowserController {
     UIStateService uiStateService,
     TemplateAddBindingModalController templateAddBindingModalController
   ) {
-    super(fxml, ac, themeService);
-    this.projectService = projectService;
-    this.uiStateService = uiStateService;
+    super(fxml, ac, themeService, uiStateService, projectService);
     this.templateAddBindingModalController = templateAddBindingModalController;
   }
 

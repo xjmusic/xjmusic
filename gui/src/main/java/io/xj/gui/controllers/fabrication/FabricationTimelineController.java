@@ -2,8 +2,9 @@
 
 package io.xj.gui.controllers.fabrication;
 
-import io.xj.gui.controllers.ReadyAfterBootController;
+import io.xj.gui.ProjectController;
 import io.xj.gui.services.FabricationService;
+import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.enums.InstrumentMode;
@@ -66,7 +67,7 @@ import static io.xj.hub.util.StringUtils.formatStackTrace;
 import static io.xj.nexus.model.Segment.DELTA_UNLIMITED;
 
 @Service
-public class FabricationTimelineController extends ReadyAfterBootController {
+public class FabricationTimelineController extends ProjectController {
   private static final Logger LOG = LoggerFactory.getLogger(FabricationTimelineController.class);
   private static final int NO_ID = -1;
   private static final double ACTIVE_SHIP_REGION_WIDTH = 5.0;
@@ -81,7 +82,6 @@ public class FabricationTimelineController extends ReadyAfterBootController {
   private final int segmentDisplayChoiceHashRecheckLimit;
   private final int displaySegmentsBeforeShip;
   private final FabricationService fabricationService;
-  private final UIStateService uiStateService;
   private final long refreshTimelineMillis;
   private final Timeline scrollPaneAnimationTimeline = new Timeline();
 
@@ -122,12 +122,12 @@ public class FabricationTimelineController extends ReadyAfterBootController {
     ApplicationContext ac,
     ThemeService themeService,
     FabricationService fabricationService,
-    UIStateService uiStateService
+    UIStateService uiStateService,
+    ProjectService projectService
   ) {
-    super(fxml, ac, themeService);
+    super(fxml, ac, themeService, uiStateService, projectService);
     this.displaySegmentsBeforeShip = displaySegmentsBeforeNow;
     this.fabricationService = fabricationService;
-    this.uiStateService = uiStateService;
     this.refreshTimelineMillis = refreshTimelineMillis;
     this.segmentDisplayChoiceHashRecheckLimit = segmentDisplayChoiceHashRecheckLimit;
     this.segmentGutter = segmentSpacingHorizontal;

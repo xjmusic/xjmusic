@@ -2,7 +2,10 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.gui.ProjectController;
+import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
+import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.TextAreaUtils;
 import io.xj.gui.utils.WindowUtils;
 import io.xj.hub.util.StringUtils;
@@ -23,7 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.prefs.Preferences;
 
 @Service
-public class EulaModalController extends ReadyAfterBootController {
+public class EulaModalController extends ProjectController {
   static final Logger LOG = LoggerFactory.getLogger(EulaModalController.class);
   static final String WINDOW_TITLE = "End User Licensing Agreement (EULA)";
   static final String PREFS_KEY_EULA_ACCEPTED = "eula.accepted";
@@ -44,9 +47,11 @@ public class EulaModalController extends ReadyAfterBootController {
     @Value("classpath:/views/eula-modal.fxml") Resource fxml,
     @Value("classpath:/EULA.txt") Resource eulaTextResource,
     ThemeService themeService,
-    ConfigurableApplicationContext ac
+    ConfigurableApplicationContext ac,
+    UIStateService uiStateService,
+    ProjectService projectService
   ) {
-    super(fxml, ac, themeService);
+    super(fxml, ac, themeService, uiStateService, projectService);
     this.eulaTextResource = eulaTextResource;
 
     prefs = Preferences.userNodeForPackage(EulaModalController.class);

@@ -3,7 +3,7 @@
 package io.xj.gui.controllers.fabrication;
 
 import io.xj.gui.controllers.MainPaneRightController;
-import io.xj.gui.controllers.ReadyAfterBootController;
+import io.xj.gui.ProjectController;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
@@ -15,11 +15,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
-public class FabricationController extends ReadyAfterBootController {
+public class FabricationController extends ProjectController {
   private final MainPaneRightController mainPaneRightController;
-  private final UIStateService uiStateService;
   private final FabricationTimelineController fabricationTimelineController;
-  private final ProjectService projectService;
 
   public FabricationController(
     @Value("classpath:/views/fabrication.fxml") Resource fxml,
@@ -30,11 +28,9 @@ public class FabricationController extends ReadyAfterBootController {
     FabricationTimelineController fabricationTimelineController,
     MainPaneRightController mainPaneRightController
   ) {
-    super(fxml, ac, themeService);
-    this.uiStateService = uiStateService;
+    super(fxml, ac, themeService, uiStateService, projectService);
     this.fabricationTimelineController = fabricationTimelineController;
     this.mainPaneRightController = mainPaneRightController;
-    this.projectService = projectService;
   }
 
   @FXML

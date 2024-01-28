@@ -2,7 +2,7 @@
 
 package io.xj.gui.controllers.content;
 
-import io.xj.gui.controllers.ReadyAfterBootController;
+import io.xj.gui.ProjectController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
@@ -29,10 +29,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Service
-public class LibraryEditorController extends ReadyAfterBootController {
+public class LibraryEditorController extends ProjectController {
   static final Logger LOG = LoggerFactory.getLogger(LibraryEditorController.class);
-  private final ProjectService projectService;
-  private final UIStateService uiStateService;
   private final ObjectProperty<UUID> libraryId = new SimpleObjectProperty<>(null);
   private final BooleanProperty dirty = new SimpleBooleanProperty(false);
   private final StringProperty name = new SimpleStringProperty("");
@@ -56,9 +54,7 @@ public class LibraryEditorController extends ReadyAfterBootController {
     ProjectService projectService,
     UIStateService uiStateService
   ) {
-    super(fxml, ac, themeService);
-    this.projectService = projectService;
-    this.uiStateService = uiStateService;
+    super(fxml, ac, themeService, uiStateService, projectService);
   }
 
   @Override
