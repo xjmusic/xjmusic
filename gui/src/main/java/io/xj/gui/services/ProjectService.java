@@ -12,6 +12,7 @@ import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.project.ProjectUpdate;
+import jakarta.annotation.Nullable;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -27,10 +28,8 @@ import java.util.UUID;
 public interface ProjectService {
   /**
    Close the project
-
-   @return true if the project was closed, or false if the user cancelled the close (maybe because the project has unsaved modifications)
    */
-  boolean closeProject();
+  void closeProject(@Nullable Runnable afterClose);
 
   /**
    Open a project
@@ -68,7 +67,7 @@ public interface ProjectService {
   /**
    Save the project
    */
-  void saveProject();
+  void saveProject(Runnable afterSave);
 
   /**
    Cancel the project loading
@@ -129,9 +128,10 @@ public interface ProjectService {
   void addProjectUpdateListener(ProjectUpdate type, Runnable listener);
 
   /**
-   Notify all listeners of a project update@param type the type of update
+   Notify all listeners of a project update
 
-   @param modified
+   @param type     the type of update
+   @param modified whether the update modified the project
    */
   void didUpdate(ProjectUpdate type, boolean modified);
 
@@ -361,8 +361,6 @@ public interface ProjectService {
 
   /**
    Prompt to close a modified project
-
-   @return true if user approves request to close project
    */
-  boolean confirmCloseIfModified();
+  void promptToSaveChanges(Runnable afterConfirmation);
 }

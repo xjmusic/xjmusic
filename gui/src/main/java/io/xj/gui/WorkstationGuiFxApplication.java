@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
@@ -64,7 +65,7 @@ public class WorkstationGuiFxApplication extends Application {
 
    @param ac the application context
    */
-  public static void exit(ConfigurableApplicationContext ac) {
+  public static void exit(ApplicationContext ac) {
     LOG.info("Will close application context");
     var exitCode = SpringApplication.exit(ac, () -> 0);
     LOG.info("Will exit with code {}", exitCode);
