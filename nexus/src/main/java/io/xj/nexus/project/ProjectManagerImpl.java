@@ -58,12 +58,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ProjectManagerImpl implements ProjectManager {
   static final Logger LOG = LoggerFactory.getLogger(ProjectManagerImpl.class);
-  private final String escapedFileSeparator = File.separator.equals("\\") ? "\\\\" : File.separator;
-  private final Pattern xjProjectPathAndFilenameRgx = Pattern.compile("(.*" + escapedFileSeparator + ")([^" + escapedFileSeparator + "]+)" + ".xj$");
   private final AtomicReference<ProjectState> state = new AtomicReference<>(ProjectState.Standby);
   private final AtomicReference<Project> project = new AtomicReference<>();
   private final AtomicReference<String> projectPathPrefix = new AtomicReference<>(File.separator);
@@ -133,7 +130,7 @@ public class ProjectManagerImpl implements ProjectManager {
   public boolean openProjectFromLocalFile(String projectFilePath) {
     LOG.info("Opening project at {}", projectFilePath);
 
-    Matcher matcher = xjProjectPathAndFilenameRgx.matcher(projectFilePath);
+    Matcher matcher = ProjectPathUtils.matchPrefixNameExtension(projectFilePath);
     if (!matcher.find()) {
       LOG.error("Failed to parse project path prefix and name from file path: {}", projectFilePath);
       return false;

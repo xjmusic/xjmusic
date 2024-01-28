@@ -201,7 +201,7 @@ public class UIStateServiceImpl implements UIStateService {
         projectService.isStateReadyProperty().get() &&
           switch (viewMode.get()) {
             case Content -> switch (contentMode.get()) {
-              case LibraryBrowser, ProgramBrowser, InstrumentBrowser, InstrumentEditor -> true;
+              case LibraryBrowser, ProgramBrowser, InstrumentBrowser -> true;
               default -> false;
             };
             case Templates -> Objects.equals(TemplateMode.TemplateBrowser, templateMode.get());
@@ -216,7 +216,6 @@ public class UIStateServiceImpl implements UIStateService {
           case LibraryBrowser -> "New Library";
           case ProgramBrowser -> "New Program";
           case InstrumentBrowser -> "New Instrument";
-          case InstrumentEditor -> "Import Audio";
           default -> "";
         };
         case Templates -> "New Template";

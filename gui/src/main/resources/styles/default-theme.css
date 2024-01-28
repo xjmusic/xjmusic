@@ -269,19 +269,22 @@
 
 .top-pane .button:hover,
 .top-pane .toggle-button:hover,
-.template-bindings-pane .button:hover {
+.template-bindings-pane .button:hover,
+.instrument-audios-pane .button:hover {
   -fx-background-color: #c0c0c0;
 }
 
 .top-pane .button:pressed,
 .top-pane .toggle-button:pressed,
-.template-bindings-pane .button:pressed {
+.template-bindings-pane .button:pressed,
+.instrument-audios-pane .button:pressed {
   -fx-background-color: #a0a0a0;
 }
 
 .top-pane .button:selected,
 .top-pane .toggle-button:selected,
-.template-bindings-pane .button:selected {
+.template-bindings-pane .button:selected,
+.instrument-audios-pane .button:selected {
   -fx-background-color: #c0c0c0;
 }
 

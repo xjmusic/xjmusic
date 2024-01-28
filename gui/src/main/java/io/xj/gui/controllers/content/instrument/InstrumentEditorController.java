@@ -11,6 +11,8 @@ import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.util.StringUtils;
+import io.xj.nexus.project.ProjectPathUtils;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -40,6 +42,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.regex.Matcher;
 
 @Service
 public class InstrumentEditorController extends BrowserController {
@@ -74,7 +77,7 @@ public class InstrumentEditorController extends BrowserController {
     ThemeService themeService,
     ProjectService projectService,
     UIStateService uiStateService
-    ) {
+  ) {
     super(fxml, ac, themeService, uiStateService, projectService);
   }
 
@@ -176,14 +179,23 @@ public class InstrumentEditorController extends BrowserController {
 
   @FXML
   private void handlePressImportAudio(ActionEvent ignored) {
+    var audioFilePath = ProjectUtils.chooseAudioFile(container.getScene().getWindow(), "Choose audio file");
+
+    if (Objects.isNull(audioFilePath)) return;
+
+    Matcher matcher = ProjectPathUtils.matchPrefixNameExtension(audioFilePath);
+    if (!matcher.find()) {
+      LOG.error("Failed to parse project path prefix and name from file path: {}", audioFilePath);
+      return;
+    }
+
+    var audio = new InstrumentAudio();
+    audio.setName(matcher.group(2));
+    audio.setId(UUID.randomUUID());
+    audio.setWaveformKey(String.format("instrument-%s-audio-%s-%s.wav", instrumentId.get(), StringUtils.toLowerHyphenatedSlug(matcher.group(2))audio.getId()));
+
     // TODO generate waveform fllename, copy file to project, save as new instrument audio in instrument
     // TODO open new instrument audio in audio editor
-    var audioFilePath = ProjectUtils.chooseAudioFile(container.getScene().getWindow(), "Choose audio file");
-    if (Objects.nonNull(audioFilePath)) {
-      var audio = new InstrumentAudio();
-      audio.setId(UUID.randomUUID());
-      audio.setWaveformKey(String.format("instrument-%s-audio-%s.wav", instrumentId.get(), audio.getId()));
-    }
   }
 
   /**
