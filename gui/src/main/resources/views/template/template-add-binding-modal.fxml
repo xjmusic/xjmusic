@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <VBox
   fx:id="container"
-  fx:controller="io.xj.gui.controllers.template.TemplateAddBindingController"
+  fx:controller="io.xj.gui.controllers.template.TemplateAddBindingModalController"
   spacing="10"
   xmlns="http://javafx.com/javafx/20.0.1"
   xmlns:fx="http://javafx.com/fxml/1"

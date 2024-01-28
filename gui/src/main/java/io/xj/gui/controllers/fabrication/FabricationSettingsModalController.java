@@ -64,11 +64,11 @@ public class FabricationSettingsModalController extends ReadyAfterBootModalContr
   public FabricationSettingsModalController(
     @Value("classpath:/views/fabrication/fabrication-settings-modal.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
+    ThemeService themeService,
     FabricationService fabricationService,
-    ProjectService projectService,
-    ThemeService themeService
+    ProjectService projectService
   ) {
-    super(ac, themeService, fxml);
+    super(fxml, ac, themeService);
     this.fabricationService = fabricationService;
     this.projectService = projectService;
   }

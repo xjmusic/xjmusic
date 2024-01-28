@@ -11,24 +11,20 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 
-public abstract class ReadyAfterBootModalController implements ReadyAfterBootController {
+public abstract class ReadyAfterBootModalController extends ReadyAfterBootController {
   private final static Logger LOG = LoggerFactory.getLogger(ReadyAfterBootModalController.class);
-  protected final ConfigurableApplicationContext ac;
-  protected final ThemeService themeService;
   private final Resource fxml;
 
   protected ReadyAfterBootModalController(
-    ConfigurableApplicationContext ac,
-    ThemeService themeService,
-    Resource fxml
+    Resource fxml, ApplicationContext ac,
+    ThemeService themeService
   ) {
-    this.ac = ac;
-    this.themeService = themeService;
+    super(fxml, ac, themeService);
     this.fxml = fxml;
   }
 

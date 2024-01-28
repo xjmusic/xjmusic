@@ -4,10 +4,10 @@ package io.xj.gui.controllers.content;
 
 import io.xj.gui.controllers.BrowserController;
 import io.xj.gui.controllers.CmdModalController;
-import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
@@ -20,13 +20,16 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.StackPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
 @Service
-public class ContentBrowserController extends BrowserController implements ReadyAfterBootController {
+public class ContentBrowserController extends BrowserController {
   static final Logger LOG = LoggerFactory.getLogger(ContentBrowserController.class);
   private final ProjectService projectService;
   private final UIStateService uiStateService;
@@ -48,10 +51,14 @@ public class ContentBrowserController extends BrowserController implements Ready
   protected TableView<Instrument> instrumentsTable;
 
   public ContentBrowserController(
+    @Value("classpath:/views/content/content-browser.fxml") Resource fxml,
+    ApplicationContext ac,
+    ThemeService themeService,
     ProjectService projectService,
     UIStateService uiStateService,
     CmdModalController cmdModalController
   ) {
+    super(fxml, ac, themeService);
     this.projectService = projectService;
     this.uiStateService = uiStateService;
     this.cmdModalController = cmdModalController;

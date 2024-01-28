@@ -11,16 +11,20 @@ import io.xj.gui.controllers.fabrication.FabricationController;
 import io.xj.gui.controllers.template.TemplateBrowserController;
 import io.xj.gui.controllers.template.TemplateEditorController;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.util.StringUtils;
 import javafx.fxml.FXML;
 import javafx.scene.image.ImageView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MainController implements ReadyAfterBootController {
+public class MainController extends ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(MainController.class);
   private final FabricationController fabricationController;
   private final MainMenuController mainMenuController;
@@ -40,6 +44,9 @@ public class MainController implements ReadyAfterBootController {
   protected ImageView startupContainer;
 
   public MainController(
+    @Value("classpath:/views/main.fxml") Resource fxml,
+    ApplicationContext ac,
+    ThemeService themeService,
     ContentBrowserController contentBrowserController,
     FabricationController fabricationController,
     InstrumentEditorController instrumentEditorController,
@@ -52,7 +59,9 @@ public class MainController implements ReadyAfterBootController {
     TemplateBrowserController templateBrowserController,
     TemplateEditorController templateEditorController,
     UIStateService uiStateService,
-    InstrumentAudioEditorController instrumentAudioEditorController) {
+    InstrumentAudioEditorController instrumentAudioEditorController
+  ) {
+    super(fxml, ac, themeService);
     this.contentBrowserController = contentBrowserController;
     this.fabricationController = fabricationController;
     this.instrumentEditorController = instrumentEditorController;

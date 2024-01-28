@@ -7,6 +7,7 @@ import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.work.FabricationState;
 import javafx.application.Platform;
@@ -22,7 +23,9 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -33,7 +36,7 @@ import static io.xj.gui.services.UIStateService.FAILED_PSEUDO_CLASS;
 import static io.xj.gui.services.UIStateService.PENDING_PSEUDO_CLASS;
 
 @Service
-public class MainPaneTopController extends VBox implements ReadyAfterBootController {
+public class MainPaneTopController extends ReadyAfterBootController {
   private static final Set<FabricationState> WORK_PENDING_STATES = Set.of(
     FabricationState.Initializing,
     FabricationState.PreparedAudio,
@@ -114,12 +117,16 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   protected ToggleButton buttonLibraryContentInstruments;
 
   public MainPaneTopController(
+    @Value("classpath:/views/main-pane-top.fxml") Resource fxml,
+    ApplicationContext ac,
+    ThemeService themeService,
     FabricationService fabricationService,
     FabricationSettingsModalController fabricationSettingsModalController,
     CmdModalController cmdModalController,
     ProjectService projectService,
     UIStateService uiStateService
   ) {
+    super(fxml, ac, themeService);
     this.fabricationService = fabricationService;
     this.fabricationSettingsModalController = fabricationSettingsModalController;
     this.cmdModalController = cmdModalController;

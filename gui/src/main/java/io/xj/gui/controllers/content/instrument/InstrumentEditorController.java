@@ -3,10 +3,10 @@
 package io.xj.gui.controllers.content.instrument;
 
 import io.xj.gui.controllers.BrowserController;
-import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.hub.InstrumentConfig;
@@ -32,6 +32,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -39,11 +42,10 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Service
-public class InstrumentEditorController extends BrowserController implements ReadyAfterBootController {
+public class InstrumentEditorController extends BrowserController {
   static final Logger LOG = LoggerFactory.getLogger(InstrumentEditorController.class);
   private final ProjectService projectService;
   private final UIStateService uiStateService;
-  private final InstrumentAudioEditorController instrumentAudioEditorController;
   private final ObjectProperty<UUID> instrumentId = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
   private final StringProperty config = new SimpleStringProperty("");
@@ -69,13 +71,15 @@ public class InstrumentEditorController extends BrowserController implements Rea
   protected TableView<InstrumentAudio> audiosTable;
 
   public InstrumentEditorController(
+    @Value("classpath:/views/content/instrument/instrument-editor.fxml") Resource fxml,
+    ApplicationContext ac,
+    ThemeService themeService,
     ProjectService projectService,
-    UIStateService uiStateService,
-    InstrumentAudioEditorController instrumentAudioEditorController
-  ) {
+    UIStateService uiStateService
+    ) {
+    super(fxml, ac, themeService);
     this.projectService = projectService;
     this.uiStateService = uiStateService;
-    this.instrumentAudioEditorController = instrumentAudioEditorController;
   }
 
   @Override
@@ -130,9 +134,7 @@ public class InstrumentEditorController extends BrowserController implements Rea
     audiosTable.setOnMousePressed(
       event -> {
         if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
-          Platform.runLater(() -> {
-            uiStateService.editInstrumentAudio(audiosTable.getSelectionModel().getSelectedItem().getId());
-          });
+          Platform.runLater(() -> uiStateService.editInstrumentAudio(audiosTable.getSelectionModel().getSelectedItem().getId()));
         }
       });
 
@@ -142,8 +144,8 @@ public class InstrumentEditorController extends BrowserController implements Rea
       null,
       audio -> {
         if (Objects.nonNull(audio)) {
-          // TODO confirm before deleting audio
-          projectService.deleteInstrumentAudio(audio);
+          if (showConfirmationDialog("Delete Audio?", "This action cannot be undone.", String.format("Are you sure you want to delete the Audio \"%s\"?", audio.getName())))
+            projectService.deleteInstrumentAudio(audio);
         }
       });
 

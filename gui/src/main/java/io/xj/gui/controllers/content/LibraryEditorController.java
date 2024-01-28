@@ -6,6 +6,7 @@ import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -19,13 +20,16 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.UUID;
 
 @Service
-public class LibraryEditorController implements ReadyAfterBootController {
+public class LibraryEditorController extends ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(LibraryEditorController.class);
   private final ProjectService projectService;
   private final UIStateService uiStateService;
@@ -46,9 +50,13 @@ public class LibraryEditorController implements ReadyAfterBootController {
   protected Button buttonCancel;
 
   public LibraryEditorController(
+    @Value("classpath:/views/content/library-editor.fxml") Resource fxml,
+    ApplicationContext ac,
+    ThemeService themeService,
     ProjectService projectService,
     UIStateService uiStateService
   ) {
+    super(fxml, ac, themeService);
     this.projectService = projectService;
     this.uiStateService = uiStateService;
   }

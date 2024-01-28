@@ -30,7 +30,7 @@ import java.util.UUID;
  <p>
  The GUI should use this service to determine some common states, e.g. "Should the fabrication settings appear disabled?"
  */
-public interface UIStateService extends ReadyAfterBootController {
+public interface UIStateService extends ReadyAfterBoot {
   PseudoClass ACTIVE_PSEUDO_CLASS = PseudoClass.getPseudoClass("active");
   PseudoClass PENDING_PSEUDO_CLASS = PseudoClass.getPseudoClass("pending");
   PseudoClass FAILED_PSEUDO_CLASS = PseudoClass.getPseudoClass("failed");

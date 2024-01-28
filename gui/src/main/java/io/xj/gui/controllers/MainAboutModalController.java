@@ -34,7 +34,7 @@ public class MainAboutModalController extends ReadyAfterBootModalController {
     ThemeService themeService,
     VersionService versionService
   ) {
-    super(ac, themeService, fxml);
+    super(fxml, ac, themeService);
     this.labService = labService;
     this.versionService = versionService;
   }

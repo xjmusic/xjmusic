@@ -5,7 +5,6 @@ package io.xj.gui.controllers.template;
 import io.xj.gui.controllers.ReadyAfterBootModalController;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
-import io.xj.gui.services.UIStateService;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
@@ -22,8 +21,6 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
@@ -37,15 +34,13 @@ import java.util.UUID;
  Modal to Create/Clone/Move/Delete (CcMD) an Entity.
  */
 @Service
-public class TemplateAddBindingController extends ReadyAfterBootModalController {
-  private static final Logger LOG = LoggerFactory.getLogger(TemplateAddBindingController.class);
+public class TemplateAddBindingModalController extends ReadyAfterBootModalController {
   private static final String WINDOW_TITLE = "Add Template Binding";
   private final ObjectProperty<Library> library = new SimpleObjectProperty<>();
   private final ObjectProperty<Program> program = new SimpleObjectProperty<>();
   private final ObjectProperty<Instrument> instrument = new SimpleObjectProperty<>();
   private final ObjectProperty<UUID> templateId = new SimpleObjectProperty<>();
   private final ObjectProperty<ContentBindingType> libraryContentType = new SimpleObjectProperty<>(ContentBindingType.Library);
-  private final UIStateService uiStateService;
   private final ProjectService projectService;
 
   @FXML
@@ -88,15 +83,13 @@ public class TemplateAddBindingController extends ReadyAfterBootModalController 
   protected ToggleButton buttonLibraryContentInstruments;
 
 
-  public TemplateAddBindingController(
-    @Value("classpath:/views/template/template-add-binding.fxml") Resource fxml,
+  public TemplateAddBindingModalController(
+    @Value("classpath:/views/template/template-add-binding-modal.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
-    UIStateService uiStateService,
     ThemeService themeService,
     ProjectService projectService
   ) {
-    super(ac, themeService, fxml);
-    this.uiStateService = uiStateService;
+    super(fxml, ac, themeService);
     this.projectService = projectService;
   }
 

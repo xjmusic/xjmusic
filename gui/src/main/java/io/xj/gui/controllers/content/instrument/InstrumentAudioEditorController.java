@@ -3,12 +3,11 @@
 package io.xj.gui.controllers.content.instrument;
 
 import io.xj.gui.controllers.BrowserController;
-import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.hub.tables.pojos.InstrumentAudio;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.FloatProperty;
 import javafx.beans.property.ObjectProperty;
@@ -20,18 +19,21 @@ import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.SplitPane;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.util.converter.NumberStringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.UUID;
 
 @Service
-public class InstrumentAudioEditorController extends BrowserController implements ReadyAfterBootController {
+public class InstrumentAudioEditorController extends BrowserController {
   static final Logger LOG = LoggerFactory.getLogger(InstrumentAudioEditorController.class);
   private final ProjectService projectService;
   private final UIStateService uiStateService;
@@ -81,9 +83,13 @@ public class InstrumentAudioEditorController extends BrowserController implement
   protected Button buttonSave;
 
   public InstrumentAudioEditorController(
+    @Value("classpath:/views/content/instrument/instrument-audio-editor.fxml") Resource fxml,
+    ApplicationContext ac,
+    ThemeService themeService,
     ProjectService projectService,
     UIStateService uiStateService
   ) {
+    super(fxml, ac, themeService);
     this.projectService = projectService;
     this.uiStateService = uiStateService;
   }
@@ -98,12 +104,12 @@ public class InstrumentAudioEditorController extends BrowserController implement
 
     fieldName.textProperty().bindBidirectional(name);
     fieldEvent.textProperty().bindBidirectional(event);
-    // todo fieldVolume.textProperty().bindBidirectional(volume, new FloatStringConverter());
+    fieldVolume.textProperty().bindBidirectional(volume, new NumberStringConverter());
     fieldTones.textProperty().bindBidirectional(tones);
-    // todo fieldTempo.textProperty().bindBidirectional(tempo, new FloatStringConverter());
-    // todo fieldDensity.textProperty().bindBidirectional(density, new FloatStringConverter());
-    // todo fieldTransientSeconds.textProperty().bindBidirectional(transientSeconds, new FloatStringConverter());
-    // todo fieldTotalBeats.textProperty().bindBidirectional(totalBeats, new FloatStringConverter());
+    fieldTempo.textProperty().bindBidirectional(tempo, new NumberStringConverter());
+    fieldDensity.textProperty().bindBidirectional(density, new NumberStringConverter());
+    fieldTransientSeconds.textProperty().bindBidirectional(transientSeconds, new NumberStringConverter());
+    fieldTotalBeats.textProperty().bindBidirectional(totalBeats, new NumberStringConverter());
 
     name.addListener((o, ov, v) -> dirty.set(true));
     event.addListener((o, ov, v) -> dirty.set(true));

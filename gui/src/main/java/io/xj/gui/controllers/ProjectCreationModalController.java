@@ -109,7 +109,7 @@ public class ProjectCreationModalController extends ReadyAfterBootModalControlle
     ThemeService themeService,
     LabService labService
   ) {
-    super(ac, themeService, fxml);
+    super(fxml, ac, themeService);
     this.projectService = projectService;
     this.labService = labService;
   }

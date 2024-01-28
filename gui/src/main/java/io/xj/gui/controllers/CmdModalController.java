@@ -88,7 +88,7 @@ public class CmdModalController extends ReadyAfterBootModalController {
     ThemeService themeService,
     ProjectService projectService
   ) {
-    super(ac, themeService, fxml);
+    super(fxml, ac, themeService);
     this.uiStateService = uiStateService;
     this.projectService = projectService;
   }
@@ -465,41 +465,6 @@ public class CmdModalController extends ReadyAfterBootModalController {
 
     // Show the dialog and wait for the user to close it
     dialog.showAndWait();
-  }
-
-  /**
-   Show a custom confirmation dialog with Yes/No options.
-
-   @param title   title of the dialog
-   @param header  header of the dialog
-   @param content content of the dialog
-   @return true if the user clicked 'Yes', false otherwise
-   */
-  @SuppressWarnings({"SameParameterValue", "BooleanMethodIsAlwaysInverted"})
-  private boolean showConfirmationDialog(String title, String header, String content) {
-    // Create a custom dialog
-    Dialog<ButtonType> dialog = new Dialog<>();
-    dialog.setTitle(title);
-
-    // Set the header and content
-    DialogPane dialogPane = dialog.getDialogPane();
-    dialogPane.setHeaderText(header);
-    dialogPane.setContentText(content);
-
-    // Add Yes and No buttons
-    ButtonType yesButton = new ButtonType("Yes", ButtonType.OK.getButtonData());
-    ButtonType noButton = new ButtonType("No", ButtonType.CANCEL.getButtonData());
-    dialogPane.getButtonTypes().addAll(yesButton, noButton);
-
-    // Ensure it's resizable and has a preferred width
-    dialogPane.setMinHeight(Region.USE_PREF_SIZE);
-    dialogPane.setPrefWidth(400); // You can adjust this value
-
-    // Show the dialog and wait for the user to close it
-    java.util.Optional<ButtonType> result = dialog.showAndWait();
-
-    // Return true if 'Yes' was clicked, false otherwise
-    return result.isPresent() && result.get() == yesButton;
   }
 
   /**

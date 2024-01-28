@@ -22,7 +22,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.Toggle;
@@ -31,7 +30,9 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -43,14 +44,12 @@ import static io.xj.gui.services.UIStateService.LAB_PENDING_STATES;
 import static io.xj.gui.services.UIStateService.PENDING_PSEUDO_CLASS;
 
 @Service
-public class MainMenuController extends MenuBar implements ReadyAfterBootController {
+public class MainMenuController extends ReadyAfterBootController {
   private final static String DEBUG = "DEBUG";
   private final static String INFO = "INFO";
   private final static String WARN = "WARN";
   private final static String ERROR = "ERROR";
-  private final ConfigurableApplicationContext ac;
   private final FabricationService fabricationService;
-  private final ThemeService themeService;
   private final GuideService guideService;
   private final UIStateService uiStateService;
   private final LabService labService;
@@ -137,7 +136,9 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
 
   public MainMenuController(
-    ConfigurableApplicationContext ac,
+    @Value("classpath:/views/main-menu.fxml") Resource fxml,
+    ApplicationContext ac,
+    ThemeService themeService,
     FabricationService fabricationService,
     FabricationSettingsModalController fabricationSettingsModalController,
     GuideService guideService,
@@ -146,11 +147,10 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     MainLabAuthenticationModalController mainLabAuthenticationModalController,
     ProjectCreationModalController projectCreationModalController,
     ProjectService projectService,
-    ThemeService themeService,
     UIStateService guiService,
     UIStateService uiStateService
   ) {
-    this.ac = ac;
+    super(fxml, ac, themeService);
     this.fabricationService = fabricationService;
     this.fabricationSettingsModalController = fabricationSettingsModalController;
     this.projectCreationModalController = projectCreationModalController;
@@ -160,7 +160,6 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     this.labService = labService;
     this.mainAboutModalController = mainAboutModalController;
     this.mainLabAuthenticationModalController = mainLabAuthenticationModalController;
-    this.themeService = themeService;
     this.uiStateService = uiStateService;
   }
 

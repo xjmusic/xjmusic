@@ -66,10 +66,10 @@ public class MainLabAuthenticationModalController extends ReadyAfterBootModalCon
   public MainLabAuthenticationModalController(
     @Value("classpath:/views/main-lab-authentication-modal.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
-    LabService labService,
-    ThemeService themeService
+    ThemeService themeService,
+    LabService labService
   ) {
-    super(ac, themeService, fxml);
+    super(fxml, ac, themeService);
     this.labService = labService;
   }
 
