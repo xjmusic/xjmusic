@@ -127,6 +127,7 @@ public class CmdModalController extends ReadyAfterBootModalController {
         case Create -> {
           if (StringUtils.isNullOrEmpty(name.getValue())) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
+            themeService.setup(alert.getDialogPane().getScene());
             alert.setTitle("Error");
             alert.setHeaderText("Name cannot be blank");
             alert.setContentText("Please enter a name for the new entity.");

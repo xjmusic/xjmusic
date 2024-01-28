@@ -221,8 +221,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
   @FXML
   protected void onQuit() {
-    if (!projectService.confirmCloseIfModified()) return;
-    WorkstationGuiFxApplication.exit(ac);
+    projectService.promptToSaveChanges(() -> WorkstationGuiFxApplication.exit(ac));
   }
 
   @FXML
@@ -243,19 +242,19 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
   @FXML
   protected void handleProjectOpen() {
-    if (!projectService.confirmCloseIfModified()) return;
-
-    var projectFilePath = ProjectUtils.chooseXJProjectFile(
-      container.getScene().getWindow(), "Choose project", projectService.basePathPrefixProperty().getValue()
-    );
-    if (Objects.nonNull(projectFilePath)) {
-      projectService.openProject(projectFilePath);
-    }
+    projectService.promptToSaveChanges(() -> {
+      var projectFilePath = ProjectUtils.chooseXJProjectFile(
+        container.getScene().getWindow(), "Choose project", projectService.basePathPrefixProperty().getValue()
+      );
+      if (Objects.nonNull(projectFilePath)) {
+        projectService.openProject(projectFilePath);
+      }
+    });
   }
 
   @FXML
   protected void handleProjectClose() {
-    projectService.closeProject();
+    projectService.closeProject(null);
   }
 
   @FXML
@@ -266,7 +265,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
   @FXML
   protected void handleProjectSave() {
-    projectService.saveProject();
+    projectService.saveProject(null);
   }
 
   @FXML

@@ -3,6 +3,7 @@ package io.xj.gui.services.impl;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.ThemeService;
 import io.xj.hub.HubContent;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.json.JsonProvider;
@@ -19,6 +20,7 @@ import io.xj.hub.util.StringUtils;
 import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.project.ProjectUpdate;
+import jakarta.annotation.Nullable;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -98,16 +100,19 @@ public class ProjectServiceImpl implements ProjectService {
   private final BooleanBinding isStateReady = state.isEqualTo(ProjectState.Ready);
   private final BooleanBinding isStateStandby = state.isEqualTo(ProjectState.Standby);
   private final int maxRecentProjects;
+  private final ThemeService themeService;
   private final LabService labService;
   private final ProjectManager projectManager;
   private final JsonProvider jsonProvider;
 
   public ProjectServiceImpl(
     @Value("${gui.recent.projects.max}") int maxRecentProjects,
+    ThemeService themeService,
     LabService labService,
     ProjectManager projectManager
   ) {
     this.maxRecentProjects = maxRecentProjects;
+    this.themeService = themeService;
     this.labService = labService;
     this.projectManager = projectManager;
     this.jsonProvider = new JsonProviderImpl();
@@ -136,22 +141,22 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public boolean closeProject() {
-    if (!confirmCloseIfModified()) return false;
-    projectManager.closeProject();
-    didUpdate(ProjectUpdate.Templates, false);
-    didUpdate(ProjectUpdate.Libraries, false);
-    didUpdate(ProjectUpdate.Programs, false);
-    didUpdate(ProjectUpdate.Instruments, false);
-    isModified.set(false);
-    state.set(ProjectState.Standby);
-    return true;
+  public void closeProject(@Nullable Runnable afterClose) {
+    promptToSaveChanges(() -> {
+      projectManager.closeProject();
+      didUpdate(ProjectUpdate.Templates, false);
+      didUpdate(ProjectUpdate.Libraries, false);
+      didUpdate(ProjectUpdate.Programs, false);
+      didUpdate(ProjectUpdate.Instruments, false);
+      isModified.set(false);
+      state.set(ProjectState.Standby);
+      if (Objects.nonNull(afterClose)) Platform.runLater(afterClose);
+    });
   }
 
   @Override
   public void openProject(String projectFilePath) {
-    if (!closeProject()) return;
-    executeInBackground("Open Project", () -> {
+    closeProject(() -> executeInBackground("Open Project", () -> {
       if (projectManager.openProjectFromLocalFile(projectFilePath)) {
         projectManager.getProject().ifPresent(project -> {
           isModified.set(false);
@@ -160,20 +165,21 @@ public class ProjectServiceImpl implements ProjectService {
       } else {
         removeFromRecentProjects(projectFilePath);
       }
-    });
+    }));
   }
 
   @Override
   public void createProject(String parentPathPrefix, String projectName) {
-    if (!closeProject()) return;
-    if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName)) return;
-    executeInBackground("Create Project", () -> {
-      if (projectManager.createProject(parentPathPrefix, projectName)) {
-        projectManager.getProject().ifPresent(project -> {
-          isModified.set(false);
-          addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
-        });
-      }
+    closeProject(() -> {
+      if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName)) return;
+      executeInBackground("Create Project", () -> {
+        if (projectManager.createProject(parentPathPrefix, projectName)) {
+          projectManager.getProject().ifPresent(project -> {
+            isModified.set(false);
+            addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
+          });
+        }
+      });
     });
   }
 
@@ -200,11 +206,14 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public void saveProject() {
+  public void saveProject(@Nullable Runnable afterSave) {
     LOG.info("Will save project");
     executeInBackground("Save Project", () -> {
       projectManager.saveProject();
-      Platform.runLater(() -> isModified.set(false));
+      Platform.runLater(() -> {
+        isModified.set(false);
+        if (Objects.nonNull(afterSave)) Platform.runLater(afterSave);
+      });
     });
   }
 
@@ -523,20 +532,32 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public boolean confirmCloseIfModified() {
-    if (isModified.not().get()) return true;
+  public void promptToSaveChanges(Runnable afterConfirmation) {
+    if (isModified.not().get()) {
+      Platform.runLater(afterConfirmation);
+      return;
+    }
 
     Alert alert = new Alert(Alert.AlertType.WARNING);
+    themeService.setup(alert.getDialogPane().getScene());
     alert.setTitle("Project Modified");
-    alert.setHeaderText("Will close (and may lose changes to) current project");
-    alert.setContentText("Are you sure you want to proceed?");
+    alert.setHeaderText("Project has unsaved changes!");
+    alert.setContentText(String.format("Save changes to the XJ music project \"%s\" before closing?",
+      projectManager.getProject().orElseThrow(() -> new RuntimeException("Could not find project!")).getName()));
 
-    // Optional: Customize the buttons (optional)
-    alert.getButtonTypes().setAll(ButtonType.NO, ButtonType.YES);
+    // Set up buttons "Save", "Don't Save", and "Cancel"
+    var saveButton = new ButtonType("Save");
+    var dontSaveButton = new ButtonType("Don't Save");
+    var cancelButton = new ButtonType("Cancel");
+    alert.getButtonTypes().setAll(saveButton, dontSaveButton, cancelButton);
 
     // Show the dialog and capture the result
     var result = alert.showAndWait();
-    return result.isPresent() && result.get() == ButtonType.YES;
+    if (result.isPresent())
+      switch (result.get().getText()) {
+        case "Save" -> saveProject(afterConfirmation);
+        case "Don't Save" -> Platform.runLater(afterConfirmation);
+      }
   }
 
   /**
@@ -547,21 +568,22 @@ public class ProjectServiceImpl implements ProjectService {
    @param clone            the clone callable
    */
   private void cloneProject(String parentPathPrefix, String projectName, Callable<Boolean> clone) {
-    if (!closeProject()) return;
-    if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName)) return;
-    executeInBackground("Clone Project", () -> {
-      try {
-        if (clone.call()) {
-          projectManager.getProject().ifPresent(project -> {
-            isModified.set(false);
-            addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
-          });
-        } else {
-          removeFromRecentProjects(parentPathPrefix + projectName + ".xj");
+    closeProject(() -> {
+      if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName)) return;
+      executeInBackground("Clone Project", () -> {
+        try {
+          if (clone.call()) {
+            projectManager.getProject().ifPresent(project -> {
+              isModified.set(false);
+              addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
+            });
+          } else {
+            removeFromRecentProjects(parentPathPrefix + projectName + ".xj");
+          }
+        } catch (Exception e) {
+          LOG.warn("Failed to clone project", e);
         }
-      } catch (Exception e) {
-        LOG.warn("Failed to clone project", e);
-      }
+      });
     });
   }
 
@@ -589,6 +611,7 @@ public class ProjectServiceImpl implements ProjectService {
       return false;
     }
     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+    themeService.setup(alert.getDialogPane().getScene());
     alert.setTitle("Project Already Exists");
     alert.setHeaderText("Will update (and may overwrite) existing project");
     alert.setContentText("Are you sure you want to proceed?");

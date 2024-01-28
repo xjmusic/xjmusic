@@ -156,8 +156,7 @@ public class ProjectCreationModalController extends ReadyAfterBootModalControlle
 
   @Override
   public void launchModal() {
-    if (!projectService.confirmCloseIfModified()) return;
-    createAndShowModal(WINDOW_TITLE.get(mode.get()));
+    projectService.promptToSaveChanges(() -> createAndShowModal(WINDOW_TITLE.get(mode.get())));
   }
 
   /**
@@ -185,6 +184,7 @@ public class ProjectCreationModalController extends ReadyAfterBootModalControlle
       && Objects.isNull(demoSelection.getSelectedToggle())
       && Objects.isNull(selectedProject.get())) {
       Alert alert = new Alert(Alert.AlertType.WARNING);
+      themeService.setup(alert.getDialogPane().getScene());
       alert.setGraphic(null);
       alert.setTitle("Cannot clone project");
       alert.setHeaderText("Must select a project to clone.");
@@ -195,6 +195,7 @@ public class ProjectCreationModalController extends ReadyAfterBootModalControlle
 
     if (StringUtils.isNullOrEmpty(fieldProjectName.getText())) {
       Alert alert = new Alert(Alert.AlertType.WARNING);
+      themeService.setup(alert.getDialogPane().getScene());
       alert.setGraphic(null);
       alert.setTitle("Cannot create project");
       alert.setHeaderText("Project Name cannot be empty");
