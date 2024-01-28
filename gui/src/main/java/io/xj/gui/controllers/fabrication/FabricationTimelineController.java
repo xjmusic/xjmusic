@@ -3,8 +3,8 @@
 package io.xj.gui.controllers.fabrication;
 
 import io.xj.gui.controllers.ReadyAfterBootController;
-import io.xj.gui.controllers.content.InstrumentEditorController;
-import io.xj.gui.controllers.content.ProgramEditorController;
+import io.xj.gui.controllers.content.instrument.InstrumentEditorController;
+import io.xj.gui.controllers.content.program.ProgramEditorController;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.UIStateService;

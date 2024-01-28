@@ -17,7 +17,7 @@
 
 <?import javafx.scene.control.TextArea?>
 <SplitPane
-  fx:controller="io.xj.gui.controllers.instrument.InstrumentEditorController"
+  fx:controller="io.xj.gui.controllers.content.instrument.InstrumentEditorController"
   fx:id="container"
   xmlns="http://javafx.com/javafx/17.0.2-ea"
   xmlns:fx="http://javafx.com/fxml/1">

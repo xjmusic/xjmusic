@@ -3,9 +3,9 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.controllers.content.ContentBrowserController;
-import io.xj.gui.controllers.content.InstrumentEditorController;
 import io.xj.gui.controllers.content.LibraryEditorController;
-import io.xj.gui.controllers.content.ProgramEditorController;
+import io.xj.gui.controllers.content.program.ProgramEditorController;
+import io.xj.gui.controllers.content.instrument.InstrumentEditorController;
 import io.xj.gui.controllers.fabrication.FabricationController;
 import io.xj.gui.controllers.template.TemplateBrowserController;
 import io.xj.gui.controllers.template.TemplateEditorController;

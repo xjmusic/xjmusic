@@ -1,17 +1,15 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.gui.controllers.instrument;
+package io.xj.gui.controllers.content.instrument;
 
 import io.xj.gui.controllers.BrowserController;
 import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.modes.ContentMode;
-import io.xj.gui.modes.InstrumentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.nexus.project.ProjectUpdate;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -20,7 +18,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -98,13 +95,16 @@ public class InstrumentEditorController extends BrowserController implements Rea
 
     audiosTable.setItems(audios);
 
+/*
+TODO add other audio columns
     TableColumn<InstrumentAudio, String> typeColumn = new TableColumn<>("Type");
     typeColumn.setCellValueFactory(new PropertyValueFactory<>("type"));
     typeColumn.setPrefWidth(100);
     audiosTable.getColumns().add(typeColumn);
+*/
 
     TableColumn<InstrumentAudio, String> nameColumn = new TableColumn<>("Name");
-    nameColumn.setCellValueFactory(row -> getTargetName(row.getValue()));
+    nameColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().getName()));
     nameColumn.setPrefWidth(300);
     audiosTable.getColumns().add(nameColumn);
 
@@ -131,34 +131,14 @@ public class InstrumentEditorController extends BrowserController implements Rea
         }
       });
 
-    projectService.addProjectUpdateListener(ProjectUpdate.InstrumentAudios, this::updateAudios);
+    projectService.addProjectUpdateListener(InstrumentAudio.class, this::updateAudios);
 
-    uiStateService.instrumentModeProperty().addListener((o, ov, v) -> {
-      if (Objects.equals(uiStateService.instrumentModeProperty().get(), InstrumentMode.InstrumentEditor))
+    uiStateService.contentModeProperty().addListener((o, ov, v) -> {
+      if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.InstrumentEditor))
         update();
     });
 
     buttonSave.disableProperty().bind(dirty.not());
-  }
-
-  /**
-   Get Instrument Audio Target Name
-
-   @param audio for which to get name
-   @return instrument audio name
-   */
-  private ObservableValue<String> getTargetName(InstrumentAudio audio) {
-    return switch (audio.getType()) {
-      case Library -> new ReadOnlyStringWrapper(projectService.getContent().getLibrary(audio.getTargetId())
-        .orElseThrow(() -> new RuntimeException("Can't find Library for Instrument Audio"))
-        .getName());
-      case Program -> new ReadOnlyStringWrapper(projectService.getContent().getProgram(audio.getTargetId())
-        .orElseThrow(() -> new RuntimeException("Can't find Program for Instrument Audio"))
-        .getName());
-      case Instrument -> new ReadOnlyStringWrapper(projectService.getContent().getInstrument(audio.getTargetId())
-        .orElseThrow(() -> new RuntimeException("Can't find Instrument for Instrument Audio"))
-        .getName());
-    };
   }
 
   @Override
@@ -178,7 +158,7 @@ public class InstrumentEditorController extends BrowserController implements Rea
       return;
     }
     if (projectService.updateInstrument(instrument))
-      uiStateService.viewInstruments();
+      uiStateService.viewLibrary(instrument.getLibraryId());
   }
 
   @FXML

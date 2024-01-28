@@ -1,12 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.gui.controllers.instrument;
+package io.xj.gui.controllers.content.instrument;
 
 import io.xj.gui.controllers.ReadyAfterBootModalController;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.hub.enums.ContentAudioType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
@@ -44,7 +43,6 @@ public class InstrumentAddAudioController extends ReadyAfterBootModalController 
   private final ObjectProperty<Program> program = new SimpleObjectProperty<>();
   private final ObjectProperty<Instrument> instrument = new SimpleObjectProperty<>();
   private final ObjectProperty<UUID> instrumentId = new SimpleObjectProperty<>();
-  private final ObjectProperty<ContentAudioType> libraryContentType = new SimpleObjectProperty<>(ContentAudioType.Library);
   private final UIStateService uiStateService;
   private final ProjectService projectService;
 
@@ -89,7 +87,7 @@ public class InstrumentAddAudioController extends ReadyAfterBootModalController 
 
 
   public InstrumentAddAudioController(
-    @Value("classpath:/views/instrument/instrument-add-audio.fxml") Resource fxml,
+    @Value("classpath:/views/content/instrument/instrument-add-audio.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
     UIStateService uiStateService,
     ThemeService themeService,
@@ -102,46 +100,7 @@ public class InstrumentAddAudioController extends ReadyAfterBootModalController 
 
   @Override
   public void onStageReady() {
-    libraryContentSelectionContainer.visibleProperty().bind(library.isNotNull());
-    libraryContentSelectionContainer.managedProperty().bind(library.isNotNull());
-    var programsVisible = library.isNotNull().and(libraryContentType.isEqualTo(ContentAudioType.Program));
-    var instrumentsVisible = library.isNotNull().and(libraryContentType.isEqualTo(ContentAudioType.Instrument));
-    programChoiceContainer.visibleProperty().bind(programsVisible);
-    programChoiceContainer.managedProperty().bind(programsVisible);
-    instrumentChoiceContainer.visibleProperty().bind(instrumentsVisible);
-    instrumentChoiceContainer.managedProperty().bind(instrumentsVisible);
-
-    choiceLibrary.setItems(FXCollections.observableList(projectService.getLibraries().stream().sorted(Comparator.comparing(Library::getName)).map(LibraryChoice::new).toList()));
-
-    choiceLibrary.setOnAction(event -> {
-      library.set(choiceLibrary.getValue().library());
-
-      var programs = projectService.getContent().getProgramsOfLibrary(library.get().getId()).stream().sorted(Comparator.comparing(Program::getName)).map(ProgramChoice::new).toList();
-      choiceProgram.setItems(FXCollections.observableList(programs));
-      buttonLibraryContentPrograms.setDisable(programs.isEmpty());
-
-      var instruments = projectService.getContent().getInstrumentsOfLibrary(library.get().getId()).stream().sorted(Comparator.comparing(Instrument::getName)).map(InstrumentChoice::new).toList();
-      choiceInstrument.setItems(FXCollections.observableList(instruments));
-      buttonLibraryContentInstruments.setDisable(instruments.isEmpty());
-
-      program.set(null);
-      choiceProgram.setValue(null);
-      instrument.set(null);
-      choiceInstrument.setValue(null);
-      libraryContentType.set(ContentAudioType.Library);
-      libraryContentSelectionToggle.selectToggle(null);
-    });
-
-    choiceProgram.setOnAction(event -> program.set(Objects.nonNull(choiceProgram.getValue()) ? choiceProgram.getValue().program() : null));
-    choiceInstrument.setOnAction(event -> instrument.set(Objects.nonNull(choiceInstrument.getValue()) ? choiceInstrument.getValue().instrument() : null));
-
-    libraryContentSelectionToggle.selectedToggleProperty().addListener((o, ov, v) -> {
-      if (Objects.equals(v, buttonLibraryContentPrograms)) {
-        Platform.runLater(() -> libraryContentType.set(ContentAudioType.Program));
-      } else if (Objects.equals(v, buttonLibraryContentInstruments)) {
-        Platform.runLater(() -> libraryContentType.set(ContentAudioType.Instrument));
-      }
-    });
+    // todo stage ready for add audio
   }
 
   @Override
@@ -156,22 +115,7 @@ public class InstrumentAddAudioController extends ReadyAfterBootModalController 
 
   @FXML
   protected void handlePressOK() {
-    if (Objects.nonNull(library.get())) Platform.runLater(() -> {
-      switch (libraryContentType.get()) {
-        case Library -> projectService.addInstrumentAudio(
-          instrumentId.get(),
-          ContentAudioType.Library,
-          library.get().getId());
-        case Program -> projectService.addInstrumentAudio(
-          instrumentId.get(),
-          ContentAudioType.Program,
-          program.get().getId());
-        case Instrument -> projectService.addInstrumentAudio(
-          instrumentId.get(),
-          ContentAudioType.Instrument,
-          instrument.get().getId());
-      }
-    });
+    // TODO add audio pressed OK
     Stage stage = (Stage) buttonOK.getScene().getWindow();
     stage.close();
     onStageClose();

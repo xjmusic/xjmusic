@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.gui.controllers.content;
+package io.xj.gui.controllers.content.program;
 
 import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.modes.ContentMode;
@@ -25,11 +25,11 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Service
-public class InstrumentEditorController implements ReadyAfterBootController {
-  static final Logger LOG = LoggerFactory.getLogger(InstrumentEditorController.class);
+public class ProgramEditorController implements ReadyAfterBootController {
+  static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
   private final ProjectService projectService;
   private final UIStateService uiStateService;
-  private final ObjectProperty<UUID> instrumentId = new SimpleObjectProperty<>(null);
+  private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
   private final BooleanProperty dirty = new SimpleBooleanProperty(false);
   private final StringProperty name = new SimpleStringProperty("");
 
@@ -42,7 +42,7 @@ public class InstrumentEditorController implements ReadyAfterBootController {
   @FXML
   protected Button buttonSave;
 
-  public InstrumentEditorController(
+  public ProgramEditorController(
     ProjectService projectService,
     UIStateService uiStateService
   ) {
@@ -54,7 +54,7 @@ public class InstrumentEditorController implements ReadyAfterBootController {
   public void onStageReady() {
     var visible = projectService.isStateReadyProperty()
       .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
-      .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.InstrumentEditor));
+      .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramEditor));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
@@ -63,7 +63,7 @@ public class InstrumentEditorController implements ReadyAfterBootController {
     name.addListener((o, ov, v) -> dirty.set(true));
 
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
-      if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.InstrumentEditor))
+      if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.ProgramEditor))
         update();
     });
 
@@ -77,24 +77,24 @@ public class InstrumentEditorController implements ReadyAfterBootController {
 
   @FXML
   protected void handlePressSave() {
-    var instrument = projectService.getContent().getInstrument(instrumentId.get())
-      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
-    instrument.setName(name.get());
-    if (projectService.updateInstrument(instrument))
-      uiStateService.viewLibrary(instrument.getLibraryId());
+    var program = projectService.getContent().getProgram(programId.get())
+      .orElseThrow(() -> new RuntimeException("Could not find Program"));
+    program.setName(name.get());
+    if (projectService.updateProgram(program))
+      uiStateService.viewLibrary(program.getLibraryId());
   }
 
   /**
-   Update the Instrument Editor with the current Instrument.
+   Update the Program Editor with the current Program.
    */
   private void update() {
-    if (Objects.isNull(uiStateService.currentInstrumentProperty().get()))
+    if (Objects.isNull(uiStateService.currentProgramProperty().get()))
       return;
-    var instrument = projectService.getContent().getInstrument(uiStateService.currentInstrumentProperty().get().getId())
-      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
-    LOG.info("Will edit Instrument \"{}\"", instrument.getName());
-    this.instrumentId.set(instrument.getId());
-    this.name.set(instrument.getName());
+    var program = projectService.getContent().getProgram(uiStateService.currentProgramProperty().get().getId())
+      .orElseThrow(() -> new RuntimeException("Could not find Program"));
+    LOG.info("Will edit Program \"{}\"", program.getName());
+    this.programId.set(program.getId());
+    this.name.set(program.getName());
     this.dirty.set(false);
   }
 }

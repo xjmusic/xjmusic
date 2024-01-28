@@ -12,7 +12,6 @@ import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.nexus.project.ProjectState;
-import io.xj.nexus.project.ProjectUpdate;
 import jakarta.annotation.Nullable;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
@@ -23,6 +22,7 @@ import javafx.beans.value.ObservableListValue;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableStringValue;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
@@ -126,7 +126,7 @@ public interface ProjectService {
    @param type     the type of update to listen for
    @param listener the listener to attach
    */
-  void addProjectUpdateListener(ProjectUpdate type, Runnable listener);
+  <N extends Serializable> void addProjectUpdateListener(Class<N> type, Runnable listener);
 
   /**
    Notify all listeners of a project update
@@ -134,7 +134,7 @@ public interface ProjectService {
    @param type     the type of update
    @param modified whether the update modified the project
    */
-  void didUpdate(ProjectUpdate type, boolean modified);
+  <N extends Serializable> void didUpdate(Class<N> type, boolean modified);
 
   /**
    Get the current list of non-deleted libraries sorted by name

@@ -34,8 +34,8 @@
       <fx:include source="fabrication/fabrication.fxml"/>
       <fx:include source="content/content-browser.fxml"/>
       <fx:include source="content/library-editor.fxml"/>
-      <fx:include source="content/program-editor.fxml"/>
-      <fx:include source="content/instrument-editor.fxml"/>
+      <fx:include source="content/program/program-editor.fxml"/>
+      <fx:include source="content/instrument/instrument-editor.fxml"/>
       <fx:include source="template/template-browser.fxml"/>
       <fx:include source="template/template-editor.fxml"/>
       <ImageView
