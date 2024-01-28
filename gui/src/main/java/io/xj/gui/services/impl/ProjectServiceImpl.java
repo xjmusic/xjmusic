@@ -418,11 +418,10 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public Template cloneTemplate(UUID fromId, String name) throws Exception {
+  public void cloneTemplate(UUID fromId, String name) throws Exception {
     var template = projectManager.cloneTemplate(fromId, name);
     didUpdate(Template.class, true);
     LOG.info("Cloned template to \"{}\"", name);
-    return template;
   }
 
   @Override
@@ -505,15 +504,26 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public boolean updateTemplate(Template template) {
+  public boolean updateInstrumentAudio(InstrumentAudio instrumentAudio) {
     try {
-      projectManager.getContent().put(template);
-      didUpdate(Template.class, true);
+      projectManager.getContent().put(instrumentAudio);
+      didUpdate(InstrumentAudio.class, true);
       return true;
 
     } catch (Exception e) {
-      LOG.error("Could not save Template", e);
+      LOG.error("Could not save Instrument Audio", e);
       return false;
+    }
+  }
+
+  @Override
+  public void updateTemplate(Template template) {
+    try {
+      projectManager.getContent().put(template);
+      didUpdate(Template.class, true);
+
+    } catch (Exception e) {
+      LOG.error("Could not save Template", e);
     }
   }
 

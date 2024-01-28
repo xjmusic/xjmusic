@@ -206,7 +206,8 @@ public interface ProjectService {
 
   /**
    Delete an Instrument Audio
-   * @param audio to delete
+
+   @param audio to delete
    */
   void deleteInstrumentAudio(InstrumentAudio audio);
 
@@ -267,9 +268,8 @@ public interface ProjectService {
 
    @param fromId clone from template
    @param name   the new name
-   @return the new template
    */
-  Template cloneTemplate(UUID fromId, String name) throws Exception;
+  void cloneTemplate(UUID fromId, String name) throws Exception;
 
   /**
    Clone the given library with a new name
@@ -343,12 +343,19 @@ public interface ProjectService {
   boolean updateInstrument(Instrument instrument);
 
   /**
+   Update the given instrument audio
+
+   @param instrumentAudio to update
+   @return true if successful
+   */
+  boolean updateInstrumentAudio(InstrumentAudio instrumentAudio);
+
+  /**
    Update the given template
 
    @param template to update
-   @return true if successful
    */
-  boolean updateTemplate(Template template);
+  void updateTemplate(Template template);
 
   /**
    Create a new template binding

@@ -42,4 +42,20 @@ public class ProjectUtils {
     File file = fileChooser.showOpenDialog(stage);
     return Objects.nonNull(file) ? file.getAbsolutePath() : null;
   }
+
+  /**
+   Choose an audio file
+
+   @param stage the stage
+   @param title the title of the chooser window
+   @return the absolute path of the chosen file, or null if none chosen
+   */
+  public static @Nullable String chooseAudioFile(Window stage, String title) {
+    FileChooser fileChooser = new FileChooser();
+    fileChooser.setTitle(title);
+    FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Audio files (*.wav, *.aiff, *.mp3, *.aac, *.flac)", "*.wav", "*.aiff", "*.mp3", "*.aac", "*.flac");
+    fileChooser.getExtensionFilters().add(extFilter);
+    File file = fileChooser.showOpenDialog(stage);
+    return Objects.nonNull(file) ? file.getAbsolutePath() : null;
+  }
 }

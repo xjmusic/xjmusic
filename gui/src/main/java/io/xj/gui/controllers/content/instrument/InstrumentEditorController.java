@@ -8,6 +8,7 @@ import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.utils.ProjectUtils;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import javafx.application.Platform;
@@ -28,7 +29,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public class InstrumentEditorController extends BrowserController implements Rea
   static final Logger LOG = LoggerFactory.getLogger(InstrumentEditorController.class);
   private final ProjectService projectService;
   private final UIStateService uiStateService;
-  private final InstrumentAddAudioController instrumentAddAudioController;
+  private final InstrumentAudioEditorController instrumentAudioEditorController;
   private final ObjectProperty<UUID> instrumentId = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
   private final StringProperty config = new SimpleStringProperty("");
@@ -71,11 +71,11 @@ public class InstrumentEditorController extends BrowserController implements Rea
   public InstrumentEditorController(
     ProjectService projectService,
     UIStateService uiStateService,
-    InstrumentAddAudioController instrumentAddAudioController
+    InstrumentAudioEditorController instrumentAudioEditorController
   ) {
     this.projectService = projectService;
     this.uiStateService = uiStateService;
-    this.instrumentAddAudioController = instrumentAddAudioController;
+    this.instrumentAudioEditorController = instrumentAudioEditorController;
   }
 
   @Override
@@ -95,33 +95,49 @@ public class InstrumentEditorController extends BrowserController implements Rea
 
     audiosTable.setItems(audios);
 
-/*
-TODO add other audio columns
-    TableColumn<InstrumentAudio, String> typeColumn = new TableColumn<>("Type");
-    typeColumn.setCellValueFactory(new PropertyValueFactory<>("type"));
-    typeColumn.setPrefWidth(100);
-    audiosTable.getColumns().add(typeColumn);
-*/
-
     TableColumn<InstrumentAudio, String> nameColumn = new TableColumn<>("Name");
     nameColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().getName()));
-    nameColumn.setPrefWidth(300);
     audiosTable.getColumns().add(nameColumn);
+
+    TableColumn<InstrumentAudio, String> eventColumn = new TableColumn<>("Event");
+    eventColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().getEvent()));
+    audiosTable.getColumns().add(eventColumn);
+
+    TableColumn<InstrumentAudio, String> volumeColumn = new TableColumn<>("Volume");
+    volumeColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(Float.toString(row.getValue().getVolume())));
+    audiosTable.getColumns().add(volumeColumn);
+
+    javafx.scene.control.TableColumn<InstrumentAudio, String> tonesColumn = new TableColumn<>("Tones");
+    tonesColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().getTones()));
+    audiosTable.getColumns().add(tonesColumn);
+
+    TableColumn<InstrumentAudio, String> tempoColumn = new TableColumn<>("Tempo");
+    tempoColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(Float.toString(row.getValue().getTempo())));
+    audiosTable.getColumns().add(tempoColumn);
+
+    TableColumn<InstrumentAudio, String> densityColumn = new TableColumn<>("Density");
+    densityColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(Float.toString(row.getValue().getDensity())));
+    audiosTable.getColumns().add(densityColumn);
+
+    TableColumn<InstrumentAudio, String> transientSecondsColumn = new TableColumn<>("Transient (Seconds)");
+    transientSecondsColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(Float.toString(row.getValue().getTransientSeconds())));
+    audiosTable.getColumns().add(transientSecondsColumn);
+
+    TableColumn<InstrumentAudio, String> totalBeatsColumn = new TableColumn<>("Total (Beats)");
+    totalBeatsColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(Float.toString(row.getValue().getTotalBeats())));
+    audiosTable.getColumns().add(totalBeatsColumn);
 
     audiosTable.setOnMousePressed(
       event -> {
         if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
           Platform.runLater(() -> {
-            var audio = audiosTable.getSelectionModel().getSelectedItem();
-            // TODO open audio in audio editor
+            uiStateService.editInstrumentAudio(audiosTable.getSelectionModel().getSelectedItem().getId());
           });
         }
       });
 
     addActionsColumn(InstrumentAudio.class, audiosTable,
-      (InstrumentAudio audio) -> {
-        // TODO open audio in audio editor
-      },
+      (InstrumentAudio audio) -> uiStateService.editInstrumentAudio(audio.getId()),
       null,
       null,
       audio -> {
@@ -157,13 +173,19 @@ TODO add other audio columns
       LOG.error("Could not parse Instrument config!", e);
       return;
     }
-    if (projectService.updateInstrument(instrument))
-      uiStateService.viewLibrary(instrument.getLibraryId());
+    if (projectService.updateInstrument(instrument)) dirty.set(false);
   }
 
   @FXML
-  private void handlePressAddAudio(ActionEvent ignored) {
-    instrumentAddAudioController.addAudioToInstrument(instrumentId.get());
+  private void handlePressImportAudio(ActionEvent ignored) {
+    // TODO generate waveform fllename, copy file to project, save as new instrument audio in instrument
+    // TODO open new instrument audio in audio editor
+    var audioFilePath = ProjectUtils.chooseAudioFile(container.getScene().getWindow(), "Choose audio file");
+    if (Objects.nonNull(audioFilePath)) {
+      var audio = new InstrumentAudio();
+      audio.setId(UUID.randomUUID());
+      audio.setWaveformKey(String.format("instrument-%s-audio-%s.wav", instrumentId.get(), audio.getId()));
+    }
   }
 
   /**
@@ -183,7 +205,7 @@ TODO add other audio columns
   }
 
   /**
-   Update the libraries table data.
+   Update the instrument audios table data.
    */
   private void updateAudios() {
     if (uiStateService.currentInstrumentProperty().isNull().get())

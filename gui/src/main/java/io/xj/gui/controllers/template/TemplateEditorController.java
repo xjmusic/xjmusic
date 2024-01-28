@@ -175,8 +175,7 @@ public class TemplateEditorController extends BrowserController implements Ready
       LOG.error("Could not parse Template config!", e);
       return;
     }
-    if (projectService.updateTemplate(template))
-      uiStateService.viewTemplates();
+    projectService.updateTemplate(template);
   }
 
   @FXML

@@ -77,8 +77,8 @@
         <HBox alignment="CENTER_RIGHT" spacing="10">
           <Button
             mnemonicParsing="false"
-            onAction="#handlePressAddAudio"
-            text="Add Audio">
+            onAction="#handlePressImportAudio"
+            text="Import Audio">
             <graphic>
               <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
                 <Image url="@/icons/square-plus.png"/>

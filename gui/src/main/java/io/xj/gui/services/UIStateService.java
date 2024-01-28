@@ -5,11 +5,13 @@ import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
+import javafx.beans.binding.ListExpression;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -159,6 +161,11 @@ public interface UIStateService extends ReadyAfterBootController {
   ObjectProperty<Instrument> currentInstrumentProperty();
 
   /**
+   @return Observable property for the current instrumentAudio being viewed
+   */
+  ObjectProperty<InstrumentAudio> currentInstrumentAudioProperty();
+
+  /**
    @return Observable property for the current template being viewed
    */
   ObjectProperty<Template> currentTemplateProperty();
@@ -181,28 +188,35 @@ public interface UIStateService extends ReadyAfterBootController {
   void viewLibrary(UUID libraryId);
 
   /**
-   Edit the given library in the content browser.
+   Edit the given library in the library editor.
 
    @param libraryId ID of the Library to edit
    */
   void editLibrary(UUID libraryId);
 
   /**
-   Edit the given program in the content browser.
+   Edit the given program in the program editor.
 
    @param programId ID of the Program to edit
    */
   void editProgram(UUID programId);
 
   /**
-   Edit the given instrument in the content browser.
+   Edit the given instrument in the instrument editor.
 
    @param instrumentId ID of the Instrument to edit
    */
   void editInstrument(UUID instrumentId);
 
   /**
-   Edit the given template in the content browser.
+   Edit the given instrument audio in the instrument audio editor
+
+   @param instrumentAudioId ID of the audio to edit
+   */
+  void editInstrumentAudio(UUID instrumentAudioId);
+
+  /**
+   Edit the given template in the template editor.
 
    @param templateId ID of the Template to edit
    */

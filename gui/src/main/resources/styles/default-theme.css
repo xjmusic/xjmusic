@@ -315,3 +315,7 @@
 #fieldConfig {
   -fx-font-family: 'Roboto Mono';
 }
+
+.audio-waveform-pane {
+  /* no op yet */
+}

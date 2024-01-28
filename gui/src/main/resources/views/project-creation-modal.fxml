@@ -15,7 +15,6 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <VBox
@@ -146,12 +145,7 @@
         </padding>
 
         <VBox>
-          <Label contentDisplay="TEXT_ONLY" text="Project">
-            <graphic>
-              <Pane prefWidth="15.0"/>
-            </graphic>
-          </Label>
-          <Pane prefWidth="15.0"/>
+          <Label contentDisplay="TEXT_ONLY" text="Project"/>
           <ChoiceBox fx:id="choiceCloneProject" prefWidth="300"/>
         </VBox>
 
