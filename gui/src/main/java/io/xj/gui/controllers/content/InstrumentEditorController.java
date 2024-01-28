@@ -40,10 +40,7 @@ public class InstrumentEditorController implements ReadyAfterBootController {
   protected TextField fieldName;
 
   @FXML
-  protected Button buttonOK;
-
-  @FXML
-  protected Button buttonCancel;
+  protected Button buttonSave;
 
   public InstrumentEditorController(
     ProjectService projectService,
@@ -70,7 +67,7 @@ public class InstrumentEditorController implements ReadyAfterBootController {
         update();
     });
 
-    buttonOK.disableProperty().bind(dirty.not());
+    buttonSave.disableProperty().bind(dirty.not());
   }
 
   @Override
@@ -79,19 +76,12 @@ public class InstrumentEditorController implements ReadyAfterBootController {
   }
 
   @FXML
-  protected void handlePressOK() {
+  protected void handlePressSave() {
     var instrument = projectService.getContent().getInstrument(instrumentId.get())
       .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
     instrument.setName(name.get());
     if (projectService.updateInstrument(instrument))
       uiStateService.viewLibrary(instrument.getLibraryId());
-  }
-
-  @FXML
-  protected void handlePressCancel() {
-    var instrument = projectService.getContent().getInstrument(instrumentId.get())
-      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
-    uiStateService.viewLibrary(instrument.getLibraryId());
   }
 
   /**

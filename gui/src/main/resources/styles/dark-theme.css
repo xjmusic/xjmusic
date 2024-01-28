@@ -159,17 +159,20 @@
 }
 
 .top-pane .button:hover,
-.top-pane .toggle-button:hover{
+.top-pane .toggle-button:hover,
+.template-bindings-pane .button:hover {
   -fx-background-color: #606060;
 }
 
 .top-pane .button:pressed,
-.top-pane .toggle-button:pressed{
+.top-pane .toggle-button:pressed,
+.template-bindings-pane .button:pressed {
   -fx-background-color: #909090;
 }
 
 .top-pane .button:selected,
-.top-pane .toggle-button:selected {
+.top-pane .toggle-button:selected,
+.template-bindings-pane .button:selected {
   -fx-background-color: #606060;
 }
 
