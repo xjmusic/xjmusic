@@ -402,6 +402,14 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
+  public InstrumentAudio createInstrumentAudio(Instrument instrument, String audioFilePath) throws Exception {
+    var audio = projectManager.createInstrumentAudio(instrument, audioFilePath);
+    didUpdate(InstrumentAudio.class, true);
+    LOG.info("Created Instrument Audio \"{}\" by importing waveform from {}", audio.getName(), audioFilePath);
+    return audio;
+  }
+
+  @Override
   public Program moveProgram(UUID id, Library library) throws Exception {
     var program = projectManager.moveProgram(id, library.getId());
     didUpdate(Program.class, true);
@@ -418,10 +426,11 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public void cloneTemplate(UUID fromId, String name) throws Exception {
+  public Template cloneTemplate(UUID fromId, String name) throws Exception {
     var template = projectManager.cloneTemplate(fromId, name);
     didUpdate(Template.class, true);
     LOG.info("Cloned template to \"{}\"", name);
+    return template;
   }
 
   @Override
@@ -472,7 +481,7 @@ public class ProjectServiceImpl implements ProjectService {
       return true;
 
     } catch (Exception e) {
-      LOG.error("Could not save Library", e);
+      LOG.error("Could not save Library\n{}", StringUtils.formatStackTrace(e.getCause()), e);
       return false;
     }
   }
@@ -485,7 +494,7 @@ public class ProjectServiceImpl implements ProjectService {
       return true;
 
     } catch (Exception e) {
-      LOG.error("Could not save Program", e);
+      LOG.error("Could not save Program\n{}", StringUtils.formatStackTrace(e.getCause()), e);
       return false;
     }
   }
@@ -498,20 +507,26 @@ public class ProjectServiceImpl implements ProjectService {
       return true;
 
     } catch (Exception e) {
-      LOG.error("Could not save Instrument", e);
+      LOG.error("Could not save Instrument\n{}", StringUtils.formatStackTrace(e.getCause()), e);
       return false;
     }
   }
 
   @Override
-  public boolean updateInstrumentAudio(InstrumentAudio instrumentAudio) {
+  public boolean updateInstrumentAudio(InstrumentAudio audio) {
     try {
-      projectManager.getContent().put(instrumentAudio);
+      var original = projectManager.getContent().getInstrumentAudio(audio.getId())
+        .orElseThrow(() -> new RuntimeException("Could not find Instrument Audio"));
+
+      // Copy the waveform file to a new waveform key and set the key
+      audio.setWaveformKey(projectManager.copyInstrumentAudioWaveform(original, audio));
+
+      projectManager.getContent().put(audio);
       didUpdate(InstrumentAudio.class, true);
       return true;
 
     } catch (Exception e) {
-      LOG.error("Could not save Instrument Audio", e);
+      LOG.error("Could not save Instrument Audio\n{}", StringUtils.formatStackTrace(e.getCause()), e);
       return false;
     }
   }
@@ -523,12 +538,17 @@ public class ProjectServiceImpl implements ProjectService {
       didUpdate(Template.class, true);
 
     } catch (Exception e) {
-      LOG.error("Could not save Template", e);
+      LOG.error("Could not save Template\n{}", StringUtils.formatStackTrace(e.getCause()), e);
     }
   }
 
   @Override
-  public void addTemplateBinding(UUID templateId, ContentBindingType contentBindingType, UUID targetId) {
+  public String getPathPrefixToInstrumentAudio(UUID instrumentId) {
+    return projectManager.getPathPrefixToInstrumentAudio(instrumentId);
+  }
+
+  @Override
+  public void createTemplateBinding(UUID templateId, ContentBindingType contentBindingType, UUID targetId) {
     try {
       var binding = new TemplateBinding();
       binding.setId(UUID.randomUUID());
@@ -599,7 +619,7 @@ public class ProjectServiceImpl implements ProjectService {
             removeFromRecentProjects(parentPathPrefix + projectName + ".xj");
           }
         } catch (Exception e) {
-          LOG.warn("Failed to clone project", e);
+          LOG.warn("Failed to clone project\n{}", StringUtils.formatStackTrace(e.getCause()), e);
         }
       });
     });
@@ -651,7 +671,7 @@ public class ProjectServiceImpl implements ProjectService {
       try {
         prefs.put("recentProjects", jsonProvider.getMapper().writeValueAsString(value));
       } catch (Exception e) {
-        LOG.warn("Failed to serialize recent projects!", e);
+        LOG.warn("Failed to serialize recent projects!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
       }
     });
   }
@@ -664,7 +684,7 @@ public class ProjectServiceImpl implements ProjectService {
     try {
       recentProjects.setAll(jsonProvider.getMapper().readValue(prefs.get("recentProjects", "[]"), ProjectDescriptor[].class));
     } catch (Exception e) {
-      LOG.warn("Failed to deserialize recent projects!", e);
+      LOG.warn("Failed to deserialize recent projects!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
     }
   }
 

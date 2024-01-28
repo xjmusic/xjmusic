@@ -4,12 +4,17 @@ import jakarta.annotation.Nullable;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 public class ProjectUtils {
+  static final Logger LOG = LoggerFactory.getLogger(ProjectUtils.class);
+
   /**
    Choose a directory
 
@@ -58,5 +63,20 @@ public class ProjectUtils {
     fileChooser.getExtensionFilters().add(extFilter);
     File file = fileChooser.showOpenDialog(stage);
     return Objects.nonNull(file) ? file.getAbsolutePath() : null;
+  }
+
+  public static void openFolder(String audioFolder) {
+    if (Desktop.isDesktopSupported()) {
+      try {
+        File file = new File(audioFolder);
+
+        // Open the file in the default file browser
+        Desktop.getDesktop().open(file);
+      } catch (IOException | IllegalArgumentException e) {
+        LOG.error("Could not open folder \"{}\"", audioFolder, e);
+      }
+    } else {
+      LOG.error("Desktop file browsing not support on this OS! The folder is at {}", audioFolder);
+    }
   }
 }

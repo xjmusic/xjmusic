@@ -12,8 +12,8 @@ import io.xj.gui.utils.ProjectUtils;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
-import io.xj.nexus.project.ProjectPathUtils;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -42,7 +42,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.regex.Matcher;
 
 @Service
 public class InstrumentEditorController extends BrowserController {
@@ -67,6 +66,9 @@ public class InstrumentEditorController extends BrowserController {
 
   @FXML
   protected Button buttonSave;
+
+  @FXML
+  protected Button buttonOpenAudioFolder;
 
   @FXML
   protected TableView<InstrumentAudio> audiosTable;
@@ -95,6 +97,8 @@ public class InstrumentEditorController extends BrowserController {
 
     name.addListener((o, ov, v) -> dirty.set(true));
     config.addListener((o, ov, v) -> dirty.set(true));
+
+    buttonOpenAudioFolder.disableProperty().bind(Bindings.createBooleanBinding(audios::isEmpty, audios));
 
     audiosTable.setItems(audios);
 
@@ -179,23 +183,25 @@ public class InstrumentEditorController extends BrowserController {
 
   @FXML
   private void handlePressImportAudio(ActionEvent ignored) {
+    var instrument = projectService.getContent().getInstrument(instrumentId.get())
+      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
     var audioFilePath = ProjectUtils.chooseAudioFile(container.getScene().getWindow(), "Choose audio file");
-
     if (Objects.isNull(audioFilePath)) return;
-
-    Matcher matcher = ProjectPathUtils.matchPrefixNameExtension(audioFilePath);
-    if (!matcher.find()) {
-      LOG.error("Failed to parse project path prefix and name from file path: {}", audioFilePath);
-      return;
+    try {
+      var audio = projectService.createInstrumentAudio(instrument, audioFilePath);
+      uiStateService.editInstrumentAudio(audio.getId());
+    } catch (Exception e) {
+      LOG.error("Could not import audio!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
     }
+  }
 
-    var audio = new InstrumentAudio();
-    audio.setName(matcher.group(2));
-    audio.setId(UUID.randomUUID());
-    audio.setWaveformKey(String.format("instrument-%s-audio-%s-%s.wav", instrumentId.get(), StringUtils.toLowerHyphenatedSlug(matcher.group(2))audio.getId()));
-
-    // TODO generate waveform fllename, copy file to project, save as new instrument audio in instrument
-    // TODO open new instrument audio in audio editor
+  @FXML
+  private void handlePressOpenAudioFolder() {
+    var instrument = projectService.getContent().getInstrument(instrumentId.get())
+      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
+    var audioFolder = projectService.getPathPrefixToInstrumentAudio(instrument.getId());
+    if (Objects.isNull(audioFolder)) return;
+    ProjectUtils.openFolder(audioFolder);
   }
 
   /**

@@ -220,6 +220,15 @@ public interface ProjectService {
   Template createTemplate(String name) throws Exception;
 
   /**
+   Create a new template binding
+
+   @param templateId         template id
+   @param contentBindingType content binding type
+   @param targetId           target id
+   */
+  void createTemplateBinding(UUID templateId, ContentBindingType contentBindingType, UUID targetId);
+
+  /**
    Create a new library
 
    @param name of the new library
@@ -246,6 +255,15 @@ public interface ProjectService {
   Instrument createInstrument(Library library, String name) throws Exception;
 
   /**
+   Create a new instrument audio
+
+   @param instrument    in which to create an audio
+   @param audioFilePath to import audio from disk
+   @return the new instrument
+   */
+  InstrumentAudio createInstrumentAudio(Instrument instrument, String audioFilePath) throws Exception;
+
+  /**
    Move the program to the given library
 
    @param id      the program uuid
@@ -269,7 +287,7 @@ public interface ProjectService {
    @param fromId clone from template
    @param name   the new name
    */
-  void cloneTemplate(UUID fromId, String name) throws Exception;
+  Template cloneTemplate(UUID fromId, String name) throws Exception;
 
   /**
    Clone the given library with a new name
@@ -358,13 +376,12 @@ public interface ProjectService {
   void updateTemplate(Template template);
 
   /**
-   Create a new template binding
+   Get the path prefix to the audio folder for an instrument
 
-   @param templateId         template id
-   @param contentBindingType content binding type
-   @param targetId           target id
+   @param instrumentId of the instrument
+   @return the path prefix to the audio
    */
-  void addTemplateBinding(UUID templateId, ContentBindingType contentBindingType, UUID targetId);
+  String getPathPrefixToInstrumentAudio(UUID instrumentId);
 
   /**
    Whether the project has been modified since loading content

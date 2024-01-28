@@ -151,15 +151,15 @@ public class TemplateAddBindingModalController extends ProjectModalController {
   protected void handlePressOK() {
     if (Objects.nonNull(library.get())) Platform.runLater(() -> {
       switch (libraryContentType.get()) {
-        case Library -> projectService.addTemplateBinding(
+        case Library -> projectService.createTemplateBinding(
           templateId.get(),
           ContentBindingType.Library,
           library.get().getId());
-        case Program -> projectService.addTemplateBinding(
+        case Program -> projectService.createTemplateBinding(
           templateId.get(),
           ContentBindingType.Program,
           program.get().getId());
-        case Instrument -> projectService.addTemplateBinding(
+        case Instrument -> projectService.createTemplateBinding(
           templateId.get(),
           ContentBindingType.Instrument,
           instrument.get().getId());

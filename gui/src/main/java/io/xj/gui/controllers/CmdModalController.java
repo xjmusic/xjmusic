@@ -164,7 +164,10 @@ public class CmdModalController extends ProjectModalController {
         }
         case Clone -> {
           switch (type.get()) {
-            case Template -> projectService.cloneTemplate(currentId.get(), name.getValue());
+            case Template -> {
+              var template = projectService.cloneTemplate(currentId.get(), name.getValue());
+              uiStateService.editTemplate(template.getId());
+            }
             case Library -> {
               var library = projectService.cloneLibrary(currentId.get(), name.getValue());
               uiStateService.viewLibrary(library.getId());
@@ -425,7 +428,7 @@ public class CmdModalController extends ProjectModalController {
   }
 
   /**
-   Setup the modal for the given mode and type.
+   Set up the modal for the given mode and type.
 
    @param mode of modal
    @param type of modal
@@ -465,7 +468,7 @@ public class CmdModalController extends ProjectModalController {
   }
 
   /**
-   Describe a count of something, the the name pluralized if necessary
+   Describe a count of something, the name pluralized if necessary
 
    @param name  of the thing
    @param count of the thing

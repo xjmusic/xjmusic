@@ -260,7 +260,8 @@
 
 .top-pane .button,
 .top-pane .toggle-button,
-.template-bindings-pane .button {
+.template-bindings-pane .button,
+.instrument-audios-pane .button {
   -fx-background-color: transparent;
   -fx-border-color: transparent;
   -fx-border-width: 0;
