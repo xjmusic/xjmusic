@@ -15,13 +15,16 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.control.SplitPane?>
 
+<?import javafx.scene.control.TextArea?>
 <SplitPane
   fx:controller="io.xj.gui.controllers.template.TemplateEditorController"
   fx:id="container"
   xmlns="http://javafx.com/javafx/17.0.2-ea"
   xmlns:fx="http://javafx.com/fxml/1">
 
-  <VBox spacing="10.0">
+  <VBox
+    fx:id="fieldsContainer"
+    spacing="10.0">
     <VBox.vgrow>
       <Priority fx:constant="ALWAYS"/>
     </VBox.vgrow>
@@ -30,23 +33,20 @@
     </padding>
 
     <VBox>
-      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Name" textAlignment="RIGHT">
-        <graphic>
-          <Pane prefWidth="15.0"/>
-        </graphic>
-      </Label>
-      <Pane prefWidth="15.0"/>
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Name" textAlignment="RIGHT"/>
       <TextField fx:id="fieldName" prefHeight="25.0"/>
+    </VBox>
+
+    <VBox>
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Configuration" textAlignment="RIGHT"/>
+      <TextArea fx:id="fieldConfig" maxHeight="Infinity"/>
     </VBox>
 
     <HBox spacing="10">
       <Button
-        fx:id="buttonOK"
-        onAction="#handlePressOK"
-        text="OK"/>
-      <Button fx:id="buttonCancel"
-              onAction="#handlePressCancel"
-              text="Cancel"/>
+        fx:id="buttonSave"
+        onAction="#handlePressSave"
+        text="Save"/>
     </HBox>
   </VBox>
 

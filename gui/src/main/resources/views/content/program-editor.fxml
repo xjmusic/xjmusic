@@ -35,13 +35,9 @@
 
   <HBox spacing="10">
     <Button
-      fx:id="buttonOK"
-      onAction="#handlePressOK"
-      text="OK"/>
-    <Button fx:id="buttonCancel"
-            onAction="#handlePressCancel"
-            text="Cancel"/>
-
+      fx:id="buttonSave"
+      onAction="#handlePressSave"
+      text="Save"/>
   </HBox>
 
   <Label>FUTURE: Program Editor</Label>

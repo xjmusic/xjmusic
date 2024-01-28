@@ -8,6 +8,7 @@ import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
+import io.xj.hub.TemplateConfig;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.nexus.project.ProjectUpdate;
 import javafx.application.Platform;
@@ -27,6 +28,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
@@ -46,6 +48,7 @@ public class TemplateEditorController extends BrowserController implements Ready
   private final TemplateAddBindingController templateAddBindingController;
   private final ObjectProperty<UUID> templateId = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
+  private final StringProperty config = new SimpleStringProperty("");
   private final BooleanProperty dirty = new SimpleBooleanProperty(false);
   private final ObservableList<TemplateBinding> bindings = FXCollections.observableList(new ArrayList<>());
 
@@ -53,13 +56,16 @@ public class TemplateEditorController extends BrowserController implements Ready
   protected SplitPane container;
 
   @FXML
+  protected VBox fieldsContainer;
+
+  @FXML
   protected TextField fieldName;
 
   @FXML
-  protected Button buttonOK;
+  protected TextArea fieldConfig;
 
   @FXML
-  protected Button buttonCancel;
+  protected Button buttonSave;
 
   @FXML
   protected TableView<TemplateBinding> bindingsTable;
@@ -83,8 +89,11 @@ public class TemplateEditorController extends BrowserController implements Ready
     container.managedProperty().bind(visible);
 
     fieldName.textProperty().bindBidirectional(name);
+    fieldConfig.textProperty().bindBidirectional(config);
+    fieldConfig.prefHeightProperty().bind(fieldsContainer.heightProperty().subtract(100));
 
     name.addListener((o, ov, v) -> dirty.set(true));
+    config.addListener((o, ov, v) -> dirty.set(true));
 
     bindingsTable.setItems(bindings);
 
@@ -128,7 +137,7 @@ public class TemplateEditorController extends BrowserController implements Ready
         update();
     });
 
-    buttonOK.disableProperty().bind(dirty.not());
+    buttonSave.disableProperty().bind(dirty.not());
   }
 
   /**
@@ -157,17 +166,18 @@ public class TemplateEditorController extends BrowserController implements Ready
   }
 
   @FXML
-  protected void handlePressOK() {
+  protected void handlePressSave() {
     var template = projectService.getContent().getTemplate(templateId.get())
       .orElseThrow(() -> new RuntimeException("Could not find Template"));
     template.setName(name.get());
+    try {
+      template.setConfig(new TemplateConfig(config.get()).toString());
+    } catch (Exception e) {
+      LOG.error("Could not parse Template config!", e);
+      return;
+    }
     if (projectService.updateTemplate(template))
       uiStateService.viewTemplates();
-  }
-
-  @FXML
-  protected void handlePressCancel() {
-    uiStateService.viewTemplates();
   }
 
   @FXML
@@ -186,6 +196,7 @@ public class TemplateEditorController extends BrowserController implements Ready
     LOG.info("Will edit Template \"{}\"", template.getName());
     this.templateId.set(template.getId());
     this.name.set(template.getName());
+    this.config.set(template.getConfig());
     this.dirty.set(false);
     updateBindings();
   }

@@ -40,10 +40,7 @@ public class ProgramEditorController implements ReadyAfterBootController {
   protected TextField fieldName;
 
   @FXML
-  protected Button buttonOK;
-
-  @FXML
-  protected Button buttonCancel;
+  protected Button buttonSave;
 
   public ProgramEditorController(
     ProjectService projectService,
@@ -70,7 +67,7 @@ public class ProgramEditorController implements ReadyAfterBootController {
         update();
     });
 
-    buttonOK.disableProperty().bind(dirty.not());
+    buttonSave.disableProperty().bind(dirty.not());
   }
 
   @Override
@@ -79,19 +76,12 @@ public class ProgramEditorController implements ReadyAfterBootController {
   }
 
   @FXML
-  protected void handlePressOK() {
+  protected void handlePressSave() {
     var program = projectService.getContent().getProgram(programId.get())
       .orElseThrow(() -> new RuntimeException("Could not find Program"));
     program.setName(name.get());
     if (projectService.updateProgram(program))
       uiStateService.viewLibrary(program.getLibraryId());
-  }
-
-  @FXML
-  protected void handlePressCancel() {
-    var program = projectService.getContent().getProgram(programId.get())
-      .orElseThrow(() -> new RuntimeException("Could not find Program"));
-    uiStateService.viewLibrary(program.getLibraryId());
   }
 
   /**

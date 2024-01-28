@@ -282,7 +282,7 @@
 .top-pane .button:selected,
 .top-pane .toggle-button:selected,
 .template-bindings-pane .button:selected {
-  -fx-background-color: #a0a0a0;
+  -fx-background-color: #c0c0c0;
 }
 
 .icon-button {
@@ -310,4 +310,8 @@
 
 .split-pane {
   -fx-background-color: transparent;
+}
+
+#fieldConfig {
+  -fx-font-family: 'Roboto Mono';
 }
