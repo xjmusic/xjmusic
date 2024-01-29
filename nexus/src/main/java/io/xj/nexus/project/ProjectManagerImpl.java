@@ -596,11 +596,11 @@ public class ProjectManagerImpl implements ProjectManager {
     content.get().putAll(clonedAudios.values());
 
     // Copy all the instrument's audio to the new folder
-    var library = content.get().getLibrary(libraryId).orElseThrow(() -> new NexusException("Library not found"));
     for (InstrumentAudio audio : clonedAudios.values()) {
       var fromPath = getPathToInstrumentAudio(fromId, audio.getWaveformKey());
       var toPath = getPathToInstrumentAudio(instrument.getId(), audio.getWaveformKey());
-      FileUtils.copyFile(new File(fromPath), new File(toPath));
+      if (new File(fromPath).exists())
+        FileUtils.copyFile(new File(fromPath), new File(toPath));
     }
 
     // return the instrument
