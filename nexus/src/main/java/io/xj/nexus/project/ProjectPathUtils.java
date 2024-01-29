@@ -6,9 +6,9 @@ import java.util.regex.Pattern;
 
 public class ProjectPathUtils {
   private static final String escapedFileSeparator = File.separator.equals("\\") ? "\\\\" : File.separator;
-  private static final Pattern projectPathAndFilenameRgx = Pattern.compile("(.*" + escapedFileSeparator + ")([^" + escapedFileSeparator + "]+)" + "\\.([^.]+)$");
+  private static final Pattern prefixNameExtensionRgx = Pattern.compile("(.*" + escapedFileSeparator + ")([^" + escapedFileSeparator + "]+)" + "\\.([^.]+)$");
 
   public static Matcher matchPrefixNameExtension(String fileName) {
-    return projectPathAndFilenameRgx.matcher(fileName);
+    return prefixNameExtensionRgx.matcher(fileName);
   }
 }

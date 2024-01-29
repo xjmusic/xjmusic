@@ -118,7 +118,7 @@ public class InstrumentAudioEditorController extends BrowserController {
 
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.InstrumentAudioEditor))
-        update();
+        setup();
     });
 
     buttonSave.disableProperty().bind(dirty.not());
@@ -147,7 +147,7 @@ public class InstrumentAudioEditorController extends BrowserController {
   /**
    Update the Instrument Editor with the current Instrument.
    */
-  private void update() {
+  private void setup() {
     if (uiStateService.currentInstrumentAudioProperty().isNull().get())
       return;
     var instrumentAudio = projectService.getContent().getInstrumentAudio(uiStateService.currentInstrumentAudioProperty().get().getId())

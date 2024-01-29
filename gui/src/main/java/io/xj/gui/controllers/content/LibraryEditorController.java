@@ -71,7 +71,7 @@ public class LibraryEditorController extends ProjectController {
 
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.LibraryEditor))
-        update();
+        setup();
     });
 
     buttonOK.disableProperty().bind(dirty.not());
@@ -99,7 +99,7 @@ public class LibraryEditorController extends ProjectController {
   /**
    Update the Library Editor with the current Library.
    */
-  private void update() {
+  private void setup() {
     if (Objects.isNull(uiStateService.currentLibraryProperty().get()))
       return;
     var library = projectService.getContent().getLibrary(uiStateService.currentLibraryProperty().get().getId())

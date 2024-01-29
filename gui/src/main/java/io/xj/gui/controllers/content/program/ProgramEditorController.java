@@ -68,7 +68,7 @@ public class ProgramEditorController extends ProjectController {
 
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.ProgramEditor))
-        update();
+        setup();
     });
 
     buttonSave.disableProperty().bind(dirty.not());
@@ -91,7 +91,7 @@ public class ProgramEditorController extends ProjectController {
   /**
    Update the Program Editor with the current Program.
    */
-  private void update() {
+  private void setup() {
     if (Objects.isNull(uiStateService.currentProgramProperty().get()))
       return;
     var program = projectService.getContent().getProgram(uiStateService.currentProgramProperty().get().getId())

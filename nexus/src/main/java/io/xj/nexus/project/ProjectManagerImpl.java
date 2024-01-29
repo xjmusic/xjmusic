@@ -222,7 +222,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public String getPathToInstrumentAudio(UUID instrumentId, String waveformKey) {
-    return getPathPrefixToInstrumentAudio(instrumentId)+ waveformKey;
+    return getPathPrefixToInstrumentAudio(instrumentId) + waveformKey;
   }
 
   @Override
@@ -337,20 +337,26 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public String copyInstrumentAudioWaveform(InstrumentAudio fromAudio, InstrumentAudio toAudio) throws NexusException, IOException {
+  public void updateInstrumentAudioAndCopyWaveformFile(InstrumentAudio audio) throws Exception {
+    var fromAudio = content.get().getInstrumentAudio(audio.getId())
+      .orElseThrow(() -> new RuntimeException("Could not find Instrument Audio"));
     var fromInstrument = content.get().getInstrument(fromAudio.getInstrumentId()).orElseThrow(() -> new NexusException("Instrument not found"));
     var fromPath = getPathToInstrumentAudio(fromInstrument.getId(), fromAudio.getWaveformKey());
     var matcher = ProjectPathUtils.matchPrefixNameExtension(fromPath);
+    if (!matcher.find()) return;
 
-    var toInstrument = content.get().getInstrument(toAudio.getInstrumentId()).orElseThrow(() -> new NexusException("Instrument not found"));
+    var toInstrument = content.get().getInstrument(audio.getInstrumentId()).orElseThrow(() -> new NexusException("Instrument not found"));
     var toLibrary = content.get().getLibrary(toInstrument.getLibraryId()).orElseThrow(() -> new NexusException("Library not found"));
     var toProject = content.get().getProject(toLibrary.getProjectId()).orElseThrow(() -> new NexusException("Project not found"));
-    var toWaveformKey = computeWaveformKey(toProject.getName(), toLibrary.getName(), toInstrument.getName(), toAudio, matcher.group(3));
+    var toWaveformKey = computeWaveformKey(toProject.getName(), toLibrary.getName(), toInstrument.getName(), audio, matcher.group(3));
     var toPath = getPathToInstrumentAudio(toInstrument.getId(), toWaveformKey);
 
-    FileUtils.copyFile(new File(fromPath), new File(toPath));
+    if (!Objects.equals(fromPath, toPath)) {
+      FileUtils.copyFile(new File(fromPath), new File(toPath));
+      audio.setWaveformKey(toWaveformKey);
+    }
 
-    return toWaveformKey;
+    content.get().put(audio);
   }
 
   @Override
@@ -597,7 +603,7 @@ public class ProjectManagerImpl implements ProjectManager {
    @throws IOException if the audio file could not be imported
    */
   private void importAudio(InstrumentAudio audio, String audioFilePath) throws IOException {
-    var targetPath = getPathToInstrumentAudio(audio.getId(), audio.getWaveformKey());
+    var targetPath = getPathToInstrumentAudio(audio.getInstrumentId(), audio.getWaveformKey());
     FileUtils.copyFile(new File(audioFilePath), new File(targetPath));
   }
 

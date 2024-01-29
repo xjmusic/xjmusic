@@ -9,11 +9,9 @@ import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.nexus.NexusException;
 import io.xj.nexus.hub_client.HubClientAccess;
 import jakarta.annotation.Nullable;
 
-import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -208,13 +206,9 @@ public interface ProjectManager {
   Instrument moveInstrument(UUID id, UUID libraryId) throws Exception;
 
   /**
-   Copy the instrument audio waveform from one audio to another
-
-   @param from original instrument audio
-   @param to   new instrument audio
-   @return the new waveform key
+   Copy the instrument audio waveform from one audio to another@param audio   new instrument audio
    */
-  String copyInstrumentAudioWaveform(InstrumentAudio from, InstrumentAudio to) throws NexusException, IOException;
+  void updateInstrumentAudioAndCopyWaveformFile(InstrumentAudio audio) throws Exception;
 
   /**
    Clone a Template from a source template by id

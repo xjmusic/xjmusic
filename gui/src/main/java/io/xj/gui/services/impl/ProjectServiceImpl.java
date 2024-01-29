@@ -515,13 +515,7 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public boolean updateInstrumentAudio(InstrumentAudio audio) {
     try {
-      var original = projectManager.getContent().getInstrumentAudio(audio.getId())
-        .orElseThrow(() -> new RuntimeException("Could not find Instrument Audio"));
-
-      // Copy the waveform file to a new waveform key and set the key
-      audio.setWaveformKey(projectManager.copyInstrumentAudioWaveform(original, audio));
-
-      projectManager.getContent().put(audio);
+      projectManager.updateInstrumentAudioAndCopyWaveformFile(audio);
       didUpdate(InstrumentAudio.class, true);
       return true;
 
