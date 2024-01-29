@@ -36,4 +36,30 @@ class ProjectPathUtilsTest {
     assertEquals(name, matcher.group(2));
     assertEquals(extension, matcher.group(3));
   }
+
+  @Test
+  void matchPrefixAndFileName_wavFileWithSpaces() {
+    var prefix = File.separator + "Users" + File.separator + "Documents" + File.separator;
+    var name = "demo with spaces";
+    var extension = "wav";
+
+    var matcher = ProjectPathUtils.matchPrefixNameExtension(prefix + name + "." + extension);
+
+    assertTrue(matcher.find());
+    assertEquals(prefix, matcher.group(1));
+    assertEquals(name, matcher.group(2));
+    assertEquals(extension, matcher.group(3));
+  }
+
+  @Test
+  void getExtension() {
+    var prefix = File.separator + "Users" + File.separator + "Documents" + File.separator;
+    var name = "demo with spaces";
+    var extension = "wav";
+
+    var matcher = ProjectPathUtils.matchPrefixNameExtension(prefix + name + "." + extension);
+
+    assertTrue(matcher.find());
+    assertEquals(extension, ProjectPathUtils.getExtension(prefix + name + "." + extension));
+  }
 }

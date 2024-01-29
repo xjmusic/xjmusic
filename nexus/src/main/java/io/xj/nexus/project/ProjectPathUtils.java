@@ -11,4 +11,12 @@ public class ProjectPathUtils {
   public static Matcher matchPrefixNameExtension(String fileName) {
     return prefixNameExtensionRgx.matcher(fileName);
   }
+
+  public static String getExtension(String fromPath) {
+    Matcher matcher = matchPrefixNameExtension(fromPath);
+    if (matcher.matches()) {
+      return matcher.group(3);
+    }
+    return "";
+  }
 }

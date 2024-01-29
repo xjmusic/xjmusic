@@ -284,6 +284,8 @@ public class ProjectManagerImpl implements ProjectManager {
     instrument.setName(name);
     instrument.setLibraryId(library.getId());
     instrument.setIsDeleted(false);
+    var instrumentPath = getPathPrefixToInstrumentAudio(instrument.getId());
+    FileUtils.createParentDirectories(new File(instrumentPath));
     content.get().put(instrument);
     return instrument;
   }
@@ -588,10 +590,20 @@ public class ProjectManagerImpl implements ProjectManager {
     // Clone the Instrument's Memes
     var clonedMemes = entityFactory.cloneAll(content.get().getMemesOfInstrument(fromId), Set.of(instrument));
 
-    // Put everything in the store and return the instrument
+    // Put everything in the store
     content.get().put(instrument);
     content.get().putAll(clonedMemes.values());
     content.get().putAll(clonedAudios.values());
+
+    // Copy all the instrument's audio to the new folder
+    var library = content.get().getLibrary(libraryId).orElseThrow(() -> new NexusException("Library not found"));
+    for (InstrumentAudio audio : clonedAudios.values()) {
+      var fromPath = getPathToInstrumentAudio(fromId, audio.getWaveformKey());
+      var toPath = getPathToInstrumentAudio(instrument.getId(), audio.getWaveformKey());
+      FileUtils.copyFile(new File(fromPath), new File(toPath));
+    }
+
+    // return the instrument
     return instrument;
   }
 
@@ -604,6 +616,7 @@ public class ProjectManagerImpl implements ProjectManager {
    */
   private void importAudio(InstrumentAudio audio, String audioFilePath) throws IOException {
     var targetPath = getPathToInstrumentAudio(audio.getInstrumentId(), audio.getWaveformKey());
+    FileUtils.createParentDirectories(new File(targetPath));
     FileUtils.copyFile(new File(audioFilePath), new File(targetPath));
   }
 
