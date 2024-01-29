@@ -2,9 +2,12 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.gui.ProjectModalController;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.LabState;
+import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
+import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.User;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
@@ -26,7 +29,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-public class MainLabAuthenticationModalController extends ReadyAfterBootModalController {
+public class MainLabAuthenticationModalController extends ProjectModalController {
   static final List<LabState> BUTTON_CONNECT_ACTIVE_IN_LAB_STATES = Arrays.asList(
     LabState.Authenticated,
     LabState.Unauthorized,
@@ -66,10 +69,12 @@ public class MainLabAuthenticationModalController extends ReadyAfterBootModalCon
   public MainLabAuthenticationModalController(
     @Value("classpath:/views/main-lab-authentication-modal.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
+    ThemeService themeService,
     LabService labService,
-    ThemeService themeService
+    UIStateService uiStateService,
+    ProjectService projectService
   ) {
-    super(ac, themeService, fxml);
+    super(fxml, ac, themeService, uiStateService, projectService);
     this.labService = labService;
   }
 

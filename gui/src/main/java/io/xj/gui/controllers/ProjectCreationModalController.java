@@ -2,9 +2,11 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.gui.ProjectModalController;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
+import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.gui.utils.TextParsingUtils;
 import io.xj.hub.tables.pojos.Project;
@@ -37,13 +39,12 @@ import java.util.Map;
 import java.util.Objects;
 
 @Service
-public class ProjectCreationModalController extends ReadyAfterBootModalController {
+public class ProjectCreationModalController extends ProjectModalController {
   static final Map<ProjectCreationMode, String> WINDOW_TITLE = Map.of(
     ProjectCreationMode.NEW_PROJECT, "Create New Project",
     ProjectCreationMode.CLONE_PROJECT, "Clone Project"
   );
   private final SimpleDoubleProperty demoImageSize = new SimpleDoubleProperty(120);
-  private final ProjectService projectService;
   private final LabService labService;
   private final ObjectProperty<ProjectCreationMode> mode = new SimpleObjectProperty<>(ProjectCreationMode.NEW_PROJECT);
   private final ObservableBooleanValue isDemoVisible = Bindings.createBooleanBinding(
@@ -105,12 +106,12 @@ public class ProjectCreationModalController extends ReadyAfterBootModalControlle
   public ProjectCreationModalController(
     @Value("classpath:/views/project-creation-modal.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
+    UIStateService uiStateService,
     ProjectService projectService,
     ThemeService themeService,
     LabService labService
   ) {
-    super(ac, themeService, fxml);
-    this.projectService = projectService;
+    super(fxml, ac, themeService, uiStateService, projectService);
     this.labService = labService;
   }
 

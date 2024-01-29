@@ -1,10 +1,6 @@
-// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+package io.xj.gui.services;
 
-package io.xj.gui.controllers;
-
-import javafx.beans.binding.BooleanBinding;
-
-public interface ReadyAfterBootController {
+public interface ReadyAfterBoot {
 
   /**
    In order for JavaFX to play well with Spring Boot, we need to wait until the Spring Boot application context is ready before we can start the JavaFX application.
@@ -15,4 +11,5 @@ public interface ReadyAfterBootController {
    Called when the stage is closing.
    */
   void onStageClose();
+
 }

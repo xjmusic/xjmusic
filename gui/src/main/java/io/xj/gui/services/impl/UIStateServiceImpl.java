@@ -9,6 +9,7 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.WindowUtils;
 import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
@@ -45,6 +46,7 @@ public class UIStateServiceImpl implements UIStateService {
     ContentMode.ProgramEditor,
     ContentMode.InstrumentBrowser,
     ContentMode.InstrumentEditor,
+    ContentMode.InstrumentAudioEditor,
     ContentMode.LibraryEditor
   );
   private final StringBinding windowTitle;
@@ -52,6 +54,7 @@ public class UIStateServiceImpl implements UIStateService {
   private final ObjectProperty<Library> currentLibrary = new SimpleObjectProperty<>(null);
   private final ObjectProperty<Program> currentProgram = new SimpleObjectProperty<>(null);
   private final ObjectProperty<Instrument> currentInstrument = new SimpleObjectProperty<>(null);
+  private final ObjectProperty<InstrumentAudio> currentInstrumentAudio = new SimpleObjectProperty<>(null);
   private final ObjectProperty<Template> currentTemplate = new SimpleObjectProperty<>(null);
   private final ObjectProperty<ContentMode> contentMode = new SimpleObjectProperty<>(ContentMode.LibraryBrowser);
   private final ObjectProperty<TemplateMode> templateMode = new SimpleObjectProperty<>(TemplateMode.TemplateBrowser);
@@ -152,6 +155,8 @@ public class UIStateServiceImpl implements UIStateService {
       () -> switch (viewMode.get()) {
         case Content -> switch (contentMode.get()) {
           case LibraryBrowser, LibraryEditor -> "Libraries";
+          case InstrumentAudioEditor ->
+            currentInstrument.isNotNull().get() ? currentInstrument.get().getName() : "";
           case ProgramBrowser, InstrumentBrowser, ProgramEditor, InstrumentEditor ->
             currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
         };
@@ -175,19 +180,22 @@ public class UIStateServiceImpl implements UIStateService {
       },
       viewMode, contentMode, templateMode
     );
+
     currentEntityName = Bindings.createStringBinding(
       () -> switch (viewMode.get()) {
         case Content -> switch (contentMode.get()) {
           case LibraryEditor -> currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
           case ProgramEditor -> currentProgram.isNotNull().get() ? currentProgram.get().getName() : "";
           case InstrumentEditor -> currentInstrument.isNotNull().get() ? currentInstrument.get().getName() : "";
+          case InstrumentAudioEditor -> currentInstrumentAudio.isNotNull().get() ? currentInstrumentAudio.get().getName() : "";
           default -> "";
         };
         case Templates ->
           Objects.equals(TemplateMode.TemplateEditor, templateMode.get()) && currentTemplate.isNotNull().get() ? currentTemplate.get().getName() : "";
         default -> "";
       },
-      viewMode, contentMode, templateMode, currentProgram, currentInstrument, currentTemplate);
+      viewMode, contentMode, templateMode, currentProgram, currentInstrument, currentInstrumentAudio, currentTemplate);
+
     isCreateEntityButtonVisible = Bindings.createBooleanBinding(
       () ->
         projectService.isStateReadyProperty().get() &&
@@ -201,12 +209,14 @@ public class UIStateServiceImpl implements UIStateService {
           },
       viewMode, contentMode, templateMode, projectService.isStateReadyProperty()
     );
+
     createEntityButtonText = Bindings.createStringBinding(
       () -> switch (viewMode.get()) {
         case Content -> switch (contentMode.get()) {
-          case LibraryBrowser, LibraryEditor -> "New Library";
-          case ProgramBrowser, ProgramEditor -> "New Program";
-          case InstrumentBrowser, InstrumentEditor -> "New Instrument";
+          case LibraryBrowser -> "New Library";
+          case ProgramBrowser -> "New Program";
+          case InstrumentBrowser -> "New Instrument";
+          default -> "";
         };
         case Templates -> "New Template";
         default -> "";
@@ -331,6 +341,10 @@ public class UIStateServiceImpl implements UIStateService {
             currentInstrument.set(null);
             contentMode.set(ContentMode.InstrumentBrowser);
           }
+          case InstrumentAudioEditor -> {
+            currentInstrumentAudio.set(null);
+            contentMode.set(ContentMode.InstrumentEditor);
+          }
         }
       }
       case Templates -> {
@@ -338,18 +352,6 @@ public class UIStateServiceImpl implements UIStateService {
           currentTemplate.set(null);
           templateMode.set(TemplateMode.TemplateBrowser);
         }
-      }
-    }
-
-    if (Objects.equals(viewMode.get(), ViewMode.Content)) {
-      if (Objects.equals(contentMode.get(), ContentMode.ProgramEditor)) {
-        contentMode.set(ContentMode.ProgramBrowser);
-      } else if (Objects.equals(contentMode.get(), ContentMode.InstrumentEditor)) {
-        contentMode.set(ContentMode.InstrumentBrowser);
-      }
-    } else if (Objects.equals(viewMode.get(), ViewMode.Templates)) {
-      if (Objects.equals(templateMode.get(), TemplateMode.TemplateEditor)) {
-        templateMode.set(TemplateMode.TemplateBrowser);
       }
     }
   }
@@ -384,7 +386,12 @@ public class UIStateServiceImpl implements UIStateService {
     return currentInstrument;
   }
 
-  @Override
+    @Override
+    public ObjectProperty<InstrumentAudio> currentInstrumentAudioProperty() {
+        return currentInstrumentAudio;
+    }
+
+    @Override
   public ObjectProperty<Template> currentTemplateProperty() {
     return currentTemplate;
   }
@@ -443,8 +450,24 @@ public class UIStateServiceImpl implements UIStateService {
     var library = projectService.getContent().getLibrary(instrument.getLibraryId())
       .orElseThrow(() -> new RuntimeException("Could not find Library!"));
     currentInstrument.set(instrument);
+    currentInstrumentAudio.set(null);
     currentLibrary.set(library);
     contentMode.set(ContentMode.InstrumentEditor);
+    viewMode.set(ViewMode.Content);
+  }
+
+  @Override
+  public void editInstrumentAudio(UUID instrumentAudioId) {
+    var instrumentAudio = projectService.getContent().getInstrumentAudio(instrumentAudioId)
+      .orElseThrow(() -> new RuntimeException("Could not find InstrumentAudio!"));
+    var instrument = projectService.getContent().getInstrument(instrumentAudio.getInstrumentId())
+      .orElseThrow(() -> new RuntimeException("Could not find Instrument!"));
+    var library = projectService.getContent().getLibrary(instrument.getLibraryId())
+      .orElseThrow(() -> new RuntimeException("Could not find Library!"));
+    currentInstrumentAudio.set(instrumentAudio);
+    currentInstrument.set(instrument);
+    currentLibrary.set(library);
+    contentMode.set(ContentMode.InstrumentAudioEditor);
     viewMode.set(ViewMode.Content);
   }
 

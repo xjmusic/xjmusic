@@ -2,7 +2,10 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.gui.ProjectController;
+import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
+import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.TextAreaUtils;
 import io.xj.gui.utils.WindowUtils;
 import io.xj.hub.util.StringUtils;
@@ -23,14 +26,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.prefs.Preferences;
 
 @Service
-public class EulaModalController implements ReadyAfterBootController {
+public class EulaModalController extends ProjectController {
   static final Logger LOG = LoggerFactory.getLogger(EulaModalController.class);
   static final String WINDOW_TITLE = "End User Licensing Agreement (EULA)";
   static final String PREFS_KEY_EULA_ACCEPTED = "eula.accepted";
   private final Resource eulaTextResource;
-  private final ThemeService themeService;
-  private final Resource eulaModalFxml;
-  private final ConfigurableApplicationContext ac;
   private final Preferences prefs;
   private Runnable onAccepted;
 
@@ -44,15 +44,15 @@ public class EulaModalController implements ReadyAfterBootController {
   Button buttonDecline;
 
   public EulaModalController(
-    @Value("classpath:/views/eula-modal.fxml") Resource eulaModalFxml,
+    @Value("classpath:/views/eula-modal.fxml") Resource fxml,
     @Value("classpath:/EULA.txt") Resource eulaTextResource,
     ThemeService themeService,
-    ConfigurableApplicationContext ac
+    ConfigurableApplicationContext ac,
+    UIStateService uiStateService,
+    ProjectService projectService
   ) {
-    this.themeService = themeService;
-    this.eulaModalFxml = eulaModalFxml;
+    super(fxml, ac, themeService, uiStateService, projectService);
     this.eulaTextResource = eulaTextResource;
-    this.ac = ac;
 
     prefs = Preferences.userNodeForPackage(EulaModalController.class);
   }
@@ -107,7 +107,7 @@ public class EulaModalController implements ReadyAfterBootController {
 
         primaryStage.setTitle(WindowUtils.computeTitle(WINDOW_TITLE));
 
-        FXMLLoader mainWindowFxmlLoader = new FXMLLoader(eulaModalFxml.getURL());
+        FXMLLoader mainWindowFxmlLoader = new FXMLLoader(fxml.getURL());
         mainWindowFxmlLoader.setControllerFactory(ac::getBean);
 
         var scene = new Scene(mainWindowFxmlLoader.load());

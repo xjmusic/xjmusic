@@ -2,10 +2,11 @@
 
 package io.xj.gui.controllers.fabrication;
 
-import io.xj.gui.controllers.ReadyAfterBootModalController;
+import io.xj.gui.ProjectModalController;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
+import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.ControlMode;
 import javafx.collections.FXCollections;
@@ -23,10 +24,9 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 
 @Service
-public class FabricationSettingsModalController extends ReadyAfterBootModalController {
+public class FabricationSettingsModalController extends ProjectModalController {
   static final String FABRICATION_SERVICE_WINDOW_NAME = "Fabrication Settings";
   private final FabricationService fabricationService;
-  private final ProjectService projectService;
 
   @FXML
   ChoiceBox<ControlMode> choiceControlMode;
@@ -64,13 +64,13 @@ public class FabricationSettingsModalController extends ReadyAfterBootModalContr
   public FabricationSettingsModalController(
     @Value("classpath:/views/fabrication/fabrication-settings-modal.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
+    ThemeService themeService,
     FabricationService fabricationService,
-    ProjectService projectService,
-    ThemeService themeService
+    UIStateService uiStateService,
+    ProjectService projectService
   ) {
-    super(ac, themeService, fxml);
+    super(fxml, ac, themeService, uiStateService, projectService);
     this.fabricationService = fabricationService;
-    this.projectService = projectService;
   }
 
   @Override

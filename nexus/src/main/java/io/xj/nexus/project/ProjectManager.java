@@ -2,13 +2,13 @@ package io.xj.nexus.project;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.nexus.NexusException;
 import io.xj.nexus.hub_client.HubClientAccess;
 import jakarta.annotation.Nullable;
 
@@ -123,6 +123,14 @@ public interface ProjectManager {
   String getPathToInstrumentAudio(UUID instrumentId, String waveformKey);
 
   /**
+   Get the path prefix to the audio folder for an instrument
+
+   @param instrumentId of the instrument
+   @return the path prefix to the audio
+   */
+  String getPathPrefixToInstrumentAudio(UUID instrumentId);
+
+  /**
    Set the callback to be invoked when the progress changes
 
    @param onProgress the callback
@@ -171,6 +179,15 @@ public interface ProjectManager {
   Instrument createInstrument(Library library, String name) throws Exception;
 
   /**
+   Create a new instrument audio
+
+   @param instrument    in which to create an audio
+   @param audioFilePath to import audio from disk
+   @return the new instrument
+   */
+  InstrumentAudio createInstrumentAudio(Instrument instrument, String audioFilePath) throws Exception;
+
+  /**
    Move a program to a new library
 
    @param id        of program to move
@@ -187,6 +204,11 @@ public interface ProjectManager {
    @return the moved instrument
    */
   Instrument moveInstrument(UUID id, UUID libraryId) throws Exception;
+
+  /**
+   Copy the instrument audio waveform from one audio to another@param audio   new instrument audio
+   */
+  void updateInstrumentAudioAndCopyWaveformFile(InstrumentAudio audio) throws Exception;
 
   /**
    Clone a Template from a source template by id

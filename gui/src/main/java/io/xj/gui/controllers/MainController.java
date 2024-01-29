@@ -2,35 +2,40 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.gui.ProjectController;
 import io.xj.gui.controllers.content.ContentBrowserController;
-import io.xj.gui.controllers.content.InstrumentEditorController;
 import io.xj.gui.controllers.content.LibraryEditorController;
-import io.xj.gui.controllers.content.ProgramEditorController;
+import io.xj.gui.controllers.content.instrument.InstrumentAudioEditorController;
+import io.xj.gui.controllers.content.program.ProgramEditorController;
+import io.xj.gui.controllers.content.instrument.InstrumentEditorController;
 import io.xj.gui.controllers.fabrication.FabricationController;
 import io.xj.gui.controllers.template.TemplateBrowserController;
 import io.xj.gui.controllers.template.TemplateEditorController;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.util.StringUtils;
 import javafx.fxml.FXML;
 import javafx.scene.image.ImageView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MainController implements ReadyAfterBootController {
+public class MainController extends ProjectController {
   static final Logger LOG = LoggerFactory.getLogger(MainController.class);
   private final FabricationController fabricationController;
   private final MainMenuController mainMenuController;
   private final MainPaneBottomController mainPaneBottomController;
   private final MainPaneTopController mainPaneTopController;
-  private final UIStateService uiStateService;
-  private final ProjectService projectService;
   private final ContentBrowserController contentBrowserController;
   private final LibraryEditorController libraryEditorController;
   private final ProgramEditorController programEditorController;
   private final InstrumentEditorController instrumentEditorController;
+  private final InstrumentAudioEditorController instrumentAudioEditorController;
   private final TemplateEditorController templateEditorController;
   private final TemplateBrowserController templateBrowserController;
 
@@ -38,6 +43,9 @@ public class MainController implements ReadyAfterBootController {
   protected ImageView startupContainer;
 
   public MainController(
+    @Value("classpath:/views/main.fxml") Resource fxml,
+    ApplicationContext ac,
+    ThemeService themeService,
     ContentBrowserController contentBrowserController,
     FabricationController fabricationController,
     InstrumentEditorController instrumentEditorController,
@@ -49,8 +57,10 @@ public class MainController implements ReadyAfterBootController {
     ProjectService projectService,
     TemplateBrowserController templateBrowserController,
     TemplateEditorController templateEditorController,
-    UIStateService uiStateService
+    UIStateService uiStateService,
+    InstrumentAudioEditorController instrumentAudioEditorController
   ) {
+    super(fxml, ac, themeService, uiStateService, projectService);
     this.contentBrowserController = contentBrowserController;
     this.fabricationController = fabricationController;
     this.instrumentEditorController = instrumentEditorController;
@@ -59,10 +69,9 @@ public class MainController implements ReadyAfterBootController {
     this.mainPaneBottomController = mainPaneBottomController;
     this.mainPaneTopController = mainPaneTopController;
     this.programEditorController = programEditorController;
-    this.projectService = projectService;
     this.templateBrowserController = templateBrowserController;
     this.templateEditorController = templateEditorController;
-    this.uiStateService = uiStateService;
+    this.instrumentAudioEditorController = instrumentAudioEditorController;
   }
 
   @Override
@@ -71,6 +80,7 @@ public class MainController implements ReadyAfterBootController {
       contentBrowserController.onStageReady();
       fabricationController.onStageReady();
       instrumentEditorController.onStageReady();
+      instrumentAudioEditorController.onStageReady();
       libraryEditorController.onStageReady();
       mainMenuController.onStageReady();
       mainPaneBottomController.onStageReady();
@@ -93,6 +103,7 @@ public class MainController implements ReadyAfterBootController {
     contentBrowserController.onStageClose();
     fabricationController.onStageClose();
     instrumentEditorController.onStageClose();
+    instrumentAudioEditorController.onStageClose();
     libraryEditorController.onStageClose();
     mainMenuController.onStageClose();
     mainPaneBottomController.onStageClose();

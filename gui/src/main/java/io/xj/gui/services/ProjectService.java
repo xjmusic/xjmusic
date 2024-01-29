@@ -3,6 +3,7 @@ package io.xj.gui.services;
 import io.xj.hub.HubContent;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
@@ -11,7 +12,6 @@ import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.nexus.project.ProjectState;
-import io.xj.nexus.project.ProjectUpdate;
 import jakarta.annotation.Nullable;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
@@ -22,6 +22,7 @@ import javafx.beans.value.ObservableListValue;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableStringValue;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
@@ -125,7 +126,7 @@ public interface ProjectService {
    @param type     the type of update to listen for
    @param listener the listener to attach
    */
-  void addProjectUpdateListener(ProjectUpdate type, Runnable listener);
+  <N extends Serializable> void addProjectUpdateListener(Class<N> type, Runnable listener);
 
   /**
    Notify all listeners of a project update
@@ -133,7 +134,7 @@ public interface ProjectService {
    @param type     the type of update
    @param modified whether the update modified the project
    */
-  void didUpdate(ProjectUpdate type, boolean modified);
+  <N extends Serializable> void didUpdate(Class<N> type, boolean modified);
 
   /**
    Get the current list of non-deleted libraries sorted by name
@@ -169,39 +170,46 @@ public interface ProjectService {
   ObservableObjectValue<Project> currentProjectProperty();
 
   /**
-   Delete the template by id
+   Delete a template
 
-   @param template the template
+   @param template to delete
    */
   void deleteTemplate(Template template);
 
   /**
-   Delete the template binding by id
+   Delete a template binding
 
-   @param binding the template binding
+   @param binding to delete
    */
   void deleteTemplateBinding(TemplateBinding binding);
 
   /**
-   Delete the library by id
+   Delete a library
 
-   @param library the library
+   @param library to delete
    */
   void deleteLibrary(Library library);
 
   /**
-   Delete the program by id
+   Delete a program
 
-   @param program the program
+   @param program to delete
    */
   void deleteProgram(Program program);
 
   /**
-   Delete the instrument by id
+   Delete an instrument
 
-   @param instrument the instrument
+   @param instrument to delete
    */
   void deleteInstrument(Instrument instrument);
+
+  /**
+   Delete an Instrument Audio
+
+   @param audio to delete
+   */
+  void deleteInstrumentAudio(InstrumentAudio audio);
 
   /**
    Create a new template
@@ -210,6 +218,15 @@ public interface ProjectService {
    @return the new template
    */
   Template createTemplate(String name) throws Exception;
+
+  /**
+   Create a new template binding
+
+   @param templateId         template id
+   @param contentBindingType content binding type
+   @param targetId           target id
+   */
+  void createTemplateBinding(UUID templateId, ContentBindingType contentBindingType, UUID targetId);
 
   /**
    Create a new library
@@ -238,6 +255,15 @@ public interface ProjectService {
   Instrument createInstrument(Library library, String name) throws Exception;
 
   /**
+   Create a new instrument audio
+
+   @param instrument    in which to create an audio
+   @param audioFilePath to import audio from disk
+   @return the new instrument
+   */
+  InstrumentAudio createInstrumentAudio(Instrument instrument, String audioFilePath) throws Exception;
+
+  /**
    Move the program to the given library
 
    @param id      the program uuid
@@ -260,7 +286,6 @@ public interface ProjectService {
 
    @param fromId clone from template
    @param name   the new name
-   @return the new template
    */
   Template cloneTemplate(UUID fromId, String name) throws Exception;
 
@@ -336,21 +361,27 @@ public interface ProjectService {
   boolean updateInstrument(Instrument instrument);
 
   /**
+   Update the given instrument audio
+
+   @param instrumentAudio to update
+   @return true if successful
+   */
+  boolean updateInstrumentAudio(InstrumentAudio instrumentAudio);
+
+  /**
    Update the given template
 
    @param template to update
-   @return true if successful
    */
-  boolean updateTemplate(Template template);
+  void updateTemplate(Template template);
 
   /**
-   Create a new template binding
+   Get the path prefix to the audio folder for an instrument
 
-   @param templateId         template id
-   @param contentBindingType content binding type
-   @param targetId           target id
+   @param instrumentId of the instrument
+   @return the path prefix to the audio
    */
-  void addTemplateBinding(UUID templateId, ContentBindingType contentBindingType, UUID targetId);
+  String getPathPrefixToInstrumentAudio(UUID instrumentId);
 
   /**
    Whether the project has been modified since loading content

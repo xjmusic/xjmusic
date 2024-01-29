@@ -4,15 +4,14 @@ package io.xj.gui.controllers.content;
 
 import io.xj.gui.controllers.BrowserController;
 import io.xj.gui.controllers.CmdModalController;
-import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.nexus.project.ProjectUpdate;
 import jakarta.annotation.Nullable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,16 +20,17 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.StackPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
 @Service
-public class ContentBrowserController extends BrowserController implements ReadyAfterBootController {
+public class ContentBrowserController extends BrowserController {
   static final Logger LOG = LoggerFactory.getLogger(ContentBrowserController.class);
-  private final ProjectService projectService;
-  private final UIStateService uiStateService;
   private final CmdModalController cmdModalController;
   private final ObservableList<Library> libraries = FXCollections.observableList(new ArrayList<>());
   private final ObservableList<Program> programs = FXCollections.observableList(new ArrayList<>());
@@ -49,12 +49,14 @@ public class ContentBrowserController extends BrowserController implements Ready
   protected TableView<Instrument> instrumentsTable;
 
   public ContentBrowserController(
+    @Value("classpath:/views/content/content-browser.fxml") Resource fxml,
+    ApplicationContext ac,
+    ThemeService themeService,
     ProjectService projectService,
     UIStateService uiStateService,
     CmdModalController cmdModalController
   ) {
-    this.projectService = projectService;
-    this.uiStateService = uiStateService;
+    super(fxml, ac, themeService, uiStateService, projectService);
     this.cmdModalController = cmdModalController;
   }
 
@@ -118,7 +120,7 @@ public class ContentBrowserController extends BrowserController implements Ready
           uiStateService.viewLibrary(library.getId());
       }
     );
-    projectService.addProjectUpdateListener(ProjectUpdate.Libraries, this::updateLibraries);
+    projectService.addProjectUpdateListener(Library.class, this::updateLibraries);
   }
 
   /**
@@ -154,7 +156,7 @@ public class ContentBrowserController extends BrowserController implements Ready
           uiStateService.editProgram(program.getId());
       }
     );
-    projectService.addProjectUpdateListener(ProjectUpdate.Programs, () -> updatePrograms(uiStateService.currentLibraryProperty().get()));
+    projectService.addProjectUpdateListener(Program.class, () -> updatePrograms(uiStateService.currentLibraryProperty().get()));
   }
 
   /**
@@ -192,7 +194,7 @@ public class ContentBrowserController extends BrowserController implements Ready
           uiStateService.editInstrument(instrument.getId());
       }
     );
-    projectService.addProjectUpdateListener(ProjectUpdate.Instruments,
+    projectService.addProjectUpdateListener(Instrument.class,
       () -> updateInstruments(uiStateService.currentLibraryProperty().get()));
   }
 

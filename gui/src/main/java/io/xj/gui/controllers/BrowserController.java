@@ -2,6 +2,10 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.gui.ProjectController;
+import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.ThemeService;
+import io.xj.gui.services.UIStateService;
 import jakarta.annotation.Nullable;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -13,12 +17,24 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-public abstract class BrowserController implements ReadyAfterBootController {
+public abstract class BrowserController extends ProjectController {
+  protected BrowserController(
+    @Nullable Resource fxml,
+    ApplicationContext ac,
+    ThemeService themeService,
+    UIStateService uiStateService,
+    ProjectService projectService
+  ) {
+    super(fxml, ac, themeService, uiStateService, projectService);
+  }
+
   /**
    Add a column to a table
 

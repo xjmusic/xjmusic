@@ -2,11 +2,10 @@
 
 package io.xj.gui.controllers.fabrication;
 
-import io.xj.gui.controllers.ReadyAfterBootController;
-import io.xj.gui.controllers.content.InstrumentEditorController;
-import io.xj.gui.controllers.content.ProgramEditorController;
+import io.xj.gui.ProjectController;
 import io.xj.gui.services.FabricationService;
-import io.xj.gui.services.LabService;
+import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
@@ -48,7 +47,8 @@ import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -67,7 +67,7 @@ import static io.xj.hub.util.StringUtils.formatStackTrace;
 import static io.xj.nexus.model.Segment.DELTA_UNLIMITED;
 
 @Service
-public class FabricationTimelineController extends ScrollPane implements ReadyAfterBootController {
+public class FabricationTimelineController extends ProjectController {
   private static final Logger LOG = LoggerFactory.getLogger(FabricationTimelineController.class);
   private static final int NO_ID = -1;
   private static final double ACTIVE_SHIP_REGION_WIDTH = 5.0;
@@ -81,12 +81,7 @@ public class FabricationTimelineController extends ScrollPane implements ReadyAf
   private final int segmentGutter;
   private final int segmentDisplayChoiceHashRecheckLimit;
   private final int displaySegmentsBeforeShip;
-  private final ProgramEditorController programEditorController;
-  private final InstrumentEditorController instrumentEditorController;
-  private final ConfigurableApplicationContext ac;
   private final FabricationService fabricationService;
-  private final UIStateService uiStateService;
-  private final LabService labService;
   private final long refreshTimelineMillis;
   private final Timeline scrollPaneAnimationTimeline = new Timeline();
 
@@ -118,24 +113,21 @@ public class FabricationTimelineController extends ScrollPane implements ReadyAf
   Timeline refreshTimeline;
 
   public FabricationTimelineController(
+    @Value("classpath:/views/fabrication/fabrication-timeline.fxml") Resource fxml,
     @Value("${gui.timeline.refresh.millis}") Integer refreshTimelineMillis,
     @Value("${gui.timeline.segment.hash.recheck.limit}") Integer segmentDisplayChoiceHashRecheckLimit,
     @Value("${gui.timeline.segment.spacing.horizontal}") Integer segmentSpacingHorizontal,
     @Value("${gui.timeline.segment.width.min}") Integer segmentWidthMin,
     @Value("${gui.timeline.display.segments.before.now}") int displaySegmentsBeforeNow,
-    ProgramEditorController programEditorController,
-    InstrumentEditorController instrumentEditorController,
-    ConfigurableApplicationContext ac,
+    ApplicationContext ac,
+    ThemeService themeService,
     FabricationService fabricationService,
-    UIStateService uiStateService, LabService labService
+    UIStateService uiStateService,
+    ProjectService projectService
   ) {
+    super(fxml, ac, themeService, uiStateService, projectService);
     this.displaySegmentsBeforeShip = displaySegmentsBeforeNow;
-    this.programEditorController = programEditorController;
-    this.instrumentEditorController = instrumentEditorController;
-    this.ac = ac;
     this.fabricationService = fabricationService;
-    this.uiStateService = uiStateService;
-    this.labService = labService;
     this.refreshTimelineMillis = refreshTimelineMillis;
     this.segmentDisplayChoiceHashRecheckLimit = segmentDisplayChoiceHashRecheckLimit;
     this.segmentGutter = segmentSpacingHorizontal;

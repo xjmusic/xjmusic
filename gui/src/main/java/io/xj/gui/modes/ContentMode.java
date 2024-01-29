@@ -7,4 +7,5 @@ public enum ContentMode {
   LibraryEditor,
   ProgramEditor,
   InstrumentEditor,
+  InstrumentAudioEditor,
 }

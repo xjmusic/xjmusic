@@ -1,8 +1,10 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.gui.controllers;
+package io.xj.gui;
 
+import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
+import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.WindowUtils;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -11,24 +13,23 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 
-public abstract class ReadyAfterBootModalController implements ReadyAfterBootController {
-  private final static Logger LOG = LoggerFactory.getLogger(ReadyAfterBootModalController.class);
-  protected final ConfigurableApplicationContext ac;
-  protected final ThemeService themeService;
+public abstract class ProjectModalController extends ProjectController {
+  private final static Logger LOG = LoggerFactory.getLogger(ProjectModalController.class);
   private final Resource fxml;
 
-  protected ReadyAfterBootModalController(
-    ConfigurableApplicationContext ac,
+  protected ProjectModalController(
+    Resource fxml,
+    ApplicationContext ac,
     ThemeService themeService,
-    Resource fxml
+    UIStateService uiStateService,
+    ProjectService projectService
   ) {
-    this.ac = ac;
-    this.themeService = themeService;
+    super(fxml, ac, themeService, uiStateService, projectService);
     this.fxml = fxml;
   }
 

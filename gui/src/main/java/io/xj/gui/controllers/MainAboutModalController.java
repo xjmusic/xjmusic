@@ -2,8 +2,11 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.gui.ProjectModalController;
 import io.xj.gui.services.LabService;
+import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
+import io.xj.gui.services.UIStateService;
 import io.xj.gui.services.VersionService;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -15,7 +18,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MainAboutModalController extends ReadyAfterBootModalController {
+public class MainAboutModalController extends ProjectModalController {
   static final String ABOUT_WINDOW_NAME = "About";
   final LabService labService;
   private final VersionService versionService;
@@ -32,9 +35,11 @@ public class MainAboutModalController extends ReadyAfterBootModalController {
     ConfigurableApplicationContext ac,
     LabService labService,
     ThemeService themeService,
-    VersionService versionService
+    VersionService versionService,
+    UIStateService uiStateService,
+    ProjectService projectService
   ) {
-    super(ac, themeService, fxml);
+    super(fxml, ac, themeService, uiStateService, projectService);
     this.labService = labService;
     this.versionService = versionService;
   }

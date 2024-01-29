@@ -3,7 +3,9 @@
 package io.xj.gui.controllers;
 
 import ch.qos.logback.classic.Level;
+import io.xj.gui.ProjectController;
 import io.xj.gui.WorkstationLogAppender;
+import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import jakarta.annotation.Nullable;
@@ -21,9 +23,10 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -32,17 +35,15 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
 @Service
-public class MainPaneBottomController extends VBox implements ReadyAfterBootController {
+public class MainPaneBottomController extends ProjectController {
   private static final String INDENT_SUB_LINES = "  ";
   private static final double ERROR_DIALOG_WIDTH = 800.0;
   private static final double ERROR_DIALOG_HEIGHT = 600.0;
   private static final int LOG_LIST_ROW_HEIGHT = 20;
   private static final int MAX_ENTRIES = 10_000;
   private final Integer refreshRateSeconds;
-  private final ThemeService themeService;
   private final LogQueue logQueue;
   private final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
-  private final UIStateService uiStateService;
 
   @Nullable
   Timeline refresh;
@@ -51,13 +52,15 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
   protected ListView<MainPaneBottomController.LogRecord> logListView;
 
   public MainPaneBottomController(
+    @Value("classpath:/views/main-pane-bottom.fxml") Resource fxml,
     @Value("${gui.logs.refresh.seconds}") Integer refreshRateSeconds,
+    ApplicationContext ac,
     ThemeService themeService,
-    UIStateService uiStateService
+    UIStateService uiStateService,
+    ProjectService projectService
   ) {
+    super(fxml, ac, themeService, uiStateService, projectService);
     this.refreshRateSeconds = refreshRateSeconds;
-    this.themeService = themeService;
-    this.uiStateService = uiStateService;
     logQueue = new LogQueue();
 
     // bind to the log appender

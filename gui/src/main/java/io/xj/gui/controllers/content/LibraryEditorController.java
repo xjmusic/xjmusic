@@ -2,10 +2,11 @@
 
 package io.xj.gui.controllers.content;
 
-import io.xj.gui.controllers.ReadyAfterBootController;
+import io.xj.gui.ProjectController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -19,16 +20,17 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.UUID;
 
 @Service
-public class LibraryEditorController implements ReadyAfterBootController {
+public class LibraryEditorController extends ProjectController {
   static final Logger LOG = LoggerFactory.getLogger(LibraryEditorController.class);
-  private final ProjectService projectService;
-  private final UIStateService uiStateService;
   private final ObjectProperty<UUID> libraryId = new SimpleObjectProperty<>(null);
   private final BooleanProperty dirty = new SimpleBooleanProperty(false);
   private final StringProperty name = new SimpleStringProperty("");
@@ -46,11 +48,13 @@ public class LibraryEditorController implements ReadyAfterBootController {
   protected Button buttonCancel;
 
   public LibraryEditorController(
+    @Value("classpath:/views/content/library-editor.fxml") Resource fxml,
+    ApplicationContext ac,
+    ThemeService themeService,
     ProjectService projectService,
     UIStateService uiStateService
   ) {
-    this.projectService = projectService;
-    this.uiStateService = uiStateService;
+    super(fxml, ac, themeService, uiStateService, projectService);
   }
 
   @Override
@@ -67,7 +71,7 @@ public class LibraryEditorController implements ReadyAfterBootController {
 
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.LibraryEditor))
-        update();
+        setup();
     });
 
     buttonOK.disableProperty().bind(dirty.not());
@@ -95,7 +99,7 @@ public class LibraryEditorController implements ReadyAfterBootController {
   /**
    Update the Library Editor with the current Library.
    */
-  private void update() {
+  private void setup() {
     if (Objects.isNull(uiStateService.currentLibraryProperty().get()))
       return;
     var library = projectService.getContent().getLibrary(uiStateService.currentLibraryProperty().get().getId())

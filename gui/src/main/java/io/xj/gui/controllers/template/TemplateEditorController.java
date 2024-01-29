@@ -3,14 +3,13 @@
 package io.xj.gui.controllers.template;
 
 import io.xj.gui.controllers.BrowserController;
-import io.xj.gui.controllers.ReadyAfterBootController;
 import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.nexus.project.ProjectUpdate;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -34,6 +33,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -41,11 +43,9 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Service
-public class TemplateEditorController extends BrowserController implements ReadyAfterBootController {
+public class TemplateEditorController extends BrowserController {
   static final Logger LOG = LoggerFactory.getLogger(TemplateEditorController.class);
-  private final ProjectService projectService;
-  private final UIStateService uiStateService;
-  private final TemplateAddBindingController templateAddBindingController;
+  private final TemplateAddBindingModalController templateAddBindingModalController;
   private final ObjectProperty<UUID> templateId = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
   private final StringProperty config = new SimpleStringProperty("");
@@ -71,13 +71,15 @@ public class TemplateEditorController extends BrowserController implements Ready
   protected TableView<TemplateBinding> bindingsTable;
 
   public TemplateEditorController(
+    @Value("classpath:/views/template/template-editor.fxml") Resource fxml,
+    ApplicationContext ac,
+    ThemeService themeService,
     ProjectService projectService,
     UIStateService uiStateService,
-    TemplateAddBindingController templateAddBindingController
+    TemplateAddBindingModalController templateAddBindingModalController
   ) {
-    this.projectService = projectService;
-    this.uiStateService = uiStateService;
-    this.templateAddBindingController = templateAddBindingController;
+    super(fxml, ac, themeService, uiStateService, projectService);
+    this.templateAddBindingModalController = templateAddBindingModalController;
   }
 
   @Override
@@ -130,7 +132,7 @@ public class TemplateEditorController extends BrowserController implements Ready
           projectService.deleteTemplateBinding(binding);
       });
 
-    projectService.addProjectUpdateListener(ProjectUpdate.TemplateBindings, this::updateBindings);
+    projectService.addProjectUpdateListener(TemplateBinding.class, this::updateBindings);
 
     uiStateService.templateModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.templateModeProperty().get(), TemplateMode.TemplateEditor))
@@ -176,13 +178,12 @@ public class TemplateEditorController extends BrowserController implements Ready
       LOG.error("Could not parse Template config!", e);
       return;
     }
-    if (projectService.updateTemplate(template))
-      uiStateService.viewTemplates();
+    projectService.updateTemplate(template);
   }
 
   @FXML
   private void handlePressAddBinding(ActionEvent ignored) {
-    templateAddBindingController.addBindingToTemplate(templateId.get());
+    templateAddBindingModalController.addBindingToTemplate(templateId.get());
   }
 
   /**

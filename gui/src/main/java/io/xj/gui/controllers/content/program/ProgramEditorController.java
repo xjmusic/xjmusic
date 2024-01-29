@@ -1,11 +1,12 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.gui.controllers.content;
+package io.xj.gui.controllers.content.program;
 
-import io.xj.gui.controllers.ReadyAfterBootController;
+import io.xj.gui.ProjectController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -19,17 +20,18 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.UUID;
 
 @Service
-public class InstrumentEditorController implements ReadyAfterBootController {
-  static final Logger LOG = LoggerFactory.getLogger(InstrumentEditorController.class);
-  private final ProjectService projectService;
-  private final UIStateService uiStateService;
-  private final ObjectProperty<UUID> instrumentId = new SimpleObjectProperty<>(null);
+public class ProgramEditorController extends ProjectController {
+  static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
+  private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
   private final BooleanProperty dirty = new SimpleBooleanProperty(false);
   private final StringProperty name = new SimpleStringProperty("");
 
@@ -42,19 +44,21 @@ public class InstrumentEditorController implements ReadyAfterBootController {
   @FXML
   protected Button buttonSave;
 
-  public InstrumentEditorController(
+  public ProgramEditorController(
+    @Value("classpath:/views/content/library-editor.fxml") Resource fxml,
+    ApplicationContext ac,
+    ThemeService themeService,
     ProjectService projectService,
     UIStateService uiStateService
   ) {
-    this.projectService = projectService;
-    this.uiStateService = uiStateService;
+    super(fxml, ac, themeService, uiStateService, projectService);
   }
 
   @Override
   public void onStageReady() {
     var visible = projectService.isStateReadyProperty()
       .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
-      .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.InstrumentEditor));
+      .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramEditor));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
@@ -63,8 +67,8 @@ public class InstrumentEditorController implements ReadyAfterBootController {
     name.addListener((o, ov, v) -> dirty.set(true));
 
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
-      if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.InstrumentEditor))
-        update();
+      if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.ProgramEditor))
+        setup();
     });
 
     buttonSave.disableProperty().bind(dirty.not());
@@ -77,24 +81,24 @@ public class InstrumentEditorController implements ReadyAfterBootController {
 
   @FXML
   protected void handlePressSave() {
-    var instrument = projectService.getContent().getInstrument(instrumentId.get())
-      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
-    instrument.setName(name.get());
-    if (projectService.updateInstrument(instrument))
-      uiStateService.viewLibrary(instrument.getLibraryId());
+    var program = projectService.getContent().getProgram(programId.get())
+      .orElseThrow(() -> new RuntimeException("Could not find Program"));
+    program.setName(name.get());
+    if (projectService.updateProgram(program))
+      uiStateService.viewLibrary(program.getLibraryId());
   }
 
   /**
-   Update the Instrument Editor with the current Instrument.
+   Update the Program Editor with the current Program.
    */
-  private void update() {
-    if (Objects.isNull(uiStateService.currentInstrumentProperty().get()))
+  private void setup() {
+    if (Objects.isNull(uiStateService.currentProgramProperty().get()))
       return;
-    var instrument = projectService.getContent().getInstrument(uiStateService.currentInstrumentProperty().get().getId())
-      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
-    LOG.info("Will edit Instrument \"{}\"", instrument.getName());
-    this.instrumentId.set(instrument.getId());
-    this.name.set(instrument.getName());
+    var program = projectService.getContent().getProgram(uiStateService.currentProgramProperty().get().getId())
+      .orElseThrow(() -> new RuntimeException("Could not find Program"));
+    LOG.info("Will edit Program \"{}\"", program.getName());
+    this.programId.set(program.getId());
+    this.name.set(program.getName());
     this.dirty.set(false);
   }
 }

@@ -2,7 +2,10 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.gui.ProjectController;
 import io.xj.gui.services.FabricationService;
+import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.ControlMode;
 import javafx.beans.Observable;
@@ -24,6 +27,9 @@ import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.VBox;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -32,10 +38,9 @@ import java.util.Set;
 import java.util.UUID;
 
 @Service
-public class MainPaneRightController extends VBox implements ReadyAfterBootController {
+public class MainPaneRightController extends ProjectController {
   private static final PseudoClass ENGAGED_PSEUDO_CLASS = PseudoClass.getPseudoClass("engaged");
   private final FabricationService fabricationService;
-  private final UIStateService uiStateService;
 
   @FXML
   protected VBox container;
@@ -45,11 +50,15 @@ public class MainPaneRightController extends VBox implements ReadyAfterBootContr
 
 
   public MainPaneRightController(
+    @Value("classpath:/views/main-pane-right.fxml") Resource fxml,
+    ApplicationContext ac,
+    ThemeService themeService,
     FabricationService fabricationService,
-    UIStateService uiStateService
+    UIStateService uiStateService,
+    ProjectService projectService
   ) {
+    super(fxml, ac, themeService, uiStateService, projectService);
     this.fabricationService = fabricationService;
-    this.uiStateService = uiStateService;
   }
 
   @Override

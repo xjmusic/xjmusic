@@ -6,10 +6,10 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
 <VBox
-  fx:controller="io.xj.gui.controllers.content.InstrumentEditorController"
+  fx:controller="io.xj.gui.controllers.content.program.ProgramEditorController"
   fx:id="container"
   xmlns="http://javafx.com/javafx/17.0.2-ea"
   xmlns:fx="http://javafx.com/fxml/1"
@@ -40,6 +40,6 @@
       text="Save"/>
   </HBox>
 
-  <Label>FUTURE: Instrument Editor</Label>
+  <Label>FUTURE: Program Editor</Label>
 
 </VBox>
