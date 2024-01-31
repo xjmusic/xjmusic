@@ -7,6 +7,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -14,7 +15,6 @@
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Tooltip?>
 <SplitPane
   fx:controller="io.xj.gui.controllers.content.instrument.InstrumentEditorController"
   fx:id="container"
@@ -50,10 +50,6 @@
   </VBox>
 
   <AnchorPane
-    AnchorPane.topAnchor="0"
-    AnchorPane.rightAnchor="0"
-    AnchorPane.bottomAnchor="0"
-    AnchorPane.leftAnchor="0"
     styleClass="instrument-audios-pane">
     <!-- Audios header -->
     <StackPane
