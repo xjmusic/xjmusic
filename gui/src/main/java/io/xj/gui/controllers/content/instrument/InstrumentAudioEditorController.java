@@ -27,7 +27,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Polyline;
 import javafx.util.converter.NumberStringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +45,6 @@ public class InstrumentAudioEditorController extends BrowserController {
   private final ObjectProperty<UUID> instrumentAudioId = new SimpleObjectProperty<>(null);
   private final IntegerProperty samplesPerPixel = new SimpleIntegerProperty(100);
   private final float WAVEFORM_REFERENCE_HEIGHT = 1000.0f;
-  private final IntegerProperty waveformUnitWidth = new SimpleIntegerProperty(2);
   private final StringProperty name = new SimpleStringProperty("");
   private final StringProperty event = new SimpleStringProperty("");
   private final FloatProperty volume = new SimpleFloatProperty(0.0f);
@@ -194,10 +193,10 @@ public class InstrumentAudioEditorController extends BrowserController {
       int endSampleIndex;
 
       // For each pixel, get the max value of the samples in that range and add it to the polyline
-      for (int pixel = 0; pixel < totalPixels; pixel += waveformUnitWidth.get()) {
+      for (int pixel = 0; pixel < totalPixels; pixel++) {
         startSampleIndex = pixel * samplesPerPixel.get();
         endSampleIndex = Math.min(startSampleIndex + samplesPerPixel.get(), totalSamples);
-        waveform.getChildren().add(buildWaveformRectangle(startSampleIndex, endSampleIndex, audioInMemory, pixel));
+        waveform.getChildren().add(buildWaveformPolyline(startSampleIndex, endSampleIndex, audioInMemory, pixel));
       }
 
       waveformContainer.getChildren().clear();
@@ -219,17 +218,17 @@ public class InstrumentAudioEditorController extends BrowserController {
    @param x                the x position of the rectangle
    @return the max value
    */
-  private Rectangle buildWaveformRectangle(int startSampleIndex, int endSampleIndex, AudioInMemory audioInMemory, int x) {
-    float max = 0;
-    float min = 0;
+  private Polyline buildWaveformPolyline(int startSampleIndex, int endSampleIndex, AudioInMemory audioInMemory, int x) {
+    float max = -1;
+    float min = 1;
     for (int sampleIndex = startSampleIndex; sampleIndex < endSampleIndex; sampleIndex++) {
       for (int channel = 0; channel < audioInMemory.audio()[sampleIndex].length; channel++) {
         max = Math.max(max, audioInMemory.audio()[sampleIndex][channel]);
         min = Math.min(min, audioInMemory.audio()[sampleIndex][channel]);
       }
     }
-    var rectangle = new Rectangle(x, (int) (min * WAVEFORM_REFERENCE_HEIGHT), waveformUnitWidth.get(), (int) ((max - min) * WAVEFORM_REFERENCE_HEIGHT));
-    rectangle.setFill(uiStateService.getWaveformColor());
-    return rectangle;
+    var line = new Polyline(x, (int) (min * WAVEFORM_REFERENCE_HEIGHT), x, (int) (max * WAVEFORM_REFERENCE_HEIGHT));
+    line.setStroke(uiStateService.getWaveformColor());
+    return line;
   }
 }

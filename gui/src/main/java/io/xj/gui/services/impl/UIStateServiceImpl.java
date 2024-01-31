@@ -173,7 +173,7 @@ public class UIStateServiceImpl implements UIStateService {
     isViewingEntity = Bindings.createBooleanBinding(
       () -> switch (viewMode.get()) {
         case Content -> switch (contentMode.get()) {
-          case LibraryEditor, ProgramEditor, InstrumentEditor -> true;
+          case LibraryEditor, ProgramEditor, InstrumentEditor, InstrumentAudioEditor -> true;
           default -> false;
         };
         case Templates -> Objects.equals(TemplateMode.TemplateEditor, templateMode.get());

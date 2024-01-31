@@ -81,8 +81,6 @@
     AnchorPane.leftAnchor="0"
     fitToHeight="true"
     fitToWidth="true"
-    hbarPolicy="NEVER"
-    vbarPolicy="NEVER"
     styleClass="audio-waveform-scroll-pane">
     <AnchorPane
       fx:id="waveformContainer"
