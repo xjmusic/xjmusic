@@ -7,7 +7,7 @@ import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.*;
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
@@ -65,18 +65,23 @@ public class ProjectUtils {
     return Objects.nonNull(file) ? file.getAbsolutePath() : null;
   }
 
-  public static void openFolder(String audioFolder) {
+  /**
+   Open a path in the desktop file browser
+
+   @param path the path to open
+   */
+  public static void openDesktopPath(String path) {
     if (Desktop.isDesktopSupported()) {
       try {
-        File file = new File(audioFolder);
+        File file = new File(path);
 
         // Open the file in the default file browser
         Desktop.getDesktop().open(file);
       } catch (IOException | IllegalArgumentException e) {
-        LOG.error("Could not open folder \"{}\"", audioFolder, e);
+        LOG.error("Could not open folder \"{}\"", path, e);
       }
     } else {
-      LOG.error("Desktop file browsing not support on this OS! The folder is at {}", audioFolder);
+      LOG.error("Desktop file browsing not support on this OS! The folder is at {}", path);
     }
   }
 }

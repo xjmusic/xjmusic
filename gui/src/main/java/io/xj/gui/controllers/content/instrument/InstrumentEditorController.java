@@ -201,7 +201,7 @@ public class InstrumentEditorController extends BrowserController {
       .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
     var audioFolder = projectService.getPathPrefixToInstrumentAudio(instrument.getId());
     if (Objects.isNull(audioFolder)) return;
-    ProjectUtils.openFolder(audioFolder);
+    ProjectUtils.openDesktopPath(audioFolder);
   }
 
   /**

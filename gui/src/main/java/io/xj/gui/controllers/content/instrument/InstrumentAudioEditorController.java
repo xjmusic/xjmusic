@@ -8,7 +8,8 @@ import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.nexus.audio.AudioInMemory;
+import io.xj.gui.utils.ProjectUtils;
+import io.xj.hub.util.StringUtils;
 import io.xj.nexus.audio.AudioLoader;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.FloatProperty;
@@ -21,13 +22,17 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
-import javafx.scene.Group;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Polyline;
+import javafx.scene.paint.Color;
 import javafx.util.converter.NumberStringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +49,7 @@ public class InstrumentAudioEditorController extends BrowserController {
   static final Logger LOG = LoggerFactory.getLogger(InstrumentAudioEditorController.class);
   private final ObjectProperty<UUID> instrumentAudioId = new SimpleObjectProperty<>(null);
   private final IntegerProperty samplesPerPixel = new SimpleIntegerProperty(100);
-  private final float WAVEFORM_REFERENCE_HEIGHT = 1000.0f;
+  private final float WAVEFORM_IMAGE_HEIGHT = 200; // todo set back to 1000.0f;
   private final StringProperty name = new SimpleStringProperty("");
   private final StringProperty event = new SimpleStringProperty("");
   private final FloatProperty volume = new SimpleFloatProperty(0.0f);
@@ -90,7 +95,16 @@ public class InstrumentAudioEditorController extends BrowserController {
   protected Button buttonSave;
 
   @FXML
-  protected AnchorPane waveformContainer;
+  protected ScrollPane waveformScrollPane;
+
+  @FXML
+  protected StackPane waveformContainer;
+
+  @FXML
+  protected ImageView waveform;
+
+  @FXML
+  protected Button buttonOpenAudioFile;
 
   public InstrumentAudioEditorController(
     @Value("classpath:/views/content/instrument/instrument-audio-editor.fxml") Resource fxml,
@@ -158,6 +172,15 @@ public class InstrumentAudioEditorController extends BrowserController {
     if (projectService.updateInstrumentAudio(instrumentAudio)) dirty.set(false);
   }
 
+  @FXML
+  private void handlePressOpenAudioFile() {
+    var instrumentAudio = projectService.getContent().getInstrumentAudio(instrumentAudioId.get())
+      .orElseThrow(() -> new RuntimeException("Could not find InstrumentAudio"));
+    var audioFile = projectService.getPathToInstrumentAudioWaveform(instrumentAudio);
+    if (Objects.isNull(audioFile)) return;
+    ProjectUtils.openDesktopPath(audioFile);
+  }
+
   /**
    Update the Instrument Editor with the current Instrument.
    */
@@ -183,12 +206,18 @@ public class InstrumentAudioEditorController extends BrowserController {
       var audioInMemory = audioLoader.load(instrumentAudio);
       LOG.info("Loaded audio file \"{}\" with {} channels and {} frames", audioInMemory.format(), audioInMemory.format().getChannels(), audioInMemory.audio().length);
 
-      Group waveform = new Group();
-      waveform.getStyleClass().add("waveform");
+      // Calculate the total number of pixels needed to represent the waveform
       int totalSamples = audioInMemory.audio().length;
+      int totalPixels = totalSamples / samplesPerPixel.get();
+      int channelRadius = (int) (WAVEFORM_IMAGE_HEIGHT / audioInMemory.format().getChannels() / 2);
+      int channelDiameter = channelRadius * 2;
+
+      // Create a new image to hold the waveform
+      WritableImage image = new WritableImage(totalPixels, (int) WAVEFORM_IMAGE_HEIGHT);
+      PixelWriter pixelWriter = image.getPixelWriter();
+      Color color = uiStateService.getWaveformColor();
 
       // Calculate the total number of pixels needed to represent the waveform
-      int totalPixels = totalSamples / samplesPerPixel.get();
       int startSampleIndex;
       int endSampleIndex;
 
@@ -196,39 +225,47 @@ public class InstrumentAudioEditorController extends BrowserController {
       for (int pixel = 0; pixel < totalPixels; pixel++) {
         startSampleIndex = pixel * samplesPerPixel.get();
         endSampleIndex = Math.min(startSampleIndex + samplesPerPixel.get(), totalSamples);
-        waveform.getChildren().add(buildWaveformPolyline(startSampleIndex, endSampleIndex, audioInMemory, pixel));
+        writeSamplesToImage(audioInMemory.audio(), pixelWriter, color, startSampleIndex, endSampleIndex, pixel, channelRadius, channelDiameter);
       }
 
-      waveformContainer.getChildren().clear();
-      waveformContainer.getChildren().add(waveform);
-      waveform.translateYProperty().bind(waveformContainer.heightProperty().divide(2));
-      waveform.scaleYProperty().bind(waveformContainer.heightProperty().divide(2 * WAVEFORM_REFERENCE_HEIGHT));
+      // Set the image to the waveform
+      waveform.setImage(image);
+      waveform.setTranslateY(0);
+      waveform.scaleYProperty().bind(container.heightProperty().divide(2 * WAVEFORM_IMAGE_HEIGHT));
+      // TODO align image top left
+      // waveformContainer.scaleYProperty().bind(container.heightProperty().divide(2 * WAVEFORM_IMAGE_HEIGHT));
+
+      // TODO fix all extraneous anchor properties in FXML now that I understand it better
 
     } catch (Exception e) {
-      LOG.error("Could not load audio file", e);
+      LOG.error("Could not render audio file!\n{}", StringUtils.formatStackTrace(e), e);
     }
   }
 
   /**
-   Get the max value from a range of samples in an audio file.
+   Write samples to waveform image at a single X coordinate
 
+   @param data             the audio samples
+   @param pixelWriter      to write image
+   @param color            to write
    @param startSampleIndex the start sample index
    @param endSampleIndex   the end sample index
-   @param audioInMemory    the audio file
    @param x                the x position of the rectangle
-   @return the max value
+   @param channelRadius    the radius of one channel
+   @param channelDiameter  the diameter of one channel
    */
-  private Polyline buildWaveformPolyline(int startSampleIndex, int endSampleIndex, AudioInMemory audioInMemory, int x) {
-    float max = -1;
-    float min = 1;
+  private void writeSamplesToImage(float[][] data, PixelWriter pixelWriter, Color color, int startSampleIndex, int endSampleIndex, int x, int channelRadius, int channelDiameter) {
+    // keep track of old y for each channel and don't redraw if it hasn't changed
+    int[] oy = new int[data[0].length];
+    int y;
     for (int sampleIndex = startSampleIndex; sampleIndex < endSampleIndex; sampleIndex++) {
-      for (int channel = 0; channel < audioInMemory.audio()[sampleIndex].length; channel++) {
-        max = Math.max(max, audioInMemory.audio()[sampleIndex][channel]);
-        min = Math.min(min, audioInMemory.audio()[sampleIndex][channel]);
+      for (int channel = 0; channel < data[sampleIndex].length; channel++) {
+        y = channelDiameter * channel + channelRadius + (int) (data[sampleIndex][channel] * channelRadius);
+        if (y != oy[channel]) {
+          oy[channel] = y;
+          if (y >= 0 && y <= WAVEFORM_IMAGE_HEIGHT) pixelWriter.setColor(x, y, color);
+        }
       }
     }
-    var line = new Polyline(x, (int) (min * WAVEFORM_REFERENCE_HEIGHT), x, (int) (max * WAVEFORM_REFERENCE_HEIGHT));
-    line.setStroke(uiStateService.getWaveformColor());
-    return line;
   }
 }

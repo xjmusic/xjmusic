@@ -261,7 +261,8 @@
 .top-pane .button,
 .top-pane .toggle-button,
 .template-bindings-pane .button,
-.instrument-audios-pane .button {
+.instrument-audios-pane .button,
+#buttonOpenAudioFile {
   -fx-background-color: transparent;
   -fx-border-color: transparent;
   -fx-border-width: 0;
@@ -271,21 +272,24 @@
 .top-pane .button:hover,
 .top-pane .toggle-button:hover,
 .template-bindings-pane .button:hover,
-.instrument-audios-pane .button:hover {
+.instrument-audios-pane .button:hover,
+#buttonOpenAudioFile:hover {
   -fx-background-color: #c0c0c0;
 }
 
 .top-pane .button:pressed,
 .top-pane .toggle-button:pressed,
 .template-bindings-pane .button:pressed,
-.instrument-audios-pane .button:pressed {
+.instrument-audios-pane .button:pressed,
+#buttonOpenAudioFile:pressed {
   -fx-background-color: #a0a0a0;
 }
 
 .top-pane .button:selected,
 .top-pane .toggle-button:selected,
 .template-bindings-pane .button:selected,
-.instrument-audios-pane .button:selected {
+.instrument-audios-pane .button:selected,
+#buttonOpenAudioFile:selected {
   -fx-background-color: #c0c0c0;
 }
 
@@ -320,14 +324,6 @@
   -fx-font-family: 'Roboto Mono';
 }
 
-.audio-waveform-scroll-pane {
-  /* nothing yet */
-}
-
-.audio-waveform-container {
+.waveform-container {
   -fx-background-color: #101010;
-}
-
-.waveform {
-  -fx-fill: #17ef17;
 }

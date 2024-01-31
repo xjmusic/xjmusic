@@ -27,7 +27,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
-import javafx.scene.paint.Paint;
+import javafx.scene.paint.Color;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -156,8 +156,7 @@ public class UIStateServiceImpl implements UIStateService {
       () -> switch (viewMode.get()) {
         case Content -> switch (contentMode.get()) {
           case LibraryBrowser, LibraryEditor -> "Libraries";
-          case InstrumentAudioEditor ->
-            currentInstrument.isNotNull().get() ? currentInstrument.get().getName() : "";
+          case InstrumentAudioEditor -> currentInstrument.isNotNull().get() ? currentInstrument.get().getName() : "";
           case ProgramBrowser, InstrumentBrowser, ProgramEditor, InstrumentEditor ->
             currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
         };
@@ -188,7 +187,8 @@ public class UIStateServiceImpl implements UIStateService {
           case LibraryEditor -> currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
           case ProgramEditor -> currentProgram.isNotNull().get() ? currentProgram.get().getName() : "";
           case InstrumentEditor -> currentInstrument.isNotNull().get() ? currentInstrument.get().getName() : "";
-          case InstrumentAudioEditor -> currentInstrumentAudio.isNotNull().get() ? currentInstrumentAudio.get().getName() : "";
+          case InstrumentAudioEditor ->
+            currentInstrumentAudio.isNotNull().get() ? currentInstrumentAudio.get().getName() : "";
           default -> "";
         };
         case Templates ->
@@ -387,12 +387,12 @@ public class UIStateServiceImpl implements UIStateService {
     return currentInstrument;
   }
 
-    @Override
-    public ObjectProperty<InstrumentAudio> currentInstrumentAudioProperty() {
-        return currentInstrumentAudio;
-    }
+  @Override
+  public ObjectProperty<InstrumentAudio> currentInstrumentAudioProperty() {
+    return currentInstrumentAudio;
+  }
 
-    @Override
+  @Override
   public ObjectProperty<Template> currentTemplateProperty() {
     return currentTemplate;
   }
@@ -512,7 +512,7 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public Paint getWaveformColor() {
-    return Paint.valueOf("#17ef17");
+  public Color getWaveformColor() {
+    return Color.valueOf("#17ef17");
   }
 }
