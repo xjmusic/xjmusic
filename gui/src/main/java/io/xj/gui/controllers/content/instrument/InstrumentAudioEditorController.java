@@ -235,8 +235,6 @@ public class InstrumentAudioEditorController extends BrowserController {
       // TODO align image top left
       // waveformContainer.scaleYProperty().bind(container.heightProperty().divide(2 * WAVEFORM_IMAGE_HEIGHT));
 
-      // TODO fix all extraneous anchor properties in FXML now that I understand it better
-
     } catch (Exception e) {
       LOG.error("Could not render audio file!\n{}", StringUtils.formatStackTrace(e), e);
     }
