@@ -54,7 +54,7 @@ stabDetailProgram:
 segment:
   key: D-
   total: 4
-  density: 1.0
+  intensity: 1.0
   chords:
     - position: 0.0
       name: D-7

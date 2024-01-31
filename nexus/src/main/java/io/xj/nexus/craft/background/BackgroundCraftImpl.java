@@ -40,7 +40,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
 
     int targetLayers = (int) Math.floor(
       fabricator.getTemplateConfig().getBackgroundLayerMin() +
-        fabricator.getSegment().getDensity() *
+        fabricator.getSegment().getIntensity() *
           (fabricator.getTemplateConfig().getBackgroundLayerMax() -
             fabricator.getTemplateConfig().getBackgroundLayerMin()));
 

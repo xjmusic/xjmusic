@@ -58,7 +58,7 @@ public enum NexusTopology {
       .withAttribute("total")
       .withAttribute("offset")
       .withAttribute("delta")
-      .withAttribute("density")
+      .withAttribute("intensity")
       .withAttribute("tempo")
       .withAttribute("shipKey")
       .withAttribute("waveformPreroll")

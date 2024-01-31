@@ -39,7 +39,7 @@ public class GuiHubIntegrationTestingFixtures {
     return result;
   }
 
-  public static InstrumentAudio buildAudio(Instrument instrument, String name, String waveformKey, float start, float length, float tempo, float density, String event, String note, float volume) {
+  public static InstrumentAudio buildAudio(Instrument instrument, String name, String waveformKey, float start, float length, float tempo, float intensity, String event, String note, float volume) {
     var instrumentAudio = new InstrumentAudio();
     instrumentAudio.setId(UUID.randomUUID());
     instrumentAudio.setInstrumentId(instrument.getId());
@@ -48,7 +48,7 @@ public class GuiHubIntegrationTestingFixtures {
     instrumentAudio.setTransientSeconds(start);
     instrumentAudio.setTotalBeats(length);
     instrumentAudio.setTempo(tempo);
-    instrumentAudio.setDensity(density);
+    instrumentAudio.setIntensity(intensity);
     instrumentAudio.setVolume(volume);
     instrumentAudio.setTones(note);
     instrumentAudio.setEvent(event);
@@ -64,7 +64,7 @@ public class GuiHubIntegrationTestingFixtures {
     instrumentAudio.setTransientSeconds(0.0f);
     instrumentAudio.setTotalBeats(1.0f);
     instrumentAudio.setTempo(120.0f);
-    instrumentAudio.setDensity(1.0f);
+    instrumentAudio.setIntensity(1.0f);
     instrumentAudio.setVolume(1.0f);
     instrumentAudio.setEvent("X");
     instrumentAudio.setTones(note);
@@ -94,7 +94,7 @@ public class GuiHubIntegrationTestingFixtures {
     return projectUser;
   }
 
-  public static Program buildProgram(Library library, ProgramType type, ProgramState state, String name, String key, float tempo, float density) {
+  public static Program buildProgram(Library library, ProgramType type, ProgramState state, String name, String key, float tempo, float intensity) {
     var program = new Program();
     program.setId(UUID.randomUUID());
     program.setLibraryId(library.getId());
@@ -103,11 +103,11 @@ public class GuiHubIntegrationTestingFixtures {
     program.setName(name);
     program.setKey(key);
     program.setTempo(tempo);
-    program.setDensity(density);
+    program.setIntensity(intensity);
     return program;
   }
 
-  public static Program buildProgram(ProgramType type, String key, float tempo, float density) {
+  public static Program buildProgram(ProgramType type, String key, float tempo, float intensity) {
     var program = new Program();
     program.setId(UUID.randomUUID());
     program.setLibraryId(UUID.randomUUID());
@@ -116,7 +116,7 @@ public class GuiHubIntegrationTestingFixtures {
     program.setName(String.format("Test %s-Program", type.toString()));
     program.setKey(key);
     program.setTempo(tempo);
-    program.setDensity(density);
+    program.setIntensity(intensity);
     return program;
   }
 
@@ -129,7 +129,7 @@ public class GuiHubIntegrationTestingFixtures {
     program.setName(String.format("Test Main-program with %d beats per bar", barBeats));
     program.setKey("C");
     program.setTempo(120f);
-    program.setDensity(0.6f);
+    program.setIntensity(0.6f);
     program.setConfig(String.format("barBeats=%d", barBeats));
     return program;
   }
@@ -154,14 +154,14 @@ public class GuiHubIntegrationTestingFixtures {
     return meme;
   }
 
-  public static ProgramSequence buildSequence(Program program, int total, String name, float density, String key) {
+  public static ProgramSequence buildSequence(Program program, int total, String name, float intensity, String key) {
     var sequence = new ProgramSequence();
     sequence.setId(UUID.randomUUID());
     sequence.setProgramId(program.getId());
     sequence.setTotal((short) total);
     sequence.setName(name);
     sequence.setKey(key);
-    sequence.setDensity(density);
+    sequence.setIntensity(intensity);
     return sequence;
   }
 
@@ -290,7 +290,7 @@ public class GuiHubIntegrationTestingFixtures {
     return instrumentMeme;
   }
 
-  public static InstrumentAudio buildInstrumentAudio(Instrument instrument, String name, String waveformKey, float start, float length, float tempo, float density, String event, String tones, float volume) {
+  public static InstrumentAudio buildInstrumentAudio(Instrument instrument, String name, String waveformKey, float start, float length, float tempo, float intensity, String event, String tones, float volume) {
     var instrumentAudio = new InstrumentAudio();
     instrumentAudio.setId(UUID.randomUUID());
     instrumentAudio.setInstrumentId(instrument.getId());
@@ -299,7 +299,7 @@ public class GuiHubIntegrationTestingFixtures {
     instrumentAudio.setTransientSeconds(start);
     instrumentAudio.setTotalBeats(length);
     instrumentAudio.setTempo(tempo);
-    instrumentAudio.setDensity(density);
+    instrumentAudio.setIntensity(intensity);
     instrumentAudio.setVolume(volume);
     instrumentAudio.setTones(tones);
     instrumentAudio.setEvent(event);
@@ -363,14 +363,14 @@ public class GuiHubIntegrationTestingFixtures {
     return programMeme;
   }
 
-  public static ProgramSequence buildProgramSequence(Program program, int total, String name, float density, String key) {
+  public static ProgramSequence buildProgramSequence(Program program, int total, String name, float intensity, String key) {
     var programSequence = new ProgramSequence();
     programSequence.setId(UUID.randomUUID());
     programSequence.setProgramId(program.getId());
     programSequence.setTotal((short) total);
     programSequence.setName(name);
     programSequence.setKey(key);
-    programSequence.setDensity(density);
+    programSequence.setIntensity(intensity);
     return programSequence;
   }
 
@@ -461,7 +461,7 @@ public class GuiHubIntegrationTestingFixtures {
     instrument.setType(type);
     instrument.setMode(mode);
     instrument.setState(state);
-    instrument.setDensity(0.6f);
+    instrument.setIntensity(0.6f);
     instrument.setName(name);
     return instrument;
   }
