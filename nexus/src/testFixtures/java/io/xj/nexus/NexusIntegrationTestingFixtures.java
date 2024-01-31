@@ -342,14 +342,14 @@ public class NexusIntegrationTestingFixtures {
     return seg;
   }
 
-  public static Segment buildSegment(Chain chain, int id, SegmentState state, String key, int total, float density, float tempo, String storageKey) {
+  public static Segment buildSegment(Chain chain, int id, SegmentState state, String key, int total, float intensity, float tempo, String storageKey) {
     return buildSegment(chain,
       0 < id ? SegmentType.CONTINUE : SegmentType.INITIAL,
-      id, 0, state, key, total, density, tempo, storageKey, state == SegmentState.CRAFTED);
+      id, 0, state, key, total, intensity, tempo, storageKey, state == SegmentState.CRAFTED);
   }
 
 
-  public static Segment buildSegment(Chain chain, SegmentType type, int id, int delta, SegmentState state, String key, int total, float density, float tempo, String storageKey, boolean hasEndSet) {
+  public static Segment buildSegment(Chain chain, SegmentType type, int id, int delta, SegmentState state, String key, int total, float intensity, float tempo, String storageKey, boolean hasEndSet) {
     var segment = new Segment();
     segment.setChainId(chain.getId());
     segment.setType(type);
@@ -359,7 +359,7 @@ public class NexusIntegrationTestingFixtures {
     segment.setBeginAtChainMicros((long) (id * ValueUtils.MICROS_PER_SECOND * total * ValueUtils.SECONDS_PER_MINUTE / tempo));
     segment.setKey(key);
     segment.setTotal(total);
-    segment.setDensity((double) density);
+    segment.setIntensity((double) intensity);
     segment.setTempo((double) tempo);
     segment.setStorageKey(storageKey);
     segment.setWaveformPreroll((double) 0.0f);
@@ -372,20 +372,20 @@ public class NexusIntegrationTestingFixtures {
     return segment;
   }
 
-  public static Segment buildSegment(Chain chain, String key, int total, float density, float tempo) {
+  public static Segment buildSegment(Chain chain, String key, int total, float intensity, float tempo) {
     return buildSegment(
       chain,
       0,
       SegmentState.CRAFTING,
-      key, total, density, tempo, "segment123");
+      key, total, intensity, tempo, "segment123");
   }
 
-  public static Segment buildSegment(Chain chain, int offset, String key, int total, float density, float tempo) {
+  public static Segment buildSegment(Chain chain, int offset, String key, int total, float intensity, float tempo) {
     return buildSegment(
       chain,
       offset,
       SegmentState.CRAFTING,
-      key, total, density, tempo, "segment123");
+      key, total, intensity, tempo, "segment123");
   }
 
   public static SegmentChoice buildSegmentChoice(Segment segment, ProgramType programType, ProgramSequenceBinding programSequenceBinding) {
@@ -1055,18 +1055,18 @@ public class NexusIntegrationTestingFixtures {
       String[] twoKeys = listOfUniqueRandom(2, LoremIpsum.MUSICAL_KEYS);
       String keyFrom = twoKeys[0];
       String keyTo = twoKeys[1];
-      float densityFrom = random(0.3f, 0.9f);
+      float intensityFrom = random(0.3f, 0.9f);
       float tempoFrom = random(80, 120);
       //
       Program program = add(entities, NexusHubIntegrationTestingFixtures.buildProgram(library1, ProgramType.Macro, ProgramState.Published, String.format("%s, create %s to %s", minorMemeName, majorMemeFromName, majorMemeToName), keyFrom, tempoFrom, 0.6f));
       add(entities, NexusHubIntegrationTestingFixtures.buildProgramMeme(program, minorMemeName));
       // of offset 0
-      var sequence0 = add(entities, NexusHubIntegrationTestingFixtures.buildSequence(program, 0, String.format("Start %s", majorMemeFromName), densityFrom, keyFrom));
+      var sequence0 = add(entities, NexusHubIntegrationTestingFixtures.buildSequence(program, 0, String.format("Start %s", majorMemeFromName), intensityFrom, keyFrom));
       var binding0 = add(entities, NexusHubIntegrationTestingFixtures.buildProgramSequenceBinding(sequence0, 0));
       add(entities, NexusHubIntegrationTestingFixtures.buildProgramSequenceBindingMeme(binding0, majorMemeFromName));
       // to offset 1
-      float densityTo = random(0.3f, 0.9f);
-      var sequence1 = add(entities, NexusHubIntegrationTestingFixtures.buildSequence(program, 0, String.format("Finish %s", majorMemeToName), densityTo, keyTo));
+      float intensityTo = random(0.3f, 0.9f);
+      var sequence1 = add(entities, NexusHubIntegrationTestingFixtures.buildSequence(program, 0, String.format("Finish %s", majorMemeToName), intensityTo, keyTo));
       var binding1 = add(entities, NexusHubIntegrationTestingFixtures.buildProgramSequenceBinding(sequence1, 1));
       add(entities, NexusHubIntegrationTestingFixtures.buildProgramSequenceBindingMeme(binding1, majorMemeToName));
       //
@@ -1089,7 +1089,7 @@ public class NexusIntegrationTestingFixtures {
         Integer total = random(LoremIpsum.SEQUENCE_TOTALS);
         sequences[iP] = add(entities, NexusHubIntegrationTestingFixtures.buildSequence(program, total, String.format("%s in %s", majorMemeName, sequenceNames[iP]), subDensities[iP], subKeys[iP]));
         for (int iPC = 0; iPC < N << 2; iPC++) {
-          // always use first chord, then use more chords with more density
+          // always use first chord, then use more chords with more intensity
           if (0 == iPC || StrictMath.random() < subDensities[iP]) {
             add(entities, NexusHubIntegrationTestingFixtures.buildChord(sequences[iP], StrictMath.floor((float) iPC * total * 4 / N), random(LoremIpsum.MUSICAL_CHORDS)));
           }
@@ -1111,7 +1111,7 @@ public class NexusIntegrationTestingFixtures {
       String majorMemeName = majorMemeNames[i];
       float tempo = random(80, 120);
       String key = random(LoremIpsum.MUSICAL_KEYS);
-      float density = random(0.4f, 0.9f);
+      float intensity = random(0.4f, 0.9f);
       //
       Program program = add(entities, NexusHubIntegrationTestingFixtures.buildProgram(library1, ProgramType.Beat, ProgramState.Published, String.format("%s Beat", majorMemeName), key, tempo, 0.6f));
       trackMap.clear();
@@ -1120,7 +1120,7 @@ public class NexusIntegrationTestingFixtures {
       for (int iV = 0; iV < N; iV++) {
         voices[iV] = add(entities, NexusHubIntegrationTestingFixtures.buildVoice(program, InstrumentType.Drum, String.format("%s %s", majorMemeName, percussiveNames[iV])));
       }
-      var sequenceBase = add(entities, NexusHubIntegrationTestingFixtures.buildSequence(program, random(LoremIpsum.SEQUENCE_TOTALS), "Base", density, key));
+      var sequenceBase = add(entities, NexusHubIntegrationTestingFixtures.buildSequence(program, random(LoremIpsum.SEQUENCE_TOTALS), "Base", intensity, key));
       // patterns of program
       for (int iP = 0; iP < N << 1; iP++) {
         Integer total = random(LoremIpsum.PATTERN_TOTALS);
@@ -1129,8 +1129,8 @@ public class NexusIntegrationTestingFixtures {
         // first pattern is always a Loop (because that's required) then the rest at random
         var pattern = add(entities, NexusHubIntegrationTestingFixtures.buildPattern(sequenceBase, voices[num], total, String.format("%s %s %s", majorMemeName, majorMemeName + " pattern", random(LoremIpsum.ELEMENTS))));
         for (int iPE = 0; iPE < N << 2; iPE++) {
-          // always use first chord, then use more chords with more density
-          if (0 == iPE || StrictMath.random() < density) {
+          // always use first chord, then use more chords with more intensity
+          if (0 == iPE || StrictMath.random() < intensity) {
             String name = percussiveNames[num];
             if (!trackMap.containsKey(name))
               trackMap.put(name, add(entities, NexusHubIntegrationTestingFixtures.buildTrack(voices[num], name)));

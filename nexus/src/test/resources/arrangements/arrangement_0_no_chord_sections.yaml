@@ -59,7 +59,7 @@ stabDetailProgram:
 segment:
   key: A
   total: 4
-  density: 1.0
+  intensity: 1.0
   chords:
     - position: 0.0
       name: C

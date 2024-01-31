@@ -141,8 +141,8 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     else
       segment.setDelta(0);
 
-    // Set the density
-    segment.setDensity(computeSegmentDensity(segment.getDelta(), macroSequence, mainSequence));
+    // Set the intensity
+    segment.setIntensity(computeSegmentIntensity(segment.getDelta(), macroSequence, mainSequence));
 
     // Finished
     fabricator.updateSegment(segment);
@@ -168,62 +168,62 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   Compute the final density of the current segment
-   future: Segment Density = average of macro and main-sequence patterns
+   Compute the final intensity of the current segment
+   future: Segment Intensity = average of macro and main-sequence patterns
    <p>
-   Segment is assigned a density during macro-main craft. It's going to be used to determine a target # of perc loops
+   Segment is assigned a intensity during macro-main craft. It's going to be used to determine a target # of perc loops
    Percussion Loops Alpha https://www.pivotaltracker.com/story/show/179534065
 
    @param macroSequence of which to compute segment tempo
    @param mainSequence  of which to compute segment tempo
-   @return density
+   @return intensity
    */
-  private double computeSegmentDensity(Integer delta, @Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
+  private double computeSegmentIntensity(Integer delta, @Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
     return ValueUtils.limitDecimalPrecision(ValueUtils.interpolate(
-      fabricator.getTemplateConfig().getDensityFloor(),
-      fabricator.getTemplateConfig().getDensityCeiling(),
+      fabricator.getTemplateConfig().getIntensityFloor(),
+      fabricator.getTemplateConfig().getIntensityCeiling(),
       (double) delta / fabricator.getTemplateConfig().getMainProgramLengthMaxDelta(),
-      computeDensity(macroSequence, mainSequence)
+      computeIntensity(macroSequence, mainSequence)
     ));
   }
 
   /**
-   Compute the average density of the two given sequences
+   Compute the average intensity of the two given sequences
 
    @param macroSequence of which to compute segment tempo
    @param mainSequence  of which to compute segment tempo
-   @return density
+   @return intensity
    */
-  private float computeDensity(@Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
-    @Nullable Float macroDensity =
+  private float computeIntensity(@Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
+    @Nullable Float macroIntensity =
       Objects.nonNull(macroSequence) ?
-        (Objects.nonNull(macroSequence.getDensity()) ?
-          macroSequence.getDensity()
+        (Objects.nonNull(macroSequence.getIntensity()) ?
+          macroSequence.getIntensity()
           : fabricator.sourceMaterial().getProgram(macroSequence.getProgramId()).orElseThrow(() ->
           new NexusException(String.format(
-            "Unable to determine density for Macro-Program[%s] %s",
+            "Unable to determine intensity for Macro-Program[%s] %s",
             macroSequence.getName(),
             macroSequence.getProgramId())
-          )).getDensity())
+          )).getIntensity())
         : null;
-    @Nullable Float mainDensity =
+    @Nullable Float mainIntensity =
       Objects.nonNull(mainSequence) ?
-        (Objects.nonNull(mainSequence.getDensity()) ?
-          mainSequence.getDensity()
+        (Objects.nonNull(mainSequence.getIntensity()) ?
+          mainSequence.getIntensity()
           : fabricator.sourceMaterial().getProgram(mainSequence.getProgramId()).orElseThrow(() ->
           new NexusException(String.format(
-            "Unable to determine density for Main-Program[%s] %s",
+            "Unable to determine intensity for Main-Program[%s] %s",
             mainSequence.getName(),
             mainSequence.getProgramId())
-          )).getDensity())
+          )).getIntensity())
         : null;
-    if (Objects.nonNull(macroDensity) && Objects.nonNull(mainDensity))
-      return (macroDensity + mainDensity) / 2;
-    if (Objects.nonNull(macroDensity))
-      return macroDensity;
-    if (Objects.nonNull(mainDensity))
-      return mainDensity;
-    throw new NexusException("Failed to compute Density!");
+    if (Objects.nonNull(macroIntensity) && Objects.nonNull(mainIntensity))
+      return (macroIntensity + mainIntensity) / 2;
+    if (Objects.nonNull(macroIntensity))
+      return macroIntensity;
+    if (Objects.nonNull(mainIntensity))
+      return mainIntensity;
+    throw new NexusException("Failed to compute Intensity!");
   }
 
   /**

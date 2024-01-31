@@ -27,7 +27,7 @@ bassDetailProgram:
 segment:
   key: D-
   total: 8
-  density: 1.0
+  intensity: 1.0
   chords:
     - position: 0.0
       name: D-

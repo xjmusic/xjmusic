@@ -51,11 +51,11 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
       .map(SegmentChoice::getInstrumentId)
       .collect(Collectors.toList());
 
-    double targetDensity = isBigTransitionSegment() ? fabricator.getTemplateConfig().getDensityCeiling() : fabricator.getSegment().getDensity();
+    double targetIntensity = isBigTransitionSegment() ? fabricator.getTemplateConfig().getIntensityCeiling() : fabricator.getSegment().getIntensity();
 
     int targetLayers = (int) Math.floor(
       fabricator.getTemplateConfig().getTransitionLayerMin() +
-        targetDensity *
+        targetIntensity *
           (fabricator.getTemplateConfig().getTransitionLayerMax() -
             fabricator.getTemplateConfig().getTransitionLayerMin()));
 
