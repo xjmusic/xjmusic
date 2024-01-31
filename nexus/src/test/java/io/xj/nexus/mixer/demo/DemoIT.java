@@ -20,8 +20,10 @@ import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.util.ValueUtils;
-import io.xj.nexus.audio_cache.AudioCache;
-import io.xj.nexus.audio_cache.AudioCacheImpl;
+import io.xj.nexus.audio.AudioCache;
+import io.xj.nexus.audio.AudioCacheImpl;
+import io.xj.nexus.audio.AudioLoader;
+import io.xj.nexus.audio.AudioLoaderImpl;
 import io.xj.nexus.http.HttpClientProvider;
 import io.xj.nexus.mixer.ActiveAudio;
 import io.xj.nexus.mixer.AudioFileWriter;
@@ -157,7 +159,8 @@ public class DemoIT {
   @BeforeEach
   public void beforeEach() {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    audioCache = new AudioCacheImpl(projectManager);
+    AudioLoader audioLoader = new AudioLoaderImpl(projectManager);
+    audioCache = new AudioCacheImpl(projectManager, audioLoader);
     this.mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
   }
 

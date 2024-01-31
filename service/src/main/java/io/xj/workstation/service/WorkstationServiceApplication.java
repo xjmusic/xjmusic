@@ -4,8 +4,10 @@ package io.xj.workstation.service;
 
 import io.xj.hub.HubConfiguration;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.audio_cache.AudioCache;
-import io.xj.nexus.audio_cache.AudioCacheImpl;
+import io.xj.nexus.audio.AudioCache;
+import io.xj.nexus.audio.AudioCacheImpl;
+import io.xj.nexus.audio.AudioLoader;
+import io.xj.nexus.audio.AudioLoaderImpl;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.hub.entity.EntityFactory;
@@ -91,7 +93,8 @@ public class WorkstationServiceApplication {
     BroadcastFactory broadcastFactory = new BroadcastFactoryImpl();
     Telemetry telemetry = new TelemetryImpl();
     CraftFactory craftFactory = new CraftFactoryImpl();
-    AudioCache audioCache = new AudioCacheImpl(projectManager);
+    AudioLoader audioLoader = new AudioLoaderImpl(projectManager);
+    AudioCache audioCache = new AudioCacheImpl(projectManager, audioLoader);
     NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(

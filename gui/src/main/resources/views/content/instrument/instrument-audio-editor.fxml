@@ -3,15 +3,12 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Priority?>
-<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <SplitPane
   fx:controller="io.xj.gui.controllers.content.instrument.InstrumentAudioEditorController"
@@ -77,12 +74,24 @@
     </HBox>
   </VBox>
 
-  <AnchorPane
+  <ScrollPane
     AnchorPane.topAnchor="0"
     AnchorPane.rightAnchor="0"
     AnchorPane.bottomAnchor="0"
     AnchorPane.leftAnchor="0"
-    styleClass="audio-waveform-pane">
-  </AnchorPane>
+    fitToHeight="true"
+    fitToWidth="true"
+    hbarPolicy="NEVER"
+    vbarPolicy="NEVER"
+    styleClass="audio-waveform-scroll-pane">
+    <AnchorPane
+      fx:id="waveformContainer"
+      AnchorPane.topAnchor="0"
+      AnchorPane.rightAnchor="0"
+      AnchorPane.bottomAnchor="0"
+      AnchorPane.leftAnchor="0"
+      styleClass="audio-waveform-container">
+    </AnchorPane>
+  </ScrollPane>
 
 </SplitPane>

@@ -320,6 +320,14 @@
   -fx-font-family: 'Roboto Mono';
 }
 
-.audio-waveform-pane {
-  /* no op yet */
+.audio-waveform-scroll-pane {
+  /* nothing yet */
+}
+
+.audio-waveform-container {
+  -fx-background-color: #101010;
+}
+
+.waveform {
+  -fx-fill: #17ef17;
 }

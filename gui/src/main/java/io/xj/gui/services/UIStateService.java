@@ -16,6 +16,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
 import javafx.css.PseudoClass;
+import javafx.scene.paint.Paint;
 
 import java.util.Set;
 import java.util.UUID;
@@ -248,4 +249,9 @@ public interface UIStateService extends ReadyAfterBoot {
    @return observable binding whether we are viewing Library content, either Programs or Instruments
    */
   BooleanBinding isLibraryContentBrowserProperty();
+
+  /**
+   @return waveform color
+   */
+  Paint getWaveformColor();
 }
