@@ -78,14 +78,14 @@ public class GuiIntegrationTestingFixtures {
     return seg;
   }
 
-  public static Segment buildSegment(Chain chain, int offset, SegmentState state, String key, int total, float density, float tempo, String storageKey) {
+  public static Segment buildSegment(Chain chain, int offset, SegmentState state, String key, int total, float intensity, float tempo, String storageKey) {
     return buildSegment(chain,
       0 < offset ? SegmentType.CONTINUE : SegmentType.INITIAL,
-      offset, 0, state, key, total, density, tempo, storageKey, state == SegmentState.CRAFTED);
+      offset, 0, state, key, total, intensity, tempo, storageKey, state == SegmentState.CRAFTED);
   }
 
 
-  public static Segment buildSegment(Chain chain, SegmentType type, int id, int delta, SegmentState state, String key, int total, float density, float tempo, String storageKey, boolean hasEndSet) {
+  public static Segment buildSegment(Chain chain, SegmentType type, int id, int delta, SegmentState state, String key, int total, float intensity, float tempo, String storageKey, boolean hasEndSet) {
     var segment = new Segment();
     segment.setChainId(chain.getId());
     segment.setType(type);
@@ -95,7 +95,7 @@ public class GuiIntegrationTestingFixtures {
     segment.setBeginAtChainMicros((long) (id * ValueUtils.MICROS_PER_SECOND * total * ValueUtils.SECONDS_PER_MINUTE / tempo));
     segment.setKey(key);
     segment.setTotal(total);
-    segment.setDensity((double) density);
+    segment.setIntensity((double) intensity);
     segment.setTempo((double) tempo);
     segment.setStorageKey(storageKey);
     segment.setWaveformPreroll(0.0);
@@ -108,20 +108,20 @@ public class GuiIntegrationTestingFixtures {
     return segment;
   }
 
-  public static Segment buildSegment(Chain chain, String key, int total, float density, float tempo) {
+  public static Segment buildSegment(Chain chain, String key, int total, float intensity, float tempo) {
     return buildSegment(
       chain,
       0,
       SegmentState.CRAFTING,
-      key, total, density, tempo, "segment123");
+      key, total, intensity, tempo, "segment123");
   }
 
-  public static Segment buildSegment(Chain chain, int offset, String key, int total, float density, float tempo) {
+  public static Segment buildSegment(Chain chain, int offset, String key, int total, float intensity, float tempo) {
     return buildSegment(
       chain,
       offset,
       SegmentState.CRAFTING,
-      key, total, density, tempo, "segment123");
+      key, total, intensity, tempo, "segment123");
   }
 
   public static SegmentChoice buildSegmentChoice(Segment segment, ProgramType programType, ProgramSequenceBinding programSequenceBinding) {

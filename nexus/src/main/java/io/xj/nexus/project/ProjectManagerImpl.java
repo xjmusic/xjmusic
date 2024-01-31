@@ -307,7 +307,7 @@ public class ProjectManagerImpl implements ProjectManager {
     audio.setId(UUID.randomUUID());
     audio.setName(matcher.group(2));
     audio.setTones("");
-    audio.setDensity(1.0f);
+    audio.setIntensity(1.0f);
     audio.setTempo(existingAudioOfInstrument.map(InstrumentAudio::getTempo).orElse(0.0f));
     audio.setTotalBeats(1.0f);
     audio.setTransientSeconds(0.0f);

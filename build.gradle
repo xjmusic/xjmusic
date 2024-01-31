@@ -23,7 +23,7 @@ ext {
   springBootVersion = '3.1.2'
   springTestVersion = '6.0.11'
   // private
-  xjModelsVersion = '1.7.24'
+  xjModelsVersion = '1.7.25'
 }
 
 // Load the local properties if present
@@ -92,8 +92,8 @@ subprojects {
       name = "ReadPrivatePackages"
       url = uri("https://maven.pkg.github.com/xjmusic/hub")
       credentials {
-        username = localProperties.getProperty('repo.username') ?: System.getenv("REPO_USERNAME")
-        password = localProperties.getProperty('repo.token') ?: System.getenv("REPO_TOKEN")
+        username = privatePackagesUsername
+        password = privatePackagesPassword
       }
     }
     //org.pantelev mvn repo link

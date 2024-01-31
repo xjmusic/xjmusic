@@ -41,7 +41,7 @@ public class InstrumentAudioEditorController extends BrowserController {
   private final FloatProperty volume = new SimpleFloatProperty(0.0f);
   private final StringProperty tones = new SimpleStringProperty("");
   private final FloatProperty tempo = new SimpleFloatProperty(0.0f);
-  private final FloatProperty density = new SimpleFloatProperty(0.0f);
+  private final FloatProperty intensity = new SimpleFloatProperty(0.0f);
   private final FloatProperty transientSeconds = new SimpleFloatProperty(0.0f);
   private final FloatProperty totalBeats = new SimpleFloatProperty(0.0f);
   private final BooleanProperty dirty = new SimpleBooleanProperty(false);
@@ -68,7 +68,7 @@ public class InstrumentAudioEditorController extends BrowserController {
   protected TextField fieldTempo;
 
   @FXML
-  protected TextField fieldDensity;
+  protected TextField fieldIntensity;
 
   @FXML
   protected TextField fieldTransientSeconds;
@@ -103,7 +103,7 @@ public class InstrumentAudioEditorController extends BrowserController {
     fieldVolume.textProperty().bindBidirectional(volume, new NumberStringConverter());
     fieldTones.textProperty().bindBidirectional(tones);
     fieldTempo.textProperty().bindBidirectional(tempo, new NumberStringConverter());
-    fieldDensity.textProperty().bindBidirectional(density, new NumberStringConverter());
+    fieldIntensity.textProperty().bindBidirectional(intensity, new NumberStringConverter());
     fieldTransientSeconds.textProperty().bindBidirectional(transientSeconds, new NumberStringConverter());
     fieldTotalBeats.textProperty().bindBidirectional(totalBeats, new NumberStringConverter());
 
@@ -112,7 +112,7 @@ public class InstrumentAudioEditorController extends BrowserController {
     volume.addListener((o, ov, v) -> dirty.set(true));
     tones.addListener((o, ov, v) -> dirty.set(true));
     tempo.addListener((o, ov, v) -> dirty.set(true));
-    density.addListener((o, ov, v) -> dirty.set(true));
+    intensity.addListener((o, ov, v) -> dirty.set(true));
     transientSeconds.addListener((o, ov, v) -> dirty.set(true));
     totalBeats.addListener((o, ov, v) -> dirty.set(true));
 
@@ -138,7 +138,7 @@ public class InstrumentAudioEditorController extends BrowserController {
     instrumentAudio.setVolume(volume.get());
     instrumentAudio.setTones(tones.get());
     instrumentAudio.setTempo(tempo.get());
-    instrumentAudio.setDensity(density.get());
+    instrumentAudio.setIntensity(intensity.get());
     instrumentAudio.setTransientSeconds(transientSeconds.get());
     instrumentAudio.setTotalBeats(totalBeats.get());
     if (projectService.updateInstrumentAudio(instrumentAudio)) dirty.set(false);
@@ -159,7 +159,7 @@ public class InstrumentAudioEditorController extends BrowserController {
     volume.set(instrumentAudio.getVolume());
     tones.set(instrumentAudio.getTones());
     tempo.set(instrumentAudio.getTempo());
-    density.set(instrumentAudio.getDensity());
+    intensity.set(instrumentAudio.getIntensity());
     transientSeconds.set(instrumentAudio.getTransientSeconds());
     totalBeats.set(instrumentAudio.getTotalBeats());
     this.dirty.set(false);

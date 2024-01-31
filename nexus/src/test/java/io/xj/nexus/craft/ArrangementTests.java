@@ -348,7 +348,7 @@ FUTURE goal
     segment = store.put(NexusIntegrationTestingFixtures.buildSegment(chain,
       Objects.requireNonNull(getStr(obj, "key")),
       Objects.requireNonNull(getInt(obj, "total")),
-      Objects.requireNonNull(getFloat(obj, "density")),
+      Objects.requireNonNull(getFloat(obj, "intensity")),
       TEMPO));
 
     if (obj.containsKey("stickyBuns")) {

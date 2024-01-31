@@ -122,9 +122,9 @@ public class InstrumentEditorController extends BrowserController {
     tempoColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(Float.toString(row.getValue().getTempo())));
     audiosTable.getColumns().add(tempoColumn);
 
-    TableColumn<InstrumentAudio, String> densityColumn = new TableColumn<>("Density");
-    densityColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(Float.toString(row.getValue().getDensity())));
-    audiosTable.getColumns().add(densityColumn);
+    TableColumn<InstrumentAudio, String> intensityColumn = new TableColumn<>("Intensity");
+    intensityColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(Float.toString(row.getValue().getIntensity())));
+    audiosTable.getColumns().add(intensityColumn);
 
     TableColumn<InstrumentAudio, String> transientSecondsColumn = new TableColumn<>("Transient (Seconds)");
     transientSecondsColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(Float.toString(row.getValue().getTransientSeconds())));

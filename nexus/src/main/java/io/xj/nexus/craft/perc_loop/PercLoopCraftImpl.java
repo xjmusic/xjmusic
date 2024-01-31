@@ -49,7 +49,7 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
 
     int targetLayers = (int) Math.floor(
       fabricator.getTemplateConfig().getPercLoopLayerMin() +
-        fabricator.getSegment().getDensity() *
+        fabricator.getSegment().getIntensity() *
           (fabricator.getTemplateConfig().getPercLoopLayerMax() -
             fabricator.getTemplateConfig().getPercLoopLayerMin()));
 

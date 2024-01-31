@@ -63,7 +63,7 @@ stabDetailProgram:
 segment:
   key: A
   total: 4
-  density: 1.0
+  intensity: 1.0
   chords:
     # Bass deliberately has too-high voicings available to test against
     # Bass always prefers the lowest end of the available voicings https://www.pivotaltracker.com/story/show/178277316

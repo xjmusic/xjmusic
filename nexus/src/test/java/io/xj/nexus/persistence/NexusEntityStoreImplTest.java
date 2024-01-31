@@ -102,7 +102,7 @@ public class NexusEntityStoreImplTest {
       .state(SegmentState.CRAFTED)
       .key("D major")
       .total(64)
-      .density(0.73)
+      .intensity(0.73)
       .tempo(120.0)
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
       .beginAtChainMicros(0L)
@@ -115,7 +115,7 @@ public class NexusEntityStoreImplTest {
       .state(SegmentState.CRAFTING)
       .key("Db minor")
       .total(64)
-      .density(0.85)
+      .intensity(0.85)
       .tempo(120.0)
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
       .beginAtChainMicros(32 * MICROS_PER_SECOND)
@@ -129,7 +129,7 @@ public class NexusEntityStoreImplTest {
       .state(SegmentState.CRAFTED)
       .key("F major")
       .total(64)
-      .density(0.30)
+      .intensity(0.30)
       .tempo(120.0)
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
       .beginAtChainMicros(2 * 32 * MICROS_PER_SECOND)
@@ -142,7 +142,7 @@ public class NexusEntityStoreImplTest {
       .total(64)
       .delta(192)
       .type(SegmentType.CONTINUE)
-      .density(0.41)
+      .intensity(0.41)
       .tempo(120.0)
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
       .beginAtChainMicros(3 * 32 * MICROS_PER_SECOND)
@@ -156,7 +156,7 @@ public class NexusEntityStoreImplTest {
       .state(SegmentState.PLANNED)
       .key("E minor")
       .total(64)
-      .density(0.41)
+      .intensity(0.41)
       .tempo(120.0)
       .storageKey("chains-1-segments-9f7s89d8a7892"));
   }
@@ -175,7 +175,7 @@ public class NexusEntityStoreImplTest {
       .beginAtChainMicros(5 * 32 * MICROS_PER_SECOND)
       .durationMicros(32 * MICROS_PER_SECOND)
       .total(64)
-      .density(0.74)
+      .intensity(0.74)
       .waveformPreroll(2.898)
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
       .key("C# minor 7 b9")
@@ -190,7 +190,7 @@ public class NexusEntityStoreImplTest {
     assertEquals(5 * 32 * MICROS_PER_SECOND, (long) result.getBeginAtChainMicros());
     assertEquals(32 * MICROS_PER_SECOND, (long) Objects.requireNonNull(result.getDurationMicros()));
     assertEquals(Integer.valueOf(64), result.getTotal());
-    assertEquals(0.74, result.getDensity(), 0.01);
+    assertEquals(0.74, result.getIntensity(), 0.01);
     assertEquals("C# minor 7 b9", result.getKey());
     assertEquals(120.0f, result.getTempo(), 0.01);
     assertEquals(2.898, result.getWaveformPreroll(), 0.01);
@@ -209,7 +209,7 @@ public class NexusEntityStoreImplTest {
     segment.durationMicros(32 * MICROS_PER_SECOND);
     segment.setKey("D Major");
     segment.setTotal(64);
-    segment.setDensity(0.73);
+    segment.setIntensity(0.73);
     segment.setTempo(120.0);
     segment.storageKey("chains-1-segments-9f7s89d8a7892.wav");
 
@@ -225,7 +225,7 @@ public class NexusEntityStoreImplTest {
     assertEquals(32 * MICROS_PER_SECOND, (long) Objects.requireNonNull(result.getDurationMicros()));
     assertEquals("D Major", result.getKey());
     assertEquals(Integer.valueOf(64), result.getTotal());
-    assertEquals(0.73f, result.getDensity(), 0.01);
+    assertEquals(0.73f, result.getIntensity(), 0.01);
     assertEquals(120.0f, result.getTempo(), 0.01);
     assertEquals("chains-1-segments-9f7s89d8a7892.wav", result.getStorageKey());
   }
@@ -357,7 +357,7 @@ public class NexusEntityStoreImplTest {
     assertEquals(32 * MICROS_PER_SECOND, (long) result.getBeginAtChainMicros());
     assertEquals(32 * MICROS_PER_SECOND, (long) Objects.requireNonNull(result.getDurationMicros()));
     assertEquals(Integer.valueOf(64), result.getTotal());
-    assertEquals(0.85f, result.getDensity(), 0.01);
+    assertEquals(0.85f, result.getIntensity(), 0.01);
     assertEquals("Db minor", result.getKey());
     assertEquals(120.0f, result.getTempo(), 0.01);
     assertEquals(1.523, result.getWaveformPreroll(), 0.01);
@@ -456,7 +456,7 @@ public class NexusEntityStoreImplTest {
         .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
         .durationMicros(32 * MICROS_PER_SECOND)
         .total(64)
-        .density(0.74)
+        .intensity(0.74)
         .key("C# minor 7 b9")
         .tempo(120.0));
 
@@ -478,7 +478,7 @@ public class NexusEntityStoreImplTest {
       .durationMicros(32 * MICROS_PER_SECOND)
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
       .total(64)
-      .density(0.74)
+      .intensity(0.74)
       .waveformPreroll(0.0123)
       .key("C# minor 7 b9")
       .tempo(120.0);
@@ -509,7 +509,7 @@ public class NexusEntityStoreImplTest {
       .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
       .durationMicros(32 * MICROS_PER_SECOND)
       .total(64)
-      .density(0.74)
+      .intensity(0.74)
       .key("C# minor 7 b9")
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
       .tempo(120.0));
@@ -531,7 +531,7 @@ public class NexusEntityStoreImplTest {
       .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
       .durationMicros(32 * MICROS_PER_SECOND)
       .total(64)
-      .density(0.74)
+      .intensity(0.74)
       .key("C# minor 7 b9")
       .tempo(120.0);
 
@@ -552,7 +552,7 @@ public class NexusEntityStoreImplTest {
       .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
       .durationMicros(32 * MICROS_PER_SECOND)
       .total(64)
-      .density(0.74)
+      .intensity(0.74)
       .key("C# minor 7 b9")
       .tempo(120.0);
 

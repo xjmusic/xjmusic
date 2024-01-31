@@ -28,7 +28,7 @@ public class Segment {
   Long durationMicros;
   String key;
   Integer total;
-  Double density;
+  Double intensity;
   Double tempo;
   String storageKey;
   Double waveformPreroll;
@@ -182,19 +182,19 @@ public class Segment {
 
   /**
    **/
-  public Segment density(Double density) {
-    this.density = density;
+  public Segment intensity(Double intensity) {
+    this.intensity = intensity;
     return this;
   }
 
 
-  @JsonProperty("density")
-  public Double getDensity() {
-    return density;
+  @JsonProperty("intensity")
+  public Double getIntensity() {
+    return intensity;
   }
 
-  public void setDensity(Double density) {
-    this.density = density;
+  public void setIntensity(Double intensity) {
+    this.intensity = intensity;
   }
 
   /**
@@ -315,7 +315,7 @@ public class Segment {
       Objects.equals(this.durationMicros, segment.durationMicros) &&
       Objects.equals(this.key, segment.key) &&
       Objects.equals(this.total, segment.total) &&
-      Objects.equals(this.density, segment.density) &&
+      Objects.equals(this.intensity, segment.intensity) &&
       Objects.equals(this.tempo, segment.tempo) &&
       Objects.equals(this.storageKey, segment.storageKey) &&
       Objects.equals(this.waveformPreroll, segment.waveformPreroll) &&
@@ -327,7 +327,7 @@ public class Segment {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, chainId, type, state, beginAtChainMicros, durationMicros, key, total, density, tempo, storageKey, waveformPreroll, waveformPostroll, delta, createdAt, updatedAt);
+    return Objects.hash(id, chainId, type, state, beginAtChainMicros, durationMicros, key, total, intensity, tempo, storageKey, waveformPreroll, waveformPostroll, delta, createdAt, updatedAt);
   }
 
   @Override
@@ -341,7 +341,7 @@ public class Segment {
       "    durationMicros: " + toIndentedString(durationMicros) + "\n" +
       "    key: " + toIndentedString(key) + "\n" +
       "    total: " + toIndentedString(total) + "\n" +
-      "    density: " + toIndentedString(density) + "\n" +
+      "    intensity: " + toIndentedString(intensity) + "\n" +
       "    tempo: " + toIndentedString(tempo) + "\n" +
       "    storageKey: " + toIndentedString(storageKey) + "\n" +
       "    waveformPreroll: " + toIndentedString(waveformPreroll) + "\n" +

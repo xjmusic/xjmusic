@@ -38,7 +38,7 @@ bassDetailProgram:
 segment:
   key: Bb-
   total: 6
-  density: 1.0
+  intensity: 1.0
   chords:
     - position: 0.0
       name: Bb-7

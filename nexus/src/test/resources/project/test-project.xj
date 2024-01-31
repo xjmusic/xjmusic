@@ -908,7 +908,7 @@
       "tempo": 120.4,
       "type": "Main",
       "name": "leaves",
-      "density": 0.5,
+      "intensity": 0.5,
       "config": null,
       "isDeleted": null,
       "updatedAt": 1706076228129
@@ -921,7 +921,7 @@
       "tempo": 110.3,
       "type": "Beat",
       "name": "coconuts",
-      "density": 0.6,
+      "intensity": 0.6,
       "config": null,
       "isDeleted": null,
       "updatedAt": 1706076228129
@@ -978,7 +978,7 @@
       "type": "Pad",
       "state": "Published",
       "name": "Pad",
-      "density": 0.6,
+      "intensity": 0.6,
       "config": null,
       "isDeleted": null,
       "volume": null,
@@ -991,7 +991,7 @@
       "type": "Drum",
       "state": "Published",
       "name": "808 Drums",
-      "density": 0.6,
+      "intensity": 0.6,
       "config": null,
       "isDeleted": null,
       "volume": null,
@@ -1054,7 +1054,7 @@
       "programId": "28d2208b-0a5f-44d5-9096-cc4157c36fb3",
       "name": "decay",
       "key": "F#",
-      "density": 0.25,
+      "intensity": 0.25,
       "total": 8
     },
     {
@@ -1062,7 +1062,7 @@
       "programId": "7ad65895-27b8-453d-84f1-ef2a2a2f09eb",
       "name": "base",
       "key": "C",
-      "density": 0.5,
+      "intensity": 0.5,
       "total": 16
     }
   ],
@@ -1115,7 +1115,7 @@
       "transientSeconds": 0.01,
       "totalBeats": 2.123,
       "tempo": 120.0,
-      "density": 0.62,
+      "intensity": 0.62,
       "event": "KICK",
       "volume": 1.0,
       "tones": "Eb"
@@ -1128,7 +1128,7 @@
       "transientSeconds": 0.02,
       "totalBeats": 1.123,
       "tempo": 140.0,
-      "density": 0.52,
+      "intensity": 0.52,
       "event": "BING",
       "volume": 0.9,
       "tones": "F,A,C"

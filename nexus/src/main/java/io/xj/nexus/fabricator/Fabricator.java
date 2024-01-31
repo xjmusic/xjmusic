@@ -221,7 +221,7 @@ public interface Fabricator {
   /**
    Get the Key for any given Choice, preferring its Sequence Key (bound), defaulting to the Program Key.
    <p>
-   If Sequence has no key/tempo/density inherit from Program https://www.pivotaltracker.com/story/show/176474164
+   If Sequence has no key/tempo/intensity inherit from Program https://www.pivotaltracker.com/story/show/176474164
 
    @param choice to get key for
    @return key of specified sequence/program via choice

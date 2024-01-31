@@ -35,7 +35,7 @@ stickyDetailProgram:
 segment:
   key: C-
   total: 32
-  density: 1.0
+  intensity: 1.0
   stickyBuns:
     - { type: Sticky, position: 0.0, seed: 63 }
     - { type: Sticky, position: 0.5, seed: 27 }

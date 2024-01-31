@@ -62,7 +62,7 @@ stabDetailProgram:
 segment:
   key: A
   total: 16
-  density: 1.0
+  intensity: 1.0
   chords:
     - position: 0.0
       name: Fmaj7add9

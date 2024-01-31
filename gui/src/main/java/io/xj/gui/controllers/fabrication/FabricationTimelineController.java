@@ -601,13 +601,13 @@ public class FabricationTimelineController extends ProjectController {
   }
 
   /**
-   Segment section: Beats, Density, Tempo, Key
+   Segment section: Beats, Intensity, Tempo, Key
    */
   private Node computeSegmentSectionPropertiesNode(Segment segment, int width) {
     var row = new HBox();
     row.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
     row.getChildren().add(computeLabeledPropertyNode(fabricationService.formatTotalBars(segment, segment.getTotal()), FormatUtils.formatTimeFromMicros(segment.getDurationMicros()), width / 4));
-    row.getChildren().add(computeLabeledPropertyNode("Density", String.format("%.2f", segment.getDensity()), width / 4));
+    row.getChildren().add(computeLabeledPropertyNode("Intensity", String.format("%.2f", segment.getIntensity()), width / 4));
     row.getChildren().add(computeLabeledPropertyNode("Tempo", FormatUtils.formatMinDecimal(segment.getTempo()), width / 4));
     row.getChildren().add(computeLabeledPropertyNode("Key", segment.getKey(), width / 4));
     //
