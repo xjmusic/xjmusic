@@ -18,7 +18,8 @@
   fx:controller="io.xj.gui.controllers.content.instrument.InstrumentAudioEditorController"
   fx:id="container"
   xmlns="http://javafx.com/javafx/17.0.2-ea"
-  xmlns:fx="http://javafx.com/fxml/1">
+  xmlns:fx="http://javafx.com/fxml/1"
+  dividerPositions="0.2">
 
   <VBox
     fx:id="fieldsContainer"
@@ -86,12 +87,14 @@
       AnchorPane.bottomAnchor="0"
       AnchorPane.rightAnchor="0"
       vbarPolicy="NEVER"
+      hbarPolicy="ALWAYS"
       fitToWidth="true"
       fitToHeight="true">
       <StackPane
         fx:id="waveformContainer"
         styleClass="waveform-container">
         <ImageView
+          preserveRatio="true"
           fx:id="waveform">
         </ImageView>
       </StackPane>

@@ -22,7 +22,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
@@ -47,9 +46,9 @@ import java.util.UUID;
 @Service
 public class InstrumentAudioEditorController extends BrowserController {
   static final Logger LOG = LoggerFactory.getLogger(InstrumentAudioEditorController.class);
+  private static final int SCROLL_PANE_HBAR_HEIGHT = 15;
   private final ObjectProperty<UUID> instrumentAudioId = new SimpleObjectProperty<>(null);
   private final IntegerProperty samplesPerPixel = new SimpleIntegerProperty(100);
-  private final float WAVEFORM_IMAGE_HEIGHT = 200; // todo set back to 1000.0f;
   private final StringProperty name = new SimpleStringProperty("");
   private final StringProperty event = new SimpleStringProperty("");
   private final FloatProperty volume = new SimpleFloatProperty(0.0f);
@@ -59,6 +58,8 @@ public class InstrumentAudioEditorController extends BrowserController {
   private final FloatProperty transientSeconds = new SimpleFloatProperty(0.0f);
   private final FloatProperty totalBeats = new SimpleFloatProperty(0.0f);
   private final BooleanProperty dirty = new SimpleBooleanProperty(false);
+  private final int waveformHeightPixels;
+  private final float displayNormalizeMaxValue;
   private final AudioLoader audioLoader;
 
   @FXML
@@ -107,6 +108,8 @@ public class InstrumentAudioEditorController extends BrowserController {
   protected Button buttonOpenAudioFile;
 
   public InstrumentAudioEditorController(
+    @Value("${gui.instrument.audio.waveform.height.pixels}") int waveformHeightPixels,
+    @Value("${gui.instrument.audio.waveform.display.normalize.max.value}") float displayNormalizeMaxValue,
     @Value("classpath:/views/content/instrument/instrument-audio-editor.fxml") Resource fxml,
     ApplicationContext ac,
     ThemeService themeService,
@@ -115,6 +118,8 @@ public class InstrumentAudioEditorController extends BrowserController {
     AudioLoader audioLoader
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
+    this.waveformHeightPixels = waveformHeightPixels;
+    this.displayNormalizeMaxValue = displayNormalizeMaxValue;
     this.audioLoader = audioLoader;
   }
 
@@ -125,6 +130,8 @@ public class InstrumentAudioEditorController extends BrowserController {
       .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.InstrumentAudioEditor));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
+
+    waveform.fitHeightProperty().bind(container.heightProperty().subtract(SCROLL_PANE_HBAR_HEIGHT));
 
     fieldName.textProperty().bindBidirectional(name);
     fieldEvent.textProperty().bindBidirectional(event);
@@ -209,11 +216,12 @@ public class InstrumentAudioEditorController extends BrowserController {
       // Calculate the total number of pixels needed to represent the waveform
       int totalSamples = audioInMemory.audio().length;
       int totalPixels = totalSamples / samplesPerPixel.get();
-      int channelRadius = (int) (WAVEFORM_IMAGE_HEIGHT / audioInMemory.format().getChannels() / 2);
+      int channelRadius = waveformHeightPixels / audioInMemory.format().getChannels() / 2;
       int channelDiameter = channelRadius * 2;
+      float displayVolumeRatio = computeDisplayVolumeRatio(audioInMemory.audio());
 
       // Create a new image to hold the waveform
-      WritableImage image = new WritableImage(totalPixels, (int) WAVEFORM_IMAGE_HEIGHT);
+      WritableImage image = new WritableImage(totalPixels, waveformHeightPixels);
       PixelWriter pixelWriter = image.getPixelWriter();
       Color color = uiStateService.getWaveformColor();
 
@@ -225,19 +233,33 @@ public class InstrumentAudioEditorController extends BrowserController {
       for (int pixel = 0; pixel < totalPixels; pixel++) {
         startSampleIndex = pixel * samplesPerPixel.get();
         endSampleIndex = Math.min(startSampleIndex + samplesPerPixel.get(), totalSamples);
-        writeSamplesToImage(audioInMemory.audio(), pixelWriter, color, startSampleIndex, endSampleIndex, pixel, channelRadius, channelDiameter);
+        writeSamplesToImage(audioInMemory.audio(), pixelWriter, color, displayVolumeRatio, channelRadius, channelDiameter, startSampleIndex, endSampleIndex, pixel);
       }
 
       // Set the image to the waveform
       waveform.setImage(image);
-      waveform.setTranslateY(0);
-      waveform.scaleYProperty().bind(container.heightProperty().divide(2 * WAVEFORM_IMAGE_HEIGHT));
-      // TODO align image top left
-      // waveformContainer.scaleYProperty().bind(container.heightProperty().divide(2 * WAVEFORM_IMAGE_HEIGHT));
+      waveform.setLayoutX(0);
 
     } catch (Exception e) {
       LOG.error("Could not render audio file!\n{}", StringUtils.formatStackTrace(e), e);
     }
+  }
+
+  /**
+   Compute the display volume ratio by iterating through all samples and channels and finding the max value,
+   then determining the ratio that will max that max value equal 0.9.
+
+   @param audio the audio samples
+   @return the display volume ratio
+   */
+  private float computeDisplayVolumeRatio(float[][] audio) {
+    float max = 0;
+    for (float[] samples : audio) {
+      for (float sample : samples) {
+        max = Math.max(max, Math.abs(sample));
+      }
+    }
+    return displayNormalizeMaxValue / max;
   }
 
   /**
@@ -246,22 +268,23 @@ public class InstrumentAudioEditorController extends BrowserController {
    @param data             the audio samples
    @param pixelWriter      to write image
    @param color            to write
+   @param ratio            the display volume ratio
+   @param channelRadius    the radius of one channel
+   @param channelDiameter  the diameter of one channel
    @param startSampleIndex the start sample index
    @param endSampleIndex   the end sample index
    @param x                the x position of the rectangle
-   @param channelRadius    the radius of one channel
-   @param channelDiameter  the diameter of one channel
    */
-  private void writeSamplesToImage(float[][] data, PixelWriter pixelWriter, Color color, int startSampleIndex, int endSampleIndex, int x, int channelRadius, int channelDiameter) {
+  private void writeSamplesToImage(float[][] data, PixelWriter pixelWriter, Color color, float ratio, int channelRadius, int channelDiameter, int startSampleIndex, int endSampleIndex, int x) {
     // keep track of old y for each channel and don't redraw if it hasn't changed
     int[] oy = new int[data[0].length];
     int y;
     for (int sampleIndex = startSampleIndex; sampleIndex < endSampleIndex; sampleIndex++) {
       for (int channel = 0; channel < data[sampleIndex].length; channel++) {
-        y = channelDiameter * channel + channelRadius + (int) (data[sampleIndex][channel] * channelRadius);
+        y = channelDiameter * channel + channelRadius + (int) (data[sampleIndex][channel] * channelRadius * ratio);
         if (y != oy[channel]) {
           oy[channel] = y;
-          if (y >= 0 && y <= WAVEFORM_IMAGE_HEIGHT) pixelWriter.setColor(x, y, color);
+          if (y >= 0 && y <= waveformHeightPixels) pixelWriter.setColor(x, y, color);
         }
       }
     }
