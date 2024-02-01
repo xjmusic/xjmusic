@@ -103,6 +103,36 @@
     <Button
       AnchorPane.topAnchor="10"
       AnchorPane.leftAnchor="10"
+      fx:id="buttonZoomOut"
+      onAction="#handlePressZoomOut">
+      <graphic>
+        <ImageView fitWidth="18" fitHeight="18">
+          <Image url="@/icons/zoom-out.png"/>
+        </ImageView>
+      </graphic>
+      <tooltip>
+        <Tooltip text="Zoom Out"/>
+      </tooltip>
+    </Button>
+
+    <Button
+      AnchorPane.topAnchor="10"
+      AnchorPane.leftAnchor="38"
+      fx:id="buttonZoomIn"
+      onAction="#handlePressZoomIn">
+      <graphic>
+        <ImageView fitWidth="18" fitHeight="18">
+          <Image url="@/icons/zoom-in.png"/>
+        </ImageView>
+      </graphic>
+      <tooltip>
+        <Tooltip text="Zoom In"/>
+      </tooltip>
+    </Button>
+
+    <Button
+      AnchorPane.bottomAnchor="25"
+      AnchorPane.leftAnchor="10"
       fx:id="buttonOpenAudioFile"
       onAction="#handlePressOpenAudioFile">
       <graphic>
