@@ -11,7 +11,6 @@ import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.audio.AudioLoader;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.FloatProperty;
 import javafx.beans.property.IntegerProperty;
@@ -146,12 +145,6 @@ public class InstrumentAudioEditorController extends BrowserController {
 
     waveformViewportWidth.bind(container.getScene().widthProperty().multiply(one.subtract(container.getDividers().get(0).positionProperty())));
     waveform.fitHeightProperty().bind(container.heightProperty().subtract(SCROLL_PANE_HBAR_HEIGHT));
-/*
-    waveformContainer.paddingProperty().bind(Bindings.createObjectBinding(() -> {
-      int padding = Objects.nonNull(waveform.getImage()) ? (int) (waveformViewportWidth.get() - waveform.getImage().getWidth()) : 0;
-      return new javafx.geometry.Insets(0, padding, 0, 0);
-    }, waveformViewportWidth, waveform.imageProperty()));
-*/
     zoomRatio.addListener((o, ov, v) -> renderWaveform());
     buttonZoomIn.disableProperty().bind(samplesPerPixel.lessThanOrEqualTo(minSamplesPerPixel));
     buttonZoomOut.disableProperty().bind(zoomRatio.lessThanOrEqualTo(1));
@@ -256,14 +249,14 @@ public class InstrumentAudioEditorController extends BrowserController {
 
       // Calculate the total number of pixels needed to represent the waveform
       int totalSamples = audioInMemory.audio().length;
-      int width = (int) (zoomRatio.get() * waveformViewportWidth.get());
-      samplesPerPixel.set(totalSamples / width);
+      int waveformWidth = (int) (zoomRatio.get() * waveformViewportWidth.get());
+      samplesPerPixel.set(totalSamples / waveformWidth);
       int channelRadius = waveformHeight / audioInMemory.format().getChannels() / 2;
       int channelDiameter = channelRadius * 2;
       float displayVolumeRatio = computeDisplayVolumeRatio(audioInMemory.audio());
 
       // Create a new image to hold the waveform
-      WritableImage image = new WritableImage(width, waveformHeight);
+      WritableImage image = new WritableImage(waveformWidth, waveformHeight);
       PixelWriter pixelWriter = image.getPixelWriter();
       Color color = uiStateService.getWaveformColor();
 
@@ -272,7 +265,7 @@ public class InstrumentAudioEditorController extends BrowserController {
       int endSampleIndex;
 
       // For each pixel, get the max value of the samples in that range and add it to the polyline
-      for (int x = 0; x < width; x++) {
+      for (int x = 0; x < waveformWidth; x++) {
         startSampleIndex = x * samplesPerPixel.get();
         endSampleIndex = Math.min(startSampleIndex + samplesPerPixel.get(), totalSamples);
         writeSamplesToImage(audioInMemory.audio(), pixelWriter, color, displayVolumeRatio, channelRadius, channelDiameter, startSampleIndex, endSampleIndex, x);
