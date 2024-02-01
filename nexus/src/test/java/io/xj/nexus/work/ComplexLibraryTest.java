@@ -10,7 +10,7 @@ import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.audio_cache.AudioCache;
+import io.xj.nexus.audio.AudioCache;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;

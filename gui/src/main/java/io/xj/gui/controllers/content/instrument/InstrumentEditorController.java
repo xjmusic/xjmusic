@@ -137,7 +137,8 @@ public class InstrumentEditorController extends BrowserController {
     audiosTable.setOnMousePressed(
       event -> {
         if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
-          Platform.runLater(() -> uiStateService.editInstrumentAudio(audiosTable.getSelectionModel().getSelectedItem().getId()));
+          if (Objects.nonNull(audiosTable.getSelectionModel().getSelectedItem()))
+            Platform.runLater(() -> uiStateService.editInstrumentAudio(audiosTable.getSelectionModel().getSelectedItem().getId()));
         }
       });
 
@@ -201,7 +202,7 @@ public class InstrumentEditorController extends BrowserController {
       .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
     var audioFolder = projectService.getPathPrefixToInstrumentAudio(instrument.getId());
     if (Objects.isNull(audioFolder)) return;
-    ProjectUtils.openFolder(audioFolder);
+    ProjectUtils.openDesktopPath(audioFolder);
   }
 
   /**

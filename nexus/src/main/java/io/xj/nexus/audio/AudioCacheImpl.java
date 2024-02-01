@@ -1,22 +1,18 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
-package io.xj.nexus.audio_cache;
+package io.xj.nexus.audio;
 
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.mixer.ActiveAudio;
-import io.xj.nexus.mixer.AudioSampleFormat;
 import io.xj.nexus.mixer.FFmpegUtils;
-import io.xj.nexus.mixer.FormatException;
 import io.xj.nexus.project.ProjectManager;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,24 +26,25 @@ import java.util.stream.Collectors;
 
 public class AudioCacheImpl implements AudioCache {
   private final static Logger LOG = LoggerFactory.getLogger(AudioCacheImpl.class);
-  private static final int MAX_INT_LENGTH_ARRAY_SIZE = 2147483647;
-  private static final int READ_BUFFER_BYTE_SIZE = 1024;
   private final ProjectManager projectManager;
-  private final Map<String, CachedAudio> cache;
+  private final AudioLoader audioLoader;
+  private final Map<String, AudioInMemory> cache;
   private int targetFrameRate;
   private int targetSampleBits;
   private int targetChannels;
 
   public AudioCacheImpl(
-    ProjectManager projectManager
+    ProjectManager projectManager,
+    AudioLoader audioLoader
   ) {
     this.projectManager = projectManager;
+    this.audioLoader = audioLoader;
 
     cache = new ConcurrentHashMap<>();
   }
 
   @Override
-  public CachedAudio load(InstrumentAudio audio) throws AudioCacheException, IOException, NexusException {
+  public AudioInMemory load(InstrumentAudio audio) throws AudioCacheException, IOException, NexusException {
     if (!cache.containsKey(audio.getId().toString())) {
       cache.put(audio.getId().toString(), compute(audio));
     }
@@ -166,58 +163,13 @@ public class AudioCacheImpl implements AudioCache {
    @throws AudioCacheException audio cache exception
    @throws IOException         io exception
    */
-  private CachedAudio compute(InstrumentAudio audio) throws AudioCacheException, IOException {
+  private AudioInMemory compute(InstrumentAudio audio) throws AudioCacheException, IOException {
     var fileSpec = prepare(audio);
-    try (
-      var fileInputStream = FileUtils.openInputStream(new File(fileSpec.path));
-      var bufferedInputStream = new BufferedInputStream(fileInputStream);
-      var audioInputStream = AudioSystem.getAudioInputStream(bufferedInputStream)
-    ) {
-      var frameSize = fileSpec.format.getFrameSize();
-      var channels = fileSpec.format.getChannels();
-      var isStereo = 2 == channels;
-      var sampleSize = frameSize / channels;
-      var expectBytes = audioInputStream.available();
+    try {
+      return audioLoader.load(fileSpec.path, fileSpec.format);
 
-      if (MAX_INT_LENGTH_ARRAY_SIZE == expectBytes)
-        throw new IOException("loading audio streams longer than 2,147,483,647 frames (max. value of signed 32-bit integer) is not supported");
-
-      int expectFrames;
-      if (expectBytes == audioInputStream.getFrameLength()) {
-        // this is a bug where AudioInputStream returns bytes (instead of frames which it claims)
-        expectFrames = expectBytes / fileSpec.format.getFrameSize();
-      } else {
-        expectFrames = (int) audioInputStream.getFrameLength();
-      }
-
-      if (AudioSystem.NOT_SPECIFIED == frameSize || AudioSystem.NOT_SPECIFIED == expectFrames)
-        throw new IOException("audio streams with unspecified frame size or length are unsupported");
-
-      AudioSampleFormat sampleFormat = AudioSampleFormat.typeOfInput(fileSpec.format);
-
-      // buffer size always a multiple of frame size
-      int actualReadBufferSize = (int) (Math.floor((double) READ_BUFFER_BYTE_SIZE / frameSize) * frameSize);
-
-      int b; // iterator: byte
-      int tc; // iterators: source channel, target channel
-      int sf = 0; // current source frame
-      int numBytesReadToBuffer;
-      byte[] sampleBuffer = new byte[sampleSize];
-      byte[] readBuffer = new byte[actualReadBufferSize];
-      float[][] data = new float[expectFrames][channels];
-      while (-1 != (numBytesReadToBuffer = audioInputStream.read(readBuffer))) {
-        for (b = 0; b < numBytesReadToBuffer && sf < data.length; b += frameSize) {
-          for (tc = 0; tc < fileSpec.format.getChannels(); tc++) {
-            System.arraycopy(readBuffer, b + (isStereo ? tc : 0) * sampleSize, sampleBuffer, 0, sampleSize);
-            data[sf][tc] = (float) AudioSampleFormat.fromBytes(sampleBuffer, sampleFormat);
-          }
-          sf++;
-        }
-      }
-      return new CachedAudio(data, fileSpec.format, fileSpec.path);
-
-    } catch (UnsupportedAudioFileException | FormatException e) {
-      throw new IOException(String.format("Failed to read and compute float array for file %s", fileSpec.path), e);
+    } catch (UnsupportedAudioFileException e) {
+      throw new RuntimeException(e);
     }
   }
 

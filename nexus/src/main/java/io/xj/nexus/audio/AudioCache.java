@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
-package io.xj.nexus.audio_cache;
+package io.xj.nexus.audio;
 
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.nexus.NexusException;
@@ -16,7 +16,7 @@ public interface AudioCache {
    @param audio to retrieve
    @return stream if cached; null if not
    */
-  CachedAudio load(InstrumentAudio audio) throws AudioCacheException, IOException, NexusException;
+  AudioInMemory load(InstrumentAudio audio) throws AudioCacheException, IOException, NexusException;
 
   /**
    Load all the given audios into memory and forget the rest

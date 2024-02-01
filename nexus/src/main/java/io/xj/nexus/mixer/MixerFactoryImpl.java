@@ -3,7 +3,7 @@
 package io.xj.nexus.mixer;
 
 
-import io.xj.nexus.audio_cache.AudioCache;
+import io.xj.nexus.audio.AudioCache;
 
 public class MixerFactoryImpl implements MixerFactory {
   final EnvelopeProvider envelopeProvider;

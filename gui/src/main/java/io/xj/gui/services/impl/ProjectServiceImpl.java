@@ -542,6 +542,11 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
+  public String getPathToInstrumentAudioWaveform(InstrumentAudio audio) {
+    return projectManager.getPathToInstrumentAudio(audio.getInstrumentId(), audio.getWaveformKey());
+  }
+
+  @Override
   public void createTemplateBinding(UUID templateId, ContentBindingType contentBindingType, UUID targetId) {
     try {
       var binding = new TemplateBinding();

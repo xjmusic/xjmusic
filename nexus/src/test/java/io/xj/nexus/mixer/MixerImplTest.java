@@ -2,8 +2,10 @@
 package io.xj.nexus.mixer;
 
 
-import io.xj.nexus.audio_cache.AudioCache;
-import io.xj.nexus.audio_cache.AudioCacheImpl;
+import io.xj.nexus.audio.AudioCache;
+import io.xj.nexus.audio.AudioCacheImpl;
+import io.xj.nexus.audio.AudioLoader;
+import io.xj.nexus.audio.AudioLoaderImpl;
 import io.xj.nexus.project.ProjectManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +34,8 @@ public class MixerImplTest {
   @BeforeEach
   public void setUp() throws Exception {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    AudioCache audioCache = new AudioCacheImpl(projectManager);
+    AudioLoader audioLoader = new AudioLoaderImpl(projectManager);
+    AudioCache audioCache = new AudioCacheImpl(projectManager, audioLoader);
     mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
     testMixer = mixerFactory.createMixer(
       new MixerConfig(

@@ -3,9 +3,10 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -17,7 +18,8 @@
   fx:controller="io.xj.gui.controllers.content.instrument.InstrumentAudioEditorController"
   fx:id="container"
   xmlns="http://javafx.com/javafx/17.0.2-ea"
-  xmlns:fx="http://javafx.com/fxml/1">
+  xmlns:fx="http://javafx.com/fxml/1"
+  dividerPositions="0.2">
 
   <VBox
     fx:id="fieldsContainer"
@@ -77,12 +79,72 @@
     </HBox>
   </VBox>
 
-  <AnchorPane
-    AnchorPane.topAnchor="0"
-    AnchorPane.rightAnchor="0"
-    AnchorPane.bottomAnchor="0"
-    AnchorPane.leftAnchor="0"
-    styleClass="audio-waveform-pane">
+  <AnchorPane>
+    <ScrollPane
+      fx:id="waveformScrollPane"
+      AnchorPane.topAnchor="0"
+      AnchorPane.leftAnchor="0"
+      AnchorPane.bottomAnchor="0"
+      AnchorPane.rightAnchor="0"
+      vbarPolicy="NEVER"
+      hbarPolicy="ALWAYS"
+      fitToWidth="true"
+      fitToHeight="true">
+      <StackPane
+        fx:id="waveformContainer"
+        styleClass="waveform-container">
+        <ImageView
+          preserveRatio="true"
+          fx:id="waveform">
+        </ImageView>
+      </StackPane>
+    </ScrollPane>
+
+    <Button
+      AnchorPane.topAnchor="10"
+      AnchorPane.leftAnchor="10"
+      fx:id="buttonZoomOut"
+      onAction="#handlePressZoomOut">
+      <graphic>
+        <ImageView fitWidth="18" fitHeight="18">
+          <Image url="@/icons/zoom-out.png"/>
+        </ImageView>
+      </graphic>
+      <tooltip>
+        <Tooltip text="Zoom Out"/>
+      </tooltip>
+    </Button>
+
+    <Button
+      AnchorPane.topAnchor="10"
+      AnchorPane.leftAnchor="38"
+      fx:id="buttonZoomIn"
+      onAction="#handlePressZoomIn">
+      <graphic>
+        <ImageView fitWidth="18" fitHeight="18">
+          <Image url="@/icons/zoom-in.png"/>
+        </ImageView>
+      </graphic>
+      <tooltip>
+        <Tooltip text="Zoom In"/>
+      </tooltip>
+    </Button>
+
+    <Button
+      AnchorPane.bottomAnchor="25"
+      AnchorPane.leftAnchor="10"
+      fx:id="buttonOpenAudioFile"
+      onAction="#handlePressOpenAudioFile">
+      <graphic>
+        <ImageView fitWidth="18" fitHeight="18">
+          <Image url="@/icons/folder-open.png"/>
+        </ImageView>
+      </graphic>
+      <tooltip>
+        <Tooltip text="Open Audio Folder in System File Browser"/>
+      </tooltip>
+    </Button>
+
   </AnchorPane>
 
 </SplitPane>

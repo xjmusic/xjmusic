@@ -30,7 +30,7 @@ module workstation.nexus.main {
   requires transitive hub.models.main;
 
   // export
-  exports io.xj.nexus.audio_cache;
+  exports io.xj.nexus.audio;
   exports io.xj.nexus.craft.background;
   exports io.xj.nexus.craft.beat;
   exports io.xj.nexus.craft.detail;

@@ -384,6 +384,14 @@ public interface ProjectService {
   String getPathPrefixToInstrumentAudio(UUID instrumentId);
 
   /**
+   Get path to an instrument audio waveform
+
+   @param audio for which to get path
+   @return path to waveform
+   */
+  String getPathToInstrumentAudioWaveform(InstrumentAudio audio);
+
+  /**
    Whether the project has been modified since loading content
 
    @return observable boolean property

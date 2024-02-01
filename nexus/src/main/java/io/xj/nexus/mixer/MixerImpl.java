@@ -4,8 +4,8 @@ package io.xj.nexus.mixer;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.audio_cache.AudioCache;
-import io.xj.nexus.audio_cache.AudioCacheException;
+import io.xj.nexus.audio.AudioCache;
+import io.xj.nexus.audio.AudioCacheException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

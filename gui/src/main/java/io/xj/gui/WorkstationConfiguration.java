@@ -8,8 +8,10 @@ import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.audio_cache.AudioCache;
-import io.xj.nexus.audio_cache.AudioCacheImpl;
+import io.xj.nexus.audio.AudioCache;
+import io.xj.nexus.audio.AudioCacheImpl;
+import io.xj.nexus.audio.AudioLoader;
+import io.xj.nexus.audio.AudioLoaderImpl;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactory;
@@ -34,16 +36,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Objects;
-
 @Configuration
 public class WorkstationConfiguration {
   private final int downloadAudioRetries;
-  private HttpClientProvider _httpClientProvider;
-  private FabricationManager _fabricationManager = null;
-  private ProjectManager _projectManager = null;
-  private EntityFactoryImpl _entityFactory;
-  private JsonProviderImpl _jsonProvider;
 
   public WorkstationConfiguration(
     @Value("${download.audio.retries}") int downloadAudioRetries
@@ -53,30 +48,22 @@ public class WorkstationConfiguration {
 
   @Bean
   public JsonProvider jsonProvider() {
-    if (Objects.isNull(_jsonProvider)) {
-      _jsonProvider = new JsonProviderImpl();
-    }
-    return _jsonProvider;
+    return new JsonProviderImpl();
   }
 
   @Bean
   public HttpClientProvider httpClientProvider() {
-    if (_httpClientProvider == null) {
-      _httpClientProvider = new HttpClientProviderImpl();
-    }
-    return _httpClientProvider;
+    return new HttpClientProviderImpl();
   }
 
   @Bean
   public EntityFactory entityFactory(
     JsonProvider jsonProvider
   ) {
-    if (Objects.isNull(_entityFactory)) {
-      _entityFactory = new EntityFactoryImpl(jsonProvider);
-      HubTopology.buildHubApiTopology(_entityFactory);
-      NexusTopology.buildNexusApiTopology(_entityFactory);
-    }
-    return _entityFactory;
+    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    HubTopology.buildHubApiTopology(entityFactory);
+    NexusTopology.buildNexusApiTopology(entityFactory);
+    return entityFactory;
   }
 
   @Bean
@@ -85,43 +72,45 @@ public class WorkstationConfiguration {
     JsonProvider jsonProvider,
     EntityFactory entityFactory
   ) {
-    if (Objects.isNull(_projectManager)) {
-      _projectManager = new ProjectManagerImpl(httpClientProvider, jsonProvider, entityFactory, downloadAudioRetries);
-    }
-    return _projectManager;
+    return new ProjectManagerImpl(httpClientProvider, jsonProvider, entityFactory, downloadAudioRetries);
+  }
+
+  @Bean
+  public AudioLoader audioLoader(
+    ProjectManager projectManager
+  ) {
+    return new AudioLoaderImpl(projectManager);
   }
 
   @Bean
   public FabricationManager workManager(
     ProjectManager projectManager,
     EntityFactory entityFactory,
-    JsonProvider jsonProvider
+    JsonProvider jsonProvider,
+    AudioLoader audioLoader
   ) {
-    if (_fabricationManager == null) {
-      BroadcastFactory broadcastFactory = new BroadcastFactoryImpl();
-      Telemetry telemetry = new TelemetryImpl();
-      CraftFactory craftFactory = new CraftFactoryImpl();
-      AudioCache audioCache = new AudioCacheImpl(projectManager);
-      NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
-      JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-      FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
-        nexusEntityStore,
-        jsonapiPayloadFactory,
-        jsonProvider
-      );
-      EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-      MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
-      _fabricationManager = new FabricationManagerImpl(
-        projectManager,
-        telemetry,
-        broadcastFactory,
-        craftFactory,
-        audioCache,
-        fabricatorFactory,
-        mixerFactory,
-        nexusEntityStore
-      );
-    }
-    return _fabricationManager;
+    BroadcastFactory broadcastFactory = new BroadcastFactoryImpl();
+    Telemetry telemetry = new TelemetryImpl();
+    CraftFactory craftFactory = new CraftFactoryImpl();
+    AudioCache audioCache = new AudioCacheImpl(projectManager, audioLoader);
+    NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
+    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
+      nexusEntityStore,
+      jsonapiPayloadFactory,
+      jsonProvider
+    );
+    EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
+    MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
+    return new FabricationManagerImpl(
+      projectManager,
+      telemetry,
+      broadcastFactory,
+      craftFactory,
+      audioCache,
+      fabricatorFactory,
+      mixerFactory,
+      nexusEntityStore
+    );
   }
 }
