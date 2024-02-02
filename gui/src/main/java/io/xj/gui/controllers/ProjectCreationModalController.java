@@ -70,6 +70,9 @@ public class ProjectCreationModalController extends ProjectModalController {
   protected Button buttonCancel;
 
   @FXML
+  ImageView demoImageVgm;
+
+  @FXML
   ImageView demoImageBump;
 
   @FXML
@@ -80,6 +83,9 @@ public class ProjectCreationModalController extends ProjectModalController {
 
   @FXML
   ToggleGroup demoSelection;
+
+  @FXML
+  ToggleButton buttonDemoVgm;
 
   @FXML
   ToggleButton buttonDemoBump;
@@ -127,6 +133,8 @@ public class ProjectCreationModalController extends ProjectModalController {
 
     demoContainer.visibleProperty().bind(isDemoVisible);
     demoContainer.managedProperty().bind(isDemoVisible);
+    demoImageVgm.fitHeightProperty().bind(demoImageSize);
+    demoImageVgm.fitWidthProperty().bind(demoImageSize);
     demoImageBump.fitHeightProperty().bind(demoImageSize);
     demoImageBump.fitWidthProperty().bind(demoImageSize);
     demoImageSlaps.fitHeightProperty().bind(demoImageSize);
@@ -221,6 +229,13 @@ public class ProjectCreationModalController extends ProjectModalController {
     Stage stage = (Stage) buttonCancel.getScene().getWindow();
     stage.close();
     onStageClose();
+  }
+
+  @FXML
+  public void handleDemoPressedVgm(MouseEvent ignored) {
+    if (StringUtils.isNullOrEmpty(fieldProjectName.getText()))
+      fieldProjectName.setText("Video Game Demo");
+    buttonDemoVgm.setSelected(true);
   }
 
   @FXML
