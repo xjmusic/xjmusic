@@ -21,10 +21,10 @@ import io.xj.nexus.model.SegmentMessage;
 import io.xj.nexus.model.SegmentMeta;
 import io.xj.nexus.work.FabricationState;
 import jakarta.annotation.Nullable;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableSet;
@@ -118,11 +118,11 @@ public interface FabricationService {
 
   ObservableDoubleValue progressProperty();
 
-  ObservableBooleanValue isStatusActive();
+  BooleanBinding isStatusActive();
 
-  ObservableBooleanValue isStatusLoading();
+  BooleanBinding isStatusLoading();
 
-  ObservableBooleanValue isStatusStandby();
+  BooleanBinding isStatusStandby();
 
   /**
    Return the current shipped-to chain micros

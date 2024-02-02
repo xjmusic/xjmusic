@@ -61,6 +61,9 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   final List<DisplayedSegment> ds = new ArrayList<>();
 
   @FXML
+  ImageView demoSelectionVgm;
+
+  @FXML
   ImageView demoSelectionBump;
 
   @FXML
@@ -131,7 +134,9 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     demoContainer.managedProperty().bind(fabricationService.isStatusStandby());
     demoContainer.maxWidthProperty().bind(scrollPane.widthProperty());
     demoImageWidth.bind(scrollPane.heightProperty().subtract(DEMO_BUTTON_HEIGHT_LEFTOVER));
-    demoImageHeight.bind(scrollPane.widthProperty().subtract(DEMO_BUTTON_SPACING * 2 + DEMO_BUTTON_MARGIN * 2).divide(3));
+    demoImageHeight.bind(scrollPane.widthProperty().subtract(DEMO_BUTTON_SPACING * 2 + DEMO_BUTTON_MARGIN * 2).divide(4));
+    demoSelectionVgm.fitHeightProperty().bind(demoImageHeight);
+    demoSelectionVgm.fitWidthProperty().bind(demoImageWidth);
     demoSelectionBump.fitHeightProperty().bind(demoImageHeight);
     demoSelectionBump.fitWidthProperty().bind(demoImageWidth);
     demoSelectionSlaps.fitHeightProperty().bind(demoImageHeight);
@@ -147,6 +152,11 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   @Override
   public void onStageClose() {
     stopTimelineAnimation();
+  }
+
+  @FXML
+  public void handleDemoPlayVgm(MouseEvent ignored) {
+    fabricationService.handleDemoPlay("vgm");
   }
 
   @FXML

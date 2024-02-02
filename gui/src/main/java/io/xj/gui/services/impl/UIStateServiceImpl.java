@@ -137,7 +137,8 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public BooleanBinding isManualFabricationModeProperty() {
     if (Objects.isNull(isManualFabricationMode))
-      isManualFabricationMode = fabricationService.controlModeProperty().isNotEqualTo(ControlMode.AUTO);
+      isManualFabricationMode = fabricationService.controlModeProperty().isNotEqualTo(ControlMode.AUTO)
+        .and(fabricationService.isStatusStandby().not());
 
     return isManualFabricationMode;
   }

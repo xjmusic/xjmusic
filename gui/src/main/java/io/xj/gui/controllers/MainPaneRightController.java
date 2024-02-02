@@ -56,8 +56,6 @@ public class MainPaneRightController extends VBox implements ReadyAfterBootContr
   public void onStageReady() {
     container.visibleProperty().bind(uiStateService.isManualFabricationModeProperty());
     container.managedProperty().bind(uiStateService.isManualFabricationModeProperty());
-    container.visibleProperty().bind(uiStateService.isManualFabricationModeProperty());
-    container.managedProperty().bind(uiStateService.isManualFabricationModeProperty());
 
     // bind a listener to changes in the fabrication service source material
     uiStateService.isManualFabricationActiveProperty().addListener(this::onManualFabricationMode);

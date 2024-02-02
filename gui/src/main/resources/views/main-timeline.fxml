@@ -26,12 +26,15 @@
         <padding>
           <Insets left="30" bottom="30"/>
         </padding>
-        <Text styleClass="demo-title" text="To hear XJ right away, select one of our flagship channels:"/>
+        <Text styleClass="demo-title" text="To hear XJ right away, select a demo:"/>
       </FlowPane>
       <HBox spacing="10">
         <padding>
           <Insets left="30" right="30" bottom="30"/>
         </padding>
+        <ImageView preserveRatio="true" fx:id="demoSelectionVgm" onMouseClicked="#handleDemoPlayVgm" styleClass="demo-image">
+          <Image url="@/images/demo-vgm.jpg"/>
+        </ImageView>
         <ImageView preserveRatio="true" fx:id="demoSelectionBump" onMouseClicked="#handleDemoPlayBump" styleClass="demo-image">
           <Image url="@/images/demo-bump.jpg"/>
         </ImageView>
