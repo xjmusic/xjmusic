@@ -597,6 +597,17 @@ public class ProjectServiceImpl implements ProjectService {
       }
   }
 
+  @Override
+  public void showWarningAlert(String title, String header, String body) {
+    Alert alert = new Alert(Alert.AlertType.WARNING);
+    themeService.setup(alert.getDialogPane().getScene());
+    alert.setGraphic(null);
+    alert.setTitle(title);
+    alert.setHeaderText(header);
+    alert.setContentText(body);
+    alert.showAndWait();
+  }
+
   /**
    Clone a project from a remote source.
 

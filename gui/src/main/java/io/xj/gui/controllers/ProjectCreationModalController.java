@@ -18,7 +18,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Tab;
@@ -184,24 +183,20 @@ public class ProjectCreationModalController extends ProjectModalController {
     if (Objects.equals(mode.get(), ProjectCreationMode.CLONE_PROJECT)
       && Objects.isNull(demoSelection.getSelectedToggle())
       && Objects.isNull(selectedProject.get())) {
-      Alert alert = new Alert(Alert.AlertType.WARNING);
-      themeService.setup(alert.getDialogPane().getScene());
-      alert.setGraphic(null);
-      alert.setTitle("Cannot clone project");
-      alert.setHeaderText("Must select a project to clone.");
-      alert.setContentText("Select either a Demo project or, if authenticated, a project from the Lab.");
-      alert.showAndWait();
+      projectService.showWarningAlert(
+        "Cannot clone project",
+        "Must select a project to clone.",
+        "Select either a Demo project or, if authenticated, a project from the Lab."
+      );
       return;
     }
 
     if (StringUtils.isNullOrEmpty(fieldProjectName.getText())) {
-      Alert alert = new Alert(Alert.AlertType.WARNING);
-      themeService.setup(alert.getDialogPane().getScene());
-      alert.setGraphic(null);
-      alert.setTitle("Cannot create project");
-      alert.setHeaderText("Project Name cannot be empty");
-      alert.setContentText("You must specify a project name to create a new project.");
-      alert.showAndWait();
+      projectService.showWarningAlert(
+        "Cannot create project",
+        "Project name is required.",
+        "Please enter a name for the project."
+      );
       return;
     }
 
