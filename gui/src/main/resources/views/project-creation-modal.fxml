@@ -85,6 +85,23 @@
             </fx:define>
             <VBox>
               <ImageView
+                fx:id="demoImageVgm"
+                preserveRatio="true"
+                styleClass="demo-image"
+                onMouseClicked="#handleDemoPressedVgm">
+                <Image url="@/images/demo-vgm.jpg"/>
+              </ImageView>
+              <ToggleButton
+                maxWidth="Infinity"
+                id="vgm"
+                fx:id="buttonDemoVgm"
+                toggleGroup="$demoSelection"
+                focusTraversable="false"
+                text="Video Game"
+                onMouseClicked="#handleDemoPressedVgm"/>
+            </VBox>
+            <VBox>
+              <ImageView
                 fx:id="demoImageBump"
                 preserveRatio="true"
                 styleClass="demo-image"
