@@ -21,7 +21,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceBox;
@@ -123,12 +122,11 @@ public class CmdModalController extends ProjectModalController {
       switch (mode.get()) {
         case Create -> {
           if (StringUtils.isNullOrEmpty(name.getValue())) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            themeService.setup(alert.getDialogPane().getScene());
-            alert.setTitle("Error");
-            alert.setHeaderText("Name cannot be blank");
-            alert.setContentText("Please enter a name for the new entity.");
-            alert.showAndWait();
+            projectService.showWarningAlert(
+              "Can't create project",
+              "Name cannot be blank",
+              "Please enter a name for the new entity."
+            );
             return;
           }
           switch (type.get()) {
