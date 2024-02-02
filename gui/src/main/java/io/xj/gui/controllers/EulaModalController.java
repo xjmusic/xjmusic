@@ -114,7 +114,6 @@ public class EulaModalController extends ProjectController {
         primaryStage.setScene(scene);
 
         themeService.setup(scene);
-        themeService.isDarkThemeProperty().addListener((o, ov, value) -> themeService.setup(scene));
         themeService.setupFonts();
 
         onStageReady();

@@ -3,8 +3,6 @@
 package io.xj.gui.services;
 
 import jakarta.annotation.Nullable;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Scene;
 import javafx.scene.text.Font;
 import org.slf4j.Logger;
@@ -23,28 +21,19 @@ public class ThemeService {
   private static final Logger LOG = LoggerFactory.getLogger(ThemeService.class);
   private static final int DEFAULT_FONT_SIZE = 12;
   private final String defaultThemePath;
-  private final String darkThemePath;
   private final String fontPathPattern;
   private final ResourceLoader resourceLoader;
-
-  final BooleanProperty isDarkTheme = new SimpleBooleanProperty(true);
   private final PathMatchingResourcePatternResolver pathMatchingResourcePatternResolver;
 
   public ThemeService(
     @Value("${gui.theme.default}") String defaultThemePath,
-    @Value("${gui.theme.dark}") String darkThemePath,
     @Value("${gui.resources.font.path.pattern}") String fontPathPattern,
     ResourceLoader resourceLoader
   ) {
     this.defaultThemePath = defaultThemePath;
-    this.darkThemePath = darkThemePath;
     this.fontPathPattern = fontPathPattern;
     this.resourceLoader = resourceLoader;
     this.pathMatchingResourcePatternResolver = new PathMatchingResourcePatternResolver();
-  }
-
-  public BooleanProperty isDarkThemeProperty() {
-    return isDarkTheme;
   }
 
   public void setup(@Nullable Scene scene) {
@@ -54,11 +43,6 @@ public class ThemeService {
     }
     if (!scene.getStylesheets().contains(defaultThemePath)) {
       scene.getStylesheets().add(defaultThemePath);
-    }
-    if (isDarkTheme.getValue()) {
-      scene.getStylesheets().add(darkThemePath);
-    } else {
-      scene.getStylesheets().remove(darkThemePath);
     }
   }
 

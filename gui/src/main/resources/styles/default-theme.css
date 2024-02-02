@@ -1,15 +1,17 @@
 /* Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. */
 
-/* from https://stackoverflow.com/questions/49159286/make-a-dark-mode-with-javafx */
-
 .root {
-  -fx-base: #c0c0c0;
-  -fx-background-color: #d0d0d0;
+  -fx-accent: #909090;
+  -fx-focus-color: -fx-accent;
+  -fx-base: #373737;
+  -fx-control-inner-background: derive(-fx-base, 35%);
+  -fx-control-inner-background-alt: -fx-control-inner-background;
+  -fx-background-color: #404040;
   -fx-font-family: 'Roboto';
 }
 
 .menu, .menu-bar, .menu, .menu-item, .menu-button, .context-menu, .main-menu-container {
-  -fx-background-color: #e0e0e0;
+  -fx-background-color: #373737;
   -fx-border-color: transparent;
   -fx-border-width: 0;
 }
@@ -22,9 +24,82 @@
   -fx-padding: 2 6 2 6;
 }
 
-.menu-item:hover, .menu-button:hover {
-  -fx-background-color: #c0c0c0;
+.menu-item:hover, .menu-button:hover, .menu-button:focused, .menu-item:focused {
+  -fx-background-color: #474747;
 }
+
+.check-menu-item, .check-menu-item:hover, .check-menu-item:armed, .check-menu-item:focused {
+  -fx-focused-mark-color: lightgray;
+}
+
+.separator {
+  -fx-background-color: #3C3C3C;
+}
+
+.label {
+  -fx-text-fill: lightgray;
+}
+
+.text-field {
+  -fx-prompt-text-fill: gray;
+}
+
+.title {
+  -fx-font-weight: bold;
+  -fx-font-size: 18px;
+}
+
+.button {
+  -fx-focus-traversable: false;
+}
+
+.button:default {
+  -fx-base: -fx-accent;
+}
+
+.button:hover {
+  -fx-text-fill: white;
+}
+
+.separator *.line {
+  -fx-background-color: #3C3C3C;
+  -fx-border-style: solid;
+  -fx-border-width: 1px;
+}
+
+.scroll-bar {
+  -fx-background-color: derive(-fx-base, 45%)
+}
+
+.table-view {
+  /*-fx-background-color: derive(-fx-base, 10%);*/
+  -fx-selection-bar-non-focused: derive(-fx-base, 50%);
+}
+
+.table-view .column-header .label {
+  -fx-alignment: CENTER_LEFT;
+  -fx-font-weight: none;
+}
+
+.list-cell:empty,
+.table-row-cell:empty {
+  -fx-background-color: transparent;
+}
+
+.list-cell,
+.table-row-cell {
+  -fx-border-color: transparent;
+  -fx-table-cell-border-color: transparent;
+}
+
+.user-name {
+  -fx-fill: #ffffff;
+}
+
+.user-email {
+  -fx-fill: #ffffff;
+}
+
 
 .log-viewer {
   -fx-background-color: #b0b0b0;
@@ -34,6 +109,7 @@
   -fx-font-family: 'Roboto Mono';
   -fx-text-fill: purple;
   -fx-padding: 0 0 0 0;
+  -fx-background-color: #191919;
 }
 
 .log-viewer .list-cell.debug {
@@ -54,7 +130,7 @@
 
 .main-timeline,
 .timeline-position-spacer {
-  -fx-background-color: #e0e0e0;
+  -fx-background-color: #202020;
 }
 
 .main-timeline {
@@ -67,17 +143,17 @@
 }
 
 .main-timeline-segment {
-  -fx-background-color: #f0f0f0;
+  -fx-background-color: #303030;
 }
 
 .main-timeline-segment .label {
-  -fx-fill: #606060;
+  -fx-fill: #a0a0a0;
 }
 
 .main-timeline-segment .value {
   -fx-font-size: 1.4em;
   -fx-font-weight: bold;
-  -fx-fill: #000000;
+  -fx-fill: #ffffff;
 }
 
 .main-timeline-segment .choice {
@@ -96,7 +172,7 @@
 
 .main-timeline-segment .meme,
 .main-timeline-segment .chord-name {
-  -fx-fill: #000000;
+  -fx-fill: #ffffff;
 }
 
 .main-timeline-segment .chord-position {
@@ -106,7 +182,7 @@
 
 .main-timeline-segment .chord-position,
 .main-timeline-segment .delta {
-  -fx-fill: #404040;
+  -fx-fill: #cccccc;
 }
 
 .main-timeline-segment .choice-group {
@@ -122,19 +198,19 @@
 }
 
 .main-timeline-segment .segment-message-body {
-  -fx-fill: #202020;
+  -fx-fill: #d0d0d0;
 }
 
 .main-timeline-segment .segment-message-info {
-  -fx-fill: #555555;
+  -fx-fill: #0099ff;
 }
 
 .main-timeline-segment .segment-message-warning {
-  -fx-fill: #aa6600;
+  -fx-fill: #ff9900;
 }
 
 .main-timeline-segment .segment-message-error {
-  -fx-fill: #990000;
+  -fx-fill: #ff6666;
 }
 
 .main-timeline-segment .segment-meta-key {
@@ -142,11 +218,11 @@
 }
 
 .main-timeline-segment .segment-meta-value {
-  -fx-fill: #000000;
+  -fx-fill: #ffffff;
 }
 
 .timeline-position-indicator {
-  -fx-background-color: #eaeaea;
+  -fx-background-color: #2e2e2e;
 }
 
 .button,
@@ -155,7 +231,7 @@
 }
 
 .icon {
-  -fx-fill: #000;
+  -fx-fill: #fff;
 }
 
 .toggle-button:selected {
@@ -195,7 +271,7 @@
 .demo-title {
   -fx-font-size: 2em;
   -fx-font-weight: 300;
-  -fx-fill: #000000;
+  -fx-fill: #ffffff;
   -fx-font-family: 'Roboto Light';
 }
 
@@ -251,7 +327,7 @@
 #mainTopPaneContainer,
 .back-bar,
 .tab-pane .tab-header-area .tab-header-background {
-  -fx-background-color: #d0d0d0;
+  -fx-background-color: #303030;
 }
 
 .bold {
@@ -274,7 +350,7 @@
 .template-bindings-pane .button:hover,
 .instrument-audios-pane .button:hover,
 #buttonOpenAudioFile:hover {
-  -fx-background-color: #c0c0c0;
+  -fx-background-color: #606060;
 }
 
 .top-pane .button:pressed,
@@ -282,7 +358,7 @@
 .template-bindings-pane .button:pressed,
 .instrument-audios-pane .button:pressed,
 #buttonOpenAudioFile:pressed {
-  -fx-background-color: #a0a0a0;
+  -fx-background-color: #909090;
 }
 
 .top-pane .button:selected,
@@ -290,7 +366,7 @@
 .template-bindings-pane .button:selected,
 .instrument-audios-pane .button:selected,
 #buttonOpenAudioFile:selected {
-  -fx-background-color: #c0c0c0;
+  -fx-background-color: #606060;
 }
 
 .icon-button {

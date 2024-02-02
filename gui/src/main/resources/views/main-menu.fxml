@@ -120,8 +120,6 @@
         </accelerator>
       </RadioMenuItem>
       <SeparatorMenuItem mnemonicParsing="false"/>
-      <CheckMenuItem fx:id="checkboxDarkTheme" selected="true" text="_Dark Theme"/>
-      <SeparatorMenuItem mnemonicParsing="false"/>
       <CheckMenuItem fx:id="checkboxShowLogs" text="Show _Logs">
         <accelerator>
           <KeyCodeCombination alt="UP" code="F10" control="UP" meta="UP" shift="UP" shortcut="UP"/>
