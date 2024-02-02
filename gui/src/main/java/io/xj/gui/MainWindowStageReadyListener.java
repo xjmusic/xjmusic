@@ -77,7 +77,6 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
       primaryStage.setScene(scene);
 
       themeService.setup(scene);
-      themeService.isDarkThemeProperty().addListener((o, ov, value) -> themeService.setup(scene));
       themeService.setupFonts();
 
       primaryStage.setOnCloseRequest(this::onCloseRequest);

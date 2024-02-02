@@ -84,9 +84,6 @@ public class MainMenuController extends ProjectController {
   protected MenuItem itemOpenFabricationSettings;
 
   @FXML
-  protected CheckMenuItem checkboxDarkTheme;
-
-  @FXML
   protected CheckMenuItem checkboxShowLogs;
 
   @FXML
@@ -174,8 +171,6 @@ public class MainMenuController extends ProjectController {
 
     checkboxTailLogs.selectedProperty().bindBidirectional(uiStateService.logsTailingProperty());
     checkboxShowLogs.selectedProperty().bindBidirectional(uiStateService.logsVisibleProperty());
-
-    themeService.isDarkThemeProperty().bindBidirectional(checkboxDarkTheme.selectedProperty());
 
     switch (uiStateService.logLevelProperty().getValue()) {
       case DEBUG -> logLevelDebug.setSelected(true);
