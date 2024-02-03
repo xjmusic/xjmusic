@@ -10,21 +10,30 @@ import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.InstrumentMeme;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.util.StringUtils;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.FloatProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleFloatProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.image.Image;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -37,7 +46,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ProgramEditorController extends ProjectController {
@@ -79,8 +90,8 @@ public class ProgramEditorController extends ProjectController {
   @Value("classpath:/views/content/program/clone-menu.fxml")
   private Resource cloneFxml;
 
-  @FXML
-  protected Button buttonSave;
+//  @FXML
+//  protected Button buttonSave;
   static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
   private final BooleanProperty dirty = new SimpleBooleanProperty(false);
@@ -150,7 +161,7 @@ public class ProgramEditorController extends ProjectController {
         bindButton.setSelected(!editButton.isSelected());
       }
     });
-    buttonSave.disableProperty().bind(dirty.not());
+//    buttonSave.disableProperty().bind(dirty.not());
     typeChooser.setItems(programTypes);
     stateChooser.setItems(programStates);
   }
@@ -159,7 +170,11 @@ public class ProgramEditorController extends ProjectController {
   private void addMemeTag() {
     ProgramMeme programMeme = new ProgramMeme(UUID.randomUUID(), "XXX", this.programId.getValue());
     loadMemeTag(programMeme);
-    projectService.getContent().getMemesOfProgram(this.programId.getValue()).add(programMeme);
+    try {
+      projectService.getContent().put(programMeme);
+    } catch (Exception e) {
+      LOG.error("Error adding Meme!\n{}", StringUtils.formatStackTrace(e), e;
+    }
   }
 
   protected void loadMemeTag(ProgramMeme programMeme) {
