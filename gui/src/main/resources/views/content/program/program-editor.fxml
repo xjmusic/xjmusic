@@ -1,45 +1,117 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.layout.HBox?>
-<VBox
-  fx:controller="io.xj.gui.controllers.content.program.ProgramEditorController"
-  fx:id="container"
-  xmlns="http://javafx.com/javafx/17.0.2-ea"
-  xmlns:fx="http://javafx.com/fxml/1"
-  spacing="5.0">
+
+<VBox fx:id="container" prefHeight="472.0" prefWidth="1241.0" spacing="5.0" stylesheets="@../../../styles/dark-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramEditorController">
 
   <VBox.vgrow>
-    <Priority fx:constant="ALWAYS"/>
+    <Priority fx:constant="ALWAYS" />
   </VBox.vgrow>
 
   <padding>
-    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
   </padding>
-
-  <VBox>
-    <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Name" textAlignment="RIGHT">
-      <graphic>
-        <Pane prefWidth="15.0"/>
-      </graphic>
-    </Label>
-    <Pane prefWidth="15.0"/>
-    <TextField fx:id="fieldName" prefHeight="25.0"/>
-  </VBox>
+   <VBox>
+      <children>
+         <HBox alignment="CENTER_LEFT" prefHeight="23.0" prefWidth="607.0" spacing="5.0">
+            <children>
+               <Button fx:id="configButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleEditConfig" prefHeight="30.0" prefWidth="35.0" text=" ">
+                  <graphic>
+                     <ImageView fitHeight="23.0" fitWidth="23.0" translateX="-2.0">
+                        <image>
+                           <Image url="@../../../icons/settings.png" />
+                        </image>
+                     </ImageView>
+                  </graphic>
+               </Button>
+               <ToggleButton fx:id="bindButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" styleClass="program-editor-toggle-button" text="Bind" />
+               <ToggleButton fx:id="editButton" layoutX="51.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" styleClass="program-editor-toggle-button" text="Edit" />
+               <Button fx:id="copyButton" layoutX="85.0" layoutY="13.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#openCloneDialog" prefHeight="30.0" prefWidth="35.0" text=" ">
+                  <graphic>
+                     <ImageView fitHeight="23.0" fitWidth="23.0" translateX="-2.0">
+                        <image>
+                           <Image url="@../../../icons/copyGrey.png" />
+                        </image>
+                     </ImageView>
+                  </graphic>
+               </Button>
+               <Label prefHeight="25.0" prefWidth="63.0" text="PROGRAM" />
+               <TextField fx:id="programNameField" />
+               <Label layoutX="193.0" layoutY="13.0" prefHeight="25.0" prefWidth="41.0" text="TYPE">
+                  <padding>
+                     <Insets left="10.0" />
+                  </padding>
+               </Label>
+               <ComboBox fx:id="typeChooser" prefHeight="25.0" prefWidth="102.0" />
+               <Label layoutX="416.0" layoutY="13.0" prefHeight="25.0" prefWidth="49.0" text="STATE">
+                  <padding>
+                     <Insets left="10.0" />
+                  </padding>
+               </Label>
+               <ComboBox fx:id="stateChooser" layoutX="475.0" layoutY="13.0" prefHeight="25.0" prefWidth="102.0" />
+               <Label layoutX="566.0" layoutY="13.0" prefHeight="25.0" prefWidth="47.0" text="KEY">
+                  <padding>
+                     <Insets left="10.0" />
+                  </padding>
+               </Label>
+               <TextField fx:id="keyField" layoutX="261.0" layoutY="13.0" prefHeight="25.0" prefWidth="89.0" />
+               <Label layoutX="732.0" layoutY="13.0" prefHeight="25.0" prefWidth="51.0" text="TEMPO">
+                  <padding>
+                     <Insets left="5.0" />
+                  </padding>
+               </Label>
+               <Spinner fx:id="tempoChooserSpinner" editable="true" prefHeight="25.0" prefWidth="111.0" />
+               <Label layoutX="897.0" layoutY="13.0" prefHeight="25.0" prefWidth="67.0" text="INTENSITY">
+                  <padding>
+                     <Insets left="5.0" />
+                  </padding>
+               </Label>
+               <Spinner fx:id="intensityChooserSpinner" editable="true" layoutX="953.0" layoutY="13.0" prefHeight="25.0" prefWidth="113.0" />
+            </children>
+         </HBox>
+         <HBox alignment="CENTER_LEFT" minHeight="-Infinity" minWidth="-Infinity" prefHeight="57.0" prefWidth="1231.0" spacing="5.0" VBox.vgrow="ALWAYS">
+            <children>
+               <Label prefHeight="27.0" prefWidth="115.0" text="PROGRAM MEMES :" />
+               <Button fx:id="addMemeButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#addMemeTag" prefHeight="26.0" prefWidth="32.0" text="Bind">
+                  <graphic>
+                     <ImageView fitHeight="21.0" fitWidth="21.0" translateX="-3.0">
+                        <image>
+                           <Image url="@../../../icons/plus.png" />
+                        </image>
+                     </ImageView>
+                  </graphic>
+               </Button>
+               <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="65.0" prefWidth="1053.0" styleClass="program-editor-scrollpane" stylesheets="@../../../styles/dark-theme.css" HBox.hgrow="ALWAYS">
+                  <content>
+                     <HBox fx:id="memeTagContainer" alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="1050.0" spacing="6.0">
+                        <padding>
+                           <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                        </padding>
+                     </HBox>
+                  </content>
+               </ScrollPane>
+            </children>
+            <padding>
+               <Insets left="20.0" />
+            </padding>
+         </HBox>
+      </children>
+   </VBox>
 
   <HBox spacing="10">
-    <Button
-      fx:id="buttonSave"
-      onAction="#handlePressSave"
-      text="Save"/>
+    <Button fx:id="buttonSave" onAction="#handlePressSave" text="Save" />
   </HBox>
-
-  <Label>FUTURE: Program Editor</Label>
 
 </VBox>
