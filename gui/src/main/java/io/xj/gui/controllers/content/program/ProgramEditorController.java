@@ -155,7 +155,11 @@ public class ProgramEditorController extends ProjectController {
   private void addMemeTag() {
     ProgramMeme programMeme = new ProgramMeme(UUID.randomUUID(), "XXX", this.programId.getValue());
     loadMemeTag(programMeme);
-    projectService.getContent().getMemesOfProgram(this.programId.getValue()).add(programMeme);
+    try {
+      projectService.getContent().put(programMeme);
+    } catch (Exception e) {
+      LOG.error("Error adding Meme!\n{}", StringUtils.formatStackTrace(e),e);
+    }
   }
 
   protected void loadMemeTag(ProgramMeme programMeme) {
