@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="container" prefHeight="472.0" prefWidth="1241.0" spacing="5.0" stylesheets="@../../../styles/dark-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramEditorController">
+<VBox fx:id="container" prefHeight="472.0" prefWidth="1241.0" spacing="5.0" stylesheets="@../../../styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramEditorController">
 
   <VBox.vgrow>
     <Priority fx:constant="ALWAYS" />
@@ -36,8 +36,8 @@
                      </ImageView>
                   </graphic>
                </Button>
-               <ToggleButton fx:id="bindButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" styleClass="program-editor-toggle-button" text="Bind" />
-               <ToggleButton fx:id="editButton" layoutX="51.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" styleClass="program-editor-toggle-button" text="Edit" />
+               <ToggleButton fx:id="bindButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" styleClass="program-editor-toggle-buttons" text="Bind" />
+               <ToggleButton fx:id="editButton" layoutX="51.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" styleClass="program-editor-toggle-buttons" text="Edit" />
                <Button fx:id="copyButton" layoutX="85.0" layoutY="13.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#openCloneDialog" prefHeight="30.0" prefWidth="35.0" text=" ">
                   <graphic>
                      <ImageView fitHeight="23.0" fitWidth="23.0" translateX="-2.0">
@@ -72,7 +72,7 @@
                      <Insets left="5.0" />
                   </padding>
                </Label>
-               <Spinner fx:id="tempoChooserSpinner" editable="true" prefHeight="25.0" prefWidth="111.0" />
+               <Spinner fx:id="tempoChooserSpinner" editable="true" prefHeight="25.0" prefWidth="111.0" stylesheets="@../../../styles/default-theme.css" />
                <Label layoutX="897.0" layoutY="13.0" prefHeight="25.0" prefWidth="67.0" text="INTENSITY">
                   <padding>
                      <Insets left="5.0" />
@@ -109,9 +109,5 @@
          </HBox>
       </children>
    </VBox>
-
-  <HBox spacing="10">
-    <Button fx:id="buttonSave" onAction="#handlePressSave" text="Save" />
-  </HBox>
 
 </VBox>

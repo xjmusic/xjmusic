@@ -11,8 +11,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-
-<AnchorPane prefHeight="340.0" prefWidth="600.0" style="-fx-border-color: grey;" stylesheets="@../../../styles/dark-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.CloneMenuController">
+<AnchorPane prefHeight="340.0" prefWidth="600.0" style="-fx-border-color: grey;" stylesheets="@../../../styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.CloneMenuController">
    <children>
       <Label layoutX="14.0" layoutY="23.0" prefHeight="24.0" prefWidth="86.0" text="FROM LIBRARY" />
       <Label layoutX="117.0" layoutY="18.0" prefHeight="33.0" prefWidth="201.0" text="LIBRARY NAME" />

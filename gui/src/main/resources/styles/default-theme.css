@@ -403,3 +403,14 @@
 .waveform-container {
   -fx-background-color: #101010;
 }
+
+.program-editor-scrollpane > .viewport{
+  -fx-background-color: transparent;
+}
+.program-editor-scrollpane{
+  -fx-background-color: transparent;
+}
+
+.program-editor-toggle-buttons:focused{
+  -fx-background-color: #005E1F;
+}
