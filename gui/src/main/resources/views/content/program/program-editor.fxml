@@ -202,11 +202,4 @@
     <Insets top="5.0"/>
   </padding>
 
-  <HBox spacing="10">
-    <Button
-      fx:id="buttonSave"
-      onAction="#handlePressSave"
-      text="Save"/>
-  </HBox>
-
 </VBox>
