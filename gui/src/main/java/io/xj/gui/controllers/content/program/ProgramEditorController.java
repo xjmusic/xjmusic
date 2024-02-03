@@ -78,9 +78,6 @@ public class ProgramEditorController extends ProjectController {
 
   @Value("classpath:/views/content/program/clone-menu.fxml")
   private Resource cloneFxml;
-
-  @FXML
-  protected Button buttonSave;
   static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
   private final BooleanProperty dirty = new SimpleBooleanProperty(false);
@@ -150,7 +147,6 @@ public class ProgramEditorController extends ProjectController {
         bindButton.setSelected(!editButton.isSelected());
       }
     });
-    buttonSave.disableProperty().bind(dirty.not());
     typeChooser.setItems(programTypes);
     stateChooser.setItems(programStates);
   }
