@@ -70,13 +70,13 @@
                      <Insets left="5.0" />
                   </padding>
                </Label>
-               <Spinner fx:id="tempoChooserSpinner" editable="true" prefHeight="25.0" prefWidth="111.0" stylesheets="@../../../styles/default-theme.css" />
+               <Spinner fx:id="tempoChooser" editable="true" prefHeight="25.0" prefWidth="111.0" stylesheets="@../../../styles/default-theme.css" />
                <Label layoutX="897.0" layoutY="13.0" prefHeight="25.0" prefWidth="73.0" text="INTENSITY">
                   <padding>
                      <Insets left="5.0" />
                   </padding>
                </Label>
-               <Spinner fx:id="intensityChooserSpinner" editable="true" layoutX="953.0" layoutY="13.0" prefHeight="25.0" prefWidth="113.0" />
+               <Spinner fx:id="intensityChooser" editable="true" layoutX="953.0" layoutY="13.0" prefHeight="25.0" prefWidth="113.0" />
             </children>
          </HBox>
          <HBox alignment="CENTER_LEFT" minHeight="-Infinity" minWidth="-Infinity" prefHeight="49.0" prefWidth="1231.0" spacing="5.0" styleClass="program-editor-mini-container" VBox.vgrow="ALWAYS">
@@ -163,7 +163,7 @@
                </Label>
                <StackPane prefHeight="37.0" prefWidth="103.0">
                   <children>
-                     <Spinner fx:id="sequenceTotalSpinner" prefHeight="29.0" prefWidth="119.0" />
+                     <Spinner fx:id="sequenceTotalChooser" prefHeight="29.0" prefWidth="119.0" />
                      <Label fx:id="sequenceTotalLabel" prefHeight="29.0" prefWidth="103.0" text="16">
                         <padding>
                            <Insets left="5.0" />
@@ -190,7 +190,7 @@
                </Label>
                <StackPane layoutX="859.0" layoutY="10.0" prefHeight="37.0" prefWidth="90.0">
                   <children>
-                     <Spinner fx:id="sequenceIntensitySpinner" prefHeight="29.0" prefWidth="119.0" />
+                     <Spinner fx:id="sequenceIntensityChooser" prefHeight="29.0" prefWidth="119.0" />
                      <Label fx:id="sequenceIntensityLabel" prefHeight="29.0" prefWidth="119.0" text="0.6">
                         <padding>
                            <Insets left="5.0" />

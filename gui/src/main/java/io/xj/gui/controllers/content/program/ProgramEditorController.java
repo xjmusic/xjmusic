@@ -42,9 +42,9 @@ import java.util.*;
 @Service
 public class ProgramEditorController extends ProjectController {
   @FXML
-  public Spinner<Double> intensityChooserChooser;
+  public Spinner<Double> intensityChooser;
   @FXML
-  public Spinner<Double> tempoChooserChooser;
+  public Spinner<Double> tempoChooser;
   @FXML
   public TextField keyField;
   @FXML
@@ -177,7 +177,7 @@ public class ProgramEditorController extends ProjectController {
     keyField.textProperty().bindBidirectional(key);
     sequenceKey.textProperty().bindBidirectional(sequencePropertyKey);
     sequenceName.textProperty().bindBidirectional(sequencePropertyName);
-    intensityChooserChooser.setValueFactory(intensityValueFactory);
+    intensityChooser.setValueFactory(intensityValueFactory);
 
     // Bind the Chooser's value to the ObjectProperty(intensity)
     intensity.bind(Bindings.createFloatBinding(() -> intensityDoubleValue.get().floatValue(), intensityDoubleValue));
@@ -196,8 +196,8 @@ public class ProgramEditorController extends ProjectController {
     // Bind the Chooser's value to the ObjectProperty
     tempo.bind(Bindings.createFloatBinding(() -> tempoDoubleValue.get().floatValue(), tempoDoubleValue));
     // Update the ObjectProperty when the Chooser value changes
-    tempoChooserChooser.valueProperty().addListener((observable, oldValue, newValue) -> tempoDoubleValue.set(newValue));
-    tempoChooserChooser.setValueFactory(tempoValueFactory);
+    tempoChooser.valueProperty().addListener((observable, oldValue, newValue) -> tempoDoubleValue.set(newValue));
+    tempoChooser.setValueFactory(tempoValueFactory);
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.ProgramEditor))
         setup();
@@ -220,8 +220,8 @@ public class ProgramEditorController extends ProjectController {
     stateChooser.setItems(programStates);
     setTextProcessing(programNameField);
     setTextProcessing(keyField);
-    setChooserSelectionProcessing(tempoChooserChooser);
-    setChooserSelectionProcessing(intensityChooserChooser);
+    setChooserSelectionProcessing(tempoChooser);
+    setChooserSelectionProcessing(intensityChooser);
     setComboboxSelectionProcessing(typeChooser);
     setComboboxSelectionProcessing(stateChooser);
     gridChooser.valueProperty().bindBidirectional(gridProperty);
