@@ -14,12 +14,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
 import static io.xj.gui.controllers.content.program.ProgramEditorController.LOG;
 import static io.xj.gui.controllers.content.program.ProgramEditorController.closeWindowOnClickingAway;
 
+@Component
 public class CloneMenuController {
   @FXML
   public TextField programName;
@@ -46,9 +48,12 @@ public class CloneMenuController {
   ObservableList<Library> libraries = FXCollections.observableArrayList();
 
   ObservableList<Project> projects = FXCollections.observableArrayList();
+  private final ProjectService projectService;
+  public CloneMenuController(ProjectService projectService){
+    this.projectService=projectService;
+  }
 
-
-  public void cloneProgramInitializer(Program program, ProjectService projectService, Stage stage) {
+  public void setUp(Program program, Stage stage) {
 
     //add libraries to the observableList
     libraries.addAll(projectService.getLibraries());

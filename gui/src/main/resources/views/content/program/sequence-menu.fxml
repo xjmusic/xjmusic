@@ -5,8 +5,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Font?>
 
-
-<HBox spacing="5.0" styleClass="sequence-menu" stylesheets="@../../../styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.SequenceManagement">
+<HBox spacing="5.0" styleClass="sequence-window" stylesheets="@../../../styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.SequenceManagement">
    <children>
       <Button fx:id="newSequence" mnemonicParsing="false" prefHeight="29.0" prefWidth="121.0" styleClass="sequence-button" text="New Sequence">
          <font>
