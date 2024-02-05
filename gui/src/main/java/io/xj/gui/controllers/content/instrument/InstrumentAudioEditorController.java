@@ -69,6 +69,7 @@ public class InstrumentAudioEditorController extends BrowserController {
   private final Color waveformSampleColor;
   private final Color waveformTransientColor;
   private final Color waveformZeroColor;
+  private final Color waveformGridColor;
 
   @Value("${gui.instrument.audio.waveform.maxWidthPixels}")
   private int waveformMaxWidth;
@@ -135,6 +136,7 @@ public class InstrumentAudioEditorController extends BrowserController {
 
   public InstrumentAudioEditorController(
     @Value("classpath:/views/content/instrument/instrument-audio-editor.fxml") Resource fxml,
+    @Value("${gui.instrument.audio.waveform.gridColor}") String waveformGridColor,
     @Value("${gui.instrument.audio.waveform.sampleColor}") String waveformSampleColor,
     @Value("${gui.instrument.audio.waveform.transientColor}") String waveformTransientColor,
     @Value("${gui.instrument.audio.waveform.zeroColor}") String waveformZeroColor,
@@ -146,6 +148,7 @@ public class InstrumentAudioEditorController extends BrowserController {
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.audioLoader = audioLoader;
+    this.waveformGridColor = Color.valueOf(waveformGridColor);
     this.waveformSampleColor = Color.valueOf(waveformSampleColor);
     this.waveformTransientColor = Color.valueOf(waveformTransientColor);
     this.waveformZeroColor = Color.valueOf(waveformZeroColor);
@@ -178,10 +181,15 @@ public class InstrumentAudioEditorController extends BrowserController {
     event.addListener((o, ov, v) -> dirty.set(true));
     volume.addListener((o, ov, v) -> dirty.set(true));
     tones.addListener((o, ov, v) -> dirty.set(true));
-    tempo.addListener((o, ov, v) -> dirty.set(true));
     intensity.addListener((o, ov, v) -> dirty.set(true));
-    totalBeats.addListener((o, ov, v) -> dirty.set(true));
-
+    tempo.addListener((o, ov, v) -> {
+      dirty.set(true);
+      renderWaveform();
+    });
+    totalBeats.addListener((o, ov, v) -> {
+      dirty.set(true);
+      renderWaveform();
+    });
     transientSeconds.addListener((o, ov, v) -> {
       dirty.set(true);
       renderWaveform();
@@ -308,6 +316,14 @@ public class InstrumentAudioEditorController extends BrowserController {
       for (x = 0; x < waveformWidth.get(); x++) {
         for (int channel = 0; channel < audio.get().audio()[0].length; channel++) {
           pixelWriter.setColor(x, channelDiameter * channel + channelRadius, waveformZeroColor);
+        }
+      }
+
+      // Draw the beat grid lines
+      for (i = 0; i < totalBeats.get(); i++) {
+        x = (int) ((transientSeconds.get() + i * 60 / tempo.get()) * audio.get().format().getSampleRate() / samplesPerPixel.get());
+        for (y = 0; y < waveformHeight; y++) {
+          pixelWriter.setColor(x, y, waveformGridColor);
         }
       }
 
