@@ -136,6 +136,7 @@ public class MainPaneBottomController extends ProjectController {
     if (level.equals(Level.ERROR)) Platform.runLater(() -> {
       ButtonType loginButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
       Dialog<String> dialog = new Dialog<>();
+      themeService.setup(dialog);
       dialog.getDialogPane().getButtonTypes().add(loginButtonType);
 
       dialog.setTitle("Error");

@@ -56,7 +56,7 @@ public abstract class ProjectController implements ReadyAfterBoot {
   protected boolean showConfirmationDialog(String title, String header, String content) {
     // Create a custom dialog
     Dialog<ButtonType> dialog = new Dialog<>();
-    themeService.setup(dialog.getDialogPane().getScene());
+    themeService.setup(dialog);
     dialog.setTitle(title);
 
     // Set the header and content
