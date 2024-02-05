@@ -232,7 +232,7 @@ public class ProgramEditorController extends ProjectController {
     zoomChooser.setValue("25%");
     sequenceToggle.setOnMouseClicked(this::showSequenceUI);
     sequenceMenuLauncher.setOnMouseClicked(this::showSequenceManagementUI);
-    sequenceTotalChooser.setVisible(false);
+    sequenceIntensityChooser.setVisible(false);
     sequenceTotalChooser.setVisible(false);
     createDisabilityBindingForTypes(snapButton, Arrays.asList(ProgramType.Beat, ProgramType.Detail));
     toggleVisibilityBetweenEditorAndLabel(sequenceIntensityChooser, sequenceIntensityLabel);
