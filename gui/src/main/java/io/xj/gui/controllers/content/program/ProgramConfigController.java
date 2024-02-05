@@ -7,6 +7,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
+import static io.xj.gui.controllers.content.program.ProgramEditorController.closeWindowOnClickingAway;
+
 public class ProgramConfigController {
   @FXML
   public TextArea configTextArea;
@@ -44,14 +46,4 @@ public class ProgramConfigController {
     });
   }
 
-  /**
-   * closes the stage when clicking outside it
-   */
-  public static void closeWindowOnClickingAway(Stage window) {
-    window.focusedProperty().addListener((obs, oldValue, newValue) -> {
-      if (!newValue) {
-        window.close();
-      }
-    });
-  }
 }
