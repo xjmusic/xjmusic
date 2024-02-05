@@ -447,6 +447,7 @@ public class CmdModalController extends ProjectModalController {
   private void showWarningDialog(String title, String header, String content) {
     // Create a custom dialog
     Dialog<String> dialog = new Dialog<>();
+    themeService.setup(dialog);
     dialog.setTitle(title);
 
     // Set the header and content

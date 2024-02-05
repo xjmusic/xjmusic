@@ -72,10 +72,10 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
   private void onEulaAccepted(Stage primaryStage) {
     try {
       var scene = WindowUtils.loadSceneFxml(ac, mainWindowFxml);
-
       primaryStage.titleProperty().bind(uiStateService.windowTitleProperty());
       primaryStage.setScene(scene);
 
+      themeService.setMainScene(scene);
       themeService.setup(scene);
       themeService.setupFonts();
 

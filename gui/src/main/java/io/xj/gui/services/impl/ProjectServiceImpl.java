@@ -576,7 +576,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     Alert alert = new Alert(Alert.AlertType.WARNING);
-    themeService.setup(alert.getDialogPane().getScene());
+    themeService.setup(alert);
     alert.setTitle("Project Modified");
     alert.setHeaderText("Project has unsaved changes!");
     alert.setContentText(String.format("Save changes to the XJ music project \"%s\" before closing?",
@@ -600,7 +600,7 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public void showWarningAlert(String title, String header, String body) {
     Alert alert = new Alert(Alert.AlertType.WARNING);
-    themeService.setup(alert.getDialogPane().getScene());
+    themeService.setup(alert);
     alert.setGraphic(null);
     alert.setTitle(title);
     alert.setHeaderText(header);
@@ -659,7 +659,7 @@ public class ProjectServiceImpl implements ProjectService {
       return false;
     }
     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-    themeService.setup(alert.getDialogPane().getScene());
+    themeService.setup(alert);
     alert.setTitle("Project Already Exists");
     alert.setHeaderText("Will update (and may overwrite) existing project");
     alert.setContentText("Are you sure you want to proceed?");
