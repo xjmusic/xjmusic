@@ -233,7 +233,7 @@ class MixerImpl implements Mixer {
       int sourceBeginsAtMixerFrame = (int) (active.getStartAtMixerMicros() / microsPerFrame);
       int sourceEndsAtMixerFrame = active.getStopAtMixerMicros().isPresent() ?
         (int) (active.getStopAtMixerMicros().get() / microsPerFrame) :
-        sourceBeginsAtMixerFrame + cached.audio().length;
+        sourceBeginsAtMixerFrame + cached.data().length;
 
       // reusable variables
       int tc; // target channel
@@ -249,18 +249,18 @@ class MixerImpl implements Mixer {
       for (tc = 0; tc < outputChannels; tc++) {
         int rf = 0; // release envelope frame (start counting at end of source)
         sf = tf_min - sourceBeginsAtMixerFrame; // initial source frame (from source audio)
-        sc = tc % cached.audio()[0].length; // source channel (from source audio)
+        sc = tc % cached.data()[0].length; // source channel (from source audio)
         while (sf < 0) {
           sf++; // skip source frames before the start of the source audio
           tf_min++;
         }
         for (tf = tf_min; tf <= tf_max; tf++) {
-          if (sf < cached.audio().length) {
+          if (sf < cached.data().length) {
             if (tf < sourceEndsAtMixerFrame) {
-              busBuf[bus][tf][tc] += cached.audio()[sf][sc] * active.getAmplitude();
+              busBuf[bus][tf][tc] += cached.data()[sf][sc] * active.getAmplitude();
             } else {
               // release envelope
-              busBuf[bus][tf][tc] += releaseEnvelope.out(rf, cached.audio()[sf][sc] * active.getAmplitude());
+              busBuf[bus][tf][tc] += releaseEnvelope.out(rf, cached.data()[sf][sc] * active.getAmplitude());
               rf++;
             }
           }
