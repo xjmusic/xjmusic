@@ -426,3 +426,10 @@
 .snap-button:selected{
   -fx-background-color: #005E1F;
 }
+.sequence-window{
+  -fx-background-color: #683568;
+}
+
+.sequence-button{
+  -fx-background-color: #855C85;
+}

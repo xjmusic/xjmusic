@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox fx:id="container" prefHeight="472.0" prefWidth="1241.0" stylesheets="@../../../styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramEditorController">
+<VBox fx:id="container" prefHeight="472.0" prefWidth="1260.0" stylesheets="@../../../styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramEditorController">
 
   <VBox.vgrow>
     <Priority fx:constant="ALWAYS" />
@@ -34,44 +34,44 @@
                      </ImageView>
                   </graphic>
                </Button>
-               <ToggleButton fx:id="bindButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" styleClass="program-editor-toggle-buttons" text="Bind" />
-               <ToggleButton fx:id="editButton" layoutX="51.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" styleClass="program-editor-toggle-buttons" text="Edit" />
+               <Button fx:id="bindButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" text="Bind" />
+               <Button fx:id="editButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" text="Edit" />
                <Button fx:id="copyButton" layoutX="85.0" layoutY="13.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#openCloneDialog" prefHeight="30.0" prefWidth="35.0" text=" ">
                   <graphic>
                      <ImageView fitHeight="23.0" fitWidth="23.0" translateX="-2.0">
                         <image>
-                           <Image url="@../../../icons/copyGrey.png" />
+                           <Image url="@../../../icons/copy-grey.png" />
                         </image>
                      </ImageView>
                   </graphic>
                </Button>
-               <Label prefHeight="25.0" prefWidth="63.0" text="PROGRAM" />
+               <Label prefHeight="25.0" prefWidth="70.0" text="PROGRAM" />
                <TextField fx:id="programNameField" />
-               <Label layoutX="193.0" layoutY="13.0" prefHeight="25.0" prefWidth="41.0" text="TYPE">
+               <Label layoutX="193.0" layoutY="13.0" prefHeight="25.0" prefWidth="50.0" text="TYPE">
                   <padding>
                      <Insets left="10.0" />
                   </padding>
                </Label>
                <ComboBox fx:id="typeChooser" prefHeight="25.0" prefWidth="102.0" />
-               <Label layoutX="416.0" layoutY="13.0" prefHeight="25.0" prefWidth="49.0" text="STATE">
+               <Label layoutX="416.0" layoutY="13.0" prefHeight="25.0" prefWidth="56.0" text="STATE">
                   <padding>
                      <Insets left="10.0" />
                   </padding>
                </Label>
                <ComboBox fx:id="stateChooser" layoutX="475.0" layoutY="13.0" prefHeight="25.0" prefWidth="102.0" />
-               <Label layoutX="566.0" layoutY="13.0" prefHeight="25.0" prefWidth="47.0" text="KEY">
+               <Label layoutX="566.0" layoutY="13.0" prefHeight="25.0" prefWidth="55.0" text="KEY">
                   <padding>
                      <Insets left="10.0" />
                   </padding>
                </Label>
                <TextField fx:id="keyField" layoutX="261.0" layoutY="13.0" prefHeight="25.0" prefWidth="89.0" />
-               <Label layoutX="732.0" layoutY="13.0" prefHeight="25.0" prefWidth="51.0" text="TEMPO">
+               <Label layoutX="732.0" layoutY="13.0" prefHeight="25.0" prefWidth="60.0" text="TEMPO">
                   <padding>
                      <Insets left="5.0" />
                   </padding>
                </Label>
                <Spinner fx:id="tempoChooserSpinner" editable="true" prefHeight="25.0" prefWidth="111.0" stylesheets="@../../../styles/default-theme.css" />
-               <Label layoutX="897.0" layoutY="13.0" prefHeight="25.0" prefWidth="67.0" text="INTENSITY">
+               <Label layoutX="897.0" layoutY="13.0" prefHeight="25.0" prefWidth="73.0" text="INTENSITY">
                   <padding>
                      <Insets left="5.0" />
                   </padding>
@@ -91,9 +91,9 @@
                      </ImageView>
                   </graphic>
                </Button>
-               <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="57.0" prefWidth="1025.0" styleClass="program-editor-scrollpane" stylesheets="@../../../styles/dark-theme.css" vbarPolicy="NEVER" HBox.hgrow="ALWAYS">
+               <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="57.0" prefWidth="1025.0" styleClass="program-editor-scroll-pane" stylesheets="@../../../styles/dark-theme.css" vbarPolicy="NEVER" HBox.hgrow="ALWAYS">
                   <content>
-                     <HBox fx:id="memeTagContainer" alignment="CENTER_LEFT" prefHeight="19.0" prefWidth="1051.0" spacing="10.0">
+                     <HBox fx:id="memeTagContainer" alignment="CENTER_LEFT" focusTraversable="true" prefHeight="19.0" prefWidth="1051.0" spacing="10.0">
                         <padding>
                            <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
                         </padding>
@@ -116,7 +116,7 @@
                   </padding>
                </Label>
                <ComboBox fx:id="gridChooser" focusTraversable="false" prefHeight="28.0" prefWidth="73.0" />
-               <Label layoutX="10.0" layoutY="14.0" prefHeight="30.0" prefWidth="54.0" text="Zoom:">
+               <Label layoutX="10.0" layoutY="14.0" prefHeight="30.0" prefWidth="63.0" text="Zoom:">
                   <font>
                      <Font size="14.0" />
                   </font>
@@ -126,7 +126,7 @@
                </Label>
                <ComboBox fx:id="zoomChooser" layoutX="58.0" layoutY="15.0" prefHeight="28.0" prefWidth="73.0" />
                <ToggleButton fx:id="snapButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" styleClass="program-editor-toggle-buttons" text="Snap" />
-               <Label alignment="CENTER_RIGHT" layoutX="10.0" layoutY="14.0" prefHeight="30.0" prefWidth="88.0" text="Sequence :">
+               <Label alignment="CENTER_RIGHT" layoutX="10.0" layoutY="14.0" prefHeight="30.0" prefWidth="97.0" text="Sequence :">
                   <font>
                      <Font size="14.0" />
                   </font>
@@ -138,7 +138,7 @@
                   <graphic>
                      <ImageView fitHeight="23.0" fitWidth="17.0">
                         <image>
-                           <Image url="@../../../icons/downArrow.png" />
+                           <Image url="@../../../icons/down-arrow.png" />
                         </image>
                      </ImageView>
                   </graphic>
@@ -147,18 +147,18 @@
                   <graphic>
                      <ImageView fitHeight="20.0" fitWidth="20.0">
                         <image>
-                           <Image url="@../../../icons/harmbugger-menu.png" />
+                           <Image url="@../../../icons/hamburger-menu.png" />
                         </image>
                      </ImageView>
                   </graphic>
                </Button>
                <TextField fx:id="sequenceName" prefHeight="27.0" prefWidth="173.0" />
-               <Label alignment="CENTER_RIGHT" layoutX="331.0" layoutY="14.0" prefHeight="30.0" prefWidth="61.0" text="TOTAL :">
+               <Label alignment="CENTER_RIGHT" layoutX="331.0" layoutY="14.0" prefHeight="30.0" prefWidth="67.0" text="TOTAL :">
                   <font>
                      <Font size="14.0" />
                   </font>
                   <padding>
-                     <Insets left="5.0" />
+                     <Insets left="2.0" />
                   </padding>
                </Label>
                <StackPane prefHeight="37.0" prefWidth="103.0">
@@ -171,7 +171,7 @@
                      </Label>
                   </children>
                </StackPane>
-               <Label alignment="CENTER_RIGHT" layoutX="792.0" layoutY="14.0" prefHeight="30.0" prefWidth="43.0" text="KEY :">
+               <Label alignment="CENTER_RIGHT" layoutX="792.0" layoutY="14.0" prefHeight="30.0" prefWidth="55.0" text="KEY :">
                   <font>
                      <Font size="14.0" />
                   </font>
