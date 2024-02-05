@@ -42,9 +42,9 @@ import java.util.*;
 @Service
 public class ProgramEditorController extends ProjectController {
   @FXML
-  public Spinner<Double> intensityChooserSpinner;
+  public Spinner<Double> intensityChooserChooser;
   @FXML
-  public Spinner<Double> tempoChooserSpinner;
+  public Spinner<Double> tempoChooserChooser;
   @FXML
   public TextField keyField;
   @FXML
@@ -68,13 +68,13 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   public Label sequenceIntensityLabel;
   @FXML
-  public Spinner<Double> sequenceIntensitySpinner;
+  public Spinner<Double> sequenceIntensityChooser;
   @FXML
   public TextField sequenceKey;
   @FXML
   public Label sequenceTotalLabel;
   @FXML
-  public Spinner<Integer> sequenceTotalSpinner;
+  public Spinner<Integer> sequenceTotalChooser;
   @FXML
   public TextField sequenceName;
   @FXML
@@ -169,35 +169,35 @@ public class ProgramEditorController extends ProjectController {
     zoomChooser.valueProperty().bindBidirectional(zoomProperty);
     sequenceName.textProperty().bindBidirectional(sequencePropertyName);
     sequenceKey.textProperty().bindBidirectional(sequencePropertyKey);
-    sequenceTotalLabel.textProperty().bind(sequenceTotalSpinner.valueProperty().asString());
-    // Bind Label text to Spinner value with formatting
+    sequenceTotalLabel.textProperty().bind(sequenceTotalChooser.valueProperty().asString());
+    // Bind Label text to Chooser value with formatting
     sequenceIntensityLabel.textProperty().bind(Bindings.createStringBinding(() ->
       String.format("%.1f", sequenceIntensityDoubleValue.get()), sequenceIntensityDoubleValue));
     stateChooser.valueProperty().bindBidirectional(state);
     keyField.textProperty().bindBidirectional(key);
     sequenceKey.textProperty().bindBidirectional(sequencePropertyKey);
     sequenceName.textProperty().bindBidirectional(sequencePropertyName);
-    intensityChooserSpinner.setValueFactory(intensityValueFactory);
+    intensityChooserChooser.setValueFactory(intensityValueFactory);
 
-    // Bind the Spinner's value to the ObjectProperty(intensity)
+    // Bind the Chooser's value to the ObjectProperty(intensity)
     intensity.bind(Bindings.createFloatBinding(() -> intensityDoubleValue.get().floatValue(), intensityDoubleValue));
     intensityValueFactory.valueProperty().addListener((observable, oldValue, newValue) -> intensityDoubleValue.set(newValue));
 
-    // Update the ObjectProperty when the Spinner value changes(sequenceIntensity)
+    // Update the ObjectProperty when the Chooser value changes(sequenceIntensity)
     sequenceIntensity.bind(Bindings.createFloatBinding(() -> sequenceIntensityDoubleValue.get().floatValue(), sequenceIntensityDoubleValue));
     sequenceIntensityValueFactory.valueProperty().addListener((observable, oldValue, newValue) -> sequenceIntensityDoubleValue.set(newValue));
-    sequenceIntensitySpinner.setValueFactory(sequenceIntensityValueFactory);
+    sequenceIntensityChooser.setValueFactory(sequenceIntensityValueFactory);
 
-    // Update the ObjectProperty when the Spinner value changes(sequenceTotal)
+    // Update the ObjectProperty when the Chooser value changes(sequenceTotal)
     sequenceTotal.bind(Bindings.createIntegerBinding(sequenceTotalIntegerValue::get, sequenceTotalIntegerValue));
     sequenceTotalValueFactory.valueProperty().addListener((observable, oldValue, newValue) -> sequenceTotalIntegerValue.set(newValue));
-    sequenceTotalSpinner.setValueFactory(sequenceTotalValueFactory);
+    sequenceTotalChooser.setValueFactory(sequenceTotalValueFactory);
 
-    // Bind the Spinner's value to the ObjectProperty
+    // Bind the Chooser's value to the ObjectProperty
     tempo.bind(Bindings.createFloatBinding(() -> tempoDoubleValue.get().floatValue(), tempoDoubleValue));
-    // Update the ObjectProperty when the Spinner value changes
-    tempoChooserSpinner.valueProperty().addListener((observable, oldValue, newValue) -> tempoDoubleValue.set(newValue));
-    tempoChooserSpinner.setValueFactory(tempoValueFactory);
+    // Update the ObjectProperty when the Chooser value changes
+    tempoChooserChooser.valueProperty().addListener((observable, oldValue, newValue) -> tempoDoubleValue.set(newValue));
+    tempoChooserChooser.setValueFactory(tempoValueFactory);
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.ProgramEditor))
         setup();
@@ -220,8 +220,8 @@ public class ProgramEditorController extends ProjectController {
     stateChooser.setItems(programStates);
     setTextProcessing(programNameField);
     setTextProcessing(keyField);
-    setSpinnerSelectionProcessing(tempoChooserSpinner);
-    setSpinnerSelectionProcessing(intensityChooserSpinner);
+    setChooserSelectionProcessing(tempoChooserChooser);
+    setChooserSelectionProcessing(intensityChooserChooser);
     setComboboxSelectionProcessing(typeChooser);
     setComboboxSelectionProcessing(stateChooser);
     gridChooser.valueProperty().bindBidirectional(gridProperty);
@@ -232,11 +232,11 @@ public class ProgramEditorController extends ProjectController {
     zoomChooser.setValue("25%");
     sequenceToggle.setOnMouseClicked(this::showSequenceUI);
     sequenceMenuLauncher.setOnMouseClicked(this::showSequenceManagementUI);
-    sequenceIntensitySpinner.setVisible(false);
-    sequenceTotalSpinner.setVisible(false);
+    sequenceTotalChooser.setVisible(false);
+    sequenceTotalChooser.setVisible(false);
     createDisabilityBindingForTypes(snapButton, Arrays.asList(ProgramType.Beat, ProgramType.Detail));
-    toggleVisibilityBetweenEditorAndLabel(sequenceIntensitySpinner, sequenceIntensityLabel);
-    toggleVisibilityBetweenEditorAndLabel(sequenceTotalSpinner, sequenceTotalLabel);
+    toggleVisibilityBetweenEditorAndLabel(sequenceTotalChooser, sequenceIntensityLabel);
+    toggleVisibilityBetweenEditorAndLabel(sequenceTotalChooser, sequenceTotalLabel);
   }
 
 
@@ -279,17 +279,17 @@ public class ProgramEditorController extends ProjectController {
     }
   }
 
-  private void toggleVisibilityBetweenEditorAndLabel(Spinner<?> spinner, Label label) {
+  private void toggleVisibilityBetweenEditorAndLabel(Spinner<?> chooser, Label label) {
     label.setOnMouseClicked(e -> {
       label.setVisible(false);
-      spinner.setVisible(true);
+      chooser.setVisible(true);
       //shift focus to the nameField
-      spinner.requestFocus();
+      chooser.requestFocus();
     });
     // Add a focus listener to the TextField
-    spinner.focusedProperty().addListener((observable, oldValue, newValue) -> {
+    chooser.focusedProperty().addListener((observable, oldValue, newValue) -> {
       if (!newValue) {
-        spinner.setVisible(false);
+        chooser.setVisible(false);
         label.setVisible(true);
       }
     });
@@ -341,10 +341,10 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   * handles value changes listening in the  value Spinner components
+   * handles value changes listening in the  value Chooser components
    */
-  private void setSpinnerSelectionProcessing(Spinner<?> spinner) {
-    spinner.focusedProperty().addListener((observable, oldValue, newValue) -> {
+  private void setChooserSelectionProcessing(Spinner<?> chooser) {
+    chooser.focusedProperty().addListener((observable, oldValue, newValue) -> {
       if (!newValue) handleProgramSave();
     });
   }
