@@ -249,9 +249,4 @@ public interface UIStateService extends ReadyAfterBoot {
    @return observable binding whether we are viewing Library content, either Programs or Instruments
    */
   BooleanBinding isLibraryContentBrowserProperty();
-
-  /**
-   @return waveform color
-   */
-  Color getWaveformColor();
 }

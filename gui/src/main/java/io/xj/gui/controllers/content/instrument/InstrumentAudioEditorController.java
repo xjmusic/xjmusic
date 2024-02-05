@@ -30,6 +30,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.converter.NumberStringConverter;
@@ -65,6 +66,9 @@ public class InstrumentAudioEditorController extends BrowserController {
   private final BooleanProperty dirty = new SimpleBooleanProperty(false);
   private final AudioLoader audioLoader;
   private final ObjectProperty<AudioInMemory> audioInMemory = new SimpleObjectProperty<>(null);
+  private final Color waveformSampleColor;
+  private final Color waveformTransientColor;
+  private final Color waveformZeroColor;
 
   @Value("${gui.instrument.audio.waveform.maxWidthPixels}")
   private int waveformMaxWidth;
@@ -77,6 +81,9 @@ public class InstrumentAudioEditorController extends BrowserController {
 
   @Value("${gui.instrument.audio.waveform.minSamplesPerPixel}")
   private int waveformMinSamplesPerPixel;
+
+  @Value("${gui.instrument.audio.waveform.transientDashPixels}")
+  private int waveformTransientDashPixels;
 
   @FXML
   protected SplitPane container;
@@ -128,6 +135,9 @@ public class InstrumentAudioEditorController extends BrowserController {
 
   public InstrumentAudioEditorController(
     @Value("classpath:/views/content/instrument/instrument-audio-editor.fxml") Resource fxml,
+    @Value("${gui.instrument.audio.waveform.sampleColor}") String waveformSampleColor,
+    @Value("${gui.instrument.audio.waveform.transientColor}") String waveformTransientColor,
+    @Value("${gui.instrument.audio.waveform.zeroColor}") String waveformZeroColor,
     ApplicationContext ac,
     ThemeService themeService,
     ProjectService projectService,
@@ -136,6 +146,9 @@ public class InstrumentAudioEditorController extends BrowserController {
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.audioLoader = audioLoader;
+    this.waveformSampleColor = Color.valueOf(waveformSampleColor);
+    this.waveformTransientColor = Color.valueOf(waveformTransientColor);
+    this.waveformZeroColor = Color.valueOf(waveformZeroColor);
   }
 
   @Override
@@ -146,11 +159,11 @@ public class InstrumentAudioEditorController extends BrowserController {
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
-    waveformViewportWidth.bind(container.getScene().widthProperty().multiply(one.subtract(container.getDividers().get(0).positionProperty())));
-    waveform.fitHeightProperty().bind(container.heightProperty().subtract(SCROLL_PANE_HBAR_HEIGHT));
     zoomRatio.addListener((o, ov, v) -> renderWaveform());
     buttonZoomIn.disableProperty().bind(waveformWidth.greaterThanOrEqualTo(waveformMaxWidth).or(samplesPerPixel.lessThan(waveformMinSamplesPerPixel)));
     buttonZoomOut.disableProperty().bind(zoomRatio.lessThanOrEqualTo(1));
+    waveformViewportWidth.bind(container.getScene().widthProperty().multiply(one.subtract(container.getDividers().get(0).positionProperty())));
+    waveform.fitHeightProperty().bind(container.heightProperty().subtract(SCROLL_PANE_HBAR_HEIGHT));
 
     fieldName.textProperty().bindBidirectional(name);
     fieldEvent.textProperty().bindBidirectional(event);
@@ -167,8 +180,12 @@ public class InstrumentAudioEditorController extends BrowserController {
     tones.addListener((o, ov, v) -> dirty.set(true));
     tempo.addListener((o, ov, v) -> dirty.set(true));
     intensity.addListener((o, ov, v) -> dirty.set(true));
-    transientSeconds.addListener((o, ov, v) -> dirty.set(true));
     totalBeats.addListener((o, ov, v) -> dirty.set(true));
+
+    transientSeconds.addListener((o, ov, v) -> {
+      dirty.set(true);
+      renderWaveform();
+    });
 
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.InstrumentAudioEditor))
@@ -217,6 +234,24 @@ public class InstrumentAudioEditorController extends BrowserController {
     zoomRatio.set(zoomRatio.get() + 1);
   }
 
+  @FXML
+  private void handleClickedWaveformScrollPane(MouseEvent event) {
+    if (audioInMemory.isNull().get()) return;
+
+    // Compute the X value that was clicked on the waveform, correcting for the scrolling of the pane that was clicked
+    double hValue = waveformScrollPane.getHvalue();
+    double contentWidth = waveformScrollPane.getContent().getLayoutBounds().getWidth();
+    double viewportWidth = waveformScrollPane.getViewportBounds().getWidth();
+    double maxScrollableWidth = contentWidth - viewportWidth;
+    double scrolledPixelsRight = hValue * maxScrollableWidth;
+    double x = event.getX() + scrolledPixelsRight;
+
+    // Check for double-click
+    if (event.getClickCount() == 2) {
+      transientSeconds.set((float) (x * samplesPerPixel.get() / audioInMemory.get().format().getSampleRate()));
+    }
+  }
+
   /**
    Update the Instrument Editor with the current Instrument.
    */
@@ -259,17 +294,34 @@ public class InstrumentAudioEditorController extends BrowserController {
       // Create a new image to hold the waveform
       WritableImage image = new WritableImage(waveformWidth.get(), waveformHeight);
       PixelWriter pixelWriter = image.getPixelWriter();
-      Color color = uiStateService.getWaveformColor();
 
-      // Calculate the total number of pixels needed to represent the waveform
-      int startSampleIndex;
-      int endSampleIndex;
+      // for pixel calculations
+      int i;
+      int x;
+      int y;
 
-      // For each pixel, get the max value of the samples in that range and add it to the polyline
-      for (int x = 0; x < waveformWidth.get(); x++) {
-        startSampleIndex = (int) (x * samplesPerPixel.get());
-        endSampleIndex = (int) Math.min(startSampleIndex + samplesPerPixel.get(), totalSamples);
-        writeSamplesToImage(audio.get().audio(), pixelWriter, color, displayVolumeRatio, channelRadius, channelDiameter, startSampleIndex, endSampleIndex, x);
+      // Draw the zero line
+      for (x=0; x<waveformWidth.get(); x++) {
+        for (int channel = 0; channel < audio.get().audio()[0].length; channel++) {
+          pixelWriter.setColor(x, channelDiameter * channel + channelRadius, waveformZeroColor);
+        }
+      }
+
+      // Draw the transient dashed line
+      x = (int) (transientSeconds.get() * audio.get().format().getSampleRate() / samplesPerPixel.get());
+      for (y = 0; y < waveformHeight; y++) {
+        if ((y / waveformTransientDashPixels) % 2 == 0) {
+          pixelWriter.setColor(x, y, waveformTransientColor);
+        }
+      }
+
+      // Draw each sample
+      for (i = 0; i < audio.get().audio().length; i++) {
+        x = (int) (i / samplesPerPixel.get());
+        for (int channel = 0; channel < audio.get().audio()[i].length; channel++) {
+          y = channelDiameter * channel + channelRadius - (int) (audio.get().audio()[i][channel] * channelRadius * displayVolumeRatio);
+          if (y >= 0 && y <= waveformHeight) pixelWriter.setColor(x, y, waveformSampleColor);
+        }
       }
 
       // Set the image to the waveform
@@ -328,33 +380,5 @@ public class InstrumentAudioEditorController extends BrowserController {
       }
     }
     return waveformNormalizeMaxValue / max;
-  }
-
-  /**
-   Write samples to waveform image at a single X coordinate
-
-   @param data             the audio samples
-   @param pixelWriter      to write image
-   @param color            to write
-   @param ratio            the display volume ratio
-   @param channelRadius    the radius of one channel
-   @param channelDiameter  the diameter of one channel
-   @param startSampleIndex the start sample index
-   @param endSampleIndex   the end sample index
-   @param x                the x position of the rectangle
-   */
-  private void writeSamplesToImage(float[][] data, PixelWriter pixelWriter, Color color, float ratio, int channelRadius, int channelDiameter, int startSampleIndex, int endSampleIndex, int x) {
-    // keep track of old y for each channel and don't redraw if it hasn't changed
-    int[] oy = new int[data[0].length];
-    int y;
-    for (int sampleIndex = startSampleIndex; sampleIndex < endSampleIndex; sampleIndex++) {
-      for (int channel = 0; channel < data[sampleIndex].length; channel++) {
-        y = channelDiameter * channel + channelRadius + (int) (data[sampleIndex][channel] * channelRadius * ratio);
-        if (y != oy[channel]) {
-          oy[channel] = y;
-          if (y >= 0 && y <= waveformHeight) pixelWriter.setColor(x, y, color);
-        }
-      }
-    }
   }
 }
