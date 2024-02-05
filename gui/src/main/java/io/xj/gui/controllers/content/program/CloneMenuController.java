@@ -4,7 +4,6 @@ import io.xj.gui.services.ProjectService;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Project;
-import javafx.beans.property.ObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -17,9 +16,9 @@ import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import static io.xj.gui.controllers.content.program.ProgramEditorController.LOG;
+import static io.xj.gui.controllers.content.program.ProgramEditorController.closeWindowOnClickingAway;
 
 public class CloneMenuController {
   @FXML
@@ -97,7 +96,7 @@ public class CloneMenuController {
     project.setText(programProject.get().getName());
     programName.setText(program.getName());
     cancelButton.setOnAction(e -> stage.close());
-    ProgramConfigController.closeWindowOnClickingAway(stage);
+    closeWindowOnClickingAway(stage);
     cloneProgram(program, projectService, stage);
 
     libraryDropdown.visibleProperty().addListener((observable, oldValue, newValue) -> {
@@ -137,7 +136,7 @@ public class CloneMenuController {
   protected void cloneProgram(Program program, ProjectService projectService, Stage stage) {
     cloneButton.setOnAction(event -> {
       try {
-        projectService.cloneProgram(program.getId(), program.getLibraryId(), program.getName());
+        projectService.cloneProgram(program.getId(), program.getLibraryId(), programName.getText());
         stage.close();
       } catch (Exception e) {
         LOG.info("Error cloning program!!");
