@@ -414,3 +414,31 @@
 .program-editor-toggle-buttons:focused{
   -fx-background-color: #005E1F;
 }
+
+.sequence-button{
+  -fx-background-color: #7a477a;
+  -fx-text-fill: white;
+
+}
+
+.sequence-button:hover{
+  -fx-background-color: #855C85;
+  -fx-text-fill: white;
+}
+
+.sequence-menu{
+  -fx-background-color: #663366;
+  -fx-text-fill: white;
+}
+
+#sequenceMenuLauncher:selected{
+  -fx-background-color: #005E1F;
+}
+
+.program-editor-mini-container{
+  -fx-background-color: #4E4E4E;
+}
+
+.program-editor-grid-menu-container{
+  -fx-background-color: #383636;
+}
