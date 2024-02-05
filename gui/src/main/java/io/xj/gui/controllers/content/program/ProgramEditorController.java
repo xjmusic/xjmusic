@@ -13,7 +13,6 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.util.StringUtils;
-import javafx.animation.PauseTransition;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.*;
@@ -30,7 +29,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,9 +56,9 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   public Button copyButton;
   @FXML
-  public ToggleButton editButton;
+  public Button editButton;
   @FXML
-  public ToggleButton bindButton;
+  public Button bindButton;
   @FXML
   public Button configButton;
   @FXML
@@ -104,8 +102,10 @@ public class ProgramEditorController extends ProjectController {
 
   @Value("classpath:/views/content/program/clone-menu.fxml")
   private Resource cloneFxml;
+
   @Value("classpath:/views/content/program/search-sequence.fxml")
   private Resource searchSequenceFxml;
+
   @Value("classpath:/views/content/program/sequence-menu.fxml")
   private Resource sequenceManagementFxml;
   static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
@@ -120,12 +120,12 @@ public class ProgramEditorController extends ProjectController {
   private final FloatProperty tempo = new SimpleFloatProperty(0);
   private final SpinnerValueFactory<Double> tempoValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1300, 0);
   private final FloatProperty intensity = new SimpleFloatProperty(0);
-  private final SpinnerValueFactory<Double> intensityValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 0);
+  private final SpinnerValueFactory<Double> intensityValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1, 0, 0.1);
 
   private final ObjectProperty<Double> intensityDoubleValue = new SimpleObjectProperty<>(intensityValueFactory.getValue());
 
   private final FloatProperty sequenceIntensity = new SimpleFloatProperty(0);
-  private final SpinnerValueFactory<Double> sequenceIntensityValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1000, sequenceIntensity.doubleValue());
+  private final SpinnerValueFactory<Double> sequenceIntensityValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1, sequenceIntensity.doubleValue(), 0.1);
   private final ObjectProperty<Double> sequenceIntensityDoubleValue = new SimpleObjectProperty<>(sequenceIntensityValueFactory.getValue());
 
   private final IntegerProperty sequenceTotal = new SimpleIntegerProperty(0);
@@ -136,8 +136,6 @@ public class ProgramEditorController extends ProjectController {
   private final ObjectProperty<Double> tempoDoubleValue = new SimpleObjectProperty<>(tempoValueFactory.getValue());
   private final ObservableList<ProgramType> programTypes = FXCollections.observableArrayList(ProgramType.values());
   private final ObservableList<ProgramState> programStates = FXCollections.observableArrayList(ProgramState.values());
-  private PauseTransition pauseTransition;
-  private final long transitionDelaySeconds = 1000;
   private final StringProperty gridProperty = new SimpleStringProperty("");
   private final StringProperty zoomProperty = new SimpleStringProperty("");
   private final ObservableList<String> gridDivisions =
@@ -186,12 +184,12 @@ public class ProgramEditorController extends ProjectController {
     intensityValueFactory.valueProperty().addListener((observable, oldValue, newValue) -> intensityDoubleValue.set(newValue));
 
     // Update the ObjectProperty when the Spinner value changes(sequenceIntensity)
-    sequenceIntensity.bind(Bindings.createFloatBinding(()-> sequenceIntensityDoubleValue.get().floatValue(),sequenceIntensityDoubleValue));
+    sequenceIntensity.bind(Bindings.createFloatBinding(() -> sequenceIntensityDoubleValue.get().floatValue(), sequenceIntensityDoubleValue));
     sequenceIntensityValueFactory.valueProperty().addListener((observable, oldValue, newValue) -> sequenceIntensityDoubleValue.set(newValue));
     sequenceIntensitySpinner.setValueFactory(sequenceIntensityValueFactory);
 
     // Update the ObjectProperty when the Spinner value changes(sequenceTotal)
-    sequenceTotal.bind(Bindings.createIntegerBinding(sequenceTotalIntegerValue::get,sequenceTotalIntegerValue));
+    sequenceTotal.bind(Bindings.createIntegerBinding(sequenceTotalIntegerValue::get, sequenceTotalIntegerValue));
     sequenceTotalValueFactory.valueProperty().addListener((observable, oldValue, newValue) -> sequenceTotalIntegerValue.set(newValue));
     sequenceTotalSpinner.setValueFactory(sequenceTotalValueFactory);
 
@@ -204,19 +202,18 @@ public class ProgramEditorController extends ProjectController {
       if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.ProgramEditor))
         setup();
     });
-    // Add a listener to bindButton to deselect editButton
-    bindButton.selectedProperty().addListener((observable, oldValue, newValue) -> {
-      if (newValue) {
-        editButton.setSelected(!bindButton.isSelected());
-      }
+
+    bindButton.setOnAction(event -> {
+      editButton.getStyleClass().remove("selected");
+      bindButton.getStyleClass().add("selected");
     });
 
-    // Add a listener to editButton to deselect bindButton
-    editButton.selectedProperty().addListener((observable, oldValue, newValue) -> {
-      if (newValue) {
-        bindButton.setSelected(!editButton.isSelected());
-      }
+    editButton.setOnAction(event -> {
+      bindButton.getStyleClass().remove("selected");
+      editButton.getStyleClass().add("selected");
     });
+
+    snapButton.getStyleClass().add("snap-button");
     createDisabilityBindingForTypes(editButton, Arrays.asList(ProgramType.Main, ProgramType.Macro));
     createDisabilityBindingForTypes(bindButton, Arrays.asList(ProgramType.Main, ProgramType.Macro));
     typeChooser.setItems(programTypes);
@@ -237,9 +234,9 @@ public class ProgramEditorController extends ProjectController {
     sequenceMenuLauncher.setOnMouseClicked(this::showSequenceManagementUI);
     sequenceIntensitySpinner.setVisible(false);
     sequenceTotalSpinner.setVisible(false);
-    createDisabilityBindingForTypes(snapButton,Arrays.asList(ProgramType.Beat,ProgramType.Detail));
-    toggleVisibilityBetweenEditorAndLabel(sequenceIntensitySpinner,sequenceIntensityLabel);
-    toggleVisibilityBetweenEditorAndLabel(sequenceTotalSpinner,sequenceTotalLabel);
+    createDisabilityBindingForTypes(snapButton, Arrays.asList(ProgramType.Beat, ProgramType.Detail));
+    toggleVisibilityBetweenEditorAndLabel(sequenceIntensitySpinner, sequenceIntensityLabel);
+    toggleVisibilityBetweenEditorAndLabel(sequenceTotalSpinner, sequenceTotalLabel);
   }
 
 
@@ -248,10 +245,13 @@ public class ProgramEditorController extends ProjectController {
       var sequences = projectService.getContent().getSequencesOfProgram(programId.get());
       Stage stage = new Stage(StageStyle.TRANSPARENT);
       FXMLLoader loader = new FXMLLoader(searchSequenceFxml.getURL());
+      loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       SearchSequence searchSequence = loader.getController();
-      searchSequence.sequenceSearchUIInitializer(sequences, projectService, stage);
+      searchSequence.setUp(sequences);
       stage.setScene(new Scene(root));
+      // Set the owner of the stage
+      stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
       positionUIAtLocation(stage, event, 400, 28);
       closeWindowOnClickingAway(stage);
@@ -265,10 +265,12 @@ public class ProgramEditorController extends ProjectController {
     try {
       Stage stage = new Stage(StageStyle.TRANSPARENT);
       FXMLLoader loader = new FXMLLoader(sequenceManagementFxml.getURL());
+      loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       SequenceManagement sequenceManagement = loader.getController();
-      sequenceManagement.sequenceManagementUIInitializer(sequenceId, projectService, stage);
+      sequenceManagement.setUp(sequenceId, stage);
       stage.setScene(new Scene(root));
+      stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
       positionUIAtLocation(stage, event, 450, 29);
       closeWindowOnClickingAway(stage);
@@ -277,7 +279,7 @@ public class ProgramEditorController extends ProjectController {
     }
   }
 
-  private void toggleVisibilityBetweenEditorAndLabel(Spinner<?> spinner,Label label) {
+  private void toggleVisibilityBetweenEditorAndLabel(Spinner<?> spinner, Label label) {
     label.setOnMouseClicked(e -> {
       label.setVisible(false);
       spinner.setVisible(true);
@@ -333,16 +335,8 @@ public class ProgramEditorController extends ProjectController {
    * handles value changes listening in the textfield components
    */
   private void setTextProcessing(TextField textField) {
-    textField.textProperty().addListener((observable, oldValue, newValue) -> {
-      // Cancel previous PauseTransition
-      if (pauseTransition != null) {
-        pauseTransition.stop();
-      }
-      // Create a new PauseTransition with the specified delay period
-      pauseTransition = new PauseTransition(Duration.millis(transitionDelaySeconds));
-      pauseTransition.setOnFinished(event -> handleProgramSave());
-      // Start the PauseTransition
-      pauseTransition.play();
+    textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+      if (!newValue) handleProgramSave();
     });
   }
 
@@ -350,16 +344,8 @@ public class ProgramEditorController extends ProjectController {
    * handles value changes listening in the  value Spinner components
    */
   private void setSpinnerSelectionProcessing(Spinner<?> spinner) {
-    spinner.valueProperty().addListener((observable, oldValue, newValue) -> {
-      // Cancel previous PauseTransition
-      if (pauseTransition != null) {
-        pauseTransition.stop();
-      }
-      // Create a new PauseTransition with the specified transitionDelaySeconds
-      pauseTransition = new PauseTransition(Duration.millis(transitionDelaySeconds));
-      pauseTransition.setOnFinished(event -> handleProgramSave());
-      // Start the PauseTransition
-      pauseTransition.play();
+    spinner.focusedProperty().addListener((observable, oldValue, newValue) -> {
+      if (!newValue) handleProgramSave();
     });
   }
 
@@ -367,25 +353,18 @@ public class ProgramEditorController extends ProjectController {
    * handles value changes listening in the ComboBox components
    */
   private void setComboboxSelectionProcessing(ComboBox<?> comboBox) {
-    comboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-      // Cancel previous PauseTransition
-      if (pauseTransition != null) {
-        pauseTransition.stop();
-      }
-      // Create a new PauseTransition with the specified transitionDelaySeconds
-      pauseTransition = new PauseTransition(Duration.millis(transitionDelaySeconds));
-      pauseTransition.setOnFinished(event -> handleProgramSave());
-      // Start the PauseTransition
-      pauseTransition.play();
+    comboBox.focusedProperty().addListener((observable, oldValue, newValue) -> {
+      if (!newValue) handleProgramSave();
     });
   }
 
   protected void loadMemeTag(ProgramMeme programMeme) {
     try {
       FXMLLoader loader = new FXMLLoader(memeTagFxml.getURL());
+      loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       MemeTagController memeTagController = loader.getController();
-      memeTagController.memeTagInitializer(this, root, projectService, programMeme, programId.get());
+      memeTagController.setUp(root, programMeme, programId.get());
       memeTagContainer.getChildren().add(root);
     } catch (IOException e) {
       LOG.error("Error adding Meme!\n{}", StringUtils.formatStackTrace(e), e);
@@ -399,10 +378,13 @@ public class ProgramEditorController extends ProjectController {
         .orElseThrow(() -> new RuntimeException("Could not find Program"));
       Stage stage = new Stage(StageStyle.TRANSPARENT);
       FXMLLoader loader = new FXMLLoader(cloneFxml.getURL());
+      loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       CloneMenuController cloneMenuController = loader.getController();
-      cloneMenuController.cloneProgramInitializer(program, projectService, stage);
+      cloneMenuController.setUp(program, stage);
       stage.setScene(new Scene(root));
+      // Set the owner of the stage
+      stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
     } catch (IOException e) {
       LOG.error("Error opening clone window!\n{}", StringUtils.formatStackTrace(e), e);
@@ -432,10 +414,13 @@ public class ProgramEditorController extends ProjectController {
     try {
       Stage stage = new Stage(StageStyle.TRANSPARENT);
       FXMLLoader loader = new FXMLLoader(configFxml.getURL());
+      loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       ProgramConfigController configController = loader.getController();
-      configController.programConfigInitializer(this, stage);
+      configController.setUp(stage);
       stage.setScene(new Scene(root));
+      // Set the owner of the stage
+      stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
     } catch (IOException e) {
       LOG.error("Error loading EditConfig window!\n{}", StringUtils.formatStackTrace(e), e);

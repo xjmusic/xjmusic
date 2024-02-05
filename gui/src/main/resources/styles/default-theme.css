@@ -407,3 +407,22 @@
 .waveform-container > .viewport {
   -fx-background-color: transparent;
 }
+
+.program-editor-scroll-pane > .viewport {
+  -fx-background-color: transparent;
+}
+
+.program-editor-scroll-pane {
+  -fx-background-color: transparent;
+}
+
+.selected {
+  -fx-background-color: #005E1F;
+  -fx-border-color: #7F8FAE;
+  -fx-border-radius: 4px;
+  -fx-background-radius: 4px;
+}
+
+.snap-button:selected{
+  -fx-background-color: #005E1F;
+}
