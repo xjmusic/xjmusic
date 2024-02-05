@@ -2,7 +2,6 @@ package io.xj.gui.controllers.content.program;
 
 import io.xj.gui.services.ProjectService;
 import io.xj.hub.tables.pojos.ProgramMeme;
-import javafx.animation.PauseTransition;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
@@ -10,13 +9,18 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
-import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.UUID;
 
+
+@Component
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class MemeTagController {
   @FXML
   public TextField memeNameField;
@@ -27,16 +31,18 @@ public class MemeTagController {
   public StackPane stackPane;
   private final SimpleStringProperty name = new SimpleStringProperty("");
   static final Logger LOG = LoggerFactory.getLogger(MemeTagController.class);
-  private ProjectService projectService;
-  private PauseTransition pauseTransition;
+  private final ProjectService projectService;
   private ProgramMeme currentMeme;
   private UUID programId;
-  private ProgramEditorController programEditorController;
+  //  @Autowired
+  private final ProgramEditorController programEditorController;
 
-  public void memeTagInitializer(ProgramEditorController programEditorController, Parent root,
-                                 ProjectService projectService, ProgramMeme meme, UUID programId) {
+  public MemeTagController(ProjectService projectService, ProgramEditorController programEditorController) {
     this.projectService = projectService;
     this.programEditorController = programEditorController;
+  }
+
+  public void setUp(Parent root, ProgramMeme meme, UUID programId) {
     this.currentMeme = meme;
     this.programId = programId;
     name.set(meme.getName());
@@ -73,27 +79,14 @@ public class MemeTagController {
    * updates the label text on a meme item when the text is updated on the textfield
    */
   private void setMemeTextProcessing() {
-    long delay = 1000;
-
-    memeNameField.textProperty().addListener((observable, oldValue, newValue) -> {
-      memeNameLabel.setVisible(false);
-      // Cancel previous PauseTransition
-      if (pauseTransition != null) {
-        pauseTransition.stop();
-      }
-      pauseTransition = new PauseTransition(Duration.millis(delay));
-      pauseTransition.setOnFinished(event -> {
-        memeNameField.setVisible(false);
-        memeNameLabel.setVisible(false);
-
+    memeNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+      if (!newValue) {
         stackPane.setPrefWidth(computeTextWidth(memeNameField.getFont(), memeNameField.getText() + 5));
         memeNameLabel.setWrappingWidth(computeTextWidth(memeNameField.getFont(), memeNameField.getText() + 5));
         memeNameLabel.setText(memeNameField.getText());
         memeNameLabel.setVisible(true);
         updateMeme();
-      });
-      // Start the PauseTransition
-      pauseTransition.play();
+      }
     });
   }
 
