@@ -40,13 +40,6 @@
       <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Configuration" textAlignment="RIGHT"/>
       <TextArea fx:id="fieldConfig" maxHeight="Infinity"/>
     </VBox>
-
-    <HBox spacing="10">
-      <Button
-        fx:id="buttonSave"
-        onAction="#handlePressSave"
-        text="Save"/>
-    </HBox>
   </VBox>
 
   <AnchorPane

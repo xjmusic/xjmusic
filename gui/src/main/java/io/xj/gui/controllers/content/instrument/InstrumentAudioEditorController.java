@@ -12,11 +12,10 @@ import io.xj.gui.utils.ProjectUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.audio.AudioInMemory;
 import io.xj.nexus.audio.AudioLoader;
-import javafx.beans.property.BooleanProperty;
+import javafx.beans.Observable;
 import javafx.beans.property.FloatProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -63,7 +62,6 @@ public class InstrumentAudioEditorController extends BrowserController {
   private final FloatProperty intensity = new SimpleFloatProperty(0.0f);
   private final FloatProperty transientSeconds = new SimpleFloatProperty(0.0f);
   private final FloatProperty totalBeats = new SimpleFloatProperty(0.0f);
-  private final BooleanProperty dirty = new SimpleBooleanProperty(false);
   private final AudioLoader audioLoader;
   private final ObjectProperty<AudioInMemory> audioInMemory = new SimpleObjectProperty<>(null);
   private final Color waveformSampleColor;
@@ -115,9 +113,6 @@ public class InstrumentAudioEditorController extends BrowserController {
 
   @FXML
   protected TextField fieldTotalBeats;
-
-  @FXML
-  protected Button buttonSave;
 
   @FXML
   protected ScrollPane waveformScrollPane;
@@ -177,50 +172,24 @@ public class InstrumentAudioEditorController extends BrowserController {
     fieldTransientSeconds.textProperty().bindBidirectional(transientSeconds, new NumberStringConverter());
     fieldTotalBeats.textProperty().bindBidirectional(totalBeats, new NumberStringConverter());
 
-    name.addListener((o, ov, v) -> dirty.set(true));
-    event.addListener((o, ov, v) -> dirty.set(true));
-    volume.addListener((o, ov, v) -> dirty.set(true));
-    tones.addListener((o, ov, v) -> dirty.set(true));
-    intensity.addListener((o, ov, v) -> dirty.set(true));
-    tempo.addListener((o, ov, v) -> {
-      dirty.set(true);
-      renderWaveform();
-    });
-    totalBeats.addListener((o, ov, v) -> {
-      dirty.set(true);
-      renderWaveform();
-    });
-    transientSeconds.addListener((o, ov, v) -> {
-      dirty.set(true);
-      renderWaveform();
-    });
+    fieldName.focusedProperty().addListener(this::onUnfocusedDoSave);
+    fieldEvent.focusedProperty().addListener(this::onUnfocusedDoSave);
+    fieldVolume.focusedProperty().addListener(this::onUnfocusedDoSave);
+    fieldTones.focusedProperty().addListener(this::onUnfocusedDoSave);
+    fieldIntensity.focusedProperty().addListener(this::onUnfocusedDoSave);
+    fieldTempo.focusedProperty().addListener(this::onUnfocusedDoSaveAndRenderWaveform);
+    fieldTotalBeats.focusedProperty().addListener(this::onUnfocusedDoSaveAndRenderWaveform);
+    fieldTransientSeconds.focusedProperty().addListener(this::onUnfocusedDoSaveAndRenderWaveform);
 
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.InstrumentAudioEditor))
         setup();
     });
-
-    buttonSave.disableProperty().bind(dirty.not());
   }
 
   @Override
   public void onStageClose() {
     // FUTURE: on stage close
-  }
-
-  @FXML
-  protected void handlePressSave() {
-    var instrumentAudio = projectService.getContent().getInstrumentAudio(instrumentAudioId.get())
-      .orElseThrow(() -> new RuntimeException("Could not find InstrumentAudio"));
-    instrumentAudio.setName(name.get());
-    instrumentAudio.setEvent(event.get());
-    instrumentAudio.setVolume(volume.get());
-    instrumentAudio.setTones(tones.get());
-    instrumentAudio.setTempo(tempo.get());
-    instrumentAudio.setIntensity(intensity.get());
-    instrumentAudio.setTransientSeconds(transientSeconds.get());
-    instrumentAudio.setTotalBeats(totalBeats.get());
-    if (projectService.updateInstrumentAudio(instrumentAudio)) dirty.set(false);
   }
 
   @FXML
@@ -260,8 +229,54 @@ public class InstrumentAudioEditorController extends BrowserController {
     // Check for double-click
     if (event.getClickCount() == 2) {
       transientSeconds.set((float) (scale * x * samplesPerPixel.get() / audioInMemory.get().format().getSampleRate()));
+      save();
+      renderWaveform();
     }
     event.consume();
+  }
+
+  /**
+   When a field is unfocused, save and re-render waveform
+
+   @param o       observable
+   @param ov      old value
+   @param focused false if unfocused
+   */
+  private void onUnfocusedDoSaveAndRenderWaveform(Observable o, Boolean ov, Boolean focused) {
+    if (!focused) {
+      save();
+      renderWaveform();
+    }
+  }
+
+  /**
+   When a field is unfocused, save
+
+   @param o       observable
+   @param ov      old value
+   @param focused false if unfocused
+   */
+  private void onUnfocusedDoSave(Observable o, Boolean ov, Boolean focused) {
+    if (!focused) {
+      save();
+    }
+  }
+
+  /**
+   Save the instrument audio record
+   */
+  private void save() {
+    var instrumentAudio = projectService.getContent().getInstrumentAudio(instrumentAudioId.get())
+      .orElseThrow(() -> new RuntimeException("Could not find InstrumentAudio"));
+    instrumentAudio.setName(name.get());
+    instrumentAudio.setEvent(event.get());
+    instrumentAudio.setVolume(volume.get());
+    instrumentAudio.setTones(tones.get());
+    instrumentAudio.setTempo(tempo.get());
+    instrumentAudio.setIntensity(intensity.get());
+    instrumentAudio.setTransientSeconds(transientSeconds.get());
+    instrumentAudio.setTotalBeats(totalBeats.get());
+    projectService.updateInstrumentAudio(instrumentAudio);
   }
 
   /**
@@ -282,7 +297,6 @@ public class InstrumentAudioEditorController extends BrowserController {
     intensity.set(instrumentAudio.getIntensity());
     transientSeconds.set(instrumentAudio.getTransientSeconds());
     totalBeats.set(instrumentAudio.getTotalBeats());
-    this.dirty.set(false);
     zoomRatio.set(1.0f);
     renderWaveform();
   }
@@ -321,7 +335,7 @@ public class InstrumentAudioEditorController extends BrowserController {
 
       // Draw the beat grid lines
       for (i = 0; i < totalBeats.get(); i++) {
-        x = (int) ((transientSeconds.get() + i * 60 / tempo.get()) * audio.get().format().getSampleRate() / samplesPerPixel.get());
+        x = (int) Math.max(0, Math.min(waveformWidth.get() - 1, ((transientSeconds.get() + i * 60 / tempo.get()) * audio.get().format().getSampleRate() / samplesPerPixel.get())));
         for (y = 0; y < waveformHeight; y++) {
           pixelWriter.setColor(x, y, waveformGridColor);
         }
