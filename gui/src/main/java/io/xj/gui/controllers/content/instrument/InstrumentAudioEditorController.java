@@ -41,7 +41,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -306,16 +305,19 @@ public class InstrumentAudioEditorController extends BrowserController {
    */
   private void renderWaveform() {
     try {
-      Optional<AudioInMemory> audio = loadAudioWaveform();
-      if (audio.isEmpty()) return;
+      loadAudioWaveform();
+      if (audioInMemory.isNull().get()) return;
 
       // Calculate the total number of pixels needed to represent the waveform
-      int totalSamples = audio.get().audio().length;
+      int totalSamples = audioInMemory.get().data().length;
       waveformWidth.set(Math.min(waveformMaxWidth, (int) (zoomRatio.get() * waveformViewportWidth.get())));
       samplesPerPixel.set((float) totalSamples / waveformWidth.get());
-      int channelRadius = waveformHeight / audio.get().format().getChannels() / 2;
+      int channelRadius = waveformHeight / audioInMemory.get().format().getChannels() / 2;
       int channelDiameter = channelRadius * 2;
-      float displayVolumeRatio = computeDisplayVolumeRatio(audio.get().audio());
+      float displayVolumeRatio = computeDisplayVolumeRatio(audioInMemory.get().data());
+      float secondsPerBeat = 60 / tempo.get();
+      int beatsBeforeTransient = ((int) (transientSeconds.get() / secondsPerBeat));
+      int beatsAfterTransient = ((int) ((audioInMemory.get().data().length/ audioInMemory.get().format().getSampleRate()) / secondsPerBeat));
 
       // Create a new image to hold the waveform
       WritableImage image = new WritableImage(waveformWidth.get(), waveformHeight);
@@ -328,21 +330,21 @@ public class InstrumentAudioEditorController extends BrowserController {
 
       // Draw the zero line
       for (x = 0; x < waveformWidth.get(); x++) {
-        for (int channel = 0; channel < audio.get().audio()[0].length; channel++) {
+        for (int channel = 0; channel < audioInMemory.get().data()[0].length; channel++) {
           pixelWriter.setColor(x, channelDiameter * channel + channelRadius, waveformZeroColor);
         }
       }
 
       // Draw the beat grid lines
-      for (i = 0; i < totalBeats.get(); i++) {
-        x = (int) Math.max(0, Math.min(waveformWidth.get() - 1, ((transientSeconds.get() + i * 60 / tempo.get()) * audio.get().format().getSampleRate() / samplesPerPixel.get())));
+      for (i = -beatsBeforeTransient; i < beatsAfterTransient; i++) {
+        x = (int) Math.max(0, Math.min(waveformWidth.get() - 1, ((transientSeconds.get() + i * secondsPerBeat) * audioInMemory.get().format().getSampleRate() / samplesPerPixel.get())));
         for (y = 0; y < waveformHeight; y++) {
           pixelWriter.setColor(x, y, waveformGridColor);
         }
       }
 
       // Draw the transient dashed line
-      x = (int) Math.max(0, Math.min(waveformWidth.get() - 1, (transientSeconds.get() * audio.get().format().getSampleRate() / samplesPerPixel.get())));
+      x = (int) Math.max(0, Math.min(waveformWidth.get() - 1, (transientSeconds.get() * audioInMemory.get().format().getSampleRate() / samplesPerPixel.get())));
       for (y = 0; y < waveformHeight; y++) {
         if ((y / waveformTransientDashPixels) % 2 == 0) {
           pixelWriter.setColor(x, y, waveformTransientColor);
@@ -350,10 +352,10 @@ public class InstrumentAudioEditorController extends BrowserController {
       }
 
       // Draw each sample
-      for (i = 0; i < audio.get().audio().length; i++) {
+      for (i = 0; i < audioInMemory.get().data().length; i++) {
         x = (int) (i / samplesPerPixel.get());
-        for (int channel = 0; channel < audio.get().audio()[i].length; channel++) {
-          y = channelDiameter * channel + channelRadius - (int) (audio.get().audio()[i][channel] * channelRadius * displayVolumeRatio);
+        for (int channel = 0; channel < audioInMemory.get().data()[i].length; channel++) {
+          y = channelDiameter * channel + channelRadius - (int) (audioInMemory.get().data()[i][channel] * channelRadius * displayVolumeRatio);
           if (y >= 0 && y <= waveformHeight) pixelWriter.setColor(x, y, waveformSampleColor);
         }
       }
@@ -363,16 +365,15 @@ public class InstrumentAudioEditorController extends BrowserController {
       waveform.setLayoutX(0);
 
     } catch (Exception e) {
-      LOG.error("Could not render audio file!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Could not render audioInMemory file!\n{}", StringUtils.formatStackTrace(e), e);
     }
   }
 
   /**
    Load the audio waveform into memory if it is not already loaded, or return cached audio in memory
-
-   @return the audio in memory
    */
-  private Optional<AudioInMemory> loadAudioWaveform() {
+  private void loadAudioWaveform() {
+    if (uiStateService.currentInstrumentAudioProperty().isNull().get()) return;
     var audio = projectService.getContent().getInstrumentAudio(uiStateService.currentInstrumentAudioProperty().get().getId())
       .orElseThrow(() -> new RuntimeException("Could not find InstrumentAudio"));
     if (StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
@@ -382,11 +383,11 @@ public class InstrumentAudioEditorController extends BrowserController {
         "No waveform file found for this InstrumentAudio.",
         "Please delete this audio and re-create with a valid waveform."
       );
-      return Optional.empty();
+      return;
     }
     if (audioInMemory.isNull().get() || !audioInMemory.get().id().equals(audio.getId())) try {
       audioInMemory.set(audioLoader.load(audio));
-      LOG.info("Loaded audio file \"{}\" with {} channels and {} frames", audioInMemory.get().format(), audioInMemory.get().format().getChannels(), audioInMemory.get().audio().length);
+      LOG.info("Loaded audio file \"{}\" with {} channels and {} frames", audioInMemory.get().format(), audioInMemory.get().format().getChannels(), audioInMemory.get().data().length);
     } catch (Exception e) {
       LOG.error("Could not load audio file!\n{}", StringUtils.formatStackTrace(e), e);
       projectService.showWarningAlert(
@@ -394,9 +395,7 @@ public class InstrumentAudioEditorController extends BrowserController {
         "Could not load audio file.",
         "Please try again or contact support."
       );
-      return Optional.empty();
     }
-    return Optional.of(audioInMemory.get());
   }
 
   /**
