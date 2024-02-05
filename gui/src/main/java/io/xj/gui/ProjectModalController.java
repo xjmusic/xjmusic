@@ -49,6 +49,7 @@ public abstract class ProjectModalController extends ProjectController {
 
       // Create a new stage (window)
       Stage stage = new Stage();
+      stage.initOwner(themeService.getMainScene().getWindow());
       WindowUtils.setupIcon(stage);
       stage.setTitle(WindowUtils.computeTitle(windowName));
 

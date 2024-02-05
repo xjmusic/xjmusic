@@ -251,6 +251,7 @@ public class ProgramEditorController extends ProjectController {
     try {
       var sequences = projectService.getContent().getSequencesOfProgram(programId.get());
       Stage stage = new Stage(StageStyle.TRANSPARENT);
+      stage.initOwner(themeService.getMainScene().getWindow());
       FXMLLoader loader = new FXMLLoader(searchSequenceFxml.getURL());
       Parent root = loader.load();
       SearchSequence searchSequence = loader.getController();
@@ -268,6 +269,7 @@ public class ProgramEditorController extends ProjectController {
   protected void showSequenceManagementUI(javafx.scene.input.MouseEvent event) {
     try {
       Stage stage = new Stage(StageStyle.TRANSPARENT);
+      stage.initOwner(themeService.getMainScene().getWindow());
       FXMLLoader loader = new FXMLLoader(sequenceManagementFxml.getURL());
       Parent root = loader.load();
       SequenceManagement sequenceManagement = loader.getController();
@@ -425,6 +427,7 @@ public class ProgramEditorController extends ProjectController {
   protected void handleEditConfig() {
     try {
       Stage stage = new Stage(StageStyle.TRANSPARENT);
+      stage.initOwner(themeService.getMainScene().getWindow());
       FXMLLoader loader = new FXMLLoader(configFxml.getURL());
       Parent root = loader.load();
       ProgramConfigController configController = loader.getController();
