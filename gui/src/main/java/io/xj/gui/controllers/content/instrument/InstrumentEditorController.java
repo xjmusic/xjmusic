@@ -13,11 +13,10 @@ import io.xj.hub.InstrumentConfig;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
 import javafx.application.Platform;
+import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -49,7 +48,6 @@ public class InstrumentEditorController extends BrowserController {
   private final ObjectProperty<UUID> instrumentId = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
   private final StringProperty config = new SimpleStringProperty("");
-  private final BooleanProperty dirty = new SimpleBooleanProperty(false);
   private final ObservableList<InstrumentAudio> audios = FXCollections.observableList(new ArrayList<>());
 
   @FXML
@@ -63,9 +61,6 @@ public class InstrumentEditorController extends BrowserController {
 
   @FXML
   protected TextArea fieldConfig;
-
-  @FXML
-  protected Button buttonSave;
 
   @FXML
   protected Button buttonOpenAudioFolder;
@@ -95,8 +90,8 @@ public class InstrumentEditorController extends BrowserController {
     fieldConfig.textProperty().bindBidirectional(config);
     fieldConfig.prefHeightProperty().bind(fieldsContainer.heightProperty().subtract(100));
 
-    name.addListener((o, ov, v) -> dirty.set(true));
-    config.addListener((o, ov, v) -> dirty.set(true));
+    fieldName.focusedProperty().addListener(this::onUnfocusedDoSave);
+    fieldConfig.focusedProperty().addListener(this::onUnfocusedDoSave);
 
     buttonOpenAudioFolder.disableProperty().bind(Bindings.createBooleanBinding(audios::isEmpty, audios));
 
@@ -153,33 +148,17 @@ public class InstrumentEditorController extends BrowserController {
         }
       });
 
-    projectService.addProjectUpdateListener(InstrumentAudio.class, this::updateAudios);
+    projectService.addProjectUpdateListener(InstrumentAudio.class, this::setupAudiosTable);
 
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.InstrumentEditor))
         setup();
     });
-
-    buttonSave.disableProperty().bind(dirty.not());
   }
 
   @Override
   public void onStageClose() {
     // FUTURE: on stage close
-  }
-
-  @FXML
-  protected void handlePressSave() {
-    var instrument = projectService.getContent().getInstrument(instrumentId.get())
-      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
-    instrument.setName(name.get());
-    try {
-      instrument.setConfig(new InstrumentConfig(config.get()).toString());
-    } catch (Exception e) {
-      LOG.error("Could not parse Instrument config!", e);
-      return;
-    }
-    if (projectService.updateInstrument(instrument)) dirty.set(false);
   }
 
   @FXML
@@ -206,6 +185,35 @@ public class InstrumentEditorController extends BrowserController {
   }
 
   /**
+   When a field is unfocused, save
+
+   @param o       observable
+   @param ov      old value
+   @param focused false if unfocused
+   */
+  private void onUnfocusedDoSave(Observable o, Boolean ov, Boolean focused) {
+    if (!focused) {
+      save();
+    }
+  }
+
+  /**
+   Save the Instrument
+   */
+  private void save() {
+    var instrument = projectService.getContent().getInstrument(instrumentId.get())
+      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
+    instrument.setName(name.get());
+    try {
+      instrument.setConfig(new InstrumentConfig(config.get()).toString());
+    } catch (Exception e) {
+      LOG.error("Could not parse Instrument config!", e);
+      return;
+    }
+    projectService.updateInstrument(instrument);
+  }
+
+  /**
    Update the Instrument Editor with the current Instrument.
    */
   private void setup() {
@@ -217,14 +225,13 @@ public class InstrumentEditorController extends BrowserController {
     this.instrumentId.set(instrument.getId());
     this.name.set(instrument.getName());
     this.config.set(instrument.getConfig());
-    this.dirty.set(false);
-    updateAudios();
+    setupAudiosTable();
   }
 
   /**
    Update the instrument audios table data.
    */
-  private void updateAudios() {
+  private void setupAudiosTable() {
     if (uiStateService.currentInstrumentProperty().isNull().get())
       return;
     audios.setAll(projectService.getContent().getInstrumentAudios().stream()
