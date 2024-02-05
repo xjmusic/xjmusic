@@ -80,23 +80,25 @@
     </HBox>
   </VBox>
 
-  <AnchorPane>
-      <ScrollPane
-        fx:id="waveformScrollPane"
-        AnchorPane.topAnchor="0"
-        AnchorPane.leftAnchor="0"
-        AnchorPane.bottomAnchor="0"
-        AnchorPane.rightAnchor="0"
-        vbarPolicy="NEVER"
-        hbarPolicy="ALWAYS"
-        fitToWidth="true"
-        fitToHeight="true"
-        styleClass="waveform-container">
-        <ImageView
-          preserveRatio="true"
-          fx:id="waveform">
-        </ImageView>
-      </ScrollPane>
+  <AnchorPane
+    styleClass="waveform-pane">
+    <ScrollPane
+      fx:id="waveformScrollPane"
+      AnchorPane.topAnchor="0"
+      AnchorPane.leftAnchor="0"
+      AnchorPane.bottomAnchor="0"
+      AnchorPane.rightAnchor="0"
+      vbarPolicy="NEVER"
+      hbarPolicy="ALWAYS"
+      fitToWidth="true"
+      fitToHeight="true"
+      styleClass="waveform-container"
+      onMouseClicked="#handleClickedWaveformScrollPane">
+      <ImageView
+        fx:id="waveform"
+        preserveRatio="true">
+      </ImageView>
+    </ScrollPane>
 
     <Button
       AnchorPane.topAnchor="10"
