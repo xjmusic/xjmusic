@@ -123,7 +123,7 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
       long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(tempo, beats);
       long lengthMicros = Math.min(
         fabricator.getTotalSegmentMicros() - startAtSegmentMicros,
-        (long) (audio.getTotalBeats() * fabricator.getMicrosPerBeat(tempo))
+        (long) (audio.getLoopBeats() * fabricator.getMicrosPerBeat(tempo))
       );
 
       // of pick
@@ -138,7 +138,7 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
       pick.setInstrumentAudioId(audio.getId());
       fabricator.put(pick, false);
 
-      beats += audio.getTotalBeats();
+      beats += audio.getLoopBeats();
     }
   }
 }

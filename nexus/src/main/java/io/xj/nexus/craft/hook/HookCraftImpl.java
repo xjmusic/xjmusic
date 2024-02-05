@@ -82,7 +82,7 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
       long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(tempo, pos);
       long lengthMicros = Math.min(
         fabricator.getTotalSegmentMicros() - startAtSegmentMicros,
-        (long) (audio.getTotalBeats() * fabricator.getMicrosPerBeat(tempo))
+        (long) (audio.getLoopBeats() * fabricator.getMicrosPerBeat(tempo))
       );
 
       // of pick
@@ -97,7 +97,7 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
       pick.setInstrumentAudioId(audio.getId());
       fabricator.put(pick, false);
 
-      pos += audio.getTotalBeats();
+      pos += audio.getLoopBeats();
     }
   }
 

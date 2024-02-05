@@ -446,7 +446,7 @@ public interface Fabricator {
    the seconds of start for any given position in beats
    Velocity of Segment meter (beats per minute) increases linearly of the beginning of the Segment (at the previous Segment's tempo) to the end of the Segment (arriving at the current Segment's tempo, only at its end)
    <p>
-   Segment should *never* be fabricated longer than its total beats. https://www.pivotaltracker.com/story/show/166370833
+   Segment should *never* be fabricated longer than its loop beats. https://www.pivotaltracker.com/story/show/166370833
    Segment wherein tempo changes expect perfectly smooth sound of previous segment through to following segment https://www.pivotaltracker.com/story/show/153542275
 
    @param tempo    in beats per minute
