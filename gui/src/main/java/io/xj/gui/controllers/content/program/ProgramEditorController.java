@@ -3,6 +3,7 @@
 package io.xj.gui.controllers.content.program;
 
 import io.xj.gui.ProjectController;
+import io.xj.gui.controllers.CmdModalController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
@@ -109,6 +110,7 @@ public class ProgramEditorController extends ProjectController {
   @Value("classpath:/views/content/program/sequence-menu.fxml")
   private Resource sequenceManagementFxml;
   static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
+  private final CmdModalController cmdModalController;
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
   private final ObjectProperty<UUID> sequenceId = new SimpleObjectProperty<>(null);
   private final BooleanProperty dirty = new SimpleBooleanProperty(false);
@@ -153,9 +155,11 @@ public class ProgramEditorController extends ProjectController {
     ApplicationContext ac,
     ThemeService themeService,
     ProjectService projectService,
-    UIStateService uiStateService
+    UIStateService uiStateService,
+    CmdModalController cmdModalController
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
+    this.cmdModalController = cmdModalController;
   }
 
   @Override
@@ -394,19 +398,9 @@ public class ProgramEditorController extends ProjectController {
 
   @FXML
   protected void openCloneDialog() {
-    try {
-      var program = projectService.getContent().getProgram(programId.get())
-        .orElseThrow(() -> new RuntimeException("Could not find Program"));
-      Stage stage = new Stage(StageStyle.TRANSPARENT);
-      FXMLLoader loader = new FXMLLoader(cloneFxml.getURL());
-      Parent root = loader.load();
-      CloneMenuController cloneMenuController = loader.getController();
-      cloneMenuController.cloneProgramInitializer(program, projectService, stage);
-      stage.setScene(new Scene(root));
-      stage.show();
-    } catch (IOException e) {
-      LOG.error("Error opening clone window!\n{}", StringUtils.formatStackTrace(e), e);
-    }
+    var program = projectService.getContent().getProgram(programId.get())
+      .orElseThrow(() -> new RuntimeException("Could not find Program"));
+    cmdModalController.cloneProgram(program);
   }
 
   @Override
