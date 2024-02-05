@@ -12,7 +12,9 @@ import io.xj.gui.utils.ProjectUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.audio.AudioInMemory;
 import io.xj.nexus.audio.AudioLoader;
+import io.xj.nexus.project.ProjectPathUtils;
 import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.FloatProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -23,6 +25,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
@@ -120,7 +123,13 @@ public class InstrumentAudioEditorController extends BrowserController {
   protected ImageView waveform;
 
   @FXML
+  protected Button buttonOpenAudioFolder;
+
+  @FXML
   protected Button buttonOpenAudioFile;
+
+  @FXML
+  protected Label labelAudioFileName;
 
   @FXML
   protected Button buttonZoomOut;
@@ -170,6 +179,7 @@ public class InstrumentAudioEditorController extends BrowserController {
     fieldIntensity.textProperty().bindBidirectional(intensity, new NumberStringConverter());
     fieldTransientSeconds.textProperty().bindBidirectional(transientSeconds, new NumberStringConverter());
     fieldTotalBeats.textProperty().bindBidirectional(totalBeats, new NumberStringConverter());
+    labelAudioFileName.textProperty().bind(Bindings.createStringBinding(() -> ProjectPathUtils.getFilename(audioInMemory.get().pathToAudioFile()), audioInMemory));
 
     fieldName.focusedProperty().addListener(this::onUnfocusedDoSave);
     fieldEvent.focusedProperty().addListener(this::onUnfocusedDoSave);
@@ -189,6 +199,17 @@ public class InstrumentAudioEditorController extends BrowserController {
   @Override
   public void onStageClose() {
     // FUTURE: on stage close
+  }
+
+  @FXML
+  private void handlePressOpenAudioFolder() {
+    var instrumentAudio = projectService.getContent().getInstrumentAudio(instrumentAudioId.get())
+      .orElseThrow(() -> new RuntimeException("Could not find InstrumentAudio"));
+    var instrument = projectService.getContent().getInstrument(instrumentAudio.getInstrumentId())
+      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
+    var audioFolder = projectService.getPathPrefixToInstrumentAudio(instrument.getId());
+    if (Objects.isNull(audioFolder)) return;
+    ProjectUtils.openDesktopPath(audioFolder);
   }
 
   @FXML
@@ -237,11 +258,11 @@ public class InstrumentAudioEditorController extends BrowserController {
   /**
    When a field is unfocused, save and re-render waveform
 
-   @param o       observable
-   @param ov      old value
-   @param focused false if unfocused
+   @param ignored1 observable
+   @param ignored2 old value
+   @param focused  false if unfocused
    */
-  private void onUnfocusedDoSaveAndRenderWaveform(Observable o, Boolean ov, Boolean focused) {
+  private void onUnfocusedDoSaveAndRenderWaveform(Observable ignored1, Boolean ignored2, Boolean focused) {
     if (!focused) {
       save();
       renderWaveform();
@@ -251,11 +272,11 @@ public class InstrumentAudioEditorController extends BrowserController {
   /**
    When a field is unfocused, save
 
-   @param o       observable
-   @param ov      old value
-   @param focused false if unfocused
+   @param ignored1 observable
+   @param ignored2 old value
+   @param focused  false if unfocused
    */
-  private void onUnfocusedDoSave(Observable o, Boolean ov, Boolean focused) {
+  private void onUnfocusedDoSave(Observable ignored1, Boolean ignored2, Boolean focused) {
     if (!focused) {
       save();
     }

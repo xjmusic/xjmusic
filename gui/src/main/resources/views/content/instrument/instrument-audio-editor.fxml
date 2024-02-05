@@ -126,8 +126,8 @@
     <Button
       AnchorPane.bottomAnchor="25"
       AnchorPane.leftAnchor="10"
-      fx:id="buttonOpenAudioFile"
-      onAction="#handlePressOpenAudioFile">
+      fx:id="buttonOpenAudioFolder"
+      onAction="#handlePressOpenAudioFolder">
       <graphic>
         <ImageView fitWidth="18" fitHeight="18">
           <Image url="@/icons/folder-open.png"/>
@@ -137,6 +137,26 @@
         <Tooltip text="Open Audio Folder in System File Browser"/>
       </tooltip>
     </Button>
+
+    <Button
+      AnchorPane.bottomAnchor="25"
+      AnchorPane.leftAnchor="38"
+      fx:id="buttonOpenAudioFile"
+      onAction="#handlePressOpenAudioFile">
+      <graphic>
+        <ImageView fitWidth="14" fitHeight="14">
+          <Image url="@/icons/up-right-from-square.png"/>
+        </ImageView>
+      </graphic>
+      <tooltip>
+        <Tooltip text="Open Audio File in System Audio File Editor"/>
+      </tooltip>
+    </Button>
+
+    <Label
+      AnchorPane.bottomAnchor="25"
+      AnchorPane.leftAnchor="66"
+      fx:id="labelAudioFileName"/>
 
   </AnchorPane>
 
