@@ -19,4 +19,12 @@ public class ProjectPathUtils {
     }
     return "";
   }
+
+  public static String getFilename(String fromPath) {
+    Matcher matcher = matchPrefixNameExtension(fromPath);
+    if (matcher.matches()) {
+      return String.format("%s.%s", matcher.group(2), matcher.group(3));
+    }
+    return "";
+  }
 }

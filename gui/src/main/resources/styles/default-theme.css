@@ -400,6 +400,12 @@
   -fx-font-family: 'Roboto Mono';
 }
 
+#labelAudioFileName {
+  -fx-font-family: 'Roboto Mono';
+  -fx-font-size: 0.62em;
+  -fx-fill: #404040;
+}
+
 .waveform-container {
   -fx-background-color: #101010;
 }
