@@ -10,29 +10,28 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-
-<AnchorPane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="32.0" prefWidth="122.0" style="-fx-background-color: #777777; -fx-background-radius: 8; -fx-border-radius: 8;" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.MemeTagController">
+<AnchorPane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="26.0" prefWidth="104.0" style="-fx-background-color: #777777; -fx-background-radius: 8; -fx-border-radius: 8;" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.MemeTagController">
    <children>
-      <StackPane fx:id="stackPane" layoutY="-3.0" prefHeight="27.0" prefWidth="56.0" style="-fx-background-color: transparent;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="36.0">
+      <StackPane fx:id="stackPane" layoutX="13.0" layoutY="4.0" minHeight="-Infinity" prefHeight="17.0" prefWidth="86.0" style="-fx-background-color: transparent;" AnchorPane.leftAnchor="13.0" AnchorPane.rightAnchor="29.0">
          <children>
-            <TextField fx:id="memeNameField" minHeight="-Infinity" minWidth="-Infinity" prefHeight="28.0" prefWidth="55.0" style="-fx-background-color: tranparent; -fx-text-fill: white;">
+            <TextField fx:id="memeNameField" minHeight="-Infinity" minWidth="-Infinity" prefHeight="26.0" prefWidth="55.0" style="-fx-background-color: tranparent; -fx-text-fill: white;">
                <font>
                   <Font size="16.0" />
                </font>
             </TextField>
-            <Text fx:id="memeNameLabel" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="XXX" wrappingWidth="61.41534423828125">
+            <Text fx:id="memeNameLabel" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="XXX" wrappingWidth="78.79255676269531">
                <font>
                   <Font size="16.0" />
                </font>
                <StackPane.margin>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                  <Insets left="2.0" right="2.0" />
                </StackPane.margin>
             </Text>
          </children>
       </StackPane>
-      <Button fx:id="deleteMemeButton" layoutX="86.33333333333334" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="31.0" prefWidth="37.0" style="-fx-background-radius: 6; -fx-border-radius: 6;" text=" " AnchorPane.rightAnchor="-1.6666666666666856">
+      <Button fx:id="deleteMemeButton" layoutX="95.66666666666667" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="26.0" prefWidth="27.0" style="-fx-background-radius: 0 6 6  0; -fx-border-radius: 0 6 6  0; -fx-background-color: #4E4E4E; -fx-border-color: grey;" text=" " AnchorPane.rightAnchor="-1.0">
          <graphic>
-            <ImageView fitHeight="20.0" fitWidth="20.0" translateX="-2.0">
+            <ImageView fitHeight="20.0" fitWidth="20.0" translateX="-5.0">
                <image>
                   <Image url="@../../../icons/multiply.png" />
                </image>

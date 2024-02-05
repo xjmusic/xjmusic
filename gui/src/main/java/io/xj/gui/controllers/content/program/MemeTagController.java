@@ -2,6 +2,7 @@ package io.xj.gui.controllers.content.program;
 
 import io.xj.gui.services.ProjectService;
 import io.xj.hub.tables.pojos.ProgramMeme;
+import javafx.animation.PauseTransition;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
@@ -9,7 +10,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 public class MemeTagController {
@@ -20,32 +25,90 @@ public class MemeTagController {
   @FXML
   public Button deleteMemeButton;
   public StackPane stackPane;
-
-  private final SimpleStringProperty name=new SimpleStringProperty("");
+  private final SimpleStringProperty name = new SimpleStringProperty("");
+  static final Logger LOG = LoggerFactory.getLogger(MemeTagController.class);
+  private ProjectService projectService;
+  private PauseTransition pauseTransition;
+  private ProgramMeme currentMeme;
+  private UUID programId;
+  private ProgramEditorController programEditorController;
 
   public void memeTagInitializer(ProgramEditorController programEditorController, Parent root,
                                  ProjectService projectService, ProgramMeme meme, UUID programId) {
+    this.projectService = projectService;
+    this.programEditorController = programEditorController;
+    this.currentMeme = meme;
+    this.programId = programId;
     name.set(meme.getName());
     memeNameLabel.setText(name.get());
     memeNameField.setText(name.get());
     memeNameField.setVisible(false);
-    memeNameField.setPrefColumnCount((int) computeTextWidth(memeNameField.getFont(), meme.getName()) + 10);
-    memeNameLabel.setWrappingWidth((int) computeTextWidth(memeNameField.getFont(), meme.getName()) + 10);
+    memeNameField.setPrefColumnCount((int) computeTextWidth(memeNameField.getFont(), meme.getName()) + 5);
+    memeNameLabel.setWrappingWidth((int) computeTextWidth(memeNameField.getFont(), meme.getName()) + 5);
     memeNameField.textProperty().bindBidirectional(name);
-    memeNameLabel.textProperty().bind(name);
-    deleteMemeButton.setOnAction(e -> {
-      programEditorController.memeTagContainer.getChildren().remove(root);
-      projectService.getContent().getMemesOfProgram(programId).remove(meme);
-      //awaiting confirmation dialog
-    });
-    // Set the initial width of the TextField based on the text length
-    memeNameField.textProperty().addListener((observable, oldValue, newValue) -> {
-      double textWidth = computeTextWidth(memeNameField.getFont(), newValue);
-      memeNameField.setPrefWidth(textWidth + 10); // Adding some padding
-      memeNameLabel.setWrappingWidth(textWidth + 10);
-      stackPane.setPrefWidth(textWidth + 15);
-    });
+    projectService.getContent().getMemesOfProgram(programId);
     toggleVisibility();
+    setMemeTextProcessing();
+    deleteMemeButton.setOnAction(e -> deleteMemeTag(root));
+  }
+
+  private void updateMeme() {
+    try {
+      var memes = projectService.getContent().getMemesOfProgram(programId);
+      memes.forEach(programMeme -> {
+        if (programMeme.getId().equals(currentMeme.getId())) {
+          programMeme.setName(memeNameField.getText());
+          currentMeme.setName(memeNameField.getText());
+        }
+      });
+      projectService.getContent().getMemesOfProgram(programId).clear();
+      projectService.getContent().putAll(memes);
+      projectService.isModifiedProperty().set(true);
+    } catch (Exception e) {
+      LOG.error("Failed to update " + currentMeme.getName() + " Meme");
+    }
+  }
+
+  /**
+   * updates the label text on a meme item when the text is updated on the textfield
+   */
+  private void setMemeTextProcessing() {
+    long delay = 1000;
+
+    memeNameField.textProperty().addListener((observable, oldValue, newValue) -> {
+      memeNameLabel.setVisible(false);
+      // Cancel previous PauseTransition
+      if (pauseTransition != null) {
+        pauseTransition.stop();
+      }
+      pauseTransition = new PauseTransition(Duration.millis(delay));
+      pauseTransition.setOnFinished(event -> {
+        memeNameField.setVisible(false);
+        memeNameLabel.setVisible(false);
+
+        stackPane.setPrefWidth(computeTextWidth(memeNameField.getFont(), memeNameField.getText() + 5));
+        memeNameLabel.setWrappingWidth(computeTextWidth(memeNameField.getFont(), memeNameField.getText() + 5));
+        memeNameLabel.setText(memeNameField.getText());
+        memeNameLabel.setVisible(true);
+        updateMeme();
+      });
+      // Start the PauseTransition
+      pauseTransition.play();
+    });
+  }
+
+
+  private void deleteMemeTag(Parent root) {
+    try {
+      projectService.getContent().getProgramMemes().removeIf(meme -> meme.getId().equals(currentMeme.getId()));
+      //notify modification
+      projectService.isModifiedProperty().set(true);
+      //remove the meme from UI
+      programEditorController.memeTagContainer.getChildren().remove(root);
+      LOG.info("Deleted " + currentMeme.getName());
+    } catch (Exception e) {
+      LOG.error("Failed to delete Meme " + Arrays.toString(e.getStackTrace()) + " !!");
+    }
   }
 
   private double computeTextWidth(javafx.scene.text.Font font, String text) {
@@ -56,18 +119,20 @@ public class MemeTagController {
   }
 
   private void toggleVisibility() {
-    memeNameLabel.setOnMouseClicked(e->{
+    memeNameLabel.setOnMouseClicked(e -> {
       memeNameLabel.setVisible(false);
       memeNameField.setVisible(true);
+      //shift focus to the nameField
+      memeNameField.requestFocus();
+      //set the caret to blink at the end position
+      memeNameField.positionCaret(memeNameField.getPrefColumnCount());
     });
     // Add a focus listener to the TextField
     memeNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-        if (!newValue) {
-          // Save the text (replace this with your saving logic)
-          // Hide the TextField or perform other actions
-          memeNameField.setVisible(false);
-          memeNameLabel.setVisible(true);
-        }
-      });
+      if (!newValue) {
+        memeNameField.setVisible(false);
+        memeNameLabel.setVisible(true);
+      }
+    });
   }
 }
