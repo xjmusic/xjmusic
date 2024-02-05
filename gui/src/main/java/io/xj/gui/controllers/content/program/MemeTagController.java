@@ -13,10 +13,12 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.UUID;
 
+@Component
 public class MemeTagController {
   @FXML
   public TextField memeNameField;
@@ -27,16 +29,19 @@ public class MemeTagController {
   public StackPane stackPane;
   private final SimpleStringProperty name = new SimpleStringProperty("");
   static final Logger LOG = LoggerFactory.getLogger(MemeTagController.class);
-  private ProjectService projectService;
+  private final ProjectService projectService;
   private PauseTransition pauseTransition;
   private ProgramMeme currentMeme;
   private UUID programId;
-  private ProgramEditorController programEditorController;
+  private final ProgramEditorController programEditorController;
 
-  public void memeTagInitializer(ProgramEditorController programEditorController, Parent root,
-                                 ProjectService projectService, ProgramMeme meme, UUID programId) {
+  public MemeTagController(ProjectService projectService, ProgramEditorController programEditorController) {
     this.projectService = projectService;
     this.programEditorController = programEditorController;
+  }
+
+  public void setup(Parent root,
+                    ProgramMeme meme, UUID programId) {
     this.currentMeme = meme;
     this.programId = programId;
     name.set(meme.getName());

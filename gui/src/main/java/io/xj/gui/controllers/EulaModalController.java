@@ -107,10 +107,10 @@ public class EulaModalController extends ProjectController {
 
         primaryStage.setTitle(WindowUtils.computeTitle(WINDOW_TITLE));
 
-        FXMLLoader mainWindowFxmlLoader = new FXMLLoader(fxml.getURL());
-        mainWindowFxmlLoader.setControllerFactory(ac::getBean);
+        FXMLLoader loader = new FXMLLoader(fxml.getURL());
+        loader.setControllerFactory(ac::getBean);
 
-        var scene = new Scene(mainWindowFxmlLoader.load());
+        var scene = new Scene(loader.load());
         primaryStage.setScene(scene);
 
         themeService.setup(scene);

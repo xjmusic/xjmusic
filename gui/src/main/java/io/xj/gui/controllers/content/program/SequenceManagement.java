@@ -5,10 +5,14 @@ import javafx.beans.property.ObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
+import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
+@Component
 public class SequenceManagement {
+  private final ProjectService projectService;
+
   @FXML
   public Button newSequence;
   @FXML
@@ -16,6 +20,11 @@ public class SequenceManagement {
   @FXML
   public Button cloneButton;
 
-  public void sequenceManagementUIInitializer(ObjectProperty<UUID> sequenceId, ProjectService projectService, Stage stage) {
+  public SequenceManagement(ProjectService projectService) {
+    this.projectService = projectService;
+  }
+
+
+  public void sequenceManagementUIInitializer(ObjectProperty<UUID> sequenceId, Stage stage) {
   }
 }

@@ -94,8 +94,8 @@ public interface WindowUtils {
    @throws IOException if the scene cannot be loaded
    */
   static Scene loadSceneFxml(ApplicationContext ac, Resource mainWindowFxml) throws IOException {
-    FXMLLoader mainWindowFxmlLoader = new FXMLLoader(mainWindowFxml.getURL());
-    mainWindowFxmlLoader.setControllerFactory(ac::getBean);
-    return new Scene(mainWindowFxmlLoader.load());
+    FXMLLoader loader = new FXMLLoader(mainWindowFxml.getURL());
+    loader.setControllerFactory(ac::getBean);
+    return new Scene(loader.load());
   }
 }

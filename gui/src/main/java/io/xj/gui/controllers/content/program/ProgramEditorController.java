@@ -253,9 +253,10 @@ public class ProgramEditorController extends ProjectController {
       Stage stage = new Stage(StageStyle.TRANSPARENT);
       stage.initOwner(themeService.getMainScene().getWindow());
       FXMLLoader loader = new FXMLLoader(searchSequenceFxml.getURL());
+      loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       SearchSequence searchSequence = loader.getController();
-      searchSequence.sequenceSearchUIInitializer(sequences, projectService, stage);
+      searchSequence.sequenceSearchUIInitializer(sequences, stage);
       stage.setScene(new Scene(root));
       stage.show();
       positionUIAtLocation(stage, event, 400, 28);
@@ -271,9 +272,10 @@ public class ProgramEditorController extends ProjectController {
       Stage stage = new Stage(StageStyle.TRANSPARENT);
       stage.initOwner(themeService.getMainScene().getWindow());
       FXMLLoader loader = new FXMLLoader(sequenceManagementFxml.getURL());
+      loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       SequenceManagement sequenceManagement = loader.getController();
-      sequenceManagement.sequenceManagementUIInitializer(sequenceId, projectService, stage);
+      sequenceManagement.sequenceManagementUIInitializer(sequenceId, stage);
       stage.setScene(new Scene(root));
       stage.show();
       positionUIAtLocation(stage, event, 450, 29);
@@ -389,9 +391,10 @@ public class ProgramEditorController extends ProjectController {
   protected void loadMemeTag(ProgramMeme programMeme) {
     try {
       FXMLLoader loader = new FXMLLoader(memeTagFxml.getURL());
+      loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       MemeTagController memeTagController = loader.getController();
-      memeTagController.memeTagInitializer(this, root, projectService, programMeme, programId.get());
+      memeTagController.setup(root, programMeme, programId.get());
       memeTagContainer.getChildren().add(root);
     } catch (IOException e) {
       LOG.error("Error adding Meme!\n{}", StringUtils.formatStackTrace(e), e);
@@ -429,9 +432,10 @@ public class ProgramEditorController extends ProjectController {
       Stage stage = new Stage(StageStyle.TRANSPARENT);
       stage.initOwner(themeService.getMainScene().getWindow());
       FXMLLoader loader = new FXMLLoader(configFxml.getURL());
+      loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       ProgramConfigController configController = loader.getController();
-      configController.programConfigInitializer(this, stage);
+      configController.setup(stage, config);
       stage.setScene(new Scene(root));
       stage.show();
     } catch (IOException e) {
