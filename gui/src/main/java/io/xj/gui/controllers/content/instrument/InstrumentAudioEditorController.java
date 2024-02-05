@@ -30,7 +30,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.converter.NumberStringConverter;
@@ -105,9 +104,6 @@ public class InstrumentAudioEditorController extends BrowserController {
 
     @FXML
     protected ScrollPane waveformScrollPane;
-
-    @FXML
-    protected StackPane waveformContainer;
 
     @FXML
     protected ImageView waveform;

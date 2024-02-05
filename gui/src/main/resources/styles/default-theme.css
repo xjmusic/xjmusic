@@ -403,3 +403,7 @@
 .waveform-container {
   -fx-background-color: #101010;
 }
+
+.waveform-container > .viewport {
+  -fx-background-color: transparent;
+}
