@@ -515,4 +515,5 @@ public class UIStateServiceImpl implements UIStateService {
   public Color getWaveformColor() {
     return Color.valueOf("#17ef17");
   }
+
 }
