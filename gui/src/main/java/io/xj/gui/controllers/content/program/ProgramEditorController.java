@@ -235,7 +235,7 @@ public class ProgramEditorController extends ProjectController {
     sequenceTotalChooser.setVisible(false);
     sequenceTotalChooser.setVisible(false);
     createDisabilityBindingForTypes(snapButton, Arrays.asList(ProgramType.Beat, ProgramType.Detail));
-    toggleVisibilityBetweenEditorAndLabel(sequenceTotalChooser, sequenceIntensityLabel);
+    toggleVisibilityBetweenEditorAndLabel(sequenceIntensityChooser, sequenceIntensityLabel);
     toggleVisibilityBetweenEditorAndLabel(sequenceTotalChooser, sequenceTotalLabel);
   }
 
