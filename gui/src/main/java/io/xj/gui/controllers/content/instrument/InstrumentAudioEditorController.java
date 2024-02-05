@@ -238,18 +238,22 @@ public class InstrumentAudioEditorController extends BrowserController {
   private void handleClickedWaveformScrollPane(MouseEvent event) {
     if (audioInMemory.isNull().get()) return;
 
+    // The waveform is scaled based on the window height
+    float scale = (float) (waveformHeight / waveform.fitHeightProperty().get());
+
     // Compute the X value that was clicked on the waveform, correcting for the scrolling of the pane that was clicked
     double hValue = waveformScrollPane.getHvalue();
     double contentWidth = waveformScrollPane.getContent().getLayoutBounds().getWidth();
     double viewportWidth = waveformScrollPane.getViewportBounds().getWidth();
-    double maxScrollableWidth = contentWidth - viewportWidth;
+    double maxScrollableWidth = Math.min(0, contentWidth - viewportWidth);
     double scrolledPixelsRight = hValue * maxScrollableWidth;
     double x = event.getX() + scrolledPixelsRight;
 
     // Check for double-click
     if (event.getClickCount() == 2) {
-      transientSeconds.set((float) (x * samplesPerPixel.get() / audioInMemory.get().format().getSampleRate()));
+      transientSeconds.set((float) (scale * x * samplesPerPixel.get() / audioInMemory.get().format().getSampleRate()));
     }
+    event.consume();
   }
 
   /**
@@ -301,14 +305,14 @@ public class InstrumentAudioEditorController extends BrowserController {
       int y;
 
       // Draw the zero line
-      for (x=0; x<waveformWidth.get(); x++) {
+      for (x = 0; x < waveformWidth.get(); x++) {
         for (int channel = 0; channel < audio.get().audio()[0].length; channel++) {
           pixelWriter.setColor(x, channelDiameter * channel + channelRadius, waveformZeroColor);
         }
       }
 
       // Draw the transient dashed line
-      x = (int) (transientSeconds.get() * audio.get().format().getSampleRate() / samplesPerPixel.get());
+      x = (int) Math.max(0, Math.min(waveformWidth.get() - 1, (transientSeconds.get() * audio.get().format().getSampleRate() / samplesPerPixel.get())));
       for (y = 0; y < waveformHeight; y++) {
         if ((y / waveformTransientDashPixels) % 2 == 0) {
           pixelWriter.setColor(x, y, waveformTransientColor);
