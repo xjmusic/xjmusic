@@ -63,7 +63,7 @@ public class InstrumentAudioEditorController extends BrowserController {
   private final FloatProperty tempo = new SimpleFloatProperty(0.0f);
   private final FloatProperty intensity = new SimpleFloatProperty(0.0f);
   private final FloatProperty transientSeconds = new SimpleFloatProperty(0.0f);
-  private final FloatProperty totalBeats = new SimpleFloatProperty(0.0f);
+  private final FloatProperty loopBeats = new SimpleFloatProperty(0.0f);
   private final AudioLoader audioLoader;
   private final ObjectProperty<AudioInMemory> audioInMemory = new SimpleObjectProperty<>(null);
   private final Color waveformSampleColor;
@@ -114,7 +114,7 @@ public class InstrumentAudioEditorController extends BrowserController {
   protected TextField fieldTransientSeconds;
 
   @FXML
-  protected TextField fieldTotalBeats;
+  protected TextField fieldLoopBeats;
 
   @FXML
   protected ScrollPane waveformScrollPane;
@@ -178,7 +178,7 @@ public class InstrumentAudioEditorController extends BrowserController {
     fieldTempo.textProperty().bindBidirectional(tempo, new NumberStringConverter());
     fieldIntensity.textProperty().bindBidirectional(intensity, new NumberStringConverter());
     fieldTransientSeconds.textProperty().bindBidirectional(transientSeconds, new NumberStringConverter());
-    fieldTotalBeats.textProperty().bindBidirectional(totalBeats, new NumberStringConverter());
+    fieldLoopBeats.textProperty().bindBidirectional(loopBeats, new NumberStringConverter());
     labelAudioFileName.textProperty().bind(Bindings.createStringBinding(() -> ProjectPathUtils.getFilename(audioInMemory.get().pathToAudioFile()), audioInMemory));
 
     fieldName.focusedProperty().addListener(this::onUnfocusedDoSave);
@@ -187,7 +187,7 @@ public class InstrumentAudioEditorController extends BrowserController {
     fieldTones.focusedProperty().addListener(this::onUnfocusedDoSave);
     fieldIntensity.focusedProperty().addListener(this::onUnfocusedDoSave);
     fieldTempo.focusedProperty().addListener(this::onUnfocusedDoSaveAndRenderWaveform);
-    fieldTotalBeats.focusedProperty().addListener(this::onUnfocusedDoSaveAndRenderWaveform);
+    fieldLoopBeats.focusedProperty().addListener(this::onUnfocusedDoSaveAndRenderWaveform);
     fieldTransientSeconds.focusedProperty().addListener(this::onUnfocusedDoSaveAndRenderWaveform);
 
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
@@ -295,7 +295,7 @@ public class InstrumentAudioEditorController extends BrowserController {
     instrumentAudio.setTempo(tempo.get());
     instrumentAudio.setIntensity(intensity.get());
     instrumentAudio.setTransientSeconds(transientSeconds.get());
-    instrumentAudio.setTotalBeats(totalBeats.get());
+    instrumentAudio.setLoopBeats(loopBeats.get());
     projectService.updateInstrumentAudio(instrumentAudio);
   }
 
@@ -316,7 +316,7 @@ public class InstrumentAudioEditorController extends BrowserController {
     tempo.set(instrumentAudio.getTempo());
     intensity.set(instrumentAudio.getIntensity());
     transientSeconds.set(instrumentAudio.getTransientSeconds());
-    totalBeats.set(instrumentAudio.getTotalBeats());
+    loopBeats.set(instrumentAudio.getLoopBeats());
     zoomRatio.set(1.0f);
     renderWaveform();
   }

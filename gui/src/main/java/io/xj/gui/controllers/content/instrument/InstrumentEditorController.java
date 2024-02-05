@@ -125,9 +125,9 @@ public class InstrumentEditorController extends BrowserController {
     transientSecondsColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(Float.toString(row.getValue().getTransientSeconds())));
     audiosTable.getColumns().add(transientSecondsColumn);
 
-    TableColumn<InstrumentAudio, String> totalBeatsColumn = new TableColumn<>("Total (Beats)");
-    totalBeatsColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(Float.toString(row.getValue().getTotalBeats())));
-    audiosTable.getColumns().add(totalBeatsColumn);
+    TableColumn<InstrumentAudio, String> loopBeatsColumn = new TableColumn<>("Loop (Beats)");
+    loopBeatsColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(Float.toString(row.getValue().getLoopBeats())));
+    audiosTable.getColumns().add(loopBeatsColumn);
 
     audiosTable.setOnMousePressed(
       event -> {

@@ -494,7 +494,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    */
   double craftPatternEvents(double tempo, SegmentChoice choice, ProgramSequencePattern pattern, double fromPosition, double toPosition, NoteRange range, boolean defaultAtonal) throws NexusException {
     if (Objects.isNull(pattern)) throw new NexusException("Cannot craft create null pattern");
-    double totalBeats = toPosition - fromPosition;
+    double loopBeats = toPosition - fromPosition;
     List<ProgramSequencePatternEvent> events = fabricator.sourceMaterial().getEventsOfPattern(pattern);
 
     var arrangement = new SegmentChoiceArrangement();
@@ -507,7 +507,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     var instrument = fabricator.sourceMaterial().getInstrument(choice.getInstrumentId()).orElseThrow(() -> new NexusException("Failed to retrieve instrument"));
     for (ProgramSequencePatternEvent event : events)
       pickNotesAndInstrumentAudioForEvent(tempo, instrument, choice, arrangement, fromPosition, toPosition, event, range, defaultAtonal);
-    return Math.min(totalBeats, pattern.getTotal());
+    return Math.min(loopBeats, pattern.getTotal());
   }
 
   /**
