@@ -72,7 +72,7 @@ public class NexusHubIntegrationTestingFixtures {
     instrumentAudio.setName(name);
     instrumentAudio.setWaveformKey(waveformKey);
     instrumentAudio.setTransientSeconds(start);
-    instrumentAudio.setTotalBeats(length);
+    instrumentAudio.setLoopBeats(length);
     instrumentAudio.setTempo(tempo);
     instrumentAudio.setIntensity(intensity);
     instrumentAudio.setVolume(volume);
@@ -88,7 +88,7 @@ public class NexusHubIntegrationTestingFixtures {
     instrumentAudio.setName(name);
     instrumentAudio.setWaveformKey("test123");
     instrumentAudio.setTransientSeconds(0.0f);
-    instrumentAudio.setTotalBeats(1.0f);
+    instrumentAudio.setLoopBeats(1.0f);
     instrumentAudio.setTempo(120.0f);
     instrumentAudio.setIntensity(1.0f);
     instrumentAudio.setVolume(1.0f);
@@ -309,7 +309,7 @@ public class NexusHubIntegrationTestingFixtures {
     instrumentAudio.setName(name);
     instrumentAudio.setWaveformKey(waveformKey);
     instrumentAudio.setTransientSeconds(start);
-    instrumentAudio.setTotalBeats(length);
+    instrumentAudio.setLoopBeats(length);
     instrumentAudio.setTempo(tempo);
     instrumentAudio.setIntensity(intensity);
     instrumentAudio.setVolume(volume);

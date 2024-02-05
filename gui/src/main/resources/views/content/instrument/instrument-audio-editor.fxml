@@ -68,8 +68,8 @@
     </VBox>
 
     <VBox>
-      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Total (Beats)"/>
-      <TextField fx:id="fieldTotalBeats" prefHeight="25.0"/>
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Loop (Beats)"/>
+      <TextField fx:id="fieldLoopBeats" prefHeight="25.0"/>
     </VBox>
   </VBox>
 
