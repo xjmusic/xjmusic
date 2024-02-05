@@ -28,6 +28,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
 import javafx.scene.paint.Color;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -83,6 +84,7 @@ public class UIStateServiceImpl implements UIStateService {
     FabricationService fabricationService,
     ProjectService projectService
   ) {
+
     // Has a current project?
     hasCurrentProject = projectService.stateProperty().isNotEqualTo(ProjectState.Standby);
 
@@ -509,11 +511,6 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public BooleanBinding isLibraryContentBrowserProperty() {
     return isLibraryContentBrowser;
-  }
-
-  @Override
-  public Color getWaveformColor() {
-    return Color.valueOf("#17ef17");
   }
 
 }

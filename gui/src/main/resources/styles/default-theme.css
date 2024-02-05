@@ -338,7 +338,7 @@
 .top-pane .toggle-button,
 .template-bindings-pane .button,
 .instrument-audios-pane .button,
-#buttonOpenAudioFile {
+.waveform-pane .button {
   -fx-background-color: transparent;
   -fx-border-color: transparent;
   -fx-border-width: 0;
@@ -349,7 +349,7 @@
 .top-pane .toggle-button:hover,
 .template-bindings-pane .button:hover,
 .instrument-audios-pane .button:hover,
-#buttonOpenAudioFile:hover {
+.waveform-pane .button:hover {
   -fx-background-color: #606060;
 }
 
@@ -357,7 +357,7 @@
 .top-pane .toggle-button:pressed,
 .template-bindings-pane .button:pressed,
 .instrument-audios-pane .button:pressed,
-#buttonOpenAudioFile:pressed {
+.waveform-pane .button:pressed {
   -fx-background-color: #909090;
 }
 
@@ -365,7 +365,7 @@
 .top-pane .toggle-button:selected,
 .template-bindings-pane .button:selected,
 .instrument-audios-pane .button:selected,
-#buttonOpenAudioFile:selected {
+.waveform-pane .button:selected {
   -fx-background-color: #606060;
 }
 
@@ -398,6 +398,12 @@
 
 #fieldConfig {
   -fx-font-family: 'Roboto Mono';
+}
+
+#labelAudioFileName {
+  -fx-font-family: 'Roboto Mono';
+  -fx-font-size: 0.62em;
+  -fx-fill: #404040;
 }
 
 .waveform-container {

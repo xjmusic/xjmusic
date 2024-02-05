@@ -12,11 +12,12 @@ import io.xj.gui.utils.ProjectUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.audio.AudioInMemory;
 import io.xj.nexus.audio.AudioLoader;
-import javafx.beans.property.BooleanProperty;
+import io.xj.nexus.project.ProjectPathUtils;
+import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.FloatProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -24,12 +25,14 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.converter.NumberStringConverter;
@@ -41,7 +44,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -61,10 +63,13 @@ public class InstrumentAudioEditorController extends BrowserController {
   private final FloatProperty tempo = new SimpleFloatProperty(0.0f);
   private final FloatProperty intensity = new SimpleFloatProperty(0.0f);
   private final FloatProperty transientSeconds = new SimpleFloatProperty(0.0f);
-  private final FloatProperty totalBeats = new SimpleFloatProperty(0.0f);
-  private final BooleanProperty dirty = new SimpleBooleanProperty(false);
+  private final FloatProperty loopBeats = new SimpleFloatProperty(0.0f);
   private final AudioLoader audioLoader;
   private final ObjectProperty<AudioInMemory> audioInMemory = new SimpleObjectProperty<>(null);
+  private final Color waveformSampleColor;
+  private final Color waveformTransientColor;
+  private final Color waveformZeroColor;
+  private final Color waveformGridColor;
 
   @Value("${gui.instrument.audio.waveform.maxWidthPixels}")
   private int waveformMaxWidth;
@@ -77,6 +82,9 @@ public class InstrumentAudioEditorController extends BrowserController {
 
   @Value("${gui.instrument.audio.waveform.minSamplesPerPixel}")
   private int waveformMinSamplesPerPixel;
+
+  @Value("${gui.instrument.audio.waveform.transientDashPixels}")
+  private int waveformTransientDashPixels;
 
   @FXML
   protected SplitPane container;
@@ -106,10 +114,7 @@ public class InstrumentAudioEditorController extends BrowserController {
   protected TextField fieldTransientSeconds;
 
   @FXML
-  protected TextField fieldTotalBeats;
-
-  @FXML
-  protected Button buttonSave;
+  protected TextField fieldLoopBeats;
 
   @FXML
   protected ScrollPane waveformScrollPane;
@@ -118,7 +123,13 @@ public class InstrumentAudioEditorController extends BrowserController {
   protected ImageView waveform;
 
   @FXML
+  protected Button buttonOpenAudioFolder;
+
+  @FXML
   protected Button buttonOpenAudioFile;
+
+  @FXML
+  protected Label labelAudioFileName;
 
   @FXML
   protected Button buttonZoomOut;
@@ -128,6 +139,10 @@ public class InstrumentAudioEditorController extends BrowserController {
 
   public InstrumentAudioEditorController(
     @Value("classpath:/views/content/instrument/instrument-audio-editor.fxml") Resource fxml,
+    @Value("${gui.instrument.audio.waveform.gridColor}") String waveformGridColor,
+    @Value("${gui.instrument.audio.waveform.sampleColor}") String waveformSampleColor,
+    @Value("${gui.instrument.audio.waveform.transientColor}") String waveformTransientColor,
+    @Value("${gui.instrument.audio.waveform.zeroColor}") String waveformZeroColor,
     ApplicationContext ac,
     ThemeService themeService,
     ProjectService projectService,
@@ -136,6 +151,10 @@ public class InstrumentAudioEditorController extends BrowserController {
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.audioLoader = audioLoader;
+    this.waveformGridColor = Color.valueOf(waveformGridColor);
+    this.waveformSampleColor = Color.valueOf(waveformSampleColor);
+    this.waveformTransientColor = Color.valueOf(waveformTransientColor);
+    this.waveformZeroColor = Color.valueOf(waveformZeroColor);
   }
 
   @Override
@@ -146,11 +165,11 @@ public class InstrumentAudioEditorController extends BrowserController {
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
-    waveformViewportWidth.bind(container.getScene().widthProperty().multiply(one.subtract(container.getDividers().get(0).positionProperty())));
-    waveform.fitHeightProperty().bind(container.heightProperty().subtract(SCROLL_PANE_HBAR_HEIGHT));
     zoomRatio.addListener((o, ov, v) -> renderWaveform());
     buttonZoomIn.disableProperty().bind(waveformWidth.greaterThanOrEqualTo(waveformMaxWidth).or(samplesPerPixel.lessThan(waveformMinSamplesPerPixel)));
     buttonZoomOut.disableProperty().bind(zoomRatio.lessThanOrEqualTo(1));
+    waveformViewportWidth.bind(container.getScene().widthProperty().multiply(one.subtract(container.getDividers().get(0).positionProperty())));
+    waveform.fitHeightProperty().bind(container.heightProperty().subtract(SCROLL_PANE_HBAR_HEIGHT));
 
     fieldName.textProperty().bindBidirectional(name);
     fieldEvent.textProperty().bindBidirectional(event);
@@ -159,23 +178,22 @@ public class InstrumentAudioEditorController extends BrowserController {
     fieldTempo.textProperty().bindBidirectional(tempo, new NumberStringConverter());
     fieldIntensity.textProperty().bindBidirectional(intensity, new NumberStringConverter());
     fieldTransientSeconds.textProperty().bindBidirectional(transientSeconds, new NumberStringConverter());
-    fieldTotalBeats.textProperty().bindBidirectional(totalBeats, new NumberStringConverter());
+    fieldLoopBeats.textProperty().bindBidirectional(loopBeats, new NumberStringConverter());
+    labelAudioFileName.textProperty().bind(Bindings.createStringBinding(() -> ProjectPathUtils.getFilename(audioInMemory.get().pathToAudioFile()), audioInMemory));
 
-    name.addListener((o, ov, v) -> dirty.set(true));
-    event.addListener((o, ov, v) -> dirty.set(true));
-    volume.addListener((o, ov, v) -> dirty.set(true));
-    tones.addListener((o, ov, v) -> dirty.set(true));
-    tempo.addListener((o, ov, v) -> dirty.set(true));
-    intensity.addListener((o, ov, v) -> dirty.set(true));
-    transientSeconds.addListener((o, ov, v) -> dirty.set(true));
-    totalBeats.addListener((o, ov, v) -> dirty.set(true));
+    fieldName.focusedProperty().addListener(this::onUnfocusedDoSave);
+    fieldEvent.focusedProperty().addListener(this::onUnfocusedDoSave);
+    fieldVolume.focusedProperty().addListener(this::onUnfocusedDoSave);
+    fieldTones.focusedProperty().addListener(this::onUnfocusedDoSave);
+    fieldIntensity.focusedProperty().addListener(this::onUnfocusedDoSave);
+    fieldTempo.focusedProperty().addListener(this::onUnfocusedDoSaveAndRenderWaveform);
+    fieldLoopBeats.focusedProperty().addListener(this::onUnfocusedDoSaveAndRenderWaveform);
+    fieldTransientSeconds.focusedProperty().addListener(this::onUnfocusedDoSaveAndRenderWaveform);
 
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.InstrumentAudioEditor))
         setup();
     });
-
-    buttonSave.disableProperty().bind(dirty.not());
   }
 
   @Override
@@ -184,18 +202,14 @@ public class InstrumentAudioEditorController extends BrowserController {
   }
 
   @FXML
-  protected void handlePressSave() {
+  private void handlePressOpenAudioFolder() {
     var instrumentAudio = projectService.getContent().getInstrumentAudio(instrumentAudioId.get())
       .orElseThrow(() -> new RuntimeException("Could not find InstrumentAudio"));
-    instrumentAudio.setName(name.get());
-    instrumentAudio.setEvent(event.get());
-    instrumentAudio.setVolume(volume.get());
-    instrumentAudio.setTones(tones.get());
-    instrumentAudio.setTempo(tempo.get());
-    instrumentAudio.setIntensity(intensity.get());
-    instrumentAudio.setTransientSeconds(transientSeconds.get());
-    instrumentAudio.setTotalBeats(totalBeats.get());
-    if (projectService.updateInstrumentAudio(instrumentAudio)) dirty.set(false);
+    var instrument = projectService.getContent().getInstrument(instrumentAudio.getInstrumentId())
+      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
+    var audioFolder = projectService.getPathPrefixToInstrumentAudio(instrument.getId());
+    if (Objects.isNull(audioFolder)) return;
+    ProjectUtils.openDesktopPath(audioFolder);
   }
 
   @FXML
@@ -217,6 +231,74 @@ public class InstrumentAudioEditorController extends BrowserController {
     zoomRatio.set(zoomRatio.get() + 1);
   }
 
+  @FXML
+  private void handleClickedWaveformScrollPane(MouseEvent event) {
+    if (audioInMemory.isNull().get()) return;
+
+    // The waveform is scaled based on the window height
+    float scale = (float) (waveformHeight / waveform.fitHeightProperty().get());
+
+    // Compute the X value that was clicked on the waveform, correcting for the scrolling of the pane that was clicked
+    double hValue = waveformScrollPane.getHvalue();
+    double contentWidth = waveformScrollPane.getContent().getLayoutBounds().getWidth();
+    double viewportWidth = waveformScrollPane.getViewportBounds().getWidth();
+    double maxScrollableWidth = Math.min(0, contentWidth - viewportWidth);
+    double scrolledPixelsRight = hValue * maxScrollableWidth;
+    double x = event.getX() + scrolledPixelsRight;
+
+    // Check for double-click
+    if (event.getClickCount() == 2) {
+      transientSeconds.set((float) (scale * x * samplesPerPixel.get() / audioInMemory.get().format().getSampleRate()));
+      save();
+      renderWaveform();
+    }
+    event.consume();
+  }
+
+  /**
+   When a field is unfocused, save and re-render waveform
+
+   @param ignored1 observable
+   @param ignored2 old value
+   @param focused  false if unfocused
+   */
+  private void onUnfocusedDoSaveAndRenderWaveform(Observable ignored1, Boolean ignored2, Boolean focused) {
+    if (!focused) {
+      save();
+      renderWaveform();
+    }
+  }
+
+  /**
+   When a field is unfocused, save
+
+   @param ignored1 observable
+   @param ignored2 old value
+   @param focused  false if unfocused
+   */
+  private void onUnfocusedDoSave(Observable ignored1, Boolean ignored2, Boolean focused) {
+    if (!focused) {
+      save();
+    }
+  }
+
+  /**
+   Save the instrument audio record
+   */
+  private void save() {
+    var instrumentAudio = projectService.getContent().getInstrumentAudio(instrumentAudioId.get())
+      .orElseThrow(() -> new RuntimeException("Could not find InstrumentAudio"));
+    instrumentAudio.setName(name.get());
+    instrumentAudio.setEvent(event.get());
+    instrumentAudio.setVolume(volume.get());
+    instrumentAudio.setTones(tones.get());
+    instrumentAudio.setTempo(tempo.get());
+    instrumentAudio.setIntensity(intensity.get());
+    instrumentAudio.setTransientSeconds(transientSeconds.get());
+    instrumentAudio.setLoopBeats(loopBeats.get());
+    projectService.updateInstrumentAudio(instrumentAudio);
+  }
+
   /**
    Update the Instrument Editor with the current Instrument.
    */
@@ -234,8 +316,7 @@ public class InstrumentAudioEditorController extends BrowserController {
     tempo.set(instrumentAudio.getTempo());
     intensity.set(instrumentAudio.getIntensity());
     transientSeconds.set(instrumentAudio.getTransientSeconds());
-    totalBeats.set(instrumentAudio.getTotalBeats());
-    this.dirty.set(false);
+    loopBeats.set(instrumentAudio.getLoopBeats());
     zoomRatio.set(1.0f);
     renderWaveform();
   }
@@ -245,31 +326,59 @@ public class InstrumentAudioEditorController extends BrowserController {
    */
   private void renderWaveform() {
     try {
-      Optional<AudioInMemory> audio = loadAudioWaveform();
-      if (audio.isEmpty()) return;
+      loadAudioWaveform();
+      if (audioInMemory.isNull().get()) return;
 
       // Calculate the total number of pixels needed to represent the waveform
-      int totalSamples = audio.get().audio().length;
+      int totalSamples = audioInMemory.get().data().length;
       waveformWidth.set(Math.min(waveformMaxWidth, (int) (zoomRatio.get() * waveformViewportWidth.get())));
       samplesPerPixel.set((float) totalSamples / waveformWidth.get());
-      int channelRadius = waveformHeight / audio.get().format().getChannels() / 2;
+      int channelRadius = waveformHeight / audioInMemory.get().format().getChannels() / 2;
       int channelDiameter = channelRadius * 2;
-      float displayVolumeRatio = computeDisplayVolumeRatio(audio.get().audio());
+      float displayVolumeRatio = computeDisplayVolumeRatio(audioInMemory.get().data());
+      float secondsPerBeat = 60 / tempo.get();
+      int beatsBeforeTransient = ((int) (transientSeconds.get() / secondsPerBeat));
+      int beatsAfterTransient = ((int) ((audioInMemory.get().data().length/ audioInMemory.get().format().getSampleRate()) / secondsPerBeat));
 
       // Create a new image to hold the waveform
       WritableImage image = new WritableImage(waveformWidth.get(), waveformHeight);
       PixelWriter pixelWriter = image.getPixelWriter();
-      Color color = uiStateService.getWaveformColor();
 
-      // Calculate the total number of pixels needed to represent the waveform
-      int startSampleIndex;
-      int endSampleIndex;
+      // for pixel calculations
+      int i;
+      int x;
+      int y;
 
-      // For each pixel, get the max value of the samples in that range and add it to the polyline
-      for (int x = 0; x < waveformWidth.get(); x++) {
-        startSampleIndex = (int) (x * samplesPerPixel.get());
-        endSampleIndex = (int) Math.min(startSampleIndex + samplesPerPixel.get(), totalSamples);
-        writeSamplesToImage(audio.get().audio(), pixelWriter, color, displayVolumeRatio, channelRadius, channelDiameter, startSampleIndex, endSampleIndex, x);
+      // Draw the zero line
+      for (x = 0; x < waveformWidth.get(); x++) {
+        for (int channel = 0; channel < audioInMemory.get().data()[0].length; channel++) {
+          pixelWriter.setColor(x, channelDiameter * channel + channelRadius, waveformZeroColor);
+        }
+      }
+
+      // Draw the beat grid lines
+      for (i = -beatsBeforeTransient; i < beatsAfterTransient; i++) {
+        x = (int) Math.max(0, Math.min(waveformWidth.get() - 1, ((transientSeconds.get() + i * secondsPerBeat) * audioInMemory.get().format().getSampleRate() / samplesPerPixel.get())));
+        for (y = 0; y < waveformHeight; y++) {
+          pixelWriter.setColor(x, y, waveformGridColor);
+        }
+      }
+
+      // Draw the transient dashed line
+      x = (int) Math.max(0, Math.min(waveformWidth.get() - 1, (transientSeconds.get() * audioInMemory.get().format().getSampleRate() / samplesPerPixel.get())));
+      for (y = 0; y < waveformHeight; y++) {
+        if ((y / waveformTransientDashPixels) % 2 == 0) {
+          pixelWriter.setColor(x, y, waveformTransientColor);
+        }
+      }
+
+      // Draw each sample
+      for (i = 0; i < audioInMemory.get().data().length; i++) {
+        x = (int) (i / samplesPerPixel.get());
+        for (int channel = 0; channel < audioInMemory.get().data()[i].length; channel++) {
+          y = channelDiameter * channel + channelRadius - (int) (audioInMemory.get().data()[i][channel] * channelRadius * displayVolumeRatio);
+          if (y >= 0 && y <= waveformHeight) pixelWriter.setColor(x, y, waveformSampleColor);
+        }
       }
 
       // Set the image to the waveform
@@ -277,16 +386,15 @@ public class InstrumentAudioEditorController extends BrowserController {
       waveform.setLayoutX(0);
 
     } catch (Exception e) {
-      LOG.error("Could not render audio file!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Could not render audioInMemory file!\n{}", StringUtils.formatStackTrace(e), e);
     }
   }
 
   /**
    Load the audio waveform into memory if it is not already loaded, or return cached audio in memory
-
-   @return the audio in memory
    */
-  private Optional<AudioInMemory> loadAudioWaveform() {
+  private void loadAudioWaveform() {
+    if (uiStateService.currentInstrumentAudioProperty().isNull().get()) return;
     var audio = projectService.getContent().getInstrumentAudio(uiStateService.currentInstrumentAudioProperty().get().getId())
       .orElseThrow(() -> new RuntimeException("Could not find InstrumentAudio"));
     if (StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
@@ -296,11 +404,11 @@ public class InstrumentAudioEditorController extends BrowserController {
         "No waveform file found for this InstrumentAudio.",
         "Please delete this audio and re-create with a valid waveform."
       );
-      return Optional.empty();
+      return;
     }
     if (audioInMemory.isNull().get() || !audioInMemory.get().id().equals(audio.getId())) try {
       audioInMemory.set(audioLoader.load(audio));
-      LOG.info("Loaded audio file \"{}\" with {} channels and {} frames", audioInMemory.get().format(), audioInMemory.get().format().getChannels(), audioInMemory.get().audio().length);
+      LOG.info("Loaded audio file \"{}\" with {} channels and {} frames", audioInMemory.get().format(), audioInMemory.get().format().getChannels(), audioInMemory.get().data().length);
     } catch (Exception e) {
       LOG.error("Could not load audio file!\n{}", StringUtils.formatStackTrace(e), e);
       projectService.showWarningAlert(
@@ -308,9 +416,7 @@ public class InstrumentAudioEditorController extends BrowserController {
         "Could not load audio file.",
         "Please try again or contact support."
       );
-      return Optional.empty();
     }
-    return Optional.of(audioInMemory.get());
   }
 
   /**
@@ -328,33 +434,5 @@ public class InstrumentAudioEditorController extends BrowserController {
       }
     }
     return waveformNormalizeMaxValue / max;
-  }
-
-  /**
-   Write samples to waveform image at a single X coordinate
-
-   @param data             the audio samples
-   @param pixelWriter      to write image
-   @param color            to write
-   @param ratio            the display volume ratio
-   @param channelRadius    the radius of one channel
-   @param channelDiameter  the diameter of one channel
-   @param startSampleIndex the start sample index
-   @param endSampleIndex   the end sample index
-   @param x                the x position of the rectangle
-   */
-  private void writeSamplesToImage(float[][] data, PixelWriter pixelWriter, Color color, float ratio, int channelRadius, int channelDiameter, int startSampleIndex, int endSampleIndex, int x) {
-    // keep track of old y for each channel and don't redraw if it hasn't changed
-    int[] oy = new int[data[0].length];
-    int y;
-    for (int sampleIndex = startSampleIndex; sampleIndex < endSampleIndex; sampleIndex++) {
-      for (int channel = 0; channel < data[sampleIndex].length; channel++) {
-        y = channelDiameter * channel + channelRadius + (int) (data[sampleIndex][channel] * channelRadius * ratio);
-        if (y != oy[channel]) {
-          oy[channel] = y;
-          if (y >= 0 && y <= waveformHeight) pixelWriter.setColor(x, y, color);
-        }
-      }
-    }
   }
 }
