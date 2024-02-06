@@ -2,6 +2,7 @@ package io.xj.gui.controllers.content.program;
 
 import io.xj.gui.services.ProjectService;
 import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.util.StringUtils;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
@@ -61,10 +62,11 @@ public class MemeTagController {
   private void updateMeme() {
     try {
       var memes = projectService.getContent().getMemesOfProgram(programId);
+      String name = StringUtils.toMeme(memeNameField.getText());
       memes.forEach(programMeme -> {
         if (programMeme.getId().equals(currentMeme.getId())) {
-          programMeme.setName(memeNameField.getText());
-          currentMeme.setName(memeNameField.getText());
+          programMeme.setName(name);
+          currentMeme.setName(name);
         }
       });
       projectService.getContent().getMemesOfProgram(programId).clear();
@@ -82,8 +84,9 @@ public class MemeTagController {
     memeNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
       if (!newValue) {
         stackPane.setPrefWidth(computeTextWidth(memeNameField.getFont(), memeNameField.getText() + 5));
-        memeNameLabel.setWrappingWidth(computeTextWidth(memeNameField.getFont(), memeNameField.getText() + 5));
-        memeNameLabel.setText(memeNameField.getText());
+        memeNameField.setPrefWidth(computeTextWidth(memeNameField.getFont(), memeNameField.getText() + 5));
+        memeNameLabel.setText(StringUtils.toMeme(memeNameField.getText()));
+        memeNameLabel.setWrappingWidth(computeTextWidth(memeNameField.getFont(), memeNameLabel.getText() + 5));
         memeNameLabel.setVisible(true);
         updateMeme();
       }
