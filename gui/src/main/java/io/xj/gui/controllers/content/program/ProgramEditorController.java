@@ -3,6 +3,7 @@
 package io.xj.gui.controllers.content.program;
 
 import io.xj.gui.ProjectController;
+import io.xj.gui.controllers.CmdModalController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
@@ -38,6 +39,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.UnaryOperator;
 
 @Service
 public class ProgramEditorController extends ProjectController {
@@ -88,7 +90,7 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   public Label gridLabel;
   @FXML
-  public ToggleButton sequenceToggle;
+  public Button sequenceButton;
   @FXML
   protected VBox container;
   @FXML
@@ -144,16 +146,18 @@ public class ProgramEditorController extends ProjectController {
     FXCollections.observableArrayList(Arrays.asList("5%", "10%", "25%", "50%", "100%", "200%", "300%", "400%"));
   private final SimpleStringProperty sequencePropertyName = new SimpleStringProperty("");
   private final SimpleStringProperty sequencePropertyKey = new SimpleStringProperty("");
-
+  private final CmdModalController cmdModalController;
+  private ProgramSequence programSequence=new ProgramSequence();
 
   public ProgramEditorController(
     @Value("classpath:/views/content/library-editor.fxml") Resource fxml,
     ApplicationContext ac,
     ThemeService themeService,
     ProjectService projectService,
-    UIStateService uiStateService
-  ) {
+    UIStateService uiStateService,
+    CmdModalController cmdModalController) {
     super(fxml, ac, themeService, uiStateService, projectService);
+    this.cmdModalController = cmdModalController;
   }
 
   @Override
@@ -175,8 +179,6 @@ public class ProgramEditorController extends ProjectController {
       String.format("%.1f", sequenceIntensityDoubleValue.get()), sequenceIntensityDoubleValue));
     stateChooser.valueProperty().bindBidirectional(state);
     keyField.textProperty().bindBidirectional(key);
-    sequenceKey.textProperty().bindBidirectional(sequencePropertyKey);
-    sequenceName.textProperty().bindBidirectional(sequencePropertyName);
     intensityChooser.setValueFactory(intensityValueFactory);
 
     // Bind the Chooser's value to the ObjectProperty(intensity)
@@ -230,15 +232,32 @@ public class ProgramEditorController extends ProjectController {
     gridChooser.setValue("1/4");
     zoomChooser.setItems(zoomOptions);
     zoomChooser.setValue("25%");
-    sequenceToggle.setOnMouseClicked(this::showSequenceUI);
+    sequenceButton.setOnMouseClicked(this::showSequenceUI);
     sequenceMenuLauncher.setOnMouseClicked(this::showSequenceManagementUI);
     sequenceIntensityChooser.setVisible(false);
     sequenceTotalChooser.setVisible(false);
     createDisabilityBindingForTypes(snapButton, Arrays.asList(ProgramType.Beat, ProgramType.Detail));
     toggleVisibilityBetweenEditorAndLabel(sequenceIntensityChooser, sequenceIntensityLabel);
     toggleVisibilityBetweenEditorAndLabel(sequenceTotalChooser, sequenceTotalLabel);
+    setTextFieldValueToAlwaysCAPS(keyField);
+    setTextFieldValueToAlwaysCAPS(sequenceKey);
   }
 
+  private void setTextFieldValueToAlwaysCAPS(TextField textField) {
+    // Create a UnaryOperator to convert text to uppercase
+    UnaryOperator<TextFormatter.Change> filter = change -> {
+      String text = change.getText();
+      if (text.matches("[a-z]")) {
+        change.setText(text.toUpperCase());
+      }
+      return change;
+    };
+
+    // Apply the UnaryOperator to the TextFormatter
+    TextFormatter<String> textFormatter = new TextFormatter<>(filter);
+    // Set the TextFormatter to the TextField
+    textField.setTextFormatter(textFormatter);
+  }
 
   protected void showSequenceUI(javafx.scene.input.MouseEvent event) {
     try {
@@ -248,7 +267,7 @@ public class ProgramEditorController extends ProjectController {
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       SearchSequence searchSequence = loader.getController();
-      searchSequence.setUp(sequences);
+      searchSequence.setUp(sequences,programSequence);
       stage.setScene(new Scene(root));
       // Set the owner of the stage
       stage.initOwner(themeService.getMainScene().getWindow());
@@ -373,22 +392,9 @@ public class ProgramEditorController extends ProjectController {
 
   @FXML
   protected void openCloneDialog() {
-    try {
-      var program = projectService.getContent().getProgram(programId.get())
-        .orElseThrow(() -> new RuntimeException("Could not find Program"));
-      Stage stage = new Stage(StageStyle.TRANSPARENT);
-      FXMLLoader loader = new FXMLLoader(cloneFxml.getURL());
-      loader.setControllerFactory(ac::getBean);
-      Parent root = loader.load();
-      CloneMenuController cloneMenuController = loader.getController();
-      cloneMenuController.setUp(program, stage);
-      stage.setScene(new Scene(root));
-      // Set the owner of the stage
-      stage.initOwner(themeService.getMainScene().getWindow());
-      stage.show();
-    } catch (IOException e) {
-      LOG.error("Error opening clone window!\n{}", StringUtils.formatStackTrace(e), e);
-    }
+    var program = projectService.getContent().getProgram(programId.get())
+      .orElseThrow(() -> new RuntimeException("Could not find Program"));
+    cmdModalController.cloneProgram(program);
   }
 
   @Override
@@ -456,6 +462,7 @@ public class ProgramEditorController extends ProjectController {
     List<ProgramSequence> sequenceList = new ArrayList<>(programSequences);
     if (!sequenceList.isEmpty()) {
       sequence = sequenceList.get(0);
+      programSequence=sequence;
       this.sequenceId.set(sequence.getId());
       this.sequencePropertyName.set(sequence.getName());
       this.sequencePropertyKey.set(sequence.getKey());
