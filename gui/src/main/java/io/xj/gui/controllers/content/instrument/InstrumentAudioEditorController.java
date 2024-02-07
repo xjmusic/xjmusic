@@ -338,7 +338,7 @@ public class InstrumentAudioEditorController extends BrowserController {
       float displayVolumeRatio = computeDisplayVolumeRatio(audioInMemory.get().data());
       float secondsPerBeat = 60 / tempo.get();
       int beatsBeforeTransient = ((int) (transientSeconds.get() / secondsPerBeat));
-      int beatsAfterTransient = ((int) ((audioInMemory.get().data().length/ audioInMemory.get().format().getSampleRate()) / secondsPerBeat));
+      int beatsAfterTransient = ((int) ((audioInMemory.get().data().length / audioInMemory.get().format().getSampleRate()) / secondsPerBeat));
 
       // Create a new image to hold the waveform
       WritableImage image = new WritableImage(waveformWidth.get(), waveformHeight);
@@ -358,6 +358,7 @@ public class InstrumentAudioEditorController extends BrowserController {
 
       // Draw the beat grid lines
       for (i = -beatsBeforeTransient; i < beatsAfterTransient; i++) {
+        if (i == 0) continue; // don't draw at the transient
         x = (int) Math.max(0, Math.min(waveformWidth.get() - 1, ((transientSeconds.get() + i * secondsPerBeat) * audioInMemory.get().format().getSampleRate() / samplesPerPixel.get())));
         for (y = 0; y < waveformHeight; y++) {
           pixelWriter.setColor(x, y, waveformGridColor);
