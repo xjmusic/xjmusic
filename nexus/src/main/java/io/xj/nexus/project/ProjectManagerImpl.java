@@ -218,7 +218,7 @@ public class ProjectManagerImpl implements ProjectManager {
         }
       }
     } catch (IOException e) {
-      LOG.error("Failed to list all instrument folders and audio files on disk!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Failed to list all instrument folders and audio files on disk!\n{}", StringUtils.formatStackTrace(e), e);
       updateState(ProjectState.Ready);
       return 0;
     }
@@ -237,7 +237,7 @@ public class ProjectManagerImpl implements ProjectManager {
       try {
         Files.deleteIfExists(Paths.get(s));
       } catch (IOException e) {
-        LOG.error("Failed to delete audio file {}\n{}", s, StringUtils.formatStackTrace(e.getCause()));
+        LOG.error("Failed to delete audio file {}\n{}", s, StringUtils.formatStackTrace(e));
         updateState(ProjectState.Ready);
         return 0;
       }
@@ -246,7 +246,7 @@ public class ProjectManagerImpl implements ProjectManager {
       try {
         FileUtils.deleteDirectory(new File(path));
       } catch (IOException e) {
-        LOG.error("Failed to delete instrument folder {}\n{}", path, StringUtils.formatStackTrace(e.getCause()));
+        LOG.error("Failed to delete instrument folder {}\n{}", path, StringUtils.formatStackTrace(e));
         updateState(ProjectState.Ready);
         return 0;
       }
