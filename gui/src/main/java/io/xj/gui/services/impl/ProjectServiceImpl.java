@@ -39,6 +39,7 @@ import javafx.beans.value.ObservableStringValue;
 import javafx.collections.FXCollections;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.layout.Region;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -132,7 +133,7 @@ public class ProjectServiceImpl implements ProjectService {
     }, state);
 
     state.addListener((o, ov, nv) -> {
-      if (nv == ProjectState.Ready) {
+      if (nv==ProjectState.Ready) {
         didUpdate(Template.class, false);
         didUpdate(Library.class, false);
         didUpdate(Program.class, false);
@@ -172,15 +173,15 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public void createProject(String parentPathPrefix, String projectName) {
     closeProject(() -> {
-      if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName)) return;
-      executeInBackground("Create Project", () -> {
-        if (projectManager.createProject(parentPathPrefix, projectName)) {
-          projectManager.getProject().ifPresent(project -> {
-            isModified.set(false);
-            addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
-          });
-        }
-      });
+      if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName))
+        executeInBackground("Create Project", () -> {
+          if (projectManager.createProject(parentPathPrefix, projectName)) {
+            projectManager.getProject().ifPresent(project -> {
+              isModified.set(false);
+              addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
+            });
+          }
+        });
     });
   }
 
@@ -216,6 +217,22 @@ public class ProjectServiceImpl implements ProjectService {
         if (Objects.nonNull(afterSave)) Platform.runLater(afterSave);
       });
     });
+  }
+
+  @Override
+  public void cleanupProject() {
+    if (promptForConfirmation("Cleanup Project", "Cleanup Project", "This operation will remove any unused audio files and optimize the project. Do you want to proceed?")) {
+      executeInBackground("Cleanup Project", () -> {
+        var deleted = projectManager.cleanupProject();
+        Platform.runLater(() -> {
+          if (deleted > 0) {
+            showAlert(Alert.AlertType.INFORMATION, "Cleanup Project", "Cleanup Project", String.format("Removed %d unused audio files", deleted));
+          } else {
+            showAlert(Alert.AlertType.INFORMATION, "Cleanup Project", "Cleanup Project", "No unused audio files found");
+          }
+        });
+      });
+    }
   }
 
   @Override
@@ -289,7 +306,7 @@ public class ProjectServiceImpl implements ProjectService {
         .filter(library -> !library.getIsDeleted())
         .sorted(Comparator.comparing(Library::getName))
         .toList()
-      : new ArrayList<>();
+      :new ArrayList<>();
   }
 
   @Override
@@ -299,7 +316,7 @@ public class ProjectServiceImpl implements ProjectService {
         .filter(program -> !program.getIsDeleted())
         .sorted(Comparator.comparing(Program::getName))
         .toList()
-      : new ArrayList<>();
+      :new ArrayList<>();
   }
 
   @Override
@@ -309,7 +326,7 @@ public class ProjectServiceImpl implements ProjectService {
         .filter(instrument -> !instrument.getIsDeleted())
         .sorted(Comparator.comparing(Instrument::getName))
         .toList()
-      : new ArrayList<>();
+      :new ArrayList<>();
   }
 
   @Override
@@ -319,7 +336,7 @@ public class ProjectServiceImpl implements ProjectService {
         .filter(template -> !template.getIsDeleted())
         .sorted(Comparator.comparing(Template::getName))
         .toList()
-      : new ArrayList<>();
+      :new ArrayList<>();
   }
 
   @Override
@@ -577,6 +594,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     Alert alert = new Alert(Alert.AlertType.WARNING);
     themeService.setup(alert);
+    alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
     alert.setTitle("Project Modified");
     alert.setHeaderText("Project has unsaved changes!");
     alert.setContentText(String.format("Save changes to the XJ music project \"%s\" before closing?",
@@ -599,13 +617,66 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void showWarningAlert(String title, String header, String body) {
-    Alert alert = new Alert(Alert.AlertType.WARNING);
+    showAlert(Alert.AlertType.WARNING, title, header, body);
+  }
+
+  /**
+   Show alert@param type
+
+   @param title  of alert
+   @param header of alert
+   @param body   of alert
+   */
+  private void showAlert(Alert.AlertType type, String title, String header, String body) {
+    Alert alert = new Alert(type);
     themeService.setup(alert);
+    alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
     alert.setGraphic(null);
     alert.setTitle(title);
     alert.setHeaderText(header);
     alert.setContentText(body);
     alert.showAndWait();
+  }
+
+  /**
+   If the directory already exists then pop up a confirmation dialog
+
+   @param parentPathPrefix parent folder
+   @param projectName      project name
+   @return true if overwrite confirmed
+   */
+  private boolean promptToSkipOverwriteIfExists(String parentPathPrefix, String projectName) {
+    if (!Files.exists(Path.of(parentPathPrefix + projectName))) {
+      return true;
+    }
+    return promptForConfirmation("Overwrite Existing Project",
+      "The project already exists",
+      String.format("The project \"%s\" already exists in the folder \"%s\". This operation will update any modified files from the original remote versions. Do you want to proceed?",
+        projectName, parentPathPrefix));
+  }
+
+  /**
+   Show a YES/NO confirmation dialog
+
+   @param title       of confirmation
+   @param headerText  of confirmation
+   @param contentText of confirmation
+   @return true if user chooses yes
+   */
+  private boolean promptForConfirmation(String title, String headerText, String contentText) {
+    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+    themeService.setup(alert);
+    alert.setTitle(title);
+    alert.setHeaderText(headerText);
+    alert.setContentText(contentText);
+    alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+
+    // Optional: Customize the buttons (optional)
+    alert.getButtonTypes().setAll(ButtonType.NO, ButtonType.YES);
+
+    // Show the dialog and capture the result
+    var result = alert.showAndWait();
+    return result.isPresent() && result.get()==ButtonType.YES;
   }
 
   /**
@@ -617,21 +688,21 @@ public class ProjectServiceImpl implements ProjectService {
    */
   private void cloneProject(String parentPathPrefix, String projectName, Callable<Boolean> clone) {
     closeProject(() -> {
-      if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName)) return;
-      executeInBackground("Clone Project", () -> {
-        try {
-          if (clone.call()) {
-            projectManager.getProject().ifPresent(project -> {
-              isModified.set(false);
-              addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
-            });
-          } else {
-            removeFromRecentProjects(parentPathPrefix + projectName + ".xj");
+      if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName))
+        executeInBackground("Clone Project", () -> {
+          try {
+            if (clone.call()) {
+              projectManager.getProject().ifPresent(project -> {
+                isModified.set(false);
+                addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
+              });
+            } else {
+              removeFromRecentProjects(parentPathPrefix + projectName + ".xj");
+            }
+          } catch (Exception e) {
+            LOG.warn("Failed to clone project\n{}", StringUtils.formatStackTrace(e.getCause()), e);
           }
-        } catch (Exception e) {
-          LOG.warn("Failed to clone project\n{}", StringUtils.formatStackTrace(e.getCause()), e);
-        }
-      });
+        });
     });
   }
 
@@ -645,31 +716,6 @@ public class ProjectServiceImpl implements ProjectService {
     var thread = new Thread(failedToCloneProject);
     thread.setName(threadName);
     Platform.runLater(thread::start);
-  }
-
-  /**
-   If the directory already exists then pop up a confirmation dialog
-
-   @param parentPathPrefix parent folder
-   @param projectName      project name
-   @return true if overwrite confirmed
-   */
-  private boolean promptToSkipOverwriteIfExists(String parentPathPrefix, String projectName) {
-    if (!Files.exists(Path.of(parentPathPrefix + projectName))) {
-      return false;
-    }
-    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-    themeService.setup(alert);
-    alert.setTitle("Project Already Exists");
-    alert.setHeaderText("Will update (and may overwrite) existing project");
-    alert.setContentText("Are you sure you want to proceed?");
-
-    // Optional: Customize the buttons (optional)
-    alert.getButtonTypes().setAll(ButtonType.NO, ButtonType.YES);
-
-    // Show the dialog and capture the result
-    var result = alert.showAndWait();
-    return result.isEmpty() || result.get() != ButtonType.YES;
   }
 
   /**

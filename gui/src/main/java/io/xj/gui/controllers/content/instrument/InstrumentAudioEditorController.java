@@ -179,7 +179,7 @@ public class InstrumentAudioEditorController extends BrowserController {
     fieldIntensity.textProperty().bindBidirectional(intensity, new NumberStringConverter());
     fieldTransientSeconds.textProperty().bindBidirectional(transientSeconds, new NumberStringConverter());
     fieldLoopBeats.textProperty().bindBidirectional(loopBeats, new NumberStringConverter());
-    labelAudioFileName.textProperty().bind(Bindings.createStringBinding(() -> ProjectPathUtils.getFilename(audioInMemory.get().pathToAudioFile()), audioInMemory));
+    labelAudioFileName.textProperty().bind(Bindings.createStringBinding(() -> audioInMemory.isNotNull().get() ? ProjectPathUtils.getFilename(audioInMemory.get().pathToAudioFile()):"", audioInMemory));
 
     fieldName.focusedProperty().addListener(this::onUnfocusedDoSave);
     fieldEvent.focusedProperty().addListener(this::onUnfocusedDoSave);
@@ -247,7 +247,7 @@ public class InstrumentAudioEditorController extends BrowserController {
     double x = event.getX() + scrolledPixelsRight;
 
     // Check for double-click
-    if (event.getClickCount() == 2) {
+    if (event.getClickCount()==2) {
       transientSeconds.set((float) (scale * x * samplesPerPixel.get() / audioInMemory.get().format().getSampleRate()));
       save();
       renderWaveform();
@@ -358,7 +358,7 @@ public class InstrumentAudioEditorController extends BrowserController {
 
       // Draw the beat grid lines
       for (i = -beatsBeforeTransient; i < beatsAfterTransient; i++) {
-        if (i == 0) continue; // don't draw at the transient
+        if (i==0) continue; // don't draw at the transient
         x = (int) Math.max(0, Math.min(waveformWidth.get() - 1, ((transientSeconds.get() + i * secondsPerBeat) * audioInMemory.get().format().getSampleRate() / samplesPerPixel.get())));
         for (y = 0; y < waveformHeight; y++) {
           pixelWriter.setColor(x, y, waveformGridColor);
@@ -368,7 +368,7 @@ public class InstrumentAudioEditorController extends BrowserController {
       // Draw the transient dashed line
       x = (int) Math.max(0, Math.min(waveformWidth.get() - 1, (transientSeconds.get() * audioInMemory.get().format().getSampleRate() / samplesPerPixel.get())));
       for (y = 0; y < waveformHeight; y++) {
-        if ((y / waveformTransientDashPixels) % 2 == 0) {
+        if ((y / waveformTransientDashPixels) % 2==0) {
           pixelWriter.setColor(x, y, waveformTransientColor);
         }
       }
