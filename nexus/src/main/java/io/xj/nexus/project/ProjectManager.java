@@ -77,6 +77,12 @@ public interface ProjectManager {
   void saveProject();
 
   /**
+   Workstation has Project Cleanup option to delete unused audio files from project folder
+   https://www.pivotaltracker.com/story/show/186930458@return
+   */
+  ProjectCleanupResults cleanupProject();
+
+  /**
    Cancel the project loading
    */
   void cancelProjectLoading();

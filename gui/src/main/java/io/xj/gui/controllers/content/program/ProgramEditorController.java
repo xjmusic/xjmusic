@@ -16,7 +16,16 @@ import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.util.StringUtils;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.FloatProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleFloatProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -24,7 +33,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -38,7 +54,12 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.function.UnaryOperator;
 
 @Service
@@ -102,13 +123,10 @@ public class ProgramEditorController extends ProjectController {
   @Value("classpath:/views/content/program/meme-tag.fxml")
   private Resource memeTagFxml;
 
-  @Value("classpath:/views/content/program/clone-menu.fxml")
-  private Resource cloneFxml;
-
   @Value("classpath:/views/content/program/search-sequence.fxml")
   private Resource searchSequenceFxml;
 
-  @Value("classpath:/views/content/program/sequence-menu.fxml")
+  @Value("classpath:/views/content/program/sequence-management.fxml")
   private Resource sequenceManagementFxml;
   static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
@@ -147,7 +165,7 @@ public class ProgramEditorController extends ProjectController {
   private final SimpleStringProperty sequencePropertyName = new SimpleStringProperty("");
   private final SimpleStringProperty sequencePropertyKey = new SimpleStringProperty("");
   private final CmdModalController cmdModalController;
-  private ProgramSequence programSequence=new ProgramSequence();
+  private ProgramSequence programSequence = new ProgramSequence();
 
   public ProgramEditorController(
     @Value("classpath:/views/content/library-editor.fxml") Resource fxml,
@@ -267,7 +285,7 @@ public class ProgramEditorController extends ProjectController {
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       SearchSequence searchSequence = loader.getController();
-      searchSequence.setUp(sequences,programSequence);
+      searchSequence.setUp(sequences, programSequence);
       stage.setScene(new Scene(root));
       // Set the owner of the stage
       stage.initOwner(themeService.getMainScene().getWindow());
@@ -315,7 +333,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   * Positions the GUI to the place where the click happened
+   Positions the GUI to the place where the click happened
    */
   private void positionUIAtLocation(Stage stage, MouseEvent event, int xValue, int yValue) {
     // Get the X and Y coordinates of the button
@@ -328,7 +346,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   * binds the disability state of the given node to the provided state(s)
+   binds the disability state of the given node to the provided state(s)
    */
   private void createDisabilityBindingForTypes(Node node, List<ProgramType> types) {
     BooleanBinding anyTypeMatched = Bindings.createBooleanBinding(() ->
@@ -351,7 +369,7 @@ public class ProgramEditorController extends ProjectController {
 
 
   /**
-   * handles value changes listening in the textfield components
+   handles value changes listening in the textfield components
    */
   private void setTextProcessing(TextField textField) {
     textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -360,7 +378,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   * handles value changes listening in the  value Chooser components
+   handles value changes listening in the  value Chooser components
    */
   private void setChooserSelectionProcessing(Spinner<?> chooser) {
     chooser.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -369,7 +387,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   * handles value changes listening in the ComboBox components
+   handles value changes listening in the ComboBox components
    */
   private void setComboboxSelectionProcessing(ComboBox<?> comboBox) {
     comboBox.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -434,7 +452,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   * Update the Program Editor with the current Program.
+   Update the Program Editor with the current Program.
    */
   private void setup() {
     if (Objects.isNull(uiStateService.currentProgramProperty().get()))
@@ -462,7 +480,7 @@ public class ProgramEditorController extends ProjectController {
     List<ProgramSequence> sequenceList = new ArrayList<>(programSequences);
     if (!sequenceList.isEmpty()) {
       sequence = sequenceList.get(0);
-      programSequence=sequence;
+      programSequence = sequence;
       this.sequenceId.set(sequence.getId());
       this.sequencePropertyName.set(sequence.getName());
       this.sequencePropertyKey.set(sequence.getKey());
@@ -474,7 +492,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   * closes the stage when clicking outside it (loses focus)
+   closes the stage when clicking outside it (loses focus)
    */
   public static void closeWindowOnClickingAway(Stage window) {
     window.focusedProperty().addListener((obs, oldValue, newValue) -> {

@@ -429,13 +429,55 @@
   -fx-background-radius: 4px;
 }
 
-.snap-button:selected{
+.snap-button:selected {
   -fx-background-color: #005E1F;
 }
-.sequence-window{
+
+.sequence-window {
   -fx-background-color: #683568;
 }
 
-.sequence-button{
+.sequence-button {
   -fx-background-color: #855C85;
+}
+
+#addMemeButton {
+  -fx-background-color: #777777;
+}
+
+.meme-list-container,
+.meme-list-container .viewport {
+  -fx-border-width: 0;
+  -fx-border-color: transparent;
+  -fx-background-color: transparent;
+}
+
+.sequence-management-control-bar {
+  -fx-background-color: #292929;
+}
+
+.program-config-pane {
+  -fx-border-color: grey;
+}
+
+.meme-tag {
+  -fx-background-color: #777777;
+  -fx-background-radius: 8;
+  -fx-border-radius: 8;
+}
+
+.meme-tag-container {
+  -fx-background-color: transparent;
+}
+
+.meme-name-field {
+  -fx-background-color: transparent;
+  -fx-text-fill: white;
+}
+
+.meme-tag-remove-button {
+  -fx-background-radius: 0 6 6 0;
+  -fx-border-radius: 0 6 6 0;
+  -fx-background-color: #4E4E4E;
+  -fx-border-color: grey;
 }

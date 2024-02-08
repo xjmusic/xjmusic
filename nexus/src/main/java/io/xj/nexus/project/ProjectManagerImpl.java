@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -153,6 +154,8 @@ public class ProjectManagerImpl implements ProjectManager {
 
     } catch (Exception e) {
       LOG.error("Failed to open project from local file!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      project.set(null);
+      content.set(null);
       updateState(ProjectState.Failed);
       return false;
     }
@@ -179,6 +182,8 @@ public class ProjectManagerImpl implements ProjectManager {
 
     } catch (Exception e) {
       LOG.error("Failed to open project from local file!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      project.set(null);
+      content.set(null);
       updateState(ProjectState.Failed);
       return false;
     }
@@ -191,8 +196,67 @@ public class ProjectManagerImpl implements ProjectManager {
 
     } catch (IOException e) {
       LOG.error("Failed to save project!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
-      updateState(ProjectState.Failed);
+      updateState(ProjectState.Ready);
     }
+  }
+
+  @Override
+  public ProjectCleanupResults cleanupProject() {
+    updateState(ProjectState.Saving);
+    var results = new ProjectCleanupResults();
+    var prefix = getInstrumentPathPrefix();
+    LOG.info("Cleaning up project audio folder {}", prefix);
+    Set<String> filesOnDisk = new HashSet<>();
+    Set<String> foldersOnDisk = new HashSet<>();
+    Set<String> filesInProject = new HashSet<>();
+    Set<String> foldersInProject = new HashSet<>();
+    try (var paths = Files.walk(Paths.get(prefix))) {
+      paths.forEach(path -> {
+        if (Files.isRegularFile(path)) {
+          filesOnDisk.add(path.toString());
+        } else if (Files.isDirectory(path)) {
+          foldersOnDisk.add(path + File.separator);
+        }
+      });
+    } catch (IOException e) {
+      LOG.error("Failed to walk project audio folder!\n{}", StringUtils.formatStackTrace(e));
+      updateState(ProjectState.Ready);
+      return results;
+    }
+    foldersInProject.add(prefix + File.separator);
+    content.get().getInstruments().forEach(instrument -> {
+      var instrumentPath = getPathPrefixToInstrumentAudio(instrument.getId());
+      foldersInProject.add(instrumentPath);
+      content.get().getAudiosOfInstrument(instrument.getId()).forEach(audio ->
+        filesInProject.add(String.format("%s%s", instrumentPath, audio.getWaveformKey())));
+    });
+    LOG.info("Found {} instrument folders on disk containing a total of {} audio files.", foldersOnDisk.size(), filesOnDisk.size());
+    LOG.info("The project has {} instruments containing a total of {} audios.", foldersInProject.size(), filesInProject.size());
+    foldersOnDisk.removeAll(foldersInProject);
+    filesOnDisk.removeAll(filesInProject);
+    LOG.info("Will delete {} instrument folders and {} audio files.", foldersOnDisk.size(), filesOnDisk.size());
+    for (String s : filesOnDisk) {
+      try {
+        Files.deleteIfExists(Paths.get(s));
+        results.incrementFilesDeleted();
+      } catch (IOException e) {
+        LOG.error("Failed to delete audio file {}\n{}", s, StringUtils.formatStackTrace(e));
+        updateState(ProjectState.Ready);
+        return results;
+      }
+    }
+    for (String path : foldersOnDisk) {
+      try {
+        FileUtils.deleteDirectory(new File(path));
+        results.incrementFoldersDeleted();
+      } catch (IOException e) {
+        LOG.error("Failed to delete instrument folder {}\n{}", path, StringUtils.formatStackTrace(e));
+        updateState(ProjectState.Ready);
+        return results;
+      }
+    }
+    updateState(ProjectState.Ready);
+    return results;
   }
 
   @Override
@@ -227,7 +291,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public String getPathPrefixToInstrumentAudio(UUID instrumentId) {
-    return projectPathPrefix.get() + "instrument" + File.separator + instrumentId.toString() + File.separator;
+    return getInstrumentPathPrefix() + instrumentId.toString() + File.separator;
   }
 
   @Override
@@ -608,6 +672,15 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
+   Get the instrument path prefix
+
+   @return the instrument path prefix
+   */
+  private String getInstrumentPathPrefix() {
+    return projectPathPrefix.get() + "instrument" + File.separator;
+  }
+
+  /**
    Import an audio waveform file into the project from somewhere else on disk
 
    @param audio         for which to import the waveform
@@ -674,7 +747,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
             if (localFileSize.isEmpty()) {
               shouldDownload = true;
-            } else if (localFileSize.get() != remoteFileSize) {
+            } else if (localFileSize.get()!=remoteFileSize) {
               LOG.info("File size of {} does not match remote {} - Will download {} bytes from {}", originalCachePath, remoteFileSize, remoteFileSize, remoteUrl);
               shouldDownload = true;
             }
@@ -797,7 +870,7 @@ public class ProjectManagerImpl implements ProjectManager {
         Files.deleteIfExists(path);
         downloadRemoteFile(httpClient, url, outputPath);
         long downloadedSize = Files.size(path);
-        if (downloadedSize == expectedSize) {
+        if (downloadedSize==expectedSize) {
           return true;
         }
         LOG.info("File size does not match! Attempt " + attempt + " of " + downloadAudioRetries + " to download " + url + " to " + outputPath + " failed. Expected " + expectedSize + " bytes, but got " + downloadedSize + " bytes.");
