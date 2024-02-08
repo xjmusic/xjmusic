@@ -133,7 +133,7 @@ public class ProjectServiceImpl implements ProjectService {
     }, state);
 
     state.addListener((o, ov, nv) -> {
-      if (nv==ProjectState.Ready) {
+      if (nv == ProjectState.Ready) {
         didUpdate(Template.class, false);
         didUpdate(Library.class, false);
         didUpdate(Program.class, false);
@@ -224,13 +224,7 @@ public class ProjectServiceImpl implements ProjectService {
     if (promptForConfirmation("Cleanup Project", "Cleanup Project", "This operation will remove any unused audio files and optimize the project. Do you want to proceed?")) {
       executeInBackground("Cleanup Project", () -> {
         var deleted = projectManager.cleanupProject();
-        Platform.runLater(() -> {
-          if (deleted > 0) {
-            showAlert(Alert.AlertType.INFORMATION, "Cleanup Project", "Cleanup Project", String.format("Removed %d unused audio files", deleted));
-          } else {
-            showAlert(Alert.AlertType.INFORMATION, "Cleanup Project", "Cleanup Project", "No unused audio files found");
-          }
-        });
+        Platform.runLater(() -> showAlert(Alert.AlertType.INFORMATION, "Cleanup Project", "Clean up unused project files", deleted.toString()));
       });
     }
   }
@@ -306,7 +300,7 @@ public class ProjectServiceImpl implements ProjectService {
         .filter(library -> !library.getIsDeleted())
         .sorted(Comparator.comparing(Library::getName))
         .toList()
-      :new ArrayList<>();
+      : new ArrayList<>();
   }
 
   @Override
@@ -316,7 +310,7 @@ public class ProjectServiceImpl implements ProjectService {
         .filter(program -> !program.getIsDeleted())
         .sorted(Comparator.comparing(Program::getName))
         .toList()
-      :new ArrayList<>();
+      : new ArrayList<>();
   }
 
   @Override
@@ -326,7 +320,7 @@ public class ProjectServiceImpl implements ProjectService {
         .filter(instrument -> !instrument.getIsDeleted())
         .sorted(Comparator.comparing(Instrument::getName))
         .toList()
-      :new ArrayList<>();
+      : new ArrayList<>();
   }
 
   @Override
@@ -336,7 +330,7 @@ public class ProjectServiceImpl implements ProjectService {
         .filter(template -> !template.getIsDeleted())
         .sorted(Comparator.comparing(Template::getName))
         .toList()
-      :new ArrayList<>();
+      : new ArrayList<>();
   }
 
   @Override
@@ -676,7 +670,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     // Show the dialog and capture the result
     var result = alert.showAndWait();
-    return result.isPresent() && result.get()==ButtonType.YES;
+    return result.isPresent() && result.get() == ButtonType.YES;
   }
 
   /**

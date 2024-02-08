@@ -201,58 +201,62 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public int cleanupProject() {
+  public ProjectCleanupResults cleanupProject() {
     updateState(ProjectState.Saving);
+    var results = new ProjectCleanupResults();
     var prefix = getInstrumentPathPrefix();
     LOG.info("Cleaning up project audio folder {}", prefix);
-    Set<String> audioFilesOnDisk = new HashSet<>();
-    Set<String> instrumentFoldersOnDisk = new HashSet<>();
-    Set<String> audioFilesInProject = new HashSet<>();
-    Set<String> instrumentFoldersInProject = new HashSet<>();
-    try (var instrumentFolders = Files.list(Paths.get(prefix))) {
-      for (var instrumentFolder : instrumentFolders.toList()) {
-        var instrumentPath = prefix + instrumentFolder.getFileName().toString() + File.separator;
-        instrumentFoldersOnDisk.add(instrumentPath);
-        try (var audioFiles = Files.list(instrumentFolder)) {
-          audioFiles.forEach(audioFile -> audioFilesOnDisk.add(instrumentPath + audioFile.getFileName()));
+    Set<String> filesOnDisk = new HashSet<>();
+    Set<String> foldersOnDisk = new HashSet<>();
+    Set<String> filesInProject = new HashSet<>();
+    Set<String> foldersInProject = new HashSet<>();
+    try (var paths = Files.walk(Paths.get(prefix))) {
+      paths.forEach(path -> {
+        if (Files.isRegularFile(path)) {
+          filesOnDisk.add(path.toString());
+        } else if (Files.isDirectory(path)) {
+          foldersOnDisk.add(path + File.separator);
         }
-      }
+      });
     } catch (IOException e) {
-      LOG.error("Failed to list all instrument folders and audio files on disk!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Failed to walk project audio folder!\n{}", StringUtils.formatStackTrace(e));
       updateState(ProjectState.Ready);
-      return 0;
+      return results;
     }
+    foldersInProject.add(prefix + File.separator);
     content.get().getInstruments().forEach(instrument -> {
       var instrumentPath = getPathPrefixToInstrumentAudio(instrument.getId());
-      instrumentFoldersInProject.add(instrumentPath);
+      foldersInProject.add(instrumentPath);
       content.get().getAudiosOfInstrument(instrument.getId()).forEach(audio ->
-        audioFilesInProject.add(String.format("%s%s", instrumentPath, audio.getWaveformKey())));
+        filesInProject.add(String.format("%s%s", instrumentPath, audio.getWaveformKey())));
     });
-    LOG.info("Found {} instrument folders on disk containing a total of {} audio files.", instrumentFoldersOnDisk.size(), audioFilesOnDisk.size());
-    LOG.info("The project has {} instruments containing a total of {} audios.", instrumentFoldersInProject.size(), audioFilesInProject.size());
-    instrumentFoldersOnDisk.removeAll(instrumentFoldersInProject);
-    audioFilesOnDisk.removeAll(audioFilesInProject);
-    LOG.info("Will delete {} instrument folders and {} audio files.", instrumentFoldersOnDisk.size(), audioFilesOnDisk.size());
-    for (String s : audioFilesOnDisk) {
+    LOG.info("Found {} instrument folders on disk containing a total of {} audio files.", foldersOnDisk.size(), filesOnDisk.size());
+    LOG.info("The project has {} instruments containing a total of {} audios.", foldersInProject.size(), filesInProject.size());
+    foldersOnDisk.removeAll(foldersInProject);
+    filesOnDisk.removeAll(filesInProject);
+    LOG.info("Will delete {} instrument folders and {} audio files.", foldersOnDisk.size(), filesOnDisk.size());
+    for (String s : filesOnDisk) {
       try {
         Files.deleteIfExists(Paths.get(s));
+        results.incrementFilesDeleted();
       } catch (IOException e) {
-        LOG.error("Failed to delete audio file {}\n{}", s, StringUtils.formatStackTrace(e.getCause()));
+        LOG.error("Failed to delete audio file {}\n{}", s, StringUtils.formatStackTrace(e));
         updateState(ProjectState.Ready);
-        return 0;
+        return results;
       }
     }
-    for (String path : instrumentFoldersOnDisk) {
+    for (String path : foldersOnDisk) {
       try {
         FileUtils.deleteDirectory(new File(path));
+        results.incrementFoldersDeleted();
       } catch (IOException e) {
-        LOG.error("Failed to delete instrument folder {}\n{}", path, StringUtils.formatStackTrace(e.getCause()));
+        LOG.error("Failed to delete instrument folder {}\n{}", path, StringUtils.formatStackTrace(e));
         updateState(ProjectState.Ready);
-        return 0;
+        return results;
       }
     }
     updateState(ProjectState.Ready);
-    return audioFilesOnDisk.size();
+    return results;
   }
 
   @Override
