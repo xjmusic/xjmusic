@@ -71,7 +71,16 @@ public interface ProjectService {
   void saveProject(Runnable afterSave);
 
   /**
-   Workstation has Project Cleanup option to delete unused audio files from project folder
+   Project Sync feature to synchronize the on-disk and remote versions of the project
+   https://www.pivotaltracker.com/story/show/187004700
+   <p>
+   Once a project has been cloned to disk, choose Project -> Sync to update that local copy with any
+   updates from the Lab, and the Lab copy with any updates from local.
+   */
+  void syncProject(Runnable afterSave);
+
+  /**
+   Project Cleanup option to delete unused audio files from project folder
    https://www.pivotaltracker.com/story/show/186930458
    */
   void cleanupProject();

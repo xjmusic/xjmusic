@@ -220,6 +220,16 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
+  public void syncProject(Runnable afterSave) {
+    if (promptForConfirmation("Sync Project", "Sync Project", "This operation will update that local copy with any updates from the Lab, and update the Lab copy with any updates from the local project. Do you want to proceed?")) {
+      executeInBackground("Sync Project", () -> {
+        var synced = projectManager.syncProject();
+        Platform.runLater(() -> showAlert(Alert.AlertType.INFORMATION, "Sync Project", "Synchronized local project and Lab project.", synced.toString()));
+      });
+    }
+  }
+
+  @Override
   public void cleanupProject() {
     if (promptForConfirmation("Cleanup Project", "Cleanup Project", "This operation will remove any unused audio files and optimize the project. Do you want to proceed?")) {
       executeInBackground("Cleanup Project", () -> {

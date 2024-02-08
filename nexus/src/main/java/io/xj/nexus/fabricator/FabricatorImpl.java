@@ -182,7 +182,7 @@ public class FabricatorImpl implements Fabricator {
     this.segmentId = segmentId;
 
     // Override the segment type by passing the fabricator a segment type on creation
-    // Workstation has live performance modulation https://www.pivotaltracker.com/story/show/186003440
+    // live performance modulation https://www.pivotaltracker.com/story/show/186003440
     if (Objects.nonNull(overrideSegmentType)) {
       type = overrideSegmentType;
     }

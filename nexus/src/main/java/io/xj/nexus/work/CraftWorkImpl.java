@@ -77,7 +77,7 @@ public class CraftWorkImpl implements CraftWork {
   private final long persistenceWindowMicros;
 
   // Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub
-  // Workstation has live performance modulation https://www.pivotaltracker.com/story/show/186003440
+  // live performance modulation https://www.pivotaltracker.com/story/show/186003440
   private final AtomicReference<CraftState> craftState = new AtomicReference<>(CraftState.INITIAL);
   private final AtomicReference<Program> overrideMacroProgram = new AtomicReference<>();
   private final AtomicReference<Collection<String>> overrideMemes = new AtomicReference<>();
@@ -346,7 +346,7 @@ public class CraftWorkImpl implements CraftWork {
     }
 
     // Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub
-    // Workstation has live performance modulation https://www.pivotaltracker.com/story/show/186003440
+    // live performance modulation https://www.pivotaltracker.com/story/show/186003440
     craftState.set(CraftState.CONTINUE);
   }
 

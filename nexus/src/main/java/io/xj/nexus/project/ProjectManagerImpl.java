@@ -238,7 +238,7 @@ public class ProjectManagerImpl implements ProjectManager {
     for (String s : filesOnDisk) {
       try {
         Files.deleteIfExists(Paths.get(s));
-        results.incrementFilesDeleted();
+        results.incrementFiles();
       } catch (IOException e) {
         LOG.error("Failed to delete audio file {}\n{}", s, StringUtils.formatStackTrace(e));
         updateState(ProjectState.Ready);
@@ -248,13 +248,27 @@ public class ProjectManagerImpl implements ProjectManager {
     for (String path : foldersOnDisk) {
       try {
         FileUtils.deleteDirectory(new File(path));
-        results.incrementFoldersDeleted();
+        results.incrementFolders();
       } catch (IOException e) {
         LOG.error("Failed to delete instrument folder {}\n{}", path, StringUtils.formatStackTrace(e));
         updateState(ProjectState.Ready);
         return results;
       }
     }
+    updateState(ProjectState.Ready);
+    return results;
+  }
+
+  @Override
+  public ProjectSyncResults syncProject() {
+    var results = new ProjectSyncResults();
+    updateState(ProjectState.Saving);
+
+    // TODO First, the workstation publishes the entire project content as a payload to Hub.
+    // TODO Hub performs all comparisons of entities and saves the most up-to-date merged version of the project into the Hub database, then returns the final payload.
+    // TODO Workstation saves the merged payload locally.
+    // TODO Last, Workstation uses a diff of the before/after payload to upload audio that have changed locally (using 3x size confirmation) and download audio that have changed remotely.
+
     updateState(ProjectState.Ready);
     return results;
   }

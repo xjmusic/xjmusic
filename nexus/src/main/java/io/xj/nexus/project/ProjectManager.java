@@ -77,10 +77,23 @@ public interface ProjectManager {
   void saveProject();
 
   /**
-   Workstation has Project Cleanup option to delete unused audio files from project folder
-   https://www.pivotaltracker.com/story/show/186930458@return
+   Project Cleanup option to delete unused audio files from project folder
+   https://www.pivotaltracker.com/story/show/186930458
+
+   @return results
    */
   ProjectCleanupResults cleanupProject();
+
+  /**
+   Project Sync option to delete unused audio files from project folder
+   https://www.pivotaltracker.com/story/show/186930458
+   <p>
+   Once a project has been cloned to disk, choose Project -> Sync to update that local copy with any
+   updates from the Lab, and the Lab copy with any updates from local.
+
+   @return results
+   */
+  ProjectSyncResults syncProject();
 
   /**
    Cancel the project loading

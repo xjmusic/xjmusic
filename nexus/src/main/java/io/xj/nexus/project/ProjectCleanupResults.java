@@ -1,54 +1,54 @@
 package io.xj.nexus.project;
 
 public class ProjectCleanupResults {
-  int folderDeleted;
+  int folders;
 
-  int filesDeleted;
+  int files;
 
-  public ProjectCleanupResults(int folderDeleted, int filesDeleted) {
-    this.folderDeleted = folderDeleted;
-    this.filesDeleted = filesDeleted;
+  public ProjectCleanupResults(int folders, int files) {
+    this.folders = folders;
+    this.files = files;
   }
 
   public ProjectCleanupResults() {
-    this.folderDeleted = 0;
-    this.filesDeleted = 0;
+    this.folders = 0;
+    this.files = 0;
   }
 
-  public void addFoldersDeleted(int count) {
-    this.folderDeleted += count;
+  public void addFolders(int count) {
+    this.folders += count;
   }
 
-  public void addFilesDeleted(int count) {
-    this.filesDeleted += count;
+  public void addFiles(int count) {
+    this.files += count;
   }
 
-  public void incrementFoldersDeleted() {
-    this.folderDeleted++;
+  public void incrementFolders() {
+    this.folders++;
   }
 
-  public void incrementFilesDeleted() {
-    this.filesDeleted++;
+  public void incrementFiles() {
+    this.files++;
   }
 
-  public int getFolderDeleted() {
-    return folderDeleted;
+  public int getFolders() {
+    return folders;
   }
 
-  public int getFilesDeleted() {
-    return filesDeleted;
+  public int getFiles() {
+    return files;
   }
 
   @Override
   public String toString() {
-    if (folderDeleted == 0 && filesDeleted == 0) {
+    if (folders==0 && files==0) {
       return "No files or folders were removed";
-    } else if (folderDeleted == 0) {
-      return filesDeleted + " files were removed";
-    } else if (filesDeleted == 0) {
-      return folderDeleted + " folders were removed";
+    } else if (folders==0) {
+      return files + " files were removed";
+    } else if (files==0) {
+      return folders + " folders were removed";
     } else {
-      return folderDeleted + " folders and " + filesDeleted + " files were removed";
+      return folders + " folders and " + files + " files were removed";
     }
   }
 }
