@@ -60,6 +60,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.UnaryOperator;
 
 @Service
@@ -113,6 +114,10 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   public Button sequenceButton;
   @FXML
+  public HBox bindViewParentContainer;
+  @FXML
+  public Button test;
+  @FXML
   protected VBox container;
   @FXML
   protected TextField fieldName;
@@ -128,6 +133,9 @@ public class ProgramEditorController extends ProjectController {
 
   @Value("classpath:/views/content/program/sequence-management.fxml")
   private Resource sequenceManagementFxml;
+
+  @Value("classpath:/views/content/program/sequence-holder.fxml")
+  private Resource sequenceHolderFxml;
   static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
   private final ObjectProperty<UUID> sequenceId = new SimpleObjectProperty<>(null);
@@ -259,6 +267,14 @@ public class ProgramEditorController extends ProjectController {
     toggleVisibilityBetweenEditorAndLabel(sequenceTotalChooser, sequenceTotalLabel);
     setTextFieldValueToAlwaysCAPS(keyField);
     setTextFieldValueToAlwaysCAPS(sequenceKey);
+
+    loadBindingView();
+    //testing purposes
+    AtomicInteger i= new AtomicInteger(2);
+    test.setOnAction(e->{
+      i.getAndIncrement();
+      addBindingView(i.get());
+    });
   }
 
   private void setTextFieldValueToAlwaysCAPS(TextField textField) {
@@ -501,4 +517,24 @@ public class ProgramEditorController extends ProjectController {
       }
     });
   }
+
+  private void loadBindingView(){
+    addBindingView(1);
+    addBindingView(2);
+  }
+
+  private void addBindingView(int position){
+    try {
+      FXMLLoader loader = new FXMLLoader(sequenceHolderFxml.getURL());
+      loader.setControllerFactory(ac::getBean);
+      Parent root = loader.load();
+      HBox.setHgrow(root, javafx.scene.layout.Priority.ALWAYS);
+      bindViewParentContainer.getChildren().add(position,root);
+      SequenceHolder sequenceHolder=loader.getController();
+      sequenceHolder.setUp(position-1);
+    } catch (IOException e) {
+      LOG.error("Error loading Sequence Holder view!\n{}", StringUtils.formatStackTrace(e), e);
+    }
+  }
+
 }
