@@ -481,3 +481,31 @@
   -fx-background-color: #4E4E4E;
   -fx-border-color: grey;
 }
+#bindViewParentContainer{
+  -fx-background-color: black;
+}
+.sequence-item-container {
+  -fx-background-color: #434343;
+  -fx-background-radius: 7;
+  -fx-border-radius: 7;
+}
+.sequence-holder-container{
+  -fx-background-color: transparent;
+}
+.sequence-item-button{
+  -fx-background-color: #404040;
+  -fx-background-radius: 7;
+  -fx-border-radius: 7;
+}
+.bind-mode-label{
+  -fx-text-fill: grey;
+  -fx-background-color: #434343;
+  -fx-border-color: #434343;
+}
+.sequence-memes-label{
+  -fx-text-fill: grey;
+  -fx-background-color: transparent;
+  -fx-border-color: transparent;
+}
+
+

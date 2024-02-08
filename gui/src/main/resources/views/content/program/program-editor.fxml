@@ -15,191 +15,194 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<VBox fx:id="container" xmlns="http://javafx.com/javafx/20.0.1"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramEditorController"
-      stylesheets="@/styles/default-theme.css">
+
+<VBox fx:id="container" maxHeight="1.7976931348623157E308" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramEditorController">
 
   <VBox.vgrow>
-    <Priority fx:constant="ALWAYS"/>
+    <Priority fx:constant="ALWAYS" />
   </VBox.vgrow>
   <VBox>
     <HBox alignment="CENTER_LEFT" prefHeight="23.0" prefWidth="607.0" spacing="5.0">
-      <Button fx:id="configButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-              minWidth="-Infinity" mnemonicParsing="false" onAction="#handleEditConfig" prefHeight="30.0"
-              prefWidth="35.0" text=" ">
+      <Button fx:id="configButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleEditConfig" prefHeight="30.0" prefWidth="35.0" text=" ">
         <graphic>
           <ImageView fitHeight="23.0" fitWidth="23.0" translateX="-2.0">
-            <Image url="@/icons/settings.png"/>
+            <Image url="@/icons/settings.png" />
           </ImageView>
         </graphic>
       </Button>
-      <Button fx:id="bindButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" text="Bind"/>
-      <Button fx:id="editButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" text="Edit"/>
-      <Button fx:id="copyButton" layoutX="85.0" layoutY="13.0" maxHeight="-Infinity" maxWidth="-Infinity"
-              minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#openCloneDialog"
-              prefHeight="30.0" prefWidth="35.0" text=" ">
+      <Button fx:id="bindButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" text="Bind" />
+      <Button fx:id="editButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" text="Edit" />
+      <Button fx:id="copyButton" layoutX="85.0" layoutY="13.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#openCloneDialog" prefHeight="30.0" prefWidth="35.0" text=" ">
         <graphic>
           <ImageView fitHeight="23.0" fitWidth="23.0" translateX="-2.0">
-            <Image url="@/icons/copy-grey.png"/>
+            <Image url="@/icons/copy-grey.png" />
           </ImageView>
         </graphic>
       </Button>
-      <Label prefHeight="25.0" prefWidth="70.0" text="PROGRAM"/>
-      <TextField fx:id="programNameField"/>
+      <Label prefHeight="25.0" prefWidth="70.0" text="PROGRAM" />
+      <TextField fx:id="programNameField" />
       <Label layoutX="193.0" layoutY="13.0" prefHeight="25.0" prefWidth="50.0" text="TYPE">
         <padding>
-          <Insets left="10.0"/>
+          <Insets left="10.0" />
         </padding>
       </Label>
-      <ComboBox fx:id="typeChooser" prefHeight="25.0" prefWidth="102.0"/>
+      <ComboBox fx:id="typeChooser" prefHeight="25.0" prefWidth="102.0" />
       <Label layoutX="416.0" layoutY="13.0" prefHeight="25.0" prefWidth="56.0" text="STATE">
         <padding>
-          <Insets left="10.0"/>
+          <Insets left="10.0" />
         </padding>
       </Label>
-      <ComboBox fx:id="stateChooser" layoutX="475.0" layoutY="13.0" prefHeight="25.0" prefWidth="102.0"/>
+      <ComboBox fx:id="stateChooser" layoutX="475.0" layoutY="13.0" prefHeight="25.0" prefWidth="102.0" />
       <Label layoutX="566.0" layoutY="13.0" prefHeight="25.0" prefWidth="55.0" text="KEY">
         <padding>
-          <Insets left="10.0"/>
+          <Insets left="10.0" />
         </padding>
       </Label>
-      <TextField fx:id="keyField" layoutX="261.0" layoutY="13.0" prefHeight="25.0" prefWidth="89.0"/>
+      <TextField fx:id="keyField" layoutX="261.0" layoutY="13.0" prefHeight="25.0" prefWidth="89.0" />
       <Label layoutX="732.0" layoutY="13.0" prefHeight="25.0" prefWidth="60.0" text="TEMPO">
         <padding>
-          <Insets left="5.0"/>
+          <Insets left="5.0" />
         </padding>
       </Label>
-      <Spinner fx:id="tempoChooser" editable="true" prefHeight="25.0" prefWidth="111.0"/>
+      <Spinner fx:id="tempoChooser" editable="true" prefHeight="25.0" prefWidth="111.0" />
       <Label layoutX="897.0" layoutY="13.0" prefHeight="25.0" prefWidth="73.0" text="INTENSITY">
         <padding>
-          <Insets left="5.0"/>
+          <Insets left="5.0" />
         </padding>
       </Label>
-      <Spinner fx:id="intensityChooser" editable="true" layoutX="953.0" layoutY="13.0" prefHeight="25.0"
-               prefWidth="113.0"/>
+      <Spinner fx:id="intensityChooser" editable="true" layoutX="953.0" layoutY="13.0" prefHeight="25.0" prefWidth="113.0" />
     </HBox>
-    <HBox alignment="CENTER_LEFT" minHeight="-Infinity" minWidth="-Infinity" prefHeight="49.0" prefWidth="1231.0"
-          spacing="5.0" VBox.vgrow="ALWAYS">
+    <HBox alignment="CENTER_LEFT" minHeight="-Infinity" minWidth="-Infinity" prefHeight="49.0" prefWidth="1231.0" spacing="5.0" VBox.vgrow="ALWAYS">
       <padding>
-        <Insets left="50.0"/>
+        <Insets left="50.0" />
       </padding>
-      <Label prefHeight="27.0" prefWidth="115.0" text="PROGRAM MEMES :"/>
-      <Button fx:id="addMemeButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-              minWidth="-Infinity" mnemonicParsing="false" onAction="#addMemeTag" prefHeight="26.0" prefWidth="32.0"
-              text="Bind">
+      <Label prefHeight="27.0" prefWidth="115.0" text="PROGRAM MEMES :" />
+      <Button fx:id="addMemeButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#addMemeTag" prefHeight="26.0" prefWidth="32.0" text="Bind">
         <graphic>
           <ImageView fitHeight="21.0" fitWidth="21.0" translateX="-3.0">
-            <Image url="@/icons/plus.png"/>
+            <Image url="@/icons/plus.png" />
           </ImageView>
         </graphic>
       </Button>
-      <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="57.0" prefWidth="1025.0"
-                  vbarPolicy="NEVER" HBox.hgrow="ALWAYS" styleClass="meme-list-container">
-        <HBox fx:id="memeTagContainer" alignment="CENTER_LEFT" focusTraversable="true" prefHeight="19.0"
-              prefWidth="1051.0" spacing="10.0">
+      <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="57.0" prefWidth="1025.0" styleClass="meme-list-container" vbarPolicy="NEVER" HBox.hgrow="ALWAYS">
+        <HBox fx:id="memeTagContainer" alignment="CENTER_LEFT" focusTraversable="true" prefHeight="19.0" prefWidth="1051.0" spacing="10.0">
           <padding>
-            <Insets bottom="2.0" left="2.0" right="2.0" top="2.0"/>
+            <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
           </padding>
         </HBox>
       </ScrollPane>
     </HBox>
-    <HBox
-      styleClass="sequence-management-control-bar"
-      alignment="CENTER_LEFT" prefHeight="37.0" prefWidth="1231.0" spacing="5.0">
-      <Label fx:id="gridLabel" prefHeight="30.0" prefWidth="48.0" text="GRID:">
-        <font>
-          <Font size="14.0"/>
-        </font>
-        <padding>
-          <Insets left="5.0"/>
-        </padding>
-      </Label>
-      <ComboBox fx:id="gridChooser" focusTraversable="false" prefHeight="28.0" prefWidth="73.0"/>
-      <Label layoutX="10.0" layoutY="14.0" prefHeight="30.0" prefWidth="63.0" text="Zoom:">
-        <font>
-          <Font size="14.0"/>
-        </font>
-        <padding>
-          <Insets left="5.0"/>
-        </padding>
-      </Label>
-      <ComboBox fx:id="zoomChooser" layoutX="58.0" layoutY="15.0" prefHeight="28.0" prefWidth="73.0"/>
-      <ToggleButton fx:id="snapButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-                    minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" text="Snap"/>
-      <Label alignment="CENTER_RIGHT" layoutX="10.0" layoutY="14.0" prefHeight="30.0" prefWidth="97.0"
-             text="Sequence :">
-        <font>
-          <Font size="14.0"/>
-        </font>
-        <padding>
-          <Insets left="5.0"/>
-        </padding>
-      </Label>
-      <Button fx:id="sequenceButton" layoutX="481.0" layoutY="13.0" minHeight="-Infinity" minWidth="-Infinity"
-              mnemonicParsing="false" prefHeight="31.0" prefWidth="35.0" text=" ">
-        <graphic>
-          <ImageView fitHeight="23.0" fitWidth="17.0">
-            <Image url="@/icons/down-arrow.png"/>
-          </ImageView>
-        </graphic>
-      </Button>
-      <Button fx:id="sequenceMenuLauncher" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false"
-              prefHeight="31.0" prefWidth="35.0" text=" ">
-        <graphic>
-          <ImageView fitHeight="20.0" fitWidth="20.0">
-            <Image url="@/icons/hamburger-menu.png"/>
-          </ImageView>
-        </graphic>
-      </Button>
-      <TextField fx:id="sequenceName" prefHeight="27.0" prefWidth="173.0"/>
-      <Label alignment="CENTER_RIGHT" layoutX="331.0" layoutY="14.0" prefHeight="30.0" prefWidth="67.0"
-             text="TOTAL :">
-        <font>
-          <Font size="14.0"/>
-        </font>
-        <padding>
-          <Insets left="2.0"/>
-        </padding>
-      </Label>
-      <StackPane prefHeight="37.0" prefWidth="103.0">
-        <Spinner fx:id="sequenceTotalChooser" editable="true" prefHeight="29.0" prefWidth="119.0"/>
-        <Label fx:id="sequenceTotalLabel" prefHeight="29.0" prefWidth="103.0" text="16">
-          <padding>
-            <Insets left="5.0"/>
-          </padding>
-        </Label>
-      </StackPane>
-      <Label alignment="CENTER_RIGHT" layoutX="792.0" layoutY="14.0" prefHeight="30.0" prefWidth="55.0"
-             text="KEY :">
-        <font>
-          <Font size="14.0"/>
-        </font>
-        <padding>
-          <Insets left="5.0"/>
-        </padding>
-      </Label>
-      <TextField fx:id="sequenceKey" layoutX="613.0" layoutY="15.0" prefHeight="27.0" prefWidth="40.0" text="C"/>
-      <Label alignment="CENTER_RIGHT" layoutX="989.0" layoutY="14.0" prefHeight="30.0" prefWidth="85.0"
-             text="INTENSITY :">
-        <font>
-          <Font size="14.0"/>
-        </font>
-        <padding>
-          <Insets left="5.0"/>
-        </padding>
-      </Label>
-      <StackPane layoutX="859.0" layoutY="10.0" prefHeight="37.0" prefWidth="90.0">
-        <Spinner fx:id="sequenceIntensityChooser" editable="true" prefHeight="29.0" prefWidth="119.0"/>
-        <Label fx:id="sequenceIntensityLabel" prefHeight="29.0" prefWidth="119.0" text="0.6">
-          <padding>
-            <Insets left="5.0"/>
-          </padding>
-        </Label>
-      </StackPane>
-    </HBox>
   </VBox>
+ <HBox alignment="CENTER_LEFT" prefHeight="37.0" prefWidth="1231.0" spacing="5.0" styleClass="sequence-management-control-bar">
+   <Label fx:id="gridLabel" prefHeight="30.0" prefWidth="48.0" text="GRID:">
+     <font>
+       <Font size="14.0" />
+     </font>
+     <padding>
+       <Insets left="5.0" />
+     </padding>
+   </Label>
+   <ComboBox fx:id="gridChooser" focusTraversable="false" prefHeight="28.0" prefWidth="73.0" />
+   <Label layoutX="10.0" layoutY="14.0" prefHeight="30.0" prefWidth="63.0" text="Zoom:">
+     <font>
+       <Font size="14.0" />
+     </font>
+     <padding>
+       <Insets left="5.0" />
+     </padding>
+   </Label>
+   <ComboBox fx:id="zoomChooser" layoutX="58.0" layoutY="15.0" prefHeight="28.0" prefWidth="73.0" />
+   <ToggleButton fx:id="snapButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" text="Snap" />
+   <Label alignment="CENTER_RIGHT" layoutX="10.0" layoutY="14.0" prefHeight="30.0" prefWidth="97.0" text="Sequence :">
+     <font>
+       <Font size="14.0" />
+     </font>
+     <padding>
+       <Insets left="5.0" />
+     </padding>
+   </Label>
+   <Button fx:id="sequenceButton" layoutX="481.0" layoutY="13.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="31.0" prefWidth="35.0" text=" ">
+     <graphic>
+       <ImageView fitHeight="23.0" fitWidth="17.0">
+         <Image url="@/icons/down-arrow.png" />
+       </ImageView>
+     </graphic>
+   </Button>
+   <Button fx:id="sequenceMenuLauncher" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="31.0" prefWidth="35.0" text=" ">
+     <graphic>
+       <ImageView fitHeight="20.0" fitWidth="20.0">
+         <Image url="@/icons/hamburger-menu.png" />
+       </ImageView>
+     </graphic>
+   </Button>
+   <TextField fx:id="sequenceName" prefHeight="27.0" prefWidth="173.0" />
+   <Label alignment="CENTER_RIGHT" layoutX="331.0" layoutY="14.0" prefHeight="30.0" prefWidth="67.0" text="TOTAL :">
+     <font>
+       <Font size="14.0" />
+     </font>
+     <padding>
+       <Insets left="2.0" />
+     </padding>
+   </Label>
+   <StackPane prefHeight="37.0" prefWidth="103.0">
+     <Spinner fx:id="sequenceTotalChooser" editable="true" prefHeight="29.0" prefWidth="119.0" />
+     <Label fx:id="sequenceTotalLabel" prefHeight="29.0" prefWidth="103.0" text="16">
+       <padding>
+         <Insets left="5.0" />
+       </padding>
+     </Label>
+   </StackPane>
+   <Label alignment="CENTER_RIGHT" layoutX="792.0" layoutY="14.0" prefHeight="30.0" prefWidth="55.0" text="KEY :">
+     <font>
+       <Font size="14.0" />
+     </font>
+     <padding>
+       <Insets left="5.0" />
+     </padding>
+   </Label>
+   <TextField fx:id="sequenceKey" layoutX="613.0" layoutY="15.0" prefHeight="27.0" prefWidth="40.0" text="C" />
+   <Label alignment="CENTER_RIGHT" layoutX="989.0" layoutY="14.0" prefHeight="30.0" prefWidth="85.0" text="INTENSITY :">
+     <font>
+       <Font size="14.0" />
+     </font>
+     <padding>
+       <Insets left="5.0" />
+     </padding>
+   </Label>
+   <StackPane layoutX="859.0" layoutY="10.0" prefHeight="37.0" prefWidth="90.0">
+     <Spinner fx:id="sequenceIntensityChooser" editable="true" prefHeight="29.0" prefWidth="119.0" />
+     <Label fx:id="sequenceIntensityLabel" prefHeight="29.0" prefWidth="119.0" text="0.6">
+       <padding>
+         <Insets left="5.0" />
+       </padding>
+     </Label>
+   </StackPane>
+ </HBox>
+   <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+      <content>
+         <HBox fx:id="bindViewParentContainer" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="314.0" prefWidth="1231.0" stylesheets="@/styles/default-theme.css">
+            <children>
+               <VBox maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" HBox.hgrow="ALWAYS">
+                  <children>
+                     <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" prefHeight="17.0" prefWidth="73.0" styleClass="bind-mode-label" text="OFFSET" textFill="GREY" VBox.vgrow="ALWAYS">
+                        <font>
+                           <Font name="System Bold" size="12.0" />
+                        </font>
+                     </Label>
+                     <Label alignment="CENTER" contentDisplay="RIGHT" prefHeight="37.0" prefWidth="72.0" styleClass="sequence-memes-label" text="SEQUENCES + MEMES" textAlignment="CENTER" textFill="GREY" wrapText="true" VBox.vgrow="ALWAYS">
+                        <font>
+                           <Font name="System Bold" size="12.0" />
+                        </font>
+                     </Label>
+                     <Button fx:id="test" mnemonicParsing="false" text="Button" />
+                  </children>
+               </VBox>
+            </children>
+         </HBox>
+      </content>
+   </ScrollPane>
   <padding>
-    <Insets top="5.0"/>
+    <Insets top="5.0" />
   </padding>
 
 </VBox>
