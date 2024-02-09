@@ -34,14 +34,13 @@ public class SequenceHolder {
   private final ProgramEditorController programEditorController;
   private final ApplicationContext applicationContext;
   private final Logger LOG = LoggerFactory.getLogger(SequenceHolder.class);
-
   private HBox bindViewParentContainer;
   private int position;
 
   public void setUp(HBox bindViewParentContainer, int position) {
     this.position = position;
     this.bindViewParentContainer = bindViewParentContainer;
-    offSet.setText(String.valueOf(position-1));
+    offSet.setText(String.valueOf(position - 1));
     addSequenceButton.setOnAction(e -> addSequenceItem());
   }
 
@@ -58,7 +57,7 @@ public class SequenceHolder {
       sequenceHolder.getChildren().add(sequenceHolder.getChildren().size() - 1, root);
       VBox.setMargin(root, new Insets(0, 5, 0, 5));
       SequenceItemBindMode sequenceItemBindMode = loader.getController();
-      sequenceItemBindMode.deleteSequence.setOnAction(e -> sequenceHolder.getChildren().remove(root));
+      sequenceItemBindMode.setUp(sequenceHolder, root, bindViewParentContainer, position);
       checkIfNextItemIsPresent();
     } catch (IOException e) {
       LOG.error("Error creating new Sequence \n{}", StringUtils.formatStackTrace(e), e);
@@ -66,7 +65,6 @@ public class SequenceHolder {
   }
 
   private void checkIfNextItemIsPresent() {
-    LOG.info("offset number " + position + " size " + bindViewParentContainer.getChildren().size() + " position " + position + " position plus one " + (position + 1));
     if (bindViewParentContainer.getChildren().size() - 1 < position + 1) {
       programEditorController.addBindingView(position + 1);
     }
