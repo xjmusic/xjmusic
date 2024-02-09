@@ -6,11 +6,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +35,13 @@ public class SequenceHolder {
   private final ApplicationContext applicationContext;
   private final Logger LOG = LoggerFactory.getLogger(SequenceHolder.class);
 
-  public void setUp(int offSetNumber) {
-    offSet.setText(String.valueOf(offSetNumber));
+  private HBox bindViewParentContainer;
+  private int position;
+
+  public void setUp(HBox bindViewParentContainer, int position) {
+    this.position = position;
+    this.bindViewParentContainer = bindViewParentContainer;
+    offSet.setText(String.valueOf(position-1));
     addSequenceButton.setOnAction(e -> addSequenceItem());
   }
 
@@ -53,12 +55,20 @@ public class SequenceHolder {
       FXMLLoader loader = new FXMLLoader(sequenceItemBindingFxml.getURL());
       loader.setControllerFactory(applicationContext::getBean);
       Parent root = loader.load();
-      sequenceHolder.getChildren().add(sequenceHolder.getChildren().size()-1,root);
+      sequenceHolder.getChildren().add(sequenceHolder.getChildren().size() - 1, root);
       VBox.setMargin(root, new Insets(0, 5, 0, 5));
-      SequenceItemBindMode sequenceItemBindMode=loader.getController();
-      sequenceItemBindMode.deleteSequence.setOnAction(e->sequenceHolder.getChildren().remove(root));
+      SequenceItemBindMode sequenceItemBindMode = loader.getController();
+      sequenceItemBindMode.deleteSequence.setOnAction(e -> sequenceHolder.getChildren().remove(root));
+      checkIfNextItemIsPresent();
     } catch (IOException e) {
       LOG.error("Error creating new Sequence \n{}", StringUtils.formatStackTrace(e), e);
+    }
+  }
+
+  private void checkIfNextItemIsPresent() {
+    LOG.info("offset number " + position + " size " + bindViewParentContainer.getChildren().size() + " position " + position + " position plus one " + (position + 1));
+    if (bindViewParentContainer.getChildren().size() - 1 < position + 1) {
+      programEditorController.addBindingView(position + 1);
     }
   }
 }

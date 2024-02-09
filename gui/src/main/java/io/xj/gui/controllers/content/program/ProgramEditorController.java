@@ -523,7 +523,7 @@ public class ProgramEditorController extends ProjectController {
     addBindingView(2);
   }
 
-  private void addBindingView(int position){
+  protected void addBindingView(int position){
     try {
       FXMLLoader loader = new FXMLLoader(sequenceHolderFxml.getURL());
       loader.setControllerFactory(ac::getBean);
@@ -531,10 +531,9 @@ public class ProgramEditorController extends ProjectController {
       HBox.setHgrow(root, javafx.scene.layout.Priority.ALWAYS);
       bindViewParentContainer.getChildren().add(position,root);
       SequenceHolder sequenceHolder=loader.getController();
-      sequenceHolder.setUp(position-1);
+      sequenceHolder.setUp(bindViewParentContainer,position);
     } catch (IOException e) {
       LOG.error("Error loading Sequence Holder view!\n{}", StringUtils.formatStackTrace(e), e);
     }
   }
-
 }
