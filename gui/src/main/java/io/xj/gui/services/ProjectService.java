@@ -122,6 +122,11 @@ public interface ProjectService {
   HubContent getContent();
 
   /**
+   @param entity to save
+   */
+  <N extends Serializable> void putContent(N entity) throws Exception;
+
+  /**
    @return the list of recent projects
    */
   ObservableListValue<ProjectDescriptor> recentProjectsProperty();

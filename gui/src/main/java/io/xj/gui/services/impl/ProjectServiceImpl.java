@@ -275,6 +275,12 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
+  public <N extends Serializable> void putContent(N entity) throws Exception {
+    projectManager.getContent().put(entity);
+    didUpdate(entity.getClass(), true);
+  }
+
+  @Override
   public ObservableListValue<ProjectDescriptor> recentProjectsProperty() {
     return recentProjects;
   }
