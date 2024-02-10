@@ -5,6 +5,7 @@ import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.hub.HubContent;
+import io.xj.hub.entity.EntityUtils;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.json.JsonProvider;
 import io.xj.hub.json.JsonProviderImpl;
@@ -277,6 +278,12 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public <N extends Serializable> void putContent(N entity) throws Exception {
     projectManager.getContent().put(entity);
+    didUpdate(entity.getClass(), true);
+  }
+
+  @Override
+  public <N extends Serializable> void deleteContent(N entity) throws Exception {
+    projectManager.getContent().delete(entity.getClass(), EntityUtils.getId(entity));
     didUpdate(entity.getClass(), true);
   }
 

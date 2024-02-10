@@ -127,6 +127,11 @@ public interface ProjectService {
   <N extends Serializable> void putContent(N entity) throws Exception;
 
   /**
+   @param entity to delete
+   */
+  <N extends Serializable> void deleteContent(N entity) throws Exception;
+
+  /**
    @return the list of recent projects
    */
   ObservableListValue<ProjectDescriptor> recentProjectsProperty();
