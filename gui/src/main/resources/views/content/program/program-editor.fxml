@@ -194,7 +194,6 @@
                            <Font name="System Bold" size="12.0" />
                         </font>
                      </Label>
-                     <Button fx:id="test" mnemonicParsing="false" text="Button" />
                   </children>
                </VBox>
             </children>

@@ -116,8 +116,6 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   public HBox bindViewParentContainer;
   @FXML
-  public Button test;
-  @FXML
   protected VBox container;
   @FXML
   protected TextField fieldName;
@@ -138,7 +136,7 @@ public class ProgramEditorController extends ProjectController {
   private Resource sequenceHolderFxml;
   static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
-  private final ObjectProperty<UUID> sequenceId = new SimpleObjectProperty<>(null);
+  private final ObjectProperty<UUID> sequenceId = new SimpleObjectProperty<>();
   private final BooleanProperty dirty = new SimpleBooleanProperty(false);
   private final StringProperty name = new SimpleStringProperty("");
   private final ObjectProperty<ProgramType> type = new SimpleObjectProperty<>();
@@ -230,7 +228,6 @@ public class ProgramEditorController extends ProjectController {
       if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.ProgramEditor))
         setup();
     });
-
     bindButton.setOnAction(event -> {
       editButton.getStyleClass().remove("selected");
       bindButton.getStyleClass().add("selected");
@@ -240,7 +237,6 @@ public class ProgramEditorController extends ProjectController {
       bindButton.getStyleClass().remove("selected");
       editButton.getStyleClass().add("selected");
     });
-
     snapButton.getStyleClass().add("snap-button");
     createDisabilityBindingForTypes(editButton, Arrays.asList(ProgramType.Main, ProgramType.Macro));
     createDisabilityBindingForTypes(bindButton, Arrays.asList(ProgramType.Main, ProgramType.Macro));
@@ -267,14 +263,6 @@ public class ProgramEditorController extends ProjectController {
     toggleVisibilityBetweenEditorAndLabel(sequenceTotalChooser, sequenceTotalLabel);
     setTextFieldValueToAlwaysCAPS(keyField);
     setTextFieldValueToAlwaysCAPS(sequenceKey);
-
-    loadBindingView();
-    //testing purposes
-    AtomicInteger i= new AtomicInteger(2);
-    test.setOnAction(e->{
-      i.getAndIncrement();
-      addBindingView(i.get());
-    });
   }
 
   private void setTextFieldValueToAlwaysCAPS(TextField textField) {
@@ -349,7 +337,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   Positions the GUI to the place where the click happened
+   * Positions the GUI to the place where the click happened
    */
   private void positionUIAtLocation(Stage stage, MouseEvent event, int xValue, int yValue) {
     // Get the X and Y coordinates of the button
@@ -362,7 +350,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   binds the disability state of the given node to the provided state(s)
+   * binds the disability state of the given node to the provided state(s)
    */
   private void createDisabilityBindingForTypes(Node node, List<ProgramType> types) {
     BooleanBinding anyTypeMatched = Bindings.createBooleanBinding(() ->
@@ -385,7 +373,7 @@ public class ProgramEditorController extends ProjectController {
 
 
   /**
-   handles value changes listening in the textfield components
+   * handles value changes listening in the textfield components
    */
   private void setTextProcessing(TextField textField) {
     textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -394,7 +382,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   handles value changes listening in the  value Chooser components
+   * handles value changes listening in the  value Chooser components
    */
   private void setChooserSelectionProcessing(Spinner<?> chooser) {
     chooser.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -403,7 +391,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   handles value changes listening in the ComboBox components
+   * handles value changes listening in the ComboBox components
    */
   private void setComboboxSelectionProcessing(ComboBox<?> comboBox) {
     comboBox.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -468,7 +456,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   Update the Program Editor with the current Program.
+   * Update the Program Editor with the current Program.
    */
   private void setup() {
     if (Objects.isNull(uiStateService.currentProgramProperty().get()))
@@ -488,15 +476,15 @@ public class ProgramEditorController extends ProjectController {
     memeTagContainer.getChildren().clear();
     projectService.getContent().getMemesOfProgram(program.getId()).forEach(this::loadMemeTag);
     setUpSequence();
+    loadBindingView();
   }
 
   private void setUpSequence() {
     Collection<ProgramSequence> programSequences = projectService.getContent().getSequencesOfProgram(programId.get());
-    ProgramSequence sequence;
     List<ProgramSequence> sequenceList = new ArrayList<>(programSequences);
     if (!sequenceList.isEmpty()) {
-      sequence = sequenceList.get(0);
-      programSequence = sequence;
+      ProgramSequence sequence = sequenceList.get(0);
+      programSequence = sequenceList.get(0);
       this.sequenceId.set(sequence.getId());
       this.sequencePropertyName.set(sequence.getName());
       this.sequencePropertyKey.set(sequence.getKey());
@@ -508,7 +496,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   closes the stage when clicking outside it (loses focus)
+   * closes the stage when clicking outside it (loses focus)
    */
   public static void closeWindowOnClickingAway(Stage window) {
     window.focusedProperty().addListener((obs, oldValue, newValue) -> {
@@ -518,20 +506,20 @@ public class ProgramEditorController extends ProjectController {
     });
   }
 
-  private void loadBindingView(){
+  private void loadBindingView() {
     addBindingView(1);
     addBindingView(2);
   }
 
-  protected void addBindingView(int position){
+  protected void addBindingView(int position) {
     try {
       FXMLLoader loader = new FXMLLoader(sequenceHolderFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       HBox.setHgrow(root, javafx.scene.layout.Priority.ALWAYS);
-      bindViewParentContainer.getChildren().add(position,root);
-      SequenceHolder sequenceHolder=loader.getController();
-      sequenceHolder.setUp(bindViewParentContainer,position);
+      bindViewParentContainer.getChildren().add(position, root);
+      SequenceHolder sequenceHolder = loader.getController();
+      sequenceHolder.setUp(bindViewParentContainer, position, programId.get(),programSequence.getId());
     } catch (IOException e) {
       LOG.error("Error loading Sequence Holder view!\n{}", StringUtils.formatStackTrace(e), e);
     }
