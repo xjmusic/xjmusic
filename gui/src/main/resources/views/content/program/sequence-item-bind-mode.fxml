@@ -24,7 +24,7 @@
             </ImageView>
          </graphic>
       </Button>
-      <HBox layoutX="169.0" prefHeight="34.0" prefWidth="138.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="169.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="0.0" />
+      <HBox fx:id="memeHolder" layoutX="169.0" prefHeight="34.0" prefWidth="138.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="169.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="0.0" />
       <Button fx:id="addMemeButton" layoutX="135.33333333333331" layoutY="3.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="28.0" prefWidth="32.0" text=" ">
          <graphic>
             <ImageView fitHeight="19.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true">
