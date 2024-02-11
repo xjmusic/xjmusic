@@ -82,7 +82,7 @@ public class CreateBindingItem {
       sequenceHolder.getChildren().add(sequenceHolder.getChildren().size() - 1, root);
       SequenceItemBindMode sequenceItemBindMode = loader.getController();
       sequenceItemBindMode.setUp(sequenceHolder, root, bindViewParentContainer, position, programSequenceBinding);
-      projectService.getContent().put(programSequenceBinding);
+      projectService.putContent(programSequenceBinding);
       checkIfNextItemIsPresent();
     } catch (Exception e) {
       LOG.error("Error creating new Sequence \n{}", StringUtils.formatStackTrace(e), e);
