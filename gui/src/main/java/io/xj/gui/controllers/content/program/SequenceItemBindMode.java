@@ -41,10 +41,12 @@ public class SequenceItemBindMode {
   private final ApplicationContext ac;
   private final ProjectService projectService;
   private ProgramSequenceBinding programSequenceBinding;
+  private final ProgramEditorController programEditorController;
 
-  public SequenceItemBindMode(ApplicationContext ac, ProjectService projectService) {
+  public SequenceItemBindMode(ApplicationContext ac, ProjectService projectService, ProgramEditorController programEditorController) {
     this.ac = ac;
     this.projectService = projectService;
+    this.programEditorController = programEditorController;
   }
 
   public void setUp(VBox container, Parent root, HBox bindViewParentContainer, int parentPosition,
@@ -52,6 +54,7 @@ public class SequenceItemBindMode {
     this.parentPosition = parentPosition;
     this.programSequenceBinding = programSequenceBinding;
     deleteSequence(container, root, bindViewParentContainer);
+    sequenceName.textProperty().bindBidirectional(programEditorController.sequenceName.textProperty());
     projectService.getContent().getMemesOfSequenceBinding(programSequenceBinding.getId()).forEach(this::addMeme);
     setAddMemeButton();
   }
@@ -97,10 +100,15 @@ public class SequenceItemBindMode {
       int current = parentPosition;
       //if an empty item is ahead of the current empty item
       if (parentPosition == lastPosition - 1) {
-        //remove the last empty item
-        bindViewParentContainer.getChildren().remove(lastPosition);
+        if (bindViewParentContainer.getChildren().size() > 3) {
+          bindViewParentContainer.getChildren().remove(lastPosition);
+        }
         //continue removing the empty elements while moving the current position back
         while (((VBox) bindViewParentContainer.getChildren().get(current - 1)).getChildren().size() < 3) {
+          if (bindViewParentContainer.getChildren().size() <= 3) {
+            return;
+          }
+          //break the deletion process if there only remains two items, plus the first label
           bindViewParentContainer.getChildren().remove(current);
           current = current - 1;
         }
