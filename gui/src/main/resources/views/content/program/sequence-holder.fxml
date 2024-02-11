@@ -12,6 +12,9 @@
          <padding>
             <Insets left="2.0" />
          </padding>
+         <VBox.margin>
+            <Insets left="-5.0" right="-5.0" />
+         </VBox.margin>
       </Label>
       <Button fx:id="addSequenceButton" alignment="TOP_LEFT" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" mnemonicParsing="false" prefHeight="31.0" prefWidth="358.0" text="+" VBox.vgrow="ALWAYS">
          <VBox.margin>
@@ -22,4 +25,7 @@
          </font>
       </Button>
    </children>
+   <padding>
+      <Insets left="3.0" right="3.0" />
+   </padding>
 </VBox>

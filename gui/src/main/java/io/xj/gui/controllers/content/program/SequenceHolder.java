@@ -9,6 +9,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -54,11 +55,11 @@ public class SequenceHolder {
     this.themeService = themeService;
   }
 
-  public void setUp(HBox bindViewParentContainer, int position, UUID programId,UUID programSequenceId) {
+  public void setUp(HBox bindViewParentContainer, int position, UUID programId, UUID programSequenceId) {
     this.position = position;
     this.bindViewParentContainer = bindViewParentContainer;
     offSet.setText(String.valueOf(position - 1));
-    addSequenceButton.setOnAction(e -> showSequenceBindingUI(programId,programSequenceId));
+    addSequenceButton.setOnAction(e -> showSequenceBindingUI(programId, programSequenceId));
   }
 
   protected void showSequenceBindingUI(UUID programId, UUID programSequenceId) {
@@ -68,14 +69,19 @@ public class SequenceHolder {
       FXMLLoader loader = new FXMLLoader(createBindingFxml.getURL());
       loader.setControllerFactory(applicationContext::getBean);
       Parent root = loader.load();
+      // Apply a blur effect
+      GaussianBlur blur = new GaussianBlur();
+      sequenceHolder.getScene().getRoot().setEffect(blur);
       CreateBindingItem createBindingItem = loader.getController();
-      createBindingItem.setUp(sequences,bindViewParentContainer,sequenceHolder,position,programId,programSequenceId);
+      createBindingItem.setUp(sequences, bindViewParentContainer, sequenceHolder, position, programId, programSequenceId);
+      stage.setOnShown(event -> createBindingItem.sequenceSearch.show());
       stage.setScene(new Scene(root));
-      // Set the owner of the stage
       stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
       closeWindowOnClickingAway(stage);
       centerOnScreen(stage);
+      //remove the background blur
+      stage.setOnHidden(e -> sequenceHolder.getScene().getRoot().setEffect(null));
     } catch (IOException e) {
       LOG.error("Error opening Sequence Search window!\n{}", StringUtils.formatStackTrace(e), e);
     }
