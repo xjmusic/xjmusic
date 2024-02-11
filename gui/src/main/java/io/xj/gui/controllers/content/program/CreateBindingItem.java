@@ -6,7 +6,6 @@ import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.util.StringUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -38,42 +37,39 @@ public class CreateBindingItem {
   private final ApplicationContext applicationContext;
   private final ProgramEditorController programEditorController;
   private int position;
+
   public CreateBindingItem(ProjectService projectService, ApplicationContext applicationContext
-  ,ProgramEditorController programEditorController) {
+    , ProgramEditorController programEditorController) {
     this.projectService = projectService;
-    this.applicationContext=applicationContext;
-    this.programEditorController=programEditorController;
+    this.applicationContext = applicationContext;
+    this.programEditorController = programEditorController;
   }
 
   public void setUp(Collection<ProgramSequence> programSequences,
                     HBox bindViewParentContainer, VBox sequenceHolder,
-                    int position,UUID programId,UUID programSequenceId) {
-    this.bindViewParentContainer=bindViewParentContainer;
-    this.sequenceHolder=sequenceHolder;
-    this.position=position;
+                    int position, UUID programId, UUID programSequenceId) {
+    this.bindViewParentContainer = bindViewParentContainer;
+    this.sequenceHolder = sequenceHolder;
+    this.position = position;
     programSequences.forEach(sequence -> {
       Label sequenceLabel = new Label();
       sequenceLabel.setId(String.valueOf(sequence.getId()));
       sequenceLabel.setText(sequence.getName());
       sequenceSearch.getItems().add(sequenceLabel);
     });
-    // Request focus and show the ComboBox
-//    sequenceSearch.getButtonCell().requestFocus();
-    sequenceSearch.show();
-    addSequenceBinding(position-1,programId,programSequenceId);
+    addSequenceBinding(position - 1, programId, programSequenceId);
   }
 
-  private void addSequenceBinding(int offSet,UUID programId,UUID programSequenceId) {
+  private void addSequenceBinding(int offSet, UUID programId, UUID programSequenceId) {
     sequenceSearch.valueProperty().addListener((observable, oldValue, newValue) -> {
       if (newValue != null) {
-        System.out.println("Selected item: " + newValue);
-        addSequence(programId,programSequenceId,offSet);
+        addSequence(programId, programSequenceId, offSet);
         closeWindow();
       }
     });
   }
 
-  private void addSequence(UUID programId, UUID programSequenceId,int offSet) {
+  private void addSequence(UUID programId, UUID programSequenceId, int offSet) {
     ProgramSequenceBinding programSequenceBinding = new ProgramSequenceBinding(UUID.randomUUID(), programId, programSequenceId, offSet);
     addSequenceItem(programSequenceBinding);
   }
@@ -84,12 +80,10 @@ public class CreateBindingItem {
       loader.setControllerFactory(applicationContext::getBean);
       Parent root = loader.load();
       sequenceHolder.getChildren().add(sequenceHolder.getChildren().size() - 1, root);
-      VBox.setMargin(root, new Insets(0, 5, 0, 5));
       SequenceItemBindMode sequenceItemBindMode = loader.getController();
-      sequenceItemBindMode.setUp(sequenceHolder, root, bindViewParentContainer, programSequenceBinding.getOffset(), programSequenceBinding);
+      sequenceItemBindMode.setUp(sequenceHolder, root, bindViewParentContainer, position, programSequenceBinding);
       projectService.getContent().put(programSequenceBinding);
       checkIfNextItemIsPresent();
-
     } catch (Exception e) {
       LOG.error("Error creating new Sequence \n{}", StringUtils.formatStackTrace(e), e);
     }
@@ -101,8 +95,8 @@ public class CreateBindingItem {
     }
   }
 
-  private void closeWindow(){
-    Stage stage=(Stage) sequenceSearch.getScene().getWindow();
+  private void closeWindow() {
+    Stage stage = (Stage) sequenceSearch.getScene().getWindow();
     stage.close();
   }
 }
