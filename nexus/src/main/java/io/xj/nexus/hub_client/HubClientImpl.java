@@ -26,7 +26,7 @@ import java.util.UUID;
  Implementation of a Hub Client for connecting to Hub and accessing contents
  */
 public class HubClientImpl implements HubClient {
-  static final String API_PATH_INGEST_FORMAT = "api/2/project/%s";
+  static final String API_PATH_INGEST_FORMAT = "api/2/projects/%s";
   static final String HEADER_COOKIE = "Cookie";
   final Logger LOG = LoggerFactory.getLogger(HubClientImpl.class);
   final HttpClientProvider httpClientProvider;

@@ -29,48 +29,6 @@
   xmlns:fx="http://javafx.com/fxml/1"
   styleClass="main-menu-container">
 
-  <StackPane
-    fx:id="viewModeToggleContainer"
-    AnchorPane.topAnchor="0"
-    AnchorPane.bottomAnchor="0"
-    translateX="300">
-    <HBox alignment="CENTER">
-      <fx:define>
-        <ToggleGroup fx:id="buttonViewModeToggleGroup"/>
-      </fx:define>
-      <ToggleButton text="CONTENT" fx:id="buttonViewModeContent" toggleGroup="$buttonViewModeToggleGroup">
-        <graphic>
-          <ImageView fitWidth="18" fitHeight="18">
-            <Image url="@/icons/folder-open.png"/>
-          </ImageView>
-        </graphic>
-        <tooltip>
-          <Tooltip text="View &amp; Edit Content"/>
-        </tooltip>
-      </ToggleButton>
-      <ToggleButton text="TEMPLATES" fx:id="buttonViewModeTemplates" toggleGroup="$buttonViewModeToggleGroup">
-        <graphic>
-          <ImageView fitWidth="18" fitHeight="18">
-            <Image url="@/icons/flask-gear.png"/>
-          </ImageView>
-        </graphic>
-        <tooltip>
-          <Tooltip text="View &amp; Edit Templates"/>
-        </tooltip>
-      </ToggleButton>
-      <ToggleButton text="FABRICATION" fx:id="buttonViewModeFabrication" toggleGroup="$buttonViewModeToggleGroup">
-        <graphic>
-          <ImageView fitWidth="18" fitHeight="18">
-            <Image url="@/icons/conveyor-arm.png"/>
-          </ImageView>
-        </graphic>
-        <tooltip>
-          <Tooltip text="Fabricate Music from Content &amp; Templates"/>
-        </tooltip>
-      </ToggleButton>
-    </HBox>
-  </StackPane>
-
   <MenuBar
     VBox.vgrow="NEVER">
 
@@ -157,9 +115,49 @@
 
   <StackPane
     AnchorPane.topAnchor="0"
-    AnchorPane.rightAnchor="10"
     AnchorPane.bottomAnchor="0"
-    alignment="CENTER_RIGHT">
+    AnchorPane.rightAnchor="10">
+    <HBox alignment="CENTER">
+      <fx:define>
+        <ToggleGroup fx:id="buttonViewModeToggleGroup"/>
+      </fx:define>
+      <ToggleButton text="CONTENT" fx:id="buttonViewModeContent" toggleGroup="$buttonViewModeToggleGroup">
+        <graphic>
+          <ImageView fitWidth="18" fitHeight="18">
+            <Image url="@/icons/folder-open.png"/>
+          </ImageView>
+        </graphic>
+        <tooltip>
+          <Tooltip text="View &amp; Edit Content"/>
+        </tooltip>
+      </ToggleButton>
+      <ToggleButton text="TEMPLATES" fx:id="buttonViewModeTemplates" toggleGroup="$buttonViewModeToggleGroup">
+        <graphic>
+          <ImageView fitWidth="18" fitHeight="18">
+            <Image url="@/icons/flask-gear.png"/>
+          </ImageView>
+        </graphic>
+        <tooltip>
+          <Tooltip text="View &amp; Edit Templates"/>
+        </tooltip>
+      </ToggleButton>
+      <ToggleButton text="FABRICATION" fx:id="buttonViewModeFabrication" toggleGroup="$buttonViewModeToggleGroup">
+        <graphic>
+          <ImageView fitWidth="18" fitHeight="18">
+            <Image url="@/icons/conveyor-arm.png"/>
+          </ImageView>
+        </graphic>
+        <tooltip>
+          <Tooltip text="Fabricate Music from Content &amp; Templates"/>
+        </tooltip>
+      </ToggleButton>
+    </HBox>
+  </StackPane>
+
+  <StackPane
+    fx:id="labFeatureContainer"
+    AnchorPane.topAnchor="0"
+    AnchorPane.bottomAnchor="0">
     <HBox alignment="CENTER_RIGHT" spacing="10">
       <HBox.hgrow>
         <Priority fx:constant="ALWAYS"/>

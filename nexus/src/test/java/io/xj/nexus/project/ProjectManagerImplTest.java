@@ -57,7 +57,7 @@ class ProjectManagerImplTest {
   void openProjectFromLocalFile() {
     assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
 
-    assertEquals(UUID.fromString("23bcaded-2186-4697-912e-5f47bae9e9a0"), subject.getContent().getProjects().stream().findFirst().orElseThrow().getId());
+    assertEquals(UUID.fromString("23bcaded-2186-4697-912e-5f47bae9e9a0"), subject.getProject().orElseThrow().getId());
     assertEquals(1, subject.getContent().getLibraries().size());
     assertEquals(1, subject.getContent().getTemplateBindings().size());
     assertEquals(2, subject.getContent().getInstrumentAudios().size());

@@ -637,21 +637,15 @@ public class ProjectServiceImpl implements ProjectService {
     showAlert(Alert.AlertType.WARNING, title, header, body);
   }
 
-  /**
-   Show alert@param type
-
-   @param title  of alert
-   @param header of alert
-   @param body   of alert
-   */
-  private void showAlert(Alert.AlertType type, String title, String header, String body) {
+  @Override
+  public void showAlert(Alert.AlertType type, String title, String header, @Nullable String body) {
     Alert alert = new Alert(type);
     themeService.setup(alert);
     alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
     alert.setGraphic(null);
     alert.setTitle(title);
     alert.setHeaderText(header);
-    alert.setContentText(body);
+    if (Objects.nonNull(body)) alert.setContentText(body);
     alert.showAndWait();
   }
 
