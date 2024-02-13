@@ -71,6 +71,7 @@
   </GridPane>
 
   <TabPane
+    fx:id="tabPane"
     tabClosingPolicy="UNAVAILABLE">
     <Tab fx:id="tabDemo" text="Demo">
       <StackPane>
