@@ -8,6 +8,7 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.services.VersionService;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -49,10 +50,11 @@ public class MainAboutModalController extends ProjectModalController {
   public void onStageReady() {
     labelVersion.textProperty().setValue("v" + versionService.getVersion());
     labelVersion.setOnMouseClicked(event -> {
-      if (event.getClickCount() == 5) {
+      if (event.getClickCount()==5) {
         handleClose();
         uiStateService.isLabFeatureEnabledProperty().set(!uiStateService.isLabFeatureEnabledProperty().get());
-        projectService.showAlert(Alert.AlertType.INFORMATION, "Lab Features", "Lab features are now " + (uiStateService.isLabFeatureEnabledProperty().get() ? "enabled" : "disabled") + "!", null);
+        var state = uiStateService.isLabFeatureEnabledProperty().get() ? "enabled":"disabled";
+        Platform.runLater(() -> projectService.showAlert(Alert.AlertType.INFORMATION, "Lab Features", "Lab features " + state, "Lab features are now " + state + "!"));
       }
     });
   }
