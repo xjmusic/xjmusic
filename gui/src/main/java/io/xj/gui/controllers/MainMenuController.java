@@ -120,7 +120,7 @@ public class MainMenuController extends ProjectController {
   protected RadioMenuItem menuViewModeFabrication;
 
   @FXML
-  StackPane viewModeToggleContainer;
+  StackPane labFeatureContainer;
   @FXML
   ToggleGroup buttonViewModeToggleGroup;
   @FXML
@@ -206,7 +206,9 @@ public class MainMenuController extends ProjectController {
     buttonViewModeFabrication.disableProperty().bind(projectService.isStateReadyProperty().not());
     menuFabrication.disableProperty().bind(projectService.isStateReadyProperty().not());
 
-    viewModeToggleContainer.translateXProperty().bind(container.widthProperty().subtract(viewModeToggleContainer.widthProperty()).divide(2));
+    labFeatureContainer.translateXProperty().bind(container.widthProperty().subtract(labFeatureContainer.widthProperty()).divide(2));
+    labFeatureContainer.visibleProperty().bind(uiStateService.isLabFeatureEnabledProperty());
+    labFeatureContainer.managedProperty().bind(uiStateService.isLabFeatureEnabledProperty());
   }
 
   @Override

@@ -21,6 +21,7 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableListValue;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableStringValue;
+import javafx.scene.control.Alert;
 
 import java.io.Serializable;
 import java.util.List;
@@ -427,4 +428,14 @@ public interface ProjectService {
    @param body   of the alert
    */
   void showWarningAlert(String title, String header, String body);
+
+  /**
+   Show alert
+
+   @param type   of alert
+   @param title  of alert
+   @param header of alert
+   @param body   of alert
+   */
+  void showAlert(Alert.AlertType type, String title, String header, @Nullable String body);
 }

@@ -249,4 +249,10 @@ public interface UIStateService extends ReadyAfterBoot {
    @return observable binding whether we are viewing Library content, either Programs or Instruments
    */
   BooleanBinding isLibraryContentBrowserProperty();
+
+  /**
+   @return observable binding whether Lab features are visible
+   Workstation lab features are hidden until enabled in secret menu https://www.pivotaltracker.com/story/show/187023709
+   */
+  BooleanProperty isLabFeatureEnabledProperty();
 }
