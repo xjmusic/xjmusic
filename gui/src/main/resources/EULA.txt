@@ -1,14 +1,14 @@
 End-User License Agreement (EULA) for the XJ music workstation
 
-This End-User License Agreement ("EULA") is a legal agreement between you (either an individual or an entity) and XJ Music Inc., regarding the use of the "XJ music workstation" software ("the Software"). Please read this agreement carefully before using the Software.
+This End-User License Agreement (“EULA”) is a legal agreement between you (either an individual or an entity) and XJ Music Inc. (“XJ Music”), regarding the use of the “XJ music workstation” software (the “Software”) and related documentation the “Documentation”). Please read this agreement carefully before using the Software.
 
 1. License Grant
 
-XJ Music Inc. grants you a non-exclusive, non-transferable, limited license to use the Software in accordance with the terms and conditions of this EULA.
+XJ Music grants you a non-exclusive, non-transferable, limited license to use the Software in accordance with the terms and conditions of this EULA.
 
 2. Permitted Usage
 
-2.1 You may use the Software for personal, commercial, or educational purposes.
+2.1 You may use the Software and the Documentation for personal, commercial, or educational purposes.
 
 2.2 You may install and use the Software on a single computer or device.
 
@@ -18,15 +18,19 @@ XJ Music Inc. grants you a non-exclusive, non-transferable, limited license to u
 
 3.2 You may not modify, adapt, translate, reverse engineer, decompile, disassemble, or create derivative works based on the Software.
 
+3.3 You also may not install the Software on a network server, use the Software in a time-sharing arrangement, or in any other unauthorized manner. Further, no license is granted to you in the human readable code of the Software (source code).
+
 4. Intellectual Property Rights
 
 4.1 The Software is protected by copyright and other intellectual property laws and treaties.
 
-4.2 You acknowledge that all rights, title, and interest in and to the Software and any modifications, enhancements, or derivatives thereof are owned exclusively by XJ Music Inc.
+4.2 You acknowledge that all rights, title, and interest in and to the Software and any modifications, enhancements, or derivatives thereof are owned exclusively by XJ Music
+
+4.3 Except as provided herein, this Agreement does not grant you any rights to patents, copyrights, trade secrets, trademarks, or any other rights in the Software and Documentation.
 
 5. Updates and Support
 
-5.1 XJ Music Inc. may provide updates, bug fixes, and support for the Software at its discretion.
+5.1 XJ Music may provide updates, bug fixes, and support for the Software at its discretion.
 
 5.2 You are encouraged to regularly check for updates to the Software and install them to ensure optimal performance.
 
@@ -38,37 +42,48 @@ XJ Music Inc. grants you a non-exclusive, non-transferable, limited license to u
 
 7.1 This EULA is effective until terminated.
 
-7.2 XJ Music Inc. reserves the right to terminate this license at any time for any reason.
+7.2 XJ Music reserves the right to terminate this license at any time for any reason.
 
-7.3 Upon termination, you must cease using the Software and destroy all copies of the Software in your possession.
+7.3 You may terminate this license at any time by (i) deleting all instances of the Software and Documentation, and destroying the Software and any Documentation together with all copies and merged portions in any form, and (ii) certifying to XJ Music, in writing, that all copies of the Software and Documentation have been deleted or destroyed. Your license for the Software will also terminate immediately if you fail to comply with any term or condition of this Agreement, file for bankruptcy, become insolvent, or are placed in receivership. Upon such termination, you agree to immediately (i) stop all use of the Software and Documentation, (ii) delete and/or destroy the Software and Documentation, together with all copies thereof, and (iii) certify to XJ Music, in writing, that all copies of the Software and Documentation have been deleted or destroyed.
 
 8. Disclaimer of Warranty
 
-8.1 The Software is provided "as is" without warranty of any kind, express or implied.
+8.1 XJ Music warrants that for a period of thirty (30) days from the date of acquisition, the Software, if operated as directed, will substantially achieve the functionality described in any Documentation. XJ Music does not warrant, however, that your use of the Software will be uninterrupted or error-free. XJ Music also warrants that the media containing the Software, if provided by XJ Music, is free from defects in material and workmanship and will so remain for thirty (30) days from the date you acquired the Software.
 
-8.2 XJ Music Inc. disclaims all warranties, including but not limited to the implied warranties of merchantability, fitness for a particular purpose, and non-infringement.
+8.2 XJ Music's sole liability for any breach of this warranty shall be, in XJ Music's sole discretion (i) to replace your defective media or Software, or (ii) to advise you how to achieve substantially the same functionality with the Software as described in any Documentation through a procedure different from that set forth in any Documentation, or (iii) if the above remedies are impracticable, to refund the license fee you paid for the Software. Repaired, corrected, or replaced Software and Documentation shall be covered by this limited warranty for the period remaining under the warranty that covered the original Software.
+
+8.3 Only if you inform XJ Music of your problem with the Software during the applicable warranty period and provide physical evidence of the date you purchased or obtained a license to the Software will XJ Music be obligated to honor this warranty. XJ Music will use reasonable commercial efforts to repair, replace, advise or, for individual consumers, refund pursuant to the foregoing warranty within thirty (30) days of being so notified.
+
+8.4 If any modifications are made to the Software by you during the warranty period, if the media is subjected to accident, abuse, or improper use, or if you violate the terms of this Agreement, then this warranty shall immediately terminate and be void. This warranty shall not apply if the Software is used on or in conjunction with hardware or software other than the unmodified version of hardware and software with which the Software was purchased with or designed to be used as described in the Documentation.
+
+8.5 THIS IS A LIMITED WARRANTY, AND THE WARRANTY SET FORTH IN THIS AGREEMENT IS THE ONLY WARRANTY MADE BY XJ MUSIC. XJ MUSIC MAKES NO OTHER WARRANTIES, EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT OF THIRD PARTIES' RIGHTS. TO THE FULL EXTENT PERMITTED BY LAW, THE DURATION OF STATUTORILY REQUIRED WARRANTIES, IF ANY, SHALL BE LIMITED TO THE ABOVE LIMITED WARRANTY PERIOD. MOREOVER, IN NO EVENT WILL WARRANTIES PROVIDED BY LAW, IF ANY, APPLY UNLESS THEY ARE REQUIRED TO APPLY BY STATUTE NOTWITHSTANDING THEIR EXCLUSION BY CONTRACT. NO DEALER, AGENT, OR EMPLOYEE OF XJ MUSIC IS AUTHORIZED TO MAKE ANY MODIFICATIONS, EXTENSIONS, OR ADDITIONS TO THIS LIMITED WARRANTY. THE ENTIRE RISK ARISING OUT OF USE OR PERFORMANCE OF THE SOFTWARE REMAINS WITH YOU.
 
 9. Limitation of Liability
 
-9.1 In no event shall XJ Music Inc. be liable for any damages arising out of the use or inability to use the Software.
+UNDER NO CIRCUMSTANCES AND UNDER NO LEGAL THEORY SHALL XJ MUSIC OR ITS SUPPLIERS OR RESELLERS, BE LIABLE TO YOU OR ANY OTHER PERSON FOR ANY INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES OF ANY CHARACTER INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF GOODWILL, LOST PROFITS, BUSINESS INTERRUPTIONS, WORK STOPPAGE, COMPUTER FAILURE OR MALFUNCTION, OR ANY AND ALL OTHER PERSONAL OR COMMERCIAL DAMAGES OR LOSSES ARISING FROM THE USE OR INABILITY TO USE THE PROGRAMS (WHETHER OR NOT DUE TO ANY DEFECTS THEREIN). IN NO EVENT WILL XJ MUSIC BE LIABLE FOR ANY DAMAGES EVEN IF XJ MUSIC SHALL HAVE BEEN INFORMED OF THE POSSIBILITY OF SUCH DAMAGES OR SUCH DAMAGES WERE REASONABLY FORSEEABLE, OR FOR ANY CLAIM BY ANY OTHER PARTY. THIS LIMITATION OF LIABILITY SHALL NOT APPLY TO LIABILITY FOR DEATH OR PERSONAL INJURY RESULTING FROM XJ MUSIC'S GROSS NEGLIGENCE OR INTENTIONAL MISCONDUCT TO THE EXTENT APPLICABLE LAW PROHIBITS SUCH LIMITATION. IN NO EVENT SHALL XJ MUSIC'S LIABILITY EXCEED THE PURCHASE PRICE PAID BY YOU FOR THE SOFTWARE.
 
-9.2 XJ Music Inc. shall not be liable for any indirect, consequential, special, incidental, or punitive damages.
+10. Indemnification
 
-10. Governing Law
+You agree to defend, indemnify, and hold harmless XJ Music, its suppliers and its resellers from and against all liabilities, costs, damages, and expenses (including settlement costs and reasonable attorneys' fees) arising from any claims from anybody that result from or relate to your use, reproduction, or distribution of the Software, or your breach of any representation, warranty, or obligation under this Agreement.
+
+11. Governing Law
 
 This EULA shall be governed by and construed in accordance with the laws of the United States. Any disputes arising under or in connection with this EULA shall be subject to the exclusive jurisdiction of the courts located in the United States and the State of California.
 
-11. Entire Agreement
+12. Severability
 
-This EULA constitutes the entire agreement between you and XJ Music Inc. concerning the Software and supersedes all prior agreements and understandings.
+In the event any provision of this Agreement is found to be invalid, illegal, or unenforceable, the validity, legality, and enforceability of any of the remaining provisions shall not in any way be affected or impaired.
 
+13. Entire Agreement
+
+This EULA constitutes the entire agreement between you and XJ Music concerning the Software and supersedes all prior agreements and understandings.
 By using the Software, you acknowledge that you have read, understood, and agree to be bound by the terms and conditions of this EULA.
 
 For inquiries or questions regarding this EULA, please contact:
 
-XJ music
+XJ Music Inc.
 7190 W. Sunset Blvd #72
 Los Angeles, CA 90046
 212-960-8811
-legal@xjmusic.com
+support@xjmusic.com
 
