@@ -262,15 +262,15 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public ProjectSyncResults pushProject() {
-    var results = new ProjectSyncResults();
+  public ProjectPushResults pushProject(HubClientAccess access, String labBaseUrl) {
+    var results = new ProjectPushResults();
 
     // First, the workstation publishes the entire project content as a payload to Hub.
     updateState(ProjectState.PushingContent);
     var hubClient = new HubClientImpl(httpClientProvider, jsonProvider, new JsonapiPayloadFactoryImpl(entityFactory));
     try {
       LOG.info("Will push project content to Hub");
-      hubClient.postProjectSyncApiV2(getAudioBaseUrl(), new HubClientAccess(), content.get());
+      hubClient.postProjectSyncApiV2(labBaseUrl, access, content.get());
       results.addInstruments(content.get().getInstruments().size());
       results.addPrograms(content.get().getPrograms().size());
       results.addLibraries(content.get().getLibraries().size());

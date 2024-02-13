@@ -5,7 +5,7 @@ import io.xj.hub.util.StringUtils;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-public class ProjectSyncResults {
+public class ProjectPushResults {
   int templates;
   int libraries;
   int programs;
@@ -13,7 +13,7 @@ public class ProjectSyncResults {
   int audiosDownloaded;
   int audiosUploaded;
 
-  public ProjectSyncResults(int templates, int libraries, int programs, int instruments, int audiosDownloaded, int audiosUploaded) {
+  public ProjectPushResults(int templates, int libraries, int programs, int instruments, int audiosDownloaded, int audiosUploaded) {
     this.templates = templates;
     this.libraries = libraries;
     this.programs = programs;
@@ -22,7 +22,7 @@ public class ProjectSyncResults {
     this.audiosUploaded = audiosUploaded;
   }
 
-  public ProjectSyncResults() {
+  public ProjectPushResults() {
     this.templates = 0;
     this.libraries = 0;
     this.programs = 0;

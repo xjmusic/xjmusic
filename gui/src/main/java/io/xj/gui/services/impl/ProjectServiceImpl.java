@@ -224,10 +224,13 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void pushProject() {
-    if (promptForConfirmation("Sync Project", "Sync Project", "This operation will update that local copy with any updates from the Lab, and update the Lab copy with any updates from the local project. Do you want to proceed?")) {
-      executeInBackground("Sync Project", () -> {
-        var synced = projectManager.pushProject();
-        Platform.runLater(() -> showAlert(Alert.AlertType.INFORMATION, "Sync Project", "Synchronized local project and Lab project.", synced.toString()));
+    if (promptForConfirmation("Push Project", "Push Project to Lab", "This operation will overwrite the Lab version of this project entirely with your local version of the project. Do you want to proceed?")) {
+      executeInBackground("Push Project", () -> {
+        var pushed = projectManager.pushProject(
+          labService.getHubClientAccess(),
+          labService.hubConfigProperty().get().getApiBaseUrl()
+        );
+        Platform.runLater(() -> showAlert(Alert.AlertType.INFORMATION, "Push Project", "Pushed local project to Lab.", pushed.toString()));
       });
     }
   }

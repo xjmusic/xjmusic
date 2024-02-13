@@ -5,12 +5,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ProjectSyncResultsTest {
-  private ProjectSyncResults subject;
+class ProjectPushResultsTest {
+  private ProjectPushResults subject;
 
   @BeforeEach
   void setUp() {
-    subject = new ProjectSyncResults(27,31,14,15,36,72);
+    subject = new ProjectPushResults(27,31,14,15,36,72);
   }
 
   @Test

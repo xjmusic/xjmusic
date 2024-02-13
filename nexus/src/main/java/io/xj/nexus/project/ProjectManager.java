@@ -91,9 +91,11 @@ public interface ProjectManager {
    Once a project has been cloned to disk, choose Project -> Sync to update that local copy with any
    updates from the Lab, and the Lab copy with any updates from local.
 
+   @param access     control
+   @param labBaseUrl of the lab
    @return results
    */
-  ProjectSyncResults pushProject();
+  ProjectPushResults pushProject(HubClientAccess access, String labBaseUrl);
 
   /**
    Cancel the project loading

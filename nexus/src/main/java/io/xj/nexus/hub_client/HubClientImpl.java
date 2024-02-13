@@ -53,8 +53,9 @@ public class HubClientImpl implements HubClient {
     CloseableHttpClient client = httpClientProvider.getClient();
     var uri = buildURI(baseUrl, String.format(API_PATH_SYNC_PROJECT, content.getProject().getId().toString()));
     LOG.info("Will post content to {}", uri);
+    var request = buildPostRequest(uri, access.getToken(), content);
     try (
-      CloseableHttpResponse response = client.execute(buildPostRequest(uri, access.getToken(), content))
+      CloseableHttpResponse response = client.execute(request);
     ) {
       if (!Objects.equals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode()))
         throw buildException(uri.toString(), response);
@@ -129,16 +130,20 @@ public class HubClientImpl implements HubClient {
    @param content of request
    @return http request
    */
-  HttpPost buildPostRequest(URI uri, String token, HubContent content) throws JsonProcessingException {
-    var entity = new BasicHttpEntity();
-    var body = jsonProvider.getMapper().writeValueAsString(content);
-    entity.setContent(IOUtils.toInputStream(body, Charset.defaultCharset()));
-    entity.setContentLength(body.length());
-    entity.setContentType("application/json");
-    var request = new HttpPost(uri);
-    request.setHeader(HEADER_COOKIE, String.format("%s=%s", hubAccessTokenName, token));
-    request.setEntity(entity);
-    return request;
+  HttpPost buildPostRequest(URI uri, String token, HubContent content) throws HubClientException {
+    try {
+      var entity = new BasicHttpEntity();
+      var body = jsonProvider.getMapper().writeValueAsString(content);
+      entity.setContent(IOUtils.toInputStream(body, Charset.defaultCharset()));
+      entity.setContentLength(body.length());
+      entity.setContentType("application/json");
+      var request = new HttpPost(uri);
+      request.setHeader(HEADER_COOKIE, String.format("%s=%s", hubAccessTokenName, token));
+      request.setEntity(entity);
+      return request;
+    } catch (JsonProcessingException e) {
+      throw new HubClientException(e.getMessage(), e);
+    }
   }
 
   /**
