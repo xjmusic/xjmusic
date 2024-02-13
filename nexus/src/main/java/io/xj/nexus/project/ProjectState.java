@@ -9,6 +9,8 @@ public enum ProjectState {
   LoadingAudio,
   LoadedAudio,
   Ready,
+  PushingContent,
+  PushingAudio,
   Saving,
   Cancelled,
   Failed,

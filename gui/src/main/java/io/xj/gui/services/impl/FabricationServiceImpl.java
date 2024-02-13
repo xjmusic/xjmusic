@@ -101,6 +101,8 @@ public class FabricationServiceImpl implements FabricationService {
     progress);
   private final BooleanBinding stateActive =
     Bindings.createBooleanBinding(() -> state.get() == FabricationState.Active, state);
+  private final BooleanBinding stateStandby =
+    Bindings.createBooleanBinding(() -> state.get() == FabricationState.Standby, state);
   private final BooleanBinding stateLoading =
     Bindings.createBooleanBinding(() -> state.get() == FabricationState.PreparingAudio || state.get() == FabricationState.PreparedAudio, state);
   private final ObjectProperty<Template> inputTemplate = new SimpleObjectProperty<>();
@@ -195,6 +197,10 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public void cancel() {
+    if (state.get() == FabricationState.Standby) {
+      LOG.debug("Will not cancel fabrication unless in Active status");
+      return;
+    }
     try {
       state.set(FabricationState.Cancelled);
       fabricationManager.finish(true);
@@ -455,6 +461,11 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
+  public BooleanBinding isStateStandbyProperty() {
+    return stateStandby;
+  }
+
+  @Override
   public Optional<Long> getShippedToChainMicros() {
     return fabricationManager.getShippedToChainMicros();
   }
@@ -584,4 +595,5 @@ public class FabricationServiceImpl implements FabricationService {
       throw new RuntimeException(String.format("Failed to parse integer value of '%s' from %s", value, sourceDescription));
     }
   }
+
 }

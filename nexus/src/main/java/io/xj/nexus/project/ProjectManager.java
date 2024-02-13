@@ -93,7 +93,7 @@ public interface ProjectManager {
 
    @return results
    */
-  ProjectSyncResults syncProject();
+  ProjectSyncResults pushProject();
 
   /**
    Cancel the project loading

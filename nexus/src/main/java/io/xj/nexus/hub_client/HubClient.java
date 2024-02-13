@@ -12,6 +12,25 @@ import java.util.UUID;
 public interface HubClient {
 
   /**
+   Push content to the API v2 (HubContent)
+   <p>
+   Make a remote call to Hub, and POST the specified entities
+   <p>
+   HubClient allows a service that depends on Hub (e.g. Nexus) to connect to the Hub REST API via an HTTP client and deserialize results into usable entities
+   <p>
+   HubAccess entity contains the token itself, such that one of these entities can also be used (e.g. by a HubClient) in order to make a request to a Hub API
+   <p>
+   Workstation has Project → Push feature to publish the on-disk version of the project to the Lab (overwriting the Lab version)
+   https://www.pivotaltracker.com/story/show/187004700
+
+   @param baseUrl of Hub
+   @param access  control
+   @param content to post
+   @throws HubClientException on failure to perform request
+   */
+  void postProjectSyncApiV2(String baseUrl, HubClientAccess access, HubContent content) throws HubClientException;
+
+  /**
    Ingest content from the API v2 (HubContent)
    <p>
    Make a remote call to Hub, and ingest the specified entities
@@ -26,7 +45,7 @@ public interface HubClient {
    @return HubClient comprising ingested entities, including all child sub-entities
    @throws HubClientException on failure to perform request
    */
-  HubContent ingestApiV2(String baseUrl, HubClientAccess access, UUID projectId) throws HubClientException;
+  HubContent getProjectApiV2(String baseUrl, HubClientAccess access, UUID projectId) throws HubClientException;
 
   /**
    Load shipped content from a static file in API v1 (HubContentPayload a.k.a. JSONAPI)

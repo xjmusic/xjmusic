@@ -3,6 +3,7 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.ProjectModalController;
+import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
@@ -11,6 +12,7 @@ import io.xj.gui.utils.ProjectUtils;
 import io.xj.gui.utils.TextParsingUtils;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.util.StringUtils;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -45,6 +47,7 @@ public class ProjectCreationModalController extends ProjectModalController {
     ProjectCreationMode.CLONE_PROJECT, "Clone Project"
   );
   private final SimpleDoubleProperty demoImageSize = new SimpleDoubleProperty(120);
+  private final FabricationService fabricationService;
   private final LabService labService;
   private final ObjectProperty<ProjectCreationMode> mode = new SimpleObjectProperty<>(ProjectCreationMode.NEW_PROJECT);
   private final ObservableBooleanValue isDemoVisible = Bindings.createBooleanBinding(
@@ -117,10 +120,12 @@ public class ProjectCreationModalController extends ProjectModalController {
     ConfigurableApplicationContext ac,
     UIStateService uiStateService,
     ProjectService projectService,
+    FabricationService fabricationService,
     ThemeService themeService,
     LabService labService
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
+    this.fabricationService = fabricationService;
     this.labService = labService;
   }
 
@@ -216,20 +221,23 @@ public class ProjectCreationModalController extends ProjectModalController {
       return;
     }
 
-    switch (mode.get()) {
-      case CLONE_PROJECT -> {
-        if (tabDemo.isSelected()) {
-          projectService.cloneFromDemoTemplate(fieldPathPrefix.getText(), ((ToggleButton) demoSelection.getSelectedToggle()).getId(), fieldProjectName.getText());
-        } else {
-          projectService.cloneFromLabProject(fieldPathPrefix.getText(), selectedProject.getValue().getId(), fieldProjectName.getText());
+    fabricationService.cancel();
+    Platform.runLater(() -> {
+      switch (mode.get()) {
+        case CLONE_PROJECT -> {
+          if (tabDemo.isSelected()) {
+            projectService.cloneFromDemoTemplate(fieldPathPrefix.getText(), ((ToggleButton) demoSelection.getSelectedToggle()).getId(), fieldProjectName.getText());
+          } else {
+            projectService.cloneFromLabProject(fieldPathPrefix.getText(), selectedProject.getValue().getId(), fieldProjectName.getText());
+          }
         }
+        case NEW_PROJECT -> projectService.createProject(fieldPathPrefix.getText(), fieldProjectName.getText());
       }
-      case NEW_PROJECT -> projectService.createProject(fieldPathPrefix.getText(), fieldProjectName.getText());
-    }
 
-    Stage stage = (Stage) buttonOK.getScene().getWindow();
-    stage.close();
-    onStageClose();
+      Stage stage = (Stage) buttonOK.getScene().getWindow();
+      stage.close();
+      onStageClose();
+    });
   }
 
   @FXML

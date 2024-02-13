@@ -69,16 +69,15 @@ public interface ProjectService {
   /**
    Save the project
    */
-  void saveProject(Runnable afterSave);
+  void saveProject(Runnable onComplete);
 
   /**
-   Project Sync feature to synchronize the on-disk and remote versions of the project
+   Workstation has Project → Push feature to publish the on-disk version of the project to the Lab (overwriting the Lab version)
    https://www.pivotaltracker.com/story/show/187004700
    <p>
-   Once a project has been cloned to disk, choose Project -> Sync to update that local copy with any
-   updates from the Lab, and the Lab copy with any updates from local.
+   Once a project has been cloned to disk, choose Project -> Push to upload that local copy to the Lab, and overwrite the Lab copy.
    */
-  void syncProject(Runnable afterSave);
+  void pushProject();
 
   /**
    Project Cleanup option to delete unused audio files from project folder

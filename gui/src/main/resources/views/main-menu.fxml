@@ -41,10 +41,10 @@
       <MenuItem fx:id="itemProjectClose" onAction="#handleProjectClose" text="_Close"/>
       <SeparatorMenuItem mnemonicParsing="false"/>
       <MenuItem fx:id="itemProjectSave" onAction="#handleProjectSave" text="_Save"/>
-      <MenuItem fx:id="itemProjectSync" onAction="#handleProjectSync" text="S_ync"/>
       <MenuItem fx:id="itemProjectCleanup" onAction="#handleProjectCleanup" text="Clean_up"/>
       <SeparatorMenuItem mnemonicParsing="false"/>
       <MenuItem onAction="#handleProjectClone" text="C_lone..."/>
+      <MenuItem fx:id="itemProjectPush" onAction="#handleProjectPush" text="_Push"/>
       <SeparatorMenuItem mnemonicParsing="false"/>
       <MenuItem onAction="#onQuit" text="E_xit"/>
     </Menu>

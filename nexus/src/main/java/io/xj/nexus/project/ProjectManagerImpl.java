@@ -31,6 +31,7 @@ import io.xj.nexus.hub_client.HubClientImpl;
 import jakarta.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
@@ -64,6 +65,7 @@ import static io.xj.hub.util.FileUtils.computeWaveformKey;
 
 public class ProjectManagerImpl implements ProjectManager {
   static final Logger LOG = LoggerFactory.getLogger(ProjectManagerImpl.class);
+  private static final long FILE_SIZE_NOT_FOUND = -404;
   private final AtomicReference<ProjectState> state = new AtomicReference<>(ProjectState.Standby);
   private final AtomicReference<Project> project = new AtomicReference<>();
   private final AtomicReference<String> projectPathPrefix = new AtomicReference<>(File.separator);
@@ -126,7 +128,7 @@ public class ProjectManagerImpl implements ProjectManager {
     LOG.info("Cloning from lab Project[{}] in parent folder {}", projectId, parentPathPrefix);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
-    return cloneProject(parentPathPrefix, () -> hubClient.ingestApiV2(labBaseUrl, access, projectId), projectName);
+    return cloneProject(parentPathPrefix, () -> hubClient.getProjectApiV2(labBaseUrl, access, projectId), projectName);
   }
 
   @Override
@@ -260,14 +262,29 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public ProjectSyncResults syncProject() {
+  public ProjectSyncResults pushProject() {
     var results = new ProjectSyncResults();
-    updateState(ProjectState.Saving);
 
-    // TODO First, the workstation publishes the entire project content as a payload to Hub.
-    // TODO Hub performs all comparisons of entities and saves the most up-to-date merged version of the project into the Hub database, then returns the final payload.
-    // TODO Workstation saves the merged payload locally.
-    // TODO Last, Workstation uses a diff of the before/after payload to upload audio that have changed locally (using 3x size confirmation) and download audio that have changed remotely.
+    // First, the workstation publishes the entire project content as a payload to Hub.
+    updateState(ProjectState.PushingContent);
+    var hubClient = new HubClientImpl(httpClientProvider, jsonProvider, new JsonapiPayloadFactoryImpl(entityFactory));
+    try {
+      LOG.info("Will push project content to Hub");
+      hubClient.postProjectSyncApiV2(getAudioBaseUrl(), new HubClientAccess(), content.get());
+      results.addInstruments(content.get().getInstruments().size());
+      results.addPrograms(content.get().getPrograms().size());
+      results.addLibraries(content.get().getLibraries().size());
+      results.addTemplates(content.get().getTemplates().size());
+      LOG.info("Did push project content to Hub");
+    } catch (HubClientException e) {
+      LOG.error("Failed to push project content to Hub!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      updateState(ProjectState.Failed);
+      return results;
+    }
+
+    // TODO  Last, the Workstation checks all audio and uploads audio that has changed locally (using 3x size confirmation). using token authentication via Hub.
+    updateState(ProjectState.PushingAudio);
+    // TODO push audio
 
     updateState(ProjectState.Ready);
     return results;
@@ -748,7 +765,7 @@ public class ProjectManagerImpl implements ProjectManager {
             return false;
           }
           if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
-            LOG.debug("Will preload audio for instrument {} with waveform key {}", instrument.getName(), audio.getWaveformKey());
+            LOG.debug("Will preload audio for instrument \"{}\" with waveform key \"{}\"", instrument.getName(), audio.getWaveformKey());
             // Fetch via HTTP if original does not exist
             var originalCachePath = getPathToInstrumentAudio(
               instrument.getId(),
@@ -757,6 +774,10 @@ public class ProjectManagerImpl implements ProjectManager {
 
             var remoteUrl = String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey());
             var remoteFileSize = getRemoteFileSize(httpClient, remoteUrl);
+            if (remoteFileSize==FILE_SIZE_NOT_FOUND) {
+              LOG.error("File not found for instrument \"{}\" audio \"{}\" at {}", instrument.getName(), audio.getName(), remoteUrl);
+              return false;
+            }
             var localFileSize = getFileSizeIfExistsOnDisk(originalCachePath);
 
             boolean shouldDownload = false;
@@ -798,7 +819,7 @@ public class ProjectManagerImpl implements ProjectManager {
       return false;
 
     } catch (Exception e) {
-      LOG.error("Failed to clone project!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Failed to clone project!\n{}", StringUtils.formatStackTrace(e), e);
       updateState(ProjectState.Failed);
       return false;
     }
@@ -910,7 +931,14 @@ public class ProjectManagerImpl implements ProjectManager {
     try (
       CloseableHttpResponse response = httpClient.execute(new HttpHead(url))
     ) {
-      return Long.parseLong(response.getFirstHeader("Content-Length").getValue());
+      if (response.getStatusLine().getStatusCode()==HttpStatus.SC_NOT_FOUND) {
+        return FILE_SIZE_NOT_FOUND;
+      }
+      var contentLengthHeader = response.getFirstHeader("Content-Length");
+      if (Objects.isNull(contentLengthHeader)) {
+        throw new NexusException(String.format("No Content-Length header found: %s", url));
+      }
+      return Long.parseLong(contentLengthHeader.getValue());
     } catch (Exception e) {
       throw new NexusException(String.format("Unable to get %s", url), e);
     }

@@ -90,6 +90,8 @@ public class ProjectServiceImpl implements ProjectService {
       case LoadedContent -> "Loaded Content";
       case LoadingAudio -> String.format("Loading Audio (%.02f%%)", progress.get() * 100);
       case LoadedAudio -> "Loaded Audio";
+      case PushingAudio -> "Pushing Audio";
+      case PushingContent -> "Pushing Content";
       case Ready -> "Ready";
       case Saving -> "Saving";
       case Cancelled -> "Cancelled";
@@ -134,7 +136,7 @@ public class ProjectServiceImpl implements ProjectService {
     }, state);
 
     state.addListener((o, ov, nv) -> {
-      if (nv == ProjectState.Ready) {
+      if (nv==ProjectState.Ready) {
         didUpdate(Template.class, false);
         didUpdate(Library.class, false);
         didUpdate(Program.class, false);
@@ -209,22 +211,22 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public void saveProject(@Nullable Runnable afterSave) {
+  public void saveProject(@Nullable Runnable onComplete) {
     LOG.info("Will save project");
     executeInBackground("Save Project", () -> {
       projectManager.saveProject();
       Platform.runLater(() -> {
         isModified.set(false);
-        if (Objects.nonNull(afterSave)) Platform.runLater(afterSave);
+        if (Objects.nonNull(onComplete)) Platform.runLater(onComplete);
       });
     });
   }
 
   @Override
-  public void syncProject(Runnable afterSave) {
+  public void pushProject() {
     if (promptForConfirmation("Sync Project", "Sync Project", "This operation will update that local copy with any updates from the Lab, and update the Lab copy with any updates from the local project. Do you want to proceed?")) {
       executeInBackground("Sync Project", () -> {
-        var synced = projectManager.syncProject();
+        var synced = projectManager.pushProject();
         Platform.runLater(() -> showAlert(Alert.AlertType.INFORMATION, "Sync Project", "Synchronized local project and Lab project.", synced.toString()));
       });
     }
@@ -323,7 +325,7 @@ public class ProjectServiceImpl implements ProjectService {
         .filter(library -> !library.getIsDeleted())
         .sorted(Comparator.comparing(Library::getName))
         .toList()
-      : new ArrayList<>();
+      :new ArrayList<>();
   }
 
   @Override
@@ -333,7 +335,7 @@ public class ProjectServiceImpl implements ProjectService {
         .filter(program -> !program.getIsDeleted())
         .sorted(Comparator.comparing(Program::getName))
         .toList()
-      : new ArrayList<>();
+      :new ArrayList<>();
   }
 
   @Override
@@ -343,7 +345,7 @@ public class ProjectServiceImpl implements ProjectService {
         .filter(instrument -> !instrument.getIsDeleted())
         .sorted(Comparator.comparing(Instrument::getName))
         .toList()
-      : new ArrayList<>();
+      :new ArrayList<>();
   }
 
   @Override
@@ -353,7 +355,7 @@ public class ProjectServiceImpl implements ProjectService {
         .filter(template -> !template.getIsDeleted())
         .sorted(Comparator.comparing(Template::getName))
         .toList()
-      : new ArrayList<>();
+      :new ArrayList<>();
   }
 
   @Override
@@ -687,7 +689,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     // Show the dialog and capture the result
     var result = alert.showAndWait();
-    return result.isPresent() && result.get() == ButtonType.YES;
+    return result.isPresent() && result.get()==ButtonType.YES;
   }
 
   /**
@@ -709,9 +711,11 @@ public class ProjectServiceImpl implements ProjectService {
               });
             } else {
               removeFromRecentProjects(parentPathPrefix + projectName + ".xj");
+              Platform.runLater(this::cancelProjectLoading);
             }
           } catch (Exception e) {
-            LOG.warn("Failed to clone project\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+            LOG.warn("Failed to clone project!\n{}", StringUtils.formatStackTrace(e), e);
+            Platform.runLater(this::cancelProjectLoading);
           }
         });
     });

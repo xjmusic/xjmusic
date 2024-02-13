@@ -2,6 +2,7 @@
 
 package io.xj.nexus.hub_client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.xj.hub.HubContent;
 import io.xj.hub.HubContentPayload;
 import io.xj.hub.json.JsonProvider;
@@ -11,7 +12,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +29,8 @@ import java.util.UUID;
  Implementation of a Hub Client for connecting to Hub and accessing contents
  */
 public class HubClientImpl implements HubClient {
-  static final String API_PATH_INGEST_FORMAT = "api/2/projects/%s";
+  static final String API_PATH_GET_PROJECT = "api/2/projects/%s";
+  static final String API_PATH_SYNC_PROJECT = "api/2/projects/%s/sync";
   static final String HEADER_COOKIE = "Cookie";
   final Logger LOG = LoggerFactory.getLogger(HubClientImpl.class);
   final HttpClientProvider httpClientProvider;
@@ -45,9 +49,27 @@ public class HubClientImpl implements HubClient {
   }
 
   @Override
-  public HubContent ingestApiV2(String baseUrl, HubClientAccess access, UUID projectId) throws HubClientException {
+  public void postProjectSyncApiV2(String baseUrl, HubClientAccess access, HubContent content) throws HubClientException {
     CloseableHttpClient client = httpClientProvider.getClient();
-    var uri = buildURI(baseUrl, String.format(API_PATH_INGEST_FORMAT, projectId.toString()));
+    var uri = buildURI(baseUrl, String.format(API_PATH_SYNC_PROJECT, content.getProject().getId().toString()));
+    LOG.info("Will post content to {}", uri);
+    try (
+      CloseableHttpResponse response = client.execute(buildPostRequest(uri, access.getToken(), content))
+    ) {
+      if (!Objects.equals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode()))
+        throw buildException(uri.toString(), response);
+
+      LOG.debug("Did post content; will read bytes of JSON");
+
+    } catch (Exception e) {
+      throw new HubClientException(e);
+    }
+  }
+
+  @Override
+  public HubContent getProjectApiV2(String baseUrl, HubClientAccess access, UUID projectId) throws HubClientException {
+    CloseableHttpClient client = httpClientProvider.getClient();
+    var uri = buildURI(baseUrl, String.format(API_PATH_GET_PROJECT, projectId.toString()));
     LOG.info("Will ingest content from {}", uri);
     try (
       CloseableHttpResponse response = client.execute(buildGetRequest(uri, access.getToken()))
@@ -96,6 +118,26 @@ public class HubClientImpl implements HubClient {
   HttpGet buildGetRequest(URI uri, String token) {
     var request = new HttpGet(uri);
     request.setHeader(HEADER_COOKIE, String.format("%s=%s", hubAccessTokenName, token));
+    return request;
+  }
+
+  /**
+   Set the access token cookie header for a request to Hub
+
+   @param uri     of request
+   @param token   of request
+   @param content of request
+   @return http request
+   */
+  HttpPost buildPostRequest(URI uri, String token, HubContent content) throws JsonProcessingException {
+    var entity = new BasicHttpEntity();
+    var body = jsonProvider.getMapper().writeValueAsString(content);
+    entity.setContent(IOUtils.toInputStream(body, Charset.defaultCharset()));
+    entity.setContentLength(body.length());
+    entity.setContentType("application/json");
+    var request = new HttpPost(uri);
+    request.setHeader(HEADER_COOKIE, String.format("%s=%s", hubAccessTokenName, token));
+    request.setEntity(entity);
     return request;
   }
 

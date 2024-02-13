@@ -118,9 +118,9 @@ public class UIStateServiceImpl implements UIStateService {
       Bindings.createDoubleBinding(
         () ->
           projectService.isStateLoadingProperty().get() ?
-            projectService.progressProperty().get() :
+            projectService.progressProperty().get():
             fabricationService.isStateLoadingProperty().get() ?
-              fabricationService.progressProperty().get() :
+              fabricationService.progressProperty().get():
               0.0,
         projectService.isStateLoadingProperty(),
         projectService.progressProperty(),
@@ -130,15 +130,13 @@ public class UIStateServiceImpl implements UIStateService {
     // State Text
     stateText = Bindings.createStringBinding(
       () -> projectService.isStateReadyProperty().get()
-        ? fabricationService.stateTextProperty().getValue() : projectService.stateTextProperty().getValue(),
+        ? fabricationService.stateTextProperty().getValue():projectService.stateTextProperty().getValue(),
       projectService.stateProperty(),
       projectService.stateTextProperty(),
       fabricationService.stateTextProperty());
 
     // State text is only visible in fabrication view or if project is between standby or ready states
-    isStateTextVisible = projectService.isStateReadyProperty().not()
-      .and(projectService.isStateStandbyProperty().not())
-      .or(isViewModeFabrication);
+    isStateTextVisible = fabricationService.isStateStandbyProperty().not();
 
     progress.addListener((o, ov, value) -> WindowUtils.setTaskbarProgress(value.floatValue()));
 
@@ -153,9 +151,9 @@ public class UIStateServiceImpl implements UIStateService {
     windowTitle = Bindings.createStringBinding(
       () -> Objects.nonNull(projectService.currentProjectProperty().get())
         ? String.format("%s%s - XJ music workstation",
-        projectService.isModifiedProperty().get() ? "* " : "",
+        projectService.isModifiedProperty().get() ? "* ":"",
         projectService.currentProjectProperty().get().getName())
-        : "XJ music workstation",
+        :"XJ music workstation",
       projectService.isModifiedProperty(),
       projectService.currentProjectProperty()
     );
@@ -164,13 +162,13 @@ public class UIStateServiceImpl implements UIStateService {
       () -> switch (viewMode.get()) {
         case Content -> switch (contentMode.get()) {
           case LibraryBrowser, LibraryEditor -> "Libraries";
-          case InstrumentAudioEditor -> currentInstrument.isNotNull().get() ? currentInstrument.get().getName() : "";
+          case InstrumentAudioEditor -> currentInstrument.isNotNull().get() ? currentInstrument.get().getName():"";
           case ProgramBrowser, InstrumentBrowser, ProgramEditor, InstrumentEditor ->
-            currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
+            currentLibrary.isNotNull().get() ? currentLibrary.get().getName():"";
         };
         case Templates -> switch (templateMode.get()) {
           case TemplateBrowser -> "Templates";
-          case TemplateEditor -> currentTemplate.isNotNull().get() ? currentTemplate.get().getName() : "";
+          case TemplateEditor -> currentTemplate.isNotNull().get() ? currentTemplate.get().getName():"";
         };
         case Fabrication -> "";
       },
@@ -192,15 +190,15 @@ public class UIStateServiceImpl implements UIStateService {
     currentEntityName = Bindings.createStringBinding(
       () -> switch (viewMode.get()) {
         case Content -> switch (contentMode.get()) {
-          case LibraryEditor -> currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
-          case ProgramEditor -> currentProgram.isNotNull().get() ? currentProgram.get().getName() : "";
-          case InstrumentEditor -> currentInstrument.isNotNull().get() ? currentInstrument.get().getName() : "";
+          case LibraryEditor -> currentLibrary.isNotNull().get() ? currentLibrary.get().getName():"";
+          case ProgramEditor -> currentProgram.isNotNull().get() ? currentProgram.get().getName():"";
+          case InstrumentEditor -> currentInstrument.isNotNull().get() ? currentInstrument.get().getName():"";
           case InstrumentAudioEditor ->
-            currentInstrumentAudio.isNotNull().get() ? currentInstrumentAudio.get().getName() : "";
+            currentInstrumentAudio.isNotNull().get() ? currentInstrumentAudio.get().getName():"";
           default -> "";
         };
         case Templates ->
-          Objects.equals(TemplateMode.TemplateEditor, templateMode.get()) && currentTemplate.isNotNull().get() ? currentTemplate.get().getName() : "";
+          Objects.equals(TemplateMode.TemplateEditor, templateMode.get()) && currentTemplate.isNotNull().get() ? currentTemplate.get().getName():"";
         default -> "";
       },
       viewMode, contentMode, templateMode, currentProgram, currentInstrument, currentInstrumentAudio, currentTemplate);
