@@ -146,7 +146,7 @@ public class ProjectManagerImpl implements ProjectManager {
       updateState(ProjectState.LoadingContent);
       var json = Files.readString(Path.of(projectFilePath));
       content.set(jsonProvider.getMapper().readValue(json, HubContent.class));
-      project.set(content.get().getProjects().stream().findFirst().orElse(null));
+      project.set(content.get().getProject());
       updateState(ProjectState.LoadedContent);
       LOG.info("Did load content for project \"{}\" from {}", projectName.get(), projectFilePath);
       updateState(ProjectState.Ready);
@@ -357,7 +357,8 @@ public class ProjectManagerImpl implements ProjectManager {
   @Override
   public InstrumentAudio createInstrumentAudio(Instrument instrument, String audioFilePath) throws Exception {
     var library = content.get().getLibrary(instrument.getLibraryId()).orElseThrow(() -> new NexusException("Library not found"));
-    var project = content.get().getProject(library.getProjectId()).orElseThrow(() -> new NexusException("Project not found"));
+    var project = content.get().getProject();
+    if (Objects.isNull(project)) throw new NexusException("Project not found");
     var existingAudioOfInstrument = content.get().getAudiosOfInstrument(instrument.getId()).stream().findFirst();
 
     // extract the file name and extension
@@ -413,7 +414,8 @@ public class ProjectManagerImpl implements ProjectManager {
 
     var toInstrument = content.get().getInstrument(audio.getInstrumentId()).orElseThrow(() -> new NexusException("Instrument not found"));
     var toLibrary = content.get().getLibrary(toInstrument.getLibraryId()).orElseThrow(() -> new NexusException("Library not found"));
-    var toProject = content.get().getProject(toLibrary.getProjectId()).orElseThrow(() -> new NexusException("Project not found"));
+    var toProject = content.get().getProject();
+    if (Objects.isNull(toProject)) throw new NexusException("Project not found");
     var toWaveformKey = computeWaveformKey(toProject.getName(), toLibrary.getName(), toInstrument.getName(), audio, matcher.group(3));
     var toPath = getPathToInstrumentAudio(toInstrument.getId(), toWaveformKey);
 
@@ -708,7 +710,7 @@ public class ProjectManagerImpl implements ProjectManager {
       LOG.info("Will load content");
       updateState(ProjectState.LoadingContent);
       content.set(fetchContent.call());
-      project.set(content.get().getProjects().stream().findFirst().orElse(null));
+      project.set(content.get().getProject());
       updateState(ProjectState.LoadedContent);
       LOG.info("Did load content");
 
