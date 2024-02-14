@@ -4,18 +4,31 @@ import io.xj.gui.services.ProjectService;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.util.StringUtils;
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.skin.TextFieldSkin;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.controlsfx.control.SearchableComboBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +36,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 @Component
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class CreateBindingItem {
   @FXML
   public VBox container;
@@ -74,14 +88,16 @@ public class CreateBindingItem {
     addSequenceItem(programSequenceBinding);
   }
 
-  private void addSequenceItem(ProgramSequenceBinding programSequenceBinding) {
+  public void addSequenceItem(ProgramSequenceBinding programSequenceBinding) {
     try {
       FXMLLoader loader = new FXMLLoader(sequenceItemBindingFxml.getURL());
       loader.setControllerFactory(applicationContext::getBean);
       Parent root = loader.load();
-      sequenceHolder.getChildren().add(sequenceHolder.getChildren().size() - 1, root);
+      HBox.setHgrow(sequenceHolder, Priority.ALWAYS);
       SequenceItemBindMode sequenceItemBindMode = loader.getController();
       sequenceItemBindMode.setUp(sequenceHolder, root, bindViewParentContainer, position, programSequenceBinding);
+      sequenceHolder.getChildren().add(root);
+      HBox.setHgrow(root,Priority.ALWAYS);
       projectService.putContent(programSequenceBinding);
       checkIfNextItemIsPresent();
     } catch (Exception e) {

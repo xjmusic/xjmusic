@@ -4,10 +4,12 @@ import io.xj.gui.services.ProjectService;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
 import io.xj.hub.util.StringUtils;
+import javafx.beans.property.Property;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -34,6 +36,8 @@ public class SequenceItemBindMode {
   public Text sequenceName;
   @FXML
   public HBox memeHolder;
+  @FXML
+  public AnchorPane parentAnchorPane;
   @Value("classpath:/views/content/program/sequence-binding-meme-tag.fxml")
   private Resource memeTagFxml;
   static final Logger LOG = LoggerFactory.getLogger(SequenceItemBindMode.class);
@@ -42,6 +46,7 @@ public class SequenceItemBindMode {
   private final ProjectService projectService;
   private ProgramSequenceBinding programSequenceBinding;
   private final ProgramEditorController programEditorController;
+  private VBox container;
 
   public SequenceItemBindMode(ApplicationContext ac, ProjectService projectService, ProgramEditorController programEditorController) {
     this.ac = ac;
@@ -51,6 +56,7 @@ public class SequenceItemBindMode {
 
   public void setUp(VBox container, Parent root, HBox bindViewParentContainer, int parentPosition,
                     ProgramSequenceBinding programSequenceBinding) {
+    this.container = container;
     this.parentPosition = parentPosition;
     this.programSequenceBinding = programSequenceBinding;
     deleteSequence(container, root, bindViewParentContainer);
@@ -85,7 +91,14 @@ public class SequenceItemBindMode {
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       ProgramSequenceMemeTagController memeTagController = loader.getController();
-      memeTagController.setUp(root, sequenceBindingMeme, programSequenceBinding.getId(), memeHolder);
+      memeTagController.setUp(root, sequenceBindingMeme, programSequenceBinding.getId(), memeHolder,container,parentAnchorPane);
+
+      memeHolder.widthProperty().addListener((o, ov, nv) -> {
+        if (!(container.getWidth() >= memeHolder.getWidth())) {
+          container.setPrefWidth(memeHolder.getWidth() + 80);
+          parentAnchorPane.setPrefWidth(memeHolder.getWidth());
+        }
+      });
       memeHolder.getChildren().add(root);
     } catch (IOException exception) {
       LOG.error("Error adding Meme!\n{}", StringUtils.formatStackTrace(exception), exception);

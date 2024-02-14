@@ -11,6 +11,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -60,6 +61,7 @@ public class SequenceHolder {
     this.bindViewParentContainer = bindViewParentContainer;
     offSet.setText(String.valueOf(position - 1));
     addSequenceButton.setOnAction(e -> showSequenceBindingUI(programId, programSequenceId));
+    HBox.setHgrow(sequenceHolder, Priority.ALWAYS);
   }
 
   protected void showSequenceBindingUI(UUID programId, UUID programSequenceId) {

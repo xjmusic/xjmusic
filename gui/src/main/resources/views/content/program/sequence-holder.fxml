@@ -6,9 +6,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox fx:id="sequenceHolder" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="200.0" prefHeight="56.0" prefWidth="363.0" spacing="5.0" styleClass="sequence-holder-container" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.SequenceHolder">
+<VBox fx:id="sequenceHolder" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="250.0" prefHeight="56.0" prefWidth="363.0" spacing="5.0" styleClass="sequence-holder-container" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.SequenceHolder">
    <children>
-      <Label fx:id="offSet" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="17.0" prefWidth="370.0" styleClass="bind-mode-label" text="0" textFill="GREY" VBox.vgrow="ALWAYS">
+      <Label fx:id="offSet" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="200.0" prefHeight="17.0" prefWidth="370.0" styleClass="bind-mode-label" text="0" textFill="GREY" VBox.vgrow="ALWAYS">
          <padding>
             <Insets left="2.0" />
          </padding>
@@ -16,7 +16,7 @@
             <Insets left="-5.0" right="-5.0" />
          </VBox.margin>
       </Label>
-      <Button fx:id="addSequenceButton" alignment="TOP_LEFT" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" mnemonicParsing="false" prefHeight="31.0" prefWidth="358.0" text="+" VBox.vgrow="ALWAYS">
+      <Button fx:id="addSequenceButton" alignment="TOP_LEFT" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="200.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="358.0" text="+" VBox.vgrow="ALWAYS">
          <VBox.margin>
             <Insets left="3.0" right="3.0" />
          </VBox.margin>
