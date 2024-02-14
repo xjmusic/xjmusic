@@ -25,7 +25,6 @@ import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -40,7 +39,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -71,8 +69,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  */
 @ExtendWith(MockitoExtension.class)
 public class CraftBeat_LayeredVoicesTest {
-  @Mock
-  public HubClient hubClient;
   CraftFactory craftFactory;
   FabricatorFactory fabricatorFactory;
   HubContent sourceMaterial;
@@ -102,7 +98,7 @@ public class CraftBeat_LayeredVoicesTest {
     // Manipulate the underlying entity store; reset before each test
     store.clear();
 
-    // Mock request via HubClient returns fake generated library of hub content
+    // Mock request via HubClientFactory returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       fake.setupFixtureB1().stream().filter(entity -> !EntityUtils.isSame(entity, fake.program35) && !EntityUtils.isChild(entity, fake.program35)),

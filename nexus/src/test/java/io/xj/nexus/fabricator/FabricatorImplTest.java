@@ -100,7 +100,7 @@ public class FabricatorImplTest {
     // Manipulate the underlying entity store; reset before each test
     store.clear();
 
-    // Mock request via HubClient returns fake generated library of hub content
+    // Mock request via HubClientFactory returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Stream.concat(Stream.concat(Stream.concat(fake.setupFixtureB1().stream(), fake.setupFixtureB2().stream()), fake.setupFixtureB3().stream()), Stream.of(fake.template1, fake.templateBinding1)).collect(Collectors.toList()));
 

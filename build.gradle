@@ -23,7 +23,7 @@ ext {
   springBootVersion = '3.1.2'
   springTestVersion = '6.0.11'
   // private
-  xjModelsVersion = '1.7.29'
+  xjModelsVersion = '1.7.30'
 }
 
 // Load the local properties if present

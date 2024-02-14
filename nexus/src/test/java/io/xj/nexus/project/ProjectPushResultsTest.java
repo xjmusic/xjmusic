@@ -3,14 +3,14 @@ package io.xj.nexus.project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ProjectPushResultsTest {
   private ProjectPushResults subject;
 
   @BeforeEach
   void setUp() {
-    subject = new ProjectPushResults(27,31,14,15,36,72);
+    subject = new ProjectPushResults(27,31,14,15, 72);
   }
 
   @Test
@@ -40,7 +40,7 @@ class ProjectPushResultsTest {
 
   @Test
   void getAudiosUploaded() {
-    assertEquals(72, subject.getAudiosUploaded());
+    assertEquals(72, subject.getAudios());
   }
 
   @Test
@@ -82,7 +82,7 @@ class ProjectPushResultsTest {
   void addAudiosUploaded() {
     subject.addAudiosUploaded(3);
 
-    assertEquals(75, subject.getAudiosUploaded());
+    assertEquals(75, subject.getAudios());
   }
 
   @Test
@@ -124,7 +124,7 @@ class ProjectPushResultsTest {
   void incrementAudiosUploaded() {
     subject.incrementAudiosUploaded();
 
-    assertEquals(73, subject.getAudiosUploaded());
+    assertEquals(73, subject.getAudios());
   }
 
   @Test

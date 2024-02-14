@@ -44,15 +44,15 @@ public interface ProjectManager {
   /**
    Clone from a Lab Project
 
-   @param access           control
-   @param labBaseUrl       of the lab
+   @param hubAccess           control
+   @param hubBaseUrl       of the lab
    @param audioBaseUrl     of the lab
    @param parentPathPrefix parent folder to the project folder
    @param projectId        in the lab
    @param projectName      of the project folder and the project
    @return true if successful
    */
-  boolean cloneFromLabProject(HubClientAccess access, String labBaseUrl, String audioBaseUrl, String parentPathPrefix, UUID projectId, String projectName);
+  boolean cloneFromLabProject(HubClientAccess hubAccess, String hubBaseUrl, String audioBaseUrl, String parentPathPrefix, UUID projectId, String projectName);
 
   /**
    Open a project from a local file
@@ -91,11 +91,11 @@ public interface ProjectManager {
    Once a project has been cloned to disk, choose Project -> Sync to update that local copy with any
    updates from the Lab, and the Lab copy with any updates from local.
 
-   @param access     control
-   @param labBaseUrl of the lab
+   @param hubAccess     control
+   @param hubBaseUrl of the lab
    @return results
    */
-  ProjectPushResults pushProject(HubClientAccess access, String labBaseUrl);
+  ProjectPushResults pushProject(HubClientAccess hubAccess, String hubBaseUrl);
 
   /**
    Cancel the project loading

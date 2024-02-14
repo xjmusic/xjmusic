@@ -10,16 +10,14 @@ public class ProjectPushResults {
   int libraries;
   int programs;
   int instruments;
-  int audiosDownloaded;
-  int audiosUploaded;
+  int audios;
 
-  public ProjectPushResults(int templates, int libraries, int programs, int instruments, int audiosDownloaded, int audiosUploaded) {
+  public ProjectPushResults(int templates, int libraries, int programs, int instruments, int audios) {
     this.templates = templates;
     this.libraries = libraries;
     this.programs = programs;
     this.instruments = instruments;
-    this.audiosDownloaded = audiosDownloaded;
-    this.audiosUploaded = audiosUploaded;
+    this.audios = audios;
   }
 
   public ProjectPushResults() {
@@ -27,8 +25,7 @@ public class ProjectPushResults {
     this.libraries = 0;
     this.programs = 0;
     this.instruments = 0;
-    this.audiosDownloaded = 0;
-    this.audiosUploaded = 0;
+    this.audios = 0;
   }
 
   public int getTemplates() {
@@ -47,12 +44,8 @@ public class ProjectPushResults {
     return instruments;
   }
 
-  public int getAudiosDownloaded() {
-    return audiosDownloaded;
-  }
-
-  public int getAudiosUploaded() {
-    return audiosUploaded;
+  public int getAudios() {
+    return audios;
   }
 
   public void addTemplates(int count) {
@@ -71,12 +64,8 @@ public class ProjectPushResults {
     this.instruments += count;
   }
 
-  public void addAudiosDownloaded(int count) {
-    this.audiosDownloaded += count;
-  }
-
   public void addAudiosUploaded(int count) {
-    this.audiosUploaded += count;
+    this.audios += count;
   }
 
   public void incrementTemplates() {
@@ -95,23 +84,18 @@ public class ProjectPushResults {
     this.instruments++;
   }
 
-  public void incrementAudiosDownloaded() {
-    this.audiosDownloaded++;
-  }
-
   public void incrementAudiosUploaded() {
-    this.audiosUploaded++;
+    this.audios++;
   }
 
   @Override
   public String toString() {
     return String.format("Synchronized %s", StringUtils.toProperCsvAnd(Stream.of(
-        templates > 0 ? describeCount("template", templates):null,
-        libraries > 0 ? describeCount("library", libraries):null,
-        programs > 0 ? describeCount("program", programs):null,
-        instruments > 0 ? describeCount("instrument", instruments):null,
-        audiosDownloaded > 0 ? String.format("%s downloaded", describeCount("audio", audiosDownloaded)):null,
-        audiosUploaded > 0 ? String.format("%s uploaded", describeCount("audio", audiosUploaded)):null
+        templates > 0 ? describeCount("template", templates) : null,
+        libraries > 0 ? describeCount("library", libraries) : null,
+        programs > 0 ? describeCount("program", programs) : null,
+        instruments > 0 ? describeCount("instrument", instruments) : null,
+        audios > 0 ? describeCount("audio", instruments) : null
       ).filter(Objects::nonNull).toList())
     );
   }
@@ -124,6 +108,6 @@ public class ProjectPushResults {
    @return description of the count
    */
   private String describeCount(String name, long count) {
-    return String.format("%d %s", count, count > 1 ? StringUtils.toPlural(name):name);
+    return String.format("%d %s", count, count > 1 ? StringUtils.toPlural(name) : name);
   }
 }

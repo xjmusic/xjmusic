@@ -21,7 +21,6 @@ import io.xj.hub.tables.pojos.User;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -31,7 +30,6 @@ import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -58,8 +56,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(MockitoExtension.class)
 public class MacroFromOverlappingMemeSequencesTest {
   static final int REPEAT_TIMES = 100;
-  @Mock
-  public HubClient hubClient;
   MacroMainCraftImpl subject;
   Program macro2a;
 
@@ -80,7 +76,7 @@ public class MacroFromOverlappingMemeSequencesTest {
     // Manipulate the underlying entity store; reset before each test
     store.clear();
 
-    // Mock request via HubClient returns fake generated library of hub content
+    // Mock request via HubClientFactory returns fake generated library of hub content
     // Project "bananas"
     Project project1 = buildProject("bananas");
     Library library2 = buildLibrary(project1, "house");

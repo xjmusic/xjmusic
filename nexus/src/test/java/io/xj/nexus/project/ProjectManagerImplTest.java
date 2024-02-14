@@ -5,6 +5,8 @@ import io.xj.hub.entity.EntityFactory;
 import io.xj.hub.entity.EntityFactoryImpl;
 import io.xj.hub.json.JsonProvider;
 import io.xj.hub.json.JsonProviderImpl;
+import io.xj.hub.jsonapi.JsonapiPayloadFactory;
+import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
@@ -15,6 +17,8 @@ import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.nexus.http.HttpClientProvider;
+import io.xj.nexus.hub_client.HubClientFactory;
+import io.xj.nexus.hub_client.HubClientFactoryImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,7 +54,9 @@ class ProjectManagerImplTest {
     JsonProvider jsonProvider = new JsonProviderImpl();
     EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
-    subject = new ProjectManagerImpl(httpClientProvider, jsonProvider, entityFactory, 3);
+    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    HubClientFactory hubClientFactory = new HubClientFactoryImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
+    subject = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, 3, 3);
   }
 
   @Test

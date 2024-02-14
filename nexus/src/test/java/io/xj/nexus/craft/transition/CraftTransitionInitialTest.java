@@ -15,7 +15,6 @@ import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
@@ -27,7 +26,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -41,8 +39,6 @@ import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftTransitionInitialTest {
-  @Mock
-  public HubClient hubClient;
   CraftFactory craftFactory;
   FabricatorFactory fabricatorFactory;
   HubContent sourceMaterial;
@@ -67,7 +63,7 @@ public class CraftTransitionInitialTest {
     // Manipulate the underlying entity store; reset before each test
     store.clear();
 
-    // Mock request via HubClient returns fake generated library of hub content
+    // Mock request via HubClientFactory returns fake generated library of hub content
     NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       Stream.concat(fake.setupFixtureB1().stream(),

@@ -82,7 +82,7 @@ public class ProjectServiceImpl implements ProjectService {
   private final BooleanProperty isModified = new SimpleBooleanProperty(false);
   private final ObjectProperty<ProjectState> state = new SimpleObjectProperty<>(ProjectState.Standby);
   private final ObservableStringValue stateText = Bindings.createStringBinding(
-    () -> switch (state.get()) {
+    () -> eswitch (state.get()) {
       case Standby -> "Standby";
       case CreatingFolder -> "Creating Folder";
       case CreatedFolder -> "Created Folder";

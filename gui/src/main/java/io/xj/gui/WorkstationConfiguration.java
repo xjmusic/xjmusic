@@ -18,6 +18,8 @@ import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.http.HttpClientProvider;
 import io.xj.nexus.http.HttpClientProviderImpl;
+import io.xj.nexus.hub_client.HubClientFactory;
+import io.xj.nexus.hub_client.HubClientFactoryImpl;
 import io.xj.nexus.mixer.EnvelopeProvider;
 import io.xj.nexus.mixer.EnvelopeProviderImpl;
 import io.xj.nexus.mixer.MixerFactory;
@@ -39,11 +41,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class WorkstationConfiguration {
   private final int downloadAudioRetries;
+  private final int uploadAudioRetries;
 
   public WorkstationConfiguration(
-    @Value("${download.audio.retries}") int downloadAudioRetries
+    @Value("${audio.download.retries}") int downloadAudioRetries,
+    @Value("${audio.upload.retries}") int uploadAudioRetries
   ) {
     this.downloadAudioRetries = downloadAudioRetries;
+    this.uploadAudioRetries = uploadAudioRetries;
   }
 
   @Bean
@@ -54,6 +59,26 @@ public class WorkstationConfiguration {
   @Bean
   public HttpClientProvider httpClientProvider() {
     return new HttpClientProviderImpl();
+  }
+
+  @Bean
+  public JsonapiPayloadFactory jsonapiPayloadFactory(
+    EntityFactory entityFactory
+  ) {
+    return new JsonapiPayloadFactoryImpl(entityFactory);
+  }
+
+  @Bean
+  public HubClientFactory hubClientFactory(
+    HttpClientProvider httpClientProvider,
+    JsonProvider jsonProvider,
+    JsonapiPayloadFactory jsonapiPayloadFactory
+  ) {
+    return new HubClientFactoryImpl(
+      httpClientProvider,
+      jsonProvider,
+      jsonapiPayloadFactory
+    );
   }
 
   @Bean
@@ -68,11 +93,12 @@ public class WorkstationConfiguration {
 
   @Bean
   public ProjectManager projectManager(
-    HttpClientProvider httpClientProvider,
     JsonProvider jsonProvider,
-    EntityFactory entityFactory
+    EntityFactory entityFactory,
+    HttpClientProvider httpClientProvider,
+    HubClientFactory hubClientFactory
   ) {
-    return new ProjectManagerImpl(httpClientProvider, jsonProvider, entityFactory, downloadAudioRetries);
+    return new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, downloadAudioRetries, uploadAudioRetries);
   }
 
   @Bean

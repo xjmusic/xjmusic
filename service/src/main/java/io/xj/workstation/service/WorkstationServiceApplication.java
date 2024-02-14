@@ -22,6 +22,8 @@ import io.xj.hub.json.JsonProvider;
 import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.nexus.hub_client.HubClientFactory;
+import io.xj.nexus.hub_client.HubClientFactoryImpl;
 import io.xj.nexus.mixer.EnvelopeProvider;
 import io.xj.nexus.mixer.EnvelopeProviderImpl;
 import io.xj.nexus.mixer.MixerFactory;
@@ -71,7 +73,8 @@ public class WorkstationServiceApplication {
   public WorkstationServiceApplication(
     ApplicationContext context,
     @Value("${audio.base.url}") String audioBaseUrl,
-    @Value("${download.audio.retries}") int downloadAudioRetries,
+    @Value("${audio.download.retries}") int downloadAudioRetries,
+    @Value("${audio.upload.retries}") int uploadAudioRetries,
     @Value("${ingest.token}") String ingestToken,
     @Value("${input.template.key}") String inputTemplateKey,
     @Value("${lab.base.url}") String labBaseUrl,
@@ -89,14 +92,15 @@ public class WorkstationServiceApplication {
     HttpClientProvider httpClientProvider = new HttpClientProviderImpl();
     JsonProvider jsonProvider = new JsonProviderImpl();
     EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
-    ProjectManager projectManager = new ProjectManagerImpl(httpClientProvider, jsonProvider, entityFactory, downloadAudioRetries);
+    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    HubClientFactory hubClientFactory = new HubClientFactoryImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
+    ProjectManager projectManager = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, downloadAudioRetries, uploadAudioRetries);
     BroadcastFactory broadcastFactory = new BroadcastFactoryImpl();
     Telemetry telemetry = new TelemetryImpl();
     CraftFactory craftFactory = new CraftFactoryImpl();
     AudioLoader audioLoader = new AudioLoaderImpl(projectManager);
     AudioCache audioCache = new AudioCacheImpl(projectManager, audioLoader);
     NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
-    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
       nexusEntityStore,
       jsonapiPayloadFactory,

@@ -27,7 +27,6 @@ import io.xj.nexus.NexusTopology;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
@@ -38,7 +37,6 @@ import jakarta.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,8 +86,6 @@ public class ArrangementTests extends YamlTest {
   );
   final Logger LOG = LoggerFactory.getLogger(YamlTest.class);
   // this is how we provide content for fabrication
-  @Mock
-  public HubClient hubClient;
   FabricatorFactory fabrication;
   NexusEntityStore store;
   Fabricator fabricator;
