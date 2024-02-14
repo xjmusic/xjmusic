@@ -446,4 +446,13 @@ public interface ProjectService {
    @param body   of alert
    */
   void showAlert(Alert.AlertType type, String title, String header, @Nullable String body);
+
+  /**
+   Show error dialog, which allows the user to copy and paste the error message
+
+   @param title  of the dialog
+   @param header of the dialog
+   @param body   of the dialog
+   */
+  void showErrorDialog(String title, String header, String body);
 }

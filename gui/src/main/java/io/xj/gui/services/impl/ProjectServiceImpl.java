@@ -39,7 +39,12 @@ import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableStringValue;
 import javafx.collections.FXCollections;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +72,8 @@ import java.util.prefs.Preferences;
 public class ProjectServiceImpl implements ProjectService {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectServiceImpl.class);
   private static final String defaultPathPrefix = System.getProperty("user.home") + File.separator + "Documents";
+  private static final double ERROR_DIALOG_WIDTH = 800.0;
+  private static final double ERROR_DIALOG_HEIGHT = 600.0;
   private static final Collection<ProjectState> PROJECT_LOADING_STATES = Set.of(
     ProjectState.LoadingContent,
     ProjectState.LoadedContent,
@@ -233,7 +240,7 @@ public class ProjectServiceImpl implements ProjectService {
           labService.hubConfigProperty().get().getApiBaseUrl()
         );
         if (pushed.hasErrors())
-          Platform.runLater(() -> showAlert(Alert.AlertType.ERROR, "Failed to push project", "Failed to push local project to Lab", pushed.toString()));
+          Platform.runLater(() -> showErrorDialog("Failed to push project", "Failed to push local project to Lab", pushed.toString()));
         else
           Platform.runLater(() -> showAlert(Alert.AlertType.INFORMATION, "Pushed project", "Pushed local project to Lab", pushed.toString()));
       });
@@ -656,6 +663,39 @@ public class ProjectServiceImpl implements ProjectService {
     alert.setHeaderText(header);
     if (Objects.nonNull(body)) alert.setContentText(body);
     alert.showAndWait();
+  }
+
+  @Override
+  public void showErrorDialog(String title, String header, String body) {
+    ButtonType loginButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+    Dialog<String> dialog = new Dialog<>();
+    themeService.setup(dialog);
+    dialog.getDialogPane().getButtonTypes().add(loginButtonType);
+
+    dialog.setTitle(title);
+    dialog.setHeaderText(header);
+
+    // Create a TextArea for the message
+    TextArea textArea = new TextArea(body);
+    textArea.setEditable(false); // Make it non-editable
+    textArea.setWrapText(true); // Enable text wrapping
+    textArea.setMaxWidth(Double.MAX_VALUE); // Use max width for better responsiveness
+    textArea.setMaxHeight(Double.MAX_VALUE); // Use max height for better responsiveness
+    GridPane.setVgrow(textArea, Priority.ALWAYS);
+    GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+    GridPane content = new GridPane();
+    content.setMaxWidth(Double.MAX_VALUE);
+    content.add(textArea, 0, 0);
+
+    // Set the dialog content
+    dialog.getDialogPane().setContent(content);
+    dialog.setResizable(true);
+    dialog.getDialogPane().setPrefWidth(ERROR_DIALOG_WIDTH);
+    dialog.getDialogPane().setPrefHeight(ERROR_DIALOG_HEIGHT);
+    themeService.setup(dialog.getDialogPane().getScene());
+
+    dialog.showAndWait();
   }
 
   /**
