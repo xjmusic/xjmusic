@@ -11,7 +11,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane fx:id="memeParent" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="26.0" prefWidth="122.0" styleClass="meme-tag" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramSequenceMemeTagController">
+<AnchorPane fx:id="memeParent" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="26.0" prefWidth="122.0" styleClass="meme-tag" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramSequenceMemeTagController">
   <StackPane fx:id="stackPane" minHeight="-Infinity" prefHeight="26.0" prefWidth="92.0" styleClass="meme-tag-container" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="30.0">
     <TextField fx:id="memeNameField" minHeight="-Infinity" prefHeight="26.0" prefWidth="55.0" styleClass="meme-name-field">
       <font>

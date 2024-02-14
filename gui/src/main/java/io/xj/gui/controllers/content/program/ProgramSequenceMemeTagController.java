@@ -103,7 +103,7 @@ public class ProgramSequenceMemeTagController {
 
   private void deleteMemeTag(Parent root, HBox memeHolder) {
     try {
-      projectService.getContent().getProgramSequenceBindings().removeIf(meme -> meme.getId().equals(currentMeme.getId()));
+      projectService.deleteContent(currentMeme);
       //notify modification
       projectService.isModifiedProperty().set(true);
       // Remove the child node from memeHolder

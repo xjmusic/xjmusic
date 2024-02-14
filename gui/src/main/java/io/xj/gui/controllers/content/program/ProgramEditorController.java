@@ -510,7 +510,6 @@ public class ProgramEditorController extends ProjectController {
     scrollPane = new ScrollPane(bindViewParentContainer);
     // Allow horizontal scrolling only when necessary
     scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-
     container.getChildren().add(scrollPane);
     VBox.setVgrow(scrollPane, Priority.ALWAYS);
   }

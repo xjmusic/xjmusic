@@ -80,8 +80,13 @@ public class SequenceItemBindMode {
 
   private void deleteSequence(VBox container, Parent root, HBox bindViewParentContainer) {
     deleteSequence.setOnAction(e -> {
-      container.getChildren().remove(root);
-      checkIfNextAndCurrentItemIsEmpty(bindViewParentContainer, container);
+      try {
+        container.getChildren().remove(root);
+        projectService.deleteContent(programSequenceBinding);
+        checkIfNextAndCurrentItemIsEmpty(bindViewParentContainer, container);
+      } catch (Exception ex) {
+        LOG.info("Failed to delete ProgramSequenceBinding at "+programSequenceBinding.getOffset());
+      }
     });
   }
 
@@ -96,7 +101,7 @@ public class SequenceItemBindMode {
       memeHolder.widthProperty().addListener((o, ov, nv) -> {
         if (!(container.getWidth() >= memeHolder.getWidth())) {
           container.setPrefWidth(memeHolder.getWidth() + 80);
-          parentAnchorPane.setPrefWidth(memeHolder.getWidth());
+          parentAnchorPane.setPrefWidth(memeHolder.getWidth()+80);
         }
       });
       memeHolder.getChildren().add(root);
