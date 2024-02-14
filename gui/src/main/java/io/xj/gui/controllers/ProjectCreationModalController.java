@@ -21,6 +21,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
@@ -100,6 +101,9 @@ public class ProjectCreationModalController extends ProjectModalController {
   VBox demoContainer;
 
   @FXML
+  TabPane tabPane;
+
+  @FXML
   Tab tabLab;
 
   @FXML
@@ -142,7 +146,11 @@ public class ProjectCreationModalController extends ProjectModalController {
     demoImageSpace.fitHeightProperty().bind(demoImageSize);
     demoImageSpace.fitWidthProperty().bind(demoImageSize);
 
-    tabLab.disableProperty().bind(labService.isAuthenticated().not());
+    if (uiStateService.isLabFeatureEnabledProperty().get()) {
+      tabLab.disableProperty().bind(labService.isAuthenticated().not());
+    } else {
+      tabPane.getTabs().remove(tabLab);
+    }
 
     if (labService.isAuthenticated().get()) {
       labService.fetchProjects(projects -> choiceCloneProject.setItems(FXCollections.observableList(projects.stream().sorted(Comparator.comparing(Project::getName)).map(ProjectChoice::new).toList())));

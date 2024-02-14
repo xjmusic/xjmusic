@@ -27,7 +27,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
-import javafx.scene.paint.Color;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -35,11 +34,14 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.prefs.Preferences;
 
 @Service
 public class UIStateServiceImpl implements UIStateService {
+  private final Preferences prefs = Preferences.userNodeForPackage(UIStateServiceImpl.class);
   private final BooleanBinding hasCurrentProject;
   private final BooleanBinding isManualFabricationActive;
+  private final BooleanProperty isLabFeatureEnabled = new SimpleBooleanProperty(false);
   private final ProjectService projectService;
   private final BooleanBinding isManualFabricationMode;
   private final BooleanBinding isProgressBarVisible;
@@ -80,10 +82,14 @@ public class UIStateServiceImpl implements UIStateService {
   private final StringBinding createEntityButtonText;
   private final BooleanBinding isLibraryContentBrowser;
 
+  private final String defaultIsLabFeatureEnabled;
+
   public UIStateServiceImpl(
     FabricationService fabricationService,
-    ProjectService projectService
+    ProjectService projectService,
+    @Value("${lab.feature.enabled}") String defaultIsLabFeatureEnabled
   ) {
+    this.defaultIsLabFeatureEnabled = defaultIsLabFeatureEnabled;
 
     // Has a current project?
     hasCurrentProject = projectService.stateProperty().isNotEqualTo(ProjectState.Standby);
@@ -235,6 +241,9 @@ public class UIStateServiceImpl implements UIStateService {
         },
       viewMode, contentMode
     );
+
+    attachPreferenceListeners();
+    setAllFromPreferencesOrDefaults();
   }
 
   @Override
@@ -511,6 +520,25 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public BooleanBinding isLibraryContentBrowserProperty() {
     return isLibraryContentBrowser;
+  }
+
+  @Override
+  public BooleanProperty isLabFeatureEnabledProperty() {
+    return isLabFeatureEnabled;
+  }
+
+  /**
+   Attach preference listeners.
+   */
+  private void attachPreferenceListeners() {
+    isLabFeatureEnabled.addListener((o, ov, value) -> prefs.put("isLabFeatureEnabled", value.toString()));
+  }
+
+  /**
+   Set all properties from preferences, else defaults.
+   */
+  private void setAllFromPreferencesOrDefaults() {
+    isLabFeatureEnabled.set(Boolean.parseBoolean(prefs.get("isLabFeatureEnabled", defaultIsLabFeatureEnabled)));
   }
 
 }
