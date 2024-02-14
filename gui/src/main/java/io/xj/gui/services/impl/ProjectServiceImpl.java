@@ -82,7 +82,7 @@ public class ProjectServiceImpl implements ProjectService {
   private final BooleanProperty isModified = new SimpleBooleanProperty(false);
   private final ObjectProperty<ProjectState> state = new SimpleObjectProperty<>(ProjectState.Standby);
   private final ObservableStringValue stateText = Bindings.createStringBinding(
-    () -> eswitch (state.get()) {
+    () -> switch (state.get()) {
       case Standby -> "Standby";
       case CreatingFolder -> "Creating Folder";
       case CreatedFolder -> "Created Folder";
@@ -90,8 +90,10 @@ public class ProjectServiceImpl implements ProjectService {
       case LoadedContent -> "Loaded Content";
       case LoadingAudio -> String.format("Loading Audio (%.02f%%)", progress.get() * 100);
       case LoadedAudio -> "Loaded Audio";
-      case PushingAudio -> "Pushing Audio";
       case PushingContent -> "Pushing Content";
+      case PushedContent -> "Pushed Content";
+      case PushingAudio -> "Pushing Audio";
+      case PushedAudio -> "Pushed Audio";
       case Ready -> "Ready";
       case Saving -> "Saving";
       case Cancelled -> "Cancelled";

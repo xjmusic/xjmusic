@@ -8,6 +8,7 @@ import io.xj.hub.HubContentPayload;
 import io.xj.hub.HubUploadAuthorization;
 import io.xj.hub.json.JsonProvider;
 import io.xj.hub.jsonapi.JsonapiPayloadFactory;
+import io.xj.hub.util.StringUtils;
 import io.xj.nexus.http.HttpClientProvider;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
@@ -59,8 +60,10 @@ public class HubClientFactoryImpl implements HubClientFactory {
     try (
       CloseableHttpResponse response = client.execute(request);
     ) {
-      if (!Objects.equals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode()))
-        throw buildException(uri.toString(), response);
+      if (!Objects.equals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode())) {
+        var result = jsonProvider.getMapper().readValue(IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset()), HubContent.class);
+        throw new HubClientException(StringUtils.toProperCsvAnd(result.getErrors().stream().map(error -> error.getCause().getMessage()).toList()));
+      }
 
       LOG.debug("Did post content; will read bytes of JSON");
 
