@@ -568,6 +568,9 @@ public class ProgramEditorController extends ProjectController {
           , programSequenceBinding.getOffset() + 1);
       } else {
         addBindingView(bindViewParentContainer.getChildren().size());
+        addSequenceItem(programSequenceBinding,
+          ((VBox) bindViewParentContainer.getChildren().get(bindViewParentContainer.getChildren().size() - 1))
+          , programSequenceBinding.getOffset() + 1);
       }
     }
   }
