@@ -201,6 +201,8 @@ public class ProjectCreationModalController extends ProjectModalController {
 
   @FXML
   protected void handlePressOK() {
+    var projectName = fieldProjectName.getText().replaceAll("[^a-zA-Z0-9 ]", "");
+
     if (Objects.equals(mode.get(), ProjectCreationMode.CLONE_PROJECT)
       && Objects.isNull(demoSelection.getSelectedToggle())
       && Objects.isNull(selectedProject.get())) {
@@ -212,7 +214,7 @@ public class ProjectCreationModalController extends ProjectModalController {
       return;
     }
 
-    if (StringUtils.isNullOrEmpty(fieldProjectName.getText())) {
+    if (StringUtils.isNullOrEmpty(projectName)) {
       projectService.showWarningAlert(
         "Cannot create project",
         "Project name is required.",
@@ -226,12 +228,12 @@ public class ProjectCreationModalController extends ProjectModalController {
       switch (mode.get()) {
         case CLONE_PROJECT -> {
           if (tabDemo.isSelected()) {
-            projectService.cloneFromDemoTemplate(fieldPathPrefix.getText(), ((ToggleButton) demoSelection.getSelectedToggle()).getId(), fieldProjectName.getText());
+            projectService.cloneFromDemoTemplate(fieldPathPrefix.getText(), ((ToggleButton) demoSelection.getSelectedToggle()).getId(), projectName);
           } else {
-            projectService.cloneFromLabProject(fieldPathPrefix.getText(), selectedProject.getValue().getId(), fieldProjectName.getText());
+            projectService.cloneFromLabProject(fieldPathPrefix.getText(), selectedProject.getValue().getId(), projectName);
           }
         }
-        case NEW_PROJECT -> projectService.createProject(fieldPathPrefix.getText(), fieldProjectName.getText());
+        case NEW_PROJECT -> projectService.createProject(fieldPathPrefix.getText(), projectName);
       }
 
       Stage stage = (Stage) buttonOK.getScene().getWindow();

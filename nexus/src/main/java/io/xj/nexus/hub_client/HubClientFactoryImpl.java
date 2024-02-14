@@ -97,7 +97,7 @@ public class HubClientFactoryImpl implements HubClientFactory {
   public HubUploadAuthorization authorizeInstrumentAudioUploadApiV2(CloseableHttpClient httpClient, String baseUrl, HubClientAccess access, UUID instrumentAudioId) throws HubClientException {
     CloseableHttpClient client = httpClientProvider.getClient();
     var uri = buildURI(baseUrl, String.format(API_PATH_AUTHORIZE_INSTRUMENT_AUDIO_UPLOAD, instrumentAudioId.toString()));
-    LOG.info("Will ingest content from {}", uri);
+    LOG.info("Will request upload authorization from {}", uri);
     try (
       CloseableHttpResponse response = client.execute(buildGetRequest(uri, access.getToken()))
     ) {
@@ -106,7 +106,7 @@ public class HubClientFactoryImpl implements HubClientFactory {
         throw buildException(uri.toString(), response);
 
       String json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
-      LOG.debug("Did ingest content; will read bytes of JSON");
+      LOG.debug("upload authorized; will read bytes of JSON upload authorization");
       return jsonProvider.getMapper().readValue(json, HubUploadAuthorization.class);
 
     } catch (Exception e) {

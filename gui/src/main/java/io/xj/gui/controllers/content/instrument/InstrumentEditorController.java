@@ -10,13 +10,18 @@ import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.hub.InstrumentConfig;
+import io.xj.hub.enums.InstrumentMode;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.FloatProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -25,12 +30,14 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.util.converter.NumberStringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,6 +54,11 @@ public class InstrumentEditorController extends BrowserController {
   static final Logger LOG = LoggerFactory.getLogger(InstrumentEditorController.class);
   private final ObjectProperty<UUID> instrumentId = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
+  private final ObjectProperty<InstrumentType> type = new SimpleObjectProperty<>(null);
+  private final ObjectProperty<InstrumentMode> mode = new SimpleObjectProperty<>(null);
+  private final ObjectProperty<InstrumentState> state = new SimpleObjectProperty<>(null);
+  private final FloatProperty volume = new SimpleFloatProperty(0);
+  private final FloatProperty intensity = new SimpleFloatProperty(0);
   private final StringProperty config = new SimpleStringProperty("");
   private final ObservableList<InstrumentAudio> audios = FXCollections.observableList(new ArrayList<>());
 
@@ -60,7 +72,22 @@ public class InstrumentEditorController extends BrowserController {
   protected TextField fieldName;
 
   @FXML
+  protected TextField fieldVolume;
+
+  @FXML
+  protected TextField fieldIntensity;
+
+  @FXML
   protected TextArea fieldConfig;
+
+  @FXML
+  ChoiceBox<InstrumentType> choiceType;
+
+  @FXML
+  ChoiceBox<InstrumentMode> choiceMode;
+
+  @FXML
+  ChoiceBox<InstrumentState> choiceState;
 
   @FXML
   protected Button buttonOpenAudioFolder;
@@ -87,11 +114,24 @@ public class InstrumentEditorController extends BrowserController {
     container.managedProperty().bind(visible);
 
     fieldName.textProperty().bindBidirectional(name);
+    fieldVolume.textProperty().bindBidirectional(volume, new NumberStringConverter());
+    fieldIntensity.textProperty().bindBidirectional(intensity, new NumberStringConverter());
     fieldConfig.textProperty().bindBidirectional(config);
     fieldConfig.prefHeightProperty().bind(fieldsContainer.heightProperty().subtract(100));
+    choiceType.valueProperty().bindBidirectional(type);
+    choiceType.setItems(FXCollections.observableArrayList(InstrumentType.values()));
+    choiceMode.valueProperty().bindBidirectional(mode);
+    choiceMode.setItems(FXCollections.observableArrayList(InstrumentMode.values()));
+    choiceState.valueProperty().bindBidirectional(state);
+    choiceState.setItems(FXCollections.observableArrayList(InstrumentState.values()));
 
     fieldName.focusedProperty().addListener(this::onUnfocusedDoSave);
     fieldConfig.focusedProperty().addListener(this::onUnfocusedDoSave);
+    fieldVolume.focusedProperty().addListener(this::onUnfocusedDoSave);
+    fieldIntensity.focusedProperty().addListener(this::onUnfocusedDoSave);
+    choiceType.valueProperty().addListener(this::onChangeDoSave);
+    choiceMode.valueProperty().addListener(this::onChangeDoSave);
+    choiceState.valueProperty().addListener(this::onChangeDoSave);
 
     buttonOpenAudioFolder.disableProperty().bind(Bindings.createBooleanBinding(audios::isEmpty, audios));
 
@@ -131,7 +171,7 @@ public class InstrumentEditorController extends BrowserController {
 
     audiosTable.setOnMousePressed(
       event -> {
-        if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
+        if (event.isPrimaryButtonDown() && event.getClickCount()==2) {
           if (Objects.nonNull(audiosTable.getSelectionModel().getSelectedItem()))
             Platform.runLater(() -> uiStateService.editInstrumentAudio(audiosTable.getSelectionModel().getSelectedItem().getId()));
         }
@@ -198,12 +238,28 @@ public class InstrumentEditorController extends BrowserController {
   }
 
   /**
+   When a field is unfocused, save
+
+   @param o  observable
+   @param ov old value
+   @param v  new value
+   */
+  private void onChangeDoSave(Observable o, Object ov, Object v) {
+    save();
+  }
+
+  /**
    Save the Instrument
    */
   private void save() {
     var instrument = projectService.getContent().getInstrument(instrumentId.get())
       .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
     instrument.setName(name.get());
+    instrument.setType(type.get());
+    instrument.setMode(mode.get());
+    instrument.setState(state.get());
+    instrument.setVolume(volume.get());
+    instrument.setIntensity(intensity.get());
     try {
       instrument.setConfig(new InstrumentConfig(config.get()).toString());
     } catch (Exception e) {

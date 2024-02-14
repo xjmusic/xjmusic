@@ -2,7 +2,15 @@ package io.xj.nexus.project;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.HubUploadAuthorization;
+import io.xj.hub.InstrumentConfig;
+import io.xj.hub.ProgramConfig;
+import io.xj.hub.TemplateConfig;
 import io.xj.hub.entity.EntityFactory;
+import io.xj.hub.enums.InstrumentMode;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
 import io.xj.hub.json.JsonProvider;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
@@ -64,6 +72,18 @@ import static io.xj.hub.util.FileUtils.computeWaveformKey;
 public class ProjectManagerImpl implements ProjectManager {
   static final Logger LOG = LoggerFactory.getLogger(ProjectManagerImpl.class);
   private static final long FILE_SIZE_NOT_FOUND = -404;
+  private static final InstrumentMode DEFAULT_INSTRUMENT_MODE = InstrumentMode.Event;
+  private static final InstrumentState DEFAULT_INSTRUMENT_STATE = InstrumentState.Published;
+  private static final InstrumentType DEFAULT_INSTRUMENT_TYPE = InstrumentType.Drum;
+  private static final ProgramState DEFAULT_PROGRAM_STATE = ProgramState.Published;
+  private static final ProgramType DEFAULT_PROGRAM_TYPE = ProgramType.Main;
+  private static final String DEFAULT_INSTRUMENT_AUDIO_EVENT = "X";
+  private static final String DEFAULT_INSTRUMENT_AUDIO_TONES = "X";
+  private static final String DEFAULT_KEY = "C";
+  private static final float DEFAULT_INTENSITY = 1.0f;
+  private static final float DEFAULT_TEMPO = 120f;
+  private static final float DEFAULT_LOOP_BEATS = 4.0f;
+  private static final float DEFAULT_VOLUME = 1.0f;
   private final AtomicReference<ProjectState> state = new AtomicReference<>(ProjectState.Standby);
   private final AtomicReference<Project> project = new AtomicReference<>();
   private final AtomicReference<String> projectPathPrefix = new AtomicReference<>(File.separator);
@@ -265,7 +285,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public ProjectPushResults pushProject(HubClientAccess hubAccess, String hubBaseUrl) {
-    var results = new ProjectPushResults();
+    var pushResults = new ProjectPushResults();
     try {
       // Don't close the client, only close the responses from it
       CloseableHttpClient httpClient = httpClientProvider.getClient();
@@ -274,10 +294,11 @@ public class ProjectManagerImpl implements ProjectManager {
       updateState(ProjectState.PushingContent);
       LOG.info("Will push project content to Hub");
       hubClientFactory.postProjectSyncApiV2(httpClient, hubBaseUrl, hubAccess, content.get());
-      results.addInstruments(content.get().getInstruments().size());
-      results.addPrograms(content.get().getPrograms().size());
-      results.addLibraries(content.get().getLibraries().size());
-      results.addTemplates(content.get().getTemplates().size());
+      pushResults.addInstruments(content.get().getInstruments().size());
+      pushResults.addAudios(content.get().getInstrumentAudios().size());
+      pushResults.addPrograms(content.get().getPrograms().size());
+      pushResults.addLibraries(content.get().getLibraries().size());
+      pushResults.addTemplates(content.get().getTemplates().size());
       LOG.info("Pushed project content to Hub");
       updateState(ProjectState.PushedContent);
 
@@ -297,7 +318,7 @@ public class ProjectManagerImpl implements ProjectManager {
           .toList()) {
           if (!Objects.equals(state.get(), ProjectState.PushingAudio)) {
             // Workstation canceling pushing should cease uploading audio files https://www.pivotaltracker.com/story/show/186209135
-            return results;
+            return pushResults;
           }
           if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
             LOG.debug("Will upload audio for instrument \"{}\" with waveform key \"{}\"", instrument.getName(), audio.getWaveformKey());
@@ -309,55 +330,53 @@ public class ProjectManagerImpl implements ProjectManager {
 
             var remoteUrl = String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey());
             var remoteFileSize = getRemoteFileSize(httpClient, remoteUrl);
-            var localFileSize = getFileSizeIfExistsOnDisk(pathOnDisk);
-            if (localFileSize.isEmpty()) {
-              LOG.error("File not found for instrument \"{}\" audio \"{}\" at {}", instrument.getName(), audio.getName(), pathOnDisk);
-              return results;
-            }
+            var upload = new ProjectAudioUpload(audio.getId(), pathOnDisk);
             boolean shouldUpload = false;
 
-            if (remoteFileSize == FILE_SIZE_NOT_FOUND) {
-              LOG.info("File not found remotely - Will upload {} bytes to {}", localFileSize.get(), remoteUrl);
+            if (remoteFileSize==FILE_SIZE_NOT_FOUND) {
+              LOG.info("File {} not found remotely - Will upload {} bytes", remoteUrl, upload.getExpectedSize());
               shouldUpload = true;
-            } else if (localFileSize.get() != remoteFileSize) {
+            } else if (upload.getExpectedSize()!=remoteFileSize) {
               LOG.info("File size of {} does not match remote {} - Will download {} bytes from {}", pathOnDisk, remoteFileSize, remoteFileSize, remoteUrl);
               shouldUpload = true;
             }
 
             if (shouldUpload) {
-              if (!uploadInstrumentAudioFileWithRetry(hubAccess, hubBaseUrl, httpClient, audio.getId(), pathOnDisk, localFileSize.get())) {
-                return results;
+              var uploadResult = uploadInstrumentAudioFileWithRetry(hubAccess, hubBaseUrl, httpClient, upload);
+              if (uploadResult.hasErrors()) {
+                pushResults.addErrors(uploadResult.getErrors());
+                updateState(ProjectState.Ready);
+                return pushResults;
               }
             }
 
             LOG.debug("Did upload audio OK");
-            updateProgress((float) results.getAudios() / audios.size());
-            results.incrementAudiosUploaded();
+            updateProgress((float) pushResults.getAudios() / audios.size());
+            pushResults.incrementAudiosUploaded();
           }
-          results.incrementInstruments();
         }
       }
       updateProgress(1.0);
-      LOG.info("Pushed {} audios for {} instruments", results.getAudios(), results.getInstruments());
+      LOG.info("Pushed {} audios for {} instruments", pushResults.getAudios(), pushResults.getInstruments());
       updateState(ProjectState.PushedAudio);
 
       updateState(ProjectState.Ready);
-      return results;
+      return pushResults;
 
     } catch (HubClientException e) {
-      LOG.error("Failed to load content for project!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
-      updateState(ProjectState.Failed);
-      return results;
+      pushResults.addError(String.format("Failed to push project because %s", e.getCause().getMessage()));
+      updateState(ProjectState.Ready);
+      return pushResults;
 
     } catch (IOException e) {
-      LOG.error("Failed to preload audio for project!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
-      updateState(ProjectState.Failed);
-      return results;
+      pushResults.addError(String.format("Failed to push project because of I/O failure: %s", e.getMessage()));
+      updateState(ProjectState.Ready);
+      return pushResults;
 
     } catch (Exception e) {
-      LOG.error("Failed to clone project!\n{}", StringUtils.formatStackTrace(e), e);
-      updateState(ProjectState.Failed);
-      return results;
+      pushResults.addError(String.format("Failed to push project because of unknown error: %s", e.getMessage()));
+      updateState(ProjectState.Ready);
+      return pushResults;
     }
   }
 
@@ -417,6 +436,7 @@ public class ProjectManagerImpl implements ProjectManager {
     var template = new Template();
     template.setId(UUID.randomUUID());
     template.setName(name);
+    template.setConfig(new TemplateConfig().toString());
     template.setIsDeleted(false);
     content.get().put(template);
     return template;
@@ -434,10 +454,19 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public Program createProgram(Library library, String name) throws Exception {
+    var existingProgramOfLibrary = content.get().getProgramsOfLibrary(library.getId()).stream().findFirst();
+    var existingProgram = existingProgramOfLibrary.isPresent() ? existingProgramOfLibrary:content.get().getPrograms().stream().findFirst();
+
     var program = new Program();
     program.setId(UUID.randomUUID());
     program.setName(name);
     program.setLibraryId(library.getId());
+    program.setConfig(new ProgramConfig().toString());
+    program.setType(existingProgram.map(Program::getType).orElse(DEFAULT_PROGRAM_TYPE));
+    program.setState(existingProgram.map(Program::getState).orElse(DEFAULT_PROGRAM_STATE));
+    program.setIntensity(existingProgram.map(Program::getIntensity).orElse(DEFAULT_INTENSITY));
+    program.setTempo(existingProgram.map(Program::getTempo).orElse(DEFAULT_TEMPO));
+    program.setKey(existingProgram.map(Program::getKey).orElse(DEFAULT_KEY));
     program.setIsDeleted(false);
     content.get().put(program);
     return program;
@@ -445,10 +474,19 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public Instrument createInstrument(Library library, String name) throws Exception {
+    var existingInstrumentOfLibrary = content.get().getInstrumentsOfLibrary(library.getId()).stream().findFirst();
+    var existingInstrument = existingInstrumentOfLibrary.isPresent() ? existingInstrumentOfLibrary:content.get().getInstruments().stream().findFirst();
+
     var instrument = new Instrument();
     instrument.setId(UUID.randomUUID());
     instrument.setName(name);
     instrument.setLibraryId(library.getId());
+    instrument.setConfig(new InstrumentConfig().toString());
+    instrument.setType(existingInstrument.map(Instrument::getType).orElse(DEFAULT_INSTRUMENT_TYPE));
+    instrument.setMode(existingInstrument.map(Instrument::getMode).orElse(DEFAULT_INSTRUMENT_MODE));
+    instrument.setState(existingInstrument.map(Instrument::getState).orElse(DEFAULT_INSTRUMENT_STATE));
+    instrument.setVolume(existingInstrument.map(Instrument::getVolume).orElse(DEFAULT_VOLUME));
+    instrument.setIntensity(existingInstrument.map(Instrument::getIntensity).orElse(DEFAULT_INTENSITY));
     instrument.setIsDeleted(false);
     var instrumentPath = getPathPrefixToInstrumentAudio(instrument.getId());
     FileUtils.createParentDirectories(new File(instrumentPath));
@@ -462,6 +500,7 @@ public class ProjectManagerImpl implements ProjectManager {
     var project = content.get().getProject();
     if (Objects.isNull(project)) throw new NexusException("Project not found");
     var existingAudioOfInstrument = content.get().getAudiosOfInstrument(instrument.getId()).stream().findFirst();
+    var existingAudio = existingAudioOfInstrument.isPresent() ? existingAudioOfInstrument:content.get().getInstrumentAudios().stream().findFirst();
 
     // extract the file name and extension
     Matcher matcher = ProjectPathUtils.matchPrefixNameExtension(audioFilePath);
@@ -473,12 +512,13 @@ public class ProjectManagerImpl implements ProjectManager {
     var audio = new InstrumentAudio();
     audio.setId(UUID.randomUUID());
     audio.setName(matcher.group(2));
-    audio.setTones("");
-    audio.setIntensity(1.0f);
-    audio.setTempo(existingAudioOfInstrument.map(InstrumentAudio::getTempo).orElse(0.0f));
-    audio.setLoopBeats(1.0f);
+    audio.setTones(existingAudio.map(InstrumentAudio::getTones).orElse(DEFAULT_INSTRUMENT_AUDIO_TONES));
+    audio.setEvent(existingAudio.map(InstrumentAudio::getEvent).orElse(DEFAULT_INSTRUMENT_AUDIO_EVENT));
+    audio.setIntensity(existingAudio.map(InstrumentAudio::getIntensity).orElse(DEFAULT_INTENSITY));
+    audio.setTempo(existingAudioOfInstrument.map(InstrumentAudio::getTempo).orElse(DEFAULT_TEMPO));
+    audio.setLoopBeats(existingAudio.map(InstrumentAudio::getLoopBeats).orElse(DEFAULT_LOOP_BEATS));
     audio.setTransientSeconds(0.0f);
-    audio.setVolume(1.0f);
+    audio.setVolume(existingAudio.map(InstrumentAudio::getVolume).orElse(DEFAULT_VOLUME));
     audio.setInstrumentId(instrument.getId());
     audio.setWaveformKey(computeWaveformKey(project.getName(), library.getName(), instrument.getName(), audio, matcher.group(3)));
 
@@ -845,7 +885,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
             var remoteUrl = String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey());
             var remoteFileSize = getRemoteFileSize(httpClient, remoteUrl);
-            if (remoteFileSize == FILE_SIZE_NOT_FOUND) {
+            if (remoteFileSize==FILE_SIZE_NOT_FOUND) {
               LOG.error("File not found for instrument \"{}\" audio \"{}\" at {}", instrument.getName(), audio.getName(), remoteUrl);
               return false;
             }
@@ -855,7 +895,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
             if (localFileSize.isEmpty()) {
               shouldDownload = true;
-            } else if (localFileSize.get() != remoteFileSize) {
+            } else if (localFileSize.get()!=remoteFileSize) {
               LOG.info("File size of {} does not match remote {} - Will download {} bytes from {}", originalCachePath, remoteFileSize, remoteFileSize, remoteUrl);
               shouldDownload = true;
             }
@@ -978,7 +1018,7 @@ public class ProjectManagerImpl implements ProjectManager {
         Files.deleteIfExists(path);
         downloadRemoteFile(httpClient, url, outputPath);
         long downloadedSize = Files.size(path);
-        if (downloadedSize == expectedSize) {
+        if (downloadedSize==expectedSize) {
           return true;
         }
         LOG.info("File size does not match! Attempt " + attempt + " of " + downloadAudioRetries + " to download " + url + " to " + outputPath + " failed. Expected " + expectedSize + " bytes, but got " + downloadedSize + " bytes.");
@@ -1014,44 +1054,42 @@ public class ProjectManagerImpl implements ProjectManager {
   /**
    Upload a file from the given URL to the given output path, retrying some number of times
 
-   @param hubAccess         control
-   @param hubBaseUrl        base URL of lab
-   @param httpClient        http client (don't close the client; only close the responses from it)
-   @param instrumentAudioId of audio to upload
-   @param inputPath         path to write to
-   @return true if the file was uploaded successfully
+   @param hubAccess  control
+   @param hubBaseUrl base URL of lab
+   @param httpClient http client (don't close the client; only close the responses from it)
+   @param upload     project audio upload
+   @return name of the file was uploaded successfully
    */
-  private boolean uploadInstrumentAudioFileWithRetry(HubClientAccess hubAccess, String hubBaseUrl, CloseableHttpClient httpClient, UUID instrumentAudioId, String inputPath, long expectedSize) {
+  private ProjectAudioUpload uploadInstrumentAudioFileWithRetry(HubClientAccess hubAccess, String hubBaseUrl, CloseableHttpClient httpClient, ProjectAudioUpload upload) {
     for (int attempt = 1; attempt <= uploadAudioRetries; attempt++) {
       try {
-        var url = uploadInstrumentAudioFile(hubAccess, hubBaseUrl, httpClient, instrumentAudioId, inputPath);
-        if (url.isEmpty()) continue;
-        long uploadedSize = getRemoteFileSize(httpClient, url.get());
-        if (uploadedSize == expectedSize) {
-          return true;
+        uploadInstrumentAudioFile(hubAccess, hubBaseUrl, httpClient, upload);
+        if (Objects.isNull(upload.getRemoteUrl())) continue;
+        long uploadedSize = getRemoteFileSize(httpClient, upload.getRemoteUrl());
+        if (uploadedSize==upload.getExpectedSize()) {
+          return upload;
         }
-        LOG.info("File size does not match! Attempt " + attempt + " of " + uploadAudioRetries + " to upload " + url + " to " + inputPath + " failed. Expected " + expectedSize + " bytes, but got " + uploadedSize + " bytes.");
+        upload.addError("File size does not match! Attempt " + attempt + " of " + uploadAudioRetries + " to upload " + upload.getPathOnDisk() + " to InstrumentAudio[" + upload.getInstrumentAudioId() + "] failed because expected " + upload.getExpectedSize() + " bytes, but got " + uploadedSize + " bytes.");
 
       } catch (Exception e) {
-        LOG.info("Attempt " + attempt + " of " + uploadAudioRetries + " to upload " + inputPath + " to InstrumentAudio[" + instrumentAudioId + "] failed because " + e.getMessage());
+        upload.addError("Attempt " + attempt + " of " + uploadAudioRetries + " to upload " + upload.getPathOnDisk() + " to InstrumentAudio[" + upload.getInstrumentAudioId() + "] failed because " + e.getMessage());
       }
     }
-    return false;
+    return upload;
   }
 
   /**
    Upload a file from the given URL to the given output path
 
-   @param hubBaseUrl        base URL of lab
-   @param hubAccess         control
-   @param httpClient        http client (don't close the client; only close the responses from it)
-   @param instrumentAudioId of audio to upload
-   @param outputPath        output path
+   @param hubAccess  control
+   @param hubBaseUrl base URL of lab
+   @param httpClient http client (don't close the client; only close the responses from it)
+   @param upload     audio upload request/result object
    */
-  private Optional<String> uploadInstrumentAudioFile(HubClientAccess hubAccess, String hubBaseUrl, CloseableHttpClient httpClient, UUID instrumentAudioId, String outputPath) throws IOException, NexusException {
+  private void uploadInstrumentAudioFile(HubClientAccess hubAccess, String hubBaseUrl, CloseableHttpClient httpClient, ProjectAudioUpload upload) throws NexusException {
     HubUploadAuthorization authorization;
     try {
-      authorization = hubClientFactory.authorizeInstrumentAudioUploadApiV2(httpClient, hubBaseUrl, hubAccess, instrumentAudioId);
+      authorization = hubClientFactory.authorizeInstrumentAudioUploadApiV2(httpClient, hubBaseUrl, hubAccess, upload.getInstrumentAudioId());
     } catch (HubClientException e) {
       throw new NexusException("Failed to authorize instrument audio upload", e);
     }
@@ -1061,7 +1099,6 @@ public class ProjectManagerImpl implements ProjectManager {
     // todo upload with authorization CloseableHttpResponse response = httpClient.execute(new HttpGet(url));
     // TODO get upload authorization from Hub
 
-    return Optional.empty();
 /*
     try (
       CloseableHttpResponse response = httpClient.execute(new HttpGet(url))
@@ -1089,7 +1126,7 @@ public class ProjectManagerImpl implements ProjectManager {
     try (
       CloseableHttpResponse response = httpClient.execute(new HttpHead(url))
     ) {
-      if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+      if (response.getStatusLine().getStatusCode()==HttpStatus.SC_NOT_FOUND) {
         return FILE_SIZE_NOT_FOUND;
       }
       var contentLengthHeader = response.getFirstHeader("Content-Length");

@@ -3,14 +3,24 @@ package io.xj.nexus.project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ProjectPushResultsTest {
   private ProjectPushResults subject;
 
   @BeforeEach
   void setUp() {
-    subject = new ProjectPushResults(27,31,14,15, 72);
+    subject = new ProjectPushResults();
+    subject.addTemplates(27);
+    subject.addLibraries(31);
+    subject.addPrograms(14);
+    subject.addInstruments(15);
+    subject.addAudios(35);
+    subject.addAudiosUploaded(72);
   }
 
   @Test
@@ -35,12 +45,12 @@ class ProjectPushResultsTest {
 
   @Test
   void getAudiosDownloaded() {
-    assertEquals(36, subject.getAudiosDownloaded());
+    assertEquals(35, subject.getAudios());
   }
 
   @Test
   void getAudiosUploaded() {
-    assertEquals(72, subject.getAudios());
+    assertEquals(72, subject.getAudiosUploaded());
   }
 
   @Test
@@ -72,17 +82,17 @@ class ProjectPushResultsTest {
   }
 
   @Test
-  void addAudiosDownloaded() {
-    subject.addAudiosDownloaded(3);
+  void addAudios() {
+    subject.addAudios(3);
 
-    assertEquals(39, subject.getAudiosDownloaded());
+    assertEquals(38, subject.getAudios());
   }
 
   @Test
   void addAudiosUploaded() {
     subject.addAudiosUploaded(3);
 
-    assertEquals(75, subject.getAudios());
+    assertEquals(75, subject.getAudiosUploaded());
   }
 
   @Test
@@ -115,20 +125,32 @@ class ProjectPushResultsTest {
 
   @Test
   void incrementAudiosDownloaded() {
-    subject.incrementAudiosDownloaded();
+    subject.incrementAudios();
 
-    assertEquals(37, subject.getAudiosDownloaded());
+    assertEquals(36, subject.getAudios());
   }
 
   @Test
   void incrementAudiosUploaded() {
     subject.incrementAudiosUploaded();
 
-    assertEquals(73, subject.getAudios());
+    assertEquals(35, subject.getAudios());
   }
 
   @Test
   void testToString() {
-    assertEquals("Synchronized 27 templates, 31 libraries, 14 programs, 15 instruments, 36 audios downloaded, and 72 audios uploaded", subject.toString());
+    assertEquals("Synchronized 27 templates, 31 libraries, 14 programs, 15 instruments, 35 audios, and 72 audios uploaded", subject.toString());
+  }
+
+  @Test
+  void addError_addErrors_hasErrors_getErrors_toString() {
+    assertFalse(subject.hasErrors());
+
+    subject.addErrors(Set.of("This is another test", "This is yet another test"));
+    subject.addError("This is a test");
+
+    assertTrue(subject.hasErrors());
+    assertEquals(3, subject.getErrors().size());
+    assertEquals("Synchronized 27 templates, 31 libraries, 14 programs, 15 instruments, 35 audios, and 72 audios uploaded with 3 errors: This is a test, This is another test, and This is yet another test", subject.toString());
   }
 }

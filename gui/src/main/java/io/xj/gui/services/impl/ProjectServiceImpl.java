@@ -232,7 +232,10 @@ public class ProjectServiceImpl implements ProjectService {
           labService.getHubClientAccess(),
           labService.hubConfigProperty().get().getApiBaseUrl()
         );
-        Platform.runLater(() -> showAlert(Alert.AlertType.INFORMATION, "Push Project", "Pushed local project to Lab.", pushed.toString()));
+        if (pushed.hasErrors())
+          Platform.runLater(() -> showAlert(Alert.AlertType.ERROR, "Failed to push project", "Failed to push local project to Lab", pushed.toString()));
+        else
+          Platform.runLater(() -> showAlert(Alert.AlertType.INFORMATION, "Pushed project", "Pushed local project to Lab", pushed.toString()));
       });
     }
   }
@@ -649,7 +652,6 @@ public class ProjectServiceImpl implements ProjectService {
     Alert alert = new Alert(type);
     themeService.setup(alert);
     alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
-    alert.setGraphic(null);
     alert.setTitle(title);
     alert.setHeaderText(header);
     if (Objects.nonNull(body)) alert.setContentText(body);

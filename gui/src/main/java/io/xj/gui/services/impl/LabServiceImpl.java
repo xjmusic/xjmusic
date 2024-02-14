@@ -37,6 +37,7 @@ import java.util.function.Consumer;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
 
+import static org.springframework.http.HttpStatus.MOVED_PERMANENTLY;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Service
@@ -103,7 +104,7 @@ public class LabServiceImpl implements LabService {
       if (usePrefs)
         prefs.put("accessToken", value);
     });
-    var savedAccessToken = usePrefs ? prefs.get("accessToken", null) : null;
+    var savedAccessToken = usePrefs ? prefs.get("accessToken", null):null;
     if (!StringUtils.isNullOrEmpty(savedAccessToken)) {
       LOG.info("Found saved access token, connecting to lab...");
       accessToken.set(savedAccessToken);
@@ -149,6 +150,13 @@ public class LabServiceImpl implements LabService {
       LOG.warn("Unauthorized for connection to lab!", error);
       this.authenticatedUser.set(null);
       this.state.set(LabState.Unauthorized);
+    } else if (error instanceof WebClientResponseException && Objects.equals(((WebClientResponseException) error).getStatusCode(), MOVED_PERMANENTLY)) {
+      var location = ((WebClientResponseException) error).getHeaders().getLocation();
+      if (Objects.nonNull(location))
+        LOG.error("Failed to connect. Lab moved permanently to {}://{}/", location.getScheme(), location.getHost());
+      else
+        LOG.error("Failed to connect. Lab moved permanently, but no location header found!", error);
+      this.state.set(LabState.Failed);
     } else {
       LOG.error("Failed to connect to lab!", error);
       this.state.set(LabState.Failed);
