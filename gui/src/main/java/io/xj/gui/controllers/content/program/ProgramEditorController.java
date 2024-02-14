@@ -13,21 +13,30 @@ import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.util.StringUtils;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ScrollPane;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
@@ -36,9 +45,30 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.property.FloatProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleFloatProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.scene.control.SpinnerValueFactory;
+import java.util.Arrays;
+import javafx.scene.control.TextFormatter;
+import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Comparator;
+
+
+
 
 import java.io.IOException;
-import java.util.*;
 import java.util.function.UnaryOperator;
 
 @Service
@@ -93,6 +123,7 @@ public class ProgramEditorController extends ProjectController {
   public Button sequenceButton;
   @FXML
   public HBox bindViewParentContainer;
+  public ScrollPane scrollPane;
   @FXML
   protected VBox container;
   @FXML
@@ -241,6 +272,7 @@ public class ProgramEditorController extends ProjectController {
     toggleVisibilityBetweenEditorAndLabel(sequenceTotalChooser, sequenceTotalLabel);
     setTextFieldValueToAlwaysCAPS(keyField);
     setTextFieldValueToAlwaysCAPS(sequenceKey);
+    initializeScrollPane();
   }
 
   private void setTextFieldValueToAlwaysCAPS(TextField textField) {
@@ -457,6 +489,43 @@ public class ProgramEditorController extends ProjectController {
     loadBindingView();
   }
 
+  private void initializeScrollPane() {
+    VBox labelHolder = new VBox();
+    Label offSet = new Label("OFFSET");
+    Label sequences = new Label("SEQUENCES + MEMES");
+    offSet.setPrefWidth(73);
+    sequences.setWrapText(true);
+    sequences.setPrefWidth(73);
+    sequences.setPrefWidth(73);
+    labelHolder.setPrefWidth(106);
+    labelHolder.setMinWidth(106);
+    labelHolder.getChildren().addAll(List.of(offSet, sequences));
+    bindViewParentContainer = new HBox();
+    bindViewParentContainer.setMinWidth(getScreenSize() - labelHolder.getWidth());
+
+    HBox.setHgrow(labelHolder, Priority.NEVER);
+    bindViewParentContainer.getChildren().add(labelHolder);
+    labelHolder.setMinWidth(106);
+    labelHolder.setPrefWidth(106);
+    scrollPane = new ScrollPane(bindViewParentContainer);
+    // Allow horizontal scrolling only when necessary
+    scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+    container.getChildren().add(scrollPane);
+    VBox.setVgrow(scrollPane, Priority.ALWAYS);
+  }
+
+  private double getScreenSize() {
+    // Get the primary screen
+    Screen screen = Screen.getPrimary();
+
+    // Get the visual bounds of the primary screen
+    Rectangle2D bounds = screen.getVisualBounds();
+
+    // Get the width of the screen
+    return bounds.getWidth();
+  }
+
   private void setUpSequence() {
     Collection<ProgramSequence> programSequences = projectService.getContent().getSequencesOfProgram(programId.get());
     List<ProgramSequence> sequenceList = new ArrayList<>(programSequences);
@@ -485,8 +554,53 @@ public class ProgramEditorController extends ProjectController {
   }
 
   private void loadBindingView() {
-    addBindingView(1);
-    addBindingView(2);
+    bindingUI();
+
+  }
+
+  private void bindingUI() {
+    Collection<ProgramSequenceBinding> programSequenceBindingCollection = projectService.getContent().getSequenceBindingsOfProgram(programId.get());
+    List<ProgramSequenceBinding> sequenceBindingsOfProgram = new ArrayList<>(programSequenceBindingCollection);
+    LOG.info("size " + programSequenceBindingCollection.size());
+    // Sort the list based on the offset field
+    sequenceBindingsOfProgram.sort(Comparator.comparingInt(ProgramSequenceBinding::getOffset));
+
+    // Loop through the sorted list
+    for (ProgramSequenceBinding programSequenceBinding : sequenceBindingsOfProgram) {
+      if (bindViewParentContainer.getChildren().size() - 1 == programSequenceBinding.getOffset() + 1) {
+        addSequenceItem(programSequenceBinding,
+          ((VBox) bindViewParentContainer.getChildren().get(bindViewParentContainer.getChildren().size() - 1))
+          , programSequenceBinding.getOffset() + 1);
+      } else {
+        addBindingView(bindViewParentContainer.getChildren().size());
+      }
+    }
+  }
+
+  @Value("classpath:/views/content/program/sequence-item-bind-mode.fxml")
+  private Resource sequenceItemBindingFxml;
+
+  public void addSequenceItem(ProgramSequenceBinding programSequenceBinding, VBox sequenceHolder, int position) {
+    try {
+      FXMLLoader loader = new FXMLLoader(sequenceItemBindingFxml.getURL());
+      loader.setControllerFactory(ac::getBean);
+      Parent root = loader.load();
+      HBox.setHgrow(sequenceHolder, Priority.ALWAYS);
+      SequenceItemBindMode sequenceItemBindMode = loader.getController();
+      sequenceItemBindMode.setUp(sequenceHolder, root, bindViewParentContainer, position, programSequenceBinding);
+      sequenceHolder.getChildren().add(root);
+      HBox.setHgrow(root, Priority.ALWAYS);
+      projectService.putContent(programSequenceBinding);
+      checkIfNextItemIsPresent(position);
+    } catch (Exception e) {
+      LOG.error("Error creating new Sequence \n{}", StringUtils.formatStackTrace(e), e);
+    }
+  }
+
+  private void checkIfNextItemIsPresent(int position) {
+    if (bindViewParentContainer.getChildren().size() - 1 < position + 1) {
+      addBindingView(position + 1);
+    }
   }
 
   protected void addBindingView(int position) {
@@ -494,10 +608,10 @@ public class ProgramEditorController extends ProjectController {
       FXMLLoader loader = new FXMLLoader(sequenceHolderFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      HBox.setHgrow(root, javafx.scene.layout.Priority.ALWAYS);
       bindViewParentContainer.getChildren().add(position, root);
       SequenceHolder sequenceHolder = loader.getController();
-      sequenceHolder.setUp(bindViewParentContainer, position, programId.get(),programSequence.getId());
+      sequenceHolder.setUp(bindViewParentContainer, position, programId.get(), programSequence.getId());
+      HBox.setHgrow(root, javafx.scene.layout.Priority.ALWAYS);
     } catch (IOException e) {
       LOG.error("Error loading Sequence Holder view!\n{}", StringUtils.formatStackTrace(e), e);
     }

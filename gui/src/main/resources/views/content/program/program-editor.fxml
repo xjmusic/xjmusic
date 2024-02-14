@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox fx:id="container" maxHeight="1.7976931348623157E308" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramEditorController">
+<VBox fx:id="container" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramEditorController">
 
   <VBox.vgrow>
     <Priority fx:constant="ALWAYS" />
@@ -178,28 +178,6 @@
      </Label>
    </StackPane>
  </HBox>
-   <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
-      <content>
-         <HBox fx:id="bindViewParentContainer" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="314.0" prefWidth="1231.0" stylesheets="@/styles/default-theme.css">
-            <children>
-               <VBox maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" HBox.hgrow="ALWAYS">
-                  <children>
-                     <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" prefHeight="17.0" prefWidth="73.0" styleClass="bind-mode-label" text="OFFSET" textFill="GREY" VBox.vgrow="ALWAYS">
-                        <font>
-                           <Font name="System Bold" size="12.0" />
-                        </font>
-                     </Label>
-                     <Label alignment="CENTER" contentDisplay="RIGHT" prefHeight="37.0" prefWidth="72.0" styleClass="sequence-memes-label" text="SEQUENCES + MEMES" textAlignment="CENTER" textFill="GREY" wrapText="true" VBox.vgrow="ALWAYS">
-                        <font>
-                           <Font name="System Bold" size="12.0" />
-                        </font>
-                     </Label>
-                  </children>
-               </VBox>
-            </children>
-         </HBox>
-      </content>
-   </ScrollPane>
   <padding>
     <Insets top="5.0" />
   </padding>
