@@ -4,18 +4,14 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="190.0" prefHeight="35.0" prefWidth="329.0" spacing="5.0" styleClass="sequence-item-container" stylesheets="@../../../styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.SequenceItemBindMode">
+<AnchorPane fx:id="parentAnchorPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="38.0" prefWidth="349.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.SequenceItemBindMode">
    <children>
-      <Text fx:id="sequenceName" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="New Sequence" HBox.hgrow="ALWAYS">
-         <font>
-            <Font size="16.0" />
-         </font>
-      </Text>
-      <Button fx:id="addMemeButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="28.0" prefWidth="32.0" text=" " HBox.hgrow="ALWAYS">
+      <Button fx:id="addMemeButton" layoutX="2.0" layoutY="5.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="28.0" prefWidth="32.0" text=" " AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="2.0" AnchorPane.topAnchor="5.0">
          <graphic>
             <ImageView fitHeight="19.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -24,8 +20,16 @@
             </ImageView>
          </graphic>
       </Button>
-      <HBox fx:id="memeHolder" alignment="CENTER_LEFT" prefHeight="29.0" prefWidth="181.0" HBox.hgrow="ALWAYS" />
-      <Button fx:id="deleteSequence" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="32.0" prefWidth="32.0" styleClass="sequence-item-button" text=" " HBox.hgrow="ALWAYS">
+      <Text fx:id="sequenceName" layoutX="38.0" layoutY="23.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" AnchorPane.leftAnchor="38.0" AnchorPane.rightAnchor="285.173828125">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Text>
+      <HBox fx:id="memeHolder" alignment="CENTER_LEFT" layoutX="77.0" layoutY="5.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="28.0" prefWidth="231.0" spacing="5.0" style="-fx-background-color: red;" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="77.0" AnchorPane.rightAnchor="41.0" AnchorPane.topAnchor="5.0">
+         <padding>
+            <Insets left="5.0" top="5.0" />
+         </padding></HBox>
+      <Button fx:id="deleteSequence" layoutX="224.0" layoutY="4.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="32.0" prefWidth="32.0" styleClass="sequence-item-button" text=" " AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="5.0">
          <graphic>
             <ImageView fitHeight="19.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -33,12 +37,6 @@
                </image>
             </ImageView>
          </graphic>
-         <HBox.margin>
-            <Insets left="1.0" />
-         </HBox.margin>
       </Button>
    </children>
-   <padding>
-      <Insets left="2.0" right="2.0" />
-   </padding>
-</HBox>
+</AnchorPane>
