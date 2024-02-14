@@ -554,11 +554,6 @@ public class ProgramEditorController extends ProjectController {
   }
 
   private void loadBindingView() {
-    bindingUI();
-
-  }
-
-  private void bindingUI() {
     Collection<ProgramSequenceBinding> programSequenceBindingCollection = projectService.getContent().getSequenceBindingsOfProgram(programId.get());
     List<ProgramSequenceBinding> sequenceBindingsOfProgram = new ArrayList<>(programSequenceBindingCollection);
     LOG.info("size " + programSequenceBindingCollection.size());
