@@ -9,7 +9,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane fx:id="parentAnchorPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="38.0" prefWidth="349.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.SequenceItemBindMode">
+<AnchorPane fx:id="parentAnchorPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="38.0" prefWidth="349.0" stylesheets="@../../../styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.SequenceItemBindMode">
    <children>
       <Button fx:id="addMemeButton" layoutX="2.0" layoutY="5.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="28.0" prefWidth="32.0" text=" " AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="2.0" AnchorPane.topAnchor="5.0">
          <graphic>
@@ -25,7 +25,7 @@
             <Font size="14.0" />
          </font>
       </Text>
-      <HBox fx:id="memeHolder" alignment="CENTER_LEFT" layoutX="77.0" layoutY="5.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="28.0" prefWidth="231.0" spacing="5.0" style="-fx-background-color: red;" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="77.0" AnchorPane.rightAnchor="41.0" AnchorPane.topAnchor="5.0">
+      <HBox fx:id="memeHolder" alignment="CENTER_LEFT" layoutX="77.0" layoutY="5.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="28.0" prefWidth="231.0" spacing="5.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="77.0" AnchorPane.rightAnchor="41.0" AnchorPane.topAnchor="5.0">
          <padding>
             <Insets left="5.0" top="5.0" />
          </padding></HBox>
