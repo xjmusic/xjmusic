@@ -131,14 +131,9 @@ public interface ProjectService {
   HubContent getContent();
 
   /**
-   @param entity to save
-   */
-  <N extends Serializable> void putContent(N entity) throws Exception;
-
-  /**
    @param entity to delete
    */
-  <N extends Serializable> void deleteContent(N entity) throws Exception;
+  <N extends Serializable> void deleteContent(N entity);
 
   /**
    @return the list of recent projects
@@ -159,7 +154,7 @@ public interface ProjectService {
    @param type     the type of update
    @param modified whether the update modified the project
    */
-  <N extends Serializable> void didUpdate(Class<N> type, boolean modified);
+  <N> void didUpdate(Class<N> type, boolean modified);
 
   /**
    Get the current list of non-deleted libraries sorted by name
@@ -193,48 +188,6 @@ public interface ProjectService {
    @return the current project property
    */
   ObservableObjectValue<Project> currentProjectProperty();
-
-  /**
-   Delete a template
-
-   @param template to delete
-   */
-  void deleteTemplate(Template template);
-
-  /**
-   Delete a template binding
-
-   @param binding to delete
-   */
-  void deleteTemplateBinding(TemplateBinding binding);
-
-  /**
-   Delete a library
-
-   @param library to delete
-   */
-  void deleteLibrary(Library library);
-
-  /**
-   Delete a program
-
-   @param program to delete
-   */
-  void deleteProgram(Program program);
-
-  /**
-   Delete an instrument
-
-   @param instrument to delete
-   */
-  void deleteInstrument(Instrument instrument);
-
-  /**
-   Delete an Instrument Audio
-
-   @param audio to delete
-   */
-  void deleteInstrumentAudio(InstrumentAudio audio);
 
   /**
    Create a new template
@@ -369,6 +322,18 @@ public interface ProjectService {
    */
   boolean updateLibrary(Library library);
 
+
+  /**
+   Update an entity attribute
+
+   @param type      of entity
+   @param id        of entity
+   @param attribute to update
+   @param value     to set
+   @param <N>       type of entity
+   */
+  <N> void update(Class<N> type, UUID id, String attribute, Object value) throws Exception;
+
   /**
    Update the given program
 
@@ -376,29 +341,6 @@ public interface ProjectService {
    @return true if successful
    */
   boolean updateProgram(Program program);
-
-  /**
-   Update the given instrument
-
-   @param instrument to update
-   @return true if successful
-   */
-  boolean updateInstrument(Instrument instrument);
-
-  /**
-   Update the given instrument audio
-
-   @param instrumentAudio to update
-   @return true if successful
-   */
-  boolean updateInstrumentAudio(InstrumentAudio instrumentAudio);
-
-  /**
-   Update the given template
-
-   @param template to update
-   */
-  void updateTemplate(Template template);
 
   /**
    Get the path prefix to the audio folder for an instrument

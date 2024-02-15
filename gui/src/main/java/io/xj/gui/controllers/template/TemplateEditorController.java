@@ -9,12 +9,11 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.TemplateConfig;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -23,7 +22,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -49,7 +47,6 @@ public class TemplateEditorController extends BrowserController {
   private final ObjectProperty<UUID> templateId = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
   private final StringProperty config = new SimpleStringProperty("");
-  private final BooleanProperty dirty = new SimpleBooleanProperty(false);
   private final ObservableList<TemplateBinding> bindings = FXCollections.observableList(new ArrayList<>());
 
   @FXML
@@ -63,9 +60,6 @@ public class TemplateEditorController extends BrowserController {
 
   @FXML
   protected TextArea fieldConfig;
-
-  @FXML
-  protected Button buttonSave;
 
   @FXML
   protected TableView<TemplateBinding> bindingsTable;
@@ -94,8 +88,22 @@ public class TemplateEditorController extends BrowserController {
     fieldConfig.textProperty().bindBidirectional(config);
     fieldConfig.prefHeightProperty().bind(fieldsContainer.heightProperty().subtract(100));
 
-    name.addListener((o, ov, v) -> dirty.set(true));
-    config.addListener((o, ov, v) -> dirty.set(true));
+    fieldName.focusedProperty().addListener((o, ov, v) -> {
+      if (!v) {
+        update("name", name.get());
+      }
+    });
+    fieldConfig.focusedProperty().addListener((o, ov, v) -> {
+      if (!v) {
+        String configString;
+        try {
+          configString = new TemplateConfig(config.get()).toString();
+          update("config", configString);
+        } catch (Exception e) {
+          LOG.error("Could not parse Template Config because {}", e.getMessage());
+        }
+      }
+    });
 
     bindingsTable.setItems(bindings);
 
@@ -111,7 +119,7 @@ public class TemplateEditorController extends BrowserController {
 
     bindingsTable.setOnMousePressed(
       event -> {
-        if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
+        if (event.isPrimaryButtonDown() && event.getClickCount()==2) {
           Platform.runLater(() -> {
             var binding = bindingsTable.getSelectionModel().getSelectedItem();
             switch (binding.getType()) {
@@ -129,7 +137,7 @@ public class TemplateEditorController extends BrowserController {
       null,
       binding -> {
         if (Objects.nonNull(binding))
-          projectService.deleteTemplateBinding(binding);
+          projectService.deleteContent(binding);
       });
 
     projectService.addProjectUpdateListener(TemplateBinding.class, this::updateBindings);
@@ -138,8 +146,6 @@ public class TemplateEditorController extends BrowserController {
       if (Objects.equals(uiStateService.templateModeProperty().get(), TemplateMode.TemplateEditor))
         update();
     });
-
-    buttonSave.disableProperty().bind(dirty.not());
   }
 
   /**
@@ -168,20 +174,6 @@ public class TemplateEditorController extends BrowserController {
   }
 
   @FXML
-  protected void handlePressSave() {
-    var template = projectService.getContent().getTemplate(templateId.get())
-      .orElseThrow(() -> new RuntimeException("Could not find Template"));
-    template.setName(name.get());
-    try {
-      template.setConfig(new TemplateConfig(config.get()).toString());
-    } catch (Exception e) {
-      LOG.error("Could not parse Template config!", e);
-      return;
-    }
-    projectService.updateTemplate(template);
-  }
-
-  @FXML
   private void handlePressAddBinding(ActionEvent ignored) {
     templateAddBindingModalController.addBindingToTemplate(templateId.get());
   }
@@ -198,8 +190,23 @@ public class TemplateEditorController extends BrowserController {
     this.templateId.set(template.getId());
     this.name.set(template.getName());
     this.config.set(template.getConfig());
-    this.dirty.set(false);
     updateBindings();
+  }
+
+  /**
+   Update an attribute of the current template record with the given value
+
+   @param attribute of template
+   @param value     to set
+   */
+  private void update(String attribute, Object value) {
+    if (Objects.nonNull(templateId.get())) {
+      try {
+        projectService.update(Template.class, templateId.get(), attribute, value);
+      } catch (Exception e) {
+        LOG.error("Could not update Template " + attribute, e);
+      }
+    }
   }
 
   /**

@@ -303,15 +303,14 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public <N extends Serializable> void putContent(N entity) throws Exception {
-    projectManager.getContent().put(entity);
-    didUpdate(entity.getClass(), true);
-  }
-
-  @Override
-  public <N extends Serializable> void deleteContent(N entity) throws Exception {
-    projectManager.getContent().delete(entity.getClass(), EntityUtils.getId(entity));
-    didUpdate(entity.getClass(), true);
+  public <N extends Serializable> void deleteContent(N entity) {
+    try {
+      projectManager.getContent().delete(entity.getClass(), EntityUtils.getId(entity));
+      didUpdate(entity.getClass(), true);
+      LOG.info("Deleted {}[{}]", entity.getClass().getSimpleName(), EntityUtils.getId(entity));
+    } catch (Exception e) {
+      LOG.error("Could not delete content\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+    }
   }
 
   @Override
@@ -326,7 +325,7 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public <N extends Serializable> void didUpdate(Class<N> type, boolean modified) {
+  public <N> void didUpdate(Class<N> type, boolean modified) {
     if (modified) isModified.set(true);
 
     if (projectUpdateListeners.containsKey(type))
@@ -376,48 +375,6 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public ObservableObjectValue<Project> currentProjectProperty() {
     return currentProject;
-  }
-
-  @Override
-  public void deleteTemplate(Template template) {
-    projectManager.getContent().getTemplates().removeIf(n -> Objects.equals(n.getId(), template.getId()));
-    didUpdate(Template.class, true);
-    LOG.info("Deleted template \"{}\"", template.getName());
-  }
-
-  @Override
-  public void deleteTemplateBinding(TemplateBinding binding) {
-    projectManager.getContent().getTemplateBindings().removeIf(n -> Objects.equals(n.getId(), binding.getId()));
-    didUpdate(TemplateBinding.class, true);
-    LOG.info("Deleted {} template binding", binding.getType());
-  }
-
-  @Override
-  public void deleteLibrary(Library library) {
-    projectManager.getContent().getLibraries().removeIf(n -> Objects.equals(n.getId(), library.getId()));
-    didUpdate(Library.class, true);
-    LOG.info("Deleted library \"{}\"", library.getName());
-  }
-
-  @Override
-  public void deleteProgram(Program program) {
-    projectManager.getContent().getPrograms().removeIf(n -> Objects.equals(n.getId(), program.getId()));
-    didUpdate(Program.class, true);
-    LOG.info("Deleted program \"{}\"", program.getName());
-  }
-
-  @Override
-  public void deleteInstrument(Instrument instrument) {
-    projectManager.getContent().getInstruments().removeIf(n -> Objects.equals(n.getId(), instrument.getId()));
-    didUpdate(Instrument.class, true);
-    LOG.info("Deleted instrument \"{}\"", instrument.getName());
-  }
-
-  @Override
-  public void deleteInstrumentAudio(InstrumentAudio audio) {
-    projectManager.getContent().getInstrumentAudios().removeIf(n -> Objects.equals(n.getId(), audio.getId()));
-    didUpdate(InstrumentAudio.class, true);
-    LOG.info("Deleted instrument audio \"{}\"", audio.getName());
   }
 
   @Override
@@ -525,16 +482,9 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public <N> boolean updateEntity(Class<N> type, String attribute, Object value) {
-    try {
-      projectManager.getContent().put(instrument);
-      didUpdate(Instrument.class, true);
-      return true;
-
-    } catch (Exception e) {
-      LOG.error("Could not save Instrument\n{}", StringUtils.formatStackTrace(e.getCause()), e);
-      return false;
-    }
+  public <N> void update(Class<N> type, UUID id, String attribute, Object value) throws Exception {
+    projectManager.getContent().update(type, id, attribute, value);
+    didUpdate(type, true);
   }
 
   @Override
@@ -560,43 +510,6 @@ public class ProjectServiceImpl implements ProjectService {
     } catch (Exception e) {
       LOG.error("Could not save Program\n{}", StringUtils.formatStackTrace(e.getCause()), e);
       return false;
-    }
-  }
-
-  @Override
-  public boolean updateInstrument(Instrument instrument) {
-    try {
-      projectManager.getContent().put(instrument);
-      didUpdate(Instrument.class, true);
-      return true;
-
-    } catch (Exception e) {
-      LOG.error("Could not save Instrument\n{}", StringUtils.formatStackTrace(e.getCause()), e);
-      return false;
-    }
-  }
-
-  @Override
-  public boolean updateInstrumentAudio(InstrumentAudio audio) {
-    try {
-      projectManager.updateInstrumentAudioAndCopyWaveformFile(audio);
-      didUpdate(InstrumentAudio.class, true);
-      return true;
-
-    } catch (Exception e) {
-      LOG.error("Could not save Instrument Audio\n{}", StringUtils.formatStackTrace(e.getCause()), e);
-      return false;
-    }
-  }
-
-  @Override
-  public void updateTemplate(Template template) {
-    try {
-      projectManager.getContent().put(template);
-      didUpdate(Template.class, true);
-
-    } catch (Exception e) {
-      LOG.error("Could not save Template\n{}", StringUtils.formatStackTrace(e.getCause()), e);
     }
   }
 

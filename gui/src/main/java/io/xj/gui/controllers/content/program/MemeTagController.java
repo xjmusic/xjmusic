@@ -96,9 +96,7 @@ public class MemeTagController {
 
   private void deleteMemeTag(Parent root) {
     try {
-      projectService.getContent().getProgramMemes().removeIf(meme -> meme.getId().equals(currentMeme.getId()));
-      //notify modification
-      projectService.isModifiedProperty().set(true);
+      projectService.deleteContent(currentMeme);
       //remove the meme from UI
       programEditorController.memeTagContainer.getChildren().remove(root);
       LOG.info("Deleted " + currentMeme.getName());

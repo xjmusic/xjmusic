@@ -13,10 +13,10 @@ import io.xj.hub.InstrumentConfig;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
 import javafx.application.Platform;
-import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.FloatProperty;
 import javafx.beans.property.ObjectProperty;
@@ -125,13 +125,35 @@ public class InstrumentEditorController extends BrowserController {
     choiceState.setItems(FXCollections.observableArrayList(InstrumentState.values()));
     choiceState.valueProperty().bindBidirectional(state);
 
-    fieldName.focusedProperty().addListener(this::onUnfocusedDoSave);
-    fieldConfig.focusedProperty().addListener(this::onUnfocusedDoSave);
-    fieldVolume.focusedProperty().addListener(this::onUnfocusedDoSave);
-    fieldIntensity.focusedProperty().addListener(this::onUnfocusedDoSave);
-    choiceType.valueProperty().addListener(this::onChangeDoSave);
-    choiceMode.valueProperty().addListener(this::onChangeDoSave);
-    choiceState.valueProperty().addListener(this::onChangeDoSave);
+    fieldName.focusedProperty().addListener((o, ov, v) -> {
+      if (!v) {
+        update("name", name.get());
+      }
+    });
+    fieldConfig.focusedProperty().addListener((o, ov, v) -> {
+      if (!v) {
+        String configString;
+        try {
+          configString = new InstrumentConfig(config.get()).toString();
+          update("config", configString);
+        } catch (Exception e) {
+          LOG.error("Could not parse Instrument Config because {}", e.getMessage());
+        }
+      }
+    });
+    fieldVolume.focusedProperty().addListener((o, ov, v) -> {
+      if (!v) {
+        update("volume", volume.get());
+      }
+    });
+    fieldIntensity.focusedProperty().addListener((o, ov, v) -> {
+      if (!v) {
+        update("intensity", intensity.get());
+      }
+    });
+    choiceType.valueProperty().addListener((o, ov, v) -> update("type", type.get()));
+    choiceMode.valueProperty().addListener((o, ov, v) -> update("mode", mode.get()));
+    choiceState.valueProperty().addListener((o, ov, v) -> update("state", state.get()));
 
     buttonOpenAudioFolder.disableProperty().bind(Bindings.createBooleanBinding(audios::isEmpty, audios));
 
@@ -184,7 +206,7 @@ public class InstrumentEditorController extends BrowserController {
       audio -> {
         if (Objects.nonNull(audio)) {
           if (showConfirmationDialog("Delete Audio?", "This action cannot be undone.", String.format("Are you sure you want to delete the Audio \"%s\"?", audio.getName())))
-            projectService.deleteInstrumentAudio(audio);
+            projectService.deleteContent(audio);
         }
       });
 
@@ -225,51 +247,6 @@ public class InstrumentEditorController extends BrowserController {
   }
 
   /**
-   When a field is unfocused, save
-
-   @param o       observable
-   @param ov      old value
-   @param focused false if unfocused
-   */
-  private void onUnfocusedDoSave(Observable o, Boolean ov, Boolean focused) {
-    if (!focused) {
-      save();
-    }
-  }
-
-  /**
-   When a field is unfocused, save
-
-   @param o  observable
-   @param ov old value
-   @param v  new value
-   */
-  private void onChangeDoSave(Observable o, Object ov, Object v) {
-    save();
-  }
-
-  /**
-   Save the Instrument
-   */
-  private void save() {
-    var instrument = projectService.getContent().getInstrument(instrumentId.get())
-      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
-    instrument.setName(name.get());
-    instrument.setType(type.get());
-    instrument.setMode(mode.get());
-    instrument.setState(state.get());
-    instrument.setVolume(volume.get());
-    instrument.setIntensity(intensity.get());
-    try {
-      instrument.setConfig(new InstrumentConfig(config.get()).toString());
-    } catch (Exception e) {
-      LOG.error("Could not parse Instrument config!", e);
-      return;
-    }
-    projectService.updateInstrument(instrument);
-  }
-
-  /**
    Update the Instrument Editor with the current Instrument.
    */
   private void setup() {
@@ -287,6 +264,22 @@ public class InstrumentEditorController extends BrowserController {
     this.volume.set(instrument.getVolume());
     this.intensity.set(instrument.getIntensity());
     setupAudiosTable();
+  }
+
+  /**
+   Update an attribute of the current instrument record with the given value
+
+   @param attribute of instrument
+   @param value     to set
+   */
+  private void update(String attribute, Object value) {
+    if (Objects.nonNull(instrumentId.get())) {
+      try {
+        projectService.update(Instrument.class, instrumentId.get(), attribute, value);
+      } catch (Exception e) {
+        LOG.error("Could not update Instrument " + attribute, e);
+      }
+    }
   }
 
   /**

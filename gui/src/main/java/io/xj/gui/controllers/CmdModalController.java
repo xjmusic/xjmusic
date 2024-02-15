@@ -268,7 +268,7 @@ public class CmdModalController extends ProjectModalController {
     if (!showConfirmationDialog("Delete Library?", "This action cannot be undone.", String.format("Are you sure you want to delete the Library \"%s\"?", library.getName())))
       return;
 
-    projectService.deleteLibrary(library);
+    projectService.deleteContent(library);
   }
 
   /**
@@ -330,7 +330,7 @@ public class CmdModalController extends ProjectModalController {
     if (!showConfirmationDialog("Delete Program?", "This action cannot be undone.", String.format("Are you sure you want to delete the Program \"%s\"?", program.getName())))
       return;
 
-    projectService.deleteProgram(program);
+    projectService.deleteContent(program);
   }
 
   /**
@@ -380,7 +380,7 @@ public class CmdModalController extends ProjectModalController {
     if (!showConfirmationDialog("Delete Instrument?", "This action cannot be undone.", String.format("Are you sure you want to delete the Instrument \"%s\"?", instrument.getName())))
       return;
 
-    projectService.deleteInstrument(instrument);
+    projectService.deleteContent(instrument);
   }
 
   /**
@@ -422,7 +422,7 @@ public class CmdModalController extends ProjectModalController {
     if (!showConfirmationDialog("Delete Template?", "This action cannot be undone.", String.format("Are you sure you want to delete the Template \"%s\"?", template.getName())))
       return;
 
-    projectService.deleteTemplate(template);
+    projectService.deleteContent(template);
   }
 
   /**
