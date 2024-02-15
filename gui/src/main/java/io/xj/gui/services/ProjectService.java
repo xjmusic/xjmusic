@@ -123,14 +123,9 @@ public interface ProjectService {
   HubContent getContent();
 
   /**
-   @param entity to save
-   */
-  <N extends Serializable> void putContent(N entity) throws Exception;
-
-  /**
    @param entity to delete
    */
-  <N extends Serializable> void deleteContent(N entity) throws Exception;
+  <N extends Serializable> void deleteContent(N entity);
 
   /**
    @return the list of recent projects
@@ -151,7 +146,7 @@ public interface ProjectService {
    @param type     the type of update
    @param modified whether the update modified the project
    */
-  <N extends Serializable> void didUpdate(Class<N> type, boolean modified);
+  <N> void didUpdate(Class<N> type, boolean modified);
 
   /**
    Get the current list of non-deleted libraries sorted by name
@@ -185,48 +180,6 @@ public interface ProjectService {
    @return the current project property
    */
   ObservableObjectValue<Project> currentProjectProperty();
-
-  /**
-   Delete a template
-
-   @param template to delete
-   */
-  void deleteTemplate(Template template);
-
-  /**
-   Delete a template binding
-
-   @param binding to delete
-   */
-  void deleteTemplateBinding(TemplateBinding binding);
-
-  /**
-   Delete a library
-
-   @param library to delete
-   */
-  void deleteLibrary(Library library);
-
-  /**
-   Delete a program
-
-   @param program to delete
-   */
-  void deleteProgram(Program program);
-
-  /**
-   Delete an instrument
-
-   @param instrument to delete
-   */
-  void deleteInstrument(Instrument instrument);
-
-  /**
-   Delete an Instrument Audio
-
-   @param audio to delete
-   */
-  void deleteInstrumentAudio(InstrumentAudio audio);
 
   /**
    Create a new template
@@ -438,4 +391,15 @@ public interface ProjectService {
    @param body   of alert
    */
   void showAlert(Alert.AlertType type, String title, String header, @Nullable String body);
+
+  /**
+   Update an entity attribute
+
+   @param type      of entity
+   @param id        of entity
+   @param attribute to update
+   @param value     to set
+   @param <N>       type of entity
+   */
+  <N> void update(Class<N> type, UUID id, String attribute, Object value) throws Exception;
 }

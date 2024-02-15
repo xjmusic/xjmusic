@@ -134,7 +134,7 @@ public class ProjectServiceImpl implements ProjectService {
     }, state);
 
     state.addListener((o, ov, nv) -> {
-      if (nv == ProjectState.Ready) {
+      if (nv==ProjectState.Ready) {
         didUpdate(Template.class, false);
         didUpdate(Library.class, false);
         didUpdate(Program.class, false);
@@ -276,15 +276,14 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public <N extends Serializable> void putContent(N entity) throws Exception {
-    projectManager.getContent().put(entity);
-    didUpdate(entity.getClass(), true);
-  }
-
-  @Override
-  public <N extends Serializable> void deleteContent(N entity) throws Exception {
-    projectManager.getContent().delete(entity.getClass(), EntityUtils.getId(entity));
-    didUpdate(entity.getClass(), true);
+  public <N extends Serializable> void deleteContent(N entity) {
+    try {
+      projectManager.getContent().delete(entity.getClass(), EntityUtils.getId(entity));
+      didUpdate(entity.getClass(), true);
+      LOG.info("Deleted {}[{}]", entity.getClass().getSimpleName(), EntityUtils.getId(entity));
+    } catch (Exception e) {
+      LOG.error("Could not delete content\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+    }
   }
 
   @Override
@@ -299,7 +298,7 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public <N extends Serializable> void didUpdate(Class<N> type, boolean modified) {
+  public <N> void didUpdate(Class<N> type, boolean modified) {
     if (modified) isModified.set(true);
 
     if (projectUpdateListeners.containsKey(type))
@@ -313,7 +312,7 @@ public class ProjectServiceImpl implements ProjectService {
         .filter(library -> !library.getIsDeleted())
         .sorted(Comparator.comparing(Library::getName))
         .toList()
-      : new ArrayList<>();
+      :new ArrayList<>();
   }
 
   @Override
@@ -323,7 +322,7 @@ public class ProjectServiceImpl implements ProjectService {
         .filter(program -> !program.getIsDeleted())
         .sorted(Comparator.comparing(Program::getName))
         .toList()
-      : new ArrayList<>();
+      :new ArrayList<>();
   }
 
   @Override
@@ -333,7 +332,7 @@ public class ProjectServiceImpl implements ProjectService {
         .filter(instrument -> !instrument.getIsDeleted())
         .sorted(Comparator.comparing(Instrument::getName))
         .toList()
-      : new ArrayList<>();
+      :new ArrayList<>();
   }
 
   @Override
@@ -343,54 +342,12 @@ public class ProjectServiceImpl implements ProjectService {
         .filter(template -> !template.getIsDeleted())
         .sorted(Comparator.comparing(Template::getName))
         .toList()
-      : new ArrayList<>();
+      :new ArrayList<>();
   }
 
   @Override
   public ObservableObjectValue<Project> currentProjectProperty() {
     return currentProject;
-  }
-
-  @Override
-  public void deleteTemplate(Template template) {
-    projectManager.getContent().getTemplates().removeIf(n -> Objects.equals(n.getId(), template.getId()));
-    didUpdate(Template.class, true);
-    LOG.info("Deleted template \"{}\"", template.getName());
-  }
-
-  @Override
-  public void deleteTemplateBinding(TemplateBinding binding) {
-    projectManager.getContent().getTemplateBindings().removeIf(n -> Objects.equals(n.getId(), binding.getId()));
-    didUpdate(TemplateBinding.class, true);
-    LOG.info("Deleted {} template binding", binding.getType());
-  }
-
-  @Override
-  public void deleteLibrary(Library library) {
-    projectManager.getContent().getLibraries().removeIf(n -> Objects.equals(n.getId(), library.getId()));
-    didUpdate(Library.class, true);
-    LOG.info("Deleted library \"{}\"", library.getName());
-  }
-
-  @Override
-  public void deleteProgram(Program program) {
-    projectManager.getContent().getPrograms().removeIf(n -> Objects.equals(n.getId(), program.getId()));
-    didUpdate(Program.class, true);
-    LOG.info("Deleted program \"{}\"", program.getName());
-  }
-
-  @Override
-  public void deleteInstrument(Instrument instrument) {
-    projectManager.getContent().getInstruments().removeIf(n -> Objects.equals(n.getId(), instrument.getId()));
-    didUpdate(Instrument.class, true);
-    LOG.info("Deleted instrument \"{}\"", instrument.getName());
-  }
-
-  @Override
-  public void deleteInstrumentAudio(InstrumentAudio audio) {
-    projectManager.getContent().getInstrumentAudios().removeIf(n -> Objects.equals(n.getId(), audio.getId()));
-    didUpdate(InstrumentAudio.class, true);
-    LOG.info("Deleted instrument audio \"{}\"", audio.getName());
   }
 
   @Override
@@ -639,6 +596,12 @@ public class ProjectServiceImpl implements ProjectService {
     alert.showAndWait();
   }
 
+  @Override
+  public <N> void update(Class<N> type, UUID id, String attribute, Object value) throws Exception {
+    projectManager.getContent().update(type, id, attribute, value);
+    didUpdate(type, true);
+  }
+
   /**
    If the directory already exists then pop up a confirmation dialog
 
@@ -677,7 +640,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     // Show the dialog and capture the result
     var result = alert.showAndWait();
-    return result.isPresent() && result.get() == ButtonType.YES;
+    return result.isPresent() && result.get()==ButtonType.YES;
   }
 
   /**

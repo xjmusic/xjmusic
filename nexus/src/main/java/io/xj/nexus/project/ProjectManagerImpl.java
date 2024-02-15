@@ -1,7 +1,15 @@
 package io.xj.nexus.project;
 
 import io.xj.hub.HubContent;
+import io.xj.hub.InstrumentConfig;
+import io.xj.hub.ProgramConfig;
+import io.xj.hub.TemplateConfig;
 import io.xj.hub.entity.EntityFactory;
+import io.xj.hub.enums.InstrumentMode;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
 import io.xj.hub.json.JsonProvider;
 import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
@@ -64,6 +72,18 @@ import static io.xj.hub.util.FileUtils.computeWaveformKey;
 
 public class ProjectManagerImpl implements ProjectManager {
   static final Logger LOG = LoggerFactory.getLogger(ProjectManagerImpl.class);
+  private static final InstrumentMode DEFAULT_INSTRUMENT_MODE = InstrumentMode.Event;
+  private static final InstrumentState DEFAULT_INSTRUMENT_STATE = InstrumentState.Published;
+  private static final InstrumentType DEFAULT_INSTRUMENT_TYPE = InstrumentType.Drum;
+  private static final ProgramState DEFAULT_PROGRAM_STATE = ProgramState.Published;
+  private static final ProgramType DEFAULT_PROGRAM_TYPE = ProgramType.Main;
+  private static final String DEFAULT_INSTRUMENT_AUDIO_EVENT = "X";
+  private static final String DEFAULT_INSTRUMENT_AUDIO_TONES = "X";
+  private static final String DEFAULT_KEY = "C";
+  private static final float DEFAULT_INTENSITY = 1.0f;
+  private static final float DEFAULT_TEMPO = 120f;
+  private static final float DEFAULT_LOOP_BEATS = 4.0f;
+  private static final float DEFAULT_VOLUME = 1.0f;
   private final AtomicReference<ProjectState> state = new AtomicReference<>(ProjectState.Standby);
   private final AtomicReference<Project> project = new AtomicReference<>();
   private final AtomicReference<String> projectPathPrefix = new AtomicReference<>(File.separator);
@@ -315,6 +335,7 @@ public class ProjectManagerImpl implements ProjectManager {
     var template = new Template();
     template.setId(UUID.randomUUID());
     template.setName(name);
+    template.setConfig(new TemplateConfig().toString());
     template.setIsDeleted(false);
     content.get().put(template);
     return template;
@@ -332,10 +353,19 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public Program createProgram(Library library, String name) throws Exception {
+    var existingProgramOfLibrary = content.get().getProgramsOfLibrary(library.getId()).stream().findFirst();
+    var existingProgram = existingProgramOfLibrary.isPresent() ? existingProgramOfLibrary:content.get().getPrograms().stream().findFirst();
+
     var program = new Program();
     program.setId(UUID.randomUUID());
     program.setName(name);
     program.setLibraryId(library.getId());
+    program.setConfig(new ProgramConfig().toString());
+    program.setType(existingProgram.map(Program::getType).orElse(DEFAULT_PROGRAM_TYPE));
+    program.setState(existingProgram.map(Program::getState).orElse(DEFAULT_PROGRAM_STATE));
+    program.setIntensity(existingProgram.map(Program::getIntensity).orElse(DEFAULT_INTENSITY));
+    program.setTempo(existingProgram.map(Program::getTempo).orElse(DEFAULT_TEMPO));
+    program.setKey(existingProgram.map(Program::getKey).orElse(DEFAULT_KEY));
     program.setIsDeleted(false);
     content.get().put(program);
     return program;
@@ -343,10 +373,19 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public Instrument createInstrument(Library library, String name) throws Exception {
+    var existingInstrumentOfLibrary = content.get().getInstrumentsOfLibrary(library.getId()).stream().findFirst();
+    var existingInstrument = existingInstrumentOfLibrary.isPresent() ? existingInstrumentOfLibrary:content.get().getInstruments().stream().findFirst();
+
     var instrument = new Instrument();
     instrument.setId(UUID.randomUUID());
     instrument.setName(name);
     instrument.setLibraryId(library.getId());
+    instrument.setConfig(new InstrumentConfig().toString());
+    instrument.setType(existingInstrument.map(Instrument::getType).orElse(DEFAULT_INSTRUMENT_TYPE));
+    instrument.setMode(existingInstrument.map(Instrument::getMode).orElse(DEFAULT_INSTRUMENT_MODE));
+    instrument.setState(existingInstrument.map(Instrument::getState).orElse(DEFAULT_INSTRUMENT_STATE));
+    instrument.setVolume(existingInstrument.map(Instrument::getVolume).orElse(DEFAULT_VOLUME));
+    instrument.setIntensity(existingInstrument.map(Instrument::getIntensity).orElse(DEFAULT_INTENSITY));
     instrument.setIsDeleted(false);
     var instrumentPath = getPathPrefixToInstrumentAudio(instrument.getId());
     FileUtils.createParentDirectories(new File(instrumentPath));
@@ -360,6 +399,7 @@ public class ProjectManagerImpl implements ProjectManager {
     var project = content.get().getProject();
     if (Objects.isNull(project)) throw new NexusException("Project not found");
     var existingAudioOfInstrument = content.get().getAudiosOfInstrument(instrument.getId()).stream().findFirst();
+    var existingAudio = existingAudioOfInstrument.isPresent() ? existingAudioOfInstrument:content.get().getInstrumentAudios().stream().findFirst();
 
     // extract the file name and extension
     Matcher matcher = ProjectPathUtils.matchPrefixNameExtension(audioFilePath);
@@ -371,12 +411,13 @@ public class ProjectManagerImpl implements ProjectManager {
     var audio = new InstrumentAudio();
     audio.setId(UUID.randomUUID());
     audio.setName(matcher.group(2));
-    audio.setTones("");
-    audio.setIntensity(1.0f);
-    audio.setTempo(existingAudioOfInstrument.map(InstrumentAudio::getTempo).orElse(0.0f));
-    audio.setLoopBeats(1.0f);
+    audio.setTones(existingAudio.map(InstrumentAudio::getTones).orElse(DEFAULT_INSTRUMENT_AUDIO_TONES));
+    audio.setEvent(existingAudio.map(InstrumentAudio::getEvent).orElse(DEFAULT_INSTRUMENT_AUDIO_EVENT));
+    audio.setIntensity(existingAudio.map(InstrumentAudio::getIntensity).orElse(DEFAULT_INTENSITY));
+    audio.setTempo(existingAudioOfInstrument.map(InstrumentAudio::getTempo).orElse(DEFAULT_TEMPO));
+    audio.setLoopBeats(existingAudio.map(InstrumentAudio::getLoopBeats).orElse(DEFAULT_LOOP_BEATS));
     audio.setTransientSeconds(0.0f);
-    audio.setVolume(1.0f);
+    audio.setVolume(existingAudio.map(InstrumentAudio::getVolume).orElse(DEFAULT_VOLUME));
     audio.setInstrumentId(instrument.getId());
     audio.setWaveformKey(computeWaveformKey(project.getName(), library.getName(), instrument.getName(), audio, matcher.group(3)));
 

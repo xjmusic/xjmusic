@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableView?>
@@ -12,7 +13,6 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <SplitPane
@@ -23,20 +23,46 @@
 
   <VBox
     fx:id="fieldsContainer"
-    spacing="10.0">
-    <VBox.vgrow>
-      <Priority fx:constant="ALWAYS"/>
-    </VBox.vgrow>
+    spacing="10.0"
+    VBox.vgrow="ALWAYS">
     <padding>
       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
     </padding>
 
-    <VBox>
+    <VBox spacing="2.0">
       <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Name" textAlignment="RIGHT"/>
       <TextField fx:id="fieldName" prefHeight="25.0"/>
     </VBox>
 
-    <VBox>
+    <HBox spacing="10.0"
+          HBox.hgrow="ALWAYS">
+      <VBox HBox.hgrow="ALWAYS" spacing="2.0">
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Type" textAlignment="RIGHT"/>
+        <ChoiceBox fx:id="choiceType" prefHeight="25.0" maxWidth="Infinity"/>
+      </VBox>
+      <VBox HBox.hgrow="ALWAYS" spacing="2.0">
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Mode" textAlignment="RIGHT"/>
+        <ChoiceBox fx:id="choiceMode" prefHeight="25.0" maxWidth="Infinity"/>
+      </VBox>
+      <VBox HBox.hgrow="ALWAYS" spacing="2.0">
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="State" textAlignment="RIGHT"/>
+        <ChoiceBox fx:id="choiceState" prefHeight="25.0" maxWidth="Infinity"/>
+      </VBox>
+    </HBox>
+
+    <HBox spacing="10.0"
+          HBox.hgrow="ALWAYS">
+      <VBox HBox.hgrow="ALWAYS" spacing="2.0">
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Volume" textAlignment="RIGHT"/>
+        <TextField fx:id="fieldVolume" prefHeight="25.0"/>
+      </VBox>
+      <VBox HBox.hgrow="ALWAYS" spacing="2.0">
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Intensity" textAlignment="RIGHT"/>
+        <TextField fx:id="fieldIntensity" prefHeight="25.0"/>
+      </VBox>
+    </HBox>
+
+    <VBox spacing="2.0">
       <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Configuration" textAlignment="RIGHT"/>
       <TextArea fx:id="fieldConfig" maxHeight="Infinity"/>
     </VBox>
