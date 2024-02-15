@@ -1099,16 +1099,24 @@ public class ProjectManagerImpl implements ProjectManager {
    */
   private void uploadInstrumentAudioFile(HubClientAccess hubAccess, String hubBaseUrl, CloseableHttpClient httpClient, ProjectAudioUpload upload) {
     try {
+<<<<<<< HEAD
       upload.setAuth(hubClientFactory.authorizeInstrumentAudioUploadApiV2(httpClient, hubBaseUrl, hubAccess, upload.getInstrumentAudioId()));
+=======
+      authorization = hubClientFactory.authorizeInstrumentAudioUploadApiV2(httpClient, hubBaseUrl, hubAccess, upload.getInstrumentAudioId(), upload.getExtension());
+>>>>>>> d9f5f915e (Latest updates to project sync)
     } catch (HubClientException e) {
       upload.addError("Failed to authorize instrument audio upload because " + e.getMessage());
       return;
     }
 
+<<<<<<< HEAD
     File file = new File(upload.getPathOnDisk());
     byte[] buffer = new byte[uploadAudioChunkSize];
     int bytesRead;
     try (FileInputStream fileInputStream = new FileInputStream(file)) {
+=======
+
+>>>>>>> d9f5f915e (Latest updates to project sync)
 
       URL endpointUrl;
       try {

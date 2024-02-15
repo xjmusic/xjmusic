@@ -87,4 +87,11 @@ public class ProjectAudioUpload {
       String.format("Failed to upload audio from %s to Instrument[%s]", pathOnDisk, instrumentAudioId) +
         (hasErrors() ? String.format("with %s %s", errors.size() > 1 ? "errors":"error", StringUtils.toProperCsvAnd(errors.stream().sorted().toList())):"");
   }
+<<<<<<< HEAD
+=======
+
+  public String getExtension() {
+    return ProjectPathUtils.getExtension(pathOnDisk);
+  }
+>>>>>>> d9f5f915e (Latest updates to project sync)
 }

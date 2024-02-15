@@ -32,7 +32,7 @@ import java.util.UUID;
  */
 public class HubClientFactoryImpl implements HubClientFactory {
   static final String API_PATH_GET_PROJECT = "api/2/projects/%s";
-  static final String API_PATH_AUTHORIZE_INSTRUMENT_AUDIO_UPLOAD = "api/2/instrument-audios/%s/upload";
+  static final String API_PATH_AUTHORIZE_INSTRUMENT_AUDIO_UPLOAD = "api/2/instrument-audios/%s/upload?extension=%s";
   static final String API_PATH_SYNC_PROJECT = "api/2/projects/%s/sync";
   static final String HEADER_COOKIE = "Cookie";
   final Logger LOG = LoggerFactory.getLogger(HubClientFactoryImpl.class);
@@ -94,15 +94,15 @@ public class HubClientFactoryImpl implements HubClientFactory {
   }
 
   @Override
-  public HubUploadAuthorization authorizeInstrumentAudioUploadApiV2(CloseableHttpClient httpClient, String baseUrl, HubClientAccess access, UUID instrumentAudioId) throws HubClientException {
+  public HubUploadAuthorization authorizeInstrumentAudioUploadApiV2(CloseableHttpClient httpClient, String baseUrl, HubClientAccess access, UUID instrumentAudioId, String extension) throws HubClientException {
     CloseableHttpClient client = httpClientProvider.getClient();
-    var uri = buildURI(baseUrl, String.format(API_PATH_AUTHORIZE_INSTRUMENT_AUDIO_UPLOAD, instrumentAudioId.toString()));
+    var uri = buildURI(baseUrl, String.format(API_PATH_AUTHORIZE_INSTRUMENT_AUDIO_UPLOAD, instrumentAudioId.toString(), extension));
     LOG.info("Will request upload authorization from {}", uri);
     try (
       CloseableHttpResponse response = client.execute(buildGetRequest(uri, access.getToken()))
     ) {
       // return content if successful.
-      if (!Objects.equals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode()))
+      if (!Objects.equals(HttpStatus.SC_ACCEPTED, response.getStatusLine().getStatusCode()))
         throw buildException(uri.toString(), response);
 
       String json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());

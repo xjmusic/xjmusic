@@ -91,6 +91,7 @@ class ProjectAudioUploadTest {
   }
 
   @Test
+<<<<<<< HEAD
   void wasSuccessful() {
     assertFalse(subject.wasSuccessful());
 
@@ -111,6 +112,10 @@ class ProjectAudioUploadTest {
     var e = assertThrows(NullPointerException.class, subject::getId);
 
     assertEquals("Cannot get ID before it is set", e.getMessage());
+=======
+  void getExtension() {
+    assertEquals("wav", subject.getExtension());
+>>>>>>> d9f5f915e (Latest updates to project sync)
   }
 
 }

@@ -61,10 +61,11 @@ public interface HubClientFactory {
    @param baseUrl           of Hub
    @param access            control
    @param instrumentAudioId of the audio which to authorize upload
+   @param extension         of the audio file
    @return HubUploadAuthorization
    @throws HubClientException on failure to perform request
    */
-  HubUploadAuthorization authorizeInstrumentAudioUploadApiV2(CloseableHttpClient httpClient, String baseUrl, HubClientAccess access, UUID instrumentAudioId) throws HubClientException;
+  HubUploadAuthorization authorizeInstrumentAudioUploadApiV2(CloseableHttpClient httpClient, String baseUrl, HubClientAccess access, UUID instrumentAudioId, String extension) throws HubClientException;
 
   /**
    Load shipped content from a static file in API v1 (HubContentPayload a.k.a. JSONAPI)
