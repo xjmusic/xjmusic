@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox fx:id="sequenceHolder" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="250.0" prefHeight="56.0" prefWidth="363.0" spacing="5.0" styleClass="sequence-holder-container" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.SequenceHolder">
+<VBox fx:id="sequenceHolder" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="56.0" prefWidth="253.0" spacing="5.0" styleClass="sequence-holder-container" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.SequenceHolder">
    <children>
       <Label fx:id="offSet" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="200.0" prefHeight="17.0" prefWidth="370.0" styleClass="bind-mode-label" text="0" textFill="GREY" VBox.vgrow="ALWAYS">
          <padding>
