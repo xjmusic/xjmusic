@@ -237,7 +237,8 @@ public class ProjectServiceImpl implements ProjectService {
       executeInBackground("Push Project", () -> {
         var pushed = projectManager.pushProject(
           labService.getHubClientAccess(),
-          labService.hubConfigProperty().get().getApiBaseUrl()
+          labService.hubConfigProperty().get().getApiBaseUrl(),
+          labService.hubConfigProperty().get().getAudioBaseUrl()
         );
         if (pushed.hasErrors())
           Platform.runLater(() -> showErrorDialog("Failed to push project", "Failed to push local project to Lab", pushed.toString()));

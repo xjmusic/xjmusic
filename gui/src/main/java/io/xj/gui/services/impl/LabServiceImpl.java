@@ -50,9 +50,7 @@ public class LabServiceImpl implements LabService {
   static final Pattern rgxStripLeadingSlash = Pattern.compile("^/");
   final StringProperty baseUrl = new SimpleStringProperty();
   final StringProperty accessToken = new SimpleStringProperty();
-
   final ObjectProperty<User> authenticatedUser = new SimpleObjectProperty<>();
-
   final ObjectProperty<HubConfiguration> hubConfig = new SimpleObjectProperty<>();
 
   public LabServiceImpl(

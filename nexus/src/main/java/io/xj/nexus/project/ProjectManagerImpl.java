@@ -53,7 +53,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -294,7 +293,8 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public ProjectPushResults pushProject(HubClientAccess hubAccess, String hubBaseUrl) {
+  public ProjectPushResults pushProject(HubClientAccess hubAccess, String hubBaseUrl, String audioBaseUrl) {
+    this.audioBaseUrl.set(audioBaseUrl);
     var pushResults = new ProjectPushResults();
     try {
       // Don't close the client, only close the responses from it
@@ -313,8 +313,6 @@ public class ProjectManagerImpl implements ProjectManager {
       updateState(ProjectState.PushedContent);
 
       // Then, push all individual audios. If an audio is not found remotely, request an upload authorization token from Hub.
-      // TODO When requesting upload authorization, it's necessary to specify an existing instrument. Hub will compute the waveform key.
-      // TODO After upload, we must update the local content with the new waveform key and rename the audio file on disk.
       LOG.info("Will push {} audio for {} instruments", content.get().getInstrumentAudios().size(), content.get().getInstruments().size());
       updateProgress(0.0);
       updateState(ProjectState.PushingAudio);
@@ -347,10 +345,11 @@ public class ProjectManagerImpl implements ProjectManager {
               LOG.info("File {} not found remotely - Will upload {} bytes", remoteUrl, upload.getContentLength());
               shouldUpload = true;
             } else if (upload.getContentLength()!=remoteFileSize) {
-              LOG.info("File size of {} does not match remote {} - Will download {} bytes from {}", pathOnDisk, remoteFileSize, remoteFileSize, remoteUrl);
+              LOG.info("File size of {} does not match remote {} - Will upload {} bytes from {}", pathOnDisk, remoteFileSize, remoteFileSize, remoteUrl);
               shouldUpload = true;
             }
 
+            // When requesting upload authorization, it's necessary to specify an existing instrument. Hub will compute the waveform key.
             if (shouldUpload) {
               var uploadResult = uploadInstrumentAudioFileWithRetry(hubAccess, hubBaseUrl, httpClient, upload);
               if (uploadResult.hasErrors()) {
@@ -360,6 +359,8 @@ public class ProjectManagerImpl implements ProjectManager {
               }
             }
 
+            // After upload, we must update the local content with the new waveform key and rename the audio file on disk.
+            content.get().update(InstrumentAudio.class, audio.getId(), "waveformKey", upload.getAuth().getWaveformKey());
             LOG.debug("Did upload audio OK");
             updateProgress((float) pushResults.getAudios() / audios.size());
             pushResults.incrementAudiosUploaded();
@@ -1077,12 +1078,16 @@ public class ProjectManagerImpl implements ProjectManager {
       try {
         uploadInstrumentAudioFile(hubAccess, hubBaseUrl, httpClient, upload);
         if (!upload.wasSuccessful()) continue;
-        var remoteUrl = "https://test.123"; // todo compute remote URL
+        var remoteUrl = audioBaseUrl.get() + upload.getAuth().getWaveformKey();
         long uploadedSize = getRemoteFileSize(httpClient, remoteUrl);
         if (uploadedSize==upload.getContentLength()) {
           return upload;
         }
-        upload.addError("File size does not match! Attempt " + attempt + " of " + uploadAudioRetries + " to upload " + upload.getPathOnDisk() + " to InstrumentAudio[" + upload.getInstrumentAudioId() + "] failed because expected " + upload.getContentLength() + " bytes, but got " + uploadedSize + " bytes.");
+        if (uploadedSize==FILE_SIZE_NOT_FOUND) {
+          upload.addError("Failed to store remote file! Attempt " + attempt + " of " + uploadAudioRetries + " to upload " + upload.getPathOnDisk() + " InstrumentAudio[" + upload.getInstrumentAudioId() + "] failed because the file was not found at " + remoteUrl);
+        } else {
+          upload.addError("File size does not match! Attempt " + attempt + " of " + uploadAudioRetries + " to upload " + upload.getPathOnDisk() + " InstrumentAudio[" + upload.getInstrumentAudioId() + "] failed because expected " + upload.getContentLength() + " bytes, but found " + uploadedSize + " bytes at " + remoteUrl);
+        }
 
       } catch (Exception e) {
         upload.addError("Attempt " + attempt + " of " + uploadAudioRetries + " to upload " + upload.getPathOnDisk() + " to InstrumentAudio[" + upload.getInstrumentAudioId() + "] failed because " + e.getMessage());
@@ -1111,16 +1116,7 @@ public class ProjectManagerImpl implements ProjectManager {
     byte[] buffer = new byte[uploadAudioChunkSize];
     int bytesRead;
     try (FileInputStream fileInputStream = new FileInputStream(file)) {
-      URL endpointUrl;
-      try {
-        if (upload.getAuth().getBucketRegion().equals("us-east-1")) {
-          endpointUrl = new URL("https://s3.amazonaws.com/" + upload.getAuth().getBucketName() + "/ExampleChunkedObject.txt");
-        } else {
-          endpointUrl = new URL("https://s3-" + upload.getAuth().getBucketRegion() + ".amazonaws.com/" + upload.getAuth().getBucketName() + "/ExampleChunkedObject.txt");
-        }
-      } catch (MalformedURLException e) {
-        throw new RuntimeException("Unable to parse service endpoint: " + e.getMessage());
-      }
+      URL endpointUrl = new URL(upload.getAuth().getUploadUrl() + "/" + upload.getAuth().getWaveformKey());
 
       // set the markers indicating we're going to send the upload as a series
       // of chunks:
@@ -1142,22 +1138,18 @@ public class ProjectManagerImpl implements ProjectManager {
       // how big is the overall request stream going to be once we add the signature
       // 'headers' to each chunk?
       long totalLength = AWS4SignerForChunkedUpload.calculateChunkedContentLength(upload.getContentLength(), uploadAudioChunkSize);
-      headers.put("content-length", "" + totalLength);
+      headers.put("content-length", Long.toString(totalLength));
 
-/*
-TODO probably remove, we got a signature from the hub
-      String authorization = signer.computeSignature(
+      // place the computed signature into a formatted 'Authorization' header
+      // and call S3
+      // TODO not headers.put("Authorization", upload.getAuth().getUploadPolicySignature());
+      headers.put("Authorization", signer.computeSignature(
         headers,
         null, // no query parameters
         AWS4SignerForChunkedUpload.STREAMING_BODY_SHA256,
         upload.getAuth().getAwsAccessKeyId(),
-        upload.getAuth().getUploadPolicySignature() // TODO this is probably wrong, the original method for computing signature asked for the aws access key secret here
-      );
-*/
-
-      // place the computed signature into a formatted 'Authorization' header
-      // and call S3
-      headers.put("Authorization", upload.getAuth().getUploadPolicySignature());
+        upload.getAuth().getUploadPolicySignature() // TODO this may be wrong, the original method for computing signature asked for the aws access key secret here
+      ));
 
       // start consuming the data payload in blocks which we subsequently chunk; this prefixes
       // the data with a 'chunk header' containing signature data from the prior chunk (or header
@@ -1191,7 +1183,61 @@ TODO probably remove, we got a signature from the hub
       // make the call to Amazon S3
       String response = HttpUtils.executeHttpRequest(connection);
 
-      var testing = 123; //todo do something with the response above
+      var testing = 123;
+/*
+//todo figure out how to check the above response for success -- as of my latest test, this is returning an XML payload with an error:
+    <?xml version="1.0" encoding="UTF-8"?>
+    <Error>
+        <Code>SignatureDoesNotMatch</Code>
+        <Message>The request signature we calculated does not match the signature you provided. Check your key and signing
+            method.
+        </Message>
+        <AWSAccessKeyId>AKIAI6WWJJMATIYGTTLQ</AWSAccessKeyId>
+        <StringToSign>AWS4-HMAC-SHA256
+            20240215T094532Z
+            20240215/us-east-1/s3/aws4_request
+            dd168a5519e33143cf998d0141477bcd748c373bc1fbf7ef5803fde6ee02fd2c
+        </StringToSign>
+        <SignatureProvided>7c691f046f3e9f62537e67def94816c4c3d514d23b271c6df45423b3d46c0db7</SignatureProvided>
+        <StringToSignBytes>41 57 53 34 2d 48 4d 41 43 2d 53 48 41 32 35 36 0a 32 30 32 34 30 32 31 35 54 30 39 34 35 33 32
+            5a 0a 32 30 32 34 30 32 31 35 2f 75 73 2d 65 61 73 74 2d 31 2f 73 33 2f 61 77 73 34 5f 72 65 71 75 65 73 74 0a
+            64 64 31 36 38 61 35 35 31 39 65 33 33 31 34 33 63 66 39 39 38 64 30 31 34 31 34 37 37 62 63 64 37 34 38 63 33
+            37 33 62 63 31 66 62 66 37 65 66 35 38 30 33 66 64 65 36 65 65 30 32 66 64 32 63
+        </StringToSignBytes>
+        <CanonicalRequest>PUT
+            //Test--Project-Sync-Test-Instruments-Test-Instrument-1-test-audio-X.wav
+
+            content-encoding:aws-chunked
+            content-length:9220447
+            host:xj-prod-audio.s3.amazonaws.com
+            x-amz-content-sha256:STREAMING-AWS4-HMAC-SHA256-PAYLOAD
+            x-amz-date:20240215T094532Z
+            x-amz-decoded-content-length:9217122
+            x-amz-storage-class:REDUCED_REDUNDANCY
+
+            content-encoding;content-length;host;x-amz-content-sha256;x-amz-date;x-amz-decoded-content-length;x-amz-storage-class
+            STREAMING-AWS4-HMAC-SHA256-PAYLOAD
+        </CanonicalRequest>
+        <CanonicalRequestBytes>50 55 54 0a 2f 2f 54 65 73 74 2d 2d 50 72 6f 6a 65 63 74 2d 53 79 6e 63 2d 54 65 73 74 2d 49
+            6e 73 74 72 75 6d 65 6e 74 73 2d 54 65 73 74 2d 49 6e 73 74 72 75 6d 65 6e 74 2d 31 2d 74 65 73 74 2d 61 75 64
+            69 6f 2d 58 2e 77 61 76 0a 0a 63 6f 6e 74 65 6e 74 2d 65 6e 63 6f 64 69 6e 67 3a 61 77 73 2d 63 68 75 6e 6b 65
+            64 0a 63 6f 6e 74 65 6e 74 2d 6c 65 6e 67 74 68 3a 39 32 32 30 34 34 37 0a 68 6f 73 74 3a 78 6a 2d 70 72 6f 64
+            2d 61 75 64 69 6f 2e 73 33 2e 61 6d 61 7a 6f 6e 61 77 73 2e 63 6f 6d 0a 78 2d 61 6d 7a 2d 63 6f 6e 74 65 6e 74
+            2d 73 68 61 32 35 36 3a 53 54 52 45 41 4d 49 4e 47 2d 41 57 53 34 2d 48 4d 41 43 2d 53 48 41 32 35 36 2d 50 41
+            59 4c 4f 41 44 0a 78 2d 61 6d 7a 2d 64 61 74 65 3a 32 30 32 34 30 32 31 35 54 30 39 34 35 33 32 5a 0a 78 2d 61
+            6d 7a 2d 64 65 63 6f 64 65 64 2d 63 6f 6e 74 65 6e 74 2d 6c 65 6e 67 74 68 3a 39 32 31 37 31 32 32 0a 78 2d 61
+            6d 7a 2d 73 74 6f 72 61 67 65 2d 63 6c 61 73 73 3a 52 45 44 55 43 45 44 5f 52 45 44 55 4e 44 41 4e 43 59 0a 0a
+            63 6f 6e 74 65 6e 74 2d 65 6e 63 6f 64 69 6e 67 3b 63 6f 6e 74 65 6e 74 2d 6c 65 6e 67 74 68 3b 68 6f 73 74 3b
+            78 2d 61 6d 7a 2d 63 6f 6e 74 65 6e 74 2d 73 68 61 32 35 36 3b 78 2d 61 6d 7a 2d 64 61 74 65 3b 78 2d 61 6d 7a
+            2d 64 65 63 6f 64 65 64 2d 63 6f 6e 74 65 6e 74 2d 6c 65 6e 67 74 68 3b 78 2d 61 6d 7a 2d 73 74 6f 72 61 67 65
+            2d 63 6c 61 73 73 0a 53 54 52 45 41 4d 49 4e 47 2d 41 57 53 34 2d 48 4d 41 43 2d 53 48 41 32 35 36 2d 50 41 59
+            4c 4f 41 44
+        </CanonicalRequestBytes>
+        <RequestId>TQFXWCGG31H5X7RW</RequestId>
+        <HostId>ie4+h2ktq490hNmMLuVdL0q7kqAGNzcnrE5K7iDF0xRa09bxCdas1c9PqsluNz8AmqCVrxJ6IDI=</HostId>
+    </Error>
+*/
+
 
       upload.setSuccess(true);
 

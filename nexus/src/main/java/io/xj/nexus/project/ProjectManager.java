@@ -44,7 +44,7 @@ public interface ProjectManager {
   /**
    Clone from a Lab Project
 
-   @param hubAccess           control
+   @param hubAccess        control
    @param hubBaseUrl       of the lab
    @param audioBaseUrl     of the lab
    @param parentPathPrefix parent folder to the project folder
@@ -91,11 +91,12 @@ public interface ProjectManager {
    Once a project has been cloned to disk, choose Project -> Sync to update that local copy with any
    updates from the Lab, and the Lab copy with any updates from local.
 
-   @param hubAccess     control
-   @param hubBaseUrl of the lab
+   @param hubAccess    control
+   @param hubBaseUrl   of the lab
+   @param audioBaseUrl of the lab
    @return results
    */
-  ProjectPushResults pushProject(HubClientAccess hubAccess, String hubBaseUrl);
+  ProjectPushResults pushProject(HubClientAccess hubAccess, String hubBaseUrl, String audioBaseUrl);
 
   /**
    Cancel the project loading
