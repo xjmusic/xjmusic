@@ -7,7 +7,7 @@ import io.xj.gui.services.LabService;
 import io.xj.gui.services.LabState;
 import io.xj.hub.HubConfiguration;
 import io.xj.hub.HubContent;
-import io.xj.hub.ProjectList;
+import io.xj.hub.HubProjectList;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.User;
 import io.xj.hub.util.StringUtils;
@@ -222,9 +222,9 @@ public class LabServiceImpl implements LabService {
 
   @Override
   public void fetchProjects(Consumer<Collection<Project>> callback) {
-    makeAuthenticatedRequest("api/2/projects", HttpMethod.GET, ProjectList.class)
+    makeAuthenticatedRequest("api/2/projects", HttpMethod.GET, HubProjectList.class)
       .subscribe(
-        (ProjectList content) -> Platform.runLater(() -> callback.accept(content.getProjects())),
+        (HubProjectList content) -> Platform.runLater(() -> callback.accept(content.getProjects())),
         error -> Platform.runLater(() -> this.onConnectionFailure((Exception) error)),
         () -> Platform.runLater(this::onConnectionChanged));
   }
