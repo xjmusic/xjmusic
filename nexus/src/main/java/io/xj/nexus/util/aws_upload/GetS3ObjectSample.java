@@ -3,6 +3,9 @@ package io.xj.nexus.util.aws_upload;
 import io.xj.nexus.util.aws_upload.auth.AWS4SignerBase;
 import io.xj.nexus.util.aws_upload.auth.AWS4SignerForAuthorizationHeader;
 import io.xj.nexus.util.aws_upload.util.HttpUtils;
+import io.xj.nexus.work.DubWorkImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -14,15 +17,16 @@ import java.util.Map;
  authorization.
  */
 public class GetS3ObjectSample {
+  private static final Logger LOG = LoggerFactory.getLogger(GetS3ObjectSample.class);
 
   /**
    Request the content of the object '/ExampleObject.txt' from the given
    bucket in the given region using virtual hosted-style object addressing.
    */
   public static void getS3Object(String bucketName, String regionName, String awsAccessKey, String awsSecretKey) {
-    System.out.println("*******************************************************");
-    System.out.println("*  Executing sample 'GetObjectUsingHostedAddressing'  *");
-    System.out.println("*******************************************************");
+    LOG.debug("*******************************************************");
+    LOG.debug("*  Executing sample 'GetObjectUsingHostedAddressing'  *");
+    LOG.debug("*******************************************************");
 
     // the region-specific endpoint to the target object expressed in path style
     URL endpointUrl;
@@ -48,8 +52,8 @@ public class GetS3ObjectSample {
     // and call S3
     headers.put("Authorization", authorization);
     String response = HttpUtils.invokeHttpRequest(endpointUrl, "GET", headers, null);
-    System.out.println("--------- Response content ---------");
-    System.out.println(response);
-    System.out.println("------------------------------------");
+    LOG.debug("--------- Response content ---------");
+    LOG.debug(response);
+    LOG.debug("------------------------------------");
   }
 }

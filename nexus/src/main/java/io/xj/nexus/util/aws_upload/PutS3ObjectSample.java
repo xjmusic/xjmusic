@@ -4,6 +4,9 @@ import io.xj.nexus.util.aws_upload.auth.AWS4SignerBase;
 import io.xj.nexus.util.aws_upload.auth.AWS4SignerForAuthorizationHeader;
 import io.xj.nexus.util.aws_upload.util.BinaryUtils;
 import io.xj.nexus.util.aws_upload.util.HttpUtils;
+import io.xj.nexus.work.DubWorkImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -15,6 +18,7 @@ import java.util.Map;
  authorization
  */
 public class PutS3ObjectSample {
+  private static final Logger LOG = LoggerFactory.getLogger(PutS3ObjectSample.class);
 
   private static final String objectContent =
           """
@@ -33,9 +37,9 @@ public class PutS3ObjectSample {
    Uploads content to an Amazon S3 object in a single call using Signature V4 authorization.
    */
   public static void putS3Object(String bucketName, String regionName, String awsAccessKey, String awsSecretKey) {
-    System.out.println("************************************************");
-    System.out.println("*        Executing sample 'PutS3Object'        *");
-    System.out.println("************************************************");
+    LOG.debug("************************************************");
+    LOG.debug("*        Executing sample 'PutS3Object'        *");
+    LOG.debug("************************************************");
 
     URL endpointUrl;
     try {
@@ -70,8 +74,8 @@ public class PutS3ObjectSample {
 
     // make the call to Amazon S3
     String response = HttpUtils.invokeHttpRequest(endpointUrl, "PUT", headers, objectContent);
-    System.out.println("--------- Response content ---------");
-    System.out.println(response);
-    System.out.println("------------------------------------");
+    LOG.debug("--------- Response content ---------");
+    LOG.debug(response);
+    LOG.debug("------------------------------------");
   }
 }

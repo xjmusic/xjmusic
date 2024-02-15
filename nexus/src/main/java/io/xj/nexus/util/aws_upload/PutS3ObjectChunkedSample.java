@@ -2,6 +2,9 @@ package io.xj.nexus.util.aws_upload;
 
 import io.xj.nexus.util.aws_upload.auth.AWS4SignerForChunkedUpload;
 import io.xj.nexus.util.aws_upload.util.HttpUtils;
+import io.xj.nexus.work.DubWorkImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
@@ -18,6 +21,7 @@ import java.util.Map;
  with Signature V4 authorization
  */
 public class PutS3ObjectChunkedSample {
+  private static final Logger LOG = LoggerFactory.getLogger(PutS3ObjectChunkedSample.class);
 
   private static final String contentSeed =
     """
@@ -36,9 +40,9 @@ public class PutS3ObjectChunkedSample {
    Uploads content to an Amazon S3 object in a series of signed 'chunks' using Signature V4 authorization.
    */
   public static void putS3ObjectChunked(String bucketName, String regionName, String awsAccessKey, String awsSecretKey) {
-    System.out.println("***************************************************");
-    System.out.println("*      Executing sample 'PutS3ObjectChunked'      *");
-    System.out.println("***************************************************");
+    LOG.debug("***************************************************");
+    LOG.debug("*      Executing sample 'PutS3ObjectChunked'      *");
+    LOG.debug("***************************************************");
 
     // this sample uses a chunk data length of 64K; this should yield one
     // 64K chunk, one partial chunk and the final 0 byte payload terminator chunk
@@ -125,9 +129,9 @@ public class PutS3ObjectChunkedSample {
 
       // make the call to Amazon S3
       String response = HttpUtils.executeHttpRequest(connection);
-      System.out.println("--------- Response content ---------");
-      System.out.println(response);
-      System.out.println("------------------------------------");
+      LOG.debug("--------- Response content ---------");
+      LOG.debug(response);
+      LOG.debug("------------------------------------");
     } catch (Exception e) {
       throw new RuntimeException("Error when sending chunked upload request. " + e.getMessage(), e);
     }

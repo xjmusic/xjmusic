@@ -2,6 +2,9 @@ package io.xj.nexus.util.aws_upload;
 
 import io.xj.nexus.util.aws_upload.auth.AWS4SignerBase;
 import io.xj.nexus.util.aws_upload.auth.AWS4SignerForQueryParameterAuth;
+import io.xj.nexus.work.DubWorkImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -12,6 +15,7 @@ import java.util.Map;
  Sample code showing how to use Presigned Urls with Signature V4 authorization
  */
 public class PresignedUrlSample {
+  private static final Logger LOG = LoggerFactory.getLogger(PresignedUrlSample.class);
 
   /**
    Construct a basic presigned url to the object '/ExampleObject.txt' in the
@@ -19,9 +23,9 @@ public class PresignedUrlSample {
    V4 authorization data is embedded in the url as query parameters.
    */
   public static void getPresignedUrlToS3Object(String bucketName, String regionName, String awsAccessKey, String awsSecretKey) {
-    System.out.println("******************************************************");
-    System.out.println("*    Executing sample 'GetPresignedUrlToS3Object'    *");
-    System.out.println("******************************************************");
+    LOG.debug("******************************************************");
+    LOG.debug("*    Executing sample 'GetPresignedUrlToS3Object'    *");
+    LOG.debug("******************************************************");
 
     URL endpointUrl;
     try {
@@ -55,8 +59,8 @@ public class PresignedUrlSample {
 
     // build the presigned url to incorporate the authorization elements as query parameters
     String presignedUrl = endpointUrl + "?" + authorizationQueryParameters;
-    System.out.println("--------- Computed presigned url ---------");
-    System.out.println(presignedUrl);
-    System.out.println("------------------------------------------");
+    LOG.debug("--------- Computed presigned url ---------");
+    LOG.debug(presignedUrl);
+    LOG.debug("------------------------------------------");
   }
 }

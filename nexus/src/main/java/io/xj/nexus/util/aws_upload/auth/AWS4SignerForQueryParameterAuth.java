@@ -1,6 +1,9 @@
 package io.xj.nexus.util.aws_upload.auth;
 
 import io.xj.nexus.util.aws_upload.util.BinaryUtils;
+import io.xj.nexus.work.DubWorkImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.util.Date;
@@ -11,6 +14,7 @@ import java.util.Map;
  query string parameters.
  */
 public class AWS4SignerForQueryParameterAuth extends AWS4SignerBase {
+  private static final Logger LOG = LoggerFactory.getLogger(AWS4SignerForQueryParameterAuth.class);
 
   public AWS4SignerForQueryParameterAuth(URL endpointUrl, String httpMethod,
                                          String serviceName, String regionName) {
@@ -79,15 +83,15 @@ public class AWS4SignerForQueryParameterAuth extends AWS4SignerBase {
     String canonicalRequest = getCanonicalRequest(endpointUrl, httpMethod,
       canonicalizedQueryParameters, canonicalizedHeaderNames,
       canonicalizedHeaders, bodyHash);
-    System.out.println("--------- Canonical request --------");
-    System.out.println(canonicalRequest);
-    System.out.println("------------------------------------");
+    LOG.debug("--------- Canonical request --------");
+    LOG.debug(canonicalRequest);
+    LOG.debug("------------------------------------");
 
     // construct the string to be signed
     String stringToSign = getStringToSign(dateTimeStamp, scope, canonicalRequest);
-    System.out.println("--------- String to sign -----------");
-    System.out.println(stringToSign);
-    System.out.println("------------------------------------");
+    LOG.debug("--------- String to sign -----------");
+    LOG.debug(stringToSign);
+    LOG.debug("------------------------------------");
 
     // compute the signing key
     byte[] kSecret = (SCHEME + awsSecretKey).getBytes();

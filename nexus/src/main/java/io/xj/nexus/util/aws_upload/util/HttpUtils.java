@@ -1,5 +1,9 @@
 package io.xj.nexus.util.aws_upload.util;
 
+import io.xj.nexus.work.DubWorkImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -15,6 +19,7 @@ import java.util.Map;
  Various Http helper routines
  */
 public class HttpUtils {
+  private static final Logger LOG = LoggerFactory.getLogger(HttpUtils.class);
 
   /**
    Makes a http request to the specified endpoint
@@ -74,9 +79,9 @@ public class HttpUtils {
       connection.setRequestMethod(httpMethod);
 
       if (headers!=null) {
-        System.out.println("--------- Request headers ---------");
+        LOG.debug("--------- Request headers ---------");
         for (String headerKey : headers.keySet()) {
-          System.out.println(headerKey + ": " + headers.get(headerKey));
+          LOG.debug(headerKey + ": " + headers.get(headerKey));
           connection.setRequestProperty(headerKey, headers.get(headerKey));
         }
       }
