@@ -12,7 +12,7 @@
 
 <BorderPane fx:id="mainBorderPane" styleClass="sequence-item-container" stylesheets="@../../../styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.SequenceItemBindMode">
    <center>
-      <HBox fx:id="memeHolder" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="28.0" prefWidth="231.0" spacing="5.0">
+      <HBox fx:id="memeHolder" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="28.0" prefWidth="231.0" spacing="5.0">
          <padding>
             <Insets left="5.0" top="5.0" />
          </padding>

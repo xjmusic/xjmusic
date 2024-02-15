@@ -57,26 +57,28 @@ public class SequenceItemBindMode {
   private ProgramSequenceBinding programSequenceBinding;
 
   private final ThemeService themeService;
-  private VBox container;
-
+  private VBox sequenceHolder;
+  private final ProgramEditorController programEditorController;
   public SequenceItemBindMode(ApplicationContext ac, ProjectService projectService, ProgramEditorController programEditorController,
                               ThemeService themeService) {
     this.ac = ac;
     this.projectService = projectService;
     this.themeService = themeService;
+    this.programEditorController=programEditorController;
   }
 
-  public void setUp(VBox container, Parent root, HBox bindViewParentContainer, int parentPosition,
+  public void setUp(VBox sequenceHolder, Parent root, HBox bindViewParentContainer, int parentPosition,
                     ProgramSequenceBinding programSequenceBinding, ProgramSequence programSequence) {
-    this.container = container;
+    this.sequenceHolder = sequenceHolder;
     this.parentPosition = parentPosition;
     this.programSequenceBinding = programSequenceBinding;
-    deleteSequence(container, root, bindViewParentContainer);
-    sequenceName.textProperty().bind(new SimpleObjectProperty<>(programSequence.getName()));
+    sequenceName.setText(programSequence.getName());
+    deleteSequence(sequenceHolder, root, bindViewParentContainer);
+    if (programEditorController.activeProgramSequenceItem.get().equals(programSequence)) sequenceName.textProperty().bind(programEditorController.sequencePropertyName);
     projectService.getContent().getMemesOfSequenceBinding(programSequenceBinding.getId()).forEach(this::addMeme);
     mainBorderPane.widthProperty().addListener((o, ov, nv) -> {
-      if (!(container.getWidth() >= nv.doubleValue())) {
-        container.setPrefWidth(nv.doubleValue());
+      if (!(sequenceHolder.getWidth() >= nv.doubleValue())) {
+        sequenceHolder.setPrefWidth(nv.doubleValue());
       }
     });
 
@@ -96,13 +98,13 @@ public class SequenceItemBindMode {
     });
   }
 
-  private void deleteSequence(VBox container, Parent root, HBox bindViewParentContainer) {
+  private void deleteSequence(VBox sequenceHolder, Parent root, HBox bindViewParentContainer) {
     deleteSequence.setOnAction(e -> {
       try {
         if (!hasMemes()) {
-          container.getChildren().remove(root);
+          sequenceHolder.getChildren().remove(root);
           projectService.deleteContent(programSequenceBinding);
-          checkIfNextAndCurrentItemIsEmpty(bindViewParentContainer, container);
+          checkIfNextAndCurrentItemIsEmpty(bindViewParentContainer, sequenceHolder);
         } else {
           showTimedAlert("Failure", "Found Meme on Sequence Binding", Duration.seconds(4), alertFxml, themeService,"#DB6A64");
         }
@@ -167,22 +169,23 @@ public class SequenceItemBindMode {
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       ProgramSequenceMemeTagController memeTagController = loader.getController();
-      memeTagController.setUp(root, sequenceBindingMeme, programSequenceBinding.getId(), memeHolder, container, mainBorderPane);
+      memeTagController.setUp(root, sequenceBindingMeme, programSequenceBinding.getId(), memeHolder, sequenceHolder, mainBorderPane);
       memeHolder.getChildren().add(root);
     } catch (IOException exception) {
       LOG.error("Error adding Meme!\n{}", StringUtils.formatStackTrace(exception), exception);
     }
   }
 
-  private void checkIfNextAndCurrentItemIsEmpty(HBox bindViewParentContainer, VBox container) {
-    if (container.getChildren().size() < 3) {
+  private void checkIfNextAndCurrentItemIsEmpty(HBox bindViewParentContainer, VBox sequenceHolder) {
+    if (sequenceHolder.getChildren().size() < 3) {
 
       //get last position
-      int lastPosition = bindViewParentContainer.getChildren().size() - 2;
+      int lastPosition = bindViewParentContainer.getChildren().size() - 1;
       //store current position
       int current = parentPosition;
+      LOG.info("SDFF "+current+" last position"+lastPosition);
       //if an empty item is ahead of the current empty item
-      if (parentPosition == lastPosition) {
+      if (parentPosition == lastPosition-1) {
         if (bindViewParentContainer.getChildren().size() > 3) {
           bindViewParentContainer.getChildren().remove(lastPosition);
         }

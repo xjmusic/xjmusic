@@ -283,6 +283,65 @@ public class ProgramEditorController extends ProjectController {
     tempoChooser.setValueFactory(tempoValueFactory);
     sequenceItemGroup.visibleProperty().bind(isEmptyBinding.not());
     noSequenceLabel.visibleProperty().bind(sequenceItemGroup.visibleProperty().not());
+    updateSequence();
+  }
+
+  private void updateSequence() {
+    sequenceName.focusedProperty().addListener((observable, oldValue, newValue) -> {
+      try {
+        if (!newValue) {
+          LOG.info("change "+sequenceName.getText());
+          sequencePropertyName.set(sequenceName.getText());
+          projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(),"name",
+            sequencePropertyName.get());
+        }
+      } catch (Exception e) {
+        LOG.info("Failed to update program sequence ");
+        e.printStackTrace();
+      }
+    });
+
+    sequenceTotalChooser.focusedProperty().addListener((observable, oldValue, newValue) -> {
+      try {
+        if (!newValue) {
+          LOG.info("change "+sequenceTotalValueFactory.getValue());
+          sequenceTotalValueFactory.setValue(sequenceTotalChooser.getValue());
+          projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(),"total",
+            sequenceTotalValueFactory.getValue());
+        }
+      } catch (Exception e) {
+        LOG.info("Failed to update program sequence ");
+        e.printStackTrace();
+      }
+    });
+
+    sequenceKey.focusedProperty().addListener((observable, oldValue, newValue) -> {
+      try {
+        if (!newValue) {
+          LOG.info("change "+sequenceTotalChooser.getValue());
+          sequencePropertyKey.set(sequenceKey.getText());
+          projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(),"key",
+            sequencePropertyKey.get());
+        }
+      } catch (Exception e) {
+        LOG.info("Failed to update program sequence ");
+        e.printStackTrace();
+      }
+    });
+
+    intensityChooser.focusedProperty().addListener((observable, oldValue, newValue) -> {
+      try {
+        if (!newValue) {
+          LOG.info("change "+intensityChooser.getValue());
+          intensityValueFactory.setValue(intensityChooser.getValue());
+          projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(),"intensity",
+            intensityValueFactory.getValue());
+        }
+      } catch (Exception e) {
+        LOG.info("Failed to update program sequence ");
+        e.printStackTrace();
+      }
+    });
   }
 
   private void setTextFieldValueToAlwaysCAPS(TextField textField) {
@@ -550,38 +609,47 @@ public class ProgramEditorController extends ProjectController {
   private void loadBindingView() {
     bindButton.getStyleClass().add("selected");
     Collection<ProgramSequenceBinding> programSequenceBindingCollection = projectService.getContent().getSequenceBindingsOfProgram(programId.get());
+//    ObservableList<ProgramSequenceBinding>
     List<ProgramSequenceBinding> sequenceBindingsOfProgram = new ArrayList<>(programSequenceBindingCollection);
     //clear first before adding to remove duplicates
     bindViewParentContainer.getChildren().remove(1, bindViewParentContainer.getChildren().size());
-    //make sure buttons to add are available if a ProgramSequence has no binding items
+    //if sequence bindings number is zero, add the two buttons that appear when empty
     if (sequenceBindingsOfProgram.size() == 0) {
       addBindingView(bindViewParentContainer.getChildren().size());
       addBindingView(bindViewParentContainer.getChildren().size());
-      return;
+    } else {
+      //find the highest offset and create the offset holders
+      for (int i = 1; i <= findHighestOffset(sequenceBindingsOfProgram) + 1; i++) {
+        addBindingView(i);
+      }
+      //populate the sequence binding items on the respective items
+      sequenceBindingsOfProgram.forEach(sequenceBindingOfProgram -> {
+        int offSet = sequenceBindingOfProgram.getOffset();
+        addSequenceItem(sequenceBindingOfProgram, ((VBox) bindViewParentContainer.getChildren().get(offSet + 1)), offSet + 1);
+      });
+    }
+  }
+
+  public int findHighestOffset(List<ProgramSequenceBinding> programSequenceBindingList) {
+    if (programSequenceBindingList == null || programSequenceBindingList.isEmpty()) {
+      return 0; // Return the minimum value if the list is empty or null
     }
 
-    // Sort the list based on the offset field
-    sequenceBindingsOfProgram.sort(Comparator.comparingInt(ProgramSequenceBinding::getOffset));
-    // Loop through the sorted list
-    for (ProgramSequenceBinding programSequenceBinding : sequenceBindingsOfProgram) {
-      if (bindViewParentContainer.getChildren().size() - 1 == programSequenceBinding.getOffset() + 1) {
-        addSequenceItem(programSequenceBinding,
-          ((VBox) bindViewParentContainer.getChildren().get(bindViewParentContainer.getChildren().size() - 1))
-          , programSequenceBinding.getOffset() + 1);
-      } else {
-        addBindingView(bindViewParentContainer.getChildren().size());
-        addSequenceItem(programSequenceBinding,
-          ((VBox) bindViewParentContainer.getChildren().get(bindViewParentContainer.getChildren().size() - 1))
-          , programSequenceBinding.getOffset() + 1);
+    int highestOffset = 0;
+
+    for (ProgramSequenceBinding obj : programSequenceBindingList) {
+      int offset = obj.getOffset();
+      if (offset > highestOffset) {
+        highestOffset = offset;
       }
     }
-    checkIfNextItemIsPresent((bindViewParentContainer.getChildren().size() - 1));
+    return highestOffset;
   }
 
   public void addSequenceItem(ProgramSequenceBinding programSequenceBinding, VBox sequenceHolder, int position) {
     try {
       Optional<ProgramSequence> programSequence = projectService.getContent().getProgramSequence(programSequenceBinding.getProgramSequenceId());
-      if (programSequence.isEmpty()){
+      if (programSequence.isEmpty()) {
         return;
       }
       createProgramSequenceBindingItem(programSequenceBinding, sequenceHolder, position, programSequence.get(), sequenceItemBindingFxml, ac, bindViewParentContainer, projectService);
