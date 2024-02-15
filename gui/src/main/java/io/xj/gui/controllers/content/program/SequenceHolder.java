@@ -56,17 +56,16 @@ public class SequenceHolder {
     this.themeService = themeService;
   }
 
-  public void setUp(HBox bindViewParentContainer, int position, UUID programId, UUID programSequenceId) {
+  public void setUp(HBox bindViewParentContainer, int position, UUID programId) {
     this.position = position;
     this.bindViewParentContainer = bindViewParentContainer;
     offSet.setText(String.valueOf(position - 1));
-    addSequenceButton.setOnAction(e -> showSequenceBindingUI(programId, programSequenceId));
+    addSequenceButton.setOnAction(e -> showSequenceBindingUI(programId));
     HBox.setHgrow(sequenceHolder, Priority.ALWAYS);
   }
 
-  protected void showSequenceBindingUI(UUID programId, UUID programSequenceId) {
+  protected void showSequenceBindingUI(UUID programId) {
     try {
-      var sequences = projectService.getContent().getSequencesOfProgram(programId);
       Stage stage = new Stage(StageStyle.TRANSPARENT);
       FXMLLoader loader = new FXMLLoader(createBindingFxml.getURL());
       loader.setControllerFactory(applicationContext::getBean);
@@ -75,7 +74,7 @@ public class SequenceHolder {
       GaussianBlur blur = new GaussianBlur();
       sequenceHolder.getScene().getRoot().setEffect(blur);
       CreateBindingItem createBindingItem = loader.getController();
-      createBindingItem.setUp(sequences, bindViewParentContainer, sequenceHolder, position, programId, programSequenceId);
+      createBindingItem.setUp(bindViewParentContainer, sequenceHolder, position, programId);
       stage.setOnShown(event -> createBindingItem.sequenceSearch.show());
       stage.setScene(new Scene(root));
       stage.initOwner(themeService.getMainScene().getWindow());
