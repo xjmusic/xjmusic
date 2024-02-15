@@ -9,11 +9,11 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.ProjectUtils;
+import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.audio.AudioInMemory;
 import io.xj.nexus.audio.AudioLoader;
 import io.xj.nexus.project.ProjectPathUtils;
-import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.FloatProperty;
 import javafx.beans.property.IntegerProperty;
@@ -181,14 +181,49 @@ public class InstrumentAudioEditorController extends BrowserController {
     fieldLoopBeats.textProperty().bindBidirectional(loopBeats, new NumberStringConverter());
     labelAudioFileName.textProperty().bind(Bindings.createStringBinding(() -> audioInMemory.isNotNull().get() ? ProjectPathUtils.getFilename(audioInMemory.get().pathToAudioFile()):"", audioInMemory));
 
-    fieldName.focusedProperty().addListener(this::onUnfocusedDoSave);
-    fieldEvent.focusedProperty().addListener(this::onUnfocusedDoSave);
-    fieldVolume.focusedProperty().addListener(this::onUnfocusedDoSave);
-    fieldTones.focusedProperty().addListener(this::onUnfocusedDoSave);
-    fieldIntensity.focusedProperty().addListener(this::onUnfocusedDoSave);
-    fieldTempo.focusedProperty().addListener(this::onUnfocusedDoSaveAndRenderWaveform);
-    fieldLoopBeats.focusedProperty().addListener(this::onUnfocusedDoSaveAndRenderWaveform);
-    fieldTransientSeconds.focusedProperty().addListener(this::onUnfocusedDoSaveAndRenderWaveform);
+    fieldName.focusedProperty().addListener((o, ov, v) -> {
+      if (!v) {
+        update("name", name.get());
+      }
+    });
+    fieldEvent.focusedProperty().addListener((o, ov, v) -> {
+      if (!v) {
+        update("event", event.get());
+      }
+    });
+    fieldVolume.focusedProperty().addListener((o, ov, v) -> {
+      if (!v) {
+        update("volume", volume.get());
+      }
+    });
+    fieldTones.focusedProperty().addListener((o, ov, v) -> {
+      if (!v) {
+        update("tones", tones.get());
+      }
+    });
+    fieldIntensity.focusedProperty().addListener((o, ov, v) -> {
+      if (!v) {
+        update("intensity", intensity.get());
+      }
+    });
+    fieldTempo.focusedProperty().addListener((o, ov, v) -> {
+      if (!v) {
+        update("tempo", tempo.get());
+        renderWaveform();
+      }
+    });
+    fieldLoopBeats.focusedProperty().addListener((o, ov, v) -> {
+      if (!v) {
+        update("loopBeats", loopBeats.get());
+        renderWaveform();
+      }
+    });
+    fieldTransientSeconds.focusedProperty().addListener((o, ov, v) -> {
+      if (!v) {
+        update("transientSeconds", transientSeconds.get());
+        renderWaveform();
+      }
+    });
 
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.InstrumentAudioEditor))
@@ -249,54 +284,10 @@ public class InstrumentAudioEditorController extends BrowserController {
     // Check for double-click
     if (event.getClickCount()==2) {
       transientSeconds.set((float) (scale * x * samplesPerPixel.get() / audioInMemory.get().format().getSampleRate()));
-      save();
+      update("transientSeconds", transientSeconds.get());
       renderWaveform();
     }
     event.consume();
-  }
-
-  /**
-   When a field is unfocused, save and re-render waveform
-
-   @param ignored1 observable
-   @param ignored2 old value
-   @param focused  false if unfocused
-   */
-  private void onUnfocusedDoSaveAndRenderWaveform(Observable ignored1, Boolean ignored2, Boolean focused) {
-    if (!focused) {
-      save();
-      renderWaveform();
-    }
-  }
-
-  /**
-   When a field is unfocused, save
-
-   @param ignored1 observable
-   @param ignored2 old value
-   @param focused  false if unfocused
-   */
-  private void onUnfocusedDoSave(Observable ignored1, Boolean ignored2, Boolean focused) {
-    if (!focused) {
-      save();
-    }
-  }
-
-  /**
-   Save the instrument audio record
-   */
-  private void save() {
-    var instrumentAudio = projectService.getContent().getInstrumentAudio(instrumentAudioId.get())
-      .orElseThrow(() -> new RuntimeException("Could not find InstrumentAudio"));
-    instrumentAudio.setName(name.get());
-    instrumentAudio.setEvent(event.get());
-    instrumentAudio.setVolume(volume.get());
-    instrumentAudio.setTones(tones.get());
-    instrumentAudio.setTempo(tempo.get());
-    instrumentAudio.setIntensity(intensity.get());
-    instrumentAudio.setTransientSeconds(transientSeconds.get());
-    instrumentAudio.setLoopBeats(loopBeats.get());
-    projectService.updateInstrumentAudio(instrumentAudio);
   }
 
   /**
@@ -319,6 +310,22 @@ public class InstrumentAudioEditorController extends BrowserController {
     loopBeats.set(instrumentAudio.getLoopBeats());
     zoomRatio.set(1.0f);
     renderWaveform();
+  }
+
+  /**
+   Update an attribute of the current instrumentAudio record with the given value
+
+   @param attribute of instrumentAudio
+   @param value     to set
+   */
+  private void update(String attribute, Object value) {
+    if (Objects.nonNull(instrumentAudioId.get())) {
+      try {
+        projectService.update(InstrumentAudio.class, instrumentAudioId.get(), attribute, value);
+      } catch (Exception e) {
+        LOG.error("Could not update InstrumentAudio " + attribute, e);
+      }
+    }
   }
 
   /**

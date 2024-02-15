@@ -1,6 +1,9 @@
 package io.xj.nexus.project;
 
 import io.xj.hub.HubTopology;
+import io.xj.hub.InstrumentConfig;
+import io.xj.hub.ProgramConfig;
+import io.xj.hub.TemplateConfig;
 import io.xj.hub.entity.EntityFactory;
 import io.xj.hub.entity.EntityFactoryImpl;
 import io.xj.hub.json.JsonProvider;
@@ -28,12 +31,14 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectManagerImplTest {
   private final String pathToProjectFile;
+  private final String pathToAudioFile;
   private final String baseDir;
   private ProjectManager subject;
 
@@ -43,6 +48,7 @@ class ProjectManagerImplTest {
   public ProjectManagerImplTest() throws URISyntaxException {
     baseDir = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("project")).toURI()).getAbsolutePath();
     pathToProjectFile = baseDir + File.separator + "test-project.xj";
+    pathToAudioFile = baseDir + File.separator + "test-audio.wav";
   }
 
   @BeforeEach
@@ -111,8 +117,10 @@ class ProjectManagerImplTest {
 
     var result = subject.createTemplate("Test Template");
 
-    assertEquals("Test Template", subject.getContent().getTemplate(result.getId()).orElseThrow().getName());
-  }
+        assertEquals("Test Template", subject.getContent().getTemplate(result.getId()).orElseThrow().getName());
+        var config = new TemplateConfig(result.getConfig());
+        assertNotNull(config);
+    }
 
   @Test
   void createLibrary() throws Exception {
@@ -130,8 +138,30 @@ class ProjectManagerImplTest {
 
     var result = subject.createProgram(library, "Test Program");
 
-    assertEquals("Test Program", subject.getContent().getProgram(result.getId()).orElseThrow().getName());
-  }
+        assertEquals("Test Program", subject.getContent().getProgram(result.getId()).orElseThrow().getName());
+        var config = new ProgramConfig(result.getConfig());
+        assertNotNull(config);
+        assertNotNull(result.getType());
+        assertNotNull(result.getState());
+        assertNotNull(result.getKey());
+        assertNotNull(result.getTempo());
+        assertNotNull(result.getIntensity());
+    }
+
+    @Test
+    void createProgram_setsDefaultsFromExistingProgramInLibrary() throws Exception {
+        assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
+        var library = subject.getContent().getLibraries().stream().findFirst().orElseThrow();
+        var program = subject.getContent().getProgramsOfLibrary(library.getId()).stream().findFirst().orElseThrow();
+
+        var result = subject.createProgram(library, "Test Program");
+
+        assertEquals(program.getType(), result.getType());
+        assertEquals(program.getState(), result.getState());
+        assertEquals(program.getKey(), result.getKey());
+        assertEquals(program.getTempo(), result.getTempo());
+        assertEquals(program.getIntensity(), result.getIntensity());
+    }
 
   @Test
   void createInstrument() throws Exception {
@@ -140,8 +170,54 @@ class ProjectManagerImplTest {
 
     var result = subject.createInstrument(library, "Test Instrument");
 
-    assertEquals("Test Instrument", subject.getContent().getInstrument(result.getId()).orElseThrow().getName());
-  }
+        assertEquals("Test Instrument", subject.getContent().getInstrument(result.getId()).orElseThrow().getName());
+        var config = new InstrumentConfig(result.getConfig());
+        assertNotNull(config);
+        assertNotNull(result.getType());
+        assertNotNull(result.getState());
+        assertNotNull(result.getMode());
+        assertNotNull(result.getVolume());
+        assertNotNull(result.getIntensity());
+    }
+
+    @Test
+    void createInstrument_setsDefaultsFromExistingProgramInLibrary() throws Exception {
+        assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
+        var library = subject.getContent().getLibraries().stream().findFirst().orElseThrow();
+        var instrument = subject.getContent().getInstrumentsOfLibrary(library.getId()).stream().findFirst().orElseThrow();
+
+        var result = subject.createInstrument(library, "Test Instrument");
+
+        assertEquals(instrument.getType(), result.getType());
+        assertEquals(instrument.getState(), result.getState());
+        assertEquals(instrument.getMode(), result.getMode());
+        assertEquals(instrument.getVolume(), result.getVolume());
+        assertEquals(instrument.getIntensity(), result.getIntensity());
+    }
+
+    @Test
+    void createInstrumentAudio() throws Exception {
+        assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
+        var instrument = subject.getContent().getInstruments().stream().findFirst().orElseThrow();
+
+        var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
+
+        assertEquals("test-audio", subject.getContent().getInstrumentAudio(result.getId()).orElseThrow().getName());
+        assertEquals("testing-leaves-Pad-test-audio-F-A-C.wav", subject.getContent().getInstrumentAudio(result.getId()).orElseThrow().getWaveformKey());
+    }
+
+    @Test
+    void createInstrumentAudio_setsDefaultsFromExistingProgramInLibrary() throws Exception {
+        assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
+        var instrument = subject.getContent().getInstruments().stream().findFirst().orElseThrow();
+        var audio = subject.getContent().getAudiosOfInstrument(instrument.getId()).stream().findFirst().orElseThrow();
+
+        var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
+
+        assertEquals("test-audio", result.getName());
+        assertEquals(audio.getIntensity(), result.getIntensity());
+        assertEquals(audio.getTempo(), result.getTempo());
+    }
 
   @Test
   void moveProgram() throws Exception {
