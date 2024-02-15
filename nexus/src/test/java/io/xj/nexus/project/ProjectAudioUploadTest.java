@@ -65,7 +65,7 @@ class ProjectAudioUploadTest {
   void setAuthorization_cannotBeNull() {
     var e = assertThrows(NullPointerException.class, () -> subject.setAuth(null));
 
-    assertEquals("authorization", e.getMessage());
+    assertEquals("Authorization cannot be null", e.getMessage());
   }
 
   @Test
@@ -78,7 +78,7 @@ class ProjectAudioUploadTest {
     assertTrue(subject.hasErrors());
     assertTrue(subject.getErrors().contains("This is a test error"));
     assertTrue(subject.getErrors().contains("This is another test error"));
-    assertEquals("Failed to upload audio from " + pathToAudioFile + " to Instrument[" + testInstrumentAudioId + "] because This is a test error and This is another test error", subject.toString());
+    assertEquals("Failed to upload audio from " + pathToAudioFile + " to Instrument[" + testInstrumentAudioId + "] with errors This is a test error and This is another test error", subject.toString());
   }
 
   @Test
@@ -86,12 +86,12 @@ class ProjectAudioUploadTest {
     HubUploadAuthorization authorization = new HubUploadAuthorization();
     authorization.setWaveformKey("test-waveform-key");
     subject.setAuth(authorization);
+    subject.setSuccess(true);
 
-    assertEquals("Uploaded audio OK from " + pathToAudioFile + " to Instrument[" + testInstrumentAudioId + "] with final waveform key test-waveform-key", subject.toString());
+    assertEquals("Uploaded audio OK from " + pathToAudioFile + " to Instrument[" + testInstrumentAudioId + "], final waveform key test-waveform-key", subject.toString());
   }
 
   @Test
-<<<<<<< HEAD
   void wasSuccessful() {
     assertFalse(subject.wasSuccessful());
 
@@ -112,10 +112,8 @@ class ProjectAudioUploadTest {
     var e = assertThrows(NullPointerException.class, subject::getId);
 
     assertEquals("Cannot get ID before it is set", e.getMessage());
-=======
-  void getExtension() {
+
     assertEquals("wav", subject.getExtension());
->>>>>>> d9f5f915e (Latest updates to project sync)
   }
 
 }
