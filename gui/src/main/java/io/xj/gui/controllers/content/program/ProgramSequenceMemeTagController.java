@@ -13,6 +13,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.scene.layout.BorderPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -41,16 +42,16 @@ public class ProgramSequenceMemeTagController {
   private ProgramSequenceBindingMeme currentMeme;
   private UUID sequenceBindingId;
   private VBox sequenceHolder;
-  private AnchorPane parentAnchorPane;
+  private BorderPane mainBorderPane;
   private HBox memeHolder;
 
   public ProgramSequenceMemeTagController(ProjectService projectService) {
     this.projectService = projectService;
   }
 
-  public void setUp(Parent root, ProgramSequenceBindingMeme meme, UUID sequenceBindingId, HBox memeHolder, VBox sequenceHolder, AnchorPane parentAnchorPane) {
+  public void setUp(Parent root, ProgramSequenceBindingMeme meme, UUID sequenceBindingId, HBox memeHolder, VBox sequenceHolder, BorderPane mainBorderPane) {
     this.sequenceHolder = sequenceHolder;
-    this.parentAnchorPane = parentAnchorPane;
+    this.mainBorderPane = mainBorderPane;
     this.currentMeme = meme;
     this.sequenceBindingId = sequenceBindingId;
     this.memeHolder=memeHolder;
@@ -65,6 +66,11 @@ public class ProgramSequenceMemeTagController {
     toggleVisibility();
     setMemeTextProcessing();
     deleteMemeButton.setOnAction(e -> deleteMemeTag(root, memeHolder));
+    mainBorderPane.widthProperty().addListener((o, ov, nv) -> {
+      if (!(sequenceHolder.getWidth() >= nv.doubleValue())) {
+        sequenceHolder.setPrefWidth(nv.doubleValue());
+      }
+    });
   }
 
   private void updateMeme() {
@@ -121,9 +127,9 @@ public class ProgramSequenceMemeTagController {
   private boolean isLastItemWithChildren() {
     AtomicBoolean isLastItemWithChildren = new AtomicBoolean(true);
     sequenceHolder.getChildren().forEach(node -> {
-      if (node instanceof AnchorPane && node != parentAnchorPane) {
-        ((AnchorPane) node).getChildren().forEach(anchorPaneChild -> {
-          if (anchorPaneChild instanceof HBox && ((HBox) anchorPaneChild).getChildren().size() > 0) {
+      if (node instanceof BorderPane && node != mainBorderPane) {
+        ((BorderPane) node).getChildren().forEach(anchorPaneChild -> {
+          if (anchorPaneChild instanceof HBox && ((HBox) anchorPaneChild).getChildren().size() > 1) {
             isLastItemWithChildren.set(false);
           }
         });
@@ -135,8 +141,8 @@ public class ProgramSequenceMemeTagController {
   private boolean isWithMoreChildren() {
     AtomicBoolean isWithMoreChildren = new AtomicBoolean(true);
     sequenceHolder.getChildren().forEach(node -> {
-      if (node instanceof AnchorPane && node != parentAnchorPane) {
-        ((AnchorPane) node).getChildren().forEach(anchorPaneChild -> {
+      if (node instanceof BorderPane && node != mainBorderPane) {
+        ((BorderPane) node).getChildren().forEach(anchorPaneChild -> {
           if (anchorPaneChild instanceof HBox && ((HBox) anchorPaneChild).getChildren().size() > memeHolder.getChildren().size()) {
             isWithMoreChildren.set(false);
           }
