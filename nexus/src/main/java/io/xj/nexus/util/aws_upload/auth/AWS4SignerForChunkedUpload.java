@@ -1,6 +1,6 @@
-package io.xj.nexus.util.aws.auth;
+package io.xj.nexus.util.aws_upload.auth;
 
-import io.xj.nexus.util.aws.util.BinaryUtils;
+import io.xj.nexus.util.aws_upload.util.BinaryUtils;
 
 import java.net.URL;
 import java.nio.charset.StandardCharsets;

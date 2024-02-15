@@ -1,8 +1,8 @@
-package io.xj.nexus.util.aws;
+package io.xj.nexus.util.aws_upload;
 
-import io.xj.nexus.util.aws.auth.AWS4SignerBase;
-import io.xj.nexus.util.aws.auth.AWS4SignerForAuthorizationHeader;
-import io.xj.nexus.util.aws.util.HttpUtils;
+import io.xj.nexus.util.aws_upload.auth.AWS4SignerBase;
+import io.xj.nexus.util.aws_upload.auth.AWS4SignerForAuthorizationHeader;
+import io.xj.nexus.util.aws_upload.util.HttpUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;

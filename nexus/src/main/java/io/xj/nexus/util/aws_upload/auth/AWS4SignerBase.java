@@ -1,7 +1,7 @@
-package io.xj.nexus.util.aws.auth;
+package io.xj.nexus.util.aws_upload.auth;
 
-import io.xj.nexus.util.aws.util.BinaryUtils;
-import io.xj.nexus.util.aws.util.HttpUtils;
+import io.xj.nexus.util.aws_upload.util.BinaryUtils;
+import io.xj.nexus.util.aws_upload.util.HttpUtils;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

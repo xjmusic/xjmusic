@@ -16,9 +16,9 @@ public class ProjectAudioUpload {
   private final UUID instrumentAudioId;
   private final String pathOnDisk;
 
-  private final long expectedSize;
+  private final long contentLength;
   private @Nullable String id;
-  private @Nullable HubUploadAuthorization authorization;
+  private @Nullable HubUploadAuthorization auth;
   private final Collection<String> errors;
   private boolean success = false;
 
@@ -26,7 +26,7 @@ public class ProjectAudioUpload {
     errors = new HashSet<>();
     this.instrumentAudioId = instrumentAudioId;
     this.pathOnDisk = pathOnDisk;
-    expectedSize = Files.size(Path.of(pathOnDisk));
+    contentLength = Files.size(Path.of(pathOnDisk));
   }
 
   public UUID getInstrumentAudioId() {
@@ -42,19 +42,9 @@ public class ProjectAudioUpload {
     return id;
   }
 
-  public String getWaveformKey() {
-    Objects.requireNonNull(authorization, "Cannot get Waveform Key before Authorization is set");
-    return authorization.getWaveformKey();
-  }
-
-  public String getBucketName() {
-    Objects.requireNonNull(authorization, "Cannot get Bucket Name before Authorization is set");
-    return authorization.getBucketName();
-  }
-
-  public String getBucketRegion() {
-    Objects.requireNonNull(authorization, "Cannot get Bucket Region before Authorization is set");
-    return authorization.getBucketRegion();
+  public HubUploadAuthorization getAuth() {
+    Objects.requireNonNull(auth, "Cannot get Authorization before it is set");
+    return auth;
   }
 
   public Collection<String> getErrors() {
@@ -70,17 +60,17 @@ public class ProjectAudioUpload {
     this.success = success;
   }
 
-  public void setAuthorization(HubUploadAuthorization authorization) {
-    Objects.requireNonNull(authorization, "Authorization cannot be null");
-    this.authorization = authorization;
+  public void setAuth(HubUploadAuthorization auth) {
+    Objects.requireNonNull(auth, "Authorization cannot be null");
+    this.auth = auth;
   }
 
   public boolean wasSuccessful() {
     return success;
   }
 
-  public long getExpectedSize() {
-    return expectedSize;
+  public long getContentLength() {
+    return contentLength;
   }
 
   public void addError(String error) {
@@ -92,8 +82,8 @@ public class ProjectAudioUpload {
   }
 
   public String toString() {
-    return wasSuccessful() && Objects.nonNull(authorization) ?
-      String.format("Uploaded audio OK from %s to Instrument[%s], final waveform key %s", pathOnDisk, instrumentAudioId, authorization.getWaveformKey()):
+    return wasSuccessful() && Objects.nonNull(auth) ?
+      String.format("Uploaded audio OK from %s to Instrument[%s], final waveform key %s", pathOnDisk, instrumentAudioId, auth.getWaveformKey()):
       String.format("Failed to upload audio from %s to Instrument[%s]", pathOnDisk, instrumentAudioId) +
         (hasErrors() ? String.format("with %s %s", errors.size() > 1 ? "errors":"error", StringUtils.toProperCsvAnd(errors.stream().sorted().toList())):"");
   }

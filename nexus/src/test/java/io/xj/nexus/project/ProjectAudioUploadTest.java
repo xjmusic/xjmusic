@@ -31,8 +31,8 @@ class ProjectAudioUploadTest {
   }
 
   @Test
-  void getExpectedSize() {
-    assertEquals(139000, subject.getExpectedSize());
+  void getContentLength() {
+    assertEquals(139000, subject.getContentLength());
   }
 
   @Test
@@ -46,17 +46,24 @@ class ProjectAudioUploadTest {
   }
 
   @Test
-  void setAuthorization_getWaveformKey() {
+  void setAuth_getAuth() {
     HubUploadAuthorization authorization = new HubUploadAuthorization();
     authorization.setWaveformKey("test-waveform-key");
-    subject.setAuthorization(authorization);
+    subject.setAuth(authorization);
 
-    assertEquals("test-waveform-key", subject.getWaveformKey());
+    assertEquals("test-waveform-key", subject.getAuth().getWaveformKey());
+  }
+
+  @Test
+  void getAuth_failsBeforeSettingAuthorization() {
+    var e = assertThrows(NullPointerException.class, subject::getAuth);
+
+    assertEquals("Cannot get Authorization before it is set", e.getMessage());
   }
 
   @Test
   void setAuthorization_cannotBeNull() {
-    var e = assertThrows(NullPointerException.class, () -> subject.setAuthorization(null));
+    var e = assertThrows(NullPointerException.class, () -> subject.setAuth(null));
 
     assertEquals("authorization", e.getMessage());
   }
@@ -78,7 +85,7 @@ class ProjectAudioUploadTest {
   void testToString() {
     HubUploadAuthorization authorization = new HubUploadAuthorization();
     authorization.setWaveformKey("test-waveform-key");
-    subject.setAuthorization(authorization);
+    subject.setAuth(authorization);
 
     assertEquals("Uploaded audio OK from " + pathToAudioFile + " to Instrument[" + testInstrumentAudioId + "] with final waveform key test-waveform-key", subject.toString());
   }
@@ -90,38 +97,6 @@ class ProjectAudioUploadTest {
     subject.setSuccess(true);
 
     assertTrue(subject.wasSuccessful());
-  }
-
-  @Test
-  void getBucketName() {
-    HubUploadAuthorization authorization = new HubUploadAuthorization();
-    authorization.setBucketName("test-bucket-name");
-    subject.setAuthorization(authorization);
-
-    assertEquals("test-bucket-name", subject.getBucketName());
-  }
-
-  @Test
-  void getBucketName_failsBeforeSettingAuthorization() {
-    var e = assertThrows(NullPointerException.class, subject::getBucketName);
-
-    assertEquals("Cannot get Bucket Name before Authorization is set", e.getMessage());
-  }
-
-  @Test
-  void getBucketRegion() {
-    HubUploadAuthorization authorization = new HubUploadAuthorization();
-    authorization.setBucketRegion("test-bucket-region");
-    subject.setAuthorization(authorization);
-
-    assertEquals("test-bucket-region", subject.getBucketRegion());
-  }
-
-  @Test
-  void getBucketRegion_failsBeforeSettingAuthorization() {
-    var e = assertThrows(NullPointerException.class, subject::getBucketRegion);
-
-    assertEquals("Cannot get Bucket Region before Authorization is set", e.getMessage());
   }
 
   @Test

@@ -1,4 +1,4 @@
-package io.xj.nexus.util.aws.util;
+package io.xj.nexus.util.aws_upload.util;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;

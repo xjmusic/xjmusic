@@ -1,25 +1,25 @@
-package io.xj.nexus.util.aws.auth;
+package io.xj.nexus.util.aws_upload.auth;
 
-import io.xj.nexus.util.aws.util.BinaryUtils;
+import io.xj.nexus.util.aws_upload.util.BinaryUtils;
 
 import java.net.URL;
 import java.util.Date;
 import java.util.Map;
 
 /**
- Sample AWS4 signer demonstrating how to sign requests to Amazon S3 using an
- 'Authorization' header.
+ Sample AWS4 signer demonstrating how to sign requests to Amazon S3 using
+ query string parameters.
  */
-public class AWS4SignerForAuthorizationHeader extends AWS4SignerBase {
+public class AWS4SignerForQueryParameterAuth extends AWS4SignerBase {
 
-  public AWS4SignerForAuthorizationHeader(URL endpointUrl, String httpMethod,
-                                          String serviceName, String regionName) {
+  public AWS4SignerForQueryParameterAuth(URL endpointUrl, String httpMethod,
+                                         String serviceName, String regionName) {
     super(endpointUrl, httpMethod, serviceName, regionName);
   }
 
   /**
-   Computes an AWS4 signature for a request, ready for inclusion as an
-   'Authorization' header.
+   Computes an AWS4 authorization for a request, suitable for embedding in
+   query parameters.
 
    @param headers         The request headers; 'Host' and 'X-Amz-Date' will be added to
    this set.
@@ -40,29 +40,42 @@ public class AWS4SignerForAuthorizationHeader extends AWS4SignerBase {
                                  String awsAccessKey,
                                  String awsSecretKey) {
     // first get the date and time for the subsequent request, and convert
-    // to ISO 8601 format for use in signature generation
+    // to ISO 8601 format
+    // for use in signature generation
     Date now = new Date();
     String dateTimeStamp = dateTimeFormat.format(now);
 
-    // update the headers with required 'x-amz-date' and 'host' values
-    headers.put("x-amz-date", dateTimeStamp);
-
+    // make sure "Host" header is added
     String hostHeader = endpointUrl.getHost();
     int port = endpointUrl.getPort();
     if (port > -1) {
-      hostHeader = hostHeader.concat(":" + port);
+      hostHeader += ":" + port;
     }
     headers.put("Host", hostHeader);
 
-    // canonicalize the headers; we need the set of header names as well as the
-    // names and values to go into the signature process
+    // canonicalized headers need to be expressed in the query
+    // parameters processed in the signature
     String canonicalizedHeaderNames = getCanonicalizeHeaderNames(headers);
     String canonicalizedHeaders = getCanonicalizedHeaderString(headers);
 
-    // if any query string parameters have been supplied, canonicalize them
+    // we need scope as part of the query parameters
+    String dateStamp = dateStampFormat.format(now);
+    String scope = dateStamp + "/" + regionName + "/" + serviceName + "/" + TERMINATOR;
+
+    // add the fixed authorization params required by Signature V4
+    queryParameters.put("X-Amz-Algorithm", SCHEME + "-" + ALGORITHM);
+    queryParameters.put("X-Amz-Credential", awsAccessKey + "/" + scope);
+
+    // x-amz-date is now added as a query parameter, but still need to be in ISO8601 basic form
+    queryParameters.put("X-Amz-Date", dateTimeStamp);
+
+    queryParameters.put("X-Amz-SignedHeaders", canonicalizedHeaderNames);
+
+    // build the expanded canonical query parameter string that will go into the
+    // signature computation
     String canonicalizedQueryParameters = getCanonicalizedQueryString(queryParameters);
 
-    // canonicalize the various components of the request
+    // express all the header and query parameter data as a canonical request string
     String canonicalRequest = getCanonicalRequest(endpointUrl, httpMethod,
       canonicalizedQueryParameters, canonicalizedHeaderNames,
       canonicalizedHeaders, bodyHash);
@@ -71,8 +84,6 @@ public class AWS4SignerForAuthorizationHeader extends AWS4SignerBase {
     System.out.println("------------------------------------");
 
     // construct the string to be signed
-    String dateStamp = dateStampFormat.format(now);
-    String scope = dateStamp + "/" + regionName + "/" + serviceName + "/" + TERMINATOR;
     String stringToSign = getStringToSign(dateTimeStamp, scope, canonicalRequest);
     System.out.println("--------- String to sign -----------");
     System.out.println(stringToSign);
@@ -86,16 +97,12 @@ public class AWS4SignerForAuthorizationHeader extends AWS4SignerBase {
     byte[] kSigning = sign(TERMINATOR, kService);
     byte[] signature = sign(stringToSign, kSigning);
 
-    String credentialsAuthorizationHeader =
-      "Credential=" + awsAccessKey + "/" + scope;
-    String signedHeadersAuthorizationHeader =
-      "SignedHeaders=" + canonicalizedHeaderNames;
-    String signatureAuthorizationHeader =
-      "Signature=" + BinaryUtils.toHex(signature);
-
-      return SCHEME + "-" + ALGORITHM + " "
-      + credentialsAuthorizationHeader + ", "
-      + signedHeadersAuthorizationHeader + ", "
-      + signatureAuthorizationHeader;
+    // form up the authorization parameters for the caller to place in the query string
+    return "X-Amz-Algorithm=" + queryParameters.get("X-Amz-Algorithm") +
+      "&X-Amz-Credential=" + queryParameters.get("X-Amz-Credential") +
+      "&X-Amz-Date=" + queryParameters.get("X-Amz-Date") +
+      "&X-Amz-Expires=" + queryParameters.get("X-Amz-Expires") +
+      "&X-Amz-SignedHeaders=" + queryParameters.get("X-Amz-SignedHeaders") +
+      "&X-Amz-Signature=" + BinaryUtils.toHex(signature);
   }
 }
