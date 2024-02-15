@@ -609,7 +609,6 @@ public class ProgramEditorController extends ProjectController {
   private void loadBindingView() {
     bindButton.getStyleClass().add("selected");
     Collection<ProgramSequenceBinding> programSequenceBindingCollection = projectService.getContent().getSequenceBindingsOfProgram(programId.get());
-//    ObservableList<ProgramSequenceBinding>
     List<ProgramSequenceBinding> sequenceBindingsOfProgram = new ArrayList<>(programSequenceBindingCollection);
     //clear first before adding to remove duplicates
     bindViewParentContainer.getChildren().remove(1, bindViewParentContainer.getChildren().size());
