@@ -33,8 +33,6 @@ import io.xj.nexus.http.HttpClientProvider;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.hub_client.HubClientException;
 import io.xj.nexus.hub_client.HubClientFactory;
-import io.xj.nexus.util.aws_upload.auth.AWS4SignerForChunkedUpload;
-import io.xj.nexus.util.aws_upload.util.HttpUtils;
 import jakarta.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -42,18 +40,18 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -90,6 +88,7 @@ public class ProjectManagerImpl implements ProjectManager {
   private static final float DEFAULT_TEMPO = 120f;
   private static final float DEFAULT_LOOP_BEATS = 4.0f;
   private static final float DEFAULT_VOLUME = 1.0f;
+  private static final String CONTENT_TYPE_MULTIPART_FORM_DATA = "multipart/form-data";
   private final AtomicReference<ProjectState> state = new AtomicReference<>(ProjectState.Standby);
   private final AtomicReference<Project> project = new AtomicReference<>();
   private final AtomicReference<String> projectPathPrefix = new AtomicReference<>(File.separator);
@@ -111,16 +110,16 @@ public class ProjectManagerImpl implements ProjectManager {
   private Consumer<ProjectState> onStateChange;
 
   /**
-   Private constructor
+   * Private constructor
    */
   public ProjectManagerImpl(
-    JsonProvider jsonProvider,
-    EntityFactory entityFactory,
-    HttpClientProvider httpClientProvider,
-    HubClientFactory hubClientFactory,
-    int downloadAudioRetries,
-    int uploadAudioRetries,
-    int uploadAudioChunkSize
+      JsonProvider jsonProvider,
+      EntityFactory entityFactory,
+      HttpClientProvider httpClientProvider,
+      HubClientFactory hubClientFactory,
+      int downloadAudioRetries,
+      int uploadAudioRetries,
+      int uploadAudioChunkSize
   ) {
     this.httpClientProvider = httpClientProvider;
     this.jsonProvider = jsonProvider;
@@ -261,7 +260,7 @@ public class ProjectManagerImpl implements ProjectManager {
       var instrumentPath = getPathPrefixToInstrumentAudio(instrument.getId());
       foldersInProject.add(instrumentPath);
       content.get().getAudiosOfInstrument(instrument.getId()).forEach(audio ->
-        filesInProject.add(String.format("%s%s", instrumentPath, audio.getWaveformKey())));
+          filesInProject.add(String.format("%s%s", instrumentPath, audio.getWaveformKey())));
     });
     LOG.info("Found {} instrument folders on disk containing a total of {} audio files.", foldersOnDisk.size(), filesOnDisk.size());
     LOG.info("The project has {} instruments containing a total of {} audios.", foldersInProject.size(), filesInProject.size());
@@ -321,9 +320,9 @@ public class ProjectManagerImpl implements ProjectManager {
 
       for (Instrument instrument : instruments) {
         for (InstrumentAudio audio : audios.stream()
-          .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
-          .sorted(Comparator.comparing(InstrumentAudio::getName))
-          .toList()) {
+            .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
+            .sorted(Comparator.comparing(InstrumentAudio::getName))
+            .toList()) {
           if (!Objects.equals(state.get(), ProjectState.PushingAudio)) {
             // Workstation canceling pushing should cease uploading audio files https://www.pivotaltracker.com/story/show/186209135
             return pushResults;
@@ -332,8 +331,8 @@ public class ProjectManagerImpl implements ProjectManager {
             LOG.debug("Will upload audio for instrument \"{}\" with waveform key \"{}\"", instrument.getName(), audio.getWaveformKey());
             // Fetch via HTTP if original does not exist
             var pathOnDisk = getPathToInstrumentAudio(
-              instrument.getId(),
-              audio.getWaveformKey()
+                instrument.getId(),
+                audio.getWaveformKey()
             );
 
             var remoteUrl = String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey());
@@ -341,10 +340,10 @@ public class ProjectManagerImpl implements ProjectManager {
             var upload = new ProjectAudioUpload(audio.getId(), pathOnDisk);
             boolean shouldUpload = false;
 
-            if (remoteFileSize==FILE_SIZE_NOT_FOUND) {
+            if (remoteFileSize == FILE_SIZE_NOT_FOUND) {
               LOG.info("File {} not found remotely - Will upload {} bytes", remoteUrl, upload.getContentLength());
               shouldUpload = true;
-            } else if (upload.getContentLength()!=remoteFileSize) {
+            } else if (upload.getContentLength() != remoteFileSize) {
               LOG.info("File size of {} does not match remote {} - Will upload {} bytes from {}", pathOnDisk, remoteFileSize, remoteFileSize, remoteUrl);
               shouldUpload = true;
             }
@@ -468,7 +467,7 @@ public class ProjectManagerImpl implements ProjectManager {
   @Override
   public Program createProgram(Library library, String name) throws Exception {
     var existingProgramOfLibrary = content.get().getProgramsOfLibrary(library.getId()).stream().findFirst();
-    var existingProgram = existingProgramOfLibrary.isPresent() ? existingProgramOfLibrary:content.get().getPrograms().stream().findFirst();
+    var existingProgram = existingProgramOfLibrary.isPresent() ? existingProgramOfLibrary : content.get().getPrograms().stream().findFirst();
 
     var program = new Program();
     program.setId(UUID.randomUUID());
@@ -488,7 +487,7 @@ public class ProjectManagerImpl implements ProjectManager {
   @Override
   public Instrument createInstrument(Library library, String name) throws Exception {
     var existingInstrumentOfLibrary = content.get().getInstrumentsOfLibrary(library.getId()).stream().findFirst();
-    var existingInstrument = existingInstrumentOfLibrary.isPresent() ? existingInstrumentOfLibrary:content.get().getInstruments().stream().findFirst();
+    var existingInstrument = existingInstrumentOfLibrary.isPresent() ? existingInstrumentOfLibrary : content.get().getInstruments().stream().findFirst();
 
     var instrument = new Instrument();
     instrument.setId(UUID.randomUUID());
@@ -513,7 +512,7 @@ public class ProjectManagerImpl implements ProjectManager {
     var project = content.get().getProject();
     if (Objects.isNull(project)) throw new NexusException("Project not found");
     var existingAudioOfInstrument = content.get().getAudiosOfInstrument(instrument.getId()).stream().findFirst();
-    var existingAudio = existingAudioOfInstrument.isPresent() ? existingAudioOfInstrument:content.get().getInstrumentAudios().stream().findFirst();
+    var existingAudio = existingAudioOfInstrument.isPresent() ? existingAudioOfInstrument : content.get().getInstrumentAudios().stream().findFirst();
 
     // extract the file name and extension
     Matcher matcher = ProjectPathUtils.matchPrefixNameExtension(audioFilePath);
@@ -561,7 +560,7 @@ public class ProjectManagerImpl implements ProjectManager {
   @Override
   public void updateInstrumentAudioAndCopyWaveformFile(InstrumentAudio audio) throws Exception {
     var fromAudio = content.get().getInstrumentAudio(audio.getId())
-      .orElseThrow(() -> new RuntimeException("Could not find Instrument Audio"));
+        .orElseThrow(() -> new RuntimeException("Could not find Instrument Audio"));
     var fromInstrument = content.get().getInstrument(fromAudio.getInstrumentId()).orElseThrow(() -> new NexusException("Instrument not found"));
     var fromPath = getPathToInstrumentAudio(fromInstrument.getId(), fromAudio.getWaveformKey());
     var matcher = ProjectPathUtils.matchPrefixNameExtension(fromPath);
@@ -829,20 +828,20 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   Get the instrument path prefix
-
-   @return the instrument path prefix
+   * Get the instrument path prefix
+   *
+   * @return the instrument path prefix
    */
   private String getInstrumentPathPrefix() {
     return projectPathPrefix.get() + "instrument" + File.separator;
   }
 
   /**
-   Import an audio waveform file into the project from somewhere else on disk
-
-   @param audio         for which to import the waveform
-   @param audioFilePath path to the audio file on disk
-   @throws IOException if the audio file could not be imported
+   * Import an audio waveform file into the project from somewhere else on disk
+   *
+   * @param audio         for which to import the waveform
+   * @param audioFilePath path to the audio file on disk
+   * @throws IOException if the audio file could not be imported
    */
   private void importAudio(InstrumentAudio audio, String audioFilePath) throws IOException {
     var targetPath = getPathToInstrumentAudio(audio.getInstrumentId(), audio.getWaveformKey());
@@ -851,12 +850,12 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   Clone a project from a template
-
-   @param parentPathPrefix parent folder of the project folder
-   @param fetchContent     fetch content from the hub
-   @param projectName      name of the project folder
-   @return true if the project was cloned successfully
+   * Clone a project from a template
+   *
+   * @param parentPathPrefix parent folder of the project folder
+   * @param fetchContent     fetch content from the hub
+   * @param projectName      name of the project folder
+   * @return true if the project was cloned successfully
    */
   private boolean cloneProject(String parentPathPrefix, Callable<HubContent> fetchContent, String projectName) {
     try {
@@ -881,9 +880,9 @@ public class ProjectManagerImpl implements ProjectManager {
 
       for (Instrument instrument : instruments) {
         for (InstrumentAudio audio : audios.stream()
-          .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
-          .sorted(Comparator.comparing(InstrumentAudio::getName))
-          .toList()) {
+            .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
+            .sorted(Comparator.comparing(InstrumentAudio::getName))
+            .toList()) {
           if (!Objects.equals(state.get(), ProjectState.LoadingAudio)) {
             // Workstation canceling preloading should cease resampling audio files https://www.pivotaltracker.com/story/show/186209135
             return false;
@@ -892,13 +891,13 @@ public class ProjectManagerImpl implements ProjectManager {
             LOG.debug("Will preload audio for instrument \"{}\" with waveform key \"{}\"", instrument.getName(), audio.getWaveformKey());
             // Fetch via HTTP if original does not exist
             var originalCachePath = getPathToInstrumentAudio(
-              instrument.getId(),
-              audio.getWaveformKey()
+                instrument.getId(),
+                audio.getWaveformKey()
             );
 
             var remoteUrl = String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey());
             var remoteFileSize = getRemoteFileSize(httpClient, remoteUrl);
-            if (remoteFileSize==FILE_SIZE_NOT_FOUND) {
+            if (remoteFileSize == FILE_SIZE_NOT_FOUND) {
               LOG.error("File not found for instrument \"{}\" audio \"{}\" at {}", instrument.getName(), audio.getName(), remoteUrl);
               return false;
             }
@@ -908,7 +907,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
             if (localFileSize.isEmpty()) {
               shouldDownload = true;
-            } else if (localFileSize.get()!=remoteFileSize) {
+            } else if (localFileSize.get() != remoteFileSize) {
               LOG.info("File size of {} does not match remote {} - Will download {} bytes from {}", originalCachePath, remoteFileSize, remoteFileSize, remoteUrl);
               shouldDownload = true;
             }
@@ -950,11 +949,11 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   Create the project folder on disk
-
-   @param parentPathPrefix parent folder of the project folder
-   @param projectName      name of the project folder
-   @throws IOException if the project folder could not be created
+   * Create the project folder on disk
+   *
+   * @param parentPathPrefix parent folder of the project folder
+   * @param projectName      name of the project folder
+   * @throws IOException if the project folder could not be created
    */
   private void createProjectFolder(String parentPathPrefix, String projectName) throws IOException {
     projectPathPrefix.set(parentPathPrefix + projectName + File.separator);
@@ -968,9 +967,9 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   Save the project content to disk
-
-   @throws IOException if the project content could not be saved
+   * Save the project content to disk
+   *
+   * @throws IOException if the project content could not be saved
    */
   private void saveProjectContent() throws IOException {
     updateState(ProjectState.Saving);
@@ -983,9 +982,9 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   Get the file size on disk if it exists
-
-   @return optional true if this dub audio cache item exists (as audio waveform data) on disk
+   * Get the file size on disk if it exists
+   *
+   * @return optional true if this dub audio cache item exists (as audio waveform data) on disk
    */
   private Optional<Integer> getFileSizeIfExistsOnDisk(String absolutePath) {
     try {
@@ -996,9 +995,9 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   Update the state and send the updated state to the state callback
-
-   @param state new value
+   * Update the state and send the updated state to the state callback
+   *
+   * @param state new value
    */
   private void updateState(ProjectState state) {
     this.state.set(state);
@@ -1007,9 +1006,9 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   Update the progress and send the updated progress to the progress callback
-
-   @param progress new value
+   * Update the progress and send the updated progress to the progress callback
+   *
+   * @param progress new value
    */
   private void updateProgress(double progress) {
     if (Objects.nonNull(onProgress))
@@ -1017,12 +1016,12 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   Download a file from the given URL to the given output path, retrying some number of times
-
-   @param httpClient http client (don't close the client; only close the responses from it)
-   @param url        URL to download from
-   @param outputPath path to write to
-   @return true if the file was downloaded successfully
+   * Download a file from the given URL to the given output path, retrying some number of times
+   *
+   * @param httpClient http client (don't close the client; only close the responses from it)
+   * @param url        URL to download from
+   * @param outputPath path to write to
+   * @return true if the file was downloaded successfully
    */
   private boolean downloadRemoteFileWithRetry(CloseableHttpClient httpClient, String url, String outputPath, long expectedSize) {
     for (int attempt = 1; attempt <= downloadAudioRetries; attempt++) {
@@ -1031,7 +1030,7 @@ public class ProjectManagerImpl implements ProjectManager {
         Files.deleteIfExists(path);
         downloadRemoteFile(httpClient, url, outputPath);
         long downloadedSize = Files.size(path);
-        if (downloadedSize==expectedSize) {
+        if (downloadedSize == expectedSize) {
           return true;
         }
         LOG.info("File size does not match! Attempt " + attempt + " of " + downloadAudioRetries + " to download " + url + " to " + outputPath + " failed. Expected " + expectedSize + " bytes, but got " + downloadedSize + " bytes.");
@@ -1044,15 +1043,15 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   Download a file from the given URL to the given output path
-
-   @param httpClient http client (don't close the client; only close the responses from it)
-   @param url        url
-   @param outputPath output path
+   * Download a file from the given URL to the given output path
+   *
+   * @param httpClient http client (don't close the client; only close the responses from it)
+   * @param url        url
+   * @param outputPath output path
    */
   private void downloadRemoteFile(CloseableHttpClient httpClient, String url, String outputPath) throws IOException, NexusException {
     try (
-      CloseableHttpResponse response = httpClient.execute(new HttpGet(url))
+        CloseableHttpResponse response = httpClient.execute(new HttpGet(url))
     ) {
       if (Objects.isNull(response.getEntity().getContent()))
         throw new NexusException(String.format("Unable to write bytes to disk: %s", outputPath));
@@ -1065,13 +1064,13 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   Upload a file from the given URL to the given output path, retrying some number of times
-
-   @param hubAccess  control
-   @param hubBaseUrl base URL of lab
-   @param httpClient http client (don't close the client; only close the responses from it)
-   @param upload     project audio upload
-   @return name of the file was uploaded successfully
+   * Upload a file from the given URL to the given output path, retrying some number of times
+   *
+   * @param hubAccess  control
+   * @param hubBaseUrl base URL of lab
+   * @param httpClient http client (don't close the client; only close the responses from it)
+   * @param upload     project audio upload
+   * @return name of the file was uploaded successfully
    */
   private ProjectAudioUpload uploadInstrumentAudioFileWithRetry(HubClientAccess hubAccess, String hubBaseUrl, CloseableHttpClient httpClient, ProjectAudioUpload upload) {
     for (int attempt = 1; attempt <= uploadAudioRetries; attempt++) {
@@ -1080,10 +1079,10 @@ public class ProjectManagerImpl implements ProjectManager {
         if (!upload.wasSuccessful()) continue;
         var remoteUrl = audioBaseUrl.get() + upload.getAuth().getWaveformKey();
         long uploadedSize = getRemoteFileSize(httpClient, remoteUrl);
-        if (uploadedSize==upload.getContentLength()) {
+        if (uploadedSize == upload.getContentLength()) {
           return upload;
         }
-        if (uploadedSize==FILE_SIZE_NOT_FOUND) {
+        if (uploadedSize == FILE_SIZE_NOT_FOUND) {
           upload.addError("Failed to store remote file! Attempt " + attempt + " of " + uploadAudioRetries + " to upload " + upload.getPathOnDisk() + " InstrumentAudio[" + upload.getInstrumentAudioId() + "] failed because the file was not found at " + remoteUrl);
         } else {
           upload.addError("File size does not match! Attempt " + attempt + " of " + uploadAudioRetries + " to upload " + upload.getPathOnDisk() + " InstrumentAudio[" + upload.getInstrumentAudioId() + "] failed because expected " + upload.getContentLength() + " bytes, but found " + uploadedSize + " bytes at " + remoteUrl);
@@ -1097,12 +1096,12 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   Upload a file from the given URL to the given output path
-
-   @param hubAccess  control
-   @param hubBaseUrl base URL of lab
-   @param httpClient http client (don't close the client; only close the responses from it)
-   @param upload     audio upload request/result object
+   * Upload a file from the given URL to the given output path
+   *
+   * @param hubAccess  control
+   * @param hubBaseUrl base URL of lab
+   * @param httpClient http client (don't close the client; only close the responses from it)
+   * @param upload     audio upload request/result object
    */
   private void uploadInstrumentAudioFile(HubClientAccess hubAccess, String hubBaseUrl, CloseableHttpClient httpClient, ProjectAudioUpload upload) {
     try {
@@ -1112,6 +1111,38 @@ public class ProjectManagerImpl implements ProjectManager {
       return;
     }
 
+    File file = new File(upload.getPathOnDisk());
+    try (FileInputStream fileInputStream = new FileInputStream(file)) {
+      HttpPost httpPost = new HttpPost(upload.getAuth().getUploadUrl()); // replace with your URL
+
+      httpPost.setHeader("policy", upload.getAuth().getUploadPolicy());
+      httpPost.setHeader("signature", upload.getAuth().getUploadPolicySignature());
+      httpPost.setHeader("acl", upload.getAuth().getAcl());
+      httpPost.setHeader("bucket", upload.getAuth().getBucketName());
+      httpPost.setHeader("key", upload.getAuth().getWaveformKey());
+      httpPost.setHeader("awsAccessKeyId", upload.getAuth().getAwsAccessKeyId());
+      httpPost.setHeader("Content-Type", CONTENT_TYPE_MULTIPART_FORM_DATA);
+
+      InputStreamEntity reqEntity = new InputStreamEntity(fileInputStream, -1, ContentType.APPLICATION_OCTET_STREAM);
+      reqEntity.setChunked(false);
+
+      httpPost.setEntity(reqEntity);
+
+      try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
+        // todo check response
+        var butts = 123; //todo remove
+      }
+
+    } catch (FileNotFoundException e) {
+      upload.addError("Failed to upload instrument audio because file " + upload.getPathOnDisk() + " not found!");
+    } catch (IOException e) {
+      upload.addError("Failed to upload instrument audio because of I/O error " + e.getMessage());
+    } catch (Exception e) {
+      upload.addError("Failed to upload instrument audio because " + e.getMessage());
+    }
+
+
+/*
     File file = new File(upload.getPathOnDisk());
     byte[] buffer = new byte[uploadAudioChunkSize];
     int bytesRead;
@@ -1184,6 +1215,7 @@ public class ProjectManagerImpl implements ProjectManager {
       String response = HttpUtils.executeHttpRequest(connection);
 
       var testing = 123;
+*/
 /*
 //todo figure out how to check the above response for success -- as of my latest test, this is returning an XML payload with an error:
     <?xml version="1.0" encoding="UTF-8"?>
@@ -1236,7 +1268,8 @@ public class ProjectManagerImpl implements ProjectManager {
         <RequestId>TQFXWCGG31H5X7RW</RequestId>
         <HostId>ie4+h2ktq490hNmMLuVdL0q7kqAGNzcnrE5K7iDF0xRa09bxCdas1c9PqsluNz8AmqCVrxJ6IDI=</HostId>
     </Error>
-*/
+*//*
+
 
 
       upload.setSuccess(true);
@@ -1248,22 +1281,23 @@ public class ProjectManagerImpl implements ProjectManager {
     } catch (Exception e) {
       upload.addError("Failed to upload instrument audio because " + e.getMessage());
     }
+*/
   }
 
 
   /**
-   Get the size of the file at the given URL
-
-   @param httpClient http client (don't close the client; only close the responses from it)
-   @param url        url
-   @return size of the file
-   @throws Exception if the file size could not be determined
+   * Get the size of the file at the given URL
+   *
+   * @param httpClient http client (don't close the client; only close the responses from it)
+   * @param url        url
+   * @return size of the file
+   * @throws Exception if the file size could not be determined
    */
   private long getRemoteFileSize(CloseableHttpClient httpClient, String url) throws Exception {
     try (
-      CloseableHttpResponse response = httpClient.execute(new HttpHead(url))
+        CloseableHttpResponse response = httpClient.execute(new HttpHead(url))
     ) {
-      if (response.getStatusLine().getStatusCode()==HttpStatus.SC_NOT_FOUND) {
+      if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
         return FILE_SIZE_NOT_FOUND;
       }
       var contentLengthHeader = response.getFirstHeader("Content-Length");
