@@ -118,12 +118,12 @@ public class InstrumentEditorController extends BrowserController {
     fieldIntensity.textProperty().bindBidirectional(intensity, new NumberStringConverter());
     fieldConfig.textProperty().bindBidirectional(config);
     fieldConfig.prefHeightProperty().bind(fieldsContainer.heightProperty().subtract(100));
-    choiceType.valueProperty().bindBidirectional(type);
     choiceType.setItems(FXCollections.observableArrayList(InstrumentType.values()));
-    choiceMode.valueProperty().bindBidirectional(mode);
+    choiceType.valueProperty().bindBidirectional(type);
     choiceMode.setItems(FXCollections.observableArrayList(InstrumentMode.values()));
-    choiceState.valueProperty().bindBidirectional(state);
+    choiceMode.valueProperty().bindBidirectional(mode);
     choiceState.setItems(FXCollections.observableArrayList(InstrumentState.values()));
+    choiceState.valueProperty().bindBidirectional(state);
 
     fieldName.focusedProperty().addListener(this::onUnfocusedDoSave);
     fieldConfig.focusedProperty().addListener(this::onUnfocusedDoSave);
@@ -281,6 +281,11 @@ public class InstrumentEditorController extends BrowserController {
     this.instrumentId.set(instrument.getId());
     this.name.set(instrument.getName());
     this.config.set(instrument.getConfig());
+    this.type.set(instrument.getType());
+    this.mode.set(instrument.getMode());
+    this.state.set(instrument.getState());
+    this.volume.set(instrument.getVolume());
+    this.intensity.set(instrument.getIntensity());
     setupAudiosTable();
   }
 

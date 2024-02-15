@@ -525,6 +525,19 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
+  public <N> boolean updateEntity(Class<N> type, String attribute, Object value) {
+    try {
+      projectManager.getContent().put(instrument);
+      didUpdate(Instrument.class, true);
+      return true;
+
+    } catch (Exception e) {
+      LOG.error("Could not save Instrument\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      return false;
+    }
+  }
+
+  @Override
   public boolean updateLibrary(Library library) {
     try {
       projectManager.getContent().put(library);
