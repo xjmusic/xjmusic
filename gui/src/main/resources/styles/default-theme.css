@@ -508,4 +508,8 @@
   -fx-border-color: transparent;
 }
 
+.alert-labels{
+  -fx-background-color: transparent;
+  -fx-text-fill: white;
+}
 
