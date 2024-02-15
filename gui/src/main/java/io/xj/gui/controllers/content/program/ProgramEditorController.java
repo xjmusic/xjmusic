@@ -57,15 +57,12 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.UUID;
+import java.util.*;
+
 import javafx.scene.control.SpinnerValueFactory;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+
 import java.util.function.UnaryOperator;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.Comparator;
+
 import javafx.scene.control.TextFormatter;
 
 @Service
@@ -583,9 +580,11 @@ public class ProgramEditorController extends ProjectController {
 
   public void addSequenceItem(ProgramSequenceBinding programSequenceBinding, VBox sequenceHolder, int position) {
     try {
-      ProgramSequence programSequence = projectService.getContent().getProgramSequence(programSequenceBinding.getProgramSequenceId()
-      ).orElseThrow(() -> new RuntimeException("Cannot find ProgramSequence"));
-      createProgramSequenceBindingItem(programSequenceBinding, sequenceHolder, position, programSequence, sequenceItemBindingFxml, ac, bindViewParentContainer, projectService);
+      Optional<ProgramSequence> programSequence = projectService.getContent().getProgramSequence(programSequenceBinding.getProgramSequenceId());
+      if (programSequence.isEmpty()){
+        return;
+      }
+      createProgramSequenceBindingItem(programSequenceBinding, sequenceHolder, position, programSequence.get(), sequenceItemBindingFxml, ac, bindViewParentContainer, projectService);
       checkIfNextItemIsPresent(position);
     } catch (Exception e) {
       LOG.error("Error creating new Sequence \n{}", StringUtils.formatStackTrace(e), e);
