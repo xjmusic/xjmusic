@@ -84,7 +84,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @return true if deltaIn is unlimited
    */
   protected static boolean isUnlimitedIn(SegmentChoice choice) {
-    return Objects.nonNull(choice.getDeltaIn()) && DELTA_UNLIMITED == choice.getDeltaIn();
+    return Objects.nonNull(choice.getDeltaIn()) && DELTA_UNLIMITED==choice.getDeltaIn();
   }
 
   /**
@@ -94,7 +94,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @return true if deltaOut is unlimited
    */
   protected static boolean isUnlimitedOut(SegmentChoice choice) {
-    return Objects.nonNull(choice.getDeltaOut()) && DELTA_UNLIMITED == choice.getDeltaOut();
+    return Objects.nonNull(choice.getDeltaOut()) && DELTA_UNLIMITED==choice.getDeltaOut();
   }
 
   /**
@@ -106,9 +106,9 @@ public class CraftImpl extends FabricationWrapperImpl {
    @return true if value is within bounds (inclusive)
    */
   static boolean inBounds(Integer floor, Integer ceiling, double value) {
-    if (DELTA_UNLIMITED == floor && DELTA_UNLIMITED == ceiling) return true;
-    if (DELTA_UNLIMITED == floor && value <= ceiling) return true;
-    if (DELTA_UNLIMITED == ceiling && value >= floor) return true;
+    if (DELTA_UNLIMITED==floor && DELTA_UNLIMITED==ceiling) return true;
+    if (DELTA_UNLIMITED==floor && value <= ceiling) return true;
+    if (DELTA_UNLIMITED==ceiling && value >= floor) return true;
     return value >= floor && value <= ceiling;
   }
 
@@ -233,7 +233,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
       // Pick attributes are expressed "rendered" as actual seconds
       long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(tempo, section.fromPos);
-      @Nullable Long lengthMicros = fabricator.isOneShot(instrument) ? null : fabricator.getSegmentMicrosAtPosition(tempo, section.toPos) - startAtSegmentMicros;
+      @Nullable Long lengthMicros = fabricator.isOneShot(instrument) ? null:fabricator.getSegmentMicrosAtPosition(tempo, section.toPos) - startAtSegmentMicros;
 
       // Volume ratio
       var volRatio = computeVolumeRatioForPickedNote(choice, section.fromPos);
@@ -399,7 +399,7 @@ public class CraftImpl extends FabricationWrapperImpl {
         var orderedLayers = Stream.concat(priLayers.stream(), secLayers.stream()).toList();
         var delta = ValueUtils.roundToNearest(deltaUnits, TremendouslyRandom.zeroToLimit(deltaUnits * 4) - deltaUnits * 2 * numLayersIncoming);
         for (String orderedLayer : orderedLayers) {
-          deltaIns.put(orderedLayer, delta > 0 ? delta : DELTA_UNLIMITED);
+          deltaIns.put(orderedLayer, delta > 0 ? delta:DELTA_UNLIMITED);
           deltaOuts.put(orderedLayer, DELTA_UNLIMITED); // all layers get delta out unlimited
           delta += ValueUtils.roundToNearest(deltaUnits, TremendouslyRandom.zeroToLimit(deltaUnits * 5));
         }
@@ -450,7 +450,7 @@ public class CraftImpl extends FabricationWrapperImpl {
       sections[i] = new Section();
       sections[i].chord = chords[i];
       sections[i].fromPos = chords[i].getPosition();
-      sections[i].toPos = i < chords.length - 1 ? chords[i + 1].getPosition() : fabricator.getSegment().getTotal();
+      sections[i].toPos = i < chords.length - 1 ? chords[i + 1].getPosition():fabricator.getSegment().getTotal();
     }
     return Arrays.stream(sections).toList();
   }
@@ -530,17 +530,17 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     double duration = Math.min(event.getDuration(), toPosition - segmentPosition);
     var chord = fabricator.getChordAt(segmentPosition);
-    Optional<SegmentChordVoicing> voicing = chord.isPresent() ? fabricator.chooseVoicing(chord.get(), instrument.getType()) : Optional.empty();
+    Optional<SegmentChordVoicing> voicing = chord.isPresent() ? fabricator.chooseVoicing(chord.get(), instrument.getType()):Optional.empty();
 
     var volRatio = computeVolumeRatioForPickedNote(choice, segmentPosition);
     if (0 >= volRatio) return;
 
     // The final note is voiced from the chord voicing (if found) or else the default is used
-    Set<String> notes = voicing.isPresent() ? pickNotesForEvent(instrument.getType(), choice, event, chord.get(), voicing.get(), range) : (defaultAtonal ? Set.of(Note.ATONAL) : Set.of());
+    Set<String> notes = voicing.isPresent() ? pickNotesForEvent(instrument.getType(), choice, event, chord.get(), voicing.get(), range):(defaultAtonal ? Set.of(Note.ATONAL):Set.of());
 
     // Pick attributes are expressed "rendered" as actual seconds
     long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(tempo, segmentPosition);
-    @Nullable Long lengthMicros = fabricator.isOneShot(instrument, fabricator.getTrackName(event)) ? null : fabricator.getSegmentMicrosAtPosition(tempo, segmentPosition + duration) - startAtSegmentMicros;
+    @Nullable Long lengthMicros = fabricator.isOneShot(instrument, fabricator.getTrackName(event)) ? null:fabricator.getSegmentMicrosAtPosition(tempo, segmentPosition + duration) - startAtSegmentMicros;
 
     // pick an audio for each note
     for (var note : notes)
@@ -605,7 +605,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    */
   float computeVolumeRatioForPickedNote(SegmentChoice choice, double segmentPosition) {
     if (!fabricator.getTemplateConfig().isDeltaArcEnabled()) return 1.0f;
-    return (float) (inBounds(choice.getDeltaIn(), choice.getDeltaOut(), fabricator.getSegment().getDelta() + segmentPosition) ? 1.0 : 0.0);
+    return (float) (inBounds(choice.getDeltaIn(), choice.getDeltaOut(), fabricator.getSegment().getDelta() + segmentPosition) ? 1.0:0.0);
   }
 
   /**
@@ -690,7 +690,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     // Go through the notes in the event and pick a note from the voicing, either by note picker or by sticky bun
     List<Note> pickedNotes = new ArrayList<>();
     for (var i = 0; i < eventNotes.size(); i++) {
-      var pickedNote = eventNotes.get(i).isAtonal() && bun.isPresent() ? bun.get().compute(voicingNotes, i) : notePicker.pick(eventNotes.get(i));
+      var pickedNote = eventNotes.get(i).isAtonal() && bun.isPresent() ? bun.get().compute(voicingNotes, i):notePicker.pick(eventNotes.get(i));
       pickedNotes.add(pickedNote);
     }
 
@@ -730,7 +730,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     @Nullable UUID segmentChordVoicingId,
     float volRatio
   ) throws NexusException {
-    var audio = fabricator.getInstrumentConfig(instrument).isMultiphonic() ? selectMultiphonicInstrumentAudio(instrument, event, note) : selectMonophonicInstrumentAudio(instrument, event);
+    var audio = fabricator.getInstrumentConfig(instrument).isMultiphonic() ? selectMultiphonicInstrumentAudio(instrument, event, note):selectMonophonicInstrumentAudio(instrument, event);
 
     // Should gracefully skip audio if unfulfilled by instrument https://www.pivotaltracker.com/story/show/176373977
     if (audio.isEmpty()) return;
@@ -746,7 +746,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     pick.setStartAtSegmentMicros(startAtSegmentMicros);
     pick.setLengthMicros(lengthMicros);
     pick.setAmplitude(event.getVelocity() * volRatio);
-    pick.setTones(fabricator.getInstrumentConfig(instrument).isTonal() ? note : Note.ATONAL);
+    pick.setTones(fabricator.getInstrumentConfig(instrument).isTonal() ? note:Note.ATONAL);
     if (Objects.nonNull(segmentChordVoicingId)) pick.setSegmentChordVoicingId(segmentChordVoicingId);
     fabricator.put(pick, false);
   }
@@ -833,14 +833,14 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // score each audio against the current voice event, with some variability
     for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosOfInstrument(instrument))
-      if (instrument.getType() == InstrumentType.Drum)
+      if (instrument.getType()==InstrumentType.Drum)
         score.put(audio.getId(), NameIsometry.similarity(fabricator.getTrackName(event), audio.getEvent()));
       else if (Note.of(audio.getTones()).sameAs(Note.of(event.getTones())))
         score.put(audio.getId(), 100);
 
     // final chosen audio event
     var pickId = ValueUtils.getKeyOfHighestValue(score);
-    return pickId.isPresent() ? fabricator.sourceMaterial().getInstrumentAudio(pickId.get()) : Optional.empty();
+    return pickId.isPresent() ? fabricator.sourceMaterial().getInstrumentAudio(pickId.get()):Optional.empty();
   }
 
 
@@ -972,7 +972,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Instrument choice inertia: prefer same instrument choices throughout a main program
     // https://www.pivotaltracker.com/story/show/178442889
-    if (SegmentType.CONTINUE == fabricator.getType()) {
+    if (SegmentType.CONTINUE==fabricator.getType()) {
       var alreadyPicked = fabricator.retrospective().getChoices().stream()
         .filter(candidate -> Objects.nonNull(candidate.getInstrumentType()) && types.contains(candidate.getInstrumentType()))
         .filter(candidate -> Objects.nonNull(continueVoiceName))
@@ -1020,14 +1020,14 @@ public class CraftImpl extends FabricationWrapperImpl {
     for (InstrumentAudio audio : audiosDirectlyBound(candidates)) {
       memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfInstrument(audio.getInstrumentId()));
       if (iso.isAllowed(memes))
-        bag.add(preferredEvents.contains(audio.getEvent()) ? 1 : 3, audio.getId(), 1 + iso.score(memes));
+        bag.add(preferredEvents.contains(audio.getEvent()) ? 1:3, audio.getId(), 1 + iso.score(memes));
     }
 
     // Phase 2: All Published Audios (Preferred)
     for (InstrumentAudio audio : audiosPublished(candidates)) {
       memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfInstrument(audio.getInstrumentId()));
       if (iso.isAllowed(memes))
-        bag.add(preferredEvents.contains(audio.getEvent()) ? 2 : 4, audio.getId(), 1 + iso.score(memes));
+        bag.add(preferredEvents.contains(audio.getEvent()) ? 2:4, audio.getId(), 1 + iso.score(memes));
     }
 
     // report

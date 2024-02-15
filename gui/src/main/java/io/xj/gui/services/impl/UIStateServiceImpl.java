@@ -38,13 +38,6 @@ import java.util.prefs.Preferences;
 
 @Service
 public class UIStateServiceImpl implements UIStateService {
-  private final Preferences prefs = Preferences.userNodeForPackage(UIStateServiceImpl.class);
-  private final BooleanBinding hasCurrentProject;
-  private final BooleanBinding isManualFabricationActive;
-  private final BooleanProperty isLabFeatureEnabled = new SimpleBooleanProperty(false);
-  private final ProjectService projectService;
-  private final BooleanBinding isManualFabricationMode;
-  private final BooleanBinding isProgressBarVisible;
   private static final Collection<ContentMode> CONTENT_MODES_WITH_PARENT = Set.of(
     ContentMode.ProgramBrowser,
     ContentMode.ProgramEditor,
@@ -53,6 +46,13 @@ public class UIStateServiceImpl implements UIStateService {
     ContentMode.InstrumentAudioEditor,
     ContentMode.LibraryEditor
   );
+  private final Preferences prefs = Preferences.userNodeForPackage(UIStateServiceImpl.class);
+  private final BooleanBinding hasCurrentProject;
+  private final BooleanBinding isManualFabricationActive;
+  private final BooleanProperty isLabFeatureEnabled = new SimpleBooleanProperty(false);
+  private final ProjectService projectService;
+  private final BooleanBinding isManualFabricationMode;
+  private final BooleanBinding isProgressBarVisible;
   private final StringBinding windowTitle;
   private final ObjectProperty<ViewMode> viewMode = new SimpleObjectProperty<>(ViewMode.Content);
   private final ObjectProperty<Library> currentLibrary = new SimpleObjectProperty<>(null);

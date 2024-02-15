@@ -125,8 +125,8 @@ public class TemplateAddBindingModalController extends ProjectModalController {
       libraryContentSelectionToggle.selectToggle(null);
     });
 
-    choiceProgram.setOnAction(event -> program.set(Objects.nonNull(choiceProgram.getValue()) ? choiceProgram.getValue().program() : null));
-    choiceInstrument.setOnAction(event -> instrument.set(Objects.nonNull(choiceInstrument.getValue()) ? choiceInstrument.getValue().instrument() : null));
+    choiceProgram.setOnAction(event -> program.set(Objects.nonNull(choiceProgram.getValue()) ? choiceProgram.getValue().program():null));
+    choiceInstrument.setOnAction(event -> instrument.set(Objects.nonNull(choiceInstrument.getValue()) ? choiceInstrument.getValue().instrument():null));
 
     libraryContentSelectionToggle.selectedToggleProperty().addListener((o, ov, v) -> {
       if (Objects.equals(v, buttonLibraryContentPrograms)) {
@@ -193,7 +193,7 @@ public class TemplateAddBindingModalController extends ProjectModalController {
   public record LibraryChoice(Library library) {
     @Override
     public String toString() {
-      return Objects.nonNull(library) ? library.getName() : "Select...";
+      return Objects.nonNull(library) ? library.getName():"Select...";
     }
   }
 
@@ -203,7 +203,7 @@ public class TemplateAddBindingModalController extends ProjectModalController {
   public record ProgramChoice(Program program) {
     @Override
     public String toString() {
-      return Objects.nonNull(program) ? program.getName() : "Select...";
+      return Objects.nonNull(program) ? program.getName():"Select...";
     }
   }
 
@@ -213,7 +213,7 @@ public class TemplateAddBindingModalController extends ProjectModalController {
   public record InstrumentChoice(Instrument instrument) {
     @Override
     public String toString() {
-      return Objects.nonNull(instrument) ? instrument.getName() : "Select...";
+      return Objects.nonNull(instrument) ? instrument.getName():"Select...";
     }
   }
 }

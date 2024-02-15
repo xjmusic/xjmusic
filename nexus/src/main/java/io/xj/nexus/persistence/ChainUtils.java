@@ -40,7 +40,7 @@ public enum ChainUtils {
    */
   public static String getIdentifier(@Nullable Chain chain) {
     if (Objects.isNull(chain)) return "N/A";
-    return StringUtils.isNullOrEmpty(chain.getShipKey()) ? chain.getId().toString() : chain.getShipKey();
+    return StringUtils.isNullOrEmpty(chain.getShipKey()) ? chain.getId().toString():chain.getShipKey();
   }
 
   /**
@@ -74,7 +74,7 @@ public enum ChainUtils {
    */
   public static Long computeFabricatedToChainMicros(Collection<Segment> segments) {
     var lastDubbedSegment = SegmentUtils.getLastCrafted(segments);
-    return lastDubbedSegment.map(segment -> (Objects.nonNull(segment.getDurationMicros()) ? segment.getBeginAtChainMicros() + segment.getDurationMicros() : segment.getBeginAtChainMicros())).orElse(0L);
+    return lastDubbedSegment.map(segment -> (Objects.nonNull(segment.getDurationMicros()) ? segment.getBeginAtChainMicros() + segment.getDurationMicros():segment.getBeginAtChainMicros())).orElse(0L);
   }
 
   /**
@@ -97,6 +97,6 @@ public enum ChainUtils {
    @return Chain base key
    */
   public static String computeBaseKey(Chain chain) {
-    return StringUtils.isNullOrEmpty(chain.getShipKey()) ? String.format("chain-%s", chain.getId()) : chain.getShipKey();
+    return StringUtils.isNullOrEmpty(chain.getShipKey()) ? String.format("chain-%s", chain.getId()):chain.getShipKey();
   }
 }

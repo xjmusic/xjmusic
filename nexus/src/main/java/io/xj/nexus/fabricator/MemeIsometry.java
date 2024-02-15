@@ -60,7 +60,7 @@ public class MemeIsometry extends Isometry {
     return targets.stream()
       .map(StringUtils::toMeme)
       .flatMap(target -> sources.stream().map(source ->
-        Objects.equals(source, target) ? 1 : 0))
+        Objects.equals(source, target) ? 1:0))
       .reduce(0, Integer::sum);
   }
 

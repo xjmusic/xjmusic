@@ -66,7 +66,7 @@ public interface FormatUtils {
     if (Objects.isNull(number)) {
       return "N/A";
     }
-    if (Math.floor(number) == number) {
+    if (Math.floor(number)==number) {
       return String.format("%.0f", number);  // No decimal places if it's an integer
     } else {
       String str = Float.toString((float) (Math.round(number * 1000.0) / 1000.0));
@@ -121,8 +121,8 @@ public interface FormatUtils {
     if (minutes > 0) {
       readableTime.append(minutes).append("m");
     }
-    if (seconds > 0 || (hours == 0 && minutes == 0)) {
-      if (hours == 0 && minutes == 0) {
+    if (seconds > 0 || (hours==0 && minutes==0)) {
+      if (hours==0 && minutes==0) {
         readableTime.append(String.format("%d.%d", seconds, (int) Math.floor(fractionalSeconds * 10))).append("s");
       } else {
         readableTime.append(seconds).append("s");

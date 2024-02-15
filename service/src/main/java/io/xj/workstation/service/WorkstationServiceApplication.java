@@ -3,6 +3,13 @@
 package io.xj.workstation.service;
 
 import io.xj.hub.HubConfiguration;
+import io.xj.hub.HubTopology;
+import io.xj.hub.entity.EntityFactory;
+import io.xj.hub.entity.EntityFactoryImpl;
+import io.xj.hub.json.JsonProvider;
+import io.xj.hub.json.JsonProviderImpl;
+import io.xj.hub.jsonapi.JsonapiPayloadFactory;
+import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.audio.AudioCache;
 import io.xj.nexus.audio.AudioCacheImpl;
@@ -10,18 +17,11 @@ import io.xj.nexus.audio.AudioLoader;
 import io.xj.nexus.audio.AudioLoaderImpl;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
-import io.xj.hub.entity.EntityFactory;
-import io.xj.hub.entity.EntityFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.http.HttpClientProvider;
 import io.xj.nexus.http.HttpClientProviderImpl;
 import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.hub.HubTopology;
-import io.xj.hub.json.JsonProvider;
-import io.xj.hub.json.JsonProviderImpl;
-import io.xj.hub.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.hub_client.HubClientFactory;
 import io.xj.nexus.hub_client.HubClientFactoryImpl;
 import io.xj.nexus.mixer.EnvelopeProvider;
@@ -36,9 +36,9 @@ import io.xj.nexus.ship.broadcast.BroadcastFactory;
 import io.xj.nexus.ship.broadcast.BroadcastFactoryImpl;
 import io.xj.nexus.telemetry.Telemetry;
 import io.xj.nexus.telemetry.TelemetryImpl;
-import io.xj.nexus.work.FabricationSettings;
 import io.xj.nexus.work.FabricationManager;
 import io.xj.nexus.work.FabricationManagerImpl;
+import io.xj.nexus.work.FabricationSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,6 +122,11 @@ public class WorkstationServiceApplication {
     );
   }
 
+  public static void main(String[] args) {
+    SpringApplicationBuilder builder = new SpringApplicationBuilder(WorkstationServiceApplication.class);
+    builder.run(args);
+  }
+
   @EventListener(ApplicationStartedEvent.class)
   public void start() {
     var workConfig = new FabricationSettings()
@@ -150,10 +155,5 @@ public class WorkstationServiceApplication {
     });
     shutdown.setDaemon(false);
     shutdown.start();
-  }
-
-  public static void main(String[] args) {
-    SpringApplicationBuilder builder = new SpringApplicationBuilder(WorkstationServiceApplication.class);
-    builder.run(args);
   }
 }

@@ -84,43 +84,43 @@ public enum AudioSampleFormat {
         } else if (encoding.equals((PCM_SIGNED))) {
           return S8;
         } else {
-          throw new FormatException("Unsupported 8-bit " + (isOutput ? "output " : "") + "encoding: " + encoding);
+          throw new FormatException("Unsupported 8-bit " + (isOutput ? "output ":"") + "encoding: " + encoding);
         }
       }
       case 16 -> {
         if (!isOutput && encoding.equals(PCM_UNSIGNED)) {
-          return format.isBigEndian() ? U16MSB : U16LSB;
+          return format.isBigEndian() ? U16MSB:U16LSB;
         } else if (encoding.equals((PCM_SIGNED))) {
-          return format.isBigEndian() ? S16MSB : S16LSB;
+          return format.isBigEndian() ? S16MSB:S16LSB;
         } else {
-          throw new FormatException("Unsupported 16-bit " + (isOutput ? "output " : "") + "encoding: " + encoding);
+          throw new FormatException("Unsupported 16-bit " + (isOutput ? "output ":"") + "encoding: " + encoding);
         }
       }
       case 24 -> {
         if (!isOutput && encoding.equals(PCM_SIGNED)) {
-          return format.isBigEndian() ? S24MSB : S24LSB;
+          return format.isBigEndian() ? S24MSB:S24LSB;
         } else {
-          throw new FormatException("Unsupported 24-bit " + (isOutput ? "output " : "") + "encoding: " + encoding);
+          throw new FormatException("Unsupported 24-bit " + (isOutput ? "output ":"") + "encoding: " + encoding);
         }
       }
       case 32 -> {
         if (encoding.equals(PCM_SIGNED)) {
-          return format.isBigEndian() ? S32MSB : S32LSB;
+          return format.isBigEndian() ? S32MSB:S32LSB;
         } else if (encoding.equals((PCM_FLOAT))) {
-          return format.isBigEndian() ? F32MSB : F32LSB;
+          return format.isBigEndian() ? F32MSB:F32LSB;
         } else {
-          throw new FormatException("Unsupported 32-bit " + (isOutput ? "output " : "") + "encoding: " + encoding);
+          throw new FormatException("Unsupported 32-bit " + (isOutput ? "output ":"") + "encoding: " + encoding);
         }
       }
       case 64 -> {
         if (encoding.equals(PCM_FLOAT)) {
-          return format.isBigEndian() ? F64MSB : F64LSB;
+          return format.isBigEndian() ? F64MSB:F64LSB;
         } else {
-          throw new FormatException("Unsupported 64-bit " + (isOutput ? "output " : "") + "encoding: " + encoding);
+          throw new FormatException("Unsupported 64-bit " + (isOutput ? "output ":"") + "encoding: " + encoding);
         }
       }
       default ->
-        throw new FormatException("Unsupported " + (isOutput ? "output " : "") + " sample size: " + sampleSizeInBits + " bits");
+        throw new FormatException("Unsupported " + (isOutput ? "output ":"") + " sample size: " + sampleSizeInBits + " bits");
     }
   }
 

@@ -45,7 +45,7 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
           .flatMap(instrument -> fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId()).stream())
           .map(SegmentChoiceArrangementPick::getInstrumentAudioId)
           .collect(Collectors.toSet())
-        : new ArrayList<>();
+        :new ArrayList<>();
 
     int targetLayers = (int) Math.floor(
       fabricator.getTemplateConfig().getPercLoopLayerMin() +

@@ -4,10 +4,10 @@
 
 <?import javafx.scene.control.ListView?>
 <ListView
+  xmlns:fx="http://javafx.com/fxml/1"
   fx:controller="io.xj.gui.controllers.MainPaneBottomController"
   fx:id="logListView"
   xmlns="http://javafx.com/javafx/20.0.1"
-  xmlns:fx="http://javafx.com/fxml/1"
   prefHeight="400.0"
   styleClass="log-viewer"
 />

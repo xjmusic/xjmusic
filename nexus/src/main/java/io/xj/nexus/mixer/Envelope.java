@@ -27,7 +27,7 @@ public class Envelope {
    */
   public float in(int delta, float value) {
     if (delta < 0) return 0;
-    return delta < exponential.length ? (float) (exponential[delta] * value) : value;
+    return delta < exponential.length ? (float) (exponential[delta] * value):value;
   }
 
   /**
@@ -39,6 +39,6 @@ public class Envelope {
    */
   public float out(int delta, float value) {
     if (delta > exponential.length) return 0;
-    return delta > 0 ? (float) (exponential[exponential.length - delta] * value) : value;
+    return delta > 0 ? (float) (exponential[exponential.length - delta] * value):value;
   }
 }

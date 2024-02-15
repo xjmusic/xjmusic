@@ -2,7 +2,7 @@
 
 <configuration>
   <conversionRule conversionWord="stack"
-                  converterClass="net.logstash.logback.stacktrace.ShortenedThrowableConverter" />
+                  converterClass="net.logstash.logback.stacktrace.ShortenedThrowableConverter"/>
 
   <!-- Define the custom appender -->
   <appender name="WorkstationLogAppender" class="io.xj.gui.WorkstationLogAppender">

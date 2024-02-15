@@ -227,8 +227,8 @@ public class AudioCacheImpl implements AudioCache {
    @return true if matches
    */
   private boolean matchesAudioFormat(AudioFormat currentFormat, int targetFrameRate, int targetSampleBits, int targetChannels) {
-    return currentFormat.getFrameRate() == targetFrameRate
-      && currentFormat.getSampleSizeInBits() == targetSampleBits
+    return currentFormat.getFrameRate()==targetFrameRate
+      && currentFormat.getSampleSizeInBits()==targetSampleBits
 
       // Mono source audio should be resampled and cached as mono
       // https://www.pivotaltracker.com/story/show/186551859

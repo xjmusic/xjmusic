@@ -42,7 +42,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
       // Instruments may be chosen without programs
       // https://www.pivotaltracker.com/story/show/181290857
-      Optional<Instrument> instrument = priorChoice.isPresent() ? fabricator.sourceMaterial().getInstrument(priorChoice.get().getInstrumentId()) : chooseFreshInstrument(List.of(voicingType), List.of(), List.of(), null, List.of());
+      Optional<Instrument> instrument = priorChoice.isPresent() ? fabricator.sourceMaterial().getInstrument(priorChoice.get().getInstrumentId()):chooseFreshInstrument(List.of(voicingType), List.of(), List.of(), null, List.of());
 
       // Should gracefully skip voicing type if unfulfilled by detail instrument
       // https://www.pivotaltracker.com/story/show/176373977
@@ -59,7 +59,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
         // https://www.pivotaltracker.com/story/show/181736854
         case Event -> {
           // Event Use prior chosen program or find a new one
-          Optional<Program> program = priorChoice.isPresent() ? fabricator.sourceMaterial().getProgram(priorChoice.get().getProgramId()) : chooseFreshProgram(ProgramType.Detail, voicingType);
+          Optional<Program> program = priorChoice.isPresent() ? fabricator.sourceMaterial().getProgram(priorChoice.get().getProgramId()):chooseFreshProgram(ProgramType.Detail, voicingType);
 
           // Event Should gracefully skip voicing type if unfulfilled by detail program
           // https://www.pivotaltracker.com/story/show/176373977

@@ -80,8 +80,8 @@ public class GuiIntegrationTestingFixtures {
 
   public static Segment buildSegment(Chain chain, int offset, SegmentState state, String key, int total, float intensity, float tempo, String storageKey) {
     return buildSegment(chain,
-      0 < offset ? SegmentType.CONTINUE : SegmentType.INITIAL,
-      offset, 0, state, key, total, intensity, tempo, storageKey, state == SegmentState.CRAFTED);
+      0 < offset ? SegmentType.CONTINUE:SegmentType.INITIAL,
+      offset, 0, state, key, total, intensity, tempo, storageKey, state==SegmentState.CRAFTED);
   }
 
 

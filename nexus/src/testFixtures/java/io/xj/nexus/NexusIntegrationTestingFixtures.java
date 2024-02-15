@@ -344,8 +344,8 @@ public class NexusIntegrationTestingFixtures {
 
   public static Segment buildSegment(Chain chain, int id, SegmentState state, String key, int total, float intensity, float tempo, String storageKey) {
     return buildSegment(chain,
-      0 < id ? SegmentType.CONTINUE : SegmentType.INITIAL,
-      id, 0, state, key, total, intensity, tempo, storageKey, state == SegmentState.CRAFTED);
+      0 < id ? SegmentType.CONTINUE:SegmentType.INITIAL,
+      id, 0, state, key, total, intensity, tempo, storageKey, state==SegmentState.CRAFTED);
   }
 
 
@@ -1090,7 +1090,7 @@ public class NexusIntegrationTestingFixtures {
         sequences[iP] = add(entities, NexusHubIntegrationTestingFixtures.buildSequence(program, total, String.format("%s in %s", majorMemeName, sequenceNames[iP]), subDensities[iP], subKeys[iP]));
         for (int iPC = 0; iPC < N << 2; iPC++) {
           // always use first chord, then use more chords with more intensity
-          if (0 == iPC || StrictMath.random() < subDensities[iP]) {
+          if (0==iPC || StrictMath.random() < subDensities[iP]) {
             add(entities, NexusHubIntegrationTestingFixtures.buildChord(sequences[iP], StrictMath.floor((float) iPC * total * 4 / N), random(LoremIpsum.MUSICAL_CHORDS)));
           }
         }
@@ -1130,7 +1130,7 @@ public class NexusIntegrationTestingFixtures {
         var pattern = add(entities, NexusHubIntegrationTestingFixtures.buildPattern(sequenceBase, voices[num], total, String.format("%s %s %s", majorMemeName, majorMemeName + " pattern", random(LoremIpsum.ELEMENTS))));
         for (int iPE = 0; iPE < N << 2; iPE++) {
           // always use first chord, then use more chords with more intensity
-          if (0 == iPE || StrictMath.random() < intensity) {
+          if (0==iPE || StrictMath.random() < intensity) {
             String name = percussiveNames[num];
             if (!trackMap.containsKey(name))
               trackMap.put(name, add(entities, NexusHubIntegrationTestingFixtures.buildTrack(voices[num], name)));

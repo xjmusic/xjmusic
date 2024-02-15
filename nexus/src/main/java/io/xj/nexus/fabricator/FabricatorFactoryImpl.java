@@ -14,8 +14,8 @@ import jakarta.annotation.Nullable;
 
 public class FabricatorFactoryImpl implements FabricatorFactory {
   final JsonapiPayloadFactory jsonapiPayloadFactory;
-  private final NexusEntityStore entityStore;
   final JsonProvider jsonProvider;
+  private final NexusEntityStore entityStore;
 
   public FabricatorFactoryImpl(
     NexusEntityStore entityStore,

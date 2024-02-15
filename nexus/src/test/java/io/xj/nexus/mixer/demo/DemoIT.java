@@ -90,12 +90,12 @@ public class DemoIT {
   static final Project project = buildProject();
   static final Template template = buildTemplate(project, "Demo");
   static final Chain chain = buildChain(template);
+  static final Segment segment = buildSegment(chain, 0, "C", 4, 1, TEMPO);
   static final Program program = buildProgram(ProgramType.Beat, "C", TEMPO, 1);
   static final ProgramSequence sequence = buildProgramSequence(program, 4, "Demo", 1.0f, "C");
   static final ProgramVoice voice = buildProgramVoice(program, InstrumentType.Drum, "Demo Beat");
   static final ProgramVoiceTrack track = buildProgramVoiceTrack(voice, "Demo Beat");
   static final ProgramSequencePattern pattern = buildProgramSequencePattern(sequence, voice, 4, "Demo Beat");
-  static final Segment segment = buildSegment(chain, 0, "C", 4, 1, TEMPO);
   static final SegmentChoice choice = buildSegmentChoice(segment, program);
   static final SegmentChoiceArrangement arrangement = buildSegmentChoiceArrangement(choice);
   static final Instrument instrument = buildInstrument();
@@ -105,16 +105,6 @@ public class DemoIT {
   static final InstrumentAudio snare = buildAudio(instrument, "snare", "snare" + SOURCE_FILE_SUFFIX, 0, .092f, 120, 1.0f, "X", "C5", 1.0f);
   static final InstrumentAudio lotom = buildAudio(instrument, "lotom", "tom1" + SOURCE_FILE_SUFFIX, 0, .360f, 120, 1.0f, "X", "C5", 1.0f);
   static final InstrumentAudio clhat = buildAudio(instrument, "clhat", "cl_hihat" + SOURCE_FILE_SUFFIX, 0, .052f, 120, 1.0f, "X", "C5", 1.0f);
-  static final InstrumentAudio ding = buildAudio(instrument, "ding", "ding" + SOURCE_FILE_SUFFIX, 0, 3.733f, 120, 1.0f, "X", "C5", 1.0f);
-  static final Map<UUID, InstrumentAudio> audioById = Stream.of(
-    kick1,
-    kick2,
-    marac,
-    snare,
-    lotom,
-    clhat,
-    ding
-  ).collect(Collectors.toMap(InstrumentAudio::getId, instrumentAudio -> instrumentAudio));
   static final InstrumentAudio[] demoSequence = {
     kick2,
     marac,
@@ -133,6 +123,16 @@ public class DemoIT {
     clhat,
     marac
   };
+  static final InstrumentAudio ding = buildAudio(instrument, "ding", "ding" + SOURCE_FILE_SUFFIX, 0, 3.733f, 120, 1.0f, "X", "C5", 1.0f);
+  static final Map<UUID, InstrumentAudio> audioById = Stream.of(
+    kick1,
+    kick2,
+    marac,
+    snare,
+    lotom,
+    clhat,
+    ding
+  ).collect(Collectors.toMap(InstrumentAudio::getId, instrumentAudio -> instrumentAudio));
   private final String instrumentPathPrefix;
   private final ProjectManager projectManager;
   private MixerFactory mixerFactory;
@@ -160,6 +160,27 @@ public class DemoIT {
         throw new RuntimeException(e);
       }
     });
+  }
+
+  private static Instrument buildInstrument() {
+    var instrument = new Instrument();
+    instrument.setId(UUID.randomUUID());
+    instrument.setLibraryId(UUID.randomUUID());
+    instrument.setType(InstrumentType.Drum);
+    instrument.setMode(InstrumentMode.Event);
+    instrument.setState(InstrumentState.Published);
+    instrument.setName("Test Drums");
+    return instrument;
+  }
+
+  /**
+   get reference audio filename
+
+   @param referenceName within this filename
+   @return filename
+   */
+  public static String getReferenceAudioFilename(String referenceName) {
+    return INTERNAL_RESOURCE_REFERENCE_AUDIO_FILE_PREFIX + referenceName;
   }
 
   @BeforeEach
@@ -250,27 +271,6 @@ public class DemoIT {
     audioFileWriter.open(outputFilePath);
     audioFileWriter.append(mixer.getBuffer().consume(mixer.getBuffer().getAvailableByteCount()));
     audioFileWriter.finish();
-  }
-
-  private static Instrument buildInstrument() {
-    var instrument = new Instrument();
-    instrument.setId(UUID.randomUUID());
-    instrument.setLibraryId(UUID.randomUUID());
-    instrument.setType(InstrumentType.Drum);
-    instrument.setMode(InstrumentMode.Event);
-    instrument.setState(InstrumentState.Published);
-    instrument.setName("Test Drums");
-    return instrument;
-  }
-
-  /**
-   get reference audio filename
-
-   @param referenceName within this filename
-   @return filename
-   */
-  public static String getReferenceAudioFilename(String referenceName) {
-    return INTERNAL_RESOURCE_REFERENCE_AUDIO_FILE_PREFIX + referenceName;
   }
 
   /**

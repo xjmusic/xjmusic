@@ -51,7 +51,7 @@ public class ProjectCreationModalController extends ProjectModalController {
   private final LabService labService;
   private final ObjectProperty<ProjectCreationMode> mode = new SimpleObjectProperty<>(ProjectCreationMode.NEW_PROJECT);
   private final ObservableBooleanValue isDemoVisible = Bindings.createBooleanBinding(
-    () -> mode.get() == ProjectCreationMode.CLONE_PROJECT, mode
+    () -> mode.get()==ProjectCreationMode.CLONE_PROJECT, mode
   );
   private final ObjectProperty<Project> selectedProject = new SimpleObjectProperty<>();
 
@@ -283,7 +283,7 @@ public class ProjectCreationModalController extends ProjectModalController {
   public record ProjectChoice(Project project) {
     @Override
     public String toString() {
-      return Objects.nonNull(project) ? project.getName() : "Select...";
+      return Objects.nonNull(project) ? project.getName():"Select...";
     }
   }
 }

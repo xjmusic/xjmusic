@@ -41,12 +41,10 @@ import java.util.UUID;
 public class MainPaneRightController extends ProjectController {
   private static final PseudoClass ENGAGED_PSEUDO_CLASS = PseudoClass.getPseudoClass("engaged");
   private final FabricationService fabricationService;
-
-  @FXML
-  protected VBox container;
-
   private final ObservableMap<String, String> taxonomyCategoryToggleSelections = FXCollections.observableHashMap();
   private final Set<ToggleGroup> taxonomyToggleGroups = new HashSet<>();
+  @FXML
+  protected VBox container;
 
 
   public MainPaneRightController(

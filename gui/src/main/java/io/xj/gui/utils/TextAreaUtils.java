@@ -8,7 +8,7 @@ public enum TextAreaUtils {
 
   public static double getContentHeight(TextArea textArea) {
     ScrollPane sp = (ScrollPane) textArea.lookup(".scroll-pane");
-    if (sp != null) {
+    if (sp!=null) {
       return sp.getContent().getBoundsInLocal().getHeight();
     }
     return 0;
@@ -16,7 +16,7 @@ public enum TextAreaUtils {
 
   public static double getViewportHeight(TextArea textArea) {
     ScrollPane sp = (ScrollPane) textArea.lookup(".scroll-pane");
-    if (sp != null) {
+    if (sp!=null) {
       return sp.getViewportBounds().getHeight();
     }
     return 0;
@@ -24,7 +24,7 @@ public enum TextAreaUtils {
 
   public static double getVvalue(TextArea textArea) {
     ScrollPane sp = (ScrollPane) textArea.lookup(".scroll-pane");
-    if (sp != null) {
+    if (sp!=null) {
       return sp.getVvalue();
     }
     return 0;
@@ -32,7 +32,7 @@ public enum TextAreaUtils {
 
   public static double getVmax(TextArea textArea) {
     ScrollPane sp = (ScrollPane) textArea.lookup(".scroll-pane");
-    if (sp != null) {
+    if (sp!=null) {
       return sp.getVmax();
     }
     return 0;

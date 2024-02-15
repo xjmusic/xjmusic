@@ -39,29 +39,24 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class FabricationServiceImplTest {
+  private final String defaultMacroMode = ControlMode.AUTO.toString();
+  private final AtomicInteger offset = new AtomicInteger(0);
   int defaultTimelineSegmentViewLimit = 10;
   int defaultCraftAheadSeconds = 5;
   int defaultDubAheadSeconds = 5;
   int defaultMixerLengthSeconds = 10;
   int defaultOutputChannels = 2;
-  private final String defaultMacroMode = ControlMode.AUTO.toString();
   int defaultOutputFrameRate = 48000;
-
   @Mock
   LabService labService;
-
-  @Mock
-  private NexusEntityStore entityStore;
-
   @Mock
   ProjectService projectService;
-
+  FabricationServiceImpl subject;
+  @Mock
+  private NexusEntityStore entityStore;
   @Mock
   private FabricationManager fabricationManager;
-
-  FabricationServiceImpl subject;
   private Chain chain;
-  private final AtomicInteger offset = new AtomicInteger(0);
 
   @BeforeEach
   void setUp() {

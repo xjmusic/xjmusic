@@ -1,7 +1,6 @@
 package io.xj.nexus.util.aws_upload.auth;
 
 import io.xj.nexus.util.aws_upload.util.BinaryUtils;
-import io.xj.nexus.work.DubWorkImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,14 +13,12 @@ import java.util.Map;
  Sample AWS4 signer demonstrating how to sign 'chunked' uploads
  */
 public class AWS4SignerForChunkedUpload extends AWS4SignerBase {
-  private static final Logger LOG = LoggerFactory.getLogger(AWS4SignerForChunkedUpload.class);
-
   /**
    SHA256 substitute marker used in place of x-amz-content-sha256 when
    employing chunked uploads
    */
   public static final String STREAMING_BODY_SHA256 = "STREAMING-AWS4-HMAC-SHA256-PAYLOAD";
-
+  private static final Logger LOG = LoggerFactory.getLogger(AWS4SignerForChunkedUpload.class);
   private static final String CLRF = "\r\n";
   private static final String CHUNK_STRING_TO_SIGN_PREFIX = "AWS4-HMAC-SHA256-PAYLOAD";
   private static final String CHUNK_SIGNATURE_HEADER = ";chunk-signature=";

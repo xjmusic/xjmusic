@@ -104,10 +104,10 @@ public class SegmentChordVoicing {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) {
+    if (this==o) {
       return true;
     }
-    if (o == null || getClass() != o.getClass()) {
+    if (o==null || getClass()!=o.getClass()) {
       return false;
     }
     SegmentChordVoicing segmentChordVoicing = (SegmentChordVoicing) o;
@@ -142,7 +142,7 @@ public class SegmentChordVoicing {
    (except the first line).
    */
   String toIndentedString(Object o) {
-    if (o == null) {
+    if (o==null) {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");

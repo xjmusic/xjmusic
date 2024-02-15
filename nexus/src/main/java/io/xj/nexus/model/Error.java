@@ -47,10 +47,10 @@ public class Error {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) {
+    if (this==o) {
       return true;
     }
-    if (o == null || getClass() != o.getClass()) {
+    if (o==null || getClass()!=o.getClass()) {
       return false;
     }
     Error error = (Error) o;
@@ -79,7 +79,7 @@ public class Error {
    (except the first line).
    */
   String toIndentedString(Object o) {
-    if (o == null) {
+    if (o==null) {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");

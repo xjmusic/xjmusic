@@ -10,16 +10,13 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.StackPane?>
 <SplitPane
+  xmlns:fx="http://javafx.com/fxml/1"
   fx:controller="io.xj.gui.controllers.content.instrument.InstrumentAudioEditorController"
   fx:id="container"
   xmlns="http://javafx.com/javafx/17.0.2-ea"
-  xmlns:fx="http://javafx.com/fxml/1"
   dividerPositions="0.2">
 
   <VBox

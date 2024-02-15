@@ -68,15 +68,15 @@ import static io.xj.nexus.model.Segment.DELTA_UNLIMITED;
 
 @Service
 public class FabricationTimelineController extends ProjectController {
-  private static final Logger LOG = LoggerFactory.getLogger(FabricationTimelineController.class);
-  private static final int NO_ID = -1;
-  private static final double ACTIVE_SHIP_REGION_WIDTH = 5.0;
-  private static final long MILLIS_PER_MICRO = 1000L;
   static final int SEGMENT_PROPERTY_ROW_MIN_HEIGHT = 60;
   static final int SEGMENT_CONTAINER_PADDING_VERTICAL = 10;
   static final int SEGMENT_CONTAINER_PADDING_HORIZONTAL = 10;
   static final int CHORD_POSITION_WIDTH = 42;
   static final int SEGMENT_SECTION_VERTICAL_MARGIN = 30;
+  private static final Logger LOG = LoggerFactory.getLogger(FabricationTimelineController.class);
+  private static final int NO_ID = -1;
+  private static final double ACTIVE_SHIP_REGION_WIDTH = 5.0;
+  private static final long MILLIS_PER_MICRO = 1000L;
   private final int segmentWidth;
   private final int segmentGutter;
   private final int segmentDisplayChoiceHashRecheckLimit;
@@ -141,7 +141,7 @@ public class FabricationTimelineController extends ProjectController {
 
     segmentListView.paddingProperty().bind(scrollPane.widthProperty().map(width -> new Insets(0, width.doubleValue(), 0, segmentGutter)));
 
-    scrollPane.hbarPolicyProperty().bind(fabricationService.followPlaybackProperty().map(followPlayback -> followPlayback ? ScrollPane.ScrollBarPolicy.NEVER : ScrollPane.ScrollBarPolicy.AS_NEEDED));
+    scrollPane.hbarPolicyProperty().bind(fabricationService.followPlaybackProperty().map(followPlayback -> followPlayback ? ScrollPane.ScrollBarPolicy.NEVER:ScrollPane.ScrollBarPolicy.AS_NEEDED));
 
     fabricationService.stateProperty().addListener((o, ov, value) -> handleUpdateFabricationStatus(value));
 
@@ -237,13 +237,13 @@ public class FabricationTimelineController extends ProjectController {
 
     // we will update the segments in place as efficiently as possible
     // get the fresh first and last ids of the current and fresh segments
-    int freshFirstId = fs.isEmpty() ? NO_ID : fs.get(0).getId();
+    int freshFirstId = fs.isEmpty() ? NO_ID:fs.get(0).getId();
 
     // remove segments from the beginning of the list if their id is less than the updated first id
     int dsFirstId;
     while (!ds.isEmpty()) {
       dsFirstId = ds.get(0).getId();
-      if (NO_ID == dsFirstId || dsFirstId >= freshFirstId)
+      if (NO_ID==dsFirstId || dsFirstId >= freshFirstId)
         break;
       ds.remove(0);
       segmentListView.getChildren().remove(0);
@@ -256,7 +256,7 @@ public class FabricationTimelineController extends ProjectController {
     }
 
     // add current segments to end of list if their id is greater than the existing last id
-    int dsLastId = ds.isEmpty() ? NO_ID : ds.get(ds.size() - 1).getId();
+    int dsLastId = ds.isEmpty() ? NO_ID:ds.get(ds.size() - 1).getId();
     for (Segment freshSegment : fs) {
       if (freshSegment.getId() > dsLastId) {
         ds.add(new DisplayedSegment(freshSegment));
@@ -282,7 +282,7 @@ public class FabricationTimelineController extends ProjectController {
     scrollPaneAnimationTimeline.getKeyFrames().clear();
 
     // marker 0 is the beginAtChainMicros of the first displayed segment
-    var m0 = ds.isEmpty() ? 0 : ds.get(0).getBeginAtChainMicros();
+    var m0 = ds.isEmpty() ? 0:ds.get(0).getBeginAtChainMicros();
 
     // markers 1-3 are the shippedToChainMicros, dubbedToChainMicros, and craftedToChainMicros
     var m1Now = fabricationService.getShippedToChainMicros().orElse(m0);
@@ -365,77 +365,6 @@ public class FabricationTimelineController extends ProjectController {
   }
 
   /**
-   A displayed segment is a segment that is currently displayed in the timeline.
-   It is identified by its id, and it is updated in place when the segment is updated.
-   It is also updated in place when the segment is unchanged but its choice hash has changed.
-   */
-  private class DisplayedSegment {
-    private final AtomicReference<Segment> segment = new AtomicReference<>();
-    private final AtomicReference<String> choiceHash = new AtomicReference<>();
-    private final AtomicInteger hashRecheckCount = new AtomicInteger(0);
-
-    DisplayedSegment(Segment segment) {
-      update(segment);
-    }
-
-    public boolean isSameButUpdated(Segment segment) {
-      // Before worrying about the choice hash, test if the segment updated time is updated
-      if (SegmentUtils.isSameButUpdated(this.segment.get(), segment))
-        return true;
-
-      // For performance, limit how many times we recheck the choice hash
-      if (!(hashRecheckCount.get() < segmentDisplayChoiceHashRecheckLimit))
-        return false;
-      hashRecheckCount.incrementAndGet();
-      return
-        !Objects.equals(this.choiceHash.get(), fabricationService.computeChoiceHash(segment));
-    }
-
-    public void update(Segment segment) {
-      this.segment.set(segment);
-      this.choiceHash.set(fabricationService.computeChoiceHash(segment));
-      this.hashRecheckCount.set(0);
-    }
-
-    public long getBeginAtChainMicros() {
-      if (!isSegmentReady()) return 0;
-      return segment.get().getBeginAtChainMicros();
-    }
-
-    public long getEndAtChainMicros() {
-      if (!isSegmentReady()) return 0;
-      // noinspection DataFlowIssue
-      return segment.get().getBeginAtChainMicros() + segment.get().getDurationMicros();
-    }
-
-    public boolean isIntersecting(long chainMicros) {
-      if (!isSegmentReady()) return false;
-      return segment.get().getBeginAtChainMicros() <= chainMicros && getEndAtChainMicros() > chainMicros;
-    }
-
-    public double computePositionRatio(long chainMicros) {
-      if (!isSegmentReady()) return 0;
-      //noinspection DataFlowIssue
-      return (double) (chainMicros - segment.get().getBeginAtChainMicros()) / segment.get().getDurationMicros();
-    }
-
-    public long getDurationMicros() {
-      if (!isSegmentReady())
-        return 0;
-      //noinspection DataFlowIssue
-      return segment.get().getDurationMicros();
-    }
-
-    private boolean isSegmentReady() {
-      return Objects.nonNull(segment.get()) && Objects.nonNull(segment.get().getBeginAtChainMicros()) && Objects.nonNull(segment.get().getDurationMicros());
-    }
-
-    public int getId() {
-      return segment.get().getId();
-    }
-  }
-
-  /**
    Every time we need a segment, build it from scratch
 
    @param segment from which to compute JavaFX node
@@ -477,17 +406,17 @@ public class FabricationTimelineController extends ProjectController {
     col.setPadding(new Insets(0, 0, 0, 10));
     // info
     col.getChildren().addAll(messages.stream()
-      .filter(message -> message.getType() == SegmentMessageType.INFO)
+      .filter(message -> message.getType()==SegmentMessageType.INFO)
       .map(m -> computeSegmentSectionMessageNode(m, width))
       .toList());
     // warning
     col.getChildren().addAll(messages.stream()
-      .filter(message -> message.getType() == SegmentMessageType.WARNING)
+      .filter(message -> message.getType()==SegmentMessageType.WARNING)
       .map(m -> computeSegmentSectionMessageNode(m, width))
       .toList());
     // error
     col.getChildren().addAll(messages.stream()
-      .filter(message -> message.getType() == SegmentMessageType.ERROR)
+      .filter(message -> message.getType()==SegmentMessageType.ERROR)
       .map(m -> computeSegmentSectionMessageNode(m, width))
       .toList());
     //
@@ -569,16 +498,16 @@ public class FabricationTimelineController extends ProjectController {
     col.setPadding(new Insets(20, 0, 0, 0));
     VBox.setVgrow(col, Priority.ALWAYS);
     var choices = fabricationService.getSegmentChoices(segment);
-    col.getChildren().add(computeChoiceListNodes(segment, "Macro", choices.stream().filter((choice) -> ProgramType.Macro == choice.getProgramType()).toList(), true, false, false));
-    col.getChildren().add(computeChoiceListNodes(segment, "Main", choices.stream().filter((choice) -> ProgramType.Main == choice.getProgramType()).toList(), true, false, false));
-    col.getChildren().add(computeChoiceListNodes(segment, "Beat", choices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList(), false, true, false));
-    col.getChildren().add(computeChoiceListNodes(segment, "Detail", choices.stream().filter((choice) -> ProgramType.Detail == choice.getProgramType()).toList(), true, false, false));
+    col.getChildren().add(computeChoiceListNodes(segment, "Macro", choices.stream().filter((choice) -> ProgramType.Macro==choice.getProgramType()).toList(), true, false, false));
+    col.getChildren().add(computeChoiceListNodes(segment, "Main", choices.stream().filter((choice) -> ProgramType.Main==choice.getProgramType()).toList(), true, false, false));
+    col.getChildren().add(computeChoiceListNodes(segment, "Beat", choices.stream().filter((choice) -> ProgramType.Beat==choice.getProgramType()).toList(), false, true, false));
+    col.getChildren().add(computeChoiceListNodes(segment, "Detail", choices.stream().filter((choice) -> ProgramType.Detail==choice.getProgramType()).toList(), true, false, false));
     col.getChildren().add(computeChoiceListNodes(segment, "Perc Loop", choices.stream().filter((choice) ->
-      InstrumentType.Percussion == choice.getInstrumentType() && InstrumentMode.Loop == choice.getInstrumentMode()).toList(), false, false, true));
-    col.getChildren().add(computeChoiceListNodes(segment, "Hook", choices.stream().filter((choice) -> InstrumentType.Hook == choice.getInstrumentType()).toList(), false, false, true));
-    col.getChildren().add(computeChoiceListNodes(segment, "Transition", choices.stream().filter((choice) -> InstrumentMode.Transition == choice.getInstrumentMode()).toList(), false, false, true));
-    col.getChildren().add(computeChoiceListNodes(segment, "Background", choices.stream().filter((choice) -> InstrumentMode.Background == choice.getInstrumentMode()).toList(), false, false, true));
-    col.getChildren().add(computeChoiceListNodes(segment, "Chord", choices.stream().filter((choice) -> InstrumentMode.Chord == choice.getInstrumentMode()).toList(), false, false, true));
+      InstrumentType.Percussion==choice.getInstrumentType() && InstrumentMode.Loop==choice.getInstrumentMode()).toList(), false, false, true));
+    col.getChildren().add(computeChoiceListNodes(segment, "Hook", choices.stream().filter((choice) -> InstrumentType.Hook==choice.getInstrumentType()).toList(), false, false, true));
+    col.getChildren().add(computeChoiceListNodes(segment, "Transition", choices.stream().filter((choice) -> InstrumentMode.Transition==choice.getInstrumentMode()).toList(), false, false, true));
+    col.getChildren().add(computeChoiceListNodes(segment, "Background", choices.stream().filter((choice) -> InstrumentMode.Background==choice.getInstrumentMode()).toList(), false, false, true));
+    col.getChildren().add(computeChoiceListNodes(segment, "Chord", choices.stream().filter((choice) -> InstrumentMode.Chord==choice.getInstrumentMode()).toList(), false, false, true));
     //
     var pane = new AnchorPane();
     pane.getChildren().add(col);
@@ -713,8 +642,8 @@ public class FabricationTimelineController extends ProjectController {
       .stream()
       .sorted(Comparator.comparing((c) ->
         String.format("%s_%s",
-          Objects.nonNull(c.getInstrumentType()) ? c.getInstrumentType() : "",
-          Objects.nonNull(c.getProgramType()) ? c.getProgramType() : "")))
+          Objects.nonNull(c.getInstrumentType()) ? c.getInstrumentType():"",
+          Objects.nonNull(c.getProgramType()) ? c.getProgramType():"")))
       .forEach(choice -> {
         var choiceListItem = computeChoiceNode(segment, choice, showProgram, showProgramVoice, showArrangementPicks);
         box.getChildren().add(choiceListItem);
@@ -727,8 +656,8 @@ public class FabricationTimelineController extends ProjectController {
     box.getStyleClass().add("choice-group-item");
 
     if ((Objects.nonNull(choice.getMute()) && choice.getMute()) ||
-      (Objects.nonNull(choice.getDeltaIn()) && DELTA_UNLIMITED != choice.getDeltaIn() && segment.getDelta() < choice.getDeltaIn()) ||
-      (Objects.nonNull(choice.getDeltaOut()) && DELTA_UNLIMITED != choice.getDeltaOut() && segment.getDelta() > choice.getDeltaOut()))
+      (Objects.nonNull(choice.getDeltaIn()) && DELTA_UNLIMITED!=choice.getDeltaIn() && segment.getDelta() < choice.getDeltaIn()) ||
+      (Objects.nonNull(choice.getDeltaOut()) && DELTA_UNLIMITED!=choice.getDeltaOut() && segment.getDelta() > choice.getDeltaOut()))
       box.getStyleClass().add("choice-group-item-muted");
 
     if (showProgram) {
@@ -755,7 +684,7 @@ public class FabricationTimelineController extends ProjectController {
   }
 
   Optional<Node> computeShowDeltaNode(Segment segment, SegmentChoice choice) {
-    if (ProgramType.Macro == choice.getProgramType() || ProgramType.Main == choice.getProgramType()) {
+    if (ProgramType.Macro==choice.getProgramType() || ProgramType.Main==choice.getProgramType()) {
       return Optional.empty();
     }
 
@@ -787,7 +716,7 @@ public class FabricationTimelineController extends ProjectController {
   }
 
   String computeChoiceDeltaValue(Segment segment, Integer value) {
-    if (-1 == value) return "∞";
+    if (-1==value) return "∞";
     return fabricationService.formatPositionBarBeats(segment, Double.valueOf(value));
   }
 
@@ -819,7 +748,7 @@ public class FabricationTimelineController extends ProjectController {
    */
   private Node computeProgramReferenceNode(UUID programId, @Nullable UUID programSequenceBindingId) {
     var program = fabricationService.getProgram(programId);
-    Optional<ProgramSequenceBinding> programSequenceBinding = Objects.nonNull(programSequenceBindingId) ? fabricationService.getProgramSequenceBinding(programSequenceBindingId) : Optional.empty();
+    Optional<ProgramSequenceBinding> programSequenceBinding = Objects.nonNull(programSequenceBindingId) ? fabricationService.getProgramSequenceBinding(programSequenceBindingId):Optional.empty();
     var programSequence = programSequenceBinding.map(ProgramSequenceBinding::getProgramSequenceId).flatMap(fabricationService::getProgramSequence);
 
     var hyperlink = new Hyperlink(computeProgramName(program.orElse(null), programSequence.orElse(null), programSequenceBinding.orElse(null)));
@@ -886,5 +815,76 @@ public class FabricationTimelineController extends ProjectController {
     else if (Objects.nonNull(program))
       return program.getName();
     else return "Not Loaded";
+  }
+
+  /**
+   A displayed segment is a segment that is currently displayed in the timeline.
+   It is identified by its id, and it is updated in place when the segment is updated.
+   It is also updated in place when the segment is unchanged but its choice hash has changed.
+   */
+  private class DisplayedSegment {
+    private final AtomicReference<Segment> segment = new AtomicReference<>();
+    private final AtomicReference<String> choiceHash = new AtomicReference<>();
+    private final AtomicInteger hashRecheckCount = new AtomicInteger(0);
+
+    DisplayedSegment(Segment segment) {
+      update(segment);
+    }
+
+    public boolean isSameButUpdated(Segment segment) {
+      // Before worrying about the choice hash, test if the segment updated time is updated
+      if (SegmentUtils.isSameButUpdated(this.segment.get(), segment))
+        return true;
+
+      // For performance, limit how many times we recheck the choice hash
+      if (!(hashRecheckCount.get() < segmentDisplayChoiceHashRecheckLimit))
+        return false;
+      hashRecheckCount.incrementAndGet();
+      return
+        !Objects.equals(this.choiceHash.get(), fabricationService.computeChoiceHash(segment));
+    }
+
+    public void update(Segment segment) {
+      this.segment.set(segment);
+      this.choiceHash.set(fabricationService.computeChoiceHash(segment));
+      this.hashRecheckCount.set(0);
+    }
+
+    public long getBeginAtChainMicros() {
+      if (!isSegmentReady()) return 0;
+      return segment.get().getBeginAtChainMicros();
+    }
+
+    public long getEndAtChainMicros() {
+      if (!isSegmentReady()) return 0;
+      // noinspection DataFlowIssue
+      return segment.get().getBeginAtChainMicros() + segment.get().getDurationMicros();
+    }
+
+    public boolean isIntersecting(long chainMicros) {
+      if (!isSegmentReady()) return false;
+      return segment.get().getBeginAtChainMicros() <= chainMicros && getEndAtChainMicros() > chainMicros;
+    }
+
+    public double computePositionRatio(long chainMicros) {
+      if (!isSegmentReady()) return 0;
+      //noinspection DataFlowIssue
+      return (double) (chainMicros - segment.get().getBeginAtChainMicros()) / segment.get().getDurationMicros();
+    }
+
+    public long getDurationMicros() {
+      if (!isSegmentReady())
+        return 0;
+      //noinspection DataFlowIssue
+      return segment.get().getDurationMicros();
+    }
+
+    private boolean isSegmentReady() {
+      return Objects.nonNull(segment.get()) && Objects.nonNull(segment.get().getBeginAtChainMicros()) && Objects.nonNull(segment.get().getDurationMicros());
+    }
+
+    public int getId() {
+      return segment.get().getId();
+    }
   }
 }

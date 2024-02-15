@@ -2,8 +2,8 @@
 
 package io.xj.gui.controllers.fabrication;
 
-import io.xj.gui.controllers.MainPaneRightController;
 import io.xj.gui.ProjectController;
+import io.xj.gui.controllers.MainPaneRightController;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 public class FabricationController extends ProjectController {
   private final MainPaneRightController mainPaneRightController;
   private final FabricationTimelineController fabricationTimelineController;
+  @FXML
+  protected BorderPane container;
 
   public FabricationController(
     @Value("classpath:/views/fabrication.fxml") Resource fxml,
@@ -32,9 +34,6 @@ public class FabricationController extends ProjectController {
     this.fabricationTimelineController = fabricationTimelineController;
     this.mainPaneRightController = mainPaneRightController;
   }
-
-  @FXML
-  protected BorderPane container;
 
   @Override
   public void onStageReady() {

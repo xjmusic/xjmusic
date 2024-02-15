@@ -157,7 +157,7 @@ public class FabricationManagerImpl implements FabricationManager {
       shipWork.finish();
     }
 
-    updateState(cancelled ? FabricationState.Cancelled : FabricationState.Done);
+    updateState(cancelled ? FabricationState.Cancelled:FabricationState.Done);
     if (Objects.nonNull(afterFinished)) {
       afterFinished.run();
     }
@@ -172,7 +172,7 @@ public class FabricationManagerImpl implements FabricationManager {
 
   @Override
   public boolean isHealthy() {
-    return getWorkState() != FabricationState.Failed;
+    return getWorkState()!=FabricationState.Failed;
   }
 
   @Override
@@ -253,17 +253,17 @@ public class FabricationManagerImpl implements FabricationManager {
 
   @Override
   public Optional<Long> getShippedToChainMicros() {
-    return Objects.nonNull(shipWork) ? shipWork.getShippedToChainMicros() : Optional.empty();
+    return Objects.nonNull(shipWork) ? shipWork.getShippedToChainMicros():Optional.empty();
   }
 
   @Override
   public Optional<Long> getDubbedToChainMicros() {
-    return Objects.nonNull(dubWork) ? dubWork.getDubbedToChainMicros() : Optional.empty();
+    return Objects.nonNull(dubWork) ? dubWork.getDubbedToChainMicros():Optional.empty();
   }
 
   @Override
   public Optional<Long> getCraftedToChainMicros() {
-    return Objects.nonNull(craftWork) ? craftWork.getCraftedToChainMicros() : Optional.empty();
+    return Objects.nonNull(craftWork) ? craftWork.getCraftedToChainMicros():Optional.empty();
   }
 
   /**

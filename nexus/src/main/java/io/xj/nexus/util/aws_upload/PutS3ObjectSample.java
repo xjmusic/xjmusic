@@ -4,7 +4,6 @@ import io.xj.nexus.util.aws_upload.auth.AWS4SignerBase;
 import io.xj.nexus.util.aws_upload.auth.AWS4SignerForAuthorizationHeader;
 import io.xj.nexus.util.aws_upload.util.BinaryUtils;
 import io.xj.nexus.util.aws_upload.util.HttpUtils;
-import io.xj.nexus.work.DubWorkImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,17 +20,17 @@ public class PutS3ObjectSample {
   private static final Logger LOG = LoggerFactory.getLogger(PutS3ObjectSample.class);
 
   private static final String objectContent =
-          """
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc tortor metus, sagittis eget augue ut,
-                  feugiat vehicula risus. Integer tortor mauris, vehicula nec mollis et, consectetur eget tortor. In ut
-                  elit sagittis, ultrices est ut, iaculis turpis. In hac habitasse platea dictumst. Donec laoreet tellus
-                  at auctor tempus. Praesent nec diam sed urna sollicitudin vehicula eget id est. Vivamus sed laoreet
-                  lectus. Aliquam convallis condimentum risus, vitae porta justo venenatis vitae. Phasellus vitae nunc
-                  varius, volutpat quam nec, mollis urna. Donec tempus, nisi vitae gravida facilisis, sapien sem malesuada
-                  purus, id semper libero ipsum condimentum nulla. Suspendisse vel mi leo. Morbi pellentesque placerat congue.
-                  Nunc sollicitudin nunc diam, nec hendrerit dui commodo sed. Duis dapibus commodo elit, id commodo erat
-                  congue id. Aliquam erat volutpat.
-                  """;
+    """
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc tortor metus, sagittis eget augue ut,
+      feugiat vehicula risus. Integer tortor mauris, vehicula nec mollis et, consectetur eget tortor. In ut
+      elit sagittis, ultrices est ut, iaculis turpis. In hac habitasse platea dictumst. Donec laoreet tellus
+      at auctor tempus. Praesent nec diam sed urna sollicitudin vehicula eget id est. Vivamus sed laoreet
+      lectus. Aliquam convallis condimentum risus, vitae porta justo venenatis vitae. Phasellus vitae nunc
+      varius, volutpat quam nec, mollis urna. Donec tempus, nisi vitae gravida facilisis, sapien sem malesuada
+      purus, id semper libero ipsum condimentum nulla. Suspendisse vel mi leo. Morbi pellentesque placerat congue.
+      Nunc sollicitudin nunc diam, nec hendrerit dui commodo sed. Duis dapibus commodo elit, id commodo erat
+      congue id. Aliquam erat volutpat.
+      """;
 
   /**
    Uploads content to an Amazon S3 object in a single call using Signature V4 authorization.

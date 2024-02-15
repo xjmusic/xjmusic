@@ -28,12 +28,11 @@ import java.util.stream.Collectors;
  */
 class SegmentRetrospectiveImpl implements SegmentRetrospective {
   final List<List<SegmentChord>> segmentChords = new ArrayList<>();
-  private final NexusEntityStore entityStore;
   final List<Segment> retroSegments;
   final List<Integer> previousSegmentIds;
-
   @Nullable
   final Segment previousSegment;
+  private final NexusEntityStore entityStore;
 
   public SegmentRetrospectiveImpl(
     NexusEntityStore entityStore,

@@ -17,9 +17,9 @@ public class ProjectAudioUpload {
   private final String pathOnDisk;
 
   private final long contentLength;
+  private final Collection<String> errors;
   private @Nullable String id;
   private @Nullable HubUploadAuthorization auth;
-  private final Collection<String> errors;
   private boolean success = false;
 
   public ProjectAudioUpload(UUID instrumentAudioId, String pathOnDisk) throws IOException {
@@ -42,27 +42,27 @@ public class ProjectAudioUpload {
     return id;
   }
 
+  public void setId(String id) {
+    Objects.requireNonNull(id, "Cannot get ID before it is set");
+    this.id = id;
+  }
+
   public HubUploadAuthorization getAuth() {
     Objects.requireNonNull(auth, "Cannot get Authorization before it is set");
     return auth;
+  }
+
+  public void setAuth(HubUploadAuthorization auth) {
+    Objects.requireNonNull(auth, "Authorization cannot be null");
+    this.auth = auth;
   }
 
   public Collection<String> getErrors() {
     return errors;
   }
 
-  public void setId(String id) {
-    Objects.requireNonNull(id, "Cannot get ID before it is set");
-    this.id = id;
-  }
-
   public void setSuccess(boolean success) {
     this.success = success;
-  }
-
-  public void setAuth(HubUploadAuthorization auth) {
-    Objects.requireNonNull(auth, "Authorization cannot be null");
-    this.auth = auth;
   }
 
   public boolean wasSuccessful() {

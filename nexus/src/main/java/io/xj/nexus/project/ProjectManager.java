@@ -109,6 +109,13 @@ public interface ProjectManager {
   String getProjectPathPrefix();
 
   /**
+   Set the project path prefix
+
+   @param contentStoragePathPrefix the project path prefix
+   */
+  void setProjectPathPrefix(String contentStoragePathPrefix);
+
+  /**
    @return the current project, or empty if not set
    */
   Optional<Project> getProject();
@@ -122,13 +129,6 @@ public interface ProjectManager {
    @return the project file absolute path
    */
   String getPathToProjectFile();
-
-  /**
-   Set the project path prefix
-
-   @param contentStoragePathPrefix the project path prefix
-   */
-  void setProjectPathPrefix(String contentStoragePathPrefix);
 
   /**
    @return a reference to the current content

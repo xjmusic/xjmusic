@@ -60,6 +60,43 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
     this.entityFactory = entityFactory;
   }
 
+  /**
+   Segment state transitions are protected, dependent on the state this segment is being transitioned of, and the intended state it is being transitioned to.
+
+   @param fromState to protect transition of
+   @param toState   to test transition to
+   @throws ValueException on prohibited transition
+   */
+  public static void protectSegmentStateTransition(SegmentState fromState, SegmentState toState) throws ValueException {
+    switch (fromState) {
+      case PLANNED -> onlyAllowSegmentStateTransitions(toState, SegmentState.PLANNED, SegmentState.CRAFTING);
+      case CRAFTING ->
+        onlyAllowSegmentStateTransitions(toState, SegmentState.CRAFTING, SegmentState.CRAFTED, SegmentState.CRAFTING, SegmentState.FAILED, SegmentState.PLANNED);
+      case CRAFTED -> onlyAllowSegmentStateTransitions(toState, SegmentState.CRAFTED, SegmentState.CRAFTING);
+      case FAILED -> onlyAllowSegmentStateTransitions(toState, SegmentState.FAILED);
+      default -> onlyAllowSegmentStateTransitions(toState, SegmentState.PLANNED);
+    }
+  }
+
+  /**
+   Require state is in an array of states
+
+   @param toState       to check
+   @param allowedStates required to be in
+   @throws ValueException if not in required states
+   */
+  public static void onlyAllowSegmentStateTransitions(SegmentState toState, SegmentState... allowedStates) throws ValueException {
+    List<String> allowedStateNames = new ArrayList<>();
+    for (SegmentState search : allowedStates) {
+      allowedStateNames.add(search.toString());
+      if (Objects.equals(search, toState)) {
+        return;
+      }
+    }
+    throw new ValueException(String.format("transition to %s not in allowed (%s)",
+      toState, CsvUtils.join(allowedStateNames)));
+  }
+
   @Override
   public <N> N put(N entity) throws NexusException {
     validate(entity);
@@ -120,7 +157,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
 
   @Override
   public Optional<Segment> readSegment(int id) {
-    return segments.containsKey(id) ? Optional.of(segments.get(id)) : Optional.empty();
+    return segments.containsKey(id) ? Optional.of(segments.get(id)):Optional.empty();
   }
 
   @Override
@@ -137,7 +174,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
       .filter(s -> SegmentUtils.isSpanning(s, chainMicros, chainMicros))
       .sorted(Comparator.comparing(Segment::getId))
       .toList();
-    return segments.isEmpty() ? Optional.empty() : Optional.of(segments.get(segments.size() - 1));
+    return segments.isEmpty() ? Optional.empty():Optional.of(segments.get(segments.size() - 1));
   }
 
   @Override
@@ -369,43 +406,6 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   @Override
   public Boolean isEmpty() {
     return segments.isEmpty();
-  }
-
-  /**
-   Segment state transitions are protected, dependent on the state this segment is being transitioned of, and the intended state it is being transitioned to.
-
-   @param fromState to protect transition of
-   @param toState   to test transition to
-   @throws ValueException on prohibited transition
-   */
-  public static void protectSegmentStateTransition(SegmentState fromState, SegmentState toState) throws ValueException {
-    switch (fromState) {
-      case PLANNED -> onlyAllowSegmentStateTransitions(toState, SegmentState.PLANNED, SegmentState.CRAFTING);
-      case CRAFTING ->
-        onlyAllowSegmentStateTransitions(toState, SegmentState.CRAFTING, SegmentState.CRAFTED, SegmentState.CRAFTING, SegmentState.FAILED, SegmentState.PLANNED);
-      case CRAFTED -> onlyAllowSegmentStateTransitions(toState, SegmentState.CRAFTED, SegmentState.CRAFTING);
-      case FAILED -> onlyAllowSegmentStateTransitions(toState, SegmentState.FAILED);
-      default -> onlyAllowSegmentStateTransitions(toState, SegmentState.PLANNED);
-    }
-  }
-
-  /**
-   Require state is in an array of states
-
-   @param toState       to check
-   @param allowedStates required to be in
-   @throws ValueException if not in required states
-   */
-  public static void onlyAllowSegmentStateTransitions(SegmentState toState, SegmentState... allowedStates) throws ValueException {
-    List<String> allowedStateNames = new ArrayList<>();
-    for (SegmentState search : allowedStates) {
-      allowedStateNames.add(search.toString());
-      if (Objects.equals(search, toState)) {
-        return;
-      }
-    }
-    throw new ValueException(String.format("transition to %s not in allowed (%s)",
-      toState, CsvUtils.join(allowedStateNames)));
   }
 
   /**

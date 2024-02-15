@@ -27,39 +27,28 @@ import java.util.Objects;
 public class FabricationSettingsModalController extends ProjectModalController {
   static final String FABRICATION_SERVICE_WINDOW_NAME = "Fabrication Settings";
   private final FabricationService fabricationService;
-
-  @FXML
-  ChoiceBox<ControlMode> choiceControlMode;
-
-  @FXML
-  ChoiceBox<TemplateChoice> choiceTemplate;
-
-  @FXML
-  Label labelControlMode;
-
-  @FXML
-  TextField fieldCraftAheadSeconds;
-
-  @FXML
-  TextField fieldDubAheadSeconds;
-
-  @FXML
-  TextField fieldMixerLengthSeconds;
-
-  @FXML
-  TextField fieldOutputChannels;
-
-  @FXML
-  TextField fieldOutputFrameRate;
-
-  @FXML
-  TextField fieldTimelineSegmentViewLimit;
-
   @FXML
   public Button buttonClose;
-
   @FXML
   public Button buttonReset;
+  @FXML
+  ChoiceBox<ControlMode> choiceControlMode;
+  @FXML
+  ChoiceBox<TemplateChoice> choiceTemplate;
+  @FXML
+  Label labelControlMode;
+  @FXML
+  TextField fieldCraftAheadSeconds;
+  @FXML
+  TextField fieldDubAheadSeconds;
+  @FXML
+  TextField fieldMixerLengthSeconds;
+  @FXML
+  TextField fieldOutputChannels;
+  @FXML
+  TextField fieldOutputFrameRate;
+  @FXML
+  TextField fieldTimelineSegmentViewLimit;
 
   public FabricationSettingsModalController(
     @Value("classpath:/views/fabrication/fabrication-settings-modal.fxml") Resource fxml,
@@ -124,7 +113,7 @@ public class FabricationSettingsModalController extends ProjectModalController {
   public record TemplateChoice(Template template) {
     @Override
     public String toString() {
-      return Objects.nonNull(template) ? template.getName() : "Select...";
+      return Objects.nonNull(template) ? template.getName():"Select...";
     }
   }
 }

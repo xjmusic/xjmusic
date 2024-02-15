@@ -25,7 +25,7 @@ public class BytePipeline {
     int readLength = inputStream.read(buffer);
 
     // Handle partial read by creating a new array with just the data that was read.
-    if (readLength != length) {
+    if (readLength!=length) {
       byte[] actualData = new byte[readLength];
       System.arraycopy(buffer, 0, actualData, 0, readLength);
       buffer = actualData;

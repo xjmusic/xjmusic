@@ -16,8 +16,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StreamPlayerImpl implements StreamPlayer {
   static final Logger LOG = LoggerFactory.getLogger(StreamPlayer.class);
-  SourceDataLine line;
   final AtomicBoolean running = new AtomicBoolean(true);
+  SourceDataLine line;
 
   public StreamPlayerImpl(
     AudioFormat format,

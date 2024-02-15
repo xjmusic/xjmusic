@@ -34,7 +34,7 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
 
     // Instruments may be chosen without programs https://www.pivotaltracker.com/story/show/181290857
     Optional<Instrument> instrument = priorChoice.isPresent() ?
-      fabricator.sourceMaterial().getInstrument(priorChoice.get().getInstrumentId()) :
+      fabricator.sourceMaterial().getInstrument(priorChoice.get().getInstrumentId()):
       chooseFreshInstrument(List.of(InstrumentType.Hook), List.of(InstrumentMode.Loop), List.of(), null, List.of());
 
     // instrument audio prior choice persists
@@ -46,17 +46,18 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
     // Pick instrument audio
     Optional<InstrumentAudio> instrumentAudio =
       instrument.isPresent() && fabricator.getInstrumentConfig(instrument.get()).isAudioSelectionPersistent() && priorAudio.isPresent()
-        ? priorAudio : (instrument.isPresent() ? selectNewInstrumentAudio(instrument.get()) : Optional.empty());
+        ? priorAudio:(instrument.isPresent() ? selectNewInstrumentAudio(instrument.get()):Optional.empty());
 
     // Loop instrument mode https://www.pivotaltracker.com/story/show/181815619
     // Should gracefully skip audio in unfulfilled by instrument https://www.pivotaltracker.com/story/show/176373977
-    if (instrument.isPresent() && instrumentAudio.isPresent()) craftHook(fabricator.getTempo(), instrument.get(), instrumentAudio.get());
+    if (instrument.isPresent() && instrumentAudio.isPresent())
+      craftHook(fabricator.getTempo(), instrument.get(), instrumentAudio.get());
   }
 
   /**
    Craft hook loop
 
-   @param tempo of main program
+   @param tempo      of main program
    @param instrument to craft
    @param audio      to craft
    @throws NexusException on failure

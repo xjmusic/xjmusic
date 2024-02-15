@@ -1,6 +1,5 @@
 package io.xj.nexus.util.aws_upload.util;
 
-import io.xj.nexus.work.DubWorkImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,8 +96,8 @@ public class HttpUtils {
 
   public static String urlEncode(String url, boolean keepPathSlash) {
     String encoded;
-      encoded = URLEncoder.encode(url, StandardCharsets.UTF_8);
-      if (keepPathSlash) {
+    encoded = URLEncoder.encode(url, StandardCharsets.UTF_8);
+    if (keepPathSlash) {
       encoded = encoded.replace("%2F", "/");
     }
     return encoded;

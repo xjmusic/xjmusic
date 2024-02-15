@@ -68,7 +68,7 @@ public enum SegmentUtils {
    */
   public static String getIdentifier(@Nullable Segment segment) {
     if (Objects.isNull(segment)) return "N/A";
-    return StringUtils.isNullOrEmpty(segment.getStorageKey()) ? segment.getId().toString() : segment.getStorageKey();
+    return StringUtils.isNullOrEmpty(segment.getStorageKey()) ? segment.getId().toString():segment.getStorageKey();
   }
 
 
@@ -103,7 +103,7 @@ public enum SegmentUtils {
   public static Collection<Segment> getCrafted(Collection<Segment> segments) {
     return segments
       .stream()
-      .filter(segment -> SegmentState.CRAFTED == segment.getState())
+      .filter(segment -> SegmentState.CRAFTED==segment.getState())
       .collect(Collectors.toList());
   }
 
@@ -192,7 +192,7 @@ public enum SegmentUtils {
   }
 
   public static long getEndAtChainMicros(Segment segment) {
-    return Objects.nonNull(segment.getDurationMicros()) ? segment.getBeginAtChainMicros() + segment.getDurationMicros() : segment.getBeginAtChainMicros();
+    return Objects.nonNull(segment.getDurationMicros()) ? segment.getBeginAtChainMicros() + segment.getDurationMicros():segment.getBeginAtChainMicros();
   }
 
   public static boolean isSameButUpdated(Segment s1, Segment s2) {
@@ -210,7 +210,7 @@ public enum SegmentUtils {
   public static long getDurationMinMicros(Collection<Segment> segments) {
     long micros = 0;
     for (Segment s : segments)
-      if (Objects.nonNull(s.getDurationMicros()) && (micros == 0 || s.getDurationMicros() < micros))
+      if (Objects.nonNull(s.getDurationMicros()) && (micros==0 || s.getDurationMicros() < micros))
         micros = s.getDurationMicros();
     return micros;
   }

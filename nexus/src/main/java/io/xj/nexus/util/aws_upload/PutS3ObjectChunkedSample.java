@@ -2,7 +2,6 @@ package io.xj.nexus.util.aws_upload;
 
 import io.xj.nexus.util.aws_upload.auth.AWS4SignerForChunkedUpload;
 import io.xj.nexus.util.aws_upload.util.HttpUtils;
-import io.xj.nexus.work.DubWorkImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

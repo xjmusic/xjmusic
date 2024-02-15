@@ -137,6 +137,11 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
+  public void setProjectPathPrefix(String projectPathPrefix) {
+    this.projectPathPrefix.set(projectPathPrefix);
+  }
+
+  @Override
   public Optional<Project> getProject() {
     return Optional.ofNullable(project.get());
   }
@@ -404,11 +409,6 @@ public class ProjectManagerImpl implements ProjectManager {
   @Override
   public String getPathToProjectFile() {
     return projectPathPrefix.get() + getProjectFilename();
-  }
-
-  @Override
-  public void setProjectPathPrefix(String projectPathPrefix) {
-    this.projectPathPrefix.set(projectPathPrefix);
   }
 
   @Override

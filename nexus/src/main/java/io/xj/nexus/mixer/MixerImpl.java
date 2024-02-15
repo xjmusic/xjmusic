@@ -30,7 +30,6 @@ class MixerImpl implements Mixer {
   final int outputChannels;
   final int outputFrameSize;
   final MixerFactory factory;
-  private final AudioCache audioCache;
   final MixerConfig config;
   final float compressToAmplitude;
   final float compressRatioMin;
@@ -41,17 +40,17 @@ class MixerImpl implements Mixer {
   final Map<Integer, Float> busLevel = new ConcurrentHashMap<>();
   final int framesPerMilli;
   final EnvelopeProvider envelope;
-
   final BytePipeline buffer;
   final int totalMixFrames;
-  MixerState state = MixerState.Ready;
   final float[][][] busBuf; // buffer separated into busses like [bus][frame][channel]
   final float[][] outBuf; // final output buffer like [bus][frame][channel]
   final AudioFormat audioFormat;
-  float compRatio = 0; // mixer effects are continuous between renders, so these ending values make their way back to the beginning of the next render
-  float[] busCompRatio; // mixer effects are continuous between renders, so these ending values make their way back to the beginning of the next render
   final Map<InstrumentType, Integer> instrumentBusNumber = new ConcurrentHashMap<>();
   final AtomicInteger computedBusNumber = new AtomicInteger(0);
+  private final AudioCache audioCache;
+  MixerState state = MixerState.Ready;
+  float compRatio = 0; // mixer effects are continuous between renders, so these ending values make their way back to the beginning of the next render
+  float[] busCompRatio; // mixer effects are continuous between renders, so these ending values make their way back to the beginning of the next render
 
   /**
    Instantiate a single Mix instance
@@ -101,6 +100,22 @@ class MixerImpl implements Mixer {
     } catch (Exception e) {
       throw new MixerException(config.getLogPrefix() + "unable to setup internal variables from output audio format", e);
     }
+  }
+
+  /**
+   Convert output values into a ByteBuffer
+
+   @param fmt     to write
+   @param samples [frame][channel] output to convert
+   @return byte buffer of stream
+   */
+  static ByteBuffer byteBufferOf(AudioFormat fmt, float[][] samples) throws FormatException {
+    ByteBuffer outputBytes = ByteBuffer.allocate(samples.length * fmt.getFrameSize());
+    for (float[] sample : samples)
+      for (float v : sample)
+        outputBytes.put(AudioSampleFormat.toBytes(v, AudioSampleFormat.typeOfOutput(fmt)));
+
+    return outputBytes;
   }
 
   @Override
@@ -232,7 +247,7 @@ class MixerImpl implements Mixer {
       // these numbers may be below zero or past the limit of the mixing buffer
       int sourceBeginsAtMixerFrame = (int) (active.getStartAtMixerMicros() / microsPerFrame);
       int sourceEndsAtMixerFrame = active.getStopAtMixerMicros().isPresent() ?
-        (int) (active.getStopAtMixerMicros().get() / microsPerFrame) :
+        (int) (active.getStopAtMixerMicros().get() / microsPerFrame):
         sourceBeginsAtMixerFrame + cached.data().length;
 
       // reusable variables
@@ -283,36 +298,6 @@ class MixerImpl implements Mixer {
     return (int) Math.min(Math.max(0, frame), totalMixFrames - 1);
   }
 
-  /**
-   apply compressor to mixing buffer
-   <p>
-   lookahead-attack compressor compresses entire buffer towards target amplitude https://www.pivotaltracker.com/story/show/154112129
-   <p>
-   only each major cycle, compute the new target compression ratio,
-   but modify the compression ratio *every* frame for max smoothness
-   <p>
-   compression target uses a rate of change of rate of change
-   to maintain inertia over time, required to preserve audio signal
-   */
-  void applyFinalOutputCompressor() {
-    // only set the comp ratio directly if it's never been set before, otherwise mixer effects are continuous between renders, so these ending values make their way back to the beginning of the next render
-    if (0 == compRatio) {
-      compRatio = computeCompressorTarget(outBuf, 0, framesAhead);
-    }
-    float compRatioDelta = 0; // rate of change
-    float targetCompRatio = compRatio;
-    for (int i = 0; i < outBuf.length; i++) {
-      if (0 == i % dspBufferSize) {
-        targetCompRatio = computeCompressorTarget(outBuf, i, i + framesAhead);
-      }
-      float compRatioDeltaDelta = MathUtil.delta(compRatio, targetCompRatio) / framesDecay;
-      compRatioDelta += MathUtil.delta(compRatioDelta, compRatioDeltaDelta) / dspBufferSize;
-      compRatio += compRatioDelta;
-      for (int k = 0; k < outputChannels; k++)
-        outBuf[i][k] *= compRatio;
-    }
-  }
-
   /*
    FUTURE: apply compressor to individual bus buffers
    <p>
@@ -356,6 +341,36 @@ class MixerImpl implements Mixer {
    */
 
   /**
+   apply compressor to mixing buffer
+   <p>
+   lookahead-attack compressor compresses entire buffer towards target amplitude https://www.pivotaltracker.com/story/show/154112129
+   <p>
+   only each major cycle, compute the new target compression ratio,
+   but modify the compression ratio *every* frame for max smoothness
+   <p>
+   compression target uses a rate of change of rate of change
+   to maintain inertia over time, required to preserve audio signal
+   */
+  void applyFinalOutputCompressor() {
+    // only set the comp ratio directly if it's never been set before, otherwise mixer effects are continuous between renders, so these ending values make their way back to the beginning of the next render
+    if (0==compRatio) {
+      compRatio = computeCompressorTarget(outBuf, 0, framesAhead);
+    }
+    float compRatioDelta = 0; // rate of change
+    float targetCompRatio = compRatio;
+    for (int i = 0; i < outBuf.length; i++) {
+      if (0==i % dspBufferSize) {
+        targetCompRatio = computeCompressorTarget(outBuf, i, i + framesAhead);
+      }
+      float compRatioDeltaDelta = MathUtil.delta(compRatio, targetCompRatio) / framesDecay;
+      compRatioDelta += MathUtil.delta(compRatioDelta, compRatioDeltaDelta) / dspBufferSize;
+      compRatio += compRatioDelta;
+      for (int k = 0; k < outputChannels; k++)
+        outBuf[i][k] *= compRatio;
+    }
+  }
+
+  /**
    apply logarithmic dynamic range to mixing buffer
    */
   void applyLogarithmicDynamicRange() {
@@ -385,22 +400,6 @@ class MixerImpl implements Mixer {
   float computeCompressorTarget(float[][] input, int iFr, int iTo) {
     float currentAmplitude = MathUtil.maxAbs(input, iFr, iTo, COMPRESSION_GRAIN);
     return MathUtil.limit(compressRatioMin, compressRatioMax, compressToAmplitude / currentAmplitude);
-  }
-
-  /**
-   Convert output values into a ByteBuffer
-
-   @param fmt     to write
-   @param samples [frame][channel] output to convert
-   @return byte buffer of stream
-   */
-  static ByteBuffer byteBufferOf(AudioFormat fmt, float[][] samples) throws FormatException {
-    ByteBuffer outputBytes = ByteBuffer.allocate(samples.length * fmt.getFrameSize());
-    for (float[] sample : samples)
-      for (float v : sample)
-        outputBytes.put(AudioSampleFormat.toBytes(v, AudioSampleFormat.typeOfOutput(fmt)));
-
-    return outputBytes;
   }
 }
 

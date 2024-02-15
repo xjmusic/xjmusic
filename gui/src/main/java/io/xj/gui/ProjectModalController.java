@@ -41,7 +41,7 @@ public abstract class ProjectModalController extends ProjectController {
   /**
    Launches the modal.
    */
-  public  void createAndShowModal(String windowName) {
+  public void createAndShowModal(String windowName) {
     try {
       // Load the FXML file
       FXMLLoader loader = new FXMLLoader(fxml.getURL());

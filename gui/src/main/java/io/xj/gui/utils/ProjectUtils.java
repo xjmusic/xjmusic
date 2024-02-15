@@ -28,7 +28,7 @@ public class ProjectUtils {
     directoryChooser.setTitle(title);
     directoryChooser.setInitialDirectory(new File(initialDirectory));
     File selectedDirectory = directoryChooser.showDialog(stage);
-    return Objects.nonNull(selectedDirectory) ? selectedDirectory.getAbsolutePath() : null;
+    return Objects.nonNull(selectedDirectory) ? selectedDirectory.getAbsolutePath():null;
   }
 
   /**
@@ -46,7 +46,7 @@ public class ProjectUtils {
     FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XJ projects (*.xj)", "*.xj");
     fileChooser.getExtensionFilters().add(extFilter);
     File file = fileChooser.showOpenDialog(stage);
-    return Objects.nonNull(file) ? file.getAbsolutePath() : null;
+    return Objects.nonNull(file) ? file.getAbsolutePath():null;
   }
 
   /**
@@ -62,7 +62,7 @@ public class ProjectUtils {
     FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Audio files (*.wav, *.aiff, *.mp3, *.aac, *.flac)", "*.wav", "*.aiff", "*.mp3", "*.aac", "*.flac");
     fileChooser.getExtensionFilters().add(extFilter);
     File file = fileChooser.showOpenDialog(stage);
-    return Objects.nonNull(file) ? file.getAbsolutePath() : null;
+    return Objects.nonNull(file) ? file.getAbsolutePath():null;
   }
 
   /**

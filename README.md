@@ -34,7 +34,8 @@ the [GitHub documentation](https://docs.github.com/en/packages/working-with-a-gi
 Once you have created a personal access token, you can authenticate with the GitHub Packages registry by adding the
 token to a **gradle-local.properties** file you create in the root of this project.
 
-NOTE: the **gradle-local.properties** file is ***NOT*** checked in to Git because it contains a secret. However, there is a [gradle-local.example.properties](gradle-local.example.properties) file that you can copy and use as a template.
+NOTE: the **gradle-local.properties** file is ***NOT*** checked in to Git because it contains a secret. However, there
+is a [gradle-local.example.properties](gradle-local.example.properties) file that you can copy and use as a template.
 
 Your **gradle-local.properties** file should look like this:
 
@@ -53,7 +54,8 @@ This project is built with Gradle. To run the XJ music workstation, run:
 
 You should then see the JavaFX GUI open the main window.
 
-Press the hamburger menu next to the last button to open the fabrication configuration pane. In the field called "Input Template Key" you'll see the default value `slaps_lofi` but you can also try the
+Press the hamburger menu next to the last button to open the fabrication configuration pane. In the field called "Input
+Template Key" you'll see the default value `slaps_lofi` but you can also try the
 values `space_binaural` or `space_flow`
 
 ## Architecture

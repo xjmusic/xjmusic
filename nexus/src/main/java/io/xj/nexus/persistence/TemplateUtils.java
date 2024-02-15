@@ -17,6 +17,6 @@ public class TemplateUtils {
    */
   public static String getIdentifier(@Nullable Template template) {
     if (Objects.isNull(template)) return "N/A";
-    return StringUtils.isNullOrEmpty(template.getShipKey()) ? template.getId().toString() : template.getShipKey();
+    return StringUtils.isNullOrEmpty(template.getShipKey()) ? template.getId().toString():template.getShipKey();
   }
 }

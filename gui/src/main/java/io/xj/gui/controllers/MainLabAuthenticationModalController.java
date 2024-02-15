@@ -85,7 +85,7 @@ public class MainLabAuthenticationModalController extends ProjectModalController
       labService.stateProperty()).not());
 
     buttonConnect.textProperty().bind(Bindings.createStringBinding(() ->
-        labService.stateProperty().get() == LabState.Authenticated ? BUTTON_DISCONNECT_TEXT : BUTTON_CONNECT_TEXT,
+        labService.stateProperty().get()==LabState.Authenticated ? BUTTON_DISCONNECT_TEXT:BUTTON_CONNECT_TEXT,
       labService.stateProperty()));
 
     fieldLabUrl.textProperty().bindBidirectional(labService.baseUrlProperty());
@@ -94,17 +94,17 @@ public class MainLabAuthenticationModalController extends ProjectModalController
 
     textUserName.textProperty().bind(Bindings.createStringBinding(() -> {
       User user = labService.authenticatedUserProperty().get();
-      return Objects.nonNull(user) ? user.getName() : "";
+      return Objects.nonNull(user) ? user.getName():"";
     }, labService.authenticatedUserProperty()));
 
     textUserEmail.textProperty().bind(Bindings.createStringBinding(() -> {
       User user = labService.authenticatedUserProperty().get();
-      return Objects.nonNull(user) ? user.getEmail() : "";
+      return Objects.nonNull(user) ? user.getEmail():"";
     }, labService.authenticatedUserProperty()));
 
     imageViewUserAvatar.imageProperty().bind(Bindings.createObjectBinding(() -> {
       User user = labService.authenticatedUserProperty().get();
-      return Objects.nonNull(user) ? new Image(computeHighResImageUrl(user)) : null;
+      return Objects.nonNull(user) ? new Image(computeHighResImageUrl(user)):null;
     }, labService.authenticatedUserProperty()));
   }
 
@@ -139,7 +139,7 @@ public class MainLabAuthenticationModalController extends ProjectModalController
 
   @FXML
   void handleConnect() {
-    if (labService.stateProperty().get() == LabState.Authenticated) {
+    if (labService.stateProperty().get()==LabState.Authenticated) {
       labService.disconnect();
     } else {
       labService.connect();
