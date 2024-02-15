@@ -1,5 +1,6 @@
 package io.xj.nexus.project;
 
+import io.xj.hub.HubUploadAuthorization;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -45,31 +46,19 @@ class ProjectAudioUploadTest {
   }
 
   @Test
-  void setRemoteUrl_getRemoteUrl() {
-    var testUrl = "https://example.com/file.wav";
+  void setAuthorization_getWaveformKey() {
+    HubUploadAuthorization authorization = new HubUploadAuthorization();
+    authorization.setWaveformKey("test-waveform-key");
+    subject.setAuthorization(authorization);
 
-    subject.setRemoteUrl(testUrl);
-
-    assertEquals(testUrl, subject.getRemoteUrl());
+    assertEquals("test-waveform-key", subject.getWaveformKey());
   }
 
   @Test
-  void setRemoteUrl_cannotBeNull() {
-    assertThrows(NullPointerException.class, () -> subject.setRemoteUrl(null));
-  }
+  void setAuthorization_cannotBeNull() {
+    var e = assertThrows(NullPointerException.class, () -> subject.setAuthorization(null));
 
-  @Test
-  void setWaveformKey_getWaveformKey() {
-    var testKey = "waveform-key";
-
-    subject.setWaveformKey(testKey);
-
-    assertEquals(testKey, subject.getWaveformKey());
-  }
-
-  @Test
-  void setWaveformKey_cannotBeNull() {
-    assertThrows(NullPointerException.class, () -> subject.setWaveformKey(null));
+    assertEquals("authorization", e.getMessage());
   }
 
   @Test
@@ -87,10 +76,66 @@ class ProjectAudioUploadTest {
 
   @Test
   void testToString() {
-    subject.setRemoteUrl("https://example.com/file.wav");
-    subject.setWaveformKey("test-waveform-key");
+    HubUploadAuthorization authorization = new HubUploadAuthorization();
+    authorization.setWaveformKey("test-waveform-key");
+    subject.setAuthorization(authorization);
 
     assertEquals("Uploaded audio OK from " + pathToAudioFile + " to Instrument[" + testInstrumentAudioId + "] with final waveform key test-waveform-key", subject.toString());
+  }
+
+  @Test
+  void wasSuccessful() {
+    assertFalse(subject.wasSuccessful());
+
+    subject.setSuccess(true);
+
+    assertTrue(subject.wasSuccessful());
+  }
+
+  @Test
+  void getBucketName() {
+    HubUploadAuthorization authorization = new HubUploadAuthorization();
+    authorization.setBucketName("test-bucket-name");
+    subject.setAuthorization(authorization);
+
+    assertEquals("test-bucket-name", subject.getBucketName());
+  }
+
+  @Test
+  void getBucketName_failsBeforeSettingAuthorization() {
+    var e = assertThrows(NullPointerException.class, subject::getBucketName);
+
+    assertEquals("Cannot get Bucket Name before Authorization is set", e.getMessage());
+  }
+
+  @Test
+  void getBucketRegion() {
+    HubUploadAuthorization authorization = new HubUploadAuthorization();
+    authorization.setBucketRegion("test-bucket-region");
+    subject.setAuthorization(authorization);
+
+    assertEquals("test-bucket-region", subject.getBucketRegion());
+  }
+
+  @Test
+  void getBucketRegion_failsBeforeSettingAuthorization() {
+    var e = assertThrows(NullPointerException.class, subject::getBucketRegion);
+
+    assertEquals("Cannot get Bucket Region before Authorization is set", e.getMessage());
+  }
+
+  @Test
+  void setId_getId() {
+    subject.setId("test-id");
+
+    assertEquals("test-id", subject.getId());
+  }
+
+  @Test
+  void getId_failsBeforeSetId() {
+    var e = assertThrows(NullPointerException.class, subject::getId);
+
+    assertEquals("Cannot get ID before it is set", e.getMessage());
   }
 
 }

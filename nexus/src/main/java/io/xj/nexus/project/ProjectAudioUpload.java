@@ -1,5 +1,6 @@
 package io.xj.nexus.project;
 
+import io.xj.hub.HubUploadAuthorization;
 import io.xj.hub.util.StringUtils;
 import jakarta.annotation.Nullable;
 
@@ -16,9 +17,10 @@ public class ProjectAudioUpload {
   private final String pathOnDisk;
 
   private final long expectedSize;
-  private @Nullable String remoteUrl;
-  private @Nullable String waveformKey;
+  private @Nullable String id;
+  private @Nullable HubUploadAuthorization authorization;
   private final Collection<String> errors;
+  private boolean success = false;
 
   public ProjectAudioUpload(UUID instrumentAudioId, String pathOnDisk) throws IOException {
     errors = new HashSet<>();
@@ -35,30 +37,50 @@ public class ProjectAudioUpload {
     return pathOnDisk;
   }
 
-  public @Nullable String getRemoteUrl() {
-    return remoteUrl;
+  public String getId() {
+    Objects.requireNonNull(id, "Cannot get ID before it is set");
+    return id;
   }
 
-  public @Nullable String getWaveformKey() {
-    return waveformKey;
+  public String getWaveformKey() {
+    Objects.requireNonNull(authorization, "Cannot get Waveform Key before Authorization is set");
+    return authorization.getWaveformKey();
+  }
+
+  public String getBucketName() {
+    Objects.requireNonNull(authorization, "Cannot get Bucket Name before Authorization is set");
+    return authorization.getBucketName();
+  }
+
+  public String getBucketRegion() {
+    Objects.requireNonNull(authorization, "Cannot get Bucket Region before Authorization is set");
+    return authorization.getBucketRegion();
   }
 
   public Collection<String> getErrors() {
     return errors;
   }
 
+  public void setId(String id) {
+    Objects.requireNonNull(id, "Cannot get ID before it is set");
+    this.id = id;
+  }
+
+  public void setSuccess(boolean success) {
+    this.success = success;
+  }
+
+  public void setAuthorization(HubUploadAuthorization authorization) {
+    Objects.requireNonNull(authorization, "Authorization cannot be null");
+    this.authorization = authorization;
+  }
+
+  public boolean wasSuccessful() {
+    return success;
+  }
+
   public long getExpectedSize() {
     return expectedSize;
-  }
-
-  public void setRemoteUrl(String remoteUrl) {
-    Objects.requireNonNull(remoteUrl, "Remote URL cannot be set with null value");
-    this.remoteUrl = remoteUrl;
-  }
-
-  public void setWaveformKey(String waveformKey) {
-    Objects.requireNonNull(waveformKey, "Waveform key cannot be set with null value");
-    this.waveformKey = waveformKey;
   }
 
   public void addError(String error) {
@@ -70,9 +92,9 @@ public class ProjectAudioUpload {
   }
 
   public String toString() {
-    return hasErrors() ?
-      String.format("Failed to upload audio from %s to Instrument[%s] because %s", pathOnDisk, instrumentAudioId, StringUtils.toProperCsvAnd(errors.stream().sorted().toList())):
-      String.format("Uploaded audio OK from %s to Instrument[%s] with final waveform key %s", pathOnDisk, instrumentAudioId, waveformKey);
+    return wasSuccessful() && Objects.nonNull(authorization) ?
+      String.format("Uploaded audio OK from %s to Instrument[%s], final waveform key %s", pathOnDisk, instrumentAudioId, authorization.getWaveformKey()):
+      String.format("Failed to upload audio from %s to Instrument[%s]", pathOnDisk, instrumentAudioId) +
+        (hasErrors() ? String.format("with %s %s", errors.size() > 1 ? "errors":"error", StringUtils.toProperCsvAnd(errors.stream().sorted().toList())):"");
   }
-
 }

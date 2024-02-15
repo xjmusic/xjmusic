@@ -1,7 +1,6 @@
 package io.xj.nexus.project;
 
 import io.xj.hub.HubContent;
-import io.xj.hub.HubUploadAuthorization;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
@@ -44,16 +43,25 @@ import org.apache.http.client.methods.HttpHead;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -84,6 +92,8 @@ public class ProjectManagerImpl implements ProjectManager {
   private static final float DEFAULT_TEMPO = 120f;
   private static final float DEFAULT_LOOP_BEATS = 4.0f;
   private static final float DEFAULT_VOLUME = 1.0f;
+  private static final String AWS_UPLOAD_INITIATION_URL_TEMPLATE = "https://%s.s3.%s.amazonaws.com/%s?uploads";
+  private static final String AWS_UPLOAD_CHUNK_TEMPLATE = "https://%s.s3.%s.amazonaws.com/%s?partNumber=%d&uploadId=%s";
   private final AtomicReference<ProjectState> state = new AtomicReference<>(ProjectState.Standby);
   private final AtomicReference<Project> project = new AtomicReference<>();
   private final AtomicReference<String> projectPathPrefix = new AtomicReference<>(File.separator);
@@ -95,6 +105,7 @@ public class ProjectManagerImpl implements ProjectManager {
   private final HubClientFactory hubClientFactory;
   private final int downloadAudioRetries;
   private final int uploadAudioRetries;
+  private final int uploadAudioChunkSize;
   private final HttpClientProvider httpClientProvider;
 
   @Nullable
@@ -112,7 +123,8 @@ public class ProjectManagerImpl implements ProjectManager {
     HttpClientProvider httpClientProvider,
     HubClientFactory hubClientFactory,
     int downloadAudioRetries,
-    int uploadAudioRetries
+    int uploadAudioRetries,
+    int uploadAudioChunkSize
   ) {
     this.httpClientProvider = httpClientProvider;
     this.jsonProvider = jsonProvider;
@@ -120,6 +132,7 @@ public class ProjectManagerImpl implements ProjectManager {
     this.hubClientFactory = hubClientFactory;
     this.downloadAudioRetries = downloadAudioRetries;
     this.uploadAudioRetries = uploadAudioRetries;
+    this.uploadAudioChunkSize = uploadAudioChunkSize;
   }
 
   @Override
@@ -1064,8 +1077,9 @@ public class ProjectManagerImpl implements ProjectManager {
     for (int attempt = 1; attempt <= uploadAudioRetries; attempt++) {
       try {
         uploadInstrumentAudioFile(hubAccess, hubBaseUrl, httpClient, upload);
-        if (Objects.isNull(upload.getRemoteUrl())) continue;
-        long uploadedSize = getRemoteFileSize(httpClient, upload.getRemoteUrl());
+        if (!upload.wasSuccessful()) continue;
+        var remoteUrl = "https://test.123"; // todo compute remote URL
+        long uploadedSize = getRemoteFileSize(httpClient, remoteUrl);
         if (uploadedSize==upload.getExpectedSize()) {
           return upload;
         }
@@ -1087,31 +1101,159 @@ public class ProjectManagerImpl implements ProjectManager {
    @param upload     audio upload request/result object
    */
   private void uploadInstrumentAudioFile(HubClientAccess hubAccess, String hubBaseUrl, CloseableHttpClient httpClient, ProjectAudioUpload upload) throws NexusException {
-    HubUploadAuthorization authorization;
     try {
-      authorization = hubClientFactory.authorizeInstrumentAudioUploadApiV2(httpClient, hubBaseUrl, hubAccess, upload.getInstrumentAudioId());
+      upload.setAuthorization(hubClientFactory.authorizeInstrumentAudioUploadApiV2(httpClient, hubBaseUrl, hubAccess, upload.getInstrumentAudioId()));
     } catch (HubClientException e) {
-      throw new NexusException("Failed to authorize instrument audio upload", e);
+      upload.addError("Failed to authorize instrument audio upload because " + e.getMessage());
+      return;
     }
 
-    var butts = 123;//todo remove
+    File file = new File(upload.getPathOnDisk());
+    try (FileInputStream fileInputStream = new FileInputStream(file)) {
+      byte[] buffer = new byte[uploadAudioChunkSize];
+      int bytesRead;
 
-    // todo upload with authorization CloseableHttpResponse response = httpClient.execute(new HttpGet(url));
-    // TODO get upload authorization from Hub
+      // Step 1: Initiate the multipart upload and get the upload ID
+      initiateMultipartUpload(httpClient, upload);
 
-/*
-    try (
-      CloseableHttpResponse response = httpClient.execute(new HttpGet(url))
-    ) {
-      if (Objects.isNull(response.getEntity().getContent()))
-        throw new NexusException(String.format("Unable to write bytes to disk: %s", outputPath));
+      // Step 2: Upload the file in chunks
+      int partNumber = 1;
+      String previousSignature = AWSSignatureHelper.calculateSeedSignature();
+      Date date = new Date(); // Use the current date for the signature
+      while ((bytesRead = fileInputStream.read(buffer)) > 0) {
+        // Calculate the chunk signature
+        String chunkSignature = AWSSignatureHelper.calculateChunkSignature(buffer, bytesRead);
 
-      try (OutputStream toFile = FileUtils.openOutputStream(new File(outputPath))) {
-        var size = IOUtils.copy(response.getEntity().getContent(), toFile); // stores number of bytes copied
-        LOG.debug("Did write media item to disk: {} ({} bytes)", outputPath, size);
+        // Upload the chunk
+        uploadChunk(upload, partNumber, buffer, bytesRead, chunkSignature);
+        partNumber++;
       }
+
+      // Step 3: Complete the multipart upload
+      completeMultipartUpload(uploadId);
+
+      upload.setSuccess(true);
+
+    } catch (FileNotFoundException e) {
+      upload.addError("Failed to upload instrument audio because file " + upload.getPathOnDisk() + " not found!");
+    } catch (IOException e) {
+      upload.addError("Failed to upload instrument audio because of I/O error " + e.getMessage());
+    } catch (Exception e) {
+      upload.addError("Failed to upload instrument audio because " + e.getMessage());
     }
-*/
+  }
+
+  /**
+   Initiate the multipart upload
+
+   @param httpClient HTTP client
+   @param upload     project audio upload
+   @throws Exception if the upload fails
+   */
+  public static void initiateMultipartUpload(CloseableHttpClient httpClient, ProjectAudioUpload upload) throws Exception {
+    // Construct the URL for initiating multipart upload
+    URL url = new URL(String.format(AWS_UPLOAD_INITIATION_URL_TEMPLATE, upload.getBucketName(), upload.getBucketRegion(), upload.getWaveformKey()));
+
+    // Open a connection and set the request method to POST
+    HttpURLConnection connection = (HttpURLConnection) url.openConnection(); // TODO use httpClient
+    connection.setRequestMethod("POST");
+
+    // Set the necessary headers (e.g., Authorization, Host, Date, etc.)
+    // Note: This example does not include the code to generate the AWS Signature Version 4,
+    // which is required for authenticating the request.
+    // You need to generate and add the 'Authorization' header here.
+    // Refer to AWS documentation for Signature Version 4 for more details.
+
+    // todo connection.setRequestProperty("Host", BUCKET_NAME + ".s3." + REGION + ".amazonaws.com");
+    // Add other necessary headers...
+
+    // Send the request
+    connection.connect();
+
+    // Check the response code
+    if (connection.getResponseCode()!=HttpURLConnection.HTTP_OK) {
+      throw new RuntimeException("Failed to initiate multipart upload: HTTP " + connection.getResponseCode());
+    }
+
+    // Parse the XML response to retrieve the UploadId
+    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+    Document doc = dBuilder.parse(connection.getInputStream());
+    Element uploadIdElement = (Element) doc.getElementsByTagName("UploadId").item(0);
+    upload.setId(uploadIdElement.getTextContent());
+
+    connection.disconnect();
+
+
+  }
+
+  private static void uploadChunk(ProjectAudioUpload upload, int partNumber, byte[] chunkData, int chunkSize, String chunkSignature) throws IOException {
+    // Prepare the request URL and headers including the chunk signature
+    URL url = new URL(String.format(AWS_UPLOAD_CHUNK_TEMPLATE, upload.getBucketName(), upload.getBucketRegion(), upload.getWaveformKey(), partNumber, upload));
+    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    connection.setRequestMethod("PUT");
+    connection.setRequestProperty("Content-Length", String.valueOf(chunkSize));
+    connection.setRequestProperty("Content-Encoding", "aws-chunked");
+    connection.setRequestProperty("x-amz-decoded-content-length", String.valueOf(chunkSize));
+    connection.setRequestProperty("x-amz-content-sha256", chunkSignature);
+    connection.setDoOutput(true);
+
+    // Send the chunk data
+    connection.getOutputStream().write(chunkData, 0, chunkSize);
+    connection.getOutputStream().flush();
+
+    // Check the response
+    if (connection.getResponseCode()!=HttpURLConnection.HTTP_OK) {
+      throw new IOException("Failed to upload chunk: " + connection.getResponseMessage());
+    }
+
+    connection.disconnect();
+  }
+
+
+  public static void completeMultipartUpload(String uploadId, List<UploadPart> uploadedParts) throws Exception {
+    // Construct the XML payload
+    StringBuilder xmlPayload = new StringBuilder("<CompleteMultipartUpload xmlns='http://s3.amazonaws.com/doc/2006-03-01/'>");
+    for (UploadPart part : uploadedParts) {
+      xmlPayload.append("<Part>");
+      xmlPayload.append("<PartNumber>").append(part.partNumber).append("</PartNumber>");
+      xmlPayload.append("<ETag>").append(part.etag).append("</ETag>");
+      xmlPayload.append("</Part>");
+    }
+    xmlPayload.append("</CompleteMultipartUpload>");
+
+    // Sign the request (This is a placeholder, you need to implement the AWS Signature Version 4 signing process)
+    String signature = ""; // Implement the AWS V4 signing process here
+
+    // Send the completion request
+    URL url = new URL(String.format("https://%s.s3.%s.amazonaws.com/%s?uploadId=%s", BUCKET_NAME, REGION, OBJECT_KEY, uploadId));
+    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    connection.setRequestMethod("POST");
+    connection.setRequestProperty("Authorization", "AWS " + AWS_ACCESS_KEY + ":" + signature);
+    connection.setRequestProperty("Content-Type", "application/xml");
+    connection.setDoOutput(true);
+
+    OutputStream outputStream = connection.getOutputStream();
+    outputStream.write(xmlPayload.toString().getBytes());
+    outputStream.flush();
+    outputStream.close();
+
+    int responseCode = connection.getResponseCode();
+    if (responseCode != HttpURLConnection.HTTP_OK) {
+      throw new RuntimeException("Failed to complete multipart upload: HTTP " + responseCode);
+    }
+
+    // Process the response as needed
+  }
+
+  static class UploadPart {
+    int partNumber;
+    String etag;
+
+    public UploadPart(int partNumber, String etag) {
+      this.partNumber = partNumber;
+      this.etag = etag;
+    }
   }
 
   /**

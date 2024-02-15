@@ -40,16 +40,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class WorkstationConfiguration {
-  private final int downloadAudioRetries;
-  private final int uploadAudioRetries;
-
-  public WorkstationConfiguration(
-    @Value("${audio.download.retries}") int downloadAudioRetries,
-    @Value("${audio.upload.retries}") int uploadAudioRetries
-  ) {
-    this.downloadAudioRetries = downloadAudioRetries;
-    this.uploadAudioRetries = uploadAudioRetries;
-  }
 
   @Bean
   public JsonProvider jsonProvider() {
@@ -96,9 +86,12 @@ public class WorkstationConfiguration {
     JsonProvider jsonProvider,
     EntityFactory entityFactory,
     HttpClientProvider httpClientProvider,
-    HubClientFactory hubClientFactory
+    HubClientFactory hubClientFactory,
+    @Value("${audio.download.retries}") int downloadAudioRetries,
+    @Value("${audio.upload.retries}") int uploadAudioRetries,
+    @Value("${audio.upload.chunkSize}") int uploadAudioChunkSize
   ) {
-    return new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, downloadAudioRetries, uploadAudioRetries);
+    return new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, downloadAudioRetries, uploadAudioRetries, uploadAudioChunkSize);
   }
 
   @Bean

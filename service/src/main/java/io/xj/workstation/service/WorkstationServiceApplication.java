@@ -75,6 +75,7 @@ public class WorkstationServiceApplication {
     @Value("${audio.base.url}") String audioBaseUrl,
     @Value("${audio.download.retries}") int downloadAudioRetries,
     @Value("${audio.upload.retries}") int uploadAudioRetries,
+    @Value("${audio.upload.chunkSize}") int uploadAudioChunkSize,
     @Value("${ingest.token}") String ingestToken,
     @Value("${input.template.key}") String inputTemplateKey,
     @Value("${lab.base.url}") String labBaseUrl,
@@ -94,7 +95,7 @@ public class WorkstationServiceApplication {
     EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     HubClientFactory hubClientFactory = new HubClientFactoryImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
-    ProjectManager projectManager = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, downloadAudioRetries, uploadAudioRetries);
+    ProjectManager projectManager = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, downloadAudioRetries, uploadAudioRetries, uploadAudioChunkSize);
     BroadcastFactory broadcastFactory = new BroadcastFactoryImpl();
     Telemetry telemetry = new TelemetryImpl();
     CraftFactory craftFactory = new CraftFactoryImpl();
