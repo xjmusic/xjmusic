@@ -445,6 +445,7 @@ public class ProjectManagerImpl implements ProjectManager {
   public Template createTemplate(String name) throws Exception {
     var template = new Template();
     template.setId(UUID.randomUUID());
+    template.setProjectId(project.get().getId());
     template.setName(name);
     template.setConfig(new TemplateConfig().toString());
     template.setIsDeleted(false);
@@ -456,6 +457,7 @@ public class ProjectManagerImpl implements ProjectManager {
   public Library createLibrary(String name) throws Exception {
     var library = new Library();
     library.setId(UUID.randomUUID());
+    library.setProjectId(project.get().getId());
     library.setName(name);
     library.setIsDeleted(false);
     content.get().put(library);
