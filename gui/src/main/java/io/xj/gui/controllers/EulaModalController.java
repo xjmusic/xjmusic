@@ -32,13 +32,16 @@ public class EulaModalController extends ProjectController {
   static final String PREFS_KEY_EULA_ACCEPTED = "eula.accepted";
   private final Resource eulaTextResource;
   private final Preferences prefs;
+  private Runnable onAccepted;
+
   @FXML
   TextArea eulaText;
+
   @FXML
   Button buttonAccept;
+
   @FXML
   Button buttonDecline;
-  private Runnable onAccepted;
 
   public EulaModalController(
     @Value("classpath:/views/eula-modal.fxml") Resource fxml,

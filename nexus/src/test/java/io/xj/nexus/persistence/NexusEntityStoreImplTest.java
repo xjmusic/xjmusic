@@ -53,6 +53,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class NexusEntityStoreImplTest {
   NexusEntityStore subject;
   EntityFactory entityFactory;
+  private Chain fakeChain;
+
   Chain chain3;
   Project project1;
   Segment segment1;
@@ -60,7 +62,6 @@ public class NexusEntityStoreImplTest {
   Segment segment4;
   Segment segment5;
   Template template1;
-  private Chain fakeChain;
 
   @BeforeEach
   public void setUp() throws Exception {

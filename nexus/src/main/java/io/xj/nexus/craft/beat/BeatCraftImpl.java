@@ -38,7 +38,7 @@ public class BeatCraftImpl extends DetailCraftImpl implements BeatCraft {
 
     // Program is from prior choice, or freshly chosen
     Optional<Program> program = priorChoice.isPresent() ?
-      fabricator.sourceMaterial().getProgram(priorChoice.get().getProgramId()):
+      fabricator.sourceMaterial().getProgram(priorChoice.get().getProgramId()) :
       chooseFreshProgram(ProgramType.Beat, InstrumentType.Drum);
 
     // Should gracefully skip voicing type if unfulfilled by detail program https://www.pivotaltracker.com/story/show/176373977

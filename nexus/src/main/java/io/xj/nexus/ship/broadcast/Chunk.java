@@ -39,7 +39,7 @@ public class Chunk {
     this.sequenceNumber = sequenceNumber;
     this.fileExtension = Objects.nonNull(fileExtension)
       ? fileExtension
-      :shipChunkAudioEncoder;
+      : shipChunkAudioEncoder;
     this.shipKey = shipKey;
     this.fromChainMicros = fromChainMicros;
     this.durationMicros = durationMicros;

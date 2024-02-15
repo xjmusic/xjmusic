@@ -11,7 +11,7 @@ public class ShipException extends Exception {
   }
 
   public ShipException(@Nullable String msg, Exception e) {
-    super(String.format("%s%s\n%s", StringUtils.isNullOrEmpty(msg) ? "":msg + " ", e.getMessage(), e));
+    super(String.format("%s%s\n%s", StringUtils.isNullOrEmpty(msg) ? "" : msg + " ", e.getMessage(), e));
     setStackTrace(e.getStackTrace());
   }
 }

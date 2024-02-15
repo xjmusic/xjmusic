@@ -42,22 +42,22 @@ public class AudioLoaderImpl implements AudioLoader {
     ) {
       var frameSize = format.getFrameSize();
       var channels = format.getChannels();
-      var isStereo = 2==channels;
+      var isStereo = 2 == channels;
       var sampleSize = frameSize / channels;
       var expectBytes = audioInputStream.available();
 
-      if (MAX_INT_LENGTH_ARRAY_SIZE==expectBytes)
+      if (MAX_INT_LENGTH_ARRAY_SIZE == expectBytes)
         throw new IOException("loading audio streams longer than 2,147,483,647 frames (max. value of signed 32-bit integer) is not supported");
 
       int expectFrames;
-      if (expectBytes==audioInputStream.getFrameLength()) {
+      if (expectBytes == audioInputStream.getFrameLength()) {
         // this is a bug where AudioInputStream returns bytes (instead of frames which it claims)
         expectFrames = expectBytes / format.getFrameSize();
       } else {
         expectFrames = (int) audioInputStream.getFrameLength();
       }
 
-      if (AudioSystem.NOT_SPECIFIED==frameSize || AudioSystem.NOT_SPECIFIED==expectFrames)
+      if (AudioSystem.NOT_SPECIFIED == frameSize || AudioSystem.NOT_SPECIFIED == expectFrames)
         throw new IOException("audio streams with unspecified frame size or length are unsupported");
 
       AudioSampleFormat sampleFormat = AudioSampleFormat.typeOfInput(format);
@@ -72,10 +72,10 @@ public class AudioLoaderImpl implements AudioLoader {
       byte[] sampleBuffer = new byte[sampleSize];
       byte[] readBuffer = new byte[actualReadBufferSize];
       float[][] data = new float[expectFrames][channels];
-      while (-1!=(numBytesReadToBuffer = audioInputStream.read(readBuffer))) {
+      while (-1 != (numBytesReadToBuffer = audioInputStream.read(readBuffer))) {
         for (b = 0; b < numBytesReadToBuffer && sf < data.length; b += frameSize) {
           for (tc = 0; tc < format.getChannels(); tc++) {
-            System.arraycopy(readBuffer, b + (isStereo ? tc:0) * sampleSize, sampleBuffer, 0, sampleSize);
+            System.arraycopy(readBuffer, b + (isStereo ? tc : 0) * sampleSize, sampleBuffer, 0, sampleSize);
             data[sf][tc] = (float) AudioSampleFormat.fromBytes(sampleBuffer, sampleFormat);
           }
           sf++;

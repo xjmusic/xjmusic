@@ -115,7 +115,7 @@ public class CraftWorkImpl implements CraftWork {
       .orElseThrow(() -> new RuntimeException("Failed to create chain"));
 
     try {
-      templateConfig = Objects.nonNull(chain) ? (new TemplateConfig(chain.getTemplateConfig())):null;
+      templateConfig = Objects.nonNull(chain) ? (new TemplateConfig(chain.getTemplateConfig())) : null;
     } catch (ValueException e) {
       throw new RuntimeException("Could not start craft without template config", e);
     }
@@ -169,7 +169,7 @@ public class CraftWorkImpl implements CraftWork {
 
     // require current segment in crafted state
     var currentSegment = store.readSegmentAtChainMicros(chainMicros);
-    if (currentSegment.isEmpty() || currentSegment.get().getState()!=SegmentState.CRAFTED) {
+    if (currentSegment.isEmpty() || currentSegment.get().getState() != SegmentState.CRAFTED) {
       return Optional.empty();
     }
     return currentSegment;
@@ -185,7 +185,7 @@ public class CraftWorkImpl implements CraftWork {
 
     // require current segment in crafted state
     var currentSegment = store.readSegment(offset);
-    if (currentSegment.isEmpty() || currentSegment.get().getState()!=SegmentState.CRAFTED) {
+    if (currentSegment.isEmpty() || currentSegment.get().getState() != SegmentState.CRAFTED) {
       return Optional.empty();
     }
     return currentSegment;
@@ -218,7 +218,7 @@ public class CraftWorkImpl implements CraftWork {
         return false;
       }
       var choice = store.read(segment.getId(), SegmentChoice.class, arrangement.get().getSegmentChoiceId());
-      return choice.isPresent() ? choice.get().getMute():false;
+      return choice.isPresent() ? choice.get().getMute() : false;
 
     } catch (NexusException e) {
       LOG.warn("Unable to determine if SegmentChoiceArrangementPick[{}] is muted because {}", pick.getId(), e.getMessage());
@@ -583,7 +583,7 @@ public class CraftWorkImpl implements CraftWork {
    @param e        exception (optional)
    */
   void didFailWhile(String msgWhile, Exception e) {
-    var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName():e.getMessage();
+    var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
     LOG.error("Failed while {} because {}", msgWhile, msgCause, e);
     running.set(false);
     finish();
@@ -598,7 +598,7 @@ public class CraftWorkImpl implements CraftWork {
    @throws NexusException if record is invalid
    */
   void updateSegmentState(Fabricator fabricator, Segment segment, SegmentState fromState, SegmentState toState) throws NexusException {
-    if (fromState!=segment.getState())
+    if (fromState != segment.getState())
       throw new NexusException(String.format("Segment[%s] %s requires Segment must be in %s state.", segment.getId(), toState, fromState));
     var seg = fabricator.getSegment();
     seg.setState(toState);

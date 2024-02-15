@@ -23,18 +23,6 @@ public class WorkstationGuiFxApplication extends Application {
   @Nullable
   ConfigurableApplicationContext ac;
 
-  /**
-   This can be used from anywhere to close the Spring application context and quit the application
-
-   @param ac the application context
-   */
-  public static void exit(ApplicationContext ac) {
-    LOG.info("Will close application context");
-    var exitCode = SpringApplication.exit(ac, () -> 0);
-    LOG.info("Will exit with code {}", exitCode);
-    System.exit(exitCode);
-  }
-
   @Override
   public void start(Stage primaryStage) {
     if (Objects.isNull(ac)) {
@@ -70,5 +58,17 @@ public class WorkstationGuiFxApplication extends Application {
         ac.registerBean(Parameters.class, this::getParameters);
         ac.registerBean(HostServices.class, this::getHostServices);
       };
+  }
+
+  /**
+   This can be used from anywhere to close the Spring application context and quit the application
+
+   @param ac the application context
+   */
+  public static void exit(ApplicationContext ac) {
+    LOG.info("Will close application context");
+    var exitCode = SpringApplication.exit(ac, () -> 0);
+    LOG.info("Will exit with code {}", exitCode);
+    System.exit(exitCode);
   }
 }

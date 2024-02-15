@@ -4,8 +4,8 @@
 
 <?import javafx.scene.layout.VBox?>
 <VBox
-  xmlns:fx="http://javafx.com/fxml/1"
   xmlns="http://javafx.com/javafx/20.0.1"
+  xmlns:fx="http://javafx.com/fxml/1"
   fx:controller="io.xj.gui.controllers.MainPaneRightController"
   fx:id="container"
   styleClass="selection-container"

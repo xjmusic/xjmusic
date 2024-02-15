@@ -24,6 +24,12 @@ public enum ChainState {
     this.value = value;
   }
 
+  @Override
+  @JsonValue
+  public String toString() {
+    return String.valueOf(value);
+  }
+
   @JsonCreator
   public static ChainState fromValue(String value) {
     for (ChainState b : ChainState.values()) {
@@ -32,12 +38,6 @@ public enum ChainState {
       }
     }
     throw new IllegalArgumentException("Unexpected value '" + value + "'");
-  }
-
-  @Override
-  @JsonValue
-  public String toString() {
-    return String.valueOf(value);
   }
 }
 

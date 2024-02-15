@@ -8,6 +8,6 @@ import java.util.UUID;
 
  @param format          the audio format of the audio file
  @param pathToAudioFile the path to the audio file
- @param data            2D array of floats representing the audio file-- the first channel is the sample index, the second channel is the channel index */
+ @param data           2D array of floats representing the audio file-- the first channel is the sample index, the second channel is the channel index */
 public record AudioInMemory(UUID id, AudioFormat format, String pathToAudioFile, float[][] data) {
 }

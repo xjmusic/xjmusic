@@ -16,9 +16,9 @@
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.text.Font?>
 <AnchorPane
-  xmlns:fx="http://javafx.com/fxml"
   fx:id="mainTopPaneContainer"
   fx:controller="io.xj.gui.controllers.MainPaneTopController"
+  xmlns:fx="http://javafx.com/fxml"
   xmlns="http://javafx.com/javafx/20.0.1"
   minHeight="32"
   styleClass="top-pane">

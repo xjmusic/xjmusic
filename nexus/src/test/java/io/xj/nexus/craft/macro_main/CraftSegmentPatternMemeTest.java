@@ -40,8 +40,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftSegmentPatternMemeTest {
-  static final int TEST_REPEAT_ITERATIONS = 14;
   final Logger LOG = LoggerFactory.getLogger(CraftSegmentPatternMemeTest.class);
+  static final int TEST_REPEAT_ITERATIONS = 14;
+
 
   /**
    Test to ensure that the following Macro-Program is based on its first sequence-binding meme

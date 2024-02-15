@@ -409,14 +409,14 @@ FUTURE goal
     for (var obj : objs) {
       @Nullable Float startAtSeconds = getFloat(obj, "start");
       @Nullable Float lengthSeconds = getFloat(obj, "length");
-      @Nullable Long startAtMicros = Objects.nonNull(startAtSeconds) ? (long) (startAtSeconds * MICROS_PER_SECOND):null;
-      @Nullable Long lengthMicros = Objects.nonNull(lengthSeconds) ? (long) (lengthSeconds * MICROS_PER_SECOND):null;
+      @Nullable Long startAtMicros = Objects.nonNull(startAtSeconds) ? (long) (startAtSeconds * MICROS_PER_SECOND) : null;
+      @Nullable Long lengthMicros = Objects.nonNull(lengthSeconds) ? (long) (lengthSeconds * MICROS_PER_SECOND) : null;
       Integer count = getInt(obj, "count");
       String notes = getStr(obj, "notes");
 
       var assertionName = String.format("%s-type picks", type) +
-        (Objects.nonNull(startAtMicros) ? String.format(" starting at %fs", startAtSeconds):"") +
-        (Objects.nonNull(lengthMicros) ? String.format(" with length %fs", lengthSeconds):"");
+        (Objects.nonNull(startAtMicros) ? String.format(" starting at %fs", startAtSeconds) : "") +
+        (Objects.nonNull(lengthMicros) ? String.format(" with length %fs", lengthSeconds) : "");
 
       var picks = fabricator.getPicks().stream()
         .filter(pick -> pick.getEvent().equals(type.toString()) &&

@@ -16,6 +16,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
 import javafx.css.PseudoClass;
+import javafx.scene.paint.Color;
 
 import java.util.Set;
 import java.util.UUID;

@@ -314,7 +314,7 @@ public class GuiHubContentFixtures {
     );
 
     return returnParentEntities ?
-      Stream.concat(parentEntities.stream(), libraryContent.stream()).collect(Collectors.toList()):
+      Stream.concat(parentEntities.stream(), libraryContent.stream()).collect(Collectors.toList()) :
       libraryContent;
   }
 

@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- Choices should be random https://www.pivotaltracker.com/story/show/180669293
+ * Choices should be random https://www.pivotaltracker.com/story/show/180669293
  */
 public class MarbleBagTest {
   static final Logger LOG = LoggerFactory.getLogger(MarbleBagTest.class);
@@ -30,7 +30,7 @@ public class MarbleBagTest {
   }
 
   /**
-   adds all marbles from an object containing other marbles
+   * adds all marbles from an object containing other marbles
    */
   @Test
   public void addAll() {
@@ -43,7 +43,7 @@ public class MarbleBagTest {
   }
 
   /**
-   adds marbles to bag, picks 100 times and asserts allowed results
+   * adds marbles to bag, picks 100 times and asserts allowed results
    */
   @Test
   public void add_pick() {
@@ -63,14 +63,14 @@ public class MarbleBagTest {
   }
 
   /**
-   adds marbles to bag in multiple phases, picks 100 times and asserts allowed results
-   <p>
-   Marble bag has phases https://www.pivotaltracker.com/story/show/180832650
-   <p>
-   This will consolidate the logic around "choose this if available, else that, else that"
-   XJ’s marble bag is actually divided into phases. When a marble is put into the bag, it is assigned a phase.
-   For example, if the phase 1 bag contains any marbles, we will pick from only the phase 1 bag and skip phases 2 and beyond.
-   This supports functionality such as “XJ always chooses a directly-bound program or instrument when available”
+   * adds marbles to bag in multiple phases, picks 100 times and asserts allowed results
+   * <p>
+   * Marble bag has phases https://www.pivotaltracker.com/story/show/180832650
+   * <p>
+   * This will consolidate the logic around "choose this if available, else that, else that"
+   * XJ’s marble bag is actually divided into phases. When a marble is put into the bag, it is assigned a phase.
+   * For example, if the phase 1 bag contains any marbles, we will pick from only the phase 1 bag and skip phases 2 and beyond.
+   * This supports functionality such as “XJ always chooses a directly-bound program or instrument when available”
    */
   @Test
   public void pick_phaseLowerPreferred() {
@@ -101,7 +101,7 @@ public class MarbleBagTest {
   }
 
   /**
-   tells us how many marbles are in the bag
+   * tells us how many marbles are in the bag
    */
   @Test
   public void size() {

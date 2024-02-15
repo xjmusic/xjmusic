@@ -50,7 +50,7 @@ public class NotePicker {
       // if atonal, pick random note
       PitchClass.None.equals(noteInAvailableOctave.getPitchClass()) ? pickRandom(voicingNotes)
         // not atonal, actually pick note
-        :voicingNotes.stream()
+        : voicingNotes.stream()
         .sorted(Note::compareTo)
         .map(vN -> new RankedNote(vN, Math.abs(vN.delta(noteInAvailableOctave))))
         .min(Comparator.comparing(RankedNote::getDelta))

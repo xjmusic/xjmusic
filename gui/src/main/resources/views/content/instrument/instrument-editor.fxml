@@ -16,10 +16,10 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <SplitPane
-  xmlns:fx="http://javafx.com/fxml/1"
   fx:controller="io.xj.gui.controllers.content.instrument.InstrumentEditorController"
   fx:id="container"
-  xmlns="http://javafx.com/javafx/17.0.2-ea">
+  xmlns="http://javafx.com/javafx/17.0.2-ea"
+  xmlns:fx="http://javafx.com/fxml/1">
 
   <VBox
     fx:id="fieldsContainer"

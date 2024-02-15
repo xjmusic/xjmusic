@@ -28,8 +28,8 @@ import io.xj.nexus.model.SegmentMessage;
 import io.xj.nexus.model.SegmentMeta;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.util.FormatUtils;
-import io.xj.nexus.work.FabricationManager;
 import io.xj.nexus.work.FabricationSettings;
+import io.xj.nexus.work.FabricationManager;
 import io.xj.nexus.work.FabricationState;
 import jakarta.annotation.Nullable;
 import javafx.application.Platform;
@@ -69,10 +69,10 @@ import java.util.stream.Collectors;
 @Service
 public class FabricationServiceImpl implements FabricationService {
   private static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
+  private final Preferences prefs = Preferences.userNodeForPackage(FabricationServiceImpl.class);
   private final static String BUTTON_TEXT_START = "Start";
   private final static String BUTTON_TEXT_STOP = "Stop";
   private final static String BUTTON_TEXT_RESET = "Reset";
-  private final Preferences prefs = Preferences.userNodeForPackage(FabricationServiceImpl.class);
   private final int defaultTimelineSegmentViewLimit;
   private final int defaultCraftAheadSeconds;
   private final int defaultDubAheadSeconds;
@@ -100,11 +100,11 @@ public class FabricationServiceImpl implements FabricationService {
     state,
     progress);
   private final BooleanBinding stateActive =
-    Bindings.createBooleanBinding(() -> state.get()==FabricationState.Active, state);
+    Bindings.createBooleanBinding(() -> state.get() == FabricationState.Active, state);
   private final BooleanBinding stateStandby =
-    Bindings.createBooleanBinding(() -> state.get()==FabricationState.Standby, state);
+    Bindings.createBooleanBinding(() -> state.get() == FabricationState.Standby, state);
   private final BooleanBinding stateLoading =
-    Bindings.createBooleanBinding(() -> state.get()==FabricationState.PreparingAudio || state.get()==FabricationState.PreparedAudio, state);
+    Bindings.createBooleanBinding(() -> state.get() == FabricationState.PreparingAudio || state.get() == FabricationState.PreparedAudio, state);
   private final ObjectProperty<Template> inputTemplate = new SimpleObjectProperty<>();
   private final ObjectProperty<ControlMode> controlMode = new SimpleObjectProperty<>();
   private final StringProperty craftAheadSeconds = new SimpleStringProperty();
@@ -146,7 +146,7 @@ public class FabricationServiceImpl implements FabricationService {
     this.fabricationManager = fabricationManager;
 
     projectService.stateProperty().addListener((o, ov, value) -> {
-      if (value==ProjectState.Ready) {
+      if (value == ProjectState.Ready) {
         inputTemplate.set(projectService.getContent().getTemplates().stream().findFirst().orElse(null));
       }
     });
@@ -158,7 +158,7 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public void start() {
     try {
-      if (state.get()!=FabricationState.Standby) {
+      if (state.get() != FabricationState.Standby) {
         LOG.error("Cannot start fabrication unless in Standby status");
         return;
       }
@@ -197,7 +197,7 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public void cancel() {
-    if (state.get()==FabricationState.Standby) {
+    if (state.get() == FabricationState.Standby) {
       LOG.debug("Will not cancel fabrication unless in Active status");
       return;
     }
@@ -395,8 +395,8 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public List<Segment> getSegments(@Nullable Integer startIndex) {
     var viewLimit = parseIntegerValue(timelineSegmentViewLimit.getValue(), "Timeline Segment View Limit");
-    var from = Objects.nonNull(startIndex) ? startIndex:Math.max(0, fabricationManager.getEntityStore().readLastSegmentId() - viewLimit - 1);
-    var to = Math.min(fabricationManager.getEntityStore().readLastSegmentId(), from + viewLimit);
+    var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, fabricationManager.getEntityStore().readLastSegmentId() - viewLimit - 1);
+    var to = Math.min(fabricationManager.getEntityStore().readLastSegmentId() , from + viewLimit);
     return fabricationManager.getEntityStore().readSegmentsFromToOffset(from, to);
   }
 
@@ -411,8 +411,8 @@ public class FabricationServiceImpl implements FabricationService {
       ? getBarBeats(segment)
       .map(barBeats -> formatTotalBars((int) Math.floor((float) beats / barBeats),
         FormatUtils.formatFractionalSuffix((double) (beats % barBeats) / barBeats)))
-      .orElse(String.format("%d beat%s", beats, beats==1 ? "":"s"))
-      :"N/A";
+      .orElse(String.format("%d beat%s", beats, beats == 1 ? "" : "s"))
+      : "N/A";
   }
 
   @Override
@@ -423,11 +423,11 @@ public class FabricationServiceImpl implements FabricationService {
           .map(barBeats -> {
             var bars = (int) Math.floor(position / barBeats);
             var beats = (int) Math.floor(position % barBeats);
-            var remaining = beats > 0 ? position % barBeats % beats:0;
+            var remaining = beats > 0 ? position % barBeats % beats : 0;
             return String.format("%d.%d%s", bars + 1, beats + 1, FormatUtils.formatDecimalSuffix(remaining));
           })
           .orElse(FormatUtils.formatMinDecimal(position))
-        :"N/A";
+        : "N/A";
   }
 
   @Override
@@ -513,7 +513,7 @@ public class FabricationServiceImpl implements FabricationService {
     craftAheadSeconds.addListener((o, ov, value) -> prefs.put("craftAheadSeconds", value));
     dubAheadSeconds.addListener((o, ov, value) -> prefs.put("dubAheadSeconds", value));
     mixerLengthSeconds.addListener((o, ov, value) -> prefs.put("mixerLengthSeconds", value));
-    controlMode.addListener((o, ov, value) -> prefs.put("macroMode", Objects.nonNull(value) ? value.name():""));
+    controlMode.addListener((o, ov, value) -> prefs.put("macroMode", Objects.nonNull(value) ? value.name() : ""));
     outputChannels.addListener((o, ov, value) -> prefs.put("outputChannels", value));
     outputFrameRate.addListener((o, ov, value) -> prefs.put("outputFrameRate", value));
     timelineSegmentViewLimit.addListener((o, ov, value) -> prefs.put("timelineSegmentViewLimit", value));
@@ -546,7 +546,7 @@ public class FabricationServiceImpl implements FabricationService {
    @return formatted total bars
    */
   private String formatTotalBars(int bars, String fraction) {
-    return String.format("%d%s bar%s", bars, fraction, bars==1 ? "":"s");
+    return String.format("%d%s bar%s", bars, fraction, bars == 1 ? "" : "s");
   }
 
   /**

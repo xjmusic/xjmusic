@@ -9,10 +9,10 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Rectangle?>
 <ScrollPane
-  xmlns:fx="http://javafx.com/fxml/1"
   fx:controller="io.xj.gui.controllers.fabrication.FabricationTimelineController"
   fx:id="scrollPane"
   xmlns="http://javafx.com/javafx/20.0.1"
+  xmlns:fx="http://javafx.com/fxml/1"
   maxHeight="Infinity"
   maxWidth="Infinity">
   <HBox.hgrow>

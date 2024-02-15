@@ -2,6 +2,7 @@ package io.xj.nexus.util.aws_upload;
 
 import io.xj.nexus.util.aws_upload.auth.AWS4SignerBase;
 import io.xj.nexus.util.aws_upload.auth.AWS4SignerForQueryParameterAuth;
+import io.xj.nexus.work.DubWorkImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

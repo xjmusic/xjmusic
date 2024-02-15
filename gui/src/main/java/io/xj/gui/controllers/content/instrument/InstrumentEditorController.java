@@ -79,16 +79,21 @@ public class InstrumentEditorController extends BrowserController {
 
   @FXML
   protected TextArea fieldConfig;
-  @FXML
-  protected Button buttonOpenAudioFolder;
-  @FXML
-  protected TableView<InstrumentAudio> audiosTable;
+
   @FXML
   ChoiceBox<InstrumentType> choiceType;
+
   @FXML
   ChoiceBox<InstrumentMode> choiceMode;
+
   @FXML
   ChoiceBox<InstrumentState> choiceState;
+
+  @FXML
+  protected Button buttonOpenAudioFolder;
+
+  @FXML
+  protected TableView<InstrumentAudio> audiosTable;
 
   public InstrumentEditorController(
     @Value("classpath:/views/content/instrument/instrument-editor.fxml") Resource fxml,

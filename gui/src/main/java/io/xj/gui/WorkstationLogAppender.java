@@ -16,6 +16,11 @@ public class WorkstationLogAppender extends AppenderBase<ILoggingEvent> {
   public static final AtomicReference<LogListener> LISTENER = new AtomicReference<>();
   public static final AtomicReference<Level> LEVEL = new AtomicReference<>(Level.INFO);
 
+  public interface LogListener {
+
+    void onLog(Level level, String context, String message);
+  }
+
   public static void setListener(LogListener listener) {
     LISTENER.set(listener);
   }
@@ -31,7 +36,7 @@ public class WorkstationLogAppender extends AppenderBase<ILoggingEvent> {
     }
     var message = formatMessage(eventObject);
     System.out.println(message);
-    if (LISTENER.get()!=null) {
+    if (LISTENER.get() != null) {
       LISTENER.get().onLog(eventObject.getLevel(), eventObject.getLoggerName(), message);
     }
   }
@@ -56,10 +61,5 @@ public class WorkstationLogAppender extends AppenderBase<ILoggingEvent> {
 
   String formatCaller(StackTraceElement stackTraceElement) {
     return stackTraceElement.getClassName().replaceAll(".*\\.", "");
-  }
-
-  public interface LogListener {
-
-    void onLog(Level level, String context, String message);
   }
 }

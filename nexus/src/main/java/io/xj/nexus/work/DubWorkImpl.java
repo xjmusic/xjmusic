@@ -137,17 +137,17 @@ public class DubWorkImpl implements DubWork {
   @Override
   @Nullable
   public Optional<BytePipeline> getMixerBuffer() {
-    return Objects.nonNull(mixer) ? Optional.of(mixer.getBuffer()):Optional.empty();
+    return Objects.nonNull(mixer) ? Optional.of(mixer.getBuffer()) : Optional.empty();
   }
 
   @Override
   public int getMixerBufferAvailableBytesCount() throws IOException {
-    return Objects.nonNull(mixer) ? mixer.getBuffer().getAvailableByteCount():0;
+    return Objects.nonNull(mixer) ? mixer.getBuffer().getAvailableByteCount() : 0;
   }
 
   @Override
   public Optional<AudioFormat> getAudioFormat() {
-    return Objects.nonNull(mixer) ? Optional.of(mixer.getAudioFormat()):Optional.empty();
+    return Objects.nonNull(mixer) ? Optional.of(mixer.getAudioFormat()) : Optional.empty();
   }
 
   @Override
@@ -223,8 +223,8 @@ public class DubWorkImpl implements DubWork {
         if (StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
           continue;
         }
-        transientMicros = Objects.nonNull(audio.getTransientSeconds()) ? (long) (audio.getTransientSeconds() * MICROS_PER_SECOND):0; // audio transient microseconds (to start audio before picked time)
-        lengthMicros = Objects.nonNull(pick.getLengthMicros()) ? pick.getLengthMicros():null; // pick length microseconds, or empty if infinite
+        transientMicros = Objects.nonNull(audio.getTransientSeconds()) ? (long) (audio.getTransientSeconds() * MICROS_PER_SECOND) : 0; // audio transient microseconds (to start audio before picked time)
+        lengthMicros = Objects.nonNull(pick.getLengthMicros()) ? pick.getLengthMicros() : null; // pick length microseconds, or empty if infinite
         startAtMixerMicros =
           segmentById.get(pick.getSegmentId())
             .getBeginAtChainMicros() // segment begin at chain microseconds
@@ -236,9 +236,9 @@ public class DubWorkImpl implements DubWork {
             startAtMixerMicros // from start of this active audio
               + transientMicros // revert transient microseconds from previous computation
               + lengthMicros
-            :null; // add length of pick in microseconds
+            : null; // add length of pick in microseconds
         if (startAtMixerMicros <= mixerLengthMicros && (Objects.isNull(stopAtMixerMicros) || stopAtMixerMicros >= 0)) {
-          activeAudios.add(new ActiveAudio(pick, craftWork.getInstrument(audio), audio, startAtMixerMicros, Objects.nonNull(stopAtMixerMicros) ? stopAtMixerMicros:null));
+          activeAudios.add(new ActiveAudio(pick, craftWork.getInstrument(audio), audio, startAtMixerMicros, Objects.nonNull(stopAtMixerMicros) ? stopAtMixerMicros : null));
         }
       }
 
@@ -302,7 +302,7 @@ public class DubWorkImpl implements DubWork {
    @param e        exception (optional)
    */
   void didFailWhile(String msgWhile, Exception e) {
-    var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName():e.getMessage();
+    var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
     LOG.error("Failed while {} because {}", msgWhile, msgCause, e);
 
     running.set(false);

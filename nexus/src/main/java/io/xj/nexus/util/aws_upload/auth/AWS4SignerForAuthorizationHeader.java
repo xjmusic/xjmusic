@@ -1,6 +1,7 @@
 package io.xj.nexus.util.aws_upload.auth;
 
 import io.xj.nexus.util.aws_upload.util.BinaryUtils;
+import io.xj.nexus.work.DubWorkImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,7 +97,7 @@ public class AWS4SignerForAuthorizationHeader extends AWS4SignerBase {
     String signatureAuthorizationHeader =
       "Signature=" + BinaryUtils.toHex(signature);
 
-    return SCHEME + "-" + ALGORITHM + " "
+      return SCHEME + "-" + ALGORITHM + " "
       + credentialsAuthorizationHeader + ", "
       + signedHeadersAuthorizationHeader + ", "
       + signatureAuthorizationHeader;

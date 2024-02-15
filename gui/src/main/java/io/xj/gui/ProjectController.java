@@ -77,6 +77,6 @@ public abstract class ProjectController implements ReadyAfterBoot {
     java.util.Optional<ButtonType> result = dialog.showAndWait();
 
     // Return true if 'Yes' was clicked, false otherwise
-    return result.isPresent() && result.get()==yesButton;
+    return result.isPresent() && result.get() == yesButton;
   }
 }

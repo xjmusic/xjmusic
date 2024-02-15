@@ -24,11 +24,19 @@ import static java.nio.file.Files.deleteIfExists;
 public class AudioFileWriterImpl implements AudioFileWriter {
   static final Logger LOG = LoggerFactory.getLogger(AudioFileWriterImpl.class);
   final AudioFormat format;
+  FileOutputStream tempFile;
   final AtomicLong tempFileByteCount = new AtomicLong(0);
   final AtomicReference<String> tempFilePath = new AtomicReference<>("");
   final AtomicReference<String> targetPath = new AtomicReference<>("");
+
+  enum FileState {
+    INITIAL,
+    WRITING,
+    CLOSING,
+    DONE
+  }
+
   final AtomicReference<FileState> fileState = new AtomicReference<>(FileState.INITIAL);
-  FileOutputStream tempFile;
 
   public AudioFileWriterImpl(
     AudioFormat format
@@ -52,9 +60,10 @@ public class AudioFileWriterImpl implements AudioFileWriter {
     this.fileState.set(FileState.WRITING);
   }
 
+
   @Override
   public void append(byte[] bytes) throws IOException {
-    if (fileState.get()!=FileState.WRITING) {
+    if (fileState.get() != FileState.WRITING) {
       throw new IllegalStateException("Stream is not open");
     }
     try {
@@ -69,13 +78,13 @@ public class AudioFileWriterImpl implements AudioFileWriter {
 
   @Override
   public boolean finish() {
-    if (fileState.get()!=FileState.WRITING) {
+    if (fileState.get() != FileState.WRITING) {
       throw new IllegalStateException("Stream is not open");
     }
     try {
       this.fileState.set(FileState.CLOSING);
       tempFile.close();
-      if (tempFileByteCount.get()==0) {
+      if (tempFileByteCount.get() == 0) {
         LOG.warn("Will not write zero-byte {}", targetPath.get());
         return false;
       }
@@ -100,13 +109,6 @@ public class AudioFileWriterImpl implements AudioFileWriter {
 
   @Override
   public boolean isWriting() {
-    return fileState.get()==FileState.WRITING;
-  }
-
-  enum FileState {
-    INITIAL,
-    WRITING,
-    CLOSING,
-    DONE
+    return fileState.get() == FileState.WRITING;
   }
 }

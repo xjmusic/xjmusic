@@ -42,16 +42,16 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Service
 public class LabServiceImpl implements LabService {
-  static final Pattern rgxStripLeadingSlash = Pattern.compile("^/");
+  Logger LOG = LoggerFactory.getLogger(LabServiceImpl.class);
+  private final Preferences prefs = Preferences.userNodeForPackage(LabServiceImpl.class);
+  private final HostServices hostServices;
   final WebClient webClient;
   final ObjectProperty<LabState> state = new SimpleObjectProperty<>(LabState.Offline);
+  static final Pattern rgxStripLeadingSlash = Pattern.compile("^/");
   final StringProperty baseUrl = new SimpleStringProperty();
   final StringProperty accessToken = new SimpleStringProperty();
   final ObjectProperty<User> authenticatedUser = new SimpleObjectProperty<>();
   final ObjectProperty<HubConfiguration> hubConfig = new SimpleObjectProperty<>();
-  private final Preferences prefs = Preferences.userNodeForPackage(LabServiceImpl.class);
-  private final HostServices hostServices;
-  Logger LOG = LoggerFactory.getLogger(LabServiceImpl.class);
 
   public LabServiceImpl(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,

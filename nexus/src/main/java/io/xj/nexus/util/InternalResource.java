@@ -14,7 +14,7 @@ public class InternalResource {
 
   public InternalResource(String fileName) {
     URL resource = getClass().getResource(fileName);
-    if (resource!=null) {
+    if (resource != null) {
       this.file = new File(resource.getFile());
     }
   }

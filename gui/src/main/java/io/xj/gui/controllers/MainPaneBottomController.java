@@ -36,10 +36,12 @@ public class MainPaneBottomController extends ProjectController {
   private final Integer refreshRateSeconds;
   private final LogQueue logQueue;
   private final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
-  @FXML
-  protected ListView<MainPaneBottomController.LogRecord> logListView;
+
   @Nullable
   Timeline refresh;
+
+  @FXML
+  protected ListView<MainPaneBottomController.LogRecord> logListView;
 
   public MainPaneBottomController(
     @Value("classpath:/views/main-pane-bottom.fxml") Resource fxml,

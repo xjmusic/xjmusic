@@ -20,6 +20,12 @@ public enum ChainType {
     this.value = value;
   }
 
+  @Override
+  @JsonValue
+  public String toString() {
+    return String.valueOf(value);
+  }
+
   @JsonCreator
   public static ChainType fromValue(String value) {
     for (ChainType b : ChainType.values()) {
@@ -28,12 +34,6 @@ public enum ChainType {
       }
     }
     throw new IllegalArgumentException("Unexpected value '" + value + "'");
-  }
-
-  @Override
-  @JsonValue
-  public String toString() {
-    return String.valueOf(value);
   }
 }
 

@@ -113,24 +113,27 @@ public class MainMenuController extends ProjectController {
 
   @FXML
   protected RadioMenuItem logLevelError;
+
+  @FXML
+  ToggleGroup menuViewModeToggleGroup;
   @FXML
   protected RadioMenuItem menuViewModeContent;
   @FXML
   protected RadioMenuItem menuViewModeTemplates;
   @FXML
   protected RadioMenuItem menuViewModeFabrication;
+
+  @FXML
+  StackPane labFeatureContainer;
+  @FXML
+  ToggleGroup buttonViewModeToggleGroup;
   @FXML
   protected ToggleButton buttonViewModeContent;
   @FXML
   protected ToggleButton buttonViewModeTemplates;
   @FXML
   protected ToggleButton buttonViewModeFabrication;
-  @FXML
-  ToggleGroup menuViewModeToggleGroup;
-  @FXML
-  StackPane labFeatureContainer;
-  @FXML
-  ToggleGroup buttonViewModeToggleGroup;
+
   @FXML
   ToggleGroup logLevelToggleGroup;
 

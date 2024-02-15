@@ -41,7 +41,7 @@ public interface FFmpegUtils {
         output.start();
 
         Frame frame;
-        while ((frame = input.grabFrame(true, false, true, true))!=null) {
+        while ((frame = input.grabFrame(true, false, true, true)) != null) {
           if (0 < frame.samples.length && Objects.nonNull(frame.samples[0])) {
             output.record(frame);
           }

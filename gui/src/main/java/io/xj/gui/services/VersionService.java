@@ -26,7 +26,7 @@ public class VersionService {
   public void init() {
     Properties properties = new Properties();
     try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(versionProperties.getFilename())) {
-      if (inputStream!=null) {
+      if (inputStream != null) {
         properties.load(inputStream);
         version = properties.getProperty("version");
       }

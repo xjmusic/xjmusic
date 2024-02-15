@@ -249,8 +249,8 @@ public class CmdModalController extends ProjectModalController {
       showWarningDialog("Cannot delete Library", "Library contains content",
         String.format("Cannot delete Library \"%s\" because it contains %s", library.getName(),
           StringUtils.toProperCsvAnd(Stream.of(
-            programs > 0 ? describeCount("Program", programs):null,
-            instruments > 0 ? describeCount("Instrument", instruments):null
+            programs > 0 ? describeCount("Program", programs) : null,
+            instruments > 0 ? describeCount("Instrument", instruments) : null
           ).filter(Objects::nonNull).toList())));
       return;
     }
@@ -412,9 +412,9 @@ public class CmdModalController extends ProjectModalController {
       showWarningDialog("Cannot delete Template", "Template is bound",
         String.format("Cannot delete Template \"%s\" because it is bound to %s", template.getName(),
           StringUtils.toProperCsvAnd(Stream.of(
-            programBindings > 0 ? describeCount("Program", programBindings):null,
-            instrumentBindings > 0 ? describeCount("Instrument", instrumentBindings):null,
-            libraryBindings > 0 ? describeCount("Library", libraryBindings):null
+            programBindings > 0 ? describeCount("Program", programBindings) : null,
+            instrumentBindings > 0 ? describeCount("Instrument", instrumentBindings) : null,
+            libraryBindings > 0 ? describeCount("Library", libraryBindings) : null
           ).filter(Objects::nonNull).toList())));
       return;
     }
@@ -474,7 +474,7 @@ public class CmdModalController extends ProjectModalController {
    @return description of the count
    */
   private String describeCount(String name, long count) {
-    return String.format("%d %s", count, count > 1 ? StringUtils.toPlural(name):name);
+    return String.format("%d %s", count, count > 1 ? StringUtils.toPlural(name) : name);
   }
 
   /**
@@ -483,7 +483,7 @@ public class CmdModalController extends ProjectModalController {
   public record LibraryChoice(Library library) {
     @Override
     public String toString() {
-      return Objects.nonNull(library) ? library.getName():"Select...";
+      return Objects.nonNull(library) ? library.getName() : "Select...";
     }
   }
 }

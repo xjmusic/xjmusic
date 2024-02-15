@@ -10,13 +10,13 @@ public interface Telemetry {
   /**
    Record a timer section
 
-   @param name   of the section
+   @param name of the section
    @param millis spent in the section
    */
   void record(String name, Long millis);
 
   /**
-   Report telemetry
+    Report telemetry
    */
   void report();
 }

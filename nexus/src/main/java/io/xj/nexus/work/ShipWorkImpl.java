@@ -95,7 +95,7 @@ public class ShipWorkImpl implements ShipWork {
 
   @Override
   public Optional<Long> getShippedToChainMicros() {
-    return Objects.nonNull(playback) ? Optional.of(playback.getHeardAtChainMicros()):Optional.empty();
+    return Objects.nonNull(playback) ? Optional.of(playback.getHeardAtChainMicros()) : Optional.empty();
   }
 
   /**
@@ -114,7 +114,7 @@ public class ShipWorkImpl implements ShipWork {
    Ship did fail
    */
   void didFail(Exception e) {
-    var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName():e.getMessage();
+    var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
     LOG.error("Failed while {} because {}", "running ship work", msgCause, e);
     finish();
   }

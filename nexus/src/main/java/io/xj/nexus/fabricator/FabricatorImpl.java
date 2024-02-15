@@ -110,11 +110,11 @@ public class FabricatorImpl implements Fabricator {
   final Map<String, Optional<Note>> rootNotesByVoicingAndChord;
   final Map<UUID, Collection<ProgramSequenceChord>> completeChordsForProgramSequence;
   final Map<UUID, List<SegmentChoiceArrangementPick>> picksForChoice;
+  private final NexusEntityStore store;
   final SegmentRetrospective retrospective;
   final Set<UUID> boundInstrumentIds;
   final Set<UUID> boundProgramIds;
   final long startAtSystemNanoTime;
-  private final NexusEntityStore store;
   private final Integer segmentId;
   SegmentType type;
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -486,7 +486,7 @@ public class FabricatorImpl implements Fabricator {
         if (Objects.isNull(offset) || 0 > availableOffset.compareTo(offset)) offset = availableOffset;
 
     // if none found, loop back around to zero
-    return Objects.nonNull(offset) ? offset:0;
+    return Objects.nonNull(offset) ? offset : 0;
 
   }
 
@@ -843,7 +843,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public Boolean isInitialSegment() {
-    return 0L==getSegment().getId();
+    return 0L == getSegment().getId();
   }
 
   @Override
@@ -911,7 +911,7 @@ public class FabricatorImpl implements Fabricator {
     var offsets = sourceMaterial.getSequenceBindingsOfProgram(macroProgram.getId()).stream()
       .map(ProgramSequenceBinding::getOffset)
       .collect(Collectors.toSet()).stream().sorted().toList();
-    return offsets.size() > 1 ? offsets.get(1):offsets.get(0);
+    return offsets.size() > 1 ? offsets.get(1) : offsets.get(0);
   }
 
   @Override
@@ -971,7 +971,7 @@ public class FabricatorImpl implements Fabricator {
    @return Segment ship key computed for the given chain and Segment
    */
   private String computeShipKey(Chain chain, Segment segment) {
-    String chainName = StringUtils.isNullOrEmpty(chain.getShipKey()) ? "chain" + NAME_SEPARATOR + chain.getId():chain.getShipKey();
+    String chainName = StringUtils.isNullOrEmpty(chain.getShipKey()) ? "chain" + NAME_SEPARATOR + chain.getId() : chain.getShipKey();
     String segmentName = String.valueOf(segment.getBeginAtChainMicros());
     return chainName + NAME_SEPARATOR + segmentName;
   }

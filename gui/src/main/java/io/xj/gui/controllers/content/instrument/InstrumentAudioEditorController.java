@@ -70,50 +70,72 @@ public class InstrumentAudioEditorController extends BrowserController {
   private final Color waveformTransientColor;
   private final Color waveformZeroColor;
   private final Color waveformGridColor;
-  @FXML
-  protected SplitPane container;
-  @FXML
-  protected VBox fieldsContainer;
-  @FXML
-  protected TextField fieldName;
-  @FXML
-  protected TextField fieldEvent;
-  @FXML
-  protected TextField fieldVolume;
-  @FXML
-  protected TextField fieldTones;
-  @FXML
-  protected TextField fieldTempo;
-  @FXML
-  protected TextField fieldIntensity;
-  @FXML
-  protected TextField fieldTransientSeconds;
-  @FXML
-  protected TextField fieldLoopBeats;
-  @FXML
-  protected ScrollPane waveformScrollPane;
-  @FXML
-  protected ImageView waveform;
-  @FXML
-  protected Button buttonOpenAudioFolder;
-  @FXML
-  protected Button buttonOpenAudioFile;
-  @FXML
-  protected Label labelAudioFileName;
-  @FXML
-  protected Button buttonZoomOut;
-  @FXML
-  protected Button buttonZoomIn;
+
   @Value("${gui.instrument.audio.waveform.maxWidthPixels}")
   private int waveformMaxWidth;
+
   @Value("${gui.instrument.audio.waveform.heightPixels}")
   private int waveformHeight;
+
   @Value("${gui.instrument.audio.waveform.normalizeMaxValue}")
   private float waveformNormalizeMaxValue;
+
   @Value("${gui.instrument.audio.waveform.minSamplesPerPixel}")
   private int waveformMinSamplesPerPixel;
+
   @Value("${gui.instrument.audio.waveform.transientDashPixels}")
   private int waveformTransientDashPixels;
+
+  @FXML
+  protected SplitPane container;
+
+  @FXML
+  protected VBox fieldsContainer;
+
+  @FXML
+  protected TextField fieldName;
+
+  @FXML
+  protected TextField fieldEvent;
+
+  @FXML
+  protected TextField fieldVolume;
+
+  @FXML
+  protected TextField fieldTones;
+
+  @FXML
+  protected TextField fieldTempo;
+
+  @FXML
+  protected TextField fieldIntensity;
+
+  @FXML
+  protected TextField fieldTransientSeconds;
+
+  @FXML
+  protected TextField fieldLoopBeats;
+
+  @FXML
+  protected ScrollPane waveformScrollPane;
+
+  @FXML
+  protected ImageView waveform;
+
+  @FXML
+  protected Button buttonOpenAudioFolder;
+
+  @FXML
+  protected Button buttonOpenAudioFile;
+
+  @FXML
+  protected Label labelAudioFileName;
+
+  @FXML
+  protected Button buttonZoomOut;
+
+  @FXML
+  protected Button buttonZoomIn;
 
   public InstrumentAudioEditorController(
     @Value("classpath:/views/content/instrument/instrument-audio-editor.fxml") Resource fxml,

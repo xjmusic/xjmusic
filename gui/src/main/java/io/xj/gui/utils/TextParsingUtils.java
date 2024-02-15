@@ -27,6 +27,6 @@ public enum TextParsingUtils {
    @param text in which to add a trailing slash
    */
   public static String addTrailingSlash(String text) {
-    return text.endsWith(File.separator) ? text:text + File.separator;
+    return text.endsWith(File.separator) ? text : text + File.separator;
   }
 }

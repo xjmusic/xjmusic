@@ -12,11 +12,11 @@
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.VBox?>
 <VBox
-  xmlns:fx="http://javafx.com/fxml/1"
   fx:id="container"
   fx:controller="io.xj.gui.controllers.template.TemplateAddBindingModalController"
   spacing="10"
   xmlns="http://javafx.com/javafx/20.0.1"
+  xmlns:fx="http://javafx.com/fxml/1"
   minHeight="200">
   <padding>
     <Insets bottom="15" left="15" right="15" top="15"/>

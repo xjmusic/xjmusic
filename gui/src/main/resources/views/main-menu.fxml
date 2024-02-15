@@ -22,11 +22,11 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <AnchorPane
-  xmlns:fx="http://javafx.com/fxml/1"
   fx:id="container"
   fx:controller="io.xj.gui.controllers.MainMenuController"
   VBox.vgrow="NEVER"
   xmlns="http://javafx.com/javafx/20.0.1"
+  xmlns:fx="http://javafx.com/fxml/1"
   styleClass="main-menu-container">
 
   <MenuBar

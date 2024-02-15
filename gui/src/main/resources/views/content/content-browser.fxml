@@ -6,10 +6,10 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <StackPane
-  xmlns:fx="http://javafx.com/fxml"
   fx:controller="io.xj.gui.controllers.content.ContentBrowserController"
   fx:id="container"
-  xmlns="http://javafx.com/javafx">
+  xmlns="http://javafx.com/javafx"
+  xmlns:fx="http://javafx.com/fxml">
 
   <TableView
     fx:id="librariesTable">

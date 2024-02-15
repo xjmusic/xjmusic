@@ -26,6 +26,12 @@ public enum SegmentType {
     this.value = value;
   }
 
+  @Override
+  @JsonValue
+  public String toString() {
+    return String.valueOf(value);
+  }
+
   @JsonCreator
   public static SegmentType fromValue(String value) {
     for (SegmentType b : SegmentType.values()) {
@@ -34,12 +40,6 @@ public enum SegmentType {
       }
     }
     throw new IllegalArgumentException("Unexpected value '" + value + "'");
-  }
-
-  @Override
-  @JsonValue
-  public String toString() {
-    return String.valueOf(value);
   }
 }
 
