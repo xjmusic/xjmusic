@@ -69,13 +69,11 @@ public class ProgramSequenceMemeTagController {
     mainBorderPane.widthProperty().addListener((o, ov, nv) -> {
       if (nv.doubleValue() > sequenceHolder.getWidth()) {
         sequenceHolder.setPrefWidth(nv.doubleValue());
-        LOG.info("Expanded");
       } else {
         // Adjust only if the current width is larger than necessary
-        double minRequiredWidth = 200; // You need to implement this method
+        double minRequiredWidth = 200;
         if (sequenceHolder.getPrefWidth() > minRequiredWidth) {
           sequenceHolder.setPrefWidth(minRequiredWidth);
-          LOG.info("Reduced");
         }
       }
     });
@@ -123,7 +121,6 @@ public class ProgramSequenceMemeTagController {
       projectService.isModifiedProperty().set(true);
       // Remove the child node from memeHolder
       memeHolder.getChildren().remove(root);
-      // Assuming memeHolder and memeParent are valid nodes
       if (isLastItemWithChildren() || isWithMoreChildren()) {
         sequenceHolder.setPrefWidth(sequenceHolder.getWidth() - memeParent.getPrefWidth());
       }
