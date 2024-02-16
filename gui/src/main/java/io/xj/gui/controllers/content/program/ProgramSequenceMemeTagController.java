@@ -67,10 +67,19 @@ public class ProgramSequenceMemeTagController {
     setMemeTextProcessing();
     deleteMemeButton.setOnAction(e -> deleteMemeTag(root, memeHolder));
     mainBorderPane.widthProperty().addListener((o, ov, nv) -> {
-      if (!(sequenceHolder.getWidth() >= nv.doubleValue())) {
+      if (nv.doubleValue() > sequenceHolder.getWidth()) {
         sequenceHolder.setPrefWidth(nv.doubleValue());
+        LOG.info("Expanded");
+      } else {
+        // Adjust only if the current width is larger than necessary
+        double minRequiredWidth = 200; // You need to implement this method
+        if (sequenceHolder.getPrefWidth() > minRequiredWidth) {
+          sequenceHolder.setPrefWidth(minRequiredWidth);
+          LOG.info("Reduced");
+        }
       }
     });
+
   }
 
   private void updateMeme() {
