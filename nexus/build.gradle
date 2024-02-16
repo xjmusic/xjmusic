@@ -40,7 +40,7 @@ dependencies {
   implementation 'commons-io:commons-io:2.11.0'
   implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
   implementation 'me.xdrop:fuzzywuzzy:1.4.0'
-  implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+  implementation 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
   implementation 'org.reflections:reflections:0.10.2'
   implementation 'org.yaml:snakeyaml:2.2'
   testFixturesImplementation "ch.qos.logback:logback-classic:${rootProject.ext.logbackVersion}"

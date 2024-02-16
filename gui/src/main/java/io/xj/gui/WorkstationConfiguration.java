@@ -88,10 +88,9 @@ public class WorkstationConfiguration {
     HttpClientProvider httpClientProvider,
     HubClientFactory hubClientFactory,
     @Value("${audio.download.retries}") int downloadAudioRetries,
-    @Value("${audio.upload.retries}") int uploadAudioRetries,
-    @Value("${audio.upload.chunkSize}") int uploadAudioChunkSize
+    @Value("${audio.upload.retries}") int uploadAudioRetries
   ) {
-    return new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, downloadAudioRetries, uploadAudioRetries, uploadAudioChunkSize);
+    return new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, downloadAudioRetries, uploadAudioRetries);
   }
 
   @Bean

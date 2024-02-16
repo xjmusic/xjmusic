@@ -3,6 +3,13 @@
 package io.xj.workstation.service;
 
 import io.xj.hub.HubConfiguration;
+import io.xj.hub.HubTopology;
+import io.xj.hub.entity.EntityFactory;
+import io.xj.hub.entity.EntityFactoryImpl;
+import io.xj.hub.json.JsonProvider;
+import io.xj.hub.json.JsonProviderImpl;
+import io.xj.hub.jsonapi.JsonapiPayloadFactory;
+import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.audio.AudioCache;
 import io.xj.nexus.audio.AudioCacheImpl;
@@ -10,18 +17,11 @@ import io.xj.nexus.audio.AudioLoader;
 import io.xj.nexus.audio.AudioLoaderImpl;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
-import io.xj.hub.entity.EntityFactory;
-import io.xj.hub.entity.EntityFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.http.HttpClientProvider;
 import io.xj.nexus.http.HttpClientProviderImpl;
 import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.hub.HubTopology;
-import io.xj.hub.json.JsonProvider;
-import io.xj.hub.json.JsonProviderImpl;
-import io.xj.hub.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.hub_client.HubClientFactory;
 import io.xj.nexus.hub_client.HubClientFactoryImpl;
 import io.xj.nexus.mixer.EnvelopeProvider;
@@ -36,9 +36,9 @@ import io.xj.nexus.ship.broadcast.BroadcastFactory;
 import io.xj.nexus.ship.broadcast.BroadcastFactoryImpl;
 import io.xj.nexus.telemetry.Telemetry;
 import io.xj.nexus.telemetry.TelemetryImpl;
-import io.xj.nexus.work.FabricationSettings;
 import io.xj.nexus.work.FabricationManager;
 import io.xj.nexus.work.FabricationManagerImpl;
+import io.xj.nexus.work.FabricationSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,10 +53,10 @@ import org.springframework.context.event.EventListener;
 
 @SpringBootApplication
 @ComponentScan(
-  basePackages = {
-    "io.xj.hub",
-    "io.xj.nexus",
-  })
+    basePackages = {
+        "io.xj.hub",
+        "io.xj.nexus",
+    })
 public class WorkstationServiceApplication {
   final Logger LOG = LoggerFactory.getLogger(WorkstationServiceApplication.class);
   final FabricationManager fabricationManager;
@@ -71,16 +71,15 @@ public class WorkstationServiceApplication {
 
   @Autowired
   public WorkstationServiceApplication(
-    ApplicationContext context,
-    @Value("${audio.base.url}") String audioBaseUrl,
-    @Value("${audio.download.retries}") int downloadAudioRetries,
-    @Value("${audio.upload.retries}") int uploadAudioRetries,
-    @Value("${audio.upload.chunkSize}") int uploadAudioChunkSize,
-    @Value("${ingest.token}") String ingestToken,
-    @Value("${input.template.key}") String inputTemplateKey,
-    @Value("${lab.base.url}") String labBaseUrl,
-    @Value("${ship.base.url}") String shipBaseUrl,
-    @Value("${stream.base.url}") String streamBaseUrl
+      ApplicationContext context,
+      @Value("${audio.base.url}") String audioBaseUrl,
+      @Value("${audio.download.retries}") int downloadAudioRetries,
+      @Value("${audio.upload.retries}") int uploadAudioRetries,
+      @Value("${ingest.token}") String ingestToken,
+      @Value("${input.template.key}") String inputTemplateKey,
+      @Value("${lab.base.url}") String labBaseUrl,
+      @Value("${ship.base.url}") String shipBaseUrl,
+      @Value("${stream.base.url}") String streamBaseUrl
   ) {
     this.audioBaseUrl = audioBaseUrl;
     this.context = context;
@@ -95,7 +94,7 @@ public class WorkstationServiceApplication {
     EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     HubClientFactory hubClientFactory = new HubClientFactoryImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
-    ProjectManager projectManager = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, downloadAudioRetries, uploadAudioRetries, uploadAudioChunkSize);
+    ProjectManager projectManager = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, downloadAudioRetries, uploadAudioRetries);
     BroadcastFactory broadcastFactory = new BroadcastFactoryImpl();
     Telemetry telemetry = new TelemetryImpl();
     CraftFactory craftFactory = new CraftFactoryImpl();
@@ -103,40 +102,40 @@ public class WorkstationServiceApplication {
     AudioCache audioCache = new AudioCacheImpl(projectManager, audioLoader);
     NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
     FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
-      nexusEntityStore,
-      jsonapiPayloadFactory,
-      jsonProvider
+        nexusEntityStore,
+        jsonapiPayloadFactory,
+        jsonProvider
     );
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
     MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
     fabricationManager = new FabricationManagerImpl(
-      projectManager, telemetry,
-      broadcastFactory,
-      craftFactory,
-      audioCache,
-      fabricatorFactory,
-      mixerFactory,
-      nexusEntityStore
+        projectManager, telemetry,
+        broadcastFactory,
+        craftFactory,
+        audioCache,
+        fabricatorFactory,
+        mixerFactory,
+        nexusEntityStore
     );
   }
 
   @EventListener(ApplicationStartedEvent.class)
   public void start() {
     var workConfig = new FabricationSettings()
-      .setInputTemplate(null); // FUTURE: read template
+        .setInputTemplate(null); // FUTURE: read template
 
     var hubConfig = new HubConfiguration()
-      .setApiBaseUrl(labBaseUrl)
-      .setAudioBaseUrl(audioBaseUrl)
-      .setBaseUrl(labBaseUrl)
-      .setPlayerBaseUrl(streamBaseUrl)
-      .setShipBaseUrl(shipBaseUrl)
-      .setStreamBaseUrl(streamBaseUrl);
+        .setApiBaseUrl(labBaseUrl)
+        .setAudioBaseUrl(audioBaseUrl)
+        .setBaseUrl(labBaseUrl)
+        .setPlayerBaseUrl(streamBaseUrl)
+        .setShipBaseUrl(shipBaseUrl)
+        .setStreamBaseUrl(streamBaseUrl);
 
     var hubAccess = new HubClientAccess()
-      .setToken(ingestToken);
+        .setToken(ingestToken);
 
     fabricationManager.setAfterFinished(this::shutdown);
     fabricationManager.start(workConfig, hubConfig, hubAccess);

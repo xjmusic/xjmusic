@@ -36,14 +36,16 @@ import io.xj.nexus.hub_client.HubClientFactory;
 import jakarta.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpHead;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,7 +90,6 @@ public class ProjectManagerImpl implements ProjectManager {
   private static final float DEFAULT_TEMPO = 120f;
   private static final float DEFAULT_LOOP_BEATS = 4.0f;
   private static final float DEFAULT_VOLUME = 1.0f;
-  private static final String CONTENT_TYPE_MULTIPART_FORM_DATA = "multipart/form-data";
   private final AtomicReference<ProjectState> state = new AtomicReference<>(ProjectState.Standby);
   private final AtomicReference<Project> project = new AtomicReference<>();
   private final AtomicReference<String> projectPathPrefix = new AtomicReference<>(File.separator);
@@ -100,7 +101,6 @@ public class ProjectManagerImpl implements ProjectManager {
   private final HubClientFactory hubClientFactory;
   private final int downloadAudioRetries;
   private final int uploadAudioRetries;
-  private final int uploadAudioChunkSize;
   private final HttpClientProvider httpClientProvider;
 
   @Nullable
@@ -118,8 +118,7 @@ public class ProjectManagerImpl implements ProjectManager {
       HttpClientProvider httpClientProvider,
       HubClientFactory hubClientFactory,
       int downloadAudioRetries,
-      int uploadAudioRetries,
-      int uploadAudioChunkSize
+      int uploadAudioRetries
   ) {
     this.httpClientProvider = httpClientProvider;
     this.jsonProvider = jsonProvider;
@@ -127,7 +126,6 @@ public class ProjectManagerImpl implements ProjectManager {
     this.hubClientFactory = hubClientFactory;
     this.downloadAudioRetries = downloadAudioRetries;
     this.uploadAudioRetries = uploadAudioRetries;
-    this.uploadAudioChunkSize = uploadAudioChunkSize;
   }
 
   @Override
@@ -1113,26 +1111,31 @@ public class ProjectManagerImpl implements ProjectManager {
 
     File file = new File(upload.getPathOnDisk());
     try (FileInputStream fileInputStream = new FileInputStream(file)) {
-      HttpPost httpPost = new HttpPost(upload.getAuth().getUploadUrl()); // replace with your URL
+      HttpPost httpPost = new HttpPost(upload.getAuth().getUploadUrl());
 
-      httpPost.setHeader("policy", upload.getAuth().getUploadPolicy());
-      httpPost.setHeader("signature", upload.getAuth().getUploadPolicySignature());
-      httpPost.setHeader("acl", upload.getAuth().getAcl());
-      httpPost.setHeader("bucket", upload.getAuth().getBucketName());
-      httpPost.setHeader("key", upload.getAuth().getWaveformKey());
-      httpPost.setHeader("awsAccessKeyId", upload.getAuth().getAwsAccessKeyId());
-      httpPost.setHeader("Content-Type", CONTENT_TYPE_MULTIPART_FORM_DATA);
+      // Create the MultipartEntityBuilder
+      MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 
-      InputStreamEntity reqEntity = new InputStreamEntity(fileInputStream, -1, ContentType.APPLICATION_OCTET_STREAM);
-      reqEntity.setChunked(false);
+      // Add the form fields
+      builder.addTextBody("policy", upload.getAuth().getUploadPolicy());
+      builder.addTextBody("signature", upload.getAuth().getUploadPolicySignature());
+      builder.addTextBody("acl", upload.getAuth().getAcl());
+      builder.addTextBody("bucket", upload.getAuth().getBucketName());
+      builder.addTextBody("key", upload.getAuth().getWaveformKey());
+      builder.addTextBody("AWSAccessKeyId", upload.getAuth().getAwsAccessKeyId());
 
-      httpPost.setEntity(reqEntity);
+      // Add the file
+      builder.addBinaryBody("file", fileInputStream, ContentType.APPLICATION_OCTET_STREAM, file.getName());
+
+      HttpEntity multipart = builder.build();
+      httpPost.setEntity(multipart);
 
       try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
-        // todo check response
-        var butts = 123; //todo remove
+        // Convert response body to string
+        String responseBody = EntityUtils.toString(response.getEntity());
+        var butts = 123;// todo remove
+        // TODO: Check response and handle accordingly
       }
-
     } catch (FileNotFoundException e) {
       upload.addError("Failed to upload instrument audio because file " + upload.getPathOnDisk() + " not found!");
     } catch (IOException e) {
@@ -1140,148 +1143,6 @@ public class ProjectManagerImpl implements ProjectManager {
     } catch (Exception e) {
       upload.addError("Failed to upload instrument audio because " + e.getMessage());
     }
-
-
-/*
-    File file = new File(upload.getPathOnDisk());
-    byte[] buffer = new byte[uploadAudioChunkSize];
-    int bytesRead;
-    try (FileInputStream fileInputStream = new FileInputStream(file)) {
-      URL endpointUrl = new URL(upload.getAuth().getUploadUrl() + "/" + upload.getAuth().getWaveformKey());
-
-      // set the markers indicating we're going to send the upload as a series
-      // of chunks:
-      //   -- 'x-amz-content-sha256' is the fixed marker indicating chunked
-      //      upload
-      //   -- 'content-length' becomes the total size in bytes of the upload
-      //      (including chunk headers),
-      //   -- 'x-amz-decoded-content-length' is used to transmit the actual
-      //      length of the data payload, less chunk headers
-
-      Map<String, String> headers = new HashMap<>();
-      headers.put("x-amz-storage-class", "REDUCED_REDUNDANCY");
-      headers.put("x-amz-content-sha256", AWS4SignerForChunkedUpload.STREAMING_BODY_SHA256);
-      headers.put("content-encoding", "aws-chunked");
-      headers.put("x-amz-decoded-content-length", "" + upload.getContentLength());
-
-      AWS4SignerForChunkedUpload signer = new AWS4SignerForChunkedUpload(endpointUrl, "PUT", "s3", upload.getAuth().getBucketRegion());
-
-      // how big is the overall request stream going to be once we add the signature
-      // 'headers' to each chunk?
-      long totalLength = AWS4SignerForChunkedUpload.calculateChunkedContentLength(upload.getContentLength(), uploadAudioChunkSize);
-      headers.put("content-length", Long.toString(totalLength));
-
-      // place the computed signature into a formatted 'Authorization' header
-      // and call S3
-      // TODO not headers.put("Authorization", upload.getAuth().getUploadPolicySignature());
-      headers.put("Authorization", signer.computeSignature(
-        headers,
-        null, // no query parameters
-        AWS4SignerForChunkedUpload.STREAMING_BODY_SHA256,
-        upload.getAuth().getAwsAccessKeyId(),
-        upload.getAuth().getUploadPolicySignature() // TODO this may be wrong, the original method for computing signature asked for the aws access key secret here
-      ));
-
-      // start consuming the data payload in blocks which we subsequently chunk; this prefixes
-      // the data with a 'chunk header' containing signature data from the prior chunk (or header
-      // signing, if the first chunk) plus length and other data. Each completed chunk is
-      // written to the request stream and to complete the upload, we send a final chunk with
-      // a zero-length data payload.
-
-      // first set up the connection
-      HttpURLConnection connection = HttpUtils.createHttpConnection(endpointUrl, "PUT", headers);
-
-      // get the request stream and start writing the user data as chunks, as outlined
-      // above;
-      DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-
-      // get the data stream
-      while ((bytesRead = fileInputStream.read(buffer, 0, buffer.length))!=-1) {
-        // process into a chunk
-        byte[] chunk = signer.constructSignedChunk(bytesRead, buffer);
-
-        // send the chunk
-        outputStream.write(chunk);
-        outputStream.flush();
-      }
-
-      // last step is to send a signed zero-length chunk to complete the upload
-      byte[] finalChunk = signer.constructSignedChunk(0, buffer);
-      outputStream.write(finalChunk);
-      outputStream.flush();
-      outputStream.close();
-
-      // make the call to Amazon S3
-      String response = HttpUtils.executeHttpRequest(connection);
-
-      var testing = 123;
-*/
-/*
-//todo figure out how to check the above response for success -- as of my latest test, this is returning an XML payload with an error:
-    <?xml version="1.0" encoding="UTF-8"?>
-    <Error>
-        <Code>SignatureDoesNotMatch</Code>
-        <Message>The request signature we calculated does not match the signature you provided. Check your key and signing
-            method.
-        </Message>
-        <AWSAccessKeyId>AKIAI6WWJJMATIYGTTLQ</AWSAccessKeyId>
-        <StringToSign>AWS4-HMAC-SHA256
-            20240215T094532Z
-            20240215/us-east-1/s3/aws4_request
-            dd168a5519e33143cf998d0141477bcd748c373bc1fbf7ef5803fde6ee02fd2c
-        </StringToSign>
-        <SignatureProvided>7c691f046f3e9f62537e67def94816c4c3d514d23b271c6df45423b3d46c0db7</SignatureProvided>
-        <StringToSignBytes>41 57 53 34 2d 48 4d 41 43 2d 53 48 41 32 35 36 0a 32 30 32 34 30 32 31 35 54 30 39 34 35 33 32
-            5a 0a 32 30 32 34 30 32 31 35 2f 75 73 2d 65 61 73 74 2d 31 2f 73 33 2f 61 77 73 34 5f 72 65 71 75 65 73 74 0a
-            64 64 31 36 38 61 35 35 31 39 65 33 33 31 34 33 63 66 39 39 38 64 30 31 34 31 34 37 37 62 63 64 37 34 38 63 33
-            37 33 62 63 31 66 62 66 37 65 66 35 38 30 33 66 64 65 36 65 65 30 32 66 64 32 63
-        </StringToSignBytes>
-        <CanonicalRequest>PUT
-            //Test--Project-Sync-Test-Instruments-Test-Instrument-1-test-audio-X.wav
-
-            content-encoding:aws-chunked
-            content-length:9220447
-            host:xj-prod-audio.s3.amazonaws.com
-            x-amz-content-sha256:STREAMING-AWS4-HMAC-SHA256-PAYLOAD
-            x-amz-date:20240215T094532Z
-            x-amz-decoded-content-length:9217122
-            x-amz-storage-class:REDUCED_REDUNDANCY
-
-            content-encoding;content-length;host;x-amz-content-sha256;x-amz-date;x-amz-decoded-content-length;x-amz-storage-class
-            STREAMING-AWS4-HMAC-SHA256-PAYLOAD
-        </CanonicalRequest>
-        <CanonicalRequestBytes>50 55 54 0a 2f 2f 54 65 73 74 2d 2d 50 72 6f 6a 65 63 74 2d 53 79 6e 63 2d 54 65 73 74 2d 49
-            6e 73 74 72 75 6d 65 6e 74 73 2d 54 65 73 74 2d 49 6e 73 74 72 75 6d 65 6e 74 2d 31 2d 74 65 73 74 2d 61 75 64
-            69 6f 2d 58 2e 77 61 76 0a 0a 63 6f 6e 74 65 6e 74 2d 65 6e 63 6f 64 69 6e 67 3a 61 77 73 2d 63 68 75 6e 6b 65
-            64 0a 63 6f 6e 74 65 6e 74 2d 6c 65 6e 67 74 68 3a 39 32 32 30 34 34 37 0a 68 6f 73 74 3a 78 6a 2d 70 72 6f 64
-            2d 61 75 64 69 6f 2e 73 33 2e 61 6d 61 7a 6f 6e 61 77 73 2e 63 6f 6d 0a 78 2d 61 6d 7a 2d 63 6f 6e 74 65 6e 74
-            2d 73 68 61 32 35 36 3a 53 54 52 45 41 4d 49 4e 47 2d 41 57 53 34 2d 48 4d 41 43 2d 53 48 41 32 35 36 2d 50 41
-            59 4c 4f 41 44 0a 78 2d 61 6d 7a 2d 64 61 74 65 3a 32 30 32 34 30 32 31 35 54 30 39 34 35 33 32 5a 0a 78 2d 61
-            6d 7a 2d 64 65 63 6f 64 65 64 2d 63 6f 6e 74 65 6e 74 2d 6c 65 6e 67 74 68 3a 39 32 31 37 31 32 32 0a 78 2d 61
-            6d 7a 2d 73 74 6f 72 61 67 65 2d 63 6c 61 73 73 3a 52 45 44 55 43 45 44 5f 52 45 44 55 4e 44 41 4e 43 59 0a 0a
-            63 6f 6e 74 65 6e 74 2d 65 6e 63 6f 64 69 6e 67 3b 63 6f 6e 74 65 6e 74 2d 6c 65 6e 67 74 68 3b 68 6f 73 74 3b
-            78 2d 61 6d 7a 2d 63 6f 6e 74 65 6e 74 2d 73 68 61 32 35 36 3b 78 2d 61 6d 7a 2d 64 61 74 65 3b 78 2d 61 6d 7a
-            2d 64 65 63 6f 64 65 64 2d 63 6f 6e 74 65 6e 74 2d 6c 65 6e 67 74 68 3b 78 2d 61 6d 7a 2d 73 74 6f 72 61 67 65
-            2d 63 6c 61 73 73 0a 53 54 52 45 41 4d 49 4e 47 2d 41 57 53 34 2d 48 4d 41 43 2d 53 48 41 32 35 36 2d 50 41 59
-            4c 4f 41 44
-        </CanonicalRequestBytes>
-        <RequestId>TQFXWCGG31H5X7RW</RequestId>
-        <HostId>ie4+h2ktq490hNmMLuVdL0q7kqAGNzcnrE5K7iDF0xRa09bxCdas1c9PqsluNz8AmqCVrxJ6IDI=</HostId>
-    </Error>
-*//*
-
-
-
-      upload.setSuccess(true);
-
-    } catch (FileNotFoundException e) {
-      upload.addError("Failed to upload instrument audio because file " + upload.getPathOnDisk() + " not found!");
-    } catch (IOException e) {
-      upload.addError("Failed to upload instrument audio because of I/O error " + e.getMessage());
-    } catch (Exception e) {
-      upload.addError("Failed to upload instrument audio because " + e.getMessage());
-    }
-*/
   }
 
 
@@ -1297,7 +1158,7 @@ public class ProjectManagerImpl implements ProjectManager {
     try (
         CloseableHttpResponse response = httpClient.execute(new HttpHead(url))
     ) {
-      if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+      if (response.getCode() == HttpStatus.SC_NOT_FOUND) {
         return FILE_SIZE_NOT_FOUND;
       }
       var contentLengthHeader = response.getFirstHeader("Content-Length");

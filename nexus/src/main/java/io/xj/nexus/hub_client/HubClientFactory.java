@@ -4,7 +4,7 @@ package io.xj.nexus.hub_client;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.HubUploadAuthorization;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 import java.util.UUID;
 

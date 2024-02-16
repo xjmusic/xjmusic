@@ -62,7 +62,7 @@ class ProjectManagerImplTest {
         HubTopology.buildHubApiTopology(entityFactory);
         JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
         HubClientFactory hubClientFactory = new HubClientFactoryImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
-        subject = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, 3, 3, 8 * 1024 * 1024);
+        subject = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, 3, 3);
     }
 
     @Test

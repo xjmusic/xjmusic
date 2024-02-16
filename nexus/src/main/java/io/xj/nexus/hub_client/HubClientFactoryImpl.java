@@ -11,13 +11,14 @@ import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.http.HttpClientProvider;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.entity.BasicHttpEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.entity.BasicHttpEntity;
+import org.apache.hc.core5.net.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,9 +59,9 @@ public class HubClientFactoryImpl implements HubClientFactory {
     LOG.info("Will post content to {}", uri);
     var request = buildPostRequest(uri, access.getToken(), content);
     try (
-      CloseableHttpResponse response = client.execute(request);
+        CloseableHttpResponse response = client.execute(request);
     ) {
-      if (!Objects.equals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode())) {
+      if (!Objects.equals(HttpStatus.SC_OK, response.getCode())) {
         var result = jsonProvider.getMapper().readValue(IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset()), HubContent.class);
         throw new HubClientException(StringUtils.toProperCsvAnd(result.getErrors().stream().map(error -> error.getCause().getMessage()).toList()));
       }
@@ -81,7 +82,7 @@ public class HubClientFactoryImpl implements HubClientFactory {
       CloseableHttpResponse response = client.execute(buildGetRequest(uri, access.getToken()))
     ) {
       // return content if successful.
-      if (!Objects.equals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode()))
+      if (!Objects.equals(HttpStatus.SC_OK, response.getCode()))
         throw buildException(uri.toString(), response);
 
       String json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
@@ -102,7 +103,7 @@ public class HubClientFactoryImpl implements HubClientFactory {
       CloseableHttpResponse response = client.execute(buildGetRequest(uri, access.getToken()))
     ) {
       // return content if successful.
-      if (!Objects.equals(HttpStatus.SC_ACCEPTED, response.getStatusLine().getStatusCode()))
+      if (!Objects.equals(HttpStatus.SC_ACCEPTED, response.getCode()))
         throw buildException(uri.toString(), response);
 
       String json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
@@ -123,7 +124,7 @@ public class HubClientFactoryImpl implements HubClientFactory {
       CloseableHttpResponse response = client.execute(new HttpGet(url))
     ) {
       // return content if successful.
-      if (!Objects.equals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode()))
+      if (!Objects.equals(HttpStatus.SC_OK, response.getCode()))
         throw buildException(url, response);
 
       String json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
@@ -158,11 +159,8 @@ public class HubClientFactoryImpl implements HubClientFactory {
    */
   HttpPost buildPostRequest(URI uri, String token, HubContent content) throws HubClientException {
     try {
-      var entity = new BasicHttpEntity();
       var body = jsonProvider.getMapper().writeValueAsString(content);
-      entity.setContent(IOUtils.toInputStream(body, Charset.defaultCharset()));
-      entity.setContentLength(body.length());
-      entity.setContentType("application/json");
+      var entity = new BasicHttpEntity(IOUtils.toInputStream(body, Charset.defaultCharset()), ContentType.APPLICATION_JSON);
       var request = new HttpPost(uri);
       request.setHeader(HEADER_COOKIE, String.format("%s=%s", hubAccessTokenName, token));
       request.setEntity(entity);
@@ -195,6 +193,6 @@ public class HubClientFactoryImpl implements HubClientFactory {
    @param response to log and throw
    */
   HubClientException buildException(String uri, CloseableHttpResponse response) throws HubClientException {
-    throw new HubClientException(String.format("Request failed to %s\nresponse: %d %s", uri, response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase()));
+    throw new HubClientException(String.format("Request failed to %s\nresponse: %d %s", uri, response.getCode(), response.getReasonPhrase()));
   }
 }

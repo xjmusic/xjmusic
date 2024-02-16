@@ -2,7 +2,7 @@
 
 package io.xj.nexus.http;
 
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 /**
  Wraps an Apache PoolingHttpClientConnectionManager to manage an HTTP connection pool.
