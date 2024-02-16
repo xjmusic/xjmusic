@@ -166,7 +166,7 @@ public class AudioCacheImpl implements AudioCache {
   private AudioInMemory compute(InstrumentAudio audio) throws AudioCacheException, IOException {
     var fileSpec = prepare(audio);
     try {
-      return audioLoader.load(audio.getId(), fileSpec.path, fileSpec.format);
+      return audioLoader.load(audio, fileSpec.path, fileSpec.format);
 
     } catch (UnsupportedAudioFileException e) {
       throw new RuntimeException(e);

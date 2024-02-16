@@ -75,10 +75,14 @@ public class ProjectServiceImpl implements ProjectService {
   private static final double ERROR_DIALOG_WIDTH = 800.0;
   private static final double ERROR_DIALOG_HEIGHT = 600.0;
   private static final Collection<ProjectState> PROJECT_LOADING_STATES = Set.of(
-    ProjectState.LoadingContent,
-    ProjectState.LoadedContent,
-    ProjectState.LoadingAudio,
-    ProjectState.LoadedAudio
+      ProjectState.LoadingContent,
+      ProjectState.LoadedContent,
+      ProjectState.LoadingAudio,
+      ProjectState.LoadedAudio,
+      ProjectState.PushingContent,
+      ProjectState.PushedContent,
+      ProjectState.PushingAudio,
+      ProjectState.PushedAudio
   );
   private final Map<Class<? extends Serializable>, Set<Runnable>> projectUpdateListeners = new HashMap<>();
   private final Preferences prefs = Preferences.userNodeForPackage(ProjectServiceImpl.class);
@@ -89,28 +93,28 @@ public class ProjectServiceImpl implements ProjectService {
   private final BooleanProperty isModified = new SimpleBooleanProperty(false);
   private final ObjectProperty<ProjectState> state = new SimpleObjectProperty<>(ProjectState.Standby);
   private final ObservableStringValue stateText = Bindings.createStringBinding(
-    () -> switch (state.get()) {
-      case Standby -> "Standby";
-      case CreatingFolder -> "Creating Folder";
-      case CreatedFolder -> "Created Folder";
-      case LoadingContent -> "Loading Content";
-      case LoadedContent -> "Loaded Content";
-      case LoadingAudio -> String.format("Loading Audio (%.02f%%)", progress.get() * 100);
-      case LoadedAudio -> "Loaded Audio";
-      case PushingContent -> "Pushing Content";
-      case PushedContent -> "Pushed Content";
-      case PushingAudio -> "Pushing Audio";
-      case PushedAudio -> "Pushed Audio";
-      case Ready -> "Ready";
-      case Saving -> "Saving";
-      case Cancelled -> "Cancelled";
-      case Failed -> "Failed";
-    },
-    state,
-    progress);
+      () -> switch (state.get()) {
+        case Standby -> "Standby";
+        case CreatingFolder -> "Creating Folder";
+        case CreatedFolder -> "Created Folder";
+        case LoadingContent -> "Loading Content";
+        case LoadedContent -> "Loaded Content";
+        case LoadingAudio -> String.format("Loading Audio (%.02f%%)", progress.get() * 100);
+        case LoadedAudio -> "Loaded Audio";
+        case PushingContent -> "Pushing Content";
+        case PushedContent -> "Pushed Content";
+        case PushingAudio -> "Pushing Audio";
+        case PushedAudio -> "Pushed Audio";
+        case Ready -> "Ready";
+        case Saving -> "Saving";
+        case Cancelled -> "Cancelled";
+        case Failed -> "Failed";
+      },
+      state,
+      progress);
   private final BooleanBinding isStateLoading = Bindings.createBooleanBinding(
-    () -> PROJECT_LOADING_STATES.contains(state.get()),
-    state);
+      () -> PROJECT_LOADING_STATES.contains(state.get()),
+      state);
   private final BooleanBinding isStateReady = state.isEqualTo(ProjectState.Ready);
   private final BooleanBinding isStateStandby = state.isEqualTo(ProjectState.Standby);
   private final int maxRecentProjects;
@@ -120,10 +124,10 @@ public class ProjectServiceImpl implements ProjectService {
   private final JsonProvider jsonProvider;
 
   public ProjectServiceImpl(
-    @Value("${gui.recent.projects.max}") int maxRecentProjects,
-    ThemeService themeService,
-    LabService labService,
-    ProjectManager projectManager
+      @Value("${gui.recent.projects.max}") int maxRecentProjects,
+      ThemeService themeService,
+      LabService labService,
+      ProjectManager projectManager
   ) {
     this.maxRecentProjects = maxRecentProjects;
     this.themeService = themeService;
@@ -145,7 +149,7 @@ public class ProjectServiceImpl implements ProjectService {
     }, state);
 
     state.addListener((o, ov, nv) -> {
-      if (nv==ProjectState.Ready) {
+      if (nv == ProjectState.Ready) {
         didUpdate(Template.class, false);
         didUpdate(Library.class, false);
         didUpdate(Program.class, false);
@@ -200,22 +204,22 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public void cloneFromLabProject(String parentPathPrefix, UUID projectId, String projectName) {
     cloneProject(parentPathPrefix, projectName, () -> projectManager.cloneFromLabProject(
-      labService.getHubClientAccess(),
-      labService.hubConfigProperty().get().getApiBaseUrl(),
-      labService.hubConfigProperty().get().getAudioBaseUrl(),
-      parentPathPrefix,
-      projectId,
-      projectName
+        labService.getHubClientAccess(),
+        labService.hubConfigProperty().get().getApiBaseUrl(),
+        labService.hubConfigProperty().get().getAudioBaseUrl(),
+        parentPathPrefix,
+        projectId,
+        projectName
     ));
   }
 
   @Override
   public void cloneFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
     cloneProject(parentPathPrefix, projectName, () -> projectManager.cloneProjectFromDemoTemplate(
-      labService.hubConfigProperty().get().getAudioBaseUrl(),
-      parentPathPrefix,
-      templateShipKey,
-      projectName
+        labService.hubConfigProperty().get().getAudioBaseUrl(),
+        parentPathPrefix,
+        templateShipKey,
+        projectName
     ));
   }
 
@@ -236,9 +240,9 @@ public class ProjectServiceImpl implements ProjectService {
     if (promptForConfirmation("Push Project", "Push Project to Lab", "This operation will overwrite the Lab version of this project entirely with your local version of the project. Do you want to proceed?")) {
       executeInBackground("Push Project", () -> {
         var pushed = projectManager.pushProject(
-          labService.getHubClientAccess(),
-          labService.hubConfigProperty().get().getApiBaseUrl(),
-          labService.hubConfigProperty().get().getAudioBaseUrl()
+            labService.getHubClientAccess(),
+            labService.hubConfigProperty().get().getApiBaseUrl(),
+            labService.hubConfigProperty().get().getAudioBaseUrl()
         );
         if (pushed.hasErrors())
           Platform.runLater(() -> showErrorDialog("Failed to push project", "Failed to push local project to Lab", pushed.toString()));
@@ -336,41 +340,41 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public List<Library> getLibraries() {
     return Objects.nonNull(projectManager.getContent()) ?
-      projectManager.getContent().getLibraries().stream()
-        .filter(library -> !library.getIsDeleted())
-        .sorted(Comparator.comparing(Library::getName))
-        .toList()
-      :new ArrayList<>();
+        projectManager.getContent().getLibraries().stream()
+            .filter(library -> !library.getIsDeleted())
+            .sorted(Comparator.comparing(Library::getName))
+            .toList()
+        : new ArrayList<>();
   }
 
   @Override
   public List<Program> getPrograms() {
     return Objects.nonNull(projectManager.getContent()) ?
-      projectManager.getContent().getPrograms().stream()
-        .filter(program -> !program.getIsDeleted())
-        .sorted(Comparator.comparing(Program::getName))
-        .toList()
-      :new ArrayList<>();
+        projectManager.getContent().getPrograms().stream()
+            .filter(program -> !program.getIsDeleted())
+            .sorted(Comparator.comparing(Program::getName))
+            .toList()
+        : new ArrayList<>();
   }
 
   @Override
   public List<Instrument> getInstruments() {
     return Objects.nonNull(projectManager.getContent()) ?
-      projectManager.getContent().getInstruments().stream()
-        .filter(instrument -> !instrument.getIsDeleted())
-        .sorted(Comparator.comparing(Instrument::getName))
-        .toList()
-      :new ArrayList<>();
+        projectManager.getContent().getInstruments().stream()
+            .filter(instrument -> !instrument.getIsDeleted())
+            .sorted(Comparator.comparing(Instrument::getName))
+            .toList()
+        : new ArrayList<>();
   }
 
   @Override
   public List<Template> getTemplates() {
     return Objects.nonNull(projectManager.getContent()) ?
-      projectManager.getContent().getTemplates().stream()
-        .filter(template -> !template.getIsDeleted())
-        .sorted(Comparator.comparing(Template::getName))
-        .toList()
-      :new ArrayList<>();
+        projectManager.getContent().getTemplates().stream()
+            .filter(template -> !template.getIsDeleted())
+            .sorted(Comparator.comparing(Template::getName))
+            .toList()
+        : new ArrayList<>();
   }
 
   @Override
@@ -559,7 +563,7 @@ public class ProjectServiceImpl implements ProjectService {
     alert.setTitle("Project Modified");
     alert.setHeaderText("Project has unsaved changes!");
     alert.setContentText(String.format("Save changes to the XJ music project \"%s\" before closing?",
-      projectManager.getProject().orElseThrow(() -> new RuntimeException("Could not find project!")).getName()));
+        projectManager.getProject().orElseThrow(() -> new RuntimeException("Could not find project!")).getName()));
 
     // Set up buttons "Save", "Don't Save", and "Cancel"
     var saveButton = new ButtonType("Save");
@@ -626,29 +630,29 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   /**
-   If the directory already exists then pop up a confirmation dialog
-
-   @param parentPathPrefix parent folder
-   @param projectName      project name
-   @return true if overwrite confirmed
+   * If the directory already exists then pop up a confirmation dialog
+   *
+   * @param parentPathPrefix parent folder
+   * @param projectName      project name
+   * @return true if overwrite confirmed
    */
   private boolean promptToSkipOverwriteIfExists(String parentPathPrefix, String projectName) {
     if (!Files.exists(Path.of(parentPathPrefix + projectName))) {
       return true;
     }
     return promptForConfirmation("Overwrite Existing Project",
-      "The project already exists",
-      String.format("The project \"%s\" already exists in the folder \"%s\". This operation will update any modified files from the original remote versions. Do you want to proceed?",
-        projectName, parentPathPrefix));
+        "The project already exists",
+        String.format("The project \"%s\" already exists in the folder \"%s\". This operation will update any modified files from the original remote versions. Do you want to proceed?",
+            projectName, parentPathPrefix));
   }
 
   /**
-   Show a YES/NO confirmation dialog
-
-   @param title       of confirmation
-   @param headerText  of confirmation
-   @param contentText of confirmation
-   @return true if user chooses yes
+   * Show a YES/NO confirmation dialog
+   *
+   * @param title       of confirmation
+   * @param headerText  of confirmation
+   * @param contentText of confirmation
+   * @return true if user chooses yes
    */
   private boolean promptForConfirmation(String title, String headerText, String contentText) {
     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -663,15 +667,15 @@ public class ProjectServiceImpl implements ProjectService {
 
     // Show the dialog and capture the result
     var result = alert.showAndWait();
-    return result.isPresent() && result.get()==ButtonType.YES;
+    return result.isPresent() && result.get() == ButtonType.YES;
   }
 
   /**
-   Clone a project from a remote source.
-
-   @param parentPathPrefix parent folder
-   @param projectName      project name
-   @param clone            the clone callable
+   * Clone a project from a remote source.
+   *
+   * @param parentPathPrefix parent folder
+   * @param projectName      project name
+   * @param clone            the clone callable
    */
   private void cloneProject(String parentPathPrefix, String projectName, Callable<Boolean> clone) {
     closeProject(() -> {
@@ -696,10 +700,10 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   /**
-   Execute a runnable in a background thread. Use JavaFX Platform.runLater(...) as well as spawning an additional thread.
-
-   @param threadName           the name of the thread
-   @param failedToCloneProject the runnable
+   * Execute a runnable in a background thread. Use JavaFX Platform.runLater(...) as well as spawning an additional thread.
+   *
+   * @param threadName           the name of the thread
+   * @param failedToCloneProject the runnable
    */
   private void executeInBackground(String threadName, Runnable failedToCloneProject) {
     var thread = new Thread(failedToCloneProject);
@@ -708,7 +712,7 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   /**
-   Attach preference listeners.
+   * Attach preference listeners.
    */
   private void attachPreferenceListeners() {
     basePathPrefix.addListener((o, ov, value) -> prefs.put("pathPrefix", value));
@@ -722,7 +726,7 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   /**
-   Set all properties from preferences, else defaults.
+   * Set all properties from preferences, else defaults.
    */
   private void setAllFromPreferencesOrDefaults() {
     basePathPrefix.set(prefs.get("pathPrefix", defaultPathPrefix));
@@ -734,7 +738,7 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   /**
-   Add the current project to the list of recent projects.
+   * Add the current project to the list of recent projects.
    */
   private void addToRecentProjects(Project project, String projectFilename, String projectFilePath) {
     var descriptor = new ProjectDescriptor(project, projectFilename, projectFilePath);
@@ -746,9 +750,9 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   /**
-   Remove the current project from the list of recent projects.
-
-   @param projectFilePath the path to the project file
+   * Remove the current project from the list of recent projects.
+   *
+   * @param projectFilePath the path to the project file
    */
   private void removeFromRecentProjects(String projectFilePath) {
     this.recentProjects.get().removeIf(existing -> Objects.equals(existing.projectFilePath(), projectFilePath));

@@ -74,4 +74,16 @@ class ProjectPathUtilsTest {
     assertTrue(matcher.find());
     assertEquals("demo with spaces.wav", ProjectPathUtils.getFilename(prefix + name + "." + extension));
   }
+
+  @Test
+  void getPrefix() {
+    var prefix = File.separator + "Users" + File.separator + "Documents" + File.separator;
+    var name = "demo with spaces";
+    var extension = "wav";
+
+    var matcher = ProjectPathUtils.matchPrefixNameExtension(prefix + name + "." + extension);
+
+    assertTrue(matcher.find());
+    assertEquals(prefix, ProjectPathUtils.getPrefix(prefix + name + "." + extension));
+  }
 }

@@ -61,8 +61,8 @@ class ProjectManagerImplTest {
         EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
         HubTopology.buildHubApiTopology(entityFactory);
         JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-        HubClientFactory hubClientFactory = new HubClientFactoryImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
-        subject = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, 3, 3);
+        HubClientFactory hubClientFactory = new HubClientFactoryImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory, 3);
+        subject = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory);
     }
 
     @Test

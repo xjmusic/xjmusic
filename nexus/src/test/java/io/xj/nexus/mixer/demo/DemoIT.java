@@ -147,8 +147,8 @@ public class DemoIT {
     JsonProvider jsonProvider = new JsonProviderImpl();
     EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    HubClientFactory hubClientFactory = new HubClientFactoryImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
-    projectManager = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, 3, 3);
+    HubClientFactory hubClientFactory = new HubClientFactoryImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory, 3);
+    projectManager = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory);
     projectManager.setProjectPathPrefix(contentStoragePathPrefix);
     instrumentPathPrefix = Files.createDirectory(Paths.get(contentStoragePathPrefix, "instrument", instrument.getId().toString())).toAbsolutePath().toString();
     audioById.values().forEach(audio -> {

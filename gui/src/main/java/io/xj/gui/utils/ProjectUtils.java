@@ -16,12 +16,12 @@ public class ProjectUtils {
   static final Logger LOG = LoggerFactory.getLogger(ProjectUtils.class);
 
   /**
-   Choose a directory
-
-   @param stage            the stage
-   @param title            the title of the chooser window
-   @param initialDirectory the initial directory
-   @return the absolute path of the chosen directory, or null if none chosen
+   * Choose a directory
+   *
+   * @param stage            the stage
+   * @param title            the title of the chooser window
+   * @param initialDirectory the initial directory
+   * @return the absolute path of the chosen directory, or null if none chosen
    */
   public static @Nullable String chooseDirectory(Window stage, String title, String initialDirectory) {
     DirectoryChooser directoryChooser = new DirectoryChooser();
@@ -32,12 +32,12 @@ public class ProjectUtils {
   }
 
   /**
-   Choose a file
-
-   @param stage            the stage
-   @param title            the title of the chooser window
-   @param initialDirectory the initial directory
-   @return the absolute path of the chosen file, or null if none chosen
+   * Choose a file
+   *
+   * @param stage            the stage
+   * @param title            the title of the chooser window
+   * @param initialDirectory the initial directory
+   * @return the absolute path of the chosen file, or null if none chosen
    */
   public static @Nullable String chooseXJProjectFile(Window stage, String title, String initialDirectory) {
     FileChooser fileChooser = new FileChooser();
@@ -50,15 +50,19 @@ public class ProjectUtils {
   }
 
   /**
-   Choose an audio file
-
-   @param stage the stage
-   @param title the title of the chooser window
-   @return the absolute path of the chosen file, or null if none chosen
+   * Choose an audio file
+   *
+   * @param stage            the stage
+   * @param title            the title of the chooser window
+   * @param initialDirectory the initial directory
+   * @return the absolute path of the chosen file, or null if none chosen
    */
-  public static @Nullable String chooseAudioFile(Window stage, String title) {
+  public static @Nullable String chooseAudioFile(Window stage, String title, @Nullable String initialDirectory) {
     FileChooser fileChooser = new FileChooser();
     fileChooser.setTitle(title);
+    if (Objects.nonNull(initialDirectory)) {
+      fileChooser.setInitialDirectory(new File(initialDirectory));
+    }
     FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Audio files (*.wav, *.aiff, *.mp3, *.aac, *.flac)", "*.wav", "*.aiff", "*.mp3", "*.aac", "*.flac");
     fileChooser.getExtensionFilters().add(extFilter);
     File file = fileChooser.showOpenDialog(stage);
@@ -66,9 +70,9 @@ public class ProjectUtils {
   }
 
   /**
-   Open a path in the desktop file browser
-
-   @param path the path to open
+   * Open a path in the desktop file browser
+   *
+   * @param path the path to open
    */
   public static void openDesktopPath(String path) {
     if (Desktop.isDesktopSupported()) {

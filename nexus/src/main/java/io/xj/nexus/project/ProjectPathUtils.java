@@ -27,4 +27,12 @@ public class ProjectPathUtils {
     }
     return "";
   }
+
+  public static String getPrefix(String fromPath) {
+    Matcher matcher = matchPrefixNameExtension(fromPath);
+    if (matcher.matches()) {
+      return matcher.group(1);
+    }
+    return "";
+  }
 }

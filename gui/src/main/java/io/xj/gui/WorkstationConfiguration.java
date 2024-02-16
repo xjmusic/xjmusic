@@ -53,27 +53,29 @@ public class WorkstationConfiguration {
 
   @Bean
   public JsonapiPayloadFactory jsonapiPayloadFactory(
-    EntityFactory entityFactory
+      EntityFactory entityFactory
   ) {
     return new JsonapiPayloadFactoryImpl(entityFactory);
   }
 
   @Bean
   public HubClientFactory hubClientFactory(
-    HttpClientProvider httpClientProvider,
-    JsonProvider jsonProvider,
-    JsonapiPayloadFactory jsonapiPayloadFactory
+      HttpClientProvider httpClientProvider,
+      JsonProvider jsonProvider,
+      JsonapiPayloadFactory jsonapiPayloadFactory,
+      @Value("${audio.download.retries}") int audioDownloadRetries
   ) {
     return new HubClientFactoryImpl(
-      httpClientProvider,
-      jsonProvider,
-      jsonapiPayloadFactory
+        httpClientProvider,
+        jsonProvider,
+        jsonapiPayloadFactory,
+        audioDownloadRetries
     );
   }
 
   @Bean
   public EntityFactory entityFactory(
-    JsonProvider jsonProvider
+      JsonProvider jsonProvider
   ) {
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
@@ -83,29 +85,27 @@ public class WorkstationConfiguration {
 
   @Bean
   public ProjectManager projectManager(
-    JsonProvider jsonProvider,
-    EntityFactory entityFactory,
-    HttpClientProvider httpClientProvider,
-    HubClientFactory hubClientFactory,
-    @Value("${audio.download.retries}") int downloadAudioRetries,
-    @Value("${audio.upload.retries}") int uploadAudioRetries
+      JsonProvider jsonProvider,
+      EntityFactory entityFactory,
+      HttpClientProvider httpClientProvider,
+      HubClientFactory hubClientFactory
   ) {
-    return new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, downloadAudioRetries, uploadAudioRetries);
+    return new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory);
   }
 
   @Bean
   public AudioLoader audioLoader(
-    ProjectManager projectManager
+      ProjectManager projectManager
   ) {
     return new AudioLoaderImpl(projectManager);
   }
 
   @Bean
   public FabricationManager workManager(
-    ProjectManager projectManager,
-    EntityFactory entityFactory,
-    JsonProvider jsonProvider,
-    AudioLoader audioLoader
+      ProjectManager projectManager,
+      EntityFactory entityFactory,
+      JsonProvider jsonProvider,
+      AudioLoader audioLoader
   ) {
     BroadcastFactory broadcastFactory = new BroadcastFactoryImpl();
     Telemetry telemetry = new TelemetryImpl();
@@ -114,21 +114,21 @@ public class WorkstationConfiguration {
     NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
-      nexusEntityStore,
-      jsonapiPayloadFactory,
-      jsonProvider
+        nexusEntityStore,
+        jsonapiPayloadFactory,
+        jsonProvider
     );
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
     MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
     return new FabricationManagerImpl(
-      projectManager,
-      telemetry,
-      broadcastFactory,
-      craftFactory,
-      audioCache,
-      fabricatorFactory,
-      mixerFactory,
-      nexusEntityStore
+        projectManager,
+        telemetry,
+        broadcastFactory,
+        craftFactory,
+        audioCache,
+        fabricatorFactory,
+        mixerFactory,
+        nexusEntityStore
     );
   }
 }

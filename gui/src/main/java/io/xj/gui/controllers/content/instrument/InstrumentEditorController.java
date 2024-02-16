@@ -16,6 +16,7 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
+import io.xj.nexus.project.ProjectPathUtils;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.FloatProperty;
@@ -61,6 +62,7 @@ public class InstrumentEditorController extends BrowserController {
   private final FloatProperty intensity = new SimpleFloatProperty(0);
   private final StringProperty config = new SimpleStringProperty("");
   private final ObservableList<InstrumentAudio> audios = FXCollections.observableList(new ArrayList<>());
+  private final StringProperty initialImportAudioDirectory = new SimpleStringProperty();
 
   @FXML
   protected SplitPane container;
@@ -227,8 +229,9 @@ public class InstrumentEditorController extends BrowserController {
   private void handlePressImportAudio(ActionEvent ignored) {
     var instrument = projectService.getContent().getInstrument(instrumentId.get())
       .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
-    var audioFilePath = ProjectUtils.chooseAudioFile(container.getScene().getWindow(), "Choose audio file");
+    var audioFilePath = ProjectUtils.chooseAudioFile(container.getScene().getWindow(), "Choose audio file", initialImportAudioDirectory.get());
     if (Objects.isNull(audioFilePath)) return;
+    initialImportAudioDirectory.set(ProjectPathUtils.getPrefix(audioFilePath));
     try {
       var audio = projectService.createInstrumentAudio(instrument, audioFilePath);
       uiStateService.editInstrumentAudio(audio.getId());
