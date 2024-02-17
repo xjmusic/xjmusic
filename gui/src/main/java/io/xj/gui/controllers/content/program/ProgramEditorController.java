@@ -65,8 +65,6 @@ import java.util.function.UnaryOperator;
 @Service
 public class ProgramEditorController extends ProjectController {
   @FXML
-  public Spinner<Double> intensityChooser;
-  @FXML
   public Spinner<Double> tempoChooser;
   @FXML
   public TextField keyField;
@@ -139,11 +137,6 @@ public class ProgramEditorController extends ProjectController {
   protected final StringProperty config = new SimpleStringProperty("");
   private final FloatProperty tempo = new SimpleFloatProperty(0);
   private final SpinnerValueFactory<Double> tempoValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1300, 0);
-  private final FloatProperty intensity = new SimpleFloatProperty(0);
-  private final SpinnerValueFactory<Double> intensityValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1, 0, 0.1);
-
-  private final ObjectProperty<Double> intensityDoubleValue = new SimpleObjectProperty<>(intensityValueFactory.getValue());
-
   private final FloatProperty sequenceIntensity = new SimpleFloatProperty(0);
   private final SpinnerValueFactory<Double> sequenceIntensityValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1, sequenceIntensity.doubleValue(), 0.1);
   private final ObjectProperty<Double> sequenceIntensityDoubleValue = new SimpleObjectProperty<>(sequenceIntensityValueFactory.getValue());
@@ -197,11 +190,6 @@ public class ProgramEditorController extends ProjectController {
       String.format("%.1f", sequenceIntensityDoubleValue.get()), sequenceIntensityDoubleValue));
     stateChooser.valueProperty().bindBidirectional(state);
     keyField.textProperty().bindBidirectional(key);
-    intensityChooser.setValueFactory(intensityValueFactory);
-
-    // Bind the Chooser's value to the ObjectProperty(intensity)
-    intensity.bind(Bindings.createFloatBinding(() -> intensityDoubleValue.get().floatValue(), intensityDoubleValue));
-    intensityValueFactory.valueProperty().addListener((observable, oldValue, newValue) -> intensityDoubleValue.set(newValue));
 
     // Update the ObjectProperty when the Chooser value changes(sequenceIntensity)
     sequenceIntensity.bind(Bindings.createFloatBinding(() -> sequenceIntensityDoubleValue.get().floatValue(), sequenceIntensityDoubleValue));
@@ -241,7 +229,6 @@ public class ProgramEditorController extends ProjectController {
     setTextProcessing(programNameField);
     setTextProcessing(keyField);
     setChooserSelectionProcessing(tempoChooser);
-    setChooserSelectionProcessing(intensityChooser);
     setComboboxSelectionProcessing(typeChooser);
     setComboboxSelectionProcessing(stateChooser);
     gridChooser.valueProperty().bindBidirectional(gridProperty);
@@ -426,7 +413,6 @@ public class ProgramEditorController extends ProjectController {
       .orElseThrow(() -> new RuntimeException("Could not find Program"));
     program.setName(name.get());
     program.setKey(key.get());
-    program.setIntensity(intensity.get());
     program.setTempo(tempo.get());
     program.setType(type.get());
     program.setState(state.get());
@@ -467,7 +453,6 @@ public class ProgramEditorController extends ProjectController {
     this.state.set(program.getState());
     this.key.set(program.getKey());
     this.tempoValueFactory.setValue(Double.valueOf(program.getTempo()));
-    this.intensityValueFactory.setValue(Double.valueOf(program.getIntensity()));
     this.config.set(program.getConfig());
     memeTagContainer.getChildren().clear();
     projectService.getContent().getMemesOfProgram(program.getId()).forEach(this::loadMemeTag);
