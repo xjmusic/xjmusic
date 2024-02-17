@@ -568,8 +568,6 @@ public class ProjectManagerImpl implements ProjectManager {
       FileUtils.copyFile(new File(fromPath), new File(toPath));
       content.get().update(InstrumentAudio.class, instrumentAudioId, "waveformKey", toWaveformKey);
     }
-
-    content.get().put(instrumentAudioId);
   }
 
   @Override

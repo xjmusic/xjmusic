@@ -490,9 +490,6 @@ public class ProjectServiceImpl implements ProjectService {
   public <N> void update(Class<N> type, UUID id, String attribute, Object value) throws Exception {
     if (projectManager.getContent().update(type, id, attribute, value))
       didUpdate(type, true);
-    if (Objects.equals(type, InstrumentAudio.class)) {
-      projectManager.renameWaveformIfNecessary(id);
-    }
   }
 
   @Override

@@ -265,7 +265,7 @@ public class InstrumentEditorController extends BrowserController {
       try {
         projectService.update(Instrument.class, instrumentId.get(), attribute, value);
       } catch (Exception e) {
-        LOG.error("Could not update Instrument " + attribute, e);
+        LOG.error("Could not update Instrument " + attribute, StringUtils.formatStackTrace(e));
       }
     }
   }

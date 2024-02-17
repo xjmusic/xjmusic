@@ -323,7 +323,7 @@ public class InstrumentAudioEditorController extends BrowserController {
       try {
         projectService.update(InstrumentAudio.class, instrumentAudioId.get(), attribute, value);
       } catch (Exception e) {
-        LOG.error("Could not update InstrumentAudio " + attribute, e);
+        LOG.error("Could not update InstrumentAudio " + attribute, StringUtils.formatStackTrace(e));
       }
     }
   }
