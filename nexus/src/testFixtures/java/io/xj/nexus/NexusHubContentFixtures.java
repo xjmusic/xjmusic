@@ -187,7 +187,7 @@ public class NexusHubContentFixtures {
     projectUser1a = NexusHubIntegrationTestingFixtures.buildProjectUser(project1, user3);
 
     // "Tropical, Wild to Cozy" macro-program in house library
-    program4 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Tropical, Wild to Cozy", "C", 120.0f, 0.6f);
+    program4 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Tropical, Wild to Cozy", "C", 120.0f);
     program4_meme0 = NexusHubIntegrationTestingFixtures.buildProgramMeme(program4, "Tropical");
     //
     program4_sequence0 = NexusHubIntegrationTestingFixtures.buildProgramSequence(program4, (short) 0, "Start Wild", 0.6f, "C");
@@ -204,7 +204,7 @@ public class NexusHubContentFixtures {
     program4_sequence2_binding0_meme0 = NexusHubIntegrationTestingFixtures.buildProgramSequenceBindingMeme(program4_sequence2_binding0, "Cozy");
 
     // Main program
-    program5 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Main, ProgramState.Published, "Main Jam", "C minor", 140f, 0.6f);
+    program5 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Main, ProgramState.Published, "Main Jam", "C minor", 140f);
     ProgramVoice voice1 = NexusHubIntegrationTestingFixtures.buildProgramVoice(program1, InstrumentType.Pad, "Pad");
     program5_meme0 = NexusHubIntegrationTestingFixtures.buildProgramMeme(program5, "Outlook");
     //
@@ -225,7 +225,7 @@ public class NexusHubContentFixtures {
     program5_sequence1_binding1_meme0 = NexusHubIntegrationTestingFixtures.buildProgramSequenceBindingMeme(program5_sequence1_binding1, "Pessimism");
 
     // A basic beat
-    program35 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Beat, ProgramState.Published, "Basic Beat", "C", 121f, 0.6f);
+    program35 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Beat, ProgramState.Published, "Basic Beat", "C", 121f);
     program35_meme0 = NexusHubIntegrationTestingFixtures.buildProgramMeme(program35, "Basic");
     program35_voice0 = NexusHubIntegrationTestingFixtures.buildProgramVoice(program35, InstrumentType.Drum, "Drums");
     program35_voice0_track0 = NexusHubIntegrationTestingFixtures.buildProgramVoiceTrack(program35_voice0, "CLOCK");
@@ -247,8 +247,8 @@ public class NexusHubContentFixtures {
     program35_sequence0_pattern1_event3 = NexusHubIntegrationTestingFixtures.buildProgramSequencePatternEvent(program35_sequence0_pattern1, program35_voice0_track3, 3.0f, 1.0f, "c3", 0.5f);
 
     // Detail Sequence
-    program6 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Detail, ProgramState.Published, "Beat Jam", "D#", 150f, 0.6f);
-    program7 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Detail, ProgramState.Published, "Detail Jam", "Cb minor", 170f, 0.6f);
+    program6 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Detail, ProgramState.Published, "Beat Jam", "D#", 150f);
+    program7 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Detail, ProgramState.Published, "Detail Jam", "Cb minor", 170f);
 
     // List of all parent entities including the library
     // ORDER IS IMPORTANT because this list will be used for real database inserts, so ordered from parent -> child
@@ -325,7 +325,7 @@ public class NexusHubContentFixtures {
    */
   public Collection<Object> setupFixtureB2() {
     // "Tangy, Chunky to Smooth" macro-program in house library
-    program3 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Tangy, Chunky to Smooth", "G minor", 120.0f, 0.6f);
+    program3 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Tangy, Chunky to Smooth", "G minor", 120.0f);
     program3_meme0 = NexusHubIntegrationTestingFixtures.buildProgramMeme(program3, "Tangy");
     //
     program3_sequence0 = NexusHubIntegrationTestingFixtures.buildProgramSequence(program3, (short) 0, "Start Chunky", 0.4f, "G minor");
@@ -337,7 +337,7 @@ public class NexusHubContentFixtures {
     program3_sequence1_binding0_meme0 = NexusHubIntegrationTestingFixtures.buildProgramSequenceBindingMeme(program3_sequence1_binding0, "Smooth");
 
     // Main program
-    program15 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Main, ProgramState.Published, "Next Jam", "Db minor", 140f, 0.6f);
+    program15 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Main, ProgramState.Published, "Next Jam", "Db minor", 140f);
     program15_meme0 = NexusHubIntegrationTestingFixtures.buildProgramMeme(program15, "Hindsight");
     //
     program15_sequence0 = NexusHubIntegrationTestingFixtures.buildProgramSequence(program15, (short) 16, "Intro", 0.5f, "G minor");
@@ -395,7 +395,7 @@ public class NexusHubContentFixtures {
    */
   public Collection<Object> setupFixtureB3() {
     // A basic beat
-    program9 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Beat, ProgramState.Published, "Basic Beat", "C", 121f, 0.6f);
+    program9 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Beat, ProgramState.Published, "Basic Beat", "C", 121f);
     program9_meme0 = NexusHubIntegrationTestingFixtures.buildProgramMeme(program9, "Basic");
     //
     program9_voice0 = NexusHubIntegrationTestingFixtures.buildProgramVoice(program9, InstrumentType.Drum, "Drums");

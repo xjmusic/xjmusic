@@ -90,7 +90,7 @@ public class DemoIT {
   static final Project project = buildProject();
   static final Template template = buildTemplate(project, "Demo");
   static final Chain chain = buildChain(template);
-  static final Program program = buildProgram(ProgramType.Beat, "C", TEMPO, 1);
+  static final Program program = buildProgram(ProgramType.Beat, "C", TEMPO);
   static final ProgramSequence sequence = buildProgramSequence(program, 4, "Demo", 1.0f, "C");
   static final ProgramVoice voice = buildProgramVoice(program, InstrumentType.Drum, "Demo Beat");
   static final ProgramVoiceTrack track = buildProgramVoiceTrack(voice, "Demo Beat");

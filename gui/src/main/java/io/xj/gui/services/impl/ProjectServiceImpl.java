@@ -488,8 +488,11 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public <N> void update(Class<N> type, UUID id, String attribute, Object value) throws Exception {
-    projectManager.getContent().update(type, id, attribute, value);
-    didUpdate(type, true);
+    if (projectManager.getContent().update(type, id, attribute, value))
+      didUpdate(type, true);
+    if (Objects.equals(type, InstrumentAudio.class)) {
+      projectManager.renameWaveformIfNecessary(id);
+    }
   }
 
   @Override
@@ -630,11 +633,11 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   /**
-   * If the directory already exists then pop up a confirmation dialog
-   *
-   * @param parentPathPrefix parent folder
-   * @param projectName      project name
-   * @return true if overwrite confirmed
+   If the directory already exists then pop up a confirmation dialog
+
+   @param parentPathPrefix parent folder
+   @param projectName      project name
+   @return true if overwrite confirmed
    */
   private boolean promptToSkipOverwriteIfExists(String parentPathPrefix, String projectName) {
     if (!Files.exists(Path.of(parentPathPrefix + projectName))) {
@@ -647,12 +650,12 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   /**
-   * Show a YES/NO confirmation dialog
-   *
-   * @param title       of confirmation
-   * @param headerText  of confirmation
-   * @param contentText of confirmation
-   * @return true if user chooses yes
+   Show a YES/NO confirmation dialog
+
+   @param title       of confirmation
+   @param headerText  of confirmation
+   @param contentText of confirmation
+   @return true if user chooses yes
    */
   private boolean promptForConfirmation(String title, String headerText, String contentText) {
     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -671,11 +674,11 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   /**
-   * Clone a project from a remote source.
-   *
-   * @param parentPathPrefix parent folder
-   * @param projectName      project name
-   * @param clone            the clone callable
+   Clone a project from a remote source.
+
+   @param parentPathPrefix parent folder
+   @param projectName      project name
+   @param clone            the clone callable
    */
   private void cloneProject(String parentPathPrefix, String projectName, Callable<Boolean> clone) {
     closeProject(() -> {
@@ -700,10 +703,10 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   /**
-   * Execute a runnable in a background thread. Use JavaFX Platform.runLater(...) as well as spawning an additional thread.
-   *
-   * @param threadName           the name of the thread
-   * @param failedToCloneProject the runnable
+   Execute a runnable in a background thread. Use JavaFX Platform.runLater(...) as well as spawning an additional thread.
+
+   @param threadName           the name of the thread
+   @param failedToCloneProject the runnable
    */
   private void executeInBackground(String threadName, Runnable failedToCloneProject) {
     var thread = new Thread(failedToCloneProject);
@@ -712,7 +715,7 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   /**
-   * Attach preference listeners.
+   Attach preference listeners.
    */
   private void attachPreferenceListeners() {
     basePathPrefix.addListener((o, ov, value) -> prefs.put("pathPrefix", value));
@@ -726,7 +729,7 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   /**
-   * Set all properties from preferences, else defaults.
+   Set all properties from preferences, else defaults.
    */
   private void setAllFromPreferencesOrDefaults() {
     basePathPrefix.set(prefs.get("pathPrefix", defaultPathPrefix));
@@ -738,7 +741,7 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   /**
-   * Add the current project to the list of recent projects.
+   Add the current project to the list of recent projects.
    */
   private void addToRecentProjects(Project project, String projectFilename, String projectFilePath) {
     var descriptor = new ProjectDescriptor(project, projectFilename, projectFilePath);
@@ -750,9 +753,9 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   /**
-   * Remove the current project from the list of recent projects.
-   *
-   * @param projectFilePath the path to the project file
+   Remove the current project from the list of recent projects.
+
+   @param projectFilePath the path to the project file
    */
   private void removeFromRecentProjects(String projectFilePath) {
     this.recentProjects.get().removeIf(existing -> Objects.equals(existing.projectFilePath(), projectFilePath));

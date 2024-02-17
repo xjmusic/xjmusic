@@ -184,6 +184,12 @@ public interface ProjectManager {
 
   /**
    Create a new program
+   <p>
+   When creating a new Program, source default values from the first available
+   1. Program in the same library
+   2. any Programs in the project
+   3. defaults
+   https://www.pivotaltracker.com/story/show/187042551
 
    @param library parent containing program
    @param name    of the program
@@ -193,6 +199,12 @@ public interface ProjectManager {
 
   /**
    Create a new instrument
+   <p>
+   When creating a new Instrument, source default values from the first available
+   1. Instrument in the same library
+   2. any Instruments in the project
+   3. defaults
+   https://www.pivotaltracker.com/story/show/187042551
 
    @param library parent containing instrument
    @param name    of the instrument
@@ -202,6 +214,15 @@ public interface ProjectManager {
 
   /**
    Create a new instrument audio
+   <p>
+   When creating a new Instrument Audio, source default values from the first available
+   1. Instrument Audios in the same instrument
+   2. Instrument Audios in the same library
+   3. Programs in the same library
+   4. any Instrument Audios in the project
+   5. any Programs in the project
+   6. defaults
+   https://www.pivotaltracker.com/story/show/187042551
 
    @param instrument    in which to create an audio
    @param audioFilePath to import audio from disk
@@ -228,9 +249,9 @@ public interface ProjectManager {
   Instrument moveInstrument(UUID id, UUID libraryId) throws Exception;
 
   /**
-   Copy the instrument audio waveform from one audio to another@param audio   new instrument audio
+   Copy the instrument audio waveform from one audio to another@param instrumentAudioId new instrument audio
    */
-  void updateInstrumentAudioAndCopyWaveformFile(InstrumentAudio audio) throws Exception;
+  void renameWaveformIfNecessary(UUID instrumentAudioId) throws Exception;
 
   /**
    Clone a Template from a source template by id

@@ -74,7 +74,7 @@ public class CraftImplTest {
   public void setUp() throws Exception {
     Project project1 = buildProject("fish");
     Library library1 = buildLibrary(project1, "sea");
-    program1 = buildProgram(library1, ProgramType.Detail, ProgramState.Published, "swimming", "C", 120.0f, 0.6f);
+    program1 = buildProgram(library1, ProgramType.Detail, ProgramState.Published, "swimming", "C", 120.0f);
     Template template1 = buildTemplate(project1, "Test Template 1", "test1");
     // Chain "Test Print #1" is fabricating segments
     Chain chain1 = buildChain(project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, null);

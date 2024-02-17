@@ -219,7 +219,7 @@ public class FabricatorImplTest {
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE));
     segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
-    var program = buildProgram(ProgramType.Detail, "C", 120.0f, 1.0f);
+    var program = buildProgram(ProgramType.Detail, "C", 120.0f);
     var voice = buildVoice(program, InstrumentType.Bass);
     var track = buildTrack(voice);
     var sequence = buildSequence(program, 4);
@@ -238,7 +238,7 @@ public class FabricatorImplTest {
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE));
     segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
-    var program = buildProgram(ProgramType.Detail, "C", 120.0f, 1.0f);
+    var program = buildProgram(ProgramType.Detail, "C", 120.0f);
     var voice = buildVoice(program, InstrumentType.Bass);
     var track = buildTrack(voice);
     var sequence = buildSequence(program, 4);

@@ -95,7 +95,7 @@ public class ProjectManagerImpl implements ProjectManager {
   private Consumer<ProjectState> onStateChange;
 
   /**
-   * Private constructor
+   Private constructor
    */
   public ProjectManagerImpl(
       JsonProvider jsonProvider,
@@ -465,7 +465,6 @@ public class ProjectManagerImpl implements ProjectManager {
     program.setConfig(new ProgramConfig().toString());
     program.setType(existingProgram.map(Program::getType).orElse(DEFAULT_PROGRAM_TYPE));
     program.setState(existingProgram.map(Program::getState).orElse(DEFAULT_PROGRAM_STATE));
-    program.setIntensity(existingProgram.map(Program::getIntensity).orElse(DEFAULT_INTENSITY));
     program.setTempo(existingProgram.map(Program::getTempo).orElse(DEFAULT_TEMPO));
     program.setKey(existingProgram.map(Program::getKey).orElse(DEFAULT_KEY));
     program.setIsDeleted(false);
@@ -487,7 +486,6 @@ public class ProjectManagerImpl implements ProjectManager {
     instrument.setMode(existingInstrument.map(Instrument::getMode).orElse(DEFAULT_INSTRUMENT_MODE));
     instrument.setState(existingInstrument.map(Instrument::getState).orElse(DEFAULT_INSTRUMENT_STATE));
     instrument.setVolume(existingInstrument.map(Instrument::getVolume).orElse(DEFAULT_VOLUME));
-    instrument.setIntensity(existingInstrument.map(Instrument::getIntensity).orElse(DEFAULT_INTENSITY));
     instrument.setIsDeleted(false);
     var instrumentPath = getPathPrefixToInstrumentAudio(instrument.getId());
     FileUtils.createParentDirectories(new File(instrumentPath));
@@ -501,7 +499,10 @@ public class ProjectManagerImpl implements ProjectManager {
     var project = content.get().getProject();
     if (Objects.isNull(project)) throw new NexusException("Project not found");
     var existingAudioOfInstrument = content.get().getAudiosOfInstrument(instrument.getId()).stream().findFirst();
-    var existingAudio = existingAudioOfInstrument.isPresent() ? existingAudioOfInstrument : content.get().getInstrumentAudios().stream().findFirst();
+    var existingAudioOfLibrary = existingAudioOfInstrument.isPresent() ? existingAudioOfInstrument : content.get().getInstrumentsOfLibrary(library).stream().flatMap(i -> content.get().getAudiosOfInstrument(i.getId()).stream()).findFirst();
+    var existingAudio = existingAudioOfLibrary.isPresent() ? existingAudioOfLibrary : content.get().getInstrumentAudios().stream().findFirst();
+    var existingProgramOfLibrary = content.get().getProgramsOfLibrary(library.getId()).stream().findFirst();
+    var existingProgram = existingProgramOfLibrary.isPresent() ? existingProgramOfLibrary : content.get().getPrograms().stream().findFirst();
 
     // extract the file name and extension
     Matcher matcher = ProjectPathUtils.matchPrefixNameExtension(audioFilePath);
@@ -516,7 +517,13 @@ public class ProjectManagerImpl implements ProjectManager {
     audio.setTones(existingAudio.map(InstrumentAudio::getTones).orElse(DEFAULT_INSTRUMENT_AUDIO_TONES));
     audio.setEvent(existingAudio.map(InstrumentAudio::getEvent).orElse(DEFAULT_INSTRUMENT_AUDIO_EVENT));
     audio.setIntensity(existingAudio.map(InstrumentAudio::getIntensity).orElse(DEFAULT_INTENSITY));
-    audio.setTempo(existingAudioOfInstrument.map(InstrumentAudio::getTempo).orElse(DEFAULT_TEMPO));
+    audio.setTempo(
+        existingAudioOfLibrary.map(InstrumentAudio::getTempo).orElse(
+            existingProgramOfLibrary.map(Program::getTempo).orElse(
+                existingAudio.map(InstrumentAudio::getTempo).orElse(
+                    existingProgram.map(Program::getTempo).orElse(DEFAULT_TEMPO)
+                ))
+        ));
     audio.setLoopBeats(existingAudio.map(InstrumentAudio::getLoopBeats).orElse(DEFAULT_LOOP_BEATS));
     audio.setTransientSeconds(0.0f);
     audio.setVolume(existingAudio.map(InstrumentAudio::getVolume).orElse(DEFAULT_VOLUME));
@@ -547,27 +554,22 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public void updateInstrumentAudioAndCopyWaveformFile(InstrumentAudio audio) throws Exception {
-    var fromAudio = content.get().getInstrumentAudio(audio.getId())
+  public void renameWaveformIfNecessary(UUID instrumentAudioId) throws Exception {
+    var audio = content.get().getInstrumentAudio(instrumentAudioId)
         .orElseThrow(() -> new RuntimeException("Could not find Instrument Audio"));
-    var fromInstrument = content.get().getInstrument(fromAudio.getInstrumentId()).orElseThrow(() -> new NexusException("Instrument not found"));
-    var fromPath = getPathToInstrumentAudio(fromInstrument.getId(), fromAudio.getWaveformKey());
-    var matcher = ProjectPathUtils.matchPrefixNameExtension(fromPath);
-    if (!matcher.find()) return;
+    var library = content.get().getInstrument(audio.getInstrumentId()).orElseThrow(() -> new NexusException("Instrument not found"));
+    var project = content.get().getProject();
+    var extension = ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
+    var toWaveformKey = computeWaveformKey(project.getName(), library.getName(), library.getName(), audio, extension);
+    var toPath = getPathToInstrumentAudio(library.getId(), toWaveformKey);
 
-    var toInstrument = content.get().getInstrument(audio.getInstrumentId()).orElseThrow(() -> new NexusException("Instrument not found"));
-    var toLibrary = content.get().getLibrary(toInstrument.getLibraryId()).orElseThrow(() -> new NexusException("Library not found"));
-    var toProject = content.get().getProject();
-    if (Objects.isNull(toProject)) throw new NexusException("Project not found");
-    var toWaveformKey = computeWaveformKey(toProject.getName(), toLibrary.getName(), toInstrument.getName(), audio, matcher.group(3));
-    var toPath = getPathToInstrumentAudio(toInstrument.getId(), toWaveformKey);
-
-    if (!Objects.equals(fromPath, toPath)) {
+    if (!Objects.equals(audio.getWaveformKey(), toWaveformKey)) {
+      var fromPath = getPathToInstrumentAudio(library.getId(), audio.getWaveformKey());
       FileUtils.copyFile(new File(fromPath), new File(toPath));
-      audio.setWaveformKey(toWaveformKey);
+      content.get().update(InstrumentAudio.class, instrumentAudioId, "waveformKey", toWaveformKey);
     }
 
-    content.get().put(audio);
+    content.get().put(instrumentAudioId);
   }
 
   @Override
@@ -817,20 +819,20 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   * Get the instrument path prefix
-   *
-   * @return the instrument path prefix
+   Get the instrument path prefix
+
+   @return the instrument path prefix
    */
   private String getInstrumentPathPrefix() {
     return projectPathPrefix.get() + "instrument" + File.separator;
   }
 
   /**
-   * Import an audio waveform file into the project from somewhere else on disk
-   *
-   * @param audio         for which to import the waveform
-   * @param audioFilePath path to the audio file on disk
-   * @throws IOException if the audio file could not be imported
+   Import an audio waveform file into the project from somewhere else on disk
+
+   @param audio         for which to import the waveform
+   @param audioFilePath path to the audio file on disk
+   @throws IOException if the audio file could not be imported
    */
   private void importAudio(InstrumentAudio audio, String audioFilePath) throws IOException {
     var targetPath = getPathToInstrumentAudio(audio.getInstrumentId(), audio.getWaveformKey());
@@ -839,12 +841,12 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   * Clone a project from a template
-   *
-   * @param parentPathPrefix parent folder of the project folder
-   * @param fetchContent     fetch content from the hub
-   * @param projectName      name of the project folder
-   * @return true if the project was cloned successfully
+   Clone a project from a template
+
+   @param parentPathPrefix parent folder of the project folder
+   @param fetchContent     fetch content from the hub
+   @param projectName      name of the project folder
+   @return true if the project was cloned successfully
    */
   private boolean cloneProject(String parentPathPrefix, Callable<HubContent> fetchContent, String projectName) {
     try {
@@ -938,11 +940,11 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   * Create the project folder on disk
-   *
-   * @param parentPathPrefix parent folder of the project folder
-   * @param projectName      name of the project folder
-   * @throws IOException if the project folder could not be created
+   Create the project folder on disk
+
+   @param parentPathPrefix parent folder of the project folder
+   @param projectName      name of the project folder
+   @throws IOException if the project folder could not be created
    */
   private void createProjectFolder(String parentPathPrefix, String projectName) throws IOException {
     projectPathPrefix.set(parentPathPrefix + projectName + File.separator);
@@ -956,9 +958,9 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   * Save the project content to disk
-   *
-   * @throws IOException if the project content could not be saved
+   Save the project content to disk
+
+   @throws IOException if the project content could not be saved
    */
   private void saveProjectContent() throws IOException {
     updateState(ProjectState.Saving);
@@ -971,9 +973,9 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   * Get the file size on disk if it exists
-   *
-   * @return optional true if this dub audio cache item exists (as audio waveform data) on disk
+   Get the file size on disk if it exists
+
+   @return optional true if this dub audio cache item exists (as audio waveform data) on disk
    */
   private Optional<Integer> getFileSizeIfExistsOnDisk(String absolutePath) {
     try {
@@ -984,9 +986,9 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   * Update the state and send the updated state to the state callback
-   *
-   * @param state new value
+   Update the state and send the updated state to the state callback
+
+   @param state new value
    */
   private void updateState(ProjectState state) {
     this.state.set(state);
@@ -995,9 +997,9 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   * Update the progress and send the updated progress to the progress callback
-   *
-   * @param progress new value
+   Update the progress and send the updated progress to the progress callback
+
+   @param progress new value
    */
   private void updateProgress(double progress) {
     if (Objects.nonNull(onProgress))
