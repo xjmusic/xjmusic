@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
+
+<HBox spacing="5.0" styleClass="sequence-window" stylesheets="@../../../styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.SequenceManagement">
+   <children>
+      <Button fx:id="newSequence" mnemonicParsing="false" prefHeight="29.0" prefWidth="121.0" styleClass="sequence-button" text="New Sequence">
+         <font>
+            <Font name="System Bold" size="13.0" />
+         </font>
+      </Button>
+      <Button fx:id="deleteButton" mnemonicParsing="false" prefHeight="29.0" prefWidth="85.0" styleClass="sequence-button" text="Delete">
+         <font>
+            <Font name="System Bold" size="13.0" />
+         </font>
+      </Button>
+      <Button fx:id="cloneButton" mnemonicParsing="false" prefHeight="29.0" prefWidth="57.0" styleClass="sequence-button" text="Clone">
+         <font>
+            <Font name="System Bold" size="13.0" />
+         </font>
+      </Button>
+   </children>
+   <padding>
+      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+   </padding>
+</HBox>
