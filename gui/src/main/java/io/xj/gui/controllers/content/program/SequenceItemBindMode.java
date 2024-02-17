@@ -8,7 +8,6 @@ import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
 import io.xj.hub.util.StringUtils;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
@@ -183,7 +182,6 @@ public class SequenceItemBindMode {
       int lastPosition = bindViewParentContainer.getChildren().size() - 1;
       //store current position
       int current = parentPosition;
-      LOG.info("SDFF "+current+" last position"+lastPosition);
       //if an empty item is ahead of the current empty item
       if (parentPosition == lastPosition-1) {
         if (bindViewParentContainer.getChildren().size() > 3) {

@@ -21,7 +21,7 @@ public class SequenceManagement {
 
   private final ProjectService projectService;
 
-  private ProgramEditorController programEditorController;
+  private final ProgramEditorController programEditorController;
 
   private ProgramSequence programSequence;
   private Stage stage;

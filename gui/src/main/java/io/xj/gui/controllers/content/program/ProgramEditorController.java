@@ -57,7 +57,13 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.UUID;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Optional;
 
 import javafx.scene.control.SpinnerValueFactory;
 
@@ -290,56 +296,52 @@ public class ProgramEditorController extends ProjectController {
     sequenceName.focusedProperty().addListener((observable, oldValue, newValue) -> {
       try {
         if (!newValue) {
-          LOG.info("change "+sequenceName.getText());
+          LOG.info("change " + sequenceName.getText());
           sequencePropertyName.set(sequenceName.getText());
-          projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(),"name",
+          projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "name",
             sequencePropertyName.get());
         }
       } catch (Exception e) {
         LOG.info("Failed to update program sequence ");
-        e.printStackTrace();
       }
     });
 
     sequenceTotalChooser.focusedProperty().addListener((observable, oldValue, newValue) -> {
       try {
         if (!newValue) {
-          LOG.info("change "+sequenceTotalValueFactory.getValue());
+          LOG.info("change " + sequenceTotalValueFactory.getValue());
           sequenceTotalValueFactory.setValue(sequenceTotalChooser.getValue());
-          projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(),"total",
+          projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "total",
             sequenceTotalValueFactory.getValue());
         }
       } catch (Exception e) {
         LOG.info("Failed to update program sequence ");
-        e.printStackTrace();
       }
     });
 
     sequenceKey.focusedProperty().addListener((observable, oldValue, newValue) -> {
       try {
         if (!newValue) {
-          LOG.info("change "+sequenceTotalChooser.getValue());
+          LOG.info("change " + sequenceTotalChooser.getValue());
           sequencePropertyKey.set(sequenceKey.getText());
-          projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(),"key",
+          projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "key",
             sequencePropertyKey.get());
         }
       } catch (Exception e) {
         LOG.info("Failed to update program sequence ");
-        e.printStackTrace();
       }
     });
 
     intensityChooser.focusedProperty().addListener((observable, oldValue, newValue) -> {
       try {
         if (!newValue) {
-          LOG.info("change "+intensityChooser.getValue());
+          LOG.info("change " + intensityChooser.getValue());
           intensityValueFactory.setValue(intensityChooser.getValue());
-          projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(),"intensity",
+          projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "intensity",
             intensityValueFactory.getValue());
         }
       } catch (Exception e) {
         LOG.info("Failed to update program sequence ");
-        e.printStackTrace();
       }
     });
   }
@@ -610,14 +612,14 @@ public class ProgramEditorController extends ProjectController {
     bindButton.getStyleClass().add("selected");
     Collection<ProgramSequenceBinding> programSequenceBindingCollection = projectService.getContent().getSequenceBindingsOfProgram(programId.get());
     List<ProgramSequenceBinding> sequenceBindingsOfProgram = new ArrayList<>(programSequenceBindingCollection);
-    //clear first before adding to remove duplicates
+    //clear first before adding to prevent duplicates
     bindViewParentContainer.getChildren().remove(1, bindViewParentContainer.getChildren().size());
     //if sequence bindings number is zero, add the two buttons that appear when empty
     if (sequenceBindingsOfProgram.size() == 0) {
       addBindingView(bindViewParentContainer.getChildren().size());
       addBindingView(bindViewParentContainer.getChildren().size());
     } else {
-      //find the highest offset and create the offset holders
+      //find the highest offset in the current sequenceBindingsOfProgram group and create the offset holders  with an extra button
       for (int i = 1; i <= findHighestOffset(sequenceBindingsOfProgram) + 1; i++) {
         addBindingView(i);
       }

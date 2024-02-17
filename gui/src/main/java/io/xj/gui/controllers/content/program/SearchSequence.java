@@ -1,6 +1,5 @@
 package io.xj.gui.controllers.content.program;
 
-import io.xj.gui.services.ProjectService;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -8,8 +7,6 @@ import javafx.scene.control.ListCell;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 import org.controlsfx.control.SearchableComboBox;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,13 +15,10 @@ public class SearchSequence {
   public VBox container;
   @FXML
   public SearchableComboBox<ProgramSequence> sequenceSearch;
-  private final Logger LOG = LoggerFactory.getLogger(SearchSequence.class);
-  private final ProjectService projectService;
   private ProgramSequence programSequence;
-  private ProgramEditorController programEditorController;
+  private final ProgramEditorController programEditorController;
 
-  public SearchSequence(ProjectService projectService, ProgramEditorController programEditorController) {
-    this.projectService = projectService;
+  public SearchSequence(ProgramEditorController programEditorController) {
     this.programEditorController = programEditorController;
   }
 
@@ -42,7 +36,6 @@ public class SearchSequence {
     sequenceSearch.valueProperty().addListener((observable, oldValue, newValue) -> {
       if (newValue != null) {
         programEditorController.sequenceId.set(newValue.getId());
-//        programEditorController.sequenceName.setText(newValue.getName());
         programEditorController.sequencePropertyName.set(newValue.getName());
       }
     });
@@ -52,7 +45,6 @@ public class SearchSequence {
     // Clear existing items
     sequenceSearch.getItems().clear();
 
-    // Add programEditorController.programSequenceObservableList to ComboBox
     sequenceSearch.getItems().addAll(programEditorController.programSequenceObservableList);
 
     // Set the cell factory to display the name of ProgramSequence

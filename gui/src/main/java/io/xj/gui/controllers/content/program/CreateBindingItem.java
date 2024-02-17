@@ -73,7 +73,6 @@ public class CreateBindingItem {
     // Clear existing items
     sequenceSearch.getItems().clear();
 
-    // Add programEditorController.programSequenceObservableList to ComboBox
     sequenceSearch.getItems().addAll(programEditorController.programSequenceObservableList);
 
     // Set the cell factory to display the name of ProgramSequence
