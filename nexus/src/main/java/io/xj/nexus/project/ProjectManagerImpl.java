@@ -77,6 +77,8 @@ public class ProjectManagerImpl implements ProjectManager {
   private static final float DEFAULT_TEMPO = 120f;
   private static final float DEFAULT_LOOP_BEATS = 4.0f;
   private static final float DEFAULT_VOLUME = 1.0f;
+  private static final String DEFAULT_PROGRAM_SEQUENCE_NAME = "New Sequence";
+  private static final Integer DEFAULT_PROGRAM_SEQUENCE_TOTAL = 4;
   private final AtomicReference<ProjectState> state = new AtomicReference<>(ProjectState.Standby);
   private final AtomicReference<Project> project = new AtomicReference<>();
   private final AtomicReference<String> projectPathPrefix = new AtomicReference<>(File.separator);
@@ -470,6 +472,35 @@ public class ProjectManagerImpl implements ProjectManager {
     program.setIsDeleted(false);
     content.get().put(program);
     return program;
+  }
+
+  @Override
+  public ProgramSequence createProgramSequence(UUID programId) throws Exception {
+    var program = content.get().getProgram(programId).orElseThrow(() -> new NexusException("Program not found"));
+    var library = content.get().getLibrary(program.getLibraryId()).orElseThrow(() -> new NexusException("Library not found"));
+    var project = content.get().getProject();
+    if (Objects.isNull(project)) throw new NexusException("Project not found");
+    var existingSequenceOfProgram = content.get().getSequencesOfProgram(program.getId()).stream().findFirst();
+    var existingSequenceOfLibrary = existingSequenceOfProgram.isPresent() ? existingSequenceOfProgram : content.get().getProgramsOfLibrary(library).stream().flatMap(i -> content.get().getSequencesOfProgram(i.getId()).stream()).findFirst();
+    var existingSequence = existingSequenceOfLibrary.isPresent() ? existingSequenceOfLibrary : content.get().getProgramSequences().stream().findFirst();
+    var existingProgramOfLibrary = content.get().getProgramsOfLibrary(library.getId()).stream().findFirst();
+
+    // Prepare the sequence record
+    var sequence = new ProgramSequence();
+    sequence.setId(UUID.randomUUID());
+    sequence.setName(DEFAULT_PROGRAM_SEQUENCE_NAME);
+    sequence.setTotal(existingSequence.map(ProgramSequence::getTotal).orElse(DEFAULT_PROGRAM_SEQUENCE_TOTAL.shortValue()));
+    sequence.setKey(existingSequence.map(ProgramSequence::getKey).orElse(DEFAULT_KEY));
+    sequence.setIntensity(existingSequence.map(ProgramSequence::getIntensity).orElse(DEFAULT_INTENSITY));
+    sequence.setIntensity(
+        existingSequenceOfLibrary.map(ProgramSequence::getIntensity).orElse(
+            existingSequence.map(ProgramSequence::getIntensity).orElse(
+                DEFAULT_INTENSITY
+            )));
+    sequence.setProgramId(program.getId());
+
+    content.get().put(sequence);
+    return sequence;
   }
 
   @Override

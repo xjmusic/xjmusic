@@ -10,7 +10,7 @@ import org.controlsfx.control.SearchableComboBox;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SearchSequence {
+public class SequenceSearchController {
   @FXML
   public VBox container;
   @FXML
@@ -18,7 +18,7 @@ public class SearchSequence {
   private ProgramSequence programSequence;
   private final ProgramEditorController programEditorController;
 
-  public SearchSequence(ProgramEditorController programEditorController) {
+  public SequenceSearchController(ProgramEditorController programEditorController) {
     this.programEditorController = programEditorController;
   }
 
@@ -35,7 +35,7 @@ public class SearchSequence {
   private void selectAnElement() {
     sequenceSearch.valueProperty().addListener((observable, oldValue, newValue) -> {
       if (newValue != null) {
-        programEditorController.sequenceId.set(newValue.getId());
+        programEditorController.setSequenceId(newValue.getId());
         programEditorController.sequencePropertyName.set(newValue.getName());
       }
     });

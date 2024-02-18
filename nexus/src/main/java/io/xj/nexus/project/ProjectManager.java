@@ -9,6 +9,7 @@ import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.nexus.NexusException;
 import io.xj.nexus.hub_client.HubClientAccess;
 import jakarta.annotation.Nullable;
 
@@ -196,6 +197,23 @@ public interface ProjectManager {
    @return the new program
    */
   Program createProgram(Library library, String name) throws Exception;
+
+  /**
+   Create a new program sequence
+   <p>
+   Workstation creating new program sequence, populate it with defaults from other sequences or program
+   When creating a new Program Sequence, source default values from the first available
+   1. Program Sequences in the same program
+   2. Program Sequences in the same library
+   3. Programs in the same library
+   4. any Program Sequences in the project
+   5. any Programs in the project
+   6. defaults
+
+   @param programId for which to create a sequence
+   @return the new program sequence
+   */
+  ProgramSequence createProgramSequence(UUID programId) throws Exception;
 
   /**
    Create a new instrument

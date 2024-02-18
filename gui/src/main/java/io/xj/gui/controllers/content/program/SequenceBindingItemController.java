@@ -14,6 +14,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -29,13 +30,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-import javafx.scene.layout.BorderPane;
+
 import java.io.IOException;
 import java.util.UUID;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class SequenceItemBindMode {
+public class SequenceBindingItemController {
   @FXML
   public Button deleteSequence;
   @FXML
@@ -47,37 +48,42 @@ public class SequenceItemBindMode {
   public BorderPane mainBorderPane;
   @Value("classpath:/views/content/program/sequence-binding-meme-tag.fxml")
   private Resource memeTagFxml;
-  @Value("classpath:/views/content/program/alert.fxml")
-  private Resource alertFxml;
-  static final Logger LOG = LoggerFactory.getLogger(SequenceItemBindMode.class);
+
+  static final Logger LOG = LoggerFactory.getLogger(SequenceBindingItemController.class);
   private int parentPosition;
   private final ApplicationContext ac;
   private final ProjectService projectService;
   private ProgramSequenceBinding programSequenceBinding;
 
   private final ThemeService themeService;
-  private VBox sequenceHolder;
+  private VBox sequenceSelector;
   private final ProgramEditorController programEditorController;
-  public SequenceItemBindMode(ApplicationContext ac, ProjectService projectService, ProgramEditorController programEditorController,
-                              ThemeService themeService) {
+
+  public SequenceBindingItemController(
+    ApplicationContext ac,
+    ProjectService projectService,
+    ProgramEditorController programEditorController,
+    ThemeService themeService
+  ) {
     this.ac = ac;
     this.projectService = projectService;
     this.themeService = themeService;
-    this.programEditorController=programEditorController;
+    this.programEditorController = programEditorController;
   }
 
-  public void setUp(VBox sequenceHolder, Parent root, HBox bindViewParentContainer, int parentPosition,
+  public void setUp(VBox sequenceSelector, Parent root, HBox bindViewParentContainer, int parentPosition,
                     ProgramSequenceBinding programSequenceBinding, ProgramSequence programSequence) {
-    this.sequenceHolder = sequenceHolder;
+    this.sequenceSelector = sequenceSelector;
     this.parentPosition = parentPosition;
     this.programSequenceBinding = programSequenceBinding;
     sequenceName.setText(programSequence.getName());
-    deleteSequence(sequenceHolder, root, bindViewParentContainer);
-    if (programEditorController.activeProgramSequenceItem.get().equals(programSequence)) sequenceName.textProperty().bind(programEditorController.sequencePropertyName);
+    deleteSequence(sequenceSelector, root, bindViewParentContainer);
+    if (programEditorController.activeProgramSequenceItem.get().equals(programSequence))
+      sequenceName.textProperty().bind(programEditorController.sequencePropertyName);
     projectService.getContent().getMemesOfSequenceBinding(programSequenceBinding.getId()).forEach(this::addMeme);
     mainBorderPane.widthProperty().addListener((o, ov, nv) -> {
-      if (!(sequenceHolder.getWidth() >= nv.doubleValue())) {
-        sequenceHolder.setPrefWidth(nv.doubleValue());
+      if (!(sequenceSelector.getWidth() >= nv.doubleValue())) {
+        sequenceSelector.setPrefWidth(nv.doubleValue());
       }
     });
 
@@ -97,69 +103,24 @@ public class SequenceItemBindMode {
     });
   }
 
-  private void deleteSequence(VBox sequenceHolder, Parent root, HBox bindViewParentContainer) {
-    deleteSequence.setOnAction(e -> {
+  private void deleteSequence(VBox sequenceSelector, Parent root, HBox bindViewParentContainer) {
+    deleteSequence.setOnAction(event -> {
       try {
         if (!hasMemes()) {
-          sequenceHolder.getChildren().remove(root);
+          sequenceSelector.getChildren().remove(root);
           projectService.deleteContent(programSequenceBinding);
-          checkIfNextAndCurrentItemIsEmpty(bindViewParentContainer, sequenceHolder);
+          checkIfNextAndCurrentItemIsEmpty(bindViewParentContainer, sequenceSelector);
         } else {
-          showTimedAlert("Failure", "Found Meme on Sequence Binding", Duration.seconds(4), alertFxml, themeService,"#DB6A64");
+          projectService.showWarningAlert("Failure", "Found Meme on Sequence Binding", "Cannot delete sequence binding because it contains a meme.");
         }
-      } catch (Exception ex) {
-        LOG.info("Failed to delete ProgramSequenceBinding at " + programSequenceBinding.getOffset());
-        ex.printStackTrace();
+      } catch (Exception e) {
+        LOG.error("Failed to delete ProgramSequenceBinding at " + programSequenceBinding.getOffset(), e);
       }
     });
   }
 
-
-  public static void showTimedAlert(String title, String message, Duration duration, Resource alertFxml, ThemeService themeService,
-                                    String color) {
-    try {
-      Stage stage = new Stage(StageStyle.TRANSPARENT);
-      FXMLLoader loader = new FXMLLoader(alertFxml.getURL());
-      Parent root = loader.load();
-      AlertController alertController = loader.getController();
-      alertController.setUp(title, message, color);
-      stage.setScene(new Scene(root));
-      // Set the owner of the stage
-      stage.initOwner(themeService.getMainScene().getWindow());
-
-      // Get the screen dimensions
-      Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-      double screenWidth = screenBounds.getWidth();
-      double screenHeight = screenBounds.getHeight();
-
-      // Position the stage at the bottom-right corner
-      stage.setX(screenWidth - root.prefWidth(-1));  // Right-most position
-      stage.setY(screenHeight - root.prefHeight(-1)); // Bottom position
-
-      // Create a FadeTransition for the stage
-      FadeTransition fadeTransition = new FadeTransition(Duration.seconds(2), stage.getScene().getRoot());
-      fadeTransition.setFromValue(.1);
-      fadeTransition.setToValue(1);
-
-      // Create fade-out transition
-      FadeTransition fadeOut = new FadeTransition(Duration.seconds(1), root);
-      fadeOut.setFromValue(1);
-      fadeOut.setToValue(0);
-      fadeTransition.play();
-
-      stage.show();
-
-      // Create a PauseTransition and set its onFinished event
-      PauseTransition pauseTransition = new PauseTransition(duration);
-      pauseTransition.setOnFinished(e -> stage.close());
-      pauseTransition.play();
-    } catch (IOException e) {
-      LOG.error("Error loading EditConfig window!\n{}", StringUtils.formatStackTrace(e), e);
-    }
-  }
-
   private boolean hasMemes() {
-    return projectService.getContent().getMemesOfSequenceBinding(programSequenceBinding.getId()).size() > 0;
+    return !projectService.getContent().getMemesOfSequenceBinding(programSequenceBinding.getId()).isEmpty();
   }
 
   private void addMeme(ProgramSequenceBindingMeme sequenceBindingMeme) {
@@ -167,23 +128,23 @@ public class SequenceItemBindMode {
       FXMLLoader loader = new FXMLLoader(memeTagFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      ProgramSequenceMemeTagController memeTagController = loader.getController();
-      memeTagController.setUp(root, sequenceBindingMeme, programSequenceBinding.getId(), memeHolder, sequenceHolder, mainBorderPane);
+      SequenceBindingMemeTagController memeTagController = loader.getController();
+      memeTagController.setUp(root, sequenceBindingMeme, programSequenceBinding.getId(), memeHolder, sequenceSelector, mainBorderPane);
       memeHolder.getChildren().add(root);
     } catch (IOException exception) {
       LOG.error("Error adding Meme!\n{}", StringUtils.formatStackTrace(exception), exception);
     }
   }
 
-  private void checkIfNextAndCurrentItemIsEmpty(HBox bindViewParentContainer, VBox sequenceHolder) {
-    if (sequenceHolder.getChildren().size() < 3) {
+  private void checkIfNextAndCurrentItemIsEmpty(HBox bindViewParentContainer, VBox sequenceSelector) {
+    if (sequenceSelector.getChildren().size() < 3) {
 
       //get last position
       int lastPosition = bindViewParentContainer.getChildren().size() - 1;
       //store current position
       int current = parentPosition;
       //if an empty item is ahead of the current empty item
-      if (parentPosition == lastPosition-1) {
+      if (parentPosition == lastPosition - 1) {
         if (bindViewParentContainer.getChildren().size() > 3) {
           bindViewParentContainer.getChildren().remove(lastPosition);
         }

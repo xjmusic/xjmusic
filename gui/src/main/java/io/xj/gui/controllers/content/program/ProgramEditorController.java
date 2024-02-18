@@ -17,16 +17,16 @@ import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.util.StringUtils;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.FloatProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.StringProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.FloatProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -38,14 +38,16 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ToggleButton;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -57,19 +59,14 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.UUID;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Collection;
-import java.util.ArrayList;
 import java.util.Optional;
-
-import javafx.scene.control.SpinnerValueFactory;
-
+import java.util.UUID;
 import java.util.function.UnaryOperator;
-
-import javafx.scene.control.TextFormatter;
 
 @Service
 public class ProgramEditorController extends ProjectController {
@@ -137,37 +134,37 @@ public class ProgramEditorController extends ProjectController {
   @Value("classpath:/views/content/program/program-config.fxml")
   private Resource configFxml;
 
-  @Value("classpath:/views/content/program/meme-tag.fxml")
+  @Value("classpath:/views/content/program/program-meme-tag.fxml")
   private Resource memeTagFxml;
 
-  @Value("classpath:/views/content/program/search-sequence.fxml")
+  @Value("classpath:/views/content/program/sequence-search.fxml")
   private Resource searchSequenceFxml;
 
   @Value("classpath:/views/content/program/sequence-management.fxml")
   private Resource sequenceManagementFxml;
 
-  @Value("classpath:/views/content/program/sequence-holder.fxml")
+  @Value("classpath:/views/content/program/sequence-selector.fxml")
   private Resource sequenceHolderFxml;
   static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
-  protected final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
-  protected final ObjectProperty<UUID> sequenceId = new SimpleObjectProperty<>();
+  private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
+  private final ObjectProperty<UUID> sequenceId = new SimpleObjectProperty<>();
   private final BooleanProperty dirty = new SimpleBooleanProperty(false);
   private final StringProperty programName = new SimpleStringProperty("");
   private final ObjectProperty<ProgramType> type = new SimpleObjectProperty<>();
   private final ObjectProperty<ProgramState> state = new SimpleObjectProperty<>();
-  protected final StringProperty key = new SimpleStringProperty("");
+  private final StringProperty key = new SimpleStringProperty("");
 
-  protected final StringProperty config = new SimpleStringProperty("");
+  private final StringProperty config = new SimpleStringProperty("");
   private final FloatProperty tempo = new SimpleFloatProperty(0);
   private final SpinnerValueFactory<Double> tempoValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1300, 0);
 
-  protected final FloatProperty sequenceIntensity = new SimpleFloatProperty(0);
+  private final FloatProperty sequenceIntensity = new SimpleFloatProperty(0);
   private final SpinnerValueFactory<Double> sequenceIntensityValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1, sequenceIntensity.doubleValue(), 0.1);
-  protected final ObjectProperty<Double> sequenceIntensityDoubleValue = new SimpleObjectProperty<>(sequenceIntensityValueFactory.getValue());
+  private final ObjectProperty<Double> sequenceIntensityDoubleValue = new SimpleObjectProperty<>(sequenceIntensityValueFactory.getValue());
 
-  protected final IntegerProperty sequenceTotal = new SimpleIntegerProperty(0);
+  private final IntegerProperty sequenceTotal = new SimpleIntegerProperty(0);
 
-  protected final SpinnerValueFactory<Integer> sequenceTotalValueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10000, sequenceTotal.intValue());
+  private final SpinnerValueFactory<Integer> sequenceTotalValueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10000, sequenceTotal.intValue());
   private final ObjectProperty<Integer> sequenceTotalIntegerValue = new SimpleObjectProperty<>(sequenceTotalValueFactory.getValue());
 
   private final ObjectProperty<Double> tempoDoubleValue = new SimpleObjectProperty<>(tempoValueFactory.getValue());
@@ -185,7 +182,7 @@ public class ProgramEditorController extends ProjectController {
   protected final ObjectProperty<ProgramSequence> activeProgramSequenceItem = new SimpleObjectProperty<>();
   BooleanBinding isEmptyBinding = activeProgramSequenceItem.isNull();
 
-  @Value("classpath:/views/content/program/sequence-item-bind-mode.fxml")
+  @Value("classpath:/views/content/program/sequence-binding-item.fxml")
   private Resource sequenceItemBindingFxml;
   protected ObservableList<ProgramSequence> programSequenceObservableList = FXCollections.observableArrayList();
 
@@ -344,7 +341,7 @@ public class ProgramEditorController extends ProjectController {
       FXMLLoader loader = new FXMLLoader(searchSequenceFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      SearchSequence searchSequence = loader.getController();
+      SequenceSearchController searchSequence = loader.getController();
       searchSequence.setUp(activeProgramSequenceItem.get());
       stage.setScene(new Scene(root));
       // Set the owner of the stage
@@ -364,7 +361,7 @@ public class ProgramEditorController extends ProjectController {
       FXMLLoader loader = new FXMLLoader(sequenceManagementFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      SequenceManagement sequenceManagement = loader.getController();
+      SequenceManagementController sequenceManagement = loader.getController();
       sequenceManagement.setUp(activeProgramSequenceItem.get(), stage);
       stage.setScene(new Scene(root));
       stage.initOwner(themeService.getMainScene().getWindow());
@@ -393,7 +390,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   * Positions the GUI to the place where the click happened
+   Positions the GUI to the place where the click happened
    */
   private void positionUIAtLocation(Stage stage, MouseEvent event, int xValue, int yValue) {
     // Get the X and Y coordinates of the button
@@ -406,7 +403,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   * binds the disability state of the given node to the provided state(s)
+   binds the disability state of the given node to the provided state(s)
    */
   private void createDisabilityBindingForTypes(Node node, List<ProgramType> types) {
     BooleanBinding anyTypeMatched = Bindings.createBooleanBinding(() ->
@@ -416,7 +413,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   * binds the visibility state of the given node to the provided state(s)
+   binds the visibility state of the given node to the provided state(s)
    */
   private void createVisibilityBindingForTypes(Node node, List<ProgramType> types) {
     BooleanBinding anyTypeMatched = Bindings.createBooleanBinding(() ->
@@ -439,7 +436,7 @@ public class ProgramEditorController extends ProjectController {
 
 
   /**
-   * handles value changes listening in the textfield components
+   Handles value changes listening in the TextField components
    */
   private void setTextProcessing(TextField textField) {
     textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -448,7 +445,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   * handles value changes listening in the  value Chooser components
+   Handles value changes listening in the  value Chooser components
    */
   private void setChooserSelectionProcessing(Spinner<?> chooser) {
     chooser.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -457,7 +454,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   * handles value changes listening in the ComboBox components
+   Handles value changes listening in the ComboBox components
    */
   private void setComboboxSelectionProcessing(ComboBox<?> comboBox) {
     comboBox.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -470,7 +467,7 @@ public class ProgramEditorController extends ProjectController {
       FXMLLoader loader = new FXMLLoader(memeTagFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      MemeTagController memeTagController = loader.getController();
+      ProgramMemeTagController memeTagController = loader.getController();
       memeTagController.setUp(root, programMeme, programId.get());
       memeTagContainer.getChildren().add(root);
     } catch (IOException e) {
@@ -488,7 +485,7 @@ public class ProgramEditorController extends ProjectController {
   @Override
   public void onStageClose() {
     // FUTURE: on stage close
-    System.out.println("closed");
+    LOG.info("Closed Program Editor");
   }
 
   protected void handleProgramSave() {
@@ -521,7 +518,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   * Update the Program Editor with the current Program.
+   Update the Program Editor with the current Program.
    */
   private void setup() {
     if (Objects.isNull(uiStateService.currentProgramProperty().get()))
@@ -572,7 +569,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   * closes the stage when clicking outside it (loses focus)
+   Closes the stage when clicking outside it (loses focus)
    */
   public static void closeWindowOnClickingAway(Stage window) {
     window.focusedProperty().addListener((obs, oldValue, newValue) -> {
@@ -621,27 +618,27 @@ public class ProgramEditorController extends ProjectController {
     return highestOffset;
   }
 
-  public void addSequenceItem(ProgramSequenceBinding programSequenceBinding, VBox sequenceHolder, int position) {
+  public void addSequenceItem(ProgramSequenceBinding programSequenceBinding, VBox sequenceSelector, int position) {
     try {
       Optional<ProgramSequence> programSequence = projectService.getContent().getProgramSequence(programSequenceBinding.getProgramSequenceId());
       if (programSequence.isEmpty()) {
         return;
       }
-      createProgramSequenceBindingItem(programSequenceBinding, sequenceHolder, position, programSequence.get(), sequenceItemBindingFxml, ac, bindViewParentContainer, projectService);
+      createProgramSequenceBindingItem(programSequenceBinding, sequenceSelector, position, programSequence.get(), sequenceItemBindingFxml, ac, bindViewParentContainer, projectService);
       checkIfNextItemIsPresent(position);
     } catch (Exception e) {
       LOG.error("Error creating new Sequence \n{}", StringUtils.formatStackTrace(e), e);
     }
   }
 
-  static void createProgramSequenceBindingItem(ProgramSequenceBinding programSequenceBinding, VBox sequenceHolder, int position, ProgramSequence programSequence, Resource sequenceItemBindingFxml, ApplicationContext ac, HBox bindViewParentContainer, ProjectService projectService) throws Exception {
+  static void createProgramSequenceBindingItem(ProgramSequenceBinding programSequenceBinding, VBox sequenceSelector, int position, ProgramSequence programSequence, Resource sequenceItemBindingFxml, ApplicationContext ac, HBox bindViewParentContainer, ProjectService projectService) throws Exception {
     FXMLLoader loader = new FXMLLoader(sequenceItemBindingFxml.getURL());
     loader.setControllerFactory(ac::getBean);
     Parent root = loader.load();
-    HBox.setHgrow(sequenceHolder, Priority.ALWAYS);
-    SequenceItemBindMode sequenceItemBindMode = loader.getController();
-    sequenceItemBindMode.setUp(sequenceHolder, root, bindViewParentContainer, position, programSequenceBinding, programSequence);
-    sequenceHolder.getChildren().add(sequenceHolder.getChildren().size() - 1, root);
+    HBox.setHgrow(sequenceSelector, Priority.ALWAYS);
+    SequenceBindingItemController sequenceBindingItemController = loader.getController();
+    sequenceBindingItemController.setUp(sequenceSelector, root, bindViewParentContainer, position, programSequenceBinding, programSequence);
+    sequenceSelector.getChildren().add(sequenceSelector.getChildren().size() - 1, root);
     HBox.setHgrow(root, Priority.ALWAYS);
     projectService.getContent().put(programSequenceBinding);
   }
@@ -658,11 +655,52 @@ public class ProgramEditorController extends ProjectController {
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       bindViewParentContainer.getChildren().add(position, root);
-      SequenceHolder sequenceHolder = loader.getController();
-      sequenceHolder.setUp(bindViewParentContainer, position, programId.get());
+      SequenceSelectorController sequenceSelector = loader.getController();
+      sequenceSelector.setUp(bindViewParentContainer, position, programId.get());
       HBox.setHgrow(root, Priority.ALWAYS);
     } catch (IOException e) {
-      LOG.error("Error loading Sequence Holder view!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Error loading Sequence Selector view!\n{}", StringUtils.formatStackTrace(e), e);
     }
+  }
+
+  /**
+   @return the current program ID
+   */
+  public UUID getProgramId() {
+    return programId.get();
+  }
+
+  /**
+   Set the current sequence id
+
+   @param sequenceId to set
+   */
+  public void setSequenceId(UUID sequenceId) {
+    this.sequenceId.set(sequenceId);
+  }
+
+  /**
+   Set the value of the program config and update the internal store
+
+   @param config value to set
+   */
+  public void setConfig(String config) {
+    this.config.set(config);
+  }
+
+  /**
+   @return current value of program config
+   */
+  public String getConfig() {
+    return this.config.get();
+  }
+
+  /**
+   Set the current sequence total
+
+   @param sequenceTotal to set
+   */
+  public void setSequenceTotal(Integer sequenceTotal) {
+    sequenceTotalValueFactory.setValue(sequenceTotal);
   }
 }
