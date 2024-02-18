@@ -35,7 +35,7 @@ public class SequenceBindingMemeTagController {
   public Button deleteMemeButton;
   public StackPane stackPane;
   private final SimpleStringProperty name = new SimpleStringProperty("");
-  static final Logger LOG = LoggerFactory.getLogger(MemeTagController.class);
+  static final Logger LOG = LoggerFactory.getLogger(ProgramMemeTagController.class);
   private final ProjectService projectService;
   @FXML
   public AnchorPane memeParent;

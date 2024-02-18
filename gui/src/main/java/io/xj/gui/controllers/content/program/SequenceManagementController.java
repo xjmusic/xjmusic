@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SequenceManagement {
+public class SequenceManagementController {
   @FXML
   public Button newSequence;
   @FXML
@@ -24,9 +24,9 @@ public class SequenceManagement {
 
   private ProgramSequence programSequence;
   private Stage stage;
-  private final Logger LOG = LoggerFactory.getLogger(SequenceManagement.class);
+  private final Logger LOG = LoggerFactory.getLogger(SequenceManagementController.class);
 
-  public SequenceManagement(ProjectService projectService, ProgramEditorController programEditorController) {
+  public SequenceManagementController(ProjectService projectService, ProgramEditorController programEditorController) {
     this.projectService = projectService;
     this.programEditorController = programEditorController;
   }

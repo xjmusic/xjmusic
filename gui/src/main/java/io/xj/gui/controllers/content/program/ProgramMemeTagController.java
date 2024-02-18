@@ -22,7 +22,7 @@ import java.util.UUID;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class MemeTagController {
+public class ProgramMemeTagController {
   @FXML
   public TextField memeNameField;
   @FXML
@@ -31,14 +31,14 @@ public class MemeTagController {
   public Button deleteMemeButton;
   public StackPane stackPane;
   private final SimpleStringProperty name = new SimpleStringProperty("");
-  static final Logger LOG = LoggerFactory.getLogger(MemeTagController.class);
+  static final Logger LOG = LoggerFactory.getLogger(ProgramMemeTagController.class);
   private final ProjectService projectService;
   private ProgramMeme currentMeme;
   private UUID programId;
   //  @Autowired
   private final ProgramEditorController programEditorController;
 
-  public MemeTagController(ProjectService projectService, ProgramEditorController programEditorController) {
+  public ProgramMemeTagController(ProjectService projectService, ProgramEditorController programEditorController) {
     this.projectService = projectService;
     this.programEditorController = programEditorController;
   }

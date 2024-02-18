@@ -49,9 +49,6 @@ public class SequenceBindingItemController {
   @Value("classpath:/views/content/program/sequence-binding-meme-tag.fxml")
   private Resource memeTagFxml;
 
-  @Value("classpath:/views/content/program/alert.fxml")
-  private Resource alertFxml;
-
   static final Logger LOG = LoggerFactory.getLogger(SequenceBindingItemController.class);
   private int parentPosition;
   private final ApplicationContext ac;
@@ -107,68 +104,23 @@ public class SequenceBindingItemController {
   }
 
   private void deleteSequence(VBox sequenceSelector, Parent root, HBox bindViewParentContainer) {
-    deleteSequence.setOnAction(e -> {
+    deleteSequence.setOnAction(event -> {
       try {
         if (!hasMemes()) {
           sequenceSelector.getChildren().remove(root);
           projectService.deleteContent(programSequenceBinding);
           checkIfNextAndCurrentItemIsEmpty(bindViewParentContainer, sequenceSelector);
         } else {
-          showTimedAlert("Failure", "Found Meme on Sequence Binding", Duration.seconds(4), alertFxml, themeService, "#DB6A64");
+          projectService.showWarningAlert("Failure", "Found Meme on Sequence Binding", "Cannot delete sequence binding because it contains a meme.");
         }
-      } catch (Exception ex) {
-        LOG.info("Failed to delete ProgramSequenceBinding at " + programSequenceBinding.getOffset());
-        ex.printStackTrace();
+      } catch (Exception e) {
+        LOG.error("Failed to delete ProgramSequenceBinding at " + programSequenceBinding.getOffset(), e);
       }
     });
   }
 
-
-  public static void showTimedAlert(String title, String message, Duration duration, Resource alertFxml, ThemeService themeService,
-                                    String color) {
-    try {
-      Stage stage = new Stage(StageStyle.TRANSPARENT);
-      FXMLLoader loader = new FXMLLoader(alertFxml.getURL());
-      Parent root = loader.load();
-      AlertController alertController = loader.getController();
-      alertController.setUp(title, message, color);
-      stage.setScene(new Scene(root));
-      // Set the owner of the stage
-      stage.initOwner(themeService.getMainScene().getWindow());
-
-      // Get the screen dimensions
-      Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-      double screenWidth = screenBounds.getWidth();
-      double screenHeight = screenBounds.getHeight();
-
-      // Position the stage in the bottom-right corner
-      stage.setX(screenWidth - root.prefWidth(-1));  // Right-most position
-      stage.setY(screenHeight - root.prefHeight(-1)); // Bottom position
-
-      // Create a FadeTransition for the stage
-      FadeTransition fadeTransition = new FadeTransition(Duration.seconds(2), stage.getScene().getRoot());
-      fadeTransition.setFromValue(.1);
-      fadeTransition.setToValue(1);
-
-      // Create fade-out transition
-      FadeTransition fadeOut = new FadeTransition(Duration.seconds(1), root);
-      fadeOut.setFromValue(1);
-      fadeOut.setToValue(0);
-      fadeTransition.play();
-
-      stage.show();
-
-      // Create a PauseTransition and set its onFinished event
-      PauseTransition pauseTransition = new PauseTransition(duration);
-      pauseTransition.setOnFinished(e -> stage.close());
-      pauseTransition.play();
-    } catch (IOException e) {
-      LOG.error("Error loading EditConfig window!\n{}", StringUtils.formatStackTrace(e), e);
-    }
-  }
-
   private boolean hasMemes() {
-    return projectService.getContent().getMemesOfSequenceBinding(programSequenceBinding.getId()).size() > 0;
+    return !projectService.getContent().getMemesOfSequenceBinding(programSequenceBinding.getId()).isEmpty();
   }
 
   private void addMeme(ProgramSequenceBindingMeme sequenceBindingMeme) {

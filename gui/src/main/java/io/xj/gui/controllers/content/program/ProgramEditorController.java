@@ -134,10 +134,10 @@ public class ProgramEditorController extends ProjectController {
   @Value("classpath:/views/content/program/program-config.fxml")
   private Resource configFxml;
 
-  @Value("classpath:/views/content/program/meme-tag.fxml")
+  @Value("classpath:/views/content/program/program-meme-tag.fxml")
   private Resource memeTagFxml;
 
-  @Value("classpath:/views/content/program/search-sequence.fxml")
+  @Value("classpath:/views/content/program/sequence-search.fxml")
   private Resource searchSequenceFxml;
 
   @Value("classpath:/views/content/program/sequence-management.fxml")
@@ -341,7 +341,7 @@ public class ProgramEditorController extends ProjectController {
       FXMLLoader loader = new FXMLLoader(searchSequenceFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      SearchSequence searchSequence = loader.getController();
+      SequenceSearchController searchSequence = loader.getController();
       searchSequence.setUp(activeProgramSequenceItem.get());
       stage.setScene(new Scene(root));
       // Set the owner of the stage
@@ -361,7 +361,7 @@ public class ProgramEditorController extends ProjectController {
       FXMLLoader loader = new FXMLLoader(sequenceManagementFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      SequenceManagement sequenceManagement = loader.getController();
+      SequenceManagementController sequenceManagement = loader.getController();
       sequenceManagement.setUp(activeProgramSequenceItem.get(), stage);
       stage.setScene(new Scene(root));
       stage.initOwner(themeService.getMainScene().getWindow());
@@ -467,7 +467,7 @@ public class ProgramEditorController extends ProjectController {
       FXMLLoader loader = new FXMLLoader(memeTagFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      MemeTagController memeTagController = loader.getController();
+      ProgramMemeTagController memeTagController = loader.getController();
       memeTagController.setUp(root, programMeme, programId.get());
       memeTagContainer.getChildren().add(root);
     } catch (IOException e) {
@@ -485,7 +485,7 @@ public class ProgramEditorController extends ProjectController {
   @Override
   public void onStageClose() {
     // FUTURE: on stage close
-    System.out.println("closed");
+    LOG.info("Closed Program Editor");
   }
 
   protected void handleProgramSave() {

@@ -32,7 +32,7 @@ public class SequenceBindingItemCreationController {
   public VBox container;
   @FXML
   public SearchableComboBox<ProgramSequence> sequenceSearch;
-  private final Logger LOG = LoggerFactory.getLogger(io.xj.gui.controllers.content.program.SearchSequence.class);
+  private final Logger LOG = LoggerFactory.getLogger(SequenceSearchController.class);
   private final ProjectService projectService;
   @Value("classpath:/views/content/program/sequence-selector.fxml")
   private Resource sequenceHolderFxml;
