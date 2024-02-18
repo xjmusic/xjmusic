@@ -9,11 +9,13 @@ import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.util.StringUtils;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -389,7 +391,7 @@ public class ProgramEditorController extends ProjectController {
     /**
      * Positions the GUI to the place where the click happened
      */
-    private void positionUIAtLocation(Stage stage, MouseEvent event, int xValue, int yValue) {
+    public static void positionUIAtLocation(Stage stage, MouseEvent event, int xValue, int yValue) {
         // Get the X and Y coordinates of the button
         Node source = (Node) event.getSource();
         double xOffset = source.getLayoutX() + source.localToScreen(0, 0).getX() - xValue;
@@ -724,20 +726,38 @@ public class ProgramEditorController extends ProjectController {
 
     private void addVoiceItem_EditMode() {
         editModeAddButton.setOnAction(e -> {
-            voiceItem();
+            voiceItem(createVoice());
         });
     }
 
-    private void voiceItem() {
+    private ProgramVoice createVoice(){
+        try {
+            ProgramVoice newVoice=new ProgramVoice(UUID.randomUUID(),getProgramId(), InstrumentType.Drum,"XXX",1f);
+            projectService.getContent().put(newVoice);
+            return newVoice;
+        } catch (Exception e) {
+            LOG.info("Failed to create new voice");
+        }
+        return null;
+    }
+
+    private void voiceItem(ProgramVoice voice) {
         try {
             FXMLLoader loader = new FXMLLoader(voiceFxml.getURL());
             loader.setControllerFactory(ac::getBean);
             Parent root = loader.load();
             editModeContainer.getChildren().add(editModeContainer.getChildren().size() - 1, root);
             io.xj.gui.controllers.content.program.VoiceController voiceController = loader.getController();
-            voiceController.setUp(root);
+            voiceController.setUp(root,voice);
         } catch (IOException e) {
             LOG.error("Error adding Voice item view!\n{}", StringUtils.formatStackTrace(e), e);
         }
+    }
+
+    /**
+     * @return current sequence id
+     */
+    public UUID getSequenceId(){
+        return sequenceId.get();
     }
 }
