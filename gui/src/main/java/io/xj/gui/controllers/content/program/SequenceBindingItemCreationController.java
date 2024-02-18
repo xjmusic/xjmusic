@@ -27,34 +27,34 @@ import java.util.UUID;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class CreateBindingItem {
+public class SequenceBindingItemCreationController {
   @FXML
   public VBox container;
   @FXML
   public SearchableComboBox<ProgramSequence> sequenceSearch;
   private final Logger LOG = LoggerFactory.getLogger(io.xj.gui.controllers.content.program.SearchSequence.class);
   private final ProjectService projectService;
-  @Value("classpath:/views/content/program/sequence-holder.fxml")
+  @Value("classpath:/views/content/program/sequence-selector.fxml")
   private Resource sequenceHolderFxml;
   @Value("classpath:/views/content/program/sequence-binding-item.fxml")
   private Resource sequenceItemBindingFxml;
   private HBox bindViewParentContainer;
-  private VBox sequenceHolder;
+  private VBox sequenceSelector;
   private final ApplicationContext applicationContext;
   private final ProgramEditorController programEditorController;
   private int position;
 
-  public CreateBindingItem(ProjectService projectService, ApplicationContext applicationContext
+  public SequenceBindingItemCreationController(ProjectService projectService, ApplicationContext applicationContext
     , ProgramEditorController programEditorController) {
     this.projectService = projectService;
     this.applicationContext = applicationContext;
     this.programEditorController = programEditorController;
   }
 
-  public void setUp(HBox bindViewParentContainer, VBox sequenceHolder,
+  public void setUp(HBox bindViewParentContainer, VBox sequenceSelector,
                     int position, UUID programId) {
     this.bindViewParentContainer = bindViewParentContainer;
-    this.sequenceHolder = sequenceHolder;
+    this.sequenceSelector = sequenceSelector;
     this.position = position;
     setCombobox();
     addSequenceBinding(position - 1, programId);
@@ -113,7 +113,7 @@ public class CreateBindingItem {
 
   public void addSequenceItem(ProgramSequenceBinding programSequenceBinding, ProgramSequence programSequence) {
     try {
-      ProgramEditorController.createProgramSequenceBindingItem(programSequenceBinding, sequenceHolder, position, programSequence, sequenceItemBindingFxml, applicationContext, bindViewParentContainer, projectService);
+      ProgramEditorController.createProgramSequenceBindingItem(programSequenceBinding, sequenceSelector, position, programSequence, sequenceItemBindingFxml, applicationContext, bindViewParentContainer, projectService);
       checkIfNextItemIsPresent();
     } catch (Exception e) {
       LOG.error("Error creating new Sequence \n{}", StringUtils.formatStackTrace(e), e);
@@ -132,8 +132,8 @@ public class CreateBindingItem {
       loader.setControllerFactory(applicationContext::getBean);
       Parent root = loader.load();
       bindViewParentContainer.getChildren().add(bindViewParentContainer.getChildren().size(), root);
-      SequenceHolder sequenceHolder = loader.getController();
-      sequenceHolder.setUp(bindViewParentContainer, position, programEditorController.getProgramId());
+      SequenceSelectorController sequenceSelector = loader.getController();
+      sequenceSelector.setUp(bindViewParentContainer, position, programEditorController.getProgramId());
       HBox.setHgrow(root, javafx.scene.layout.Priority.ALWAYS);
     } catch (IOException e) {
       LOG.error("Error loading Sequence Holder view!\n{}", StringUtils.formatStackTrace(e), e);

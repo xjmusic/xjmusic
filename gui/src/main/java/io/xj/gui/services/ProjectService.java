@@ -226,7 +226,7 @@ public interface ProjectService {
    @param programId for which to create a program sequence
    @return the new program sequence
    */
-  ProgramSequence createProgramSequence(UUID programId);
+  ProgramSequence createProgramSequence(UUID programId) throws Exception;
 
   /**
    Create a new instrument

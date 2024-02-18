@@ -59,14 +59,14 @@ public class SequenceBindingItemController {
   private ProgramSequenceBinding programSequenceBinding;
 
   private final ThemeService themeService;
-  private VBox sequenceHolder;
+  private VBox sequenceSelector;
   private final ProgramEditorController programEditorController;
 
   public SequenceBindingItemController(
-      ApplicationContext ac,
-      ProjectService projectService,
-      ProgramEditorController programEditorController,
-      ThemeService themeService
+    ApplicationContext ac,
+    ProjectService projectService,
+    ProgramEditorController programEditorController,
+    ThemeService themeService
   ) {
     this.ac = ac;
     this.projectService = projectService;
@@ -74,19 +74,19 @@ public class SequenceBindingItemController {
     this.programEditorController = programEditorController;
   }
 
-  public void setUp(VBox sequenceHolder, Parent root, HBox bindViewParentContainer, int parentPosition,
+  public void setUp(VBox sequenceSelector, Parent root, HBox bindViewParentContainer, int parentPosition,
                     ProgramSequenceBinding programSequenceBinding, ProgramSequence programSequence) {
-    this.sequenceHolder = sequenceHolder;
+    this.sequenceSelector = sequenceSelector;
     this.parentPosition = parentPosition;
     this.programSequenceBinding = programSequenceBinding;
     sequenceName.setText(programSequence.getName());
-    deleteSequence(sequenceHolder, root, bindViewParentContainer);
+    deleteSequence(sequenceSelector, root, bindViewParentContainer);
     if (programEditorController.activeProgramSequenceItem.get().equals(programSequence))
       sequenceName.textProperty().bind(programEditorController.sequencePropertyName);
     projectService.getContent().getMemesOfSequenceBinding(programSequenceBinding.getId()).forEach(this::addMeme);
     mainBorderPane.widthProperty().addListener((o, ov, nv) -> {
-      if (!(sequenceHolder.getWidth() >= nv.doubleValue())) {
-        sequenceHolder.setPrefWidth(nv.doubleValue());
+      if (!(sequenceSelector.getWidth() >= nv.doubleValue())) {
+        sequenceSelector.setPrefWidth(nv.doubleValue());
       }
     });
 
@@ -97,7 +97,7 @@ public class SequenceBindingItemController {
     addMemeButton.setOnAction(e -> {
       try {
         ProgramSequenceBindingMeme programSequenceBindingMeme =
-            new ProgramSequenceBindingMeme(UUID.randomUUID(), programSequenceBinding.getProgramId(), programSequenceBinding.getId(), "XXX");
+          new ProgramSequenceBindingMeme(UUID.randomUUID(), programSequenceBinding.getProgramId(), programSequenceBinding.getId(), "XXX");
         projectService.getContent().put(programSequenceBindingMeme);
         addMeme(programSequenceBindingMeme);
       } catch (Exception ex) {
@@ -106,13 +106,13 @@ public class SequenceBindingItemController {
     });
   }
 
-  private void deleteSequence(VBox sequenceHolder, Parent root, HBox bindViewParentContainer) {
+  private void deleteSequence(VBox sequenceSelector, Parent root, HBox bindViewParentContainer) {
     deleteSequence.setOnAction(e -> {
       try {
         if (!hasMemes()) {
-          sequenceHolder.getChildren().remove(root);
+          sequenceSelector.getChildren().remove(root);
           projectService.deleteContent(programSequenceBinding);
-          checkIfNextAndCurrentItemIsEmpty(bindViewParentContainer, sequenceHolder);
+          checkIfNextAndCurrentItemIsEmpty(bindViewParentContainer, sequenceSelector);
         } else {
           showTimedAlert("Failure", "Found Meme on Sequence Binding", Duration.seconds(4), alertFxml, themeService, "#DB6A64");
         }
@@ -176,16 +176,16 @@ public class SequenceBindingItemController {
       FXMLLoader loader = new FXMLLoader(memeTagFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      ProgramSequenceMemeTagController memeTagController = loader.getController();
-      memeTagController.setUp(root, sequenceBindingMeme, programSequenceBinding.getId(), memeHolder, sequenceHolder, mainBorderPane);
+      SequenceBindingMemeTagController memeTagController = loader.getController();
+      memeTagController.setUp(root, sequenceBindingMeme, programSequenceBinding.getId(), memeHolder, sequenceSelector, mainBorderPane);
       memeHolder.getChildren().add(root);
     } catch (IOException exception) {
       LOG.error("Error adding Meme!\n{}", StringUtils.formatStackTrace(exception), exception);
     }
   }
 
-  private void checkIfNextAndCurrentItemIsEmpty(HBox bindViewParentContainer, VBox sequenceHolder) {
-    if (sequenceHolder.getChildren().size() < 3) {
+  private void checkIfNextAndCurrentItemIsEmpty(HBox bindViewParentContainer, VBox sequenceSelector) {
+    if (sequenceSelector.getChildren().size() < 3) {
 
       //get last position
       int lastPosition = bindViewParentContainer.getChildren().size() - 1;

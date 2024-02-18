@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class ProgramSequenceMemeTagController {
+public class SequenceBindingMemeTagController {
   @FXML
   public TextField memeNameField;
   @FXML
@@ -41,16 +41,16 @@ public class ProgramSequenceMemeTagController {
   public AnchorPane memeParent;
   private ProgramSequenceBindingMeme currentMeme;
   private UUID sequenceBindingId;
-  private VBox sequenceHolder;
+  private VBox sequenceSelector;
   private BorderPane mainBorderPane;
   private HBox memeHolder;
 
-  public ProgramSequenceMemeTagController(ProjectService projectService) {
+  public SequenceBindingMemeTagController(ProjectService projectService) {
     this.projectService = projectService;
   }
 
-  public void setUp(Parent root, ProgramSequenceBindingMeme meme, UUID sequenceBindingId, HBox memeHolder, VBox sequenceHolder, BorderPane mainBorderPane) {
-    this.sequenceHolder = sequenceHolder;
+  public void setUp(Parent root, ProgramSequenceBindingMeme meme, UUID sequenceBindingId, HBox memeHolder, VBox sequenceSelector, BorderPane mainBorderPane) {
+    this.sequenceSelector = sequenceSelector;
     this.mainBorderPane = mainBorderPane;
     this.currentMeme = meme;
     this.sequenceBindingId = sequenceBindingId;
@@ -67,13 +67,13 @@ public class ProgramSequenceMemeTagController {
     setMemeTextProcessing();
     deleteMemeButton.setOnAction(e -> deleteMemeTag(root, memeHolder));
     mainBorderPane.widthProperty().addListener((o, ov, nv) -> {
-      if (nv.doubleValue() > sequenceHolder.getWidth()) {
-        sequenceHolder.setPrefWidth(nv.doubleValue());
+      if (nv.doubleValue() > sequenceSelector.getWidth()) {
+        sequenceSelector.setPrefWidth(nv.doubleValue());
       } else {
         // Adjust only if the current width is larger than necessary
         double minRequiredWidth = 200;
-        if (sequenceHolder.getPrefWidth() > minRequiredWidth) {
-          sequenceHolder.setPrefWidth(minRequiredWidth);
+        if (sequenceSelector.getPrefWidth() > minRequiredWidth) {
+          sequenceSelector.setPrefWidth(minRequiredWidth);
         }
       }
     });
@@ -122,7 +122,7 @@ public class ProgramSequenceMemeTagController {
       // Remove the child node from memeHolder
       memeHolder.getChildren().remove(root);
       if (isLastItemWithChildren() || isWithMoreChildren()) {
-        sequenceHolder.setPrefWidth(sequenceHolder.getWidth() - memeParent.getPrefWidth());
+        sequenceSelector.setPrefWidth(sequenceSelector.getWidth() - memeParent.getPrefWidth());
       }
 
     } catch (Exception e) {
@@ -132,7 +132,7 @@ public class ProgramSequenceMemeTagController {
 
   private boolean isLastItemWithChildren() {
     AtomicBoolean isLastItemWithChildren = new AtomicBoolean(true);
-    sequenceHolder.getChildren().forEach(node -> {
+    sequenceSelector.getChildren().forEach(node -> {
       if (node instanceof BorderPane && node != mainBorderPane) {
         ((BorderPane) node).getChildren().forEach(anchorPaneChild -> {
           if (anchorPaneChild instanceof HBox && ((HBox) anchorPaneChild).getChildren().size() > 1) {
@@ -146,7 +146,7 @@ public class ProgramSequenceMemeTagController {
 
   private boolean isWithMoreChildren() {
     AtomicBoolean isWithMoreChildren = new AtomicBoolean(true);
-    sequenceHolder.getChildren().forEach(node -> {
+    sequenceSelector.getChildren().forEach(node -> {
       if (node instanceof BorderPane && node != mainBorderPane) {
         ((BorderPane) node).getChildren().forEach(anchorPaneChild -> {
           if (anchorPaneChild instanceof HBox && ((HBox) anchorPaneChild).getChildren().size() > memeHolder.getChildren().size()) {

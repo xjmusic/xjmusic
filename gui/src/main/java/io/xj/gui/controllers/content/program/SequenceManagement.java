@@ -56,7 +56,7 @@ public class SequenceManagement {
   }
 
 
-  private void updateSequenceUI(ProgramSequence programSequence){
+  private void updateSequenceUI(ProgramSequence programSequence) {
     programEditorController.setSequenceId(programSequence.getId());
     programEditorController.sequencePropertyName.set(programSequence.getName());
     programEditorController.setSequenceTotal(Integer.valueOf(programSequence.getTotal()));
@@ -67,10 +67,10 @@ public class SequenceManagement {
     try {
       projectService.deleteContent(programSequence);
       programEditorController.programSequenceObservableList.remove(programSequence);
-      if (programEditorController.programSequenceObservableList.size() > 0){
+      if (programEditorController.programSequenceObservableList.size() > 0) {
         programEditorController.activeProgramSequenceItem.set(programEditorController.programSequenceObservableList.get(0));
         updateSequenceUI(programEditorController.activeProgramSequenceItem.get());
-      }else programEditorController.activeProgramSequenceItem.set(null);
+      } else programEditorController.activeProgramSequenceItem.set(null);
       closeWindow();
     } catch (Exception e) {
       LOG.info("Failed to delete sequence " + programSequence.getName());
@@ -79,7 +79,7 @@ public class SequenceManagement {
 
   private void cloneSequence() {
     try {
-      ProgramSequence clonedProgramSequence= projectService.cloneProgramSequence(programSequence.getId(), "Clone of " + programEditorController.sequencePropertyName.get());
+      ProgramSequence clonedProgramSequence = projectService.cloneProgramSequence(programSequence.getId(), "Clone of " + programEditorController.sequencePropertyName.get());
       programEditorController.programSequenceObservableList.add(clonedProgramSequence);
       programEditorController.activeProgramSequenceItem.set(clonedProgramSequence);
       updateSequenceUI(programEditorController.activeProgramSequenceItem.get());

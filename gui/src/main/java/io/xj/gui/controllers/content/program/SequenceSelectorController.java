@@ -1,6 +1,5 @@
 package io.xj.gui.controllers.content.program;
 
-import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.hub.util.StringUtils;
 import javafx.fxml.FXML;
@@ -31,28 +30,26 @@ import static io.xj.gui.controllers.content.program.ProgramEditorController.clos
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class SequenceHolder {
+public class SequenceSelectorController {
   @FXML
-  public VBox sequenceHolder;
+  public VBox sequenceSelector;
   @FXML
   public Label offSet;
   @FXML
   public Button addSequenceButton;
-  @Value("classpath:/views/content/program/create-binding-item.fxml")
+  @Value("classpath:/views/content/program/sequence-binding-item-creation.fxml")
   private Resource createBindingFxml;
-  private final ProgramEditorController programEditorController;
   private final ApplicationContext applicationContext;
-  private final ProjectService projectService;
-  private final Logger LOG = LoggerFactory.getLogger(SequenceHolder.class);
+  private final Logger LOG = LoggerFactory.getLogger(SequenceSelectorController.class);
   private final ThemeService themeService;
   private HBox bindViewParentContainer;
   private int position;
 
-  public SequenceHolder(ApplicationContext applicationContext, ProgramEditorController programEditorController,
-                        ProjectService projectService, ThemeService themeService) {
-    this.programEditorController = programEditorController;
+  public SequenceSelectorController(
+    ApplicationContext applicationContext,
+    ThemeService themeService
+  ) {
     this.applicationContext = applicationContext;
-    this.projectService = projectService;
     this.themeService = themeService;
   }
 
@@ -60,11 +57,11 @@ public class SequenceHolder {
     this.position = position;
     this.bindViewParentContainer = bindViewParentContainer;
     offSet.setText(String.valueOf(position - 1));
-    addSequenceButton.setOnAction(e -> showSequenceBindingUI(programId));
-    HBox.setHgrow(sequenceHolder, Priority.ALWAYS);
+    addSequenceButton.setOnAction(e -> showSequenceBindingItemCreationUI(programId));
+    HBox.setHgrow(sequenceSelector, Priority.ALWAYS);
   }
 
-  protected void showSequenceBindingUI(UUID programId) {
+  protected void showSequenceBindingItemCreationUI(UUID programId) {
     try {
       Stage stage = new Stage(StageStyle.TRANSPARENT);
       FXMLLoader loader = new FXMLLoader(createBindingFxml.getURL());
@@ -72,17 +69,17 @@ public class SequenceHolder {
       Parent root = loader.load();
       // Apply a blur effect
       GaussianBlur blur = new GaussianBlur();
-      sequenceHolder.getScene().getRoot().setEffect(blur);
-      CreateBindingItem createBindingItem = loader.getController();
-      createBindingItem.setUp(bindViewParentContainer, sequenceHolder, position, programId);
-      stage.setOnShown(event -> createBindingItem.sequenceSearch.show());
+      sequenceSelector.getScene().getRoot().setEffect(blur);
+      SequenceBindingItemCreationController creationController = loader.getController();
+      creationController.setUp(bindViewParentContainer, sequenceSelector, position, programId);
+      stage.setOnShown(event -> creationController.sequenceSearch.show());
       stage.setScene(new Scene(root));
       stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
       closeWindowOnClickingAway(stage);
       centerOnScreen(stage);
       //remove the background blur
-      stage.setOnHidden(e -> sequenceHolder.getScene().getRoot().setEffect(null));
+      stage.setOnHidden(e -> sequenceSelector.getScene().getRoot().setEffect(null));
     } catch (IOException e) {
       LOG.error("Error opening Sequence Search window!\n{}", StringUtils.formatStackTrace(e), e);
     }

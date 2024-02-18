@@ -75,14 +75,14 @@ public class ProjectServiceImpl implements ProjectService {
   private static final double ERROR_DIALOG_WIDTH = 800.0;
   private static final double ERROR_DIALOG_HEIGHT = 600.0;
   private static final Collection<ProjectState> PROJECT_LOADING_STATES = Set.of(
-      ProjectState.LoadingContent,
-      ProjectState.LoadedContent,
-      ProjectState.LoadingAudio,
-      ProjectState.LoadedAudio,
-      ProjectState.PushingContent,
-      ProjectState.PushedContent,
-      ProjectState.PushingAudio,
-      ProjectState.PushedAudio
+    ProjectState.LoadingContent,
+    ProjectState.LoadedContent,
+    ProjectState.LoadingAudio,
+    ProjectState.LoadedAudio,
+    ProjectState.PushingContent,
+    ProjectState.PushedContent,
+    ProjectState.PushingAudio,
+    ProjectState.PushedAudio
   );
   private final Map<Class<? extends Serializable>, Set<Runnable>> projectUpdateListeners = new HashMap<>();
   private final Preferences prefs = Preferences.userNodeForPackage(ProjectServiceImpl.class);
@@ -93,28 +93,28 @@ public class ProjectServiceImpl implements ProjectService {
   private final BooleanProperty isModified = new SimpleBooleanProperty(false);
   private final ObjectProperty<ProjectState> state = new SimpleObjectProperty<>(ProjectState.Standby);
   private final ObservableStringValue stateText = Bindings.createStringBinding(
-      () -> switch (state.get()) {
-        case Standby -> "Standby";
-        case CreatingFolder -> "Creating Folder";
-        case CreatedFolder -> "Created Folder";
-        case LoadingContent -> "Loading Content";
-        case LoadedContent -> "Loaded Content";
-        case LoadingAudio -> String.format("Loading Audio (%.02f%%)", progress.get() * 100);
-        case LoadedAudio -> "Loaded Audio";
-        case PushingContent -> "Pushing Content";
-        case PushedContent -> "Pushed Content";
-        case PushingAudio -> "Pushing Audio";
-        case PushedAudio -> "Pushed Audio";
-        case Ready -> "Ready";
-        case Saving -> "Saving";
-        case Cancelled -> "Cancelled";
-        case Failed -> "Failed";
-      },
-      state,
-      progress);
+    () -> switch (state.get()) {
+      case Standby -> "Standby";
+      case CreatingFolder -> "Creating Folder";
+      case CreatedFolder -> "Created Folder";
+      case LoadingContent -> "Loading Content";
+      case LoadedContent -> "Loaded Content";
+      case LoadingAudio -> String.format("Loading Audio (%.02f%%)", progress.get() * 100);
+      case LoadedAudio -> "Loaded Audio";
+      case PushingContent -> "Pushing Content";
+      case PushedContent -> "Pushed Content";
+      case PushingAudio -> "Pushing Audio";
+      case PushedAudio -> "Pushed Audio";
+      case Ready -> "Ready";
+      case Saving -> "Saving";
+      case Cancelled -> "Cancelled";
+      case Failed -> "Failed";
+    },
+    state,
+    progress);
   private final BooleanBinding isStateLoading = Bindings.createBooleanBinding(
-      () -> PROJECT_LOADING_STATES.contains(state.get()),
-      state);
+    () -> PROJECT_LOADING_STATES.contains(state.get()),
+    state);
   private final BooleanBinding isStateReady = state.isEqualTo(ProjectState.Ready);
   private final BooleanBinding isStateStandby = state.isEqualTo(ProjectState.Standby);
   private final int maxRecentProjects;
@@ -124,10 +124,10 @@ public class ProjectServiceImpl implements ProjectService {
   private final JsonProvider jsonProvider;
 
   public ProjectServiceImpl(
-      @Value("${gui.recent.projects.max}") int maxRecentProjects,
-      ThemeService themeService,
-      LabService labService,
-      ProjectManager projectManager
+    @Value("${gui.recent.projects.max}") int maxRecentProjects,
+    ThemeService themeService,
+    LabService labService,
+    ProjectManager projectManager
   ) {
     this.maxRecentProjects = maxRecentProjects;
     this.themeService = themeService;
@@ -204,22 +204,22 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public void cloneFromLabProject(String parentPathPrefix, UUID projectId, String projectName) {
     cloneProject(parentPathPrefix, projectName, () -> projectManager.cloneFromLabProject(
-        labService.getHubClientAccess(),
-        labService.hubConfigProperty().get().getApiBaseUrl(),
-        labService.hubConfigProperty().get().getAudioBaseUrl(),
-        parentPathPrefix,
-        projectId,
-        projectName
+      labService.getHubClientAccess(),
+      labService.hubConfigProperty().get().getApiBaseUrl(),
+      labService.hubConfigProperty().get().getAudioBaseUrl(),
+      parentPathPrefix,
+      projectId,
+      projectName
     ));
   }
 
   @Override
   public void cloneFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
     cloneProject(parentPathPrefix, projectName, () -> projectManager.cloneProjectFromDemoTemplate(
-        labService.hubConfigProperty().get().getAudioBaseUrl(),
-        parentPathPrefix,
-        templateShipKey,
-        projectName
+      labService.hubConfigProperty().get().getAudioBaseUrl(),
+      parentPathPrefix,
+      templateShipKey,
+      projectName
     ));
   }
 
@@ -240,9 +240,9 @@ public class ProjectServiceImpl implements ProjectService {
     if (promptForConfirmation("Push Project", "Push Project to Lab", "This operation will overwrite the Lab version of this project entirely with your local version of the project. Do you want to proceed?")) {
       executeInBackground("Push Project", () -> {
         var pushed = projectManager.pushProject(
-            labService.getHubClientAccess(),
-            labService.hubConfigProperty().get().getApiBaseUrl(),
-            labService.hubConfigProperty().get().getAudioBaseUrl()
+          labService.getHubClientAccess(),
+          labService.hubConfigProperty().get().getApiBaseUrl(),
+          labService.hubConfigProperty().get().getAudioBaseUrl()
         );
         if (pushed.hasErrors())
           Platform.runLater(() -> showErrorDialog("Failed to push project", "Failed to push local project to Lab", pushed.toString()));
@@ -340,41 +340,41 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public List<Library> getLibraries() {
     return Objects.nonNull(projectManager.getContent()) ?
-        projectManager.getContent().getLibraries().stream()
-            .filter(library -> !library.getIsDeleted())
-            .sorted(Comparator.comparing(Library::getName))
-            .toList()
-        : new ArrayList<>();
+      projectManager.getContent().getLibraries().stream()
+        .filter(library -> !library.getIsDeleted())
+        .sorted(Comparator.comparing(Library::getName))
+        .toList()
+      : new ArrayList<>();
   }
 
   @Override
   public List<Program> getPrograms() {
     return Objects.nonNull(projectManager.getContent()) ?
-        projectManager.getContent().getPrograms().stream()
-            .filter(program -> !program.getIsDeleted())
-            .sorted(Comparator.comparing(Program::getName))
-            .toList()
-        : new ArrayList<>();
+      projectManager.getContent().getPrograms().stream()
+        .filter(program -> !program.getIsDeleted())
+        .sorted(Comparator.comparing(Program::getName))
+        .toList()
+      : new ArrayList<>();
   }
 
   @Override
   public List<Instrument> getInstruments() {
     return Objects.nonNull(projectManager.getContent()) ?
-        projectManager.getContent().getInstruments().stream()
-            .filter(instrument -> !instrument.getIsDeleted())
-            .sorted(Comparator.comparing(Instrument::getName))
-            .toList()
-        : new ArrayList<>();
+      projectManager.getContent().getInstruments().stream()
+        .filter(instrument -> !instrument.getIsDeleted())
+        .sorted(Comparator.comparing(Instrument::getName))
+        .toList()
+      : new ArrayList<>();
   }
 
   @Override
   public List<Template> getTemplates() {
     return Objects.nonNull(projectManager.getContent()) ?
-        projectManager.getContent().getTemplates().stream()
-            .filter(template -> !template.getIsDeleted())
-            .sorted(Comparator.comparing(Template::getName))
-            .toList()
-        : new ArrayList<>();
+      projectManager.getContent().getTemplates().stream()
+        .filter(template -> !template.getIsDeleted())
+        .sorted(Comparator.comparing(Template::getName))
+        .toList()
+      : new ArrayList<>();
   }
 
   @Override
@@ -407,7 +407,7 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public ProgramSequence createProgramSequence(UUID programId) {
+  public ProgramSequence createProgramSequence(UUID programId) throws Exception {
     var programSequence = projectManager.createProgramSequence(programId);
     didUpdate(ProgramSequence.class, true);
     LOG.info("Created programSequence \"{}\"", programSequence.getName());
@@ -571,7 +571,7 @@ public class ProjectServiceImpl implements ProjectService {
     alert.setTitle("Project Modified");
     alert.setHeaderText("Project has unsaved changes!");
     alert.setContentText(String.format("Save changes to the XJ music project \"%s\" before closing?",
-        projectManager.getProject().orElseThrow(() -> new RuntimeException("Could not find project!")).getName()));
+      projectManager.getProject().orElseThrow(() -> new RuntimeException("Could not find project!")).getName()));
 
     // Set up buttons "Save", "Don't Save", and "Cancel"
     var saveButton = new ButtonType("Save");
@@ -649,9 +649,9 @@ public class ProjectServiceImpl implements ProjectService {
       return true;
     }
     return promptForConfirmation("Overwrite Existing Project",
-        "The project already exists",
-        String.format("The project \"%s\" already exists in the folder \"%s\". This operation will update any modified files from the original remote versions. Do you want to proceed?",
-            projectName, parentPathPrefix));
+      "The project already exists",
+      String.format("The project \"%s\" already exists in the folder \"%s\". This operation will update any modified files from the original remote versions. Do you want to proceed?",
+        projectName, parentPathPrefix));
   }
 
   /**

@@ -17,16 +17,16 @@ import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.util.StringUtils;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.FloatProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.StringProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.FloatProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -38,14 +38,16 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ToggleButton;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -57,19 +59,14 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.UUID;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Collection;
-import java.util.ArrayList;
 import java.util.Optional;
-
-import javafx.scene.control.SpinnerValueFactory;
-
+import java.util.UUID;
 import java.util.function.UnaryOperator;
-
-import javafx.scene.control.TextFormatter;
 
 @Service
 public class ProgramEditorController extends ProjectController {
@@ -146,7 +143,7 @@ public class ProgramEditorController extends ProjectController {
   @Value("classpath:/views/content/program/sequence-management.fxml")
   private Resource sequenceManagementFxml;
 
-  @Value("classpath:/views/content/program/sequence-holder.fxml")
+  @Value("classpath:/views/content/program/sequence-selector.fxml")
   private Resource sequenceHolderFxml;
   static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
@@ -176,9 +173,9 @@ public class ProgramEditorController extends ProjectController {
   private final StringProperty gridProperty = new SimpleStringProperty("");
   private final StringProperty zoomProperty = new SimpleStringProperty("");
   private final ObservableList<String> gridDivisions =
-      FXCollections.observableArrayList(Arrays.asList("1/4", "1/8", "1/16", "1/32"));
+    FXCollections.observableArrayList(Arrays.asList("1/4", "1/8", "1/16", "1/32"));
   private final ObservableList<String> zoomOptions =
-      FXCollections.observableArrayList(Arrays.asList("5%", "10%", "25%", "50%", "100%", "200%", "300%", "400%"));
+    FXCollections.observableArrayList(Arrays.asList("5%", "10%", "25%", "50%", "100%", "200%", "300%", "400%"));
   protected final SimpleStringProperty sequencePropertyName = new SimpleStringProperty("");
   private final SimpleStringProperty sequencePropertyKey = new SimpleStringProperty("");
   private final CmdModalController cmdModalController;
@@ -190,12 +187,12 @@ public class ProgramEditorController extends ProjectController {
   protected ObservableList<ProgramSequence> programSequenceObservableList = FXCollections.observableArrayList();
 
   public ProgramEditorController(
-      @Value("classpath:/views/content/library-editor.fxml") Resource fxml,
-      ApplicationContext ac,
-      ThemeService themeService,
-      ProjectService projectService,
-      UIStateService uiStateService,
-      CmdModalController cmdModalController) {
+    @Value("classpath:/views/content/library-editor.fxml") Resource fxml,
+    ApplicationContext ac,
+    ThemeService themeService,
+    ProjectService projectService,
+    UIStateService uiStateService,
+    CmdModalController cmdModalController) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.cmdModalController = cmdModalController;
   }
@@ -204,8 +201,8 @@ public class ProgramEditorController extends ProjectController {
   public void onStageReady() {
     bindViewParentContainer.setMinWidth(getScreenSize() - labelHolder.getWidth());
     var visible = projectService.isStateReadyProperty()
-        .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
-        .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramEditor));
+      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
+      .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramEditor));
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.ProgramEditor))
         setup();
@@ -257,7 +254,7 @@ public class ProgramEditorController extends ProjectController {
     sequenceTotalLabel.textProperty().bind(sequenceTotalChooser.valueProperty().asString());
     // Bind Label text to Chooser value with formatting
     sequenceIntensityLabel.textProperty().bind(Bindings.createStringBinding(() ->
-        String.format("%.1f", sequenceIntensityDoubleValue.get()), sequenceIntensityDoubleValue));
+      String.format("%.1f", sequenceIntensityDoubleValue.get()), sequenceIntensityDoubleValue));
     stateChooser.valueProperty().bindBidirectional(state);
     keyField.textProperty().bind(key);
 
@@ -288,7 +285,7 @@ public class ProgramEditorController extends ProjectController {
           LOG.info("change " + sequenceName.getText());
           sequencePropertyName.set(sequenceName.getText());
           projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "name",
-              sequencePropertyName.get());
+            sequencePropertyName.get());
         }
       } catch (Exception e) {
         LOG.info("Failed to update program sequence ");
@@ -301,7 +298,7 @@ public class ProgramEditorController extends ProjectController {
           LOG.info("change " + sequenceTotalValueFactory.getValue());
           sequenceTotalValueFactory.setValue(sequenceTotalChooser.getValue());
           projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "total",
-              sequenceTotalValueFactory.getValue());
+            sequenceTotalValueFactory.getValue());
         }
       } catch (Exception e) {
         LOG.info("Failed to update program sequence ");
@@ -314,7 +311,7 @@ public class ProgramEditorController extends ProjectController {
           LOG.info("change " + sequenceTotalChooser.getValue());
           sequencePropertyKey.set(sequenceKey.getText());
           projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "key",
-              sequencePropertyKey.get());
+            sequencePropertyKey.get());
         }
       } catch (Exception e) {
         LOG.info("Failed to update program sequence ");
@@ -410,8 +407,8 @@ public class ProgramEditorController extends ProjectController {
    */
   private void createDisabilityBindingForTypes(Node node, List<ProgramType> types) {
     BooleanBinding anyTypeMatched = Bindings.createBooleanBinding(() ->
-            types.stream().noneMatch(type -> type.equals(typeChooser.getValue())),
-        typeChooser.valueProperty());
+        types.stream().noneMatch(type -> type.equals(typeChooser.getValue())),
+      typeChooser.valueProperty());
     node.disableProperty().bind(anyTypeMatched);
   }
 
@@ -420,8 +417,8 @@ public class ProgramEditorController extends ProjectController {
    */
   private void createVisibilityBindingForTypes(Node node, List<ProgramType> types) {
     BooleanBinding anyTypeMatched = Bindings.createBooleanBinding(() ->
-            types.stream().noneMatch(type -> type.equals(typeChooser.getValue())),
-        typeChooser.valueProperty());
+        types.stream().noneMatch(type -> type.equals(typeChooser.getValue())),
+      typeChooser.valueProperty());
     node.visibleProperty().bind(anyTypeMatched);
   }
 
@@ -439,7 +436,7 @@ public class ProgramEditorController extends ProjectController {
 
 
   /**
-   handles value changes listening in the textfield components
+   Handles value changes listening in the TextField components
    */
   private void setTextProcessing(TextField textField) {
     textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -448,7 +445,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   handles value changes listening in the  value Chooser components
+   Handles value changes listening in the  value Chooser components
    */
   private void setChooserSelectionProcessing(Spinner<?> chooser) {
     chooser.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -457,7 +454,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   handles value changes listening in the ComboBox components
+   Handles value changes listening in the ComboBox components
    */
   private void setComboboxSelectionProcessing(ComboBox<?> comboBox) {
     comboBox.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -481,7 +478,7 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   protected void openCloneDialog() {
     var program = projectService.getContent().getProgram(programId.get())
-        .orElseThrow(() -> new RuntimeException("Could not find Program"));
+      .orElseThrow(() -> new RuntimeException("Could not find Program"));
     cmdModalController.cloneProgram(program);
   }
 
@@ -493,7 +490,7 @@ public class ProgramEditorController extends ProjectController {
 
   protected void handleProgramSave() {
     var program = projectService.getContent().getProgram(programId.get())
-        .orElseThrow(() -> new RuntimeException("Could not find Program"));
+      .orElseThrow(() -> new RuntimeException("Could not find Program"));
     program.setName(programName.get());
     program.setKey(key.get());
     program.setTempo(tempo.get());
@@ -527,7 +524,7 @@ public class ProgramEditorController extends ProjectController {
     if (Objects.isNull(uiStateService.currentProgramProperty().get()))
       return;
     var program = projectService.getContent().getProgram(uiStateService.currentProgramProperty().get().getId())
-        .orElseThrow(() -> new RuntimeException("Could not find Program"));
+      .orElseThrow(() -> new RuntimeException("Could not find Program"));
     LOG.info("Will edit Program \"{}\"", program.getName());
     this.programId.set(program.getId());
     this.programName.set(program.getName());
@@ -572,7 +569,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   closes the stage when clicking outside it (loses focus)
+   Closes the stage when clicking outside it (loses focus)
    */
   public static void closeWindowOnClickingAway(Stage window) {
     window.focusedProperty().addListener((obs, oldValue, newValue) -> {
@@ -621,27 +618,27 @@ public class ProgramEditorController extends ProjectController {
     return highestOffset;
   }
 
-  public void addSequenceItem(ProgramSequenceBinding programSequenceBinding, VBox sequenceHolder, int position) {
+  public void addSequenceItem(ProgramSequenceBinding programSequenceBinding, VBox sequenceSelector, int position) {
     try {
       Optional<ProgramSequence> programSequence = projectService.getContent().getProgramSequence(programSequenceBinding.getProgramSequenceId());
       if (programSequence.isEmpty()) {
         return;
       }
-      createProgramSequenceBindingItem(programSequenceBinding, sequenceHolder, position, programSequence.get(), sequenceItemBindingFxml, ac, bindViewParentContainer, projectService);
+      createProgramSequenceBindingItem(programSequenceBinding, sequenceSelector, position, programSequence.get(), sequenceItemBindingFxml, ac, bindViewParentContainer, projectService);
       checkIfNextItemIsPresent(position);
     } catch (Exception e) {
       LOG.error("Error creating new Sequence \n{}", StringUtils.formatStackTrace(e), e);
     }
   }
 
-  static void createProgramSequenceBindingItem(ProgramSequenceBinding programSequenceBinding, VBox sequenceHolder, int position, ProgramSequence programSequence, Resource sequenceItemBindingFxml, ApplicationContext ac, HBox bindViewParentContainer, ProjectService projectService) throws Exception {
+  static void createProgramSequenceBindingItem(ProgramSequenceBinding programSequenceBinding, VBox sequenceSelector, int position, ProgramSequence programSequence, Resource sequenceItemBindingFxml, ApplicationContext ac, HBox bindViewParentContainer, ProjectService projectService) throws Exception {
     FXMLLoader loader = new FXMLLoader(sequenceItemBindingFxml.getURL());
     loader.setControllerFactory(ac::getBean);
     Parent root = loader.load();
-    HBox.setHgrow(sequenceHolder, Priority.ALWAYS);
+    HBox.setHgrow(sequenceSelector, Priority.ALWAYS);
     SequenceBindingItemController sequenceBindingItemController = loader.getController();
-    sequenceBindingItemController.setUp(sequenceHolder, root, bindViewParentContainer, position, programSequenceBinding, programSequence);
-    sequenceHolder.getChildren().add(sequenceHolder.getChildren().size() - 1, root);
+    sequenceBindingItemController.setUp(sequenceSelector, root, bindViewParentContainer, position, programSequenceBinding, programSequence);
+    sequenceSelector.getChildren().add(sequenceSelector.getChildren().size() - 1, root);
     HBox.setHgrow(root, Priority.ALWAYS);
     projectService.getContent().put(programSequenceBinding);
   }
@@ -658,11 +655,11 @@ public class ProgramEditorController extends ProjectController {
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       bindViewParentContainer.getChildren().add(position, root);
-      SequenceHolder sequenceHolder = loader.getController();
-      sequenceHolder.setUp(bindViewParentContainer, position, programId.get());
+      SequenceSelectorController sequenceSelector = loader.getController();
+      sequenceSelector.setUp(bindViewParentContainer, position, programId.get());
       HBox.setHgrow(root, Priority.ALWAYS);
     } catch (IOException e) {
-      LOG.error("Error loading Sequence Holder view!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Error loading Sequence Selector view!\n{}", StringUtils.formatStackTrace(e), e);
     }
   }
 
