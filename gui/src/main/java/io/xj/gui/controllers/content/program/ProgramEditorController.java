@@ -149,25 +149,25 @@ public class ProgramEditorController extends ProjectController {
   @Value("classpath:/views/content/program/sequence-holder.fxml")
   private Resource sequenceHolderFxml;
   static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
-  protected final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
-  protected final ObjectProperty<UUID> sequenceId = new SimpleObjectProperty<>();
+  private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
+  private final ObjectProperty<UUID> sequenceId = new SimpleObjectProperty<>();
   private final BooleanProperty dirty = new SimpleBooleanProperty(false);
   private final StringProperty programName = new SimpleStringProperty("");
   private final ObjectProperty<ProgramType> type = new SimpleObjectProperty<>();
   private final ObjectProperty<ProgramState> state = new SimpleObjectProperty<>();
-  protected final StringProperty key = new SimpleStringProperty("");
+  private final StringProperty key = new SimpleStringProperty("");
 
-  protected final StringProperty config = new SimpleStringProperty("");
+  private final StringProperty config = new SimpleStringProperty("");
   private final FloatProperty tempo = new SimpleFloatProperty(0);
   private final SpinnerValueFactory<Double> tempoValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1300, 0);
 
-  protected final FloatProperty sequenceIntensity = new SimpleFloatProperty(0);
+  private final FloatProperty sequenceIntensity = new SimpleFloatProperty(0);
   private final SpinnerValueFactory<Double> sequenceIntensityValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1, sequenceIntensity.doubleValue(), 0.1);
-  protected final ObjectProperty<Double> sequenceIntensityDoubleValue = new SimpleObjectProperty<>(sequenceIntensityValueFactory.getValue());
+  private final ObjectProperty<Double> sequenceIntensityDoubleValue = new SimpleObjectProperty<>(sequenceIntensityValueFactory.getValue());
 
-  protected final IntegerProperty sequenceTotal = new SimpleIntegerProperty(0);
+  private final IntegerProperty sequenceTotal = new SimpleIntegerProperty(0);
 
-  protected final SpinnerValueFactory<Integer> sequenceTotalValueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10000, sequenceTotal.intValue());
+  private final SpinnerValueFactory<Integer> sequenceTotalValueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10000, sequenceTotal.intValue());
   private final ObjectProperty<Integer> sequenceTotalIntegerValue = new SimpleObjectProperty<>(sequenceTotalValueFactory.getValue());
 
   private final ObjectProperty<Double> tempoDoubleValue = new SimpleObjectProperty<>(tempoValueFactory.getValue());
@@ -176,9 +176,9 @@ public class ProgramEditorController extends ProjectController {
   private final StringProperty gridProperty = new SimpleStringProperty("");
   private final StringProperty zoomProperty = new SimpleStringProperty("");
   private final ObservableList<String> gridDivisions =
-    FXCollections.observableArrayList(Arrays.asList("1/4", "1/8", "1/16", "1/32"));
+      FXCollections.observableArrayList(Arrays.asList("1/4", "1/8", "1/16", "1/32"));
   private final ObservableList<String> zoomOptions =
-    FXCollections.observableArrayList(Arrays.asList("5%", "10%", "25%", "50%", "100%", "200%", "300%", "400%"));
+      FXCollections.observableArrayList(Arrays.asList("5%", "10%", "25%", "50%", "100%", "200%", "300%", "400%"));
   protected final SimpleStringProperty sequencePropertyName = new SimpleStringProperty("");
   private final SimpleStringProperty sequencePropertyKey = new SimpleStringProperty("");
   private final CmdModalController cmdModalController;
@@ -190,12 +190,12 @@ public class ProgramEditorController extends ProjectController {
   protected ObservableList<ProgramSequence> programSequenceObservableList = FXCollections.observableArrayList();
 
   public ProgramEditorController(
-    @Value("classpath:/views/content/library-editor.fxml") Resource fxml,
-    ApplicationContext ac,
-    ThemeService themeService,
-    ProjectService projectService,
-    UIStateService uiStateService,
-    CmdModalController cmdModalController) {
+      @Value("classpath:/views/content/library-editor.fxml") Resource fxml,
+      ApplicationContext ac,
+      ThemeService themeService,
+      ProjectService projectService,
+      UIStateService uiStateService,
+      CmdModalController cmdModalController) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.cmdModalController = cmdModalController;
   }
@@ -204,8 +204,8 @@ public class ProgramEditorController extends ProjectController {
   public void onStageReady() {
     bindViewParentContainer.setMinWidth(getScreenSize() - labelHolder.getWidth());
     var visible = projectService.isStateReadyProperty()
-      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
-      .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramEditor));
+        .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
+        .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramEditor));
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.ProgramEditor))
         setup();
@@ -257,7 +257,7 @@ public class ProgramEditorController extends ProjectController {
     sequenceTotalLabel.textProperty().bind(sequenceTotalChooser.valueProperty().asString());
     // Bind Label text to Chooser value with formatting
     sequenceIntensityLabel.textProperty().bind(Bindings.createStringBinding(() ->
-      String.format("%.1f", sequenceIntensityDoubleValue.get()), sequenceIntensityDoubleValue));
+        String.format("%.1f", sequenceIntensityDoubleValue.get()), sequenceIntensityDoubleValue));
     stateChooser.valueProperty().bindBidirectional(state);
     keyField.textProperty().bind(key);
 
@@ -288,7 +288,7 @@ public class ProgramEditorController extends ProjectController {
           LOG.info("change " + sequenceName.getText());
           sequencePropertyName.set(sequenceName.getText());
           projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "name",
-            sequencePropertyName.get());
+              sequencePropertyName.get());
         }
       } catch (Exception e) {
         LOG.info("Failed to update program sequence ");
@@ -301,7 +301,7 @@ public class ProgramEditorController extends ProjectController {
           LOG.info("change " + sequenceTotalValueFactory.getValue());
           sequenceTotalValueFactory.setValue(sequenceTotalChooser.getValue());
           projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "total",
-            sequenceTotalValueFactory.getValue());
+              sequenceTotalValueFactory.getValue());
         }
       } catch (Exception e) {
         LOG.info("Failed to update program sequence ");
@@ -314,7 +314,7 @@ public class ProgramEditorController extends ProjectController {
           LOG.info("change " + sequenceTotalChooser.getValue());
           sequencePropertyKey.set(sequenceKey.getText());
           projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "key",
-            sequencePropertyKey.get());
+              sequencePropertyKey.get());
         }
       } catch (Exception e) {
         LOG.info("Failed to update program sequence ");
@@ -393,7 +393,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   * Positions the GUI to the place where the click happened
+   Positions the GUI to the place where the click happened
    */
   private void positionUIAtLocation(Stage stage, MouseEvent event, int xValue, int yValue) {
     // Get the X and Y coordinates of the button
@@ -406,22 +406,22 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   * binds the disability state of the given node to the provided state(s)
+   binds the disability state of the given node to the provided state(s)
    */
   private void createDisabilityBindingForTypes(Node node, List<ProgramType> types) {
     BooleanBinding anyTypeMatched = Bindings.createBooleanBinding(() ->
-        types.stream().noneMatch(type -> type.equals(typeChooser.getValue())),
-      typeChooser.valueProperty());
+            types.stream().noneMatch(type -> type.equals(typeChooser.getValue())),
+        typeChooser.valueProperty());
     node.disableProperty().bind(anyTypeMatched);
   }
 
   /**
-   * binds the visibility state of the given node to the provided state(s)
+   binds the visibility state of the given node to the provided state(s)
    */
   private void createVisibilityBindingForTypes(Node node, List<ProgramType> types) {
     BooleanBinding anyTypeMatched = Bindings.createBooleanBinding(() ->
-        types.stream().noneMatch(type -> type.equals(typeChooser.getValue())),
-      typeChooser.valueProperty());
+            types.stream().noneMatch(type -> type.equals(typeChooser.getValue())),
+        typeChooser.valueProperty());
     node.visibleProperty().bind(anyTypeMatched);
   }
 
@@ -439,7 +439,7 @@ public class ProgramEditorController extends ProjectController {
 
 
   /**
-   * handles value changes listening in the textfield components
+   handles value changes listening in the textfield components
    */
   private void setTextProcessing(TextField textField) {
     textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -448,7 +448,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   * handles value changes listening in the  value Chooser components
+   handles value changes listening in the  value Chooser components
    */
   private void setChooserSelectionProcessing(Spinner<?> chooser) {
     chooser.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -457,7 +457,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   * handles value changes listening in the ComboBox components
+   handles value changes listening in the ComboBox components
    */
   private void setComboboxSelectionProcessing(ComboBox<?> comboBox) {
     comboBox.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -481,7 +481,7 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   protected void openCloneDialog() {
     var program = projectService.getContent().getProgram(programId.get())
-      .orElseThrow(() -> new RuntimeException("Could not find Program"));
+        .orElseThrow(() -> new RuntimeException("Could not find Program"));
     cmdModalController.cloneProgram(program);
   }
 
@@ -493,7 +493,7 @@ public class ProgramEditorController extends ProjectController {
 
   protected void handleProgramSave() {
     var program = projectService.getContent().getProgram(programId.get())
-      .orElseThrow(() -> new RuntimeException("Could not find Program"));
+        .orElseThrow(() -> new RuntimeException("Could not find Program"));
     program.setName(programName.get());
     program.setKey(key.get());
     program.setTempo(tempo.get());
@@ -521,13 +521,13 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   * Update the Program Editor with the current Program.
+   Update the Program Editor with the current Program.
    */
   private void setup() {
     if (Objects.isNull(uiStateService.currentProgramProperty().get()))
       return;
     var program = projectService.getContent().getProgram(uiStateService.currentProgramProperty().get().getId())
-      .orElseThrow(() -> new RuntimeException("Could not find Program"));
+        .orElseThrow(() -> new RuntimeException("Could not find Program"));
     LOG.info("Will edit Program \"{}\"", program.getName());
     this.programId.set(program.getId());
     this.programName.set(program.getName());
@@ -572,7 +572,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   * closes the stage when clicking outside it (loses focus)
+   closes the stage when clicking outside it (loses focus)
    */
   public static void closeWindowOnClickingAway(Stage window) {
     window.focusedProperty().addListener((obs, oldValue, newValue) -> {
@@ -664,5 +664,46 @@ public class ProgramEditorController extends ProjectController {
     } catch (IOException e) {
       LOG.error("Error loading Sequence Holder view!\n{}", StringUtils.formatStackTrace(e), e);
     }
+  }
+
+  /**
+   @return the current program ID
+   */
+  public UUID getProgramId() {
+    return programId.get();
+  }
+
+  /**
+   Set the current sequence id
+
+   @param sequenceId to set
+   */
+  public void setSequenceId(UUID sequenceId) {
+    this.sequenceId.set(sequenceId);
+  }
+
+  /**
+   Set the value of the program config and update the internal store
+
+   @param config value to set
+   */
+  public void setConfig(String config) {
+    this.config.set(config);
+  }
+
+  /**
+   @return current value of program config
+   */
+  public String getConfig() {
+    return this.config.get();
+  }
+
+  /**
+   Set the current sequence total
+
+   @param sequenceTotal to set
+   */
+  public void setSequenceTotal(Integer sequenceTotal) {
+    sequenceTotalValueFactory.setValue(sequenceTotal);
   }
 }

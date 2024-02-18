@@ -133,7 +133,7 @@ public class CreateBindingItem {
       Parent root = loader.load();
       bindViewParentContainer.getChildren().add(bindViewParentContainer.getChildren().size(), root);
       SequenceHolder sequenceHolder = loader.getController();
-      sequenceHolder.setUp(bindViewParentContainer, position, programEditorController.programId.get());
+      sequenceHolder.setUp(bindViewParentContainer, position, programEditorController.getProgramId());
       HBox.setHgrow(root, javafx.scene.layout.Priority.ALWAYS);
     } catch (IOException e) {
       LOG.error("Error loading Sequence Holder view!\n{}", StringUtils.formatStackTrace(e), e);

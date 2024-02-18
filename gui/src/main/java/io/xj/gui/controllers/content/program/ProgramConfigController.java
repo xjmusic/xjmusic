@@ -36,17 +36,17 @@ public class ProgramConfigController {
   }
 
   protected void setUp(Stage stage) {
-    originalText = programEditorController.config.get();
-    configTextArea.setText(programEditorController.config.get());
+    originalText = programEditorController.getConfig();
+    configTextArea.setText(originalText);
     cancelButton.setOnAction(e -> stage.close());
     cancelConfigChanges.setOnAction(e -> stage.close());
     saveConfigChanges.setOnAction(e -> {
       try {
-        programEditorController.config.set(new ProgramConfig(configTextArea.getText()).toString());
+        programEditorController.setConfig(new ProgramConfig(configTextArea.getText()).toString());
+        stage.close();
       } catch (ValueException ex) {
         LOG.info("Failed to save config");
       }
-      stage.close();
     });
     // Bind the visibility of the Button and HBox to the BooleanProperty
     saveAndCancelButtonsContainer.visibleProperty().bind(visibleProperty);

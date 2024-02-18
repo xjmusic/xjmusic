@@ -35,7 +35,7 @@ public class SearchSequence {
   private void selectAnElement() {
     sequenceSearch.valueProperty().addListener((observable, oldValue, newValue) -> {
       if (newValue != null) {
-        programEditorController.sequenceId.set(newValue.getId());
+        programEditorController.setSequenceId(newValue.getId());
         programEditorController.sequencePropertyName.set(newValue.getName());
       }
     });

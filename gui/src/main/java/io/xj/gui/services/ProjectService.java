@@ -223,6 +223,12 @@ public interface ProjectService {
   Program createProgram(Library library, String name) throws Exception;
 
   /**
+   @param programId for which to create a program sequence
+   @return the new program sequence
+   */
+  ProgramSequence createProgramSequence(UUID programId);
+
+  /**
    Create a new instrument
 
    @param library the library

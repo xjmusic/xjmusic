@@ -407,6 +407,14 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
+  public ProgramSequence createProgramSequence(UUID programId) {
+    var programSequence = projectManager.createProgramSequence(programId);
+    didUpdate(ProgramSequence.class, true);
+    LOG.info("Created programSequence \"{}\"", programSequence.getName());
+    return programSequence;
+  }
+
+  @Override
   public Instrument createInstrument(Library library, String name) throws Exception {
     var instrument = projectManager.createInstrument(library, name);
     didUpdate(Instrument.class, true);

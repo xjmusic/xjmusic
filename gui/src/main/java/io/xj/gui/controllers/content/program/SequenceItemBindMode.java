@@ -30,6 +30,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import javafx.scene.layout.BorderPane;
+
 import java.io.IOException;
 import java.util.UUID;
 
@@ -58,12 +59,17 @@ public class SequenceItemBindMode {
   private final ThemeService themeService;
   private VBox sequenceHolder;
   private final ProgramEditorController programEditorController;
-  public SequenceItemBindMode(ApplicationContext ac, ProjectService projectService, ProgramEditorController programEditorController,
-                              ThemeService themeService) {
+
+  public SequenceItemBindMode(
+      ApplicationContext ac,
+      ProjectService projectService,
+      ProgramEditorController programEditorController,
+      ThemeService themeService
+  ) {
     this.ac = ac;
     this.projectService = projectService;
     this.themeService = themeService;
-    this.programEditorController=programEditorController;
+    this.programEditorController = programEditorController;
   }
 
   public void setUp(VBox sequenceHolder, Parent root, HBox bindViewParentContainer, int parentPosition,
@@ -73,7 +79,8 @@ public class SequenceItemBindMode {
     this.programSequenceBinding = programSequenceBinding;
     sequenceName.setText(programSequence.getName());
     deleteSequence(sequenceHolder, root, bindViewParentContainer);
-    if (programEditorController.activeProgramSequenceItem.get().equals(programSequence)) sequenceName.textProperty().bind(programEditorController.sequencePropertyName);
+    if (programEditorController.activeProgramSequenceItem.get().equals(programSequence))
+      sequenceName.textProperty().bind(programEditorController.sequencePropertyName);
     projectService.getContent().getMemesOfSequenceBinding(programSequenceBinding.getId()).forEach(this::addMeme);
     mainBorderPane.widthProperty().addListener((o, ov, nv) -> {
       if (!(sequenceHolder.getWidth() >= nv.doubleValue())) {
@@ -88,7 +95,7 @@ public class SequenceItemBindMode {
     addMemeButton.setOnAction(e -> {
       try {
         ProgramSequenceBindingMeme programSequenceBindingMeme =
-          new ProgramSequenceBindingMeme(UUID.randomUUID(), programSequenceBinding.getProgramId(), programSequenceBinding.getId(), "XXX");
+            new ProgramSequenceBindingMeme(UUID.randomUUID(), programSequenceBinding.getProgramId(), programSequenceBinding.getId(), "XXX");
         projectService.getContent().put(programSequenceBindingMeme);
         addMeme(programSequenceBindingMeme);
       } catch (Exception ex) {
@@ -105,7 +112,7 @@ public class SequenceItemBindMode {
           projectService.deleteContent(programSequenceBinding);
           checkIfNextAndCurrentItemIsEmpty(bindViewParentContainer, sequenceHolder);
         } else {
-          showTimedAlert("Failure", "Found Meme on Sequence Binding", Duration.seconds(4), alertFxml, themeService,"#DB6A64");
+          showTimedAlert("Failure", "Found Meme on Sequence Binding", Duration.seconds(4), alertFxml, themeService, "#DB6A64");
         }
       } catch (Exception ex) {
         LOG.info("Failed to delete ProgramSequenceBinding at " + programSequenceBinding.getOffset());
@@ -132,7 +139,7 @@ public class SequenceItemBindMode {
       double screenWidth = screenBounds.getWidth();
       double screenHeight = screenBounds.getHeight();
 
-      // Position the stage at the bottom-right corner
+      // Position the stage in the bottom-right corner
       stage.setX(screenWidth - root.prefWidth(-1));  // Right-most position
       stage.setY(screenHeight - root.prefHeight(-1)); // Bottom position
 
@@ -183,7 +190,7 @@ public class SequenceItemBindMode {
       //store current position
       int current = parentPosition;
       //if an empty item is ahead of the current empty item
-      if (parentPosition == lastPosition-1) {
+      if (parentPosition == lastPosition - 1) {
         if (bindViewParentContainer.getChildren().size() > 3) {
           bindViewParentContainer.getChildren().remove(lastPosition);
         }
