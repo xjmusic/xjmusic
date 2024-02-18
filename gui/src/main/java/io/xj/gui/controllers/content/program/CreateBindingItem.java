@@ -36,7 +36,7 @@ public class CreateBindingItem {
   private final ProjectService projectService;
   @Value("classpath:/views/content/program/sequence-holder.fxml")
   private Resource sequenceHolderFxml;
-  @Value("classpath:/views/content/program/sequence-item-bind-mode.fxml")
+  @Value("classpath:/views/content/program/sequence-binding-item.fxml")
   private Resource sequenceItemBindingFxml;
   private HBox bindViewParentContainer;
   private VBox sequenceHolder;

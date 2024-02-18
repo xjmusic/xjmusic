@@ -14,6 +14,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -29,14 +30,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-import javafx.scene.layout.BorderPane;
 
 import java.io.IOException;
 import java.util.UUID;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class SequenceItemBindMode {
+public class SequenceBindingItemController {
   @FXML
   public Button deleteSequence;
   @FXML
@@ -48,9 +48,11 @@ public class SequenceItemBindMode {
   public BorderPane mainBorderPane;
   @Value("classpath:/views/content/program/sequence-binding-meme-tag.fxml")
   private Resource memeTagFxml;
+
   @Value("classpath:/views/content/program/alert.fxml")
   private Resource alertFxml;
-  static final Logger LOG = LoggerFactory.getLogger(SequenceItemBindMode.class);
+
+  static final Logger LOG = LoggerFactory.getLogger(SequenceBindingItemController.class);
   private int parentPosition;
   private final ApplicationContext ac;
   private final ProjectService projectService;
@@ -60,7 +62,7 @@ public class SequenceItemBindMode {
   private VBox sequenceHolder;
   private final ProgramEditorController programEditorController;
 
-  public SequenceItemBindMode(
+  public SequenceBindingItemController(
       ApplicationContext ac,
       ProjectService projectService,
       ProgramEditorController programEditorController,

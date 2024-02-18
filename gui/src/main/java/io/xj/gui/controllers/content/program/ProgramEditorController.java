@@ -185,7 +185,7 @@ public class ProgramEditorController extends ProjectController {
   protected final ObjectProperty<ProgramSequence> activeProgramSequenceItem = new SimpleObjectProperty<>();
   BooleanBinding isEmptyBinding = activeProgramSequenceItem.isNull();
 
-  @Value("classpath:/views/content/program/sequence-item-bind-mode.fxml")
+  @Value("classpath:/views/content/program/sequence-binding-item.fxml")
   private Resource sequenceItemBindingFxml;
   protected ObservableList<ProgramSequence> programSequenceObservableList = FXCollections.observableArrayList();
 
@@ -639,8 +639,8 @@ public class ProgramEditorController extends ProjectController {
     loader.setControllerFactory(ac::getBean);
     Parent root = loader.load();
     HBox.setHgrow(sequenceHolder, Priority.ALWAYS);
-    SequenceItemBindMode sequenceItemBindMode = loader.getController();
-    sequenceItemBindMode.setUp(sequenceHolder, root, bindViewParentContainer, position, programSequenceBinding, programSequence);
+    SequenceBindingItemController sequenceBindingItemController = loader.getController();
+    sequenceBindingItemController.setUp(sequenceHolder, root, bindViewParentContainer, position, programSequenceBinding, programSequence);
     sequenceHolder.getChildren().add(sequenceHolder.getChildren().size() - 1, root);
     HBox.setHgrow(root, Priority.ALWAYS);
     projectService.getContent().put(programSequenceBinding);

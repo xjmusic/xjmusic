@@ -484,7 +484,7 @@
 #bindViewParentContainer{
   -fx-background-color: black;
 }
-.sequence-item-container {
+.sequence-binding-item-container {
   -fx-background-color: #434343;
   -fx-background-radius: 7;
   -fx-border-radius: 7;
