@@ -17,7 +17,6 @@ import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -31,7 +30,6 @@ import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.UUID;
@@ -49,8 +47,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class SegmentRetrospectiveImplTest {
   static int SEQUENCE_TOTAL_BEATS = 64;
   final UUID patternId = UUID.randomUUID();
-  @Mock
-  public HubClient hubClient;
   JsonProvider jsonProvider;
   FabricatorFactory fabricatorFactory;
   HubContent sourceMaterial;
@@ -78,7 +74,7 @@ public class SegmentRetrospectiveImplTest {
     // Manipulate the underlying entity store; reset before each test
     store.clear();
 
-    // Mock request via HubClient returns fake generated library of hub content
+    // Mock request via HubClientFactory returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       fake.setupFixtureB1().stream(),

@@ -112,6 +112,8 @@ public interface FabricationService {
 
   BooleanBinding isStateLoadingProperty();
 
+  BooleanBinding isStateStandbyProperty();
+
   /**
    Return the current shipped-to chain micros
 

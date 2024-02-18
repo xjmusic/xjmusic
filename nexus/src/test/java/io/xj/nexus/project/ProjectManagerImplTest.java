@@ -6,8 +6,15 @@ import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.entity.EntityFactory;
 import io.xj.hub.entity.EntityFactoryImpl;
+import io.xj.hub.enums.InstrumentMode;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
 import io.xj.hub.json.JsonProvider;
 import io.xj.hub.json.JsonProviderImpl;
+import io.xj.hub.jsonapi.JsonapiPayloadFactory;
+import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
@@ -18,6 +25,8 @@ import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.nexus.http.HttpClientProvider;
+import io.xj.nexus.hub_client.HubClientFactory;
+import io.xj.nexus.hub_client.HubClientFactoryImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,9 +36,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildInstrument;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildInstrumentAudio;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildLibrary;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProgram;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProject;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -56,11 +71,16 @@ class ProjectManagerImplTest {
     JsonProvider jsonProvider = new JsonProviderImpl();
     EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
-    subject = new ProjectManagerImpl(httpClientProvider, jsonProvider, entityFactory, 3);
+    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    HubClientFactory hubClientFactory = new HubClientFactoryImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory, 3);
+    subject = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory);
+    subject.openProjectFromLocalFile(pathToProjectFile);
   }
 
   @Test
   void openProjectFromLocalFile() {
+    subject.getContent().clear();
+
     assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
 
     assertEquals(UUID.fromString("23bcaded-2186-4697-912e-5f47bae9e9a0"), subject.getProject().orElseThrow().getId());
@@ -83,20 +103,18 @@ class ProjectManagerImplTest {
 
   @Test
   void getProjectPathPrefix() {
-    assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
-
     assertEquals(baseDir + File.separator, subject.getProjectPathPrefix());
   }
 
   @Test
   void getProject() {
-    assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
-
     assertEquals(UUID.fromString("23bcaded-2186-4697-912e-5f47bae9e9a0"), subject.getProject().orElseThrow().getId());
   }
 
   @Test
   void getAudioBaseUrl() {
+    subject.getContent().clear();
+
     subject.cloneProjectFromDemoTemplate("https://audio.test.xj.io/", "test", "test", "test");
 
     assertEquals("https://audio.test.xj.io/", subject.getAudioBaseUrl());
@@ -104,8 +122,6 @@ class ProjectManagerImplTest {
 
   @Test
   void closeProject() {
-    assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
-
     subject.closeProject();
 
     assertNull(subject.getContent());
@@ -113,19 +129,15 @@ class ProjectManagerImplTest {
 
   @Test
   void createTemplate() throws Exception {
-    assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
-
     var result = subject.createTemplate("Test Template");
 
-        assertEquals("Test Template", subject.getContent().getTemplate(result.getId()).orElseThrow().getName());
-        var config = new TemplateConfig(result.getConfig());
-        assertNotNull(config);
-    }
+    assertEquals("Test Template", subject.getContent().getTemplate(result.getId()).orElseThrow().getName());
+    var config = new TemplateConfig(result.getConfig());
+    assertNotNull(config);
+  }
 
   @Test
   void createLibrary() throws Exception {
-    assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
-
     var result = subject.createLibrary("Test Library");
 
     assertEquals("Test Library", subject.getContent().getLibrary(result.getId()).orElseThrow().getName());
@@ -133,95 +145,298 @@ class ProjectManagerImplTest {
 
   @Test
   void createProgram() throws Exception {
-    assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
     var library = subject.getContent().getLibraries().stream().findFirst().orElseThrow();
 
     var result = subject.createProgram(library, "Test Program");
 
-        assertEquals("Test Program", subject.getContent().getProgram(result.getId()).orElseThrow().getName());
-        var config = new ProgramConfig(result.getConfig());
-        assertNotNull(config);
-        assertNotNull(result.getType());
-        assertNotNull(result.getState());
-        assertNotNull(result.getKey());
-        assertNotNull(result.getTempo());
-        assertNotNull(result.getIntensity());
-    }
+    assertEquals("Test Program", subject.getContent().getProgram(result.getId()).orElseThrow().getName());
+    var config = new ProgramConfig(result.getConfig());
+    assertNotNull(config);
+    assertNotNull(result.getType());
+    assertNotNull(result.getState());
+    assertNotNull(result.getKey());
+    assertNotNull(result.getTempo());
+  }
 
-    @Test
-    void createProgram_setsDefaultsFromExistingProgramInLibrary() throws Exception {
-        assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
-        var library = subject.getContent().getLibraries().stream().findFirst().orElseThrow();
-        var program = subject.getContent().getProgramsOfLibrary(library.getId()).stream().findFirst().orElseThrow();
+  /**
+   When creating a new Program, source default values from
+   1. Program in the same library
+   <p>
+   Workstation creating new program/instrument, populates with defaults
+   https://www.pivotaltracker.com/story/show/187042551
+   */
+  @Test
+  void createProgram_attributesFromProgramInSameLibrary() throws Exception {
+    subject.getContent().clear();
+    var project = buildProject("Testing");
+    var library = buildLibrary(project, "Test Library");
+    var program = buildProgram(library, ProgramType.Beat, ProgramState.Published, "Lorem Ipsum Program", "C", 120);
+    var otherLibrary = buildLibrary(project, "Other Library");
+    var otherProgram = buildProgram(otherLibrary, ProgramType.Macro, ProgramState.Draft, "Other Program", "D", 130);
+    subject.getContent().putAll(List.of(project, library, program, otherLibrary, otherProgram));
 
-        var result = subject.createProgram(library, "Test Program");
+    var result = subject.createProgram(library, "Test Program");
 
-        assertEquals(program.getType(), result.getType());
-        assertEquals(program.getState(), result.getState());
-        assertEquals(program.getKey(), result.getKey());
-        assertEquals(program.getTempo(), result.getTempo());
-        assertEquals(program.getIntensity(), result.getIntensity());
-    }
+    assertEquals(program.getType(), result.getType());
+    assertEquals(program.getState(), result.getState());
+    assertEquals(program.getKey(), result.getKey());
+    assertEquals(program.getTempo(), result.getTempo());
+  }
+
+  /**
+   When creating a new Program, source default values from the first available
+   2. any Programs in the project
+   in lieu of
+   1. Program in the same library
+   <p>
+   Workstation creating new program/instrument, populates with defaults
+   https://www.pivotaltracker.com/story/show/187042551
+   */
+  @Test
+  void createProgram_attributesFromProgramInProject() throws Exception {
+    subject.getContent().clear();
+    var project = buildProject("Testing");
+    var library = buildLibrary(project, "Test Library");
+    var otherLibrary = buildLibrary(project, "Other Library");
+    var otherProgram = buildProgram(otherLibrary, ProgramType.Macro, ProgramState.Draft, "Other Program", "D", 130);
+    subject.getContent().putAll(List.of(project, library, otherLibrary, otherProgram));
+
+    var result = subject.createProgram(library, "Test Program");
+
+    assertEquals(otherProgram.getType(), result.getType());
+    assertEquals(otherProgram.getState(), result.getState());
+    assertEquals(otherProgram.getKey(), result.getKey());
+    assertEquals(otherProgram.getTempo(), result.getTempo());
+  }
 
   @Test
   void createInstrument() throws Exception {
-    assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
     var library = subject.getContent().getLibraries().stream().findFirst().orElseThrow();
 
     var result = subject.createInstrument(library, "Test Instrument");
 
-        assertEquals("Test Instrument", subject.getContent().getInstrument(result.getId()).orElseThrow().getName());
-        var config = new InstrumentConfig(result.getConfig());
-        assertNotNull(config);
-        assertNotNull(result.getType());
-        assertNotNull(result.getState());
-        assertNotNull(result.getMode());
-        assertNotNull(result.getVolume());
-        assertNotNull(result.getIntensity());
-    }
+    assertEquals("Test Instrument", subject.getContent().getInstrument(result.getId()).orElseThrow().getName());
+    var config = new InstrumentConfig(result.getConfig());
+    assertNotNull(config);
+    assertNotNull(result.getType());
+    assertNotNull(result.getState());
+    assertNotNull(result.getMode());
+    assertNotNull(result.getVolume());
+  }
 
-    @Test
-    void createInstrument_setsDefaultsFromExistingProgramInLibrary() throws Exception {
-        assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
-        var library = subject.getContent().getLibraries().stream().findFirst().orElseThrow();
-        var instrument = subject.getContent().getInstrumentsOfLibrary(library.getId()).stream().findFirst().orElseThrow();
+  /**
+   When creating a new Instrument, source default values from the first available
+   1. Instrument in the same library
+   <p>
+   Workstation creating new instrument/instrument, populates with defaults
+   https://www.pivotaltracker.com/story/show/187042551
+   */
+  @Test
+  void createInstrument_attributesFromInstrumentInSameLibrary() throws Exception {
+    subject.getContent().clear();
+    var project = buildProject("Testing");
+    var library = buildLibrary(project, "Test Library");
+    var instrument = buildInstrument(library, InstrumentType.Bass, InstrumentMode.Chord, InstrumentState.Published, "Lorem Ipsum Instrument");
+    var otherLibrary = buildLibrary(project, "Other Library");
+    var otherInstrument = buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
+    subject.getContent().putAll(List.of(project, library, instrument, otherLibrary, otherInstrument));
 
-        var result = subject.createInstrument(library, "Test Instrument");
+    var result = subject.createInstrument(library, "Test Instrument");
 
-        assertEquals(instrument.getType(), result.getType());
-        assertEquals(instrument.getState(), result.getState());
-        assertEquals(instrument.getMode(), result.getMode());
-        assertEquals(instrument.getVolume(), result.getVolume());
-        assertEquals(instrument.getIntensity(), result.getIntensity());
-    }
+    assertEquals(instrument.getType(), result.getType());
+    assertEquals(instrument.getState(), result.getState());
+    assertEquals(instrument.getMode(), result.getMode());
+  }
 
-    @Test
-    void createInstrumentAudio() throws Exception {
-        assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
-        var instrument = subject.getContent().getInstruments().stream().findFirst().orElseThrow();
+  /**
+   When creating a new Instrument, source default values from the first available
+   2. any Instruments in the project
+   in lieu of
+   1. Instrument in the same library
+   <p>
+   Workstation creating new instrument/instrument, populates with defaults
+   https://www.pivotaltracker.com/story/show/187042551
+   */
+  @Test
+  void createInstrument_attributesFromInstrumentInProject() throws Exception {
+    subject.getContent().clear();
+    var project = buildProject("Testing");
+    var library = buildLibrary(project, "Test Library");
+    var otherLibrary = buildLibrary(project, "Other Library");
+    var otherInstrument = buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
+    subject.getContent().putAll(List.of(project, library, otherLibrary, otherInstrument));
 
-        var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
+    var result = subject.createInstrument(library, "Test Instrument");
 
-        assertEquals("test-audio", subject.getContent().getInstrumentAudio(result.getId()).orElseThrow().getName());
-        assertEquals("testing-leaves-Pad-test-audio-F-A-C.wav", subject.getContent().getInstrumentAudio(result.getId()).orElseThrow().getWaveformKey());
-    }
+    assertEquals(otherInstrument.getType(), result.getType());
+    assertEquals(otherInstrument.getState(), result.getState());
+    assertEquals(otherInstrument.getMode(), result.getMode());
+  }
 
-    @Test
-    void createInstrumentAudio_setsDefaultsFromExistingProgramInLibrary() throws Exception {
-        assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
-        var instrument = subject.getContent().getInstruments().stream().findFirst().orElseThrow();
-        var audio = subject.getContent().getAudiosOfInstrument(instrument.getId()).stream().findFirst().orElseThrow();
+  @Test
+  void createInstrumentAudio() throws Exception {
+    var instrument = subject.getContent().getInstruments().stream().findFirst().orElseThrow();
 
-        var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
+    var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
 
-        assertEquals("test-audio", result.getName());
-        assertEquals(audio.getIntensity(), result.getIntensity());
-        assertEquals(audio.getTempo(), result.getTempo());
-    }
+    assertEquals("test-audio", subject.getContent().getInstrumentAudio(result.getId()).orElseThrow().getName());
+    assertEquals("testing-leaves-Pad-test-audio-F-A-C.wav", subject.getContent().getInstrumentAudio(result.getId()).orElseThrow().getWaveformKey());
+  }
+
+  /**
+   When creating a new Instrument Audio, source default values from the first available
+   1. Instrument Audios in the same instrument
+   2. Instrument Audios in the same library
+   3. Programs in the same library
+   4. any Instrument Audios in the project
+   5. any Programs in the project
+   6. defaults
+   <p>
+   Workstation creating new instrument/instrument, populates with defaults
+   https://www.pivotaltracker.com/story/show/187042551
+   */
+  @Test
+  void createInstrumentAudio_attributesFromAudioInSameInstrument() throws Exception {
+    subject.getContent().clear();
+    var project = buildProject("Testing");
+    var library = buildLibrary(project, "Test Library");
+    var instrument = buildInstrument(library, InstrumentType.Bass, InstrumentMode.Chord, InstrumentState.Published, "Lorem Ipsum Instrument");
+    var audio = buildInstrumentAudio(instrument, "Lorem Ipsum Audio", "lorem-ipsum.wav", 0, 4, 120, 1, "X", "C4", 1);
+    var otherLibrary = buildLibrary(project, "Other Library");
+    var otherInstrument = buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
+    var otherAudio = buildInstrumentAudio(otherInstrument, "Other Audio", "other-audio.wav", 0.1f, 4.2f, 130.0f, 0.9f, "HIT", "D3", 0.9f);
+    subject.getContent().putAll(List.of(project, library, instrument, audio, otherLibrary, otherInstrument, otherAudio));
+
+    var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
+
+    assertEquals(audio.getTones(), result.getTones());
+    assertEquals(audio.getEvent(), result.getEvent());
+    assertEquals(audio.getIntensity(), result.getIntensity());
+    assertEquals(audio.getTempo(), result.getTempo());
+    assertEquals(audio.getLoopBeats(), result.getLoopBeats());
+    assertEquals(audio.getVolume(), result.getVolume());
+  }
+
+  /**
+   When creating a new Instrument Audio, source default values from the first available
+   2. Instrument Audios in the same library
+   in lieu of
+   1. Instrument Audios in the same instrument
+   <p>
+   Workstation creating new instrument/instrument, populates with defaults
+   https://www.pivotaltracker.com/story/show/187042551
+   */
+  @Test
+  void createInstrumentAudio_attributesFromAudioInSameLibrary() throws Exception {
+    subject.getContent().clear();
+    var project = buildProject("Testing");
+    var library = buildLibrary(project, "Test Library");
+    var instrument = buildInstrument(library, InstrumentType.Bass, InstrumentMode.Chord, InstrumentState.Published, "Lorem Ipsum Instrument");
+    var instrument2 = buildInstrument(library, InstrumentType.Bass, InstrumentMode.Chord, InstrumentState.Published, "Lorem Ipsum Instrument");
+    var audio = buildInstrumentAudio(instrument2, "Lorem Ipsum Audio", "lorem-ipsum.wav", 0, 4, 120, 1, "X", "C4", 1);
+    var otherLibrary = buildLibrary(project, "Other Library");
+    var otherInstrument = buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
+    var otherAudio = buildInstrumentAudio(otherInstrument, "Other Audio", "other-audio.wav", 0.1f, 4.2f, 130.0f, 0.9f, "HIT", "D3", 0.9f);
+    subject.getContent().putAll(List.of(project, library, instrument, instrument2, audio, otherLibrary, otherInstrument, otherAudio));
+
+    var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
+
+    assertEquals(audio.getTones(), result.getTones());
+    assertEquals(audio.getEvent(), result.getEvent());
+    assertEquals(audio.getIntensity(), result.getIntensity());
+    assertEquals(audio.getTempo(), result.getTempo());
+    assertEquals(audio.getLoopBeats(), result.getLoopBeats());
+    assertEquals(audio.getVolume(), result.getVolume());
+  }
+
+  /**
+   When creating a new Instrument Audio, source default values from the first available
+   3. Programs in the same library
+   in lieu of
+   2. Instrument Audios in the same library
+   1. Instrument Audios in the same instrument
+   <p>
+   Workstation creating new instrument/instrument, populates with defaults
+   https://www.pivotaltracker.com/story/show/187042551
+   */
+  @Test
+  void createInstrumentAudio_tempoFromProgramInSameLibrary() throws Exception {
+    subject.getContent().clear();
+    var project = buildProject("Testing");
+    var library = buildLibrary(project, "Test Library");
+    var instrument = buildInstrument(library, InstrumentType.Bass, InstrumentMode.Chord, InstrumentState.Published, "Lorem Ipsum Instrument");
+    var program = buildProgram(library, ProgramType.Beat, ProgramState.Published, "Lorem Ipsum Program", "C", 150);
+    var otherLibrary = buildLibrary(project, "Other Library");
+    var otherInstrument = buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
+    var otherAudio = buildInstrumentAudio(otherInstrument, "Other Audio", "other-audio.wav", 0.1f, 4.2f, 130.0f, 0.9f, "HIT", "D3", 0.9f);
+    subject.getContent().putAll(List.of(project, library, instrument, program, otherLibrary, otherInstrument, otherAudio));
+
+    var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
+
+    assertEquals(program.getTempo(), result.getTempo());
+  }
+
+  /**
+   When creating a new Instrument Audio, source default values from the first available
+   4. any Instrument Audios in the project
+   in lieu of
+   3. Programs in the same library
+   2. Instrument Audios in the same library
+   1. Instrument Audios in the same instrument
+   <p>
+   Workstation creating new instrument/instrument, populates with defaults
+   https://www.pivotaltracker.com/story/show/187042551
+   */
+  @Test
+  void createInstrumentAudio_attributesFromAnyAudio() throws Exception {
+    subject.getContent().clear();
+    var project = buildProject("Testing");
+    var library = buildLibrary(project, "Test Library");
+    var instrument = buildInstrument(library, InstrumentType.Bass, InstrumentMode.Chord, InstrumentState.Published, "Lorem Ipsum Instrument");
+    var otherLibrary = buildLibrary(project, "Other Library");
+    var otherInstrument = buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
+    var otherAudio = buildInstrumentAudio(otherInstrument, "Other Audio", "other-audio.wav", 0.1f, 4.2f, 130.0f, 0.9f, "HIT", "D3", 0.9f);
+    subject.getContent().putAll(List.of(project, library, instrument, otherLibrary, otherInstrument, otherAudio));
+
+    var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
+
+    assertEquals(otherAudio.getTones(), result.getTones());
+    assertEquals(otherAudio.getEvent(), result.getEvent());
+    assertEquals(otherAudio.getIntensity(), result.getIntensity());
+    assertEquals(otherAudio.getTempo(), result.getTempo());
+    assertEquals(otherAudio.getLoopBeats(), result.getLoopBeats());
+    assertEquals(otherAudio.getVolume(), result.getVolume());
+  }
+
+  /**
+   When creating a new Instrument Audio, source default values from the first available
+   5. any Programs in the project
+   in lieu of
+   4. any Instrument Audios in the project
+   3. Programs in the same library
+   2. Instrument Audios in the same library
+   1. Instrument Audios in the same instrument
+   <p>
+   Workstation creating new instrument/instrument, populates with defaults
+   https://www.pivotaltracker.com/story/show/187042551
+   */
+  @Test
+  void createInstrumentAudio_attributesFromAnyProgram() throws Exception {
+    subject.getContent().clear();
+    var project = buildProject("Testing");
+    var library = buildLibrary(project, "Test Library");
+    var instrument = buildInstrument(library, InstrumentType.Bass, InstrumentMode.Chord, InstrumentState.Published, "Lorem Ipsum Instrument");
+    var otherLibrary = buildLibrary(project, "Other Library");
+    var otherProgram = buildProgram(otherLibrary, ProgramType.Beat, ProgramState.Published, "Lorem Ipsum Program", "C", 150);
+    subject.getContent().putAll(List.of(project, library, instrument, otherProgram, otherLibrary));
+
+    var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
+
+    assertEquals(otherProgram.getTempo(), result.getTempo());
+  }
 
   @Test
   void moveProgram() throws Exception {
-    assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
     var otherLibrary = subject.createLibrary("Other Library");
 
     subject.moveProgram(UUID.fromString("28d2208b-0a5f-44d5-9096-cc4157c36fb3"), otherLibrary.getId());
@@ -232,7 +447,6 @@ class ProjectManagerImplTest {
 
   @Test
   void moveInstrument() throws Exception {
-    assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
     var otherLibrary = subject.createLibrary("Other Library");
 
     subject.moveInstrument(UUID.fromString("5cd9560b-e577-4f71-b263-ccf604b3bb30"), otherLibrary.getId());
@@ -243,8 +457,6 @@ class ProjectManagerImplTest {
 
   @Test
   void cloneTemplate() throws Exception {
-    assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
-
     var clone = subject.cloneTemplate(UUID.fromString("6cfd24de-dc92-436e-9a7e-def8c9e2d351"), "Cloned Template");
 
     assertEquals(1, subject.getContent().getBindingsOfTemplate(clone.getId()).size());
@@ -252,8 +464,6 @@ class ProjectManagerImplTest {
 
   @Test
   void cloneLibrary() throws Exception {
-    assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
-
     var clone = subject.cloneLibrary(UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"), "Cloned Library");
 
     assertEquals("Cloned Library", subject.getContent().getLibrary(clone.getId()).orElseThrow().getName());
@@ -373,10 +583,8 @@ class ProjectManagerImplTest {
 
   @Test
   void cloneProgram() throws Exception {
-    assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
-
-    var clone1 = subject.cloneProgram(UUID.fromString("7ad65895-27b8-453d-84f1-ef2a2a2f09eb"), UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"),"Cloned Program 1");
-    var clone2 = subject.cloneProgram(UUID.fromString("28d2208b-0a5f-44d5-9096-cc4157c36fb3"), UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"),"Cloned Program 2");
+    var clone1 = subject.cloneProgram(UUID.fromString("7ad65895-27b8-453d-84f1-ef2a2a2f09eb"), UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"), "Cloned Program 1");
+    var clone2 = subject.cloneProgram(UUID.fromString("28d2208b-0a5f-44d5-9096-cc4157c36fb3"), UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"), "Cloned Program 2");
 
     // 2 programs
     var program1 = subject.getContent().getProgram(clone1.getId()).orElseThrow();
@@ -471,8 +679,6 @@ class ProjectManagerImplTest {
 
   @Test
   void cloneProgramSequence() throws Exception {
-    assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
-
     var clone1 = subject.cloneProgramSequence(UUID.fromString("2ff1c4e0-0f45-4457-900d-c7efef699e86"), "Cloned Sequence 1");
     var clone2 = subject.cloneProgramSequence(UUID.fromString("d1be946c-ea2c-4f74-a9df-18a659b99fc8"), "Cloned Sequence 2");
 
@@ -528,8 +734,6 @@ class ProjectManagerImplTest {
 
   @Test
   void cloneProgramSequencePattern() throws Exception {
-    assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
-
     var clone1 = subject.cloneProgramSequencePattern(UUID.fromString("0457d46f-5d6c-495e-a3e8-8bb9740cee18"), "Cloned Sequence Pattern 1");
     var clone2 = subject.cloneProgramSequencePattern(UUID.fromString("9ed7fbaa-540e-4539-b886-8788caf3dbff"), "Cloned Sequence Pattern 2");
 
@@ -557,10 +761,8 @@ class ProjectManagerImplTest {
 
   @Test
   void cloneInstrument() throws Exception {
-    assertTrue(subject.openProjectFromLocalFile(pathToProjectFile));
-
-    var clone1 = subject.cloneInstrument(UUID.fromString("9097d757-ae8f-4d68-b449-8ec96602ca83"), UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"),"Cloned Instrument 1");
-    var clone2 = subject.cloneInstrument(UUID.fromString("5cd9560b-e577-4f71-b263-ccf604b3bb30"), UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"),"Cloned Instrument 2");
+    var clone1 = subject.cloneInstrument(UUID.fromString("9097d757-ae8f-4d68-b449-8ec96602ca83"), UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"), "Cloned Instrument 1");
+    var clone2 = subject.cloneInstrument(UUID.fromString("5cd9560b-e577-4f71-b263-ccf604b3bb30"), UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"), "Cloned Instrument 2");
 
     // 2 instruments
     var instrument1 = subject.getContent().getInstrument(clone1.getId()).orElseThrow();

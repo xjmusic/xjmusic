@@ -10,7 +10,6 @@ import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.nexus.project.ProjectState;
 import jakarta.annotation.Nullable;
 import javafx.beans.binding.BooleanBinding;
@@ -69,10 +68,18 @@ public interface ProjectService {
   /**
    Save the project
    */
-  void saveProject(Runnable afterSave);
+  void saveProject(Runnable onComplete);
 
   /**
-   Workstation has Project Cleanup option to delete unused audio files from project folder
+   Workstation has Project → Push feature to publish the on-disk version of the project to the Lab (overwriting the Lab version)
+   https://www.pivotaltracker.com/story/show/187004700
+   <p>
+   Once a project has been cloned to disk, choose Project -> Push to upload that local copy to the Lab, and overwrite the Lab copy.
+   */
+  void pushProject();
+
+  /**
+   Project Cleanup option to delete unused audio files from project folder
    https://www.pivotaltracker.com/story/show/186930458
    */
   void cleanupProject();
@@ -314,6 +321,18 @@ public interface ProjectService {
    */
   boolean updateLibrary(Library library);
 
+
+  /**
+   Update an entity attribute
+
+   @param type      of entity
+   @param id        of entity
+   @param attribute to update
+   @param value     to set
+   @param <N>       type of entity
+   */
+  <N> void update(Class<N> type, UUID id, String attribute, Object value) throws Exception;
+
   /**
    Update the given program
 
@@ -321,29 +340,6 @@ public interface ProjectService {
    @return true if successful
    */
   boolean updateProgram(Program program);
-
-  /**
-   Update the given instrument
-
-   @param instrument to update
-   @return true if successful
-   */
-  boolean updateInstrument(Instrument instrument);
-
-  /**
-   Update the given instrument audio
-
-   @param instrumentAudio to update
-   @return true if successful
-   */
-  boolean updateInstrumentAudio(InstrumentAudio instrumentAudio);
-
-  /**
-   Update the given template
-
-   @param template to update
-   */
-  void updateTemplate(Template template);
 
   /**
    Get the path prefix to the audio folder for an instrument
@@ -393,13 +389,11 @@ public interface ProjectService {
   void showAlert(Alert.AlertType type, String title, String header, @Nullable String body);
 
   /**
-   Update an entity attribute
+   Show error dialog, which allows the user to copy and paste the error message
 
-   @param type      of entity
-   @param id        of entity
-   @param attribute to update
-   @param value     to set
-   @param <N>       type of entity
+   @param title  of the dialog
+   @param header of the dialog
+   @param body   of the dialog
    */
-  <N> void update(Class<N> type, UUID id, String attribute, Object value) throws Exception;
+  void showErrorDialog(String title, String header, String body);
 }

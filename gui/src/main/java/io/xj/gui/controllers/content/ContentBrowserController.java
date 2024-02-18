@@ -138,7 +138,6 @@ public class ContentBrowserController extends BrowserController {
     addColumn(programsTable, 90, "type", "Type");
     addColumn(programsTable, 50, "key", "Key");
     addColumn(programsTable, 50, "tempo", "Tempo");
-    addColumn(programsTable, 50, "intensity", "Intensity");
     addActionsColumn(Program.class, programsTable,
       program -> uiStateService.editProgram(program.getId()),
       cmdModalController::moveProgram,
@@ -175,7 +174,6 @@ public class ContentBrowserController extends BrowserController {
     addColumn(instrumentsTable, 200, "name", "Name");
     addColumn(instrumentsTable, 90, "type", "Type");
     addColumn(instrumentsTable, 90, "mode", "Mode");
-    addColumn(instrumentsTable, 50, "intensity", "Intensity");
     addColumn(instrumentsTable, 50, "volume", "Volume");
     addActionsColumn(Instrument.class, instrumentsTable,
       instrument -> uiStateService.editInstrument(instrument.getId()),

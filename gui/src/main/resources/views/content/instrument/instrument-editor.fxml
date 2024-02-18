@@ -56,10 +56,6 @@
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Volume" textAlignment="RIGHT"/>
         <TextField fx:id="fieldVolume" prefHeight="25.0"/>
       </VBox>
-      <VBox HBox.hgrow="ALWAYS" spacing="2.0">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Intensity" textAlignment="RIGHT"/>
-        <TextField fx:id="fieldIntensity" prefHeight="25.0"/>
-      </VBox>
     </HBox>
 
     <VBox spacing="2.0">

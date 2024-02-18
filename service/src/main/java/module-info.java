@@ -8,8 +8,8 @@ module workstation.service.main {
   requires me.xdrop.fuzzywuzzy;
   requires org.apache.commons.codec;
   requires org.apache.commons.io;
-  requires org.apache.httpcomponents.httpclient;
-  requires org.apache.httpcomponents.httpcore;
+  requires org.apache.httpcomponents.client5.httpclient5;
+  requires org.apache.httpcomponents.core5.httpcore5;
   requires org.bytedeco.ffmpeg;
   requires org.bytedeco.flandmark.platform;
   requires org.bytedeco.flandmark;

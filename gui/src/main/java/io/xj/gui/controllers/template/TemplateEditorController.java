@@ -11,6 +11,7 @@ import io.xj.gui.services.UIStateService;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.util.StringUtils;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -204,7 +205,7 @@ public class TemplateEditorController extends BrowserController {
       try {
         projectService.update(Template.class, templateId.get(), attribute, value);
       } catch (Exception e) {
-        LOG.error("Could not update Template " + attribute, e);
+        LOG.error("Could not update Template " + attribute, StringUtils.formatStackTrace(e));
       }
     }
   }

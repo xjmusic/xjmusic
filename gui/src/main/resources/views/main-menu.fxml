@@ -44,6 +44,7 @@
       <MenuItem fx:id="itemProjectCleanup" onAction="#handleProjectCleanup" text="Clean_up"/>
       <SeparatorMenuItem mnemonicParsing="false"/>
       <MenuItem onAction="#handleProjectClone" text="C_lone..."/>
+      <MenuItem fx:id="itemProjectPush" onAction="#handleProjectPush" text="_Push"/>
       <SeparatorMenuItem mnemonicParsing="false"/>
       <MenuItem onAction="#onQuit" text="E_xit"/>
     </Menu>

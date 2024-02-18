@@ -15,14 +15,8 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
 import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -37,8 +31,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 @Service
 public class MainPaneBottomController extends ProjectController {
   private static final String INDENT_SUB_LINES = "  ";
-  private static final double ERROR_DIALOG_WIDTH = 800.0;
-  private static final double ERROR_DIALOG_HEIGHT = 600.0;
   private static final int LOG_LIST_ROW_HEIGHT = 20;
   private static final int MAX_ENTRIES = 10_000;
   private final Integer refreshRateSeconds;
@@ -94,12 +86,12 @@ public class MainPaneBottomController extends ProjectController {
       protected void updateItem(LogRecord item, boolean empty) {
         super.updateItem(item, empty);
 
-        if (item == null || empty) {
+        if (item==null || empty) {
           setText(null);
           return;
         }
 
-        setText((Objects.nonNull(item.context()) ? item.context() : "") + " " + item.message());
+        setText((Objects.nonNull(item.context()) ? item.context():"") + " " + item.message());
 
         getStyleClass().removeAll("debug", "info", "warn", "error");
         getStyleClass().add(item.level().toString().toLowerCase());
@@ -133,37 +125,7 @@ public class MainPaneBottomController extends ProjectController {
         // no op
       }
 
-    if (level.equals(Level.ERROR)) Platform.runLater(() -> {
-      ButtonType loginButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
-      Dialog<String> dialog = new Dialog<>();
-      themeService.setup(dialog);
-      dialog.getDialogPane().getButtonTypes().add(loginButtonType);
-
-      dialog.setTitle("Error");
-      dialog.setHeaderText(context);
-
-      // Create a TextArea for the message
-      TextArea textArea = new TextArea(message);
-      textArea.setEditable(false); // Make it non-editable
-      textArea.setWrapText(true); // Enable text wrapping
-      textArea.setMaxWidth(Double.MAX_VALUE); // Use max width for better responsiveness
-      textArea.setMaxHeight(Double.MAX_VALUE); // Use max height for better responsiveness
-      GridPane.setVgrow(textArea, Priority.ALWAYS);
-      GridPane.setHgrow(textArea, Priority.ALWAYS);
-
-      GridPane content = new GridPane();
-      content.setMaxWidth(Double.MAX_VALUE);
-      content.add(textArea, 0, 0);
-
-      // Set the dialog content
-      dialog.getDialogPane().setContent(content);
-      dialog.setResizable(true);
-      dialog.getDialogPane().setPrefWidth(ERROR_DIALOG_WIDTH);
-      dialog.getDialogPane().setPrefHeight(ERROR_DIALOG_HEIGHT);
-      themeService.setup(dialog.getDialogPane().getScene());
-
-      dialog.showAndWait();
-    });
+    if (level.equals(Level.ERROR)) Platform.runLater(() -> projectService.showErrorDialog("Error", context, message));
   }
 
   static class LogQueue {

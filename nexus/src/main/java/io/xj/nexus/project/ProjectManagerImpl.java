@@ -11,8 +11,6 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.json.JsonProvider;
-import io.xj.hub.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
@@ -32,23 +30,17 @@ import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.http.HttpClientProvider;
-import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.hub_client.HubClientException;
-import io.xj.nexus.hub_client.HubClientImpl;
+import io.xj.nexus.hub_client.HubClientFactory;
 import jakarta.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -69,6 +61,7 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 
 import static io.xj.hub.util.FileUtils.computeWaveformKey;
+import static io.xj.nexus.hub_client.HubClientFactory.FILE_SIZE_NOT_FOUND;
 
 public class ProjectManagerImpl implements ProjectManager {
   static final Logger LOG = LoggerFactory.getLogger(ProjectManagerImpl.class);
@@ -92,7 +85,7 @@ public class ProjectManagerImpl implements ProjectManager {
   private final AtomicReference<HubContent> content = new AtomicReference<>();
   private final JsonProvider jsonProvider;
   private final EntityFactory entityFactory;
-  private final int downloadAudioRetries;
+  private final HubClientFactory hubClientFactory;
   private final HttpClientProvider httpClientProvider;
 
   @Nullable
@@ -105,15 +98,15 @@ public class ProjectManagerImpl implements ProjectManager {
    Private constructor
    */
   public ProjectManagerImpl(
-    HttpClientProvider httpClientProvider,
-    JsonProvider jsonProvider,
-    EntityFactory entityFactory,
-    int downloadAudioRetries
+      JsonProvider jsonProvider,
+      EntityFactory entityFactory,
+      HttpClientProvider httpClientProvider,
+      HubClientFactory hubClientFactory
   ) {
     this.httpClientProvider = httpClientProvider;
     this.jsonProvider = jsonProvider;
     this.entityFactory = entityFactory;
-    this.downloadAudioRetries = downloadAudioRetries;
+    this.hubClientFactory = hubClientFactory;
   }
 
   @Override
@@ -135,18 +128,16 @@ public class ProjectManagerImpl implements ProjectManager {
   public boolean cloneProjectFromDemoTemplate(String audioBaseUrl, String parentPathPrefix, String templateShipKey, String projectName) {
     this.audioBaseUrl.set(audioBaseUrl);
     LOG.info("Cloning from demo template \"{}\" in parent folder {}", templateShipKey, parentPathPrefix);
-    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
-    return cloneProject(parentPathPrefix, () -> hubClient.loadApiV1(templateShipKey, this.audioBaseUrl.get()), projectName);
+    CloseableHttpClient httpClient = httpClientProvider.getClient();
+    return cloneProject(parentPathPrefix, () -> hubClientFactory.loadApiV1(httpClient, templateShipKey, this.audioBaseUrl.get()), projectName);
   }
 
   @Override
-  public boolean cloneFromLabProject(HubClientAccess access, String labBaseUrl, String audioBaseUrl, String parentPathPrefix, UUID projectId, String projectName) {
+  public boolean cloneFromLabProject(HubClientAccess hubAccess, String hubBaseUrl, String audioBaseUrl, String parentPathPrefix, UUID projectId, String projectName) {
     this.audioBaseUrl.set(audioBaseUrl);
     LOG.info("Cloning from lab Project[{}] in parent folder {}", projectId, parentPathPrefix);
-    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    HubClient hubClient = new HubClientImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory);
-    return cloneProject(parentPathPrefix, () -> hubClient.ingestApiV2(labBaseUrl, access, projectId), projectName);
+    CloseableHttpClient httpClient = httpClientProvider.getClient();
+    return cloneProject(parentPathPrefix, () -> hubClientFactory.getProjectApiV2(httpClient, hubBaseUrl, hubAccess, projectId), projectName);
   }
 
   @Override
@@ -248,7 +239,7 @@ public class ProjectManagerImpl implements ProjectManager {
       var instrumentPath = getPathPrefixToInstrumentAudio(instrument.getId());
       foldersInProject.add(instrumentPath);
       content.get().getAudiosOfInstrument(instrument.getId()).forEach(audio ->
-        filesInProject.add(String.format("%s%s", instrumentPath, audio.getWaveformKey())));
+          filesInProject.add(String.format("%s%s", instrumentPath, audio.getWaveformKey())));
     });
     LOG.info("Found {} instrument folders on disk containing a total of {} audio files.", foldersOnDisk.size(), filesOnDisk.size());
     LOG.info("The project has {} instruments containing a total of {} audios.", foldersInProject.size(), filesInProject.size());
@@ -258,7 +249,7 @@ public class ProjectManagerImpl implements ProjectManager {
     for (String s : filesOnDisk) {
       try {
         Files.deleteIfExists(Paths.get(s));
-        results.incrementFilesDeleted();
+        results.incrementFiles();
       } catch (IOException e) {
         LOG.error("Failed to delete audio file {}\n{}", s, StringUtils.formatStackTrace(e));
         updateState(ProjectState.Ready);
@@ -268,7 +259,7 @@ public class ProjectManagerImpl implements ProjectManager {
     for (String path : foldersOnDisk) {
       try {
         FileUtils.deleteDirectory(new File(path));
-        results.incrementFoldersDeleted();
+        results.incrementFolders();
       } catch (IOException e) {
         LOG.error("Failed to delete instrument folder {}\n{}", path, StringUtils.formatStackTrace(e));
         updateState(ProjectState.Ready);
@@ -277,6 +268,115 @@ public class ProjectManagerImpl implements ProjectManager {
     }
     updateState(ProjectState.Ready);
     return results;
+  }
+
+  @Override
+  public ProjectPushResults pushProject(HubClientAccess hubAccess, String hubBaseUrl, String audioBaseUrl) {
+    this.audioBaseUrl.set(audioBaseUrl);
+    var pushResults = new ProjectPushResults();
+    try {
+      // Don't close the client, only close the responses from it
+      CloseableHttpClient httpClient = httpClientProvider.getClient();
+
+      // First, publish the entire project content as a payload to Hub.
+      updateState(ProjectState.PushingContent);
+      LOG.info("Will push project content to Hub");
+      hubClientFactory.postProjectSyncApiV2(httpClient, hubBaseUrl, hubAccess, content.get());
+      pushResults.addInstruments(content.get().getInstruments().size());
+      pushResults.addAudios(content.get().getInstrumentAudios().size());
+      pushResults.addPrograms(content.get().getPrograms().size());
+      pushResults.addLibraries(content.get().getLibraries().size());
+      pushResults.addTemplates(content.get().getTemplates().size());
+      LOG.info("Pushed project content to Hub");
+      updateState(ProjectState.PushedContent);
+
+      // Then, push all individual audios. If an audio is not found remotely, request an upload authorization token from Hub.
+      LOG.info("Will push {} audio for {} instruments", content.get().getInstrumentAudios().size(), content.get().getInstruments().size());
+      updateProgress(0.0);
+      updateState(ProjectState.PushingAudio);
+      var instruments = new ArrayList<>(content.get().getInstruments());
+      var audios = new ArrayList<>(content.get().getInstrumentAudios());
+
+      for (Instrument instrument : instruments) {
+        for (InstrumentAudio audio : audios.stream()
+            .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
+            .sorted(Comparator.comparing(InstrumentAudio::getName))
+            .toList()) {
+          if (!Objects.equals(state.get(), ProjectState.PushingAudio)) {
+            // Workstation canceling pushing should cease uploading audio files https://www.pivotaltracker.com/story/show/186209135
+            return pushResults;
+          }
+          if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
+            LOG.debug("Will upload audio for instrument \"{}\" with waveform key \"{}\"", instrument.getName(), audio.getWaveformKey());
+            // Fetch via HTTP if original does not exist
+            var pathOnDisk = getPathToInstrumentAudio(
+                instrument.getId(),
+                audio.getWaveformKey()
+            );
+
+            var remoteUrl = String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey());
+            var remoteFileSize = hubClientFactory.getRemoteFileSize(httpClient, remoteUrl);
+            var upload = new ProjectAudioUpload(audio.getId(), pathOnDisk);
+            boolean shouldUpload = false;
+
+            if (remoteFileSize == FILE_SIZE_NOT_FOUND) {
+              LOG.info("File {} not found remotely - Will upload {} bytes", remoteUrl, upload.getContentLength());
+              shouldUpload = true;
+            } else if (upload.getContentLength() != remoteFileSize) {
+              LOG.info("File size of {} does not match remote {} - Will upload {} bytes from {}", pathOnDisk, remoteFileSize, remoteFileSize, remoteUrl);
+              shouldUpload = true;
+            }
+
+            // When requesting upload authorization, it's necessary to specify an existing instrument. Hub will compute the waveform key.
+            if (shouldUpload) {
+              hubClientFactory.uploadInstrumentAudioFile(hubAccess, hubBaseUrl, httpClient, upload);
+              if (upload.hasErrors()) {
+                pushResults.addErrors(upload.getErrors());
+                updateState(ProjectState.Ready);
+                return pushResults;
+              }
+              LOG.debug("Did upload audio OK");
+              // After upload, we must update the local content with the new waveform key and rename the audio file on disk.
+              content.get().update(InstrumentAudio.class, audio.getId(), "waveformKey", upload.getAuth().getWaveformKey());
+              var updatedPathOnDisk = getPathToInstrumentAudio(
+                  instrument.getId(),
+                  upload.getAuth().getWaveformKey()
+              );
+              if (!Objects.equals(pathOnDisk, updatedPathOnDisk)) {
+                LOG.info("After upload, will rename audio file from {} to {}", pathOnDisk, updatedPathOnDisk);
+                Files.move(Paths.get(pathOnDisk), Paths.get(updatedPathOnDisk));
+              }
+              pushResults.incrementAudiosUploaded();
+            }
+          }
+          updateProgress((float) pushResults.getAudios() / audios.size());
+        }
+      }
+      updateProgress(1.0);
+      LOG.info("Pushed {} audios for {} instruments", pushResults.getAudios(), pushResults.getInstruments());
+      updateState(ProjectState.PushedAudio);
+
+      // Save project after push, because instrument audio waveform keys may have been updated
+      saveProject();
+
+      updateState(ProjectState.Ready);
+      return pushResults;
+
+    } catch (HubClientException e) {
+      pushResults.addError(String.format("Failed to push project because %s", e.getCause().getMessage()));
+      updateState(ProjectState.Ready);
+      return pushResults;
+
+    } catch (IOException e) {
+      pushResults.addError(String.format("Failed to push project because of I/O failure: %s", e.getMessage()));
+      updateState(ProjectState.Ready);
+      return pushResults;
+
+    } catch (Exception e) {
+      pushResults.addError(String.format("Failed to push project because of unknown error: %s", e.getMessage()));
+      updateState(ProjectState.Ready);
+      return pushResults;
+    }
   }
 
   @Override
@@ -334,6 +434,7 @@ public class ProjectManagerImpl implements ProjectManager {
   public Template createTemplate(String name) throws Exception {
     var template = new Template();
     template.setId(UUID.randomUUID());
+    template.setProjectId(project.get().getId());
     template.setName(name);
     template.setConfig(new TemplateConfig().toString());
     template.setIsDeleted(false);
@@ -345,6 +446,7 @@ public class ProjectManagerImpl implements ProjectManager {
   public Library createLibrary(String name) throws Exception {
     var library = new Library();
     library.setId(UUID.randomUUID());
+    library.setProjectId(project.get().getId());
     library.setName(name);
     library.setIsDeleted(false);
     content.get().put(library);
@@ -354,7 +456,7 @@ public class ProjectManagerImpl implements ProjectManager {
   @Override
   public Program createProgram(Library library, String name) throws Exception {
     var existingProgramOfLibrary = content.get().getProgramsOfLibrary(library.getId()).stream().findFirst();
-    var existingProgram = existingProgramOfLibrary.isPresent() ? existingProgramOfLibrary:content.get().getPrograms().stream().findFirst();
+    var existingProgram = existingProgramOfLibrary.isPresent() ? existingProgramOfLibrary : content.get().getPrograms().stream().findFirst();
 
     var program = new Program();
     program.setId(UUID.randomUUID());
@@ -363,7 +465,6 @@ public class ProjectManagerImpl implements ProjectManager {
     program.setConfig(new ProgramConfig().toString());
     program.setType(existingProgram.map(Program::getType).orElse(DEFAULT_PROGRAM_TYPE));
     program.setState(existingProgram.map(Program::getState).orElse(DEFAULT_PROGRAM_STATE));
-    program.setIntensity(existingProgram.map(Program::getIntensity).orElse(DEFAULT_INTENSITY));
     program.setTempo(existingProgram.map(Program::getTempo).orElse(DEFAULT_TEMPO));
     program.setKey(existingProgram.map(Program::getKey).orElse(DEFAULT_KEY));
     program.setIsDeleted(false);
@@ -374,7 +475,7 @@ public class ProjectManagerImpl implements ProjectManager {
   @Override
   public Instrument createInstrument(Library library, String name) throws Exception {
     var existingInstrumentOfLibrary = content.get().getInstrumentsOfLibrary(library.getId()).stream().findFirst();
-    var existingInstrument = existingInstrumentOfLibrary.isPresent() ? existingInstrumentOfLibrary:content.get().getInstruments().stream().findFirst();
+    var existingInstrument = existingInstrumentOfLibrary.isPresent() ? existingInstrumentOfLibrary : content.get().getInstruments().stream().findFirst();
 
     var instrument = new Instrument();
     instrument.setId(UUID.randomUUID());
@@ -385,7 +486,6 @@ public class ProjectManagerImpl implements ProjectManager {
     instrument.setMode(existingInstrument.map(Instrument::getMode).orElse(DEFAULT_INSTRUMENT_MODE));
     instrument.setState(existingInstrument.map(Instrument::getState).orElse(DEFAULT_INSTRUMENT_STATE));
     instrument.setVolume(existingInstrument.map(Instrument::getVolume).orElse(DEFAULT_VOLUME));
-    instrument.setIntensity(existingInstrument.map(Instrument::getIntensity).orElse(DEFAULT_INTENSITY));
     instrument.setIsDeleted(false);
     var instrumentPath = getPathPrefixToInstrumentAudio(instrument.getId());
     FileUtils.createParentDirectories(new File(instrumentPath));
@@ -399,7 +499,10 @@ public class ProjectManagerImpl implements ProjectManager {
     var project = content.get().getProject();
     if (Objects.isNull(project)) throw new NexusException("Project not found");
     var existingAudioOfInstrument = content.get().getAudiosOfInstrument(instrument.getId()).stream().findFirst();
-    var existingAudio = existingAudioOfInstrument.isPresent() ? existingAudioOfInstrument:content.get().getInstrumentAudios().stream().findFirst();
+    var existingAudioOfLibrary = existingAudioOfInstrument.isPresent() ? existingAudioOfInstrument : content.get().getInstrumentsOfLibrary(library).stream().flatMap(i -> content.get().getAudiosOfInstrument(i.getId()).stream()).findFirst();
+    var existingAudio = existingAudioOfLibrary.isPresent() ? existingAudioOfLibrary : content.get().getInstrumentAudios().stream().findFirst();
+    var existingProgramOfLibrary = content.get().getProgramsOfLibrary(library.getId()).stream().findFirst();
+    var existingProgram = existingProgramOfLibrary.isPresent() ? existingProgramOfLibrary : content.get().getPrograms().stream().findFirst();
 
     // extract the file name and extension
     Matcher matcher = ProjectPathUtils.matchPrefixNameExtension(audioFilePath);
@@ -414,7 +517,13 @@ public class ProjectManagerImpl implements ProjectManager {
     audio.setTones(existingAudio.map(InstrumentAudio::getTones).orElse(DEFAULT_INSTRUMENT_AUDIO_TONES));
     audio.setEvent(existingAudio.map(InstrumentAudio::getEvent).orElse(DEFAULT_INSTRUMENT_AUDIO_EVENT));
     audio.setIntensity(existingAudio.map(InstrumentAudio::getIntensity).orElse(DEFAULT_INTENSITY));
-    audio.setTempo(existingAudioOfInstrument.map(InstrumentAudio::getTempo).orElse(DEFAULT_TEMPO));
+    audio.setTempo(
+        existingAudioOfLibrary.map(InstrumentAudio::getTempo).orElse(
+            existingProgramOfLibrary.map(Program::getTempo).orElse(
+                existingAudio.map(InstrumentAudio::getTempo).orElse(
+                    existingProgram.map(Program::getTempo).orElse(DEFAULT_TEMPO)
+                ))
+        ));
     audio.setLoopBeats(existingAudio.map(InstrumentAudio::getLoopBeats).orElse(DEFAULT_LOOP_BEATS));
     audio.setTransientSeconds(0.0f);
     audio.setVolume(existingAudio.map(InstrumentAudio::getVolume).orElse(DEFAULT_VOLUME));
@@ -445,27 +554,20 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public void updateInstrumentAudioAndCopyWaveformFile(InstrumentAudio audio) throws Exception {
-    var fromAudio = content.get().getInstrumentAudio(audio.getId())
-      .orElseThrow(() -> new RuntimeException("Could not find Instrument Audio"));
-    var fromInstrument = content.get().getInstrument(fromAudio.getInstrumentId()).orElseThrow(() -> new NexusException("Instrument not found"));
-    var fromPath = getPathToInstrumentAudio(fromInstrument.getId(), fromAudio.getWaveformKey());
-    var matcher = ProjectPathUtils.matchPrefixNameExtension(fromPath);
-    if (!matcher.find()) return;
+  public void renameWaveformIfNecessary(UUID instrumentAudioId) throws Exception {
+    var audio = content.get().getInstrumentAudio(instrumentAudioId)
+        .orElseThrow(() -> new RuntimeException("Could not find Instrument Audio"));
+    var library = content.get().getInstrument(audio.getInstrumentId()).orElseThrow(() -> new NexusException("Instrument not found"));
+    var project = content.get().getProject();
+    var extension = ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
+    var toWaveformKey = computeWaveformKey(project.getName(), library.getName(), library.getName(), audio, extension);
+    var toPath = getPathToInstrumentAudio(library.getId(), toWaveformKey);
 
-    var toInstrument = content.get().getInstrument(audio.getInstrumentId()).orElseThrow(() -> new NexusException("Instrument not found"));
-    var toLibrary = content.get().getLibrary(toInstrument.getLibraryId()).orElseThrow(() -> new NexusException("Library not found"));
-    var toProject = content.get().getProject();
-    if (Objects.isNull(toProject)) throw new NexusException("Project not found");
-    var toWaveformKey = computeWaveformKey(toProject.getName(), toLibrary.getName(), toInstrument.getName(), audio, matcher.group(3));
-    var toPath = getPathToInstrumentAudio(toInstrument.getId(), toWaveformKey);
-
-    if (!Objects.equals(fromPath, toPath)) {
+    if (!Objects.equals(audio.getWaveformKey(), toWaveformKey)) {
+      var fromPath = getPathToInstrumentAudio(library.getId(), audio.getWaveformKey());
       FileUtils.copyFile(new File(fromPath), new File(toPath));
-      audio.setWaveformKey(toWaveformKey);
+      content.get().update(InstrumentAudio.class, instrumentAudioId, "waveformKey", toWaveformKey);
     }
-
-    content.get().put(audio);
   }
 
   @Override
@@ -767,36 +869,40 @@ public class ProjectManagerImpl implements ProjectManager {
 
       for (Instrument instrument : instruments) {
         for (InstrumentAudio audio : audios.stream()
-          .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
-          .sorted(Comparator.comparing(InstrumentAudio::getName))
-          .toList()) {
+            .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
+            .sorted(Comparator.comparing(InstrumentAudio::getName))
+            .toList()) {
           if (!Objects.equals(state.get(), ProjectState.LoadingAudio)) {
             // Workstation canceling preloading should cease resampling audio files https://www.pivotaltracker.com/story/show/186209135
             return false;
           }
           if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
-            LOG.debug("Will preload audio for instrument {} with waveform key {}", instrument.getName(), audio.getWaveformKey());
+            LOG.debug("Will preload audio for instrument \"{}\" with waveform key \"{}\"", instrument.getName(), audio.getWaveformKey());
             // Fetch via HTTP if original does not exist
             var originalCachePath = getPathToInstrumentAudio(
-              instrument.getId(),
-              audio.getWaveformKey()
+                instrument.getId(),
+                audio.getWaveformKey()
             );
 
             var remoteUrl = String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey());
-            var remoteFileSize = getRemoteFileSize(httpClient, remoteUrl);
+            var remoteFileSize = hubClientFactory.getRemoteFileSize(httpClient, remoteUrl);
+            if (remoteFileSize == FILE_SIZE_NOT_FOUND) {
+              LOG.error("File not found for instrument \"{}\" audio \"{}\" at {}", instrument.getName(), audio.getName(), remoteUrl);
+              return false;
+            }
             var localFileSize = getFileSizeIfExistsOnDisk(originalCachePath);
 
             boolean shouldDownload = false;
 
             if (localFileSize.isEmpty()) {
               shouldDownload = true;
-            } else if (localFileSize.get()!=remoteFileSize) {
+            } else if (localFileSize.get() != remoteFileSize) {
               LOG.info("File size of {} does not match remote {} - Will download {} bytes from {}", originalCachePath, remoteFileSize, remoteFileSize, remoteUrl);
               shouldDownload = true;
             }
 
             if (shouldDownload) {
-              if (!downloadRemoteFileWithRetry(httpClient, remoteUrl, originalCachePath, remoteFileSize)) {
+              if (!hubClientFactory.downloadRemoteFileWithRetry(httpClient, remoteUrl, originalCachePath, remoteFileSize)) {
                 return false;
               }
             }
@@ -825,7 +931,7 @@ public class ProjectManagerImpl implements ProjectManager {
       return false;
 
     } catch (Exception e) {
-      LOG.error("Failed to clone project!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Failed to clone project!\n{}", StringUtils.formatStackTrace(e), e);
       updateState(ProjectState.Failed);
       return false;
     }
@@ -896,71 +1002,5 @@ public class ProjectManagerImpl implements ProjectManager {
   private void updateProgress(double progress) {
     if (Objects.nonNull(onProgress))
       this.onProgress.accept(progress);
-  }
-
-  /**
-   Download a file from the given URL to the given output path, retrying some number of times
-
-   @param httpClient http client (don't close the client; only close the responses from it)
-   @param url        URL to download from
-   @param outputPath path to write to
-   @return true if the file was downloaded successfully
-   */
-  private boolean downloadRemoteFileWithRetry(CloseableHttpClient httpClient, String url, String outputPath, long expectedSize) {
-    for (int attempt = 1; attempt <= downloadAudioRetries; attempt++) {
-      try {
-        Path path = Paths.get(outputPath);
-        Files.deleteIfExists(path);
-        downloadRemoteFile(httpClient, url, outputPath);
-        long downloadedSize = Files.size(path);
-        if (downloadedSize==expectedSize) {
-          return true;
-        }
-        LOG.info("File size does not match! Attempt " + attempt + " of " + downloadAudioRetries + " to download " + url + " to " + outputPath + " failed. Expected " + expectedSize + " bytes, but got " + downloadedSize + " bytes.");
-
-      } catch (Exception e) {
-        LOG.info("Attempt " + attempt + " of " + downloadAudioRetries + " to download " + url + " to " + outputPath + " failed because " + e.getMessage());
-      }
-    }
-    return false;
-  }
-
-  /**
-   Get the size of the file at the given URL
-
-   @param httpClient http client (don't close the client; only close the responses from it)
-   @param url        url
-   @return size of the file
-   @throws Exception if the file size could not be determined
-   */
-  private long getRemoteFileSize(CloseableHttpClient httpClient, String url) throws Exception {
-    try (
-      CloseableHttpResponse response = httpClient.execute(new HttpHead(url))
-    ) {
-      return Long.parseLong(response.getFirstHeader("Content-Length").getValue());
-    } catch (Exception e) {
-      throw new NexusException(String.format("Unable to get %s", url), e);
-    }
-  }
-
-  /**
-   Download a file from the given URL to the given output path
-
-   @param httpClient http client (don't close the client; only close the responses from it)
-   @param url        url
-   @param outputPath output path
-   */
-  private void downloadRemoteFile(CloseableHttpClient httpClient, String url, String outputPath) throws IOException, NexusException {
-    try (
-      CloseableHttpResponse response = httpClient.execute(new HttpGet(url))
-    ) {
-      if (Objects.isNull(response.getEntity().getContent()))
-        throw new NexusException(String.format("Unable to write bytes to disk: %s", outputPath));
-
-      try (OutputStream toFile = FileUtils.openOutputStream(new File(outputPath))) {
-        var size = IOUtils.copy(response.getEntity().getContent(), toFile); // stores number of bytes copied
-        LOG.debug("Did write media item to disk: {} ({} bytes)", outputPath, size);
-      }
-    }
   }
 }

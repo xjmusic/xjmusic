@@ -17,7 +17,6 @@
       "tempo": 120.4,
       "type": "Main",
       "name": "leaves",
-      "intensity": 0.5,
       "config": "doPatternRestartOnChord = false",
       "isDeleted": false,
       "updatedAt": 1706076228129
@@ -30,7 +29,6 @@
       "tempo": 110.3,
       "type": "Beat",
       "name": "coconuts",
-      "intensity": 0.6,
       "config": "doPatternRestartOnChord = false",
       "isDeleted": false,
       "updatedAt": 1706076228129
@@ -87,7 +85,6 @@
       "type": "Pad",
       "state": "Published",
       "name": "Pad",
-      "intensity": 0.6,
       "config": "isAudioSelectionPersistent = true",
       "isDeleted": false,
       "volume": 1.0,
@@ -100,7 +97,6 @@
       "type": "Drum",
       "state": "Published",
       "name": "808 Drums",
-      "intensity": 0.6,
       "config": "isAudioSelectionPersistent = true",
       "isDeleted": false,
       "volume": 1.0,

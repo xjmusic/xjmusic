@@ -44,15 +44,15 @@ public interface ProjectManager {
   /**
    Clone from a Lab Project
 
-   @param access           control
-   @param labBaseUrl       of the lab
+   @param hubAccess        control
+   @param hubBaseUrl       of the lab
    @param audioBaseUrl     of the lab
    @param parentPathPrefix parent folder to the project folder
    @param projectId        in the lab
    @param projectName      of the project folder and the project
    @return true if successful
    */
-  boolean cloneFromLabProject(HubClientAccess access, String labBaseUrl, String audioBaseUrl, String parentPathPrefix, UUID projectId, String projectName);
+  boolean cloneFromLabProject(HubClientAccess hubAccess, String hubBaseUrl, String audioBaseUrl, String parentPathPrefix, UUID projectId, String projectName);
 
   /**
    Open a project from a local file
@@ -77,10 +77,26 @@ public interface ProjectManager {
   void saveProject();
 
   /**
-   Workstation has Project Cleanup option to delete unused audio files from project folder
-   https://www.pivotaltracker.com/story/show/186930458@return
+   Project Cleanup option to delete unused audio files from project folder
+   https://www.pivotaltracker.com/story/show/186930458
+
+   @return results
    */
   ProjectCleanupResults cleanupProject();
+
+  /**
+   Project Sync option to delete unused audio files from project folder
+   https://www.pivotaltracker.com/story/show/186930458
+   <p>
+   Once a project has been cloned to disk, choose Project -> Sync to update that local copy with any
+   updates from the Lab, and the Lab copy with any updates from local.
+
+   @param hubAccess    control
+   @param hubBaseUrl   of the lab
+   @param audioBaseUrl of the lab
+   @return results
+   */
+  ProjectPushResults pushProject(HubClientAccess hubAccess, String hubBaseUrl, String audioBaseUrl);
 
   /**
    Cancel the project loading
@@ -168,6 +184,12 @@ public interface ProjectManager {
 
   /**
    Create a new program
+   <p>
+   When creating a new Program, source default values from the first available
+   1. Program in the same library
+   2. any Programs in the project
+   3. defaults
+   https://www.pivotaltracker.com/story/show/187042551
 
    @param library parent containing program
    @param name    of the program
@@ -177,6 +199,12 @@ public interface ProjectManager {
 
   /**
    Create a new instrument
+   <p>
+   When creating a new Instrument, source default values from the first available
+   1. Instrument in the same library
+   2. any Instruments in the project
+   3. defaults
+   https://www.pivotaltracker.com/story/show/187042551
 
    @param library parent containing instrument
    @param name    of the instrument
@@ -186,6 +214,15 @@ public interface ProjectManager {
 
   /**
    Create a new instrument audio
+   <p>
+   When creating a new Instrument Audio, source default values from the first available
+   1. Instrument Audios in the same instrument
+   2. Instrument Audios in the same library
+   3. Programs in the same library
+   4. any Instrument Audios in the project
+   5. any Programs in the project
+   6. defaults
+   https://www.pivotaltracker.com/story/show/187042551
 
    @param instrument    in which to create an audio
    @param audioFilePath to import audio from disk
@@ -212,9 +249,9 @@ public interface ProjectManager {
   Instrument moveInstrument(UUID id, UUID libraryId) throws Exception;
 
   /**
-   Copy the instrument audio waveform from one audio to another@param audio   new instrument audio
+   Copy the instrument audio waveform from one audio to another@param instrumentAudioId new instrument audio
    */
-  void updateInstrumentAudioAndCopyWaveformFile(InstrumentAudio audio) throws Exception;
+  void renameWaveformIfNecessary(UUID instrumentAudioId) throws Exception;
 
   /**
    Clone a Template from a source template by id

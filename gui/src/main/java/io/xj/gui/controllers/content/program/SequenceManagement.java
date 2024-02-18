@@ -47,7 +47,7 @@ public class SequenceManagement {
   private void createNewSequence() {
     try {
       ProgramSequence newProgramSequence = new ProgramSequence(UUID.randomUUID(), programEditorController.programId.get(), "New Sequence", programEditorController.sequenceKey.getText(),
-        programEditorController.intensityChooser.getValue().floatValue(), programEditorController.sequenceTotalChooser.valueProperty().get().shortValue());
+        1.0f, programEditorController.sequenceTotalChooser.valueProperty().get().shortValue());
       projectService.getContent().put(newProgramSequence);
       programEditorController.programSequenceObservableList.add(newProgramSequence);
       programEditorController.activeProgramSequenceItem.set(newProgramSequence);

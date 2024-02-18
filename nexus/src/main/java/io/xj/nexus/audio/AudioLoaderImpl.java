@@ -30,11 +30,11 @@ public class AudioLoaderImpl implements AudioLoader {
   public AudioInMemory load(InstrumentAudio audio) throws IOException, UnsupportedAudioFileException {
     String path = projectManager.getPathToInstrumentAudio(audio.getInstrumentId(), audio.getWaveformKey());
     AudioFormat format = AudioSystem.getAudioFileFormat(new File(path)).getFormat();
-    return load(audio.getId(), path, format);
+    return load(audio, path, format);
   }
 
   @Override
-  public AudioInMemory load(UUID id, String path, AudioFormat format) throws IOException, UnsupportedAudioFileException {
+  public AudioInMemory load(InstrumentAudio instrumentAudio, String path, AudioFormat format) throws IOException, UnsupportedAudioFileException {
     try (
       var fileInputStream = FileUtils.openInputStream(new File(path));
       var bufferedInputStream = new BufferedInputStream(fileInputStream);
@@ -81,7 +81,7 @@ public class AudioLoaderImpl implements AudioLoader {
           sf++;
         }
       }
-      return new AudioInMemory(id, format, path, data);
+      return new AudioInMemory(instrumentAudio, format, path, data);
 
     } catch (UnsupportedAudioFileException | FormatException e) {
       throw new IOException(String.format("Failed to read and compute float array for file %s", path), e);

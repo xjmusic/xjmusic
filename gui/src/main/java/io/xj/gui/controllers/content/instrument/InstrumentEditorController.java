@@ -16,6 +16,7 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
+import io.xj.nexus.project.ProjectPathUtils;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.FloatProperty;
@@ -58,9 +59,9 @@ public class InstrumentEditorController extends BrowserController {
   private final ObjectProperty<InstrumentMode> mode = new SimpleObjectProperty<>(null);
   private final ObjectProperty<InstrumentState> state = new SimpleObjectProperty<>(null);
   private final FloatProperty volume = new SimpleFloatProperty(0);
-  private final FloatProperty intensity = new SimpleFloatProperty(0);
   private final StringProperty config = new SimpleStringProperty("");
   private final ObservableList<InstrumentAudio> audios = FXCollections.observableList(new ArrayList<>());
+  private final StringProperty initialImportAudioDirectory = new SimpleStringProperty();
 
   @FXML
   protected SplitPane container;
@@ -73,9 +74,6 @@ public class InstrumentEditorController extends BrowserController {
 
   @FXML
   protected TextField fieldVolume;
-
-  @FXML
-  protected TextField fieldIntensity;
 
   @FXML
   protected TextArea fieldConfig;
@@ -96,11 +94,11 @@ public class InstrumentEditorController extends BrowserController {
   protected TableView<InstrumentAudio> audiosTable;
 
   public InstrumentEditorController(
-    @Value("classpath:/views/content/instrument/instrument-editor.fxml") Resource fxml,
-    ApplicationContext ac,
-    ThemeService themeService,
-    ProjectService projectService,
-    UIStateService uiStateService
+      @Value("classpath:/views/content/instrument/instrument-editor.fxml") Resource fxml,
+      ApplicationContext ac,
+      ThemeService themeService,
+      ProjectService projectService,
+      UIStateService uiStateService
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
   }
@@ -108,14 +106,13 @@ public class InstrumentEditorController extends BrowserController {
   @Override
   public void onStageReady() {
     var visible = projectService.isStateReadyProperty()
-      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
-      .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.InstrumentEditor));
+        .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
+        .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.InstrumentEditor));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
     fieldName.textProperty().bindBidirectional(name);
     fieldVolume.textProperty().bindBidirectional(volume, new NumberStringConverter());
-    fieldIntensity.textProperty().bindBidirectional(intensity, new NumberStringConverter());
     fieldConfig.textProperty().bindBidirectional(config);
     fieldConfig.prefHeightProperty().bind(fieldsContainer.heightProperty().subtract(100));
     choiceType.setItems(FXCollections.observableArrayList(InstrumentType.values()));
@@ -146,11 +143,6 @@ public class InstrumentEditorController extends BrowserController {
         update("volume", volume.get());
       }
     });
-    fieldIntensity.focusedProperty().addListener((o, ov, v) -> {
-      if (!v) {
-        update("intensity", intensity.get());
-      }
-    });
     choiceType.valueProperty().addListener((o, ov, v) -> update("type", type.get()));
     choiceMode.valueProperty().addListener((o, ov, v) -> update("mode", mode.get()));
     choiceState.valueProperty().addListener((o, ov, v) -> update("state", state.get()));
@@ -179,10 +171,6 @@ public class InstrumentEditorController extends BrowserController {
     tempoColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(Float.toString(row.getValue().getTempo())));
     audiosTable.getColumns().add(tempoColumn);
 
-    TableColumn<InstrumentAudio, String> intensityColumn = new TableColumn<>("Intensity");
-    intensityColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(Float.toString(row.getValue().getIntensity())));
-    audiosTable.getColumns().add(intensityColumn);
-
     TableColumn<InstrumentAudio, String> transientSecondsColumn = new TableColumn<>("Transient (Seconds)");
     transientSecondsColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(Float.toString(row.getValue().getTransientSeconds())));
     audiosTable.getColumns().add(transientSecondsColumn);
@@ -192,23 +180,23 @@ public class InstrumentEditorController extends BrowserController {
     audiosTable.getColumns().add(loopBeatsColumn);
 
     audiosTable.setOnMousePressed(
-      event -> {
-        if (event.isPrimaryButtonDown() && event.getClickCount()==2) {
-          if (Objects.nonNull(audiosTable.getSelectionModel().getSelectedItem()))
-            Platform.runLater(() -> uiStateService.editInstrumentAudio(audiosTable.getSelectionModel().getSelectedItem().getId()));
-        }
-      });
+        event -> {
+          if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
+            if (Objects.nonNull(audiosTable.getSelectionModel().getSelectedItem()))
+              Platform.runLater(() -> uiStateService.editInstrumentAudio(audiosTable.getSelectionModel().getSelectedItem().getId()));
+          }
+        });
 
     addActionsColumn(InstrumentAudio.class, audiosTable,
-      (InstrumentAudio audio) -> uiStateService.editInstrumentAudio(audio.getId()),
-      null,
-      null,
-      audio -> {
-        if (Objects.nonNull(audio)) {
-          if (showConfirmationDialog("Delete Audio?", "This action cannot be undone.", String.format("Are you sure you want to delete the Audio \"%s\"?", audio.getName())))
-            projectService.deleteContent(audio);
-        }
-      });
+        (InstrumentAudio audio) -> uiStateService.editInstrumentAudio(audio.getId()),
+        null,
+        null,
+        audio -> {
+          if (Objects.nonNull(audio)) {
+            if (showConfirmationDialog("Delete Audio?", "This action cannot be undone.", String.format("Are you sure you want to delete the Audio \"%s\"?", audio.getName())))
+              projectService.deleteContent(audio);
+          }
+        });
 
     projectService.addProjectUpdateListener(InstrumentAudio.class, this::setupAudiosTable);
 
@@ -226,9 +214,10 @@ public class InstrumentEditorController extends BrowserController {
   @FXML
   private void handlePressImportAudio(ActionEvent ignored) {
     var instrument = projectService.getContent().getInstrument(instrumentId.get())
-      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
-    var audioFilePath = ProjectUtils.chooseAudioFile(container.getScene().getWindow(), "Choose audio file");
+        .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
+    var audioFilePath = ProjectUtils.chooseAudioFile(container.getScene().getWindow(), "Choose audio file", initialImportAudioDirectory.get());
     if (Objects.isNull(audioFilePath)) return;
+    initialImportAudioDirectory.set(ProjectPathUtils.getPrefix(audioFilePath));
     try {
       var audio = projectService.createInstrumentAudio(instrument, audioFilePath);
       uiStateService.editInstrumentAudio(audio.getId());
@@ -240,7 +229,7 @@ public class InstrumentEditorController extends BrowserController {
   @FXML
   private void handlePressOpenAudioFolder() {
     var instrument = projectService.getContent().getInstrument(instrumentId.get())
-      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
+        .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
     var audioFolder = projectService.getPathPrefixToInstrumentAudio(instrument.getId());
     if (Objects.isNull(audioFolder)) return;
     ProjectUtils.openDesktopPath(audioFolder);
@@ -253,7 +242,7 @@ public class InstrumentEditorController extends BrowserController {
     if (uiStateService.currentInstrumentProperty().isNull().get())
       return;
     var instrument = projectService.getContent().getInstrument(uiStateService.currentInstrumentProperty().get().getId())
-      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
+        .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
     LOG.info("Will edit Instrument \"{}\"", instrument.getName());
     this.instrumentId.set(instrument.getId());
     this.name.set(instrument.getName());
@@ -262,7 +251,6 @@ public class InstrumentEditorController extends BrowserController {
     this.mode.set(instrument.getMode());
     this.state.set(instrument.getState());
     this.volume.set(instrument.getVolume());
-    this.intensity.set(instrument.getIntensity());
     setupAudiosTable();
   }
 
@@ -277,7 +265,7 @@ public class InstrumentEditorController extends BrowserController {
       try {
         projectService.update(Instrument.class, instrumentId.get(), attribute, value);
       } catch (Exception e) {
-        LOG.error("Could not update Instrument " + attribute, e);
+        LOG.error("Could not update Instrument " + attribute, StringUtils.formatStackTrace(e));
       }
     }
   }
@@ -289,7 +277,7 @@ public class InstrumentEditorController extends BrowserController {
     if (uiStateService.currentInstrumentProperty().isNull().get())
       return;
     audios.setAll(projectService.getContent().getInstrumentAudios().stream()
-      .filter(audio -> Objects.equals(uiStateService.currentInstrumentProperty().get().getId(), audio.getInstrumentId()))
-      .toList());
+        .filter(audio -> Objects.equals(uiStateService.currentInstrumentProperty().get().getId(), audio.getInstrumentId()))
+        .toList());
   }
 }

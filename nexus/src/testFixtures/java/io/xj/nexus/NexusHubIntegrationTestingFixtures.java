@@ -120,7 +120,7 @@ public class NexusHubIntegrationTestingFixtures {
     return projectUser;
   }
 
-  public static Program buildProgram(Library library, ProgramType type, ProgramState state, String name, String key, float tempo, float intensity) {
+  public static Program buildProgram(Library library, ProgramType type, ProgramState state, String name, String key, float tempo) {
     var program = new Program();
     program.setId(UUID.randomUUID());
     program.setLibraryId(library.getId());
@@ -129,11 +129,10 @@ public class NexusHubIntegrationTestingFixtures {
     program.setName(name);
     program.setKey(key);
     program.setTempo(tempo);
-    program.setIntensity(intensity);
     return program;
   }
 
-  public static Program buildProgram(ProgramType type, String key, float tempo, float intensity) {
+  public static Program buildProgram(ProgramType type, String key, float tempo) {
     var program = new Program();
     program.setId(UUID.randomUUID());
     program.setLibraryId(UUID.randomUUID());
@@ -142,7 +141,6 @@ public class NexusHubIntegrationTestingFixtures {
     program.setName(String.format("Test %s-Program", type.toString()));
     program.setKey(key);
     program.setTempo(tempo);
-    program.setIntensity(intensity);
     return program;
   }
 
@@ -473,7 +471,6 @@ public class NexusHubIntegrationTestingFixtures {
     instrument.setType(type);
     instrument.setMode(mode);
     instrument.setState(state);
-    instrument.setIntensity(0.6f);
     instrument.setName(name);
     return instrument;
   }

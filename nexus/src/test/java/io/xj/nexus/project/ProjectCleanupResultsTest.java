@@ -2,7 +2,7 @@ package io.xj.nexus.project;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ProjectCleanupResultsTest {
 
@@ -10,50 +10,50 @@ class ProjectCleanupResultsTest {
   void addFoldersDeleted() {
     var subject = new ProjectCleanupResults();
 
-    subject.addFoldersDeleted(3);
+    subject.addFolders(3);
 
-    assertEquals(3, subject.getFolderDeleted());
+    assertEquals(3, subject.getFolders());
   }
 
   @Test
   void addFilesDeleted() {
     var subject = new ProjectCleanupResults();
 
-    subject.addFilesDeleted(3);
+    subject.addFiles(3);
 
-    assertEquals(3, subject.getFilesDeleted());
+    assertEquals(3, subject.getFiles());
   }
 
   @Test
   void incrementFoldersDeleted() {
     var subject = new ProjectCleanupResults(14, 52);
 
-    subject.incrementFoldersDeleted();
+    subject.incrementFolders();
 
-    assertEquals(15, subject.getFolderDeleted());
+    assertEquals(15, subject.getFolders());
   }
 
   @Test
   void incrementFilesDeleted() {
     var subject = new ProjectCleanupResults(14, 52);
 
-    subject.incrementFilesDeleted();
+    subject.incrementFiles();
 
-    assertEquals(53, subject.getFilesDeleted());
+    assertEquals(53, subject.getFiles());
   }
 
   @Test
   void getFolderDeleted() {
     var subject = new ProjectCleanupResults(14, 52);
 
-    assertEquals(14, subject.getFolderDeleted());
+    assertEquals(14, subject.getFolders());
   }
 
   @Test
   void getFilesDeleted() {
     var subject = new ProjectCleanupResults(14, 52);
 
-    assertEquals(52, subject.getFilesDeleted());
+    assertEquals(52, subject.getFiles());
   }
 
   @Test

@@ -65,13 +65,7 @@
           <Insets left="5.0" />
         </padding>
       </Label>
-      <Spinner fx:id="tempoChooser" editable="true" prefHeight="25.0" prefWidth="111.0" />
-      <Label layoutX="897.0" layoutY="13.0" prefHeight="25.0" prefWidth="73.0" text="INTENSITY">
-        <padding>
-          <Insets left="5.0" />
-        </padding>
-      </Label>
-      <Spinner fx:id="intensityChooser" editable="true" layoutX="953.0" layoutY="13.0" prefHeight="25.0" prefWidth="113.0" />
+      <Spinner fx:id="tempoChooser" editable="true" prefHeight="25.0" prefWidth="111.0"/>
     </HBox>
     <HBox alignment="CENTER_LEFT" minHeight="-Infinity" minWidth="-Infinity" prefHeight="49.0" prefWidth="1231.0" spacing="5.0" VBox.vgrow="ALWAYS">
       <padding>

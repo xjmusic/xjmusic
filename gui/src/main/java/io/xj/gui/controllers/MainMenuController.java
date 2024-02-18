@@ -15,6 +15,7 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.ProjectUtils;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -67,6 +68,9 @@ public class MainMenuController extends ProjectController {
 
   @FXML
   protected MenuItem itemProjectSave;
+
+  @FXML
+  protected MenuItem itemProjectPush;
 
   @FXML
   protected MenuItem itemProjectCleanup;
@@ -185,6 +189,7 @@ public class MainMenuController extends ProjectController {
     var hasNoProject = uiStateService.hasCurrentProjectProperty().not();
     itemProjectClose.disableProperty().bind(hasNoProject);
     itemProjectSave.disableProperty().bind(hasNoProject);
+    itemProjectPush.disableProperty().bind(hasNoProject.or(labService.isAuthenticated().not()));
     itemProjectCleanup.disableProperty().bind(hasNoProject);
 
     projectService.recentProjectsProperty().addListener((ChangeListener<? super ObservableList<ProjectDescriptor>>) (o, ov, value) -> updateRecentProjectsMenu());
@@ -209,6 +214,8 @@ public class MainMenuController extends ProjectController {
     labFeatureContainer.translateXProperty().bind(container.widthProperty().subtract(labFeatureContainer.widthProperty()).divide(2));
     labFeatureContainer.visibleProperty().bind(uiStateService.isLabFeatureEnabledProperty());
     labFeatureContainer.managedProperty().bind(uiStateService.isLabFeatureEnabledProperty());
+
+    itemProjectPush.visibleProperty().bind(uiStateService.isLabFeatureEnabledProperty());
   }
 
   @Override
@@ -244,14 +251,16 @@ public class MainMenuController extends ProjectController {
         container.getScene().getWindow(), "Choose project", projectService.basePathPrefixProperty().getValue()
       );
       if (Objects.nonNull(projectFilePath)) {
-        projectService.openProject(projectFilePath);
+        fabricationService.cancel();
+        Platform.runLater(() -> projectService.openProject(projectFilePath));
       }
     });
   }
 
   @FXML
   protected void handleProjectClose() {
-    projectService.closeProject(null);
+    fabricationService.cancel();
+    Platform.runLater(() -> projectService.closeProject(null));
   }
 
   @FXML
@@ -263,6 +272,11 @@ public class MainMenuController extends ProjectController {
   @FXML
   protected void handleProjectSave() {
     projectService.saveProject(null);
+  }
+
+  @FXML
+  protected void handleProjectPush() {
+    projectService.pushProject();
   }
 
   @FXML
@@ -351,7 +365,10 @@ public class MainMenuController extends ProjectController {
     menuOpenRecent.getItems().clear();
     for (ProjectDescriptor project : projectService.recentProjectsProperty().getValue()) {
       MenuItem menuItem = new MenuItem(project.projectFilename());
-      menuItem.setOnAction(event -> projectService.openProject(project.projectFilePath()));
+      menuItem.setOnAction(event -> {
+        fabricationService.cancel();
+        Platform.runLater(() -> projectService.openProject(project.projectFilePath()));
+      });
       menuOpenRecent.getItems().add(menuItem);
     }
   }
@@ -373,7 +390,7 @@ public class MainMenuController extends ProjectController {
    @return the accelerator
    */
   private KeyCombination computeMainActionButtonAccelerator() {
-    return KeyCombination.valueOf("SHORTCUT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
+    return KeyCombination.valueOf("SHORTCUT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B":"SPACE"));
   }
 
   /**
@@ -383,6 +400,6 @@ public class MainMenuController extends ProjectController {
    @return the accelerator
    */
   private KeyCombination computeFabricationFollowButtonAccelerator() {
-    return KeyCombination.valueOf("SHORTCUT+ALT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
+    return KeyCombination.valueOf("SHORTCUT+ALT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B":"SPACE"));
   }
 }

@@ -2,17 +2,17 @@
 
 package io.xj.nexus.http;
 
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 
 public class HttpClientProviderImpl implements HttpClientProvider {
   final PoolingHttpClientConnectionManager cm;
   final int httpClientPoolMaxTotal = 200;
   final int httpClientPoolMaxPerRoute = 20;
 
-  public HttpClientProviderImpl(
-  ) {
+  public HttpClientProviderImpl() {
     cm = new PoolingHttpClientConnectionManager();
     cm.setMaxTotal(httpClientPoolMaxTotal);
     cm.setDefaultMaxPerRoute(httpClientPoolMaxPerRoute);
@@ -20,9 +20,7 @@ public class HttpClientProviderImpl implements HttpClientProvider {
 
   @Override
   public CloseableHttpClient getClient() {
-    return HttpClients.custom()
-      .setConnectionManager(cm)
-      .build();
+    return HttpClients.custom().setConnectionManager(cm).build();
   }
 
 }

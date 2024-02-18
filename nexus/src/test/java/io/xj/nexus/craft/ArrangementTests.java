@@ -27,7 +27,6 @@ import io.xj.nexus.NexusTopology;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
@@ -38,7 +37,6 @@ import jakarta.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,8 +86,6 @@ public class ArrangementTests extends YamlTest {
   );
   final Logger LOG = LoggerFactory.getLogger(YamlTest.class);
   // this is how we provide content for fabrication
-  @Mock
-  public HubClient hubClient;
   FabricatorFactory fabrication;
   NexusEntityStore store;
   Fabricator fabricator;
@@ -252,7 +248,7 @@ FUTURE goal
     var project1 = buildProject("fish");
     Template template1 = buildTemplate(project1, "Test Template 1", "test1");
     var library1 = buildLibrary(project1, "palm tree");
-    mainProgram1 = buildProgram(library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 60.0f, 0.6f); // 60 BPM such that 1 beat = 1 second
+    mainProgram1 = buildProgram(library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 60.0f); // 60 BPM such that 1 beat = 1 second
     chain = store.put(NexusIntegrationTestingFixtures.buildChain(template1));
 
     // prepare list of all entities to return from Hub

@@ -323,7 +323,7 @@ public class InstrumentAudioEditorController extends BrowserController {
       try {
         projectService.update(InstrumentAudio.class, instrumentAudioId.get(), attribute, value);
       } catch (Exception e) {
-        LOG.error("Could not update InstrumentAudio " + attribute, e);
+        LOG.error("Could not update InstrumentAudio " + attribute, StringUtils.formatStackTrace(e));
       }
     }
   }
@@ -414,7 +414,7 @@ public class InstrumentAudioEditorController extends BrowserController {
       );
       return;
     }
-    if (audioInMemory.isNull().get() || !audioInMemory.get().id().equals(audio.getId())) try {
+    if (audioInMemory.isNull().get() || audioInMemory.get().isDifferent(audio)) try {
       audioInMemory.set(audioLoader.load(audio));
       LOG.info("Loaded audio file \"{}\" with {} channels and {} frames", audioInMemory.get().format(), audioInMemory.get().format().getChannels(), audioInMemory.get().data().length);
     } catch (Exception e) {

@@ -9,6 +9,8 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.json.JsonProvider;
 import io.xj.hub.json.JsonProviderImpl;
+import io.xj.hub.jsonapi.JsonapiPayloadFactory;
+import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
@@ -25,6 +27,8 @@ import io.xj.nexus.audio.AudioCacheImpl;
 import io.xj.nexus.audio.AudioLoader;
 import io.xj.nexus.audio.AudioLoaderImpl;
 import io.xj.nexus.http.HttpClientProvider;
+import io.xj.nexus.hub_client.HubClientFactory;
+import io.xj.nexus.hub_client.HubClientFactoryImpl;
 import io.xj.nexus.mixer.ActiveAudio;
 import io.xj.nexus.mixer.AudioFileWriter;
 import io.xj.nexus.mixer.AudioFileWriterImpl;
@@ -86,7 +90,7 @@ public class DemoIT {
   static final Project project = buildProject();
   static final Template template = buildTemplate(project, "Demo");
   static final Chain chain = buildChain(template);
-  static final Program program = buildProgram(ProgramType.Beat, "C", TEMPO, 1);
+  static final Program program = buildProgram(ProgramType.Beat, "C", TEMPO);
   static final ProgramSequence sequence = buildProgramSequence(program, 4, "Demo", 1.0f, "C");
   static final ProgramVoice voice = buildProgramVoice(program, InstrumentType.Drum, "Demo Beat");
   static final ProgramVoiceTrack track = buildProgramVoiceTrack(voice, "Demo Beat");
@@ -142,7 +146,9 @@ public class DemoIT {
     Files.createDirectory(Paths.get(contentStoragePathPrefix, "instrument"));
     JsonProvider jsonProvider = new JsonProviderImpl();
     EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
-    projectManager = new ProjectManagerImpl(httpClientProvider, jsonProvider, entityFactory, 3);
+    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    HubClientFactory hubClientFactory = new HubClientFactoryImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory, 3);
+    projectManager = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory);
     projectManager.setProjectPathPrefix(contentStoragePathPrefix);
     instrumentPathPrefix = Files.createDirectory(Paths.get(contentStoragePathPrefix, "instrument", instrument.getId().toString())).toAbsolutePath().toString();
     audioById.values().forEach(audio -> {
