@@ -45,7 +45,7 @@
             </AnchorPane>
             <HBox spacing="5.0" styleClass="voice-pattern-container" VBox.vgrow="ALWAYS">
 
-                <Button fx:id="searchPatternDropDown" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="26.0" prefWidth="31.0" text=" ">
+                <Button fx:id="searchPattern" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="26.0" prefWidth="31.0" text=" ">
                     <graphic>
                         <ImageView fitHeight="16.0" fitWidth="19.0" translateX="-1.0">
                             <image>
