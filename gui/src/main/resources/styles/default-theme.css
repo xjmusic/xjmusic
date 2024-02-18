@@ -512,4 +512,18 @@
   -fx-background-color: transparent;
   -fx-text-fill: white;
 }
-
+.voice-container{
+  -fx-background-color:#434343 ;
+}
+.voice-pattern-container{
+  -fx-background-color:#4E4E4E ;
+}
+.edit-mode-container{
+  -fx-background-color: #101010;
+}
+.track-container{
+  -fx-background-color:#333333 ;
+}
+.track-controls-container{
+  -fx-background-color:#4E4E4E ;
+}

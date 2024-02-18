@@ -65,7 +65,13 @@
           <Insets left="5.0" />
         </padding>
       </Label>
-      <Spinner fx:id="tempoChooser" editable="true" prefHeight="25.0" prefWidth="111.0"/>
+      <Spinner fx:id="tempoChooser" editable="true" prefHeight="25.0" prefWidth="111.0" />
+      <Label layoutX="897.0" layoutY="13.0" prefHeight="25.0" prefWidth="73.0" text="INTENSITY">
+        <padding>
+          <Insets left="5.0" />
+        </padding>
+      </Label>
+      <Spinner fx:id="intensityChooser" editable="true" layoutX="953.0" layoutY="13.0" prefHeight="25.0" prefWidth="113.0" />
     </HBox>
     <HBox alignment="CENTER_LEFT" minHeight="-Infinity" minWidth="-Infinity" prefHeight="49.0" prefWidth="1231.0" spacing="5.0" VBox.vgrow="ALWAYS">
       <padding>
@@ -89,28 +95,28 @@
     </HBox>
   </VBox>
  <HBox alignment="CENTER_LEFT" prefHeight="37.0" prefWidth="1231.0" spacing="5.0" styleClass="sequence-management-control-bar">
-     <Group fx:id="gridAndZoomGroup">
+      <Group fx:id="gridAndZoomGroup">
+         <children>
          <Label fx:id="gridLabel" prefHeight="30.0" prefWidth="48.0" text="GRID:">
-             <font>
-                 <Font size="14.0"/>
-             </font>
-             <padding>
-                 <Insets left="5.0"/>
-             </padding>
+           <font>
+             <Font size="14.0" />
+           </font>
+           <padding>
+             <Insets left="5.0" />
+           </padding>
          </Label>
-         <ComboBox fx:id="gridChooser" focusTraversable="false" layoutX="53.33333206176758" layoutY="0.6666665077209473"
-                   prefHeight="28.0" prefWidth="73.0"/>
+         <ComboBox fx:id="gridChooser" focusTraversable="false" layoutX="53.33333206176758" layoutY="0.6666665077209473" prefHeight="28.0" prefWidth="73.0" />
          <Label layoutX="135.0" prefHeight="30.0" prefWidth="63.0" text="Zoom:">
-             <font>
-                 <Font size="14.0"/>
-             </font>
-             <padding>
-                 <Insets left="5.0"/>
-             </padding>
+           <font>
+             <Font size="14.0" />
+           </font>
+           <padding>
+             <Insets left="5.0" />
+           </padding>
          </Label>
-         <ComboBox fx:id="zoomChooser" layoutX="200.6666717529297" layoutY="0.6666665077209473" prefHeight="28.0"
-                   prefWidth="73.0"/>
-     </Group>
+         <ComboBox fx:id="zoomChooser" layoutX="200.6666717529297" layoutY="0.6666665077209473" prefHeight="28.0" prefWidth="73.0" />
+         </children>
+      </Group>
    <ToggleButton fx:id="snapButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" text="Snap" />
    <Label alignment="CENTER_RIGHT" layoutX="10.0" layoutY="14.0" prefHeight="30.0" prefWidth="97.0" text="Sequence :">
      <font>
@@ -134,84 +140,111 @@
        </ImageView>
      </graphic>
    </Button>
-     <Group>
-         <Group fx:id="sequenceItemGroup">
-             <TextField fx:id="sequenceName" layoutY="5.333333492279053" prefHeight="27.0" prefWidth="173.0"/>
-             <Label alignment="CENTER_RIGHT" layoutX="178.66668701171875" layoutY="4.0" prefHeight="30.0"
-                    prefWidth="67.0" text="TOTAL :">
+      <Group>
+         <children>
+            <Group fx:id="sequenceItemGroup">
+               <children>
+               <TextField fx:id="sequenceName" layoutY="5.333333492279053" prefHeight="27.0" prefWidth="173.0" />
+               <Label alignment="CENTER_RIGHT" layoutX="178.66668701171875" layoutY="4.0" prefHeight="30.0" prefWidth="67.0" text="TOTAL :">
                  <font>
-                     <Font size="14.0"/>
+                   <Font size="14.0" />
                  </font>
                  <padding>
-                     <Insets left="2.0"/>
+                   <Insets left="2.0" />
                  </padding>
-             </Label>
-             <StackPane layoutX="251.33331298828125" prefHeight="37.0" prefWidth="103.0">
-                 <Spinner fx:id="sequenceTotalChooser" editable="true" prefHeight="29.0" prefWidth="119.0"/>
+               </Label>
+               <StackPane layoutX="251.33331298828125" prefHeight="37.0" prefWidth="103.0">
+                 <Spinner fx:id="sequenceTotalChooser" editable="true" prefHeight="29.0" prefWidth="119.0" />
                  <Label fx:id="sequenceTotalLabel" prefHeight="29.0" prefWidth="103.0" text="16">
-                     <padding>
-                         <Insets left="5.0"/>
-                     </padding>
+                   <padding>
+                     <Insets left="5.0" />
+                   </padding>
                  </Label>
-             </StackPane>
-             <Label alignment="CENTER_RIGHT" layoutX="360.0" layoutY="4.0" prefHeight="30.0" prefWidth="55.0"
-                    text="KEY :">
+               </StackPane>
+               <Label alignment="CENTER_RIGHT" layoutX="360.0" layoutY="4.0" prefHeight="30.0" prefWidth="55.0" text="KEY :">
                  <font>
-                     <Font size="14.0"/>
+                   <Font size="14.0" />
                  </font>
                  <padding>
-                     <Insets left="5.0"/>
+                   <Insets left="5.0" />
                  </padding>
-             </Label>
-             <TextField fx:id="sequenceKey" layoutX="420.66668701171875" layoutY="5.333333492279053"
-                        prefHeight="27.0" prefWidth="40.0" text="C"/>
-             <Label alignment="CENTER_RIGHT" layoutX="466.0" layoutY="4.0" prefHeight="30.0" prefWidth="85.0"
-                    text="INTENSITY :">
+               </Label>
+               <TextField fx:id="sequenceKey" layoutX="420.66668701171875" layoutY="5.333333492279053" prefHeight="27.0" prefWidth="40.0" text="C" />
+               <Label alignment="CENTER_RIGHT" layoutX="466.0" layoutY="4.0" prefHeight="30.0" prefWidth="85.0" text="INTENSITY :">
                  <font>
-                     <Font size="14.0"/>
+                   <Font size="14.0" />
                  </font>
                  <padding>
-                     <Insets left="5.0"/>
+                   <Insets left="5.0" />
                  </padding>
-             </Label>
-             <StackPane layoutX="556.6666259765625" prefHeight="37.0" prefWidth="90.0">
-                 <Spinner fx:id="sequenceIntensityChooser" editable="true" prefHeight="29.0" prefWidth="119.0"/>
+               </Label>
+               <StackPane layoutX="556.6666259765625" prefHeight="37.0" prefWidth="90.0">
+                 <Spinner fx:id="sequenceIntensityChooser" editable="true" prefHeight="29.0" prefWidth="119.0" />
                  <Label fx:id="sequenceIntensityLabel" prefHeight="29.0" prefWidth="119.0" text="0.6">
-                     <padding>
-                         <Insets left="5.0"/>
-                     </padding>
+                   <padding>
+                     <Insets left="5.0" />
+                   </padding>
                  </Label>
-             </StackPane>
-         </Group>
-         <Label fx:id="noSequenceLabel" layoutX="4.3333282470703125" layoutY="5.333333492279053" prefHeight="27.0"
-                prefWidth="219.0" text="NO SEQUENCE">
-             <font>
-                 <Font name="System Bold Italic" size="12.0"/>
-             </font>
-         </Label>
-     </Group>
+               </StackPane>
+               </children>
+            </Group>
+            <Label fx:id="noSequenceLabel" layoutX="4.3333282470703125" layoutY="5.333333492279053" prefHeight="27.0" prefWidth="219.0" text="NO SEQUENCE">
+               <font>
+                  <Font name="System Bold Italic" size="12.0" />
+               </font>
+            </Label>
+         </children>
+      </Group>
  </HBox>
-    <ScrollPane fitToHeight="true" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0"
-                VBox.vgrow="ALWAYS">
-        <HBox fx:id="bindViewParentContainer" alignment="CENTER_LEFT">
-            <VBox fx:id="labelHolder" minWidth="-Infinity" prefHeight="312.0" prefWidth="106.0">
-                <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-                       prefHeight="17.0" prefWidth="107.0" styleClass="bind-mode-label" text="OFFSET"
-                       textFill="GREY" VBox.vgrow="ALWAYS">
-                    <font>
-                        <Font name="System Bold" size="12.0"/>
-                    </font>
-                </Label>
-                <Label alignment="CENTER" contentDisplay="RIGHT" minWidth="-Infinity" prefHeight="37.0"
-                       prefWidth="72.0" styleClass="sequence-memes-label" text="SEQUENCES + MEMES"
-                       textAlignment="CENTER" textFill="GREY" wrapText="true" VBox.vgrow="ALWAYS">
-                    <font>
-                        <Font name="System Bold" size="12.0"/>
-                    </font>
-                </Label>
-            </VBox>
-        </HBox>
-    </ScrollPane>
+   <StackPane VBox.vgrow="ALWAYS">
+      <children>
+         <ScrollPane fx:id="bindModeScrollPane" fitToHeight="true" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0">
+            <content>
+               <HBox fx:id="bindViewParentContainer" alignment="CENTER_LEFT">
+                  <children>
+                     <VBox fx:id="labelHolder" minWidth="-Infinity" prefHeight="312.0" prefWidth="106.0">
+                        <children>
+                           <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="17.0" prefWidth="107.0" styleClass="bind-mode-label" text="OFFSET" textFill="GREY" VBox.vgrow="ALWAYS">
+                              <font>
+                                 <Font name="System Bold" size="12.0" />
+                              </font>
+                           </Label>
+                           <Label alignment="CENTER" contentDisplay="RIGHT" minWidth="-Infinity" prefHeight="37.0" prefWidth="72.0" styleClass="sequence-memes-label" text="SEQUENCES + MEMES" textAlignment="CENTER" textFill="GREY" wrapText="true" VBox.vgrow="ALWAYS">
+                              <font>
+                                 <Font name="System Bold" size="12.0" />
+                              </font>
+                           </Label>
+                        </children>
+                     </VBox>
+                  </children>
+               </HBox>
+            </content>
+         </ScrollPane>
+         <ScrollPane fx:id="editModeScrollPane" fitToHeight="true" fitToWidth="true" styleClass="program-editor-scroll-pane" StackPane.alignment="CENTER">
+            <content>
+               <VBox fx:id="editModeContainer" prefHeight="200.0" prefWidth="100.0" spacing="2.0" styleClass="edit-mode-container">
+                  <children>
+                     <Button fx:id="editModeAddButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="33.0" prefWidth="1231.0" VBox.vgrow="ALWAYS">
+                        <graphic>
+                           <ImageView fitHeight="23.0" fitWidth="23.0">
+                              <image>
+                                 <Image url="@/icons/plus.png" />
+                              </image>
+                           </ImageView>
+                        </graphic>
+                        <VBox.margin>
+                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                        </VBox.margin>
+                     </Button>
+                  </children>
+               </VBox>
+            </content>
+            <padding>
+               <Insets left="2.0" />
+            </padding>
+         </ScrollPane>
+      </children>
+   </StackPane>
   <padding>
     <Insets top="5.0" />
   </padding>
