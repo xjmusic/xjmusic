@@ -79,6 +79,7 @@ public class ProjectManagerImpl implements ProjectManager {
   private static final float DEFAULT_VOLUME = 1.0f;
   private static final String DEFAULT_PROGRAM_SEQUENCE_NAME = "New Sequence";
   private static final Integer DEFAULT_PROGRAM_SEQUENCE_TOTAL = 4;
+  private static final String DEFAULT_MEME_NAME = "XXX";
   private final AtomicReference<ProjectState> state = new AtomicReference<>(ProjectState.Standby);
   private final AtomicReference<Project> project = new AtomicReference<>();
   private final AtomicReference<String> projectPathPrefix = new AtomicReference<>(File.separator);
@@ -483,7 +484,6 @@ public class ProjectManagerImpl implements ProjectManager {
     var existingSequenceOfProgram = content.get().getSequencesOfProgram(program.getId()).stream().findFirst();
     var existingSequenceOfLibrary = existingSequenceOfProgram.isPresent() ? existingSequenceOfProgram : content.get().getProgramsOfLibrary(library).stream().flatMap(i -> content.get().getSequencesOfProgram(i.getId()).stream()).findFirst();
     var existingSequence = existingSequenceOfLibrary.isPresent() ? existingSequenceOfLibrary : content.get().getProgramSequences().stream().findFirst();
-    var existingProgramOfLibrary = content.get().getProgramsOfLibrary(library.getId()).stream().findFirst();
 
     // Prepare the sequence record
     var sequence = new ProgramSequence();
@@ -845,6 +845,11 @@ public class ProjectManagerImpl implements ProjectManager {
 
     // return the instrument
     return instrument;
+  }
+
+  @Override
+  public ProgramMeme createProgramMeme(UUID programId) {
+    return new ProgramMeme(UUID.randomUUID(), DEFAULT_MEME_NAME, programId);
   }
 
   /**

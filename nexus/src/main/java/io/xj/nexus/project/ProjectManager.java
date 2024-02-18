@@ -5,11 +5,11 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.nexus.NexusException;
 import io.xj.nexus.hub_client.HubClientAccess;
 import jakarta.annotation.Nullable;
 
@@ -327,5 +327,13 @@ public interface ProjectManager {
    @return the new instrument
    */
   Instrument cloneInstrument(UUID fromId, UUID libraryId, String name) throws Exception;
+
+  /**
+   Clone a Instrument Audio from a source instrument audio by id
+
+   @param programId for which to create a sequence
+   @return the new program sequence
+   */
+  ProgramMeme createProgramMeme(UUID programId);
 }
 

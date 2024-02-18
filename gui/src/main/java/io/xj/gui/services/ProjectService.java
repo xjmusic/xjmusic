@@ -6,6 +6,7 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Project;
@@ -229,6 +230,12 @@ public interface ProjectService {
   ProgramSequence createProgramSequence(UUID programId) throws Exception;
 
   /**
+   @param programId for which to create a program sequence pattern
+   @return the new program sequence pattern
+   */
+  ProgramMeme createProgramMeme(UUID programId) throws Exception;
+
+  /**
    Create a new instrument
 
    @param library the library
@@ -326,7 +333,6 @@ public interface ProjectService {
    @return true if successful
    */
   boolean updateLibrary(Library library);
-
 
   /**
    Update an entity attribute
