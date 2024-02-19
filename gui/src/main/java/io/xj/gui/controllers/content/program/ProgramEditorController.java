@@ -190,6 +190,8 @@ public class ProgramEditorController extends ProjectController {
     @Value("classpath:/views/content/program/sequence-binding-item.fxml")
     private Resource sequenceItemBindingFxml;
     protected ObservableList<ProgramSequence> programSequenceObservableList = FXCollections.observableArrayList();
+    private ObservableList<ProgramVoice> voicesOfProgram = FXCollections.observableArrayList();
+    private IntegerProperty timelineGridProperty=new SimpleIntegerProperty(8);
 
     public ProgramEditorController(
             @Value("classpath:/views/content/library-editor.fxml") Resource fxml,
@@ -200,6 +202,14 @@ public class ProgramEditorController extends ProjectController {
             CmdModalController cmdModalController) {
         super(fxml, ac, themeService, uiStateService, projectService);
         this.cmdModalController = cmdModalController;
+    }
+
+    public int getTimelineGridSize(){
+        return timelineGridProperty.get();
+    }
+
+    public void setTimelineGridSize(int timelineGridSize){
+        this.timelineGridProperty.set(timelineGridSize);
     }
 
     @Override
@@ -275,6 +285,7 @@ public class ProgramEditorController extends ProjectController {
         noSequenceLabel.visibleProperty().bind(sequenceItemGroup.visibleProperty().not());
         updateSequence();
         addVoiceItem_EditMode();
+        setGridSize();
     }
 
     private void updateSequence() {
@@ -537,6 +548,7 @@ public class ProgramEditorController extends ProjectController {
         projectService.getContent().getMemesOfProgram(program.getId()).forEach(this::loadMemeTag);
         setUpSequence();
         loadBindingView();
+        loadVoices();
         //defaults to edit mode
         editButton.getStyleClass().add("selected");
     }
@@ -730,9 +742,14 @@ public class ProgramEditorController extends ProjectController {
         });
     }
 
-    private ProgramVoice createVoice(){
+    private void loadVoices() {
+        voicesOfProgram.addAll(projectService.getContent().getVoicesOfProgram(getProgramId()));
+        voicesOfProgram.forEach(this::voiceItem);
+    }
+
+    private ProgramVoice createVoice() {
         try {
-            ProgramVoice newVoice=new ProgramVoice(UUID.randomUUID(),getProgramId(), InstrumentType.Drum,"XXX",1f);
+            ProgramVoice newVoice = new ProgramVoice(UUID.randomUUID(), getProgramId(), InstrumentType.Drum, "XXX", 1f);
             projectService.getContent().put(newVoice);
             return newVoice;
         } catch (Exception e) {
@@ -748,7 +765,7 @@ public class ProgramEditorController extends ProjectController {
             Parent root = loader.load();
             editModeContainer.getChildren().add(editModeContainer.getChildren().size() - 1, root);
             io.xj.gui.controllers.content.program.VoiceController voiceController = loader.getController();
-            voiceController.setUp(root,voice);
+            voiceController.setUp(root, voice);
         } catch (IOException e) {
             LOG.error("Error adding Voice item view!\n{}", StringUtils.formatStackTrace(e), e);
         }
@@ -757,7 +774,19 @@ public class ProgramEditorController extends ProjectController {
     /**
      * @return current sequence id
      */
-    public UUID getSequenceId(){
+    public UUID getSequenceId() {
         return sequenceId.get();
+    }
+
+    public IntegerProperty getTimelineGridProperty(){
+        return this.timelineGridProperty;
+    }
+
+    private void setGridSize(){
+        gridChooser.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                timelineGridProperty.set(Integer.parseInt(newValue.replaceAll("1/","")));
+            }
+        });
     }
 }
