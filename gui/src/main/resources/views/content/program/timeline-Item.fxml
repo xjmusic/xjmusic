@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane fx:id="timelineParent" minHeight="-Infinity" minWidth="-Infinity" prefHeight="136.0" prefWidth="53.0" styleClass="timeline-item" stylesheets="@../../../styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.TimelineItemController">
+
+</AnchorPane>
