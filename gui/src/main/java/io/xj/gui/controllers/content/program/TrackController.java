@@ -8,6 +8,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import org.slf4j.Logger;
@@ -35,11 +36,15 @@ public class TrackController {
     public Text trackName;
     @FXML
     public Button addTrackButton_1;
+    @FXML
+    public HBox timeline;
 
     @Value("classpath:/views/content/program/track.fxml")
     private Resource trackFxml;
     @Value("classpath:/views/content/program/track-menu.fxml")
     private Resource trackMenuFxml;
+    @Value("classpath:/views/content/program/timeline-Item.fxml")
+    private Resource timelineItemFxml;
     private final ThemeService themeService;
     static final Logger LOG = LoggerFactory.getLogger(TrackController.class);
 
@@ -55,6 +60,7 @@ public class TrackController {
         this.voiceContainer=voiceContainer;
         this.addTrackButton_1.setOnAction(e->addTrackItemToNewLine());
         trackMenuButton.setOnMouseClicked(this::showTrackMenu);
+        populateTimeline();
     }
 
     private void addTrackItemToNewLine(){
@@ -77,5 +83,29 @@ public class TrackController {
 
     private void showTrackMenu(MouseEvent event) {
         VoiceController.trackMenu(event, trackMenuFxml, ac, themeService, LOG);
+    }
+
+    private void populateTimeline(){
+        for (int i=0;i< programEditorController.getTimelineGridSize()*16;i++){
+            loadTimelineItem(i);
+        }
+    }
+
+
+    private void loadTimelineItem(int id){
+        timelineItem(id, timelineItemFxml, ac, timeline, LOG);
+    }
+
+    static void timelineItem(int id, Resource timelineItemFxml, ApplicationContext ac, HBox timeline, Logger log) {
+        try {
+            FXMLLoader loader = new FXMLLoader(timelineItemFxml.getURL());
+            loader.setControllerFactory(ac::getBean);
+            Parent root = loader.load();
+            TimelineItemController timelineItemController = loader.getController();
+            timeline.getChildren().add(root);
+            timelineItemController.setUp(id);
+        } catch (IOException e) {
+            log.error("Error loading Pattern Menu view!\n{}", StringUtils.formatStackTrace(e), e);
+        }
     }
 }

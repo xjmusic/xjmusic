@@ -16,6 +16,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -71,7 +72,7 @@ public class VoiceController {
     public Text trackName;
     private final ProgramEditorController programEditorController;
     @FXML
-    public GridPane grid;
+    public HBox timeline;
     static final Logger LOG = LoggerFactory.getLogger(VoiceController.class);
     @FXML
     public VBox voiceContainer;
@@ -84,6 +85,8 @@ public class VoiceController {
     private Resource trackMenuFxml;
     @Value("classpath:/views/content/program/pattern-search.fxml")
     private Resource patternSearchFxml;
+    @Value("classpath:/views/content/program/timeline-Item.fxml")
+    private Resource timelineItemFxml;
     private final ApplicationContext ac;
     private final ThemeService themeService;
     private final ProjectService projectService;
@@ -102,6 +105,7 @@ public class VoiceController {
     protected void setUp(Parent root, ProgramVoice voice) {
         this.voice = voice;
         deleteVoice(root);
+        populateTimeline();
         hideItemsBeforeTrackIsCreated();
         trackName.setText(voice.getName());
         setCombobox();
@@ -110,12 +114,23 @@ public class VoiceController {
         searchPattern.setOnMouseClicked(this::showPatternSearch);
     }
 
+    private void populateTimeline() {
+        for (int i = 0; i < programEditorController.getTimelineGridSize() * 16; i++) {
+            loadTimelineItem(i);
+        }
+    }
+
+
+    private void loadTimelineItem(int id) {
+        TrackController.timelineItem(id, timelineItemFxml, ac, timeline, LOG);
+    }
+
     private void setCombobox() {
         // Clear existing items
         voiceCombobox.getItems().clear();
         // Add items from InstrumentType enum
         voiceCombobox.getItems().addAll(InstrumentType.values());
-         voiceCombobox.setValue(voice.getType());
+        voiceCombobox.setValue(voice.getType());
     }
 
 
@@ -131,7 +146,7 @@ public class VoiceController {
         addTrackButton.toFront();
         addTrackButton_1.setVisible(false);
         trackName.setVisible(false);
-        grid.setVisible(false);
+        timeline.setVisible(false);
         addNewTrackToCurrentVoiceLine();
         addNewTrackToNewLine();
 
@@ -146,7 +161,7 @@ public class VoiceController {
     }
 
     protected void addTrackItemToNewLine() {
-        TrackController.trackItem(trackFxml, ac, voiceContainer, LOG,addTrackButton_1);
+        TrackController.trackItem(trackFxml, ac, voiceContainer, LOG, addTrackButton_1);
     }
 
     private void showItemsAfterTrackIsCreated() {
@@ -154,7 +169,7 @@ public class VoiceController {
         trackMenuButton.toFront();
         addTrackButton_1.setVisible(true);
         trackName.setVisible(true);
-        grid.setVisible(true);
+        timeline.setVisible(true);
     }
 
 
@@ -164,9 +179,9 @@ public class VoiceController {
             FXMLLoader loader = new FXMLLoader(patternSearchFxml.getURL());
             loader.setControllerFactory(ac::getBean);
             Parent root = loader.load();
-            Optional<ProgramSequencePattern> programSequencePattern=projectService.getContent().getProgramSequencePattern(programEditorController.getProgramId());
+            Optional<ProgramSequencePattern> programSequencePattern = projectService.getContent().getProgramSequencePattern(programEditorController.getProgramId());
             PatternSearchController patternSearchController = loader.getController();
-            patternSearchController.setUp(programSequencePattern.orElse(null),voice);
+            patternSearchController.setUp(programSequencePattern.orElse(null), voice);
             stage.setScene(new Scene(root));
             stage.initOwner(themeService.getMainScene().getWindow());
             stage.show();
@@ -184,7 +199,7 @@ public class VoiceController {
             loader.setControllerFactory(ac::getBean);
             Parent root = loader.load();
             PatternMenuController patternMenuController = loader.getController();
-            patternMenuController.setUp(root,voice);
+            patternMenuController.setUp(root, voice);
             stage.setScene(new Scene(root));
             stage.initOwner(themeService.getMainScene().getWindow());
             stage.show();
