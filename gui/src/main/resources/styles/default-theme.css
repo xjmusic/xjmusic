@@ -527,3 +527,7 @@
 .track-controls-container{
   -fx-background-color:#4E4E4E ;
 }
+.timeline-item{
+  -fx-background-color:#161616 ;
+  -fx-border-color: #1e1e1e;
+}
