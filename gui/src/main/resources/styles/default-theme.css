@@ -445,8 +445,8 @@
   -fx-background-color: #777777;
 }
 
-.meme-list-container,
-.meme-list-container .viewport {
+.meme-list-container {
+  -fx-padding: 0 0 0 5;
   -fx-border-width: 0;
   -fx-border-color: transparent;
   -fx-background-color: transparent;
@@ -460,19 +460,31 @@
   -fx-border-color: grey;
 }
 
-.meme-tag {
+.entity-memes-container {
+  -fx-padding: 5 20 5 5;
+}
+
+.entity-memes-label-container {
+  -fx-padding: 5 5 0 0;
+}
+
+.meme-tag-container {
+  -fx-padding: 0 0 0 0;
   -fx-background-color: #777777;
   -fx-background-radius: 8;
   -fx-border-radius: 8;
 }
 
-.meme-tag-container {
-  -fx-background-color: transparent;
-}
-
 .meme-name-field {
   -fx-background-color: transparent;
   -fx-text-fill: white;
+  -fx-font-size: 16;
+  -fx-padding: 0 0 0 0;
+}
+
+.meme-name-label {
+  -fx-text-fill: white;
+  -fx-font-size: 16;
 }
 
 .meme-tag-remove-button {
@@ -481,34 +493,40 @@
   -fx-background-color: #4E4E4E;
   -fx-border-color: grey;
 }
-#bindViewParentContainer{
+
+#bindViewParentContainer {
   -fx-background-color: black;
 }
+
 .sequence-binding-item-container {
   -fx-background-color: #434343;
   -fx-background-radius: 7;
   -fx-border-radius: 7;
 }
-.sequence-holder-container{
+
+.sequence-holder-container {
   -fx-background-color: transparent;
 }
-.sequence-item-button{
+
+.sequence-item-button {
   -fx-background-color: #404040;
   -fx-background-radius: 7;
   -fx-border-radius: 7;
 }
-.bind-mode-label{
+
+.bind-mode-label {
   -fx-text-fill: grey;
   -fx-background-color: #434343;
   -fx-border-color: #434343;
 }
-.sequence-memes-label{
+
+.sequence-memes-label {
   -fx-text-fill: grey;
   -fx-background-color: transparent;
   -fx-border-color: transparent;
 }
 
-.alert-labels{
+.alert-labels {
   -fx-background-color: transparent;
   -fx-text-fill: white;
 }

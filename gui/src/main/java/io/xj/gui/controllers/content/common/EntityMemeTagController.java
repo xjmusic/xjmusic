@@ -7,13 +7,12 @@ import jakarta.annotation.Nullable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -29,14 +28,13 @@ import java.util.function.Consumer;
 public class EntityMemeTagController {
   private static final int MEME_NAME_PADDING = 15;
   @FXML
-  public AnchorPane memeParent;
+  public StackPane container;
   @FXML
   public TextField memeNameField;
   @FXML
-  public Text memeNameLabel;
+  public Label memeNameLabel;
   @FXML
   public Button deleteMemeButton;
-  public StackPane stackPane;
   private final SimpleStringProperty name = new SimpleStringProperty("");
   static final Logger LOG = LoggerFactory.getLogger(EntityMemeTagController.class);
   private Object currentMeme;
@@ -64,7 +62,6 @@ public class EntityMemeTagController {
 
     name.set(String.valueOf(EntityUtils.get(meme, "name").orElseThrow(() -> new RuntimeException("Could not get meme name"))));
 
-    memeNameField.setVisible(false);
     memeNameField.textProperty().bindBidirectional(name);
     memeNameField.focusedProperty().addListener((o, ov, v) -> {
       if (!v) {
@@ -73,10 +70,9 @@ public class EntityMemeTagController {
     });
 
     memeNameLabel.setText(name.get());
-    memeNameLabel.setOnMouseClicked((MouseEvent event) -> this.beginEditing());
+    memeNameLabel.setOnMouseClicked((MouseEvent event) -> this.setEditing(true));
 
-    deleteMemeButton.setOnAction(e -> deleteMemeTag());
-
+    setEditing(false);
     updateTextWidth();
   }
 
@@ -91,9 +87,7 @@ public class EntityMemeTagController {
       doUpdate.accept(currentMeme);
       updateTextWidth();
       memeNameLabel.setText(name.get());
-      memeNameField.setVisible(false);
-      memeNameField.setManaged(false);
-      memeNameLabel.setVisible(true);
+      setEditing(false);
 
     } catch (Exception e) {
       LOG.error("Failed to update meme!\n{}", StringUtils.formatStackTrace(e));
@@ -103,7 +97,8 @@ public class EntityMemeTagController {
   /**
    Deletes a meme
    */
-  private void deleteMemeTag() {
+  @FXML
+  protected void deleteMeme() {
     Objects.requireNonNull(doDelete, "no delete callback set");
     try {
       doDelete.accept(currentMeme);
@@ -129,20 +124,22 @@ public class EntityMemeTagController {
   /**
    Toggles the visibility of the memeNameLabel vs editable memeNameField
    */
-  private void beginEditing() {
-    memeNameLabel.setVisible(false);
-    memeNameField.setVisible(true);
-    memeNameField.setManaged(true);
-    memeNameField.requestFocus();
+  private void setEditing(boolean editing) {
+    memeNameField.setManaged(editing);
+    memeNameField.setVisible(editing);
+    if (editing) memeNameField.requestFocus();
+
+    memeNameLabel.setManaged(!editing);
+    memeNameLabel.setVisible(!editing);
   }
 
   /**
    Update the displayed text width
    */
   private void updateTextWidth() {
-    stackPane.setPrefWidth(computeTextWidth(memeNameField.getFont(), memeNameField.getText() + MEME_NAME_PADDING));
     memeNameField.setPrefWidth(computeTextWidth(memeNameField.getFont(), memeNameField.getText() + MEME_NAME_PADDING));
-    memeNameField.setPrefWidth(computeTextWidth(memeNameField.getFont(), memeNameField.getText() + MEME_NAME_PADDING));
+    memeNameField.setLayoutX(0);
+    memeNameField.setTranslateX(0);
   }
 
   @FXML

@@ -1,46 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.Cursor?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.text.Text?>
-<AnchorPane fx:id="memeParent" styleClass="meme-tag" stylesheets="@/styles/default-theme.css"
-            xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="io.xj.gui.controllers.content.common.EntityMemeTagController"
-            focusTraversable="true">
-    <StackPane fx:id="stackPane" styleClass="meme-tag-container"
-               AnchorPane.leftAnchor="0.0"
-               AnchorPane.rightAnchor="30.0"
-               alignment="CENTER_LEFT">
-        <TextField fx:id="memeNameField" styleClass="meme-name-field" onKeyPressed="#handleKeyPressed" prefHeight="16">
-            <font>
-                <Font size="16.0"/>
-            </font>
-        </TextField>
-        <Text fx:id="memeNameLabel" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0"
-              textAlignment="JUSTIFY" focusTraversable="true">
-            <font>
-                <Font size="16.0"/>
-            </font>
-            <cursor>
-                <Cursor fx:constant="TEXT"/>
-            </cursor>
-        </Text>
-    </StackPane>
-    <Button fx:id="deleteMemeButton"
-            mnemonicParsing="false"
-            styleClass="meme-tag-remove-button"
-            AnchorPane.rightAnchor="0">
-        <graphic>
-            <ImageView fitHeight="16.0" fitWidth="16.0">
-                <Image url="@/icons/multiply.png"/>
-            </ImageView>
-        </graphic>
-    </Button>
-</AnchorPane>
+<?import javafx.geometry.Insets?>
+<StackPane xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="io.xj.gui.controllers.content.common.EntityMemeTagController"
+           fx:id="container" styleClass="meme-tag-container" stylesheets="@/styles/default-theme.css">
+    <AnchorPane>
+        <TextField
+                fx:id="memeNameField"
+                AnchorPane.leftAnchor="5"
+                AnchorPane.rightAnchor="40"
+                AnchorPane.topAnchor="0"
+                AnchorPane.bottomAnchor="0"
+                onKeyPressed="#handleKeyPressed"
+                styleClass="meme-name-field"/>
+        <Label
+                fx:id="memeNameLabel"
+                AnchorPane.leftAnchor="5"
+                AnchorPane.rightAnchor="40"
+                AnchorPane.topAnchor="0"
+                AnchorPane.bottomAnchor="0"
+                styleClass="meme-name-label"/>
+        <Button
+                fx:id="deleteMemeButton"
+                AnchorPane.rightAnchor="0"
+                AnchorPane.topAnchor="0"
+                AnchorPane.bottomAnchor="0"
+                onAction="#deleteMeme"
+                styleClass="meme-tag-remove-button">
+            <graphic>
+                <ImageView fitHeight="16.0" fitWidth="16.0">
+                    <Image url="@/icons/multiply.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
+    </AnchorPane>
+</StackPane>
