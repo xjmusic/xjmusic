@@ -46,8 +46,6 @@ public class VoiceController {
     @FXML
     public Button deleteButton;
     @FXML
-    public Text voiceName;
-    @FXML
     public ComboBox<InstrumentType> instrumentTypeCombobox;
     @FXML
     public Button searchPattern;
@@ -81,6 +79,8 @@ public class VoiceController {
     public Label noSequenceLabel;
     @FXML
     public HBox totalHbox;
+    @FXML
+    public TextField programVoiceNameTextField;
 
     @Value("classpath:/views/content/program/track.fxml")
     private Resource trackFxml;
@@ -134,12 +134,14 @@ public class VoiceController {
         }
         patternNameField.textProperty().bindBidirectional(patternNameProperty);
         patternTotalCountLabel.textProperty().bindBidirectional(patternTotalProperty);
+        programVoiceNameTextField.setText(voice.getName());
         setCombobox();
         patternMenuButton.setOnMouseClicked(this::showPatternMenu);
         trackMenuButton.setOnMouseClicked(this::showTrackMenu);
         searchPattern.setOnMouseClicked(this::showPatternSearch);
         updateProgramSequencePatternName();
         updateProgramSequencePatternInstrumentType();
+        updateProgramVoiceName();
     }
 
 
@@ -167,7 +169,20 @@ public class VoiceController {
                             patternNameProperty.get());
                 }
             } catch (Exception e) {
-                LOG.info("Failed to update program sequence ");
+                LOG.info("Failed to update ProgramSequencePattern name");
+            }
+        });
+    }
+
+    private void updateProgramVoiceName() {
+        programVoiceNameTextField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                if (!newValue) {
+                    projectService.update(ProgramVoice.class, voice.getId(), "name",
+                            programVoiceNameTextField.getText());
+                }
+            } catch (Exception e) {
+                LOG.info("Failed to update ProgramVoice name ");
             }
         });
     }
@@ -176,13 +191,11 @@ public class VoiceController {
         instrumentTypeCombobox.focusedProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (!newValue) {
-                    adjustWidthWithTextIncrease();
-                    patternNameProperty.set(patternNameField.getText());
                     projectService.update(ProgramVoice.class, voice.getId(), "type",
                             instrumentTypeCombobox.getValue());
                 }
             } catch (Exception e) {
-                LOG.info("Failed to update program sequence ");
+                LOG.info("Failed to update ProgramVoice type ");
             }
         });
     }

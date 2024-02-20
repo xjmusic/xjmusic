@@ -31,7 +31,7 @@
                         </ImageView>
                     </graphic>
                 </Button>
-                <Text fx:id="voiceName" fill="#eeeeee" layoutX="70.0" layoutY="26.0" strokeType="OUTSIDE" strokeWidth="0.0" text="XXX" AnchorPane.leftAnchor="70.0" AnchorPane.topAnchor="13.0" />
+            <TextField fx:id="programVoiceNameTextField" layoutX="70.0" layoutY="10.0" prefHeight="25.0" prefWidth="99.0" />
 
             </AnchorPane>
             <AnchorPane layoutX="10.0" layoutY="10.0" prefHeight="38.0" prefWidth="274.0" VBox.vgrow="NEVER">
