@@ -3,10 +3,14 @@ package io.xj.gui.controllers.content.program;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.util.StringUtils;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
@@ -15,13 +19,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.StringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +34,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import static io.xj.gui.controllers.content.program.ProgramEditorController.closeWindowOnClickingAway;
 import static io.xj.gui.controllers.content.program.ProgramEditorController.positionUIAtLocation;
@@ -47,7 +48,7 @@ public class VoiceController {
     @FXML
     public Text voiceName;
     @FXML
-    public ComboBox<InstrumentType> voiceCombobox;
+    public ComboBox<InstrumentType> instrumentTypeCombobox;
     @FXML
     public Button searchPattern;
     @FXML
@@ -76,6 +77,10 @@ public class VoiceController {
     static final Logger LOG = LoggerFactory.getLogger(VoiceController.class);
     @FXML
     public VBox voiceContainer;
+    @FXML
+    public Label noSequenceLabel;
+    @FXML
+    public HBox totalHbox;
 
     @Value("classpath:/views/content/program/track.fxml")
     private Resource trackFxml;
@@ -83,14 +88,24 @@ public class VoiceController {
     private Resource patternMenuFxml;
     @Value("classpath:/views/content/program/track-menu.fxml")
     private Resource trackMenuFxml;
-    @Value("classpath:/views/content/program/pattern-search.fxml")
-    private Resource patternSearchFxml;
+    @Value("classpath:/views/content/program/pattern-selector.fxml")
+    private Resource patternSelectorFxml;
     @Value("classpath:/views/content/program/timeline-Item.fxml")
     private Resource timelineItemFxml;
     private final ApplicationContext ac;
     private final ThemeService themeService;
     private final ProjectService projectService;
     private ProgramVoice voice;
+
+    private final ObjectProperty<ProgramSequencePattern> selectedProgramSequencePattern = new SimpleObjectProperty<>();
+
+    private final ObservableList<ProgramSequencePattern> programSequencePatternsOfThisVoice = FXCollections.observableArrayList();
+
+    private final SimpleStringProperty patternNameProperty = new SimpleStringProperty();
+    private final SimpleStringProperty patternTotalProperty = new SimpleStringProperty();
+
+    private double previousPatternNameFieldPrefWidth=0;
+
 
     public VoiceController(ProgramEditorController programEditorController,
                            ApplicationContext ac, ThemeService themeService,
@@ -104,14 +119,104 @@ public class VoiceController {
 
     protected void setUp(Parent root, ProgramVoice voice) {
         this.voice = voice;
+        previousPatternNameFieldPrefWidth=patternNameField.getPrefWidth();
+        programSequencePatternsOfThisVoice.addAll(projectService.getContent().getProgramSequencePatternsOfVoice(voice));
+        setSelectedProgramSequencePattern(programSequencePatternsOfThisVoice.isEmpty() ?
+                null : programSequencePatternsOfThisVoice.get(0));
         deleteVoice(root);
         populateTimeline();
         hideItemsBeforeTrackIsCreated();
         trackName.setText(voice.getName());
+        totalHbox.visibleProperty().bind(selectedProgramSequencePattern.isNotNull());
+        if (selectedProgramSequencePattern.get() != null) {
+            updatePatternUI(selectedProgramSequencePattern.get());
+            patternNameField.toFront();
+        }
+        patternNameField.textProperty().bindBidirectional(patternNameProperty);
+        patternTotalCountLabel.textProperty().bindBidirectional(patternTotalProperty);
         setCombobox();
         patternMenuButton.setOnMouseClicked(this::showPatternMenu);
         trackMenuButton.setOnMouseClicked(this::showTrackMenu);
         searchPattern.setOnMouseClicked(this::showPatternSearch);
+        updateProgramSequencePatternName();
+        updateProgramSequencePatternInstrumentType();
+    }
+
+
+    protected void updatePatternUI(ProgramSequencePattern programSequencePattern) {
+        if (programSequencePattern!=null){
+            patternNameField.toFront();
+            patternNameProperty.set(programSequencePattern.getName());
+            patternTotalProperty.set(String.valueOf(programSequencePattern.getTotal()));
+        }else {
+            //return widths to normal
+            noPatternLabel.setPrefWidth(previousPatternNameFieldPrefWidth);
+            patternNameField.setPrefWidth(previousPatternNameFieldPrefWidth);
+            noSequenceLabel.setPrefWidth(previousPatternNameFieldPrefWidth);
+            noPatternLabel.toFront();
+        }
+    }
+
+    private void updateProgramSequencePatternName() {
+        patternNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                if (!newValue) {
+                    adjustWidthWithTextIncrease();
+                    patternNameProperty.set(patternNameField.getText());
+                    projectService.update(ProgramSequencePattern.class, selectedProgramSequencePattern.get().getId(), "name",
+                            patternNameProperty.get());
+                }
+            } catch (Exception e) {
+                LOG.info("Failed to update program sequence ");
+            }
+        });
+    }
+
+    private void updateProgramSequencePatternInstrumentType() {
+        instrumentTypeCombobox.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                if (!newValue) {
+                    adjustWidthWithTextIncrease();
+                    patternNameProperty.set(patternNameField.getText());
+                    projectService.update(ProgramVoice.class, voice.getId(), "type",
+                            instrumentTypeCombobox.getValue());
+                }
+            } catch (Exception e) {
+                LOG.info("Failed to update program sequence ");
+            }
+        });
+    }
+
+    private void adjustWidthWithTextIncrease() {
+        // Compute the new preferred width based on the text content
+        double newTextWidth = computeTextWidth(patternNameField.getFont(), patternNameField.getText());
+        if (newTextWidth > previousPatternNameFieldPrefWidth) {
+            instrumentTypeCombobox.setPrefWidth(newTextWidth);
+            voiceControlsContainer.setPrefWidth(newTextWidth+10);
+            patternNameField.setPrefWidth(newTextWidth);
+            noSequenceLabel.setPrefWidth(newTextWidth);
+            noPatternLabel.setPrefWidth(newTextWidth);
+        }
+    }
+
+    private double computeTextWidth(javafx.scene.text.Font font, String text) {
+        javafx.scene.text.Text helper = new javafx.scene.text.Text();
+        helper.setFont(font);
+        helper.setText(text);
+        return helper.getBoundsInLocal().getWidth();
+    }
+
+
+    public ObservableList<ProgramSequencePattern> getProgramSequencePatternsOfThisVoice() {
+        return programSequencePatternsOfThisVoice;
+    }
+
+    public ProgramSequencePattern getSelectedProgramSequencePattern() {
+        return selectedProgramSequencePattern.get();
+    }
+
+    public void setSelectedProgramSequencePattern(ProgramSequencePattern programSequencePattern) {
+        selectedProgramSequencePattern.set(programSequencePattern);
     }
 
     private void populateTimeline() {
@@ -127,10 +232,10 @@ public class VoiceController {
 
     private void setCombobox() {
         // Clear existing items
-        voiceCombobox.getItems().clear();
+        instrumentTypeCombobox.getItems().clear();
         // Add items from InstrumentType enum
-        voiceCombobox.getItems().addAll(InstrumentType.values());
-        voiceCombobox.setValue(voice.getType());
+        instrumentTypeCombobox.getItems().addAll(InstrumentType.values());
+        instrumentTypeCombobox.setValue(voice.getType());
     }
 
 
@@ -176,13 +281,13 @@ public class VoiceController {
     private void showPatternSearch(MouseEvent event) {
         try {
             Stage stage = new Stage(StageStyle.TRANSPARENT);
-            FXMLLoader loader = new FXMLLoader(patternSearchFxml.getURL());
+            FXMLLoader loader = new FXMLLoader(patternSelectorFxml.getURL());
             loader.setControllerFactory(ac::getBean);
             Parent root = loader.load();
-            Optional<ProgramSequencePattern> programSequencePattern = projectService.getContent().getProgramSequencePattern(programEditorController.getProgramId());
-            PatternSearchController patternSearchController = loader.getController();
-            patternSearchController.setUp(programSequencePattern.orElse(null), voice);
+            PatternSelectorController patternSearchController = loader.getController();
+            patternSearchController.setUp(programSequencePatternsOfThisVoice, voice, this, stage);
             stage.setScene(new Scene(root));
+            stage.setOnShown(e -> patternSearchController.patternSelector.show());
             stage.initOwner(themeService.getMainScene().getWindow());
             stage.show();
             positionUIAtLocation(stage, event, 0, 30);
@@ -199,14 +304,14 @@ public class VoiceController {
             loader.setControllerFactory(ac::getBean);
             Parent root = loader.load();
             PatternMenuController patternMenuController = loader.getController();
-            patternMenuController.setUp(root, voice);
+            patternMenuController.setUp(root, voice, selectedProgramSequencePattern.get(),this);
             stage.setScene(new Scene(root));
             stage.initOwner(themeService.getMainScene().getWindow());
             stage.show();
             positionUIAtLocation(stage, event, 0, 30);
             closeWindowOnClickingAway(stage);
         } catch (IOException e) {
-            LOG.error("Error loading Pattern Search view!\n{}", StringUtils.formatStackTrace(e), e);
+            LOG.error("Error loading Pattern menu view!\n{}", StringUtils.formatStackTrace(e), e);
         }
     }
 

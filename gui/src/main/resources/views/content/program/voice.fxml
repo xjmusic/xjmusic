@@ -37,7 +37,7 @@
             <AnchorPane layoutX="10.0" layoutY="10.0" prefHeight="38.0" prefWidth="274.0" VBox.vgrow="NEVER">
 
                 <Label alignment="CENTER" layoutX="6.0" layoutY="6.0" prefHeight="26.0" prefWidth="48.0" text="VOICE :" />
-                <ComboBox fx:id="voiceCombobox" layoutX="62.0" layoutY="7.0" prefHeight="25.0" prefWidth="160.0" />
+                <ComboBox fx:id="instrumentTypeCombobox" layoutX="62.0" layoutY="7.0" prefHeight="25.0" prefWidth="160.0" />
 
             </AnchorPane>
             <HBox spacing="5.0" styleClass="voice-pattern-container" VBox.vgrow="ALWAYS">
@@ -62,7 +62,7 @@
                 </Button>
                 <Group styleClass="voice-pattern-container">
 
-                    <TextField fx:id="patternNameField" />
+                    <TextField fx:id="patternNameField" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="155.0" />
                     <Label fx:id="noPatternLabel" prefHeight="25.0" prefWidth="150.0" styleClass="voice-pattern-container" text="NO PATTERN">
                         <font>
                             <Font name="System Italic" size="12.0" />
@@ -71,11 +71,19 @@
                             <Insets left="2.0" />
                         </padding>
                     </Label>
+               <Label fx:id="noSequenceLabel" layoutX="2.0" layoutY="2.0" prefHeight="25.0" prefWidth="150.0" styleClass="voice-pattern-container" text="NO SEQUENCE">
+                  <font>
+                     <Font name="System Italic" size="12.0" />
+                  </font>
+                  <padding>
+                     <Insets left="2.0" />
+                  </padding>
+               </Label>
 
                 </Group>
 
             </HBox>
-            <HBox alignment="CENTER_LEFT" prefHeight="38.0" prefWidth="274.0" styleClass="voice-pattern-container" VBox.vgrow="ALWAYS">
+            <HBox fx:id="totalHbox" alignment="CENTER_LEFT" prefHeight="38.0" prefWidth="274.0" styleClass="voice-pattern-container" VBox.vgrow="ALWAYS">
 
                 <Label prefHeight="26.0" prefWidth="38.0" text="Total :" textFill="WHITE" />
                 <Label fx:id="patternTotalCountLabel" prefHeight="25.0" prefWidth="38.0" text="23" textFill="WHITE" />
