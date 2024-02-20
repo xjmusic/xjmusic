@@ -208,10 +208,6 @@ public class ProgramEditorController extends ProjectController {
         return timelineGridProperty.get();
     }
 
-    public void setTimelineGridSize(int timelineGridSize){
-        this.timelineGridProperty.set(timelineGridSize);
-    }
-
     @Override
     public void onStageReady() {
         bindViewParentContainer.setMinWidth(getScreenSize() - labelHolder.getWidth());
@@ -292,7 +288,6 @@ public class ProgramEditorController extends ProjectController {
         sequenceName.focusedProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (!newValue) {
-                    LOG.info("change " + sequenceName.getText());
                     sequencePropertyName.set(sequenceName.getText());
                     projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "name",
                             sequencePropertyName.get());
@@ -305,7 +300,6 @@ public class ProgramEditorController extends ProjectController {
         sequenceTotalChooser.focusedProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (!newValue) {
-                    LOG.info("change " + sequenceTotalValueFactory.getValue());
                     sequenceTotalValueFactory.setValue(sequenceTotalChooser.getValue());
                     projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "total",
                             sequenceTotalValueFactory.getValue());
@@ -318,7 +312,6 @@ public class ProgramEditorController extends ProjectController {
         sequenceKey.focusedProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (!newValue) {
-                    LOG.info("change " + sequenceTotalChooser.getValue());
                     sequencePropertyKey.set(sequenceKey.getText());
                     projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "key",
                             sequencePropertyKey.get());
@@ -743,6 +736,9 @@ public class ProgramEditorController extends ProjectController {
     }
 
     private void loadVoices() {
+        voicesOfProgram.clear();
+        //clear previous items from container while leaving the add button
+        editModeContainer.getChildren().remove(0,editModeContainer.getChildren().size() - 1);
         voicesOfProgram.addAll(projectService.getContent().getVoicesOfProgram(getProgramId()));
         voicesOfProgram.forEach(this::voiceItem);
     }
@@ -751,6 +747,7 @@ public class ProgramEditorController extends ProjectController {
         try {
             ProgramVoice newVoice = new ProgramVoice(UUID.randomUUID(), getProgramId(), InstrumentType.Drum, "XXX", 1f);
             projectService.getContent().put(newVoice);
+            voicesOfProgram.add(newVoice);
             return newVoice;
         } catch (Exception e) {
             LOG.info("Failed to create new voice");
@@ -764,7 +761,7 @@ public class ProgramEditorController extends ProjectController {
             loader.setControllerFactory(ac::getBean);
             Parent root = loader.load();
             editModeContainer.getChildren().add(editModeContainer.getChildren().size() - 1, root);
-            io.xj.gui.controllers.content.program.VoiceController voiceController = loader.getController();
+            VoiceController voiceController = loader.getController();
             voiceController.setUp(root, voice);
         } catch (IOException e) {
             LOG.error("Error adding Voice item view!\n{}", StringUtils.formatStackTrace(e), e);
