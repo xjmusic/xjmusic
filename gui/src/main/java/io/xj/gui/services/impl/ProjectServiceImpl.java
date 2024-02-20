@@ -310,7 +310,7 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public <N extends Serializable> void deleteContent(N entity) {
+  public void deleteContent(Object entity) {
     try {
       deleteContent(entity.getClass(), EntityUtils.getId(entity));
     } catch (Exception e) {
@@ -319,7 +319,7 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public <N extends Serializable> void deleteContent(Class<N> type, UUID id) {
+  public void deleteContent(Class<?> type, UUID id) {
     try {
       projectManager.getContent().delete(type, id);
       didUpdate(type, true);

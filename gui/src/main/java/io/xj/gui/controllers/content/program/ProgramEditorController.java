@@ -12,7 +12,6 @@ import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.util.StringUtils;
@@ -49,6 +48,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -75,7 +75,7 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   public Spinner<Double> tempoChooser;
   @FXML
-  public Pane programMemeContainer;
+  public StackPane programMemeContainer;
   @FXML
   public TextField keyField;
   @FXML
@@ -529,11 +529,14 @@ public class ProgramEditorController extends ProjectController {
     try {
       FXMLLoader loader = new FXMLLoader(entityMemesFxml.getURL());
       loader.setControllerFactory(ac::getBean);
-      EntityMemeController<ProgramMeme> entityMemeController = loader.getController();
+      Parent root = loader.load();
+      programMemeContainer.getChildren().clear();
+      programMemeContainer.getChildren().add(root);
+      EntityMemeController entityMemeController = loader.getController();
       entityMemeController.setup(
         () -> projectService.getContent().getMemesOfProgram(programId.get()),
         () -> projectService.createProgramMeme(programId.get()),
-        (ProgramMeme meme) -> {
+        (Object meme) -> {
           try {
             projectService.update(meme);
           } catch (Exception e) {

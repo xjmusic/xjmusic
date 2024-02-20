@@ -26,6 +26,7 @@ import javafx.scene.control.Alert;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public interface ProjectService {
@@ -136,16 +137,15 @@ public interface ProjectService {
 
    @param entity to delete
    */
-  <N extends Serializable> void deleteContent(N entity);
+  void deleteContent(Object entity);
 
   /**
    Delete an entity by type and id
 
    @param type the class of the entity
    @param id   the id of the entity
-   @param <N>  the type of the entity
    */
-  <N extends Serializable> void deleteContent(Class<N> type, UUID id);
+  void deleteContent(Class<?> type, UUID id);
 
   /**
    @return the list of recent projects

@@ -6,9 +6,11 @@ import io.xj.hub.util.StringUtils;
 import jakarta.annotation.Nullable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
@@ -18,14 +20,14 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.io.Serializable;
 import java.util.Objects;
 import java.util.function.Consumer;
 
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class EntityMemeTagController<M extends Serializable> {
+public class EntityMemeTagController {
+  private static final int MEME_NAME_PADDING = 15;
   @FXML
   public AnchorPane memeParent;
   @FXML
@@ -37,74 +39,86 @@ public class EntityMemeTagController<M extends Serializable> {
   public StackPane stackPane;
   private final SimpleStringProperty name = new SimpleStringProperty("");
   static final Logger LOG = LoggerFactory.getLogger(EntityMemeTagController.class);
-  private M currentMeme;
+  private Object currentMeme;
   @Nullable
-  private Consumer<M> doUpdate;
+  private Consumer<Object> doUpdate;
   @Nullable
-  private Consumer<M> doDelete;
+  private Consumer<Object> doDelete;
 
-  public EntityMemeTagController() {
-  }
+  /**
+   Set up the meme in the controller
 
+   @param meme     to set up
+   @param doUpdate to update the meme
+   @param doDelete to delete the meme
+   @throws EntityException if the meme could not be set up
+   */
   public void setup(
-    Parent root,
-    M meme,
-    Consumer<M> doUpdate,
-    Consumer<M> doDelete
+    Object meme,
+    Consumer<Object> doUpdate,
+    Consumer<Object> doDelete
   ) throws EntityException {
     this.currentMeme = meme;
     this.doUpdate = doUpdate;
     this.doDelete = doDelete;
+
     name.set(String.valueOf(EntityUtils.get(meme, "name").orElseThrow(() -> new RuntimeException("Could not get meme name"))));
-    memeNameLabel.setText(name.get());
-    memeNameField.setText(name.get());
+
     memeNameField.setVisible(false);
-    memeNameField.setPrefColumnCount((int) computeTextWidth(memeNameField.getFont(), name.get()) + 5);
-    memeNameLabel.setWrappingWidth((int) computeTextWidth(memeNameField.getFont(), name.get()) + 5);
     memeNameField.textProperty().bindBidirectional(name);
-    toggleVisibility();
-    setMemeTextProcessing();
-    deleteMemeButton.setOnAction(e -> deleteMemeTag(root));
+    memeNameField.focusedProperty().addListener((o, ov, v) -> {
+      if (!v) {
+        doneEditing();
+      }
+    });
+
+    memeNameLabel.setText(name.get());
+    memeNameLabel.setOnMouseClicked((MouseEvent event) -> this.beginEditing());
+
+    deleteMemeButton.setOnAction(e -> deleteMemeTag());
+
+    updateTextWidth();
   }
 
-  private void updateMeme() {
+  /**
+   Updates the meme name label when done editing
+   */
+  private void doneEditing() {
     Objects.requireNonNull(doUpdate, "no update callback set");
     try {
-      String name = StringUtils.toMeme(memeNameField.getText());
-      EntityUtils.set(currentMeme, "name", name);
+      name.set(StringUtils.toMeme(memeNameField.getText()));
+      EntityUtils.set(currentMeme, "name", name.get());
       doUpdate.accept(currentMeme);
+      updateTextWidth();
+      memeNameLabel.setText(name.get());
+      memeNameField.setVisible(false);
+      memeNameField.setManaged(false);
+      memeNameLabel.setVisible(true);
+
     } catch (Exception e) {
       LOG.error("Failed to update meme!\n{}", StringUtils.formatStackTrace(e));
     }
   }
 
   /**
-   updates the label text on a meme item when the text is updated on the textfield
+   Deletes a meme
    */
-  private void setMemeTextProcessing() {
-    memeNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-      if (!newValue) {
-        stackPane.setPrefWidth(computeTextWidth(memeNameField.getFont(), memeNameField.getText() + 5));
-        memeNameField.setPrefWidth(computeTextWidth(memeNameField.getFont(), memeNameField.getText() + 5));
-        memeNameLabel.setText(StringUtils.toMeme(memeNameField.getText()));
-        memeNameLabel.setWrappingWidth(computeTextWidth(memeNameField.getFont(), memeNameLabel.getText() + 5));
-        memeNameLabel.setVisible(true);
-        updateMeme();
-      }
-    });
-  }
-
-
-  private void deleteMemeTag(Parent root) {
+  private void deleteMemeTag() {
     Objects.requireNonNull(doDelete, "no delete callback set");
     try {
       doDelete.accept(currentMeme);
-      LOG.info("Deleted meme \"{}\"", EntityUtils.get(currentMeme, "name").orElseThrow(() -> new RuntimeException("Could not get meme name")));
     } catch (Exception e) {
       LOG.error("Failed to delete Meme!\n{}", StringUtils.formatStackTrace(e));
     }
   }
 
+  /**
+   Computes the width of a text
+
+   @param font to use for computation
+   @param text for which to compute width
+   @return the width of the text
+   */
   private double computeTextWidth(javafx.scene.text.Font font, String text) {
     javafx.scene.text.Text helper = new javafx.scene.text.Text();
     helper.setFont(font);
@@ -112,21 +126,37 @@ public class EntityMemeTagController<M extends Serializable> {
     return helper.getBoundsInLocal().getWidth();
   }
 
-  private void toggleVisibility() {
-    memeNameLabel.setOnMouseClicked(e -> {
-      memeNameLabel.setVisible(false);
-      memeNameField.setVisible(true);
-      //shift focus to the nameField
-      memeNameField.requestFocus();
-      //set the caret to blink at the end position
-      memeNameField.positionCaret(memeNameField.getPrefColumnCount());
-    });
-    // Add a focus listener to the TextField
-    memeNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-      if (!newValue) {
-        memeNameField.setVisible(false);
-        memeNameLabel.setVisible(true);
-      }
-    });
+  /**
+   Toggles the visibility of the memeNameLabel vs editable memeNameField
+   */
+  private void beginEditing() {
+    memeNameLabel.setVisible(false);
+    memeNameField.setVisible(true);
+    memeNameField.setManaged(true);
+    //shift focus to the nameField
+    memeNameField.requestFocus();
+// todo really?    //set the caret to blink at the end position
+// todo really?    memeNameField.positionCaret(memeNameField.getPrefColumnCount());
+  }
+
+  /**
+   Update the displayed text width
+   */
+  private void updateTextWidth() {
+    stackPane.setPrefWidth(computeTextWidth(memeNameField.getFont(), memeNameField.getText() + MEME_NAME_PADDING));
+    memeNameField.setPrefWidth(computeTextWidth(memeNameField.getFont(), memeNameField.getText() + MEME_NAME_PADDING));
+    memeNameField.setPrefWidth(computeTextWidth(memeNameField.getFont(), memeNameField.getText() + MEME_NAME_PADDING));
+    memeNameLabel.setWrappingWidth(computeTextWidth(memeNameField.getFont(), memeNameLabel.getText() + MEME_NAME_PADDING));
+  }
+
+  @FXML
+  protected void handleKeyPressed(KeyEvent event) {
+    if (event.getCode().equals(KeyCode.ENTER)) {
+      event.consume();
+      doneEditing();
+
+    } else {
+      updateTextWidth();
+    }
   }
 }

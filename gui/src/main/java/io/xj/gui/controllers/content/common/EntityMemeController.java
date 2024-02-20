@@ -7,7 +7,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.FlowPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,20 +18,19 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class EntityMemeController<M extends Serializable> {
+public class EntityMemeController {
   static final Logger LOG = LoggerFactory.getLogger(EntityMemeController.class);
   private final ApplicationContext ac;
   private final ProjectService projectService;
-  private Callable<Collection<M>> doReadAll;
-  private Callable<M> doCreate;
-  private Consumer<M> doUpdate;
+  private Callable<Collection<?>> doReadAll;
+  private Callable<Object> doCreate;
+  private Consumer<Object> doUpdate;
 
   @Value("classpath:/views/content/common/entity-meme-tag.fxml")
   private Resource memeTagFxml;
@@ -40,7 +39,7 @@ public class EntityMemeController<M extends Serializable> {
   public Button addMemeButton;
 
   @FXML
-  public HBox memeTagContainer;
+  public FlowPane memeTagContainer;
 
   public EntityMemeController(
     ApplicationContext ac,
@@ -58,9 +57,9 @@ public class EntityMemeController<M extends Serializable> {
    @param doUpdate  to update a meme
    */
   public void setup(
-    Callable<Collection<M>> doReadAll,
-    Callable<M> doCreate,
-    Consumer<M> doUpdate
+    Callable<Collection<?>> doReadAll,
+    Callable<Object> doCreate,
+    Consumer<Object> doUpdate
   ) {
     this.doReadAll = doReadAll;
     this.doCreate = doCreate;
@@ -71,7 +70,7 @@ public class EntityMemeController<M extends Serializable> {
   @FXML
   private void createMeme() {
     try {
-      M meme = doCreate.call();
+      var meme = doCreate.call();
       renderMemeTag(meme);
     } catch (Exception e) {
       LOG.error("Error adding Meme!\n{}", StringUtils.formatStackTrace(e), e);
@@ -84,8 +83,8 @@ public class EntityMemeController<M extends Serializable> {
   private void renderMemes() {
     try {
       memeTagContainer.getChildren().clear();
-      Collection<M> memes = doReadAll.call();
-      for (M meme : memes) {
+      Collection<?> memes = doReadAll.call();
+      for (var meme : memes) {
         renderMemeTag(meme);
       }
     } catch (Exception e) {
@@ -98,13 +97,14 @@ public class EntityMemeController<M extends Serializable> {
 
    @param meme to render
    */
-  protected void renderMemeTag(M meme) {
+  protected void renderMemeTag(Object meme) {
     try {
       FXMLLoader loader = new FXMLLoader(memeTagFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent tagRoot = loader.load();
-      EntityMemeTagController<M> memeTagController = loader.getController();
-      memeTagController.setup(tagRoot, meme, doUpdate, (M toDelete) -> {
+      EntityMemeTagController memeTagController = loader.getController();
+      memeTagContainer.getChildren().add(tagRoot);
+      memeTagController.setup(meme, doUpdate, (Object toDelete) -> {
         projectService.deleteContent(toDelete);
         memeTagContainer.getChildren().remove(tagRoot);
       });
