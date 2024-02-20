@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<HBox
+        xmlns="http://javafx.com/javafx"
+        xmlns:fx="http://javafx.com/fxml"
+        fx:controller="io.xj.gui.controllers.content.common.EntityMemeController"
+        alignment="CENTER_LEFT" minHeight="-Infinity" minWidth="-Infinity" prefHeight="49.0"
+        spacing="5.0" VBox.vgrow="ALWAYS"
+        HBox.hgrow="ALWAYS">
+    <padding>
+        <Insets left="50.0"/>
+    </padding>
+    <Label prefHeight="27.0" prefWidth="115.0" text="PROGRAM MEMES :"/>
+    <Button fx:id="addMemeButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            mnemonicParsing="false" onAction="#createMeme" prefHeight="26.0" prefWidth="32.0" text="Bind">
+        <graphic>
+            <ImageView fitHeight="21.0" fitWidth="21.0" translateX="-3.0">
+                <Image url="@/icons/plus.png"/>
+            </ImageView>
+        </graphic>
+    </Button>
+    <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="57.0" prefWidth="1025.0"
+                styleClass="meme-list-container" vbarPolicy="NEVER" HBox.hgrow="ALWAYS">
+        <HBox fx:id="memeTagContainer" alignment="CENTER_LEFT" focusTraversable="true" prefHeight="19.0"
+              prefWidth="1051.0" spacing="10.0">
+            <padding>
+                <Insets bottom="2.0" left="2.0" right="2.0" top="2.0"/>
+            </padding>
+        </HBox>
+    </ScrollPane>
+</HBox>

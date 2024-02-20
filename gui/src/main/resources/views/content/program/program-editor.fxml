@@ -17,6 +17,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.layout.Pane?>
 <VBox fx:id="container" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramEditorController">
 
   <VBox.vgrow>
@@ -67,26 +68,7 @@
       </Label>
       <Spinner fx:id="tempoChooser" editable="true" prefHeight="25.0" prefWidth="111.0"/>
     </HBox>
-    <HBox alignment="CENTER_LEFT" minHeight="-Infinity" minWidth="-Infinity" prefHeight="49.0" prefWidth="1231.0" spacing="5.0" VBox.vgrow="ALWAYS">
-      <padding>
-        <Insets left="50.0" />
-      </padding>
-      <Label prefHeight="27.0" prefWidth="115.0" text="PROGRAM MEMES :" />
-      <Button fx:id="addMemeButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#addMemeTag" prefHeight="26.0" prefWidth="32.0" text="Bind">
-        <graphic>
-          <ImageView fitHeight="21.0" fitWidth="21.0" translateX="-3.0">
-            <Image url="@/icons/plus.png" />
-          </ImageView>
-        </graphic>
-      </Button>
-      <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="57.0" prefWidth="1025.0" styleClass="meme-list-container" vbarPolicy="NEVER" HBox.hgrow="ALWAYS">
-        <HBox fx:id="memeTagContainer" alignment="CENTER_LEFT" focusTraversable="true" prefHeight="19.0" prefWidth="1051.0" spacing="10.0">
-          <padding>
-            <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-          </padding>
-        </HBox>
-      </ScrollPane>
-    </HBox>
+      <Pane fx:id="programMemeContainer" />
   </VBox>
  <HBox alignment="CENTER_LEFT" prefHeight="37.0" prefWidth="1231.0" spacing="5.0" styleClass="sequence-management-control-bar">
      <Group fx:id="gridAndZoomGroup">

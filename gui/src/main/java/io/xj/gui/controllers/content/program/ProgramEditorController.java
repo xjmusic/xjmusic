@@ -4,6 +4,7 @@ package io.xj.gui.controllers.content.program;
 
 import io.xj.gui.ProjectController;
 import io.xj.gui.controllers.CmdModalController;
+import io.xj.gui.controllers.content.common.EntityMemeController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
@@ -46,6 +47,7 @@ import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
@@ -73,6 +75,8 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   public Spinner<Double> tempoChooser;
   @FXML
+  public Pane programMemeContainer;
+  @FXML
   public TextField keyField;
   @FXML
   public ComboBox<ProgramState> stateChooser;
@@ -88,10 +92,6 @@ public class ProgramEditorController extends ProjectController {
   public Button bindButton;
   @FXML
   public Button configButton;
-  @FXML
-  public HBox memeTagContainer;
-  @FXML
-  public Button addMemeButton;
   @FXML
   public Label sequenceIntensityLabel;
   @FXML
@@ -134,9 +134,6 @@ public class ProgramEditorController extends ProjectController {
   @Value("classpath:/views/content/program/program-config.fxml")
   private Resource configFxml;
 
-  @Value("classpath:/views/content/program/program-meme-tag.fxml")
-  private Resource memeTagFxml;
-
   @Value("classpath:/views/content/program/sequence-search.fxml")
   private Resource searchSequenceFxml;
 
@@ -145,6 +142,13 @@ public class ProgramEditorController extends ProjectController {
 
   @Value("classpath:/views/content/program/sequence-selector.fxml")
   private Resource sequenceHolderFxml;
+
+  @Value("classpath:/views/content/program/sequence-binding-item.fxml")
+  private Resource sequenceItemBindingFxml;
+
+  @Value("classpath:/views/content/common/entity-memes.fxml")
+  private Resource entityMemesFxml;
+
   static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
   private final ObjectProperty<UUID> sequenceId = new SimpleObjectProperty<>();
@@ -181,9 +185,6 @@ public class ProgramEditorController extends ProjectController {
   private final CmdModalController cmdModalController;
   protected final ObjectProperty<ProgramSequence> activeProgramSequenceItem = new SimpleObjectProperty<>();
   BooleanBinding isEmptyBinding = activeProgramSequenceItem.isNull();
-
-  @Value("classpath:/views/content/program/sequence-binding-item.fxml")
-  private Resource sequenceItemBindingFxml;
   protected ObservableList<ProgramSequence> programSequenceObservableList = FXCollections.observableArrayList();
 
   public ProgramEditorController(
@@ -422,19 +423,6 @@ public class ProgramEditorController extends ProjectController {
     node.visibleProperty().bind(anyTypeMatched);
   }
 
-
-  @FXML
-  private void addMemeTag() {
-    ProgramMeme programMeme = new ProgramMeme(UUID.randomUUID(), "XXX", this.programId.getValue());
-    loadMemeTag(programMeme);
-    try {
-      projectService.getContent().put(programMeme);
-    } catch (Exception e) {
-      LOG.error("Error adding Meme!\n{}", StringUtils.formatStackTrace(e), e);
-    }
-  }
-
-
   /**
    Handles value changes listening in the TextField components
    */
@@ -460,19 +448,6 @@ public class ProgramEditorController extends ProjectController {
     comboBox.focusedProperty().addListener((observable, oldValue, newValue) -> {
       if (!newValue) handleProgramSave();
     });
-  }
-
-  protected void loadMemeTag(ProgramMeme programMeme) {
-    try {
-      FXMLLoader loader = new FXMLLoader(memeTagFxml.getURL());
-      loader.setControllerFactory(ac::getBean);
-      Parent root = loader.load();
-      ProgramMemeTagController memeTagController = loader.getController();
-      memeTagController.setUp(root, programMeme, programId.get());
-      memeTagContainer.getChildren().add(root);
-    } catch (IOException e) {
-      LOG.error("Error adding Meme!\n{}", StringUtils.formatStackTrace(e), e);
-    }
   }
 
   @FXML
@@ -534,9 +509,8 @@ public class ProgramEditorController extends ProjectController {
     this.key.set(program.getKey());
     this.tempoValueFactory.setValue(Double.valueOf(program.getTempo()));
     this.config.set(program.getConfig());
-    memeTagContainer.getChildren().clear();
-    projectService.getContent().getMemesOfProgram(program.getId()).forEach(this::loadMemeTag);
-    setUpSequence();
+    setupProgramMemeContainer();
+    setupSequence();
     loadBindingView();
   }
 
@@ -551,7 +525,28 @@ public class ProgramEditorController extends ProjectController {
     return bounds.getWidth();
   }
 
-  private void setUpSequence() {
+  private void setupProgramMemeContainer() {
+    try {
+      FXMLLoader loader = new FXMLLoader(entityMemesFxml.getURL());
+      loader.setControllerFactory(ac::getBean);
+      EntityMemeController<ProgramMeme> entityMemeController = loader.getController();
+      entityMemeController.setup(
+        () -> projectService.getContent().getMemesOfProgram(programId.get()),
+        () -> projectService.createProgramMeme(programId.get()),
+        (ProgramMeme meme) -> {
+          try {
+            projectService.update(meme);
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+        }
+      );
+    } catch (IOException e) {
+      LOG.error("Error loading Entity Memes window!\n{}", StringUtils.formatStackTrace(e), e);
+    }
+  }
+
+  private void setupSequence() {
     Collection<ProgramSequence> programSequences = projectService.getContent().getSequencesOfProgram(programId.get());
     List<ProgramSequence> sequenceList = new ArrayList<>(programSequences);
     programSequenceObservableList.clear();

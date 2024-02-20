@@ -1,8 +1,9 @@
-package io.xj.gui.controllers.content.program;
+package io.xj.gui.controllers.content.common;
 
-import io.xj.gui.services.ProjectService;
-import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.entity.EntityException;
+import io.xj.hub.entity.EntityUtils;
 import io.xj.hub.util.StringUtils;
+import jakarta.annotation.Nullable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
@@ -17,13 +18,14 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.UUID;
+import java.io.Serializable;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class ProgramMemeTagController {
+public class EntityMemeTagController<M extends Serializable> {
   @FXML
   public AnchorPane memeParent;
   @FXML
@@ -34,54 +36,50 @@ public class ProgramMemeTagController {
   public Button deleteMemeButton;
   public StackPane stackPane;
   private final SimpleStringProperty name = new SimpleStringProperty("");
-  static final Logger LOG = LoggerFactory.getLogger(ProgramMemeTagController.class);
-  private final ProjectService projectService;
-  private ProgramMeme currentMeme;
-  private UUID programId;
-  //  @Autowired
-  private final ProgramEditorController programEditorController;
+  static final Logger LOG = LoggerFactory.getLogger(EntityMemeTagController.class);
+  private M currentMeme;
+  @Nullable
+  private Consumer<M> doUpdate;
+  @Nullable
+  private Consumer<M> doDelete;
 
-  public ProgramMemeTagController(ProjectService projectService, ProgramEditorController programEditorController) {
-    this.projectService = projectService;
-    this.programEditorController = programEditorController;
+  public EntityMemeTagController() {
   }
 
-  public void setUp(Parent root, ProgramMeme meme, UUID programId) {
+  public void setup(
+    Parent root,
+    M meme,
+    Consumer<M> doUpdate,
+    Consumer<M> doDelete
+  ) throws EntityException {
     this.currentMeme = meme;
-    this.programId = programId;
-    name.set(meme.getName());
+    this.doUpdate = doUpdate;
+    this.doDelete = doDelete;
+    name.set(String.valueOf(EntityUtils.get(meme, "name").orElseThrow(() -> new RuntimeException("Could not get meme name"))));
     memeNameLabel.setText(name.get());
     memeNameField.setText(name.get());
     memeNameField.setVisible(false);
-    memeNameField.setPrefColumnCount((int) computeTextWidth(memeNameField.getFont(), meme.getName()) + 5);
-    memeNameLabel.setWrappingWidth((int) computeTextWidth(memeNameField.getFont(), meme.getName()) + 5);
+    memeNameField.setPrefColumnCount((int) computeTextWidth(memeNameField.getFont(), name.get()) + 5);
+    memeNameLabel.setWrappingWidth((int) computeTextWidth(memeNameField.getFont(), name.get()) + 5);
     memeNameField.textProperty().bindBidirectional(name);
-    projectService.getContent().getMemesOfProgram(programId);
     toggleVisibility();
     setMemeTextProcessing();
     deleteMemeButton.setOnAction(e -> deleteMemeTag(root));
   }
 
   private void updateMeme() {
+    Objects.requireNonNull(doUpdate, "no update callback set");
     try {
-      var memes = projectService.getContent().getMemesOfProgram(programId);
       String name = StringUtils.toMeme(memeNameField.getText());
-      memes.forEach(programMeme -> {
-        if (programMeme.getId().equals(currentMeme.getId())) {
-          programMeme.setName(name);
-          currentMeme.setName(name);
-        }
-      });
-      projectService.getContent().getMemesOfProgram(programId).clear();
-      projectService.getContent().putAll(memes);
-      projectService.isModifiedProperty().set(true);
+      EntityUtils.set(currentMeme, "name", name);
+      doUpdate.accept(currentMeme);
     } catch (Exception e) {
-      LOG.error("Failed to update " + currentMeme.getName() + " Meme");
+      LOG.error("Failed to update meme!\n{}", StringUtils.formatStackTrace(e));
     }
   }
 
   /**
-   * updates the label text on a meme item when the text is updated on the textfield
+   updates the label text on a meme item when the text is updated on the textfield
    */
   private void setMemeTextProcessing() {
     memeNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -98,13 +96,12 @@ public class ProgramMemeTagController {
 
 
   private void deleteMemeTag(Parent root) {
+    Objects.requireNonNull(doDelete, "no delete callback set");
     try {
-      projectService.deleteContent(currentMeme);
-      //remove the meme from UI
-      programEditorController.memeTagContainer.getChildren().remove(root);
-      LOG.info("Deleted " + currentMeme.getName());
+      doDelete.accept(currentMeme);
+      LOG.info("Deleted meme \"{}\"", EntityUtils.get(currentMeme, "name").orElseThrow(() -> new RuntimeException("Could not get meme name")));
     } catch (Exception e) {
-      LOG.error("Failed to delete Meme " + Arrays.toString(e.getStackTrace()) + " !!");
+      LOG.error("Failed to delete Meme!\n{}", StringUtils.formatStackTrace(e));
     }
   }
 
