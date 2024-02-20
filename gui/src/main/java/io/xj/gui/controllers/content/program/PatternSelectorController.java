@@ -1,13 +1,13 @@
 package io.xj.gui.controllers.content.program;
 
 import io.xj.gui.services.ProjectService;
-import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramVoice;
-import javafx.collections.ObservableList;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import org.controlsfx.control.SearchableComboBox;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -15,45 +15,44 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.UUID;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class PatternSearchController {
+public class PatternSelectorController {
     @FXML
 
     public VBox container;
     @FXML
-    public SearchableComboBox<ProgramSequencePattern> patternSearch;
+    public SearchableComboBox<ProgramSequencePattern> patternSelector;
     private final ProjectService projectService;
     private final ProgramEditorController programEditorController;
-    private ProgramSequencePattern programSequencePattern;
-
+    private Collection<ProgramSequencePattern> programSequencePatternsOfVoice;
     private ProgramVoice voice;
+    private  VoiceController voiceController;
 
-    public PatternSearchController(ProjectService projectService,
-                                   ProgramEditorController programEditorController){
-        this.projectService=projectService;
-        this.programEditorController=programEditorController;
+    public PatternSelectorController(ProjectService projectService,
+                                   ProgramEditorController programEditorController) {
+        this.projectService = projectService;
+        this.programEditorController = programEditorController;
     }
-    public void setUp(ProgramSequencePattern programSequencePattern, ProgramVoice voice) {
-        this.voice=voice;
-        this.programSequencePattern=programSequencePattern;
-        selectPassedSequence();
+
+    public void setUp(Collection<ProgramSequencePattern> programSequencePatternsOfVoice, ProgramVoice voice,VoiceController voiceController,Stage stage) {
+        this.voice = voice;
+        this.voiceController=voiceController;
+        this.programSequencePatternsOfVoice = programSequencePatternsOfVoice;
         setCombobox();
-        // Request focus and show the ComboBox
-        patternSearch.requestFocus();
-        patternSearch.show();
-    }
+        selectProgramSequencePattern(stage);
 
+    }
 
     private void setCombobox() {
         // Clear existing items
-        patternSearch.getItems().clear();
-        Collection<ProgramSequencePattern> programSequencePatterns=projectService.getContent().getPatternsOfSequence(programEditorController.getSequenceId());
-        patternSearch.getItems().addAll(programSequencePatterns);
+        patternSelector.getItems().clear();
+        patternSelector.getItems().addAll(programSequencePatternsOfVoice);
 
         // Set the cell factory to display the name of ProgramSequence
-        patternSearch.setCellFactory(param -> new ListCell<>() {
+        patternSelector.setCellFactory(param -> new ListCell<>() {
             @Override
             protected void updateItem(ProgramSequencePattern item, boolean empty) {
                 super.updateItem(item, empty);
@@ -66,7 +65,7 @@ public class PatternSearchController {
         });
 
         // Set the string converter to get ProgramSequence from its name
-        patternSearch.setConverter(new StringConverter<>() {
+        patternSelector.setConverter(new StringConverter<>() {
             @Override
             public String toString(ProgramSequencePattern object) {
                 return object != null ? object.getName() : "";
@@ -74,24 +73,24 @@ public class PatternSearchController {
 
             @Override
             public ProgramSequencePattern fromString(String string) {
-                return programSequencePatterns.stream()
+                return programSequencePatternsOfVoice.stream()
                         .filter(programSequencePattern -> programSequencePattern.getName().equals(string))
                         .findFirst()
                         .orElse(null);
             }
         });
-
+        patternSelector.getSelectionModel().selectFirst();
+        voiceController.setSelectedProgramSequencePattern(patternSelector.getSelectionModel().getSelectedItem());
     }
 
-    private void selectPassedSequence() {
-        if (programSequencePattern != null) {
-            ObservableList<ProgramSequencePattern> items = patternSearch.getItems();
-            for (ProgramSequencePattern item : items) {
-                if (item.getId().equals(programSequencePattern.getId())) {
-                    patternSearch.getSelectionModel().select(item);
-                    break;
-                }
+    private void selectProgramSequencePattern(Stage stage) {
+        patternSelector.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                voiceController.setSelectedProgramSequencePattern(newValue);
+                voiceController.updatePatternUI(newValue);
+                Platform.runLater(stage::close);
             }
-        }
+        });
     }
+
 }
