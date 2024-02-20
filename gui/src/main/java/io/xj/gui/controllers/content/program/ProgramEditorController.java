@@ -4,7 +4,7 @@ package io.xj.gui.controllers.content.program;
 
 import io.xj.gui.ProjectController;
 import io.xj.gui.controllers.CmdModalController;
-import io.xj.gui.controllers.content.common.EntityMemeController;
+import io.xj.gui.controllers.content.common.EntityMemesController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
@@ -46,7 +46,6 @@ import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -532,8 +531,8 @@ public class ProgramEditorController extends ProjectController {
       Parent root = loader.load();
       programMemeContainer.getChildren().clear();
       programMemeContainer.getChildren().add(root);
-      EntityMemeController entityMemeController = loader.getController();
-      entityMemeController.setup(
+      EntityMemesController entityMemesController = loader.getController();
+      entityMemesController.setup(
         () -> projectService.getContent().getMemesOfProgram(programId.get()),
         () -> projectService.createProgramMeme(programId.get()),
         (Object meme) -> {

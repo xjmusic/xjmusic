@@ -16,24 +16,18 @@
             focusTraversable="true">
     <StackPane fx:id="stackPane" styleClass="meme-tag-container"
                AnchorPane.leftAnchor="0.0"
-               AnchorPane.rightAnchor="30.0">
-        <TextField fx:id="memeNameField" minHeight="-Infinity"
-                   styleClass="meme-name-field" onKeyPressed="#handleKeyPressed">
+               AnchorPane.rightAnchor="30.0"
+               alignment="CENTER_LEFT">
+        <TextField fx:id="memeNameField" styleClass="meme-name-field" onKeyPressed="#handleKeyPressed" prefHeight="16">
             <font>
                 <Font size="16.0"/>
             </font>
-            <padding>
-                <Insets left="5.0"/>
-            </padding>
         </TextField>
         <Text fx:id="memeNameLabel" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0"
               textAlignment="JUSTIFY" focusTraversable="true">
             <font>
                 <Font size="16.0"/>
             </font>
-            <StackPane.margin>
-                <Insets left="2.0" right="2.0"/>
-            </StackPane.margin>
             <cursor>
                 <Cursor fx:constant="TEXT"/>
             </cursor>
@@ -44,7 +38,7 @@
             styleClass="meme-tag-remove-button"
             AnchorPane.rightAnchor="0">
         <graphic>
-            <ImageView fitHeight="20.0" fitWidth="20.0" translateX="-5.0">
+            <ImageView fitHeight="16.0" fitWidth="16.0">
                 <Image url="@/icons/multiply.png"/>
             </ImageView>
         </graphic>

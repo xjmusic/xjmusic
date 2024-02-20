@@ -24,8 +24,8 @@ import java.util.function.Consumer;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class EntityMemeController {
-  static final Logger LOG = LoggerFactory.getLogger(EntityMemeController.class);
+public class EntityMemesController {
+  static final Logger LOG = LoggerFactory.getLogger(EntityMemesController.class);
   private final ApplicationContext ac;
   private final ProjectService projectService;
   private Callable<Collection<?>> doReadAll;
@@ -41,7 +41,7 @@ public class EntityMemeController {
   @FXML
   public FlowPane memeTagContainer;
 
-  public EntityMemeController(
+  public EntityMemesController(
     ApplicationContext ac,
     ProjectService projectService
   ) {

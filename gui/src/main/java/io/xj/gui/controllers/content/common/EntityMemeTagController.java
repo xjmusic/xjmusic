@@ -133,10 +133,7 @@ public class EntityMemeTagController {
     memeNameLabel.setVisible(false);
     memeNameField.setVisible(true);
     memeNameField.setManaged(true);
-    //shift focus to the nameField
     memeNameField.requestFocus();
-// todo really?    //set the caret to blink at the end position
-// todo really?    memeNameField.positionCaret(memeNameField.getPrefColumnCount());
   }
 
   /**
@@ -146,7 +143,6 @@ public class EntityMemeTagController {
     stackPane.setPrefWidth(computeTextWidth(memeNameField.getFont(), memeNameField.getText() + MEME_NAME_PADDING));
     memeNameField.setPrefWidth(computeTextWidth(memeNameField.getFont(), memeNameField.getText() + MEME_NAME_PADDING));
     memeNameField.setPrefWidth(computeTextWidth(memeNameField.getFont(), memeNameField.getText() + MEME_NAME_PADDING));
-    memeNameLabel.setWrappingWidth(computeTextWidth(memeNameField.getFont(), memeNameLabel.getText() + MEME_NAME_PADDING));
   }
 
   @FXML

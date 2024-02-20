@@ -5,33 +5,33 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
-<AnchorPane
+<?import javafx.scene.layout.StackPane?>
+<HBox
         xmlns="http://javafx.com/javafx"
         xmlns:fx="http://javafx.com/fxml"
-        fx:controller="io.xj.gui.controllers.content.common.EntityMemeController"
+        fx:controller="io.xj.gui.controllers.content.common.EntityMemesController"
         focusTraversable="true"
         prefHeight="0">
-    <Label
-            AnchorPane.leftAnchor="20"
-            AnchorPane.topAnchor="10"
-            text="MEMES"/>
-    <Button fx:id="addMemeButton"
-            mnemonicParsing="false" onAction="#createMeme" prefHeight="26.0" prefWidth="32.0"
-            AnchorPane.leftAnchor="100"
-            AnchorPane.topAnchor="10">
+    <padding>
+        <Insets left="5" top="5" bottom="5" right="5"/>
+    </padding>
+    <StackPane alignment="TOP_RIGHT">
+        <padding>
+            <Insets top="5" right="5"/>
+        </padding>
+        <Label text="MEMES"/>
+    </StackPane>
+    <Button fx:id="addMemeButton" mnemonicParsing="false" onAction="#createMeme">
         <graphic>
-            <ImageView fitHeight="21.0" fitWidth="21.0" translateX="-3.0">
+            <ImageView fitHeight="16.0" fitWidth="16.0">
                 <Image url="@/icons/plus.png"/>
             </ImageView>
         </graphic>
     </Button>
     <FlowPane styleClass="meme-list-container" HBox.hgrow="ALWAYS" fx:id="memeTagContainer" alignment="CENTER_LEFT"
               focusTraversable="true"
-              AnchorPane.leftAnchor="140"
-              AnchorPane.rightAnchor="0"
               prefHeight="0"
               vgap="5"
               hgap="8">
@@ -39,4 +39,4 @@
             <Insets bottom="2.0" left="2.0" right="2.0" top="2.0"/>
         </padding>
     </FlowPane>
-</AnchorPane>
+</HBox>
