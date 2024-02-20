@@ -15,7 +15,8 @@
         prefHeight="0"
         styleClass="entity-memes-container">
     <StackPane alignment="TOP_RIGHT"
-               styleClass="entity-memes-label-container">
+               styleClass="entity-memes-label-container"
+               prefWidth="80">
         <Label text="MEMES"/>
     </StackPane>
     <Button fx:id="addMemeButton" mnemonicParsing="false" onAction="#createMeme">
@@ -30,6 +31,6 @@
               prefHeight="0"
               vgap="5"
               hgap="8"
-              styleClass="meme-list-container" >
+              styleClass="meme-list-container">
     </FlowPane>
 </HBox>

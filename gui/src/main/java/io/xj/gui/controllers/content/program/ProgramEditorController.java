@@ -524,6 +524,9 @@ public class ProgramEditorController extends ProjectController {
     return bounds.getWidth();
   }
 
+  /**
+   Set up the Program Meme Container FXML and its controller
+   */
   private void setupProgramMemeContainer() {
     try {
       FXMLLoader loader = new FXMLLoader(entityMemesFxml.getURL());
