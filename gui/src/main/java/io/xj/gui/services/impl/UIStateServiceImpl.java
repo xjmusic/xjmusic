@@ -4,6 +4,7 @@ import io.xj.gui.WorkstationLogAppender;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
+import io.xj.gui.modes.ViewStatusMode;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
@@ -19,6 +20,7 @@ import io.xj.nexus.work.FabricationState;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
+import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -66,6 +68,10 @@ public class UIStateServiceImpl implements UIStateService {
     () -> (Objects.equals(viewMode.get(), ViewMode.Content) && CONTENT_MODES_WITH_PARENT.contains(contentMode.get()))
       || (Objects.equals(viewMode.get(), ViewMode.Templates) && Objects.equals(templateMode.get(), TemplateMode.TemplateEditor)),
     viewMode, contentMode, templateMode);
+
+  private final ObjectBinding<ViewStatusMode> viewStatusMode;
+  private final BooleanBinding isViewProgressStatusMode;
+  private final BooleanBinding isViewContentNavigationStatusMode;
   private final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
   private final BooleanProperty logsVisible = new SimpleBooleanProperty(false);
   private final BooleanBinding isFabricationSettingsDisabled;
@@ -118,9 +124,9 @@ public class UIStateServiceImpl implements UIStateService {
       Bindings.createDoubleBinding(
         () ->
           projectService.isStateLoadingProperty().get() ?
-            projectService.progressProperty().get():
+            projectService.progressProperty().get() :
             fabricationService.isStateLoadingProperty().get() ?
-              fabricationService.progressProperty().get():
+              fabricationService.progressProperty().get() :
               0.0,
         projectService.isStateLoadingProperty(),
         projectService.progressProperty(),
@@ -130,7 +136,7 @@ public class UIStateServiceImpl implements UIStateService {
     // State Text
     stateText = Bindings.createStringBinding(
       () -> projectService.isStateReadyProperty().get()
-        ? fabricationService.stateTextProperty().getValue():projectService.stateTextProperty().getValue(),
+        ? fabricationService.stateTextProperty().getValue() : projectService.stateTextProperty().getValue(),
       projectService.stateProperty(),
       projectService.stateTextProperty(),
       fabricationService.stateTextProperty());
@@ -151,9 +157,9 @@ public class UIStateServiceImpl implements UIStateService {
     windowTitle = Bindings.createStringBinding(
       () -> Objects.nonNull(projectService.currentProjectProperty().get())
         ? String.format("%s%s - XJ music workstation",
-        projectService.isModifiedProperty().get() ? "* ":"",
+        projectService.isModifiedProperty().get() ? "* " : "",
         projectService.currentProjectProperty().get().getName())
-        :"XJ music workstation",
+        : "XJ music workstation",
       projectService.isModifiedProperty(),
       projectService.currentProjectProperty()
     );
@@ -162,13 +168,13 @@ public class UIStateServiceImpl implements UIStateService {
       () -> switch (viewMode.get()) {
         case Content -> switch (contentMode.get()) {
           case LibraryBrowser, LibraryEditor -> "Libraries";
-          case InstrumentAudioEditor -> currentInstrument.isNotNull().get() ? currentInstrument.get().getName():"";
+          case InstrumentAudioEditor -> currentInstrument.isNotNull().get() ? currentInstrument.get().getName() : "";
           case ProgramBrowser, InstrumentBrowser, ProgramEditor, InstrumentEditor ->
-            currentLibrary.isNotNull().get() ? currentLibrary.get().getName():"";
+            currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
         };
         case Templates -> switch (templateMode.get()) {
           case TemplateBrowser -> "Templates";
-          case TemplateEditor -> currentTemplate.isNotNull().get() ? currentTemplate.get().getName():"";
+          case TemplateEditor -> currentTemplate.isNotNull().get() ? currentTemplate.get().getName() : "";
         };
         case Fabrication -> "";
       },
@@ -190,15 +196,15 @@ public class UIStateServiceImpl implements UIStateService {
     currentEntityName = Bindings.createStringBinding(
       () -> switch (viewMode.get()) {
         case Content -> switch (contentMode.get()) {
-          case LibraryEditor -> currentLibrary.isNotNull().get() ? currentLibrary.get().getName():"";
-          case ProgramEditor -> currentProgram.isNotNull().get() ? currentProgram.get().getName():"";
-          case InstrumentEditor -> currentInstrument.isNotNull().get() ? currentInstrument.get().getName():"";
+          case LibraryEditor -> currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
+          case ProgramEditor -> currentProgram.isNotNull().get() ? currentProgram.get().getName() : "";
+          case InstrumentEditor -> currentInstrument.isNotNull().get() ? currentInstrument.get().getName() : "";
           case InstrumentAudioEditor ->
-            currentInstrumentAudio.isNotNull().get() ? currentInstrumentAudio.get().getName():"";
+            currentInstrumentAudio.isNotNull().get() ? currentInstrumentAudio.get().getName() : "";
           default -> "";
         };
         case Templates ->
-          Objects.equals(TemplateMode.TemplateEditor, templateMode.get()) && currentTemplate.isNotNull().get() ? currentTemplate.get().getName():"";
+          Objects.equals(TemplateMode.TemplateEditor, templateMode.get()) && currentTemplate.isNotNull().get() ? currentTemplate.get().getName() : "";
         default -> "";
       },
       viewMode, contentMode, templateMode, currentProgram, currentInstrument, currentInstrumentAudio, currentTemplate);
@@ -240,6 +246,17 @@ public class UIStateServiceImpl implements UIStateService {
       viewMode, contentMode
     );
 
+    viewStatusMode = Bindings.createObjectBinding(
+      () -> {
+        if (projectService.isStateReadyProperty().not().get()) return ViewStatusMode.ProjectProgress;
+        if (viewMode.isEqualTo(ViewMode.Fabrication).get()) return ViewStatusMode.FabricationProgress;
+        return ViewStatusMode.ContentNavigation;
+      },
+      projectService.isStateReadyProperty(), viewMode);
+
+    isViewProgressStatusMode = viewStatusMode.isEqualTo(ViewStatusMode.FabricationProgress).or(viewStatusMode.isEqualTo(ViewStatusMode.ProjectProgress));
+    isViewContentNavigationStatusMode = viewStatusMode.isEqualTo(ViewStatusMode.ContentNavigation);
+
     attachPreferenceListeners();
     setAllFromPreferencesOrDefaults();
   }
@@ -267,6 +284,21 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public BooleanBinding isFabricationSettingsDisabledProperty() {
     return isFabricationSettingsDisabled;
+  }
+
+  @Override
+  public ObjectBinding<ViewStatusMode> viewStatusModeProperty() {
+    return viewStatusMode;
+  }
+
+  @Override
+  public BooleanBinding isViewProgressStatusModeProperty() {
+    return isViewProgressStatusMode;
+  }
+
+  @Override
+  public BooleanBinding isViewContentNavigationStatusModeProperty() {
+    return isViewContentNavigationStatusMode;
   }
 
   @Override
@@ -317,11 +349,6 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public ObjectProperty<ViewMode> viewModeProperty() {
     return viewMode;
-  }
-
-  @Override
-  public BooleanBinding isViewModeContentProperty() {
-    return viewMode.isEqualTo(ViewMode.Content);
   }
 
   @Override
@@ -538,5 +565,4 @@ public class UIStateServiceImpl implements UIStateService {
   private void setAllFromPreferencesOrDefaults() {
     isLabFeatureEnabled.set(Boolean.parseBoolean(prefs.get("isLabFeatureEnabled", defaultIsLabFeatureEnabled)));
   }
-
 }
