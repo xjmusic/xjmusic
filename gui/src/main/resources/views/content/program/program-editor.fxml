@@ -184,27 +184,53 @@
             </Label>
         </Group>
     </HBox>
-    <ScrollPane fitToHeight="true" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0"
-                VBox.vgrow="ALWAYS">
-        <HBox fx:id="bindViewParentContainer" alignment="CENTER_LEFT">
-            <VBox fx:id="labelHolder" minWidth="-Infinity" prefHeight="312.0" prefWidth="106.0">
-                <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-                       prefHeight="17.0" prefWidth="107.0" styleClass="bind-mode-label" text="OFFSET"
-                       textFill="GREY" VBox.vgrow="ALWAYS">
-                    <font>
-                        <Font name="System Bold" size="12.0"/>
-                    </font>
-                </Label>
-                <Label alignment="CENTER" contentDisplay="RIGHT" minWidth="-Infinity" prefHeight="37.0"
-                       prefWidth="72.0" styleClass="sequence-memes-label" text="SEQUENCES + MEMES"
-                       textAlignment="CENTER" textFill="GREY" wrapText="true" VBox.vgrow="ALWAYS">
-                    <font>
-                        <Font name="System Bold" size="12.0"/>
-                    </font>
-                </Label>
-            </VBox>
-        </HBox>
-    </ScrollPane>
+    <StackPane VBox.vgrow="ALWAYS">
+        <ScrollPane fitToHeight="true" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0"
+                    VBox.vgrow="ALWAYS">
+            <HBox fx:id="bindViewParentContainer" alignment="CENTER_LEFT">
+                <VBox fx:id="labelHolder" minWidth="-Infinity" prefHeight="312.0" prefWidth="106.0">
+                    <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+                           prefHeight="17.0" prefWidth="107.0" styleClass="bind-mode-label" text="OFFSET"
+                           textFill="GREY" VBox.vgrow="ALWAYS">
+                        <font>
+                            <Font name="System Bold" size="12.0"/>
+                        </font>
+                    </Label>
+                    <Label alignment="CENTER" contentDisplay="RIGHT" minWidth="-Infinity" prefHeight="37.0"
+                           prefWidth="72.0" styleClass="sequence-memes-label" text="SEQUENCES + MEMES"
+                           textAlignment="CENTER" textFill="GREY" wrapText="true" VBox.vgrow="ALWAYS">
+                        <font>
+                            <Font name="System Bold" size="12.0"/>
+                        </font>
+                    </Label>
+                </VBox>
+            </HBox>
+        </ScrollPane>
+        <ScrollPane fx:id="editModeScrollPane" fitToHeight="true" fitToWidth="true"
+                    styleClass="program-editor-scroll-pane" StackPane.alignment="CENTER">
+            <content>
+                <VBox fx:id="editModeContainer" prefHeight="200.0" prefWidth="100.0" spacing="2.0"
+                      styleClass="edit-mode-container">
+                    <Button fx:id="editModeAddButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                            prefHeight="33.0" prefWidth="1231.0" VBox.vgrow="ALWAYS">
+                        <graphic>
+                            <ImageView fitHeight="23.0" fitWidth="23.0">
+                                <image>
+                                    <Image url="@/icons/plus.png"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+                        <VBox.margin>
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        </VBox.margin>
+                    </Button>
+                </VBox>
+            </content>
+            <padding>
+                <Insets left="2.0"/>
+            </padding>
+        </ScrollPane>
+    </StackPane>
     <padding>
         <Insets top="5.0"/>
     </padding>

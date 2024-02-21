@@ -10,11 +10,15 @@ import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.util.StringUtils;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
@@ -36,14 +40,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
-import javafx.scene.control.ToggleButton;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -71,64 +68,75 @@ import java.util.function.UnaryOperator;
 
 @Service
 public class ProgramEditorController extends ProjectController {
-  @FXML
-  public Spinner<Double> tempoChooser;
-  @FXML
-  public StackPane programMemeContainer;
-  @FXML
-  public TextField keyField;
-  @FXML
-  public ComboBox<ProgramState> stateChooser;
-  @FXML
-  public ComboBox<ProgramType> typeChooser;
-  @FXML
-  public TextField programNameField;
-  @FXML
-  public Button copyButton;
-  @FXML
-  public Button editButton;
-  @FXML
-  public Button bindButton;
-  @FXML
-  public Button configButton;
-  @FXML
-  public Label sequenceIntensityLabel;
-  @FXML
-  public Spinner<Double> sequenceIntensityChooser;
-  @FXML
-  public TextField sequenceKey;
-  @FXML
-  public Label sequenceTotalLabel;
-  @FXML
-  public Spinner<Integer> sequenceTotalChooser;
-  @FXML
-  public TextField sequenceName;
-  @FXML
-  public Button sequenceMenuLauncher;
-  @FXML
-  public ToggleButton snapButton;
-  @FXML
-  public ComboBox<String> zoomChooser;
-  @FXML
-  public ComboBox<String> gridChooser;
-  @FXML
-  public Label gridLabel;
-  @FXML
-  public Button sequenceButton;
-  @FXML
-  public HBox bindViewParentContainer;
-  @FXML
-  public Group gridAndZoomGroup;
-  @FXML
-  public VBox labelHolder;
-  @FXML
-  public Group sequenceItemGroup;
-  @FXML
-  public Label noSequenceLabel;
-  @FXML
-  protected VBox container;
-  @FXML
-  protected TextField fieldName;
+    @FXML
+    public Spinner<Double> tempoChooser;
+    @FXML
+    public TextField keyField;
+    @FXML
+    public ComboBox<ProgramState> stateChooser;
+    @FXML
+    public ComboBox<ProgramType> typeChooser;
+    @FXML
+    public TextField programNameField;
+    @FXML
+    public Button copyButton;
+    @FXML
+    public Button editButton;
+    @FXML
+    public Button bindButton;
+    @FXML
+    public Button configButton;
+    @FXML
+    public HBox memeTagContainer;
+    @FXML
+    public Button addMemeButton;
+    @FXML
+    public Label sequenceIntensityLabel;
+    @FXML
+    public Spinner<Double> sequenceIntensityChooser;
+    @FXML
+    public TextField sequenceKey;
+    @FXML
+    public Label sequenceTotalLabel;
+    @FXML
+    public Spinner<Integer> sequenceTotalChooser;
+    @FXML
+    public TextField sequenceName;
+    @FXML
+    public Button sequenceMenuLauncher;
+    @FXML
+    public ToggleButton snapButton;
+    @FXML
+    public ComboBox<String> zoomChooser;
+    @FXML
+    public ComboBox<String> gridChooser;
+    @FXML
+    public Label gridLabel;
+    @FXML
+    public Button sequenceButton;
+    @FXML
+    public HBox bindViewParentContainer;
+    @FXML
+    public Group gridAndZoomGroup;
+    @FXML
+    public VBox labelHolder;
+    @FXML
+    public Group sequenceItemGroup;
+    @FXML
+    public Label noSequenceLabel;
+    public ScrollPane editModeScrollPane;
+    @FXML
+    public VBox editModeContainer;
+    @FXML
+    public Button editModeAddButton;
+    @FXML
+    public ScrollPane bindModeScrollPane;
+    @FXML
+    public StackPane programMemeContainer;
+    @FXML
+    protected VBox container;
+    @FXML
+    protected TextField fieldName;
 
   @Value("classpath:/views/content/program/program-config.fxml")
   private Resource configFxml;
@@ -148,6 +156,8 @@ public class ProgramEditorController extends ProjectController {
   @Value("classpath:/views/content/common/entity-memes.fxml")
   private Resource entityMemesFxml;
 
+    @Value("classpath:/views/content/program/voice.fxml")
+    private Resource voiceFxml;
   static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
   private final ObjectProperty<UUID> sequenceId = new SimpleObjectProperty<>();
@@ -170,21 +180,24 @@ public class ProgramEditorController extends ProjectController {
   private final SpinnerValueFactory<Integer> sequenceTotalValueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10000, sequenceTotal.intValue());
   private final ObjectProperty<Integer> sequenceTotalIntegerValue = new SimpleObjectProperty<>(sequenceTotalValueFactory.getValue());
 
-  private final ObjectProperty<Double> tempoDoubleValue = new SimpleObjectProperty<>(tempoValueFactory.getValue());
-  private final ObservableList<ProgramType> programTypes = FXCollections.observableArrayList(ProgramType.values());
-  private final ObservableList<ProgramState> programStates = FXCollections.observableArrayList(ProgramState.values());
-  private final StringProperty gridProperty = new SimpleStringProperty("");
-  private final StringProperty zoomProperty = new SimpleStringProperty("");
-  private final ObservableList<String> gridDivisions =
-    FXCollections.observableArrayList(Arrays.asList("1/4", "1/8", "1/16", "1/32"));
-  private final ObservableList<String> zoomOptions =
-    FXCollections.observableArrayList(Arrays.asList("5%", "10%", "25%", "50%", "100%", "200%", "300%", "400%"));
-  protected final SimpleStringProperty sequencePropertyName = new SimpleStringProperty("");
-  private final SimpleStringProperty sequencePropertyKey = new SimpleStringProperty("");
-  private final CmdModalController cmdModalController;
-  protected final ObjectProperty<ProgramSequence> activeProgramSequenceItem = new SimpleObjectProperty<>();
-  BooleanBinding isEmptyBinding = activeProgramSequenceItem.isNull();
+    private final ObjectProperty<Double> tempoDoubleValue = new SimpleObjectProperty<>(tempoValueFactory.getValue());
+    private final ObservableList<ProgramType> programTypes = FXCollections.observableArrayList(ProgramType.values());
+    private final ObservableList<ProgramState> programStates = FXCollections.observableArrayList(ProgramState.values());
+    private final StringProperty gridProperty = new SimpleStringProperty("");
+    private final StringProperty zoomProperty = new SimpleStringProperty("");
+    private final ObservableList<String> gridDivisions =
+            FXCollections.observableArrayList(Arrays.asList("1/4", "1/8", "1/16", "1/32"));
+    private final ObservableList<String> zoomOptions =
+            FXCollections.observableArrayList(Arrays.asList("5%", "10%", "25%", "50%", "100%", "200%", "300%", "400%"));
+    protected final SimpleStringProperty sequencePropertyName = new SimpleStringProperty("");
+    private final SimpleStringProperty sequencePropertyKey = new SimpleStringProperty("");
+    private final CmdModalController cmdModalController;
+    protected final ObjectProperty<ProgramSequence> activeProgramSequenceItem = new SimpleObjectProperty<>();
+    BooleanBinding isEmptyBinding = activeProgramSequenceItem.isNull();
+
   protected ObservableList<ProgramSequence> programSequenceObservableList = FXCollections.observableArrayList();
+    private ObservableList<ProgramVoice> voicesOfProgram = FXCollections.observableArrayList();
+    private IntegerProperty timelineGridProperty=new SimpleIntegerProperty(8);
 
   public ProgramEditorController(
     @Value("classpath:/views/content/library-editor.fxml") Resource fxml,
@@ -197,58 +210,59 @@ public class ProgramEditorController extends ProjectController {
     this.cmdModalController = cmdModalController;
   }
 
-  @Override
-  public void onStageReady() {
-    bindViewParentContainer.setMinWidth(getScreenSize() - labelHolder.getWidth());
-    var visible = projectService.isStateReadyProperty()
-      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
-      .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramEditor));
-    uiStateService.contentModeProperty().addListener((o, ov, v) -> {
-      if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.ProgramEditor))
-        setup();
-    });
-    bindButton.setOnAction(event -> {
-      editButton.getStyleClass().remove("selected");
-      bindButton.getStyleClass().add("selected");
-    });
+    public int getTimelineGridSize(){
+        return timelineGridProperty.get();
+    }
 
-    editButton.setOnAction(event -> {
-      bindButton.getStyleClass().remove("selected");
-      editButton.getStyleClass().add("selected");
-    });
-    snapButton.getStyleClass().add("snap-button");
-    createDisabilityBindingForTypes(editButton, Arrays.asList(ProgramType.Main, ProgramType.Macro));
-    createDisabilityBindingForTypes(bindButton, Arrays.asList(ProgramType.Main, ProgramType.Macro));
-    createVisibilityBindingForTypes(gridAndZoomGroup, List.of(ProgramType.Macro));
-    typeChooser.setItems(programTypes);
-    stateChooser.setItems(programStates);
-    setTextProcessing(programNameField);
-    setTextProcessing(keyField);
-    setChooserSelectionProcessing(tempoChooser);
-    setComboboxSelectionProcessing(typeChooser);
-    setComboboxSelectionProcessing(stateChooser);
-    gridChooser.valueProperty().bindBidirectional(gridProperty);
-    zoomChooser.valueProperty().bindBidirectional(zoomProperty);
-    gridChooser.setItems(gridDivisions);
-    gridChooser.setValue("1/4");
-    zoomChooser.setItems(zoomOptions);
-    zoomChooser.setValue("25%");
-    sequenceButton.setOnMouseClicked(this::showSequenceUI);
-    sequenceMenuLauncher.setOnMouseClicked(this::showSequenceManagementUI);
-    sequenceIntensityChooser.setVisible(false);
-    sequenceTotalChooser.setVisible(false);
-    createDisabilityBindingForTypes(snapButton, Arrays.asList(ProgramType.Beat, ProgramType.Detail));
-    toggleVisibilityBetweenEditorAndLabel(sequenceIntensityChooser, sequenceIntensityLabel);
-    toggleVisibilityBetweenEditorAndLabel(sequenceTotalChooser, sequenceTotalLabel);
-    setTextFieldValueToAlwaysCAPS(keyField);
-    setTextFieldValueToAlwaysCAPS(sequenceKey);
-    sequenceName.textProperty().bindBidirectional(sequencePropertyName);
-    container.visibleProperty().bind(visible);
-    container.managedProperty().bind(visible);
-    programNameField.textProperty().bindBidirectional(programName);
-    typeChooser.valueProperty().bindBidirectional(type);
-    gridChooser.valueProperty().bindBidirectional(gridProperty);
-    zoomChooser.valueProperty().bindBidirectional(zoomProperty);
+    public void setTimelineGridSize(int timelineGridSize){
+        this.timelineGridProperty.set(timelineGridSize);
+    }
+
+    @Override
+    public void onStageReady() {
+        bindViewParentContainer.setMinWidth(getScreenSize() - labelHolder.getWidth());
+        var visible = projectService.isStateReadyProperty()
+                .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
+                .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramEditor));
+        uiStateService.contentModeProperty().addListener((o, ov, v) -> {
+            if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.ProgramEditor))
+                setup();
+        });
+        setBindMode();
+        setEditMode();
+        snapButton.getStyleClass().add("snap-button");
+        createDisabilityBindingForTypes(editButton, Arrays.asList(ProgramType.Main, ProgramType.Macro));
+        createDisabilityBindingForTypes(bindButton, Arrays.asList(ProgramType.Main, ProgramType.Macro));
+        createVisibilityBindingForTypes(gridAndZoomGroup, List.of(ProgramType.Macro));
+        typeChooser.setItems(programTypes);
+        stateChooser.setItems(programStates);
+        setTextProcessing(programNameField);
+        setTextProcessing(keyField);
+        setChooserSelectionProcessing(tempoChooser);
+        setComboboxSelectionProcessing(typeChooser);
+        setComboboxSelectionProcessing(stateChooser);
+        gridChooser.valueProperty().bindBidirectional(gridProperty);
+        zoomChooser.valueProperty().bindBidirectional(zoomProperty);
+        gridChooser.setItems(gridDivisions);
+        gridChooser.setValue("1/4");
+        zoomChooser.setItems(zoomOptions);
+        zoomChooser.setValue("25%");
+        sequenceButton.setOnMouseClicked(this::showSequenceUI);
+        sequenceMenuLauncher.setOnMouseClicked(this::showSequenceManagementUI);
+        sequenceIntensityChooser.setVisible(false);
+        sequenceTotalChooser.setVisible(false);
+        createDisabilityBindingForTypes(snapButton, Arrays.asList(ProgramType.Beat, ProgramType.Detail));
+        toggleVisibilityBetweenEditorAndLabel(sequenceIntensityChooser, sequenceIntensityLabel);
+        toggleVisibilityBetweenEditorAndLabel(sequenceTotalChooser, sequenceTotalLabel);
+        setTextFieldValueToAlwaysCAPS(keyField);
+        setTextFieldValueToAlwaysCAPS(sequenceKey);
+        sequenceName.textProperty().bindBidirectional(sequencePropertyName);
+        container.visibleProperty().bind(visible);
+        container.managedProperty().bind(visible);
+        programNameField.textProperty().bindBidirectional(programName);
+        typeChooser.valueProperty().bindBidirectional(type);
+        gridChooser.valueProperty().bindBidirectional(gridProperty);
+        zoomChooser.valueProperty().bindBidirectional(zoomProperty);
 
     sequenceKey.textProperty().bindBidirectional(sequencePropertyKey);
     sequenceTotalLabel.textProperty().bind(sequenceTotalChooser.valueProperty().asString());
@@ -268,15 +282,17 @@ public class ProgramEditorController extends ProjectController {
     sequenceTotalValueFactory.valueProperty().addListener((observable, oldValue, newValue) -> sequenceTotalIntegerValue.set(newValue));
     sequenceTotalChooser.setValueFactory(sequenceTotalValueFactory);
 
-    // Bind the Chooser's value to the ObjectProperty
-    tempo.bind(Bindings.createFloatBinding(() -> tempoDoubleValue.get().floatValue(), tempoDoubleValue));
-    // Update the ObjectProperty when the Chooser value changes
-    tempoChooser.valueProperty().addListener((observable, oldValue, newValue) -> tempoDoubleValue.set(newValue));
-    tempoChooser.setValueFactory(tempoValueFactory);
-    sequenceItemGroup.visibleProperty().bind(isEmptyBinding.not());
-    noSequenceLabel.visibleProperty().bind(sequenceItemGroup.visibleProperty().not());
-    updateSequence();
-  }
+        // Bind the Chooser's value to the ObjectProperty
+        tempo.bind(Bindings.createFloatBinding(() -> tempoDoubleValue.get().floatValue(), tempoDoubleValue));
+        // Update the ObjectProperty when the Chooser value changes
+        tempoChooser.valueProperty().addListener((observable, oldValue, newValue) -> tempoDoubleValue.set(newValue));
+        tempoChooser.setValueFactory(tempoValueFactory);
+        sequenceItemGroup.visibleProperty().bind(isEmptyBinding.not());
+        noSequenceLabel.visibleProperty().bind(sequenceItemGroup.visibleProperty().not());
+        updateSequence();
+        addVoiceItem_EditMode();
+        setGridSize();
+    }
 
   private void updateSequence() {
     sequenceName.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -392,7 +408,7 @@ public class ProgramEditorController extends ProjectController {
   /**
    Positions the GUI to the place where the click happened
    */
-  private void positionUIAtLocation(Stage stage, MouseEvent event, int xValue, int yValue) {
+  public static void positionUIAtLocation(Stage stage, MouseEvent event, int xValue, int yValue) {
     // Get the X and Y coordinates of the button
     Node source = (Node) event.getSource();
     double xOffset = source.getLayoutX() + source.localToScreen(0, 0).getX() - xValue;
@@ -422,14 +438,15 @@ public class ProgramEditorController extends ProjectController {
     node.visibleProperty().bind(anyTypeMatched);
   }
 
-  /**
-   Handles value changes listening in the TextField components
-   */
-  private void setTextProcessing(TextField textField) {
-    textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-      if (!newValue) handleProgramSave();
-    });
-  }
+
+    /**
+     * Handles value changes listening in the TextField components
+     */
+    private void setTextProcessing(TextField textField) {
+        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) handleProgramSave();
+        });
+    }
 
   /**
    Handles value changes listening in the  value Chooser components
@@ -449,12 +466,12 @@ public class ProgramEditorController extends ProjectController {
     });
   }
 
-  @FXML
-  protected void openCloneDialog() {
-    var program = projectService.getContent().getProgram(programId.get())
-      .orElseThrow(() -> new RuntimeException("Could not find Program"));
-    cmdModalController.cloneProgram(program);
-  }
+    @FXML
+    protected void openCloneDialog() {
+        var program = projectService.getContent().getProgram(programId.get())
+                .orElseThrow(() -> new RuntimeException("Could not find Program"));
+        cmdModalController.cloneProgram(program);
+    }
 
   @Override
   public void onStageClose() {
@@ -491,27 +508,31 @@ public class ProgramEditorController extends ProjectController {
     }
   }
 
-  /**
-   Update the Program Editor with the current Program.
-   */
-  private void setup() {
-    if (Objects.isNull(uiStateService.currentProgramProperty().get()))
-      return;
-    var program = projectService.getContent().getProgram(uiStateService.currentProgramProperty().get().getId())
-      .orElseThrow(() -> new RuntimeException("Could not find Program"));
-    LOG.info("Will edit Program \"{}\"", program.getName());
-    this.programId.set(program.getId());
-    this.programName.set(program.getName());
-    this.dirty.set(false);
-    this.type.set(program.getType());
-    this.state.set(program.getState());
-    this.key.set(program.getKey());
-    this.tempoValueFactory.setValue(Double.valueOf(program.getTempo()));
-    this.config.set(program.getConfig());
-    setupProgramMemeContainer();
-    setupSequence();
-    loadBindingView();
-  }
+    /**
+     * Update the Program Editor with the current Program.
+     */
+    private void setup() {
+        if (Objects.isNull(uiStateService.currentProgramProperty().get()))
+            return;
+        var program = projectService.getContent().getProgram(uiStateService.currentProgramProperty().get().getId())
+                .orElseThrow(() -> new RuntimeException("Could not find Program"));
+        LOG.info("Will edit Program \"{}\"", program.getName());
+        this.programId.set(program.getId());
+        this.programName.set(program.getName());
+        this.dirty.set(false);
+        this.type.set(program.getType());
+        this.state.set(program.getState());
+        this.key.set(program.getKey());
+        this.tempoValueFactory.setValue(Double.valueOf(program.getTempo()));
+        this.config.set(program.getConfig());
+//        memeTagContainer.getChildren().clear();
+        setupSequence();
+        setupProgramMemeContainer();
+        loadBindingView();
+        loadVoices();
+        //defaults to edit mode
+        editButton.getStyleClass().add("selected");
+    }
 
   private double getScreenSize() {
     // Get the primary screen
@@ -695,12 +716,86 @@ public class ProgramEditorController extends ProjectController {
     return this.config.get();
   }
 
-  /**
-   Set the current sequence total
+    /**
+     * Set the current sequence total
+     *
+     * @param sequenceTotal to set
+     */
+    public void setSequenceTotal(Integer sequenceTotal) {
+        sequenceTotalValueFactory.setValue(sequenceTotal);
+    }
 
-   @param sequenceTotal to set
-   */
-  public void setSequenceTotal(Integer sequenceTotal) {
-    sequenceTotalValueFactory.setValue(sequenceTotal);
+    private void setBindMode() {
+        bindButton.setOnAction(event -> {
+            Platform.runLater(() -> {
+                editButton.getStyleClass().remove("selected");
+                bindButton.getStyleClass().add("selected");
+                bindModeScrollPane.toFront();
+            });
+        });
+    }
+
+    private void setEditMode() {
+        editButton.setOnAction(e -> {
+            Platform.runLater(() -> {
+                bindButton.getStyleClass().remove("selected");
+                editButton.getStyleClass().add("selected");
+                editModeScrollPane.toFront();
+            });
+        });
+    }
+
+    private void addVoiceItem_EditMode() {
+        editModeAddButton.setOnAction(e -> {
+            voiceItem(createVoice());
+        });
+    }
+
+    private void loadVoices() {
+        voicesOfProgram.addAll(projectService.getContent().getVoicesOfProgram(getProgramId()));
+        voicesOfProgram.forEach(this::voiceItem);
+    }
+
+    private ProgramVoice createVoice() {
+        try {
+            ProgramVoice newVoice = new ProgramVoice(UUID.randomUUID(), getProgramId(), InstrumentType.Drum, "XXX", 1f);
+            projectService.getContent().put(newVoice);
+            return newVoice;
+        } catch (Exception e) {
+            LOG.info("Failed to create new voice");
+        }
+        return null;
+    }
+
+    private void voiceItem(ProgramVoice voice) {
+        try {
+            FXMLLoader loader = new FXMLLoader(voiceFxml.getURL());
+            loader.setControllerFactory(ac::getBean);
+            Parent root = loader.load();
+            editModeContainer.getChildren().add(editModeContainer.getChildren().size() - 1, root);
+            io.xj.gui.controllers.content.program.VoiceController voiceController = loader.getController();
+            voiceController.setUp(root, voice);
+        } catch (IOException e) {
+            LOG.error("Error adding Voice item view!\n{}", StringUtils.formatStackTrace(e), e);
+        }
+    }
+
+    /**
+     * @return current sequence id
+     */
+    public UUID getSequenceId() {
+        return sequenceId.get();
+    }
+
+    public IntegerProperty getTimelineGridProperty(){
+        return this.timelineGridProperty;
+    }
+
+  private void setGridSize(){
+    gridChooser.valueProperty().addListener((observable, oldValue, newValue) -> {
+      if (newValue != null) {
+        timelineGridProperty.set(Integer.parseInt(newValue.replaceAll("1/","")));
+      }
+    });
   }
 }
