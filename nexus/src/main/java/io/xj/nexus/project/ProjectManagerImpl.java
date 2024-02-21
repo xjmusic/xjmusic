@@ -13,6 +13,7 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.hub.json.JsonProvider;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentMeme;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramMeme;
@@ -79,6 +80,7 @@ public class ProjectManagerImpl implements ProjectManager {
   private static final float DEFAULT_VOLUME = 1.0f;
   private static final String DEFAULT_PROGRAM_SEQUENCE_NAME = "New Sequence";
   private static final Integer DEFAULT_PROGRAM_SEQUENCE_TOTAL = 4;
+  private static final String DEFAULT_MEME_NAME = "XXX";
   private final AtomicReference<ProjectState> state = new AtomicReference<>(ProjectState.Standby);
   private final AtomicReference<Project> project = new AtomicReference<>();
   private final AtomicReference<String> projectPathPrefix = new AtomicReference<>(File.separator);
@@ -500,6 +502,26 @@ public class ProjectManagerImpl implements ProjectManager {
 
     content.get().put(sequence);
     return sequence;
+  }
+
+  @Override
+  public ProgramMeme createProgramMeme(UUID programId) throws Exception {
+    var meme = new ProgramMeme();
+    meme.setId(UUID.randomUUID());
+    meme.setName(DEFAULT_MEME_NAME);
+    meme.setProgramId(programId);
+    content.get().put(meme);
+    return meme;
+  }
+
+  @Override
+  public InstrumentMeme createInstrumentMeme(UUID instrumentId) throws Exception {
+    var meme = new InstrumentMeme();
+    meme.setId(UUID.randomUUID());
+    meme.setName(DEFAULT_MEME_NAME);
+    meme.setInstrumentId(instrumentId);
+    content.get().put(meme);
+    return meme;
   }
 
   @Override

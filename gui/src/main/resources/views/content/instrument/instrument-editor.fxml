@@ -34,6 +34,8 @@
       <TextField fx:id="fieldName" prefHeight="25.0"/>
     </VBox>
 
+    <StackPane fx:id="instrumentMemeContainer"/>
+
     <HBox spacing="10.0"
           HBox.hgrow="ALWAYS">
       <VBox HBox.hgrow="ALWAYS" spacing="2.0">

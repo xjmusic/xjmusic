@@ -11,8 +11,10 @@ import io.xj.hub.json.JsonProvider;
 import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentMeme;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Project;
@@ -308,11 +310,20 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public <N extends Serializable> void deleteContent(N entity) {
+  public void deleteContent(Object entity) {
     try {
-      projectManager.getContent().delete(entity.getClass(), EntityUtils.getId(entity));
-      didUpdate(entity.getClass(), true);
-      LOG.info("Deleted {}[{}]", entity.getClass().getSimpleName(), EntityUtils.getId(entity));
+      deleteContent(entity.getClass(), EntityUtils.getId(entity));
+    } catch (Exception e) {
+      LOG.error("Could not delete content\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+    }
+  }
+
+  @Override
+  public void deleteContent(Class<?> type, UUID id) {
+    try {
+      projectManager.getContent().delete(type, id);
+      didUpdate(type, true);
+      LOG.info("Deleted {}[{}]", type.getSimpleName(), id);
     } catch (Exception e) {
       LOG.error("Could not delete content\n{}", StringUtils.formatStackTrace(e.getCause()), e);
     }
@@ -415,11 +426,27 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
+  public ProgramMeme createProgramMeme(UUID programId) throws Exception {
+    var meme = projectManager.createProgramMeme(programId);
+    didUpdate(ProgramMeme.class, true);
+    LOG.info("Created Program Meme \"{}\"", meme.getName());
+    return meme;
+  }
+
+  @Override
   public Instrument createInstrument(Library library, String name) throws Exception {
     var instrument = projectManager.createInstrument(library, name);
     didUpdate(Instrument.class, true);
     LOG.info("Created instrument \"{}\"", name);
     return instrument;
+  }
+
+  @Override
+  public InstrumentMeme createInstrumentMeme(UUID instrumentId) throws Exception {
+    var meme = projectManager.createInstrumentMeme(instrumentId);
+    didUpdate(InstrumentMeme.class, true);
+    LOG.info("Created Instrument Meme \"{}\"", meme.getName());
+    return meme;
   }
 
   @Override
@@ -492,6 +519,16 @@ public class ProjectServiceImpl implements ProjectService {
     didUpdate(Instrument.class, true);
     LOG.info("Cloned instrument to \"{}\"", name);
     return instrument;
+  }
+
+  @Override
+  public <N> void update(N entity) {
+    try {
+      projectManager.getContent().put(entity);
+      didUpdate(entity.getClass(), true);
+    } catch (Exception e) {
+      LOG.error("Could not update entity\n{}", StringUtils.formatStackTrace(e));
+    }
   }
 
   @Override

@@ -4,8 +4,10 @@ import io.xj.hub.HubContent;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentMeme;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Project;
@@ -24,6 +26,7 @@ import javafx.scene.control.Alert;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public interface ProjectService {
@@ -130,9 +133,19 @@ public interface ProjectService {
   HubContent getContent();
 
   /**
+   Delete an entity
+
    @param entity to delete
    */
-  <N extends Serializable> void deleteContent(N entity);
+  void deleteContent(Object entity);
+
+  /**
+   Delete an entity by type and id
+
+   @param type the class of the entity
+   @param id   the id of the entity
+   */
+  void deleteContent(Class<?> type, UUID id);
 
   /**
    @return the list of recent projects
@@ -223,10 +236,20 @@ public interface ProjectService {
   Program createProgram(Library library, String name) throws Exception;
 
   /**
+   Create a new program sequence
+
    @param programId for which to create a program sequence
    @return the new program sequence
    */
   ProgramSequence createProgramSequence(UUID programId) throws Exception;
+
+  /**
+   Create a new Program Meme
+
+   @param programId for which to create a program meme
+   @return the new program meme
+   */
+  ProgramMeme createProgramMeme(UUID programId) throws Exception;
 
   /**
    Create a new instrument
@@ -236,6 +259,15 @@ public interface ProjectService {
    @return the new instrument
    */
   Instrument createInstrument(Library library, String name) throws Exception;
+
+  /**
+   Create a new instrument meme
+
+   @param instrumentId for which to create a instrument meme
+   @return the new instrument meme
+   @throws Exception if the instrument meme cannot be created
+   */
+  InstrumentMeme createInstrumentMeme(UUID instrumentId) throws Exception;
 
   /**
    Create a new instrument audio
@@ -320,13 +352,12 @@ public interface ProjectService {
   Instrument cloneInstrument(UUID fromId, UUID libraryId, String name) throws Exception;
 
   /**
-   Update the given library
+   Update an entity
 
-   @param library to update
-   @return true if successful
+   @param entity to update
+   @param <N>    type of entity
    */
-  boolean updateLibrary(Library library);
-
+  <N> void update(N entity);
 
   /**
    Update an entity attribute
@@ -338,6 +369,14 @@ public interface ProjectService {
    @param <N>       type of entity
    */
   <N> void update(Class<N> type, UUID id, String attribute, Object value) throws Exception;
+
+  /**
+   Update the given library
+
+   @param library to update
+   @return true if successful
+   */
+  boolean updateLibrary(Library library);
 
   /**
    Update the given program
@@ -402,4 +441,5 @@ public interface ProjectService {
    @param body   of the dialog
    */
   void showErrorDialog(String title, String header, String body);
+
 }

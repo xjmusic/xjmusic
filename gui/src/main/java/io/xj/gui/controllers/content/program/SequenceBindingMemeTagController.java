@@ -1,5 +1,6 @@
 package io.xj.gui.controllers.content.program;
 
+import io.xj.gui.controllers.content.common.EntityMemeTagController;
 import io.xj.gui.services.ProjectService;
 import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
 import io.xj.hub.util.StringUtils;
@@ -35,7 +36,7 @@ public class SequenceBindingMemeTagController {
   public Button deleteMemeButton;
   public StackPane stackPane;
   private final SimpleStringProperty name = new SimpleStringProperty("");
-  static final Logger LOG = LoggerFactory.getLogger(ProgramMemeTagController.class);
+  static final Logger LOG = LoggerFactory.getLogger(EntityMemeTagController.class);
   private final ProjectService projectService;
   @FXML
   public AnchorPane memeParent;
