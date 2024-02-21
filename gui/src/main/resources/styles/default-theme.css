@@ -234,37 +234,44 @@
   -fx-fill: #fff;
 }
 
-.toggle-button:selected {
+.button:selected,
+.toggle-toggle-button:selected{
   -fx-background-color: #99999999;
 }
 
 /*noinspection CssInvalidPseudoSelector*/
-.button:active {
+.button:active,
+.toggle-button:active{
   -fx-background-color: rgba(0, 255, 0, 0.38);
 }
 
 /*noinspection CssInvalidPseudoSelector*/
-.button:active:hover {
+.button:active:hover,
+.toggle-button:active:hover{
   -fx-background-color: rgba(0, 255, 0, 0.62);
 }
 
 /*noinspection CssInvalidPseudoSelector*/
-.button:pending {
+.button:pending,
+.toggle-button:pending{
   -fx-background-color: rgba(255, 128, 0, 0.38);
 }
 
 /*noinspection CssInvalidPseudoSelector*/
-.button:pending:hover {
+.button:pending:hover,
+.toggle-button:pending:hover{
   -fx-background-color: rgba(255, 128, 0, 0.62);
 }
 
 /*noinspection CssInvalidPseudoSelector*/
-.button:failed {
+.button:failed,
+.toggle-button:failed{
   -fx-background-color: rgba(255, 0, 0, 0.38);
 }
 
 /*noinspection CssInvalidPseudoSelector*/
-.button:failed:hover {
+.button:failed:hover,
+.toggle-button:failed:hover{
   -fx-background-color: rgba(255, 0, 0, 0.62);
 }
 

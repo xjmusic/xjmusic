@@ -50,7 +50,7 @@
   </StackPane>
 
   <StackPane
-    fx:id="statusContainer"
+    fx:id="fabricationStatusContainer"
     AnchorPane.leftAnchor="0"
     AnchorPane.topAnchor="0"
     AnchorPane.bottomAnchor="0"
