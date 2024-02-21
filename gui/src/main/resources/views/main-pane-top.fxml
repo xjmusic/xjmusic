@@ -35,13 +35,13 @@
       <padding>
         <Insets top="4" left="9" right="9" bottom="3"/>
       </padding>
-      <Button fx:id="buttonAction" mnemonicParsing="false" onAction="#handleButtonActionPress" text="Action">
+      <Button fx:id="fabricationActionButton" mnemonicParsing="false" onAction="#fabricationPressedAction" text="Action">
         <font>
           <Font name="Roboto"/>
         </font>
       </Button>
-      <ToggleButton fx:id="buttonToggleFollowPlayback" text="Follow"/>
-      <Button fx:id="buttonShowFabricationSettings" onAction="#handleShowFabricationSettings">
+      <ToggleButton fx:id="fabricationToggleFollowButton" text="Follow"/>
+      <Button fx:id="fabricationButtonShowSettings" onAction="#fabricationPressedShowSettings">
         <graphic>
           <SVGPath styleClass="icon" content="M3 6h12v2h-12zM3 11h12v2h-12zM3 16h12v2h-12z"/>
         </graphic>
@@ -50,7 +50,7 @@
   </StackPane>
 
   <StackPane
-    fx:id="fabricationStatusContainer"
+    fx:id="progressContainer"
     AnchorPane.leftAnchor="0"
     AnchorPane.topAnchor="0"
     AnchorPane.bottomAnchor="0"
@@ -60,9 +60,9 @@
         <Insets top="4" left="9" right="9" bottom="3"/>
       </padding>
       <HBox alignment="CENTER_LEFT" spacing="10">
-        <Button fx:id="buttonCancelLoading"
+        <Button fx:id="progressCancelButton"
                 mnemonicParsing="false"
-                onAction="#handlePressedCancelLoading"
+                onAction="#progressPressedCancel"
                 text="Cancel">
           <font>
             <Font name="Roboto"/>
@@ -70,7 +70,7 @@
         </Button>
         <HBox alignment="CENTER_LEFT" spacing="10">
           <ProgressBar fx:id="progressBar" prefWidth="100" progress="0.0"/>
-          <Label fx:id="labelStatus" prefWidth="180" text="Initializing"/>
+          <Label fx:id="progressLabel" prefWidth="180" text="Initializing"/>
         </HBox>
       </HBox>
     </HBox>
@@ -87,33 +87,33 @@
         <Insets top="4" left="9" right="9" bottom="3"/>
       </padding>
       <HBox alignment="CENTER_LEFT" spacing="10">
-        <Button fx:id="buttonGoUpContentLevel"
+        <Button fx:id="browserButtonUpContentLevel"
                 mnemonicParsing="false"
-                onAction="#handlePressedGoUpContentLevel">
+                onAction="#browserPressedUpContentLevel">
           <graphic>
             <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
               <Image url="@/icons/folder-arrow-back.png"/>
             </ImageView>
           </graphic>
         </Button>
-        <Label fx:id="labelViewingParent"/>
-        <Label fx:id="labelViewingSeparator">
+        <Label fx:id="browserLabelViewingParent"/>
+        <Label fx:id="browserLabelViewingSeparator">
           →
         </Label>
-        <Label fx:id="labelViewingEntity"/>
-        <HBox fx:id="libraryContentSelectionContainer"
+        <Label fx:id="browserLabelViewingEntity"/>
+        <HBox fx:id="browserLibraryContentSelectionContainer"
               spacing="2"
               alignment="CENTER">
           <fx:define>
-            <ToggleGroup fx:id="libraryContentSelectionToggle"/>
+            <ToggleGroup fx:id="browserLibraryContentSelectionToggle"/>
           </fx:define>
           <ToggleButton
-            fx:id="buttonLibraryContentPrograms"
-            toggleGroup="$libraryContentSelectionToggle">PROGRAMS
+            fx:id="browserLibraryContentProgramsButton"
+            toggleGroup="$browserLibraryContentSelectionToggle">PROGRAMS
           </ToggleButton>
           <ToggleButton
-            fx:id="buttonLibraryContentInstruments"
-            toggleGroup="$libraryContentSelectionToggle">INSTRUMENTS
+            fx:id="browserLibraryContentInstrumentsButton"
+            toggleGroup="$browserLibraryContentSelectionToggle">INSTRUMENTS
           </ToggleButton>
         </HBox>
       </HBox>
@@ -131,9 +131,9 @@
         <Insets top="4" left="9" right="9" bottom="3"/>
       </padding>
       <HBox alignment="CENTER_RIGHT" spacing="10">
-        <Button fx:id="buttonCreateEntity"
+        <Button fx:id="browserCreateEntityButton"
                 mnemonicParsing="false"
-                onAction="#handleCreateEntity">
+                onAction="#browserPressedCreateEntity">
           <graphic>
             <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
               <Image url="@/icons/square-plus.png"/>
