@@ -8,6 +8,7 @@ import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.nexus.work.FabricationState;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringBinding;
@@ -39,6 +40,16 @@ public interface UIStateService extends ReadyAfterBoot {
   Set<LabState> LAB_FAILED_STATES = Set.of(
     LabState.Unauthorized,
     LabState.Failed
+  );
+
+  Set<FabricationState> FABRICATION_PENDING_STATES = Set.of(
+    FabricationState.Starting,
+    FabricationState.PreparingAudio,
+    FabricationState.PreparedAudio,
+    FabricationState.Initializing
+  );
+  Set<FabricationState> FABRICATION_FAILED_STATES = Set.of(
+    FabricationState.Failed
   );
 
   /**

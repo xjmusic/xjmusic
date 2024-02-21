@@ -15,6 +15,7 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.ProjectUtils;
+import io.xj.nexus.work.FabricationState;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
@@ -40,6 +41,8 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 
 import static io.xj.gui.services.UIStateService.ACTIVE_PSEUDO_CLASS;
+import static io.xj.gui.services.UIStateService.FABRICATION_FAILED_STATES;
+import static io.xj.gui.services.UIStateService.FABRICATION_PENDING_STATES;
 import static io.xj.gui.services.UIStateService.FAILED_PSEUDO_CLASS;
 import static io.xj.gui.services.UIStateService.LAB_FAILED_STATES;
 import static io.xj.gui.services.UIStateService.LAB_PENDING_STATES;
@@ -211,6 +214,9 @@ public class MainMenuController extends ProjectController {
     buttonViewModeFabrication.disableProperty().bind(projectService.isStateReadyProperty().not());
     menuFabrication.disableProperty().bind(projectService.isStateReadyProperty().not());
 
+    fabricationService.stateProperty().addListener((o, ov, value) -> updateFabricationButtonState(value));
+    updateFabricationButtonState(fabricationService.stateProperty().get());
+
     labFeatureContainer.translateXProperty().bind(container.widthProperty().subtract(labFeatureContainer.widthProperty()).divide(2));
     labFeatureContainer.visibleProperty().bind(uiStateService.isLabFeatureEnabledProperty());
     labFeatureContainer.managedProperty().bind(uiStateService.isLabFeatureEnabledProperty());
@@ -356,6 +362,17 @@ public class MainMenuController extends ProjectController {
     mainMenuButtonLab.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, Objects.equals(value, LabState.Authenticated));
     mainMenuButtonLab.pseudoClassStateChanged(FAILED_PSEUDO_CLASS, LAB_FAILED_STATES.contains(value));
     mainMenuButtonLab.pseudoClassStateChanged(PENDING_PSEUDO_CLASS, LAB_PENDING_STATES.contains(value));
+  }
+
+  /**
+   Update the state of the fabrication button.
+
+   @param value the new state
+   */
+  private void updateFabricationButtonState(FabricationState value) {
+    buttonViewModeFabrication.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, Objects.equals(value, FabricationState.Active));
+    buttonViewModeFabrication.pseudoClassStateChanged(FAILED_PSEUDO_CLASS, FABRICATION_FAILED_STATES.contains(value));
+    buttonViewModeFabrication.pseudoClassStateChanged(PENDING_PSEUDO_CLASS, FABRICATION_PENDING_STATES.contains(value));
   }
 
   /**

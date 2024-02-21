@@ -52,7 +52,6 @@ public class MainPaneTopController extends ProjectController {
   private final FabricationService fabricationService;
   private final FabricationSettingsModalController fabricationSettingsModalController;
   private final BooleanBinding isFabricationVisible;
-  private final BooleanBinding isStatusVisible;
   private final BooleanBinding isContentVisible;
 
   @FXML
@@ -62,7 +61,7 @@ public class MainPaneTopController extends ProjectController {
   protected StackPane fabricationControlContainer;
 
   @FXML
-  protected StackPane statusContainer;
+  protected StackPane fabricationStatusContainer;
 
   @FXML
   protected StackPane browserStatusContainer;
@@ -132,17 +131,9 @@ public class MainPaneTopController extends ProjectController {
 
     isFabricationVisible = uiStateService.viewModeProperty().isEqualTo(ViewMode.Fabrication);
 
-    isStatusVisible = uiStateService.isStateTextVisibleProperty()
-      .or(uiStateService.isProgressBarVisibleProperty())
-      .or(projectService.isStateLoadingProperty());
-
     isContentVisible = Bindings.createBooleanBinding(
-      () -> isStatusVisible.not().get() && CONTENT_MODES.contains(uiStateService.viewModeProperty().get()),
-      isStatusVisible, uiStateService.viewModeProperty());
-
-    isStatusVisible.not().and(
-      uiStateService.viewModeProperty().isEqualTo(ViewMode.Content)
-        .or(uiStateService.viewModeProperty().isEqualTo(ViewMode.Templates)));
+      () -> CONTENT_MODES.contains(uiStateService.viewModeProperty().get()),
+      uiStateService.viewModeProperty());
 
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(v, ContentMode.ProgramBrowser)) {
@@ -163,8 +154,8 @@ public class MainPaneTopController extends ProjectController {
     fabricationService.stateProperty().addListener((o, ov, value) -> activateFabricationState(value));
     buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
 
-    statusContainer.visibleProperty().bind(isStatusVisible);
-    statusContainer.managedProperty().bind(isStatusVisible);
+    fabricationStatusContainer.visibleProperty().bind(isFabricationVisible);
+    fabricationStatusContainer.managedProperty().bind(isFabricationVisible);
     labelStatus.textProperty().bind(uiStateService.stateTextProperty());
     labelStatus.visibleProperty().bind(uiStateService.isStateTextVisibleProperty());
     progressBar.progressProperty().bind(uiStateService.progressProperty());

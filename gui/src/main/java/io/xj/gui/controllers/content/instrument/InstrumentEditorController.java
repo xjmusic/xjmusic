@@ -3,6 +3,7 @@
 package io.xj.gui.controllers.content.instrument;
 
 import io.xj.gui.controllers.BrowserController;
+import io.xj.gui.controllers.content.common.EntityMemesController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
@@ -30,6 +31,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.SplitPane;
@@ -37,6 +40,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.converter.NumberStringConverter;
 import org.slf4j.Logger;
@@ -46,6 +50,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
@@ -63,11 +68,17 @@ public class InstrumentEditorController extends BrowserController {
   private final ObservableList<InstrumentAudio> audios = FXCollections.observableList(new ArrayList<>());
   private final StringProperty initialImportAudioDirectory = new SimpleStringProperty();
 
+  @Value("classpath:/views/content/common/entity-memes.fxml")
+  private Resource entityMemesFxml;
+
   @FXML
   protected SplitPane container;
 
   @FXML
   protected VBox fieldsContainer;
+
+  @FXML
+  public StackPane instrumentMemeContainer;
 
   @FXML
   protected TextField fieldName;
@@ -94,11 +105,11 @@ public class InstrumentEditorController extends BrowserController {
   protected TableView<InstrumentAudio> audiosTable;
 
   public InstrumentEditorController(
-      @Value("classpath:/views/content/instrument/instrument-editor.fxml") Resource fxml,
-      ApplicationContext ac,
-      ThemeService themeService,
-      ProjectService projectService,
-      UIStateService uiStateService
+    @Value("classpath:/views/content/instrument/instrument-editor.fxml") Resource fxml,
+    ApplicationContext ac,
+    ThemeService themeService,
+    ProjectService projectService,
+    UIStateService uiStateService
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
   }
@@ -106,8 +117,8 @@ public class InstrumentEditorController extends BrowserController {
   @Override
   public void onStageReady() {
     var visible = projectService.isStateReadyProperty()
-        .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
-        .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.InstrumentEditor));
+      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
+      .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.InstrumentEditor));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
@@ -180,23 +191,23 @@ public class InstrumentEditorController extends BrowserController {
     audiosTable.getColumns().add(loopBeatsColumn);
 
     audiosTable.setOnMousePressed(
-        event -> {
-          if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
-            if (Objects.nonNull(audiosTable.getSelectionModel().getSelectedItem()))
-              Platform.runLater(() -> uiStateService.editInstrumentAudio(audiosTable.getSelectionModel().getSelectedItem().getId()));
-          }
-        });
+      event -> {
+        if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
+          if (Objects.nonNull(audiosTable.getSelectionModel().getSelectedItem()))
+            Platform.runLater(() -> uiStateService.editInstrumentAudio(audiosTable.getSelectionModel().getSelectedItem().getId()));
+        }
+      });
 
     addActionsColumn(InstrumentAudio.class, audiosTable,
-        (InstrumentAudio audio) -> uiStateService.editInstrumentAudio(audio.getId()),
-        null,
-        null,
-        audio -> {
-          if (Objects.nonNull(audio)) {
-            if (showConfirmationDialog("Delete Audio?", "This action cannot be undone.", String.format("Are you sure you want to delete the Audio \"%s\"?", audio.getName())))
-              projectService.deleteContent(audio);
-          }
-        });
+      (InstrumentAudio audio) -> uiStateService.editInstrumentAudio(audio.getId()),
+      null,
+      null,
+      audio -> {
+        if (Objects.nonNull(audio)) {
+          if (showConfirmationDialog("Delete Audio?", "This action cannot be undone.", String.format("Are you sure you want to delete the Audio \"%s\"?", audio.getName())))
+            projectService.deleteContent(audio);
+        }
+      });
 
     projectService.addProjectUpdateListener(InstrumentAudio.class, this::setupAudiosTable);
 
@@ -214,7 +225,7 @@ public class InstrumentEditorController extends BrowserController {
   @FXML
   private void handlePressImportAudio(ActionEvent ignored) {
     var instrument = projectService.getContent().getInstrument(instrumentId.get())
-        .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
+      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
     var audioFilePath = ProjectUtils.chooseAudioFile(container.getScene().getWindow(), "Choose audio file", initialImportAudioDirectory.get());
     if (Objects.isNull(audioFilePath)) return;
     initialImportAudioDirectory.set(ProjectPathUtils.getPrefix(audioFilePath));
@@ -229,7 +240,7 @@ public class InstrumentEditorController extends BrowserController {
   @FXML
   private void handlePressOpenAudioFolder() {
     var instrument = projectService.getContent().getInstrument(instrumentId.get())
-        .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
+      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
     var audioFolder = projectService.getPathPrefixToInstrumentAudio(instrument.getId());
     if (Objects.isNull(audioFolder)) return;
     ProjectUtils.openDesktopPath(audioFolder);
@@ -242,7 +253,7 @@ public class InstrumentEditorController extends BrowserController {
     if (uiStateService.currentInstrumentProperty().isNull().get())
       return;
     var instrument = projectService.getContent().getInstrument(uiStateService.currentInstrumentProperty().get().getId())
-        .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
+      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
     LOG.info("Will edit Instrument \"{}\"", instrument.getName());
     this.instrumentId.set(instrument.getId());
     this.name.set(instrument.getName());
@@ -252,6 +263,7 @@ public class InstrumentEditorController extends BrowserController {
     this.state.set(instrument.getState());
     this.volume.set(instrument.getVolume());
     setupAudiosTable();
+    setupInstrumentMemeContainer();
   }
 
   /**
@@ -277,7 +289,34 @@ public class InstrumentEditorController extends BrowserController {
     if (uiStateService.currentInstrumentProperty().isNull().get())
       return;
     audios.setAll(projectService.getContent().getInstrumentAudios().stream()
-        .filter(audio -> Objects.equals(uiStateService.currentInstrumentProperty().get().getId(), audio.getInstrumentId()))
-        .toList());
+      .filter(audio -> Objects.equals(uiStateService.currentInstrumentProperty().get().getId(), audio.getInstrumentId()))
+      .toList());
+  }
+
+  /**
+   Set up the instrument meme container FXML and its controller
+   */
+  private void setupInstrumentMemeContainer() {
+    try {
+      FXMLLoader loader = new FXMLLoader(entityMemesFxml.getURL());
+      loader.setControllerFactory(ac::getBean);
+      Parent root = loader.load();
+      instrumentMemeContainer.getChildren().clear();
+      instrumentMemeContainer.getChildren().add(root);
+      EntityMemesController entityMemesController = loader.getController();
+      entityMemesController.setup(
+        () -> projectService.getContent().getMemesOfInstrument(instrumentId.get()),
+        () -> projectService.createInstrumentMeme(instrumentId.get()),
+        (Object meme) -> {
+          try {
+            projectService.update(meme);
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+        }
+      );
+    } catch (IOException e) {
+      LOG.error("Error loading Entity Memes window!\n{}", StringUtils.formatStackTrace(e), e);
+    }
   }
 }

@@ -13,6 +13,7 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.hub.json.JsonProvider;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentMeme;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramMeme;
@@ -79,6 +80,7 @@ public class ProjectManagerImpl implements ProjectManager {
   private static final float DEFAULT_VOLUME = 1.0f;
   private static final String DEFAULT_PROGRAM_SEQUENCE_NAME = "New Sequence";
   private static final Integer DEFAULT_PROGRAM_SEQUENCE_TOTAL = 4;
+  private static final String DEFAULT_MEME_NAME = "XXX";
   private final AtomicReference<ProjectState> state = new AtomicReference<>(ProjectState.Standby);
   private final AtomicReference<Project> project = new AtomicReference<>();
   private final AtomicReference<String> projectPathPrefix = new AtomicReference<>(File.separator);
@@ -100,10 +102,10 @@ public class ProjectManagerImpl implements ProjectManager {
    Private constructor
    */
   public ProjectManagerImpl(
-      JsonProvider jsonProvider,
-      EntityFactory entityFactory,
-      HttpClientProvider httpClientProvider,
-      HubClientFactory hubClientFactory
+    JsonProvider jsonProvider,
+    EntityFactory entityFactory,
+    HttpClientProvider httpClientProvider,
+    HubClientFactory hubClientFactory
   ) {
     this.httpClientProvider = httpClientProvider;
     this.jsonProvider = jsonProvider;
@@ -241,7 +243,7 @@ public class ProjectManagerImpl implements ProjectManager {
       var instrumentPath = getPathPrefixToInstrumentAudio(instrument.getId());
       foldersInProject.add(instrumentPath);
       content.get().getAudiosOfInstrument(instrument.getId()).forEach(audio ->
-          filesInProject.add(String.format("%s%s", instrumentPath, audio.getWaveformKey())));
+        filesInProject.add(String.format("%s%s", instrumentPath, audio.getWaveformKey())));
     });
     LOG.info("Found {} instrument folders on disk containing a total of {} audio files.", foldersOnDisk.size(), filesOnDisk.size());
     LOG.info("The project has {} instruments containing a total of {} audios.", foldersInProject.size(), filesInProject.size());
@@ -301,9 +303,9 @@ public class ProjectManagerImpl implements ProjectManager {
 
       for (Instrument instrument : instruments) {
         for (InstrumentAudio audio : audios.stream()
-            .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
-            .sorted(Comparator.comparing(InstrumentAudio::getName))
-            .toList()) {
+          .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
+          .sorted(Comparator.comparing(InstrumentAudio::getName))
+          .toList()) {
           if (!Objects.equals(state.get(), ProjectState.PushingAudio)) {
             // Workstation canceling pushing should cease uploading audio files https://www.pivotaltracker.com/story/show/186209135
             return pushResults;
@@ -312,8 +314,8 @@ public class ProjectManagerImpl implements ProjectManager {
             LOG.debug("Will upload audio for instrument \"{}\" with waveform key \"{}\"", instrument.getName(), audio.getWaveformKey());
             // Fetch via HTTP if original does not exist
             var pathOnDisk = getPathToInstrumentAudio(
-                instrument.getId(),
-                audio.getWaveformKey()
+              instrument.getId(),
+              audio.getWaveformKey()
             );
 
             var remoteUrl = String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey());
@@ -341,8 +343,8 @@ public class ProjectManagerImpl implements ProjectManager {
               // After upload, we must update the local content with the new waveform key and rename the audio file on disk.
               content.get().update(InstrumentAudio.class, audio.getId(), "waveformKey", upload.getAuth().getWaveformKey());
               var updatedPathOnDisk = getPathToInstrumentAudio(
-                  instrument.getId(),
-                  upload.getAuth().getWaveformKey()
+                instrument.getId(),
+                upload.getAuth().getWaveformKey()
               );
               if (!Objects.equals(pathOnDisk, updatedPathOnDisk)) {
                 LOG.info("After upload, will rename audio file from {} to {}", pathOnDisk, updatedPathOnDisk);
@@ -483,7 +485,6 @@ public class ProjectManagerImpl implements ProjectManager {
     var existingSequenceOfProgram = content.get().getSequencesOfProgram(program.getId()).stream().findFirst();
     var existingSequenceOfLibrary = existingSequenceOfProgram.isPresent() ? existingSequenceOfProgram : content.get().getProgramsOfLibrary(library).stream().flatMap(i -> content.get().getSequencesOfProgram(i.getId()).stream()).findFirst();
     var existingSequence = existingSequenceOfLibrary.isPresent() ? existingSequenceOfLibrary : content.get().getProgramSequences().stream().findFirst();
-    var existingProgramOfLibrary = content.get().getProgramsOfLibrary(library.getId()).stream().findFirst();
 
     // Prepare the sequence record
     var sequence = new ProgramSequence();
@@ -493,14 +494,34 @@ public class ProjectManagerImpl implements ProjectManager {
     sequence.setKey(existingSequence.map(ProgramSequence::getKey).orElse(DEFAULT_KEY));
     sequence.setIntensity(existingSequence.map(ProgramSequence::getIntensity).orElse(DEFAULT_INTENSITY));
     sequence.setIntensity(
-        existingSequenceOfLibrary.map(ProgramSequence::getIntensity).orElse(
-            existingSequence.map(ProgramSequence::getIntensity).orElse(
-                DEFAULT_INTENSITY
-            )));
+      existingSequenceOfLibrary.map(ProgramSequence::getIntensity).orElse(
+        existingSequence.map(ProgramSequence::getIntensity).orElse(
+          DEFAULT_INTENSITY
+        )));
     sequence.setProgramId(program.getId());
 
     content.get().put(sequence);
     return sequence;
+  }
+
+  @Override
+  public ProgramMeme createProgramMeme(UUID programId) throws Exception {
+    var meme = new ProgramMeme();
+    meme.setId(UUID.randomUUID());
+    meme.setName(DEFAULT_MEME_NAME);
+    meme.setProgramId(programId);
+    content.get().put(meme);
+    return meme;
+  }
+
+  @Override
+  public InstrumentMeme createInstrumentMeme(UUID instrumentId) throws Exception {
+    var meme = new InstrumentMeme();
+    meme.setId(UUID.randomUUID());
+    meme.setName(DEFAULT_MEME_NAME);
+    meme.setInstrumentId(instrumentId);
+    content.get().put(meme);
+    return meme;
   }
 
   @Override
@@ -549,12 +570,12 @@ public class ProjectManagerImpl implements ProjectManager {
     audio.setEvent(existingAudio.map(InstrumentAudio::getEvent).orElse(DEFAULT_INSTRUMENT_AUDIO_EVENT));
     audio.setIntensity(existingAudio.map(InstrumentAudio::getIntensity).orElse(DEFAULT_INTENSITY));
     audio.setTempo(
-        existingAudioOfLibrary.map(InstrumentAudio::getTempo).orElse(
-            existingProgramOfLibrary.map(Program::getTempo).orElse(
-                existingAudio.map(InstrumentAudio::getTempo).orElse(
-                    existingProgram.map(Program::getTempo).orElse(DEFAULT_TEMPO)
-                ))
-        ));
+      existingAudioOfLibrary.map(InstrumentAudio::getTempo).orElse(
+        existingProgramOfLibrary.map(Program::getTempo).orElse(
+          existingAudio.map(InstrumentAudio::getTempo).orElse(
+            existingProgram.map(Program::getTempo).orElse(DEFAULT_TEMPO)
+          ))
+      ));
     audio.setLoopBeats(existingAudio.map(InstrumentAudio::getLoopBeats).orElse(DEFAULT_LOOP_BEATS));
     audio.setTransientSeconds(0.0f);
     audio.setVolume(existingAudio.map(InstrumentAudio::getVolume).orElse(DEFAULT_VOLUME));
@@ -587,7 +608,7 @@ public class ProjectManagerImpl implements ProjectManager {
   @Override
   public void renameWaveformIfNecessary(UUID instrumentAudioId) throws Exception {
     var audio = content.get().getInstrumentAudio(instrumentAudioId)
-        .orElseThrow(() -> new RuntimeException("Could not find Instrument Audio"));
+      .orElseThrow(() -> new RuntimeException("Could not find Instrument Audio"));
     var library = content.get().getInstrument(audio.getInstrumentId()).orElseThrow(() -> new NexusException("Instrument not found"));
     var project = content.get().getProject();
     var extension = ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
@@ -900,9 +921,9 @@ public class ProjectManagerImpl implements ProjectManager {
 
       for (Instrument instrument : instruments) {
         for (InstrumentAudio audio : audios.stream()
-            .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
-            .sorted(Comparator.comparing(InstrumentAudio::getName))
-            .toList()) {
+          .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
+          .sorted(Comparator.comparing(InstrumentAudio::getName))
+          .toList()) {
           if (!Objects.equals(state.get(), ProjectState.LoadingAudio)) {
             // Workstation canceling preloading should cease resampling audio files https://www.pivotaltracker.com/story/show/186209135
             return false;
@@ -911,14 +932,14 @@ public class ProjectManagerImpl implements ProjectManager {
             LOG.debug("Will preload audio for instrument \"{}\" with waveform key \"{}\"", instrument.getName(), audio.getWaveformKey());
             // Fetch via HTTP if original does not exist
             var originalCachePath = getPathToInstrumentAudio(
-                instrument.getId(),
-                audio.getWaveformKey()
+              instrument.getId(),
+              audio.getWaveformKey()
             );
 
             var remoteUrl = String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey());
             var remoteFileSize = hubClientFactory.getRemoteFileSize(httpClient, remoteUrl);
             if (remoteFileSize == FILE_SIZE_NOT_FOUND) {
-              LOG.error("File not found for instrument \"{}\" audio \"{}\" at {}", instrument.getName(), audio.getName(), remoteUrl);
+              LOG.error("File not found for audio \"{}\" of instrument \"{}\" in library \"{}\" at {}", instrument.getName(), audio.getName(), content.get().getLibrary(instrument.getId()).map(Library::getName).orElse("Unknown"), remoteUrl);
               return false;
             }
             var localFileSize = getFileSizeIfExistsOnDisk(originalCachePath);

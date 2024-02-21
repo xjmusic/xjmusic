@@ -3,13 +3,14 @@ package io.xj.nexus.project;
 import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentMeme;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.nexus.NexusException;
 import io.xj.nexus.hub_client.HubClientAccess;
 import jakarta.annotation.Nullable;
 
@@ -216,6 +217,15 @@ public interface ProjectManager {
   ProgramSequence createProgramSequence(UUID programId) throws Exception;
 
   /**
+   Create a new program meme
+
+   @param programId for which to create meme
+   @return the new program meme
+   @throws Exception if the instrument meme cannot be created
+   */
+  ProgramMeme createProgramMeme(UUID programId) throws Exception;
+
+  /**
    Create a new instrument
    <p>
    When creating a new Instrument, source default values from the first available
@@ -229,6 +239,15 @@ public interface ProjectManager {
    @return the new instrument
    */
   Instrument createInstrument(Library library, String name) throws Exception;
+
+  /**
+   Create a new instrument meme
+
+   @param instrumentId for which to create meme
+   @return the new instrument meme
+   @throws Exception if the instrument meme cannot be created
+   */
+  InstrumentMeme createInstrumentMeme(UUID instrumentId) throws Exception;
 
   /**
    Create a new instrument audio
