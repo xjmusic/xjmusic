@@ -252,7 +252,7 @@ FUTURE goal
     var project1 = buildProject("fish");
     Template template1 = buildTemplate(project1, "Test Template 1", "test1");
     var library1 = buildLibrary(project1, "palm tree");
-    mainProgram1 = buildProgram(library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 60.0f, 0.6f); // 60 BPM such that 1 beat = 1 second
+    mainProgram1 = buildProgram(library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 60.0f); // 60 BPM such that 1 beat = 1 second
     chain = store.put(NexusIntegrationTestingFixtures.buildChain(template1));
 
     // prepare list of all entities to return from Hub

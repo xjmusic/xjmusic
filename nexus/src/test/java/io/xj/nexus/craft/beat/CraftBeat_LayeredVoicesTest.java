@@ -194,7 +194,7 @@ public class CraftBeat_LayeredVoicesTest {
     audioHihat = EntityUtils.add(entities, buildAudio(instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01f, 1.5f, 120.0f, 0.6f, "HIHAT", "Ab", 1.0f));
 
     // A basic beat from scratch with layered voices
-    program42 = EntityUtils.add(entities, buildProgram(fake.library2, ProgramType.Beat, ProgramState.Published, "Basic Beat", "C", 121f, 0.6f));
+    program42 = EntityUtils.add(entities, buildProgram(fake.library2, ProgramType.Beat, ProgramState.Published, "Basic Beat", "C", 121f));
     EntityUtils.add(entities, buildMeme(program42, "Basic"));
     ProgramVoice program42_locomotion = EntityUtils.add(entities, buildVoice(program42, InstrumentType.Drum, "Locomotion"));
     ProgramVoice program42_kickSnare = EntityUtils.add(entities, buildVoice(program42, InstrumentType.Drum, "BoomBap"));

@@ -91,7 +91,7 @@ public class MacroFromOverlappingMemeSequencesTest {
     ProjectUser projectUser1a = buildProjectUser(project1, user3);
 
     // Macro Program already chosen for previous segment
-    var macro1 = buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Chosen Macro", "C", 120.0f, 0.6f);
+    var macro1 = buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Chosen Macro", "C", 120.0f);
     var macro1_meme = buildMeme(macro1, "Tropical");
     var macro1_sequenceA = buildSequence(macro1, 0, "Start Wild", 0.6f, "C");
     var macro1_sequenceA_binding = buildBinding(macro1_sequenceA, 0);
@@ -101,20 +101,20 @@ public class MacroFromOverlappingMemeSequencesTest {
     var macro1_sequenceB_bindingMeme = buildMeme(macro1_sequenceB_binding, "Green");
 
     // Main Program already chosen for previous segment
-    var main5 = buildProgram(library2, ProgramType.Main, ProgramState.Published, "Chosen Main", "C", 120.0f, 0.6f);
+    var main5 = buildProgram(library2, ProgramType.Main, ProgramState.Published, "Chosen Main", "C", 120.0f);
     var main5_meme = buildMeme(main5, "Tropical");
     var main5_sequenceA = buildSequence(main5, 0, "Start Wild", 0.6f, "C");
     ProgramSequenceBinding main5_sequenceA_binding = buildBinding(main5_sequenceA, 0);
 
     // Macro Program will be chosen because of matching meme
-    macro2a = buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Always Chosen", "C", 120.0f, 0.6f);
+    macro2a = buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Always Chosen", "C", 120.0f);
     var macro2a_meme = buildMeme(macro2a, "Tropical");
     var macro2a_sequenceA = buildSequence(macro2a, 0, "Start Wild", 0.6f, "C");
     var macro2a_sequenceA_binding = buildBinding(macro2a_sequenceA, 0);
     var macro2a_sequenceA_bindingMeme = buildMeme(macro2a_sequenceA_binding, "Green");
 
     // Macro Program will NEVER be chosen because of non-matching meme
-    var macro2b = buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Never Chosen", "C", 120.0f, 0.6f);
+    var macro2b = buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Never Chosen", "C", 120.0f);
     var macro2b_meme = buildMeme(macro2a, "Tropical");
     var macro2b_sequenceA = buildSequence(macro2a, 0, "Start Wild", 0.6f, "C");
     var macro2b_sequenceA_binding = buildBinding(macro2b_sequenceA, 0);

@@ -305,7 +305,7 @@ public class NexusEntityStoreImplTest {
       ChainState.FABRICATE,
       template,
       "key123"));
-    var program = buildProgram(ProgramType.Macro, "C", 120.0f, 0.6f);
+    var program = buildProgram(ProgramType.Macro, "C", 120.0f);
     var programSequence = buildProgramSequence(program, 8, "Hay", 0.6f, "G");
     var programSequenceBinding = buildProgramSequenceBinding(programSequence, 0);
     Segment chain3_segment0 = subject.put(buildSegment(chain3,

@@ -94,7 +94,7 @@ public class GuiHubIntegrationTestingFixtures {
     return projectUser;
   }
 
-  public static Program buildProgram(Library library, ProgramType type, ProgramState state, String name, String key, float tempo, float intensity) {
+  public static Program buildProgram(Library library, ProgramType type, ProgramState state, String name, String key, float tempo) {
     var program = new Program();
     program.setId(UUID.randomUUID());
     program.setLibraryId(library.getId());
@@ -103,11 +103,10 @@ public class GuiHubIntegrationTestingFixtures {
     program.setName(name);
     program.setKey(key);
     program.setTempo(tempo);
-    program.setIntensity(intensity);
     return program;
   }
 
-  public static Program buildProgram(ProgramType type, String key, float tempo, float intensity) {
+  public static Program buildProgram(ProgramType type, String key, float tempo) {
     var program = new Program();
     program.setId(UUID.randomUUID());
     program.setLibraryId(UUID.randomUUID());
@@ -116,7 +115,6 @@ public class GuiHubIntegrationTestingFixtures {
     program.setName(String.format("Test %s-Program", type.toString()));
     program.setKey(key);
     program.setTempo(tempo);
-    program.setIntensity(intensity);
     return program;
   }
 
@@ -129,7 +127,6 @@ public class GuiHubIntegrationTestingFixtures {
     program.setName(String.format("Test Main-program with %d beats per bar", barBeats));
     program.setKey("C");
     program.setTempo(120f);
-    program.setIntensity(0.6f);
     program.setConfig(String.format("barBeats=%d", barBeats));
     return program;
   }
@@ -461,7 +458,6 @@ public class GuiHubIntegrationTestingFixtures {
     instrument.setType(type);
     instrument.setMode(mode);
     instrument.setState(state);
-    instrument.setIntensity(0.6f);
     instrument.setName(name);
     return instrument;
   }
