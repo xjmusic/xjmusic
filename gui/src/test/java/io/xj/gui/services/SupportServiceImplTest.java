@@ -23,7 +23,12 @@ class SupportServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    subject = new SupportServiceImpl(hostServices, "https://guide.test.xj.io/");
+    subject = new SupportServiceImpl(
+      hostServices,
+      "https://guide.test.xj.io/",
+      "https://discord.test.xj.io/",
+      "https://test.xjmusic.com/"
+    );
   }
 
   @Test
@@ -31,5 +36,19 @@ class SupportServiceImplTest {
     subject.launchGuideInBrowser();
 
     verify(hostServices, times(1)).showDocument(eq("https://guide.test.xj.io/"));
+  }
+
+  @Test
+  void launchDiscordInBrowser() {
+    subject.launchDiscordInBrowser();
+
+    verify(hostServices, times(1)).showDocument(eq("https://discord.test.xj.io/"));
+  }
+
+  @Test
+  void launchWebsiteInBrowser() {
+    subject.launchWebsiteInBrowser();
+
+    verify(hostServices, times(1)).showDocument(eq("https://test.xjmusic.com/"));
   }
 }
