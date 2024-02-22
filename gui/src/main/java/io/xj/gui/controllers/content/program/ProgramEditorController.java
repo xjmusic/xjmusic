@@ -44,6 +44,7 @@ import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -69,6 +70,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
 
+import static io.xj.gui.services.UIStateService.ACTIVE_PSEUDO_CLASS;
+
 @Service
 public class ProgramEditorController extends ProjectController {
   @FXML
@@ -86,9 +89,11 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   public Button copyButton;
   @FXML
-  public Button editButton;
+  public ToggleGroup editorModeToggleGroup;
   @FXML
-  public Button bindButton;
+  public ToggleButton editButton;
+  @FXML
+  public ToggleButton bindButton;
   @FXML
   public Button configButton;
   @FXML
@@ -176,9 +181,9 @@ public class ProgramEditorController extends ProjectController {
   private final StringProperty gridProperty = new SimpleStringProperty("");
   private final StringProperty zoomProperty = new SimpleStringProperty("");
   private final ObservableList<String> gridDivisions =
-    FXCollections.observableArrayList(Arrays.asList("1/4", "1/8", "1/16", "1/32"));
+      FXCollections.observableArrayList(Arrays.asList("1/4", "1/8", "1/16", "1/32"));
   private final ObservableList<String> zoomOptions =
-    FXCollections.observableArrayList(Arrays.asList("5%", "10%", "25%", "50%", "100%", "200%", "300%", "400%"));
+      FXCollections.observableArrayList(Arrays.asList("5%", "10%", "25%", "50%", "100%", "200%", "300%", "400%"));
   protected final SimpleStringProperty sequencePropertyName = new SimpleStringProperty("");
   private final SimpleStringProperty sequencePropertyKey = new SimpleStringProperty("");
   private final CmdModalController cmdModalController;
@@ -187,12 +192,12 @@ public class ProgramEditorController extends ProjectController {
   protected ObservableList<ProgramSequence> programSequenceObservableList = FXCollections.observableArrayList();
 
   public ProgramEditorController(
-    @Value("classpath:/views/content/library-editor.fxml") Resource fxml,
-    ApplicationContext ac,
-    ThemeService themeService,
-    ProjectService projectService,
-    UIStateService uiStateService,
-    CmdModalController cmdModalController) {
+      @Value("classpath:/views/content/library-editor.fxml") Resource fxml,
+      ApplicationContext ac,
+      ThemeService themeService,
+      ProjectService projectService,
+      UIStateService uiStateService,
+      CmdModalController cmdModalController) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.cmdModalController = cmdModalController;
   }
@@ -201,22 +206,23 @@ public class ProgramEditorController extends ProjectController {
   public void onStageReady() {
     bindViewParentContainer.setMinWidth(getScreenSize() - labelHolder.getWidth());
     var visible = projectService.isStateReadyProperty()
-      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
-      .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramEditor));
+        .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
+        .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramEditor));
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.ProgramEditor))
         setup();
     });
-    bindButton.setOnAction(event -> {
-      editButton.getStyleClass().remove("selected");
-      bindButton.getStyleClass().add("selected");
+    editorModeToggleGroup.selectedToggleProperty().addListener((o, ov, value) -> {
+      if (value.equals(editButton)) {
+        bindButton.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, false);
+        editButton.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, true);
+      } else {
+        editButton.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, false);
+        bindButton.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, true);
+      }
     });
-
-    editButton.setOnAction(event -> {
-      bindButton.getStyleClass().remove("selected");
-      editButton.getStyleClass().add("selected");
-    });
-    snapButton.getStyleClass().add("snap-button");
+    editorModeToggleGroup.selectToggle(editButton);
+    snapButton.selectedProperty().addListener((o, ov, value) -> snapButton.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, value));
     createDisabilityBindingForTypes(editButton, Arrays.asList(ProgramType.Main, ProgramType.Macro));
     createDisabilityBindingForTypes(bindButton, Arrays.asList(ProgramType.Main, ProgramType.Macro));
     createVisibilityBindingForTypes(gridAndZoomGroup, List.of(ProgramType.Macro));
@@ -254,7 +260,7 @@ public class ProgramEditorController extends ProjectController {
     sequenceTotalLabel.textProperty().bind(sequenceTotalChooser.valueProperty().asString());
     // Bind Label text to Chooser value with formatting
     sequenceIntensityLabel.textProperty().bind(Bindings.createStringBinding(() ->
-      String.format("%.1f", sequenceIntensityDoubleValue.get()), sequenceIntensityDoubleValue));
+        String.format("%.1f", sequenceIntensityDoubleValue.get()), sequenceIntensityDoubleValue));
     stateChooser.valueProperty().bindBidirectional(state);
     keyField.textProperty().bind(key);
 
@@ -285,7 +291,7 @@ public class ProgramEditorController extends ProjectController {
           LOG.info("change " + sequenceName.getText());
           sequencePropertyName.set(sequenceName.getText());
           projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "name",
-            sequencePropertyName.get());
+              sequencePropertyName.get());
         }
       } catch (Exception e) {
         LOG.info("Failed to update program sequence ");
@@ -298,7 +304,7 @@ public class ProgramEditorController extends ProjectController {
           LOG.info("change " + sequenceTotalValueFactory.getValue());
           sequenceTotalValueFactory.setValue(sequenceTotalChooser.getValue());
           projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "total",
-            sequenceTotalValueFactory.getValue());
+              sequenceTotalValueFactory.getValue());
         }
       } catch (Exception e) {
         LOG.info("Failed to update program sequence ");
@@ -311,7 +317,7 @@ public class ProgramEditorController extends ProjectController {
           LOG.info("change " + sequenceTotalChooser.getValue());
           sequencePropertyKey.set(sequenceKey.getText());
           projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "key",
-            sequencePropertyKey.get());
+              sequencePropertyKey.get());
         }
       } catch (Exception e) {
         LOG.info("Failed to update program sequence ");
@@ -407,8 +413,8 @@ public class ProgramEditorController extends ProjectController {
    */
   private void createDisabilityBindingForTypes(Node node, List<ProgramType> types) {
     BooleanBinding anyTypeMatched = Bindings.createBooleanBinding(() ->
-        types.stream().noneMatch(type -> type.equals(typeChooser.getValue())),
-      typeChooser.valueProperty());
+            types.stream().noneMatch(type -> type.equals(typeChooser.getValue())),
+        typeChooser.valueProperty());
     node.disableProperty().bind(anyTypeMatched);
   }
 
@@ -417,8 +423,8 @@ public class ProgramEditorController extends ProjectController {
    */
   private void createVisibilityBindingForTypes(Node node, List<ProgramType> types) {
     BooleanBinding anyTypeMatched = Bindings.createBooleanBinding(() ->
-        types.stream().noneMatch(type -> type.equals(typeChooser.getValue())),
-      typeChooser.valueProperty());
+            types.stream().noneMatch(type -> type.equals(typeChooser.getValue())),
+        typeChooser.valueProperty());
     node.visibleProperty().bind(anyTypeMatched);
   }
 
@@ -452,7 +458,7 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   protected void openCloneDialog() {
     var program = projectService.getContent().getProgram(programId.get())
-      .orElseThrow(() -> new RuntimeException("Could not find Program"));
+        .orElseThrow(() -> new RuntimeException("Could not find Program"));
     cmdModalController.cloneProgram(program);
   }
 
@@ -464,7 +470,7 @@ public class ProgramEditorController extends ProjectController {
 
   protected void handleProgramSave() {
     var program = projectService.getContent().getProgram(programId.get())
-      .orElseThrow(() -> new RuntimeException("Could not find Program"));
+        .orElseThrow(() -> new RuntimeException("Could not find Program"));
     program.setName(programName.get());
     program.setKey(key.get());
     program.setTempo(tempo.get());
@@ -498,7 +504,7 @@ public class ProgramEditorController extends ProjectController {
     if (Objects.isNull(uiStateService.currentProgramProperty().get()))
       return;
     var program = projectService.getContent().getProgram(uiStateService.currentProgramProperty().get().getId())
-      .orElseThrow(() -> new RuntimeException("Could not find Program"));
+        .orElseThrow(() -> new RuntimeException("Could not find Program"));
     LOG.info("Will edit Program \"{}\"", program.getName());
     this.programId.set(program.getId());
     this.programName.set(program.getName());
@@ -536,15 +542,15 @@ public class ProgramEditorController extends ProjectController {
       programMemeContainer.getChildren().add(root);
       EntityMemesController entityMemesController = loader.getController();
       entityMemesController.setup(
-        () -> projectService.getContent().getMemesOfProgram(programId.get()),
-        () -> projectService.createProgramMeme(programId.get()),
-        (Object meme) -> {
-          try {
-            projectService.update(meme);
-          } catch (Exception e) {
-            throw new RuntimeException(e);
+          () -> projectService.getContent().getMemesOfProgram(programId.get()),
+          () -> projectService.createProgramMeme(programId.get()),
+          (Object meme) -> {
+            try {
+              projectService.update(meme);
+            } catch (Exception e) {
+              throw new RuntimeException(e);
+            }
           }
-        }
       );
     } catch (IOException e) {
       LOG.error("Error loading Entity Memes window!\n{}", StringUtils.formatStackTrace(e), e);
@@ -586,7 +592,7 @@ public class ProgramEditorController extends ProjectController {
     //clear first before adding to prevent duplicates
     bindViewParentContainer.getChildren().remove(1, bindViewParentContainer.getChildren().size());
     //if sequence bindings number is zero, add the two buttons that appear when empty
-    if (sequenceBindingsOfProgram.size() == 0) {
+    if (sequenceBindingsOfProgram.isEmpty()) {
       addBindingView(bindViewParentContainer.getChildren().size());
       addBindingView(bindViewParentContainer.getChildren().size());
     } else {

@@ -18,6 +18,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.ToggleGroup?>
 <VBox fx:id="container" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramEditorController">
 
@@ -35,8 +36,11 @@
                     </ImageView>
                 </graphic>
             </Button>
-            <Button fx:id="bindButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" text="Bind"/>
-            <Button fx:id="editButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" text="Edit"/>
+            <fx:define>
+                <ToggleGroup fx:id="editorModeToggleGroup"/>
+            </fx:define>
+            <ToggleButton fx:id="bindButton" toggleGroup="$editorModeToggleGroup" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" text="Bind"/>
+            <ToggleButton fx:id="editButton" toggleGroup="$editorModeToggleGroup" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" text="Edit"/>
             <Button fx:id="copyButton" layoutX="85.0" layoutY="13.0" maxHeight="-Infinity" maxWidth="-Infinity"
                     minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#openCloneDialog"
                     prefHeight="30.0" prefWidth="35.0" text=" ">
