@@ -5,15 +5,12 @@ package io.xj.gui.controllers;
 import io.xj.gui.ProjectController;
 import io.xj.gui.controllers.fabrication.FabricationSettingsModalController;
 import io.xj.gui.modes.ContentMode;
-import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.work.FabricationState;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -44,75 +41,50 @@ public class MainPaneTopController extends ProjectController {
     FabricationState.PreparingAudio,
     FabricationState.Starting
   );
-  private static final Set<ViewMode> CONTENT_MODES = Set.of(
-    ViewMode.Content,
-    ViewMode.Templates
-  );
   private final CmdModalController cmdModalController;
   private final FabricationService fabricationService;
   private final FabricationSettingsModalController fabricationSettingsModalController;
-  private final BooleanBinding isFabricationVisible;
-  private final BooleanBinding isContentVisible;
 
   @FXML
   protected AnchorPane mainTopPaneContainer;
-
   @FXML
-  protected StackPane fabricationControlContainer;
-
+  protected Button browserButtonUpContentLevel;
   @FXML
-  protected StackPane fabricationStatusContainer;
-
+  protected Button browserCreateEntityButton;
   @FXML
-  protected StackPane browserStatusContainer;
-
+  protected Button fabricationActionButton;
   @FXML
-  protected StackPane browserControlContainer;
-
+  protected Button fabricationButtonShowSettings;
   @FXML
-  protected HBox libraryContentSelectionContainer;
-
+  protected Button progressCancelButton;
+  @FXML
+  protected HBox browserLibraryContentSelectionContainer;
+  @FXML
+  protected Label browserLabelViewingEntity;
+  @FXML
+  protected Label browserLabelViewingParent;
+  @FXML
+  protected Label browserLabelViewingSeparator;
+  @FXML
+  protected Label progressLabel;
   @FXML
   protected ProgressBar progressBar;
-
   @FXML
-  protected Button buttonCancelLoading;
-
+  protected StackPane browserControlContainer;
   @FXML
-  protected Button buttonAction;
-
+  protected StackPane browserStatusContainer;
   @FXML
-  protected Label labelStatus;
-
+  protected StackPane fabricationControlContainer;
   @FXML
-  protected ToggleButton buttonToggleFollowPlayback;
-
+  protected StackPane progressContainer;
   @FXML
-  protected Button buttonShowFabricationSettings;
-
+  protected ToggleButton browserLibraryContentInstrumentsButton;
   @FXML
-  protected Button buttonGoUpContentLevel;
-
+  protected ToggleButton browserLibraryContentProgramsButton;
   @FXML
-  protected Button buttonCreateEntity;
-
+  protected ToggleButton fabricationToggleFollowButton;
   @FXML
-  protected Label labelViewingParent;
-
-  @FXML
-  protected Label labelViewingSeparator;
-
-  @FXML
-  protected Label labelViewingEntity;
-
-  @FXML
-  protected ToggleGroup libraryContentSelectionToggle;
-
-  @FXML
-  protected ToggleButton buttonLibraryContentPrograms;
-
-  @FXML
-  protected ToggleButton buttonLibraryContentInstruments;
+  protected ToggleGroup browserLibraryContentSelectionToggle;
 
   public MainPaneTopController(
     @Value("classpath:/views/main-pane-top.fxml") Resource fxml,
@@ -129,64 +101,57 @@ public class MainPaneTopController extends ProjectController {
     this.fabricationSettingsModalController = fabricationSettingsModalController;
     this.cmdModalController = cmdModalController;
 
-    isFabricationVisible = uiStateService.viewModeProperty().isEqualTo(ViewMode.Fabrication);
-
-    isContentVisible = Bindings.createBooleanBinding(
-      () -> CONTENT_MODES.contains(uiStateService.viewModeProperty().get()),
-      uiStateService.viewModeProperty());
-
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(v, ContentMode.ProgramBrowser)) {
-        libraryContentSelectionToggle.selectToggle(buttonLibraryContentPrograms);
+        browserLibraryContentSelectionToggle.selectToggle(browserLibraryContentProgramsButton);
       } else if (Objects.equals(v, ContentMode.InstrumentBrowser)) {
-        libraryContentSelectionToggle.selectToggle(buttonLibraryContentInstruments);
+        browserLibraryContentSelectionToggle.selectToggle(browserLibraryContentInstrumentsButton);
       }
     });
   }
 
   @Override
   public void onStageReady() {
-    fabricationControlContainer.visibleProperty().bind(isFabricationVisible);
-    fabricationControlContainer.managedProperty().bind(isFabricationVisible);
-    buttonAction.textProperty().bind(fabricationService.mainActionButtonTextProperty());
-    buttonAction.disableProperty().bind(uiStateService.isMainActionButtonDisabledProperty());
-    buttonShowFabricationSettings.disableProperty().bind(uiStateService.isFabricationSettingsDisabledProperty());
+    fabricationActionButton.disableProperty().bind(uiStateService.isMainActionButtonDisabledProperty());
+    fabricationActionButton.textProperty().bind(fabricationService.mainActionButtonTextProperty());
+    fabricationButtonShowSettings.disableProperty().bind(uiStateService.isFabricationSettingsDisabledProperty());
+    fabricationControlContainer.managedProperty().bind(uiStateService.isViewProgressStatusModeProperty());
+    fabricationControlContainer.visibleProperty().bind(uiStateService.isViewProgressStatusModeProperty());
     fabricationService.stateProperty().addListener((o, ov, value) -> activateFabricationState(value));
-    buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
+    fabricationToggleFollowButton.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
 
-    fabricationStatusContainer.visibleProperty().bind(isFabricationVisible);
-    fabricationStatusContainer.managedProperty().bind(isFabricationVisible);
-    labelStatus.textProperty().bind(uiStateService.stateTextProperty());
-    labelStatus.visibleProperty().bind(uiStateService.isStateTextVisibleProperty());
+    progressContainer.managedProperty().bind(uiStateService.isViewProgressStatusModeProperty());
+    progressContainer.visibleProperty().bind(uiStateService.isViewProgressStatusModeProperty());
+    progressBar.managedProperty().bind(uiStateService.isProgressBarVisibleProperty());
     progressBar.progressProperty().bind(uiStateService.progressProperty());
     progressBar.visibleProperty().bind(uiStateService.isProgressBarVisibleProperty());
-    progressBar.managedProperty().bind(uiStateService.isProgressBarVisibleProperty());
-    buttonCancelLoading.visibleProperty().bind(projectService.isStateLoadingProperty());
-    buttonCancelLoading.managedProperty().bind(projectService.isStateLoadingProperty());
+    progressCancelButton.managedProperty().bind(projectService.isStateLoadingProperty());
+    progressCancelButton.visibleProperty().bind(projectService.isStateLoadingProperty());
+    progressLabel.textProperty().bind(uiStateService.stateTextProperty());
+    progressLabel.visibleProperty().bind(uiStateService.isStateTextVisibleProperty());
 
-    browserStatusContainer.visibleProperty().bind(isContentVisible);
-    buttonGoUpContentLevel.visibleProperty().bind(uiStateService.isContentLevelUpPossibleProperty());
-    buttonGoUpContentLevel.managedProperty().bind(uiStateService.isContentLevelUpPossibleProperty());
-    labelViewingParent.visibleProperty().bind(projectService.isStateReadyProperty());
-    labelViewingParent.textProperty().bind(uiStateService.currentParentNameProperty());
-    var isSeparatorVisible = uiStateService.isViewingEntityProperty().or(uiStateService.isLibraryContentBrowserProperty());
-    labelViewingSeparator.visibleProperty().bind(isSeparatorVisible);
-    labelViewingSeparator.managedProperty().bind(isSeparatorVisible);
-    labelViewingEntity.visibleProperty().bind(uiStateService.isViewingEntityProperty());
-    labelViewingEntity.managedProperty().bind(uiStateService.isViewingEntityProperty());
-    labelViewingEntity.textProperty().bind(uiStateService.currentEntityNameProperty());
-    libraryContentSelectionContainer.visibleProperty().bind(uiStateService.isLibraryContentBrowserProperty());
-    libraryContentSelectionToggle.selectedToggleProperty().addListener((o, ov, v) -> {
-      if (Objects.equals(v, buttonLibraryContentPrograms)) {
+    var browserSeparatorVisible = uiStateService.isViewingEntityProperty().or(uiStateService.isLibraryContentBrowserProperty());
+    browserButtonUpContentLevel.managedProperty().bind(uiStateService.isContentLevelUpPossibleProperty());
+    browserButtonUpContentLevel.visibleProperty().bind(uiStateService.isContentLevelUpPossibleProperty());
+    browserControlContainer.visibleProperty().bind(uiStateService.isViewContentNavigationStatusModeProperty());
+    browserCreateEntityButton.textProperty().bind(uiStateService.createEntityButtonTextProperty());
+    browserCreateEntityButton.visibleProperty().bind(uiStateService.isCreateEntityButtonVisibleProperty());
+    browserLabelViewingEntity.managedProperty().bind(uiStateService.isViewingEntityProperty());
+    browserLabelViewingEntity.textProperty().bind(uiStateService.currentEntityNameProperty());
+    browserLabelViewingEntity.visibleProperty().bind(uiStateService.isViewingEntityProperty());
+    browserLabelViewingParent.textProperty().bind(uiStateService.currentParentNameProperty());
+    browserLabelViewingParent.visibleProperty().bind(projectService.isStateReadyProperty());
+    browserLabelViewingSeparator.managedProperty().bind(browserSeparatorVisible);
+    browserLabelViewingSeparator.visibleProperty().bind(browserSeparatorVisible);
+    browserLibraryContentSelectionContainer.visibleProperty().bind(uiStateService.isLibraryContentBrowserProperty());
+    browserStatusContainer.visibleProperty().bind(uiStateService.isViewContentNavigationStatusModeProperty());
+    browserLibraryContentSelectionToggle.selectedToggleProperty().addListener((o, ov, v) -> {
+      if (Objects.equals(v, browserLibraryContentProgramsButton)) {
         Platform.runLater(() -> uiStateService.contentModeProperty().set(ContentMode.ProgramBrowser));
-      } else if (Objects.equals(v, buttonLibraryContentInstruments)) {
+      } else if (Objects.equals(v, browserLibraryContentInstrumentsButton)) {
         Platform.runLater(() -> uiStateService.contentModeProperty().set(ContentMode.InstrumentBrowser));
       }
     });
-
-    browserControlContainer.visibleProperty().bind(isContentVisible);
-    buttonCreateEntity.visibleProperty().bind(uiStateService.isCreateEntityButtonVisibleProperty());
-    buttonCreateEntity.textProperty().bind(uiStateService.createEntityButtonTextProperty());
   }
 
   @Override
@@ -195,27 +160,30 @@ public class MainPaneTopController extends ProjectController {
   }
 
   @FXML
-  protected void handleButtonActionPress() {
+  protected void fabricationPressedAction() {
     fabricationService.handleMainAction();
   }
 
   @FXML
-  protected void handlePressedGoUpContentLevel() {
+  protected void browserPressedUpContentLevel() {
     uiStateService.goUpContentLevel();
   }
 
   @FXML
-  protected void handlePressedCancelLoading() {
-    Platform.runLater(projectService::cancelProjectLoading);
+  protected void progressPressedCancel() {
+    Platform.runLater(() -> {
+      fabricationService.cancel();
+      projectService.cancelProjectLoading();
+    });
   }
 
   @FXML
-  public void handleShowFabricationSettings(ActionEvent ignored) {
+  public void fabricationPressedShowSettings(ActionEvent ignored) {
     fabricationSettingsModalController.launchModal();
   }
 
   @FXML
-  private void handleCreateEntity(ActionEvent ignored) {
+  private void browserPressedCreateEntity(ActionEvent ignored) {
     switch (uiStateService.viewModeProperty().get()) {
       case Content -> {
         switch (uiStateService.contentModeProperty().get()) {
@@ -234,8 +202,8 @@ public class MainPaneTopController extends ProjectController {
    @param value the new value
    */
   private void activateFabricationState(FabricationState value) {
-    buttonAction.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, Objects.equals(value, FabricationState.Active));
-    buttonAction.pseudoClassStateChanged(FAILED_PSEUDO_CLASS, Objects.equals(value, FabricationState.Failed));
-    buttonAction.pseudoClassStateChanged(PENDING_PSEUDO_CLASS, WORK_PENDING_STATES.contains(value));
+    fabricationActionButton.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, Objects.equals(value, FabricationState.Active));
+    fabricationActionButton.pseudoClassStateChanged(FAILED_PSEUDO_CLASS, Objects.equals(value, FabricationState.Failed));
+    fabricationActionButton.pseudoClassStateChanged(PENDING_PSEUDO_CLASS, WORK_PENDING_STATES.contains(value));
   }
 }

@@ -3,6 +3,7 @@ package io.xj.gui.services;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
+import io.xj.gui.modes.ViewStatusMode;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
@@ -11,13 +12,13 @@ import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.work.FabricationState;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
+import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
 import javafx.css.PseudoClass;
-import javafx.scene.paint.Color;
 
 import java.util.Set;
 import java.util.UUID;
@@ -66,6 +67,26 @@ public interface UIStateService extends ReadyAfterBoot {
    @return Observable property of whether the fabrication settings should appear disabled
    */
   BooleanBinding isFabricationSettingsDisabledProperty();
+
+  /**
+   Top pane status displays exactly one possible view mode at a time.
+   <p>
+   Workstation should display project loading status in top pane (before project is ready) https://www.pivotaltracker.com/story/show/187092027
+   Workstation content/templates sections should always show navigation, not fabrication status https://www.pivotaltracker.com/story/show/187076389
+
+   @return Observable property of whether the fabrication settings should appear disabled
+   */
+  ObjectBinding<ViewStatusMode> viewStatusModeProperty();
+
+  /**
+   @return observable boolean property of whether we are in View Fabrication Progress Status Mode
+   */
+  BooleanBinding isViewProgressStatusModeProperty();
+
+  /**
+   @return observable boolean property of whether we are in View Content Navigation Status Mode
+   */
+  BooleanBinding isViewContentNavigationStatusModeProperty();
 
   /**
    @return Observable property of the fabrication state text
@@ -118,11 +139,6 @@ public interface UIStateService extends ReadyAfterBoot {
    @return the project view mode
    */
   ObjectProperty<ViewMode> viewModeProperty();
-
-  /**
-   @return Observable property for whether the project is in content view mode
-   */
-  BooleanBinding isViewModeContentProperty();
 
   /**
    @return Observable property for whether the project is in fabrication view mode

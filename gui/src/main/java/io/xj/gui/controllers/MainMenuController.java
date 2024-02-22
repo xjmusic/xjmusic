@@ -7,7 +7,7 @@ import io.xj.gui.WorkstationGuiFxApplication;
 import io.xj.gui.controllers.fabrication.FabricationSettingsModalController;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.FabricationService;
-import io.xj.gui.services.GuideService;
+import io.xj.gui.services.SupportService;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.LabState;
 import io.xj.gui.services.ProjectDescriptor;
@@ -55,7 +55,7 @@ public class MainMenuController extends ProjectController {
   private final static String WARN = "WARN";
   private final static String ERROR = "ERROR";
   private final FabricationService fabricationService;
-  private final GuideService guideService;
+  private final SupportService supportService;
   private final LabService labService;
   private final ProjectCreationModalController projectCreationModalController;
   private final UIStateService guiService;
@@ -147,7 +147,7 @@ public class MainMenuController extends ProjectController {
     ThemeService themeService,
     FabricationService fabricationService,
     FabricationSettingsModalController fabricationSettingsModalController,
-    GuideService guideService,
+    SupportService supportService,
     LabService labService,
     MainAboutModalController mainAboutModalController,
     MainLabAuthenticationModalController mainLabAuthenticationModalController,
@@ -161,7 +161,7 @@ public class MainMenuController extends ProjectController {
     this.fabricationSettingsModalController = fabricationSettingsModalController;
     this.projectCreationModalController = projectCreationModalController;
     this.guiService = guiService;
-    this.guideService = guideService;
+    this.supportService = supportService;
     this.labService = labService;
     this.mainAboutModalController = mainAboutModalController;
     this.mainLabAuthenticationModalController = mainLabAuthenticationModalController;
@@ -191,7 +191,7 @@ public class MainMenuController extends ProjectController {
 
     var hasNoProject = uiStateService.hasCurrentProjectProperty().not();
     itemProjectClose.disableProperty().bind(hasNoProject);
-    itemProjectSave.disableProperty().bind(hasNoProject);
+    itemProjectSave.disableProperty().bind(hasNoProject.or(projectService.isModifiedProperty().not()));
     itemProjectPush.disableProperty().bind(hasNoProject.or(labService.isAuthenticated().not()));
     itemProjectCleanup.disableProperty().bind(hasNoProject);
 
@@ -236,7 +236,12 @@ public class MainMenuController extends ProjectController {
 
   @FXML
   protected void onLaunchUserGuide() {
-    guideService.launchGuideInBrowser();
+    supportService.launchGuideInBrowser();
+  }
+
+  @FXML
+  protected void onLaunchDiscord() {
+    supportService.launchDiscordInBrowser();
   }
 
   @FXML

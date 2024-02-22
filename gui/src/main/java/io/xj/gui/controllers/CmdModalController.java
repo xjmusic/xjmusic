@@ -135,8 +135,8 @@ public class CmdModalController extends ProjectModalController {
               uiStateService.editTemplate(template.getId());
             }
             case Library -> {
-              var library = projectService.createLibrary(name.getValue());
-              uiStateService.editLibrary(library.getId());
+              projectService.createLibrary(name.getValue());
+              uiStateService.viewLibraries();
             }
             case Program -> {
               var program = projectService.createProgram(parentLibrary.get(), name.getValue());

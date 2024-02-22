@@ -96,10 +96,9 @@ public class TemplateEditorController extends BrowserController {
     });
     fieldConfig.focusedProperty().addListener((o, ov, v) -> {
       if (!v) {
-        String configString;
         try {
-          configString = new TemplateConfig(config.get()).toString();
-          update("config", configString);
+          config.set(new TemplateConfig(config.get()).toString());
+          update("config", config.get());
         } catch (Exception e) {
           LOG.error("Could not parse Template Config because {}", e.getMessage());
         }

@@ -2,7 +2,7 @@
 
 package io.xj.gui.services;
 
-import io.xj.gui.services.impl.GuideServiceImpl;
+import io.xj.gui.services.impl.SupportServiceImpl;
 import javafx.application.HostServices;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,15 +15,20 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class GuideServiceImplTest {
-  GuideService subject;
+class SupportServiceImplTest {
+  SupportService subject;
 
   @Mock
   HostServices hostServices;
 
   @BeforeEach
   void setUp() {
-    subject = new GuideServiceImpl(hostServices, "https://guide.test.xj.io/");
+    subject = new SupportServiceImpl(
+      hostServices,
+      "https://guide.test.xj.io/",
+      "https://discord.test.xj.io/",
+      "https://test.xjmusic.com/"
+    );
   }
 
   @Test
@@ -31,5 +36,19 @@ class GuideServiceImplTest {
     subject.launchGuideInBrowser();
 
     verify(hostServices, times(1)).showDocument(eq("https://guide.test.xj.io/"));
+  }
+
+  @Test
+  void launchDiscordInBrowser() {
+    subject.launchDiscordInBrowser();
+
+    verify(hostServices, times(1)).showDocument(eq("https://discord.test.xj.io/"));
+  }
+
+  @Test
+  void launchWebsiteInBrowser() {
+    subject.launchWebsiteInBrowser();
+
+    verify(hostServices, times(1)).showDocument(eq("https://test.xjmusic.com/"));
   }
 }
