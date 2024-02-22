@@ -538,3 +538,25 @@
   -fx-text-fill: white;
 }
 
+.about-website-link,
+.about-website-link:visited {
+  -fx-text-fill: #999999;
+  -fx-border-width: 0;
+  -fx-padding: 5 0 10 0;
+}
+
+.about-website-link:hover {
+  -fx-text-fill: #00ff00;
+  -fx-border-width: 0;
+  -fx-padding: 5 0 10 0;
+}
+
+.about-website-link:pressed {
+  -fx-text-fill: #ffffff;
+  -fx-border-width: 0;
+  -fx-padding: 5 0 10 0;
+}
+
+.about-version {
+  -fx-font-size: 0.8em;
+}

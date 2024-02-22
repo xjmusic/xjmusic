@@ -7,6 +7,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Hyperlink?>
 <VBox spacing="10" xmlns="http://javafx.com/javafx/20.0.1"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainAboutModalController">
   <padding>
@@ -20,8 +21,9 @@
            text="XJ music workstation"
            textAlignment="CENTER">
     </Label>
+    <Hyperlink onAction="#handleHyperlinkWebsite" text="xjmusic.com" styleClass="about-website-link"/>
     <Label alignment="TOP_CENTER" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0"
-           textAlignment="CENTER" fx:id="labelVersion">
+           textAlignment="CENTER" fx:id="labelVersion" styleClass="about-version">
     </Label>
   </VBox>
   <HBox alignment="TOP_CENTER" prefHeight="50.0" prefWidth="320.0">

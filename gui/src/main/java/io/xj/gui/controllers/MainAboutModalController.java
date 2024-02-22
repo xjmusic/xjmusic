@@ -5,9 +5,11 @@ package io.xj.gui.controllers;
 import io.xj.gui.ProjectModalController;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.SupportService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.services.VersionService;
+import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -24,6 +26,7 @@ public class MainAboutModalController extends ProjectModalController {
   static final String ABOUT_WINDOW_NAME = "About";
   final LabService labService;
   private final VersionService versionService;
+  private final SupportService supportService;
 
   @FXML
   public Button buttonClose;
@@ -39,11 +42,13 @@ public class MainAboutModalController extends ProjectModalController {
     ThemeService themeService,
     VersionService versionService,
     UIStateService uiStateService,
-    ProjectService projectService
+    ProjectService projectService,
+    SupportService supportService
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.labService = labService;
     this.versionService = versionService;
+    this.supportService = supportService;
   }
 
   @Override
@@ -69,6 +74,11 @@ public class MainAboutModalController extends ProjectModalController {
     Stage stage = (Stage) buttonClose.getScene().getWindow();
     stage.close();
     onStageClose();
+  }
+
+  @FXML
+  void handleHyperlinkWebsite() {
+    supportService.launchWebsiteInBrowser();
   }
 
   @Override
