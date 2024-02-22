@@ -140,10 +140,9 @@ public class InstrumentEditorController extends BrowserController {
     });
     fieldConfig.focusedProperty().addListener((o, ov, v) -> {
       if (!v) {
-        String configString;
         try {
-          configString = new InstrumentConfig(config.get()).toString();
-          update("config", configString);
+          config.set(new InstrumentConfig(config.get()).toString());
+          update("config", config.get());
         } catch (Exception e) {
           LOG.error("Could not parse Instrument Config because {}", e.getMessage());
         }
