@@ -106,6 +106,7 @@
     </Menu>
 
     <Menu text="_Help">
+      <MenuItem onAction="#onLaunchDiscord" text="_Discord"/>
       <MenuItem onAction="#onLaunchUserGuide" text="User _Guide"/>
       <SeparatorMenuItem mnemonicParsing="false"/>
       <MenuItem onAction="#handleAbout" text="_About"/>

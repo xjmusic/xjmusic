@@ -2,7 +2,7 @@
 
 package io.xj.gui.services;
 
-import io.xj.gui.services.impl.GuideServiceImpl;
+import io.xj.gui.services.impl.SupportServiceImpl;
 import javafx.application.HostServices;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,15 +15,15 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class GuideServiceImplTest {
-  GuideService subject;
+class SupportServiceImplTest {
+  SupportService subject;
 
   @Mock
   HostServices hostServices;
 
   @BeforeEach
   void setUp() {
-    subject = new GuideServiceImpl(hostServices, "https://guide.test.xj.io/");
+    subject = new SupportServiceImpl(hostServices, "https://guide.test.xj.io/");
   }
 
   @Test
