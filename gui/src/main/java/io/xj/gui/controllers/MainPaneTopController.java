@@ -128,7 +128,7 @@ public class MainPaneTopController extends ProjectController {
     progressCancelButton.managedProperty().bind(projectService.isStateLoadingProperty());
     progressCancelButton.visibleProperty().bind(projectService.isStateLoadingProperty());
     progressLabel.textProperty().bind(uiStateService.stateTextProperty());
-    progressLabel.visibleProperty().bind(uiStateService.isStateTextVisibleProperty());
+    progressLabel.visibleProperty().bind(uiStateService.isProgressBarVisibleProperty());
 
     var browserSeparatorVisible = uiStateService.isViewingEntityProperty().or(uiStateService.isLibraryContentBrowserProperty());
     browserButtonUpContentLevel.managedProperty().bind(uiStateService.isContentLevelUpPossibleProperty());

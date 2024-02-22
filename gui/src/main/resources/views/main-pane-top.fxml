@@ -70,7 +70,7 @@
         </Button>
         <HBox alignment="CENTER_LEFT" spacing="10">
           <ProgressBar fx:id="progressBar" prefWidth="100" progress="0.0"/>
-          <Label fx:id="progressLabel" prefWidth="180" text="Initializing"/>
+          <Label fx:id="progressLabel" prefWidth="180"/>
         </HBox>
       </HBox>
     </HBox>
