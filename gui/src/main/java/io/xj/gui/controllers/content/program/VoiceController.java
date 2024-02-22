@@ -5,10 +5,14 @@ import io.xj.gui.services.ThemeService;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.util.StringUtils;
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.FloatProperty;
+import javafx.beans.property.SimpleFloatProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -21,7 +25,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
@@ -34,9 +37,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import static io.xj.gui.controllers.content.program.ProgramEditorController.closeWindowOnClickingAway;
 import static io.xj.gui.controllers.content.program.ProgramEditorController.positionUIAtLocation;
+import static io.xj.gui.controllers.content.program.TrackController.trackItem;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -56,8 +61,6 @@ public class VoiceController {
     @FXML
     public Label noPatternLabel;
     @FXML
-    public Label patternTotalCountLabel;
-    @FXML
     public AnchorPane trackContainer;
     @FXML
     public Group trackButtonGroup;
@@ -68,7 +71,7 @@ public class VoiceController {
     @FXML
     public Button addTrackButton_1;
     @FXML
-    public Text trackName;
+    public TextField trackNameField;
     private final ProgramEditorController programEditorController;
     @FXML
     public HBox timeline;
@@ -81,6 +84,8 @@ public class VoiceController {
     public HBox totalHbox;
     @FXML
     public TextField programVoiceNameTextField;
+    @FXML
+    public Spinner<Integer> patternTotalCountChooser;
 
     @Value("classpath:/views/content/program/track.fxml")
     private Resource trackFxml;
@@ -102,9 +107,13 @@ public class VoiceController {
     private final ObservableList<ProgramSequencePattern> programSequencePatternsOfThisVoice = FXCollections.observableArrayList();
 
     private final SimpleStringProperty patternNameProperty = new SimpleStringProperty();
-    private final SimpleStringProperty patternTotalProperty = new SimpleStringProperty();
-
-    private double previousPatternNameFieldPrefWidth=0;
+    private double previousPatternNameFieldPrefWidth = 0;
+    private double defaultTrackNameFieldPrefWidth = 0;
+    private final SimpleStringProperty trackNameProperty = new SimpleStringProperty();
+    private final ObservableList<ProgramVoiceTrack> programVoiceTrackObservableList = FXCollections.observableArrayList();
+    private final ObjectProperty<ProgramVoiceTrack> programVoiceTrackObjectProperty = new SimpleObjectProperty<>();
+    private final SpinnerValueFactory<Integer> totalValueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 1300, 0);
+    private final FloatProperty totalFloatValue = new SimpleFloatProperty(totalValueFactory.getValue());
 
 
     public VoiceController(ProgramEditorController programEditorController,
@@ -117,40 +126,98 @@ public class VoiceController {
         this.projectService = projectService;
     }
 
+    public Integer getTotal(){
+        return totalFloatValue.getValue().intValue();
+    }
+
     protected void setUp(Parent root, ProgramVoice voice) {
         this.voice = voice;
-        previousPatternNameFieldPrefWidth=patternNameField.getPrefWidth();
+        previousPatternNameFieldPrefWidth = patternNameField.getPrefWidth();
+        defaultTrackNameFieldPrefWidth = trackNameField.getPrefWidth();
         programSequencePatternsOfThisVoice.addAll(projectService.getContent().getProgramSequencePatternsOfVoice(voice));
         setSelectedProgramSequencePattern(programSequencePatternsOfThisVoice.isEmpty() ?
                 null : programSequencePatternsOfThisVoice.get(0));
         deleteVoice(root);
-        populateTimeline();
         hideItemsBeforeTrackIsCreated();
-        trackName.setText(voice.getName());
         totalHbox.visibleProperty().bind(selectedProgramSequencePattern.isNotNull());
         if (selectedProgramSequencePattern.get() != null) {
             updatePatternUI(selectedProgramSequencePattern.get());
             patternNameField.toFront();
         }
         patternNameField.textProperty().bindBidirectional(patternNameProperty);
-        patternTotalCountLabel.textProperty().bindBidirectional(patternTotalProperty);
         programVoiceNameTextField.setText(voice.getName());
         setCombobox();
         patternMenuButton.setOnMouseClicked(this::showPatternMenu);
         trackMenuButton.setOnMouseClicked(this::showTrackMenu);
         searchPattern.setOnMouseClicked(this::showPatternSearch);
         updateProgramSequencePatternName();
+        updateTrackName();
         updateProgramSequencePatternInstrumentType();
         updateProgramVoiceName();
+        bindGridValueToTimelineGridProperty();
+        loadProgramVoiceTracks();
+        patternTotalCountChooser.valueProperty().addListener((observable, oldValue, newValue) -> totalFloatValue.set(newValue));
+        patternTotalCountChooser.setValueFactory(totalValueFactory);
+        setTotalChooserSelectionProcessing();
+        Platform.runLater(this::populateTimeline);
+    }
+
+
+    public SpinnerValueFactory<Integer> getTotalValueFactory(){
+        return totalValueFactory;
+    }
+
+    private void setTotalChooserSelectionProcessing() {
+        patternTotalCountChooser.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                if (!newValue) {
+                    totalValueFactory.setValue(patternTotalCountChooser.getValue());
+                    projectService.update(ProgramSequencePattern.class, selectedProgramSequencePattern.get().getId(), "total",
+                            totalValueFactory.getValue());
+                    Platform.runLater(this::populateTimeline);
+                }
+            } catch (Exception e) {
+                LOG.info("Failed to update ProgramSequencePattern total");
+            }
+        });
+    }
+
+    private void loadProgramVoiceTracks() {
+        programVoiceTrackObservableList.addAll(projectService.getContent().getTracksOfVoice(voice));
+        for (int i = 0; i < programVoiceTrackObservableList.size() && programVoiceTrackObservableList.size() > 0; i++) {
+            if (i == 0) {
+                programVoiceTrackObjectProperty.set(programVoiceTrackObservableList.get(i));
+                trackNameField.setText(programVoiceTrackObservableList.get(i).getName());
+                showItemsAfterTrackIsCreated();
+            } else
+                trackItem(trackFxml, ac, voiceContainer, LOG, addTrackButton_1, voice, this, programVoiceTrackObservableList.get(i));
+        }
+
+    }
+
+    private void bindGridValueToTimelineGridProperty() {
+        // Add a listener to the selected item property
+        programEditorController.gridChooser.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                // Parse the new value to update the IntegerProperty
+                updateTimelineGridProperty(newValue);
+                Platform.runLater(this::populateTimeline);
+            }
+        });
+    }
+
+    private void updateTimelineGridProperty(String selection) {
+        // Extract the numeric part from the selection
+        TrackController.updateGrid(selection, programEditorController);
     }
 
 
     protected void updatePatternUI(ProgramSequencePattern programSequencePattern) {
-        if (programSequencePattern!=null){
+        if (programSequencePattern != null) {
             patternNameField.toFront();
             patternNameProperty.set(programSequencePattern.getName());
-            patternTotalProperty.set(String.valueOf(programSequencePattern.getTotal()));
-        }else {
+            totalValueFactory.setValue(Integer.valueOf(programSequencePattern.getTotal()));
+        } else {
             //return widths to normal
             noPatternLabel.setPrefWidth(previousPatternNameFieldPrefWidth);
             patternNameField.setPrefWidth(previousPatternNameFieldPrefWidth);
@@ -172,6 +239,29 @@ public class VoiceController {
                 LOG.info("Failed to update ProgramSequencePattern name");
             }
         });
+    }
+
+    private void updateTrackName() {
+        trackNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                if (!newValue) {
+                    adjustTrackNameFieldWidthWithTextIncrease();
+                    trackNameProperty.set(trackNameField.getText());
+                    projectService.update(ProgramVoiceTrack.class, programVoiceTrackObjectProperty.get().getId(), "name",
+                            trackNameProperty.get());
+                }
+            } catch (Exception e) {
+                LOG.info("Failed to update ProgramVoiceTrack name");
+            }
+        });
+    }
+
+    private void adjustTrackNameFieldWidthWithTextIncrease() {
+        double newTextWidth = computeTextWidth(trackNameField.getFont(), trackNameField.getText());
+        if (newTextWidth > defaultTrackNameFieldPrefWidth) {
+            trackNameField.setPrefWidth(newTextWidth);
+            trackContainer.setPrefWidth(newTextWidth + 10);
+        }
     }
 
     private void updateProgramVoiceName() {
@@ -205,14 +295,14 @@ public class VoiceController {
         double newTextWidth = computeTextWidth(patternNameField.getFont(), patternNameField.getText());
         if (newTextWidth > previousPatternNameFieldPrefWidth) {
             instrumentTypeCombobox.setPrefWidth(newTextWidth);
-            voiceControlsContainer.setPrefWidth(newTextWidth+10);
+            voiceControlsContainer.setPrefWidth(newTextWidth + 10);
             patternNameField.setPrefWidth(newTextWidth);
             noSequenceLabel.setPrefWidth(newTextWidth);
             noPatternLabel.setPrefWidth(newTextWidth);
         }
     }
 
-    private double computeTextWidth(javafx.scene.text.Font font, String text) {
+    public static double computeTextWidth(javafx.scene.text.Font font, String text) {
         javafx.scene.text.Text helper = new javafx.scene.text.Text();
         helper.setFont(font);
         helper.setText(text);
@@ -233,14 +323,14 @@ public class VoiceController {
     }
 
     private void populateTimeline() {
-        for (int i = 0; i < programEditorController.getTimelineGridSize() * 16; i++) {
+        timeline.getChildren().clear();
+        for (int i = 0; i < programEditorController.getTimelineGridSize() *  16; i++) {
             loadTimelineItem(i);
         }
     }
 
-
     private void loadTimelineItem(int id) {
-        TrackController.timelineItem(id, timelineItemFxml, ac, timeline, LOG);
+        TrackController.timelineItem(id, timelineItemFxml, ac, timeline, LOG, this);
     }
 
     private void setCombobox() {
@@ -263,7 +353,7 @@ public class VoiceController {
     private void hideItemsBeforeTrackIsCreated() {
         addTrackButton.toFront();
         addTrackButton_1.setVisible(false);
-        trackName.setVisible(false);
+        trackNameField.setVisible(false);
         timeline.setVisible(false);
         addNewTrackToCurrentVoiceLine();
         addNewTrackToNewLine();
@@ -271,22 +361,38 @@ public class VoiceController {
     }
 
     private void addNewTrackToCurrentVoiceLine() {
-        addTrackButton.setOnAction(e -> showItemsAfterTrackIsCreated());
+        addTrackButton.setOnAction(e -> {
+            try {
+                ProgramVoiceTrack newTrack = new ProgramVoiceTrack(UUID.randomUUID(), programEditorController.getProgramId(), voice.getId(), "XXX", 1f);
+                projectService.getContent().put(newTrack);
+                trackNameField.setText(newTrack.getName());
+                showItemsAfterTrackIsCreated();
+            } catch (Exception ex) {
+                LOG.info("Could not create new Track");
+            }
+        });
     }
 
     private void addNewTrackToNewLine() {
-        addTrackButton_1.setOnAction(e -> addTrackItemToNewLine());
+        addTrackButton_1.setOnAction(e -> createNewTrack());
     }
 
-    protected void addTrackItemToNewLine() {
-        TrackController.trackItem(trackFxml, ac, voiceContainer, LOG, addTrackButton_1);
+
+    private void createNewTrack() {
+        try {
+            ProgramVoiceTrack newTrack = new ProgramVoiceTrack(UUID.randomUUID(), programEditorController.getProgramId(), voice.getId(), "XXX", 1f);
+            projectService.getContent().put(newTrack);
+            trackItem(trackFxml, ac, voiceContainer, LOG, addTrackButton_1, voice, this, newTrack);
+        } catch (Exception e) {
+            LOG.info("Could not create new Track");
+        }
     }
 
     private void showItemsAfterTrackIsCreated() {
         trackContainer.getStyleClass().add("track-container");
         trackMenuButton.toFront();
         addTrackButton_1.setVisible(true);
-        trackName.setVisible(true);
+        trackNameField.setVisible(true);
         timeline.setVisible(true);
     }
 
@@ -317,7 +423,7 @@ public class VoiceController {
             loader.setControllerFactory(ac::getBean);
             Parent root = loader.load();
             PatternMenuController patternMenuController = loader.getController();
-            patternMenuController.setUp(root, voice, selectedProgramSequencePattern.get(),this);
+            patternMenuController.setUp(root, voice, selectedProgramSequencePattern.get(), this);
             stage.setScene(new Scene(root));
             stage.initOwner(themeService.getMainScene().getWindow());
             stage.show();
@@ -329,17 +435,17 @@ public class VoiceController {
     }
 
     private void showTrackMenu(MouseEvent event) {
-        trackMenu(event, trackMenuFxml, ac, themeService, LOG);
+        trackMenu(event, trackMenuFxml, ac, themeService, LOG, voice, this);
     }
 
-    static void trackMenu(MouseEvent event, Resource trackMenuFxml, ApplicationContext ac, ThemeService themeService, Logger log) {
+    static void trackMenu(MouseEvent event, Resource trackMenuFxml, ApplicationContext ac, ThemeService themeService, Logger log, ProgramVoice voice, VoiceController voiceController) {
         try {
             Stage stage = new Stage(StageStyle.TRANSPARENT);
             FXMLLoader loader = new FXMLLoader(trackMenuFxml.getURL());
             loader.setControllerFactory(ac::getBean);
             Parent root = loader.load();
             TrackMenuController trackMenuController = loader.getController();
-            trackMenuController.setUp(root);
+            trackMenuController.setUp(root, voice, voiceController);
             stage.setScene(new Scene(root));
             stage.initOwner(themeService.getMainScene().getWindow());
             stage.show();
