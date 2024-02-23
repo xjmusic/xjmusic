@@ -15,7 +15,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +45,7 @@ public class TrackController {
     @FXML
     public Button addTrackButton_1;
     @FXML
-    public HBox timeline;
+    public AnchorPane timeLineAnchorpane;
 
     @Value("classpath:/views/content/program/track.fxml")
     private Resource trackFxml;
@@ -182,27 +181,37 @@ public class TrackController {
     }
 
     private void populateTimeline(){
-        timeline.getChildren().clear();
-        for (int i=0;i< programEditorController.getTimelineGridSize() * 16;i++){
+        timeLineAnchorpane.getChildren().clear();
+        for (int i=0;i< programEditorController.getTimelineGridSize() * 15;i++){
             loadTimelineItem(i);
         }
     }
 
 
     private void loadTimelineItem(int id){
-        timelineItem(id, timelineItemFxml, ac, timeline, LOG,voiceController);
+        timelineItem(id, timelineItemFxml, ac, timeLineAnchorpane, LOG,voiceController,track);
     }
 
-    static void timelineItem(int id, Resource timelineItemFxml, ApplicationContext ac, HBox timeline, Logger log, VoiceController voiceController) {
+    static void timelineItem(int id, Resource timelineItemFxml, ApplicationContext ac, AnchorPane timeline, Logger log, VoiceController voiceController, ProgramVoiceTrack track) {
         try {
             FXMLLoader loader = new FXMLLoader(timelineItemFxml.getURL());
             loader.setControllerFactory(ac::getBean);
             Parent root = loader.load();
             TimelineItemController timelineItemController = loader.getController();
+
+            // Calculate the position of the new item based on its index and size
+            double newItemWidth = timelineItemController.timelineParent.getPrefWidth(); // Adjust the width as needed
+            double newItemX = timeline.getChildren().size()*newItemWidth; // Horizontal position
+
+            // Set the position of the new item within the AnchorPane
+            AnchorPane.setLeftAnchor(root, newItemX);
+            AnchorPane.setTopAnchor(root, 0.0); // Adjust the top position as needed
+            AnchorPane.setBottomAnchor(root, 0.0); // Adjust the top position as needed
             timeline.getChildren().add(root);
-            timelineItemController.setUp(id,voiceController);
+            timelineItemController.setUp(id, voiceController, timeline, root,track);
         } catch (IOException e) {
             log.error("Error loading Pattern Menu view!\n{}", StringUtils.formatStackTrace(e), e);
         }
+
     }
 }

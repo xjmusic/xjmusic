@@ -37,5 +37,8 @@
             <Insets top="2.0" />
          </HBox.margin>
       </AnchorPane>
-      <HBox fx:id="timeline" prefHeight="100.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+   <AnchorPane fx:id="timeLineAnchorpane" HBox.hgrow="ALWAYS" />
+   <padding>
+      <Insets top="5.0" />
+   </padding>
 </HBox>
