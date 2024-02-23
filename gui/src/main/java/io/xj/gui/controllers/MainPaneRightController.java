@@ -8,6 +8,7 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.ControlMode;
+import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -21,6 +22,7 @@ import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
@@ -32,6 +34,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextAlignment;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
@@ -45,6 +48,7 @@ import java.util.UUID;
 @Service
 public class MainPaneRightController extends ProjectController {
   private static final PseudoClass ENGAGED_PSEUDO_CLASS = PseudoClass.getPseudoClass("engaged");
+  private final double intensityDefaultValue;
   private final FabricationService fabricationService;
 
   @FXML
@@ -52,7 +56,7 @@ public class MainPaneRightController extends ProjectController {
 
   @FXML
   protected VBox controlsContainer;
-  private final DoubleProperty intensity = new SimpleDoubleProperty(0.38);
+  private final DoubleProperty intensity = new SimpleDoubleProperty(0);
   private final ObservableMap<String, String> taxonomyCategoryToggleSelections = FXCollections.observableHashMap();
   private final Set<ToggleGroup> taxonomyToggleGroups = new HashSet<>();
   private final String sliderTrackColorActive;
@@ -63,6 +67,7 @@ public class MainPaneRightController extends ProjectController {
     @Value("classpath:/views/main-pane-right.fxml") Resource fxml,
     @Value("${slider.track.color.active}") String sliderTrackColorActive,
     @Value("${slider.track.color.default}") String sliderTrackColorDefault,
+    @Value("${intensity.default.value}") double intensityDefaultValue,
     ApplicationContext ac,
     ThemeService themeService,
     FabricationService fabricationService,
@@ -72,6 +77,7 @@ public class MainPaneRightController extends ProjectController {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.sliderTrackColorActive = sliderTrackColorActive;
     this.sliderTrackColorDefault = sliderTrackColorDefault;
+    this.intensityDefaultValue = intensityDefaultValue;
     this.fabricationService = fabricationService;
   }
 
@@ -114,6 +120,10 @@ public class MainPaneRightController extends ProjectController {
     holder.getStyleClass().add("intensity-slider-holder");
 
     Label label = new Label("Intensity");
+    label.setPrefWidth(Double.MAX_VALUE);
+    label.setTextAlignment(TextAlignment.CENTER);
+    label.setAlignment(Pos.CENTER);
+    label.setPadding(new Insets(0, 0, 5, 0));
     holder.getChildren().add(label);
 
     Slider slider = new Slider();
@@ -128,16 +138,12 @@ public class MainPaneRightController extends ProjectController {
     // Slider to control intensity https://www.pivotaltracker.com/story/show/186950076
     intensity.bind(Bindings.createDoubleBinding(() -> slider.valueProperty().get() / 100, slider.valueProperty()));
     intensity.addListener((observable, oldValue, newValue) -> fabricationService.setIntensity(newValue.intValue()));
-    slider.valueProperty().addListener((o, ov, value) -> {
-      StackPane trackPane = (StackPane) slider.lookup(".track");
-      if (Objects.nonNull(trackPane))
-        trackPane.setStyle(computeSliderTrackStyle(value.intValue()));
-    });
+    slider.valueProperty().addListener((o, ov, value) -> setSliderTrackStyle(slider, value.intValue()));
+    slider.valueProperty().setValue(intensityDefaultValue * 100);
+    Platform.runLater(() -> setSliderTrackStyle(slider, (int) (intensityDefaultValue * 100)));
 
     controlsContainer.getChildren().add(holder);
-    slider.setValue(intensity.get() * 100);
   }
-
 
   /**
    Create a button for each macro program in the source material
@@ -303,6 +309,18 @@ public class MainPaneRightController extends ProjectController {
     button.pseudoClassStateChanged(ENGAGED_PSEUDO_CLASS, engaged);
   }
 
+
+  /**
+   Set the style for the slider track
+
+   @param slider the slider
+   @param value  the value
+   */
+  private void setSliderTrackStyle(Slider slider, int value) {
+    StackPane trackPane = (StackPane) slider.lookup(".track");
+    if (Objects.nonNull(trackPane))
+      trackPane.setStyle(computeSliderTrackStyle(value));
+  }
 
   /**
    Compute the style for the slider track, with a value from 0 to 100
