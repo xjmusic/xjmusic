@@ -84,12 +84,13 @@ public class FabricationServiceImpl implements FabricationService {
   private final LabService labService;
   private final Map<Integer, Integer> segmentBarBeats = new ConcurrentHashMap<>();
   private final DoubleProperty progress = new SimpleDoubleProperty(0.0);
+  private final StringProperty progressLabel = new SimpleStringProperty();
   private final ObjectProperty<FabricationState> state = new SimpleObjectProperty<>(FabricationState.Standby);
   private final ObservableStringValue stateText = Bindings.createStringBinding(
     () -> switch (state.get()) {
       case Standby -> "Ready";
       case Starting -> "Starting";
-      case PreparingAudio -> String.format("Preparing audio (%.02f%%)", progress.get() * 100);
+      case PreparingAudio -> progressLabel.get();
       case PreparedAudio -> "Prepared audio";
       case Initializing -> "Initializing";
       case Active -> "Active";
@@ -98,7 +99,8 @@ public class FabricationServiceImpl implements FabricationService {
       case Failed -> "Failed";
     },
     state,
-    progress);
+    progress,
+    progressLabel);
   private final BooleanBinding stateActive =
     Bindings.createBooleanBinding(() -> state.get() == FabricationState.Active, state);
   private final BooleanBinding stateStandby =
@@ -165,6 +167,7 @@ public class FabricationServiceImpl implements FabricationService {
 
       // reset progress
       progress.set(0.0);
+      progressLabel.set("");
       LOG.debug("Did reset progress");
 
       // create work configuration
@@ -184,6 +187,7 @@ public class FabricationServiceImpl implements FabricationService {
 
       // start the work with the given configuration
       fabricationManager.setOnProgress((Float progress) -> Platform.runLater(() -> this.progress.set(progress)));
+      fabricationManager.setOnProgressLabel((String label) -> Platform.runLater(() -> this.progressLabel.set(label)));
       fabricationManager.setOnStateChange((FabricationState state) -> Platform.runLater(() -> this.state.set(state)));
       LOG.debug("Did bind progress listeners");
 

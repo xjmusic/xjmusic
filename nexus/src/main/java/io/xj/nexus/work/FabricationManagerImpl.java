@@ -70,6 +70,9 @@ public class FabricationManagerImpl implements FabricationManager {
   private Consumer<Float> onProgress;
 
   @Nullable
+  private Consumer<String> onProgressLabel;
+
+  @Nullable
   private Consumer<FabricationState> onStateChange;
 
   @Nullable
@@ -178,6 +181,11 @@ public class FabricationManagerImpl implements FabricationManager {
   @Override
   public void setOnProgress(@Nullable Consumer<Float> onProgress) {
     this.onProgress = onProgress;
+  }
+
+  @Override
+  public void setOnProgressLabel(@Nullable Consumer<String> onProgressLabel) {
+    this.onProgressLabel = onProgressLabel;
   }
 
   @Override
@@ -397,32 +405,21 @@ public class FabricationManagerImpl implements FabricationManager {
   }
 
   /**
-   Update the progress
-
-   @param progress progress
-   */
-  private void updateProgress(float progress) {
-    if (Objects.nonNull(onProgress)) {
-      onProgress.accept(progress);
-      LOG.debug("Did update progress to {} and notify listener", progress);
-    } else {
-      LOG.debug("Did not update progress to {} because there is no listener to notify", progress);
-    }
-  }
-
-  /**
    Start loading audio
    */
   private void startPreparingAudio() {
     assert Objects.nonNull(workConfig);
     assert Objects.nonNull(hubConfig);
 
-    int loaded = 0;
+    int preparedAudios = 0;
+    int preparedInstruments = 0;
 
+    var instruments = new ArrayList<>(projectManager.getContent().getInstruments());
+    var audios = new ArrayList<>(projectManager.getContent().getInstrumentAudios());
     LOG.debug("Will start loading audio");
+    updateProgress(0.0f);
+    updateProgressLabel(String.format("Prepared 0/%d audios for 0/%d instruments", audios.size(), instruments.size()));
     try {
-      var instruments = new ArrayList<>(projectManager.getContent().getInstruments());
-      var audios = new ArrayList<>(projectManager.getContent().getInstrumentAudios());
       for (Instrument instrument : instruments) {
         for (InstrumentAudio audio : audios.stream()
           .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
@@ -436,14 +433,17 @@ public class FabricationManagerImpl implements FabricationManager {
             LOG.debug("Will preload audio for instrument {} with waveform key {}", instrument.getName(), audio.getWaveformKey());
             audioCache.prepare(audio);
             LOG.debug("Did preload audio OK");
-            updateProgress((float) loaded / audios.size());
-            loaded++;
+            updateProgress((float) preparedAudios / audios.size());
+            updateProgressLabel(String.format("Prepared %d/%d audios for %d/%d instruments", preparedAudios, audios.size(), preparedInstruments, instruments.size()));
+            preparedAudios++;
           }
         }
+        preparedInstruments++;
       }
-      if (Objects.nonNull(onProgress)) onProgress.accept(1.0f);
+      updateProgress(1.0f);
+      updateProgressLabel(String.format("Prepared %d audios for %d instruments", preparedAudios, preparedInstruments));
       isAudioLoaded.set(true);
-      LOG.info("Preloaded {} audios from {} instruments", loaded, instruments.size());
+      LOG.info("Preloaded {} audios from {} instruments", preparedAudios, instruments.size());
 
     } catch (Exception e) {
       didFailWhile("preloading audio", e);
@@ -511,5 +511,25 @@ public class FabricationManagerImpl implements FabricationManager {
       shipWork.finish();
     }
     updateState(FabricationState.Failed);
+  }
+
+  /**
+   Update the progress
+
+   @param progress progress
+   */
+  private void updateProgress(float progress) {
+    if (Objects.nonNull(onProgress))
+      onProgress.accept(progress);
+  }
+
+  /**
+   Update the progress label
+
+   @param label progress label
+   */
+  private void updateProgressLabel(String label) {
+    if (Objects.nonNull(onProgressLabel))
+      onProgressLabel.accept(label);
   }
 }
