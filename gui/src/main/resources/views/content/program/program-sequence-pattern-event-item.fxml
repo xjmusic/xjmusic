@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane fx:id="timelineEventPropertyParent" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="136.0" prefWidth="53.0" styleClass="program-sequence-pattern-event-item"
+            stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramSequencePatternEventItemController">
+      <Button fx:id="deleteTimelineProperty" layoutX="25.0" layoutY="-1.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="25.0" prefWidth="28.0" text=" " AnchorPane.rightAnchor="-2.0" AnchorPane.topAnchor="-5.0">
+         <graphic>
+            <ImageView fitHeight="17.0" fitWidth="17.0" translateX="-3.0">
+               <image>
+                  <Image url="@/icons/delete.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Button>
+      <Label fx:id="positionLabel" layoutX="5.0" layoutY="36.0" prefHeight="17.0" prefWidth="45.0" text="Label" AnchorPane.leftAnchor="5.0" />
+      <Label fx:id="durationLabel" layoutX="5.0" layoutY="58.0" prefHeight="17.0" prefWidth="45.0" text="Label" AnchorPane.leftAnchor="5.0" />
+      <Label fx:id="velocityLabel" layoutX="6.0" layoutY="80.0" prefHeight="17.0" prefWidth="45.0" text="Label" AnchorPane.leftAnchor="5.0" />
+      <Label fx:id="tonesLabel" layoutX="6.0" layoutY="102.0" prefHeight="17.0" prefWidth="45.0" text="Label" AnchorPane.leftAnchor="5.0" />
+   <cursor>
+      <Cursor fx:constant="OPEN_HAND" />
+   </cursor>
+</AnchorPane>

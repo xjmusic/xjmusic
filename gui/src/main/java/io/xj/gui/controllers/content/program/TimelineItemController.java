@@ -32,8 +32,8 @@ public class TimelineItemController {
     @FXML
     public Line middleLine;
 
-    @Value("classpath:/views/content/program/event-grid-property-item.fxml")
-    private Resource propertyFxml;
+    @Value("classpath:/views/content/program/program-sequence-pattern-event-item.fxml")
+    private Resource programSequencePatternEventFxml;
     private final ApplicationContext ac;
     private final ProjectService projectService;
     private ProgramVoiceTrack track;
@@ -62,7 +62,7 @@ public class TimelineItemController {
     private void addProgramSequencePatternEventItem(AnchorPane timeline, int id) {
         try {
             // Load the FXML for the property item
-            FXMLLoader loader = new FXMLLoader(propertyFxml.getURL());
+            FXMLLoader loader = new FXMLLoader(programSequencePatternEventFxml.getURL());
             loader.setControllerFactory(ac::getBean);
             Parent root = loader.load();
 
@@ -82,8 +82,8 @@ public class TimelineItemController {
             //create a ProgramSequencePatternEvent object
             ProgramSequencePatternEvent programSequencePatternEvent=new ProgramSequencePatternEvent(UUID.randomUUID(),track.getProgramId(),programEditorController.getSequenceId(),track.getId(),0.125f,id*0.125f,0.125f,"X");
             // Initialize the controller for the new property item
-            EventGridPropertyItemController eventGridPropertyItemController = loader.getController();
-            eventGridPropertyItemController.setUp(id, root, timeline,programSequencePatternEvent,voiceController);
+            ProgramSequencePatternEventItemController programSequencePatternEventItemController = loader.getController();
+            programSequencePatternEventItemController.setUp(id, root, timeline,programSequencePatternEvent,voiceController);
             //save the ProgramSequencePatternEvent
             projectService.getContent().put(programSequencePatternEvent);
         } catch (Exception e) {

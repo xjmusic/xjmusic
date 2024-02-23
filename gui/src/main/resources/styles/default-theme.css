@@ -429,13 +429,6 @@
   -fx-background-color: transparent;
 }
 
-.selected {
-  -fx-background-color: #005E1F;
-  -fx-border-color: #7F8FAE;
-  -fx-border-radius: 4px;
-  -fx-background-radius: 4px;
-}
-
 .snap-button:selected {
   -fx-background-color: #005E1F;
 }
@@ -569,7 +562,7 @@
 }
 
 .edit-mode-container {
-    -fx-background-color: #101010;
+    -fx-background-color: #161616;
 }
 
 .track-container {
@@ -588,4 +581,33 @@
 .timeline-item-highlighted {
     -fx-background-color: #252525;
     -fx-border-color: #444343;
+}
+.program-editor-edit-mode-scroll-pane > .viewport {
+  -fx-background-color:  #161616;
+}
+
+.program-editor-edit-mode-scroll-pane {
+  -fx-background-color: #161616;
+}
+
+.program-sequence-pattern-event-item{
+  -fx-background-color: #555555;
+  -fx-border-color: #555555;
+  -fx-border-radius: 6;
+  -fx-background-radius: 6;
+}
+
+.program-sequence-pattern-event-item:hover{
+  -fx-cursor: grab;
+}
+
+.program-sequence-pattern-event-item:hover .button{
+  -fx-opacity:1;
+}
+
+.program-sequence-pattern-event-item .button{
+  -fx-background-color: #663366;
+  -fx-border-radius: 10;
+  -fx-background-radius: 10;
+  -fx-opacity:0;
 }
