@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
@@ -49,6 +50,9 @@ public class DubWorkImpl implements DubWork {
   private final Mixer mixer;
 
   private long atChainMicros; // dubbing is done up to this point
+
+  // TODO use this intensity value to determine the volume of the available layers by their intensity
+  private final AtomicReference<Double> intensity = new AtomicReference<>(1.0);
 
   public DubWorkImpl(
     Telemetry telemetry,
@@ -188,6 +192,11 @@ public class DubWorkImpl implements DubWork {
   @Override
   public int getMixerLengthSeconds() {
     return mixerLengthSeconds;
+  }
+
+  @Override
+  public void setIntensity(double intensity) {
+    this.intensity.set(intensity);
   }
 
   /**

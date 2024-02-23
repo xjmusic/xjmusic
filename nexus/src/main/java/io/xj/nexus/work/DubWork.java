@@ -107,4 +107,11 @@ public interface DubWork extends Work {
    @return the length of the mixer buffer in seconds
    */
   int getMixerLengthSeconds();
+
+  /**
+   Set the intensity of the dub work
+
+   @param intensity the intensity
+   */
+  void setIntensity(double intensity);
 }

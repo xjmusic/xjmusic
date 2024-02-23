@@ -286,25 +286,34 @@
   -fx-cursor: hand;
 }
 
-.selection-container {
+.selection-scroll-pane,
+.selection-scroll-pane .viewport {
+  -fx-background-color: #303030;
+}
+
+.controls-container {
   -fx-padding: 10 10 10 10;
 }
 
-.selection-container .button {
+.controls-container .intensity-slider-holder {
+  -fx-padding: 0 0 20 0;
+}
+
+.controls-container .button {
   -fx-padding: 10 20 10 20;
   -fx-max-width: Infinity;
 }
 
-.selection-container .engage-button {
+.controls-container .engage-button {
   -fx-font-weight: bold;
 }
 
 /*noinspection CssInvalidPseudoSelector*/
-.selection-container .toggle-button:engaged {
+.controls-container .toggle-button:engaged {
   -fx-background-color: #008000;
 }
 
-.selection-container .group-label {
+.controls-container .group-label {
   -fx-max-width: Infinity;
   -fx-padding: 30 20 7 20;
   -fx-font-size: 1.2em;

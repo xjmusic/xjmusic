@@ -213,4 +213,10 @@ public interface FabricationService {
    Reset all fabrication settings to their defaults
    */
   void resetSettingsToDefaults();
+
+  /**
+    Set the current intensity of the fabrication process
+   * @param intensity the intensity to set
+   */
+  void setIntensity(float intensity);
 }

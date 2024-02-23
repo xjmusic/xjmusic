@@ -11,6 +11,8 @@ import io.xj.nexus.ControlMode;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
@@ -23,9 +25,12 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Slider;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -43,14 +48,21 @@ public class MainPaneRightController extends ProjectController {
   private final FabricationService fabricationService;
 
   @FXML
-  protected VBox container;
+  protected ScrollPane container;
 
+  @FXML
+  protected VBox controlsContainer;
+  private final DoubleProperty intensity = new SimpleDoubleProperty(0.38);
   private final ObservableMap<String, String> taxonomyCategoryToggleSelections = FXCollections.observableHashMap();
   private final Set<ToggleGroup> taxonomyToggleGroups = new HashSet<>();
+  private final String sliderTrackColorActive;
+  private final String sliderTrackColorDefault;
 
 
   public MainPaneRightController(
     @Value("classpath:/views/main-pane-right.fxml") Resource fxml,
+    @Value("${slider.track.color.active}") String sliderTrackColorActive,
+    @Value("${slider.track.color.default}") String sliderTrackColorDefault,
     ApplicationContext ac,
     ThemeService themeService,
     FabricationService fabricationService,
@@ -58,13 +70,13 @@ public class MainPaneRightController extends ProjectController {
     ProjectService projectService
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
+    this.sliderTrackColorActive = sliderTrackColorActive;
+    this.sliderTrackColorDefault = sliderTrackColorDefault;
     this.fabricationService = fabricationService;
   }
 
   @Override
   public void onStageReady() {
-    container.visibleProperty().bind(uiStateService.isManualFabricationModeProperty());
-    container.managedProperty().bind(uiStateService.isManualFabricationModeProperty());
     container.visibleProperty().bind(uiStateService.isManualFabricationModeProperty());
     container.managedProperty().bind(uiStateService.isManualFabricationModeProperty());
 
@@ -82,6 +94,7 @@ public class MainPaneRightController extends ProjectController {
    */
   private void onManualFabricationMode(Observable observable, Boolean ignored, Boolean isActive) {
     if (isActive) {
+      initIntensitySlider();
       if (fabricationService.controlModeProperty().get().equals(ControlMode.MACRO)) {
         initMacroSelections();
       } else if (fabricationService.controlModeProperty().get().equals(ControlMode.TAXONOMY)) {
@@ -89,9 +102,42 @@ public class MainPaneRightController extends ProjectController {
       }
 
     } else {
-      container.getChildren().clear();
+      controlsContainer.getChildren().clear();
     }
   }
+
+  /**
+   Create the intensity control slider
+   */
+  private void initIntensitySlider() {
+    VBox holder = new VBox();
+    holder.getStyleClass().add("intensity-slider-holder");
+
+    Label label = new Label("Intensity");
+    holder.getChildren().add(label);
+
+    Slider slider = new Slider();
+    slider.setValue(38);
+    slider.setMin(0);
+    slider.setMax(100);
+    slider.setMajorTickUnit(50);
+    slider.setMinorTickCount(5);
+    slider.setShowTickMarks(true);
+    holder.getChildren().add(slider);
+
+    // Slider to control intensity https://www.pivotaltracker.com/story/show/186950076
+    intensity.bind(Bindings.createDoubleBinding(() -> slider.valueProperty().get() / 100, slider.valueProperty()));
+    intensity.addListener((observable, oldValue, newValue) -> fabricationService.setIntensity(newValue.intValue()));
+    slider.valueProperty().addListener((o, ov, value) -> {
+      StackPane trackPane = (StackPane) slider.lookup(".track");
+      if (Objects.nonNull(trackPane))
+        trackPane.setStyle(computeSliderTrackStyle(value.intValue()));
+    });
+
+    controlsContainer.getChildren().add(holder);
+    slider.setValue(intensity.get() * 100);
+  }
+
 
   /**
    Create a button for each macro program in the source material
@@ -197,7 +243,7 @@ public class MainPaneRightController extends ProjectController {
     btn.getStyleClass().add("engage-button");
     btn.setOnAction(actionHandler);
     btn.disableProperty().bind(disabledBinding);
-    container.getChildren().add(btn);
+    controlsContainer.getChildren().add(btn);
   }
 
   /**
@@ -213,7 +259,7 @@ public class MainPaneRightController extends ProjectController {
     btn.setOnAction(actionHandler);
     btn.disableProperty().bind(disabledBinding);
     btn.opacityProperty().bind(Bindings.when(disabledBinding).then(0.3).otherwise(0.8));
-    container.getChildren().add(btn);
+    controlsContainer.getChildren().add(btn);
   }
 
   /**
@@ -226,7 +272,7 @@ public class MainPaneRightController extends ProjectController {
     label.setMaxWidth(Double.MAX_VALUE);
     label.setAlignment(Pos.CENTER);
     label.getStyleClass().add("group-label");
-    container.getChildren().add(label);
+    controlsContainer.getChildren().add(label);
   }
 
   /**
@@ -243,7 +289,7 @@ public class MainPaneRightController extends ProjectController {
     btn.setToggleGroup(group);
     btn.getStyleClass().add("button");
     btn.getStyleClass().add("toggle-button");
-    container.getChildren().add(btn);
+    controlsContainer.getChildren().add(btn);
     return btn;
   }
 
@@ -258,9 +304,18 @@ public class MainPaneRightController extends ProjectController {
   }
 
 
+  /**
+   Compute the style for the slider track, with a value from 0 to 100
+
+   @param value the value
+   @return the style
+   */
+  private String computeSliderTrackStyle(int value) {
+    return String.format("-fx-background-color: linear-gradient(to right, %s %d%%, %s %d%%);", sliderTrackColorActive, value, sliderTrackColorDefault, value);
+  }
+
   @Override
   public void onStageClose() {
     // no op
   }
-
 }

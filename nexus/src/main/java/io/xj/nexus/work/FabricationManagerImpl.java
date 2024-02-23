@@ -235,6 +235,12 @@ public class FabricationManagerImpl implements FabricationManager {
   }
 
   @Override
+  public void setIntensity(double intensity) {
+    if (Objects.isNull(dubWork)) return;
+    dubWork.setIntensity(intensity);
+  }
+
+  @Override
   public NexusEntityStore getEntityStore() {
     return entityStore;
   }

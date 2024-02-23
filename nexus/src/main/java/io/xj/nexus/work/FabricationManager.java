@@ -138,4 +138,11 @@ public interface FabricationManager {
    @return true if an override happened
    */
   boolean getAndResetDidOverride();
+
+  /**
+   Set the current intensity of the fabrication process
+
+   @param intensity the intensity to set
+   */
+  void setIntensity(double intensity);
 }

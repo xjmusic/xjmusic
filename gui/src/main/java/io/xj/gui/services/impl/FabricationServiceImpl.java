@@ -256,6 +256,11 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
+  public void setIntensity(float intensity) {
+    fabricationManager.setIntensity(intensity);
+  }
+
+  @Override
   public void reset() {
     try {
       state.set(FabricationState.Standby);
