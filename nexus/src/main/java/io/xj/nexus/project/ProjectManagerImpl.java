@@ -96,6 +96,9 @@ public class ProjectManagerImpl implements ProjectManager {
   private Consumer<Double> onProgress;
 
   @Nullable
+  private Consumer<String> onProgressLabel;
+
+  @Nullable
   private Consumer<ProjectState> onStateChange;
 
   /**
@@ -286,7 +289,6 @@ public class ProjectManagerImpl implements ProjectManager {
       updateState(ProjectState.PushingContent);
       LOG.info("Will push project content to Hub");
       hubClientFactory.postProjectSyncApiV2(httpClient, hubBaseUrl, hubAccess, content.get());
-      pushResults.addInstruments(content.get().getInstruments().size());
       pushResults.addAudios(content.get().getInstrumentAudios().size());
       pushResults.addPrograms(content.get().getPrograms().size());
       pushResults.addLibraries(content.get().getLibraries().size());
@@ -295,11 +297,12 @@ public class ProjectManagerImpl implements ProjectManager {
       updateState(ProjectState.PushedContent);
 
       // Then, push all individual audios. If an audio is not found remotely, request an upload authorization token from Hub.
-      LOG.info("Will push {} audio for {} instruments", content.get().getInstrumentAudios().size(), content.get().getInstruments().size());
-      updateProgress(0.0);
-      updateState(ProjectState.PushingAudio);
       var instruments = new ArrayList<>(content.get().getInstruments());
       var audios = new ArrayList<>(content.get().getInstrumentAudios());
+      LOG.info("Will push {} audio for {} instruments", audios.size(), instruments.size());
+      updateProgress(0.0);
+      updateProgressLabel(String.format("Pushed 0/%d audios for 0/%d instruments", audios.size(), instruments.size()));
+      updateState(ProjectState.PushingAudio);
 
       for (Instrument instrument : instruments) {
         for (InstrumentAudio audio : audios.stream()
@@ -354,9 +357,12 @@ public class ProjectManagerImpl implements ProjectManager {
             }
           }
           updateProgress((float) pushResults.getAudios() / audios.size());
+          updateProgressLabel(String.format("Pushed %d/%d audios for %d/%d instruments", pushResults.getAudios(), audios.size(), pushResults.getInstruments(), instruments.size()));
         }
+        pushResults.incrementInstruments();
       }
       updateProgress(1.0);
+      updateProgressLabel(String.format("Pushed %d audios for %d instruments", pushResults.getAudios(), pushResults.getInstruments()));
       LOG.info("Pushed {} audios for {} instruments", pushResults.getAudios(), pushResults.getInstruments());
       updateState(ProjectState.PushedAudio);
 
@@ -421,6 +427,11 @@ public class ProjectManagerImpl implements ProjectManager {
   @Override
   public void setOnProgress(@Nullable Consumer<Double> onProgress) {
     this.onProgress = onProgress;
+  }
+
+  @Override
+  public void setOnProgressLabel(@Nullable Consumer<String> onProgressLabel) {
+    this.onProgressLabel = onProgressLabel;
   }
 
   @Override
@@ -909,12 +920,14 @@ public class ProjectManagerImpl implements ProjectManager {
       updateState(ProjectState.LoadedContent);
       LOG.info("Did load content");
 
-      LOG.info("Will load {} audio for {} instruments", content.get().getInstrumentAudios().size(), content.get().getInstruments().size());
-      updateProgress(0.0);
-      updateState(ProjectState.LoadingAudio);
-      int loaded = 0;
       var instruments = new ArrayList<>(content.get().getInstruments());
       var audios = new ArrayList<>(content.get().getInstrumentAudios());
+      LOG.info("Will download {} audio for {} instruments", audios.size(), instruments.size());
+      updateProgress(0.0);
+      updateProgressLabel(String.format("Downloaded 0/%d audios for 0/%d instruments", audios.size(), instruments.size()));
+      updateState(ProjectState.LoadingAudio);
+      int loadedAudios = 0;
+      int loadedInstruments = 0;
 
       // Don't close the client, only close the responses from it
       CloseableHttpClient httpClient = httpClientProvider.getClient();
@@ -929,7 +942,7 @@ public class ProjectManagerImpl implements ProjectManager {
             return false;
           }
           if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
-            LOG.debug("Will preload audio for instrument \"{}\" with waveform key \"{}\"", instrument.getName(), audio.getWaveformKey());
+            LOG.debug("Will download audio for instrument \"{}\" with waveform key \"{}\"", instrument.getName(), audio.getWaveformKey());
             // Fetch via HTTP if original does not exist
             var originalCachePath = getPathToInstrumentAudio(
               instrument.getId(),
@@ -960,13 +973,16 @@ public class ProjectManagerImpl implements ProjectManager {
             }
 
             LOG.debug("Did preload audio OK");
-            updateProgress((float) loaded / audios.size());
-            loaded++;
+            updateProgress((float) loadedAudios / audios.size());
+            updateProgressLabel(String.format("Downloaded %d/%d audios for %d/%d instruments", loadedAudios, audios.size(), loadedInstruments, instruments.size()));
+            loadedAudios++;
           }
         }
+        loadedInstruments++;
       }
       updateProgress(1.0);
-      LOG.info("Preloaded {} audios from {} instruments", loaded, instruments.size());
+      LOG.info("Downloaded {} audios from {} instruments", loadedAudios, instruments.size());
+      updateProgressLabel(String.format("Downloaded %d audios for %d instruments", loadedAudios, loadedInstruments));
       updateState(ProjectState.LoadedAudio);
 
       saveProjectContent();
@@ -1054,5 +1070,15 @@ public class ProjectManagerImpl implements ProjectManager {
   private void updateProgress(double progress) {
     if (Objects.nonNull(onProgress))
       this.onProgress.accept(progress);
+  }
+
+  /**
+   Update the progress label and send the updated label to the progress label callback
+
+   @param label new value
+   */
+  private void updateProgressLabel(String label) {
+    if (Objects.nonNull(onProgressLabel))
+      this.onProgressLabel.accept(label);
   }
 }

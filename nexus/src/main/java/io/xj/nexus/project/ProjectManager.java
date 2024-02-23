@@ -162,6 +162,13 @@ public interface ProjectManager {
   void setOnProgress(@Nullable Consumer<Double> onProgress);
 
   /**
+   Set the callback to be invoked when the progress label changes
+
+   @param onProgressLabel the callback
+   */
+  void setOnProgressLabel(@Nullable Consumer<String> onProgressLabel);
+
+  /**
    Set the callback to be invoked when the project state changes
 
    @param onStateChange the callback
