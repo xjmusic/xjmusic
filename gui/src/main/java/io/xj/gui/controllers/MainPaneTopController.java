@@ -115,8 +115,8 @@ public class MainPaneTopController extends ProjectController {
     fabricationActionButton.disableProperty().bind(uiStateService.isMainActionButtonDisabledProperty());
     fabricationActionButton.textProperty().bind(fabricationService.mainActionButtonTextProperty());
     fabricationButtonShowSettings.disableProperty().bind(uiStateService.isFabricationSettingsDisabledProperty());
-    fabricationControlContainer.managedProperty().bind(uiStateService.isViewProgressStatusModeProperty());
-    fabricationControlContainer.visibleProperty().bind(uiStateService.isViewProgressStatusModeProperty());
+    fabricationControlContainer.managedProperty().bind(uiStateService.isViewModeFabricationProperty());
+    fabricationControlContainer.visibleProperty().bind(uiStateService.isViewModeFabricationProperty());
     fabricationService.stateProperty().addListener((o, ov, value) -> activateFabricationState(value));
     fabricationToggleFollowButton.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
 

@@ -437,8 +437,8 @@ public class FabricationManagerImpl implements FabricationManager {
             updateProgressLabel(String.format("Prepared %d/%d audios for %d/%d instruments", preparedAudios, audios.size(), preparedInstruments, instruments.size()));
             preparedAudios++;
           }
-          preparedInstruments++;
         }
+        preparedInstruments++;
       }
       updateProgress(1.0f);
       updateProgressLabel(String.format("Prepared %d audios for %d instruments", preparedAudios, preparedInstruments));

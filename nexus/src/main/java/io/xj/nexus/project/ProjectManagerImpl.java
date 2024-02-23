@@ -977,8 +977,8 @@ public class ProjectManagerImpl implements ProjectManager {
             updateProgressLabel(String.format("Downloaded %d/%d audios for %d/%d instruments", loadedAudios, audios.size(), loadedInstruments, instruments.size()));
             loadedAudios++;
           }
-          loadedInstruments++;
         }
+        loadedInstruments++;
       }
       updateProgress(1.0);
       LOG.info("Downloaded {} audios from {} instruments", loadedAudios, instruments.size());
