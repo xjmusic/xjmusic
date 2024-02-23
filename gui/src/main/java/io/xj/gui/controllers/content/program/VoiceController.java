@@ -73,8 +73,6 @@ public class VoiceController {
     @FXML
     public TextField trackNameField;
     private final ProgramEditorController programEditorController;
-    @FXML
-    public HBox timeline;
     static final Logger LOG = LoggerFactory.getLogger(VoiceController.class);
     @FXML
     public VBox voiceContainer;
@@ -86,6 +84,8 @@ public class VoiceController {
     public TextField programVoiceNameTextField;
     @FXML
     public Spinner<Integer> patternTotalCountChooser;
+    @FXML
+    public AnchorPane timeLineAnchorpane;
 
     @Value("classpath:/views/content/program/track.fxml")
     private Resource trackFxml;
@@ -323,14 +323,14 @@ public class VoiceController {
     }
 
     private void populateTimeline() {
-        timeline.getChildren().clear();
-        for (int i = 0; i < programEditorController.getTimelineGridSize() *  16; i++) {
+        timeLineAnchorpane.getChildren().clear();
+        for (int i = 0; i < programEditorController.getTimelineGridSize() *  15; i++) {
             loadTimelineItem(i);
         }
     }
 
     private void loadTimelineItem(int id) {
-        TrackController.timelineItem(id, timelineItemFxml, ac, timeline, LOG, this);
+        TrackController.timelineItem(id, timelineItemFxml, ac, timeLineAnchorpane, LOG, this, programVoiceTrackObjectProperty.get());
     }
 
     private void setCombobox() {
@@ -354,7 +354,7 @@ public class VoiceController {
         addTrackButton.toFront();
         addTrackButton_1.setVisible(false);
         trackNameField.setVisible(false);
-        timeline.setVisible(false);
+        timeLineAnchorpane.setVisible(false);
         addNewTrackToCurrentVoiceLine();
         addNewTrackToNewLine();
 
@@ -393,7 +393,7 @@ public class VoiceController {
         trackMenuButton.toFront();
         addTrackButton_1.setVisible(true);
         trackNameField.setVisible(true);
-        timeline.setVisible(true);
+        timeLineAnchorpane.setVisible(true);
     }
 
 

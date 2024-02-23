@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox fx:id="voiceContainer" stylesheets="@../../../styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.VoiceController">
+<VBox fx:id="voiceContainer" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.VoiceController">
 
     <HBox prefHeight="156.0" prefWidth="1286.0">
 
@@ -129,7 +129,7 @@
          <TextField fx:id="trackNameField" layoutX="50.0" layoutY="10.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="155.0" />
 
         </AnchorPane>
-      <HBox fx:id="timeline" prefHeight="100.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+      <AnchorPane fx:id="timeLineAnchorpane" HBox.hgrow="ALWAYS" />
 
     </HBox>
 
