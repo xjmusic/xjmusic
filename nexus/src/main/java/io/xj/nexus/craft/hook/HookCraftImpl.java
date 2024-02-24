@@ -35,7 +35,7 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
     // Instruments may be chosen without programs https://www.pivotaltracker.com/story/show/181290857
     Optional<Instrument> instrument = priorChoice.isPresent() ?
       fabricator.sourceMaterial().getInstrument(priorChoice.get().getInstrumentId()) :
-      chooseFreshInstrument(List.of(InstrumentType.Hook), List.of(InstrumentMode.Loop), List.of(), null, List.of());
+      chooseFreshInstrument(List.of(InstrumentType.Hook), List.of(), null, List.of());
 
     // instrument audio prior choice persists
     Optional<SegmentChoiceArrangementPick> priorPick = priorChoice.flatMap(pc ->

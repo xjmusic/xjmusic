@@ -119,7 +119,7 @@ public class CraftTransitionContinueTest {
 //    // assert choice of transition-type sequence
 //    Collection<SegmentChoice> segmentChoices =
 //      store.getAll(segment4.getId(), SegmentChoice.class);
-//    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Sweep, InstrumentMode.Transition));
+//    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Transition, InstrumentMode.Event));
   }
 
   /**
@@ -158,8 +158,8 @@ public class CraftTransitionContinueTest {
         Segment.DELTA_UNLIMITED,
         Segment.DELTA_UNLIMITED,
         fake.program35,
-        InstrumentType.Sweep,
-        InstrumentMode.Transition));
+        InstrumentType.Transition,
+        InstrumentMode.Event));
 
     // segment crafting
     segment4 = store.put(buildSegment(
@@ -202,7 +202,7 @@ public class CraftTransitionContinueTest {
     // assert choice of transition-type sequence
     Collection<SegmentChoice> segmentChoices =
       store.getAll(segment4.getId(), SegmentChoice.class);
-    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Sweep, InstrumentMode.Transition));
+    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Transition, InstrumentMode.Event));
 */
   }
 }

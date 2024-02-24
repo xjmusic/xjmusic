@@ -158,8 +158,8 @@ public class CraftBackgroundContinueTest {
         Segment.DELTA_UNLIMITED,
         Segment.DELTA_UNLIMITED,
         fake.program35,
-        InstrumentType.Noise,
-        InstrumentMode.Background));
+        InstrumentType.Background,
+        InstrumentMode.Loop));
 
     // segment crafting
     segment4 = store.put(buildSegment(

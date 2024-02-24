@@ -362,7 +362,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     deltaOuts.clear();
 
     // Ensure that we can bypass delta arcs using the template config
-    if (!fabricator.getTemplateConfig().isDeltaArcEnabled()) {
+    if (!fabricator.getTemplateConfig().isIntensityAutoCrescendoEnabled()) {
       layers.forEach(layer -> {
         deltaIns.put(layer, DELTA_UNLIMITED);
         deltaOuts.put(layer, DELTA_UNLIMITED);
@@ -604,7 +604,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @return volume ratio
    */
   float computeVolumeRatioForPickedNote(SegmentChoice choice, double segmentPosition) {
-    if (!fabricator.getTemplateConfig().isDeltaArcEnabled()) return 1.0f;
+    if (!fabricator.getTemplateConfig().isIntensityAutoCrescendoEnabled()) return 1.0f;
     return (float) (inBounds(choice.getDeltaIn(), choice.getDeltaOut(), fabricator.getSegment().getDelta() + segmentPosition) ? 1.0 : 0.0);
   }
 
@@ -942,17 +942,16 @@ public class CraftImpl extends FabricationWrapperImpl {
    Choose drum instrument to fulfill beat program event names https://www.pivotaltracker.com/story/show/180803311
 
    @param types             of instrument to choose from
-   @param modes             of instrument to choose from
    @param avoidIds          to avoid, or empty list
    @param continueVoiceName if present, ensure that choices continue for each voice named in prior segments of this main program
    @param requireEventNames instrument candidates are required to have event names https://www.pivotaltracker.com/story/show/180803311
    @return Instrument
    */
-  protected Optional<Instrument> chooseFreshInstrument(Collection<InstrumentType> types, Collection<InstrumentMode> modes, Collection<UUID> avoidIds, @Nullable String continueVoiceName, Collection<String> requireEventNames) throws NexusException {
+  protected Optional<Instrument> chooseFreshInstrument(Collection<InstrumentType> types, Collection<UUID> avoidIds, @Nullable String continueVoiceName, Collection<String> requireEventNames) throws NexusException {
     var bag = MarbleBag.empty();
 
     // Retrieve instruments bound to chain
-    Collection<Instrument> candidates = fabricator.sourceMaterial().getInstrumentsOfTypesAndModes(types, modes).stream().filter(i -> !avoidIds.contains(i.getId())).filter(i -> instrumentContainsAudioEventsLike(i, requireEventNames)).toList();
+    Collection<Instrument> candidates = fabricator.sourceMaterial().getInstrumentsOfTypes(types).stream().filter(i -> !avoidIds.contains(i.getId())).filter(i -> instrumentContainsAudioEventsLike(i, requireEventNames)).toList();
 
     // Retrieve meme isometry of segment
     MemeIsometry iso = fabricator.getMemeIsometryOfSegment();

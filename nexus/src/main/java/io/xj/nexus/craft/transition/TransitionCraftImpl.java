@@ -2,7 +2,7 @@
 package io.xj.nexus.craft.transition;
 
 
-import io.xj.hub.enums.InstrumentMode;
+import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.music.Bar;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
@@ -45,19 +45,13 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
 
   @Override
   public void doWork() throws NexusException {
-    var previousChoices = fabricator.retrospective().getPreviousChoicesOfMode(InstrumentMode.Transition);
+    var previousChoices = fabricator.retrospective().getPreviousChoicesOfType(InstrumentType.Transition);
 
     Collection<UUID> instrumentIds = previousChoices.stream()
       .map(SegmentChoice::getInstrumentId)
       .collect(Collectors.toList());
 
-    double targetIntensity = isBigTransitionSegment() ? fabricator.getTemplateConfig().getIntensityCeiling() : fabricator.getSegment().getIntensity();
-
-    int targetLayers = (int) Math.floor(
-      fabricator.getTemplateConfig().getTransitionLayerMin() +
-        targetIntensity *
-          (fabricator.getTemplateConfig().getTransitionLayerMax() -
-            fabricator.getTemplateConfig().getTransitionLayerMin()));
+    int targetLayers =fabricator.getTemplateConfig().getIntensityLayers(InstrumentType.Transition);
 
     fabricator.addInfoMessage(String.format("Targeting %d layers of transition", targetLayers));
 
@@ -71,7 +65,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     Optional<Instrument> chosen;
     if (instrumentIds.size() < targetLayers)
       for (int i = 0; i < targetLayers - instrumentIds.size(); i++) {
-        chosen = chooseFreshInstrument(List.of(), List.of(InstrumentMode.Transition), instrumentIds, null, List.of());
+        chosen = chooseFreshInstrument(List.of(InstrumentType.Transition), instrumentIds, null, List.of());
         if (chosen.isPresent()) {
           instrumentIds.add(chosen.get().getId());
           craftTransition(tempo, chosen.get().getId());

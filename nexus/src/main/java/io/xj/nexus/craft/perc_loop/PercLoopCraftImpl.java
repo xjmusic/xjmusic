@@ -47,11 +47,8 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
           .collect(Collectors.toSet())
         : new ArrayList<>();
 
-    int targetLayers = (int) Math.floor(
-      fabricator.getTemplateConfig().getPercLoopLayerMin() +
-        fabricator.getSegment().getIntensity() *
-          (fabricator.getTemplateConfig().getPercLoopLayerMax() -
-            fabricator.getTemplateConfig().getPercLoopLayerMin()));
+    int targetLayers =fabricator.getTemplateConfig().getIntensityLayers(InstrumentType.Percussion);
+
 
     fabricator.addInfoMessage(String.format("Targeting %d layers of percussion loop", targetLayers));
 

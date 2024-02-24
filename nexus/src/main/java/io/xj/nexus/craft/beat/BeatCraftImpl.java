@@ -2,7 +2,6 @@
 package io.xj.nexus.craft.beat;
 
 
-import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Program;
@@ -60,8 +59,8 @@ public class BeatCraftImpl extends DetailCraftImpl implements BeatCraft {
       choiceFilter,
       choiceIndexProvider,
       programNames,
-      CsvUtils.split(fabricator.getTemplateConfig().getDeltaArcBeatLayersToPrioritize()),
-      fabricator.getTemplateConfig().getDeltaArcBeatLayersIncoming()
+      CsvUtils.split(fabricator.getTemplateConfig().getIntensityAutoCrescendoBeatLayersToPrioritize()),
+      fabricator.getTemplateConfig().getIntensityAutoCrescendoBeatLayersIncoming()
     );
 
     // beat sequence is selected at random of the current program
@@ -75,7 +74,7 @@ public class BeatCraftImpl extends DetailCraftImpl implements BeatCraft {
         reportMissing(ProgramVoice.class,
           String.format("in Beat-choice Program[%s]", program.get().getId()));
 
-      craftNoteEvents(fabricator.getTempo(), sequence.get(), voices, voice -> chooseFreshInstrument(List.of(voice.getType()), List.of(InstrumentMode.Event), List.of(), voice.getName(), fabricator.sourceMaterial().getTrackNamesOfVoice(voice)), true);
+      craftNoteEvents(fabricator.getTempo(), sequence.get(), voices, voice -> chooseFreshInstrument(List.of(voice.getType()), List.of(), voice.getName(), fabricator.sourceMaterial().getTrackNamesOfVoice(voice)), true);
     }
   }
 

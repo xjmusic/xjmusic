@@ -2,7 +2,7 @@
 package io.xj.nexus.craft.background;
 
 
-import io.xj.hub.enums.InstrumentMode;
+import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.ValueUtils;
@@ -35,14 +35,10 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
 
   @Override
   public void doWork() throws NexusException {
-    List<SegmentChoice> previousChoices = fabricator.retrospective().getPreviousChoicesOfMode(InstrumentMode.Background);
+    List<SegmentChoice> previousChoices = fabricator.retrospective().getPreviousChoicesOfType(InstrumentType.Background);
     Collection<UUID> instrumentIds = previousChoices.stream().map(SegmentChoice::getInstrumentId).collect(Collectors.toList());
 
-    int targetLayers = (int) Math.floor(
-      fabricator.getTemplateConfig().getBackgroundLayerMin() +
-        fabricator.getSegment().getIntensity() *
-          (fabricator.getTemplateConfig().getBackgroundLayerMax() -
-            fabricator.getTemplateConfig().getBackgroundLayerMin()));
+    int targetLayers =fabricator.getTemplateConfig().getIntensityLayers(InstrumentType.Background);
 
     fabricator.addInfoMessage(String.format("Targeting %d layers of background", targetLayers));
 
@@ -55,7 +51,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
     Optional<Instrument> chosen;
     if (instrumentIds.size() < targetLayers)
       for (int i = 0; i < targetLayers - instrumentIds.size(); i++) {
-        chosen = chooseFreshInstrument(List.of(), List.of(InstrumentMode.Background), instrumentIds, null, List.of());
+        chosen = chooseFreshInstrument(List.of(), instrumentIds, null, List.of());
         if (chosen.isPresent()) {
           instrumentIds.add(chosen.get().getId());
           craftBackground(chosen.get().getId());

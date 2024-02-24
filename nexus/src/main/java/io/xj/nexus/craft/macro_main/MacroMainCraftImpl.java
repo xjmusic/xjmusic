@@ -29,7 +29,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
+ [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   private static final Logger LOG = LoggerFactory.getLogger(MacroMainCraftImpl.class);
@@ -149,10 +149,10 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   * Compute the final key of the current segment key, the key of the current main program sequence
-   *
-   * @param mainSequence of which to compute key
-   * @return key
+   Compute the final key of the current segment key, the key of the current main program sequence
+
+   @param mainSequence of which to compute key
+   @return key
    */
   private String computeSegmentKey(ProgramSequence mainSequence) throws NexusException {
     String mainKey = mainSequence.getKey();
@@ -168,31 +168,35 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   * Compute the final intensity of the current segment
-   * future: Segment Intensity = average of macro and main-sequence patterns
-   * <p>
-   * Segment is assigned a intensity during macro-main craft. It's going to be used to determine a target # of perc loops
-   * Percussion Loops Alpha https://www.pivotaltracker.com/story/show/179534065
-   *
-   * @param macroSequence of which to compute segment tempo
-   * @param mainSequence  of which to compute segment tempo
-   * @return intensity
+   Compute the final intensity of the current segment
+   future: Segment Intensity = average of macro and main-sequence patterns
+   <p>
+   Segment is assigned a intensity during macro-main craft. It's going to be used to determine a target # of perc loops
+   Percussion Loops Alpha https://www.pivotaltracker.com/story/show/179534065
+
+   @param macroSequence of which to compute segment tempo
+   @param mainSequence  of which to compute segment tempo
+   @return intensity
    */
   private double computeSegmentIntensity(Integer delta, @Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
-    return ValueUtils.limitDecimalPrecision(ValueUtils.interpolate(
-        fabricator.getTemplateConfig().getIntensityFloor(),
-        fabricator.getTemplateConfig().getIntensityCeiling(),
-        (double) delta / fabricator.getTemplateConfig().getMainProgramLengthMaxDelta(),
-        computeIntensity(macroSequence, mainSequence)
-    ));
+    return fabricator.getTemplateConfig().isIntensityAutoCrescendoEnabled()
+        ?
+        ValueUtils.limitDecimalPrecision(ValueUtils.interpolate(
+            0,
+            1,
+            (double) delta / fabricator.getTemplateConfig().getMainProgramLengthMaxDelta(),
+            computeIntensity(macroSequence, mainSequence)
+        ))
+        :
+        computeIntensity(macroSequence, mainSequence);
   }
 
   /**
-   * Compute the average intensity of the two given sequences
-   *
-   * @param macroSequence of which to compute segment tempo
-   * @param mainSequence  of which to compute segment tempo
-   * @return intensity
+   Compute the average intensity of the two given sequences
+
+   @param macroSequence of which to compute segment tempo
+   @param mainSequence  of which to compute segment tempo
+   @return intensity
    */
   private float computeIntensity(@Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
     @Nullable Float macroIntensity = Objects.nonNull(macroSequence) ? macroSequence.getIntensity() : null;
@@ -207,9 +211,9 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   * compute the macroSequenceBindingOffset
-   *
-   * @return macroSequenceBindingOffset
+   compute the macroSequenceBindingOffset
+
+   @return macroSequenceBindingOffset
    */
   private Integer computeMacroSequenceBindingOffset() throws NexusException {
     if (List.of(SegmentType.INITIAL, SegmentType.NEXT_MACRO).contains(fabricator.getType()))
@@ -231,9 +235,9 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   * compute the mainSequenceBindingOffset
-   *
-   * @return mainSequenceBindingOffset
+   compute the mainSequenceBindingOffset
+
+   @return mainSequenceBindingOffset
    */
   private int computeMainProgramSequenceBindingOffset() throws NexusException {
     switch (fabricator.getType()) {
@@ -252,11 +256,11 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   * Choose program completely at random
-   *
-   * @param programs all from which to choose
-   * @param avoid    to avoid
-   * @return program
+   Choose program completely at random
+
+   @param programs all from which to choose
+   @param avoid    to avoid
+   @return program
    */
   protected Program chooseRandomProgram(Collection<Program> programs, List<UUID> avoid) throws NexusException {
     var bag = MarbleBag.empty();
@@ -299,9 +303,9 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   * will rank all possibilities, and choose the next macro program
-   *
-   * @return macro-type program
+   will rank all possibilities, and choose the next macro program
+
+   @return macro-type program
    */
   protected Program chooseMacroProgram() throws NexusException {
     if (Objects.nonNull(overrideMacroProgram))
@@ -386,11 +390,11 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   * Choose main program
-   * <p>
-   * ONLY CHOOSES ONCE, then returns that choice every time
-   *
-   * @return main-type Program
+   Choose main program
+   <p>
+   ONLY CHOOSES ONCE, then returns that choice every time
+
+   @return main-type Program
    */
   protected Program chooseMainProgram() throws NexusException {
     var bag = MarbleBag.empty();
@@ -466,11 +470,11 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   * Get Segment length, in nanoseconds
-   *
-   * @param mainProgram  from which to source tempo
-   * @param mainSequence the end of which marks the end of the segment
-   * @return segment length, in nanoseconds
+   Get Segment length, in nanoseconds
+
+   @param mainProgram  from which to source tempo
+   @param mainSequence the end of which marks the end of the segment
+   @return segment length, in nanoseconds
    */
   long segmentLengthMicros(Program mainProgram, ProgramSequence mainSequence) {
     return fabricator.getSegmentMicrosAtPosition(mainProgram.getTempo(), mainSequence.getTotal());

@@ -32,7 +32,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
     // Segments have intensity arcs; automate mixer layers in and out of each main program https://www.pivotaltracker.com/story/show/178240332
     ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) -> StringUtils.stringOrDefault(choice.getInstrumentType(), choice.getId().toString());
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Objects.equals(ProgramType.Detail, choice.getProgramType());
-    precomputeDeltas(choiceFilter, choiceIndexProvider, fabricator.getTemplateConfig().getDetailLayerOrder().stream().map(InstrumentType::toString).collect(Collectors.toList()), List.of(), fabricator.getTemplateConfig().getDeltaArcDetailLayersIncoming());
+    precomputeDeltas(choiceFilter, choiceIndexProvider, fabricator.getTemplateConfig().getDetailLayerOrder().stream().map(InstrumentType::toString).collect(Collectors.toList()), List.of(), fabricator.getTemplateConfig().getIntensityAutoCrescendoDetailLayersIncoming());
 
     // For each type of voicing present in the main sequence, choose instrument, then program if necessary
     for (InstrumentType voicingType : fabricator.getTemplateConfig().getDetailLayerOrder().stream().filter(fabricator.getDistinctChordVoicingTypes()::contains).toList()) {
@@ -42,7 +42,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
       // Instruments may be chosen without programs
       // https://www.pivotaltracker.com/story/show/181290857
-      Optional<Instrument> instrument = priorChoice.isPresent() ? fabricator.sourceMaterial().getInstrument(priorChoice.get().getInstrumentId()) : chooseFreshInstrument(List.of(voicingType), List.of(), List.of(), null, List.of());
+      Optional<Instrument> instrument = priorChoice.isPresent() ? fabricator.sourceMaterial().getInstrument(priorChoice.get().getInstrumentId()) : chooseFreshInstrument(List.of(voicingType), List.of(), null, List.of());
 
       // Should gracefully skip voicing type if unfulfilled by detail instrument
       // https://www.pivotaltracker.com/story/show/176373977

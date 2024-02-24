@@ -129,7 +129,7 @@ public class CraftBackgroundProgramVoiceNextMainTest {
 
     // Instrument "808"
     Instrument instrument1 = EntityUtils.add(entities,
-      buildInstrument(fake.library2, InstrumentType.Noise, InstrumentMode.Background, InstrumentState.Published, "Bongo Loop"));
+      buildInstrument(fake.library2, InstrumentType.Background, InstrumentMode.Loop, InstrumentState.Published, "Bongo Loop"));
     EntityUtils.add(entities, buildInstrumentMeme(instrument1, "heavy"));
     //
     audioKick = EntityUtils.add(entities, buildInstrumentAudio(
