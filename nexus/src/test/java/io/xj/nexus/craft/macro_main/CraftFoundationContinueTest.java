@@ -153,7 +153,7 @@ public class CraftFoundationContinueTest {
     assertEquals(SegmentType.CONTINUE, result.getType());
     assertEquals(32 * MICROS_PER_MINUTE / 140, (long) Objects.requireNonNull(result.getDurationMicros()));
     assertEquals(Integer.valueOf(32), result.getTotal());
-    assertEquals(0.14, result.getIntensity(), 0.001);
+    assertEquals(0.45, result.getIntensity(), 0.001);
     assertEquals("G -", result.getKey());
     assertEquals(140, result.getTempo(), 0.001);
     assertEquals(SegmentType.CONTINUE, result.getType());

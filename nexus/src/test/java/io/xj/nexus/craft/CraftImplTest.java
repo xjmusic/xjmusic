@@ -88,7 +88,6 @@ public class CraftImplTest {
 
   @Test
   public void precomputeDeltas() throws NexusException {
-    when(fabricator.getType()).thenReturn(SegmentType.PENDING);
     CraftImpl.ChoiceIndexProvider choiceIndexProvider = choice -> choice.getInstrumentType().toString();
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.Detail.equals(choice.getProgramType());
     subject.precomputeDeltas(choiceFilter, choiceIndexProvider, fabricator.getTemplateConfig().getDetailLayerOrder().stream().map(InstrumentType::toString).collect(Collectors.toList()), List.of(), 1);
