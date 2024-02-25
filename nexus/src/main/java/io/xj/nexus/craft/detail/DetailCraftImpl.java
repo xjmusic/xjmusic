@@ -80,4 +80,238 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
       }
     }
   }
+
+
+
+
+/*
+
+TODO craft parts for hook type instruments
+
+  @Override
+  public void doWork() throws NexusException {
+    if (!fabricator.sourceMaterial().hasInstrumentsOfTypeAndMode(InstrumentType.Hook, InstrumentMode.Loop)) return;
+
+    // Instrument is from prior choice, else freshly chosen
+    Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(InstrumentType.Hook, InstrumentMode.Loop);
+
+    // Instruments may be chosen without programs https://www.pivotaltracker.com/story/show/181290857
+    Optional<Instrument> instrument = priorChoice.isPresent() ?
+        fabricator.sourceMaterial().getInstrument(priorChoice.get().getInstrumentId()) :
+        chooseFreshInstrument(List.of(InstrumentType.Hook), List.of(), null, List.of());
+
+    // instrument audio prior choice persists
+    Optional<SegmentChoiceArrangementPick> priorPick = priorChoice.flatMap(pc ->
+        fabricator.retrospective().getPreviousPicksForInstrument(pc.getInstrumentId()).stream().findAny());
+    Optional<InstrumentAudio> priorAudio = priorPick.flatMap(pp ->
+        fabricator.sourceMaterial().getInstrumentAudio(pp.getInstrumentAudioId()).stream().findAny());
+
+    // Pick instrument audio
+    Optional<InstrumentAudio> instrumentAudio =
+        instrument.isPresent() && fabricator.getInstrumentConfig(instrument.get()).isAudioSelectionPersistent() && priorAudio.isPresent()
+            ? priorAudio : (instrument.isPresent() ? selectNewInstrumentAudio(instrument.get()) : Optional.empty());
+
+    // Loop instrument mode https://www.pivotaltracker.com/story/show/181815619
+    // Should gracefully skip audio in unfulfilled by instrument https://www.pivotaltracker.com/story/show/176373977
+    if (instrument.isPresent() && instrumentAudio.isPresent()) craftHook(fabricator.getTempo(), instrument.get(), instrumentAudio.get());
+  }
+
+  **
+   Craft hook loop
+
+   @param tempo of main program
+   @param instrument to craft
+   @param audio      to craft
+   @throws NexusException on failure
+   *
+  void craftHook(double tempo, Instrument instrument, InstrumentAudio audio) throws NexusException {
+    var choice = new SegmentChoice();
+    choice.setId(UUID.randomUUID());
+    choice.setSegmentId(fabricator.getSegment().getId());
+    choice.setMute(computeMute(instrument.getType()));
+    choice.setInstrumentType(instrument.getType());
+    choice.setInstrumentMode(instrument.getMode());
+    choice.setInstrumentId(instrument.getId());
+    fabricator.put(choice, false);
+    var arrangement = new SegmentChoiceArrangement();
+    arrangement.setId(UUID.randomUUID());
+    arrangement.setSegmentId(fabricator.getSegment().getId());
+    arrangement.segmentChoiceId(choice.getId());
+    fabricator.put(arrangement, false);
+
+    // Start at zero and keep laying down hook loops until we're out of here
+    float pos = 0;
+    while (pos < fabricator.getSegment().getTotal()) {
+      long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(tempo, pos);
+      long lengthMicros = Math.min(
+          fabricator.getTotalSegmentMicros() - startAtSegmentMicros,
+          (long) (audio.getLoopBeats() * fabricator.getMicrosPerBeat(tempo))
+      );
+
+      // of pick
+      var pick = new SegmentChoiceArrangementPick();
+      pick.setId(UUID.randomUUID());
+      pick.setSegmentId(fabricator.getSegment().getId());
+      pick.setSegmentChoiceArrangementId(arrangement.getId());
+      pick.setStartAtSegmentMicros(startAtSegmentMicros);
+      pick.setLengthMicros(lengthMicros);
+      pick.setAmplitude(1.0f);
+      pick.setEvent("HOOK");
+      pick.setInstrumentAudioId(audio.getId());
+      fabricator.put(pick, false);
+
+      pos += audio.getLoopBeats();
+    }
+  }
+
+  **
+   Select a new random instrument audio
+
+   @param instrument of which to score available audios, and make a selection
+   @return matched new audio
+   *
+  Optional<InstrumentAudio> selectNewInstrumentAudio(
+      Instrument instrument
+  ) {
+    var bag = MarbleBag.empty();
+
+    for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosOfInstrument(instrument.getId()))
+      bag.add(1, audio.getId());
+
+    if (bag.isEmpty()) return Optional.empty();
+    return fabricator.sourceMaterial().getInstrumentAudio(bag.pick());
+  }
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /*
+
+  TODO use loop mode to craft any instruments in loop mode
+
+  @Override
+  public void doWork() throws NexusException {
+    var choices = fabricator.retrospective().getPreviousChoicesOfTypeMode(InstrumentType.Percussion, InstrumentMode.Loop);
+    var instruments = choices.stream().flatMap(choice -> fabricator.sourceMaterial().getInstrument(choice.getInstrumentId()).stream()).toList();
+
+    Collection<UUID> audioIds =
+      SegmentType.CONTINUE.equals(fabricator.getType()) ?
+        instruments.stream()
+          .flatMap(instrument -> fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId()).stream())
+          .map(SegmentChoiceArrangementPick::getInstrumentAudioId)
+          .collect(Collectors.toSet())
+        : new ArrayList<>();
+
+    int targetLayers =fabricator.getTemplateConfig().getIntensityLayers(InstrumentType.Percussion);
+
+
+    fabricator.addInfoMessage(String.format("Targeting %d layers of percussion loop", targetLayers));
+
+    if (audioIds.size() > targetLayers)
+      audioIds = ValueUtils.withIdsRemoved(audioIds, audioIds.size() - targetLayers);
+
+    else if (audioIds.size() < targetLayers)
+      for (int i = 0; i < targetLayers - audioIds.size(); i++) {
+        Optional<InstrumentAudio> chosen = chooseFreshInstrumentAudio(List.of(InstrumentType.Percussion), List.of(InstrumentMode.Loop), audioIds, computePreferredEvents(audioIds.size()));
+        if (chosen.isPresent()) {
+          audioIds.add(chosen.get().getId());
+        }
+      }
+
+    for (InstrumentAudio audio : audioIds.stream()
+      .flatMap(audioId -> fabricator.sourceMaterial().getInstrumentAudio(audioId).stream())
+      .toList())
+      craftPercLoop(fabricator.getTempo(), audio);
+  }
+
+  **
+   Percussion-type Loop-mode instrument audios are chosen in order of priority
+   https://www.pivotaltracker.com/story/show/181262545
+
+   @param after # of choices
+   @return required event name
+   *
+  List<String> computePreferredEvents(int after) {
+    return switch (after) {
+      case 0 -> fabricator.getTemplateConfig().getEventNamesLarge().stream()
+          .map(StringUtils::toEvent)
+          .toList();
+
+      case 1 -> fabricator.getTemplateConfig().getEventNamesMedium().stream()
+          .map(StringUtils::toEvent)
+          .toList();
+
+      default -> fabricator.getTemplateConfig().getEventNamesSmall().stream()
+          .map(StringUtils::toEvent)
+          .toList();
+    };
+  }
+
+  **
+   Craft percussion loop
+
+   @param tempo of main program
+   @param audio for which to craft segment
+   *
+  @SuppressWarnings("DuplicatedCode")
+  void craftPercLoop(double tempo, InstrumentAudio audio) throws NexusException {
+    var choice = new SegmentChoice();
+    var instrument = fabricator.sourceMaterial().getInstrument(audio.getInstrumentId())
+        .orElseThrow(() -> new NexusException("Can't get Instrument Audio!"));
+    choice.setId(UUID.randomUUID());
+    choice.setSegmentId(fabricator.getSegment().getId());
+    choice.setMute(computeMute(instrument.getType()));
+    choice.setInstrumentType(instrument.getType());
+    choice.setInstrumentMode(instrument.getMode());
+    choice.setInstrumentId(audio.getInstrumentId());
+    fabricator.put(choice, false);
+    var arrangement = new SegmentChoiceArrangement();
+    arrangement.setId(UUID.randomUUID());
+    arrangement.setSegmentId(fabricator.getSegment().getId());
+    arrangement.segmentChoiceId(choice.getId());
+    fabricator.put(arrangement, false);
+
+    // Start at zero and keep laying down perc loops until we're out of here
+    float beats = 0;
+    while (beats < fabricator.getSegment().getTotal()) {
+
+      // Pick attributes are expressed "rendered" as actual seconds
+      long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(tempo, beats);
+      long lengthMicros = Math.min(
+          fabricator.getTotalSegmentMicros() - startAtSegmentMicros,
+          (long) (audio.getLoopBeats() * fabricator.getMicrosPerBeat(tempo))
+      );
+
+      // of pick
+      var pick = new SegmentChoiceArrangementPick();
+      pick.setId(UUID.randomUUID());
+      pick.setSegmentId(fabricator.getSegment().getId());
+      pick.setSegmentChoiceArrangementId(arrangement.getId());
+      pick.setStartAtSegmentMicros(startAtSegmentMicros);
+      pick.setLengthMicros(lengthMicros);
+      pick.setAmplitude(1.0f);
+      pick.setEvent("PERCLOOP");
+      pick.setInstrumentAudioId(audio.getId());
+      fabricator.put(pick, false);
+
+      beats += audio.getLoopBeats();
+    }
+  }
+
+   */
+
 }

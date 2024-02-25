@@ -182,8 +182,8 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     return fabricator.getTemplateConfig().isIntensityAutoCrescendoEnabled()
         ?
         ValueUtils.limitDecimalPrecision(ValueUtils.interpolate(
-            0,
-            1,
+            fabricator.getTemplateConfig().getIntensityAutoCrescendoMinimum(),
+            fabricator.getTemplateConfig().getIntensityAutoCrescendoMaximum(),
             (double) delta / fabricator.getTemplateConfig().getMainProgramLengthMaxDelta(),
             computeIntensity(macroSequence, mainSequence)
         ))

@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
-package io.xj.nexus.craft.hook;
+package io.xj.nexus.craft.detail_perc_loop;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.HubTopology;
@@ -30,7 +30,6 @@ import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,7 +50,7 @@ import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
 
 @ExtendWith(MockitoExtension.class)
-public class CraftHookProgramVoiceContinueTest {
+public class CraftPercLoopProgramVoiceNextMacroTest {
   Chain chain1;
   CraftFactory craftFactory;
   FabricatorFactory fabricatorFactory;
@@ -124,7 +123,7 @@ public class CraftHookProgramVoiceContinueTest {
     Collection<Object> entities = new ArrayList<>();
 
     // Instrument "808"
-    Instrument instrument1 = EntityUtils.add(entities, buildInstrument(fake.library2, InstrumentType.Hook, InstrumentMode.Event, InstrumentState.Published, "Bongo Loop"));
+    Instrument instrument1 = EntityUtils.add(entities, buildInstrument(fake.library2, InstrumentType.Percussion, InstrumentMode.Event, InstrumentState.Published, "Bongo Loop"));
     EntityUtils.add(entities, buildMeme(instrument1, "heavy"));
     //
     audioKick = EntityUtils.add(entities, buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
@@ -134,32 +133,48 @@ public class CraftHookProgramVoiceContinueTest {
     return entities;
   }
 
-  @AfterEach
-  public void tearDown() {
-
-  }
 
   @Test
-  public void craftHookVoiceContinue_okIfNoHookChoice() throws Exception {
-    insertSegments3and4();
+  public void craftPercLoopVoiceNextMacro() throws Exception {
+    insertSegments3and4(true);
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
 
-    craftFactory.hook(fabricator).doWork();
+    craftFactory.detail(fabricator).doWork();
+
+//    // assert percLoop choice
+//    Collection<SegmentChoice> segmentChoices = fabricator.getChoices();
+//    SegmentChoice percLoopChoice = segmentChoices.stream()
+//      .filter(c -> c.getInstrumentType().equals(InstrumentType.Percussion)).findFirst().orElseThrow();
+//    assertTrue(fabricator.getArrangements()
+//      .stream().anyMatch(a -> a.getSegmentChoiceId().equals(percLoopChoice.getId())));
+//    // test vector for persist Audio pick in memory https://www.pivotaltracker.com/story/show/154014731
+//    int pickedKick = 0;
+//    int pickedSnare = 0;
+//    Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();
+//    for (SegmentChoiceArrangementPick pick : picks) {
+//      if (pick.getInstrumentAudioId().equals(audioKick.getId()))
+//        pickedKick++;
+//      if (pick.getInstrumentAudioId().equals(audioSnare.getId()))
+//        pickedSnare++;
+//    }
+//    assertEquals(8, pickedKick);
+//    assertEquals(8, pickedSnare);
   }
 
   /**
-   Insert fixture segments 3 and 4, including the hook choice for segment 3 only if specified
+   Insert fixture segments 3 and 4, including the percLoop choice for segment 3 only if specified
+
+   @param excludePercLoopChoiceForSegment3 if desired for the purpose of this test
    */
-  void insertSegments3and4() throws NexusException {
-    // segment just crafted
-    // Testing entities for reference
+  void insertSegments3and4(boolean excludePercLoopChoiceForSegment3) throws NexusException {
+    // Chain "Test Print #1" has this segment that was just crafted
     Segment segment3 = store.put(buildSegment(
       chain1,
       SegmentType.CONTINUE,
       2,
       2,
       SegmentState.CRAFTED,
-      "F Major",
+      "Ab minor",
       64,
       0.30f,
       120.0f,
@@ -169,43 +184,50 @@ public class CraftHookProgramVoiceContinueTest {
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
       fake.program4,
-      fake.program4_sequence0_binding0));
+      fake.program4_sequence2_binding0));
     store.put(buildSegmentChoice(
       segment3,
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
       fake.program5,
-      fake.program5_sequence0_binding0));
+      fake.program5_sequence1_binding0));
+    if (!excludePercLoopChoiceForSegment3)
+      store.put(buildSegmentChoice(
+        segment3,
+        Segment.DELTA_UNLIMITED,
+        Segment.DELTA_UNLIMITED,
+        fake.program35,
+        InstrumentType.Percussion,
+        InstrumentMode.Loop));
 
-    // segment crafting
+    // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
     segment4 = store.put(buildSegment(
       chain1,
-      SegmentType.CONTINUE,
+      SegmentType.NEXT_MACRO,
       3,
-      3,
+      0,
       SegmentState.CRAFTING,
-      "D Major",
+      "F minor",
       16,
       0.45f,
-      120.0f,
+      125.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment4,
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
-      fake.program4,
+      fake.program3,
       fake.program4_sequence0_binding0));
     store.put(buildSegmentChoice(
       segment4,
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
-      fake.program5,
-      fake.program5_sequence1_binding0));
-    for (String memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
+      fake.program15,
+      fake.program15_sequence0_binding0));
+    for (String memeName : List.of("Hindsight", "Chunky", "Regret", "Tangy"))
       store.put(buildSegmentMeme(segment4, memeName));
-    store.put(buildSegmentChord(segment4, 0.0f, "A minor"));
-    store.put(buildSegmentChord(segment4, 8.0f, "D Major"));
+    store.put(buildSegmentChord(segment4, 0.0f, "F minor"));
+    store.put(buildSegmentChord(segment4, 8.0f, "Gb minor"));
   }
-
 
 }

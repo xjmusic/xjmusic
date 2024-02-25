@@ -493,9 +493,7 @@ public class CraftWorkImpl implements CraftWork {
     updateSegmentState(fabricator, segment, SegmentState.PLANNED, SegmentState.CRAFTING);
     craftFactory.macroMain(fabricator, overrideMacroProgram.get(), overrideMemes.get()).doWork();
     craftFactory.beat(fabricator).doWork();
-    craftFactory.hook(fabricator).doWork();
     craftFactory.detail(fabricator).doWork();
-    craftFactory.percLoop(fabricator).doWork();
     craftFactory.transition(fabricator).doWork();
     craftFactory.background(fabricator).doWork();
     LOG.debug("Fabricated Segment[{}]", segment.getId());

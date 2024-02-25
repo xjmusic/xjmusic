@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
-package io.xj.nexus.craft.perc_loop;
+package io.xj.nexus.craft.detail_hook;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.HubTopology;
@@ -41,7 +41,7 @@ import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
 
 @ExtendWith(MockitoExtension.class)
-public class CraftPercLoopProgramVoiceInitialTest {
+public class CraftHookProgramVoiceInitialTest {
   Chain chain2;
   CraftFactory craftFactory;
   FabricatorFactory fabricatorFactory;
@@ -68,7 +68,7 @@ public class CraftPercLoopProgramVoiceInitialTest {
     // Manipulate the underlying entity store; reset before each test
     store.clear();
 
-    // force known percLoop selection by destroying program 35
+    // force known hook selection by destroying program 35
     // Mock request via HubClientFactory returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Stream.concat(
@@ -89,12 +89,12 @@ public class CraftPercLoopProgramVoiceInitialTest {
   }
 
   @Test
-  public void craftPercLoopVoiceInitial() throws Exception {
+  public void craftHookVoiceInitial() throws Exception {
     insertSegment();
 
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0.getId(), 48000.0f, 2, null);
 
-    craftFactory.percLoop(fabricator).doWork();
+    craftFactory.detail(fabricator).doWork();
 
 //    Segment result = store.getSegment(segment0.getId()).orElseThrow();
 //    assertFalse(store.getAll(result.getId(), SegmentChoice.class).isEmpty());
@@ -121,15 +121,15 @@ public class CraftPercLoopProgramVoiceInitialTest {
   }
 
   @Test
-  public void craftPercLoopVoiceInitial_okWhenNoPercLoopChoice() throws Exception {
+  public void craftHookVoiceInitial_okWhenNoHookChoice() throws Exception {
     insertSegment();
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0.getId(), 48000.0f, 2, null);
 
-    craftFactory.percLoop(fabricator).doWork();
+    craftFactory.detail(fabricator).doWork();
   }
 
   /**
-   Insert fixture segment 6, including the percLoop choice only if specified
+   Insert fixture segment 6, including the hook choice only if specified
    */
   void insertSegment() throws NexusException {
     segment0 = store.put(buildSegment(

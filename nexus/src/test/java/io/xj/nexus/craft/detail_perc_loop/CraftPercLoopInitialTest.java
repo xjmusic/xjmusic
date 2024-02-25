@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
-package io.xj.nexus.craft.perc_loop;
+package io.xj.nexus.craft.detail_perc_loop;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.HubTopology;
@@ -121,7 +121,7 @@ public class CraftPercLoopInitialTest {
   public void craftPercLoopInitial() throws Exception {
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6.getId(), 48000.0f, 2, null);
 
-    craftFactory.percLoop(fabricator).doWork();
+    craftFactory.detail(fabricator).doWork();
 
 //    // assert choice of percLoop-type sequence
 //    Collection<SegmentChoice> segmentChoices =

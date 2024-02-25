@@ -82,13 +82,13 @@ public class CraftImplTest {
     segment0 = buildSegment(chain1, SegmentType.INITIAL, 2, 128, SegmentState.CRAFTED, "D major", 64, 0.73f, 120.0f, "chains-1-segments-9f7s89d8a7892", true);
 
     var templateConfig = new TemplateConfig(template1);
-    when(fabricator.getType()).thenReturn(SegmentType.PENDING);
     when(fabricator.getTemplateConfig()).thenReturn(templateConfig);
     subject = new CraftImpl(fabricator);
   }
 
   @Test
   public void precomputeDeltas() throws NexusException {
+    when(fabricator.getType()).thenReturn(SegmentType.PENDING);
     CraftImpl.ChoiceIndexProvider choiceIndexProvider = choice -> choice.getInstrumentType().toString();
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.Detail.equals(choice.getProgramType());
     subject.precomputeDeltas(choiceFilter, choiceIndexProvider, fabricator.getTemplateConfig().getDetailLayerOrder().stream().map(InstrumentType::toString).collect(Collectors.toList()), List.of(), 1);
