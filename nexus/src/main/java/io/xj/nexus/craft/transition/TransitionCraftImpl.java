@@ -9,6 +9,7 @@ import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueUtils;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.craft.detail.DetailCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.model.SegmentChoice;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
  <p>
  Transition-type Instrument https://www.pivotaltracker.com/story/show/180059746
  */
-public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCraft {
+public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
   final List<String> smallNames;
   final List<String> mediumNames;
   final List<String> largeNames;

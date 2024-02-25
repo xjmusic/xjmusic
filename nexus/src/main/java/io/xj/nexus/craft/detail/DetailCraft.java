@@ -11,7 +11,10 @@ import io.xj.nexus.NexusException;
 public interface DetailCraft {
 
   /**
-   perform craft for the current segment
+   Perform Detail craft for the current segment
+   <p>
+   Workstation fabrication Layering/Intensity
+   https://www.pivotaltracker.com/story/show/186950076
    */
   void doWork() throws NexusException;
 

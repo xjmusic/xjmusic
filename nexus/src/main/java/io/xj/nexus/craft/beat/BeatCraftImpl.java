@@ -8,7 +8,7 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.util.CsvUtils;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.craft.detail.DetailCraftImpl;
+import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.model.SegmentChoice;
 
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  <p>
  BeatCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements https://www.pivotaltracker.com/story/show/176625174
  */
-public class BeatCraftImpl extends DetailCraftImpl implements BeatCraft {
+public class BeatCraftImpl extends CraftImpl implements BeatCraft {
 
   public BeatCraftImpl(
     Fabricator fabricator

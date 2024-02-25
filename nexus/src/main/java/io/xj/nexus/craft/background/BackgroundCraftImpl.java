@@ -7,7 +7,7 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.ValueUtils;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.craft.detail.DetailCraftImpl;
+import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
@@ -25,10 +25,10 @@ import java.util.stream.Collectors;
  <p>
  Background-type Instrument https://www.pivotaltracker.com/story/show/180121388
  */
-public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCraft {
+public class BackgroundCraftImpl extends CraftImpl implements BackgroundCraft {
 
   public BackgroundCraftImpl(
-    Fabricator fabricator
+      Fabricator fabricator
   ) {
     super(fabricator);
   }
@@ -38,7 +38,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
     List<SegmentChoice> previousChoices = fabricator.retrospective().getPreviousChoicesOfType(InstrumentType.Background);
     Collection<UUID> instrumentIds = previousChoices.stream().map(SegmentChoice::getInstrumentId).collect(Collectors.toList());
 
-    int targetLayers =fabricator.getTemplateConfig().getIntensityLayers(InstrumentType.Background);
+    int targetLayers = fabricator.getTemplateConfig().getIntensityLayers(InstrumentType.Background);
 
     fabricator.addInfoMessage(String.format("Targeting %d layers of background", targetLayers));
 
@@ -68,7 +68,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
   void craftBackground(UUID instrumentId) throws NexusException {
     var choice = new SegmentChoice();
     var instrument = fabricator.sourceMaterial().getInstrument(instrumentId)
-      .orElseThrow(() -> new NexusException("Can't get Instrument Audio!"));
+        .orElseThrow(() -> new NexusException("Can't get Instrument Audio!"));
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());
     choice.setMute(computeMute(instrument.getType()));
