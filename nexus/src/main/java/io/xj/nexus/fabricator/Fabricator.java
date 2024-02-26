@@ -135,7 +135,7 @@ public interface Fabricator {
 
    @return choice if previously made, or null if none is found
    */
-  Optional<SegmentChoice> getChoiceIfContinued(ProgramType programType);
+  Collection<SegmentChoice> getChoicesIfContinued(ProgramType programType);
 
   /**
    Determine if a choice has been previously crafted
@@ -143,7 +143,7 @@ public interface Fabricator {
 
    @return choice if previously made, or null if none is found
    */
-  Optional<SegmentChoice> getChoiceIfContinued(InstrumentType instrumentType);
+  Collection<SegmentChoice> getChoicesIfContinued(InstrumentType instrumentType);
 
   /**
    Determine if a choice has been previously crafted
@@ -151,7 +151,7 @@ public interface Fabricator {
 
    @return choice if previously made, or null if none is found
    */
-  Optional<SegmentChoice> getChoiceIfContinued(InstrumentType instrumentType, InstrumentMode instrumentMode);
+  Collection<SegmentChoice> getChoicesIfContinued(InstrumentType instrumentType, InstrumentMode instrumentMode);
 
   /**
    Get current ChordEntity for any position in Segment.

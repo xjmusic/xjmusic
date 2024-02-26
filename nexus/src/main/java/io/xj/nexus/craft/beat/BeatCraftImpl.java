@@ -33,7 +33,7 @@ public class BeatCraftImpl extends CraftImpl implements BeatCraft {
 
   @Override
   public void doWork() throws NexusException {
-    Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(ProgramType.Beat);
+    Optional<SegmentChoice> priorChoice = fabricator.getChoicesIfContinued(ProgramType.Beat);
 
     // Program is from prior choice, or freshly chosen
     Optional<Program> program = priorChoice.isPresent() ?
@@ -74,7 +74,9 @@ public class BeatCraftImpl extends CraftImpl implements BeatCraft {
         reportMissing(ProgramVoice.class,
           String.format("in Beat-choice Program[%s]", program.get().getId()));
 
-      craftNoteEvents(fabricator.getTempo(), sequence.get(), voices, voice -> chooseFreshInstrument(List.of(voice.getType()), List.of(), voice.getName(), fabricator.sourceMaterial().getTrackNamesOfVoice(voice)), true);
+      for (ProgramVoice voice : voices) {
+        craftNoteEvents(fabricator.getTempo(), sequence.get(), voices, Set.of(chooseFreshInstrument(InstrumentType.Drum, List.of(), voice.getName(), fabricator.sourceMaterial().getTrackNamesOfVoice(voice)), true);
+      }
     }
   }
 

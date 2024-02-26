@@ -10,7 +10,6 @@ import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.CraftImpl;
-import io.xj.nexus.craft.detail.DetailCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
@@ -35,7 +34,7 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
   final List<String> largeNames;
 
   public TransitionCraftImpl(
-    Fabricator fabricator
+      Fabricator fabricator
   ) {
     super(fabricator);
 
@@ -49,10 +48,10 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
     var previousChoices = fabricator.retrospective().getPreviousChoicesOfType(InstrumentType.Transition);
 
     Collection<UUID> instrumentIds = previousChoices.stream()
-      .map(SegmentChoice::getInstrumentId)
-      .collect(Collectors.toList());
+        .map(SegmentChoice::getInstrumentId)
+        .collect(Collectors.toList());
 
-    int targetLayers =fabricator.getTemplateConfig().getIntensityLayers(InstrumentType.Transition);
+    int targetLayers = fabricator.getTemplateConfig().getIntensityLayers(InstrumentType.Transition);
 
     fabricator.addInfoMessage(String.format("Targeting %d layers of transition", targetLayers));
 
@@ -66,7 +65,7 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
     Optional<Instrument> chosen;
     if (instrumentIds.size() < targetLayers)
       for (int i = 0; i < targetLayers - instrumentIds.size(); i++) {
-        chosen = chooseFreshInstrument(List.of(InstrumentType.Transition), instrumentIds, null, List.of());
+        chosen = chooseFreshInstrument(InstrumentType.Transition, instrumentIds, null, List.of());
         if (chosen.isPresent()) {
           instrumentIds.add(chosen.get().getId());
           craftTransition(tempo, chosen.get().getId());
@@ -97,10 +96,10 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
     return switch (fabricator.getType()) {
       case PENDING, INITIAL, NEXT_MAIN, NEXT_MACRO -> false;
       case CONTINUE -> !fabricator.getCurrentMainSequence()
-        .orElseThrow(() -> new NexusException("Can't get current main sequence"))
-        .getId()
-        .equals(fabricator.getPreviousMainSequence().orElseThrow(() ->
-          new NexusException("Can't get previous main sequence")).getId());
+          .orElseThrow(() -> new NexusException("Can't get current main sequence"))
+          .getId()
+          .equals(fabricator.getPreviousMainSequence().orElseThrow(() ->
+              new NexusException("Can't get previous main sequence")).getId());
     };
   }
 
@@ -114,7 +113,7 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
   void craftTransition(double tempo, UUID instrumentId) throws NexusException {
     var choice = new SegmentChoice();
     var instrument = fabricator.sourceMaterial().getInstrument(instrumentId)
-      .orElseThrow(() -> new NexusException("Can't get Instrument Audio!"));
+        .orElseThrow(() -> new NexusException("Can't get Instrument Audio!"));
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());
     choice.setMute(computeMute(instrument.getType()));
@@ -186,9 +185,9 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
    */
   Optional<InstrumentAudio> pickAudioForInstrument(Instrument instrument, List<String> names) {
     var previous =
-      fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId()).stream()
-        .filter(pick -> names.contains(StringUtils.toMeme(pick.getEvent())))
-        .findAny();
+        fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId()).stream()
+            .filter(pick -> names.contains(StringUtils.toMeme(pick.getEvent())))
+            .findAny();
 
     if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && previous.isPresent())
       return fabricator.sourceMaterial().getInstrumentAudio(previous.get().getInstrumentAudioId());
@@ -196,7 +195,7 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
     var bag = MarbleBag.empty();
 
     for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosOfInstrument(instrument.getId())
-      .stream().filter(instrumentAudio -> names.contains(StringUtils.toMeme(instrumentAudio.getEvent()))).toList())
+        .stream().filter(instrumentAudio -> names.contains(StringUtils.toMeme(instrumentAudio.getEvent()))).toList())
       bag.add(1, audio.getId());
 
     if (bag.isEmpty()) return Optional.empty();

@@ -49,12 +49,13 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
   @Override
   public void doWork() throws NexusException {
+    // TODO make sure that precomputed deltas is compatible with the new style of universal detail craft
     // Segments have intensity arcs; automate mixer layers in and out of each main program https://www.pivotaltracker.com/story/show/178240332
     ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) -> StringUtils.stringOrDefault(choice.getInstrumentType(), choice.getId().toString());
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Objects.equals(ProgramType.Detail, choice.getProgramType());
     precomputeDeltas(choiceFilter, choiceIndexProvider, fabricator.getTemplateConfig().getDetailLayerOrder().stream().map(InstrumentType::toString).collect(Collectors.toList()), List.of(), fabricator.getTemplateConfig().getIntensityAutoCrescendoDetailLayersIncoming());
 
-    // For each type of voicing present in the main sequence, choose instrument, then program if necessary
+    // For each type of detail instrument type, choose instrument, then program if necessary
     for (InstrumentType instrumentType : DETAIL_INSTRUMENT_TYPES) {
 
       // TODO based on number of target layers, choose multiple instruments with a spread of available intensities
@@ -62,41 +63,44 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
       // TODO get multiple choices re: total # of layers -- deal with each prior choice
       // Instrument is from prior choice, else freshly chosen
-      Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(instrumentType);
+      Collection<SegmentChoice> priorChoices = fabricator.getChoicesIfContinued(instrumentType);
 
       // Instruments may be chosen without programs https://www.pivotaltracker.com/story/show/181290857
-      Optional<Instrument> instrument = priorChoice.isPresent() ? fabricator.sourceMaterial().getInstrument(priorChoice.get().getInstrumentId()) : chooseFreshInstrument(List.of(instrumentType), List.of(), null, List.of());
+      Collection<Instrument> instruments = priorChoices.isEmpty() ? chooseFreshInstruments(instrumentType, null, List.of()) : priorChoices.stream().map(pc -> fabricator.sourceMaterial().getInstrument(pc.getInstrumentId()).orElseThrow()).collect(Collectors.toSet());
 
       // Should gracefully skip voicing type if unfulfilled by detail instrument https://www.pivotaltracker.com/story/show/176373977
-      if (instrument.isEmpty()) {
+      if (instruments.isEmpty()) {
         reportMissing(Instrument.class, String.format("%s-type Instrument", instrumentType));
         continue;
       }
 
-      // Instruments have InstrumentMode https://www.pivotaltracker.com/story/show/181134085
-      switch (instrument.get().getMode()) {
+      for (Instrument instrument : instruments) {
 
-        // Event instrument mode takes over legacy behavior https://www.pivotaltracker.com/story/show/181736854
-        case Event -> {
-          // Event Use prior chosen program or find a new one
-          Optional<Program> program = priorChoice.isPresent() ? fabricator.sourceMaterial().getProgram(priorChoice.get().getProgramId()) : chooseFreshProgram(ProgramType.Detail, instrumentType);
+        // Instruments have InstrumentMode https://www.pivotaltracker.com/story/show/181134085
+        switch (instrument.getMode()) {
 
-          // Event Should gracefully skip voicing type if unfulfilled by detail program https://www.pivotaltracker.com/story/show/176373977
-          if (program.isEmpty()) {
-            reportMissing(Program.class, String.format("%s-type Program", instrumentType));
-            continue;
+          // Event instrument mode takes over legacy behavior https://www.pivotaltracker.com/story/show/181736854
+          case Event -> {
+            // Event Use prior chosen program or find a new one
+            Optional<Program> program = priorChoice.isPresent() ? fabricator.sourceMaterial().getProgram(priorChoice.get().getProgramId()) : chooseFreshProgram(ProgramType.Detail, instrumentType);
+
+            // Event Should gracefully skip voicing type if unfulfilled by detail program https://www.pivotaltracker.com/story/show/176373977
+            if (program.isEmpty()) {
+              reportMissing(Program.class, String.format("%s-type Program", instrumentType));
+              continue;
+            }
+            craftEventParts(fabricator.getTempo(), instrument.get(), program.get());
           }
-          craftEventParts(fabricator.getTempo(), instrument.get(), program.get());
+
+          // Chord instrument mode https://www.pivotaltracker.com/story/show/181631275
+          case Chord -> craftChordParts(fabricator.getTempo(), instrumentType, instruments);
+
+          case Loop -> craftLoop(instrument.get());
+
+          // As-yet Unsupported Modes
+          default ->
+              fabricator.addWarningMessage(String.format("Cannot craft unsupported mode %s for Instrument[%s]", instrument.get().getMode(), instrument.get().getId()));
         }
-
-        // Chord instrument mode https://www.pivotaltracker.com/story/show/181631275
-        case Chord -> craftChordParts(fabricator.getTempo(), instrument.get());
-
-        case Loop -> craftLoop(instrument.get());
-
-        // As-yet Unsupported Modes
-        default ->
-            fabricator.addWarningMessage(String.format("Cannot craft unsupported mode %s for Instrument[%s]", instrument.get().getMode(), instrument.get().getId()));
       }
     }
   }

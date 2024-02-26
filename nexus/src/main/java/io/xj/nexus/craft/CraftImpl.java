@@ -116,52 +116,58 @@ public class CraftImpl extends FabricationWrapperImpl {
    Segments have intensity arcs; automate mixer layers in and out of each main program
    https://www.pivotaltracker.com/story/show/178240332
 
-   @param tempo              of main program
-   @param sequence           for which to craft choices
-   @param voices             for which to craft choices
-   @param instrumentProvider from which to get instruments
-   @param defaultAtonal      whether to default to a single atonal note, if no voicings are available
+   @param tempo         of main program
+   @param sequence      for which to craft choices
+   @param voice        for which to craft choices
+   @param instrument   to use if not already chosen
+   @param defaultAtonal whether to default to a single atonal note, if no voicings are available
    @throws NexusException on failure
    */
-  protected void craftNoteEvents(double tempo, ProgramSequence sequence, Collection<ProgramVoice> voices, InstrumentProvider instrumentProvider, boolean defaultAtonal) throws NexusException {
+  protected void craftNoteEvents(double tempo, ProgramSequence sequence, ProgramVoice voice, Instrument instrument, boolean defaultAtonal) throws NexusException {
     // Craft each voice into choice
     try {
-      for (ProgramVoice voice : voices) {
-        var choice = new SegmentChoice();
-        choice.setId(UUID.randomUUID());
-        choice.setSegmentId(fabricator.getSegment().getId());
-        choice.setMute(computeMute(voice.getType()));
-        choice.setProgramType(fabricator.sourceMaterial().getProgram(voice.getProgramId()).orElseThrow(() -> new NexusException("Can't get program for voice")).getType());
-        choice.setInstrumentType(voice.getType());
-        choice.setProgramId(voice.getProgramId());
-        choice.setProgramSequenceId(sequence.getId());
-        choice.setProgramVoiceId(voice.getId());
+      // TODO split this logic between beat (craftBeatParts) and detail (craftDetailParts)
 
-        // Whether there is a prior choice for this voice
+        // Whether there are prior choices for this voice
         Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(voice);
 
-        if (priorChoice.isPresent()) {
-          choice.setDeltaIn(priorChoice.get().getDeltaIn());
-          choice.setDeltaOut(priorChoice.get().getDeltaOut());
-          choice.setInstrumentId(priorChoice.get().getInstrumentId());
-          choice.setInstrumentMode(priorChoice.get().getInstrumentMode());
-          this.craftNoteEventArrangements(tempo, fabricator.put(choice, false), defaultAtonal);
-          continue;
-        }
-
-        var instrument = instrumentProvider.get(voice);
-        if (instrument.isEmpty()) {
-          reportMissing(Instrument.class, String.format("%s-type instrument", voice.getType()));
-          continue;
+        // If there are prior choices, use each last one as the basis for the new one
+        if (!priorChoices.isEmpty()) {
+          for (SegmentChoice priorChoice : priorChoices) {
+            var choice = new SegmentChoice();
+            choice.setId(UUID.randomUUID());
+            choice.setSegmentId(fabricator.getSegment().getId());
+            choice.setMute(computeMute(voice.getType()));
+            choice.setProgramType(fabricator.sourceMaterial().getProgram(voice.getProgramId()).orElseThrow(() -> new NexusException("Can't get program for voice")).getType());
+            choice.setInstrumentType(voice.getType());
+            choice.setProgramId(voice.getProgramId());
+            choice.setProgramSequenceId(sequence.getId());
+            choice.setProgramVoiceId(voice.getId());
+            choice.setDeltaIn(priorChoice.getDeltaIn());
+            choice.setDeltaOut(priorChoice.getDeltaOut());
+            choice.setInstrumentId(priorChoice.getInstrumentId());
+            choice.setInstrumentMode(priorChoice.getInstrumentMode());
+            this.craftNoteEventArrangements(tempo, fabricator.put(choice, false), defaultAtonal);
+          }
         }
 
         // make new choices
-        choice.setDeltaIn(computeDeltaIn(choice));
-        choice.setDeltaOut(computeDeltaOut(choice));
-        choice.setInstrumentId(instrument.get().getId());
-        choice.setInstrumentMode(instrument.get().getMode());
-        this.craftNoteEventArrangements(tempo, fabricator.put(choice, false), defaultAtonal);
-      }
+        for (Instrument instrument : instruments) {
+          var choice = new SegmentChoice();
+          choice.setId(UUID.randomUUID());
+          choice.setSegmentId(fabricator.getSegment().getId());
+          choice.setMute(computeMute(instrument.getType()));
+          choice.setProgramType(fabricator.sourceMaterial().getProgram(voice.getProgramId()).orElseThrow(() -> new NexusException("Can't get program for voice")).getType());
+          choice.setInstrumentType(instrument.getType());
+          choice.setProgramId(voice.getProgramId());
+          choice.setProgramSequenceId(sequence.getId());
+          choice.setProgramVoiceId(voice.getId());
+          choice.setDeltaIn(computeDeltaIn(choice));
+          choice.setDeltaOut(computeDeltaOut(choice));
+          choice.setInstrumentId(instrument.getId());
+          choice.setInstrumentMode(instrument.getMode());
+          this.craftNoteEventArrangements(tempo, fabricator.put(choice, false), defaultAtonal);
+        }
 
     } catch (HubClientException e) {
       throw new NexusException(e);
@@ -172,11 +178,11 @@ public class CraftImpl extends FabricationWrapperImpl {
    Chord instrument mode
    https://www.pivotaltracker.com/story/show/181631275
 
-   @param tempo      of main program
-   @param instrument for which to craft choices
+   @param tempo       of main program
+   @param instruments for which to craft choices
    @throws NexusException on failure
    */
-  protected void craftChordParts(double tempo, Instrument instrument) throws NexusException {
+  protected void craftChordParts(double tempo, InstrumentType instrumentType, Collection<Instrument> instruments) throws NexusException {
     // Craft each voice into choice
     var choice = new SegmentChoice();
 
@@ -188,7 +194,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     choice.setInstrumentId(instrument.getId());
 
     // Whether there is a prior choice for this voice
-    Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(instrument.getType());
+    Collection<SegmentChoice> priorChoices = fabricator.getChoicesIfContinued(instrument.getType());
 
     if (priorChoice.isPresent()) {
       choice.setDeltaIn(priorChoice.get().getDeltaIn());
@@ -408,10 +414,10 @@ public class CraftImpl extends FabricationWrapperImpl {
       case CONTINUE -> {
         for (String index : layers)
           fabricator.retrospective().getChoices().stream()
-            .filter(choiceFilter)
-            .filter(choice -> Objects.equals(index, choiceIndexProvider.get(choice)))
-            .findAny()
-            .ifPresent(choice -> deltaIns.put(choiceIndexProvider.get(choice), choice.getDeltaIn()));
+              .filter(choiceFilter)
+              .filter(choice -> Objects.equals(index, choiceIndexProvider.get(choice)))
+              .findAny()
+              .ifPresent(choice -> deltaIns.put(choiceIndexProvider.get(choice), choice.getDeltaIn()));
       }
     }
   }
@@ -721,14 +727,14 @@ public class CraftImpl extends FabricationWrapperImpl {
    @throws NexusException on failure
    */
   void pickInstrumentAudio(
-    String note,
-    Instrument instrument,
-    ProgramSequencePatternEvent event,
-    SegmentChoiceArrangement segmentChoiceArrangement,
-    Long startAtSegmentMicros,
-    @Nullable Long lengthMicros,
-    @Nullable UUID segmentChordVoicingId,
-    float volRatio
+      String note,
+      Instrument instrument,
+      ProgramSequencePatternEvent event,
+      SegmentChoiceArrangement segmentChoiceArrangement,
+      Long startAtSegmentMicros,
+      @Nullable Long lengthMicros,
+      @Nullable UUID segmentChordVoicingId,
+      float volRatio
   ) throws NexusException {
     var audio = fabricator.getInstrumentConfig(instrument).isMultiphonic() ? selectMultiphonicInstrumentAudio(instrument, event, note) : selectMonophonicInstrumentAudio(instrument, event);
 
@@ -941,13 +947,13 @@ public class CraftImpl extends FabricationWrapperImpl {
    <p>
    Choose drum instrument to fulfill beat program event names https://www.pivotaltracker.com/story/show/180803311
 
-   @param types             of instrument to choose from
+   @param type              of instrument to choose
    @param avoidIds          to avoid, or empty list
    @param continueVoiceName if present, ensure that choices continue for each voice named in prior segments of this main program
    @param requireEventNames instrument candidates are required to have event names https://www.pivotaltracker.com/story/show/180803311
    @return Instrument
    */
-  protected Optional<Instrument> chooseFreshInstrument(Collection<InstrumentType> types, Collection<UUID> avoidIds, @Nullable String continueVoiceName, Collection<String> requireEventNames) throws NexusException {
+  protected Optional<Instrument> chooseFreshInstrument(InstrumentType type, Collection<UUID> avoidIds, @Nullable String continueVoiceName, Collection<String> requireEventNames) throws NexusException {
     var bag = MarbleBag.empty();
 
     // Retrieve instruments bound to chain
@@ -973,13 +979,13 @@ public class CraftImpl extends FabricationWrapperImpl {
     // https://www.pivotaltracker.com/story/show/178442889
     if (SegmentType.CONTINUE == fabricator.getType()) {
       var alreadyPicked = fabricator.retrospective().getChoices().stream()
-        .filter(candidate -> Objects.nonNull(candidate.getInstrumentType()) && types.contains(candidate.getInstrumentType()))
-        .filter(candidate -> Objects.nonNull(continueVoiceName))
-        .filter(candidate -> fabricator.sourceMaterial().getProgramVoice(candidate.getProgramVoiceId()).stream()
-          .map(pv -> Objects.equals(continueVoiceName, pv.getName()))
-          .findFirst()
-          .orElse(false))
-        .findAny();
+          .filter(candidate -> Objects.nonNull(candidate.getInstrumentType()) && types.contains(candidate.getInstrumentType()))
+          .filter(candidate -> Objects.nonNull(continueVoiceName))
+          .filter(candidate -> fabricator.sourceMaterial().getProgramVoice(candidate.getProgramVoiceId()).stream()
+              .map(pv -> Objects.equals(continueVoiceName, pv.getName()))
+              .findFirst()
+              .orElse(false))
+          .findAny();
       if (alreadyPicked.isPresent())
         return fabricator.sourceMaterial().getInstrument(alreadyPicked.get().getInstrumentId());
     }

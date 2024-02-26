@@ -333,47 +333,38 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Optional<SegmentChoice> getChoiceIfContinued(InstrumentType instrumentType) {
+  public Collection<SegmentChoice> getChoicesIfContinued(InstrumentType instrumentType) {
     try {
-      return switch (getSegment().getType()) {
-        case INITIAL, NEXT_MAIN, NEXT_MACRO, PENDING -> Optional.empty();
-        case CONTINUE ->
-          retrospective.getChoices().stream().filter(choice -> Objects.equals(instrumentType, choice.getInstrumentType())).findFirst();
-      };
+      if (!Objects.equals(SegmentType.CONTINUE, getSegment().getType())) return Set.of();
+      return retrospective.getChoices().stream().filter(choice -> Objects.equals(instrumentType, choice.getInstrumentType())).collect(Collectors.toSet());
 
     } catch (Exception e) {
       LOG.warn(formatLog(String.format("Could not get previous choice for instrumentType=%s", instrumentType)), e);
-      return Optional.empty();
+      return Set.of();
     }
   }
 
   @Override
-  public Optional<SegmentChoice> getChoiceIfContinued(InstrumentType instrumentType, InstrumentMode instrumentMode) {
+  public Collection<SegmentChoice> getChoicesIfContinued(InstrumentType instrumentType, InstrumentMode instrumentMode) {
     try {
-      return switch (getSegment().getType()) {
-        case INITIAL, NEXT_MAIN, NEXT_MACRO, PENDING -> Optional.empty();
-        case CONTINUE ->
-          retrospective.getChoices().stream().filter(choice -> Objects.equals(instrumentType, choice.getInstrumentType()) && Objects.equals(instrumentMode, choice.getInstrumentMode())).findFirst();
-      };
+      if (!Objects.equals(SegmentType.CONTINUE, getSegment().getType())) return Set.of();
+      return retrospective.getChoices().stream().filter(choice -> Objects.equals(instrumentType, choice.getInstrumentType()) && Objects.equals(instrumentMode, choice.getInstrumentMode())).collect(Collectors.toSet());
 
     } catch (Exception e) {
       LOG.warn(formatLog(String.format("Could not get previous choice for instrumentType=%s", instrumentType)), e);
-      return Optional.empty();
+      return Set.of();
     }
   }
 
   @Override
-  public Optional<SegmentChoice> getChoiceIfContinued(ProgramType programType) {
+  public Collection<SegmentChoice> getChoicesIfContinued(ProgramType programType) {
     try {
-      return switch (getSegment().getType()) {
-        case PENDING, INITIAL, NEXT_MAIN, NEXT_MACRO -> Optional.empty();
-        case CONTINUE ->
-          retrospective.getChoices().stream().filter(choice -> Objects.equals(programType, choice.getProgramType())).findFirst();
-      };
+      if (!Objects.equals(SegmentType.CONTINUE, getSegment().getType())) return Set.of();
+      return retrospective.getChoices().stream().filter(choice -> Objects.equals(programType, choice.getProgramType())).collect(Collectors.toSet());
 
     } catch (Exception e) {
       LOG.warn(formatLog(String.format("Could not get previous choice for programType=%s", programType)), e);
-      return Optional.empty();
+      return Set.of();
     }
   }
 
