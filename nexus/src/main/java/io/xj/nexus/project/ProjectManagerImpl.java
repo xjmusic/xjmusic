@@ -161,6 +161,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
     try {
       LOG.info("Will load project \"{}\" from {}", projectName.get(), projectFilePath);
+      updateProgress(0.0);
       updateState(ProjectState.LoadingContent);
       var json = Files.readString(Path.of(projectFilePath));
       content.set(jsonProvider.getMapper().readValue(json, HubContent.class));
@@ -914,6 +915,7 @@ public class ProjectManagerImpl implements ProjectManager {
       createProjectFolder(parentPathPrefix, projectName);
 
       LOG.info("Will load content");
+      updateProgress(0.0);
       updateState(ProjectState.LoadingContent);
       content.set(fetchContent.call());
       project.set(content.get().getProject());
@@ -923,7 +925,6 @@ public class ProjectManagerImpl implements ProjectManager {
       var instruments = new ArrayList<>(content.get().getInstruments());
       var audios = new ArrayList<>(content.get().getInstrumentAudios());
       LOG.info("Will download {} audio for {} instruments", audios.size(), instruments.size());
-      updateProgress(0.0);
       updateProgressLabel(String.format("Downloaded 0/%d audios for 0/%d instruments", audios.size(), instruments.size()));
       updateState(ProjectState.LoadingAudio);
       int loadedAudios = 0;
@@ -939,6 +940,7 @@ public class ProjectManagerImpl implements ProjectManager {
           .toList()) {
           if (!Objects.equals(state.get(), ProjectState.LoadingAudio)) {
             // Workstation canceling preloading should cease resampling audio files https://www.pivotaltracker.com/story/show/186209135
+            project.set(null);
             return false;
           }
           if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
@@ -952,7 +954,9 @@ public class ProjectManagerImpl implements ProjectManager {
             var remoteUrl = String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey());
             var remoteFileSize = hubClientFactory.getRemoteFileSize(httpClient, remoteUrl);
             if (remoteFileSize == FILE_SIZE_NOT_FOUND) {
-              LOG.error("File not found for audio \"{}\" of instrument \"{}\" in library \"{}\" at {}", instrument.getName(), audio.getName(), content.get().getLibrary(instrument.getId()).map(Library::getName).orElse("Unknown"), remoteUrl);
+              LOG.error("File not found for audio \"{}\" of instrument \"{}\" in library \"{}\" at {}", instrument.getName(), audio.getName(), content.get().getLibrary(instrument.getLibraryId()).map(Library::getName).orElse("Unknown"), remoteUrl);
+              updateState(ProjectState.Failed);
+              project.set(null);
               return false;
             }
             var localFileSize = getFileSizeIfExistsOnDisk(originalCachePath);
@@ -968,6 +972,8 @@ public class ProjectManagerImpl implements ProjectManager {
 
             if (shouldDownload) {
               if (!hubClientFactory.downloadRemoteFileWithRetry(httpClient, remoteUrl, originalCachePath, remoteFileSize)) {
+                updateState(ProjectState.Failed);
+                project.set(null);
                 return false;
               }
             }
@@ -991,16 +997,19 @@ public class ProjectManagerImpl implements ProjectManager {
     } catch (HubClientException e) {
       LOG.error("Failed to load content for project!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
       updateState(ProjectState.Failed);
+      project.set(null);
       return false;
 
     } catch (IOException e) {
       LOG.error("Failed to preload audio for project!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
       updateState(ProjectState.Failed);
+      project.set(null);
       return false;
 
     } catch (Exception e) {
       LOG.error("Failed to clone project!\n{}", StringUtils.formatStackTrace(e), e);
       updateState(ProjectState.Failed);
+      project.set(null);
       return false;
     }
   }

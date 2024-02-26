@@ -97,7 +97,10 @@ public class UIStateServiceImpl implements UIStateService {
     this.defaultIsLabFeatureEnabled = defaultIsLabFeatureEnabled;
 
     // Has a current project?
-    hasCurrentProject = projectService.stateProperty().isNotEqualTo(ProjectState.Standby);
+    hasCurrentProject = Bindings.createBooleanBinding(
+        () -> Objects.nonNull(projectService.currentProjectProperty().get())
+            && projectService.stateProperty().isEqualTo(ProjectState.Ready).get(),
+        projectService.currentProjectProperty(), projectService.stateProperty());
 
     // Is the fabrication settings button disabled?
     isFabricationSettingsDisabled = fabricationService.isStateActiveProperty();
