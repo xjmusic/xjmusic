@@ -66,7 +66,8 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
       Collection<SegmentChoice> priorChoices = fabricator.getChoicesIfContinued(instrumentType);
 
       // Instruments may be chosen without programs https://www.pivotaltracker.com/story/show/181290857
-      Collection<Instrument> instruments = priorChoices.isEmpty() ? chooseFreshInstruments(instrumentType, null, List.of()) : priorChoices.stream().map(pc -> fabricator.sourceMaterial().getInstrument(pc.getInstrumentId()).orElseThrow()).collect(Collectors.toSet());
+      // TODO don't choose multiple instruments for layers! Layer the available audio from a single chosen instrument
+      Collection<Instrument> instruments = priorChoices.isEmpty() ? chooseFreshInstruments(instrumentType, targetLayers) : priorChoices.stream().map(pc -> fabricator.sourceMaterial().getInstrument(pc.getInstrumentId()).orElseThrow()).collect(Collectors.toSet());
 
       // Should gracefully skip voicing type if unfulfilled by detail instrument https://www.pivotaltracker.com/story/show/176373977
       if (instruments.isEmpty()) {

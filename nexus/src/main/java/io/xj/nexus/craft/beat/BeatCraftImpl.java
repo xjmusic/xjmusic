@@ -4,6 +4,7 @@ package io.xj.nexus.craft.beat;
 
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.util.CsvUtils;
@@ -14,6 +15,7 @@ import io.xj.nexus.model.SegmentChoice;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -33,11 +35,11 @@ public class BeatCraftImpl extends CraftImpl implements BeatCraft {
 
   @Override
   public void doWork() throws NexusException {
-    Optional<SegmentChoice> priorChoice = fabricator.getChoicesIfContinued(ProgramType.Beat);
+    Optional<SegmentChoice> priorBeatChoice = fabricator.getChoicesIfContinued(ProgramType.Beat).stream().findFirst();
 
     // Program is from prior choice, or freshly chosen
-    Optional<Program> program = priorChoice.isPresent() ?
-      fabricator.sourceMaterial().getProgram(priorChoice.get().getProgramId()) :
+    Optional<Program> program = priorBeatChoice.isPresent() ?
+      fabricator.sourceMaterial().getProgram(priorBeatChoice.get().getProgramId()) :
       chooseFreshProgram(ProgramType.Beat, InstrumentType.Drum);
 
     // Should gracefully skip voicing type if unfulfilled by detail program https://www.pivotaltracker.com/story/show/176373977
@@ -75,9 +77,40 @@ public class BeatCraftImpl extends CraftImpl implements BeatCraft {
           String.format("in Beat-choice Program[%s]", program.get().getId()));
 
       for (ProgramVoice voice : voices) {
-        craftNoteEvents(fabricator.getTempo(), sequence.get(), voices, Set.of(chooseFreshInstrument(InstrumentType.Drum, List.of(), voice.getName(), fabricator.sourceMaterial().getTrackNamesOfVoice(voice)), true);
+        var choice = new SegmentChoice();
+        choice.setId(UUID.randomUUID());
+        choice.setSegmentId(fabricator.getSegment().getId());
+        choice.setMute(computeMute(voice.getType()));
+        choice.setProgramType(fabricator.sourceMaterial().getProgram(voice.getProgramId()).orElseThrow(() -> new NexusException("Can't get program for voice")).getType());
+        choice.setInstrumentType(voice.getType());
+        choice.setProgramId(voice.getProgramId());
+        choice.setProgramSequenceId(sequence.get().getId());
+        choice.setProgramVoiceId(voice.getId());
+
+        // Whether there is a prior choice for this voice
+        Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(voice);
+
+        if (priorChoice.isPresent()) {
+          // If there is a prior choice, then we should continue it
+          choice.setDeltaIn(priorChoice.get().getDeltaIn());
+          choice.setDeltaOut(priorChoice.get().getDeltaOut());
+          choice.setInstrumentId(priorChoice.get().getInstrumentId());
+          choice.setInstrumentMode(priorChoice.get().getInstrumentMode());
+          this.craftNoteEventArrangements(fabricator.getTempo(), fabricator.put(choice, false), true);
+        } else {
+          // If there is no prior choice, then we should choose a fresh instrument
+          var instrument = chooseFreshInstrument(InstrumentType.Drum, List.of(), voice.getName(), fabricator.sourceMaterial().getTrackNamesOfVoice(voice));
+          if (instrument.isEmpty()) {
+            reportMissing(Instrument.class, String.format("for voice[%s]", voice.getId()));
+            continue;
+          }
+          choice.setDeltaIn(computeDeltaIn(choice));
+          choice.setDeltaOut(computeDeltaOut(choice));
+          choice.setInstrumentId(instrument.get().getId());
+          choice.setInstrumentMode(instrument.get().getMode());
+          this.craftNoteEventArrangements(fabricator.getTempo(), fabricator.put(choice, false), true);
+        }
       }
     }
   }
-
 }

@@ -65,6 +65,7 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
     Optional<Instrument> chosen;
     if (instrumentIds.size() < targetLayers)
       for (int i = 0; i < targetLayers - instrumentIds.size(); i++) {
+        // TODO don't choose multiple instruments for layers! Layer the available audio from a single chosen instrument
         chosen = chooseFreshInstrument(InstrumentType.Transition, instrumentIds, null, List.of());
         if (chosen.isPresent()) {
           instrumentIds.add(chosen.get().getId());
