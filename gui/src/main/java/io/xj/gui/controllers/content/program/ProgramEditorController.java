@@ -5,6 +5,7 @@ package io.xj.gui.controllers.content.program;
 import io.xj.gui.ProjectController;
 import io.xj.gui.controllers.CmdModalController;
 import io.xj.gui.controllers.content.common.EntityMemesController;
+import io.xj.gui.controllers.content.common.Zoom_Percentage;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
@@ -28,6 +29,7 @@ import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -195,8 +197,17 @@ public class ProgramEditorController extends ProjectController {
     private final BooleanBinding isEmptyBinding = activeProgramSequenceItem.isNull();
     protected ObservableList<ProgramSequence> programSequenceObservableList = FXCollections.observableArrayList();
     private final ObservableList<ProgramVoice> voicesOfProgram = FXCollections.observableArrayList();
-    private final IntegerProperty timelineGridProperty = new SimpleIntegerProperty(8);
+    private final IntegerProperty timelineGridProperty = new SimpleIntegerProperty(4);
 
+    public double getZoomFactor() {
+        return zoomFactorProperty.get();
+    }
+
+    public void setZoomFactorProperty(double zoomFactorProperty) {
+        this.zoomFactorProperty.set(zoomFactorProperty);
+    }
+
+    private final SimpleDoubleProperty zoomFactorProperty = new SimpleDoubleProperty(Zoom_Percentage.PERCENT_100.getValue());
 
     public ProgramEditorController(
             @Value("classpath:/views/content/library-editor.fxml") Resource fxml,
@@ -251,7 +262,7 @@ public class ProgramEditorController extends ProjectController {
         gridChooser.setItems(gridDivisions);
         gridChooser.setValue("1/4");
         zoomChooser.setItems(zoomOptions);
-        zoomChooser.setValue("25%");
+        zoomChooser.setValue("100%");
         sequenceButton.setOnMouseClicked(this::showSequenceUI);
         sequenceMenuLauncher.setOnMouseClicked(this::showSequenceManagementUI);
         sequenceIntensityChooser.setVisible(false);
@@ -304,7 +315,6 @@ public class ProgramEditorController extends ProjectController {
         sequenceName.focusedProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (!newValue) {
-                    LOG.info("change " + sequenceName.getText());
                     sequencePropertyName.set(sequenceName.getText());
                     projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "name",
                             sequencePropertyName.get());
@@ -317,7 +327,6 @@ public class ProgramEditorController extends ProjectController {
         sequenceTotalChooser.focusedProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (!newValue) {
-                    LOG.info("change " + sequenceTotalValueFactory.getValue());
                     sequenceTotalValueFactory.setValue(sequenceTotalChooser.getValue());
                     projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "total",
                             sequenceTotalValueFactory.getValue());
@@ -330,7 +339,6 @@ public class ProgramEditorController extends ProjectController {
         sequenceKey.focusedProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (!newValue) {
-                    LOG.info("change " + sequenceTotalChooser.getValue());
                     sequencePropertyKey.set(sequenceKey.getText());
                     projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "key",
                             sequencePropertyKey.get());
@@ -340,6 +348,8 @@ public class ProgramEditorController extends ProjectController {
             }
         });
     }
+
+
 
     private void setTextFieldValueToAlwaysCAPS(TextField textField) {
         // Create a UnaryOperator to convert text to uppercase
@@ -778,8 +788,20 @@ public class ProgramEditorController extends ProjectController {
     private void setGridSize() {
         gridChooser.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                timelineGridProperty.set(Integer.parseInt(newValue.replaceAll("1/", "")) * 15);
+                timelineGridProperty.set(Integer.parseInt(newValue.replaceAll("1/", "")));
             }
         });
+    }
+
+    public int getSequenceTotal() {
+        return sequenceTotal.get();
+    }
+
+    public IntegerProperty sequenceTotalProperty() {
+        return sequenceTotal;
+    }
+
+    public void setSequenceTotal(int sequenceTotal) {
+        this.sequenceTotal.set(sequenceTotal);
     }
 }

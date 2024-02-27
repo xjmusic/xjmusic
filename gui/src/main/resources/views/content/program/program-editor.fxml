@@ -92,7 +92,7 @@
                     <Insets left="5.0" />
                 </padding>
             </Label>
-            <ComboBox fx:id="zoomChooser" layoutX="200.6666717529297" layoutY="0.6666665077209473" prefHeight="28.0" prefWidth="73.0" />
+            <ComboBox fx:id="zoomChooser" layoutX="200.6666717529297" layoutY="0.6666665077209473" prefHeight="28.0" prefWidth="93.0" />
         </Group>
         <ToggleButton fx:id="snapButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" text="Snap" />
         <Label alignment="CENTER_RIGHT" layoutX="10.0" layoutY="14.0" prefHeight="30.0" prefWidth="97.0" text="Sequence :">
