@@ -34,8 +34,8 @@
             </Button>
             <TextField fx:id="trackNameField" layoutX="50.0" layoutY="11.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="155.0" />
          <HBox.margin>
-            <Insets top="2.0" />
+            <Insets />
          </HBox.margin>
       </AnchorPane>
-   <AnchorPane fx:id="timeLineAnchorpane" HBox.hgrow="ALWAYS" />
+   <AnchorPane fx:id="timeLineAnchorpane" minHeight="-Infinity" prefHeight="155.0" prefWidth="788.0" HBox.hgrow="ALWAYS" />
 </HBox>

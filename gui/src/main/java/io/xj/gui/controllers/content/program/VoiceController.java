@@ -1,5 +1,6 @@
 package io.xj.gui.controllers.content.program;
 
+import io.xj.gui.controllers.content.common.Zoom_Percentage;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.hub.enums.InstrumentType;
@@ -13,6 +14,10 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.FloatProperty;
 import javafx.beans.property.SimpleFloatProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -25,6 +30,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
@@ -102,19 +109,25 @@ public class VoiceController {
     private final ProjectService projectService;
     private ProgramVoice voice;
 
+    public SimpleIntegerProperty getBaseSizePerBeat() {
+        return baseSizePerBeat;
+    }
+
+    private final SimpleIntegerProperty baseSizePerBeat = new SimpleIntegerProperty(300);
     private final ObjectProperty<ProgramSequencePattern> selectedProgramSequencePattern = new SimpleObjectProperty<>();
-
     private final ObservableList<ProgramSequencePattern> programSequencePatternsOfThisVoice = FXCollections.observableArrayList();
-
     private final SimpleStringProperty patternNameProperty = new SimpleStringProperty();
     private double previousPatternNameFieldPrefWidth = 0;
     private double defaultTrackNameFieldPrefWidth = 0;
     private final SimpleStringProperty trackNameProperty = new SimpleStringProperty();
+
     private final ObservableList<ProgramVoiceTrack> programVoiceTrackObservableList = FXCollections.observableArrayList();
+
     private final ObjectProperty<ProgramVoiceTrack> programVoiceTrackObjectProperty = new SimpleObjectProperty<>();
     private final SpinnerValueFactory<Integer> totalValueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 1300, 0);
     private final FloatProperty totalFloatValue = new SimpleFloatProperty(totalValueFactory.getValue());
 
+    private final DoubleProperty timelineHeightProperty = new SimpleDoubleProperty(0);
 
     public VoiceController(ProgramEditorController programEditorController,
                            ApplicationContext ac, ThemeService themeService,
@@ -124,10 +137,6 @@ public class VoiceController {
         this.ac = ac;
         this.themeService = themeService;
         this.projectService = projectService;
-    }
-
-    public Integer getTotal(){
-        return totalFloatValue.getValue().intValue();
     }
 
     protected void setUp(Parent root, ProgramVoice voice) {
@@ -147,6 +156,7 @@ public class VoiceController {
         patternNameField.textProperty().bindBidirectional(patternNameProperty);
         programVoiceNameTextField.setText(voice.getName());
         setCombobox();
+        timelineHeightProperty.set(timeLineAnchorpane.getPrefHeight());
         patternMenuButton.setOnMouseClicked(this::showPatternMenu);
         trackMenuButton.setOnMouseClicked(this::showTrackMenu);
         searchPattern.setOnMouseClicked(this::showPatternSearch);
@@ -160,10 +170,37 @@ public class VoiceController {
         patternTotalCountChooser.setValueFactory(totalValueFactory);
         setTotalChooserSelectionProcessing();
         Platform.runLater(this::populateTimeline);
+        getZoomValueAndRedrawOnchange();
+        bindSequenceTotalValueToTimelineTotalLines();
+        trackNameField.textProperty().bindBidirectional(trackNameProperty);
+    }
+
+    public ObservableList<ProgramVoiceTrack> getProgramVoiceTrackObservableList() {
+        return programVoiceTrackObservableList;
+    }
+
+    public void setTrackNameProperty(String trackNameProperty) {
+        this.trackNameProperty.set(trackNameProperty);
     }
 
 
-    public SpinnerValueFactory<Integer> getTotalValueFactory(){
+    public void setProgramVoiceTrackObjectProperty(ProgramVoiceTrack programVoiceTrack) {
+        this.programVoiceTrackObjectProperty.set(programVoiceTrack);
+    }
+
+    public ProgramVoiceTrack getProgramVoiceTrack() {
+        return programVoiceTrackObjectProperty.get();
+    }
+
+    public FloatProperty getTotalFloatValue() {
+        return totalFloatValue;
+    }
+
+    public double getTimelineHeight() {
+        return timelineHeightProperty.get();
+    }
+
+    public SpinnerValueFactory<Integer> getTotalValueFactory() {
         return totalValueFactory;
     }
 
@@ -174,7 +211,6 @@ public class VoiceController {
                     totalValueFactory.setValue(patternTotalCountChooser.getValue());
                     projectService.update(ProgramSequencePattern.class, selectedProgramSequencePattern.get().getId(), "total",
                             totalValueFactory.getValue());
-                    Platform.runLater(this::populateTimeline);
                 }
             } catch (Exception e) {
                 LOG.info("Failed to update ProgramSequencePattern total");
@@ -187,12 +223,58 @@ public class VoiceController {
         for (int i = 0; i < programVoiceTrackObservableList.size() && programVoiceTrackObservableList.size() > 0; i++) {
             if (i == 0) {
                 programVoiceTrackObjectProperty.set(programVoiceTrackObservableList.get(i));
-                trackNameField.setText(programVoiceTrackObservableList.get(i).getName());
+                trackNameProperty.set(programVoiceTrackObjectProperty.get().getName());
                 showItemsAfterTrackIsCreated();
             } else
                 trackItem(trackFxml, ac, voiceContainer, LOG, addTrackButton_1, voice, this, programVoiceTrackObservableList.get(i));
         }
 
+    }
+
+    private void getZoomValueAndRedrawOnchange() {
+        programEditorController.zoomChooser.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                Zoom_Percentage zoomPercentage;
+                switch (programEditorController.zoomChooser.getValue()) {
+                    case "5%":
+                        zoomPercentage = Zoom_Percentage.PERCENT_5;
+                        break;
+                    case "10%":
+                        zoomPercentage = Zoom_Percentage.PERCENT_10;
+                        break;
+                    case "25%":
+                        zoomPercentage = Zoom_Percentage.PERCENT_25;
+                        break;
+                    case "50%":
+                        zoomPercentage = Zoom_Percentage.PERCENT_50;
+                        break;
+                    case "200%":
+                        zoomPercentage = Zoom_Percentage.PERCENT_200;
+                        break;
+                    case "300%":
+                        zoomPercentage = Zoom_Percentage.PERCENT_300;
+                        break;
+                    case "400%":
+                        zoomPercentage = Zoom_Percentage.PERCENT_400;
+                        break;
+                    default:
+                        zoomPercentage = Zoom_Percentage.PERCENT_100;
+
+                }
+                programEditorController.setZoomFactorProperty(zoomPercentage.getValue());
+                Platform.runLater(this::populateTimeline);
+            }
+        });
+    }
+
+    private void bindSequenceTotalValueToTimelineTotalLines() {
+        // Add a listener to the selected item property
+        programEditorController.sequenceTotalChooser.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                programEditorController.setSequenceTotal(programEditorController.sequenceTotalChooser.getValue());
+                Platform.runLater(this::populateTimeline);
+            }
+        });
     }
 
     private void bindGridValueToTimelineGridProperty() {
@@ -283,6 +365,7 @@ public class VoiceController {
                 if (!newValue) {
                     projectService.update(ProgramVoice.class, voice.getId(), "type",
                             instrumentTypeCombobox.getValue());
+
                 }
             } catch (Exception e) {
                 LOG.info("Failed to update ProgramVoice type ");
@@ -324,13 +407,30 @@ public class VoiceController {
 
     private void populateTimeline() {
         timeLineAnchorpane.getChildren().clear();
-        for (int i = 0; i < programEditorController.getTimelineGridSize() *  15; i++) {
-            loadTimelineItem(i);
+        if (0 < programEditorController.getSequenceTotal()) {
+            for (double b = 0; b <= programEditorController.getSequenceTotal(); b += ((double) 1 / programEditorController.getTimelineGridSize())) {
+                double gridLineX = b * baseSizePerBeat.get() * programEditorController.getZoomFactor();
+                TrackController.drawGridLines(b, gridLineX, timeLineAnchorpane, timelineHeightProperty.get());
+            }
+            greyTheActiveArea();
         }
     }
 
-    private void loadTimelineItem(int id) {
-        TrackController.timelineItem(id, timelineItemFxml, ac, timeLineAnchorpane, LOG, this, programVoiceTrackObjectProperty.get());
+    private void greyTheActiveArea() {
+        Rectangle rectangle = new Rectangle();
+        // Bind the width of the rectangle to the product of the two integer properties
+        rectangle.widthProperty().bind(
+                Bindings.multiply(
+                        Bindings.multiply(
+                                baseSizePerBeat,
+                                totalFloatValue
+                        ),
+                        programEditorController.getZoomFactor()
+                ));
+        rectangle.setHeight(timelineHeightProperty.get());
+        rectangle.setFill(Color.valueOf("#252525"));
+        rectangle.setOpacity(.7);
+        timeLineAnchorpane.getChildren().add(0, rectangle);
     }
 
     private void setCombobox() {
@@ -350,7 +450,7 @@ public class VoiceController {
         });
     }
 
-    private void hideItemsBeforeTrackIsCreated() {
+    protected void hideItemsBeforeTrackIsCreated() {
         addTrackButton.toFront();
         addTrackButton_1.setVisible(false);
         trackNameField.setVisible(false);
@@ -378,7 +478,7 @@ public class VoiceController {
     }
 
 
-    private void createNewTrack() {
+    protected void createNewTrack() {
         try {
             ProgramVoiceTrack newTrack = new ProgramVoiceTrack(UUID.randomUUID(), programEditorController.getProgramId(), voice.getId(), "XXX", 1f);
             projectService.getContent().put(newTrack);
@@ -388,12 +488,13 @@ public class VoiceController {
         }
     }
 
-    private void showItemsAfterTrackIsCreated() {
+    protected void showItemsAfterTrackIsCreated() {
         trackContainer.getStyleClass().add("track-container");
         trackMenuButton.toFront();
         addTrackButton_1.setVisible(true);
         trackNameField.setVisible(true);
         timeLineAnchorpane.setVisible(true);
+        populateTimeline();
     }
 
 
@@ -435,17 +536,17 @@ public class VoiceController {
     }
 
     private void showTrackMenu(MouseEvent event) {
-        trackMenu(event, trackMenuFxml, ac, themeService, LOG, voice, this);
+        trackMenu(event, trackMenuFxml, ac, themeService, LOG, voice, this,programVoiceTrackObjectProperty.get(), true, null);
     }
 
-    static void trackMenu(MouseEvent event, Resource trackMenuFxml, ApplicationContext ac, ThemeService themeService, Logger log, ProgramVoice voice, VoiceController voiceController) {
+    static void trackMenu(MouseEvent event, Resource trackMenuFxml, ApplicationContext ac, ThemeService themeService, Logger log, ProgramVoice voice, VoiceController voiceController, ProgramVoiceTrack track, boolean itemIsAttachedToVoiceFxml, Parent trackRoot) {
         try {
             Stage stage = new Stage(StageStyle.TRANSPARENT);
             FXMLLoader loader = new FXMLLoader(trackMenuFxml.getURL());
             loader.setControllerFactory(ac::getBean);
             Parent root = loader.load();
             TrackMenuController trackMenuController = loader.getController();
-            trackMenuController.setUp(root, voice, voiceController);
+            trackMenuController.setUp(root, voice, voiceController,track,itemIsAttachedToVoiceFxml,trackRoot);
             stage.setScene(new Scene(root));
             stage.initOwner(themeService.getMainScene().getWindow());
             stage.show();

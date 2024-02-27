@@ -1,5 +1,6 @@
 package io.xj.gui.controllers.content.program;
 
+import io.xj.gui.controllers.content.common.Zoom_Percentage;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
@@ -7,6 +8,7 @@ import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.util.StringUtils;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -16,6 +18,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,26 +69,68 @@ public class TrackController {
     private final SimpleStringProperty trackNameProperty = new SimpleStringProperty();
     private double defaultTrackNameFieldPrefWidth = 0;
 
+    private Parent trackRoot;
+
     public TrackController(ProgramEditorController programEditorController,
-                           ApplicationContext ac, ThemeService themeService, ProjectService projectService){
-        this.programEditorController=programEditorController;
-        this.ac=ac;
-        this.themeService=themeService;
-        this.projectService=projectService;
+                           ApplicationContext ac, ThemeService themeService, ProjectService projectService) {
+        this.programEditorController = programEditorController;
+        this.ac = ac;
+        this.themeService = themeService;
+        this.projectService = projectService;
+
     }
-    public void setUp(ProgramVoice voice, VoiceController voiceController, ProgramVoiceTrack track) {
-        this.voiceController=voiceController;
-        defaultTrackNameFieldPrefWidth=trackNameField.getPrefWidth();
-        this.voice=voice;
-        this.track=track;
-        this.addTrackButton_1.setOnAction(e->createNewTrack());
+
+    public void setUp(Parent root, ProgramVoice voice, VoiceController voiceController, ProgramVoiceTrack track) {
+        this.voiceController = voiceController;
+        defaultTrackNameFieldPrefWidth = trackNameField.getPrefWidth();
+        this.voice = voice;
+        this.track = track;
+        this.trackRoot=root;
+        addTrackButton_1.setOnAction(e -> createNewTrack());
         trackNameField.setText(track.getName());
         trackMenuButton.setOnMouseClicked(this::showTrackMenu);
         Platform.runLater(this::populateTimeline);
         updateTrackName();
         bindGridValueToTimelineGridProperty();
         setTotalChooserSelectionProcessing();
+        getZoomValueAndRedrawOnchange();
+        bindSequenceTotalValueToTimelineTotalLines();
+    }
 
+    private void getZoomValueAndRedrawOnchange() {
+        programEditorController.zoomChooser.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                Zoom_Percentage zoomPercentage;
+                switch (programEditorController.zoomChooser.getValue()) {
+                    case "5%":
+                        zoomPercentage = Zoom_Percentage.PERCENT_5;
+                        break;
+                    case "10%":
+                        zoomPercentage = Zoom_Percentage.PERCENT_10;
+                        break;
+                    case "25%":
+                        zoomPercentage = Zoom_Percentage.PERCENT_25;
+                        break;
+                    case "50%":
+                        zoomPercentage = Zoom_Percentage.PERCENT_50;
+                        break;
+                    case "200%":
+                        zoomPercentage = Zoom_Percentage.PERCENT_200;
+                        break;
+                    case "300%":
+                        zoomPercentage = Zoom_Percentage.PERCENT_300;
+                        break;
+                    case "400%":
+                        zoomPercentage = Zoom_Percentage.PERCENT_400;
+                        break;
+                    default:
+                        zoomPercentage = Zoom_Percentage.PERCENT_100;
+
+                }
+                programEditorController.setZoomFactorProperty(zoomPercentage.getValue());
+                Platform.runLater(this::populateTimeline);
+            }
+        });
     }
 
     private void setTotalChooserSelectionProcessing() {
@@ -129,13 +176,13 @@ public class TrackController {
         }
     }
 
-    private void updateTrackName(){
+    private void updateTrackName() {
         trackNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (!newValue) {
                     adjustWidthWithTextIncrease();
                     trackNameProperty.set(trackNameField.getText());
-                    projectService.update(ProgramVoiceTrack.class,track.getId(),"name",trackNameProperty.get());
+                    projectService.update(ProgramVoiceTrack.class, track.getId(), "name", trackNameProperty.get());
                 }
             } catch (Exception e) {
                 LOG.info("Failed to update ProgramVoiceTrack name");
@@ -153,13 +200,13 @@ public class TrackController {
     }
 
     private void createNewTrack() {
-            try {
-                ProgramVoiceTrack newTrack = new ProgramVoiceTrack(UUID.randomUUID(), programEditorController.getProgramId(), voice.getId(), "XXX", 1f);
-                projectService.getContent().put(newTrack);
-                Platform.runLater(()->trackItem(trackFxml,ac,voiceController.voiceContainer,LOG,voiceController.addTrackButton_1,voice, voiceController,newTrack));
-            } catch (Exception e) {
-                LOG.info("Could not create new Track");
-            }
+        try {
+            ProgramVoiceTrack newTrack = new ProgramVoiceTrack(UUID.randomUUID(), programEditorController.getProgramId(), voice.getId(), "XXX", 1f);
+            projectService.getContent().put(newTrack);
+            trackItem(trackFxml, ac, voiceController.voiceContainer, LOG, addTrackButton_1, voice, voiceController, newTrack);
+        } catch (Exception e) {
+            LOG.info("Could not create new Track");
+        }
     }
 
     static void trackItem(Resource trackFxml, ApplicationContext ac, VBox voiceContainer, Logger log, Button addTrackButton_1, ProgramVoice voice, VoiceController voiceController, ProgramVoiceTrack newTrack) {
@@ -169,7 +216,7 @@ public class TrackController {
             Parent root = loader.load();
             addTrackButton_1.setVisible(false);
             TrackController trackController = loader.getController();
-            trackController.setUp(voice,voiceController,newTrack);
+            trackController.setUp(root,voice, voiceController, newTrack);
             voiceContainer.getChildren().add(root);
         } catch (IOException e) {
             log.error("Error adding Track item view!\n{}", StringUtils.formatStackTrace(e), e);
@@ -177,41 +224,66 @@ public class TrackController {
     }
 
     private void showTrackMenu(MouseEvent event) {
-        VoiceController.trackMenu(event, trackMenuFxml, ac, themeService, LOG,voice, voiceController);
+        VoiceController.trackMenu(event, trackMenuFxml, ac, themeService, LOG, voice, voiceController,track, false,trackRoot);
     }
 
-    private void populateTimeline(){
+    private void populateTimeline() {
         timeLineAnchorpane.getChildren().clear();
-        for (int i=0;i< programEditorController.getTimelineGridSize() * 15;i++){
-            loadTimelineItem(i);
+        if (0 < programEditorController.getSequenceTotal()) {
+            for (double b = 0; b <= programEditorController.getSequenceTotal(); b += ((double) 1 / programEditorController.getTimelineGridSize())) {
+                double gridLineX = b * voiceController.getBaseSizePerBeat().get() * programEditorController.getZoomFactor();
+                drawGridLines(b, gridLineX, timeLineAnchorpane, voiceController.getTimelineHeight());
+            }
+            greyTheActiveArea();
         }
     }
 
-
-    private void loadTimelineItem(int id){
-        timelineItem(id, timelineItemFxml, ac, timeLineAnchorpane, LOG,voiceController,track);
-    }
-
-    static void timelineItem(int id, Resource timelineItemFxml, ApplicationContext ac, AnchorPane timeline, Logger log, VoiceController voiceController, ProgramVoiceTrack track) {
-        try {
-            FXMLLoader loader = new FXMLLoader(timelineItemFxml.getURL());
-            loader.setControllerFactory(ac::getBean);
-            Parent root = loader.load();
-            TimelineItemController timelineItemController = loader.getController();
-
-            // Calculate the position of the new item based on its index and size
-            double newItemWidth = timelineItemController.timelineParent.getPrefWidth(); // Adjust the width as needed
-            double newItemX = timeline.getChildren().size()*newItemWidth; // Horizontal position
-
-            // Set the position of the new item within the AnchorPane
-            AnchorPane.setLeftAnchor(root, newItemX);
-            AnchorPane.setTopAnchor(root, 0.0); // Adjust the top position as needed
-            AnchorPane.setBottomAnchor(root, 0.0); // Adjust the top position as needed
-            timeline.getChildren().add(root);
-            timelineItemController.setUp(id, voiceController, timeline, root,track);
-        } catch (IOException e) {
-            log.error("Error loading Pattern Menu view!\n{}", StringUtils.formatStackTrace(e), e);
+    static void drawGridLines(double b, double gridLineX, AnchorPane timeLineAnchorpane, double rectangleHeight) {
+        boolean isMajorLine = (b % 1) == 0;
+        Line line = new Line();
+        line.setStartY(0);
+        line.setEndY(rectangleHeight);
+        line.setStartX(gridLineX);
+        line.setEndX(gridLineX);
+        if (isMajorLine) {
+            line.setStroke(Color.GREY);
+        } else {
+            line.setStroke(Color.valueOf("#3F3F3F"));
         }
-
+        AnchorPane.setLeftAnchor(line, gridLineX);
+        AnchorPane.setTopAnchor(line, 0.0); // Adjust the top position as needed
+        AnchorPane.setBottomAnchor(line, 0.0); // Adjust the top position as needed
+        timeLineAnchorpane.getChildren().add(line);
     }
+
+    private void greyTheActiveArea() {
+        Rectangle rectangle = new Rectangle();
+        //bind the three properties to the width of the rectangle highlighting the active area
+        rectangle.widthProperty().bind(
+                Bindings.multiply(
+                        Bindings.multiply(
+                                voiceController.getBaseSizePerBeat(),
+                                voiceController.getTotalFloatValue()
+                        ),
+                        programEditorController.getZoomFactor()
+                )
+        );
+
+
+        rectangle.setHeight(voiceController.getTimelineHeight());
+        rectangle.setFill(Color.valueOf("#252525"));
+        rectangle.setOpacity(.7);
+        timeLineAnchorpane.getChildren().add(0, rectangle);
+    }
+
+    private void bindSequenceTotalValueToTimelineTotalLines() {
+        // Add a listener to the selected item property
+        programEditorController.sequenceTotalChooser.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                programEditorController.setSequenceTotal(programEditorController.sequenceTotalChooser.getValue());
+                Platform.runLater(this::populateTimeline);
+            }
+        });
+    }
+
 }
