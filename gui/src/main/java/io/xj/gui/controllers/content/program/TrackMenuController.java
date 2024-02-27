@@ -4,6 +4,7 @@ package io.xj.gui.controllers.content.program;
 import io.xj.gui.services.ProjectService;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
@@ -36,18 +37,21 @@ public class TrackMenuController {
     private Resource trackFxml;
     private ProgramVoice voice;
     private final ApplicationContext ac;
-    private  VoiceController voiceController;
+    private VoiceController voiceController;
+    private ProgramVoiceTrack programVoiceTrack;
 
     public TrackMenuController(ProjectService projectService, ProgramEditorController programEditorController, ApplicationContext ac) {
         this.projectService = projectService;
         this.programEditorController = programEditorController;
-        this.ac=ac;
+        this.ac = ac;
     }
 
-    public void setUp(Parent root, ProgramVoice voice, VoiceController voiceController) {
+    public void setUp(Parent root, ProgramVoice voice, VoiceController voiceController, ProgramVoiceTrack track, boolean itemIsAttachedToVoiceFxml, Parent trackRoot) {
         this.voice = voice;
-        this.voiceController=voiceController;
+        this.voiceController = voiceController;
+        this.programVoiceTrack = track;
         createNewTrack();
+        deleteTrack(trackRoot,itemIsAttachedToVoiceFxml);
     }
 
 
@@ -56,7 +60,7 @@ public class TrackMenuController {
             try {
                 ProgramVoiceTrack newTrack = new ProgramVoiceTrack(UUID.randomUUID(), programEditorController.getProgramId(), voice.getId(), "XXX", 1f);
                 projectService.getContent().put(newTrack);
-                trackItem(trackFxml,ac,voiceController.voiceContainer,LOG,voiceController.addTrackButton_1,voice, voiceController, newTrack);
+                trackItem(trackFxml, ac, voiceController.voiceContainer, LOG, voiceController.addTrackButton_1, voice, voiceController, newTrack);
                 closeWindow();
             } catch (Exception e) {
                 LOG.info("Could not create new Track");
@@ -64,8 +68,29 @@ public class TrackMenuController {
         });
     }
 
-    private void closeWindow(){
-        Stage stage=(Stage) newTrack.getScene().getWindow();
+    private void deleteTrack(Parent root, boolean itemIsAttachedToVoiceFxml) {
+        deleteTrack.setOnAction(event -> {
+            try {
+                if (itemIsAttachedToVoiceFxml) {
+//                    System.out.println("ppre "+voiceController.getProgramVoiceTrack().getName());
+//                    voiceController.setProgramVoiceTrackObjectProperty(voiceController.getProgramVoiceTrackObservableList().get(0));
+//                    System.out.println("post "+voiceController.getProgramVoiceTrack().getName());
+
+                } else {
+                    Platform.runLater(() -> voiceController.voiceContainer.getChildren().remove(root));
+                    voiceController.getProgramVoiceTrackObservableList().remove(programVoiceTrack);
+
+                }
+                closeWindow();
+            } catch (Exception e) {
+//                LOG.info("Could not delete Track");
+                e.getStackTrace();
+            }
+        });
+    }
+
+    private void closeWindow() {
+        Stage stage = (Stage) newTrack.getScene().getWindow();
         stage.close();
     }
 }
