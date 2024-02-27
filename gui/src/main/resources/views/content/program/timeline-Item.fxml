@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.shape.Line?>
-
-<AnchorPane fx:id="timelineParent" prefHeight="136.0" prefWidth="53.0" styleClass="timeline-item" stylesheets="@../../../styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.TimelineItemController">
-      <Line fx:id="middleLine" endX="60.99998092651367" endY="7.62939453125E-6" fill="#6e666600" layoutX="-8.0" layoutY="68.0" smooth="false" startX="8.000004768371582" startY="7.62939453125E-6" stroke="#424141af" strokeDashOffset="5.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-</AnchorPane>
