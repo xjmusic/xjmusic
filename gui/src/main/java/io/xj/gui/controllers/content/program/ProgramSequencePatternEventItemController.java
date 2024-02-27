@@ -1,17 +1,12 @@
 package io.xj.gui.controllers.content.program;
 
-import io.xj.gui.controllers.content.common.DragResizer;
 import io.xj.gui.services.ProjectService;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
-import javafx.geometry.Bounds;
-import javafx.scene.Cursor;
-import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
@@ -63,7 +58,6 @@ public class ProgramSequencePatternEventItemController {
         deleteTimelineProperty.setOnAction(e -> setDeleteTimelineProperty());
         itemWidth = timelineEventPropertyParent.getPrefWidth();
         previousWidth = timelineEventPropertyParent.getPrefWidth();
-        DragResizer.makeResizable(timelineEventPropertyParent,timeline);
         this.timeline = timeline;
         this.root = root;
         this.id = id;
@@ -109,45 +103,6 @@ public class ProgramSequencePatternEventItemController {
             dragStartX = event.getSceneX();
             isDragging = true;
         }
-    }
-
-    private void handleMouseMove(MouseEvent event) {
-        if (event.getSceneX() <= getLeftBorderPosition(timelineEventPropertyParent)) System.out.println("hola");
-    }
-
-//    private void handleMouseMove(MouseEvent event) {
-//        AnchorPane anchorPane = (AnchorPane) event.getSource();
-//        double mouseX = event.getX();
-//        if (mouseX >= anchorPane.getWidth() - 3) {
-//            anchorPane.setCursor(javafx.scene.Cursor.E_RESIZE);
-//        } else if (mouseX <= anchorPane.getLayoutX()) {
-//            anchorPane.setCursor(javafx.scene.Cursor.E_RESIZE);
-//        } else {
-//            anchorPane.setCursor(Cursor.DEFAULT);
-//        }
-//    }
-
-    public static double getRightBorderPosition(Node node) {
-        // Get the local bounds of the AnchorPane
-        Bounds localBounds = node.getBoundsInLocal();
-
-        // Transform the local bounds to scene coordinates
-        Bounds sceneBounds = node.localToScene(localBounds);
-
-        // Calculate the position of the right border
-        return sceneBounds.getMinX() + localBounds.getWidth();
-    }
-
-
-    public static double getLeftBorderPosition(Node node) {
-        // Get the local bounds of the AnchorPane
-        Bounds localBounds = node.getBoundsInLocal();
-
-        // Transform the local bounds to scene coordinates
-        Bounds sceneBounds = node.localToScene(localBounds);
-
-        // Calculate the position of the left border
-        return sceneBounds.getMinX();
     }
 
     private void resize(MouseEvent event) {
