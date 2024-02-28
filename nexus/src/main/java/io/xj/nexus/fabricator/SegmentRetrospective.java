@@ -133,7 +133,7 @@ public interface SegmentRetrospective {
    @param instrumentType for which to get previous-segment choices
    @return choices
    */
-  List<SegmentChoice> getPreviousChoicesOfType(InstrumentType instrumentType);
+  Optional<SegmentChoice> getPreviousChoiceOfType(InstrumentType instrumentType);
 
   /**
    Get the previous picks for the given instrument id

@@ -143,7 +143,7 @@ public interface Fabricator {
 
    @return choice if previously made, or null if none is found
    */
-  Collection<SegmentChoice> getChoicesIfContinued(InstrumentType instrumentType);
+  Optional<SegmentChoice> getChoiceIfContinued(InstrumentType instrumentType);
 
   /**
    Determine if a choice has been previously crafted
@@ -151,7 +151,7 @@ public interface Fabricator {
 
    @return choice if previously made, or null if none is found
    */
-  Collection<SegmentChoice> getChoicesIfContinued(InstrumentType instrumentType, InstrumentMode instrumentMode);
+  Optional<SegmentChoice> getChoiceIfContinued(InstrumentType instrumentType, InstrumentMode instrumentMode);
 
   /**
    Get current ChordEntity for any position in Segment.

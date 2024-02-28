@@ -7,7 +7,6 @@ import io.xj.hub.music.Bar;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
-import io.xj.hub.util.ValueUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
@@ -16,11 +15,9 @@ import io.xj.nexus.model.SegmentChoiceArrangement;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.util.MarbleBag;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 
 /**
@@ -45,33 +42,18 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
 
   @Override
   public void doWork() throws NexusException {
-    var previousChoices = fabricator.retrospective().getPreviousChoicesOfType(InstrumentType.Transition);
+    Optional<SegmentChoice> previousChoice = fabricator.retrospective().getPreviousChoiceOfType(InstrumentType.Transition);
 
-    Collection<UUID> instrumentIds = previousChoices.stream()
-        .map(SegmentChoice::getInstrumentId)
-        .collect(Collectors.toList());
+    var instrument = previousChoice.isPresent() ?
+        fabricator.sourceMaterial().getInstrument(previousChoice.get().getInstrumentId()) :
+        chooseFreshInstrument(InstrumentType.Transition, List.of());
 
-    int targetLayers = fabricator.getTemplateConfig().getIntensityLayers(InstrumentType.Transition);
+    if (instrument.isEmpty()) {
+      reportMissing(Instrument.class, "Transition-type instrument");
+      return;
+    }
 
-    fabricator.addInfoMessage(String.format("Targeting %d layers of transition", targetLayers));
-
-    if (instrumentIds.size() > targetLayers)
-      instrumentIds = ValueUtils.withIdsRemoved(instrumentIds, instrumentIds.size() - targetLayers);
-
-    var tempo = fabricator.getTempo();
-
-    for (UUID id : instrumentIds) craftTransition(tempo, id);
-
-    Optional<Instrument> chosen;
-    if (instrumentIds.size() < targetLayers)
-      for (int i = 0; i < targetLayers - instrumentIds.size(); i++) {
-        // TODO don't choose multiple instruments for layers! Layer the available audio from a single chosen instrument
-        chosen = chooseFreshInstrument(InstrumentType.Transition, instrumentIds, null, List.of());
-        if (chosen.isPresent()) {
-          instrumentIds.add(chosen.get().getId());
-          craftTransition(tempo, chosen.get().getId());
-        }
-      }
+    craftTransition(fabricator.getTempo(), instrument.get());
   }
 
   /**
@@ -107,20 +89,18 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
   /**
    Craft percussion loop
 
-   @param tempo        of main program
-   @param instrumentId of percussion loop instrument to craft
+   @param tempo      of main program
+   @param instrument of percussion loop instrument to craft
    */
   @SuppressWarnings("DuplicatedCode")
-  void craftTransition(double tempo, UUID instrumentId) throws NexusException {
+  void craftTransition(double tempo, Instrument instrument) throws NexusException {
     var choice = new SegmentChoice();
-    var instrument = fabricator.sourceMaterial().getInstrument(instrumentId)
-        .orElseThrow(() -> new NexusException("Can't get Instrument Audio!"));
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());
     choice.setMute(computeMute(instrument.getType()));
     choice.setInstrumentType(instrument.getType());
     choice.setInstrumentMode(instrument.getMode());
-    choice.setInstrumentId(instrumentId);
+    choice.setInstrumentId(instrument.getId());
     fabricator.put(choice, false);
     var arrangement = new SegmentChoiceArrangement();
     arrangement.setId(UUID.randomUUID());
@@ -202,5 +182,4 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
     if (bag.isEmpty()) return Optional.empty();
     return fabricator.sourceMaterial().getInstrumentAudio(bag.pick());
   }
-
 }

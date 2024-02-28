@@ -13,7 +13,6 @@ import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.model.SegmentChoice;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -99,7 +98,7 @@ public class BeatCraftImpl extends CraftImpl implements BeatCraft {
           this.craftNoteEventArrangements(fabricator.getTempo(), fabricator.put(choice, false), true);
         } else {
           // If there is no prior choice, then we should choose a fresh instrument
-          var instrument = chooseFreshInstrument(InstrumentType.Drum, List.of(), voice.getName(), fabricator.sourceMaterial().getTrackNamesOfVoice(voice));
+          var instrument = chooseFreshInstrument(InstrumentType.Drum, fabricator.sourceMaterial().getTrackNamesOfVoice(voice));
           if (instrument.isEmpty()) {
             reportMissing(Instrument.class, String.format("for voice[%s]", voice.getId()));
             continue;

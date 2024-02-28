@@ -63,47 +63,46 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
       // TODO get multiple choices re: total # of layers -- deal with each prior choice
       // Instrument is from prior choice, else freshly chosen
-      Collection<SegmentChoice> priorChoices = fabricator.getChoicesIfContinued(instrumentType);
+      Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(instrumentType);
 
       // Instruments may be chosen without programs https://www.pivotaltracker.com/story/show/181290857
       // TODO don't choose multiple instruments for layers! Layer the available audio from a single chosen instrument
-      Collection<Instrument> instruments = priorChoices.isEmpty() ? chooseFreshInstruments(instrumentType, targetLayers) : priorChoices.stream().map(pc -> fabricator.sourceMaterial().getInstrument(pc.getInstrumentId()).orElseThrow()).collect(Collectors.toSet());
+      Optional<Instrument> instrument = priorChoice.isPresent() ? fabricator.sourceMaterial().getInstrument(priorChoice.get().getInstrumentId()) : chooseFreshInstrument(instrumentType, Set.of());
 
       // Should gracefully skip voicing type if unfulfilled by detail instrument https://www.pivotaltracker.com/story/show/176373977
-      if (instruments.isEmpty()) {
+      if (instrument.isEmpty()) {
         reportMissing(Instrument.class, String.format("%s-type Instrument", instrumentType));
         continue;
       }
 
-      for (Instrument instrument : instruments) {
 
-        // Instruments have InstrumentMode https://www.pivotaltracker.com/story/show/181134085
-        switch (instrument.getMode()) {
+      // Instruments have InstrumentMode https://www.pivotaltracker.com/story/show/181134085
+      switch (instrument.get().getMode()) {
 
-          // Event instrument mode takes over legacy behavior https://www.pivotaltracker.com/story/show/181736854
-          case Event -> {
-            // Event Use prior chosen program or find a new one
-            Optional<Program> program = priorChoice.isPresent() ? fabricator.sourceMaterial().getProgram(priorChoice.get().getProgramId()) : chooseFreshProgram(ProgramType.Detail, instrumentType);
+        // Event instrument mode takes over legacy behavior https://www.pivotaltracker.com/story/show/181736854
+        case Event -> {
+          // Event Use prior chosen program or find a new one
+          Optional<Program> program = priorChoice.isPresent() ? fabricator.sourceMaterial().getProgram(priorChoice.get().getProgramId()) : chooseFreshProgram(ProgramType.Detail, instrumentType);
 
-            // Event Should gracefully skip voicing type if unfulfilled by detail program https://www.pivotaltracker.com/story/show/176373977
-            if (program.isEmpty()) {
-              reportMissing(Program.class, String.format("%s-type Program", instrumentType));
-              continue;
-            }
-            craftEventParts(fabricator.getTempo(), instrument.get(), program.get());
+          // Event Should gracefully skip voicing type if unfulfilled by detail program https://www.pivotaltracker.com/story/show/176373977
+          if (program.isEmpty()) {
+            reportMissing(Program.class, String.format("%s-type Program", instrumentType));
+            continue;
           }
-
-          // Chord instrument mode https://www.pivotaltracker.com/story/show/181631275
-          case Chord -> craftChordParts(fabricator.getTempo(), instrumentType, instruments);
-
-          case Loop -> craftLoop(instrument.get());
-
-          // As-yet Unsupported Modes
-          default ->
-              fabricator.addWarningMessage(String.format("Cannot craft unsupported mode %s for Instrument[%s]", instrument.get().getMode(), instrument.get().getId()));
+          craftEventParts(fabricator.getTempo(), instrument.get(), program.get());
         }
+
+        // Chord instrument mode https://www.pivotaltracker.com/story/show/181631275
+        case Chord -> craftChordParts(fabricator.getTempo(), instrument.get());
+
+        case Loop -> craftLoop(instrument.get());
+
+        // As-yet Unsupported Modes
+        default ->
+            fabricator.addWarningMessage(String.format("Cannot craft unsupported mode %s for Instrument[%s]", instrument.get().getMode(), instrument.get().getId()));
       }
     }
+
   }
 
   /**

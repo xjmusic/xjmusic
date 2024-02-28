@@ -41,6 +41,9 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   ) throws NexusException, FabricationFatalException {
     this.entityStore = entityStore;
 
+    // NOTE: the segment retrospective is empty for segments of type Initial, NextMain, and NextMacro--
+    // Only segments of type Continue have a retrospective
+
     // begin by getting the previous segment
     // only can build retrospective if there is at least one previous segment
     // the previous segment is the first one cached here. we may cache even further back segments below if found
@@ -117,12 +120,12 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public List<SegmentChoice> getPreviousChoicesOfType(InstrumentType instrumentType) {
-    if (Objects.isNull(previousSegment)) return List.of();
+  public Optional<SegmentChoice> getPreviousChoiceOfType(InstrumentType instrumentType) {
+    if (Objects.isNull(previousSegment)) return Optional.empty();
     return entityStore.readManySubEntitiesOfType(previousSegment.getId(), SegmentChoice.class).stream()
         .filter(c -> Objects.nonNull(c.getInstrumentType())
             && c.getInstrumentType().equals(instrumentType))
-        .collect(Collectors.toList());
+        .findFirst();
   }
 
   @Override
