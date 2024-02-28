@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<HBox prefHeight="156.0" prefWidth="1286.0" stylesheets="@../../../styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.TrackController">
+<HBox prefHeight="156.0" prefWidth="1286.0" styleClass="voice" stylesheets="@../../../styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.TrackController">
   
       <VBox fx:id="trackControlsContainer" prefHeight="145.0" prefWidth="274.0" styleClass="track-controls-container" HBox.hgrow="NEVER" />
       <AnchorPane fx:id="trackContainer" prefHeight="156.0" prefWidth="224.0" styleClass="track-container">

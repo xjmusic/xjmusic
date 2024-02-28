@@ -4,6 +4,7 @@ import io.xj.gui.controllers.content.common.Zoom_Percentage;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.util.StringUtils;
@@ -56,8 +57,8 @@ public class TrackController {
     private Resource trackFxml;
     @Value("classpath:/views/content/program/track-menu.fxml")
     private Resource trackMenuFxml;
-    @Value("classpath:/views/content/program/timeline-Item.fxml")
-    private Resource timelineItemFxml;
+    @Value("classpath:/views/content/program/program-sequence-pattern-event-item.fxml")
+    private Resource programSequencePatternEventItem;
     private final ThemeService themeService;
     static final Logger LOG = LoggerFactory.getLogger(TrackController.class);
     private final ApplicationContext ac;
@@ -95,6 +96,7 @@ public class TrackController {
         setTotalChooserSelectionProcessing();
         getZoomValueAndRedrawOnchange();
         bindSequenceTotalValueToTimelineTotalLines();
+        timeLineAnchorpane.setOnMouseClicked(this::addProgramSequencePatternEventItemController);
     }
 
     private void getZoomValueAndRedrawOnchange() {
@@ -202,7 +204,7 @@ public class TrackController {
     private void createNewTrack() {
         try {
             ProgramVoiceTrack newTrack = new ProgramVoiceTrack(UUID.randomUUID(), programEditorController.getProgramId(), voice.getId(), "XXX", 1f);
-            projectService.getContent().put(newTrack);
+            projectService.update(newTrack);
             trackItem(trackFxml, ac, voiceController.voiceContainer, LOG, addTrackButton_1, voice, voiceController, newTrack);
         } catch (Exception e) {
             LOG.info("Could not create new Track");
@@ -224,36 +226,18 @@ public class TrackController {
     }
 
     private void showTrackMenu(MouseEvent event) {
-        VoiceController.trackMenu(event, trackMenuFxml, ac, themeService, LOG, voice, voiceController,track, false,trackRoot);
+        VoiceController.trackMenu(event, trackMenuFxml, ac, themeService, LOG, voice, voiceController,track, false,trackRoot,addTrackButton_1);
     }
 
     private void populateTimeline() {
-        timeLineAnchorpane.getChildren().clear();
+        timeLineAnchorpane.getChildren().removeIf(node ->  (node instanceof Line || node instanceof Rectangle));
         if (0 < programEditorController.getSequenceTotal()) {
             for (double b = 0; b <= programEditorController.getSequenceTotal(); b += ((double) 1 / programEditorController.getTimelineGridSize())) {
                 double gridLineX = b * voiceController.getBaseSizePerBeat().get() * programEditorController.getZoomFactor();
-                drawGridLines(b, gridLineX, timeLineAnchorpane, voiceController.getTimelineHeight());
+                VoiceController.drawGridLines(b, gridLineX, timeLineAnchorpane, voiceController.getTimelineHeight());
             }
             greyTheActiveArea();
         }
-    }
-
-    static void drawGridLines(double b, double gridLineX, AnchorPane timeLineAnchorpane, double rectangleHeight) {
-        boolean isMajorLine = (b % 1) == 0;
-        Line line = new Line();
-        line.setStartY(0);
-        line.setEndY(rectangleHeight);
-        line.setStartX(gridLineX);
-        line.setEndX(gridLineX);
-        if (isMajorLine) {
-            line.setStroke(Color.GREY);
-        } else {
-            line.setStroke(Color.valueOf("#3F3F3F"));
-        }
-        AnchorPane.setLeftAnchor(line, gridLineX);
-        AnchorPane.setTopAnchor(line, 0.0); // Adjust the top position as needed
-        AnchorPane.setBottomAnchor(line, 0.0); // Adjust the top position as needed
-        timeLineAnchorpane.getChildren().add(line);
     }
 
     private void greyTheActiveArea() {
@@ -284,6 +268,27 @@ public class TrackController {
                 Platform.runLater(this::populateTimeline);
             }
         });
+    }
+
+    private void addProgramSequencePatternEventItemController(MouseEvent event){
+        try{
+            FXMLLoader loader = new FXMLLoader(programSequencePatternEventItem.getURL());
+            loader.setControllerFactory(ac::getBean);
+            Parent root = loader.load();
+            // Set the layout parameters of the new item to match those of the existing item
+            AnchorPane.setLeftAnchor(root, event.getX());
+            AnchorPane.setTopAnchor(root,0.0);
+            AnchorPane.setBottomAnchor(root,0.0);
+            ProgramSequencePatternEvent programSequencePatternEvent=new ProgramSequencePatternEvent(UUID.randomUUID(),voiceController.getProgramVoiceTrack().getProgramId(),programEditorController.getSequenceId(),voiceController.getProgramVoiceTrack().getId(),0.125f,0.125f,0.125f,"X");
+            ProgramSequencePatternEventItemController patternEventItemController = loader.getController();
+            patternEventItemController.setUp(root, timeLineAnchorpane,programSequencePatternEvent,voiceController);
+            // Add the new property item to the AnchorPane
+            timeLineAnchorpane.getChildren().add(root);
+            projectService.getContent().put(programSequencePatternEvent);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
