@@ -4,7 +4,6 @@ package io.xj.gui.controllers.content.program;
 import io.xj.gui.services.ProjectService;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
@@ -46,21 +45,22 @@ public class TrackMenuController {
         this.ac = ac;
     }
 
-    public void setUp(Parent root, ProgramVoice voice, VoiceController voiceController, ProgramVoiceTrack track, boolean itemIsAttachedToVoiceFxml, Parent trackRoot) {
+    public void setUp(Parent root, ProgramVoice voice, VoiceController voiceController, ProgramVoiceTrack track, boolean itemIsAttachedToVoiceFxml, Parent trackRoot, Button addTrackButton) {
         this.voice = voice;
         this.voiceController = voiceController;
         this.programVoiceTrack = track;
-        createNewTrack();
-        deleteTrack(trackRoot,itemIsAttachedToVoiceFxml);
+        createNewTrack(addTrackButton);
+        deleteTrack(trackRoot, itemIsAttachedToVoiceFxml);
+        voiceController.setTrackNameProperty(track.getName());
     }
 
 
-    private void createNewTrack() {
+    private void createNewTrack(Button addTrackButton) {
         newTrack.setOnAction(event -> {
             try {
                 ProgramVoiceTrack newTrack = new ProgramVoiceTrack(UUID.randomUUID(), programEditorController.getProgramId(), voice.getId(), "XXX", 1f);
-                projectService.getContent().put(newTrack);
-                trackItem(trackFxml, ac, voiceController.voiceContainer, LOG, voiceController.addTrackButton_1, voice, voiceController, newTrack);
+                projectService.update(newTrack);
+                trackItem(trackFxml, ac, voiceController.voiceContainer, LOG, addTrackButton, voice, voiceController, newTrack);
                 closeWindow();
             } catch (Exception e) {
                 LOG.info("Could not create new Track");
@@ -72,19 +72,23 @@ public class TrackMenuController {
         deleteTrack.setOnAction(event -> {
             try {
                 if (itemIsAttachedToVoiceFxml) {
-//                    System.out.println("ppre "+voiceController.getProgramVoiceTrack().getName());
-//                    voiceController.setProgramVoiceTrackObjectProperty(voiceController.getProgramVoiceTrackObservableList().get(0));
-//                    System.out.println("post "+voiceController.getProgramVoiceTrack().getName());
-
+                    if (voiceController.getProgramVoiceTrackObservableList().size() > 1) {
+                        voiceController.voiceContainer.getChildren().remove(1);
+                        voiceController.setProgramVoiceTrackObjectProperty(voiceController.getProgramVoiceTrackObservableList().get(1));
+                        voiceController.getProgramVoiceTrackObservableList().remove(0);
+                        voiceController.setTrackNameProperty(voiceController.getProgramVoiceTrack().getName());
+                    } else {
+                        voiceController.hideItemsBeforeTrackIsCreated();
+                        voiceController.getProgramVoiceTrackObservableList().clear();
+                    }
                 } else {
-                    Platform.runLater(() -> voiceController.voiceContainer.getChildren().remove(root));
+                    voiceController.voiceContainer.getChildren().remove(root);
                     voiceController.getProgramVoiceTrackObservableList().remove(programVoiceTrack);
-
                 }
+                projectService.deleteContent(programVoiceTrack);
                 closeWindow();
             } catch (Exception e) {
-//                LOG.info("Could not delete Track");
-                e.getStackTrace();
+                LOG.info("Could not delete Track");
             }
         });
     }
