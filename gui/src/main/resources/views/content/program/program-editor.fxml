@@ -162,7 +162,7 @@
                     </Label>
                 </StackPane>
             </Group>
-            <Label fx:id="noSequenceLabel" layoutX="4.3333282470703125" layoutY="5.333333492279053" prefHeight="27.0" prefWidth="219.0" text="NO SEQUENCE">
+            <Label fx:id="noSequenceLabel" layoutX="4.3333282470703125" layoutY="5.333333492279053" prefHeight="27.0" prefWidth="194.0" text="NO SEQUENCE">
                 <font>
                     <Font name="System Bold Italic" size="12.0" />
                 </font>

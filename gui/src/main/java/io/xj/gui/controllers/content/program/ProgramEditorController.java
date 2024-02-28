@@ -20,6 +20,7 @@ import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.util.StringUtils;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.FloatProperty;
 import javafx.beans.property.IntegerProperty;
@@ -201,6 +202,10 @@ public class ProgramEditorController extends ProjectController {
 
     public double getZoomFactor() {
         return zoomFactorProperty.get();
+    }
+
+    public DoubleProperty getZoomFactorProperty() {
+        return zoomFactorProperty;
     }
 
     public void setZoomFactorProperty(double zoomFactorProperty) {
@@ -797,7 +802,8 @@ public class ProgramEditorController extends ProjectController {
         return sequenceTotal.get();
     }
 
-    public IntegerProperty sequenceTotalProperty() {
+
+    public IntegerProperty getSequenceTotalProperty() {
         return sequenceTotal;
     }
 
