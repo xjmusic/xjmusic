@@ -5,6 +5,9 @@ import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
@@ -35,7 +38,6 @@ public class ProgramSequencePatternEventItemController {
     private double dragStartX;
     @FXML
     private AnchorPane timeline;
-    private double itemWidth = 0;
     @FXML
     private Parent root;
     int id;
@@ -44,42 +46,64 @@ public class ProgramSequencePatternEventItemController {
     private final ProjectService projectService;
     static final Logger LOG = LoggerFactory.getLogger(ProgramSequencePatternEventItemController.class);
     private VoiceController voiceController;
-    private double previousWidth = 0;
     private final ProgramEditorController programEditorController;
-    private boolean isDragging=false;
+
+    private DoubleProperty eventPositionProperty=new SimpleDoubleProperty();
+
     public ProgramSequencePatternEventItemController(ProjectService projectService, ProgramEditorController programEditorController) {
         this.projectService = projectService;
         this.programEditorController = programEditorController;
     }
 
-    private double initialX;
-
-    public void setUp(int id, Parent root, AnchorPane timeline, ProgramSequencePatternEvent programSequencePatternEvent, VoiceController voiceController) {
+    public void setUp(Parent root, AnchorPane timeline, ProgramSequencePatternEvent programSequencePatternEvent, VoiceController voiceController) {
+        this.voiceController = voiceController;
         deleteTimelineProperty.setOnAction(e -> setDeleteTimelineProperty());
-        itemWidth = timelineEventPropertyParent.getPrefWidth();
-        previousWidth = timelineEventPropertyParent.getPrefWidth();
+        //allows the width to go to the lowest value
+        timelineEventPropertyParent.setMinWidth((voiceController.getBaseSizePerBeat().doubleValue() * programEditorController.getSequenceTotal() * programEditorController.getZoomFactor()) /
+                (programEditorController.getSequenceTotal() * programEditorController.getTimelineGridSize()));
+        // Bind the minWidthProperty of timelineEventPropertyParent
+        timelineEventPropertyParent.minWidthProperty().bind(
+                Bindings.createDoubleBinding(
+                        () -> {
+                            double sequenceTotal = programEditorController.getSequenceTotal();
+                            double timelineGridSize = programEditorController.getTimelineGridSize();
+                            double baseSizePerBeat=voiceController.getBaseSizePerBeat().doubleValue();
+                            double zoomFactor = programEditorController.getZoomFactor();
+                            return baseSizePerBeat * sequenceTotal * zoomFactor /(sequenceTotal * timelineGridSize);
+                        }
+                        ,
+                        programEditorController.getSequenceTotalProperty(),
+                        programEditorController.getZoomFactorProperty()
+                )
+        );
         this.timeline = timeline;
         this.root = root;
-        this.id = id;
         this.voiceController = voiceController;
         minWidth = timelineEventPropertyParent.getPrefWidth();
         programSequencePatternEventObjectProperty.set(programSequencePatternEvent);
         updateLabels(programSequencePatternEvent);
-//        timelineEventPropertyParent.setOnMouseMoved(this::handleMouseMove);
-        timelineEventPropertyParent.prefWidthProperty().addListener((obs, oldWidth, newWidth) -> {
-            // Calculate the change in width
-            double widthChange = newWidth.doubleValue() - oldWidth.doubleValue();
-            if (widthChange > 0) {
-                // Increase the duration when width increases
-                programSequencePatternEventObjectProperty.get().setDuration(programSequencePatternEventObjectProperty.get().getDuration() + 0.125f);
-                updateLabels(programSequencePatternEventObjectProperty.get());
-            } else if (widthChange < 0) {
-                // Decrease the duration when width decreases
-                programSequencePatternEventObjectProperty.get().setDuration(programSequencePatternEventObjectProperty.get().getDuration() - 0.125f);
-                updateLabels(programSequencePatternEventObjectProperty.get());
-            }
-        });
+        // Bind the translateX property of timelineEventPropertyParent directly to the eventPositionProperty
+        timelineEventPropertyParent.translateXProperty().bind(eventPositionProperty);
+        // Bind the translateX property of timelineEventPropertyParent to the specified calculation
+        // this was the code you shared, I modified it as the syntax had an issue
+//        timelineEventPropertyParent.translateXProperty().bind(Bindings.createIntegerBinding(() -> (int) (eventPositionProperty.get() * programEditorController.getZoomFactorProperty().get() * voiceController.getBaseSizePerBeat().get()), eventPositionProperty, programEditorController.getZoomFactorProperty()));
+        //this code below is what i tried to add extra modification from yours
+//        timelineEventPropertyParent.translateXProperty().bind(
+//                Bindings.createDoubleBinding(
+//                        () -> {
+//                            double baseSizePerBeat=voiceController.getBaseSizePerBeat().doubleValue();
+//                            double zoomFactor = programEditorController.getZoomFactor();
+//                            return baseSizePerBeat * eventPositionProperty.get() * zoomFactor ;
+//                        }
+//                        ,
+//                        eventPositionProperty,
+//                        programEditorController.getZoomFactorProperty()
+//                )
+//        );
+        timelineEventPropertyParent.setOnMousePressed(event -> dragStartX = event.getX());
+        timelineEventPropertyParent.setOnMouseDragged(this::position);
     }
+
 
     private void updateLabels(ProgramSequencePatternEvent event) {
         // Update the labels with the values from the ProgramSequencePatternEvent object
@@ -96,58 +120,21 @@ public class ProgramSequencePatternEventItemController {
         projectService.deleteContent(programSequencePatternEventObjectProperty.get());
     }
 
-    private void startDrag(MouseEvent event) {
-        initialX = event.getSceneX();
-        // Check if the drag starts at the desired edge
-        if (event.getX() >= timelineEventPropertyParent.getWidth() - 3) {
-            dragStartX = event.getSceneX();
-            isDragging = true;
-        }
-    }
+    private double offsetX = 0;
 
-    private void resize(MouseEvent event) {
-        if (isDragging) {
-            double mouseX = event.getSceneX();
-            double deltaX = mouseX - dragStartX;
-            double newWidth = timelineEventPropertyParent.getWidth();
+    private void position(MouseEvent event) {
+         // Calculate the difference in X position from the initial drag start
+         double deltaOffsetX = event.getX() - dragStartX;
 
-            // Calculate the number of itemWidths to add/subtract based on the deltaX
-            int change = (int) Math.round(deltaX / itemWidth);
+         // Update the offsetX variable
+         offsetX += deltaOffsetX;
 
-            // Update the dragStartX to the nearest edge of the next item
-            dragStartX += change * itemWidth;
-            // Calculate the new width based on the change
-            newWidth+= change * newWidth;
+         // Update the translation by adjusting the bound property
+         double newEventPosition = eventPositionProperty.get() + offsetX;
+         eventPositionProperty.set(newEventPosition);
 
-            if (newWidth > previousWidth) {
-                programSequencePatternEventObjectProperty.get().setDuration(programSequencePatternEventObjectProperty.get().getDuration() + 0.125f);
-            } else if (newWidth < previousWidth) {
-                programSequencePatternEventObjectProperty.get().setDuration(programSequencePatternEventObjectProperty.get().getDuration() - 0.125f);
-            }
-            previousWidth = newWidth;
-            // Ensure the new width is not less than the minimum width
-            if (newWidth < minWidth) {
-                newWidth = minWidth;
-            }
-
-            // Update the width of the anchorPane
-            timelineEventPropertyParent.setPrefWidth(newWidth);
-            try {
-                projectService.update(ProgramSequencePatternEvent.class, programSequencePatternEventObjectProperty.get().getId(), "duration", programSequencePatternEventObjectProperty.get().getDuration());
-            } catch (Exception e) {
-                LOG.error("Failed to update ProgramSequencePatternEvent duration");
-
-            }
-        } else {
-            double x = event.getSceneX() - initialX;
-            // Update the item's position
-            Platform.runLater(() -> {
-                timelineEventPropertyParent.setTranslateX(timelineEventPropertyParent.getTranslateX() + x);
-            });
-
-            // Update initial mouse position for the next drag event
-            initialX = event.getSceneX();
-        }
+         // Update the drag start position for the next mouse move event
+         dragStartX = event.getX();
     }
 
 }
