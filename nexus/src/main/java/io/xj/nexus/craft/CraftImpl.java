@@ -746,6 +746,35 @@ public class CraftImpl extends FabricationWrapperImpl {
   }
 
   /**
+   Pick the transition
+
+   @param arrangement          to pick
+   @param audio                to pick
+   @param startAtSegmentMicros to pick
+   @param lengthMicros         to pick
+   @param event                to pick
+   @throws NexusException on failure
+   */
+  protected void pickInstrumentAudio(
+      SegmentChoiceArrangement arrangement,
+      InstrumentAudio audio,
+      long startAtSegmentMicros,
+      long lengthMicros,
+      String event
+  ) throws NexusException {
+    var pick = new SegmentChoiceArrangementPick();
+    pick.setId(UUID.randomUUID());
+    pick.setSegmentId(fabricator.getSegment().getId());
+    pick.setSegmentChoiceArrangementId(arrangement.getId());
+    pick.setStartAtSegmentMicros(startAtSegmentMicros);
+    pick.setLengthMicros(lengthMicros);
+    pick.setEvent(event);
+    pick.setAmplitude((float) 1.0);
+    pick.setInstrumentAudioId(audio.getId());
+    fabricator.put(pick, false);
+  }
+
+  /**
    Pick one audio for each desired intensity level, by layering the audios by intensity and picking one from each layer.
    Divide the audios into layers (ergo grouping them by intensity ascending) and pick one audio per layer.
 
@@ -754,22 +783,22 @@ public class CraftImpl extends FabricationWrapperImpl {
    @return picked audios
    @throws NexusException on failure
    */
-  protected Collection<InstrumentAudio> pickAudioIntensityLayers(Collection<InstrumentAudio> audios, int layers) throws NexusException {
-    List<InstrumentAudio> sortedAudios = audios.stream()
+  protected Collection<InstrumentAudio> selectAudioIntensityLayers(Collection<InstrumentAudio> audios, int layers) throws NexusException {
+    List<InstrumentAudio> sorted = audios.stream()
         .sorted(Comparator.comparing(InstrumentAudio::getIntensity))
         .toList();
-    Collection<InstrumentAudio> pickedAudios = new ArrayList<>();
+    Collection<InstrumentAudio> selected = new ArrayList<>();
     int i = 0;
     for (int layerNum = 0; layerNum <= layers; layerNum++) {
       var bag = MarbleBag.empty();
-      while (i < (sortedAudios.size() * layerNum / layers) - 1) {
-        bag.add(1, sortedAudios.get(i++).getId());
+      while (i < (sorted.size() * layerNum / layers) - 1) {
+        bag.add(1, sorted.get(i++).getId());
         i++;
       }
-      pickedAudios.add(fabricator.sourceMaterial().getInstrumentAudio(bag.pick())
+      selected.add(fabricator.sourceMaterial().getInstrumentAudio(bag.pick())
           .orElseThrow(() -> new NexusException("Failed to get picked audio")));
     }
-    return pickedAudios;
+    return selected;
   }
 
   /**

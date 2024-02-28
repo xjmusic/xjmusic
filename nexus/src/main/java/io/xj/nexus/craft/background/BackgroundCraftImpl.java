@@ -67,7 +67,7 @@ public class BackgroundCraftImpl extends CraftImpl implements BackgroundCraft {
     arrangement.segmentChoiceId(choice.getId());
     fabricator.put(arrangement, false);
 
-    for (InstrumentAudio audio : pickAudiosForInstrument(instrument)) {
+    for (InstrumentAudio audio : selectAudiosForInstrument(instrument)) {
       var pick = new SegmentChoiceArrangementPick();
       pick.setId(UUID.randomUUID());
       pick.setSegmentId(fabricator.getSegment().getId());
@@ -83,22 +83,21 @@ public class BackgroundCraftImpl extends CraftImpl implements BackgroundCraft {
 
   /**
    Choose drum instrument
-   [#325] Possible to choose multiple instruments for different voices in the same program
 
    @param instrument for which to pick audio
    @return drum-type Instrument
    */
-  Collection<InstrumentAudio> pickAudiosForInstrument(Instrument instrument) throws NexusException {
-    var previousPicksOfInstrument = fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId());
-    if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && !previousPicksOfInstrument.isEmpty()) {
-      return previousPicksOfInstrument.stream()
+  Collection<InstrumentAudio> selectAudiosForInstrument(Instrument instrument) throws NexusException {
+    var previous = fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId());
+    if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && !previous.isEmpty()) {
+      return previous.stream()
           .map(pick -> fabricator.sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()))
           .filter(Optional::isPresent)
           .map(Optional::get)
           .toList();
     }
 
-    return pickAudioIntensityLayers(
+    return selectAudioIntensityLayers(
         fabricator.sourceMaterial().getAudiosOfInstrument(instrument.getId()),
         fabricator.getTemplateConfig().getIntensityLayers(InstrumentType.Background)
     );

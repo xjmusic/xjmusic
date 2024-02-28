@@ -12,12 +12,12 @@ import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
-import io.xj.nexus.model.SegmentChoiceArrangementPick;
-import io.xj.nexus.util.MarbleBag;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 /**
@@ -108,78 +108,53 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
     arrangement.segmentChoiceId(choice.getId());
     fabricator.put(arrangement, false);
 
-    var small = pickAudioForInstrument(instrument, smallNames);
-    var medium = pickAudioForInstrument(instrument, mediumNames);
-    var big = pickAudioForInstrument(instrument, largeNames);
+    var small = selectAudiosForInstrument(instrument, smallNames);
+    var medium = selectAudiosForInstrument(instrument, mediumNames);
+    var big = selectAudiosForInstrument(instrument, largeNames);
 
-    if (isBigTransitionSegment() && big.isPresent())
-      pickTransition(arrangement, big.get(), 0, fabricator.getTotalSegmentMicros(), largeNames.get(0));
-    else if (isMediumTransitionSegment() && medium.isPresent())
-      pickTransition(arrangement, medium.get(), 0, fabricator.getTotalSegmentMicros(), mediumNames.get(0));
-    else if (small.isPresent())
-      pickTransition(arrangement, small.get(), 0, fabricator.getTotalSegmentMicros(), smallNames.get(0));
+    if (isBigTransitionSegment() && !big.isEmpty())
+      for (var bigAudio : big)
+        pickInstrumentAudio(arrangement, bigAudio, 0, fabricator.getTotalSegmentMicros(), largeNames.get(0));
+
+    else if (isMediumTransitionSegment() && !medium.isEmpty())
+      for (var mediumAudio : medium)
+        pickInstrumentAudio(arrangement, mediumAudio, 0, fabricator.getTotalSegmentMicros(), mediumNames.get(0));
+
+    else if (!small.isEmpty())
+      for (var smallAudio : small)
+        pickInstrumentAudio(arrangement, smallAudio, 0, fabricator.getTotalSegmentMicros(), smallNames.get(0));
 
     var deltaUnits = Bar.of(fabricator.getCurrentMainProgramConfig().getBarBeats()).computeSubsectionBeats(fabricator.getSegment().getTotal());
     var pos = deltaUnits;
     while (pos < fabricator.getSegment().getTotal()) {
-      if (small.isPresent())
-        pickTransition(arrangement, small.get(), fabricator.getSegmentMicrosAtPosition(tempo, pos), fabricator.getTotalSegmentMicros(), smallNames.get(0));
+      if (!small.isEmpty())
+        for (var smallAudio : small)
+          pickInstrumentAudio(arrangement, smallAudio, fabricator.getSegmentMicrosAtPosition(tempo, pos), fabricator.getTotalSegmentMicros(), smallNames.get(0));
       pos += deltaUnits;
     }
   }
 
   /**
-   Pci the transition
-
-   @param arrangement          to pick
-   @param audio                to pick
-   @param startAtSegmentMicros to pick
-   @param lengthMicros         to pick
-   @param name                 to pick
-   @throws NexusException on failure
-   */
-  @SuppressWarnings("DuplicatedCode")
-  void pickTransition
-  (SegmentChoiceArrangement arrangement,
-   InstrumentAudio audio,
-   long startAtSegmentMicros,
-   long lengthMicros,
-   String name
-  ) throws NexusException {
-    var pick = new SegmentChoiceArrangementPick();
-    pick.setId(UUID.randomUUID());
-    pick.setSegmentId(fabricator.getSegment().getId());
-    pick.setSegmentChoiceArrangementId(arrangement.getId());
-    pick.setStartAtSegmentMicros(startAtSegmentMicros);
-    pick.setLengthMicros(lengthMicros);
-    pick.setAmplitude(1.0f);
-    pick.setEvent(name);
-    pick.setInstrumentAudioId(audio.getId());
-    fabricator.put(pick, false);
-  }
-
-  /**
    Choose drum instrument
-   [#325] Possible to choose multiple instruments for different voices in the same program
 
    @return drum-type Instrument
    */
-  Optional<InstrumentAudio> pickAudioForInstrument(Instrument instrument, List<String> names) {
-    var previous =
-        fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId()).stream()
-            .filter(pick -> names.contains(StringUtils.toMeme(pick.getEvent())))
-            .findAny();
+  private Collection<InstrumentAudio> selectAudiosForInstrument(Instrument instrument, List<String> names) throws NexusException {
+    var previous = fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId()).stream()
+        .filter(pick -> names.contains(StringUtils.toMeme(pick.getEvent())))
+        .collect(Collectors.toSet());
+    if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && !previous.isEmpty()) {
+      return previous.stream()
+          .map(pick -> fabricator.sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()))
+          .filter(Optional::isPresent)
+          .map(Optional::get)
+          .toList();
+    }
 
-    if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && previous.isPresent())
-      return fabricator.sourceMaterial().getInstrumentAudio(previous.get().getInstrumentAudioId());
-
-    var bag = MarbleBag.empty();
-
-    for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosOfInstrument(instrument.getId())
-        .stream().filter(instrumentAudio -> names.contains(StringUtils.toMeme(instrumentAudio.getEvent()))).toList())
-      bag.add(1, audio.getId());
-
-    if (bag.isEmpty()) return Optional.empty();
-    return fabricator.sourceMaterial().getInstrumentAudio(bag.pick());
+    return selectAudioIntensityLayers(
+        fabricator.sourceMaterial().getAudiosOfInstrument(instrument.getId())
+            .stream().filter(instrumentAudio -> names.contains(StringUtils.toMeme(instrumentAudio.getEvent()))).collect(Collectors.toSet()),
+        fabricator.getTemplateConfig().getIntensityLayers(InstrumentType.Background)
+    );
   }
 }
