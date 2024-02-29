@@ -38,7 +38,7 @@ public interface Mixer {
    @return total # of seconds mixed (float floating-point)
    @throws MixerException if something goes wrong
    */
-  float mix(List<ActiveAudio> activeAudios) throws MixerException, IOException, FormatException, InterruptedException;
+  float mix(List<ActiveAudio> activeAudios, double intensity) throws MixerException, IOException, FormatException, InterruptedException;
 
   /**
    Get state
@@ -70,11 +70,4 @@ public interface Mixer {
    */
   int getBusNumber(InstrumentType instrumentType);
 
-  /**
-   Check if all the provided audios are loaded into memory
-
-   @param activeAudios the audios to check
-   @return true if all the audios are loaded into memory
-   */
-  boolean areAllReady(List<ActiveAudio> activeAudios);
 }

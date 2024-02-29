@@ -63,11 +63,11 @@ class MixerImpl implements Mixer {
    @throws MixerException on failure
    */
   public MixerImpl(
-    AudioCache audioCache,
-    MixerConfig mixerConfig,
-    MixerFactory mixerFactory,
-    EnvelopeProvider envelopeProvider,
-    int outputPipeSize
+      AudioCache audioCache,
+      MixerConfig mixerConfig,
+      MixerFactory mixerFactory,
+      EnvelopeProvider envelopeProvider,
+      int outputPipeSize
   ) throws MixerException {
     this.audioCache = audioCache;
     config = mixerConfig;
@@ -109,7 +109,7 @@ class MixerImpl implements Mixer {
   }
 
   @Override
-  public float mix(List<ActiveAudio> active) throws MixerException, FormatException, IOException {
+  public float mix(List<ActiveAudio> active, double intensity) throws MixerException, FormatException, IOException {
     // clear the mixing buffer and start the mixing process
     state = MixerState.Mixing;
     long startedAt = System.nanoTime();
@@ -204,15 +204,8 @@ class MixerImpl implements Mixer {
     return instrumentBusNumber.get(instrumentType);
   }
 
-  @Override
-  public boolean areAllReady(List<ActiveAudio> activeAudios) {
-    return audioCache.areAllReady(activeAudios);
-  }
-
   /**
-   apply one source to the mixing buffer
-
-   @param active to apply
+   apply one source to the mixing buffer@param active    to apply
    */
   void addToMix(ActiveAudio active) throws MixerException {
     try {
@@ -232,8 +225,8 @@ class MixerImpl implements Mixer {
       // these numbers may be below zero or past the limit of the mixing buffer
       int sourceBeginsAtMixerFrame = (int) (active.getStartAtMixerMicros() / microsPerFrame);
       int sourceEndsAtMixerFrame = active.getStopAtMixerMicros().isPresent() ?
-        (int) (active.getStopAtMixerMicros().get() / microsPerFrame) :
-        sourceBeginsAtMixerFrame + cached.data().length;
+          (int) (active.getStopAtMixerMicros().get() / microsPerFrame) :
+          sourceBeginsAtMixerFrame + cached.data().length;
 
       // reusable variables
       int tc; // target channel

@@ -137,7 +137,7 @@ public class MainPaneRightController extends ProjectController {
 
     // Slider to control intensity https://www.pivotaltracker.com/story/show/186950076
     intensity.bind(Bindings.createDoubleBinding(() -> slider.valueProperty().get() / 100, slider.valueProperty()));
-    intensity.addListener((observable, oldValue, newValue) -> fabricationService.setIntensity(newValue.intValue()));
+    intensity.addListener((observable, oldValue, newValue) -> fabricationService.setIntensity(newValue.floatValue()));
     slider.valueProperty().addListener((o, ov, value) -> setSliderTrackStyle(slider, value.intValue()));
     slider.valueProperty().setValue(intensityDefaultValue * 100);
     Platform.runLater(() -> setSliderTrackStyle(slider, (int) (intensityDefaultValue * 100)));

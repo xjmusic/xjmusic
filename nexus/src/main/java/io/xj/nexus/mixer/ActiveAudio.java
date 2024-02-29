@@ -26,7 +26,8 @@ public class ActiveAudio {
     Instrument instrument,
     InstrumentAudio audio,
     Long startAtMixerMicros,
-    @Nullable Long stopAtMixerMicros
+    @Nullable Long stopAtMixerMicros,
+    float intensityAmplitude
   ) {
     this.pick = pick;
     this.audio = audio;
@@ -35,7 +36,7 @@ public class ActiveAudio {
     this.instrument = instrument;
 
     // computed
-    this.amplitude = pick.getAmplitude();
+    this.amplitude = intensityAmplitude * pick.getAmplitude() * instrument.getVolume() * audio.getVolume();
     this.instrumentConfig = new InstrumentConfig(instrument);
   }
 

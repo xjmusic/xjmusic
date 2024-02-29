@@ -137,11 +137,6 @@ public class AudioCacheImpl implements AudioCache {
     cache.clear();
   }
 
-  @Override
-  public boolean areAllReady(List<ActiveAudio> activeAudios) {
-    return activeAudios.stream().allMatch(activeAudio -> cache.containsKey(activeAudio.getAudio().getId().toString()));
-  }
-
   /**
    Delete the path if it exists
 
