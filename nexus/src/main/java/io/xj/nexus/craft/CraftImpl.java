@@ -356,7 +356,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     deltaOuts.clear();
 
     // Ensure that we can bypass delta arcs using the template config
-    if (!fabricator.getTemplateConfig().isIntensityAutoCrescendoEnabled()) {
+    if (!fabricator.getTemplateConfig().isDeltaArcEnabled()) {
       layers.forEach(layer -> {
         deltaIns.put(layer, DELTA_UNLIMITED);
         deltaOuts.put(layer, DELTA_UNLIMITED);
@@ -598,7 +598,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @return volume ratio
    */
   float computeVolumeRatioForPickedNote(SegmentChoice choice, double segmentPosition) {
-    if (!fabricator.getTemplateConfig().isIntensityAutoCrescendoEnabled()) return 1.0f;
+    if (!fabricator.getTemplateConfig().isDeltaArcEnabled()) return 1.0f;
     return (float) (inBounds(choice.getDeltaIn(), choice.getDeltaOut(), fabricator.getSegment().getDelta() + segmentPosition) ? 1.0 : 0.0);
   }
 
