@@ -347,12 +347,12 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public Optional<SegmentChoice> getChoiceIfContinued(InstrumentType instrumentType, InstrumentMode instrumentMode) {
     try {
-      if (!Objects.equals(SegmentType.CONTINUE, getSegment().getType())) return Set.of();
-      return retrospective.getChoices().stream().filter(choice -> Objects.equals(instrumentType, choice.getInstrumentType()) && Objects.equals(instrumentMode, choice.getInstrumentMode())).collect(Collectors.toSet());
+      if (!Objects.equals(SegmentType.CONTINUE, getSegment().getType())) return Optional.empty();
+      return retrospective.getChoices().stream().filter(choice -> Objects.equals(instrumentType, choice.getInstrumentType()) && Objects.equals(instrumentMode, choice.getInstrumentMode())).findFirst();
 
     } catch (Exception e) {
       LOG.warn(formatLog(String.format("Could not get previous choice for instrumentType=%s", instrumentType)), e);
-      return Set.of();
+      return Optional.empty();
     }
   }
 

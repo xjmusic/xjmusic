@@ -119,10 +119,9 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param sequence           for which to craft choices
    @param voices             for which to craft choices
    @param instrumentProvider from which to get instruments
-   @param defaultAtonal      whether to default to a single atonal note, if no voicings are available
    @throws NexusException on failure
    */
-  protected void craftNoteEvents(double tempo, ProgramSequence sequence, Collection<ProgramVoice> voices, InstrumentProvider instrumentProvider, boolean defaultAtonal) throws NexusException {
+  protected void craftNoteEvents(double tempo, ProgramSequence sequence, Collection<ProgramVoice> voices, InstrumentProvider instrumentProvider) throws NexusException {
     // Craft each voice into choice
     for (ProgramVoice voice : voices) {
       var choice = new SegmentChoice();
@@ -143,7 +142,7 @@ public class CraftImpl extends FabricationWrapperImpl {
         choice.setDeltaOut(priorChoice.get().getDeltaOut());
         choice.setInstrumentId(priorChoice.get().getInstrumentId());
         choice.setInstrumentMode(priorChoice.get().getInstrumentMode());
-        this.craftNoteEventArrangements(tempo, fabricator.put(choice, false), defaultAtonal);
+        this.craftNoteEventArrangements(tempo, fabricator.put(choice, false), false);
         continue;
       }
 
@@ -158,7 +157,7 @@ public class CraftImpl extends FabricationWrapperImpl {
       choice.setDeltaOut(computeDeltaOut(choice));
       choice.setInstrumentId(instrument.get().getId());
       choice.setInstrumentMode(instrument.get().getMode());
-      this.craftNoteEventArrangements(tempo, fabricator.put(choice, false), defaultAtonal);
+      this.craftNoteEventArrangements(tempo, fabricator.put(choice, false), false);
     }
   }
 
@@ -269,7 +268,7 @@ public class CraftImpl extends FabricationWrapperImpl {
       var voices = fabricator.sourceMaterial().getVoicesOfProgram(program);
       if (voices.isEmpty())
         reportMissing(ProgramVoice.class, String.format("in Detail-choice Instrument[%s]", instrument.getId()));
-      craftNoteEvents(tempo, sequence.get(), voices, ignored -> Optional.of(instrument), false);
+      craftNoteEvents(tempo, sequence.get(), voices, ignored -> Optional.of(instrument));
     }
   }
 
@@ -775,6 +774,28 @@ public class CraftImpl extends FabricationWrapperImpl {
   }
 
   /**
+   Select audios for the given instrument instrument
+
+   @param instrument for which to pick audio
+   @return drum-type Instrument
+   */
+  protected Collection<InstrumentAudio> selectGeneralAudioIntensityLayers(Instrument instrument) throws NexusException {
+    var previous = fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId());
+    if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && !previous.isEmpty()) {
+      return previous.stream()
+          .map(pick -> fabricator.sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()))
+          .filter(Optional::isPresent)
+          .map(Optional::get)
+          .toList();
+    }
+
+    return selectAudioIntensityLayers(
+        fabricator.sourceMaterial().getAudiosOfInstrument(instrument.getId()),
+        fabricator.getTemplateConfig().getIntensityLayers(instrument.getType())
+    );
+  }
+
+  /**
    Pick one audio for each desired intensity level, by layering the audios by intensity and picking one from each layer.
    Divide the audios into layers (ergo grouping them by intensity ascending) and pick one audio per layer.
 
@@ -795,6 +816,7 @@ public class CraftImpl extends FabricationWrapperImpl {
         bag.add(1, sorted.get(i++).getId());
         i++;
       }
+      if (bag.isEmpty()) continue;
       selected.add(fabricator.sourceMaterial().getInstrumentAudio(bag.pick())
           .orElseThrow(() -> new NexusException("Failed to get picked audio")));
     }

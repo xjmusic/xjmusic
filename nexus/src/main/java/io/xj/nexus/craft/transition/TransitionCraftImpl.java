@@ -135,9 +135,9 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
   }
 
   /**
-   Choose drum instrument
+   Select audios for instrument having the given event names
 
-   @return drum-type Instrument
+   @return instrument audios
    */
   private Collection<InstrumentAudio> selectAudiosForInstrument(Instrument instrument, List<String> names) throws NexusException {
     var previous = fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId()).stream()

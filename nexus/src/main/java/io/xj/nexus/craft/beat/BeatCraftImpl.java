@@ -60,8 +60,8 @@ public class BeatCraftImpl extends CraftImpl implements BeatCraft {
       choiceFilter,
       choiceIndexProvider,
       programNames,
-      CsvUtils.split(fabricator.getTemplateConfig().getIntensityAutoCrescendoBeatLayersToPrioritize()),
-      fabricator.getTemplateConfig().getIntensityAutoCrescendoBeatLayersIncoming()
+      CsvUtils.split(fabricator.getTemplateConfig().getDeltaArcBeatLayersToPrioritize()),
+      fabricator.getTemplateConfig().getDeltaArcBeatLayersIncoming()
     );
 
     // beat sequence is selected at random of the current program

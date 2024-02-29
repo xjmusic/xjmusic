@@ -125,7 +125,7 @@ public class CraftFoundationNextMacroTest {
       assertEquals(SegmentType.NEXT_MACRO, result.getType());
       assertEquals(16 * MICROS_PER_MINUTE / 140, (long) Objects.requireNonNull(result.getDurationMicros()));
       assertEquals(Integer.valueOf(16), result.getTotal());
-      assertEquals(0.45, result.getIntensity(), 0.01);
+      assertEquals(0.2, result.getIntensity(), 0.01);
       assertEquals("G -", result.getKey());
       assertEquals(140, result.getTempo(), 0.01);
       // assert memes

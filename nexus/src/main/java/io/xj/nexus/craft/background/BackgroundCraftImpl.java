@@ -12,7 +12,6 @@ import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -67,7 +66,7 @@ public class BackgroundCraftImpl extends CraftImpl implements BackgroundCraft {
     arrangement.segmentChoiceId(choice.getId());
     fabricator.put(arrangement, false);
 
-    for (InstrumentAudio audio : selectAudiosForInstrument(instrument)) {
+    for (InstrumentAudio audio : selectGeneralAudioIntensityLayers(instrument)) {
       var pick = new SegmentChoiceArrangementPick();
       pick.setId(UUID.randomUUID());
       pick.setSegmentId(fabricator.getSegment().getId());
@@ -79,27 +78,5 @@ public class BackgroundCraftImpl extends CraftImpl implements BackgroundCraft {
       pick.setInstrumentAudioId(audio.getId());
       fabricator.put(pick, false);
     }
-  }
-
-  /**
-   Choose drum instrument
-
-   @param instrument for which to pick audio
-   @return drum-type Instrument
-   */
-  Collection<InstrumentAudio> selectAudiosForInstrument(Instrument instrument) throws NexusException {
-    var previous = fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId());
-    if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && !previous.isEmpty()) {
-      return previous.stream()
-          .map(pick -> fabricator.sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()))
-          .filter(Optional::isPresent)
-          .map(Optional::get)
-          .toList();
-    }
-
-    return selectAudioIntensityLayers(
-        fabricator.sourceMaterial().getAudiosOfInstrument(instrument.getId()),
-        fabricator.getTemplateConfig().getIntensityLayers(InstrumentType.Background)
-    );
   }
 }
