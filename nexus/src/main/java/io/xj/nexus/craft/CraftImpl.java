@@ -401,10 +401,10 @@ public class CraftImpl extends FabricationWrapperImpl {
       case CONTINUE -> {
         for (String index : layers)
           fabricator.retrospective().getChoices().stream()
-              .filter(choiceFilter)
-              .filter(choice -> Objects.equals(index, choiceIndexProvider.get(choice)))
-              .findAny()
-              .ifPresent(choice -> deltaIns.put(choiceIndexProvider.get(choice), choice.getDeltaIn()));
+            .filter(choiceFilter)
+            .filter(choice -> Objects.equals(index, choiceIndexProvider.get(choice)))
+            .findAny()
+            .ifPresent(choice -> deltaIns.put(choiceIndexProvider.get(choice), choice.getDeltaIn()));
       }
     }
   }
@@ -714,14 +714,14 @@ public class CraftImpl extends FabricationWrapperImpl {
    @throws NexusException on failure
    */
   void pickInstrumentAudio(
-      String note,
-      Instrument instrument,
-      ProgramSequencePatternEvent event,
-      SegmentChoiceArrangement segmentChoiceArrangement,
-      Long startAtSegmentMicros,
-      @Nullable Long lengthMicros,
-      @Nullable UUID segmentChordVoicingId,
-      float volRatio
+    String note,
+    Instrument instrument,
+    ProgramSequencePatternEvent event,
+    SegmentChoiceArrangement segmentChoiceArrangement,
+    Long startAtSegmentMicros,
+    @Nullable Long lengthMicros,
+    @Nullable UUID segmentChordVoicingId,
+    float volRatio
   ) throws NexusException {
     var audio = fabricator.getInstrumentConfig(instrument).isMultiphonic() ? selectMultiphonicInstrumentAudio(instrument, event, note) : selectMonophonicInstrumentAudio(instrument, event);
 
@@ -755,11 +755,11 @@ public class CraftImpl extends FabricationWrapperImpl {
    @throws NexusException on failure
    */
   protected void pickInstrumentAudio(
-      SegmentChoiceArrangement arrangement,
-      InstrumentAudio audio,
-      long startAtSegmentMicros,
-      long lengthMicros,
-      String event
+    SegmentChoiceArrangement arrangement,
+    InstrumentAudio audio,
+    long startAtSegmentMicros,
+    long lengthMicros,
+    String event
   ) throws NexusException {
     var pick = new SegmentChoiceArrangementPick();
     pick.setId(UUID.randomUUID());
@@ -783,15 +783,15 @@ public class CraftImpl extends FabricationWrapperImpl {
     var previous = fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId());
     if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && !previous.isEmpty()) {
       return previous.stream()
-          .map(pick -> fabricator.sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()))
-          .filter(Optional::isPresent)
-          .map(Optional::get)
-          .toList();
+        .map(pick -> fabricator.sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()))
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .toList();
     }
 
     return selectAudioIntensityLayers(
-        fabricator.sourceMaterial().getAudiosOfInstrument(instrument.getId()),
-        fabricator.getTemplateConfig().getIntensityLayers(instrument.getType())
+      fabricator.sourceMaterial().getAudiosOfInstrument(instrument.getId()),
+      fabricator.getTemplateConfig().getIntensityLayers(instrument.getType())
     );
   }
 
@@ -806,19 +806,20 @@ public class CraftImpl extends FabricationWrapperImpl {
    */
   protected Collection<InstrumentAudio> selectAudioIntensityLayers(Collection<InstrumentAudio> audios, int layers) throws NexusException {
     List<InstrumentAudio> sorted = audios.stream()
-        .sorted(Comparator.comparing(InstrumentAudio::getIntensity))
-        .toList();
+      .sorted(Comparator.comparing(InstrumentAudio::getIntensity))
+      .toList();
+    if (sorted.isEmpty()) return Set.of();
     Collection<InstrumentAudio> selected = new ArrayList<>();
     int i = 0;
     for (int layerNum = 0; layerNum <= layers; layerNum++) {
       var bag = MarbleBag.empty();
-      while (i < (sorted.size() * layerNum / layers) - 1) {
-        bag.add(1, sorted.get(i++).getId());
+      while (i < (sorted.size() * layerNum / layers)) {
+        bag.add(1, sorted.get(i).getId());
         i++;
       }
       if (bag.isEmpty()) continue;
       selected.add(fabricator.sourceMaterial().getInstrumentAudio(bag.pick())
-          .orElseThrow(() -> new NexusException("Failed to get picked audio")));
+        .orElseThrow(() -> new NexusException("Failed to get picked audio")));
     }
     return selected;
   }

@@ -7,7 +7,6 @@ import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Program;
@@ -568,10 +567,23 @@ public class FabricationTimelineController extends ProjectController {
     col.setMaxHeight(Double.MAX_VALUE);
     col.setPadding(new Insets(20, 0, 0, 0));
     VBox.setVgrow(col, Priority.ALWAYS);
-    var choices = fabricationService.getSegmentChoices(segment);
-    col.getChildren().add(computeChoiceListNodes(segment, "Macro", choices.stream().filter((choice) -> ProgramType.Macro == choice.getProgramType()).toList(), true, false, false));
-    col.getChildren().add(computeChoiceListNodes(segment, "Main", choices.stream().filter((choice) -> ProgramType.Main == choice.getProgramType()).toList(), true, false, false));
-    col.getChildren().add(computeChoiceListNodes(segment, "Beat", choices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList(), false, true, false));
+    var segmentChoices = fabricationService.getSegmentChoices(segment);
+    col.getChildren().add(computeChoicesListNode(segment, "Macro", segmentChoices.stream().filter((choice) -> ProgramType.Macro == choice.getProgramType()).toList(), true, false, false));
+    col.getChildren().add(computeChoicesListNode(segment, "Main", segmentChoices.stream().filter((choice) -> ProgramType.Main == choice.getProgramType()).toList(), true, false, false));
+    col.getChildren().add(computeChoicesListNode(segment, "Beat", segmentChoices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList(), false, true, false));
+    for (var instrumentType : InstrumentType.values()) {
+      var choices = segmentChoices.stream().filter((choice) -> instrumentType == choice.getInstrumentType()).toList();
+      if (!choices.isEmpty()) continue;
+      col.getChildren().add(computeChoicesListNode(
+        segment,
+        instrumentType.toString(),
+        choices,
+        true,
+        true,
+        true
+      ));
+    }
+/*
     col.getChildren().add(computeChoiceListNodes(segment, "Detail", choices.stream().filter((choice) -> ProgramType.Detail == choice.getProgramType()).toList(), true, false, false));
     col.getChildren().add(computeChoiceListNodes(segment, "Perc Loop", choices.stream().filter((choice) ->
       InstrumentType.Percussion == choice.getInstrumentType() && InstrumentMode.Loop == choice.getInstrumentMode()).toList(), false, false, true));
@@ -579,6 +591,7 @@ public class FabricationTimelineController extends ProjectController {
     col.getChildren().add(computeChoiceListNodes(segment, "Transition", choices.stream().filter((choice) -> InstrumentType.Transition == choice.getInstrumentType()).toList(), false, false, true));
     col.getChildren().add(computeChoiceListNodes(segment, "Background", choices.stream().filter((choice) -> InstrumentType.Background == choice.getInstrumentType()).toList(), false, false, true));
     col.getChildren().add(computeChoiceListNodes(segment, "Chord", choices.stream().filter((choice) -> InstrumentMode.Chord == choice.getInstrumentMode()).toList(), false, false, true));
+*/
     //
     var pane = new AnchorPane();
     pane.getChildren().add(col);
@@ -700,7 +713,7 @@ public class FabricationTimelineController extends ProjectController {
     return col;
   }
 
-  Node computeChoiceListNodes(Segment segment, String layerName, Collection<? extends SegmentChoice> choices, boolean showProgram, boolean showProgramVoice, boolean showArrangementPicks) {
+  Node computeChoicesListNode(Segment segment, String layerName, Collection<? extends SegmentChoice> choices, boolean showProgram, boolean showProgramVoice, boolean showArrangementPicks) {
     var box = new VBox();
     box.getStyleClass().add("choice-group");
     // layer name
@@ -735,7 +748,7 @@ public class FabricationTimelineController extends ProjectController {
       box.getChildren().add(computeProgramReferenceNode(choice.getProgramId(), choice.getProgramSequenceBindingId()));
     }
 
-    if (showProgramVoice) {
+    if (showProgramVoice && Objects.nonNull(choice.getProgramVoiceId())) {
       box.getChildren().add(computeProgramVoiceReferenceNode(choice.getProgramVoiceId()));
     }
 
