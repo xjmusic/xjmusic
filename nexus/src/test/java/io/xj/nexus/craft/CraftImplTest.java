@@ -3,6 +3,7 @@
 package io.xj.nexus.craft;
 
 import io.xj.hub.HubContent;
+import io.xj.hub.InstrumentConfig;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
@@ -21,6 +22,7 @@ import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
+import io.xj.nexus.fabricator.SegmentRetrospective;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -36,6 +38,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -66,6 +69,8 @@ public class CraftImplTest {
   public Fabricator fabricator;
   @Mock
   public HubContent sourceMaterial;
+  @Mock
+  public SegmentRetrospective segmentRetrospective;
   CraftImpl subject;
   Segment segment0;
   Program program1;
@@ -83,6 +88,8 @@ public class CraftImplTest {
 
     var templateConfig = new TemplateConfig(template1);
     when(fabricator.getTemplateConfig()).thenReturn(templateConfig);
+    when(fabricator.retrospective()).thenReturn(segmentRetrospective);
+    when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
     subject = new CraftImpl(fabricator);
   }
 
@@ -166,8 +173,6 @@ public class CraftImplTest {
    */
   @Test
   public void chooseFreshInstrumentAudio() {
-    when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
-
     Project project1 = buildProject("testing");
     Library library1 = buildLibrary(project1, "leaves");
     Instrument instrument1 = buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Event, InstrumentState.Published, "Loop 75 beats per minute");
@@ -222,6 +227,40 @@ public class CraftImplTest {
     when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
 
     selectNewChordPartInstrumentAudio("CMadd9", "Cm6", "C add9");
+  }
+
+  @Test
+  public void selectGeneralAudioIntensityLayers_threeLayers() throws NexusException {
+    Project project1 = buildProject("testing");
+    Library library1 = buildLibrary(project1, "leaves");
+    Instrument instrument1 = buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Loop, InstrumentState.Published, "Test loop audio");
+    instrument1.setConfig("isAudioSelectionPersistent=true");
+    InstrumentConfig instrumentConfig = new InstrumentConfig(instrument1);
+    InstrumentAudio instrument1audio1a = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio1b = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio2a = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio2b = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio3a = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio3b = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X", 1.0f);
+    when(sourceMaterial.getAudiosOfInstrument(eq(instrument1.getId()))).thenReturn(Set.of(
+      instrument1audio1a,
+      instrument1audio1b,
+      instrument1audio2a,
+      instrument1audio2b,
+      instrument1audio3a,
+      instrument1audio3b
+    ));
+    when(sourceMaterial.getInstrumentAudio(eq(instrument1audio1a.getId()))).thenReturn(Optional.of(instrument1audio1a));
+    when(sourceMaterial.getInstrumentAudio(eq(instrument1audio1b.getId()))).thenReturn(Optional.of(instrument1audio1b));
+    when(sourceMaterial.getInstrumentAudio(eq(instrument1audio2a.getId()))).thenReturn(Optional.of(instrument1audio2a));
+    when(sourceMaterial.getInstrumentAudio(eq(instrument1audio2b.getId()))).thenReturn(Optional.of(instrument1audio2b));
+    when(sourceMaterial.getInstrumentAudio(eq(instrument1audio3a.getId()))).thenReturn(Optional.of(instrument1audio3a));
+    when(sourceMaterial.getInstrumentAudio(eq(instrument1audio3b.getId()))).thenReturn(Optional.of(instrument1audio3b));
+    when(fabricator.getInstrumentConfig(same(instrument1))).thenReturn(instrumentConfig);
+
+    var result = subject.selectGeneralAudioIntensityLayers(instrument1);
+
+    assertEquals(3, result.size());
   }
 
   /**

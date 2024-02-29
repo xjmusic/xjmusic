@@ -774,7 +774,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   }
 
   /**
-   Select audios for the given instrument instrument
+   Select audios for the given instrument
 
    @param instrument for which to pick audio
    @return drum-type Instrument
