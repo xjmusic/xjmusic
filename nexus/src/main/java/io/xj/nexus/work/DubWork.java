@@ -111,7 +111,7 @@ public interface DubWork extends Work {
   /**
    Set the intensity of the dub work
 
-   @param intensity the intensity
+   @param nextIntensity the intensity
    */
-  void setIntensity(double intensity);
+  void setNextIntensity(double nextIntensity);
 }

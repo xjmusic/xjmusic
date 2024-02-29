@@ -243,7 +243,7 @@ public class DemoIT {
                 audioById.get(pick.getInstrumentAudioId()),
                 pick.getStartAtSegmentMicros(),
                 pick.getStartAtSegmentMicros() + pick.getLengthMicros(),
-                1.0f))
+                1.0f, 1.0f))
         .toList(), 1.0);
 
     // Write the demo file output
@@ -255,6 +255,7 @@ public class DemoIT {
   private static Instrument buildInstrument() {
     var instrument = new Instrument();
     instrument.setId(UUID.randomUUID());
+    instrument.setVolume(1.0f);
     instrument.setLibraryId(UUID.randomUUID());
     instrument.setType(InstrumentType.Drum);
     instrument.setMode(InstrumentMode.Event);

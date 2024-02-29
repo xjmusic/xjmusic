@@ -52,8 +52,8 @@ public class DubWorkImpl implements DubWork {
 
   private long atChainMicros; // dubbing is done up to this point
 
-  // TODO use this intensity value to determine the volume of the available layers by their intensity
-  private final AtomicReference<Double> intensity = new AtomicReference<>(1.0);
+  private final AtomicReference<Double> nextIntensity = new AtomicReference<>(1.0);
+  private final AtomicReference<Double> prevIntensity = new AtomicReference<>(1.0);
 
   public DubWorkImpl(
       Telemetry telemetry,
@@ -196,8 +196,8 @@ public class DubWorkImpl implements DubWork {
   }
 
   @Override
-  public void setIntensity(double intensity) {
-    this.intensity.set(intensity);
+  public void setNextIntensity(double nextIntensity) {
+    this.nextIntensity.set(nextIntensity);
   }
 
   /**
@@ -259,14 +259,21 @@ public class DubWorkImpl implements DubWork {
                   audio,
                   templateConfig.getIntensityLayers(instrument.getType()),
                   templateConfig.getIntensityThreshold(instrument.getType()),
-                  intensity.get()
+                  prevIntensity.get()
+              ),
+              computeIntensityAmplitude(
+                  audio,
+                  templateConfig.getIntensityLayers(instrument.getType()),
+                  templateConfig.getIntensityThreshold(instrument.getType()),
+                  nextIntensity.get()
               )
           ));
         }
+        prevIntensity.set(nextIntensity.get());
       }
 
       try {
-        mixer.mix(activeAudios, intensity.get());
+        mixer.mix(activeAudios, nextIntensity.get());
       } catch (IOException e) {
         LOG.warn("Cannot send to output because BytePipeline {}", e.getMessage());
         return;

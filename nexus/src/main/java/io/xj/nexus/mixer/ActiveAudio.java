@@ -19,15 +19,17 @@ public class ActiveAudio {
   @Nullable
   private final Long stopAtMixerMicros;
   private final Instrument instrument;
-  private final float amplitude;
+  private final float fromAmplitude;
+  private final float toAmplitude;
 
   public ActiveAudio(
-    SegmentChoiceArrangementPick pick,
-    Instrument instrument,
-    InstrumentAudio audio,
-    Long startAtMixerMicros,
-    @Nullable Long stopAtMixerMicros,
-    float intensityAmplitude
+      SegmentChoiceArrangementPick pick,
+      Instrument instrument,
+      InstrumentAudio audio,
+      Long startAtMixerMicros,
+      @Nullable Long stopAtMixerMicros,
+      float fromIntensityAmplitude,
+      float toIntensityAmplitude
   ) {
     this.pick = pick;
     this.audio = audio;
@@ -36,7 +38,8 @@ public class ActiveAudio {
     this.instrument = instrument;
 
     // computed
-    this.amplitude = intensityAmplitude * pick.getAmplitude() * instrument.getVolume() * audio.getVolume();
+    this.fromAmplitude = fromIntensityAmplitude * pick.getAmplitude() * instrument.getVolume() * audio.getVolume();
+    this.toAmplitude = toIntensityAmplitude * pick.getAmplitude() * instrument.getVolume() * audio.getVolume();
     this.instrumentConfig = new InstrumentConfig(instrument);
   }
 
@@ -68,7 +71,14 @@ public class ActiveAudio {
     return instrumentConfig.getReleaseMillis();
   }
 
-  public float getAmplitude() {
-    return amplitude;
+  /**
+   Get the amplitude at a given amplitude position between 0 and 1.
+
+   @param ap amplitude position
+   @return amplitude
+   */
+  public float getAmplitude(float ap) {
+    if (fromAmplitude == toAmplitude) return fromAmplitude;
+    return fromAmplitude + (toAmplitude - fromAmplitude) * ap;
   }
 }

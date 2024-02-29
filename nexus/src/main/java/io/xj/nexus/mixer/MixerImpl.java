@@ -238,6 +238,10 @@ class MixerImpl implements Mixer {
       int tf_min = bufferIndexLimit(sourceBeginsAtMixerFrame); // initial target frame (in mix buffer)
       int tf_max = bufferIndexLimit(sourceEndsAtMixerFrame + releaseEnvelope.exponential.length); // final target frame (in mix buffer)
 
+      // amplitude position moves from 0 to 1 over the source audio
+      float ap; // amplitude position moves from 0 to 1
+      float ap_d = 1.0f / (tf_max - tf_min); // amplitude delta per frame
+
       // iterate over all frames overlapping from the source audio and the target mixing buffer
       for (tc = 0; tc < outputChannels; tc++) {
         int rf = 0; // release envelope frame (start counting at end of source)
@@ -247,17 +251,19 @@ class MixerImpl implements Mixer {
           sf++; // skip source frames before the start of the source audio
           tf_min++;
         }
+        ap = 0; // reset amplitude position
         for (tf = tf_min; tf <= tf_max; tf++) {
           if (sf < cached.data().length) {
             if (tf < sourceEndsAtMixerFrame) {
-              busBuf[bus][tf][tc] += cached.data()[sf][sc] * active.getAmplitude();
+              busBuf[bus][tf][tc] += cached.data()[sf][sc] * active.getAmplitude(ap);
             } else {
               // release envelope
-              busBuf[bus][tf][tc] += releaseEnvelope.out(rf, cached.data()[sf][sc] * active.getAmplitude());
+              busBuf[bus][tf][tc] += releaseEnvelope.out(rf, cached.data()[sf][sc] * active.getAmplitude(ap));
               rf++;
             }
           }
           sf++;
+          ap += ap_d;
         }
       }
 
