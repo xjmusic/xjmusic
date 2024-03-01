@@ -310,7 +310,7 @@
 
 /*noinspection CssInvalidPseudoSelector*/
 .controls-container .toggle-button:engaged {
-  -fx-background-color: #008000;
+  -fx-background-color: #2aa7d0;
 }
 
 .controls-container .group-label {

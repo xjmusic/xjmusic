@@ -23,6 +23,7 @@ import io.xj.nexus.work.FabricationState;
 import jakarta.annotation.Nullable;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableDoubleValue;
@@ -215,8 +216,12 @@ public interface FabricationService {
   void resetSettingsToDefaults();
 
   /**
-    Set the current intensity of the fabrication process
-   * @param intensity the intensity to set
+   @return The intensity override value property is between 0 and 1
    */
-  void setIntensity(float intensity);
+  DoubleProperty intensityOverrideProperty();
+
+  /**
+   @return The intensity override active property
+   */
+  BooleanProperty intensityOverrideActiveProperty();
 }

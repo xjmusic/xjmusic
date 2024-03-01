@@ -243,9 +243,9 @@ public class FabricationManagerImpl implements FabricationManager {
   }
 
   @Override
-  public void setIntensity(double intensity) {
+  public void setIntensityOverride(@Nullable Double intensity) {
     if (Objects.isNull(dubWork)) return;
-    dubWork.setNextIntensity(intensity);
+    dubWork.setIntensityOverride(intensity);
   }
 
   @Override

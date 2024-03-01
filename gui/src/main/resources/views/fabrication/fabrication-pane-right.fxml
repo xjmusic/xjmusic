@@ -2,10 +2,7 @@
 
 <!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Slider?>
 <?import javafx.scene.layout.VBox?>
 <ScrollPane fx:id="container" hbarPolicy="NEVER" styleClass="selection-scroll-pane"
             xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
