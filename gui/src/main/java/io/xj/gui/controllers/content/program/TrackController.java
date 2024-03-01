@@ -234,7 +234,7 @@ public class TrackController {
         if (0 < programEditorController.getSequenceTotal()) {
             for (double b = 0; b <= programEditorController.getSequenceTotal(); b += ((double) 1 / programEditorController.getTimelineGridSize())) {
                 double gridLineX = b * voiceController.getBaseSizePerBeat().get() * programEditorController.getZoomFactor();
-                VoiceController.drawGridLines(b, gridLineX, timeLineAnchorpane, voiceController.getTimelineHeight());
+                VoiceController.drawGridLines(b, gridLineX, timeLineAnchorpane, voiceController.getTimelineHeight(),voiceController.doublePropertyProperty());
             }
             greyTheActiveArea();
         }

@@ -175,7 +175,9 @@ public class VoiceController {
         bindSequenceTotalValueToTimelineTotalLines();
         trackNameField.textProperty().bindBidirectional(trackNameProperty);
         timeLineAnchorpane.setOnMouseClicked(this::addProgramSequencePatternEventItemController);
+
     }
+
 
     public ObservableList<ProgramVoiceTrack> getProgramVoiceTrackObservableList() {
         return programVoiceTrackObservableList;
@@ -251,33 +253,16 @@ public class VoiceController {
     private void getZoomValueAndRedrawOnchange() {
         programEditorController.zoomChooser.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                Zoom_Percentage zoomPercentage;
-                switch (programEditorController.zoomChooser.getValue()) {
-                    case "5%":
-                        zoomPercentage = Zoom_Percentage.PERCENT_5;
-                        break;
-                    case "10%":
-                        zoomPercentage = Zoom_Percentage.PERCENT_10;
-                        break;
-                    case "25%":
-                        zoomPercentage = Zoom_Percentage.PERCENT_25;
-                        break;
-                    case "50%":
-                        zoomPercentage = Zoom_Percentage.PERCENT_50;
-                        break;
-                    case "200%":
-                        zoomPercentage = Zoom_Percentage.PERCENT_200;
-                        break;
-                    case "300%":
-                        zoomPercentage = Zoom_Percentage.PERCENT_300;
-                        break;
-                    case "400%":
-                        zoomPercentage = Zoom_Percentage.PERCENT_400;
-                        break;
-                    default:
-                        zoomPercentage = Zoom_Percentage.PERCENT_100;
-
-                }
+                Zoom_Percentage zoomPercentage = switch (programEditorController.zoomChooser.getValue()) {
+                    case "5%" -> Zoom_Percentage.PERCENT_5;
+                    case "10%" -> Zoom_Percentage.PERCENT_10;
+                    case "25%" -> Zoom_Percentage.PERCENT_25;
+                    case "50%" -> Zoom_Percentage.PERCENT_50;
+                    case "200%" -> Zoom_Percentage.PERCENT_200;
+                    case "300%" -> Zoom_Percentage.PERCENT_300;
+                    case "400%" -> Zoom_Percentage.PERCENT_400;
+                    default -> Zoom_Percentage.PERCENT_100;
+                };
                 programEditorController.setZoomFactorProperty(zoomPercentage.getValue());
                 Platform.runLater(this::populateTimeline);
             }
@@ -427,13 +412,27 @@ public class VoiceController {
         if (0 < programEditorController.getSequenceTotal()) {
             for (double b = 0; b <= programEditorController.getSequenceTotal(); b += ((double) 1 / programEditorController.getTimelineGridSize())) {
                 double gridLineX = b * baseSizePerBeat.get() * programEditorController.getZoomFactor();
-                drawGridLines(b, gridLineX, timeLineAnchorpane, timelineHeightProperty.get());
+                drawGridLines(b, gridLineX, timeLineAnchorpane, timelineHeightProperty.get(),doubleProperty);
             }
             greyTheActiveArea();
         }
     }
 
-    static void drawGridLines(double b, double gridLineX, AnchorPane timeLineAnchorpane, double rectangleHeight) {
+    public double getDoubleProperty() {
+        return doubleProperty.get();
+    }
+
+    public DoubleProperty doublePropertyProperty() {
+        return doubleProperty;
+    }
+
+    public void setDoubleProperty(double doubleProperty) {
+        this.doubleProperty.set(doubleProperty);
+    }
+
+    private DoubleProperty doubleProperty=new SimpleDoubleProperty();
+
+    static void drawGridLines(double b, double gridLineX, AnchorPane timeLineAnchorpane, double rectangleHeight,DoubleProperty doubleProperty) {
         boolean isMajorLine = (b % 1) == 0;
         Line line = new Line();
         line.setStartY(0);
@@ -441,6 +440,7 @@ public class VoiceController {
         line.setStartX(gridLineX);
         line.setEndX(gridLineX);
         if (isMajorLine) {
+            doubleProperty.set(gridLineX);
             line.setStroke(Color.GREY);
         } else {
             line.setStroke(Color.valueOf("#3F3F3F"));
@@ -593,8 +593,10 @@ public class VoiceController {
         }
     }
 
+
     private void addProgramSequencePatternEventItemController(MouseEvent event){
        try{
+           System.out.println("class "+this.getClass().getName());
            FXMLLoader loader = new FXMLLoader(programSequencePatternEventItem.getURL());
            loader.setControllerFactory(ac::getBean);
            Parent root = loader.load();
