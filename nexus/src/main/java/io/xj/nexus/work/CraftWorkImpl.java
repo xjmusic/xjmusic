@@ -582,7 +582,7 @@ public class CraftWorkImpl implements CraftWork {
    */
   void didFailWhile(String msgWhile, Exception e) {
     var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
-    LOG.error("Failed while {} because {}", msgWhile, msgCause, e);
+    LOG.error("Failed while {} because {}\n{}", msgWhile, msgCause, StringUtils.formatStackTrace(e), e);
     running.set(false);
     finish();
   }

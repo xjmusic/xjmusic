@@ -83,9 +83,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
         case Chord -> craftChordParts(fabricator.getTempo(), instrument.get());
 
         case Loop -> {
-          for (InstrumentAudio audio : selectGeneralAudioIntensityLayers(instrument.get())) {
-            craftLoop(fabricator.getTempo(), audio);
-          }
+          craftLoopParts(fabricator.getTempo(), instrument.get());
         }
 
         // As-yet Unsupported Modes
@@ -97,22 +95,20 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
   }
 
   /**
-   Craft loop
+   Craft loop parts
 
    @param tempo of main program
-   @param audio for which to craft segment
+   @param instrument for which to craft
    */
   @SuppressWarnings("DuplicatedCode")
-  void craftLoop(double tempo, InstrumentAudio audio) throws NexusException {
+  void craftLoopParts(double tempo, Instrument instrument) throws NexusException {
     var choice = new SegmentChoice();
-    var instrument = fabricator.sourceMaterial().getInstrument(audio.getInstrumentId())
-      .orElseThrow(() -> new NexusException("Can't get Instrument Audio!"));
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());
     choice.setMute(computeMute(instrument.getType()));
     choice.setInstrumentType(instrument.getType());
     choice.setInstrumentMode(instrument.getMode());
-    choice.setInstrumentId(audio.getInstrumentId());
+    choice.setInstrumentId(instrument.getId());
     fabricator.put(choice, false);
     var arrangement = new SegmentChoiceArrangement();
     arrangement.setId(UUID.randomUUID());
@@ -120,30 +116,33 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
     arrangement.segmentChoiceId(choice.getId());
     fabricator.put(arrangement, false);
 
-    // Start at zero and keep laying down loops until we're out of here
-    float beats = 0;
-    while (beats < fabricator.getSegment().getTotal()) {
+    for (InstrumentAudio audio : selectGeneralAudioIntensityLayers(instrument)) {
 
-      // Pick attributes are expressed "rendered" as actual seconds
-      long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(tempo, beats);
-      long lengthMicros = Math.min(
-        fabricator.getTotalSegmentMicros() - startAtSegmentMicros,
-        (long) (audio.getLoopBeats() * fabricator.getMicrosPerBeat(tempo))
-      );
+      // Start at zero and keep laying down loops until we're out of here
+      float beats = 0;
+      while (beats < fabricator.getSegment().getTotal()) {
 
-      // of pick
-      var pick = new SegmentChoiceArrangementPick();
-      pick.setId(UUID.randomUUID());
-      pick.setSegmentId(fabricator.getSegment().getId());
-      pick.setSegmentChoiceArrangementId(arrangement.getId());
-      pick.setStartAtSegmentMicros(startAtSegmentMicros);
-      pick.setLengthMicros(lengthMicros);
-      pick.setAmplitude(1.0f);
-      pick.setEvent("LOOP");
-      pick.setInstrumentAudioId(audio.getId());
-      fabricator.put(pick, false);
+        // Pick attributes are expressed "rendered" as actual seconds
+        long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(tempo, beats);
+        long lengthMicros = Math.min(
+          fabricator.getTotalSegmentMicros() - startAtSegmentMicros,
+          (long) (audio.getLoopBeats() * fabricator.getMicrosPerBeat(tempo))
+        );
 
-      beats += audio.getLoopBeats();
+        // of pick
+        var pick = new SegmentChoiceArrangementPick();
+        pick.setId(UUID.randomUUID());
+        pick.setSegmentId(fabricator.getSegment().getId());
+        pick.setSegmentChoiceArrangementId(arrangement.getId());
+        pick.setStartAtSegmentMicros(startAtSegmentMicros);
+        pick.setLengthMicros(lengthMicros);
+        pick.setAmplitude(1.0f);
+        pick.setEvent("LOOP");
+        pick.setInstrumentAudioId(audio.getId());
+        fabricator.put(pick, false);
+
+        beats += audio.getLoopBeats();
+      }
     }
   }
 

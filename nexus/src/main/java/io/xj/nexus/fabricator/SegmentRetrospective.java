@@ -70,12 +70,13 @@ public interface SegmentRetrospective {
   Optional<SegmentMeta> getPreviousMeta(String key);
 
   /**
-   Get the previous segment choice for the given instrument
+   Get the previous segment choices for the given instrument
+   (although there should only be one previous segment choice for each instrument)
 
    @param instrumentId for which to get choice
    @return previous segment choice
    */
-  Optional<SegmentChoice> getPreviousChoiceForInstrument(UUID instrumentId);
+  Collection<SegmentChoice> getPreviousChoicesForInstrument(UUID instrumentId);
 
   /**
    Get the previous arrangements for the given instrument id
@@ -83,7 +84,7 @@ public interface SegmentRetrospective {
    @param instrumentId for which to get arrangements
    @return segment choice arrangements
    */
-  List<SegmentChoiceArrangement> getPreviousArrangementsForInstrument(UUID instrumentId);
+  Collection<SegmentChoiceArrangement> getPreviousArrangementsForInstrument(UUID instrumentId);
 
   /**
    Get the picks of any previous segments which selected the same main sequence
