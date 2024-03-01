@@ -573,7 +573,7 @@ public class FabricationTimelineController extends ProjectController {
     col.getChildren().add(computeChoicesListNode(segment, "Beat", segmentChoices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList(), false, true, false));
     for (var instrumentType : InstrumentType.values()) {
       var choices = segmentChoices.stream().filter((choice) -> instrumentType == choice.getInstrumentType()).toList();
-      if (!choices.isEmpty()) continue;
+      if (choices.isEmpty()) continue;
       col.getChildren().add(computeChoicesListNode(
         segment,
         instrumentType.toString(),
