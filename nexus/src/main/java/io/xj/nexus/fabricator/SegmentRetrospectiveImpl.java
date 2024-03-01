@@ -155,14 +155,14 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public List<SegmentChoiceArrangementPick> getPreviousPicksForInstrument(UUID instrumentId) {
+  public Collection<SegmentChoiceArrangementPick> getPreviousPicksForInstrument(UUID instrumentId) {
     var arr = getPreviousArrangementsForInstrument(instrumentId).stream()
         .map(SegmentChoiceArrangement::getId)
         .collect(Collectors.toSet());
     if (arr.isEmpty()) return List.of();
     return entityStore.readManySubEntitiesOfType(previousSegmentIds, SegmentChoiceArrangementPick.class).stream()
         .filter(c -> arr.contains(c.getSegmentChoiceArrangementId()))
-        .collect(Collectors.toList());
+        .collect(Collectors.toSet());
   }
 
   @Override

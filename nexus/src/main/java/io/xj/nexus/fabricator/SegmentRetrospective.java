@@ -141,7 +141,7 @@ public interface SegmentRetrospective {
    @param instrumentId for which to get picks
    @return segment choice picks
    */
-  List<SegmentChoiceArrangementPick> getPreviousPicksForInstrument(UUID instrumentId);
+  Collection<SegmentChoiceArrangementPick> getPreviousPicksForInstrument(UUID instrumentId);
 
   /**
    Get the segment immediately previous to the current segment

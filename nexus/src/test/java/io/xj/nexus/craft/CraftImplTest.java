@@ -28,6 +28,8 @@ import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,6 +54,8 @@ import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoiceArrangement;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoiceArrangementPick;
 import static io.xj.nexus.model.Segment.DELTA_UNLIMITED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -244,10 +248,45 @@ public class CraftImplTest {
       .toList();
 
     assertEquals(3, result.size());
-    assertTrue(Set.of(instrument1audio1a.getId(),instrument1audio1b.getId()).contains(result.get(0).getId()));
-    assertTrue(Set.of(instrument1audio2a.getId(),instrument1audio2b.getId()).contains(result.get(1).getId()));
-    assertTrue(Set.of(instrument1audio3a.getId(),instrument1audio3b.getId()).contains(result.get(2).getId()));
+    assertTrue(Set.of(instrument1audio1a.getId(), instrument1audio1b.getId()).contains(result.get(0).getId()));
+    assertTrue(Set.of(instrument1audio2a.getId(), instrument1audio2b.getId()).contains(result.get(1).getId()));
+    assertTrue(Set.of(instrument1audio3a.getId(), instrument1audio3b.getId()).contains(result.get(2).getId()));
   }
+
+  @Test
+  public void selectGeneralAudioIntensityLayers_continueSegment() throws Exception {
+    Project project1 = buildProject("testing");
+    Library library1 = buildLibrary(project1, "leaves");
+    Instrument instrument1 = buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Loop, InstrumentState.Published, "Test loop audio");
+    instrument1.setConfig("isAudioSelectionPersistent=true");
+    InstrumentConfig instrumentConfig = new InstrumentConfig(instrument1);
+    InstrumentAudio instrument1audio1a = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio1b = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio2a = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio2b = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio3a = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio3b = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X", 1.0f);
+    sourceMaterial.putAll(Set.of(instrument1, instrument1audio1a, instrument1audio1b, instrument1audio2a, instrument1audio2b, instrument1audio3a, instrument1audio3b));
+    SegmentChoice choice = buildSegmentChoice(segment0, instrument1);
+    SegmentChoiceArrangement arrangement = buildSegmentChoiceArrangement(choice);
+    SegmentChoiceArrangementPick pick1 = buildSegmentChoiceArrangementPick(segment0, arrangement, instrument1audio1a, instrument1audio1a.getEvent());
+    SegmentChoiceArrangementPick pick2 = buildSegmentChoiceArrangementPick(segment0, arrangement, instrument1audio2a, instrument1audio2a.getEvent());
+    SegmentChoiceArrangementPick pick3 = buildSegmentChoiceArrangementPick(segment0, arrangement, instrument1audio3a, instrument1audio3a.getEvent());
+    when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
+    when(fabricator.retrospective()).thenReturn(segmentRetrospective);
+    when(segmentRetrospective.getPreviousPicksForInstrument(same(instrument1.getId()))).thenReturn(Set.of(pick1, pick2, pick3));
+    when(fabricator.getInstrumentConfig(same(instrument1))).thenReturn(instrumentConfig);
+
+    var result = subject.selectGeneralAudioIntensityLayers(instrument1).stream()
+      .sorted(Comparator.comparing(InstrumentAudio::getIntensity))
+      .toList();
+
+    assertEquals(3, result.size());
+    assertEquals(instrument1audio1a.getId(), result.get(0).getId());
+    assertEquals(instrument1audio2a.getId(), result.get(1).getId());
+    assertEquals(instrument1audio3a.getId(), result.get(2).getId());
+  }
+
 
   /**
    Do the subroutine of testing the new chord part instrument audio selection
