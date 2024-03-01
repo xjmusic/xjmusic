@@ -815,7 +815,8 @@ public class CraftImpl extends FabricationWrapperImpl {
     List<MarbleBag> bags = Stream.iterate(0, i -> i < layers, i -> i + 1).map(i -> MarbleBag.empty()).toList();
 
     // Iterate through the available audios, and add them to the bags, divided into the number of layers
-    int marblesPerLayer = sorted.size() / layers;
+    int marblesPerLayer = (int) Math.ceil((double) sorted.size() / layers);
+    if (marblesPerLayer == 0) return Set.of();
     for (int i = 0; i < sorted.size(); i++) {
       bags.get(i / marblesPerLayer).add(1, sorted.get(i).getId());
     }
