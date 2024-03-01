@@ -430,9 +430,9 @@ public class VoiceController {
         this.doubleProperty.set(doubleProperty);
     }
 
-    private DoubleProperty doubleProperty=new SimpleDoubleProperty();
+    private final DoubleProperty doubleProperty=new SimpleDoubleProperty();
 
-    static void drawGridLines(double b, double gridLineX, AnchorPane timeLineAnchorpane, double rectangleHeight,DoubleProperty doubleProperty) {
+    static void drawGridLines(double b, double gridLineX, AnchorPane timeLineAnchorpane, double rectangleHeight, DoubleProperty doubleProperty) {
         boolean isMajorLine = (b % 1) == 0;
         Line line = new Line();
         line.setStartY(0);
@@ -447,7 +447,7 @@ public class VoiceController {
         }
         AnchorPane.setLeftAnchor(line, gridLineX);
         AnchorPane.setTopAnchor(line, 0.0); // Adjust the top position as needed
-        AnchorPane.setBottomAnchor(line, 0.0); // Adjust the top position as needed
+        AnchorPane.setBottomAnchor(line, 0.0); // Adjust the bottom position as needed
         timeLineAnchorpane.getChildren().add(line);
     }
 
@@ -596,7 +596,6 @@ public class VoiceController {
 
     private void addProgramSequencePatternEventItemController(MouseEvent event){
        try{
-           System.out.println("class "+this.getClass().getName());
            FXMLLoader loader = new FXMLLoader(programSequencePatternEventItem.getURL());
            loader.setControllerFactory(ac::getBean);
            Parent root = loader.load();
