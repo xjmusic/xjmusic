@@ -874,7 +874,7 @@ public class FabricationTimelineController extends ProjectController {
       .orElseThrow(() -> new RuntimeException(String.format("Instrument Audio %s not found", instrumentAudioId)));
 
     var hyperlink = new Hyperlink(instrumentAudio.getName());
-    hyperlink.setOnAction(event -> uiStateService.editInstrument(instrumentAudio.getInstrumentId()));
+    hyperlink.setOnAction(event -> uiStateService.editInstrumentAudio(instrumentAudio.getId()));
     return hyperlink;
   }
 

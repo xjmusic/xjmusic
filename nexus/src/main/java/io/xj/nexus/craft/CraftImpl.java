@@ -781,10 +781,13 @@ public class CraftImpl extends FabricationWrapperImpl {
     var previous = fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId());
     if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && !previous.isEmpty()) {
       return previous.stream()
-        .map(pick -> fabricator.sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()))
+        .map(SegmentChoiceArrangementPick::getInstrumentAudioId)
+        .collect(Collectors.toSet()) // unique audio ids
+        .stream()
+        .map(audioId -> fabricator.sourceMaterial().getInstrumentAudio(audioId))
         .filter(Optional::isPresent)
         .map(Optional::get)
-        .toList();
+        .collect(Collectors.toSet());
     }
 
     return selectAudioIntensityLayers(

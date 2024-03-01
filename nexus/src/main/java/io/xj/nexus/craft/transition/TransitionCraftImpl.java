@@ -12,6 +12,7 @@ import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
 
 import java.util.Collection;
 import java.util.List;
@@ -144,10 +145,13 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
       .collect(Collectors.toSet());
     if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && !previous.isEmpty()) {
       return previous.stream()
-        .map(pick -> fabricator.sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()))
+        .map(SegmentChoiceArrangementPick::getInstrumentAudioId)
+        .collect(Collectors.toSet()) // unique audio ids
+        .stream()
+        .map(audioId -> fabricator.sourceMaterial().getInstrumentAudio(audioId))
         .filter(Optional::isPresent)
         .map(Optional::get)
-        .toList();
+        .collect(Collectors.toSet());
     }
 
     return selectAudioIntensityLayers(
