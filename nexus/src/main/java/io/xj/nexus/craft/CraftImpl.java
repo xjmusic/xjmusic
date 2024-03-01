@@ -148,7 +148,6 @@ public class CraftImpl extends FabricationWrapperImpl {
 
       var instrument = instrumentProvider.get(voice);
       if (instrument.isEmpty()) {
-        reportMissing(Instrument.class, String.format("%s-type instrument", voice.getType()));
         continue;
       }
 
@@ -266,8 +265,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     // Event voice arrangements
     if (sequence.isPresent()) {
       var voices = fabricator.sourceMaterial().getVoicesOfProgram(program);
-      if (voices.isEmpty())
-        reportMissing(ProgramVoice.class, String.format("in Detail-choice Instrument[%s]", instrument.getId()));
+      if (voices.isEmpty()) return;
       craftNoteEvents(tempo, sequence.get(), voices, ignored -> Optional.of(instrument));
     }
   }
@@ -779,7 +777,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param instrument for which to pick audio
    @return drum-type Instrument
    */
-  protected Collection<InstrumentAudio> selectGeneralAudioIntensityLayers(Instrument instrument) throws NexusException {
+  protected Collection<InstrumentAudio> selectGeneralAudioIntensityLayers(Instrument instrument) {
     var previous = fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId());
     if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && !previous.isEmpty()) {
       return previous.stream()
@@ -802,14 +800,12 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param audios from which to pick layers
    @param layers number of layers to pick
    @return picked audios
-   @throws NexusException on failure
    */
-  protected Collection<InstrumentAudio> selectAudioIntensityLayers(Collection<InstrumentAudio> audios, int layers) throws NexusException {
+  protected Collection<InstrumentAudio> selectAudioIntensityLayers(Collection<InstrumentAudio> audios, int layers) {
     List<InstrumentAudio> sorted = audios.stream()
       .sorted(Comparator.comparing(InstrumentAudio::getIntensity))
       .toList();
     if (sorted.isEmpty()) return Set.of();
-    Collection<InstrumentAudio> selected = new ArrayList<>();
 
     // Create a list of bags, one for each layer
     List<MarbleBag> bags = Stream.iterate(0, i -> i < layers, i -> i + 1).map(i -> MarbleBag.empty()).toList();
@@ -825,22 +821,6 @@ public class CraftImpl extends FabricationWrapperImpl {
       if (bag.isEmpty()) return Stream.empty();
       return fabricator.sourceMaterial().getInstrumentAudio(bag.pick()).stream();
     }).collect(Collectors.toSet());
-
-//    return bags.stream().map(MarbleBag::pick).map(id -> fabricator.sourceMaterial().getInstrumentAudio(id)).filter(Optional::isPresent).map(Optional::get).toList();
-
-/*
-    int i = 0;
-    for (int layerNum = 0; layerNum <= layers; layerNum++) {
-      var bag = MarbleBag.empty();
-      while (i < (sorted.size() * layerNum / layers)) {
-        bag.add(1, sorted.get(i).getId());
-        i++;
-      }
-      if (bag.isEmpty()) continue;
-      selected.add(fabricator.sourceMaterial().getInstrumentAudio(bag.pick())
-        .orElseThrow(() -> new NexusException("Failed to get picked audio")));
-    }
-*/
   }
 
   /**

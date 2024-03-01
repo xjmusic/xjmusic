@@ -38,7 +38,6 @@ public class BackgroundCraftImpl extends CraftImpl implements BackgroundCraft {
         chooseFreshInstrument(InstrumentType.Background, List.of());
 
     if (instrument.isEmpty()) {
-      reportMissing(Instrument.class, "Background-type instrument");
       return;
     }
 

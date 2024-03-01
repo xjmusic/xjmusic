@@ -4,7 +4,6 @@ package io.xj.nexus.craft.beat;
 
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.util.CsvUtils;
@@ -43,7 +42,6 @@ public class BeatCraftImpl extends CraftImpl implements BeatCraft {
 
     // Should gracefully skip voicing type if unfulfilled by detail program https://www.pivotaltracker.com/story/show/176373977
     if (program.isEmpty()) {
-      reportMissing(Program.class, "Beat-type program");
       return;
     }
 
@@ -70,12 +68,7 @@ public class BeatCraftImpl extends CraftImpl implements BeatCraft {
 
     // voice arrangements
     if (sequence.isPresent()) {
-      var voices = fabricator.sourceMaterial().getVoicesOfProgram(program.get());
-      if (voices.isEmpty())
-        reportMissing(ProgramVoice.class,
-          String.format("in Beat-choice Program[%s]", program.get().getId()));
-
-      for (ProgramVoice voice : voices) {
+      for (ProgramVoice voice : fabricator.sourceMaterial().getVoicesOfProgram(program.get())) {
         var choice = new SegmentChoice();
         choice.setId(UUID.randomUUID());
         choice.setSegmentId(fabricator.getSegment().getId());
@@ -100,7 +93,6 @@ public class BeatCraftImpl extends CraftImpl implements BeatCraft {
           // If there is no prior choice, then we should choose a fresh instrument
           var instrument = chooseFreshInstrument(InstrumentType.Drum, fabricator.sourceMaterial().getTrackNamesOfVoice(voice));
           if (instrument.isEmpty()) {
-            reportMissing(Instrument.class, String.format("for voice[%s]", voice.getId()));
             continue;
           }
           choice.setDeltaIn(computeDeltaIn(choice));

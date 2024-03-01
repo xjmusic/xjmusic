@@ -30,13 +30,13 @@ import java.util.stream.Collectors;
  */
 public class DetailCraftImpl extends CraftImpl implements DetailCraft {
   private static final Collection<InstrumentType> DETAIL_INSTRUMENT_TYPES = Set.of(
-      InstrumentType.Bass,
-      InstrumentType.Pad,
-      InstrumentType.Sticky,
-      InstrumentType.Stripe,
-      InstrumentType.Stab,
-      InstrumentType.Hook,
-      InstrumentType.Percussion
+    InstrumentType.Bass,
+    InstrumentType.Pad,
+    InstrumentType.Sticky,
+    InstrumentType.Stripe,
+    InstrumentType.Stab,
+    InstrumentType.Hook,
+    InstrumentType.Percussion
   );
 
   public DetailCraftImpl(Fabricator fabricator) {
@@ -61,7 +61,6 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
       // Should gracefully skip voicing type if unfulfilled by detail instrument https://www.pivotaltracker.com/story/show/176373977
       if (instrument.isEmpty()) {
-        reportMissing(Instrument.class, String.format("%s-type Instrument", instrumentType));
         continue;
       }
 
@@ -75,7 +74,6 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
           // Event Should gracefully skip voicing type if unfulfilled by detail program https://www.pivotaltracker.com/story/show/176373977
           if (program.isEmpty()) {
-            reportMissing(Program.class, String.format("%s-type Program", instrumentType));
             continue;
           }
           craftEventParts(fabricator.getTempo(), instrument.get(), program.get());
@@ -92,7 +90,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
         // As-yet Unsupported Modes
         default ->
-            fabricator.addWarningMessage(String.format("Cannot craft unsupported mode %s for Instrument[%s]", instrument.get().getMode(), instrument.get().getId()));
+          fabricator.addWarningMessage(String.format("Cannot craft unsupported mode %s for Instrument[%s]", instrument.get().getMode(), instrument.get().getId()));
       }
     }
 
@@ -108,7 +106,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
   void craftLoop(double tempo, InstrumentAudio audio) throws NexusException {
     var choice = new SegmentChoice();
     var instrument = fabricator.sourceMaterial().getInstrument(audio.getInstrumentId())
-        .orElseThrow(() -> new NexusException("Can't get Instrument Audio!"));
+      .orElseThrow(() -> new NexusException("Can't get Instrument Audio!"));
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());
     choice.setMute(computeMute(instrument.getType()));
@@ -129,8 +127,8 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
       // Pick attributes are expressed "rendered" as actual seconds
       long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(tempo, beats);
       long lengthMicros = Math.min(
-          fabricator.getTotalSegmentMicros() - startAtSegmentMicros,
-          (long) (audio.getLoopBeats() * fabricator.getMicrosPerBeat(tempo))
+        fabricator.getTotalSegmentMicros() - startAtSegmentMicros,
+        (long) (audio.getLoopBeats() * fabricator.getMicrosPerBeat(tempo))
       );
 
       // of pick

@@ -38,6 +38,7 @@ import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
@@ -472,6 +473,7 @@ public class FabricationTimelineController extends ProjectController {
    */
   private Node computeSegmentSectionMessageListNode(Segment segment, int width) {
     var messages = fabricationService.getSegmentMessages(segment);
+    if (messages.isEmpty()) return new Pane();
     var col = new VBox();
     col.setPadding(new Insets(0, 0, 0, 10));
     // info
@@ -490,7 +492,7 @@ public class FabricationTimelineController extends ProjectController {
       .map(m -> computeSegmentSectionMessageNode(m, width))
       .toList());
     //
-    var pane = new AnchorPane();
+    var pane = new VBox();
     pane.getChildren().add(computeLabeledPropertyNode("Messages", col, width, SEGMENT_SECTION_VERTICAL_MARGIN * 2));
     return pane;
   }
@@ -522,13 +524,14 @@ public class FabricationTimelineController extends ProjectController {
    */
   private Node computeSegmentSectionMetasNode(Segment segment, int width) {
     var metas = fabricationService.getSegmentMetas(segment);
+    if (metas.isEmpty()) return new Pane();
     var col = new VBox();
     col.setPadding(new Insets(0, 0, 0, 10));
     col.getChildren().addAll(metas.stream()
       .map(m -> computeSegmentSectionMetaNode(m, width))
       .toList());
     //
-    var pane = new AnchorPane();
+    var pane = new VBox();
     pane.getChildren().add(computeLabeledPropertyNode("Metas", col, width, SEGMENT_SECTION_VERTICAL_MARGIN));
     return pane;
   }
@@ -583,17 +586,8 @@ public class FabricationTimelineController extends ProjectController {
         true
       ));
     }
-/*
-    col.getChildren().add(computeChoiceListNodes(segment, "Detail", choices.stream().filter((choice) -> ProgramType.Detail == choice.getProgramType()).toList(), true, false, false));
-    col.getChildren().add(computeChoiceListNodes(segment, "Perc Loop", choices.stream().filter((choice) ->
-      InstrumentType.Percussion == choice.getInstrumentType() && InstrumentMode.Loop == choice.getInstrumentMode()).toList(), false, false, true));
-    col.getChildren().add(computeChoiceListNodes(segment, "Hook", choices.stream().filter((choice) -> InstrumentType.Hook == choice.getInstrumentType()).toList(), false, false, true));
-    col.getChildren().add(computeChoiceListNodes(segment, "Transition", choices.stream().filter((choice) -> InstrumentType.Transition == choice.getInstrumentType()).toList(), false, false, true));
-    col.getChildren().add(computeChoiceListNodes(segment, "Background", choices.stream().filter((choice) -> InstrumentType.Background == choice.getInstrumentType()).toList(), false, false, true));
-    col.getChildren().add(computeChoiceListNodes(segment, "Chord", choices.stream().filter((choice) -> InstrumentMode.Chord == choice.getInstrumentMode()).toList(), false, false, true));
-*/
     //
-    var pane = new AnchorPane();
+    var pane = new VBox();
     pane.getChildren().add(col);
     return pane;
   }

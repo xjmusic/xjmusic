@@ -31,7 +31,7 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
   final List<String> largeNames;
 
   public TransitionCraftImpl(
-      Fabricator fabricator
+    Fabricator fabricator
   ) {
     super(fabricator);
 
@@ -45,11 +45,10 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
     Optional<SegmentChoice> previousChoice = fabricator.retrospective().getPreviousChoiceOfType(InstrumentType.Transition);
 
     var instrument = previousChoice.isPresent() ?
-        fabricator.sourceMaterial().getInstrument(previousChoice.get().getInstrumentId()) :
-        chooseFreshInstrument(InstrumentType.Transition, List.of());
+      fabricator.sourceMaterial().getInstrument(previousChoice.get().getInstrumentId()) :
+      chooseFreshInstrument(InstrumentType.Transition, List.of());
 
     if (instrument.isEmpty()) {
-      reportMissing(Instrument.class, "Transition-type instrument");
       return;
     }
 
@@ -79,10 +78,10 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
     return switch (fabricator.getType()) {
       case PENDING, INITIAL, NEXT_MAIN, NEXT_MACRO -> false;
       case CONTINUE -> !fabricator.getCurrentMainSequence()
-          .orElseThrow(() -> new NexusException("Can't get current main sequence"))
-          .getId()
-          .equals(fabricator.getPreviousMainSequence().orElseThrow(() ->
-              new NexusException("Can't get previous main sequence")).getId());
+        .orElseThrow(() -> new NexusException("Can't get current main sequence"))
+        .getId()
+        .equals(fabricator.getPreviousMainSequence().orElseThrow(() ->
+          new NexusException("Can't get previous main sequence")).getId());
     };
   }
 
@@ -139,22 +138,22 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
 
    @return instrument audios
    */
-  private Collection<InstrumentAudio> selectAudiosForInstrument(Instrument instrument, List<String> names) throws NexusException {
+  private Collection<InstrumentAudio> selectAudiosForInstrument(Instrument instrument, List<String> names) {
     var previous = fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId()).stream()
-        .filter(pick -> names.contains(StringUtils.toMeme(pick.getEvent())))
-        .collect(Collectors.toSet());
+      .filter(pick -> names.contains(StringUtils.toMeme(pick.getEvent())))
+      .collect(Collectors.toSet());
     if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && !previous.isEmpty()) {
       return previous.stream()
-          .map(pick -> fabricator.sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()))
-          .filter(Optional::isPresent)
-          .map(Optional::get)
-          .toList();
+        .map(pick -> fabricator.sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()))
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .toList();
     }
 
     return selectAudioIntensityLayers(
-        fabricator.sourceMaterial().getAudiosOfInstrument(instrument.getId())
-            .stream().filter(instrumentAudio -> names.contains(StringUtils.toMeme(instrumentAudio.getEvent()))).collect(Collectors.toSet()),
-        fabricator.getTemplateConfig().getIntensityLayers(InstrumentType.Background)
+      fabricator.sourceMaterial().getAudiosOfInstrument(instrument.getId())
+        .stream().filter(instrumentAudio -> names.contains(StringUtils.toMeme(instrumentAudio.getEvent()))).collect(Collectors.toSet()),
+      fabricator.getTemplateConfig().getIntensityLayers(InstrumentType.Background)
     );
   }
 }
