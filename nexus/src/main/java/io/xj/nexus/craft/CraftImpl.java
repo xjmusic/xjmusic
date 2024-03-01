@@ -810,6 +810,24 @@ public class CraftImpl extends FabricationWrapperImpl {
       .toList();
     if (sorted.isEmpty()) return Set.of();
     Collection<InstrumentAudio> selected = new ArrayList<>();
+
+    // Create a list of bags, one for each layer
+    List<MarbleBag> bags = Stream.iterate(0, i -> i < layers, i -> i + 1).map(i -> MarbleBag.empty()).toList();
+
+    // Iterate through the available audios, and add them to the bags, divided into the number of layers
+    int marblesPerLayer = sorted.size() / layers;
+    for (int i = 0; i < sorted.size(); i++) {
+      bags.get(i / marblesPerLayer).add(1, sorted.get(i).getId());
+    }
+
+    return bags.stream().flatMap((bag) -> {
+      if (bag.isEmpty()) return Stream.empty();
+      return fabricator.sourceMaterial().getInstrumentAudio(bag.pick()).stream();
+    }).collect(Collectors.toSet());
+
+//    return bags.stream().map(MarbleBag::pick).map(id -> fabricator.sourceMaterial().getInstrumentAudio(id)).filter(Optional::isPresent).map(Optional::get).toList();
+
+/*
     int i = 0;
     for (int layerNum = 0; layerNum <= layers; layerNum++) {
       var bag = MarbleBag.empty();
@@ -821,7 +839,7 @@ public class CraftImpl extends FabricationWrapperImpl {
       selected.add(fabricator.sourceMaterial().getInstrumentAudio(bag.pick())
         .orElseThrow(() -> new NexusException("Failed to get picked audio")));
     }
-    return selected;
+*/
   }
 
   /**

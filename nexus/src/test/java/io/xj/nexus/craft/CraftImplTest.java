@@ -36,8 +36,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -56,10 +56,7 @@ import static io.xj.nexus.model.Segment.DELTA_UNLIMITED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -67,7 +64,6 @@ public class CraftImplTest {
   static final int TEST_REPEAT_TIMES = 20;
   @Mock
   public Fabricator fabricator;
-  @Mock
   public HubContent sourceMaterial;
   @Mock
   public SegmentRetrospective segmentRetrospective;
@@ -88,8 +84,9 @@ public class CraftImplTest {
 
     var templateConfig = new TemplateConfig(template1);
     when(fabricator.getTemplateConfig()).thenReturn(templateConfig);
-    when(fabricator.retrospective()).thenReturn(segmentRetrospective);
-    when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
+
+    sourceMaterial = new HubContent();
+
     subject = new CraftImpl(fabricator);
   }
 
@@ -172,7 +169,7 @@ public class CraftImplTest {
    https://www.pivotaltracker.com/story/show/181975131
    */
   @Test
-  public void chooseFreshInstrumentAudio() {
+  public void chooseFreshInstrumentAudio() throws Exception {
     Project project1 = buildProject("testing");
     Library library1 = buildLibrary(project1, "leaves");
     Instrument instrument1 = buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Event, InstrumentState.Published, "Loop 75 beats per minute");
@@ -182,17 +179,12 @@ public class CraftImplTest {
     InstrumentMeme instrument2meme = buildInstrumentMeme(instrument2, "90BPM");
     InstrumentAudio instrument2audio = buildInstrumentAudio(instrument2, "fast loop", "90bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "SECONDARY", "X", 1.0f);
     //
-    when(sourceMaterial.getInstrument(eq(instrument1.getId()))).thenReturn(Optional.of(instrument1));
-    when(sourceMaterial.getInstrument(eq(instrument2.getId()))).thenReturn(Optional.of(instrument2));
-    when(sourceMaterial.getAudiosOfInstrumentTypesAndModes(eq(List.of(InstrumentType.Percussion)), eq(List.of(InstrumentMode.Loop)))).thenReturn(List.of(instrument1audio, instrument2audio));
+    sourceMaterial.putAll(Set.of(project1, library1, instrument1, instrument2, instrument1audio, instrument2audio, instrument1meme, instrument2meme));
     when(fabricator.getMemeIsometryOfSegment()).thenReturn(MemeIsometry.of(MemeTaxonomy.empty(), List.of("70BPM")));
-    when(sourceMaterial.getMemesOfInstrument(eq(instrument1.getId()))).thenReturn(List.of(instrument1meme));
-    when(sourceMaterial.getMemesOfInstrument(eq(instrument2.getId()))).thenReturn(List.of(instrument2meme));
-    when(sourceMaterial.getInstrumentAudio(eq(instrument1audio.getId()))).thenReturn(Optional.of(instrument1audio));
+    when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
 
-    var result = subject.chooseFreshInstrumentAudio(List.of(InstrumentType.Percussion), List.of(InstrumentMode.Loop), List.of(instrument1audio.getInstrumentId()), List.of("PRIMARY"));
+    var result = subject.chooseFreshInstrumentAudio(List.of(InstrumentType.Percussion), List.of(InstrumentMode.Event), List.of(instrument1audio.getInstrumentId()), List.of("PRIMARY"));
 
-    verify(sourceMaterial, times(1)).getMemesOfInstrument(eq(instrument1.getId()));
     assertTrue(result.isPresent());
   }
 
@@ -200,7 +192,7 @@ public class CraftImplTest {
    XJ Should choose the correct chord audio per Main Program chord https://www.pivotaltracker.com/story/show/183434438
    */
   @Test
-  public void selectNewChordPartInstrumentAudio_stripSpaces() {
+  public void selectNewChordPartInstrumentAudio_stripSpaces() throws Exception {
     when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
 
     selectNewChordPartInstrumentAudio(" G   major  ", "G-7", " G    major    ");
@@ -212,7 +204,7 @@ public class CraftImplTest {
    When the exact match is not present for an entire slash chord name, choose a chord matching the pre-slash name
    */
   @Test
-  public void selectNewChordPartInstrumentAudio_slashChordFluency() {
+  public void selectNewChordPartInstrumentAudio_slashChordFluency() throws Exception {
     when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
 
     selectNewChordPartInstrumentAudio("Ab/C", "Eb/G", "Ab");
@@ -223,14 +215,14 @@ public class CraftImplTest {
    Enhanced Synonymous Chord recognition https://www.pivotaltracker.com/story/show/182811126
    */
   @Test
-  public void selectNewChordPartInstrumentAudio_chordSynonyms() {
+  public void selectNewChordPartInstrumentAudio_chordSynonyms() throws Exception {
     when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
 
     selectNewChordPartInstrumentAudio("CMadd9", "Cm6", "C add9");
   }
 
   @Test
-  public void selectGeneralAudioIntensityLayers_threeLayers() throws NexusException {
+  public void selectGeneralAudioIntensityLayers_threeLayers() throws Exception {
     Project project1 = buildProject("testing");
     Library library1 = buildLibrary(project1, "leaves");
     Instrument instrument1 = buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Loop, InstrumentState.Published, "Test loop audio");
@@ -242,25 +234,19 @@ public class CraftImplTest {
     InstrumentAudio instrument1audio2b = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X", 1.0f);
     InstrumentAudio instrument1audio3a = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X", 1.0f);
     InstrumentAudio instrument1audio3b = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X", 1.0f);
-    when(sourceMaterial.getAudiosOfInstrument(eq(instrument1.getId()))).thenReturn(Set.of(
-      instrument1audio1a,
-      instrument1audio1b,
-      instrument1audio2a,
-      instrument1audio2b,
-      instrument1audio3a,
-      instrument1audio3b
-    ));
-    when(sourceMaterial.getInstrumentAudio(eq(instrument1audio1a.getId()))).thenReturn(Optional.of(instrument1audio1a));
-    when(sourceMaterial.getInstrumentAudio(eq(instrument1audio1b.getId()))).thenReturn(Optional.of(instrument1audio1b));
-    when(sourceMaterial.getInstrumentAudio(eq(instrument1audio2a.getId()))).thenReturn(Optional.of(instrument1audio2a));
-    when(sourceMaterial.getInstrumentAudio(eq(instrument1audio2b.getId()))).thenReturn(Optional.of(instrument1audio2b));
-    when(sourceMaterial.getInstrumentAudio(eq(instrument1audio3a.getId()))).thenReturn(Optional.of(instrument1audio3a));
-    when(sourceMaterial.getInstrumentAudio(eq(instrument1audio3b.getId()))).thenReturn(Optional.of(instrument1audio3b));
+    sourceMaterial.putAll(Set.of(instrument1, instrument1audio1a, instrument1audio1b, instrument1audio2a, instrument1audio2b, instrument1audio3a, instrument1audio3b));
+    when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
+    when(fabricator.retrospective()).thenReturn(segmentRetrospective);
     when(fabricator.getInstrumentConfig(same(instrument1))).thenReturn(instrumentConfig);
 
-    var result = subject.selectGeneralAudioIntensityLayers(instrument1);
+    var result = subject.selectGeneralAudioIntensityLayers(instrument1).stream()
+      .sorted(Comparator.comparing(InstrumentAudio::getIntensity))
+      .toList();
 
     assertEquals(3, result.size());
+    assertTrue(Set.of(instrument1audio1a.getId(),instrument1audio1b.getId()).contains(result.get(0).getId()));
+    assertTrue(Set.of(instrument1audio2a.getId(),instrument1audio2b.getId()).contains(result.get(1).getId()));
+    assertTrue(Set.of(instrument1audio3a.getId(),instrument1audio3b.getId()).contains(result.get(2).getId()));
   }
 
   /**
@@ -270,15 +256,14 @@ public class CraftImplTest {
    @param notThat    chord name
    @param match      chord name
    */
-  void selectNewChordPartInstrumentAudio(String expectThis, String notThat, String match) {
+  void selectNewChordPartInstrumentAudio(String expectThis, String notThat, String match) throws Exception {
     Project project1 = buildProject("testing");
     Library library1 = buildLibrary(project1, "leaves");
     Instrument instrument1 = buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Chord, InstrumentState.Published, "Test chord audio");
     InstrumentAudio instrument1audio1 = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", expectThis, 1.0f);
     InstrumentAudio instrument1audio2 = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", notThat, 1.0f);
     //
-    when(sourceMaterial.getAudiosOfInstrument(same(instrument1))).thenReturn(List.of(instrument1audio1, instrument1audio2));
-    when(sourceMaterial.getInstrumentAudio(eq(instrument1audio1.getId()))).thenReturn(Optional.of(instrument1audio1));
+    sourceMaterial.putAll(Set.of(instrument1, instrument1audio1, instrument1audio2));
 
     for (var i = 0; i < TEST_REPEAT_TIMES; i++) {
       var result = subject.selectNewChordPartInstrumentAudio(instrument1, Chord.of(match));

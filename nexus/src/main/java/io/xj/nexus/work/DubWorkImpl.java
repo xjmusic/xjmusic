@@ -260,13 +260,13 @@ public class DubWorkImpl implements DubWork {
               audio,
               templateConfig.getIntensityLayers(instrument.getType()),
               templateConfig.getIntensityThreshold(instrument.getType()),
-              prevIntensity.get()
+              false, prevIntensity.get()
             ),
             AudioMathUtils.computeIntensityAmplitude(
               audio,
               templateConfig.getIntensityLayers(instrument.getType()),
               templateConfig.getIntensityThreshold(instrument.getType()),
-              nextIntensity.get()
+              false, nextIntensity.get()
             )
           ));
         }
