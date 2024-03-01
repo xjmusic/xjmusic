@@ -270,8 +270,8 @@ public class DubWorkImpl implements DubWork {
             )
           ));
         }
-        prevIntensity.set(nextIntensity.get());
       }
+      prevIntensity.set(nextIntensity.get());
 
       try {
         mixer.mix(activeAudios, nextIntensity.get());
