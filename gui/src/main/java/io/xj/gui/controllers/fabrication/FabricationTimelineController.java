@@ -744,7 +744,7 @@ public class FabricationTimelineController extends ProjectController {
       (Objects.nonNull(choice.getDeltaOut()) && DELTA_UNLIMITED != choice.getDeltaOut() && segment.getDelta() > choice.getDeltaOut()))
       box.getStyleClass().add("choice-group-item-muted");
 
-    if (showProgram) {
+    if (showProgram && Objects.nonNull(choice.getProgramId())) {
       box.getChildren().add(computeProgramReferenceNode(choice.getProgramId(), choice.getProgramSequenceBindingId()));
     }
 
