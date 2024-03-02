@@ -5,7 +5,6 @@ package io.xj.gui.controllers;
 import io.xj.gui.WorkstationGuiFxApplication;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.GuideService;
-import io.xj.gui.services.LabService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import javafx.event.ActionEvent;
@@ -31,11 +30,9 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   final ThemeService themeService;
   final GuideService guideService;
   final UIStateService uiStateService;
-  final LabService labService;
   final UIStateService guiService;
   final ModalFabricationSettingsController modalFabricationSettingsController;
   final ModalAboutController modalAboutController;
-  final ModalLabAuthenticationController modalLabAuthenticationController;
 
   @FXML
   protected MenuItem itemFabricationMainAction;
@@ -74,10 +71,8 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     ConfigurableApplicationContext ac,
     FabricationService fabricationService,
     GuideService guideService,
-    LabService labService,
     ModalAboutController modalAboutController,
     ModalFabricationSettingsController modalFabricationSettingsController,
-    ModalLabAuthenticationController modalLabAuthenticationController,
     ThemeService themeService,
     UIStateService guiService,
     UIStateService uiStateService
@@ -86,10 +81,8 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     this.fabricationService = fabricationService;
     this.guiService = guiService;
     this.guideService = guideService;
-    this.labService = labService;
     this.modalAboutController = modalAboutController;
     this.modalFabricationSettingsController = modalFabricationSettingsController;
-    this.modalLabAuthenticationController = modalLabAuthenticationController;
     this.themeService = themeService;
     this.uiStateService = uiStateService;
   }
@@ -142,16 +135,6 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   @FXML
   protected void onPressAbout() {
     modalAboutController.launchModal();
-  }
-
-  @FXML
-  protected void handleLabAuthentication() {
-    modalLabAuthenticationController.launchModal();
-  }
-
-  @FXML
-  protected void handleLabOpenInBrowser() {
-    labService.launchInBrowser();
   }
 
   @FXML

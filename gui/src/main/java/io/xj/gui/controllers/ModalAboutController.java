@@ -2,7 +2,6 @@
 
 package io.xj.gui.controllers;
 
-import io.xj.gui.services.LabService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.VersionService;
 import javafx.fxml.FXML;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class ModalAboutController extends ReadyAfterBootModalController {
   static final String ABOUT_WINDOW_NAME = "About";
-  final LabService labService;
   private final VersionService versionService;
 
   @FXML
@@ -30,12 +28,10 @@ public class ModalAboutController extends ReadyAfterBootModalController {
   public ModalAboutController(
     @Value("classpath:/views/modal-about.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
-    LabService labService,
     ThemeService themeService,
     VersionService versionService
   ) {
     super(ac, themeService, fxml);
-    this.labService = labService;
     this.versionService = versionService;
   }
 

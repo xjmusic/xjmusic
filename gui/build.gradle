@@ -136,7 +136,7 @@ tasks.register('copyResources', Copy) {
 
 jpackage {
   dependsOn("copyResources")
-  appName = "XJ music workstation"
+  appName = "XJ music workstation DEMO PLAYER"
   appVersion = version.toString()
   vendor = "XJ Music Inc"
   copyright = "Copyright (c) 2023 " + vendor

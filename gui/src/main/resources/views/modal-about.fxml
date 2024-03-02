@@ -17,7 +17,7 @@
       <Insets/>
     </opaqueInsets>
     <Label alignment="TOP_CENTER" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0"
-           text="XJ music workstation"
+           text="XJ music workstation DEMO PLAYER"
            textAlignment="CENTER">
     </Label>
     <Label alignment="TOP_CENTER" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0"

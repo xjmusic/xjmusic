@@ -15,5 +15,4 @@ public interface BeatCraft {
    Artist wants dynamic randomness over the selection of various audio events to fulfill particular pattern events, in order to establish repetition within any given segment. https://www.pivotaltracker.com/story/show/161466708
    */
   void doWork() throws NexusException;
-
 }

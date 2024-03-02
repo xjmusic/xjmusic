@@ -3,7 +3,6 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.services.FabricationService;
-import io.xj.gui.services.LabService;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.persistence.SegmentUtils;
 import io.xj.nexus.work.FabricationState;
@@ -50,7 +49,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   private final int displaySegmentsBeforeShip;
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
-  final LabService labService;
   final MainTimelineSegmentFactory segmentFactory;
   final long refreshTimelineMillis;
   final Timeline scrollPaneAnimationTimeline = new Timeline();
@@ -107,13 +105,11 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     @Value("${gui.timeline.display.segments.before.now}") int displaySegmentsBeforeNow,
     ConfigurableApplicationContext ac,
     FabricationService fabricationService,
-    LabService labService,
     MainTimelineSegmentFactory segmentFactory
   ) {
     this.displaySegmentsBeforeShip = displaySegmentsBeforeNow;
     this.ac = ac;
     this.fabricationService = fabricationService;
-    this.labService = labService;
     this.refreshTimelineMillis = refreshTimelineMillis;
     this.segmentDisplayChoiceHashRecheckLimit = segmentDisplayChoiceHashRecheckLimit;
     this.segmentFactory = segmentFactory;

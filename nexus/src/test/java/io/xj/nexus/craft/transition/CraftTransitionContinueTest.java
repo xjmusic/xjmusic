@@ -2,22 +2,21 @@
 package io.xj.nexus.craft.transition;
 
 import io.xj.hub.HubContent;
+import io.xj.hub.HubTopology;
+import io.xj.hub.entity.EntityFactoryImpl;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
-import io.xj.nexus.NexusTopology;
-import io.xj.nexus.craft.CraftFactory;
-import io.xj.nexus.craft.CraftFactoryImpl;
-import io.xj.hub.entity.EntityFactoryImpl;
-import io.xj.nexus.fabricator.Fabricator;
-import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.nexus.hub_client.HubClient;
-import io.xj.hub.HubTopology;
 import io.xj.hub.json.JsonProvider;
 import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.nexus.NexusTopology;
+import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.craft.CraftFactoryImpl;
+import io.xj.nexus.fabricator.Fabricator;
+import io.xj.nexus.fabricator.FabricatorFactory;
+import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -30,7 +29,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -45,8 +43,6 @@ import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftTransitionContinueTest {
-  @Mock
-  public HubClient hubClient;
   Chain chain1;
   CraftFactory craftFactory;
   FabricatorFactory fabricatorFactory;
@@ -73,7 +69,7 @@ public class CraftTransitionContinueTest {
     // Manipulate the underlying entity store; reset before each test
     store.clear();
 
-    // Mock request via HubClient returns fake generated library of hub content
+    // Mock request via HubClientFactory returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       Stream.concat(fake.setupFixtureB1().stream(),
@@ -123,7 +119,7 @@ public class CraftTransitionContinueTest {
 //    // assert choice of transition-type sequence
 //    Collection<SegmentChoice> segmentChoices =
 //      store.getAll(segment4.getId(), SegmentChoice.class);
-//    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Sweep, InstrumentMode.Transition));
+//    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Transition, InstrumentMode.Event));
   }
 
   /**
@@ -162,8 +158,8 @@ public class CraftTransitionContinueTest {
         Segment.DELTA_UNLIMITED,
         Segment.DELTA_UNLIMITED,
         fake.program35,
-        InstrumentType.Sweep,
-        InstrumentMode.Transition));
+        InstrumentType.Transition,
+        InstrumentMode.Event));
 
     // segment crafting
     segment4 = store.put(buildSegment(
@@ -206,7 +202,7 @@ public class CraftTransitionContinueTest {
     // assert choice of transition-type sequence
     Collection<SegmentChoice> segmentChoices =
       store.getAll(segment4.getId(), SegmentChoice.class);
-    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Sweep, InstrumentMode.Transition));
+    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Transition, InstrumentMode.Event));
 */
   }
 }

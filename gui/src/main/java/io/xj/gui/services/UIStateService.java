@@ -48,11 +48,6 @@ public interface UIStateService extends ReadyAfterBootController {
   StringProperty logLevelProperty();
 
   /**
-   @return Observable property of whether the fabrication input mode should appear disabled
-   */
-  BooleanBinding isInputModeDisabledProperty();
-
-  /**
    @return Observable property of whether the fabrication is in manual mode;
    */
   BooleanBinding isManualFabricationModeProperty();

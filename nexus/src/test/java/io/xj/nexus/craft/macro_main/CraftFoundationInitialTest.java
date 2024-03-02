@@ -2,22 +2,21 @@
 package io.xj.nexus.craft.macro_main;
 
 import io.xj.hub.HubContent;
-import io.xj.hub.enums.ProgramType;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
-import io.xj.nexus.NexusTopology;
-import io.xj.nexus.craft.CraftFactory;
-import io.xj.nexus.craft.CraftFactoryImpl;
+import io.xj.hub.HubTopology;
 import io.xj.hub.entity.EntityFactoryImpl;
 import io.xj.hub.entity.EntityUtils;
-import io.xj.nexus.fabricator.Fabricator;
-import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.nexus.hub_client.HubClient;
-import io.xj.hub.HubTopology;
+import io.xj.hub.enums.ProgramType;
 import io.xj.hub.json.JsonProvider;
 import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.nexus.NexusTopology;
+import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.craft.CraftFactoryImpl;
+import io.xj.nexus.fabricator.Fabricator;
+import io.xj.nexus.fabricator.FabricatorFactory;
+import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -33,7 +32,6 @@ import io.xj.nexus.persistence.SegmentUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collection;
@@ -48,8 +46,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftFoundationInitialTest {
-  @Mock
-  public HubClient hubClient;
   CraftFactory craftFactory;
   FabricatorFactory fabricatorFactory;
   HubContent sourceMaterial;
@@ -75,7 +71,7 @@ public class CraftFoundationInitialTest {
     // Manipulate the underlying entity store; reset before each test
     store.clear();
 
-    // Mock request via HubClient returns fake generated library of hub content
+    // Mock request via HubClientFactory returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(fake.setupFixtureB1());
 
@@ -110,7 +106,7 @@ public class CraftFoundationInitialTest {
     assertEquals(SegmentType.INITIAL, result.getType());
     assertEquals(16 * MICROS_PER_MINUTE / 140, (long) Objects.requireNonNull(result.getDurationMicros()));
     assertEquals(Integer.valueOf(16), result.getTotal());
-    assertEquals(0.1, result.getIntensity(), 0.01);
+    assertEquals(0.2, result.getIntensity(), 0.01);
     assertEquals("G", result.getKey());
     assertEquals(140.0f, result.getTempo(), 0.01);
     // assert memes

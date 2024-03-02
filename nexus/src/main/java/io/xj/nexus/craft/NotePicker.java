@@ -9,7 +9,12 @@ import io.xj.nexus.util.MarbleBag;
 
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  In order to pick exactly one optimal voicing note for each of the source event notes.

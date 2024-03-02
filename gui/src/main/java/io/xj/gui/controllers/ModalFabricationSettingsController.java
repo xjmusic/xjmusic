@@ -3,7 +3,6 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.services.FabricationService;
-import io.xj.gui.services.LabService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.ControlMode;
@@ -26,7 +25,6 @@ import java.io.File;
 public class ModalFabricationSettingsController extends ReadyAfterBootModalController {
 
   static final String FABRICATION_SERVICE_WINDOW_NAME = "Fabrication Settings";
-  private final LabService labService;
   private final FabricationService fabricationService;
   private final UIStateService uiStateService;
 
@@ -78,13 +76,11 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   public ModalFabricationSettingsController(
     @Value("classpath:/views/modal-fabrication-settings.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
-    LabService labService,
     FabricationService fabricationService,
     ThemeService themeService,
     UIStateService uiStateService
   ) {
     super(ac, themeService, fxml);
-    this.labService = labService;
     this.fabricationService = fabricationService;
     this.uiStateService = uiStateService;
   }
@@ -92,16 +88,12 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   @Override
   public void onStageReady() {
     choiceInputMode.valueProperty().bindBidirectional(fabricationService.inputModeProperty());
-    choiceInputMode.disableProperty().bind(uiStateService.isInputModeDisabledProperty());
-    labelInputMode.disableProperty().bind(uiStateService.isInputModeDisabledProperty());
+    choiceInputMode.disableProperty().set(true);
+    labelInputMode.disableProperty().set(true);
 
     // Input mode is locked in PRODUCTION unless we are connected to a Lab
-    if (labService.isAuthenticated()) {
-      choiceInputMode.getItems().setAll(FXCollections.observableArrayList(InputMode.values()));
-    } else {
-      choiceInputMode.getItems().setAll(FXCollections.observableArrayList(InputMode.PRODUCTION));
-      fabricationService.inputModeProperty().set(InputMode.PRODUCTION);
-    }
+    choiceInputMode.getItems().setAll(FXCollections.observableArrayList(InputMode.PRODUCTION));
+    fabricationService.inputModeProperty().set(InputMode.PRODUCTION);
 
     choiceControlMode.valueProperty().bindBidirectional(fabricationService.controlModeProperty());
     choiceControlMode.setItems(FXCollections.observableArrayList(ControlMode.values()));
