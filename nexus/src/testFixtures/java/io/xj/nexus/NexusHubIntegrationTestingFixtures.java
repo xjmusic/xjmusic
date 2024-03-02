@@ -2,6 +2,7 @@
 
 package io.xj.nexus;
 
+import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
@@ -466,6 +467,7 @@ public class NexusHubIntegrationTestingFixtures {
 
   public static Instrument buildInstrument(Library library, InstrumentType type, InstrumentMode mode, InstrumentState state, String name) {
     var instrument = new Instrument();
+    instrument.setConfig(TemplateConfig.DEFAULT);
     instrument.setId(UUID.randomUUID());
     instrument.setLibraryId(library.getId());
     instrument.setType(type);

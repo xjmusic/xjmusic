@@ -7,7 +7,6 @@ import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Program;
@@ -39,6 +38,7 @@ import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
@@ -473,6 +473,7 @@ public class FabricationTimelineController extends ProjectController {
    */
   private Node computeSegmentSectionMessageListNode(Segment segment, int width) {
     var messages = fabricationService.getSegmentMessages(segment);
+    if (messages.isEmpty()) return new Pane();
     var col = new VBox();
     col.setPadding(new Insets(0, 0, 0, 10));
     // info
@@ -491,7 +492,7 @@ public class FabricationTimelineController extends ProjectController {
       .map(m -> computeSegmentSectionMessageNode(m, width))
       .toList());
     //
-    var pane = new AnchorPane();
+    var pane = new VBox();
     pane.getChildren().add(computeLabeledPropertyNode("Messages", col, width, SEGMENT_SECTION_VERTICAL_MARGIN * 2));
     return pane;
   }
@@ -523,13 +524,14 @@ public class FabricationTimelineController extends ProjectController {
    */
   private Node computeSegmentSectionMetasNode(Segment segment, int width) {
     var metas = fabricationService.getSegmentMetas(segment);
+    if (metas.isEmpty()) return new Pane();
     var col = new VBox();
     col.setPadding(new Insets(0, 0, 0, 10));
     col.getChildren().addAll(metas.stream()
       .map(m -> computeSegmentSectionMetaNode(m, width))
       .toList());
     //
-    var pane = new AnchorPane();
+    var pane = new VBox();
     pane.getChildren().add(computeLabeledPropertyNode("Metas", col, width, SEGMENT_SECTION_VERTICAL_MARGIN));
     return pane;
   }
@@ -568,19 +570,24 @@ public class FabricationTimelineController extends ProjectController {
     col.setMaxHeight(Double.MAX_VALUE);
     col.setPadding(new Insets(20, 0, 0, 0));
     VBox.setVgrow(col, Priority.ALWAYS);
-    var choices = fabricationService.getSegmentChoices(segment);
-    col.getChildren().add(computeChoiceListNodes(segment, "Macro", choices.stream().filter((choice) -> ProgramType.Macro == choice.getProgramType()).toList(), true, false, false));
-    col.getChildren().add(computeChoiceListNodes(segment, "Main", choices.stream().filter((choice) -> ProgramType.Main == choice.getProgramType()).toList(), true, false, false));
-    col.getChildren().add(computeChoiceListNodes(segment, "Beat", choices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList(), false, true, false));
-    col.getChildren().add(computeChoiceListNodes(segment, "Detail", choices.stream().filter((choice) -> ProgramType.Detail == choice.getProgramType()).toList(), true, false, false));
-    col.getChildren().add(computeChoiceListNodes(segment, "Perc Loop", choices.stream().filter((choice) ->
-      InstrumentType.Percussion == choice.getInstrumentType() && InstrumentMode.Loop == choice.getInstrumentMode()).toList(), false, false, true));
-    col.getChildren().add(computeChoiceListNodes(segment, "Hook", choices.stream().filter((choice) -> InstrumentType.Hook == choice.getInstrumentType()).toList(), false, false, true));
-    col.getChildren().add(computeChoiceListNodes(segment, "Transition", choices.stream().filter((choice) -> InstrumentMode.Transition == choice.getInstrumentMode()).toList(), false, false, true));
-    col.getChildren().add(computeChoiceListNodes(segment, "Background", choices.stream().filter((choice) -> InstrumentMode.Background == choice.getInstrumentMode()).toList(), false, false, true));
-    col.getChildren().add(computeChoiceListNodes(segment, "Chord", choices.stream().filter((choice) -> InstrumentMode.Chord == choice.getInstrumentMode()).toList(), false, false, true));
+    var segmentChoices = fabricationService.getSegmentChoices(segment);
+    col.getChildren().add(computeChoicesListNode(segment, "Macro", segmentChoices.stream().filter((choice) -> ProgramType.Macro == choice.getProgramType()).toList(), true, false, false));
+    col.getChildren().add(computeChoicesListNode(segment, "Main", segmentChoices.stream().filter((choice) -> ProgramType.Main == choice.getProgramType()).toList(), true, false, false));
+    col.getChildren().add(computeChoicesListNode(segment, "Beat", segmentChoices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList(), false, true, false));
+    for (var instrumentType : InstrumentType.values()) {
+      var choices = segmentChoices.stream().filter((choice) -> instrumentType == choice.getInstrumentType()).toList();
+      if (choices.isEmpty()) continue;
+      col.getChildren().add(computeChoicesListNode(
+        segment,
+        instrumentType.toString(),
+        choices,
+        true,
+        true,
+        true
+      ));
+    }
     //
-    var pane = new AnchorPane();
+    var pane = new VBox();
     pane.getChildren().add(col);
     return pane;
   }
@@ -700,7 +707,7 @@ public class FabricationTimelineController extends ProjectController {
     return col;
   }
 
-  Node computeChoiceListNodes(Segment segment, String layerName, Collection<? extends SegmentChoice> choices, boolean showProgram, boolean showProgramVoice, boolean showArrangementPicks) {
+  Node computeChoicesListNode(Segment segment, String layerName, Collection<? extends SegmentChoice> choices, boolean showProgram, boolean showProgramVoice, boolean showArrangementPicks) {
     var box = new VBox();
     box.getStyleClass().add("choice-group");
     // layer name
@@ -731,11 +738,11 @@ public class FabricationTimelineController extends ProjectController {
       (Objects.nonNull(choice.getDeltaOut()) && DELTA_UNLIMITED != choice.getDeltaOut() && segment.getDelta() > choice.getDeltaOut()))
       box.getStyleClass().add("choice-group-item-muted");
 
-    if (showProgram) {
+    if (showProgram && Objects.nonNull(choice.getProgramId())) {
       box.getChildren().add(computeProgramReferenceNode(choice.getProgramId(), choice.getProgramSequenceBindingId()));
     }
 
-    if (showProgramVoice) {
+    if (showProgramVoice && Objects.nonNull(choice.getProgramVoiceId())) {
       box.getChildren().add(computeProgramVoiceReferenceNode(choice.getProgramVoiceId()));
     }
 
@@ -867,7 +874,7 @@ public class FabricationTimelineController extends ProjectController {
       .orElseThrow(() -> new RuntimeException(String.format("Instrument Audio %s not found", instrumentAudioId)));
 
     var hyperlink = new Hyperlink(instrumentAudio.getName());
-    hyperlink.setOnAction(event -> uiStateService.editInstrument(instrumentAudio.getInstrumentId()));
+    hyperlink.setOnAction(event -> uiStateService.editInstrumentAudio(instrumentAudio.getId()));
     return hyperlink;
   }
 

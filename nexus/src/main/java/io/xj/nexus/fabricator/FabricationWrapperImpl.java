@@ -58,21 +58,6 @@ public abstract class FabricationWrapperImpl {
   }
 
   /**
-   Report a missing entity as a segment message
-
-   @param type   of class that is missing
-   @param detail of how missing entity was searched for
-   */
-  protected void reportMissing(Class<?> type, String detail) {
-    try {
-      fabricator.addWarningMessage(String.format("%s not found %s", type.getSimpleName(), detail));
-
-    } catch (Exception e) {
-      LOG.warn("Failed to create SegmentMessage", e);
-    }
-  }
-
-  /**
    Report a missing entity as a segment message@param traces of how missing entity was searched for
    */
   protected void reportMissing(Map<String, String> traces) {

@@ -5,6 +5,7 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.nexus.mixer.BytePipeline;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
+import jakarta.annotation.Nullable;
 
 import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
@@ -107,4 +108,11 @@ public interface DubWork extends Work {
    @return the length of the mixer buffer in seconds
    */
   int getMixerLengthSeconds();
+
+  /**
+   Set the intensity override to a value between 0 and 1, or null if no override
+
+   @param intensity the intensity override value, or null
+   */
+  void setIntensityOverride(@Nullable Double intensity);
 }

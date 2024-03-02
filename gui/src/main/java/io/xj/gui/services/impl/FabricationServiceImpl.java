@@ -28,8 +28,8 @@ import io.xj.nexus.model.SegmentMessage;
 import io.xj.nexus.model.SegmentMeta;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.util.FormatUtils;
-import io.xj.nexus.work.FabricationSettings;
 import io.xj.nexus.work.FabricationManager;
+import io.xj.nexus.work.FabricationSettings;
 import io.xj.nexus.work.FabricationState;
 import jakarta.annotation.Nullable;
 import javafx.application.Platform;
@@ -73,6 +73,7 @@ public class FabricationServiceImpl implements FabricationService {
   private final static String BUTTON_TEXT_START = "Start";
   private final static String BUTTON_TEXT_STOP = "Stop";
   private final static String BUTTON_TEXT_RESET = "Reset";
+  private final double defaultIntensityOverride;
   private final int defaultTimelineSegmentViewLimit;
   private final int defaultCraftAheadSeconds;
   private final int defaultDubAheadSeconds;
@@ -87,26 +88,26 @@ public class FabricationServiceImpl implements FabricationService {
   private final StringProperty progressLabel = new SimpleStringProperty();
   private final ObjectProperty<FabricationState> state = new SimpleObjectProperty<>(FabricationState.Standby);
   private final ObservableStringValue stateText = Bindings.createStringBinding(
-    () -> switch (state.get()) {
-      case Standby -> "Ready";
-      case Starting -> "Starting";
-      case PreparingAudio -> progressLabel.get();
-      case PreparedAudio -> "Prepared audio";
-      case Initializing -> "Initializing";
-      case Active -> "Active";
-      case Done -> "Done";
-      case Cancelled -> "Cancelled";
-      case Failed -> "Failed";
-    },
-    state,
-    progress,
-    progressLabel);
+      () -> switch (state.get()) {
+        case Standby -> "Ready";
+        case Starting -> "Starting";
+        case PreparingAudio -> progressLabel.get();
+        case PreparedAudio -> "Prepared audio";
+        case Initializing -> "Initializing";
+        case Active -> "Active";
+        case Done -> "Done";
+        case Cancelled -> "Cancelled";
+        case Failed -> "Failed";
+      },
+      state,
+      progress,
+      progressLabel);
   private final BooleanBinding stateActive =
-    Bindings.createBooleanBinding(() -> state.get() == FabricationState.Active, state);
+      Bindings.createBooleanBinding(() -> state.get() == FabricationState.Active, state);
   private final BooleanBinding stateStandby =
-    Bindings.createBooleanBinding(() -> state.get() == FabricationState.Standby, state);
+      Bindings.createBooleanBinding(() -> state.get() == FabricationState.Standby, state);
   private final BooleanBinding stateLoading =
-    Bindings.createBooleanBinding(() -> state.get() == FabricationState.PreparingAudio || state.get() == FabricationState.PreparedAudio, state);
+      Bindings.createBooleanBinding(() -> state.get() == FabricationState.PreparingAudio || state.get() == FabricationState.PreparedAudio, state);
   private final ObjectProperty<Template> inputTemplate = new SimpleObjectProperty<>();
   private final ObjectProperty<ControlMode> controlMode = new SimpleObjectProperty<>();
   private final StringProperty craftAheadSeconds = new SimpleStringProperty();
@@ -118,24 +119,27 @@ public class FabricationServiceImpl implements FabricationService {
   private final BooleanProperty followPlayback = new SimpleBooleanProperty(true);
   private final ObservableSet<String> overrideMemes = FXCollections.observableSet();
   private final ObjectProperty<UUID> overrideMacroProgramId = new SimpleObjectProperty<>();
+  private final DoubleProperty intensityOverride = new SimpleDoubleProperty(1.0);
+  private final BooleanProperty intensityOverrideActive = new SimpleBooleanProperty(false);
   private final ObservableValue<String> mainActionButtonText = Bindings.createStringBinding(() ->
-    switch (state.get()) {
-      case Standby -> BUTTON_TEXT_START;
-      case Starting, PreparingAudio, PreparedAudio, Initializing, Active -> BUTTON_TEXT_STOP;
-      case Cancelled, Failed, Done -> BUTTON_TEXT_RESET;
-    }, state);
+      switch (state.get()) {
+        case Standby -> BUTTON_TEXT_START;
+        case Starting, PreparingAudio, PreparedAudio, Initializing, Active -> BUTTON_TEXT_STOP;
+        case Cancelled, Failed, Done -> BUTTON_TEXT_RESET;
+      }, state);
 
   public FabricationServiceImpl(
-    @Value("${craft.ahead.seconds}") int defaultCraftAheadSeconds,
-    @Value("${dub.ahead.seconds}") int defaultDubAheadSeconds,
-    @Value("${mixer.length.seconds}") int defaultMixerLengthSeconds,
-    @Value("${gui.timeline.max.segments}") int defaultTimelineSegmentViewLimit,
-    @Value("${output.channels}") int defaultOutputChannels,
-    @Value("${output.frame.rate}") int defaultOutputFrameRate,
-    @Value("${macro.mode}") String defaultMacroMode,
-    LabService labService,
-    ProjectService projectService,
-    FabricationManager fabricationManager
+      @Value("${craft.ahead.seconds}") int defaultCraftAheadSeconds,
+      @Value("${dub.ahead.seconds}") int defaultDubAheadSeconds,
+      @Value("${mixer.length.seconds}") int defaultMixerLengthSeconds,
+      @Value("${gui.timeline.max.segments}") int defaultTimelineSegmentViewLimit,
+      @Value("${output.channels}") int defaultOutputChannels,
+      @Value("${output.frame.rate}") int defaultOutputFrameRate,
+      @Value("${macro.mode}") String defaultMacroMode,
+      @Value("${intensity.default.value}") double defaultIntensityOverride,
+      LabService labService,
+      ProjectService projectService,
+      FabricationManager fabricationManager
   ) {
     this.defaultCraftAheadSeconds = defaultCraftAheadSeconds;
     this.defaultDubAheadSeconds = defaultDubAheadSeconds;
@@ -144,12 +148,29 @@ public class FabricationServiceImpl implements FabricationService {
     this.defaultOutputChannels = defaultOutputChannels;
     this.defaultOutputFrameRate = defaultOutputFrameRate;
     this.defaultTimelineSegmentViewLimit = defaultTimelineSegmentViewLimit;
+    this.defaultIntensityOverride = defaultIntensityOverride;
     this.labService = labService;
     this.fabricationManager = fabricationManager;
 
     projectService.stateProperty().addListener((o, ov, value) -> {
       if (value == ProjectState.Ready) {
         inputTemplate.set(projectService.getContent().getTemplates().stream().findFirst().orElse(null));
+      }
+    });
+
+    intensityOverrideActive.addListener((o, ov, value) -> {
+      if (value) {
+        fabricationManager.setIntensityOverride(intensityOverride.get());
+      } else {
+        fabricationManager.setIntensityOverride(null);
+      }
+    });
+
+    intensityOverride.addListener((o, ov, value) -> {
+      if (intensityOverrideActive.get()) {
+        fabricationManager.setIntensityOverride(intensityOverride.get());
+      } else {
+        fabricationManager.setIntensityOverride(null);
       }
     });
 
@@ -165,6 +186,10 @@ public class FabricationServiceImpl implements FabricationService {
         return;
       }
 
+      // default intensity override
+      intensityOverrideActive.set(false);
+      intensityOverride.set(defaultIntensityOverride);
+
       // reset progress
       progress.set(0.0);
       progressLabel.set("");
@@ -172,17 +197,17 @@ public class FabricationServiceImpl implements FabricationService {
 
       // create work configuration
       var config = new FabricationSettings()
-        .setCraftAheadSeconds(parseIntegerValue(craftAheadSeconds.get(), "fabrication setting for Craft Ahead Seconds"))
-        .setDubAheadSeconds(parseIntegerValue(dubAheadSeconds.get(), "fabrication setting for Dub Ahead Seconds"))
-        .setMixerLengthSeconds(parseIntegerValue(mixerLengthSeconds.get(), "fabrication setting for Mixer Length Seconds"))
-        .setMacroMode(controlMode.get())
-        .setInputTemplate(inputTemplate.get())
-        .setOutputChannels(parseIntegerValue(outputChannels.get(), "fabrication setting for Output Channels"))
-        .setOutputFrameRate(parseIntegerValue(outputFrameRate.get(), "fabrication setting for Output Frame Rate"));
+          .setCraftAheadSeconds(parseIntegerValue(craftAheadSeconds.get(), "fabrication setting for Craft Ahead Seconds"))
+          .setDubAheadSeconds(parseIntegerValue(dubAheadSeconds.get(), "fabrication setting for Dub Ahead Seconds"))
+          .setMixerLengthSeconds(parseIntegerValue(mixerLengthSeconds.get(), "fabrication setting for Mixer Length Seconds"))
+          .setMacroMode(controlMode.get())
+          .setInputTemplate(inputTemplate.get())
+          .setOutputChannels(parseIntegerValue(outputChannels.get(), "fabrication setting for Output Channels"))
+          .setOutputFrameRate(parseIntegerValue(outputFrameRate.get(), "fabrication setting for Output Frame Rate"));
       LOG.debug("Did instantiate work configuration");
 
       var hubAccess = new HubClientAccess()
-        .setToken(labService.accessTokenProperty().get());
+          .setToken(labService.accessTokenProperty().get());
       LOG.debug("Did instantiate hub client access");
 
       // start the work with the given configuration
@@ -275,8 +300,8 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public List<Program> getAllMacroPrograms() {
     return fabricationManager.getSourceMaterial().getProgramsOfType(ProgramType.Macro).stream()
-      .sorted(Comparator.comparing(Program::getName))
-      .toList();
+        .sorted(Comparator.comparing(Program::getName))
+        .toList();
   }
 
   @Override
@@ -377,13 +402,13 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice choice) {
     return fabricationManager.getEntityStore().readManySubEntitiesOfType(choice.getSegmentId(), SegmentChoiceArrangement.class)
-      .stream().filter(arrangement -> arrangement.getSegmentChoiceId().equals(choice.getId())).toList();
+        .stream().filter(arrangement -> arrangement.getSegmentChoiceId().equals(choice.getId())).toList();
   }
 
   @Override
   public Collection<SegmentChoiceArrangementPick> getPicks(SegmentChoiceArrangement arrangement) {
     return fabricationManager.getEntityStore().readManySubEntitiesOfType(arrangement.getSegmentId(), SegmentChoiceArrangementPick.class)
-      .stream().filter(pick -> pick.getSegmentChoiceArrangementId().equals(arrangement.getId())).toList();
+        .stream().filter(pick -> pick.getSegmentChoiceArrangementId().equals(arrangement.getId())).toList();
   }
 
   @Override
@@ -400,7 +425,7 @@ public class FabricationServiceImpl implements FabricationService {
   public List<Segment> getSegments(@Nullable Integer startIndex) {
     var viewLimit = parseIntegerValue(timelineSegmentViewLimit.getValue(), "Timeline Segment View Limit");
     var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, fabricationManager.getEntityStore().readLastSegmentId() - viewLimit - 1);
-    var to = Math.min(fabricationManager.getEntityStore().readLastSegmentId() , from + viewLimit);
+    var to = Math.min(fabricationManager.getEntityStore().readLastSegmentId(), from + viewLimit);
     return fabricationManager.getEntityStore().readSegmentsFromToOffset(from, to);
   }
 
@@ -412,26 +437,26 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public String formatTotalBars(Segment segment, @Nullable Integer beats) {
     return Objects.nonNull(beats)
-      ? getBarBeats(segment)
-      .map(barBeats -> formatTotalBars((int) Math.floor((float) beats / barBeats),
-        FormatUtils.formatFractionalSuffix((double) (beats % barBeats) / barBeats)))
-      .orElse(String.format("%d beat%s", beats, beats == 1 ? "" : "s"))
-      : "N/A";
+        ? getBarBeats(segment)
+        .map(barBeats -> formatTotalBars((int) Math.floor((float) beats / barBeats),
+            FormatUtils.formatFractionalSuffix((double) (beats % barBeats) / barBeats)))
+        .orElse(String.format("%d beat%s", beats, beats == 1 ? "" : "s"))
+        : "N/A";
   }
 
   @Override
   public String formatPositionBarBeats(Segment segment, @Nullable Double position) {
     return
-      Objects.nonNull(position) ?
-        getBarBeats(segment)
-          .map(barBeats -> {
-            var bars = (int) Math.floor(position / barBeats);
-            var beats = (int) Math.floor(position % barBeats);
-            var remaining = beats > 0 ? position % barBeats % beats : 0;
-            return String.format("%d.%d%s", bars + 1, beats + 1, FormatUtils.formatDecimalSuffix(remaining));
-          })
-          .orElse(FormatUtils.formatMinDecimal(position))
-        : "N/A";
+        Objects.nonNull(position) ?
+            getBarBeats(segment)
+                .map(barBeats -> {
+                  var bars = (int) Math.floor(position / barBeats);
+                  var beats = (int) Math.floor(position % barBeats);
+                  var remaining = beats > 0 ? position % barBeats % beats : 0;
+                  return String.format("%d.%d%s", bars + 1, beats + 1, FormatUtils.formatDecimalSuffix(remaining));
+                })
+                .orElse(FormatUtils.formatMinDecimal(position))
+            : "N/A";
   }
 
   @Override
@@ -506,8 +531,18 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public Optional<Segment> getSegmentAtShipOutput() {
     return
-      fabricationManager.getShippedToChainMicros().flatMap(chainMicros ->
-        fabricationManager.getEntityStore().readSegmentAtChainMicros(chainMicros));
+        fabricationManager.getShippedToChainMicros().flatMap(chainMicros ->
+            fabricationManager.getEntityStore().readSegmentAtChainMicros(chainMicros));
+  }
+
+  @Override
+  public DoubleProperty intensityOverrideProperty() {
+    return intensityOverride;
+  }
+
+  @Override
+  public BooleanProperty intensityOverrideActiveProperty() {
+    return intensityOverrideActive;
   }
 
   /**

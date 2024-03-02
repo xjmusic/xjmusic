@@ -48,12 +48,4 @@ public interface AudioCache {
    Invalidate all cache entries
    */
   void invalidateAll();
-
-  /**
-   Check if all the provided audios are loaded into memory
-
-   @param activeAudios the audios to check
-   @return true if all the audios are loaded into memory
-   */
-  boolean areAllReady(List<ActiveAudio> activeAudios);
 }

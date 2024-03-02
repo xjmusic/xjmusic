@@ -123,7 +123,7 @@ public class CraftTransitionProgramVoiceNextMacroTest {
     Collection<Object> entities = new ArrayList<>();
 
     // Instrument "808"
-    Instrument instrument1 = EntityUtils.add(entities, buildInstrument(fake.library2, InstrumentType.Sweep, InstrumentMode.Transition, InstrumentState.Published, "Bongo Loop"));
+    Instrument instrument1 = EntityUtils.add(entities, buildInstrument(fake.library2, InstrumentType.Transition, InstrumentMode.Event, InstrumentState.Published, "Bongo Loop"));
     EntityUtils.add(entities, buildMeme(instrument1, "heavy"));
     //
     audioKick = EntityUtils.add(entities, buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
@@ -144,7 +144,7 @@ public class CraftTransitionProgramVoiceNextMacroTest {
 //    // assert transition choice
 //    Collection<SegmentChoice> segmentChoices = fabricator.getChoices();
 //    SegmentChoice transitionChoice = segmentChoices.stream()
-//      .filter(c -> c.getInstrumentType().equals(InstrumentType.Sweep, InstrumentMode.Transition)).findFirst().orElseThrow();
+//      .filter(c -> c.getInstrumentType().equals(InstrumentType.Transition, InstrumentMode.Event)).findFirst().orElseThrow();
 //    assertTrue(fabricator.getArrangements()
 //      .stream().anyMatch(a -> a.getSegmentChoiceId().equals(transitionChoice.getId())));
 //    // test vector for persist Audio pick in memory https://www.pivotaltracker.com/story/show/154014731
@@ -197,7 +197,7 @@ public class CraftTransitionProgramVoiceNextMacroTest {
         Segment.DELTA_UNLIMITED,
         Segment.DELTA_UNLIMITED,
         fake.program35,
-        InstrumentType.Sweep, InstrumentMode.Transition));
+        InstrumentType.Transition, InstrumentMode.Event));
 
     // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
     segment4 = store.put(buildSegment(

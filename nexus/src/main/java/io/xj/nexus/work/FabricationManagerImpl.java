@@ -243,6 +243,12 @@ public class FabricationManagerImpl implements FabricationManager {
   }
 
   @Override
+  public void setIntensityOverride(@Nullable Double intensity) {
+    if (Objects.isNull(dubWork)) return;
+    dubWork.setIntensityOverride(intensity);
+  }
+
+  @Override
   public NexusEntityStore getEntityStore() {
     return entityStore;
   }

@@ -44,6 +44,7 @@ class FabricationServiceImplTest {
   int defaultDubAheadSeconds = 5;
   int defaultMixerLengthSeconds = 10;
   int defaultOutputChannels = 2;
+  double defaultIntensityOverride = 0.38;
   private final String defaultMacroMode = ControlMode.AUTO.toString();
   int defaultOutputFrameRate = 48000;
 
@@ -68,24 +69,25 @@ class FabricationServiceImplTest {
     Project project = buildProject();
     Template template = buildTemplate(project, "Test Template");
     chain = buildChain(
-      project,
-      "Test",
-      ChainType.PRODUCTION,
-      ChainState.FABRICATE,
-      template
+        project,
+        "Test",
+        ChainType.PRODUCTION,
+        ChainState.FABRICATE,
+        template
     );
     when(projectService.stateProperty()).thenReturn(new SimpleObjectProperty<>(ProjectState.Standby));
     subject = new FabricationServiceImpl(
-      defaultCraftAheadSeconds,
-      defaultDubAheadSeconds,
-      defaultMixerLengthSeconds,
-      defaultTimelineSegmentViewLimit,
-      defaultOutputChannels,
-      defaultOutputFrameRate,
-      defaultMacroMode,
-      labService,
-      projectService,
-      fabricationManager
+        defaultCraftAheadSeconds,
+        defaultDubAheadSeconds,
+        defaultMixerLengthSeconds,
+        defaultTimelineSegmentViewLimit,
+        defaultOutputChannels,
+        defaultOutputFrameRate,
+        defaultMacroMode,
+        defaultIntensityOverride,
+        labService,
+        projectService,
+        fabricationManager
     );
   }
 
@@ -121,14 +123,14 @@ class FabricationServiceImplTest {
 
   private Segment prepareStore(int barBeats) {
     var segment = buildSegment(
-      chain,
-      offset.getAndIncrement(),
-      SegmentState.PLANNED,
-      "C",
-      8,
-      0.8f,
-      120.0f,
-      "chain-segment-0.wav");
+        chain,
+        offset.getAndIncrement(),
+        SegmentState.PLANNED,
+        "C",
+        8,
+        0.8f,
+        120.0f,
+        "chain-segment-0.wav");
     var program = buildMainProgramWithBarBeats(barBeats);
     var sourceMaterial = new HubContent(List.of(program));
     var choice = buildSegmentChoice(segment, program);

@@ -146,4 +146,11 @@ public interface FabricationManager {
    @return true if an override happened
    */
   boolean getAndResetDidOverride();
+
+  /**
+   Set the intensity override to a value between 0 and 1, or null if no override
+
+   @param intensity the intensity to set
+   */
+  void setIntensityOverride(@Nullable Double intensity);
 }

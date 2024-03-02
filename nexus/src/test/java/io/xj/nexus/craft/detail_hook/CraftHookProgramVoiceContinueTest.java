@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
-package io.xj.nexus.craft.perc_loop;
+package io.xj.nexus.craft.detail_hook;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.HubTopology;
@@ -30,6 +30,7 @@ import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,26 +42,25 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAudio;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildInstrument;
-import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildInstrumentAudio;
-import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildInstrumentMeme;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildMeme;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
 
 @ExtendWith(MockitoExtension.class)
-public class CraftPercLoopProgramVoiceNextMainTest {
+public class CraftHookProgramVoiceContinueTest {
+  Chain chain1;
   CraftFactory craftFactory;
   FabricatorFactory fabricatorFactory;
-  NexusIntegrationTestingFixtures fake;
-  Chain chain1;
-  Segment segment4;
-  NexusEntityStore store;
+  HubContent sourceMaterial;
   InstrumentAudio audioKick;
   InstrumentAudio audioSnare;
-  HubContent sourceMaterial;
+  NexusEntityStore store;
+  NexusIntegrationTestingFixtures fake;
+  Segment segment4;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -89,23 +89,19 @@ public class CraftPercLoopProgramVoiceNextMainTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(buildChain(
-      fake.project1,
-      fake.template1,
-      "Test Print #1",
-      ChainType.PRODUCTION,
-      ChainState.FABRICATE
-    ));
+    chain1 = store.put(NexusIntegrationTestingFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
     store.put(buildSegment(
       chain1,
+      SegmentType.INITIAL,
+      0,
       0,
       SegmentState.CRAFTED,
       "D major",
       64,
       0.73f,
       120.0f,
-      "chains-1-segments-9f7s89d8a7892"
-    ));
+      "chains-1-segments-9f7s89d8a7892",
+      true));
     store.put(buildSegment(
       chain1,
       SegmentType.CONTINUE,
@@ -128,60 +124,31 @@ public class CraftPercLoopProgramVoiceNextMainTest {
     Collection<Object> entities = new ArrayList<>();
 
     // Instrument "808"
-    Instrument instrument1 = EntityUtils.add(entities,
-      buildInstrument(fake.library2, InstrumentType.Percussion, InstrumentMode.Event, InstrumentState.Published, "Bongo Loop"));
-    EntityUtils.add(entities, buildInstrumentMeme(instrument1, "heavy"));
+    Instrument instrument1 = EntityUtils.add(entities, buildInstrument(fake.library2, InstrumentType.Hook, InstrumentMode.Event, InstrumentState.Published, "Bongo Loop"));
+    EntityUtils.add(entities, buildMeme(instrument1, "heavy"));
     //
-    audioKick = EntityUtils.add(entities, buildInstrumentAudio(
-      instrument1,
-      "Kick",
-      "19801735098q47895897895782138975898.wav",
-      0.01f,
-      2.123f,
-      120.0f,
-      0.6f,
-      "KICK",
-      "Eb",
-      1.0f));
+    audioKick = EntityUtils.add(entities, buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
     //
-    audioSnare = EntityUtils.add(entities, buildInstrumentAudio(
-      instrument1,
-      "Snare",
-      "a1g9f8u0k1v7f3e59o7j5e8s98.wav",
-      0.01f,
-      1.5f,
-      120.0f,
-      0.6f,
-      "SNARE",
-      "Ab",
-      1.0f));
+    audioSnare = EntityUtils.add(entities, buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
 
     return entities;
   }
 
+  @AfterEach
+  public void tearDown() {
+
+  }
+
   @Test
-  public void craftPercLoopVoiceNextMain() throws Exception {
+  public void craftHookVoiceContinue_okIfNoHookChoice() throws Exception {
     insertSegments3and4();
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
 
-    craftFactory.percLoop(fabricator).doWork();
-
-//    // test vector for persist Audio pick in memory https://www.pivotaltracker.com/story/show/154014731
-//    int pickedKick = 0;
-//    int pickedSnare = 0;
-//    Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();
-//    for (SegmentChoiceArrangementPick pick : picks) {
-//      if (pick.getInstrumentAudioId().equals(audioKick.getId()))
-//        pickedKick++;
-//      if (pick.getInstrumentAudioId().equals(audioSnare.getId()))
-//        pickedSnare++;
-//    }
-//    assertEquals(8, pickedKick);
-//    assertEquals(8, pickedSnare);
+    craftFactory.detail(fabricator).doWork();
   }
 
   /**
-   Insert fixture segments 3 and 4, including the percLoop choice for segment 3 only if specified
+   Insert fixture segments 3 and 4, including the hook choice for segment 3 only if specified
    */
   void insertSegments3and4() throws NexusException {
     // segment just crafted
@@ -196,8 +163,7 @@ public class CraftPercLoopProgramVoiceNextMainTest {
       64,
       0.30f,
       120.0f,
-      "chains-1-segments-9f7s89d8a7892",
-      true));
+      "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment3,
       Segment.DELTA_UNLIMITED,
@@ -208,17 +174,17 @@ public class CraftPercLoopProgramVoiceNextMainTest {
       segment3,
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
-      fake.program15,
-      fake.program15_sequence1_binding0));
+      fake.program5,
+      fake.program5_sequence0_binding0));
 
     // segment crafting
     segment4 = store.put(buildSegment(
       chain1,
-      SegmentType.NEXT_MAIN,
-      0,
+      SegmentType.CONTINUE,
+      3,
       3,
       SegmentState.CRAFTING,
-      "G minor",
+      "D Major",
       16,
       0.45f,
       120.0f,
@@ -228,18 +194,18 @@ public class CraftPercLoopProgramVoiceNextMainTest {
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
       fake.program4,
-      fake.program4_sequence1_binding0));
+      fake.program4_sequence0_binding0));
     store.put(buildSegmentChoice(
       segment4,
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
-      fake.program15,
-      fake.program15_sequence0_binding0));
-    for (String memeName : List.of("Regret", "Sky", "Hindsight", "Tropical"))
+      fake.program5,
+      fake.program5_sequence1_binding0));
+    for (String memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
       store.put(buildSegmentMeme(segment4, memeName));
-
-    store.put(buildSegmentChord(segment4, 0.0f, "G minor"));
-    store.put(buildSegmentChord(segment4, 8.0f, "Ab minor"));
+    store.put(buildSegmentChord(segment4, 0.0f, "A minor"));
+    store.put(buildSegmentChord(segment4, 8.0f, "D Major"));
   }
+
 
 }

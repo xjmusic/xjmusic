@@ -107,31 +107,31 @@ public class DemoIT {
   static final InstrumentAudio clhat = buildAudio(instrument, "clhat", "cl_hihat" + SOURCE_FILE_SUFFIX, 0, .052f, 120, 1.0f, "X", "C5", 1.0f);
   static final InstrumentAudio ding = buildAudio(instrument, "ding", "ding" + SOURCE_FILE_SUFFIX, 0, 3.733f, 120, 1.0f, "X", "C5", 1.0f);
   static final Map<UUID, InstrumentAudio> audioById = Stream.of(
-    kick1,
-    kick2,
-    marac,
-    snare,
-    lotom,
-    clhat,
-    ding
+      kick1,
+      kick2,
+      marac,
+      snare,
+      lotom,
+      clhat,
+      ding
   ).collect(Collectors.toMap(InstrumentAudio::getId, instrumentAudio -> instrumentAudio));
   static final InstrumentAudio[] demoSequence = {
-    kick2,
-    marac,
-    clhat,
-    marac,
-    snare,
-    marac,
-    clhat,
-    kick2,
-    clhat,
-    marac,
-    kick1,
-    marac,
-    snare,
-    lotom,
-    clhat,
-    marac
+      kick2,
+      marac,
+      clhat,
+      marac,
+      snare,
+      marac,
+      clhat,
+      kick2,
+      clhat,
+      marac,
+      kick1,
+      marac,
+      snare,
+      lotom,
+      clhat,
+      marac
   };
   private final String instrumentPathPrefix;
   private final ProjectManager projectManager;
@@ -215,12 +215,12 @@ public class DemoIT {
    */
   void mixAndWriteOutput(AudioFormat.Encoding outputEncoding, int outputFrameRate, int outputSampleBits, int outputChannels, float outputSeconds, String outputFilePath) throws Exception {
     audioCache.initialize(
-      outputFrameRate,
-      outputSampleBits,
-      outputChannels
+        outputFrameRate,
+        outputSampleBits,
+        outputChannels
     );
     AudioFormat audioFormat = new AudioFormat(outputEncoding, outputFrameRate, outputSampleBits, outputChannels,
-      (outputChannels * outputSampleBits / 8), outputFrameRate, false);
+        (outputChannels * outputSampleBits / 8), outputFrameRate, false);
     AudioFileWriter audioFileWriter = new AudioFileWriterImpl(audioFormat);
     MixerConfig mixerConfig = new MixerConfig(audioFormat);
     mixerConfig.setTotalSeconds(outputSeconds);
@@ -236,15 +236,15 @@ public class DemoIT {
 
     // mix it -- for the demo, 1 segment = the mixer buffer length
     mixer.mix(picks.stream()
-      .map((SegmentChoiceArrangementPick pick) ->
-        new ActiveAudio(
-          pick,
-          instrument,
-          audioById.get(pick.getInstrumentAudioId()),
-          pick.getStartAtSegmentMicros(),
-          pick.getStartAtSegmentMicros() + pick.getLengthMicros()
-        ))
-      .toList());
+        .map((SegmentChoiceArrangementPick pick) ->
+            new ActiveAudio(
+                pick,
+                instrument,
+                audioById.get(pick.getInstrumentAudioId()),
+                pick.getStartAtSegmentMicros(),
+                pick.getStartAtSegmentMicros() + pick.getLengthMicros(),
+                1.0f, 1.0f))
+        .toList(), 1.0);
 
     // Write the demo file output
     audioFileWriter.open(outputFilePath);
@@ -255,6 +255,7 @@ public class DemoIT {
   private static Instrument buildInstrument() {
     var instrument = new Instrument();
     instrument.setId(UUID.randomUUID());
+    instrument.setVolume(1.0f);
     instrument.setLibraryId(UUID.randomUUID());
     instrument.setType(InstrumentType.Drum);
     instrument.setMode(InstrumentMode.Event);
@@ -283,12 +284,12 @@ public class DemoIT {
    */
   private SegmentChoiceArrangementPick buildPick(InstrumentAudio audio, float position, float duration) {
     ProgramSequencePatternEvent event = buildProgramSequencePatternEvent(
-      pattern,
-      track,
-      position,
-      duration,
-      "X",
-      1.0f
+        pattern,
+        track,
+        position,
+        duration,
+        "X",
+        1.0f
     );
 
     var microsPerBeat = ValueUtils.MICROS_PER_SECOND * ValueUtils.SECONDS_PER_MINUTE / segment.getTempo();

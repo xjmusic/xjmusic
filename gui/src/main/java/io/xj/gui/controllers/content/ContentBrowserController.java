@@ -102,7 +102,7 @@ public class ContentBrowserController extends BrowserController {
    Initialize the libraries table.
    */
   private void initLibraries() {
-    addColumn(librariesTable, 200, "name", "Name");
+    addColumn(librariesTable, 300, "name", "Name");
     addActionsColumn(Library.class, librariesTable,
       library -> uiStateService.editLibrary(library.getId()),
       null,
@@ -134,8 +134,9 @@ public class ContentBrowserController extends BrowserController {
    Initialize the programs table.
    */
   private void initPrograms() {
-    addColumn(programsTable, 200, "name", "Name");
+    addColumn(programsTable, 300, "name", "Name");
     addColumn(programsTable, 90, "type", "Type");
+    addColumn(programsTable, 90, "state", "State");
     addColumn(programsTable, 50, "key", "Key");
     addColumn(programsTable, 50, "tempo", "Tempo");
     addActionsColumn(Program.class, programsTable,
@@ -171,9 +172,10 @@ public class ContentBrowserController extends BrowserController {
    Initialize the instruments table.
    */
   private void initInstruments() {
-    addColumn(instrumentsTable, 200, "name", "Name");
+    addColumn(instrumentsTable, 300, "name", "Name");
     addColumn(instrumentsTable, 90, "type", "Type");
     addColumn(instrumentsTable, 90, "mode", "Mode");
+    addColumn(instrumentsTable, 90, "state", "State");
     addColumn(instrumentsTable, 50, "volume", "Volume");
     addActionsColumn(Instrument.class, instrumentsTable,
       instrument -> uiStateService.editInstrument(instrument.getId()),
