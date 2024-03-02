@@ -115,8 +115,8 @@ public class MainPaneTopController extends ProjectController {
     fabricationActionButton.disableProperty().bind(uiStateService.isMainActionButtonDisabledProperty());
     fabricationActionButton.textProperty().bind(fabricationService.mainActionButtonTextProperty());
     fabricationButtonShowSettings.disableProperty().bind(uiStateService.isFabricationSettingsDisabledProperty());
-    fabricationControlContainer.managedProperty().bind(uiStateService.isViewProgressStatusModeProperty());
-    fabricationControlContainer.visibleProperty().bind(uiStateService.isViewProgressStatusModeProperty());
+    fabricationControlContainer.managedProperty().bind(uiStateService.isViewModeFabricationProperty());
+    fabricationControlContainer.visibleProperty().bind(uiStateService.isViewModeFabricationProperty());
     fabricationService.stateProperty().addListener((o, ov, value) -> activateFabricationState(value));
     fabricationToggleFollowButton.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
 
@@ -128,7 +128,7 @@ public class MainPaneTopController extends ProjectController {
     progressCancelButton.managedProperty().bind(projectService.isStateLoadingProperty());
     progressCancelButton.visibleProperty().bind(projectService.isStateLoadingProperty());
     progressLabel.textProperty().bind(uiStateService.stateTextProperty());
-    progressLabel.visibleProperty().bind(uiStateService.isStateTextVisibleProperty());
+    progressLabel.visibleProperty().bind(uiStateService.isProgressBarVisibleProperty());
 
     var browserSeparatorVisible = uiStateService.isViewingEntityProperty().or(uiStateService.isLibraryContentBrowserProperty());
     browserButtonUpContentLevel.managedProperty().bind(uiStateService.isContentLevelUpPossibleProperty());

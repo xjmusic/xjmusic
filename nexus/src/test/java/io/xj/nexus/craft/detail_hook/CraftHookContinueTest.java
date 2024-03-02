@@ -1,14 +1,15 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
-package io.xj.nexus.craft.perc_loop;
+package io.xj.nexus.craft.detail_hook;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.HubTopology;
 import io.xj.hub.entity.EntityFactoryImpl;
+import io.xj.hub.enums.InstrumentMode;
+import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.json.JsonProvider;
 import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
@@ -34,20 +35,21 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
 
 @ExtendWith(MockitoExtension.class)
-public class CraftPercLoopNextMacroTest {
+public class CraftHookContinueTest {
+  Chain chain1;
   CraftFactory craftFactory;
   FabricatorFactory fabricatorFactory;
-  NexusIntegrationTestingFixtures fake;
-  Chain chain1;
-  Segment segment4;
-  NexusEntityStore store;
   HubContent sourceMaterial;
+  NexusEntityStore store;
+  NexusIntegrationTestingFixtures fake;
+  Segment segment4;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -75,8 +77,8 @@ public class CraftPercLoopNextMacroTest {
       fake.setupFixtureB3().stream()
     ).collect(Collectors.toList()));
 
-    // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(NexusIntegrationTestingFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
+    // Chain "Test Print #1" is fabricating segments
+    chain1 = store.put(buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
     store.put(buildSegment(
       chain1,
       SegmentType.INITIAL,
@@ -93,7 +95,7 @@ public class CraftPercLoopNextMacroTest {
       chain1,
       SegmentType.CONTINUE,
       1,
-      0,
+      1,
       SegmentState.CRAFTING,
       "Db minor",
       64,
@@ -109,30 +111,31 @@ public class CraftPercLoopNextMacroTest {
   }
 
   @Test
-  public void craftPercLoopNextMacro() throws Exception {
-    insertSegments3and4();
+  public void craftHookContinue() throws Exception {
+    insertSegments3and4(false);
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
 
-    craftFactory.percLoop(fabricator).doWork();
-
-//    // assert choice of percLoop-type sequence
+//    craftFactory.detail(fabricator).doWork();
+//    // assert choice of hook-type sequence
 //    Collection<SegmentChoice> segmentChoices =
 //      store.getAll(segment4.getId(), SegmentChoice.class);
-//    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Percussion));
+//    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Hook));
   }
 
   /**
-   Insert fixture segments 3 and 4, including the percLoop choice for segment 3 only if specified
+   Insert fixture segments 3 and 4, including the hook choice for segment 3 only if specified
+
+   @param excludeHookChoiceForSegment3 if desired for the purpose of this test
    */
-  void insertSegments3and4() throws NexusException {
-    // Chain "Test Print #1" has this segment that was just crafted
+  void insertSegments3and4(boolean excludeHookChoiceForSegment3) throws Exception {
+    // segment just crafted
     Segment segment3 = store.put(buildSegment(
       chain1,
       SegmentType.CONTINUE,
       2,
       2,
       SegmentState.CRAFTED,
-      "Ab minor",
+      "F Major",
       64,
       0.30f,
       120.0f,
@@ -142,26 +145,35 @@ public class CraftPercLoopNextMacroTest {
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
       fake.program4,
-      fake.program4_sequence2_binding0));
+      fake.program4_sequence0_binding0));
     store.put(buildSegmentChoice(
       segment3,
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
       fake.program5,
-      fake.program5_sequence1_binding0));
+      fake.program5_sequence0_binding0));
+    if (!excludeHookChoiceForSegment3)
+      store.put(buildSegmentChoice(
+        segment3,
+        Segment.DELTA_UNLIMITED,
+        Segment.DELTA_UNLIMITED,
+        fake.program35,
+        InstrumentType.Hook,
+        InstrumentMode.Loop));
 
-    // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
+    // segment crafting
     segment4 = store.put(buildSegment(
       chain1,
-      SegmentType.NEXT_MACRO,
+      SegmentType.CONTINUE,
       3,
-      0,
+      3,
       SegmentState.CRAFTING,
-      "F minor",
+      "D Major",
       16,
       0.45f,
-      125.0f,
-      "chains-1-segments-9f7s89d8a7892.wav", true));
+      120.0f,
+      "chains-1-segments-9f7s89d8a7892.wav",
+      true));
     store.put(buildSegmentChoice(
       segment4,
       Segment.DELTA_UNLIMITED,
@@ -172,13 +184,25 @@ public class CraftPercLoopNextMacroTest {
       segment4,
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
-      fake.program15,
-      fake.program15_sequence0_binding0));
-    for (String memeName : List.of("Hindsight", "Chunky", "Regret", "Tangy"))
+      fake.program5,
+      fake.program5_sequence1_binding0));
+    for (String memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
       store.put(buildSegmentMeme(segment4, memeName));
-    store.put(buildSegmentChord(segment4, 0.0f, "F minor"));
-    store.put(buildSegmentChord(segment4, 8.0f, "Gb minor"));
+    store.put(buildSegmentChord(segment4, 0.0f, "A minor"));
+    store.put(buildSegmentChord(segment4, 8.0f, "D Major"));
   }
 
+  @Test
+  public void craftHookContinue_okEvenWithoutPreviousSegmentHookChoice() throws Exception {
+    insertSegments3and4(true);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
+    craftFactory.detail(fabricator).doWork();
 
+/*
+    // assert choice of hook-type sequence
+    Collection<SegmentChoice> segmentChoices =
+      store.getAll(segment4.getId(), SegmentChoice.class);
+    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Hook));
+*/
+  }
 }

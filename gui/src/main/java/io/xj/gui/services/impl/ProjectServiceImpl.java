@@ -92,6 +92,7 @@ public class ProjectServiceImpl implements ProjectService {
   private final ObservableListValue<ProjectDescriptor> recentProjects = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
   private final StringProperty basePathPrefix = new SimpleStringProperty();
   private final DoubleProperty progress = new SimpleDoubleProperty();
+  private final StringProperty progressLabel = new SimpleStringProperty();
   private final BooleanProperty isModified = new SimpleBooleanProperty(false);
   private final ObjectProperty<ProjectState> state = new SimpleObjectProperty<>(ProjectState.Standby);
   private final ObservableStringValue stateText = Bindings.createStringBinding(
@@ -101,7 +102,7 @@ public class ProjectServiceImpl implements ProjectService {
       case CreatedFolder -> "Created Folder";
       case LoadingContent -> "Loading Content";
       case LoadedContent -> "Loaded Content";
-      case LoadingAudio -> String.format("Loading Audio (%.02f%%)", progress.get() * 100);
+      case LoadingAudio -> progressLabel.get();
       case LoadedAudio -> "Loaded Audio";
       case PushingContent -> "Pushing Content";
       case PushedContent -> "Pushed Content";
@@ -113,7 +114,8 @@ public class ProjectServiceImpl implements ProjectService {
       case Failed -> "Failed";
     },
     state,
-    progress);
+    progress,
+    progressLabel);
   private final BooleanBinding isStateLoading = Bindings.createBooleanBinding(
     () -> PROJECT_LOADING_STATES.contains(state.get()),
     state);
@@ -139,6 +141,7 @@ public class ProjectServiceImpl implements ProjectService {
     attachPreferenceListeners();
     setAllFromPreferencesOrDefaults();
 
+    projectManager.setOnProgressLabel((label) -> Platform.runLater(() -> this.progressLabel.set(label)));
     projectManager.setOnProgress((progress) -> Platform.runLater(() -> this.progress.set(progress)));
     projectManager.setOnStateChange((state) -> Platform.runLater(() -> this.state.set(state)));
 

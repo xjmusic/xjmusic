@@ -63,11 +63,11 @@ class MixerImpl implements Mixer {
    @throws MixerException on failure
    */
   public MixerImpl(
-    AudioCache audioCache,
-    MixerConfig mixerConfig,
-    MixerFactory mixerFactory,
-    EnvelopeProvider envelopeProvider,
-    int outputPipeSize
+      AudioCache audioCache,
+      MixerConfig mixerConfig,
+      MixerFactory mixerFactory,
+      EnvelopeProvider envelopeProvider,
+      int outputPipeSize
   ) throws MixerException {
     this.audioCache = audioCache;
     config = mixerConfig;
@@ -109,7 +109,7 @@ class MixerImpl implements Mixer {
   }
 
   @Override
-  public float mix(List<ActiveAudio> active) throws MixerException, FormatException, IOException {
+  public float mix(List<ActiveAudio> active, double intensity) throws MixerException, FormatException, IOException {
     // clear the mixing buffer and start the mixing process
     state = MixerState.Mixing;
     long startedAt = System.nanoTime();
@@ -204,15 +204,8 @@ class MixerImpl implements Mixer {
     return instrumentBusNumber.get(instrumentType);
   }
 
-  @Override
-  public boolean areAllReady(List<ActiveAudio> activeAudios) {
-    return audioCache.areAllReady(activeAudios);
-  }
-
   /**
-   apply one source to the mixing buffer
-
-   @param active to apply
+   apply one source to the mixing buffer@param active    to apply
    */
   void addToMix(ActiveAudio active) throws MixerException {
     try {
@@ -232,8 +225,8 @@ class MixerImpl implements Mixer {
       // these numbers may be below zero or past the limit of the mixing buffer
       int sourceBeginsAtMixerFrame = (int) (active.getStartAtMixerMicros() / microsPerFrame);
       int sourceEndsAtMixerFrame = active.getStopAtMixerMicros().isPresent() ?
-        (int) (active.getStopAtMixerMicros().get() / microsPerFrame) :
-        sourceBeginsAtMixerFrame + cached.data().length;
+          (int) (active.getStopAtMixerMicros().get() / microsPerFrame) :
+          sourceBeginsAtMixerFrame + cached.data().length;
 
       // reusable variables
       int tc; // target channel
@@ -245,6 +238,10 @@ class MixerImpl implements Mixer {
       int tf_min = bufferIndexLimit(sourceBeginsAtMixerFrame); // initial target frame (in mix buffer)
       int tf_max = bufferIndexLimit(sourceEndsAtMixerFrame + releaseEnvelope.exponential.length); // final target frame (in mix buffer)
 
+      // amplitude position moves from 0 to 1 over the source audio
+      float ap; // amplitude position moves from 0 to 1
+      float ap_d = 1.0f / (tf_max - tf_min); // amplitude delta per frame
+
       // iterate over all frames overlapping from the source audio and the target mixing buffer
       for (tc = 0; tc < outputChannels; tc++) {
         int rf = 0; // release envelope frame (start counting at end of source)
@@ -254,17 +251,19 @@ class MixerImpl implements Mixer {
           sf++; // skip source frames before the start of the source audio
           tf_min++;
         }
+        ap = 0; // reset amplitude position
         for (tf = tf_min; tf <= tf_max; tf++) {
           if (sf < cached.data().length) {
             if (tf < sourceEndsAtMixerFrame) {
-              busBuf[bus][tf][tc] += cached.data()[sf][sc] * active.getAmplitude();
+              busBuf[bus][tf][tc] += cached.data()[sf][sc] * active.getAmplitude(ap);
             } else {
               // release envelope
-              busBuf[bus][tf][tc] += releaseEnvelope.out(rf, cached.data()[sf][sc] * active.getAmplitude());
+              busBuf[bus][tf][tc] += releaseEnvelope.out(rf, cached.data()[sf][sc] * active.getAmplitude(ap));
               rf++;
             }
           }
           sf++;
+          ap += ap_d;
         }
       }
 

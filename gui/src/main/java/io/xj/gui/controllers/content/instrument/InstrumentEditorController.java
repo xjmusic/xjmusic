@@ -173,6 +173,10 @@ public class InstrumentEditorController extends BrowserController {
     volumeColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(Float.toString(row.getValue().getVolume())));
     audiosTable.getColumns().add(volumeColumn);
 
+    TableColumn<InstrumentAudio, String> intensityColumn = new TableColumn<>("Intensity");
+    intensityColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(Float.toString(row.getValue().getIntensity())));
+    audiosTable.getColumns().add(intensityColumn);
+
     javafx.scene.control.TableColumn<InstrumentAudio, String> tonesColumn = new TableColumn<>("Tones");
     tonesColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().getTones()));
     audiosTable.getColumns().add(tonesColumn);

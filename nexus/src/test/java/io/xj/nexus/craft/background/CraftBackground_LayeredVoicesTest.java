@@ -67,9 +67,9 @@ public class CraftBackground_LayeredVoicesTest {
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     var store = new NexusEntityStoreImpl(entityFactory);
     fabricatorFactory = new FabricatorFactoryImpl(
-      store,
-      jsonapiPayloadFactory,
-      jsonProvider
+        store,
+        jsonapiPayloadFactory,
+        jsonProvider
     );
 
     // Manipulate the underlying entity store; reset before each test
@@ -78,67 +78,67 @@ public class CraftBackground_LayeredVoicesTest {
     // Mock request via HubClientFactory returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Stream.concat(
-      fake.setupFixtureB1().stream().filter(entity -> !EntityUtils.isSame(entity, fake.program35) && !EntityUtils.isChild(entity, fake.program35)),
-      customFixtures().stream()
+        fake.setupFixtureB1().stream().filter(entity -> !EntityUtils.isSame(entity, fake.program35) && !EntityUtils.isChild(entity, fake.program35)),
+        customFixtures().stream()
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
     Chain chain1 = store.put(buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
     store.put(buildSegment(
-      chain1,
-      SegmentType.INITIAL,
-      0,
-      0,
-      SegmentState.CRAFTED,
-      "D major",
-      64,
-      0.73f,
-      120.0f,
-      "chains-1-segments-9f7s89d8a7892",
-      true));
+        chain1,
+        SegmentType.INITIAL,
+        0,
+        0,
+        SegmentState.CRAFTED,
+        "D major",
+        64,
+        0.73f,
+        120.0f,
+        "chains-1-segments-9f7s89d8a7892",
+        true));
     store.put(buildSegment(
-      chain1,
-      SegmentType.CONTINUE,
-      1,
-      1,
-      SegmentState.CRAFTING,
-      "Db minor",
-      64,
-      0.85f,
-      120.0f,
-      "chains-1-segments-9f7s89d8a7892.wav",
-      true));
+        chain1,
+        SegmentType.CONTINUE,
+        1,
+        1,
+        SegmentState.CRAFTING,
+        "Db minor",
+        64,
+        0.85f,
+        120.0f,
+        "chains-1-segments-9f7s89d8a7892.wav",
+        true));
 
     // segment just crafted
     // Testing entities for reference
     Segment segment3 = store.put(buildSegment(
-      chain1,
-      SegmentType.CONTINUE,
-      2,
-      2,
-      SegmentState.CRAFTED,
-      "F Major",
-      64,
-      0.30f,
-      120.0f,
-      "chains-1-segments-9f7s89d8a7892.wav",
-      true));
+        chain1,
+        SegmentType.CONTINUE,
+        2,
+        2,
+        SegmentState.CRAFTED,
+        "F Major",
+        64,
+        0.30f,
+        120.0f,
+        "chains-1-segments-9f7s89d8a7892.wav",
+        true));
     store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, ProgramType.Macro, fake.program4_sequence0_binding0));
     store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, ProgramType.Main, fake.program5_sequence0_binding0));
 
     // segment crafting
     segment4 = store.put(buildSegment(
-      chain1,
-      SegmentType.CONTINUE,
-      3,
-      3,
-      SegmentState.CRAFTING,
-      "D Major",
-      16,
-      0.45f,
-      120.0f,
-      "chains-1-segments-9f7s89d8a7892.wav",
-      true));
+        chain1,
+        SegmentType.CONTINUE,
+        3,
+        3,
+        SegmentState.CRAFTING,
+        "D Major",
+        16,
+        0.45f,
+        120.0f,
+        "chains-1-segments-9f7s89d8a7892.wav",
+        true));
     store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment4, ProgramType.Macro, fake.program4_sequence0_binding0));
     store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment4, ProgramType.Main, fake.program5_sequence1_binding0));
 
@@ -159,7 +159,7 @@ public class CraftBackground_LayeredVoicesTest {
     Collection<Object> entities = new ArrayList<>();
 
     // Instrument "808"
-    Instrument instrument1 = EntityUtils.add(entities, buildInstrument(fake.library2, InstrumentType.Noise, InstrumentMode.Background, InstrumentState.Published, "Bongo Loop"));
+    Instrument instrument1 = EntityUtils.add(entities, buildInstrument(fake.library2, InstrumentType.Background, InstrumentMode.Loop, InstrumentState.Published, "Bongo Loop"));
     EntityUtils.add(entities, buildMeme(instrument1, "heavy"));
     //
     EntityUtils.add(entities, buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));

@@ -493,9 +493,7 @@ public class CraftWorkImpl implements CraftWork {
     updateSegmentState(fabricator, segment, SegmentState.PLANNED, SegmentState.CRAFTING);
     craftFactory.macroMain(fabricator, overrideMacroProgram.get(), overrideMemes.get()).doWork();
     craftFactory.beat(fabricator).doWork();
-    craftFactory.hook(fabricator).doWork();
     craftFactory.detail(fabricator).doWork();
-    craftFactory.percLoop(fabricator).doWork();
     craftFactory.transition(fabricator).doWork();
     craftFactory.background(fabricator).doWork();
     LOG.debug("Fabricated Segment[{}]", segment.getId());
@@ -584,7 +582,7 @@ public class CraftWorkImpl implements CraftWork {
    */
   void didFailWhile(String msgWhile, Exception e) {
     var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
-    LOG.error("Failed while {} because {}", msgWhile, msgCause, e);
+    LOG.error("Failed while {} because {}\n{}", msgWhile, msgCause, StringUtils.formatStackTrace(e), e);
     running.set(false);
     finish();
   }

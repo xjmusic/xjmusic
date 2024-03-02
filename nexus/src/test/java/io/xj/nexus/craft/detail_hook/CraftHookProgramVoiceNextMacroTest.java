@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
-package io.xj.nexus.craft.transition;
+package io.xj.nexus.craft.detail_hook;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.HubTopology;
@@ -41,26 +41,25 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAudio;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildInstrument;
-import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildInstrumentAudio;
-import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildInstrumentMeme;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildMeme;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
 
 @ExtendWith(MockitoExtension.class)
-public class CraftTransitionProgramVoiceNextMainTest {
+public class CraftHookProgramVoiceNextMacroTest {
+  Chain chain1;
   CraftFactory craftFactory;
   FabricatorFactory fabricatorFactory;
-  NexusIntegrationTestingFixtures fake;
-  Chain chain1;
-  Segment segment4;
-  NexusEntityStore store;
+  HubContent sourceMaterial;
   InstrumentAudio audioKick;
   InstrumentAudio audioSnare;
-  HubContent sourceMaterial;
+  NexusEntityStore store;
+  NexusIntegrationTestingFixtures fake;
+  Segment segment4;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -89,23 +88,19 @@ public class CraftTransitionProgramVoiceNextMainTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(buildChain(
-      fake.project1,
-      fake.template1,
-      "Test Print #1",
-      ChainType.PRODUCTION,
-      ChainState.FABRICATE
-    ));
+    chain1 = store.put(NexusIntegrationTestingFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
     store.put(buildSegment(
       chain1,
+      SegmentType.INITIAL,
+      0,
       0,
       SegmentState.CRAFTED,
       "D major",
       64,
       0.73f,
       120.0f,
-      "chains-1-segments-9f7s89d8a7892"
-    ));
+      "chains-1-segments-9f7s89d8a7892",
+      true));
     store.put(buildSegment(
       chain1,
       SegmentType.CONTINUE,
@@ -128,44 +123,30 @@ public class CraftTransitionProgramVoiceNextMainTest {
     Collection<Object> entities = new ArrayList<>();
 
     // Instrument "808"
-    Instrument instrument1 = EntityUtils.add(entities,
-      buildInstrument(fake.library2, InstrumentType.Transition, InstrumentMode.Event, InstrumentState.Published, "Bongo Loop"));
-    EntityUtils.add(entities, buildInstrumentMeme(instrument1, "heavy"));
+    Instrument instrument1 = EntityUtils.add(entities, buildInstrument(fake.library2, InstrumentType.Hook, InstrumentMode.Event, InstrumentState.Published, "Bongo Loop"));
+    EntityUtils.add(entities, buildMeme(instrument1, "heavy"));
     //
-    audioKick = EntityUtils.add(entities, buildInstrumentAudio(
-      instrument1,
-      "Kick",
-      "19801735098q47895897895782138975898.wav",
-      0.01f,
-      2.123f,
-      120.0f,
-      0.6f,
-      "KICK",
-      "Eb",
-      1.0f));
+    audioKick = EntityUtils.add(entities, buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
     //
-    audioSnare = EntityUtils.add(entities, buildInstrumentAudio(
-      instrument1,
-      "Snare",
-      "a1g9f8u0k1v7f3e59o7j5e8s98.wav",
-      0.01f,
-      1.5f,
-      120.0f,
-      0.6f,
-      "SNARE",
-      "Ab",
-      1.0f));
+    audioSnare = EntityUtils.add(entities, buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
 
     return entities;
   }
 
+
   @Test
-  public void craftTransitionVoiceNextMain() throws Exception {
-    insertSegments3and4();
+  public void craftHookVoiceNextMacro() throws Exception {
+    insertSegments3and4(true);
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
 
-    craftFactory.transition(fabricator).doWork();
+    craftFactory.detail(fabricator).doWork();
 
+//    // assert hook choice
+//    Collection<SegmentChoice> segmentChoices = fabricator.getChoices();
+//    SegmentChoice hookChoice = segmentChoices.stream()
+//      .filter(c -> c.getInstrumentType().equals(InstrumentType.Hook)).findFirst().orElseThrow();
+//    assertTrue(fabricator.getArrangements()
+//      .stream().anyMatch(a -> a.getSegmentChoiceId().equals(hookChoice.getId())));
 //    // test vector for persist Audio pick in memory https://www.pivotaltracker.com/story/show/154014731
 //    int pickedKick = 0;
 //    int pickedSnare = 0;
@@ -181,65 +162,72 @@ public class CraftTransitionProgramVoiceNextMainTest {
   }
 
   /**
-   Insert fixture segments 3 and 4, including the transition choice for segment 3 only if specified
+   Insert fixture segments 3 and 4, including the hook choice for segment 3 only if specified
+
+   @param excludeHookChoiceForSegment3 if desired for the purpose of this test
    */
-  void insertSegments3and4() throws NexusException {
-    // segment just crafted
-    // Testing entities for reference
+  void insertSegments3and4(boolean excludeHookChoiceForSegment3) throws NexusException {
+    // Chain "Test Print #1" has this segment that was just crafted
     Segment segment3 = store.put(buildSegment(
       chain1,
       SegmentType.CONTINUE,
       2,
       2,
       SegmentState.CRAFTED,
-      "F Major",
+      "Ab minor",
       64,
       0.30f,
       120.0f,
-      "chains-1-segments-9f7s89d8a7892",
-      true));
+      "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment3,
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
       fake.program4,
-      fake.program4_sequence0_binding0));
+      fake.program4_sequence2_binding0));
     store.put(buildSegmentChoice(
       segment3,
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
-      fake.program15,
-      fake.program15_sequence1_binding0));
+      fake.program5,
+      fake.program5_sequence1_binding0));
+    if (!excludeHookChoiceForSegment3)
+      store.put(buildSegmentChoice(
+        segment3,
+        Segment.DELTA_UNLIMITED,
+        Segment.DELTA_UNLIMITED,
+        fake.program35,
+        InstrumentType.Hook,
+        InstrumentMode.Loop));
 
-    // segment crafting
+    // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
     segment4 = store.put(buildSegment(
       chain1,
-      SegmentType.NEXT_MAIN,
-      0,
+      SegmentType.NEXT_MACRO,
       3,
+      0,
       SegmentState.CRAFTING,
-      "G minor",
+      "F minor",
       16,
       0.45f,
-      120.0f,
+      125.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment4,
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
-      fake.program4,
-      fake.program4_sequence1_binding0));
+      fake.program3,
+      fake.program4_sequence0_binding0));
     store.put(buildSegmentChoice(
       segment4,
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
       fake.program15,
       fake.program15_sequence0_binding0));
-    for (String memeName : List.of("Regret", "Sky", "Hindsight", "Tropical"))
+    for (String memeName : List.of("Hindsight", "Chunky", "Regret", "Tangy"))
       store.put(buildSegmentMeme(segment4, memeName));
-
-    store.put(buildSegmentChord(segment4, 0.0f, "G minor"));
-    store.put(buildSegmentChord(segment4, 8.0f, "Ab minor"));
+    store.put(buildSegmentChord(segment4, 0.0f, "F minor"));
+    store.put(buildSegmentChord(segment4, 8.0f, "Gb minor"));
   }
 
 }

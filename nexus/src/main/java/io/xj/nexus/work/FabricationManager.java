@@ -8,6 +8,7 @@ import io.xj.hub.meme.MemeTaxonomy;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.persistence.NexusEntityStore;
+import jakarta.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -83,7 +84,14 @@ public interface FabricationManager {
 
    @param onProgress callback
    */
-  void setOnProgress(Consumer<Float> onProgress);
+  void setOnProgress(@Nullable Consumer<Float> onProgress);
+
+  /**
+   Set the on progress label callback
+
+   @param onProgressLabel callback
+   */
+  void setOnProgressLabel(@Nullable Consumer<String> onProgressLabel);
 
   /**
    Set the on status callback
@@ -138,4 +146,11 @@ public interface FabricationManager {
    @return true if an override happened
    */
   boolean getAndResetDidOverride();
+
+  /**
+   Set the intensity override to a value between 0 and 1, or null if no override
+
+   @param intensity the intensity to set
+   */
+  void setIntensityOverride(@Nullable Double intensity);
 }

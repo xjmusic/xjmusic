@@ -129,11 +129,6 @@ public interface UIStateService extends ReadyAfterBoot {
   BooleanBinding isMainActionButtonDisabledProperty();
 
   /**
-   @return Observable property of whether the state text should be visible
-   */
-  BooleanBinding isStateTextVisibleProperty();
-
-  /**
    The View Mode
 
    @return the project view mode

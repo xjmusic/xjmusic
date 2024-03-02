@@ -10,12 +10,8 @@ import io.xj.nexus.craft.beat.BeatCraft;
 import io.xj.nexus.craft.beat.BeatCraftImpl;
 import io.xj.nexus.craft.detail.DetailCraft;
 import io.xj.nexus.craft.detail.DetailCraftImpl;
-import io.xj.nexus.craft.hook.HookCraft;
-import io.xj.nexus.craft.hook.HookCraftImpl;
 import io.xj.nexus.craft.macro_main.MacroMainCraft;
 import io.xj.nexus.craft.macro_main.MacroMainCraftImpl;
-import io.xj.nexus.craft.perc_loop.PercLoopCraft;
-import io.xj.nexus.craft.perc_loop.PercLoopCraftImpl;
 import io.xj.nexus.craft.transition.TransitionCraft;
 import io.xj.nexus.craft.transition.TransitionCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
@@ -29,8 +25,8 @@ public class CraftFactoryImpl implements CraftFactory {
   }
 
   @Override
-  public BackgroundCraft background(Fabricator fabricator) throws NexusException {
-    return new BackgroundCraftImpl(fabricator);
+  public MacroMainCraft macroMain(Fabricator fabricator, @Nullable Program overrideMacroProgram, @Nullable Collection<String> overrideMemes) {
+    return new MacroMainCraftImpl(fabricator, overrideMacroProgram, overrideMemes);
   }
 
   @Override
@@ -44,22 +40,12 @@ public class CraftFactoryImpl implements CraftFactory {
   }
 
   @Override
-  public HookCraft hook(Fabricator fabricator) throws NexusException {
-    return new HookCraftImpl(fabricator);
-  }
-
-  @Override
-  public MacroMainCraft macroMain(Fabricator fabricator, @Nullable Program overrideMacroProgram, @Nullable Collection<String> overrideMemes) {
-    return new MacroMainCraftImpl(fabricator, overrideMacroProgram, overrideMemes);
-  }
-
-  @Override
-  public PercLoopCraft percLoop(Fabricator fabricator) throws NexusException {
-    return new PercLoopCraftImpl(fabricator);
-  }
-
-  @Override
   public TransitionCraft transition(Fabricator fabricator) throws NexusException {
     return new TransitionCraftImpl(fabricator);
+  }
+
+  @Override
+  public BackgroundCraft background(Fabricator fabricator) throws NexusException {
+    return new BackgroundCraftImpl(fabricator);
   }
 }
