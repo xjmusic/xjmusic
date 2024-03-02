@@ -1,22 +1,21 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
-package io.xj.nexus.craft.perc_loop;
+package io.xj.nexus.craft.detail_perc_loop;
 
 import io.xj.hub.HubContent;
+import io.xj.hub.HubTopology;
+import io.xj.hub.entity.EntityFactoryImpl;
+import io.xj.hub.json.JsonProvider;
+import io.xj.hub.json.JsonProviderImpl;
+import io.xj.hub.jsonapi.JsonapiPayloadFactory;
+import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
-import io.xj.hub.entity.EntityFactoryImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.nexus.hub_client.HubClient;
-import io.xj.hub.HubTopology;
-import io.xj.hub.json.JsonProvider;
-import io.xj.hub.json.JsonProviderImpl;
-import io.xj.hub.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -29,7 +28,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -43,8 +41,6 @@ import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftPercLoopNextMacroTest {
-  @Mock
-  public HubClient hubClient;
   CraftFactory craftFactory;
   FabricatorFactory fabricatorFactory;
   NexusIntegrationTestingFixtures fake;
@@ -71,7 +67,7 @@ public class CraftPercLoopNextMacroTest {
     // Manipulate the underlying entity store; reset before each test
     store.clear();
 
-    // Mock request via HubClient returns fake generated library of hub content
+    // Mock request via HubClientFactory returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       Stream.concat(fake.setupFixtureB1().stream(),
@@ -117,7 +113,7 @@ public class CraftPercLoopNextMacroTest {
     insertSegments3and4();
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
 
-    craftFactory.percLoop(fabricator).doWork();
+    craftFactory.detail(fabricator).doWork();
 
 //    // assert choice of percLoop-type sequence
 //    Collection<SegmentChoice> segmentChoices =

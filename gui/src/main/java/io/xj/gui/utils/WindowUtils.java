@@ -20,7 +20,7 @@ import java.util.Objects;
 
 public interface WindowUtils {
   Logger LOG = LoggerFactory.getLogger(WindowUtils.class);
-  String APPLICATION_TITLE = "XJ music workstation";
+  String APPLICATION_TITLE = "XJ music workstation DEMO PLAYER";
   String PATH_TO_ICON_ICNS = "/icons/xj-symbol.icns";
   String PATH_TO_ICON_ICO = "/icons/xj-symbol.ico";
   String PATH_TO_ICON_PNG = "/icons/xj-symbol.png";

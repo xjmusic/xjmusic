@@ -1,24 +1,23 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
-package io.xj.nexus.craft.hook;
+package io.xj.nexus.craft.detail_perc_loop;
 
 import io.xj.hub.HubContent;
+import io.xj.hub.HubTopology;
 import io.xj.hub.TemplateConfig;
+import io.xj.hub.entity.EntityFactoryImpl;
+import io.xj.hub.entity.EntityUtils;
+import io.xj.hub.json.JsonProvider;
+import io.xj.hub.json.JsonProviderImpl;
+import io.xj.hub.jsonapi.JsonapiPayloadFactory;
+import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
-import io.xj.hub.entity.EntityFactoryImpl;
-import io.xj.hub.entity.EntityUtils;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.nexus.hub_client.HubClient;
-import io.xj.hub.HubTopology;
-import io.xj.hub.json.JsonProvider;
-import io.xj.hub.json.JsonProviderImpl;
-import io.xj.hub.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -29,7 +28,6 @@ import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -43,9 +41,7 @@ import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
 
 @ExtendWith(MockitoExtension.class)
-public class CraftHookProgramVoiceInitialTest {
-  @Mock
-  public HubClient hubClient;
+public class CraftPercLoopProgramVoiceInitialTest {
   Chain chain2;
   CraftFactory craftFactory;
   FabricatorFactory fabricatorFactory;
@@ -72,8 +68,8 @@ public class CraftHookProgramVoiceInitialTest {
     // Manipulate the underlying entity store; reset before each test
     store.clear();
 
-    // force known hook selection by destroying program 35
-    // Mock request via HubClient returns fake generated library of hub content
+    // force known percLoop selection by destroying program 35
+    // Mock request via HubClientFactory returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Stream.concat(
         fake.setupFixtureB1().stream(),
@@ -93,12 +89,12 @@ public class CraftHookProgramVoiceInitialTest {
   }
 
   @Test
-  public void craftHookVoiceInitial() throws Exception {
+  public void craftPercLoopVoiceInitial() throws Exception {
     insertSegment();
 
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0.getId(), 48000.0f, 2, null);
 
-    craftFactory.hook(fabricator).doWork();
+    craftFactory.detail(fabricator).doWork();
 
 //    Segment result = store.getSegment(segment0.getId()).orElseThrow();
 //    assertFalse(store.getAll(result.getId(), SegmentChoice.class).isEmpty());
@@ -125,15 +121,15 @@ public class CraftHookProgramVoiceInitialTest {
   }
 
   @Test
-  public void craftHookVoiceInitial_okWhenNoHookChoice() throws Exception {
+  public void craftPercLoopVoiceInitial_okWhenNoPercLoopChoice() throws Exception {
     insertSegment();
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0.getId(), 48000.0f, 2, null);
 
-    craftFactory.hook(fabricator).doWork();
+    craftFactory.detail(fabricator).doWork();
   }
 
   /**
-   Insert fixture segment 6, including the hook choice only if specified
+   Insert fixture segment 6, including the percLoop choice only if specified
    */
   void insertSegment() throws NexusException {
     segment0 = store.put(buildSegment(

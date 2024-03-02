@@ -5,7 +5,12 @@ import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.model.*;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentMeta;
 
 import java.util.Collection;
 import java.util.List;
@@ -65,12 +70,13 @@ public interface SegmentRetrospective {
   Optional<SegmentMeta> getPreviousMeta(String key);
 
   /**
-   Get the previous segment choice for the given instrument
+   Get the previous segment choices for the given instrument
+   (although there should only be one previous segment choice for each instrument)
 
    @param instrumentId for which to get choice
    @return previous segment choice
    */
-  Optional<SegmentChoice> getPreviousChoiceForInstrument(UUID instrumentId);
+  Collection<SegmentChoice> getPreviousChoicesForInstrument(UUID instrumentId);
 
   /**
    Get the previous arrangements for the given instrument id
@@ -78,7 +84,7 @@ public interface SegmentRetrospective {
    @param instrumentId for which to get arrangements
    @return segment choice arrangements
    */
-  List<SegmentChoiceArrangement> getPreviousArrangementsForInstrument(UUID instrumentId);
+  Collection<SegmentChoiceArrangement> getPreviousArrangementsForInstrument(UUID instrumentId);
 
   /**
    Get the picks of any previous segments which selected the same main sequence
@@ -114,7 +120,7 @@ public interface SegmentRetrospective {
   List<SegmentChoice> getPreviousChoicesOfMode(InstrumentMode instrumentMode);
 
   /**
-   Get the previous-segment choices of a given instrument type
+   Get the previous-segment choices of a given instrument type and mode
 
    @param instrumentType  for which to get previous-segment choices
    @param instrumentModes for which to get previous-segment choices
@@ -123,12 +129,20 @@ public interface SegmentRetrospective {
   List<SegmentChoice> getPreviousChoicesOfTypeMode(InstrumentType instrumentType, InstrumentMode instrumentModes);
 
   /**
+   Get the previous-segment choices of a given instrument type
+
+   @param instrumentType for which to get previous-segment choices
+   @return choices
+   */
+  Optional<SegmentChoice> getPreviousChoiceOfType(InstrumentType instrumentType);
+
+  /**
    Get the previous picks for the given instrument id
 
    @param instrumentId for which to get picks
    @return segment choice picks
    */
-  List<SegmentChoiceArrangementPick> getPreviousPicksForInstrument(UUID instrumentId);
+  Collection<SegmentChoiceArrangementPick> getPreviousPicksForInstrument(UUID instrumentId);
 
   /**
    Get the segment immediately previous to the current segment

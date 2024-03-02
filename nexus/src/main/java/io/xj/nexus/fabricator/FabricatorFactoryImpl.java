@@ -3,10 +3,10 @@
 package io.xj.nexus.fabricator;
 
 import io.xj.hub.HubContent;
-import io.xj.hub.util.ValueException;
-import io.xj.nexus.NexusException;
 import io.xj.hub.json.JsonProvider;
 import io.xj.hub.jsonapi.JsonapiPayloadFactory;
+import io.xj.hub.util.ValueException;
+import io.xj.nexus.NexusException;
 import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.NexusEntityStore;

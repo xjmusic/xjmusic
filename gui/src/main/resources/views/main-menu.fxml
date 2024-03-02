@@ -19,19 +19,6 @@
     <SeparatorMenuItem mnemonicParsing="false"/>
     <MenuItem onAction="#onQuit" text="E_xit"/>
   </Menu>
-  <Menu text="_Lab">
-    <MenuItem onAction="#handleLabAuthentication" text="_Authentication">
-      <accelerator>
-        <KeyCodeCombination alt="UP" code="L" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
-      </accelerator>
-    </MenuItem>
-    <SeparatorMenuItem mnemonicParsing="false"/>
-    <MenuItem onAction="#handleLabOpenInBrowser" text="_Open in Browser">
-      <accelerator>
-        <KeyCodeCombination alt="DOWN" code="L" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
-      </accelerator>
-    </MenuItem>
-  </Menu>
   <Menu text="_View">
     <CheckMenuItem fx:id="checkboxDarkTheme" selected="true" text="_Dark Theme"/>
     <SeparatorMenuItem mnemonicParsing="false"/>
@@ -46,12 +33,10 @@
       </accelerator>
     </CheckMenuItem>
     <Menu text="Log Le_vel">
-      <items>
-        <RadioMenuItem text="_Debug" fx:id="logLevelDebug" onAction="#handleSetLogLevel"/>
-        <RadioMenuItem text="_Info" fx:id="logLevelInfo" onAction="#handleSetLogLevel"/>
-        <RadioMenuItem text="_Warn" fx:id="logLevelWarn" onAction="#handleSetLogLevel"/>
-        <RadioMenuItem text="_Error" fx:id="logLevelError" onAction="#handleSetLogLevel"/>
-      </items>
+      <RadioMenuItem text="_Debug" fx:id="logLevelDebug" onAction="#handleSetLogLevel"/>
+      <RadioMenuItem text="_Info" fx:id="logLevelInfo" onAction="#handleSetLogLevel"/>
+      <RadioMenuItem text="_Warn" fx:id="logLevelWarn" onAction="#handleSetLogLevel"/>
+      <RadioMenuItem text="_Error" fx:id="logLevelError" onAction="#handleSetLogLevel"/>
     </Menu>
   </Menu>
   <Menu text="_Help">

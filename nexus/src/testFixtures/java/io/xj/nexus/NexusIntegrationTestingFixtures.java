@@ -437,6 +437,17 @@ public class NexusIntegrationTestingFixtures {
     return segmentChoice;
   }
 
+  public static SegmentChoice buildSegmentChoice(Segment segment, Instrument instrument) {
+    var segmentChoice = new SegmentChoice();
+    segmentChoice.setId(UUID.randomUUID());
+    segmentChoice.setSegmentId(segment.getId());
+    segmentChoice.setDeltaIn(Segment.DELTA_UNLIMITED);
+    segmentChoice.setDeltaOut(Segment.DELTA_UNLIMITED);
+    segmentChoice.setInstrumentId(instrument.getId());
+    segmentChoice.setInstrumentType(instrument.getType());
+    return segmentChoice;
+  }
+
   public static SegmentMeta buildSegmentMeta(Segment segment, String key, String value) {
     var segmentMeta = new SegmentMeta();
     segmentMeta.setId(UUID.randomUUID());
@@ -523,6 +534,21 @@ public class NexusIntegrationTestingFixtures {
     segmentChoiceArrangement.setSegmentId(segmentChoice.getSegmentId());
     segmentChoiceArrangement.segmentChoiceId(segmentChoice.getId());
     return segmentChoiceArrangement;
+  }
+
+  public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(Segment segment, SegmentChoiceArrangement segmentChoiceArrangement, InstrumentAudio instrumentAudio, String pickEvent) {
+    var microsPerBeat = ValueUtils.MICROS_PER_SECOND * ValueUtils.SECONDS_PER_MINUTE / segment.getTempo();
+    var pick = new SegmentChoiceArrangementPick();
+    pick.setId(UUID.randomUUID());
+    pick.setSegmentId(segmentChoiceArrangement.getSegmentId());
+    pick.setSegmentChoiceArrangementId(segmentChoiceArrangement.getId());
+    pick.setInstrumentAudioId(instrumentAudio.getId());
+    pick.setStartAtSegmentMicros((long) (0));
+    pick.setLengthMicros((long) (instrumentAudio.getLoopBeats() * microsPerBeat));
+    pick.setAmplitude(1);
+    pick.setTones(instrumentAudio.getTones());
+    pick.setEvent(pickEvent);
+    return pick;
   }
 
   public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(Segment segment, SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent event, InstrumentAudio instrumentAudio, String pickEvent) {

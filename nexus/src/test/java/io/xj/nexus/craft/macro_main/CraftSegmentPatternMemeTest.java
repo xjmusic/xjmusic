@@ -2,20 +2,19 @@
 package io.xj.nexus.craft.macro_main;
 
 import io.xj.hub.HubContent;
+import io.xj.hub.HubTopology;
+import io.xj.hub.entity.EntityFactoryImpl;
+import io.xj.hub.entity.EntityUtils;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.json.JsonProviderImpl;
+import io.xj.hub.jsonapi.JsonapiPayloadFactory;
+import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
-import io.xj.hub.entity.EntityFactoryImpl;
-import io.xj.hub.entity.EntityUtils;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.nexus.hub_client.HubClient;
-import io.xj.hub.HubTopology;
-import io.xj.hub.json.JsonProviderImpl;
-import io.xj.hub.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -26,7 +25,6 @@ import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +43,6 @@ public class CraftSegmentPatternMemeTest {
   final Logger LOG = LoggerFactory.getLogger(CraftSegmentPatternMemeTest.class);
   static final int TEST_REPEAT_ITERATIONS = 14;
 
-  @Mock
-  public HubClient hubClient;
 
   /**
    Test to ensure that the following Macro-Program is based on its first sequence-binding meme
@@ -76,7 +72,7 @@ public class CraftSegmentPatternMemeTest {
       // Manipulate the underlying entity store; reset before each test
       store.clear();
 
-      // Mock request via HubClient returns fake generated library of hub content
+      // Mock request via HubClientFactory returns fake generated library of hub content
       NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
       HubContent sourceMaterial = new HubContent(Stream.concat(
         fake.setupFixtureB1().stream(),

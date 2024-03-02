@@ -3,8 +3,6 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.services.FabricationService;
-import io.xj.gui.services.LabService;
-import io.xj.gui.services.LabState;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.work.FabricationState;
 import javafx.beans.value.ObservableValue;
@@ -22,8 +20,6 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   final FabricationService fabricationService;
   final UIStateService uiStateService;
   final ModalFabricationSettingsController modalFabricationSettingsController;
-  final ModalLabAuthenticationController modalLabAuthenticationController;
-  final LabService labService;
 
   @FXML
   protected ProgressBar progressBarFabrication;
@@ -35,28 +31,18 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   protected Label labelFabricationStatus;
 
   @FXML
-  protected Button buttonLab;
-
-  @FXML
   protected ToggleButton buttonToggleFollowPlayback;
-
-  @FXML
-  protected Label labelLabStatus;
 
   @FXML
   protected Button buttonShowFabricationSettings;
 
   public MainPaneTopController(
     FabricationService fabricationService,
-    LabService labService,
     ModalFabricationSettingsController modalFabricationSettingsController,
-    ModalLabAuthenticationController modalLabAuthenticationController,
     UIStateService uiStateService
   ) {
     this.fabricationService = fabricationService;
-    this.labService = labService;
     this.modalFabricationSettingsController = modalFabricationSettingsController;
-    this.modalLabAuthenticationController = modalLabAuthenticationController;
     this.uiStateService = uiStateService;
   }
 
@@ -70,11 +56,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
     fabricationService.stateProperty().addListener(this::handleFabricationStatusChange);
 
-    labService.stateProperty().addListener(this::handleLabStatusChange);
-
     labelFabricationStatus.textProperty().bind(uiStateService.fabricationStatusTextProperty());
-
-    labelLabStatus.textProperty().bind(labService.stateProperty().map(Enum::toString));
 
     progressBarFabrication.progressProperty().bind(fabricationService.progressProperty());
     progressBarFabrication.visibleProperty().bind(uiStateService.isProgressBarVisibleProperty());
@@ -95,39 +77,11 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     modalFabricationSettingsController.launchModal();
   }
 
-  @FXML
-  public void handleButtonLabPressed(ActionEvent ignored) {
-    if (labService.isAuthenticated()) {
-      labService.launchInBrowser();
-    } else {
-      modalLabAuthenticationController.launchModal();
-    }
-  }
-
   private void handleFabricationStatusChange(ObservableValue<? extends FabricationState> observable, FabricationState prior, FabricationState newValue) {
     switch (newValue) {
-      case Standby, Failed, Done, Cancelled ->
-        buttonAction.getStyleClass().remove("button-active");
+      case Standby, Failed, Done, Cancelled -> buttonAction.getStyleClass().remove("button-active");
       case LoadingContent, Initializing, PreparedAudio, PreparingAudio, LoadedContent, Starting, Active ->
         buttonAction.getStyleClass().add("button-active");
-    }
-  }
-
-  private void handleLabStatusChange(ObservableValue<? extends LabState> observable, LabState prior, LabState newValue) {
-    switch (newValue) {
-      case Offline -> buttonLab.getStyleClass().removeAll("button-active", "button-pending", "button-failed");
-      case Connecting, Configuring -> {
-        buttonLab.getStyleClass().removeAll("button-active", "button-failed");
-        buttonLab.getStyleClass().add("button-pending");
-      }
-      case Authenticated -> {
-        buttonLab.getStyleClass().removeAll("button-pending", "button-failed");
-        buttonLab.getStyleClass().add("button-active");
-      }
-      case Unauthorized, Failed -> {
-        buttonLab.getStyleClass().removeAll("button-active", "button-pending");
-        buttonLab.getStyleClass().add("button-failed");
-      }
     }
   }
 }

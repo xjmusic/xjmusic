@@ -3,7 +3,6 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.services.FabricationService;
-import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.nexus.model.Segment;
@@ -11,9 +10,6 @@ import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentMeme;
-import io.xj.nexus.model.SegmentMessage;
-import io.xj.nexus.model.SegmentMessageType;
-import io.xj.nexus.model.SegmentMeta;
 import io.xj.nexus.util.FormatUtils;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -80,105 +76,13 @@ public class MainTimelineSegmentFactory {
         computeSegmentSectionHeaderNode(segment, innerMinWidth),
         computeSegmentSectionPropertiesNode(segment, innerMinWidth),
         computeSegmentSectionMemesChordsNode(segment, innerMinWidth),
-        computeSegmentSectionChoicesNode(segment, innerFullWidth),
-        computeSegmentSectionMessageListNode(segment, innerFullWidth),
-        computeSegmentSectionMetasNode(segment, innerFullWidth));
+        computeSegmentSectionChoicesNode(segment, innerFullWidth));
       return box;
 
     } catch (Exception e) {
       LOG.warn("Failed to update choices because {}!\n\n{}", e.getMessage(), formatStackTrace(e));
       return new VBox();
     }
-  }
-
-  /**
-   Segment section: Messages
-   */
-  private Node computeSegmentSectionMessageListNode(Segment segment, int width) {
-    var messages = fabricationService.getSegmentMessages(segment);
-    var col = new VBox();
-    col.setPadding(new Insets(0, 0, 0, 10));
-    // info
-    col.getChildren().addAll(messages.stream()
-      .filter(message -> message.getType() == SegmentMessageType.INFO)
-      .map(m -> computeSegmentSectionMessageNode(m, width))
-      .toList());
-    // warning
-    col.getChildren().addAll(messages.stream()
-      .filter(message -> message.getType() == SegmentMessageType.WARNING)
-      .map(m -> computeSegmentSectionMessageNode(m, width))
-      .toList());
-    // error
-    col.getChildren().addAll(messages.stream()
-      .filter(message -> message.getType() == SegmentMessageType.ERROR)
-      .map(m -> computeSegmentSectionMessageNode(m, width))
-      .toList());
-    //
-    var pane = new AnchorPane();
-    pane.getChildren().add(computeLabeledPropertyNode("Messages", col, width, SEGMENT_SECTION_VERTICAL_MARGIN * 2));
-    return pane;
-  }
-
-  private Node computeSegmentSectionMessageNode(SegmentMessage message, int width) {
-    // type
-    var type = new Label();
-    type.getStyleClass().add("segment-message-type");
-    type.getStyleClass().add("segment-message-" + message.getType().toString().toLowerCase());
-    type.setPadding(new Insets(5, 0, 0, 0));
-    type.setWrapText(true);
-    type.setMaxWidth(width - 20);
-    type.setText(message.getType().toString().toUpperCase());
-    // body
-    var body = new Text();
-    body.getStyleClass().add("segment-message-body");
-    body.setText(message.getBody());
-    body.setWrappingWidth(width - 20);
-    // message
-    var box = new VBox();
-    box.getStyleClass().add("segment-message");
-    box.getChildren().add(type);
-    box.getChildren().add(body);
-    return box;
-  }
-
-  /**
-   Segment section: Metas
-   */
-  private Node computeSegmentSectionMetasNode(Segment segment, int width) {
-    var metas = fabricationService.getSegmentMetas(segment);
-    var col = new VBox();
-    col.setPadding(new Insets(0, 0, 0, 10));
-    col.getChildren().addAll(metas.stream()
-      .map(m -> computeSegmentSectionMetaNode(m, width))
-      .toList());
-    //
-    var pane = new AnchorPane();
-    pane.getChildren().add(computeLabeledPropertyNode("Metas", col, width, SEGMENT_SECTION_VERTICAL_MARGIN));
-    return pane;
-  }
-
-  private Node computeSegmentSectionMetaNode(SegmentMeta meta, int width) {
-    // key
-    var key = new Label();
-    key.getStyleClass().add("segment-meta-key");
-    key.setPadding(new Insets(5, 0, 0, 0));
-    key.setWrapText(true);
-    key.setMaxWidth(width - 20);
-    key.setText(meta.getKey());
-    // type
-    var value = new Text();
-    value.getStyleClass().add("segment-meta-value");
-    value.setText(meta.getValue());
-    value.setWrappingWidth(width - 20);
-    // meta
-    var col = new VBox();
-    col.getStyleClass().add("segment-meta");
-    col.getChildren().add(key);
-    col.getChildren().add(value);
-    //
-    var pane = new AnchorPane();
-    pane.getChildren().add(col);
-    return pane;
   }
 
   /**
@@ -191,22 +95,50 @@ public class MainTimelineSegmentFactory {
     col.setMaxHeight(Double.MAX_VALUE);
     col.setPadding(new Insets(20, 0, 0, 0));
     VBox.setVgrow(col, Priority.ALWAYS);
-    var choices = fabricationService.getSegmentChoices(segment);
-    col.getChildren().add(computeChoiceListNodes(segment, "Macro", choices.stream().filter((choice) -> ProgramType.Macro == choice.getProgramType()).toList(), true, false, false));
-    col.getChildren().add(computeChoiceListNodes(segment, "Main", choices.stream().filter((choice) -> ProgramType.Main == choice.getProgramType()).toList(), true, false, false));
-    col.getChildren().add(computeChoiceListNodes(segment, "Beat", choices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList(), false, true, false));
-    col.getChildren().add(computeChoiceListNodes(segment, "Detail", choices.stream().filter((choice) -> ProgramType.Detail == choice.getProgramType()).toList(), true, false, false));
-    col.getChildren().add(computeChoiceListNodes(segment, "Perc Loop", choices.stream().filter((choice) ->
-      InstrumentType.Percussion == choice.getInstrumentType() && InstrumentMode.Loop == choice.getInstrumentMode()).toList(), false, false, true));
-    col.getChildren().add(computeChoiceListNodes(segment, "Hook", choices.stream().filter((choice) -> InstrumentType.Hook == choice.getInstrumentType()).toList(), false, false, true));
-    col.getChildren().add(computeChoiceListNodes(segment, "Transition", choices.stream().filter((choice) -> InstrumentMode.Transition == choice.getInstrumentMode()).toList(), false, false, true));
-    col.getChildren().add(computeChoiceListNodes(segment, "Background", choices.stream().filter((choice) -> InstrumentMode.Background == choice.getInstrumentMode()).toList(), false, false, true));
-    col.getChildren().add(computeChoiceListNodes(segment, "Chord", choices.stream().filter((choice) -> InstrumentMode.Chord == choice.getInstrumentMode()).toList(), false, false, true));
+    var segmentChoices = fabricationService.getSegmentChoices(segment);
+    col.getChildren().add(computeChoicesListNode(segment, "Macro", segmentChoices.stream().filter((choice) -> ProgramType.Macro == choice.getProgramType()).toList(), true, false, false));
+    col.getChildren().add(computeChoicesListNode(segment, "Main", segmentChoices.stream().filter((choice) -> ProgramType.Main == choice.getProgramType()).toList(), true, false, false));
+    col.getChildren().add(computeChoicesListNode(segment, "Beat", segmentChoices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList(), false, true, false));
+    for (var instrumentType : InstrumentType.values()) {
+      var choices = segmentChoices.stream().filter((choice) -> instrumentType == choice.getInstrumentType()).toList();
+      if (choices.isEmpty()) continue;
+      col.getChildren().add(computeChoicesListNode(
+        segment,
+        instrumentType.toString(),
+        choices,
+        true,
+        true,
+        true
+      ));
+    }
     //
-    var pane = new AnchorPane();
+    var pane = new VBox();
     pane.getChildren().add(col);
     return pane;
   }
+
+  Node computeChoicesListNode(Segment segment, String layerName, Collection<? extends SegmentChoice> choices, boolean showProgram, boolean showProgramVoice, boolean showArrangementPicks) {
+    var box = new VBox();
+    box.getStyleClass().add("choice-group");
+    // layer name
+    var layerNameLabel = new Label();
+    layerNameLabel.setText(layerName);
+    layerNameLabel.getStyleClass().add("choice-group-name");
+    box.getChildren().add(layerNameLabel);
+    // choices
+    choices
+      .stream()
+      .sorted(Comparator.comparing((c) ->
+        String.format("%s_%s",
+          Objects.nonNull(c.getInstrumentType()) ? c.getInstrumentType() : "",
+          Objects.nonNull(c.getProgramType()) ? c.getProgramType() : "")))
+      .forEach(choice -> {
+        var choiceListItem = computeChoiceNode(segment, choice, showProgram, showProgramVoice, showArrangementPicks);
+        box.getChildren().add(choiceListItem);
+      });
+    return box;
+  }
+
 
   /**
    Segment section: Memes, Chords
@@ -323,28 +255,6 @@ public class MainTimelineSegmentFactory {
     return col;
   }
 
-  Node computeChoiceListNodes(Segment segment, String layerName, Collection<? extends SegmentChoice> choices, boolean showProgram, boolean showProgramVoice, boolean showArrangementPicks) {
-    var box = new VBox();
-    box.getStyleClass().add("choice-group");
-    // layer name
-    var layerNameLabel = new Label();
-    layerNameLabel.setText(layerName);
-    layerNameLabel.getStyleClass().add("choice-group-name");
-    box.getChildren().add(layerNameLabel);
-    // choices
-    choices
-      .stream()
-      .sorted(Comparator.comparing((c) ->
-        String.format("%s_%s",
-          Objects.nonNull(c.getInstrumentType()) ? c.getInstrumentType() : "",
-          Objects.nonNull(c.getProgramType()) ? c.getProgramType() : "")))
-      .forEach(choice -> {
-        var choiceListItem = computeChoiceNode(segment, choice, showProgram, showProgramVoice, showArrangementPicks);
-        box.getChildren().add(choiceListItem);
-      });
-    return box;
-  }
-
   Node computeChoiceNode(Segment segment, SegmentChoice choice, boolean showProgram, boolean showProgramVoice, boolean showArrangementPicks) {
     var box = new VBox();
     box.getStyleClass().add("choice-group-item");
@@ -354,11 +264,11 @@ public class MainTimelineSegmentFactory {
       (Objects.nonNull(choice.getDeltaOut()) && DELTA_UNLIMITED != choice.getDeltaOut() && segment.getDelta() > choice.getDeltaOut()))
       box.getStyleClass().add("choice-group-item-muted");
 
-    if (showProgram) {
+    if (showProgram && Objects.nonNull(choice.getProgramId())) {
       box.getChildren().add(fabricationService.computeProgramReferenceNode(choice.getProgramId(), choice.getProgramSequenceBindingId()));
     }
 
-    if (showProgramVoice) {
+    if (showProgramVoice && Objects.nonNull(choice.getProgramVoiceId())) {
       box.getChildren().add(fabricationService.computeProgramVoiceReferenceNode(choice.getProgramVoiceId()));
     }
 

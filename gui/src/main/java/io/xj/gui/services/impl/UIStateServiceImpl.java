@@ -2,8 +2,6 @@ package io.xj.gui.services.impl;
 
 import io.xj.gui.WorkstationLogAppender;
 import io.xj.gui.services.FabricationService;
-import io.xj.gui.services.LabService;
-import io.xj.gui.services.LabState;
 import io.xj.gui.services.UIStateService;
 import io.xj.nexus.ControlMode;
 import io.xj.nexus.work.FabricationState;
@@ -24,7 +22,6 @@ import java.util.Objects;
 @Service
 public class UIStateServiceImpl implements UIStateService {
   private final FabricationService fabricationService;
-  private final LabService labService;
   private final StringProperty logLevel = new SimpleStringProperty(WorkstationLogAppender.LEVEL.get().toString());
   private final StringBinding windowTitle;
   private final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
@@ -40,22 +37,17 @@ public class UIStateServiceImpl implements UIStateService {
   private BooleanBinding isProgressBarVisible;
 
   @Nullable
-  private BooleanBinding isInputModeDisabled;
-
-  @Nullable
   private BooleanBinding isManualFabricationMode;
 
   @Nullable
   private BooleanBinding isManualFabricationActive;
 
   public UIStateServiceImpl(
-    FabricationService fabricationService,
-    LabService labService
+    FabricationService fabricationService
   ) {
     this.fabricationService = fabricationService;
-    this.labService = labService;
 
-    windowTitle = Bindings.createStringBinding(() -> "XJ music workstation");
+    windowTitle = Bindings.createStringBinding(() -> "XJ music workstation DEMO PLAYER");
   }
 
   @Override
@@ -124,14 +116,6 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public StringProperty logLevelProperty() {
     return logLevel;
-  }
-
-  @Override
-  public BooleanBinding isInputModeDisabledProperty() {
-    if (Objects.isNull(isInputModeDisabled))
-      isInputModeDisabled = labService.stateProperty().isEqualTo(LabState.Authenticated).not();
-
-    return isInputModeDisabled;
   }
 
   @Override

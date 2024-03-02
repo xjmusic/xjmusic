@@ -2,9 +2,16 @@
 package io.xj.nexus.craft.background;
 
 import io.xj.hub.HubContent;
+import io.xj.hub.HubTopology;
+import io.xj.hub.entity.EntityFactoryImpl;
+import io.xj.hub.entity.EntityUtils;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.json.JsonProvider;
+import io.xj.hub.json.JsonProviderImpl;
+import io.xj.hub.jsonapi.JsonapiPayloadFactory;
+import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.nexus.NexusException;
@@ -12,17 +19,9 @@ import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
-import io.xj.hub.entity.EntityFactoryImpl;
-import io.xj.hub.entity.EntityUtils;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.nexus.hub_client.HubClient;
-import io.xj.hub.HubTopology;
-import io.xj.hub.json.JsonProvider;
-import io.xj.hub.json.JsonProviderImpl;
-import io.xj.hub.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -34,7 +33,6 @@ import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -54,8 +52,6 @@ import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftBackgroundProgramVoiceNextMainTest {
-  @Mock
-  public HubClient hubClient;
   CraftFactory craftFactory;
   FabricatorFactory fabricatorFactory;
   NexusIntegrationTestingFixtures fake;
@@ -84,7 +80,7 @@ public class CraftBackgroundProgramVoiceNextMainTest {
     // Manipulate the underlying entity store; reset before each test
     store.clear();
 
-    // Mock request via HubClient returns fake generated library of hub content
+    // Mock request via HubClientFactory returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       Stream.concat(fake.setupFixtureB1().stream(),
@@ -133,7 +129,7 @@ public class CraftBackgroundProgramVoiceNextMainTest {
 
     // Instrument "808"
     Instrument instrument1 = EntityUtils.add(entities,
-      buildInstrument(fake.library2, InstrumentType.Noise, InstrumentMode.Background, InstrumentState.Published, "Bongo Loop"));
+      buildInstrument(fake.library2, InstrumentType.Background, InstrumentMode.Loop, InstrumentState.Published, "Bongo Loop"));
     EntityUtils.add(entities, buildInstrumentMeme(instrument1, "heavy"));
     //
     audioKick = EntityUtils.add(entities, buildInstrumentAudio(

@@ -7,9 +7,7 @@ import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.background.BackgroundCraft;
 import io.xj.nexus.craft.beat.BeatCraft;
 import io.xj.nexus.craft.detail.DetailCraft;
-import io.xj.nexus.craft.hook.HookCraft;
 import io.xj.nexus.craft.macro_main.MacroMainCraft;
-import io.xj.nexus.craft.perc_loop.PercLoopCraft;
 import io.xj.nexus.craft.transition.TransitionCraft;
 import io.xj.nexus.fabricator.Fabricator;
 import jakarta.annotation.Nullable;
@@ -31,6 +29,44 @@ import java.util.Collection;
 public interface CraftFactory {
 
   /**
+   Create Foundation Craft instance for a particular segment
+   [#138] Foundation craft for Segment of a Chain
+
+   @param fabricator           of craft
+   @param overrideMacroProgram already selected to use for craft
+   @param overrideMemes        already selected to use for craft
+   @return MacroMainCraft
+   @throws NexusException on failure
+   */
+  MacroMainCraft macroMain(
+      Fabricator fabricator,
+      @Nullable Program overrideMacroProgram,
+      @Nullable Collection<String> overrideMemes
+  ) throws NexusException;
+
+  /**
+   Create Beat Craft instance for a particular segment
+
+   @param fabricator of craft
+   @return BeatCraft
+   @throws NexusException on failure
+   */
+  BeatCraft beat(
+      Fabricator fabricator
+  ) throws NexusException;
+
+  /**
+   Create Detail Craft instance for a particular segment
+
+   @param fabricator of craft
+   @return DetailCraft
+   @throws NexusException on failure
+   */
+  DetailCraft detail(
+      Fabricator fabricator
+  ) throws NexusException;
+
+  /**
    Create Background Craft instance for a particular segment
 
    @param fabricator of craft
@@ -42,66 +78,6 @@ public interface CraftFactory {
   ) throws NexusException;
 
   /**
-   Create Beat Craft instance for a particular segment
-
-   @param fabricator of craft
-   @return BeatCraft
-   @throws NexusException on failure
-   */
-  BeatCraft beat(
-    Fabricator fabricator
-  ) throws NexusException;
-
-  /**
-   Create Detail Craft instance for a particular segment
-
-   @param fabricator of craft
-   @return DetailCraft
-   @throws NexusException on failure
-   */
-  DetailCraft detail(
-    Fabricator fabricator
-  ) throws NexusException;
-
-  /**
-   Create Hook Craft instance for a particular segment
-
-   @param fabricator of craft
-   @return HookCraft
-   @throws NexusException on failure
-   */
-  HookCraft hook(
-    Fabricator fabricator
-  ) throws NexusException;
-
-  /**
-   Create Foundation Craft instance for a particular segment
-   [#138] Foundation craft for Segment of a Chain
-
-   @param fabricator           of craft
-   @param overrideMacroProgram already selected to use for craft
-   @param overrideMemes        already selected to use for craft
-   @return MacroMainCraft
-   @throws NexusException on failure
-   */
-  MacroMainCraft macroMain(
-    Fabricator fabricator,
-    @Nullable Program overrideMacroProgram,
-    @Nullable Collection<String> overrideMemes
-  ) throws NexusException;
-
-  /**
-   Create Percussion Loop Craft instance for a particular segment
-
-   @param fabricator of craft
-   @return PercLoopCraft
-   @throws NexusException on failure
-   */
-  PercLoopCraft percLoop(
-    Fabricator fabricator
-  ) throws NexusException;
-
-  /**
    Create Transition Craft instance for a particular segment
 
    @param fabricator of craft
@@ -109,7 +85,6 @@ public interface CraftFactory {
    @throws NexusException on failure
    */
   TransitionCraft transition(
-    Fabricator fabricator
+      Fabricator fabricator
   ) throws NexusException;
-
 }
