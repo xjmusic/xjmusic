@@ -13,6 +13,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -97,6 +98,7 @@ public class TrackController {
         getZoomValueAndRedrawOnchange();
         bindSequenceTotalValueToTimelineTotalLines();
         timeLineAnchorpane.setOnMouseClicked(this::addProgramSequencePatternEventItemController);
+        timeLineAnchorpane.setCursor(Cursor.CROSSHAIR);
     }
 
     private void getZoomValueAndRedrawOnchange() {
