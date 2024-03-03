@@ -8,77 +8,78 @@
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.Group?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.Pane?>
 <VBox fx:id="container" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramEditorController">
 
     <VBox.vgrow>
         <Priority fx:constant="ALWAYS"/>
     </VBox.vgrow>
-    <VBox>
-        <HBox alignment="CENTER_LEFT" prefHeight="23.0" prefWidth="607.0" spacing="5.0">
-            <Button fx:id="configButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-                    minWidth="-Infinity" mnemonicParsing="false" onAction="#handleEditConfig" prefHeight="30.0"
-                    prefWidth="35.0" text=" ">
-                <graphic>
-                    <ImageView fitHeight="23.0" fitWidth="23.0" translateX="-2.0">
-                        <Image url="@/icons/settings.png"/>
-                    </ImageView>
-                </graphic>
-            </Button>
-            <fx:define>
-                <ToggleGroup fx:id="editorModeToggleGroup"/>
-            </fx:define>
-            <ToggleButton fx:id="bindButton" toggleGroup="$editorModeToggleGroup" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" text="Bind"/>
-            <ToggleButton fx:id="editButton" toggleGroup="$editorModeToggleGroup" mnemonicParsing="false" prefHeight="30.0" prefWidth="45.0" text="Edit"/>
-            <Button fx:id="copyButton" layoutX="85.0" layoutY="13.0" maxHeight="-Infinity" maxWidth="-Infinity"
-                    minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#openCloneDialog"
-                    prefHeight="30.0" prefWidth="35.0" text=" ">
-                <graphic>
-                    <ImageView fitHeight="23.0" fitWidth="23.0" translateX="-2.0">
-                        <Image url="@/icons/copy-grey.png"/>
-                    </ImageView>
-                </graphic>
-            </Button>
-            <Label prefHeight="25.0" prefWidth="70.0" text="PROGRAM"/>
-            <TextField fx:id="programNameField"/>
-            <Label layoutX="193.0" layoutY="13.0" prefHeight="25.0" prefWidth="50.0" text="TYPE">
-                <padding>
-                    <Insets left="10.0"/>
-                </padding>
-            </Label>
-            <ComboBox fx:id="typeChooser" prefHeight="25.0" prefWidth="102.0"/>
-            <Label layoutX="416.0" layoutY="13.0" prefHeight="25.0" prefWidth="56.0" text="STATE">
-                <padding>
-                    <Insets left="10.0"/>
-                </padding>
-            </Label>
-            <ComboBox fx:id="stateChooser" layoutX="475.0" layoutY="13.0" prefHeight="25.0" prefWidth="102.0"/>
-            <Label layoutX="566.0" layoutY="13.0" prefHeight="25.0" prefWidth="55.0" text="KEY">
-                <padding>
-                    <Insets left="10.0"/>
-                </padding>
-            </Label>
-            <TextField fx:id="keyField" layoutX="261.0" layoutY="13.0" prefHeight="25.0" prefWidth="89.0"/>
-            <Label layoutX="732.0" layoutY="13.0" prefHeight="25.0" prefWidth="60.0" text="TEMPO">
-                <padding>
-                    <Insets left="5.0"/>
-                </padding>
-            </Label>
-            <Spinner fx:id="tempoChooser" editable="true" prefHeight="25.0" prefWidth="111.0"/>
-        </HBox>
-        <StackPane fx:id="programMemeContainer"/>
-    </VBox>
+    <HBox alignment="CENTER_LEFT" prefHeight="23.0" prefWidth="607.0" spacing="5.0">
+        <Button fx:id="configButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+                minWidth="-Infinity" mnemonicParsing="false" onAction="#handleEditConfig" prefHeight="30.0"
+                prefWidth="35.0" text=" ">
+            <graphic>
+                <ImageView fitHeight="23.0" fitWidth="23.0" translateX="-2.0">
+                    <Image url="@/icons/settings.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
+        <fx:define>
+            <ToggleGroup fx:id="editorModeToggleGroup"/>
+        </fx:define>
+        <ToggleButton fx:id="bindButton" toggleGroup="$editorModeToggleGroup" mnemonicParsing="false" minWidth="45" text="Bind"/>
+        <ToggleButton fx:id="editButton" toggleGroup="$editorModeToggleGroup" mnemonicParsing="false" minWidth="45" text="Edit"/>
+        <Button fx:id="copyButton" layoutX="85.0" layoutY="13.0" maxHeight="-Infinity" maxWidth="-Infinity"
+                minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#openCloneDialog"
+                prefHeight="30.0" prefWidth="35.0" text=" ">
+            <graphic>
+                <ImageView fitHeight="23.0" fitWidth="23.0" translateX="-2.0">
+                    <Image url="@/icons/copy-grey.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Label prefHeight="25.0" prefWidth="70.0" text="PROGRAM"/>
+        <TextField fx:id="programNameField"/>
+        <Label layoutX="193.0" layoutY="13.0" prefHeight="25.0" prefWidth="50.0" text="TYPE">
+            <padding>
+                <Insets left="10.0"/>
+            </padding>
+        </Label>
+        <ComboBox fx:id="typeChooser" prefHeight="25.0" prefWidth="102.0"/>
+        <Label layoutX="416.0" layoutY="13.0" prefHeight="25.0" prefWidth="56.0" text="STATE">
+            <padding>
+                <Insets left="10.0"/>
+            </padding>
+        </Label>
+        <ComboBox fx:id="stateChooser" layoutX="475.0" layoutY="13.0" prefHeight="25.0" prefWidth="102.0"/>
+        <Label layoutX="566.0" layoutY="13.0" prefHeight="25.0" prefWidth="55.0" text="KEY">
+            <padding>
+                <Insets left="10.0"/>
+            </padding>
+        </Label>
+        <TextField fx:id="keyField" layoutX="261.0" layoutY="13.0" prefHeight="25.0" prefWidth="89.0"/>
+        <Label layoutX="732.0" layoutY="13.0" prefHeight="25.0" prefWidth="60.0" text="TEMPO">
+            <padding>
+                <Insets left="5.0"/>
+            </padding>
+        </Label>
+        <Spinner fx:id="tempoChooser" editable="true" prefHeight="25.0" prefWidth="111.0"/>
+    </HBox>
+    <Pane fx:id="programMemeContainer">
+        <HBox.hgrow>
+            <Priority fx:constant="ALWAYS"/>
+        </HBox.hgrow>
+    </Pane>
     <HBox alignment="CENTER_LEFT" prefHeight="37.0" prefWidth="1231.0" spacing="5.0"
           styleClass="sequence-management-control-bar">
         <Group fx:id="gridAndZoomGroup">

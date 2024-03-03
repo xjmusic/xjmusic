@@ -47,6 +47,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -77,7 +78,7 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   public Spinner<Double> tempoChooser;
   @FXML
-  public StackPane programMemeContainer;
+  public Pane programMemeContainer;
   @FXML
   public TextField keyField;
   @FXML
@@ -204,7 +205,7 @@ public class ProgramEditorController extends ProjectController {
 
   @Override
   public void onStageReady() {
-    bindViewParentContainer.setMinWidth(getScreenSize() - labelHolder.getWidth());
+    bindViewParentContainer.visibleProperty().bind(bindButton.selectedProperty());
     var visible = projectService.isStateReadyProperty()
         .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
         .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramEditor));
@@ -517,17 +518,6 @@ public class ProgramEditorController extends ProjectController {
     setupProgramMemeContainer();
     setupSequence();
     loadBindingView();
-  }
-
-  private double getScreenSize() {
-    // Get the primary screen
-    Screen screen = Screen.getPrimary();
-
-    // Get the visual bounds of the primary screen
-    Rectangle2D bounds = screen.getVisualBounds();
-
-    // Get the width of the screen
-    return bounds.getWidth();
   }
 
   /**
