@@ -308,7 +308,7 @@ public class InstrumentEditorController extends BrowserController {
       instrumentMemeContainer.getChildren().add(root);
       EntityMemesController entityMemesController = loader.getController();
       entityMemesController.setup(
-        () -> projectService.getContent().getMemesOfInstrument(instrumentId.get()),
+          true, () -> projectService.getContent().getMemesOfInstrument(instrumentId.get()),
         () -> projectService.createInstrumentMeme(instrumentId.get()),
         (Object meme) -> {
           try {

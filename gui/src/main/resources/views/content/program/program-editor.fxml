@@ -104,7 +104,7 @@
         <Label fx:id="noSequenceLabel" text="NO SEQUENCE"/>
     </HBox>
     <ScrollPane fitToHeight="true" VBox.vgrow="ALWAYS" styleClass="content-scroll-pane">
-        <HBox>
+        <HBox fx:id="bindingModeContainer">
             <VBox>
                 <Label styleClass="bind-mode-label" text="OFFSET"
                        minHeight="20" maxHeight="20"

@@ -5,7 +5,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
 <AnchorPane fx:id="mainBorderPane" styleClass="sequence-binding-item-container" stylesheets="@/styles/default-theme.css"
             xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="io.xj.gui.controllers.content.program.SequenceBindingItemController">
@@ -13,20 +13,21 @@
            AnchorPane.topAnchor="0"
            AnchorPane.leftAnchor="0"
            AnchorPane.rightAnchor="20"/>
-    <Button mnemonicParsing="false" styleClass="sequence-item-button" text=" "
+    <Button mnemonicParsing="false" styleClass="sequence-item-button"
             AnchorPane.rightAnchor="0"
             AnchorPane.topAnchor="0"
-            onAction="#handleDeleteSequenceBinding">
+            onAction="#handleDeleteSequenceBinding"
+            minWidth="30" maxWidth="30">
         <graphic>
             <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                 <Image url="@/icons/delete.png"/>
             </ImageView>
         </graphic>
     </Button>
-    <Pane fx:id="sequenceBindingMemeContainer"
-          maxWidth="300"
-          AnchorPane.topAnchor="20"
-          AnchorPane.rightAnchor="0"
-          AnchorPane.leftAnchor="0"
-          AnchorPane.bottomAnchor="0"/>
+    <StackPane fx:id="sequenceBindingMemeContainer"
+               maxWidth="300"
+               AnchorPane.topAnchor="20"
+               AnchorPane.rightAnchor="0"
+               AnchorPane.leftAnchor="0"
+               AnchorPane.bottomAnchor="0"/>
 </AnchorPane>

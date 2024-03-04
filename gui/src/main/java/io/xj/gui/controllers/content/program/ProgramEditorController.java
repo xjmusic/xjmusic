@@ -112,6 +112,9 @@ public class ProgramEditorController extends ProjectController {
   public ComboBox<String> gridChooser;
   @FXML
   public Button sequenceSelectorLauncher;
+
+  @FXML
+  public HBox bindingModeContainer;
   @FXML
   public HBox sequenceBindingsContainer;
   @FXML
@@ -191,7 +194,8 @@ public class ProgramEditorController extends ProjectController {
 
   @Override
   public void onStageReady() {
-    sequenceBindingsContainer.visibleProperty().bind(bindButton.selectedProperty());
+    bindingModeContainer.visibleProperty().bind(bindButton.selectedProperty());
+    bindingModeContainer.managedProperty().bind(bindButton.selectedProperty());
     var visible = projectService.isStateReadyProperty()
         .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
         .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramEditor));
@@ -200,14 +204,15 @@ public class ProgramEditorController extends ProjectController {
         setup();
     });
     editorModeToggleGroup.selectedToggleProperty().addListener((o, ov, value) -> {
-      if (value.equals(editButton)) {
-        bindButton.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, false);
-        editButton.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, true);
-      } else {
+      if (Objects.equals(value, bindButton)) {
         editButton.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, false);
         bindButton.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, true);
+      } else {
+        bindButton.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, false);
+        editButton.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, true);
       }
     });
+    editButton.setSelected(true);
     editorModeToggleGroup.selectToggle(editButton);
     snapButton.selectedProperty().addListener((o, ov, value) -> snapButton.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, value));
     createDisabilityBindingForTypes(editButton, Arrays.asList(ProgramType.Main, ProgramType.Macro));
@@ -495,7 +500,7 @@ public class ProgramEditorController extends ProjectController {
       programMemeContainer.getChildren().add(root);
       EntityMemesController entityMemesController = loader.getController();
       entityMemesController.setup(
-          () -> projectService.getContent().getMemesOfProgram(programId.get()),
+          true, () -> projectService.getContent().getMemesOfProgram(programId.get()),
           () -> projectService.createProgramMeme(programId.get()),
           (Object meme) -> {
             try {
@@ -536,7 +541,7 @@ public class ProgramEditorController extends ProjectController {
     sequenceBindingsContainer.getChildren().clear();
     // find the highest offset in the current sequenceBindingsOfProgram group and create the offset holders  with an extra button
     // if sequence bindings number is zero, add the two buttons that appear when empty
-    int highestOffset = bindings.stream().map(ProgramSequenceBinding::getOffset).max(Integer::compareTo).orElse(0);
+    int highestOffset = bindings.stream().map(ProgramSequenceBinding::getOffset).max(Integer::compareTo).orElse(-1);
     for (int i = 0; i <= highestOffset + 1; i++) {
       addSequenceBindingColumn(i);
     }

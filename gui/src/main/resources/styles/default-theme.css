@@ -527,9 +527,10 @@
     -fx-background-color: #434343;
     -fx-background-radius: 7;
     -fx-border-radius: 7;
+    -fx-padding: 5 5 5 5;
 }
 
-.sequence-binding-column-content-container {
+.sequence-binding-column-container {
     -fx-padding: 5 5 5 5;
 }
 

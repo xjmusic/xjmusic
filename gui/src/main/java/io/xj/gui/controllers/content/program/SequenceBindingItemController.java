@@ -9,7 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +27,7 @@ public class SequenceBindingItemController {
   @FXML
   public Label sequenceName;
   @FXML
-  public Pane sequenceBindingMemeContainer;
+  public StackPane sequenceBindingMemeContainer;
 
   public AnchorPane mainBorderPane;
 
@@ -54,6 +54,11 @@ public class SequenceBindingItemController {
   ) {
     this.programSequenceBinding = programSequenceBinding;
     this.deleteSequenceBinding = deleteSequenceBinding;
+
+    var sequence = projectService.getContent().getProgramSequence(programSequenceBinding.getProgramSequenceId())
+        .orElseThrow(() -> new RuntimeException("Could not find sequence for sequence binding!"));
+    sequenceName.setText(sequence.getName());
+
     setupSequenceBindingMemeContainer();
   }
 
@@ -74,6 +79,7 @@ public class SequenceBindingItemController {
       sequenceBindingMemeContainer.getChildren().add(root);
       EntityMemesController entityMemesController = loader.getController();
       entityMemesController.setup(
+          false,
           () -> projectService.getContent().getMemesOfSequenceBinding(programSequenceBinding),
           () -> projectService.createProgramSequenceBindingMeme(programSequenceBinding.getId()),
           (Object meme) -> {

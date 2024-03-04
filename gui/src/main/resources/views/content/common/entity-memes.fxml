@@ -14,7 +14,7 @@
         focusTraversable="true"
         prefHeight="0"
         styleClass="entity-memes-container">
-    <StackPane alignment="TOP_RIGHT"
+    <StackPane fx:id="labelContainer" alignment="TOP_RIGHT"
                styleClass="entity-memes-label-container"
                minWidth="40" maxWidth="40">
         <Label text="MEMES"/>

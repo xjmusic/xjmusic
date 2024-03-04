@@ -77,7 +77,7 @@ public class SequenceBindingColumnController {
     this.programId = programId;
     offsetText.setText(String.valueOf(offset));
 
-    var bindings = projectService.getContent().getBindingsAtOffsetOfProgram(programId, offset);
+    var bindings = projectService.getContent().getBindingsAtOffsetOfProgram(programId, offset, false);
     for (var binding : bindings) {
       addProgramSequenceBindingItem(binding);
     }

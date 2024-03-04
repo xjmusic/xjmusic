@@ -12,7 +12,12 @@
     <Label fx:id="offsetText"
            minHeight="20" maxHeight="20" styleClass="bind-mode-label" text="0" HBox.hgrow="ALWAYS"
            maxWidth="Infinity"/>
-    <VBox fx:id="sequenceBindingColumnContentContainer" styleClass="sequence-binding-column-content-container" spacing="5">
-        <Button fx:id="addSequenceButton" onMouseClicked="#handlePressedAddSequenceBinding" mnemonicParsing="false" text="+" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+    <VBox styleClass="sequence-binding-column-container" spacing="5">
+        <VBox fx:id="sequenceBindingColumnContentContainer" spacing="5">
+            <!-- This is where the sequence binding items will be added -->
+        </VBox>
+        <Button fx:id="addSequenceButton" onMouseClicked="#handlePressedAddSequenceBinding" mnemonicParsing="false"
+                text="+"
+                HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
     </VBox>
 </VBox>
