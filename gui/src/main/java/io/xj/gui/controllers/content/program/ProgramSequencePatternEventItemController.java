@@ -39,46 +39,53 @@ public class ProgramSequencePatternEventItemController {
     public Label velocityLabel;
     @FXML
     public Label tonesLabel;
-    private double dragStartX;
     @FXML
     private AnchorPane timeline;
     @FXML
     private Parent root;
-    int id;
     double minWidth = 0;
     private final ObjectProperty<ProgramSequencePatternEvent> programSequencePatternEventObjectProperty = new SimpleObjectProperty<>();
     private final ProjectService projectService;
     static final Logger LOG = LoggerFactory.getLogger(ProgramSequencePatternEventItemController.class);
     private VoiceController voiceController;
     private final ProgramEditorController programEditorController;
+    protected final DoubleProperty getEventPositionProperty = new SimpleDoubleProperty(0);
 
-    private final DoubleProperty eventPositionProperty = new SimpleDoubleProperty();
+    private final DoubleProperty widthProperty = new SimpleDoubleProperty();
+    private static final int RESIZE_MARGIN = 10;
+    private final DoubleProperty translateDoubleProperty = new SimpleDoubleProperty();
 
-    private final DoubleProperty widthProperty = new SimpleDoubleProperty(0);
-
-
-    private double offsetX = 0;
+    private double originalXPosition;
+    private double originalYPosition;
+    private DragZone currentDragZone;
 
     public ProgramSequencePatternEventItemController(ProjectService projectService, ProgramEditorController programEditorController) {
         this.projectService = projectService;
         this.programEditorController = programEditorController;
     }
 
-    ObjectProperty<ProgramSequencePatternEvent> event = new SimpleObjectProperty<>();
-
-    protected void update(ProgramSequencePatternEvent event) {
-        projectService.update(event);
-        this.event.set(event);
-    }
+    ObjectProperty<ProgramSequencePatternEvent> programEvent = new SimpleObjectProperty<>();
 
     public void setUp(Parent root, AnchorPane timeline, ProgramSequencePatternEvent programSequencePatternEvent, VoiceController voiceController) {
+        this.timeline = timeline;
+        this.root = root;
+        this.voiceController = voiceController;
+        minWidth = timelineEventPropertyParent.getMinWidth();
+        programEvent.set(programSequencePatternEvent);
         this.voiceController = voiceController;
         deleteTimelineProperty.setOnAction(e -> setDeleteTimelineProperty());
         //allows the width to go to the lowest value
         timelineEventPropertyParent.setMinWidth((voiceController.getBaseSizePerBeat().doubleValue() * programEditorController.getSequenceTotal() * programEditorController.getZoomFactor()) /
                 (programEditorController.getSequenceTotal() * programEditorController.getTimelineGridSize()));
+        translateDoubleProperty.bind(Bindings.createDoubleBinding(
+                () -> (voiceController.getBaseSizePerBeat().doubleValue() * programEditorController.getSequenceTotal() *
+                        programEditorController.getZoomFactor() / (programEditorController.getSequenceTotal() * programEditorController.getTimelineGridSize()))
+                ,
+                programEditorController.getSequenceTotalProperty(),
+                programEditorController.getZoomFactorProperty()
+        ));
         // Bind the minWidthProperty of timelineEventPropertyParent
-        timelineEventPropertyParent.prefWidthProperty().bind(
+        timelineEventPropertyParent.minWidthProperty().bind(
                 Bindings.createDoubleBinding(
                         () -> {
                             double sequenceTotal = programEditorController.getSequenceTotal();
@@ -94,41 +101,74 @@ public class ProgramSequencePatternEventItemController {
                 )
         );
 
-        /// Event handler for mouse drag to resize the AnchorPane
-        timeline.setOnMouseDragged(event -> {
-            // Calculate the drag zone
-            DragZone dragZone = computeDragZone(event);
-            widthProperty.set(event.getX() - dragStartX);
-        });
-        this.timeline = timeline;
-        this.root = root;
-        this.voiceController = voiceController;
-        minWidth = timelineEventPropertyParent.getPrefWidth();
         programSequencePatternEventObjectProperty.set(programSequencePatternEvent);
-
+        bindTranslateXToPositionProperty();
         updateLabels(programSequencePatternEvent);
-//        timelineEventPropertyParent.translateXProperty().bind(eventPositionProperty);
-        timelineEventPropertyParent.translateXProperty().bind(Bindings.createIntegerBinding(() -> (int) (eventPositionProperty.get() * programEditorController.getZoomFactorProperty().get() * voiceController.getBaseSizePerBeat().get()),
-                eventPositionProperty, eventPositionProperty , programEditorController.getZoomFactorProperty()));
-        timelineEventPropertyParent.setOnMousePressed(event -> dragStartX = event.getX());
-        timelineEventPropertyParent.setOnMouseDragged(this::position);
         timelineEventPropertyParent.setOnMouseMoved(this::onMouseOver);
-        timelineEventPropertyParent.addEventFilter(MouseEvent.MOUSE_CLICKED, event ->
-
-        {
-            // Calculate the distance moved from the initial mouse press
-            double deltaX = event.getSceneX() - dragStartX;
-            // Define a threshold for distinguishing clicks and drags (e.g., 5 pixels)
-            double dragThreshold = 100.0;
-            if (Math.abs(deltaX) > dragThreshold) {
-                event.consume(); // Consume the event to prevent it from reaching the timeLineAnchorpane
-            }
-        });
+        timelineEventPropertyParent.setOnMousePressed(this::onMouseDown);
+        timelineEventPropertyParent.setOnMouseReleased(this::onMouseReleased);
     }
 
+    protected void updatePosition(double position) {
+        ProgramSequencePatternEvent newEvent = programEvent.get();
+        newEvent.setPosition((float) position);
+        projectService.update(newEvent);
+        programEvent.set(newEvent);
+    }
 
-    private static final int RESIZE_MARGIN = 10;
+    private void onMouseDown(MouseEvent event) {
+        timeline.setMouseTransparent(true);
+        originalXPosition = event.getX();
+        originalYPosition = event.getY();
+        currentDragZone = computeDragZone(event);
+    }
 
+    private void onMouseReleased(MouseEvent event) {
+        double topAnchor = AnchorPane.getTopAnchor(timelineEventPropertyParent);
+        double bottomAnchor = AnchorPane.getBottomAnchor(timelineEventPropertyParent);
+
+        if (currentDragZone.equals(DragZone.CENTRE)) {
+            double newPosition = event.getX() - originalXPosition;
+            updatePosition(originalXPosition);
+            getEventPositionProperty.set(getEventPositionProperty.get() + newPosition);
+        } else if (currentDragZone.equals(DragZone.LEFT)) {
+            double newWidth = event.getX() + originalXPosition;
+            if (newWidth > 0) {
+                widthProperty.set(widthProperty.get() - translateDoubleProperty.get());
+            } else {
+                widthProperty.set(widthProperty.get() + translateDoubleProperty.get());
+            }
+        } else if (currentDragZone.equals(DragZone.RIGHT)) {
+            double newWidth = event.getX() - originalXPosition;
+            if (newWidth > 0) {
+                widthProperty.set(widthProperty.get() + translateDoubleProperty.get());
+            } else {
+                widthProperty.set(widthProperty.get() - translateDoubleProperty.get());
+            }
+
+        } else if (currentDragZone.equals(DragZone.TOP)) {
+
+            double newDifference = event.getY() - originalYPosition;
+            AnchorPane.setTopAnchor(timelineEventPropertyParent, topAnchor + (newDifference / 2));
+            AnchorPane.setBottomAnchor(timelineEventPropertyParent, bottomAnchor + (newDifference / 2));
+
+        } else if (currentDragZone.equals(DragZone.BOTTOM)) {
+            double newDifference = event.getY() - originalYPosition;
+            AnchorPane.setTopAnchor(timelineEventPropertyParent, topAnchor - (newDifference / 2));
+            AnchorPane.setBottomAnchor(timelineEventPropertyParent, bottomAnchor - (newDifference / 2));
+        }
+        timeline.setMouseTransparent(false);
+    }
+
+    public void bindTranslateXToPositionProperty() {
+        timelineEventPropertyParent.translateXProperty().bind(Bindings.createDoubleBinding(
+                () -> ((voiceController.getBaseSizePerBeat().doubleValue() * programEditorController.getZoomFactor()) + getEventPositionProperty.get())
+                ,
+                programEditorController.getZoomFactorProperty(),
+                voiceController.getBaseSizePerBeat(),
+                getEventPositionProperty
+        ));
+    }
 
     protected DragZone computeDragZone(MouseEvent event) {
         if (event.getY() > (timelineEventPropertyParent.getHeight() - RESIZE_MARGIN))
@@ -170,11 +210,8 @@ public class ProgramSequencePatternEventItemController {
         projectService.deleteContent(programSequencePatternEventObjectProperty.get());
     }
 
-    private DragZone currentDragZone;
-
     private void onMouseOver(MouseEvent event) {
         currentDragZone = computeDragZone(event);
-
         if (currentDragZone != DragZone.CENTRE) {
             if (currentDragZone == DragZone.BOTTOM) {
                 timelineEventPropertyParent.setCursor(Cursor.S_RESIZE);
@@ -192,42 +229,6 @@ public class ProgramSequencePatternEventItemController {
         } else {
             timelineEventPropertyParent.setCursor(Cursor.OPEN_HAND);
         }
-    }
-
-
-    private void position(MouseEvent event) {
-        //prevents going beyond the grid lines to the left
-        if (!(getLeftBorderPosition(timelineEventPropertyParent) <= getLeftBorderPosition(timeline))
-        ) {
-            //prevents going beyond the grid lines to the right
-            if (!(getRightBorderPosition(timelineEventPropertyParent) <= voiceController.getDoubleProperty())) {
-                if (event.getX() <= getRightBorderPosition(timelineEventPropertyParent)) {
-                    offsetX = 0;
-                    eventPositionProperty.set(eventPositionProperty.get() - 5);
-                    dragStartX = event.getX();
-                }
-            } else {
-                // Calculate the difference in X position from the initial drag start
-                double deltaOffsetX = event.getX() - dragStartX;
-                // Update the offsetX variable
-                offsetX += deltaOffsetX;
-
-                // Update the translation by adjusting the bound property
-                double newEventPosition = eventPositionProperty.get() + offsetX;
-                eventPositionProperty.set(newEventPosition);
-                // Update the drag start position for the next mouse move event
-                dragStartX = event.getX();
-            }
-
-        } else {
-            //returns the dragging the desirable container bounds
-            if (event.getX() >= 0) {
-                offsetX = 0;
-                eventPositionProperty.set(eventPositionProperty.get() + 5);
-                dragStartX = event.getX();
-            }
-        }
-
     }
 
     public static double getLeftBorderPosition(Node node) {

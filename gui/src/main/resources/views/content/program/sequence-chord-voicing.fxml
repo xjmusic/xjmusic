@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox fx:id="voiceContainer" prefHeight="152.0" prefWidth="1286.0" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1">
+
+    <HBox fx:id="parentHBox" prefHeight="145.0" prefWidth="1286.0" styleClass="voice">
+      <AnchorPane fx:id="sequenceChordLabelHolder" prefHeight="155.0" prefWidth="239.0" HBox.hgrow="NEVER">
+         <children>
+            <Button fx:id="delete" layoutY="1.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="35.0" text=" " />
+            <Label alignment="CENTER" contentDisplay="CENTER" layoutX="38.0" layoutY="7.0" prefHeight="23.0" prefWidth="46.0" text="VOICE :">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <ComboBox fx:id="voiceChooser" layoutX="87.0" layoutY="6.0" prefWidth="150.0" />
+         </children>
+      </AnchorPane>
+      <HBox HBox.hgrow="ALWAYS" />
+
+    </HBox>
+
+</VBox>

@@ -13,6 +13,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -97,6 +98,7 @@ public class TrackController {
         getZoomValueAndRedrawOnchange();
         bindSequenceTotalValueToTimelineTotalLines();
         timeLineAnchorpane.setOnMouseClicked(this::addProgramSequencePatternEventItemController);
+        timeLineAnchorpane.setCursor(Cursor.CROSSHAIR);
     }
 
     private void getZoomValueAndRedrawOnchange() {
@@ -275,13 +277,13 @@ public class TrackController {
             FXMLLoader loader = new FXMLLoader(programSequencePatternEventItem.getURL());
             loader.setControllerFactory(ac::getBean);
             Parent root = loader.load();
-            // Set the layout parameters of the new item to match those of the existing item
-            AnchorPane.setLeftAnchor(root, event.getX());
             AnchorPane.setTopAnchor(root,0.0);
             AnchorPane.setBottomAnchor(root,0.0);
             ProgramSequencePatternEvent programSequencePatternEvent=new ProgramSequencePatternEvent(UUID.randomUUID(),voiceController.getProgramVoiceTrack().getProgramId(),programEditorController.getSequenceId(),voiceController.getProgramVoiceTrack().getId(),0.125f,0.125f,0.125f,"X");
             ProgramSequencePatternEventItemController patternEventItemController = loader.getController();
             patternEventItemController.setUp(root, timeLineAnchorpane,programSequencePatternEvent,voiceController);
+            patternEventItemController.getEventPositionProperty.set(event.getX() - ((voiceController.getBaseSizePerBeat().doubleValue() * programEditorController.getZoomFactor())  +
+                    patternEventItemController.getEventPositionProperty.get()));
             // Add the new property item to the AnchorPane
             timeLineAnchorpane.getChildren().add(root);
             projectService.getContent().put(programSequencePatternEvent);

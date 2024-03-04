@@ -7,6 +7,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
+
 <AnchorPane fx:id="timelineEventPropertyParent" prefHeight="136.0" prefWidth="0.0" styleClass="program-sequence-pattern-event-item" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramSequencePatternEventItemController">
       <Button fx:id="deleteTimelineProperty" layoutX="25.0" layoutY="2.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="25.0" prefWidth="26.0" text=" " AnchorPane.rightAnchor="-4.0" AnchorPane.topAnchor="0.0">
          <graphic>
