@@ -574,8 +574,8 @@ public class ProgramEditorController extends ProjectController {
       }
       //populate the sequence binding items on the respective items
       sequenceBindingsOfProgram.forEach(sequenceBindingOfProgram -> {
-        int offSet = sequenceBindingOfProgram.getOffset();
-        addSequenceItem(sequenceBindingOfProgram, ((VBox) bindViewParentContainer.getChildren().get(offSet + 1)), offSet + 1);
+        int offset = sequenceBindingOfProgram.getOffset();
+        addSequenceItem(sequenceBindingOfProgram, ((VBox) bindViewParentContainer.getChildren().get(offset + 1)), offset + 1);
       });
     }
   }

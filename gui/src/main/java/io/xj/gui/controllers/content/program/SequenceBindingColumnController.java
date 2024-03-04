@@ -34,7 +34,7 @@ public class SequenceBindingColumnController {
   @FXML
   public VBox sequenceBindingColumnContainer;
   @FXML
-  public Label offSet;
+  public Label offset;
   @FXML
   public Button addSequenceButton;
   @Value("classpath:/views/content/program/sequence-binding-item-creation.fxml")
@@ -56,7 +56,7 @@ public class SequenceBindingColumnController {
   public void setUp(HBox bindViewParentContainer, int position, UUID programId) {
     this.position = position;
     this.bindViewParentContainer = bindViewParentContainer;
-    offSet.setText(String.valueOf(position - 1));
+    offset.setText(String.valueOf(position - 1));
     addSequenceButton.setOnMouseClicked(e -> showSequenceBindingItemCreationUI(programId, e.getSceneX(), e.getSceneY()));
     HBox.setHgrow(sequenceBindingColumnContainer, Priority.ALWAYS);
   }

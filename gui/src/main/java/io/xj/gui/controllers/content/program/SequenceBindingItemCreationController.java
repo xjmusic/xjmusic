@@ -60,10 +60,10 @@ public class SequenceBindingItemCreationController {
     addSequenceBinding(position - 1, programId);
   }
 
-  private void addSequenceBinding(int offSet, UUID programId) {
+  private void addSequenceBinding(int offset, UUID programId) {
     sequenceSearch.valueProperty().addListener((observable, oldValue, newValue) -> {
       if (newValue != null) {
-        addSequence(programId, newValue, offSet);
+        addSequence(programId, newValue, offset);
         closeWindow();
       }
     });
@@ -106,8 +106,8 @@ public class SequenceBindingItemCreationController {
 
   }
 
-  private void addSequence(UUID programId, ProgramSequence programSequence, int offSet) {
-    ProgramSequenceBinding programSequenceBinding = new ProgramSequenceBinding(UUID.randomUUID(), programId, programSequence.getId(), offSet);
+  private void addSequence(UUID programId, ProgramSequence programSequence, int offset) {
+    ProgramSequenceBinding programSequenceBinding = new ProgramSequenceBinding(UUID.randomUUID(), programId, programSequence.getId(), offset);
     addSequenceItem(programSequenceBinding,programSequence);
   }
 

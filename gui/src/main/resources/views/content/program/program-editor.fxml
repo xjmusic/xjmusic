@@ -17,7 +17,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <VBox fx:id="container" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramEditorController" styleClass="program-editor">
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramEditorController"
+      styleClass="program-editor">
 
     <VBox.vgrow>
         <Priority fx:constant="ALWAYS"/>
@@ -48,7 +49,7 @@
             </graphic>
         </Button>
         <Label minWidth="40.0" text="NAME" styleClass="program-editor-field-label"/>
-        <TextField minWidth="160" fx:id="programNameField" />
+        <TextField minWidth="160" fx:id="programNameField"/>
         <Label minWidth="40.0" text="TYPE" styleClass="program-editor-field-label"/>
         <ComboBox minWidth="102.0" fx:id="typeChooser"/>
         <Label minWidth="50.0" text="STATE" styleClass="program-editor-field-label"/>
@@ -67,7 +68,7 @@
         <padding>
             <Insets left="5" top="2" bottom="2" right="5"/>
         </padding>
-        <HBox fx:id="gridAndZoomGroup" alignment="CENTER_LEFT" >
+        <HBox fx:id="gridAndZoomGroup" alignment="CENTER_LEFT">
             <Label minWidth="35.0" text="GRID" styleClass="program-editor-field-label">
                 <font>
                     <Font size="14.0"/>
@@ -87,7 +88,8 @@
             </Label>
             <ComboBox fx:id="zoomChooser" minWidth="100.0"/>
         </HBox>
-        <ToggleButton fx:id="snapButton" minWidth="45" mnemonicParsing="false" text="SNAP" styleClass="program-editor-menu-button"/>
+        <ToggleButton fx:id="snapButton" minWidth="45" mnemonicParsing="false" text="SNAP"
+                      styleClass="program-editor-menu-button"/>
         <Label minWidth="80" text="SEQUENCE" styleClass="program-editor-field-label">
             <font>
                 <Font size="14.0"/>
@@ -110,7 +112,7 @@
                 </ImageView>
             </graphic>
         </Button>
-        <HBox fx:id="currentSequenceGroup" alignment="CENTER_LEFT" >
+        <HBox fx:id="currentSequenceGroup" alignment="CENTER_LEFT">
             <TextField fx:id="sequenceName" minWidth="173.0"/>
             <Label minWidth="80" text="TOTAL" styleClass="program-editor-field-label">
                 <font>
@@ -158,15 +160,12 @@
                prefWidth="219.0" text="NO SEQUENCE">
         </Label>
     </HBox>
-    <ScrollPane fitToHeight="true" VBox.vgrow="ALWAYS">
+    <ScrollPane fitToHeight="true" VBox.vgrow="ALWAYS" styleClass="content-scroll-pane">
         <HBox fx:id="bindViewParentContainer" alignment="CENTER_LEFT">
             <VBox>
                 <Label styleClass="bind-mode-label" text="OFFSET"
-                       textFill="GREY" HBox.hgrow="ALWAYS" maxWidth="Infinity">
-                    <padding>
-                        <Insets left="5.0" right="5.0"/>
-                    </padding>
-                </Label>
+                       minHeight="17" maxHeight="17"
+                       textFill="GREY" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
                 <Label alignment="CENTER" contentDisplay="RIGHT" styleClass="sequence-memes-label"
                        text="SEQUENCES + MEMES"
                        textAlignment="CENTER" textFill="GREY" wrapText="true" VBox.vgrow="ALWAYS">

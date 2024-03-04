@@ -437,12 +437,9 @@
     -fx-font-family: "Roboto Mono";
 }
 
-.program-editor-scroll-pane > .viewport {
-    -fx-background-color: transparent;
-}
-
-.program-editor-scroll-pane {
-    -fx-background-color: transparent;
+.program-editor .content-scroll-pane > .viewport,
+.program-editor .content-scroll-pane {
+    -fx-background-color: #101010;
 }
 
 .program-editor-field-label {
@@ -516,10 +513,6 @@
     -fx-border-color: grey;
 }
 
-#bindViewParentContainer {
-    -fx-background-color: black;
-}
-
 .sequence-binding-item-container {
     -fx-background-color: #434343;
     -fx-background-radius: 7;
@@ -540,6 +533,7 @@
     -fx-text-fill: grey;
     -fx-background-color: #434343;
     -fx-border-color: #434343;
+    padding: 2 2 2 2;
 }
 
 .sequence-memes-label {
