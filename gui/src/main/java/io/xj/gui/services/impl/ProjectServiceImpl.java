@@ -45,6 +45,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -687,6 +688,34 @@ public class ProjectServiceImpl implements ProjectService {
     themeService.setup(dialog.getDialogPane().getScene());
 
     dialog.showAndWait();
+  }
+
+  @Override
+  public boolean showConfirmationDialog(String title, String header, String content) {
+    // Create a custom dialog
+    Dialog<ButtonType> dialog = new Dialog<>();
+    themeService.setup(dialog);
+    dialog.setTitle(title);
+
+    // Set the header and content
+    DialogPane dialogPane = dialog.getDialogPane();
+    dialogPane.setHeaderText(header);
+    dialogPane.setContentText(content);
+
+    // Add Yes and No buttons
+    ButtonType yesButton = new ButtonType("Yes", ButtonType.OK.getButtonData());
+    ButtonType noButton = new ButtonType("No", ButtonType.CANCEL.getButtonData());
+    dialogPane.getButtonTypes().addAll(yesButton, noButton);
+
+    // Ensure it's resizable and has a preferred width
+    dialogPane.setMinHeight(Region.USE_PREF_SIZE);
+    dialogPane.setPrefWidth(400); // You can adjust this value
+
+    // Show the dialog and wait for the user to close it
+    java.util.Optional<ButtonType> result = dialog.showAndWait();
+
+    // Return true if 'Yes' was clicked, false otherwise
+    return result.isPresent() && result.get() == yesButton;
   }
 
   /**

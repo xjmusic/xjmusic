@@ -207,7 +207,7 @@ public class InstrumentEditorController extends BrowserController {
       null,
       audio -> {
         if (Objects.nonNull(audio)) {
-          if (showConfirmationDialog("Delete Audio?", "This action cannot be undone.", String.format("Are you sure you want to delete the Audio \"%s\"?", audio.getName())))
+          if (projectService.showConfirmationDialog("Delete Audio?", "This action cannot be undone.", String.format("Are you sure you want to delete the Audio \"%s\"?", audio.getName())))
             projectService.deleteContent(audio);
         }
       });

@@ -275,8 +275,8 @@ public class ProgramEditorController extends ProjectController {
     tempoChooser.setValueFactory(tempoValueFactory);
     currentSequenceGroup.visibleProperty().bind(uiStateService.currentProgramSequenceProperty().isNotNull());
     currentSequenceGroup.managedProperty().bind(uiStateService.currentProgramSequenceProperty().isNotNull());
-    noSequencesLabel.visibleProperty().bind(programHasSequences);
-    noSequencesLabel.managedProperty().bind(programHasSequences);
+    noSequencesLabel.visibleProperty().bind(programHasSequences.not());
+    noSequencesLabel.managedProperty().bind(programHasSequences.not());
     sequenceSelectorLauncher.disableProperty().bind(programHasSequences.not());
 
     // Fields lose focus on Enter key press

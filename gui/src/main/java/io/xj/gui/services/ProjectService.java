@@ -451,4 +451,13 @@ public interface ProjectService {
    */
   void showErrorDialog(String title, String header, String body);
 
+  /**
+   Show a custom confirmation dialog with Yes/No options.
+
+   @param title   title of the dialog
+   @param header  header of the dialog
+   @param content content of the dialog
+   @return true if the user clicked 'Yes', false otherwise
+   */
+  boolean showConfirmationDialog(String title, String header, String content);
 }

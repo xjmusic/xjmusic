@@ -70,6 +70,8 @@ public class SequenceManagementController {
   private void deleteSequence() {
     var currentSequence = uiStateService.currentProgramSequenceProperty().get();
     if (Objects.isNull(currentSequence)) return;
+    if (!projectService.showConfirmationDialog("Delete Sequence?", "This action cannot be undone.", String.format("Are you sure you want to delete the Sequence \"%s\"?", currentSequence.getName())))
+      return;
     try {
       projectService.deleteContent(currentSequence);
       var sequences = projectService.getContent().getSequencesOfProgram(programId.get()).stream()

@@ -275,7 +275,7 @@ public class CmdModalController extends ProjectModalController {
       return;
     }
 
-    if (!showConfirmationDialog("Delete Library?", "This action cannot be undone.", String.format("Are you sure you want to delete the Library \"%s\"?", library.getName())))
+    if (!projectService.showConfirmationDialog("Delete Library?", "This action cannot be undone.", String.format("Are you sure you want to delete the Library \"%s\"?", library.getName())))
       return;
 
     projectService.deleteContent(library);
@@ -337,7 +337,7 @@ public class CmdModalController extends ProjectModalController {
       return;
     }
 
-    if (!showConfirmationDialog("Delete Program?", "This action cannot be undone.", String.format("Are you sure you want to delete the Program \"%s\"?", program.getName())))
+    if (!projectService.showConfirmationDialog("Delete Program?", "This action cannot be undone.", String.format("Are you sure you want to delete the Program \"%s\"?", program.getName())))
       return;
 
     projectService.deleteContent(program);
@@ -387,7 +387,7 @@ public class CmdModalController extends ProjectModalController {
       return;
     }
 
-    if (!showConfirmationDialog("Delete Instrument?", "This action cannot be undone.", String.format("Are you sure you want to delete the Instrument \"%s\"?", instrument.getName())))
+    if (!projectService.showConfirmationDialog("Delete Instrument?", "This action cannot be undone.", String.format("Are you sure you want to delete the Instrument \"%s\"?", instrument.getName())))
       return;
 
     projectService.deleteContent(instrument);
@@ -429,7 +429,7 @@ public class CmdModalController extends ProjectModalController {
       return;
     }
 
-    if (!showConfirmationDialog("Delete Template?", "This action cannot be undone.", String.format("Are you sure you want to delete the Template \"%s\"?", template.getName())))
+    if (!projectService.showConfirmationDialog("Delete Template?", "This action cannot be undone.", String.format("Are you sure you want to delete the Template \"%s\"?", template.getName())))
       return;
 
     projectService.deleteContent(template);
