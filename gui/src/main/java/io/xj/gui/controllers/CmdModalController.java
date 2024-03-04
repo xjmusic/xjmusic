@@ -27,6 +27,8 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -50,8 +52,8 @@ import java.util.stream.Stream;
 public class CmdModalController extends ProjectModalController {
   private static final Logger LOG = LoggerFactory.getLogger(CmdModalController.class);
   private static final Set<CmdMode> NAME_DISABLED_MODES = Set.of(
-    CmdMode.Delete,
-    CmdMode.Move
+      CmdMode.Delete,
+      CmdMode.Move
   );
   private final StringProperty windowTitle = new SimpleStringProperty();
   private final ObjectProperty<CmdMode> mode = new SimpleObjectProperty<>();
@@ -80,11 +82,11 @@ public class CmdModalController extends ProjectModalController {
 
 
   public CmdModalController(
-    @Value("classpath:/views/cmd-modal.fxml") Resource fxml,
-    ConfigurableApplicationContext ac,
-    UIStateService uiStateService,
-    ThemeService themeService,
-    ProjectService projectService
+      @Value("classpath:/views/cmd-modal.fxml") Resource fxml,
+      ConfigurableApplicationContext ac,
+      UIStateService uiStateService,
+      ThemeService themeService,
+      ProjectService projectService
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
   }
@@ -92,10 +94,10 @@ public class CmdModalController extends ProjectModalController {
   @Override
   public void onStageReady() {
     var hasLibrary = Bindings.createBooleanBinding(
-      () -> switch (type.get()) {
-        case Program, Instrument -> true;
-        default -> false;
-      }, type);
+        () -> switch (type.get()) {
+          case Program, Instrument -> true;
+          default -> false;
+        }, type);
     libraryChoiceContainer.visibleProperty().bind(hasLibrary);
     libraryChoiceContainer.managedProperty().bind(hasLibrary);
     choiceLibrary.setItems(FXCollections.observableList(projectService.getLibraries().stream().sorted(Comparator.comparing(Library::getName)).map(LibraryChoice::new).toList()));
@@ -117,15 +119,23 @@ public class CmdModalController extends ProjectModalController {
   }
 
   @FXML
+  protected void handleNameFieldKeyPressed(KeyEvent event) {
+    if (event.getCode().equals(KeyCode.ENTER)) {
+      event.consume();
+      handlePressOK();
+    }
+  }
+
+  @FXML
   protected void handlePressOK() {
     try {
       switch (mode.get()) {
         case Create -> {
           if (StringUtils.isNullOrEmpty(name.getValue())) {
             projectService.showWarningAlert(
-              "Can't create project",
-              "Name cannot be blank",
-              "Please enter a name for the new entity."
+                "Can't create project",
+                "Name cannot be blank",
+                "Please enter a name for the new entity."
             );
             return;
           }
@@ -247,21 +257,21 @@ public class CmdModalController extends ProjectModalController {
     var instruments = projectService.getContent().getInstruments().stream().filter(instrument -> instrument.getLibraryId().equals(library.getId())).count();
     if (programs > 0 || instruments > 0) {
       showWarningDialog("Cannot delete Library", "Library contains content",
-        String.format("Cannot delete Library \"%s\" because it contains %s", library.getName(),
-          StringUtils.toProperCsvAnd(Stream.of(
-            programs > 0 ? describeCount("Program", programs) : null,
-            instruments > 0 ? describeCount("Instrument", instruments) : null
-          ).filter(Objects::nonNull).toList())));
+          String.format("Cannot delete Library \"%s\" because it contains %s", library.getName(),
+              StringUtils.toProperCsvAnd(Stream.of(
+                  programs > 0 ? describeCount("Program", programs) : null,
+                  instruments > 0 ? describeCount("Instrument", instruments) : null
+              ).filter(Objects::nonNull).toList())));
       return;
     }
 
     var bindings = projectService.getContent().getTemplateBindings().stream()
-      .filter(binding -> Objects.equals(ContentBindingType.Library, binding.getType()) && Objects.equals(binding.getTargetId(), library.getId()))
-      .count();
+        .filter(binding -> Objects.equals(ContentBindingType.Library, binding.getType()) && Objects.equals(binding.getTargetId(), library.getId()))
+        .count();
     if (bindings > 0) {
       showWarningDialog("Cannot delete Library", "Library is bound",
-        String.format("Cannot delete Library \"%s\" because it is bound to %s",
-          library.getName(), describeCount("Template", bindings)));
+          String.format("Cannot delete Library \"%s\" because it is bound to %s",
+              library.getName(), describeCount("Template", bindings)));
       return;
     }
 
@@ -318,12 +328,12 @@ public class CmdModalController extends ProjectModalController {
     setup(CmdMode.Delete, CmdType.Program);
 
     var bindings = projectService.getContent().getTemplateBindings().stream()
-      .filter(binding -> Objects.equals(ContentBindingType.Program, binding.getType()) && Objects.equals(binding.getTargetId(), program.getId()))
-      .count();
+        .filter(binding -> Objects.equals(ContentBindingType.Program, binding.getType()) && Objects.equals(binding.getTargetId(), program.getId()))
+        .count();
     if (bindings > 0) {
       showWarningDialog("Cannot delete Program", "Program is bound",
-        String.format("Cannot delete Program \"%s\" because it is bound to %s",
-          program.getName(), describeCount("Template", bindings)));
+          String.format("Cannot delete Program \"%s\" because it is bound to %s",
+              program.getName(), describeCount("Template", bindings)));
       return;
     }
 
@@ -368,12 +378,12 @@ public class CmdModalController extends ProjectModalController {
     setup(CmdMode.Delete, CmdType.Instrument);
 
     var bindings = projectService.getContent().getTemplateBindings().stream()
-      .filter(binding -> Objects.equals(ContentBindingType.Instrument, binding.getType()) && Objects.equals(binding.getTargetId(), instrument.getId()))
-      .count();
+        .filter(binding -> Objects.equals(ContentBindingType.Instrument, binding.getType()) && Objects.equals(binding.getTargetId(), instrument.getId()))
+        .count();
     if (bindings > 0) {
       showWarningDialog("Cannot delete Instrument", "Instrument is bound",
-        String.format("Cannot delete Instrument \"%s\" because it is bound to %s",
-          instrument.getName(), describeCount("Template", bindings)));
+          String.format("Cannot delete Instrument \"%s\" because it is bound to %s",
+              instrument.getName(), describeCount("Template", bindings)));
       return;
     }
 
@@ -410,12 +420,12 @@ public class CmdModalController extends ProjectModalController {
 
     if (programBindings > 0 || instrumentBindings > 0 || libraryBindings > 0) {
       showWarningDialog("Cannot delete Template", "Template is bound",
-        String.format("Cannot delete Template \"%s\" because it is bound to %s", template.getName(),
-          StringUtils.toProperCsvAnd(Stream.of(
-            programBindings > 0 ? describeCount("Program", programBindings) : null,
-            instrumentBindings > 0 ? describeCount("Instrument", instrumentBindings) : null,
-            libraryBindings > 0 ? describeCount("Library", libraryBindings) : null
-          ).filter(Objects::nonNull).toList())));
+          String.format("Cannot delete Template \"%s\" because it is bound to %s", template.getName(),
+              StringUtils.toProperCsvAnd(Stream.of(
+                  programBindings > 0 ? describeCount("Program", programBindings) : null,
+                  instrumentBindings > 0 ? describeCount("Instrument", instrumentBindings) : null,
+                  libraryBindings > 0 ? describeCount("Library", libraryBindings) : null
+              ).filter(Objects::nonNull).toList())));
       return;
     }
 

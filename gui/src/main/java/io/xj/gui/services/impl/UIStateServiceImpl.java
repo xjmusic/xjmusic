@@ -84,7 +84,6 @@ public class UIStateServiceImpl implements UIStateService {
   private final StringBinding currentParentName;
   private final StringBinding currentEntityName;
   private final BooleanBinding isCreateEntityButtonVisible;
-  private final StringBinding createEntityButtonText;
   private final BooleanBinding isLibraryContentBrowser;
 
   private final String defaultIsLabFeatureEnabled;
@@ -220,20 +219,6 @@ public class UIStateServiceImpl implements UIStateService {
                   default -> false;
                 },
         viewMode, contentMode, templateMode, projectService.isStateReadyProperty()
-    );
-
-    createEntityButtonText = Bindings.createStringBinding(
-        () -> switch (viewMode.get()) {
-          case Content -> switch (contentMode.get()) {
-            case LibraryBrowser -> "New Library";
-            case ProgramBrowser -> "New Program";
-            case InstrumentBrowser -> "New Instrument";
-            default -> "";
-          };
-          case Templates -> "New Template";
-          default -> "";
-        },
-        viewMode, contentMode, templateMode
     );
 
     isLibraryContentBrowser = Bindings.createBooleanBinding(
@@ -529,11 +514,6 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public BooleanBinding isCreateEntityButtonVisibleProperty() {
     return isCreateEntityButtonVisible;
-  }
-
-  @Override
-  public StringBinding createEntityButtonTextProperty() {
-    return createEntityButtonText;
   }
 
   @Override

@@ -32,7 +32,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -122,7 +121,7 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   public HBox gridAndZoomGroup;
   @FXML
-  public HBox sequenceItemGroup;
+  public HBox currentSequenceGroup;
   @FXML
   public Label noSequenceLabel;
   @FXML
@@ -182,8 +181,7 @@ public class ProgramEditorController extends ProjectController {
   protected final SimpleStringProperty sequencePropertyName = new SimpleStringProperty("");
   private final SimpleStringProperty sequencePropertyKey = new SimpleStringProperty("");
   private final CmdModalController cmdModalController;
-  protected final ObjectProperty<ProgramSequence> activeProgramSequenceItem = new SimpleObjectProperty<>();
-  BooleanBinding isEmptyBinding = activeProgramSequenceItem.isNull();
+  protected final ObjectProperty<ProgramSequence> currentProgramSequence = new SimpleObjectProperty<>();
   protected ObservableList<ProgramSequence> programSequenceObservableList = FXCollections.observableArrayList();
 
   public ProgramEditorController(
@@ -274,8 +272,10 @@ public class ProgramEditorController extends ProjectController {
     // Update the ObjectProperty when the Chooser value changes
     tempoChooser.valueProperty().addListener((observable, oldValue, newValue) -> tempoDoubleValue.set(newValue));
     tempoChooser.setValueFactory(tempoValueFactory);
-    sequenceItemGroup.visibleProperty().bind(isEmptyBinding.not());
-    noSequenceLabel.visibleProperty().bind(sequenceItemGroup.visibleProperty().not());
+    currentSequenceGroup.visibleProperty().bind(currentProgramSequence.isNotNull());
+    currentSequenceGroup.managedProperty().bind(currentProgramSequence.isNotNull());
+    noSequenceLabel.visibleProperty().bind(currentProgramSequence.isNull());
+    noSequenceLabel.managedProperty().bind(currentProgramSequence.isNull());
     updateSequence();
   }
 
@@ -285,7 +285,7 @@ public class ProgramEditorController extends ProjectController {
         if (!newValue) {
           LOG.info("change " + sequenceName.getText());
           sequencePropertyName.set(sequenceName.getText());
-          projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "name",
+          projectService.update(ProgramSequence.class, currentProgramSequence.get().getId(), "name",
               sequencePropertyName.get());
         }
       } catch (Exception e) {
@@ -298,7 +298,7 @@ public class ProgramEditorController extends ProjectController {
         if (!newValue) {
           LOG.info("change " + sequenceTotalValueFactory.getValue());
           sequenceTotalValueFactory.setValue(sequenceTotalChooser.getValue());
-          projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "total",
+          projectService.update(ProgramSequence.class, currentProgramSequence.get().getId(), "total",
               sequenceTotalValueFactory.getValue());
         }
       } catch (Exception e) {
@@ -311,7 +311,7 @@ public class ProgramEditorController extends ProjectController {
         if (!newValue) {
           LOG.info("change " + sequenceTotalChooser.getValue());
           sequencePropertyKey.set(sequenceKey.getText());
-          projectService.update(ProgramSequence.class, activeProgramSequenceItem.get().getId(), "key",
+          projectService.update(ProgramSequence.class, currentProgramSequence.get().getId(), "key",
               sequencePropertyKey.get());
         }
       } catch (Exception e) {
@@ -343,7 +343,7 @@ public class ProgramEditorController extends ProjectController {
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       SequenceSearchController searchSequence = loader.getController();
-      searchSequence.setUp(activeProgramSequenceItem.get());
+      searchSequence.setUp(currentProgramSequence.get());
       stage.setScene(new Scene(root));
       // Set the owner of the stage
       stage.initOwner(themeService.getMainScene().getWindow());
@@ -363,7 +363,7 @@ public class ProgramEditorController extends ProjectController {
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       SequenceManagementController sequenceManagement = loader.getController();
-      sequenceManagement.setUp(activeProgramSequenceItem.get(), stage);
+      sequenceManagement.setUp(currentProgramSequence.get(), stage);
       stage.setScene(new Scene(root));
       stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
@@ -547,12 +547,12 @@ public class ProgramEditorController extends ProjectController {
     programSequenceObservableList.clear();
     programSequenceObservableList.addAll(sequenceList);
     if (!sequenceList.isEmpty()) {
-      activeProgramSequenceItem.set(sequenceList.get(0));
-      this.sequenceId.set(activeProgramSequenceItem.get().getId());
-      this.sequencePropertyName.set(activeProgramSequenceItem.get().getName());
-      this.sequencePropertyKey.set(activeProgramSequenceItem.get().getKey());
-      this.sequenceTotalValueFactory.setValue(activeProgramSequenceItem.get().getTotal().intValue());
-      this.sequenceIntensityValueFactory.setValue(Double.valueOf(activeProgramSequenceItem.get().getIntensity()));
+      currentProgramSequence.set(sequenceList.get(0));
+      this.sequenceId.set(currentProgramSequence.get().getId());
+      this.sequencePropertyName.set(currentProgramSequence.get().getName());
+      this.sequencePropertyKey.set(currentProgramSequence.get().getKey());
+      this.sequenceTotalValueFactory.setValue(currentProgramSequence.get().getTotal().intValue());
+      this.sequenceIntensityValueFactory.setValue(Double.valueOf(currentProgramSequence.get().getIntensity()));
     } else {
       LOG.info("Program has no sequence");
     }
@@ -602,14 +602,14 @@ public class ProgramEditorController extends ProjectController {
       if (programSequence.isEmpty()) {
         return;
       }
-      createProgramSequenceBindingItem(programSequenceBinding, sequenceSelector, position, programSequence.get(), sequenceItemBindingFxml, ac, bindViewParentContainer, projectService);
+      createProgramSequenceBindingItem(programSequenceBinding, sequenceSelector, position, sequenceItemBindingFxml, ac, bindViewParentContainer, projectService);
       checkIfNextItemIsPresent(position);
     } catch (Exception e) {
       LOG.error("Error creating new Sequence \n{}", StringUtils.formatStackTrace(e), e);
     }
   }
 
-  static void createProgramSequenceBindingItem(ProgramSequenceBinding programSequenceBinding, VBox sequenceSelector, int position, ProgramSequence programSequence, Resource sequenceItemBindingFxml, ApplicationContext ac, HBox bindViewParentContainer, ProjectService projectService) throws Exception {
+  static void createProgramSequenceBindingItem(ProgramSequenceBinding programSequenceBinding, VBox sequenceSelector, int position, Resource sequenceItemBindingFxml, ApplicationContext ac, HBox bindViewParentContainer, ProjectService projectService) throws Exception {
     FXMLLoader loader = new FXMLLoader(sequenceItemBindingFxml.getURL());
     loader.setControllerFactory(ac::getBean);
     Parent root = loader.load();

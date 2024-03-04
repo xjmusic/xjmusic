@@ -263,11 +263,6 @@ public interface UIStateService extends ReadyAfterBoot {
   BooleanBinding isCreateEntityButtonVisibleProperty();
 
   /**
-   @return Observable property for the text of the create entity button
-   */
-  StringBinding createEntityButtonTextProperty();
-
-  /**
    @return observable binding whether we are viewing Library content, either Programs or Instruments
    */
   BooleanBinding isLibraryContentBrowserProperty();

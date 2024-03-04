@@ -47,7 +47,7 @@ public class SequenceManagementController {
     try {
       ProgramSequence newProgramSequence = projectService.createProgramSequence(programEditorController.getProgramId());
       programEditorController.programSequenceObservableList.add(newProgramSequence);
-      programEditorController.activeProgramSequenceItem.set(newProgramSequence);
+      programEditorController.currentProgramSequence.set(newProgramSequence);
       updateSequenceUI(newProgramSequence);
       closeWindow();
     } catch (Exception e) {
@@ -68,9 +68,9 @@ public class SequenceManagementController {
       projectService.deleteContent(programSequence);
       programEditorController.programSequenceObservableList.remove(programSequence);
       if (programEditorController.programSequenceObservableList.size() > 0) {
-        programEditorController.activeProgramSequenceItem.set(programEditorController.programSequenceObservableList.get(0));
-        updateSequenceUI(programEditorController.activeProgramSequenceItem.get());
-      } else programEditorController.activeProgramSequenceItem.set(null);
+        programEditorController.currentProgramSequence.set(programEditorController.programSequenceObservableList.get(0));
+        updateSequenceUI(programEditorController.currentProgramSequence.get());
+      } else programEditorController.currentProgramSequence.set(null);
       closeWindow();
     } catch (Exception e) {
       LOG.info("Failed to delete sequence " + programSequence.getName());
@@ -81,8 +81,8 @@ public class SequenceManagementController {
     try {
       ProgramSequence clonedProgramSequence = projectService.cloneProgramSequence(programSequence.getId(), "Clone of " + programEditorController.sequencePropertyName.get());
       programEditorController.programSequenceObservableList.add(clonedProgramSequence);
-      programEditorController.activeProgramSequenceItem.set(clonedProgramSequence);
-      updateSequenceUI(programEditorController.activeProgramSequenceItem.get());
+      programEditorController.currentProgramSequence.set(clonedProgramSequence);
+      updateSequenceUI(programEditorController.currentProgramSequence.get());
       closeWindow();
     } catch (Exception e) {
       LOG.info("Failed to clone sequence ");

@@ -10,14 +10,14 @@
     -fx-font-family: 'Roboto';
 }
 
-.menu, .menu-bar, .menu, .menu-item, .menu-button, .context-menu, .main-menu-container {
+.menu, .menu-bar, .menu, .menu-item, .menu-button, .context-menu, .main-menu {
     -fx-background-color: #373737;
     -fx-border-color: transparent;
     -fx-border-width: 0;
 }
 
-.main-menu-container .button,
-.main-menu-container .toggle-button {
+.main-menu .button,
+.main-menu .toggle-button {
     -fx-font-size: 0.8em;
     -fx-border-color: transparent;
     -fx-border-width: 0;
@@ -361,6 +361,7 @@
     -fx-padding: 1 4 1 4;
 }
 
+.main-menu .toggle-button:hover,
 .top-pane .button:hover,
 .top-pane .toggle-button:hover,
 .template-bindings-pane .button:hover,
@@ -369,20 +370,22 @@
     -fx-background-color: #606060;
 }
 
+.main-menu .toggle-button:pressed,
 .top-pane .button:pressed,
 .top-pane .toggle-button:pressed,
 .template-bindings-pane .button:pressed,
 .instrument-audios-pane .button:pressed,
 .waveform-pane .button:pressed {
-    -fx-background-color: #909090;
+    -fx-background-color: #808080;
 }
 
+.main-menu .toggle-button:selected,
 .top-pane .button:selected,
 .top-pane .toggle-button:selected,
 .template-bindings-pane .button:selected,
 .instrument-audios-pane .button:selected,
 .waveform-pane .button:selected {
-    -fx-background-color: #606060;
+    -fx-background-color: #707070;
 }
 
 .icon-button {

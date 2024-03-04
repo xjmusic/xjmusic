@@ -113,7 +113,7 @@ public class SequenceBindingItemCreationController {
 
   public void addSequenceItem(ProgramSequenceBinding programSequenceBinding, ProgramSequence programSequence) {
     try {
-      ProgramEditorController.createProgramSequenceBindingItem(programSequenceBinding, sequenceSelector, position, programSequence, sequenceItemBindingFxml, applicationContext, bindViewParentContainer, projectService);
+      ProgramEditorController.createProgramSequenceBindingItem(programSequenceBinding, sequenceSelector, position, sequenceItemBindingFxml, applicationContext, bindViewParentContainer, projectService);
       checkIfNextItemIsPresent();
     } catch (Exception e) {
       LOG.error("Error creating new Sequence \n{}", StringUtils.formatStackTrace(e), e);

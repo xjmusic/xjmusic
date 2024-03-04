@@ -27,7 +27,7 @@
   VBox.vgrow="NEVER"
   xmlns="http://javafx.com/javafx/20.0.1"
   xmlns:fx="http://javafx.com/fxml/1"
-  styleClass="main-menu-container">
+  styleClass="main-menu">
 
   <MenuBar
     VBox.vgrow="NEVER">
