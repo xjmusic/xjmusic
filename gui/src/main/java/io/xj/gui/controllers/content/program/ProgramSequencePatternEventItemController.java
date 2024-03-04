@@ -39,10 +39,12 @@ public class ProgramSequencePatternEventItemController {
     public Label velocityLabel;
     @FXML
     public Label tonesLabel;
+    private double dragStartX;
     @FXML
     private AnchorPane timeline;
     @FXML
     private Parent root;
+    int id;
     double minWidth = 0;
     private final ObjectProperty<ProgramSequencePatternEvent> programSequencePatternEventObjectProperty = new SimpleObjectProperty<>();
     private final ProjectService projectService;

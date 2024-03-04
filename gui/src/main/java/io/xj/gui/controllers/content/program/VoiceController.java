@@ -176,7 +176,6 @@ public class VoiceController {
         bindSequenceTotalValueToTimelineTotalLines();
         trackNameField.textProperty().bindBidirectional(trackNameProperty);
         timeLineAnchorpane.setOnMouseClicked(this::addProgramSequencePatternEventItemController);
-//        loadProgramSequencePatternEventItems();
         timeLineAnchorpane.setCursor(Cursor.CROSSHAIR);
     }
 
@@ -232,12 +231,12 @@ public class VoiceController {
                 trackNameProperty.set(programVoiceTrackObjectProperty.get().getName());
                 showItemsAfterTrackIsCreated();
             } else
-                trackItem(programVoiceTrackObservableList.get(i), programVoiceTrackObservableList.get(i) == programVoiceTrackObservableList.get(programVoiceTrackObservableList.size() - 1));
+                trackItem(programVoiceTrackObservableList.get(i),programVoiceTrackObservableList.get(i)==programVoiceTrackObservableList.get(programVoiceTrackObservableList.size()-1));
         }
 
     }
 
-    private void trackItem(ProgramVoiceTrack newTrack, Boolean isLastItem) {
+    private void trackItem( ProgramVoiceTrack newTrack,Boolean isLastItem) {
         try {
             FXMLLoader loader = new FXMLLoader(trackFxml.getURL());
             loader.setControllerFactory(ac::getBean);
@@ -245,10 +244,10 @@ public class VoiceController {
             addTrackButton_1.setVisible(false);
             TrackController trackController = loader.getController();
             if (!isLastItem) trackController.addTrackButton_1.setVisible(false);
-            trackController.setUp(root, voice, this, newTrack);
+            trackController.setUp(root,voice, this, newTrack);
             voiceContainer.getChildren().add(root);
         } catch (IOException e) {
-            LOG.error("Error adding Track item view!\n{}", StringUtils.formatStackTrace(e), e);
+           LOG.error("Error adding Track item view!\n{}", StringUtils.formatStackTrace(e), e);
         }
     }
 
@@ -410,11 +409,11 @@ public class VoiceController {
     }
 
     private void populateTimeline() {
-        timeLineAnchorpane.getChildren().removeIf(node -> (node instanceof Line || node instanceof Rectangle));
+        timeLineAnchorpane.getChildren().removeIf(node ->  (node instanceof Line || node instanceof Rectangle));
         if (0 < programEditorController.getSequenceTotal()) {
             for (double b = 0; b <= programEditorController.getSequenceTotal(); b += ((double) 1 / programEditorController.getTimelineGridSize())) {
                 double gridLineX = b * baseSizePerBeat.get() * programEditorController.getZoomFactor();
-                drawGridLines(b, gridLineX, timeLineAnchorpane, timelineHeightProperty.get(), doubleProperty);
+                drawGridLines(b, gridLineX, timeLineAnchorpane, timelineHeightProperty.get(),doubleProperty);
             }
             greyTheActiveArea();
         }
@@ -432,7 +431,7 @@ public class VoiceController {
         this.doubleProperty.set(doubleProperty);
     }
 
-    private final DoubleProperty doubleProperty = new SimpleDoubleProperty();
+    private final DoubleProperty doubleProperty=new SimpleDoubleProperty();
 
     static void drawGridLines(double b, double gridLineX, AnchorPane timeLineAnchorpane, double rectangleHeight, DoubleProperty doubleProperty) {
         boolean isMajorLine = (b % 1) == 0;
@@ -520,7 +519,7 @@ public class VoiceController {
         try {
             ProgramVoiceTrack newTrack = new ProgramVoiceTrack(UUID.randomUUID(), programEditorController.getProgramId(), voice.getId(), "XXX", 1f);
             projectService.update(newTrack);
-            TrackController.trackItem(trackFxml, ac, voiceContainer, LOG, addTrackButton_1, voice, this, newTrack);
+            TrackController.trackItem(trackFxml, ac, voiceContainer,LOG ,addTrackButton_1, voice, this, newTrack);
         } catch (Exception e) {
             LOG.info("Could not create new Track");
         }
@@ -574,7 +573,7 @@ public class VoiceController {
     }
 
     private void showTrackMenu(MouseEvent event) {
-        trackMenu(event, trackMenuFxml, ac, themeService, LOG, voice, this, programVoiceTrackObjectProperty.get(), true, null, addTrackButton_1);
+        trackMenu(event, trackMenuFxml, ac, themeService, LOG, voice, this,programVoiceTrackObjectProperty.get(), true, null, addTrackButton_1);
     }
 
     static void trackMenu(MouseEvent event, Resource trackMenuFxml, ApplicationContext ac, ThemeService themeService, Logger log, ProgramVoice voice, VoiceController voiceController, ProgramVoiceTrack track, boolean itemIsAttachedToVoiceFxml, Parent trackRoot, Button addTrackButton) {
@@ -584,7 +583,7 @@ public class VoiceController {
             loader.setControllerFactory(ac::getBean);
             Parent root = loader.load();
             TrackMenuController trackMenuController = loader.getController();
-            trackMenuController.setUp(root, voice, voiceController, track, itemIsAttachedToVoiceFxml, trackRoot, addTrackButton);
+            trackMenuController.setUp(root, voice, voiceController,track,itemIsAttachedToVoiceFxml,trackRoot,addTrackButton);
             stage.setScene(new Scene(root));
             stage.initOwner(themeService.getMainScene().getWindow());
             stage.show();
@@ -594,6 +593,7 @@ public class VoiceController {
             log.error("Error loading Track Menu view!\n{}", StringUtils.formatStackTrace(e), e);
         }
     }
+
 
 
     private void addProgramSequencePatternEventItemController(MouseEvent event) {
@@ -612,11 +612,8 @@ public class VoiceController {
             AnchorPane.setTopAnchor(root,0.0);
             projectService.getContent().put(programSequencePatternEvent);
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+       } catch (Exception e) {
+           throw new RuntimeException(e);
+       }
     }
-
-
-
 }
