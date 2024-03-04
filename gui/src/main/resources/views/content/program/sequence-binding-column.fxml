@@ -9,10 +9,10 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.xj.gui.controllers.content.program.SequenceBindingColumnController"
       minWidth="200" HBox.hgrow="ALWAYS" maxWidth="Infinity">
-    <Label fx:id="offset"
+    <Label fx:id="offsetText"
            minHeight="20" maxHeight="20" styleClass="bind-mode-label" text="0" HBox.hgrow="ALWAYS"
            maxWidth="Infinity"/>
-    <VBox fx:id="sequenceBindingColumnContentContainer" styleClass="sequence-holder-content-container" spacing="5">
-        <Button fx:id="addSequenceButton" mnemonicParsing="false" text="+" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+    <VBox fx:id="sequenceBindingColumnContentContainer" styleClass="sequence-binding-column-content-container" spacing="5">
+        <Button fx:id="addSequenceButton" onMouseClicked="#handlePressedAddSequenceBinding" mnemonicParsing="false" text="+" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
     </VBox>
 </VBox>

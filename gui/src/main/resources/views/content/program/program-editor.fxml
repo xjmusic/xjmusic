@@ -104,7 +104,7 @@
         <Label fx:id="noSequenceLabel" text="NO SEQUENCE"/>
     </HBox>
     <ScrollPane fitToHeight="true" VBox.vgrow="ALWAYS" styleClass="content-scroll-pane">
-        <HBox fx:id="bindViewParentContainer" alignment="CENTER_LEFT">
+        <HBox>
             <VBox>
                 <Label styleClass="bind-mode-label" text="OFFSET"
                        minHeight="20" maxHeight="20"
@@ -117,6 +117,9 @@
                     </padding>
                 </Label>
             </VBox>
+            <HBox fx:id="sequenceBindingsContainer">
+                <!-- binding columns will be added here -->
+            </HBox>
         </HBox>
     </ScrollPane>
     <padding>

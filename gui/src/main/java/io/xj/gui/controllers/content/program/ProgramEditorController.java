@@ -64,7 +64,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
 
@@ -114,7 +113,7 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   public Button sequenceSelectorLauncher;
   @FXML
-  public HBox bindViewParentContainer;
+  public HBox sequenceBindingsContainer;
   @FXML
   public HBox gridAndZoomGroup;
   @FXML
@@ -129,17 +128,14 @@ public class ProgramEditorController extends ProjectController {
   @Value("classpath:/views/content/program/program-config.fxml")
   private Resource configFxml;
 
-  @Value("classpath:/views/content/program/sequence-search.fxml")
-  private Resource searchSequenceFxml;
+  @Value("classpath:/views/content/program/sequence-selector.fxml")
+  private Resource sequenceSelectorFxml;
 
   @Value("classpath:/views/content/program/sequence-management.fxml")
   private Resource sequenceManagementFxml;
 
   @Value("classpath:/views/content/program/sequence-binding-column.fxml")
   private Resource sequenceBindingColumnFxml;
-
-  @Value("classpath:/views/content/program/sequence-binding-item.fxml")
-  private Resource sequenceItemBindingFxml;
 
   @Value("classpath:/views/content/common/entity-memes.fxml")
   private Resource entityMemesFxml;
@@ -182,19 +178,20 @@ public class ProgramEditorController extends ProjectController {
   protected ObservableList<ProgramSequence> programSequenceObservableList = FXCollections.observableArrayList();
 
   public ProgramEditorController(
-      @Value("classpath:/views/content/library-editor.fxml") Resource fxml,
+      @Value("classpath:/views/content/program/program-editor.fxml") Resource fxml,
       ApplicationContext ac,
       ThemeService themeService,
       ProjectService projectService,
       UIStateService uiStateService,
-      CmdModalController cmdModalController) {
+      CmdModalController cmdModalController
+  ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.cmdModalController = cmdModalController;
   }
 
   @Override
   public void onStageReady() {
-    bindViewParentContainer.visibleProperty().bind(bindButton.selectedProperty());
+    sequenceBindingsContainer.visibleProperty().bind(bindButton.selectedProperty());
     var visible = projectService.isStateReadyProperty()
         .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
         .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramEditor));
@@ -326,17 +323,17 @@ public class ProgramEditorController extends ProjectController {
     try {
       sequenceSelectorLauncher.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, true);
       Stage stage = new Stage(StageStyle.TRANSPARENT);
-      FXMLLoader loader = new FXMLLoader(searchSequenceFxml.getURL());
+      FXMLLoader loader = new FXMLLoader(sequenceSelectorFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      SequenceSearchController searchSequence = loader.getController();
-      searchSequence.setUp(currentProgramSequence.get());
+      SequenceSelectorController searchSequence = loader.getController();
+      searchSequence.setup(programId.get(), currentProgramSequence.get().getId(), (sequenceId) -> currentProgramSequence.set(projectService.getContent().getProgramSequence(sequenceId).orElse(null)));
       stage.setScene(new Scene(root));
       // Set the owner of the stage
       stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
       positionUIAtLocation(stage, event, 400, 28);
-      WindowUtils.closeWindowOnClickingAway(stage, ()-> sequenceSelectorLauncher.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, false));
+      WindowUtils.closeWindowOnClickingAway(stage, () -> sequenceSelectorLauncher.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, false));
     } catch (IOException e) {
       LOG.error("Error opening Sequence Search window!\n{}", StringUtils.formatStackTrace(e), e);
     }
@@ -483,7 +480,7 @@ public class ProgramEditorController extends ProjectController {
     this.config.set(program.getConfig());
     setupProgramMemeContainer();
     setupSequence();
-    loadBindingView();
+    setupSequenceBindingView();
   }
 
   /**
@@ -530,83 +527,29 @@ public class ProgramEditorController extends ProjectController {
     }
   }
 
-  private void loadBindingView() {
-    bindButton.getStyleClass().add("selected");
-    Collection<ProgramSequenceBinding> programSequenceBindingCollection = projectService.getContent().getSequenceBindingsOfProgram(programId.get());
-    List<ProgramSequenceBinding> sequenceBindingsOfProgram = new ArrayList<>(programSequenceBindingCollection);
+  /**
+   Set up the Sequence Binding View
+   */
+  private void setupSequenceBindingView() {
+    Collection<ProgramSequenceBinding> bindings = projectService.getContent().getSequenceBindingsOfProgram(programId.get());
     //clear first before adding to prevent duplicates
-    bindViewParentContainer.getChildren().remove(1, bindViewParentContainer.getChildren().size());
-    //if sequence bindings number is zero, add the two buttons that appear when empty
-    if (sequenceBindingsOfProgram.isEmpty()) {
-      addSequenceBindingColumn(bindViewParentContainer.getChildren().size());
-    } else {
-      //find the highest offset in the current sequenceBindingsOfProgram group and create the offset holders  with an extra button
-      for (int i = 1; i <= findHighestOffset(sequenceBindingsOfProgram) + 1; i++) {
-        addSequenceBindingColumn(i);
-      }
-      //populate the sequence binding items on the respective items
-      sequenceBindingsOfProgram.forEach(sequenceBindingOfProgram -> {
-        int offset = sequenceBindingOfProgram.getOffset();
-        addSequenceItem(sequenceBindingOfProgram, ((VBox) bindViewParentContainer.getChildren().get(offset + 1)), offset + 1);
-      });
+    sequenceBindingsContainer.getChildren().clear();
+    // find the highest offset in the current sequenceBindingsOfProgram group and create the offset holders  with an extra button
+    // if sequence bindings number is zero, add the two buttons that appear when empty
+    int highestOffset = bindings.stream().map(ProgramSequenceBinding::getOffset).max(Integer::compareTo).orElse(0);
+    for (int i = 0; i <= highestOffset + 1; i++) {
+      addSequenceBindingColumn(i);
     }
   }
 
-  public int findHighestOffset(List<ProgramSequenceBinding> programSequenceBindingList) {
-    if (programSequenceBindingList == null || programSequenceBindingList.isEmpty()) {
-      return 0; // Return the minimum value if the list is empty or null
-    }
-
-    int highestOffset = 0;
-
-    for (ProgramSequenceBinding obj : programSequenceBindingList) {
-      int offset = obj.getOffset();
-      if (offset > highestOffset) {
-        highestOffset = offset;
-      }
-    }
-    return highestOffset;
-  }
-
-  public void addSequenceItem(ProgramSequenceBinding programSequenceBinding, VBox sequenceSelector, int position) {
-    try {
-      Optional<ProgramSequence> programSequence = projectService.getContent().getProgramSequence(programSequenceBinding.getProgramSequenceId());
-      if (programSequence.isEmpty()) {
-        return;
-      }
-      createProgramSequenceBindingItem(programSequenceBinding, sequenceSelector, position, sequenceItemBindingFxml, ac, bindViewParentContainer, projectService);
-      checkIfNextItemIsPresent(position);
-    } catch (Exception e) {
-      LOG.error("Error creating new Sequence \n{}", StringUtils.formatStackTrace(e), e);
-    }
-  }
-
-  static void createProgramSequenceBindingItem(ProgramSequenceBinding programSequenceBinding, VBox sequenceSelector, int position, Resource sequenceItemBindingFxml, ApplicationContext ac, HBox bindViewParentContainer, ProjectService projectService) throws Exception {
-    FXMLLoader loader = new FXMLLoader(sequenceItemBindingFxml.getURL());
-    loader.setControllerFactory(ac::getBean);
-    Parent root = loader.load();
-    HBox.setHgrow(sequenceSelector, Priority.ALWAYS);
-    SequenceBindingItemController sequenceBindingItemController = loader.getController();
-    sequenceBindingItemController.setup(sequenceSelector, root, bindViewParentContainer, position, programSequenceBinding);
-    sequenceSelector.getChildren().add(sequenceSelector.getChildren().size() - 1, root);
-    HBox.setHgrow(root, Priority.ALWAYS);
-    projectService.getContent().put(programSequenceBinding);
-  }
-
-  private void checkIfNextItemIsPresent(int position) {
-    if (bindViewParentContainer.getChildren().size() - 1 < position + 1) {
-      addSequenceBindingColumn(position + 1);
-    }
-  }
-
-  protected void addSequenceBindingColumn(int position) {
+  protected void addSequenceBindingColumn(int offset) {
     try {
       FXMLLoader loader = new FXMLLoader(sequenceBindingColumnFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      bindViewParentContainer.getChildren().add(position, root);
+      sequenceBindingsContainer.getChildren().add(root);
       SequenceBindingColumnController sequenceSelector = loader.getController();
-      sequenceSelector.setup(bindViewParentContainer, position, programId.get());
+      sequenceSelector.setup(offset, programId.get());
       HBox.setHgrow(root, Priority.ALWAYS);
     } catch (IOException e) {
       LOG.error("Error loading Sequence Selector view!\n{}", StringUtils.formatStackTrace(e), e);

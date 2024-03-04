@@ -13,10 +13,10 @@
            AnchorPane.topAnchor="0"
            AnchorPane.leftAnchor="0"
            AnchorPane.rightAnchor="20"/>
-    <Button fx:id="deleteSequence"
-            mnemonicParsing="false" styleClass="sequence-item-button" text=" "
+    <Button mnemonicParsing="false" styleClass="sequence-item-button" text=" "
             AnchorPane.rightAnchor="0"
-            AnchorPane.topAnchor="0">
+            AnchorPane.topAnchor="0"
+            onAction="#handleDeleteSequenceBinding">
         <graphic>
             <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                 <Image url="@/icons/delete.png"/>

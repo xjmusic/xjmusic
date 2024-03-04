@@ -4,7 +4,7 @@
 <?import org.controlsfx.control.SearchableComboBox?>
 <VBox fx:id="container"
       xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="io.xj.gui.controllers.content.program.SequenceBindingItemCreationController"
-      stylesheets="@/styles/default-theme.css">
-    <SearchableComboBox fx:id="sequenceSearch" prefWidth="256.0"/>
+      fx:controller="io.xj.gui.controllers.content.program.SequenceSelectorController"
+      stylesheets="@/styles/default-theme.css" styleClass="sequence-selector-container" >
+  <SearchableComboBox fx:id="sequenceSearch" prefWidth="256.0"/>
 </VBox>
