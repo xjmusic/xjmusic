@@ -8,6 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -24,8 +25,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-public interface WindowUtils {
-  Logger LOG = LoggerFactory.getLogger(WindowUtils.class);
+public interface UiUtils {
+  Logger LOG = LoggerFactory.getLogger(UiUtils.class);
   String APPLICATION_TITLE = "XJ music workstation";
   String PATH_TO_ICON_ICNS = "/icons/xj-symbol.icns";
   String PATH_TO_ICON_ICO = "/icons/xj-symbol.ico";
@@ -63,7 +64,7 @@ public interface WindowUtils {
 
       if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
         final Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
-        var dockIcon = defaultToolkit.getImage(WindowUtils.class.getResource(PATH_TO_ICON_PNG));
+        var dockIcon = defaultToolkit.getImage(UiUtils.class.getResource(PATH_TO_ICON_PNG));
         taskbar.setIconImage(dockIcon);
       } else {
         LOG.info("Taskbar does not support setting the dock icon");
@@ -170,6 +171,19 @@ public interface WindowUtils {
     field.setOnKeyPressed((KeyEvent e) -> {
       if (e.getCode() == KeyCode.ENTER) {
         field.getParent().requestFocus();
+      }
+    });
+  }
+
+  /**
+   Prevents the given toggle group from being deselected.
+
+   @param toggleGroup the toggle group
+   */
+  static void toggleGroupPreventDeselect(ToggleGroup toggleGroup) {
+    toggleGroup.selectedToggleProperty().addListener((o, ov, nv) -> {
+      if (nv == null) {
+        toggleGroup.selectToggle(ov);
       }
     });
   }

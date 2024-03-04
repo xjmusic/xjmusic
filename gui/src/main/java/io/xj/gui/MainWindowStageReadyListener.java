@@ -8,7 +8,7 @@ import io.xj.gui.controllers.MainController;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.gui.utils.WindowUtils;
+import io.xj.gui.utils.UiUtils;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
@@ -56,9 +56,9 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
 
   @Override
   public void onApplicationEvent(StageReadyEvent event) {
-    WindowUtils.setupTaskbar();
+    UiUtils.setupTaskbar();
     var primaryStage = event.getStage();
-    WindowUtils.setupIcon(primaryStage);
+    UiUtils.setupIcon(primaryStage);
     primaryStage.initStyle(StageStyle.DECORATED);
 
     eulaModalController.ensureAcceptance(primaryStage, () -> onEulaAccepted(primaryStage));
@@ -71,7 +71,7 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
    */
   private void onEulaAccepted(Stage primaryStage) {
     try {
-      var scene = WindowUtils.loadSceneFxml(ac, mainWindowFxml);
+      var scene = UiUtils.loadSceneFxml(ac, mainWindowFxml);
       primaryStage.titleProperty().bind(uiStateService.windowTitleProperty());
       primaryStage.setScene(scene);
 

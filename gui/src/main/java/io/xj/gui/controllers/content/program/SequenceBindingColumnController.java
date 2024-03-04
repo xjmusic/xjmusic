@@ -2,7 +2,7 @@ package io.xj.gui.controllers.content.program;
 
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
-import io.xj.gui.utils.WindowUtils;
+import io.xj.gui.utils.UiUtils;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.util.StringUtils;
 import javafx.fxml.FXML;
@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.UUID;
 
 import static io.xj.gui.services.UIStateService.OPEN_PSEUDO_CLASS;
@@ -76,6 +77,7 @@ public class SequenceBindingColumnController {
    @param programId the program ID
    */
   public void setup(int offset, UUID programId) {
+    Objects.requireNonNull(programId, "Program ID cannot be null");
     this.offset = offset;
     this.programId = programId;
     offsetText.setText(String.valueOf(offset));
@@ -108,10 +110,10 @@ public class SequenceBindingColumnController {
       stage.setScene(new Scene(root));
       stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
-      WindowUtils.darkenBackgroundUntilClosed(stage, addSequenceButton.getScene(),
+      UiUtils.darkenBackgroundUntilClosed(stage, addSequenceButton.getScene(),
         () -> addSequenceButton.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, false));
-      WindowUtils.closeWindowOnClickingAway(stage);
-      WindowUtils.setStagePositionBelowParentNode(stage, addSequenceButton);
+      UiUtils.closeWindowOnClickingAway(stage);
+      UiUtils.setStagePositionBelowParentNode(stage, addSequenceButton);
     } catch (IOException e) {
       LOG.error("Error opening Sequence Search window!\n{}", StringUtils.formatStackTrace(e), e);
     }

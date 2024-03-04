@@ -10,14 +10,13 @@ import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.gui.utils.WindowUtils;
+import io.xj.gui.utils.UiUtils;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.util.StringUtils;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.FloatProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -30,7 +29,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -54,88 +52,27 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 import static io.xj.gui.services.UIStateService.OPEN_PSEUDO_CLASS;
 
 @Service
 public class ProgramEditorController extends ProjectController {
-  @FXML
-  public Spinner<Double> tempoChooser;
-  @FXML
-  public StackPane programMemeContainer;
-  @FXML
-  public TextField keyField;
-  @FXML
-  public ComboBox<ProgramState> stateChooser;
-  @FXML
-  public ComboBox<ProgramType> typeChooser;
-  @FXML
-  public TextField programNameField;
-  @FXML
-  public Button duplicateButton;
-  @FXML
-  public ToggleGroup editorModeToggleGroup;
-  @FXML
-  public ToggleButton editButton;
-  @FXML
-  public ToggleButton bindButton;
-  @FXML
-  public Button configButton;
-  @FXML
-  public Spinner<Double> sequenceIntensityChooser;
-  @FXML
-  public TextField sequenceKeyField;
-  @FXML
-  public Spinner<Integer> sequenceTotalChooser;
-  @FXML
-  public TextField sequenceNameField;
-  @FXML
-  public Button sequenceManagementLauncher;
-  @FXML
-  public ToggleButton snapButton;
-  @FXML
-  public ComboBox<String> zoomChooser;
-  @FXML
-  public ComboBox<String> gridChooser;
-  @FXML
-  public Button sequenceSelectorLauncher;
-
-  @FXML
-  public HBox bindingModeContainer;
-  @FXML
-  public HBox sequenceBindingsContainer;
-  @FXML
-  public HBox gridAndZoomGroup;
-  @FXML
-  public HBox currentSequenceGroup;
-  @FXML
-  public Label noSequenceLabel;
-  @FXML
-  protected VBox container;
-  @FXML
-  protected TextField fieldName;
-
-  @Value("classpath:/views/content/program/program-config.fxml")
-  private Resource configFxml;
-
-  @Value("classpath:/views/content/program/sequence-selector.fxml")
-  private Resource sequenceSelectorFxml;
-
-  @Value("classpath:/views/content/program/sequence-management.fxml")
-  private Resource sequenceManagementFxml;
-
-  @Value("classpath:/views/content/program/sequence-binding-column.fxml")
-  private Resource sequenceBindingColumnFxml;
-
-  @Value("classpath:/views/content/common/entity-memes.fxml")
-  private Resource entityMemesFxml;
+  private static final String DEFAULT_GRID_VALUE = "1/4";
+  private static final String DEFAULT_ZOOM_VALUE = "25%";
+  private static final Set<ProgramType> PROGRAM_TYPES_WITH_BINDINGS = Set.of(ProgramType.Main, ProgramType.Macro);
+  private final Resource configFxml;
+  private final Resource sequenceSelectorFxml;
+  private final Resource sequenceManagementFxml;
+  private final Resource sequenceBindingColumnFxml;
+  private final Resource entityMemesFxml;
 
   static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
@@ -171,9 +108,95 @@ public class ProgramEditorController extends ProjectController {
   private final CmdModalController cmdModalController;
   protected final ObjectProperty<ProgramSequence> currentProgramSequence = new SimpleObjectProperty<>();
   protected ObservableList<ProgramSequence> programSequenceObservableList = FXCollections.observableArrayList();
-  private final Collection<SequenceBindingColumnController> sequenceBindingColumnControllers = new HashSet<>();
+  private final List<SequenceBindingColumnController> sequenceBindingColumnControllers = new ArrayList<>();
+
+  @FXML
+  public Spinner<Double> tempoChooser;
+
+  @FXML
+  public StackPane programMemeContainer;
+
+  @FXML
+  public TextField keyField;
+
+  @FXML
+  public ComboBox<ProgramState> stateChooser;
+
+  @FXML
+  public ComboBox<ProgramType> typeChooser;
+
+  @FXML
+  public TextField programNameField;
+
+  @FXML
+  public Button duplicateButton;
+
+  @FXML
+  public ToggleGroup editorModeToggleGroup;
+
+  @FXML
+  public ToggleButton editButton;
+
+  @FXML
+  public ToggleButton bindButton;
+
+  @FXML
+  public Button configButton;
+
+  @FXML
+  public Spinner<Double> sequenceIntensityChooser;
+
+  @FXML
+  public TextField sequenceKeyField;
+
+  @FXML
+  public Spinner<Integer> sequenceTotalChooser;
+
+  @FXML
+  public TextField sequenceNameField;
+
+  @FXML
+  public Button sequenceManagementLauncher;
+
+  @FXML
+  public ToggleButton snapButton;
+
+  @FXML
+  public ComboBox<String> zoomChooser;
+
+  @FXML
+  public ComboBox<String> gridChooser;
+
+  @FXML
+  public Button sequenceSelectorLauncher;
+
+  @FXML
+  public HBox bindingModeContainer;
+
+  @FXML
+  public HBox sequenceBindingsContainer;
+
+  @FXML
+  public HBox timelineOptionsGroup;
+
+  @FXML
+  public HBox currentSequenceGroup;
+
+  @FXML
+  public Label noSequenceLabel;
+
+  @FXML
+  protected VBox container;
+
+  @FXML
+  protected TextField fieldName;
 
   public ProgramEditorController(
+    @Value("classpath:/views/content/program/program-config.fxml") Resource configFxml,
+    @Value("classpath:/views/content/program/sequence-selector.fxml") Resource sequenceSelectorFxml,
+    @Value("classpath:/views/content/program/sequence-management.fxml") Resource sequenceManagementFxml,
+    @Value("classpath:/views/content/program/sequence-binding-column.fxml") Resource sequenceBindingColumnFxml,
+    @Value("classpath:/views/content/common/entity-memes.fxml") Resource entityMemesFxml,
     @Value("classpath:/views/content/program/program-editor.fxml") Resource fxml,
     ApplicationContext ac,
     ThemeService themeService,
@@ -182,6 +205,11 @@ public class ProgramEditorController extends ProjectController {
     CmdModalController cmdModalController
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
+    this.configFxml = configFxml;
+    this.sequenceSelectorFxml = sequenceSelectorFxml;
+    this.sequenceManagementFxml = sequenceManagementFxml;
+    this.sequenceBindingColumnFxml = sequenceBindingColumnFxml;
+    this.entityMemesFxml = entityMemesFxml;
     this.cmdModalController = cmdModalController;
   }
 
@@ -198,9 +226,6 @@ public class ProgramEditorController extends ProjectController {
     });
     editButton.setSelected(true);
     editorModeToggleGroup.selectToggle(editButton);
-    createDisabilityBindingForTypes(editButton, Arrays.asList(ProgramType.Main, ProgramType.Macro));
-    createDisabilityBindingForTypes(bindButton, Arrays.asList(ProgramType.Main, ProgramType.Macro));
-    createVisibilityBindingForTypes(gridAndZoomGroup, List.of(ProgramType.Macro));
     typeChooser.setItems(programTypes);
     stateChooser.setItems(programStates);
     setTextProcessing(programNameField);
@@ -211,10 +236,7 @@ public class ProgramEditorController extends ProjectController {
     gridChooser.valueProperty().bindBidirectional(gridProperty);
     zoomChooser.valueProperty().bindBidirectional(zoomProperty);
     gridChooser.setItems(gridDivisions);
-    gridChooser.setValue("1/4");
     zoomChooser.setItems(zoomOptions);
-    zoomChooser.setValue("25%");
-    createDisabilityBindingForTypes(snapButton, Arrays.asList(ProgramType.Beat, ProgramType.Detail));
     sequenceNameField.textProperty().bindBidirectional(sequencePropertyName);
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
@@ -249,13 +271,13 @@ public class ProgramEditorController extends ProjectController {
     noSequenceLabel.managedProperty().bind(currentProgramSequence.isNull());
 
     // Fields lose focus on Enter key press
-    WindowUtils.transferFocusOnEnterKeyPress(programNameField);
-    WindowUtils.transferFocusOnEnterKeyPress(keyField);
-    WindowUtils.transferFocusOnEnterKeyPress(tempoChooser);
-    WindowUtils.transferFocusOnEnterKeyPress(sequenceNameField);
-    WindowUtils.transferFocusOnEnterKeyPress(sequenceKeyField);
-    WindowUtils.transferFocusOnEnterKeyPress(sequenceTotalChooser);
-    WindowUtils.transferFocusOnEnterKeyPress(sequenceIntensityChooser);
+    UiUtils.transferFocusOnEnterKeyPress(programNameField);
+    UiUtils.transferFocusOnEnterKeyPress(keyField);
+    UiUtils.transferFocusOnEnterKeyPress(tempoChooser);
+    UiUtils.transferFocusOnEnterKeyPress(sequenceNameField);
+    UiUtils.transferFocusOnEnterKeyPress(sequenceKeyField);
+    UiUtils.transferFocusOnEnterKeyPress(sequenceTotalChooser);
+    UiUtils.transferFocusOnEnterKeyPress(sequenceIntensityChooser);
 
     sequenceNameField.focusedProperty().addListener((o, ov, focused) -> {
       try {
@@ -300,6 +322,15 @@ public class ProgramEditorController extends ProjectController {
         sequenceIntensityValueFactory.setValue(Double.valueOf(currentProgramSequence.get().getIntensity()));
       }
     });
+
+    projectService.addProjectUpdateListener(ProgramSequenceBinding.class, this::addOrRemoveSequenceBindingColumnsAsNeeded);
+
+    editButton.disableProperty().bind(type.isEqualTo(ProgramType.Macro));
+    bindButton.disableProperty().bind(Bindings.createBooleanBinding(() -> !PROGRAM_TYPES_WITH_BINDINGS.contains(type.get()), type));
+
+    timelineOptionsGroup.visibleProperty().bind(editButton.selectedProperty().and(currentProgramSequence.isNotNull()));
+
+    UiUtils.toggleGroupPreventDeselect(editorModeToggleGroup);
   }
 
   @FXML
@@ -315,10 +346,10 @@ public class ProgramEditorController extends ProjectController {
       stage.setScene(new Scene(root));
       stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
-      WindowUtils.darkenBackgroundUntilClosed(stage, sequenceSelectorLauncher.getScene(),
+      UiUtils.darkenBackgroundUntilClosed(stage, sequenceSelectorLauncher.getScene(),
         () -> sequenceSelectorLauncher.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, false));
-      WindowUtils.closeWindowOnClickingAway(stage);
-      WindowUtils.setStagePositionBelowParentNode(stage, sequenceSelectorLauncher);
+      UiUtils.closeWindowOnClickingAway(stage);
+      UiUtils.setStagePositionBelowParentNode(stage, sequenceSelectorLauncher);
     } catch (IOException e) {
       LOG.error("Error opening Sequence Search window!\n{}", StringUtils.formatStackTrace(e), e);
     }
@@ -337,33 +368,13 @@ public class ProgramEditorController extends ProjectController {
       stage.setScene(new Scene(root));
       stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
-      WindowUtils.darkenBackgroundUntilClosed(stage, sequenceManagementLauncher.getScene(),
+      UiUtils.darkenBackgroundUntilClosed(stage, sequenceManagementLauncher.getScene(),
         () -> sequenceManagementLauncher.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, false));
-      WindowUtils.closeWindowOnClickingAway(stage);
-      WindowUtils.setStagePositionBelowParentNode(stage, sequenceManagementLauncher);
+      UiUtils.closeWindowOnClickingAway(stage);
+      UiUtils.setStagePositionBelowParentNode(stage, sequenceManagementLauncher);
     } catch (IOException e) {
       LOG.error("Error opening Sequence Management window!\n{}", StringUtils.formatStackTrace(e), e);
     }
-  }
-
-  /**
-   binds the disability state of the given node to the provided state(s)
-   */
-  private void createDisabilityBindingForTypes(Node node, List<ProgramType> types) {
-    BooleanBinding anyTypeMatched = Bindings.createBooleanBinding(() ->
-        types.stream().noneMatch(type -> type.equals(typeChooser.getValue())),
-      typeChooser.valueProperty());
-    node.disableProperty().bind(anyTypeMatched);
-  }
-
-  /**
-   binds the visibility state of the given node to the provided state(s)
-   */
-  private void createVisibilityBindingForTypes(Node node, List<ProgramType> types) {
-    BooleanBinding anyTypeMatched = Bindings.createBooleanBinding(() ->
-        types.stream().noneMatch(type -> type.equals(typeChooser.getValue())),
-      typeChooser.valueProperty());
-    node.visibleProperty().bind(anyTypeMatched);
   }
 
   /**
@@ -431,7 +442,7 @@ public class ProgramEditorController extends ProjectController {
       // Set the owner of the stage
       stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
-      WindowUtils.darkenBackgroundUntilClosed(stage, configButton.getScene(),
+      UiUtils.darkenBackgroundUntilClosed(stage, configButton.getScene(),
         () -> configButton.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, false));
     } catch (IOException e) {
       LOG.error("Error loading EditConfig window!\n{}", StringUtils.formatStackTrace(e), e);
@@ -460,7 +471,19 @@ public class ProgramEditorController extends ProjectController {
     if (!programSequences.isEmpty()) {
       currentProgramSequence.set(programSequences.get(0));
     } else {
-      LOG.info("Program has no sequence");
+      currentProgramSequence.set(null);
+    }
+
+    gridChooser.setValue(DEFAULT_GRID_VALUE);
+    zoomChooser.setValue(DEFAULT_ZOOM_VALUE);
+
+    // When the program editor opens, if the program is a Macro-type, show the binding mode view, else always start on the Edit mode view
+    if (program.getType().equals(ProgramType.Macro)) {
+      bindButton.setSelected(true);
+      editorModeToggleGroup.selectToggle(bindButton);
+    } else {
+      editButton.setSelected(true);
+      editorModeToggleGroup.selectToggle(editButton);
     }
 
     setupProgramMemeContainer();
@@ -498,29 +521,48 @@ public class ProgramEditorController extends ProjectController {
    Set up the Sequence Binding View
    */
   private void setupSequenceBindingView() {
-    Collection<ProgramSequenceBinding> bindings = projectService.getContent().getSequenceBindingsOfProgram(programId.get());
-
     // clear first before adding to prevent duplicates -- teardown controllers first
     for (SequenceBindingColumnController controller : sequenceBindingColumnControllers) controller.teardown();
     sequenceBindingColumnControllers.clear();
     sequenceBindingsContainer.getChildren().clear();
 
-    // find the highest offset in the current sequenceBindingsOfProgram group and create the offset holders  with an extra button
-    // if sequence bindings number is zero, add the two buttons that appear when empty
+    addOrRemoveSequenceBindingColumnsAsNeeded();
+  }
+
+  /**
+   find the highest offset in the current sequenceBindingsOfProgram group and create the offset holders  with an extra button
+   if sequence bindings number is zero, add the two buttons that appear when empty
+   */
+  private void addOrRemoveSequenceBindingColumnsAsNeeded() {
+    Collection<ProgramSequenceBinding> bindings = projectService.getContent().getSequenceBindingsOfProgram(programId.get());
+
     int highestOffset = bindings.stream().map(ProgramSequenceBinding::getOffset).max(Integer::compareTo).orElse(-1);
     for (int i = 0; i <= highestOffset + 1; i++) {
-      addSequenceBindingColumn(i);
+      addSequenceBindingColumnIfNotPresent(i);
+    }
+
+    while (sequenceBindingColumnControllers.size() > highestOffset + 2) {
+      sequenceBindingColumnControllers.remove(sequenceBindingColumnControllers.size() - 1).teardown();
+      sequenceBindingsContainer.getChildren().remove(sequenceBindingsContainer.getChildren().size() - 1);
     }
   }
 
-  protected void addSequenceBindingColumn(int offset) {
+  /**
+   Add a sequence binding column if it doesn't already exist
+
+   @param offset the offset of the sequence binding column
+   */
+  private void addSequenceBindingColumnIfNotPresent(int offset) {
     try {
+      // skip if we already have a column at this offset
+      if (sequenceBindingColumnControllers.size() > offset) return;
+
       FXMLLoader loader = new FXMLLoader(sequenceBindingColumnFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       sequenceBindingsContainer.getChildren().add(root);
       SequenceBindingColumnController controller = loader.getController();
-      sequenceBindingColumnControllers.add(controller);
+      sequenceBindingColumnControllers.add(offset, controller);
       controller.setup(offset, programId.get());
     } catch (IOException e) {
       LOG.error("Error loading Sequence Selector view!\n{}", StringUtils.formatStackTrace(e), e);

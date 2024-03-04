@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
-import static io.xj.gui.utils.WindowUtils.closeWindowOnClickingAway;
+import static io.xj.gui.utils.UiUtils.closeWindowOnClickingAway;
 
 @Component
 public class ProgramConfigController {

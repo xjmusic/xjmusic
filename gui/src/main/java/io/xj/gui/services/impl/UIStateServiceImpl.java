@@ -8,7 +8,7 @@ import io.xj.gui.modes.ViewStatusMode;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
-import io.xj.gui.utils.WindowUtils;
+import io.xj.gui.utils.UiUtils;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
@@ -142,7 +142,7 @@ public class UIStateServiceImpl implements UIStateService {
         projectService.stateTextProperty(),
         fabricationService.stateTextProperty());
 
-    progress.addListener((o, ov, value) -> WindowUtils.setTaskbarProgress(value.floatValue()));
+    progress.addListener((o, ov, value) -> UiUtils.setTaskbarProgress(value.floatValue()));
 
     projectService.stateProperty().addListener((o, ov, value) -> {
       if (Objects.equals(value, ProjectState.Standby)) {

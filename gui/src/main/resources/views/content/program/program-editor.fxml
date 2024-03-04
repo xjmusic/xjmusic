@@ -67,14 +67,6 @@
         <padding>
             <Insets left="5" top="2" bottom="2" right="5"/>
         </padding>
-        <HBox fx:id="gridAndZoomGroup" alignment="CENTER_LEFT">
-            <Label minWidth="35.0" text="GRID" styleClass="program-editor-field-label"/>
-            <ComboBox fx:id="gridChooser" minWidth="80.0"/>
-            <Label minWidth="35.0" text="ZOOM" styleClass="program-editor-field-label"/>
-            <ComboBox fx:id="zoomChooser" minWidth="80.0"/>
-        </HBox>
-        <ToggleButton fx:id="snapButton" minWidth="45" mnemonicParsing="false" text="SNAP"
-                      styleClass="program-editor-menu-button"/>
         <Label minWidth="80" text="SEQUENCE" styleClass="program-editor-field-label"/>
         <Button fx:id="sequenceSelectorLauncher" mnemonicParsing="false" minWidth="30" maxWidth="30"
                 onMouseClicked="#launchSequenceSelectorUI">
@@ -101,7 +93,15 @@
             <Label minWidth="70" text="INTENSITY" styleClass="program-editor-field-label"/>
             <Spinner minWidth="90.0" fx:id="sequenceIntensityChooser" editable="true"/>
         </HBox>
-        <Label fx:id="noSequenceLabel" text="NO SEQUENCE"/>
+        <Label fx:id="noSequenceLabel" text="NO SEQUENCES"/>
+        <HBox fx:id="timelineOptionsGroup" alignment="CENTER_LEFT">
+            <Label minWidth="35.0" text="GRID" styleClass="program-editor-field-label"/>
+            <ComboBox fx:id="gridChooser" minWidth="80.0"/>
+            <Label minWidth="35.0" text="ZOOM" styleClass="program-editor-field-label"/>
+            <ComboBox fx:id="zoomChooser" minWidth="80.0"/>
+            <ToggleButton fx:id="snapButton" minWidth="45" mnemonicParsing="false" text="SNAP"
+                          styleClass="program-editor-menu-button"/>
+        </HBox>
     </HBox>
     <ScrollPane fitToHeight="true" VBox.vgrow="ALWAYS" styleClass="content-scroll-pane">
         <HBox fx:id="bindingModeContainer">
