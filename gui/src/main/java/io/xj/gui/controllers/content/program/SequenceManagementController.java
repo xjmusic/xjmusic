@@ -26,7 +26,7 @@ public class SequenceManagementController {
   private Stage stage;
 
   @FXML
-  public Button newSequence;
+  public Button newSequenceButton;
 
   @FXML
   public Button deleteButton;
@@ -48,16 +48,14 @@ public class SequenceManagementController {
   ) {
     this.stage = stage;
     this.programId.set(programId);
-    newSequence.setOnAction(e -> createNewSequence());
-    cloneButton.setOnAction(e -> cloneSequence());
-    deleteButton.setOnAction(e -> deleteSequence());
   }
 
   private void closeWindow() {
     stage.close();
   }
 
-  private void createNewSequence() {
+  @FXML
+  protected void handlePressNewSequence() {
     try {
       ProgramSequence newProgramSequence = projectService.createProgramSequence(programId.get());
       uiStateService.currentProgramSequenceProperty().set(newProgramSequence);
@@ -67,9 +65,14 @@ public class SequenceManagementController {
     }
   }
 
-  private void deleteSequence() {
+  @FXML
+  protected void handlePressDelete() {
     var currentSequence = uiStateService.currentProgramSequenceProperty().get();
     if (Objects.isNull(currentSequence)) return;
+    if (!projectService.getContent().getBindingsOfSequence(currentSequence.getId()).isEmpty()) {
+      projectService.showWarningAlert("Cannot Delete Sequence", "Must delete Sequence Bindings first!", "Cannot delete a sequence while it is still referenced by sequence bindings.");
+      return;
+    }
     if (!projectService.showConfirmationDialog("Delete Sequence?", "This action cannot be undone.", String.format("Are you sure you want to delete the Sequence \"%s\"?", currentSequence.getName())))
       return;
     try {
@@ -87,7 +90,8 @@ public class SequenceManagementController {
     }
   }
 
-  private void cloneSequence() {
+  @FXML
+  protected void handlePressClone() {
     var currentSequence = uiStateService.currentProgramSequenceProperty().get();
     if (Objects.isNull(currentSequence)) return;
     try {
