@@ -452,6 +452,11 @@
     -fx-font-size: 0.8em;
 }
 
+/*noinspection CssInvalidPseudoSelector*/
+.program-editor .button:open {
+    -fx-background-color: #683568;
+}
+
 .sequence-window {
     -fx-background-color: #683568;
 }
@@ -533,7 +538,7 @@
     -fx-text-fill: grey;
     -fx-background-color: #434343;
     -fx-border-color: #434343;
-    padding: 2 2 2 2;
+    -fx-padding: 2 2 2 2;
 }
 
 .sequence-memes-label {

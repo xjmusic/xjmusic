@@ -51,7 +51,7 @@ public class ProgramConfigController {
     // Bind the visibility of the Button and HBox to the BooleanProperty
     saveAndCancelButtonsContainer.visibleProperty().bind(visibleProperty);
     cancelButton.visibleProperty().bind(visibleProperty.not());
-    closeWindowOnClickingAway(stage);
+    closeWindowOnClickingAway(stage, null);
     detectConfigDataChanges();
   }
 

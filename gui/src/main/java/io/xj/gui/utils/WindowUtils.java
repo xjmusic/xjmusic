@@ -32,9 +32,9 @@ public interface WindowUtils {
    */
   static void setupIcon(Stage primaryStage) {
     primaryStage.getIcons().addAll(List.of(
-      new Image(PATH_TO_ICON_ICNS),
-      new Image(PATH_TO_ICON_ICO),
-      new Image(PATH_TO_ICON_PNG)
+        new Image(PATH_TO_ICON_ICNS),
+        new Image(PATH_TO_ICON_ICO),
+        new Image(PATH_TO_ICON_PNG)
     ));
   }
 
@@ -102,10 +102,13 @@ public interface WindowUtils {
   /**
    Closes the stage when clicking outside it (loses focus)
    */
-  static void closeWindowOnClickingAway(Stage window) {
+  static void closeWindowOnClickingAway(Stage window, @Nullable Runnable onClose) {
     window.focusedProperty().addListener((obs, oldValue, newValue) -> {
       if (!newValue) {
         window.close();
+        if (Objects.nonNull(onClose)) {
+          onClose.run();
+        }
       }
     });
   }

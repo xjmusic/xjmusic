@@ -69,6 +69,7 @@ import java.util.UUID;
 import java.util.function.UnaryOperator;
 
 import static io.xj.gui.services.UIStateService.ACTIVE_PSEUDO_CLASS;
+import static io.xj.gui.services.UIStateService.OPEN_PSEUDO_CLASS;
 
 @Service
 public class ProgramEditorController extends ProjectController {
@@ -95,19 +96,15 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   public Button configButton;
   @FXML
-  public Label sequenceIntensityLabel;
-  @FXML
   public Spinner<Double> sequenceIntensityChooser;
   @FXML
   public TextField sequenceKey;
-  @FXML
-  public Label sequenceTotalLabel;
   @FXML
   public Spinner<Integer> sequenceTotalChooser;
   @FXML
   public TextField sequenceName;
   @FXML
-  public Button sequenceMenuLauncher;
+  public Button sequenceManagementLauncher;
   @FXML
   public ToggleButton snapButton;
   @FXML
@@ -115,7 +112,7 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   public ComboBox<String> gridChooser;
   @FXML
-  public Button sequenceButton;
+  public Button sequenceSelectorLauncher;
   @FXML
   public HBox bindViewParentContainer;
   @FXML
@@ -232,13 +229,7 @@ public class ProgramEditorController extends ProjectController {
     gridChooser.setValue("1/4");
     zoomChooser.setItems(zoomOptions);
     zoomChooser.setValue("25%");
-    sequenceButton.setOnMouseClicked(this::showSequenceUI);
-    sequenceMenuLauncher.setOnMouseClicked(this::showSequenceManagementUI);
-    sequenceIntensityChooser.setVisible(false);
-    sequenceTotalChooser.setVisible(false);
     createDisabilityBindingForTypes(snapButton, Arrays.asList(ProgramType.Beat, ProgramType.Detail));
-    toggleVisibilityBetweenEditorAndLabel(sequenceIntensityChooser, sequenceIntensityLabel);
-    toggleVisibilityBetweenEditorAndLabel(sequenceTotalChooser, sequenceTotalLabel);
     setTextFieldValueToAlwaysCAPS(keyField);
     setTextFieldValueToAlwaysCAPS(sequenceKey);
     sequenceName.textProperty().bindBidirectional(sequencePropertyName);
@@ -250,10 +241,7 @@ public class ProgramEditorController extends ProjectController {
     zoomChooser.valueProperty().bindBidirectional(zoomProperty);
 
     sequenceKey.textProperty().bindBidirectional(sequencePropertyKey);
-    sequenceTotalLabel.textProperty().bind(sequenceTotalChooser.valueProperty().asString());
     // Bind Label text to Chooser value with formatting
-    sequenceIntensityLabel.textProperty().bind(Bindings.createStringBinding(() ->
-        String.format("%.1f", sequenceIntensityDoubleValue.get()), sequenceIntensityDoubleValue));
     stateChooser.valueProperty().bindBidirectional(state);
     keyField.textProperty().bind(key);
 
@@ -276,10 +264,7 @@ public class ProgramEditorController extends ProjectController {
     currentSequenceGroup.managedProperty().bind(currentProgramSequence.isNotNull());
     noSequenceLabel.visibleProperty().bind(currentProgramSequence.isNull());
     noSequenceLabel.managedProperty().bind(currentProgramSequence.isNull());
-    updateSequence();
-  }
 
-  private void updateSequence() {
     sequenceName.focusedProperty().addListener((observable, oldValue, newValue) -> {
       try {
         if (!newValue) {
@@ -336,8 +321,10 @@ public class ProgramEditorController extends ProjectController {
     textField.setTextFormatter(textFormatter);
   }
 
-  protected void showSequenceUI(MouseEvent event) {
+  @FXML
+  protected void launchSequenceSelectorUI(MouseEvent event) {
     try {
+      sequenceSelectorLauncher.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, true);
       Stage stage = new Stage(StageStyle.TRANSPARENT);
       FXMLLoader loader = new FXMLLoader(searchSequenceFxml.getURL());
       loader.setControllerFactory(ac::getBean);
@@ -349,15 +336,16 @@ public class ProgramEditorController extends ProjectController {
       stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
       positionUIAtLocation(stage, event, 400, 28);
-      WindowUtils.closeWindowOnClickingAway(stage);
+      WindowUtils.closeWindowOnClickingAway(stage, ()-> sequenceSelectorLauncher.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, false));
     } catch (IOException e) {
       LOG.error("Error opening Sequence Search window!\n{}", StringUtils.formatStackTrace(e), e);
     }
   }
 
-
-  protected void showSequenceManagementUI(MouseEvent event) {
+  @FXML
+  protected void launchSequenceManagementUI(MouseEvent event) {
     try {
+      sequenceManagementLauncher.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, true);
       Stage stage = new Stage(StageStyle.TRANSPARENT);
       FXMLLoader loader = new FXMLLoader(sequenceManagementFxml.getURL());
       loader.setControllerFactory(ac::getBean);
@@ -368,26 +356,10 @@ public class ProgramEditorController extends ProjectController {
       stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
       positionUIAtLocation(stage, event, 450, 29);
-      WindowUtils.closeWindowOnClickingAway(stage);
+      WindowUtils.closeWindowOnClickingAway(stage, () -> sequenceManagementLauncher.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, false));
     } catch (IOException e) {
       LOG.error("Error opening Sequence Management window!\n{}", StringUtils.formatStackTrace(e), e);
     }
-  }
-
-  private void toggleVisibilityBetweenEditorAndLabel(Spinner<?> chooser, Label label) {
-    label.setOnMouseClicked(e -> {
-      label.setVisible(false);
-      chooser.setVisible(true);
-      //shift focus to the nameField
-      chooser.requestFocus();
-    });
-    // Add a focus listener to the TextField
-    chooser.focusedProperty().addListener((observable, oldValue, newValue) -> {
-      if (!newValue) {
-        chooser.setVisible(false);
-        label.setVisible(true);
-      }
-    });
   }
 
   /**

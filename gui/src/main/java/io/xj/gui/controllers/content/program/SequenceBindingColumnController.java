@@ -77,7 +77,7 @@ public class SequenceBindingColumnController {
       stage.setScene(new Scene(root));
       stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
-      closeWindowOnClickingAway(stage);
+      closeWindowOnClickingAway(stage, null);
       stage.setX(sequenceBindingColumnContainer.getScene().getWindow().getX() + sceneX - stage.getWidth() / 2);
       stage.setY(sequenceBindingColumnContainer.getScene().getWindow().getY() + sceneY - stage.getHeight() / 2);
       //remove the background blur

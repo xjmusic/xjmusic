@@ -15,7 +15,6 @@
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 <VBox fx:id="container" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramEditorController"
       styleClass="program-editor">
@@ -43,7 +42,7 @@
                       text="EDIT" styleClass="program-editor-menu-button"/>
         <Button fx:id="duplicateButton" minWidth="30" maxWidth="30" mnemonicParsing="false" onAction="#openCloneDialog">
             <graphic>
-                <ImageView fitHeight="16.0" fitWidth="16.0" translateX="-2.0">
+                <ImageView fitHeight="16.0" fitWidth="16.0">
                     <Image url="@/icons/copy-grey.png"/>
                 </ImageView>
             </graphic>
@@ -57,7 +56,7 @@
         <Label minWidth="30.0" text="KEY" styleClass="program-editor-field-label"/>
         <TextField fx:id="keyField" minWidth="60.0"/>
         <Label minWidth="50.0" text="TEMPO" styleClass="program-editor-field-label"/>
-        <Spinner fx:id="tempoChooser" editable="true" minWidth="90.0"/>
+        <Spinner minWidth="90.0" fx:id="tempoChooser" editable="true"/>
     </HBox>
     <StackPane fx:id="programMemeContainer">
         <HBox.hgrow>
@@ -69,43 +68,24 @@
             <Insets left="5" top="2" bottom="2" right="5"/>
         </padding>
         <HBox fx:id="gridAndZoomGroup" alignment="CENTER_LEFT">
-            <Label minWidth="35.0" text="GRID" styleClass="program-editor-field-label">
-                <font>
-                    <Font size="14.0"/>
-                </font>
-                <padding>
-                    <Insets left="5.0"/>
-                </padding>
-            </Label>
+            <Label minWidth="35.0" text="GRID" styleClass="program-editor-field-label"/>
             <ComboBox fx:id="gridChooser" minWidth="80.0"/>
-            <Label minWidth="35.0" text="ZOOM" styleClass="program-editor-field-label">
-                <font>
-                    <Font size="14.0"/>
-                </font>
-                <padding>
-                    <Insets left="5.0"/>
-                </padding>
-            </Label>
+            <Label minWidth="35.0" text="ZOOM" styleClass="program-editor-field-label"/>
             <ComboBox fx:id="zoomChooser" minWidth="100.0"/>
         </HBox>
         <ToggleButton fx:id="snapButton" minWidth="45" mnemonicParsing="false" text="SNAP"
                       styleClass="program-editor-menu-button"/>
-        <Label minWidth="80" text="SEQUENCE" styleClass="program-editor-field-label">
-            <font>
-                <Font size="14.0"/>
-            </font>
-            <padding>
-                <Insets left="5.0"/>
-            </padding>
-        </Label>
-        <Button fx:id="sequenceButton" mnemonicParsing="false" minWidth="30" maxWidth="30">
+        <Label minWidth="80" text="SEQUENCE" styleClass="program-editor-field-label"/>
+        <Button fx:id="sequenceSelectorLauncher" mnemonicParsing="false" minWidth="30" maxWidth="30"
+                onMouseClicked="#launchSequenceSelectorUI">
             <graphic>
                 <ImageView fitHeight="16.0" fitWidth="16.0">
                     <Image url="@/icons/down-arrow.png"/>
                 </ImageView>
             </graphic>
         </Button>
-        <Button fx:id="sequenceMenuLauncher" mnemonicParsing="false" minWidth="30" maxWidth="30">
+        <Button fx:id="sequenceManagementLauncher" mnemonicParsing="false" minWidth="30" maxWidth="30"
+                onMouseClicked="#launchSequenceManagementUI">
             <graphic>
                 <ImageView fitHeight="16.0" fitWidth="16.0">
                     <Image url="@/icons/hamburger-menu.png"/>
@@ -114,51 +94,14 @@
         </Button>
         <HBox fx:id="currentSequenceGroup" alignment="CENTER_LEFT">
             <TextField fx:id="sequenceName" minWidth="173.0"/>
-            <Label minWidth="80" text="TOTAL" styleClass="program-editor-field-label">
-                <font>
-                    <Font size="14.0"/>
-                </font>
-                <padding>
-                    <Insets left="2.0"/>
-                </padding>
-            </Label>
-            <StackPane>
-                <Spinner fx:id="sequenceTotalChooser" editable="true"/>
-                <Label fx:id="sequenceTotalLabel" text="16">
-                    <padding>
-                        <Insets left="5.0"/>
-                    </padding>
-                </Label>
-            </StackPane>
-            <Label minWidth="50" text="KEY" styleClass="program-editor-field-label">
-                <font>
-                    <Font size="14.0"/>
-                </font>
-                <padding>
-                    <Insets left="5.0"/>
-                </padding>
-            </Label>
+            <Label minWidth="50" text="TOTAL" styleClass="program-editor-field-label"/>
+            <Spinner minWidth="90.0" fx:id="sequenceTotalChooser" editable="true"/>
+            <Label minWidth="30" text="KEY" styleClass="program-editor-field-label"/>
             <TextField minWidth="45" fx:id="sequenceKey" text=" "/>
-            <Label minWidth="120" text="INTENSITY" styleClass="program-editor-field-label">
-                <font>
-                    <Font size="14.0"/>
-                </font>
-                <padding>
-                    <Insets left="5.0"/>
-                </padding>
-            </Label>
-            <StackPane>
-                <Spinner fx:id="sequenceIntensityChooser" editable="true"/>
-                <Label fx:id="sequenceIntensityLabel" text="0.6">
-                    <padding>
-                        <Insets left="5.0"/>
-                    </padding>
-                </Label>
-            </StackPane>
+            <Label minWidth="80" text="INTENSITY" styleClass="program-editor-field-label"/>
+            <Spinner minWidth="90.0" fx:id="sequenceIntensityChooser" editable="true"/>
         </HBox>
-        <Label fx:id="noSequenceLabel" prefHeight="27.0"
-               prefWidth="219.0" text="NO SEQUENCE">
-        </Label>
+        <Label fx:id="noSequenceLabel" prefHeight="27.0" prefWidth="219.0" text="NO SEQUENCE"/>
     </HBox>
     <ScrollPane fitToHeight="true" VBox.vgrow="ALWAYS" styleClass="content-scroll-pane">
         <HBox fx:id="bindViewParentContainer" alignment="CENTER_LEFT">
