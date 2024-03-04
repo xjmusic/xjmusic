@@ -44,7 +44,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
@@ -171,9 +170,9 @@ public class ProgramEditorController extends ProjectController {
   private final StringProperty gridProperty = new SimpleStringProperty("");
   private final StringProperty zoomProperty = new SimpleStringProperty("");
   private final ObservableList<String> gridDivisions =
-      FXCollections.observableArrayList(Arrays.asList("1/4", "1/8", "1/16", "1/32"));
+    FXCollections.observableArrayList(Arrays.asList("1/4", "1/8", "1/16", "1/32"));
   private final ObservableList<String> zoomOptions =
-      FXCollections.observableArrayList(Arrays.asList("5%", "10%", "25%", "50%", "100%", "200%", "300%", "400%"));
+    FXCollections.observableArrayList(Arrays.asList("5%", "10%", "25%", "50%", "100%", "200%", "300%", "400%"));
   protected final SimpleStringProperty sequencePropertyName = new SimpleStringProperty("");
   private final SimpleStringProperty sequencePropertyKey = new SimpleStringProperty("");
   private final CmdModalController cmdModalController;
@@ -181,12 +180,12 @@ public class ProgramEditorController extends ProjectController {
   protected ObservableList<ProgramSequence> programSequenceObservableList = FXCollections.observableArrayList();
 
   public ProgramEditorController(
-      @Value("classpath:/views/content/program/program-editor.fxml") Resource fxml,
-      ApplicationContext ac,
-      ThemeService themeService,
-      ProjectService projectService,
-      UIStateService uiStateService,
-      CmdModalController cmdModalController
+    @Value("classpath:/views/content/program/program-editor.fxml") Resource fxml,
+    ApplicationContext ac,
+    ThemeService themeService,
+    ProjectService projectService,
+    UIStateService uiStateService,
+    CmdModalController cmdModalController
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.cmdModalController = cmdModalController;
@@ -197,8 +196,8 @@ public class ProgramEditorController extends ProjectController {
     bindingModeContainer.visibleProperty().bind(bindButton.selectedProperty());
     bindingModeContainer.managedProperty().bind(bindButton.selectedProperty());
     var visible = projectService.isStateReadyProperty()
-        .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
-        .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramEditor));
+      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
+      .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramEditor));
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.ProgramEditor))
         setup();
@@ -273,7 +272,7 @@ public class ProgramEditorController extends ProjectController {
           LOG.info("change " + sequenceName.getText());
           sequencePropertyName.set(sequenceName.getText());
           projectService.update(ProgramSequence.class, currentProgramSequence.get().getId(), "name",
-              sequencePropertyName.get());
+            sequencePropertyName.get());
         }
       } catch (Exception e) {
         LOG.info("Failed to update program sequence ");
@@ -286,7 +285,7 @@ public class ProgramEditorController extends ProjectController {
           LOG.info("change " + sequenceTotalValueFactory.getValue());
           sequenceTotalValueFactory.setValue(sequenceTotalChooser.getValue());
           projectService.update(ProgramSequence.class, currentProgramSequence.get().getId(), "total",
-              sequenceTotalValueFactory.getValue());
+            sequenceTotalValueFactory.getValue());
         }
       } catch (Exception e) {
         LOG.info("Failed to update program sequence ");
@@ -299,7 +298,7 @@ public class ProgramEditorController extends ProjectController {
           LOG.info("change " + sequenceTotalChooser.getValue());
           sequencePropertyKey.set(sequenceKey.getText());
           projectService.update(ProgramSequence.class, currentProgramSequence.get().getId(), "key",
-              sequencePropertyKey.get());
+            sequencePropertyKey.get());
         }
       } catch (Exception e) {
         LOG.info("Failed to update program sequence ");
@@ -324,57 +323,47 @@ public class ProgramEditorController extends ProjectController {
   }
 
   @FXML
-  protected void launchSequenceSelectorUI(MouseEvent event) {
+  protected void launchSequenceSelectorUI() {
     try {
       sequenceSelectorLauncher.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, true);
       Stage stage = new Stage(StageStyle.TRANSPARENT);
       FXMLLoader loader = new FXMLLoader(sequenceSelectorFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      SequenceSelectorController searchSequence = loader.getController();
-      searchSequence.setup(programId.get(), currentProgramSequence.get().getId(), (sequenceId) -> currentProgramSequence.set(projectService.getContent().getProgramSequence(sequenceId).orElse(null)));
+      SequenceSelectorController controller = loader.getController();
+      controller.setup(programId.get(), (sequenceId) -> currentProgramSequence.set(projectService.getContent().getProgramSequence(sequenceId).orElse(null)));
       stage.setScene(new Scene(root));
-      // Set the owner of the stage
       stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
-      positionUIAtLocation(stage, event, 400, 28);
-      WindowUtils.closeWindowOnClickingAway(stage, () -> sequenceSelectorLauncher.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, false));
+      WindowUtils.darkenBackgroundUntilClosed(stage, sequenceSelectorLauncher.getScene(),
+        () -> sequenceSelectorLauncher.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, false));
+      WindowUtils.closeWindowOnClickingAway(stage);
+      WindowUtils.setStagePositionBelowParentNode(stage, sequenceSelectorLauncher);
     } catch (IOException e) {
       LOG.error("Error opening Sequence Search window!\n{}", StringUtils.formatStackTrace(e), e);
     }
   }
 
   @FXML
-  protected void launchSequenceManagementUI(MouseEvent event) {
+  protected void launchSequenceManagementUI() {
     try {
       sequenceManagementLauncher.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, true);
       Stage stage = new Stage(StageStyle.TRANSPARENT);
       FXMLLoader loader = new FXMLLoader(sequenceManagementFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      SequenceManagementController sequenceManagement = loader.getController();
-      sequenceManagement.setUp(currentProgramSequence.get(), stage);
+      SequenceManagementController controller = loader.getController();
+      controller.setup(currentProgramSequence.get(), stage);
       stage.setScene(new Scene(root));
       stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
-      positionUIAtLocation(stage, event, 450, 29);
-      WindowUtils.closeWindowOnClickingAway(stage, () -> sequenceManagementLauncher.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, false));
+      WindowUtils.darkenBackgroundUntilClosed(stage, sequenceManagementLauncher.getScene(),
+        () -> sequenceManagementLauncher.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, false));
+      WindowUtils.closeWindowOnClickingAway(stage);
+      WindowUtils.setStagePositionBelowParentNode(stage, sequenceManagementLauncher);
     } catch (IOException e) {
       LOG.error("Error opening Sequence Management window!\n{}", StringUtils.formatStackTrace(e), e);
     }
-  }
-
-  /**
-   Positions the GUI to the place where the click happened
-   */
-  private void positionUIAtLocation(Stage stage, MouseEvent event, int xValue, int yValue) {
-    // Get the X and Y coordinates of the button
-    Node source = (Node) event.getSource();
-    double xOffset = source.getLayoutX() + source.localToScreen(0, 0).getX() - xValue;
-    double yOffset = source.getLayoutY() + source.localToScreen(0, 0).getY() + yValue;
-    // Set the stage's position
-    stage.setX(xOffset);
-    stage.setY(yOffset);
   }
 
   /**
@@ -382,8 +371,8 @@ public class ProgramEditorController extends ProjectController {
    */
   private void createDisabilityBindingForTypes(Node node, List<ProgramType> types) {
     BooleanBinding anyTypeMatched = Bindings.createBooleanBinding(() ->
-            types.stream().noneMatch(type -> type.equals(typeChooser.getValue())),
-        typeChooser.valueProperty());
+        types.stream().noneMatch(type -> type.equals(typeChooser.getValue())),
+      typeChooser.valueProperty());
     node.disableProperty().bind(anyTypeMatched);
   }
 
@@ -392,8 +381,8 @@ public class ProgramEditorController extends ProjectController {
    */
   private void createVisibilityBindingForTypes(Node node, List<ProgramType> types) {
     BooleanBinding anyTypeMatched = Bindings.createBooleanBinding(() ->
-            types.stream().noneMatch(type -> type.equals(typeChooser.getValue())),
-        typeChooser.valueProperty());
+        types.stream().noneMatch(type -> type.equals(typeChooser.getValue())),
+      typeChooser.valueProperty());
     node.visibleProperty().bind(anyTypeMatched);
   }
 
@@ -427,7 +416,7 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   protected void openCloneDialog() {
     var program = projectService.getContent().getProgram(programId.get())
-        .orElseThrow(() -> new RuntimeException("Could not find Program"));
+      .orElseThrow(() -> new RuntimeException("Could not find Program"));
     cmdModalController.cloneProgram(program);
   }
 
@@ -439,7 +428,7 @@ public class ProgramEditorController extends ProjectController {
 
   protected void handleProgramSave() {
     var program = projectService.getContent().getProgram(programId.get())
-        .orElseThrow(() -> new RuntimeException("Could not find Program"));
+      .orElseThrow(() -> new RuntimeException("Could not find Program"));
     program.setName(programName.get());
     program.setKey(key.get());
     program.setTempo(tempo.get());
@@ -473,7 +462,7 @@ public class ProgramEditorController extends ProjectController {
     if (Objects.isNull(uiStateService.currentProgramProperty().get()))
       return;
     var program = projectService.getContent().getProgram(uiStateService.currentProgramProperty().get().getId())
-        .orElseThrow(() -> new RuntimeException("Could not find Program"));
+      .orElseThrow(() -> new RuntimeException("Could not find Program"));
     LOG.info("Will edit Program \"{}\"", program.getName());
     this.programId.set(program.getId());
     this.programName.set(program.getName());
@@ -500,15 +489,15 @@ public class ProgramEditorController extends ProjectController {
       programMemeContainer.getChildren().add(root);
       EntityMemesController entityMemesController = loader.getController();
       entityMemesController.setup(
-          true, () -> projectService.getContent().getMemesOfProgram(programId.get()),
-          () -> projectService.createProgramMeme(programId.get()),
-          (Object meme) -> {
-            try {
-              projectService.update(meme);
-            } catch (Exception e) {
-              throw new RuntimeException(e);
-            }
+        true, () -> projectService.getContent().getMemesOfProgram(programId.get()),
+        () -> projectService.createProgramMeme(programId.get()),
+        (Object meme) -> {
+          try {
+            projectService.update(meme);
+          } catch (Exception e) {
+            throw new RuntimeException(e);
           }
+        }
       );
     } catch (IOException e) {
       LOG.error("Error loading Entity Memes window!\n{}", StringUtils.formatStackTrace(e), e);

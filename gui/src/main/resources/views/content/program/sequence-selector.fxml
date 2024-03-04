@@ -5,6 +5,6 @@
 <VBox fx:id="container"
       xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.xj.gui.controllers.content.program.SequenceSelectorController"
-      stylesheets="@/styles/default-theme.css" styleClass="sequence-selector-container" >
+      stylesheets="@/styles/default-theme.css">
   <SearchableComboBox fx:id="sequenceSearch" prefWidth="256.0"/>
 </VBox>

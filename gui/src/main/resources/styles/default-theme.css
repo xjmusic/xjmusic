@@ -534,10 +534,6 @@
   -fx-padding: 5 5 5 5;
 }
 
-.sequence-selector-container {
-  -fx-background-color: transparent;
-}
-
 .sequence-item-button {
   -fx-background-color: #404040;
   -fx-background-radius: 7;

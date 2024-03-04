@@ -31,7 +31,7 @@ public class SequenceManagementController {
     this.programEditorController = programEditorController;
   }
 
-  public void setUp(ProgramSequence programSequence, Stage stage) {
+  public void setup(ProgramSequence programSequence, Stage stage) {
     this.stage = stage;
     this.programSequence = programSequence;
     newSequence.setOnAction(e -> createNewSequence());

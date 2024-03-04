@@ -4,7 +4,9 @@ package io.xj.gui.utils;
 
 import jakarta.annotation.Nullable;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -32,9 +34,9 @@ public interface WindowUtils {
    */
   static void setupIcon(Stage primaryStage) {
     primaryStage.getIcons().addAll(List.of(
-        new Image(PATH_TO_ICON_ICNS),
-        new Image(PATH_TO_ICON_ICO),
-        new Image(PATH_TO_ICON_PNG)
+      new Image(PATH_TO_ICON_ICNS),
+      new Image(PATH_TO_ICON_ICO),
+      new Image(PATH_TO_ICON_PNG)
     ));
   }
 
@@ -102,14 +104,43 @@ public interface WindowUtils {
   /**
    Closes the stage when clicking outside it (loses focus)
    */
-  static void closeWindowOnClickingAway(Stage window, @Nullable Runnable onClose) {
+  static void closeWindowOnClickingAway(Stage window) {
     window.focusedProperty().addListener((obs, oldValue, newValue) -> {
       if (!newValue) {
         window.close();
-        if (Objects.nonNull(onClose)) {
-          onClose.run();
-        }
       }
+    });
+  }
+
+  /**
+   Positions the stage scene centered below the mouse click.
+
+   @param child  of which to set position
+   @param parent to reference for mouse position
+   */
+  static void setStagePositionBelowParentNode(Stage child, Node parent) {
+    var p = parent.localToScene(0, 0);
+    child.setX(parent.getScene().getWindow().getX() + p.getX() + parent.getBoundsInLocal().getWidth() / 2 - child.getWidth() / 2);
+    child.setY(parent.getScene().getWindow().getY() + p.getY() + parent.getBoundsInLocal().getHeight() + child.getHeight());
+  }
+
+  /**
+   Darkens the background of the given stage until it is closed.
+
+   @param stage       behind which to darken background
+   @param parentScene on which to attach the darkening effect
+   @param onClose     optional function to run after closed
+   */
+  static void darkenBackgroundUntilClosed(Stage stage, Scene parentScene, @Nullable Runnable onClose) {
+    // darken the background
+    ColorAdjust darken = new ColorAdjust();
+    darken.setBrightness(-0.5);
+    parentScene.getRoot().setEffect(darken);
+
+    // remove the background when this element is closed
+    stage.setOnHidden(e -> {
+      parentScene.getRoot().setEffect(null);
+      if (Objects.nonNull(onClose)) onClose.run();
     });
   }
 }

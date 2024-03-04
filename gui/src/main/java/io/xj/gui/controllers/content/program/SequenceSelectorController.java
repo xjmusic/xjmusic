@@ -6,6 +6,7 @@ import jakarta.annotation.Nullable;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.controlsfx.control.SearchableComboBox;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -22,13 +23,13 @@ public class SequenceSelectorController {
   private final ProjectService projectService;
 
   @FXML
-  public VBox container;
+  protected VBox container;
 
   @FXML
-  public SearchableComboBox<ProgramSequenceChoice> sequenceSearch;
+  protected SearchableComboBox<ProgramSequenceChoice> sequenceSearch;
 
   public SequenceSelectorController(
-      ProjectService projectService
+    ProjectService projectService
   ) {
     this.projectService = projectService;
   }
@@ -36,34 +37,39 @@ public class SequenceSelectorController {
   /**
    Set up the sequence selector with the given program and current sequence.
 
-   @param programId         the program ID
-   @param currentSequenceId the current sequence ID
-   @param selectSequenceId  the consumer to select the sequence ID
+   @param programId        the program ID
+   @param onSelectSequence the consumer to select the sequence ID
    */
   public void setup(
-      UUID programId,
-      @Nullable UUID currentSequenceId,
-      Consumer<UUID> selectSequenceId
+    UUID programId,
+    Consumer<UUID> onSelectSequence
   ) {
-
     // Set Program Sequence Choices
-    sequenceSearch.setItems(FXCollections.observableList(projectService.getContent().getSequencesOfProgram(programId).stream()
-        .sorted(Comparator.comparing(ProgramSequence::getName)).map(ProgramSequenceChoice::new).toList()));
+    sequenceSearch.setItems(FXCollections.observableList(
+      projectService.getContent().getSequencesOfProgram(programId)
+        .stream()
+        .sorted(Comparator.comparing(ProgramSequence::getName))
+        .map(ProgramSequenceChoice::new)
+        .toList()
+    ));
 
-    if (Objects.nonNull(currentSequenceId)) {
-      sequenceSearch.getItems().stream().filter(item -> Objects.equals(item.getId(), currentSequenceId)).findFirst()
-          .ifPresent(sequence -> sequenceSearch.getSelectionModel().select(sequence));
-    }
+    sequenceSearch.valueProperty().addListener((observable, oldValue, newValue) -> {
+      if (newValue != null) {
+        onSelectSequence.accept(newValue.getId());
+        closeWindow();
+      }
+    });
 
-    // Set the selected value
-    // todo necessary? sequenceSearch.setValue(programSequence);
-
-    // Request focus and show the ComboBox
     sequenceSearch.requestFocus();
     sequenceSearch.show();
+  }
 
-    sequenceSearch.valueProperty().addListener((observable, oldValue, newValue) ->
-        selectSequenceId.accept(Objects.requireNonNullElse(newValue, new ProgramSequenceChoice(null)).getId()));
+  /**
+   Close the window.
+   */
+  private void closeWindow() {
+    Stage stage = (Stage) sequenceSearch.getScene().getWindow();
+    stage.close();
   }
 
   /**

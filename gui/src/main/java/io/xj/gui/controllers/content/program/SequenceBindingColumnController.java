@@ -2,6 +2,7 @@ package io.xj.gui.controllers.content.program;
 
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
+import io.xj.gui.utils.WindowUtils;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.util.StringUtils;
 import javafx.fxml.FXML;
@@ -10,8 +11,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.effect.ColorAdjust;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -27,7 +26,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.UUID;
 
-import static io.xj.gui.utils.WindowUtils.closeWindowOnClickingAway;
+import static io.xj.gui.services.UIStateService.OPEN_PSEUDO_CLASS;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -37,7 +36,7 @@ public class SequenceBindingColumnController {
   private final ProjectService projectService;
   private final ThemeService themeService;
   private final Resource sequenceBindingItemFxml;
-  private final Resource sequenceBindingItemCreationFxml;
+  private final Resource sequenceSelectorFxml;
   private UUID programId;
   private int offset;
   @FXML
@@ -53,13 +52,13 @@ public class SequenceBindingColumnController {
   public Button addSequenceButton;
 
   public SequenceBindingColumnController(
-      @Value("classpath:/views/content/program/sequence-binding-item.fxml") Resource sequenceBindingItemFxml,
-      @Value("classpath:/views/content/program/sequence-binding-item-creation.fxml") Resource sequenceBindingItemCreationFxml,
-      ApplicationContext ac,
-      ProjectService projectService,
-      ThemeService themeService
+    @Value("classpath:/views/content/program/sequence-binding-item.fxml") Resource sequenceBindingItemFxml,
+    @Value("classpath:/views/content/program/sequence-selector.fxml") Resource sequenceSelectorFxml,
+    ApplicationContext ac,
+    ProjectService projectService,
+    ThemeService themeService
   ) {
-    this.sequenceBindingItemCreationFxml = sequenceBindingItemCreationFxml;
+    this.sequenceSelectorFxml = sequenceSelectorFxml;
     this.sequenceBindingItemFxml = sequenceBindingItemFxml;
     this.ac = ac;
     this.projectService = projectService;
@@ -83,7 +82,34 @@ public class SequenceBindingColumnController {
     }
   }
 
-  void addProgramSequenceBindingItem(ProgramSequenceBinding programSequenceBinding) {
+  @FXML
+  protected void handlePressedAddSequenceBinding() {
+    try {
+      addSequenceButton.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, true);
+      Stage stage = new Stage(StageStyle.TRANSPARENT);
+      FXMLLoader loader = new FXMLLoader(sequenceSelectorFxml.getURL());
+      loader.setControllerFactory(ac::getBean);
+      Parent root = loader.load();
+      SequenceSelectorController controller = loader.getController();
+      controller.setup(programId, this::createSequenceBinding);
+      stage.setScene(new Scene(root));
+      stage.initOwner(themeService.getMainScene().getWindow());
+      stage.show();
+      WindowUtils.darkenBackgroundUntilClosed(stage, addSequenceButton.getScene(),
+        () -> addSequenceButton.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, false));
+      WindowUtils.closeWindowOnClickingAway(stage);
+      WindowUtils.setStagePositionBelowParentNode(stage, addSequenceButton);
+    } catch (IOException e) {
+      LOG.error("Error opening Sequence Search window!\n{}", StringUtils.formatStackTrace(e), e);
+    }
+  }
+
+  /**
+   Add a program sequence binding item to the sequence binding column.
+
+   @param programSequenceBinding to add
+   */
+  private void addProgramSequenceBindingItem(ProgramSequenceBinding programSequenceBinding) {
     try {
       FXMLLoader loader = new FXMLLoader(sequenceBindingItemFxml.getURL());
       loader.setControllerFactory(ac::getBean);
@@ -103,33 +129,11 @@ public class SequenceBindingColumnController {
     }
   }
 
-  protected void showSequenceBindingItemCreationUI(UUID programId, double sceneX, double sceneY) {
-    try {
-      Scene scene = sequenceBindingColumnContainer.getScene();
-      Stage stage = new Stage(StageStyle.TRANSPARENT);
-      FXMLLoader loader = new FXMLLoader(sequenceBindingItemCreationFxml.getURL());
-      loader.setControllerFactory(ac::getBean);
-      Parent root = loader.load();
-      // Apply a blur effect
-      ColorAdjust darken = new ColorAdjust();
-      darken.setBrightness(-0.5);
-      scene.getRoot().setEffect(darken);
-      SequenceBindingItemCreationController creationController = loader.getController();
-      creationController.setup(programId, this::createSequenceBinding);
-      stage.setOnShown(event -> creationController.sequenceSearch.show());
-      stage.setScene(new Scene(root));
-      stage.initOwner(themeService.getMainScene().getWindow());
-      stage.show();
-      closeWindowOnClickingAway(stage, null);
-      stage.setX(scene.getWindow().getX() + sceneX - stage.getWidth() / 2);
-      stage.setY(scene.getWindow().getY() + sceneY - stage.getHeight() / 2);
-      //remove the background blur
-      stage.setOnHidden(e -> scene.getRoot().setEffect(null));
-    } catch (IOException e) {
-      LOG.error("Error opening Sequence Search window!\n{}", StringUtils.formatStackTrace(e), e);
-    }
-  }
+  /**
+   Create a new sequence binding.
 
+   @param sequenceId which to bind
+   */
   private void createSequenceBinding(UUID sequenceId) {
     ProgramSequenceBinding binding = new ProgramSequenceBinding();
     binding.setId(UUID.randomUUID());
@@ -138,10 +142,5 @@ public class SequenceBindingColumnController {
     binding.setProgramSequenceId(sequenceId);
     projectService.update(binding);
     addProgramSequenceBindingItem(binding);
-  }
-
-  @FXML
-  protected void handlePressedAddSequenceBinding(MouseEvent e) {
-    showSequenceBindingItemCreationUI(programId, e.getSceneX(), e.getSceneY());
   }
 }
