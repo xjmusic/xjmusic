@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class ProgramEditorBindController extends ProjectController {
-  static final Logger LOG = LoggerFactory.getLogger(ProgramEditorBindController.class);
+public class ProgramEditorModeBindController extends ProjectController {
+  static final Logger LOG = LoggerFactory.getLogger(ProgramEditorModeBindController.class);
   private final Resource sequenceBindingColumnFxml;
   private final List<SequenceBindingColumnController> sequenceBindingColumnControllers = new ArrayList<>();
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>();
@@ -47,8 +47,8 @@ public class ProgramEditorBindController extends ProjectController {
    @param uiStateService common UI state service
    @param projectService common project service
    */
-  protected ProgramEditorBindController(
-    @Value("classpath:/views/content/program/program-editor-bind.fxml") Resource fxml,
+  protected ProgramEditorModeBindController(
+    @Value("classpath:/views/content/program/program-editor-mode-bind.fxml") Resource fxml,
     @Value("classpath:/views/content/program/sequence-binding-column.fxml") Resource sequenceBindingColumnFxml,
     ApplicationContext ac,
     ThemeService themeService,

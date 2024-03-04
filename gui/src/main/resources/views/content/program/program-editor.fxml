@@ -104,11 +104,7 @@
         </HBox>
     </HBox>
     <ScrollPane fitToHeight="true" VBox.vgrow="ALWAYS" styleClass="content-scroll-pane">
-        <fx:include source="program-editor-edit.fxml"/>
-        <fx:include source="program-editor-bind.fxml"/>
+        <fx:include source="program-editor-mode-edit.fxml"/>
+        <fx:include source="program-editor-mode-bind.fxml"/>
     </ScrollPane>
-    <padding>
-        <Insets top="5.0"/>
-    </padding>
-
 </VBox>

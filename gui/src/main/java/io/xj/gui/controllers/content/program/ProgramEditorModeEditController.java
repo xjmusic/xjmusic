@@ -6,6 +6,8 @@ import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.fxml.FXML;
+import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,9 +18,12 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 @Service
-public class ProgramEditorEditController extends ProjectController {
-  static final Logger LOG = LoggerFactory.getLogger(ProgramEditorEditController.class);
+public class ProgramEditorModeEditController extends ProjectController {
+  static final Logger LOG = LoggerFactory.getLogger(ProgramEditorModeEditController.class);
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>();
+
+  @FXML
+  VBox container;
 
   /**
    Program Edit Bind-mode Controller
@@ -29,8 +34,8 @@ public class ProgramEditorEditController extends ProjectController {
    @param uiStateService common UI state service
    @param projectService common project service
    */
-  protected ProgramEditorEditController(
-    @Value("classpath:/views/content/program/program-editor-edit.fxml") Resource fxml,
+  protected ProgramEditorModeEditController(
+    @Value("classpath:/views/content/program/program-editor-mode-edit.fxml") Resource fxml,
     ApplicationContext ac,
     ThemeService themeService,
     UIStateService uiStateService,
@@ -41,7 +46,8 @@ public class ProgramEditorEditController extends ProjectController {
 
   @Override
   public void onStageReady() {
-    // FUTURE: setup edit mode
+    container.visibleProperty().bind(uiStateService.programEditorBindModeProperty());
+    container.managedProperty().bind(uiStateService.programEditorBindModeProperty());
   }
 
   @Override

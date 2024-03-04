@@ -105,8 +105,8 @@ public class ProgramEditorController extends ProjectController {
   private final SimpleStringProperty sequencePropertyKey = new SimpleStringProperty("");
   private final BooleanProperty programHasSequences = new SimpleBooleanProperty();
   private final CmdModalController cmdModalController;
-  private final ProgramEditorEditController editController;
-  private final ProgramEditorBindController bindController;
+  private final ProgramEditorModeEditController editController;
+  private final ProgramEditorModeBindController bindController;
 
   @FXML
   public Spinner<Double> tempoChooser;
@@ -194,8 +194,8 @@ public class ProgramEditorController extends ProjectController {
     ProjectService projectService,
     UIStateService uiStateService,
     CmdModalController cmdModalController,
-    ProgramEditorEditController editController,
-    ProgramEditorBindController bindController
+    ProgramEditorModeEditController editController,
+    ProgramEditorModeBindController bindController
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.configFxml = configFxml;

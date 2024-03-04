@@ -2,6 +2,6 @@
 
 <?import javafx.scene.layout.VBox?>
 <VBox fx:id="container" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramEditorController">
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramEditorModeEditController">
   <!-- FUTURE: program editor bind mode -->
 </VBox>
