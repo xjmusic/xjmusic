@@ -93,7 +93,7 @@
             <Label minWidth="70" text="INTENSITY" styleClass="program-editor-field-label"/>
             <Spinner minWidth="90.0" fx:id="sequenceIntensityChooser" editable="true"/>
         </HBox>
-        <Label fx:id="noSequenceLabel" text="NO SEQUENCES"/>
+        <Label fx:id="noSequencesLabel" text="NO SEQUENCES"/>
         <HBox fx:id="timelineOptionsGroup" alignment="CENTER_LEFT">
             <Label minWidth="35.0" text="GRID" styleClass="program-editor-field-label"/>
             <ComboBox fx:id="gridChooser" minWidth="80.0"/>
@@ -104,23 +104,8 @@
         </HBox>
     </HBox>
     <ScrollPane fitToHeight="true" VBox.vgrow="ALWAYS" styleClass="content-scroll-pane">
-        <HBox fx:id="bindingModeContainer">
-            <VBox>
-                <Label styleClass="bind-mode-label" text="OFFSET"
-                       minHeight="20" maxHeight="20"
-                       HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                <Label alignment="CENTER" contentDisplay="RIGHT" styleClass="sequence-memes-label"
-                       text="SEQUENCES + MEMES"
-                       textAlignment="CENTER" textFill="GREY" wrapText="true" VBox.vgrow="ALWAYS">
-                    <padding>
-                        <Insets left="5.0" right="5.0"/>
-                    </padding>
-                </Label>
-            </VBox>
-            <HBox fx:id="sequenceBindingsContainer">
-                <!-- binding columns will be added here -->
-            </HBox>
-        </HBox>
+        <fx:include source="program-editor-edit.fxml"/>
+        <fx:include source="program-editor-bind.fxml"/>
     </ScrollPane>
     <padding>
         <Insets top="5.0"/>

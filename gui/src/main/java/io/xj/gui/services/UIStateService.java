@@ -8,6 +8,7 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.work.FabricationState;
 import javafx.beans.binding.BooleanBinding;
@@ -273,4 +274,19 @@ public interface UIStateService extends ReadyAfterBoot {
    Workstation lab features are hidden until enabled in secret menu https://www.pivotaltracker.com/story/show/187023709
    */
   BooleanProperty isLabFeatureEnabledProperty();
+
+  /**
+   @return property whether the program editor is in edit mode
+   */
+  BooleanProperty programEditorEditModeProperty();
+
+  /**
+   @return property whether the program editor is in bind mode
+   */
+  BooleanProperty programEditorBindModeProperty();
+
+  /**
+   * @return property program editor current program serquence
+   */
+  ObjectProperty<ProgramSequence> currentProgramSequenceProperty();
 }

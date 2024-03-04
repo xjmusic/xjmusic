@@ -13,6 +13,7 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.ControlMode;
 import io.xj.nexus.project.ProjectState;
@@ -87,6 +88,9 @@ public class UIStateServiceImpl implements UIStateService {
   private final BooleanBinding isLibraryContentBrowser;
 
   private final String defaultIsLabFeatureEnabled;
+  private final BooleanProperty programEditorEditMode = new SimpleBooleanProperty(false);
+  private final BooleanProperty programEditorBindMode = new SimpleBooleanProperty(false);
+  private final ObjectProperty<ProgramSequence> currentProgramSequence = new SimpleObjectProperty<>();
 
   public UIStateServiceImpl(
       FabricationService fabricationService,
@@ -524,6 +528,21 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public BooleanProperty isLabFeatureEnabledProperty() {
     return isLabFeatureEnabled;
+  }
+
+  @Override
+  public BooleanProperty programEditorEditModeProperty() {
+    return programEditorEditMode;
+  }
+
+  @Override
+  public BooleanProperty programEditorBindModeProperty() {
+    return programEditorBindMode;
+  }
+
+  @Override
+  public ObjectProperty<ProgramSequence> currentProgramSequenceProperty() {
+    return currentProgramSequence;
   }
 
   /**

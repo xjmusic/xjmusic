@@ -14,12 +14,13 @@ import io.xj.gui.utils.UiUtils;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.ProgramSequence;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.util.StringUtils;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.FloatProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -52,9 +53,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -65,16 +64,15 @@ import static io.xj.gui.services.UIStateService.OPEN_PSEUDO_CLASS;
 
 @Service
 public class ProgramEditorController extends ProjectController {
+  static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
   private static final String DEFAULT_GRID_VALUE = "1/4";
   private static final String DEFAULT_ZOOM_VALUE = "25%";
   private static final Set<ProgramType> PROGRAM_TYPES_WITH_BINDINGS = Set.of(ProgramType.Main, ProgramType.Macro);
   private final Resource configFxml;
   private final Resource sequenceSelectorFxml;
   private final Resource sequenceManagementFxml;
-  private final Resource sequenceBindingColumnFxml;
   private final Resource entityMemesFxml;
 
-  static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
   private final ObjectProperty<UUID> sequenceId = new SimpleObjectProperty<>();
   private final StringProperty programName = new SimpleStringProperty("");
@@ -105,10 +103,10 @@ public class ProgramEditorController extends ProjectController {
     FXCollections.observableArrayList(Arrays.asList("5%", "10%", "25%", "50%", "100%", "200%", "300%", "400%"));
   protected final SimpleStringProperty sequencePropertyName = new SimpleStringProperty("");
   private final SimpleStringProperty sequencePropertyKey = new SimpleStringProperty("");
+  private final BooleanProperty programHasSequences = new SimpleBooleanProperty();
   private final CmdModalController cmdModalController;
-  protected final ObjectProperty<ProgramSequence> currentProgramSequence = new SimpleObjectProperty<>();
-  protected ObservableList<ProgramSequence> programSequenceObservableList = FXCollections.observableArrayList();
-  private final List<SequenceBindingColumnController> sequenceBindingColumnControllers = new ArrayList<>();
+  private final ProgramEditorEditController editController;
+  private final ProgramEditorBindController bindController;
 
   @FXML
   public Spinner<Double> tempoChooser;
@@ -171,19 +169,13 @@ public class ProgramEditorController extends ProjectController {
   public Button sequenceSelectorLauncher;
 
   @FXML
-  public HBox bindingModeContainer;
-
-  @FXML
-  public HBox sequenceBindingsContainer;
-
-  @FXML
   public HBox timelineOptionsGroup;
 
   @FXML
   public HBox currentSequenceGroup;
 
   @FXML
-  public Label noSequenceLabel;
+  public Label noSequencesLabel;
 
   @FXML
   protected VBox container;
@@ -192,39 +184,41 @@ public class ProgramEditorController extends ProjectController {
   protected TextField fieldName;
 
   public ProgramEditorController(
+    @Value("classpath:/views/content/program/program-editor.fxml") Resource fxml,
     @Value("classpath:/views/content/program/program-config.fxml") Resource configFxml,
     @Value("classpath:/views/content/program/sequence-selector.fxml") Resource sequenceSelectorFxml,
     @Value("classpath:/views/content/program/sequence-management.fxml") Resource sequenceManagementFxml,
-    @Value("classpath:/views/content/program/sequence-binding-column.fxml") Resource sequenceBindingColumnFxml,
     @Value("classpath:/views/content/common/entity-memes.fxml") Resource entityMemesFxml,
-    @Value("classpath:/views/content/program/program-editor.fxml") Resource fxml,
     ApplicationContext ac,
     ThemeService themeService,
     ProjectService projectService,
     UIStateService uiStateService,
-    CmdModalController cmdModalController
+    CmdModalController cmdModalController,
+    ProgramEditorEditController editController,
+    ProgramEditorBindController bindController
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.configFxml = configFxml;
     this.sequenceSelectorFxml = sequenceSelectorFxml;
     this.sequenceManagementFxml = sequenceManagementFxml;
-    this.sequenceBindingColumnFxml = sequenceBindingColumnFxml;
     this.entityMemesFxml = entityMemesFxml;
     this.cmdModalController = cmdModalController;
+    this.editController = editController;
+    this.bindController = bindController;
   }
 
   @Override
   public void onStageReady() {
-    bindingModeContainer.visibleProperty().bind(bindButton.selectedProperty());
-    bindingModeContainer.managedProperty().bind(bindButton.selectedProperty());
+    editController.onStageReady();
+    bindController.onStageReady();
+
     var visible = projectService.isStateReadyProperty()
       .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
       .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramEditor));
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.ProgramEditor))
-        setupProgram();
+        setup();
     });
-    editButton.setSelected(true);
     editorModeToggleGroup.selectToggle(editButton);
     typeChooser.setItems(programTypes);
     stateChooser.setItems(programStates);
@@ -260,15 +254,30 @@ public class ProgramEditorController extends ProjectController {
     sequenceTotalValueFactory.valueProperty().addListener((observable, oldValue, newValue) -> sequenceTotalIntegerValue.set(newValue));
     sequenceTotalChooser.setValueFactory(sequenceTotalValueFactory);
 
+    // Whether the current program has sequences
+    uiStateService.currentProgramProperty().addListener((o, ov, value) -> {
+      if (value != null) {
+        programHasSequences.set(!projectService.getContent().getSequencesOfProgram(value.getId()).isEmpty());
+      }
+    });
+    projectService.addProjectUpdateListener(ProgramSequence.class, () -> {
+      if (uiStateService.currentProgramProperty().get() != null) {
+        programHasSequences.set(!projectService.getContent().getSequencesOfProgram(uiStateService.currentProgramProperty().get().getId()).isEmpty());
+      } else {
+        programHasSequences.set(false);
+      }
+    });
+
     // Bind the Chooser's value to the ObjectProperty
     tempo.bind(Bindings.createFloatBinding(() -> tempoDoubleValue.get().floatValue(), tempoDoubleValue));
     // Update the ObjectProperty when the Chooser value changes
     tempoChooser.valueProperty().addListener((observable, oldValue, newValue) -> tempoDoubleValue.set(newValue));
     tempoChooser.setValueFactory(tempoValueFactory);
-    currentSequenceGroup.visibleProperty().bind(currentProgramSequence.isNotNull());
-    currentSequenceGroup.managedProperty().bind(currentProgramSequence.isNotNull());
-    noSequenceLabel.visibleProperty().bind(currentProgramSequence.isNull());
-    noSequenceLabel.managedProperty().bind(currentProgramSequence.isNull());
+    currentSequenceGroup.visibleProperty().bind(uiStateService.currentProgramSequenceProperty().isNotNull());
+    currentSequenceGroup.managedProperty().bind(uiStateService.currentProgramSequenceProperty().isNotNull());
+    noSequencesLabel.visibleProperty().bind(programHasSequences);
+    noSequencesLabel.managedProperty().bind(programHasSequences);
+    sequenceSelectorLauncher.disableProperty().bind(programHasSequences.not());
 
     // Fields lose focus on Enter key press
     UiUtils.transferFocusOnEnterKeyPress(programNameField);
@@ -282,7 +291,7 @@ public class ProgramEditorController extends ProjectController {
     sequenceNameField.focusedProperty().addListener((o, ov, focused) -> {
       try {
         if (!focused) {
-          projectService.update(ProgramSequence.class, currentProgramSequence.get().getId(), "name",
+          projectService.update(ProgramSequence.class, uiStateService.currentProgramSequenceProperty().get().getId(), "name",
             sequenceNameField.textProperty().get());
         }
       } catch (Exception e) {
@@ -294,7 +303,7 @@ public class ProgramEditorController extends ProjectController {
       try {
         if (!focused) {
           sequenceTotalValueFactory.setValue(sequenceTotalChooser.getValue());
-          projectService.update(ProgramSequence.class, currentProgramSequence.get().getId(), "total",
+          projectService.update(ProgramSequence.class, uiStateService.currentProgramSequenceProperty().get().getId(), "total",
             sequenceTotalValueFactory.getValue());
         }
       } catch (Exception e) {
@@ -305,7 +314,7 @@ public class ProgramEditorController extends ProjectController {
     sequenceKeyField.focusedProperty().addListener((o, ov, focused) -> {
       try {
         if (!focused) {
-          projectService.update(ProgramSequence.class, currentProgramSequence.get().getId(), "key",
+          projectService.update(ProgramSequence.class, uiStateService.currentProgramSequenceProperty().get().getId(), "key",
             sequencePropertyKey.get());
         }
       } catch (Exception e) {
@@ -313,22 +322,23 @@ public class ProgramEditorController extends ProjectController {
       }
     });
 
-    currentProgramSequence.addListener((observable, oldValue, newValue) -> {
+    uiStateService.currentProgramSequenceProperty().addListener((observable, oldValue, newValue) -> {
       if (newValue != null) {
-        sequenceId.set(currentProgramSequence.get().getId());
-        sequencePropertyName.set(currentProgramSequence.get().getName());
-        sequencePropertyKey.set(currentProgramSequence.get().getKey());
-        sequenceTotalValueFactory.setValue(currentProgramSequence.get().getTotal().intValue());
-        sequenceIntensityValueFactory.setValue(Double.valueOf(currentProgramSequence.get().getIntensity()));
+        sequenceId.set(uiStateService.currentProgramSequenceProperty().get().getId());
+        sequencePropertyName.set(uiStateService.currentProgramSequenceProperty().get().getName());
+        sequencePropertyKey.set(uiStateService.currentProgramSequenceProperty().get().getKey());
+        sequenceTotalValueFactory.setValue(uiStateService.currentProgramSequenceProperty().get().getTotal().intValue());
+        sequenceIntensityValueFactory.setValue(Double.valueOf(uiStateService.currentProgramSequenceProperty().get().getIntensity()));
       }
     });
 
-    projectService.addProjectUpdateListener(ProgramSequenceBinding.class, this::addOrRemoveSequenceBindingColumnsAsNeeded);
-
+    editButton.selectedProperty().bindBidirectional(uiStateService.programEditorEditModeProperty());
     editButton.disableProperty().bind(type.isEqualTo(ProgramType.Macro));
+
+    bindButton.selectedProperty().bindBidirectional(uiStateService.programEditorBindModeProperty());
     bindButton.disableProperty().bind(Bindings.createBooleanBinding(() -> !PROGRAM_TYPES_WITH_BINDINGS.contains(type.get()), type));
 
-    timelineOptionsGroup.visibleProperty().bind(editButton.selectedProperty().and(currentProgramSequence.isNotNull()));
+    timelineOptionsGroup.visibleProperty().bind(editButton.selectedProperty().and(uiStateService.currentProgramSequenceProperty().isNotNull()));
 
     UiUtils.toggleGroupPreventDeselect(editorModeToggleGroup);
   }
@@ -342,7 +352,7 @@ public class ProgramEditorController extends ProjectController {
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       SequenceSelectorController controller = loader.getController();
-      controller.setup(programId.get(), (sequenceId) -> currentProgramSequence.set(projectService.getContent().getProgramSequence(sequenceId).orElse(null)));
+      controller.setup(programId.get(), (sequenceId) -> uiStateService.currentProgramSequenceProperty().set(projectService.getContent().getProgramSequence(sequenceId).orElse(null)));
       stage.setScene(new Scene(root));
       stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
@@ -364,7 +374,7 @@ public class ProgramEditorController extends ProjectController {
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       SequenceManagementController controller = loader.getController();
-      controller.setup(currentProgramSequence.get(), stage);
+      controller.setup(programId.get(), stage);
       stage.setScene(new Scene(root));
       stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
@@ -413,7 +423,8 @@ public class ProgramEditorController extends ProjectController {
 
   @Override
   public void onStageClose() {
-    // FUTURE: on stage close
+    editController.onStageClose();
+    bindController.onStageClose();
     LOG.info("Closed Program Editor");
   }
 
@@ -452,7 +463,7 @@ public class ProgramEditorController extends ProjectController {
   /**
    Update the Program Editor with the current Program.
    */
-  private void setupProgram() {
+  private void setup() {
     if (Objects.isNull(uiStateService.currentProgramProperty().get()))
       return;
     var program = projectService.getContent().getProgram(uiStateService.currentProgramProperty().get().getId())
@@ -467,18 +478,17 @@ public class ProgramEditorController extends ProjectController {
 
     List<ProgramSequence> programSequences = projectService.getContent().getSequencesOfProgram(programId.get()).stream()
       .sorted(Comparator.comparing(ProgramSequence::getName)).toList();
-    programSequenceObservableList.setAll(programSequences);
     if (!programSequences.isEmpty()) {
-      currentProgramSequence.set(programSequences.get(0));
+      uiStateService.currentProgramSequenceProperty().set(programSequences.get(0));
     } else {
-      currentProgramSequence.set(null);
+      uiStateService.currentProgramSequenceProperty().set(null);
     }
 
     gridChooser.setValue(DEFAULT_GRID_VALUE);
     zoomChooser.setValue(DEFAULT_ZOOM_VALUE);
 
     // When the program editor opens, if the program is a Macro-type, show the binding mode view, else always start on the Edit mode view
-    if (program.getType().equals(ProgramType.Macro)) {
+    if (Objects.equals(program.getType(), ProgramType.Macro)) {
       bindButton.setSelected(true);
       editorModeToggleGroup.selectToggle(bindButton);
     } else {
@@ -487,7 +497,8 @@ public class ProgramEditorController extends ProjectController {
     }
 
     setupProgramMemeContainer();
-    setupSequenceBindingView();
+    bindController.setup(programId.get());
+    editController.setup(programId.get());
   }
 
   /**
@@ -518,79 +529,9 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   Set up the Sequence Binding View
-   */
-  private void setupSequenceBindingView() {
-    // clear first before adding to prevent duplicates -- teardown controllers first
-    for (SequenceBindingColumnController controller : sequenceBindingColumnControllers) controller.teardown();
-    sequenceBindingColumnControllers.clear();
-    sequenceBindingsContainer.getChildren().clear();
-
-    addOrRemoveSequenceBindingColumnsAsNeeded();
-  }
-
-  /**
-   find the highest offset in the current sequenceBindingsOfProgram group and create the offset holders  with an extra button
-   if sequence bindings number is zero, add the two buttons that appear when empty
-   */
-  private void addOrRemoveSequenceBindingColumnsAsNeeded() {
-    Collection<ProgramSequenceBinding> bindings = projectService.getContent().getSequenceBindingsOfProgram(programId.get());
-
-    int highestOffset = bindings.stream().map(ProgramSequenceBinding::getOffset).max(Integer::compareTo).orElse(-1);
-    for (int i = 0; i <= highestOffset + 1; i++) {
-      addSequenceBindingColumnIfNotPresent(i);
-    }
-
-    while (sequenceBindingColumnControllers.size() > highestOffset + 2) {
-      sequenceBindingColumnControllers.remove(sequenceBindingColumnControllers.size() - 1).teardown();
-      sequenceBindingsContainer.getChildren().remove(sequenceBindingsContainer.getChildren().size() - 1);
-    }
-  }
-
-  /**
-   Add a sequence binding column if it doesn't already exist
-
-   @param offset the offset of the sequence binding column
-   */
-  private void addSequenceBindingColumnIfNotPresent(int offset) {
-    try {
-      // skip if we already have a column at this offset
-      if (sequenceBindingColumnControllers.size() > offset) return;
-
-      FXMLLoader loader = new FXMLLoader(sequenceBindingColumnFxml.getURL());
-      loader.setControllerFactory(ac::getBean);
-      Parent root = loader.load();
-      sequenceBindingsContainer.getChildren().add(root);
-      SequenceBindingColumnController controller = loader.getController();
-      sequenceBindingColumnControllers.add(offset, controller);
-      controller.setup(offset, programId.get());
-    } catch (IOException e) {
-      LOG.error("Error loading Sequence Selector view!\n{}", StringUtils.formatStackTrace(e), e);
-    }
-  }
-
-  /**
    @return the current program ID
    */
   public UUID getProgramId() {
     return programId.get();
-  }
-
-  /**
-   Set the current sequence id
-
-   @param sequenceId to set
-   */
-  public void setSequenceId(UUID sequenceId) {
-    this.sequenceId.set(sequenceId);
-  }
-
-  /**
-   Set the current sequence total
-
-   @param sequenceTotal to set
-   */
-  public void setSequenceTotal(Integer sequenceTotal) {
-    sequenceTotalValueFactory.setValue(sequenceTotal);
   }
 }

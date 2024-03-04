@@ -1,7 +1,10 @@
 package io.xj.gui.controllers.content.program;
 
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.ProgramSequence;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
@@ -9,31 +12,42 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
+import java.util.Objects;
+import java.util.UUID;
+
 @Component
 public class SequenceManagementController {
+  private final Logger LOG = LoggerFactory.getLogger(SequenceManagementController.class);
+  private final ProjectService projectService;
+  private final UIStateService uiStateService;
+  private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>();
+
+  private Stage stage;
+
   @FXML
   public Button newSequence;
+
   @FXML
   public Button deleteButton;
+
   @FXML
   public Button cloneButton;
 
-  private final ProjectService projectService;
-
-  private final ProgramEditorController programEditorController;
-
-  private ProgramSequence programSequence;
-  private Stage stage;
-  private final Logger LOG = LoggerFactory.getLogger(SequenceManagementController.class);
-
-  public SequenceManagementController(ProjectService projectService, ProgramEditorController programEditorController) {
+  public SequenceManagementController(
+    ProjectService projectService,
+    UIStateService uiStateService
+  ) {
     this.projectService = projectService;
-    this.programEditorController = programEditorController;
+    this.uiStateService = uiStateService;
   }
 
-  public void setup(ProgramSequence programSequence, Stage stage) {
+  public void setup(
+    UUID programId,
+    Stage stage
+  ) {
     this.stage = stage;
-    this.programSequence = programSequence;
+    this.programId.set(programId);
     newSequence.setOnAction(e -> createNewSequence());
     cloneButton.setOnAction(e -> cloneSequence());
     deleteButton.setOnAction(e -> deleteSequence());
@@ -45,44 +59,38 @@ public class SequenceManagementController {
 
   private void createNewSequence() {
     try {
-      ProgramSequence newProgramSequence = projectService.createProgramSequence(programEditorController.getProgramId());
-      programEditorController.programSequenceObservableList.add(newProgramSequence);
-      programEditorController.currentProgramSequence.set(newProgramSequence);
-      updateSequenceUI(newProgramSequence);
+      ProgramSequence newProgramSequence = projectService.createProgramSequence(programId.get());
+      uiStateService.currentProgramSequenceProperty().set(newProgramSequence);
       closeWindow();
     } catch (Exception e) {
       LOG.info("Failed to create new Sequence");
     }
   }
 
-
-  private void updateSequenceUI(ProgramSequence programSequence) {
-    programEditorController.setSequenceId(programSequence.getId());
-    programEditorController.sequencePropertyName.set(programSequence.getName());
-    programEditorController.setSequenceTotal(Integer.valueOf(programSequence.getTotal()));
-  }
-
-
   private void deleteSequence() {
+    var currentSequence = uiStateService.currentProgramSequenceProperty().get();
+    if (Objects.isNull(currentSequence)) return;
     try {
-      projectService.deleteContent(programSequence);
-      programEditorController.programSequenceObservableList.remove(programSequence);
-      if (programEditorController.programSequenceObservableList.size() > 0) {
-        programEditorController.currentProgramSequence.set(programEditorController.programSequenceObservableList.get(0));
-        updateSequenceUI(programEditorController.currentProgramSequence.get());
-      } else programEditorController.currentProgramSequence.set(null);
+      projectService.deleteContent(currentSequence);
+      var sequences = projectService.getContent().getSequencesOfProgram(programId.get()).stream()
+        .sorted(Comparator.comparing(ProgramSequence::getName)).toList();
+      if (sequences.size() > 0) {
+        uiStateService.currentProgramSequenceProperty().set(sequences.get(0));
+      } else {
+        uiStateService.currentProgramSequenceProperty().set(null);
+      }
       closeWindow();
     } catch (Exception e) {
-      LOG.info("Failed to delete sequence " + programSequence.getName());
+      LOG.info("Failed to delete sequence " + currentSequence.getName());
     }
   }
 
   private void cloneSequence() {
+    var currentSequence = uiStateService.currentProgramSequenceProperty().get();
+    if (Objects.isNull(currentSequence)) return;
     try {
-      ProgramSequence clonedProgramSequence = projectService.cloneProgramSequence(programSequence.getId(), "Clone of " + programEditorController.sequencePropertyName.get());
-      programEditorController.programSequenceObservableList.add(clonedProgramSequence);
-      programEditorController.currentProgramSequence.set(clonedProgramSequence);
-      updateSequenceUI(programEditorController.currentProgramSequence.get());
+      ProgramSequence clonedProgramSequence = projectService.cloneProgramSequence(currentSequence.getId(), "Clone of " + currentSequence.getName());
+      uiStateService.currentProgramSequenceProperty().set(clonedProgramSequence);
       closeWindow();
     } catch (Exception e) {
       LOG.info("Failed to clone sequence ");
