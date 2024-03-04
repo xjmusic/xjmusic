@@ -86,7 +86,7 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   public TextField programNameField;
   @FXML
-  public Button copyButton;
+  public Button duplicateButton;
   @FXML
   public ToggleGroup editorModeToggleGroup;
   @FXML
@@ -116,15 +116,13 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   public ComboBox<String> gridChooser;
   @FXML
-  public Label gridLabel;
-  @FXML
   public Button sequenceButton;
   @FXML
   public HBox bindViewParentContainer;
   @FXML
-  public Group gridAndZoomGroup;
+  public HBox gridAndZoomGroup;
   @FXML
-  public Group sequenceItemGroup;
+  public HBox sequenceItemGroup;
   @FXML
   public Label noSequenceLabel;
   @FXML

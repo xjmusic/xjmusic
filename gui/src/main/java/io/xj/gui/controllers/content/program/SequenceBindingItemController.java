@@ -9,6 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -34,7 +35,7 @@ public class SequenceBindingItemController {
   @FXML
   public Pane sequenceBindingMemeContainer;
 
-  public BorderPane mainBorderPane;
+  public AnchorPane mainBorderPane;
 
   @Value("classpath:/views/content/common/entity-memes.fxml")
   private Resource entityMemesFxml;
