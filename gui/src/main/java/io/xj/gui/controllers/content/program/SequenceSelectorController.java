@@ -3,6 +3,7 @@ package io.xj.gui.controllers.content.program;
 import io.xj.gui.services.ProjectService;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import jakarta.annotation.Nullable;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
@@ -60,8 +61,10 @@ public class SequenceSelectorController {
       }
     });
 
-    sequenceSearch.requestFocus();
-    sequenceSearch.show();
+    Platform.runLater(() -> {
+      sequenceSearch.requestFocus();
+      sequenceSearch.show();
+    });
   }
 
   /**
