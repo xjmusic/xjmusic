@@ -2,6 +2,7 @@ package io.xj.gui.controllers.content.program;
 
 import io.xj.gui.controllers.content.common.EntityMemesController;
 import io.xj.gui.services.ProjectService;
+import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.util.StringUtils;
 import javafx.fxml.FXML;
@@ -39,27 +40,50 @@ public class SequenceBindingItemController {
   private final ProjectService projectService;
   private ProgramSequenceBinding programSequenceBinding;
   private Runnable deleteSequenceBinding;
+  private Runnable unsubscribe; // unsubscribe from sequence listener
 
   public SequenceBindingItemController(
-      ApplicationContext ac,
-      ProjectService projectService
+    ApplicationContext ac,
+    ProjectService projectService
   ) {
     this.ac = ac;
     this.projectService = projectService;
   }
 
+  /**
+   Set up the controller with the program sequence binding
+
+   @param programSequenceBinding the program sequence binding
+   @param deleteSequenceBinding  the action to delete the sequence binding
+   */
   public void setup(
-      ProgramSequenceBinding programSequenceBinding,
-      Runnable deleteSequenceBinding
+    ProgramSequenceBinding programSequenceBinding,
+    Runnable deleteSequenceBinding
   ) {
     this.programSequenceBinding = programSequenceBinding;
     this.deleteSequenceBinding = deleteSequenceBinding;
 
-    var sequence = projectService.getContent().getProgramSequence(programSequenceBinding.getProgramSequenceId())
-        .orElseThrow(() -> new RuntimeException("Could not find sequence for sequence binding!"));
-    sequenceName.setText(sequence.getName());
+    setupSequenceName();
+
+    unsubscribe = projectService.addProjectUpdateListener(ProgramSequence.class, this::setupSequenceName);
 
     setupSequenceBindingMemeContainer();
+  }
+
+  /**
+   Called before this controller is removed from the stage
+   */
+  public void teardown() {
+    unsubscribe.run();
+  }
+
+  /**
+   Set up the sequence name
+   */
+  private void setupSequenceName() {
+    var sequence = projectService.getContent().getProgramSequence(programSequenceBinding.getProgramSequenceId())
+      .orElseThrow(() -> new RuntimeException("Could not find sequence for sequence binding!"));
+    sequenceName.setText(sequence.getName());
   }
 
   @FXML
@@ -79,16 +103,16 @@ public class SequenceBindingItemController {
       sequenceBindingMemeContainer.getChildren().add(root);
       EntityMemesController entityMemesController = loader.getController();
       entityMemesController.setup(
-          false,
-          () -> projectService.getContent().getMemesOfSequenceBinding(programSequenceBinding),
-          () -> projectService.createProgramSequenceBindingMeme(programSequenceBinding.getId()),
-          (Object meme) -> {
-            try {
-              projectService.update(meme);
-            } catch (Exception e) {
-              throw new RuntimeException(e);
-            }
+        false,
+        () -> projectService.getContent().getMemesOfSequenceBinding(programSequenceBinding),
+        () -> projectService.createProgramSequenceBindingMeme(programSequenceBinding.getId()),
+        (Object meme) -> {
+          try {
+            projectService.update(meme);
+          } catch (Exception e) {
+            throw new RuntimeException(e);
           }
+        }
       );
     } catch (IOException e) {
       LOG.error("Error loading Entity Memes window!\n{}", StringUtils.formatStackTrace(e), e);

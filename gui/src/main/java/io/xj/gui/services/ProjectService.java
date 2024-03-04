@@ -157,8 +157,9 @@ public interface ProjectService {
 
    @param type     the type of update to listen for
    @param listener the listener to attach
+   @return runnable to unsubscribe, should be run when the listening component is tearing itself down
    */
-  <N extends Serializable> void addProjectUpdateListener(Class<N> type, Runnable listener);
+  <N extends Serializable> Runnable addProjectUpdateListener(Class<N> type, Runnable listener);
 
   /**
    Notify all listeners of a project update

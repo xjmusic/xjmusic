@@ -24,6 +24,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.UUID;
 
 import static io.xj.gui.services.UIStateService.OPEN_PSEUDO_CLASS;
@@ -39,6 +41,8 @@ public class SequenceBindingColumnController {
   private final Resource sequenceSelectorFxml;
   private UUID programId;
   private int offset;
+  private final Collection<SequenceBindingItemController> sequenceBindingItemControllers = new HashSet<>();
+
   @FXML
   public VBox sequenceBindingColumnContainer;
 
@@ -82,6 +86,15 @@ public class SequenceBindingColumnController {
     }
   }
 
+  /**
+   Called before this controller is removed from the stage
+   */
+  public void teardown() {
+    for (SequenceBindingItemController controller : sequenceBindingItemControllers)
+      controller.teardown();
+    sequenceBindingItemControllers.clear();
+  }
+
   @FXML
   protected void handlePressedAddSequenceBinding() {
     try {
@@ -114,11 +127,12 @@ public class SequenceBindingColumnController {
       FXMLLoader loader = new FXMLLoader(sequenceBindingItemFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      SequenceBindingItemController sequenceBindingItemController = loader.getController();
-      sequenceBindingItemController.setup(programSequenceBinding, () -> {
+      SequenceBindingItemController controller = loader.getController();
+      controller.setup(programSequenceBinding, () -> {
         if (!projectService.getContent().getMemesOfSequenceBinding(programSequenceBinding.getId()).isEmpty()) {
           projectService.showWarningAlert("Failure", "Found Meme on Sequence Binding", "Cannot delete sequence binding because it contains a meme.");
         } else {
+          controller.teardown();
           sequenceBindingColumnContentContainer.getChildren().remove(root);
           projectService.deleteContent(programSequenceBinding);
         }

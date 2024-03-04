@@ -42,7 +42,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -58,6 +57,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -171,6 +171,7 @@ public class ProgramEditorController extends ProjectController {
   private final CmdModalController cmdModalController;
   protected final ObjectProperty<ProgramSequence> currentProgramSequence = new SimpleObjectProperty<>();
   protected ObservableList<ProgramSequence> programSequenceObservableList = FXCollections.observableArrayList();
+  private final Collection<SequenceBindingColumnController> sequenceBindingColumnControllers = new HashSet<>();
 
   public ProgramEditorController(
     @Value("classpath:/views/content/program/program-editor.fxml") Resource fxml,
@@ -498,8 +499,12 @@ public class ProgramEditorController extends ProjectController {
    */
   private void setupSequenceBindingView() {
     Collection<ProgramSequenceBinding> bindings = projectService.getContent().getSequenceBindingsOfProgram(programId.get());
-    //clear first before adding to prevent duplicates
+
+    // clear first before adding to prevent duplicates -- teardown controllers first
+    for (SequenceBindingColumnController controller : sequenceBindingColumnControllers) controller.teardown();
+    sequenceBindingColumnControllers.clear();
     sequenceBindingsContainer.getChildren().clear();
+
     // find the highest offset in the current sequenceBindingsOfProgram group and create the offset holders  with an extra button
     // if sequence bindings number is zero, add the two buttons that appear when empty
     int highestOffset = bindings.stream().map(ProgramSequenceBinding::getOffset).max(Integer::compareTo).orElse(-1);
@@ -514,9 +519,9 @@ public class ProgramEditorController extends ProjectController {
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       sequenceBindingsContainer.getChildren().add(root);
-      SequenceBindingColumnController sequenceSelector = loader.getController();
-      sequenceSelector.setup(offset, programId.get());
-      HBox.setHgrow(root, Priority.ALWAYS);
+      SequenceBindingColumnController controller = loader.getController();
+      sequenceBindingColumnControllers.add(controller);
+      controller.setup(offset, programId.get());
     } catch (IOException e) {
       LOG.error("Error loading Sequence Selector view!\n{}", StringUtils.formatStackTrace(e), e);
     }

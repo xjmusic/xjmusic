@@ -339,9 +339,10 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public <N extends Serializable> void addProjectUpdateListener(Class<N> type, Runnable listener) {
+  public <N extends Serializable> Runnable addProjectUpdateListener(Class<N> type, Runnable listener) {
     projectUpdateListeners.computeIfAbsent(type, k -> new HashSet<>());
     projectUpdateListeners.get(type).add(listener);
+    return () -> projectUpdateListeners.get(type).remove(listener);
   }
 
   @Override
