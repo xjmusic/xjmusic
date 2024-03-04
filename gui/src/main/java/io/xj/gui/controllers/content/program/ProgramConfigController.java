@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import static io.xj.gui.controllers.content.program.ProgramEditorController.closeWindowOnClickingAway;
+import static io.xj.gui.utils.WindowUtils.closeWindowOnClickingAway;
 
 @Component
 public class ProgramConfigController {

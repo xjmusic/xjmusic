@@ -17,19 +17,19 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.layout.Pane?>
 <VBox fx:id="container" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramEditorController">
 
     <VBox.vgrow>
         <Priority fx:constant="ALWAYS"/>
     </VBox.vgrow>
-    <HBox alignment="CENTER_LEFT" prefHeight="23.0" prefWidth="607.0" spacing="5.0">
-        <Button fx:id="configButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-                minWidth="-Infinity" mnemonicParsing="false" onAction="#handleEditConfig" prefHeight="30.0"
-                prefWidth="35.0" text=" ">
+    <HBox alignment="CENTER_LEFT" spacing="5.0">
+        <padding>
+            <Insets left="5.0"/>
+        </padding>
+        <Button fx:id="configButton" minWidth="20" mnemonicParsing="false" onAction="#handleEditConfig" text=" ">
             <graphic>
-                <ImageView fitHeight="23.0" fitWidth="23.0" translateX="-2.0">
+                <ImageView fitHeight="16.0" fitWidth="16.0" >
                     <Image url="@/icons/settings.png"/>
                 </ImageView>
             </graphic>
@@ -37,8 +37,10 @@
         <fx:define>
             <ToggleGroup fx:id="editorModeToggleGroup"/>
         </fx:define>
-        <ToggleButton fx:id="bindButton" toggleGroup="$editorModeToggleGroup" mnemonicParsing="false" minWidth="45" text="Bind"/>
-        <ToggleButton fx:id="editButton" toggleGroup="$editorModeToggleGroup" mnemonicParsing="false" minWidth="45" text="Edit"/>
+        <ToggleButton fx:id="bindButton" toggleGroup="$editorModeToggleGroup" mnemonicParsing="false" minWidth="45"
+                      text="Bind"/>
+        <ToggleButton fx:id="editButton" toggleGroup="$editorModeToggleGroup" mnemonicParsing="false" minWidth="45"
+                      text="Edit"/>
         <Button fx:id="copyButton" layoutX="85.0" layoutY="13.0" maxHeight="-Infinity" maxWidth="-Infinity"
                 minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#openCloneDialog"
                 prefHeight="30.0" prefWidth="35.0" text=" ">
@@ -75,11 +77,11 @@
         </Label>
         <Spinner fx:id="tempoChooser" editable="true" prefHeight="25.0" prefWidth="111.0"/>
     </HBox>
-    <Pane fx:id="programMemeContainer">
+    <StackPane fx:id="programMemeContainer">
         <HBox.hgrow>
             <Priority fx:constant="ALWAYS"/>
         </HBox.hgrow>
-    </Pane>
+    </StackPane>
     <HBox alignment="CENTER_LEFT" prefHeight="37.0" prefWidth="1231.0" spacing="5.0"
           styleClass="sequence-management-control-bar">
         <Group fx:id="gridAndZoomGroup">
@@ -189,20 +191,23 @@
             </Label>
         </Group>
     </HBox>
-    <ScrollPane fitToHeight="true" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0"
-                VBox.vgrow="ALWAYS">
+    <ScrollPane fitToHeight="true" VBox.vgrow="ALWAYS">
         <HBox fx:id="bindViewParentContainer" alignment="CENTER_LEFT">
-            <VBox fx:id="labelHolder" minWidth="-Infinity" prefHeight="312.0" prefWidth="106.0">
-                <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-                       prefHeight="17.0" prefWidth="107.0" styleClass="bind-mode-label" text="OFFSET"
-                       textFill="GREY" VBox.vgrow="ALWAYS">
+            <VBox>
+                <Label styleClass="bind-mode-label" text="OFFSET"
+                       textFill="GREY" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <padding>
+                        <Insets left="5.0" right="5.0"/>
+                    </padding>
                     <font>
                         <Font name="System Bold" size="12.0"/>
                     </font>
                 </Label>
-                <Label alignment="CENTER" contentDisplay="RIGHT" minWidth="-Infinity" prefHeight="37.0"
-                       prefWidth="72.0" styleClass="sequence-memes-label" text="SEQUENCES + MEMES"
+                <Label alignment="CENTER" contentDisplay="RIGHT"  styleClass="sequence-memes-label" text="SEQUENCES + MEMES"
                        textAlignment="CENTER" textFill="GREY" wrapText="true" VBox.vgrow="ALWAYS">
+                    <padding>
+                        <Insets left="5.0" right="5.0"/>
+                    </padding>
                     <font>
                         <Font name="System Bold" size="12.0"/>
                     </font>

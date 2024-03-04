@@ -4,29 +4,22 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
-<AnchorPane
+<HBox
         xmlns="http://javafx.com/javafx"
         xmlns:fx="http://javafx.com/fxml"
         fx:controller="io.xj.gui.controllers.content.common.EntityMemesController"
         focusTraversable="true"
         prefHeight="0"
-        maxHeight="Infinity"
-        maxWidth="Infinity"
         styleClass="entity-memes-container">
     <StackPane alignment="TOP_RIGHT"
                styleClass="entity-memes-label-container"
-               prefWidth="80"
-               AnchorPane.leftAnchor="0"
-               AnchorPane.topAnchor="0">
+               prefWidth="80">
         <Label text="MEMES"/>
     </StackPane>
-    <Button fx:id="addMemeButton" mnemonicParsing="false" onAction="#createMeme"
-            AnchorPane.leftAnchor="85"
-            AnchorPane.topAnchor="0">
+    <Button fx:id="addMemeButton" mnemonicParsing="false" onAction="#createMeme">
         <graphic>
             <ImageView fitHeight="16.0" fitWidth="16.0">
                 <Image url="@/icons/plus.png"/>
@@ -38,10 +31,6 @@
               prefHeight="0"
               vgap="5"
               hgap="8"
-              styleClass="meme-list-container"
-              AnchorPane.leftAnchor="110"
-              AnchorPane.rightAnchor="0"
-              AnchorPane.topAnchor="0"
-              AnchorPane.bottomAnchor="0">
+              styleClass="meme-list-container">
     </FlowPane>
-</AnchorPane>
+</HBox>

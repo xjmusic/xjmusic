@@ -10,6 +10,7 @@ import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.utils.WindowUtils;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.ProgramSequence;
@@ -31,7 +32,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -47,11 +47,9 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
@@ -78,7 +76,7 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   public Spinner<Double> tempoChooser;
   @FXML
-  public Pane programMemeContainer;
+  public StackPane programMemeContainer;
   @FXML
   public TextField keyField;
   @FXML
@@ -126,8 +124,6 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   public Group gridAndZoomGroup;
   @FXML
-  public VBox labelHolder;
-  @FXML
   public Group sequenceItemGroup;
   @FXML
   public Label noSequenceLabel;
@@ -145,8 +141,8 @@ public class ProgramEditorController extends ProjectController {
   @Value("classpath:/views/content/program/sequence-management.fxml")
   private Resource sequenceManagementFxml;
 
-  @Value("classpath:/views/content/program/sequence-selector.fxml")
-  private Resource sequenceHolderFxml;
+  @Value("classpath:/views/content/program/sequence-binding-column.fxml")
+  private Resource sequenceBindingColumnFxml;
 
   @Value("classpath:/views/content/program/sequence-binding-item.fxml")
   private Resource sequenceItemBindingFxml;
@@ -355,7 +351,7 @@ public class ProgramEditorController extends ProjectController {
       stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
       positionUIAtLocation(stage, event, 400, 28);
-      closeWindowOnClickingAway(stage);
+      WindowUtils.closeWindowOnClickingAway(stage);
     } catch (IOException e) {
       LOG.error("Error opening Sequence Search window!\n{}", StringUtils.formatStackTrace(e), e);
     }
@@ -374,7 +370,7 @@ public class ProgramEditorController extends ProjectController {
       stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
       positionUIAtLocation(stage, event, 450, 29);
-      closeWindowOnClickingAway(stage);
+      WindowUtils.closeWindowOnClickingAway(stage);
     } catch (IOException e) {
       LOG.error("Error opening Sequence Management window!\n{}", StringUtils.formatStackTrace(e), e);
     }
@@ -564,17 +560,6 @@ public class ProgramEditorController extends ProjectController {
     }
   }
 
-  /**
-   Closes the stage when clicking outside it (loses focus)
-   */
-  public static void closeWindowOnClickingAway(Stage window) {
-    window.focusedProperty().addListener((obs, oldValue, newValue) -> {
-      if (!newValue) {
-        window.close();
-      }
-    });
-  }
-
   private void loadBindingView() {
     bindButton.getStyleClass().add("selected");
     Collection<ProgramSequenceBinding> programSequenceBindingCollection = projectService.getContent().getSequenceBindingsOfProgram(programId.get());
@@ -583,12 +568,11 @@ public class ProgramEditorController extends ProjectController {
     bindViewParentContainer.getChildren().remove(1, bindViewParentContainer.getChildren().size());
     //if sequence bindings number is zero, add the two buttons that appear when empty
     if (sequenceBindingsOfProgram.isEmpty()) {
-      addBindingView(bindViewParentContainer.getChildren().size());
-      addBindingView(bindViewParentContainer.getChildren().size());
+      addSequenceBindingColumn(bindViewParentContainer.getChildren().size());
     } else {
       //find the highest offset in the current sequenceBindingsOfProgram group and create the offset holders  with an extra button
       for (int i = 1; i <= findHighestOffset(sequenceBindingsOfProgram) + 1; i++) {
-        addBindingView(i);
+        addSequenceBindingColumn(i);
       }
       //populate the sequence binding items on the respective items
       sequenceBindingsOfProgram.forEach(sequenceBindingOfProgram -> {
@@ -641,17 +625,17 @@ public class ProgramEditorController extends ProjectController {
 
   private void checkIfNextItemIsPresent(int position) {
     if (bindViewParentContainer.getChildren().size() - 1 < position + 1) {
-      addBindingView(position + 1);
+      addSequenceBindingColumn(position + 1);
     }
   }
 
-  protected void addBindingView(int position) {
+  protected void addSequenceBindingColumn(int position) {
     try {
-      FXMLLoader loader = new FXMLLoader(sequenceHolderFxml.getURL());
+      FXMLLoader loader = new FXMLLoader(sequenceBindingColumnFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       bindViewParentContainer.getChildren().add(position, root);
-      SequenceSelectorController sequenceSelector = loader.getController();
+      SequenceBindingColumnController sequenceSelector = loader.getController();
       sequenceSelector.setUp(bindViewParentContainer, position, programId.get());
       HBox.setHgrow(root, Priority.ALWAYS);
     } catch (IOException e) {

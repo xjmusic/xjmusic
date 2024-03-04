@@ -98,4 +98,15 @@ public interface WindowUtils {
     mainWindowFxmlLoader.setControllerFactory(ac::getBean);
     return new Scene(mainWindowFxmlLoader.load());
   }
+
+  /**
+   Closes the stage when clicking outside it (loses focus)
+   */
+  static void closeWindowOnClickingAway(Stage window) {
+    window.focusedProperty().addListener((obs, oldValue, newValue) -> {
+      if (!newValue) {
+        window.close();
+      }
+    });
+  }
 }

@@ -16,6 +16,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Screen;
@@ -44,10 +45,15 @@ public class SequenceBindingItemController {
   @FXML
   public Text sequenceName;
   @FXML
-  public HBox memeHolder;
+  public Pane memeHolder;
+
   public BorderPane mainBorderPane;
+
   @Value("classpath:/views/content/program/sequence-binding-meme-tag.fxml")
   private Resource memeTagFxml;
+
+  @Value("classpath:/views/content/common/entity-memes.fxml")
+  private Resource entityMemesFxml;
 
   static final Logger LOG = LoggerFactory.getLogger(SequenceBindingItemController.class);
   private int parentPosition;

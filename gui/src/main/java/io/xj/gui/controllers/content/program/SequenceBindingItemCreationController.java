@@ -34,7 +34,7 @@ public class SequenceBindingItemCreationController {
   public SearchableComboBox<ProgramSequence> sequenceSearch;
   private final Logger LOG = LoggerFactory.getLogger(SequenceSearchController.class);
   private final ProjectService projectService;
-  @Value("classpath:/views/content/program/sequence-selector.fxml")
+  @Value("classpath:/views/content/program/sequence-binding-column.fxml")
   private Resource sequenceHolderFxml;
   @Value("classpath:/views/content/program/sequence-binding-item.fxml")
   private Resource sequenceItemBindingFxml;
@@ -132,7 +132,7 @@ public class SequenceBindingItemCreationController {
       loader.setControllerFactory(applicationContext::getBean);
       Parent root = loader.load();
       bindViewParentContainer.getChildren().add(bindViewParentContainer.getChildren().size(), root);
-      SequenceSelectorController sequenceSelector = loader.getController();
+      SequenceBindingColumnController sequenceSelector = loader.getController();
       sequenceSelector.setUp(bindViewParentContainer, position, programEditorController.getProgramId());
       HBox.setHgrow(root, javafx.scene.layout.Priority.ALWAYS);
     } catch (IOException e) {
