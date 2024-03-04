@@ -71,7 +71,7 @@
             <Label minWidth="35.0" text="GRID" styleClass="program-editor-field-label"/>
             <ComboBox fx:id="gridChooser" minWidth="80.0"/>
             <Label minWidth="35.0" text="ZOOM" styleClass="program-editor-field-label"/>
-            <ComboBox fx:id="zoomChooser" minWidth="100.0"/>
+            <ComboBox fx:id="zoomChooser" minWidth="80.0"/>
         </HBox>
         <ToggleButton fx:id="snapButton" minWidth="45" mnemonicParsing="false" text="SNAP"
                       styleClass="program-editor-menu-button"/>
@@ -93,11 +93,11 @@
             </graphic>
         </Button>
         <HBox fx:id="currentSequenceGroup" alignment="CENTER_LEFT">
-            <TextField fx:id="sequenceName" minWidth="173.0"/>
+            <TextField fx:id="sequenceNameField" minWidth="173.0"/>
             <Label minWidth="50" text="TOTAL" styleClass="program-editor-field-label"/>
             <Spinner minWidth="90.0" fx:id="sequenceTotalChooser" editable="true"/>
             <Label minWidth="30" text="KEY" styleClass="program-editor-field-label"/>
-            <TextField minWidth="45" fx:id="sequenceKey" text=" "/>
+            <TextField minWidth="45" fx:id="sequenceKeyField"/>
             <Label minWidth="70" text="INTENSITY" styleClass="program-editor-field-label"/>
             <Spinner minWidth="90.0" fx:id="sequenceIntensityChooser" editable="true"/>
         </HBox>

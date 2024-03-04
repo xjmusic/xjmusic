@@ -18,11 +18,9 @@ import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.util.StringUtils;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.FloatProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -41,7 +39,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
@@ -58,15 +55,13 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.function.UnaryOperator;
 
-import static io.xj.gui.services.UIStateService.ACTIVE_PSEUDO_CLASS;
 import static io.xj.gui.services.UIStateService.OPEN_PSEUDO_CLASS;
 
 @Service
@@ -96,11 +91,11 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   public Spinner<Double> sequenceIntensityChooser;
   @FXML
-  public TextField sequenceKey;
+  public TextField sequenceKeyField;
   @FXML
   public Spinner<Integer> sequenceTotalChooser;
   @FXML
-  public TextField sequenceName;
+  public TextField sequenceNameField;
   @FXML
   public Button sequenceManagementLauncher;
   @FXML
@@ -145,13 +140,11 @@ public class ProgramEditorController extends ProjectController {
   static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
   private final ObjectProperty<UUID> sequenceId = new SimpleObjectProperty<>();
-  private final BooleanProperty dirty = new SimpleBooleanProperty(false);
   private final StringProperty programName = new SimpleStringProperty("");
   private final ObjectProperty<ProgramType> type = new SimpleObjectProperty<>();
   private final ObjectProperty<ProgramState> state = new SimpleObjectProperty<>();
   private final StringProperty key = new SimpleStringProperty("");
 
-  private final StringProperty config = new SimpleStringProperty("");
   private final FloatProperty tempo = new SimpleFloatProperty(0);
   private final SpinnerValueFactory<Double> tempoValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1300, 0);
 
@@ -200,20 +193,10 @@ public class ProgramEditorController extends ProjectController {
       .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramEditor));
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
       if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.ProgramEditor))
-        setup();
-    });
-    editorModeToggleGroup.selectedToggleProperty().addListener((o, ov, value) -> {
-      if (Objects.equals(value, bindButton)) {
-        editButton.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, false);
-        bindButton.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, true);
-      } else {
-        bindButton.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, false);
-        editButton.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, true);
-      }
+        setupProgram();
     });
     editButton.setSelected(true);
     editorModeToggleGroup.selectToggle(editButton);
-    snapButton.selectedProperty().addListener((o, ov, value) -> snapButton.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, value));
     createDisabilityBindingForTypes(editButton, Arrays.asList(ProgramType.Main, ProgramType.Macro));
     createDisabilityBindingForTypes(bindButton, Arrays.asList(ProgramType.Main, ProgramType.Macro));
     createVisibilityBindingForTypes(gridAndZoomGroup, List.of(ProgramType.Macro));
@@ -231,9 +214,7 @@ public class ProgramEditorController extends ProjectController {
     zoomChooser.setItems(zoomOptions);
     zoomChooser.setValue("25%");
     createDisabilityBindingForTypes(snapButton, Arrays.asList(ProgramType.Beat, ProgramType.Detail));
-    setTextFieldValueToAlwaysCAPS(keyField);
-    setTextFieldValueToAlwaysCAPS(sequenceKey);
-    sequenceName.textProperty().bindBidirectional(sequencePropertyName);
+    sequenceNameField.textProperty().bindBidirectional(sequencePropertyName);
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
     programNameField.textProperty().bindBidirectional(programName);
@@ -241,10 +222,10 @@ public class ProgramEditorController extends ProjectController {
     gridChooser.valueProperty().bindBidirectional(gridProperty);
     zoomChooser.valueProperty().bindBidirectional(zoomProperty);
 
-    sequenceKey.textProperty().bindBidirectional(sequencePropertyKey);
+    sequenceKeyField.textProperty().bindBidirectional(sequencePropertyKey);
     // Bind Label text to Chooser value with formatting
     stateChooser.valueProperty().bindBidirectional(state);
-    keyField.textProperty().bind(key);
+    keyField.textProperty().bindBidirectional(key);
 
     // Update the ObjectProperty when the Chooser value changes(sequenceIntensity)
     sequenceIntensity.bind(Bindings.createFloatBinding(() -> sequenceIntensityDoubleValue.get().floatValue(), sequenceIntensityDoubleValue));
@@ -266,23 +247,29 @@ public class ProgramEditorController extends ProjectController {
     noSequenceLabel.visibleProperty().bind(currentProgramSequence.isNull());
     noSequenceLabel.managedProperty().bind(currentProgramSequence.isNull());
 
-    sequenceName.focusedProperty().addListener((observable, oldValue, newValue) -> {
+    // Fields lose focus on Enter key press
+    WindowUtils.transferFocusOnEnterKeyPress(programNameField);
+    WindowUtils.transferFocusOnEnterKeyPress(keyField);
+    WindowUtils.transferFocusOnEnterKeyPress(tempoChooser);
+    WindowUtils.transferFocusOnEnterKeyPress(sequenceNameField);
+    WindowUtils.transferFocusOnEnterKeyPress(sequenceKeyField);
+    WindowUtils.transferFocusOnEnterKeyPress(sequenceTotalChooser);
+    WindowUtils.transferFocusOnEnterKeyPress(sequenceIntensityChooser);
+
+    sequenceNameField.focusedProperty().addListener((o, ov, focused) -> {
       try {
-        if (!newValue) {
-          LOG.info("change " + sequenceName.getText());
-          sequencePropertyName.set(sequenceName.getText());
+        if (!focused) {
           projectService.update(ProgramSequence.class, currentProgramSequence.get().getId(), "name",
-            sequencePropertyName.get());
+            sequenceNameField.textProperty().get());
         }
       } catch (Exception e) {
         LOG.info("Failed to update program sequence ");
       }
     });
 
-    sequenceTotalChooser.focusedProperty().addListener((observable, oldValue, newValue) -> {
+    sequenceTotalChooser.focusedProperty().addListener((o, ov, focused) -> {
       try {
-        if (!newValue) {
-          LOG.info("change " + sequenceTotalValueFactory.getValue());
+        if (!focused) {
           sequenceTotalValueFactory.setValue(sequenceTotalChooser.getValue());
           projectService.update(ProgramSequence.class, currentProgramSequence.get().getId(), "total",
             sequenceTotalValueFactory.getValue());
@@ -292,11 +279,9 @@ public class ProgramEditorController extends ProjectController {
       }
     });
 
-    sequenceKey.focusedProperty().addListener((observable, oldValue, newValue) -> {
+    sequenceKeyField.focusedProperty().addListener((o, ov, focused) -> {
       try {
-        if (!newValue) {
-          LOG.info("change " + sequenceTotalChooser.getValue());
-          sequencePropertyKey.set(sequenceKey.getText());
+        if (!focused) {
           projectService.update(ProgramSequence.class, currentProgramSequence.get().getId(), "key",
             sequencePropertyKey.get());
         }
@@ -304,22 +289,16 @@ public class ProgramEditorController extends ProjectController {
         LOG.info("Failed to update program sequence ");
       }
     });
-  }
 
-  private void setTextFieldValueToAlwaysCAPS(TextField textField) {
-    // Create a UnaryOperator to convert text to uppercase
-    UnaryOperator<TextFormatter.Change> filter = change -> {
-      String text = change.getText();
-      if (text.matches("[a-z]")) {
-        change.setText(text.toUpperCase());
+    currentProgramSequence.addListener((observable, oldValue, newValue) -> {
+      if (newValue != null) {
+        sequenceId.set(currentProgramSequence.get().getId());
+        sequencePropertyName.set(currentProgramSequence.get().getName());
+        sequencePropertyKey.set(currentProgramSequence.get().getKey());
+        sequenceTotalValueFactory.setValue(currentProgramSequence.get().getTotal().intValue());
+        sequenceIntensityValueFactory.setValue(Double.valueOf(currentProgramSequence.get().getIntensity()));
       }
-      return change;
-    };
-
-    // Apply the UnaryOperator to the TextFormatter
-    TextFormatter<String> textFormatter = new TextFormatter<>(filter);
-    // Set the TextFormatter to the TextField
-    textField.setTextFormatter(textFormatter);
+    });
   }
 
   @FXML
@@ -440,16 +419,19 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   protected void handleEditConfig() {
     try {
+      configButton.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, true);
       Stage stage = new Stage(StageStyle.TRANSPARENT);
       FXMLLoader loader = new FXMLLoader(configFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       ProgramConfigController configController = loader.getController();
-      configController.setUp(stage);
+      configController.setup(stage, programId.get());
       stage.setScene(new Scene(root));
       // Set the owner of the stage
       stage.initOwner(themeService.getMainScene().getWindow());
       stage.show();
+      WindowUtils.darkenBackgroundUntilClosed(stage, configButton.getScene(),
+        () -> configButton.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, false));
     } catch (IOException e) {
       LOG.error("Error loading EditConfig window!\n{}", StringUtils.formatStackTrace(e), e);
     }
@@ -458,7 +440,7 @@ public class ProgramEditorController extends ProjectController {
   /**
    Update the Program Editor with the current Program.
    */
-  private void setup() {
+  private void setupProgram() {
     if (Objects.isNull(uiStateService.currentProgramProperty().get()))
       return;
     var program = projectService.getContent().getProgram(uiStateService.currentProgramProperty().get().getId())
@@ -466,14 +448,21 @@ public class ProgramEditorController extends ProjectController {
     LOG.info("Will edit Program \"{}\"", program.getName());
     this.programId.set(program.getId());
     this.programName.set(program.getName());
-    this.dirty.set(false);
     this.type.set(program.getType());
     this.state.set(program.getState());
     this.key.set(program.getKey());
     this.tempoValueFactory.setValue(Double.valueOf(program.getTempo()));
-    this.config.set(program.getConfig());
+
+    List<ProgramSequence> programSequences = projectService.getContent().getSequencesOfProgram(programId.get()).stream()
+      .sorted(Comparator.comparing(ProgramSequence::getName)).toList();
+    programSequenceObservableList.setAll(programSequences);
+    if (!programSequences.isEmpty()) {
+      currentProgramSequence.set(programSequences.get(0));
+    } else {
+      LOG.info("Program has no sequence");
+    }
+
     setupProgramMemeContainer();
-    setupSequence();
     setupSequenceBindingView();
   }
 
@@ -501,23 +490,6 @@ public class ProgramEditorController extends ProjectController {
       );
     } catch (IOException e) {
       LOG.error("Error loading Entity Memes window!\n{}", StringUtils.formatStackTrace(e), e);
-    }
-  }
-
-  private void setupSequence() {
-    Collection<ProgramSequence> programSequences = projectService.getContent().getSequencesOfProgram(programId.get());
-    List<ProgramSequence> sequenceList = new ArrayList<>(programSequences);
-    programSequenceObservableList.clear();
-    programSequenceObservableList.addAll(sequenceList);
-    if (!sequenceList.isEmpty()) {
-      currentProgramSequence.set(sequenceList.get(0));
-      this.sequenceId.set(currentProgramSequence.get().getId());
-      this.sequencePropertyName.set(currentProgramSequence.get().getName());
-      this.sequencePropertyKey.set(currentProgramSequence.get().getKey());
-      this.sequenceTotalValueFactory.setValue(currentProgramSequence.get().getTotal().intValue());
-      this.sequenceIntensityValueFactory.setValue(Double.valueOf(currentProgramSequence.get().getIntensity()));
-    } else {
-      LOG.info("Program has no sequence");
     }
   }
 
@@ -564,22 +536,6 @@ public class ProgramEditorController extends ProjectController {
    */
   public void setSequenceId(UUID sequenceId) {
     this.sequenceId.set(sequenceId);
-  }
-
-  /**
-   Set the value of the program config and update the internal store
-
-   @param config value to set
-   */
-  public void setConfig(String config) {
-    this.config.set(config);
-  }
-
-  /**
-   @return current value of program config
-   */
-  public String getConfig() {
-    return this.config.get();
   }
 
   /**

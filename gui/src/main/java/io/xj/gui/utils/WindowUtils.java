@@ -6,8 +6,12 @@ import jakarta.annotation.Nullable;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.TextField;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,6 +145,32 @@ public interface WindowUtils {
     stage.setOnHidden(e -> {
       parentScene.getRoot().setEffect(null);
       if (Objects.nonNull(onClose)) onClose.run();
+    });
+  }
+
+  /**
+   Transfers focus to the given pane when the enter key is pressed on the given field.
+
+   @param field on which to listen
+   */
+  static void transferFocusOnEnterKeyPress(TextField field) {
+    field.setOnKeyPressed((KeyEvent e) -> {
+      if (e.getCode() == KeyCode.ENTER) {
+        field.getParent().requestFocus();
+      }
+    });
+  }
+
+  /**
+   Transfers focus to the given pane when the enter key is pressed on the given field.
+
+   @param field on which to listen
+   */
+  static void transferFocusOnEnterKeyPress(Spinner<?> field) {
+    field.setOnKeyPressed((KeyEvent e) -> {
+      if (e.getCode() == KeyCode.ENTER) {
+        field.getParent().requestFocus();
+      }
     });
   }
 }

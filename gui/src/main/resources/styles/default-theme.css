@@ -446,15 +446,24 @@
   -fx-font-size: 0.8em;
   -fx-fill: #404040;
   -fx-alignment: CENTER_RIGHT;
+  -fx-padding: 0 2 0 0;
 }
 
 .program-editor-menu-button {
   -fx-font-size: 0.8em;
 }
 
+.toggle-button.program-editor-menu-button:selected {
+  -fx-background-color: rgba(0, 255, 0, 0.38);
+}
+
 /*noinspection CssInvalidPseudoSelector*/
 .program-editor .button:open {
   -fx-background-color: #683568;
+}
+
+.config-editor {
+  -fx-font-family: "Roboto Mono";
 }
 
 .sequence-window {
