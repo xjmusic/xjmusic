@@ -606,7 +606,7 @@ public class ProgramEditorController extends ProjectController {
       Parent root = loader.load();
       bindViewParentContainer.getChildren().add(position, root);
       SequenceBindingColumnController sequenceSelector = loader.getController();
-      sequenceSelector.setUp(bindViewParentContainer, position, programId.get());
+      sequenceSelector.setup(bindViewParentContainer, position, programId.get());
       HBox.setHgrow(root, Priority.ALWAYS);
     } catch (IOException e) {
       LOG.error("Error loading Sequence Selector view!\n{}", StringUtils.formatStackTrace(e), e);

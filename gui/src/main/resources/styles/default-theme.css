@@ -486,10 +486,15 @@
 
 .entity-memes-container {
     -fx-padding: 5 20 5 5;
+    -fx-font-family: "Roboto Mono";
 }
 
 .entity-memes-label-container {
     -fx-padding: 5 5 0 0;
+}
+
+.entity-memes-label-container .label {
+    -fx-font-size: 0.8em;
 }
 
 .meme-tag-container {
@@ -524,8 +529,8 @@
     -fx-border-radius: 7;
 }
 
-.sequence-holder-container {
-    -fx-background-color: transparent;
+.sequence-holder-content-container {
+    -fx-padding: 5 5 5 5;
 }
 
 .sequence-item-button {
@@ -537,8 +542,9 @@
 .bind-mode-label {
     -fx-text-fill: grey;
     -fx-background-color: #434343;
-    -fx-border-color: #434343;
-    -fx-padding: 2 2 2 2;
+    -fx-border-color: #909090;
+    -fx-border-width: 0 0 0 1;
+    -fx-padding: 0 0 0 5;
 }
 
 .sequence-memes-label {

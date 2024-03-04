@@ -98,17 +98,17 @@
             <Spinner minWidth="90.0" fx:id="sequenceTotalChooser" editable="true"/>
             <Label minWidth="30" text="KEY" styleClass="program-editor-field-label"/>
             <TextField minWidth="45" fx:id="sequenceKey" text=" "/>
-            <Label minWidth="80" text="INTENSITY" styleClass="program-editor-field-label"/>
+            <Label minWidth="70" text="INTENSITY" styleClass="program-editor-field-label"/>
             <Spinner minWidth="90.0" fx:id="sequenceIntensityChooser" editable="true"/>
         </HBox>
-        <Label fx:id="noSequenceLabel" prefHeight="27.0" prefWidth="219.0" text="NO SEQUENCE"/>
+        <Label fx:id="noSequenceLabel" text="NO SEQUENCE"/>
     </HBox>
     <ScrollPane fitToHeight="true" VBox.vgrow="ALWAYS" styleClass="content-scroll-pane">
         <HBox fx:id="bindViewParentContainer" alignment="CENTER_LEFT">
             <VBox>
                 <Label styleClass="bind-mode-label" text="OFFSET"
-                       minHeight="17" maxHeight="17"
-                       textFill="GREY" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                       minHeight="20" maxHeight="20"
+                       HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
                 <Label alignment="CENTER" contentDisplay="RIGHT" styleClass="sequence-memes-label"
                        text="SEQUENCES + MEMES"
                        textAlignment="CENTER" textFill="GREY" wrapText="true" VBox.vgrow="ALWAYS">

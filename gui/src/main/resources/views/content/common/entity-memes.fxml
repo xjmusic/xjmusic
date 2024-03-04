@@ -16,7 +16,7 @@
         styleClass="entity-memes-container">
     <StackPane alignment="TOP_RIGHT"
                styleClass="entity-memes-label-container"
-               prefWidth="80">
+               minWidth="40" maxWidth="40">
         <Label text="MEMES"/>
     </StackPane>
     <Button fx:id="addMemeButton" mnemonicParsing="false" onAction="#createMeme">
