@@ -617,7 +617,7 @@ public class ProgramEditorController extends ProjectController {
     Parent root = loader.load();
     HBox.setHgrow(sequenceSelector, Priority.ALWAYS);
     SequenceBindingItemController sequenceBindingItemController = loader.getController();
-    sequenceBindingItemController.setUp(sequenceSelector, root, bindViewParentContainer, position, programSequenceBinding, programSequence);
+    sequenceBindingItemController.setup(sequenceSelector, root, bindViewParentContainer, position, programSequenceBinding);
     sequenceSelector.getChildren().add(sequenceSelector.getChildren().size() - 1, root);
     HBox.setHgrow(root, Priority.ALWAYS);
     projectService.getContent().put(programSequenceBinding);

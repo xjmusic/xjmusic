@@ -9,6 +9,7 @@ import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
@@ -26,7 +27,6 @@ import javafx.scene.control.Alert;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 public interface ProjectService {
@@ -250,6 +250,14 @@ public interface ProjectService {
    @return the new program meme
    */
   ProgramMeme createProgramMeme(UUID programId) throws Exception;
+
+  /**
+   Create a new Program Sequence Binding Meme
+
+   @param programSequenceBindingId for which to create a program sequence binding meme
+   @return the new program sequence binding meme
+   */
+  ProgramSequenceBindingMeme createProgramSequenceBindingMeme(UUID programSequenceBindingId) throws Exception;
 
   /**
    Create a new instrument

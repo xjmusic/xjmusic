@@ -8,6 +8,7 @@ import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
@@ -231,6 +232,15 @@ public interface ProjectManager {
    @throws Exception if the instrument meme cannot be created
    */
   ProgramMeme createProgramMeme(UUID programId) throws Exception;
+
+  /**
+   Create a new Program Sequence Binding Meme
+
+   @param programSequenceBindingId for which to create a program sequence binding meme
+   @return the new program sequence binding meme
+   @throws Exception if the program sequence binding meme cannot be created
+   */
+  ProgramSequenceBindingMeme createProgramSequenceBindingMeme(UUID programSequenceBindingId) throws Exception;
 
   /**
    Create a new instrument

@@ -527,6 +527,16 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
+  public ProgramSequenceBindingMeme createProgramSequenceBindingMeme(UUID programSequenceBindingId) throws Exception {
+    var meme = new ProgramSequenceBindingMeme();
+    meme.setId(UUID.randomUUID());
+    meme.setName(DEFAULT_MEME_NAME);
+    meme.setProgramSequenceBindingId(programSequenceBindingId);
+    content.get().put(meme);
+    return meme;
+  }
+
+  @Override
   public InstrumentMeme createInstrumentMeme(UUID instrumentId) throws Exception {
     var meme = new InstrumentMeme();
     meme.setId(UUID.randomUUID());

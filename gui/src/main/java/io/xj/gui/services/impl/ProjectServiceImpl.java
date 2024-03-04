@@ -16,6 +16,7 @@ import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
@@ -436,6 +437,13 @@ public class ProjectServiceImpl implements ProjectService {
     return meme;
   }
 
+  @Override
+  public ProgramSequenceBindingMeme createProgramSequenceBindingMeme(UUID programSequenceBindingId) throws Exception {
+    var meme = projectManager.createProgramSequenceBindingMeme(programSequenceBindingId);
+    didUpdate(ProgramSequenceBindingMeme.class, true);
+    LOG.info("Created ProgramSequenceBindingMeme \"{}\"", meme.getName());
+    return meme;
+  }
   @Override
   public Instrument createInstrument(Library library, String name) throws Exception {
     var instrument = projectManager.createInstrument(library, name);

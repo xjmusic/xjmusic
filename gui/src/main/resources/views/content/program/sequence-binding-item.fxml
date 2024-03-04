@@ -10,16 +10,17 @@
 <?import javafx.scene.text.Text?>
 
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.control.Label?>
 <BorderPane fx:id="mainBorderPane" styleClass="sequence-binding-item-container" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.SequenceBindingItemController">
    <center>
-      <Text fx:id="sequenceName" strokeType="OUTSIDE" strokeWidth="0.0" text="Text">
+      <Label fx:id="sequenceName" text="Text">
          <font>
             <Font size="14.0"/>
          </font>
          <HBox.margin>
             <Insets left="5.0" right="5.0"/>
          </HBox.margin>
-      </Text>
+      </Label>
    </center>
    <right>
       <Button fx:id="deleteSequence" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="28.0" prefWidth="27.0" styleClass="sequence-item-button" text=" " BorderPane.alignment="CENTER">
@@ -30,24 +31,8 @@
          </graphic>
       </Button>
    </right>
-   <left>
-      <HBox alignment="CENTER" BorderPane.alignment="CENTER">
-         <BorderPane.margin>
-            <Insets left="5.0"/>
-         </BorderPane.margin>
-         <Button fx:id="addMemeButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-                 minWidth="-Infinity" mnemonicParsing="false" prefHeight="22.0" prefWidth="25.0" text=" ">
-            <graphic>
-               <ImageView fitHeight="19.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true"
-                          translateX="-5.0">
-                  <Image url="@/icons/plus.png"/>
-               </ImageView>
-            </graphic>
-         </Button>
-      </HBox>
-   </left>
    <bottom>
-      <Pane fx:id="memeHolder"/>
+      <Pane fx:id="sequenceBindingMemeContainer"/>
    </bottom>
    <padding>
       <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
