@@ -4,6 +4,8 @@ package io.xj.nexus.util;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FormatUtilsTest {
@@ -76,5 +78,13 @@ class FormatUtilsTest {
     assertEquals("3h29m12s", FormatUtils.formatTimeFromMicros(12551221510L));
     assertEquals("2m6s", FormatUtils.formatTimeFromMicros(125512510L));
     assertEquals("2.2s", FormatUtils.formatTimeFromMicros(1251510L));
+  }
+
+  @Test
+  void iterateNumericalSuffixFromExisting() {
+    assertEquals("Thing", FormatUtils.iterateNumericalSuffixFromExisting(Set.of(), "Thing"));
+    assertEquals("Thing 2", FormatUtils.iterateNumericalSuffixFromExisting(Set.of("Thing"), "Thing"));
+    assertEquals("Thing 2", FormatUtils.iterateNumericalSuffixFromExisting(Set.of("Thing 1"), "Thing"));
+    assertEquals("Thing 3", FormatUtils.iterateNumericalSuffixFromExisting(Set.of("Thing 1", "Thing 2"), "Thing"));
   }
 }
