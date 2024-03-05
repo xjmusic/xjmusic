@@ -10,14 +10,14 @@
   -fx-font-family: 'Roboto';
 }
 
-.menu, .menu-bar, .menu, .menu-item, .menu-button, .context-menu, .main-menu-container {
+.menu, .menu-bar, .menu, .menu-item, .menu-button, .context-menu, .main-menu {
   -fx-background-color: #373737;
   -fx-border-color: transparent;
   -fx-border-width: 0;
 }
 
-.main-menu-container .button,
-.main-menu-container .toggle-button {
+.main-menu .button,
+.main-menu .toggle-button {
   -fx-font-size: 0.8em;
   -fx-border-color: transparent;
   -fx-border-width: 0;
@@ -235,43 +235,43 @@
 }
 
 .button:selected,
-.toggle-toggle-button:selected{
+.toggle-toggle-button:selected {
   -fx-background-color: #99999999;
 }
 
 /*noinspection CssInvalidPseudoSelector*/
 .button:active,
-.toggle-button:active{
+.toggle-button:active {
   -fx-background-color: rgba(0, 255, 0, 0.38);
 }
 
 /*noinspection CssInvalidPseudoSelector*/
 .button:active:hover,
-.toggle-button:active:hover{
+.toggle-button:active:hover {
   -fx-background-color: rgba(0, 255, 0, 0.62);
 }
 
 /*noinspection CssInvalidPseudoSelector*/
 .button:pending,
-.toggle-button:pending{
+.toggle-button:pending {
   -fx-background-color: rgba(255, 128, 0, 0.38);
 }
 
 /*noinspection CssInvalidPseudoSelector*/
 .button:pending:hover,
-.toggle-button:pending:hover{
+.toggle-button:pending:hover {
   -fx-background-color: rgba(255, 128, 0, 0.62);
 }
 
 /*noinspection CssInvalidPseudoSelector*/
 .button:failed,
-.toggle-button:failed{
+.toggle-button:failed {
   -fx-background-color: rgba(255, 0, 0, 0.38);
 }
 
 /*noinspection CssInvalidPseudoSelector*/
 .button:failed:hover,
-.toggle-button:failed:hover{
+.toggle-button:failed:hover {
   -fx-background-color: rgba(255, 0, 0, 0.62);
 }
 
@@ -361,6 +361,7 @@
   -fx-padding: 1 4 1 4;
 }
 
+.main-menu .toggle-button:hover,
 .top-pane .button:hover,
 .top-pane .toggle-button:hover,
 .template-bindings-pane .button:hover,
@@ -369,20 +370,22 @@
   -fx-background-color: #606060;
 }
 
+.main-menu .toggle-button:pressed,
 .top-pane .button:pressed,
 .top-pane .toggle-button:pressed,
 .template-bindings-pane .button:pressed,
 .instrument-audios-pane .button:pressed,
 .waveform-pane .button:pressed {
-  -fx-background-color: #909090;
+  -fx-background-color: #808080;
 }
 
+.main-menu .toggle-button:selected,
 .top-pane .button:selected,
 .top-pane .toggle-button:selected,
 .template-bindings-pane .button:selected,
 .instrument-audios-pane .button:selected,
 .waveform-pane .button:selected {
-  -fx-background-color: #606060;
+  -fx-background-color: #707070;
 }
 
 .icon-button {
@@ -430,12 +433,37 @@
   -fx-background-color: transparent;
 }
 
-.program-editor-scroll-pane > .viewport {
-  -fx-background-color: transparent;
+.program-editor {
+  -fx-font-family: "Roboto Mono";
 }
 
-.program-editor-scroll-pane {
-  -fx-background-color: transparent;
+.program-editor .content-scroll-pane > .viewport,
+.program-editor .content-scroll-pane {
+  -fx-background-color: #101010;
+}
+
+.program-editor-field-label {
+  -fx-font-size: 0.8em;
+  -fx-fill: #404040;
+  -fx-alignment: CENTER_RIGHT;
+  -fx-padding: 0 2 0 0;
+}
+
+.program-editor-menu-button {
+  -fx-font-size: 0.8em;
+}
+
+.toggle-button.program-editor-menu-button:selected {
+  -fx-background-color: rgba(0, 255, 0, 0.38);
+}
+
+/*noinspection CssInvalidPseudoSelector*/
+.program-editor .button:open {
+  -fx-background-color: #683568;
+}
+
+.config-editor {
+  -fx-font-family: "Roboto Mono";
 }
 
 .sequence-window {
@@ -467,10 +495,15 @@
 
 .entity-memes-container {
   -fx-padding: 5 20 5 5;
+  -fx-font-family: "Roboto Mono";
 }
 
 .entity-memes-label-container {
   -fx-padding: 5 5 0 0;
+}
+
+.entity-memes-label-container .label {
+  -fx-font-size: 0.8em;
 }
 
 .meme-tag-container {
@@ -499,18 +532,15 @@
   -fx-border-color: grey;
 }
 
-#bindViewParentContainer {
-  -fx-background-color: black;
-}
-
 .sequence-binding-item-container {
   -fx-background-color: #434343;
   -fx-background-radius: 7;
   -fx-border-radius: 7;
+  -fx-padding: 5 5 5 5;
 }
 
-.sequence-holder-container {
-  -fx-background-color: transparent;
+.sequence-binding-column-container {
+  -fx-padding: 5 5 5 5;
 }
 
 .sequence-item-button {
@@ -522,7 +552,9 @@
 .bind-mode-label {
   -fx-text-fill: grey;
   -fx-background-color: #434343;
-  -fx-border-color: #434343;
+  -fx-border-color: #909090;
+  -fx-border-width: 0 0 0 1;
+  -fx-padding: 0 0 0 5;
 }
 
 .sequence-memes-label {

@@ -8,11 +8,12 @@ import io.xj.gui.modes.ViewStatusMode;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
-import io.xj.gui.utils.WindowUtils;
+import io.xj.gui.utils.UiUtils;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.ControlMode;
 import io.xj.nexus.project.ProjectState;
@@ -84,10 +85,12 @@ public class UIStateServiceImpl implements UIStateService {
   private final StringBinding currentParentName;
   private final StringBinding currentEntityName;
   private final BooleanBinding isCreateEntityButtonVisible;
-  private final StringBinding createEntityButtonText;
   private final BooleanBinding isLibraryContentBrowser;
 
   private final String defaultIsLabFeatureEnabled;
+  private final BooleanProperty programEditorEditMode = new SimpleBooleanProperty(false);
+  private final BooleanProperty programEditorBindMode = new SimpleBooleanProperty(false);
+  private final ObjectProperty<ProgramSequence> currentProgramSequence = new SimpleObjectProperty<>();
 
   public UIStateServiceImpl(
       FabricationService fabricationService,
@@ -143,7 +146,7 @@ public class UIStateServiceImpl implements UIStateService {
         projectService.stateTextProperty(),
         fabricationService.stateTextProperty());
 
-    progress.addListener((o, ov, value) -> WindowUtils.setTaskbarProgress(value.floatValue()));
+    progress.addListener((o, ov, value) -> UiUtils.setTaskbarProgress(value.floatValue()));
 
     projectService.stateProperty().addListener((o, ov, value) -> {
       if (Objects.equals(value, ProjectState.Standby)) {
@@ -220,20 +223,6 @@ public class UIStateServiceImpl implements UIStateService {
                   default -> false;
                 },
         viewMode, contentMode, templateMode, projectService.isStateReadyProperty()
-    );
-
-    createEntityButtonText = Bindings.createStringBinding(
-        () -> switch (viewMode.get()) {
-          case Content -> switch (contentMode.get()) {
-            case LibraryBrowser -> "New Library";
-            case ProgramBrowser -> "New Program";
-            case InstrumentBrowser -> "New Instrument";
-            default -> "";
-          };
-          case Templates -> "New Template";
-          default -> "";
-        },
-        viewMode, contentMode, templateMode
     );
 
     isLibraryContentBrowser = Bindings.createBooleanBinding(
@@ -532,11 +521,6 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public StringBinding createEntityButtonTextProperty() {
-    return createEntityButtonText;
-  }
-
-  @Override
   public BooleanBinding isLibraryContentBrowserProperty() {
     return isLibraryContentBrowser;
   }
@@ -544,6 +528,21 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public BooleanProperty isLabFeatureEnabledProperty() {
     return isLabFeatureEnabled;
+  }
+
+  @Override
+  public BooleanProperty programEditorEditModeProperty() {
+    return programEditorEditMode;
+  }
+
+  @Override
+  public BooleanProperty programEditorBindModeProperty() {
+    return programEditorBindMode;
+  }
+
+  @Override
+  public ObjectProperty<ProgramSequence> currentProgramSequenceProperty() {
+    return currentProgramSequence;
   }
 
   /**

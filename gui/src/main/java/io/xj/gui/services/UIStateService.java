@@ -8,6 +8,7 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.work.FabricationState;
 import javafx.beans.binding.BooleanBinding;
@@ -34,6 +35,7 @@ public interface UIStateService extends ReadyAfterBoot {
   PseudoClass ACTIVE_PSEUDO_CLASS = PseudoClass.getPseudoClass("active");
   PseudoClass PENDING_PSEUDO_CLASS = PseudoClass.getPseudoClass("pending");
   PseudoClass FAILED_PSEUDO_CLASS = PseudoClass.getPseudoClass("failed");
+  PseudoClass OPEN_PSEUDO_CLASS = PseudoClass.getPseudoClass("open");
   Set<LabState> LAB_PENDING_STATES = Set.of(
     LabState.Connecting,
     LabState.Configuring
@@ -263,11 +265,6 @@ public interface UIStateService extends ReadyAfterBoot {
   BooleanBinding isCreateEntityButtonVisibleProperty();
 
   /**
-   @return Observable property for the text of the create entity button
-   */
-  StringBinding createEntityButtonTextProperty();
-
-  /**
    @return observable binding whether we are viewing Library content, either Programs or Instruments
    */
   BooleanBinding isLibraryContentBrowserProperty();
@@ -277,4 +274,19 @@ public interface UIStateService extends ReadyAfterBoot {
    Workstation lab features are hidden until enabled in secret menu https://www.pivotaltracker.com/story/show/187023709
    */
   BooleanProperty isLabFeatureEnabledProperty();
+
+  /**
+   @return property whether the program editor is in edit mode
+   */
+  BooleanProperty programEditorEditModeProperty();
+
+  /**
+   @return property whether the program editor is in bind mode
+   */
+  BooleanProperty programEditorBindModeProperty();
+
+  /**
+   * @return property program editor current program serquence
+   */
+  ObjectProperty<ProgramSequence> currentProgramSequenceProperty();
 }

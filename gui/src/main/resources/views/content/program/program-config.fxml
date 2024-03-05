@@ -7,7 +7,6 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.text.Font?>
 <AnchorPane prefHeight="446.0" prefWidth="589.0" xmlns="http://javafx.com/javafx/20.0.1"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="io.xj.gui.controllers.content.program.ProgramConfigController"
@@ -15,7 +14,7 @@
             styleClass="program-config-pane">
   <TextArea fx:id="configTextArea" layoutX="26.0" layoutY="85.0" prefHeight="299.0" prefWidth="535.0"
             AnchorPane.bottomAnchor="61.666666666666686" AnchorPane.leftAnchor="26.0"
-            AnchorPane.rightAnchor="27.66666666666663" AnchorPane.topAnchor="85.0"/>
+            AnchorPane.rightAnchor="27.66666666666663" AnchorPane.topAnchor="85.0" styleClass="config-editor"/>
   <StackPane layoutX="26.0" layoutY="387.0" prefHeight="55.0" prefWidth="535.0"
              AnchorPane.bottomAnchor="3.6666666666666643" AnchorPane.leftAnchor="26.0"
              AnchorPane.rightAnchor="27.66666666666663">
@@ -26,17 +25,9 @@
       <Button fx:id="cancelConfigChanges" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="35.0"
               prefWidth="269.0" text="Cancel" HBox.hgrow="ALWAYS"/>
     </HBox>
-    <Button fx:id="cancelButton" mnemonicParsing="false" prefHeight="35.0" prefWidth="535.0" text="Cancel">
-      <font>
-        <Font size="15.0"/>
-      </font>
-    </Button>
+    <Button fx:id="cancelButton" mnemonicParsing="false" prefHeight="35.0" prefWidth="535.0" text="Cancel"/>
   </StackPane>
   <Separator layoutX="4.0" layoutY="57.0" prefHeight="4.0" prefWidth="582.0" AnchorPane.topAnchor="57.0"/>
   <Label alignment="CENTER" layoutX="68.0" layoutY="14.0" prefHeight="35.0" prefWidth="452.0" text="Edit Program Config"
-         wrapText="true" AnchorPane.topAnchor="14.0">
-    <font>
-      <Font size="19.0"/>
-    </font>
-  </Label>
+         wrapText="true" AnchorPane.topAnchor="14.0"/>
 </AnchorPane>

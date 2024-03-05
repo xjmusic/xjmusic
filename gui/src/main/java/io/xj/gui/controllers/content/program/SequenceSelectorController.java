@@ -1,104 +1,91 @@
 package io.xj.gui.controllers.content.program;
 
-import io.xj.gui.services.ThemeService;
-import io.xj.hub.util.StringUtils;
+import io.xj.gui.services.ProjectService;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import jakarta.annotation.Nullable;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.effect.GaussianBlur;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.controlsfx.control.SearchableComboBox;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import java.util.Comparator;
+import java.util.Objects;
 import java.util.UUID;
-
-import static io.xj.gui.controllers.content.program.ProgramEditorController.closeWindowOnClickingAway;
+import java.util.function.Consumer;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class SequenceSelectorController {
+  private final ProjectService projectService;
+
   @FXML
-  public VBox sequenceSelector;
+  protected VBox container;
+
   @FXML
-  public Label offSet;
-  @FXML
-  public Button addSequenceButton;
-  @Value("classpath:/views/content/program/sequence-binding-item-creation.fxml")
-  private Resource createBindingFxml;
-  private final ApplicationContext applicationContext;
-  private final Logger LOG = LoggerFactory.getLogger(SequenceSelectorController.class);
-  private final ThemeService themeService;
-  private HBox bindViewParentContainer;
-  private int position;
+  protected SearchableComboBox<ProgramSequenceChoice> sequenceSearch;
 
   public SequenceSelectorController(
-    ApplicationContext applicationContext,
-    ThemeService themeService
+    ProjectService projectService
   ) {
-    this.applicationContext = applicationContext;
-    this.themeService = themeService;
+    this.projectService = projectService;
   }
 
-  public void setUp(HBox bindViewParentContainer, int position, UUID programId) {
-    this.position = position;
-    this.bindViewParentContainer = bindViewParentContainer;
-    offSet.setText(String.valueOf(position - 1));
-    addSequenceButton.setOnAction(e -> showSequenceBindingItemCreationUI(programId));
-    HBox.setHgrow(sequenceSelector, Priority.ALWAYS);
+  /**
+   Set up the sequence selector with the given program and current sequence.
+
+   @param programId        the program ID
+   @param onSelectSequence the consumer to select the sequence ID
+   */
+  public void setup(
+    UUID programId,
+    Consumer<UUID> onSelectSequence
+  ) {
+    // Set Program Sequence Choices
+    sequenceSearch.setItems(FXCollections.observableList(
+      projectService.getContent().getSequencesOfProgram(programId)
+        .stream()
+        .sorted(Comparator.comparing(ProgramSequence::getName))
+        .map(ProgramSequenceChoice::new)
+        .toList()
+    ));
+
+    sequenceSearch.valueProperty().addListener((observable, oldValue, newValue) -> {
+      if (newValue != null) {
+        onSelectSequence.accept(newValue.getId());
+        closeWindow();
+      }
+    });
+
+    Platform.runLater(() -> {
+      sequenceSearch.requestFocus();
+      sequenceSearch.show();
+    });
   }
 
-  protected void showSequenceBindingItemCreationUI(UUID programId) {
-    try {
-      Stage stage = new Stage(StageStyle.TRANSPARENT);
-      FXMLLoader loader = new FXMLLoader(createBindingFxml.getURL());
-      loader.setControllerFactory(applicationContext::getBean);
-      Parent root = loader.load();
-      // Apply a blur effect
-      GaussianBlur blur = new GaussianBlur();
-      sequenceSelector.getScene().getRoot().setEffect(blur);
-      SequenceBindingItemCreationController creationController = loader.getController();
-      creationController.setUp(bindViewParentContainer, sequenceSelector, position, programId);
-      stage.setOnShown(event -> creationController.sequenceSearch.show());
-      stage.setScene(new Scene(root));
-      stage.initOwner(themeService.getMainScene().getWindow());
-      stage.show();
-      closeWindowOnClickingAway(stage);
-      centerOnScreen(stage);
-      //remove the background blur
-      stage.setOnHidden(e -> sequenceSelector.getScene().getRoot().setEffect(null));
-    } catch (IOException e) {
-      LOG.error("Error opening Sequence Search window!\n{}", StringUtils.formatStackTrace(e), e);
+  /**
+   Close the window.
+   */
+  private void closeWindow() {
+    Stage stage = (Stage) sequenceSearch.getScene().getWindow();
+    stage.close();
+  }
+
+  /**
+   This class is used to display the ProgramSequence name in the ChoiceBox while preserving the underlying ID
+   */
+  public record ProgramSequenceChoice(ProgramSequence programSequence) {
+    @Override
+    public String toString() {
+      return Objects.nonNull(programSequence) ? programSequence.getName() : "Select...";
     }
-  }
 
-  // Method to center a UI element on the screen
-  public static void centerOnScreen(Stage stage) {
-    // Get the screen dimensions
-    double screenWidth = stage.getOwner().getWidth(); // or Screen.getPrimary().getVisualBounds().getWidth()
-    double screenHeight = stage.getOwner().getHeight(); // or Screen.getPrimary().getVisualBounds().getHeight()
-
-    // Calculate the position of the stage
-    double stageWidth = stage.getWidth();
-    double stageHeight = stage.getHeight();
-    double x = (screenWidth - stageWidth) / 2;
-    double y = (screenHeight - stageHeight) / 2;
-
-    // Set the stage position
-    stage.setX(x);
-    stage.setY(y);
+    public @Nullable UUID getId() {
+      return Objects.nonNull(programSequence) ? programSequence.getId() : null;
+    }
   }
 }

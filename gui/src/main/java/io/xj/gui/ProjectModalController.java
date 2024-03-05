@@ -5,7 +5,7 @@ package io.xj.gui;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.gui.utils.WindowUtils;
+import io.xj.gui.utils.UiUtils;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
@@ -49,8 +49,8 @@ public abstract class ProjectModalController extends ProjectController {
 
       // Create a new stage (window)
       Stage stage = new Stage();
-      WindowUtils.setupIcon(stage);
-      stage.setTitle(WindowUtils.computeTitle(windowName));
+      UiUtils.setupIcon(stage);
+      stage.setTitle(UiUtils.computeTitle(windowName));
 
       Scene scene = new Scene(loader.load());
       themeService.setup(scene);

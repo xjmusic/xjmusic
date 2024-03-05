@@ -9,6 +9,7 @@ import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
@@ -26,7 +27,6 @@ import javafx.scene.control.Alert;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 public interface ProjectService {
@@ -157,8 +157,9 @@ public interface ProjectService {
 
    @param type     the type of update to listen for
    @param listener the listener to attach
+   @return runnable to unsubscribe, should be run when the listening component is tearing itself down
    */
-  <N extends Serializable> void addProjectUpdateListener(Class<N> type, Runnable listener);
+  <N extends Serializable> Runnable addProjectUpdateListener(Class<N> type, Runnable listener);
 
   /**
    Notify all listeners of a project update
@@ -250,6 +251,14 @@ public interface ProjectService {
    @return the new program meme
    */
   ProgramMeme createProgramMeme(UUID programId) throws Exception;
+
+  /**
+   Create a new Program Sequence Binding Meme
+
+   @param programSequenceBindingId for which to create a program sequence binding meme
+   @return the new program sequence binding meme
+   */
+  ProgramSequenceBindingMeme createProgramSequenceBindingMeme(UUID programSequenceBindingId) throws Exception;
 
   /**
    Create a new instrument
@@ -442,4 +451,13 @@ public interface ProjectService {
    */
   void showErrorDialog(String title, String header, String body);
 
+  /**
+   Show a custom confirmation dialog with Yes/No options.
+
+   @param title   title of the dialog
+   @param header  header of the dialog
+   @param content content of the dialog
+   @return true if the user clicked 'Yes', false otherwise
+   */
+  boolean showConfirmationDialog(String title, String header, String content);
 }

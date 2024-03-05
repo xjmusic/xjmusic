@@ -34,6 +34,7 @@ import io.xj.nexus.http.HttpClientProvider;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.hub_client.HubClientException;
 import io.xj.nexus.hub_client.HubClientFactory;
+import io.xj.nexus.util.FormatUtils;
 import jakarta.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -60,6 +61,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 import static io.xj.hub.util.FileUtils.computeWaveformKey;
 import static io.xj.nexus.hub_client.HubClientFactory.FILE_SIZE_NOT_FOUND;
@@ -448,10 +450,16 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public Template createTemplate(String name) throws Exception {
+    var existingTemplates = content.get().getTemplates();
+
+    // New Create a template, increment a numerical suffix to make each sequence unique, e.g. "New Sequence 2" then "New Sequence 3"
+    var existingNames = existingTemplates.stream().map(Template::getName).collect(Collectors.toSet());
+    var actualName = FormatUtils.iterateNumericalSuffixFromExisting(existingNames, name);
+
     var template = new Template();
     template.setId(UUID.randomUUID());
     template.setProjectId(project.get().getId());
-    template.setName(name);
+    template.setName(actualName);
     template.setConfig(new TemplateConfig().toString());
     template.setIsDeleted(false);
     content.get().put(template);
@@ -460,10 +468,16 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public Library createLibrary(String name) throws Exception {
+    var existingLibraries = content.get().getLibraries();
+
+    // New Create a library, increment a numerical suffix to make each sequence unique, e.g. "New Sequence 2" then "New Sequence 3"
+    var existingNames = existingLibraries.stream().map(Library::getName).collect(Collectors.toSet());
+    var actualName = FormatUtils.iterateNumericalSuffixFromExisting(existingNames, name);
+
     var library = new Library();
     library.setId(UUID.randomUUID());
     library.setProjectId(project.get().getId());
-    library.setName(name);
+    library.setName(actualName);
     library.setIsDeleted(false);
     content.get().put(library);
     return library;
@@ -471,12 +485,17 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public Program createProgram(Library library, String name) throws Exception {
-    var existingProgramOfLibrary = content.get().getProgramsOfLibrary(library.getId()).stream().findFirst();
+    var existingProgramsOfLibrary = content.get().getProgramsOfLibrary(library.getId());
+    var existingProgramOfLibrary = existingProgramsOfLibrary.stream().findFirst();
     var existingProgram = existingProgramOfLibrary.isPresent() ? existingProgramOfLibrary : content.get().getPrograms().stream().findFirst();
+
+    // New Create a program, increment a numerical suffix to make each sequence unique, e.g. "New Program 2" then "New Program 3"
+    var existingNames = existingProgramsOfLibrary.stream().map(Program::getName).collect(Collectors.toSet());
+    var actualName = FormatUtils.iterateNumericalSuffixFromExisting(existingNames, name);
 
     var program = new Program();
     program.setId(UUID.randomUUID());
-    program.setName(name);
+    program.setName(actualName);
     program.setLibraryId(library.getId());
     program.setConfig(new ProgramConfig().toString());
     program.setType(existingProgram.map(Program::getType).orElse(DEFAULT_PROGRAM_TYPE));
@@ -494,14 +513,19 @@ public class ProjectManagerImpl implements ProjectManager {
     var library = content.get().getLibrary(program.getLibraryId()).orElseThrow(() -> new NexusException("Library not found"));
     var project = content.get().getProject();
     if (Objects.isNull(project)) throw new NexusException("Project not found");
-    var existingSequenceOfProgram = content.get().getSequencesOfProgram(program.getId()).stream().findFirst();
+    var existingSequencesOfProgram = content.get().getSequencesOfProgram(program.getId());
+    var existingSequenceOfProgram = existingSequencesOfProgram.stream().findFirst();
     var existingSequenceOfLibrary = existingSequenceOfProgram.isPresent() ? existingSequenceOfProgram : content.get().getProgramsOfLibrary(library).stream().flatMap(i -> content.get().getSequencesOfProgram(i.getId()).stream()).findFirst();
     var existingSequence = existingSequenceOfLibrary.isPresent() ? existingSequenceOfLibrary : content.get().getProgramSequences().stream().findFirst();
+
+    // New Create a sequence, increment a numerical suffix to make each sequence unique, e.g. "New Sequence 2" then "New Sequence 3"
+    var existingSequenceNames = existingSequencesOfProgram.stream().map(ProgramSequence::getName).collect(Collectors.toSet());
+    var newSequenceName = FormatUtils.iterateNumericalSuffixFromExisting(existingSequenceNames, DEFAULT_PROGRAM_SEQUENCE_NAME);
 
     // Prepare the sequence record
     var sequence = new ProgramSequence();
     sequence.setId(UUID.randomUUID());
-    sequence.setName(DEFAULT_PROGRAM_SEQUENCE_NAME);
+    sequence.setName(newSequenceName);
     sequence.setTotal(existingSequence.map(ProgramSequence::getTotal).orElse(DEFAULT_PROGRAM_SEQUENCE_TOTAL.shortValue()));
     sequence.setKey(existingSequence.map(ProgramSequence::getKey).orElse(DEFAULT_KEY));
     sequence.setIntensity(existingSequence.map(ProgramSequence::getIntensity).orElse(DEFAULT_INTENSITY));
@@ -527,6 +551,16 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
+  public ProgramSequenceBindingMeme createProgramSequenceBindingMeme(UUID programSequenceBindingId) throws Exception {
+    var meme = new ProgramSequenceBindingMeme();
+    meme.setId(UUID.randomUUID());
+    meme.setName(DEFAULT_MEME_NAME);
+    meme.setProgramSequenceBindingId(programSequenceBindingId);
+    content.get().put(meme);
+    return meme;
+  }
+
+  @Override
   public InstrumentMeme createInstrumentMeme(UUID instrumentId) throws Exception {
     var meme = new InstrumentMeme();
     meme.setId(UUID.randomUUID());
@@ -538,12 +572,17 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public Instrument createInstrument(Library library, String name) throws Exception {
-    var existingInstrumentOfLibrary = content.get().getInstrumentsOfLibrary(library.getId()).stream().findFirst();
+    var existingInstrumentsOfLibrary = content.get().getInstrumentsOfLibrary(library.getId());
+    var existingInstrumentOfLibrary = existingInstrumentsOfLibrary.stream().findFirst();
     var existingInstrument = existingInstrumentOfLibrary.isPresent() ? existingInstrumentOfLibrary : content.get().getInstruments().stream().findFirst();
 
+    // New Create a instrument, increment a numerical suffix to make each sequence unique, e.g. "New Instrument 2" then "New Instrument 3"
+    var existingNames = existingInstrumentsOfLibrary.stream().map(Instrument::getName).collect(Collectors.toSet());
+    var actualName = FormatUtils.iterateNumericalSuffixFromExisting(existingNames, name);
+    
     var instrument = new Instrument();
     instrument.setId(UUID.randomUUID());
-    instrument.setName(name);
+    instrument.setName(actualName);
     instrument.setLibraryId(library.getId());
     instrument.setConfig(new InstrumentConfig().toString());
     instrument.setType(existingInstrument.map(Instrument::getType).orElse(DEFAULT_INSTRUMENT_TYPE));

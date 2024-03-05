@@ -5,6 +5,7 @@ package io.xj.nexus.util;
 import jakarta.annotation.Nullable;
 
 import java.util.Objects;
+import java.util.Set;
 
 public interface FormatUtils {
   /**
@@ -130,5 +131,31 @@ public interface FormatUtils {
     }
 
     return readableTime.toString();
+  }
+
+  /**
+   Create a sequence, increment a numerical suffix to make each sequence unique, e.g. "New Sequence 2" then "New Sequence 3"
+
+   @param existing set of existing names
+   @param name     to iterate if existing
+   */
+  static String iterateNumericalSuffixFromExisting(Set<String> existing, String name) {
+    int num = 2;
+    if (existing.stream().map(String::trim).noneMatch(s -> s.startsWith(name))) {
+      return name;
+    }
+    for (String existingName : existing) {
+      if (existingName.startsWith(name)) {
+        try {
+          int existingNum = Integer.parseInt(existingName.substring(name.length()).trim());
+          if (existingNum >= num) {
+            num = existingNum + 1;
+          }
+        } catch (NumberFormatException e) {
+          // ignore
+        }
+      }
+    }
+    return String.format("%s %d", name, num);
   }
 }

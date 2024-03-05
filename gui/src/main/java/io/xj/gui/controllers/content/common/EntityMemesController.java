@@ -8,6 +8,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.StackPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,34 +37,42 @@ public class EntityMemesController {
   private Resource memeTagFxml;
 
   @FXML
+  public StackPane labelContainer;
+
+  @FXML
   public Button addMemeButton;
 
   @FXML
   public FlowPane memeTagContainer;
 
   public EntityMemesController(
-    ApplicationContext ac,
-    ProjectService projectService
+      ApplicationContext ac,
+      ProjectService projectService
   ) {
     this.ac = ac;
     this.projectService = projectService;
   }
 
   /**
-   Set up the controller@param root      Parent
+   Set up the controller@param root      Parent@param showLabel
 
    @param doReadAll to read all memes
    @param doCreate  to create a meme
    @param doUpdate  to update a meme
    */
   public void setup(
-    Callable<Collection<?>> doReadAll,
-    Callable<Object> doCreate,
-    Consumer<Object> doUpdate
+      boolean showLabel,
+      Callable<Collection<?>> doReadAll,
+      Callable<Object> doCreate,
+      Consumer<Object> doUpdate
   ) {
     this.doReadAll = doReadAll;
     this.doCreate = doCreate;
     this.doUpdate = doUpdate;
+
+    labelContainer.setVisible(showLabel);
+    labelContainer.setManaged(showLabel);
+
     renderMemes();
   }
 

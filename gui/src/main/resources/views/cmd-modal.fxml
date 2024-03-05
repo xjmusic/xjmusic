@@ -24,7 +24,8 @@
       contentDisplay="TEXT_ONLY"
       text="Name:"/>
     <TextField
-      fx:id="fieldName"/>
+      fx:id="fieldName"
+      onKeyPressed="#handleNameFieldKeyPressed"/>
   </VBox>
 
   <VBox
