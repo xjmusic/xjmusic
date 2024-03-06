@@ -228,7 +228,8 @@ public class TrackController {
     }
 
     private void showTrackMenu(MouseEvent event) {
-        VoiceController.trackMenu(event, trackMenuFxml, ac, themeService, LOG, voice, voiceController,track, false,trackRoot,addTrackButton_1);
+        // todo whatever the purpose of reaching inside the voice controller here, don't do it
+        // VoiceController.trackMenu(event, trackMenuFxml, ac, themeService, LOG, voice, voiceController,track, false,trackRoot,addTrackButton_1);
     }
 
     private void populateTimeline() {

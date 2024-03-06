@@ -22,12 +22,10 @@
 
             <AnchorPane prefHeight="43.0" prefWidth="274.0" VBox.vgrow="NEVER">
 
-                <Button fx:id="deleteButton" layoutX="8.0" layoutY="9.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="26.0" prefWidth="31.0" text=" " AnchorPane.leftAnchor="8.0" AnchorPane.topAnchor="9.0">
+                <Button fx:id="deleteButton" minWidth="30" maxWidth="30" AnchorPane.leftAnchor="8.0" AnchorPane.topAnchor="9.0">
                     <graphic>
-                        <ImageView fitHeight="19.0" fitWidth="19.0" translateX="-2.0">
-                            <image>
-                                <Image url="@/icons/x.png" />
-                            </image>
+                        <ImageView fitHeight="16.0" fitWidth="16.0">
+                            <Image url="@/icons/x.png"/>
                         </ImageView>
                     </graphic>
                 </Button>
@@ -42,21 +40,17 @@
             </AnchorPane>
             <HBox spacing="5.0" styleClass="voice-pattern-container" VBox.vgrow="ALWAYS">
 
-                <Button fx:id="searchPattern" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="26.0" prefWidth="31.0" text=" ">
+                <Button fx:id="searchPatternButton" minWidth="30" maxWidth="30" onMouseClicked="#handlePressedPatternSearch">
                     <graphic>
-                        <ImageView fitHeight="16.0" fitWidth="19.0" translateX="-1.0">
-                            <image>
-                                <Image url="@/icons/down-arrow.png" />
-                            </image>
+                        <ImageView fitHeight="16.0" fitWidth="16.0" >
+                            <Image url="@/icons/down-arrow.png"/>
                         </ImageView>
                     </graphic>
                 </Button>
-                <Button fx:id="patternMenuButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="26.0" prefWidth="31.0" text=" ">
+                <Button fx:id="patternMenuButton" minWidth="30" maxWidth="30" onMouseClicked="#handlePressedPatternMenu">
                     <graphic>
-                        <ImageView fitHeight="17.0" fitWidth="17.0">
-                            <image>
-                                <Image url="@/icons/hamburger-menu.png" />
-                            </image>
+                        <ImageView fitHeight="16.0" fitWidth="16.0">
+                            <Image url="@/icons/hamburger-menu.png"/>
                         </ImageView>
                     </graphic>
                 </Button>
@@ -98,38 +92,32 @@
 
             <Group fx:id="trackButtonGroup" AnchorPane.leftAnchor="4.0" AnchorPane.topAnchor="4.0">
 
-                <Button fx:id="addTrackButton" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="36.0" prefWidth="36.0" text=" ">
+                <Button fx:id="addTrackButton" minWidth="30" maxWidth="30">
                     <graphic>
-                        <ImageView fitHeight="21.0" fitWidth="21.0">
-                            <image>
-                                <Image url="@/icons/plus.png" />
-                            </image>
+                        <ImageView fitHeight="16.0" fitWidth="16.0">
+                            <Image url="@/icons/plus.png"/>
                         </ImageView>
                     </graphic>
                 </Button>
-                <Button fx:id="trackMenuButton" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="36.0" prefWidth="36.0" text=" ">
+                <Button fx:id="trackMenuButton" minWidth="30" maxWidth="30" onMouseClicked="#handlePressedTrackMenu">
                     <graphic>
-                        <ImageView fitHeight="21.0" fitWidth="21.0">
-                            <image>
-                                <Image url="@/icons/hamburger-menu.png" />
-                            </image>
+                        <ImageView fitHeight="16.0" fitWidth="16.0">
+                            <Image url="@/icons/hamburger-menu.png"/>
                         </ImageView>
                     </graphic>
                 </Button>
             </Group>
-            <Button fx:id="addTrackButton_1" layoutX="188.0" layoutY="126.0" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="26.0" prefWidth="31.0" text=" ">
+            <Button fx:id="addTrackButton_1" minWidth="30" maxWidth="30">
                 <graphic>
-                    <ImageView fitHeight="21.0" fitWidth="21.0" translateX="-2.0">
-                        <image>
-                            <Image url="@/icons/plus.png" />
-                        </image>
+                    <ImageView fitHeight="16.0" fitWidth="16.0">
+                        <Image url="@/icons/plus.png"/>
                     </ImageView>
                 </graphic>
             </Button>
          <TextField fx:id="trackNameField" layoutX="50.0" layoutY="10.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="155.0" />
 
         </AnchorPane>
-      <AnchorPane fx:id="timeLineAnchorpane" minHeight="-Infinity" prefHeight="155.0" prefWidth="788.0" HBox.hgrow="ALWAYS" />
+      <AnchorPane fx:id="timeLineAnchorpane" prefHeight="155.0" HBox.hgrow="ALWAYS" onMouseClicked="#handlePressedTimeline" cursor="CROSSHAIR" /><!-- TODO confirm cursor turns into crosshair when hover on empty timeline -->
 
     </HBox>
 

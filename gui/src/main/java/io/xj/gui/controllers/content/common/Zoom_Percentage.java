@@ -1,5 +1,6 @@
 package io.xj.gui.controllers.content.common;
 
+// TODO this entire functionality should be encapsulated in a custom value to use in the zoom chooser itself
 public enum Zoom_Percentage {
     PERCENT_5(.05),
     PERCENT_10(.10),

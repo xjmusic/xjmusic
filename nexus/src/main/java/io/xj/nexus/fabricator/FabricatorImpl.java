@@ -449,7 +449,7 @@ public class FabricatorImpl implements Fabricator {
       return MemeIsometry.none();
 
     var nextSequenceBinding = sourceMaterial().getBindingsAtOffsetOfProgram(previousMacroChoice.get().getProgramId(),
-        previousSequenceBinding.get().getOffset() + 1);
+        previousSequenceBinding.get().getOffset() + 1, true);
 
     return MemeIsometry.of(templateConfig.getMemeTaxonomy(),
         Stream.concat(
@@ -624,7 +624,7 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public Optional<ProgramSequenceBinding> getRandomlySelectedSequenceBindingAtOffset(Program program, Integer offset) {
     var bag = MarbleBag.empty();
-    for (ProgramSequenceBinding sequenceBinding : sourceMaterial.getBindingsAtOffsetOfProgram(program, offset))
+    for (ProgramSequenceBinding sequenceBinding : sourceMaterial.getBindingsAtOffsetOfProgram(program, offset, true))
       bag.add(1, sequenceBinding.getId());
     if (bag.isEmpty()) return Optional.empty();
     return sourceMaterial.getProgramSequenceBinding(bag.pick());

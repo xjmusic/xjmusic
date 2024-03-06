@@ -11,20 +11,20 @@
   <padding>
     <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
   </padding>
-  <Button fx:id="newSequence" mnemonicParsing="false" prefHeight="29.0" prefWidth="121.0" styleClass="sequence-button"
-          text="New Sequence">
+  <Button fx:id="newSequenceButton" mnemonicParsing="false" prefHeight="29.0" prefWidth="121.0" styleClass="sequence-button"
+          text="New Sequence" onAction="#handlePressNewSequence">
     <font>
       <Font name="System Bold" size="13.0"/>
     </font>
   </Button>
   <Button fx:id="deleteButton" mnemonicParsing="false" prefHeight="29.0" prefWidth="85.0" styleClass="sequence-button"
-          text="Delete">
+          text="Delete" onAction="#handlePressDelete">
     <font>
       <Font name="System Bold" size="13.0"/>
     </font>
   </Button>
   <Button fx:id="cloneButton" mnemonicParsing="false" prefHeight="29.0" prefWidth="57.0" styleClass="sequence-button"
-          text="Clone">
+          text="Clone" onAction="#handlePressClone">
     <font>
       <Font name="System Bold" size="13.0"/>
     </font>

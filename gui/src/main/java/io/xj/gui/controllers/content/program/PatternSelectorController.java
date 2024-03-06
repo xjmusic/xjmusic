@@ -15,35 +15,35 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.UUID;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class PatternSelectorController {
-    @FXML
-
-    public VBox container;
-    @FXML
-    public SearchableComboBox<ProgramSequencePattern> patternSelector;
     private final ProjectService projectService;
     private final ProgramEditorController programEditorController;
     private Collection<ProgramSequencePattern> programSequencePatternsOfVoice;
     private ProgramVoice voice;
     private  VoiceController voiceController;
 
-    public PatternSelectorController(ProjectService projectService,
-                                   ProgramEditorController programEditorController) {
+    @FXML
+    protected VBox container;
+
+    @FXML
+    protected SearchableComboBox<ProgramSequencePattern> patternSelector;
+
+    public PatternSelectorController(ProjectService projectService, ProgramEditorController programEditorController) {
         this.projectService = projectService;
         this.programEditorController = programEditorController;
     }
 
-    public void setUp(Collection<ProgramSequencePattern> programSequencePatternsOfVoice, ProgramVoice voice,VoiceController voiceController,Stage stage) {
+    // TODO don't pass entities, only identifiers
+    public void setup(Collection<ProgramSequencePattern> programSequencePatternsOfVoice, ProgramVoice voice, VoiceController voiceController, Stage stage) {
         this.voice = voice;
         this.voiceController=voiceController;
         this.programSequencePatternsOfVoice = programSequencePatternsOfVoice;
         setCombobox();
         selectProgramSequencePattern(stage);
-
+        patternSelector.show();
     }
 
     private void setCombobox() {

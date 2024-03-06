@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<HBox fx:id="container" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramEditorModeBindController">
+  <VBox>
+    <Label styleClass="bind-mode-label" text="OFFSET"
+           minHeight="20" maxHeight="20"
+           HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+    <Label alignment="CENTER" contentDisplay="RIGHT" styleClass="sequence-memes-label"
+           text="SEQUENCES + MEMES"
+           textAlignment="CENTER" textFill="GREY" wrapText="true" VBox.vgrow="ALWAYS">
+      <padding>
+        <Insets left="5.0" right="5.0"/>
+      </padding>
+    </Label>
+  </VBox>
+  <HBox fx:id="sequenceBindingsContainer">
+    <!-- binding columns will be added here -->
+  </HBox>
+
+</HBox>

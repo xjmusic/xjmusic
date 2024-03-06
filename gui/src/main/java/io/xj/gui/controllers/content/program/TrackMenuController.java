@@ -45,7 +45,8 @@ public class TrackMenuController {
         this.ac = ac;
     }
 
-    public void setUp(Parent root, ProgramVoice voice, VoiceController voiceController, ProgramVoiceTrack track, boolean itemIsAttachedToVoiceFxml, Parent trackRoot, Button addTrackButton) {
+    // TODO don't pass entities, only identifiers
+    public void setup(Parent root, ProgramVoice voice, VoiceController voiceController, ProgramVoiceTrack track, boolean itemIsAttachedToVoiceFxml, Parent trackRoot, Button addTrackButton) {
         this.voice = voice;
         this.voiceController = voiceController;
         this.programVoiceTrack = track;

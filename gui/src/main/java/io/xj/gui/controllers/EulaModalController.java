@@ -7,7 +7,7 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.TextAreaUtils;
-import io.xj.gui.utils.WindowUtils;
+import io.xj.gui.utils.UiUtils;
 import io.xj.hub.util.StringUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -105,7 +105,7 @@ public class EulaModalController extends ProjectController {
       try {
         this.onAccepted = onAccepted;
 
-        primaryStage.setTitle(WindowUtils.computeTitle(WINDOW_TITLE));
+        primaryStage.setTitle(UiUtils.computeTitle(WINDOW_TITLE));
 
         FXMLLoader mainWindowFxmlLoader = new FXMLLoader(fxml.getURL());
         mainWindowFxmlLoader.setControllerFactory(ac::getBean);

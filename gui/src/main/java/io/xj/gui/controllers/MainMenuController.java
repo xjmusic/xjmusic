@@ -15,6 +15,7 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.ProjectUtils;
+import io.xj.gui.utils.UiUtils;
 import io.xj.nexus.work.FabricationState;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -213,6 +214,8 @@ public class MainMenuController extends ProjectController {
     buttonViewModeTemplates.disableProperty().bind(projectService.isStateReadyProperty().not());
     buttonViewModeFabrication.disableProperty().bind(projectService.isStateReadyProperty().not());
     menuFabrication.disableProperty().bind(projectService.isStateReadyProperty().not());
+
+    UiUtils.toggleGroupPreventDeselect(buttonViewModeToggleGroup);
 
     fabricationService.stateProperty().addListener((o, ov, value) -> updateFabricationButtonState(value));
     updateFabricationButtonState(fabricationService.stateProperty().get());

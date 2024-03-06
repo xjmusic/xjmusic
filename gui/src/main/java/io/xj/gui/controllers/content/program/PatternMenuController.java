@@ -38,7 +38,8 @@ public class PatternMenuController {
         this.projectService = projectService;
     }
 
-    public void setUp(Parent root, ProgramVoice voice, ProgramSequencePattern programSequencePattern, VoiceController voiceController) {
+    // TODO don't pass entities, only identifiers
+    public void setup(Parent root, ProgramVoice voice, ProgramSequencePattern programSequencePattern, VoiceController voiceController) {
         this.voice = voice;
         this.voiceController = voiceController;
         activeProgramSequencePattern = programSequencePattern;
