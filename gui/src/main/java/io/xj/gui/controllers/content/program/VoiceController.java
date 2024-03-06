@@ -26,7 +26,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -42,7 +41,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,8 +52,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.UUID;
-
-import static io.xj.gui.services.UIStateService.OPEN_PSEUDO_CLASS;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -265,7 +261,7 @@ public class VoiceController {
       addTrackButton_1.setVisible(false);
       TrackController trackController = loader.getController();
       if (!isLastItem) trackController.addTrackButton_1.setVisible(false);
-      trackController.setUp(root, voice, this, newTrack);
+      trackController.setup(root, voice, this, newTrack);
       voiceContainer.getChildren().add(root);
     } catch (IOException e) {
       LOG.error("Error adding Track item view!\n{}", StringUtils.formatStackTrace(e), e);
