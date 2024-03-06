@@ -6,7 +6,9 @@ import io.xj.gui.ProjectController;
 import io.xj.gui.controllers.CmdModalController;
 import io.xj.gui.controllers.content.common.EntityMemesController;
 import io.xj.gui.modes.ContentMode;
+import io.xj.gui.modes.GridChoice;
 import io.xj.gui.modes.ViewMode;
+import io.xj.gui.modes.ZoomChoice;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
@@ -31,7 +33,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -44,7 +45,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,14 +53,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-
-import static io.xj.gui.services.UIStateService.OPEN_PSEUDO_CLASS;
 
 @Service
 public class ProgramEditorController extends ProjectController {
@@ -97,10 +94,6 @@ public class ProgramEditorController extends ProjectController {
   private final ObservableList<ProgramState> programStates = FXCollections.observableArrayList(ProgramState.values());
   private final StringProperty gridProperty = new SimpleStringProperty("");
   private final StringProperty zoomProperty = new SimpleStringProperty("");
-  private final ObservableList<String> gridDivisions =
-    FXCollections.observableArrayList(Arrays.asList("1/4", "1/8", "1/16", "1/32"));
-  private final ObservableList<String> zoomOptions =
-    FXCollections.observableArrayList(Arrays.asList("5%", "10%", "25%", "50%", "100%", "200%", "300%", "400%"));
   protected final SimpleStringProperty sequencePropertyName = new SimpleStringProperty("");
   private final SimpleStringProperty sequencePropertyKey = new SimpleStringProperty("");
   private final BooleanProperty programHasSequences = new SimpleBooleanProperty();
@@ -160,10 +153,10 @@ public class ProgramEditorController extends ProjectController {
   public ToggleButton snapButton;
 
   @FXML
-  public ComboBox<String> zoomChooser;
+  public ComboBox<ZoomChoice> zoomChooser;
 
   @FXML
-  public ComboBox<String> gridChooser;
+  public ComboBox<GridChoice> gridChooser;
 
   @FXML
   public Button sequenceSelectorLauncher;
@@ -229,8 +222,8 @@ public class ProgramEditorController extends ProjectController {
     setComboboxSelectionProcessing(stateChooser);
     gridChooser.valueProperty().bindBidirectional(gridProperty);
     zoomChooser.valueProperty().bindBidirectional(zoomProperty);
-    gridChooser.setItems(gridDivisions);
-    zoomChooser.setItems(zoomOptions);
+    gridChooser.setItems(gridChoices);
+    zoomChooser.setItems(zoomChoices);
     sequenceNameField.textProperty().bindBidirectional(sequencePropertyName);
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
@@ -493,4 +486,5 @@ public class ProgramEditorController extends ProjectController {
   public UUID getProgramId() {
     return programId.get();
   }
+
 }

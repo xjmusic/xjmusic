@@ -2,9 +2,11 @@ package io.xj.gui.services.impl;
 
 import io.xj.gui.WorkstationLogAppender;
 import io.xj.gui.modes.ContentMode;
+import io.xj.gui.modes.GridChoice;
 import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.modes.ViewStatusMode;
+import io.xj.gui.modes.ZoomChoice;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
@@ -30,10 +32,13 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -92,15 +97,23 @@ public class UIStateServiceImpl implements UIStateService {
   private final BooleanProperty programEditorEditMode = new SimpleBooleanProperty(false);
   private final BooleanProperty programEditorBindMode = new SimpleBooleanProperty(false);
   private final ObjectProperty<ProgramSequence> currentProgramSequence = new SimpleObjectProperty<>();
+  private final ObservableList<GridChoice> programEditorGridChoices;
+  private final ObservableList<ZoomChoice> programEditorZoomChoices;
+  private final ObjectProperty<GridChoice> programEditorGrid = new SimpleObjectProperty<>();
+  private final ObjectProperty<ZoomChoice> programEditorZoom = new SimpleObjectProperty<>();
 
   public UIStateServiceImpl(
     @Value("${lab.feature.enabled}") String defaultIsLabFeatureEnabled,
     @Value("${programEditor.baseSizePerBeat}") int programEditorBaseSizePerBeat,
+    @Value("#{'${programEditor.gridChoices}'.split(',')}") List<Double> programEditorGridChoices,
+    @Value("#{'${programEditor.zoomChoices}'.split(',')}") List<Double> programEditorZoomChoices,
     FabricationService fabricationService,
     ProjectService projectService
   ) {
     this.defaultIsLabFeatureEnabled = defaultIsLabFeatureEnabled;
     this.programEditorBaseSizePerBeat = programEditorBaseSizePerBeat;
+    this.programEditorGridChoices = FXCollections.observableArrayList(programEditorGridChoices.stream().map(GridChoice::new).toList());
+    this.programEditorZoomChoices = FXCollections.observableArrayList(programEditorZoomChoices.stream().map(ZoomChoice::new).toList());
 
     // Has a current project?
     hasCurrentProject = Bindings.createBooleanBinding(
@@ -551,6 +564,26 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public int getProgramEditorBaseSizePerBeat() {
     return programEditorBaseSizePerBeat;
+  }
+
+  @Override
+  public ObservableList<GridChoice> getProgramEditorGridChoices() {
+    return programEditorGridChoices;
+  }
+
+  @Override
+  public ObservableList<ZoomChoice> getProgramEditorZoomChoices() {
+    return programEditorZoomChoices;
+  }
+
+  @Override
+  public ObjectProperty<GridChoice> programEditorGridProperty() {
+    return programEditorGrid;
+  }
+
+  @Override
+  public ObjectProperty<ZoomChoice> programEditorZoomProperty() {
+    return programEditorZoom;
   }
 
   /**

@@ -1,9 +1,11 @@
 package io.xj.gui.services;
 
 import io.xj.gui.modes.ContentMode;
+import io.xj.gui.modes.GridChoice;
 import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.modes.ViewStatusMode;
+import io.xj.gui.modes.ZoomChoice;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
@@ -19,6 +21,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
+import javafx.collections.ObservableList;
 import javafx.css.PseudoClass;
 
 import java.util.Set;
@@ -286,7 +289,7 @@ public interface UIStateService extends ReadyAfterBoot {
   BooleanProperty programEditorBindModeProperty();
 
   /**
-   * @return property program editor current program serquence
+   @return property program editor current program serquence
    */
   ObjectProperty<ProgramSequence> currentProgramSequenceProperty();
 
@@ -294,4 +297,24 @@ public interface UIStateService extends ReadyAfterBoot {
    Get the base size per beat in pixels
    */
   int getProgramEditorBaseSizePerBeat();
+
+  /**
+   @return grid choices for the program editor
+   */
+  ObservableList<GridChoice> getProgramEditorGridChoices();
+
+  /**
+   @return zoom choices for the program editor
+   */
+  ObservableList<ZoomChoice> getProgramEditorZoomChoices();
+
+  /**
+   @return the current grid setting for the program editor
+   */
+  ObjectProperty<GridChoice> programEditorGridProperty();
+
+  /**
+   @return the current zoom setting for the program editor
+   */
+  ObjectProperty<ZoomChoice> programEditorZoomProperty();
 }
