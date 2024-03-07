@@ -7,6 +7,7 @@ import io.xj.gui.controllers.CmdModalController;
 import io.xj.gui.controllers.content.common.EntityMemesController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.GridChoice;
+import io.xj.gui.modes.ProgramEditorMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.modes.ZoomChoice;
 import io.xj.gui.services.ProjectService;
@@ -18,16 +19,16 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.util.StringUtils;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.BooleanProperty;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.FloatProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -62,8 +63,6 @@ import java.util.UUID;
 @Service
 public class ProgramEditorController extends ProjectController {
   static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
-  private static final String DEFAULT_GRID_VALUE = "1/4";
-  private static final String DEFAULT_ZOOM_VALUE = "25%";
   private static final Set<ProgramType> PROGRAM_TYPES_WITH_BINDINGS = Set.of(ProgramType.Main, ProgramType.Macro);
   private final Resource configFxml;
   private final Resource sequenceSelectorFxml;
@@ -92,14 +91,17 @@ public class ProgramEditorController extends ProjectController {
   private final ObjectProperty<Double> tempoDoubleValue = new SimpleObjectProperty<>(tempoValueFactory.getValue());
   private final ObservableList<ProgramType> programTypes = FXCollections.observableArrayList(ProgramType.values());
   private final ObservableList<ProgramState> programStates = FXCollections.observableArrayList(ProgramState.values());
-  private final StringProperty gridProperty = new SimpleStringProperty("");
-  private final StringProperty zoomProperty = new SimpleStringProperty("");
   protected final SimpleStringProperty sequencePropertyName = new SimpleStringProperty("");
   private final SimpleStringProperty sequencePropertyKey = new SimpleStringProperty("");
-  private final BooleanProperty programHasSequences = new SimpleBooleanProperty();
+  private final BooleanBinding programHasSequences;
   private final CmdModalController cmdModalController;
-  private final ProgramEditorModeEditController editController;
-  private final ProgramEditorModeBindController bindController;
+  private final ModeEditController editController;
+  private final ModeBindController bindController;
+  private final ChangeListener<? super ContentMode> onEditProgram = (o, ov, v) -> {
+    teardown();
+    if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.ProgramEditor) && uiStateService.currentProgramProperty().isNotNull().get())
+      setup(uiStateService.currentProgramProperty().get().getId());
+  };
 
   @FXML
   public Spinner<Double> tempoChooser;
@@ -187,8 +189,8 @@ public class ProgramEditorController extends ProjectController {
     ProjectService projectService,
     UIStateService uiStateService,
     CmdModalController cmdModalController,
-    ProgramEditorModeEditController editController,
-    ProgramEditorModeBindController bindController
+    ModeEditController editController,
+    ModeBindController bindController
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.configFxml = configFxml;
@@ -198,6 +200,8 @@ public class ProgramEditorController extends ProjectController {
     this.cmdModalController = cmdModalController;
     this.editController = editController;
     this.bindController = bindController;
+
+    programHasSequences = Bindings.createBooleanBinding(() -> !uiStateService.sequencesOfCurrentProgramProperty().isEmpty(), uiStateService.sequencesOfCurrentProgramProperty());
   }
 
   @Override
@@ -208,29 +212,30 @@ public class ProgramEditorController extends ProjectController {
     var visible = projectService.isStateReadyProperty()
       .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
       .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramEditor));
-    uiStateService.contentModeProperty().addListener((o, ov, v) -> {
-      if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.ProgramEditor))
-        setup();
-    });
-    editorModeToggleGroup.selectToggle(editButton);
+    uiStateService.contentModeProperty().addListener(onEditProgram);
     typeChooser.setItems(programTypes);
     stateChooser.setItems(programStates);
-    setTextProcessing(programNameField);
-    setTextProcessing(keyField);
-    setChooserSelectionProcessing(tempoChooser);
-    setComboboxSelectionProcessing(typeChooser);
-    setComboboxSelectionProcessing(stateChooser);
-    gridChooser.valueProperty().bindBidirectional(gridProperty);
-    zoomChooser.valueProperty().bindBidirectional(zoomProperty);
-    gridChooser.setItems(gridChoices);
-    zoomChooser.setItems(zoomChoices);
+    UiUtils.onBlur(programNameField, this::handleProgramSave);
+    UiUtils.onBlur(keyField, this::handleProgramSave);
+    UiUtils.onBlur(tempoChooser, this::handleProgramSave);
+    UiUtils.onBlur(typeChooser, this::handleProgramSave);
+    UiUtils.onBlur(stateChooser, this::handleProgramSave);
+    gridChooser.valueProperty().bindBidirectional(uiStateService.programEditorGridProperty());
+    zoomChooser.valueProperty().bindBidirectional(uiStateService.programEditorZoomProperty());
+    gridChooser.setItems(uiStateService.getProgramEditorGridChoices());
+    zoomChooser.setItems(uiStateService.getProgramEditorZoomChoices());
     sequenceNameField.textProperty().bindBidirectional(sequencePropertyName);
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
     programNameField.textProperty().bindBidirectional(programName);
     typeChooser.valueProperty().bindBidirectional(type);
-    gridChooser.valueProperty().bindBidirectional(gridProperty);
-    zoomChooser.valueProperty().bindBidirectional(zoomProperty);
+
+    // if the type is changed to macro, force selection of bind mode
+    type.addListener((observable, oldValue, newValue) -> {
+      if (newValue == ProgramType.Macro) {
+        editorModeToggleGroup.selectToggle(bindButton);
+      }
+    });
 
     sequenceKeyField.textProperty().bindBidirectional(sequencePropertyKey);
     // Bind Label text to Chooser value with formatting
@@ -247,22 +252,9 @@ public class ProgramEditorController extends ProjectController {
     sequenceTotalValueFactory.valueProperty().addListener((observable, oldValue, newValue) -> sequenceTotalIntegerValue.set(newValue));
     sequenceTotalChooser.setValueFactory(sequenceTotalValueFactory);
 
-    // Whether the current program has sequences
-    uiStateService.currentProgramProperty().addListener((o, ov, value) -> {
-      if (value != null) {
-        programHasSequences.set(!projectService.getContent().getSequencesOfProgram(value.getId()).isEmpty());
-      }
-    });
-    projectService.addProjectUpdateListener(ProgramSequence.class, () -> {
-      if (uiStateService.currentProgramProperty().get() != null) {
-        programHasSequences.set(!projectService.getContent().getSequencesOfProgram(uiStateService.currentProgramProperty().get().getId()).isEmpty());
-      } else {
-        programHasSequences.set(false);
-      }
-    });
-
     // Bind the Chooser's value to the ObjectProperty
     tempo.bind(Bindings.createFloatBinding(() -> tempoDoubleValue.get().floatValue(), tempoDoubleValue));
+
     // Update the ObjectProperty when the Chooser value changes
     tempoChooser.valueProperty().addListener((observable, oldValue, newValue) -> tempoDoubleValue.set(newValue));
     tempoChooser.setValueFactory(tempoValueFactory);
@@ -325,14 +317,18 @@ public class ProgramEditorController extends ProjectController {
       }
     });
 
-    editButton.selectedProperty().bindBidirectional(uiStateService.programEditorEditModeProperty());
-    editButton.disableProperty().bind(type.isEqualTo(ProgramType.Macro));
-
-    bindButton.selectedProperty().bindBidirectional(uiStateService.programEditorBindModeProperty());
-    bindButton.disableProperty().bind(Bindings.createBooleanBinding(() -> !PROGRAM_TYPES_WITH_BINDINGS.contains(type.get()), type));
-
     timelineOptionsGroup.visibleProperty().bind(editButton.selectedProperty().and(uiStateService.currentProgramSequenceProperty().isNotNull()));
 
+    editButton.disableProperty().bind(type.isEqualTo(ProgramType.Macro));
+    bindButton.disableProperty().bind(Bindings.createBooleanBinding(() -> !PROGRAM_TYPES_WITH_BINDINGS.contains(type.get()), type));
+    editorModeToggleGroup.selectedToggleProperty().addListener((o, ov, v) -> {
+      if (Objects.equals(v, editButton))
+        uiStateService.programEditorModeProperty().set(ProgramEditorMode.Edit);
+      else if (Objects.equals(v, bindButton))
+        uiStateService.programEditorModeProperty().set(ProgramEditorMode.Bind);
+      else
+        uiStateService.programEditorModeProperty().set(null);
+    });
     UiUtils.toggleGroupPreventDeselect(editorModeToggleGroup);
   }
 
@@ -351,33 +347,6 @@ public class ProgramEditorController extends ProjectController {
     UiUtils.launchModalMenu(sequenceManagementLauncher, sequenceManagementFxml, ac, themeService.getMainScene().getWindow(),
       true, (SequenceManagementController controller, Stage stage) -> controller.setup(programId.get(), stage)
     );
-  }
-
-  /**
-   Handles value changes listening in the TextField components
-   */
-  private void setTextProcessing(TextField textField) {
-    textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-      if (!newValue) handleProgramSave();
-    });
-  }
-
-  /**
-   Handles value changes listening in the  value Chooser components
-   */
-  private void setChooserSelectionProcessing(Spinner<?> chooser) {
-    chooser.focusedProperty().addListener((observable, oldValue, newValue) -> {
-      if (!newValue) handleProgramSave();
-    });
-  }
-
-  /**
-   Handles value changes listening in the ComboBox components
-   */
-  private void setComboboxSelectionProcessing(ComboBox<?> comboBox) {
-    comboBox.focusedProperty().addListener((observable, oldValue, newValue) -> {
-      if (!newValue) handleProgramSave();
-    });
   }
 
   @FXML
@@ -415,10 +384,8 @@ public class ProgramEditorController extends ProjectController {
   /**
    Update the Program Editor with the current Program.
    */
-  private void setup() {
-    if (Objects.isNull(uiStateService.currentProgramProperty().get()))
-      return;
-    var program = projectService.getContent().getProgram(uiStateService.currentProgramProperty().get().getId())
+  private void setup(UUID programId) {
+    var program = projectService.getContent().getProgram(programId)
       .orElseThrow(() -> new RuntimeException("Could not find Program"));
     LOG.info("Will edit Program \"{}\"", program.getName());
     this.programId.set(program.getId());
@@ -428,7 +395,7 @@ public class ProgramEditorController extends ProjectController {
     this.key.set(program.getKey());
     this.tempoValueFactory.setValue(Double.valueOf(program.getTempo()));
 
-    List<ProgramSequence> programSequences = projectService.getContent().getSequencesOfProgram(programId.get()).stream()
+    List<ProgramSequence> programSequences = projectService.getContent().getSequencesOfProgram(programId).stream()
       .sorted(Comparator.comparing(ProgramSequence::getName)).toList();
     if (!programSequences.isEmpty()) {
       uiStateService.currentProgramSequenceProperty().set(programSequences.get(0));
@@ -436,21 +403,24 @@ public class ProgramEditorController extends ProjectController {
       uiStateService.currentProgramSequenceProperty().set(null);
     }
 
-    gridChooser.setValue(DEFAULT_GRID_VALUE);
-    zoomChooser.setValue(DEFAULT_ZOOM_VALUE);
-
     // When the program editor opens, if the program is a Macro-type, show the binding mode view, else always start on the Edit mode view
     if (Objects.equals(program.getType(), ProgramType.Macro)) {
-      bindButton.setSelected(true);
       editorModeToggleGroup.selectToggle(bindButton);
     } else {
-      editButton.setSelected(true);
       editorModeToggleGroup.selectToggle(editButton);
     }
 
     setupProgramMemeContainer();
-    bindController.setup(programId.get());
-    editController.setup(programId.get());
+    bindController.setup(programId);
+    editController.setup(programId);
+  }
+
+  /**
+   Teardown the Program Editor
+   */
+  private void teardown() {
+    bindController.teardown();
+    editController.teardown();
   }
 
   /**

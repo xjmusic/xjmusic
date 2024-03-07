@@ -3,6 +3,7 @@ package io.xj.gui.services.impl;
 import io.xj.gui.WorkstationLogAppender;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.GridChoice;
+import io.xj.gui.modes.ProgramEditorMode;
 import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.modes.ViewStatusMode;
@@ -66,6 +67,7 @@ public class UIStateServiceImpl implements UIStateService {
   private final ObjectProperty<ViewMode> viewMode = new SimpleObjectProperty<>(ViewMode.Content);
   private final ObjectProperty<Library> currentLibrary = new SimpleObjectProperty<>(null);
   private final ObjectProperty<Program> currentProgram = new SimpleObjectProperty<>(null);
+  private final ObservableList<ProgramSequence> sequencesOfCurrentProgram = FXCollections.observableArrayList();
   private final ObjectProperty<Instrument> currentInstrument = new SimpleObjectProperty<>(null);
   private final ObjectProperty<InstrumentAudio> currentInstrumentAudio = new SimpleObjectProperty<>(null);
   private final ObjectProperty<Template> currentTemplate = new SimpleObjectProperty<>(null);
@@ -94,26 +96,29 @@ public class UIStateServiceImpl implements UIStateService {
   private final BooleanBinding isLibraryContentBrowser;
 
   private final String defaultIsLabFeatureEnabled;
-  private final BooleanProperty programEditorEditMode = new SimpleBooleanProperty(false);
-  private final BooleanProperty programEditorBindMode = new SimpleBooleanProperty(false);
   private final ObjectProperty<ProgramSequence> currentProgramSequence = new SimpleObjectProperty<>();
   private final ObservableList<GridChoice> programEditorGridChoices;
   private final ObservableList<ZoomChoice> programEditorZoomChoices;
   private final ObjectProperty<GridChoice> programEditorGrid = new SimpleObjectProperty<>();
   private final ObjectProperty<ZoomChoice> programEditorZoom = new SimpleObjectProperty<>();
+  private final ObjectProperty<ProgramEditorMode> programEditorMode = new SimpleObjectProperty<>();
 
   public UIStateServiceImpl(
     @Value("${lab.feature.enabled}") String defaultIsLabFeatureEnabled,
     @Value("${programEditor.baseSizePerBeat}") int programEditorBaseSizePerBeat,
     @Value("#{'${programEditor.gridChoices}'.split(',')}") List<Double> programEditorGridChoices,
+    @Value("${programEditor.gridChoiceDefault}") Double programEditorGridChoiceDefault,
     @Value("#{'${programEditor.zoomChoices}'.split(',')}") List<Double> programEditorZoomChoices,
+    @Value("${programEditor.zoomChoiceDefault}") Double programEditorZoomChoiceDefault,
     FabricationService fabricationService,
     ProjectService projectService
   ) {
     this.defaultIsLabFeatureEnabled = defaultIsLabFeatureEnabled;
     this.programEditorBaseSizePerBeat = programEditorBaseSizePerBeat;
     this.programEditorGridChoices = FXCollections.observableArrayList(programEditorGridChoices.stream().map(GridChoice::new).toList());
+    programEditorGrid.set(new GridChoice(programEditorGridChoiceDefault));
     this.programEditorZoomChoices = FXCollections.observableArrayList(programEditorZoomChoices.stream().map(ZoomChoice::new).toList());
+    programEditorZoom.set(new ZoomChoice(programEditorZoomChoiceDefault));
 
     // Has a current project?
     hasCurrentProject = Bindings.createBooleanBinding(
@@ -260,6 +265,10 @@ public class UIStateServiceImpl implements UIStateService {
 
     isViewProgressStatusMode = viewStatusMode.isEqualTo(ViewStatusMode.FabricationProgress).or(viewStatusMode.isEqualTo(ViewStatusMode.ProjectProgress));
     isViewContentNavigationStatusMode = viewStatusMode.isEqualTo(ViewStatusMode.ContentNavigation);
+
+    // Update sequences of current program on a change in program or any sequence
+    currentProgram.addListener((o, ov, v) -> updateSequencesOfCurrentProgram());
+    projectService.addProjectUpdateListener(ProgramSequence.class, this::updateSequencesOfCurrentProgram);
 
     attachPreferenceListeners();
     setAllFromPreferencesOrDefaults();
@@ -418,6 +427,11 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
+  public ObservableList<ProgramSequence> sequencesOfCurrentProgramProperty() {
+    return sequencesOfCurrentProgram;
+  }
+
+  @Override
   public ObjectProperty<Instrument> currentInstrumentProperty() {
     return currentInstrument;
   }
@@ -547,13 +561,8 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public BooleanProperty programEditorEditModeProperty() {
-    return programEditorEditMode;
-  }
-
-  @Override
-  public BooleanProperty programEditorBindModeProperty() {
-    return programEditorBindMode;
+  public ObjectProperty<ProgramEditorMode> programEditorModeProperty() {
+    return programEditorMode;
   }
 
   @Override
@@ -598,5 +607,16 @@ public class UIStateServiceImpl implements UIStateService {
    */
   private void setAllFromPreferencesOrDefaults() {
     isLabFeatureEnabled.set(Boolean.parseBoolean(prefs.get("isLabFeatureEnabled", defaultIsLabFeatureEnabled)));
+  }
+
+  /**
+   Update the observable list of sequences of the current program.
+   */
+  private void updateSequencesOfCurrentProgram() {
+    if (Objects.nonNull(currentProgram.get())) {
+      sequencesOfCurrentProgram.setAll(projectService.getContent().getSequencesOfProgram(currentProgram.get().getId()));
+    } else {
+      sequencesOfCurrentProgram.clear();
+    }
   }
 }

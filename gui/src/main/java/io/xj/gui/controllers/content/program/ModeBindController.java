@@ -1,11 +1,13 @@
 package io.xj.gui.controllers.content.program;
 
 import io.xj.gui.ProjectController;
+import io.xj.gui.modes.ProgramEditorMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.util.StringUtils;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
@@ -26,11 +28,13 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class ProgramEditorModeBindController extends ProjectController {
-  static final Logger LOG = LoggerFactory.getLogger(ProgramEditorModeBindController.class);
+public class ModeBindController extends ProjectController {
+  static final Logger LOG = LoggerFactory.getLogger(ModeBindController.class);
   private final Resource sequenceBindingColumnFxml;
   private final List<SequenceBindingColumnController> sequenceBindingColumnControllers = new ArrayList<>();
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>();
+
+  private final BooleanBinding active;
 
   @FXML
   HBox container;
@@ -47,8 +51,8 @@ public class ProgramEditorModeBindController extends ProjectController {
    @param uiStateService common UI state service
    @param projectService common project service
    */
-  protected ProgramEditorModeBindController(
-    @Value("classpath:/views/content/program/program-editor-mode-bind.fxml") Resource fxml,
+  protected ModeBindController(
+    @Value("classpath:/views/content/program/mode-bind.fxml") Resource fxml,
     @Value("classpath:/views/content/program/sequence-binding-column.fxml") Resource sequenceBindingColumnFxml,
     ApplicationContext ac,
     ThemeService themeService,
@@ -57,12 +61,14 @@ public class ProgramEditorModeBindController extends ProjectController {
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.sequenceBindingColumnFxml = sequenceBindingColumnFxml;
+
+    active = uiStateService.programEditorModeProperty().isEqualTo(ProgramEditorMode.Bind);
   }
 
   @Override
   public void onStageReady() {
-    container.visibleProperty().bind(uiStateService.programEditorBindModeProperty());
-    container.managedProperty().bind(uiStateService.programEditorBindModeProperty());
+    container.visibleProperty().bind(active);
+    container.managedProperty().bind(active);
 
     projectService.addProjectUpdateListener(ProgramSequenceBinding.class, this::addOrRemoveSequenceBindingColumnsAsNeeded);
   }
@@ -77,12 +83,16 @@ public class ProgramEditorModeBindController extends ProjectController {
    */
   public void setup(UUID programId) {
     this.programId.set(programId);
-    // clear first before adding to prevent duplicates -- teardown controllers first
+    addOrRemoveSequenceBindingColumnsAsNeeded();
+  }
+
+  /**
+   Teardown the controller before it is removed
+   */
+  public void teardown() {
     for (SequenceBindingColumnController controller : sequenceBindingColumnControllers) controller.teardown();
     sequenceBindingColumnControllers.clear();
     sequenceBindingsContainer.getChildren().clear();
-
-    addOrRemoveSequenceBindingColumnsAsNeeded();
   }
 
   /**
@@ -124,5 +134,4 @@ public class ProgramEditorModeBindController extends ProjectController {
       LOG.error("Error loading Sequence Selector view!\n{}", StringUtils.formatStackTrace(e), e);
     }
   }
-
 }

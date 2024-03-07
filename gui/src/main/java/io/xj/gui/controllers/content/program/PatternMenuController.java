@@ -1,6 +1,7 @@
 package io.xj.gui.controllers.content.program;
 
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import javafx.fxml.FXML;
@@ -19,34 +20,37 @@ import java.util.UUID;
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class PatternMenuController {
     private final ProjectService projectService;
+    private final UIStateService uiStateService;
     @FXML
     public Button newPattern;
     @FXML
     public Button deletePattern;
     @FXML
     public Button clonePattern;
-    private ProgramVoice voice;
-    private final ProgramEditorController programEditorController;
-    private VoiceController voiceController;
     static final Logger LOG = LoggerFactory.getLogger(PatternMenuController.class);
 
     private ProgramSequencePattern activeProgramSequencePattern;
 
-    public PatternMenuController(ProjectService projectService, ProgramEditorController programEditorController
+    public PatternMenuController(
+      ProjectService projectService,
+      UIStateService uiStateService
     ) {
-        this.programEditorController = programEditorController;
+        this.uiStateService = uiStateService;
         this.projectService = projectService;
     }
 
     // TODO don't pass entities, only identifiers
     public void setup(Parent root, ProgramVoice voice, ProgramSequencePattern programSequencePattern, VoiceController voiceController) {
-        this.voice = voice;
-        this.voiceController = voiceController;
+/*
+  TODO pattern menu controller setup
         activeProgramSequencePattern = programSequencePattern;
         newPattern.setOnAction(e -> createVoicePattern());
         deletePattern.setOnAction(e -> deletePattern());
+*/
     }
 
+/*
+ TODO pattern menu controller create voice pattern
     private void createVoicePattern() {
         try {
             ProgramSequencePattern newPattern = new ProgramSequencePattern(UUID.randomUUID(), programEditorController.getProgramId(), programEditorController.getSequenceId(), voice.getId(), "XXX",
@@ -60,7 +64,10 @@ public class PatternMenuController {
             LOG.error("Cannot create new ProgramSequencePattern");
         }
     }
+*/
 
+/*
+  TODO pattern menu controller delete pattern
     private void deletePattern() {
         try {
             projectService.deleteContent(activeProgramSequencePattern);
@@ -72,4 +79,5 @@ public class PatternMenuController {
             LOG.error("Failed to delete ProgramSequencePattern ");
         }
     }
+*/
 }

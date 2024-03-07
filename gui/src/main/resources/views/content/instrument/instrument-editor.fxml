@@ -36,8 +36,7 @@
 
     <StackPane fx:id="instrumentMemeContainer"/>
 
-    <HBox spacing="10.0"
-          HBox.hgrow="ALWAYS">
+    <HBox spacing="10.0" HBox.hgrow="ALWAYS">
       <VBox HBox.hgrow="ALWAYS" spacing="2.0">
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Type" textAlignment="RIGHT"/>
         <ChoiceBox fx:id="choiceType" prefHeight="25.0" maxWidth="Infinity"/>

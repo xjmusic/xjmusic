@@ -3,6 +3,7 @@ package io.xj.gui.controllers.content.program;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.util.StringUtils;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
@@ -61,7 +62,7 @@ public class SequenceManagementController {
       uiStateService.currentProgramSequenceProperty().set(newProgramSequence);
       closeWindow();
     } catch (Exception e) {
-      LOG.info("Failed to create new Sequence");
+      LOG.info("Failed to create new sequence!\n{}", StringUtils.formatStackTrace(e));
     }
   }
 
@@ -79,7 +80,7 @@ public class SequenceManagementController {
       projectService.deleteContent(currentSequence);
       var sequences = projectService.getContent().getSequencesOfProgram(programId.get()).stream()
         .sorted(Comparator.comparing(ProgramSequence::getName)).toList();
-      if (sequences.size() > 0) {
+      if (!sequences.isEmpty()) {
         uiStateService.currentProgramSequenceProperty().set(sequences.get(0));
       } else {
         uiStateService.currentProgramSequenceProperty().set(null);

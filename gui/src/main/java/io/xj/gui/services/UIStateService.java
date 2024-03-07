@@ -2,6 +2,7 @@ package io.xj.gui.services;
 
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.GridChoice;
+import io.xj.gui.modes.ProgramEditorMode;
 import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.modes.ViewStatusMode;
@@ -13,6 +14,7 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.work.FabricationState;
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.ObjectBinding;
@@ -181,6 +183,11 @@ public interface UIStateService extends ReadyAfterBoot {
   ObjectProperty<Program> currentProgramProperty();
 
   /**
+   * @return the sequences of the current program
+   */
+  ObservableList<ProgramSequence> sequencesOfCurrentProgramProperty();
+
+  /**
    @return Observable property for the current instrument being viewed
    */
   ObjectProperty<Instrument> currentInstrumentProperty();
@@ -279,14 +286,9 @@ public interface UIStateService extends ReadyAfterBoot {
   BooleanProperty isLabFeatureEnabledProperty();
 
   /**
-   @return property whether the program editor is in edit mode
+   * @return property of the current program editor mode
    */
-  BooleanProperty programEditorEditModeProperty();
-
-  /**
-   @return property whether the program editor is in bind mode
-   */
-  BooleanProperty programEditorBindModeProperty();
+  ObjectProperty<ProgramEditorMode> programEditorModeProperty();
 
   /**
    @return property program editor current program serquence
@@ -317,4 +319,5 @@ public interface UIStateService extends ReadyAfterBoot {
    @return the current zoom setting for the program editor
    */
   ObjectProperty<ZoomChoice> programEditorZoomProperty();
+
 }

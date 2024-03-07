@@ -13,6 +13,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Font;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -114,7 +115,7 @@ public class EntityMemeTagController {
    @param text for which to compute width
    @return the width of the text
    */
-  private double computeTextWidth(javafx.scene.text.Font font, String text) {
+  private double computeTextWidth(Font font, String text) {
     javafx.scene.text.Text helper = new javafx.scene.text.Text();
     helper.setFont(font);
     helper.setText(text);

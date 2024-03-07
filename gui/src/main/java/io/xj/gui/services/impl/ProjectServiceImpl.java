@@ -317,9 +317,14 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public void deleteContent(Object entity) {
     try {
-      deleteContent(entity.getClass(), EntityUtils.getId(entity));
+      var id = EntityUtils.getId(entity);
+      try {
+        deleteContent(entity.getClass(), id);
+      } catch (Exception e2) {
+        LOG.error("Could not delete {}[{}]\n{}", entity.getClass().getSimpleName(), id, StringUtils.formatStackTrace(e2), e2);
+      }
     } catch (Exception e) {
-      LOG.error("Could not delete content\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Could not delete {}\n{}", entity.getClass().getSimpleName(), StringUtils.formatStackTrace(e));
     }
   }
 
@@ -330,7 +335,7 @@ public class ProjectServiceImpl implements ProjectService {
       didUpdate(type, true);
       LOG.info("Deleted {}[{}]", type.getSimpleName(), id);
     } catch (Exception e) {
-      LOG.error("Could not delete content\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Could not delete {}[{}]\n{}", type.getSimpleName(), id, StringUtils.formatStackTrace(e.getCause()), e);
     }
   }
 

@@ -122,7 +122,7 @@ public class VoiceController {
   public Button trackMenuButton;
 
   @FXML
-  public Button addTrackButton_1;
+  public Button addTrackButton_1; // todo this cannot be right-- what is this?
 
   @FXML
   public TextField trackNameField;
@@ -288,7 +288,7 @@ TODO implement sequence chooser
       Parent root = loader.load();
       addTrackButton_1.setVisible(false);
       TrackController trackController = loader.getController();
-      if (!isLastItem) trackController.addTrackButton_1.setVisible(false);
+      if (!isLastItem) trackController.addTrackButton.setVisible(false); // todo there has got to be a better way to deal with this
       // todo trackController.setup(root, voice, this, newTrack);
       voiceContainer.getChildren().add(root);
     } catch (IOException e) {

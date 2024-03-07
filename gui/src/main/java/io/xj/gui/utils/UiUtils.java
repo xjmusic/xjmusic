@@ -9,6 +9,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Control;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
@@ -230,5 +231,19 @@ public interface UiUtils {
     } catch (IOException e) {
       LOG.error("Failed to launch menu from {}!\n{}", fxml.getFilename(), StringUtils.formatStackTrace(e));
     }
+  }
+
+  /**
+   Utility to take an action on blur (loss of focus)
+
+   @param control the control
+   @param action  the action to take
+   */
+  static void onBlur(Control control, Runnable action) {
+    control.focusedProperty().addListener((obs, oldValue, newValue) -> {
+      if (!newValue) {
+        action.run();
+      }
+    });
   }
 }
