@@ -1,6 +1,7 @@
 package io.xj.gui.controllers.content.program;
 
-import io.xj.gui.controllers.content.common.Zoom_Percentage;
+import io.xj.gui.modes.GridChoice;
+import io.xj.gui.modes.ZoomChoice;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
@@ -20,6 +21,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -81,6 +83,9 @@ public class VoiceController {
   private final FloatProperty totalFloatValue = new SimpleFloatProperty(totalValueFactory.getValue());
 
   private final DoubleProperty timelineHeightProperty = new SimpleDoubleProperty(0);
+  private final ChangeListener<GridChoice> onGridChange = (observable, oldValue, newValue) -> Platform.runLater(this::populateTimeline);
+  private final ChangeListener<ZoomChoice> onZoomChange = (observable, oldValue, newValue) -> Platform.runLater(this::populateTimeline);
+
   private ProgramVoice voice;
 
   @FXML
@@ -185,17 +190,67 @@ public class VoiceController {
     updateTrackName();
     updateProgramSequencePatternInstrumentType();
     updateProgramVoiceName();
-    bindGridValueToTimelineGridProperty();
-    loadProgramVoiceTracks();
+
+/*
+TODO Add a listener to the selected item property
+    programEditorController.gridChooser.valueProperty().addListener((observable, oldValue, newValue) -> {
+      if (newValue != null) {
+        // Parse the new value to update the IntegerProperty
+    // Extract the numeric part from the selection
+    TrackController.updateGrid(selection, programEditorController);
+        Platform.runLater(this::populateTimeline);
+      }
+    });
+*/
+
+    programVoiceTrackObservableList.addAll(projectService.getContent().getTracksOfVoice(voice));
+    for (int i = 0; i < programVoiceTrackObservableList.size() && programVoiceTrackObservableList.size() > 0; i++) {
+      if (i == 0) {
+        programVoiceTrackObjectProperty.set(programVoiceTrackObservableList.get(i));
+        trackNameProperty.set(programVoiceTrackObjectProperty.get().getName());
+        showItemsAfterTrackIsCreated();
+      } else
+        trackItem(programVoiceTrackObservableList.get(i), programVoiceTrackObservableList.get(i) == programVoiceTrackObservableList.get(programVoiceTrackObservableList.size() - 1));
+    }
+
     patternTotalCountChooser.valueProperty().addListener((observable, oldValue, newValue) -> totalFloatValue.set(newValue));
     patternTotalCountChooser.setValueFactory(totalValueFactory);
-    setTotalChooserSelectionProcessing();
-    Platform.runLater(this::populateTimeline);
-    getZoomValueAndRedrawOnchange();
-    bindSequenceTotalValueToTimelineTotalLines();
+
+    patternTotalCountChooser.focusedProperty().addListener((observable, oldValue, newValue) -> {
+      try {
+        if (!newValue) {
+          totalValueFactory.setValue(patternTotalCountChooser.getValue());
+          projectService.update(ProgramSequencePattern.class, selectedProgramSequencePattern.get().getId(), "total",
+            totalValueFactory.getValue());
+        }
+      } catch (Exception e) {
+        LOG.info("Failed to update ProgramSequencePattern total");
+      }
+    });
+
+/*
+TODO implement sequence chooser
+    programEditorController.sequenceTotalChooser.valueProperty().addListener((observable, oldValue, newValue) -> {
+      if (newValue != null) {
+        programEditorController.setSequenceTotal(programEditorController.sequenceTotalChooser.getValue());
+        Platform.runLater(this::populateTimeline);
+      }
+    });
+*/
+
     trackNameField.textProperty().bindBidirectional(trackNameProperty);
+
+    uiStateService.programEditorZoomProperty().addListener(onZoomChange);
+    uiStateService.programEditorGridProperty().addListener(onGridChange);
+    Platform.runLater(this::populateTimeline);
   }
 
+  // TODO make sure this is called when the track is removed from the stage
+  public void teardown() {
+    uiStateService.programEditorZoomProperty().removeListener(onZoomChange);
+    uiStateService.programEditorGridProperty().removeListener(onGridChange);
+    // todo teardown the tracks inside of here
+  }
 
   public ObservableList<ProgramVoiceTrack> getProgramVoiceTrackObservableList() {
     return programVoiceTrackObservableList;
@@ -226,33 +281,6 @@ public class VoiceController {
     return totalValueFactory;
   }
 
-  private void setTotalChooserSelectionProcessing() {
-    patternTotalCountChooser.focusedProperty().addListener((observable, oldValue, newValue) -> {
-      try {
-        if (!newValue) {
-          totalValueFactory.setValue(patternTotalCountChooser.getValue());
-          projectService.update(ProgramSequencePattern.class, selectedProgramSequencePattern.get().getId(), "total",
-            totalValueFactory.getValue());
-        }
-      } catch (Exception e) {
-        LOG.info("Failed to update ProgramSequencePattern total");
-      }
-    });
-  }
-
-  private void loadProgramVoiceTracks() {
-    programVoiceTrackObservableList.addAll(projectService.getContent().getTracksOfVoice(voice));
-    for (int i = 0; i < programVoiceTrackObservableList.size() && programVoiceTrackObservableList.size() > 0; i++) {
-      if (i == 0) {
-        programVoiceTrackObjectProperty.set(programVoiceTrackObservableList.get(i));
-        trackNameProperty.set(programVoiceTrackObjectProperty.get().getName());
-        showItemsAfterTrackIsCreated();
-      } else
-        trackItem(programVoiceTrackObservableList.get(i), programVoiceTrackObservableList.get(i) == programVoiceTrackObservableList.get(programVoiceTrackObservableList.size() - 1));
-    }
-
-  }
-
   private void trackItem(ProgramVoiceTrack newTrack, Boolean isLastItem) {
     try {
       FXMLLoader loader = new FXMLLoader(trackFxml.getURL());
@@ -261,56 +289,11 @@ public class VoiceController {
       addTrackButton_1.setVisible(false);
       TrackController trackController = loader.getController();
       if (!isLastItem) trackController.addTrackButton_1.setVisible(false);
-      trackController.setup(root, voice, this, newTrack);
+      // todo trackController.setup(root, voice, this, newTrack);
       voiceContainer.getChildren().add(root);
     } catch (IOException e) {
       LOG.error("Error adding Track item view!\n{}", StringUtils.formatStackTrace(e), e);
     }
-  }
-
-  private void getZoomValueAndRedrawOnchange() {
-    programEditorController.zoomChooser.valueProperty().addListener((observable, oldValue, newValue) -> {
-      if (newValue != null) {
-        Zoom_Percentage zoomPercentage = switch (programEditorController.zoomChooser.getValue()) {
-          case "5%" -> Zoom_Percentage.PERCENT_5;
-          case "10%" -> Zoom_Percentage.PERCENT_10;
-          case "25%" -> Zoom_Percentage.PERCENT_25;
-          case "50%" -> Zoom_Percentage.PERCENT_50;
-          case "200%" -> Zoom_Percentage.PERCENT_200;
-          case "300%" -> Zoom_Percentage.PERCENT_300;
-          case "400%" -> Zoom_Percentage.PERCENT_400;
-          default -> Zoom_Percentage.PERCENT_100;
-        };
-        programEditorController.setZoomFactorProperty(zoomPercentage.getValue());
-        Platform.runLater(this::populateTimeline);
-      }
-    });
-  }
-
-  private void bindSequenceTotalValueToTimelineTotalLines() {
-    // Add a listener to the selected item property
-    programEditorController.sequenceTotalChooser.valueProperty().addListener((observable, oldValue, newValue) -> {
-      if (newValue != null) {
-        programEditorController.setSequenceTotal(programEditorController.sequenceTotalChooser.getValue());
-        Platform.runLater(this::populateTimeline);
-      }
-    });
-  }
-
-  private void bindGridValueToTimelineGridProperty() {
-    // Add a listener to the selected item property
-    programEditorController.gridChooser.valueProperty().addListener((observable, oldValue, newValue) -> {
-      if (newValue != null) {
-        // Parse the new value to update the IntegerProperty
-        updateTimelineGridProperty(newValue);
-        Platform.runLater(this::populateTimeline);
-      }
-    });
-  }
-
-  private void updateTimelineGridProperty(String selection) {
-    // Extract the numeric part from the selection
-    TrackController.updateGrid(selection, programEditorController);
   }
 
 
@@ -427,6 +410,8 @@ public class VoiceController {
 
   private void populateTimeline() {
     timeLineAnchorpane.getChildren().removeIf(node -> (node instanceof Line || node instanceof Rectangle));
+/*
+ TODO populate timeline
     if (0 < programEditorController.getSequenceTotal()) {
       for (double b = 0; b <= programEditorController.getSequenceTotal(); b += ((double) 1 / programEditorController.getTimelineGridSize())) {
         double gridLineX = b * uiStateService.getProgramEditorBaseSizePerBeat() * programEditorController.getZoomFactor();
@@ -434,6 +419,7 @@ public class VoiceController {
       }
       greyTheActiveArea();
     }
+*/
   }
 
   public double getDoubleProperty() {
@@ -469,22 +455,25 @@ public class VoiceController {
     timeLineAnchorpane.getChildren().add(line);
   }
 
+/*
+TODO
   private void greyTheActiveArea() {
     Rectangle rectangle = new Rectangle();
     // Bind the width of the rectangle to the product of the two integer properties
     rectangle.widthProperty().bind(
       Bindings.multiply(
         Bindings.multiply(
-          baseSizePerBeat,
+          uiStateService.getProgramEditorBaseSizePerBeat(),
           totalFloatValue
         ),
-        programEditorController.getZoomFactor()
+        uiStateService.programEditorZoomProperty()
       ));
     rectangle.setHeight(timelineHeightProperty.get());
     rectangle.setFill(Color.valueOf("#252525"));
     rectangle.setOpacity(.7);
     timeLineAnchorpane.getChildren().add(0, rectangle);
   }
+*/
 
   private void setCombobox() {
     // Clear existing items
@@ -497,7 +486,7 @@ public class VoiceController {
 
   private void deleteVoice(Parent root) {
     deleteButton.setOnAction(e -> {
-      programEditorController.editModeContainer.getChildren().remove(root);
+      // TODO programEditorController.editModeContainer.getChildren().remove(root);
       projectService.deleteContent(voice);
       projectService.showAlert(Alert.AlertType.INFORMATION, "It Was Done", "", "Deleted voice");
     });
@@ -516,7 +505,7 @@ public class VoiceController {
   private void addNewTrackToCurrentVoiceLine() {
     addTrackButton.setOnAction(e -> {
       try {
-        ProgramVoiceTrack newTrack = new ProgramVoiceTrack(UUID.randomUUID(), programEditorController.getProgramId(), voice.getId(), "XXX", 1f);
+        ProgramVoiceTrack newTrack = new ProgramVoiceTrack(UUID.randomUUID(), voice.getProgramId(), voice.getId(), "XXX", 1f);
         projectService.update(newTrack);
         trackNameProperty.set(newTrack.getName());
         programVoiceTrackObjectProperty.set(newTrack);
@@ -534,7 +523,7 @@ public class VoiceController {
 
   protected void createNewTrack() {
     try {
-      ProgramVoiceTrack newTrack = new ProgramVoiceTrack(UUID.randomUUID(), programEditorController.getProgramId(), voice.getId(), "XXX", 1f);
+      ProgramVoiceTrack newTrack = new ProgramVoiceTrack(UUID.randomUUID(), voice.getProgramId(), voice.getId(), "XXX", 1f);
       projectService.update(newTrack);
       TrackController.trackItem(trackFxml, ac, voiceContainer, LOG, addTrackButton_1, voice, this, newTrack);
     } catch (Exception e) {
@@ -561,20 +550,28 @@ public class VoiceController {
 
   @FXML
   protected void handlePressedPatternMenu() {
+/*
+  todo handle pressed pattern menu
     UiUtils.launchModalMenu(patternMenuButton, patternMenuFxml, ac, themeService.getMainScene().getWindow(),
       true, (PatternMenuController controller, Stage stage) -> controller.setup(root, voice, selectedProgramSequencePattern.get(), this)
     );
+*/
   }
 
   @FXML
   protected void handlePressedTrackMenu() {
+/*
+  todo handle pressed track menu
     UiUtils.launchModalMenu(trackMenuButton, trackMenuFxml, ac, themeService.getMainScene().getWindow(),
       true, (TrackMenuController controller, Stage stage) -> controller.setup(root, voice, voiceController, track, itemIsAttachedToVoiceFxml, trackRoot, addTrackButton)
     );
+*/
   }
 
   @FXML
   protected void handlePressedTimeline(MouseEvent event) {
+/*
+TODO handle pressed timeline
     try {
       event.consume();
       FXMLLoader loader = new FXMLLoader(programSequencePatternEventItem.getURL());
@@ -593,5 +590,6 @@ public class VoiceController {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+*/
   }
 }
