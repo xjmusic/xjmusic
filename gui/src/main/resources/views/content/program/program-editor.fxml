@@ -69,15 +69,15 @@
     </padding>
     <Label minWidth="80" text="SEQUENCE" styleClass="program-editor-field-label"/>
     <Button fx:id="sequenceSelectorLauncher" mnemonicParsing="false" minWidth="30" maxWidth="30"
-            onMouseClicked="#launchSequenceSelectorUI">
+            onMouseClicked="#handlePressedSequenceSelectorLauncher">
       <graphic>
         <ImageView fitHeight="16.0" fitWidth="16.0">
           <Image url="@/icons/down-arrow.png"/>
         </ImageView>
       </graphic>
     </Button>
-    <Button fx:id="sequenceMenuLauncher" mnemonicParsing="false" minWidth="30" maxWidth="30"
-            onMouseClicked="#launchSequenceManagementUI">
+    <Button fx:id="sequenceActionLauncher" mnemonicParsing="false" minWidth="30" maxWidth="30"
+            onMouseClicked="#handlePressedSequenceActionLauncher">
       <graphic>
         <ImageView fitHeight="16.0" fitWidth="16.0">
           <Image url="@/icons/hamburger-menu.png"/>

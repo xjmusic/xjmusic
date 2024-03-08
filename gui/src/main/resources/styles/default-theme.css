@@ -462,6 +462,14 @@
   -fx-background-color: #683568;
 }
 
+.voice-control-container {
+-fx-background-color: #404040;
+}
+
+.text-field {
+  -fx-background-color: transparent;
+}
+
 .config-editor {
   -fx-font-family: "Roboto Mono";
 }

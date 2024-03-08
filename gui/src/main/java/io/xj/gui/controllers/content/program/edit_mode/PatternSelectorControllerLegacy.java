@@ -19,7 +19,7 @@ import java.util.Collection;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class PatternSelectorController {
+public class PatternSelectorControllerLegacy {
     private final ProjectService projectService;
     private final ProgramEditorController programEditorController;
     private Collection<ProgramSequencePattern> programSequencePatternsOfVoice;
@@ -32,7 +32,7 @@ public class PatternSelectorController {
     @FXML
     protected SearchableComboBox<ProgramSequencePattern> patternSelector;
 
-    public PatternSelectorController(ProjectService projectService, ProgramEditorController programEditorController) {
+    public PatternSelectorControllerLegacy(ProjectService projectService, ProgramEditorController programEditorController) {
         this.projectService = projectService;
         this.programEditorController = programEditorController;
     }
@@ -81,14 +81,14 @@ public class PatternSelectorController {
             }
         });
         patternSelector.getSelectionModel().selectFirst();
-        voiceController.setSelectedProgramSequencePattern(patternSelector.getSelectionModel().getSelectedItem());
+//        voiceController.setSelectedProgramSequencePattern(patternSelector.getSelectionModel().getSelectedItem());
     }
 
     private void selectProgramSequencePattern(Stage stage) {
         patternSelector.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                voiceController.setSelectedProgramSequencePattern(newValue);
-                voiceController.updatePatternUI(newValue);
+//                voiceController.setSelectedProgramSequencePattern(newValue);
+//                voiceController.updatePatternUI(newValue);
                 Platform.runLater(stage::close);
             }
         });

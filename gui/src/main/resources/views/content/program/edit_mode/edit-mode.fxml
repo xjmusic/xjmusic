@@ -10,8 +10,8 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.xj.gui.controllers.content.program.edit_mode.EditModeController"
       VBox.vgrow="ALWAYS">
-  <VBox fx:id="voiceContainer"/>
-  <AnchorPane HBox.hgrow="ALWAYS">
+  <VBox fx:id="voiceContainer" spacing="2"/>
+  <AnchorPane fx:id="voiceAddContainer">
     <Button
         AnchorPane.topAnchor="5.0" AnchorPane.bottomAnchor="5.0"
         AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0"

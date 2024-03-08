@@ -386,7 +386,7 @@ public interface ProjectService {
    @param value     to set
    @param <N>       type of entity
    */
-  <N> void update(Class<N> type, UUID id, String attribute, Object value) throws Exception;
+  <N> void update(Class<N> type, UUID id, String attribute, Object value);
 
   /**
    Update the given library

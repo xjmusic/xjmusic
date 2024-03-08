@@ -18,7 +18,17 @@
       xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.xj.gui.controllers.content.program.edit_mode.VoiceController">
 
-  <VBox fx:id="voiceControlContainer">
+  <VBox fx:id="voiceControlContainer" styleClass="voice-control-container">
+    <HBox HBox.hgrow="ALWAYS">
+      <Button fx:id="voiceActionLauncher" onAction="#handlePressedVoiceActionLauncher" HBox.hgrow="ALWAYS">
+        <graphic>
+          <ImageView fitHeight="16.0" fitWidth="16.0">
+            <Image url="@/icons/hamburger-menu.png"/>
+          </ImageView>
+        </graphic>
+      </Button>
+      <TextField fx:id="nameField" HBox.hgrow="ALWAYS" />
+    </HBox>
 
   </VBox>
 
@@ -28,14 +38,7 @@
 
       <AnchorPane prefHeight="43.0" prefWidth="274.0" VBox.vgrow="NEVER">
 
-        <Button fx:id="deleteButton" minWidth="30" maxWidth="30" AnchorPane.leftAnchor="8.0" AnchorPane.topAnchor="9.0">
-          <graphic>
-            <ImageView fitHeight="16.0" fitWidth="16.0">
-              <Image url="@/icons/x.png"/>
-            </ImageView>
-          </graphic>
-        </Button>
-        <TextField fx:id="programVoiceNameTextField" layoutX="70.0" layoutY="10.0" prefHeight="25.0" prefWidth="99.0"/>
+
 
       </AnchorPane>
       <AnchorPane layoutX="10.0" layoutY="10.0" prefHeight="38.0" prefWidth="274.0" VBox.vgrow="NEVER">

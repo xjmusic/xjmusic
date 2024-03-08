@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class PatternMenuController {
+public class PatternMenuControllerLegacy {
     private final ProjectService projectService;
     private final UIStateService uiStateService;
     @FXML
@@ -24,11 +24,11 @@ public class PatternMenuController {
     public Button deletePattern;
     @FXML
     public Button clonePattern;
-    static final Logger LOG = LoggerFactory.getLogger(PatternMenuController.class);
+    static final Logger LOG = LoggerFactory.getLogger(PatternMenuControllerLegacy.class);
 
     private ProgramSequencePattern activeProgramSequencePattern;
 
-    public PatternMenuController(
+    public PatternMenuControllerLegacy(
       ProjectService projectService,
       UIStateService uiStateService
     ) {

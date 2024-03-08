@@ -152,7 +152,7 @@ public class ProgramEditorController extends ProjectController {
   public TextField sequenceNameField;
 
   @FXML
-  public Button sequenceMenuLauncher;
+  public Button sequenceActionLauncher;
 
   @FXML
   public ToggleButton snapButton;
@@ -336,7 +336,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   @FXML
-  protected void launchSequenceSelectorUI() {
+  protected void handlePressedSequenceSelectorLauncher() {
     UiUtils.launchModalMenu(sequenceSelectorLauncher, popupSelectorMenuFxml, ac, themeService.getMainScene().getWindow(),
       true, (PopupSelectorMenuController controller) -> controller.setup(
         projectService.getContent().getSequencesOfProgram(programId.get()),
@@ -346,8 +346,8 @@ public class ProgramEditorController extends ProjectController {
   }
 
   @FXML
-  protected void launchSequenceManagementUI() {
-    UiUtils.launchModalMenu(sequenceMenuLauncher, popupActionMenuFxml, ac, themeService.getMainScene().getWindow(),
+  protected void handlePressedSequenceActionLauncher() {
+    UiUtils.launchModalMenu(sequenceActionLauncher, popupActionMenuFxml, ac, themeService.getMainScene().getWindow(),
       true, (PopupActionMenuController controller) -> controller.setup(
         this::handleCreateSequence,
         this::handleDeleteSequence,

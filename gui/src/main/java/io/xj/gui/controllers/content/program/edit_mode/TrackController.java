@@ -26,8 +26,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-import static io.xj.gui.controllers.content.program.edit_mode.VoiceController.computeTextWidth;
-
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class TrackController {
@@ -173,11 +171,13 @@ public class TrackController {
 */
 
   private void adjustWidthWithTextIncrease() {
+/*
     double newTextWidth = computeTextWidth(trackNameField.getFont(), trackNameField.getText());
     if (newTextWidth > defaultTrackNameFieldPrefWidth) {
       trackNameField.setPrefWidth(newTextWidth);
       trackControlsContainer.setPrefWidth(newTextWidth + 10);
     }
+*/
   }
 
   @FXML

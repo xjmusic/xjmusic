@@ -14,6 +14,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -32,6 +34,7 @@ public class EditModeController extends ProjectController {
   static final Logger LOG = LoggerFactory.getLogger(EditModeController.class);
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>();
   private final Resource voiceFxml;
+  private final int voiceControlWidth;
   private final BooleanBinding active;
   private final Collection<VoiceController> voiceControllers = new HashSet<>();
 
@@ -40,6 +43,9 @@ public class EditModeController extends ProjectController {
 
   @FXML
   VBox voiceContainer;
+
+  @FXML
+  AnchorPane voiceAddContainer;
 
   @FXML
   Button addVoiceButton;
@@ -56,6 +62,7 @@ public class EditModeController extends ProjectController {
   protected EditModeController(
     @Value("classpath:/views/content/program/edit_mode/edit-mode.fxml") Resource fxml,
     @Value("classpath:/views/content/program/edit_mode/voice.fxml") Resource voiceFxml,
+    @Value("${programEditor.voiceControlWidth}") int voiceControlWidth,
     ApplicationContext ac,
     ThemeService themeService,
     UIStateService uiStateService,
@@ -63,6 +70,7 @@ public class EditModeController extends ProjectController {
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.voiceFxml = voiceFxml;
+    this.voiceControlWidth = voiceControlWidth;
 
     active = uiStateService.programEditorModeProperty().isEqualTo(ProgramEditorMode.Edit);
   }
@@ -71,6 +79,9 @@ public class EditModeController extends ProjectController {
   public void onStageReady() {
     container.visibleProperty().bind(active);
     container.managedProperty().bind(active);
+
+    voiceAddContainer.setMinWidth(voiceControlWidth);
+    voiceAddContainer.setMaxWidth(voiceControlWidth);
   }
 
   @Override
@@ -86,7 +97,10 @@ public class EditModeController extends ProjectController {
   public void setup(UUID programId) {
     this.programId.set(programId);
 
-    for (ProgramVoice programVoice : projectService.getContent().getVoicesOfProgram(programId)) {
+    for (ProgramVoice programVoice :
+      projectService.getContent().getVoicesOfProgram(programId).stream()
+        .sorted(Comparator.comparing(ProgramVoice::getOrder))
+        .toList()) {
       addVoice(programVoice);
     }
   }
@@ -123,7 +137,7 @@ public class EditModeController extends ProjectController {
       Parent root = loader.load();
       VoiceController controller = loader.getController();
       voiceControllers.add(controller);
-      controller.setup(programVoice, () -> {
+      controller.setup(programVoice.getId(), () -> {
         if (!projectService.getContent().getTracksOfVoice(programVoice.getId()).isEmpty()) {
           projectService.showWarningAlert("Failure", "Found Track in Voice", "Cannot delete voice because it contains a track.");
         } else {
@@ -135,7 +149,7 @@ public class EditModeController extends ProjectController {
       });
       voiceContainer.getChildren().add(root);
     } catch (IOException e) {
-      LOG.error("Error adding Voice! {}\n{}", e,  StringUtils.formatStackTrace(e));
+      LOG.error("Error adding Voice! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 }

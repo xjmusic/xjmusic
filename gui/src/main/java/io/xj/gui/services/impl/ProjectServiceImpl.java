@@ -560,10 +560,14 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public <N> void update(Class<N> type, UUID id, String attribute, Object value) throws Exception {
-    if (projectManager.getContent().update(type, id, attribute, value)) {
-      LOG.info("Updated {}[{}] attribute \"{}\" to \"{}\"", type.getSimpleName(), id, attribute, value);
-      didUpdate(type, true);
+  public <N> void update(Class<N> type, UUID id, String attribute, Object value) {
+    try {
+      if (projectManager.getContent().update(type, id, attribute, value)) {
+        LOG.info("Updated {}[{}] attribute \"{}\" to \"{}\"", type.getSimpleName(), id, attribute, value);
+        didUpdate(type, true);
+      }
+    } catch (Exception e) {
+      LOG.error("Could not update {}[{}] attribute \"{}\" to \"{}\"! {}\n{}", type.getSimpleName(), id, attribute, value, e, StringUtils.formatStackTrace(e));
     }
   }
 

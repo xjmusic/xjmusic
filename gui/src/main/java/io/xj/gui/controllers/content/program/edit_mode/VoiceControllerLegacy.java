@@ -142,9 +142,9 @@ public class VoiceControllerLegacy {
 
   public VoiceControllerLegacy(
     @Value("classpath:/views/content/program/edit_mode/track.fxml") Resource trackFxml,
-    @Value("classpath:/views/content/program/edit_mode/pattern-menu.fxml") Resource patternMenuFxml,
+    @Value("classpath:/views/content/program/edit_mode/pattern-menu-legacy.fxml") Resource patternMenuFxml,
     @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource trackMenuFxml,
-    @Value("classpath:/views/content/program/edit_mode/pattern-selector.fxml") Resource patternSelectorFxml,
+    @Value("classpath:/views/content/program/edit_mode/pattern-selector-legacy.fxml") Resource patternSelectorFxml,
     @Value("classpath:/views/content/program/edit_mode/program-sequence-pattern-event-item.fxml") Resource programSequencePatternEventItem,
     @Value("${programEditor.trackHeight}") int trackHeight,
       @Value("${programEditor.voiceControlWidth}") int voiceControlWidth,
@@ -557,7 +557,7 @@ TODO
   protected void handlePressedPatternSearch() {
 /*
     UiUtils.launchModalMenu(searchPatternButton, patternSelectorFxml, ac, themeService.getMainScene().getWindow(), true,
-      (PatternSelectorController controller, Stage stage) -> controller.setup(programSequencePatternsOfThisVoice, voice, this, stage)
+      (PatternSelectorControllerLegacy controller, Stage stage) -> controller.setup(programSequencePatternsOfThisVoice, voice, this, stage)
     );
 */
   }
@@ -567,7 +567,7 @@ TODO
 /*
   todo handle pressed pattern menu
     UiUtils.launchModalMenu(patternMenuButton, patternMenuFxml, ac, themeService.getMainScene().getWindow(),
-      true, (PatternMenuController controller, Stage stage) -> controller.setup(root, voice, selectedProgramSequencePattern.get(), this)
+      true, (PatternMenuControllerLegacy controller, Stage stage) -> controller.setup(root, voice, selectedProgramSequencePattern.get(), this)
     );
 */
   }
