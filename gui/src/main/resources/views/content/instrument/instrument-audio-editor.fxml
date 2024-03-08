@@ -13,15 +13,16 @@
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.VBox?>
 <SplitPane
-  fx:controller="io.xj.gui.controllers.content.instrument.InstrumentAudioEditorController"
-  fx:id="container"
-  xmlns="http://javafx.com/javafx/17.0.2-ea"
-  xmlns:fx="http://javafx.com/fxml/1"
-  dividerPositions="0.2">
+    fx:controller="io.xj.gui.controllers.content.instrument.InstrumentAudioEditorController"
+    fx:id="container"
+    xmlns="http://javafx.com/javafx/17.0.2-ea"
+    xmlns:fx="http://javafx.com/fxml/1"
+    dividerPositions="0.2">
 
   <VBox
-    fx:id="fieldsContainer"
-    spacing="10.0">
+      fx:id="fieldsContainer"
+      spacing="10.0"
+      minWidth="150">
     <VBox.vgrow>
       <Priority fx:constant="ALWAYS"/>
     </VBox.vgrow>
@@ -71,30 +72,30 @@
   </VBox>
 
   <AnchorPane
-    styleClass="waveform-pane">
+      styleClass="waveform-pane">
     <ScrollPane
-      fx:id="waveformScrollPane"
-      AnchorPane.topAnchor="0"
-      AnchorPane.leftAnchor="0"
-      AnchorPane.bottomAnchor="0"
-      AnchorPane.rightAnchor="0"
-      vbarPolicy="NEVER"
-      hbarPolicy="ALWAYS"
-      fitToWidth="true"
-      fitToHeight="true"
-      styleClass="waveform-container"
-      onMouseClicked="#handleClickedWaveformScrollPane">
+        fx:id="waveformScrollPane"
+        AnchorPane.topAnchor="0"
+        AnchorPane.leftAnchor="0"
+        AnchorPane.bottomAnchor="0"
+        AnchorPane.rightAnchor="0"
+        vbarPolicy="NEVER"
+        hbarPolicy="ALWAYS"
+        fitToWidth="true"
+        fitToHeight="true"
+        styleClass="waveform-container"
+        onMouseClicked="#handleClickedWaveformScrollPane">
       <ImageView
-        fx:id="waveform"
-        preserveRatio="true">
+          fx:id="waveform"
+          preserveRatio="true">
       </ImageView>
     </ScrollPane>
 
     <Button
-      AnchorPane.topAnchor="10"
-      AnchorPane.leftAnchor="10"
-      fx:id="buttonZoomOut"
-      onAction="#handlePressZoomOut">
+        AnchorPane.topAnchor="10"
+        AnchorPane.leftAnchor="10"
+        fx:id="buttonZoomOut"
+        onAction="#handlePressZoomOut">
       <graphic>
         <ImageView fitWidth="18" fitHeight="18">
           <Image url="@/icons/zoom-out.png"/>
@@ -106,10 +107,10 @@
     </Button>
 
     <Button
-      AnchorPane.topAnchor="10"
-      AnchorPane.leftAnchor="38"
-      fx:id="buttonZoomIn"
-      onAction="#handlePressZoomIn">
+        AnchorPane.topAnchor="10"
+        AnchorPane.leftAnchor="38"
+        fx:id="buttonZoomIn"
+        onAction="#handlePressZoomIn">
       <graphic>
         <ImageView fitWidth="18" fitHeight="18">
           <Image url="@/icons/zoom-in.png"/>
@@ -121,10 +122,10 @@
     </Button>
 
     <Button
-      AnchorPane.bottomAnchor="25"
-      AnchorPane.leftAnchor="10"
-      fx:id="buttonOpenAudioFolder"
-      onAction="#handlePressOpenAudioFolder">
+        AnchorPane.bottomAnchor="25"
+        AnchorPane.leftAnchor="10"
+        fx:id="buttonOpenAudioFolder"
+        onAction="#handlePressOpenAudioFolder">
       <graphic>
         <ImageView fitWidth="18" fitHeight="18">
           <Image url="@/icons/folder-open.png"/>
@@ -136,10 +137,10 @@
     </Button>
 
     <Button
-      AnchorPane.bottomAnchor="25"
-      AnchorPane.leftAnchor="38"
-      fx:id="buttonOpenAudioFile"
-      onAction="#handlePressOpenAudioFile">
+        AnchorPane.bottomAnchor="25"
+        AnchorPane.leftAnchor="38"
+        fx:id="buttonOpenAudioFile"
+        onAction="#handlePressOpenAudioFile">
       <graphic>
         <ImageView fitWidth="14" fitHeight="14">
           <Image url="@/icons/up-right-from-square.png"/>
@@ -151,9 +152,9 @@
     </Button>
 
     <Label
-      AnchorPane.bottomAnchor="25"
-      AnchorPane.leftAnchor="66"
-      fx:id="labelAudioFileName"/>
+        AnchorPane.bottomAnchor="25"
+        AnchorPane.leftAnchor="66"
+        fx:id="labelAudioFileName"/>
 
   </AnchorPane>
 

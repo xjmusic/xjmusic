@@ -549,9 +549,12 @@
 }
 
 .meme-tag-container {
+  -fx-padding: 0 0 0 0;
   -fx-background-color: #707070;
   -fx-background-radius: 4;
   -fx-border-radius: 4;
+  -fx-border-width: 0;
+  -fx-border-style: none;
 }
 
 .meme-name-field {
@@ -562,11 +565,12 @@
 }
 
 .meme-tag-remove-button {
-  -fx-padding: 2 4 2 4;
+  -fx-padding: 0 4 0 4;
   -fx-background-radius: 0 4 4 0;
   -fx-border-radius: 0 4 4 0;
   -fx-background-color: #606060;
   -fx-border-style: none;
+  -fx-border-width: 0;
 }
 
 .sequence-binding-item-container {
