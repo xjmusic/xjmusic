@@ -1,6 +1,6 @@
 package io.xj.gui.controllers.content.program.bind_mode;
 
-import io.xj.gui.controllers.content.program.SequenceSelectorController;
+import io.xj.gui.controllers.content.common.PopupSelectorMenuController;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.utils.UiUtils;
@@ -35,7 +35,7 @@ public class SequenceBindingColumnController {
   private final ProjectService projectService;
   private final ThemeService themeService;
   private final Resource sequenceBindingItemFxml;
-  private final Resource sequenceSelectorFxml;
+  private final Resource popupSelectorMenuFxml;
   private UUID programId;
   private int offset;
   private final Collection<SequenceBindingItemController> sequenceBindingItemControllers = new HashSet<>();
@@ -54,12 +54,12 @@ public class SequenceBindingColumnController {
 
   public SequenceBindingColumnController(
     @Value("classpath:/views/content/program/bind_mode/sequence-binding-item.fxml") Resource sequenceBindingItemFxml,
-    @Value("classpath:/views/content/program/sequence-selector.fxml") Resource sequenceSelectorFxml,
+    @Value("classpath:/views/content/common/popup-selector-menu.fxml") Resource popupSelectorMenuFxml,
     ApplicationContext ac,
     ProjectService projectService,
     ThemeService themeService
   ) {
-    this.sequenceSelectorFxml = sequenceSelectorFxml;
+    this.popupSelectorMenuFxml = popupSelectorMenuFxml;
     this.sequenceBindingItemFxml = sequenceBindingItemFxml;
     this.ac = ac;
     this.projectService = projectService;
@@ -96,8 +96,11 @@ public class SequenceBindingColumnController {
 
   @FXML
   protected void handlePressedAddSequenceBinding() {
-    UiUtils.launchModalMenu(addSequenceButton, sequenceSelectorFxml, ac, themeService.getMainScene().getWindow(), true,
-      (SequenceSelectorController controller) -> controller.setup(programId, this::createSequenceBinding)
+    UiUtils.launchModalMenu(addSequenceButton, popupSelectorMenuFxml, ac, themeService.getMainScene().getWindow(), true,
+      (PopupSelectorMenuController controller) -> controller.setup(
+        projectService.getContent().getSequencesOfProgram(programId),
+        this::createSequenceBinding
+      )
     );
   }
 

@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.HBox?>
 <HBox
     xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="io.xj.gui.controllers.content.common.PopupMenuController"
+    fx:controller="io.xj.gui.controllers.content.common.PopupActionMenuController"
     fx:id="container"
     stylesheets="@/styles/default-theme.css"
     spacing="5" styleClass="editor-popup-menu-container">

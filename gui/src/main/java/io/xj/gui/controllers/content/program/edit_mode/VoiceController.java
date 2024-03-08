@@ -41,7 +41,7 @@ public class VoiceController {
   public VoiceController(
     @Value("classpath:/views/content/program/edit_mode/track.fxml") Resource trackFxml,
     @Value("classpath:/views/content/program/edit_mode/pattern-menu.fxml") Resource patternMenuFxml,
-    @Value("classpath:/views/content/common/popup-menu.fxml") Resource trackMenuFxml,
+    @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource trackMenuFxml,
     @Value("classpath:/views/content/program/edit_mode/pattern-selector.fxml") Resource patternSelectorFxml,
     @Value("${programEditor.trackHeight}") int trackHeight,
     @Value("${programEditor.voiceControlWidth}") int voiceControlWidth,

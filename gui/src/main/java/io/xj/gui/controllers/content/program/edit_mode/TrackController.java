@@ -66,7 +66,7 @@ public class TrackController {
 
   public TrackController(
     @Value("classpath:/views/content/program/edit_mode/track.fxml") Resource trackFxml,
-    @Value("classpath:/views/content/common/popup-menu.fxml") Resource trackMenuFxml,
+    @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource trackMenuFxml,
     @Value("classpath:/views/content/program/edit_mode/program-sequence-pattern-event-item.fxml") Resource programSequencePatternEventItem,
     ApplicationContext ac,
     ThemeService themeService,

@@ -14,7 +14,7 @@ import java.util.Objects;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class PopupMenuController {
+public class PopupActionMenuController {
   @Nullable
   private Runnable onCreated;
   

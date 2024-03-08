@@ -5,7 +5,8 @@ package io.xj.gui.controllers.content.program;
 import io.xj.gui.ProjectController;
 import io.xj.gui.controllers.CmdModalController;
 import io.xj.gui.controllers.content.common.EntityMemesController;
-import io.xj.gui.controllers.content.common.PopupMenuController;
+import io.xj.gui.controllers.content.common.PopupActionMenuController;
+import io.xj.gui.controllers.content.common.PopupSelectorMenuController;
 import io.xj.gui.controllers.content.program.bind_mode.BindModeController;
 import io.xj.gui.controllers.content.program.edit_mode.EditModeController;
 import io.xj.gui.modes.ContentMode;
@@ -67,8 +68,8 @@ public class ProgramEditorController extends ProjectController {
   static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
   private static final Set<ProgramType> PROGRAM_TYPES_WITH_BINDINGS = Set.of(ProgramType.Main, ProgramType.Macro);
   private final Resource configFxml;
-  private final Resource sequenceSelectorFxml;
-  private final Resource popupMenuFxml;
+  private final Resource popupSelectorMenuFxml;
+  private final Resource popupActionMenuFxml;
   private final Resource entityMemesFxml;
 
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
@@ -183,8 +184,8 @@ public class ProgramEditorController extends ProjectController {
   public ProgramEditorController(
     @Value("classpath:/views/content/program/program-editor.fxml") Resource fxml,
     @Value("classpath:/views/content/program/program-config.fxml") Resource configFxml,
-    @Value("classpath:/views/content/program/sequence-selector.fxml") Resource sequenceSelectorFxml,
-    @Value("classpath:/views/content/common/popup-menu.fxml") Resource popupMenuFxml,
+    @Value("classpath:/views/content/common/popup-selector-menu.fxml") Resource popupSelectorMenuFxml,
+    @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource popupActionMenuFxml,
     @Value("classpath:/views/content/common/entity-memes.fxml") Resource entityMemesFxml,
     ApplicationContext ac,
     ThemeService themeService,
@@ -196,8 +197,8 @@ public class ProgramEditorController extends ProjectController {
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.configFxml = configFxml;
-    this.sequenceSelectorFxml = sequenceSelectorFxml;
-    this.popupMenuFxml = popupMenuFxml;
+    this.popupSelectorMenuFxml = popupSelectorMenuFxml;
+    this.popupActionMenuFxml = popupActionMenuFxml;
     this.entityMemesFxml = entityMemesFxml;
     this.cmdModalController = cmdModalController;
     this.editController = editController;
@@ -336,9 +337,9 @@ public class ProgramEditorController extends ProjectController {
 
   @FXML
   protected void launchSequenceSelectorUI() {
-    UiUtils.launchModalMenu(sequenceSelectorLauncher, sequenceSelectorFxml, ac, themeService.getMainScene().getWindow(),
-      true, (SequenceSelectorController controller) -> controller.setup(
-        programId.get(),
+    UiUtils.launchModalMenu(sequenceSelectorLauncher, popupSelectorMenuFxml, ac, themeService.getMainScene().getWindow(),
+      true, (PopupSelectorMenuController controller) -> controller.setup(
+        projectService.getContent().getSequencesOfProgram(programId.get()),
         (sequenceId) -> uiStateService.currentProgramSequenceProperty().set(projectService.getContent().getProgramSequence(sequenceId).orElse(null))
       )
     );
@@ -346,8 +347,8 @@ public class ProgramEditorController extends ProjectController {
 
   @FXML
   protected void launchSequenceManagementUI() {
-    UiUtils.launchModalMenu(sequenceMenuLauncher, popupMenuFxml, ac, themeService.getMainScene().getWindow(),
-      true, (PopupMenuController controller) -> controller.setup(
+    UiUtils.launchModalMenu(sequenceMenuLauncher, popupActionMenuFxml, ac, themeService.getMainScene().getWindow(),
+      true, (PopupActionMenuController controller) -> controller.setup(
         this::handleCreateSequence,
         this::handleDeleteSequence,
         this::handleCloneSequence

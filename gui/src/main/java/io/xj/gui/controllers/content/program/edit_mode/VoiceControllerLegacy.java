@@ -143,7 +143,7 @@ public class VoiceControllerLegacy {
   public VoiceControllerLegacy(
     @Value("classpath:/views/content/program/edit_mode/track.fxml") Resource trackFxml,
     @Value("classpath:/views/content/program/edit_mode/pattern-menu.fxml") Resource patternMenuFxml,
-    @Value("classpath:/views/content/common/popup-menu.fxml") Resource trackMenuFxml,
+    @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource trackMenuFxml,
     @Value("classpath:/views/content/program/edit_mode/pattern-selector.fxml") Resource patternSelectorFxml,
     @Value("classpath:/views/content/program/edit_mode/program-sequence-pattern-event-item.fxml") Resource programSequencePatternEventItem,
     @Value("${programEditor.trackHeight}") int trackHeight,
@@ -577,7 +577,7 @@ TODO
 /*
   todo handle pressed track menu
     UiUtils.launchModalMenu(trackMenuButton, trackMenuFxml, ac, themeService.getMainScene().getWindow(),
-      true, (PopupMenuController controller, Stage stage) -> controller.setup(root, voice, voiceController, track, itemIsAttachedToVoiceFxml, trackRoot, addTrackButton)
+      true, (PopupActionMenuController controller, Stage stage) -> controller.setup(root, voice, voiceController, track, itemIsAttachedToVoiceFxml, trackRoot, addTrackButton)
     );
 */
   }
