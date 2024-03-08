@@ -17,10 +17,10 @@ import java.util.Objects;
 public class PopupActionMenuController {
   @Nullable
   private Runnable onCreated;
-  
+
   @Nullable
   private Runnable onDelete;
-  
+
   @Nullable
   private Runnable onClone;
 
@@ -38,14 +38,14 @@ public class PopupActionMenuController {
 
 
   /**
-   Setup the popup menu
+   Set up the popup menu
 
    @param onCreate callback to create track
    @param onDelete callback to delete track
    @param onClone  callback to clone track
    */
   public void setup(
-    String createText,
+    @Nullable String createText,
     @Nullable Runnable onCreate,
     @Nullable Runnable onDelete,
     @Nullable Runnable onClone
@@ -54,7 +54,7 @@ public class PopupActionMenuController {
     this.onDelete = onDelete;
     this.onClone = onClone;
 
-    createButton.setText(createText);
+    if (Objects.nonNull(createText)) createButton.setText(createText);
     createButton.setVisible(Objects.nonNull(onCreate));
     createButton.setManaged(Objects.nonNull(onCreate));
     deleteButton.setVisible(Objects.nonNull(onDelete));

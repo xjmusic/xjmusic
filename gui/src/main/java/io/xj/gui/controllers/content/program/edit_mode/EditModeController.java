@@ -42,7 +42,7 @@ public class EditModeController extends ProjectController {
   VBox container;
 
   @FXML
-  VBox voiceContainer;
+  VBox voicesContainer;
 
   @FXML
   AnchorPane voiceAddContainer;
@@ -109,9 +109,8 @@ public class EditModeController extends ProjectController {
    Teardown the controller
    */
   public void teardown() {
-    for (VoiceController controller : voiceControllers)
-      controller.teardown();
-    voiceContainer.getChildren().clear();
+    for (VoiceController controller : voiceControllers) controller.teardown();
+    voicesContainer.getChildren().clear();
     voiceControllers.clear();
   }
 
@@ -148,10 +147,10 @@ public class EditModeController extends ProjectController {
         }
         controller.teardown();
         voiceControllers.remove(controller);
-        voiceContainer.getChildren().remove(root);
+        voicesContainer.getChildren().remove(root);
         projectService.deleteContent(programVoice);
       });
-      voiceContainer.getChildren().add(root);
+      voicesContainer.getChildren().add(root);
     } catch (IOException e) {
       LOG.error("Error adding Voice! {}\n{}", e, StringUtils.formatStackTrace(e));
     }

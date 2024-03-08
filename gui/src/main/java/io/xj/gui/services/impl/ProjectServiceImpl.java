@@ -19,6 +19,7 @@ import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
@@ -451,6 +452,14 @@ public class ProjectServiceImpl implements ProjectService {
     didUpdate(ProgramVoice.class, true);
     LOG.info("Created Program Voice \"{}\"", programVoice.getName());
     return programVoice;
+  }
+
+  @Override
+  public ProgramVoiceTrack createProgramVoiceTrack(UUID voiceId) throws Exception {
+    var programVoiceTrack = projectManager.createProgramVoiceTrack(voiceId);
+    didUpdate(ProgramVoiceTrack.class, true);
+    LOG.info("Created Program VoiceTrack \"{}\"", programVoiceTrack.getName());
+    return programVoiceTrack;
   }
 
   @Override

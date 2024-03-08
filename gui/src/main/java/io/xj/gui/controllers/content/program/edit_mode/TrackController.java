@@ -1,21 +1,22 @@
 package io.xj.gui.controllers.content.program.edit_mode;
 
+import io.xj.gui.controllers.content.common.PopupActionMenuController;
 import io.xj.gui.modes.GridChoice;
 import io.xj.gui.modes.ZoomChoice;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.utils.UiUtils;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
-import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,63 +27,93 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.UUID;
+
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class TrackController {
   static final Logger LOG = LoggerFactory.getLogger(TrackController.class);
-  private final Resource trackFxml;
-  private final Resource trackMenuFxml;
-  private final Resource programSequencePatternEventItem;
+  private final Collection<Runnable> unsubscriptions = new HashSet<>();
   private final ThemeService themeService;
+  private final Resource programSequencePatternEventFxml;
+  private final Resource popupActionMenuFxml;
+  private final int trackHeight;
+  private final int trackControlWidth;
   private final ApplicationContext ac;
   private final ProjectService projectService;
   private final UIStateService uiStateService;
-  private final SimpleStringProperty trackNameProperty = new SimpleStringProperty();
-  private final ChangeListener<GridChoice> onGridChange = (observable, oldValue, newValue) -> Platform.runLater(this::populateTimeline);
-  private final ChangeListener<ZoomChoice> onZoomChange = (observable, oldValue, newValue) -> Platform.runLater(this::populateTimeline);
-  private double defaultTrackNameFieldPrefWidth = 0;
-  private ProgramVoiceTrack track;
+  private final ChangeListener<GridChoice> onGridChange;
+  private final ChangeListener<ZoomChoice> onZoomChange;
+  private final Runnable updateTrackName;
+  private UUID programVoiceTrackId;
+  private Runnable handleDeleteTrack;
 
   @FXML
-  VBox trackControlsContainer;
+  HBox trackContainer;
 
   @FXML
-  AnchorPane trackContainer;
+  VBox trackControlContainer;
 
   @FXML
-  Button trackMenuButton;
+  AnchorPane trackTimelineContainer;
+  
+  @FXML
+  Button trackActionLauncher;
 
   @FXML
   TextField trackNameField;
-
-  @FXML
-  Button addTrackButton;
-
-  @FXML
-  AnchorPane timeLineAnchorpane;
-
-
+  
   public TrackController(
-    @Value("classpath:/views/content/program/edit_mode/track.fxml") Resource trackFxml,
-    @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource trackMenuFxml,
-    @Value("classpath:/views/content/program/edit_mode/program-sequence-pattern-event-item.fxml") Resource programSequencePatternEventItem,
+    @Value("classpath:/views/content/program/edit_mode/program-sequence-pattern-event.fxml") Resource programSequencePatternEventFxml,
+    @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource popupActionMenuFxml,
+    @Value("${programEditor.trackHeight}") int trackHeight,
+    @Value("${programEditor.trackControlWidth}") int trackControlWidth,
     ApplicationContext ac,
     ThemeService themeService,
     ProjectService projectService,
     UIStateService uiStateService
   ) {
-    this.trackFxml = trackFxml;
-    this.trackMenuFxml = trackMenuFxml;
-    this.programSequencePatternEventItem = programSequencePatternEventItem;
+    this.programSequencePatternEventFxml = programSequencePatternEventFxml;
+    this.popupActionMenuFxml = popupActionMenuFxml;
+    this.trackHeight = trackHeight;
+    this.trackControlWidth = trackControlWidth;
     this.ac = ac;
     this.themeService = themeService;
     this.projectService = projectService;
     this.uiStateService = uiStateService;
+
+    onGridChange = (observable, oldValue, newValue) -> Platform.runLater(this::populateTimeline);
+    onZoomChange = (observable, oldValue, newValue) -> Platform.runLater(this::populateTimeline);
+
+    updateTrackName = () -> projectService.update(ProgramVoiceTrack.class, programVoiceTrackId, "name", trackNameField.getText());
   }
 
-  public void setup(ProgramVoiceTrack track) {
+  public void setup(UUID programVoiceTrackId, Runnable handleDeleteTrack) {
+    this.programVoiceTrackId = programVoiceTrackId;
+    this.handleDeleteTrack = handleDeleteTrack;
+
+    ProgramVoiceTrack track = projectService.getContent().getProgramVoiceTrack(programVoiceTrackId).orElseThrow(() -> new RuntimeException("Track not found!"));
+
+    trackContainer.setMinHeight(trackHeight);
+    trackContainer.setMaxHeight(trackHeight);
+
+    trackControlContainer.setMinWidth(trackControlWidth);
+    trackControlContainer.setMaxWidth(trackControlWidth);
+
+    uiStateService.programEditorZoomProperty().addListener(onZoomChange);
+    uiStateService.programEditorGridProperty().addListener(onGridChange);
+
+    trackNameField.setText(track.getName());
+    unsubscriptions.add(UiUtils.onBlur(trackNameField, updateTrackName));
+    UiUtils.blurOnEnterKeyPress(trackNameField);
+
+    Platform.runLater(this::populateTimeline);
+
+/*
+  TODO if any of this is useful
     defaultTrackNameFieldPrefWidth = trackNameField.getPrefWidth();
-    this.track = track;
     trackNameField.setText(track.getName());
 
     trackNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -96,6 +127,7 @@ public class TrackController {
         LOG.info("Failed to update ProgramVoiceTrack name");
       }
     });
+*/
 
 /*
   TODO track controller add a listener to the selected item property
@@ -135,19 +167,35 @@ public class TrackController {
     });
 */
 
+/*
+  todo something like this
     timeLineAnchorpane.setOnMouseClicked(this::addProgramSequencePatternEventItemController);
     timeLineAnchorpane.setCursor(Cursor.CROSSHAIR);
-    uiStateService.programEditorZoomProperty().addListener(onZoomChange);
-    uiStateService.programEditorGridProperty().addListener(onGridChange);
-    Platform.runLater(this::populateTimeline);
+*/
   }
 
   // TODO make sure this is called when the track is removed from the stage
   public void teardown() {
+    for (Runnable unsubscription : unsubscriptions) unsubscription.run();
+
     uiStateService.programEditorZoomProperty().removeListener(onZoomChange);
     uiStateService.programEditorGridProperty().removeListener(onGridChange);
+
   }
-  
+
+  @FXML
+  void handlePressedTrackActionLauncher() {
+    UiUtils.launchModalMenu(trackActionLauncher, popupActionMenuFxml, ac, themeService.getMainScene().getWindow(),
+      true, (PopupActionMenuController controller) -> controller.setup(
+        "New Track",
+        null,
+        handleDeleteTrack,
+        null
+      )
+    );
+  }
+
+
 /*
   TODO  Extract the numeric part from the selection
   private void updateTimelineGridProperty(String selection) {

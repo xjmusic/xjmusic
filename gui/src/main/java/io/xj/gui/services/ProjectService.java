@@ -12,6 +12,7 @@ import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.project.ProjectState;
@@ -262,6 +263,14 @@ public interface ProjectService {
    @return the new program voice
    */
   ProgramVoice createProgramVoice(UUID programId) throws Exception;
+
+  /**
+   Create a new program voice track
+
+   @param voiceId for which to create a track
+   @return the new program voice track
+   */
+  ProgramVoiceTrack createProgramVoiceTrack(UUID voiceId) throws Exception;
 
   /**
    Create a new Program Meme

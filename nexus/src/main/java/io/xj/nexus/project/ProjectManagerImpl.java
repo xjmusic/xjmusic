@@ -84,6 +84,7 @@ public class ProjectManagerImpl implements ProjectManager {
   private static final String DEFAULT_PROGRAM_SEQUENCE_NAME = "New Sequence";
   private static final String DEFAULT_PROGRAM_SEQUENCE_PATTERN_NAME = "New Pattern";
   private static final String DEFAULT_PROGRAM_VOICE_NAME = "New Voice";
+  private static final String DEFAULT_PROGRAM_VOICE_TRACK_NAME = "New Track";
   private static final Integer DEFAULT_PROGRAM_SEQUENCE_TOTAL = 4;
   private static final Integer DEFAULT_PROGRAM_SEQUENCE_PATTERN_TOTAL = 4;
   private static final String DEFAULT_MEME_NAME = "XXX";
@@ -596,6 +597,27 @@ public class ProjectManagerImpl implements ProjectManager {
 
     content.get().put(voice);
     return voice;
+  }
+
+  @Override
+  public ProgramVoiceTrack createProgramVoiceTrack(UUID voiceId) throws Exception {
+    var voice = content.get().getProgramVoice(voiceId).orElseThrow(() -> new NexusException("Voice not found"));
+    var existingTracksOfVoice = content.get().getTracksOfVoice(voice.getId());
+
+    // New Create a track, increment a numerical suffix to make each track unique, e.g. "New Track 2" then "New Track 3"
+    var existingTracksOfProgram = content.get().getTracksOfProgram(voice.getProgramId());
+    var existingTrackNames = existingTracksOfProgram.stream().map(ProgramVoiceTrack::getName).collect(Collectors.toSet());
+    var newTrackName = FormatUtils.iterateNumericalSuffixFromExisting(existingTrackNames, DEFAULT_PROGRAM_VOICE_TRACK_NAME);
+    
+    // Prepare the track record
+    var track = new ProgramVoiceTrack();
+    track.setId(UUID.randomUUID());
+    track.setName(newTrackName);
+    track.setOrder(existingTracksOfVoice.stream().map(ProgramVoiceTrack::getOrder).max(Float::compareTo).orElse(0f) + 1);
+    track.setProgramVoiceId(voice.getId());
+
+    content.get().put(track);
+    return track;
   }
 
   @Override

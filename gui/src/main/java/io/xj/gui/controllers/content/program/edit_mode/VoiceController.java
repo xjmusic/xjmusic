@@ -9,17 +9,24 @@ import io.xj.gui.utils.UiUtils;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.util.StringUtils;
 import jakarta.annotation.Nullable;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
@@ -31,7 +38,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.UUID;
@@ -40,12 +49,13 @@ import java.util.UUID;
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class VoiceController {
   static final Logger LOG = LoggerFactory.getLogger(VoiceController.class);
-  private final Collection<Runnable> subscriptions = new HashSet<>();
+  private final Collection<Runnable> unsubscriptions = new HashSet<>();
   private final Resource trackFxml;
   private final Resource popupSelectorMenuFxml;
   private final Resource popupActionMenuFxml;
   private final int trackHeight;
   private final int voiceControlWidth;
+  private final int trackControlWidth;
   private final ApplicationContext ac;
   private final ThemeService themeService;
   private final ProjectService projectService;
@@ -56,6 +66,7 @@ public class VoiceController {
   private final Runnable updatePatternTotal;
   private final ObjectProperty<UUID> patternId = new SimpleObjectProperty<>();
   private final SpinnerValueFactory<Integer> patternTotalValueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10000, 0);
+  private final ObservableList<TrackController> trackControllers = FXCollections.observableArrayList();
   private UUID programVoiceId;
   private Runnable handleDeleteVoice;
 
@@ -98,12 +109,22 @@ public class VoiceController {
   @FXML
   Spinner<Integer> patternTotalChooser;
 
+  @FXML
+  VBox tracksContainer;
+
+  @FXML
+  AnchorPane trackAddContainer;
+
+  @FXML
+  Button addTrackButton;
+
   public VoiceController(
     @Value("classpath:/views/content/program/edit_mode/track.fxml") Resource trackFxml,
     @Value("classpath:/views/content/common/popup-selector-menu.fxml") Resource popupSelectorMenuFxml,
     @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource popupActionMenuFxml,
     @Value("${programEditor.trackHeight}") int trackHeight,
     @Value("${programEditor.voiceControlWidth}") int voiceControlWidth,
+    @Value("${programEditor.trackControlWidth}") int trackControlWidth,
     ApplicationContext ac,
     ThemeService themeService,
     ProjectService projectService,
@@ -114,6 +135,7 @@ public class VoiceController {
     this.popupActionMenuFxml = popupActionMenuFxml;
     this.trackHeight = trackHeight;
     this.voiceControlWidth = voiceControlWidth;
+    this.trackControlWidth = trackControlWidth;
     this.ac = ac;
     this.themeService = themeService;
     this.projectService = projectService;
@@ -135,15 +157,23 @@ public class VoiceController {
    Setup the voice controller
 
    @param programVoiceId the voice id
-   @param deleteVoice    callback to delete voice
+   @param handleDeleteVoice    callback to delete voice
    */
-  protected void setup(UUID programVoiceId, Runnable deleteVoice) {
+  protected void setup(UUID programVoiceId, Runnable handleDeleteVoice) {
     this.programVoiceId = programVoiceId;
-    this.handleDeleteVoice = deleteVoice;
+    this.handleDeleteVoice = handleDeleteVoice;
+
+    ProgramVoice voice = projectService.getContent().getProgramVoice(programVoiceId).orElseThrow(() -> new RuntimeException("Voice not found!"));
 
     voiceContainer.setMinHeight(trackHeight);
     voiceControlContainer.setMinWidth(voiceControlWidth);
     voiceControlContainer.setMaxWidth(voiceControlWidth);
+
+    trackAddContainer.setMinWidth(trackControlWidth);
+    trackAddContainer.setMaxWidth(trackControlWidth);
+    var trackAddVisible = Bindings.createBooleanBinding(trackControllers::isEmpty, trackControllers);
+    trackAddContainer.visibleProperty().bind(trackAddVisible);
+    trackAddContainer.managedProperty().bind(trackAddVisible);
 
     noSequencesLabel.visibleProperty().bind(uiStateService.currentProgramSequenceProperty().isNull());
     noSequencesLabel.managedProperty().bind(uiStateService.currentProgramSequenceProperty().isNull());
@@ -158,34 +188,44 @@ public class VoiceController {
     patternTotalContainer.visibleProperty().bind(patternId.isNotNull());
     patternTotalContainer.managedProperty().bind(patternId.isNotNull());
 
-    ProgramVoice voice = projectService.getContent().getProgramVoice(programVoiceId).orElseThrow(() -> new RuntimeException("Voice not found!"));
-
     voiceNameField.setText(voice.getName());
-    subscriptions.add(UiUtils.onBlur(voiceNameField, updateVoiceName));
+    unsubscriptions.add(UiUtils.onBlur(voiceNameField, updateVoiceName));
     UiUtils.blurOnEnterKeyPress(voiceNameField);
 
     voiceTypeChooser.setItems(FXCollections.observableArrayList(InstrumentType.values()));
     voiceTypeChooser.setValue(voice.getType());
-    subscriptions.add(UiUtils.onBlur(voiceTypeChooser, updateVoiceType));
+    unsubscriptions.add(UiUtils.onBlur(voiceTypeChooser, updateVoiceType));
     UiUtils.blurOnSelection(voiceTypeChooser);
 
     patternTotalChooser.setValueFactory(patternTotalValueFactory);
-    subscriptions.add(UiUtils.onChange(patternTotalValueFactory.valueProperty(), updatePatternTotal));
-    subscriptions.add(UiUtils.onBlur(patternTotalChooser, updatePatternTotal));
+    unsubscriptions.add(UiUtils.onChange(patternTotalValueFactory.valueProperty(), updatePatternTotal));
+    unsubscriptions.add(UiUtils.onBlur(patternTotalChooser, updatePatternTotal));
     UiUtils.blurOnEnterKeyPress(patternTotalChooser);
 
-    subscriptions.add(UiUtils.onBlur(patternNameField, updatePatternName));
+    unsubscriptions.add(UiUtils.onBlur(patternNameField, updatePatternName));
     UiUtils.blurOnEnterKeyPress(patternNameField);
 
-    subscriptions.add(UiUtils.onChange(uiStateService.currentProgramSequenceProperty(), this::selectFirstPattern));
+    unsubscriptions.add(UiUtils.onChange(uiStateService.currentProgramSequenceProperty(), this::selectFirstPattern));
     selectFirstPattern();
+
+    for (ProgramVoiceTrack programTrack :
+      projectService.getContent().getTracksOfVoice(programVoiceId).stream()
+        .sorted(Comparator.comparing(ProgramVoiceTrack::getOrder))
+        .toList()) {
+      addTrack(programTrack);
+    }
   }
 
   /**
    Teardown the voice controller
    */
   public void teardown() {
-    for (Runnable subscription : subscriptions) subscription.run();
+    for (Runnable unsubscription : unsubscriptions) unsubscription.run();
+
+    for (TrackController controller : trackControllers) controller.teardown();
+    tracksContainer.getChildren().clear();
+    trackControllers.clear();
+
     // todo teardown the tracks inside of here
     // todo teardown the patterns inside of here
     // todo teardown listeners
@@ -225,6 +265,17 @@ public class VoiceController {
         patternId.isNotNull().get() ? this::handleClonePattern : null
       )
     );
+  }
+
+  // todo implement in FXML
+  @FXML
+  void handlePressedAddTrack() {
+    try {
+      ProgramVoiceTrack programTrack = projectService.createProgramVoiceTrack(programVoiceId);
+      addTrack(programTrack);
+    } catch (Exception e) {
+      LOG.error("Could not create new Track! {}\n{}", e, StringUtils.formatStackTrace(e));
+    }
   }
 
   /**
@@ -289,6 +340,34 @@ public class VoiceController {
       handleSelectPattern(pattern.getId());
     } catch (Exception e) {
       LOG.error("Could not clone Pattern", e);
+    }
+  }
+
+  /**
+   Add a program sequence binding item to the sequence binding column.
+
+   @param programTrack to add
+   */
+  private void addTrack(ProgramVoiceTrack programTrack) {
+    try {
+      FXMLLoader loader = new FXMLLoader(trackFxml.getURL());
+      loader.setControllerFactory(ac::getBean);
+      Parent root = loader.load();
+      TrackController controller = loader.getController();
+      trackControllers.add(controller);
+      controller.setup(programTrack.getId(), () -> {
+        if (!projectService.getContent().getEventsOfTrack(programTrack.getId()).isEmpty()) {
+          projectService.showWarningAlert("Failure", "Found Track in Track", "Cannot delete track because it contains a track.");
+          return;
+        }
+        controller.teardown();
+        trackControllers.remove(controller);
+        tracksContainer.getChildren().remove(root);
+        projectService.deleteContent(programTrack);
+      });
+      tracksContainer.getChildren().add(root);
+    } catch (IOException e) {
+      LOG.error("Error adding Track! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 

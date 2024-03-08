@@ -145,7 +145,7 @@ public class VoiceControllerLegacy {
     @Value("classpath:/views/content/program/edit_mode/pattern-menu-legacy.fxml") Resource patternMenuFxml,
     @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource trackMenuFxml,
     @Value("classpath:/views/content/program/edit_mode/pattern-selector-legacy.fxml") Resource patternSelectorFxml,
-    @Value("classpath:/views/content/program/edit_mode/program-sequence-pattern-event-item.fxml") Resource programSequencePatternEventItem,
+    @Value("classpath:/views/content/program/edit_mode/program-sequence-pattern-event.fxml") Resource programSequencePatternEventItem,
     @Value("${programEditor.trackHeight}") int trackHeight,
       @Value("${programEditor.voiceControlWidth}") int voiceControlWidth,
     ApplicationContext ac,

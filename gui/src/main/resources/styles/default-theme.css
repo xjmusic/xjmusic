@@ -463,11 +463,19 @@
 }
 
 .voice-control-container {
--fx-background-color: #404040;
+-fx-background-color: #515151;
 }
 
 .voice-pattern-container {
-  -fx-background-color: #393939;
+  -fx-background-color: #4a4a4a;
+}
+
+.track-control-container {
+  -fx-background-color: #454545;
+}
+
+.track-timeline-container {
+  -fx-background-color: #353535;
 }
 
 .no-sequences-label {
