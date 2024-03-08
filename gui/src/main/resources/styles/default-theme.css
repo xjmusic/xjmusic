@@ -519,29 +519,23 @@
 }
 
 .meme-tag-container {
-  -fx-padding: 0 0 0 0;
-  -fx-background-color: #777777;
-  -fx-background-radius: 8;
-  -fx-border-radius: 8;
+  -fx-background-color: #707070;
+  -fx-background-radius: 4;
+  -fx-border-radius: 4;
 }
 
 .meme-name-field {
   -fx-background-color: transparent;
   -fx-text-fill: white;
   -fx-font-size: 12;
-  -fx-padding: 0 0 0 0;
-}
-
-.meme-name-label {
-  -fx-text-fill: white;
-  -fx-font-size: 12;
+  -fx-padding: 2 4 2 4;
 }
 
 .meme-tag-remove-button {
-  -fx-background-radius: 0 6 6 0;
-  -fx-border-radius: 0 6 6 0;
-  -fx-background-color: #4E4E4E;
-  -fx-border-color: grey;
+  -fx-padding: 2 4 2 4;
+  -fx-background-radius: 0 4 4 0;
+  -fx-border-radius: 0 4 4 0;
+  -fx-background-color: #606060;
 }
 
 .sequence-binding-item-container {

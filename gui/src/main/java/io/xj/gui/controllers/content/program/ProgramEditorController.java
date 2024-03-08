@@ -256,13 +256,13 @@ public class ProgramEditorController extends ProjectController {
     sequenceSelectorLauncher.disableProperty().bind(programHasSequences.not());
 
     // Fields lose focus on Enter key press
-    UiUtils.transferFocusOnEnterKeyPress(programNameField);
-    UiUtils.transferFocusOnEnterKeyPress(keyField);
-    UiUtils.transferFocusOnEnterKeyPress(tempoChooser);
-    UiUtils.transferFocusOnEnterKeyPress(sequenceNameField);
-    UiUtils.transferFocusOnEnterKeyPress(sequenceKeyField);
-    UiUtils.transferFocusOnEnterKeyPress(sequenceTotalChooser);
-    UiUtils.transferFocusOnEnterKeyPress(sequenceIntensityChooser);
+    UiUtils.blurOnEnterKeyPress(programNameField);
+    UiUtils.blurOnEnterKeyPress(keyField);
+    UiUtils.blurOnEnterKeyPress(tempoChooser);
+    UiUtils.blurOnEnterKeyPress(sequenceNameField);
+    UiUtils.blurOnEnterKeyPress(sequenceKeyField);
+    UiUtils.blurOnEnterKeyPress(sequenceTotalChooser);
+    UiUtils.blurOnEnterKeyPress(sequenceIntensityChooser);
 
     sequenceNameField.focusedProperty().addListener((o, ov, focused) -> {
       try {

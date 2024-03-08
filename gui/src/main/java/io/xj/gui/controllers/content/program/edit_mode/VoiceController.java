@@ -6,7 +6,6 @@ import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.UiUtils;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -24,12 +23,15 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.UUID;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class VoiceController {
   static final Logger LOG = LoggerFactory.getLogger(VoiceController.class);
+  private final Collection<Runnable> clearSubscriptions = new HashSet<>();
   private final Resource trackFxml;
   private final Resource popupSelectorMenuFxml;
   private final Resource popupActionMenuFxml;
@@ -39,6 +41,8 @@ public class VoiceController {
   private final ThemeService themeService;
   private final ProjectService projectService;
   private final UIStateService uiStateService;
+  private final Runnable updateName;
+  private final Runnable updateType;
   private UUID programVoiceId;
   private Runnable deleteVoice;
 
@@ -77,13 +81,16 @@ public class VoiceController {
     this.themeService = themeService;
     this.projectService = projectService;
     this.uiStateService = uiStateService;
+
+    updateName = () -> projectService.update(ProgramVoice.class, programVoiceId, "name", nameField.getText());
+    updateType = () -> projectService.update(ProgramVoice.class, programVoiceId, "type", voiceTypeChooser.getValue());
   }
 
   /**
    Setup the voice controller
 
-   @param programVoiceId     the voice id
-   @param deleteVoice callback to delete voice
+   @param programVoiceId the voice id
+   @param deleteVoice    callback to delete voice
    */
   protected void setup(UUID programVoiceId, Runnable deleteVoice) {
     this.programVoiceId = programVoiceId;
@@ -96,23 +103,26 @@ public class VoiceController {
     ProgramVoice voice = projectService.getContent().getProgramVoice(programVoiceId).orElseThrow(() -> new RuntimeException("Voice not found!"));
 
     nameField.setText(voice.getName());
-    UiUtils.onBlur(nameField, () -> projectService.update(ProgramVoice.class, programVoiceId, "name", nameField.getText()));
-    UiUtils.transferFocusOnEnterKeyPress(nameField);
+    clearSubscriptions.add(UiUtils.onBlur(nameField, updateName));
+    UiUtils.blurOnEnterKeyPress(nameField);
 
     voiceTypeChooser.setItems(FXCollections.observableArrayList(InstrumentType.values()));
     voiceTypeChooser.setValue(voice.getType());
-    UiUtils.onBlur(voiceTypeChooser, () -> projectService.update(ProgramVoice.class, programVoiceId, "type", voiceTypeChooser.getValue()));
+    clearSubscriptions.add(UiUtils.onBlur(voiceTypeChooser, updateType));
+    UiUtils.blurOnSelection(voiceTypeChooser);
 
-    // attach listener to sequence updates
+    // todo attach listener to sequence updates
   }
 
   /**
    Teardown the voice controller
    */
   public void teardown() {
+    for (Runnable subscription : clearSubscriptions) subscription.run();
     // todo teardown the tracks inside of here
     // todo teardown listeners
-    // teardown listener to sequence updates
+
+    // todo teardown listener to sequence updates
   }
 
   @FXML

@@ -4,11 +4,13 @@ package io.xj.gui.utils;
 
 import io.xj.hub.util.StringUtils;
 import jakarta.annotation.Nullable;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
@@ -159,11 +161,11 @@ public interface UiUtils {
   }
 
   /**
-   Transfers focus to the given pane when the enter key is pressed on the given field.
+   Transfers focus away from the given field when the enter key is pressed.
 
    @param field on which to listen
    */
-  static void transferFocusOnEnterKeyPress(TextField field) {
+  static void blurOnEnterKeyPress(TextField field) {
     field.setOnKeyPressed((KeyEvent e) -> {
       if (e.getCode() == KeyCode.ENTER) {
         field.getParent().requestFocus();
@@ -172,16 +174,25 @@ public interface UiUtils {
   }
 
   /**
-   Transfers focus to the given pane when the enter key is pressed on the given field.
+   Transfers focus away from the given field when the enter key is pressed.
 
    @param field on which to listen
    */
-  static void transferFocusOnEnterKeyPress(Spinner<?> field) {
+  static void blurOnEnterKeyPress(Spinner<?> field) {
     field.setOnKeyPressed((KeyEvent e) -> {
       if (e.getCode() == KeyCode.ENTER) {
         field.getParent().requestFocus();
       }
     });
+  }
+
+  /**
+   Transfers focus away from the given field when a selection is made
+
+   @param chooser on which to listen
+   */
+  static void blurOnSelection(ComboBox<?> chooser) {
+    chooser.setOnAction(e -> chooser.getParent().requestFocus());
   }
 
   /**
@@ -238,12 +249,15 @@ public interface UiUtils {
 
    @param control the control
    @param action  the action to take
+   @return callback to clear the listener
    */
-  static void onBlur(Control control, Runnable action) {
-    control.focusedProperty().addListener((obs, oldValue, newValue) -> {
+  static Runnable onBlur(Control control, Runnable action) {
+    ChangeListener<Boolean> listener = (obs, oldValue, newValue) -> {
       if (!newValue) {
         action.run();
       }
-    });
+    };
+    control.focusedProperty().addListener(listener);
+    return () -> control.focusedProperty().removeListener(listener);
   }
 }
