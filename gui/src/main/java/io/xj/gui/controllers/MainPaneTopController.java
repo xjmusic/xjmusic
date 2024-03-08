@@ -50,45 +50,45 @@ public class MainPaneTopController extends ProjectController {
   private final StringBinding createEntityButtonText;
 
   @FXML
-  protected AnchorPane mainTopPaneContainer;
+  AnchorPane mainTopPaneContainer;
   @FXML
-  protected Button browserButtonUpContentLevel;
+  Button browserButtonUpContentLevel;
   @FXML
-  protected Button browserCreateEntityButton;
+  Button browserCreateEntityButton;
   @FXML
-  protected Button fabricationActionButton;
+  Button fabricationActionButton;
   @FXML
-  protected Button fabricationButtonShowSettings;
+  Button fabricationButtonShowSettings;
   @FXML
-  protected Button progressCancelButton;
+  Button progressCancelButton;
   @FXML
-  protected HBox browserLibraryContentSelectionContainer;
+  HBox browserLibraryContentSelectionContainer;
   @FXML
-  protected Label browserLabelViewingEntity;
+  Label browserLabelViewingEntity;
   @FXML
-  protected Label browserLabelViewingParent;
+  Label browserLabelViewingParent;
   @FXML
-  protected Label browserLabelViewingSeparator;
+  Label browserLabelViewingSeparator;
   @FXML
-  protected Label progressLabel;
+  Label progressLabel;
   @FXML
-  protected ProgressBar progressBar;
+  ProgressBar progressBar;
   @FXML
-  protected StackPane browserControlContainer;
+  StackPane browserControlContainer;
   @FXML
-  protected StackPane browserStatusContainer;
+  StackPane browserStatusContainer;
   @FXML
-  protected StackPane fabricationControlContainer;
+  StackPane fabricationControlContainer;
   @FXML
-  protected StackPane progressContainer;
+  StackPane progressContainer;
   @FXML
-  protected ToggleButton browserLibraryContentInstrumentsButton;
+  ToggleButton browserLibraryContentInstrumentsButton;
   @FXML
-  protected ToggleButton browserLibraryContentProgramsButton;
+  ToggleButton browserLibraryContentProgramsButton;
   @FXML
-  protected ToggleButton fabricationToggleFollowButton;
+  ToggleButton fabricationToggleFollowButton;
   @FXML
-  protected ToggleGroup browserLibraryContentSelectionToggle;
+  ToggleGroup browserLibraryContentSelectionToggle;
 
   public MainPaneTopController(
       @Value("classpath:/views/main-pane-top.fxml") Resource fxml,
@@ -178,17 +178,17 @@ public class MainPaneTopController extends ProjectController {
   }
 
   @FXML
-  protected void fabricationPressedAction() {
+  void fabricationPressedAction() {
     fabricationService.handleMainAction();
   }
 
   @FXML
-  protected void browserPressedUpContentLevel() {
+  void browserPressedUpContentLevel() {
     uiStateService.goUpContentLevel();
   }
 
   @FXML
-  protected void progressPressedCancel() {
+  void progressPressedCancel() {
     Platform.runLater(() -> {
       fabricationService.cancel();
       projectService.cancelProjectLoading();
@@ -196,7 +196,7 @@ public class MainPaneTopController extends ProjectController {
   }
 
   @FXML
-  public void fabricationPressedShowSettings(ActionEvent ignored) {
+  void fabricationPressedShowSettings(ActionEvent ignored) {
     fabricationSettingsModalController.launchModal();
   }
 

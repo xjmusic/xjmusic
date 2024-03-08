@@ -28,10 +28,10 @@ public class PopupSelectorMenuController {
   static final Logger LOG = LoggerFactory.getLogger(PopupSelectorMenuController.class);
 
   @FXML
-  protected VBox container;
+  VBox container;
 
   @FXML
-  protected SearchableComboBox<Option> selector;
+  SearchableComboBox<Option> selector;
 
   /**
    Set up the popup selector menu with the given set of options.

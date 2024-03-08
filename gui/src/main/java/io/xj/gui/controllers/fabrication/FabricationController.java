@@ -34,7 +34,7 @@ public class FabricationController extends ProjectController {
   }
 
   @FXML
-  protected BorderPane container;
+  BorderPane container;
 
   @Override
   public void onStageReady() {

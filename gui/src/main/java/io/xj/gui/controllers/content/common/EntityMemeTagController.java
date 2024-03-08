@@ -29,13 +29,13 @@ import java.util.function.Consumer;
 public class EntityMemeTagController {
   private static final int MEME_NAME_PADDING = 15;
   @FXML
-  public StackPane container;
+  StackPane container;
   @FXML
-  public TextField memeNameField;
+  TextField memeNameField;
   @FXML
-  public Label memeNameLabel;
+  Label memeNameLabel;
   @FXML
-  public Button deleteMemeButton;
+  Button deleteMemeButton;
   private final SimpleStringProperty name = new SimpleStringProperty("");
   static final Logger LOG = LoggerFactory.getLogger(EntityMemeTagController.class);
   private Object currentMeme;
@@ -99,7 +99,7 @@ public class EntityMemeTagController {
    Deletes a meme
    */
   @FXML
-  protected void deleteMeme() {
+  void deleteMeme() {
     Objects.requireNonNull(doDelete, "no delete callback set");
     try {
       doDelete.accept(currentMeme);
@@ -144,7 +144,7 @@ public class EntityMemeTagController {
   }
 
   @FXML
-  protected void handleKeyPressed(KeyEvent event) {
+  void handleKeyPressed(KeyEvent event) {
     if (event.getCode().equals(KeyCode.ENTER)) {
       event.consume();
       doneEditing();

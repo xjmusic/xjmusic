@@ -43,10 +43,10 @@ public class MainLabAuthenticationModalController extends ProjectModalController
   final LabService labService;
 
   @FXML
-  public Button buttonClose;
+  Button buttonClose;
 
   @FXML
-  public Button buttonConnect;
+  Button buttonConnect;
 
   @FXML
   TextField fieldLabUrl;
@@ -133,7 +133,7 @@ public class MainLabAuthenticationModalController extends ProjectModalController
   }
 
   @FXML
-  protected void handleLabOpenInBrowser() {
+  void handleLabOpenInBrowser() {
     labService.launchInBrowser();
   }
 

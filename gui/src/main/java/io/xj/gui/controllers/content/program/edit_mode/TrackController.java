@@ -44,22 +44,22 @@ public class TrackController {
   private ProgramVoiceTrack track;
 
   @FXML
-  public VBox trackControlsContainer;
+  VBox trackControlsContainer;
 
   @FXML
-  public AnchorPane trackContainer;
+  AnchorPane trackContainer;
 
   @FXML
-  public Button trackMenuButton;
+  Button trackMenuButton;
 
   @FXML
-  public TextField trackNameField;
+  TextField trackNameField;
 
   @FXML
-  public Button addTrackButton;
+  Button addTrackButton;
 
   @FXML
-  public AnchorPane timeLineAnchorpane;
+  AnchorPane timeLineAnchorpane;
 
 
   public TrackController(
@@ -181,7 +181,7 @@ public class TrackController {
   }
 
   @FXML
-  protected void handlePressedNewTrack() {
+  void handlePressedNewTrack() {
 /*
   todo track controller create new track
     try {
@@ -212,7 +212,7 @@ public class TrackController {
   }
 
   @FXML
-  protected void handlePressedTrackMenu() {
+  void handlePressedTrackMenu() {
     // todo whatever the purpose of reaching inside the voice controller here, don't do it
     // VoiceController.trackMenu(event, trackMenuFxml, ac, themeService, LOG, voice, voiceController,track, false,trackRoot,addTrackButton_1);
   }

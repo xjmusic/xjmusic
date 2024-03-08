@@ -41,7 +41,7 @@ public class MainPaneBottomController extends ProjectController {
   Timeline refresh;
 
   @FXML
-  protected ListView<MainPaneBottomController.LogRecord> logListView;
+  ListView<MainPaneBottomController.LogRecord> logListView;
 
   public MainPaneBottomController(
     @Value("classpath:/views/main-pane-bottom.fxml") Resource fxml,

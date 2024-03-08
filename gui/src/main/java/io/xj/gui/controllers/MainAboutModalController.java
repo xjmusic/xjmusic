@@ -29,7 +29,7 @@ public class MainAboutModalController extends ProjectModalController {
   private final SupportService supportService;
 
   @FXML
-  public Button buttonClose;
+  Button buttonClose;
 
   @FXML
   Label labelVersion;

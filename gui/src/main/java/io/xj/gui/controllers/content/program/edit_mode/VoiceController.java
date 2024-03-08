@@ -5,9 +5,13 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.UiUtils;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.ProgramVoice;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -50,6 +54,9 @@ public class VoiceController {
   @FXML
   TextField nameField;
 
+  @FXML
+  ComboBox<InstrumentType> voiceTypeChooser;
+
   public VoiceController(
     @Value("classpath:/views/content/program/edit_mode/track.fxml") Resource trackFxml,
     @Value("classpath:/views/content/common/popup-selector-menu.fxml") Resource popupSelectorMenuFxml,
@@ -91,6 +98,12 @@ public class VoiceController {
     nameField.setText(voice.getName());
     UiUtils.onBlur(nameField, () -> projectService.update(ProgramVoice.class, programVoiceId, "name", nameField.getText()));
     UiUtils.transferFocusOnEnterKeyPress(nameField);
+
+    voiceTypeChooser.setItems(FXCollections.observableArrayList(InstrumentType.values()));
+    voiceTypeChooser.setValue(voice.getType());
+    UiUtils.onBlur(voiceTypeChooser, () -> projectService.update(ProgramVoice.class, programVoiceId, "type", voiceTypeChooser.getValue()));
+
+    // attach listener to sequence updates
   }
 
   /**
@@ -99,6 +112,7 @@ public class VoiceController {
   public void teardown() {
     // todo teardown the tracks inside of here
     // todo teardown listeners
+    // teardown listener to sequence updates
   }
 
   @FXML

@@ -34,7 +34,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -71,29 +70,21 @@ public class ProgramEditorController extends ProjectController {
   private final Resource popupSelectorMenuFxml;
   private final Resource popupActionMenuFxml;
   private final Resource entityMemesFxml;
-
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
   private final ObjectProperty<UUID> sequenceId = new SimpleObjectProperty<>();
   private final StringProperty programName = new SimpleStringProperty("");
   private final ObjectProperty<ProgramType> type = new SimpleObjectProperty<>();
   private final ObjectProperty<ProgramState> state = new SimpleObjectProperty<>();
   private final StringProperty key = new SimpleStringProperty("");
-
   private final FloatProperty tempo = new SimpleFloatProperty(0);
   private final SpinnerValueFactory<Double> tempoValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1300, 0);
-
   private final FloatProperty sequenceIntensity = new SimpleFloatProperty(0);
   private final SpinnerValueFactory<Double> sequenceIntensityValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1, sequenceIntensity.doubleValue(), 0.1);
   private final ObjectProperty<Double> sequenceIntensityDoubleValue = new SimpleObjectProperty<>(sequenceIntensityValueFactory.getValue());
-
   private final IntegerProperty sequenceTotal = new SimpleIntegerProperty(0);
-
   private final SpinnerValueFactory<Integer> sequenceTotalValueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10000, sequenceTotal.intValue());
   private final ObjectProperty<Integer> sequenceTotalIntegerValue = new SimpleObjectProperty<>(sequenceTotalValueFactory.getValue());
-
   private final ObjectProperty<Double> tempoDoubleValue = new SimpleObjectProperty<>(tempoValueFactory.getValue());
-  private final ObservableList<ProgramType> programTypes = FXCollections.observableArrayList(ProgramType.values());
-  private final ObservableList<ProgramState> programStates = FXCollections.observableArrayList(ProgramState.values());
   protected final SimpleStringProperty sequencePropertyName = new SimpleStringProperty("");
   private final SimpleStringProperty sequencePropertyKey = new SimpleStringProperty("");
   private final BooleanBinding programHasSequences;
@@ -107,79 +98,76 @@ public class ProgramEditorController extends ProjectController {
   };
 
   @FXML
-  public Spinner<Double> tempoChooser;
+  Spinner<Double> tempoChooser;
 
   @FXML
-  public StackPane programMemeContainer;
+  StackPane programMemeContainer;
 
   @FXML
-  public TextField keyField;
+  TextField keyField;
 
   @FXML
-  public ComboBox<ProgramState> stateChooser;
+  ComboBox<ProgramState> stateChooser;
 
   @FXML
-  public ComboBox<ProgramType> typeChooser;
+  ComboBox<ProgramType> typeChooser;
 
   @FXML
-  public TextField programNameField;
+  TextField programNameField;
 
   @FXML
-  public Button duplicateButton;
+  Button duplicateButton;
 
   @FXML
-  public ToggleGroup editorModeToggleGroup;
+  ToggleGroup editorModeToggleGroup;
 
   @FXML
-  public ToggleButton editButton;
+  ToggleButton editButton;
 
   @FXML
-  public ToggleButton bindButton;
+  ToggleButton bindButton;
 
   @FXML
-  public Button configButton;
+  Button configButton;
 
   @FXML
-  public Spinner<Double> sequenceIntensityChooser;
+  Spinner<Double> sequenceIntensityChooser;
 
   @FXML
-  public TextField sequenceKeyField;
+  TextField sequenceKeyField;
 
   @FXML
-  public Spinner<Integer> sequenceTotalChooser;
+  Spinner<Integer> sequenceTotalChooser;
 
   @FXML
-  public TextField sequenceNameField;
+  TextField sequenceNameField;
 
   @FXML
-  public Button sequenceActionLauncher;
+  Button sequenceActionLauncher;
 
   @FXML
-  public ToggleButton snapButton;
+  ToggleButton snapButton;
 
   @FXML
-  public ComboBox<ZoomChoice> zoomChooser;
+  ComboBox<ZoomChoice> zoomChooser;
 
   @FXML
-  public ComboBox<GridChoice> gridChooser;
+  ComboBox<GridChoice> gridChooser;
 
   @FXML
-  public Button sequenceSelectorLauncher;
+  Button sequenceSelectorLauncher;
 
   @FXML
-  public HBox timelineOptionsGroup;
+  HBox timelineOptionsGroup;
 
   @FXML
-  public HBox currentSequenceGroup;
+  HBox currentSequenceGroup;
 
   @FXML
-  public Label noSequencesLabel;
+  Label noSequencesLabel;
 
   @FXML
-  protected VBox container;
-
-  @FXML
-  protected TextField fieldName;
+  VBox container;
 
   public ProgramEditorController(
     @Value("classpath:/views/content/program/program-editor.fxml") Resource fxml,
@@ -216,8 +204,8 @@ public class ProgramEditorController extends ProjectController {
       .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
       .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramEditor));
     uiStateService.contentModeProperty().addListener(onEditProgram);
-    typeChooser.setItems(programTypes);
-    stateChooser.setItems(programStates);
+    typeChooser.setItems(FXCollections.observableArrayList(ProgramType.values()));
+    stateChooser.setItems(FXCollections.observableArrayList(ProgramState.values()));
     UiUtils.onBlur(programNameField, this::handleProgramSave);
     UiUtils.onBlur(keyField, this::handleProgramSave);
     UiUtils.onBlur(tempoChooser, this::handleProgramSave);
@@ -336,7 +324,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   @FXML
-  protected void handlePressedSequenceSelectorLauncher() {
+  void handlePressedSequenceSelectorLauncher() {
     UiUtils.launchModalMenu(sequenceSelectorLauncher, popupSelectorMenuFxml, ac, themeService.getMainScene().getWindow(),
       true, (PopupSelectorMenuController controller) -> controller.setup(
         projectService.getContent().getSequencesOfProgram(programId.get()),
@@ -346,18 +334,18 @@ public class ProgramEditorController extends ProjectController {
   }
 
   @FXML
-  protected void handlePressedSequenceActionLauncher() {
+  void handlePressedSequenceActionLauncher() {
     UiUtils.launchModalMenu(sequenceActionLauncher, popupActionMenuFxml, ac, themeService.getMainScene().getWindow(),
       true, (PopupActionMenuController controller) -> controller.setup(
         this::handleCreateSequence,
-        this::handleDeleteSequence,
-        this::handleCloneSequence
+        programHasSequences.get() ? this::handleDeleteSequence : null,
+        programHasSequences.get() ? this::handleCloneSequence : null
       )
     );
   }
 
   @FXML
-  protected void openCloneDialog() {
+  void openCloneDialog() {
     var program = projectService.getContent().getProgram(programId.get())
       .orElseThrow(() -> new RuntimeException("Could not find Program"));
     cmdModalController.cloneProgram(program);
@@ -382,7 +370,7 @@ public class ProgramEditorController extends ProjectController {
   }
 
   @FXML
-  protected void handleEditConfig() {
+  void handleEditConfig() {
     UiUtils.launchModalMenu(configButton, configFxml, ac, themeService.getMainScene().getWindow(), false,
       (ProgramConfigController controller) -> controller.setup(programId.get())
     );
@@ -464,7 +452,6 @@ public class ProgramEditorController extends ProjectController {
     try {
       ProgramSequence newProgramSequence = projectService.createProgramSequence(programId.get());
       uiStateService.currentProgramSequenceProperty().set(newProgramSequence);
-      teardown();
     } catch (Exception e) {
       LOG.info("Failed to create new sequence! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
@@ -491,7 +478,6 @@ public class ProgramEditorController extends ProjectController {
       } else {
         uiStateService.currentProgramSequenceProperty().set(null);
       }
-      teardown();
     } catch (Exception e) {
       LOG.info("Failed to delete sequence " + currentSequence.getName());
     }
@@ -506,7 +492,6 @@ public class ProgramEditorController extends ProjectController {
     try {
       ProgramSequence clonedProgramSequence = projectService.cloneProgramSequence(currentSequence.getId(), "Clone of " + currentSequence.getName());
       uiStateService.currentProgramSequenceProperty().set(clonedProgramSequence);
-      teardown();
     } catch (Exception e) {
       LOG.info("Failed to clone sequence ");
     }

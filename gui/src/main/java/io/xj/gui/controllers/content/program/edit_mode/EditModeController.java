@@ -116,7 +116,7 @@ public class EditModeController extends ProjectController {
   }
 
   @FXML
-  protected void handlePressedAddVoice() {
+  void handlePressedAddVoice() {
     try {
       ProgramVoice programVoice = projectService.createProgramVoice(programId.get());
       addVoice(programVoice);

@@ -44,22 +44,22 @@ public class ProgramSequencePatternEventItemController {
   private double minWidth = 0;
   
   @FXML
-  public AnchorPane timelineEventPropertyParent;
+  AnchorPane timelineEventPropertyParent;
   
   @FXML
-  public Button deleteTimelineProperty;
+  Button deleteTimelineProperty;
   
   @FXML
-  public Label positionLabel;
+  Label positionLabel;
   
   @FXML
-  public Label durationLabel;
+  Label durationLabel;
   
   @FXML
-  public Label velocityLabel;
+  Label velocityLabel;
   
   @FXML
-  public Label tonesLabel;
+  Label tonesLabel;
   
   @FXML
   private AnchorPane timeline;

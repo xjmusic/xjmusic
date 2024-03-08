@@ -41,16 +41,16 @@ public class SequenceBindingColumnController {
   private final Collection<SequenceBindingItemController> sequenceBindingItemControllers = new HashSet<>();
 
   @FXML
-  public VBox sequenceBindingColumnContainer;
+  VBox sequenceBindingColumnContainer;
 
   @FXML
-  public VBox sequenceBindingColumnContentContainer;
+  VBox sequenceBindingColumnContentContainer;
 
   @FXML
-  public Label offsetText;
+  Label offsetText;
 
   @FXML
-  public Button addSequenceButton;
+  Button addSequenceButton;
 
   public SequenceBindingColumnController(
     @Value("classpath:/views/content/program/bind_mode/sequence-binding-item.fxml") Resource sequenceBindingItemFxml,
@@ -95,7 +95,7 @@ public class SequenceBindingColumnController {
   }
 
   @FXML
-  protected void handlePressedAddSequenceBinding() {
+  void handlePressedAddSequenceBinding() {
     UiUtils.launchModalMenu(addSequenceButton, popupSelectorMenuFxml, ac, themeService.getMainScene().getWindow(), true,
       (PopupSelectorMenuController controller) -> controller.setup(
         projectService.getContent().getSequencesOfProgram(programId),

@@ -40,7 +40,7 @@ public class BindModeController extends ProjectController {
   HBox container;
 
   @FXML
-  public HBox sequenceBindingsContainer;
+  HBox sequenceBindingsContainer;
 
   /**
    Program Edit Bind-mode Controller

@@ -87,55 +87,55 @@ public class InstrumentAudioEditorController extends BrowserController {
   private int waveformTransientDashPixels;
 
   @FXML
-  protected SplitPane container;
+  SplitPane container;
 
   @FXML
-  protected VBox fieldsContainer;
+  VBox fieldsContainer;
 
   @FXML
-  protected TextField fieldName;
+  TextField fieldName;
 
   @FXML
-  protected TextField fieldEvent;
+  TextField fieldEvent;
 
   @FXML
-  protected TextField fieldVolume;
+  TextField fieldVolume;
 
   @FXML
-  protected TextField fieldTones;
+  TextField fieldTones;
 
   @FXML
-  protected TextField fieldTempo;
+  TextField fieldTempo;
 
   @FXML
-  protected TextField fieldIntensity;
+  TextField fieldIntensity;
 
   @FXML
-  protected TextField fieldTransientSeconds;
+  TextField fieldTransientSeconds;
 
   @FXML
-  protected TextField fieldLoopBeats;
+  TextField fieldLoopBeats;
 
   @FXML
-  protected ScrollPane waveformScrollPane;
+  ScrollPane waveformScrollPane;
 
   @FXML
-  protected ImageView waveform;
+  ImageView waveform;
 
   @FXML
-  protected Button buttonOpenAudioFolder;
+  Button buttonOpenAudioFolder;
 
   @FXML
-  protected Button buttonOpenAudioFile;
+  Button buttonOpenAudioFile;
 
   @FXML
-  protected Label labelAudioFileName;
+  Label labelAudioFileName;
 
   @FXML
-  protected Button buttonZoomOut;
+  Button buttonZoomOut;
 
   @FXML
-  protected Button buttonZoomIn;
+  Button buttonZoomIn;
 
   public InstrumentAudioEditorController(
     @Value("classpath:/views/content/instrument/instrument-audio-editor.fxml") Resource fxml,

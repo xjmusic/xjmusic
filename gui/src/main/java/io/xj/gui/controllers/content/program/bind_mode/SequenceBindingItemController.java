@@ -26,9 +26,9 @@ import java.io.IOException;
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class SequenceBindingItemController {
   @FXML
-  public Label sequenceName;
+  Label sequenceName;
   @FXML
-  public StackPane sequenceBindingMemeContainer;
+  StackPane sequenceBindingMemeContainer;
 
   public AnchorPane mainBorderPane;
 
@@ -87,7 +87,7 @@ public class SequenceBindingItemController {
   }
 
   @FXML
-  protected void handleDeleteSequenceBinding() {
+  void handleDeleteSequenceBinding() {
     deleteSequenceBinding.run();
   }
 

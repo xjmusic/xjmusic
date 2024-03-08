@@ -40,7 +40,7 @@ public class MainController extends ProjectController {
   private final TemplateBrowserController templateBrowserController;
 
   @FXML
-  protected ImageView startupContainer;
+  ImageView startupContainer;
 
   public MainController(
     @Value("classpath:/views/main.fxml") Resource fxml,

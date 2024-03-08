@@ -47,6 +47,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -552,11 +553,16 @@ public class ProjectManagerImpl implements ProjectManager {
     var existingVoiceNames = existingVoicesOfProgram.stream().map(ProgramVoice::getName).collect(Collectors.toSet());
     var newVoiceName = FormatUtils.iterateNumericalSuffixFromExisting(existingVoiceNames, DEFAULT_PROGRAM_VOICE_NAME);
 
+    // Use a type not seen in another voice, if possible
+    var existingTypes = existingVoicesOfProgram.stream().map(ProgramVoice::getType).collect(Collectors.toSet());
+    var types = Arrays.stream(InstrumentType.values()).collect(Collectors.toSet());
+    types.removeAll(existingTypes);
+
     // Prepare the voice record
     var voice = new ProgramVoice();
     voice.setId(UUID.randomUUID());
     voice.setName(newVoiceName);
-    voice.setType(InstrumentType.values()[0]);
+    voice.setType(types.stream().sorted().findFirst().orElse(InstrumentType.Drum));
     voice.setOrder(existingVoicesOfProgram.stream().map(ProgramVoice::getOrder).max(Float::compareTo).orElse(0f) + 1);
     voice.setProgramId(program.getId());
 

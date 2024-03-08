@@ -84,61 +84,61 @@ public class VoiceControllerLegacy {
   private Runnable deleteVoice;
 
   @FXML
-  public VBox voiceControlContainer;
+  VBox voiceControlContainer;
 
   @FXML
-  public Button deleteButton;
+  Button deleteButton;
 
   @FXML
-  public ComboBox<InstrumentType> instrumentTypeCombobox;
+  ComboBox<InstrumentType> instrumentTypeCombobox;
 
   @FXML
-  public Button searchPatternButton;
+  Button searchPatternButton;
 
   @FXML
-  public Button patternMenuButton;
+  Button patternMenuButton;
 
   @FXML
-  public TextField patternNameField;
+  TextField patternNameField;
 
   @FXML
-  public Label noPatternLabel;
+  Label noPatternLabel;
 
   @FXML
-  public AnchorPane trackContainer;
+  AnchorPane trackContainer;
 
   @FXML
-  public Group trackButtonGroup;
+  Group trackButtonGroup;
 
   @FXML
-  public Button addTrackButton;
+  Button addTrackButton;
 
   @FXML
-  public Button trackMenuButton;
+  Button trackMenuButton;
 
   @FXML
-  public Button addTrackButton_1; // todo this cannot be right-- what is this?
+  Button addTrackButton_1; // todo this cannot be right-- what is this?
 
   @FXML
-  public TextField trackNameField;
+  TextField trackNameField;
 
   @FXML
-  public HBox voiceContainer;
+  HBox voiceContainer;
 
   @FXML
-  public Label noSequenceLabel;
+  Label noSequenceLabel;
 
   @FXML
-  public HBox totalHbox;
+  HBox totalHbox;
 
   @FXML
-  public TextField programVoiceNameTextField;
+  TextField programVoiceNameTextField;
 
   @FXML
-  public Spinner<Integer> patternTotalCountChooser;
+  Spinner<Integer> patternTotalCountChooser;
 
   @FXML
-  public AnchorPane timeLineAnchorpane;
+  AnchorPane timeLineAnchorpane;
 
   public VoiceControllerLegacy(
     @Value("classpath:/views/content/program/edit_mode/track.fxml") Resource trackFxml,
@@ -554,7 +554,7 @@ TODO
 
 
   @FXML
-  protected void handlePressedPatternSearch() {
+  void handlePressedPatternSearch() {
 /*
     UiUtils.launchModalMenu(searchPatternButton, patternSelectorFxml, ac, themeService.getMainScene().getWindow(), true,
       (PatternSelectorControllerLegacy controller, Stage stage) -> controller.setup(programSequencePatternsOfThisVoice, voice, this, stage)
@@ -563,7 +563,7 @@ TODO
   }
 
   @FXML
-  protected void handlePressedPatternMenu() {
+  void handlePressedPatternMenu() {
 /*
   todo handle pressed pattern menu
     UiUtils.launchModalMenu(patternMenuButton, patternMenuFxml, ac, themeService.getMainScene().getWindow(),
@@ -573,7 +573,7 @@ TODO
   }
 
   @FXML
-  protected void handlePressedTrackMenu() {
+  void handlePressedTrackMenu() {
 /*
   todo handle pressed track menu
     UiUtils.launchModalMenu(trackMenuButton, trackMenuFxml, ac, themeService.getMainScene().getWindow(),
@@ -583,7 +583,7 @@ TODO
   }
 
   @FXML
-  protected void handlePressedTimeline(MouseEvent event) {
+  void handlePressedTimeline(MouseEvent event) {
 /*
 TODO handle pressed timeline
     try {

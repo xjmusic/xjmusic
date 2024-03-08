@@ -466,6 +466,10 @@
 -fx-background-color: #404040;
 }
 
+.voice-pattern-control-container {
+ -fx-background-color: #393939;
+}
+
 .text-field {
   -fx-background-color: transparent;
 }

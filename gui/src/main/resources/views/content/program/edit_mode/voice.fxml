@@ -18,8 +18,13 @@
       xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.xj.gui.controllers.content.program.edit_mode.VoiceController">
 
-  <VBox fx:id="voiceControlContainer" styleClass="voice-control-container">
+  <VBox fx:id="voiceControlContainer" styleClass="voice-control-container" spacing="5">
+
+    <!-- Action Menu & Voice Name -->
     <HBox HBox.hgrow="ALWAYS">
+      <padding>
+        <Insets left="2.0" top="2.0"/>
+      </padding>
       <Button fx:id="voiceActionLauncher" onAction="#handlePressedVoiceActionLauncher" HBox.hgrow="ALWAYS">
         <graphic>
           <ImageView fitHeight="16.0" fitWidth="16.0">
@@ -28,6 +33,17 @@
         </graphic>
       </Button>
       <TextField fx:id="nameField" HBox.hgrow="ALWAYS" />
+    </HBox>
+
+    <!-- Voice Type -->
+    <HBox HBox.hgrow="ALWAYS" alignment="CENTER_LEFT" spacing="5.0">
+      <Label minWidth="40.0" text="TYPE" styleClass="program-editor-field-label"/>
+      <ComboBox minWidth="102.0" fx:id="voiceTypeChooser"/>
+    </HBox>
+
+    <!-- Pattern Controls -->
+    <HBox HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" styleClass="voice-pattern-control-container">
+
     </HBox>
 
   </VBox>

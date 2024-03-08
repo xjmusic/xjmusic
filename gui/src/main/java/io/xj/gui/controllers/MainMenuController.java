@@ -65,78 +65,78 @@ public class MainMenuController extends ProjectController {
   private final MainLabAuthenticationModalController mainLabAuthenticationModalController;
 
   @FXML
-  protected AnchorPane container;
+  AnchorPane container;
 
   @FXML
-  protected MenuItem itemProjectClose;
+  MenuItem itemProjectClose;
 
   @FXML
-  protected MenuItem itemProjectSave;
+  MenuItem itemProjectSave;
 
   @FXML
-  protected MenuItem itemProjectPush;
+  MenuItem itemProjectPush;
 
   @FXML
-  protected MenuItem itemProjectCleanup;
+  MenuItem itemProjectCleanup;
 
   @FXML
-  protected MenuItem itemFabricationMainAction;
+  MenuItem itemFabricationMainAction;
 
   @FXML
-  protected Menu menuOpenRecent;
+  Menu menuOpenRecent;
 
   @FXML
-  protected CheckMenuItem checkboxFabricationFollow;
+  CheckMenuItem checkboxFabricationFollow;
 
   @FXML
-  protected Menu menuFabrication;
+  Menu menuFabrication;
 
   @FXML
-  protected MenuItem itemOpenFabricationSettings;
+  MenuItem itemOpenFabricationSettings;
 
   @FXML
-  protected CheckMenuItem checkboxShowLogs;
+  CheckMenuItem checkboxShowLogs;
 
   @FXML
-  protected CheckMenuItem checkboxTailLogs;
+  CheckMenuItem checkboxTailLogs;
 
   @FXML
-  protected Button mainMenuButtonLab;
+  Button mainMenuButtonLab;
 
   @FXML
-  protected Label labelLabStatus;
+  Label labelLabStatus;
 
   @FXML
-  protected RadioMenuItem logLevelDebug;
+  RadioMenuItem logLevelDebug;
 
   @FXML
-  protected RadioMenuItem logLevelInfo;
+  RadioMenuItem logLevelInfo;
 
   @FXML
-  protected RadioMenuItem logLevelWarn;
+  RadioMenuItem logLevelWarn;
 
   @FXML
-  protected RadioMenuItem logLevelError;
+  RadioMenuItem logLevelError;
 
   @FXML
   ToggleGroup menuViewModeToggleGroup;
   @FXML
-  protected RadioMenuItem menuViewModeContent;
+  RadioMenuItem menuViewModeContent;
   @FXML
-  protected RadioMenuItem menuViewModeTemplates;
+  RadioMenuItem menuViewModeTemplates;
   @FXML
-  protected RadioMenuItem menuViewModeFabrication;
+  RadioMenuItem menuViewModeFabrication;
 
   @FXML
   StackPane labFeatureContainer;
   @FXML
   ToggleGroup buttonViewModeToggleGroup;
   @FXML
-  protected ToggleButton buttonViewModeContent;
+  ToggleButton buttonViewModeContent;
   @FXML
-  protected ToggleButton buttonViewModeTemplates;
+  ToggleButton buttonViewModeTemplates;
   @FXML
-  protected ToggleButton buttonViewModeFabrication;
+  ToggleButton buttonViewModeFabrication;
 
   @FXML
   ToggleGroup logLevelToggleGroup;
@@ -233,33 +233,33 @@ public class MainMenuController extends ProjectController {
   }
 
   @FXML
-  protected void onQuit() {
+  void onQuit() {
     projectService.promptToSaveChanges(() -> WorkstationGuiFxApplication.exit(ac));
   }
 
   @FXML
-  protected void onLaunchUserGuide() {
+  void onLaunchUserGuide() {
     supportService.launchGuideInBrowser();
   }
 
   @FXML
-  protected void onLaunchDiscord() {
+  void onLaunchDiscord() {
     supportService.launchDiscordInBrowser();
   }
 
   @FXML
-  protected void handleAbout() {
+  void handleAbout() {
     mainAboutModalController.launchModal();
   }
 
   @FXML
-  protected void handleProjectNew() {
+  void handleProjectNew() {
     projectCreationModalController.setMode(ProjectCreationMode.NEW_PROJECT);
     projectCreationModalController.launchModal();
   }
 
   @FXML
-  protected void handleProjectOpen() {
+  void handleProjectOpen() {
     projectService.promptToSaveChanges(() -> {
       var projectFilePath = ProjectUtils.chooseXJProjectFile(
         container.getScene().getWindow(), "Choose project", projectService.basePathPrefixProperty().getValue()
@@ -272,49 +272,49 @@ public class MainMenuController extends ProjectController {
   }
 
   @FXML
-  protected void handleProjectClose() {
+  void handleProjectClose() {
     fabricationService.cancel();
     Platform.runLater(() -> projectService.closeProject(null));
   }
 
   @FXML
-  protected void handleProjectClone() {
+  void handleProjectClone() {
     projectCreationModalController.setMode(ProjectCreationMode.CLONE_PROJECT);
     projectCreationModalController.launchModal();
   }
 
   @FXML
-  protected void handleProjectSave() {
+  void handleProjectSave() {
     projectService.saveProject(null);
   }
 
   @FXML
-  protected void handleProjectPush() {
+  void handleProjectPush() {
     projectService.pushProject();
   }
 
   @FXML
-  protected void handleProjectCleanup() {
+  void handleProjectCleanup() {
     projectService.cleanupProject();
   }
 
   @FXML
-  protected void handleOpenFabricationSettings() {
+  void handleOpenFabricationSettings() {
     fabricationSettingsModalController.launchModal();
   }
 
   @FXML
-  public void handleFabricationMainAction(ActionEvent ignored) {
+  void handleFabricationMainAction(ActionEvent ignored) {
     fabricationService.handleMainAction();
   }
 
   @FXML
-  public void handleSetLogLevel(ActionEvent ignored) {
+  void handleSetLogLevel(ActionEvent ignored) {
     uiStateService.logLevelProperty().set(((RadioMenuItem) logLevelToggleGroup.getSelectedToggle()).getText());
   }
 
   @FXML
-  public void handleButtonLabPressed(ActionEvent ignored) {
+  void handleButtonLabPressed(ActionEvent ignored) {
     mainLabAuthenticationModalController.launchModal();
   }
 

@@ -36,16 +36,16 @@ public class LibraryEditorController extends ProjectController {
   private final StringProperty name = new SimpleStringProperty("");
 
   @FXML
-  protected VBox container;
+  VBox container;
 
   @FXML
-  protected TextField fieldName;
+  TextField fieldName;
 
   @FXML
-  protected Button buttonOK;
+  Button buttonOK;
 
   @FXML
-  protected Button buttonCancel;
+  Button buttonCancel;
 
   public LibraryEditorController(
     @Value("classpath:/views/content/library-editor.fxml") Resource fxml,
@@ -83,7 +83,7 @@ public class LibraryEditorController extends ProjectController {
   }
 
   @FXML
-  protected void handlePressOK() {
+  void handlePressOK() {
     var library = projectService.getContent().getLibrary(libraryId.get())
       .orElseThrow(() -> new RuntimeException("Could not find Library"));
     library.setName(name.get());
@@ -92,7 +92,7 @@ public class LibraryEditorController extends ProjectController {
   }
 
   @FXML
-  protected void handlePressCancel() {
+  void handlePressCancel() {
     uiStateService.viewLibraries();
   }
 

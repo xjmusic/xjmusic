@@ -37,13 +37,13 @@ public class EntityMemesController {
   private Resource memeTagFxml;
 
   @FXML
-  public StackPane labelContainer;
+  StackPane labelContainer;
 
   @FXML
-  public Button addMemeButton;
+  Button addMemeButton;
 
   @FXML
-  public FlowPane memeTagContainer;
+  FlowPane memeTagContainer;
 
   public EntityMemesController(
       ApplicationContext ac,

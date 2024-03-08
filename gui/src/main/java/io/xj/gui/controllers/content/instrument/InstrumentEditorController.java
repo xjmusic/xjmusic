@@ -72,22 +72,22 @@ public class InstrumentEditorController extends BrowserController {
   private Resource entityMemesFxml;
 
   @FXML
-  protected SplitPane container;
+  SplitPane container;
 
   @FXML
-  protected VBox fieldsContainer;
+  VBox fieldsContainer;
 
   @FXML
-  public StackPane instrumentMemeContainer;
+  StackPane instrumentMemeContainer;
 
   @FXML
-  protected TextField fieldName;
+  TextField fieldName;
 
   @FXML
-  protected TextField fieldVolume;
+  TextField fieldVolume;
 
   @FXML
-  protected TextArea fieldConfig;
+  TextArea fieldConfig;
 
   @FXML
   ChoiceBox<InstrumentType> choiceType;
@@ -99,10 +99,10 @@ public class InstrumentEditorController extends BrowserController {
   ChoiceBox<InstrumentState> choiceState;
 
   @FXML
-  protected Button buttonOpenAudioFolder;
+  Button buttonOpenAudioFolder;
 
   @FXML
-  protected TableView<InstrumentAudio> audiosTable;
+  TableView<InstrumentAudio> audiosTable;
 
   public InstrumentEditorController(
     @Value("classpath:/views/content/instrument/instrument-editor.fxml") Resource fxml,
