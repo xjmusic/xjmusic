@@ -29,7 +29,7 @@ import java.util.function.Consumer;
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class EntityMemeTagController {
   static final Logger LOG = LoggerFactory.getLogger(EntityMemeTagController.class);
-  private final Collection<Runnable> clearSubscriptions = new HashSet<>();
+  private final Collection<Runnable> subscriptions = new HashSet<>();
   private static final int MEME_NAME_PADDING = 15;
   private final SimpleStringProperty name = new SimpleStringProperty("");
   private Object currentMeme;
@@ -69,13 +69,13 @@ public class EntityMemeTagController {
     name.set(String.valueOf(EntityUtils.get(meme, "name").orElseThrow(() -> new RuntimeException("Could not get meme name"))));
 
     nameField.textProperty().bindBidirectional(name);
-    clearSubscriptions.add(UiUtils.onBlur(nameField, this::doneEditing));
+    subscriptions.add(UiUtils.onBlur(nameField, this::doneEditing));
 
     updateTextWidth();
   }
 
   public void teardown() {
-    for (Runnable subscription : clearSubscriptions) subscription.run();
+    for (Runnable subscription : subscriptions) subscription.run();
   }
 
   /**

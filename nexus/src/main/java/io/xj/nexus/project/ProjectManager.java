@@ -226,6 +226,16 @@ public interface ProjectManager {
   ProgramSequence createProgramSequence(UUID programId) throws Exception;
 
   /**
+   Create a new program sequence pattern
+
+   @param programId         for which to create a program sequence pattern
+   @param programSequenceId for which to create a program sequence pattern
+   @param programVoiceId    for which to create a program sequence pattern
+   @return the new program sequence pattern
+   */
+  ProgramSequencePattern createProgramSequencePattern(UUID programId, UUID programSequenceId, UUID programVoiceId) throws Exception;
+
+  /**
    Create a new program voice
 
    @param programId for which to create a voice
@@ -349,19 +359,17 @@ public interface ProjectManager {
    Note: Does not clone the program sequence bindings (that would cause duplicate bindings at all the same offsets)
 
    @param fromId source program sequence id
-   @param name   name of the new program sequence
    @return the new program sequence
    */
-  ProgramSequence cloneProgramSequence(UUID fromId, String name) throws Exception;
+  ProgramSequence cloneProgramSequence(UUID fromId) throws Exception;
 
   /**
    Clone a Program Sequence Pattern from a source program sequence pattern by id
 
    @param fromId source program sequence pattern id
-   @param name   name of the new program sequence pattern
    @return the new program sequence pattern
    */
-  ProgramSequencePattern cloneProgramSequencePattern(UUID fromId, String name) throws Exception;
+  ProgramSequencePattern cloneProgramSequencePattern(UUID fromId) throws Exception;
 
   /**
    Clone a Instrument from a source instrument by id

@@ -8,11 +8,11 @@
     fx:controller="io.xj.gui.controllers.content.common.PopupActionMenuController"
     fx:id="container"
     stylesheets="@/styles/default-theme.css"
-    spacing="5" styleClass="editor-popup-menu-container">
+    spacing="5" styleClass="popup-menu-container">
   <padding>
     <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
   </padding>
-  <Button fx:id="createButton" styleClass="editor-popup-menu-button" text="Create" onAction="#handlePressedCreate"/>
-  <Button fx:id="deleteButton" styleClass="editor-popup-menu-button" text="Delete" onAction="#handlePressedDelete"/>
-  <Button fx:id="cloneButton" styleClass="editor-popup-menu-button" text="Clone" onAction="#handlePressedClone"/>
+  <Button fx:id="createButton" styleClass="popup-menu-button" text="Create" onAction="#handlePressedCreate"/>
+  <Button fx:id="deleteButton" styleClass="popup-menu-button" text="Delete" onAction="#handlePressedDelete"/>
+  <Button fx:id="cloneButton" styleClass="popup-menu-button" text="Clone" onAction="#handlePressedClone"/>
 </HBox>

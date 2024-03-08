@@ -264,35 +264,29 @@ public class ProgramEditorController extends ProjectController {
     UiUtils.blurOnEnterKeyPress(sequenceTotalChooser);
     UiUtils.blurOnEnterKeyPress(sequenceIntensityChooser);
 
-    sequenceNameField.focusedProperty().addListener((o, ov, focused) -> {
+    UiUtils.onBlur(sequenceNameField, () -> {
       try {
-        if (!focused) {
-          projectService.update(ProgramSequence.class, uiStateService.currentProgramSequenceProperty().get().getId(), "name",
-            sequenceNameField.textProperty().get());
-        }
+        projectService.update(ProgramSequence.class, uiStateService.currentProgramSequenceProperty().get().getId(), "name",
+          sequenceNameField.textProperty().get());
       } catch (Exception e) {
         LOG.info("Failed to update program sequence ");
       }
     });
 
-    sequenceTotalChooser.focusedProperty().addListener((o, ov, focused) -> {
+    UiUtils.onBlur(sequenceTotalChooser, () -> {
       try {
-        if (!focused) {
-          sequenceTotalValueFactory.setValue(sequenceTotalChooser.getValue());
-          projectService.update(ProgramSequence.class, uiStateService.currentProgramSequenceProperty().get().getId(), "total",
-            sequenceTotalValueFactory.getValue());
-        }
+        sequenceTotalValueFactory.setValue(sequenceTotalChooser.getValue());
+        projectService.update(ProgramSequence.class, uiStateService.currentProgramSequenceProperty().get().getId(), "total",
+          sequenceTotalValueFactory.getValue());
       } catch (Exception e) {
         LOG.info("Failed to update program sequence ");
       }
     });
 
-    sequenceKeyField.focusedProperty().addListener((o, ov, focused) -> {
+    UiUtils.onBlur(sequenceKeyField, () -> {
       try {
-        if (!focused) {
-          projectService.update(ProgramSequence.class, uiStateService.currentProgramSequenceProperty().get().getId(), "key",
-            sequencePropertyKey.get());
-        }
+        projectService.update(ProgramSequence.class, uiStateService.currentProgramSequenceProperty().get().getId(), "key",
+          sequencePropertyKey.get());
       } catch (Exception e) {
         LOG.info("Failed to update program sequence ");
       }
@@ -337,6 +331,7 @@ public class ProgramEditorController extends ProjectController {
   void handlePressedSequenceActionLauncher() {
     UiUtils.launchModalMenu(sequenceActionLauncher, popupActionMenuFxml, ac, themeService.getMainScene().getWindow(),
       true, (PopupActionMenuController controller) -> controller.setup(
+        "New Sequence",
         this::handleCreateSequence,
         programHasSequences.get() ? this::handleDeleteSequence : null,
         programHasSequences.get() ? this::handleCloneSequence : null
@@ -467,6 +462,10 @@ public class ProgramEditorController extends ProjectController {
       projectService.showWarningAlert("Cannot Delete Sequence", "Must delete Sequence Bindings first!", "Cannot delete a sequence while it is still referenced by sequence bindings.");
       return;
     }
+    if (!projectService.getContent().getPatternsOfSequence(currentSequence.getId()).isEmpty()) {
+      projectService.showWarningAlert("Cannot Delete Sequence", "Must delete Sequence Patterns first!", "Cannot delete a sequence while it is still referenced by sequence patterns.");
+      return;
+    }
     if (!projectService.showConfirmationDialog("Delete Sequence?", "This action cannot be undone.", String.format("Are you sure you want to delete the Sequence \"%s\"?", currentSequence.getName())))
       return;
     try {
@@ -490,7 +489,7 @@ public class ProgramEditorController extends ProjectController {
     var currentSequence = uiStateService.currentProgramSequenceProperty().get();
     if (Objects.isNull(currentSequence)) return;
     try {
-      ProgramSequence clonedProgramSequence = projectService.cloneProgramSequence(currentSequence.getId(), "Clone of " + currentSequence.getName());
+      ProgramSequence clonedProgramSequence = projectService.cloneProgramSequence(currentSequence.getId());
       uiStateService.currentProgramSequenceProperty().set(clonedProgramSequence);
     } catch (Exception e) {
       LOG.info("Failed to clone sequence ");

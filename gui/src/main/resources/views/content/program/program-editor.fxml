@@ -93,7 +93,7 @@
       <Label minWidth="70" text="INTENSITY" styleClass="program-editor-field-label"/>
       <Spinner minWidth="90.0" fx:id="sequenceIntensityChooser" editable="true"/>
     </HBox>
-    <Label fx:id="noSequencesLabel" text="NO SEQUENCES"/>
+    <Label fx:id="noSequencesLabel" text="NO SEQUENCES" styleClass="no-sequences-label"/>
     <HBox fx:id="timelineOptionsGroup" alignment="CENTER_LEFT">
       <Label minWidth="35.0" text="GRID" styleClass="program-editor-field-label"/>
       <ComboBox fx:id="gridChooser" minWidth="80.0"/>

@@ -140,12 +140,16 @@ public class EditModeController extends ProjectController {
       controller.setup(programVoice.getId(), () -> {
         if (!projectService.getContent().getTracksOfVoice(programVoice.getId()).isEmpty()) {
           projectService.showWarningAlert("Failure", "Found Track in Voice", "Cannot delete voice because it contains a track.");
-        } else {
-          controller.teardown();
-          voiceControllers.remove(controller);
-          voiceContainer.getChildren().remove(root);
-          projectService.deleteContent(programVoice);
+          return;
         }
+        if (!projectService.getContent().getPatternsOfVoice(programVoice.getId()).isEmpty()) {
+          projectService.showWarningAlert("Failure", "Found Pattern in Voice", "Cannot delete voice because it contains a pattern.");
+          return;
+        }
+        controller.teardown();
+        voiceControllers.remove(controller);
+        voiceContainer.getChildren().remove(root);
+        projectService.deleteContent(programVoice);
       });
       voiceContainer.getChildren().add(root);
     } catch (IOException e) {

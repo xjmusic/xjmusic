@@ -5,6 +5,7 @@ package io.xj.gui.utils;
 import io.xj.hub.util.StringUtils;
 import jakarta.annotation.Nullable;
 import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -252,12 +253,26 @@ public interface UiUtils {
    @return callback to clear the listener
    */
   static Runnable onBlur(Control control, Runnable action) {
-    ChangeListener<Boolean> listener = (obs, oldValue, newValue) -> {
-      if (!newValue) {
+    ChangeListener<Boolean> listener = (o, ov, focus) -> {
+      if (!focus) {
         action.run();
       }
     };
     control.focusedProperty().addListener(listener);
     return () -> control.focusedProperty().removeListener(listener);
   }
+
+  /**
+   Utility to take an action on change of value
+
+   @param property the control
+   @param action   the action to take
+   @return callback to clear the listener
+   */
+  static <V> Runnable onChange(ObservableValue<V> property, Runnable action) {
+    ChangeListener<V> listener = (o, ov, value) -> action.run();
+    property.addListener(listener);
+    return () -> property.removeListener(listener);
+  }
+
 }

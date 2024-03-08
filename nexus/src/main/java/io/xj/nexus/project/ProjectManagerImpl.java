@@ -82,8 +82,10 @@ public class ProjectManagerImpl implements ProjectManager {
   private static final float DEFAULT_LOOP_BEATS = 4.0f;
   private static final float DEFAULT_VOLUME = 1.0f;
   private static final String DEFAULT_PROGRAM_SEQUENCE_NAME = "New Sequence";
+  private static final String DEFAULT_PROGRAM_SEQUENCE_PATTERN_NAME = "New Pattern";
   private static final String DEFAULT_PROGRAM_VOICE_NAME = "New Voice";
   private static final Integer DEFAULT_PROGRAM_SEQUENCE_TOTAL = 4;
+  private static final Integer DEFAULT_PROGRAM_SEQUENCE_PATTERN_TOTAL = 4;
   private static final String DEFAULT_MEME_NAME = "XXX";
   private final AtomicReference<ProjectState> state = new AtomicReference<>(ProjectState.Standby);
   private final AtomicReference<Project> project = new AtomicReference<>();
@@ -543,6 +545,32 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
+  public ProgramSequencePattern createProgramSequencePattern(UUID programId, UUID programSequenceId, UUID programVoiceId) throws Exception {
+    var program = content.get().getProgram(programId).orElseThrow(() -> new NexusException("Program not found"));
+    var sequence = content.get().getProgramSequence(programSequenceId).orElseThrow(() -> new NexusException("Sequence not found"));
+    var voice = content.get().getProgramVoice(programVoiceId).orElseThrow(() -> new NexusException("Voice not found"));
+    var existingPatternsOfSequence = content.get().getPatternsOfSequence(sequence.getId());
+    var existingPatternOfSequence = existingPatternsOfSequence.stream().findFirst();
+    var existingPattern = existingPatternOfSequence.isPresent() ? existingPatternOfSequence : content.get().getProgramSequencePatterns().stream().findFirst();
+
+    // New Create a pattern, increment a numerical suffix to make each sequence unique, e.g. "New Pattern 2" then "New Pattern 3"
+    var existingPatternNames = existingPatternsOfSequence.stream().map(ProgramSequencePattern::getName).collect(Collectors.toSet());
+    var newPatternName = FormatUtils.iterateNumericalSuffixFromExisting(existingPatternNames, DEFAULT_PROGRAM_SEQUENCE_PATTERN_NAME);
+
+    // Prepare the pattern record
+    var pattern = new ProgramSequencePattern();
+    pattern.setId(UUID.randomUUID());
+    pattern.setName(newPatternName);
+    pattern.setTotal(existingPattern.map(ProgramSequencePattern::getTotal).orElse(DEFAULT_PROGRAM_SEQUENCE_PATTERN_TOTAL.shortValue()));
+    pattern.setProgramId(program.getId());
+    pattern.setProgramSequenceId(sequence.getId());
+    pattern.setProgramVoiceId(voice.getId());
+
+    content.get().put(pattern);
+    return pattern;
+  }
+
+  @Override
   public ProgramVoice createProgramVoice(UUID programId) throws Exception {
     var program = content.get().getProgram(programId).orElseThrow(() -> new NexusException("Program not found"));
     var project = content.get().getProject();
@@ -846,12 +874,12 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @SuppressWarnings("CollectionAddAllCanBeReplacedWithConstructor")
   @Override
-  public ProgramSequence cloneProgramSequence(UUID fromId, String name) throws Exception {
+  public ProgramSequence cloneProgramSequence(UUID fromId) throws Exception {
     var source = content.get().getProgramSequence(fromId).orElseThrow(() -> new NexusException("Program Sequence not found"));
 
     // Clone Program
     var clonedSequence = entityFactory.clone(source);
-    clonedSequence.setName(name);
+    clonedSequence.setName("Clone of " + source.getName());
 
     // Prepare all maps of cloned sub-entities to avoid putting more than once to store
     Map<UUID, ProgramSequenceBinding> clonedProgramSequenceBindings = new HashMap<>();
@@ -900,12 +928,12 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public ProgramSequencePattern cloneProgramSequencePattern(UUID fromId, String name) throws Exception {
+  public ProgramSequencePattern cloneProgramSequencePattern(UUID fromId) throws Exception {
     var source = content.get().getProgramSequencePattern(fromId).orElseThrow(() -> new NexusException("Program Sequence Pattern not found"));
 
     // Clone Program
     var clonedPattern = entityFactory.clone(source);
-    clonedPattern.setName(name);
+    clonedPattern.setName("Clone of " + source.getName());
 
     // Iterate through the tracks and clone all the Program's Sequences' Patterns' Events
     Map<UUID, ProgramSequencePatternEvent> clonedProgramSequencePatternEvents = new HashMap<>(entityFactory.cloneAll(content.get().getEventsOfPattern(source.getId()), Set.of(clonedPattern)));

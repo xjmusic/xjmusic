@@ -5,6 +5,7 @@
 <VBox fx:id="container"
       xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.xj.gui.controllers.content.common.PopupSelectorMenuController"
-      stylesheets="@/styles/default-theme.css">
+      stylesheets="@/styles/default-theme.css"
+      styleClass="popup-menu-container">
   <SearchableComboBox fx:id="selector" prefWidth="256.0"/>
 </VBox>

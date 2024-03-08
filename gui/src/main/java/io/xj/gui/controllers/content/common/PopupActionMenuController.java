@@ -45,6 +45,7 @@ public class PopupActionMenuController {
    @param onClone  callback to clone track
    */
   public void setup(
+    String createText,
     @Nullable Runnable onCreate,
     @Nullable Runnable onDelete,
     @Nullable Runnable onClone
@@ -52,7 +53,8 @@ public class PopupActionMenuController {
     this.onCreated = onCreate;
     this.onDelete = onDelete;
     this.onClone = onClone;
-    
+
+    createButton.setText(createText);
     createButton.setVisible(Objects.nonNull(onCreate));
     createButton.setManaged(Objects.nonNull(onCreate));
     deleteButton.setVisible(Objects.nonNull(onDelete));

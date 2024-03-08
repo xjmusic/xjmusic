@@ -409,7 +409,7 @@ public class ProjectServiceImpl implements ProjectService {
   public Template createTemplate(String name) throws Exception {
     var template = projectManager.createTemplate(name);
     didUpdate(Template.class, true);
-    LOG.info("Created template \"{}\"", name);
+    LOG.info("Created Template \"{}\"", name);
     return template;
   }
 
@@ -417,7 +417,7 @@ public class ProjectServiceImpl implements ProjectService {
   public Library createLibrary(String name) throws Exception {
     var library = projectManager.createLibrary(name);
     didUpdate(Library.class, true);
-    LOG.info("Created library \"{}\"", name);
+    LOG.info("Created Library \"{}\"", name);
     return library;
   }
 
@@ -425,7 +425,7 @@ public class ProjectServiceImpl implements ProjectService {
   public Program createProgram(Library library, String name) throws Exception {
     var program = projectManager.createProgram(library, name);
     didUpdate(Program.class, true);
-    LOG.info("Created program \"{}\"", name);
+    LOG.info("Created Program \"{}\"", name);
     return program;
   }
 
@@ -433,15 +433,23 @@ public class ProjectServiceImpl implements ProjectService {
   public ProgramSequence createProgramSequence(UUID programId) throws Exception {
     var programSequence = projectManager.createProgramSequence(programId);
     didUpdate(ProgramSequence.class, true);
-    LOG.info("Created programSequence \"{}\"", programSequence.getName());
+    LOG.info("Created Program Sequence \"{}\"", programSequence.getName());
     return programSequence;
+  }
+
+  @Override
+  public ProgramSequencePattern createProgramSequencePattern(UUID programId, UUID programSequenceId, UUID programVoiceId) throws Exception {
+    var programSequencePattern = projectManager.createProgramSequencePattern(programId, programSequenceId, programVoiceId);
+    didUpdate(ProgramSequencePattern.class, true);
+    LOG.info("Created Program Sequence Pattern \"{}\"", programSequencePattern.getName());
+    return programSequencePattern;
   }
 
   @Override
   public ProgramVoice createProgramVoice(UUID programId) throws Exception {
     var programVoice = projectManager.createProgramVoice(programId);
     didUpdate(ProgramVoice.class, true);
-    LOG.info("Created programVoice \"{}\"", programVoice.getName());
+    LOG.info("Created Program Voice \"{}\"", programVoice.getName());
     return programVoice;
   }
 
@@ -526,18 +534,18 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public ProgramSequence cloneProgramSequence(UUID fromId, String name) throws Exception {
-    var sequence = projectManager.cloneProgramSequence(fromId, name);
+  public ProgramSequence cloneProgramSequence(UUID fromId) throws Exception {
+    var sequence = projectManager.cloneProgramSequence(fromId);
     didUpdate(ProgramSequence.class, true);
-    LOG.info("Cloned program sequence to \"{}\"", name);
+    LOG.info("Cloned program sequence to \"{}\"", sequence.getName());
     return sequence;
   }
 
   @Override
-  public ProgramSequencePattern cloneProgramSequencePattern(UUID fromId, String name) throws Exception {
-    var pattern = projectManager.cloneProgramSequencePattern(fromId, name);
+  public ProgramSequencePattern cloneProgramSequencePattern(UUID fromId) throws Exception {
+    var pattern = projectManager.cloneProgramSequencePattern(fromId);
     didUpdate(ProgramSequence.class, true);
-    LOG.info("Cloned program sequence pattern to \"{}\"", name);
+    LOG.info("Cloned program sequence pattern to \"{}\"", pattern.getName());
     return pattern;
   }
 

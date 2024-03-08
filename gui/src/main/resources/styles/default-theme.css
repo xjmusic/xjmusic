@@ -466,8 +466,18 @@
 -fx-background-color: #404040;
 }
 
-.voice-pattern-control-container {
- -fx-background-color: #393939;
+.voice-pattern-container {
+  -fx-background-color: #393939;
+}
+
+.no-sequences-label {
+  -fx-font-style: italic;
+  -fx-padding: 0 5 0 5;
+}
+
+.no-patterns-label {
+  -fx-font-style: italic;
+  -fx-padding: 0 5 0 5;
 }
 
 .text-field {
@@ -478,11 +488,12 @@
   -fx-font-family: "Roboto Mono";
 }
 
-.editor-popup-menu-container {
+.popup-menu-container {
+  -fx-font-family: 'Roboto Mono';
   -fx-background-color: #683568;
 }
 
-.editor-popup-menu-button {
+.popup-menu-button {
   -fx-background-color: #855C85;
 }
 

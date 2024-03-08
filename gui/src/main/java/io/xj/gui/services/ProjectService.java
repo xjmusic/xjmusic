@@ -246,6 +246,16 @@ public interface ProjectService {
   ProgramSequence createProgramSequence(UUID programId) throws Exception;
 
   /**
+   Create a new program sequence pattern
+
+   @param programId         for which to create a program sequence pattern
+   @param programSequenceId for which to create a program sequence pattern
+   @param programVoiceId    for which to create a program sequence pattern
+   @return the new program sequence pattern
+   */
+  ProgramSequencePattern createProgramSequencePattern(UUID programId, UUID programSequenceId, UUID programVoiceId) throws Exception;
+
+  /**
    Create a new program voice
 
    @param programId for which to create a program voice
@@ -345,19 +355,17 @@ public interface ProjectService {
    Clone the given program sequence with a new name
 
    @param fromId clone from program sequence
-   @param name   the new name
    @return the new program
    */
-  ProgramSequence cloneProgramSequence(UUID fromId, String name) throws Exception;
+  ProgramSequence cloneProgramSequence(UUID fromId) throws Exception;
 
   /**
    Clone the given program sequence pattern with a new name
 
    @param fromId clone from program sequence pattern
-   @param name   the new name
    @return the new program sequence pattern
    */
-  ProgramSequencePattern cloneProgramSequencePattern(UUID fromId, String name) throws Exception;
+  ProgramSequencePattern cloneProgramSequencePattern(UUID fromId) throws Exception;
 
   /**
    Clone the given instrument with a new name
