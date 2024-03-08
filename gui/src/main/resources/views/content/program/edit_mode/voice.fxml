@@ -24,7 +24,7 @@
       <padding>
         <Insets left="2.0" top="2.0"/>
       </padding>
-      <Button fx:id="voiceActionLauncher" onAction="#handlePressedVoiceActionLauncher" HBox.hgrow="ALWAYS">
+      <Button fx:id="voiceActionLauncher" onAction="#handlePressedVoiceActionLauncher" HBox.hgrow="ALWAYS" styleClass="popup-menu-launcher">
         <graphic>
           <ImageView fitHeight="16.0" fitWidth="16.0">
             <Image url="@/icons/hamburger-menu.png"/>
@@ -48,14 +48,14 @@
           <Insets left="2.0" top="2.0"/>
         </padding>
         <HBox spacing="2.0" HBox.hgrow="ALWAYS">
-          <Button fx:id="patternSelectorLauncher" onAction="#handlePressedPatternSelectorLauncher" HBox.hgrow="ALWAYS">
+          <Button fx:id="patternSelectorLauncher" onAction="#handlePressedPatternSelectorLauncher" HBox.hgrow="ALWAYS" styleClass="popup-menu-launcher">
             <graphic>
               <ImageView fitHeight="16.0" fitWidth="16.0">
                 <Image url="@/icons/down-arrow.png"/>
               </ImageView>
             </graphic>
           </Button>
-          <Button fx:id="patternActionLauncher" onAction="#handlePressedPatternActionLauncher" HBox.hgrow="ALWAYS">
+          <Button fx:id="patternActionLauncher" onAction="#handlePressedPatternActionLauncher" HBox.hgrow="ALWAYS" styleClass="popup-menu-launcher">
             <graphic>
               <ImageView fitHeight="16.0" fitWidth="16.0">
                 <Image url="@/icons/hamburger-menu.png"/>

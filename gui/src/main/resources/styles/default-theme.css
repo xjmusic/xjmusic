@@ -453,13 +453,14 @@
   -fx-font-size: 0.8em;
 }
 
-.toggle-button.program-editor-menu-button:selected {
-  -fx-background-color: rgba(0, 255, 0, 0.38);
+.program-editor .combo-box,
+.program-editor .spinner {
+  -fx-background-color: transparent;
+  -fx-border-style: none;
 }
 
-/*noinspection CssInvalidPseudoSelector*/
-.program-editor .button:open {
-  -fx-background-color: #683568;
+.toggle-button.program-editor-menu-button:selected {
+  -fx-background-color: rgba(0, 255, 0, 0.38);
 }
 
 .voice-control-container {
@@ -494,6 +495,16 @@
 
 .config-editor {
   -fx-font-family: "Roboto Mono";
+}
+
+.popup-menu-launcher {
+  -fx-background-color: transparent;
+  -fx-border-style: none;
+}
+
+/*noinspection CssInvalidPseudoSelector*/
+.popup-menu-launcher:open {
+  -fx-background-color: #683568;
 }
 
 .popup-menu-container {
@@ -555,6 +566,7 @@
   -fx-background-radius: 0 4 4 0;
   -fx-border-radius: 0 4 4 0;
   -fx-background-color: #606060;
+  -fx-border-style: none;
 }
 
 .sequence-binding-item-container {

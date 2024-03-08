@@ -15,6 +15,7 @@
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Pane?>
 <VBox fx:id="container" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramEditorController"
       styleClass="program-editor">
@@ -26,13 +27,6 @@
     <padding>
       <Insets left="5.0"/>
     </padding>
-    <Button fx:id="configButton" minWidth="30" maxWidth="30" mnemonicParsing="false" onAction="#handleEditConfig">
-      <graphic>
-        <ImageView fitHeight="16.0" fitWidth="16.0">
-          <Image url="@/icons/settings.png"/>
-        </ImageView>
-      </graphic>
-    </Button>
     <fx:define>
       <ToggleGroup fx:id="editorModeToggleGroup"/>
     </fx:define>
@@ -40,7 +34,14 @@
                   text="BIND" styleClass="program-editor-menu-button"/>
     <ToggleButton fx:id="editButton" toggleGroup="$editorModeToggleGroup" mnemonicParsing="false" minWidth="45"
                   text="EDIT" styleClass="program-editor-menu-button"/>
-    <Button fx:id="duplicateButton" minWidth="30" maxWidth="30" mnemonicParsing="false" onAction="#openCloneDialog">
+    <Button fx:id="configButton" minWidth="30" maxWidth="30" mnemonicParsing="false" onAction="#handleEditConfig"  styleClass="popup-menu-launcher">
+      <graphic>
+        <ImageView fitHeight="16.0" fitWidth="16.0">
+          <Image url="@/icons/settings.png"/>
+        </ImageView>
+      </graphic>
+    </Button>
+    <Button fx:id="duplicateButton" minWidth="30" maxWidth="30" mnemonicParsing="false" onAction="#openCloneDialog" styleClass="popup-menu-launcher">
       <graphic>
         <ImageView fitHeight="16.0" fitWidth="16.0">
           <Image url="@/icons/copy-grey.png"/>
@@ -56,7 +57,7 @@
     <Label minWidth="30.0" text="KEY" styleClass="program-editor-field-label"/>
     <TextField fx:id="keyField" minWidth="60.0"/>
     <Label minWidth="50.0" text="TEMPO" styleClass="program-editor-field-label"/>
-    <Spinner minWidth="90.0" fx:id="tempoChooser" editable="true"/>
+    <Spinner minWidth="70.0" fx:id="tempoChooser" editable="true"/>
   </HBox>
   <StackPane fx:id="programMemeContainer">
     <HBox.hgrow>
@@ -69,7 +70,7 @@
     </padding>
     <Label minWidth="80" text="SEQUENCE" styleClass="program-editor-field-label"/>
     <Button fx:id="sequenceSelectorLauncher" mnemonicParsing="false" minWidth="30" maxWidth="30"
-            onMouseClicked="#handlePressedSequenceSelectorLauncher">
+            onMouseClicked="#handlePressedSequenceSelectorLauncher" styleClass="popup-menu-launcher">
       <graphic>
         <ImageView fitHeight="16.0" fitWidth="16.0">
           <Image url="@/icons/down-arrow.png"/>
@@ -77,24 +78,24 @@
       </graphic>
     </Button>
     <Button fx:id="sequenceActionLauncher" mnemonicParsing="false" minWidth="30" maxWidth="30"
-            onMouseClicked="#handlePressedSequenceActionLauncher">
+            onMouseClicked="#handlePressedSequenceActionLauncher" styleClass="popup-menu-launcher">
       <graphic>
         <ImageView fitHeight="16.0" fitWidth="16.0">
           <Image url="@/icons/hamburger-menu.png"/>
         </ImageView>
       </graphic>
     </Button>
-    <HBox fx:id="currentSequenceGroup" alignment="CENTER_LEFT">
+    <HBox fx:id="currentSequenceGroup" alignment="CENTER_LEFT" spacing="10">
       <TextField fx:id="sequenceNameField" minWidth="173.0"/>
       <Label minWidth="50" text="TOTAL" styleClass="program-editor-field-label"/>
-      <Spinner minWidth="90.0" fx:id="sequenceTotalChooser" editable="true"/>
+      <Spinner minWidth="70.0" fx:id="sequenceTotalChooser" editable="true"/>
       <Label minWidth="30" text="KEY" styleClass="program-editor-field-label"/>
       <TextField minWidth="45" fx:id="sequenceKeyField"/>
       <Label minWidth="70" text="INTENSITY" styleClass="program-editor-field-label"/>
-      <Spinner minWidth="90.0" fx:id="sequenceIntensityChooser" editable="true"/>
+      <Spinner minWidth="70.0" fx:id="sequenceIntensityChooser" editable="true"/>
     </HBox>
     <Label fx:id="noSequencesLabel" text="NO SEQUENCES" styleClass="no-sequences-label"/>
-    <HBox fx:id="timelineOptionsGroup" alignment="CENTER_LEFT">
+    <HBox fx:id="timelineOptionsGroup" alignment="CENTER_LEFT" spacing="10">
       <Label minWidth="35.0" text="GRID" styleClass="program-editor-field-label"/>
       <ComboBox fx:id="gridChooser" minWidth="80.0"/>
       <Label minWidth="35.0" text="ZOOM" styleClass="program-editor-field-label"/>
