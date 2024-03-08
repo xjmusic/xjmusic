@@ -5,6 +5,7 @@ package io.xj.gui.controllers.content.program;
 import io.xj.gui.ProjectController;
 import io.xj.gui.controllers.CmdModalController;
 import io.xj.gui.controllers.content.common.EntityMemesController;
+import io.xj.gui.controllers.content.common.PopupMenuController;
 import io.xj.gui.controllers.content.program.bind_mode.BindModeController;
 import io.xj.gui.controllers.content.program.edit_mode.EditModeController;
 import io.xj.gui.modes.ContentMode;
@@ -47,7 +48,6 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,7 +68,7 @@ public class ProgramEditorController extends ProjectController {
   private static final Set<ProgramType> PROGRAM_TYPES_WITH_BINDINGS = Set.of(ProgramType.Main, ProgramType.Macro);
   private final Resource configFxml;
   private final Resource sequenceSelectorFxml;
-  private final Resource sequenceManagementFxml;
+  private final Resource popupMenuFxml;
   private final Resource entityMemesFxml;
 
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
@@ -151,7 +151,7 @@ public class ProgramEditorController extends ProjectController {
   public TextField sequenceNameField;
 
   @FXML
-  public Button sequenceManagementLauncher;
+  public Button sequenceMenuLauncher;
 
   @FXML
   public ToggleButton snapButton;
@@ -184,7 +184,7 @@ public class ProgramEditorController extends ProjectController {
     @Value("classpath:/views/content/program/program-editor.fxml") Resource fxml,
     @Value("classpath:/views/content/program/program-config.fxml") Resource configFxml,
     @Value("classpath:/views/content/program/sequence-selector.fxml") Resource sequenceSelectorFxml,
-    @Value("classpath:/views/content/program/sequence-management.fxml") Resource sequenceManagementFxml,
+    @Value("classpath:/views/content/common/popup-menu.fxml") Resource popupMenuFxml,
     @Value("classpath:/views/content/common/entity-memes.fxml") Resource entityMemesFxml,
     ApplicationContext ac,
     ThemeService themeService,
@@ -197,7 +197,7 @@ public class ProgramEditorController extends ProjectController {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.configFxml = configFxml;
     this.sequenceSelectorFxml = sequenceSelectorFxml;
-    this.sequenceManagementFxml = sequenceManagementFxml;
+    this.popupMenuFxml = popupMenuFxml;
     this.entityMemesFxml = entityMemesFxml;
     this.cmdModalController = cmdModalController;
     this.editController = editController;
@@ -337,7 +337,7 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   protected void launchSequenceSelectorUI() {
     UiUtils.launchModalMenu(sequenceSelectorLauncher, sequenceSelectorFxml, ac, themeService.getMainScene().getWindow(),
-      true, (SequenceSelectorController controller, Stage stage) -> controller.setup(
+      true, (SequenceSelectorController controller) -> controller.setup(
         programId.get(),
         (sequenceId) -> uiStateService.currentProgramSequenceProperty().set(projectService.getContent().getProgramSequence(sequenceId).orElse(null))
       )
@@ -346,8 +346,12 @@ public class ProgramEditorController extends ProjectController {
 
   @FXML
   protected void launchSequenceManagementUI() {
-    UiUtils.launchModalMenu(sequenceManagementLauncher, sequenceManagementFxml, ac, themeService.getMainScene().getWindow(),
-      true, (SequenceManagementController controller, Stage stage) -> controller.setup(programId.get(), stage)
+    UiUtils.launchModalMenu(sequenceMenuLauncher, popupMenuFxml, ac, themeService.getMainScene().getWindow(),
+      true, (PopupMenuController controller) -> controller.setup(
+        this::handleCreateSequence,
+        this::handleDeleteSequence,
+        this::handleCloneSequence
+      )
     );
   }
 
@@ -379,7 +383,7 @@ public class ProgramEditorController extends ProjectController {
   @FXML
   protected void handleEditConfig() {
     UiUtils.launchModalMenu(configButton, configFxml, ac, themeService.getMainScene().getWindow(), false,
-      (ProgramConfigController controller, Stage stage) -> controller.setup(stage, programId.get())
+      (ProgramConfigController controller) -> controller.setup(programId.get())
     );
   }
 
@@ -453,10 +457,57 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   @return the current program ID
+   Create a new sequence
    */
-  public UUID getProgramId() {
-    return programId.get();
+  private void handleCreateSequence() {
+    try {
+      ProgramSequence newProgramSequence = projectService.createProgramSequence(programId.get());
+      uiStateService.currentProgramSequenceProperty().set(newProgramSequence);
+      teardown();
+    } catch (Exception e) {
+      LOG.info("Failed to create new sequence! {}\n{}", e, StringUtils.formatStackTrace(e));
+    }
   }
 
+  /**
+   Delete the current sequence
+   */
+  private void handleDeleteSequence() {
+    var currentSequence = uiStateService.currentProgramSequenceProperty().get();
+    if (Objects.isNull(currentSequence)) return;
+    if (!projectService.getContent().getBindingsOfSequence(currentSequence.getId()).isEmpty()) {
+      projectService.showWarningAlert("Cannot Delete Sequence", "Must delete Sequence Bindings first!", "Cannot delete a sequence while it is still referenced by sequence bindings.");
+      return;
+    }
+    if (!projectService.showConfirmationDialog("Delete Sequence?", "This action cannot be undone.", String.format("Are you sure you want to delete the Sequence \"%s\"?", currentSequence.getName())))
+      return;
+    try {
+      projectService.deleteContent(currentSequence);
+      var sequences = projectService.getContent().getSequencesOfProgram(programId.get()).stream()
+        .sorted(Comparator.comparing(ProgramSequence::getName)).toList();
+      if (!sequences.isEmpty()) {
+        uiStateService.currentProgramSequenceProperty().set(sequences.get(0));
+      } else {
+        uiStateService.currentProgramSequenceProperty().set(null);
+      }
+      teardown();
+    } catch (Exception e) {
+      LOG.info("Failed to delete sequence " + currentSequence.getName());
+    }
+  }
+
+  /**
+   Clone the current sequence
+   */
+  private void handleCloneSequence() {
+    var currentSequence = uiStateService.currentProgramSequenceProperty().get();
+    if (Objects.isNull(currentSequence)) return;
+    try {
+      ProgramSequence clonedProgramSequence = projectService.cloneProgramSequence(currentSequence.getId(), "Clone of " + currentSequence.getName());
+      uiStateService.currentProgramSequenceProperty().set(clonedProgramSequence);
+      teardown();
+    } catch (Exception e) {
+      LOG.info("Failed to clone sequence ");
+    }
+  }
 }

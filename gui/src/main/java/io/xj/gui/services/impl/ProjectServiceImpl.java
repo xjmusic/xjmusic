@@ -322,10 +322,10 @@ public class ProjectServiceImpl implements ProjectService {
       try {
         deleteContent(entity.getClass(), id);
       } catch (Exception e2) {
-        LOG.error("Could not delete {}[{}]\n{}", entity.getClass().getSimpleName(), id, StringUtils.formatStackTrace(e2), e2);
+        LOG.error("Could not delete {}[{}]! {}\n{}", entity.getClass().getSimpleName(), id, e2, StringUtils.formatStackTrace(e2));
       }
     } catch (Exception e) {
-      LOG.error("Could not delete {}\n{}", entity.getClass().getSimpleName(), StringUtils.formatStackTrace(e));
+      LOG.error("Could not delete {}! {}\n{}", entity.getClass().getSimpleName(), e, StringUtils.formatStackTrace(e));
     }
   }
 
@@ -336,7 +336,7 @@ public class ProjectServiceImpl implements ProjectService {
       didUpdate(type, true);
       LOG.info("Deleted {}[{}]", type.getSimpleName(), id);
     } catch (Exception e) {
-      LOG.error("Could not delete {}[{}]\n{}", type.getSimpleName(), id, StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Could not delete {}[{}]! {}\n{}", type.getSimpleName(), id, e, StringUtils.formatStackTrace(e.getCause()));
     }
   }
 
@@ -555,7 +555,7 @@ public class ProjectServiceImpl implements ProjectService {
       projectManager.getContent().put(entity);
       didUpdate(entity.getClass(), true);
     } catch (Exception e) {
-      LOG.error("Could not update entity{}\n{}", e, StringUtils.formatStackTrace(e));
+      LOG.error("Could not update entity! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 
@@ -575,7 +575,7 @@ public class ProjectServiceImpl implements ProjectService {
       return true;
 
     } catch (Exception e) {
-      LOG.error("Could not save Library{}\n{}", e, StringUtils.formatStackTrace(e));
+      LOG.error("Could not save Library! {}\n{}", e, StringUtils.formatStackTrace(e));
       return false;
     }
   }
@@ -588,7 +588,7 @@ public class ProjectServiceImpl implements ProjectService {
       return true;
 
     } catch (Exception e) {
-      LOG.error("Could not save Program{}\n{}", e, StringUtils.formatStackTrace(e));
+      LOG.error("Could not save Program! {}\n{}", e, StringUtils.formatStackTrace(e));
       return false;
     }
   }
@@ -616,7 +616,7 @@ public class ProjectServiceImpl implements ProjectService {
       LOG.info("Added {} template binding", contentBindingType);
 
     } catch (Exception e) {
-      LOG.error("Could not add Template Binding!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Could not add Template Binding! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 
@@ -795,7 +795,7 @@ public class ProjectServiceImpl implements ProjectService {
               Platform.runLater(this::cancelProjectLoading);
             }
           } catch (Exception e) {
-            LOG.warn("Failed to clone project!\n{}", StringUtils.formatStackTrace(e), e);
+            LOG.warn("Failed to clone project! {}\n{}", e, StringUtils.formatStackTrace(e));
             Platform.runLater(this::cancelProjectLoading);
           }
         });

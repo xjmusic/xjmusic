@@ -466,11 +466,11 @@
   -fx-font-family: "Roboto Mono";
 }
 
-.sequence-window {
+.editor-popup-menu-container {
   -fx-background-color: #683568;
 }
 
-.sequence-button {
+.editor-popup-menu-button {
   -fx-background-color: #855C85;
 }
 

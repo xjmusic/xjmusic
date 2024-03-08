@@ -30,7 +30,7 @@ import java.awt.Toolkit;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static io.xj.gui.services.UIStateService.OPEN_PSEUDO_CLASS;
 
@@ -211,7 +211,7 @@ public interface UiUtils {
    @param positionUnderButton whether to position the menu under the button
    @param setupController     function to set up the controller
    */
-  static <T> void launchModalMenu(Button button, Resource fxml, ApplicationContext ac, Window window, boolean positionUnderButton, BiConsumer<T, Stage> setupController) {
+  static <T> void launchModalMenu(Button button, Resource fxml, ApplicationContext ac, Window window, boolean positionUnderButton, Consumer<T> setupController) {
     try {
       button.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, true);
       Stage stage = new Stage(StageStyle.TRANSPARENT);
@@ -219,7 +219,7 @@ public interface UiUtils {
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       T controller = loader.getController();
-      setupController.accept(controller, stage);
+      setupController.accept(controller);
       stage.setScene(new Scene(root));
       stage.initOwner(window);
       stage.show();
@@ -229,7 +229,7 @@ public interface UiUtils {
       if (positionUnderButton) UiUtils.setStagePositionBelowParentNode(stage, button);
 
     } catch (IOException e) {
-      LOG.error("Failed to launch menu from {}!\n{}", fxml.getFilename(), StringUtils.formatStackTrace(e));
+      LOG.error("Failed to launch menu from {}! {}\n{}", fxml.getFilename(), e, StringUtils.formatStackTrace(e));
     }
   }
 

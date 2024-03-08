@@ -30,8 +30,8 @@ import static io.xj.gui.controllers.content.program.edit_mode.VoiceController.co
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class TrackController {
-  static final Logger LOG = LoggerFactory.getLogger(TrackController.class);
+public class TrackControllerLegacy {
+  static final Logger LOG = LoggerFactory.getLogger(TrackControllerLegacy.class);
   private final Resource trackFxml;
   private final Resource trackMenuFxml;
   private final Resource programSequencePatternEventItem;
@@ -64,7 +64,7 @@ public class TrackController {
   public AnchorPane timeLineAnchorpane;
 
 
-  public TrackController(
+  public TrackControllerLegacy(
     @Value("classpath:/views/content/program/edit_mode/track.fxml") Resource trackFxml,
     @Value("classpath:/views/content/common/popup-menu.fxml") Resource trackMenuFxml,
     @Value("classpath:/views/content/program/edit_mode/program-sequence-pattern-event-item.fxml") Resource programSequencePatternEventItem,

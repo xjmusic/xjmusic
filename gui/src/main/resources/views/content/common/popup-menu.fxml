@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
+<HBox
+    xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="io.xj.gui.controllers.content.common.PopupMenuController"
+    fx:id="container"
+    stylesheets="@/styles/default-theme.css"
+    spacing="5" styleClass="editor-popup-menu-container">
+  <padding>
+    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+  </padding>
+  <Button fx:id="createButton" styleClass="editor-popup-menu-button" text="Create" onAction="#handlePressedCreate"/>
+  <Button fx:id="deleteButton" styleClass="editor-popup-menu-button" text="Delete" onAction="#handlePressedDelete"/>
+  <Button fx:id="cloneButton" styleClass="editor-popup-menu-button" text="Clone" onAction="#handlePressedClone"/>
+</HBox>

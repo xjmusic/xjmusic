@@ -204,7 +204,7 @@ public class TemplateEditorController extends BrowserController {
       try {
         projectService.update(Template.class, templateId.get(), attribute, value);
       } catch (Exception e) {
-        LOG.error("Could not update Template " + attribute, StringUtils.formatStackTrace(e));
+        LOG.error("Could not update Template {}! {}\n{}", attribute, e, StringUtils.formatStackTrace(e));
       }
     }
   }

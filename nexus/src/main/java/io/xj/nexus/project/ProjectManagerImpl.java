@@ -262,7 +262,7 @@ public class ProjectManagerImpl implements ProjectManager {
         Files.deleteIfExists(Paths.get(s));
         results.incrementFiles();
       } catch (IOException e) {
-        LOG.error("Failed to delete audio file {}\n{}", s, StringUtils.formatStackTrace(e));
+        LOG.error("Failed to delete audio file \"{}\"! {}\n{}", s, e, StringUtils.formatStackTrace(e));
         updateState(ProjectState.Ready);
         return results;
       }
@@ -272,7 +272,7 @@ public class ProjectManagerImpl implements ProjectManager {
         FileUtils.deleteDirectory(new File(path));
         results.incrementFolders();
       } catch (IOException e) {
-        LOG.error("Failed to delete instrument folder {}\n{}", path, StringUtils.formatStackTrace(e));
+        LOG.error("Failed to delete instrument folder {}! {}\n{}", path, e, StringUtils.formatStackTrace(e));
         updateState(ProjectState.Ready);
         return results;
       }
@@ -1070,7 +1070,7 @@ public class ProjectManagerImpl implements ProjectManager {
       return false;
 
     } catch (Exception e) {
-      LOG.error("Failed to clone project!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Failed to clone project! {}\n{}", e, StringUtils.formatStackTrace(e));
       updateState(ProjectState.Failed);
       project.set(null);
       return false;

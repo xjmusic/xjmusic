@@ -12,7 +12,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -98,7 +97,7 @@ public class SequenceBindingColumnController {
   @FXML
   protected void handlePressedAddSequenceBinding() {
     UiUtils.launchModalMenu(addSequenceButton, sequenceSelectorFxml, ac, themeService.getMainScene().getWindow(), true,
-      (SequenceSelectorController controller, Stage stage) -> controller.setup(programId, this::createSequenceBinding)
+      (SequenceSelectorController controller) -> controller.setup(programId, this::createSequenceBinding)
     );
   }
 
