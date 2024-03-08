@@ -1,4 +1,4 @@
-package io.xj.gui.controllers.content.program;
+package io.xj.gui.controllers.content.program.bind_mode;
 
 import io.xj.gui.ProjectController;
 import io.xj.gui.modes.ProgramEditorMode;
@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class ModeBindController extends ProjectController {
-  static final Logger LOG = LoggerFactory.getLogger(ModeBindController.class);
+public class BindModeController extends ProjectController {
+  static final Logger LOG = LoggerFactory.getLogger(BindModeController.class);
   private final Resource sequenceBindingColumnFxml;
   private final List<SequenceBindingColumnController> sequenceBindingColumnControllers = new ArrayList<>();
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>();
@@ -51,9 +51,9 @@ public class ModeBindController extends ProjectController {
    @param uiStateService common UI state service
    @param projectService common project service
    */
-  protected ModeBindController(
-    @Value("classpath:/views/content/program/mode-bind.fxml") Resource fxml,
-    @Value("classpath:/views/content/program/sequence-binding-column.fxml") Resource sequenceBindingColumnFxml,
+  protected BindModeController(
+    @Value("classpath:/views/content/program/bind_mode/bind-mode.fxml") Resource fxml,
+    @Value("classpath:/views/content/program/bind_mode/sequence-binding-column.fxml") Resource sequenceBindingColumnFxml,
     ApplicationContext ac,
     ThemeService themeService,
     UIStateService uiStateService,
@@ -131,7 +131,7 @@ public class ModeBindController extends ProjectController {
       sequenceBindingColumnControllers.add(offset, controller);
       controller.setup(offset, programId.get());
     } catch (IOException e) {
-      LOG.error("Error loading Sequence Selector view!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Error loading Sequence Selector view! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 }

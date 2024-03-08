@@ -18,6 +18,7 @@ import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
@@ -437,6 +438,14 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
+  public ProgramVoice createProgramVoice(UUID programId) throws Exception {
+    var programVoice = projectManager.createProgramVoice(programId);
+    didUpdate(ProgramVoice.class, true);
+    LOG.info("Created programVoice \"{}\"", programVoice.getName());
+    return programVoice;
+  }
+
+  @Override
   public ProgramMeme createProgramMeme(UUID programId) throws Exception {
     var meme = projectManager.createProgramMeme(programId);
     didUpdate(ProgramMeme.class, true);
@@ -546,7 +555,7 @@ public class ProjectServiceImpl implements ProjectService {
       projectManager.getContent().put(entity);
       didUpdate(entity.getClass(), true);
     } catch (Exception e) {
-      LOG.error("Could not update entity\n{}", StringUtils.formatStackTrace(e));
+      LOG.error("Could not update entity{}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 
@@ -566,7 +575,7 @@ public class ProjectServiceImpl implements ProjectService {
       return true;
 
     } catch (Exception e) {
-      LOG.error("Could not save Library\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Could not save Library{}\n{}", e, StringUtils.formatStackTrace(e));
       return false;
     }
   }
@@ -579,7 +588,7 @@ public class ProjectServiceImpl implements ProjectService {
       return true;
 
     } catch (Exception e) {
-      LOG.error("Could not save Program\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Could not save Program{}\n{}", e, StringUtils.formatStackTrace(e));
       return false;
     }
   }
@@ -814,7 +823,7 @@ public class ProjectServiceImpl implements ProjectService {
       try {
         prefs.put("recentProjects", jsonProvider.getMapper().writeValueAsString(value));
       } catch (Exception e) {
-        LOG.warn("Failed to serialize recent projects!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+        LOG.warn("Failed to serialize recent projects! {}\n{}", e, StringUtils.formatStackTrace(e));
       }
     });
   }
@@ -827,7 +836,7 @@ public class ProjectServiceImpl implements ProjectService {
     try {
       recentProjects.setAll(jsonProvider.getMapper().readValue(prefs.get("recentProjects", "[]"), ProjectDescriptor[].class));
     } catch (Exception e) {
-      LOG.warn("Failed to deserialize recent projects!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.warn("Failed to deserialize recent projects! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 

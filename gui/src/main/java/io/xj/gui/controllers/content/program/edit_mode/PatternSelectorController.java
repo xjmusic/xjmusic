@@ -1,5 +1,6 @@
-package io.xj.gui.controllers.content.program;
+package io.xj.gui.controllers.content.program.edit_mode;
 
+import io.xj.gui.controllers.content.program.ProgramEditorController;
 import io.xj.gui.services.ProjectService;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramVoice;
@@ -23,7 +24,7 @@ public class PatternSelectorController {
     private final ProgramEditorController programEditorController;
     private Collection<ProgramSequencePattern> programSequencePatternsOfVoice;
     private ProgramVoice voice;
-    private  VoiceController voiceController;
+    private VoiceController voiceController;
 
     @FXML
     protected VBox container;
@@ -39,7 +40,7 @@ public class PatternSelectorController {
     // TODO don't pass entities, only identifiers
     public void setup(Collection<ProgramSequencePattern> programSequencePatternsOfVoice, ProgramVoice voice, VoiceController voiceController, Stage stage) {
         this.voice = voice;
-        this.voiceController=voiceController;
+        this.voiceController = voiceController;
         this.programSequencePatternsOfVoice = programSequencePatternsOfVoice;
         setCombobox();
         selectProgramSequencePattern(stage);

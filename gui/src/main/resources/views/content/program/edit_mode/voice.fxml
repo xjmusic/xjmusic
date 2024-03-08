@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox fx:id="voiceContainer" prefHeight="152.0" prefWidth="1286.0" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.VoiceController">
+<VBox fx:id="voiceContainer" prefHeight="152.0" prefWidth="1286.0" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.edit_mode.VoiceController">
 
     <HBox fx:id="parentHBox" prefHeight="145.0" prefWidth="1286.0" styleClass="voice">
 
@@ -117,7 +117,7 @@
          <TextField fx:id="trackNameField" layoutX="50.0" layoutY="10.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="155.0" />
 
         </AnchorPane>
-      <AnchorPane fx:id="timeLineAnchorpane" prefHeight="155.0" HBox.hgrow="ALWAYS" onMouseClicked="#handlePressedTimeline" cursor="CROSSHAIR" /><!-- TODO confirm cursor turns into crosshair when hover on empty timeline -->
+      <AnchorPane fx:id="timeLineAnchorpane" prefHeight="155.0" HBox.hgrow="ALWAYS" onMouseClicked="#handlePressedTimeline" /><!-- TODO in stylesheet add -fx-cursor: crosshair; -->
 
     </HBox>
 

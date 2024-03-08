@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.StackPane?>
 <AnchorPane fx:id="mainBorderPane" styleClass="sequence-binding-item-container" stylesheets="@/styles/default-theme.css"
             xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="io.xj.gui.controllers.content.program.SequenceBindingItemController">
+            fx:controller="io.xj.gui.controllers.content.program.bind_mode.SequenceBindingItemController">
     <Label fx:id="sequenceName" text="Text"
            AnchorPane.topAnchor="0"
            AnchorPane.leftAnchor="0"

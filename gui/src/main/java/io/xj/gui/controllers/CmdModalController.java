@@ -196,7 +196,7 @@ public class CmdModalController extends ProjectModalController {
       onStageClose();
 
     } catch (Exception e) {
-      LOG.error("Error creating entity!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Error creating entity! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 

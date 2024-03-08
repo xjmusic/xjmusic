@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 <VBox fx:id="container" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="io.xj.gui.controllers.content.program.ModeEditController"
+      fx:controller="io.xj.gui.controllers.content.program.edit_mode.EditModeController"
       VBox.vgrow="ALWAYS">
   <VBox fx:id="voiceContainer"/>
   <AnchorPane HBox.hgrow="ALWAYS">

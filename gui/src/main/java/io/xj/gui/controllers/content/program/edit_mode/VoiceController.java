@@ -1,4 +1,4 @@
-package io.xj.gui.controllers.content.program;
+package io.xj.gui.controllers.content.program.edit_mode;
 
 import io.xj.gui.modes.GridChoice;
 import io.xj.gui.modes.ZoomChoice;
@@ -8,12 +8,10 @@ import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.UiUtils;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
-import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.util.StringUtils;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.FloatProperty;
 import javafx.beans.property.ObjectProperty;
@@ -87,6 +85,7 @@ public class VoiceController {
   private final ChangeListener<ZoomChoice> onZoomChange = (observable, oldValue, newValue) -> Platform.runLater(this::populateTimeline);
 
   private ProgramVoice voice;
+  private Runnable deleteVoice;
 
   @FXML
   public VBox voiceControlsContainer;
@@ -146,11 +145,11 @@ public class VoiceController {
   public AnchorPane timeLineAnchorpane;
 
   public VoiceController(
-    @Value("classpath:/views/content/program/track.fxml") Resource trackFxml,
-    @Value("classpath:/views/content/program/pattern-menu.fxml") Resource patternMenuFxml,
-    @Value("classpath:/views/content/program/track-menu.fxml") Resource trackMenuFxml,
-    @Value("classpath:/views/content/program/pattern-selector.fxml") Resource patternSelectorFxml,
-    @Value("classpath:/views/content/program/program-sequence-pattern-event-item.fxml") Resource programSequencePatternEventItem,
+    @Value("classpath:/views/content/program/edit_mode/track.fxml") Resource trackFxml,
+    @Value("classpath:/views/content/program/edit_mode/pattern-menu.fxml") Resource patternMenuFxml,
+    @Value("classpath:/views/content/program/edit_mode/track-menu.fxml") Resource trackMenuFxml,
+    @Value("classpath:/views/content/program/edit_mode/pattern-selector.fxml") Resource patternSelectorFxml,
+    @Value("classpath:/views/content/program/edit_mode/program-sequence-pattern-event-item.fxml") Resource programSequencePatternEventItem,
     ApplicationContext ac,
     ThemeService themeService,
     ProjectService projectService,
@@ -168,14 +167,14 @@ public class VoiceController {
   }
 
   // todo don't pass entities, only identifiers
-  protected void setup(Parent root, ProgramVoice voice) {
+  protected void setup(ProgramVoice voice, Runnable onDelete) {
     this.voice = voice;
+    this.deleteVoice = onDelete;
     previousPatternNameFieldPrefWidth = patternNameField.getPrefWidth();
     defaultTrackNameFieldPrefWidth = trackNameField.getPrefWidth();
     programSequencePatternsOfThisVoice.addAll(projectService.getContent().getProgramSequencePatternsOfVoice(voice));
     setSelectedProgramSequencePattern(programSequencePatternsOfThisVoice.isEmpty() ?
       null : programSequencePatternsOfThisVoice.get(0));
-    deleteVoice(root);
     hideItemsBeforeTrackIsCreated();
     totalHbox.visibleProperty().bind(selectedProgramSequencePattern.isNotNull());
     if (selectedProgramSequencePattern.get() != null) {
@@ -292,7 +291,7 @@ TODO implement sequence chooser
       // todo trackController.setup(root, voice, this, newTrack);
       voiceContainer.getChildren().add(root);
     } catch (IOException e) {
-      LOG.error("Error adding Track item view!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Error adding Track item view! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 

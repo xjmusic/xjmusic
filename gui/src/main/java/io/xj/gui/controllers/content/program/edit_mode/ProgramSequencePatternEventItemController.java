@@ -1,11 +1,10 @@
-package io.xj.gui.controllers.content.program;
+package io.xj.gui.controllers.content.program.edit_mode;
 
 import io.xj.gui.controllers.content.common.DragZone;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;

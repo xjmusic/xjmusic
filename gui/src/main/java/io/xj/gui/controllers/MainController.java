@@ -94,7 +94,7 @@ public class MainController extends ProjectController {
       startupContainer.managedProperty().bind(projectService.isStateStandbyProperty());
 
     } catch (Exception e) {
-      LOG.error("Error initializing main controller!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Error initializing main controller! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 

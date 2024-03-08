@@ -4,7 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="34.0" prefWidth="233.0" stylesheets="@../../../styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.TrackMenuController">
+<AnchorPane prefHeight="34.0" prefWidth="233.0" stylesheets="@../../../../styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.edit_mode.TrackMenuController">
    <children>
       <Button fx:id="newTrack" layoutX="5.0" layoutY="4.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="105.0" text="New Track" />
       <Button fx:id="deleteTrack" layoutX="124.0" layoutY="4.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="105.0" text="Delete" />

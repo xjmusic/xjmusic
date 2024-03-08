@@ -91,7 +91,7 @@ public class EntityMemeTagController {
       setEditing(false);
 
     } catch (Exception e) {
-      LOG.error("Failed to update meme!\n{}", StringUtils.formatStackTrace(e));
+      LOG.error("Failed to update meme! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 
@@ -104,7 +104,7 @@ public class EntityMemeTagController {
     try {
       doDelete.accept(currentMeme);
     } catch (Exception e) {
-      LOG.error("Failed to delete Meme!\n{}", StringUtils.formatStackTrace(e));
+      LOG.error("Failed to delete Meme! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 

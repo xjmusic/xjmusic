@@ -5,6 +5,8 @@ package io.xj.gui.controllers.content.program;
 import io.xj.gui.ProjectController;
 import io.xj.gui.controllers.CmdModalController;
 import io.xj.gui.controllers.content.common.EntityMemesController;
+import io.xj.gui.controllers.content.program.bind_mode.BindModeController;
+import io.xj.gui.controllers.content.program.edit_mode.EditModeController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.GridChoice;
 import io.xj.gui.modes.ProgramEditorMode;
@@ -95,8 +97,8 @@ public class ProgramEditorController extends ProjectController {
   private final SimpleStringProperty sequencePropertyKey = new SimpleStringProperty("");
   private final BooleanBinding programHasSequences;
   private final CmdModalController cmdModalController;
-  private final ModeEditController editController;
-  private final ModeBindController bindController;
+  private final EditModeController editController;
+  private final BindModeController bindController;
   private final ChangeListener<? super ContentMode> onEditProgram = (o, ov, v) -> {
     teardown();
     if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.ProgramEditor) && uiStateService.currentProgramProperty().isNotNull().get())
@@ -189,8 +191,8 @@ public class ProgramEditorController extends ProjectController {
     ProjectService projectService,
     UIStateService uiStateService,
     CmdModalController cmdModalController,
-    ModeEditController editController,
-    ModeBindController bindController
+    EditModeController editController,
+    BindModeController bindController
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.configFxml = configFxml;
@@ -446,7 +448,7 @@ public class ProgramEditorController extends ProjectController {
         }
       );
     } catch (IOException e) {
-      LOG.error("Error loading Entity Memes window!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Error loading Entity Memes window! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 

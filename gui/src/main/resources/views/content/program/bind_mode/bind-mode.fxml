@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.VBox?>
 <HBox fx:id="container" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="io.xj.gui.controllers.content.program.ModeBindController">
+      fx:controller="io.xj.gui.controllers.content.program.bind_mode.BindModeController">
   <VBox>
     <Label styleClass="bind-mode-label" text="OFFSET"
            minHeight="20" maxHeight="20"

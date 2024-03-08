@@ -236,7 +236,7 @@ public class InstrumentEditorController extends BrowserController {
       var audio = projectService.createInstrumentAudio(instrument, audioFilePath);
       uiStateService.editInstrumentAudio(audio.getId());
     } catch (Exception e) {
-      LOG.error("Could not import audio!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Could not import audio! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 
@@ -280,7 +280,7 @@ public class InstrumentEditorController extends BrowserController {
       try {
         projectService.update(Instrument.class, instrumentId.get(), attribute, value);
       } catch (Exception e) {
-        LOG.error("Could not update Instrument " + attribute, StringUtils.formatStackTrace(e));
+        LOG.error("Could not update Instrument \"{}\"! {}\n{}", attribute, e, StringUtils.formatStackTrace(e));
       }
     }
   }
@@ -319,7 +319,7 @@ public class InstrumentEditorController extends BrowserController {
         }
       );
     } catch (IOException e) {
-      LOG.error("Error loading Entity Memes window!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Error loading Entity Memes window! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 }

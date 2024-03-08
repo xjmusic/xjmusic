@@ -54,7 +54,7 @@ public class ProgramConfigController {
         projectService.update(Program.class, programId, "config", newValue);
         stage.close();
       } catch (Exception ex) {
-        LOG.info("Failed to save config!\n{}", StringUtils.formatStackTrace(ex));
+        LOG.info("Failed to save config! {}\n{}", ex, StringUtils.formatStackTrace(ex));
       }
     });
     // Bind the visibility of the Button and HBox to the BooleanProperty

@@ -1,4 +1,4 @@
-package io.xj.gui.controllers.content.program;
+package io.xj.gui.controllers.content.program.edit_mode;
 
 import io.xj.gui.modes.GridChoice;
 import io.xj.gui.modes.ZoomChoice;
@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-import static io.xj.gui.controllers.content.program.VoiceController.computeTextWidth;
+import static io.xj.gui.controllers.content.program.edit_mode.VoiceController.computeTextWidth;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -65,9 +65,9 @@ public class TrackController {
 
 
   public TrackController(
-    @Value("classpath:/views/content/program/track.fxml") Resource trackFxml,
-    @Value("classpath:/views/content/program/track-menu.fxml") Resource trackMenuFxml,
-    @Value("classpath:/views/content/program/program-sequence-pattern-event-item.fxml") Resource programSequencePatternEventItem,
+    @Value("classpath:/views/content/program/edit_mode/track.fxml") Resource trackFxml,
+    @Value("classpath:/views/content/program/edit_mode/track-menu.fxml") Resource trackMenuFxml,
+    @Value("classpath:/views/content/program/edit_mode/program-sequence-pattern-event-item.fxml") Resource programSequencePatternEventItem,
     ApplicationContext ac,
     ThemeService themeService,
     ProjectService projectService,
@@ -206,7 +206,7 @@ public class TrackController {
       trackController.setup(root, voice, voiceController, newTrack);
       voiceContainer.getChildren().add(root);
     } catch (IOException e) {
-      log.error("Error adding Track item view!\n{}", StringUtils.formatStackTrace(e), e);
+      log.error("Error adding Track item view! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
 */
   }

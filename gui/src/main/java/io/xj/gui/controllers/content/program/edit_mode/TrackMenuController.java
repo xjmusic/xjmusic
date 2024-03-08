@@ -1,6 +1,7 @@
-package io.xj.gui.controllers.content.program;
+package io.xj.gui.controllers.content.program.edit_mode;
 
 
+import io.xj.gui.controllers.content.program.ProgramEditorController;
 import io.xj.gui.services.ProjectService;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
-import static io.xj.gui.controllers.content.program.TrackController.trackItem;
+import static io.xj.gui.controllers.content.program.edit_mode.TrackController.trackItem;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -32,7 +33,7 @@ public class TrackMenuController {
     private final ProgramEditorController programEditorController;
     static final Logger LOG = LoggerFactory.getLogger(TrackMenuController.class);
 
-    @Value("classpath:/views/content/program/track.fxml")
+    @Value("classpath:/views/content/program/edit_mode/track.fxml")
     private Resource trackFxml;
     private ProgramVoice voice;
     private final ApplicationContext ac;

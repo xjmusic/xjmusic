@@ -62,7 +62,7 @@ public class SequenceManagementController {
       uiStateService.currentProgramSequenceProperty().set(newProgramSequence);
       closeWindow();
     } catch (Exception e) {
-      LOG.info("Failed to create new sequence!\n{}", StringUtils.formatStackTrace(e));
+      LOG.info("Failed to create new sequence! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 

@@ -1,5 +1,6 @@
-package io.xj.gui.controllers.content.program;
+package io.xj.gui.controllers.content.program.bind_mode;
 
+import io.xj.gui.controllers.content.program.SequenceSelectorController;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.utils.UiUtils;
@@ -8,12 +9,10 @@ import io.xj.hub.util.StringUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,8 +27,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.UUID;
-
-import static io.xj.gui.services.UIStateService.OPEN_PSEUDO_CLASS;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -57,7 +54,7 @@ public class SequenceBindingColumnController {
   public Button addSequenceButton;
 
   public SequenceBindingColumnController(
-    @Value("classpath:/views/content/program/sequence-binding-item.fxml") Resource sequenceBindingItemFxml,
+    @Value("classpath:/views/content/program/bind_mode/sequence-binding-item.fxml") Resource sequenceBindingItemFxml,
     @Value("classpath:/views/content/program/sequence-selector.fxml") Resource sequenceSelectorFxml,
     ApplicationContext ac,
     ProjectService projectService,
@@ -94,6 +91,7 @@ public class SequenceBindingColumnController {
   public void teardown() {
     for (SequenceBindingItemController controller : sequenceBindingItemControllers)
       controller.teardown();
+    sequenceBindingColumnContentContainer.getChildren().clear();
     sequenceBindingItemControllers.clear();
   }
 
@@ -115,18 +113,20 @@ public class SequenceBindingColumnController {
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       SequenceBindingItemController controller = loader.getController();
+      sequenceBindingItemControllers.add(controller);
       controller.setup(programSequenceBinding, () -> {
         if (!projectService.getContent().getMemesOfSequenceBinding(programSequenceBinding.getId()).isEmpty()) {
           projectService.showWarningAlert("Failure", "Found Meme on Sequence Binding", "Cannot delete sequence binding because it contains a meme.");
         } else {
           controller.teardown();
+          sequenceBindingItemControllers.remove(controller);
           sequenceBindingColumnContentContainer.getChildren().remove(root);
           projectService.deleteContent(programSequenceBinding);
         }
       });
       sequenceBindingColumnContentContainer.getChildren().add(root);
     } catch (IOException e) {
-      LOG.error("Error adding Program Sequence Binding Item!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Error adding Program Sequence Binding Item! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 

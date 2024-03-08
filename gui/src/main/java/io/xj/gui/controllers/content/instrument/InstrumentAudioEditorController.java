@@ -323,7 +323,7 @@ public class InstrumentAudioEditorController extends BrowserController {
       try {
         projectService.update(InstrumentAudio.class, instrumentAudioId.get(), attribute, value);
       } catch (Exception e) {
-        LOG.error("Could not update InstrumentAudio " + attribute, StringUtils.formatStackTrace(e));
+        LOG.error("Could not update InstrumentAudio \"{}\"! {}\n{}", attribute, e, StringUtils.formatStackTrace(e));
       }
     }
   }
@@ -394,7 +394,7 @@ public class InstrumentAudioEditorController extends BrowserController {
       waveform.setLayoutX(0);
 
     } catch (Exception e) {
-      LOG.error("Could not render audioInMemory file!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Could not render audioInMemory file! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 
@@ -418,7 +418,7 @@ public class InstrumentAudioEditorController extends BrowserController {
       audioInMemory.set(audioLoader.load(audio));
       LOG.info("Loaded audio file \"{}\" with {} channels and {} frames", audioInMemory.get().format(), audioInMemory.get().format().getChannels(), audioInMemory.get().data().length);
     } catch (Exception e) {
-      LOG.error("Could not load audio file!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Could not load audio file! {}\n{}", e, StringUtils.formatStackTrace(e));
       projectService.showWarningAlert(
         "Could not load audio file",
         "Could not load audio file.",

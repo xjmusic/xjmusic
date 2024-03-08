@@ -81,6 +81,7 @@ public class ProjectManagerImpl implements ProjectManager {
   private static final float DEFAULT_LOOP_BEATS = 4.0f;
   private static final float DEFAULT_VOLUME = 1.0f;
   private static final String DEFAULT_PROGRAM_SEQUENCE_NAME = "New Sequence";
+  private static final String DEFAULT_PROGRAM_VOICE_NAME = "New Voice";
   private static final Integer DEFAULT_PROGRAM_SEQUENCE_TOTAL = 4;
   private static final String DEFAULT_MEME_NAME = "XXX";
   private final AtomicReference<ProjectState> state = new AtomicReference<>(ProjectState.Standby);
@@ -174,7 +175,7 @@ public class ProjectManagerImpl implements ProjectManager {
       return true;
 
     } catch (Exception e) {
-      LOG.error("Failed to open project from local file!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Failed to open project from local file! {}\n{}", e, StringUtils.formatStackTrace(e));
       project.set(null);
       content.set(null);
       updateState(ProjectState.Failed);
@@ -202,7 +203,7 @@ public class ProjectManagerImpl implements ProjectManager {
       return true;
 
     } catch (Exception e) {
-      LOG.error("Failed to open project from local file!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Failed to open project from local file! {}\n{}", e, StringUtils.formatStackTrace(e));
       project.set(null);
       content.set(null);
       updateState(ProjectState.Failed);
@@ -216,7 +217,7 @@ public class ProjectManagerImpl implements ProjectManager {
       saveProjectContent();
 
     } catch (IOException e) {
-      LOG.error("Failed to save project!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Failed to save project! {}\n{}", e, StringUtils.formatStackTrace(e));
       updateState(ProjectState.Ready);
     }
   }
@@ -240,7 +241,7 @@ public class ProjectManagerImpl implements ProjectManager {
         }
       });
     } catch (IOException e) {
-      LOG.error("Failed to walk project audio folder!\n{}", StringUtils.formatStackTrace(e));
+      LOG.error("Failed to walk project audio folder! {}\n{}", e, StringUtils.formatStackTrace(e));
       updateState(ProjectState.Ready);
       return results;
     }
@@ -541,6 +542,29 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
+  public ProgramVoice createProgramVoice(UUID programId) throws Exception {
+    var program = content.get().getProgram(programId).orElseThrow(() -> new NexusException("Program not found"));
+    var project = content.get().getProject();
+    if (Objects.isNull(project)) throw new NexusException("Project not found");
+    var existingVoicesOfProgram = content.get().getVoicesOfProgram(program.getId());
+
+    // New Create a voice, increment a numerical suffix to make each voice unique, e.g. "New Voice 2" then "New Voice 3"
+    var existingVoiceNames = existingVoicesOfProgram.stream().map(ProgramVoice::getName).collect(Collectors.toSet());
+    var newVoiceName = FormatUtils.iterateNumericalSuffixFromExisting(existingVoiceNames, DEFAULT_PROGRAM_VOICE_NAME);
+
+    // Prepare the voice record
+    var voice = new ProgramVoice();
+    voice.setId(UUID.randomUUID());
+    voice.setName(newVoiceName);
+    voice.setType(InstrumentType.values()[0]);
+    voice.setOrder(existingVoicesOfProgram.stream().map(ProgramVoice::getOrder).max(Float::compareTo).orElse(0f) + 1);
+    voice.setProgramId(program.getId());
+
+    content.get().put(voice);
+    return voice;
+  }
+
+  @Override
   public ProgramMeme createProgramMeme(UUID programId) throws Exception {
     var meme = new ProgramMeme();
     meme.setId(UUID.randomUUID());
@@ -579,7 +603,7 @@ public class ProjectManagerImpl implements ProjectManager {
     // New Create a instrument, increment a numerical suffix to make each sequence unique, e.g. "New Instrument 2" then "New Instrument 3"
     var existingNames = existingInstrumentsOfLibrary.stream().map(Instrument::getName).collect(Collectors.toSet());
     var actualName = FormatUtils.iterateNumericalSuffixFromExisting(existingNames, name);
-    
+
     var instrument = new Instrument();
     instrument.setId(UUID.randomUUID());
     instrument.setName(actualName);
@@ -1034,13 +1058,13 @@ public class ProjectManagerImpl implements ProjectManager {
       return true;
 
     } catch (HubClientException e) {
-      LOG.error("Failed to load content for project!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Failed to load content for project! {}\n{}", e, StringUtils.formatStackTrace(e));
       updateState(ProjectState.Failed);
       project.set(null);
       return false;
 
     } catch (IOException e) {
-      LOG.error("Failed to preload audio for project!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Failed to preload audio for project! {}\n{}", e, StringUtils.formatStackTrace(e));
       updateState(ProjectState.Failed);
       project.set(null);
       return false;

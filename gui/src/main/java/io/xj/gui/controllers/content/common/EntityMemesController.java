@@ -82,7 +82,7 @@ public class EntityMemesController {
       var meme = doCreate.call();
       renderMemeTag(meme);
     } catch (Exception e) {
-      LOG.error("Error adding Meme!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Error adding Meme! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 
@@ -97,7 +97,7 @@ public class EntityMemesController {
         renderMemeTag(meme);
       }
     } catch (Exception e) {
-      LOG.error("Error rendering Meme Tags!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Error rendering Meme Tags! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 
@@ -118,7 +118,7 @@ public class EntityMemesController {
         memeTagContainer.getChildren().remove(tagRoot);
       });
     } catch (IOException | EntityException e) {
-      LOG.error("Error rendering Meme!\n{}", StringUtils.formatStackTrace(e));
+      LOG.error("Error rendering Meme! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 }
