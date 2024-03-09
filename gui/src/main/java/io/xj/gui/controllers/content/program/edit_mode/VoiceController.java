@@ -65,7 +65,7 @@ public class VoiceController {
   private final Runnable updateVoiceType;
   private final Runnable updatePatternTotal;
   private final ObjectProperty<UUID> patternId = new SimpleObjectProperty<>();
-  private final ObservableList<TrackController> trackControllers = FXCollections.observableArrayList();
+  private final ObservableList<VoiceTrackController> trackControllers = FXCollections.observableArrayList();
   private final InvalidationListener trackControllersChange = (observable) -> setupVoiceHeight();
   private UUID programVoiceId;
   private Runnable handleDeleteVoice;
@@ -119,7 +119,7 @@ public class VoiceController {
   Button addTrackButton;
 
   public VoiceController(
-    @Value("classpath:/views/content/program/edit_mode/track.fxml") Resource trackFxml,
+    @Value("classpath:/views/content/program/edit_mode/voice-track.fxml") Resource trackFxml,
     @Value("classpath:/views/content/common/popup-selector-menu.fxml") Resource popupSelectorMenuFxml,
     @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource popupActionMenuFxml,
     @Value("${programEditor.trackHeight}") int trackHeight,
@@ -226,7 +226,7 @@ public class VoiceController {
   public void teardown() {
     for (Runnable unsubscription : unsubscriptions) unsubscription.run();
 
-    for (TrackController controller : trackControllers) controller.teardown();
+    for (VoiceTrackController controller : trackControllers) controller.teardown();
     tracksContainer.getChildren().clear();
     trackControllers.clear();
 
@@ -365,7 +365,7 @@ public class VoiceController {
       FXMLLoader loader = new FXMLLoader(trackFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      TrackController controller = loader.getController();
+      VoiceTrackController controller = loader.getController();
       trackControllers.add(controller);
       controller.setup(
         programTrack.getId(),

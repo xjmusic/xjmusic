@@ -45,10 +45,10 @@ import java.util.UUID;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class TrackController {
-  static final Logger LOG = LoggerFactory.getLogger(TrackController.class);
+public class VoiceTrackController {
+  static final Logger LOG = LoggerFactory.getLogger(VoiceTrackController.class);
   private final Collection<Runnable> unsubscriptions = new HashSet<>();
-  private final ObservableList<EventController> eventControllers = FXCollections.observableArrayList();
+  private final ObservableList<VoiceTrackEventController> eventControllers = FXCollections.observableArrayList();
   private final ThemeService themeService;
   private final Resource eventFxml;
   private final Resource popupActionMenuFxml;
@@ -87,8 +87,8 @@ public class TrackController {
   @FXML
   Button addTrackButton;
 
-  public TrackController(
-    @Value("classpath:/views/content/program/edit_mode/event.fxml") Resource eventFxml,
+  public VoiceTrackController(
+    @Value("classpath:/views/content/program/edit_mode/voice-track-event.fxml") Resource eventFxml,
     @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource popupActionMenuFxml,
     @Value("${programEditor.trackHeight}") int trackHeight,
     @Value("${programEditor.trackControlWidth}") int trackControlWidth,
@@ -164,7 +164,7 @@ public class TrackController {
    */
   public void teardown() {
     for (Runnable unsubscription : unsubscriptions) unsubscription.run();
-    for (EventController controller : eventControllers) controller.teardown();
+    for (VoiceTrackEventController controller : eventControllers) controller.teardown();
   }
 
   @FXML
@@ -186,6 +186,9 @@ public class TrackController {
 
   @FXML
   void handlePressedTimeline(MouseEvent mouseEvent) {
+    // ignore clicks on children of the timeline container
+    if (mouseEvent.getTarget() != timelineEventsContainer) return;
+
     if (patternId.isNull().get()) {
       projectService.showWarningAlert("No Pattern", "Please create a pattern to add events", "You must create a pattern before adding events");
       return;
@@ -310,7 +313,7 @@ public class TrackController {
       Parent root = loader.load();
       AnchorPane.setTopAnchor(root, 0.0);
       AnchorPane.setBottomAnchor(root, 0.0);
-      EventController controller = loader.getController();
+      VoiceTrackEventController controller = loader.getController();
       eventControllers.add(controller);
       controller.setup(event.getId(),
         () -> {
@@ -325,83 +328,4 @@ public class TrackController {
       LOG.error("Failed to add event to timeline! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
-
-/*
-  TODO  Extract the numeric part from the selection
-  private void updateTimelineGridProperty(String selection) {
-    updateGrid(selection, programEditorController);
-  }
-*/
-  
-/*
-  TODO add program sequence pattern event item controller
-    try {
-
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-*/
-
-  /*
-  TODO if any of this is useful
-    defaultTrackNameFieldPrefWidth = trackNameField.getPrefWidth();
-    trackNameField.setText(track.getName());
-
-    trackNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-      try {
-        if (!newValue) {
-          adjustWidthWithTextIncrease();
-          trackNameProperty.set(trackNameField.getText());
-          projectService.update(ProgramVoiceTrack.class, track.getId(), "name", trackNameProperty.get());
-        }
-      } catch (Exception e) {
-        LOG.info("Failed to update ProgramVoiceTrack name");
-      }
-    });
-*/
-
-/*
-  TODO track controller add a listener to the selected item property
-    programEditorController.gridChooser.valueProperty().addListener((observable, oldValue, newValue) -> {
-      if (newValue != null) {
-        // Parse the new value to update the IntegerProperty
-        updateTimelineGridProperty(newValue);
-        Platform.runLater(this::populateTimeline);
-      }
-    });
-*/
-
-/*
-  TODO track controller add a listener to the selected item property
-    voiceController.patternTotalCountChooser.focusedProperty().addListener((observable, oldValue, newValue) -> {
-      try {
-        if (!newValue) {
-          voiceController.getTotalValueFactory().setValue(voiceController.patternTotalCountChooser.getValue());
-          projectService.update(ProgramSequencePattern.class, voiceController.getSelectedProgramSequencePattern().getId(), "total",
-            voiceController.getTotalValueFactory().getValue());
-          Platform.runLater(this::populateTimeline);
-        }
-      } catch (Exception e) {
-        LOG.info("Failed to update ProgramSequencePattern total");
-      }
-    });
-*/
-
-/*
-  TODO track controller add a listener to the selected item property
-    // Add a listener to the selected item property
-    programEditorController.sequenceTotalChooser.valueProperty().addListener((observable, oldValue, newValue) -> {
-      if (newValue != null) {
-        programEditorController.setSequenceTotal(programEditorController.sequenceTotalChooser.getValue());
-        Platform.runLater(this::populateTimeline);
-      }
-    });
-*/
-
-/*
-  todo something like this
-    timeLineAnchorpane.setOnMouseClicked(this::addProgramSequencePatternEventItemController);
-    timeLineAnchorpane.setCursor(Cursor.CROSSHAIR);
-*/
-
 }

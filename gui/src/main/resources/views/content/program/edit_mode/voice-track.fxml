@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 <HBox
     xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="io.xj.gui.controllers.content.program.edit_mode.TrackController"
+    fx:controller="io.xj.gui.controllers.content.program.edit_mode.VoiceTrackController"
     stylesheets="@/styles/default-theme.css"
     fx:id="trackContainer">
 

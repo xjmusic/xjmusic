@@ -130,14 +130,18 @@ public interface UiUtils {
 
   /**
    Positions the stage scene centered below the mouse click.
+   <p>
+   Constrain the position of the scene to within the window
 
    @param child  of which to set position
    @param parent to reference for mouse position
    */
   static void setStagePositionBelowParentNode(Stage child, Node parent) {
     var p = parent.localToScene(0, 0);
-    child.setX(parent.getScene().getWindow().getX() + p.getX() + parent.getBoundsInLocal().getWidth() / 2 - child.getWidth() / 2);
-    child.setY(parent.getScene().getWindow().getY() + p.getY() + parent.getBoundsInLocal().getHeight() + child.getHeight());
+    var x = parent.getScene().getWindow().getX() + p.getX() + parent.getBoundsInLocal().getWidth() / 2 - child.getWidth() / 2;
+    var y = parent.getScene().getWindow().getY() + p.getY() + parent.getBoundsInLocal().getHeight();
+    child.setX(Math.min(parent.getScene().getWindow().getX() + parent.getScene().getWindow().getWidth() - child.getWidth(), Math.max(parent.getScene().getWindow().getX(), x)));
+    child.setY(Math.min(parent.getScene().getWindow().getY() + parent.getScene().getWindow().getHeight() - child.getHeight(), Math.max(parent.getScene().getWindow().getY(), y)));
   }
 
   /**

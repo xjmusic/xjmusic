@@ -17,8 +17,8 @@ import java.util.UUID;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class EventController {
-  static final Logger LOG = LoggerFactory.getLogger(EventController.class);
+public class VoiceTrackEventController {
+  static final Logger LOG = LoggerFactory.getLogger(VoiceTrackEventController.class);
   private final ProjectService projectService;
   private final UIStateService uiStateService;
   private UUID eventId;
@@ -55,7 +55,7 @@ TODO cleanup unused
   @FXML
   Label tonesLabel;
 
-  public EventController(
+  public VoiceTrackEventController(
     ProjectService projectService,
     UIStateService uiStateService
   ) {
