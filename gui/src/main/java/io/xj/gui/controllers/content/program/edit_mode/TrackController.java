@@ -17,6 +17,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -192,13 +193,28 @@ public class TrackController {
     // clear background items
     trackTimelineBackground.getChildren().clear();
 
-    // compute width of track
-    int width = uiStateService.computeTrackWidth(programVoiceTrackId);
+    // if there's no sequence, don't draw the timeline
+    if (uiStateService.currentProgramSequenceProperty().isNull().get()) {
+      trackTimelineBackground.setMinWidth(0);
+      trackTimelineBackground.setMaxWidth(0);
+      return;
+    }
+
+    // variables
+    int sequenceTotal = uiStateService.currentProgramSequenceProperty().get().getTotal();
+    int sizePerBeat = uiStateService.getProgramEditorBaseSizePerBeat();
+    double zoom = uiStateService.programEditorZoomProperty().get().value();
+    double grid = uiStateService.programEditorGridProperty().get().value();
+
+    // compute the total width
+    var width = sequenceTotal * sizePerBeat * zoom;
+    trackTimelineBackground.setMinWidth(width);
+    trackTimelineBackground.setMaxWidth(width);
 
     // draw vertical grid lines
     double x;
-    for (double b = 0; b < uiStateService.getCurrentProgramSequenceTotal(); b += uiStateService.getProgramEditorGridBeats()) {
-      x = uiStateService.computeSequenceBeatX(b);
+    for (double b = 0; b < sequenceTotal; b += grid) {
+      x = b * sizePerBeat * zoom;
       Line gridLine = new Line();
       gridLine.setStroke(b % 1 == 0 ? Color.valueOf("#505050") : Color.valueOf("#3d3d3d"));
       gridLine.setStrokeWidth(2);

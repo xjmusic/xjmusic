@@ -595,28 +595,6 @@ public class UIStateServiceImpl implements UIStateService {
     return programEditorZoom;
   }
 
-  @Override
-  public int computeTrackWidth(UUID programVoiceTrackId) {
-    if (currentProgramSequence.isNull().get()) return 0;
-    return (int) (currentProgramSequence.get().getTotal() * programEditorBaseSizePerBeat * programEditorZoom.get().value());
-  }
-
-  @Override
-  public int getCurrentProgramSequenceTotal() {
-    if (currentProgramSequence.isNull().get()) return 0;
-    return currentProgramSequence.get().getTotal().intValue();
-  }
-
-  @Override
-  public double computeSequenceBeatX(double position) {
-    return position * programEditorBaseSizePerBeat * programEditorZoom.get().value();
-  }
-
-  @Override
-  public double getProgramEditorGridBeats() {
-    return programEditorGrid.get().value();
-  }
-
   /**
    Attach preference listeners.
    */

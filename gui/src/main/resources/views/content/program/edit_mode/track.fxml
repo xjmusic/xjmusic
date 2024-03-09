@@ -3,14 +3,14 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.effect.InnerShadow?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.effect.InnerShadow?>
+<?import javafx.scene.layout.Pane?>
 <HBox
     xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="io.xj.gui.controllers.content.program.edit_mode.TrackController"
@@ -22,7 +22,7 @@
       <Insets left="2.0" top="2.0"/>
     </padding>
     <effect>
-      <InnerShadow choke="-0.5" radius="50" offsetX="25" color="#0000001a"/>
+      <InnerShadow choke="-0.5" radius="50" offsetX="25" color="#0000001a" />
     </effect>
     <HBox spacing="2.0" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
       <Button fx:id="trackActionLauncher" onAction="#handlePressedTrackActionLauncher" HBox.hgrow="ALWAYS"
@@ -51,8 +51,8 @@
 
   <StackPane HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
     <AnchorPane fx:id="trackTimelineContainer" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
-      <Pane fx:id="trackTimelineBackground" styleClass="track-timeline-background"/>
-      <!-- todo add timeline -->
+      <Pane fx:id="trackTimelineBackground" styleClass="track-timeline-background" />
+        <!-- todo add timeline -->
       <!-- todo add timeline -->
     </AnchorPane>
   </StackPane>
