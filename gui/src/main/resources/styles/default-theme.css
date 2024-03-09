@@ -476,7 +476,11 @@
 }
 
 .track-timeline-background {
-  -fx-background-color: #353535;
+  -fx-background-color: #282828;
+}
+
+.program-sequence-pattern-event {
+  -fx-background-color: #656565;
 }
 
 .no-sequences-label {
@@ -497,17 +501,17 @@
   -fx-font-family: "Roboto Mono";
 }
 
-.popup-menu-launcher {
+.button.minimal {
   -fx-background-color: transparent;
   -fx-border-style: none;
 }
 
-.popup-menu-launcher:hover {
+.button.minimal:hover {
   -fx-background-color: #ffffff20;
 }
 
 /*noinspection CssInvalidPseudoSelector*/
-.popup-menu-launcher:open {
+.button.minimal:open {
   -fx-background-color: #683568;
 }
 

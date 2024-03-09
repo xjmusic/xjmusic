@@ -36,7 +36,7 @@
       <ToggleButton fx:id="editButton" toggleGroup="$editorModeToggleGroup" mnemonicParsing="false" minWidth="45"
                     text="EDIT" styleClass="program-editor-menu-button"/>
       <Button fx:id="configButton" minWidth="30" maxWidth="30" mnemonicParsing="false" onAction="#handleEditConfig"
-              styleClass="popup-menu-launcher">
+              styleClass="minimal">
         <graphic>
           <ImageView fitHeight="16.0" fitWidth="16.0">
             <Image url="@/icons/settings.png"/>
@@ -44,7 +44,7 @@
         </graphic>
       </Button>
       <Button fx:id="duplicateButton" minWidth="30" maxWidth="30" mnemonicParsing="false" onAction="#openCloneDialog"
-              styleClass="popup-menu-launcher">
+              styleClass="minimal">
         <graphic>
           <ImageView fitHeight="16.0" fitWidth="16.0">
             <Image url="@/icons/copy-grey.png"/>
@@ -73,7 +73,7 @@
       </padding>
       <Label minWidth="80" text="SEQUENCE" styleClass="program-editor-field-label"/>
       <Button fx:id="sequenceSelectorLauncher" mnemonicParsing="false" minWidth="30" maxWidth="30"
-              onMouseClicked="#handlePressedSequenceSelectorLauncher" styleClass="popup-menu-launcher">
+              onMouseClicked="#handlePressedSequenceSelectorLauncher" styleClass="minimal">
         <graphic>
           <ImageView fitHeight="16.0" fitWidth="16.0">
             <Image url="@/icons/down-arrow.png"/>
@@ -81,7 +81,7 @@
         </graphic>
       </Button>
       <Button fx:id="sequenceActionLauncher" mnemonicParsing="false" minWidth="30" maxWidth="30"
-              onMouseClicked="#handlePressedSequenceActionLauncher" styleClass="popup-menu-launcher">
+              onMouseClicked="#handlePressedSequenceActionLauncher" styleClass="minimal">
         <graphic>
           <ImageView fitHeight="16.0" fitWidth="16.0">
             <Image url="@/icons/hamburger-menu.png"/>

@@ -66,7 +66,7 @@ public class TrackControllerLegacy {
   public TrackControllerLegacy(
     @Value("classpath:/views/content/program/edit_mode/track.fxml") Resource trackFxml,
     @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource trackMenuFxml,
-    @Value("classpath:/views/content/program/edit_mode/program-sequence-pattern-event.fxml") Resource programSequencePatternEventItem,
+    @Value("classpath:/views/content/program/edit_mode/event.fxml") Resource programSequencePatternEventItem,
     ApplicationContext ac,
     ThemeService themeService,
     ProjectService projectService,
@@ -265,7 +265,7 @@ public class TrackControllerLegacy {
       AnchorPane.setTopAnchor(root, 0.0);
       AnchorPane.setBottomAnchor(root, 0.0);
       ProgramSequencePatternEvent programSequencePatternEvent = new ProgramSequencePatternEvent(UUID.randomUUID(), voiceController.getProgramVoiceTrack().getProgramId(), programEditorController.getSequenceId(), voiceController.getProgramVoiceTrack().getId(), 0.125f, 0.125f, 0.125f, "X");
-      ProgramSequencePatternEventItemController patternEventItemController = loader.getController();
+      EventController patternEventItemController = loader.getController();
       patternEventItemController.setup(root, timeLineAnchorpane, programSequencePatternEvent, voiceController);
       patternEventItemController.getEventPositionProperty.set(event.getX() - ((voiceController.getBaseSizePerBeat().doubleValue() * programEditorController.getZoomFactor()) +
         patternEventItemController.getEventPositionProperty.get()));

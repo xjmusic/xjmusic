@@ -379,7 +379,8 @@ public class VoiceController {
           trackControllers.remove(controller);
           tracksContainer.getChildren().remove(root);
           projectService.deleteContent(programTrack);
-        }
+        },
+        patternId
       );
       tracksContainer.getChildren().add(root);
     } catch (IOException e) {

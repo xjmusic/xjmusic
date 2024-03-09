@@ -26,8 +26,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class ProgramSequencePatternEventItemController {
-  static final Logger LOG = LoggerFactory.getLogger(ProgramSequencePatternEventItemController.class);
+public class EventController {
+  static final Logger LOG = LoggerFactory.getLogger(EventController.class);
   private final ObjectProperty<ProgramSequencePatternEvent> programSequencePatternEventObjectProperty = new SimpleObjectProperty<>();
   private final ProjectService projectService;
   private final UIStateService uiStateService;
@@ -67,7 +67,7 @@ public class ProgramSequencePatternEventItemController {
   @FXML
   private Parent root;
 
-  public ProgramSequencePatternEventItemController(
+  public EventController(
     ProjectService projectService,
     UIStateService uiStateService
   ) {

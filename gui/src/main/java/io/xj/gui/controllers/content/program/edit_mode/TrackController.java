@@ -8,8 +8,10 @@ import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.UiUtils;
 import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -17,10 +19,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,6 +53,7 @@ public class TrackController {
   private UUID programVoiceTrackId;
   private Runnable handleDeleteTrack;
   private Runnable handleCreateTrack;
+  private ObjectProperty<UUID> patternId;
 
   @FXML
   HBox trackContainer;
@@ -77,7 +80,7 @@ public class TrackController {
   Button addTrackButton;
 
   public TrackController(
-    @Value("classpath:/views/content/program/edit_mode/program-sequence-pattern-event.fxml") Resource programSequencePatternEventFxml,
+    @Value("classpath:/views/content/program/edit_mode/event.fxml") Resource eventFxml,
     @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource popupActionMenuFxml,
     @Value("${programEditor.trackHeight}") int trackHeight,
     @Value("${programEditor.trackControlWidth}") int trackControlWidth,
@@ -86,7 +89,7 @@ public class TrackController {
     ProjectService projectService,
     UIStateService uiStateService
   ) {
-    this.programSequencePatternEventFxml = programSequencePatternEventFxml;
+    this.programSequencePatternEventFxml = eventFxml;
     this.popupActionMenuFxml = popupActionMenuFxml;
     this.trackHeight = trackHeight;
     this.trackControlWidth = trackControlWidth;
@@ -101,14 +104,15 @@ public class TrackController {
   /**
    Set up the track controller
 
-   @param programVoiceTrackId for which to setup the track
+   @param programVoiceTrackId for which to set up the track
    @param handleCreateTrack   to create a new track
    @param handleDeleteTrack   to delete the track
    */
-  public void setup(UUID programVoiceTrackId, Runnable handleCreateTrack, Runnable handleDeleteTrack) {
+  public void setup(UUID programVoiceTrackId, Runnable handleCreateTrack, Runnable handleDeleteTrack, ObjectProperty<UUID> patternId) {
     this.programVoiceTrackId = programVoiceTrackId;
     this.handleDeleteTrack = handleDeleteTrack;
     this.handleCreateTrack = handleCreateTrack;
+    this.patternId = patternId;
 
     ProgramVoiceTrack track = projectService.getContent().getProgramVoiceTrack(programVoiceTrackId).orElseThrow(() -> new RuntimeException("Track not found!"));
 
@@ -132,6 +136,11 @@ public class TrackController {
     unsubscriptions.add(() -> uiStateService.currentProgramSequenceProperty().removeListener(onSequenceChange));
     unsubscriptions.add(projectService.addProjectUpdateListener(ProgramSequence.class, this::setupTimeline));
 
+    ChangeListener<UUID> onPatternIdChange = (o, ov, v) -> Platform.runLater(this::setupTimeline);
+    patternId.addListener(onPatternIdChange);
+    unsubscriptions.add(() -> patternId.removeListener(onPatternIdChange));
+    unsubscriptions.add(projectService.addProjectUpdateListener(ProgramSequencePattern.class, this::setupTimeline));
+
     trackNameField.setText(track.getName());
     unsubscriptions.add(UiUtils.onBlur(trackNameField, updateTrackName));
     UiUtils.blurOnEnterKeyPress(trackNameField);
@@ -153,7 +162,7 @@ public class TrackController {
   void handlePressedTrackActionLauncher() {
     UiUtils.launchModalMenu(trackActionLauncher, popupActionMenuFxml, ac, themeService.getMainScene().getWindow(),
       true, (PopupActionMenuController controller) -> controller.setup(
-        "New Track",
+        null,
         null,
         handleDeleteTrack,
         null
@@ -210,6 +219,16 @@ public class TrackController {
     var width = sequenceTotal * sizePerBeat * zoom;
     trackTimelineBackground.setMinWidth(width);
     trackTimelineBackground.setMaxWidth(width);
+
+    // draw active region for the current pattern total
+    if (patternId.isNotNull().get()) {
+      ProgramSequencePattern pattern = projectService.getContent().getProgramSequencePattern(patternId.get()).orElseThrow(() -> new RuntimeException("Pattern not found!"));
+      Rectangle rectangle = new Rectangle();
+      rectangle.setWidth(sizePerBeat * zoom * pattern.getTotal());
+      rectangle.setHeight(trackHeight);
+      rectangle.setFill(Color.valueOf("#353535"));
+      trackTimelineBackground.getChildren().add(rectangle);
+    }
 
     // draw vertical grid lines
     double x;
@@ -287,27 +306,6 @@ public class TrackController {
 */
 
 /*
-  TODO grey the active area
-    Rectangle rectangle = new Rectangle();
-    //bind the three properties to the width of the rectangle highlighting the active area
-    rectangle.widthProperty().bind(
-      Bindings.multiply(
-        Bindings.multiply(
-          voiceController.getBaseSizePerBeat(),
-          voiceController.getTotalFloatValue()
-        ),
-        programEditorController.getZoomFactor()
-      )
-    );
-
-
-    rectangle.setHeight(voiceController.getTimelineHeight());
-    rectangle.setFill(Color.valueOf("#252525"));
-    rectangle.setOpacity(.7);
-    timeLineAnchorpane.getChildren().add(0, rectangle);
-*/
-
-/*
   TODO add program sequence pattern event item controller
     try {
       FXMLLoader loader = new FXMLLoader(programSequencePatternEventItem.getURL());
@@ -316,7 +314,7 @@ public class TrackController {
       AnchorPane.setTopAnchor(root, 0.0);
       AnchorPane.setBottomAnchor(root, 0.0);
       ProgramSequencePatternEvent programSequencePatternEvent = new ProgramSequencePatternEvent(UUID.randomUUID(), voiceController.getProgramVoiceTrack().getProgramId(), programEditorController.getSequenceId(), voiceController.getProgramVoiceTrack().getId(), 0.125f, 0.125f, 0.125f, "X");
-      ProgramSequencePatternEventItemController patternEventItemController = loader.getController();
+      EventController patternEventItemController = loader.getController();
       patternEventItemController.setup(root, timeLineAnchorpane, programSequencePatternEvent, voiceController);
       patternEventItemController.getEventPositionProperty.set(event.getX() - ((voiceController.getBaseSizePerBeat().doubleValue() * programEditorController.getZoomFactor()) +
         patternEventItemController.getEventPositionProperty.get()));

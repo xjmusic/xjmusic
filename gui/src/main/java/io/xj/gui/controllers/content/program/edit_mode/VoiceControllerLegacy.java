@@ -145,7 +145,7 @@ public class VoiceControllerLegacy {
     @Value("classpath:/views/content/program/edit_mode/pattern-menu-legacy.fxml") Resource patternMenuFxml,
     @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource trackMenuFxml,
     @Value("classpath:/views/content/program/edit_mode/pattern-selector-legacy.fxml") Resource patternSelectorFxml,
-    @Value("classpath:/views/content/program/edit_mode/program-sequence-pattern-event.fxml") Resource programSequencePatternEventItem,
+    @Value("classpath:/views/content/program/edit_mode/event.fxml") Resource programSequencePatternEventItem,
     @Value("${programEditor.trackHeight}") int trackHeight,
       @Value("${programEditor.voiceControlWidth}") int voiceControlWidth,
     ApplicationContext ac,
@@ -592,7 +592,7 @@ TODO handle pressed timeline
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
       ProgramSequencePatternEvent programSequencePatternEvent = new ProgramSequencePatternEvent(UUID.randomUUID(), programVoiceTrackObjectProperty.get().getProgramId(), programEditorController.getSequenceId(), programVoiceTrackObjectProperty.get().getId(), 0.125f, 0.125f, 0.125f, "X");
-      ProgramSequencePatternEventItemController patternEventItemController = loader.getController();
+      EventController patternEventItemController = loader.getController();
       patternEventItemController.setUp(root, timeLineAnchorpane, programSequencePatternEvent, this);
       timeLineAnchorpane.getChildren().add(root);
       patternEventItemController.getEventPositionProperty.set(event.getX() - ((this.getBaseSizePerBeat().doubleValue() * programEditorController.getZoomFactor()) +
