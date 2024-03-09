@@ -76,7 +76,7 @@
 
   </VBox>
 
-  <VBox fx:id="tracksContainer" spacing="2">
+  <VBox fx:id="tracksContainer">
     <AnchorPane fx:id="trackAddContainer">
       <Button
           AnchorPane.topAnchor="5.0" AnchorPane.bottomAnchor="5.0"

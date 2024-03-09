@@ -103,7 +103,7 @@
     </HBox>
   </HBox>
   <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS"
-              styleClass="content-scroll-pane">
+              styleClass="content-scroll-pane" >
     <StackPane>
       <fx:include source="edit_mode/edit-mode.fxml"/>
       <fx:include source="bind_mode/bind-mode.fxml"/>

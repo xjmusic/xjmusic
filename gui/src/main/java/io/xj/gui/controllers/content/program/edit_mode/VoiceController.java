@@ -12,6 +12,7 @@ import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.util.StringUtils;
 import jakarta.annotation.Nullable;
+import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -52,6 +53,7 @@ public class VoiceController {
   private final Resource popupSelectorMenuFxml;
   private final Resource popupActionMenuFxml;
   private final int trackHeight;
+  private final int trackSpaceBetween;
   private final int voiceControlWidth;
   private final int trackControlWidth;
   private final ApplicationContext ac;
@@ -64,6 +66,7 @@ public class VoiceController {
   private final Runnable updatePatternTotal;
   private final ObjectProperty<UUID> patternId = new SimpleObjectProperty<>();
   private final ObservableList<TrackController> trackControllers = FXCollections.observableArrayList();
+  private final InvalidationListener trackControllersChange = (observable) -> setupVoiceHeight();
   private UUID programVoiceId;
   private Runnable handleDeleteVoice;
 
@@ -120,6 +123,7 @@ public class VoiceController {
     @Value("classpath:/views/content/common/popup-selector-menu.fxml") Resource popupSelectorMenuFxml,
     @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource popupActionMenuFxml,
     @Value("${programEditor.trackHeight}") int trackHeight,
+    @Value("${programEditor.trackSpaceBetween}") int trackSpaceBetween,
     @Value("${programEditor.voiceControlWidth}") int voiceControlWidth,
     @Value("${programEditor.trackControlWidth}") int trackControlWidth,
     ApplicationContext ac,
@@ -131,6 +135,7 @@ public class VoiceController {
     this.popupSelectorMenuFxml = popupSelectorMenuFxml;
     this.popupActionMenuFxml = popupActionMenuFxml;
     this.trackHeight = trackHeight;
+    this.trackSpaceBetween = trackSpaceBetween;
     this.voiceControlWidth = voiceControlWidth;
     this.trackControlWidth = trackControlWidth;
     this.ac = ac;
@@ -151,7 +156,7 @@ public class VoiceController {
   }
 
   /**
-   Setup the voice controller
+   Set up the voice controller
 
    @param programVoiceId    the voice id
    @param handleDeleteVoice callback to delete voice
@@ -162,7 +167,6 @@ public class VoiceController {
 
     ProgramVoice voice = projectService.getContent().getProgramVoice(programVoiceId).orElseThrow(() -> new RuntimeException("Voice not found!"));
 
-    voiceContainer.setMinHeight(trackHeight);
     voiceControlContainer.setMinWidth(voiceControlWidth);
     voiceControlContainer.setMaxWidth(voiceControlWidth);
 
@@ -209,6 +213,11 @@ public class VoiceController {
         .toList()) {
       addTrack(programTrack);
     }
+
+    tracksContainer.setSpacing(trackSpaceBetween);
+    trackControllers.addListener(trackControllersChange);
+    unsubscriptions.add(() -> trackControllers.removeListener(trackControllersChange));
+    setupVoiceHeight();
   }
 
   /**
@@ -271,6 +280,14 @@ public class VoiceController {
     } catch (Exception e) {
       LOG.error("Could not create new Track! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
+  }
+
+  /**
+   Set up the height of the voice based on its # of tracks
+   Total voice height is the height of each track + the height of the gaps between tracks
+   */
+  private void setupVoiceHeight() {
+    voiceContainer.setMinHeight(trackHeight * (Math.max(1, trackControllers.size())) + trackSpaceBetween * Math.max(0, trackControllers.size() - 1));
   }
 
   /**
