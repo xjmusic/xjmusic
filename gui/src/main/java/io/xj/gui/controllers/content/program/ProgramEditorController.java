@@ -38,6 +38,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -154,7 +155,7 @@ public class ProgramEditorController extends ProjectController {
   Label noSequencesLabel;
 
   @FXML
-  VBox container;
+  AnchorPane container;
 
   public ProgramEditorController(
     @Value("classpath:/views/content/program/program-editor.fxml") Resource fxml,
@@ -280,6 +281,9 @@ public class ProgramEditorController extends ProjectController {
         uiStateService.programEditorModeProperty().set(null);
     });
     UiUtils.toggleGroupPreventDeselect(editorModeToggleGroup);
+    
+    container.maxWidthProperty().bind(container.getScene().getWindow().widthProperty());
+    container.maxHeightProperty().bind(container.getScene().getWindow().heightProperty());
   }
 
   @FXML
