@@ -5,7 +5,6 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToggleGroup?>
@@ -15,7 +14,6 @@
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.Pane?>
 <VBox fx:id="container" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.content.program.ProgramEditorController"
       styleClass="program-editor">
@@ -51,13 +49,13 @@
     <Label minWidth="40.0" text="NAME" styleClass="program-editor-field-label"/>
     <TextField minWidth="160" fx:id="programNameField"/>
     <Label minWidth="40.0" text="TYPE" styleClass="program-editor-field-label"/>
-    <ComboBox minWidth="102.0" fx:id="typeChooser"/>
+    <ComboBox minWidth="102.0" fx:id="programTypeChooser"/>
     <Label minWidth="50.0" text="STATE" styleClass="program-editor-field-label"/>
-    <ComboBox minWidth="120.0" fx:id="stateChooser"/>
+    <ComboBox minWidth="120.0" fx:id="programStateChooser"/>
     <Label minWidth="30.0" text="KEY" styleClass="program-editor-field-label"/>
-    <TextField fx:id="keyField" minWidth="60.0"/>
+    <TextField fx:id="programKeyField" minWidth="60.0"/>
     <Label minWidth="50.0" text="TEMPO" styleClass="program-editor-field-label"/>
-    <Spinner minWidth="70.0" fx:id="tempoChooser" editable="true"/>
+    <TextField minWidth="7045.0" fx:id="programTempoField"/>
   </HBox>
   <StackPane fx:id="programMemeContainer">
     <HBox.hgrow>
@@ -88,11 +86,11 @@
     <HBox fx:id="currentSequenceGroup" alignment="CENTER_LEFT" spacing="10">
       <TextField fx:id="sequenceNameField" minWidth="173.0"/>
       <Label minWidth="50" text="TOTAL" styleClass="program-editor-field-label"/>
-      <Spinner minWidth="70.0" fx:id="sequenceTotalChooser" editable="true"/>
+      <TextField minWidth="45" fx:id="sequenceTotalField"/>
       <Label minWidth="30" text="KEY" styleClass="program-editor-field-label"/>
       <TextField minWidth="45" fx:id="sequenceKeyField"/>
       <Label minWidth="70" text="INTENSITY" styleClass="program-editor-field-label"/>
-      <Spinner minWidth="70.0" fx:id="sequenceIntensityChooser" editable="true"/>
+      <TextField minWidth="45" fx:id="sequenceIntensityField"/>
     </HBox>
     <Label fx:id="noSequencesLabel" text="NO SEQUENCES" styleClass="no-sequences-label"/>
     <HBox fx:id="timelineOptionsGroup" alignment="CENTER_LEFT" spacing="10">

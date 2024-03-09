@@ -23,8 +23,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -65,7 +63,6 @@ public class VoiceController {
   private final Runnable updateVoiceType;
   private final Runnable updatePatternTotal;
   private final ObjectProperty<UUID> patternId = new SimpleObjectProperty<>();
-  private final SpinnerValueFactory<Integer> patternTotalValueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10000, 0);
   private final ObservableList<TrackController> trackControllers = FXCollections.observableArrayList();
   private UUID programVoiceId;
   private Runnable handleDeleteVoice;
@@ -107,7 +104,7 @@ public class VoiceController {
   HBox patternTotalContainer;
 
   @FXML
-  Spinner<Integer> patternTotalChooser;
+  TextField patternTotalField;
 
   @FXML
   VBox tracksContainer;
@@ -149,15 +146,15 @@ public class VoiceController {
     };
     updatePatternTotal = () -> {
       if (patternId.isNotNull().get())
-        projectService.update(ProgramSequencePattern.class, patternId.get(), "total", patternTotalValueFactory.getValue());
+        projectService.update(ProgramSequencePattern.class, patternId.get(), "total", patternTotalField.getText());
     };
   }
 
   /**
    Setup the voice controller
 
-   @param programVoiceId the voice id
-   @param handleDeleteVoice    callback to delete voice
+   @param programVoiceId    the voice id
+   @param handleDeleteVoice callback to delete voice
    */
   protected void setup(UUID programVoiceId, Runnable handleDeleteVoice) {
     this.programVoiceId = programVoiceId;
@@ -197,10 +194,8 @@ public class VoiceController {
     unsubscriptions.add(UiUtils.onBlur(voiceTypeChooser, updateVoiceType));
     UiUtils.blurOnSelection(voiceTypeChooser);
 
-    patternTotalChooser.setValueFactory(patternTotalValueFactory);
-    unsubscriptions.add(UiUtils.onChange(patternTotalValueFactory.valueProperty(), updatePatternTotal));
-    unsubscriptions.add(UiUtils.onBlur(patternTotalChooser, updatePatternTotal));
-    UiUtils.blurOnEnterKeyPress(patternTotalChooser);
+    unsubscriptions.add(UiUtils.onBlur(patternTotalField, updatePatternTotal));
+    UiUtils.blurOnEnterKeyPress(patternTotalField);
 
     unsubscriptions.add(UiUtils.onBlur(patternNameField, updatePatternName));
     UiUtils.blurOnEnterKeyPress(patternNameField);
@@ -299,11 +294,11 @@ public class VoiceController {
       var pattern = projectService.getContent().getProgramSequencePattern(patternId).orElseThrow(() -> new RuntimeException("Pattern not found!"));
       this.patternId.set(patternId);
       patternNameField.setText(pattern.getName());
-      patternTotalValueFactory.setValue(pattern.getTotal().intValue());
+      patternTotalField.setText(pattern.getTotal().toString());
     } else {
       this.patternId.set(null);
       patternNameField.clear();
-      patternTotalValueFactory.setValue(0);
+      patternTotalField.clear();
     }
   }
 
@@ -355,16 +350,20 @@ public class VoiceController {
       Parent root = loader.load();
       TrackController controller = loader.getController();
       trackControllers.add(controller);
-      controller.setup(programTrack.getId(), () -> {
-        if (!projectService.getContent().getEventsOfTrack(programTrack.getId()).isEmpty()) {
-          projectService.showWarningAlert("Failure", "Found Track in Track", "Cannot delete track because it contains a track.");
-          return;
+      controller.setup(
+        programTrack.getId(),
+        this::handlePressedAddTrack,
+        () -> {
+          if (!projectService.getContent().getEventsOfTrack(programTrack.getId()).isEmpty()) {
+            projectService.showWarningAlert("Failure", "Found Track in Track", "Cannot delete track because it contains a track.");
+            return;
+          }
+          controller.teardown();
+          trackControllers.remove(controller);
+          tracksContainer.getChildren().remove(root);
+          projectService.deleteContent(programTrack);
         }
-        controller.teardown();
-        trackControllers.remove(controller);
-        tracksContainer.getChildren().remove(root);
-        projectService.deleteContent(programTrack);
-      });
+      );
       tracksContainer.getChildren().add(root);
     } catch (IOException e) {
       LOG.error("Error adding Track! {}\n{}", e, StringUtils.formatStackTrace(e));

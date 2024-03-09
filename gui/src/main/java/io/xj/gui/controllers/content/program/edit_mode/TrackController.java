@@ -49,6 +49,7 @@ public class TrackController {
   private final Runnable updateTrackName;
   private UUID programVoiceTrackId;
   private Runnable handleDeleteTrack;
+  private Runnable handleCreateTrack;
 
   @FXML
   HBox trackContainer;
@@ -58,13 +59,19 @@ public class TrackController {
 
   @FXML
   AnchorPane trackTimelineContainer;
-  
+
   @FXML
   Button trackActionLauncher;
 
   @FXML
   TextField trackNameField;
-  
+
+  @FXML
+  AnchorPane trackAddContainer;
+
+  @FXML
+  Button addTrackButton;
+
   public TrackController(
     @Value("classpath:/views/content/program/edit_mode/program-sequence-pattern-event.fxml") Resource programSequencePatternEventFxml,
     @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource popupActionMenuFxml,
@@ -90,9 +97,10 @@ public class TrackController {
     updateTrackName = () -> projectService.update(ProgramVoiceTrack.class, programVoiceTrackId, "name", trackNameField.getText());
   }
 
-  public void setup(UUID programVoiceTrackId, Runnable handleDeleteTrack) {
+  public void setup(UUID programVoiceTrackId, Runnable handleCreateTrack, Runnable handleDeleteTrack) {
     this.programVoiceTrackId = programVoiceTrackId;
     this.handleDeleteTrack = handleDeleteTrack;
+    this.handleCreateTrack = handleCreateTrack;
 
     ProgramVoiceTrack track = projectService.getContent().getProgramVoiceTrack(programVoiceTrackId).orElseThrow(() -> new RuntimeException("Track not found!"));
 
@@ -195,6 +203,10 @@ public class TrackController {
     );
   }
 
+  @FXML
+  void handlePressedAddTrack() {
+    handleCreateTrack.run();
+  }
 
 /*
   TODO  Extract the numeric part from the selection
@@ -217,30 +229,6 @@ public class TrackController {
       }
     }
 */
-
-  private void adjustWidthWithTextIncrease() {
-/*
-    double newTextWidth = computeTextWidth(trackNameField.getFont(), trackNameField.getText());
-    if (newTextWidth > defaultTrackNameFieldPrefWidth) {
-      trackNameField.setPrefWidth(newTextWidth);
-      trackControlsContainer.setPrefWidth(newTextWidth + 10);
-    }
-*/
-  }
-
-  @FXML
-  void handlePressedNewTrack() {
-/*
-  todo track controller create new track
-    try {
-      ProgramVoiceTrack newTrack = new ProgramVoiceTrack(UUID.randomUUID(), programEditorController.getProgramId(), voice.getId(), "XXX", 1f);
-      projectService.update(newTrack);
-      trackItem(trackFxml, ac, voiceController.voiceContainer, LOG, addTrackButton_1, voice, voiceController, newTrack);
-    } catch (Exception e) {
-      LOG.info("Could not create new Track");
-    }
-*/
-  }
 
   static void trackItem(Resource trackFxml, ApplicationContext ac, VBox voiceContainer, Logger log, Button addTrackButton_1, ProgramVoice voice, VoiceController voiceController, ProgramVoiceTrack newTrack) {
 /*

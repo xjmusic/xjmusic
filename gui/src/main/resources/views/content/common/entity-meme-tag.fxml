@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
@@ -11,7 +10,7 @@
       fx:controller="io.xj.gui.controllers.content.common.EntityMemeTagController"
       fx:id="container"
       styleClass="meme-tag-container" stylesheets="@/styles/default-theme.css"
-      alignment="CENTER_LEFT">
+      alignment="CENTER_LEFT" minHeight="20" maxHeight="20">
   <TextField
       fx:id="nameField"
       onKeyPressed="#handleKeyPressed"
@@ -20,7 +19,9 @@
       fx:id="deleteMemeButton"
       onAction="#deleteMeme"
       styleClass="meme-tag-remove-button"
-      VBox.vgrow="ALWAYS">
+      VBox.vgrow="ALWAYS"
+      minHeight="20"
+      maxHeight="20">
     <graphic>
       <ImageView fitHeight="12.0" fitWidth="12.0">
         <Image url="@/icons/multiply.png"/>

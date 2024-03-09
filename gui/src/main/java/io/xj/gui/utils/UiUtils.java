@@ -13,7 +13,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
-import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.effect.ColorAdjust;
@@ -175,19 +174,6 @@ public interface UiUtils {
   }
 
   /**
-   Transfers focus away from the given field when the enter key is pressed.
-
-   @param field on which to listen
-   */
-  static void blurOnEnterKeyPress(Spinner<?> field) {
-    field.setOnKeyPressed((KeyEvent e) -> {
-      if (e.getCode() == KeyCode.ENTER) {
-        field.getParent().requestFocus();
-      }
-    });
-  }
-
-  /**
    Transfers focus away from the given field when a selection is made
 
    @param chooser on which to listen
@@ -225,6 +211,7 @@ public interface UiUtils {
    */
   static <T> void launchModalMenu(Button button, Resource fxml, ApplicationContext ac, Window window, boolean positionUnderButton, Consumer<T> setupController) {
     try {
+      button.setDisable(true);
       button.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, true);
       Stage stage = new Stage(StageStyle.TRANSPARENT);
       FXMLLoader loader = new FXMLLoader(fxml.getURL());
@@ -236,7 +223,10 @@ public interface UiUtils {
       stage.initOwner(window);
       stage.show();
       darkenBackgroundUntilClosed(stage, button.getScene(),
-        () -> button.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, false));
+        () -> {
+          button.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, false);
+          button.setDisable(false);
+        });
       closeWindowOnClickingAway(stage);
       if (positionUnderButton) UiUtils.setStagePositionBelowParentNode(stage, button);
 

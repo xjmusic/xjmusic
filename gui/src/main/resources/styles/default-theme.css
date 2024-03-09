@@ -502,6 +502,10 @@
   -fx-border-style: none;
 }
 
+.popup-menu-launcher:hover {
+  -fx-background-color: #ffffff20;
+}
+
 /*noinspection CssInvalidPseudoSelector*/
 .popup-menu-launcher:open {
   -fx-background-color: #683568;
@@ -546,6 +550,10 @@
 
 .entity-memes-label-container .label {
   -fx-font-size: 0.8em;
+}
+
+.entity-memes-add-button {
+  -fx-padding: 0 0 0 0;
 }
 
 .meme-tag-container {
