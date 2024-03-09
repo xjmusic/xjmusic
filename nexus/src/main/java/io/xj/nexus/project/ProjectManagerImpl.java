@@ -88,6 +88,7 @@ public class ProjectManagerImpl implements ProjectManager {
   private static final Integer DEFAULT_PROGRAM_SEQUENCE_TOTAL = 4;
   private static final Integer DEFAULT_PROGRAM_SEQUENCE_PATTERN_TOTAL = 4;
   private static final String DEFAULT_MEME_NAME = "XXX";
+  private static final String DEFAULT_PROGRAM_SEQUENCE_PATTERN_EVENT_TONES = "X";
   private final AtomicReference<ProjectState> state = new AtomicReference<>(ProjectState.Standby);
   private final AtomicReference<Project> project = new AtomicReference<>();
   private final AtomicReference<String> projectPathPrefix = new AtomicReference<>(File.separator);
@@ -572,6 +573,29 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
+  public ProgramSequencePatternEvent createProgramSequencePatternEvent(UUID trackId, UUID patternId, double position, double duration) throws Exception {
+    var track = content.get().getProgramVoiceTrack(trackId).orElseThrow(() -> new NexusException("Track not found"));
+    var pattern = content.get().getProgramSequencePattern(patternId).orElseThrow(() -> new NexusException("Pattern not found"));
+    var existingEventsOfPattern = content.get().getEventsOfPattern(pattern.getId());
+    var existingEventOfPattern = existingEventsOfPattern.stream().findFirst();
+
+    // Prepare the event record
+    var event = new ProgramSequencePatternEvent();
+    event.setId(UUID.randomUUID());
+    event.setProgramId(track.getProgramId());
+    event.setProgramVoiceTrackId(track.getId());
+    event.setProgramSequencePatternId(pattern.getId());
+    event.setPosition((float) position);
+    event.setVelocity(1.0f);
+    event.setTones(DEFAULT_PROGRAM_SEQUENCE_PATTERN_EVENT_TONES);
+    event.setDuration((float) duration);
+
+
+    content.get().put(event);
+    return event;
+  }
+
+  @Override
   public ProgramVoice createProgramVoice(UUID programId) throws Exception {
     var program = content.get().getProgram(programId).orElseThrow(() -> new NexusException("Program not found"));
     var project = content.get().getProject();
@@ -608,7 +632,7 @@ public class ProjectManagerImpl implements ProjectManager {
     var existingTracksOfProgram = content.get().getTracksOfProgram(voice.getProgramId());
     var existingTrackNames = existingTracksOfProgram.stream().map(ProgramVoiceTrack::getName).collect(Collectors.toSet());
     var newTrackName = FormatUtils.iterateNumericalSuffixFromExisting(existingTrackNames, DEFAULT_PROGRAM_VOICE_TRACK_NAME);
-    
+
     // Prepare the track record
     var track = new ProgramVoiceTrack();
     track.setId(UUID.randomUUID());

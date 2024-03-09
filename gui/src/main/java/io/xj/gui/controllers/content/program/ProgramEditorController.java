@@ -41,7 +41,6 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -218,6 +217,7 @@ public class ProgramEditorController extends ProjectController {
     programStateChooser.setItems(FXCollections.observableArrayList(ProgramState.values()));
     gridChooser.valueProperty().bindBidirectional(uiStateService.programEditorGridProperty());
     zoomChooser.valueProperty().bindBidirectional(uiStateService.programEditorZoomProperty());
+    snapButton.selectedProperty().bindBidirectional(uiStateService.programEditorSnapProperty());
     gridChooser.setItems(uiStateService.getProgramEditorGridChoices());
     zoomChooser.setItems(uiStateService.getProgramEditorZoomChoices());
     container.visibleProperty().bind(visible);

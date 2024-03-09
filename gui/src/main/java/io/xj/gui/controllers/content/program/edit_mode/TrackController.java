@@ -9,13 +9,20 @@ import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.UiUtils;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.util.StringUtils;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -41,8 +48,9 @@ import java.util.UUID;
 public class TrackController {
   static final Logger LOG = LoggerFactory.getLogger(TrackController.class);
   private final Collection<Runnable> unsubscriptions = new HashSet<>();
+  private final ObservableList<EventController> eventControllers = FXCollections.observableArrayList();
   private final ThemeService themeService;
-  private final Resource programSequencePatternEventFxml;
+  private final Resource eventFxml;
   private final Resource popupActionMenuFxml;
   private final int trackHeight;
   private final int trackControlWidth;
@@ -62,10 +70,10 @@ public class TrackController {
   VBox trackControlContainer;
 
   @FXML
-  AnchorPane trackTimelineContainer;
+  AnchorPane timelineEventsContainer;
 
   @FXML
-  Pane trackTimelineBackground;
+  Pane timelineBackground;
 
   @FXML
   Button trackActionLauncher;
@@ -89,7 +97,7 @@ public class TrackController {
     ProjectService projectService,
     UIStateService uiStateService
   ) {
-    this.programSequencePatternEventFxml = eventFxml;
+    this.eventFxml = eventFxml;
     this.popupActionMenuFxml = popupActionMenuFxml;
     this.trackHeight = trackHeight;
     this.trackControlWidth = trackControlWidth;
@@ -118,8 +126,8 @@ public class TrackController {
 
     trackContainer.setMinHeight(trackHeight);
     trackContainer.setMaxHeight(trackHeight);
-    trackTimelineBackground.setMinHeight(trackHeight);
-    trackTimelineBackground.setMaxHeight(trackHeight);
+    timelineBackground.setMinHeight(trackHeight);
+    timelineBackground.setMaxHeight(trackHeight);
     trackControlContainer.setMinWidth(trackControlWidth);
     trackControlContainer.setMaxWidth(trackControlWidth);
 
@@ -156,6 +164,7 @@ public class TrackController {
    */
   public void teardown() {
     for (Runnable unsubscription : unsubscriptions) unsubscription.run();
+    for (EventController controller : eventControllers) controller.teardown();
   }
 
   @FXML
@@ -175,6 +184,31 @@ public class TrackController {
     handleCreateTrack.run();
   }
 
+  @FXML
+  void handlePressedTimeline(MouseEvent mouseEvent) {
+    if (patternId.isNull().get()) {
+      projectService.showWarningAlert("No Pattern", "Please create a pattern to add events", "You must create a pattern before adding events");
+      return;
+    }
+
+    // get mouse X relative to clicked-on element
+    double x = mouseEvent.getX();
+    double sizePerBeat = uiStateService.getProgramEditorBaseSizePerBeat();
+    double zoom = uiStateService.programEditorZoomProperty().get().value();
+    double grid = uiStateService.programEditorGridProperty().get().value();
+    double position = uiStateService.programEditorSnapProperty().get() ?
+      grid * Math.round(x / (sizePerBeat * zoom * grid)) :
+      x / (sizePerBeat * zoom);
+
+    // add a new event at the clicked position
+    try {
+      ProgramSequencePatternEvent event = projectService.createProgramSequencePatternEvent(programVoiceTrackId, patternId.get(), position, grid);
+      addEvent(event);
+    } catch (Exception e) {
+      LOG.error("Failed to add event to timeline! {}\n{}", e, StringUtils.formatStackTrace(e));
+    }
+  }
+
   /**
    Setup whether the add track button is visible--
    it's only visible if this track is the highest-order track for its voice
@@ -190,22 +224,21 @@ public class TrackController {
    Populate the track timeline
    */
   private void setupTimeline() {
-    // TODO populate the timeline
-
-    drawTimelineBackground();
+    setupTimelineBackground();
+    setupTimelineEvents();
   }
 
   /**
    Draw the timeline background
    */
-  private void drawTimelineBackground() {
+  private void setupTimelineBackground() {
     // clear background items
-    trackTimelineBackground.getChildren().clear();
+    timelineBackground.getChildren().clear();
 
     // if there's no sequence, don't draw the timeline
     if (uiStateService.currentProgramSequenceProperty().isNull().get()) {
-      trackTimelineBackground.setMinWidth(0);
-      trackTimelineBackground.setMaxWidth(0);
+      timelineBackground.setMinWidth(0);
+      timelineBackground.setMaxWidth(0);
       return;
     }
 
@@ -217,8 +250,8 @@ public class TrackController {
 
     // compute the total width
     var width = sequenceTotal * sizePerBeat * zoom;
-    trackTimelineBackground.setMinWidth(width);
-    trackTimelineBackground.setMaxWidth(width);
+    timelineBackground.setMinWidth(width);
+    timelineBackground.setMaxWidth(width);
 
     // draw active region for the current pattern total
     if (patternId.isNotNull().get()) {
@@ -227,7 +260,7 @@ public class TrackController {
       rectangle.setWidth(sizePerBeat * zoom * pattern.getTotal());
       rectangle.setHeight(trackHeight);
       rectangle.setFill(Color.valueOf("#353535"));
-      trackTimelineBackground.getChildren().add(rectangle);
+      timelineBackground.getChildren().add(rectangle);
     }
 
     // draw vertical grid lines
@@ -241,7 +274,7 @@ public class TrackController {
       gridLine.setStartY(1);
       gridLine.setEndX(x);
       gridLine.setEndY(trackHeight - 1);
-      trackTimelineBackground.getChildren().add(gridLine);
+      timelineBackground.getChildren().add(gridLine);
     }
 
     // draw horizontal dotted line from x=0 to x=width at y = trackHeight /2
@@ -253,7 +286,44 @@ public class TrackController {
     dottedLine.setEndX(width - 1);
     dottedLine.setEndY(trackHeight / 2.0);
     dottedLine.getStrokeDashArray().addAll(2d, 4d);
-    trackTimelineBackground.getChildren().add(dottedLine);
+    timelineBackground.getChildren().add(dottedLine);
+  }
+
+  /**
+   Populate the track timeline with events
+   */
+  private void setupTimelineEvents() {
+    timelineEventsContainer.getChildren().clear();
+    if (patternId.isNotNull().get())
+      for (ProgramSequencePatternEvent event : projectService.getContent().getEventsOfPatternAndTrack(patternId.get(), programVoiceTrackId)) {
+        addEvent(event);
+      }
+  }
+
+  /**
+   Add an event to the timeline
+   */
+  private void addEvent(ProgramSequencePatternEvent event) {
+    try {
+      FXMLLoader loader = new FXMLLoader(eventFxml.getURL());
+      loader.setControllerFactory(ac::getBean);
+      Parent root = loader.load();
+      AnchorPane.setTopAnchor(root, 0.0);
+      AnchorPane.setBottomAnchor(root, 0.0);
+      EventController controller = loader.getController();
+      eventControllers.add(controller);
+      controller.setup(event.getId(),
+        () -> {
+          controller.teardown();
+          eventControllers.remove(controller);
+          timelineEventsContainer.getChildren().remove(root);
+          projectService.deleteContent(ProgramSequencePatternEvent.class, event.getId());
+        });
+      timelineEventsContainer.getChildren().add(root);
+
+    } catch (Exception e) {
+      LOG.error("Failed to add event to timeline! {}\n{}", e, StringUtils.formatStackTrace(e));
+    }
   }
 
 /*
@@ -262,65 +332,10 @@ public class TrackController {
     updateGrid(selection, programEditorController);
   }
 */
-
-/*
-  TODO update the grid
-    static void updateGrid(String selection, ProgramEditorController programEditorController) {
-      String[] parts = selection.split("/");
-      if (parts.length > 1) {
-        try {
-          int baseValue = Integer.parseInt(parts[1]);
-          programEditorController.getTimelineGridProperty().set(baseValue);
-        } catch (NumberFormatException e) {
-          System.err.println("Failed to parse grid selection: " + selection);
-        }
-      }
-    }
-*/
-
-/*
-  TODO setup track item
-    try {
-      FXMLLoader loader = new FXMLLoader(trackFxml.getURL());
-      loader.setControllerFactory(ac::getBean);
-      Parent root = loader.load();
-      addTrackButton_1.setVisible(false);
-      TrackController trackController = loader.getController();
-      trackController.setup(root, voice, voiceController, newTrack);
-      voiceContainer.getChildren().add(root);
-    } catch (IOException e) {
-      log.error("Error adding Track item view! {}\n{}", e, StringUtils.formatStackTrace(e));
-    }
-*/
-
-  /*
-  TODO populate the timeline
-    timeLineAnchorpane.getChildren().removeIf(node -> (node instanceof Line || node instanceof Rectangle));
-    if (0 < programEditorController.getSequenceTotal()) {
-      for (double b = 0; b <= programEditorController.getSequenceTotal(); b += ((double) 1 / programEditorController.getTimelineGridSize())) {
-        double gridLineX = b * voiceController.getBaseSizePerBeat().get() * programEditorController.getZoomFactor();
-        VoiceController.drawGridLines(b, gridLineX, timeLineAnchorpane, voiceController.getTimelineHeight(), voiceController.doublePropertyProperty());
-      }
-      greyTheActiveArea();
-    }
-*/
-
+  
 /*
   TODO add program sequence pattern event item controller
     try {
-      FXMLLoader loader = new FXMLLoader(programSequencePatternEventItem.getURL());
-      loader.setControllerFactory(ac::getBean);
-      Parent root = loader.load();
-      AnchorPane.setTopAnchor(root, 0.0);
-      AnchorPane.setBottomAnchor(root, 0.0);
-      ProgramSequencePatternEvent programSequencePatternEvent = new ProgramSequencePatternEvent(UUID.randomUUID(), voiceController.getProgramVoiceTrack().getProgramId(), programEditorController.getSequenceId(), voiceController.getProgramVoiceTrack().getId(), 0.125f, 0.125f, 0.125f, "X");
-      EventController patternEventItemController = loader.getController();
-      patternEventItemController.setup(root, timeLineAnchorpane, programSequencePatternEvent, voiceController);
-      patternEventItemController.getEventPositionProperty.set(event.getX() - ((voiceController.getBaseSizePerBeat().doubleValue() * programEditorController.getZoomFactor()) +
-        patternEventItemController.getEventPositionProperty.get()));
-      // Add the new property item to the AnchorPane
-      timeLineAnchorpane.getChildren().add(root);
-      projectService.getContent().put(programSequencePatternEvent);
 
     } catch (Exception e) {
       throw new RuntimeException(e);

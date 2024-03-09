@@ -1,22 +1,11 @@
 package io.xj.gui.controllers.content.program.edit_mode;
 
-import io.xj.gui.controllers.content.common.DragZone;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
-import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
-import javafx.application.Platform;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import io.xj.hub.util.ValueUtils;
 import javafx.fxml.FXML;
-import javafx.geometry.Bounds;
-import javafx.scene.Cursor;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,48 +13,47 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class EventController {
   static final Logger LOG = LoggerFactory.getLogger(EventController.class);
-  private final ObjectProperty<ProgramSequencePatternEvent> programSequencePatternEventObjectProperty = new SimpleObjectProperty<>();
   private final ProjectService projectService;
   private final UIStateService uiStateService;
-  protected final DoubleProperty getEventPositionProperty = new SimpleDoubleProperty(0);
+  private UUID eventId;
+  private Runnable handleDelete;
 
+  /*
+TODO cleanup unused
+  protected final DoubleProperty getEventPositionProperty = new SimpleDoubleProperty(0);
   private final DoubleProperty widthProperty = new SimpleDoubleProperty();
   private static final int RESIZE_MARGIN = 10;
   private final DoubleProperty translateDoubleProperty = new SimpleDoubleProperty();
-
   private double originalXPosition;
   private double originalYPosition;
   private DragZone currentDragZone;
   private double dragStartX;
   private double minWidth = 0;
-  
+*/
+
   @FXML
-  AnchorPane timelineEventPropertyParent;
-  
+  AnchorPane container;
+
   @FXML
-  Button deleteTimelineProperty;
-  
+  Button deleteButton;
+
   @FXML
   Label positionLabel;
-  
+
   @FXML
   Label durationLabel;
-  
+
   @FXML
   Label velocityLabel;
-  
+
   @FXML
   Label tonesLabel;
-  
-  @FXML
-  private AnchorPane timeline;
-  
-  @FXML
-  private Parent root;
 
   public EventController(
     ProjectService projectService,
@@ -75,10 +63,42 @@ public class EventController {
     this.uiStateService = uiStateService;
   }
 
-  ObjectProperty<ProgramSequencePatternEvent> programEvent = new SimpleObjectProperty<>();
+  /**
+   Set up the event controller
 
-  public void setup(Parent root, AnchorPane timeline, ProgramSequencePatternEvent programSequencePatternEvent, VoiceController voiceController) {
-/*
+   @param eventId for which to set up the controller
+   */
+  public void setup(UUID eventId, Runnable handleDelete) {
+    this.eventId = eventId;
+    this.handleDelete = handleDelete;
+
+    var event = projectService.getContent().getProgramSequencePatternEvent(eventId).orElseThrow(() -> new RuntimeException("Event not found"));
+    var zoom = uiStateService.programEditorZoomProperty().get().value();
+    var baseSizePerBeat = uiStateService.getProgramEditorBaseSizePerBeat();
+    container.setLayoutX(baseSizePerBeat * event.getPosition() * zoom);
+
+    positionLabel.setText(ValueUtils.limitDecimalPrecision(Double.valueOf(event.getPosition())).toString());
+    durationLabel.setText(ValueUtils.limitDecimalPrecision(Double.valueOf(event.getDuration())).toString());
+    velocityLabel.setText(ValueUtils.limitDecimalPrecision(Double.valueOf(event.getVelocity())).toString());
+    tonesLabel.setText(event.getTones());
+  }
+
+  /**
+   Teardown the event controller
+   */
+  public void teardown() {
+    // TODO teardown
+  }
+
+  /**
+   Handle pressed delete
+   */
+  @FXML
+  public void handlePressedDelete() {
+    handleDelete.run();
+  }
+
+  /*
  TODO
     this.timeline = timeline;
     this.root = root;
@@ -119,7 +139,11 @@ public class EventController {
     timelineEventPropertyParent.setOnMousePressed(this::onMouseDown);
     timelineEventPropertyParent.setOnMouseReleased(this::onMouseReleased);
 */
-  }
+
+/*
+
+TODO
+
 
   protected void updatePosition(double position) {
     ProgramSequencePatternEvent newEvent = programEvent.get();
@@ -127,6 +151,7 @@ public class EventController {
     projectService.update(newEvent);
     programEvent.set(newEvent);
   }
+
 
   private void onMouseDown(MouseEvent event) {
     timeline.setMouseTransparent(true);
@@ -172,6 +197,7 @@ public class EventController {
     timeline.setMouseTransparent(false);
   }
 
+*/
 /*
 TODO
   public void bindTranslateXToPositionProperty() {
@@ -184,6 +210,10 @@ TODO
     ));
   }
 */
+
+/*
+
+TODO
 
   protected DragZone computeDragZone(MouseEvent event) {
     if (event.getY() > (timelineEventPropertyParent.getHeight() - RESIZE_MARGIN))
@@ -267,5 +297,6 @@ TODO
     // Calculate the position of the right border
     return parentBounds.getMaxX();
   }
+*/
 
 }

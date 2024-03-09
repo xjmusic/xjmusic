@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.effect.InnerShadow?>
 <?import javafx.scene.image.Image?>
@@ -42,6 +43,9 @@
           AnchorPane.rightAnchor="5.0"
           fx:id="addTrackButton" onAction="#handlePressedAddTrack" HBox.hgrow="ALWAYS"
           styleClass="minimal">
+        <tooltip>
+          <Tooltip text="Add Track"/>
+        </tooltip>
         <graphic>
           <ImageView fitHeight="16.0" fitWidth="16.0">
             <Image url="@/icons/plus.png"/>
@@ -52,11 +56,13 @@
   </VBox>
 
   <StackPane HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
-    <AnchorPane fx:id="trackTimelineContainer" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+    <Pane fx:id="timelineBackground" styleClass="track-timeline-background">
+    </Pane>
+    <AnchorPane fx:id="timelineEventsContainer" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" onMouseClicked="#handlePressedTimeline">
       <cursor>
         <Cursor fx:constant="CROSSHAIR"/>
       </cursor>
-      <Pane fx:id="trackTimelineBackground" styleClass="track-timeline-background"/>
     </AnchorPane>
   </StackPane>
+
 </HBox>

@@ -101,6 +101,7 @@ public class UIStateServiceImpl implements UIStateService {
   private final ObservableList<ZoomChoice> programEditorZoomChoices;
   private final ObjectProperty<GridChoice> programEditorGrid = new SimpleObjectProperty<>();
   private final ObjectProperty<ZoomChoice> programEditorZoom = new SimpleObjectProperty<>();
+  private final BooleanProperty programEditorSnap = new SimpleBooleanProperty(false);
   private final ObjectProperty<ProgramEditorMode> programEditorMode = new SimpleObjectProperty<>();
 
   public UIStateServiceImpl(
@@ -593,6 +594,11 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public ObjectProperty<ZoomChoice> programEditorZoomProperty() {
     return programEditorZoom;
+  }
+
+  @Override
+  public BooleanProperty programEditorSnapProperty() {
+    return programEditorSnap;
   }
 
   /**

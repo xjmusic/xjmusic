@@ -21,6 +21,7 @@ import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
 import javafx.collections.ObservableList;
@@ -311,13 +312,17 @@ public interface UIStateService extends ReadyAfterBoot {
   ObservableList<ZoomChoice> getProgramEditorZoomChoices();
 
   /**
-   @return the current grid setting for the program editor
+   @return the property for the grid setting for the program editor
    */
   ObjectProperty<GridChoice> programEditorGridProperty();
 
   /**
-   @return the current zoom setting for the program editor
+   @return the property for the zoom setting for the program editor
    */
   ObjectProperty<ZoomChoice> programEditorZoomProperty();
 
+  /**
+   * @return the property for the snap setting for the program editor
+   */
+  BooleanProperty programEditorSnapProperty();
 }

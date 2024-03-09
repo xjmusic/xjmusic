@@ -372,7 +372,7 @@ public class VoiceController {
         this::handlePressedAddTrack,
         () -> {
           if (!projectService.getContent().getEventsOfTrack(programTrack.getId()).isEmpty()) {
-            projectService.showWarningAlert("Failure", "Found Track in Track", "Cannot delete track because it contains a track.");
+            projectService.showWarningAlert("Failure", "Found Events in Track", "Cannot delete track because it contains events.");
             return;
           }
           controller.teardown();

@@ -18,12 +18,14 @@ import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.util.StringUtils;
+import io.xj.nexus.NexusException;
 import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.project.ProjectState;
 import jakarta.annotation.Nullable;
@@ -444,6 +446,14 @@ public class ProjectServiceImpl implements ProjectService {
     didUpdate(ProgramSequencePattern.class, true);
     LOG.info("Created Program Sequence Pattern \"{}\"", programSequencePattern.getName());
     return programSequencePattern;
+  }
+
+  @Override
+  public ProgramSequencePatternEvent createProgramSequencePatternEvent(UUID trackId, UUID patternId, double position, double duration) throws Exception {
+    var programSequencePatternEvent = projectManager.createProgramSequencePatternEvent(trackId, patternId, position, duration);
+    didUpdate(ProgramSequencePatternEvent.class, true);
+    LOG.info("Created Program Sequence Pattern Event at {}", programSequencePatternEvent.getPosition());
+    return programSequencePatternEvent;
   }
 
   @Override
