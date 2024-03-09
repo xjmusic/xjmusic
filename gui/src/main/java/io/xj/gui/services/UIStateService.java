@@ -14,7 +14,6 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.work.FabricationState;
-import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.ObjectBinding;
@@ -183,7 +182,7 @@ public interface UIStateService extends ReadyAfterBoot {
   ObjectProperty<Program> currentProgramProperty();
 
   /**
-   * @return the sequences of the current program
+   @return the sequences of the current program
    */
   ObservableList<ProgramSequence> sequencesOfCurrentProgramProperty();
 
@@ -286,7 +285,7 @@ public interface UIStateService extends ReadyAfterBoot {
   BooleanProperty isLabFeatureEnabledProperty();
 
   /**
-   * @return property of the current program editor mode
+   @return property of the current program editor mode
    */
   ObjectProperty<ProgramEditorMode> programEditorModeProperty();
 
@@ -320,4 +319,29 @@ public interface UIStateService extends ReadyAfterBoot {
    */
   ObjectProperty<ZoomChoice> programEditorZoomProperty();
 
+  /**
+   Compute the width of the given track, or 0 if there is no current sequence
+
+   @param programVoiceTrackId the program voice track id
+   @return the width of the given track
+   */
+  int computeTrackWidth(UUID programVoiceTrackId);
+
+  /**
+   @return the total beats of the current sequence, or 0 if there is no current sequence
+   */
+  int getCurrentProgramSequenceTotal();
+
+  /**
+   Compute the X position of the given sequence beat position
+
+   @param position the position
+   @return the X position
+   */
+  double computeSequenceBeatX(double position);
+
+  /**
+   @return the program editor grid in beats, e.g. 1/4 grid = 0.25 beats
+   */
+  double getProgramEditorGridBeats();
 }
