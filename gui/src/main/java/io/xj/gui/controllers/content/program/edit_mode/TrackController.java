@@ -7,6 +7,7 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.UiUtils;
+import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -15,7 +16,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,8 +47,6 @@ public class TrackController {
   private final ApplicationContext ac;
   private final ProjectService projectService;
   private final UIStateService uiStateService;
-  private final ChangeListener<GridChoice> onGridChange;
-  private final ChangeListener<ZoomChoice> onZoomChange;
   private final Runnable updateTrackName;
   private UUID programVoiceTrackId;
   private Runnable handleDeleteTrack;
@@ -57,6 +60,9 @@ public class TrackController {
 
   @FXML
   AnchorPane trackTimelineContainer;
+
+  @FXML
+  Pane trackTimelineBackground;
 
   @FXML
   Button trackActionLauncher;
@@ -89,9 +95,6 @@ public class TrackController {
     this.projectService = projectService;
     this.uiStateService = uiStateService;
 
-    onGridChange = (observable, oldValue, newValue) -> Platform.runLater(this::setupTimeline);
-    onZoomChange = (observable, oldValue, newValue) -> Platform.runLater(this::setupTimeline);
-
     updateTrackName = () -> projectService.update(ProgramVoiceTrack.class, programVoiceTrackId, "name", trackNameField.getText());
   }
 
@@ -111,12 +114,23 @@ public class TrackController {
 
     trackContainer.setMinHeight(trackHeight);
     trackContainer.setMaxHeight(trackHeight);
-
+    trackTimelineBackground.setMinHeight(trackHeight);
+    trackTimelineBackground.setMaxHeight(trackHeight);
     trackControlContainer.setMinWidth(trackControlWidth);
     trackControlContainer.setMaxWidth(trackControlWidth);
 
+    ChangeListener<ZoomChoice> onZoomChange = (o, ov, v) -> Platform.runLater(this::setupTimeline);
     uiStateService.programEditorZoomProperty().addListener(onZoomChange);
+    unsubscriptions.add(() -> uiStateService.programEditorZoomProperty().removeListener(onZoomChange));
+
+    ChangeListener<GridChoice> onGridChange = (o, ov, v) -> Platform.runLater(this::setupTimeline);
     uiStateService.programEditorGridProperty().addListener(onGridChange);
+    unsubscriptions.add(() -> uiStateService.programEditorGridProperty().removeListener(onGridChange));
+
+    ChangeListener<ProgramSequence> onSequenceChange = (o, ov, v) -> Platform.runLater(this::setupTimeline);
+    uiStateService.currentProgramSequenceProperty().addListener(onSequenceChange);
+    unsubscriptions.add(() -> uiStateService.currentProgramSequenceProperty().removeListener(onSequenceChange));
+    unsubscriptions.add(projectService.addProjectUpdateListener(ProgramSequence.class, this::setupTimeline));
 
     trackNameField.setText(track.getName());
     unsubscriptions.add(UiUtils.onBlur(trackNameField, updateTrackName));
@@ -133,9 +147,6 @@ public class TrackController {
    */
   public void teardown() {
     for (Runnable unsubscription : unsubscriptions) unsubscription.run();
-
-    uiStateService.programEditorZoomProperty().removeListener(onZoomChange);
-    uiStateService.programEditorGridProperty().removeListener(onGridChange);
   }
 
   @FXML
@@ -160,7 +171,7 @@ public class TrackController {
    it's only visible if this track is the highest-order track for its voice
    */
   private void setupAddTrackButton() {
-    ProgramVoiceTrack track = projectService.getContent().getProgramVoiceTrack(programVoiceTrackId).orElseThrow(()-> new RuntimeException("Track not found!"));
+    ProgramVoiceTrack track = projectService.getContent().getProgramVoiceTrack(programVoiceTrackId).orElseThrow(() -> new RuntimeException("Track not found!"));
     var tracksForVoice = projectService.getContent().getTracksOfVoice(track.getProgramVoiceId());
     float trackOrderMax = tracksForVoice.stream().map(ProgramVoiceTrack::getOrder).max(Float::compareTo).orElse(0f);
     addTrackButton.setVisible(trackOrderMax == track.getOrder());
@@ -171,6 +182,59 @@ public class TrackController {
    */
   private void setupTimeline() {
     // TODO populate the timeline
+
+    drawTimelineBackground();
+  }
+
+  /**
+   Draw the timeline background
+   */
+  private void drawTimelineBackground() {
+    // clear background items
+    trackTimelineBackground.getChildren().clear();
+
+    // if there's no sequence, don't draw the timeline
+    if (uiStateService.currentProgramSequenceProperty().isNull().get()) {
+      trackTimelineBackground.setMinWidth(0);
+      trackTimelineBackground.setMaxWidth(0);
+      return;
+    }
+
+    // variables
+    int sequenceTotal = uiStateService.currentProgramSequenceProperty().get().getTotal();
+    int sizePerBeat = uiStateService.getProgramEditorBaseSizePerBeat();
+    double zoom = uiStateService.programEditorZoomProperty().get().value();
+    double grid = uiStateService.programEditorGridProperty().get().value();
+
+    // compute the total width
+    var width = sequenceTotal * sizePerBeat * zoom;
+    trackTimelineBackground.setMinWidth(width);
+    trackTimelineBackground.setMaxWidth(width);
+
+    // draw vertical grid lines
+    double x;
+    for (double b = 0; b < sequenceTotal; b += grid) {
+      x = b * sizePerBeat * zoom;
+      Line gridLine = new Line();
+      gridLine.setStroke(b % 1 == 0 ? Color.valueOf("#505050") : Color.valueOf("#3d3d3d"));
+      gridLine.setStrokeWidth(2);
+      gridLine.setStartX(x);
+      gridLine.setStartY(1);
+      gridLine.setEndX(x);
+      gridLine.setEndY(trackHeight - 1);
+      trackTimelineBackground.getChildren().add(gridLine);
+    }
+
+    // draw horizontal dotted line from x=0 to x=width at y = trackHeight /2
+    Line dottedLine = new Line();
+    dottedLine.setStroke(Color.valueOf("#585858"));
+    dottedLine.setStrokeWidth(2);
+    dottedLine.setStartX(1);
+    dottedLine.setStartY(trackHeight / 2.0);
+    dottedLine.setEndX(width - 1);
+    dottedLine.setEndY(trackHeight / 2.0);
+    dottedLine.getStrokeDashArray().addAll(2d, 4d);
+    trackTimelineBackground.getChildren().add(dottedLine);
   }
 
 /*

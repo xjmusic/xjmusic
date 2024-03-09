@@ -10,6 +10,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.effect.InnerShadow?>
+<?import javafx.scene.layout.Pane?>
 <HBox
     xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="io.xj.gui.controllers.content.program.edit_mode.TrackController"
@@ -49,41 +50,10 @@
   </VBox>
 
   <StackPane HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
-    <AnchorPane fx:id="trackTimelineContainer" styleClass="track-timeline-container"
-                HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+    <AnchorPane fx:id="trackTimelineContainer" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+      <Pane fx:id="trackTimelineBackground" styleClass="track-timeline-background" />
+        <!-- todo add timeline -->
       <!-- todo add timeline -->
     </AnchorPane>
   </StackPane>
-
-  <!--
-
-  Todo see if any of this is useful
-
-     <VBox fx:id="trackControlsContainer" prefHeight="145.0" prefWidth="274.0" styleClass="track-controls-container" HBox.hgrow="NEVER" />
-
-      <AnchorPane fx:id="trackContainer" prefHeight="156.0" prefWidth="224.0" styleClass="track-container">
-        
-            <Button fx:id="trackMenuButton" minWidth="30" maxWidth="30" onAction="#handlePressedTrackMenu">
-               <graphic>
-                 <ImageView fitHeight="16.0" fitWidth="16.0">
-                   <Image url="@/icons/hamburger-menu.png"/>
-                 </ImageView>
-               </graphic>
-            </Button>
-
-            <Button fx:id="addTrackButton" minWidth="30" maxWidth="30" onAction="#handlePressedNewTrack">
-               <graphic>
-                 <ImageView fitHeight="16.0" fitWidth="16.0">
-                   <Image url="@/icons/plus.png"/>
-                 </ImageView>
-               </graphic>
-            </Button>
-
-            <TextField fx:id="trackNameField" prefWidth="155.0" />
-         <HBox.margin>
-            <Insets />
-         </HBox.margin>
-      </AnchorPane>
-   <AnchorPane fx:id="timeLineAnchorpane" prefHeight="155.0" HBox.hgrow="ALWAYS" />
--->
 </HBox>
