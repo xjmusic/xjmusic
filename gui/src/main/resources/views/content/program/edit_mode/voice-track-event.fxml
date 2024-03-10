@@ -1,22 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
 <AnchorPane
     xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="io.xj.gui.controllers.content.program.edit_mode.VoiceTrackEventController"
     fx:id="container"
     stylesheets="@/styles/default-theme.css" styleClass="program-sequence-pattern-event"
 >
+  <Pane
+      AnchorPane.leftAnchor="0"
+      AnchorPane.topAnchor="0"
+      AnchorPane.bottomAnchor="0"
+      minWidth="5"
+      maxWidth="5"
+  >
+    <cursor>
+      <Cursor fx:constant="W_RESIZE"/>
+    </cursor>
+  </Pane>
+
+  <Pane
+      AnchorPane.rightAnchor="0"
+      AnchorPane.topAnchor="0"
+      AnchorPane.bottomAnchor="0"
+      minWidth="5"
+      maxWidth="5"
+  >
+    <cursor>
+      <Cursor fx:constant="E_RESIZE"/>
+    </cursor>
+  </Pane>
+
   <Label fx:id="tonesLabel"
-         AnchorPane.leftAnchor="0"
-         AnchorPane.rightAnchor="0"
+         AnchorPane.leftAnchor="5"
+         AnchorPane.rightAnchor="5"
          AnchorPane.topAnchor="0"
          AnchorPane.bottomAnchor="0"
-         alignment="CENTER"/>
-  <cursor>
-    <Cursor fx:constant="OPEN_HAND"/>
-  </cursor>
+         alignment="CENTER">
+    <cursor>
+      <Cursor fx:constant="OPEN_HAND"/>
+    </cursor>
+  </Label>
 </AnchorPane>
