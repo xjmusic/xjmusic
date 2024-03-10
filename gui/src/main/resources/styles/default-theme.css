@@ -483,6 +483,11 @@
   -fx-background-color: #656565;
 }
 
+/*noinspection CssInvalidPseudoSelector*/
+.program-sequence-pattern-event:open {
+  -fx-background-color: #683568;
+}
+
 .no-sequences-label {
   -fx-font-style: italic;
   -fx-padding: 0 5 0 5;

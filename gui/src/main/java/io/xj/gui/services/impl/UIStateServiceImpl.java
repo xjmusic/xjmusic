@@ -1,6 +1,8 @@
 package io.xj.gui.services.impl;
 
 import io.xj.gui.WorkstationLogAppender;
+import io.xj.gui.controllers.content.common.PopupActionMenuController;
+import io.xj.gui.controllers.content.common.PopupSelectorMenuController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.GridChoice;
 import io.xj.gui.modes.ProgramEditorMode;
@@ -10,7 +12,9 @@ import io.xj.gui.modes.ViewStatusMode;
 import io.xj.gui.modes.ZoomChoice;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.utils.LaunchMenuPosition;
 import io.xj.gui.utils.UiUtils;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
@@ -18,6 +22,7 @@ import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.util.StringUtils;
 import io.xj.nexus.ControlMode;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.work.FabricationState;
@@ -35,18 +40,32 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.prefs.Preferences;
 
 @Service
 public class UIStateServiceImpl implements UIStateService {
+  static final Logger LOG = LoggerFactory.getLogger(UIStateServiceImpl.class);
   private final Preferences prefs = Preferences.userNodeForPackage(UIStateServiceImpl.class);
   private final int programEditorBaseSizePerBeat;
   private final BooleanBinding hasCurrentProject;
@@ -95,9 +114,13 @@ public class UIStateServiceImpl implements UIStateService {
   private final BooleanBinding isCreateEntityButtonVisible;
   private final BooleanBinding isLibraryContentBrowser;
 
+  private final Resource popupSelectorMenuFxml;
+  private final Resource popupActionMenuFxml;
   private final String defaultIsLabFeatureEnabled;
   private final ObjectProperty<ProgramSequence> currentProgramSequence = new SimpleObjectProperty<>();
   private final ObservableList<GridChoice> programEditorGridChoices;
+  private final ApplicationContext ac;
+  private final ThemeService themeService;
   private final ObservableList<ZoomChoice> programEditorZoomChoices;
   private final ObjectProperty<GridChoice> programEditorGrid = new SimpleObjectProperty<>();
   private final ObjectProperty<ZoomChoice> programEditorZoom = new SimpleObjectProperty<>();
@@ -105,18 +128,26 @@ public class UIStateServiceImpl implements UIStateService {
   private final ObjectProperty<ProgramEditorMode> programEditorMode = new SimpleObjectProperty<>();
 
   public UIStateServiceImpl(
+    @Value("classpath:/views/content/common/popup-selector-menu.fxml") Resource popupSelectorMenuFxml,
+    @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource popupActionMenuFxml,
     @Value("${lab.feature.enabled}") String defaultIsLabFeatureEnabled,
     @Value("${programEditor.baseSizePerBeat}") int programEditorBaseSizePerBeat,
     @Value("#{'${programEditor.gridChoices}'.split(',')}") List<Double> programEditorGridChoices,
     @Value("${programEditor.gridChoiceDefault}") Double programEditorGridChoiceDefault,
     @Value("#{'${programEditor.zoomChoices}'.split(',')}") List<Double> programEditorZoomChoices,
     @Value("${programEditor.zoomChoiceDefault}") Double programEditorZoomChoiceDefault,
+    ApplicationContext ac,
+    ThemeService themeService,
     FabricationService fabricationService,
     ProjectService projectService
   ) {
+    this.popupSelectorMenuFxml = popupSelectorMenuFxml;
+    this.popupActionMenuFxml = popupActionMenuFxml;
     this.defaultIsLabFeatureEnabled = defaultIsLabFeatureEnabled;
     this.programEditorBaseSizePerBeat = programEditorBaseSizePerBeat;
     this.programEditorGridChoices = FXCollections.observableArrayList(programEditorGridChoices.stream().map(GridChoice::new).toList());
+    this.ac = ac;
+    this.themeService = themeService;
     programEditorGrid.set(new GridChoice(programEditorGridChoiceDefault));
     this.programEditorZoomChoices = FXCollections.observableArrayList(programEditorZoomChoices.stream().map(ZoomChoice::new).toList());
     programEditorZoom.set(new ZoomChoice(programEditorZoomChoiceDefault));
@@ -599,6 +630,61 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public BooleanProperty programEditorSnapProperty() {
     return programEditorSnap;
+  }
+
+  @Override
+  public <T> void launchModalMenu(
+    Resource fxml, Node launcher,
+    Consumer<T> setupController,
+    LaunchMenuPosition position,
+    boolean darkenBackground
+  ) {
+    try {
+      launcher.setDisable(true);
+      launcher.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, true);
+      Stage stage = new Stage(StageStyle.TRANSPARENT);
+      FXMLLoader loader = new FXMLLoader(fxml.getURL());
+      loader.setControllerFactory(ac::getBean);
+      Parent root = loader.load();
+      T controller = loader.getController();
+      setupController.accept(controller);
+      stage.setScene(new Scene(root));
+      stage.initOwner(themeService.getMainScene().getWindow());
+      stage.show();
+
+      Runnable onHidden = () -> {
+        launcher.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, false);
+        launcher.setDisable(false);
+      };
+      if (darkenBackground) {
+        UiUtils.darkenBackgroundUntilClosed(stage, launcher.getScene(), onHidden);
+      } else {
+        stage.setOnHidden(e -> onHidden.run());
+      }
+
+      UiUtils.closeWindowOnClickingAway(stage);
+      position.move(launcher.getScene().getWindow(), stage);
+
+    } catch (
+      IOException e) {
+      LOG.error("Failed to launch menu from {}! {}\n{}", fxml.getFilename(), e, StringUtils.formatStackTrace(e));
+    }
+
+  }
+
+  @Override
+  public void launchPopupSelectorMenu(Node launcher, Consumer<PopupSelectorMenuController> setupController) {
+    launchModalMenu(popupSelectorMenuFxml, launcher, setupController, LaunchMenuPosition.from(launcher), false);
+  }
+
+  @Override
+  public void launchPopupActionMenu(Node launcher, Consumer<PopupActionMenuController> setupController) {
+    launchModalMenu(popupActionMenuFxml, launcher, setupController, LaunchMenuPosition.from(launcher), false);
+  }
+
+  @Override
+  public void launchQuickActionMenu(Node launcher, MouseEvent mouseEvent, Consumer<PopupActionMenuController> setupController) {
+    launchModalMenu(popupActionMenuFxml, launcher, setupController, LaunchMenuPosition.from(mouseEvent), false);
   }
 
   /**

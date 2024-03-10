@@ -1,5 +1,6 @@
 package io.xj.gui.controllers.content.program.edit_mode;
 
+import io.xj.gui.controllers.content.common.PopupActionMenuController;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
 import javafx.fxml.FXML;
@@ -83,17 +84,18 @@ TODO cleanup unused
     // TODO teardown
   }
 
-  /**
-   Handle pressed delete
-   */
-  @FXML
-  public void handlePressedDelete() {
-    handleDelete.run();
-  }
-
   public void handleCenterClicked(MouseEvent mouseEvent) {
-    if (mouseEvent.isSecondaryButtonDown()) {
-      LOG.info("Right Clicked");
+    if (mouseEvent.isSecondaryButtonDown() || mouseEvent.isControlDown()) {
+      uiStateService.launchQuickActionMenu(
+        container,
+        mouseEvent,
+        (PopupActionMenuController controller) -> controller.setup(
+          null,
+          null,
+          handleDelete,
+          null
+        )
+      );
 
     } else if (mouseEvent.getClickCount() == 2) {
       LOG.info("Double Clicked");

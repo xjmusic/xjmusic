@@ -3,7 +3,6 @@ package io.xj.gui.controllers.content.program.edit_mode;
 import io.xj.gui.controllers.content.common.PopupActionMenuController;
 import io.xj.gui.controllers.content.common.PopupSelectorMenuController;
 import io.xj.gui.services.ProjectService;
-import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.UiUtils;
 import io.xj.hub.enums.InstrumentType;
@@ -50,14 +49,11 @@ public class VoiceController {
   static final Logger LOG = LoggerFactory.getLogger(VoiceController.class);
   private final Collection<Runnable> unsubscriptions = new HashSet<>();
   private final Resource trackFxml;
-  private final Resource popupSelectorMenuFxml;
-  private final Resource popupActionMenuFxml;
   private final int trackHeight;
   private final int trackSpaceBetween;
   private final int voiceControlWidth;
   private final int trackControlWidth;
   private final ApplicationContext ac;
-  private final ThemeService themeService;
   private final ProjectService projectService;
   private final UIStateService uiStateService;
   private final Runnable updateVoiceName;
@@ -120,26 +116,20 @@ public class VoiceController {
 
   public VoiceController(
     @Value("classpath:/views/content/program/edit_mode/voice-track.fxml") Resource trackFxml,
-    @Value("classpath:/views/content/common/popup-selector-menu.fxml") Resource popupSelectorMenuFxml,
-    @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource popupActionMenuFxml,
     @Value("${programEditor.trackHeight}") int trackHeight,
     @Value("${programEditor.trackSpaceBetween}") int trackSpaceBetween,
     @Value("${programEditor.voiceControlWidth}") int voiceControlWidth,
     @Value("${programEditor.trackControlWidth}") int trackControlWidth,
     ApplicationContext ac,
-    ThemeService themeService,
     ProjectService projectService,
     UIStateService uiStateService
   ) {
     this.trackFxml = trackFxml;
-    this.popupSelectorMenuFxml = popupSelectorMenuFxml;
-    this.popupActionMenuFxml = popupActionMenuFxml;
     this.trackHeight = trackHeight;
     this.trackSpaceBetween = trackSpaceBetween;
     this.voiceControlWidth = voiceControlWidth;
     this.trackControlWidth = trackControlWidth;
     this.ac = ac;
-    this.themeService = themeService;
     this.projectService = projectService;
     this.uiStateService = uiStateService;
 
@@ -239,8 +229,9 @@ public class VoiceController {
 
   @FXML
   void handlePressedVoiceActionLauncher() {
-    UiUtils.launchModalMenu(voiceActionLauncher, popupActionMenuFxml, ac, themeService.getMainScene().getWindow(),
-      true, (PopupActionMenuController controller) -> controller.setup(
+    uiStateService.launchPopupActionMenu(
+      voiceActionLauncher,
+      (PopupActionMenuController controller) -> controller.setup(
         "New Voice",
         null,
         handleDeleteVoice,
@@ -251,8 +242,9 @@ public class VoiceController {
 
   @FXML
   void handlePressedPatternSelectorLauncher() {
-    UiUtils.launchModalMenu(patternSelectorLauncher, popupSelectorMenuFxml, ac, themeService.getMainScene().getWindow(),
-      true, (PopupSelectorMenuController controller) -> controller.setup(
+    uiStateService.launchPopupSelectorMenu(
+      patternSelectorLauncher,
+      (PopupSelectorMenuController controller) -> controller.setup(
         projectService.getContent().getPatternsOfSequenceAndVoice(uiStateService.currentProgramSequenceProperty().get().getId(), programVoiceId),
         this::handleSelectPattern
       )
@@ -261,8 +253,9 @@ public class VoiceController {
 
   @FXML
   void handlePressedPatternActionLauncher() {
-    UiUtils.launchModalMenu(patternActionLauncher, popupActionMenuFxml, ac, themeService.getMainScene().getWindow(),
-      true, (PopupActionMenuController controller) -> controller.setup(
+    uiStateService.launchPopupActionMenu(
+      patternActionLauncher,
+      (PopupActionMenuController controller) -> controller.setup(
         "New Pattern",
         this::handleCreatePattern,
         patternId.isNotNull().get() ? this::handleDeletePattern : null,

@@ -17,6 +17,7 @@ import io.xj.gui.modes.ZoomChoice;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.utils.LaunchMenuPosition;
 import io.xj.gui.utils.UiUtils;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
@@ -60,8 +61,6 @@ public class ProgramEditorController extends ProjectController {
   static final Logger LOG = LoggerFactory.getLogger(ProgramEditorController.class);
   private static final Set<ProgramType> PROGRAM_TYPES_WITH_BINDINGS = Set.of(ProgramType.Main, ProgramType.Macro);
   private final Resource configFxml;
-  private final Resource popupSelectorMenuFxml;
-  private final Resource popupActionMenuFxml;
   private final Resource entityMemesFxml;
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>(null);
   private final ObjectProperty<UUID> sequenceId = new SimpleObjectProperty<>();
@@ -159,8 +158,6 @@ public class ProgramEditorController extends ProjectController {
   public ProgramEditorController(
     @Value("classpath:/views/content/program/program-editor.fxml") Resource fxml,
     @Value("classpath:/views/content/program/program-config.fxml") Resource configFxml,
-    @Value("classpath:/views/content/common/popup-selector-menu.fxml") Resource popupSelectorMenuFxml,
-    @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource popupActionMenuFxml,
     @Value("classpath:/views/content/common/entity-memes.fxml") Resource entityMemesFxml,
     ApplicationContext ac,
     ThemeService themeService,
@@ -172,8 +169,6 @@ public class ProgramEditorController extends ProjectController {
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.configFxml = configFxml;
-    this.popupSelectorMenuFxml = popupSelectorMenuFxml;
-    this.popupActionMenuFxml = popupActionMenuFxml;
     this.entityMemesFxml = entityMemesFxml;
     this.cmdModalController = cmdModalController;
     this.editController = editController;
@@ -281,15 +276,16 @@ public class ProgramEditorController extends ProjectController {
         uiStateService.programEditorModeProperty().set(null);
     });
     UiUtils.toggleGroupPreventDeselect(editorModeToggleGroup);
-    
+
     container.maxWidthProperty().bind(container.getScene().getWindow().widthProperty());
     container.maxHeightProperty().bind(container.getScene().getWindow().heightProperty());
   }
 
   @FXML
   void handlePressedSequenceSelectorLauncher() {
-    UiUtils.launchModalMenu(sequenceSelectorLauncher, popupSelectorMenuFxml, ac, themeService.getMainScene().getWindow(),
-      true, (PopupSelectorMenuController controller) -> controller.setup(
+    uiStateService.launchPopupSelectorMenu(
+      sequenceSelectorLauncher,
+      (PopupSelectorMenuController controller) -> controller.setup(
         projectService.getContent().getSequencesOfProgram(programId.get()),
         (sequenceId) -> uiStateService.currentProgramSequenceProperty().set(projectService.getContent().getProgramSequence(sequenceId).orElse(null))
       )
@@ -298,8 +294,9 @@ public class ProgramEditorController extends ProjectController {
 
   @FXML
   void handlePressedSequenceActionLauncher() {
-    UiUtils.launchModalMenu(sequenceActionLauncher, popupActionMenuFxml, ac, themeService.getMainScene().getWindow(),
-      true, (PopupActionMenuController controller) -> controller.setup(
+    uiStateService.launchPopupActionMenu(
+      sequenceActionLauncher,
+      (PopupActionMenuController controller) -> controller.setup(
         "New Sequence",
         this::handleCreateSequence,
         programHasSequences.get() ? this::handleDeleteSequence : null,
@@ -324,9 +321,12 @@ public class ProgramEditorController extends ProjectController {
 
   @FXML
   void handleEditConfig() {
-    UiUtils.launchModalMenu(configButton, configFxml, ac, themeService.getMainScene().getWindow(), false,
-      (ProgramConfigController controller) -> controller.setup(programId.get())
-    );
+    uiStateService.launchModalMenu(
+      configFxml,
+      configButton,
+      (ProgramConfigController controller) -> controller.setup(programId.get()),
+      LaunchMenuPosition.from(configButton),
+      true);
   }
 
   /**

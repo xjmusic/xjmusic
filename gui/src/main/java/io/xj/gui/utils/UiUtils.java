@@ -2,15 +2,11 @@
 
 package io.xj.gui.utils;
 
-import io.xj.hub.util.StringUtils;
 import jakarta.annotation.Nullable;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.TextField;
@@ -20,8 +16,6 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -32,9 +26,6 @@ import java.awt.Toolkit;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
-
-import static io.xj.gui.services.UIStateService.OPEN_PSEUDO_CLASS;
 
 public interface UiUtils {
   Logger LOG = LoggerFactory.getLogger(UiUtils.class);
@@ -129,22 +120,6 @@ public interface UiUtils {
   }
 
   /**
-   Positions the stage scene centered below the mouse click.
-   <p>
-   Constrain the position of the scene to within the window
-
-   @param child  of which to set position
-   @param parent to reference for mouse position
-   */
-  static void setStagePositionBelowParentNode(Stage child, Node parent) {
-    var p = parent.localToScene(0, 0);
-    var x = parent.getScene().getWindow().getX() + p.getX() + parent.getBoundsInLocal().getWidth() / 2 - child.getWidth() / 2;
-    var y = parent.getScene().getWindow().getY() + p.getY() + parent.getBoundsInLocal().getHeight();
-    child.setX(Math.min(parent.getScene().getWindow().getX() + parent.getScene().getWindow().getWidth() - child.getWidth(), Math.max(parent.getScene().getWindow().getX(), x)));
-    child.setY(Math.min(parent.getScene().getWindow().getY() + parent.getScene().getWindow().getHeight() - child.getHeight(), Math.max(parent.getScene().getWindow().getY(), y)));
-  }
-
-  /**
    Darkens the background of the given stage until it is closed.
 
    @param stage       behind which to darken background
@@ -197,46 +172,6 @@ public interface UiUtils {
         toggleGroup.selectToggle(ov);
       }
     });
-  }
-
-  /**
-   Utility to launch a menu controller
-   - apply the pseudo-class :open to the button and remove it after the menu closes
-   - darken the background behind the menu
-   - position the menu behind the button
-
-   @param <T>                 the type of the controller
-   @param button              that opened the menu
-   @param fxml                comprising the menu contents
-   @param ac                  application context
-   @param window              the window to which the menu is attached
-   @param positionUnderButton whether to position the menu under the button
-   @param setupController     function to set up the controller
-   */
-  static <T> void launchModalMenu(Button button, Resource fxml, ApplicationContext ac, Window window, boolean positionUnderButton, Consumer<T> setupController) {
-    try {
-      button.setDisable(true);
-      button.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, true);
-      Stage stage = new Stage(StageStyle.TRANSPARENT);
-      FXMLLoader loader = new FXMLLoader(fxml.getURL());
-      loader.setControllerFactory(ac::getBean);
-      Parent root = loader.load();
-      T controller = loader.getController();
-      setupController.accept(controller);
-      stage.setScene(new Scene(root));
-      stage.initOwner(window);
-      stage.show();
-      darkenBackgroundUntilClosed(stage, button.getScene(),
-        () -> {
-          button.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, false);
-          button.setDisable(false);
-        });
-      closeWindowOnClickingAway(stage);
-      if (positionUnderButton) UiUtils.setStagePositionBelowParentNode(stage, button);
-
-    } catch (IOException e) {
-      LOG.error("Failed to launch menu from {}! {}\n{}", fxml.getFilename(), e, StringUtils.formatStackTrace(e));
-    }
   }
 
   /**

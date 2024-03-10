@@ -4,7 +4,6 @@ import io.xj.gui.controllers.content.common.PopupActionMenuController;
 import io.xj.gui.modes.GridChoice;
 import io.xj.gui.modes.ZoomChoice;
 import io.xj.gui.services.ProjectService;
-import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.UiUtils;
 import io.xj.hub.tables.pojos.ProgramSequence;
@@ -55,9 +54,7 @@ public class VoiceTrackController {
   private final Collection<Runnable> unsubscriptions = new HashSet<>();
   private final ObservableList<VoiceTrackEventController> eventControllers = FXCollections.observableArrayList();
   private final BooleanProperty isMousePressedInTimeline = new SimpleBooleanProperty(false);
-  private final ThemeService themeService;
   private final Resource eventFxml;
-  private final Resource popupActionMenuFxml;
   private final int trackHeight;
   private final int trackControlWidth;
   private final ApplicationContext ac;
@@ -95,20 +92,16 @@ public class VoiceTrackController {
 
   public VoiceTrackController(
     @Value("classpath:/views/content/program/edit_mode/voice-track-event.fxml") Resource eventFxml,
-    @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource popupActionMenuFxml,
     @Value("${programEditor.trackHeight}") int trackHeight,
     @Value("${programEditor.trackControlWidth}") int trackControlWidth,
     ApplicationContext ac,
-    ThemeService themeService,
     ProjectService projectService,
     UIStateService uiStateService
   ) {
     this.eventFxml = eventFxml;
-    this.popupActionMenuFxml = popupActionMenuFxml;
     this.trackHeight = trackHeight;
     this.trackControlWidth = trackControlWidth;
     this.ac = ac;
-    this.themeService = themeService;
     this.projectService = projectService;
     this.uiStateService = uiStateService;
 
@@ -175,13 +168,12 @@ public class VoiceTrackController {
 
   @FXML
   void handlePressedTrackActionLauncher() {
-    UiUtils.launchModalMenu(trackActionLauncher, popupActionMenuFxml, ac, themeService.getMainScene().getWindow(),
-      true, (PopupActionMenuController controller) -> controller.setup(
-        null,
-        null,
-        handleDeleteTrack,
-        null
-      )
+    uiStateService.launchPopupActionMenu(trackActionLauncher, (PopupActionMenuController controller) -> controller.setup(
+      null,
+      null,
+      handleDeleteTrack,
+      null
+    )
     );
   }
 
@@ -219,7 +211,8 @@ public class VoiceTrackController {
       x / (sizePerBeat * zoom);
 
     // if position is outside of the pattern range, don't add an event
-    if (position < 0 || position >= getCurrentPattern().map(ProgramSequencePattern::getTotal).map(Short::intValue).orElse(0)) return;
+    if (position < 0 || position >= getCurrentPattern().map(ProgramSequencePattern::getTotal).map(Short::intValue).orElse(0))
+      return;
 
     // add a new event at the clicked position
     try {

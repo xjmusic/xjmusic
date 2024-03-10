@@ -1,5 +1,7 @@
 package io.xj.gui.services;
 
+import io.xj.gui.controllers.content.common.PopupActionMenuController;
+import io.xj.gui.controllers.content.common.PopupSelectorMenuController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.GridChoice;
 import io.xj.gui.modes.ProgramEditorMode;
@@ -7,6 +9,7 @@ import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.modes.ViewStatusMode;
 import io.xj.gui.modes.ZoomChoice;
+import io.xj.gui.utils.LaunchMenuPosition;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
@@ -14,21 +17,23 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.work.FabricationState;
-import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
 import javafx.collections.ObservableList;
 import javafx.css.PseudoClass;
+import javafx.scene.Node;
+import javafx.scene.input.MouseEvent;
+import org.springframework.core.io.Resource;
 
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  This is an intermediary to compute the state of the UI based on the state of the application.
@@ -184,7 +189,7 @@ public interface UIStateService extends ReadyAfterBoot {
   ObjectProperty<Program> currentProgramProperty();
 
   /**
-   * @return the sequences of the current program
+   @return the sequences of the current program
    */
   ObservableList<ProgramSequence> sequencesOfCurrentProgramProperty();
 
@@ -287,7 +292,7 @@ public interface UIStateService extends ReadyAfterBoot {
   BooleanProperty isLabFeatureEnabledProperty();
 
   /**
-   * @return property of the current program editor mode
+   @return property of the current program editor mode
    */
   ObjectProperty<ProgramEditorMode> programEditorModeProperty();
 
@@ -322,7 +327,53 @@ public interface UIStateService extends ReadyAfterBoot {
   ObjectProperty<ZoomChoice> programEditorZoomProperty();
 
   /**
-   * @return the property for the snap setting for the program editor
+   @return the property for the snap setting for the program editor
    */
   BooleanProperty programEditorSnapProperty();
+
+  /**
+   Utility to launch a menu controller
+   - apply the pseudo-class :open to the button and remove it after the menu closes
+   - darken the background behind the menu
+   - position the menu behind the button
+
+   @param <T>              the type of the controller
+   @param fxml             comprising the menu contents
+   @param launcher         that opened the menu
+   @param setupController  function to set up the controller
+   @param position         target location for launcher menu
+   @param darkenBackground whether to darken the background while the modal is open
+   */
+  <T> void launchModalMenu(
+    Resource fxml,
+    Node launcher,
+    Consumer<T> setupController,
+    LaunchMenuPosition position,
+    boolean darkenBackground
+  );
+
+  /**
+   Launch the popup selector menu from the given button
+
+   @param launcher        source of the popup
+   @param setupController setup the selector menu controller
+   */
+  void launchPopupSelectorMenu(Node launcher, Consumer<PopupSelectorMenuController> setupController);
+
+  /**
+   Launch the popup action menu from the given button
+
+   @param launcher        source of the popup
+   @param setupController setup the action menu controller
+   */
+  void launchPopupActionMenu(Node launcher, Consumer<PopupActionMenuController> setupController);
+
+  /**
+   Launch the quick action menu from the given button
+
+   @param launcher        source of the popup
+   @param mouseEvent      source of the menu launch
+   @param setupController setup the action menu controller
+   */
+  void launchQuickActionMenu(Node launcher, MouseEvent mouseEvent, Consumer<PopupActionMenuController> setupController);
 }
