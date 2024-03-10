@@ -58,9 +58,9 @@
       <Label minWidth="50.0" text="STATE" styleClass="program-editor-field-label"/>
       <ComboBox minWidth="120.0" fx:id="programStateChooser"/>
       <Label minWidth="30.0" text="KEY" styleClass="program-editor-field-label"/>
-      <TextField fx:id="programKeyField" minWidth="60.0"/>
+      <TextField fx:id="programKeyField" minWidth="40.0"/>
       <Label minWidth="50.0" text="TEMPO" styleClass="program-editor-field-label"/>
-      <TextField minWidth="7045.0" fx:id="programTempoField"/>
+      <TextField minWidth="40.0" fx:id="programTempoField"/>
     </HBox>
     <StackPane fx:id="programMemeContainer">
       <HBox.hgrow>
@@ -88,14 +88,14 @@
           </ImageView>
         </graphic>
       </Button>
-      <HBox fx:id="currentSequenceGroup" alignment="CENTER_LEFT" spacing="10">
+      <HBox fx:id="currentSequenceGroup" alignment="CENTER_LEFT" spacing="5">
         <TextField fx:id="sequenceNameField" minWidth="173.0"/>
         <Label minWidth="50" text="TOTAL" styleClass="program-editor-field-label"/>
-        <TextField minWidth="45" fx:id="sequenceTotalField"/>
+        <TextField minWidth="40" fx:id="sequenceTotalField"/>
         <Label minWidth="30" text="KEY" styleClass="program-editor-field-label"/>
-        <TextField minWidth="45" fx:id="sequenceKeyField"/>
+        <TextField minWidth="40" fx:id="sequenceKeyField"/>
         <Label minWidth="70" text="INTENSITY" styleClass="program-editor-field-label"/>
-        <TextField minWidth="45" fx:id="sequenceIntensityField"/>
+        <TextField minWidth="40" fx:id="sequenceIntensityField"/>
       </HBox>
       <Label fx:id="noSequencesLabel" text="NO SEQUENCES" styleClass="no-sequences-label"/>
       <HBox fx:id="timelineOptionsGroup" alignment="CENTER_LEFT" spacing="10">

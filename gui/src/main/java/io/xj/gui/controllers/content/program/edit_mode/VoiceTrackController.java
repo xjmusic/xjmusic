@@ -311,8 +311,6 @@ public class VoiceTrackController {
       FXMLLoader loader = new FXMLLoader(eventFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      AnchorPane.setTopAnchor(root, 0.0);
-      AnchorPane.setBottomAnchor(root, 0.0);
       VoiceTrackEventController controller = loader.getController();
       eventControllers.add(controller);
       controller.setup(event.getId(),

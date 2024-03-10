@@ -2,13 +2,12 @@ package io.xj.gui.controllers.content.program.edit_mode;
 
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
-import io.xj.hub.util.ValueUtils;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -19,6 +18,7 @@ import java.util.UUID;
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class VoiceTrackEventController {
   static final Logger LOG = LoggerFactory.getLogger(VoiceTrackEventController.class);
+  private final int trackHeight;
   private final ProjectService projectService;
   private final UIStateService uiStateService;
   private UUID eventId;
@@ -41,24 +41,14 @@ TODO cleanup unused
   AnchorPane container;
 
   @FXML
-  Button deleteButton;
-
-  @FXML
-  Label positionLabel;
-
-  @FXML
-  Label durationLabel;
-
-  @FXML
-  Label velocityLabel;
-
-  @FXML
   Label tonesLabel;
 
   public VoiceTrackEventController(
+    @Value("${programEditor.trackHeight}") int trackHeight,
     ProjectService projectService,
     UIStateService uiStateService
   ) {
+    this.trackHeight = trackHeight;
     this.projectService = projectService;
     this.uiStateService = uiStateService;
   }
@@ -76,10 +66,9 @@ TODO cleanup unused
     var zoom = uiStateService.programEditorZoomProperty().get().value();
     var baseSizePerBeat = uiStateService.getProgramEditorBaseSizePerBeat();
     container.setLayoutX(baseSizePerBeat * event.getPosition() * zoom);
+    container.setPrefWidth(baseSizePerBeat * event.getDuration() * zoom);
+    container.setPrefHeight(trackHeight);
 
-    positionLabel.setText(ValueUtils.limitDecimalPrecision(Double.valueOf(event.getPosition())).toString());
-    durationLabel.setText(ValueUtils.limitDecimalPrecision(Double.valueOf(event.getDuration())).toString());
-    velocityLabel.setText(ValueUtils.limitDecimalPrecision(Double.valueOf(event.getVelocity())).toString());
     tonesLabel.setText(event.getTones());
   }
 
