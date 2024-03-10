@@ -25,7 +25,6 @@ import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.util.StringUtils;
-import io.xj.nexus.NexusException;
 import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.project.ProjectState;
 import jakarta.annotation.Nullable;
@@ -339,7 +338,7 @@ public class ProjectServiceImpl implements ProjectService {
       didUpdate(type, true);
       LOG.info("Deleted {}[{}]", type.getSimpleName(), id);
     } catch (Exception e) {
-      LOG.error("Could not delete {}[{}]! {}\n{}", type.getSimpleName(), id, e, StringUtils.formatStackTrace(e.getCause()));
+      LOG.error("Could not delete {}[{}]! {}\n{}", type.getSimpleName(), id, e, StringUtils.formatStackTrace(e));
     }
   }
 

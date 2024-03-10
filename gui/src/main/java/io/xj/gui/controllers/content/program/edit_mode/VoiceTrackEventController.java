@@ -4,12 +4,15 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseDragEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -45,6 +48,7 @@ TODO cleanup unused
 
   public VoiceTrackEventController(
     @Value("${programEditor.trackHeight}") int trackHeight,
+    @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource popupActionMenuFxml,
     ProjectService projectService,
     UIStateService uiStateService
   ) {
@@ -85,6 +89,61 @@ TODO cleanup unused
   @FXML
   public void handlePressedDelete() {
     handleDelete.run();
+  }
+
+  public void handleCenterClicked(MouseEvent mouseEvent) {
+    if (mouseEvent.isSecondaryButtonDown()) {
+      LOG.info("Right Clicked");
+
+    } else if (mouseEvent.getClickCount() == 2) {
+      LOG.info("Double Clicked");
+    }
+
+  }
+
+  public void handleCenterDragEntered(MouseDragEvent mouseDragEvent) {
+    LOG.info("Center: Mouse Drag Entered");
+    // TODO enter event move state
+  }
+
+  public void handleCenterDragged(MouseEvent mouseEvent) {
+    LOG.info("Center: Mouse Dragged");
+    // TODO move event
+  }
+
+  public void handleCenterDragExited(MouseDragEvent mouseDragEvent) {
+    LOG.info("Center: Mouse Drag Exited");
+    // TODO exit event move state
+  }
+
+  public void handleLeftDragEntered(MouseDragEvent mouseDragEvent) {
+    LOG.info("Left: Mouse Drag Entered");
+    // TODO enter event resize left side state
+  }
+
+  public void handleLeftDragged(MouseEvent mouseEvent) {
+    LOG.info("Left: Mouse Dragged");
+    // TODO resize event left side
+  }
+
+  public void handleLeftDragExited(MouseDragEvent mouseDragEvent) {
+    LOG.info("Left: Mouse Drag Exited");
+    // TODO exit event resize left side state
+  }
+
+  public void handleRightDragEntered(MouseDragEvent mouseDragEvent) {
+    LOG.info("Right: Mouse Drag Entered");
+    // TODO enter event resize right side state
+  }
+
+  public void handleRightDragged(MouseEvent mouseEvent) {
+    LOG.info("Right: Mouse Dragged");
+    // TODO resize event right side
+  }
+
+  public void handleRightDragExited(MouseDragEvent mouseDragEvent) {
+    LOG.info("Right: Mouse Drag Exited");
+    // TODO exit event resize right side state
   }
 
   /*

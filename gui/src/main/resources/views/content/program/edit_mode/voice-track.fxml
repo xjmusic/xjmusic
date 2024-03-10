@@ -58,7 +58,7 @@
   <StackPane HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
     <Pane fx:id="timelineBackground" styleClass="track-timeline-background">
     </Pane>
-    <AnchorPane fx:id="timelineEventsContainer" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" onMouseClicked="#handlePressedTimeline">
+    <AnchorPane fx:id="timelineEventsContainer" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" onMousePressed="#handleMousePressedTimeline" onMouseReleased="#handleMouseReleasedTimeline">
       <cursor>
         <Cursor fx:constant="CROSSHAIR"/>
       </cursor>

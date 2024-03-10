@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -18,7 +17,9 @@
       AnchorPane.bottomAnchor="0"
       minWidth="5"
       maxWidth="5"
-  >
+      onMouseDragEntered="#handleLeftDragEntered"
+      onMouseDragged="#handleLeftDragged"
+      onMouseDragExited="#handleLeftDragExited">
     <cursor>
       <Cursor fx:constant="W_RESIZE"/>
     </cursor>
@@ -30,7 +31,9 @@
       AnchorPane.bottomAnchor="0"
       minWidth="5"
       maxWidth="5"
-  >
+      onMouseDragEntered="#handleRightDragEntered"
+      onMouseDragged="#handleRightDragged"
+      onMouseDragExited="#handleRightDragExited">
     <cursor>
       <Cursor fx:constant="E_RESIZE"/>
     </cursor>
@@ -41,7 +44,11 @@
          AnchorPane.rightAnchor="5"
          AnchorPane.topAnchor="0"
          AnchorPane.bottomAnchor="0"
-         alignment="CENTER">
+         alignment="CENTER"
+         onMouseClicked="#handleCenterClicked"
+         onMouseDragEntered="#handleCenterDragEntered"
+         onMouseDragged="#handleCenterDragged"
+         onMouseDragExited="#handleCenterDragExited">
     <cursor>
       <Cursor fx:constant="OPEN_HAND"/>
     </cursor>

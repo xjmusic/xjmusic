@@ -12,8 +12,11 @@ import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.util.StringUtils;
+import jakarta.annotation.Nullable;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -41,6 +44,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -49,6 +54,7 @@ public class VoiceTrackController {
   static final Logger LOG = LoggerFactory.getLogger(VoiceTrackController.class);
   private final Collection<Runnable> unsubscriptions = new HashSet<>();
   private final ObservableList<VoiceTrackEventController> eventControllers = FXCollections.observableArrayList();
+  private final BooleanProperty isMousePressedInTimeline = new SimpleBooleanProperty(false);
   private final ThemeService themeService;
   private final Resource eventFxml;
   private final Resource popupActionMenuFxml;
@@ -185,9 +191,18 @@ public class VoiceTrackController {
   }
 
   @FXML
-  void handlePressedTimeline(MouseEvent mouseEvent) {
+  void handleMousePressedTimeline(MouseEvent mouseEvent) {
+    // keep track of whether a mouse press originated on the container as opposed to its children
+    isMousePressedInTimeline.set(mouseEvent.getTarget() == timelineEventsContainer);
+  }
+
+
+  @FXML
+  void handleMouseReleasedTimeline(MouseEvent mouseEvent) {
     // ignore clicks on children of the timeline container
     if (mouseEvent.getTarget() != timelineEventsContainer) return;
+    if (isMousePressedInTimeline.not().get()) return;
+    isMousePressedInTimeline.set(false);
 
     if (patternId.isNull().get()) {
       projectService.showWarningAlert("No Pattern", "Please create a pattern to add events", "You must create a pattern before adding events");
@@ -202,6 +217,9 @@ public class VoiceTrackController {
     double position = uiStateService.programEditorSnapProperty().get() ?
       grid * Math.round(x / (sizePerBeat * zoom * grid)) :
       x / (sizePerBeat * zoom);
+
+    // if position is outside of the pattern range, don't add an event
+    if (position < 0 || position >= getCurrentPattern().map(ProgramSequencePattern::getTotal).map(Short::intValue).orElse(0)) return;
 
     // add a new event at the clicked position
     try {
@@ -227,14 +245,24 @@ public class VoiceTrackController {
    Populate the track timeline
    */
   private void setupTimeline() {
-    setupTimelineBackground();
+    setupTimelineBackground(getCurrentPattern().orElse(null));
     setupTimelineEvents();
+  }
+
+  private Optional<ProgramSequencePattern> getCurrentPattern() {
+    if (patternId.isNull().get()) return Optional.empty();
+    Optional<ProgramSequencePattern> pattern = projectService.getContent().getProgramSequencePattern(patternId.get());
+
+    // In this case, the pattern has been deleted
+    if (pattern.isEmpty()) patternId.set(null);
+
+    return pattern;
   }
 
   /**
    Draw the timeline background
    */
-  private void setupTimelineBackground() {
+  private void setupTimelineBackground(@Nullable ProgramSequencePattern pattern) {
     // clear background items
     timelineBackground.getChildren().clear();
 
@@ -257,8 +285,7 @@ public class VoiceTrackController {
     timelineBackground.setMaxWidth(width);
 
     // draw active region for the current pattern total
-    if (patternId.isNotNull().get()) {
-      ProgramSequencePattern pattern = projectService.getContent().getProgramSequencePattern(patternId.get()).orElseThrow(() -> new RuntimeException("Pattern not found!"));
+    if (Objects.nonNull(pattern)) {
       Rectangle rectangle = new Rectangle();
       rectangle.setWidth(sizePerBeat * zoom * pattern.getTotal());
       rectangle.setHeight(trackHeight);
