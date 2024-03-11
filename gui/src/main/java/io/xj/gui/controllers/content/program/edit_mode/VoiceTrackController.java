@@ -169,11 +169,11 @@ public class VoiceTrackController {
   @FXML
   void handlePressedTrackActionLauncher() {
     uiStateService.launchPopupActionMenu(trackActionLauncher, (PopupActionMenuController controller) -> controller.setup(
-      null,
-      null,
-      handleDeleteTrack,
-      null
-    )
+        null,
+        null,
+        handleDeleteTrack,
+        null
+      )
     );
   }
 
@@ -203,14 +203,13 @@ public class VoiceTrackController {
 
     // get mouse X relative to clicked-on element
     double x = mouseEvent.getX();
-    double sizePerBeat = uiStateService.getProgramEditorBaseSizePerBeat();
-    double zoom = uiStateService.programEditorZoomProperty().get().value();
+    double beatWidth = uiStateService.programEditorZoomProperty().get().value() * uiStateService.getProgramEditorBaseSizePerBeat();
     double grid = uiStateService.programEditorGridProperty().get().value();
     double position = uiStateService.programEditorSnapProperty().get() ?
-      grid * Math.round(x / (sizePerBeat * zoom * grid)) :
-      x / (sizePerBeat * zoom);
+      grid * Math.round(x / (beatWidth * grid)) :
+      x / (beatWidth);
 
-    // if position is outside of the pattern range, don't add an event
+    // if position is outside the pattern range, don't add an event
     if (position < 0 || position >= getCurrentPattern().map(ProgramSequencePattern::getTotal).map(Short::intValue).orElse(0))
       return;
 
@@ -268,19 +267,18 @@ public class VoiceTrackController {
 
     // variables
     int sequenceTotal = uiStateService.currentProgramSequenceProperty().get().getTotal();
-    int sizePerBeat = uiStateService.getProgramEditorBaseSizePerBeat();
-    double zoom = uiStateService.programEditorZoomProperty().get().value();
+    double beatWidth = uiStateService.getProgramEditorBaseSizePerBeat() * uiStateService.programEditorZoomProperty().get().value();
     double grid = uiStateService.programEditorGridProperty().get().value();
 
     // compute the total width
-    var width = sequenceTotal * sizePerBeat * zoom;
+    var width = sequenceTotal * beatWidth;
     timelineBackground.setMinWidth(width);
     timelineBackground.setMaxWidth(width);
 
     // draw active region for the current pattern total
     if (Objects.nonNull(pattern)) {
       Rectangle rectangle = new Rectangle();
-      rectangle.setWidth(sizePerBeat * zoom * pattern.getTotal());
+      rectangle.setWidth(beatWidth * pattern.getTotal());
       rectangle.setHeight(trackHeight);
       rectangle.setFill(Color.valueOf("#353535"));
       timelineBackground.getChildren().add(rectangle);
@@ -289,7 +287,7 @@ public class VoiceTrackController {
     // draw vertical grid lines
     double x;
     for (double b = 0; b < sequenceTotal; b += grid) {
-      x = b * sizePerBeat * zoom;
+      x = b * beatWidth;
       Line gridLine = new Line();
       gridLine.setStroke(b % 1 == 0 ? Color.valueOf("#505050") : Color.valueOf("#3d3d3d"));
       gridLine.setStrokeWidth(2);

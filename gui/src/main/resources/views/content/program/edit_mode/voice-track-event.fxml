@@ -17,9 +17,8 @@
       AnchorPane.bottomAnchor="0"
       minWidth="5"
       maxWidth="5"
-      onMouseDragEntered="#handleLeftDragEntered"
-      onMouseDragged="#handleLeftDragged"
-      onMouseDragExited="#handleLeftDragExited">
+      onMousePressed="#handleLeftPressed"
+      onMouseDragged="#handleLeftDragged">
     <cursor>
       <Cursor fx:constant="W_RESIZE"/>
     </cursor>
@@ -31,9 +30,8 @@
       AnchorPane.bottomAnchor="0"
       minWidth="5"
       maxWidth="5"
-      onMouseDragEntered="#handleRightDragEntered"
-      onMouseDragged="#handleRightDragged"
-      onMouseDragExited="#handleRightDragExited">
+      onMousePressed="#handleRightPressed"
+      onMouseDragged="#handleRightDragged">
     <cursor>
       <Cursor fx:constant="E_RESIZE"/>
     </cursor>
@@ -46,9 +44,8 @@
          AnchorPane.bottomAnchor="0"
          alignment="CENTER"
          onMouseClicked="#handleCenterClicked"
-         onMouseDragEntered="#handleCenterDragEntered"
-         onMouseDragged="#handleCenterDragged"
-         onMouseDragExited="#handleCenterDragExited">
+         onMousePressed="#handleCenterPressed"
+         onMouseDragged="#handleCenterDragged">
     <cursor>
       <Cursor fx:constant="OPEN_HAND"/>
     </cursor>
