@@ -12,6 +12,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
@@ -90,7 +91,7 @@ public class VoiceTrackEventController {
 
   @FXML
   void handleCenterClicked(MouseEvent mouse) {
-    if (mouse.isSecondaryButtonDown() || mouse.isControlDown()) {
+    if (mouse.getButton().equals(MouseButton.SECONDARY) || mouse.isControlDown()) {
       uiStateService.launchQuickActionMenu(
         container,
         mouse,
