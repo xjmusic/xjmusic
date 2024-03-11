@@ -739,8 +739,8 @@ class ProjectManagerImplTest {
 
     var program1_sequence_pattern1 = subject.getContent().getProgramSequencePattern(clone1.getId()).orElseThrow();
     var program1_sequence_pattern2 = subject.getContent().getProgramSequencePattern(clone2.getId()).orElseThrow();
-    assertEquals("Cloned Sequence Pattern 1", program1_sequence_pattern1.getName());
-    assertEquals("Cloned Sequence Pattern 2", program1_sequence_pattern2.getName());
+    assertEquals("Clone of decay", program1_sequence_pattern1.getName());
+    assertEquals("Clone of growth", program1_sequence_pattern2.getName());
     // Tracks same as original program 1 (none in program 2)
     var program1_voice_tracks = subject.getContent().getTracksOfProgram(UUID.fromString("7ad65895-27b8-453d-84f1-ef2a2a2f09eb")).stream().sorted(Comparator.comparing(ProgramVoiceTrack::getName)).toList();
     var program1_voice_track1 = program1_voice_tracks.get(0);
