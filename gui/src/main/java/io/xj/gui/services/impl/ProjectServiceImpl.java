@@ -74,6 +74,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.prefs.Preferences;
+import java.util.stream.Stream;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -341,6 +342,68 @@ public class ProjectServiceImpl implements ProjectService {
       LOG.error("Could not delete {}[{}]! {}\n{}", type.getSimpleName(), id, e, StringUtils.formatStackTrace(e));
     }
   }
+
+  @Override
+  public boolean deleteProgramVoiceTrack(UUID programVoiceTrackId) {
+    var trackEvents = projectManager.getContent().getEventsOfTrack(programVoiceTrackId);
+    if (!trackEvents.isEmpty() && !showConfirmationDialog("Delete Track", "Track contains events", "This operation will delete the track and all of its events. Do you want to proceed?")) {
+      return false;
+    }
+    try {
+      for (ProgramSequencePatternEvent event : trackEvents) deleteContent(event);
+      deleteContent(ProgramVoiceTrack.class, programVoiceTrackId);
+      LOG.info("Deleted ProgramVoiceTrack[{}]{}", programVoiceTrackId, trackEvents.isEmpty() ? "" : String.format(" and %d events", trackEvents.size()));
+    } catch (Exception e) {
+      LOG.error("Could not delete ProgramVoiceTrack[{}]! {}\n{}", programVoiceTrackId, e, StringUtils.formatStackTrace(e));
+    }
+    return true;
+  }
+
+  @Override
+  public boolean deleteProgramVoice(UUID programVoiceId) {
+    var voiceTracks = projectManager.getContent().getTracksOfVoice(programVoiceId);
+    var voicePatterns = projectManager.getContent().getPatternsOfVoice(programVoiceId);
+    var voiceTrackEvents = projectManager.getContent().getEventsOfProgram(programVoiceId).stream()
+      .filter(event -> voiceTracks.stream().anyMatch(track -> track.getId().equals(event.getProgramVoiceTrackId())))
+      .toList();
+    if (!voiceTracks.isEmpty() && !showConfirmationDialog("Delete Voice", "Voice contains tracks, patterns, or events", "This operation will delete the voice and all of its tracks, patterns, and events. Do you want to proceed?")) {
+      return false;
+    }
+    try {
+      for (ProgramVoiceTrack track : voiceTracks) deleteContent(track);
+      for (ProgramSequencePattern pattern : voicePatterns) deleteContent(pattern);
+      for (ProgramSequencePatternEvent event : voiceTrackEvents) deleteContent(event);
+      deleteContent(ProgramVoice.class, programVoiceId);
+      LOG.info("Deleted ProgramVoice[{}]{}", programVoiceId,
+        voiceTracks.isEmpty() ? "" : " and " + StringUtils.toProperCsvAnd(
+          Stream.of(
+            describeCount("track", voiceTracks.size()),
+            describeCount("pattern", voicePatterns.size()),
+            describeCount("event", voiceTrackEvents.size())
+          ).filter(Objects::nonNull).toList()
+        ));
+    } catch (Exception e) {
+      LOG.error("Could not delete ProgramVoiceTrack[{}]! {}\n{}", programVoiceId, e, StringUtils.formatStackTrace(e));
+    }
+    return true;
+  }
+
+  @Override
+  public boolean deleteProgramSequencePattern(UUID programSequencePatternId) {
+    var patternEvents = projectManager.getContent().getEventsOfPattern(programSequencePatternId);
+    if (!patternEvents.isEmpty() && !showConfirmationDialog("Delete Pattern", "Pattern contains events", "This operation will delete the pattern and all of its events. Do you want to proceed?")) {
+      return false;
+    }
+    try {
+      for (ProgramSequencePatternEvent event : patternEvents) deleteContent(event);
+      deleteContent(ProgramSequencePattern.class, programSequencePatternId);
+      LOG.info("Deleted ProgramSequencePattern[{}]{}", programSequencePatternId, patternEvents.isEmpty() ? "" : String.format(" and %d events", patternEvents.size()));
+    } catch (Exception e) {
+      LOG.error("Could not delete ProgramSequencePattern[{}]! {}\n{}", programSequencePatternId, e, StringUtils.formatStackTrace(e));
+    }
+    return true;
+  }
+
 
   @Override
   public ObservableListValue<ProjectDescriptor> recentProjectsProperty() {
@@ -890,4 +953,18 @@ public class ProjectServiceImpl implements ProjectService {
   private void removeFromRecentProjects(String projectFilePath) {
     this.recentProjects.get().removeIf(existing -> Objects.equals(existing.projectFilePath(), projectFilePath));
   }
+
+  /**
+   Describe a count of something, the name pluralized if necessary
+   Return null if count is zero
+
+   @param name  of the thing
+   @param count of the thing
+   @return description of the count
+   */
+  private @Nullable String describeCount(String name, long count) {
+    if (count == 0) return null;
+    return String.format("%d %s", count, count > 1 ? StringUtils.toPlural(name) : name);
+  }
+
 }

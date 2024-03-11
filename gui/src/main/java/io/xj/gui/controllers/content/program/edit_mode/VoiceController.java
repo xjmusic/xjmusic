@@ -219,12 +219,6 @@ public class VoiceController {
     for (VoiceTrackController controller : trackControllers) controller.teardown();
     tracksContainer.getChildren().clear();
     trackControllers.clear();
-
-    // todo teardown the tracks inside of here
-    // todo teardown the patterns inside of here
-    // todo teardown listeners
-
-    // todo teardown listener to pattern updates
   }
 
   @FXML
@@ -264,7 +258,6 @@ public class VoiceController {
     );
   }
 
-  // todo implement in FXML
   @FXML
   void handlePressedAddTrack() {
     try {
@@ -332,7 +325,9 @@ public class VoiceController {
    Delete a new pattern and select it
    */
   private void handleDeletePattern() {
-    projectService.deleteContent(ProgramSequencePattern.class, patternId.get());
+    if (!projectService.deleteProgramSequencePattern(patternId.get())) {
+      return;
+    }
     selectFirstPattern();
   }
 
@@ -364,14 +359,12 @@ public class VoiceController {
         programTrack.getId(),
         this::handlePressedAddTrack,
         () -> {
-          if (!projectService.getContent().getEventsOfTrack(programTrack.getId()).isEmpty()) {
-            projectService.showWarningAlert("Failure", "Found Events in Track", "Cannot delete track because it contains events.");
+          if (!projectService.deleteProgramVoiceTrack(programTrack.getId())) {
             return;
           }
           controller.teardown();
           trackControllers.remove(controller);
           tracksContainer.getChildren().remove(root);
-          projectService.deleteContent(programTrack);
         },
         patternId
       );

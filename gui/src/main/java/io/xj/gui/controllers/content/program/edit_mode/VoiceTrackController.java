@@ -227,10 +227,11 @@ public class VoiceTrackController {
    it's only visible if this track is the highest-order track for its voice
    */
   private void setupAddTrackButton() {
-    ProgramVoiceTrack track = projectService.getContent().getProgramVoiceTrack(programVoiceTrackId).orElseThrow(() -> new RuntimeException("Track not found!"));
-    var tracksForVoice = projectService.getContent().getTracksOfVoice(track.getProgramVoiceId());
+    Optional<ProgramVoiceTrack> track = projectService.getContent().getProgramVoiceTrack(programVoiceTrackId);
+    if (track.isEmpty()) return; // track has been deleted, and this function was run as a callback from the update
+    var tracksForVoice = projectService.getContent().getTracksOfVoice(track.get().getProgramVoiceId());
     float trackOrderMax = tracksForVoice.stream().map(ProgramVoiceTrack::getOrder).max(Float::compareTo).orElse(0f);
-    addTrackButton.setVisible(trackOrderMax == track.getOrder());
+    addTrackButton.setVisible(trackOrderMax == track.get().getOrder());
   }
 
   /**

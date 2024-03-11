@@ -151,6 +151,30 @@ public interface ProjectService {
   void deleteContent(Class<?> type, UUID id);
 
   /**
+   Delete a program voice. Show a confirmation dialog if the voice has tracks/patterns/events
+
+   @param programVoiceId the id of the voice to delete
+   @return true if the voice was deleted, false otherwise
+   */
+  boolean deleteProgramVoice(UUID programVoiceId);
+
+  /**
+   Delete a program sequence pattern. Show a confirmation dialog if the pattern has events
+
+   @param programSequencePatternId the id of the pattern to delete
+   @return true if the pattern was deleted, false otherwise
+   */
+  boolean deleteProgramSequencePattern(UUID programSequencePatternId);
+  
+  /**
+   Delete a program voice track. Show a confirmation dialog if the track has events
+
+   @param programVoiceTrackId the id of the track to delete
+   @return true if the track was deleted, false otherwise
+   */
+  boolean deleteProgramVoiceTrack(UUID programVoiceTrackId);
+
+  /**
    @return the list of recent projects
    */
   ObservableListValue<ProjectDescriptor> recentProjectsProperty();
