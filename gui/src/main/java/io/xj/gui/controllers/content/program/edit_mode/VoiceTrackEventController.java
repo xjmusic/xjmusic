@@ -124,7 +124,7 @@ public class VoiceTrackEventController {
   void handleCenterDragged(MouseEvent mouse) {
     double position = (double)
       Math.round(
-        Math.min(pattern.getTotal() - event.getDuration(),
+        Math.min(pattern.getTotal() - roundPositionToNearest.get(),
           Math.max(0,
             dragStartPosition.get() + (mouse.getScreenX() - dragStartMouseX.get()) / beatWidth.getValue()
           )
@@ -167,10 +167,8 @@ public class VoiceTrackEventController {
   void handleRightDragged(MouseEvent mouse) {
     double endPosition = (double)
       Math.round(
-        Math.min(pattern.getTotal(),
-          Math.max(event.getPosition(),
-            dragStartPosition.get() + dragStartDuration.get() + (mouse.getScreenX() - dragStartMouseX.get()) / beatWidth.getValue()
-          )
+        Math.max(event.getPosition(),
+          dragStartPosition.get() + dragStartDuration.get() + (mouse.getScreenX() - dragStartMouseX.get()) / beatWidth.getValue()
         ) / roundPositionToNearest.get()
       ) * roundPositionToNearest.get();
     double duration = endPosition - event.getPosition();
