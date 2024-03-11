@@ -326,7 +326,7 @@ public class ProgramEditorController extends ProjectController {
       configButton,
       (ProgramConfigController controller) -> controller.setup(programId.get()),
       LaunchMenuPosition.from(configButton),
-      true);
+      true, null);
   }
 
   /**

@@ -464,7 +464,7 @@
 }
 
 .voice-control-container {
--fx-background-color: #515151;
+  -fx-background-color: #515151;
 }
 
 .voice-pattern-container {
@@ -503,7 +503,6 @@
 }
 
 .config-editor {
-  -fx-font-family: "Roboto Mono";
 }
 
 .button.minimal {
@@ -544,8 +543,17 @@
   -fx-background-color: #292929;
 }
 
-.program-config-pane {
+.program-config-pane,
+.event-properties-pane {
   -fx-border-color: grey;
+  -fx-font-family: "Roboto Mono";
+}
+
+.program-config-pane .label,
+.event-properties-pane .label,
+.event-properties-pane .text-field,
+.program-config-pane .text-area {
+  -fx-padding: 3 6 3 6;
 }
 
 .entity-memes-container {

@@ -26,6 +26,7 @@ import io.xj.hub.util.StringUtils;
 import io.xj.nexus.ControlMode;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.work.FabricationState;
+import jakarta.annotation.Nullable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
@@ -637,7 +638,8 @@ public class UIStateServiceImpl implements UIStateService {
     Resource fxml, Node launcher,
     Consumer<T> setupController,
     LaunchMenuPosition position,
-    boolean darkenBackground
+    boolean darkenBackground,
+    @Nullable Runnable onClose
   ) {
     try {
       launcher.setDisable(true);
@@ -655,6 +657,7 @@ public class UIStateServiceImpl implements UIStateService {
       Runnable onHidden = () -> {
         launcher.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, false);
         launcher.setDisable(false);
+        if (Objects.nonNull(onClose)) onClose.run();
       };
       if (darkenBackground) {
         UiUtils.darkenBackgroundUntilClosed(stage, launcher.getScene(), onHidden);
@@ -674,17 +677,17 @@ public class UIStateServiceImpl implements UIStateService {
 
   @Override
   public void launchPopupSelectorMenu(Node launcher, Consumer<PopupSelectorMenuController> setupController) {
-    launchModalMenu(popupSelectorMenuFxml, launcher, setupController, LaunchMenuPosition.from(launcher), false);
+    launchModalMenu(popupSelectorMenuFxml, launcher, setupController, LaunchMenuPosition.from(launcher), false, null);
   }
 
   @Override
   public void launchPopupActionMenu(Node launcher, Consumer<PopupActionMenuController> setupController) {
-    launchModalMenu(popupActionMenuFxml, launcher, setupController, LaunchMenuPosition.from(launcher), false);
+    launchModalMenu(popupActionMenuFxml, launcher, setupController, LaunchMenuPosition.from(launcher), false, null);
   }
 
   @Override
   public void launchQuickActionMenu(Node launcher, MouseEvent mouseEvent, Consumer<PopupActionMenuController> setupController) {
-    launchModalMenu(popupActionMenuFxml, launcher, setupController, LaunchMenuPosition.from(mouseEvent), false);
+    launchModalMenu(popupActionMenuFxml, launcher, setupController, LaunchMenuPosition.from(mouseEvent), false, null);
   }
 
   /**

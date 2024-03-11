@@ -4,31 +4,18 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
-<AnchorPane xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="io.xj.gui.controllers.content.program.ProgramConfigController"
-            fx:id="container"
-            stylesheets="@/styles/default-theme.css"
-            styleClass="program-config-pane"
-            prefHeight="446.0" prefWidth="589.0" >
-  <TextArea fx:id="configTextArea" layoutX="26.0" layoutY="85.0" prefHeight="299.0" prefWidth="535.0"
-            AnchorPane.bottomAnchor="61.666666666666686" AnchorPane.leftAnchor="26.0"
-            AnchorPane.rightAnchor="27.66666666666663" AnchorPane.topAnchor="85.0" styleClass="config-editor"/>
-  <StackPane layoutX="26.0" layoutY="387.0" prefHeight="55.0" prefWidth="535.0"
-             AnchorPane.bottomAnchor="3.6666666666666643" AnchorPane.leftAnchor="26.0"
-             AnchorPane.rightAnchor="27.66666666666663">
-    <HBox fx:id="saveAndCancelButtonsContainer" alignment="CENTER" prefHeight="100.0" prefWidth="200.0"
-          spacing="10.0">
-      <Button fx:id="saveConfigChanges" mnemonicParsing="false" prefHeight="34.0" prefWidth="263.0" text="Save"
-              HBox.hgrow="ALWAYS"/>
-      <Button fx:id="cancelConfigChanges" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="35.0"
-              prefWidth="269.0" text="Cancel" HBox.hgrow="ALWAYS" onAction="#teardown"/>
-    </HBox>
-    <Button fx:id="cancelButton" mnemonicParsing="false" prefHeight="35.0" prefWidth="535.0" text="Cancel" onAction="#teardown"/>
-  </StackPane>
-  <Separator layoutX="4.0" layoutY="57.0" prefHeight="4.0" prefWidth="582.0" AnchorPane.topAnchor="57.0"/>
-  <Label alignment="CENTER" layoutX="68.0" layoutY="14.0" prefHeight="35.0" prefWidth="452.0" text="Edit Program Config"
-         wrapText="true" AnchorPane.topAnchor="14.0"/>
-</AnchorPane>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="io.xj.gui.controllers.content.program.ProgramConfigController"
+      fx:id="container"
+      stylesheets="@/styles/default-theme.css"
+      styleClass="program-config-pane">
+  <Label alignment="CENTER" text="Edit Program Config" HBox.hgrow="ALWAYS"/>
+  <Separator HBox.hgrow="ALWAYS"/>
+  <TextArea fx:id="configField" prefHeight="300" HBox.hgrow="ALWAYS"/>
+  <HBox alignment="CENTER" spacing="10.0">
+    <Button fx:id="saveButton" mnemonicParsing="false" text="Save" HBox.hgrow="ALWAYS" onAction="#handleSavePressed"/>
+    <Button mnemonicParsing="false" text="Cancel" HBox.hgrow="ALWAYS" onAction="#teardown"/>
+  </HBox>
+</VBox>

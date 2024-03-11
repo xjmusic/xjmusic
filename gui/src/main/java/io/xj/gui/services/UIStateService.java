@@ -17,6 +17,7 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.work.FabricationState;
+import jakarta.annotation.Nullable;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.ObjectBinding;
@@ -343,13 +344,15 @@ public interface UIStateService extends ReadyAfterBoot {
    @param setupController  function to set up the controller
    @param position         target location for launcher menu
    @param darkenBackground whether to darken the background while the modal is open
+   @param onClose          to run after the modal is closed
    */
   <T> void launchModalMenu(
     Resource fxml,
     Node launcher,
     Consumer<T> setupController,
     LaunchMenuPosition position,
-    boolean darkenBackground
+    boolean darkenBackground,
+    @Nullable Runnable onClose
   );
 
   /**

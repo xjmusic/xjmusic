@@ -3,6 +3,7 @@ package io.xj.gui.controllers.content.program.edit_mode;
 import io.xj.gui.controllers.content.common.PopupActionMenuController;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.utils.LaunchMenuPosition;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import javafx.beans.property.DoubleProperty;
@@ -13,11 +14,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -25,8 +25,8 @@ import java.util.UUID;
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class VoiceTrackEventController {
-  static final Logger LOG = LoggerFactory.getLogger(VoiceTrackEventController.class);
   private static final double UNSNAPPED_POSITION_GRAIN = 0.001;
+  private final Resource propertiesFxml;
   private final int trackHeight;
   private final ProjectService projectService;
   private final UIStateService uiStateService;
@@ -47,10 +47,12 @@ public class VoiceTrackEventController {
   Label tonesLabel;
 
   public VoiceTrackEventController(
+    @Value("classpath:/views/content/program/edit_mode/event-properties.fxml") Resource propertiesFxml,
     @Value("${programEditor.trackHeight}") int trackHeight,
     ProjectService projectService,
     UIStateService uiStateService
   ) {
+    this.propertiesFxml = propertiesFxml;
     this.trackHeight = trackHeight;
     this.projectService = projectService;
     this.uiStateService = uiStateService;
@@ -70,7 +72,6 @@ public class VoiceTrackEventController {
     container.setLayoutX(beatWidth.getValue() * event.getPosition());
     container.setPrefWidth(beatWidth.getValue() * event.getDuration());
     container.setPrefHeight(trackHeight);
-
     tonesLabel.setText(event.getTones());
   }
 
@@ -96,8 +97,13 @@ public class VoiceTrackEventController {
       );
 
     } else if (mouse.getClickCount() == 2) {
-      // TODO launch edit event modal
-      LOG.info("Double Clicked");
+      uiStateService.launchModalMenu(
+        propertiesFxml,
+        container,
+        (EventPropertiesController controller) -> controller.setup(event.getId()),
+        LaunchMenuPosition.from(container),
+        true,
+        () -> setup(event.getId(), handleDelete));
     }
 
   }

@@ -9,7 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
-import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
@@ -144,11 +144,25 @@ public interface UiUtils {
 
    @param field on which to listen
    */
-  static void blurOnEnterKeyPress(TextField field) {
+  static void blurOnEnterKeyPress(TextInputControl field) {
+    onSpecialKeyPress(field, () -> field.getParent().requestFocus(), null);
+  }
+
+  /**
+   Transfers focus away from the given field when the enter key is pressed.
+
+   @param field         on which to listen
+   @param onEnterPress  action to take when enter is pressed
+   @param onEscapePress action to take when escape is pressed
+   */
+  static void onSpecialKeyPress(
+    TextInputControl field,
+    @Nullable Runnable onEnterPress,
+    @Nullable Runnable onEscapePress
+  ) {
     field.setOnKeyPressed((KeyEvent e) -> {
-      if (e.getCode() == KeyCode.ENTER) {
-        field.getParent().requestFocus();
-      }
+      if (e.getCode() == KeyCode.ENTER && Objects.nonNull(onEnterPress)) onEnterPress.run();
+      if (e.getCode() == KeyCode.ESCAPE && Objects.nonNull(onEscapePress)) onEscapePress.run();
     });
   }
 
@@ -203,5 +217,4 @@ public interface UiUtils {
     property.addListener(listener);
     return () -> property.removeListener(listener);
   }
-
 }
