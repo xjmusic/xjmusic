@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.effect.InnerShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<HBox
+    xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="io.xj.gui.controllers.content.program.edit_mode.VoiceTrackController"
+    stylesheets="@/styles/default-theme.css"
+    fx:id="trackContainer">
+
+  <VBox fx:id="trackControlContainer" styleClass="track-control-container" spacing="5" VBox.vgrow="ALWAYS">
+    <padding>
+      <Insets left="2.0" top="2.0"/>
+    </padding>
+    <effect>
+      <InnerShadow choke="-0.5" radius="50" offsetX="25" color="#0000001a"/>
+    </effect>
+    <HBox spacing="2.0" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+      <Button fx:id="trackActionLauncher" onAction="#handlePressedTrackActionLauncher" HBox.hgrow="ALWAYS"
+              styleClass="minimal">
+        <graphic>
+          <ImageView fitHeight="16.0" fitWidth="16.0">
+            <Image url="@/icons/hamburger-menu.png"/>
+          </ImageView>
+        </graphic>
+      </Button>
+      <TextField fx:id="trackNameField" HBox.hgrow="ALWAYS"/>
+    </HBox>
+    <AnchorPane fx:id="trackAddContainer">
+      <Button
+          AnchorPane.topAnchor="5.0" AnchorPane.bottomAnchor="5.0"
+          AnchorPane.rightAnchor="5.0"
+          fx:id="addTrackButton" onAction="#handlePressedAddTrack" HBox.hgrow="ALWAYS"
+          styleClass="minimal">
+        <tooltip>
+          <Tooltip text="Add Track"/>
+        </tooltip>
+        <graphic>
+          <ImageView fitHeight="16.0" fitWidth="16.0">
+            <Image url="@/icons/plus.png"/>
+          </ImageView>
+        </graphic>
+      </Button>
+    </AnchorPane>
+  </VBox>
+
+  <StackPane HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+    <Pane fx:id="timelineBackground" styleClass="track-timeline-background">
+    </Pane>
+    <AnchorPane fx:id="timelineEventsContainer" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" onMousePressed="#handleMousePressedTimeline" onMouseReleased="#handleMouseReleasedTimeline">
+      <cursor>
+        <Cursor fx:constant="CROSSHAIR"/>
+      </cursor>
+    </AnchorPane>
+  </StackPane>
+
+</HBox>

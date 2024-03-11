@@ -63,22 +63,22 @@ public class CmdModalController extends ProjectModalController {
   private final ObjectProperty<UUID> currentId = new SimpleObjectProperty<>();
 
   @FXML
-  protected VBox container;
+  VBox container;
 
   @FXML
-  protected TextField fieldName;
+  TextField fieldName;
 
   @FXML
-  protected Button buttonOK;
+  Button buttonOK;
 
   @FXML
-  protected Button buttonCancel;
+  Button buttonCancel;
 
   @FXML
-  protected VBox libraryChoiceContainer;
+  VBox libraryChoiceContainer;
 
   @FXML
-  protected ChoiceBox<LibraryChoice> choiceLibrary;
+  ChoiceBox<LibraryChoice> choiceLibrary;
 
 
   public CmdModalController(
@@ -119,7 +119,7 @@ public class CmdModalController extends ProjectModalController {
   }
 
   @FXML
-  protected void handleNameFieldKeyPressed(KeyEvent event) {
+  void handleNameFieldKeyPressed(KeyEvent event) {
     if (event.getCode().equals(KeyCode.ENTER)) {
       event.consume();
       handlePressOK();
@@ -127,7 +127,7 @@ public class CmdModalController extends ProjectModalController {
   }
 
   @FXML
-  protected void handlePressOK() {
+  void handlePressOK() {
     try {
       switch (mode.get()) {
         case Create -> {
@@ -196,12 +196,12 @@ public class CmdModalController extends ProjectModalController {
       onStageClose();
 
     } catch (Exception e) {
-      LOG.error("Error creating entity!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Error creating entity! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 
   @FXML
-  protected void handlePressCancel() {
+  void handlePressCancel() {
     Stage stage = (Stage) buttonCancel.getScene().getWindow();
     stage.close();
     onStageClose();

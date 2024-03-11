@@ -47,6 +47,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -81,8 +82,13 @@ public class ProjectManagerImpl implements ProjectManager {
   private static final float DEFAULT_LOOP_BEATS = 4.0f;
   private static final float DEFAULT_VOLUME = 1.0f;
   private static final String DEFAULT_PROGRAM_SEQUENCE_NAME = "New Sequence";
+  private static final String DEFAULT_PROGRAM_SEQUENCE_PATTERN_NAME = "New Pattern";
+  private static final String DEFAULT_PROGRAM_VOICE_NAME = "New Voice";
+  private static final String DEFAULT_PROGRAM_VOICE_TRACK_NAME = "New Track";
   private static final Integer DEFAULT_PROGRAM_SEQUENCE_TOTAL = 4;
+  private static final Integer DEFAULT_PROGRAM_SEQUENCE_PATTERN_TOTAL = 4;
   private static final String DEFAULT_MEME_NAME = "XXX";
+  private static final String DEFAULT_PROGRAM_SEQUENCE_PATTERN_EVENT_TONES = "X";
   private final AtomicReference<ProjectState> state = new AtomicReference<>(ProjectState.Standby);
   private final AtomicReference<Project> project = new AtomicReference<>();
   private final AtomicReference<String> projectPathPrefix = new AtomicReference<>(File.separator);
@@ -174,7 +180,7 @@ public class ProjectManagerImpl implements ProjectManager {
       return true;
 
     } catch (Exception e) {
-      LOG.error("Failed to open project from local file!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Failed to open project from local file! {}\n{}", e, StringUtils.formatStackTrace(e));
       project.set(null);
       content.set(null);
       updateState(ProjectState.Failed);
@@ -202,7 +208,7 @@ public class ProjectManagerImpl implements ProjectManager {
       return true;
 
     } catch (Exception e) {
-      LOG.error("Failed to open project from local file!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Failed to open project from local file! {}\n{}", e, StringUtils.formatStackTrace(e));
       project.set(null);
       content.set(null);
       updateState(ProjectState.Failed);
@@ -216,7 +222,7 @@ public class ProjectManagerImpl implements ProjectManager {
       saveProjectContent();
 
     } catch (IOException e) {
-      LOG.error("Failed to save project!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Failed to save project! {}\n{}", e, StringUtils.formatStackTrace(e));
       updateState(ProjectState.Ready);
     }
   }
@@ -240,7 +246,7 @@ public class ProjectManagerImpl implements ProjectManager {
         }
       });
     } catch (IOException e) {
-      LOG.error("Failed to walk project audio folder!\n{}", StringUtils.formatStackTrace(e));
+      LOG.error("Failed to walk project audio folder! {}\n{}", e, StringUtils.formatStackTrace(e));
       updateState(ProjectState.Ready);
       return results;
     }
@@ -261,7 +267,7 @@ public class ProjectManagerImpl implements ProjectManager {
         Files.deleteIfExists(Paths.get(s));
         results.incrementFiles();
       } catch (IOException e) {
-        LOG.error("Failed to delete audio file {}\n{}", s, StringUtils.formatStackTrace(e));
+        LOG.error("Failed to delete audio file \"{}\"! {}\n{}", s, e, StringUtils.formatStackTrace(e));
         updateState(ProjectState.Ready);
         return results;
       }
@@ -271,7 +277,7 @@ public class ProjectManagerImpl implements ProjectManager {
         FileUtils.deleteDirectory(new File(path));
         results.incrementFolders();
       } catch (IOException e) {
-        LOG.error("Failed to delete instrument folder {}\n{}", path, StringUtils.formatStackTrace(e));
+        LOG.error("Failed to delete instrument folder {}! {}\n{}", path, e, StringUtils.formatStackTrace(e));
         updateState(ProjectState.Ready);
         return results;
       }
@@ -541,6 +547,104 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
+  public ProgramSequencePattern createProgramSequencePattern(UUID programId, UUID programSequenceId, UUID programVoiceId) throws Exception {
+    var program = content.get().getProgram(programId).orElseThrow(() -> new NexusException("Program not found"));
+    var sequence = content.get().getProgramSequence(programSequenceId).orElseThrow(() -> new NexusException("Sequence not found"));
+    var voice = content.get().getProgramVoice(programVoiceId).orElseThrow(() -> new NexusException("Voice not found"));
+    var existingPatternsOfSequence = content.get().getPatternsOfSequence(sequence.getId());
+    var existingPatternOfSequence = existingPatternsOfSequence.stream().findFirst();
+    var existingPattern = existingPatternOfSequence.isPresent() ? existingPatternOfSequence : content.get().getProgramSequencePatterns().stream().findFirst();
+
+    // New Create a pattern, increment a numerical suffix to make each sequence unique, e.g. "New Pattern 2" then "New Pattern 3"
+    var existingPatternNames = existingPatternsOfSequence.stream().map(ProgramSequencePattern::getName).collect(Collectors.toSet());
+    var newPatternName = FormatUtils.iterateNumericalSuffixFromExisting(existingPatternNames, DEFAULT_PROGRAM_SEQUENCE_PATTERN_NAME);
+
+    // Prepare the pattern record
+    var pattern = new ProgramSequencePattern();
+    pattern.setId(UUID.randomUUID());
+    pattern.setName(newPatternName);
+    pattern.setTotal(existingPattern.map(ProgramSequencePattern::getTotal).orElse(DEFAULT_PROGRAM_SEQUENCE_PATTERN_TOTAL.shortValue()));
+    pattern.setProgramId(program.getId());
+    pattern.setProgramSequenceId(sequence.getId());
+    pattern.setProgramVoiceId(voice.getId());
+
+    content.get().put(pattern);
+    return pattern;
+  }
+
+  @Override
+  public ProgramSequencePatternEvent createProgramSequencePatternEvent(UUID trackId, UUID patternId, double position, double duration) throws Exception {
+    var track = content.get().getProgramVoiceTrack(trackId).orElseThrow(() -> new NexusException("Track not found"));
+    var pattern = content.get().getProgramSequencePattern(patternId).orElseThrow(() -> new NexusException("Pattern not found"));
+    var existingEventsOfPattern = content.get().getEventsOfPattern(pattern.getId());
+    var existingEventOfPattern = existingEventsOfPattern.stream().findFirst();
+
+    // Prepare the event record
+    var event = new ProgramSequencePatternEvent();
+    event.setId(UUID.randomUUID());
+    event.setProgramId(track.getProgramId());
+    event.setProgramVoiceTrackId(track.getId());
+    event.setProgramSequencePatternId(pattern.getId());
+    event.setPosition((float) position);
+    event.setVelocity(1.0f);
+    event.setTones(DEFAULT_PROGRAM_SEQUENCE_PATTERN_EVENT_TONES);
+    event.setDuration((float) duration);
+
+
+    content.get().put(event);
+    return event;
+  }
+
+  @Override
+  public ProgramVoice createProgramVoice(UUID programId) throws Exception {
+    var program = content.get().getProgram(programId).orElseThrow(() -> new NexusException("Program not found"));
+    var project = content.get().getProject();
+    if (Objects.isNull(project)) throw new NexusException("Project not found");
+    var existingVoicesOfProgram = content.get().getVoicesOfProgram(program.getId());
+
+    // New Create a voice, increment a numerical suffix to make each voice unique, e.g. "New Voice 2" then "New Voice 3"
+    var existingVoiceNames = existingVoicesOfProgram.stream().map(ProgramVoice::getName).collect(Collectors.toSet());
+    var newVoiceName = FormatUtils.iterateNumericalSuffixFromExisting(existingVoiceNames, DEFAULT_PROGRAM_VOICE_NAME);
+
+    // Use a type not seen in another voice, if possible
+    var existingTypes = existingVoicesOfProgram.stream().map(ProgramVoice::getType).collect(Collectors.toSet());
+    var types = Arrays.stream(InstrumentType.values()).collect(Collectors.toSet());
+    types.removeAll(existingTypes);
+
+    // Prepare the voice record
+    var voice = new ProgramVoice();
+    voice.setId(UUID.randomUUID());
+    voice.setName(newVoiceName);
+    voice.setType(types.stream().sorted().findFirst().orElse(InstrumentType.Drum));
+    voice.setOrder(existingVoicesOfProgram.stream().map(ProgramVoice::getOrder).max(Float::compareTo).orElse(0f) + 1);
+    voice.setProgramId(program.getId());
+
+    content.get().put(voice);
+    return voice;
+  }
+
+  @Override
+  public ProgramVoiceTrack createProgramVoiceTrack(UUID voiceId) throws Exception {
+    var voice = content.get().getProgramVoice(voiceId).orElseThrow(() -> new NexusException("Voice not found"));
+    var existingTracksOfVoice = content.get().getTracksOfVoice(voice.getId());
+
+    // New Create a track, increment a numerical suffix to make each track unique, e.g. "New Track 2" then "New Track 3"
+    var existingTracksOfProgram = content.get().getTracksOfProgram(voice.getProgramId());
+    var existingTrackNames = existingTracksOfProgram.stream().map(ProgramVoiceTrack::getName).collect(Collectors.toSet());
+    var newTrackName = FormatUtils.iterateNumericalSuffixFromExisting(existingTrackNames, DEFAULT_PROGRAM_VOICE_TRACK_NAME);
+
+    // Prepare the track record
+    var track = new ProgramVoiceTrack();
+    track.setId(UUID.randomUUID());
+    track.setName(newTrackName);
+    track.setOrder(existingTracksOfVoice.stream().map(ProgramVoiceTrack::getOrder).max(Float::compareTo).orElse(0f) + 1);
+    track.setProgramVoiceId(voice.getId());
+
+    content.get().put(track);
+    return track;
+  }
+
+  @Override
   public ProgramMeme createProgramMeme(UUID programId) throws Exception {
     var meme = new ProgramMeme();
     meme.setId(UUID.randomUUID());
@@ -579,7 +683,7 @@ public class ProjectManagerImpl implements ProjectManager {
     // New Create a instrument, increment a numerical suffix to make each sequence unique, e.g. "New Instrument 2" then "New Instrument 3"
     var existingNames = existingInstrumentsOfLibrary.stream().map(Instrument::getName).collect(Collectors.toSet());
     var actualName = FormatUtils.iterateNumericalSuffixFromExisting(existingNames, name);
-    
+
     var instrument = new Instrument();
     instrument.setId(UUID.randomUUID());
     instrument.setName(actualName);
@@ -816,12 +920,12 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @SuppressWarnings("CollectionAddAllCanBeReplacedWithConstructor")
   @Override
-  public ProgramSequence cloneProgramSequence(UUID fromId, String name) throws Exception {
+  public ProgramSequence cloneProgramSequence(UUID fromId) throws Exception {
     var source = content.get().getProgramSequence(fromId).orElseThrow(() -> new NexusException("Program Sequence not found"));
 
     // Clone Program
     var clonedSequence = entityFactory.clone(source);
-    clonedSequence.setName(name);
+    clonedSequence.setName("Clone of " + source.getName());
 
     // Prepare all maps of cloned sub-entities to avoid putting more than once to store
     Map<UUID, ProgramSequenceBinding> clonedProgramSequenceBindings = new HashMap<>();
@@ -870,12 +974,12 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public ProgramSequencePattern cloneProgramSequencePattern(UUID fromId, String name) throws Exception {
+  public ProgramSequencePattern cloneProgramSequencePattern(UUID fromId) throws Exception {
     var source = content.get().getProgramSequencePattern(fromId).orElseThrow(() -> new NexusException("Program Sequence Pattern not found"));
 
     // Clone Program
     var clonedPattern = entityFactory.clone(source);
-    clonedPattern.setName(name);
+    clonedPattern.setName("Clone of " + source.getName());
 
     // Iterate through the tracks and clone all the Program's Sequences' Patterns' Events
     Map<UUID, ProgramSequencePatternEvent> clonedProgramSequencePatternEvents = new HashMap<>(entityFactory.cloneAll(content.get().getEventsOfPattern(source.getId()), Set.of(clonedPattern)));
@@ -1034,19 +1138,19 @@ public class ProjectManagerImpl implements ProjectManager {
       return true;
 
     } catch (HubClientException e) {
-      LOG.error("Failed to load content for project!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Failed to load content for project! {}\n{}", e, StringUtils.formatStackTrace(e));
       updateState(ProjectState.Failed);
       project.set(null);
       return false;
 
     } catch (IOException e) {
-      LOG.error("Failed to preload audio for project!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Failed to preload audio for project! {}\n{}", e, StringUtils.formatStackTrace(e));
       updateState(ProjectState.Failed);
       project.set(null);
       return false;
 
     } catch (Exception e) {
-      LOG.error("Failed to clone project!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Failed to clone project! {}\n{}", e, StringUtils.formatStackTrace(e));
       updateState(ProjectState.Failed);
       project.set(null);
       return false;

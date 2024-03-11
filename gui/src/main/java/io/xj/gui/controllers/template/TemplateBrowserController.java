@@ -32,10 +32,10 @@ public class TemplateBrowserController extends BrowserController {
   private final ObservableList<Template> templates = FXCollections.observableList(new ArrayList<>());
 
   @FXML
-  protected StackPane container;
+  StackPane container;
 
   @FXML
-  protected TableView<Template> table;
+  TableView<Template> table;
 
   public TemplateBrowserController(
     @Value("classpath:/views/template/template-browser.fxml") Resource fxml,

@@ -679,8 +679,8 @@ class ProjectManagerImplTest {
 
   @Test
   void cloneProgramSequence() throws Exception {
-    var clone1 = subject.cloneProgramSequence(UUID.fromString("2ff1c4e0-0f45-4457-900d-c7efef699e86"), "Cloned Sequence 1");
-    var clone2 = subject.cloneProgramSequence(UUID.fromString("d1be946c-ea2c-4f74-a9df-18a659b99fc8"), "Cloned Sequence 2");
+    var clone1 = subject.cloneProgramSequence(UUID.fromString("2ff1c4e0-0f45-4457-900d-c7efef699e86"));
+    var clone2 = subject.cloneProgramSequence(UUID.fromString("d1be946c-ea2c-4f74-a9df-18a659b99fc8"));
 
     // 1 sequence per program
     var program1_sequence = subject.getContent().getProgramSequence(clone1.getId()).stream().findFirst().orElseThrow();
@@ -734,13 +734,13 @@ class ProjectManagerImplTest {
 
   @Test
   void cloneProgramSequencePattern() throws Exception {
-    var clone1 = subject.cloneProgramSequencePattern(UUID.fromString("0457d46f-5d6c-495e-a3e8-8bb9740cee18"), "Cloned Sequence Pattern 1");
-    var clone2 = subject.cloneProgramSequencePattern(UUID.fromString("9ed7fbaa-540e-4539-b886-8788caf3dbff"), "Cloned Sequence Pattern 2");
+    var clone1 = subject.cloneProgramSequencePattern(UUID.fromString("0457d46f-5d6c-495e-a3e8-8bb9740cee18"));
+    var clone2 = subject.cloneProgramSequencePattern(UUID.fromString("9ed7fbaa-540e-4539-b886-8788caf3dbff"));
 
     var program1_sequence_pattern1 = subject.getContent().getProgramSequencePattern(clone1.getId()).orElseThrow();
     var program1_sequence_pattern2 = subject.getContent().getProgramSequencePattern(clone2.getId()).orElseThrow();
-    assertEquals("Cloned Sequence Pattern 1", program1_sequence_pattern1.getName());
-    assertEquals("Cloned Sequence Pattern 2", program1_sequence_pattern2.getName());
+    assertEquals("Clone of decay", program1_sequence_pattern1.getName());
+    assertEquals("Clone of growth", program1_sequence_pattern2.getName());
     // Tracks same as original program 1 (none in program 2)
     var program1_voice_tracks = subject.getContent().getTracksOfProgram(UUID.fromString("7ad65895-27b8-453d-84f1-ef2a2a2f09eb")).stream().sorted(Comparator.comparing(ProgramVoiceTrack::getName)).toList();
     var program1_voice_track1 = program1_voice_tracks.get(0);

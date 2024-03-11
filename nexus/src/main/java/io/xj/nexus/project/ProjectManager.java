@@ -10,6 +10,9 @@ import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.hub_client.HubClientAccess;
@@ -225,6 +228,43 @@ public interface ProjectManager {
   ProgramSequence createProgramSequence(UUID programId) throws Exception;
 
   /**
+   Create a new program sequence pattern
+
+   @param programId         for which to create a program sequence pattern
+   @param programSequenceId for which to create a program sequence pattern
+   @param programVoiceId    for which to create a program sequence pattern
+   @return the new program sequence pattern
+   */
+  ProgramSequencePattern createProgramSequencePattern(UUID programId, UUID programSequenceId, UUID programVoiceId) throws Exception;
+
+  /**
+   Create a new program sequence pattern event
+
+   @param trackId   for which to create a program sequence pattern event
+   @param patternId for which to create a program sequence pattern event
+   @param position  of the new event in the pattern
+   @param duration  of the new event in the pattern
+   @return the new program sequence pattern event
+   */
+  ProgramSequencePatternEvent createProgramSequencePatternEvent(UUID trackId, UUID patternId, double position, double duration) throws Exception;
+
+  /**
+   Create a new program voice
+
+   @param programId for which to create a voice
+   @return the new program voice
+   */
+  ProgramVoice createProgramVoice(UUID programId) throws Exception;
+
+  /**
+   Create a new program voice track
+
+   @param voiceId for which to create a track
+   @return the new program voice track
+   */
+  ProgramVoiceTrack createProgramVoiceTrack(UUID voiceId) throws Exception;
+
+  /**
    Create a new program meme
 
    @param programId for which to create meme
@@ -340,19 +380,17 @@ public interface ProjectManager {
    Note: Does not clone the program sequence bindings (that would cause duplicate bindings at all the same offsets)
 
    @param fromId source program sequence id
-   @param name   name of the new program sequence
    @return the new program sequence
    */
-  ProgramSequence cloneProgramSequence(UUID fromId, String name) throws Exception;
+  ProgramSequence cloneProgramSequence(UUID fromId) throws Exception;
 
   /**
    Clone a Program Sequence Pattern from a source program sequence pattern by id
 
    @param fromId source program sequence pattern id
-   @param name   name of the new program sequence pattern
    @return the new program sequence pattern
    */
-  ProgramSequencePattern cloneProgramSequencePattern(UUID fromId, String name) throws Exception;
+  ProgramSequencePattern cloneProgramSequencePattern(UUID fromId) throws Exception;
 
   /**
    Clone a Instrument from a source instrument by id

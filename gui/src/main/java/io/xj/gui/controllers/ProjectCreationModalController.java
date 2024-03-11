@@ -56,22 +56,22 @@ public class ProjectCreationModalController extends ProjectModalController {
   private final ObjectProperty<Project> selectedProject = new SimpleObjectProperty<>();
 
   @FXML
-  protected VBox container;
+  VBox container;
 
   @FXML
-  protected TextField fieldProjectName;
+  TextField fieldProjectName;
 
   @FXML
-  protected TextField fieldPathPrefix;
+  TextField fieldPathPrefix;
 
   @FXML
-  protected Button buttonSelectDirectory;
+  Button buttonSelectDirectory;
 
   @FXML
-  protected Button buttonOK;
+  Button buttonOK;
 
   @FXML
-  protected Button buttonCancel;
+  Button buttonCancel;
 
   @FXML
   ImageView demoImageVgm;
@@ -190,7 +190,7 @@ public class ProjectCreationModalController extends ProjectModalController {
   }
 
   @FXML
-  protected void handlePressSelectDirectory() {
+  void handlePressSelectDirectory() {
     var path = ProjectUtils.chooseDirectory(
       buttonSelectDirectory.getScene().getWindow(), "Choose destination folder", fieldPathPrefix.getText()
     );
@@ -200,7 +200,7 @@ public class ProjectCreationModalController extends ProjectModalController {
   }
 
   @FXML
-  protected void handlePressOK() {
+  void handlePressOK() {
     var projectName = fieldProjectName.getText().replaceAll("[^a-zA-Z0-9 ]", "");
 
     if (Objects.equals(mode.get(), ProjectCreationMode.CLONE_PROJECT)
@@ -243,35 +243,35 @@ public class ProjectCreationModalController extends ProjectModalController {
   }
 
   @FXML
-  protected void handlePressCancel() {
+  void handlePressCancel() {
     Stage stage = (Stage) buttonCancel.getScene().getWindow();
     stage.close();
     onStageClose();
   }
 
   @FXML
-  public void handleDemoPressedVgm(MouseEvent ignored) {
+  void handleDemoPressedVgm(MouseEvent ignored) {
     if (StringUtils.isNullOrEmpty(fieldProjectName.getText()))
       fieldProjectName.setText("Video Game Demo");
     buttonDemoVgm.setSelected(true);
   }
 
   @FXML
-  public void handleDemoPressedBump(MouseEvent ignored) {
+  void handleDemoPressedBump(MouseEvent ignored) {
     if (StringUtils.isNullOrEmpty(fieldProjectName.getText()))
       fieldProjectName.setText("Deep House Demo");
     buttonDemoBump.setSelected(true);
   }
 
   @FXML
-  public void handleDemoPressedSlaps(MouseEvent ignored) {
+  void handleDemoPressedSlaps(MouseEvent ignored) {
     if (StringUtils.isNullOrEmpty(fieldProjectName.getText()))
       fieldProjectName.setText("Lofi Hip Hop Demo");
     buttonDemoSlaps.setSelected(true);
   }
 
   @FXML
-  public void handleDemoPressedSpace(MouseEvent ignored) {
+  void handleDemoPressedSpace(MouseEvent ignored) {
     if (StringUtils.isNullOrEmpty(fieldProjectName.getText()))
       fieldProjectName.setText("Ambient Flow Demo");
     buttonDemoSpace.setSelected(true);

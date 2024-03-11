@@ -11,6 +11,9 @@ import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.project.ProjectState;
@@ -148,6 +151,30 @@ public interface ProjectService {
   void deleteContent(Class<?> type, UUID id);
 
   /**
+   Delete a program voice. Show a confirmation dialog if the voice has tracks/patterns/events
+
+   @param programVoiceId the id of the voice to delete
+   @return true if the voice was deleted, false otherwise
+   */
+  boolean deleteProgramVoice(UUID programVoiceId);
+
+  /**
+   Delete a program sequence pattern. Show a confirmation dialog if the pattern has events
+
+   @param programSequencePatternId the id of the pattern to delete
+   @return true if the pattern was deleted, false otherwise
+   */
+  boolean deleteProgramSequencePattern(UUID programSequencePatternId);
+  
+  /**
+   Delete a program voice track. Show a confirmation dialog if the track has events
+
+   @param programVoiceTrackId the id of the track to delete
+   @return true if the track was deleted, false otherwise
+   */
+  boolean deleteProgramVoiceTrack(UUID programVoiceTrackId);
+
+  /**
    @return the list of recent projects
    */
   ObservableListValue<ProjectDescriptor> recentProjectsProperty();
@@ -245,6 +272,43 @@ public interface ProjectService {
   ProgramSequence createProgramSequence(UUID programId) throws Exception;
 
   /**
+   Create a new program sequence pattern
+
+   @param programId         for which to create a program sequence pattern
+   @param programSequenceId for which to create a program sequence pattern
+   @param programVoiceId    for which to create a program sequence pattern
+   @return the new program sequence pattern
+   */
+  ProgramSequencePattern createProgramSequencePattern(UUID programId, UUID programSequenceId, UUID programVoiceId) throws Exception;
+
+  /**
+   Create a new program sequence pattern event
+
+   @param trackId   for which to create a program sequence pattern event
+   @param patternId for which to create a program sequence pattern event
+   @param position  of the new event in the pattern
+   @param duration  of the new event in the pattern
+   @return the new program sequence pattern event
+   */
+  ProgramSequencePatternEvent createProgramSequencePatternEvent(UUID trackId, UUID patternId, double position, double duration) throws Exception;
+
+  /**
+   Create a new program voice
+
+   @param programId for which to create a program voice
+   @return the new program voice
+   */
+  ProgramVoice createProgramVoice(UUID programId) throws Exception;
+
+  /**
+   Create a new program voice track
+
+   @param voiceId for which to create a track
+   @return the new program voice track
+   */
+  ProgramVoiceTrack createProgramVoiceTrack(UUID voiceId) throws Exception;
+
+  /**
    Create a new Program Meme
 
    @param programId for which to create a program meme
@@ -336,19 +400,17 @@ public interface ProjectService {
    Clone the given program sequence with a new name
 
    @param fromId clone from program sequence
-   @param name   the new name
    @return the new program
    */
-  ProgramSequence cloneProgramSequence(UUID fromId, String name) throws Exception;
+  ProgramSequence cloneProgramSequence(UUID fromId) throws Exception;
 
   /**
    Clone the given program sequence pattern with a new name
 
    @param fromId clone from program sequence pattern
-   @param name   the new name
    @return the new program sequence pattern
    */
-  ProgramSequencePattern cloneProgramSequencePattern(UUID fromId, String name) throws Exception;
+  ProgramSequencePattern cloneProgramSequencePattern(UUID fromId) throws Exception;
 
   /**
    Clone the given instrument with a new name
@@ -377,7 +439,7 @@ public interface ProjectService {
    @param value     to set
    @param <N>       type of entity
    */
-  <N> void update(Class<N> type, UUID id, String attribute, Object value) throws Exception;
+  <N> void update(Class<N> type, UUID id, String attribute, Object value);
 
   /**
    Update the given library

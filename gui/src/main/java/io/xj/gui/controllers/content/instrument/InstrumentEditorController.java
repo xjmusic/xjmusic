@@ -72,22 +72,22 @@ public class InstrumentEditorController extends BrowserController {
   private Resource entityMemesFxml;
 
   @FXML
-  protected SplitPane container;
+  SplitPane container;
 
   @FXML
-  protected VBox fieldsContainer;
+  VBox fieldsContainer;
 
   @FXML
-  public StackPane instrumentMemeContainer;
+  StackPane instrumentMemeContainer;
 
   @FXML
-  protected TextField fieldName;
+  TextField fieldName;
 
   @FXML
-  protected TextField fieldVolume;
+  TextField fieldVolume;
 
   @FXML
-  protected TextArea fieldConfig;
+  TextArea fieldConfig;
 
   @FXML
   ChoiceBox<InstrumentType> choiceType;
@@ -99,10 +99,10 @@ public class InstrumentEditorController extends BrowserController {
   ChoiceBox<InstrumentState> choiceState;
 
   @FXML
-  protected Button buttonOpenAudioFolder;
+  Button buttonOpenAudioFolder;
 
   @FXML
-  protected TableView<InstrumentAudio> audiosTable;
+  TableView<InstrumentAudio> audiosTable;
 
   public InstrumentEditorController(
     @Value("classpath:/views/content/instrument/instrument-editor.fxml") Resource fxml,
@@ -236,7 +236,7 @@ public class InstrumentEditorController extends BrowserController {
       var audio = projectService.createInstrumentAudio(instrument, audioFilePath);
       uiStateService.editInstrumentAudio(audio.getId());
     } catch (Exception e) {
-      LOG.error("Could not import audio!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Could not import audio! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 
@@ -280,7 +280,7 @@ public class InstrumentEditorController extends BrowserController {
       try {
         projectService.update(Instrument.class, instrumentId.get(), attribute, value);
       } catch (Exception e) {
-        LOG.error("Could not update Instrument " + attribute, StringUtils.formatStackTrace(e));
+        LOG.error("Could not update Instrument \"{}\"! {}\n{}", attribute, e, StringUtils.formatStackTrace(e));
       }
     }
   }
@@ -319,7 +319,7 @@ public class InstrumentEditorController extends BrowserController {
         }
       );
     } catch (IOException e) {
-      LOG.error("Error loading Entity Memes window!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Error loading Entity Memes window! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 }

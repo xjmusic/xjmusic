@@ -56,10 +56,10 @@ public class FabricationSettingsModalController extends ProjectModalController {
   TextField fieldTimelineSegmentViewLimit;
 
   @FXML
-  public Button buttonClose;
+  Button buttonClose;
 
   @FXML
-  public Button buttonReset;
+  Button buttonReset;
 
   public FabricationSettingsModalController(
     @Value("classpath:/views/fabrication/fabrication-settings-modal.fxml") Resource fxml,

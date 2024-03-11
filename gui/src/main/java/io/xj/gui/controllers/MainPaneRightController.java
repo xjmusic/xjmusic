@@ -50,10 +50,10 @@ public class MainPaneRightController extends ProjectController {
   private final FabricationService fabricationService;
 
   @FXML
-  protected ScrollPane container;
+  ScrollPane container;
 
   @FXML
-  protected VBox controlsContainer;
+  VBox controlsContainer;
   private final ObservableMap<String, String> taxonomyCategoryToggleSelections = FXCollections.observableHashMap();
   private final Set<ToggleGroup> taxonomyToggleGroups = new HashSet<>();
   private final String sliderTrackColorActive;

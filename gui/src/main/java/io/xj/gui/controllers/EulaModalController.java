@@ -70,7 +70,7 @@ public class EulaModalController extends ProjectController {
       });
 
     } catch (Exception e) {
-      LOG.error("Error loading EULA!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Error loading EULA! {}\n{}", e, StringUtils.formatStackTrace(e));
       System.exit(1);
     }
   }

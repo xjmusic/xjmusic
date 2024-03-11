@@ -1,13 +1,20 @@
 package io.xj.gui.services.impl;
 
 import io.xj.gui.WorkstationLogAppender;
+import io.xj.gui.controllers.content.common.PopupActionMenuController;
+import io.xj.gui.controllers.content.common.PopupSelectorMenuController;
 import io.xj.gui.modes.ContentMode;
+import io.xj.gui.modes.GridChoice;
+import io.xj.gui.modes.ProgramEditorMode;
 import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.modes.ViewStatusMode;
+import io.xj.gui.modes.ZoomChoice;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.utils.LaunchMenuPosition;
 import io.xj.gui.utils.UiUtils;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
@@ -15,9 +22,11 @@ import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.util.StringUtils;
 import io.xj.nexus.ControlMode;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.work.FabricationState;
+import jakarta.annotation.Nullable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
@@ -30,18 +39,36 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.prefs.Preferences;
 
 @Service
 public class UIStateServiceImpl implements UIStateService {
+  static final Logger LOG = LoggerFactory.getLogger(UIStateServiceImpl.class);
   private final Preferences prefs = Preferences.userNodeForPackage(UIStateServiceImpl.class);
+  private final int programEditorBaseSizePerBeat;
   private final BooleanBinding hasCurrentProject;
   private final BooleanBinding isManualFabricationActive;
   private final BooleanProperty isLabFeatureEnabled = new SimpleBooleanProperty(false);
@@ -49,26 +76,27 @@ public class UIStateServiceImpl implements UIStateService {
   private final BooleanBinding isManualFabricationMode;
   private final BooleanBinding isProgressBarVisible;
   private static final Collection<ContentMode> CONTENT_MODES_WITH_PARENT = Set.of(
-      ContentMode.ProgramBrowser,
-      ContentMode.ProgramEditor,
-      ContentMode.InstrumentBrowser,
-      ContentMode.InstrumentEditor,
-      ContentMode.InstrumentAudioEditor,
-      ContentMode.LibraryEditor
+    ContentMode.ProgramBrowser,
+    ContentMode.ProgramEditor,
+    ContentMode.InstrumentBrowser,
+    ContentMode.InstrumentEditor,
+    ContentMode.InstrumentAudioEditor,
+    ContentMode.LibraryEditor
   );
   private final StringBinding windowTitle;
   private final ObjectProperty<ViewMode> viewMode = new SimpleObjectProperty<>(ViewMode.Content);
   private final ObjectProperty<Library> currentLibrary = new SimpleObjectProperty<>(null);
   private final ObjectProperty<Program> currentProgram = new SimpleObjectProperty<>(null);
+  private final ObservableList<ProgramSequence> sequencesOfCurrentProgram = FXCollections.observableArrayList();
   private final ObjectProperty<Instrument> currentInstrument = new SimpleObjectProperty<>(null);
   private final ObjectProperty<InstrumentAudio> currentInstrumentAudio = new SimpleObjectProperty<>(null);
   private final ObjectProperty<Template> currentTemplate = new SimpleObjectProperty<>(null);
   private final ObjectProperty<ContentMode> contentMode = new SimpleObjectProperty<>(ContentMode.LibraryBrowser);
   private final ObjectProperty<TemplateMode> templateMode = new SimpleObjectProperty<>(TemplateMode.TemplateBrowser);
   private final BooleanBinding isContentLevelUpPossible = Bindings.createBooleanBinding(
-      () -> (Objects.equals(viewMode.get(), ViewMode.Content) && CONTENT_MODES_WITH_PARENT.contains(contentMode.get()))
-          || (Objects.equals(viewMode.get(), ViewMode.Templates) && Objects.equals(templateMode.get(), TemplateMode.TemplateEditor)),
-      viewMode, contentMode, templateMode);
+    () -> (Objects.equals(viewMode.get(), ViewMode.Content) && CONTENT_MODES_WITH_PARENT.contains(contentMode.get()))
+      || (Objects.equals(viewMode.get(), ViewMode.Templates) && Objects.equals(templateMode.get(), TemplateMode.TemplateEditor)),
+    viewMode, contentMode, templateMode);
 
   private final ObjectBinding<ViewStatusMode> viewStatusMode;
   private final BooleanBinding isViewProgressStatusMode;
@@ -87,23 +115,49 @@ public class UIStateServiceImpl implements UIStateService {
   private final BooleanBinding isCreateEntityButtonVisible;
   private final BooleanBinding isLibraryContentBrowser;
 
+  private final Resource popupSelectorMenuFxml;
+  private final Resource popupActionMenuFxml;
   private final String defaultIsLabFeatureEnabled;
-  private final BooleanProperty programEditorEditMode = new SimpleBooleanProperty(false);
-  private final BooleanProperty programEditorBindMode = new SimpleBooleanProperty(false);
   private final ObjectProperty<ProgramSequence> currentProgramSequence = new SimpleObjectProperty<>();
+  private final ObservableList<GridChoice> programEditorGridChoices;
+  private final ApplicationContext ac;
+  private final ThemeService themeService;
+  private final ObservableList<ZoomChoice> programEditorZoomChoices;
+  private final ObjectProperty<GridChoice> programEditorGrid = new SimpleObjectProperty<>();
+  private final ObjectProperty<ZoomChoice> programEditorZoom = new SimpleObjectProperty<>();
+  private final BooleanProperty programEditorSnap = new SimpleBooleanProperty(false);
+  private final ObjectProperty<ProgramEditorMode> programEditorMode = new SimpleObjectProperty<>();
 
   public UIStateServiceImpl(
-      FabricationService fabricationService,
-      ProjectService projectService,
-      @Value("${lab.feature.enabled}") String defaultIsLabFeatureEnabled
+    @Value("classpath:/views/content/common/popup-selector-menu.fxml") Resource popupSelectorMenuFxml,
+    @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource popupActionMenuFxml,
+    @Value("${lab.feature.enabled}") String defaultIsLabFeatureEnabled,
+    @Value("${programEditor.baseSizePerBeat}") int programEditorBaseSizePerBeat,
+    @Value("#{'${programEditor.gridChoices}'.split(',')}") List<Double> programEditorGridChoices,
+    @Value("${programEditor.gridChoiceDefault}") Double programEditorGridChoiceDefault,
+    @Value("#{'${programEditor.zoomChoices}'.split(',')}") List<Double> programEditorZoomChoices,
+    @Value("${programEditor.zoomChoiceDefault}") Double programEditorZoomChoiceDefault,
+    ApplicationContext ac,
+    ThemeService themeService,
+    FabricationService fabricationService,
+    ProjectService projectService
   ) {
+    this.popupSelectorMenuFxml = popupSelectorMenuFxml;
+    this.popupActionMenuFxml = popupActionMenuFxml;
     this.defaultIsLabFeatureEnabled = defaultIsLabFeatureEnabled;
+    this.programEditorBaseSizePerBeat = programEditorBaseSizePerBeat;
+    this.programEditorGridChoices = FXCollections.observableArrayList(programEditorGridChoices.stream().map(GridChoice::new).toList());
+    this.ac = ac;
+    this.themeService = themeService;
+    programEditorGrid.set(new GridChoice(programEditorGridChoiceDefault));
+    this.programEditorZoomChoices = FXCollections.observableArrayList(programEditorZoomChoices.stream().map(ZoomChoice::new).toList());
+    programEditorZoom.set(new ZoomChoice(programEditorZoomChoiceDefault));
 
     // Has a current project?
     hasCurrentProject = Bindings.createBooleanBinding(
-        () -> Objects.nonNull(projectService.currentProjectProperty().get())
-            && projectService.stateProperty().isEqualTo(ProjectState.Ready).get(),
-        projectService.currentProjectProperty(), projectService.stateProperty());
+      () -> Objects.nonNull(projectService.currentProjectProperty().get())
+        && projectService.stateProperty().isEqualTo(ProjectState.Ready).get(),
+      projectService.currentProjectProperty(), projectService.stateProperty());
 
     // Is the fabrication settings button disabled?
     isFabricationSettingsDisabled = fabricationService.isStateActiveProperty();
@@ -116,35 +170,35 @@ public class UIStateServiceImpl implements UIStateService {
 
     // Is manual fabrication active?
     isManualFabricationActive =
-        fabricationService.controlModeProperty().isNotEqualTo(ControlMode.AUTO)
-            .and(fabricationService.stateProperty().isEqualTo(FabricationState.Active));
+      fabricationService.controlModeProperty().isNotEqualTo(ControlMode.AUTO)
+        .and(fabricationService.stateProperty().isEqualTo(FabricationState.Active));
     this.projectService = projectService;
 
     // Is the progress bar visible?
     isProgressBarVisible =
-        projectService.isStateLoadingProperty().or(fabricationService.isStateLoadingProperty());
+      projectService.isStateLoadingProperty().or(fabricationService.isStateLoadingProperty());
 
     // Progress
     progress =
-        Bindings.createDoubleBinding(
-            () ->
-                projectService.isStateLoadingProperty().get() ?
-                    projectService.progressProperty().get() :
-                    fabricationService.isStateLoadingProperty().get() ?
-                        fabricationService.progressProperty().get() :
-                        0.0,
-            projectService.isStateLoadingProperty(),
-            projectService.progressProperty(),
-            fabricationService.isStateLoadingProperty(),
-            fabricationService.progressProperty());
+      Bindings.createDoubleBinding(
+        () ->
+          projectService.isStateLoadingProperty().get() ?
+            projectService.progressProperty().get() :
+            fabricationService.isStateLoadingProperty().get() ?
+              fabricationService.progressProperty().get() :
+              0.0,
+        projectService.isStateLoadingProperty(),
+        projectService.progressProperty(),
+        fabricationService.isStateLoadingProperty(),
+        fabricationService.progressProperty());
 
     // State Text
     stateText = Bindings.createStringBinding(
-        () -> projectService.isStateReadyProperty().get()
-            ? fabricationService.stateTextProperty().getValue() : projectService.stateTextProperty().getValue(),
-        projectService.stateProperty(),
-        projectService.stateTextProperty(),
-        fabricationService.stateTextProperty());
+      () -> projectService.isStateReadyProperty().get()
+        ? fabricationService.stateTextProperty().getValue() : projectService.stateTextProperty().getValue(),
+      projectService.stateProperty(),
+      projectService.stateTextProperty(),
+      fabricationService.stateTextProperty());
 
     progress.addListener((o, ov, value) -> UiUtils.setTaskbarProgress(value.floatValue()));
 
@@ -157,93 +211,97 @@ public class UIStateServiceImpl implements UIStateService {
     });
 
     windowTitle = Bindings.createStringBinding(
-        () -> Objects.nonNull(projectService.currentProjectProperty().get())
-            ? String.format("%s%s - XJ music workstation",
-            projectService.isModifiedProperty().get() ? "* " : "",
-            projectService.currentProjectProperty().get().getName())
-            : "XJ music workstation",
-        projectService.isModifiedProperty(),
-        projectService.currentProjectProperty()
+      () -> Objects.nonNull(projectService.currentProjectProperty().get())
+        ? String.format("%s%s - XJ music workstation",
+        projectService.isModifiedProperty().get() ? "* " : "",
+        projectService.currentProjectProperty().get().getName())
+        : "XJ music workstation",
+      projectService.isModifiedProperty(),
+      projectService.currentProjectProperty()
     );
 
     currentParentName = Bindings.createStringBinding(
-        () -> switch (viewMode.get()) {
-          case Content -> switch (contentMode.get()) {
-            case LibraryBrowser, LibraryEditor -> "Libraries";
-            case InstrumentAudioEditor -> currentInstrument.isNotNull().get() ? currentInstrument.get().getName() : "";
-            case ProgramBrowser, InstrumentBrowser, ProgramEditor, InstrumentEditor ->
-                currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
-          };
-          case Templates -> switch (templateMode.get()) {
-            case TemplateBrowser -> "Templates";
-            case TemplateEditor -> currentTemplate.isNotNull().get() ? currentTemplate.get().getName() : "";
-          };
-          case Fabrication -> "";
-        },
-        viewMode, contentMode, currentLibrary
+      () -> switch (viewMode.get()) {
+        case Content -> switch (contentMode.get()) {
+          case LibraryBrowser, LibraryEditor -> "Libraries";
+          case InstrumentAudioEditor -> currentInstrument.isNotNull().get() ? currentInstrument.get().getName() : "";
+          case ProgramBrowser, InstrumentBrowser, ProgramEditor, InstrumentEditor ->
+            currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
+        };
+        case Templates -> switch (templateMode.get()) {
+          case TemplateBrowser -> "Templates";
+          case TemplateEditor -> currentTemplate.isNotNull().get() ? currentTemplate.get().getName() : "";
+        };
+        case Fabrication -> "";
+      },
+      viewMode, contentMode, currentLibrary
     );
 
     isViewingEntity = Bindings.createBooleanBinding(
-        () -> switch (viewMode.get()) {
-          case Content -> switch (contentMode.get()) {
-            case LibraryEditor, ProgramEditor, InstrumentEditor, InstrumentAudioEditor -> true;
-            default -> false;
-          };
-          case Templates -> Objects.equals(TemplateMode.TemplateEditor, templateMode.get());
+      () -> switch (viewMode.get()) {
+        case Content -> switch (contentMode.get()) {
+          case LibraryEditor, ProgramEditor, InstrumentEditor, InstrumentAudioEditor -> true;
           default -> false;
-        },
-        viewMode, contentMode, templateMode
+        };
+        case Templates -> Objects.equals(TemplateMode.TemplateEditor, templateMode.get());
+        default -> false;
+      },
+      viewMode, contentMode, templateMode
     );
 
     currentEntityName = Bindings.createStringBinding(
-        () -> switch (viewMode.get()) {
-          case Content -> switch (contentMode.get()) {
-            case LibraryEditor -> currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
-            case ProgramEditor -> currentProgram.isNotNull().get() ? currentProgram.get().getName() : "";
-            case InstrumentEditor -> currentInstrument.isNotNull().get() ? currentInstrument.get().getName() : "";
-            case InstrumentAudioEditor ->
-                currentInstrumentAudio.isNotNull().get() ? currentInstrumentAudio.get().getName() : "";
-            default -> "";
-          };
-          case Templates ->
-              Objects.equals(TemplateMode.TemplateEditor, templateMode.get()) && currentTemplate.isNotNull().get() ? currentTemplate.get().getName() : "";
+      () -> switch (viewMode.get()) {
+        case Content -> switch (contentMode.get()) {
+          case LibraryEditor -> currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
+          case ProgramEditor -> currentProgram.isNotNull().get() ? currentProgram.get().getName() : "";
+          case InstrumentEditor -> currentInstrument.isNotNull().get() ? currentInstrument.get().getName() : "";
+          case InstrumentAudioEditor ->
+            currentInstrumentAudio.isNotNull().get() ? currentInstrumentAudio.get().getName() : "";
           default -> "";
-        },
-        viewMode, contentMode, templateMode, currentProgram, currentInstrument, currentInstrumentAudio, currentTemplate);
+        };
+        case Templates ->
+          Objects.equals(TemplateMode.TemplateEditor, templateMode.get()) && currentTemplate.isNotNull().get() ? currentTemplate.get().getName() : "";
+        default -> "";
+      },
+      viewMode, contentMode, templateMode, currentProgram, currentInstrument, currentInstrumentAudio, currentTemplate);
 
     isCreateEntityButtonVisible = Bindings.createBooleanBinding(
-        () ->
-            projectService.isStateReadyProperty().get() &&
-                switch (viewMode.get()) {
-                  case Content -> switch (contentMode.get()) {
-                    case LibraryBrowser, ProgramBrowser, InstrumentBrowser -> true;
-                    default -> false;
-                  };
-                  case Templates -> Objects.equals(TemplateMode.TemplateBrowser, templateMode.get());
-                  default -> false;
-                },
-        viewMode, contentMode, templateMode, projectService.isStateReadyProperty()
+      () ->
+        projectService.isStateReadyProperty().get() &&
+          switch (viewMode.get()) {
+            case Content -> switch (contentMode.get()) {
+              case LibraryBrowser, ProgramBrowser, InstrumentBrowser -> true;
+              default -> false;
+            };
+            case Templates -> Objects.equals(TemplateMode.TemplateBrowser, templateMode.get());
+            default -> false;
+          },
+      viewMode, contentMode, templateMode, projectService.isStateReadyProperty()
     );
 
     isLibraryContentBrowser = Bindings.createBooleanBinding(
-        () -> Objects.equals(ViewMode.Content, viewMode.get()) &&
-            switch (contentMode.get()) {
-              case ProgramBrowser, InstrumentBrowser -> true;
-              default -> false;
-            },
-        viewMode, contentMode
+      () -> Objects.equals(ViewMode.Content, viewMode.get()) &&
+        switch (contentMode.get()) {
+          case ProgramBrowser, InstrumentBrowser -> true;
+          default -> false;
+        },
+      viewMode, contentMode
     );
 
     viewStatusMode = Bindings.createObjectBinding(
-        () -> {
-          if (projectService.isStateReadyProperty().not().get()) return ViewStatusMode.ProjectProgress;
-          if (viewMode.isEqualTo(ViewMode.Fabrication).get()) return ViewStatusMode.FabricationProgress;
-          return ViewStatusMode.ContentNavigation;
-        },
-        projectService.isStateReadyProperty(), viewMode);
+      () -> {
+        if (projectService.isStateReadyProperty().not().get()) return ViewStatusMode.ProjectProgress;
+        if (viewMode.isEqualTo(ViewMode.Fabrication).get()) return ViewStatusMode.FabricationProgress;
+        return ViewStatusMode.ContentNavigation;
+      },
+      projectService.isStateReadyProperty(), viewMode);
 
     isViewProgressStatusMode = viewStatusMode.isEqualTo(ViewStatusMode.FabricationProgress).or(viewStatusMode.isEqualTo(ViewStatusMode.ProjectProgress));
     isViewContentNavigationStatusMode = viewStatusMode.isEqualTo(ViewStatusMode.ContentNavigation);
+
+    // Update sequences of current program on a change in program or any sequence
+    currentProgram.addListener((o, ov, v) -> updateSequencesOfCurrentProgram());
+    projectService.addProjectUpdateListener(ProgramSequence.class, this::updateSequencesOfCurrentProgram);
 
     attachPreferenceListeners();
     setAllFromPreferencesOrDefaults();
@@ -402,6 +460,11 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
+  public ObservableList<ProgramSequence> sequencesOfCurrentProgramProperty() {
+    return sequencesOfCurrentProgram;
+  }
+
+  @Override
   public ObjectProperty<Instrument> currentInstrumentProperty() {
     return currentInstrument;
   }
@@ -431,11 +494,11 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public void viewLibrary(UUID libraryId) {
     var library = projectService.getContent().getLibrary(libraryId)
-        .orElseThrow(() -> new RuntimeException("Could not find Library!"));
+      .orElseThrow(() -> new RuntimeException("Could not find Library!"));
     currentLibrary.set(library);
     if (Objects.nonNull(library))
       if (projectService.getContent().getInstruments().stream()
-          .anyMatch(instrument -> Objects.equals(instrument.getLibraryId(), library.getId()))) {
+        .anyMatch(instrument -> Objects.equals(instrument.getLibraryId(), library.getId()))) {
         contentMode.set(ContentMode.InstrumentBrowser);
       } else {
         contentMode.set(ContentMode.ProgramBrowser);
@@ -445,7 +508,7 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public void editLibrary(UUID libraryId) {
     var library = projectService.getContent().getLibrary(libraryId)
-        .orElseThrow(() -> new RuntimeException("Could not find Library!"));
+      .orElseThrow(() -> new RuntimeException("Could not find Library!"));
     currentLibrary.set(library);
     contentMode.set(ContentMode.LibraryEditor);
     viewMode.set(ViewMode.Content);
@@ -454,9 +517,9 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public void editProgram(UUID programId) {
     var program = projectService.getContent().getProgram(programId)
-        .orElseThrow(() -> new RuntimeException("Could not find Program!"));
+      .orElseThrow(() -> new RuntimeException("Could not find Program!"));
     var library = projectService.getContent().getLibrary(program.getLibraryId())
-        .orElseThrow(() -> new RuntimeException("Could not find Library!"));
+      .orElseThrow(() -> new RuntimeException("Could not find Library!"));
     currentProgram.set(program);
     currentLibrary.set(library);
     contentMode.set(ContentMode.ProgramEditor);
@@ -466,9 +529,9 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public void editInstrument(UUID instrumentId) {
     var instrument = projectService.getContent().getInstrument(instrumentId)
-        .orElseThrow(() -> new RuntimeException("Could not find Instrument!"));
+      .orElseThrow(() -> new RuntimeException("Could not find Instrument!"));
     var library = projectService.getContent().getLibrary(instrument.getLibraryId())
-        .orElseThrow(() -> new RuntimeException("Could not find Library!"));
+      .orElseThrow(() -> new RuntimeException("Could not find Library!"));
     currentInstrument.set(instrument);
     currentInstrumentAudio.set(null);
     currentLibrary.set(library);
@@ -479,11 +542,11 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public void editInstrumentAudio(UUID instrumentAudioId) {
     var instrumentAudio = projectService.getContent().getInstrumentAudio(instrumentAudioId)
-        .orElseThrow(() -> new RuntimeException("Could not find InstrumentAudio!"));
+      .orElseThrow(() -> new RuntimeException("Could not find InstrumentAudio!"));
     var instrument = projectService.getContent().getInstrument(instrumentAudio.getInstrumentId())
-        .orElseThrow(() -> new RuntimeException("Could not find Instrument!"));
+      .orElseThrow(() -> new RuntimeException("Could not find Instrument!"));
     var library = projectService.getContent().getLibrary(instrument.getLibraryId())
-        .orElseThrow(() -> new RuntimeException("Could not find Library!"));
+      .orElseThrow(() -> new RuntimeException("Could not find Library!"));
     currentInstrumentAudio.set(instrumentAudio);
     currentInstrument.set(instrument);
     currentLibrary.set(library);
@@ -494,7 +557,7 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public void editTemplate(UUID templateId) {
     var template = projectService.getContent().getTemplate(templateId)
-        .orElseThrow(() -> new RuntimeException("Could not find Template!"));
+      .orElseThrow(() -> new RuntimeException("Could not find Template!"));
     currentTemplate.set(template);
     templateMode.set(TemplateMode.TemplateEditor);
     viewMode.set(ViewMode.Templates);
@@ -531,18 +594,100 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public BooleanProperty programEditorEditModeProperty() {
-    return programEditorEditMode;
-  }
-
-  @Override
-  public BooleanProperty programEditorBindModeProperty() {
-    return programEditorBindMode;
+  public ObjectProperty<ProgramEditorMode> programEditorModeProperty() {
+    return programEditorMode;
   }
 
   @Override
   public ObjectProperty<ProgramSequence> currentProgramSequenceProperty() {
     return currentProgramSequence;
+  }
+
+  @Override
+  public int getProgramEditorBaseSizePerBeat() {
+    return programEditorBaseSizePerBeat;
+  }
+
+  @Override
+  public ObservableList<GridChoice> getProgramEditorGridChoices() {
+    return programEditorGridChoices;
+  }
+
+  @Override
+  public ObservableList<ZoomChoice> getProgramEditorZoomChoices() {
+    return programEditorZoomChoices;
+  }
+
+  @Override
+  public ObjectProperty<GridChoice> programEditorGridProperty() {
+    return programEditorGrid;
+  }
+
+  @Override
+  public ObjectProperty<ZoomChoice> programEditorZoomProperty() {
+    return programEditorZoom;
+  }
+
+  @Override
+  public BooleanProperty programEditorSnapProperty() {
+    return programEditorSnap;
+  }
+
+  @Override
+  public <T> void launchModalMenu(
+    Resource fxml, Node launcher,
+    Consumer<T> setupController,
+    LaunchMenuPosition position,
+    boolean darkenBackground,
+    @Nullable Runnable onClose
+  ) {
+    try {
+      launcher.setDisable(true);
+      launcher.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, true);
+      Stage stage = new Stage(StageStyle.TRANSPARENT);
+      FXMLLoader loader = new FXMLLoader(fxml.getURL());
+      loader.setControllerFactory(ac::getBean);
+      Parent root = loader.load();
+      T controller = loader.getController();
+      setupController.accept(controller);
+      stage.setScene(new Scene(root));
+      stage.initOwner(themeService.getMainScene().getWindow());
+      stage.show();
+
+      Runnable onHidden = () -> {
+        launcher.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, false);
+        launcher.setDisable(false);
+        if (Objects.nonNull(onClose)) onClose.run();
+      };
+      if (darkenBackground) {
+        UiUtils.darkenBackgroundUntilClosed(stage, launcher.getScene(), onHidden);
+      } else {
+        stage.setOnHidden(e -> onHidden.run());
+      }
+
+      UiUtils.closeWindowOnClickingAway(stage);
+      position.move(launcher.getScene().getWindow(), stage);
+
+    } catch (
+      IOException e) {
+      LOG.error("Failed to launch menu from {}! {}\n{}", fxml.getFilename(), e, StringUtils.formatStackTrace(e));
+    }
+
+  }
+
+  @Override
+  public void launchPopupSelectorMenu(Node launcher, Consumer<PopupSelectorMenuController> setupController) {
+    launchModalMenu(popupSelectorMenuFxml, launcher, setupController, LaunchMenuPosition.from(launcher), false, null);
+  }
+
+  @Override
+  public void launchPopupActionMenu(Node launcher, Consumer<PopupActionMenuController> setupController) {
+    launchModalMenu(popupActionMenuFxml, launcher, setupController, LaunchMenuPosition.from(launcher), false, null);
+  }
+
+  @Override
+  public void launchQuickActionMenu(Node launcher, MouseEvent mouseEvent, Consumer<PopupActionMenuController> setupController) {
+    launchModalMenu(popupActionMenuFxml, launcher, setupController, LaunchMenuPosition.from(mouseEvent), false, null);
   }
 
   /**
@@ -557,5 +702,16 @@ public class UIStateServiceImpl implements UIStateService {
    */
   private void setAllFromPreferencesOrDefaults() {
     isLabFeatureEnabled.set(Boolean.parseBoolean(prefs.get("isLabFeatureEnabled", defaultIsLabFeatureEnabled)));
+  }
+
+  /**
+   Update the observable list of sequences of the current program.
+   */
+  private void updateSequencesOfCurrentProgram() {
+    if (Objects.nonNull(currentProgram.get())) {
+      sequencesOfCurrentProgram.setAll(projectService.getContent().getSequencesOfProgram(currentProgram.get().getId()));
+    } else {
+      sequencesOfCurrentProgram.clear();
+    }
   }
 }

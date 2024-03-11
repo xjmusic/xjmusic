@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Tooltip?>
+<HBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="io.xj.gui.controllers.content.program.edit_mode.VoiceController"
+      stylesheets="@/styles/default-theme.css"
+      fx:id="voiceContainer">
+
+  <VBox fx:id="voiceControlContainer" styleClass="voice-control-container" spacing="5">
+
+    <!-- Action Menu & Voice Name -->
+    <HBox HBox.hgrow="ALWAYS">
+      <padding>
+        <Insets left="2.0" top="2.0"/>
+      </padding>
+      <Button fx:id="voiceActionLauncher" onAction="#handlePressedVoiceActionLauncher" HBox.hgrow="ALWAYS"
+              styleClass="minimal">
+        <graphic>
+          <ImageView fitHeight="16.0" fitWidth="16.0">
+            <Image url="@/icons/hamburger-menu.png"/>
+          </ImageView>
+        </graphic>
+      </Button>
+      <TextField fx:id="voiceNameField" HBox.hgrow="ALWAYS"/>
+    </HBox>
+
+    <!-- Voice Type -->
+    <HBox HBox.hgrow="ALWAYS" alignment="CENTER_LEFT" spacing="5.0">
+      <Label minWidth="40.0" text="TYPE" styleClass="program-editor-field-label"/>
+      <ComboBox minWidth="102.0" fx:id="voiceTypeChooser"/>
+    </HBox>
+
+    <!-- Pattern Controls -->
+    <StackPane HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" styleClass="voice-pattern-container">
+      <Label fx:id="noSequencesLabel" text="NO SEQUENCES" styleClass="no-sequences-label"/>
+      <VBox fx:id="voicePatternControlContainer" spacing="2">
+        <padding>
+          <Insets left="2.0" top="2.0"/>
+        </padding>
+        <HBox spacing="2.0" HBox.hgrow="ALWAYS">
+          <Button fx:id="patternSelectorLauncher" onAction="#handlePressedPatternSelectorLauncher" HBox.hgrow="ALWAYS"
+                  styleClass="minimal">
+            <graphic>
+              <ImageView fitHeight="16.0" fitWidth="16.0">
+                <Image url="@/icons/down-arrow.png"/>
+              </ImageView>
+            </graphic>
+          </Button>
+          <Button fx:id="patternActionLauncher" onAction="#handlePressedPatternActionLauncher" HBox.hgrow="ALWAYS"
+                  styleClass="minimal">
+            <graphic>
+              <ImageView fitHeight="16.0" fitWidth="16.0">
+                <Image url="@/icons/hamburger-menu.png"/>
+              </ImageView>
+            </graphic>
+          </Button>
+          <TextField fx:id="patternNameField" HBox.hgrow="ALWAYS"/>
+          <Label fx:id="noPatternsLabel" text="NO PATTERNS" styleClass="no-patterns-label"/>
+        </HBox>
+        <HBox spacing="2.0" HBox.hgrow="ALWAYS" fx:id="patternTotalContainer" alignment="CENTER_LEFT">
+          <Label minWidth="50" text="TOTAL" styleClass="program-editor-field-label"/>
+          <TextField minWidth="90.0" fx:id="patternTotalField"/>
+        </HBox>
+      </VBox>
+    </StackPane>
+
+  </VBox>
+
+  <VBox fx:id="tracksContainer">
+    <AnchorPane fx:id="trackAddContainer">
+      <Button
+          AnchorPane.topAnchor="5.0" AnchorPane.bottomAnchor="5.0"
+          AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0"
+          fx:id="addTrackButton" onAction="#handlePressedAddTrack" HBox.hgrow="ALWAYS">
+        <tooltip>
+          <Tooltip text="Add Track"/>
+        </tooltip>
+        <graphic>
+          <ImageView fitHeight="16.0" fitWidth="16.0">
+            <Image url="@/icons/plus.png"/>
+          </ImageView>
+        </graphic>
+      </Button>
+    </AnchorPane>
+  </VBox>
+
+</HBox>

@@ -1,4 +1,4 @@
-package io.xj.gui.controllers.content.program;
+package io.xj.gui.controllers.content.program.bind_mode;
 
 import io.xj.gui.controllers.content.common.EntityMemesController;
 import io.xj.gui.services.ProjectService;
@@ -26,9 +26,9 @@ import java.io.IOException;
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class SequenceBindingItemController {
   @FXML
-  public Label sequenceName;
+  Label sequenceName;
   @FXML
-  public StackPane sequenceBindingMemeContainer;
+  StackPane sequenceBindingMemeContainer;
 
   public AnchorPane mainBorderPane;
 
@@ -87,7 +87,7 @@ public class SequenceBindingItemController {
   }
 
   @FXML
-  protected void handleDeleteSequenceBinding() {
+  void handleDeleteSequenceBinding() {
     deleteSequenceBinding.run();
   }
 
@@ -115,7 +115,7 @@ public class SequenceBindingItemController {
         }
       );
     } catch (IOException e) {
-      LOG.error("Error loading Entity Memes window!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Error loading Entity Memes window! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 }

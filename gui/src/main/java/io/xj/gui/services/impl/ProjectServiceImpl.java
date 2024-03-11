@@ -18,6 +18,9 @@ import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
@@ -71,6 +74,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.prefs.Preferences;
+import java.util.stream.Stream;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -317,9 +321,14 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public void deleteContent(Object entity) {
     try {
-      deleteContent(entity.getClass(), EntityUtils.getId(entity));
+      var id = EntityUtils.getId(entity);
+      try {
+        deleteContent(entity.getClass(), id);
+      } catch (Exception e2) {
+        LOG.error("Could not delete {}[{}]! {}\n{}", entity.getClass().getSimpleName(), id, e2, StringUtils.formatStackTrace(e2));
+      }
     } catch (Exception e) {
-      LOG.error("Could not delete content\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Could not delete {}! {}\n{}", entity.getClass().getSimpleName(), e, StringUtils.formatStackTrace(e));
     }
   }
 
@@ -330,9 +339,71 @@ public class ProjectServiceImpl implements ProjectService {
       didUpdate(type, true);
       LOG.info("Deleted {}[{}]", type.getSimpleName(), id);
     } catch (Exception e) {
-      LOG.error("Could not delete content\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Could not delete {}[{}]! {}\n{}", type.getSimpleName(), id, e, StringUtils.formatStackTrace(e));
     }
   }
+
+  @Override
+  public boolean deleteProgramVoiceTrack(UUID programVoiceTrackId) {
+    var trackEvents = projectManager.getContent().getEventsOfTrack(programVoiceTrackId);
+    if (!trackEvents.isEmpty() && !showConfirmationDialog("Delete Track", "Track contains events", "This operation will delete the track and all of its events. Do you want to proceed?")) {
+      return false;
+    }
+    try {
+      for (ProgramSequencePatternEvent event : trackEvents) deleteContent(event);
+      deleteContent(ProgramVoiceTrack.class, programVoiceTrackId);
+      LOG.info("Deleted ProgramVoiceTrack[{}]{}", programVoiceTrackId, trackEvents.isEmpty() ? "" : String.format(" and %d events", trackEvents.size()));
+    } catch (Exception e) {
+      LOG.error("Could not delete ProgramVoiceTrack[{}]! {}\n{}", programVoiceTrackId, e, StringUtils.formatStackTrace(e));
+    }
+    return true;
+  }
+
+  @Override
+  public boolean deleteProgramVoice(UUID programVoiceId) {
+    var voiceTracks = projectManager.getContent().getTracksOfVoice(programVoiceId);
+    var voicePatterns = projectManager.getContent().getPatternsOfVoice(programVoiceId);
+    var voiceTrackEvents = projectManager.getContent().getEventsOfProgram(programVoiceId).stream()
+      .filter(event -> voiceTracks.stream().anyMatch(track -> track.getId().equals(event.getProgramVoiceTrackId())))
+      .toList();
+    if (!voiceTracks.isEmpty() && !showConfirmationDialog("Delete Voice", "Voice contains tracks, patterns, or events", "This operation will delete the voice and all of its tracks, patterns, and events. Do you want to proceed?")) {
+      return false;
+    }
+    try {
+      for (ProgramVoiceTrack track : voiceTracks) deleteContent(track);
+      for (ProgramSequencePattern pattern : voicePatterns) deleteContent(pattern);
+      for (ProgramSequencePatternEvent event : voiceTrackEvents) deleteContent(event);
+      deleteContent(ProgramVoice.class, programVoiceId);
+      LOG.info("Deleted ProgramVoice[{}]{}", programVoiceId,
+        voiceTracks.isEmpty() ? "" : " and " + StringUtils.toProperCsvAnd(
+          Stream.of(
+            describeCount("track", voiceTracks.size()),
+            describeCount("pattern", voicePatterns.size()),
+            describeCount("event", voiceTrackEvents.size())
+          ).filter(Objects::nonNull).toList()
+        ));
+    } catch (Exception e) {
+      LOG.error("Could not delete ProgramVoiceTrack[{}]! {}\n{}", programVoiceId, e, StringUtils.formatStackTrace(e));
+    }
+    return true;
+  }
+
+  @Override
+  public boolean deleteProgramSequencePattern(UUID programSequencePatternId) {
+    var patternEvents = projectManager.getContent().getEventsOfPattern(programSequencePatternId);
+    if (!patternEvents.isEmpty() && !showConfirmationDialog("Delete Pattern", "Pattern contains events", "This operation will delete the pattern and all of its events. Do you want to proceed?")) {
+      return false;
+    }
+    try {
+      for (ProgramSequencePatternEvent event : patternEvents) deleteContent(event);
+      deleteContent(ProgramSequencePattern.class, programSequencePatternId);
+      LOG.info("Deleted ProgramSequencePattern[{}]{}", programSequencePatternId, patternEvents.isEmpty() ? "" : String.format(" and %d events", patternEvents.size()));
+    } catch (Exception e) {
+      LOG.error("Could not delete ProgramSequencePattern[{}]! {}\n{}", programSequencePatternId, e, StringUtils.formatStackTrace(e));
+    }
+    return true;
+  }
+
 
   @Override
   public ObservableListValue<ProjectDescriptor> recentProjectsProperty() {
@@ -403,7 +474,7 @@ public class ProjectServiceImpl implements ProjectService {
   public Template createTemplate(String name) throws Exception {
     var template = projectManager.createTemplate(name);
     didUpdate(Template.class, true);
-    LOG.info("Created template \"{}\"", name);
+    LOG.info("Created Template \"{}\"", name);
     return template;
   }
 
@@ -411,7 +482,7 @@ public class ProjectServiceImpl implements ProjectService {
   public Library createLibrary(String name) throws Exception {
     var library = projectManager.createLibrary(name);
     didUpdate(Library.class, true);
-    LOG.info("Created library \"{}\"", name);
+    LOG.info("Created Library \"{}\"", name);
     return library;
   }
 
@@ -419,7 +490,7 @@ public class ProjectServiceImpl implements ProjectService {
   public Program createProgram(Library library, String name) throws Exception {
     var program = projectManager.createProgram(library, name);
     didUpdate(Program.class, true);
-    LOG.info("Created program \"{}\"", name);
+    LOG.info("Created Program \"{}\"", name);
     return program;
   }
 
@@ -427,8 +498,40 @@ public class ProjectServiceImpl implements ProjectService {
   public ProgramSequence createProgramSequence(UUID programId) throws Exception {
     var programSequence = projectManager.createProgramSequence(programId);
     didUpdate(ProgramSequence.class, true);
-    LOG.info("Created programSequence \"{}\"", programSequence.getName());
+    LOG.info("Created Program Sequence \"{}\"", programSequence.getName());
     return programSequence;
+  }
+
+  @Override
+  public ProgramSequencePattern createProgramSequencePattern(UUID programId, UUID programSequenceId, UUID programVoiceId) throws Exception {
+    var programSequencePattern = projectManager.createProgramSequencePattern(programId, programSequenceId, programVoiceId);
+    didUpdate(ProgramSequencePattern.class, true);
+    LOG.info("Created Program Sequence Pattern \"{}\"", programSequencePattern.getName());
+    return programSequencePattern;
+  }
+
+  @Override
+  public ProgramSequencePatternEvent createProgramSequencePatternEvent(UUID trackId, UUID patternId, double position, double duration) throws Exception {
+    var programSequencePatternEvent = projectManager.createProgramSequencePatternEvent(trackId, patternId, position, duration);
+    didUpdate(ProgramSequencePatternEvent.class, true);
+    LOG.info("Created Program Sequence Pattern Event at {}", programSequencePatternEvent.getPosition());
+    return programSequencePatternEvent;
+  }
+
+  @Override
+  public ProgramVoice createProgramVoice(UUID programId) throws Exception {
+    var programVoice = projectManager.createProgramVoice(programId);
+    didUpdate(ProgramVoice.class, true);
+    LOG.info("Created Program Voice \"{}\"", programVoice.getName());
+    return programVoice;
+  }
+
+  @Override
+  public ProgramVoiceTrack createProgramVoiceTrack(UUID voiceId) throws Exception {
+    var programVoiceTrack = projectManager.createProgramVoiceTrack(voiceId);
+    didUpdate(ProgramVoiceTrack.class, true);
+    LOG.info("Created Program VoiceTrack \"{}\"", programVoiceTrack.getName());
+    return programVoiceTrack;
   }
 
   @Override
@@ -512,18 +615,18 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public ProgramSequence cloneProgramSequence(UUID fromId, String name) throws Exception {
-    var sequence = projectManager.cloneProgramSequence(fromId, name);
+  public ProgramSequence cloneProgramSequence(UUID fromId) throws Exception {
+    var sequence = projectManager.cloneProgramSequence(fromId);
     didUpdate(ProgramSequence.class, true);
-    LOG.info("Cloned program sequence to \"{}\"", name);
+    LOG.info("Cloned program sequence to \"{}\"", sequence.getName());
     return sequence;
   }
 
   @Override
-  public ProgramSequencePattern cloneProgramSequencePattern(UUID fromId, String name) throws Exception {
-    var pattern = projectManager.cloneProgramSequencePattern(fromId, name);
+  public ProgramSequencePattern cloneProgramSequencePattern(UUID fromId) throws Exception {
+    var pattern = projectManager.cloneProgramSequencePattern(fromId);
     didUpdate(ProgramSequence.class, true);
-    LOG.info("Cloned program sequence pattern to \"{}\"", name);
+    LOG.info("Cloned program sequence pattern to \"{}\"", pattern.getName());
     return pattern;
   }
 
@@ -541,15 +644,19 @@ public class ProjectServiceImpl implements ProjectService {
       projectManager.getContent().put(entity);
       didUpdate(entity.getClass(), true);
     } catch (Exception e) {
-      LOG.error("Could not update entity\n{}", StringUtils.formatStackTrace(e));
+      LOG.error("Could not update entity! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 
   @Override
-  public <N> void update(Class<N> type, UUID id, String attribute, Object value) throws Exception {
-    if (projectManager.getContent().update(type, id, attribute, value)) {
-      LOG.info("Updated {}[{}] attribute \"{}\" to \"{}\"", type.getSimpleName(), id, attribute, value);
-      didUpdate(type, true);
+  public <N> void update(Class<N> type, UUID id, String attribute, Object value) {
+    try {
+      if (projectManager.getContent().update(type, id, attribute, value)) {
+        LOG.info("Updated {}[{}] attribute \"{}\" to \"{}\"", type.getSimpleName(), id, attribute, value);
+        didUpdate(type, true);
+      }
+    } catch (Exception e) {
+      LOG.error("Could not update {}[{}] attribute \"{}\" to \"{}\"! {}\n{}", type.getSimpleName(), id, attribute, value, e, StringUtils.formatStackTrace(e));
     }
   }
 
@@ -561,7 +668,7 @@ public class ProjectServiceImpl implements ProjectService {
       return true;
 
     } catch (Exception e) {
-      LOG.error("Could not save Library\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Could not save Library! {}\n{}", e, StringUtils.formatStackTrace(e));
       return false;
     }
   }
@@ -574,7 +681,7 @@ public class ProjectServiceImpl implements ProjectService {
       return true;
 
     } catch (Exception e) {
-      LOG.error("Could not save Program\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.error("Could not save Program! {}\n{}", e, StringUtils.formatStackTrace(e));
       return false;
     }
   }
@@ -602,7 +709,7 @@ public class ProjectServiceImpl implements ProjectService {
       LOG.info("Added {} template binding", contentBindingType);
 
     } catch (Exception e) {
-      LOG.error("Could not add Template Binding!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Could not add Template Binding! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 
@@ -781,7 +888,7 @@ public class ProjectServiceImpl implements ProjectService {
               Platform.runLater(this::cancelProjectLoading);
             }
           } catch (Exception e) {
-            LOG.warn("Failed to clone project!\n{}", StringUtils.formatStackTrace(e), e);
+            LOG.warn("Failed to clone project! {}\n{}", e, StringUtils.formatStackTrace(e));
             Platform.runLater(this::cancelProjectLoading);
           }
         });
@@ -809,7 +916,7 @@ public class ProjectServiceImpl implements ProjectService {
       try {
         prefs.put("recentProjects", jsonProvider.getMapper().writeValueAsString(value));
       } catch (Exception e) {
-        LOG.warn("Failed to serialize recent projects!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+        LOG.warn("Failed to serialize recent projects! {}\n{}", e, StringUtils.formatStackTrace(e));
       }
     });
   }
@@ -822,7 +929,7 @@ public class ProjectServiceImpl implements ProjectService {
     try {
       recentProjects.setAll(jsonProvider.getMapper().readValue(prefs.get("recentProjects", "[]"), ProjectDescriptor[].class));
     } catch (Exception e) {
-      LOG.warn("Failed to deserialize recent projects!\n{}", StringUtils.formatStackTrace(e.getCause()), e);
+      LOG.warn("Failed to deserialize recent projects! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 
@@ -846,4 +953,18 @@ public class ProjectServiceImpl implements ProjectService {
   private void removeFromRecentProjects(String projectFilePath) {
     this.recentProjects.get().removeIf(existing -> Objects.equals(existing.projectFilePath(), projectFilePath));
   }
+
+  /**
+   Describe a count of something, the name pluralized if necessary
+   Return null if count is zero
+
+   @param name  of the thing
+   @param count of the thing
+   @return description of the count
+   */
+  private @Nullable String describeCount(String name, long count) {
+    if (count == 0) return null;
+    return String.format("%d %s", count, count > 1 ? StringUtils.toPlural(name) : name);
+  }
+
 }

@@ -3,11 +3,13 @@
 package io.xj.gui.utils;
 
 import jakarta.annotation.Nullable;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.TextField;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
@@ -118,18 +120,6 @@ public interface UiUtils {
   }
 
   /**
-   Positions the stage scene centered below the mouse click.
-
-   @param child  of which to set position
-   @param parent to reference for mouse position
-   */
-  static void setStagePositionBelowParentNode(Stage child, Node parent) {
-    var p = parent.localToScene(0, 0);
-    child.setX(parent.getScene().getWindow().getX() + p.getX() + parent.getBoundsInLocal().getWidth() / 2 - child.getWidth() / 2);
-    child.setY(parent.getScene().getWindow().getY() + p.getY() + parent.getBoundsInLocal().getHeight() + child.getHeight());
-  }
-
-  /**
    Darkens the background of the given stage until it is closed.
 
    @param stage       behind which to darken background
@@ -150,29 +140,39 @@ public interface UiUtils {
   }
 
   /**
-   Transfers focus to the given pane when the enter key is pressed on the given field.
+   Transfers focus away from the given field when the enter key is pressed.
 
    @param field on which to listen
    */
-  static void transferFocusOnEnterKeyPress(TextField field) {
+  static void blurOnEnterKeyPress(TextInputControl field) {
+    onSpecialKeyPress(field, () -> field.getParent().requestFocus(), null);
+  }
+
+  /**
+   Transfers focus away from the given field when the enter key is pressed.
+
+   @param field         on which to listen
+   @param onEnterPress  action to take when enter is pressed
+   @param onEscapePress action to take when escape is pressed
+   */
+  static void onSpecialKeyPress(
+    TextInputControl field,
+    @Nullable Runnable onEnterPress,
+    @Nullable Runnable onEscapePress
+  ) {
     field.setOnKeyPressed((KeyEvent e) -> {
-      if (e.getCode() == KeyCode.ENTER) {
-        field.getParent().requestFocus();
-      }
+      if (e.getCode() == KeyCode.ENTER && Objects.nonNull(onEnterPress)) onEnterPress.run();
+      if (e.getCode() == KeyCode.ESCAPE && Objects.nonNull(onEscapePress)) onEscapePress.run();
     });
   }
 
   /**
-   Transfers focus to the given pane when the enter key is pressed on the given field.
+   Transfers focus away from the given field when a selection is made
 
-   @param field on which to listen
+   @param chooser on which to listen
    */
-  static void transferFocusOnEnterKeyPress(Spinner<?> field) {
-    field.setOnKeyPressed((KeyEvent e) -> {
-      if (e.getCode() == KeyCode.ENTER) {
-        field.getParent().requestFocus();
-      }
-    });
+  static void blurOnSelection(ComboBox<?> chooser) {
+    chooser.setOnAction(e -> chooser.getParent().requestFocus());
   }
 
   /**
@@ -186,5 +186,35 @@ public interface UiUtils {
         toggleGroup.selectToggle(ov);
       }
     });
+  }
+
+  /**
+   Utility to take an action on blur (loss of focus)
+
+   @param control the control
+   @param action  the action to take
+   @return callback to clear the listener
+   */
+  static Runnable onBlur(Control control, Runnable action) {
+    ChangeListener<Boolean> listener = (o, ov, focus) -> {
+      if (!focus) {
+        action.run();
+      }
+    };
+    control.focusedProperty().addListener(listener);
+    return () -> control.focusedProperty().removeListener(listener);
+  }
+
+  /**
+   Utility to take an action on change of value
+
+   @param property the control
+   @param action   the action to take
+   @return callback to clear the listener
+   */
+  static <V> Runnable onChange(ObservableValue<V> property, Runnable action) {
+    ChangeListener<V> listener = (o, ov, value) -> action.run();
+    property.addListener(listener);
+    return () -> property.removeListener(listener);
   }
 }

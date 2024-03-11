@@ -51,19 +51,19 @@ public class TemplateEditorController extends BrowserController {
   private final ObservableList<TemplateBinding> bindings = FXCollections.observableList(new ArrayList<>());
 
   @FXML
-  protected SplitPane container;
+  SplitPane container;
 
   @FXML
-  protected VBox fieldsContainer;
+  VBox fieldsContainer;
 
   @FXML
-  protected TextField fieldName;
+  TextField fieldName;
 
   @FXML
-  protected TextArea fieldConfig;
+  TextArea fieldConfig;
 
   @FXML
-  protected TableView<TemplateBinding> bindingsTable;
+  TableView<TemplateBinding> bindingsTable;
 
   public TemplateEditorController(
     @Value("classpath:/views/template/template-editor.fxml") Resource fxml,
@@ -204,7 +204,7 @@ public class TemplateEditorController extends BrowserController {
       try {
         projectService.update(Template.class, templateId.get(), attribute, value);
       } catch (Exception e) {
-        LOG.error("Could not update Template " + attribute, StringUtils.formatStackTrace(e));
+        LOG.error("Could not update Template {}! {}\n{}", attribute, e, StringUtils.formatStackTrace(e));
       }
     }
   }

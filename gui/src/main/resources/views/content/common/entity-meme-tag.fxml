@@ -1,44 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.geometry.Insets?>
-<StackPane xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="io.xj.gui.controllers.content.common.EntityMemeTagController"
-           fx:id="container" styleClass="meme-tag-container" stylesheets="@/styles/default-theme.css">
-    <AnchorPane>
-        <TextField
-                fx:id="memeNameField"
-                AnchorPane.leftAnchor="5"
-                AnchorPane.rightAnchor="40"
-                AnchorPane.topAnchor="0"
-                AnchorPane.bottomAnchor="0"
-                onKeyPressed="#handleKeyPressed"
-                styleClass="meme-name-field"/>
-        <Label
-                fx:id="memeNameLabel"
-                AnchorPane.leftAnchor="5"
-                AnchorPane.rightAnchor="40"
-                AnchorPane.topAnchor="0"
-                AnchorPane.bottomAnchor="0"
-                styleClass="meme-name-label"/>
-        <Button
-                fx:id="deleteMemeButton"
-                AnchorPane.rightAnchor="0"
-                AnchorPane.topAnchor="0"
-                AnchorPane.bottomAnchor="0"
-                onAction="#deleteMeme"
-                styleClass="meme-tag-remove-button">
-            <graphic>
-                <ImageView fitHeight="16.0" fitWidth="16.0">
-                    <Image url="@/icons/multiply.png"/>
-                </ImageView>
-            </graphic>
-        </Button>
-    </AnchorPane>
-</StackPane>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<HBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="io.xj.gui.controllers.content.common.EntityMemeTagController"
+      fx:id="container"
+      styleClass="meme-tag-container" stylesheets="@/styles/default-theme.css"
+      alignment="CENTER_LEFT" minHeight="20" maxHeight="20">
+  <TextField
+      fx:id="nameField"
+      onKeyPressed="#handleKeyPressed"
+      styleClass="meme-name-field"/>
+  <Button
+      fx:id="deleteMemeButton"
+      onAction="#deleteMeme"
+      styleClass="meme-tag-remove-button"
+      VBox.vgrow="ALWAYS"
+      minHeight="20"
+      maxHeight="20">
+    <graphic>
+      <ImageView fitHeight="12.0" fitWidth="12.0">
+        <Image url="@/icons/multiply.png"/>
+      </ImageView>
+    </graphic>
+  </Button>
+</HBox>

@@ -7,7 +7,7 @@
 <VBox fx:id="sequenceBindingColumnContainer"
       stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="io.xj.gui.controllers.content.program.SequenceBindingColumnController"
+      fx:controller="io.xj.gui.controllers.content.program.bind_mode.SequenceBindingColumnController"
       minWidth="200" HBox.hgrow="ALWAYS" maxWidth="Infinity">
     <Label fx:id="offsetText"
            minHeight="20" maxHeight="20" styleClass="bind-mode-label" text="0" HBox.hgrow="ALWAYS"

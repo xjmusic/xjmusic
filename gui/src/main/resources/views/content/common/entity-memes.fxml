@@ -8,29 +8,29 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <HBox
-        xmlns="http://javafx.com/javafx"
-        xmlns:fx="http://javafx.com/fxml"
-        fx:controller="io.xj.gui.controllers.content.common.EntityMemesController"
-        focusTraversable="true"
-        prefHeight="0"
-        styleClass="entity-memes-container">
-    <StackPane fx:id="labelContainer" alignment="TOP_RIGHT"
-               styleClass="entity-memes-label-container"
-               minWidth="40" maxWidth="40">
-        <Label text="MEMES"/>
-    </StackPane>
-    <Button fx:id="addMemeButton" mnemonicParsing="false" onAction="#createMeme">
-        <graphic>
-            <ImageView fitHeight="16.0" fitWidth="16.0">
-                <Image url="@/icons/plus.png"/>
-            </ImageView>
-        </graphic>
-    </Button>
-    <FlowPane HBox.hgrow="ALWAYS" fx:id="memeTagContainer" alignment="CENTER_LEFT"
-              focusTraversable="true"
-              prefHeight="0"
-              vgap="5"
-              hgap="8"
-              styleClass="meme-list-container">
-    </FlowPane>
+    xmlns="http://javafx.com/javafx"
+    xmlns:fx="http://javafx.com/fxml"
+    fx:controller="io.xj.gui.controllers.content.common.EntityMemesController"
+    focusTraversable="true"
+    prefHeight="0"
+    styleClass="entity-memes-container">
+  <StackPane fx:id="labelContainer" alignment="TOP_RIGHT"
+             styleClass="entity-memes-label-container"
+             minWidth="40" maxWidth="40" minHeight="20" maxHeight="20">
+    <Label text="MEMES"/>
+  </StackPane>
+  <Button fx:id="addMemeButton" mnemonicParsing="false" onAction="#createMeme" styleClass="entity-memes-add-button" minHeight="20" maxHeight="20" minWidth="20">
+    <graphic>
+      <ImageView fitHeight="12.0" fitWidth="12.0">
+        <Image url="@/icons/plus.png"/>
+      </ImageView>
+    </graphic>
+  </Button>
+  <FlowPane HBox.hgrow="ALWAYS" fx:id="memeTagContainer" alignment="CENTER_LEFT"
+            focusTraversable="true"
+            prefHeight="0"
+            vgap="5"
+            hgap="8"
+            styleClass="meme-list-container">
+  </FlowPane>
 </HBox>

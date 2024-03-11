@@ -37,16 +37,16 @@ public class ContentBrowserController extends BrowserController {
   private final ObservableList<Instrument> instruments = FXCollections.observableList(new ArrayList<>());
 
   @FXML
-  protected StackPane container;
+  StackPane container;
 
   @FXML
-  protected TableView<Library> librariesTable;
+  TableView<Library> librariesTable;
 
   @FXML
-  protected TableView<Program> programsTable;
+  TableView<Program> programsTable;
 
   @FXML
-  protected TableView<Instrument> instrumentsTable;
+  TableView<Instrument> instrumentsTable;
 
   public ContentBrowserController(
     @Value("classpath:/views/content/content-browser.fxml") Resource fxml,

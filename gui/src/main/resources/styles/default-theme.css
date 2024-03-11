@@ -453,24 +453,82 @@
   -fx-font-size: 0.8em;
 }
 
+.program-editor .combo-box,
+.program-editor .spinner {
+  -fx-background-color: transparent;
+  -fx-border-style: none;
+}
+
 .toggle-button.program-editor-menu-button:selected {
   -fx-background-color: rgba(0, 255, 0, 0.38);
 }
 
+.voice-control-container {
+  -fx-background-color: #515151;
+}
+
+.voice-pattern-container {
+  -fx-background-color: #4a4a4a;
+}
+
+.track-control-container {
+  -fx-background-color: #454545;
+}
+
+.track-timeline-background {
+  -fx-background-color: #282828;
+}
+
+.program-sequence-pattern-event {
+  -fx-background-color: #585858;
+}
+
+.program-sequence-pattern-event .velocity-shader {
+  -fx-background-color: #666666;
+}
+
 /*noinspection CssInvalidPseudoSelector*/
-.program-editor .button:open {
+.program-sequence-pattern-event:open {
   -fx-background-color: #683568;
+}
+
+.no-sequences-label {
+  -fx-font-style: italic;
+  -fx-padding: 0 5 0 5;
+}
+
+.no-patterns-label {
+  -fx-font-style: italic;
+  -fx-padding: 0 5 0 5;
+}
+
+.text-field {
+  -fx-background-color: transparent;
 }
 
 .config-editor {
-  -fx-font-family: "Roboto Mono";
 }
 
-.sequence-window {
+.button.minimal {
+  -fx-background-color: transparent;
+  -fx-border-style: none;
+}
+
+.button.minimal:hover {
+  -fx-background-color: #ffffff20;
+}
+
+/*noinspection CssInvalidPseudoSelector*/
+.button.minimal:open {
   -fx-background-color: #683568;
 }
 
-.sequence-button {
+.popup-menu-container {
+  -fx-font-family: 'Roboto Mono';
+  -fx-background-color: #683568;
+}
+
+.popup-menu-button {
   -fx-background-color: #855C85;
 }
 
@@ -489,8 +547,17 @@
   -fx-background-color: #292929;
 }
 
-.program-config-pane {
+.program-config-pane,
+.event-properties-pane {
   -fx-border-color: grey;
+  -fx-font-family: "Roboto Mono";
+}
+
+.program-config-pane .label,
+.event-properties-pane .label,
+.event-properties-pane .text-field,
+.program-config-pane .text-area {
+  -fx-padding: 3 6 3 6;
 }
 
 .entity-memes-container {
@@ -506,30 +573,33 @@
   -fx-font-size: 0.8em;
 }
 
+.entity-memes-add-button {
+  -fx-padding: 0 0 0 0;
+}
+
 .meme-tag-container {
   -fx-padding: 0 0 0 0;
-  -fx-background-color: #777777;
-  -fx-background-radius: 8;
-  -fx-border-radius: 8;
+  -fx-background-color: #707070;
+  -fx-background-radius: 4;
+  -fx-border-radius: 4;
+  -fx-border-width: 0;
+  -fx-border-style: none;
 }
 
 .meme-name-field {
   -fx-background-color: transparent;
   -fx-text-fill: white;
-  -fx-font-size: 16;
-  -fx-padding: 0 0 0 0;
-}
-
-.meme-name-label {
-  -fx-text-fill: white;
-  -fx-font-size: 16;
+  -fx-font-size: 12;
+  -fx-padding: 2 4 2 4;
 }
 
 .meme-tag-remove-button {
-  -fx-background-radius: 0 6 6 0;
-  -fx-border-radius: 0 6 6 0;
-  -fx-background-color: #4E4E4E;
-  -fx-border-color: grey;
+  -fx-padding: 0 4 0 4;
+  -fx-background-radius: 0 4 4 0;
+  -fx-border-radius: 0 4 4 0;
+  -fx-background-color: #606060;
+  -fx-border-style: none;
+  -fx-border-width: 0;
 }
 
 .sequence-binding-item-container {

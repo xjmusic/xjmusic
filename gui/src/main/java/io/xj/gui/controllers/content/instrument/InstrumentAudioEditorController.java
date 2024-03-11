@@ -87,55 +87,55 @@ public class InstrumentAudioEditorController extends BrowserController {
   private int waveformTransientDashPixels;
 
   @FXML
-  protected SplitPane container;
+  SplitPane container;
 
   @FXML
-  protected VBox fieldsContainer;
+  VBox fieldsContainer;
 
   @FXML
-  protected TextField fieldName;
+  TextField fieldName;
 
   @FXML
-  protected TextField fieldEvent;
+  TextField fieldEvent;
 
   @FXML
-  protected TextField fieldVolume;
+  TextField fieldVolume;
 
   @FXML
-  protected TextField fieldTones;
+  TextField fieldTones;
 
   @FXML
-  protected TextField fieldTempo;
+  TextField fieldTempo;
 
   @FXML
-  protected TextField fieldIntensity;
+  TextField fieldIntensity;
 
   @FXML
-  protected TextField fieldTransientSeconds;
+  TextField fieldTransientSeconds;
 
   @FXML
-  protected TextField fieldLoopBeats;
+  TextField fieldLoopBeats;
 
   @FXML
-  protected ScrollPane waveformScrollPane;
+  ScrollPane waveformScrollPane;
 
   @FXML
-  protected ImageView waveform;
+  ImageView waveform;
 
   @FXML
-  protected Button buttonOpenAudioFolder;
+  Button buttonOpenAudioFolder;
 
   @FXML
-  protected Button buttonOpenAudioFile;
+  Button buttonOpenAudioFile;
 
   @FXML
-  protected Label labelAudioFileName;
+  Label labelAudioFileName;
 
   @FXML
-  protected Button buttonZoomOut;
+  Button buttonZoomOut;
 
   @FXML
-  protected Button buttonZoomIn;
+  Button buttonZoomIn;
 
   public InstrumentAudioEditorController(
     @Value("classpath:/views/content/instrument/instrument-audio-editor.fxml") Resource fxml,
@@ -323,7 +323,7 @@ public class InstrumentAudioEditorController extends BrowserController {
       try {
         projectService.update(InstrumentAudio.class, instrumentAudioId.get(), attribute, value);
       } catch (Exception e) {
-        LOG.error("Could not update InstrumentAudio " + attribute, StringUtils.formatStackTrace(e));
+        LOG.error("Could not update InstrumentAudio \"{}\"! {}\n{}", attribute, e, StringUtils.formatStackTrace(e));
       }
     }
   }
@@ -394,7 +394,7 @@ public class InstrumentAudioEditorController extends BrowserController {
       waveform.setLayoutX(0);
 
     } catch (Exception e) {
-      LOG.error("Could not render audioInMemory file!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Could not render audioInMemory file! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
 
@@ -418,7 +418,7 @@ public class InstrumentAudioEditorController extends BrowserController {
       audioInMemory.set(audioLoader.load(audio));
       LOG.info("Loaded audio file \"{}\" with {} channels and {} frames", audioInMemory.get().format(), audioInMemory.get().format().getChannels(), audioInMemory.get().data().length);
     } catch (Exception e) {
-      LOG.error("Could not load audio file!\n{}", StringUtils.formatStackTrace(e), e);
+      LOG.error("Could not load audio file! {}\n{}", e, StringUtils.formatStackTrace(e));
       projectService.showWarningAlert(
         "Could not load audio file",
         "Could not load audio file.",

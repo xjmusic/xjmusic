@@ -44,43 +44,43 @@ public class TemplateAddBindingModalController extends ProjectModalController {
   private final ObjectProperty<ContentBindingType> libraryContentType = new SimpleObjectProperty<>(ContentBindingType.Library);
 
   @FXML
-  protected VBox container;
+  VBox container;
 
   @FXML
-  protected Button buttonOK;
+  Button buttonOK;
 
   @FXML
-  protected Button buttonCancel;
+  Button buttonCancel;
 
   @FXML
-  protected VBox libraryChoiceContainer;
+  VBox libraryChoiceContainer;
 
   @FXML
-  protected HBox libraryContentSelectionContainer;
+  HBox libraryContentSelectionContainer;
 
   @FXML
-  protected ChoiceBox<LibraryChoice> choiceLibrary;
+  ChoiceBox<LibraryChoice> choiceLibrary;
 
   @FXML
-  protected VBox programChoiceContainer;
+  VBox programChoiceContainer;
 
   @FXML
-  protected ChoiceBox<ProgramChoice> choiceProgram;
+  ChoiceBox<ProgramChoice> choiceProgram;
 
   @FXML
-  protected VBox instrumentChoiceContainer;
+  VBox instrumentChoiceContainer;
 
   @FXML
-  protected ChoiceBox<InstrumentChoice> choiceInstrument;
+  ChoiceBox<InstrumentChoice> choiceInstrument;
 
   @FXML
-  protected ToggleGroup libraryContentSelectionToggle;
+  ToggleGroup libraryContentSelectionToggle;
 
   @FXML
-  protected ToggleButton buttonLibraryContentPrograms;
+  ToggleButton buttonLibraryContentPrograms;
 
   @FXML
-  protected ToggleButton buttonLibraryContentInstruments;
+  ToggleButton buttonLibraryContentInstruments;
 
 
   public TemplateAddBindingModalController(
@@ -148,7 +148,7 @@ public class TemplateAddBindingModalController extends ProjectModalController {
   }
 
   @FXML
-  protected void handlePressOK() {
+  void handlePressOK() {
     if (Objects.nonNull(library.get())) Platform.runLater(() -> {
       switch (libraryContentType.get()) {
         case Library -> projectService.createTemplateBinding(
@@ -171,7 +171,7 @@ public class TemplateAddBindingModalController extends ProjectModalController {
   }
 
   @FXML
-  protected void handlePressCancel() {
+  void handlePressCancel() {
     Stage stage = (Stage) buttonCancel.getScene().getWindow();
     stage.close();
     onStageClose();
