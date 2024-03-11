@@ -480,7 +480,11 @@
 }
 
 .program-sequence-pattern-event {
-  -fx-background-color: #656565;
+  -fx-background-color: #585858;
+}
+
+.program-sequence-pattern-event .velocity-shader {
+  -fx-background-color: #666666;
 }
 
 /*noinspection CssInvalidPseudoSelector*/

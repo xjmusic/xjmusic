@@ -9,8 +9,15 @@
     xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="io.xj.gui.controllers.content.program.edit_mode.VoiceTrackEventController"
     fx:id="container"
-    stylesheets="@/styles/default-theme.css" styleClass="program-sequence-pattern-event"
->
+    stylesheets="@/styles/default-theme.css" styleClass="program-sequence-pattern-event">
+
+  <Pane
+      fx:id="velocityShader"
+      styleClass="velocity-shader"
+      AnchorPane.leftAnchor="0"
+      AnchorPane.rightAnchor="0"
+      AnchorPane.bottomAnchor="0"/>
+
   <Pane
       AnchorPane.leftAnchor="0"
       AnchorPane.topAnchor="0"
@@ -50,4 +57,5 @@
       <Cursor fx:constant="OPEN_HAND"/>
     </cursor>
   </Label>
+
 </AnchorPane>

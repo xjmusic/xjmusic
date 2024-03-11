@@ -14,6 +14,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -44,6 +45,9 @@ public class VoiceTrackEventController {
   AnchorPane container;
 
   @FXML
+  Pane velocityShader;
+
+  @FXML
   Label tonesLabel;
 
   public VoiceTrackEventController(
@@ -71,8 +75,10 @@ public class VoiceTrackEventController {
     this.beatWidth.set(uiStateService.getProgramEditorBaseSizePerBeat() * uiStateService.programEditorZoomProperty().get().value());
     container.setLayoutX(beatWidth.getValue() * event.getPosition());
     container.setPrefWidth(beatWidth.getValue() * event.getDuration());
-    container.setPrefHeight(trackHeight);
+    container.setMinHeight(trackHeight);
+    container.setMaxHeight(trackHeight);
     tonesLabel.setText(event.getTones());
+    velocityShader.setPrefHeight(trackHeight * event.getVelocity());
   }
 
   /**
