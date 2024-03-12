@@ -72,13 +72,10 @@ public class VoiceTrackController {
   VBox trackControlContainer;
 
   @FXML
-  AnchorPane timelineEventsContainer;
+  AnchorPane timelineActiveRegion;
 
   @FXML
   Pane timelineBackground;
-
-  @FXML
-  Pane timelineActiveRegion;
 
   @FXML
   Button trackActionLauncher;
@@ -321,7 +318,7 @@ public class VoiceTrackController {
    Populate the track timeline with events
    */
   private void setupTimelineEvents() {
-    timelineEventsContainer.getChildren().clear();
+    timelineActiveRegion.getChildren().clear();
     if (patternId.isNotNull().get())
       for (ProgramSequencePatternEvent event : projectService.getContent().getEventsOfPatternAndTrack(patternId.get(), programVoiceTrackId)) {
         addEvent(event);
@@ -342,10 +339,10 @@ public class VoiceTrackController {
         () -> {
           controller.teardown();
           eventControllers.remove(controller);
-          timelineEventsContainer.getChildren().remove(root);
+          timelineActiveRegion.getChildren().remove(root);
           projectService.deleteContent(ProgramSequencePatternEvent.class, event.getId());
         });
-      timelineEventsContainer.getChildren().add(root);
+      timelineActiveRegion.getChildren().add(root);
 
     } catch (Exception e) {
       LOG.error("Failed to add event to timeline! {}\n{}", e, StringUtils.formatStackTrace(e));

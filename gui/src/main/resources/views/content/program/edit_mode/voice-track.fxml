@@ -57,13 +57,12 @@
 
   <StackPane HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" alignment="CENTER_LEFT">
     <Pane fx:id="timelineBackground" styleClass="track-timeline-background"/>
-    <Pane fx:id="timelineActiveRegion" styleClass="track-timeline-active-region"
+    <AnchorPane fx:id="timelineActiveRegion" styleClass="track-timeline-active-region"
           onMousePressed="#handleMousePressedTimeline" onMouseReleased="#handleMouseReleasedTimeline">
       <cursor>
         <Cursor fx:constant="CROSSHAIR"/>
       </cursor>
-    </Pane>
-    <AnchorPane fx:id="timelineEventsContainer" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" mouseTransparent="true"/>
+    </AnchorPane>
   </StackPane>
 
 </HBox>
