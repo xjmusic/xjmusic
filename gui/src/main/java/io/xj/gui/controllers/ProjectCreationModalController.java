@@ -9,7 +9,7 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.ProjectUtils;
-import io.xj.gui.utils.TextParsingUtils;
+import io.xj.gui.utils.TextUtils;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.util.StringUtils;
 import javafx.application.Platform;
@@ -136,7 +136,7 @@ public class ProjectCreationModalController extends ProjectModalController {
     fieldPathPrefix.textProperty().bindBidirectional(projectService.basePathPrefixProperty());
     fieldPathPrefix.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
       if (!isNowFocused) {
-        TextParsingUtils.addTrailingSlash(fieldPathPrefix);
+        TextUtils.addTrailingSlash(fieldPathPrefix);
       }
     });
 
@@ -195,7 +195,7 @@ public class ProjectCreationModalController extends ProjectModalController {
       buttonSelectDirectory.getScene().getWindow(), "Choose destination folder", fieldPathPrefix.getText()
     );
     if (Objects.nonNull(path)) {
-      fieldPathPrefix.setText(TextParsingUtils.addTrailingSlash(path));
+      fieldPathPrefix.setText(TextUtils.addTrailingSlash(path));
     }
   }
 

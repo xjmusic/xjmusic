@@ -7,6 +7,7 @@ import io.xj.gui.services.ThemeService;
 import io.xj.hub.HubContent;
 import io.xj.hub.entity.EntityUtils;
 import io.xj.hub.enums.ContentBindingType;
+import io.xj.hub.enums.ProgramType;
 import io.xj.hub.json.JsonProvider;
 import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.tables.pojos.Instrument;
@@ -16,7 +17,10 @@ import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoice;
@@ -27,6 +31,7 @@ import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.project.ProjectState;
+import io.xj.nexus.util.FormatUtils;
 import jakarta.annotation.Nullable;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -74,7 +79,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.prefs.Preferences;
-import java.util.stream.Stream;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -375,13 +379,11 @@ public class ProjectServiceImpl implements ProjectService {
       for (ProgramSequencePatternEvent event : voiceTrackEvents) deleteContent(event);
       deleteContent(ProgramVoice.class, programVoiceId);
       LOG.info("Deleted ProgramVoice[{}]{}", programVoiceId,
-        voiceTracks.isEmpty() ? "" : " and " + StringUtils.toProperCsvAnd(
-          Stream.of(
-            describeCount("track", voiceTracks.size()),
-            describeCount("pattern", voicePatterns.size()),
-            describeCount("event", voiceTrackEvents.size())
-          ).filter(Objects::nonNull).toList()
-        ));
+        voiceTracks.isEmpty() ? "" : " and " + FormatUtils.describeCounts(Map.of(
+          "track", voiceTracks.size(),
+          "pattern", voicePatterns.size(),
+          "event", voiceTrackEvents.size()
+        )));
     } catch (Exception e) {
       LOG.error("Could not delete ProgramVoiceTrack[{}]! {}\n{}", programVoiceId, e, StringUtils.formatStackTrace(e));
     }
@@ -825,6 +827,85 @@ public class ProjectServiceImpl implements ProjectService {
     return result.isPresent() && result.get() == yesButton;
   }
 
+  @Override
+  public boolean updateProgramType(UUID programId, ProgramType type) {
+    switch (type) {
+      case Main -> {
+        // Changing type to a Main program, confirm then delete any voice tracks, sequence patterns, and sequence pattern events
+        Collection<ProgramVoiceTrack> tracks = projectManager.getContent().getTracksOfProgram(programId);
+        Collection<ProgramSequencePattern> patterns = projectManager.getContent().getPatternsOfProgram(programId);
+        Collection<ProgramSequencePatternEvent> events = projectManager.getContent().getEventsOfProgram(programId);
+        if (!tracks.isEmpty() || !patterns.isEmpty() || !events.isEmpty()) {
+          if (!showConfirmationDialog(
+            "Change to Main-type Program",
+            "Program contains" + FormatUtils.describeCounts(Map.of(
+              "Voice Track", tracks.size(),
+              "Sequence Pattern", patterns.size(),
+              "Sequence Pattern Event", events.size()
+            )),
+            "This operation will delete all these entities which are not relevant to Main-type programs. Do you want to proceed?"
+          )) return false;
+          for (ProgramSequencePatternEvent event : events) deleteContent(event);
+          for (ProgramSequencePattern pattern : patterns) deleteContent(pattern);
+          for (ProgramVoiceTrack track : tracks) deleteContent(track);
+        }
+      }
+      case Macro -> {
+        // Changing type to a Macro program, confirm then delete any sequence chords, sequence chord voicings, voices, voice tracks, sequence patterns, and sequence pattern events
+        Collection<ProgramSequenceChord> chords = projectManager.getContent().getChordsOfProgram(programId);
+        Collection<ProgramSequenceChordVoicing> voicings = projectManager.getContent().getVoicingsOfProgram(programId);
+        Collection<ProgramVoice> voices = projectManager.getContent().getVoicesOfProgram(programId);
+        Collection<ProgramVoiceTrack> tracks = projectManager.getContent().getTracksOfProgram(programId);
+        Collection<ProgramSequencePattern> patterns = projectManager.getContent().getPatternsOfProgram(programId);
+        Collection<ProgramSequencePatternEvent> events = projectManager.getContent().getEventsOfProgram(programId);
+        if (!chords.isEmpty() || !voicings.isEmpty() || !voices.isEmpty() || !tracks.isEmpty() || !patterns.isEmpty() || !events.isEmpty()) {
+          if (!showConfirmationDialog(
+            "Change to Macro-type Program",
+            "Program contains " + FormatUtils.describeCounts(Map.of(
+              "Sequence Chord", chords.size(),
+              "Sequence Chord Voicing", voicings.size(),
+              "Voice", voices.size(),
+              "Voice Track", tracks.size(),
+              "Sequence Pattern", patterns.size(),
+              "Sequence Pattern Event", events.size()
+            )),
+            "This operation will delete all these entities which are not relevant to Macro-type programs. Do you want to proceed?"))
+            return false;
+          for (ProgramSequencePatternEvent event : events) deleteContent(event);
+          for (ProgramSequencePattern pattern : patterns) deleteContent(pattern);
+          for (ProgramVoiceTrack track : tracks) deleteContent(track);
+          for (ProgramSequenceChordVoicing voicing : voicings) deleteContent(voicing);
+          for (ProgramSequenceChord chord : chords) deleteContent(chord);
+          for (ProgramVoice voice : voices) deleteContent(voice);
+        }
+      }
+      case Beat, Detail -> {
+        // Changing type to a Detail or Beat program, confirm then delete any sequence bindings, sequence chords, sequence chord voicings, and sequence binding memes
+        Collection<ProgramSequenceBinding> sequenceBindings = projectManager.getContent().getSequenceBindingsOfProgram(programId);
+        Collection<ProgramSequenceBindingMeme> sequenceBindingMemes = projectManager.getContent().getSequenceBindingMemesOfProgram(programId);
+        Collection<ProgramSequenceChord> chords = projectManager.getContent().getChordsOfProgram(programId);
+        Collection<ProgramSequenceChordVoicing> voicings = projectManager.getContent().getVoicingsOfProgram(programId);
+        if (!sequenceBindings.isEmpty() || !sequenceBindingMemes.isEmpty() || !chords.isEmpty() || !voicings.isEmpty()) {
+          if (!showConfirmationDialog(
+            "Change to " + type + "-type Program",
+            "Program contains " + FormatUtils.describeCounts(Map.of(
+              "Sequence Binding", sequenceBindings.size(),
+              "Sequence Binding Meme", sequenceBindingMemes.size(),
+              "Sequence Chord", chords.size(),
+              "Sequence Chord Voicing", voicings.size()
+            )),
+            "This operation will delete all these entities which are not relevant to " + type + "-type programs. Do you want to proceed?"))
+            return false;
+          for (ProgramSequenceBindingMeme meme : sequenceBindingMemes) deleteContent(meme);
+          for (ProgramSequenceBinding binding : sequenceBindings) deleteContent(binding);
+          for (ProgramSequenceChordVoicing voicing : voicings) deleteContent(voicing);
+          for (ProgramSequenceChord chord : chords) deleteContent(chord);
+        }
+      }
+    }
+    return true;
+  }
+
   /**
    If the directory already exists then pop up a confirmation dialog
 
@@ -952,19 +1033,6 @@ public class ProjectServiceImpl implements ProjectService {
    */
   private void removeFromRecentProjects(String projectFilePath) {
     this.recentProjects.get().removeIf(existing -> Objects.equals(existing.projectFilePath(), projectFilePath));
-  }
-
-  /**
-   Describe a count of something, the name pluralized if necessary
-   Return null if count is zero
-
-   @param name  of the thing
-   @param count of the thing
-   @return description of the count
-   */
-  private @Nullable String describeCount(String name, long count) {
-    if (count == 0) return null;
-    return String.format("%d %s", count, count > 1 ? StringUtils.toPlural(name) : name);
   }
 
 }

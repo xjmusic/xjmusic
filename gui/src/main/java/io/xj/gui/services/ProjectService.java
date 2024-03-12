@@ -2,6 +2,7 @@ package io.xj.gui.services;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.enums.ContentBindingType;
+import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.InstrumentMeme;
@@ -165,7 +166,7 @@ public interface ProjectService {
    @return true if the pattern was deleted, false otherwise
    */
   boolean deleteProgramSequencePattern(UUID programSequencePatternId);
-  
+
   /**
    Delete a program voice track. Show a confirmation dialog if the track has events
 
@@ -522,4 +523,17 @@ public interface ProjectService {
    @return true if the user clicked 'Yes', false otherwise
    */
   boolean showConfirmationDialog(String title, String header, String content);
+
+  /**
+   Update the program type, but confirm and delete unused parts based on the new type
+   <p>
+   - Changing type to a Main program, confirm then delete any voice tracks, sequence patterns, and sequence pattern events
+   - Changing type to a Macro program, confirm then delete any sequence chords, voices, voice tracks, sequence patterns, and sequence pattern events
+   - Changing type to a Detail or Beat program, confirm then delete any sequence bindings, sequence chords, and sequence binding memes
+
+   @param programId program for which to change type
+   @param type      new program type
+   @return true if successful
+   */
+  boolean updateProgramType(UUID programId, ProgramType type);
 }

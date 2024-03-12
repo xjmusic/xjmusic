@@ -177,7 +177,17 @@ public class ProgramEditorController extends ProjectController {
     programHasSequences = Bindings.createBooleanBinding(() -> !uiStateService.sequencesOfCurrentProgramProperty().isEmpty(), uiStateService.sequencesOfCurrentProgramProperty());
 
     updateProgramName = () -> projectService.update(Program.class, programId.get(), "name", programNameField.getText());
-    updateProgramType = () -> projectService.update(Program.class, programId.get(), "type", programTypeChooser.getValue());
+    updateProgramType = () -> {
+      if (uiStateService.currentProgramProperty().isNull().get()) return;
+      if (!projectService.updateProgramType(programId.get(), programTypeChooser.getValue())) {
+        programTypeChooser.setValue(uiStateService.currentProgramProperty().get().getType());
+        return;
+      }
+      switch (programTypeChooser.getValue()) {
+        case Macro -> editorModeToggleGroup.selectToggle(bindButton);
+        case Detail -> editorModeToggleGroup.selectToggle(editButton);
+      }
+    };
     updateProgramState = () -> projectService.update(Program.class, programId.get(), "state", programStateChooser.getValue());
     updateProgramKey = () -> projectService.update(Program.class, programId.get(), "key", programKeyField.getText());
     updateProgramTempo = () -> projectService.update(Program.class, programId.get(), "tempo", programTempoField.getText());
@@ -218,14 +228,6 @@ public class ProgramEditorController extends ProjectController {
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
-    // if the type is changed to macro, force selection of bind mode
-    programTypeChooser.valueProperty().addListener((observable, oldValue, newValue) -> {
-      switch (newValue) {
-        case Macro -> editorModeToggleGroup.selectToggle(bindButton);
-        case Detail -> editorModeToggleGroup.selectToggle(editButton);
-      }
-    });
-
     currentSequenceGroup.visibleProperty().bind(uiStateService.currentProgramSequenceProperty().isNotNull());
     currentSequenceGroup.managedProperty().bind(uiStateService.currentProgramSequenceProperty().isNotNull());
     noSequencesLabel.visibleProperty().bind(programHasSequences.not());
@@ -243,8 +245,8 @@ public class ProgramEditorController extends ProjectController {
 
     // On blur, update the underlying value
     UiUtils.onBlur(programNameField, updateProgramName);
-    UiUtils.onBlur(programTypeChooser, updateProgramType);
-    UiUtils.onBlur(programStateChooser, updateProgramState);
+    UiUtils.onChange(programTypeChooser.valueProperty(), updateProgramType);
+    UiUtils.onChange(programStateChooser.valueProperty(), updateProgramState);
     UiUtils.onBlur(programKeyField, updateProgramKey);
     UiUtils.onBlur(programTempoField, updateProgramTempo);
     UiUtils.onBlur(sequenceNameField, updateSequenceName);

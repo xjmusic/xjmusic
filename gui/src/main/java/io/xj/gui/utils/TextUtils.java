@@ -1,10 +1,12 @@
 package io.xj.gui.utils;
 
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 import java.io.File;
 
-public enum TextParsingUtils {
+public enum TextUtils {
   ;
 
   /**
@@ -29,4 +31,22 @@ public enum TextParsingUtils {
   public static String addTrailingSlash(String text) {
     return text.endsWith(File.separator) ? text : text + File.separator;
   }
+
+  public static double getVvalue(TextArea textArea) {
+    ScrollPane sp = (ScrollPane) textArea.lookup(".scroll-pane");
+    if (sp != null) {
+      return sp.getVvalue();
+    }
+    return 0;
+  }
+
+  public static double getVmax(TextArea textArea) {
+    ScrollPane sp = (ScrollPane) textArea.lookup(".scroll-pane");
+    if (sp != null) {
+      return sp.getVmax();
+    }
+    return 0;
+  }
+
+
 }
