@@ -838,7 +838,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (!tracks.isEmpty() || !patterns.isEmpty() || !events.isEmpty()) {
           if (!showConfirmationDialog(
             "Change to Main-type Program",
-            "Program contains" + FormatUtils.describeCounts(Map.of(
+            "Program contains " + FormatUtils.describeCounts(Map.of(
               "Voice Track", tracks.size(),
               "Sequence Pattern", patterns.size(),
               "Sequence Pattern Event", events.size()
