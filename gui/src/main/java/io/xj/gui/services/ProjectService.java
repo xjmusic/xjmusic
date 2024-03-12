@@ -528,8 +528,8 @@ public interface ProjectService {
    Update the program type, but confirm and delete unused parts based on the new type
    <p>
    - Changing type to a Main program, confirm then delete any voice tracks, sequence patterns, and sequence pattern events
-   - Changing type to a Macro program, confirm then delete any sequence chords, voices, voice tracks, sequence patterns, and sequence pattern events
-   - Changing type to a Detail or Beat program, confirm then delete any sequence bindings, sequence chords, and sequence binding memes
+   - Changing type to a Macro program, confirm then delete any sequence chords, sequence chord voicings, voices, voice tracks, sequence patterns, and sequence pattern events
+   - Changing type to a Detail or Beat program, confirm then delete any sequence bindings, sequence chords, sequence chord voicings, and sequence binding memes
 
    @param programId program for which to change type
    @param type      new program type
