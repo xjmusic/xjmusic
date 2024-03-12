@@ -479,6 +479,10 @@
   -fx-background-color: #282828;
 }
 
+.track-timeline-active-region {
+  -fx-background-color: #ffffff10;
+}
+
 .program-sequence-pattern-event {
   -fx-background-color: #585858;
 }
@@ -490,6 +494,11 @@
 /*noinspection CssInvalidPseudoSelector*/
 .program-sequence-pattern-event:open {
   -fx-background-color: #683568;
+}
+
+/*noinspection CssInvalidPseudoSelector*/
+.program-sequence-pattern-event:open .velocity-shader {
+  -fx-background-color: #784578;
 }
 
 .no-sequences-label {

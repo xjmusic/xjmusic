@@ -31,7 +31,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -77,6 +76,9 @@ public class VoiceTrackController {
 
   @FXML
   Pane timelineBackground;
+
+  @FXML
+  Pane timelineActiveRegion;
 
   @FXML
   Button trackActionLauncher;
@@ -127,6 +129,8 @@ public class VoiceTrackController {
     trackContainer.setMaxHeight(trackHeight);
     timelineBackground.setMinHeight(trackHeight);
     timelineBackground.setMaxHeight(trackHeight);
+    timelineActiveRegion.setMinHeight(trackHeight);
+    timelineActiveRegion.setMaxHeight(trackHeight);
     trackControlContainer.setMinWidth(trackControlWidth);
     trackControlContainer.setMaxWidth(trackControlWidth);
 
@@ -185,14 +189,14 @@ public class VoiceTrackController {
   @FXML
   void handleMousePressedTimeline(MouseEvent mouseEvent) {
     // keep track of whether a mouse press originated on the container as opposed to its children
-    isMousePressedInTimeline.set(mouseEvent.getTarget() == timelineEventsContainer);
+    isMousePressedInTimeline.set(mouseEvent.getTarget() == timelineActiveRegion);
   }
 
 
   @FXML
   void handleMouseReleasedTimeline(MouseEvent mouseEvent) {
     // ignore clicks on children of the timeline container
-    if (mouseEvent.getTarget() != timelineEventsContainer) return;
+    if (mouseEvent.getTarget() != timelineActiveRegion) return;
     if (isMousePressedInTimeline.not().get()) return;
     isMousePressedInTimeline.set(false);
 
@@ -263,6 +267,8 @@ public class VoiceTrackController {
     if (uiStateService.currentProgramSequenceProperty().isNull().get()) {
       timelineBackground.setMinWidth(0);
       timelineBackground.setMaxWidth(0);
+      timelineActiveRegion.setMinWidth(0);
+      timelineActiveRegion.setMaxWidth(0);
       return;
     }
 
@@ -278,11 +284,11 @@ public class VoiceTrackController {
 
     // draw active region for the current pattern total
     if (Objects.nonNull(pattern)) {
-      Rectangle rectangle = new Rectangle();
-      rectangle.setWidth(beatWidth * pattern.getTotal());
-      rectangle.setHeight(trackHeight);
-      rectangle.setFill(Color.valueOf("#353535"));
-      timelineBackground.getChildren().add(rectangle);
+      timelineActiveRegion.setMinWidth(beatWidth * pattern.getTotal());
+      timelineActiveRegion.setMaxWidth(beatWidth * pattern.getTotal());
+    } else {
+      timelineActiveRegion.setMinWidth(0);
+      timelineActiveRegion.setMaxWidth(0);
     }
 
     // draw vertical grid lines
