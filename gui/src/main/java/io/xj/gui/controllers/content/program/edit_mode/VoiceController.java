@@ -140,8 +140,10 @@ public class VoiceController {
         projectService.update(ProgramSequencePattern.class, patternId.get(), "name", patternNameField.getText());
     };
     updatePatternTotal = () -> {
-      if (patternId.isNotNull().get())
-        projectService.update(ProgramSequencePattern.class, patternId.get(), "total", patternTotalField.getText());
+      if (patternId.isNull().get()) return;
+      if (!projectService.updateProgramSequencePatternTotal(patternId.get(), patternTotalField.getText())) {
+        patternTotalField.setText(projectService.getContent().getProgramSequencePattern(patternId.get()).map(ProgramSequencePattern::getTotal).map(Object::toString).orElse(""));
+      }
     };
   }
 

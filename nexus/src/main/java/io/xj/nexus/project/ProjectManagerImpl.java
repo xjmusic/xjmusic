@@ -86,7 +86,6 @@ public class ProjectManagerImpl implements ProjectManager {
   private static final String DEFAULT_PROGRAM_VOICE_NAME = "New Voice";
   private static final String DEFAULT_PROGRAM_VOICE_TRACK_NAME = "New Track";
   private static final Integer DEFAULT_PROGRAM_SEQUENCE_TOTAL = 4;
-  private static final Integer DEFAULT_PROGRAM_SEQUENCE_PATTERN_TOTAL = 4;
   private static final String DEFAULT_MEME_NAME = "XXX";
   private static final String DEFAULT_PROGRAM_SEQUENCE_PATTERN_EVENT_TONES = "X";
   private final AtomicReference<ProjectState> state = new AtomicReference<>(ProjectState.Standby);
@@ -563,7 +562,7 @@ public class ProjectManagerImpl implements ProjectManager {
     var pattern = new ProgramSequencePattern();
     pattern.setId(UUID.randomUUID());
     pattern.setName(newPatternName);
-    pattern.setTotal(existingPattern.map(ProgramSequencePattern::getTotal).orElse(DEFAULT_PROGRAM_SEQUENCE_PATTERN_TOTAL.shortValue()));
+    pattern.setTotal(existingPattern.map(ProgramSequencePattern::getTotal).orElse(sequence.getTotal()));
     pattern.setProgramId(program.getId());
     pattern.setProgramSequenceId(sequence.getId());
     pattern.setProgramVoiceId(voice.getId());
@@ -576,8 +575,6 @@ public class ProjectManagerImpl implements ProjectManager {
   public ProgramSequencePatternEvent createProgramSequencePatternEvent(UUID trackId, UUID patternId, double position, double duration) throws Exception {
     var track = content.get().getProgramVoiceTrack(trackId).orElseThrow(() -> new NexusException("Track not found"));
     var pattern = content.get().getProgramSequencePattern(patternId).orElseThrow(() -> new NexusException("Pattern not found"));
-    var existingEventsOfPattern = content.get().getEventsOfPattern(pattern.getId());
-    var existingEventOfPattern = existingEventsOfPattern.stream().findFirst();
 
     // Prepare the event record
     var event = new ProgramSequencePatternEvent();
