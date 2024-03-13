@@ -451,12 +451,27 @@ public interface ProjectService {
   boolean updateLibrary(Library library);
 
   /**
-   Update the given program
+   Update the given program sequence pattern total from a text field value
+   <p>
+   Changing pattern length, if there are events past the end of the new length, ask for confirmation and delete those events
+   Creating pattern or changing pattern total, length is not allowed to be longer than sequence or less than 1
 
-   @param program to update
+   @param programSequencePatternId the id of the pattern to update
+   @param totalString              the new total, string value for parsing
    @return true if successful
    */
-  boolean updateProgram(Program program);
+  boolean updateProgramSequencePatternTotal(UUID programSequencePatternId, String totalString);
+
+  /**
+   Update the given program sequence total from a text field value
+   <p>
+   Changing sequence total, not allowed to be shorter than the longest pattern
+
+   @param programSequenceId the id of the pattern to update
+   @param totalString       the new total, string value for parsing
+   @return true if successful
+   */
+  boolean updateProgramSequenceTotal(UUID programSequenceId, String totalString);
 
   /**
    Get the path prefix to the audio folder for an instrument

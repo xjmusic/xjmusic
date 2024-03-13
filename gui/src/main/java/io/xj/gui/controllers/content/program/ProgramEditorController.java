@@ -198,8 +198,10 @@ public class ProgramEditorController extends ProjectController {
         projectService.update(ProgramSequence.class, uiStateService.currentProgramSequenceProperty().get().getId(), "name", sequenceNameField.getText());
     };
     updateSequenceTotal = () -> {
-      if (uiStateService.currentProgramSequenceProperty().isNotNull().get())
-        projectService.update(ProgramSequence.class, uiStateService.currentProgramSequenceProperty().get().getId(), "total", sequenceTotalField.getText());
+      if (uiStateService.currentProgramSequenceProperty().isNull().get()) return;
+      if (!projectService.updateProgramSequenceTotal(uiStateService.currentProgramSequenceProperty().get().getId(), sequenceTotalField.getText())) {
+        sequenceTotalField.setText(uiStateService.currentProgramSequenceProperty().get().getTotal().toString());
+      }
     };
     updateSequenceKey = () -> {
       if (uiStateService.currentProgramSequenceProperty().isNotNull().get())

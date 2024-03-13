@@ -75,6 +75,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -676,16 +677,74 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public boolean updateProgram(Program program) {
+  public boolean updateProgramSequencePatternTotal(UUID programSequencePatternId, String totalText) {
+    int total;
     try {
-      projectManager.getContent().put(program);
-      didUpdate(Program.class, true);
-      return true;
-
+      total = Integer.parseInt(totalText);
     } catch (Exception e) {
-      LOG.error("Could not save Program! {}\n{}", e, StringUtils.formatStackTrace(e));
+      showWarningAlert("Invalid Total", "Invalid value for pattern total", "Total must be a whole number");
       return false;
     }
+
+    if (total < 1) {
+      showWarningAlert("Invalid Total", "Invalid value for pattern total", "Total must be at least 1");
+      return false;
+    }
+
+    Optional<ProgramSequencePattern> pattern = projectManager.getContent().get(ProgramSequencePattern.class, programSequencePatternId);
+    if (pattern.isEmpty()) return false; // the pattern has been deleted
+    Optional<ProgramSequence> sequence = projectManager.getContent().get(ProgramSequence.class, pattern.get().getProgramSequenceId());
+    if (sequence.isEmpty()) return false; // the sequence has been deleted
+
+    if (total > sequence.get().getTotal()) {
+      showWarningAlert("Invalid Total", "Invalid value for pattern total", "Total must be less than or equal to the sequence total");
+      return false;
+    }
+
+    // Changing pattern length, if there are events past the end of the new length, ask for confirmation and delete those events
+    List<ProgramSequencePatternEvent> events = projectManager.getContent().getEventsOfPattern(programSequencePatternId);
+    if (events.stream().anyMatch(e -> e.getPosition() >= total)) {
+      if (!showConfirmationDialog("Change Pattern Length", "Pattern contains events past the new length", "This operation will delete the events past the new length. Do you want to proceed?")) {
+        return false;
+      }
+      for (ProgramSequencePatternEvent event : events) {
+        if (event.getPosition() >= total) {
+          deleteContent(event);
+        }
+      }
+    }
+
+    update(ProgramSequencePattern.class, programSequencePatternId, "total", total);
+    return true;
+  }
+
+  @Override
+  public boolean updateProgramSequenceTotal(UUID programSequenceId, String totalString) {
+    int total;
+    try {
+      total = Integer.parseInt(totalString);
+    } catch (Exception e) {
+      showWarningAlert("Invalid Total", "Invalid value for sequence total", "Total must be a whole number");
+      return false;
+    }
+
+    if (total < 1) {
+      showWarningAlert("Invalid Total", "Invalid value for sequence total", "Total must be at least 1");
+      return false;
+    }
+
+    Optional<ProgramSequence> sequence = projectManager.getContent().get(ProgramSequence.class, programSequenceId);
+    if (sequence.isEmpty()) return false; // the sequence has been deleted
+
+    // Changing sequence length, if there are patterns with total greater than the new length, ask for confirmation and delete those patterns
+    Collection<ProgramSequencePattern> patterns = projectManager.getContent().getPatternsOfSequence(programSequenceId);
+    if (patterns.stream().anyMatch(p -> p.getTotal() > total)) {
+      showWarningAlert("Change Sequence Length", "Sequence contains patterns with total greater than the new length", "Please shorten or delete those patterns first");
+      return false;
+    }
+
+    update(ProgramSequence.class, programSequenceId, "total", total);
+    return true;
   }
 
   @Override
