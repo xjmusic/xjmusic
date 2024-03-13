@@ -35,6 +35,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.converter.NumberStringConverter;
@@ -126,6 +127,9 @@ public class InstrumentAudioEditorController extends BrowserController {
 
   @FXML
   ScrollPane waveformScrollPane;
+
+  @FXML
+  StackPane waveformContainer;
 
   @FXML
   ImageView waveform;
@@ -240,7 +244,7 @@ public class InstrumentAudioEditorController extends BrowserController {
 
     isSettingTransient.addListener((o, ov, active) -> {
       setTransientButton.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, active);
-      waveformScrollPane.setCursor(active ? javafx.scene.Cursor.CROSSHAIR : javafx.scene.Cursor.DEFAULT);
+      waveformContainer.setCursor(active ? javafx.scene.Cursor.CROSSHAIR : javafx.scene.Cursor.DEFAULT);
     });
   }
 
@@ -280,7 +284,7 @@ public class InstrumentAudioEditorController extends BrowserController {
   }
 
   @FXML
-  private void handleClickedWaveformScrollPane(MouseEvent event) {
+  private void handleClickedWaveformContainer(MouseEvent event) {
     if (audioInMemory.isNull().get()) return;
     if (isSettingTransient.not().get()) return;
 
