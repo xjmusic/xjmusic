@@ -48,6 +48,7 @@ public interface UIStateService extends ReadyAfterBoot {
   PseudoClass PENDING_PSEUDO_CLASS = PseudoClass.getPseudoClass("pending");
   PseudoClass FAILED_PSEUDO_CLASS = PseudoClass.getPseudoClass("failed");
   PseudoClass OPEN_PSEUDO_CLASS = PseudoClass.getPseudoClass("open");
+  PseudoClass INVALID_PSEUDO_CLASS = PseudoClass.getPseudoClass("invalid");
   Set<LabState> LAB_PENDING_STATES = Set.of(
     LabState.Connecting,
     LabState.Configuring

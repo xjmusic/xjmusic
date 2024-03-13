@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class EventPropertiesController {
+public class SequencePatternEventPropertiesController {
   private final ProjectService projectService;
   private final ObjectProperty<ProgramSequencePatternEvent> event = new SimpleObjectProperty<>();
 
@@ -41,7 +41,7 @@ public class EventPropertiesController {
   @FXML
   Button saveButton;
 
-  public EventPropertiesController(
+  public SequencePatternEventPropertiesController(
     ProjectService projectService
   ) {
     this.projectService = projectService;

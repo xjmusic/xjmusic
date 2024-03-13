@@ -47,7 +47,7 @@ import java.util.UUID;
 public class VoiceTrackTimelineController {
   static final Logger LOG = LoggerFactory.getLogger(VoiceTrackTimelineController.class);
   private final Collection<Runnable> unsubscriptions = new HashSet<>();
-  private final ObservableList<TimelineEventController> eventControllers = FXCollections.observableArrayList();
+  private final ObservableList<SequencePatternEventController> eventControllers = FXCollections.observableArrayList();
   private final BooleanProperty isMousePressedInTimeline = new SimpleBooleanProperty(false);
   private final Resource eventFxml;
   private final int timelineHeight;
@@ -86,7 +86,7 @@ public class VoiceTrackTimelineController {
   Button addTrackButton;
 
   public VoiceTrackTimelineController(
-    @Value("classpath:/views/content/program/edit_event_mode/timeline-event.fxml") Resource eventFxml,
+    @Value("classpath:/views/content/program/edit_event_mode/sequence-pattern-event.fxml") Resource eventFxml,
     @Value("${programEditor.eventTimelineHeight}") int timelineHeight,
     @Value("${programEditor.trackControlWidth}") int trackControlWidth,
     ApplicationContext ac,
@@ -160,7 +160,7 @@ public class VoiceTrackTimelineController {
    */
   public void teardown() {
     for (Runnable unsubscription : unsubscriptions) unsubscription.run();
-    for (TimelineEventController controller : eventControllers) controller.teardown();
+    for (SequencePatternEventController controller : eventControllers) controller.teardown();
   }
 
   @FXML
@@ -254,7 +254,7 @@ public class VoiceTrackTimelineController {
    Populate the track timeline with events
    */
   private void setupTimelineEvents() {
-    for (TimelineEventController controller : eventControllers) controller.teardown();
+    for (SequencePatternEventController controller : eventControllers) controller.teardown();
     timelineActiveRegion.getChildren().clear();
     if (patternId.isNotNull().get())
       for (ProgramSequencePatternEvent event : projectService.getContent().getEventsOfPatternAndTrack(patternId.get(), programVoiceTrackId)) {
@@ -270,7 +270,7 @@ public class VoiceTrackTimelineController {
       FXMLLoader loader = new FXMLLoader(eventFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      TimelineEventController controller = loader.getController();
+      SequencePatternEventController controller = loader.getController();
       eventControllers.add(controller);
       controller.setup(event.getId(),
         () -> {

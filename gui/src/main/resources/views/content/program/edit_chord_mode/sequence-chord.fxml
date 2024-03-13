@@ -7,7 +7,7 @@
 <?import javafx.scene.control.Label?>
 <AnchorPane
     xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="io.xj.gui.controllers.content.program.chord_edit_mode.TimelineChordController"
+    fx:controller="io.xj.gui.controllers.content.program.chord_edit_mode.SequenceChordController"
     fx:id="container"
     stylesheets="@/styles/default-theme.css" styleClass="program-sequence-chord">
 

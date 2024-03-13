@@ -125,7 +125,6 @@ public class ChordEditModeController extends ProjectController {
    Teardown the controller
    */
   public void teardown() {
-    chordTimelineController.teardown();
     for (ChordVoiceTimelineController controller : eventVoiceControllers) controller.teardown();
     voicesContainer.getChildren().clear();
     eventVoiceControllers.clear();

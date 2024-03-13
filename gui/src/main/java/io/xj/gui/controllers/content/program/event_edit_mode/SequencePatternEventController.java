@@ -26,7 +26,7 @@ import java.util.UUID;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class TimelineEventController {
+public class SequencePatternEventController {
   private static final double UNSNAPPED_POSITION_GRAIN = 0.001;
   private final Resource propertiesFxml;
   private final int timelineHeight;
@@ -51,8 +51,8 @@ public class TimelineEventController {
   @FXML
   Label tonesLabel;
 
-  public TimelineEventController(
-    @Value("classpath:/views/content/program/edit_event_mode/event-properties.fxml") Resource propertiesFxml,
+  public SequencePatternEventController(
+    @Value("classpath:/views/content/program/edit_event_mode/sequence-pattern-event-properties.fxml") Resource propertiesFxml,
     @Value("${programEditor.eventTimelineHeight}") int timelineHeight,
     ProjectService projectService,
     UIStateService uiStateService
@@ -107,7 +107,7 @@ public class TimelineEventController {
       uiStateService.launchModalMenu(
         propertiesFxml,
         container,
-        (EventPropertiesController controller) -> controller.setup(event.getId()),
+        (SequencePatternEventPropertiesController controller) -> controller.setup(event.getId()),
         LaunchMenuPosition.from(container),
         true,
         () -> setup(event.getId(), handleDelete));

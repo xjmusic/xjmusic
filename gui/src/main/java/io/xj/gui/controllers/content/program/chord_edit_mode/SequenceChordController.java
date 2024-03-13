@@ -22,7 +22,7 @@ import java.util.UUID;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class TimelineChordController {
+public class SequenceChordController {
   private final Resource propertiesFxml;
   private final int timelineHeight;
   private final int chordSpaceBetween;
@@ -39,8 +39,8 @@ public class TimelineChordController {
   @FXML
   Label nameField;
 
-  public TimelineChordController(
-    @Value("classpath:/views/content/program/edit_chord_mode/chord-properties.fxml") Resource propertiesFxml,
+  public SequenceChordController(
+    @Value("classpath:/views/content/program/edit_chord_mode/sequence-chord-properties.fxml") Resource propertiesFxml,
     @Value("${programEditor.chordTimelineHeight}") int timelineHeight,
     @Value("${programEditor.chordSpaceBetween}") int chordSpaceBetween,
     ProjectService projectService,
@@ -100,7 +100,7 @@ public class TimelineChordController {
       uiStateService.launchModalMenu(
         propertiesFxml,
         container,
-        (ChordPropertiesController controller) -> controller.setup(chord.getId()),
+        (SequenceChordPropertiesController controller) -> controller.setupEditing(chord.getId()),
         LaunchMenuPosition.from(mouse),
         true,
         handleUpdate);

@@ -6,6 +6,7 @@ import io.xj.gui.modes.ZoomChoice;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.utils.LaunchMenuPosition;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.hub.util.StringUtils;
@@ -27,20 +28,18 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 
 @Component
 public class ChordTimelineController extends ProjectController {
   static final Logger LOG = LoggerFactory.getLogger(ChordTimelineController.class);
-  private final Collection<Runnable> unsubscriptions = new HashSet<>();
-  private final ObservableList<TimelineChordController> chordControllers = FXCollections.observableArrayList();
+  private final ObservableList<SequenceChordController> sequenceChordControllers = FXCollections.observableArrayList();
   private final int controlWidth;
   private final ProjectService projectService;
   private final UIStateService uiStateService;
   private final Resource chordFxml;
+  private final Resource chordPropertiesFxml;
   private final int timelineHeight;
 
   @FXML
@@ -63,7 +62,8 @@ public class ChordTimelineController extends ProjectController {
 
   public ChordTimelineController(
     @Value("classpath:/views/content/program/edit_chord_mode/chord-timeline.fxml") Resource fxml,
-    @Value("classpath:/views/content/program/edit_chord_mode/timeline-chord.fxml") Resource chordFxml,
+    @Value("classpath:/views/content/program/edit_chord_mode/sequence-chord.fxml") Resource chordFxml,
+    @Value("classpath:/views/content/program/edit_chord_mode/sequence-chord-properties.fxml") Resource chordPropertiesFxml,
     @Value("${programEditor.voiceControlWidth}") int voiceControlWidth,
     @Value("${programEditor.chordTimelineHeight}") int timelineHeight,
     ApplicationContext ac,
@@ -73,6 +73,7 @@ public class ChordTimelineController extends ProjectController {
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.chordFxml = chordFxml;
+    this.chordPropertiesFxml = chordPropertiesFxml;
     this.timelineHeight = timelineHeight;
     this.controlWidth = voiceControlWidth;
     this.projectService = projectService;
@@ -89,6 +90,18 @@ public class ChordTimelineController extends ProjectController {
     timelineBackground.setMaxHeight(timelineHeight);
     chordAddContainer.setMinWidth(timelineHeight);
     chordAddContainer.setMaxWidth(timelineHeight);
+
+    ChangeListener<ZoomChoice> onZoomChange = (o, ov, v) -> Platform.runLater(this::setup);
+    uiStateService.programEditorZoomProperty().addListener(onZoomChange);
+
+    ChangeListener<GridChoice> onGridChange = (o, ov, v) -> Platform.runLater(this::setup);
+    uiStateService.programEditorGridProperty().addListener(onGridChange);
+
+    ChangeListener<ProgramSequence> onSequenceChange = (o, ov, v) -> Platform.runLater(this::setup);
+    uiStateService.currentProgramSequenceProperty().addListener(onSequenceChange);
+
+    projectService.addProjectUpdateListener(ProgramSequence.class, this::setup);
+    projectService.addProjectUpdateListener(ProgramSequenceChord.class, this::setup);
   }
 
   @Override
@@ -98,40 +111,21 @@ public class ChordTimelineController extends ProjectController {
 
   @FXML
   void handlePressedAddChord() {
-    // todo open the add chord modal
+    if (uiStateService.currentProgramSequenceProperty().isNull().get()) return;
+    var sequence = uiStateService.currentProgramSequenceProperty().get();
+    uiStateService.launchModalMenu(
+      chordPropertiesFxml,
+      addChordButton,
+      (SequenceChordPropertiesController controller) -> controller.setupCreating(sequence.getId()),
+      LaunchMenuPosition.from(addChordButton),
+      true,
+      () -> {/* no op*/});
   }
 
   /**
    Set up the voice controller
    */
   protected void setup() {
-    ChangeListener<ZoomChoice> onZoomChange = (o, ov, v) -> Platform.runLater(this::setupTimeline);
-    uiStateService.programEditorZoomProperty().addListener(onZoomChange);
-    unsubscriptions.add(() -> uiStateService.programEditorZoomProperty().removeListener(onZoomChange));
-
-    ChangeListener<GridChoice> onGridChange = (o, ov, v) -> Platform.runLater(this::setupTimeline);
-    uiStateService.programEditorGridProperty().addListener(onGridChange);
-    unsubscriptions.add(() -> uiStateService.programEditorGridProperty().removeListener(onGridChange));
-
-    ChangeListener<ProgramSequence> onSequenceChange = (o, ov, v) -> Platform.runLater(this::setupTimeline);
-    uiStateService.currentProgramSequenceProperty().addListener(onSequenceChange);
-    unsubscriptions.add(() -> uiStateService.currentProgramSequenceProperty().removeListener(onSequenceChange));
-    unsubscriptions.add(projectService.addProjectUpdateListener(ProgramSequence.class, this::setupTimeline));
-
-    Platform.runLater(this::setupTimeline);
-  }
-
-  /**
-   Teardown the voice controller
-   */
-  public void teardown() {
-    for (Runnable unsubscription : unsubscriptions) unsubscription.run();
-  }
-
-  /**
-   Populate the track timeline
-   */
-  private void setupTimeline() {
     uiStateService.setupTimelineBackground(timelineBackground, timelineHeight);
     setupTimelineChords();
   }
@@ -140,7 +134,7 @@ public class ChordTimelineController extends ProjectController {
    Populate the timeline with sequence chords
    */
   private void setupTimelineChords() {
-    for (TimelineChordController controller : chordControllers) controller.teardown();
+    for (SequenceChordController controller : sequenceChordControllers) controller.teardown();
     timelineChordContainer.getChildren().clear();
     if (uiStateService.currentProgramSequenceProperty().isNull().get()) return;
     // chord in order of position
@@ -162,13 +156,13 @@ public class ChordTimelineController extends ProjectController {
       FXMLLoader loader = new FXMLLoader(chordFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      TimelineChordController controller = loader.getController();
-      chordControllers.add(controller);
+      SequenceChordController controller = loader.getController();
+      sequenceChordControllers.add(controller);
       controller.setup(chord.getId(), duration,
         this::setupTimelineChords,
         () -> {
           controller.teardown();
-          chordControllers.remove(controller);
+          sequenceChordControllers.remove(controller);
           timelineChordContainer.getChildren().remove(root);
           projectService.deleteContent(ProgramSequenceChord.class, chord.getId());
         });

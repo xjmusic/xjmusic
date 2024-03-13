@@ -11,6 +11,7 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoice;
@@ -474,6 +475,19 @@ public interface ProjectService {
   boolean updateProgramSequenceTotal(UUID programSequenceId, String totalString);
 
   /**
+   Update the program type, but confirm and delete unused parts based on the new type
+   <p>
+   - Changing type to a Main program, confirm then delete any voice tracks, sequence patterns, and sequence pattern events
+   - Changing type to a Macro program, confirm then delete any sequence chords, sequence chord voicings, voices, voice tracks, sequence patterns, and sequence pattern events
+   - Changing type to a Detail or Beat program, confirm then delete any sequence bindings, sequence chords, sequence chord voicings, and sequence binding memes
+
+   @param programId program for which to change type
+   @param type      new program type
+   @return true if successful
+   */
+  boolean updateProgramType(UUID programId, ProgramType type);
+
+  /**
    Get the path prefix to the audio folder for an instrument
 
    @param instrumentId of the instrument
@@ -538,17 +552,4 @@ public interface ProjectService {
    @return true if the user clicked 'Yes', false otherwise
    */
   boolean showConfirmationDialog(String title, String header, String content);
-
-  /**
-   Update the program type, but confirm and delete unused parts based on the new type
-   <p>
-   - Changing type to a Main program, confirm then delete any voice tracks, sequence patterns, and sequence pattern events
-   - Changing type to a Macro program, confirm then delete any sequence chords, sequence chord voicings, voices, voice tracks, sequence patterns, and sequence pattern events
-   - Changing type to a Detail or Beat program, confirm then delete any sequence bindings, sequence chords, sequence chord voicings, and sequence binding memes
-
-   @param programId program for which to change type
-   @param type      new program type
-   @return true if successful
-   */
-  boolean updateProgramType(UUID programId, ProgramType type);
 }
