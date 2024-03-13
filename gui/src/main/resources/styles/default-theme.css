@@ -388,6 +388,10 @@
   -fx-background-color: #707070;
 }
 
+#fieldTransientSeconds {
+  -fx-text-fill: #ff17ff;
+}
+
 .icon-button {
   -fx-background-color: transparent;
   -fx-border-color: transparent;

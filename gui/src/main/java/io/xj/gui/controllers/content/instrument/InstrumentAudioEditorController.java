@@ -15,9 +15,11 @@ import io.xj.nexus.audio.AudioInMemory;
 import io.xj.nexus.audio.AudioLoader;
 import io.xj.nexus.project.ProjectPathUtils;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.FloatProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -46,6 +48,8 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 import java.util.UUID;
 
+import static io.xj.gui.services.UIStateService.OPEN_PSEUDO_CLASS;
+
 @Service
 public class InstrumentAudioEditorController extends BrowserController {
   static final Logger LOG = LoggerFactory.getLogger(InstrumentAudioEditorController.class);
@@ -64,6 +68,7 @@ public class InstrumentAudioEditorController extends BrowserController {
   private final FloatProperty intensity = new SimpleFloatProperty(0.0f);
   private final FloatProperty transientSeconds = new SimpleFloatProperty(0.0f);
   private final FloatProperty loopBeats = new SimpleFloatProperty(0.0f);
+  private final BooleanProperty isSettingTransient = new SimpleBooleanProperty(false);
   private final AudioLoader audioLoader;
   private final ObjectProperty<AudioInMemory> audioInMemory = new SimpleObjectProperty<>(null);
   private final Color waveformSampleColor;
@@ -112,6 +117,9 @@ public class InstrumentAudioEditorController extends BrowserController {
 
   @FXML
   TextField fieldTransientSeconds;
+
+  @FXML
+  Button setTransientButton;
 
   @FXML
   TextField fieldLoopBeats;
@@ -179,7 +187,7 @@ public class InstrumentAudioEditorController extends BrowserController {
     fieldIntensity.textProperty().bindBidirectional(intensity, new NumberStringConverter());
     fieldTransientSeconds.textProperty().bindBidirectional(transientSeconds, new NumberStringConverter());
     fieldLoopBeats.textProperty().bindBidirectional(loopBeats, new NumberStringConverter());
-    labelAudioFileName.textProperty().bind(Bindings.createStringBinding(() -> audioInMemory.isNotNull().get() ? ProjectPathUtils.getFilename(audioInMemory.get().pathToAudioFile()):"", audioInMemory));
+    labelAudioFileName.textProperty().bind(Bindings.createStringBinding(() -> audioInMemory.isNotNull().get() ? ProjectPathUtils.getFilename(audioInMemory.get().pathToAudioFile()) : "", audioInMemory));
 
     fieldName.focusedProperty().addListener((o, ov, v) -> {
       if (!v) {
@@ -229,6 +237,11 @@ public class InstrumentAudioEditorController extends BrowserController {
       if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.InstrumentAudioEditor))
         setup();
     });
+
+    isSettingTransient.addListener((o, ov, active) -> {
+      setTransientButton.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, active);
+      waveformScrollPane.setCursor(active ? javafx.scene.Cursor.CROSSHAIR : javafx.scene.Cursor.DEFAULT);
+    });
   }
 
   @Override
@@ -269,6 +282,7 @@ public class InstrumentAudioEditorController extends BrowserController {
   @FXML
   private void handleClickedWaveformScrollPane(MouseEvent event) {
     if (audioInMemory.isNull().get()) return;
+    if (isSettingTransient.not().get()) return;
 
     // The waveform is scaled based on the window height
     float scale = (float) (waveformHeight / waveform.fitHeightProperty().get());
@@ -281,13 +295,21 @@ public class InstrumentAudioEditorController extends BrowserController {
     double scrolledPixelsRight = hValue * maxScrollableWidth;
     double x = event.getX() + scrolledPixelsRight;
 
-    // Check for double-click
-    if (event.getClickCount()==2) {
-      transientSeconds.set((float) (scale * x * samplesPerPixel.get() / audioInMemory.get().format().getSampleRate()));
-      update("transientSeconds", transientSeconds.get());
-      renderWaveform();
-    }
+    // Set the transient
+    transientSeconds.set((float) (scale * x * samplesPerPixel.get() / audioInMemory.get().format().getSampleRate()));
+    update("transientSeconds", transientSeconds.get());
+    renderWaveform();
+
+    // Done with transient setting mode
+    isSettingTransient.set(false);
+
+    // No further processing of the event
     event.consume();
+  }
+
+  @FXML
+  void handleSetTransient() {
+    isSettingTransient.set(!isSettingTransient.get());
   }
 
   /**
@@ -365,7 +387,7 @@ public class InstrumentAudioEditorController extends BrowserController {
 
       // Draw the beat grid lines
       for (i = -beatsBeforeTransient; i < beatsAfterTransient; i++) {
-        if (i==0) continue; // don't draw at the transient
+        if (i == 0) continue; // don't draw at the transient
         x = (int) Math.max(0, Math.min(waveformWidth.get() - 1, ((transientSeconds.get() + i * secondsPerBeat) * audioInMemory.get().format().getSampleRate() / samplesPerPixel.get())));
         for (y = 0; y < waveformHeight; y++) {
           pixelWriter.setColor(x, y, waveformGridColor);
@@ -375,7 +397,7 @@ public class InstrumentAudioEditorController extends BrowserController {
       // Draw the transient dashed line
       x = (int) Math.max(0, Math.min(waveformWidth.get() - 1, (transientSeconds.get() * audioInMemory.get().format().getSampleRate() / samplesPerPixel.get())));
       for (y = 0; y < waveformHeight; y++) {
-        if ((y / waveformTransientDashPixels) % 2==0) {
+        if ((y / waveformTransientDashPixels) % 2 == 0) {
           pixelWriter.setColor(x, y, waveformTransientColor);
         }
       }

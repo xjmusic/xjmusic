@@ -4,12 +4,14 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.VBox?>
 <SplitPane
@@ -61,14 +63,33 @@
     </VBox>
 
     <VBox>
-      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Transient (Seconds)"/>
-      <TextField fx:id="fieldTransientSeconds" prefHeight="25.0"/>
-    </VBox>
-
-    <VBox>
       <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Loop (Beats)"/>
       <TextField fx:id="fieldLoopBeats" prefHeight="25.0"/>
     </VBox>
+
+    <Separator HBox.hgrow="ALWAYS"/>
+
+    <VBox>
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Transient (Seconds)"/>
+      <HBox>
+        <TextField fx:id="fieldTransientSeconds" prefHeight="25.0"/>
+        <Button
+            fx:id="setTransientButton"
+            onAction="#handleSetTransient"
+            styleClass="minimal"
+            minHeight="24"
+            maxHeight="24"
+            minWidth="24"
+            maxWidth="24">
+          <graphic>
+            <ImageView fitHeight="16.0" fitWidth="16.0">
+              <Image url="@/icons/square-plus.png"/>
+            </ImageView>
+          </graphic>
+        </Button>
+      </HBox>
+    </VBox>
+
   </VBox>
 
   <AnchorPane
