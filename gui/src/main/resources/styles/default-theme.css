@@ -429,11 +429,11 @@
   -fx-fill: #404040;
 }
 
-.waveform-container {
+.waveform-scroll-pane {
   -fx-background-color: #101010;
 }
 
-.waveform-container > .viewport {
+.waveform-scroll-pane > .viewport {
   -fx-background-color: transparent;
 }
 

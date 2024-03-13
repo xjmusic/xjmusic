@@ -13,6 +13,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <SplitPane
     fx:controller="io.xj.gui.controllers.content.instrument.InstrumentAudioEditorController"
@@ -104,12 +105,16 @@
         hbarPolicy="ALWAYS"
         fitToWidth="true"
         fitToHeight="true"
-        styleClass="waveform-container"
-        onMouseClicked="#handleClickedWaveformScrollPane">
-      <ImageView
-          fx:id="waveform"
-          preserveRatio="true">
-      </ImageView>
+        styleClass="waveform-scroll-pane">
+      <StackPane
+          fx:id="waveformContainer"
+          onMouseClicked="#handleClickedWaveformContainer"
+          alignment="CENTER_LEFT">
+        <ImageView
+            fx:id="waveform"
+            preserveRatio="true">
+        </ImageView>
+      </StackPane>
     </ScrollPane>
 
     <Button
