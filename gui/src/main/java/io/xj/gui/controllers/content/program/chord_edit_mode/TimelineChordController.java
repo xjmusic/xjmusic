@@ -101,7 +101,7 @@ public class TimelineChordController {
         propertiesFxml,
         container,
         (ChordPropertiesController controller) -> controller.setup(chord.getId()),
-        LaunchMenuPosition.from(container),
+        LaunchMenuPosition.from(mouse),
         true,
         handleUpdate);
     }
