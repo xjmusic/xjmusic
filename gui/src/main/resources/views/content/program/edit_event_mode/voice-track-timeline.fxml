@@ -42,10 +42,7 @@
           AnchorPane.topAnchor="5.0" AnchorPane.bottomAnchor="5.0"
           AnchorPane.rightAnchor="5.0"
           fx:id="addTrackButton" onAction="#handlePressedAddTrack" HBox.hgrow="ALWAYS"
-          styleClass="minimal">
-        <tooltip>
-          <Tooltip text="Add Track"/>
-        </tooltip>
+          styleClass="minimal" text="Track">
         <graphic>
           <ImageView fitHeight="16.0" fitWidth="16.0">
             <Image url="@/icons/plus.png"/>

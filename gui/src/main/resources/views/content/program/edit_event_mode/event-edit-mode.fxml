@@ -16,7 +16,7 @@
         AnchorPane.topAnchor="5.0" AnchorPane.bottomAnchor="5.0"
         AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0"
         fx:id="addVoiceButton" onAction="#handlePressedAddVoice" HBox.hgrow="ALWAYS"
-        text="Add Voice">
+        text="Voice">
       <graphic>
         <ImageView fitHeight="16.0" fitWidth="16.0">
           <Image url="@/icons/plus.png"/>
