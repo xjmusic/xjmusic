@@ -8,14 +8,16 @@
 <?import javafx.scene.layout.VBox?>
 <VBox fx:id="container" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="io.xj.gui.controllers.content.program.edit_mode.EditModeController"
-      VBox.vgrow="ALWAYS">
+      fx:controller="io.xj.gui.controllers.content.program.chord_edit_mode.ChordEditModeController"
+      VBox.vgrow="ALWAYS" spacing="2">
+  <fx:include source="chord-timeline.fxml"/>
   <VBox fx:id="voicesContainer" spacing="2"/>
   <AnchorPane fx:id="voiceAddContainer">
     <Button
         AnchorPane.topAnchor="5.0" AnchorPane.bottomAnchor="5.0"
         AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0"
-        fx:id="addVoiceButton" onAction="#handlePressedAddVoice" HBox.hgrow="ALWAYS">
+        fx:id="addVoiceButton" onAction="#handlePressedAddVoice" HBox.hgrow="ALWAYS"
+        text="Add Voice">
       <graphic>
         <ImageView fitHeight="16.0" fitWidth="16.0">
           <Image url="@/icons/plus.png"/>

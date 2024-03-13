@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <VBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="io.xj.gui.controllers.content.program.edit_mode.EventPropertiesController"
+      fx:controller="io.xj.gui.controllers.content.program.event_edit_mode.EventPropertiesController"
       fx:id="container"
       stylesheets="@/styles/default-theme.css"
       styleClass="event-properties-pane">

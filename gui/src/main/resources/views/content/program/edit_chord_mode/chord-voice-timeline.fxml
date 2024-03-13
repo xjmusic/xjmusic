@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<HBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="io.xj.gui.controllers.content.program.chord_edit_mode.ChordVoiceTimelineController"
+      stylesheets="@/styles/default-theme.css"
+      fx:id="container">
+
+  <VBox fx:id="controlContainer" styleClass="voice-control-container" spacing="5">
+
+    <!-- Action Menu & Voice Name -->
+    <HBox HBox.hgrow="ALWAYS">
+      <padding>
+        <Insets left="2.0" top="2.0"/>
+      </padding>
+      <Button fx:id="voiceActionLauncher" onAction="#handlePressedVoiceActionLauncher" HBox.hgrow="ALWAYS"
+              styleClass="minimal">
+        <graphic>
+          <ImageView fitHeight="16.0" fitWidth="16.0">
+            <Image url="@/icons/hamburger-menu.png"/>
+          </ImageView>
+        </graphic>
+      </Button>
+
+      <!-- Voice Type -->
+      <HBox HBox.hgrow="ALWAYS" alignment="CENTER_LEFT" spacing="5.0">
+        <Label minWidth="40.0" text="TYPE" styleClass="program-editor-field-label"/>
+        <ComboBox minWidth="102.0" fx:id="voiceTypeChooser"/>
+      </HBox>
+
+    </HBox>
+
+  </VBox>
+
+  <StackPane HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" alignment="CENTER_LEFT">
+    <Pane fx:id="timelineBackground" styleClass="timeline-background"/>
+  </StackPane>
+
+</HBox>

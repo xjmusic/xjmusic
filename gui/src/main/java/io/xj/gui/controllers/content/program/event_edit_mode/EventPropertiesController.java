@@ -1,4 +1,4 @@
-package io.xj.gui.controllers.content.program.edit_mode;
+package io.xj.gui.controllers.content.program.event_edit_mode;
 
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.utils.UiUtils;

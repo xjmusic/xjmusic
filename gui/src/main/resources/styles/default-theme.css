@@ -40,7 +40,9 @@
   -fx-text-fill: lightgray;
 }
 
-.text-field {
+.program-editor .text-field,
+.instrument-editor .text-field,
+.instrument-audio-editor .text-field {
   -fx-prompt-text-fill: gray;
 }
 
@@ -479,11 +481,11 @@
   -fx-background-color: #454545;
 }
 
-.track-timeline-background {
+.timeline-background {
   -fx-background-color: #282828;
 }
 
-.track-timeline-active-region {
+.timeline-active-region {
   -fx-background-color: #ffffff10;
 }
 
@@ -503,6 +505,10 @@
 /*noinspection CssInvalidPseudoSelector*/
 .program-sequence-pattern-event:open .velocity-shader {
   -fx-background-color: #784578;
+}
+
+.chord-add-container {
+  -fx-background-color: #333333;
 }
 
 .no-sequences-label {

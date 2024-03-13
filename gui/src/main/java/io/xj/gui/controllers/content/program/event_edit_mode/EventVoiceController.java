@@ -1,4 +1,4 @@
-package io.xj.gui.controllers.content.program.edit_mode;
+package io.xj.gui.controllers.content.program.event_edit_mode;
 
 import io.xj.gui.controllers.content.common.PopupActionMenuController;
 import io.xj.gui.controllers.content.common.PopupSelectorMenuController;
@@ -45,8 +45,8 @@ import java.util.UUID;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class VoiceController {
-  static final Logger LOG = LoggerFactory.getLogger(VoiceController.class);
+public class EventVoiceController {
+  static final Logger LOG = LoggerFactory.getLogger(EventVoiceController.class);
   private final Collection<Runnable> unsubscriptions = new HashSet<>();
   private final Resource trackFxml;
   private final int trackHeight;
@@ -61,7 +61,7 @@ public class VoiceController {
   private final Runnable updateVoiceType;
   private final Runnable updatePatternTotal;
   private final ObjectProperty<UUID> patternId = new SimpleObjectProperty<>();
-  private final ObservableList<VoiceTrackController> trackControllers = FXCollections.observableArrayList();
+  private final ObservableList<VoiceTrackTimelineController> trackControllers = FXCollections.observableArrayList();
   private final InvalidationListener trackControllersChange = (observable) -> setupVoiceHeight();
   private UUID programVoiceId;
   private Runnable handleDeleteVoice;
@@ -114,10 +114,10 @@ public class VoiceController {
   @FXML
   Button addTrackButton;
 
-  public VoiceController(
-    @Value("classpath:/views/content/program/edit_mode/voice-track.fxml") Resource trackFxml,
-    @Value("${programEditor.trackHeight}") int trackHeight,
-    @Value("${programEditor.trackSpaceBetween}") int trackSpaceBetween,
+  public EventVoiceController(
+    @Value("classpath:/views/content/program/edit_event_mode/voice-track-timeline.fxml") Resource trackFxml,
+    @Value("${programEditor.eventTimelineHeight}") int trackHeight,
+    @Value("${programEditor.timelineSpaceBetween}") int trackSpaceBetween,
     @Value("${programEditor.voiceControlWidth}") int voiceControlWidth,
     @Value("${programEditor.trackControlWidth}") int trackControlWidth,
     ApplicationContext ac,
@@ -218,7 +218,7 @@ public class VoiceController {
   public void teardown() {
     for (Runnable unsubscription : unsubscriptions) unsubscription.run();
 
-    for (VoiceTrackController controller : trackControllers) controller.teardown();
+    for (VoiceTrackTimelineController controller : trackControllers) controller.teardown();
     tracksContainer.getChildren().clear();
     trackControllers.clear();
   }
@@ -355,7 +355,7 @@ public class VoiceController {
       FXMLLoader loader = new FXMLLoader(trackFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      VoiceTrackController controller = loader.getController();
+      VoiceTrackTimelineController controller = loader.getController();
       trackControllers.add(controller);
       controller.setup(
         programTrack.getId(),

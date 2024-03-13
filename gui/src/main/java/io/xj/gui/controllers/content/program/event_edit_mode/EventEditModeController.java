@@ -1,12 +1,14 @@
-package io.xj.gui.controllers.content.program.edit_mode;
+package io.xj.gui.controllers.content.program.event_edit_mode;
 
 import io.xj.gui.ProjectController;
 import io.xj.gui.modes.ProgramEditorMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.util.StringUtils;
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -27,16 +29,17 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
-public class EditModeController extends ProjectController {
-  static final Logger LOG = LoggerFactory.getLogger(EditModeController.class);
+public class EventEditModeController extends ProjectController {
+  static final Logger LOG = LoggerFactory.getLogger(EventEditModeController.class);
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>();
   private final Resource voiceFxml;
   private final int voiceControlWidth;
   private final BooleanBinding active;
-  private final Collection<VoiceController> voiceControllers = new HashSet<>();
+  private final Collection<EventVoiceController> eventVoiceControllers = new HashSet<>();
 
   @FXML
   VBox container;
@@ -59,9 +62,9 @@ public class EditModeController extends ProjectController {
    @param uiStateService common UI state service
    @param projectService common project service
    */
-  protected EditModeController(
-    @Value("classpath:/views/content/program/edit_mode/edit-mode.fxml") Resource fxml,
-    @Value("classpath:/views/content/program/edit_mode/voice.fxml") Resource voiceFxml,
+  protected EventEditModeController(
+    @Value("classpath:/views/content/program/edit_event_mode/event-edit-mode.fxml") Resource fxml,
+    @Value("classpath:/views/content/program/edit_event_mode/event-voice.fxml") Resource voiceFxml,
     @Value("${programEditor.voiceControlWidth}") int voiceControlWidth,
     ApplicationContext ac,
     ThemeService themeService,
@@ -72,7 +75,14 @@ public class EditModeController extends ProjectController {
     this.voiceFxml = voiceFxml;
     this.voiceControlWidth = voiceControlWidth;
 
-    active = uiStateService.programEditorModeProperty().isEqualTo(ProgramEditorMode.Edit);
+    active = Bindings.createBooleanBinding(
+      () ->
+        Objects.equals(ProgramEditorMode.Edit, uiStateService.programEditorModeProperty().get())
+          && uiStateService.currentProgramProperty().isNotNull().get()
+          && !Objects.equals(ProgramType.Main, uiStateService.currentProgramProperty().get().getType()),
+      uiStateService.programEditorModeProperty(),
+      uiStateService.currentProgramProperty()
+    );
   }
 
   @Override
@@ -109,9 +119,9 @@ public class EditModeController extends ProjectController {
    Teardown the controller
    */
   public void teardown() {
-    for (VoiceController controller : voiceControllers) controller.teardown();
+    for (EventVoiceController controller : eventVoiceControllers) controller.teardown();
     voicesContainer.getChildren().clear();
-    voiceControllers.clear();
+    eventVoiceControllers.clear();
   }
 
   @FXML
@@ -134,12 +144,12 @@ public class EditModeController extends ProjectController {
       FXMLLoader loader = new FXMLLoader(voiceFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      VoiceController controller = loader.getController();
-      voiceControllers.add(controller);
+      EventVoiceController controller = loader.getController();
+      eventVoiceControllers.add(controller);
       controller.setup(programVoice.getId(), () -> {
         if (!projectService.deleteProgramVoice(programVoice.getId())) return;
         controller.teardown();
-        voiceControllers.remove(controller);
+        eventVoiceControllers.remove(controller);
         voicesContainer.getChildren().remove(root);
       });
       voicesContainer.getChildren().add(root);

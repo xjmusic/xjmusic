@@ -21,6 +21,7 @@ import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.ControlMode;
@@ -46,6 +47,9 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
@@ -98,7 +102,6 @@ public class UIStateServiceImpl implements UIStateService {
       || (Objects.equals(viewMode.get(), ViewMode.Templates) && Objects.equals(templateMode.get(), TemplateMode.TemplateEditor)),
     viewMode, contentMode, templateMode);
 
-  private final ObjectBinding<ViewStatusMode> viewStatusMode;
   private final BooleanBinding isViewProgressStatusMode;
   private final BooleanBinding isViewContentNavigationStatusMode;
   private final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
@@ -288,7 +291,7 @@ public class UIStateServiceImpl implements UIStateService {
       viewMode, contentMode
     );
 
-    viewStatusMode = Bindings.createObjectBinding(
+    ObjectBinding<ViewStatusMode> viewStatusMode = Bindings.createObjectBinding(
       () -> {
         if (projectService.isStateReadyProperty().not().get()) return ViewStatusMode.ProjectProgress;
         if (viewMode.isEqualTo(ViewMode.Fabrication).get()) return ViewStatusMode.FabricationProgress;
@@ -330,11 +333,6 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public BooleanBinding isFabricationSettingsDisabledProperty() {
     return isFabricationSettingsDisabled;
-  }
-
-  @Override
-  public ObjectBinding<ViewStatusMode> viewStatusModeProperty() {
-    return viewStatusMode;
   }
 
   @Override
@@ -477,12 +475,6 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public ObjectProperty<Template> currentTemplateProperty() {
     return currentTemplate;
-  }
-
-  @Override
-  public void viewTemplates() {
-    viewMode.set(ViewMode.Templates);
-    templateMode.set(TemplateMode.TemplateBrowser);
   }
 
   @Override
@@ -688,6 +680,75 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public void launchQuickActionMenu(Node launcher, MouseEvent mouseEvent, Consumer<PopupActionMenuController> setupController) {
     launchModalMenu(popupActionMenuFxml, launcher, setupController, LaunchMenuPosition.from(mouseEvent), false, null);
+  }
+
+  @Override
+  public void setupTimelineBackground(Pane timeline, int timelineHeight) {
+    // clear background items
+    timeline.getChildren().clear();
+
+    // if there's no sequence, don't draw the timeline
+    if (currentProgramSequenceProperty().isNull().get()) {
+      timeline.setMinWidth(0);
+      timeline.setMaxWidth(0);
+      return;
+    }
+
+    // variables
+    int sequenceTotal = currentProgramSequenceProperty().get().getTotal();
+    double beatWidth = getProgramEditorBaseSizePerBeat() * programEditorZoomProperty().get().value();
+    double grid = programEditorGridProperty().get().value();
+
+    // compute the total width
+    var width = sequenceTotal * beatWidth;
+    timeline.setMinWidth(width);
+    timeline.setMaxWidth(width);
+
+    // draw vertical grid lines
+    double x;
+    for (double b = 0; b < sequenceTotal; b += grid) {
+      x = b * beatWidth;
+      Line gridLine = new Line();
+      gridLine.setStroke(b % 1 == 0 ? Color.valueOf("#505050") : Color.valueOf("#3d3d3d"));
+      gridLine.setStrokeWidth(2);
+      gridLine.setStartX(x);
+      gridLine.setStartY(1);
+      gridLine.setEndX(x);
+      gridLine.setEndY(timelineHeight - 1);
+      timeline.getChildren().add(gridLine);
+    }
+
+    // draw horizontal dotted line from x=0 to x=width at y = timelineHeight /2
+    Line dottedLine = new Line();
+    dottedLine.setStroke(Color.valueOf("#585858"));
+    dottedLine.setStrokeWidth(2);
+    dottedLine.setStartX(1);
+    dottedLine.setStartY(timelineHeight / 2.0);
+    dottedLine.setEndX(width - 1);
+    dottedLine.setEndY(timelineHeight / 2.0);
+    dottedLine.getStrokeDashArray().addAll(2d, 4d);
+    timeline.getChildren().add(dottedLine);
+  }
+
+  @Override
+  public void setupTimelineActiveRegion(Pane timeline, @Nullable ProgramSequencePattern pattern) {
+    // if there's no sequence, don't draw the timeline
+    if (currentProgramSequenceProperty().isNull().get()) {
+      timeline.setMinWidth(0);
+      timeline.setMaxWidth(0);
+      return;
+    }
+
+    double beatWidth = getProgramEditorBaseSizePerBeat() * programEditorZoomProperty().get().value();
+
+    // draw active region for the current pattern total
+    if (Objects.nonNull(pattern)) {
+      timeline.setMinWidth(beatWidth * pattern.getTotal());
+      timeline.setMaxWidth(beatWidth * pattern.getTotal());
+    } else {
+      timeline.setMinWidth(0);
+      timeline.setMaxWidth(0);
+    }
   }
 
   /**

@@ -1,4 +1,4 @@
-package io.xj.gui.controllers.content.program.edit_mode;
+package io.xj.gui.controllers.content.program.event_edit_mode;
 
 import io.xj.gui.controllers.content.common.PopupActionMenuController;
 import io.xj.gui.services.ProjectService;
@@ -26,7 +26,7 @@ import java.util.UUID;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class VoiceTrackEventController {
+public class TimelineEventController {
   private static final double UNSNAPPED_POSITION_GRAIN = 0.001;
   private final Resource propertiesFxml;
   private final int trackHeight;
@@ -51,9 +51,9 @@ public class VoiceTrackEventController {
   @FXML
   Label tonesLabel;
 
-  public VoiceTrackEventController(
-    @Value("classpath:/views/content/program/edit_mode/event-properties.fxml") Resource propertiesFxml,
-    @Value("${programEditor.trackHeight}") int trackHeight,
+  public TimelineEventController(
+    @Value("classpath:/views/content/program/edit_event_mode/event-properties.fxml") Resource propertiesFxml,
+    @Value("${programEditor.eventTimelineHeight}") int trackHeight,
     ProjectService projectService,
     UIStateService uiStateService
   ) {

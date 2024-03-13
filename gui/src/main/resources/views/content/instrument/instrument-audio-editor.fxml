@@ -19,7 +19,8 @@
     fx:id="container"
     xmlns="http://javafx.com/javafx/17.0.2-ea"
     xmlns:fx="http://javafx.com/fxml/1"
-    dividerPositions="0.2">
+    dividerPositions="0.2"
+styleClass="instrument-audio-editor">
 
   <VBox
       fx:id="fieldsContainer"

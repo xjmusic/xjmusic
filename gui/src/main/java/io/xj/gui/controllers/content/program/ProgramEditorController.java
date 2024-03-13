@@ -8,7 +8,8 @@ import io.xj.gui.controllers.content.common.EntityMemesController;
 import io.xj.gui.controllers.content.common.PopupActionMenuController;
 import io.xj.gui.controllers.content.common.PopupSelectorMenuController;
 import io.xj.gui.controllers.content.program.bind_mode.BindModeController;
-import io.xj.gui.controllers.content.program.edit_mode.EditModeController;
+import io.xj.gui.controllers.content.program.chord_edit_mode.ChordEditModeController;
+import io.xj.gui.controllers.content.program.event_edit_mode.EventEditModeController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.GridChoice;
 import io.xj.gui.modes.ProgramEditorMode;
@@ -66,7 +67,8 @@ public class ProgramEditorController extends ProjectController {
   private final ObjectProperty<UUID> sequenceId = new SimpleObjectProperty<>();
   private final BooleanBinding programHasSequences;
   private final CmdModalController cmdModalController;
-  private final EditModeController editController;
+  private final EventEditModeController editEventController;
+  private final ChordEditModeController editChordController;
   private final BindModeController bindController;
   private final ChangeListener<? super ContentMode> onEditProgram = (o, ov, v) -> {
     teardown();
@@ -164,21 +166,25 @@ public class ProgramEditorController extends ProjectController {
     ProjectService projectService,
     UIStateService uiStateService,
     CmdModalController cmdModalController,
-    EditModeController editController,
-    BindModeController bindController
+    BindModeController bindController,
+    EventEditModeController editEventController,
+    ChordEditModeController editChordController
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.configFxml = configFxml;
     this.entityMemesFxml = entityMemesFxml;
     this.cmdModalController = cmdModalController;
-    this.editController = editController;
     this.bindController = bindController;
+    this.editEventController = editEventController;
+    this.editChordController = editChordController;
 
     programHasSequences = Bindings.createBooleanBinding(() -> !uiStateService.sequencesOfCurrentProgramProperty().isEmpty(), uiStateService.sequencesOfCurrentProgramProperty());
 
     updateProgramName = () -> projectService.update(Program.class, programId.get(), "name", programNameField.getText());
     updateProgramType = () -> {
       if (uiStateService.currentProgramProperty().isNull().get()) return;
+      if (Objects.equals(programTypeChooser.getValue(), uiStateService.currentProgramProperty().get().getType()))
+        return;
       if (!projectService.updateProgramType(programId.get(), programTypeChooser.getValue())) {
         programTypeChooser.setValue(uiStateService.currentProgramProperty().get().getType());
         return;
@@ -215,8 +221,9 @@ public class ProgramEditorController extends ProjectController {
 
   @Override
   public void onStageReady() {
-    editController.onStageReady();
     bindController.onStageReady();
+    editEventController.onStageReady();
+    editChordController.onStageReady();
 
     var visible = projectService.isStateReadyProperty()
       .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
@@ -320,8 +327,9 @@ public class ProgramEditorController extends ProjectController {
 
   @Override
   public void onStageClose() {
-    editController.onStageClose();
     bindController.onStageClose();
+    editEventController.onStageClose();
+    editChordController.onStageClose();
     LOG.info("Closed Program Editor");
   }
 
@@ -366,7 +374,8 @@ public class ProgramEditorController extends ProjectController {
 
     setupProgramMemeContainer();
     bindController.setup(programId);
-    editController.setup(programId);
+    editEventController.setup(programId);
+    editChordController.setup(programId);
   }
 
   /**
@@ -374,7 +383,8 @@ public class ProgramEditorController extends ProjectController {
    */
   private void teardown() {
     bindController.teardown();
-    editController.teardown();
+    editEventController.teardown();
+    editChordController.teardown();
   }
 
   /**

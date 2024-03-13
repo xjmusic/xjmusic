@@ -112,8 +112,9 @@
                 AnchorPane.bottomAnchor="0.0"
                 AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
       <StackPane>
-        <fx:include source="edit_mode/edit-mode.fxml"/>
         <fx:include source="bind_mode/bind-mode.fxml"/>
+        <fx:include source="edit_event_mode/event-edit-mode.fxml"/>
+        <fx:include source="edit_chord_mode/chord-edit-mode.fxml"/>
       </StackPane>
     </ScrollPane>
   </VBox>

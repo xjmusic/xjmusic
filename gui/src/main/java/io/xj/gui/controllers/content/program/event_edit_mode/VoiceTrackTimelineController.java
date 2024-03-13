@@ -1,4 +1,4 @@
-package io.xj.gui.controllers.content.program.edit_mode;
+package io.xj.gui.controllers.content.program.event_edit_mode;
 
 import io.xj.gui.controllers.content.common.PopupActionMenuController;
 import io.xj.gui.modes.GridChoice;
@@ -11,7 +11,6 @@ import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.util.StringUtils;
-import jakarta.annotation.Nullable;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -29,8 +28,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,19 +39,18 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class VoiceTrackController {
-  static final Logger LOG = LoggerFactory.getLogger(VoiceTrackController.class);
+public class VoiceTrackTimelineController {
+  static final Logger LOG = LoggerFactory.getLogger(VoiceTrackTimelineController.class);
   private final Collection<Runnable> unsubscriptions = new HashSet<>();
-  private final ObservableList<VoiceTrackEventController> eventControllers = FXCollections.observableArrayList();
+  private final ObservableList<TimelineEventController> eventControllers = FXCollections.observableArrayList();
   private final BooleanProperty isMousePressedInTimeline = new SimpleBooleanProperty(false);
   private final Resource eventFxml;
-  private final int trackHeight;
+  private final int timelineHeight;
   private final int trackControlWidth;
   private final ApplicationContext ac;
   private final ProjectService projectService;
@@ -89,16 +85,16 @@ public class VoiceTrackController {
   @FXML
   Button addTrackButton;
 
-  public VoiceTrackController(
-    @Value("classpath:/views/content/program/edit_mode/voice-track-event.fxml") Resource eventFxml,
-    @Value("${programEditor.trackHeight}") int trackHeight,
+  public VoiceTrackTimelineController(
+    @Value("classpath:/views/content/program/edit_event_mode/timeline-event.fxml") Resource eventFxml,
+    @Value("${programEditor.eventTimelineHeight}") int timelineHeight,
     @Value("${programEditor.trackControlWidth}") int trackControlWidth,
     ApplicationContext ac,
     ProjectService projectService,
     UIStateService uiStateService
   ) {
     this.eventFxml = eventFxml;
-    this.trackHeight = trackHeight;
+    this.timelineHeight = timelineHeight;
     this.trackControlWidth = trackControlWidth;
     this.ac = ac;
     this.projectService = projectService;
@@ -122,12 +118,12 @@ public class VoiceTrackController {
 
     ProgramVoiceTrack track = projectService.getContent().getProgramVoiceTrack(programVoiceTrackId).orElseThrow(() -> new RuntimeException("Track not found!"));
 
-    trackContainer.setMinHeight(trackHeight);
-    trackContainer.setMaxHeight(trackHeight);
-    timelineBackground.setMinHeight(trackHeight);
-    timelineBackground.setMaxHeight(trackHeight);
-    timelineActiveRegion.setMinHeight(trackHeight);
-    timelineActiveRegion.setMaxHeight(trackHeight);
+    trackContainer.setMinHeight(timelineHeight);
+    trackContainer.setMaxHeight(timelineHeight);
+    timelineBackground.setMinHeight(timelineHeight);
+    timelineBackground.setMaxHeight(timelineHeight);
+    timelineActiveRegion.setMinHeight(timelineHeight);
+    timelineActiveRegion.setMaxHeight(timelineHeight);
     trackControlContainer.setMinWidth(trackControlWidth);
     trackControlContainer.setMaxWidth(trackControlWidth);
 
@@ -164,7 +160,7 @@ public class VoiceTrackController {
    */
   public void teardown() {
     for (Runnable unsubscription : unsubscriptions) unsubscription.run();
-    for (VoiceTrackEventController controller : eventControllers) controller.teardown();
+    for (TimelineEventController controller : eventControllers) controller.teardown();
   }
 
   @FXML
@@ -239,7 +235,8 @@ public class VoiceTrackController {
    Populate the track timeline
    */
   private void setupTimeline() {
-    setupTimelineBackground(getCurrentPattern().orElse(null));
+    uiStateService.setupTimelineBackground(timelineBackground, timelineHeight);
+    uiStateService.setupTimelineActiveRegion(timelineActiveRegion, getCurrentPattern().orElse(null));
     setupTimelineEvents();
   }
 
@@ -251,67 +248,6 @@ public class VoiceTrackController {
     if (pattern.isEmpty()) patternId.set(null);
 
     return pattern;
-  }
-
-  /**
-   Draw the timeline background
-   */
-  private void setupTimelineBackground(@Nullable ProgramSequencePattern pattern) {
-    // clear background items
-    timelineBackground.getChildren().clear();
-
-    // if there's no sequence, don't draw the timeline
-    if (uiStateService.currentProgramSequenceProperty().isNull().get()) {
-      timelineBackground.setMinWidth(0);
-      timelineBackground.setMaxWidth(0);
-      timelineActiveRegion.setMinWidth(0);
-      timelineActiveRegion.setMaxWidth(0);
-      return;
-    }
-
-    // variables
-    int sequenceTotal = uiStateService.currentProgramSequenceProperty().get().getTotal();
-    double beatWidth = uiStateService.getProgramEditorBaseSizePerBeat() * uiStateService.programEditorZoomProperty().get().value();
-    double grid = uiStateService.programEditorGridProperty().get().value();
-
-    // compute the total width
-    var width = sequenceTotal * beatWidth;
-    timelineBackground.setMinWidth(width);
-    timelineBackground.setMaxWidth(width);
-
-    // draw active region for the current pattern total
-    if (Objects.nonNull(pattern)) {
-      timelineActiveRegion.setMinWidth(beatWidth * pattern.getTotal());
-      timelineActiveRegion.setMaxWidth(beatWidth * pattern.getTotal());
-    } else {
-      timelineActiveRegion.setMinWidth(0);
-      timelineActiveRegion.setMaxWidth(0);
-    }
-
-    // draw vertical grid lines
-    double x;
-    for (double b = 0; b < sequenceTotal; b += grid) {
-      x = b * beatWidth;
-      Line gridLine = new Line();
-      gridLine.setStroke(b % 1 == 0 ? Color.valueOf("#505050") : Color.valueOf("#3d3d3d"));
-      gridLine.setStrokeWidth(2);
-      gridLine.setStartX(x);
-      gridLine.setStartY(1);
-      gridLine.setEndX(x);
-      gridLine.setEndY(trackHeight - 1);
-      timelineBackground.getChildren().add(gridLine);
-    }
-
-    // draw horizontal dotted line from x=0 to x=width at y = trackHeight /2
-    Line dottedLine = new Line();
-    dottedLine.setStroke(Color.valueOf("#585858"));
-    dottedLine.setStrokeWidth(2);
-    dottedLine.setStartX(1);
-    dottedLine.setStartY(trackHeight / 2.0);
-    dottedLine.setEndX(width - 1);
-    dottedLine.setEndY(trackHeight / 2.0);
-    dottedLine.getStrokeDashArray().addAll(2d, 4d);
-    timelineBackground.getChildren().add(dottedLine);
   }
 
   /**
@@ -333,7 +269,7 @@ public class VoiceTrackController {
       FXMLLoader loader = new FXMLLoader(eventFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      VoiceTrackEventController controller = loader.getController();
+      TimelineEventController controller = loader.getController();
       eventControllers.add(controller);
       controller.setup(event.getId(),
         () -> {
