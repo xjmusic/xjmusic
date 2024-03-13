@@ -139,7 +139,7 @@ class ProjectPushResultsTest {
 
   @Test
   void testToString() {
-    assertEquals("Synchronized 27 templates, 31 libraries, 14 programs, 15 instruments, 35 audios, and 72 audios uploaded", subject.toString());
+    assertEquals("Synchronized 35 audios, 15 instruments, 31 libraries, 14 programs, 27 templates, and 72 uploaded audios", subject.toString());
   }
 
   @Test
@@ -151,6 +151,6 @@ class ProjectPushResultsTest {
 
     assertTrue(subject.hasErrors());
     assertEquals(3, subject.getErrors().size());
-    assertEquals("Synchronized 27 templates, 31 libraries, 14 programs, 15 instruments, 35 audios, and 72 audios uploaded with 3 errors: This is a test, This is another test, and This is yet another test", subject.toString());
+    assertEquals("Synchronized 35 audios, 15 instruments, 31 libraries, 14 programs, 27 templates, and 72 uploaded audios with 3 errors: This is a test, This is another test, and This is yet another test", subject.toString());
   }
 }

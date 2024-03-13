@@ -2,8 +2,10 @@
 
 package io.xj.nexus.util;
 
+import io.xj.hub.util.StringUtils;
 import jakarta.annotation.Nullable;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -157,5 +159,34 @@ public interface FormatUtils {
       }
     }
     return String.format("%s %d", name, num);
+  }
+
+
+  /**
+   Describe counts of items based on a map of item names to counts, sorted alphabetically, comma-separated, pluralized
+   e.g. Map.of("peach", 1, "apple", 3, "banana", 2) -> "3 apples, 2 bananas, and 1 peach"
+
+   @param items for which to describe counts
+   @return description of the item counts
+   */
+  static String describeCounts(Map<String, Integer> items) {
+    return StringUtils.toProperCsvAnd(items.entrySet().stream()
+      .sorted(Map.Entry.comparingByKey())
+      .map(entry -> describeCount(entry.getKey(), entry.getValue()))
+      .filter(Objects::nonNull)
+      .toList());
+  }
+
+  /**
+   Describe a count of something, the name pluralized if necessary
+   Return null if count is zero
+
+   @param name  of the thing
+   @param count of the thing
+   @return description of the count
+   */
+  static @Nullable String describeCount(String name, long count) {
+    if (count == 0) return null;
+    return String.format("%d %s", count, count > 1 ? StringUtils.toPlural(name) : name);
   }
 }

@@ -4,9 +4,11 @@ package io.xj.nexus.util;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class FormatUtilsTest {
 
@@ -86,5 +88,18 @@ class FormatUtilsTest {
     assertEquals("Thing 2", FormatUtils.iterateNumericalSuffixFromExisting(Set.of("Thing"), "Thing"));
     assertEquals("Thing 2", FormatUtils.iterateNumericalSuffixFromExisting(Set.of("Thing 1"), "Thing"));
     assertEquals("Thing 3", FormatUtils.iterateNumericalSuffixFromExisting(Set.of("Thing 1", "Thing 2"), "Thing"));
+  }
+
+  @Test
+  void describeCounts() {
+    assertEquals("3 apples, 2 bananas, and 1 peach", FormatUtils.describeCounts(Map.of("peach", 1, "apple", 3, "banana", 2)));
+    assertEquals("3 apples and 1 peach", FormatUtils.describeCounts(Map.of("peach", 1, "apple", 3, "banana", 0)));
+  }
+
+  @Test
+  void describeCount() {
+    assertNull(FormatUtils.describeCount("banana", 0));
+    assertEquals("1 banana", FormatUtils.describeCount("banana", 1));
+    assertEquals("2 bananas", FormatUtils.describeCount("banana", 2));
   }
 }

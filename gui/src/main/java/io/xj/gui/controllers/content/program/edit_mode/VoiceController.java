@@ -187,7 +187,7 @@ public class VoiceController {
 
     voiceTypeChooser.setItems(FXCollections.observableArrayList(InstrumentType.values()));
     voiceTypeChooser.setValue(voice.getType());
-    unsubscriptions.add(UiUtils.onBlur(voiceTypeChooser, updateVoiceType));
+    unsubscriptions.add(UiUtils.onChange(voiceTypeChooser.valueProperty(), updateVoiceType));
     UiUtils.blurOnSelection(voiceTypeChooser);
 
     unsubscriptions.add(UiUtils.onBlur(patternTotalField, updatePatternTotal));

@@ -6,7 +6,7 @@ import io.xj.gui.ProjectController;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.gui.utils.TextAreaUtils;
+import io.xj.gui.utils.TextUtils;
 import io.xj.gui.utils.UiUtils;
 import io.xj.hub.util.StringUtils;
 import javafx.fxml.FXML;
@@ -64,8 +64,8 @@ public class EulaModalController extends ProjectController {
 
       buttonAccept.setDisable(true);
       eulaText.scrollTopProperty().addListener((observable, oldValue, newValue) -> {
-        double vvalue = TextAreaUtils.getVvalue(eulaText);
-        double vMax = TextAreaUtils.getVmax(eulaText);
+        double vvalue = TextUtils.getVvalue(eulaText);
+        double vMax = TextUtils.getVmax(eulaText);
         buttonAccept.setDisable(vvalue < vMax);
       });
 

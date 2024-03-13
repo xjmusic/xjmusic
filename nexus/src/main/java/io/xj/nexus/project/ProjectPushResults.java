@@ -1,12 +1,12 @@
 package io.xj.nexus.project;
 
 import io.xj.hub.util.StringUtils;
+import io.xj.nexus.util.FormatUtils;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 public class ProjectPushResults {
   Set<String> errors;
@@ -113,27 +113,17 @@ public class ProjectPushResults {
 
   @Override
   public String toString() {
-    return String.format("Synchronized %s", StringUtils.toProperCsvAnd(Stream.of(
-        templates > 0 ? describeCount("template", templates):null,
-        libraries > 0 ? describeCount("library", libraries):null,
-        programs > 0 ? describeCount("program", programs):null,
-        instruments > 0 ? describeCount("instrument", instruments):null,
-        audios > 0 ? describeCount("audio", audios):null,
-        audiosUploaded > 0 ? String.format("%s uploaded", describeCount("audio", audiosUploaded)):null
-      ).filter(Objects::nonNull).toList())
-        + (errors.isEmpty() ? "":String.format(" with %s: %s", describeCount("error", errors.size()), StringUtils.toProperCsvAnd(errors.stream().sorted().toList())))
+    return String.format("Synchronized %s",
+      FormatUtils.describeCounts(Map.of(
+        "template", templates,
+        "library", libraries,
+        "program", programs,
+        "instrument", instruments,
+        "audio", audios,
+        "uploaded audio", audiosUploaded
+      ))
+        + (errors.isEmpty() ? "" : String.format(" with %s: %s", FormatUtils.describeCount("error", errors.size()), StringUtils.toProperCsvAnd(errors.stream().sorted().toList())))
     );
-  }
-
-  /**
-   Describe a count of something, the name pluralized if necessary
-
-   @param name  of the thing
-   @param count of the thing
-   @return description of the count
-   */
-  private String describeCount(String name, long count) {
-    return String.format("%d %s", count, count > 1 ? StringUtils.toPlural(name):name);
   }
 
   /**

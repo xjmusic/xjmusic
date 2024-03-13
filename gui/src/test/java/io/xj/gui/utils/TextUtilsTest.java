@@ -6,9 +6,9 @@ import java.io.File;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class TextParsingUtilsTest {
+class TextUtilsTest {
   @Test
   void addTrailingSlash_String() {
-    assertEquals("test" + File.separator, TextParsingUtils.addTrailingSlash("test"));
+    assertEquals("test" + File.separator, TextUtils.addTrailingSlash("test"));
   }
 }
