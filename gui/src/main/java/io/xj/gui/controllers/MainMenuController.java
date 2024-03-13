@@ -7,11 +7,11 @@ import io.xj.gui.WorkstationGuiFxApplication;
 import io.xj.gui.controllers.fabrication.FabricationSettingsModalController;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.FabricationService;
-import io.xj.gui.services.SupportService;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.LabState;
 import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.SupportService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.ProjectUtils;
@@ -179,6 +179,7 @@ public class MainMenuController extends ProjectController {
     itemFabricationMainAction.textProperty().bind(fabricationService.mainActionButtonTextProperty().map(this::addLeadingUnderscore));
 
     itemOpenFabricationSettings.disableProperty().bind(guiService.isFabricationSettingsDisabledProperty());
+    itemOpenFabricationSettings.setAccelerator(computeFabricationSettingsAccelerator());
 
     checkboxTailLogs.selectedProperty().bindBidirectional(uiStateService.logsTailingProperty());
     checkboxShowLogs.selectedProperty().bindBidirectional(uiStateService.logsVisibleProperty());
@@ -415,7 +416,7 @@ public class MainMenuController extends ProjectController {
    @return the accelerator
    */
   private KeyCombination computeMainActionButtonAccelerator() {
-    return KeyCombination.valueOf("SHORTCUT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B":"SPACE"));
+    return KeyCombination.valueOf("SHORTCUT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
   }
 
   /**
@@ -425,6 +426,16 @@ public class MainMenuController extends ProjectController {
    @return the accelerator
    */
   private KeyCombination computeFabricationFollowButtonAccelerator() {
-    return KeyCombination.valueOf("SHORTCUT+ALT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B":"SPACE"));
+    return KeyCombination.valueOf("SHORTCUT+ALT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
+  }
+
+  /**
+   Compute the accelerator for the fabricator settings button.
+   Depending on the platform, it will be either SHORTCUT+SHIFT+ALT+SPACE or SHORTCUT+SHIFT+ALT+B (on Mac because of conflict).
+
+   @return the accelerator
+   */
+  private KeyCombination computeFabricationSettingsAccelerator() {
+    return KeyCombination.valueOf("SHORTCUT+SHIFT+ALT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
   }
 }
