@@ -903,6 +903,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
       }
     }
+    update(Program.class, programId, "type", type);
     return true;
   }
 
