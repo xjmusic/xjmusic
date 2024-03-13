@@ -254,6 +254,7 @@ public class VoiceTrackTimelineController {
    Populate the track timeline with events
    */
   private void setupTimelineEvents() {
+    for (TimelineEventController controller : eventControllers) controller.teardown();
     timelineActiveRegion.getChildren().clear();
     if (patternId.isNotNull().get())
       for (ProgramSequencePatternEvent event : projectService.getContent().getEventsOfPatternAndTrack(patternId.get(), programVoiceTrackId)) {

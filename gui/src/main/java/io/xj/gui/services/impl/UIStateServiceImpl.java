@@ -706,7 +706,7 @@ public class UIStateServiceImpl implements UIStateService {
 
     // draw vertical grid lines
     double x;
-    for (double b = 0; b < sequenceTotal; b += grid) {
+    for (double b = grid; b < sequenceTotal; b += grid) {
       x = b * beatWidth;
       Line gridLine = new Line();
       gridLine.setStroke(b % 1 == 0 ? Color.valueOf("#505050") : Color.valueOf("#3d3d3d"));

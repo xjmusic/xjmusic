@@ -44,6 +44,7 @@
 .instrument-editor .text-field,
 .instrument-audio-editor .text-field {
   -fx-prompt-text-fill: gray;
+  -fx-background-color: transparent;
 }
 
 .title {
@@ -490,6 +491,7 @@
 }
 
 .program-sequence-pattern-event {
+  -fx-border-radius: 4;
   -fx-background-color: #585858;
 }
 
@@ -498,13 +500,18 @@
 }
 
 /*noinspection CssInvalidPseudoSelector*/
-.program-sequence-pattern-event:open {
+.program-sequence-pattern-event:open,
+.program-sequence-chord:open {
   -fx-background-color: #683568;
 }
 
 /*noinspection CssInvalidPseudoSelector*/
 .program-sequence-pattern-event:open .velocity-shader {
   -fx-background-color: #784578;
+}
+
+.program-sequence-chord {
+  -fx-background-color: #555555;
 }
 
 .chord-add-container {
@@ -519,10 +526,6 @@
 .no-patterns-label {
   -fx-font-style: italic;
   -fx-padding: 0 5 0 5;
-}
-
-.text-field {
-  -fx-background-color: transparent;
 }
 
 .config-editor {
@@ -567,13 +570,16 @@
 }
 
 .program-config-pane,
-.event-properties-pane {
+.event-properties-pane,
+. chord-properties-pane {
   -fx-border-color: grey;
   -fx-font-family: "Roboto Mono";
 }
 
 .program-config-pane .label,
 .event-properties-pane .label,
+.chord-properties-pane .label,
+.chord-properties-pane .text-field,
 .event-properties-pane .text-field,
 .program-config-pane .text-area {
   -fx-padding: 3 6 3 6;

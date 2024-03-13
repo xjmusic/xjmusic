@@ -29,7 +29,7 @@ import java.util.UUID;
 public class TimelineEventController {
   private static final double UNSNAPPED_POSITION_GRAIN = 0.001;
   private final Resource propertiesFxml;
-  private final int trackHeight;
+  private final int timelineHeight;
   private final ProjectService projectService;
   private final UIStateService uiStateService;
   private final IntegerProperty dragStartMouseX = new SimpleIntegerProperty();
@@ -53,12 +53,12 @@ public class TimelineEventController {
 
   public TimelineEventController(
     @Value("classpath:/views/content/program/edit_event_mode/event-properties.fxml") Resource propertiesFxml,
-    @Value("${programEditor.eventTimelineHeight}") int trackHeight,
+    @Value("${programEditor.eventTimelineHeight}") int timelineHeight,
     ProjectService projectService,
     UIStateService uiStateService
   ) {
     this.propertiesFxml = propertiesFxml;
-    this.trackHeight = trackHeight;
+    this.timelineHeight = timelineHeight;
     this.projectService = projectService;
     this.uiStateService = uiStateService;
   }
@@ -76,10 +76,10 @@ public class TimelineEventController {
     this.beatWidth.set(uiStateService.getProgramEditorBaseSizePerBeat() * uiStateService.programEditorZoomProperty().get().value());
     container.setLayoutX(beatWidth.getValue() * event.getPosition());
     container.setPrefWidth(beatWidth.getValue() * event.getDuration());
-    container.setMinHeight(trackHeight);
-    container.setMaxHeight(trackHeight);
+    container.setMinHeight(timelineHeight);
+    container.setMaxHeight(timelineHeight);
     tonesLabel.setText(event.getTones());
-    velocityShader.setPrefHeight(trackHeight * event.getVelocity());
+    velocityShader.setPrefHeight(timelineHeight * event.getVelocity());
   }
 
   /**

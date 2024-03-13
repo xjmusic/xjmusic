@@ -49,8 +49,8 @@ public class EventVoiceController {
   static final Logger LOG = LoggerFactory.getLogger(EventVoiceController.class);
   private final Collection<Runnable> unsubscriptions = new HashSet<>();
   private final Resource trackFxml;
-  private final int trackHeight;
-  private final int trackSpaceBetween;
+  private final int timelineHeight;
+  private final int timelineSpaceBetween;
   private final int voiceControlWidth;
   private final int trackControlWidth;
   private final ApplicationContext ac;
@@ -116,8 +116,8 @@ public class EventVoiceController {
 
   public EventVoiceController(
     @Value("classpath:/views/content/program/edit_event_mode/voice-track-timeline.fxml") Resource trackFxml,
-    @Value("${programEditor.eventTimelineHeight}") int trackHeight,
-    @Value("${programEditor.timelineSpaceBetween}") int trackSpaceBetween,
+    @Value("${programEditor.eventTimelineHeight}") int timelineHeight,
+    @Value("${programEditor.timelineSpaceBetween}") int timelineSpaceBetween,
     @Value("${programEditor.voiceControlWidth}") int voiceControlWidth,
     @Value("${programEditor.trackControlWidth}") int trackControlWidth,
     ApplicationContext ac,
@@ -125,8 +125,8 @@ public class EventVoiceController {
     UIStateService uiStateService
   ) {
     this.trackFxml = trackFxml;
-    this.trackHeight = trackHeight;
-    this.trackSpaceBetween = trackSpaceBetween;
+    this.timelineHeight = timelineHeight;
+    this.timelineSpaceBetween = timelineSpaceBetween;
     this.voiceControlWidth = voiceControlWidth;
     this.trackControlWidth = trackControlWidth;
     this.ac = ac;
@@ -206,7 +206,7 @@ public class EventVoiceController {
       addTrack(programTrack);
     }
 
-    tracksContainer.setSpacing(trackSpaceBetween);
+    tracksContainer.setSpacing(timelineSpaceBetween);
     trackControllers.addListener(trackControllersChange);
     unsubscriptions.add(() -> trackControllers.removeListener(trackControllersChange));
     setupVoiceHeight();
@@ -275,7 +275,7 @@ public class EventVoiceController {
    Total voice height is the height of each track + the height of the gaps between tracks
    */
   private void setupVoiceHeight() {
-    voiceContainer.setMinHeight(trackHeight * (Math.max(1, trackControllers.size())) + trackSpaceBetween * Math.max(0, trackControllers.size() - 1));
+    voiceContainer.setMinHeight(timelineHeight * (Math.max(1, trackControllers.size())) + timelineSpaceBetween * Math.max(0, trackControllers.size() - 1));
   }
 
   /**

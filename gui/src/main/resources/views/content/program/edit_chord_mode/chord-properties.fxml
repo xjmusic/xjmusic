@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="io.xj.gui.controllers.content.program.chord_edit_mode.ChordPropertiesController"
+      fx:id="container"
+      stylesheets="@/styles/default-theme.css"
+      styleClass="chord-properties-pane">
+
+  <Label alignment="CENTER" text="Edit Chord Properties" HBox.hgrow="ALWAYS"/>
+  <Separator HBox.hgrow="ALWAYS"/>
+
+  <VBox>
+    <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Name"/>
+    <TextField fx:id="fieldName" prefHeight="25.0"/>
+  </VBox>
+
+  <VBox>
+    <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Position"/>
+    <TextField fx:id="fieldPosition" prefHeight="25.0"/>
+  </VBox>
+
+  <HBox alignment="CENTER" spacing="10.0">
+    <Button fx:id="saveButton" mnemonicParsing="false" text="Save" HBox.hgrow="ALWAYS" onAction="#handleSavePressed"/>
+    <Button mnemonicParsing="false" text="Cancel" HBox.hgrow="ALWAYS" onAction="#teardown"/>
+  </HBox>
+</VBox>

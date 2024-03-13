@@ -10,6 +10,8 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.effect.InnerShadow?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.Cursor?>
 <HBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.xj.gui.controllers.content.program.chord_edit_mode.ChordTimelineController"
       stylesheets="@/styles/default-theme.css"
@@ -37,6 +39,7 @@
 
   <StackPane HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" alignment="CENTER_LEFT">
     <Pane fx:id="timelineBackground" styleClass="timeline-background"/>
+    <AnchorPane fx:id="timelineChordContainer"/>
   </StackPane>
 
 </HBox>
