@@ -187,6 +187,8 @@ public class ProgramEditorController extends ProjectController {
         case Macro -> editorModeToggleGroup.selectToggle(bindButton);
         case Detail -> editorModeToggleGroup.selectToggle(editButton);
       }
+      teardown();
+      setup(programId.get());
     };
     updateProgramState = () -> projectService.update(Program.class, programId.get(), "state", programStateChooser.getValue());
     updateProgramKey = () -> projectService.update(Program.class, programId.get(), "key", programKeyField.getText());
