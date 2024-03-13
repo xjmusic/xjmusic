@@ -38,6 +38,9 @@
   </HBox>
 
   <StackPane HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" alignment="CENTER_LEFT">
+    <padding>
+      <Insets left="3.0"/>
+    </padding>
     <Pane fx:id="timelineBackground" styleClass="timeline-background"/>
     <AnchorPane fx:id="timelineChordContainer"/>
   </StackPane>

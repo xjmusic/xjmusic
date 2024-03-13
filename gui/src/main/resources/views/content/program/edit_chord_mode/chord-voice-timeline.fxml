@@ -10,6 +10,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.AnchorPane?>
 <HBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.xj.gui.controllers.content.program.chord_edit_mode.ChordVoiceTimelineController"
       stylesheets="@/styles/default-theme.css"
@@ -42,7 +43,11 @@
   </VBox>
 
   <StackPane HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" alignment="CENTER_LEFT">
+    <padding>
+      <Insets left="3.0"/>
+    </padding>
     <Pane fx:id="timelineBackground" styleClass="timeline-background"/>
+    <AnchorPane fx:id="timelineChordVoicingContainer"/>
   </StackPane>
 
 </HBox>

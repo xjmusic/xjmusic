@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+<AnchorPane
+    xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="io.xj.gui.controllers.content.program.chord_edit_mode.SequenceChordVoicingController"
+    fx:id="container"
+    stylesheets="@/styles/default-theme.css" styleClass="program-sequence-chord-voicing">
+
+  <StackPane
+      AnchorPane.leftAnchor="10"
+      AnchorPane.rightAnchor="0"
+      AnchorPane.topAnchor="0"
+      AnchorPane.bottomAnchor="0"
+      alignment="CENTER_LEFT">
+    <TextField fx:id="notesField"/>
+  </StackPane>
+
+</AnchorPane>

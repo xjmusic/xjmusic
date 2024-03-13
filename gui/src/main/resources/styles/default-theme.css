@@ -524,6 +524,10 @@
   -fx-background-color: #555555;
 }
 
+.program-sequence-chord-voicing {
+  -fx-background-color: #555555;
+}
+
 .chord-add-container {
   -fx-background-color: #333333;
 }
