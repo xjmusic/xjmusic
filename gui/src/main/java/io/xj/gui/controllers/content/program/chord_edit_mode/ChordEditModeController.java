@@ -6,11 +6,14 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.util.StringUtils;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -36,6 +39,7 @@ import java.util.UUID;
 public class ChordEditModeController extends ProjectController {
   static final Logger LOG = LoggerFactory.getLogger(ChordEditModeController.class);
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>();
+  private final LongProperty programUpdatedProperty = new SimpleLongProperty();
   private final Resource voiceFxml;
   private final int controlWidth;
   private final BooleanBinding active;
@@ -78,14 +82,20 @@ public class ChordEditModeController extends ProjectController {
     this.controlWidth = voiceControlWidth;
 
     active = Bindings.createBooleanBinding(
-      () ->
-        Objects.equals(ProgramEditorMode.Edit, uiStateService.programEditorModeProperty().get())
+      () -> {
+        programUpdatedProperty.get(); // touch this property to trigger the binding
+        return Objects.equals(ProgramEditorMode.Edit, uiStateService.programEditorModeProperty().get())
           && uiStateService.currentProgramProperty().isNotNull().get()
-          && Objects.equals(ProgramType.Main, uiStateService.currentProgramProperty().get().getType()),
+          && Objects.equals(ProgramType.Main, uiStateService.currentProgramProperty().get().getType());
+      },
       uiStateService.programEditorModeProperty(),
-      uiStateService.currentProgramProperty()
+      uiStateService.currentProgramProperty(),
+      programUpdatedProperty
     );
     this.chordTimelineController = chordTimelineController;
+
+    // Touch the program updated property when a program is updated
+    projectService.addProjectUpdateListener(Program.class, () -> programUpdatedProperty.set(System.currentTimeMillis()));
   }
 
   @Override

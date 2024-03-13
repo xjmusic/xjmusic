@@ -306,6 +306,15 @@ public class UIStateServiceImpl implements UIStateService {
     currentProgram.addListener((o, ov, v) -> updateSequencesOfCurrentProgram());
     projectService.addProjectUpdateListener(ProgramSequence.class, this::updateSequencesOfCurrentProgram);
 
+    // Refresh the current program property when the program type is modified
+    projectService.addProjectUpdateListener(Program.class, () -> {
+      if (currentProgram.isNull().get()) return;
+      var program = projectService.getContent().getProgram(currentProgram.get().getId())
+        .orElseThrow(() -> new RuntimeException("Could not find Program!"));
+      if (!Objects.equals(program.getType(), currentProgram.get().getType()))
+        currentProgram.set(program);
+    });
+
     attachPreferenceListeners();
     setAllFromPreferencesOrDefaults();
   }
