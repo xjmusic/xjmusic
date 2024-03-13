@@ -635,6 +635,7 @@ public class ProjectManagerImpl implements ProjectManager {
     track.setId(UUID.randomUUID());
     track.setName(newTrackName);
     track.setOrder(existingTracksOfVoice.stream().map(ProgramVoiceTrack::getOrder).max(Float::compareTo).orElse(0f) + 1);
+    track.setProgramId(voice.getProgramId());
     track.setProgramVoiceId(voice.getId());
 
     content.get().put(track);
