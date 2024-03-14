@@ -1,14 +1,19 @@
-package io.xj.gui.controllers.content.program.edit_mode;
+package io.xj.gui.controllers.content.program.chord_edit_mode;
 
 import io.xj.gui.ProjectController;
 import io.xj.gui.modes.ProgramEditorMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.util.StringUtils;
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -27,16 +32,19 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
-public class EditModeController extends ProjectController {
-  static final Logger LOG = LoggerFactory.getLogger(EditModeController.class);
+public class ChordEditModeController extends ProjectController {
+  static final Logger LOG = LoggerFactory.getLogger(ChordEditModeController.class);
   private final ObjectProperty<UUID> programId = new SimpleObjectProperty<>();
+  private final LongProperty programUpdatedProperty = new SimpleLongProperty();
   private final Resource voiceFxml;
-  private final int voiceControlWidth;
+  private final int controlWidth;
   private final BooleanBinding active;
-  private final Collection<VoiceController> voiceControllers = new HashSet<>();
+  private final ChordTimelineController chordTimelineController;
+  private final Collection<ChordVoiceTimelineController> eventVoiceControllers = new HashSet<>();
 
   @FXML
   VBox container;
@@ -59,34 +67,51 @@ public class EditModeController extends ProjectController {
    @param uiStateService common UI state service
    @param projectService common project service
    */
-  protected EditModeController(
-    @Value("classpath:/views/content/program/edit_mode/edit-mode.fxml") Resource fxml,
-    @Value("classpath:/views/content/program/edit_mode/voice.fxml") Resource voiceFxml,
+  protected ChordEditModeController(
+    @Value("classpath:/views/content/program/edit_chord_mode/chord-edit-mode.fxml") Resource fxml,
+    @Value("classpath:/views/content/program/edit_chord_mode/chord-voice-timeline.fxml") Resource voiceFxml,
     @Value("${programEditor.voiceControlWidth}") int voiceControlWidth,
     ApplicationContext ac,
     ThemeService themeService,
     UIStateService uiStateService,
-    ProjectService projectService
+    ProjectService projectService,
+    ChordTimelineController chordTimelineController
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.voiceFxml = voiceFxml;
-    this.voiceControlWidth = voiceControlWidth;
+    this.controlWidth = voiceControlWidth;
 
-    active = uiStateService.programEditorModeProperty().isEqualTo(ProgramEditorMode.Edit);
+    active = Bindings.createBooleanBinding(
+      () -> {
+        programUpdatedProperty.get(); // touch this property to trigger the binding
+        return Objects.equals(ProgramEditorMode.Edit, uiStateService.programEditorModeProperty().get())
+          && uiStateService.currentProgramProperty().isNotNull().get()
+          && Objects.equals(ProgramType.Main, uiStateService.currentProgramProperty().get().getType());
+      },
+      uiStateService.programEditorModeProperty(),
+      uiStateService.currentProgramProperty(),
+      programUpdatedProperty
+    );
+    this.chordTimelineController = chordTimelineController;
+
+    // Touch the program updated property when a program is updated
+    projectService.addProjectUpdateListener(Program.class, () -> programUpdatedProperty.set(System.currentTimeMillis()));
   }
 
   @Override
   public void onStageReady() {
+    chordTimelineController.onStageReady();
+
     container.visibleProperty().bind(active);
     container.managedProperty().bind(active);
 
-    voiceAddContainer.setMinWidth(voiceControlWidth);
-    voiceAddContainer.setMaxWidth(voiceControlWidth);
+    voiceAddContainer.setMinWidth(controlWidth);
+    voiceAddContainer.setMaxWidth(controlWidth);
   }
 
   @Override
   public void onStageClose() {
-    // no op
+    chordTimelineController.onStageClose();
   }
 
   /**
@@ -103,15 +128,16 @@ public class EditModeController extends ProjectController {
         .toList()) {
       addVoice(programVoice);
     }
+    chordTimelineController.setup();
   }
 
   /**
    Teardown the controller
    */
   public void teardown() {
-    for (VoiceController controller : voiceControllers) controller.teardown();
+    for (ChordVoiceTimelineController controller : eventVoiceControllers) controller.teardown();
     voicesContainer.getChildren().clear();
-    voiceControllers.clear();
+    eventVoiceControllers.clear();
   }
 
   @FXML
@@ -134,12 +160,12 @@ public class EditModeController extends ProjectController {
       FXMLLoader loader = new FXMLLoader(voiceFxml.getURL());
       loader.setControllerFactory(ac::getBean);
       Parent root = loader.load();
-      VoiceController controller = loader.getController();
-      voiceControllers.add(controller);
+      ChordVoiceTimelineController controller = loader.getController();
+      eventVoiceControllers.add(controller);
       controller.setup(programVoice.getId(), () -> {
         if (!projectService.deleteProgramVoice(programVoice.getId())) return;
         controller.teardown();
-        voiceControllers.remove(controller);
+        eventVoiceControllers.remove(controller);
         voicesContainer.getChildren().remove(root);
       });
       voicesContainer.getChildren().add(root);

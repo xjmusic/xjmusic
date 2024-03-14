@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Tooltip?>
 <HBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="io.xj.gui.controllers.content.program.edit_mode.VoiceController"
+      fx:controller="io.xj.gui.controllers.content.program.event_edit_mode.EventVoiceController"
       stylesheets="@/styles/default-theme.css"
       fx:id="voiceContainer">
 

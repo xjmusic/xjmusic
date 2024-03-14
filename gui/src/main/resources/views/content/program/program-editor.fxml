@@ -72,19 +72,19 @@
         <Insets left="5" top="2" bottom="2" right="5"/>
       </padding>
       <Label minWidth="80" text="SEQUENCE" styleClass="program-editor-field-label"/>
-      <Button fx:id="sequenceSelectorLauncher" mnemonicParsing="false" minWidth="30" maxWidth="30"
-              onMouseClicked="#handlePressedSequenceSelectorLauncher" styleClass="minimal">
-        <graphic>
-          <ImageView fitHeight="16.0" fitWidth="16.0">
-            <Image url="@/icons/down-arrow.png"/>
-          </ImageView>
-        </graphic>
-      </Button>
       <Button fx:id="sequenceActionLauncher" mnemonicParsing="false" minWidth="30" maxWidth="30"
               onMouseClicked="#handlePressedSequenceActionLauncher" styleClass="minimal">
         <graphic>
           <ImageView fitHeight="16.0" fitWidth="16.0">
             <Image url="@/icons/hamburger-menu.png"/>
+          </ImageView>
+        </graphic>
+      </Button>
+      <Button fx:id="sequenceSelectorLauncher" mnemonicParsing="false" minWidth="30" maxWidth="30"
+              onMouseClicked="#handlePressedSequenceSelectorLauncher" styleClass="minimal">
+        <graphic>
+          <ImageView fitHeight="16.0" fitWidth="16.0">
+            <Image url="@/icons/down-arrow.png"/>
           </ImageView>
         </graphic>
       </Button>
@@ -112,8 +112,9 @@
                 AnchorPane.bottomAnchor="0.0"
                 AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
       <StackPane>
-        <fx:include source="edit_mode/edit-mode.fxml"/>
         <fx:include source="bind_mode/bind-mode.fxml"/>
+        <fx:include source="edit_event_mode/event-edit-mode.fxml"/>
+        <fx:include source="edit_chord_mode/chord-edit-mode.fxml"/>
       </StackPane>
     </ScrollPane>
   </VBox>

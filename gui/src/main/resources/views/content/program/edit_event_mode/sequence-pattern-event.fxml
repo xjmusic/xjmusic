@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.Pane?>
 <AnchorPane
     xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="io.xj.gui.controllers.content.program.edit_mode.VoiceTrackEventController"
+    fx:controller="io.xj.gui.controllers.content.program.event_edit_mode.SequencePatternEventController"
     fx:id="container"
     stylesheets="@/styles/default-theme.css" styleClass="program-sequence-pattern-event">
 

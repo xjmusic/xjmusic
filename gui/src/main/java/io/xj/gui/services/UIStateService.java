@@ -7,7 +7,6 @@ import io.xj.gui.modes.GridChoice;
 import io.xj.gui.modes.ProgramEditorMode;
 import io.xj.gui.modes.TemplateMode;
 import io.xj.gui.modes.ViewMode;
-import io.xj.gui.modes.ViewStatusMode;
 import io.xj.gui.modes.ZoomChoice;
 import io.xj.gui.utils.LaunchMenuPosition;
 import io.xj.hub.tables.pojos.Instrument;
@@ -15,12 +14,12 @@ import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.work.FabricationState;
 import jakarta.annotation.Nullable;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
-import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -30,6 +29,7 @@ import javafx.collections.ObservableList;
 import javafx.css.PseudoClass;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 import org.springframework.core.io.Resource;
 
 import java.util.Set;
@@ -48,6 +48,7 @@ public interface UIStateService extends ReadyAfterBoot {
   PseudoClass PENDING_PSEUDO_CLASS = PseudoClass.getPseudoClass("pending");
   PseudoClass FAILED_PSEUDO_CLASS = PseudoClass.getPseudoClass("failed");
   PseudoClass OPEN_PSEUDO_CLASS = PseudoClass.getPseudoClass("open");
+  PseudoClass INVALID_PSEUDO_CLASS = PseudoClass.getPseudoClass("invalid");
   Set<LabState> LAB_PENDING_STATES = Set.of(
     LabState.Connecting,
     LabState.Configuring
@@ -81,16 +82,6 @@ public interface UIStateService extends ReadyAfterBoot {
    @return Observable property of whether the fabrication settings should appear disabled
    */
   BooleanBinding isFabricationSettingsDisabledProperty();
-
-  /**
-   Top pane status displays exactly one possible view mode at a time.
-   <p>
-   Workstation should display project loading status in top pane (before project is ready) https://www.pivotaltracker.com/story/show/187092027
-   Workstation content/templates sections should always show navigation, not fabrication status https://www.pivotaltracker.com/story/show/187076389
-
-   @return Observable property of whether the fabrication settings should appear disabled
-   */
-  ObjectBinding<ViewStatusMode> viewStatusModeProperty();
 
   /**
    @return observable boolean property of whether we are in View Fabrication Progress Status Mode
@@ -208,11 +199,6 @@ public interface UIStateService extends ReadyAfterBoot {
    @return Observable property for the current template being viewed
    */
   ObjectProperty<Template> currentTemplateProperty();
-
-  /**
-   View all templates
-   */
-  void viewTemplates();
 
   /**
    View all libraries
@@ -379,4 +365,20 @@ public interface UIStateService extends ReadyAfterBoot {
    @param setupController setup the action menu controller
    */
   void launchQuickActionMenu(Node launcher, MouseEvent mouseEvent, Consumer<PopupActionMenuController> setupController);
+
+  /**
+   Draw the timeline background
+
+   @param timeline       in which to render the background grid
+   @param timelineHeight height of the timeline
+   */
+  void setupTimelineBackground(Pane timeline, int timelineHeight);
+
+  /**
+   Draw the timeline active region
+
+   @param timeline in which to render the active region
+   @param pattern  current program sequence pattern
+   */
+  void setupTimelineActiveRegion(Pane timeline, @Nullable ProgramSequencePattern pattern);
 }

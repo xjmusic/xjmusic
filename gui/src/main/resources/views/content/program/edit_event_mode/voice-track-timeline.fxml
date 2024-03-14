@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 <HBox
     xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="io.xj.gui.controllers.content.program.edit_mode.VoiceTrackController"
+    fx:controller="io.xj.gui.controllers.content.program.event_edit_mode.VoiceTrackTimelineController"
     stylesheets="@/styles/default-theme.css"
     fx:id="trackContainer">
 
@@ -42,10 +42,7 @@
           AnchorPane.topAnchor="5.0" AnchorPane.bottomAnchor="5.0"
           AnchorPane.rightAnchor="5.0"
           fx:id="addTrackButton" onAction="#handlePressedAddTrack" HBox.hgrow="ALWAYS"
-          styleClass="minimal">
-        <tooltip>
-          <Tooltip text="Add Track"/>
-        </tooltip>
+          styleClass="minimal" text="Track">
         <graphic>
           <ImageView fitHeight="16.0" fitWidth="16.0">
             <Image url="@/icons/plus.png"/>
@@ -56,8 +53,8 @@
   </VBox>
 
   <StackPane HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" alignment="CENTER_LEFT">
-    <Pane fx:id="timelineBackground" styleClass="track-timeline-background"/>
-    <AnchorPane fx:id="timelineActiveRegion" styleClass="track-timeline-active-region"
+    <Pane fx:id="timelineBackground" styleClass="timeline-background"/>
+    <AnchorPane fx:id="timelineActiveRegion" styleClass="timeline-active-region"
           onMousePressed="#handleMousePressedTimeline" onMouseReleased="#handleMouseReleasedTimeline">
       <cursor>
         <Cursor fx:constant="CROSSHAIR"/>
