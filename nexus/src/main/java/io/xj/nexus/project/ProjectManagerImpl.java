@@ -239,19 +239,21 @@ public class ProjectManagerImpl implements ProjectManager {
     Set<String> foldersOnDisk = new HashSet<>();
     Set<String> filesInProject = new HashSet<>();
     Set<String> foldersInProject = new HashSet<>();
-    try (var paths = Files.walk(Paths.get(prefix))) {
-      paths.forEach(path -> {
-        if (Files.isRegularFile(path)) {
-          filesOnDisk.add(path.toString());
-        } else if (Files.isDirectory(path)) {
-          foldersOnDisk.add(path + File.separator);
-        }
-      });
-    } catch (IOException e) {
-      LOG.error("Failed to walk project audio folder! {}\n{}", e, StringUtils.formatStackTrace(e));
-      updateState(ProjectState.Ready);
-      return results;
-    }
+    Path prefixPath = Paths.get(prefix);
+    if (Files.exists(prefixPath))
+      try (var paths = Files.walk(prefixPath)) {
+        paths.forEach(path -> {
+          if (Files.isRegularFile(path)) {
+            filesOnDisk.add(path.toString());
+          } else if (Files.isDirectory(path)) {
+            foldersOnDisk.add(path + File.separator);
+          }
+        });
+      } catch (IOException e) {
+        LOG.error("Failed to walk project audio folder! {}\n{}", e, StringUtils.formatStackTrace(e));
+        updateState(ProjectState.Ready);
+        return results;
+      }
     foldersInProject.add(prefix + File.separator);
     content.get().getInstruments().forEach(instrument -> {
       var instrumentPath = getPathPrefixToInstrumentAudio(instrument.getId());
