@@ -5,6 +5,7 @@ import io.xj.hub.InstrumentConfig;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.entity.EntityFactory;
+import io.xj.hub.entity.EntityUtils;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
@@ -28,6 +29,7 @@ import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.http.HttpClientProvider;
@@ -61,6 +63,7 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
@@ -236,20 +239,22 @@ public class ProjectManagerImpl implements ProjectManager {
     Set<String> foldersOnDisk = new HashSet<>();
     Set<String> filesInProject = new HashSet<>();
     Set<String> foldersInProject = new HashSet<>();
-    try (var paths = Files.walk(Paths.get(prefix))) {
-      paths.forEach(path -> {
-        if (Files.isRegularFile(path)) {
-          filesOnDisk.add(path.toString());
-        } else if (Files.isDirectory(path)) {
-          foldersOnDisk.add(path + File.separator);
-        }
-      });
-    } catch (IOException e) {
-      LOG.error("Failed to walk project audio folder! {}\n{}", e, StringUtils.formatStackTrace(e));
-      updateState(ProjectState.Ready);
-      return results;
-    }
-    foldersInProject.add(prefix + File.separator);
+    Path prefixPath = Paths.get(prefix);
+    if (Files.exists(prefixPath))
+      try (var paths = Files.walk(prefixPath)) {
+        paths.forEach(path -> {
+          if (Files.isRegularFile(path)) {
+            filesOnDisk.add(path.toString());
+          } else if (Files.isDirectory(path)) {
+            foldersOnDisk.add(path + File.separator);
+          }
+        });
+      } catch (IOException e) {
+        LOG.error("Failed to walk project audio folder! {}\n{}", e, StringUtils.formatStackTrace(e));
+        updateState(ProjectState.Ready);
+        return results;
+      }
+    foldersInProject.add(prefix);
     content.get().getInstruments().forEach(instrument -> {
       var instrumentPath = getPathPrefixToInstrumentAudio(instrument.getId());
       foldersInProject.add(instrumentPath);
@@ -281,6 +286,15 @@ public class ProjectManagerImpl implements ProjectManager {
         return results;
       }
     }
+
+    try {
+      saveProjectContent();
+    } catch (IOException e) {
+      LOG.error("Failed to save project after cleanup! {}\n{}", e, StringUtils.formatStackTrace(e));
+      updateState(ProjectState.Ready);
+      return results;
+    }
+
     updateState(ProjectState.Ready);
     return results;
   }
@@ -1022,6 +1036,29 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
+   Delete all entities of the given type if they meet a condition
+
+   @param type to delete if its test returns true
+   @param test to run on each entity
+   @param <N>  type of entity
+   @return the number of entities deleted
+   */
+  private <N> int deleteAllIf(Class<N> type, Function<N, Boolean> test) {
+    int count = 0;
+    for (N entity : content.get().getAll(type)) {
+      try {
+        if (test.apply(entity)) {
+          content.get().delete(type, EntityUtils.getId(entity));
+          count++;
+        }
+      } catch (Exception e) {
+        LOG.error("Failed to test if {} is orphaned! {}\n{}", type.getSimpleName(), e, StringUtils.formatStackTrace(e));
+      }
+    }
+    return count;
+  }
+
+  /**
    Get the instrument path prefix
 
    @return the instrument path prefix
@@ -1180,6 +1217,38 @@ public class ProjectManagerImpl implements ProjectManager {
    */
   private void saveProjectContent() throws IOException {
     updateState(ProjectState.Saving);
+
+    // Cleanup orphans
+    int orphans = 0;
+    orphans += deleteAllIf(Instrument.class, (Instrument instrument) -> content.get().getLibrary(instrument.getLibraryId()).isEmpty());
+    orphans += deleteAllIf(InstrumentMeme.class, (InstrumentMeme meme) -> content.get().getInstrument(meme.getInstrumentId()).isEmpty());
+    orphans += deleteAllIf(InstrumentAudio.class, (InstrumentAudio audio) -> content.get().getInstrument(audio.getInstrumentId()).isEmpty());
+    orphans += deleteAllIf(Program.class, (Program program) -> content.get().getLibrary(program.getLibraryId()).isEmpty());
+    orphans += deleteAllIf(ProgramMeme.class, (ProgramMeme meme) -> content.get().getProgram(meme.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequence.class, (ProgramSequence sequence) -> content.get().getProgram(sequence.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceBinding.class, (ProgramSequenceBinding binding) -> content.get().getProgramSequence(binding.getProgramSequenceId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceBinding.class, (ProgramSequenceBinding binding) -> content.get().getProgram(binding.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceBindingMeme.class, (ProgramSequenceBindingMeme meme) -> content.get().getProgramSequenceBinding(meme.getProgramSequenceBindingId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceBindingMeme.class, (ProgramSequenceBindingMeme meme) -> content.get().getProgram(meme.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramVoice.class, (ProgramVoice voice) -> content.get().getProgram(voice.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramVoiceTrack.class, (ProgramVoiceTrack track) -> content.get().getProgramVoice(track.getProgramVoiceId()).isEmpty());
+    orphans += deleteAllIf(ProgramVoiceTrack.class, (ProgramVoiceTrack track) -> content.get().getProgram(track.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequencePattern.class, (ProgramSequencePattern pattern) -> content.get().getProgramSequence(pattern.getProgramSequenceId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequencePattern.class, (ProgramSequencePattern pattern) -> content.get().getProgramVoice(pattern.getProgramVoiceId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequencePattern.class, (ProgramSequencePattern pattern) -> content.get().getProgram(pattern.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequencePatternEvent.class, (ProgramSequencePatternEvent event) -> content.get().getProgramSequencePattern(event.getProgramSequencePatternId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequencePatternEvent.class, (ProgramSequencePatternEvent event) -> content.get().getProgramVoiceTrack(event.getProgramVoiceTrackId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequencePatternEvent.class, (ProgramSequencePatternEvent event) -> content.get().getProgram(event.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceChord.class, (ProgramSequenceChord chord) -> content.get().getProgramSequence(chord.getProgramSequenceId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceChord.class, (ProgramSequenceChord chord) -> content.get().getProgram(chord.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceChordVoicing.class, (ProgramSequenceChordVoicing voicing) -> content.get().getProgramSequenceChord(voicing.getProgramSequenceChordId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceChordVoicing.class, (ProgramSequenceChordVoicing voicing) -> content.get().getProgramVoice(voicing.getProgramVoiceId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceChordVoicing.class, (ProgramSequenceChordVoicing voicing) -> content.get().getProgram(voicing.getProgramId()).isEmpty());
+    orphans += deleteAllIf(TemplateBinding.class, (TemplateBinding binding) -> content.get().getTemplate(binding.getTemplateId()).isEmpty());
+    if (orphans > 0) {
+      LOG.info("Did delete {} orphaned entities", orphans);
+    }
+
     LOG.info("Will save project \"{}\" to {}", projectName.get(), getPathToProjectFile());
     var json = jsonProvider.getMapper().writeValueAsString(content);
     var jsonPath = getPathToProjectFile();

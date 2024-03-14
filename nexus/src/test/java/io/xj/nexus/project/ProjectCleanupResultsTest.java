@@ -26,7 +26,7 @@ class ProjectCleanupResultsTest {
 
   @Test
   void incrementFoldersDeleted() {
-    var subject = new ProjectCleanupResults(14, 52);
+    var subject = new ProjectCleanupResults().addFolders(14);
 
     subject.incrementFolders();
 
@@ -35,7 +35,7 @@ class ProjectCleanupResultsTest {
 
   @Test
   void incrementFilesDeleted() {
-    var subject = new ProjectCleanupResults(14, 52);
+    var subject = new ProjectCleanupResults().addFiles(52);
 
     subject.incrementFiles();
 
@@ -43,24 +43,24 @@ class ProjectCleanupResultsTest {
   }
 
   @Test
-  void getFolderDeleted() {
-    var subject = new ProjectCleanupResults(14, 52);
+  void getFoldersDeleted() {
+    var subject = new ProjectCleanupResults().addFolders(14);
 
     assertEquals(14, subject.getFolders());
   }
 
   @Test
   void getFilesDeleted() {
-    var subject = new ProjectCleanupResults(14, 52);
+    var subject = new ProjectCleanupResults().addFiles(52);
 
     assertEquals(52, subject.getFiles());
   }
 
   @Test
   void toStringTest() {
-    assertEquals("14 folders and 52 files were removed", new ProjectCleanupResults(14, 52).toString());
-    assertEquals("14 folders were removed", new ProjectCleanupResults(14, 0).toString());
-    assertEquals("52 files were removed", new ProjectCleanupResults(0, 52).toString());
-    assertEquals("No files or folders were removed", new ProjectCleanupResults(0, 0).toString());
+    assertEquals("Removed 52 files and 14 folders", new ProjectCleanupResults().addFolders(14).addFiles(52).toString());
+    assertEquals("Removed 14 folders", new ProjectCleanupResults().addFolders(14).toString());
+    assertEquals("Removed 52 files", new ProjectCleanupResults().addFiles(52).toString());
+    assertEquals("Nothing was removed", new ProjectCleanupResults().toString());
   }
 }
