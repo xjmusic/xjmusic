@@ -5,6 +5,7 @@ import io.xj.hub.InstrumentConfig;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.entity.EntityFactory;
+import io.xj.hub.entity.EntityUtils;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
@@ -28,6 +29,7 @@ import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.tables.pojos.Project;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.http.HttpClientProvider;
@@ -61,6 +63,7 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
@@ -281,6 +284,42 @@ public class ProjectManagerImpl implements ProjectManager {
         return results;
       }
     }
+
+    // Cleanup orphans
+    results.addEntities(deleteAllIf(Instrument.class, (Instrument instrument) -> content.get().getLibrary(instrument.getLibraryId()).isEmpty()));
+    results.addEntities(deleteAllIf(InstrumentMeme.class, (InstrumentMeme meme) -> content.get().getInstrument(meme.getInstrumentId()).isEmpty()));
+    results.addEntities(deleteAllIf(InstrumentAudio.class, (InstrumentAudio audio) -> content.get().getInstrument(audio.getInstrumentId()).isEmpty()));
+    results.addEntities(deleteAllIf(Program.class, (Program program) -> content.get().getLibrary(program.getLibraryId()).isEmpty()));
+    results.addEntities(deleteAllIf(ProgramMeme.class, (ProgramMeme meme) -> content.get().getProgram(meme.getProgramId()).isEmpty()));
+    results.addEntities(deleteAllIf(ProgramSequence.class, (ProgramSequence sequence) -> content.get().getProgram(sequence.getProgramId()).isEmpty()));
+    results.addEntities(deleteAllIf(ProgramSequenceBinding.class, (ProgramSequenceBinding binding) -> content.get().getProgramSequence(binding.getProgramSequenceId()).isEmpty()));
+    results.addEntities(deleteAllIf(ProgramSequenceBinding.class, (ProgramSequenceBinding binding) -> content.get().getProgram(binding.getProgramId()).isEmpty()));
+    results.addEntities(deleteAllIf(ProgramSequenceBindingMeme.class, (ProgramSequenceBindingMeme meme) -> content.get().getProgramSequenceBinding(meme.getProgramSequenceBindingId()).isEmpty()));
+    results.addEntities(deleteAllIf(ProgramSequenceBindingMeme.class, (ProgramSequenceBindingMeme meme) -> content.get().getProgram(meme.getProgramId()).isEmpty()));
+    results.addEntities(deleteAllIf(ProgramVoice.class, (ProgramVoice voice) -> content.get().getProgram(voice.getProgramId()).isEmpty()));
+    results.addEntities(deleteAllIf(ProgramVoiceTrack.class, (ProgramVoiceTrack track) -> content.get().getProgramVoice(track.getProgramVoiceId()).isEmpty()));
+    results.addEntities(deleteAllIf(ProgramVoiceTrack.class, (ProgramVoiceTrack track) -> content.get().getProgram(track.getProgramId()).isEmpty()));
+    results.addEntities(deleteAllIf(ProgramSequencePattern.class, (ProgramSequencePattern pattern) -> content.get().getProgramSequence(pattern.getProgramSequenceId()).isEmpty()));
+    results.addEntities(deleteAllIf(ProgramSequencePattern.class, (ProgramSequencePattern pattern) -> content.get().getProgramVoice(pattern.getProgramVoiceId()).isEmpty()));
+    results.addEntities(deleteAllIf(ProgramSequencePattern.class, (ProgramSequencePattern pattern) -> content.get().getProgram(pattern.getProgramId()).isEmpty()));
+    results.addEntities(deleteAllIf(ProgramSequencePatternEvent.class, (ProgramSequencePatternEvent event) -> content.get().getProgramSequencePattern(event.getProgramSequencePatternId()).isEmpty()));
+    results.addEntities(deleteAllIf(ProgramSequencePatternEvent.class, (ProgramSequencePatternEvent event) -> content.get().getProgramVoiceTrack(event.getProgramVoiceTrackId()).isEmpty()));
+    results.addEntities(deleteAllIf(ProgramSequencePatternEvent.class, (ProgramSequencePatternEvent event) -> content.get().getProgram(event.getProgramId()).isEmpty()));
+    results.addEntities(deleteAllIf(ProgramSequenceChord.class, (ProgramSequenceChord chord) -> content.get().getProgramSequence(chord.getProgramSequenceId()).isEmpty()));
+    results.addEntities(deleteAllIf(ProgramSequenceChord.class, (ProgramSequenceChord chord) -> content.get().getProgram(chord.getProgramId()).isEmpty()));
+    results.addEntities(deleteAllIf(ProgramSequenceChordVoicing.class, (ProgramSequenceChordVoicing voicing) -> content.get().getProgramSequenceChord(voicing.getProgramSequenceChordId()).isEmpty()));
+    results.addEntities(deleteAllIf(ProgramSequenceChordVoicing.class, (ProgramSequenceChordVoicing voicing) -> content.get().getProgramVoice(voicing.getProgramVoiceId()).isEmpty()));
+    results.addEntities(deleteAllIf(ProgramSequenceChordVoicing.class, (ProgramSequenceChordVoicing voicing) -> content.get().getProgram(voicing.getProgramId()).isEmpty()));
+    results.addEntities(deleteAllIf(TemplateBinding.class, (TemplateBinding binding) -> content.get().getTemplate(binding.getTemplateId()).isEmpty()));
+
+    try {
+      saveProjectContent();
+    } catch (IOException e) {
+      LOG.error("Failed to save project after cleanup! {}\n{}", e, StringUtils.formatStackTrace(e));
+      updateState(ProjectState.Ready);
+      return results;
+    }
+
     updateState(ProjectState.Ready);
     return results;
   }
@@ -1019,6 +1058,29 @@ public class ProjectManagerImpl implements ProjectManager {
 
     // return the instrument
     return instrument;
+  }
+
+  /**
+   Delete all entities of the given type if they meet a condition
+
+   @param type to delete if its test returns true
+   @param test to run on each entity
+   @param <N>  type of entity
+   @return the number of entities deleted
+   */
+  private <N> int deleteAllIf(Class<N> type, Function<N, Boolean> test) {
+    int count = 0;
+    for (N entity : content.get().getAll(type)) {
+      try {
+        if (test.apply(entity)) {
+          content.get().delete(type, EntityUtils.getId(entity));
+          count++;
+        }
+      } catch (Exception e) {
+        LOG.error("Failed to test if {} is orphaned! {}\n{}", type.getSimpleName(), e, StringUtils.formatStackTrace(e));
+      }
+    }
+    return count;
   }
 
   /**

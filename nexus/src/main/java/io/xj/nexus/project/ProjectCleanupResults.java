@@ -1,26 +1,33 @@
 package io.xj.nexus.project;
 
+import io.xj.nexus.util.FormatUtils;
+
+import java.util.Map;
+
 public class ProjectCleanupResults {
   int folders;
-
   int files;
-
-  public ProjectCleanupResults(int folders, int files) {
-    this.folders = folders;
-    this.files = files;
-  }
+  int entities;
 
   public ProjectCleanupResults() {
     this.folders = 0;
     this.files = 0;
+    this.entities = 0;
   }
 
-  public void addFolders(int count) {
+  public ProjectCleanupResults addFolders(int count) {
     this.folders += count;
+    return this;
   }
 
-  public void addFiles(int count) {
+  public ProjectCleanupResults addFiles(int count) {
     this.files += count;
+    return this;
+  }
+
+  public ProjectCleanupResults addEntities(int count) {
+    this.entities += count;
+    return this;
   }
 
   public void incrementFolders() {
@@ -31,6 +38,10 @@ public class ProjectCleanupResults {
     this.files++;
   }
 
+  public void incrementEntities() {
+    this.entities++;
+  }
+
   public int getFolders() {
     return folders;
   }
@@ -39,16 +50,20 @@ public class ProjectCleanupResults {
     return files;
   }
 
+  public int getEntities() {
+    return entities;
+  }
+
   @Override
   public String toString() {
-    if (folders==0 && files==0) {
-      return "No files or folders were removed";
-    } else if (folders==0) {
-      return files + " files were removed";
-    } else if (files==0) {
-      return folders + " folders were removed";
+    if (folders == 0 && files == 0 && entities == 0) {
+      return "Nothing was removed";
     } else {
-      return folders + " folders and " + files + " files were removed";
+      return "Removed " + FormatUtils.describeCounts(Map.of(
+        "entities", entities,
+        "files", files,
+        "folders", folders
+      ));
     }
   }
 }
