@@ -363,6 +363,10 @@
   -fx-font-weight: bold;
 }
 
+.instrument-audios-pane {
+  -fx-background-color: #303030;
+}
+
 .top-pane .button,
 .top-pane .toggle-button,
 .template-bindings-pane .button,
@@ -450,7 +454,9 @@
   -fx-background-color: transparent;
 }
 
-.program-editor {
+.program-editor,
+.instrument-editor,
+.instrument-audio-editor{
   -fx-font-family: "Roboto Mono";
 }
 
@@ -459,24 +465,24 @@
   -fx-background-color: #101010;
 }
 
-.program-editor-field-label {
+.editor-field-label {
   -fx-font-size: 0.8em;
   -fx-fill: #404040;
   -fx-alignment: CENTER_RIGHT;
   -fx-padding: 0 2 0 0;
 }
 
-.program-editor-menu-button {
+.editor-menu-button {
   -fx-font-size: 0.8em;
 }
 
 .program-editor .combo-box,
-.program-editor .spinner {
+.instrument-editor .combo-box {
   -fx-background-color: transparent;
   -fx-border-style: none;
 }
 
-.toggle-button.program-editor-menu-button:selected {
+.toggle-button.editor-menu-button:selected {
   -fx-background-color: rgba(0, 255, 0, 0.38);
 }
 
@@ -584,6 +590,7 @@
 }
 
 .program-config-pane,
+.instrument-config-pane,
 .event-properties-pane,
 . chord-properties-pane {
   -fx-border-color: grey;
@@ -591,11 +598,13 @@
 }
 
 .program-config-pane .label,
+.instrument-config-pane .label,
 .event-properties-pane .label,
 .chord-properties-pane .label,
 .chord-properties-pane .text-field,
 .event-properties-pane .text-field,
-.program-config-pane .text-area {
+.program-config-pane .text-area,
+.instrument-config-pane .text-area{
   -fx-padding: 3 6 3 6;
 }
 

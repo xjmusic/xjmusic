@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="io.xj.gui.controllers.content.instrument.InstrumentConfigController"
+      fx:id="container"
+      stylesheets="@/styles/default-theme.css"
+      styleClass="instrument-config-pane">
+  <Label alignment="CENTER" text="Edit Instrument Config" HBox.hgrow="ALWAYS"/>
+  <Separator HBox.hgrow="ALWAYS"/>
+  <TextArea fx:id="configField" prefHeight="300" HBox.hgrow="ALWAYS"/>
+  <HBox alignment="CENTER" spacing="10.0">
+    <Button fx:id="saveButton" mnemonicParsing="false" text="Save" HBox.hgrow="ALWAYS" onAction="#handleSavePressed"/>
+    <Button mnemonicParsing="false" text="Cancel" HBox.hgrow="ALWAYS" onAction="#teardown"/>
+  </HBox>
+</VBox>

@@ -34,7 +34,7 @@
 
       <!-- Voice Type -->
       <HBox HBox.hgrow="ALWAYS" alignment="CENTER_LEFT" spacing="5.0">
-        <Label minWidth="40.0" text="TYPE" styleClass="program-editor-field-label"/>
+        <Label minWidth="40.0" text="TYPE" styleClass="editor-field-label"/>
         <ComboBox minWidth="102.0" fx:id="voiceTypeChooser"/>
       </HBox>
 

@@ -2,133 +2,129 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<SplitPane
-    fx:controller="io.xj.gui.controllers.content.instrument.InstrumentEditorController"
-    fx:id="container"
-    xmlns="http://javafx.com/javafx/17.0.2-ea"
+<AnchorPane
+    fx:id="container" stylesheets="@/styles/default-theme.css" xmlns="http://javafx.com/javafx/20.0.1"
     xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="io.xj.gui.controllers.content.instrument.InstrumentEditorController"
     styleClass="instrument-editor">
-
-  <VBox
-      fx:id="fieldsContainer"
-      spacing="10.0"
-      VBox.vgrow="ALWAYS">
-    <padding>
-      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-    </padding>
-
-    <VBox spacing="2.0">
-      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Name" textAlignment="RIGHT"/>
-      <TextField fx:id="fieldName" prefHeight="25.0"/>
-    </VBox>
-
-    <StackPane fx:id="instrumentMemeContainer"/>
-
-    <HBox spacing="10.0" HBox.hgrow="ALWAYS">
-      <VBox HBox.hgrow="ALWAYS" spacing="2.0">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Type" textAlignment="RIGHT"/>
-        <ChoiceBox fx:id="choiceType" prefHeight="25.0" maxWidth="Infinity"/>
-      </VBox>
-      <VBox HBox.hgrow="ALWAYS" spacing="2.0">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Mode" textAlignment="RIGHT"/>
-        <ChoiceBox fx:id="choiceMode" prefHeight="25.0" maxWidth="Infinity"/>
-      </VBox>
-      <VBox HBox.hgrow="ALWAYS" spacing="2.0">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="State" textAlignment="RIGHT"/>
-        <ChoiceBox fx:id="choiceState" prefHeight="25.0" maxWidth="Infinity"/>
-      </VBox>
-    </HBox>
-
-    <HBox spacing="10.0"
-          HBox.hgrow="ALWAYS">
-      <VBox HBox.hgrow="ALWAYS" spacing="2.0">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Volume" textAlignment="RIGHT"/>
-        <TextField fx:id="fieldVolume" prefHeight="25.0"/>
-      </VBox>
-    </HBox>
-
-    <VBox spacing="2.0">
-      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Configuration" textAlignment="RIGHT"/>
-      <TextArea fx:id="fieldConfig" maxHeight="Infinity"/>
-    </VBox>
-  </VBox>
-
-  <AnchorPane
-      styleClass="instrument-audios-pane">
-    <!-- Audios header -->
-    <StackPane
-        AnchorPane.leftAnchor="0"
-        AnchorPane.topAnchor="0"
-        prefHeight="32">
+  <VBox AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+        AnchorPane.rightAnchor="0.0">
+    <VBox.vgrow>
+      <Priority fx:constant="ALWAYS"/>
+    </VBox.vgrow>
+    <HBox alignment="CENTER_LEFT" spacing="5.0">
       <padding>
-        <Insets top="4" left="9" right="9" bottom="3"/>
+        <Insets left="5.0"/>
       </padding>
-      <HBox spacing="5" alignment="CENTER_LEFT">
-        <Label styleClass="bold">Audios</Label>
-        <Button
-            fx:id="buttonOpenAudioFolder"
-            onAction="#handlePressOpenAudioFolder">
-          <graphic>
-            <ImageView fitWidth="18" fitHeight="18">
-              <Image url="@/icons/folder-open.png"/>
-            </ImageView>
-          </graphic>
-          <tooltip>
-            <Tooltip text="Open Audio Folder in System File Browser"/>
-          </tooltip>
-        </Button>
-
-      </HBox>
+      <Button fx:id="configButton" minWidth="30" maxWidth="30" mnemonicParsing="false" onAction="#handleEditConfig"
+              styleClass="minimal">
+        <graphic>
+          <ImageView fitHeight="16.0" fitWidth="16.0">
+            <Image url="@/icons/settings.png"/>
+          </ImageView>
+        </graphic>
+      </Button>
+      <Button fx:id="duplicateButton" minWidth="30" maxWidth="30" mnemonicParsing="false" onAction="#openCloneDialog"
+              styleClass="minimal">
+        <graphic>
+          <ImageView fitHeight="16.0" fitWidth="16.0">
+            <Image url="@/icons/copy-grey.png"/>
+          </ImageView>
+        </graphic>
+      </Button>
+      <Label minWidth="40.0" text="NAME" styleClass="editor-field-label"/>
+      <TextField minWidth="160" fx:id="instrumentNameField"/>
+      <Label minWidth="40.0" text="TYPE" styleClass="editor-field-label"/>
+      <ComboBox minWidth="102.0" fx:id="instrumentTypeChooser"/>
+      <Label minWidth="50.0" text="MODE" styleClass="editor-field-label"/>
+      <ComboBox minWidth="102.0" fx:id="instrumentModeChooser"/>
+      <Label minWidth="50.0" text="STATE" styleClass="editor-field-label"/>
+      <ComboBox minWidth="120.0" fx:id="instrumentStateChooser"/>
+      <Label minWidth="50.0" text="VOLUME" styleClass="editor-field-label"/>
+      <TextField minWidth="40.0" fx:id="instrumentVolumeField"/>
+    </HBox>
+    <StackPane fx:id="instrumentMemeContainer">
+      <HBox.hgrow>
+        <Priority fx:constant="ALWAYS"/>
+      </HBox.hgrow>
     </StackPane>
-    <StackPane
-        AnchorPane.rightAnchor="0"
-        AnchorPane.topAnchor="0"
-        prefHeight="32">
-      <HBox alignment="CENTER_RIGHT">
+
+    <AnchorPane
+        styleClass="instrument-audios-pane"
+        VBox.vgrow="ALWAYS">
+      <!-- Audios header -->
+      <StackPane
+          AnchorPane.leftAnchor="0"
+          AnchorPane.topAnchor="0"
+          prefHeight="32">
         <padding>
           <Insets top="4" left="9" right="9" bottom="3"/>
         </padding>
-        <HBox alignment="CENTER_RIGHT" spacing="10">
+        <HBox spacing="5" alignment="CENTER_LEFT">
+          <Label styleClass="bold">Audios</Label>
           <Button
-              mnemonicParsing="false"
-              onAction="#handlePressImportAudio"
-              text="Import Audio">
+              fx:id="buttonOpenAudioFolder"
+              onAction="#handlePressOpenAudioFolder">
             <graphic>
-              <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
-                <Image url="@/icons/square-plus.png"/>
+              <ImageView fitWidth="18" fitHeight="18">
+                <Image url="@/icons/folder-open.png"/>
               </ImageView>
             </graphic>
+            <tooltip>
+              <Tooltip text="Open Audio Folder in System File Browser"/>
+            </tooltip>
           </Button>
         </HBox>
-      </HBox>
-    </StackPane>
+      </StackPane>
+      <StackPane
+          AnchorPane.rightAnchor="0"
+          AnchorPane.topAnchor="0"
+          prefHeight="32">
+        <HBox alignment="CENTER_RIGHT">
+          <padding>
+            <Insets top="4" left="9" right="9" bottom="3"/>
+          </padding>
+          <HBox alignment="CENTER_RIGHT" spacing="10">
+            <Button
+                mnemonicParsing="false"
+                onAction="#handlePressImportAudio"
+                text="Import Audio">
+              <graphic>
+                <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
+                  <Image url="@/icons/square-plus.png"/>
+                </ImageView>
+              </graphic>
+            </Button>
+          </HBox>
+        </HBox>
+      </StackPane>
 
-    <!-- Audios -->
-    <TableView
-        fx:id="audiosTable"
-        AnchorPane.topAnchor="32"
-        AnchorPane.rightAnchor="0"
-        AnchorPane.bottomAnchor="0"
-        AnchorPane.leftAnchor="0"
-        maxHeight="Infinity"
-        maxWidth="Infinity">
-      <placeholder>
-        <Label text="Instrument has no Audios"/>
-      </placeholder>
-    </TableView>
-  </AnchorPane>
+      <!-- Audios -->
+      <TableView
+          fx:id="audiosTable"
+          AnchorPane.topAnchor="32"
+          AnchorPane.rightAnchor="0"
+          AnchorPane.bottomAnchor="0"
+          AnchorPane.leftAnchor="0"
+          maxHeight="Infinity"
+          maxWidth="Infinity">
+        <placeholder>
+          <Label text="Instrument has no Audios"/>
+        </placeholder>
+      </TableView>
+    </AnchorPane>
 
-</SplitPane>
+  </VBox>
+</AnchorPane>

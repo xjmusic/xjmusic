@@ -32,9 +32,9 @@
         <ToggleGroup fx:id="editorModeToggleGroup"/>
       </fx:define>
       <ToggleButton fx:id="bindButton" toggleGroup="$editorModeToggleGroup" mnemonicParsing="false" minWidth="45"
-                    text="BIND" styleClass="program-editor-menu-button"/>
+                    text="BIND" styleClass="editor-menu-button"/>
       <ToggleButton fx:id="editButton" toggleGroup="$editorModeToggleGroup" mnemonicParsing="false" minWidth="45"
-                    text="EDIT" styleClass="program-editor-menu-button"/>
+                    text="EDIT" styleClass="editor-menu-button"/>
       <Button fx:id="configButton" minWidth="30" maxWidth="30" mnemonicParsing="false" onAction="#handleEditConfig"
               styleClass="minimal">
         <graphic>
@@ -51,15 +51,15 @@
           </ImageView>
         </graphic>
       </Button>
-      <Label minWidth="40.0" text="NAME" styleClass="program-editor-field-label"/>
+      <Label minWidth="40.0" text="NAME" styleClass="editor-field-label"/>
       <TextField minWidth="160" fx:id="programNameField"/>
-      <Label minWidth="40.0" text="TYPE" styleClass="program-editor-field-label"/>
+      <Label minWidth="40.0" text="TYPE" styleClass="editor-field-label"/>
       <ComboBox minWidth="102.0" fx:id="programTypeChooser"/>
-      <Label minWidth="50.0" text="STATE" styleClass="program-editor-field-label"/>
+      <Label minWidth="50.0" text="STATE" styleClass="editor-field-label"/>
       <ComboBox minWidth="120.0" fx:id="programStateChooser"/>
-      <Label minWidth="30.0" text="KEY" styleClass="program-editor-field-label"/>
+      <Label minWidth="30.0" text="KEY" styleClass="editor-field-label"/>
       <TextField fx:id="programKeyField" minWidth="40.0"/>
-      <Label minWidth="50.0" text="TEMPO" styleClass="program-editor-field-label"/>
+      <Label minWidth="50.0" text="TEMPO" styleClass="editor-field-label"/>
       <TextField minWidth="40.0" fx:id="programTempoField"/>
     </HBox>
     <StackPane fx:id="programMemeContainer">
@@ -71,7 +71,7 @@
       <padding>
         <Insets left="5" top="2" bottom="2" right="5"/>
       </padding>
-      <Label minWidth="80" text="SEQUENCE" styleClass="program-editor-field-label"/>
+      <Label minWidth="80" text="SEQUENCE" styleClass="editor-field-label"/>
       <Button fx:id="sequenceActionLauncher" mnemonicParsing="false" minWidth="30" maxWidth="30"
               onMouseClicked="#handlePressedSequenceActionLauncher" styleClass="minimal">
         <graphic>
@@ -90,21 +90,21 @@
       </Button>
       <HBox fx:id="currentSequenceGroup" alignment="CENTER_LEFT" spacing="5">
         <TextField fx:id="sequenceNameField" minWidth="173.0"/>
-        <Label minWidth="50" text="TOTAL" styleClass="program-editor-field-label"/>
+        <Label minWidth="50" text="TOTAL" styleClass="editor-field-label"/>
         <TextField minWidth="40" fx:id="sequenceTotalField"/>
-        <Label minWidth="30" text="KEY" styleClass="program-editor-field-label"/>
+        <Label minWidth="30" text="KEY" styleClass="editor-field-label"/>
         <TextField minWidth="40" fx:id="sequenceKeyField"/>
-        <Label minWidth="70" text="INTENSITY" styleClass="program-editor-field-label"/>
+        <Label minWidth="70" text="INTENSITY" styleClass="editor-field-label"/>
         <TextField minWidth="40" fx:id="sequenceIntensityField"/>
       </HBox>
       <Label fx:id="noSequencesLabel" text="NO SEQUENCES" styleClass="no-sequences-label"/>
       <HBox fx:id="timelineOptionsGroup" alignment="CENTER_LEFT" spacing="10">
-        <Label minWidth="35.0" text="GRID" styleClass="program-editor-field-label"/>
+        <Label minWidth="35.0" text="GRID" styleClass="editor-field-label"/>
         <ComboBox fx:id="gridChooser" minWidth="80.0"/>
-        <Label minWidth="35.0" text="ZOOM" styleClass="program-editor-field-label"/>
+        <Label minWidth="35.0" text="ZOOM" styleClass="editor-field-label"/>
         <ComboBox fx:id="zoomChooser" minWidth="80.0"/>
         <ToggleButton fx:id="snapButton" minWidth="45" mnemonicParsing="false" text="SNAP"
-                      styleClass="program-editor-menu-button"/>
+                      styleClass="editor-menu-button"/>
       </HBox>
     </HBox>
     <ScrollPane styleClass="content-scroll-pane"

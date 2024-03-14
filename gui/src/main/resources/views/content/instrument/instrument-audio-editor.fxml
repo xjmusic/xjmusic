@@ -20,13 +20,13 @@
     fx:id="container"
     xmlns="http://javafx.com/javafx/17.0.2-ea"
     xmlns:fx="http://javafx.com/fxml/1"
-    dividerPositions="0.2"
+    dividerPositions="0.1"
 styleClass="instrument-audio-editor">
 
   <VBox
       fx:id="fieldsContainer"
       spacing="10.0"
-      minWidth="150">
+      minWidth="120">
     <VBox.vgrow>
       <Priority fx:constant="ALWAYS"/>
     </VBox.vgrow>
@@ -65,14 +65,14 @@ styleClass="instrument-audio-editor">
     </VBox>
 
     <VBox>
-      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Loop (Beats)"/>
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Loop Beats"/>
       <TextField fx:id="fieldLoopBeats" prefHeight="25.0"/>
     </VBox>
 
     <Separator HBox.hgrow="ALWAYS"/>
 
     <VBox>
-      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Transient (Seconds)"/>
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Transient"/>
       <HBox>
         <TextField fx:id="fieldTransientSeconds" prefHeight="25.0"/>
         <Button
