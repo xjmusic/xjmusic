@@ -5,9 +5,6 @@ package io.xj.gui.controllers.content.instrument;
 import io.xj.gui.controllers.BrowserController;
 import io.xj.gui.controllers.CmdModalController;
 import io.xj.gui.controllers.content.common.EntityMemesController;
-import io.xj.gui.controllers.content.program.bind_mode.BindModeController;
-import io.xj.gui.controllers.content.program.chord_edit_mode.ChordEditModeController;
-import io.xj.gui.controllers.content.program.event_edit_mode.EventEditModeController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
@@ -53,7 +50,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -334,152 +330,4 @@ public class InstrumentEditorController extends BrowserController {
       LOG.error("Error loading Entity Memes window! {}\n{}", e, StringUtils.formatStackTrace(e));
     }
   }
-
-  /*
-  private final ObjectProperty<UUID> instrumentId = new SimpleObjectProperty<>(null);
-  private final StringProperty name = new SimpleStringProperty("");
-  private final ObjectProperty<InstrumentType> type = new SimpleObjectProperty<>(null);
-  private final ObjectProperty<InstrumentMode> mode = new SimpleObjectProperty<>(null);
-  private final ObjectProperty<InstrumentState> state = new SimpleObjectProperty<>(null);
-  private final FloatProperty volume = new SimpleFloatProperty(0);
-  private final StringProperty config = new SimpleStringProperty("");
-
-  @Value("classpath:/views/content/common/entity-memes.fxml")
-  private Resource entityMemesFxml;
-
-  @FXML
-  SplitPane container;
-
-  @FXML
-  VBox fieldsContainer;
-
-  @FXML
-  StackPane instrumentMemeContainer;
-
-  @FXML
-  TextField fieldName;
-
-  @FXML
-  TextField fieldVolume;
-
-  @FXML
-  TextArea fieldConfig;
-
-  @FXML
-  ChoiceBox<InstrumentType> choiceType;
-
-  @FXML
-  ChoiceBox<InstrumentMode> choiceMode;
-
-  @FXML
-  ChoiceBox<InstrumentState> choiceState;
-
-  public InstrumentEditorController(
-    @Value("classpath:/views/content/instrument/instrument-editor.fxml") Resource fxml,
-    ApplicationContext ac,
-    ThemeService themeService,
-    ProjectService projectService,
-    UIStateService uiStateService
-  ) {
-    super(fxml, ac, themeService, uiStateService, projectService);
-  }
-
-  @Override
-  public void onStageReady() {
-    var visible = projectService.isStateReadyProperty()
-      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
-      .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.InstrumentEditor));
-    container.visibleProperty().bind(visible);
-    container.managedProperty().bind(visible);
-
-    fieldName.textProperty().bindBidirectional(name);
-    fieldVolume.textProperty().bindBidirectional(volume, new NumberStringConverter());
-    fieldConfig.textProperty().bindBidirectional(config);
-    fieldConfig.prefHeightProperty().bind(fieldsContainer.heightProperty().subtract(100));
-    choiceType.setItems(FXCollections.observableArrayList(InstrumentType.values()));
-    choiceType.valueProperty().bindBidirectional(type);
-    choiceMode.setItems(FXCollections.observableArrayList(InstrumentMode.values()));
-    choiceMode.valueProperty().bindBidirectional(mode);
-    choiceState.setItems(FXCollections.observableArrayList(InstrumentState.values()));
-    choiceState.valueProperty().bindBidirectional(state);
-
-    fieldName.focusedProperty().addListener((o, ov, v) -> {
-      if (!v) {
-        update("name", name.get());
-      }
-    });
-    fieldConfig.focusedProperty().addListener((o, ov, v) -> {
-      if (!v) {
-        try {
-          config.set(new InstrumentConfig(config.get()).toString());
-          update("config", config.get());
-        } catch (Exception e) {
-          LOG.error("Could not parse Instrument Config because {}", e.getMessage());
-        }
-      }
-    });
-    fieldVolume.focusedProperty().addListener((o, ov, v) -> {
-      if (!v) {
-        update("volume", volume.get());
-      }
-    });
-    choiceType.valueProperty().addListener((o, ov, v) -> update("type", type.get()));
-    choiceMode.valueProperty().addListener((o, ov, v) -> update("mode", mode.get()));
-    choiceState.valueProperty().addListener((o, ov, v) -> update("state", state.get()));
-
-  }
-
-  @Override
-  public void onStageClose() {
-    // FUTURE: on stage close
-  }
-
-  */
-/**
- Update an attribute of the current instrument record with the given value
-
- @param attribute of instrument
- @param value     to set
- *//*
-
-  private void update(String attribute, Object value) {
-    if (Objects.nonNull(instrumentId.get())) {
-      try {
-        projectService.update(Instrument.class, instrumentId.get(), attribute, value);
-      } catch (Exception e) {
-        LOG.error("Could not update Instrument \"{}\"! {}\n{}", attribute, e, StringUtils.formatStackTrace(e));
-      }
-    }
-  }
-
-  */
-
-/**
- Set up the instrument meme container FXML and its controller
- *//*
-
-  private void setupInstrumentMemeContainer() {
-    try {
-      FXMLLoader loader = new FXMLLoader(entityMemesFxml.getURL());
-      loader.setControllerFactory(ac::getBean);
-      Parent root = loader.load();
-      instrumentMemeContainer.getChildren().clear();
-      instrumentMemeContainer.getChildren().add(root);
-      EntityMemesController entityMemesController = loader.getController();
-      entityMemesController.setup(
-          true, () -> projectService.getContent().getMemesOfInstrument(instrumentId.get()),
-        () -> projectService.createInstrumentMeme(instrumentId.get()),
-        (Object meme) -> {
-          try {
-            projectService.update(meme);
-          } catch (Exception e) {
-            throw new RuntimeException(e);
-          }
-        }
-      );
-    } catch (IOException e) {
-      LOG.error("Error loading Entity Memes window! {}\n{}", e, StringUtils.formatStackTrace(e));
-    }
-  }
-*/
 }
