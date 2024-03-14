@@ -309,10 +309,14 @@ public class UIStateServiceImpl implements UIStateService {
     // Refresh the current program property when the program type is modified
     projectService.addProjectUpdateListener(Program.class, () -> {
       if (currentProgram.isNull().get()) return;
-      var program = projectService.getContent().getProgram(currentProgram.get().getId())
-        .orElseThrow(() -> new RuntimeException("Could not find Program!"));
-      if (!Objects.equals(program.getType(), currentProgram.get().getType()))
-        currentProgram.set(program);
+      var program = projectService.getContent().getProgram(currentProgram.get().getId());
+      if (program.isEmpty()) {
+        // program was deleted; this listener was latent
+        currentProgram.set(null);
+        return;
+      }
+      if (!Objects.equals(program.get().getType(), currentProgram.get().getType()))
+        currentProgram.set(program.get());
     });
 
     attachPreferenceListeners();
