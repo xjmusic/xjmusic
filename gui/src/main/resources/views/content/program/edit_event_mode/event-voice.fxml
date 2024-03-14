@@ -37,7 +37,7 @@
 
     <!-- Voice Type -->
     <HBox HBox.hgrow="ALWAYS" alignment="CENTER_LEFT" spacing="5.0">
-      <Label minWidth="40.0" text="TYPE" styleClass="program-editor-field-label"/>
+      <Label minWidth="40.0" text="TYPE" styleClass="editor-field-label"/>
       <ComboBox minWidth="102.0" fx:id="voiceTypeChooser"/>
     </HBox>
 
@@ -69,7 +69,7 @@
           <Label fx:id="noPatternsLabel" text="NO PATTERNS" styleClass="no-patterns-label"/>
         </HBox>
         <HBox spacing="2.0" HBox.hgrow="ALWAYS" fx:id="patternTotalContainer" alignment="CENTER_LEFT">
-          <Label minWidth="50" text="TOTAL" styleClass="program-editor-field-label"/>
+          <Label minWidth="50" text="TOTAL" styleClass="editor-field-label"/>
           <TextField minWidth="90.0" fx:id="patternTotalField"/>
         </HBox>
       </VBox>

@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 public class EntityMemeTagController {
   static final Logger LOG = LoggerFactory.getLogger(EntityMemeTagController.class);
   private final Collection<Runnable> unsubscriptions = new HashSet<>();
-  private static final int MEME_NAME_PADDING = 15;
+  private static final int MEME_NAME_PADDING = 20;
   private final SimpleStringProperty name = new SimpleStringProperty("");
   private Object currentMeme;
 

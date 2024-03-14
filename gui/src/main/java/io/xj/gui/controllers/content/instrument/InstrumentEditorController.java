@@ -3,14 +3,16 @@
 package io.xj.gui.controllers.content.instrument;
 
 import io.xj.gui.controllers.BrowserController;
+import io.xj.gui.controllers.CmdModalController;
 import io.xj.gui.controllers.content.common.EntityMemesController;
 import io.xj.gui.modes.ContentMode;
 import io.xj.gui.modes.ViewMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.utils.LaunchMenuPosition;
 import io.xj.gui.utils.ProjectUtils;
-import io.xj.hub.InstrumentConfig;
+import io.xj.gui.utils.UiUtils;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
@@ -20,13 +22,12 @@ import io.xj.hub.util.StringUtils;
 import io.xj.nexus.project.ProjectPathUtils;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.FloatProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -34,15 +35,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.SplitPane;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.util.converter.NumberStringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,60 +56,77 @@ import java.util.UUID;
 @Service
 public class InstrumentEditorController extends BrowserController {
   static final Logger LOG = LoggerFactory.getLogger(InstrumentEditorController.class);
-  private final ObjectProperty<UUID> instrumentId = new SimpleObjectProperty<>(null);
-  private final StringProperty name = new SimpleStringProperty("");
-  private final ObjectProperty<InstrumentType> type = new SimpleObjectProperty<>(null);
-  private final ObjectProperty<InstrumentMode> mode = new SimpleObjectProperty<>(null);
-  private final ObjectProperty<InstrumentState> state = new SimpleObjectProperty<>(null);
-  private final FloatProperty volume = new SimpleFloatProperty(0);
-  private final StringProperty config = new SimpleStringProperty("");
   private final ObservableList<InstrumentAudio> audios = FXCollections.observableList(new ArrayList<>());
+  private final Resource configFxml;
+  private final Resource entityMemesFxml;
+  private final ObjectProperty<UUID> instrumentId = new SimpleObjectProperty<>(null);
   private final StringProperty initialImportAudioDirectory = new SimpleStringProperty();
+  private final CmdModalController cmdModalController;
 
-  @Value("classpath:/views/content/common/entity-memes.fxml")
-  private Resource entityMemesFxml;
-
-  @FXML
-  SplitPane container;
-
-  @FXML
-  VBox fieldsContainer;
+  private final ChangeListener<? super ContentMode> onEditInstrument = (o, ov, v) -> {
+    teardown();
+    if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.InstrumentEditor) && uiStateService.currentInstrumentProperty().isNotNull().get())
+      setup();
+  };
+  private final Runnable updateInstrumentName;
+  private final Runnable updateInstrumentType;
+  private final Runnable updateInstrumentMode;
+  private final Runnable updateInstrumentState;
+  private final Runnable updateInstrumentVolume;
 
   @FXML
   StackPane instrumentMemeContainer;
 
   @FXML
-  TextField fieldName;
+  Button duplicateButton;
 
   @FXML
-  TextField fieldVolume;
+  Button configButton;
 
   @FXML
-  TextArea fieldConfig;
+  TextField instrumentNameField;
 
   @FXML
-  ChoiceBox<InstrumentType> choiceType;
+  ComboBox<InstrumentType> instrumentTypeChooser;
 
   @FXML
-  ChoiceBox<InstrumentMode> choiceMode;
+  ComboBox<InstrumentMode> instrumentModeChooser;
 
   @FXML
-  ChoiceBox<InstrumentState> choiceState;
+  ComboBox<InstrumentState> instrumentStateChooser;
 
   @FXML
-  Button buttonOpenAudioFolder;
+  TextField instrumentVolumeField;
+
+  @FXML
+  AnchorPane container;
 
   @FXML
   TableView<InstrumentAudio> audiosTable;
 
+  @FXML
+  Button buttonOpenAudioFolder;
+
   public InstrumentEditorController(
     @Value("classpath:/views/content/instrument/instrument-editor.fxml") Resource fxml,
+    @Value("classpath:/views/content/instrument/instrument-config.fxml") Resource configFxml,
+    @Value("classpath:/views/content/common/entity-memes.fxml") Resource entityMemesFxml,
     ApplicationContext ac,
     ThemeService themeService,
     ProjectService projectService,
-    UIStateService uiStateService
+    UIStateService uiStateService,
+    CmdModalController cmdModalController
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
+    this.configFxml = configFxml;
+    this.entityMemesFxml = entityMemesFxml;
+    this.cmdModalController = cmdModalController;
+
+    updateInstrumentName = () -> projectService.update(Instrument.class, instrumentId.get(), "name", instrumentNameField.getText());
+    updateInstrumentType = () -> projectService.update(Instrument.class, instrumentId.get(), "type", instrumentTypeChooser.getValue());
+    updateInstrumentMode = () -> projectService.update(Instrument.class, instrumentId.get(), "mode", instrumentModeChooser.getValue());
+    updateInstrumentState = () -> projectService.update(Instrument.class, instrumentId.get(), "state", instrumentStateChooser.getValue());
+    updateInstrumentVolume = () -> projectService.update(Instrument.class, instrumentId.get(), "volume", instrumentVolumeField.getText());
   }
 
   @Override
@@ -119,49 +134,33 @@ public class InstrumentEditorController extends BrowserController {
     var visible = projectService.isStateReadyProperty()
       .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
       .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.InstrumentEditor));
+    uiStateService.contentModeProperty().addListener(onEditInstrument);
+    instrumentTypeChooser.setItems(FXCollections.observableArrayList(InstrumentType.values()));
+    instrumentModeChooser.setItems(FXCollections.observableArrayList(InstrumentMode.values()));
+    instrumentStateChooser.setItems(FXCollections.observableArrayList(InstrumentState.values()));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
-    fieldName.textProperty().bindBidirectional(name);
-    fieldVolume.textProperty().bindBidirectional(volume, new NumberStringConverter());
-    fieldConfig.textProperty().bindBidirectional(config);
-    fieldConfig.prefHeightProperty().bind(fieldsContainer.heightProperty().subtract(100));
-    choiceType.setItems(FXCollections.observableArrayList(InstrumentType.values()));
-    choiceType.valueProperty().bindBidirectional(type);
-    choiceMode.setItems(FXCollections.observableArrayList(InstrumentMode.values()));
-    choiceMode.valueProperty().bindBidirectional(mode);
-    choiceState.setItems(FXCollections.observableArrayList(InstrumentState.values()));
-    choiceState.valueProperty().bindBidirectional(state);
+    // Fields lose focus on Enter key press
+    UiUtils.blurOnEnterKeyPress(instrumentNameField);
+    UiUtils.blurOnEnterKeyPress(instrumentVolumeField);
 
-    fieldName.focusedProperty().addListener((o, ov, v) -> {
-      if (!v) {
-        update("name", name.get());
-      }
-    });
-    fieldConfig.focusedProperty().addListener((o, ov, v) -> {
-      if (!v) {
-        try {
-          config.set(new InstrumentConfig(config.get()).toString());
-          update("config", config.get());
-        } catch (Exception e) {
-          LOG.error("Could not parse Instrument Config because {}", e.getMessage());
-        }
-      }
-    });
-    fieldVolume.focusedProperty().addListener((o, ov, v) -> {
-      if (!v) {
-        update("volume", volume.get());
-      }
-    });
-    choiceType.valueProperty().addListener((o, ov, v) -> update("type", type.get()));
-    choiceMode.valueProperty().addListener((o, ov, v) -> update("mode", mode.get()));
-    choiceState.valueProperty().addListener((o, ov, v) -> update("state", state.get()));
+    // On blur, update the underlying value
+    UiUtils.onBlur(instrumentNameField, updateInstrumentName);
+    UiUtils.onChange(instrumentTypeChooser.valueProperty(), updateInstrumentType);
+    UiUtils.onChange(instrumentModeChooser.valueProperty(), updateInstrumentMode);
+    UiUtils.onChange(instrumentStateChooser.valueProperty(), updateInstrumentState);
+    UiUtils.onBlur(instrumentVolumeField, updateInstrumentVolume);
+
+    container.maxWidthProperty().bind(container.getScene().getWindow().widthProperty());
+    container.maxHeightProperty().bind(container.getScene().getWindow().heightProperty());
 
     buttonOpenAudioFolder.disableProperty().bind(Bindings.createBooleanBinding(audios::isEmpty, audios));
 
     audiosTable.setItems(audios);
 
     TableColumn<InstrumentAudio, String> nameColumn = new TableColumn<>("Name");
+    nameColumn.setPrefWidth(200);
     nameColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().getName()));
     audiosTable.getColumns().add(nameColumn);
 
@@ -185,11 +184,11 @@ public class InstrumentEditorController extends BrowserController {
     tempoColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(Float.toString(row.getValue().getTempo())));
     audiosTable.getColumns().add(tempoColumn);
 
-    TableColumn<InstrumentAudio, String> transientSecondsColumn = new TableColumn<>("Transient (Seconds)");
+    TableColumn<InstrumentAudio, String> transientSecondsColumn = new TableColumn<>("Transient");
     transientSecondsColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(Float.toString(row.getValue().getTransientSeconds())));
     audiosTable.getColumns().add(transientSecondsColumn);
 
-    TableColumn<InstrumentAudio, String> loopBeatsColumn = new TableColumn<>("Loop (Beats)");
+    TableColumn<InstrumentAudio, String> loopBeatsColumn = new TableColumn<>("Loop Beats");
     loopBeatsColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(Float.toString(row.getValue().getLoopBeats())));
     audiosTable.getColumns().add(loopBeatsColumn);
 
@@ -220,13 +219,39 @@ public class InstrumentEditorController extends BrowserController {
     });
   }
 
+  @FXML
+  void openCloneDialog() {
+    var instrument = projectService.getContent().getInstrument(instrumentId.get())
+      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
+    cmdModalController.cloneInstrument(instrument);
+  }
+
   @Override
   public void onStageClose() {
-    // FUTURE: on stage close
+    LOG.info("Closed Instrument Editor");
   }
 
   @FXML
-  private void handlePressImportAudio(ActionEvent ignored) {
+  void handleEditConfig() {
+    uiStateService.launchModalMenu(
+      configFxml,
+      configButton,
+      (InstrumentConfigController controller) -> controller.setup(instrumentId.get()),
+      LaunchMenuPosition.from(configButton),
+      true, null);
+  }
+
+  @FXML
+  private void handlePressOpenAudioFolder() {
+    var instrument = projectService.getContent().getInstrument(instrumentId.get())
+      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
+    var audioFolder = projectService.getPathPrefixToInstrumentAudio(instrument.getId());
+    if (Objects.isNull(audioFolder)) return;
+    ProjectUtils.openDesktopPath(audioFolder);
+  }
+
+  @FXML
+  void handlePressImportAudio(ActionEvent ignored) {
     var instrument = projectService.getContent().getInstrument(instrumentId.get())
       .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
     var audioFilePath = ProjectUtils.chooseAudioFile(container.getScene().getWindow(), "Choose audio file", initialImportAudioDirectory.get());
@@ -240,15 +265,6 @@ public class InstrumentEditorController extends BrowserController {
     }
   }
 
-  @FXML
-  private void handlePressOpenAudioFolder() {
-    var instrument = projectService.getContent().getInstrument(instrumentId.get())
-      .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
-    var audioFolder = projectService.getPathPrefixToInstrumentAudio(instrument.getId());
-    if (Objects.isNull(audioFolder)) return;
-    ProjectUtils.openDesktopPath(audioFolder);
-  }
-
   /**
    Update the Instrument Editor with the current Instrument.
    */
@@ -259,35 +275,27 @@ public class InstrumentEditorController extends BrowserController {
       .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
     LOG.info("Will edit Instrument \"{}\"", instrument.getName());
     this.instrumentId.set(instrument.getId());
-    this.name.set(instrument.getName());
-    this.config.set(instrument.getConfig());
-    this.type.set(instrument.getType());
-    this.mode.set(instrument.getMode());
-    this.state.set(instrument.getState());
-    this.volume.set(instrument.getVolume());
+    instrumentNameField.setText(instrument.getName());
+    instrumentTypeChooser.setValue(instrument.getType());
+    instrumentModeChooser.setValue(instrument.getMode());
+    instrumentStateChooser.setValue(instrument.getState());
+    instrumentVolumeField.setText(instrument.getVolume().toString());
+
     setupAudiosTable();
     setupInstrumentMemeContainer();
   }
 
   /**
-   Update an attribute of the current instrument record with the given value
-
-   @param attribute of instrument
-   @param value     to set
+   Teardown the Instrument Editor
    */
-  private void update(String attribute, Object value) {
-    if (Objects.nonNull(instrumentId.get())) {
-      try {
-        projectService.update(Instrument.class, instrumentId.get(), attribute, value);
-      } catch (Exception e) {
-        LOG.error("Could not update Instrument \"{}\"! {}\n{}", attribute, e, StringUtils.formatStackTrace(e));
-      }
-    }
+  private void teardown() {
+    // no op
   }
 
   /**
    Update the instrument audios table data.
    */
+
   private void setupAudiosTable() {
     if (uiStateService.currentInstrumentProperty().isNull().get())
       return;
@@ -297,7 +305,7 @@ public class InstrumentEditorController extends BrowserController {
   }
 
   /**
-   Set up the instrument meme container FXML and its controller
+   Set up the Instrument Meme Container FXML and its controller
    */
   private void setupInstrumentMemeContainer() {
     try {
@@ -308,7 +316,7 @@ public class InstrumentEditorController extends BrowserController {
       instrumentMemeContainer.getChildren().add(root);
       EntityMemesController entityMemesController = loader.getController();
       entityMemesController.setup(
-          true, () -> projectService.getContent().getMemesOfInstrument(instrumentId.get()),
+        true, () -> projectService.getContent().getMemesOfInstrument(instrumentId.get()),
         () -> projectService.createInstrumentMeme(instrumentId.get()),
         (Object meme) -> {
           try {
