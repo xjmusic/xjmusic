@@ -395,17 +395,17 @@ public class ProjectManagerImpl implements ProjectManager {
       return pushResults;
 
     } catch (HubClientException e) {
-      pushResults.addError(String.format("Failed to push project because %s", e.getCause().getMessage()));
+      pushResults.addError(String.format("Failed to push project because %s\n%s\n", e.getMessage(), StringUtils.formatStackTrace(e)));
       updateState(ProjectState.Ready);
       return pushResults;
 
     } catch (IOException e) {
-      pushResults.addError(String.format("Failed to push project because of I/O failure: %s", e.getMessage()));
+      pushResults.addError(String.format("Failed to push project because of I/O failure: %s\n%s\n", e.getMessage(), StringUtils.formatStackTrace(e)));
       updateState(ProjectState.Ready);
       return pushResults;
 
     } catch (Exception e) {
-      pushResults.addError(String.format("Failed to push project because of unknown error: %s", e.getMessage()));
+      pushResults.addError(String.format("Failed to push project because of unknown error: %s\n%s\n", e.getMessage(), StringUtils.formatStackTrace(e)));
       updateState(ProjectState.Ready);
       return pushResults;
     }
