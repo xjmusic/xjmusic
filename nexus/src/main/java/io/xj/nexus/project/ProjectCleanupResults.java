@@ -7,12 +7,10 @@ import java.util.Map;
 public class ProjectCleanupResults {
   int folders;
   int files;
-  int entities;
 
   public ProjectCleanupResults() {
     this.folders = 0;
     this.files = 0;
-    this.entities = 0;
   }
 
   public ProjectCleanupResults addFolders(int count) {
@@ -25,21 +23,12 @@ public class ProjectCleanupResults {
     return this;
   }
 
-  public ProjectCleanupResults addEntities(int count) {
-    this.entities += count;
-    return this;
-  }
-
   public void incrementFolders() {
     this.folders++;
   }
 
   public void incrementFiles() {
     this.files++;
-  }
-
-  public void incrementEntities() {
-    this.entities++;
   }
 
   public int getFolders() {
@@ -50,17 +39,12 @@ public class ProjectCleanupResults {
     return files;
   }
 
-  public int getEntities() {
-    return entities;
-  }
-
   @Override
   public String toString() {
-    if (folders == 0 && files == 0 && entities == 0) {
+    if (folders == 0 && files == 0) {
       return "Nothing was removed";
     } else {
       return "Removed " + FormatUtils.describeCounts(Map.of(
-        "entities", entities,
         "files", files,
         "folders", folders
       ));

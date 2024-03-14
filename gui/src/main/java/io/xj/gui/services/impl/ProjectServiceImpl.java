@@ -654,6 +654,7 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public <N> void update(Class<N> type, UUID id, String attribute, Object value) {
     try {
+      if (Objects.isNull(projectManager.getContent())) return; // the project was closed and this method was called from a listener
       if (projectManager.getContent().update(type, id, attribute, value)) {
         LOG.info("Updated {}[{}] attribute \"{}\" to \"{}\"", type.getSimpleName(), id, attribute, value);
         didUpdate(type, true);

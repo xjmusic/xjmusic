@@ -254,7 +254,7 @@ public class ProjectManagerImpl implements ProjectManager {
         updateState(ProjectState.Ready);
         return results;
       }
-    foldersInProject.add(prefix + File.separator);
+    foldersInProject.add(prefix);
     content.get().getInstruments().forEach(instrument -> {
       var instrumentPath = getPathPrefixToInstrumentAudio(instrument.getId());
       foldersInProject.add(instrumentPath);
@@ -286,33 +286,6 @@ public class ProjectManagerImpl implements ProjectManager {
         return results;
       }
     }
-
-    // Cleanup orphans
-    results.addEntities(deleteAllIf(Instrument.class, (Instrument instrument) -> content.get().getLibrary(instrument.getLibraryId()).isEmpty()));
-    results.addEntities(deleteAllIf(InstrumentMeme.class, (InstrumentMeme meme) -> content.get().getInstrument(meme.getInstrumentId()).isEmpty()));
-    results.addEntities(deleteAllIf(InstrumentAudio.class, (InstrumentAudio audio) -> content.get().getInstrument(audio.getInstrumentId()).isEmpty()));
-    results.addEntities(deleteAllIf(Program.class, (Program program) -> content.get().getLibrary(program.getLibraryId()).isEmpty()));
-    results.addEntities(deleteAllIf(ProgramMeme.class, (ProgramMeme meme) -> content.get().getProgram(meme.getProgramId()).isEmpty()));
-    results.addEntities(deleteAllIf(ProgramSequence.class, (ProgramSequence sequence) -> content.get().getProgram(sequence.getProgramId()).isEmpty()));
-    results.addEntities(deleteAllIf(ProgramSequenceBinding.class, (ProgramSequenceBinding binding) -> content.get().getProgramSequence(binding.getProgramSequenceId()).isEmpty()));
-    results.addEntities(deleteAllIf(ProgramSequenceBinding.class, (ProgramSequenceBinding binding) -> content.get().getProgram(binding.getProgramId()).isEmpty()));
-    results.addEntities(deleteAllIf(ProgramSequenceBindingMeme.class, (ProgramSequenceBindingMeme meme) -> content.get().getProgramSequenceBinding(meme.getProgramSequenceBindingId()).isEmpty()));
-    results.addEntities(deleteAllIf(ProgramSequenceBindingMeme.class, (ProgramSequenceBindingMeme meme) -> content.get().getProgram(meme.getProgramId()).isEmpty()));
-    results.addEntities(deleteAllIf(ProgramVoice.class, (ProgramVoice voice) -> content.get().getProgram(voice.getProgramId()).isEmpty()));
-    results.addEntities(deleteAllIf(ProgramVoiceTrack.class, (ProgramVoiceTrack track) -> content.get().getProgramVoice(track.getProgramVoiceId()).isEmpty()));
-    results.addEntities(deleteAllIf(ProgramVoiceTrack.class, (ProgramVoiceTrack track) -> content.get().getProgram(track.getProgramId()).isEmpty()));
-    results.addEntities(deleteAllIf(ProgramSequencePattern.class, (ProgramSequencePattern pattern) -> content.get().getProgramSequence(pattern.getProgramSequenceId()).isEmpty()));
-    results.addEntities(deleteAllIf(ProgramSequencePattern.class, (ProgramSequencePattern pattern) -> content.get().getProgramVoice(pattern.getProgramVoiceId()).isEmpty()));
-    results.addEntities(deleteAllIf(ProgramSequencePattern.class, (ProgramSequencePattern pattern) -> content.get().getProgram(pattern.getProgramId()).isEmpty()));
-    results.addEntities(deleteAllIf(ProgramSequencePatternEvent.class, (ProgramSequencePatternEvent event) -> content.get().getProgramSequencePattern(event.getProgramSequencePatternId()).isEmpty()));
-    results.addEntities(deleteAllIf(ProgramSequencePatternEvent.class, (ProgramSequencePatternEvent event) -> content.get().getProgramVoiceTrack(event.getProgramVoiceTrackId()).isEmpty()));
-    results.addEntities(deleteAllIf(ProgramSequencePatternEvent.class, (ProgramSequencePatternEvent event) -> content.get().getProgram(event.getProgramId()).isEmpty()));
-    results.addEntities(deleteAllIf(ProgramSequenceChord.class, (ProgramSequenceChord chord) -> content.get().getProgramSequence(chord.getProgramSequenceId()).isEmpty()));
-    results.addEntities(deleteAllIf(ProgramSequenceChord.class, (ProgramSequenceChord chord) -> content.get().getProgram(chord.getProgramId()).isEmpty()));
-    results.addEntities(deleteAllIf(ProgramSequenceChordVoicing.class, (ProgramSequenceChordVoicing voicing) -> content.get().getProgramSequenceChord(voicing.getProgramSequenceChordId()).isEmpty()));
-    results.addEntities(deleteAllIf(ProgramSequenceChordVoicing.class, (ProgramSequenceChordVoicing voicing) -> content.get().getProgramVoice(voicing.getProgramVoiceId()).isEmpty()));
-    results.addEntities(deleteAllIf(ProgramSequenceChordVoicing.class, (ProgramSequenceChordVoicing voicing) -> content.get().getProgram(voicing.getProgramId()).isEmpty()));
-    results.addEntities(deleteAllIf(TemplateBinding.class, (TemplateBinding binding) -> content.get().getTemplate(binding.getTemplateId()).isEmpty()));
 
     try {
       saveProjectContent();
@@ -1244,6 +1217,38 @@ public class ProjectManagerImpl implements ProjectManager {
    */
   private void saveProjectContent() throws IOException {
     updateState(ProjectState.Saving);
+
+    // Cleanup orphans
+    int orphans = 0;
+    orphans += deleteAllIf(Instrument.class, (Instrument instrument) -> content.get().getLibrary(instrument.getLibraryId()).isEmpty());
+    orphans += deleteAllIf(InstrumentMeme.class, (InstrumentMeme meme) -> content.get().getInstrument(meme.getInstrumentId()).isEmpty());
+    orphans += deleteAllIf(InstrumentAudio.class, (InstrumentAudio audio) -> content.get().getInstrument(audio.getInstrumentId()).isEmpty());
+    orphans += deleteAllIf(Program.class, (Program program) -> content.get().getLibrary(program.getLibraryId()).isEmpty());
+    orphans += deleteAllIf(ProgramMeme.class, (ProgramMeme meme) -> content.get().getProgram(meme.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequence.class, (ProgramSequence sequence) -> content.get().getProgram(sequence.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceBinding.class, (ProgramSequenceBinding binding) -> content.get().getProgramSequence(binding.getProgramSequenceId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceBinding.class, (ProgramSequenceBinding binding) -> content.get().getProgram(binding.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceBindingMeme.class, (ProgramSequenceBindingMeme meme) -> content.get().getProgramSequenceBinding(meme.getProgramSequenceBindingId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceBindingMeme.class, (ProgramSequenceBindingMeme meme) -> content.get().getProgram(meme.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramVoice.class, (ProgramVoice voice) -> content.get().getProgram(voice.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramVoiceTrack.class, (ProgramVoiceTrack track) -> content.get().getProgramVoice(track.getProgramVoiceId()).isEmpty());
+    orphans += deleteAllIf(ProgramVoiceTrack.class, (ProgramVoiceTrack track) -> content.get().getProgram(track.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequencePattern.class, (ProgramSequencePattern pattern) -> content.get().getProgramSequence(pattern.getProgramSequenceId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequencePattern.class, (ProgramSequencePattern pattern) -> content.get().getProgramVoice(pattern.getProgramVoiceId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequencePattern.class, (ProgramSequencePattern pattern) -> content.get().getProgram(pattern.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequencePatternEvent.class, (ProgramSequencePatternEvent event) -> content.get().getProgramSequencePattern(event.getProgramSequencePatternId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequencePatternEvent.class, (ProgramSequencePatternEvent event) -> content.get().getProgramVoiceTrack(event.getProgramVoiceTrackId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequencePatternEvent.class, (ProgramSequencePatternEvent event) -> content.get().getProgram(event.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceChord.class, (ProgramSequenceChord chord) -> content.get().getProgramSequence(chord.getProgramSequenceId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceChord.class, (ProgramSequenceChord chord) -> content.get().getProgram(chord.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceChordVoicing.class, (ProgramSequenceChordVoicing voicing) -> content.get().getProgramSequenceChord(voicing.getProgramSequenceChordId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceChordVoicing.class, (ProgramSequenceChordVoicing voicing) -> content.get().getProgramVoice(voicing.getProgramVoiceId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceChordVoicing.class, (ProgramSequenceChordVoicing voicing) -> content.get().getProgram(voicing.getProgramId()).isEmpty());
+    orphans += deleteAllIf(TemplateBinding.class, (TemplateBinding binding) -> content.get().getTemplate(binding.getTemplateId()).isEmpty());
+    if (orphans > 0) {
+      LOG.info("Did delete {} orphaned entities", orphans);
+    }
+
     LOG.info("Will save project \"{}\" to {}", projectName.get(), getPathToProjectFile());
     var json = jsonProvider.getMapper().writeValueAsString(content);
     var jsonPath = getPathToProjectFile();

@@ -25,15 +25,6 @@ class ProjectCleanupResultsTest {
   }
 
   @Test
-  void addEntitiesDeleted() {
-    var subject = new ProjectCleanupResults();
-
-    subject.addEntities(3);
-
-    assertEquals(3, subject.getEntities());
-  }
-
-  @Test
   void incrementFoldersDeleted() {
     var subject = new ProjectCleanupResults().addFolders(14);
 
@@ -52,15 +43,6 @@ class ProjectCleanupResultsTest {
   }
 
   @Test
-  void incrementEntitiesDeleted() {
-    var subject = new ProjectCleanupResults().addEntities(52);
-
-    subject.incrementEntities();
-
-    assertEquals(53, subject.getEntities());
-  }
-
-  @Test
   void getFoldersDeleted() {
     var subject = new ProjectCleanupResults().addFolders(14);
 
@@ -75,15 +57,7 @@ class ProjectCleanupResultsTest {
   }
 
   @Test
-  void getEntitiesDeleted() {
-    var subject = new ProjectCleanupResults().addEntities(52);
-
-    assertEquals(52, subject.getEntities());
-  }
-
-  @Test
   void toStringTest() {
-    assertEquals("Removed 73 entities, 52 files, and 14 folders", new ProjectCleanupResults().addFolders(14).addFiles(52).addEntities(73).toString());
     assertEquals("Removed 52 files and 14 folders", new ProjectCleanupResults().addFolders(14).addFiles(52).toString());
     assertEquals("Removed 14 folders", new ProjectCleanupResults().addFolders(14).toString());
     assertEquals("Removed 52 files", new ProjectCleanupResults().addFiles(52).toString());
