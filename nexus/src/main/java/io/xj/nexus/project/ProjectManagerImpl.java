@@ -1107,6 +1107,7 @@ public class ProjectManagerImpl implements ProjectManager {
       updateState(ProjectState.LoadingAudio);
       int loadedAudios = 0;
       int loadedInstruments = 0;
+      Collection<UUID> audioFileNotFoundIds = new HashSet<>();
 
       // Don't close the client, only close the responses from it
       CloseableHttpClient httpClient = httpClientProvider.getClient();
@@ -1132,10 +1133,10 @@ public class ProjectManagerImpl implements ProjectManager {
             var remoteUrl = String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey());
             var remoteFileSize = hubClientFactory.getRemoteFileSize(httpClient, remoteUrl);
             if (remoteFileSize == FILE_SIZE_NOT_FOUND) {
-              LOG.error("File not found for audio \"{}\" of instrument \"{}\" in library \"{}\" at {}", instrument.getName(), audio.getName(), content.get().getLibrary(instrument.getLibraryId()).map(Library::getName).orElse("Unknown"), remoteUrl);
-              updateState(ProjectState.Failed);
-              project.set(null);
-              return false;
+              LOG.warn("File not found for audio \"{}\" of instrument \"{}\" in library \"{}\" at {}", instrument.getName(), audio.getName(), content.get().getLibrary(instrument.getLibraryId()).map(Library::getName).orElse("Unknown"), remoteUrl);
+              loadedAudios++;
+              audioFileNotFoundIds.add(audio.getId());
+              continue;
             }
             var localFileSize = getFileSizeIfExistsOnDisk(originalCachePath);
 
@@ -1165,6 +1166,12 @@ public class ProjectManagerImpl implements ProjectManager {
         loadedInstruments++;
       }
       updateProgress(1.0);
+      if (!audioFileNotFoundIds.isEmpty()) {
+        LOG.warn("File not found for {} audios; will remove these audio records from local project", audioFileNotFoundIds.size());
+        for (UUID audioId : audioFileNotFoundIds) {
+          content.get().delete(InstrumentAudio.class, audioId);
+        }
+      }
       LOG.info("Downloaded {} audios from {} instruments", loadedAudios, instruments.size());
       updateProgressLabel(String.format("Downloaded %d audios for %d instruments", loadedAudios, loadedInstruments));
       updateState(ProjectState.LoadedAudio);

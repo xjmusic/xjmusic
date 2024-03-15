@@ -321,6 +321,11 @@ public class HubClientFactoryImpl implements HubClientFactory {
       var request = new HttpPost(uri);
       request.setHeader(HEADER_COOKIE, String.format("%s=%s", hubAccessTokenName, token));
       request.setEntity(entity);
+      request.setConfig(RequestConfig.custom()
+          .setConnectionKeepAlive(TimeValue.MAX_VALUE)
+          .setResponseTimeout(Timeout.DISABLED)
+          .setConnectionRequestTimeout(Timeout.DISABLED)
+          .build());
       return request;
     } catch (JsonProcessingException e) {
       throw new HubClientException(e.getMessage(), e);
