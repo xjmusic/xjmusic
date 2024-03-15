@@ -719,9 +719,11 @@ public class FabricationTimelineController extends ProjectController {
     choices
       .stream()
       .sorted(Comparator.comparing((c) ->
-        String.format("%s_%s",
+        String.format("%s_%s_%s_%s",
           Objects.nonNull(c.getInstrumentType()) ? c.getInstrumentType() : "",
-          Objects.nonNull(c.getProgramType()) ? c.getProgramType() : "")))
+          Objects.nonNull(c.getProgramType()) ? c.getProgramType() : "",
+          Objects.nonNull(c.getProgramVoiceId()) ? projectService.getContent().getProgramVoice(c.getProgramVoiceId()).orElseThrow().getOrder() : "",
+          Objects.nonNull(c.getProgramVoiceId()) ? projectService.getContent().getProgramVoice(c.getProgramVoiceId()).orElseThrow().getName() : "")))
       .forEach(choice -> {
         var choiceListItem = computeChoiceNode(segment, choice, showProgramVoice, showArrangementPicks);
         box.getChildren().add(choiceListItem);
