@@ -747,10 +747,10 @@ public class FabricationTimelineController extends ProjectController {
     }
 
     var instrumentBox = new HBox();
-    computeShowDeltaNode(segment, choice).ifPresent(instrumentBox.getChildren()::add);
     if (Objects.nonNull(choice.getInstrumentId())) {
       instrumentBox.getChildren().add(computeInstrumentReferenceNode(choice.getInstrumentId()));
     }
+    computeShowDeltaNode(segment, choice).ifPresent(instrumentBox.getChildren()::add);
     box.getChildren().add(instrumentBox);
 
     if (showArrangementPicks) {
