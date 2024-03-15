@@ -7,6 +7,8 @@ import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.hub.ProgramConfig;
+import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Program;
@@ -765,7 +767,9 @@ public class FabricationTimelineController extends ProjectController {
     if (ProgramType.Macro == choice.getProgramType() || ProgramType.Main == choice.getProgramType()) {
       return Optional.empty();
     }
-
+    if (fabricationService.getTemplateConfig().isNull().get() || !fabricationService.getTemplateConfig().get().isDeltaArcEnabled()) {
+      return Optional.empty();
+    }
     if (Objects.isNull(choice.getDeltaIn()) && Objects.isNull(choice.getDeltaOut())) {
       return Optional.empty();
     }

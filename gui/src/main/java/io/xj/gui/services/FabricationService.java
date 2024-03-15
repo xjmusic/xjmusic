@@ -2,6 +2,8 @@
 
 package io.xj.gui.services;
 
+import io.xj.hub.ProgramConfig;
+import io.xj.hub.TemplateConfig;
 import io.xj.hub.meme.MemeTaxonomy;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
@@ -43,6 +45,8 @@ public interface FabricationService {
   ObservableStringValue stateTextProperty();
 
   ObjectProperty<Template> inputTemplateProperty();
+
+  ObjectProperty<TemplateConfig> getTemplateConfig();
 
   ObjectProperty<ControlMode> controlModeProperty();
 
@@ -224,4 +228,5 @@ public interface FabricationService {
    @return The intensity override active property
    */
   BooleanProperty intensityOverrideActiveProperty();
+
 }
