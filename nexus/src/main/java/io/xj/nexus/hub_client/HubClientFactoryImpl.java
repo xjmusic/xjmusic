@@ -154,7 +154,9 @@ public class HubClientFactoryImpl implements HubClientFactory {
 
       String json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
       LOG.debug("Did load content; will read bytes of JSON");
-      return HubContent.from(jsonProvider.getMapper().readValue(json, HubContentPayload.class));
+      var content = HubContent.from(jsonProvider.getMapper().readValue(json, HubContentPayload.class));
+      content.setDemo(true);
+      return content;
 
     } catch (Exception e) {
       throw new HubClientException(e);

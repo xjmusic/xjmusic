@@ -194,7 +194,7 @@ public class MainMenuController extends ProjectController {
     var hasNoProject = uiStateService.hasCurrentProjectProperty().not();
     itemProjectClose.disableProperty().bind(hasNoProject);
     itemProjectSave.disableProperty().bind(hasNoProject.or(projectService.isModifiedProperty().not()));
-    itemProjectPush.disableProperty().bind(hasNoProject.or(labService.isAuthenticated().not()));
+    itemProjectPush.disableProperty().bind(hasNoProject.or(labService.isAuthenticated().not()).or(projectService.isDemoProjectProperty()));
     itemProjectCleanup.disableProperty().bind(hasNoProject);
 
     projectService.recentProjectsProperty().addListener((ChangeListener<? super ObservableList<ProjectDescriptor>>) (o, ov, value) -> updateRecentProjectsMenu());
