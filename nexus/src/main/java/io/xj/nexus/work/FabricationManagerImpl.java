@@ -480,7 +480,9 @@ public class FabricationManagerImpl implements FabricationManager {
       workConfig.getCraftAheadSeconds(),
       workConfig.getMixerLengthSeconds(),
       workConfig.getOutputFrameRate(),
-      workConfig.getOutputChannels());
+      workConfig.getOutputChannels(),
+      workConfig.getInputTemplate()
+    );
     dubWork = new DubWorkImpl(
       telemetry,
       craftWork,

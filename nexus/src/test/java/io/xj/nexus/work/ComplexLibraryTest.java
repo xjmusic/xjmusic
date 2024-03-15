@@ -100,7 +100,8 @@ public class ComplexLibraryTest {
       100,
       10,
       48000,
-      2);
+      2,
+      template);
   }
 
   @Test

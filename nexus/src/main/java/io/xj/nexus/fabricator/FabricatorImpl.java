@@ -129,15 +129,15 @@ public class FabricatorImpl implements Fabricator {
   Set<InstrumentType> distinctChordVoicingTypes;
 
   public FabricatorImpl(
-      FabricatorFactory fabricatorFactory,
-      NexusEntityStore store,
-      HubContent sourceMaterial,
-      Integer segmentId,
-      JsonapiPayloadFactory jsonapiPayloadFactory,
-      JsonProvider jsonProvider,
-      double outputFrameRate,
-      int outputChannels,
-      @Nullable SegmentType overrideSegmentType
+    FabricatorFactory fabricatorFactory,
+    NexusEntityStore store,
+    HubContent sourceMaterial,
+    Integer segmentId,
+    JsonapiPayloadFactory jsonapiPayloadFactory,
+    JsonProvider jsonProvider,
+    double outputFrameRate,
+    int outputChannels,
+    @Nullable SegmentType overrideSegmentType
   ) throws NexusException, FabricationFatalException, ValueException {
     this.store = store;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
@@ -164,9 +164,8 @@ public class FabricatorImpl implements Fabricator {
 
     // read the chain, configs, and bindings
     chain = store.readChain()
-        .orElseThrow(() -> new FabricationFatalException("No chain found"));
-    templateConfig = new TemplateConfig(sourceMaterial.getTemplates().stream().findFirst()
-        .orElseThrow(() -> new FabricationFatalException("No template found")));
+      .orElseThrow(() -> new FabricationFatalException("No chain found"));
+    templateConfig = new TemplateConfig(chain.getTemplateConfig());
     templateBindings = sourceMaterial.getTemplateBindings();
     boundProgramIds = ChainUtils.targetIdsOfType(templateBindings, ContentBindingType.Program);
     boundInstrumentIds = ChainUtils.targetIdsOfType(templateBindings, ContentBindingType.Instrument);
@@ -415,9 +414,9 @@ public class FabricatorImpl implements Fabricator {
   public ProgramConfig getCurrentMainProgramConfig() throws NexusException {
     try {
       return new ProgramConfig(
-          sourceMaterial.getProgram(getCurrentMainChoice()
-                  .orElseThrow(() -> new NexusException("No current main choice!")).getProgramId())
-              .orElseThrow(() -> new NexusException("Failed to retrieve current main program config!")));
+        sourceMaterial.getProgram(getCurrentMainChoice()
+            .orElseThrow(() -> new NexusException("No current main choice!")).getProgramId())
+          .orElseThrow(() -> new NexusException("Failed to retrieve current main program config!")));
 
     } catch (ValueException e) {
       throw new NexusException(e);
@@ -449,14 +448,14 @@ public class FabricatorImpl implements Fabricator {
       return MemeIsometry.none();
 
     var nextSequenceBinding = sourceMaterial().getBindingsAtOffsetOfProgram(previousMacroChoice.get().getProgramId(),
-        previousSequenceBinding.get().getOffset() + 1, true);
+      previousSequenceBinding.get().getOffset() + 1, true);
 
     return MemeIsometry.of(templateConfig.getMemeTaxonomy(),
-        Stream.concat(
-            sourceMaterial.getMemesOfProgram(previousMacroChoice.get().getProgramId()).stream().map(ProgramMeme::getName),
-            nextSequenceBinding.stream().flatMap(programSequenceBinding ->
-                sourceMaterial.getMemesOfSequenceBinding(programSequenceBinding.getId()).stream().map(ProgramSequenceBindingMeme::getName))
-        ).collect(Collectors.toList()));
+      Stream.concat(
+        sourceMaterial.getMemesOfProgram(previousMacroChoice.get().getProgramId()).stream().map(ProgramMeme::getName),
+        nextSequenceBinding.stream().flatMap(programSequenceBinding ->
+          sourceMaterial.getMemesOfSequenceBinding(programSequenceBinding.getId()).stream().map(ProgramSequenceBindingMeme::getName))
+      ).collect(Collectors.toList()));
   }
 
   @Override
@@ -496,8 +495,8 @@ public class FabricatorImpl implements Fabricator {
     if (!picksForChoice.containsKey(choice.getId())) {
       var arrangementIds = getArrangements().stream().filter(a -> a.getSegmentChoiceId().equals(choice.getId())).map(SegmentChoiceArrangement::getId).toList();
       picksForChoice.put(choice.getId(), getPicks().stream()
-          .filter(p -> arrangementIds.contains(p.getSegmentChoiceArrangementId()))
-          .sorted(Comparator.comparing(SegmentChoiceArrangementPick::getStartAtSegmentMicros)).toList());
+        .filter(p -> arrangementIds.contains(p.getSegmentChoiceArrangementId()))
+        .sorted(Comparator.comparing(SegmentChoiceArrangementPick::getStartAtSegmentMicros)).toList());
     }
     return picksForChoice.get(choice.getId());
   }
@@ -556,11 +555,11 @@ public class FabricatorImpl implements Fabricator {
 
   NoteRange computeProgramRange(UUID programId, InstrumentType instrumentType) {
     return NoteRange.ofStrings(
-        sourceMaterial.getEventsOfProgram(programId).stream()
-            .filter(event -> sourceMaterial.getVoiceOfEvent(event).map(voice -> Objects.equals(voice.getType(), instrumentType)).orElse(false)
-                && !Objects.equals(Note.of(event.getTones()).getPitchClass(), PitchClass.None))
-            .flatMap(programSequencePatternEvent -> CsvUtils.split(programSequencePatternEvent.getTones()).stream())
-            .collect(Collectors.toList()));
+      sourceMaterial.getEventsOfProgram(programId).stream()
+        .filter(event -> sourceMaterial.getVoiceOfEvent(event).map(voice -> Objects.equals(voice.getType(), instrumentType)).orElse(false)
+          && !Objects.equals(Note.of(event.getTones()).getPitchClass(), PitchClass.None))
+        .flatMap(programSequencePatternEvent -> CsvUtils.split(programSequencePatternEvent.getTones()).stream())
+        .collect(Collectors.toList()));
   }
 
   @Override
@@ -573,7 +572,7 @@ public class FabricatorImpl implements Fabricator {
         return 0;
       }
       case Pad, Stab, Sticky, Stripe ->
-          rangeShiftOctave.put(cacheKey, NoteRange.computeMedianOptimalRangeShiftOctaves(sourceRange, targetRange));
+        rangeShiftOctave.put(cacheKey, NoteRange.computeMedianOptimalRangeShiftOctaves(sourceRange, targetRange));
     }
 
     return rangeShiftOctave.get(cacheKey);
@@ -641,16 +640,16 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public Optional<Note> getRootNoteMidRange(String voicingNotes, Chord chord) {
     return rootNotesByVoicingAndChord.computeIfAbsent(String.format("%s_%s", voicingNotes, chord.getName()),
-        (String key) -> NoteRange.ofStrings(CsvUtils.split(voicingNotes)).getNoteNearestMedian(chord.getSlashRoot()));
+      (String key) -> NoteRange.ofStrings(CsvUtils.split(voicingNotes)).getNoteNearestMedian(chord.getSlashRoot()));
   }
 
   @Override
   public void putStickyBun(StickyBun bun) throws JsonProcessingException, NexusException {
     store.put(new SegmentMeta()
-        .id(UUID.randomUUID())
-        .segmentId(getSegment().getId())
-        .key(bun.computeMetaKey())
-        .value(jsonProvider.getMapper().writeValueAsString(bun)));
+      .id(UUID.randomUUID())
+      .segmentId(getSegment().getId())
+      .key(bun.computeMetaKey())
+      .value(jsonProvider.getMapper().writeValueAsString(bun)));
   }
 
   @Override
@@ -692,8 +691,8 @@ public class FabricatorImpl implements Fabricator {
 
   private Optional<SegmentMeta> getSegmentMeta(String key) {
     return store.readAll(segmentId, SegmentMeta.class).stream()
-        .filter(m -> Objects.equals(key, m.getKey()))
-        .findAny();
+      .filter(m -> Objects.equals(key, m.getKey()))
+      .findAny();
   }
 
   @Override
@@ -714,8 +713,8 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public List<SegmentChord> getSegmentChords() {
     return store.readAll(segmentId, SegmentChord.class).stream()
-        .sorted(Comparator.comparing(SegmentChord::getPosition))
-        .collect(Collectors.toList());
+      .sorted(Comparator.comparing(SegmentChord::getPosition))
+      .collect(Collectors.toList());
   }
 
   @Override
@@ -766,10 +765,10 @@ public class FabricatorImpl implements Fabricator {
   public Optional<SegmentChordVoicing> chooseVoicing(SegmentChord chord, InstrumentType type) {
     Collection<SegmentChordVoicing> voicings = store.readAll(segmentId, SegmentChordVoicing.class);
     return MarbleBag.quickPick(voicings.stream()
-        .filter(SegmentUtils::containsAnyValidNotes)
-        .filter(voicing -> Objects.equals(type.toString(), voicing.getType()))
-        .filter(voicing -> Objects.equals(chord.getId(), voicing.getSegmentChordId()))
-        .collect(Collectors.toList()));
+      .filter(SegmentUtils::containsAnyValidNotes)
+      .filter(voicing -> Objects.equals(type.toString(), voicing.getType()))
+      .filter(voicing -> Objects.equals(chord.getId(), voicing.getSegmentChordId()))
+      .collect(Collectors.toList()));
   }
 
   @Override
@@ -840,7 +839,7 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public <N> N put(N entity, boolean force) throws NexusException {
     var memeStack = MemeStack.from(templateConfig.getMemeTaxonomy(),
-        getSegmentMemes().stream().map(SegmentMeme::getName).toList());
+      getSegmentMemes().stream().map(SegmentMeme::getName).toList());
 
     // For a SegmentChoice, add memes from program, program sequence binding, and instrument if present
     if (SegmentChoice.class.equals(entity.getClass()))
@@ -900,8 +899,8 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public int getSecondMacroSequenceBindingOffset(Program macroProgram) {
     var offsets = sourceMaterial.getSequenceBindingsOfProgram(macroProgram.getId()).stream()
-        .map(ProgramSequenceBinding::getOffset)
-        .collect(Collectors.toSet()).stream().sorted().toList();
+      .map(ProgramSequenceBinding::getOffset)
+      .collect(Collectors.toSet()).stream().sorted().toList();
     return offsets.size() > 1 ? offsets.get(1) : offsets.get(0);
   }
 
@@ -1001,7 +1000,7 @@ public class FabricatorImpl implements Fabricator {
     var previousMainChoice = getPreviousMainChoice();
 
     if (previousMainChoice.isPresent() && hasOneMoreSequenceBindingOffset(previousMainChoice.get())
-        && getTemplateConfig().getMainProgramLengthMaxDelta() > getPreviousSegmentDelta())
+      && getTemplateConfig().getMainProgramLengthMaxDelta() > getPreviousSegmentDelta())
       return SegmentType.CONTINUE;
 
     // previous macro choice having at least two more patterns?
@@ -1020,8 +1019,8 @@ public class FabricatorImpl implements Fabricator {
    */
   private int getPreviousSegmentDelta() {
     return retrospective.getPreviousSegment()
-        .map(Segment::getDelta)
-        .orElse(0);
+      .map(Segment::getDelta)
+      .orElse(0);
   }
 
   /**
@@ -1033,9 +1032,9 @@ public class FabricatorImpl implements Fabricator {
     Map<String, InstrumentAudio> audios = new HashMap<>();
 
     retrospective.getPicks()
-        .forEach(pick ->
-            sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId())
-                .ifPresent(audio -> audios.put(computeCacheKeyForVoiceTrack(pick), audio)));
+      .forEach(pick ->
+        sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId())
+          .ifPresent(audio -> audios.put(computeCacheKeyForVoiceTrack(pick), audio)));
 
     return audios;
   }
@@ -1053,21 +1052,21 @@ public class FabricatorImpl implements Fabricator {
 
     if (Objects.nonNull(choice.getProgramId()))
       sourceMaterial().getMemesOfProgram(choice.getProgramId())
-          .forEach(meme -> names.add(StringUtils.toMeme(meme.getName())));
+        .forEach(meme -> names.add(StringUtils.toMeme(meme.getName())));
 
     if (Objects.nonNull(choice.getProgramSequenceBindingId()))
       sourceMaterial().getMemesOfSequenceBinding(choice.getProgramSequenceBindingId())
-          .forEach(meme -> names.add(StringUtils.toMeme(meme.getName())));
+        .forEach(meme -> names.add(StringUtils.toMeme(meme.getName())));
 
     if (Objects.nonNull(choice.getInstrumentId()))
       sourceMaterial().getMemesOfInstrument(choice.getInstrumentId())
-          .forEach(meme -> names.add(StringUtils.toMeme(meme.getName())));
+        .forEach(meme -> names.add(StringUtils.toMeme(meme.getName())));
 
     if (!force && !memeStack.isAllowed(names)) {
       addMessage(SegmentMessageType.ERROR, String.format("Refused to add Choice[%s] because adding Memes[%s] to MemeStack[%s] would result in an invalid meme stack theorem!",
-          SegmentUtils.describe(choice),
-          CsvUtils.join(names.stream().toList()),
-          memeStack.getConstellation()));
+        SegmentUtils.describe(choice),
+        CsvUtils.join(names.stream().toList()),
+        memeStack.getConstellation()));
       return false;
     }
 

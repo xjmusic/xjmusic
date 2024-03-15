@@ -747,7 +747,6 @@ public class FabricationTimelineController extends ProjectController {
     }
 
     var instrumentBox = new HBox();
-    instrumentBox.getStyleClass().add("choice-instrument");
     computeShowDeltaNode(segment, choice).ifPresent(instrumentBox.getChildren()::add);
     if (Objects.nonNull(choice.getInstrumentId())) {
       instrumentBox.getChildren().add(computeInstrumentReferenceNode(choice.getInstrumentId()));
@@ -833,6 +832,7 @@ public class FabricationTimelineController extends ProjectController {
 
     var hyperlink = new Hyperlink(computeProgramName(program.orElse(null), programSequence.orElse(null), programSequenceBinding.orElse(null)));
     hyperlink.setOnAction(event -> uiStateService.editProgram(programId));
+    hyperlink.getStyleClass().add("program-reference");
     return hyperlink;
   }
 
@@ -848,6 +848,7 @@ public class FabricationTimelineController extends ProjectController {
 
     var hyperlink = new Hyperlink(programVoice.getName());
     hyperlink.setOnAction(event -> uiStateService.editProgram(programVoice.getProgramId()));
+    hyperlink.getStyleClass().add("program-voice-reference");
     return hyperlink;
   }
 
@@ -862,6 +863,7 @@ public class FabricationTimelineController extends ProjectController {
 
     var hyperlink = new Hyperlink(instrument.orElseThrow().getName());
     hyperlink.setOnAction(event -> uiStateService.editInstrument(instrumentId));
+    hyperlink.getStyleClass().add("instrument-reference");
     return hyperlink;
   }
 
@@ -877,6 +879,7 @@ public class FabricationTimelineController extends ProjectController {
 
     var hyperlink = new Hyperlink(instrumentAudio.getName());
     hyperlink.setOnAction(event -> uiStateService.editInstrumentAudio(instrumentAudio.getId()));
+    hyperlink.getStyleClass().add("instrument-audio-reference");
     return hyperlink;
   }
 
