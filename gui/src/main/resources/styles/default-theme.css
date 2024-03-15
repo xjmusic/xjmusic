@@ -202,6 +202,22 @@
   -fx-padding: 20px 0 0 0;
 }
 
+.program-reference {
+  -fx-padding: 0 0 0 0;
+}
+
+.program-voice-reference {
+  -fx-padding: 0 0 0 8;
+}
+
+.instrument-reference {
+  -fx-padding: 0 0 0 16;
+}
+
+.instrument-audio-reference {
+  -fx-padding: 0 0 0 24;
+}
+
 .main-timeline-segment .choice-group-item-muted {
   -fx-opacity: 0.35;
 }

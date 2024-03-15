@@ -7,8 +7,6 @@ import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.hub.ProgramConfig;
-import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Program;
@@ -54,6 +52,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -573,17 +572,16 @@ public class FabricationTimelineController extends ProjectController {
     col.setPadding(new Insets(20, 0, 0, 0));
     VBox.setVgrow(col, Priority.ALWAYS);
     var segmentChoices = fabricationService.getSegmentChoices(segment);
-    col.getChildren().add(computeChoicesListNode(segment, "Macro", segmentChoices.stream().filter((choice) -> ProgramType.Macro == choice.getProgramType()).toList(), true, false, false));
-    col.getChildren().add(computeChoicesListNode(segment, "Main", segmentChoices.stream().filter((choice) -> ProgramType.Main == choice.getProgramType()).toList(), true, false, false));
-    col.getChildren().add(computeChoicesListNode(segment, "Beat", segmentChoices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList(), false, true, false));
-    for (var instrumentType : InstrumentType.values()) {
+    col.getChildren().add(computeChoicesListNode(segment, "Macro", segmentChoices.stream().filter((choice) -> ProgramType.Macro == choice.getProgramType()).toList(), false, false));
+    col.getChildren().add(computeChoicesListNode(segment, "Main", segmentChoices.stream().filter((choice) -> ProgramType.Main == choice.getProgramType()).toList(), false, false));
+    col.getChildren().add(computeChoicesListNode(segment, "Beat", segmentChoices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList(), true, true));
+    for (var instrumentType : Arrays.stream(InstrumentType.values()).filter((type) -> type != InstrumentType.Drum).toList()) {
       var choices = segmentChoices.stream().filter((choice) -> instrumentType == choice.getInstrumentType()).toList();
       if (choices.isEmpty()) continue;
       col.getChildren().add(computeChoicesListNode(
         segment,
         instrumentType.toString(),
         choices,
-        true,
         true,
         true
       ));
@@ -709,7 +707,7 @@ public class FabricationTimelineController extends ProjectController {
     return col;
   }
 
-  Node computeChoicesListNode(Segment segment, String layerName, Collection<? extends SegmentChoice> choices, boolean showProgram, boolean showProgramVoice, boolean showArrangementPicks) {
+  Node computeChoicesListNode(Segment segment, String layerName, Collection<? extends SegmentChoice> choices, boolean showProgramVoice, boolean showArrangementPicks) {
     var box = new VBox();
     box.getStyleClass().add("choice-group");
     // layer name
@@ -721,17 +719,19 @@ public class FabricationTimelineController extends ProjectController {
     choices
       .stream()
       .sorted(Comparator.comparing((c) ->
-        String.format("%s_%s",
+        String.format("%s_%s_%s_%s",
           Objects.nonNull(c.getInstrumentType()) ? c.getInstrumentType() : "",
-          Objects.nonNull(c.getProgramType()) ? c.getProgramType() : "")))
+          Objects.nonNull(c.getProgramType()) ? c.getProgramType() : "",
+          Objects.nonNull(c.getProgramVoiceId()) ? projectService.getContent().getProgramVoice(c.getProgramVoiceId()).orElseThrow().getOrder() : "",
+          Objects.nonNull(c.getProgramVoiceId()) ? projectService.getContent().getProgramVoice(c.getProgramVoiceId()).orElseThrow().getName() : "")))
       .forEach(choice -> {
-        var choiceListItem = computeChoiceNode(segment, choice, showProgram, showProgramVoice, showArrangementPicks);
+        var choiceListItem = computeChoiceNode(segment, choice, showProgramVoice, showArrangementPicks);
         box.getChildren().add(choiceListItem);
       });
     return box;
   }
 
-  Node computeChoiceNode(Segment segment, SegmentChoice choice, boolean showProgram, boolean showProgramVoice, boolean showArrangementPicks) {
+  Node computeChoiceNode(Segment segment, SegmentChoice choice, boolean showProgramVoice, boolean showArrangementPicks) {
     var box = new VBox();
     box.getStyleClass().add("choice-group-item");
 
@@ -740,7 +740,7 @@ public class FabricationTimelineController extends ProjectController {
       (Objects.nonNull(choice.getDeltaOut()) && DELTA_UNLIMITED != choice.getDeltaOut() && segment.getDelta() > choice.getDeltaOut()))
       box.getStyleClass().add("choice-group-item-muted");
 
-    if (showProgram && Objects.nonNull(choice.getProgramId())) {
+    if (Objects.nonNull(choice.getProgramId())) {
       box.getChildren().add(computeProgramReferenceNode(choice.getProgramId(), choice.getProgramSequenceBindingId()));
     }
 
@@ -749,11 +749,10 @@ public class FabricationTimelineController extends ProjectController {
     }
 
     var instrumentBox = new HBox();
-    instrumentBox.getStyleClass().add("choice-instrument");
-    computeShowDeltaNode(segment, choice).ifPresent(instrumentBox.getChildren()::add);
     if (Objects.nonNull(choice.getInstrumentId())) {
       instrumentBox.getChildren().add(computeInstrumentReferenceNode(choice.getInstrumentId()));
     }
+    computeShowDeltaNode(segment, choice).ifPresent(instrumentBox.getChildren()::add);
     box.getChildren().add(instrumentBox);
 
     if (showArrangementPicks) {
@@ -835,6 +834,7 @@ public class FabricationTimelineController extends ProjectController {
 
     var hyperlink = new Hyperlink(computeProgramName(program.orElse(null), programSequence.orElse(null), programSequenceBinding.orElse(null)));
     hyperlink.setOnAction(event -> uiStateService.editProgram(programId));
+    hyperlink.getStyleClass().add("program-reference");
     return hyperlink;
   }
 
@@ -850,6 +850,7 @@ public class FabricationTimelineController extends ProjectController {
 
     var hyperlink = new Hyperlink(programVoice.getName());
     hyperlink.setOnAction(event -> uiStateService.editProgram(programVoice.getProgramId()));
+    hyperlink.getStyleClass().add("program-voice-reference");
     return hyperlink;
   }
 
@@ -864,6 +865,7 @@ public class FabricationTimelineController extends ProjectController {
 
     var hyperlink = new Hyperlink(instrument.orElseThrow().getName());
     hyperlink.setOnAction(event -> uiStateService.editInstrument(instrumentId));
+    hyperlink.getStyleClass().add("instrument-reference");
     return hyperlink;
   }
 
@@ -879,6 +881,7 @@ public class FabricationTimelineController extends ProjectController {
 
     var hyperlink = new Hyperlink(instrumentAudio.getName());
     hyperlink.setOnAction(event -> uiStateService.editInstrumentAudio(instrumentAudio.getId()));
+    hyperlink.getStyleClass().add("instrument-audio-reference");
     return hyperlink;
   }
 

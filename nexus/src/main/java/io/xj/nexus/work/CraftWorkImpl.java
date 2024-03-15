@@ -94,7 +94,8 @@ public class CraftWorkImpl implements CraftWork {
     long craftAheadSeconds,
     long mixerLengthSeconds,
     double outputFrameRate,
-    int outputChannels
+    int outputChannels,
+    Template inputTemplate
   ) {
     this.projectManager = projectManager;
     this.telemetry = telemetry;
@@ -110,8 +111,7 @@ public class CraftWorkImpl implements CraftWork {
     persistenceWindowMicros = persistenceWindowSeconds * MICROS_PER_SECOND;
 
     // Telemetry: # Segments Erased
-    chain = createChainForTemplate(projectManager.getContent().getTemplates().stream().findFirst()
-      .orElseThrow(() -> new RuntimeException("Failed to get template")))
+    chain = createChainForTemplate(inputTemplate)
       .orElseThrow(() -> new RuntimeException("Failed to create chain"));
 
     try {
