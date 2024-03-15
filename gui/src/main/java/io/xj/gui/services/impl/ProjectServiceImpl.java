@@ -902,7 +902,7 @@ public class ProjectServiceImpl implements ProjectService {
       case Main -> {
         // Changing type to a Main program, confirm then delete any voice tracks, sequence patterns, and sequence pattern events
         Collection<ProgramVoiceTrack> tracks = projectManager.getContent().getTracksOfProgram(programId);
-        Collection<ProgramSequencePattern> patterns = projectManager.getContent().getPatternsOfProgram(programId);
+        Collection<ProgramSequencePattern> patterns = projectManager.getContent().getSequencePatternsOfProgram(programId);
         Collection<ProgramSequencePatternEvent> events = projectManager.getContent().getSequencePatternEventsOfProgram(programId);
         if (!tracks.isEmpty() || !patterns.isEmpty() || !events.isEmpty()) {
           if (!showConfirmationDialog(
@@ -921,11 +921,11 @@ public class ProjectServiceImpl implements ProjectService {
       }
       case Macro -> {
         // Changing type to a Macro program, confirm then delete any sequence chords, sequence chord voicings, voices, voice tracks, sequence patterns, and sequence pattern events
-        Collection<ProgramSequenceChord> chords = projectManager.getContent().getChordsOfProgram(programId);
+        Collection<ProgramSequenceChord> chords = projectManager.getContent().getSequenceChordsOfProgram(programId);
         Collection<ProgramSequenceChordVoicing> voicings = projectManager.getContent().getSequenceChordVoicingsOfProgram(programId);
         Collection<ProgramVoice> voices = projectManager.getContent().getVoicesOfProgram(programId);
         Collection<ProgramVoiceTrack> tracks = projectManager.getContent().getTracksOfProgram(programId);
-        Collection<ProgramSequencePattern> patterns = projectManager.getContent().getPatternsOfProgram(programId);
+        Collection<ProgramSequencePattern> patterns = projectManager.getContent().getSequencePatternsOfProgram(programId);
         Collection<ProgramSequencePatternEvent> events = projectManager.getContent().getSequencePatternEventsOfProgram(programId);
         if (!chords.isEmpty() || !voicings.isEmpty() || !voices.isEmpty() || !tracks.isEmpty() || !patterns.isEmpty() || !events.isEmpty()) {
           if (!showConfirmationDialog(
@@ -952,7 +952,7 @@ public class ProjectServiceImpl implements ProjectService {
         // Changing type to a Detail or Beat program, confirm then delete any sequence bindings, sequence chords, sequence chord voicings, and sequence binding memes
         Collection<ProgramSequenceBinding> sequenceBindings = projectManager.getContent().getSequenceBindingsOfProgram(programId);
         Collection<ProgramSequenceBindingMeme> sequenceBindingMemes = projectManager.getContent().getSequenceBindingMemesOfProgram(programId);
-        Collection<ProgramSequenceChord> chords = projectManager.getContent().getChordsOfProgram(programId);
+        Collection<ProgramSequenceChord> chords = projectManager.getContent().getSequenceChordsOfProgram(programId);
         Collection<ProgramSequenceChordVoicing> voicings = projectManager.getContent().getSequenceChordVoicingsOfProgram(programId);
         if (!sequenceBindings.isEmpty() || !sequenceBindingMemes.isEmpty() || !chords.isEmpty() || !voicings.isEmpty()) {
           if (!showConfirmationDialog(
