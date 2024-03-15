@@ -776,7 +776,7 @@ public class FabricationTimelineController extends ProjectController {
     box.getStyleClass().add("delta-container");
     if (Objects.nonNull(choice.getDeltaIn())) {
       var deltaIn = new Text();
-      deltaIn.setText(computeChoiceDeltaValue(segment, choice.getDeltaIn()));
+      deltaIn.setText("[" + computeChoiceDeltaValue(segment, choice.getDeltaIn()));
       deltaIn.getStyleClass().add("delta");
       deltaIn.getStyleClass().add("delta-in");
       box.getChildren().add(deltaIn);
@@ -788,7 +788,7 @@ public class FabricationTimelineController extends ProjectController {
     box.getChildren().add(connector);
     if (Objects.nonNull(choice.getDeltaOut())) {
       var deltaOut = new Text();
-      deltaOut.setText(computeChoiceDeltaValue(segment, choice.getDeltaOut()));
+      deltaOut.setText(computeChoiceDeltaValue(segment, choice.getDeltaOut()) + "]");
       deltaOut.getStyleClass().add("delta");
       deltaOut.getStyleClass().add("delta-out");
       box.getChildren().add(deltaOut);
