@@ -114,7 +114,6 @@ class ProjectManagerImplTest {
   @Test
   void getAudioBaseUrl() {
     subject.getContent().clear();
-    // get system temp path
     String tempPath = System.getProperty("java.io.tmpdir");
 
     subject.cloneProjectFromDemoTemplate("https://audio.test.xj.io/", tempPath + "test", "test", "test");
