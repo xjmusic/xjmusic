@@ -572,9 +572,9 @@ public class FabricationTimelineController extends ProjectController {
     col.setPadding(new Insets(20, 0, 0, 0));
     VBox.setVgrow(col, Priority.ALWAYS);
     var segmentChoices = fabricationService.getSegmentChoices(segment);
-    col.getChildren().add(computeChoicesListNode(segment, "Macro", segmentChoices.stream().filter((choice) -> ProgramType.Macro == choice.getProgramType()).toList(), true, false, false));
-    col.getChildren().add(computeChoicesListNode(segment, "Main", segmentChoices.stream().filter((choice) -> ProgramType.Main == choice.getProgramType()).toList(), true, false, false));
-    col.getChildren().add(computeChoicesListNode(segment, "Beat", segmentChoices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList(), true, true, true));
+    col.getChildren().add(computeChoicesListNode(segment, "Macro", segmentChoices.stream().filter((choice) -> ProgramType.Macro == choice.getProgramType()).toList(), false, false));
+    col.getChildren().add(computeChoicesListNode(segment, "Main", segmentChoices.stream().filter((choice) -> ProgramType.Main == choice.getProgramType()).toList(), false, false));
+    col.getChildren().add(computeChoicesListNode(segment, "Beat", segmentChoices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList(), true, true));
     for (var instrumentType : Arrays.stream(InstrumentType.values()).filter((type) -> type != InstrumentType.Drum).toList()) {
       var choices = segmentChoices.stream().filter((choice) -> instrumentType == choice.getInstrumentType()).toList();
       if (choices.isEmpty()) continue;
@@ -582,7 +582,6 @@ public class FabricationTimelineController extends ProjectController {
         segment,
         instrumentType.toString(),
         choices,
-        true,
         true,
         true
       ));
@@ -708,7 +707,7 @@ public class FabricationTimelineController extends ProjectController {
     return col;
   }
 
-  Node computeChoicesListNode(Segment segment, String layerName, Collection<? extends SegmentChoice> choices, boolean showProgram, boolean showProgramVoice, boolean showArrangementPicks) {
+  Node computeChoicesListNode(Segment segment, String layerName, Collection<? extends SegmentChoice> choices, boolean showProgramVoice, boolean showArrangementPicks) {
     var box = new VBox();
     box.getStyleClass().add("choice-group");
     // layer name
@@ -724,13 +723,13 @@ public class FabricationTimelineController extends ProjectController {
           Objects.nonNull(c.getInstrumentType()) ? c.getInstrumentType() : "",
           Objects.nonNull(c.getProgramType()) ? c.getProgramType() : "")))
       .forEach(choice -> {
-        var choiceListItem = computeChoiceNode(segment, choice, showProgram, showProgramVoice, showArrangementPicks);
+        var choiceListItem = computeChoiceNode(segment, choice, showProgramVoice, showArrangementPicks);
         box.getChildren().add(choiceListItem);
       });
     return box;
   }
 
-  Node computeChoiceNode(Segment segment, SegmentChoice choice, boolean showProgram, boolean showProgramVoice, boolean showArrangementPicks) {
+  Node computeChoiceNode(Segment segment, SegmentChoice choice, boolean showProgramVoice, boolean showArrangementPicks) {
     var box = new VBox();
     box.getStyleClass().add("choice-group-item");
 
@@ -739,7 +738,7 @@ public class FabricationTimelineController extends ProjectController {
       (Objects.nonNull(choice.getDeltaOut()) && DELTA_UNLIMITED != choice.getDeltaOut() && segment.getDelta() > choice.getDeltaOut()))
       box.getStyleClass().add("choice-group-item-muted");
 
-    if (showProgram && Objects.nonNull(choice.getProgramId())) {
+    if (Objects.nonNull(choice.getProgramId())) {
       box.getChildren().add(computeProgramReferenceNode(choice.getProgramId(), choice.getProgramSequenceBindingId()));
     }
 
