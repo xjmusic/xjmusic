@@ -371,7 +371,7 @@ public class ProjectServiceImpl implements ProjectService {
   public boolean deleteProgramVoice(UUID programVoiceId) {
     var voiceTracks = projectManager.getContent().getTracksOfVoice(programVoiceId);
     var voicePatterns = projectManager.getContent().getPatternsOfVoice(programVoiceId);
-    var voiceTrackEvents = projectManager.getContent().getEventsOfProgram(programVoiceId).stream()
+    var voiceTrackEvents = projectManager.getContent().getSequencePatternEventsOfProgram(programVoiceId).stream()
       .filter(event -> voiceTracks.stream().anyMatch(track -> track.getId().equals(event.getProgramVoiceTrackId())))
       .toList();
     if (!voiceTracks.isEmpty() && !showConfirmationDialog("Delete Voice", "Voice contains tracks, patterns, or events", "This operation will delete the voice and all of its tracks, patterns, and events. Do you want to proceed?")) {
@@ -903,7 +903,7 @@ public class ProjectServiceImpl implements ProjectService {
         // Changing type to a Main program, confirm then delete any voice tracks, sequence patterns, and sequence pattern events
         Collection<ProgramVoiceTrack> tracks = projectManager.getContent().getTracksOfProgram(programId);
         Collection<ProgramSequencePattern> patterns = projectManager.getContent().getPatternsOfProgram(programId);
-        Collection<ProgramSequencePatternEvent> events = projectManager.getContent().getEventsOfProgram(programId);
+        Collection<ProgramSequencePatternEvent> events = projectManager.getContent().getSequencePatternEventsOfProgram(programId);
         if (!tracks.isEmpty() || !patterns.isEmpty() || !events.isEmpty()) {
           if (!showConfirmationDialog(
             "Change to Main-type Program",
@@ -922,11 +922,11 @@ public class ProjectServiceImpl implements ProjectService {
       case Macro -> {
         // Changing type to a Macro program, confirm then delete any sequence chords, sequence chord voicings, voices, voice tracks, sequence patterns, and sequence pattern events
         Collection<ProgramSequenceChord> chords = projectManager.getContent().getChordsOfProgram(programId);
-        Collection<ProgramSequenceChordVoicing> voicings = projectManager.getContent().getVoicingsOfProgram(programId);
+        Collection<ProgramSequenceChordVoicing> voicings = projectManager.getContent().getSequenceChordVoicingsOfProgram(programId);
         Collection<ProgramVoice> voices = projectManager.getContent().getVoicesOfProgram(programId);
         Collection<ProgramVoiceTrack> tracks = projectManager.getContent().getTracksOfProgram(programId);
         Collection<ProgramSequencePattern> patterns = projectManager.getContent().getPatternsOfProgram(programId);
-        Collection<ProgramSequencePatternEvent> events = projectManager.getContent().getEventsOfProgram(programId);
+        Collection<ProgramSequencePatternEvent> events = projectManager.getContent().getSequencePatternEventsOfProgram(programId);
         if (!chords.isEmpty() || !voicings.isEmpty() || !voices.isEmpty() || !tracks.isEmpty() || !patterns.isEmpty() || !events.isEmpty()) {
           if (!showConfirmationDialog(
             "Change to Macro-type Program",
@@ -953,7 +953,7 @@ public class ProjectServiceImpl implements ProjectService {
         Collection<ProgramSequenceBinding> sequenceBindings = projectManager.getContent().getSequenceBindingsOfProgram(programId);
         Collection<ProgramSequenceBindingMeme> sequenceBindingMemes = projectManager.getContent().getSequenceBindingMemesOfProgram(programId);
         Collection<ProgramSequenceChord> chords = projectManager.getContent().getChordsOfProgram(programId);
-        Collection<ProgramSequenceChordVoicing> voicings = projectManager.getContent().getVoicingsOfProgram(programId);
+        Collection<ProgramSequenceChordVoicing> voicings = projectManager.getContent().getSequenceChordVoicingsOfProgram(programId);
         if (!sequenceBindings.isEmpty() || !sequenceBindingMemes.isEmpty() || !chords.isEmpty() || !voicings.isEmpty()) {
           if (!showConfirmationDialog(
             "Change to " + type + "-type Program",

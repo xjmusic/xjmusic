@@ -90,7 +90,6 @@ public class ComplexLibraryTest {
 
     // work
     work = new CraftWorkImpl(
-      projectManager,
       telemetry,
       craftFactory,
       fabricatorFactory,
@@ -101,7 +100,7 @@ public class ComplexLibraryTest {
       10,
       48000,
       2,
-      template);
+      content);
   }
 
   @Test

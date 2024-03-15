@@ -439,6 +439,11 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
+  public HubContent getContent(Template template) {
+    return content.get().forTemplate(template);
+  }
+
+  @Override
   public String getPathToInstrumentAudio(UUID instrumentId, String waveformKey) {
     return getPathPrefixToInstrumentAudio(instrumentId) + waveformKey;
   }
