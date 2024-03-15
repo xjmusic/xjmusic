@@ -7,8 +7,6 @@ import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.hub.ProgramConfig;
-import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Program;
@@ -54,6 +52,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -575,8 +574,8 @@ public class FabricationTimelineController extends ProjectController {
     var segmentChoices = fabricationService.getSegmentChoices(segment);
     col.getChildren().add(computeChoicesListNode(segment, "Macro", segmentChoices.stream().filter((choice) -> ProgramType.Macro == choice.getProgramType()).toList(), true, false, false));
     col.getChildren().add(computeChoicesListNode(segment, "Main", segmentChoices.stream().filter((choice) -> ProgramType.Main == choice.getProgramType()).toList(), true, false, false));
-    col.getChildren().add(computeChoicesListNode(segment, "Beat", segmentChoices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList(), false, true, false));
-    for (var instrumentType : InstrumentType.values()) {
+    col.getChildren().add(computeChoicesListNode(segment, "Beat", segmentChoices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList(), true, true, true));
+    for (var instrumentType : Arrays.stream(InstrumentType.values()).filter((type) -> type != InstrumentType.Drum).toList()) {
       var choices = segmentChoices.stream().filter((choice) -> instrumentType == choice.getInstrumentType()).toList();
       if (choices.isEmpty()) continue;
       col.getChildren().add(computeChoicesListNode(
