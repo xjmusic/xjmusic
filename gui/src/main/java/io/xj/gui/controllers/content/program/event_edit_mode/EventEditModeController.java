@@ -93,7 +93,6 @@ public class EventEditModeController extends ProjectController {
 
     // Touch the program updated property when a program is updated
     projectService.addProjectUpdateListener(Program.class, () -> {
-      LOG.info("UPDATED PROGRAM");
       programUpdatedProperty.set(System.currentTimeMillis());
     });
   }

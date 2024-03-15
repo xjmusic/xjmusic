@@ -11,7 +11,6 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
-import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoice;
@@ -509,6 +508,15 @@ public interface ProjectService {
    @return observable boolean property
    */
   BooleanProperty isModifiedProperty();
+
+  /**
+   Whether the project is a demo project
+   <p>
+   Project cloned from demo should NOT be allowed to Push project https://www.pivotaltracker.com/story/show/187242588
+
+   @return observable boolean property
+   */
+  BooleanProperty isDemoProjectProperty();
 
   /**
    Prompt to close a modified project
