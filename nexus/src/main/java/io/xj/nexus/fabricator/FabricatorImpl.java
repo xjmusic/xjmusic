@@ -290,7 +290,7 @@ public class FabricatorImpl implements Fabricator {
     if (Objects.isNull(distinctChordVoicingTypes)) {
       var mainChoice = getCurrentMainChoice();
       if (mainChoice.isEmpty()) return Set.of();
-      var voicings = sourceMaterial.getVoicingsOfProgram(mainChoice.get().getProgramId());
+      var voicings = sourceMaterial.getSequenceChordVoicingsOfProgram(mainChoice.get().getProgramId());
       distinctChordVoicingTypes = voicings.stream().flatMap(voicing -> {
         try {
           return Stream.of(getProgramVoiceType(voicing));
@@ -555,7 +555,7 @@ public class FabricatorImpl implements Fabricator {
 
   NoteRange computeProgramRange(UUID programId, InstrumentType instrumentType) {
     return NoteRange.ofStrings(
-      sourceMaterial.getEventsOfProgram(programId).stream()
+      sourceMaterial.getSequencePatternEventsOfProgram(programId).stream()
         .filter(event -> sourceMaterial.getVoiceOfEvent(event).map(voice -> Objects.equals(voice.getType(), instrumentType)).orElse(false)
           && !Objects.equals(Note.of(event.getTones()).getPitchClass(), PitchClass.None))
         .flatMap(programSequencePatternEvent -> CsvUtils.split(programSequencePatternEvent.getTones()).stream())

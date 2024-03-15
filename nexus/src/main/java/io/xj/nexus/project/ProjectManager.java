@@ -142,6 +142,14 @@ public interface ProjectManager {
   HubContent getContent();
 
   /**
+   Get the content for a template
+
+   @param template for which to get content
+   @return the content
+   */
+  HubContent getContent(Template template);
+
+  /**
    Get the path to some instrument audio in the project
 
    @param instrumentId of the instrument

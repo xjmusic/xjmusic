@@ -33,7 +33,6 @@ import io.xj.nexus.persistence.ManagerValidationException;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.SegmentUtils;
 import io.xj.nexus.persistence.TemplateUtils;
-import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.telemetry.Telemetry;
 import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
@@ -60,7 +59,6 @@ public class CraftWorkImpl implements CraftWork {
   private static final String TIMER_SECTION_CRAFT = "Craft";
   private static final String TIMER_SECTION_CRAFT_CACHE = "CraftCache";
   private static final String TIMER_SECTION_CRAFT_CLEANUP = "CraftCleanup";
-  private final ProjectManager projectManager;
   private final Telemetry telemetry;
   private final CraftFactory craftFactory;
   private final FabricatorFactory fabricatorFactory;
@@ -75,6 +73,7 @@ public class CraftWorkImpl implements CraftWork {
   private final Chain chain;
   private final long mixerLengthMicros;
   private final long persistenceWindowMicros;
+  private final HubContent content;
 
   // Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub
   // live performance modulation https://www.pivotaltracker.com/story/show/186003440
@@ -84,7 +83,6 @@ public class CraftWorkImpl implements CraftWork {
   private final AtomicBoolean didOverride = new AtomicBoolean(false);
 
   public CraftWorkImpl(
-    ProjectManager projectManager,
     Telemetry telemetry,
     CraftFactory craftFactory,
     FabricatorFactory fabricatorFactory,
@@ -95,9 +93,8 @@ public class CraftWorkImpl implements CraftWork {
     long mixerLengthSeconds,
     double outputFrameRate,
     int outputChannels,
-    Template inputTemplate
+    HubContent content
   ) {
-    this.projectManager = projectManager;
     this.telemetry = telemetry;
     this.craftFactory = craftFactory;
     this.fabricatorFactory = fabricatorFactory;
@@ -109,9 +106,11 @@ public class CraftWorkImpl implements CraftWork {
     craftAheadMicros = craftAheadSeconds * MICROS_PER_SECOND;
     mixerLengthMicros = mixerLengthSeconds * MICROS_PER_SECOND;
     persistenceWindowMicros = persistenceWindowSeconds * MICROS_PER_SECOND;
+    this.content = content;
 
     // Telemetry: # Segments Erased
-    chain = createChainForTemplate(inputTemplate)
+    chain = createChainForTemplate(content.getTemplates().stream().findFirst()
+      .orElseThrow(() -> new RuntimeException("Failed to obtain template from content")))
       .orElseThrow(() -> new RuntimeException("Failed to create chain"));
 
     try {
@@ -198,13 +197,13 @@ public class CraftWorkImpl implements CraftWork {
 
   @Override
   public Instrument getInstrument(InstrumentAudio audio) {
-    return projectManager.getContent().getInstrument(audio.getInstrumentId())
+    return content.getInstrument(audio.getInstrumentId())
       .orElseThrow(() -> new RuntimeException("Failed to get Instrument[" + audio.getInstrumentId() + "]"));
   }
 
   @Override
   public InstrumentAudio getInstrumentAudio(SegmentChoiceArrangementPick pick) {
-    return projectManager.getContent().getInstrumentAudio(pick.getInstrumentAudioId())
+    return content.getInstrumentAudio(pick.getInstrumentAudioId())
       .orElseThrow(() -> new RuntimeException("Failed to get InstrumentAudio[" + pick.getInstrumentAudioId() + "]"));
   }
 
@@ -241,7 +240,7 @@ public class CraftWorkImpl implements CraftWork {
     if (mainChoice.isEmpty()) {
       return Optional.empty();
     }
-    return projectManager.getContent().getProgram(mainChoice.get().getProgramId());
+    return content.getProgram(mainChoice.get().getProgramId());
 
   }
 
@@ -255,12 +254,12 @@ public class CraftWorkImpl implements CraftWork {
     if (macroChoice.isEmpty()) {
       return Optional.empty();
     }
-    return projectManager.getContent().getProgram(macroChoice.get().getProgramId());
+    return content.getProgram(macroChoice.get().getProgramId());
   }
 
   @Override
   public HubContent getSourceMaterial() {
-    return projectManager.getContent();
+    return content;
   }
 
   @Override
@@ -487,7 +486,7 @@ public class CraftWorkImpl implements CraftWork {
     @Nullable SegmentType overrideSegmentType
   ) throws NexusException, ManagerFatalException, ValueException, FabricationFatalException {
     LOG.debug("[segId={}] will prepare fabricator", segment.getId());
-    Fabricator fabricator = fabricatorFactory.fabricate(projectManager.getContent(), segment.getId(), outputFrameRate, outputChannels, overrideSegmentType);
+    Fabricator fabricator = fabricatorFactory.fabricate(content, segment.getId(), outputFrameRate, outputChannels, overrideSegmentType);
 
     LOG.debug("[segId={}] will do craft work", segment.getId());
     updateSegmentState(fabricator, segment, SegmentState.PLANNED, SegmentState.CRAFTING);

@@ -102,7 +102,7 @@ public class ShipWorkImpl implements ShipWork {
    Ship available bytes from the dub mixer buffer to the output method
    */
   void doShipOutputPlayback() throws IOException {
-    assert Objects.nonNull(playback);
+    Objects.requireNonNull(playback);
     if (dubWork.getMixerBuffer().isEmpty())
       throw new IOException("Mixer buffer is empty");
     var availableBytes = dubWork.getMixerBuffer().get().getAvailableByteCount();

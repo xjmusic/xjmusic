@@ -77,6 +77,9 @@ public class FabricationManagerImpl implements FabricationManager {
 
   @Nullable
   private Runnable afterFinished;
+  
+  @Nullable
+  private HubContent content;
 
   public FabricationManagerImpl(
     ProjectManager projectManager,
@@ -109,6 +112,9 @@ public class FabricationManagerImpl implements FabricationManager {
 
     this.hubConfig = hubConfig;
     LOG.debug("Did set hub configuration: {}", hubConfig);
+    
+    this.content = projectManager.getContent(workConfig.getInputTemplate());
+    LOG.debug("Did set hub content: {}", content);
 
     audioCache.initialize(
       workConfig.getOutputFrameRate(),
@@ -200,14 +206,14 @@ public class FabricationManagerImpl implements FabricationManager {
 
   @Override
   public void doOverrideMacro(Program macroProgram) {
-    assert Objects.nonNull(craftWork);
-    assert Objects.nonNull(dubWork);
+    Objects.requireNonNull(craftWork);
+    Objects.requireNonNull(dubWork);
     craftWork.doOverrideMacro(macroProgram);
   }
 
   @Override
   public void resetOverrideMacro() {
-    assert Objects.nonNull(craftWork);
+    Objects.requireNonNull(craftWork);
     craftWork.resetOverrideMacro();
   }
 
@@ -225,14 +231,14 @@ public class FabricationManagerImpl implements FabricationManager {
 
   @Override
   public void doOverrideMemes(Collection<String> memes) {
-    assert Objects.nonNull(craftWork);
-    assert Objects.nonNull(dubWork);
+    Objects.requireNonNull(craftWork);
+    Objects.requireNonNull(dubWork);
     craftWork.doOverrideMemes(memes);
   }
 
   @Override
   public void resetOverrideMemes() {
-    assert Objects.nonNull(craftWork);
+    Objects.requireNonNull(craftWork);
     craftWork.resetOverrideMemes();
   }
 
@@ -344,10 +350,10 @@ public class FabricationManagerImpl implements FabricationManager {
       LOG.debug("Will not run craft cycle because work state is {}", state.get());
       return;
     }
-    assert Objects.nonNull(workConfig);
-    assert Objects.nonNull(craftWork);
-    assert Objects.nonNull(shipWork);
-    assert Objects.nonNull(dubWork);
+    Objects.requireNonNull(workConfig);
+    Objects.requireNonNull(craftWork);
+    Objects.requireNonNull(shipWork);
+    Objects.requireNonNull(dubWork);
 
     try {
       LOG.debug("Will run craft cycle");
@@ -370,9 +376,9 @@ public class FabricationManagerImpl implements FabricationManager {
       LOG.debug("Will not run dub cycle because work state is {}", state.get());
       return;
     }
-    assert Objects.nonNull(workConfig);
-    assert Objects.nonNull(dubWork);
-    assert Objects.nonNull(shipWork);
+    Objects.requireNonNull(workConfig);
+    Objects.requireNonNull(dubWork);
+    Objects.requireNonNull(shipWork);
 
     try {
       LOG.debug("Will run dub cycle");
@@ -392,8 +398,8 @@ public class FabricationManagerImpl implements FabricationManager {
       LOG.debug("Will not run ship cycle because work state is {}", state.get());
       return;
     }
-    assert Objects.nonNull(workConfig);
-    assert Objects.nonNull(shipWork);
+    Objects.requireNonNull(workConfig);
+    Objects.requireNonNull(shipWork);
 
     try {
       LOG.debug("Will run ship cycle");
@@ -414,14 +420,15 @@ public class FabricationManagerImpl implements FabricationManager {
    Start loading audio
    */
   private void startPreparingAudio() {
-    assert Objects.nonNull(workConfig);
-    assert Objects.nonNull(hubConfig);
+    Objects.requireNonNull(workConfig);
+    Objects.requireNonNull(hubConfig);
+    Objects.requireNonNull(content);
 
     int preparedAudios = 0;
     int preparedInstruments = 0;
 
-    var instruments = new ArrayList<>(projectManager.getContent().getInstruments());
-    var audios = new ArrayList<>(projectManager.getContent().getInstrumentAudios());
+    var instruments = new ArrayList<>(content.getInstruments());
+    var audios = new ArrayList<>(content.getInstrumentAudios());
     LOG.debug("Will start loading audio");
     updateProgress(0.0f);
     updateProgressLabel(String.format("Prepared 0/%d audios for 0/%d instruments", audios.size(), instruments.size()));
@@ -467,10 +474,11 @@ public class FabricationManagerImpl implements FabricationManager {
    Initialize the work
    */
   private void initialize() {
-    assert Objects.nonNull(hubConfig);
-    assert Objects.nonNull(workConfig);
+    Objects.requireNonNull(hubConfig);
+    Objects.requireNonNull(workConfig);
+    Objects.requireNonNull(content);
+    
     craftWork = new CraftWorkImpl(
-      projectManager,
       telemetry,
       craftFactory,
       fabricatorFactory,
@@ -481,7 +489,7 @@ public class FabricationManagerImpl implements FabricationManager {
       workConfig.getMixerLengthSeconds(),
       workConfig.getOutputFrameRate(),
       workConfig.getOutputChannels(),
-      workConfig.getInputTemplate()
+      content
     );
     dubWork = new DubWorkImpl(
       telemetry,

@@ -17,7 +17,6 @@ import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentUtils;
-import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.telemetry.Telemetry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +32,6 @@ import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildLibrary;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildProject;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ComplexLibraryTest {
@@ -48,9 +46,6 @@ public class ComplexLibraryTest {
   CraftWork work;
 
   @Mock
-  ProjectManager projectManager;
-
-  @Mock
   Telemetry telemetry;
 
   @Mock
@@ -63,7 +58,6 @@ public class ComplexLibraryTest {
     fake.library1 = buildLibrary(fake.project1, "test");
     var generatedFixtures = fake.generatedFixture(GENERATED_FIXTURE_COMPLEXITY);
     HubContent content = new HubContent(generatedFixtures.stream().filter(Objects::nonNull).toList());
-    when(projectManager.getContent()).thenReturn(content);
 
     var template = content.getTemplates().stream().findFirst().orElseThrow();
     template.setShipKey("complex_library_test");
@@ -90,7 +84,6 @@ public class ComplexLibraryTest {
 
     // work
     work = new CraftWorkImpl(
-      projectManager,
       telemetry,
       craftFactory,
       fabricatorFactory,
@@ -101,7 +94,7 @@ public class ComplexLibraryTest {
       10,
       48000,
       2,
-      template);
+      content);
   }
 
   @Test
