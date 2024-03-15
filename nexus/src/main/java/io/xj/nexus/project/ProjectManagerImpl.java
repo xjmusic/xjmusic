@@ -348,7 +348,9 @@ public class ProjectManagerImpl implements ProjectManager {
             var upload = new ProjectAudioUpload(audio.getId(), pathOnDisk);
             boolean shouldUpload = false;
 
-            if (remoteFileSize == FILE_SIZE_NOT_FOUND) {
+            if (upload.getContentLength() == 0) {
+              LOG.warn("Audio file {} not found - Will not upload", pathOnDisk);
+            } else if (remoteFileSize == FILE_SIZE_NOT_FOUND) {
               LOG.info("File {} not found remotely - Will upload {} bytes", remoteUrl, upload.getContentLength());
               shouldUpload = true;
             } else if (upload.getContentLength() != remoteFileSize) {

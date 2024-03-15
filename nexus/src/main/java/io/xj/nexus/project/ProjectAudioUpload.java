@@ -26,7 +26,13 @@ public class ProjectAudioUpload {
     errors = new HashSet<>();
     this.instrumentAudioId = instrumentAudioId;
     this.pathOnDisk = pathOnDisk;
-    contentLength = Files.size(Path.of(pathOnDisk));
+    Path filePath = Path.of(pathOnDisk);
+    if (Files.exists(filePath)) {
+      contentLength = Files.size(filePath);
+    } else {
+      errors.add("File does not exist: " + pathOnDisk);
+      contentLength = 0;
+    }
   }
 
   public UUID getInstrumentAudioId() {
