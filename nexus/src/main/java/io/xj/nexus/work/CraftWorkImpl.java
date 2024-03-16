@@ -306,23 +306,27 @@ public class CraftWorkImpl implements CraftWork {
 
   @Override
   public void doOverrideMacro(Program macroProgram) {
+    LOG.info("Next craft cycle, will override macro with {}", macroProgram.getName());
     craftState.set(CraftState.REWRITE);
     overrideMacroProgram.set(macroProgram);
   }
 
   @Override
   public void resetOverrideMacro() {
+    LOG.info("Did reset macro override");
     overrideMacroProgram.set(null);
   }
 
   @Override
   public void doOverrideMemes(Collection<String> memes) {
+    LOG.info("Next craft cycle, will override memes with {}", StringUtils.toProperCsvAnd(memes.stream().sorted().toList()));
     craftState.set(CraftState.REWRITE);
     overrideMemes.set(memes);
   }
 
   @Override
   public void resetOverrideMemes() {
+    LOG.info("Did reset memes override");
     overrideMemes.set(null);
   }
 
@@ -425,9 +429,12 @@ public class CraftWorkImpl implements CraftWork {
       // Delete all segments after the current segment and fabricate the next segment
       LOG.info("Will delete segments after #{} and re-fabricate.", lastSegment.get().getId());
       if (Objects.nonNull(overrideMacroProgram.get()))
-        LOG.info("Will override macro program with {}", overrideMacroProgram.get().getName());
-      if (Objects.nonNull(overrideMemes.get()))
-        LOG.info("Will override memes with {}", StringUtils.toProperCsvAnd(overrideMemes.get().stream().sorted().toList()));
+        LOG.info("Has macro program override {}", overrideMacroProgram.get().getName());
+      else if (Objects.nonNull(overrideMemes.get()))
+        LOG.info("Has meme override {}", StringUtils.toProperCsvAnd(overrideMemes.get().stream().sorted().toList()));
+      else {
+        LOG.warn("Neither override memes nor macros are present: unsure what rewrite action to take");
+      }
       store.deleteSegmentsAfter(lastSegment.get().getId());
       Segment segment = buildSegmentFollowing(lastSegment.get());
       segment.setType(SegmentType.NEXT_MACRO);
