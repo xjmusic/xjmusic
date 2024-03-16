@@ -74,12 +74,8 @@ public class CraftWorkImpl implements CraftWork {
   private final long mixerLengthMicros;
   private final long persistenceWindowMicros;
   private final HubContent content;
-
-  // Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub
-  // live performance modulation https://www.pivotaltracker.com/story/show/186003440
-  private final AtomicReference<CraftState> craftState = new AtomicReference<>(CraftState.INITIAL);
-  private final AtomicReference<Program> overrideMacroProgram = new AtomicReference<>();
-  private final AtomicReference<Collection<String>> overrideMemes = new AtomicReference<>();
+  private final AtomicReference<Program> nextCycleOverrideMacroProgram = new AtomicReference<>();
+  private final AtomicReference<Collection<String>> nextCycleOverrideMemes = new AtomicReference<>();
   private final AtomicBoolean didOverride = new AtomicBoolean(false);
 
   public CraftWorkImpl(
@@ -301,33 +297,31 @@ public class CraftWorkImpl implements CraftWork {
 
   @Override
   public boolean isReady() {
-    return Objects.equals(craftState.get(), CraftState.CONTINUE);
+    return Objects.isNull(nextCycleOverrideMacroProgram.get()) && Objects.isNull(nextCycleOverrideMemes.get());
   }
 
   @Override
   public void doOverrideMacro(Program macroProgram) {
     LOG.info("Next craft cycle, will override macro with {}", macroProgram.getName());
-    craftState.set(CraftState.REWRITE);
-    overrideMacroProgram.set(macroProgram);
+    nextCycleOverrideMacroProgram.set(macroProgram);
   }
 
   @Override
   public void resetOverrideMacro() {
     LOG.info("Did reset macro override");
-    overrideMacroProgram.set(null);
+    nextCycleOverrideMacroProgram.set(null);
   }
 
   @Override
   public void doOverrideMemes(Collection<String> memes) {
     LOG.info("Next craft cycle, will override memes with {}", StringUtils.toProperCsvAnd(memes.stream().sorted().toList()));
-    craftState.set(CraftState.REWRITE);
-    overrideMemes.set(memes);
+    nextCycleOverrideMemes.set(memes);
   }
 
   @Override
   public void resetOverrideMemes() {
     LOG.info("Did reset memes override");
-    overrideMemes.set(null);
+    nextCycleOverrideMemes.set(null);
   }
 
   @Override
@@ -343,14 +337,16 @@ public class CraftWorkImpl implements CraftWork {
    @throws FabricationFatalException if the chain cannot be fabricated
    */
   private void doFabrication(long dubbedToChainMicros, long craftToChainMicros) throws FabricationFatalException {
-    switch (craftState.get()) {
-      case INITIAL, CONTINUE -> doFabricationDefault(craftToChainMicros);
-      case REWRITE -> doFabricationOverride(dubbedToChainMicros);
+    if (Objects.nonNull(nextCycleOverrideMacroProgram.get()) || Objects.nonNull(nextCycleOverrideMemes.get())) {
+      doFabricationOverride(dubbedToChainMicros, nextCycleOverrideMacroProgram.get(), nextCycleOverrideMemes.get());
+    } else {
+      doFabricationDefault(craftToChainMicros);
     }
 
     // Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub
     // live performance modulation https://www.pivotaltracker.com/story/show/186003440
-    craftState.set(CraftState.CONTINUE);
+    nextCycleOverrideMacroProgram.set(null);
+    nextCycleOverrideMemes.set(null);
   }
 
   /**
@@ -380,7 +376,7 @@ public class CraftWorkImpl implements CraftWork {
         segment = buildSegmentFollowing(existing.get());
       }
       segment = store.put(segment);
-      doFabricationWork(segment, null);
+      doFabricationWork(segment, null, null, null);
 
     } catch (
       ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException |
@@ -399,9 +395,16 @@ public class CraftWorkImpl implements CraftWork {
    Memes override
    https://www.pivotaltracker.com/story/show/186714075
 
+   @param dubbedToChainMicros  already dubbed to here
+   @param overrideMacroProgram to override fabrication
+   @param overrideMemes        to override fabrication
    @throws FabricationFatalException if the chain cannot be fabricated
    */
-  private void doFabricationOverride(long dubbedToChainMicros) throws FabricationFatalException {
+  private void doFabricationOverride(
+    long dubbedToChainMicros,
+    @Nullable Program overrideMacroProgram,
+    @Nullable Collection<String> overrideMemes
+  ) throws FabricationFatalException {
     try {
       // Determine the segment we are currently in the middle of dubbing
       var lastSegment = getSegmentAtChainMicros(dubbedToChainMicros);
@@ -428,10 +431,10 @@ public class CraftWorkImpl implements CraftWork {
 
       // Delete all segments after the current segment and fabricate the next segment
       LOG.info("Will delete segments after #{} and re-fabricate.", lastSegment.get().getId());
-      if (Objects.nonNull(overrideMacroProgram.get()))
-        LOG.info("Has macro program override {}", overrideMacroProgram.get().getName());
-      else if (Objects.nonNull(overrideMemes.get()))
-        LOG.info("Has meme override {}", StringUtils.toProperCsvAnd(overrideMemes.get().stream().sorted().toList()));
+      if (Objects.nonNull(overrideMacroProgram))
+        LOG.info("Has macro program override {}", overrideMacroProgram.getName());
+      else if (Objects.nonNull(overrideMemes))
+        LOG.info("Has meme override {}", StringUtils.toProperCsvAnd(overrideMemes.stream().sorted().toList()));
       else {
         LOG.warn("Neither override memes nor macros are present: unsure what rewrite action to take");
       }
@@ -439,7 +442,7 @@ public class CraftWorkImpl implements CraftWork {
       Segment segment = buildSegmentFollowing(lastSegment.get());
       segment.setType(SegmentType.NEXT_MACRO);
       segment = store.put(segment);
-      doFabricationWork(segment, SegmentType.NEXT_MACRO);
+      doFabricationWork(segment, SegmentType.NEXT_MACRO, overrideMacroProgram, overrideMemes);
       didOverride.set(true);
 
     } catch (
@@ -483,21 +486,25 @@ public class CraftWorkImpl implements CraftWork {
   /**
    Craft a Segment, or fail
 
-   @param segment             to craft
-   @param overrideSegmentType to use for crafting
+   @param segment              to craft
+   @param overrideSegmentType  to use for crafting
+   @param overrideMacroProgram to override fabrication
+   @param overrideMemes        to override fabrication
    @throws NexusException on configuration failure
    @throws NexusException on craft failure
    */
   private void doFabricationWork(
     Segment segment,
-    @Nullable SegmentType overrideSegmentType
+    @Nullable SegmentType overrideSegmentType,
+    @Nullable Program overrideMacroProgram,
+    @Nullable Collection<String> overrideMemes
   ) throws NexusException, ManagerFatalException, ValueException, FabricationFatalException {
     LOG.debug("[segId={}] will prepare fabricator", segment.getId());
     Fabricator fabricator = fabricatorFactory.fabricate(content, segment.getId(), outputFrameRate, outputChannels, overrideSegmentType);
 
     LOG.debug("[segId={}] will do craft work", segment.getId());
     updateSegmentState(fabricator, segment, SegmentState.PLANNED, SegmentState.CRAFTING);
-    craftFactory.macroMain(fabricator, overrideMacroProgram.get(), overrideMemes.get()).doWork();
+    craftFactory.macroMain(fabricator, overrideMacroProgram, overrideMemes).doWork();
     craftFactory.beat(fabricator).doWork();
     craftFactory.detail(fabricator).doWork();
     craftFactory.transition(fabricator).doWork();
