@@ -40,7 +40,7 @@ dependencies {
   implementation 'org.apache.logging.log4j:log4j-api:3.0.0-alpha1'
   implementation 'org.reflections:reflections:0.10.1'
   implementation group: 'org.controlsfx', name: 'controlsfx', version: '11.2.0'
-  implementation group: 'org.panteleyev.jpackageplugin', name: 'org.panteleyev.jpackageplugin.gradle.plugin', version: '1.5.2'
+  implementation group: 'org.panteleyev.jpackageplugin', name: 'org.panteleyev.jpackageplugin.gradle.plugin', version: '1.6.0'
   testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"
   testImplementation "org.mockito:mockito-junit-jupiter:${rootProject.ext.jupiterMockitoVersion}"
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.junitVersion}"
