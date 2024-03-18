@@ -10,11 +10,11 @@ import io.xj.gui.controllers.content.common.PopupSelectorMenuController;
 import io.xj.gui.controllers.content.program.bind_mode.BindModeController;
 import io.xj.gui.controllers.content.program.chord_edit_mode.ChordEditModeController;
 import io.xj.gui.controllers.content.program.event_edit_mode.EventEditModeController;
-import io.xj.gui.modes.ContentMode;
-import io.xj.gui.modes.GridChoice;
-import io.xj.gui.modes.ProgramEditorMode;
-import io.xj.gui.modes.ViewMode;
-import io.xj.gui.modes.ZoomChoice;
+import io.xj.gui.types.ViewContentMode;
+import io.xj.gui.types.GridChoice;
+import io.xj.gui.types.ProgramEditorMode;
+import io.xj.gui.types.ViewMode;
+import io.xj.gui.types.ZoomChoice;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
@@ -70,9 +70,9 @@ public class ProgramEditorController extends ProjectController {
   private final EventEditModeController editEventController;
   private final ChordEditModeController editChordController;
   private final BindModeController bindController;
-  private final ChangeListener<? super ContentMode> onEditProgram = (o, ov, v) -> {
+  private final ChangeListener<? super ViewContentMode> onEditProgram = (o, ov, v) -> {
     teardown();
-    if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.ProgramEditor) && uiStateService.currentProgramProperty().isNotNull().get())
+    if (Objects.equals(uiStateService.contentModeProperty().get(), ViewContentMode.ProgramEditor) && uiStateService.currentProgramProperty().isNotNull().get())
       setup(uiStateService.currentProgramProperty().get().getId());
   };
   private final Runnable updateProgramName;
@@ -227,7 +227,7 @@ public class ProgramEditorController extends ProjectController {
 
     var visible = projectService.isStateReadyProperty()
       .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
-      .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramEditor));
+      .and(uiStateService.contentModeProperty().isEqualTo(ViewContentMode.ProgramEditor));
     uiStateService.contentModeProperty().addListener(onEditProgram);
     programTypeChooser.setItems(FXCollections.observableArrayList(ProgramType.values()));
     programStateChooser.setItems(FXCollections.observableArrayList(ProgramState.values()));

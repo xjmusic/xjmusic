@@ -3,13 +3,14 @@ package io.xj.gui.services.impl;
 import io.xj.gui.WorkstationLogAppender;
 import io.xj.gui.controllers.content.common.PopupActionMenuController;
 import io.xj.gui.controllers.content.common.PopupSelectorMenuController;
-import io.xj.gui.modes.ContentMode;
-import io.xj.gui.modes.GridChoice;
-import io.xj.gui.modes.ProgramEditorMode;
-import io.xj.gui.modes.TemplateMode;
-import io.xj.gui.modes.ViewMode;
-import io.xj.gui.modes.ViewStatusMode;
-import io.xj.gui.modes.ZoomChoice;
+import io.xj.gui.nav.Route;
+import io.xj.gui.types.ViewContentMode;
+import io.xj.gui.types.GridChoice;
+import io.xj.gui.types.ProgramEditorMode;
+import io.xj.gui.types.ViewTemplateMode;
+import io.xj.gui.types.ViewMode;
+import io.xj.gui.types.ViewStatusMode;
+import io.xj.gui.types.ZoomChoice;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
@@ -79,27 +80,28 @@ public class UIStateServiceImpl implements UIStateService {
   private final ProjectService projectService;
   private final BooleanBinding isManualFabricationMode;
   private final BooleanBinding isProgressBarVisible;
-  private static final Collection<ContentMode> CONTENT_MODES_WITH_PARENT = Set.of(
-    ContentMode.ProgramBrowser,
-    ContentMode.ProgramEditor,
-    ContentMode.InstrumentBrowser,
-    ContentMode.InstrumentEditor,
-    ContentMode.InstrumentAudioEditor,
-    ContentMode.LibraryEditor
+  private static final Collection<ViewContentMode> CONTENT_MODES_WITH_PARENT = Set.of(
+    ViewContentMode.ProgramBrowser,
+    ViewContentMode.ProgramEditor,
+    ViewContentMode.InstrumentBrowser,
+    ViewContentMode.InstrumentEditor,
+    ViewContentMode.InstrumentAudioEditor,
+    ViewContentMode.LibraryEditor
   );
   private final StringBinding windowTitle;
   private final ObjectProperty<ViewMode> viewMode = new SimpleObjectProperty<>(ViewMode.Content);
+  private final ObjectProperty<Route> navRoute = new SimpleObjectProperty<>(Route.getDefault());
   private final ObjectProperty<Library> currentLibrary = new SimpleObjectProperty<>(null);
   private final ObjectProperty<Program> currentProgram = new SimpleObjectProperty<>(null);
   private final ObservableList<ProgramSequence> sequencesOfCurrentProgram = FXCollections.observableArrayList();
   private final ObjectProperty<Instrument> currentInstrument = new SimpleObjectProperty<>(null);
   private final ObjectProperty<InstrumentAudio> currentInstrumentAudio = new SimpleObjectProperty<>(null);
   private final ObjectProperty<Template> currentTemplate = new SimpleObjectProperty<>(null);
-  private final ObjectProperty<ContentMode> contentMode = new SimpleObjectProperty<>(ContentMode.LibraryBrowser);
-  private final ObjectProperty<TemplateMode> templateMode = new SimpleObjectProperty<>(TemplateMode.TemplateBrowser);
+  private final ObjectProperty<ViewContentMode> contentMode = new SimpleObjectProperty<>(ViewContentMode.LibraryBrowser);
+  private final ObjectProperty<ViewTemplateMode> templateMode = new SimpleObjectProperty<>(ViewTemplateMode.TemplateBrowser);
   private final BooleanBinding isContentLevelUpPossible = Bindings.createBooleanBinding(
     () -> (Objects.equals(viewMode.get(), ViewMode.Content) && CONTENT_MODES_WITH_PARENT.contains(contentMode.get()))
-      || (Objects.equals(viewMode.get(), ViewMode.Templates) && Objects.equals(templateMode.get(), TemplateMode.TemplateEditor)),
+      || (Objects.equals(viewMode.get(), ViewMode.Templates) && Objects.equals(templateMode.get(), ViewTemplateMode.TemplateEditor)),
     viewMode, contentMode, templateMode);
 
   private final BooleanBinding isViewProgressStatusMode;
@@ -208,8 +210,8 @@ public class UIStateServiceImpl implements UIStateService {
     projectService.stateProperty().addListener((o, ov, value) -> {
       if (Objects.equals(value, ProjectState.Standby)) {
         viewMode.set(ViewMode.Content);
-        contentMode.set(ContentMode.LibraryBrowser);
-        templateMode.set(TemplateMode.TemplateBrowser);
+        contentMode.set(ViewContentMode.LibraryBrowser);
+        templateMode.set(ViewTemplateMode.TemplateBrowser);
       }
     });
 
@@ -246,7 +248,7 @@ public class UIStateServiceImpl implements UIStateService {
           case LibraryEditor, ProgramEditor, InstrumentEditor, InstrumentAudioEditor -> true;
           default -> false;
         };
-        case Templates -> Objects.equals(TemplateMode.TemplateEditor, templateMode.get());
+        case Templates -> Objects.equals(ViewTemplateMode.TemplateEditor, templateMode.get());
         default -> false;
       },
       viewMode, contentMode, templateMode
@@ -263,7 +265,7 @@ public class UIStateServiceImpl implements UIStateService {
           default -> "";
         };
         case Templates ->
-          Objects.equals(TemplateMode.TemplateEditor, templateMode.get()) && currentTemplate.isNotNull().get() ? currentTemplate.get().getName() : "";
+          Objects.equals(ViewTemplateMode.TemplateEditor, templateMode.get()) && currentTemplate.isNotNull().get() ? currentTemplate.get().getName() : "";
         default -> "";
       },
       viewMode, contentMode, templateMode, currentProgram, currentInstrument, currentInstrumentAudio, currentTemplate);
@@ -276,7 +278,7 @@ public class UIStateServiceImpl implements UIStateService {
               case LibraryBrowser, ProgramBrowser, InstrumentBrowser -> true;
               default -> false;
             };
-            case Templates -> Objects.equals(TemplateMode.TemplateBrowser, templateMode.get());
+            case Templates -> Objects.equals(ViewTemplateMode.TemplateBrowser, templateMode.get());
             default -> false;
           },
       viewMode, contentMode, templateMode, projectService.isStateReadyProperty()
@@ -404,6 +406,16 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
+  public ObjectProperty<Route> navRouteProperty() {
+    return navRoute;
+  }
+
+  @Override
+  public void navigateTo(Route route) {
+    // todo navigate to this route
+  }
+
+  @Override
   public BooleanBinding isViewModeFabricationProperty() {
     return isViewModeFabrication;
   }
@@ -420,26 +432,26 @@ public class UIStateServiceImpl implements UIStateService {
         switch (contentMode.get()) {
           case ProgramBrowser, InstrumentBrowser, LibraryEditor -> {
             currentLibrary.set(null);
-            contentMode.set(ContentMode.LibraryBrowser);
+            contentMode.set(ViewContentMode.LibraryBrowser);
           }
           case ProgramEditor -> {
             currentProgram.set(null);
-            contentMode.set(ContentMode.ProgramBrowser);
+            contentMode.set(ViewContentMode.ProgramBrowser);
           }
           case InstrumentEditor -> {
             currentInstrument.set(null);
-            contentMode.set(ContentMode.InstrumentBrowser);
+            contentMode.set(ViewContentMode.InstrumentBrowser);
           }
           case InstrumentAudioEditor -> {
             currentInstrumentAudio.set(null);
-            contentMode.set(ContentMode.InstrumentEditor);
+            contentMode.set(ViewContentMode.InstrumentEditor);
           }
         }
       }
       case Templates -> {
-        if (Objects.equals(templateMode.get(), TemplateMode.TemplateEditor)) {
+        if (Objects.equals(templateMode.get(), ViewTemplateMode.TemplateEditor)) {
           currentTemplate.set(null);
-          templateMode.set(TemplateMode.TemplateBrowser);
+          templateMode.set(ViewTemplateMode.TemplateBrowser);
         }
       }
     }
@@ -451,12 +463,12 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public ObjectProperty<ContentMode> contentModeProperty() {
+  public ObjectProperty<ViewContentMode> contentModeProperty() {
     return contentMode;
   }
 
   @Override
-  public ObjectProperty<TemplateMode> templateModeProperty() {
+  public ObjectProperty<ViewTemplateMode> templateModeProperty() {
     return templateMode;
   }
 
@@ -493,7 +505,7 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public void viewLibraries() {
     viewMode.set(ViewMode.Content);
-    contentMode.set(ContentMode.LibraryBrowser);
+    contentMode.set(ViewContentMode.LibraryBrowser);
   }
 
   @Override
@@ -504,9 +516,9 @@ public class UIStateServiceImpl implements UIStateService {
     if (Objects.nonNull(library))
       if (projectService.getContent().getInstruments().stream()
         .anyMatch(instrument -> Objects.equals(instrument.getLibraryId(), library.getId()))) {
-        contentMode.set(ContentMode.InstrumentBrowser);
+        contentMode.set(ViewContentMode.InstrumentBrowser);
       } else {
-        contentMode.set(ContentMode.ProgramBrowser);
+        contentMode.set(ViewContentMode.ProgramBrowser);
       }
   }
 
@@ -515,7 +527,7 @@ public class UIStateServiceImpl implements UIStateService {
     var library = projectService.getContent().getLibrary(libraryId)
       .orElseThrow(() -> new RuntimeException("Could not find Library!"));
     currentLibrary.set(library);
-    contentMode.set(ContentMode.LibraryEditor);
+    contentMode.set(ViewContentMode.LibraryEditor);
     viewMode.set(ViewMode.Content);
   }
 
@@ -527,7 +539,7 @@ public class UIStateServiceImpl implements UIStateService {
       .orElseThrow(() -> new RuntimeException("Could not find Library!"));
     currentProgram.set(program);
     currentLibrary.set(library);
-    contentMode.set(ContentMode.ProgramEditor);
+    contentMode.set(ViewContentMode.ProgramEditor);
     viewMode.set(ViewMode.Content);
   }
 
@@ -540,7 +552,7 @@ public class UIStateServiceImpl implements UIStateService {
     currentInstrument.set(instrument);
     currentInstrumentAudio.set(null);
     currentLibrary.set(library);
-    contentMode.set(ContentMode.InstrumentEditor);
+    contentMode.set(ViewContentMode.InstrumentEditor);
     viewMode.set(ViewMode.Content);
   }
 
@@ -555,7 +567,7 @@ public class UIStateServiceImpl implements UIStateService {
     currentInstrumentAudio.set(instrumentAudio);
     currentInstrument.set(instrument);
     currentLibrary.set(library);
-    contentMode.set(ContentMode.InstrumentAudioEditor);
+    contentMode.set(ViewContentMode.InstrumentAudioEditor);
     viewMode.set(ViewMode.Content);
   }
 
@@ -564,7 +576,7 @@ public class UIStateServiceImpl implements UIStateService {
     var template = projectService.getContent().getTemplate(templateId)
       .orElseThrow(() -> new RuntimeException("Could not find Template!"));
     currentTemplate.set(template);
-    templateMode.set(TemplateMode.TemplateEditor);
+    templateMode.set(ViewTemplateMode.TemplateEditor);
     viewMode.set(ViewMode.Templates);
   }
 

@@ -5,8 +5,8 @@ package io.xj.gui.controllers.content.instrument;
 import io.xj.gui.controllers.BrowserController;
 import io.xj.gui.controllers.CmdModalController;
 import io.xj.gui.controllers.content.common.EntityMemesController;
-import io.xj.gui.modes.ContentMode;
-import io.xj.gui.modes.ViewMode;
+import io.xj.gui.types.ViewContentMode;
+import io.xj.gui.types.ViewMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
@@ -63,9 +63,9 @@ public class InstrumentEditorController extends BrowserController {
   private final StringProperty initialImportAudioDirectory = new SimpleStringProperty();
   private final CmdModalController cmdModalController;
 
-  private final ChangeListener<? super ContentMode> onEditInstrument = (o, ov, v) -> {
+  private final ChangeListener<? super ViewContentMode> onEditInstrument = (o, ov, v) -> {
     teardown();
-    if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.InstrumentEditor) && uiStateService.currentInstrumentProperty().isNotNull().get())
+    if (Objects.equals(uiStateService.contentModeProperty().get(), ViewContentMode.InstrumentEditor) && uiStateService.currentInstrumentProperty().isNotNull().get())
       setup();
   };
   private final Runnable updateInstrumentName;
@@ -133,7 +133,7 @@ public class InstrumentEditorController extends BrowserController {
   public void onStageReady() {
     var visible = projectService.isStateReadyProperty()
       .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
-      .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.InstrumentEditor));
+      .and(uiStateService.contentModeProperty().isEqualTo(ViewContentMode.InstrumentEditor));
     uiStateService.contentModeProperty().addListener(onEditInstrument);
     instrumentTypeChooser.setItems(FXCollections.observableArrayList(InstrumentType.values()));
     instrumentModeChooser.setItems(FXCollections.observableArrayList(InstrumentMode.values()));
@@ -214,7 +214,7 @@ public class InstrumentEditorController extends BrowserController {
     projectService.addProjectUpdateListener(InstrumentAudio.class, this::setupAudiosTable);
 
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
-      if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.InstrumentEditor))
+      if (Objects.equals(uiStateService.contentModeProperty().get(), ViewContentMode.InstrumentEditor))
         setup();
     });
   }

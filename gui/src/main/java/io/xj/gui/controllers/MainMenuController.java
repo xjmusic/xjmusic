@@ -5,7 +5,7 @@ package io.xj.gui.controllers;
 import io.xj.gui.ProjectController;
 import io.xj.gui.WorkstationGuiFxApplication;
 import io.xj.gui.controllers.fabrication.FabricationSettingsModalController;
-import io.xj.gui.modes.ViewMode;
+import io.xj.gui.types.ViewMode;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.LabState;
@@ -337,7 +337,7 @@ public class MainMenuController extends ProjectController {
     uiStateService.viewModeProperty().addListener((o, ov, value) -> activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, value));
     toggleGroup.selectedToggleProperty().addListener((o, ov, value) -> {
       if (Objects.equals(value, toggleContent)) {
-        uiStateService.viewModeProperty().set(ViewMode.Content);
+        uiStateService.navigateTo(Route.getContentDefault());
       } else if (Objects.equals(value, toggleTemplates)) {
         uiStateService.viewModeProperty().set(ViewMode.Templates);
       } else if (Objects.equals(value, toggleFabrication)) {

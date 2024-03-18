@@ -3,8 +3,8 @@
 package io.xj.gui.controllers.content.instrument;
 
 import io.xj.gui.controllers.BrowserController;
-import io.xj.gui.modes.ContentMode;
-import io.xj.gui.modes.ViewMode;
+import io.xj.gui.types.ViewContentMode;
+import io.xj.gui.types.ViewMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
@@ -173,7 +173,7 @@ public class InstrumentAudioEditorController extends BrowserController {
   public void onStageReady() {
     var visible = projectService.isStateReadyProperty()
       .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
-      .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.InstrumentAudioEditor));
+      .and(uiStateService.contentModeProperty().isEqualTo(ViewContentMode.InstrumentAudioEditor));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
@@ -238,7 +238,7 @@ public class InstrumentAudioEditorController extends BrowserController {
     });
 
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
-      if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.InstrumentAudioEditor))
+      if (Objects.equals(uiStateService.contentModeProperty().get(), ViewContentMode.InstrumentAudioEditor))
         setup();
     });
 

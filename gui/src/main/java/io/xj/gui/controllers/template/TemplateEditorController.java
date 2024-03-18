@@ -3,8 +3,8 @@
 package io.xj.gui.controllers.template;
 
 import io.xj.gui.controllers.BrowserController;
-import io.xj.gui.modes.TemplateMode;
-import io.xj.gui.modes.ViewMode;
+import io.xj.gui.types.ViewTemplateMode;
+import io.xj.gui.types.ViewMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
@@ -81,7 +81,7 @@ public class TemplateEditorController extends BrowserController {
   public void onStageReady() {
     var visible = projectService.isStateReadyProperty()
       .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Templates))
-      .and(uiStateService.templateModeProperty().isEqualTo(TemplateMode.TemplateEditor));
+      .and(uiStateService.templateModeProperty().isEqualTo(ViewTemplateMode.TemplateEditor));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
@@ -143,7 +143,7 @@ public class TemplateEditorController extends BrowserController {
     projectService.addProjectUpdateListener(TemplateBinding.class, this::updateBindings);
 
     uiStateService.templateModeProperty().addListener((o, ov, v) -> {
-      if (Objects.equals(uiStateService.templateModeProperty().get(), TemplateMode.TemplateEditor))
+      if (Objects.equals(uiStateService.templateModeProperty().get(), ViewTemplateMode.TemplateEditor))
         update();
     });
   }

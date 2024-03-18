@@ -30,8 +30,8 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 import java.util.Set;
 
-import static io.xj.gui.modes.ContentMode.InstrumentBrowser;
-import static io.xj.gui.modes.ContentMode.ProgramBrowser;
+import static io.xj.gui.types.ViewContentMode.InstrumentBrowser;
+import static io.xj.gui.types.ViewContentMode.ProgramBrowser;
 import static io.xj.gui.services.UIStateService.ACTIVE_PSEUDO_CLASS;
 import static io.xj.gui.services.UIStateService.FAILED_PSEUDO_CLASS;
 import static io.xj.gui.services.UIStateService.PENDING_PSEUDO_CLASS;

@@ -4,8 +4,8 @@ package io.xj.gui.controllers.content;
 
 import io.xj.gui.controllers.BrowserController;
 import io.xj.gui.controllers.CmdModalController;
-import io.xj.gui.modes.ContentMode;
-import io.xj.gui.modes.ViewMode;
+import io.xj.gui.types.ViewContentMode;
+import io.xj.gui.types.ViewMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
@@ -66,24 +66,24 @@ public class ContentBrowserController extends BrowserController {
     initPrograms();
     initInstruments();
 
-    var isLibraryBrowser = uiStateService.contentModeProperty().isEqualTo(ContentMode.LibraryBrowser);
+    var isLibraryBrowser = uiStateService.contentModeProperty().isEqualTo(ViewContentMode.LibraryBrowser);
     librariesTable.visibleProperty().bind(isLibraryBrowser);
     librariesTable.managedProperty().bind(isLibraryBrowser);
 
-    var isProgramBrowser = uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramBrowser);
+    var isProgramBrowser = uiStateService.contentModeProperty().isEqualTo(ViewContentMode.ProgramBrowser);
     programsTable.visibleProperty().bind(isProgramBrowser);
     programsTable.managedProperty().bind(isProgramBrowser);
 
-    var isInstrumentBrowser = uiStateService.contentModeProperty().isEqualTo(ContentMode.InstrumentBrowser);
+    var isInstrumentBrowser = uiStateService.contentModeProperty().isEqualTo(ViewContentMode.InstrumentBrowser);
     instrumentsTable.visibleProperty().bind(isInstrumentBrowser);
     instrumentsTable.managedProperty().bind(isInstrumentBrowser);
 
     var visible = projectService.isStateReadyProperty()
       .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
       .and(
-        uiStateService.contentModeProperty().isEqualTo(ContentMode.LibraryBrowser)
-          .or(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramBrowser))
-          .or(uiStateService.contentModeProperty().isEqualTo(ContentMode.InstrumentBrowser)));
+        uiStateService.contentModeProperty().isEqualTo(ViewContentMode.LibraryBrowser)
+          .or(uiStateService.contentModeProperty().isEqualTo(ViewContentMode.ProgramBrowser))
+          .or(uiStateService.contentModeProperty().isEqualTo(ViewContentMode.InstrumentBrowser)));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 

@@ -3,8 +3,8 @@
 package io.xj.gui.controllers.content;
 
 import io.xj.gui.ProjectController;
-import io.xj.gui.modes.ContentMode;
-import io.xj.gui.modes.ViewMode;
+import io.xj.gui.types.ViewContentMode;
+import io.xj.gui.types.ViewMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
@@ -61,7 +61,7 @@ public class LibraryEditorController extends ProjectController {
   public void onStageReady() {
     var visible = projectService.isStateReadyProperty()
       .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
-      .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.LibraryEditor));
+      .and(uiStateService.contentModeProperty().isEqualTo(ViewContentMode.LibraryEditor));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
@@ -70,7 +70,7 @@ public class LibraryEditorController extends ProjectController {
     name.addListener((o, ov, v) -> dirty.set(true));
 
     uiStateService.contentModeProperty().addListener((o, ov, v) -> {
-      if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.LibraryEditor))
+      if (Objects.equals(uiStateService.contentModeProperty().get(), ViewContentMode.LibraryEditor))
         setup();
     });
 

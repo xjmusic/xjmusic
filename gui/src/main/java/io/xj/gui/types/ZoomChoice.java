@@ -1,4 +1,4 @@
-package io.xj.gui.modes;
+package io.xj.gui.types;
 
 import io.xj.hub.util.StringUtils;
 

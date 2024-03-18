@@ -2,12 +2,13 @@ package io.xj.gui.services;
 
 import io.xj.gui.controllers.content.common.PopupActionMenuController;
 import io.xj.gui.controllers.content.common.PopupSelectorMenuController;
-import io.xj.gui.modes.ContentMode;
-import io.xj.gui.modes.GridChoice;
-import io.xj.gui.modes.ProgramEditorMode;
-import io.xj.gui.modes.TemplateMode;
-import io.xj.gui.modes.ViewMode;
-import io.xj.gui.modes.ZoomChoice;
+import io.xj.gui.nav.Route;
+import io.xj.gui.types.GridChoice;
+import io.xj.gui.types.ProgramEditorMode;
+import io.xj.gui.types.ViewContentMode;
+import io.xj.gui.types.ViewMode;
+import io.xj.gui.types.ViewTemplateMode;
+import io.xj.gui.types.ZoomChoice;
 import io.xj.gui.utils.LaunchMenuPosition;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
@@ -141,6 +142,20 @@ public interface UIStateService extends ReadyAfterBoot {
   ObjectProperty<ViewMode> viewModeProperty();
 
   /**
+   The current Navigation Route
+
+   @return the current navigation route
+   */
+  ObjectProperty<Route> navRouteProperty();
+
+  /**
+   Navigate to the given route
+
+   @param route to navigate
+   */
+  void navigateTo(Route route);
+
+  /**
    @return Observable property for whether the project is in fabrication view mode
    */
   BooleanBinding isViewModeFabricationProperty();
@@ -153,12 +168,12 @@ public interface UIStateService extends ReadyAfterBoot {
   /**
    @return Observable property for the view content mode
    */
-  ObjectProperty<ContentMode> contentModeProperty();
+  ObjectProperty<ViewContentMode> contentModeProperty();
 
   /**
    @return Observable property for the view template mode
    */
-  ObjectProperty<TemplateMode> templateModeProperty();
+  ObjectProperty<ViewTemplateMode> templateModeProperty();
 
   /**
    Go up a content level in the browser

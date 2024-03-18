@@ -4,8 +4,8 @@ package io.xj.gui.controllers.template;
 
 import io.xj.gui.controllers.BrowserController;
 import io.xj.gui.controllers.CmdModalController;
-import io.xj.gui.modes.TemplateMode;
-import io.xj.gui.modes.ViewMode;
+import io.xj.gui.types.ViewTemplateMode;
+import io.xj.gui.types.ViewMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
@@ -53,7 +53,7 @@ public class TemplateBrowserController extends BrowserController {
   public void onStageReady() {
     var visible = projectService.isStateReadyProperty()
       .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Templates))
-      .and(uiStateService.templateModeProperty().isEqualTo(TemplateMode.TemplateBrowser));
+      .and(uiStateService.templateModeProperty().isEqualTo(ViewTemplateMode.TemplateBrowser));
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
     addColumn(table, 200, "name", "Name");

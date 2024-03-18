@@ -40,10 +40,11 @@ module workstation.gui.main {
   opens io.xj.gui to ch.qos.logback.core, javafx.base, javafx.controls, javafx.fxml, javafx.graphics, spring.beans, spring.context, spring.core;
   opens io.xj.gui.services to ch.qos.logback.core, javafx.base, javafx.controls, javafx.fxml, javafx.graphics, spring.beans, spring.context, spring.core;
   opens io.xj.gui.controllers to javafx.graphics, javafx.base, javafx.fxml, javafx.controls, spring.beans, spring.core;
-  opens io.xj.gui.modes to javafx.base, javafx.controls, javafx.fxml, javafx.graphics, spring.beans, spring.context, spring.core, ch.qos.logback.core;
+  opens io.xj.gui.types to javafx.base, javafx.controls, javafx.fxml, javafx.graphics, spring.beans, spring.context, spring.core, ch.qos.logback.core;
   opens io.xj.gui.services.impl to ch.qos.logback.core, javafx.base, javafx.controls, javafx.fxml, javafx.graphics, spring.beans, spring.context, spring.core;
   opens io.xj.gui.controllers.content to javafx.base, javafx.controls, javafx.fxml, javafx.graphics, spring.beans, spring.core;
   opens io.xj.gui.controllers.template to javafx.base, javafx.controls, javafx.fxml, javafx.graphics, spring.beans, spring.core;
   opens io.xj.gui.controllers.fabrication to javafx.base, javafx.controls, javafx.fxml, javafx.graphics, spring.beans, spring.core;
   opens io.xj.gui.utils to ch.qos.logback.core, javafx.base, javafx.controls, javafx.fxml, javafx.graphics, spring.beans, spring.context, spring.core;
+  opens io.xj.gui.nav to ch.qos.logback.core, javafx.base, javafx.controls, javafx.fxml, javafx.graphics, spring.beans, spring.context, spring.core;
 }
