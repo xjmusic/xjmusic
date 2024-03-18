@@ -3,16 +3,17 @@
 package io.xj.gui.controllers.template;
 
 import io.xj.gui.controllers.BrowserController;
-import io.xj.gui.types.ViewTemplateMode;
-import io.xj.gui.types.ViewMode;
+import io.xj.gui.nav.Route;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.types.ViewTemplateMode;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.util.StringUtils;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleObjectProperty;
@@ -79,9 +80,11 @@ public class TemplateEditorController extends BrowserController {
 
   @Override
   public void onStageReady() {
-    var visible = projectService.isStateReadyProperty()
-      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Templates))
-      .and(uiStateService.templateModeProperty().isEqualTo(ViewTemplateMode.TemplateEditor));
+    var visible = Bindings.createBooleanBinding(
+      () -> projectService.isStateReadyProperty().get()
+        && uiStateService.navStateProperty().get().route() == Route.TemplateEditor,
+      projectService.isStateReadyProperty(),
+      uiStateService.navStateProperty());
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 
@@ -119,7 +122,7 @@ public class TemplateEditorController extends BrowserController {
 
     bindingsTable.setOnMousePressed(
       event -> {
-        if (event.isPrimaryButtonDown() && event.getClickCount()==2) {
+        if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
           Platform.runLater(() -> {
             var binding = bindingsTable.getSelectionModel().getSelectedItem();
             switch (binding.getType()) {

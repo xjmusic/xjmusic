@@ -1,8 +1,8 @@
 package io.xj.gui.nav;
 
-import io.xj.gui.nav.Route;
+import jakarta.annotation.Nullable;
 
 import java.util.UUID;
 
-public record NavState(UUID id, Route route) {
+public record NavState(Route route, @Nullable UUID id) {
 }

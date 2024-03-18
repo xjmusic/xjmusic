@@ -5,6 +5,7 @@ package io.xj.gui.controllers.content.instrument;
 import io.xj.gui.controllers.BrowserController;
 import io.xj.gui.controllers.CmdModalController;
 import io.xj.gui.controllers.content.common.EntityMemesController;
+import io.xj.gui.nav.Route;
 import io.xj.gui.types.ViewContentMode;
 import io.xj.gui.types.ViewMode;
 import io.xj.gui.services.ProjectService;
@@ -131,9 +132,11 @@ public class InstrumentEditorController extends BrowserController {
 
   @Override
   public void onStageReady() {
-    var visible = projectService.isStateReadyProperty()
-      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
-      .and(uiStateService.contentModeProperty().isEqualTo(ViewContentMode.InstrumentEditor));
+    var visible = Bindings.createBooleanBinding(
+      () -> projectService.isStateReadyProperty().get()
+        && uiStateService.navStateProperty().get().route() == Route.InstrumentEditor,
+      projectService.isStateReadyProperty(),
+      uiStateService.navStateProperty());
     uiStateService.contentModeProperty().addListener(onEditInstrument);
     instrumentTypeChooser.setItems(FXCollections.observableArrayList(InstrumentType.values()));
     instrumentModeChooser.setItems(FXCollections.observableArrayList(InstrumentMode.values()));

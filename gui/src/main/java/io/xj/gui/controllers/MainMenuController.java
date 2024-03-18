@@ -5,7 +5,8 @@ package io.xj.gui.controllers;
 import io.xj.gui.ProjectController;
 import io.xj.gui.WorkstationGuiFxApplication;
 import io.xj.gui.controllers.fabrication.FabricationSettingsModalController;
-import io.xj.gui.types.ViewMode;
+import io.xj.gui.nav.NavState;
+import io.xj.gui.nav.Route;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.LabState;
@@ -333,15 +334,15 @@ public class MainMenuController extends ProjectController {
     Toggle toggleTemplates,
     Toggle toggleFabrication
   ) {
-    activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, uiStateService.viewModeProperty().getValue());
-    uiStateService.viewModeProperty().addListener((o, ov, value) -> activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, value));
+    activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, uiStateService.navStateProperty().getValue());
+    uiStateService.navStateProperty().addListener((o, ov, value) -> activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, value));
     toggleGroup.selectedToggleProperty().addListener((o, ov, value) -> {
       if (Objects.equals(value, toggleContent)) {
-        uiStateService.navigateTo(Route.getContentDefault());
+        uiStateService.navigateTo(Route.LibraryBrowser, null);
       } else if (Objects.equals(value, toggleTemplates)) {
-        uiStateService.viewModeProperty().set(ViewMode.Templates);
+        uiStateService.navigateTo(Route.TemplateBrowser, null);
       } else if (Objects.equals(value, toggleFabrication)) {
-        uiStateService.viewModeProperty().set(ViewMode.Fabrication);
+        uiStateService.navigateTo(Route.FabricationTimeline, null);
       }
     });
   }
@@ -352,13 +353,15 @@ public class MainMenuController extends ProjectController {
    @param toggleContent     the content toggle
    @param toggleTemplates   the templates toggle
    @param toggleFabrication the fabrication toggle
-   @param value             the view mode
+   @param route             the view mode
    */
-  private void activateViewModeToggle(Toggle toggleContent, Toggle toggleTemplates, Toggle toggleFabrication, ViewMode value) {
-    switch (value) {
-      case Content -> toggleContent.setSelected(true);
-      case Templates -> toggleTemplates.setSelected(true);
-      case Fabrication -> toggleFabrication.setSelected(true);
+  private void activateViewModeToggle(Toggle toggleContent, Toggle toggleTemplates, Toggle toggleFabrication, Route route) {
+    if (route.isContent()) {
+      toggleContent.setSelected(true);
+    } else if (route.isTemplate()) {
+      toggleTemplates.setSelected(true);
+    } else if (route.isFabrication()) {
+      toggleFabrication.setSelected(true);
     }
   }
 

@@ -2,6 +2,7 @@ package io.xj.gui.services;
 
 import io.xj.gui.controllers.content.common.PopupActionMenuController;
 import io.xj.gui.controllers.content.common.PopupSelectorMenuController;
+import io.xj.gui.nav.NavState;
 import io.xj.gui.nav.Route;
 import io.xj.gui.types.GridChoice;
 import io.xj.gui.types.ProgramEditorMode;
@@ -146,14 +147,20 @@ public interface UIStateService extends ReadyAfterBoot {
 
    @return the current navigation route
    */
-  ObjectProperty<Route> navRouteProperty();
+  ObjectProperty<NavState> navStateProperty();
 
   /**
    Navigate to the given route
 
    @param route to navigate
+   @param id    (optional) of the entity to view at this route
    */
-  void navigateTo(Route route);
+  void navigateTo(Route route, @Nullable UUID id);
+
+  /**
+   Navigate back
+   */
+  void navigateBack();
 
   /**
    @return Observable property for whether the project is in fabrication view mode
@@ -281,11 +288,6 @@ public interface UIStateService extends ReadyAfterBoot {
    @return Observable property for whether the create entity button should be visible
    */
   BooleanBinding isCreateEntityButtonVisibleProperty();
-
-  /**
-   @return observable binding whether we are viewing Library content, either Programs or Instruments
-   */
-  BooleanBinding isLibraryContentBrowserProperty();
 
   /**
    @return observable binding whether Lab features are visible

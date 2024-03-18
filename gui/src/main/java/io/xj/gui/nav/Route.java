@@ -3,13 +3,13 @@ package io.xj.gui.nav;
 import java.util.Set;
 
 public enum Route {
-  ContentInstrumentAudioEditor,
-  ContentInstrumentBrowser,
-  ContentInstrumentEditor,
-  ContentLibraryBrowser,
-  ContentLibraryEditor,
-  ContentProgramBrowser,
-  ContentProgramEditor,
+  InstrumentAudioEditor,
+  InstrumentBrowser,
+  InstrumentEditor,
+  LibraryBrowser,
+  LibraryEditor,
+  ProgramBrowser,
+  ProgramEditor,
   FabricationSegment,
   FabricationTimeline,
   TemplateBrowser,
@@ -19,21 +19,14 @@ public enum Route {
    Set of routes with the main nav 'content'
    */
   private static final Set<Route> contentRoutes = Set.of(
-    ContentInstrumentAudioEditor,
-    ContentInstrumentBrowser,
-    ContentInstrumentEditor,
-    ContentLibraryBrowser,
-    ContentLibraryEditor,
-    ContentProgramBrowser,
-    ContentProgramEditor
+    InstrumentAudioEditor,
+    InstrumentBrowser,
+    InstrumentEditor,
+    LibraryBrowser,
+    LibraryEditor,
+    ProgramBrowser,
+    ProgramEditor
   );
-
-  /**
-   @return the default route
-   */
-  public static Route getDefault() {
-    return ContentLibraryBrowser;
-  }
 
   /**
    @return true if this is a content route
@@ -71,5 +64,4 @@ public enum Route {
   public boolean isTemplate() {
     return templateRoutes.contains(this);
   }
-
 }

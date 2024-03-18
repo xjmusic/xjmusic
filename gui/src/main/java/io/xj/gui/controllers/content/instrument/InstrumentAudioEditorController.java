@@ -3,6 +3,7 @@
 package io.xj.gui.controllers.content.instrument;
 
 import io.xj.gui.controllers.BrowserController;
+import io.xj.gui.nav.Route;
 import io.xj.gui.types.ViewContentMode;
 import io.xj.gui.types.ViewMode;
 import io.xj.gui.services.ProjectService;
@@ -171,9 +172,11 @@ public class InstrumentAudioEditorController extends BrowserController {
 
   @Override
   public void onStageReady() {
-    var visible = projectService.isStateReadyProperty()
-      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
-      .and(uiStateService.contentModeProperty().isEqualTo(ViewContentMode.InstrumentAudioEditor));
+    var visible = Bindings.createBooleanBinding(
+      () -> projectService.isStateReadyProperty().get()
+        && uiStateService.navStateProperty().get().route() == Route.InstrumentAudioEditor,
+      projectService.isStateReadyProperty(),
+      uiStateService.navStateProperty());
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 

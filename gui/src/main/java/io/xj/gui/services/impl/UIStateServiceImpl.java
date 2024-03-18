@@ -3,18 +3,19 @@ package io.xj.gui.services.impl;
 import io.xj.gui.WorkstationLogAppender;
 import io.xj.gui.controllers.content.common.PopupActionMenuController;
 import io.xj.gui.controllers.content.common.PopupSelectorMenuController;
+import io.xj.gui.nav.NavState;
 import io.xj.gui.nav.Route;
-import io.xj.gui.types.ViewContentMode;
-import io.xj.gui.types.GridChoice;
-import io.xj.gui.types.ProgramEditorMode;
-import io.xj.gui.types.ViewTemplateMode;
-import io.xj.gui.types.ViewMode;
-import io.xj.gui.types.ViewStatusMode;
-import io.xj.gui.types.ZoomChoice;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.types.GridChoice;
+import io.xj.gui.types.ProgramEditorMode;
+import io.xj.gui.types.ViewContentMode;
+import io.xj.gui.types.ViewMode;
+import io.xj.gui.types.ViewStatusMode;
+import io.xj.gui.types.ViewTemplateMode;
+import io.xj.gui.types.ZoomChoice;
 import io.xj.gui.utils.LaunchMenuPosition;
 import io.xj.gui.utils.UiUtils;
 import io.xj.hub.tables.pojos.Instrument;
@@ -90,7 +91,8 @@ public class UIStateServiceImpl implements UIStateService {
   );
   private final StringBinding windowTitle;
   private final ObjectProperty<ViewMode> viewMode = new SimpleObjectProperty<>(ViewMode.Content);
-  private final ObjectProperty<Route> navRoute = new SimpleObjectProperty<>(Route.getDefault());
+  private final ObjectProperty<NavState> navRoute = new SimpleObjectProperty<>(new NavState(Route.LibraryBrowser, null));
+  private final ObservableList<NavState> navHistory = FXCollections.observableArrayList();
   private final ObjectProperty<Library> currentLibrary = new SimpleObjectProperty<>(null);
   private final ObjectProperty<Program> currentProgram = new SimpleObjectProperty<>(null);
   private final ObservableList<ProgramSequence> sequencesOfCurrentProgram = FXCollections.observableArrayList();
@@ -118,7 +120,6 @@ public class UIStateServiceImpl implements UIStateService {
   private final StringBinding currentParentName;
   private final StringBinding currentEntityName;
   private final BooleanBinding isCreateEntityButtonVisible;
-  private final BooleanBinding isLibraryContentBrowser;
 
   private final Resource popupSelectorMenuFxml;
   private final Resource popupActionMenuFxml;
@@ -132,6 +133,7 @@ public class UIStateServiceImpl implements UIStateService {
   private final ObjectProperty<ZoomChoice> programEditorZoom = new SimpleObjectProperty<>();
   private final BooleanProperty programEditorSnap = new SimpleBooleanProperty(false);
   private final ObjectProperty<ProgramEditorMode> programEditorMode = new SimpleObjectProperty<>();
+  private final int navHistoryMaxSize;
 
   public UIStateServiceImpl(
     @Value("classpath:/views/content/common/popup-selector-menu.fxml") Resource popupSelectorMenuFxml,
@@ -142,6 +144,7 @@ public class UIStateServiceImpl implements UIStateService {
     @Value("${programEditor.gridChoiceDefault}") Double programEditorGridChoiceDefault,
     @Value("#{'${programEditor.zoomChoices}'.split(',')}") List<Double> programEditorZoomChoices,
     @Value("${programEditor.zoomChoiceDefault}") Double programEditorZoomChoiceDefault,
+    @Value("${navHistory.maxSize}") int navHistoryMaxSize,
     ApplicationContext ac,
     ThemeService themeService,
     FabricationService fabricationService,
@@ -152,6 +155,7 @@ public class UIStateServiceImpl implements UIStateService {
     this.defaultIsLabFeatureEnabled = defaultIsLabFeatureEnabled;
     this.programEditorBaseSizePerBeat = programEditorBaseSizePerBeat;
     this.programEditorGridChoices = FXCollections.observableArrayList(programEditorGridChoices.stream().map(GridChoice::new).toList());
+    this.navHistoryMaxSize = navHistoryMaxSize;
     this.ac = ac;
     this.themeService = themeService;
     programEditorGrid.set(new GridChoice(programEditorGridChoiceDefault));
@@ -209,9 +213,7 @@ public class UIStateServiceImpl implements UIStateService {
 
     projectService.stateProperty().addListener((o, ov, value) -> {
       if (Objects.equals(value, ProjectState.Standby)) {
-        viewMode.set(ViewMode.Content);
-        contentMode.set(ViewContentMode.LibraryBrowser);
-        templateMode.set(ViewTemplateMode.TemplateBrowser);
+        navigateTo(Route.LibraryBrowser, null);
       }
     });
 
@@ -282,15 +284,6 @@ public class UIStateServiceImpl implements UIStateService {
             default -> false;
           },
       viewMode, contentMode, templateMode, projectService.isStateReadyProperty()
-    );
-
-    isLibraryContentBrowser = Bindings.createBooleanBinding(
-      () -> Objects.equals(ViewMode.Content, viewMode.get()) &&
-        switch (contentMode.get()) {
-          case ProgramBrowser, InstrumentBrowser -> true;
-          default -> false;
-        },
-      viewMode, contentMode
     );
 
     ObjectBinding<ViewStatusMode> viewStatusMode = Bindings.createObjectBinding(
@@ -406,13 +399,24 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public ObjectProperty<Route> navRouteProperty() {
+  public ObjectProperty<NavState> navStateProperty() {
     return navRoute;
   }
 
   @Override
-  public void navigateTo(Route route) {
-    // todo navigate to this route
+  public void navigateTo(Route route, @Nullable UUID id) {
+    var state = new NavState(route, id);
+    navRoute.set(state);
+    navHistory.add(state);
+    while (navHistory.size() > navHistoryMaxSize) navHistory.remove(0);
+  }
+
+  @Override
+  public void navigateBack() {
+    if (navHistory.size() > 1) {
+      navHistory.remove(navHistory.size() - 1);
+      navRoute.set(navHistory.get(navHistory.size() - 1));
+    }
   }
 
   @Override
@@ -598,11 +602,6 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public BooleanBinding isCreateEntityButtonVisibleProperty() {
     return isCreateEntityButtonVisible;
-  }
-
-  @Override
-  public BooleanBinding isLibraryContentBrowserProperty() {
-    return isLibraryContentBrowser;
   }
 
   @Override
