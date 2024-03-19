@@ -1,7 +1,7 @@
 package io.xj.gui.controllers.content.program.bind_mode;
 
 import io.xj.gui.ProjectController;
-import io.xj.gui.modes.ProgramEditorMode;
+import io.xj.gui.types.ProgramEditorMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;

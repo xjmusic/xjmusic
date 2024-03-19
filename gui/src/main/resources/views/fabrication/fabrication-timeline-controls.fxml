@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.VBox?>
 <ScrollPane fx:id="container" hbarPolicy="NEVER" styleClass="selection-scroll-pane"
             xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="io.xj.gui.controllers.MainPaneRightController">
+            fx:controller="io.xj.gui.controllers.fabrication.FabricationControlsController">
         <VBox
                 maxWidth="220.0"
                 minWidth="220.0"

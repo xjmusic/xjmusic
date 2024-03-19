@@ -4,12 +4,12 @@ package io.xj.gui.controllers.template;
 
 import io.xj.gui.controllers.BrowserController;
 import io.xj.gui.controllers.CmdModalController;
-import io.xj.gui.modes.TemplateMode;
-import io.xj.gui.modes.ViewMode;
+import io.xj.gui.types.Route;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.hub.tables.pojos.Template;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -51,9 +51,11 @@ public class TemplateBrowserController extends BrowserController {
 
   @Override
   public void onStageReady() {
-    var visible = projectService.isStateReadyProperty()
-      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Templates))
-      .and(uiStateService.templateModeProperty().isEqualTo(TemplateMode.TemplateBrowser));
+    var visible = Bindings.createBooleanBinding(
+      () -> projectService.isStateReadyProperty().get()
+        && uiStateService.navStateProperty().get() == Route.TemplateBrowser,
+      projectService.isStateReadyProperty(),
+      uiStateService.navStateProperty());
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
     addColumn(table, 200, "name", "Name");

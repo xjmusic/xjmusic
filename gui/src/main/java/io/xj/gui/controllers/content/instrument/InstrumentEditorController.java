@@ -5,8 +5,7 @@ package io.xj.gui.controllers.content.instrument;
 import io.xj.gui.controllers.BrowserController;
 import io.xj.gui.controllers.CmdModalController;
 import io.xj.gui.controllers.content.common.EntityMemesController;
-import io.xj.gui.modes.ContentMode;
-import io.xj.gui.modes.ViewMode;
+import io.xj.gui.types.Route;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
@@ -63,9 +62,9 @@ public class InstrumentEditorController extends BrowserController {
   private final StringProperty initialImportAudioDirectory = new SimpleStringProperty();
   private final CmdModalController cmdModalController;
 
-  private final ChangeListener<? super ContentMode> onEditInstrument = (o, ov, v) -> {
+  private final ChangeListener<? super Route> onEditInstrument = (o, ov, v) -> {
     teardown();
-    if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.InstrumentEditor) && uiStateService.currentInstrumentProperty().isNotNull().get())
+    if (Objects.equals(uiStateService.navStateProperty().get(), Route.ContentInstrumentEditor) && uiStateService.currentInstrumentProperty().isNotNull().get())
       setup();
   };
   private final Runnable updateInstrumentName;
@@ -131,10 +130,12 @@ public class InstrumentEditorController extends BrowserController {
 
   @Override
   public void onStageReady() {
-    var visible = projectService.isStateReadyProperty()
-      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
-      .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.InstrumentEditor));
-    uiStateService.contentModeProperty().addListener(onEditInstrument);
+    var visible = Bindings.createBooleanBinding(
+      () -> projectService.isStateReadyProperty().get()
+        && uiStateService.navStateProperty().get() == Route.ContentInstrumentEditor,
+      projectService.isStateReadyProperty(),
+      uiStateService.navStateProperty());
+    uiStateService.navStateProperty().addListener(onEditInstrument);
     instrumentTypeChooser.setItems(FXCollections.observableArrayList(InstrumentType.values()));
     instrumentModeChooser.setItems(FXCollections.observableArrayList(InstrumentMode.values()));
     instrumentStateChooser.setItems(FXCollections.observableArrayList(InstrumentState.values()));
@@ -213,8 +214,8 @@ public class InstrumentEditorController extends BrowserController {
 
     projectService.addProjectUpdateListener(InstrumentAudio.class, this::setupAudiosTable);
 
-    uiStateService.contentModeProperty().addListener((o, ov, v) -> {
-      if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.InstrumentEditor))
+    uiStateService.navStateProperty().addListener((o, ov, v) -> {
+      if (Objects.equals(uiStateService.navStateProperty().get(), Route.ContentInstrumentEditor))
         setup();
     });
   }

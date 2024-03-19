@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.gui.controllers;
+package io.xj.gui.controllers.fabrication;
 
 import io.xj.gui.ProjectController;
 import io.xj.gui.services.FabricationService;
@@ -45,22 +45,21 @@ import java.util.Set;
 import java.util.UUID;
 
 @Service
-public class MainPaneRightController extends ProjectController {
+public class FabricationControlsController extends ProjectController {
   private static final PseudoClass ENGAGED_PSEUDO_CLASS = PseudoClass.getPseudoClass("engaged");
   private final FabricationService fabricationService;
+  private final ObservableMap<String, String> taxonomyCategoryToggleSelections = FXCollections.observableHashMap();
+  private final Set<ToggleGroup> taxonomyToggleGroups = new HashSet<>();
+  private final String sliderTrackColorActive;
+  private final String sliderTrackColorDefault;
 
   @FXML
   ScrollPane container;
 
   @FXML
   VBox controlsContainer;
-  private final ObservableMap<String, String> taxonomyCategoryToggleSelections = FXCollections.observableHashMap();
-  private final Set<ToggleGroup> taxonomyToggleGroups = new HashSet<>();
-  private final String sliderTrackColorActive;
-  private final String sliderTrackColorDefault;
 
-
-  public MainPaneRightController(
+  public FabricationControlsController(
       @Value("classpath:/views/main-pane-right.fxml") Resource fxml,
       @Value("${slider.track.color.active}") String sliderTrackColorActive,
       @Value("${slider.track.color.default}") String sliderTrackColorDefault,
@@ -83,6 +82,11 @@ public class MainPaneRightController extends ProjectController {
 
     // bind a listener to changes in the fabrication service source material
     uiStateService.isManualFabricationActiveProperty().addListener(this::onManualFabricationMode);
+  }
+
+  @Override
+  public void onStageClose() {
+    // no op
   }
 
   /**
@@ -327,10 +331,5 @@ public class MainPaneRightController extends ProjectController {
       trackPane.setStyle(active ?
           String.format("-fx-background-color: linear-gradient(to right, %s %d%%, %s %d%%);", sliderTrackColorActive, (int) slider.getValue(), sliderTrackColorDefault, (int) slider.getValue())
           : "");
-  }
-
-  @Override
-  public void onStageClose() {
-    // no op
   }
 }

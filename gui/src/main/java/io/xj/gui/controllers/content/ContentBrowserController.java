@@ -4,8 +4,7 @@ package io.xj.gui.controllers.content;
 
 import io.xj.gui.controllers.BrowserController;
 import io.xj.gui.controllers.CmdModalController;
-import io.xj.gui.modes.ContentMode;
-import io.xj.gui.modes.ViewMode;
+import io.xj.gui.types.Route;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
@@ -13,6 +12,7 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import jakarta.annotation.Nullable;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -27,10 +27,16 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Set;
 
 @Service
 public class ContentBrowserController extends BrowserController {
   static final Logger LOG = LoggerFactory.getLogger(ContentBrowserController.class);
+  static final Set<Route> CONTENT_BROWSER_ROUTES = Set.of(
+    Route.ContentLibraryBrowser,
+    Route.ContentProgramBrowser,
+    Route.ContentInstrumentBrowser
+  );
   private final CmdModalController cmdModalController;
   private final ObservableList<Library> libraries = FXCollections.observableList(new ArrayList<>());
   private final ObservableList<Program> programs = FXCollections.observableList(new ArrayList<>());
@@ -66,24 +72,26 @@ public class ContentBrowserController extends BrowserController {
     initPrograms();
     initInstruments();
 
-    var isLibraryBrowser = uiStateService.contentModeProperty().isEqualTo(ContentMode.LibraryBrowser);
+    var isLibraryBrowser = uiStateService.navStateProperty().isEqualTo(Route.ContentLibraryBrowser);
     librariesTable.visibleProperty().bind(isLibraryBrowser);
     librariesTable.managedProperty().bind(isLibraryBrowser);
 
-    var isProgramBrowser = uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramBrowser);
+    var isProgramBrowser = uiStateService.navStateProperty().isEqualTo(Route.ContentProgramBrowser);
     programsTable.visibleProperty().bind(isProgramBrowser);
     programsTable.managedProperty().bind(isProgramBrowser);
 
-    var isInstrumentBrowser = uiStateService.contentModeProperty().isEqualTo(ContentMode.InstrumentBrowser);
+    var isInstrumentBrowser = uiStateService.navStateProperty().isEqualTo(Route.ContentInstrumentBrowser);
     instrumentsTable.visibleProperty().bind(isInstrumentBrowser);
     instrumentsTable.managedProperty().bind(isInstrumentBrowser);
 
-    var visible = projectService.isStateReadyProperty()
-      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
-      .and(
-        uiStateService.contentModeProperty().isEqualTo(ContentMode.LibraryBrowser)
-          .or(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramBrowser))
-          .or(uiStateService.contentModeProperty().isEqualTo(ContentMode.InstrumentBrowser)));
+    var visible = Bindings.createBooleanBinding(
+      () -> projectService.isStateReadyProperty().get() && (
+        CONTENT_BROWSER_ROUTES.contains(uiStateService.navStateProperty().get())
+      ),
+      projectService.isStateReadyProperty(),
+      uiStateService.navStateProperty()
+    );
+
     container.visibleProperty().bind(visible);
     container.managedProperty().bind(visible);
 

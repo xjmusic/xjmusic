@@ -3,7 +3,8 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.ProjectController;
-import io.xj.gui.controllers.fabrication.FabricationSettingsModalController;
+import io.xj.gui.controllers.fabrication.FabricationTimelineSettingsModalController;
+import io.xj.gui.types.Route;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
@@ -30,8 +31,6 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 import java.util.Set;
 
-import static io.xj.gui.modes.ContentMode.InstrumentBrowser;
-import static io.xj.gui.modes.ContentMode.ProgramBrowser;
 import static io.xj.gui.services.UIStateService.ACTIVE_PSEUDO_CLASS;
 import static io.xj.gui.services.UIStateService.FAILED_PSEUDO_CLASS;
 import static io.xj.gui.services.UIStateService.PENDING_PSEUDO_CLASS;
@@ -39,14 +38,14 @@ import static io.xj.gui.services.UIStateService.PENDING_PSEUDO_CLASS;
 @Service
 public class MainPaneTopController extends ProjectController {
   private static final Set<FabricationState> WORK_PENDING_STATES = Set.of(
-      FabricationState.Initializing,
-      FabricationState.PreparedAudio,
-      FabricationState.PreparingAudio,
-      FabricationState.Starting
+    FabricationState.Initializing,
+    FabricationState.PreparedAudio,
+    FabricationState.PreparingAudio,
+    FabricationState.Starting
   );
   private final CmdModalController cmdModalController;
   private final FabricationService fabricationService;
-  private final FabricationSettingsModalController fabricationSettingsModalController;
+  private final FabricationTimelineSettingsModalController fabricationTimelineSettingsModalController;
   private final StringBinding createEntityButtonText;
 
   @FXML
@@ -91,50 +90,51 @@ public class MainPaneTopController extends ProjectController {
   ToggleGroup browserLibraryContentSelectionToggle;
 
   public MainPaneTopController(
-      @Value("classpath:/views/main-pane-top.fxml") Resource fxml,
-      ApplicationContext ac,
-      ThemeService themeService,
-      FabricationService fabricationService,
-      FabricationSettingsModalController fabricationSettingsModalController,
-      CmdModalController cmdModalController,
-      ProjectService projectService,
-      UIStateService uiStateService
+    @Value("classpath:/views/main-pane-top.fxml") Resource fxml,
+    ApplicationContext ac,
+    ThemeService themeService,
+    FabricationService fabricationService,
+    FabricationTimelineSettingsModalController fabricationTimelineSettingsModalController,
+    CmdModalController cmdModalController,
+    ProjectService projectService,
+    UIStateService uiStateService
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.fabricationService = fabricationService;
-    this.fabricationSettingsModalController = fabricationSettingsModalController;
+    this.fabricationTimelineSettingsModalController = fabricationTimelineSettingsModalController;
     this.cmdModalController = cmdModalController;
 
-    uiStateService.contentModeProperty().addListener((o, ov, v) -> {
-      if (Objects.equals(v, ProgramBrowser)) {
+    uiStateService.navStateProperty().addListener((o, ov, v) -> {
+      if (Objects.equals(v, Route.ContentProgramBrowser)) {
         browserLibraryContentSelectionToggle.selectToggle(browserLibraryContentProgramsButton);
-      } else if (Objects.equals(v, InstrumentBrowser)) {
+      } else if (Objects.equals(v, Route.ContentInstrumentBrowser)) {
         browserLibraryContentSelectionToggle.selectToggle(browserLibraryContentInstrumentsButton);
       }
     });
 
     createEntityButtonText = Bindings.createStringBinding(
-        () -> switch (uiStateService.viewModeProperty().get()) {
-          case Content -> switch (uiStateService.contentModeProperty().get()) {
-            case LibraryBrowser -> "New Library";
-            case ProgramBrowser -> "New Program";
-            case InstrumentBrowser -> "New Instrument";
-            default -> "";
-          };
-          case Templates -> "New Template";
-          default -> "";
-        },
-        uiStateService.viewModeProperty(), uiStateService.contentModeProperty()
+      () -> switch (uiStateService.navStateProperty().get()) {
+        case ContentLibraryBrowser -> "New Library";
+        case ContentProgramBrowser -> "New Program";
+        case ContentInstrumentBrowser -> "New Instrument";
+        case TemplateBrowser, TemplateEditor -> "New Template";
+        default -> "";
+      },
+      uiStateService.navStateProperty()
     );
   }
 
   @Override
   public void onStageReady() {
+    var isViewModeFabrication = Bindings.createBooleanBinding(
+      () -> uiStateService.navStateProperty().get().isFabrication(),
+      uiStateService.navStateProperty()
+    );
     fabricationActionButton.disableProperty().bind(uiStateService.isMainActionButtonDisabledProperty());
     fabricationActionButton.textProperty().bind(fabricationService.mainActionButtonTextProperty());
     fabricationButtonShowSettings.disableProperty().bind(uiStateService.isFabricationSettingsDisabledProperty());
-    fabricationControlContainer.managedProperty().bind(uiStateService.isViewModeFabricationProperty());
-    fabricationControlContainer.visibleProperty().bind(uiStateService.isViewModeFabricationProperty());
+    fabricationControlContainer.managedProperty().bind(isViewModeFabrication);
+    fabricationControlContainer.visibleProperty().bind(isViewModeFabrication);
     fabricationService.stateProperty().addListener((o, ov, value) -> activateFabricationState(value));
     fabricationToggleFollowButton.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
 
@@ -148,7 +148,11 @@ public class MainPaneTopController extends ProjectController {
     progressLabel.textProperty().bind(uiStateService.stateTextProperty());
     progressLabel.visibleProperty().bind(uiStateService.isProgressBarVisibleProperty());
 
-    var browserSeparatorVisible = uiStateService.isViewingEntityProperty().or(uiStateService.isLibraryContentBrowserProperty());
+    var isProgramOrInstrumentBrowser = Bindings.createBooleanBinding(
+      () -> uiStateService.navStateProperty().get() == Route.ContentProgramBrowser
+        || uiStateService.navStateProperty().get() == Route.ContentInstrumentBrowser,
+      uiStateService.navStateProperty());
+    var browserSeparatorVisible = uiStateService.isViewingEntityProperty().or(isProgramOrInstrumentBrowser);
     browserButtonUpContentLevel.managedProperty().bind(uiStateService.isContentLevelUpPossibleProperty());
     browserButtonUpContentLevel.visibleProperty().bind(uiStateService.isContentLevelUpPossibleProperty());
     browserControlContainer.visibleProperty().bind(uiStateService.isViewContentNavigationStatusModeProperty());
@@ -161,13 +165,13 @@ public class MainPaneTopController extends ProjectController {
     browserLabelViewingParent.visibleProperty().bind(projectService.isStateReadyProperty());
     browserLabelViewingSeparator.managedProperty().bind(browserSeparatorVisible);
     browserLabelViewingSeparator.visibleProperty().bind(browserSeparatorVisible);
-    browserLibraryContentSelectionContainer.visibleProperty().bind(uiStateService.isLibraryContentBrowserProperty());
+    browserLibraryContentSelectionContainer.visibleProperty().bind(isProgramOrInstrumentBrowser);
     browserStatusContainer.visibleProperty().bind(uiStateService.isViewContentNavigationStatusModeProperty());
     browserLibraryContentSelectionToggle.selectedToggleProperty().addListener((o, ov, v) -> {
       if (Objects.equals(v, browserLibraryContentProgramsButton)) {
-        Platform.runLater(() -> uiStateService.contentModeProperty().set(ProgramBrowser));
+        Platform.runLater(() -> uiStateService.navigateTo(Route.ContentProgramBrowser));
       } else if (Objects.equals(v, browserLibraryContentInstrumentsButton)) {
-        Platform.runLater(() -> uiStateService.contentModeProperty().set(InstrumentBrowser));
+        Platform.runLater(() -> uiStateService.navigateTo(Route.ContentInstrumentBrowser));
       }
     });
   }
@@ -197,20 +201,19 @@ public class MainPaneTopController extends ProjectController {
 
   @FXML
   void fabricationPressedShowSettings(ActionEvent ignored) {
-    fabricationSettingsModalController.launchModal();
+    fabricationTimelineSettingsModalController.launchModal();
   }
 
   @FXML
   private void browserPressedCreateEntity(ActionEvent ignored) {
-    switch (uiStateService.viewModeProperty().get()) {
-      case Content -> {
-        switch (uiStateService.contentModeProperty().get()) {
-          case LibraryBrowser -> cmdModalController.createLibrary();
-          case ProgramBrowser -> cmdModalController.createProgram(uiStateService.currentLibraryProperty().get());
-          case InstrumentBrowser -> cmdModalController.createInstrument(uiStateService.currentLibraryProperty().get());
-        }
+    switch (uiStateService.navStateProperty().get()) {
+      case ContentLibraryBrowser -> cmdModalController.createLibrary();
+      case ContentProgramBrowser -> cmdModalController.createProgram(uiStateService.currentLibraryProperty().get());
+      case ContentInstrumentBrowser -> cmdModalController.createInstrument(uiStateService.currentLibraryProperty().get());
+      case TemplateBrowser -> cmdModalController.createTemplate();
+      default -> {
+        /* no op */
       }
-      case Templates -> cmdModalController.createTemplate();
     }
   }
 

@@ -10,14 +10,13 @@ import io.xj.gui.controllers.content.common.PopupSelectorMenuController;
 import io.xj.gui.controllers.content.program.bind_mode.BindModeController;
 import io.xj.gui.controllers.content.program.chord_edit_mode.ChordEditModeController;
 import io.xj.gui.controllers.content.program.event_edit_mode.EventEditModeController;
-import io.xj.gui.modes.ContentMode;
-import io.xj.gui.modes.GridChoice;
-import io.xj.gui.modes.ProgramEditorMode;
-import io.xj.gui.modes.ViewMode;
-import io.xj.gui.modes.ZoomChoice;
+import io.xj.gui.types.Route;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.types.GridChoice;
+import io.xj.gui.types.ProgramEditorMode;
+import io.xj.gui.types.ZoomChoice;
 import io.xj.gui.utils.LaunchMenuPosition;
 import io.xj.gui.utils.UiUtils;
 import io.xj.hub.enums.ProgramState;
@@ -70,9 +69,9 @@ public class ProgramEditorController extends ProjectController {
   private final EventEditModeController editEventController;
   private final ChordEditModeController editChordController;
   private final BindModeController bindController;
-  private final ChangeListener<? super ContentMode> onEditProgram = (o, ov, v) -> {
+  private final ChangeListener<? super Route> onEditProgram = (o, ov, v) -> {
     teardown();
-    if (Objects.equals(uiStateService.contentModeProperty().get(), ContentMode.ProgramEditor) && uiStateService.currentProgramProperty().isNotNull().get())
+    if (Objects.equals(uiStateService.navStateProperty().get(), Route.ContentProgramEditor) && uiStateService.currentProgramProperty().isNotNull().get())
       setup(uiStateService.currentProgramProperty().get().getId());
   };
   private final Runnable updateProgramName;
@@ -225,10 +224,12 @@ public class ProgramEditorController extends ProjectController {
     editEventController.onStageReady();
     editChordController.onStageReady();
 
-    var visible = projectService.isStateReadyProperty()
-      .and(uiStateService.viewModeProperty().isEqualTo(ViewMode.Content))
-      .and(uiStateService.contentModeProperty().isEqualTo(ContentMode.ProgramEditor));
-    uiStateService.contentModeProperty().addListener(onEditProgram);
+    var visible = Bindings.createBooleanBinding(
+      () -> projectService.isStateReadyProperty().get()
+        && uiStateService.navStateProperty().get() == Route.ContentProgramEditor,
+      projectService.isStateReadyProperty(),
+      uiStateService.navStateProperty());
+    uiStateService.navStateProperty().addListener(onEditProgram);
     programTypeChooser.setItems(FXCollections.observableArrayList(ProgramType.values()));
     programStateChooser.setItems(FXCollections.observableArrayList(ProgramState.values()));
     gridChooser.valueProperty().bindBidirectional(uiStateService.programEditorGridProperty());

@@ -6,9 +6,9 @@ import io.xj.gui.ProjectController;
 import io.xj.gui.controllers.content.ContentBrowserController;
 import io.xj.gui.controllers.content.LibraryEditorController;
 import io.xj.gui.controllers.content.instrument.InstrumentAudioEditorController;
-import io.xj.gui.controllers.content.program.ProgramEditorController;
 import io.xj.gui.controllers.content.instrument.InstrumentEditorController;
-import io.xj.gui.controllers.fabrication.FabricationController;
+import io.xj.gui.controllers.content.program.ProgramEditorController;
+import io.xj.gui.controllers.fabrication.FabricationTimelineController;
 import io.xj.gui.controllers.template.TemplateBrowserController;
 import io.xj.gui.controllers.template.TemplateEditorController;
 import io.xj.gui.services.ProjectService;
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MainController extends ProjectController {
   static final Logger LOG = LoggerFactory.getLogger(MainController.class);
-  private final FabricationController fabricationController;
+  private final FabricationTimelineController fabricationTimelineController;
   private final MainMenuController mainMenuController;
   private final MainPaneBottomController mainPaneBottomController;
   private final MainPaneTopController mainPaneTopController;
@@ -47,7 +47,7 @@ public class MainController extends ProjectController {
     ApplicationContext ac,
     ThemeService themeService,
     ContentBrowserController contentBrowserController,
-    FabricationController fabricationController,
+    FabricationTimelineController fabricationTimelineController,
     InstrumentEditorController instrumentEditorController,
     LibraryEditorController libraryEditorController,
     MainMenuController mainMenuController,
@@ -62,7 +62,7 @@ public class MainController extends ProjectController {
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.contentBrowserController = contentBrowserController;
-    this.fabricationController = fabricationController;
+    this.fabricationTimelineController = fabricationTimelineController;
     this.instrumentEditorController = instrumentEditorController;
     this.libraryEditorController = libraryEditorController;
     this.mainMenuController = mainMenuController;
@@ -78,7 +78,7 @@ public class MainController extends ProjectController {
   public void onStageReady() {
     try {
       contentBrowserController.onStageReady();
-      fabricationController.onStageReady();
+      fabricationTimelineController.onStageReady();
       instrumentEditorController.onStageReady();
       instrumentAudioEditorController.onStageReady();
       libraryEditorController.onStageReady();
@@ -101,7 +101,7 @@ public class MainController extends ProjectController {
   @Override
   public void onStageClose() {
     contentBrowserController.onStageClose();
-    fabricationController.onStageClose();
+    fabricationTimelineController.onStageClose();
     instrumentEditorController.onStageClose();
     instrumentAudioEditorController.onStageClose();
     libraryEditorController.onStageClose();

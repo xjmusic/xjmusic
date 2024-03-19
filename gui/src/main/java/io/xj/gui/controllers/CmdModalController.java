@@ -3,8 +3,8 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.ProjectModalController;
-import io.xj.gui.modes.CmdMode;
-import io.xj.gui.modes.CmdType;
+import io.xj.gui.types.CmdMode;
+import io.xj.gui.types.CmdType;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;

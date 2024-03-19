@@ -1,8 +1,8 @@
 package io.xj.gui.controllers.content.program.event_edit_mode;
 
 import io.xj.gui.controllers.content.common.PopupActionMenuController;
-import io.xj.gui.modes.GridChoice;
-import io.xj.gui.modes.ZoomChoice;
+import io.xj.gui.types.GridChoice;
+import io.xj.gui.types.ZoomChoice;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.UiUtils;

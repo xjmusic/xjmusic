@@ -4,8 +4,7 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.ProjectController;
 import io.xj.gui.WorkstationGuiFxApplication;
-import io.xj.gui.controllers.fabrication.FabricationSettingsModalController;
-import io.xj.gui.modes.ViewMode;
+import io.xj.gui.controllers.fabrication.FabricationTimelineSettingsModalController;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.LabState;
@@ -14,6 +13,7 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.SupportService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.types.Route;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.gui.utils.UiUtils;
 import io.xj.nexus.work.FabricationState;
@@ -60,7 +60,7 @@ public class MainMenuController extends ProjectController {
   private final LabService labService;
   private final ProjectCreationModalController projectCreationModalController;
   private final UIStateService guiService;
-  private final FabricationSettingsModalController fabricationSettingsModalController;
+  private final FabricationTimelineSettingsModalController fabricationTimelineSettingsModalController;
   private final MainAboutModalController mainAboutModalController;
   private final MainLabAuthenticationModalController mainLabAuthenticationModalController;
 
@@ -147,7 +147,7 @@ public class MainMenuController extends ProjectController {
     ApplicationContext ac,
     ThemeService themeService,
     FabricationService fabricationService,
-    FabricationSettingsModalController fabricationSettingsModalController,
+    FabricationTimelineSettingsModalController fabricationTimelineSettingsModalController,
     SupportService supportService,
     LabService labService,
     MainAboutModalController mainAboutModalController,
@@ -159,7 +159,7 @@ public class MainMenuController extends ProjectController {
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.fabricationService = fabricationService;
-    this.fabricationSettingsModalController = fabricationSettingsModalController;
+    this.fabricationTimelineSettingsModalController = fabricationTimelineSettingsModalController;
     this.projectCreationModalController = projectCreationModalController;
     this.guiService = guiService;
     this.supportService = supportService;
@@ -254,6 +254,16 @@ public class MainMenuController extends ProjectController {
   }
 
   @FXML
+  void handleNavigateBack() {
+    uiStateService.navigateBack();
+  }
+
+  @FXML
+  void handleNavigateForward() {
+    uiStateService.navigateForward();
+  }
+
+  @FXML
   void handleProjectNew() {
     projectCreationModalController.setMode(ProjectCreationMode.NEW_PROJECT);
     projectCreationModalController.launchModal();
@@ -301,7 +311,7 @@ public class MainMenuController extends ProjectController {
 
   @FXML
   void handleOpenFabricationSettings() {
-    fabricationSettingsModalController.launchModal();
+    fabricationTimelineSettingsModalController.launchModal();
   }
 
   @FXML
@@ -333,15 +343,18 @@ public class MainMenuController extends ProjectController {
     Toggle toggleTemplates,
     Toggle toggleFabrication
   ) {
-    activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, uiStateService.viewModeProperty().getValue());
-    uiStateService.viewModeProperty().addListener((o, ov, value) -> activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, value));
+    activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, uiStateService.navStateProperty().getValue());
+    uiStateService.navStateProperty().addListener((o, ov, value) -> activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, value));
     toggleGroup.selectedToggleProperty().addListener((o, ov, value) -> {
       if (Objects.equals(value, toggleContent)) {
-        uiStateService.viewModeProperty().set(ViewMode.Content);
+        if (!uiStateService.navStateProperty().get().isContent())
+          uiStateService.navigateTo(Route.ContentLibraryBrowser);
       } else if (Objects.equals(value, toggleTemplates)) {
-        uiStateService.viewModeProperty().set(ViewMode.Templates);
+        if (!uiStateService.navStateProperty().get().isTemplate())
+          uiStateService.navigateTo(Route.TemplateBrowser);
       } else if (Objects.equals(value, toggleFabrication)) {
-        uiStateService.viewModeProperty().set(ViewMode.Fabrication);
+        if (!uiStateService.navStateProperty().get().isFabrication())
+          uiStateService.navigateTo(Route.FabricationTimeline);
       }
     });
   }
@@ -352,13 +365,15 @@ public class MainMenuController extends ProjectController {
    @param toggleContent     the content toggle
    @param toggleTemplates   the templates toggle
    @param toggleFabrication the fabrication toggle
-   @param value             the view mode
+   @param route             the view mode
    */
-  private void activateViewModeToggle(Toggle toggleContent, Toggle toggleTemplates, Toggle toggleFabrication, ViewMode value) {
-    switch (value) {
-      case Content -> toggleContent.setSelected(true);
-      case Templates -> toggleTemplates.setSelected(true);
-      case Fabrication -> toggleFabrication.setSelected(true);
+  private void activateViewModeToggle(Toggle toggleContent, Toggle toggleTemplates, Toggle toggleFabrication, Route route) {
+    if (route.isContent()) {
+      toggleContent.setSelected(true);
+    } else if (route.isTemplate()) {
+      toggleTemplates.setSelected(true);
+    } else if (route.isFabrication()) {
+      toggleFabrication.setSelected(true);
     }
   }
 

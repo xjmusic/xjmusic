@@ -2,12 +2,10 @@ package io.xj.gui.services;
 
 import io.xj.gui.controllers.content.common.PopupActionMenuController;
 import io.xj.gui.controllers.content.common.PopupSelectorMenuController;
-import io.xj.gui.modes.ContentMode;
-import io.xj.gui.modes.GridChoice;
-import io.xj.gui.modes.ProgramEditorMode;
-import io.xj.gui.modes.TemplateMode;
-import io.xj.gui.modes.ViewMode;
-import io.xj.gui.modes.ZoomChoice;
+import io.xj.gui.types.Route;
+import io.xj.gui.types.GridChoice;
+import io.xj.gui.types.ProgramEditorMode;
+import io.xj.gui.types.ZoomChoice;
 import io.xj.gui.utils.LaunchMenuPosition;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
@@ -134,31 +132,31 @@ public interface UIStateService extends ReadyAfterBoot {
   BooleanBinding isMainActionButtonDisabledProperty();
 
   /**
-   The View Mode
+   The current Navigation Route
 
-   @return the project view mode
+   @return the current navigation route
    */
-  ObjectProperty<ViewMode> viewModeProperty();
+  ObjectProperty<Route> navStateProperty();
 
   /**
-   @return Observable property for whether the project is in fabrication view mode
+   Navigate to the given route@param route to navigate
    */
-  BooleanBinding isViewModeFabricationProperty();
+  void navigateTo(Route route);
+
+  /**
+   Navigate back
+   */
+  void navigateBack();
+
+  /**
+   Navigate back
+   */
+  void navigateForward();
 
   /**
    @return the window title
    */
   ObservableStringValue windowTitleProperty();
-
-  /**
-   @return Observable property for the view content mode
-   */
-  ObjectProperty<ContentMode> contentModeProperty();
-
-  /**
-   @return Observable property for the view template mode
-   */
-  ObjectProperty<TemplateMode> templateModeProperty();
 
   /**
    Go up a content level in the browser
@@ -266,11 +264,6 @@ public interface UIStateService extends ReadyAfterBoot {
    @return Observable property for whether the create entity button should be visible
    */
   BooleanBinding isCreateEntityButtonVisibleProperty();
-
-  /**
-   @return observable binding whether we are viewing Library content, either Programs or Instruments
-   */
-  BooleanBinding isLibraryContentBrowserProperty();
 
   /**
    @return observable binding whether Lab features are visible
