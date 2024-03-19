@@ -5,7 +5,6 @@ package io.xj.gui.controllers;
 import io.xj.gui.ProjectController;
 import io.xj.gui.WorkstationGuiFxApplication;
 import io.xj.gui.controllers.fabrication.FabricationTimelineSettingsModalController;
-import io.xj.gui.types.Route;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.LabState;
@@ -14,6 +13,7 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.SupportService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.types.Route;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.gui.utils.UiUtils;
 import io.xj.nexus.work.FabricationState;
@@ -347,11 +347,14 @@ public class MainMenuController extends ProjectController {
     uiStateService.navStateProperty().addListener((o, ov, value) -> activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, value));
     toggleGroup.selectedToggleProperty().addListener((o, ov, value) -> {
       if (Objects.equals(value, toggleContent)) {
-        uiStateService.navigateTo(Route.ContentLibraryBrowser);
+        if (!uiStateService.navStateProperty().get().isContent())
+          uiStateService.navigateTo(Route.ContentLibraryBrowser);
       } else if (Objects.equals(value, toggleTemplates)) {
-        uiStateService.navigateTo(Route.TemplateBrowser);
+        if (!uiStateService.navStateProperty().get().isTemplate())
+          uiStateService.navigateTo(Route.TemplateBrowser);
       } else if (Objects.equals(value, toggleFabrication)) {
-        uiStateService.navigateTo(Route.FabricationTimeline);
+        if (!uiStateService.navStateProperty().get().isFabrication())
+          uiStateService.navigateTo(Route.FabricationTimeline);
       }
     });
   }
