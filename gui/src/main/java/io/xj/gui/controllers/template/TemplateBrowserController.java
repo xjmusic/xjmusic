@@ -4,7 +4,7 @@ package io.xj.gui.controllers.template;
 
 import io.xj.gui.controllers.BrowserController;
 import io.xj.gui.controllers.CmdModalController;
-import io.xj.gui.nav.Route;
+import io.xj.gui.types.Route;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
@@ -53,7 +53,7 @@ public class TemplateBrowserController extends BrowserController {
   public void onStageReady() {
     var visible = Bindings.createBooleanBinding(
       () -> projectService.isStateReadyProperty().get()
-        && uiStateService.navStateProperty().get().route() == Route.TemplateBrowser,
+        && uiStateService.navStateProperty().get() == Route.TemplateBrowser,
       projectService.isStateReadyProperty(),
       uiStateService.navStateProperty());
     container.visibleProperty().bind(visible);

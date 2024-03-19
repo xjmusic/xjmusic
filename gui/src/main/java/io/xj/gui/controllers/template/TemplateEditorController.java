@@ -3,11 +3,10 @@
 package io.xj.gui.controllers.template;
 
 import io.xj.gui.controllers.BrowserController;
-import io.xj.gui.nav.Route;
+import io.xj.gui.types.Route;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.gui.types.ViewTemplateMode;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
@@ -82,7 +81,7 @@ public class TemplateEditorController extends BrowserController {
   public void onStageReady() {
     var visible = Bindings.createBooleanBinding(
       () -> projectService.isStateReadyProperty().get()
-        && uiStateService.navStateProperty().get().route() == Route.TemplateEditor,
+        && uiStateService.navStateProperty().get() == Route.TemplateEditor,
       projectService.isStateReadyProperty(),
       uiStateService.navStateProperty());
     container.visibleProperty().bind(visible);
@@ -145,8 +144,8 @@ public class TemplateEditorController extends BrowserController {
 
     projectService.addProjectUpdateListener(TemplateBinding.class, this::updateBindings);
 
-    uiStateService.templateModeProperty().addListener((o, ov, v) -> {
-      if (Objects.equals(uiStateService.templateModeProperty().get(), ViewTemplateMode.TemplateEditor))
+    uiStateService.navStateProperty().addListener((o, ov, v) -> {
+      if (Objects.equals(uiStateService.navStateProperty().get(), Route.TemplateEditor))
         update();
     });
   }

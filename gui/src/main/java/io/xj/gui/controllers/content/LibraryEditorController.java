@@ -3,11 +3,10 @@
 package io.xj.gui.controllers.content;
 
 import io.xj.gui.ProjectController;
-import io.xj.gui.nav.Route;
+import io.xj.gui.types.Route;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.gui.types.ViewContentMode;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -62,7 +61,7 @@ public class LibraryEditorController extends ProjectController {
   public void onStageReady() {
     var visible = Bindings.createBooleanBinding(
       () -> projectService.isStateReadyProperty().get()
-        && uiStateService.navStateProperty().get().route() == Route.ContentLibraryEditor,
+        && uiStateService.navStateProperty().get() == Route.ContentLibraryEditor,
       projectService.isStateReadyProperty(),
       uiStateService.navStateProperty());
     container.visibleProperty().bind(visible);
@@ -72,8 +71,8 @@ public class LibraryEditorController extends ProjectController {
 
     name.addListener((o, ov, v) -> dirty.set(true));
 
-    uiStateService.contentModeProperty().addListener((o, ov, v) -> {
-      if (Objects.equals(uiStateService.contentModeProperty().get(), ViewContentMode.LibraryEditor))
+    uiStateService.navStateProperty().addListener((o, ov, v) -> {
+      if (Objects.equals(uiStateService.navStateProperty().get(), Route.ContentLibraryEditor))
         setup();
     });
 

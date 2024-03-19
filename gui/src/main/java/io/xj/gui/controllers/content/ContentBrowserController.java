@@ -4,11 +4,10 @@ package io.xj.gui.controllers.content;
 
 import io.xj.gui.controllers.BrowserController;
 import io.xj.gui.controllers.CmdModalController;
-import io.xj.gui.nav.Route;
+import io.xj.gui.types.Route;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.gui.types.ViewContentMode;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
@@ -73,21 +72,21 @@ public class ContentBrowserController extends BrowserController {
     initPrograms();
     initInstruments();
 
-    var isLibraryBrowser = uiStateService.contentModeProperty().isEqualTo(ViewContentMode.LibraryBrowser);
+    var isLibraryBrowser = uiStateService.navStateProperty().isEqualTo(Route.ContentLibraryBrowser);
     librariesTable.visibleProperty().bind(isLibraryBrowser);
     librariesTable.managedProperty().bind(isLibraryBrowser);
 
-    var isProgramBrowser = uiStateService.contentModeProperty().isEqualTo(ViewContentMode.ProgramBrowser);
+    var isProgramBrowser = uiStateService.navStateProperty().isEqualTo(Route.ContentProgramBrowser);
     programsTable.visibleProperty().bind(isProgramBrowser);
     programsTable.managedProperty().bind(isProgramBrowser);
 
-    var isInstrumentBrowser = uiStateService.contentModeProperty().isEqualTo(ViewContentMode.InstrumentBrowser);
+    var isInstrumentBrowser = uiStateService.navStateProperty().isEqualTo(Route.ContentInstrumentBrowser);
     instrumentsTable.visibleProperty().bind(isInstrumentBrowser);
     instrumentsTable.managedProperty().bind(isInstrumentBrowser);
 
     var visible = Bindings.createBooleanBinding(
       () -> projectService.isStateReadyProperty().get() && (
-        CONTENT_BROWSER_ROUTES.contains(uiStateService.navStateProperty().get().route())
+        CONTENT_BROWSER_ROUTES.contains(uiStateService.navStateProperty().get())
       ),
       projectService.isStateReadyProperty(),
       uiStateService.navStateProperty()

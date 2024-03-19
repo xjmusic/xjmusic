@@ -1,4 +1,4 @@
-package io.xj.gui.nav;
+package io.xj.gui.types;
 
 import java.util.Collection;
 import java.util.Set;
@@ -43,7 +43,18 @@ public enum Route {
   );
 
   /**
-   Set of routes with the main nav 'content'
+   Set of routes which are an editor
+   */
+  private static final Collection<Route> routesEditor = Set.of(
+    ContentLibraryEditor,
+    ContentProgramEditor,
+    ContentInstrumentEditor,
+    ContentInstrumentAudioEditor,
+    TemplateEditor
+  );
+
+  /**
+   Set of routes which are a browser
    */
   private static final Collection<Route> routesBrowser = Set.of(
     ContentInstrumentBrowser,
@@ -80,6 +91,13 @@ public enum Route {
    */
   public boolean isContent() {
     return routesContent.contains(this);
+  }
+
+  /**
+   @return true if this is a editor route
+   */
+  public boolean isEditor() {
+    return routesEditor.contains(this);
   }
 
   /**

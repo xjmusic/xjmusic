@@ -2,12 +2,9 @@ package io.xj.gui.services;
 
 import io.xj.gui.controllers.content.common.PopupActionMenuController;
 import io.xj.gui.controllers.content.common.PopupSelectorMenuController;
-import io.xj.gui.nav.NavState;
-import io.xj.gui.nav.Route;
+import io.xj.gui.types.Route;
 import io.xj.gui.types.GridChoice;
 import io.xj.gui.types.ProgramEditorMode;
-import io.xj.gui.types.ViewContentMode;
-import io.xj.gui.types.ViewTemplateMode;
 import io.xj.gui.types.ZoomChoice;
 import io.xj.gui.utils.LaunchMenuPosition;
 import io.xj.hub.tables.pojos.Instrument;
@@ -139,15 +136,12 @@ public interface UIStateService extends ReadyAfterBoot {
 
    @return the current navigation route
    */
-  ObjectProperty<NavState> navStateProperty();
+  ObjectProperty<Route> navStateProperty();
 
   /**
-   Navigate to the given route
-
-   @param route to navigate
-   @param id    (optional) of the entity to view at this route
+   Navigate to the given route@param route to navigate
    */
-  void navigateTo(Route route, @Nullable UUID id);
+  void navigateTo(Route route);
 
   /**
    Navigate back
@@ -155,19 +149,14 @@ public interface UIStateService extends ReadyAfterBoot {
   void navigateBack();
 
   /**
+   Navigate back
+   */
+  void navigateForward();
+
+  /**
    @return the window title
    */
   ObservableStringValue windowTitleProperty();
-
-  /**
-   @return Observable property for the view content mode
-   */
-  ObjectProperty<ViewContentMode> contentModeProperty();
-
-  /**
-   @return Observable property for the view template mode
-   */
-  ObjectProperty<ViewTemplateMode> templateModeProperty();
 
   /**
    Go up a content level in the browser

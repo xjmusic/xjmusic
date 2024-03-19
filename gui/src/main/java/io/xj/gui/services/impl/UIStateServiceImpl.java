@@ -3,18 +3,14 @@ package io.xj.gui.services.impl;
 import io.xj.gui.WorkstationLogAppender;
 import io.xj.gui.controllers.content.common.PopupActionMenuController;
 import io.xj.gui.controllers.content.common.PopupSelectorMenuController;
-import io.xj.gui.nav.NavState;
-import io.xj.gui.nav.Route;
+import io.xj.gui.types.Route;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.types.GridChoice;
 import io.xj.gui.types.ProgramEditorMode;
-import io.xj.gui.types.ViewContentMode;
-import io.xj.gui.types.ViewMode;
 import io.xj.gui.types.ViewStatusMode;
-import io.xj.gui.types.ViewTemplateMode;
 import io.xj.gui.types.ZoomChoice;
 import io.xj.gui.utils.LaunchMenuPosition;
 import io.xj.gui.utils.UiUtils;
@@ -36,8 +32,10 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -80,16 +78,17 @@ public class UIStateServiceImpl implements UIStateService {
   private final BooleanBinding isManualFabricationMode;
   private final BooleanBinding isProgressBarVisible;
   private final StringBinding windowTitle;
-  private final ObjectProperty<NavState> navState = new SimpleObjectProperty<>(new NavState(Route.ContentLibraryBrowser, null));
-  private final ObservableList<NavState> navHistory = FXCollections.observableArrayList();
-  private final ObjectProperty<Library> currentLibrary = new SimpleObjectProperty<>(null); // todo infer from navState
-  private final ObjectProperty<Program> currentProgram = new SimpleObjectProperty<>(null); // todo infer from navState
-  private final ObservableList<ProgramSequence> sequencesOfCurrentProgram = FXCollections.observableArrayList(); // todo infer from navState
-  private final ObjectProperty<Instrument> currentInstrument = new SimpleObjectProperty<>(null); // todo infer from navState
-  private final ObjectProperty<InstrumentAudio> currentInstrumentAudio = new SimpleObjectProperty<>(null); // todo infer from navState
-  private final ObjectProperty<Template> currentTemplate = new SimpleObjectProperty<>(null); // todo infer from navState
+  private final ObjectProperty<Route> navState = new SimpleObjectProperty<>(Route.ContentLibraryBrowser);
+  private final IntegerProperty navStatePosition = new SimpleIntegerProperty(0);
+  private final ObservableList<Route> navHistory = FXCollections.observableArrayList();
+  private final ObjectProperty<Library> currentLibrary = new SimpleObjectProperty<>(null);
+  private final ObjectProperty<Program> currentProgram = new SimpleObjectProperty<>(null);
+  private final ObservableList<ProgramSequence> sequencesOfCurrentProgram = FXCollections.observableArrayList();
+  private final ObjectProperty<Instrument> currentInstrument = new SimpleObjectProperty<>(null);
+  private final ObjectProperty<InstrumentAudio> currentInstrumentAudio = new SimpleObjectProperty<>(null);
+  private final ObjectProperty<Template> currentTemplate = new SimpleObjectProperty<>(null);
   private final BooleanBinding isContentLevelUpPossible = Bindings.createBooleanBinding(
-    () -> navState.get().route().hasParentContent(),
+    () -> navState.get().hasParentContent(),
     navState);
   private final BooleanBinding isViewProgressStatusMode;
   private final BooleanBinding isViewContentNavigationStatusMode;
@@ -197,7 +196,7 @@ public class UIStateServiceImpl implements UIStateService {
 
     projectService.stateProperty().addListener((o, ov, value) -> {
       if (Objects.equals(value, ProjectState.Standby)) {
-        navigateTo(Route.ContentLibraryBrowser, null);
+        navigateTo(Route.ContentLibraryBrowser);
       }
     });
 
@@ -212,7 +211,7 @@ public class UIStateServiceImpl implements UIStateService {
     );
 
     currentParentName = Bindings.createStringBinding(
-      () -> switch (navState.get().route()) {
+      () -> switch (navState.get()) {
         case ContentLibraryBrowser, ContentLibraryEditor -> "Libraries";
         case ContentInstrumentAudioEditor ->
           currentInstrument.isNotNull().get() ? currentInstrument.get().getName() : "";
@@ -226,16 +225,12 @@ public class UIStateServiceImpl implements UIStateService {
     );
 
     isViewingEntity = Bindings.createBooleanBinding(
-      () -> switch (navState.get().route()) {
-        case ContentLibraryEditor, ContentProgramEditor, ContentInstrumentEditor, ContentInstrumentAudioEditor -> true;
-        case TemplateBrowser, TemplateEditor -> Objects.equals(ViewTemplateMode.TemplateEditor, templateMode.get());
-        default -> false;
-      },
+      () -> navState.get().isEditor(),
       navState
     );
 
     currentEntityName = Bindings.createStringBinding(
-      () -> switch (navState.get().route()) {
+      () -> switch (navState.get()) {
         case ContentLibraryEditor -> currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
         case ContentProgramEditor -> currentProgram.isNotNull().get() ? currentProgram.get().getName() : "";
         case ContentInstrumentEditor -> currentInstrument.isNotNull().get() ? currentInstrument.get().getName() : "";
@@ -247,14 +242,14 @@ public class UIStateServiceImpl implements UIStateService {
       navState, currentProgram, currentInstrument, currentInstrumentAudio, currentTemplate);
 
     isCreateEntityButtonVisible = Bindings.createBooleanBinding(
-      () -> projectService.isStateReadyProperty().get() && navState.get().route().isBrowser(),
-      navState, contentMode, templateMode, projectService.isStateReadyProperty()
+      () -> projectService.isStateReadyProperty().get() && navState.get().isBrowser(),
+      navState, projectService.isStateReadyProperty()
     );
 
     ObjectBinding<ViewStatusMode> viewStatusMode = Bindings.createObjectBinding(
       () -> {
         if (projectService.isStateReadyProperty().not().get()) return ViewStatusMode.ProjectProgress;
-        if (navState.get().route().isFabrication()) return ViewStatusMode.FabricationProgress;
+        if (navState.get().isFabrication()) return ViewStatusMode.FabricationProgress;
         return ViewStatusMode.ContentNavigation;
       },
       projectService.isStateReadyProperty(), navState);
@@ -359,23 +354,32 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public ObjectProperty<NavState> navStateProperty() {
+  public ObjectProperty<Route> navStateProperty() {
     return navState;
   }
 
   @Override
-  public void navigateTo(Route route, @Nullable UUID id) {
-    var state = new NavState(route, id);
-    navState.set(state);
-    navHistory.add(state);
+  public void navigateTo(Route route) {
+    navState.set(route);
+    while (navHistory.size() > navStatePosition.get() + 1) navHistory.remove(navHistory.size() - 1);
+    navHistory.add(route);
     while (navHistory.size() > navHistoryMaxSize) navHistory.remove(0);
+    navStatePosition.set(navHistory.size() - 1);
   }
 
   @Override
   public void navigateBack() {
-    if (navHistory.size() > 1) {
-      navHistory.remove(navHistory.size() - 1);
-      navState.set(navHistory.get(navHistory.size() - 1));
+    if (navStatePosition.get() > 0 && navHistory.size() > 1) {
+      navStatePosition.set(navStatePosition.get() - 1);
+      navState.set(navHistory.get(navStatePosition.get()));
+    }
+  }
+
+  @Override
+  public void navigateForward() {
+    if (navStatePosition.get() < navHistory.size() - 1) {
+      navStatePosition.set(navStatePosition.get() + 1);
+      navState.set(navHistory.get(navStatePosition.get()));
     }
   }
 
@@ -386,26 +390,26 @@ public class UIStateServiceImpl implements UIStateService {
 
   @Override
   public void goUpContentLevel() {
-    switch (navState.get().route()) {
+    switch (navState.get()) {
       case ContentProgramBrowser, ContentInstrumentBrowser, ContentLibraryEditor -> {
         currentLibrary.set(null);
-        contentMode.set(ViewContentMode.LibraryBrowser);
+        navigateTo(Route.ContentLibraryBrowser);
       }
       case ContentProgramEditor -> {
         currentProgram.set(null);
-        contentMode.set(ViewContentMode.ProgramBrowser);
+        navigateTo(Route.ContentProgramBrowser);
       }
       case ContentInstrumentEditor -> {
         currentInstrument.set(null);
-        contentMode.set(ViewContentMode.InstrumentBrowser);
+        navigateTo(Route.ContentInstrumentBrowser);
       }
       case ContentInstrumentAudioEditor -> {
         currentInstrumentAudio.set(null);
-        contentMode.set(ViewContentMode.InstrumentEditor);
+        navigateTo(Route.ContentInstrumentEditor);
       }
       case TemplateEditor -> {
         currentTemplate.set(null);
-        templateMode.set(ViewTemplateMode.TemplateBrowser);
+        navigateTo(Route.TemplateBrowser);
       }
     }
   }
@@ -413,16 +417,6 @@ public class UIStateServiceImpl implements UIStateService {
   @Override
   public BooleanBinding isContentLevelUpPossibleProperty() {
     return isContentLevelUpPossible;
-  }
-
-  @Override
-  public ObjectProperty<ViewContentMode> contentModeProperty() {
-    return contentMode;
-  }
-
-  @Override
-  public ObjectProperty<ViewTemplateMode> templateModeProperty() {
-    return templateMode;
   }
 
   @Override
@@ -457,7 +451,7 @@ public class UIStateServiceImpl implements UIStateService {
 
   @Override
   public void viewLibraries() {
-    navigateTo(Route.ContentLibraryBrowser, null);
+    navigateTo(Route.ContentLibraryBrowser);
   }
 
   @Override
@@ -468,9 +462,9 @@ public class UIStateServiceImpl implements UIStateService {
     if (Objects.nonNull(library))
       if (projectService.getContent().getInstruments().stream()
         .anyMatch(instrument -> Objects.equals(instrument.getLibraryId(), library.getId()))) {
-        contentMode.set(ViewContentMode.InstrumentBrowser);
+        navigateTo(Route.ContentInstrumentBrowser);
       } else {
-        contentMode.set(ViewContentMode.ProgramBrowser);
+        navigateTo(Route.ContentProgramBrowser);
       }
   }
 
@@ -479,8 +473,7 @@ public class UIStateServiceImpl implements UIStateService {
     var library = projectService.getContent().getLibrary(libraryId)
       .orElseThrow(() -> new RuntimeException("Could not find Library!"));
     currentLibrary.set(library);
-    contentMode.set(ViewContentMode.LibraryEditor);
-    viewMode.set(ViewMode.Content);
+    navigateTo(Route.ContentLibraryEditor);
   }
 
   @Override
@@ -491,8 +484,7 @@ public class UIStateServiceImpl implements UIStateService {
       .orElseThrow(() -> new RuntimeException("Could not find Library!"));
     currentProgram.set(program);
     currentLibrary.set(library);
-    contentMode.set(ViewContentMode.ProgramEditor);
-    viewMode.set(ViewMode.Content);
+    navigateTo(Route.ContentProgramEditor);
   }
 
   @Override
@@ -504,8 +496,7 @@ public class UIStateServiceImpl implements UIStateService {
     currentInstrument.set(instrument);
     currentInstrumentAudio.set(null);
     currentLibrary.set(library);
-    contentMode.set(ViewContentMode.InstrumentEditor);
-    viewMode.set(ViewMode.Content);
+    navigateTo(Route.ContentInstrumentEditor);
   }
 
   @Override
@@ -519,8 +510,7 @@ public class UIStateServiceImpl implements UIStateService {
     currentInstrumentAudio.set(instrumentAudio);
     currentInstrument.set(instrument);
     currentLibrary.set(library);
-    contentMode.set(ViewContentMode.InstrumentAudioEditor);
-    viewMode.set(ViewMode.Content);
+    navigateTo(Route.ContentInstrumentAudioEditor);
   }
 
   @Override
@@ -528,8 +518,7 @@ public class UIStateServiceImpl implements UIStateService {
     var template = projectService.getContent().getTemplate(templateId)
       .orElseThrow(() -> new RuntimeException("Could not find Template!"));
     currentTemplate.set(template);
-    templateMode.set(ViewTemplateMode.TemplateEditor);
-    viewMode.set(ViewMode.Templates);
+    navigateTo(Route.TemplateEditor);
   }
 
   @Override

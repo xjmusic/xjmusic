@@ -5,7 +5,7 @@ package io.xj.gui.controllers;
 import io.xj.gui.ProjectController;
 import io.xj.gui.WorkstationGuiFxApplication;
 import io.xj.gui.controllers.fabrication.FabricationTimelineSettingsModalController;
-import io.xj.gui.nav.Route;
+import io.xj.gui.types.Route;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.LabState;
@@ -254,6 +254,16 @@ public class MainMenuController extends ProjectController {
   }
 
   @FXML
+  void handleNavigateBack() {
+    uiStateService.navigateBack();
+  }
+
+  @FXML
+  void handleNavigateForward() {
+    uiStateService.navigateForward();
+  }
+
+  @FXML
   void handleProjectNew() {
     projectCreationModalController.setMode(ProjectCreationMode.NEW_PROJECT);
     projectCreationModalController.launchModal();
@@ -333,15 +343,15 @@ public class MainMenuController extends ProjectController {
     Toggle toggleTemplates,
     Toggle toggleFabrication
   ) {
-    activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, uiStateService.navStateProperty().getValue().route());
-    uiStateService.navStateProperty().addListener((o, ov, value) -> activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, value.route()));
+    activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, uiStateService.navStateProperty().getValue());
+    uiStateService.navStateProperty().addListener((o, ov, value) -> activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, value));
     toggleGroup.selectedToggleProperty().addListener((o, ov, value) -> {
       if (Objects.equals(value, toggleContent)) {
-        uiStateService.navigateTo(Route.ContentLibraryBrowser, null);
+        uiStateService.navigateTo(Route.ContentLibraryBrowser);
       } else if (Objects.equals(value, toggleTemplates)) {
-        uiStateService.navigateTo(Route.TemplateBrowser, null);
+        uiStateService.navigateTo(Route.TemplateBrowser);
       } else if (Objects.equals(value, toggleFabrication)) {
-        uiStateService.navigateTo(Route.FabricationTimeline, null);
+        uiStateService.navigateTo(Route.FabricationTimeline);
       }
     });
   }

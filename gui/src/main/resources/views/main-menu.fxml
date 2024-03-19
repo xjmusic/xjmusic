@@ -22,17 +22,17 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <AnchorPane
-  fx:id="container"
-  fx:controller="io.xj.gui.controllers.MainMenuController"
-  VBox.vgrow="NEVER"
-  xmlns="http://javafx.com/javafx/20.0.1"
-  xmlns:fx="http://javafx.com/fxml/1"
-  styleClass="main-menu">
+    fx:id="container"
+    fx:controller="io.xj.gui.controllers.MainMenuController"
+    VBox.vgrow="NEVER"
+    xmlns="http://javafx.com/javafx/20.0.1"
+    xmlns:fx="http://javafx.com/fxml/1"
+    styleClass="main-menu">
 
   <MenuBar VBox.vgrow="NEVER">
 
     <Menu text="Project" mnemonicParsing="false">
-      <MenuItem onAction="#handleProjectNew" text="New..."  mnemonicParsing="false">
+      <MenuItem onAction="#handleProjectNew" text="New..." mnemonicParsing="false">
         <accelerator>
           <KeyCodeCombination shortcut="DOWN" code="N" control="UP" meta="UP" shift="UP" alt="UP"/>
         </accelerator>
@@ -52,9 +52,9 @@
       </MenuItem>
       <SeparatorMenuItem mnemonicParsing="false"/>
       <MenuItem fx:id="itemProjectSave" onAction="#handleProjectSave" text="Save" mnemonicParsing="false">
-          <accelerator>
-            <KeyCodeCombination alt="UP" code="S" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
-          </accelerator>
+        <accelerator>
+          <KeyCodeCombination alt="UP" code="S" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+        </accelerator>
       </MenuItem>
       <MenuItem fx:id="itemProjectCleanup" onAction="#handleProjectCleanup" text="Cleanup" mnemonicParsing="false"/>
       <SeparatorMenuItem mnemonicParsing="false"/>
@@ -77,10 +77,12 @@
     </Menu>
 
     <Menu fx:id="menuFabrication" text="Fabrication" mnemonicParsing="false">
-      <MenuItem fx:id="itemFabricationMainAction" onAction="#handleFabricationMainAction" text="Start" mnemonicParsing="false"/>
+      <MenuItem fx:id="itemFabricationMainAction" onAction="#handleFabricationMainAction" text="Start"
+                mnemonicParsing="false"/>
       <CheckMenuItem fx:id="checkboxFabricationFollow" text="Follow" mnemonicParsing="false"/>
       <SeparatorMenuItem mnemonicParsing="false"/>
-      <MenuItem fx:id="itemOpenFabricationSettings" onAction="#handleOpenFabricationSettings" text="Settings" mnemonicParsing="false">
+      <MenuItem fx:id="itemOpenFabricationSettings" onAction="#handleOpenFabricationSettings" text="Settings"
+                mnemonicParsing="false">
         <accelerator>
           <KeyCodeCombination alt="UP" code="E" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
         </accelerator>
@@ -91,17 +93,20 @@
       <fx:define>
         <ToggleGroup fx:id="menuViewModeToggleGroup"/>
       </fx:define>
-      <RadioMenuItem text="Content" fx:id="menuViewModeContent" toggleGroup="$menuViewModeToggleGroup" mnemonicParsing="false">
+      <RadioMenuItem text="Content" fx:id="menuViewModeContent" toggleGroup="$menuViewModeToggleGroup"
+                     mnemonicParsing="false">
         <accelerator>
           <KeyCodeCombination alt="UP" code="F3" control="UP" meta="UP" shift="UP" shortcut="UP"/>
         </accelerator>
       </RadioMenuItem>
-      <RadioMenuItem text="Templates" fx:id="menuViewModeTemplates" toggleGroup="$menuViewModeToggleGroup" mnemonicParsing="false">
+      <RadioMenuItem text="Templates" fx:id="menuViewModeTemplates" toggleGroup="$menuViewModeToggleGroup"
+                     mnemonicParsing="false">
         <accelerator>
           <KeyCodeCombination alt="UP" code="F4" control="UP" meta="UP" shift="UP" shortcut="UP"/>
         </accelerator>
       </RadioMenuItem>
-      <RadioMenuItem text="Fabrication" fx:id="menuViewModeFabrication" toggleGroup="$menuViewModeToggleGroup" mnemonicParsing="false">
+      <RadioMenuItem text="Fabrication" fx:id="menuViewModeFabrication" toggleGroup="$menuViewModeToggleGroup"
+                     mnemonicParsing="false">
         <accelerator>
           <KeyCodeCombination alt="UP" code="F5" control="UP" meta="UP" shift="UP" shortcut="UP"/>
         </accelerator>
@@ -112,7 +117,8 @@
           <KeyCodeCombination alt="UP" code="F10" control="UP" meta="UP" shift="UP" shortcut="UP"/>
         </accelerator>
       </CheckMenuItem>
-      <CheckMenuItem fx:id="checkboxTailLogs" disable="true" selected="true" text="Logs Auto-scroll" mnemonicParsing="false">
+      <CheckMenuItem fx:id="checkboxTailLogs" disable="true" selected="true" text="Logs Auto-scroll"
+                     mnemonicParsing="false">
         <accelerator>
           <KeyCodeCombination alt="UP" code="F10" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
         </accelerator>
@@ -130,6 +136,19 @@
         <RadioMenuItem text="Error" fx:id="logLevelError" onAction="#handleSetLogLevel"
                        toggleGroup="$logLevelToggleGroup" mnemonicParsing="false"/>
       </Menu>
+      <SeparatorMenuItem mnemonicParsing="false"/>
+      <Menu text="Navigate" mnemonicParsing="false">
+        <MenuItem onAction="#handleNavigateBack" text="Back" mnemonicParsing="false">
+          <accelerator>
+            <KeyCodeCombination alt="DOWN" code="LEFT" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+          </accelerator>
+        </MenuItem>
+        <MenuItem onAction="#handleNavigateForward" text="Forward" mnemonicParsing="false">
+          <accelerator>
+            <KeyCodeCombination alt="DOWN" code="RIGHT" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+          </accelerator>
+        </MenuItem>
+      </Menu>
     </Menu>
 
     <Menu text="Help" mnemonicParsing="false">
@@ -146,9 +165,9 @@
   </MenuBar>
 
   <StackPane
-    AnchorPane.topAnchor="0"
-    AnchorPane.bottomAnchor="0"
-    AnchorPane.rightAnchor="10">
+      AnchorPane.topAnchor="0"
+      AnchorPane.bottomAnchor="0"
+      AnchorPane.rightAnchor="10">
     <HBox alignment="CENTER">
       <fx:define>
         <ToggleGroup fx:id="buttonViewModeToggleGroup"/>
@@ -187,9 +206,9 @@
   </StackPane>
 
   <StackPane
-    fx:id="labFeatureContainer"
-    AnchorPane.topAnchor="0"
-    AnchorPane.bottomAnchor="0">
+      fx:id="labFeatureContainer"
+      AnchorPane.topAnchor="0"
+      AnchorPane.bottomAnchor="0">
     <HBox alignment="CENTER_RIGHT" spacing="10">
       <HBox.hgrow>
         <Priority fx:constant="ALWAYS"/>

@@ -150,7 +150,7 @@ public class FabricationTimelineController extends ProjectController {
     fabricationControlsController.onStageReady();
 
     var isViewModeFabrication = Bindings.createBooleanBinding(
-      () -> uiStateService.navStateProperty().get().route().isFabrication(),
+      () -> uiStateService.navStateProperty().get().isFabrication(),
       uiStateService.navStateProperty()
     );
     container.visibleProperty().bind(projectService.isStateReadyProperty().and(isViewModeFabrication));

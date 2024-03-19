@@ -3,11 +3,10 @@
 package io.xj.gui.controllers.content.instrument;
 
 import io.xj.gui.controllers.BrowserController;
-import io.xj.gui.nav.Route;
+import io.xj.gui.types.Route;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.gui.types.ViewContentMode;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
@@ -173,7 +172,7 @@ public class InstrumentAudioEditorController extends BrowserController {
   public void onStageReady() {
     var visible = Bindings.createBooleanBinding(
       () -> projectService.isStateReadyProperty().get()
-        && uiStateService.navStateProperty().get().route() == Route.ContentInstrumentAudioEditor,
+        && uiStateService.navStateProperty().get() == Route.ContentInstrumentAudioEditor,
       projectService.isStateReadyProperty(),
       uiStateService.navStateProperty());
     container.visibleProperty().bind(visible);
@@ -239,8 +238,8 @@ public class InstrumentAudioEditorController extends BrowserController {
       }
     });
 
-    uiStateService.contentModeProperty().addListener((o, ov, v) -> {
-      if (Objects.equals(uiStateService.contentModeProperty().get(), ViewContentMode.InstrumentAudioEditor))
+    uiStateService.navStateProperty().addListener((o, ov, v) -> {
+      if (Objects.equals(uiStateService.navStateProperty().get(), Route.ContentInstrumentAudioEditor))
         setup();
     });
 
