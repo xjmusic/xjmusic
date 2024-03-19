@@ -3,10 +3,10 @@
 package io.xj.gui.controllers.content.instrument;
 
 import io.xj.gui.controllers.BrowserController;
-import io.xj.gui.types.Route;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.types.Route;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
@@ -45,6 +45,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import java.io.FileNotFoundException;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -69,6 +70,7 @@ public class InstrumentAudioEditorController extends BrowserController {
   private final FloatProperty transientSeconds = new SimpleFloatProperty(0.0f);
   private final FloatProperty loopBeats = new SimpleFloatProperty(0.0f);
   private final BooleanProperty isSettingTransient = new SimpleBooleanProperty(false);
+  private final BooleanProperty audioFileNotFound = new SimpleBooleanProperty(false);
   private final AudioLoader audioLoader;
   private final ObjectProperty<AudioInMemory> audioInMemory = new SimpleObjectProperty<>(null);
   private final Color waveformSampleColor;
@@ -143,6 +145,9 @@ public class InstrumentAudioEditorController extends BrowserController {
   Label labelAudioFileName;
 
   @FXML
+  Label labelAudioFileNotFound;
+
+  @FXML
   Button buttonZoomOut;
 
   @FXML
@@ -192,7 +197,9 @@ public class InstrumentAudioEditorController extends BrowserController {
     fieldIntensity.textProperty().bindBidirectional(intensity, new NumberStringConverter());
     fieldTransientSeconds.textProperty().bindBidirectional(transientSeconds, new NumberStringConverter());
     fieldLoopBeats.textProperty().bindBidirectional(loopBeats, new NumberStringConverter());
-    labelAudioFileName.textProperty().bind(Bindings.createStringBinding(() -> audioInMemory.isNotNull().get() ? ProjectPathUtils.getFilename(audioInMemory.get().pathToAudioFile()) : "", audioInMemory));
+    labelAudioFileName.textProperty().bind(Bindings.createStringBinding(
+      () -> audioFileNotFound.not().get() && audioInMemory.isNotNull().get() ? ProjectPathUtils.getFilename(audioInMemory.get().pathToAudioFile()) : "",
+      audioInMemory, audioFileNotFound));
 
     fieldName.focusedProperty().addListener((o, ov, v) -> {
       if (!v) {
@@ -247,6 +254,9 @@ public class InstrumentAudioEditorController extends BrowserController {
       setTransientButton.pseudoClassStateChanged(OPEN_PSEUDO_CLASS, active);
       waveformContainer.setCursor(active ? javafx.scene.Cursor.CROSSHAIR : javafx.scene.Cursor.DEFAULT);
     });
+
+    labelAudioFileNotFound.visibleProperty().bind(audioFileNotFound);
+    labelAudioFileNotFound.managedProperty().bind(audioFileNotFound);
   }
 
   @Override
@@ -336,6 +346,7 @@ public class InstrumentAudioEditorController extends BrowserController {
     transientSeconds.set(instrumentAudio.getTransientSeconds());
     loopBeats.set(instrumentAudio.getLoopBeats());
     zoomRatio.set(1.0f);
+    audioFileNotFound.set(false);
     renderWaveform();
   }
 
@@ -444,7 +455,19 @@ public class InstrumentAudioEditorController extends BrowserController {
     if (audioInMemory.isNull().get() || audioInMemory.get().isDifferent(audio)) try {
       audioInMemory.set(audioLoader.load(audio));
       LOG.info("Loaded audio file \"{}\" with {} channels and {} frames", audioInMemory.get().format(), audioInMemory.get().format().getChannels(), audioInMemory.get().data().length);
+    } catch (FileNotFoundException e) {
+      waveform.setImage(null);
+      audioInMemory.set(null);
+      audioFileNotFound.set(true);
+      projectService.showWarningAlert(
+        "Could not find audio file",
+        "Could not find audio file",
+        "Could not find audio the audio file on disk: " + projectService.getPathToInstrumentAudioWaveform(audio) + "\n\nPlease re-import the audio file."
+      );
+
     } catch (Exception e) {
+      waveform.setImage(null);
+      audioInMemory.set(null);
       LOG.error("Could not load audio file! {}\n{}", e, StringUtils.formatStackTrace(e));
       projectService.showWarningAlert(
         "Could not load audio file",

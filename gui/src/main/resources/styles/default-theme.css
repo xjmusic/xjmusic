@@ -137,7 +137,8 @@
   -fx-text-fill: orange;
 }
 
-.log-viewer .list-cell.error {
+.log-viewer .list-cell.error,
+.label.error {
   -fx-text-fill: red;
 }
 
