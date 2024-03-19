@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import static io.xj.hub.util.StringUtils.formatStackTrace;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 public class FabricationManagerImpl implements FabricationManager {
@@ -77,7 +78,7 @@ public class FabricationManagerImpl implements FabricationManager {
 
   @Nullable
   private Runnable afterFinished;
-  
+
   @Nullable
   private HubContent content;
 
@@ -112,7 +113,7 @@ public class FabricationManagerImpl implements FabricationManager {
 
     this.hubConfig = hubConfig;
     LOG.debug("Did set hub configuration: {}", hubConfig);
-    
+
     this.content = projectManager.getContent(workConfig.getInputTemplate());
     LOG.debug("Did set hub content: {}", content);
 
@@ -358,7 +359,7 @@ public class FabricationManagerImpl implements FabricationManager {
     try {
       LOG.debug("Will run craft cycle");
       craftWork.runCycle(
-        shipWork.getShippedToChainMicros().orElse(0L),
+        shipWork.getShippedToChainMicros().map(m -> m + workConfig.getMixerLengthSeconds() * MICROS_PER_SECOND).orElse(0L),
         dubWork.getDubbedToChainMicros().orElse(0L)
       );
       LOG.debug("Did run craft cycle");
@@ -477,7 +478,7 @@ public class FabricationManagerImpl implements FabricationManager {
     Objects.requireNonNull(hubConfig);
     Objects.requireNonNull(workConfig);
     Objects.requireNonNull(content);
-    
+
     craftWork = new CraftWorkImpl(
       telemetry,
       craftFactory,
