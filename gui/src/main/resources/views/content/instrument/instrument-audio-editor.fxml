@@ -21,7 +21,7 @@
     xmlns="http://javafx.com/javafx/17.0.2-ea"
     xmlns:fx="http://javafx.com/fxml/1"
     dividerPositions="0.1"
-styleClass="instrument-audio-editor">
+    styleClass="instrument-audio-editor">
 
   <VBox
       fx:id="fieldsContainer"
@@ -182,6 +182,14 @@ styleClass="instrument-audio-editor">
         AnchorPane.bottomAnchor="25"
         AnchorPane.leftAnchor="66"
         fx:id="labelAudioFileName"/>
+
+    <Label
+        text="Audio file not found!"
+        AnchorPane.bottomAnchor="25"
+        AnchorPane.leftAnchor="66"
+        fx:id="labelAudioFileNotFound"
+        styleClass="error"
+        textAlignment="CENTER"/>
 
   </AnchorPane>
 
