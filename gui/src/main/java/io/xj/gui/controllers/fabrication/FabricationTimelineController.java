@@ -33,13 +33,10 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -653,20 +650,8 @@ public class FabricationTimelineController extends ProjectController {
     row.getChildren().add(computeLabeledPropertyNode(String.format("[%d]", segment.getId()), FormatUtils.formatTimeFromMicros(segment.getBeginAtChainMicros()), width / 2));
     row.getChildren().add(computeLabeledPropertyNode(fabricationService.formatPositionBarBeats(segment, Double.valueOf(segment.getDelta())), segment.getType().toString(), width / 2));
     //
-    var previewButtonImage = new Image("@/icons/up-right-from-square.png");
-    var previewButtonImageView = new ImageView();
-    previewButtonImageView.setFitHeight(16);
-    previewButtonImageView.setFitWidth(16);
-    previewButtonImageView.setImage(previewButtonImage);
-    var previewButton = new Button();
-    previewButton.getStyleClass().add("minimal");
-    previewButton.setGraphic(previewButtonImageView);
-    AnchorPane.setRightAnchor(previewButton, 5.0);
-    AnchorPane.setTopAnchor(previewButton, 5.0);
-    //
     var pane = new AnchorPane();
     pane.getChildren().add(row);
-    pane.getChildren().add(previewButton);
     return pane;
   }
 
