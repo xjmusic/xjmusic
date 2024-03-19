@@ -62,10 +62,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.prefs.Preferences;
@@ -81,31 +79,18 @@ public class UIStateServiceImpl implements UIStateService {
   private final ProjectService projectService;
   private final BooleanBinding isManualFabricationMode;
   private final BooleanBinding isProgressBarVisible;
-  private static final Collection<ViewContentMode> CONTENT_MODES_WITH_PARENT = Set.of(
-    ViewContentMode.ProgramBrowser,
-    ViewContentMode.ProgramEditor,
-    ViewContentMode.InstrumentBrowser,
-    ViewContentMode.InstrumentEditor,
-    ViewContentMode.InstrumentAudioEditor,
-    ViewContentMode.LibraryEditor
-  );
   private final StringBinding windowTitle;
-  private final ObjectProperty<ViewMode> viewMode = new SimpleObjectProperty<>(ViewMode.Content);
-  private final ObjectProperty<NavState> navRoute = new SimpleObjectProperty<>(new NavState(Route.LibraryBrowser, null));
+  private final ObjectProperty<NavState> navState = new SimpleObjectProperty<>(new NavState(Route.ContentLibraryBrowser, null));
   private final ObservableList<NavState> navHistory = FXCollections.observableArrayList();
-  private final ObjectProperty<Library> currentLibrary = new SimpleObjectProperty<>(null);
-  private final ObjectProperty<Program> currentProgram = new SimpleObjectProperty<>(null);
-  private final ObservableList<ProgramSequence> sequencesOfCurrentProgram = FXCollections.observableArrayList();
-  private final ObjectProperty<Instrument> currentInstrument = new SimpleObjectProperty<>(null);
-  private final ObjectProperty<InstrumentAudio> currentInstrumentAudio = new SimpleObjectProperty<>(null);
-  private final ObjectProperty<Template> currentTemplate = new SimpleObjectProperty<>(null);
-  private final ObjectProperty<ViewContentMode> contentMode = new SimpleObjectProperty<>(ViewContentMode.LibraryBrowser);
-  private final ObjectProperty<ViewTemplateMode> templateMode = new SimpleObjectProperty<>(ViewTemplateMode.TemplateBrowser);
+  private final ObjectProperty<Library> currentLibrary = new SimpleObjectProperty<>(null); // todo infer from navState
+  private final ObjectProperty<Program> currentProgram = new SimpleObjectProperty<>(null); // todo infer from navState
+  private final ObservableList<ProgramSequence> sequencesOfCurrentProgram = FXCollections.observableArrayList(); // todo infer from navState
+  private final ObjectProperty<Instrument> currentInstrument = new SimpleObjectProperty<>(null); // todo infer from navState
+  private final ObjectProperty<InstrumentAudio> currentInstrumentAudio = new SimpleObjectProperty<>(null); // todo infer from navState
+  private final ObjectProperty<Template> currentTemplate = new SimpleObjectProperty<>(null); // todo infer from navState
   private final BooleanBinding isContentLevelUpPossible = Bindings.createBooleanBinding(
-    () -> (Objects.equals(viewMode.get(), ViewMode.Content) && CONTENT_MODES_WITH_PARENT.contains(contentMode.get()))
-      || (Objects.equals(viewMode.get(), ViewMode.Templates) && Objects.equals(templateMode.get(), ViewTemplateMode.TemplateEditor)),
-    viewMode, contentMode, templateMode);
-
+    () -> navState.get().route().hasParentContent(),
+    navState);
   private final BooleanBinding isViewProgressStatusMode;
   private final BooleanBinding isViewContentNavigationStatusMode;
   private final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
@@ -115,7 +100,6 @@ public class UIStateServiceImpl implements UIStateService {
   private final DoubleBinding progress;
   private final StringBinding stateText;
   private final StringProperty logLevel = new SimpleStringProperty(WorkstationLogAppender.LEVEL.get().toString());
-  private final BooleanBinding isViewModeFabrication = viewMode.isEqualTo(ViewMode.Fabrication);
   private final BooleanBinding isViewingEntity;
   private final StringBinding currentParentName;
   private final StringBinding currentEntityName;
@@ -213,7 +197,7 @@ public class UIStateServiceImpl implements UIStateService {
 
     projectService.stateProperty().addListener((o, ov, value) -> {
       if (Objects.equals(value, ProjectState.Standby)) {
-        navigateTo(Route.LibraryBrowser, null);
+        navigateTo(Route.ContentLibraryBrowser, null);
       }
     });
 
@@ -228,71 +212,52 @@ public class UIStateServiceImpl implements UIStateService {
     );
 
     currentParentName = Bindings.createStringBinding(
-      () -> switch (viewMode.get()) {
-        case Content -> switch (contentMode.get()) {
-          case LibraryBrowser, LibraryEditor -> "Libraries";
-          case InstrumentAudioEditor -> currentInstrument.isNotNull().get() ? currentInstrument.get().getName() : "";
-          case ProgramBrowser, InstrumentBrowser, ProgramEditor, InstrumentEditor ->
-            currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
-        };
-        case Templates -> switch (templateMode.get()) {
-          case TemplateBrowser -> "Templates";
-          case TemplateEditor -> currentTemplate.isNotNull().get() ? currentTemplate.get().getName() : "";
-        };
-        case Fabrication -> "";
+      () -> switch (navState.get().route()) {
+        case ContentLibraryBrowser, ContentLibraryEditor -> "Libraries";
+        case ContentInstrumentAudioEditor ->
+          currentInstrument.isNotNull().get() ? currentInstrument.get().getName() : "";
+        case ContentProgramBrowser, ContentInstrumentBrowser, ContentProgramEditor, ContentInstrumentEditor ->
+          currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
+        case TemplateBrowser -> "Templates";
+        case TemplateEditor -> currentTemplate.isNotNull().get() ? currentTemplate.get().getName() : "";
+        case FabricationSegment, FabricationTimeline -> "";
       },
-      viewMode, contentMode, currentLibrary
+      navState, currentLibrary
     );
 
     isViewingEntity = Bindings.createBooleanBinding(
-      () -> switch (viewMode.get()) {
-        case Content -> switch (contentMode.get()) {
-          case LibraryEditor, ProgramEditor, InstrumentEditor, InstrumentAudioEditor -> true;
-          default -> false;
-        };
-        case Templates -> Objects.equals(ViewTemplateMode.TemplateEditor, templateMode.get());
+      () -> switch (navState.get().route()) {
+        case ContentLibraryEditor, ContentProgramEditor, ContentInstrumentEditor, ContentInstrumentAudioEditor -> true;
+        case TemplateBrowser, TemplateEditor -> Objects.equals(ViewTemplateMode.TemplateEditor, templateMode.get());
         default -> false;
       },
-      viewMode, contentMode, templateMode
+      navState
     );
 
     currentEntityName = Bindings.createStringBinding(
-      () -> switch (viewMode.get()) {
-        case Content -> switch (contentMode.get()) {
-          case LibraryEditor -> currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
-          case ProgramEditor -> currentProgram.isNotNull().get() ? currentProgram.get().getName() : "";
-          case InstrumentEditor -> currentInstrument.isNotNull().get() ? currentInstrument.get().getName() : "";
-          case InstrumentAudioEditor ->
-            currentInstrumentAudio.isNotNull().get() ? currentInstrumentAudio.get().getName() : "";
-          default -> "";
-        };
-        case Templates ->
-          Objects.equals(ViewTemplateMode.TemplateEditor, templateMode.get()) && currentTemplate.isNotNull().get() ? currentTemplate.get().getName() : "";
+      () -> switch (navState.get().route()) {
+        case ContentLibraryEditor -> currentLibrary.isNotNull().get() ? currentLibrary.get().getName() : "";
+        case ContentProgramEditor -> currentProgram.isNotNull().get() ? currentProgram.get().getName() : "";
+        case ContentInstrumentEditor -> currentInstrument.isNotNull().get() ? currentInstrument.get().getName() : "";
+        case ContentInstrumentAudioEditor ->
+          currentInstrumentAudio.isNotNull().get() ? currentInstrumentAudio.get().getName() : "";
+        case TemplateEditor -> currentTemplate.isNotNull().get() ? currentTemplate.get().getName() : "";
         default -> "";
       },
-      viewMode, contentMode, templateMode, currentProgram, currentInstrument, currentInstrumentAudio, currentTemplate);
+      navState, currentProgram, currentInstrument, currentInstrumentAudio, currentTemplate);
 
     isCreateEntityButtonVisible = Bindings.createBooleanBinding(
-      () ->
-        projectService.isStateReadyProperty().get() &&
-          switch (viewMode.get()) {
-            case Content -> switch (contentMode.get()) {
-              case LibraryBrowser, ProgramBrowser, InstrumentBrowser -> true;
-              default -> false;
-            };
-            case Templates -> Objects.equals(ViewTemplateMode.TemplateBrowser, templateMode.get());
-            default -> false;
-          },
-      viewMode, contentMode, templateMode, projectService.isStateReadyProperty()
+      () -> projectService.isStateReadyProperty().get() && navState.get().route().isBrowser(),
+      navState, contentMode, templateMode, projectService.isStateReadyProperty()
     );
 
     ObjectBinding<ViewStatusMode> viewStatusMode = Bindings.createObjectBinding(
       () -> {
         if (projectService.isStateReadyProperty().not().get()) return ViewStatusMode.ProjectProgress;
-        if (viewMode.isEqualTo(ViewMode.Fabrication).get()) return ViewStatusMode.FabricationProgress;
+        if (navState.get().route().isFabrication()) return ViewStatusMode.FabricationProgress;
         return ViewStatusMode.ContentNavigation;
       },
-      projectService.isStateReadyProperty(), viewMode);
+      projectService.isStateReadyProperty(), navState);
 
     isViewProgressStatusMode = viewStatusMode.isEqualTo(ViewStatusMode.FabricationProgress).or(viewStatusMode.isEqualTo(ViewStatusMode.ProjectProgress));
     isViewContentNavigationStatusMode = viewStatusMode.isEqualTo(ViewStatusMode.ContentNavigation);
@@ -394,19 +359,14 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public ObjectProperty<ViewMode> viewModeProperty() {
-    return viewMode;
-  }
-
-  @Override
   public ObjectProperty<NavState> navStateProperty() {
-    return navRoute;
+    return navState;
   }
 
   @Override
   public void navigateTo(Route route, @Nullable UUID id) {
     var state = new NavState(route, id);
-    navRoute.set(state);
+    navState.set(state);
     navHistory.add(state);
     while (navHistory.size() > navHistoryMaxSize) navHistory.remove(0);
   }
@@ -415,13 +375,8 @@ public class UIStateServiceImpl implements UIStateService {
   public void navigateBack() {
     if (navHistory.size() > 1) {
       navHistory.remove(navHistory.size() - 1);
-      navRoute.set(navHistory.get(navHistory.size() - 1));
+      navState.set(navHistory.get(navHistory.size() - 1));
     }
-  }
-
-  @Override
-  public BooleanBinding isViewModeFabricationProperty() {
-    return isViewModeFabrication;
   }
 
   @Override
@@ -431,32 +386,26 @@ public class UIStateServiceImpl implements UIStateService {
 
   @Override
   public void goUpContentLevel() {
-    switch (viewMode.get()) {
-      case Content -> {
-        switch (contentMode.get()) {
-          case ProgramBrowser, InstrumentBrowser, LibraryEditor -> {
-            currentLibrary.set(null);
-            contentMode.set(ViewContentMode.LibraryBrowser);
-          }
-          case ProgramEditor -> {
-            currentProgram.set(null);
-            contentMode.set(ViewContentMode.ProgramBrowser);
-          }
-          case InstrumentEditor -> {
-            currentInstrument.set(null);
-            contentMode.set(ViewContentMode.InstrumentBrowser);
-          }
-          case InstrumentAudioEditor -> {
-            currentInstrumentAudio.set(null);
-            contentMode.set(ViewContentMode.InstrumentEditor);
-          }
-        }
+    switch (navState.get().route()) {
+      case ContentProgramBrowser, ContentInstrumentBrowser, ContentLibraryEditor -> {
+        currentLibrary.set(null);
+        contentMode.set(ViewContentMode.LibraryBrowser);
       }
-      case Templates -> {
-        if (Objects.equals(templateMode.get(), ViewTemplateMode.TemplateEditor)) {
-          currentTemplate.set(null);
-          templateMode.set(ViewTemplateMode.TemplateBrowser);
-        }
+      case ContentProgramEditor -> {
+        currentProgram.set(null);
+        contentMode.set(ViewContentMode.ProgramBrowser);
+      }
+      case ContentInstrumentEditor -> {
+        currentInstrument.set(null);
+        contentMode.set(ViewContentMode.InstrumentBrowser);
+      }
+      case ContentInstrumentAudioEditor -> {
+        currentInstrumentAudio.set(null);
+        contentMode.set(ViewContentMode.InstrumentEditor);
+      }
+      case TemplateEditor -> {
+        currentTemplate.set(null);
+        templateMode.set(ViewTemplateMode.TemplateBrowser);
       }
     }
   }
@@ -508,8 +457,7 @@ public class UIStateServiceImpl implements UIStateService {
 
   @Override
   public void viewLibraries() {
-    viewMode.set(ViewMode.Content);
-    contentMode.set(ViewContentMode.LibraryBrowser);
+    navigateTo(Route.ContentLibraryBrowser, null);
   }
 
   @Override

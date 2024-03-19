@@ -62,7 +62,7 @@ public class LibraryEditorController extends ProjectController {
   public void onStageReady() {
     var visible = Bindings.createBooleanBinding(
       () -> projectService.isStateReadyProperty().get()
-        && uiStateService.navStateProperty().get().route() == Route.LibraryEditor,
+        && uiStateService.navStateProperty().get().route() == Route.ContentLibraryEditor,
       projectService.isStateReadyProperty(),
       uiStateService.navStateProperty());
     container.visibleProperty().bind(visible);

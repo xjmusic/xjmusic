@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 
 @Service
-public class FabricationSettingsModalController extends ProjectModalController {
+public class FabricationTimelineSettingsModalController extends ProjectModalController {
   static final String FABRICATION_SERVICE_WINDOW_NAME = "Fabrication Settings";
   private final FabricationService fabricationService;
 
@@ -61,8 +61,8 @@ public class FabricationSettingsModalController extends ProjectModalController {
   @FXML
   Button buttonReset;
 
-  public FabricationSettingsModalController(
-    @Value("classpath:/views/fabrication/fabrication-settings-modal.fxml") Resource fxml,
+  public FabricationTimelineSettingsModalController(
+    @Value("classpath:/views/fabrication/fabrication-timeline-settings-modal.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
     ThemeService themeService,
     FabricationService fabricationService,

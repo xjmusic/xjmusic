@@ -34,9 +34,9 @@ import java.util.Set;
 public class ContentBrowserController extends BrowserController {
   static final Logger LOG = LoggerFactory.getLogger(ContentBrowserController.class);
   static final Set<Route> CONTENT_BROWSER_ROUTES = Set.of(
-    Route.LibraryBrowser,
-    Route.ProgramBrowser,
-    Route.InstrumentBrowser
+    Route.ContentLibraryBrowser,
+    Route.ContentProgramBrowser,
+    Route.ContentInstrumentBrowser
   );
   private final CmdModalController cmdModalController;
   private final ObservableList<Library> libraries = FXCollections.observableList(new ArrayList<>());

@@ -1,67 +1,105 @@
 package io.xj.gui.nav;
 
+import java.util.Collection;
 import java.util.Set;
 
 public enum Route {
-  InstrumentAudioEditor,
-  InstrumentBrowser,
-  InstrumentEditor,
-  LibraryBrowser,
-  LibraryEditor,
-  ProgramBrowser,
-  ProgramEditor,
+  ContentInstrumentAudioEditor,
+  ContentInstrumentBrowser,
+  ContentInstrumentEditor,
+  ContentLibraryBrowser,
+  ContentLibraryEditor,
+  ContentProgramBrowser,
+  ContentProgramEditor,
   FabricationSegment,
   FabricationTimeline,
   TemplateBrowser,
   TemplateEditor;
 
   /**
-   Set of routes with the main nav 'content'
+   Routes with parent content
    */
-  private static final Set<Route> contentRoutes = Set.of(
-    InstrumentAudioEditor,
-    InstrumentBrowser,
-    InstrumentEditor,
-    LibraryBrowser,
-    LibraryEditor,
-    ProgramBrowser,
-    ProgramEditor
+  private static final Collection<Route> routesWithParentContent = Set.of(
+    ContentProgramBrowser,
+    ContentProgramEditor,
+    ContentInstrumentBrowser,
+    ContentInstrumentEditor,
+    ContentInstrumentAudioEditor,
+    ContentLibraryEditor,
+    TemplateEditor
   );
 
   /**
-   @return true if this is a content route
+   Set of routes with the main nav 'content'
    */
-  public boolean isContent() {
-    return contentRoutes.contains(this);
-  }
+  private static final Collection<Route> routesContent = Set.of(
+    ContentInstrumentAudioEditor,
+    ContentInstrumentBrowser,
+    ContentInstrumentEditor,
+    ContentLibraryBrowser,
+    ContentLibraryEditor,
+    ContentProgramBrowser,
+    ContentProgramEditor
+  );
+
+  /**
+   Set of routes with the main nav 'content'
+   */
+  private static final Collection<Route> routesBrowser = Set.of(
+    ContentInstrumentBrowser,
+    ContentLibraryBrowser,
+    ContentProgramBrowser,
+    TemplateBrowser
+  );
 
   /**
    Set of routes with the main nav 'fabrication'
    */
-  private static final Set<Route> fabricationRoutes = Set.of(
+  private static final Collection<Route> routesFabrication = Set.of(
     FabricationSegment,
     FabricationTimeline
   );
 
   /**
-   @return true if this is a fabrication route
-   */
-  public boolean isFabrication() {
-    return fabricationRoutes.contains(this);
-  }
-
-  /**
    Set of routes with the main nav 'template'
    */
-  private static final Set<Route> templateRoutes = Set.of(
+  private static final Collection<Route> routesTemplate = Set.of(
     TemplateBrowser,
     TemplateEditor
   );
 
   /**
+   @return true if this route has a parent content route
+   */
+  public boolean hasParentContent() {
+    return routesWithParentContent.contains(this);
+  }
+
+  /**
+   @return true if this is a content route
+   */
+  public boolean isContent() {
+    return routesContent.contains(this);
+  }
+
+  /**
+   @return true if this is a browser route
+   */
+  public boolean isBrowser() {
+    return routesBrowser.contains(this);
+  }
+
+  /**
+   @return true if this is a fabrication route
+   */
+  public boolean isFabrication() {
+    return routesFabrication.contains(this);
+  }
+
+  /**
    @return true if this is a template route
    */
   public boolean isTemplate() {
-    return templateRoutes.contains(this);
+    return routesTemplate.contains(this);
   }
 }

@@ -31,7 +31,7 @@
       AnchorPane.bottomAnchor="0"
       AnchorPane.leftAnchor="0"
       BorderPane.alignment="CENTER">
-      <fx:include source="fabrication/fabrication.fxml"/>
+      <fx:include source="fabrication/fabrication-timeline.fxml"/>
       <fx:include source="content/content-browser.fxml"/>
       <fx:include source="content/library-editor.fxml"/>
       <fx:include source="content/program/program-editor.fxml"/>

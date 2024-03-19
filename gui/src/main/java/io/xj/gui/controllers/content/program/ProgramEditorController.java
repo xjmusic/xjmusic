@@ -227,7 +227,7 @@ public class ProgramEditorController extends ProjectController {
 
     var visible = Bindings.createBooleanBinding(
       () -> projectService.isStateReadyProperty().get()
-        && uiStateService.navStateProperty().get().route() == Route.ProgramEditor,
+        && uiStateService.navStateProperty().get().route() == Route.ContentProgramEditor,
       projectService.isStateReadyProperty(),
       uiStateService.navStateProperty());
     uiStateService.contentModeProperty().addListener(onEditProgram);

@@ -6,11 +6,10 @@ import io.xj.gui.controllers.BrowserController;
 import io.xj.gui.controllers.CmdModalController;
 import io.xj.gui.controllers.content.common.EntityMemesController;
 import io.xj.gui.nav.Route;
-import io.xj.gui.types.ViewContentMode;
-import io.xj.gui.types.ViewMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.types.ViewContentMode;
 import io.xj.gui.utils.LaunchMenuPosition;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.gui.utils.UiUtils;
@@ -134,7 +133,7 @@ public class InstrumentEditorController extends BrowserController {
   public void onStageReady() {
     var visible = Bindings.createBooleanBinding(
       () -> projectService.isStateReadyProperty().get()
-        && uiStateService.navStateProperty().get().route() == Route.InstrumentEditor,
+        && uiStateService.navStateProperty().get().route() == Route.ContentInstrumentEditor,
       projectService.isStateReadyProperty(),
       uiStateService.navStateProperty());
     uiStateService.contentModeProperty().addListener(onEditInstrument);

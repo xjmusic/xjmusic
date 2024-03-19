@@ -28,6 +28,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -40,6 +41,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
@@ -86,11 +88,15 @@ public class FabricationTimelineController extends ProjectController {
   private final int segmentDisplayChoiceHashRecheckLimit;
   private final int displaySegmentsBeforeShip;
   private final FabricationService fabricationService;
+  private final FabricationControlsController fabricationControlsController;
   private final long refreshTimelineMillis;
   private final Timeline scrollPaneAnimationTimeline = new Timeline();
 
   // Keep track of Displayed Segments (DS), keyed by id, so we can update them in place
   private final List<DisplayedSegment> ds = new ArrayList<>();
+
+  @FXML
+  BorderPane container;
 
   @FXML
   ScrollPane scrollPane;
@@ -127,7 +133,7 @@ public class FabricationTimelineController extends ProjectController {
     ThemeService themeService,
     FabricationService fabricationService,
     UIStateService uiStateService,
-    ProjectService projectService
+    ProjectService projectService, FabricationControlsController fabricationControlsController
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.displaySegmentsBeforeShip = displaySegmentsBeforeNow;
@@ -136,10 +142,20 @@ public class FabricationTimelineController extends ProjectController {
     this.segmentDisplayChoiceHashRecheckLimit = segmentDisplayChoiceHashRecheckLimit;
     this.segmentGutter = segmentSpacingHorizontal;
     this.segmentWidth = segmentWidthMin;
+    this.fabricationControlsController = fabricationControlsController;
   }
 
   @Override
   public void onStageReady() {
+    fabricationControlsController.onStageReady();
+
+    var isViewModeFabrication = Bindings.createBooleanBinding(
+      () -> uiStateService.navStateProperty().get().route().isFabrication(),
+      uiStateService.navStateProperty()
+    );
+    container.visibleProperty().bind(projectService.isStateReadyProperty().and(isViewModeFabrication));
+    container.managedProperty().bind(projectService.isStateReadyProperty().and(isViewModeFabrication));
+
     segmentListView.setSpacing(segmentGutter);
     segmentListView.setPadding(new Insets(0, segmentWidth * 3, 0, segmentGutter));
 
@@ -154,6 +170,8 @@ public class FabricationTimelineController extends ProjectController {
 
   @Override
   public void onStageClose() {
+    fabricationControlsController.onStageClose();
+
     stopTimelineAnimation();
   }
 

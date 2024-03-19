@@ -7,7 +7,6 @@ import io.xj.gui.nav.Route;
 import io.xj.gui.types.GridChoice;
 import io.xj.gui.types.ProgramEditorMode;
 import io.xj.gui.types.ViewContentMode;
-import io.xj.gui.types.ViewMode;
 import io.xj.gui.types.ViewTemplateMode;
 import io.xj.gui.types.ZoomChoice;
 import io.xj.gui.utils.LaunchMenuPosition;
@@ -136,13 +135,6 @@ public interface UIStateService extends ReadyAfterBoot {
   BooleanBinding isMainActionButtonDisabledProperty();
 
   /**
-   The View Mode
-
-   @return the project view mode
-   */
-  ObjectProperty<ViewMode> viewModeProperty();
-
-  /**
    The current Navigation Route
 
    @return the current navigation route
@@ -161,11 +153,6 @@ public interface UIStateService extends ReadyAfterBoot {
    Navigate back
    */
   void navigateBack();
-
-  /**
-   @return Observable property for whether the project is in fabrication view mode
-   */
-  BooleanBinding isViewModeFabricationProperty();
 
   /**
    @return the window title

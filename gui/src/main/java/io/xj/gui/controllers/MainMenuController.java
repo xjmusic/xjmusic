@@ -4,8 +4,7 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.ProjectController;
 import io.xj.gui.WorkstationGuiFxApplication;
-import io.xj.gui.controllers.fabrication.FabricationSettingsModalController;
-import io.xj.gui.nav.NavState;
+import io.xj.gui.controllers.fabrication.FabricationTimelineSettingsModalController;
 import io.xj.gui.nav.Route;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
@@ -61,7 +60,7 @@ public class MainMenuController extends ProjectController {
   private final LabService labService;
   private final ProjectCreationModalController projectCreationModalController;
   private final UIStateService guiService;
-  private final FabricationSettingsModalController fabricationSettingsModalController;
+  private final FabricationTimelineSettingsModalController fabricationTimelineSettingsModalController;
   private final MainAboutModalController mainAboutModalController;
   private final MainLabAuthenticationModalController mainLabAuthenticationModalController;
 
@@ -148,7 +147,7 @@ public class MainMenuController extends ProjectController {
     ApplicationContext ac,
     ThemeService themeService,
     FabricationService fabricationService,
-    FabricationSettingsModalController fabricationSettingsModalController,
+    FabricationTimelineSettingsModalController fabricationTimelineSettingsModalController,
     SupportService supportService,
     LabService labService,
     MainAboutModalController mainAboutModalController,
@@ -160,7 +159,7 @@ public class MainMenuController extends ProjectController {
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.fabricationService = fabricationService;
-    this.fabricationSettingsModalController = fabricationSettingsModalController;
+    this.fabricationTimelineSettingsModalController = fabricationTimelineSettingsModalController;
     this.projectCreationModalController = projectCreationModalController;
     this.guiService = guiService;
     this.supportService = supportService;
@@ -302,7 +301,7 @@ public class MainMenuController extends ProjectController {
 
   @FXML
   void handleOpenFabricationSettings() {
-    fabricationSettingsModalController.launchModal();
+    fabricationTimelineSettingsModalController.launchModal();
   }
 
   @FXML
@@ -334,11 +333,11 @@ public class MainMenuController extends ProjectController {
     Toggle toggleTemplates,
     Toggle toggleFabrication
   ) {
-    activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, uiStateService.navStateProperty().getValue());
-    uiStateService.navStateProperty().addListener((o, ov, value) -> activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, value));
+    activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, uiStateService.navStateProperty().getValue().route());
+    uiStateService.navStateProperty().addListener((o, ov, value) -> activateViewModeToggle(toggleContent, toggleTemplates, toggleFabrication, value.route()));
     toggleGroup.selectedToggleProperty().addListener((o, ov, value) -> {
       if (Objects.equals(value, toggleContent)) {
-        uiStateService.navigateTo(Route.LibraryBrowser, null);
+        uiStateService.navigateTo(Route.ContentLibraryBrowser, null);
       } else if (Objects.equals(value, toggleTemplates)) {
         uiStateService.navigateTo(Route.TemplateBrowser, null);
       } else if (Objects.equals(value, toggleFabrication)) {
