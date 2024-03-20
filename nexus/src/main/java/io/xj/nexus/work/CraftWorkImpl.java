@@ -74,6 +74,7 @@ public class CraftWorkImpl implements CraftWork {
   private final long mixerLengthMicros;
   private final long persistenceWindowMicros;
   private final HubContent content;
+  private final AtomicBoolean nextCycleRewrite = new AtomicBoolean(false);
   private final AtomicReference<Program> nextCycleOverrideMacroProgram = new AtomicReference<>();
   private final AtomicReference<Collection<String>> nextCycleOverrideMemes = new AtomicReference<>();
   private final AtomicBoolean didOverride = new AtomicBoolean(false);
@@ -297,25 +298,28 @@ public class CraftWorkImpl implements CraftWork {
 
   @Override
   public boolean isReady() {
-    return Objects.isNull(nextCycleOverrideMacroProgram.get()) && Objects.isNull(nextCycleOverrideMemes.get());
+    return !nextCycleRewrite.get();
   }
 
   @Override
   public void doOverrideMacro(Program macroProgram) {
     LOG.info("Next craft cycle, will override macro with {}", macroProgram.getName());
     nextCycleOverrideMacroProgram.set(macroProgram);
+    nextCycleRewrite.set(true);
   }
 
   @Override
   public void resetOverrideMacro() {
     LOG.info("Did reset macro override");
     nextCycleOverrideMacroProgram.set(null);
+    nextCycleRewrite.set(false);
   }
 
   @Override
   public void doOverrideMemes(Collection<String> memes) {
     LOG.info("Next craft cycle, will override memes with {}", StringUtils.toProperCsvAnd(memes.stream().sorted().toList()));
     nextCycleOverrideMemes.set(memes);
+    nextCycleRewrite.set(true);
   }
 
   @Override
@@ -331,22 +335,20 @@ public class CraftWorkImpl implements CraftWork {
 
   /**
    Fabricate the chain based on craft state
+   <p>
+   Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub live performance modulation https://www.pivotaltracker.com/story/show/186003440
 
    @param dubbedToChainMicros already dubbed to here
    @param craftToChainMicros  target to craft until
    @throws FabricationFatalException if the chain cannot be fabricated
    */
   private void doFabrication(long dubbedToChainMicros, long craftToChainMicros) throws FabricationFatalException {
-    if (Objects.nonNull(nextCycleOverrideMacroProgram.get()) || Objects.nonNull(nextCycleOverrideMemes.get())) {
-      doFabricationOverride(dubbedToChainMicros, nextCycleOverrideMacroProgram.get(), nextCycleOverrideMemes.get());
+    if (nextCycleRewrite.get()) {
+      doFabricationRewrite(dubbedToChainMicros, nextCycleOverrideMacroProgram.get(), nextCycleOverrideMemes.get());
+      nextCycleRewrite.set(false);
     } else {
-      doFabricationDefault(craftToChainMicros);
+      doFabricationDefault(craftToChainMicros, nextCycleOverrideMacroProgram.get(), nextCycleOverrideMemes.get());
     }
-
-    // Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub
-    // live performance modulation https://www.pivotaltracker.com/story/show/186003440
-    nextCycleOverrideMacroProgram.set(null);
-    nextCycleOverrideMemes.set(null);
   }
 
   /**
@@ -355,7 +357,11 @@ public class CraftWorkImpl implements CraftWork {
    @param toChainMicros to target chain micros
    @throws FabricationFatalException if the chain cannot be fabricated
    */
-  private void doFabricationDefault(long toChainMicros) throws FabricationFatalException {
+  private void doFabricationDefault(
+    long toChainMicros,
+    @Nullable Program overrideMacroProgram,
+    @Nullable Collection<String> overrideMemes
+  ) throws FabricationFatalException {
     try {
       // currently fabricated AT (vs target fabricated TO)
       long atChainMicros = ChainUtils.computeFabricatedToChainMicros(store.readAllSegments());
@@ -376,7 +382,7 @@ public class CraftWorkImpl implements CraftWork {
         segment = buildSegmentFollowing(existing.get());
       }
       segment = store.put(segment);
-      doFabricationWork(segment, null, null, null);
+      doFabricationWork(segment, null, overrideMacroProgram, overrideMemes);
 
     } catch (
       ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException |
@@ -400,7 +406,7 @@ public class CraftWorkImpl implements CraftWork {
    @param overrideMemes        to override fabrication
    @throws FabricationFatalException if the chain cannot be fabricated
    */
-  private void doFabricationOverride(
+  private void doFabricationRewrite(
     long dubbedToChainMicros,
     @Nullable Program overrideMacroProgram,
     @Nullable Collection<String> overrideMemes
@@ -594,8 +600,7 @@ public class CraftWorkImpl implements CraftWork {
    @param e        exception (optional)
    */
   void didFailWhile(String msgWhile, Exception e) {
-    var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
-    LOG.error("Failed while {} because {}! {}\n{}", msgWhile, msgCause, e, StringUtils.formatStackTrace(e));
+    LOG.error("Failed while {} because {}\n{}", msgWhile, e.getMessage(), StringUtils.formatStackTrace(e));
     running.set(false);
     finish();
   }
