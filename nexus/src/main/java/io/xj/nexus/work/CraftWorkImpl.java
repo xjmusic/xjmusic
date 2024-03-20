@@ -335,6 +335,8 @@ public class CraftWorkImpl implements CraftWork {
 
   /**
    Fabricate the chain based on craft state
+   <p>
+   Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub live performance modulation https://www.pivotaltracker.com/story/show/186003440
 
    @param dubbedToChainMicros already dubbed to here
    @param craftToChainMicros  target to craft until
@@ -343,13 +345,10 @@ public class CraftWorkImpl implements CraftWork {
   private void doFabrication(long dubbedToChainMicros, long craftToChainMicros) throws FabricationFatalException {
     if (nextCycleCutSegmentShort.get()) {
       doFabricationCutSegmentShort(dubbedToChainMicros, nextCycleOverrideMacroProgram.get(), nextCycleOverrideMemes.get());
+      nextCycleCutSegmentShort.set(false);
     } else {
       doFabricationDefault(craftToChainMicros, nextCycleOverrideMacroProgram.get(), nextCycleOverrideMemes.get());
     }
-
-    // Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub
-    // live performance modulation https://www.pivotaltracker.com/story/show/186003440
-    nextCycleCutSegmentShort.set(false);
   }
 
   /**
@@ -601,8 +600,7 @@ public class CraftWorkImpl implements CraftWork {
    @param e        exception (optional)
    */
   void didFailWhile(String msgWhile, Exception e) {
-    var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
-    LOG.error("Failed while {} because {}! {}\n{}", msgWhile, msgCause, e, StringUtils.formatStackTrace(e));
+    LOG.error("Failed while {} because {}\n{}", msgWhile, e.getMessage(), StringUtils.formatStackTrace(e));
     running.set(false);
     finish();
   }
