@@ -74,7 +74,7 @@ public class CraftWorkImpl implements CraftWork {
   private final long mixerLengthMicros;
   private final long persistenceWindowMicros;
   private final HubContent content;
-  private final AtomicBoolean nextCycleCutSegmentShort = new AtomicBoolean(false);
+  private final AtomicBoolean nextCycleRewrite = new AtomicBoolean(false);
   private final AtomicReference<Program> nextCycleOverrideMacroProgram = new AtomicReference<>();
   private final AtomicReference<Collection<String>> nextCycleOverrideMemes = new AtomicReference<>();
   private final AtomicBoolean didOverride = new AtomicBoolean(false);
@@ -298,28 +298,28 @@ public class CraftWorkImpl implements CraftWork {
 
   @Override
   public boolean isReady() {
-    return Objects.isNull(nextCycleOverrideMacroProgram.get()) && Objects.isNull(nextCycleOverrideMemes.get());
+    return !nextCycleRewrite.get();
   }
 
   @Override
   public void doOverrideMacro(Program macroProgram) {
     LOG.info("Next craft cycle, will override macro with {}", macroProgram.getName());
     nextCycleOverrideMacroProgram.set(macroProgram);
-    nextCycleCutSegmentShort.set(true);
+    nextCycleRewrite.set(true);
   }
 
   @Override
   public void resetOverrideMacro() {
     LOG.info("Did reset macro override");
     nextCycleOverrideMacroProgram.set(null);
-    nextCycleCutSegmentShort.set(false);
+    nextCycleRewrite.set(false);
   }
 
   @Override
   public void doOverrideMemes(Collection<String> memes) {
     LOG.info("Next craft cycle, will override memes with {}", StringUtils.toProperCsvAnd(memes.stream().sorted().toList()));
     nextCycleOverrideMemes.set(memes);
-    nextCycleCutSegmentShort.set(true);
+    nextCycleRewrite.set(true);
   }
 
   @Override
@@ -343,9 +343,9 @@ public class CraftWorkImpl implements CraftWork {
    @throws FabricationFatalException if the chain cannot be fabricated
    */
   private void doFabrication(long dubbedToChainMicros, long craftToChainMicros) throws FabricationFatalException {
-    if (nextCycleCutSegmentShort.get()) {
-      doFabricationCutSegmentShort(dubbedToChainMicros, nextCycleOverrideMacroProgram.get(), nextCycleOverrideMemes.get());
-      nextCycleCutSegmentShort.set(false);
+    if (nextCycleRewrite.get()) {
+      doFabricationRewrite(dubbedToChainMicros, nextCycleOverrideMacroProgram.get(), nextCycleOverrideMemes.get());
+      nextCycleRewrite.set(false);
     } else {
       doFabricationDefault(craftToChainMicros, nextCycleOverrideMacroProgram.get(), nextCycleOverrideMemes.get());
     }
@@ -406,7 +406,7 @@ public class CraftWorkImpl implements CraftWork {
    @param overrideMemes        to override fabrication
    @throws FabricationFatalException if the chain cannot be fabricated
    */
-  private void doFabricationCutSegmentShort(
+  private void doFabricationRewrite(
     long dubbedToChainMicros,
     @Nullable Program overrideMacroProgram,
     @Nullable Collection<String> overrideMemes
