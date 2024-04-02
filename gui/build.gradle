@@ -151,7 +151,7 @@ jpackage {
   //for the jlink options these are passed as default , so no need to add them :
   // [--strip-native-commands --strip-debug --no-man-pages --no-header-files]
   mac {
-    type = ImageType.DMG
+    type = ImageType.PKG
     icon = "$workingDir/xjmusicapp.icns"
     macAppStore = false
     macAppCategory = "Audio"
@@ -181,7 +181,7 @@ jpackage {
   doLast {
     def osToExtensionMap = [
       'windows' : 'exe',
-      'mac os x': 'dmg',
+      'mac os x': 'pkg',
       'linux'   : 'deb'
     ]
     def extension = osToExtensionMap[currentOs.name.toLowerCase()]
