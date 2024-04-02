@@ -1,0 +1,259 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXFileReference section */
+		B44556CB2BBC89670017E83A /* gradlew */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = gradlew; sourceTree = "<group>"; };
+		B44556CC2BBC89670017E83A /* art */ = {isa = PBXFileReference; lastKnownFileType = folder; path = art; sourceTree = "<group>"; };
+		B44556CD2BBC89670017E83A /* build.gradle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = build.gradle; sourceTree = "<group>"; };
+		B44556CE2BBC89670017E83A /* gradle-local.properties */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "gradle-local.properties"; sourceTree = "<group>"; };
+		B44556CF2BBC89670017E83A /* service */ = {isa = PBXFileReference; lastKnownFileType = folder; path = service; sourceTree = "<group>"; };
+		B44556D02BBC89670017E83A /* EclipseCodeStyle.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = EclipseCodeStyle.xml; sourceTree = "<group>"; };
+		B44556D12BBC89670017E83A /* gradlew.bat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gradlew.bat; sourceTree = "<group>"; };
+		B44556D22BBC89670017E83A /* gradle.properties */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gradle.properties; sourceTree = "<group>"; };
+		B44556D32BBC89670017E83A /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		B44556D42BBC89670017E83A /* gui */ = {isa = PBXFileReference; lastKnownFileType = folder; path = gui; sourceTree = "<group>"; };
+		B44556D52BBC89670017E83A /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		B44556D62BBC89670017E83A /* installsplash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = installsplash.png; sourceTree = "<group>"; };
+		B44556D72BBC89670017E83A /* IntellijCodeStyle.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = IntellijCodeStyle.xml; sourceTree = "<group>"; };
+		B44556D82BBC89680017E83A /* gradle-local.example.properties */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "gradle-local.example.properties"; sourceTree = "<group>"; };
+		B44556D92BBC89680017E83A /* nexus */ = {isa = PBXFileReference; lastKnownFileType = folder; path = nexus; sourceTree = "<group>"; };
+		B44556DA2BBC89680017E83A /* gradle */ = {isa = PBXFileReference; lastKnownFileType = folder; path = gradle; sourceTree = "<group>"; };
+		B44556DB2BBC89680017E83A /* settings.gradle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = settings.gradle; sourceTree = "<group>"; };
+		B44556DC2BBC89680017E83A /* splash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash.png; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		B44556C02BBC890E0017E83A = {
+			isa = PBXGroup;
+			children = (
+				B44556CC2BBC89670017E83A /* art */,
+				B44556CD2BBC89670017E83A /* build.gradle */,
+				B44556D02BBC89670017E83A /* EclipseCodeStyle.xml */,
+				B44556DA2BBC89680017E83A /* gradle */,
+				B44556D82BBC89680017E83A /* gradle-local.example.properties */,
+				B44556CE2BBC89670017E83A /* gradle-local.properties */,
+				B44556D22BBC89670017E83A /* gradle.properties */,
+				B44556CB2BBC89670017E83A /* gradlew */,
+				B44556D12BBC89670017E83A /* gradlew.bat */,
+				B44556D42BBC89670017E83A /* gui */,
+				B44556D62BBC89670017E83A /* installsplash.png */,
+				B44556D72BBC89670017E83A /* IntellijCodeStyle.xml */,
+				B44556D52BBC89670017E83A /* LICENSE */,
+				B44556D92BBC89680017E83A /* nexus */,
+				B44556D32BBC89670017E83A /* README.md */,
+				B44556CF2BBC89670017E83A /* service */,
+				B44556DB2BBC89680017E83A /* settings.gradle */,
+				B44556DC2BBC89680017E83A /* splash.png */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXLegacyTarget section */
+		B44556C52BBC890E0017E83A /* workstation */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = B44556C82BBC890E0017E83A /* Build configuration list for PBXLegacyTarget "workstation" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/local/bin/gradle;
+			dependencies = (
+			);
+			name = workstation;
+			passBuildSettingsInEnvironment = 1;
+			productName = workstation;
+		};
+/* End PBXLegacyTarget section */
+
+/* Begin PBXProject section */
+		B44556C12BBC890E0017E83A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1400;
+				TargetAttributes = {
+					B44556C52BBC890E0017E83A = {
+						CreatedOnToolsVersion = 14.0.1;
+					};
+				};
+			};
+			buildConfigurationList = B44556C42BBC890E0017E83A /* Build configuration list for PBXProject "workstation" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = B44556C02BBC890E0017E83A;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B44556C52BBC890E0017E83A /* workstation */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		B44556C62BBC890E0017E83A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+			};
+			name = Debug;
+		};
+		B44556C72BBC890E0017E83A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+			};
+			name = Release;
+		};
+		B44556C92BBC890E0017E83A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEBUGGING_SYMBOLS = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = YPLLD4NMW2;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		B44556CA2BBC890E0017E83A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = YPLLD4NMW2;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B44556C42BBC890E0017E83A /* Build configuration list for PBXProject "workstation" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B44556C62BBC890E0017E83A /* Debug */,
+				B44556C72BBC890E0017E83A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B44556C82BBC890E0017E83A /* Build configuration list for PBXLegacyTarget "workstation" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B44556C92BBC890E0017E83A /* Debug */,
+				B44556CA2BBC890E0017E83A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B44556C12BBC890E0017E83A /* Project object */;
+}
