@@ -106,6 +106,7 @@ test {
 //set the working directory
 def buildPath = "build/jpackage"
 def workingDir = file("${buildPath}/")
+def projectDir = file("./")
 
 //copies the needed jar (complete fat jar) while skipping the gui-plain minimal jar file
 //and copies the icon resources for the needed platform
@@ -151,11 +152,14 @@ jpackage {
   //for the jlink options these are passed as default , so no need to add them :
   // [--strip-native-commands --strip-debug --no-man-pages --no-header-files]
   mac {
-    type = ImageType.PKG
+    type = ImageType.DMG
     icon = "$workingDir/xjmusicapp.icns"
     macAppStore = false
-    macAppCategory = "Audio"
+    macSign = true
+    macAppCategory = "public.app-category.music"
+    macPackageName = "XJ music workstation"
     macPackageIdentifier = "io.xj.music.workstation"
+    macSigningKeyUserName = "XJ Music Inc"
   }
   linux {
     linuxShortcut = true

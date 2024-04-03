@@ -115,47 +115,6 @@ jobs:
             :service:jib
         continue-on-error: false
 
-#  distribute_gui_jar:
-#    needs: verify
-#    name: GUI JAR [${{ matrix.os }}-JDK${{ matrix.java }}]
-#    env:
-#      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
-#      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
-#    permissions: write-all
-#    runs-on: ${{ matrix.os }}
-#    strategy:
-#      matrix:
-#        os: [ ubuntu-latest, macOS-latest, windows-latest ]
-#        java: [ '17' ]
-#      fail-fast: false
-#    steps:
-#
-#      - name: Git checkout
-#        uses: actions/checkout@v2
-#
-#      - name: Set up JDK
-#        uses: actions/setup-java@v1
-#        with:
-#          java-version: ${{ matrix.java }}
-#
-#      - name: Echo JAVA_HOME
-#        run: echo $JAVA_HOME
-#
-#      - name: Verify Gradle Wrapper
-#        uses: gradle/wrapper-validation-action@v1
-#
-#      - name: Execute spring boot distribution .jar
-#        run: ./gradlew --info --stacktrace :gui:bootJarZip
-#
-#      - name: Upload binaries to release
-#        uses: svenstaro/upload-release-action@v2
-#        with:
-#          repo_token: ${{ secrets.GITHUB_TOKEN }}
-#          file: gui/build/dist/xjmusic-workstation-gui-${{ needs.verify.outputs.version }}.zip
-#          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-jre${{ matrix.java }}-${{ runner.os }}.jar.zip
-#          tag: ${{ github.ref }}
-#          overwrite: true
-
   distribute_gui_installer:
     needs: verify
     name: GUI Installer [${{ matrix.os }}-JDK${{ matrix.java }}]
@@ -185,11 +144,53 @@ jobs:
       - name: Verify Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
 
+      - name: Install the Apple certificate (macOS)
+        if: runner.os == 'macOS'
+        env:
+          MACOS_BUILD_CERTIFICATE_BASE64: ${{ secrets.MACOS_BUILD_CERTIFICATE_BASE64 }}
+          MACOS_P12_PASSWORD: ${{ secrets.MACOS_P12_PASSWORD }}
+          MACOS_KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
+        run: |
+          # create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          # import certificate from secrets
+          echo -n "$MACOS_BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+
+          # create temporary keychain
+          security create-keychain -p "$MACOS_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$MACOS_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$MACOS_P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security set-key-partition-list -S apple-tool:,apple: -k "$MACOS_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
       - name: Execute build
         run: ./gradlew --info --stacktrace :gui:build
 
       - name: Execute jpackage
         run: ./gradlew --info --stacktrace :gui:jpackage
+
+      - name: Notarize app bundle (macOS)
+        # Extract the secrets we defined earlier as environment variables
+        env:
+          MACOS_NOTARIZATION_APPLE_ID: ${{ secrets.MACOS_NOTARIZATION_APPLE_ID }}
+          MACOS_NOTARIZATION_TEAM_ID: ${{ secrets.MACOS_NOTARIZATION_TEAM_ID }}
+          MACOS_NOTARIZATION_PWD: ${{ secrets.MACOS_NOTARIZATION_PWD }}
+        run: |
+          # Store the notarization credentials so that we can prevent a UI password dialog from blocking the CI
+          echo "Create keychain profile"
+          xcrun notarytool store-credentials "notarytool-profile" --apple-id "$MACOS_NOTARIZATION_APPLE_ID" --team-id "$MACOS_NOTARIZATION_TEAM_ID" --password "$MACOS_NOTARIZATION_PWD"
+          
+          # Here we send the notarization request to the Apple's Notarization service, waiting for the result.
+          # This typically takes a few seconds inside a CI environment, but it might take more depending on the App
+          # characteristics. Visit the Notarization docs for more information and strategies on how to optimize it if
+          # you're curious
+          echo "Notarize app"
+          xcrun notarytool submit xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg --keychain-profile "notarytool-profile" --wait
 
       - name: Compress DMG for macOS
         if: runner.os == 'macOS'
@@ -197,13 +198,23 @@ jobs:
           cd gui/build/jpackage/
           zip -r ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.dmg.zip xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
 
-      - name: Upload DMG to release (macOS)
-        if: runner.os == 'macOS'
+      - name: Upload DMG to release (macOS/Intel)
+        if: runner.os == 'macOS' && $(arch) == 'i386'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.dmg.zip
-          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.dmg.zip
+          file: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip
+          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+
+      - name: Upload DMG to release (macOS/Silicon)
+        if: runner.os == 'macOS' && $(arch) == 'arm64'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Silicon.dmg.zip
+          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Silicon.dmg.zip
           tag: ${{ github.ref }}
           overwrite: true
 
