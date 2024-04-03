@@ -146,11 +146,11 @@ jobs:
           echo "----- Notarize app -----"
           xcrun notarytool submit gui/build/jpackage/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg --keychain-profile "notarytool-profile" --wait
 
-      - name: Compress DMG for macOS
-        if: runner.os == 'macOS'
+      - name: Compress DMG (macOS/Intel)
+        if: runner.os == 'macOS' && runner.arch == 'X64'
         run: |
           cd gui/build/jpackage/
-          zip -r ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.dmg.zip xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
+          zip -r ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
 
       - name: Upload DMG to release (macOS/Intel)
         if: runner.os == 'macOS' && runner.arch == 'X64'
@@ -174,6 +174,12 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           SOURCE_DIR: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip
           DEST_DIR: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip
+
+      - name: Compress DMG (macOS/Silicon)
+        if: runner.os == 'macOS' && runner.arch == 'ARM64'
+        run: |
+          cd gui/build/jpackage/
+          zip -r ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Silicon.dmg.zip xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
 
       - name: Upload DMG to release (macOS/Silicon)
         if: runner.os == 'macOS' && runner.arch == 'ARM64'
