@@ -9,6 +9,8 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.UiUtils;
+import io.xj.hub.util.StringUtils;
+import jakarta.annotation.Nonnull;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
@@ -55,13 +57,23 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
   }
 
   @Override
-  public void onApplicationEvent(StageReadyEvent event) {
-    UiUtils.setupTaskbar();
-    var primaryStage = event.getStage();
-    UiUtils.setupIcon(primaryStage);
-    primaryStage.initStyle(StageStyle.DECORATED);
+  public void onApplicationEvent(@Nonnull StageReadyEvent event) {
+    Stage primaryStage;
+    try {
+      UiUtils.setupTaskbar();
+      primaryStage = event.getStage();
+      UiUtils.setupIcon(primaryStage);
+      primaryStage.initStyle(StageStyle.DECORATED);
+    } catch (Exception e) {
+      LOG.error("Failed to initialize Stage! {}\n{}", e.getMessage(), StringUtils.formatStackTrace(e));
+      return;
+    }
 
-    eulaModalController.ensureAcceptance(primaryStage, () -> onEulaAccepted(primaryStage));
+    try {
+      eulaModalController.ensureAcceptance(primaryStage, () -> onEulaAccepted(primaryStage));
+    } catch (Exception e) {
+      LOG.error("Failed to launch EULA modal! {}\n{}", e.getMessage(), StringUtils.formatStackTrace(e));
+    }
   }
 
   /**

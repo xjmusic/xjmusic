@@ -2,6 +2,7 @@
 
 package io.xj.gui;
 
+import io.xj.hub.util.StringUtils;
 import jakarta.annotation.Nullable;
 import javafx.application.Application;
 import javafx.application.HostServices;
@@ -30,7 +31,11 @@ public class WorkstationGuiFxApplication extends Application {
       return;
     }
     LOG.info("Will publish StageReadyEvent");
-    ac.publishEvent(new StageReadyEvent(primaryStage));
+    try {
+      ac.publishEvent(new StageReadyEvent(primaryStage));
+    } catch (Exception e) {
+      LOG.error("Failed to publish StageReadyEvent! {}\n{}", e.getMessage(), StringUtils.formatStackTrace(e));
+    }
   }
 
   @Override

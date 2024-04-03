@@ -28,5 +28,6 @@ _ignore*
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
 
-# OS
+# Mac OS & distribution
 .DS_Store
+*.cer
