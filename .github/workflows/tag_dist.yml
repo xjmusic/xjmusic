@@ -125,7 +125,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, macOS-latest, windows-latest ]
+        os: [ ubuntu-latest, macos-13, macos-14, windows-latest ]
         java: [ '17' ]
       fail-fast: false
     steps:
@@ -198,8 +198,12 @@ jobs:
           cd gui/build/jpackage/
           zip -r ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.dmg.zip xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
 
+      - name: Confirm current architecture (macOS)
+        if: runner.os == 'macOS'
+        run: arch
+
       - name: Upload DMG to release (macOS/Intel)
-        if: runner.os == 'macOS' && $(arch) == 'i386'
+        if: runner.os == 'macOS' && runner.arch == 'X64'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -209,7 +213,7 @@ jobs:
           overwrite: true
 
       - name: Upload DMG to release (macOS/Silicon)
-        if: runner.os == 'macOS' && $(arch) == 'arm64'
+        if: runner.os == 'macOS' && runner.arch == 'ARM64'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
