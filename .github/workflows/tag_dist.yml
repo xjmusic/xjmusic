@@ -170,7 +170,7 @@ jobs:
           overwrite: true
 
       - name: Upload DMG to Amazon S3 (macOS/Intel)
-        if: runner.os == 'macOS' && runner.arch == 'ARM64'
+        if: runner.os == 'macOS' && runner.arch == 'X64'
         run:
           aws s3 cp xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip s3://${{ secrets.AWS_S3_BUCKET }}/
       
