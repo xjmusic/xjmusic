@@ -69,56 +69,6 @@ jobs:
         run: "./gradlew --info --no-daemon build test"
         continue-on-error: false
 
-  distribute_service:
-    needs: verify
-    env:
-      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
-      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
-    name: Service Container
-    runs-on: ubuntu-22.04
-    permissions: write-all
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - uses: burrunan/gradle-cache-action@v1
-        name: Cache Gradle
-        with:
-          job-id: jdk17
-
-      - name: Setup JDK 17
-        uses: actions/setup-java@v1
-        with:
-          java-version: 17
-          java-package: jdk
-
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle8-java17-${{ hashFiles('**/*.gradle*') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle8-java17-
-
-      - name: (GCP) Authenticate and setup Google Cloud SDK
-        uses: 'google-github-actions/auth@v1'
-        with:
-          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
-
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v1'
-
-      - name: (GCP) Build & push Docker images
-        run: |
-          ./gradlew --info --no-daemon \
-            -PjibFromImage=gcr.io/xj-vpc-host-prod/base:latest \
-            -PjibToImageRegistry=gcr.io/xj-vpc-host-prod \
-            -PjibToTags=v${{ needs.verify.outputs.version }} \
-            :service:jib
-        continue-on-error: false
-
   distribute_gui_installer:
     needs: verify
     name: GUI Installer [${{ matrix.os }}-JDK${{ matrix.java }}]
