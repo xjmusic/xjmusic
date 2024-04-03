@@ -157,7 +157,6 @@ jpackage {
     macAppStore = false
     macSign = true
     macAppCategory = "public.app-category.music"
-    macPackageName = "XJ music workstation"
     macPackageIdentifier = "io.xj.music.workstation"
     macSigningKeyUserName = "XJ Music Inc"
   }
