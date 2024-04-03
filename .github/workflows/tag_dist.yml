@@ -84,6 +84,13 @@ jobs:
         if: runner.os == 'macOS'
         run: arch
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets. AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets. AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
       - name: Git checkout
         uses: actions/checkout@v2
 
@@ -163,16 +170,10 @@ jobs:
           overwrite: true
 
       - name: Upload DMG to Amazon S3 (macOS/Intel)
-        if: runner.os == 'macOS' && runner.arch == 'X64'
-        uses: keithweaver/aws-s3-github-action@v1.0.0
-        with:
-          command: cp
-          source: ./xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip
-          destination: s3://${{ secrets.AWS_S3_BUCKET }}/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: ${{ secrets.AWS_REGION }}
-
+        if: runner.os == 'macOS' && runner.arch == 'ARM64'
+        run:
+          aws s3 cp xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip s3://${{ secrets.AWS_S3_BUCKET }}/
+      
       - name: Compress DMG (macOS/Silicon)
         if: runner.os == 'macOS' && runner.arch == 'ARM64'
         run: |
@@ -191,14 +192,8 @@ jobs:
 
       - name: Upload DMG to Amazon S3 (macOS/Silicon)
         if: runner.os == 'macOS' && runner.arch == 'ARM64'
-        uses: keithweaver/aws-s3-github-action@v1.0.0
-        with:
-          command: cp
-          source: ./xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Silicon.dmg.zip
-          destination: s3://${{ secrets.AWS_S3_BUCKET }}/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Silicon.dmg.zip
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: ${{ secrets.AWS_REGION }}
+        run:
+          aws s3 cp xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Silicon.dmg.zip s3://${{ secrets.AWS_S3_BUCKET }}/
           
       - name: Compress EXE for Windows
         if: runner.os == 'Windows'
@@ -218,14 +213,8 @@ jobs:
 
       - name: Upload EXE to Amazon S3 (Windows)
         if: runner.os == 'Windows'
-        uses: keithweaver/aws-s3-github-action@v1.0.0
-        with:
-          command: cp
-          source: ./xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.exe.zip
-          destination: s3://${{ secrets.AWS_S3_BUCKET }}/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.exe.zip
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: ${{ secrets.AWS_REGION }}
+        run:
+          aws s3 cp xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.exe.zip s3://${{ secrets.AWS_S3_BUCKET }}/
 
       - name: Compress DEB for Linux
         if: runner.os == 'Linux'
@@ -245,14 +234,5 @@ jobs:
 
       - name: Upload DEB to Amazon S3 (Linux)
         if: runner.os == 'Linux'
-        uses: jakejarvis/s3-sync-action@master
-        with:
-          args: --acl public-read --follow-symlinks --delete
-        env:
-          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          SOURCE_DIR: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.deb.tar.gz
-          DEST_DIR: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.deb.tar.gz
-
+        run:
+          aws s3 cp xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.deb.tar.gz s3://${{ secrets.AWS_S3_BUCKET }}/
