@@ -156,6 +156,19 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
 
+      - name: Upload DMG to Amazon S3 (macOS/Intel)
+        if: runner.os == 'macOS' && runner.arch == 'X64'
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --follow-symlinks --delete
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          SOURCE_DIR: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip
+          DEST_DIR: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip
+
       - name: Upload DMG to release (macOS/Silicon)
         if: runner.os == 'macOS' && runner.arch == 'ARM64'
         uses: svenstaro/upload-release-action@v2
@@ -165,6 +178,19 @@ jobs:
           asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Silicon.dmg.zip
           tag: ${{ github.ref }}
           overwrite: true
+
+      - name: Upload DMG to Amazon S3 (macOS/Silicon)
+        if: runner.os == 'macOS' && runner.arch == 'X64'
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --follow-symlinks --delete
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          SOURCE_DIR: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Silicon.dmg.zip
+          DEST_DIR: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Silicon.dmg.zip
 
       - name: Compress EXE for Windows
         if: runner.os == 'Windows'
@@ -182,6 +208,19 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
 
+      - name: Upload EXE to Amazon S3 (Windows)
+        if: runner.os == 'Windows'
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --follow-symlinks --delete
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          SOURCE_DIR: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.exe.zip
+          DEST_DIR: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.exe.zip
+
       - name: Compress DEB for Linux
         if: runner.os == 'Linux'
         run: |
@@ -197,3 +236,17 @@ jobs:
           asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.deb.tar.gz
           tag: ${{ github.ref }}
           overwrite: true
+
+      - name: Upload EXE to Amazon S3 (Linux)
+        if: runner.os == 'Linux'
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --follow-symlinks --delete
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          SOURCE_DIR: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.deb.tar.gz
+          DEST_DIR: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.deb.tar.gz
+
