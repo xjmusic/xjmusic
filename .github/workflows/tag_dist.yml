@@ -128,6 +128,12 @@ jobs:
       - name: Execute jpackage
         run: ./gradlew --info --stacktrace :gui:jpackage
 
+      - name: Rename DMG for macOS
+        if: runner.os == 'macOS'
+        run: |
+          cd gui/build/jpackage/
+          mv XJ\ music\ workstation-${{ needs.verify.outputs.version }}.dmg xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
+
       - name: Notarize app bundle (macOS)
         if: runner.os == 'macOS'
         env:
