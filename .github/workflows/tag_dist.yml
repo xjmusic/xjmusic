@@ -14,6 +14,10 @@ jobs:
     outputs:
       version: ${{ steps.get-version.outputs.version }}
     steps:
+      - name: Confirm current architecture (macOS)
+        if: runner.os == 'macOS'
+        run: arch
+
       - name: Checkout
         uses: actions/checkout@v2
 
@@ -190,17 +194,13 @@ jobs:
           # characteristics. Visit the Notarization docs for more information and strategies on how to optimize it if
           # you're curious
           echo "Notarize app"
-          xcrun notarytool submit gui/build/jpackage/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg --keychain-profile "notarytool-profile" --wait
+          xcrun notarytool submit "./gui/build/jpackage/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg" --keychain-profile "notarytool-profile" --wait
 
       - name: Compress DMG for macOS
         if: runner.os == 'macOS'
         run: |
           cd gui/build/jpackage/
           zip -r ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.dmg.zip xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
-
-      - name: Confirm current architecture (macOS)
-        if: runner.os == 'macOS'
-        run: arch
 
       - name: Upload DMG to release (macOS/Intel)
         if: runner.os == 'macOS' && runner.arch == 'X64'
