@@ -3,7 +3,7 @@ package io.xj.gui.controllers.content.program.chord_edit_mode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.UiUtils;
-import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.pojos.ProgramSequenceChordVoicing;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;

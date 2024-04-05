@@ -2,8 +2,7 @@
 
 package io.xj.hub;
 
-import io.xj.hub.InstrumentConfig;
-import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.pojos.Instrument;
 import io.xj.hub.util.ValueException;
 import org.junit.jupiter.api.Test;
 

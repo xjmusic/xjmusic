@@ -1,6 +1,6 @@
 package io.xj.nexus.audio;
 
-import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.pojos.InstrumentAudio;
 
 import javax.sound.sampled.AudioFormat;
 import java.util.UUID;

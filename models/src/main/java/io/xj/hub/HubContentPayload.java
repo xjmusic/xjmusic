@@ -3,24 +3,24 @@
 package io.xj.hub;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.tables.pojos.InstrumentMeme;
-import io.xj.hub.tables.pojos.Library;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramMeme;
-import io.xj.hub.tables.pojos.ProgramSequence;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
-import io.xj.hub.tables.pojos.ProgramSequenceChord;
-import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
-import io.xj.hub.tables.pojos.ProgramSequencePattern;
-import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
-import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.hub.tables.pojos.ProgramVoiceTrack;
-import io.xj.hub.tables.pojos.Project;
-import io.xj.hub.tables.pojos.Template;
-import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.pojos.Instrument;
+import io.xj.hub.pojos.InstrumentAudio;
+import io.xj.hub.pojos.InstrumentMeme;
+import io.xj.hub.pojos.Library;
+import io.xj.hub.pojos.Program;
+import io.xj.hub.pojos.ProgramMeme;
+import io.xj.hub.pojos.ProgramSequence;
+import io.xj.hub.pojos.ProgramSequenceBinding;
+import io.xj.hub.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.pojos.ProgramSequenceChord;
+import io.xj.hub.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.pojos.ProgramSequencePattern;
+import io.xj.hub.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.pojos.ProgramVoice;
+import io.xj.hub.pojos.ProgramVoiceTrack;
+import io.xj.hub.pojos.Project;
+import io.xj.hub.pojos.Template;
+import io.xj.hub.pojos.TemplateBinding;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -120,12 +120,12 @@ public class HubContentPayload {
         .map(ent -> (ProgramVoiceTrack) ent)
         .collect(Collectors.toList()))
       .setLibraries(entities.stream()
-        .filter(ent -> io.xj.hub.tables.pojos.Library.class.equals(ent.getClass()))
-        .map(ent -> (io.xj.hub.tables.pojos.Library) ent)
+        .filter(ent -> io.xj.hub.pojos.Library.class.equals(ent.getClass()))
+        .map(ent -> (io.xj.hub.pojos.Library) ent)
         .collect(Collectors.toList()))
       .setProjects(entities.stream()
-        .filter(ent -> io.xj.hub.tables.pojos.Project.class.equals(ent.getClass()))
-        .map(ent -> (io.xj.hub.tables.pojos.Project) ent)
+        .filter(ent -> io.xj.hub.pojos.Project.class.equals(ent.getClass()))
+        .map(ent -> (io.xj.hub.pojos.Project) ent)
         .collect(Collectors.toList()));
   }
 

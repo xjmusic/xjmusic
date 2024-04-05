@@ -2,7 +2,7 @@
 package io.xj.hub.util;
 
 import io.xj.hub.music.Accidental;
-import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.pojos.InstrumentAudio;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;

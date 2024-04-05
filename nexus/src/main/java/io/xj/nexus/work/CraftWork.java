@@ -3,9 +3,9 @@ package io.xj.nexus.work;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.TemplateConfig;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.pojos.Instrument;
+import io.xj.hub.pojos.InstrumentAudio;
+import io.xj.hub.pojos.Program;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;

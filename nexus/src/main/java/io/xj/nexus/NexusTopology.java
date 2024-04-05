@@ -2,16 +2,16 @@
 package io.xj.nexus;
 
 import io.xj.hub.entity.EntityFactory;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.hub.tables.pojos.ProgramSequenceChord;
-import io.xj.hub.tables.pojos.ProgramSequencePattern;
-import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
-import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.hub.tables.pojos.Project;
-import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.pojos.Instrument;
+import io.xj.hub.pojos.InstrumentAudio;
+import io.xj.hub.pojos.Program;
+import io.xj.hub.pojos.ProgramSequenceBinding;
+import io.xj.hub.pojos.ProgramSequenceChord;
+import io.xj.hub.pojos.ProgramSequencePattern;
+import io.xj.hub.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.pojos.ProgramVoice;
+import io.xj.hub.pojos.Project;
+import io.xj.hub.pojos.Template;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;

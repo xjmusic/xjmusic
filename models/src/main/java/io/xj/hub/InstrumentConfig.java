@@ -4,7 +4,7 @@ package io.xj.hub;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.pojos.Instrument;
 import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;

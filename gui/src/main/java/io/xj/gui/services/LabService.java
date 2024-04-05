@@ -1,8 +1,8 @@
 package io.xj.gui.services;
 
 import io.xj.hub.HubConfiguration;
-import io.xj.hub.tables.pojos.Project;
-import io.xj.hub.tables.pojos.User;
+import io.xj.hub.pojos.Project;
+import io.xj.hub.pojos.User;
 import io.xj.nexus.hub_client.HubClientAccess;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ObjectProperty;

@@ -18,9 +18,7 @@ module hub.models.main {
   exports io.xj.hub.jsonapi;
   exports io.xj.hub.meme;
   exports io.xj.hub.music;
-  exports io.xj.hub.tables.pojos;
-  exports io.xj.hub.tables.records;
-  exports io.xj.hub.tables;
+  exports io.xj.hub.pojos;
   exports io.xj.hub.util;
   exports io.xj.hub;
 }

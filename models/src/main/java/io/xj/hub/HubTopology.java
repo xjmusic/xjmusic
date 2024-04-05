@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub;
 
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.pojos.*;
 import io.xj.hub.entity.EntityFactory;
 
 /**

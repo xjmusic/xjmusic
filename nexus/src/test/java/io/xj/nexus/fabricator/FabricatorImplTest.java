@@ -15,7 +15,7 @@ import io.xj.hub.music.Chord;
 import io.xj.hub.music.Note;
 import io.xj.hub.music.PitchClass;
 import io.xj.hub.music.StickyBun;
-import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.pojos.Template;
 import io.xj.hub.util.ValueException;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;

@@ -4,8 +4,8 @@ package io.xj.nexus.craft.transition;
 
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.music.Bar;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.pojos.Instrument;
+import io.xj.hub.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.CraftImpl;

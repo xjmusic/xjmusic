@@ -5,7 +5,7 @@ import io.xj.gui.types.ProgramEditorMode;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.pojos.ProgramSequenceBinding;
 import io.xj.hub.util.StringUtils;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ObjectProperty;

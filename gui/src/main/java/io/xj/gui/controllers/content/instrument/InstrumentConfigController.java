@@ -3,7 +3,7 @@ package io.xj.gui.controllers.content.instrument;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.utils.UiUtils;
 import io.xj.hub.InstrumentConfig;
-import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.pojos.Instrument;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;

@@ -5,7 +5,7 @@ package io.xj.nexus.work;
 import io.xj.hub.HubConfiguration;
 import io.xj.hub.HubContent;
 import io.xj.hub.meme.MemeTaxonomy;
-import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.pojos.Program;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.persistence.NexusEntityStore;
 import jakarta.annotation.Nullable;

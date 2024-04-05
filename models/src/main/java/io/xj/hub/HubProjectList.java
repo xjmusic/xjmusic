@@ -1,7 +1,7 @@
 package io.xj.hub;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.xj.hub.tables.pojos.Project;
+import io.xj.hub.pojos.Project;
 
 import java.util.Collection;
 import java.util.HashSet;

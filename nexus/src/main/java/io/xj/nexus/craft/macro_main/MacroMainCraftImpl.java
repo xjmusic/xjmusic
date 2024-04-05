@@ -4,9 +4,9 @@ package io.xj.nexus.craft.macro_main;
 
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.music.Chord;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramSequence;
-import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.pojos.Program;
+import io.xj.hub.pojos.ProgramSequence;
+import io.xj.hub.pojos.ProgramSequenceChord;
 import io.xj.hub.util.ValueUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.CraftImpl;

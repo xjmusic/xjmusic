@@ -1,9 +1,6 @@
 package io.xj.hub.util;
 
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.tables.pojos.Library;
-import io.xj.hub.tables.pojos.Project;
+import io.xj.hub.pojos.InstrumentAudio;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -2,7 +2,7 @@ package io.xj.hub;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.xj.hub.tables.pojos.Project;
+import io.xj.hub.pojos.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -4,7 +4,7 @@ import io.xj.gui.controllers.content.common.PopupActionMenuController;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.LaunchMenuPosition;
-import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.pojos.ProgramSequenceChord;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;

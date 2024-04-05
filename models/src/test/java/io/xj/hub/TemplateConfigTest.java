@@ -3,7 +3,7 @@
 package io.xj.hub;
 
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.pojos.Template;
 import io.xj.hub.util.ValueException;
 import org.junit.jupiter.api.Test;
 

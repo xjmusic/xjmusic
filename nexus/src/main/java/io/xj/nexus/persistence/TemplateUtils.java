@@ -2,7 +2,7 @@
 
 package io.xj.nexus.persistence;
 
-import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.pojos.Template;
 import io.xj.hub.util.StringUtils;
 import jakarta.annotation.Nullable;
 

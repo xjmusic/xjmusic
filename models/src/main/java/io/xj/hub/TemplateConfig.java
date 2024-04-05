@@ -8,7 +8,7 @@ import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValue;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.meme.MemeTaxonomy;
-import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.pojos.Template;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
 
