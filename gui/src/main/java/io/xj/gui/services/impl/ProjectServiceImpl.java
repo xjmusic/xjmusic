@@ -83,7 +83,8 @@ import java.util.prefs.Preferences;
 @Service
 public class ProjectServiceImpl implements ProjectService {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectServiceImpl.class);
-  private static final String defaultPathPrefix = System.getProperty("user.home") + File.separator + "Documents";
+  private static final String defaultBasePathPrefix = System.getProperty("user.home") + File.separator + "Documents";
+  private static final String defaultExportPathPrefix = System.getProperty("user.home") + File.separator + "Documents";
   private static final double ERROR_DIALOG_WIDTH = 800.0;
   private static final double ERROR_DIALOG_HEIGHT = 600.0;
   private static final Collection<ProjectState> PROJECT_LOADING_STATES = Set.of(
@@ -101,6 +102,7 @@ public class ProjectServiceImpl implements ProjectService {
   private final ObservableObjectValue<Project> currentProject;
   private final ObservableListValue<ProjectDescriptor> recentProjects = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
   private final StringProperty basePathPrefix = new SimpleStringProperty();
+  private final StringProperty exportPathPrefix = new SimpleStringProperty();
   private final DoubleProperty progress = new SimpleDoubleProperty();
   private final StringProperty progressLabel = new SimpleStringProperty();
   private final BooleanProperty isModified = new SimpleBooleanProperty(false);
@@ -259,6 +261,11 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public StringProperty basePathPrefixProperty() {
     return basePathPrefix;
+  }
+
+  @Override
+  public StringProperty exportPathPrefixProperty() {
+    return exportPathPrefix;
   }
 
   @Override
@@ -1032,7 +1039,8 @@ public class ProjectServiceImpl implements ProjectService {
    Attach preference listeners.
    */
   private void attachPreferenceListeners() {
-    basePathPrefix.addListener((o, ov, value) -> prefs.put("pathPrefix", value));
+    basePathPrefix.addListener((o, ov, value) -> prefs.put("basePathPrefix", value));
+    exportPathPrefix.addListener((o, ov, value) -> prefs.put("exportPathPrefix", value));
     recentProjects.addListener((o, ov, value) -> {
       try {
         prefs.put("recentProjects", jsonProvider.getMapper().writeValueAsString(value));
@@ -1046,7 +1054,8 @@ public class ProjectServiceImpl implements ProjectService {
    Set all properties from preferences, else defaults.
    */
   private void setAllFromPreferencesOrDefaults() {
-    basePathPrefix.set(prefs.get("pathPrefix", defaultPathPrefix));
+    basePathPrefix.set(prefs.get("basePathPrefix", defaultBasePathPrefix));
+    exportPathPrefix.set(prefs.get("exportPathPrefix", defaultExportPathPrefix));
     try {
       recentProjects.setAll(jsonProvider.getMapper().readValue(prefs.get("recentProjects", "[]"), ProjectDescriptor[].class));
     } catch (Exception e) {

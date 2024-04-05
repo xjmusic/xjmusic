@@ -80,9 +80,14 @@ public interface ProjectService {
   void cancelProjectLoading();
 
   /**
-   @return Path prefix
+   @return Base path prefix
    */
   StringProperty basePathPrefixProperty();
+
+  /**
+   * @return Export path prefix
+   */
+  StringProperty exportPathPrefixProperty();
 
   /**
    @return observable progress property

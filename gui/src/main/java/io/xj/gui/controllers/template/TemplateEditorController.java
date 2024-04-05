@@ -140,7 +140,7 @@ public class TemplateEditorController extends BrowserController {
       binding -> {
         if (Objects.nonNull(binding))
           projectService.deleteContent(binding);
-      });
+      }, null);
 
     projectService.addProjectUpdateListener(TemplateBinding.class, this::updateBindings);
 

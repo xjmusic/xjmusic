@@ -210,7 +210,7 @@ public class InstrumentEditorController extends BrowserController {
           if (projectService.showConfirmationDialog("Delete Audio?", "This action cannot be undone.", String.format("Are you sure you want to delete the Audio \"%s\"?", audio.getName())))
             projectService.deleteContent(audio);
         }
-      });
+      }, null);
 
     projectService.addProjectUpdateListener(InstrumentAudio.class, this::setupAudiosTable);
 
