@@ -3,6 +3,9 @@
 package io.xj.hub.entity;
 
 
+import io.xj.hub.HubContent;
+import io.xj.hub.pojos.Template;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -175,9 +178,13 @@ public interface EntityFactory {
   String serialize(Object obj) throws EntityException;
 
   /**
-   Create an Entity Store
+   Get a new HubContent object for a specific template
+   - Only include entities bound to the template
+   - Only include entities in a published state (for entities with a state)
 
-   @return Entity Store
+   @param original HubContent
+   @param template for which to get a new HubContent object
+   @return new HubContent object for the template
    */
-  EntityStore createEntityStore();
+  HubContent forTemplate(HubContent original, Template template);
 }

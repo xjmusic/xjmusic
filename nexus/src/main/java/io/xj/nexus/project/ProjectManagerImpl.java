@@ -277,7 +277,7 @@ public class ProjectManagerImpl implements ProjectManager {
       updateState(ProjectState.ExportingTemplate);
 
       // Get subset of content just for this template
-      var templateContent = getContent().forTemplate(template);
+      var templateContent = entityFactory.forTemplate(getContent(), template);
       cleanupOrphans(templateContent);
 
       // Export all audio files
@@ -529,7 +529,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public HubContent getContent(Template template) {
-    return content.get().forTemplate(template);
+    return entityFactory.forTemplate(content.get(), template);
   }
 
   @Override

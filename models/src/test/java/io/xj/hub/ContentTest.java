@@ -27,6 +27,7 @@ import io.xj.hub.pojos.Template;
 import io.xj.hub.pojos.TemplateBinding;
 import io.xj.hub.pojos.User;
 
+import java.util.List;
 import java.util.UUID;
 
 abstract public class ContentTest {
@@ -283,5 +284,102 @@ abstract public class ContentTest {
     programSequencePatternEvent.setTones(note);
     programSequencePatternEvent.setVelocity(velocity);
     return programSequencePatternEvent;
+  }
+
+  protected HubContent buildHubContent() {
+    // user
+    user1 = buildUser();
+
+    // project
+    project1 = buildProject();
+    project1_user = buildProjectUser(project1, user1);
+
+    // Library content all created at this known time
+    library1 = buildLibrary(project1);
+
+    // Templates: enhanced preview chain creation for artists in Lab UI https://www.pivotaltracker.com/story/show/178457569
+    template1 = buildTemplate(project1, "test1", UUID.randomUUID().toString());
+    template1_binding = buildTemplateBinding(template1, library1);
+    template2 = buildTemplate(project1, "test2", UUID.randomUUID().toString());
+
+    // Instrument 1
+    instrument1 = buildInstrument(library1, InstrumentType.Drum, InstrumentMode.Event, "808 Drums");
+    instrument1_meme = buildInstrumentMeme(instrument1, "Ants");
+    instrument1_audio = buildInstrumentAudio(instrument1, "Chords Cm to D", "a0b9f74kf9b4h8d9e0g73k107s09f7-g0e73982.wav", 0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb", 1.0f);
+
+    // Instrument 2
+    instrument2 = buildInstrument(library1, InstrumentType.Pad, InstrumentMode.Chord, "Pad");
+    instrument2_meme = buildInstrumentMeme(instrument2, "Peanuts");
+    instrument2_audio = buildInstrumentAudio(instrument2, "Chord Fm", "a0b9fg73k107s74kf9b4h8d9e009f7-g0e73982.wav", 0.02f, 1.123f, 140.0f, 0.52f, "BING", "F,A,C", 0.9f);
+
+    // Program 1, main-type, has sequence with chords, bound to many offsets
+    program1 = buildProgram(library1, ProgramType.Main, "leaves", "C#", 120.4f);
+    program1_meme = buildProgramMeme(program1, "Ants");
+    program1_voice = buildProgramVoice(program1, InstrumentType.Stripe, "Birds");
+    program1_sequence = buildProgramSequence(program1, (short) 8, "decay", 0.25f, "F#");
+    program1_sequence_chord0 = buildProgramSequenceChord(program1_sequence, 0.0, "G minor");
+    program1_sequence_chord1 = buildProgramSequenceChord(program1_sequence, 2.0, "A minor");
+    program1_sequence_chord0_voicing0 = buildProgramSequenceChordVoicing(program1_sequence_chord0, program1_voice, "G");
+    program1_sequence_chord1_voicing1 = buildProgramSequenceChordVoicing(program1_sequence_chord1, program1_voice, "Bb");
+    program1_sequence_binding1 = buildProgramSequenceBinding(program1_sequence, 0);
+    program1_sequence_binding2 = buildProgramSequenceBinding(program1_sequence, 5);
+    program1_sequence_binding1_meme1 = buildProgramSequenceBindingMeme(program1_sequence_binding1, "Gravel");
+    program1_sequence_binding1_meme2 = buildProgramSequenceBindingMeme(program1_sequence_binding1, "Road");
+
+    // Program 2, beat-type, has unbound sequence with pattern with events
+    program2 = buildProgram(library1, ProgramType.Beat, "coconuts", "F#", 110.3f);
+    program2_meme = buildProgramMeme(program2, "Bells");
+    program2_voice = buildProgramVoice(program2, InstrumentType.Drum, "Drums");
+    program2_sequence = buildProgramSequence(program2, (short) 16, "Base", 0.5f, "C");
+    program2_sequence_pattern1 = buildProgramSequencePattern(program2_sequence, program2_voice, (short) 16, "growth");
+    program2_sequence_pattern2 = buildProgramSequencePattern(program2_sequence, program2_voice, (short) 12, "decay");
+    program2_voice_track1 = buildProgramVoiceTrack(program2_voice, "BOOM");
+    program2_voice_track2 = buildProgramVoiceTrack(program2_voice, "SMACK");
+    program2_sequence_pattern1_event1 = buildProgramSequencePatternEvent(program2_sequence_pattern1, program2_voice_track1, 0.0f, 1.0f, "C", 1.0f);
+    program2_sequence_pattern1_event2 = buildProgramSequencePatternEvent(program2_sequence_pattern1, program2_voice_track2, 0.5f, 1.1f, "D", 0.9f);
+
+    // ingest all content
+    HubContent content = new HubContent(List.of(
+      program1_sequence_binding1,
+      instrument1,
+      instrument1_audio,
+      instrument1_meme,
+      instrument2,
+      instrument2_audio,
+      instrument2_meme,
+      library1,
+      program2_sequence_pattern1,
+      program2_sequence_pattern2,
+      program1,
+      program1_meme,
+      program1_voice,
+      program2,
+      program2_meme,
+      program2_sequence_pattern1_event1,
+      program2_sequence_pattern1_event2,
+      program2_voice,
+      project1,
+      project1_user,
+      program2_sequence,
+      program1_sequence,
+      program1_sequence_binding2,
+      program1_sequence_binding1_meme1,
+      program1_sequence_binding1_meme2,
+      program1_sequence_chord0,
+      program1_sequence_chord0_voicing0,
+      program1_sequence_chord1_voicing1,
+      program1_sequence_chord1,
+      template1,
+      template2,
+      template1_binding,
+      program2_voice_track1,
+      program2_voice_track2,
+      user1
+    ), false);
+
+    // test error
+    content.addError(new Error("test"));
+
+    return content;
   }
 }
