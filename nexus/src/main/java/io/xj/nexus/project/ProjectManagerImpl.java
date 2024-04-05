@@ -301,7 +301,8 @@ public class ProjectManagerImpl implements ProjectManager {
             instrument.getId(),
             audio.getWaveformKey()
           );
-          if (getFileSizeIfExistsOnDisk(sourcePath).isPresent()) {
+          var sourceSize = getFileSizeIfExistsOnDisk(sourcePath);
+          if (sourceSize.isPresent()) {
             var extension = ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
             var waveformKey = computeWaveformKey(project.get().getName(), library.getName(), instrument.getName(), audio, extension);
             audio.setWaveformKey(waveformKey);
@@ -309,6 +310,8 @@ public class ProjectManagerImpl implements ProjectManager {
             var destinationPath = exportFolderPrefix + waveformKey;
 
             try {
+              Path destination = Paths.get(destinationPath);
+              Files.deleteIfExists(destination);
               if (conversion) {
                 FFmpegUtils.resampleAudio(
                   sourcePath,
@@ -318,7 +321,16 @@ public class ProjectManagerImpl implements ProjectManager {
                   Objects.requireNonNull(conversionChannels)
                 );
               } else {
-                Files.copy(Paths.get(sourcePath), Paths.get(destinationPath));
+                var existingDestinationSize = getFileSizeIfExistsOnDisk(destinationPath);
+                Path source = Paths.get(sourcePath);
+                if (existingDestinationSize.isPresent()) {
+                  if (!existingDestinationSize.get().equals(sourceSize.get())) {
+                    Files.deleteIfExists(destination);
+                    Files.copy(source, destination);
+                  }
+                } else {
+                  Files.copy(source, destination);
+                }
               }
             } catch (IOException e) {
               System.err.println("Failed to copy file: " + e.getMessage());
