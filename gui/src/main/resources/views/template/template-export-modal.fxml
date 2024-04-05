@@ -27,7 +27,7 @@
         </padding>
         <Label
                 contentDisplay="TEXT_ONLY"
-                text="Export Name:"
+                text="Export Key:"
                 GridPane.halignment="RIGHT"
                 GridPane.rowIndex="0"
                 GridPane.columnIndex="0"/>

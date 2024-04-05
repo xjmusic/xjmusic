@@ -47,6 +47,7 @@ public class TemplateEditorController extends BrowserController {
   private final TemplateAddBindingModalController templateAddBindingModalController;
   private final ObjectProperty<UUID> templateId = new SimpleObjectProperty<>(null);
   private final StringProperty name = new SimpleStringProperty("");
+  private final StringProperty shipKey = new SimpleStringProperty("");
   private final StringProperty config = new SimpleStringProperty("");
   private final ObservableList<TemplateBinding> bindings = FXCollections.observableList(new ArrayList<>());
 
@@ -58,6 +59,9 @@ public class TemplateEditorController extends BrowserController {
 
   @FXML
   TextField fieldName;
+
+  @FXML
+  TextField fieldShipKey;
 
   @FXML
   TextArea fieldConfig;
@@ -88,12 +92,19 @@ public class TemplateEditorController extends BrowserController {
     container.managedProperty().bind(visible);
 
     fieldName.textProperty().bindBidirectional(name);
+    fieldShipKey.textProperty().bindBidirectional(shipKey);
     fieldConfig.textProperty().bindBidirectional(config);
     fieldConfig.prefHeightProperty().bind(fieldsContainer.heightProperty().subtract(100));
 
     fieldName.focusedProperty().addListener((o, ov, v) -> {
       if (!v) {
         update("name", name.get());
+      }
+    });
+    fieldShipKey.focusedProperty().addListener((o, ov, v) -> {
+      if (!v) {
+        shipKey.set(StringUtils.toLowerScored(shipKey.get()));
+        update("shipKey", shipKey.get());
       }
     });
     fieldConfig.focusedProperty().addListener((o, ov, v) -> {
@@ -191,6 +202,7 @@ public class TemplateEditorController extends BrowserController {
     LOG.info("Will edit Template \"{}\"", template.getName());
     this.templateId.set(template.getId());
     this.name.set(template.getName());
+    this.shipKey.set(template.getShipKey());
     this.config.set(template.getConfig());
     updateBindings();
   }

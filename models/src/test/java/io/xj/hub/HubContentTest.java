@@ -1223,4 +1223,29 @@ public class HubContentTest extends ContentTest {
 
     assertEquals(5, result.size());
   }
+
+  @Test
+  void forTemplate_duplicatesOriginalObjects() {
+    var copy = subject.forTemplate(template1);
+
+    copy.getInstrument(instrument1.getId()).orElseThrow().setName("different");
+    copy.getInstrumentMeme(instrument1_meme.getId()).orElseThrow().setName("different");
+    copy.getInstrumentAudio(instrument1_audio.getId()).orElseThrow().setName("different");
+    copy.getProgram(program1.getId()).orElseThrow().setName("different");
+    copy.getProgramMeme(program1_meme.getId()).orElseThrow().setName("different");
+    copy.getProgramVoice(program1_voice.getId()).orElseThrow().setName("different");
+    copy.getProgramSequence(program1_sequence.getId()).orElseThrow().setName("different");
+    copy.getProgramSequenceChord(program1_sequence_chord0.getId()).orElseThrow().setName("different");
+    copy.getProgramSequenceChordVoicing(program1_sequence_chord0_voicing0.getId()).orElseThrow().setNotes("different");
+
+    assertEquals("original", subject.getInstrument(instrument1.getId()).orElseThrow().getName());
+    assertEquals("original", subject.getInstrumentMeme(instrument1_meme.getId()).orElseThrow().getName());
+    assertEquals("original", subject.getInstrumentAudio(instrument1_audio.getId()).orElseThrow().getName());
+    assertEquals("original", subject.getProgram(program1.getId()).orElseThrow().getName());
+    assertEquals("original", subject.getProgramMeme(program1_meme.getId()).orElseThrow().getName());
+    assertEquals("original", subject.getProgramVoice(program1_voice.getId()).orElseThrow().getName());
+    assertEquals("original", subject.getProgramSequence(program1_sequence.getId()).orElseThrow().getName());
+    assertEquals("original", subject.getProgramSequenceChord(program1_sequence_chord0.getId()).orElseThrow().getName());
+    assertEquals("original", subject.getProgramSequenceChordVoicing(program1_sequence_chord0_voicing0.getId()).orElseThrow().getNotes());
+  }
 }

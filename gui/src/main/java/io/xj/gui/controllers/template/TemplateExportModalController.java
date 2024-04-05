@@ -87,7 +87,10 @@ public class TemplateExportModalController extends ProjectModalController {
     });
 
     // Template Export name is lower-scored
-    templateExportName.textProperty().set(StringUtils.toLowerScored(template.get().getName()));
+    if (!StringUtils.isNullOrEmpty(template.get().getShipKey()))
+      templateExportName.textProperty().set(StringUtils.toLowerScored(template.get().getShipKey()));
+    else
+      templateExportName.textProperty().set(StringUtils.toLowerScored(template.get().getName()));
     templateExportName.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
       if (!isNowFocused) {
         templateExportName.setText(StringUtils.toLowerScored(templateExportName.getText()));
