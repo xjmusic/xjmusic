@@ -77,7 +77,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.prefs.Preferences;
 
 @Service
@@ -92,10 +91,7 @@ public class ProjectServiceImpl implements ProjectService {
     ProjectState.LoadedContent,
     ProjectState.LoadingAudio,
     ProjectState.LoadedAudio,
-    ProjectState.PushingContent,
-    ProjectState.PushedContent,
-    ProjectState.PushingAudio,
-    ProjectState.PushedAudio
+    ProjectState.ExportingTemplate
   );
   private final Map<Class<? extends Serializable>, Set<Runnable>> projectUpdateListeners = new HashMap<>();
   private final Preferences prefs = Preferences.userNodeForPackage(ProjectServiceImpl.class);
@@ -115,12 +111,8 @@ public class ProjectServiceImpl implements ProjectService {
       case CreatedFolder -> "Created Folder";
       case LoadingContent -> "Loading Content";
       case LoadedContent -> "Loaded Content";
-      case LoadingAudio -> progressLabel.get();
+      case LoadingAudio, ExportingTemplate -> progressLabel.get();
       case LoadedAudio -> "Loaded Audio";
-      case PushingContent -> "Pushing Content";
-      case PushedContent -> "Pushed Content";
-      case PushingAudio -> "Pushing Audio";
-      case PushedAudio -> "Pushed Audio";
       case Ready -> "Ready";
       case Saving -> "Saving";
       case Cancelled -> "Cancelled";
@@ -209,7 +201,7 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public void createProject(String parentPathPrefix, String projectName) {
     closeProject(() -> {
-      if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName))
+      if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName, "Project"))
         executeInBackground("Create Project", () -> {
           if (projectManager.createProject(parentPathPrefix, projectName)) {
             projectManager.getProject().ifPresent(project -> {
@@ -223,12 +215,61 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void cloneFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
-    cloneProject(parentPathPrefix, projectName, () -> projectManager.cloneProjectFromDemoTemplate(
-      audioBaseUrl,
-      parentPathPrefix,
-      templateShipKey,
-      projectName
-    ));
+    closeProject(() -> {
+      if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName, "Project"))
+        executeInBackground("Clone Project", () -> {
+          try {
+            if (projectManager.cloneProjectFromDemoTemplate(
+              audioBaseUrl,
+              parentPathPrefix,
+              templateShipKey,
+              projectName
+            )) {
+              projectManager.getProject().ifPresent(project -> {
+                isModified.set(false);
+                addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
+              });
+            } else {
+              removeFromRecentProjects(parentPathPrefix + projectName + ".xj");
+              Platform.runLater(this::cancelProjectLoading);
+            }
+          } catch (Exception e) {
+            LOG.warn("Failed to clone project! {}\n{}", e, StringUtils.formatStackTrace(e));
+            Platform.runLater(this::cancelProjectLoading);
+          }
+        });
+    });
+  }
+
+  @Override
+  public void exportTemplate(
+    Template template,
+    String parentPathPrefix,
+    String exportName,
+    Boolean conversion,
+    @Nullable Integer conversionFrameRate,
+    @Nullable Integer conversionSampleBits,
+    @Nullable Integer conversionChannels
+  ) {
+    if (promptToSkipOverwriteIfExists(parentPathPrefix, exportName, "Template Export"))
+      executeInBackground("Export Template", () -> {
+        try {
+          if (!projectManager.exportTemplate(
+            template,
+            parentPathPrefix,
+            exportName,
+            conversion,
+            conversionFrameRate,
+            conversionSampleBits,
+            conversionChannels
+          )) {
+            Platform.runLater(this::cancelProjectLoading);
+          }
+        } catch (Exception e) {
+          LOG.warn("Failed to clone project! {}\n{}", e, StringUtils.formatStackTrace(e));
+          Platform.runLater(this::cancelProjectLoading);
+        }
+      });
   }
 
   @Override
@@ -255,7 +296,7 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void cancelProjectLoading() {
-    projectManager.cancelProjectLoading();
+    projectManager.cancelOperation();
   }
 
   @Override
@@ -957,17 +998,18 @@ public class ProjectServiceImpl implements ProjectService {
    If the directory already exists then pop up a confirmation dialog
 
    @param parentPathPrefix parent folder
-   @param projectName      project name
+   @param name             thing name
+   @param type             of thing to overwrite
    @return true if overwrite confirmed
    */
-  private boolean promptToSkipOverwriteIfExists(String parentPathPrefix, String projectName) {
-    if (!Files.exists(Path.of(parentPathPrefix + projectName))) {
+  private boolean promptToSkipOverwriteIfExists(String parentPathPrefix, String name, String type) {
+    if (!Files.exists(Path.of(parentPathPrefix + name))) {
       return true;
     }
-    return promptForConfirmation("Overwrite Existing Project",
-      "The project already exists",
-      String.format("The project \"%s\" already exists in the folder \"%s\". This operation will update any modified files from the original remote versions. Do you want to proceed?",
-        projectName, parentPathPrefix));
+    return promptForConfirmation("Overwrite Existing " + type,
+      "The " + type + " already exists",
+      String.format("The %s \"%s\" already exists in the folder \"%s\". This operation will overwrite the target location. Do you want to proceed?",
+        type, name, parentPathPrefix));
   }
 
   /**
@@ -992,35 +1034,6 @@ public class ProjectServiceImpl implements ProjectService {
     // Show the dialog and capture the result
     var result = alert.showAndWait();
     return result.isPresent() && result.get() == ButtonType.YES;
-  }
-
-  /**
-   Clone a project from a remote source.
-
-   @param parentPathPrefix parent folder
-   @param projectName      project name
-   @param clone            the clone callable
-   */
-  private void cloneProject(String parentPathPrefix, String projectName, Callable<Boolean> clone) {
-    closeProject(() -> {
-      if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName))
-        executeInBackground("Clone Project", () -> {
-          try {
-            if (clone.call()) {
-              projectManager.getProject().ifPresent(project -> {
-                isModified.set(false);
-                addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
-              });
-            } else {
-              removeFromRecentProjects(parentPathPrefix + projectName + ".xj");
-              Platform.runLater(this::cancelProjectLoading);
-            }
-          } catch (Exception e) {
-            LOG.warn("Failed to clone project! {}\n{}", e, StringUtils.formatStackTrace(e));
-            Platform.runLater(this::cancelProjectLoading);
-          }
-        });
-    });
   }
 
   /**

@@ -10,6 +10,10 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+<?import javafx.scene.control.ComboBox?>
 <VBox
         fx:id="container"
         fx:controller="io.xj.gui.controllers.template.TemplateExportModalController"
@@ -28,7 +32,7 @@
                 GridPane.rowIndex="0"
                 GridPane.columnIndex="0"/>
         <TextField
-                fx:id="fieldProjectName"
+                fx:id="templateExportName"
                 GridPane.rowIndex="0"
                 GridPane.columnIndex="1"
                 GridPane.columnSpan="2"/>
@@ -50,24 +54,26 @@
                 GridPane.rowIndex="1"
                 GridPane.columnIndex="3"/>
 
+        <Label contentDisplay="TEXT_ONLY"
+               text="Audio Format"
+               GridPane.halignment="RIGHT"
+               GridPane.rowIndex="2"
+               GridPane.columnIndex="0"/>
+        <ComboBox fx:id="selectAudioFormat"
+                  GridPane.rowIndex="2"
+                  GridPane.columnIndex="1"/>
+
         <Button
                 fx:id="buttonOK"
                 onAction="#handlePressOK"
                 text="OK"
-                GridPane.rowIndex="2"
+                GridPane.rowIndex="3"
                 GridPane.columnIndex="1"/>
         <Button fx:id="buttonCancel"
                 onAction="#handlePressCancel"
                 text="Cancel"
-                GridPane.rowIndex="2"
+                GridPane.rowIndex="3"
                 GridPane.columnIndex="2"/>
     </GridPane>
-
-    <StackPane fx:id="progressContainer" visible="false" managed="false">
-        <VBox>
-            <Label fx:id="labelProgress" text="Exporting..."/>
-            <ProgressBar fx:id="progressBar"/>
-        </VBox>
-    </StackPane>
 
 </VBox>

@@ -35,6 +35,7 @@ import io.xj.nexus.NexusException;
 import io.xj.nexus.http.HttpClientProvider;
 import io.xj.nexus.hub_client.HubClientException;
 import io.xj.nexus.hub_client.HubClientFactory;
+import io.xj.nexus.mixer.FFmpegUtils;
 import io.xj.nexus.util.FormatUtils;
 import jakarta.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
@@ -59,7 +60,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -145,7 +145,219 @@ public class ProjectManagerImpl implements ProjectManager {
     this.audioBaseUrl.set(audioBaseUrl);
     LOG.info("Cloning from demo template \"{}\" in parent folder {}", templateShipKey, parentPathPrefix);
     CloseableHttpClient httpClient = httpClientProvider.getClient();
-    return cloneProject(parentPathPrefix, () -> hubClientFactory.loadApiV1(httpClient, templateShipKey, this.audioBaseUrl.get()), projectName);
+    try {
+      createProjectFolder(parentPathPrefix, projectName);
+
+      LOG.info("Will load content");
+      updateProgress(0.0);
+      updateState(ProjectState.LoadingContent);
+      content.set(hubClientFactory.loadApiV1(httpClient, templateShipKey, this.audioBaseUrl.get()));
+      project.set(content.get().getProject());
+      updateState(ProjectState.LoadedContent);
+      LOG.info("Did load content");
+
+      var instruments = new ArrayList<>(content.get().getInstruments());
+      var audios = new ArrayList<>(content.get().getInstrumentAudios());
+      LOG.info("Will download {} audio for {} instruments", audios.size(), instruments.size());
+      updateProgressLabel(String.format("Downloaded 0/%d audios for 0/%d instruments", audios.size(), instruments.size()));
+      updateState(ProjectState.LoadingAudio);
+      int loadedAudios = 0;
+      int loadedInstruments = 0;
+      Collection<UUID> audioFileNotFoundIds = new HashSet<>();
+
+      for (Instrument instrument : instruments) {
+        for (InstrumentAudio audio : audios.stream()
+          .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
+          .sorted(Comparator.comparing(InstrumentAudio::getName))
+          .toList()) {
+          if (!Objects.equals(state.get(), ProjectState.LoadingAudio)) {
+            // Workstation canceling preloading should cease resampling audio files https://www.pivotaltracker.com/story/show/186209135
+            project.set(null);
+            return false;
+          }
+          if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
+            LOG.debug("Will download audio for instrument \"{}\" with waveform key \"{}\"", instrument.getName(), audio.getWaveformKey());
+            // Fetch via HTTP if original does not exist
+            var originalCachePath = getPathToInstrumentAudio(
+              instrument.getId(),
+              audio.getWaveformKey()
+            );
+
+            var remoteUrl = String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey());
+            var remoteFileSize = hubClientFactory.getRemoteFileSize(httpClient, remoteUrl);
+            if (remoteFileSize == FILE_SIZE_NOT_FOUND) {
+              LOG.warn("File not found for audio \"{}\" of instrument \"{}\" in library \"{}\" at {}", instrument.getName(), audio.getName(), content.get().getLibrary(instrument.getLibraryId()).map(Library::getName).orElse("Unknown"), remoteUrl);
+              loadedAudios++;
+              audioFileNotFoundIds.add(audio.getId());
+              continue;
+            }
+            var localFileSize = getFileSizeIfExistsOnDisk(originalCachePath);
+
+            boolean shouldDownload = false;
+
+            if (localFileSize.isEmpty()) {
+              shouldDownload = true;
+            } else if (localFileSize.get() != remoteFileSize) {
+              LOG.info("File size of {} does not match remote {} - Will download {} bytes from {}", originalCachePath, remoteFileSize, remoteFileSize, remoteUrl);
+              shouldDownload = true;
+            }
+
+            if (shouldDownload) {
+              if (!hubClientFactory.downloadRemoteFileWithRetry(httpClient, remoteUrl, originalCachePath, remoteFileSize)) {
+                updateState(ProjectState.Failed);
+                project.set(null);
+                return false;
+              }
+            }
+
+            LOG.debug("Did preload audio OK");
+            updateProgress((float) loadedAudios / audios.size());
+            updateProgressLabel(String.format("Downloaded %d/%d audios for %d/%d instruments", loadedAudios, audios.size(), loadedInstruments, instruments.size()));
+            loadedAudios++;
+          }
+        }
+        loadedInstruments++;
+      }
+      updateProgress(1.0);
+      if (!audioFileNotFoundIds.isEmpty()) {
+        LOG.warn("File not found for {} audios; will remove these audio records from local project", audioFileNotFoundIds.size());
+        for (UUID audioId : audioFileNotFoundIds) {
+          content.get().delete(InstrumentAudio.class, audioId);
+        }
+      }
+      LOG.info("Downloaded {} audios from {} instruments", loadedAudios, instruments.size());
+      updateProgressLabel(String.format("Downloaded %d audios for %d instruments", loadedAudios, loadedInstruments));
+      updateState(ProjectState.LoadedAudio);
+
+      saveProjectContent();
+      return true;
+
+    } catch (HubClientException e) {
+      LOG.error("Failed to load content for project! {}\n{}", e, StringUtils.formatStackTrace(e));
+      updateState(ProjectState.Failed);
+      project.set(null);
+      return false;
+
+    } catch (IOException e) {
+      LOG.error("Failed to preload audio for project! {}\n{}", e, StringUtils.formatStackTrace(e));
+      updateState(ProjectState.Failed);
+      project.set(null);
+      return false;
+
+    } catch (Exception e) {
+      LOG.error("Failed to clone project! {}\n{}", e, StringUtils.formatStackTrace(e));
+      updateState(ProjectState.Failed);
+      project.set(null);
+      return false;
+    }
+  }
+
+  @Override
+  public boolean exportTemplate(
+    Template template,
+    String parentPathPrefix,
+    String exportName,
+    Boolean conversion,
+    @Nullable Integer conversionFrameRate,
+    @Nullable Integer conversionSampleBits,
+    @Nullable Integer conversionChannels
+  ) {
+    LOG.info("Exporting demo template \"{}\" to \"{}\" in parent folder {}", template.getName(), exportName, parentPathPrefix);
+    try {
+      var exportFolderPrefix = parentPathPrefix + exportName + File.separator;
+      LOG.info("Will create export folder at {}", exportFolderPrefix);
+      Files.createDirectories(Path.of(exportFolderPrefix));
+      LOG.info("Did create export folder at {}", exportFolderPrefix);
+
+      LOG.info("Will export template");
+      updateProgress(0.0);
+      int exportedAudios = 0;
+      int exportedInstruments = 0;
+      Collection<UUID> audioFileNotFoundIds = new HashSet<>();
+      updateState(ProjectState.ExportingTemplate);
+
+      // Get subset of content just for this template
+      var templateContent = getContent().forTemplate(template);
+      cleanupOrphans(templateContent);
+
+      // Export all audio files
+      var instruments = templateContent.getInstruments();
+      var audios = templateContent.getInstrumentAudios();
+      for (Instrument instrument : instruments) {
+        var library = templateContent.getLibrary(instrument.getLibraryId()).orElseThrow(() -> new NexusException("Library not found"));
+        for (InstrumentAudio audio : audios.stream()
+          .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
+          .sorted(Comparator.comparing(InstrumentAudio::getName))
+          .toList()) {
+          if (!Objects.equals(state.get(), ProjectState.ExportingTemplate)) {
+            // Workstation canceling preloading should cease resampling audio files https://www.pivotaltracker.com/story/show/186209135
+            project.set(null);
+            return false;
+          }
+
+          // Export audio file
+          // If source audio file not found, add to audioFileNotFoundIds
+          var sourcePath = getPathToInstrumentAudio(
+            instrument.getId(),
+            audio.getWaveformKey()
+          );
+          if (getFileSizeIfExistsOnDisk(sourcePath).isPresent()) {
+            var extension = ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
+            var waveformKey = computeWaveformKey(project.get().getName(), library.getName(), instrument.getName(), audio, extension);
+            audio.setWaveformKey(waveformKey);
+            templateContent.put(audio);
+            var destinationPath = exportFolderPrefix + waveformKey;
+
+            try {
+              if (conversion) {
+                FFmpegUtils.resampleAudio(
+                  sourcePath,
+                  destinationPath,
+                  Objects.requireNonNull(conversionFrameRate),
+                  Objects.requireNonNull(conversionSampleBits),
+                  Objects.requireNonNull(conversionChannels)
+                );
+              } else {
+                Files.copy(Paths.get(sourcePath), Paths.get(destinationPath));
+              }
+            } catch (IOException e) {
+              System.err.println("Failed to copy file: " + e.getMessage());
+            }
+
+          } else {
+            audioFileNotFoundIds.add(audio.getId());
+          }
+
+          updateProgress((float) exportedAudios / audios.size());
+          updateProgressLabel(String.format("Exported %d/%d audios for %d/%d instruments", exportedAudios, audios.size(), exportedInstruments, instruments.size()));
+          exportedAudios++;
+        }
+      }
+
+      if (!audioFileNotFoundIds.isEmpty()) {
+        LOG.warn("File not found for {} audios; will remove these audio records from exported template", audioFileNotFoundIds.size());
+        for (UUID audioId : audioFileNotFoundIds) {
+          templateContent.delete(InstrumentAudio.class, audioId);
+        }
+      }
+
+      var jsonPath = exportFolderPrefix + exportName + ".json";
+      LOG.info("Will save template content \"{}\" to {}", exportName, jsonPath);
+      var json = jsonProvider.getMapper().writeValueAsString(templateContent);
+      Files.writeString(Path.of(jsonPath), json);
+      LOG.info("Did write {} bytes of content to {}", json.length(), jsonPath);
+
+      updateProgress(1.0);
+      updateProgressLabel(String.format("Exported %d audios for %d instruments", exportedAudios, exportedInstruments));
+      updateState(ProjectState.Ready);
+      return true;
+
+    } catch (Exception e) {
+      LOG.error("Failed to export project! {}\n{}", e, StringUtils.formatStackTrace(e));
+      updateState(ProjectState.Failed);
+      project.set(null);
+      return false;
+    }
   }
 
   @Override
@@ -291,7 +503,7 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public void cancelProjectLoading() {
+  public void cancelOperation() {
     updateState(ProjectState.Cancelled);
   }
 
@@ -370,7 +582,7 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public Library createLibrary(String name) throws Exception {
+  public Library createLibrary(String name) {
     var existingLibraries = content.get().getLibraries();
 
     // New Create a library, increment a numerical suffix to make each sequence unique, e.g. "New Sequence 2" then "New Sequence 3"
@@ -541,7 +753,7 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public ProgramMeme createProgramMeme(UUID programId) throws Exception {
+  public ProgramMeme createProgramMeme(UUID programId) {
     var meme = new ProgramMeme();
     meme.setId(UUID.randomUUID());
     meme.setName(DEFAULT_MEME_NAME);
@@ -551,7 +763,7 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public ProgramSequenceBindingMeme createProgramSequenceBindingMeme(UUID programSequenceBindingId) throws Exception {
+  public ProgramSequenceBindingMeme createProgramSequenceBindingMeme(UUID programSequenceBindingId) {
     var meme = new ProgramSequenceBindingMeme();
     meme.setId(UUID.randomUUID());
     meme.setName(DEFAULT_MEME_NAME);
@@ -561,7 +773,7 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public InstrumentMeme createInstrumentMeme(UUID instrumentId) throws Exception {
+  public InstrumentMeme createInstrumentMeme(UUID instrumentId) {
     var meme = new InstrumentMeme();
     meme.setId(UUID.randomUUID());
     meme.setName(DEFAULT_MEME_NAME);
@@ -920,6 +1132,42 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
+   Cleanup orphans in content
+   */
+  private void cleanupOrphans(HubContent content) {
+    // Cleanup orphans
+    int orphans = 0;
+    orphans += deleteAllIf(Instrument.class, (Instrument instrument) -> content.getLibrary(instrument.getLibraryId()).isEmpty());
+    orphans += deleteAllIf(InstrumentMeme.class, (InstrumentMeme meme) -> content.getInstrument(meme.getInstrumentId()).isEmpty());
+    orphans += deleteAllIf(InstrumentAudio.class, (InstrumentAudio audio) -> content.getInstrument(audio.getInstrumentId()).isEmpty());
+    orphans += deleteAllIf(Program.class, (Program program) -> content.getLibrary(program.getLibraryId()).isEmpty());
+    orphans += deleteAllIf(ProgramMeme.class, (ProgramMeme meme) -> content.getProgram(meme.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequence.class, (ProgramSequence sequence) -> content.getProgram(sequence.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceBinding.class, (ProgramSequenceBinding binding) -> content.getProgramSequence(binding.getProgramSequenceId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceBinding.class, (ProgramSequenceBinding binding) -> content.getProgram(binding.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceBindingMeme.class, (ProgramSequenceBindingMeme meme) -> content.getProgramSequenceBinding(meme.getProgramSequenceBindingId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceBindingMeme.class, (ProgramSequenceBindingMeme meme) -> content.getProgram(meme.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramVoice.class, (ProgramVoice voice) -> content.getProgram(voice.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramVoiceTrack.class, (ProgramVoiceTrack track) -> content.getProgramVoice(track.getProgramVoiceId()).isEmpty());
+    orphans += deleteAllIf(ProgramVoiceTrack.class, (ProgramVoiceTrack track) -> content.getProgram(track.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequencePattern.class, (ProgramSequencePattern pattern) -> content.getProgramSequence(pattern.getProgramSequenceId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequencePattern.class, (ProgramSequencePattern pattern) -> content.getProgramVoice(pattern.getProgramVoiceId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequencePattern.class, (ProgramSequencePattern pattern) -> content.getProgram(pattern.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequencePatternEvent.class, (ProgramSequencePatternEvent event) -> content.getProgramSequencePattern(event.getProgramSequencePatternId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequencePatternEvent.class, (ProgramSequencePatternEvent event) -> content.getProgramVoiceTrack(event.getProgramVoiceTrackId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequencePatternEvent.class, (ProgramSequencePatternEvent event) -> content.getProgram(event.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceChord.class, (ProgramSequenceChord chord) -> content.getProgramSequence(chord.getProgramSequenceId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceChord.class, (ProgramSequenceChord chord) -> content.getProgram(chord.getProgramId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceChordVoicing.class, (ProgramSequenceChordVoicing voicing) -> content.getProgramSequenceChord(voicing.getProgramSequenceChordId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceChordVoicing.class, (ProgramSequenceChordVoicing voicing) -> content.getProgramVoice(voicing.getProgramVoiceId()).isEmpty());
+    orphans += deleteAllIf(ProgramSequenceChordVoicing.class, (ProgramSequenceChordVoicing voicing) -> content.getProgram(voicing.getProgramId()).isEmpty());
+    orphans += deleteAllIf(TemplateBinding.class, (TemplateBinding binding) -> content.getTemplate(binding.getTemplateId()).isEmpty());
+    if (orphans > 0) {
+      LOG.info("Did delete {} orphaned entities", orphans);
+    }
+  }
+
+  /**
    Delete all entities of the given type if they meet a condition
 
    @param type to delete if its test returns true
@@ -965,125 +1213,6 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   Clone a project from a template
-
-   @param parentPathPrefix parent folder of the project folder
-   @param fetchContent     fetch content from the hub
-   @param projectName      name of the project folder
-   @return true if the project was cloned successfully
-   */
-  private boolean cloneProject(String parentPathPrefix, Callable<HubContent> fetchContent, String projectName) {
-    try {
-      createProjectFolder(parentPathPrefix, projectName);
-
-      LOG.info("Will load content");
-      updateProgress(0.0);
-      updateState(ProjectState.LoadingContent);
-      content.set(fetchContent.call());
-      project.set(content.get().getProject());
-      updateState(ProjectState.LoadedContent);
-      LOG.info("Did load content");
-
-      var instruments = new ArrayList<>(content.get().getInstruments());
-      var audios = new ArrayList<>(content.get().getInstrumentAudios());
-      LOG.info("Will download {} audio for {} instruments", audios.size(), instruments.size());
-      updateProgressLabel(String.format("Downloaded 0/%d audios for 0/%d instruments", audios.size(), instruments.size()));
-      updateState(ProjectState.LoadingAudio);
-      int loadedAudios = 0;
-      int loadedInstruments = 0;
-      Collection<UUID> audioFileNotFoundIds = new HashSet<>();
-
-      // Don't close the client, only close the responses from it
-      CloseableHttpClient httpClient = httpClientProvider.getClient();
-
-      for (Instrument instrument : instruments) {
-        for (InstrumentAudio audio : audios.stream()
-          .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
-          .sorted(Comparator.comparing(InstrumentAudio::getName))
-          .toList()) {
-          if (!Objects.equals(state.get(), ProjectState.LoadingAudio)) {
-            // Workstation canceling preloading should cease resampling audio files https://www.pivotaltracker.com/story/show/186209135
-            project.set(null);
-            return false;
-          }
-          if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
-            LOG.debug("Will download audio for instrument \"{}\" with waveform key \"{}\"", instrument.getName(), audio.getWaveformKey());
-            // Fetch via HTTP if original does not exist
-            var originalCachePath = getPathToInstrumentAudio(
-              instrument.getId(),
-              audio.getWaveformKey()
-            );
-
-            var remoteUrl = String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey());
-            var remoteFileSize = hubClientFactory.getRemoteFileSize(httpClient, remoteUrl);
-            if (remoteFileSize == FILE_SIZE_NOT_FOUND) {
-              LOG.warn("File not found for audio \"{}\" of instrument \"{}\" in library \"{}\" at {}", instrument.getName(), audio.getName(), content.get().getLibrary(instrument.getLibraryId()).map(Library::getName).orElse("Unknown"), remoteUrl);
-              loadedAudios++;
-              audioFileNotFoundIds.add(audio.getId());
-              continue;
-            }
-            var localFileSize = getFileSizeIfExistsOnDisk(originalCachePath);
-
-            boolean shouldDownload = false;
-
-            if (localFileSize.isEmpty()) {
-              shouldDownload = true;
-            } else if (localFileSize.get() != remoteFileSize) {
-              LOG.info("File size of {} does not match remote {} - Will download {} bytes from {}", originalCachePath, remoteFileSize, remoteFileSize, remoteUrl);
-              shouldDownload = true;
-            }
-
-            if (shouldDownload) {
-              if (!hubClientFactory.downloadRemoteFileWithRetry(httpClient, remoteUrl, originalCachePath, remoteFileSize)) {
-                updateState(ProjectState.Failed);
-                project.set(null);
-                return false;
-              }
-            }
-
-            LOG.debug("Did preload audio OK");
-            updateProgress((float) loadedAudios / audios.size());
-            updateProgressLabel(String.format("Downloaded %d/%d audios for %d/%d instruments", loadedAudios, audios.size(), loadedInstruments, instruments.size()));
-            loadedAudios++;
-          }
-        }
-        loadedInstruments++;
-      }
-      updateProgress(1.0);
-      if (!audioFileNotFoundIds.isEmpty()) {
-        LOG.warn("File not found for {} audios; will remove these audio records from local project", audioFileNotFoundIds.size());
-        for (UUID audioId : audioFileNotFoundIds) {
-          content.get().delete(InstrumentAudio.class, audioId);
-        }
-      }
-      LOG.info("Downloaded {} audios from {} instruments", loadedAudios, instruments.size());
-      updateProgressLabel(String.format("Downloaded %d audios for %d instruments", loadedAudios, loadedInstruments));
-      updateState(ProjectState.LoadedAudio);
-
-      saveProjectContent();
-      return true;
-
-    } catch (HubClientException e) {
-      LOG.error("Failed to load content for project! {}\n{}", e, StringUtils.formatStackTrace(e));
-      updateState(ProjectState.Failed);
-      project.set(null);
-      return false;
-
-    } catch (IOException e) {
-      LOG.error("Failed to preload audio for project! {}\n{}", e, StringUtils.formatStackTrace(e));
-      updateState(ProjectState.Failed);
-      project.set(null);
-      return false;
-
-    } catch (Exception e) {
-      LOG.error("Failed to clone project! {}\n{}", e, StringUtils.formatStackTrace(e));
-      updateState(ProjectState.Failed);
-      project.set(null);
-      return false;
-    }
-  }
-
-  /**
    Create the project folder on disk
 
    @param parentPathPrefix parent folder of the project folder
@@ -1108,38 +1237,7 @@ public class ProjectManagerImpl implements ProjectManager {
    */
   private void saveProjectContent() throws IOException {
     updateState(ProjectState.Saving);
-
-    // Cleanup orphans
-    int orphans = 0;
-    orphans += deleteAllIf(Instrument.class, (Instrument instrument) -> content.get().getLibrary(instrument.getLibraryId()).isEmpty());
-    orphans += deleteAllIf(InstrumentMeme.class, (InstrumentMeme meme) -> content.get().getInstrument(meme.getInstrumentId()).isEmpty());
-    orphans += deleteAllIf(InstrumentAudio.class, (InstrumentAudio audio) -> content.get().getInstrument(audio.getInstrumentId()).isEmpty());
-    orphans += deleteAllIf(Program.class, (Program program) -> content.get().getLibrary(program.getLibraryId()).isEmpty());
-    orphans += deleteAllIf(ProgramMeme.class, (ProgramMeme meme) -> content.get().getProgram(meme.getProgramId()).isEmpty());
-    orphans += deleteAllIf(ProgramSequence.class, (ProgramSequence sequence) -> content.get().getProgram(sequence.getProgramId()).isEmpty());
-    orphans += deleteAllIf(ProgramSequenceBinding.class, (ProgramSequenceBinding binding) -> content.get().getProgramSequence(binding.getProgramSequenceId()).isEmpty());
-    orphans += deleteAllIf(ProgramSequenceBinding.class, (ProgramSequenceBinding binding) -> content.get().getProgram(binding.getProgramId()).isEmpty());
-    orphans += deleteAllIf(ProgramSequenceBindingMeme.class, (ProgramSequenceBindingMeme meme) -> content.get().getProgramSequenceBinding(meme.getProgramSequenceBindingId()).isEmpty());
-    orphans += deleteAllIf(ProgramSequenceBindingMeme.class, (ProgramSequenceBindingMeme meme) -> content.get().getProgram(meme.getProgramId()).isEmpty());
-    orphans += deleteAllIf(ProgramVoice.class, (ProgramVoice voice) -> content.get().getProgram(voice.getProgramId()).isEmpty());
-    orphans += deleteAllIf(ProgramVoiceTrack.class, (ProgramVoiceTrack track) -> content.get().getProgramVoice(track.getProgramVoiceId()).isEmpty());
-    orphans += deleteAllIf(ProgramVoiceTrack.class, (ProgramVoiceTrack track) -> content.get().getProgram(track.getProgramId()).isEmpty());
-    orphans += deleteAllIf(ProgramSequencePattern.class, (ProgramSequencePattern pattern) -> content.get().getProgramSequence(pattern.getProgramSequenceId()).isEmpty());
-    orphans += deleteAllIf(ProgramSequencePattern.class, (ProgramSequencePattern pattern) -> content.get().getProgramVoice(pattern.getProgramVoiceId()).isEmpty());
-    orphans += deleteAllIf(ProgramSequencePattern.class, (ProgramSequencePattern pattern) -> content.get().getProgram(pattern.getProgramId()).isEmpty());
-    orphans += deleteAllIf(ProgramSequencePatternEvent.class, (ProgramSequencePatternEvent event) -> content.get().getProgramSequencePattern(event.getProgramSequencePatternId()).isEmpty());
-    orphans += deleteAllIf(ProgramSequencePatternEvent.class, (ProgramSequencePatternEvent event) -> content.get().getProgramVoiceTrack(event.getProgramVoiceTrackId()).isEmpty());
-    orphans += deleteAllIf(ProgramSequencePatternEvent.class, (ProgramSequencePatternEvent event) -> content.get().getProgram(event.getProgramId()).isEmpty());
-    orphans += deleteAllIf(ProgramSequenceChord.class, (ProgramSequenceChord chord) -> content.get().getProgramSequence(chord.getProgramSequenceId()).isEmpty());
-    orphans += deleteAllIf(ProgramSequenceChord.class, (ProgramSequenceChord chord) -> content.get().getProgram(chord.getProgramId()).isEmpty());
-    orphans += deleteAllIf(ProgramSequenceChordVoicing.class, (ProgramSequenceChordVoicing voicing) -> content.get().getProgramSequenceChord(voicing.getProgramSequenceChordId()).isEmpty());
-    orphans += deleteAllIf(ProgramSequenceChordVoicing.class, (ProgramSequenceChordVoicing voicing) -> content.get().getProgramVoice(voicing.getProgramVoiceId()).isEmpty());
-    orphans += deleteAllIf(ProgramSequenceChordVoicing.class, (ProgramSequenceChordVoicing voicing) -> content.get().getProgram(voicing.getProgramId()).isEmpty());
-    orphans += deleteAllIf(TemplateBinding.class, (TemplateBinding binding) -> content.get().getTemplate(binding.getTemplateId()).isEmpty());
-    if (orphans > 0) {
-      LOG.info("Did delete {} orphaned entities", orphans);
-    }
-
+    cleanupOrphans(content.get());
     LOG.info("Will save project \"{}\" to {}", projectName.get(), getPathToProjectFile());
     var json = jsonProvider.getMapper().writeValueAsString(content);
     var jsonPath = getPathToProjectFile();

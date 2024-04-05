@@ -64,6 +64,27 @@ public interface ProjectService {
   void cloneFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName);
 
   /**
+   Export a template as JSON with all its audio (original or prepared)
+
+   @param template             to export
+   @param parentPathPrefix     parent folder to the template export folder
+   @param exportName           of the export
+   @param conversion           whether to convert the audio
+   @param conversionFrameRate  target Frame Rate for conversion
+   @param conversionSampleBits target Sample Bits for conversion
+   @param conversionChannels   target Channels for conversion
+   */
+  void exportTemplate(
+    Template template,
+    String parentPathPrefix,
+    String exportName,
+    Boolean conversion,
+    @Nullable Integer conversionFrameRate,
+    @Nullable Integer conversionSampleBits,
+    @Nullable Integer conversionChannels
+  );
+
+  /**
    Save the project
    */
   void saveProject(Runnable onComplete);
@@ -85,7 +106,7 @@ public interface ProjectService {
   StringProperty basePathPrefixProperty();
 
   /**
-   * @return Export path prefix
+   @return Export path prefix
    */
   StringProperty exportPathPrefixProperty();
 

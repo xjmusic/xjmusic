@@ -3,22 +3,23 @@
 package io.xj.gui.controllers.template;
 
 import io.xj.gui.ProjectModalController;
+import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.gui.utils.TextUtils;
 import io.xj.hub.pojos.Template;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.FloatProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleFloatProperty;
+import io.xj.hub.util.StringUtils;
+import jakarta.annotation.Nullable;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,27 +27,29 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
+
+import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 @Service
 public class TemplateExportModalController extends ProjectModalController {
-  private final BooleanProperty isExporting = new SimpleBooleanProperty(false);
-  private final FloatProperty exportProgress = new SimpleFloatProperty(0.0f);
+  private final ObjectProperty<Template> template = new SimpleObjectProperty<>();
+
+  private final ObservableList<String> audioFormatOptions = FXCollections.observableList(List.of(
+    "Original Source",
+    "Converted for Mixing"
+  ));
+  private final FabricationService fabricationService;
 
   @FXML
-  ProgressBar progressBar;
-
-  @FXML
-  Label labelProgress;
-
-  @FXML
-  StackPane progressContainer;
+  ComboBox<String> selectAudioFormat;
 
   @FXML
   VBox container;
 
   @FXML
-  TextField fieldProjectName;
+  TextField templateExportName;
 
   @FXML
   TextField fieldPathPrefix;
@@ -65,9 +68,11 @@ public class TemplateExportModalController extends ProjectModalController {
     ConfigurableApplicationContext ac,
     UIStateService uiStateService,
     ProjectService projectService,
+    FabricationService fabricationService,
     ThemeService themeService
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
+    this.fabricationService = fabricationService;
   }
 
   @Override
@@ -80,13 +85,19 @@ public class TemplateExportModalController extends ProjectModalController {
         TextUtils.addTrailingSlash(fieldPathPrefix);
       }
     });
-    buttonOK.disableProperty().bind(fieldProjectName.textProperty().isEmpty().or(isExporting));
-    fieldProjectName.disableProperty().bind(isExporting);
-    fieldPathPrefix.disableProperty().bind(isExporting);
-    buttonSelectDirectory.disableProperty().bind(isExporting);
-    progressContainer.visibleProperty().bind(isExporting);
-    progressContainer.managedProperty().bind(isExporting);
-    progressBar.progressProperty().bind(exportProgress);
+
+    // Template Export name is lower-scored
+    templateExportName.textProperty().set(StringUtils.toLowerScored(template.get().getName()));
+    templateExportName.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+      if (!isNowFocused) {
+        templateExportName.setText(StringUtils.toLowerScored(templateExportName.getText()));
+      }
+    });
+    buttonOK.disableProperty().bind(templateExportName.textProperty().isEmpty());
+
+    // Audio output format selection
+    selectAudioFormat.getItems().setAll(audioFormatOptions);
+    selectAudioFormat.getSelectionModel().select(0);
   }
 
   @Override
@@ -105,6 +116,7 @@ public class TemplateExportModalController extends ProjectModalController {
    @param template to export
    */
   public void launchModal(Template template) {
+    this.template.set(template);
     createAndShowModal(String.format("Export %s", template.getName()));
   }
 
@@ -120,11 +132,23 @@ public class TemplateExportModalController extends ProjectModalController {
 
   @FXML
   void handlePressOK() {
-    var projectName = fieldProjectName.getText().replaceAll("[^a-zA-Z0-9 ]", "");
-    isExporting.set(true);
-
-    // TODO export template to target location, show progress in this modal and then close it
-    // TODO While exporting, disable the OK button
+    var projectName = StringUtils.toLowerScored(templateExportName.getText());
+    Boolean conversion = Objects.equals(selectAudioFormat.getValue(), audioFormatOptions.get(1));
+    @Nullable Integer conversionFrameRate = conversion ? Integer.valueOf(fabricationService.outputFrameRateProperty().getValue()) : null;
+    @Nullable Integer conversionSampleBits = conversion ? FIXED_SAMPLE_BITS : null;
+    @Nullable Integer conversionChannel = conversion ? Integer.valueOf(fabricationService.outputChannelsProperty().getValue()) : null;
+    projectService.exportTemplate(
+      template.get(),
+      fieldPathPrefix.getText(),
+      projectName,
+      conversion,
+      conversionFrameRate,
+      conversionSampleBits,
+      conversionChannel
+    );
+    Stage stage = (Stage) buttonCancel.getScene().getWindow();
+    stage.close();
+    onStageClose();
   }
 
   @FXML
@@ -132,6 +156,5 @@ public class TemplateExportModalController extends ProjectModalController {
     Stage stage = (Stage) buttonCancel.getScene().getWindow();
     stage.close();
     onStageClose();
-    // TODO if cancel is pressed while exporting, cancel the export and close the modal window
   }
 }
