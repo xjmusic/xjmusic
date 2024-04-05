@@ -14,7 +14,6 @@ module workstation.gui.main {
   requires org.bytedeco.flandmark;
   requires org.bytedeco.javacv.platform;
   requires org.bytedeco.javacv;
-  requires org.jooq;
   requires org.slf4j;
   requires reactor.core;
   requires spring.beans;

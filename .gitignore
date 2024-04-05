@@ -1,6 +1,5 @@
 # Environment Variables
 .env
-gradle-local.properties
 
 gpg/
 .gradle/

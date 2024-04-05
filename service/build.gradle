@@ -20,9 +20,9 @@ dependencies {
   implementation project(":nexus")
   testImplementation project(path: ':nexus')
   testImplementation(project(':nexus').sourceSets.test.output)
-  // private
-  implementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
-  testImplementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
+  implementation project(":models")
+  testImplementation project(path: ':models')
+  testImplementation(project(':models').sourceSets.test.output)
   // vendor
   implementation "com.fasterxml.jackson.core:jackson-annotations:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${rootProject.ext.jacksonAnnotationsVersion}"

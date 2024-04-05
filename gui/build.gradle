@@ -18,12 +18,13 @@ dependencies {
   implementation project(":nexus")
   testImplementation project(path: ':nexus')
   testImplementation(project(':nexus').sourceSets.test.output)
-  // private
-  implementation "io.xj:models:${xjModelsVersion}"
+  // peers
+  implementation project(":models")
+  testImplementation project(path: ':models')
+  testImplementation(project(':models').sourceSets.test.output)
   // vendor
   implementation "ch.qos.logback:logback-classic:${rootProject.ext.logbackVersion}"
   implementation "ch.qos.logback:logback-core:${rootProject.ext.logbackVersion}"
-  implementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
   implementation "org.openjfx:javafx-base:${rootProject.ext.javaFxVersion}"
   implementation "org.openjfx:javafx-controls:${rootProject.ext.javaFxVersion}"
   implementation "org.openjfx:javafx-fxml:${rootProject.ext.javaFxVersion}"
