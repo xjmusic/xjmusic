@@ -1,24 +1,23 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.jsonapi;
 
-import java.util.Set;
-
-import io.xj.hub.util.Widget;
 import io.xj.hub.entity.EntityFactory;
 import io.xj.hub.entity.EntityFactoryImpl;
 import io.xj.hub.json.JsonProviderImpl;
+import io.xj.hub.util.Widget;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
- * Payload serializer test
- * <p>
- * Created by Charney Kaye on 2020/03/09
+ Payload serializer test
+ <p>
+ Created by Charney Kaye on 2020/03/09
  */
 public class JsonapiPayloadSerializerTest {
   JsonapiPayloadFactory jsonapiPayloadFactory;
@@ -81,7 +80,7 @@ public class JsonapiPayloadSerializerTest {
   }
 
   /**
-   * JSON:API serializer must not include relationship payload where there is none https://www.pivotaltracker.com/story/show/175792528
+   JSON:API serializer must not include relationship payload where there is none https://www.pivotaltracker.com/story/show/175792528
    */
   @Test
   public void serializeOne_withBelongsTo_empty() throws JsonapiException {

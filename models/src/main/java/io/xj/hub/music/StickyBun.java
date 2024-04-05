@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
+ Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
  */
 public class StickyBun {
   static final String META_KEY_TEMPLATE = "StickyBun_%s";
@@ -20,7 +20,7 @@ public class StickyBun {
   UUID eventId;
 
   /**
-   * Prepare empty sticky bun
+   Prepare empty sticky bun
    */
   public StickyBun() {
     this.values = List.of();
@@ -28,10 +28,10 @@ public class StickyBun {
   }
 
   /**
-   * Prepare a sticky bun with event id and values
-   *
-   * @param eventId to persist
-   * @param size    of bun to generate
+   Prepare a sticky bun with event id and values
+
+   @param eventId to persist
+   @param size    of bun to generate
    */
   public StickyBun(UUID eventId, int size) {
     this.eventId = eventId;
@@ -41,10 +41,10 @@ public class StickyBun {
   }
 
   /**
-   * Prepare a sticky bun with event id and values
-   *
-   * @param eventId to persist
-   * @param values  of bun
+   Prepare a sticky bun with event id and values
+
+   @param eventId to persist
+   @param values  of bun
    */
   public StickyBun(UUID eventId, List<Integer> values) {
     this.eventId = eventId;
@@ -52,27 +52,27 @@ public class StickyBun {
   }
 
   /**
-   * Compute a meta key based on the given event id
-   * <p>
-   * Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
-   *
-   * @return compute meta key
+   Compute a meta key based on the given event id
+   <p>
+   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
+
+   @return compute meta key
    */
   public static String computeMetaKey(UUID id) {
     return String.format(META_KEY_TEMPLATE, id.toString());
   }
 
   /**
-   * @return values
+   @return values
    */
   public List<Integer> getValues() {
     return values;
   }
 
   /**
-   * set values
-   *
-   * @param values to set
+   set values
+
+   @param values to set
    */
   public StickyBun setValues(List<Integer> values) {
     this.values = values;
@@ -80,16 +80,16 @@ public class StickyBun {
   }
 
   /**
-   * @return event id
+   @return event id
    */
   public UUID getEventId() {
     return eventId;
   }
 
   /**
-   * set event id
-   *
-   * @param eventId to set
+   set event id
+
+   @param eventId to set
    */
   public StickyBun setEventId(UUID eventId) {
     this.eventId = eventId;
@@ -97,11 +97,11 @@ public class StickyBun {
   }
 
   /**
-   * Replace atonal notes in the list with selections based on the sticky bun
-   *
-   * @param source       notes to replace atonal elements
-   * @param voicingNotes from which to select replacements
-   * @return notes with atonal elements augmented by sticky bun
+   Replace atonal notes in the list with selections based on the sticky bun
+
+   @param source       notes to replace atonal elements
+   @param voicingNotes from which to select replacements
+   @return notes with atonal elements augmented by sticky bun
    */
   public List<Note> replaceAtonal(List<Note> source, List<Note> voicingNotes) {
     if (values.isEmpty()) return source;
@@ -117,10 +117,10 @@ public class StickyBun {
   }
 
   /**
-   * Replace atonal notes in the list with selections based on the sticky bun
-   *
-   * @param voicingNotes from which to select replacements
-   * @return notes with atonal elements augmented by sticky bun
+   Replace atonal notes in the list with selections based on the sticky bun
+
+   @param voicingNotes from which to select replacements
+   @return notes with atonal elements augmented by sticky bun
    */
   public Note compute(List<Note> voicingNotes, int index) {
     float valueRatio = (float) values.get(Math.min(index, values.size() - 1)) / MAX_VALUE;

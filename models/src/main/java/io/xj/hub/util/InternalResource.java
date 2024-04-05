@@ -5,7 +5,7 @@ import java.io.File;
 import java.net.URL;
 
 /**
- * Get a File() for something in the resources folder
+ Get a File() for something in the resources folder
  */
 public class InternalResource {
 

@@ -4,6 +4,7 @@ package io.xj.hub.music;
 import org.junit.jupiter.api.Test;
 
 import jakarta.annotation.Nullable;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +23,7 @@ public class NoteTest {
   }
 
   /**
-   * [#303] Craft calculates drum audio pitch to conform to the allowable note closest to the original note, slightly favoring down-pitching versus up-pitching.
+   [#303] Craft calculates drum audio pitch to conform to the allowable note closest to the original note, slightly favoring down-pitching versus up-pitching.
    */
   @Test
   public void setOctaveNearest() {
@@ -158,7 +159,7 @@ public class NoteTest {
   }
 
   /**
-   * NC sections should not cache notes from the previous section https://www.pivotaltracker.com/story/show/179409784
+   NC sections should not cache notes from the previous section https://www.pivotaltracker.com/story/show/179409784
    */
   @Test
   public void onlyValid() {
@@ -170,7 +171,7 @@ public class NoteTest {
   }
 
   /**
-   * NC sections should not cache notes from the previous section https://www.pivotaltracker.com/story/show/179409784
+   NC sections should not cache notes from the previous section https://www.pivotaltracker.com/story/show/179409784
    */
   @Test
   public void isValid() {

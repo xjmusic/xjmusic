@@ -2,10 +2,10 @@
 
 package io.xj.hub.jsonapi;
 
-import io.xj.hub.util.Widget;
 import io.xj.hub.entity.EntityFactory;
 import io.xj.hub.entity.EntityFactoryImpl;
 import io.xj.hub.json.JsonProviderImpl;
+import io.xj.hub.util.Widget;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

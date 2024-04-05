@@ -8,17 +8,12 @@ public class HubConfiguration {
   private String playerBaseUrl;
   private String shipBaseUrl;
 
-  public HubConfiguration setApiBaseUrl(String apiBaseUrl) {
-    this.apiBaseUrl = apiBaseUrl;
-    return this;
-  }
-
   public String getApiBaseUrl() {
     return apiBaseUrl;
   }
 
-  public HubConfiguration setAudioBaseUrl(String audioBaseUrl) {
-    this.audioBaseUrl = audioBaseUrl;
+  public HubConfiguration setApiBaseUrl(String apiBaseUrl) {
+    this.apiBaseUrl = apiBaseUrl;
     return this;
   }
 
@@ -26,8 +21,8 @@ public class HubConfiguration {
     return audioBaseUrl;
   }
 
-  public HubConfiguration setStreamBaseUrl(String streamBaseUrl) {
-    this.streamBaseUrl = streamBaseUrl;
+  public HubConfiguration setAudioBaseUrl(String audioBaseUrl) {
+    this.audioBaseUrl = audioBaseUrl;
     return this;
   }
 
@@ -35,8 +30,8 @@ public class HubConfiguration {
     return streamBaseUrl;
   }
 
-  public HubConfiguration setBaseUrl(String baseUrl) {
-    this.baseUrl = baseUrl;
+  public HubConfiguration setStreamBaseUrl(String streamBaseUrl) {
+    this.streamBaseUrl = streamBaseUrl;
     return this;
   }
 
@@ -44,8 +39,8 @@ public class HubConfiguration {
     return baseUrl;
   }
 
-  public HubConfiguration setPlayerBaseUrl(String playerBaseUrl) {
-    this.playerBaseUrl = playerBaseUrl;
+  public HubConfiguration setBaseUrl(String baseUrl) {
+    this.baseUrl = baseUrl;
     return this;
   }
 
@@ -53,12 +48,17 @@ public class HubConfiguration {
     return playerBaseUrl;
   }
 
-  public HubConfiguration setShipBaseUrl(String shipBaseUrl) {
-    this.shipBaseUrl = shipBaseUrl;
+  public HubConfiguration setPlayerBaseUrl(String playerBaseUrl) {
+    this.playerBaseUrl = playerBaseUrl;
     return this;
   }
 
   public String getShipBaseUrl() {
     return shipBaseUrl;
+  }
+
+  public HubConfiguration setShipBaseUrl(String shipBaseUrl) {
+    this.shipBaseUrl = shipBaseUrl;
+    return this;
   }
 }

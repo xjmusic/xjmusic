@@ -18,11 +18,11 @@ public enum Command {
   static final Logger LOG = LoggerFactory.getLogger(Command.class);
 
   /**
-   * Execute the given command
-   *
-   * @param cmdParts command parts to join (space-separated) and execute
-   * @throws IOException          on failure
-   * @throws InterruptedException on failure
+   Execute the given command
+
+   @param cmdParts command parts to join (space-separated) and execute
+   @throws IOException          on failure
+   @throws InterruptedException on failure
    */
   public static void execute(String descriptiveInfinitive, List<String> cmdParts) throws IOException, InterruptedException {
     String cmd = String.join(" ", cmdParts);

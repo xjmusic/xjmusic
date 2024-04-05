@@ -58,12 +58,12 @@ public class HubUploadAuthorization {
     return bucketName;
   }
 
-  public String getBucketRegion() {
-    return bucketRegion;
-  }
-
   public void setBucketName(String bucketName) {
     this.bucketName = bucketName;
+  }
+
+  public String getBucketRegion() {
+    return bucketRegion;
   }
 
   public void setBucketRegion(String bucketRegion) {
@@ -78,11 +78,11 @@ public class HubUploadAuthorization {
     this.acl = acl;
   }
 
-  public void setError(String error) {
-    this.error = error;
-  }
-
   public String getError() {
     return error;
+  }
+
+  public void setError(String error) {
+    this.error = error;
   }
 }

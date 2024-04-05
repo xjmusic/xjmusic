@@ -10,11 +10,11 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * Serializer for an Object in a Payload sent/received to/from a XJ Music REST JSON:API service
- * <p>
- * Payloads are serialized & deserialized with custom Jackson implementations.
- * Much of the complexity of serializing and deserializing stems of the fact that
- * the JSON:API standard uses a data object for One record, and a data array for Many records.
+ Serializer for an Object in a Payload sent/received to/from a XJ Music REST JSON:API service
+ <p>
+ Payloads are serialized & deserialized with custom Jackson implementations.
+ Much of the complexity of serializing and deserializing stems of the fact that
+ the JSON:API standard uses a data object for One record, and a data array for Many records.
  */
 public class JsonapiPayloadObjectSerializer extends StdSerializer<JsonapiPayloadObject> {
 

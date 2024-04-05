@@ -35,8 +35,8 @@ import java.util.stream.Stream;
  */
 public enum EntityUtils {
   ;
-  static final Logger LOG = LoggerFactory.getLogger(EntityUtils.class);
   public static final String NAME_KEY = "name";
+  static final Logger LOG = LoggerFactory.getLogger(EntityUtils.class);
   static final String SIMPLE_NAME_OF_NULL = "null";
   static final String ID_KEY = "id";
   static final String UPDATED_AT_KEY = "updatedAt";

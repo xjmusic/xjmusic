@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Set;
 
 public class HubProjectList {
-  private Collection<Project> projects;
   final Set<Error> errors = new HashSet<>();
+  private Collection<Project> projects;
 
   public HubProjectList() {
     this.projects = new HashSet<>();

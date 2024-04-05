@@ -48,6 +48,31 @@ public class HubContentPayload {
   Collection<Project> projects;
 
   /**
+   Create an empty HubContentPayload
+   */
+  public HubContentPayload() {
+    demo = false;
+    templates = new ArrayList<>();
+    templateBindings = new ArrayList<>();
+    instruments = new ArrayList<>();
+    libraries = new ArrayList<>();
+    instrumentAudios = new ArrayList<>();
+    instrumentMemes = new ArrayList<>();
+    programs = new ArrayList<>();
+    programMemes = new ArrayList<>();
+    programSequences = new ArrayList<>();
+    programSequenceBindings = new ArrayList<>();
+    programSequenceBindingMemes = new ArrayList<>();
+    programSequenceChords = new ArrayList<>();
+    programSequenceChordVoicings = new ArrayList<>();
+    programSequencePatterns = new ArrayList<>();
+    programSequencePatternEvents = new ArrayList<>();
+    programVoices = new ArrayList<>();
+    programVoiceTracks = new ArrayList<>();
+    projects = new ArrayList<>();
+  }
+
+  /**
    Create a HubContentPayload from a collection of entities
 
    @param entities from which to create the payload
@@ -127,31 +152,6 @@ public class HubContentPayload {
         .filter(ent -> io.xj.hub.pojos.Project.class.equals(ent.getClass()))
         .map(ent -> (io.xj.hub.pojos.Project) ent)
         .collect(Collectors.toList()));
-  }
-
-  /**
-   Create an empty HubContentPayload
-   */
-  public HubContentPayload() {
-    demo = false;
-    templates = new ArrayList<>();
-    templateBindings = new ArrayList<>();
-    instruments = new ArrayList<>();
-    libraries = new ArrayList<>();
-    instrumentAudios = new ArrayList<>();
-    instrumentMemes = new ArrayList<>();
-    programs = new ArrayList<>();
-    programMemes = new ArrayList<>();
-    programSequences = new ArrayList<>();
-    programSequenceBindings = new ArrayList<>();
-    programSequenceBindingMemes = new ArrayList<>();
-    programSequenceChords = new ArrayList<>();
-    programSequenceChordVoicings = new ArrayList<>();
-    programSequencePatterns = new ArrayList<>();
-    programSequencePatternEvents = new ArrayList<>();
-    programVoices = new ArrayList<>();
-    programVoiceTracks = new ArrayList<>();
-    projects = new ArrayList<>();
   }
 
   public Collection<Instrument> getInstruments() {

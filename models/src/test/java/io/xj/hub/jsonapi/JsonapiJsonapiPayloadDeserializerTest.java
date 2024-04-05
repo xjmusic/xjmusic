@@ -1,10 +1,10 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.jsonapi;
 
-import io.xj.hub.util.Widget;
 import io.xj.hub.entity.EntityFactoryImpl;
 import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.util.FileUtils;
+import io.xj.hub.util.Widget;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,9 +15,9 @@ import java.util.UUID;
 import static io.xj.hub.jsonapi.AssertPayload.assertPayload;
 
 /**
- * Payload deserializer test
- * <p>
- * Created by Charney Kaye on 2020/03/09
+ Payload deserializer test
+ <p>
+ Created by Charney Kaye on 2020/03/09
  */
 public class JsonapiJsonapiPayloadDeserializerTest {
   JsonapiPayloadFactory jsonapiPayloadFactory;

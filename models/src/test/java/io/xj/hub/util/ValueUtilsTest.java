@@ -273,10 +273,10 @@ public class ValueUtilsTest {
 
   @Test
   public void roundToNearest() {
-    assertEquals(255, ValueUtils.roundToNearest(5,254));
-    assertEquals(250, ValueUtils.roundToNearest(10,254));
+    assertEquals(255, ValueUtils.roundToNearest(5, 254));
+    assertEquals(250, ValueUtils.roundToNearest(10, 254));
     assertEquals(260, ValueUtils.roundToNearest(10, 256));
-    assertEquals(300, ValueUtils.roundToNearest(100,254));
+    assertEquals(300, ValueUtils.roundToNearest(100, 254));
   }
 
   @Test

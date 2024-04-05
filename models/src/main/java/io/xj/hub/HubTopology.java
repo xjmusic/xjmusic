@@ -1,21 +1,43 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub;
 
-import io.xj.hub.pojos.*;
 import io.xj.hub.entity.EntityFactory;
+import io.xj.hub.pojos.Instrument;
+import io.xj.hub.pojos.InstrumentAudio;
+import io.xj.hub.pojos.InstrumentMeme;
+import io.xj.hub.pojos.Library;
+import io.xj.hub.pojos.Program;
+import io.xj.hub.pojos.ProgramMeme;
+import io.xj.hub.pojos.ProgramSequence;
+import io.xj.hub.pojos.ProgramSequenceBinding;
+import io.xj.hub.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.pojos.ProgramSequenceChord;
+import io.xj.hub.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.pojos.ProgramSequencePattern;
+import io.xj.hub.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.pojos.ProgramVoice;
+import io.xj.hub.pojos.ProgramVoiceTrack;
+import io.xj.hub.pojos.Project;
+import io.xj.hub.pojos.ProjectUser;
+import io.xj.hub.pojos.Template;
+import io.xj.hub.pojos.TemplateBinding;
+import io.xj.hub.pojos.TemplatePublication;
+import io.xj.hub.pojos.User;
+import io.xj.hub.pojos.UserAuth;
+import io.xj.hub.pojos.UserAuthToken;
 
 /**
- * In the future, we will simplify JSON payload
- * deprecating this complex abstraction of JSON:API
- * in favor of plain POJO
+ In the future, we will simplify JSON payload
+ deprecating this complex abstraction of JSON:API
+ in favor of plain POJO
  */
 public enum HubTopology {
   ;
 
   /**
-   * Given an entity factory, build the Hub REST API entity topology
-   *
-   * @param entityFactory to build topology on
+   Given an entity factory, build the Hub REST API entity topology
+
+   @param entityFactory to build topology on
    */
   public static void buildHubApiTopology(EntityFactory entityFactory) {
     // Project

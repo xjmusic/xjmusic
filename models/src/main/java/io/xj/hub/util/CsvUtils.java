@@ -2,6 +2,7 @@
 package io.xj.hub.util;
 
 import jakarta.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,11 +42,11 @@ public interface CsvUtils {
   }
 
   /**
-   * Join a set of items' toString() values properly, e.g. "One, Two, Three, and Four"
-   *
-   * @param ids             to write
-   * @param beforeFinalItem text after last comma
-   * @return CSV of ids
+   Join a set of items' toString() values properly, e.g. "One, Two, Three, and Four"
+
+   @param ids             to write
+   @param beforeFinalItem text after last comma
+   @return CSV of ids
    */
   static <T> String prettyFrom(Collection<T> ids, String beforeFinalItem) {
     if (Objects.isNull(ids) || ids.isEmpty()) {
@@ -64,10 +65,10 @@ public interface CsvUtils {
   }
 
   /**
-   * Get a CSV string of key=value properties
-   *
-   * @param properties key=value
-   * @return CSV string
+   Get a CSV string of key=value properties
+
+   @param properties key=value
+   @return CSV string
    */
   static String from(Map<String, String> properties) {
     List<String> pieces = new ArrayList<>();
@@ -76,20 +77,20 @@ public interface CsvUtils {
   }
 
   /**
-   * Get a CSV string of key=value properties
-   *
-   * @param properties key=value
-   * @return CSV string
+   Get a CSV string of key=value properties
+
+   @param properties key=value
+   @return CSV string
    */
   static String from(Collection<?> properties) {
     return join(properties.stream().map(Objects::toString).collect(Collectors.toList()));
   }
 
   /**
-   * Split a string into a list of UUIDs
-   *
-   * @param uuids string to split
-   * @return list of UUIDs
+   Split a string into a list of UUIDs
+
+   @param uuids string to split
+   @return list of UUIDs
    */
   static List<UUID> splitUUIDs(String uuids) {
     return split(uuids).stream().map(UUID::fromString).collect(Collectors.toList());

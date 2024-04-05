@@ -117,6 +117,20 @@ public class HubContent {
   }
 
   /**
+   Add an error to the content
+
+   @param errors to add
+   */
+  public void setErrors(List<Error> errors) {
+    try {
+      this.errors.clear();
+      this.errors.addAll(errors);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
    Get all Users
 
    @return Users
@@ -124,6 +138,15 @@ public class HubContent {
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public Collection<User> getUsers() {
     return getAll(User.class);
+  }
+
+  /**
+   Set all users
+
+   @param users to set
+   */
+  public void setUsers(Collection<User> users) throws Exception {
+    setAll(User.class, users);
   }
 
   /**
@@ -137,6 +160,15 @@ public class HubContent {
   }
 
   /**
+   Set all Project Users
+
+   @param projectUsers to set
+   */
+  public void setProjectUsers(Collection<ProjectUser> projectUsers) throws Exception {
+    setAll(ProjectUser.class, projectUsers);
+  }
+
+  /**
    Get all Instruments
 
    @return Instruments
@@ -144,6 +176,15 @@ public class HubContent {
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public Collection<Instrument> getInstruments() {
     return getAll(Instrument.class);
+  }
+
+  /**
+   Set all instruments
+
+   @param instruments to set
+   */
+  public void setInstruments(Collection<Instrument> instruments) throws Exception {
+    setAll(Instrument.class, instruments);
   }
 
   /**
@@ -157,6 +198,15 @@ public class HubContent {
   }
 
   /**
+   Set all instrumentAudios
+
+   @param instrumentAudios to set
+   */
+  public void setInstrumentAudios(Collection<InstrumentAudio> instrumentAudios) throws Exception {
+    setAll(InstrumentAudio.class, instrumentAudios);
+  }
+
+  /**
    Get all InstrumentMemes
 
    @return InstrumentMemes
@@ -164,6 +214,15 @@ public class HubContent {
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public Collection<InstrumentMeme> getInstrumentMemes() {
     return getAll(InstrumentMeme.class);
+  }
+
+  /**
+   Set all instrumentMemes
+
+   @param instrumentMemes to set
+   */
+  public void setInstrumentMemes(Collection<InstrumentMeme> instrumentMemes) throws Exception {
+    setAll(InstrumentMeme.class, instrumentMemes);
   }
 
   /**
@@ -177,6 +236,15 @@ public class HubContent {
   }
 
   /**
+   Set all programs
+
+   @param programs to set
+   */
+  public void setPrograms(Collection<Program> programs) throws Exception {
+    setAll(Program.class, programs);
+  }
+
+  /**
    Get all program memes
 
    @return memes of program
@@ -184,6 +252,15 @@ public class HubContent {
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public Collection<ProgramMeme> getProgramMemes() {
     return getAll(ProgramMeme.class);
+  }
+
+  /**
+   Set all programMemes
+
+   @param programMemes to set
+   */
+  public void setProgramMemes(Collection<ProgramMeme> programMemes) throws Exception {
+    setAll(ProgramMeme.class, programMemes);
   }
 
   /**
@@ -197,6 +274,15 @@ public class HubContent {
   }
 
   /**
+   Set all programSequences
+
+   @param programSequences to set
+   */
+  public void setProgramSequences(Collection<ProgramSequence> programSequences) throws Exception {
+    setAll(ProgramSequence.class, programSequences);
+  }
+
+  /**
    Get all ProgramSequenceBindings
 
    @return ProgramSequenceBindings
@@ -204,6 +290,15 @@ public class HubContent {
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public Collection<ProgramSequenceBinding> getProgramSequenceBindings() {
     return getAll(ProgramSequenceBinding.class);
+  }
+
+  /**
+   Set all programSequenceBindings
+
+   @param programSequenceBindings to set
+   */
+  public void setProgramSequenceBindings(Collection<ProgramSequenceBinding> programSequenceBindings) throws Exception {
+    setAll(ProgramSequenceBinding.class, programSequenceBindings);
   }
 
   /**
@@ -217,6 +312,15 @@ public class HubContent {
   }
 
   /**
+   Set all programSequenceBindingMemes
+
+   @param programSequenceBindingMemes to set
+   */
+  public void setProgramSequenceBindingMemes(Collection<ProgramSequenceBindingMeme> programSequenceBindingMemes) throws Exception {
+    setAll(ProgramSequenceBindingMeme.class, programSequenceBindingMemes);
+  }
+
+  /**
    Get all ProgramSequencePatterns
 
    @return ProgramSequencePatterns
@@ -224,6 +328,15 @@ public class HubContent {
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public Collection<ProgramSequencePattern> getProgramSequencePatterns() {
     return getAll(ProgramSequencePattern.class);
+  }
+
+  /**
+   Set all programSequencePatterns
+
+   @param programSequencePatterns to set
+   */
+  public void setProgramSequencePatterns(Collection<ProgramSequencePattern> programSequencePatterns) throws Exception {
+    setAll(ProgramSequencePattern.class, programSequencePatterns);
   }
 
   /**
@@ -249,6 +362,15 @@ public class HubContent {
   }
 
   /**
+   Set all programSequencePatternEvents
+
+   @param programSequencePatternEvents to set
+   */
+  public void setProgramSequencePatternEvents(Collection<ProgramSequencePatternEvent> programSequencePatternEvents) throws Exception {
+    setAll(ProgramSequencePatternEvent.class, programSequencePatternEvents);
+  }
+
+  /**
    Get all ProgramSequenceChords
 
    @return ProgramSequenceChords
@@ -256,6 +378,15 @@ public class HubContent {
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public Collection<ProgramSequenceChord> getProgramSequenceChords() {
     return getAll(ProgramSequenceChord.class);
+  }
+
+  /**
+   Set all programSequenceChords
+
+   @param programSequenceChords to set
+   */
+  public void setProgramSequenceChords(Collection<ProgramSequenceChord> programSequenceChords) throws Exception {
+    setAll(ProgramSequenceChord.class, programSequenceChords);
   }
 
   /**
@@ -269,6 +400,15 @@ public class HubContent {
   }
 
   /**
+   Set all programSequenceChordVoicings
+
+   @param programSequenceChordVoicings to set
+   */
+  public void setProgramSequenceChordVoicings(Collection<ProgramSequenceChordVoicing> programSequenceChordVoicings) throws Exception {
+    setAll(ProgramSequenceChordVoicing.class, programSequenceChordVoicings);
+  }
+
+  /**
    Get all ProgramVoices
 
    @return ProgramVoices
@@ -276,6 +416,15 @@ public class HubContent {
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public Collection<ProgramVoice> getProgramVoices() {
     return getAll(ProgramVoice.class);
+  }
+
+  /**
+   Set all programVoices
+
+   @param programVoices to set
+   */
+  public void setProgramVoices(Collection<ProgramVoice> programVoices) throws Exception {
+    setAll(ProgramVoice.class, programVoices);
   }
 
   /**
@@ -289,6 +438,15 @@ public class HubContent {
   }
 
   /**
+   Set all programVoiceTracks
+
+   @param programVoiceTracks to set
+   */
+  public void setProgramVoiceTracks(Collection<ProgramVoiceTrack> programVoiceTracks) throws Exception {
+    setAll(ProgramVoiceTrack.class, programVoiceTracks);
+  }
+
+  /**
    Get all libraries
 
    @return libraries
@@ -296,6 +454,15 @@ public class HubContent {
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public Collection<Library> getLibraries() {
     return getAll(Library.class);
+  }
+
+  /**
+   Set all libraries
+
+   @param libraries to set
+   */
+  public void setLibraries(Collection<Library> libraries) throws Exception {
+    setAll(Library.class, libraries);
   }
 
   /**
@@ -309,11 +476,29 @@ public class HubContent {
   }
 
   /**
+   Set all templates
+
+   @param templates to set
+   */
+  public void setTemplates(Collection<Template> templates) throws Exception {
+    setAll(Template.class, templates);
+  }
+
+  /**
    @return all projects
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public Project getProject() {
     return getAll(Project.class).stream().findFirst().orElse(null);
+  }
+
+  /**
+   Set all projects
+
+   @param project to set
+   */
+  public void setProject(Project project) {
+    store.put(Project.class, new ConcurrentHashMap<>(Map.of(project.getId(), project)));
   }
 
   /**
@@ -326,6 +511,15 @@ public class HubContent {
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public Collection<TemplateBinding> getTemplateBindings() {
     return getAll(TemplateBinding.class);
+  }
+
+  /**
+   Set all templateBindings
+
+   @param templateBindings to set
+   */
+  public void setTemplateBindings(Collection<TemplateBinding> templateBindings) throws Exception {
+    setAll(TemplateBinding.class, templateBindings);
   }
 
   /**
@@ -671,7 +865,6 @@ public class HubContent {
       .filter(instrument -> libraryId.equals(instrument.getLibraryId()))
       .collect(Collectors.toList());
   }
-
 
   /**
    Get a collection of all instruments of a particular type for ingest
@@ -1307,168 +1500,6 @@ public class HubContent {
   }
 
   /**
-   Set all users
-
-   @param users to set
-   */
-  public void setUsers(Collection<User> users) throws Exception {
-    setAll(User.class, users);
-  }
-
-  /**
-   Set all Project Users
-
-   @param projectUsers to set
-   */
-  public void setProjectUsers(Collection<ProjectUser> projectUsers) throws Exception {
-    setAll(ProjectUser.class, projectUsers);
-  }
-
-  /**
-   Set all instruments
-
-   @param instruments to set
-   */
-  public void setInstruments(Collection<Instrument> instruments) throws Exception {
-    setAll(Instrument.class, instruments);
-  }
-
-  /**
-   Set all instrumentAudios
-
-   @param instrumentAudios to set
-   */
-  public void setInstrumentAudios(Collection<InstrumentAudio> instrumentAudios) throws Exception {
-    setAll(InstrumentAudio.class, instrumentAudios);
-  }
-
-  /**
-   Set all instrumentMemes
-
-   @param instrumentMemes to set
-   */
-  public void setInstrumentMemes(Collection<InstrumentMeme> instrumentMemes) throws Exception {
-    setAll(InstrumentMeme.class, instrumentMemes);
-  }
-
-  /**
-   Set all libraries
-
-   @param libraries to set
-   */
-  public void setLibraries(Collection<Library> libraries) throws Exception {
-    setAll(Library.class, libraries);
-  }
-
-  /**
-   Set all programs
-
-   @param programs to set
-   */
-  public void setPrograms(Collection<Program> programs) throws Exception {
-    setAll(Program.class, programs);
-  }
-
-  /**
-   Set all programMemes
-
-   @param programMemes to set
-   */
-  public void setProgramMemes(Collection<ProgramMeme> programMemes) throws Exception {
-    setAll(ProgramMeme.class, programMemes);
-  }
-
-  /**
-   Set all programSequences
-
-   @param programSequences to set
-   */
-  public void setProgramSequences(Collection<ProgramSequence> programSequences) throws Exception {
-    setAll(ProgramSequence.class, programSequences);
-  }
-
-  /**
-   Set all programSequenceBindings
-
-   @param programSequenceBindings to set
-   */
-  public void setProgramSequenceBindings(Collection<ProgramSequenceBinding> programSequenceBindings) throws Exception {
-    setAll(ProgramSequenceBinding.class, programSequenceBindings);
-  }
-
-  /**
-   Set all programSequenceBindingMemes
-
-   @param programSequenceBindingMemes to set
-   */
-  public void setProgramSequenceBindingMemes(Collection<ProgramSequenceBindingMeme> programSequenceBindingMemes) throws Exception {
-    setAll(ProgramSequenceBindingMeme.class, programSequenceBindingMemes);
-  }
-
-  /**
-   Set all programSequenceChords
-
-   @param programSequenceChords to set
-   */
-  public void setProgramSequenceChords(Collection<ProgramSequenceChord> programSequenceChords) throws Exception {
-    setAll(ProgramSequenceChord.class, programSequenceChords);
-  }
-
-  /**
-   Set all programSequenceChordVoicings
-
-   @param programSequenceChordVoicings to set
-   */
-  public void setProgramSequenceChordVoicings(Collection<ProgramSequenceChordVoicing> programSequenceChordVoicings) throws Exception {
-    setAll(ProgramSequenceChordVoicing.class, programSequenceChordVoicings);
-  }
-
-  /**
-   Set all programSequencePatterns
-
-   @param programSequencePatterns to set
-   */
-  public void setProgramSequencePatterns(Collection<ProgramSequencePattern> programSequencePatterns) throws Exception {
-    setAll(ProgramSequencePattern.class, programSequencePatterns);
-  }
-
-  /**
-   Set all programSequencePatternEvents
-
-   @param programSequencePatternEvents to set
-   */
-  public void setProgramSequencePatternEvents(Collection<ProgramSequencePatternEvent> programSequencePatternEvents) throws Exception {
-    setAll(ProgramSequencePatternEvent.class, programSequencePatternEvents);
-  }
-
-  /**
-   Set all programVoices
-
-   @param programVoices to set
-   */
-  public void setProgramVoices(Collection<ProgramVoice> programVoices) throws Exception {
-    setAll(ProgramVoice.class, programVoices);
-  }
-
-  /**
-   Set all programVoiceTracks
-
-   @param programVoiceTracks to set
-   */
-  public void setProgramVoiceTracks(Collection<ProgramVoiceTrack> programVoiceTracks) throws Exception {
-    setAll(ProgramVoiceTrack.class, programVoiceTracks);
-  }
-
-  /**
-   Set all projects
-
-   @param project to set
-   */
-  public void setProject(Project project) {
-    store.put(Project.class, new ConcurrentHashMap<>(Map.of(project.getId(), project)));
-  }
-
-  /**
    For reverse compatibility, HubContent can deserialize a payload with multiple projects- it takes the first one
 
    @param projects of which to set the first one as the project
@@ -1476,24 +1507,6 @@ public class HubContent {
   public void setProjects(Collection<Project> projects) {
     var project = projects.stream().findFirst();
     project.ifPresent(this::setProject);
-  }
-
-  /**
-   Set all templates
-
-   @param templates to set
-   */
-  public void setTemplates(Collection<Template> templates) throws Exception {
-    setAll(Template.class, templates);
-  }
-
-  /**
-   Set all templateBindings
-
-   @param templateBindings to set
-   */
-  public void setTemplateBindings(Collection<TemplateBinding> templateBindings) throws Exception {
-    setAll(TemplateBinding.class, templateBindings);
   }
 
   /**
@@ -1606,20 +1619,6 @@ public class HubContent {
   }
 
   /**
-   Add an error to the content
-
-   @param errors to add
-   */
-  public void setErrors(List<Error> errors) {
-    try {
-      this.errors.clear();
-      this.errors.addAll(errors);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  /**
    @return Whether this content is a demo
    */
   public boolean getDemo() {
@@ -1690,7 +1689,7 @@ public class HubContent {
 
     return content;
   }
-  
+
   /**
    Clear the content
    */

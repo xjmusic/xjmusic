@@ -2,15 +2,15 @@
 
 package io.xj.hub.jsonapi;
 
-import java.util.Map;
-import io.xj.hub.util.Widget;
 import io.xj.hub.entity.EntityFactoryImpl;
 import io.xj.hub.json.JsonProviderImpl;
+import io.xj.hub.util.Widget;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,9 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Payload test
- * <p>
- * Created by Charney Kaye on 2020/03/09
+ Payload test
+ <p>
+ Created by Charney Kaye on 2020/03/09
  */
 public class JsonapiPayloadTest {
   JsonapiPayload subject;
@@ -146,9 +146,9 @@ public class JsonapiPayloadTest {
   }
 
   /**
-   * Serialize a payload comprising a Widget
-   *
-   * @throws JsonapiException on failure
+   Serialize a payload comprising a Widget
+
+   @throws JsonapiException on failure
    */
   @Test
   public void setDataOne_widget() throws JsonapiException {

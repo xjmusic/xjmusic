@@ -136,7 +136,7 @@ abstract public class ContentTest {
     templateBinding.setTemplateId(template.getId());
     return templateBinding;
   }
-  
+
   protected Instrument buildInstrument(Library library, InstrumentType type, InstrumentMode mode, String name) {
     var instrument = new Instrument();
     instrument.setId(UUID.randomUUID());

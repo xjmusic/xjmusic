@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Interval within a chord or scale, counted from 1 the "root" to e.g. 3 (the "third") or 5 (the "fifth") up to 16.
- * <p>
- * `enum` ensures the order of all the intervals, e.g. for stepping from the root of a chord or scale, outward to its other tones.
- * <p>
- * A Chord Interval is how the members of the chord are counted, from 1 (the "root") to e.g. 3 (the "third") or 5 (the "fifth")
+ Interval within a chord or scale, counted from 1 the "root" to e.g. 3 (the "third") or 5 (the "fifth") up to 16.
+ <p>
+ `enum` ensures the order of all the intervals, e.g. for stepping from the root of a chord or scale, outward to its other tones.
+ <p>
+ A Chord Interval is how the members of the chord are counted, from 1 (the "root") to e.g. 3 (the "third") or 5 (the "fifth")
  */
 public enum Interval {
   I1(1),
@@ -37,19 +37,19 @@ public enum Interval {
   }
 
   /**
-   * Perform an action for all possible intervals
-   *
-   * @param action to perform
+   Perform an action for all possible intervals
+
+   @param action to perform
    */
   static public void forAll(Consumer<? super Interval> action) {
     allIntervals.forEach(action);
   }
 
   /**
-   * Get interval from integer value
-   *
-   * @param value to get interval for
-   * @return interval
+   Get interval from integer value
+
+   @param value to get interval for
+   @return interval
    */
   public static Interval valueOf(int value) {
     return Interval.values()[value - 1];

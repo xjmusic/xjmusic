@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * PitchClass of pitch for a note (across all octaves)
- * In music, a pitch class is a set of all pitches that are a whole number of octaves apart, e.g., the pitch class C consists of the Cs in all octaves.
+ PitchClass of pitch for a note (across all octaves)
+ In music, a pitch class is a set of all pitches that are a whole number of octaves apart, e.g., the pitch class C consists of the Cs in all octaves.
  */
 public enum PitchClass {
   None,
@@ -25,12 +25,12 @@ public enum PitchClass {
   B;
 
   /**
-   * Map of +1 semitone for each note
+   Map of +1 semitone for each note
    */
   static final Map<PitchClass, Step> stepUp = buildStepUpMap();
 
   /**
-   * Map of -1 semitone for each note
+   Map of -1 semitone for each note
    */
   static final Map<PitchClass, Step> stepDown = buildStepDownMap();
 
@@ -74,10 +74,10 @@ public enum PitchClass {
   }
 
   /**
-   * pitch class by name
-   *
-   * @param name of pitch class
-   * @return pitch class
+   pitch class by name
+
+   @param name of pitch class
+   @return pitch class
    */
   public static PitchClass of(String name) {
     return baseNameOf(name)
@@ -86,30 +86,30 @@ public enum PitchClass {
   }
 
   /**
-   * Step up from a particular pitch class
-   *
-   * @param from transpose to transpose up from
-   * @return transpose up
+   Step up from a particular pitch class
+
+   @param from transpose to transpose up from
+   @return transpose up
    */
   static Step getStepUpOneFrom(PitchClass from) {
     return stepUp.get(from);
   }
 
   /**
-   * Step down from a particular pitch class
-   *
-   * @param from transpose to transpose down from
-   * @return transpose down
+   Step down from a particular pitch class
+
+   @param from transpose to transpose down from
+   @return transpose down
    */
   static Step getStepDownOneFrom(PitchClass from) {
     return stepDown.get(from);
   }
 
   /**
-   * Pitch Class based on the first character of the text
-   *
-   * @param text to get pitch class from
-   * @return pitch class
+   Pitch Class based on the first character of the text
+
+   @param text to get pitch class from
+   @return pitch class
    */
   static PitchClass baseNameOf(String text) {
     if (Objects.isNull(text) || text.length() == 0)
@@ -128,10 +128,10 @@ public enum PitchClass {
   }
 
   /**
-   * Base delta +/- semitones of the of pitch class (e.g. sharp or flat) from a basic pitch class
-   *
-   * @param text of pitch class
-   * @return +/- semitones, e.g. sharp or flat
+   Base delta +/- semitones of the of pitch class (e.g. sharp or flat) from a basic pitch class
+
+   @param text of pitch class
+   @return +/- semitones, e.g. sharp or flat
    */
   static int baseDeltaOf(String text) {
     if (Objects.isNull(text) || text.length() <= 1)
@@ -145,12 +145,12 @@ public enum PitchClass {
   }
 
   /**
-   * Nearest difference, +/- semitones, between two pitch classes
-   *
-   * @param from pitch class
-   * @param to   pitch class
-   * @param inc  increment, +1 or -1 (else risk infinite loop)
-   * @return difference +/- semitones
+   Nearest difference, +/- semitones, between two pitch classes
+
+   @param from pitch class
+   @param to   pitch class
+   @param inc  increment, +1 or -1 (else risk infinite loop)
+   @return difference +/- semitones
    */
   static int deltaDirectional(PitchClass from, PitchClass to, int inc) {
     if (from == None)
@@ -167,10 +167,10 @@ public enum PitchClass {
   }
 
   /**
-   * Note stepped +/- semitones to a new Note
-   *
-   * @param inc +/- semitones to transpose
-   * @return Note
+   Note stepped +/- semitones to a new Note
+
+   @param inc +/- semitones to transpose
+   @return Note
    */
   public Step step(int inc) {
     if (0 < inc)
@@ -182,10 +182,10 @@ public enum PitchClass {
   }
 
   /**
-   * Note stepped + semitones to a new Note
-   *
-   * @param inc + semitones to transpose
-   * @return Note
+   Note stepped + semitones to a new Note
+
+   @param inc + semitones to transpose
+   @return Note
    */
   Step stepUp(int inc) {
     PitchClass newPitchClass = this;
@@ -199,10 +199,10 @@ public enum PitchClass {
   }
 
   /**
-   * Note stepped - semitones to a new Note
-   *
-   * @param inc - semitones to transpose
-   * @return Note
+   Note stepped - semitones to a new Note
+
+   @param inc - semitones to transpose
+   @return Note
    */
   Step stepDown(int inc) {
     PitchClass newPitchClass = this;
@@ -216,20 +216,20 @@ public enum PitchClass {
   }
 
   /**
-   * String of the pitch class, expressed with Sharps or Flats
-   *
-   * @param with adjustment symbol
-   * @return pitch class with adjustment symbol
+   String of the pitch class, expressed with Sharps or Flats
+
+   @param with adjustment symbol
+   @return pitch class with adjustment symbol
    */
   public String toString(Accidental with) {
     return stringOf(this, with);
   }
 
   /**
-   * Nearest difference, +/- semitones, to another target pitchClass
-   *
-   * @param target pitch class
-   * @return difference +/- semitones
+   Nearest difference, +/- semitones, to another target pitchClass
+
+   @param target pitch class
+   @return difference +/- semitones
    */
   public int delta(PitchClass target) {
     if (Objects.equals(None, this)) return 0;
@@ -243,11 +243,11 @@ public enum PitchClass {
   }
 
   /**
-   * String of Pitch class, with adjustment symbol
-   *
-   * @param from pitch class
-   * @param with adjustment symbol
-   * @return string of pitch class
+   String of Pitch class, with adjustment symbol
+
+   @param from pitch class
+   @param with adjustment symbol
+   @return string of pitch class
    */
   String stringOf(PitchClass from, Accidental with) {
     return switch (this) {
@@ -270,10 +270,10 @@ public enum PitchClass {
   }
 
   /**
-   * String of Pitch class, expressed with Sharp adjustment symbol
-   *
-   * @param from pitch class
-   * @return string adjusted with sharp
+   String of Pitch class, expressed with Sharp adjustment symbol
+
+   @param from pitch class
+   @return string adjusted with sharp
    */
   String stringSharpOf(PitchClass from) {
     return switch (from) {
@@ -287,10 +287,10 @@ public enum PitchClass {
   }
 
   /**
-   * String of Pitch class, expressed with Flat adjustment symbol
-   *
-   * @param from pitch class
-   * @return string adjusted with flat
+   String of Pitch class, expressed with Flat adjustment symbol
+
+   @param from pitch class
+   @return string adjusted with flat
    */
   String stringFlatOf(PitchClass from) {
     return switch (from) {

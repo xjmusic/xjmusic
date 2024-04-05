@@ -5,84 +5,85 @@ import java.io.Serializable;
 import java.util.UUID;
 
 
-@SuppressWarnings({ "all", "unchecked", "rawtypes" })
+@SuppressWarnings({"all", "unchecked", "rawtypes"})
 public class ProgramMeme implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private UUID   id;
-    private String name;
-    private UUID   programId;
+  private UUID id;
+  private String name;
+  private UUID programId;
 
-    public ProgramMeme() {}
+  public ProgramMeme() {
+  }
 
-    public ProgramMeme(ProgramMeme value) {
-        this.id = value.id;
-        this.name = value.name;
-        this.programId = value.programId;
-    }
+  public ProgramMeme(ProgramMeme value) {
+    this.id = value.id;
+    this.name = value.name;
+    this.programId = value.programId;
+  }
 
-    public ProgramMeme(
-        UUID   id,
-        String name,
-        UUID   programId
-    ) {
-        this.id = id;
-        this.name = name;
-        this.programId = programId;
-    }
+  public ProgramMeme(
+    UUID id,
+    String name,
+    UUID programId
+  ) {
+    this.id = id;
+    this.name = name;
+    this.programId = programId;
+  }
 
-    /**
-     * Getter for <code>xj.program_meme.id</code>.
-     */
-    public UUID getId() {
-        return this.id;
-    }
+  /**
+   Getter for <code>xj.program_meme.id</code>.
+   */
+  public UUID getId() {
+    return this.id;
+  }
 
-    /**
-     * Setter for <code>xj.program_meme.id</code>.
-     */
-    public void setId(UUID id) {
-        this.id = id;
-    }
+  /**
+   Setter for <code>xj.program_meme.id</code>.
+   */
+  public void setId(UUID id) {
+    this.id = id;
+  }
 
-    /**
-     * Getter for <code>xj.program_meme.name</code>.
-     */
-    public String getName() {
-        return this.name;
-    }
+  /**
+   Getter for <code>xj.program_meme.name</code>.
+   */
+  public String getName() {
+    return this.name;
+  }
 
-    /**
-     * Setter for <code>xj.program_meme.name</code>.
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
+  /**
+   Setter for <code>xj.program_meme.name</code>.
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    /**
-     * Getter for <code>xj.program_meme.program_id</code>.
-     */
-    public UUID getProgramId() {
-        return this.programId;
-    }
+  /**
+   Getter for <code>xj.program_meme.program_id</code>.
+   */
+  public UUID getProgramId() {
+    return this.programId;
+  }
 
-    /**
-     * Setter for <code>xj.program_meme.program_id</code>.
-     */
-    public void setProgramId(UUID programId) {
-        this.programId = programId;
-    }
+  /**
+   Setter for <code>xj.program_meme.program_id</code>.
+   */
+  public void setProgramId(UUID programId) {
+    this.programId = programId;
+  }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder("ProgramMeme (");
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder("ProgramMeme (");
 
-        sb.append(id);
-        sb.append(", ").append(name);
-        sb.append(", ").append(programId);
+    sb.append(id);
+    sb.append(", ").append(name);
+    sb.append(", ").append(programId);
 
-        sb.append(")");
-        return sb.toString();
-    }
+    sb.append(")");
+    return sb.toString();
+  }
 }

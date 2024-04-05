@@ -3,7 +3,7 @@
 package io.xj.hub.util;
 
 /**
- * Mock enum value
+ Mock enum value
  */
 enum MockEnumValue {
   Apples,

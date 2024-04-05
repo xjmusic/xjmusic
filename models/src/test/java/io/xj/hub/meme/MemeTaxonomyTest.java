@@ -1,27 +1,27 @@
 package io.xj.hub.meme;
 
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * TemplateConfig has Meme categories
- * https://www.pivotaltracker.com/story/show/181801646
- * <p>
- * A template configuration has a field called `memeTaxonomy` which defines the taxonomy of memes.
- * <p>
- * For example, this might look like
- * <p>
- * ```
- * memeTaxonomy=CITY[CHICAGO,DENVER,PHILADELPHIA]
- * ```
- * <p>
- * That would tell XJ about the existence of a meme category called City with values `CHICAGO`, `DENVER`, and `PHILADELPHIA`. And these would function as exclusion like numeric memes, e.g. after content having `CHICAGO` is chosen, we can choose nothing with `DENVER` or `PHILADELPHIA`.
+ TemplateConfig has Meme categories
+ https://www.pivotaltracker.com/story/show/181801646
+ <p>
+ A template configuration has a field called `memeTaxonomy` which defines the taxonomy of memes.
+ <p>
+ For example, this might look like
+ <p>
+ ```
+ memeTaxonomy=CITY[CHICAGO,DENVER,PHILADELPHIA]
+ ```
+ <p>
+ That would tell XJ about the existence of a meme category called City with values `CHICAGO`, `DENVER`, and `PHILADELPHIA`. And these would function as exclusion like numeric memes, e.g. after content having `CHICAGO` is chosen, we can choose nothing with `DENVER` or `PHILADELPHIA`.
  */
 public class MemeTaxonomyTest {
   @Test

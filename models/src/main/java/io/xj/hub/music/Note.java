@@ -4,16 +4,16 @@ package io.xj.hub.music;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.StringUtils;
-
 import jakarta.annotation.Nullable;
+
 import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
- * A Note is used to represent the relative duration and pitch of a sound.
- * <p>
- * https://en.wikipedia.org/wiki/Musical_note
+ A Note is used to represent the relative duration and pitch of a sound.
+ <p>
+ https://en.wikipedia.org/wiki/Musical_note
  */
 public class Note implements Comparable<Note> {
   @JsonIgnore
@@ -24,15 +24,15 @@ public class Note implements Comparable<Note> {
   PitchClass pitchClass; // pitch class of note
 
   /**
-   * Construct new empty note
+   Construct new empty note
    */
   public Note() {
   }
 
   /**
-   * Construct of note
-   *
-   * @param name of note
+   Construct of note
+
+   @param name of note
    */
   public Note(String name) {
     this.pitchClass = PitchClass.of(name);
@@ -40,10 +40,10 @@ public class Note implements Comparable<Note> {
   }
 
   /**
-   * Construct note from pitch class and octave #
-   *
-   * @param pitchClass of note
-   * @param octave     of note
+   Construct note from pitch class and octave #
+
+   @param pitchClass of note
+   @param octave     of note
    */
   public Note(PitchClass pitchClass, int octave) {
     this.octave = octave;
@@ -51,10 +51,10 @@ public class Note implements Comparable<Note> {
   }
 
   /**
-   * Instantiate a note
-   *
-   * @param name of note
-   * @return note
+   Instantiate a note
+
+   @param name of note
+   @return note
    */
   public static Note of(String name) {
     return StringUtils.isNullOrEmpty(name)
@@ -63,20 +63,20 @@ public class Note implements Comparable<Note> {
   }
 
   /**
-   * Instantiate a note by pitch class and octave
-   *
-   * @param pitchClass of note
-   * @param octave     of note
-   * @return note
+   Instantiate a note by pitch class and octave
+
+   @param pitchClass of note
+   @param octave     of note
+   @return note
    */
   public static Note of(PitchClass pitchClass, int octave) {
     return new Note(pitchClass, octave);
   }
 
   /**
-   * Instantiate an atonal note
-   *
-   * @return atonal note
+   Instantiate an atonal note
+
+   @return atonal note
    */
   @JsonIgnore
   public static Note atonal() {
@@ -84,43 +84,43 @@ public class Note implements Comparable<Note> {
   }
 
   /**
-   * Only stream a valid note, else empty
-   * </>
-   * NC sections should not cache notes from the previous section https://www.pivotaltracker.com/story/show/179409784
-   *
-   * @param name of note to test for validity
-   * @return valid note stream, or empty stream (if invalid)
+   Only stream a valid note, else empty
+   </>
+   NC sections should not cache notes from the previous section https://www.pivotaltracker.com/story/show/179409784
+
+   @param name of note to test for validity
+   @return valid note stream, or empty stream (if invalid)
    */
   public static Stream<Note> ofValid(String name) {
     return isValid(name) ? Stream.of(Note.of(name)) : Stream.empty();
   }
 
   /**
-   * Whether the current note is valid
-   *
-   * @param name of note to test
-   * @return true if valid
+   Whether the current note is valid
+
+   @param name of note to test
+   @return true if valid
    */
   public static boolean isValid(String name) {
     return rgxValidNote.matcher(name).find();
   }
 
   /**
-   * Whether the CSV contains any valid notes
-   *
-   * @param notes to test
-   * @return true if contains any valid notes
+   Whether the CSV contains any valid notes
+
+   @param notes to test
+   @return true if contains any valid notes
    */
   public static boolean containsAnyValidNotes(String notes) {
     return CsvUtils.split(notes).parallelStream().anyMatch(Note::isValid);
   }
 
   /**
-   * Return the median note between the two given notes, or just one if the other is null
-   *
-   * @param n1 note 1
-   * @param n2 note 2
-   * @return median note between the given two
+   Return the median note between the two given notes, or just one if the other is null
+
+   @param n1 note 1
+   @param n2 note 2
+   @return median note between the given two
    */
   public static @Nullable
   Note median(@Nullable Note n1, @Nullable Note n2) {
@@ -131,20 +131,20 @@ public class Note implements Comparable<Note> {
   }
 
   /**
-   * Note to String
-   *
-   * @param accidental to represent note with
-   * @return string representation of Note
+   Note to String
+
+   @param accidental to represent note with
+   @return string representation of Note
    */
   public String toString(Accidental accidental) {
     return String.format("%s%s", pitchClass.toString(accidental), octave);
   }
 
   /**
-   * Note stepped +/- semitones to a new Note
-   *
-   * @param inc +/- semitones to transpose
-   * @return Note
+   Note stepped +/- semitones to a new Note
+
+   @param inc +/- semitones to transpose
+   @return Note
    */
   public Note shift(int inc) {
     Step step = pitchClass.step(inc);
@@ -154,19 +154,19 @@ public class Note implements Comparable<Note> {
   }
 
   /**
-   * Note stepped +/- octaves to a new Note
-   *
-   * @param inc +/- octaves to transpose
-   * @return Note
+   Note stepped +/- octaves to a new Note
+
+   @param inc +/- octaves to transpose
+   @return Note
    */
   public Note shiftOctave(int inc) {
     return shift(12 * inc);
   }
 
   /**
-   * Copies this object to a new Note
-   *
-   * @return new note
+   Copies this object to a new Note
+
+   @return new note
    */
   Note copy() {
     return new Note()
@@ -193,15 +193,15 @@ public class Note implements Comparable<Note> {
   }
 
   /**
-   * Set the octave of this note to the one that would result in the target note
-   * being at most -6 or +5 semitones from the original note.
-   * <p>
-   * Here we guarantee that the target note is no more than -6 or +5 semitones away from the original audio note. Note that we are arbitrarily favoring down-pitching versus up-pitching, and that is an aesthetic decision, because it just sounds good.
-   * <p>
-   * [#303] Craft calculates drum audio pitch to conform to the allowable note closest to the original note, slightly favoring down-pitching versus up-pitching.
-   *
-   * @param fromNote to set octave nearest to
-   * @return this note for chaining
+   Set the octave of this note to the one that would result in the target note
+   being at most -6 or +5 semitones from the original note.
+   <p>
+   Here we guarantee that the target note is no more than -6 or +5 semitones away from the original audio note. Note that we are arbitrarily favoring down-pitching versus up-pitching, and that is an aesthetic decision, because it just sounds good.
+   <p>
+   [#303] Craft calculates drum audio pitch to conform to the allowable note closest to the original note, slightly favoring down-pitching versus up-pitching.
+
+   @param fromNote to set octave nearest to
+   @return this note for chaining
    */
   public Note setOctaveNearest(Note fromNote) {
     if (fromNote.getPitchClass().equals(PitchClass.None))
@@ -216,10 +216,10 @@ public class Note implements Comparable<Note> {
   }
 
   /**
-   * Delta +/- semitones from this Note to another Note
-   *
-   * @param target note to get delta to
-   * @return delta +/- semitones
+   Delta +/- semitones from this Note to another Note
+
+   @param target note to get delta to
+   @return delta +/- semitones
    */
   public Integer delta(Note target) {
     if (this.sameAs(target))
@@ -243,20 +243,20 @@ public class Note implements Comparable<Note> {
   }
 
   /**
-   * Is this note the same pitch class and octave as another note?
-   *
-   * @param target note to compare to
-   * @return true if same pitch class and octave
+   Is this note the same pitch class and octave as another note?
+
+   @param target note to compare to
+   @return true if same pitch class and octave
    */
   public boolean sameAs(Note target) {
     return this.octave.equals(target.octave) && this.pitchClass.equals(target.pitchClass);
   }
 
   /**
-   * Compare two notes
-   *
-   * @param target to compare to
-   * @return comparison result
+   Compare two notes
+
+   @param target to compare to
+   @return comparison result
    */
   public int compareTo(Note target) {
     if (octave > target.octave) return 1;
@@ -266,29 +266,29 @@ public class Note implements Comparable<Note> {
   }
 
   /**
-   * Is this note lower than the target note?
-   *
-   * @param target to compare to
-   * @return true if this is lower than the target
+   Is this note lower than the target note?
+
+   @param target to compare to
+   @return true if this is lower than the target
    */
   public boolean isLower(Note target) {
     return 0 > compareTo(target);
   }
 
   /**
-   * Is this note higher than the target note?
-   *
-   * @param target to compare to
-   * @return true if this is higher than the target
+   Is this note higher than the target note?
+
+   @param target to compare to
+   @return true if this is higher than the target
    */
   public boolean isHigher(Note target) {
     return 0 < compareTo(target);
   }
 
   /**
-   * Whether this note is atonal
-   *
-   * @return true if the pitch class is none
+   Whether this note is atonal
+
+   @return true if the pitch class is none
    */
   @JsonIgnore
   public boolean isAtonal() {
@@ -296,31 +296,31 @@ public class Note implements Comparable<Note> {
   }
 
   /**
-   * Get the first occurrence of the given pitch class up from the current note
-   *
-   * @param target pitch class to seek
-   * @return first note with given pitch class up from this
+   Get the first occurrence of the given pitch class up from the current note
+
+   @param target pitch class to seek
+   @return first note with given pitch class up from this
    */
   public Note nextUp(PitchClass target) {
     return next(target, 1);
   }
 
   /**
-   * Get the first occurrence of the given pitch class down from the current note
-   *
-   * @param target pitch class to seek
-   * @return first note with given pitch class down from this
+   Get the first occurrence of the given pitch class down from the current note
+
+   @param target pitch class to seek
+   @return first note with given pitch class down from this
    */
   public Note nextDown(PitchClass target) {
     return next(target, -1);
   }
 
   /**
-   * Get the first occurrence of the given pitch class in the given direction from the current note
-   *
-   * @param target pitch class to seek
-   * @param delta  direction (1 or -1) in which to seek
-   * @return first note with given pitch class from this
+   Get the first occurrence of the given pitch class in the given direction from the current note
+
+   @param target pitch class to seek
+   @param delta  direction (1 or -1) in which to seek
+   @return first note with given pitch class from this
    */
   Note next(PitchClass target, int delta) {
     if (isAtonal() || Objects.equals(pitchClass, target))

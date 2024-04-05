@@ -10,17 +10,17 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * Compute normalized string representation of an unordered set of memes
- * for the purpose of identifying unique constellations.
- * <p>
- * for each unique sequence-pattern-meme constellation within the main sequence https://www.pivotaltracker.com/story/show/161736024
+ Compute normalized string representation of an unordered set of memes
+ for the purpose of identifying unique constellations.
+ <p>
+ for each unique sequence-pattern-meme constellation within the main sequence https://www.pivotaltracker.com/story/show/161736024
  */
 public enum MemeConstellation {
   ;
   static final String CONSTELLATION_DELIMITER = "_";
 
   /**
-   * @return unique constellation for this set of names
+   @return unique constellation for this set of names
    */
   public static String fromNames(Collection<String> names) {
     Map<String, Boolean> uniqueNames = new HashMap<>();
@@ -30,7 +30,7 @@ public enum MemeConstellation {
   }
 
   /**
-   * @return set of names parsed from constellation
+   @return set of names parsed from constellation
    */
   public static Collection<String> toNames(String constellation) {
     return List.of(constellation.split(CONSTELLATION_DELIMITER));

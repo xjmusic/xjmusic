@@ -7,7 +7,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 /**
- *
+
  */
 public enum ChordForm {
   ;
@@ -57,10 +57,10 @@ public enum ChordForm {
   );
 
   /**
-   * Parse a chord description and return its most basic representation from the form dictionary
-   *
-   * @param input to parse
-   * @return most basic synonym, or original if already most basic
+   Parse a chord description and return its most basic representation from the form dictionary
+
+   @param input to parse
+   @return most basic synonym, or original if already most basic
    */
   public static String normalize(String input) {
     return forms.stream()
@@ -71,7 +71,7 @@ public enum ChordForm {
   }
 
   /**
-   * One Chord form has a basic description with many potential synonyms
+   One Chord form has a basic description with many potential synonyms
    */
   record Form(String description, List<Synonym> synonyms) {
 
@@ -104,7 +104,7 @@ public enum ChordForm {
   }
 
   /**
-   * Each potential synonym
+   Each potential synonym
    */
   record Synonym(String match, Boolean caseSensitive) {
     Synonym(String match) {

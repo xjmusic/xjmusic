@@ -1,13 +1,13 @@
 package io.xj.hub.meme;
 
-import java.util.Map;
 import io.xj.hub.util.StringUtils;
-
 import jakarta.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,19 +15,19 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * TemplateConfig has Meme categories
- * https://www.pivotaltracker.com/story/show/181801646
- * <p>
- * <p>
- * A template configuration has a field called `memeTaxonomy` which defines the taxonomy of memes.
- * <p>
- * For example, this might look like
- * <p>
- * ```
- * memeTaxonomy=CITY[CHICAGO,DENVER,PHILADELPHIA]
- * ```
- * <p>
- * That would tell XJ about the existence of a meme category called City with values `CHICAGO`, `DENVER`, and `PHILADELPHIA`. And these would function as exclusion like numeric memes, e.g. after content having `CHICAGO` is chosen, we can choose nothing with `DENVER` or `PHILADELPHIA`.
+ TemplateConfig has Meme categories
+ https://www.pivotaltracker.com/story/show/181801646
+ <p>
+ <p>
+ A template configuration has a field called `memeTaxonomy` which defines the taxonomy of memes.
+ <p>
+ For example, this might look like
+ <p>
+ ```
+ memeTaxonomy=CITY[CHICAGO,DENVER,PHILADELPHIA]
+ ```
+ <p>
+ That would tell XJ about the existence of a meme category called City with values `CHICAGO`, `DENVER`, and `PHILADELPHIA`. And these would function as exclusion like numeric memes, e.g. after content having `CHICAGO` is chosen, we can choose nothing with `DENVER` or `PHILADELPHIA`.
  */
 public class MemeTaxonomy {
   static final String CATEGORY_SEPARATOR = ";";
@@ -139,6 +139,14 @@ public class MemeTaxonomy {
       memes = parseMemeList(data);
     }
 
+    public static MemeCategory fromString(@Nullable String raw) {
+      return new MemeCategory(raw);
+    }
+
+    public static MemeCategory fromMap(Map<String, Object> data) {
+      return new MemeCategory(data);
+    }
+
     List<String> parseMemeList(Map<String, Object> data) {
       if (data.containsKey(KEY_MEMES) && data.get(KEY_MEMES) instanceof List<?>) try {
         //noinspection unchecked
@@ -147,14 +155,6 @@ public class MemeTaxonomy {
         //noop
       }
       return List.of();
-    }
-
-    public static MemeCategory fromString(@Nullable String raw) {
-      return new MemeCategory(raw);
-    }
-
-    public static MemeCategory fromMap(Map<String, Object> data) {
-      return new MemeCategory(data);
     }
 
     public String toString() {

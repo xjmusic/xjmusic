@@ -8,11 +8,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Meme Matcher for Anti-Memes
- * <p>
- * Parse any meme to test if it's valid, and extract its features
- * <p>
- * Artist can add !MEME values into Programs https://www.pivotaltracker.com/story/show/176474073
+ Meme Matcher for Anti-Memes
+ <p>
+ Parse any meme to test if it's valid, and extract its features
+ <p>
+ Artist can add !MEME values into Programs https://www.pivotaltracker.com/story/show/176474073
  */
 class ParseAnti {
   static final Pattern rgx = Pattern.compile("^!(.+)$");

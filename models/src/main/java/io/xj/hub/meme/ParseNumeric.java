@@ -8,11 +8,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Meme Matcher for Numeric Memes
- * <p>
- * Parse any meme to test if it's valid, and extract its features
- * <p>
- * Numeric memes with common letters and different integer prefix (e.g. 2STEP vs 4STEP) are known to be exclusive https://www.pivotaltracker.com/story/show/180125852
+ Meme Matcher for Numeric Memes
+ <p>
+ Parse any meme to test if it's valid, and extract its features
+ <p>
+ Numeric memes with common letters and different integer prefix (e.g. 2STEP vs 4STEP) are known to be exclusive https://www.pivotaltracker.com/story/show/180125852
  */
 class ParseNumeric {
   static final Pattern rgx = Pattern.compile("^([0-9]+)(.+)$");

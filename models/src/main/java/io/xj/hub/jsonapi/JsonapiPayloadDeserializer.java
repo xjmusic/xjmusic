@@ -15,13 +15,13 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Deserializer for a Payload sent/received to/from a XJ Music REST JSON:API service
- * <p>
- * Created by Charney Kaye on 2020/03/05
- * <p>
- * Payloads are serialized & deserialized with custom Jackson implementations.
- * Much of the complexity of serializing and deserializing stems of the fact that
- * the JSON:API standard uses a data object for One record, and a data array for Many records.
+ Deserializer for a Payload sent/received to/from a XJ Music REST JSON:API service
+ <p>
+ Created by Charney Kaye on 2020/03/05
+ <p>
+ Payloads are serialized & deserialized with custom Jackson implementations.
+ Much of the complexity of serializing and deserializing stems of the fact that
+ the JSON:API standard uses a data object for One record, and a data array for Many records.
  */
 public class JsonapiPayloadDeserializer extends StdDeserializer<JsonapiPayload> {
   final Logger log = LoggerFactory.getLogger(JsonapiPayloadDeserializer.class);

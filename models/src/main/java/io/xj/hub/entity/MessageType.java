@@ -15,11 +15,11 @@ public enum MessageType {
   Error;
 
   /**
-   * cast string to enum
-   *
-   * @param value to cast to enum
-   * @return enum
-   * @throws ValueException on failure
+   cast string to enum
+
+   @param value to cast to enum
+   @return enum
+   @throws ValueException on failure
    */
   public static MessageType validate(String value) throws ValueException {
     if (Objects.isNull(value))
@@ -33,10 +33,10 @@ public enum MessageType {
   }
 
   /**
-   * Get the most severe out of a collection of types
-   *
-   * @param messageTypes to get most severe type of
-   * @return most severe type out of the collection
+   Get the most severe out of a collection of types
+
+   @param messageTypes to get most severe type of
+   @return most severe type out of the collection
    */
   public static MessageType mostSevere(Collection<MessageType> messageTypes) {
     MessageType most = MessageType.Debug;
@@ -47,11 +47,11 @@ public enum MessageType {
   }
 
   /**
-   * Whether one type is more severe than another type
-   *
-   * @param type        to check for most severity
-   * @param anotherType standard to check against
-   * @return true if type is more severe than anotherType
+   Whether one type is more severe than another type
+
+   @param type        to check for most severity
+   @param anotherType standard to check against
+   @return true if type is more severe than anotherType
    */
   public static boolean isMoreSevere(MessageType type, MessageType anotherType) {
     return switch (type) {

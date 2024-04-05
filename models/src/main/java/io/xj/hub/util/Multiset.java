@@ -8,12 +8,11 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 /**
- * A class representing a Mutable Multiset
- * <p>
- * Thanks to https://www.techiedelight.com/multiset-implementation-java/
- *
- * @param <E> The type of elements in this multiset
- */
+ A class representing a Mutable Multiset
+ <p>
+ Thanks to https://www.techiedelight.com/multiset-implementation-java/
+
+ @param <E> The type of elements in this multiset */
 public class Multiset<E> {
   /* List to store distinct values */
   private final List<E> values;
@@ -30,10 +29,10 @@ public class Multiset<E> {
   }
 
   /**
-   * Adds an element to this multiset specified number of times
-   *
-   * @param element The element to be added
-   * @param count   The number of times
+   Adds an element to this multiset specified number of times
+
+   @param element The element to be added
+   @param count   The number of times
    */
   public void add(E element, int count) {
     if (count < 0) {
@@ -53,18 +52,18 @@ public class Multiset<E> {
   }
 
   /**
-   * Adds specified element to this multiset
-   *
-   * @param element The element to be added
+   Adds specified element to this multiset
+
+   @param element The element to be added
    */
   public void add(E element) {
     add(element, 1);
   }
 
   /**
-   * Adds all elements in the specified collection to this multiset
-   *
-   * @param c Collection containing elements to be added
+   Adds all elements in the specified collection to this multiset
+
+   @param c Collection containing elements to be added
    */
   public void addAll(Collection<? extends E> c) {
     for (E element : c) {
@@ -73,9 +72,9 @@ public class Multiset<E> {
   }
 
   /**
-   * Adds all elements in the specified array to this multiset
-   *
-   * @param arr An array containing elements to be added
+   Adds all elements in the specified array to this multiset
+
+   @param arr An array containing elements to be added
    */
   @SafeVarargs
   public final void addAll(E... arr) {
@@ -85,10 +84,10 @@ public class Multiset<E> {
   }
 
   /**
-   * Performs the given action for each element of the Iterable,
-   * including duplicates
-   *
-   * @param action The action to be performed for each element
+   Performs the given action for each element of the Iterable,
+   including duplicates
+
+   @param action The action to be performed for each element
    */
   public void forEach(Consumer<? super E> action) {
     List<E> all = new ArrayList<>();
@@ -102,20 +101,20 @@ public class Multiset<E> {
   }
 
   /**
-   * Removes a single occurrence of the specified element from this multiset
-   *
-   * @param element The element to removed
+   Removes a single occurrence of the specified element from this multiset
+
+   @param element The element to removed
    */
   public void remove(E element) {
     remove(element, 1);
   }
 
   /**
-   * Removes a specified number of occurrences of the specified element
-   * from this multiset
-   *
-   * @param element The element to removed
-   * @param count   The number of occurrences to be removed
+   Removes a specified number of occurrences of the specified element
+   from this multiset
+
+   @param element The element to removed
+   @param count   The number of occurrences to be removed
    */
   public void remove(E element, int count) {
     if (count < 0) {
@@ -138,34 +137,34 @@ public class Multiset<E> {
   }
 
   /**
-   * Check if this multiset contains at least one occurrence of the
-   * specified element
-   *
-   * @param element The element to be checked
-   * @return true if this multiset contains at least one occurrence
-   * of the element
+   Check if this multiset contains at least one occurrence of the
+   specified element
+
+   @param element The element to be checked
+   @return true if this multiset contains at least one occurrence
+   of the element
    */
   public boolean contains(E element) {
     return values.contains(element);
   }
 
   /**
-   * Check if this multiset contains at least one occurrence of each element
-   * in the specified collection
-   *
-   * @param c The collection of elements to be checked
-   * @return true if this multiset contains at least one occurrence
-   * of each element
+   Check if this multiset contains at least one occurrence of each element
+   in the specified collection
+
+   @param c The collection of elements to be checked
+   @return true if this multiset contains at least one occurrence
+   of each element
    */
   public boolean containsAll(Collection<E> c) {
     return new HashSet<>(values).containsAll(c);
   }
 
   /**
-   * Find the frequency of an element in this multiset
-   *
-   * @param element The element to be counted
-   * @return The frequency of the element
+   Find the frequency of an element in this multiset
+
+   @param element The element to be counted
+   @return The frequency of the element
    */
   public int count(E element) {
     int index = values.indexOf(element);
@@ -174,21 +173,21 @@ public class Multiset<E> {
   }
 
   /**
-   * @return A view of the set of distinct elements in this multiset
+   @return A view of the set of distinct elements in this multiset
    */
   public Set<E> elementSet() {
     return new HashSet<>(values);
   }
 
   /**
-   * @return true if this multiset is empty
+   @return true if this multiset is empty
    */
   public boolean isEmpty() {
     return values.size() == 0;
   }
 
   /**
-   * @return Total number of elements in this multiset, including duplicates
+   @return Total number of elements in this multiset, including duplicates
    */
   public int size() {
     int size = 0;

@@ -1,10 +1,10 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.meme;
 
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class MemeStackTest {
 
   /**
-   * Basics: all memes are allowed
+   Basics: all memes are allowed
    */
   @Test
   public void isAllowed() {
@@ -25,9 +25,9 @@ public class MemeStackTest {
   }
 
   /**
-   * Anti-Memes
-   * <p>
-   * Artist can add !MEME values into Programs https://www.pivotaltracker.com/story/show/176474073
+   Anti-Memes
+   <p>
+   Artist can add !MEME values into Programs https://www.pivotaltracker.com/story/show/176474073
    */
   @Test
   public void antiMemes() {
@@ -42,9 +42,9 @@ public class MemeStackTest {
   }
 
   /**
-   * Unique Memes
-   * <p>
-   * Artist can add `$MEME` so only one is chosen https://www.pivotaltracker.com/story/show/179078760
+   Unique Memes
+   <p>
+   Artist can add `$MEME` so only one is chosen https://www.pivotaltracker.com/story/show/179078760
    */
   @Test
   public void uniqueMemes() {
@@ -55,7 +55,7 @@ public class MemeStackTest {
   }
 
   /**
-   * Numeric memes with common letters and different integer prefix (e.g. 2STEP vs 4STEP) are known to be exclusive https://www.pivotaltracker.com/story/show/180125852
+   Numeric memes with common letters and different integer prefix (e.g. 2STEP vs 4STEP) are known to be exclusive https://www.pivotaltracker.com/story/show/180125852
    */
   @Test
   public void numericMemes() {
@@ -72,7 +72,7 @@ public class MemeStackTest {
   }
 
   /**
-   * Strong-meme like LEMONS! should always favor LEMONS https://www.pivotaltracker.com/story/show/180468772
+   Strong-meme like LEMONS! should always favor LEMONS https://www.pivotaltracker.com/story/show/180468772
    */
   @Test
   public void strongMemes() {
@@ -85,7 +85,7 @@ public class MemeStackTest {
   }
 
   /**
-   * Strong-meme like LEMONS! should always favor LEMONS https://www.pivotaltracker.com/story/show/180468772
+   Strong-meme like LEMONS! should always favor LEMONS https://www.pivotaltracker.com/story/show/180468772
    */
   @Test
   public void strongMemes_okayToAddBothStrongAndRegular_butNotOnlyStrong() {
@@ -130,18 +130,18 @@ public class MemeStackTest {
   }
 
   /**
-   * TemplateConfig has Meme categories
-   * https://www.pivotaltracker.com/story/show/181801646
-   * <p>
-   * A template configuration has a field called `memeTaxonomy` which defines the taxonomy of memes.
-   * <p>
-   * For example, this might look like
-   * <p>
-   * ```
-   * memeTaxonomy=CITY[CHICAGO,DENVER,PHILADELPHIA]
-   * ```
-   * <p>
-   * That would tell XJ about the existence of a meme category called City with values `CHICAGO`, `DENVER`, and `PHILADELPHIA`. And these would function as exclusion like numeric memes, e.g. after content having `CHICAGO` is chosen, we can choose nothing with `DENVER` or `PHILADELPHIA`.
+   TemplateConfig has Meme categories
+   https://www.pivotaltracker.com/story/show/181801646
+   <p>
+   A template configuration has a field called `memeTaxonomy` which defines the taxonomy of memes.
+   <p>
+   For example, this might look like
+   <p>
+   ```
+   memeTaxonomy=CITY[CHICAGO,DENVER,PHILADELPHIA]
+   ```
+   <p>
+   That would tell XJ about the existence of a meme category called City with values `CHICAGO`, `DENVER`, and `PHILADELPHIA`. And these would function as exclusion like numeric memes, e.g. after content having `CHICAGO` is chosen, we can choose nothing with `DENVER` or `PHILADELPHIA`.
    */
   @Test
   public void memeCategories() {
@@ -162,7 +162,7 @@ public class MemeStackTest {
   }
 
   /**
-   * Refuse to make a choice that violates the meme stack https://www.pivotaltracker.com/story/show/181466514
+   Refuse to make a choice that violates the meme stack https://www.pivotaltracker.com/story/show/181466514
    */
   @Test
   public void isValid() {

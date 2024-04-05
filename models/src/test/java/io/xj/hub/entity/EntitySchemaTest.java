@@ -3,6 +3,7 @@
 package io.xj.hub.entity;
 
 import java.util.Set;
+
 import io.xj.hub.util.Widget;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
@@ -147,28 +148,28 @@ public class EntitySchemaTest {
 
 
   /**
-   * To test defining relationships by class
+   To test defining relationships by class
    */
   public static class EyeBall {
     // noop
   }
 
   /**
-   * To test defining relationships by class
+   To test defining relationships by class
    */
   public static class Shoe {
     // noop
   }
 
   /**
-   * To test defining relationships by class
+   To test defining relationships by class
    */
   public static class City {
     // noop
   }
 
   /**
-   * To test defining relationships by class
+   To test defining relationships by class
    */
   public static class State {
     // noop

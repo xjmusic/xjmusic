@@ -6,7 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Root can be the root of a Chord, Key or Scale.
+ Root can be the root of a Chord, Key or Scale.
  */
 public class Root {
   static final Pattern rgxNote = Pattern.compile("^([ABCDEFG]).*");
@@ -15,9 +15,9 @@ public class Root {
   String remainingText;
 
   /**
-   * Parse root and remaining string, using regular expressions
-   *
-   * @param name to parse root and remaining of
+   Parse root and remaining string, using regular expressions
+
+   @param name to parse root and remaining of
    */
   Root(String name) {
     // as a default, the whole thing is remaining text, and pitch class is None
@@ -29,19 +29,19 @@ public class Root {
   }
 
   /**
-   * Instantiate a Root by name
-   * <p>
-   * XJ understands the root of a slash chord https://www.pivotaltracker.com/story/show/176728338
-   *
-   * @param name of root
-   * @return root
+   Instantiate a Root by name
+   <p>
+   XJ understands the root of a slash chord https://www.pivotaltracker.com/story/show/176728338
+
+   @param name of root
+   @return root
    */
   public static Root of(String name) {
     return new Root(name);
   }
 
   /**
-   * First group matching pattern in text, else null@param pattern to in@param text              to search
+   First group matching pattern in text, else null@param pattern to in@param text              to search
    */
   void evaluate(Pattern pattern, String text) {
     Matcher matcher = pattern.matcher(text);
@@ -57,18 +57,18 @@ public class Root {
   }
 
   /**
-   * Get pitch class of root
-   *
-   * @return root pitch class
+   Get pitch class of root
+
+   @return root pitch class
    */
   public PitchClass getPitchClass() {
     return pitchClass;
   }
 
   /**
-   * Remaining text after root has been extracted
-   *
-   * @return remaining text
+   Remaining text after root has been extracted
+
+   @return remaining text
    */
   public String getRemainingText() {
     return remainingText;
