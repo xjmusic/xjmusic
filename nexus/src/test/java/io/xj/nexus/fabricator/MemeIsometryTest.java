@@ -2,7 +2,7 @@
 package io.xj.nexus.fabricator;
 
 import io.xj.hub.meme.MemeTaxonomy;
-import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.pojos.ProgramMeme;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

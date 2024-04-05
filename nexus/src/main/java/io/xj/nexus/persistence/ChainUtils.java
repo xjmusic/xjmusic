@@ -3,8 +3,8 @@
 package io.xj.nexus.persistence;
 
 import io.xj.hub.enums.ContentBindingType;
-import io.xj.hub.tables.pojos.Template;
-import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.pojos.Template;
+import io.xj.hub.pojos.TemplateBinding;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;

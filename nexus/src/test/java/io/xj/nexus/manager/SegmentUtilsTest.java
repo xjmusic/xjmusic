@@ -3,8 +3,8 @@
 package io.xj.nexus.manager;
 
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.Project;
-import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.pojos.Project;
+import io.xj.hub.pojos.Template;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;

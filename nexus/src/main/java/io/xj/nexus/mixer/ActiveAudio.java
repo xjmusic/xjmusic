@@ -3,8 +3,8 @@
 package io.xj.nexus.mixer;
 
 import io.xj.hub.InstrumentConfig;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.pojos.Instrument;
+import io.xj.hub.pojos.InstrumentAudio;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import jakarta.annotation.Nullable;
 

@@ -23,25 +23,6 @@ possibilities for streams, games, and spaces.
 * Java 17
 * Gradle 8
 
-### Gradle (Maven) Package Repository
-
-In order to access the `io.xj.models` package we publish
-to [github.com/xjmusic/hub](https://github.com/xjmusic/hub/packages/1917815), you must authenticate with GitHub using an
-account with read access to the **xjmusic/hub** repository. To do so, you
-will need to create a personal access token with the `read:packages` scope. See
-the [GitHub documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#authenticating-to-github-packages)
-
-Once you have created a personal access token, you can authenticate with the GitHub Packages registry by adding the
-token to a **gradle-local.properties** file you create in the root of this project.
-
-NOTE: the **gradle-local.properties** file is ***NOT*** checked in to Git because it contains a secret. However, there is a [gradle-local.example.properties](gradle-local.example.properties) file that you can copy and use as a template.
-
-Your **gradle-local.properties** file should look like this:
-
-```properties
-repo.username=my-username
-repo.token=ghp_hgjkag8879731hjJKJYKJ78798KJHsf78221
-```
 
 ### Running the application
 

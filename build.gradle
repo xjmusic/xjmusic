@@ -15,36 +15,14 @@ plugins {
 ext {
   jacksonAnnotationsVersion = '2.15.2'
   javaFxVersion = '20.0.2'
-  jooqVersion = '3.18.5'
   junitVersion = '5.9.2'
   jupiterMockitoVersion = '5.5.0'
   jupiterVersion = '5.8.1'
   logbackVersion = '1.4.11'
   springBootVersion = '3.1.2'
   springTestVersion = '6.0.11'
-  // private
-  xjModelsVersion = '1.7.55'
 }
 
-// Load the local properties if present
-Properties localProperties = new Properties()
-def localPropertiesFile = project.rootProject.file('gradle-local.properties')
-if (localPropertiesFile.exists()) {
-  localProperties.load(localPropertiesFile.newDataInputStream())
-}
-
-// Determine the private packages username and password
-def privatePackagesUsername = localPropertiesFile.exists() ? localProperties.getProperty('repo.username') : System.getenv("REPO_USERNAME")
-def privatePackagesPassword = localPropertiesFile.exists() ? localProperties.getProperty('repo.token') : System.getenv("REPO_TOKEN")
-
-// Log the username and (masked) password
-println "+--------------------------------------------+"
-println "|   GitHub Private Packages Authentication   |"
-println "+--------------------------------------------+"
-println localPropertiesFile.exists() ? "Using gradle-local.properties" : "Using environment variables"
-println "Username: $privatePackagesUsername"
-def maskedPassword = privatePackagesPassword ? privatePackagesPassword.replaceAll(/./, '*') : null
-println "Password: $maskedPassword"
 
 allprojects {
   group = 'io.xj'
@@ -87,14 +65,6 @@ subprojects {
     }
     maven {
       url = 'https://oss.sonatype.org/content/repositories/releases'
-    }
-    maven {
-      name = "ReadPrivatePackages"
-      url = uri("https://maven.pkg.github.com/xjmusic/hub")
-      credentials {
-        username = privatePackagesUsername
-        password = privatePackagesPassword
-      }
     }
     //org.pantelev mvn repo link
     maven {

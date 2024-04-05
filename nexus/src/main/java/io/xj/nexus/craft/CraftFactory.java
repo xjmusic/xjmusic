@@ -2,7 +2,7 @@
 package io.xj.nexus.craft;
 
 
-import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.pojos.Program;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.background.BackgroundCraft;
 import io.xj.nexus.craft.beat.BeatCraft;

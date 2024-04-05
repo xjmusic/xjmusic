@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.audio;
 
-import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.pojos.InstrumentAudio;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.mixer.ActiveAudio;
 

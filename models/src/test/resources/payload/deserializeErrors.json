@@ -1,0 +1,30 @@
+{
+  "data": {
+    "id": "6e7fd439-102b-46a9-8f72-b588b2c4f208",
+    "type": "mock-child-entities",
+    "relationships": {
+      "mockChildEntities": {
+        "data": []
+      },
+      "widget": {
+        "data": {
+          "id": "69ea1325-9dfc-423b-b8a6-9cf72f419aa5",
+          "type": "widgets"
+        }
+      }
+    },
+    "attributes": {
+      "name": "Test #1",
+      "updatedAt": "2014-08-12T12:17:02.527142Z"
+    }
+  },
+  "errors": [
+    {
+      "links": {},
+      "code": "RestApiException",
+      "title": "Superwidget requires name!",
+      "detail": null,
+      "id": null
+    }
+  ]
+}

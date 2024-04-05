@@ -8,7 +8,7 @@ import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.types.Route;
 import io.xj.gui.utils.ProjectUtils;
-import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.audio.AudioInMemory;
 import io.xj.nexus.audio.AudioLoader;

@@ -3,8 +3,8 @@ package io.xj.nexus.work;
 
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.pojos.InstrumentAudio;
+import io.xj.hub.pojos.Program;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.audio.AudioMathUtils;
 import io.xj.nexus.mixer.ActiveAudio;

@@ -1,6 +1,6 @@
 package io.xj.nexus.audio;
 
-import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.pojos.InstrumentAudio;
 import io.xj.nexus.mixer.AudioSampleFormat;
 import io.xj.nexus.mixer.FormatException;
 import io.xj.nexus.project.ProjectManager;

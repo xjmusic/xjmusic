@@ -3,7 +3,7 @@ package io.xj.gui.controllers.content.program.bind_mode;
 import io.xj.gui.controllers.content.common.PopupSelectorMenuController;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.UIStateService;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.pojos.ProgramSequenceBinding;
 import io.xj.hub.util.StringUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;

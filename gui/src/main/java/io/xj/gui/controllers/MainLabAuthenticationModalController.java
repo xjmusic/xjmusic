@@ -8,7 +8,7 @@ import io.xj.gui.services.LabState;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.hub.tables.pojos.User;
+import io.xj.hub.pojos.User;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

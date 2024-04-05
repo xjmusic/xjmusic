@@ -7,7 +7,7 @@ import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.pojos.Template;
 import io.xj.nexus.ControlMode;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;

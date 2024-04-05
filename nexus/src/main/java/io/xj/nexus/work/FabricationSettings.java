@@ -2,7 +2,7 @@
 
 package io.xj.nexus.work;
 
-import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.pojos.Template;
 import io.xj.nexus.ControlMode;
 
 public class FabricationSettings {

@@ -10,7 +10,7 @@ import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.gui.utils.TextUtils;
-import io.xj.hub.tables.pojos.Project;
+import io.xj.hub.pojos.Project;
 import io.xj.hub.util.StringUtils;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
