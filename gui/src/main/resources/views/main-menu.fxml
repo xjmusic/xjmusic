@@ -63,11 +63,6 @@
           <KeyCodeCombination shortcut="DOWN" code="O" control="UP" meta="UP" shift="DOWN" alt="UP"/>
         </accelerator>
       </MenuItem>
-      <MenuItem fx:id="itemProjectPush" onAction="#handleProjectPush" text="Push" mnemonicParsing="false">
-        <accelerator>
-          <KeyCodeCombination shortcut="DOWN" code="P" control="UP" meta="UP" shift="DOWN" alt="UP"/>
-        </accelerator>
-      </MenuItem>
       <SeparatorMenuItem mnemonicParsing="false"/>
       <MenuItem onAction="#onQuit" text="Exit" mnemonicParsing="false">
         <accelerator>
@@ -202,24 +197,6 @@
           <Tooltip text="Fabricate Music from Content &amp; Templates"/>
         </tooltip>
       </ToggleButton>
-    </HBox>
-  </StackPane>
-
-  <StackPane
-      fx:id="labFeatureContainer"
-      AnchorPane.topAnchor="0"
-      AnchorPane.bottomAnchor="0">
-    <HBox alignment="CENTER_RIGHT" spacing="10">
-      <HBox.hgrow>
-        <Priority fx:constant="ALWAYS"/>
-      </HBox.hgrow>
-
-      <!-- Lab Connection Status Text -->
-      <Label fx:id="labelLabStatus" text="Initializing"/>
-
-      <!-- Lab Button -->
-      <Button fx:id="mainMenuButtonLab" onAction="#handleButtonLabPressed" text="LAB"/>
-
     </HBox>
   </StackPane>
 

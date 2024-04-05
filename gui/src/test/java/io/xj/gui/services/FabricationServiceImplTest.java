@@ -49,9 +49,6 @@ class FabricationServiceImplTest {
   int defaultOutputFrameRate = 48000;
 
   @Mock
-  LabService labService;
-
-  @Mock
   private NexusEntityStore entityStore;
 
   @Mock
@@ -85,7 +82,6 @@ class FabricationServiceImplTest {
         defaultOutputFrameRate,
         defaultMacroMode,
         defaultIntensityOverride,
-        labService,
         projectService,
         fabricationManager
     );

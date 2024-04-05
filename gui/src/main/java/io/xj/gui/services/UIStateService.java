@@ -47,15 +47,6 @@ public interface UIStateService extends ReadyAfterBoot {
   PseudoClass FAILED_PSEUDO_CLASS = PseudoClass.getPseudoClass("failed");
   PseudoClass OPEN_PSEUDO_CLASS = PseudoClass.getPseudoClass("open");
   PseudoClass INVALID_PSEUDO_CLASS = PseudoClass.getPseudoClass("invalid");
-  Set<LabState> LAB_PENDING_STATES = Set.of(
-    LabState.Connecting,
-    LabState.Configuring
-  );
-  Set<LabState> LAB_FAILED_STATES = Set.of(
-    LabState.Unauthorized,
-    LabState.Failed
-  );
-
   Set<FabricationState> FABRICATION_PENDING_STATES = Set.of(
     FabricationState.Starting,
     FabricationState.PreparingAudio,
@@ -264,12 +255,6 @@ public interface UIStateService extends ReadyAfterBoot {
    @return Observable property for whether the create entity button should be visible
    */
   BooleanBinding isCreateEntityButtonVisibleProperty();
-
-  /**
-   @return observable binding whether Lab features are visible
-   Workstation lab features are hidden until enabled in secret menu https://www.pivotaltracker.com/story/show/187023709
-   */
-  BooleanProperty isLabFeatureEnabledProperty();
 
   /**
    @return property of the current program editor mode

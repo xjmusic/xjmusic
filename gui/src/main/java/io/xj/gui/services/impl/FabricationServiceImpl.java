@@ -3,7 +3,6 @@
 package io.xj.gui.services.impl;
 
 import io.xj.gui.services.FabricationService;
-import io.xj.gui.services.LabService;
 import io.xj.gui.services.ProjectService;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
@@ -18,7 +17,6 @@ import io.xj.hub.pojos.ProgramVoice;
 import io.xj.hub.pojos.Template;
 import io.xj.hub.util.ValueException;
 import io.xj.nexus.ControlMode;
-import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
@@ -83,7 +81,6 @@ public class FabricationServiceImpl implements FabricationService {
   private final int defaultOutputFrameRate;
   private final ControlMode defaultControlMode;
   private final FabricationManager fabricationManager;
-  private final LabService labService;
   private final Map<Integer, Integer> segmentBarBeats = new ConcurrentHashMap<>();
   private final DoubleProperty progress = new SimpleDoubleProperty(0.0);
   private final StringProperty progressLabel = new SimpleStringProperty();
@@ -139,7 +136,6 @@ public class FabricationServiceImpl implements FabricationService {
     @Value("${output.frame.rate}") int defaultOutputFrameRate,
     @Value("${macro.mode}") String defaultMacroMode,
     @Value("${intensity.default.value}") double defaultIntensityOverride,
-    LabService labService,
     ProjectService projectService,
     FabricationManager fabricationManager
   ) {
@@ -151,7 +147,6 @@ public class FabricationServiceImpl implements FabricationService {
     this.defaultOutputFrameRate = defaultOutputFrameRate;
     this.defaultTimelineSegmentViewLimit = defaultTimelineSegmentViewLimit;
     this.defaultIntensityOverride = defaultIntensityOverride;
-    this.labService = labService;
     this.fabricationManager = fabricationManager;
 
     projectService.stateProperty().addListener((o, ov, value) -> {
@@ -219,17 +214,13 @@ public class FabricationServiceImpl implements FabricationService {
         .setOutputFrameRate(parseIntegerValue(outputFrameRate.get(), "fabrication setting for Output Frame Rate"));
       LOG.debug("Did instantiate work configuration");
 
-      var hubAccess = new HubClientAccess()
-        .setToken(labService.accessTokenProperty().get());
-      LOG.debug("Did instantiate hub client access");
-
       // start the work with the given configuration
       fabricationManager.setOnProgress((Float progress) -> Platform.runLater(() -> this.progress.set(progress)));
       fabricationManager.setOnProgressLabel((String label) -> Platform.runLater(() -> this.progressLabel.set(label)));
       fabricationManager.setOnStateChange((FabricationState state) -> Platform.runLater(() -> this.state.set(state)));
       LOG.debug("Did bind progress listeners");
 
-      Platform.runLater(() -> fabricationManager.start(config, labService.hubConfigProperty().get(), hubAccess));
+      Platform.runLater(() -> fabricationManager.start(config));
       LOG.debug("Did send start signal to work manager");
 
     } catch (Exception e) {

@@ -2,11 +2,9 @@
 
 package io.xj.nexus.work;
 
-import io.xj.hub.HubConfiguration;
 import io.xj.hub.HubContent;
 import io.xj.hub.meme.MemeTaxonomy;
 import io.xj.hub.pojos.Program;
-import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.persistence.NexusEntityStore;
 import jakarta.annotation.Nullable;
 
@@ -21,9 +19,7 @@ public interface FabricationManager {
    This assigns the work configuration, hub configuration, and hub access.
    */
   void start(
-    FabricationSettings workConfig,
-    HubConfiguration hubConfig,
-    HubClientAccess hubAccess
+    FabricationSettings workConfig
   );
 
   /**

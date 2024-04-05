@@ -4,7 +4,6 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.ProjectModalController;
 import io.xj.gui.services.FabricationService;
-import io.xj.gui.services.LabService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
@@ -18,12 +17,8 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableBooleanValue;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
@@ -36,7 +31,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
 
@@ -48,7 +42,6 @@ public class ProjectCreationModalController extends ProjectModalController {
   );
   private final SimpleDoubleProperty demoImageSize = new SimpleDoubleProperty(120);
   private final FabricationService fabricationService;
-  private final LabService labService;
   private final ObjectProperty<ProjectCreationMode> mode = new SimpleObjectProperty<>(ProjectCreationMode.NEW_PROJECT);
   private final ObservableBooleanValue isDemoVisible = Bindings.createBooleanBinding(
     () -> mode.get() == ProjectCreationMode.CLONE_PROJECT, mode
@@ -103,30 +96,16 @@ public class ProjectCreationModalController extends ProjectModalController {
   @FXML
   VBox demoContainer;
 
-  @FXML
-  TabPane tabPane;
-
-  @FXML
-  Tab tabLab;
-
-  @FXML
-  Tab tabDemo;
-
-  @FXML
-  ChoiceBox<ProjectChoice> choiceCloneProject;
-
   public ProjectCreationModalController(
     @Value("classpath:/views/project-creation-modal.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
     UIStateService uiStateService,
     ProjectService projectService,
     FabricationService fabricationService,
-    ThemeService themeService,
-    LabService labService
+    ThemeService themeService
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.fabricationService = fabricationService;
-    this.labService = labService;
   }
 
   @Override
@@ -150,24 +129,6 @@ public class ProjectCreationModalController extends ProjectModalController {
     demoImageSlaps.fitWidthProperty().bind(demoImageSize);
     demoImageSpace.fitHeightProperty().bind(demoImageSize);
     demoImageSpace.fitWidthProperty().bind(demoImageSize);
-
-    if (uiStateService.isLabFeatureEnabledProperty().get()) {
-      tabLab.disableProperty().bind(labService.isAuthenticated().not());
-    } else {
-      tabPane.getTabs().remove(tabLab);
-    }
-
-    if (labService.isAuthenticated().get()) {
-      labService.fetchProjects(projects -> choiceCloneProject.setItems(FXCollections.observableList(projects.stream().sorted(Comparator.comparing(Project::getName)).map(ProjectChoice::new).toList())));
-      choiceCloneProject.setOnAction(event -> {
-        ProjectChoice choice = choiceCloneProject.getValue();
-        if (Objects.nonNull(choice)) {
-          selectedProject.set(choice.project());
-          if (StringUtils.isNullOrEmpty(fieldProjectName.getText()))
-            fieldProjectName.setText(choice.project().getName());
-        }
-      });
-    }
   }
 
   @Override
@@ -226,13 +187,8 @@ public class ProjectCreationModalController extends ProjectModalController {
     fabricationService.cancel();
     Platform.runLater(() -> {
       switch (mode.get()) {
-        case CLONE_PROJECT -> {
-          if (tabDemo.isSelected()) {
-            projectService.cloneFromDemoTemplate(fieldPathPrefix.getText(), ((ToggleButton) demoSelection.getSelectedToggle()).getId(), projectName);
-          } else {
-            projectService.cloneFromLabProject(fieldPathPrefix.getText(), selectedProject.getValue().getId(), projectName);
-          }
-        }
+        case CLONE_PROJECT ->
+          projectService.cloneFromDemoTemplate(fieldPathPrefix.getText(), ((ToggleButton) demoSelection.getSelectedToggle()).getId(), projectName);
         case NEW_PROJECT -> projectService.createProject(fieldPathPrefix.getText(), projectName);
       }
 
@@ -275,15 +231,5 @@ public class ProjectCreationModalController extends ProjectModalController {
     if (StringUtils.isNullOrEmpty(fieldProjectName.getText()))
       fieldProjectName.setText("Ambient Flow Demo");
     buttonDemoSpace.setSelected(true);
-  }
-
-  /**
-   This class is used to display the project name in the ChoiceBox while preserving the underlying ID
-   */
-  public record ProjectChoice(Project project) {
-    @Override
-    public String toString() {
-      return Objects.nonNull(project) ? project.getName() : "Select...";
-    }
   }
 }

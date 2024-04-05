@@ -1,6 +1,5 @@
 package io.xj.gui.services.impl;
 
-import io.xj.gui.services.LabService;
 import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
@@ -135,19 +134,19 @@ public class ProjectServiceImpl implements ProjectService {
   private final BooleanBinding isStateStandby = state.isEqualTo(ProjectState.Standby);
   private final int maxRecentProjects;
   private final ThemeService themeService;
-  private final LabService labService;
   private final ProjectManager projectManager;
   private final JsonProvider jsonProvider;
+  private final String audioBaseUrl;
 
   public ProjectServiceImpl(
+    @Value("${audio.base.url}") String audioBaseUrl,
     @Value("${gui.recent.projects.max}") int maxRecentProjects,
     ThemeService themeService,
-    LabService labService,
     ProjectManager projectManager
   ) {
+    this.audioBaseUrl = audioBaseUrl;
     this.maxRecentProjects = maxRecentProjects;
     this.themeService = themeService;
-    this.labService = labService;
     this.projectManager = projectManager;
     this.jsonProvider = new JsonProviderImpl();
     attachPreferenceListeners();
@@ -221,21 +220,9 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public void cloneFromLabProject(String parentPathPrefix, UUID projectId, String projectName) {
-    cloneProject(parentPathPrefix, projectName, () -> projectManager.cloneFromLabProject(
-      labService.getHubClientAccess(),
-      labService.hubConfigProperty().get().getApiBaseUrl(),
-      labService.hubConfigProperty().get().getAudioBaseUrl(),
-      parentPathPrefix,
-      projectId,
-      projectName
-    ));
-  }
-
-  @Override
   public void cloneFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
     cloneProject(parentPathPrefix, projectName, () -> projectManager.cloneProjectFromDemoTemplate(
-      labService.hubConfigProperty().get().getAudioBaseUrl(),
+      audioBaseUrl,
       parentPathPrefix,
       templateShipKey,
       projectName
@@ -252,23 +239,6 @@ public class ProjectServiceImpl implements ProjectService {
         if (Objects.nonNull(onComplete)) Platform.runLater(onComplete);
       });
     });
-  }
-
-  @Override
-  public void pushProject() {
-    if (promptForConfirmation("Push Project", "Push Project to Lab", "This operation will overwrite the Lab version of this project entirely with your local version of the project. Do you want to proceed?")) {
-      executeInBackground("Push Project", () -> {
-        var pushed = projectManager.pushProject(
-          labService.getHubClientAccess(),
-          labService.hubConfigProperty().get().getApiBaseUrl(),
-          labService.hubConfigProperty().get().getAudioBaseUrl()
-        );
-        if (pushed.hasErrors())
-          Platform.runLater(() -> showErrorDialog("Failed to push project", "Failed to push local project to Lab", pushed.toString()));
-        else
-          Platform.runLater(() -> showAlert(Alert.AlertType.INFORMATION, "Pushed project", "Pushed local project to Lab", pushed.toString()));
-      });
-    }
   }
 
   @Override

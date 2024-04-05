@@ -6,7 +6,6 @@ String[] modules = [
         'gui',
         'models',
         'nexus',
-        'service',
 ]
 
 include modules

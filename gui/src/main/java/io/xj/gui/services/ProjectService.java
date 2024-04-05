@@ -55,15 +55,6 @@ public interface ProjectService {
   void createProject(String parentPathPrefix, String projectName);
 
   /**
-   Clone from a Lab Project
-
-   @param parentPathPrefix on disk
-   @param projectId        in the lab
-   @param projectName      of the project
-   */
-  void cloneFromLabProject(String parentPathPrefix, UUID projectId, String projectName);
-
-  /**
    Clone from a demo template
 
    @param parentPathPrefix on disk, parent of the project folder
@@ -76,14 +67,6 @@ public interface ProjectService {
    Save the project
    */
   void saveProject(Runnable onComplete);
-
-  /**
-   Workstation has Project → Push feature to publish the on-disk version of the project to the Lab (overwriting the Lab version)
-   https://www.pivotaltracker.com/story/show/187004700
-   <p>
-   Once a project has been cloned to disk, choose Project -> Push to upload that local copy to the Lab, and overwrite the Lab copy.
-   */
-  void pushProject();
 
   /**
    Project Cleanup option to delete unused audio files from project folder
