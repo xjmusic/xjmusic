@@ -69,11 +69,9 @@ import java.util.prefs.Preferences;
 @Service
 public class UIStateServiceImpl implements UIStateService {
   static final Logger LOG = LoggerFactory.getLogger(UIStateServiceImpl.class);
-  private final Preferences prefs = Preferences.userNodeForPackage(UIStateServiceImpl.class);
   private final int programEditorBaseSizePerBeat;
   private final BooleanBinding hasCurrentProject;
   private final BooleanBinding isManualFabricationActive;
-  private final BooleanProperty isLabFeatureEnabled = new SimpleBooleanProperty(false);
   private final ProjectService projectService;
   private final BooleanBinding isManualFabricationMode;
   private final BooleanBinding isProgressBarVisible;
@@ -106,7 +104,6 @@ public class UIStateServiceImpl implements UIStateService {
 
   private final Resource popupSelectorMenuFxml;
   private final Resource popupActionMenuFxml;
-  private final String defaultIsLabFeatureEnabled;
   private final ObjectProperty<ProgramSequence> currentProgramSequence = new SimpleObjectProperty<>();
   private final ObservableList<GridChoice> programEditorGridChoices;
   private final ApplicationContext ac;
@@ -121,7 +118,6 @@ public class UIStateServiceImpl implements UIStateService {
   public UIStateServiceImpl(
     @Value("classpath:/views/content/common/popup-selector-menu.fxml") Resource popupSelectorMenuFxml,
     @Value("classpath:/views/content/common/popup-action-menu.fxml") Resource popupActionMenuFxml,
-    @Value("${lab.feature.enabled}") String defaultIsLabFeatureEnabled,
     @Value("${programEditor.baseSizePerBeat}") int programEditorBaseSizePerBeat,
     @Value("#{'${programEditor.gridChoices}'.split(',')}") List<Double> programEditorGridChoices,
     @Value("${programEditor.gridChoiceDefault}") Double programEditorGridChoiceDefault,
@@ -135,7 +131,6 @@ public class UIStateServiceImpl implements UIStateService {
   ) {
     this.popupSelectorMenuFxml = popupSelectorMenuFxml;
     this.popupActionMenuFxml = popupActionMenuFxml;
-    this.defaultIsLabFeatureEnabled = defaultIsLabFeatureEnabled;
     this.programEditorBaseSizePerBeat = programEditorBaseSizePerBeat;
     this.programEditorGridChoices = FXCollections.observableArrayList(programEditorGridChoices.stream().map(GridChoice::new).toList());
     this.navHistoryMaxSize = navHistoryMaxSize;
@@ -273,9 +268,6 @@ public class UIStateServiceImpl implements UIStateService {
       if (!Objects.equals(program.get().getType(), currentProgram.get().getType()))
         currentProgram.set(program.get());
     });
-
-    attachPreferenceListeners();
-    setAllFromPreferencesOrDefaults();
   }
 
   @Override
@@ -542,11 +534,6 @@ public class UIStateServiceImpl implements UIStateService {
   }
 
   @Override
-  public BooleanProperty isLabFeatureEnabledProperty() {
-    return isLabFeatureEnabled;
-  }
-
-  @Override
   public ObjectProperty<ProgramEditorMode> programEditorModeProperty() {
     return programEditorMode;
   }
@@ -710,20 +697,6 @@ public class UIStateServiceImpl implements UIStateService {
       timeline.setMinWidth(0);
       timeline.setMaxWidth(0);
     }
-  }
-
-  /**
-   Attach preference listeners.
-   */
-  private void attachPreferenceListeners() {
-    isLabFeatureEnabled.addListener((o, ov, value) -> prefs.put("isLabFeatureEnabled", value.toString()));
-  }
-
-  /**
-   Set all properties from preferences, else defaults.
-   */
-  private void setAllFromPreferencesOrDefaults() {
-    isLabFeatureEnabled.set(Boolean.parseBoolean(prefs.get("isLabFeatureEnabled", defaultIsLabFeatureEnabled)));
   }
 
   /**

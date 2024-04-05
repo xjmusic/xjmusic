@@ -15,7 +15,6 @@ import io.xj.hub.pojos.ProgramVoice;
 import io.xj.hub.pojos.ProgramVoiceTrack;
 import io.xj.hub.pojos.Project;
 import io.xj.hub.pojos.Template;
-import io.xj.nexus.hub_client.HubClientAccess;
 import jakarta.annotation.Nullable;
 
 import java.util.Optional;
@@ -48,19 +47,6 @@ public interface ProjectManager {
   boolean cloneProjectFromDemoTemplate(String audioBaseUrl, String parentPathPrefix, String templateShipKey, String projectName);
 
   /**
-   Clone from a Lab Project
-
-   @param hubAccess        control
-   @param hubBaseUrl       of the lab
-   @param audioBaseUrl     of the lab
-   @param parentPathPrefix parent folder to the project folder
-   @param projectId        in the lab
-   @param projectName      of the project folder and the project
-   @return true if successful
-   */
-  boolean cloneFromLabProject(HubClientAccess hubAccess, String hubBaseUrl, String audioBaseUrl, String parentPathPrefix, UUID projectId, String projectName);
-
-  /**
    Open a project from a local file
 
    @param projectFilePath the path prefix of the project
@@ -89,20 +75,6 @@ public interface ProjectManager {
    @return results
    */
   ProjectCleanupResults cleanupProject();
-
-  /**
-   Project Sync option to delete unused audio files from project folder
-   https://www.pivotaltracker.com/story/show/186930458
-   <p>
-   Once a project has been cloned to disk, choose Project -> Sync to update that local copy with any
-   updates from the Lab, and the Lab copy with any updates from local.
-
-   @param hubAccess    control
-   @param hubBaseUrl   of the lab
-   @param audioBaseUrl of the lab
-   @return results
-   */
-  ProjectPushResults pushProject(HubClientAccess hubAccess, String hubBaseUrl, String audioBaseUrl);
 
   /**
    Cancel the project loading

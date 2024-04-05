@@ -33,7 +33,6 @@ import io.xj.hub.pojos.TemplateBinding;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.http.HttpClientProvider;
-import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.hub_client.HubClientException;
 import io.xj.nexus.hub_client.HubClientFactory;
 import io.xj.nexus.util.FormatUtils;
@@ -147,14 +146,6 @@ public class ProjectManagerImpl implements ProjectManager {
     LOG.info("Cloning from demo template \"{}\" in parent folder {}", templateShipKey, parentPathPrefix);
     CloseableHttpClient httpClient = httpClientProvider.getClient();
     return cloneProject(parentPathPrefix, () -> hubClientFactory.loadApiV1(httpClient, templateShipKey, this.audioBaseUrl.get()), projectName);
-  }
-
-  @Override
-  public boolean cloneFromLabProject(HubClientAccess hubAccess, String hubBaseUrl, String audioBaseUrl, String parentPathPrefix, UUID projectId, String projectName) {
-    this.audioBaseUrl.set(audioBaseUrl);
-    LOG.info("Cloning from lab Project[{}] in parent folder {}", projectId, parentPathPrefix);
-    CloseableHttpClient httpClient = httpClientProvider.getClient();
-    return cloneProject(parentPathPrefix, () -> hubClientFactory.getProjectApiV2(httpClient, hubBaseUrl, hubAccess, projectId), projectName);
   }
 
   @Override
@@ -297,120 +288,6 @@ public class ProjectManagerImpl implements ProjectManager {
 
     updateState(ProjectState.Ready);
     return results;
-  }
-
-  @Override
-  public ProjectPushResults pushProject(HubClientAccess hubAccess, String hubBaseUrl, String audioBaseUrl) {
-    this.audioBaseUrl.set(audioBaseUrl);
-    var pushResults = new ProjectPushResults();
-    try {
-      // Don't close the client, only close the responses from it
-      CloseableHttpClient httpClient = httpClientProvider.getClient();
-
-      // First, publish the entire project content as a payload to Hub.
-      updateState(ProjectState.PushingContent);
-      LOG.info("Will push project content to Hub");
-      hubClientFactory.postProjectSyncApiV2(httpClient, hubBaseUrl, hubAccess, content.get());
-      pushResults.addAudios(content.get().getInstrumentAudios().size());
-      pushResults.addPrograms(content.get().getPrograms().size());
-      pushResults.addLibraries(content.get().getLibraries().size());
-      pushResults.addTemplates(content.get().getTemplates().size());
-      LOG.info("Pushed project content to Hub");
-      updateState(ProjectState.PushedContent);
-
-      // Then, push all individual audios. If an audio is not found remotely, request an upload authorization token from Hub.
-      var instruments = new ArrayList<>(content.get().getInstruments());
-      var audios = new ArrayList<>(content.get().getInstrumentAudios());
-      LOG.info("Will push {} audio for {} instruments", audios.size(), instruments.size());
-      updateProgress(0.0);
-      updateProgressLabel(String.format("Pushed 0/%d audios for 0/%d instruments", audios.size(), instruments.size()));
-      updateState(ProjectState.PushingAudio);
-
-      for (Instrument instrument : instruments) {
-        for (InstrumentAudio audio : audios.stream()
-          .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
-          .sorted(Comparator.comparing(InstrumentAudio::getName))
-          .toList()) {
-          if (!Objects.equals(state.get(), ProjectState.PushingAudio)) {
-            // Workstation canceling pushing should cease uploading audio files https://www.pivotaltracker.com/story/show/186209135
-            return pushResults;
-          }
-          if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
-            LOG.debug("Will upload audio for instrument \"{}\" with waveform key \"{}\"", instrument.getName(), audio.getWaveformKey());
-            // Fetch via HTTP if original does not exist
-            var pathOnDisk = getPathToInstrumentAudio(
-              instrument.getId(),
-              audio.getWaveformKey()
-            );
-
-            var remoteUrl = String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey());
-            var remoteFileSize = hubClientFactory.getRemoteFileSize(httpClient, remoteUrl);
-            var upload = new ProjectAudioUpload(audio.getId(), pathOnDisk);
-            boolean shouldUpload = false;
-
-            if (upload.getContentLength() == 0) {
-              LOG.warn("Audio file {} not found - Will not upload", pathOnDisk);
-            } else if (remoteFileSize == FILE_SIZE_NOT_FOUND) {
-              LOG.info("File {} not found remotely - Will upload {} bytes", remoteUrl, upload.getContentLength());
-              shouldUpload = true;
-            } else if (upload.getContentLength() != remoteFileSize) {
-              LOG.info("File size of {} does not match remote {} - Will upload {} bytes from {}", pathOnDisk, remoteFileSize, remoteFileSize, remoteUrl);
-              shouldUpload = true;
-            }
-
-            // When requesting upload authorization, it's necessary to specify an existing instrument. Hub will compute the waveform key.
-            if (shouldUpload) {
-              hubClientFactory.uploadInstrumentAudioFile(hubAccess, hubBaseUrl, httpClient, upload);
-              if (upload.hasErrors()) {
-                pushResults.addErrors(upload.getErrors());
-                updateState(ProjectState.Ready);
-                return pushResults;
-              }
-              LOG.debug("Did upload audio OK");
-              // After upload, we must update the local content with the new waveform key and rename the audio file on disk.
-              content.get().update(InstrumentAudio.class, audio.getId(), "waveformKey", upload.getAuth().getWaveformKey());
-              var updatedPathOnDisk = getPathToInstrumentAudio(
-                instrument.getId(),
-                upload.getAuth().getWaveformKey()
-              );
-              if (!Objects.equals(pathOnDisk, updatedPathOnDisk)) {
-                LOG.info("After upload, will rename audio file from {} to {}", pathOnDisk, updatedPathOnDisk);
-                Files.move(Paths.get(pathOnDisk), Paths.get(updatedPathOnDisk));
-              }
-              pushResults.incrementAudiosUploaded();
-            }
-          }
-          updateProgress((float) pushResults.getAudios() / audios.size());
-          updateProgressLabel(String.format("Pushed %d/%d audios for %d/%d instruments", pushResults.getAudios(), audios.size(), pushResults.getInstruments(), instruments.size()));
-        }
-        pushResults.incrementInstruments();
-      }
-      updateProgress(1.0);
-      updateProgressLabel(String.format("Pushed %d audios for %d instruments", pushResults.getAudios(), pushResults.getInstruments()));
-      LOG.info("Pushed {} audios for {} instruments", pushResults.getAudios(), pushResults.getInstruments());
-      updateState(ProjectState.PushedAudio);
-
-      // Save project after push, because instrument audio waveform keys may have been updated
-      saveProject();
-
-      updateState(ProjectState.Ready);
-      return pushResults;
-
-    } catch (HubClientException e) {
-      pushResults.addError(String.format("Failed to push project because %s\n%s\n", e.getMessage(), StringUtils.formatStackTrace(e)));
-      updateState(ProjectState.Ready);
-      return pushResults;
-
-    } catch (IOException e) {
-      pushResults.addError(String.format("Failed to push project because of I/O failure: %s\n%s\n", e.getMessage(), StringUtils.formatStackTrace(e)));
-      updateState(ProjectState.Ready);
-      return pushResults;
-
-    } catch (Exception e) {
-      pushResults.addError(String.format("Failed to push project because of unknown error: %s\n%s\n", e.getMessage(), StringUtils.formatStackTrace(e)));
-      updateState(ProjectState.Ready);
-      return pushResults;
-    }
   }
 
   @Override

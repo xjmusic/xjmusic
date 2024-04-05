@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.work;
 
-import io.xj.hub.HubConfiguration;
 import io.xj.hub.HubContent;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.meme.MemeTaxonomy;
@@ -13,7 +12,6 @@ import io.xj.hub.util.ValueException;
 import io.xj.nexus.audio.AudioCache;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.mixer.MixerFactory;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.project.ProjectManager;
@@ -65,9 +63,6 @@ public class FabricationManagerImpl implements FabricationManager {
   private FabricationSettings workConfig;
 
   @Nullable
-  private HubConfiguration hubConfig;
-
-  @Nullable
   private Consumer<Float> onProgress;
 
   @Nullable
@@ -104,15 +99,10 @@ public class FabricationManagerImpl implements FabricationManager {
 
   @Override
   public void start(
-    FabricationSettings workConfig,
-    HubConfiguration hubConfig,
-    HubClientAccess hubAccess
+    FabricationSettings workConfig
   ) {
     this.workConfig = workConfig;
     LOG.debug("Did set work configuration: {}", workConfig);
-
-    this.hubConfig = hubConfig;
-    LOG.debug("Did set hub configuration: {}", hubConfig);
 
     this.content = projectManager.getContent(workConfig.getInputTemplate());
     LOG.debug("Did set hub content: {}", content);
@@ -422,7 +412,6 @@ public class FabricationManagerImpl implements FabricationManager {
    */
   private void startPreparingAudio() {
     Objects.requireNonNull(workConfig);
-    Objects.requireNonNull(hubConfig);
     Objects.requireNonNull(content);
 
     int preparedAudios = 0;
@@ -475,7 +464,6 @@ public class FabricationManagerImpl implements FabricationManager {
    Initialize the work
    */
   private void initialize() {
-    Objects.requireNonNull(hubConfig);
     Objects.requireNonNull(workConfig);
     Objects.requireNonNull(content);
 

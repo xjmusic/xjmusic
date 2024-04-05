@@ -38,7 +38,6 @@ module workstation.nexus.main {
   exports io.xj.nexus.craft;
   exports io.xj.nexus.fabricator;
   exports io.xj.nexus.http;
-  exports io.xj.nexus.hub_client.access;
   exports io.xj.nexus.hub_client;
   exports io.xj.nexus.mixer;
   exports io.xj.nexus.model;

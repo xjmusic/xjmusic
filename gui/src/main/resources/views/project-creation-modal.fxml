@@ -4,10 +4,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToggleGroup?>
@@ -18,27 +15,27 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <VBox
-  fx:id="container"
-  fx:controller="io.xj.gui.controllers.ProjectCreationModalController"
-  spacing="10"
-  xmlns="http://javafx.com/javafx/20.0.1"
-  xmlns:fx="http://javafx.com/fxml/1">
+    fx:id="container"
+    fx:controller="io.xj.gui.controllers.ProjectCreationModalController"
+    spacing="10"
+    xmlns="http://javafx.com/javafx/20.0.1"
+    xmlns:fx="http://javafx.com/fxml/1">
 
   <GridPane hgap="10" vgap="10">
     <padding>
       <Insets bottom="15" left="15" right="15" top="15"/>
     </padding>
     <Label
-      contentDisplay="TEXT_ONLY"
-      text="Project Name:"
-      GridPane.halignment="RIGHT"
-      GridPane.rowIndex="0"
-      GridPane.columnIndex="0"/>
+        contentDisplay="TEXT_ONLY"
+        text="Project Name:"
+        GridPane.halignment="RIGHT"
+        GridPane.rowIndex="0"
+        GridPane.columnIndex="0"/>
     <TextField
-      fx:id="fieldProjectName"
-      GridPane.rowIndex="0"
-      GridPane.columnIndex="1"
-      GridPane.columnSpan="2"/>
+        fx:id="fieldProjectName"
+        GridPane.rowIndex="0"
+        GridPane.columnIndex="1"
+        GridPane.columnSpan="2"/>
 
     <Label contentDisplay="TEXT_ONLY"
            text="Folder Location:"
@@ -58,11 +55,11 @@
             GridPane.columnIndex="3"/>
 
     <Button
-      fx:id="buttonOK"
-      onAction="#handlePressOK"
-      text="OK"
-      GridPane.rowIndex="2"
-      GridPane.columnIndex="1"/>
+        fx:id="buttonOK"
+        onAction="#handlePressOK"
+        text="OK"
+        GridPane.rowIndex="2"
+        GridPane.columnIndex="1"/>
     <Button fx:id="buttonCancel"
             onAction="#handlePressCancel"
             text="Cancel"
@@ -70,104 +67,86 @@
             GridPane.columnIndex="2"/>
   </GridPane>
 
-  <TabPane
-    fx:id="tabPane"
-    tabClosingPolicy="UNAVAILABLE">
-    <Tab fx:id="tabDemo" text="Demo">
-      <StackPane>
-        <padding>
-          <Insets bottom="15" left="15" right="15" top="15"/>
-        </padding>
-        <VBox fx:id="demoContainer" spacing="10" styleClass="demo-container">
-          <Label text="Select demo project to clone:"/>
-          <HBox spacing="10">
-            <fx:define>
-              <ToggleGroup fx:id="demoSelection"/>
-            </fx:define>
-            <VBox>
-              <ImageView
-                fx:id="demoImageVgm"
-                preserveRatio="true"
-                styleClass="demo-image"
-                onMouseClicked="#handleDemoPressedVgm">
-                <Image url="@/images/demo-vgm.jpg"/>
-              </ImageView>
-              <ToggleButton
-                maxWidth="Infinity"
-                id="vgm"
-                fx:id="buttonDemoVgm"
-                toggleGroup="$demoSelection"
-                focusTraversable="false"
-                text="Video Game"
-                onMouseClicked="#handleDemoPressedVgm"/>
-            </VBox>
-            <VBox>
-              <ImageView
-                fx:id="demoImageBump"
-                preserveRatio="true"
-                styleClass="demo-image"
-                onMouseClicked="#handleDemoPressedBump">
-                <Image url="@/images/demo-bump.jpg"/>
-              </ImageView>
-              <ToggleButton
-                maxWidth="Infinity"
-                id="bump_deep"
-                fx:id="buttonDemoBump"
-                toggleGroup="$demoSelection"
-                focusTraversable="false"
-                text="Deep House"
-                onMouseClicked="#handleDemoPressedBump"/>
-            </VBox>
-            <VBox>
-              <ImageView
-                fx:id="demoImageSlaps"
-                preserveRatio="true"
-                styleClass="demo-image"
-                onMouseClicked="#handleDemoPressedSlaps">
-                <Image url="@/images/demo-slaps.jpg"/>
-              </ImageView>
-              <ToggleButton
-                maxWidth="Infinity"
-                id="slaps_lofi"
-                fx:id="buttonDemoSlaps"
-                toggleGroup="$demoSelection"
-                focusTraversable="false"
-                text="Lofi Hip Hop"
-                onMouseClicked="#handleDemoPressedSlaps"/>
-            </VBox>
-            <VBox>
-              <ImageView
-                fx:id="demoImageSpace"
-                preserveRatio="true"
-                styleClass="demo-image"
-                onMouseClicked="#handleDemoPressedSpace">
-                <Image url="@/images/demo-space.jpg"/>
-              </ImageView>
-              <ToggleButton
-                maxWidth="Infinity"
-                id="space_flow"
-                fx:id="buttonDemoSpace"
-                toggleGroup="$demoSelection"
-                focusTraversable="false"
-                text="Ambient Flow"
-                onMouseClicked="#handleDemoPressedSpace"/>
-            </VBox>
-          </HBox>
-        </VBox>
-      </StackPane>
-    </Tab>
-    <Tab fx:id="tabLab" text="Lab">
-      <StackPane>
-        <padding>
-          <Insets bottom="15" left="15" right="15" top="15"/>
-        </padding>
-
+  <StackPane>
+    <padding>
+      <Insets bottom="15" left="15" right="15" top="15"/>
+    </padding>
+    <VBox fx:id="demoContainer" spacing="10" styleClass="demo-container">
+      <Label text="Select demo project to clone:"/>
+      <HBox spacing="10">
+        <fx:define>
+          <ToggleGroup fx:id="demoSelection"/>
+        </fx:define>
         <VBox>
-          <Label contentDisplay="TEXT_ONLY" text="Project"/>
-          <ChoiceBox fx:id="choiceCloneProject" prefWidth="300"/>
+          <ImageView
+              fx:id="demoImageVgm"
+              preserveRatio="true"
+              styleClass="demo-image"
+              onMouseClicked="#handleDemoPressedVgm">
+            <Image url="@/images/demo-vgm.jpg"/>
+          </ImageView>
+          <ToggleButton
+              maxWidth="Infinity"
+              id="vgm"
+              fx:id="buttonDemoVgm"
+              toggleGroup="$demoSelection"
+              focusTraversable="false"
+              text="Video Game"
+              onMouseClicked="#handleDemoPressedVgm"/>
         </VBox>
+        <VBox>
+          <ImageView
+              fx:id="demoImageBump"
+              preserveRatio="true"
+              styleClass="demo-image"
+              onMouseClicked="#handleDemoPressedBump">
+            <Image url="@/images/demo-bump.jpg"/>
+          </ImageView>
+          <ToggleButton
+              maxWidth="Infinity"
+              id="bump_deep"
+              fx:id="buttonDemoBump"
+              toggleGroup="$demoSelection"
+              focusTraversable="false"
+              text="Deep House"
+              onMouseClicked="#handleDemoPressedBump"/>
+        </VBox>
+        <VBox>
+          <ImageView
+              fx:id="demoImageSlaps"
+              preserveRatio="true"
+              styleClass="demo-image"
+              onMouseClicked="#handleDemoPressedSlaps">
+            <Image url="@/images/demo-slaps.jpg"/>
+          </ImageView>
+          <ToggleButton
+              maxWidth="Infinity"
+              id="slaps_lofi"
+              fx:id="buttonDemoSlaps"
+              toggleGroup="$demoSelection"
+              focusTraversable="false"
+              text="Lofi Hip Hop"
+              onMouseClicked="#handleDemoPressedSlaps"/>
+        </VBox>
+        <VBox>
+          <ImageView
+              fx:id="demoImageSpace"
+              preserveRatio="true"
+              styleClass="demo-image"
+              onMouseClicked="#handleDemoPressedSpace">
+            <Image url="@/images/demo-space.jpg"/>
+          </ImageView>
+          <ToggleButton
+              maxWidth="Infinity"
+              id="space_flow"
+              fx:id="buttonDemoSpace"
+              toggleGroup="$demoSelection"
+              focusTraversable="false"
+              text="Ambient Flow"
+              onMouseClicked="#handleDemoPressedSpace"/>
+        </VBox>
+      </HBox>
+    </VBox>
+  </StackPane>
 
-      </StackPane>
-    </Tab>
-  </TabPane>
 </VBox>

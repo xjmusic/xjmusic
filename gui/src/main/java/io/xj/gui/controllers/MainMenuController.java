@@ -6,8 +6,6 @@ import io.xj.gui.ProjectController;
 import io.xj.gui.WorkstationGuiFxApplication;
 import io.xj.gui.controllers.fabrication.FabricationTimelineSettingsModalController;
 import io.xj.gui.services.FabricationService;
-import io.xj.gui.services.LabService;
-import io.xj.gui.services.LabState;
 import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.SupportService;
@@ -22,9 +20,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
@@ -33,7 +29,6 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.StackPane;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
@@ -45,8 +40,6 @@ import static io.xj.gui.services.UIStateService.ACTIVE_PSEUDO_CLASS;
 import static io.xj.gui.services.UIStateService.FABRICATION_FAILED_STATES;
 import static io.xj.gui.services.UIStateService.FABRICATION_PENDING_STATES;
 import static io.xj.gui.services.UIStateService.FAILED_PSEUDO_CLASS;
-import static io.xj.gui.services.UIStateService.LAB_FAILED_STATES;
-import static io.xj.gui.services.UIStateService.LAB_PENDING_STATES;
 import static io.xj.gui.services.UIStateService.PENDING_PSEUDO_CLASS;
 
 @Service
@@ -57,12 +50,10 @@ public class MainMenuController extends ProjectController {
   private final static String ERROR = "ERROR";
   private final FabricationService fabricationService;
   private final SupportService supportService;
-  private final LabService labService;
   private final ProjectCreationModalController projectCreationModalController;
   private final UIStateService guiService;
   private final FabricationTimelineSettingsModalController fabricationTimelineSettingsModalController;
   private final MainAboutModalController mainAboutModalController;
-  private final MainLabAuthenticationModalController mainLabAuthenticationModalController;
 
   @FXML
   AnchorPane container;
@@ -72,9 +63,6 @@ public class MainMenuController extends ProjectController {
 
   @FXML
   MenuItem itemProjectSave;
-
-  @FXML
-  MenuItem itemProjectPush;
 
   @FXML
   MenuItem itemProjectCleanup;
@@ -101,12 +89,6 @@ public class MainMenuController extends ProjectController {
   CheckMenuItem checkboxTailLogs;
 
   @FXML
-  Button mainMenuButtonLab;
-
-  @FXML
-  Label labelLabStatus;
-
-  @FXML
   RadioMenuItem logLevelDebug;
 
   @FXML
@@ -128,8 +110,6 @@ public class MainMenuController extends ProjectController {
   RadioMenuItem menuViewModeFabrication;
 
   @FXML
-  StackPane labFeatureContainer;
-  @FXML
   ToggleGroup buttonViewModeToggleGroup;
   @FXML
   ToggleButton buttonViewModeContent;
@@ -149,9 +129,7 @@ public class MainMenuController extends ProjectController {
     FabricationService fabricationService,
     FabricationTimelineSettingsModalController fabricationTimelineSettingsModalController,
     SupportService supportService,
-    LabService labService,
     MainAboutModalController mainAboutModalController,
-    MainLabAuthenticationModalController mainLabAuthenticationModalController,
     ProjectCreationModalController projectCreationModalController,
     ProjectService projectService,
     UIStateService guiService,
@@ -163,9 +141,7 @@ public class MainMenuController extends ProjectController {
     this.projectCreationModalController = projectCreationModalController;
     this.guiService = guiService;
     this.supportService = supportService;
-    this.labService = labService;
     this.mainAboutModalController = mainAboutModalController;
-    this.mainLabAuthenticationModalController = mainLabAuthenticationModalController;
   }
 
   @Override
@@ -194,16 +170,10 @@ public class MainMenuController extends ProjectController {
     var hasNoProject = uiStateService.hasCurrentProjectProperty().not();
     itemProjectClose.disableProperty().bind(hasNoProject);
     itemProjectSave.disableProperty().bind(hasNoProject.or(projectService.isModifiedProperty().not()));
-    itemProjectPush.disableProperty().bind(hasNoProject.or(labService.isAuthenticated().not()).or(projectService.isDemoProjectProperty()));
     itemProjectCleanup.disableProperty().bind(hasNoProject);
 
     projectService.recentProjectsProperty().addListener((ChangeListener<? super ObservableList<ProjectDescriptor>>) (o, ov, value) -> updateRecentProjectsMenu());
     updateRecentProjectsMenu();
-
-    labService.stateProperty().addListener((o, ov, value) -> updateLabButtonState(value));
-    updateLabButtonState(labService.stateProperty().get());
-
-    labelLabStatus.textProperty().bind(labService.stateProperty().map(Enum::toString));
 
     setupViewModeToggle(menuViewModeToggleGroup, menuViewModeContent, menuViewModeTemplates, menuViewModeFabrication);
     menuViewModeContent.disableProperty().bind(projectService.isStateReadyProperty().not());
@@ -220,12 +190,6 @@ public class MainMenuController extends ProjectController {
 
     fabricationService.stateProperty().addListener((o, ov, value) -> updateFabricationButtonState(value));
     updateFabricationButtonState(fabricationService.stateProperty().get());
-
-    labFeatureContainer.translateXProperty().bind(container.widthProperty().subtract(labFeatureContainer.widthProperty()).divide(2));
-    labFeatureContainer.visibleProperty().bind(uiStateService.isLabFeatureEnabledProperty());
-    labFeatureContainer.managedProperty().bind(uiStateService.isLabFeatureEnabledProperty());
-
-    itemProjectPush.visibleProperty().bind(uiStateService.isLabFeatureEnabledProperty());
   }
 
   @Override
@@ -300,11 +264,6 @@ public class MainMenuController extends ProjectController {
   }
 
   @FXML
-  void handleProjectPush() {
-    projectService.pushProject();
-  }
-
-  @FXML
   void handleProjectCleanup() {
     projectService.cleanupProject();
   }
@@ -322,11 +281,6 @@ public class MainMenuController extends ProjectController {
   @FXML
   void handleSetLogLevel(ActionEvent ignored) {
     uiStateService.logLevelProperty().set(((RadioMenuItem) logLevelToggleGroup.getSelectedToggle()).getText());
-  }
-
-  @FXML
-  void handleButtonLabPressed(ActionEvent ignored) {
-    mainLabAuthenticationModalController.launchModal();
   }
 
   /**
@@ -375,17 +329,6 @@ public class MainMenuController extends ProjectController {
     } else if (route.isFabrication()) {
       toggleFabrication.setSelected(true);
     }
-  }
-
-  /**
-   Update the state of the lab button.
-
-   @param value the new state
-   */
-  private void updateLabButtonState(LabState value) {
-    mainMenuButtonLab.pseudoClassStateChanged(ACTIVE_PSEUDO_CLASS, Objects.equals(value, LabState.Authenticated));
-    mainMenuButtonLab.pseudoClassStateChanged(FAILED_PSEUDO_CLASS, LAB_FAILED_STATES.contains(value));
-    mainMenuButtonLab.pseudoClassStateChanged(PENDING_PSEUDO_CLASS, LAB_PENDING_STATES.contains(value));
   }
 
   /**

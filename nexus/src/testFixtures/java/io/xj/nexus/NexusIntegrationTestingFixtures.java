@@ -28,10 +28,8 @@ import io.xj.hub.pojos.ProjectUser;
 import io.xj.hub.pojos.Template;
 import io.xj.hub.pojos.TemplateBinding;
 import io.xj.hub.pojos.User;
-import io.xj.hub.pojos.UserAuth;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueUtils;
-import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -565,39 +563,6 @@ public class NexusIntegrationTestingFixtures {
     pick.setTones(event.getTones());
     pick.setEvent(pickEvent);
     return pick;
-  }
-
-  /**
-   Create a new HubAccess control object
-
-   @param user     for access
-   @param userAuth for access
-   @return access control object
-   */
-  public static HubClientAccess buildHubClientAccess(User user, UserAuth userAuth) {
-    return new HubClientAccess()
-      .setUserId(user.getId())
-      .setUserAuthId(userAuth.getId());
-  }
-
-  /**
-   Create a new HubAccess control object
-
-   @param user for access
-   @return access control object
-   */
-  public static HubClientAccess buildHubClientAccess(User user) {
-    return new HubClientAccess()
-      .setUserId(user.getId());
-  }
-
-  /**
-   Create a new HubAccess control object
-
-   @return access control object
-   */
-  public static HubClientAccess buildHubClientAccess() {
-    return new HubClientAccess();
   }
 
   /**
