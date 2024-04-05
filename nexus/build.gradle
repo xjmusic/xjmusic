@@ -26,6 +26,7 @@ dependencies {
   implementation project(":models")
   testImplementation project(path: ':models')
   testImplementation(project(':models').sourceSets.test.output)
+  testFixturesImplementation(project(path: ':models'))
   // vendor
   implementation "ch.qos.logback:logback-classic:${rootProject.ext.logbackVersion}"
   implementation "ch.qos.logback:logback-core:${rootProject.ext.logbackVersion}"
