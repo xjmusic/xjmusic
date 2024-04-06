@@ -51,15 +51,15 @@ public abstract class BrowserController extends ProjectController {
   }
 
   /**
-   Add a column to a table with control buttons
+   Add a column to a table with control buttons@param <N>      type of table
 
-   @param <N>      type of table
    @param type     of table
    @param table    for which to add column
    @param onEdit   action to perform when editing an item
    @param onMove   action to perform when moving an item
    @param onClone  action to perform when cloning an item
    @param onDelete action to perform when deleting an item
+   @param onExport action to perform when exporting an item
    */
   protected <N> void addActionsColumn(
     Class<N> type,
@@ -67,19 +67,20 @@ public abstract class BrowserController extends ProjectController {
     @Nullable Consumer<N> onEdit,
     @Nullable Consumer<N> onMove,
     @Nullable Consumer<N> onClone,
-    @Nullable Consumer<N> onDelete
+    @Nullable Consumer<N> onDelete,
+    @Nullable Consumer<N> onExport
   ) {
     TableColumn<N, N> buttonsColumn = new TableColumn<>();
-    buttonsColumn.setCellFactory(param -> new ButtonCell<>(type, onEdit, onMove, onClone, onDelete));
+    buttonsColumn.setCellFactory(param -> new ButtonCell<>(type, onEdit, onMove, onClone, onDelete, onExport));
     buttonsColumn.setPrefWidth(Stream.of(onEdit, onMove, onClone, onDelete).filter(Objects::nonNull).count() * 25 + 5);
     table.getColumns().add(buttonsColumn);
   }
 
   /**
-   Setup the data for the libraries table.
+   Set up the data for the libraries table.
 
    @param <N>   type of table
-   @param table for which to setup data
+   @param table for which to set up data
    @param data  observable list
    */
   protected <N> void setupData(TableView<N> table, ObservableList<N> data, Consumer<N> setSelectedItem, Consumer<N> openItem) {
@@ -102,19 +103,22 @@ public abstract class BrowserController extends ProjectController {
   protected static class ButtonCell<N> extends TableCell<N, N> {
 
     /**
-     Constructor@param type
+     Constructor
 
+     @param type of entity in table
      @param onEdit   action
      @param onMove   action
      @param onClone  action
      @param onDelete action
+     @param onExport action
      */
     public ButtonCell(
       Class<N> type,
       @Nullable Consumer<N> onEdit,
       @Nullable Consumer<N> onMove,
       @Nullable Consumer<N> onClone,
-      @Nullable Consumer<N> onDelete
+      @Nullable Consumer<N> onDelete,
+      @Nullable Consumer<N> onExport
     ) {
       var buttons = new HBox();
       if (Objects.nonNull(onEdit))
@@ -125,6 +129,8 @@ public abstract class BrowserController extends ProjectController {
         buttons.getChildren().add(buildButton(String.format("Clone %s", type.getSimpleName()), "icons/copy.png", onClone));
       if (Objects.nonNull(onDelete))
         buttons.getChildren().add(buildButton(String.format("Delete %s", type.getSimpleName()), "icons/document-xmark.png", onDelete));
+      if (Objects.nonNull(onExport))
+        buttons.getChildren().add(buildButton(String.format("Export %s", type.getSimpleName()), "icons/file-export.png", onExport));
       buttons.setSpacing(5);
       buttons.visibleProperty().bind(emptyProperty().not());
       setGraphic(buttons);

@@ -29,6 +29,7 @@ import java.util.Objects;
 public class TemplateBrowserController extends BrowserController {
   static final Logger LOG = LoggerFactory.getLogger(TemplateBrowserController.class);
   private final CmdModalController cmdModalController;
+  private final TemplateExportModalController templateExportModalController;
   private final ObservableList<Template> templates = FXCollections.observableList(new ArrayList<>());
 
   @FXML
@@ -43,10 +44,12 @@ public class TemplateBrowserController extends BrowserController {
     ThemeService themeService,
     ProjectService projectService,
     UIStateService uiStateService,
-    CmdModalController cmdModalController
+    CmdModalController cmdModalController,
+    TemplateExportModalController templateExportModalController
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.cmdModalController = cmdModalController;
+    this.templateExportModalController = templateExportModalController;
   }
 
   @Override
@@ -63,7 +66,9 @@ public class TemplateBrowserController extends BrowserController {
       template -> uiStateService.editTemplate(template.getId()),
       null,
       cmdModalController::cloneTemplate,
-      cmdModalController::deleteTemplate);
+      cmdModalController::deleteTemplate,
+      templateExportModalController::launchModal
+    );
     setupData(
       table,
       templates,

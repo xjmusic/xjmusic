@@ -2,7 +2,12 @@
 
 package io.xj.hub.entity;
 
+import io.xj.hub.HubContent;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.ProgramState;
 import io.xj.hub.json.JsonProvider;
+import io.xj.hub.pojos.Template;
+import io.xj.hub.pojos.TemplateBinding;
 import io.xj.hub.util.ValueUtils;
 import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
@@ -219,8 +224,69 @@ public class EntityFactoryImpl implements EntityFactory {
   }
 
   @Override
-  public EntityStore createEntityStore() {
-    return new EntityStoreImpl();
+  public HubContent forTemplate(HubContent original, Template template) {
+    HubContent content = new HubContent();
+
+    // Add Template
+    putCopy(content, template);
+
+    // For each template binding, add the Library, Program, or Instrument
+    for (TemplateBinding templateBinding : original.getBindingsOfTemplate(template.getId())) {
+      putCopy(content, templateBinding);
+      switch (templateBinding.getType()) {
+        case Library -> putCopy(content, original.getLibrary(templateBinding.getTargetId()).orElseThrow());
+        case Program -> putCopy(content, original.getProgram(templateBinding.getTargetId()).orElseThrow());
+        case Instrument -> putCopy(content, original.getInstrument(templateBinding.getTargetId()).orElseThrow());
+      }
+    }
+
+    // For each library, add the Programs that are in a published state
+    content.getLibraries().stream()
+      .flatMap(library -> original.getProgramsOfLibrary(library).stream())
+      .filter(program -> program.getState().equals(ProgramState.Published))
+      .forEach((entity) -> putCopy(content, entity));
+
+    // For each library, add the Instruments that are in a published state
+    content.getLibraries().stream()
+      .flatMap(library -> original.getInstrumentsOfLibrary(library).stream())
+      .filter(instrument -> instrument.getState().equals(InstrumentState.Published))
+      .forEach((entity) -> putCopy(content, entity));
+
+    // Add entities of Programs
+    content.getPrograms().forEach(program -> {
+      original.getMemesOfProgram(program.getId()).forEach((entity) -> putCopy(content, entity));
+      original.getVoicesOfProgram(program.getId()).forEach((entity) -> putCopy(content, entity));
+      original.getTracksOfProgram(program.getId()).forEach((entity) -> putCopy(content, entity));
+      original.getSequencesOfProgram(program.getId()).forEach((entity) -> putCopy(content, entity));
+      original.getSequenceBindingsOfProgram(program.getId()).forEach((entity) -> putCopy(content, entity));
+      original.getSequenceBindingMemesOfProgram(program.getId()).forEach((entity) -> putCopy(content, entity));
+      original.getSequenceChordsOfProgram(program.getId()).forEach((entity) -> putCopy(content, entity));
+      original.getSequenceChordVoicingsOfProgram(program.getId()).forEach((entity) -> putCopy(content, entity));
+      original.getSequencePatternsOfProgram(program.getId()).forEach((entity) -> putCopy(content, entity));
+      original.getSequencePatternEventsOfProgram(program.getId()).forEach((entity) -> putCopy(content, entity));
+    });
+
+    // Add entities of Instruments
+    content.getInstruments().forEach(instrument -> {
+      original.getMemesOfInstrument(instrument.getId()).forEach((entity) -> putCopy(content, entity));
+      original.getAudiosOfInstrument(instrument.getId()).forEach((entity) -> putCopy(content, entity));
+    });
+
+    return content;
+  }
+
+  /**
+   Put a clone of the given entity into the content
+
+   @param content to put the clone into
+   @param entity  to clone
+   */
+  private void putCopy(HubContent content, Object entity) {
+    try {
+      content.put(copy(entity));
+    } catch (EntityException e) {
+      LOG.error("Failed to clone entity", e);
+    }
   }
 
   /**

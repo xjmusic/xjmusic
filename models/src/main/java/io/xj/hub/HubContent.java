@@ -1635,62 +1635,6 @@ public class HubContent {
   }
 
   /**
-   Get a new HubContent object for a specific template
-   - Only include entities bound to the template
-   - Only include entities in a published state (for entities with a state)
-   */
-  public HubContent forTemplate(Template template) {
-    HubContent content = new HubContent();
-
-    // Add Template
-    content.putAll(Set.of(template));
-
-    // For each template binding, add the Library, Program, or Instrument
-    for (TemplateBinding templateBinding : getBindingsOfTemplate(template.getId())) {
-      content.put(templateBinding);
-      switch (templateBinding.getType()) {
-        case Library -> content.put(getLibrary(templateBinding.getTargetId()).orElseThrow());
-        case Program -> content.put(getProgram(templateBinding.getTargetId()).orElseThrow());
-        case Instrument -> content.put(getInstrument(templateBinding.getTargetId()).orElseThrow());
-      }
-    }
-
-    // For each library, add the Programs that are in a published state
-    content.getLibraries().stream()
-      .flatMap(library -> getProgramsOfLibrary(library).stream())
-      .filter(program -> program.getState().equals(ProgramState.Published))
-      .forEach(content::put);
-
-    // For each library, add the Instruments that are in a published state
-    content.getLibraries().stream()
-      .flatMap(library -> getInstrumentsOfLibrary(library).stream())
-      .filter(instrument -> instrument.getState().equals(InstrumentState.Published))
-      .forEach(content::put);
-
-    // Add entities of Programs
-    content.getPrograms().forEach(program -> {
-      getMemesOfProgram(program.getId()).forEach(content::put);
-      getVoicesOfProgram(program.getId()).forEach(content::put);
-      getTracksOfProgram(program.getId()).forEach(content::put);
-      getSequencesOfProgram(program.getId()).forEach(content::put);
-      getSequenceBindingsOfProgram(program.getId()).forEach(content::put);
-      getSequenceBindingMemesOfProgram(program.getId()).forEach(content::put);
-      getSequenceChordsOfProgram(program.getId()).forEach(content::put);
-      getSequenceChordVoicingsOfProgram(program.getId()).forEach(content::put);
-      getSequencePatternsOfProgram(program.getId()).forEach(content::put);
-      getSequencePatternEventsOfProgram(program.getId()).forEach(content::put);
-    });
-
-    // Add entities of Instruments
-    content.getInstruments().forEach(instrument -> {
-      getMemesOfInstrument(instrument.getId()).forEach(content::put);
-      getAudiosOfInstrument(instrument.getId()).forEach(content::put);
-    });
-
-    return content;
-  }
-
-  /**
    Clear the content
    */
   public void clear() {

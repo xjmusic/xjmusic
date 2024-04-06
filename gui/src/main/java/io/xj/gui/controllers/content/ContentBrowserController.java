@@ -115,7 +115,7 @@ public class ContentBrowserController extends BrowserController {
       library -> uiStateService.editLibrary(library.getId()),
       null,
       cmdModalController::cloneLibrary,
-      cmdModalController::deleteLibrary);
+      cmdModalController::deleteLibrary, null);
     setupData(
       librariesTable,
       libraries,
@@ -151,7 +151,7 @@ public class ContentBrowserController extends BrowserController {
       program -> uiStateService.editProgram(program.getId()),
       cmdModalController::moveProgram,
       cmdModalController::cloneProgram,
-      cmdModalController::deleteProgram);
+      cmdModalController::deleteProgram, null);
     setupData(
       programsTable,
       programs,
@@ -189,7 +189,7 @@ public class ContentBrowserController extends BrowserController {
       instrument -> uiStateService.editInstrument(instrument.getId()),
       cmdModalController::moveInstrument,
       cmdModalController::cloneInstrument,
-      cmdModalController::deleteInstrument);
+      cmdModalController::deleteInstrument, null);
     setupData(
       instrumentsTable,
       instruments,

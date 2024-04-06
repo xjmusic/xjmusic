@@ -1,6 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.entity;
 
+import io.xj.hub.ContentTest;
+import io.xj.hub.HubTopology;
 import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.util.Widget;
 import io.xj.hub.util.WidgetState;
@@ -23,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class EntityFactoryImplTest {
+public class EntityFactoryImplTest extends ContentTest {
   EntityFactory subject;
   private Widget widget;
 
@@ -572,5 +574,59 @@ public class EntityFactoryImplTest {
     assertNotSame(resultB, fromB);
   }
 
+  @Test
+  void forTemplate_boundToLibrary() {
+    HubTopology.buildHubApiTopology(subject);
+    var content = buildHubContent();
+    var result = subject.forTemplate(content, template1);
 
+    assertEquals(31, result.size());
+  }
+
+  @Test
+  void forTemplate_boundToProgram() {
+    HubTopology.buildHubApiTopology(subject);
+    var content = buildHubContent();
+    content.put(buildTemplateBinding(template2, program1));
+    var result = subject.forTemplate(content, template2);
+
+    assertEquals(14, result.size());
+  }
+
+  @Test
+  void forTemplate_boundToInstrument() {
+    HubTopology.buildHubApiTopology(subject);
+    var content = buildHubContent();
+    content.put(buildTemplateBinding(template2, instrument1));
+    var result = subject.forTemplate(content, template2);
+
+    assertEquals(5, result.size());
+  }
+
+  @Test
+  void forTemplate_duplicatesOriginalObjects() {
+    HubTopology.buildHubApiTopology(subject);
+    var content = buildHubContent();
+    var copy = subject.forTemplate(content, template1);
+
+    copy.getInstrument(instrument1.getId()).orElseThrow().setName("different");
+    copy.getInstrumentMeme(instrument1_meme.getId()).orElseThrow().setName("different");
+    copy.getInstrumentAudio(instrument1_audio.getId()).orElseThrow().setName("different");
+    copy.getProgram(program1.getId()).orElseThrow().setName("different");
+    copy.getProgramMeme(program1_meme.getId()).orElseThrow().setName("different");
+    copy.getProgramVoice(program1_voice.getId()).orElseThrow().setName("different");
+    copy.getProgramSequence(program1_sequence.getId()).orElseThrow().setName("different");
+    copy.getProgramSequenceChord(program1_sequence_chord0.getId()).orElseThrow().setName("different");
+    copy.getProgramSequenceChordVoicing(program1_sequence_chord0_voicing0.getId()).orElseThrow().setNotes("different");
+
+    assertEquals("808 Drums", content.getInstrument(instrument1.getId()).orElseThrow().getName());
+    assertEquals("Ants", content.getInstrumentMeme(instrument1_meme.getId()).orElseThrow().getName());
+    assertEquals("Chords Cm to D", content.getInstrumentAudio(instrument1_audio.getId()).orElseThrow().getName());
+    assertEquals("leaves", content.getProgram(program1.getId()).orElseThrow().getName());
+    assertEquals("Ants", content.getProgramMeme(program1_meme.getId()).orElseThrow().getName());
+    assertEquals("Birds", content.getProgramVoice(program1_voice.getId()).orElseThrow().getName());
+    assertEquals("decay", content.getProgramSequence(program1_sequence.getId()).orElseThrow().getName());
+    assertEquals("G minor", content.getProgramSequenceChord(program1_sequence_chord0.getId()).orElseThrow().getName());
+    assertEquals("G", content.getProgramSequenceChordVoicing(program1_sequence_chord0_voicing0.getId()).orElseThrow().getNotes());
+  }
 }

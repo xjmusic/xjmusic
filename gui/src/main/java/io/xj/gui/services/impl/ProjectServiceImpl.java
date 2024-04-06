@@ -77,13 +77,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.prefs.Preferences;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectServiceImpl.class);
-  private static final String defaultPathPrefix = System.getProperty("user.home") + File.separator + "Documents";
+  private static final String defaultBasePathPrefix = System.getProperty("user.home") + File.separator + "Documents";
+  private static final String defaultExportPathPrefix = System.getProperty("user.home") + File.separator + "Documents";
   private static final double ERROR_DIALOG_WIDTH = 800.0;
   private static final double ERROR_DIALOG_HEIGHT = 600.0;
   private static final Collection<ProjectState> PROJECT_LOADING_STATES = Set.of(
@@ -91,16 +91,14 @@ public class ProjectServiceImpl implements ProjectService {
     ProjectState.LoadedContent,
     ProjectState.LoadingAudio,
     ProjectState.LoadedAudio,
-    ProjectState.PushingContent,
-    ProjectState.PushedContent,
-    ProjectState.PushingAudio,
-    ProjectState.PushedAudio
+    ProjectState.ExportingTemplate
   );
   private final Map<Class<? extends Serializable>, Set<Runnable>> projectUpdateListeners = new HashMap<>();
   private final Preferences prefs = Preferences.userNodeForPackage(ProjectServiceImpl.class);
   private final ObservableObjectValue<Project> currentProject;
   private final ObservableListValue<ProjectDescriptor> recentProjects = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
   private final StringProperty basePathPrefix = new SimpleStringProperty();
+  private final StringProperty exportPathPrefix = new SimpleStringProperty();
   private final DoubleProperty progress = new SimpleDoubleProperty();
   private final StringProperty progressLabel = new SimpleStringProperty();
   private final BooleanProperty isModified = new SimpleBooleanProperty(false);
@@ -113,12 +111,8 @@ public class ProjectServiceImpl implements ProjectService {
       case CreatedFolder -> "Created Folder";
       case LoadingContent -> "Loading Content";
       case LoadedContent -> "Loaded Content";
-      case LoadingAudio -> progressLabel.get();
+      case LoadingAudio, ExportingTemplate -> progressLabel.get();
       case LoadedAudio -> "Loaded Audio";
-      case PushingContent -> "Pushing Content";
-      case PushedContent -> "Pushed Content";
-      case PushingAudio -> "Pushing Audio";
-      case PushedAudio -> "Pushed Audio";
       case Ready -> "Ready";
       case Saving -> "Saving";
       case Cancelled -> "Cancelled";
@@ -207,7 +201,7 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public void createProject(String parentPathPrefix, String projectName) {
     closeProject(() -> {
-      if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName))
+      if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName, "Project"))
         executeInBackground("Create Project", () -> {
           if (projectManager.createProject(parentPathPrefix, projectName)) {
             projectManager.getProject().ifPresent(project -> {
@@ -221,12 +215,61 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void cloneFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
-    cloneProject(parentPathPrefix, projectName, () -> projectManager.cloneProjectFromDemoTemplate(
-      audioBaseUrl,
-      parentPathPrefix,
-      templateShipKey,
-      projectName
-    ));
+    closeProject(() -> {
+      if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName, "Project"))
+        executeInBackground("Clone Project", () -> {
+          try {
+            if (projectManager.cloneProjectFromDemoTemplate(
+              audioBaseUrl,
+              parentPathPrefix,
+              templateShipKey,
+              projectName
+            )) {
+              projectManager.getProject().ifPresent(project -> {
+                isModified.set(false);
+                addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
+              });
+            } else {
+              removeFromRecentProjects(parentPathPrefix + projectName + ".xj");
+              Platform.runLater(this::cancelProjectLoading);
+            }
+          } catch (Exception e) {
+            LOG.warn("Failed to clone project! {}\n{}", e, StringUtils.formatStackTrace(e));
+            Platform.runLater(this::cancelProjectLoading);
+          }
+        });
+    });
+  }
+
+  @Override
+  public void exportTemplate(
+    Template template,
+    String parentPathPrefix,
+    String exportName,
+    Boolean conversion,
+    @Nullable Integer conversionFrameRate,
+    @Nullable Integer conversionSampleBits,
+    @Nullable Integer conversionChannels
+  ) {
+    if (promptToSkipOverwriteIfExists(parentPathPrefix, exportName, "Template Export"))
+      executeInBackground("Export Template", () -> {
+        try {
+          if (!projectManager.exportTemplate(
+            template,
+            parentPathPrefix,
+            exportName,
+            conversion,
+            conversionFrameRate,
+            conversionSampleBits,
+            conversionChannels
+          )) {
+            Platform.runLater(this::cancelProjectLoading);
+          }
+        } catch (Exception e) {
+          LOG.warn("Failed to clone project! {}\n{}", e, StringUtils.formatStackTrace(e));
+          Platform.runLater(this::cancelProjectLoading);
+        }
+      });
   }
 
   @Override
@@ -253,12 +296,17 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void cancelProjectLoading() {
-    projectManager.cancelProjectLoading();
+    projectManager.cancelOperation();
   }
 
   @Override
   public StringProperty basePathPrefixProperty() {
     return basePathPrefix;
+  }
+
+  @Override
+  public StringProperty exportPathPrefixProperty() {
+    return exportPathPrefix;
   }
 
   @Override
@@ -950,17 +998,18 @@ public class ProjectServiceImpl implements ProjectService {
    If the directory already exists then pop up a confirmation dialog
 
    @param parentPathPrefix parent folder
-   @param projectName      project name
+   @param name             thing name
+   @param type             of thing to overwrite
    @return true if overwrite confirmed
    */
-  private boolean promptToSkipOverwriteIfExists(String parentPathPrefix, String projectName) {
-    if (!Files.exists(Path.of(parentPathPrefix + projectName))) {
+  private boolean promptToSkipOverwriteIfExists(String parentPathPrefix, String name, String type) {
+    if (!Files.exists(Path.of(parentPathPrefix + name))) {
       return true;
     }
-    return promptForConfirmation("Overwrite Existing Project",
-      "The project already exists",
-      String.format("The project \"%s\" already exists in the folder \"%s\". This operation will update any modified files from the original remote versions. Do you want to proceed?",
-        projectName, parentPathPrefix));
+    return promptForConfirmation("Overwrite Existing " + type,
+      "The " + type + " already exists",
+      String.format("The %s \"%s\" already exists in the folder \"%s\". This operation will overwrite the target location. Do you want to proceed?",
+        type, name, parentPathPrefix));
   }
 
   /**
@@ -988,35 +1037,6 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   /**
-   Clone a project from a remote source.
-
-   @param parentPathPrefix parent folder
-   @param projectName      project name
-   @param clone            the clone callable
-   */
-  private void cloneProject(String parentPathPrefix, String projectName, Callable<Boolean> clone) {
-    closeProject(() -> {
-      if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName))
-        executeInBackground("Clone Project", () -> {
-          try {
-            if (clone.call()) {
-              projectManager.getProject().ifPresent(project -> {
-                isModified.set(false);
-                addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
-              });
-            } else {
-              removeFromRecentProjects(parentPathPrefix + projectName + ".xj");
-              Platform.runLater(this::cancelProjectLoading);
-            }
-          } catch (Exception e) {
-            LOG.warn("Failed to clone project! {}\n{}", e, StringUtils.formatStackTrace(e));
-            Platform.runLater(this::cancelProjectLoading);
-          }
-        });
-    });
-  }
-
-  /**
    Execute a runnable in a background thread. Use JavaFX Platform.runLater(...) as well as spawning an additional thread.
 
    @param threadName           the name of the thread
@@ -1032,7 +1052,8 @@ public class ProjectServiceImpl implements ProjectService {
    Attach preference listeners.
    */
   private void attachPreferenceListeners() {
-    basePathPrefix.addListener((o, ov, value) -> prefs.put("pathPrefix", value));
+    basePathPrefix.addListener((o, ov, value) -> prefs.put("basePathPrefix", value));
+    exportPathPrefix.addListener((o, ov, value) -> prefs.put("exportPathPrefix", value));
     recentProjects.addListener((o, ov, value) -> {
       try {
         prefs.put("recentProjects", jsonProvider.getMapper().writeValueAsString(value));
@@ -1046,7 +1067,8 @@ public class ProjectServiceImpl implements ProjectService {
    Set all properties from preferences, else defaults.
    */
   private void setAllFromPreferencesOrDefaults() {
-    basePathPrefix.set(prefs.get("pathPrefix", defaultPathPrefix));
+    basePathPrefix.set(prefs.get("basePathPrefix", defaultBasePathPrefix));
+    exportPathPrefix.set(prefs.get("exportPathPrefix", defaultExportPathPrefix));
     try {
       recentProjects.setAll(jsonProvider.getMapper().readValue(prefs.get("recentProjects", "[]"), ProjectDescriptor[].class));
     } catch (Exception e) {

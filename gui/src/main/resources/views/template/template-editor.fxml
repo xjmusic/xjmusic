@@ -36,6 +36,11 @@
     </VBox>
 
     <VBox>
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Export Key (Optional)" textAlignment="RIGHT"/>
+      <TextField fx:id="fieldShipKey" prefHeight="25.0"/>
+    </VBox>
+
+    <VBox>
       <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Configuration" textAlignment="RIGHT"/>
       <TextArea fx:id="fieldConfig" maxHeight="Infinity"/>
     </VBox>

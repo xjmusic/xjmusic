@@ -47,6 +47,28 @@ public interface ProjectManager {
   boolean cloneProjectFromDemoTemplate(String audioBaseUrl, String parentPathPrefix, String templateShipKey, String projectName);
 
   /**
+   Export a template as JSON with all its audio (original or prepared)
+
+   @param template             to export
+   @param parentPathPrefix     parent folder to the template export folder
+   @param exportName           of the export
+   @param conversion           whether to convert the audio
+   @param conversionFrameRate  target Frame Rate for conversion
+   @param conversionSampleBits target Sample Bits for conversion
+   @param conversionChannels   target Channels for conversion
+   @return true if successful
+   */
+  boolean exportTemplate(
+    Template template,
+    String parentPathPrefix,
+    String exportName,
+    Boolean conversion,
+    @Nullable Integer conversionFrameRate,
+    @Nullable Integer conversionSampleBits,
+    @Nullable Integer conversionChannels
+  );
+
+  /**
    Open a project from a local file
 
    @param projectFilePath the path prefix of the project
@@ -79,7 +101,7 @@ public interface ProjectManager {
   /**
    Cancel the project loading
    */
-  void cancelProjectLoading();
+  void cancelOperation();
 
   /**
    @return the path prefix of the project
