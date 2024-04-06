@@ -165,7 +165,7 @@ public class FabricationControlsController extends ProjectController {
     var macroPrograms = fabricationService.getAllMacroPrograms();
 
     // Engage Macro Override
-    addEngageButton(
+    var engageButton = addEngageButton(
         event -> fabricationService.doOverrideMacro(macroPrograms.stream()
             .filter(macroProgram -> macroProgram.getId().equals(UUID.fromString(((ToggleButton) group.getSelectedToggle()).getId())))
             .findFirst()
@@ -177,15 +177,6 @@ public class FabricationControlsController extends ProjectController {
         )
     );
 
-    // Release Macro Override
-    addReleaseButton(
-        event -> {
-          fabricationService.resetOverrideMacro();
-          group.selectToggle(null);
-        },
-        fabricationService.overrideMacroProgramIdProperty().isNull()
-    );
-
     // Label
     addGroupLabel("Macro Programs");
 
@@ -195,6 +186,10 @@ public class FabricationControlsController extends ProjectController {
       fabricationService.overrideMacroProgramIdProperty().addListener((ChangeListener<? super UUID>) (o, ov, value) ->
           updateButtonEngaged(button, Objects.equals(fabricationService.overrideMacroProgramIdProperty().get(), macroProgram.getId())));
     });
+
+    // Select first macro program and engage
+    group.selectToggle(group.getToggles().get(0));
+    engageButton.fire();
   }
 
   /**
@@ -207,24 +202,13 @@ public class FabricationControlsController extends ProjectController {
     if (taxonomy.isEmpty()) return;
 
     // Engage Meme Override
-    addEngageButton(
+    var engageButton =  addEngageButton(
         event -> fabricationService.doOverrideMemes(taxonomyCategoryToggleSelections.values()),
         Bindings.createBooleanBinding(
             () -> taxonomyCategoryToggleSelections.isEmpty() ||
                 fabricationService.overrideMemesProperty().containsAll(taxonomyCategoryToggleSelections.values()),
             taxonomyCategoryToggleSelections, fabricationService.overrideMemesProperty()
         )
-    );
-
-    // Release Meme Override
-    addReleaseButton(
-        event -> {
-          fabricationService.resetOverrideMemes();
-          taxonomyToggleGroups.forEach((toggleGroup -> toggleGroup.selectToggle(null)));
-        },
-        Bindings.createBooleanBinding(() ->
-                Objects.isNull(fabricationService.overrideMemesProperty()) || fabricationService.overrideMemesProperty().isEmpty(),
-            fabricationService.overrideMemesProperty())
     );
 
     // Each taxonomy category is in a labeled toggle group
@@ -247,6 +231,10 @@ public class FabricationControlsController extends ProjectController {
             updateButtonEngaged(button, fabricationService.overrideMemesProperty().contains(meme)));
       });
     });
+
+    // Select first meme in each category and engage
+    taxonomyToggleGroups.forEach(group -> group.selectToggle(group.getToggles().get(0)));
+    engageButton.fire();
   }
 
   /**
@@ -254,30 +242,16 @@ public class FabricationControlsController extends ProjectController {
 
    @param actionHandler   handle press
    @param disabledBinding binding to disable the button
+   @return engage button
    */
-  private void addEngageButton(EventHandler<ActionEvent> actionHandler, BooleanBinding disabledBinding) {
+  private Button addEngageButton(EventHandler<ActionEvent> actionHandler, BooleanBinding disabledBinding) {
     var btn = new Button("Engage");
     btn.getStyleClass().add("button");
     btn.getStyleClass().add("engage-button");
     btn.setOnAction(actionHandler);
     btn.disableProperty().bind(disabledBinding);
     controlsContainer.getChildren().add(btn);
-  }
-
-  /**
-   Create the reset button and add it to the container
-
-   @param actionHandler   handle press
-   @param disabledBinding binding to disable the button
-   */
-  private void addReleaseButton(EventHandler<ActionEvent> actionHandler, BooleanBinding disabledBinding) {
-    var btn = new Button("Release");
-    btn.getStyleClass().add("button");
-    btn.getStyleClass().add("release-button");
-    btn.setOnAction(actionHandler);
-    btn.disableProperty().bind(disabledBinding);
-    btn.opacityProperty().bind(Bindings.when(disabledBinding).then(0.3).otherwise(0.8));
-    controlsContainer.getChildren().add(btn);
+    return btn;
   }
 
   /**
