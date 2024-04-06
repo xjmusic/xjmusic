@@ -15,6 +15,7 @@ import io.xj.hub.pojos.ProgramSequence;
 import io.xj.hub.pojos.ProgramSequenceBinding;
 import io.xj.hub.pojos.ProgramVoice;
 import io.xj.hub.pojos.Template;
+import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
 import io.xj.nexus.ControlMode;
 import io.xj.nexus.model.Segment;
@@ -80,6 +81,7 @@ public class FabricationServiceImpl implements FabricationService {
   private final int defaultOutputChannels;
   private final int defaultOutputFrameRate;
   private final ControlMode defaultControlMode;
+  private final ProjectService projectService;
   private final FabricationManager fabricationManager;
   private final Map<Integer, Integer> segmentBarBeats = new ConcurrentHashMap<>();
   private final DoubleProperty progress = new SimpleDoubleProperty(0.0);
@@ -145,6 +147,7 @@ public class FabricationServiceImpl implements FabricationService {
     this.defaultOutputFrameRate = defaultOutputFrameRate;
     this.defaultTimelineSegmentViewLimit = defaultTimelineSegmentViewLimit;
     this.defaultIntensityOverride = defaultIntensityOverride;
+    this.projectService = projectService;
     this.fabricationManager = fabricationManager;
 
     projectService.stateProperty().addListener((o, ov, value) -> {
@@ -212,17 +215,39 @@ public class FabricationServiceImpl implements FabricationService {
         .setOutputFrameRate(parseIntegerValue(outputFrameRate.get(), "fabrication setting for Output Frame Rate"));
       LOG.debug("Did instantiate work configuration");
 
+      // Get the content for this template
+      var content = projectService.getContent(inputTemplate.get());
+
+      // If memes/macro already engaged at fabrication start (which is always true in a manual control mode),
+      // the first segment should be governed by that selection https://www.pivotaltracker.com/story/show/187381427
+      switch (controlMode.get()) {
+        case MACRO -> content.getProgramsOfType(ProgramType.Macro).stream()
+          .min(Comparator.comparing(Program::getName))
+          .ifPresent(macro -> overrideMacroProgramId.set(macro.getId()));
+        case TAXONOMY -> {
+          var memeTaxonomy = new TemplateConfig(inputTemplate.get()).getMemeTaxonomy();
+          var memes = memeTaxonomy.getCategories().stream()
+            .map(category -> category.getMemes().stream().findFirst().orElse(null))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+          if (!memes.isEmpty()) {
+            overrideMemes.clear();
+            overrideMemes.addAll(memes);
+          }
+        }
+      }
+
       // start the work with the given configuration
       fabricationManager.setOnProgress((Float progress) -> Platform.runLater(() -> this.progress.set(progress)));
       fabricationManager.setOnProgressLabel((String label) -> Platform.runLater(() -> this.progressLabel.set(label)));
       fabricationManager.setOnStateChange((FabricationState state) -> Platform.runLater(() -> this.state.set(state)));
       LOG.debug("Did bind progress listeners");
 
-      Platform.runLater(() -> fabricationManager.start(config));
+      Platform.runLater(() -> fabricationManager.start(content, config));
       LOG.debug("Did send start signal to work manager");
 
     } catch (Exception e) {
-      LOG.error("Failed to start fabrication", e);
+      LOG.error("Failed to start fabrication! {}\n{}", e.getMessage(), StringUtils.formatStackTrace(e));
     }
   }
 
@@ -289,9 +314,7 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public List<Program> getAllMacroPrograms() {
-    return fabricationManager.getSourceMaterial().getProgramsOfType(ProgramType.Macro).stream()
-      .sorted(Comparator.comparing(Program::getName))
-      .toList();
+    return fabricationManager.getAllMacroPrograms();
   }
 
   @Override

@@ -146,6 +146,14 @@ public interface ProjectService {
   HubContent getContent();
 
   /**
+   Get the content for a template
+
+   @param template for which to get content
+   @return the content
+   */
+  HubContent getContent(Template template);
+
+  /**
    Delete an entity
 
    @param entity to delete

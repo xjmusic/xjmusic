@@ -305,27 +305,29 @@ public class CraftWorkImpl implements CraftWork {
   public void doOverrideMacro(Program macroProgram) {
     LOG.info("Next craft cycle, will override macro with {}", macroProgram.getName());
     nextCycleOverrideMacroProgram.set(macroProgram);
-
-    // Only rewrite the segments if the last segment is not a pending segment
-    // If memes/macro already engaged at fabrication start (which is always true in a manual control mode) the first segment should be governed by that selection https://www.pivotaltracker.com/story/show/187381427
-    if (store.readSegmentLast().map(segment -> !SegmentType.PENDING.equals(segment.getType())).orElse(false))
-      nextCycleRewrite.set(true);
+    doNextCycleRewriteUnlessInitialSegment();
   }
 
   @Override
   public void doOverrideMemes(Collection<String> memes) {
     LOG.info("Next craft cycle, will override memes with {}", StringUtils.toProperCsvAnd(memes.stream().sorted().toList()));
     nextCycleOverrideMemes.set(memes);
-
-    // Only rewrite the segments if the last segment is not a pending segment
-    // If memes/macro already engaged at fabrication start (which is always true in a manual control mode) the first segment should be governed by that selection https://www.pivotaltracker.com/story/show/187381427
-    if (store.readSegmentLast().map(segment -> !SegmentType.PENDING.equals(segment.getType())).orElse(false))
-      nextCycleRewrite.set(true);
+    doNextCycleRewriteUnlessInitialSegment();
   }
 
   @Override
   public boolean getAndResetDidOverride() {
     return didOverride.getAndSet(false);
+  }
+
+  /**
+   If memes/macro already engaged at fabrication start (which is always true in a manual control mode),
+   the first segment should be governed by that selection
+   https://www.pivotaltracker.com/story/show/187381427
+   */
+  private void doNextCycleRewriteUnlessInitialSegment() {
+    if (0 < store.getSegmentCount())
+      nextCycleRewrite.set(true);
   }
 
   /**

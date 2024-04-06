@@ -180,8 +180,9 @@ public class FabricationControlsController extends ProjectController {
     // for each macro program, create a toggle button in a toggle group
     macroPrograms.forEach(macroProgram -> {
       var button = addToggleButton(group, macroProgram.getName(), macroProgram.getId().toString());
-      fabricationService.overrideMacroProgramIdProperty().addListener((ChangeListener<? super UUID>) (o, ov, value) ->
-        updateButtonEngaged(button, Objects.equals(fabricationService.overrideMacroProgramIdProperty().get(), macroProgram.getId())));
+      Runnable onOverrideChange = () -> updateButtonEngaged(button, Objects.equals(fabricationService.overrideMacroProgramIdProperty().get(), macroProgram.getId()));
+      fabricationService.overrideMacroProgramIdProperty().addListener((ChangeListener<? super UUID>) (o, ov, value) -> onOverrideChange.run());
+      onOverrideChange.run(); // show initial state
     });
   }
 
@@ -215,11 +216,15 @@ public class FabricationControlsController extends ProjectController {
       });
       addGroupLabel(category.getName());
 
+      // Select the first meme in each category
+      taxonomyCategoryToggleSelections.put(category.getName(), category.getMemes().get(0));
+
       // Each meme in the category is a toggle button
       category.getMemes().forEach(meme -> {
         var button = addToggleButton(group, meme, meme);
-        fabricationService.overrideMemesProperty().addListener((SetChangeListener.Change<? extends String> ignored) ->
-          updateButtonEngaged(button, fabricationService.overrideMemesProperty().contains(meme)));
+        Runnable onOverrideChange = () -> updateButtonEngaged(button, fabricationService.overrideMemesProperty().contains(meme));
+        fabricationService.overrideMemesProperty().addListener((SetChangeListener.Change<? extends String> ignored) -> onOverrideChange.run());
+        onOverrideChange.run(); // show initial state
       });
     });
   }

@@ -9,17 +9,19 @@ import io.xj.nexus.persistence.NexusEntityStore;
 import jakarta.annotation.Nullable;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 public interface FabricationManager {
   /**
    Start work.
-   <p>
-   This assigns the work configuration, hub configuration, and hub access.
+   * @param content for fabrication
+   * @param config for fabrication
    */
   void start(
-    FabricationSettings workConfig
+    HubContent content,
+    FabricationSettings config
   );
 
   /**
@@ -103,6 +105,11 @@ public interface FabricationManager {
    @return the meme taxonomy from the current template configuration
    */
   Optional<MemeTaxonomy> getMemeTaxonomy();
+
+  /**
+   * @return all macro programs in alphabetical order
+   */
+  List<Program> getAllMacroPrograms();
 
   /**
    Manually go to a specific taxonomy category meme, and force until reset
