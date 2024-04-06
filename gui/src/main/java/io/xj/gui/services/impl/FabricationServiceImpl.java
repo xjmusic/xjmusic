@@ -102,8 +102,6 @@ public class FabricationServiceImpl implements FabricationService {
     progressLabel);
   private final BooleanBinding stateActive =
     Bindings.createBooleanBinding(() -> state.get() == FabricationState.Active, state);
-  private final BooleanBinding stateStandby =
-    Bindings.createBooleanBinding(() -> state.get() == FabricationState.Standby, state);
   private final BooleanBinding stateLoading =
     Bindings.createBooleanBinding(() -> state.get() == FabricationState.PreparingAudio || state.get() == FabricationState.PreparedAudio, state);
   private final ObjectProperty<Template> inputTemplate = new SimpleObjectProperty<>();
@@ -250,12 +248,6 @@ public class FabricationServiceImpl implements FabricationService {
   }
 
   @Override
-  public void resetOverrideMacro() {
-    fabricationManager.resetOverrideMacro();
-    overrideMacroProgramId.set(null);
-  }
-
-  @Override
   public Optional<MemeTaxonomy> getMemeTaxonomy() {
     return fabricationManager.getMemeTaxonomy();
   }
@@ -265,12 +257,6 @@ public class FabricationServiceImpl implements FabricationService {
     fabricationManager.doOverrideMemes(memes);
     overrideMemes.clear();
     overrideMemes.addAll(memes.stream().sorted().collect(Collectors.toCollection(LinkedHashSet::new)));
-  }
-
-  @Override
-  public void resetOverrideMemes() {
-    fabricationManager.resetOverrideMemes();
-    overrideMemes.clear();
   }
 
   @Override
@@ -325,7 +311,7 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public ObjectProperty<TemplateConfig> getTemplateConfig() {
-   return inputTemplateConfig;
+    return inputTemplateConfig;
   }
 
   @Override
@@ -496,11 +482,6 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public BooleanBinding isStateLoadingProperty() {
     return stateLoading;
-  }
-
-  @Override
-  public BooleanBinding isStateStandbyProperty() {
-    return stateStandby;
   }
 
   @Override

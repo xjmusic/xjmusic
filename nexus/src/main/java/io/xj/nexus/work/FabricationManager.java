@@ -71,11 +71,6 @@ public interface FabricationManager {
   FabricationState getWorkState();
 
   /**
-   @return true if the current work is healthy
-   */
-  boolean isHealthy();
-
-  /**
    Set the on progress callback
 
    @param onProgress callback
@@ -97,25 +92,12 @@ public interface FabricationManager {
   void setOnStateChange(Consumer<FabricationState> onStateChange);
 
   /**
-   Set the on finish callback
-
-   @param afterFinished callback
-   */
-  void setAfterFinished(Runnable afterFinished);
-
-  /**
    Go to the given macro program right away
    https://www.pivotaltracker.com/story/show/186003440
 
    @param macroProgram to go to
    */
   void doOverrideMacro(Program macroProgram);
-
-  /**
-   Reset the macro program override
-   https://www.pivotaltracker.com/story/show/186003440
-   */
-  void resetOverrideMacro();
 
   /**
    @return the meme taxonomy from the current template configuration
@@ -129,12 +111,6 @@ public interface FabricationManager {
    @param memes specific (assumed allowably) set of taxonomy category memes
    */
   void doOverrideMemes(Collection<String> memes);
-
-  /**
-   Reset the taxonomy category memes
-   https://www.pivotaltracker.com/story/show/186714075
-   */
-  void resetOverrideMemes();
 
   /**
    Get whether an override happened, and reset its state after getting

@@ -72,9 +72,6 @@ public class FabricationManagerImpl implements FabricationManager {
   private Consumer<FabricationState> onStateChange;
 
   @Nullable
-  private Runnable afterFinished;
-
-  @Nullable
   private HubContent content;
 
   public FabricationManagerImpl(
@@ -158,9 +155,6 @@ public class FabricationManagerImpl implements FabricationManager {
     }
 
     updateState(cancelled ? FabricationState.Cancelled : FabricationState.Done);
-    if (Objects.nonNull(afterFinished)) {
-      afterFinished.run();
-    }
 
     audioCache.invalidateAll();
   }
@@ -168,11 +162,6 @@ public class FabricationManagerImpl implements FabricationManager {
   @Override
   public FabricationState getWorkState() {
     return state.get();
-  }
-
-  @Override
-  public boolean isHealthy() {
-    return getWorkState() != FabricationState.Failed;
   }
 
   @Override
@@ -191,21 +180,10 @@ public class FabricationManagerImpl implements FabricationManager {
   }
 
   @Override
-  public void setAfterFinished(@Nullable Runnable afterFinished) {
-    this.afterFinished = afterFinished;
-  }
-
-  @Override
   public void doOverrideMacro(Program macroProgram) {
     Objects.requireNonNull(craftWork);
     Objects.requireNonNull(dubWork);
     craftWork.doOverrideMacro(macroProgram);
-  }
-
-  @Override
-  public void resetOverrideMacro() {
-    Objects.requireNonNull(craftWork);
-    craftWork.resetOverrideMacro();
   }
 
   @Override
@@ -225,12 +203,6 @@ public class FabricationManagerImpl implements FabricationManager {
     Objects.requireNonNull(craftWork);
     Objects.requireNonNull(dubWork);
     craftWork.doOverrideMemes(memes);
-  }
-
-  @Override
-  public void resetOverrideMemes() {
-    Objects.requireNonNull(craftWork);
-    craftWork.resetOverrideMemes();
   }
 
   @Override
