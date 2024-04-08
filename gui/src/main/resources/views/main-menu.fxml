@@ -39,6 +39,7 @@
                     <KeyCodeCombination shortcut="DOWN" code="O" control="UP" meta="UP" shift="UP" alt="UP"/>
                 </accelerator>
             </MenuItem>
+            <MenuItem onAction="#handleProjectDemos" text="Demos..." mnemonicParsing="false"/>
             <Menu fx:id="menuOpenRecent" text="Open Recent" mnemonicParsing="false">
                 <!-- Recent projects will be added here dynamically -->
             </Menu>
@@ -55,12 +56,6 @@
             </MenuItem>
             <MenuItem fx:id="itemProjectCleanup" onAction="#handleProjectCleanup" text="Cleanup"
                       mnemonicParsing="false"/>
-            <SeparatorMenuItem mnemonicParsing="false"/>
-            <MenuItem onAction="#handleProjectClone" text="Clone..." mnemonicParsing="false">
-                <accelerator>
-                    <KeyCodeCombination shortcut="DOWN" code="O" control="UP" meta="UP" shift="DOWN" alt="UP"/>
-                </accelerator>
-            </MenuItem>
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem fx:id="itemOpenSettings" onAction="#handleOpenSettings" text="Settings" mnemonicParsing="false">
                 <accelerator>

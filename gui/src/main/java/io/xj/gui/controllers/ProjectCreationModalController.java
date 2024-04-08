@@ -38,13 +38,13 @@ import java.util.Objects;
 public class ProjectCreationModalController extends ProjectModalController {
   static final Map<ProjectCreationMode, String> WINDOW_TITLE = Map.of(
     ProjectCreationMode.NEW_PROJECT, "Create New Project",
-    ProjectCreationMode.CLONE_PROJECT, "Clone Project"
+    ProjectCreationMode.DEMO_PROJECT, "Demo Projects"
   );
   private final SimpleDoubleProperty demoImageSize = new SimpleDoubleProperty(120);
   private final FabricationService fabricationService;
   private final ObjectProperty<ProjectCreationMode> mode = new SimpleObjectProperty<>(ProjectCreationMode.NEW_PROJECT);
   private final ObservableBooleanValue isDemoVisible = Bindings.createBooleanBinding(
-    () -> mode.get() == ProjectCreationMode.CLONE_PROJECT, mode
+    () -> mode.get() == ProjectCreationMode.DEMO_PROJECT, mode
   );
   private final ObjectProperty<Project> selectedProject = new SimpleObjectProperty<>();
 
@@ -142,7 +142,7 @@ public class ProjectCreationModalController extends ProjectModalController {
   }
 
   /**
-   Set the mode for project creation, e.g. New Project vs Clone Project
+   Set the mode for project creation, e.g. New Project vs Demo Project
 
    @param mode of project creation
    */
@@ -164,12 +164,12 @@ public class ProjectCreationModalController extends ProjectModalController {
   void handlePressOK() {
     var projectName = fieldProjectName.getText().replaceAll("[^a-zA-Z0-9 ]", "");
 
-    if (Objects.equals(mode.get(), ProjectCreationMode.CLONE_PROJECT)
+    if (Objects.equals(mode.get(), ProjectCreationMode.DEMO_PROJECT)
       && Objects.isNull(demoSelection.getSelectedToggle())
       && Objects.isNull(selectedProject.get())) {
       projectService.showWarningAlert(
-        "Cannot clone project",
-        "Must select a project to clone.",
+        "Cannot fetch demo project",
+        "Must select a demo project.",
         "Select either a Demo project or, if authenticated, a project from the Lab."
       );
       return;
@@ -187,8 +187,8 @@ public class ProjectCreationModalController extends ProjectModalController {
     fabricationService.cancel();
     Platform.runLater(() -> {
       switch (mode.get()) {
-        case CLONE_PROJECT ->
-          projectService.cloneFromDemoTemplate(fieldPathPrefix.getText(), ((ToggleButton) demoSelection.getSelectedToggle()).getId(), projectName);
+        case DEMO_PROJECT ->
+          projectService.fetchDemoTemplate(fieldPathPrefix.getText(), ((ToggleButton) demoSelection.getSelectedToggle()).getId(), projectName);
         case NEW_PROJECT -> projectService.createProject(fieldPathPrefix.getText(), projectName);
       }
 

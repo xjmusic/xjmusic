@@ -214,7 +214,7 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public void cloneFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
+  public void fetchDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
     closeProject(() -> {
       if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName, "Project"))
         executeInBackground("Clone Project", () -> {

@@ -251,8 +251,8 @@ public class MainMenuController extends ProjectController {
   }
 
   @FXML
-  void handleProjectClone() {
-    projectCreationModalController.setMode(ProjectCreationMode.CLONE_PROJECT);
+  void handleProjectDemos() {
+    projectCreationModalController.setMode(ProjectCreationMode.DEMO_PROJECT);
     projectCreationModalController.launchModal();
   }
 
