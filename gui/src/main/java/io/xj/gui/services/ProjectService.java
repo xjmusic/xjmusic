@@ -101,9 +101,9 @@ public interface ProjectService {
   void cancelProjectLoading();
 
   /**
-   @return Base path prefix
+   @return Project path prefix
    */
-  StringProperty basePathPrefixProperty();
+  StringProperty projectsPathPrefixProperty();
 
   /**
    @return Export path prefix

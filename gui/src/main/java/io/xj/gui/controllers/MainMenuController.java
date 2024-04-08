@@ -235,7 +235,7 @@ public class MainMenuController extends ProjectController {
   void handleProjectOpen() {
     projectService.promptToSaveChanges(() -> {
       var projectFilePath = ProjectUtils.chooseXJProjectFile(
-        container.getScene().getWindow(), "Choose project", projectService.basePathPrefixProperty().getValue()
+        container.getScene().getWindow(), "Choose project", projectService.projectsPathPrefixProperty().getValue()
       );
       if (Objects.nonNull(projectFilePath)) {
         fabricationService.cancel();

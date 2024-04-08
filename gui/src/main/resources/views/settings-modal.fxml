@@ -10,9 +10,9 @@
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.Pane?>
 <VBox styleClass="settings-modal" stylesheets="@/styles/default-theme.css"
       xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.xj.gui.controllers.SettingsModalController"
@@ -30,73 +30,89 @@
 
     <StackPane>
 
-      <VBox spacing="10" fx:id="fabricationSettingsContainer">
-
+      <!-- General Settings -->
+      <VBox spacing="10" fx:id="generalSettingsContainer">
         <HBox alignment="CENTER_LEFT" spacing="5.0">
-          <Label minWidth="200" maxWidth="200" fx:id="labelControlMode" alignment="CENTER_RIGHT"
+          <Label minWidth="100" maxWidth="200" alignment="CENTER_RIGHT"
+                 contentDisplay="TEXT_ONLY"
+                 text="Project Path" textAlignment="RIGHT"/>
+          <TextField fx:id="fieldProjectsPathPrefix" prefHeight="25.0" prefWidth="300"/>
+          <Button fx:id="buttonSelectProjectsPathDirectory"
+                  onAction="#handleSelectProjectPathDirectory"
+                  text="Browse..."/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT" spacing="5.0">
+          <Label minWidth="100" maxWidth="200" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
+                 text="Export Path"
+                 textAlignment="RIGHT"/>
+          <TextField fx:id="fieldExportPathPrefix" prefHeight="25.0" prefWidth="300"/>
+          <Button fx:id="buttonSelectExportPathDirectory"
+                  onAction="#handleSelectExportPathDirectory"
+                  text="Browse..."/>
+        </HBox>
+        <padding>
+          <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </padding>
+      </VBox>
+
+
+      <!-- Fabrication Settings -->
+      <VBox spacing="10" fx:id="fabricationSettingsContainer">
+        <HBox alignment="CENTER_LEFT" spacing="5.0">
+          <Label minWidth="200" maxWidth="200" alignment="CENTER_RIGHT"
                  contentDisplay="TEXT_ONLY"
                  text="Control Mode" textAlignment="RIGHT"/>
           <ChoiceBox fx:id="choiceControlMode" prefHeight="25.0" prefWidth="120"/>
         </HBox>
-
         <HBox alignment="CENTER_LEFT" spacing="5.0">
           <Label minWidth="200" maxWidth="200" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
                  text="Output Frame Rate"
                  textAlignment="RIGHT"/>
           <TextField fx:id="fieldOutputFrameRate" prefHeight="25.0"/>
         </HBox>
-
         <HBox alignment="CENTER_LEFT" spacing="5.0">
           <Label minWidth="200" maxWidth="200" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
                  text="Output Channels"
                  textAlignment="RIGHT"/>
           <TextField fx:id="fieldOutputChannels" prefHeight="25.0"/>
         </HBox>
-
         <HBox alignment="CENTER_LEFT" spacing="5.0">
           <Label minWidth="200" maxWidth="200" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
                  text="Craft Ahead Seconds"
                  textAlignment="RIGHT"/>
           <TextField fx:id="fieldCraftAheadSeconds" prefHeight="25.0"/>
         </HBox>
-
         <HBox alignment="CENTER_LEFT" spacing="5.0">
           <Label minWidth="200" maxWidth="200" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
                  text="Dub Ahead Seconds"
                  textAlignment="RIGHT"/>
           <TextField fx:id="fieldDubAheadSeconds" prefHeight="25.0"/>
         </HBox>
-
         <HBox alignment="CENTER_LEFT" spacing="5.0">
           <Label minWidth="200" maxWidth="200" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
                  text="Mixer Length Seconds"
                  textAlignment="RIGHT"/>
           <TextField fx:id="fieldMixerLengthSeconds" prefHeight="25.0"/>
         </HBox>
-
         <HBox alignment="CENTER_LEFT" spacing="5.0">
           <Label minWidth="200" maxWidth="200" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
                  text="Timeline Segment View Limit"
                  textAlignment="RIGHT"/>
           <TextField fx:id="fieldTimelineSegmentViewLimit" prefHeight="25.0"/>
         </HBox>
-
         <HBox alignment="CENTER_LEFT">
-          <Pane minWidth="200" maxWidth="200" ></Pane>
+          <Pane minWidth="200" maxWidth="200"/>
           <Button fx:id="buttonReset" onAction="#handleResetFabricationSettings"
                   styleClass="button"
                   text="Reset to Defaults"/>
         </HBox>
-
         <padding>
           <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
         </padding>
-
       </VBox>
 
     </StackPane>
   </HBox>
-
   <HBox alignment="BOTTOM_RIGHT" prefHeight="20.0" prefWidth="668.0" spacing="10.0" styleClass="settings-bottom-bar">
     <Button fx:id="buttonClose" onAction="#handleClose" prefHeight="25.0" prefWidth="56.0" styleClass="button"
             text="_OK"/>

@@ -206,6 +206,7 @@ public class MainPaneTopController extends ProjectController {
     Runnable updateTemplateChoices = () -> {
       if (Objects.isNull(projectService.getContent())) return;
       var templates = projectService.getContent().getTemplates().stream().map(TemplateChoice::new).toList();
+      choiceTemplate.disableProperty().set(templates.isEmpty());
       choiceTemplate.setItems(FXCollections.observableArrayList(templates));
       // if no template is selected, select the first one in the list
       if (Objects.isNull(fabricationService.inputTemplateProperty().get()) && !templates.isEmpty()) {
@@ -306,7 +307,7 @@ public class MainPaneTopController extends ProjectController {
   public record TemplateChoice(Template template) {
     @Override
     public String toString() {
-      return Objects.nonNull(template) ? template.getName() : "Select...";
+      return Objects.nonNull(template) ? template.getName() : "No Templates Exist";
     }
   }
 }
