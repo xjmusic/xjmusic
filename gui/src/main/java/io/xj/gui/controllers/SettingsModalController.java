@@ -8,7 +8,6 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.UiUtils;
-import io.xj.hub.pojos.Template;
 import io.xj.nexus.ControlMode;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -18,14 +17,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-
-import java.util.Objects;
 
 @Service
 public class SettingsModalController extends ProjectModalController {
@@ -33,13 +30,10 @@ public class SettingsModalController extends ProjectModalController {
   private final FabricationService fabricationService;
 
   @FXML
-  GridPane fabricationSettingsContainer;
+  VBox fabricationSettingsContainer;
 
   @FXML
   ChoiceBox<ControlMode> choiceControlMode;
-
-  @FXML
-  ChoiceBox<TemplateChoice> choiceTemplate;
 
   @FXML
   ToggleGroup navToggleGroup;
@@ -94,15 +88,6 @@ public class SettingsModalController extends ProjectModalController {
     choiceControlMode.valueProperty().bindBidirectional(fabricationService.controlModeProperty());
     choiceControlMode.setItems(FXCollections.observableArrayList(ControlMode.values()));
 
-    choiceTemplate.setItems(FXCollections.observableArrayList(projectService.getContent().getTemplates().stream().map(TemplateChoice::new).toList()));
-    choiceTemplate.setOnAction(event -> {
-      TemplateChoice choice = choiceTemplate.getValue();
-      if (Objects.nonNull(choice)) {
-        fabricationService.inputTemplateProperty().set(choice.template());
-      }
-    });
-    choiceTemplate.setValue(new TemplateChoice(fabricationService.inputTemplateProperty().get()));
-
     fieldCraftAheadSeconds.textProperty().bindBidirectional(fabricationService.craftAheadSecondsProperty());
     fieldDubAheadSeconds.textProperty().bindBidirectional(fabricationService.dubAheadSecondsProperty());
     fieldMixerLengthSeconds.textProperty().bindBidirectional(fabricationService.mixerLengthSecondsProperty());
@@ -137,15 +122,5 @@ public class SettingsModalController extends ProjectModalController {
   @Override
   public void launchModal() {
     createAndShowModal(WINDOW_NAME);
-  }
-
-  /**
-   This class is used to display the template name in the ChoiceBox while preserving the underlying ID
-   */
-  public record TemplateChoice(Template template) {
-    @Override
-    public String toString() {
-      return Objects.nonNull(template) ? template.getName() : "Select...";
-    }
   }
 }
