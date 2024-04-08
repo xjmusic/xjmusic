@@ -345,6 +345,11 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
+  public HubContent getContent(Template template) {
+    return projectManager.getContent(template);
+  }
+
+  @Override
   public void deleteContent(Object entity) {
     try {
       var id = EntityUtils.getId(entity);

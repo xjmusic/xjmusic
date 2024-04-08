@@ -2,7 +2,6 @@
 
 package io.xj.gui.services;
 
-import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.meme.MemeTaxonomy;
 import io.xj.hub.pojos.Instrument;
@@ -117,8 +116,6 @@ public interface FabricationService {
 
   BooleanBinding isStateLoadingProperty();
 
-  BooleanBinding isStateStandbyProperty();
-
   /**
    Return the current shipped-to chain micros
 
@@ -183,12 +180,6 @@ public interface FabricationService {
   void doOverrideMacro(Program macroProgram);
 
   /**
-   Reset the macro program override
-   https://www.pivotaltracker.com/story/show/186003440
-   */
-  void resetOverrideMacro();
-
-  /**
    Get all meme taxonomies in the source template
    */
   Optional<MemeTaxonomy> getMemeTaxonomy();
@@ -200,12 +191,6 @@ public interface FabricationService {
    @param memes specific (assumed allowably) set of taxonomy category memes
    */
   void doOverrideMemes(Collection<String> memes);
-
-  /**
-   Reset the taxonomy category memes
-   https://www.pivotaltracker.com/story/show/186714075
-   */
-  void resetOverrideMemes();
 
   /**
    Get whether an override happened, and reset its state after getting

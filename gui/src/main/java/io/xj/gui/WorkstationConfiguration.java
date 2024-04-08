@@ -121,8 +121,7 @@ public class WorkstationConfiguration {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
     MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
     return new FabricationManagerImpl(
-        projectManager,
-        telemetry,
+      telemetry,
         broadcastFactory,
         craftFactory,
         audioCache,
