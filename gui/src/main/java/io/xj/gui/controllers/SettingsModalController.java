@@ -1,12 +1,13 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.gui.controllers.fabrication;
+package io.xj.gui.controllers;
 
 import io.xj.gui.ProjectModalController;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.utils.UiUtils;
 import io.xj.hub.pojos.Template;
 import io.xj.nexus.ControlMode;
 import javafx.collections.FXCollections;
@@ -15,6 +16,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -24,15 +28,27 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 
 @Service
-public class FabricationTimelineSettingsModalController extends ProjectModalController {
-  static final String FABRICATION_SERVICE_WINDOW_NAME = "Fabrication Settings";
+public class SettingsModalController extends ProjectModalController {
+  private static final String WINDOW_NAME = "Settings";
   private final FabricationService fabricationService;
+
+  @FXML
+  GridPane fabricationSettingsContainer;
 
   @FXML
   ChoiceBox<ControlMode> choiceControlMode;
 
   @FXML
   ChoiceBox<TemplateChoice> choiceTemplate;
+
+  @FXML
+  ToggleGroup navToggleGroup;
+
+  @FXML
+  ToggleButton navGeneral;
+
+  @FXML
+  ToggleButton navFabrication;
 
   @FXML
   Label labelControlMode;
@@ -61,8 +77,8 @@ public class FabricationTimelineSettingsModalController extends ProjectModalCont
   @FXML
   Button buttonReset;
 
-  public FabricationTimelineSettingsModalController(
-    @Value("classpath:/views/fabrication/fabrication-timeline-settings-modal.fxml") Resource fxml,
+  public SettingsModalController(
+    @Value("classpath:/views/settings-modal.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
     ThemeService themeService,
     FabricationService fabricationService,
@@ -94,6 +110,11 @@ public class FabricationTimelineSettingsModalController extends ProjectModalCont
     fieldOutputChannels.textProperty().bindBidirectional(fabricationService.outputChannelsProperty());
 
     fieldTimelineSegmentViewLimit.textProperty().bindBidirectional(fabricationService.timelineSegmentViewLimitProperty());
+
+    fabricationSettingsContainer.visibleProperty().bind(navFabrication.selectedProperty());
+    fabricationSettingsContainer.managedProperty().bind(navFabrication.selectedProperty());
+
+    UiUtils.toggleGroupPreventDeselect(navToggleGroup);
   }
 
   @Override
@@ -115,7 +136,7 @@ public class FabricationTimelineSettingsModalController extends ProjectModalCont
 
   @Override
   public void launchModal() {
-    createAndShowModal(FABRICATION_SERVICE_WINDOW_NAME);
+    createAndShowModal(WINDOW_NAME);
   }
 
   /**

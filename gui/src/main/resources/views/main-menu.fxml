@@ -2,9 +2,7 @@
 
 <!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
 
-<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckMenuItem?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -18,186 +16,188 @@
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <AnchorPane
-    fx:id="container"
-    fx:controller="io.xj.gui.controllers.MainMenuController"
-    VBox.vgrow="NEVER"
-    xmlns="http://javafx.com/javafx/20.0.1"
-    xmlns:fx="http://javafx.com/fxml/1"
-    styleClass="main-menu">
+        fx:id="container"
+        fx:controller="io.xj.gui.controllers.MainMenuController"
+        VBox.vgrow="NEVER"
+        xmlns="http://javafx.com/javafx/20.0.1"
+        xmlns:fx="http://javafx.com/fxml/1"
+        styleClass="main-menu">
 
-  <MenuBar VBox.vgrow="NEVER">
+    <MenuBar VBox.vgrow="NEVER">
 
-    <Menu text="Project" mnemonicParsing="false">
-      <MenuItem onAction="#handleProjectNew" text="New..." mnemonicParsing="false">
-        <accelerator>
-          <KeyCodeCombination shortcut="DOWN" code="N" control="UP" meta="UP" shift="UP" alt="UP"/>
-        </accelerator>
-      </MenuItem>
-      <MenuItem onAction="#handleProjectOpen" text="Open..." mnemonicParsing="false">
-        <accelerator>
-          <KeyCodeCombination shortcut="DOWN" code="O" control="UP" meta="UP" shift="UP" alt="UP"/>
-        </accelerator>
-      </MenuItem>
-      <Menu fx:id="menuOpenRecent" text="Open Recent" mnemonicParsing="false">
-        <!-- Recent projects will be added here dynamically -->
-      </Menu>
-      <MenuItem fx:id="itemProjectClose" onAction="#handleProjectClose" text="Close" mnemonicParsing="false">
-        <accelerator>
-          <KeyCodeCombination shortcut="DOWN" code="W" control="UP" meta="UP" shift="UP" alt="UP"/>
-        </accelerator>
-      </MenuItem>
-      <SeparatorMenuItem mnemonicParsing="false"/>
-      <MenuItem fx:id="itemProjectSave" onAction="#handleProjectSave" text="Save" mnemonicParsing="false">
-        <accelerator>
-          <KeyCodeCombination alt="UP" code="S" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
-        </accelerator>
-      </MenuItem>
-      <MenuItem fx:id="itemProjectCleanup" onAction="#handleProjectCleanup" text="Cleanup" mnemonicParsing="false"/>
-      <SeparatorMenuItem mnemonicParsing="false"/>
-      <MenuItem onAction="#handleProjectClone" text="Clone..." mnemonicParsing="false">
-        <accelerator>
-          <KeyCodeCombination shortcut="DOWN" code="O" control="UP" meta="UP" shift="DOWN" alt="UP"/>
-        </accelerator>
-      </MenuItem>
-      <SeparatorMenuItem mnemonicParsing="false"/>
-      <MenuItem onAction="#onQuit" text="Exit" mnemonicParsing="false">
-        <accelerator>
-          <KeyCodeCombination shortcut="DOWN" code="Q" control="UP" meta="UP" shift="UP" alt="UP"/>
-        </accelerator>
-      </MenuItem>
-    </Menu>
+        <Menu text="Workstation" mnemonicParsing="false">
+            <MenuItem onAction="#handleAbout" text="About" mnemonicParsing="false"/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem fx:id="itemOpenSettings" onAction="#handleOpenSettings" text="Settings" mnemonicParsing="false">
+                <accelerator>
+                    <KeyCodeCombination shortcut="DOWN" code="COMMA" control="UP" meta="UP" shift="UP" alt="UP"/>
+                </accelerator>
+            </MenuItem>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem onAction="#onQuit" text="Exit" mnemonicParsing="false">
+                <accelerator>
+                    <KeyCodeCombination shortcut="DOWN" code="Q" control="UP" meta="UP" shift="UP" alt="UP"/>
+                </accelerator>
+            </MenuItem>
+        </Menu>
 
-    <Menu fx:id="menuFabrication" text="Fabrication" mnemonicParsing="false">
-      <MenuItem fx:id="itemFabricationMainAction" onAction="#handleFabricationMainAction" text="Start"
-                mnemonicParsing="false"/>
-      <CheckMenuItem fx:id="checkboxFabricationFollow" text="Follow" mnemonicParsing="false"/>
-      <SeparatorMenuItem mnemonicParsing="false"/>
-      <MenuItem fx:id="itemOpenFabricationSettings" onAction="#handleOpenFabricationSettings" text="Settings"
-                mnemonicParsing="false">
-        <accelerator>
-          <KeyCodeCombination alt="UP" code="E" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
-        </accelerator>
-      </MenuItem>
-    </Menu>
+        <Menu text="Project" mnemonicParsing="false">
+            <MenuItem onAction="#handleProjectNew" text="New..." mnemonicParsing="false">
+                <accelerator>
+                    <KeyCodeCombination shortcut="DOWN" code="N" control="UP" meta="UP" shift="UP" alt="UP"/>
+                </accelerator>
+            </MenuItem>
+            <MenuItem onAction="#handleProjectOpen" text="Open..." mnemonicParsing="false">
+                <accelerator>
+                    <KeyCodeCombination shortcut="DOWN" code="O" control="UP" meta="UP" shift="UP" alt="UP"/>
+                </accelerator>
+            </MenuItem>
+            <Menu fx:id="menuOpenRecent" text="Open Recent" mnemonicParsing="false">
+                <!-- Recent projects will be added here dynamically -->
+            </Menu>
+            <MenuItem fx:id="itemProjectClose" onAction="#handleProjectClose" text="Close" mnemonicParsing="false">
+                <accelerator>
+                    <KeyCodeCombination shortcut="DOWN" code="W" control="UP" meta="UP" shift="UP" alt="UP"/>
+                </accelerator>
+            </MenuItem>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem fx:id="itemProjectSave" onAction="#handleProjectSave" text="Save" mnemonicParsing="false">
+                <accelerator>
+                    <KeyCodeCombination alt="UP" code="S" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+                </accelerator>
+            </MenuItem>
+            <MenuItem fx:id="itemProjectCleanup" onAction="#handleProjectCleanup" text="Cleanup"
+                      mnemonicParsing="false"/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem onAction="#handleProjectClone" text="Clone..." mnemonicParsing="false">
+                <accelerator>
+                    <KeyCodeCombination shortcut="DOWN" code="O" control="UP" meta="UP" shift="DOWN" alt="UP"/>
+                </accelerator>
+            </MenuItem>
+        </Menu>
 
-    <Menu text="View" mnemonicParsing="false">
-      <fx:define>
-        <ToggleGroup fx:id="menuViewModeToggleGroup"/>
-      </fx:define>
-      <RadioMenuItem text="Content" fx:id="menuViewModeContent" toggleGroup="$menuViewModeToggleGroup"
-                     mnemonicParsing="false">
-        <accelerator>
-          <KeyCodeCombination alt="UP" code="F3" control="UP" meta="UP" shift="UP" shortcut="UP"/>
-        </accelerator>
-      </RadioMenuItem>
-      <RadioMenuItem text="Templates" fx:id="menuViewModeTemplates" toggleGroup="$menuViewModeToggleGroup"
-                     mnemonicParsing="false">
-        <accelerator>
-          <KeyCodeCombination alt="UP" code="F4" control="UP" meta="UP" shift="UP" shortcut="UP"/>
-        </accelerator>
-      </RadioMenuItem>
-      <RadioMenuItem text="Fabrication" fx:id="menuViewModeFabrication" toggleGroup="$menuViewModeToggleGroup"
-                     mnemonicParsing="false">
-        <accelerator>
-          <KeyCodeCombination alt="UP" code="F5" control="UP" meta="UP" shift="UP" shortcut="UP"/>
-        </accelerator>
-      </RadioMenuItem>
-      <SeparatorMenuItem mnemonicParsing="false"/>
-      <CheckMenuItem fx:id="checkboxShowLogs" text="Show Logs" mnemonicParsing="false">
-        <accelerator>
-          <KeyCodeCombination alt="UP" code="F10" control="UP" meta="UP" shift="UP" shortcut="UP"/>
-        </accelerator>
-      </CheckMenuItem>
-      <CheckMenuItem fx:id="checkboxTailLogs" disable="true" selected="true" text="Logs Auto-scroll"
-                     mnemonicParsing="false">
-        <accelerator>
-          <KeyCodeCombination alt="UP" code="F10" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
-        </accelerator>
-      </CheckMenuItem>
-      <Menu text="Log Level" mnemonicParsing="false">
-        <fx:define>
-          <ToggleGroup fx:id="logLevelToggleGroup"/>
-        </fx:define>
-        <RadioMenuItem text="Debug" fx:id="logLevelDebug" onAction="#handleSetLogLevel"
-                       toggleGroup="$logLevelToggleGroup" mnemonicParsing="false"/>
-        <RadioMenuItem text="Info" fx:id="logLevelInfo" onAction="#handleSetLogLevel"
-                       toggleGroup="$logLevelToggleGroup" mnemonicParsing="false"/>
-        <RadioMenuItem text="Warn" fx:id="logLevelWarn" onAction="#handleSetLogLevel"
-                       toggleGroup="$logLevelToggleGroup" mnemonicParsing="false"/>
-        <RadioMenuItem text="Error" fx:id="logLevelError" onAction="#handleSetLogLevel"
-                       toggleGroup="$logLevelToggleGroup" mnemonicParsing="false"/>
-      </Menu>
-      <SeparatorMenuItem mnemonicParsing="false"/>
-      <Menu text="Navigate" mnemonicParsing="false">
-        <MenuItem onAction="#handleNavigateBack" text="Back" mnemonicParsing="false">
-          <accelerator>
-            <KeyCodeCombination alt="DOWN" code="LEFT" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
-          </accelerator>
-        </MenuItem>
-        <MenuItem onAction="#handleNavigateForward" text="Forward" mnemonicParsing="false">
-          <accelerator>
-            <KeyCodeCombination alt="DOWN" code="RIGHT" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
-          </accelerator>
-        </MenuItem>
-      </Menu>
-    </Menu>
+        <Menu fx:id="menuFabrication" text="Fabrication" mnemonicParsing="false">
+            <MenuItem fx:id="itemFabricationMainAction" onAction="#handleFabricationMainAction" text="Start"
+                      mnemonicParsing="false"/>
+            <CheckMenuItem fx:id="checkboxFabricationFollow" text="Follow" mnemonicParsing="false"/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+        </Menu>
 
-    <Menu text="Help" mnemonicParsing="false">
-      <MenuItem onAction="#onLaunchDiscord" text="Discord" mnemonicParsing="false"/>
-      <MenuItem onAction="#onLaunchUserGuide" text="User Guide">
-        <accelerator>
-          <KeyCodeCombination alt="UP" code="F1" control="UP" meta="UP" shift="UP" shortcut="UP"/>
-        </accelerator>
-      </MenuItem>
-      <SeparatorMenuItem mnemonicParsing="false"/>
-      <MenuItem onAction="#handleAbout" text="About" mnemonicParsing="false"/>
-    </Menu>
+        <Menu text="View" mnemonicParsing="false">
+            <fx:define>
+                <ToggleGroup fx:id="menuViewModeToggleGroup"/>
+            </fx:define>
+            <RadioMenuItem text="Content" fx:id="menuViewModeContent" toggleGroup="$menuViewModeToggleGroup"
+                           mnemonicParsing="false">
+                <accelerator>
+                    <KeyCodeCombination alt="UP" code="F3" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+                </accelerator>
+            </RadioMenuItem>
+            <RadioMenuItem text="Templates" fx:id="menuViewModeTemplates" toggleGroup="$menuViewModeToggleGroup"
+                           mnemonicParsing="false">
+                <accelerator>
+                    <KeyCodeCombination alt="UP" code="F4" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+                </accelerator>
+            </RadioMenuItem>
+            <RadioMenuItem text="Fabrication" fx:id="menuViewModeFabrication" toggleGroup="$menuViewModeToggleGroup"
+                           mnemonicParsing="false">
+                <accelerator>
+                    <KeyCodeCombination alt="UP" code="F5" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+                </accelerator>
+            </RadioMenuItem>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <CheckMenuItem fx:id="checkboxShowLogs" text="Show Logs" mnemonicParsing="false">
+                <accelerator>
+                    <KeyCodeCombination alt="UP" code="F10" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+                </accelerator>
+            </CheckMenuItem>
+            <CheckMenuItem fx:id="checkboxTailLogs" disable="true" selected="true" text="Logs Auto-scroll"
+                           mnemonicParsing="false">
+                <accelerator>
+                    <KeyCodeCombination alt="UP" code="F10" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+                </accelerator>
+            </CheckMenuItem>
+            <Menu text="Log Level" mnemonicParsing="false">
+                <fx:define>
+                    <ToggleGroup fx:id="logLevelToggleGroup"/>
+                </fx:define>
+                <RadioMenuItem text="Debug" fx:id="logLevelDebug" onAction="#handleSetLogLevel"
+                               toggleGroup="$logLevelToggleGroup" mnemonicParsing="false"/>
+                <RadioMenuItem text="Info" fx:id="logLevelInfo" onAction="#handleSetLogLevel"
+                               toggleGroup="$logLevelToggleGroup" mnemonicParsing="false"/>
+                <RadioMenuItem text="Warn" fx:id="logLevelWarn" onAction="#handleSetLogLevel"
+                               toggleGroup="$logLevelToggleGroup" mnemonicParsing="false"/>
+                <RadioMenuItem text="Error" fx:id="logLevelError" onAction="#handleSetLogLevel"
+                               toggleGroup="$logLevelToggleGroup" mnemonicParsing="false"/>
+            </Menu>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <Menu text="Navigate" mnemonicParsing="false">
+                <MenuItem onAction="#handleNavigateBack" text="Back" mnemonicParsing="false">
+                    <accelerator>
+                        <KeyCodeCombination alt="DOWN" code="LEFT" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+                    </accelerator>
+                </MenuItem>
+                <MenuItem onAction="#handleNavigateForward" text="Forward" mnemonicParsing="false">
+                    <accelerator>
+                        <KeyCodeCombination alt="DOWN" code="RIGHT" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+                    </accelerator>
+                </MenuItem>
+            </Menu>
+        </Menu>
 
-  </MenuBar>
+        <Menu text="Help" mnemonicParsing="false">
+            <MenuItem onAction="#onLaunchDiscord" text="Discord" mnemonicParsing="false"/>
+            <MenuItem onAction="#onLaunchUserGuide" text="User Guide">
+                <accelerator>
+                    <KeyCodeCombination alt="UP" code="F1" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+                </accelerator>
+            </MenuItem>
+        </Menu>
 
-  <StackPane
-      AnchorPane.topAnchor="0"
-      AnchorPane.bottomAnchor="0"
-      AnchorPane.rightAnchor="10">
-    <HBox alignment="CENTER">
-      <fx:define>
-        <ToggleGroup fx:id="buttonViewModeToggleGroup"/>
-      </fx:define>
-      <ToggleButton text="CONTENT" fx:id="buttonViewModeContent" toggleGroup="$buttonViewModeToggleGroup">
-        <graphic>
-          <ImageView fitWidth="18" fitHeight="18">
-            <Image url="@/icons/folder-open.png"/>
-          </ImageView>
-        </graphic>
-        <tooltip>
-          <Tooltip text="View &amp; Edit Content"/>
-        </tooltip>
-      </ToggleButton>
-      <ToggleButton text="TEMPLATES" fx:id="buttonViewModeTemplates" toggleGroup="$buttonViewModeToggleGroup">
-        <graphic>
-          <ImageView fitWidth="18" fitHeight="18">
-            <Image url="@/icons/flask-gear.png"/>
-          </ImageView>
-        </graphic>
-        <tooltip>
-          <Tooltip text="View &amp; Edit Templates"/>
-        </tooltip>
-      </ToggleButton>
-      <ToggleButton text="FABRICATION" fx:id="buttonViewModeFabrication" toggleGroup="$buttonViewModeToggleGroup">
-        <graphic>
-          <ImageView fitWidth="18" fitHeight="18">
-            <Image url="@/icons/conveyor-arm.png"/>
-          </ImageView>
-        </graphic>
-        <tooltip>
-          <Tooltip text="Fabricate Music from Content &amp; Templates"/>
-        </tooltip>
-      </ToggleButton>
-    </HBox>
-  </StackPane>
+    </MenuBar>
+
+    <StackPane
+            AnchorPane.topAnchor="0"
+            AnchorPane.bottomAnchor="0"
+            AnchorPane.rightAnchor="10">
+        <HBox alignment="CENTER">
+            <fx:define>
+                <ToggleGroup fx:id="buttonViewModeToggleGroup"/>
+            </fx:define>
+            <ToggleButton text="CONTENT" fx:id="buttonViewModeContent" toggleGroup="$buttonViewModeToggleGroup">
+                <graphic>
+                    <ImageView fitWidth="18" fitHeight="18">
+                        <Image url="@/icons/folder-open.png"/>
+                    </ImageView>
+                </graphic>
+                <tooltip>
+                    <Tooltip text="View &amp; Edit Content"/>
+                </tooltip>
+            </ToggleButton>
+            <ToggleButton text="TEMPLATES" fx:id="buttonViewModeTemplates" toggleGroup="$buttonViewModeToggleGroup">
+                <graphic>
+                    <ImageView fitWidth="18" fitHeight="18">
+                        <Image url="@/icons/flask-gear.png"/>
+                    </ImageView>
+                </graphic>
+                <tooltip>
+                    <Tooltip text="View &amp; Edit Templates"/>
+                </tooltip>
+            </ToggleButton>
+            <ToggleButton text="FABRICATION" fx:id="buttonViewModeFabrication" toggleGroup="$buttonViewModeToggleGroup">
+                <graphic>
+                    <ImageView fitWidth="18" fitHeight="18">
+                        <Image url="@/icons/conveyor-arm.png"/>
+                    </ImageView>
+                </graphic>
+                <tooltip>
+                    <Tooltip text="Fabricate Music from Content &amp; Templates"/>
+                </tooltip>
+            </ToggleButton>
+        </HBox>
+    </StackPane>
 
 </AnchorPane>

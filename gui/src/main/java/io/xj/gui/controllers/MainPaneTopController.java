@@ -3,7 +3,6 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.ProjectController;
-import io.xj.gui.controllers.fabrication.FabricationTimelineSettingsModalController;
 import io.xj.gui.types.Route;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
@@ -45,7 +44,7 @@ public class MainPaneTopController extends ProjectController {
   );
   private final CmdModalController cmdModalController;
   private final FabricationService fabricationService;
-  private final FabricationTimelineSettingsModalController fabricationTimelineSettingsModalController;
+  private final SettingsModalController settingsModalController;
   private final StringBinding createEntityButtonText;
 
   @FXML
@@ -94,14 +93,14 @@ public class MainPaneTopController extends ProjectController {
     ApplicationContext ac,
     ThemeService themeService,
     FabricationService fabricationService,
-    FabricationTimelineSettingsModalController fabricationTimelineSettingsModalController,
+    SettingsModalController settingsModalController,
     CmdModalController cmdModalController,
     ProjectService projectService,
     UIStateService uiStateService
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.fabricationService = fabricationService;
-    this.fabricationTimelineSettingsModalController = fabricationTimelineSettingsModalController;
+    this.settingsModalController = settingsModalController;
     this.cmdModalController = cmdModalController;
 
     uiStateService.navStateProperty().addListener((o, ov, v) -> {
@@ -201,7 +200,7 @@ public class MainPaneTopController extends ProjectController {
 
   @FXML
   void fabricationPressedShowSettings(ActionEvent ignored) {
-    fabricationTimelineSettingsModalController.launchModal();
+    settingsModalController.launchModal();
   }
 
   @FXML
