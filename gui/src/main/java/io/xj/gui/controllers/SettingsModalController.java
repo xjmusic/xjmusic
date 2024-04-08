@@ -115,7 +115,7 @@ public class SettingsModalController extends ProjectModalController {
   }
 
   @FXML
-  void handleReset() {
+  void handleResetFabricationSettings() {
     fabricationService.resetSettingsToDefaults();
   }
 
