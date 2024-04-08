@@ -50,7 +50,6 @@ public class MainMenuController extends ProjectController {
   private final FabricationService fabricationService;
   private final SupportService supportService;
   private final ProjectCreationModalController projectCreationModalController;
-  private final UIStateService guiService;
   private final SettingsModalController settingsModalController;
   private final MainAboutModalController mainAboutModalController;
 
@@ -131,14 +130,12 @@ public class MainMenuController extends ProjectController {
     MainAboutModalController mainAboutModalController,
     ProjectCreationModalController projectCreationModalController,
     ProjectService projectService,
-    UIStateService guiService,
     UIStateService uiStateService
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.fabricationService = fabricationService;
     this.settingsModalController = settingsModalController;
     this.projectCreationModalController = projectCreationModalController;
-    this.guiService = guiService;
     this.supportService = supportService;
     this.mainAboutModalController = mainAboutModalController;
   }
@@ -152,9 +149,6 @@ public class MainMenuController extends ProjectController {
 
     itemFabricationMainAction.setAccelerator(computeMainActionButtonAccelerator());
     itemFabricationMainAction.textProperty().bind(fabricationService.mainActionButtonTextProperty());
-
-    itemOpenSettings.disableProperty().bind(guiService.isFabricationSettingsDisabledProperty());
-    itemOpenSettings.setAccelerator(computeFabricationSettingsAccelerator());
 
     checkboxTailLogs.selectedProperty().bindBidirectional(uiStateService.logsTailingProperty());
     checkboxShowLogs.selectedProperty().bindBidirectional(uiStateService.logsVisibleProperty());
@@ -357,16 +351,6 @@ public class MainMenuController extends ProjectController {
   }
 
   /**
-   Add a leading underscore to a string.
-
-   @param s the string
-   @return the string with a leading underscore
-   */
-  private String addLeadingUnderscore(String s) {
-    return String.format("_%s", s);
-  }
-
-  /**
    Compute the accelerator for the main action button.
    Depending on the platform, it will be either SHORTCUT+SPACE or SHORTCUT+B (on Mac because of conflict).
 
@@ -384,15 +368,5 @@ public class MainMenuController extends ProjectController {
    */
   private KeyCombination computeFabricationFollowButtonAccelerator() {
     return KeyCombination.valueOf("SHORTCUT+ALT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
-  }
-
-  /**
-   Compute the accelerator for the fabricator settings button.
-   Depending on the platform, it will be either SHORTCUT+SHIFT+ALT+SPACE or SHORTCUT+SHIFT+ALT+B (on Mac because of conflict).
-
-   @return the accelerator
-   */
-  private KeyCombination computeFabricationSettingsAccelerator() {
-    return KeyCombination.valueOf("SHORTCUT+SHIFT+ALT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
   }
 }
