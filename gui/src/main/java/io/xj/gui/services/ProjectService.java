@@ -61,7 +61,7 @@ public interface ProjectService {
    @param templateShipKey  of the demo
    @param projectName      of the project folder and the project
    */
-  void cloneFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName);
+  void fetchDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName);
 
   /**
    Export a template as JSON with all its audio (original or prepared)
@@ -101,9 +101,9 @@ public interface ProjectService {
   void cancelProjectLoading();
 
   /**
-   @return Base path prefix
+   @return Project path prefix
    */
-  StringProperty basePathPrefixProperty();
+  StringProperty projectsPathPrefixProperty();
 
   /**
    @return Export path prefix

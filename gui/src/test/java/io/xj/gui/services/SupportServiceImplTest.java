@@ -27,6 +27,7 @@ class SupportServiceImplTest {
       hostServices,
       "https://guide.test.xj.io/",
       "https://discord.test.xj.io/",
+      "https://tutorial.test.xj.io/",
       "https://test.xjmusic.com/"
     );
   }
@@ -36,6 +37,13 @@ class SupportServiceImplTest {
     subject.launchGuideInBrowser();
 
     verify(hostServices, times(1)).showDocument(eq("https://guide.test.xj.io/"));
+  }
+
+  @Test
+  void launchTutorialInBrowser() {
+    subject.launchTutorialInBrowser();
+
+    verify(hostServices, times(1)).showDocument(eq("https://tutorial.test.xj.io/"));
   }
 
   @Test

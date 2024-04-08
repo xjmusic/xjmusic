@@ -4,7 +4,6 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.ProjectController;
 import io.xj.gui.WorkstationGuiFxApplication;
-import io.xj.gui.controllers.fabrication.FabricationTimelineSettingsModalController;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
@@ -51,8 +50,7 @@ public class MainMenuController extends ProjectController {
   private final FabricationService fabricationService;
   private final SupportService supportService;
   private final ProjectCreationModalController projectCreationModalController;
-  private final UIStateService guiService;
-  private final FabricationTimelineSettingsModalController fabricationTimelineSettingsModalController;
+  private final SettingsModalController settingsModalController;
   private final MainAboutModalController mainAboutModalController;
 
   @FXML
@@ -80,7 +78,7 @@ public class MainMenuController extends ProjectController {
   Menu menuFabrication;
 
   @FXML
-  MenuItem itemOpenFabricationSettings;
+  MenuItem itemOpenSettings;
 
   @FXML
   CheckMenuItem checkboxShowLogs;
@@ -127,19 +125,17 @@ public class MainMenuController extends ProjectController {
     ApplicationContext ac,
     ThemeService themeService,
     FabricationService fabricationService,
-    FabricationTimelineSettingsModalController fabricationTimelineSettingsModalController,
+    SettingsModalController settingsModalController,
     SupportService supportService,
     MainAboutModalController mainAboutModalController,
     ProjectCreationModalController projectCreationModalController,
     ProjectService projectService,
-    UIStateService guiService,
     UIStateService uiStateService
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.fabricationService = fabricationService;
-    this.fabricationTimelineSettingsModalController = fabricationTimelineSettingsModalController;
+    this.settingsModalController = settingsModalController;
     this.projectCreationModalController = projectCreationModalController;
-    this.guiService = guiService;
     this.supportService = supportService;
     this.mainAboutModalController = mainAboutModalController;
   }
@@ -153,9 +149,6 @@ public class MainMenuController extends ProjectController {
 
     itemFabricationMainAction.setAccelerator(computeMainActionButtonAccelerator());
     itemFabricationMainAction.textProperty().bind(fabricationService.mainActionButtonTextProperty());
-
-    itemOpenFabricationSettings.disableProperty().bind(guiService.isFabricationSettingsDisabledProperty());
-    itemOpenFabricationSettings.setAccelerator(computeFabricationSettingsAccelerator());
 
     checkboxTailLogs.selectedProperty().bindBidirectional(uiStateService.logsTailingProperty());
     checkboxShowLogs.selectedProperty().bindBidirectional(uiStateService.logsVisibleProperty());
@@ -208,6 +201,11 @@ public class MainMenuController extends ProjectController {
   }
 
   @FXML
+  void onLaunchTutorialVideo() {
+    supportService.launchTutorialInBrowser();
+  }
+
+  @FXML
   void onLaunchDiscord() {
     supportService.launchDiscordInBrowser();
   }
@@ -237,7 +235,7 @@ public class MainMenuController extends ProjectController {
   void handleProjectOpen() {
     projectService.promptToSaveChanges(() -> {
       var projectFilePath = ProjectUtils.chooseXJProjectFile(
-        container.getScene().getWindow(), "Choose project", projectService.basePathPrefixProperty().getValue()
+        container.getScene().getWindow(), "Choose project", projectService.projectsPathPrefixProperty().getValue()
       );
       if (Objects.nonNull(projectFilePath)) {
         fabricationService.cancel();
@@ -253,8 +251,8 @@ public class MainMenuController extends ProjectController {
   }
 
   @FXML
-  void handleProjectClone() {
-    projectCreationModalController.setMode(ProjectCreationMode.CLONE_PROJECT);
+  void handleProjectDemos() {
+    projectCreationModalController.setMode(ProjectCreationMode.DEMO_PROJECT);
     projectCreationModalController.launchModal();
   }
 
@@ -269,8 +267,8 @@ public class MainMenuController extends ProjectController {
   }
 
   @FXML
-  void handleOpenFabricationSettings() {
-    fabricationTimelineSettingsModalController.launchModal();
+  void handleOpenSettings() {
+    settingsModalController.launchModal();
   }
 
   @FXML
@@ -358,16 +356,6 @@ public class MainMenuController extends ProjectController {
   }
 
   /**
-   Add a leading underscore to a string.
-
-   @param s the string
-   @return the string with a leading underscore
-   */
-  private String addLeadingUnderscore(String s) {
-    return String.format("_%s", s);
-  }
-
-  /**
    Compute the accelerator for the main action button.
    Depending on the platform, it will be either SHORTCUT+SPACE or SHORTCUT+B (on Mac because of conflict).
 
@@ -385,15 +373,5 @@ public class MainMenuController extends ProjectController {
    */
   private KeyCombination computeFabricationFollowButtonAccelerator() {
     return KeyCombination.valueOf("SHORTCUT+ALT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
-  }
-
-  /**
-   Compute the accelerator for the fabricator settings button.
-   Depending on the platform, it will be either SHORTCUT+SHIFT+ALT+SPACE or SHORTCUT+SHIFT+ALT+B (on Mac because of conflict).
-
-   @return the accelerator
-   */
-  private KeyCombination computeFabricationSettingsAccelerator() {
-    return KeyCombination.valueOf("SHORTCUT+SHIFT+ALT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
   }
 }

@@ -473,7 +473,7 @@
 
 .program-editor,
 .instrument-editor,
-.instrument-audio-editor{
+.instrument-audio-editor {
   -fx-font-family: "Roboto Mono";
 }
 
@@ -621,7 +621,7 @@
 .chord-properties-pane .text-field,
 .event-properties-pane .text-field,
 .program-config-pane .text-area,
-.instrument-config-pane .text-area{
+.instrument-config-pane .text-area {
   -fx-padding: 3 6 3 6;
 }
 
@@ -724,4 +724,72 @@
 
 .about-version {
   -fx-font-size: 0.8em;
+}
+
+.settings-modal {
+  -fx-background-color: #303030;
+}
+
+.settings-navigation-drawer {
+  -fx-background-color: #393939;
+}
+
+.settings-bottom-bar {
+  -fx-background-color: #404040;
+}
+
+.settings-navigation-drawer .toggle-button {
+  -fx-background-color: transparent;
+  -fx-border-color: transparent;
+  -fx-border-width: 0;
+  -fx-padding: 5 5 5 5;
+  -fx-border-radius: 0;
+  -fx-background-radius: 0;
+}
+
+.settings-navigation-drawer .toggle-button:hover {
+  -fx-background-color: #606060;
+}
+
+.settings-navigation-drawer .toggle-button:pressed {
+  -fx-background-color: #808080;
+}
+
+.settings-navigation-drawer .toggle-button:selected {
+  -fx-background-color: #707070;
+}
+
+.fabrication-template-chooser {
+  -fx-alignment: center-right;
+  -fx-background-color: transparent;
+  -fx-border-color: transparent;
+  -fx-border-width: 0;
+  -fx-text-alignment: right;
+  -fx-cursor: hand;
+}
+
+.fabrication-template-chooser .template-button-cell {
+  -fx-text-fill: white;
+  -fx-cursor: hand;
+  -fx-alignment: center-right;
+}
+
+.fabrication-template-chooser:hover {
+  -fx-background-color: #393939;
+}
+
+.fabrication-template-chooser:hover .arrow-button .arrow {
+  -fx-background-color: white;
+}
+
+.fabrication-template-chooser .template-choice-cell {
+  -fx-padding: 5 25 5 0;
+  -fx-text-fill: white;
+  -fx-cursor: hand;
+  -fx-background-color: #393939;
+  -fx-alignment: center-right;
+}
+
+.fabrication-template-chooser .template-choice-cell:hover {
+  -fx-background-color: #404040;
 }

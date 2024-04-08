@@ -1,20 +1,24 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.gui.controllers.fabrication;
+package io.xj.gui.controllers;
 
 import io.xj.gui.ProjectModalController;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.hub.pojos.Template;
+import io.xj.gui.utils.ProjectUtils;
+import io.xj.gui.utils.TextUtils;
+import io.xj.gui.utils.UiUtils;
 import io.xj.nexus.ControlMode;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -24,18 +28,27 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 
 @Service
-public class FabricationTimelineSettingsModalController extends ProjectModalController {
-  static final String FABRICATION_SERVICE_WINDOW_NAME = "Fabrication Settings";
+public class SettingsModalController extends ProjectModalController {
+  private static final String WINDOW_NAME = "Settings";
   private final FabricationService fabricationService;
+
+  @FXML
+  VBox generalSettingsContainer;
+
+  @FXML
+  VBox fabricationSettingsContainer;
 
   @FXML
   ChoiceBox<ControlMode> choiceControlMode;
 
   @FXML
-  ChoiceBox<TemplateChoice> choiceTemplate;
+  ToggleGroup navToggleGroup;
 
   @FXML
-  Label labelControlMode;
+  ToggleButton navGeneral;
+
+  @FXML
+  ToggleButton navFabrication;
 
   @FXML
   TextField fieldCraftAheadSeconds;
@@ -61,8 +74,21 @@ public class FabricationTimelineSettingsModalController extends ProjectModalCont
   @FXML
   Button buttonReset;
 
-  public FabricationTimelineSettingsModalController(
-    @Value("classpath:/views/fabrication/fabrication-timeline-settings-modal.fxml") Resource fxml,
+  @FXML
+  TextField fieldProjectsPathPrefix;
+
+  @FXML
+  TextField fieldExportPathPrefix;
+
+  @FXML
+  Button buttonSelectProjectsPathDirectory;
+
+  @FXML
+  Button buttonSelectExportPathDirectory;
+
+
+  public SettingsModalController(
+    @Value("classpath:/views/settings-modal.fxml") Resource fxml,
     ConfigurableApplicationContext ac,
     ThemeService themeService,
     FabricationService fabricationService,
@@ -75,25 +101,23 @@ public class FabricationTimelineSettingsModalController extends ProjectModalCont
 
   @Override
   public void onStageReady() {
+    fabricationSettingsContainer.visibleProperty().bind(navFabrication.selectedProperty());
+    fabricationSettingsContainer.managedProperty().bind(navFabrication.selectedProperty());
     choiceControlMode.valueProperty().bindBidirectional(fabricationService.controlModeProperty());
     choiceControlMode.setItems(FXCollections.observableArrayList(ControlMode.values()));
-
-    choiceTemplate.setItems(FXCollections.observableArrayList(projectService.getContent().getTemplates().stream().map(TemplateChoice::new).toList()));
-    choiceTemplate.setOnAction(event -> {
-      TemplateChoice choice = choiceTemplate.getValue();
-      if (Objects.nonNull(choice)) {
-        fabricationService.inputTemplateProperty().set(choice.template());
-      }
-    });
-    choiceTemplate.setValue(new TemplateChoice(fabricationService.inputTemplateProperty().get()));
-
     fieldCraftAheadSeconds.textProperty().bindBidirectional(fabricationService.craftAheadSecondsProperty());
     fieldDubAheadSeconds.textProperty().bindBidirectional(fabricationService.dubAheadSecondsProperty());
     fieldMixerLengthSeconds.textProperty().bindBidirectional(fabricationService.mixerLengthSecondsProperty());
     fieldOutputFrameRate.textProperty().bindBidirectional(fabricationService.outputFrameRateProperty());
     fieldOutputChannels.textProperty().bindBidirectional(fabricationService.outputChannelsProperty());
-
     fieldTimelineSegmentViewLimit.textProperty().bindBidirectional(fabricationService.timelineSegmentViewLimitProperty());
+
+    generalSettingsContainer.visibleProperty().bind(navGeneral.selectedProperty());
+    generalSettingsContainer.managedProperty().bind(navGeneral.selectedProperty());
+    fieldProjectsPathPrefix.textProperty().bindBidirectional(projectService.projectsPathPrefixProperty());
+    fieldExportPathPrefix.textProperty().bindBidirectional(projectService.exportPathPrefixProperty());
+
+    UiUtils.toggleGroupPreventDeselect(navToggleGroup);
   }
 
   @Override
@@ -109,22 +133,39 @@ public class FabricationTimelineSettingsModalController extends ProjectModalCont
   }
 
   @FXML
-  void handleReset() {
+  void handleResetFabricationSettings() {
     fabricationService.resetSettingsToDefaults();
+  }
+
+  @FXML
+  void handleSelectProjectPathDirectory() {
+    var path = ProjectUtils.chooseDirectory(
+      buttonSelectProjectsPathDirectory.getScene().getWindow(), "Choose projects folder", fieldProjectsPathPrefix.getText()
+    );
+    if (Objects.nonNull(path)) {
+      fieldProjectsPathPrefix.setText(TextUtils.addTrailingSlash(path));
+    }
+  }
+
+  @FXML
+  void handleSelectExportPathDirectory() {
+    var path = ProjectUtils.chooseDirectory(
+      buttonSelectExportPathDirectory.getScene().getWindow(), "Choose export folder", fieldExportPathPrefix.getText()
+    );
+    if (Objects.nonNull(path)) {
+      fieldExportPathPrefix.setText(TextUtils.addTrailingSlash(path));
+    }
   }
 
   @Override
   public void launchModal() {
-    createAndShowModal(FABRICATION_SERVICE_WINDOW_NAME);
+    createAndShowModal(WINDOW_NAME, null);
   }
 
   /**
-   This class is used to display the template name in the ChoiceBox while preserving the underlying ID
+   Launches the settings modal with the fabrication settings tab selected.
    */
-  public record TemplateChoice(Template template) {
-    @Override
-    public String toString() {
-      return Objects.nonNull(template) ? template.getName() : "Select...";
-    }
+  public void launchModalWithFabricationSettings() {
+    createAndShowModal(WINDOW_NAME, () -> navFabrication.setSelected(true));
   }
 }

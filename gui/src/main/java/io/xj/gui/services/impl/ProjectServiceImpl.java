@@ -97,7 +97,7 @@ public class ProjectServiceImpl implements ProjectService {
   private final Preferences prefs = Preferences.userNodeForPackage(ProjectServiceImpl.class);
   private final ObservableObjectValue<Project> currentProject;
   private final ObservableListValue<ProjectDescriptor> recentProjects = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
-  private final StringProperty basePathPrefix = new SimpleStringProperty();
+  private final StringProperty projectsPathPrefix = new SimpleStringProperty();
   private final StringProperty exportPathPrefix = new SimpleStringProperty();
   private final DoubleProperty progress = new SimpleDoubleProperty();
   private final StringProperty progressLabel = new SimpleStringProperty();
@@ -214,7 +214,7 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public void cloneFromDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
+  public void fetchDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
     closeProject(() -> {
       if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName, "Project"))
         executeInBackground("Clone Project", () -> {
@@ -300,8 +300,8 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public StringProperty basePathPrefixProperty() {
-    return basePathPrefix;
+  public StringProperty projectsPathPrefixProperty() {
+    return projectsPathPrefix;
   }
 
   @Override
@@ -1057,7 +1057,7 @@ public class ProjectServiceImpl implements ProjectService {
    Attach preference listeners.
    */
   private void attachPreferenceListeners() {
-    basePathPrefix.addListener((o, ov, value) -> prefs.put("basePathPrefix", value));
+    projectsPathPrefix.addListener((o, ov, value) -> prefs.put("basePathPrefix", value));
     exportPathPrefix.addListener((o, ov, value) -> prefs.put("exportPathPrefix", value));
     recentProjects.addListener((o, ov, value) -> {
       try {
@@ -1072,7 +1072,7 @@ public class ProjectServiceImpl implements ProjectService {
    Set all properties from preferences, else defaults.
    */
   private void setAllFromPreferencesOrDefaults() {
-    basePathPrefix.set(prefs.get("basePathPrefix", defaultBasePathPrefix));
+    projectsPathPrefix.set(prefs.get("basePathPrefix", defaultBasePathPrefix));
     exportPathPrefix.set(prefs.get("exportPathPrefix", defaultExportPathPrefix));
     try {
       recentProjects.setAll(jsonProvider.getMapper().readValue(prefs.get("recentProjects", "[]"), ProjectDescriptor[].class));

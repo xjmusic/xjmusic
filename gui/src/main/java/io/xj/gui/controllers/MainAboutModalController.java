@@ -68,6 +68,6 @@ public class MainAboutModalController extends ProjectModalController {
 
   @Override
   public void launchModal() {
-    createAndShowModal(ABOUT_WINDOW_NAME);
+    createAndShowModal(ABOUT_WINDOW_NAME, null);
   }
 }
