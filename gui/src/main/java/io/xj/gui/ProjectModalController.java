@@ -6,6 +6,7 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.UiUtils;
+import jakarta.annotation.Nullable;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
@@ -17,6 +18,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public abstract class ProjectModalController extends ProjectController {
   private final static Logger LOG = LoggerFactory.getLogger(ProjectModalController.class);
@@ -41,7 +43,7 @@ public abstract class ProjectModalController extends ProjectController {
   /**
    Launches the modal.
    */
-  public void createAndShowModal(String windowName) {
+  protected void createAndShowModal(String windowName, @Nullable Runnable afterStageReady) {
     try {
       // Load the FXML file
       FXMLLoader loader = new FXMLLoader(fxml.getURL());
@@ -60,6 +62,7 @@ public abstract class ProjectModalController extends ProjectController {
       stage.initModality(Modality.APPLICATION_MODAL); // make it a modal window
       stage.initStyle(StageStyle.UTILITY);
       onStageReady();
+      if (Objects.nonNull(afterStageReady)) afterStageReady.run();
       stage.showAndWait();
 
     } catch (IOException e) {

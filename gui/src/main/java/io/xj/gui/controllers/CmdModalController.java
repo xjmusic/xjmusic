@@ -116,7 +116,7 @@ public class CmdModalController extends ProjectModalController {
 
   @Override
   public void launchModal() {
-    createAndShowModal(windowTitle.get());
+    createAndShowModal(windowTitle.get(), null);
   }
 
   @FXML

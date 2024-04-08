@@ -201,6 +201,11 @@ public class MainMenuController extends ProjectController {
   }
 
   @FXML
+  void onLaunchTutorialVideo() {
+    supportService.launchTutorialInBrowser();
+  }
+
+  @FXML
   void onLaunchDiscord() {
     supportService.launchDiscordInBrowser();
   }

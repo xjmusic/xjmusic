@@ -7,6 +7,11 @@ public interface SupportService {
   void launchGuideInBrowser();
 
   /**
+   Launch the tutorial in a browser
+   */
+  void launchTutorialInBrowser();
+
+  /**
     Launch the discord in a browser
    */
   void launchDiscordInBrowser();

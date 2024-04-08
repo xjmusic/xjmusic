@@ -28,22 +28,6 @@
 
     <MenuBar VBox.vgrow="NEVER">
 
-        <Menu text="Workstation" mnemonicParsing="false">
-            <MenuItem onAction="#handleAbout" text="About" mnemonicParsing="false"/>
-            <SeparatorMenuItem mnemonicParsing="false"/>
-            <MenuItem fx:id="itemOpenSettings" onAction="#handleOpenSettings" text="Settings" mnemonicParsing="false">
-                <accelerator>
-                    <KeyCodeCombination shortcut="DOWN" code="COMMA" control="UP" meta="UP" shift="UP" alt="UP"/>
-                </accelerator>
-            </MenuItem>
-            <SeparatorMenuItem mnemonicParsing="false"/>
-            <MenuItem onAction="#onQuit" text="Exit" mnemonicParsing="false">
-                <accelerator>
-                    <KeyCodeCombination shortcut="DOWN" code="Q" control="UP" meta="UP" shift="UP" alt="UP"/>
-                </accelerator>
-            </MenuItem>
-        </Menu>
-
         <Menu text="Project" mnemonicParsing="false">
             <MenuItem onAction="#handleProjectNew" text="New..." mnemonicParsing="false">
                 <accelerator>
@@ -75,6 +59,18 @@
             <MenuItem onAction="#handleProjectClone" text="Clone..." mnemonicParsing="false">
                 <accelerator>
                     <KeyCodeCombination shortcut="DOWN" code="O" control="UP" meta="UP" shift="DOWN" alt="UP"/>
+                </accelerator>
+            </MenuItem>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem fx:id="itemOpenSettings" onAction="#handleOpenSettings" text="Settings" mnemonicParsing="false">
+                <accelerator>
+                    <KeyCodeCombination shortcut="DOWN" code="COMMA" control="UP" meta="UP" shift="UP" alt="UP"/>
+                </accelerator>
+            </MenuItem>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem onAction="#onQuit" text="Exit" mnemonicParsing="false">
+                <accelerator>
+                    <KeyCodeCombination shortcut="DOWN" code="Q" control="UP" meta="UP" shift="UP" alt="UP"/>
                 </accelerator>
             </MenuItem>
         </Menu>
@@ -149,12 +145,16 @@
         </Menu>
 
         <Menu text="Help" mnemonicParsing="false">
-            <MenuItem onAction="#onLaunchDiscord" text="Discord" mnemonicParsing="false"/>
+            <MenuItem onAction="#handleAbout" text="About" mnemonicParsing="false"/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem onAction="#onLaunchTutorialVideo" text="Tutorial Video"/>
             <MenuItem onAction="#onLaunchUserGuide" text="User Guide">
                 <accelerator>
                     <KeyCodeCombination alt="UP" code="F1" control="UP" meta="UP" shift="UP" shortcut="UP"/>
                 </accelerator>
             </MenuItem>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem onAction="#onLaunchDiscord" text="Discord" mnemonicParsing="false"/>
         </Menu>
 
     </MenuBar>

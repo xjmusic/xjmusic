@@ -120,7 +120,7 @@ public class TemplateExportModalController extends ProjectModalController {
    */
   public void launchModal(Template template) {
     this.template.set(template);
-    createAndShowModal(String.format("Export %s", template.getName()));
+    createAndShowModal(String.format("Export %s", template.getName()), null);
   }
 
   @FXML

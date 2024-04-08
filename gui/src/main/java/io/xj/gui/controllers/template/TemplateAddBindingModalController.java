@@ -144,7 +144,7 @@ public class TemplateAddBindingModalController extends ProjectModalController {
 
   @Override
   public void launchModal() {
-    createAndShowModal(WINDOW_TITLE);
+    createAndShowModal(WINDOW_TITLE, null);
   }
 
   @FXML

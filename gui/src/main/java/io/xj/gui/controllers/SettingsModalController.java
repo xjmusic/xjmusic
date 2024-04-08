@@ -121,6 +121,13 @@ public class SettingsModalController extends ProjectModalController {
 
   @Override
   public void launchModal() {
-    createAndShowModal(WINDOW_NAME);
+    createAndShowModal(WINDOW_NAME, null);
+  }
+
+  /**
+   Launches the settings modal with the fabrication settings tab selected.
+   */
+  public void launchModalWithFabricationSettings() {
+    createAndShowModal(WINDOW_NAME, () -> navFabrication.setSelected(true));
   }
 }

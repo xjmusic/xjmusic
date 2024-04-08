@@ -138,7 +138,7 @@ public class ProjectCreationModalController extends ProjectModalController {
 
   @Override
   public void launchModal() {
-    projectService.promptToSaveChanges(() -> createAndShowModal(WINDOW_TITLE.get(mode.get())));
+    projectService.promptToSaveChanges(() -> createAndShowModal(WINDOW_TITLE.get(mode.get()), null));
   }
 
   /**

@@ -16,6 +16,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.control.ComboBox?>
 <AnchorPane
         fx:id="mainTopPaneContainer"
         fx:controller="io.xj.gui.controllers.MainPaneTopController"
@@ -36,7 +37,7 @@
             <padding>
                 <Insets top="4" left="9" right="9" bottom="3"/>
             </padding>
-            <ChoiceBox fx:id="choiceTemplate" prefHeight="25.0" prefWidth="200"/>
+            <ComboBox fx:id="choiceTemplate" prefHeight="25.0" prefWidth="200" styleClass="fabrication-template-chooser"/>
             <Button fx:id="fabricationActionButton" mnemonicParsing="false" onAction="#fabricationPressedAction"
                     text="Action">
                 <font>

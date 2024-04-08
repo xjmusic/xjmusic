@@ -16,9 +16,13 @@ import javafx.beans.binding.StringBinding;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
@@ -111,7 +115,7 @@ public class MainPaneTopController extends ProjectController {
   ToggleGroup browserLibraryContentSelectionToggle;
 
   @FXML
-  ChoiceBox<TemplateChoice> choiceTemplate;
+  ComboBox<TemplateChoice> choiceTemplate;
 
   public MainPaneTopController(
     @Value("classpath:/views/main-pane-top.fxml") Resource fxml,
@@ -200,17 +204,18 @@ public class MainPaneTopController extends ProjectController {
     });
 
     Runnable updateTemplateChoices = () -> {
+      if (Objects.isNull(projectService.getContent())) return;
       var templates = projectService.getContent().getTemplates().stream().map(TemplateChoice::new).toList();
       choiceTemplate.setItems(FXCollections.observableArrayList(templates));
       // if no template is selected, select the first one in the list
       if (Objects.isNull(fabricationService.inputTemplateProperty().get()) && !templates.isEmpty()) {
-        choiceTemplate.setValue(templates.get(0));
+        fabricationService.inputTemplateProperty().set(templates.get(0).template);
       }
     };
     projectService.isStateReadyProperty().addListener((o, ov, v) -> {
       if (v) updateTemplateChoices.run();
     });
-    projectService.addProjectUpdateListener(Template.class, ()->{
+    projectService.addProjectUpdateListener(Template.class, () -> {
       if (projectService.isStateReadyProperty().get()) updateTemplateChoices.run();
     });
     choiceTemplate.setOnAction(event -> {
@@ -219,7 +224,27 @@ public class MainPaneTopController extends ProjectController {
         fabricationService.inputTemplateProperty().set(choice.template());
       }
     });
-    choiceTemplate.setValue(new TemplateChoice(fabricationService.inputTemplateProperty().get()));
+    choiceTemplate.setCellFactory(lv -> {
+      ListCell<TemplateChoice> cell = new ListCell<>();
+      cell.getStyleClass().add("template-choice-cell");
+      cell.textProperty().bind(Bindings.when(cell.emptyProperty()).then("").otherwise(cell.itemProperty().asString()));
+      return cell;
+    });
+    choiceTemplate.setButtonCell(new ListCell<>() {
+      @Override
+      protected void updateItem(TemplateChoice item, boolean empty) {
+        super.updateItem(item, empty);
+        setText(empty ? "" : item.toString());
+        getStyleClass().add("template-button-cell");
+      }
+    });
+    isViewModeFabrication.addListener((o, ov, v) -> {
+      if (v) {
+        choiceTemplate.valueProperty().set(new TemplateChoice(fabricationService.inputTemplateProperty().get()));
+      } else {
+        choiceTemplate.valueProperty().unbind();
+      }
+    });
   }
 
   @Override
@@ -247,7 +272,7 @@ public class MainPaneTopController extends ProjectController {
 
   @FXML
   void fabricationPressedShowSettings(ActionEvent ignored) {
-    settingsModalController.launchModal();
+    settingsModalController.launchModalWithFabricationSettings();
   }
 
   @FXML
