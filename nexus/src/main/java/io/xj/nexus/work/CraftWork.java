@@ -149,23 +149,12 @@ public interface CraftWork extends Work {
   void doOverrideMacro(Program macroProgram);
 
   /**
-   Reset the macro program override
-   */
-  void resetOverrideMacro();
-
-  /**
    Manually go to a specific taxonomy category meme, and force until reset
    https://www.pivotaltracker.com/story/show/186714075
 
    @param memes specific (assumed allowably) set of taxonomy category memes
    */
   void doOverrideMemes(Collection<String> memes);
-
-  /**
-   Reset the taxonomy category memes
-   https://www.pivotaltracker.com/story/show/186714075
-   */
-  void resetOverrideMemes();
 
   /**
    Get whether an override happened, and reset its state after getting

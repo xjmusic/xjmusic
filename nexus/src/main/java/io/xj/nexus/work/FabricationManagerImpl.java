@@ -3,6 +3,7 @@ package io.xj.nexus.work;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.TemplateConfig;
+import io.xj.hub.enums.ProgramType;
 import io.xj.hub.meme.MemeTaxonomy;
 import io.xj.hub.pojos.Instrument;
 import io.xj.hub.pojos.InstrumentAudio;
@@ -14,7 +15,6 @@ import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.mixer.MixerFactory;
 import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.ship.broadcast.BroadcastFactory;
 import io.xj.nexus.telemetry.Telemetry;
 import jakarta.annotation.Nullable;
@@ -24,12 +24,15 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static io.xj.hub.util.StringUtils.formatStackTrace;
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
@@ -37,7 +40,6 @@ import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 public class FabricationManagerImpl implements FabricationManager {
   private static final Logger LOG = LoggerFactory.getLogger(FabricationManagerImpl.class);
-  private final ProjectManager projectManager;
   private final BroadcastFactory broadcastFactory;
   private final CraftFactory craftFactory;
   private final AudioCache audioCache;
@@ -60,7 +62,7 @@ public class FabricationManagerImpl implements FabricationManager {
   private ShipWork shipWork;
 
   @Nullable
-  private FabricationSettings workConfig;
+  private FabricationSettings config;
 
   @Nullable
   private Consumer<Float> onProgress;
@@ -72,13 +74,9 @@ public class FabricationManagerImpl implements FabricationManager {
   private Consumer<FabricationState> onStateChange;
 
   @Nullable
-  private Runnable afterFinished;
-
-  @Nullable
   private HubContent content;
 
   public FabricationManagerImpl(
-    ProjectManager projectManager,
     Telemetry telemetry,
     BroadcastFactory broadcastFactory,
     CraftFactory craftFactory,
@@ -87,7 +85,6 @@ public class FabricationManagerImpl implements FabricationManager {
     MixerFactory mixerFactory,
     NexusEntityStore store
   ) {
-    this.projectManager = projectManager;
     this.broadcastFactory = broadcastFactory;
     this.craftFactory = craftFactory;
     this.audioCache = audioCache;
@@ -99,18 +96,19 @@ public class FabricationManagerImpl implements FabricationManager {
 
   @Override
   public void start(
-    FabricationSettings workConfig
+    HubContent content,
+    FabricationSettings config
   ) {
-    this.workConfig = workConfig;
-    LOG.debug("Did set work configuration: {}", workConfig);
+    this.content = content;
+    this.config = config;
+    LOG.debug("Did set work configuration: {}", config);
 
-    this.content = projectManager.getContent(workConfig.getInputTemplate());
-    LOG.debug("Did set hub content: {}", content);
+    LOG.debug("Did set hub content: {}", this.content);
 
     audioCache.initialize(
-      workConfig.getOutputFrameRate(),
+      config.getOutputFrameRate(),
       FIXED_SAMPLE_BITS,
-      workConfig.getOutputChannels()
+      config.getOutputChannels()
     );
     LOG.debug("Did initialize audio cache");
 
@@ -158,9 +156,6 @@ public class FabricationManagerImpl implements FabricationManager {
     }
 
     updateState(cancelled ? FabricationState.Cancelled : FabricationState.Done);
-    if (Objects.nonNull(afterFinished)) {
-      afterFinished.run();
-    }
 
     audioCache.invalidateAll();
   }
@@ -168,11 +163,6 @@ public class FabricationManagerImpl implements FabricationManager {
   @Override
   public FabricationState getWorkState() {
     return state.get();
-  }
-
-  @Override
-  public boolean isHealthy() {
-    return getWorkState() != FabricationState.Failed;
   }
 
   @Override
@@ -191,21 +181,10 @@ public class FabricationManagerImpl implements FabricationManager {
   }
 
   @Override
-  public void setAfterFinished(@Nullable Runnable afterFinished) {
-    this.afterFinished = afterFinished;
-  }
-
-  @Override
   public void doOverrideMacro(Program macroProgram) {
     Objects.requireNonNull(craftWork);
     Objects.requireNonNull(dubWork);
     craftWork.doOverrideMacro(macroProgram);
-  }
-
-  @Override
-  public void resetOverrideMacro() {
-    Objects.requireNonNull(craftWork);
-    craftWork.resetOverrideMacro();
   }
 
   @Override
@@ -221,16 +200,17 @@ public class FabricationManagerImpl implements FabricationManager {
   }
 
   @Override
+  public List<Program> getAllMacroPrograms() {
+    return getSourceMaterial().getProgramsOfType(ProgramType.Macro).stream()
+      .sorted(Comparator.comparing(Program::getName))
+      .toList();
+  }
+
+  @Override
   public void doOverrideMemes(Collection<String> memes) {
     Objects.requireNonNull(craftWork);
     Objects.requireNonNull(dubWork);
     craftWork.doOverrideMemes(memes);
-  }
-
-  @Override
-  public void resetOverrideMemes() {
-    Objects.requireNonNull(craftWork);
-    craftWork.resetOverrideMemes();
   }
 
   @Override
@@ -341,7 +321,7 @@ public class FabricationManagerImpl implements FabricationManager {
       LOG.debug("Will not run craft cycle because work state is {}", state.get());
       return;
     }
-    Objects.requireNonNull(workConfig);
+    Objects.requireNonNull(config);
     Objects.requireNonNull(craftWork);
     Objects.requireNonNull(shipWork);
     Objects.requireNonNull(dubWork);
@@ -349,7 +329,7 @@ public class FabricationManagerImpl implements FabricationManager {
     try {
       LOG.debug("Will run craft cycle");
       craftWork.runCycle(
-        shipWork.getShippedToChainMicros().map(m -> m + workConfig.getMixerLengthSeconds() * MICROS_PER_SECOND).orElse(0L),
+        shipWork.getShippedToChainMicros().map(m -> m + config.getMixerLengthSeconds() * MICROS_PER_SECOND).orElse(0L),
         dubWork.getDubbedToChainMicros().orElse(0L)
       );
       LOG.debug("Did run craft cycle");
@@ -367,7 +347,7 @@ public class FabricationManagerImpl implements FabricationManager {
       LOG.debug("Will not run dub cycle because work state is {}", state.get());
       return;
     }
-    Objects.requireNonNull(workConfig);
+    Objects.requireNonNull(config);
     Objects.requireNonNull(dubWork);
     Objects.requireNonNull(shipWork);
 
@@ -389,7 +369,7 @@ public class FabricationManagerImpl implements FabricationManager {
       LOG.debug("Will not run ship cycle because work state is {}", state.get());
       return;
     }
-    Objects.requireNonNull(workConfig);
+    Objects.requireNonNull(config);
     Objects.requireNonNull(shipWork);
 
     try {
@@ -411,7 +391,7 @@ public class FabricationManagerImpl implements FabricationManager {
    Start loading audio
    */
   private void startPreparingAudio() {
-    Objects.requireNonNull(workConfig);
+    Objects.requireNonNull(config);
     Objects.requireNonNull(content);
 
     int preparedAudios = 0;
@@ -464,7 +444,7 @@ public class FabricationManagerImpl implements FabricationManager {
    Initialize the work
    */
   private void initialize() {
-    Objects.requireNonNull(workConfig);
+    Objects.requireNonNull(config);
     Objects.requireNonNull(content);
 
     craftWork = new CraftWorkImpl(
@@ -473,27 +453,42 @@ public class FabricationManagerImpl implements FabricationManager {
       fabricatorFactory,
       entityStore,
       audioCache,
-      workConfig.getPersistenceWindowSeconds(),
-      workConfig.getCraftAheadSeconds(),
-      workConfig.getMixerLengthSeconds(),
-      workConfig.getOutputFrameRate(),
-      workConfig.getOutputChannels(),
+      config.getPersistenceWindowSeconds(),
+      config.getCraftAheadSeconds(),
+      config.getMixerLengthSeconds(),
+      config.getOutputFrameRate(),
+      config.getOutputChannels(),
       content
     );
     dubWork = new DubWorkImpl(
       telemetry,
       craftWork,
       mixerFactory,
-      workConfig.getMixerLengthSeconds(),
-      workConfig.getDubAheadSeconds(),
-      workConfig.getOutputFrameRate(),
-      workConfig.getOutputChannels()
+      config.getMixerLengthSeconds(),
+      config.getDubAheadSeconds(),
+      config.getOutputFrameRate(),
+      config.getOutputChannels()
     );
     shipWork = new ShipWorkImpl(
       telemetry,
       dubWork,
       broadcastFactory
     );
+
+    // If memes/macro already engaged at fabrication start (which is always true in a manual control mode),
+    // the first segment should be governed by that selection https://www.pivotaltracker.com/story/show/187381427
+    switch (config.getMacroMode()) {
+      case MACRO -> getAllMacroPrograms().stream()
+        .min(Comparator.comparing(Program::getName))
+        .ifPresent(this::doOverrideMacro);
+      case TAXONOMY -> getMemeTaxonomy().ifPresent(memeTaxonomy -> {
+        var memes = memeTaxonomy.getCategories().stream()
+          .map(category -> category.getMemes().stream().findFirst().orElse(null))
+          .filter(Objects::nonNull)
+          .collect(Collectors.toCollection(LinkedHashSet::new));
+        if (!memes.isEmpty()) doOverrideMemes(memes);
+      });
+    }
   }
 
   /**

@@ -151,7 +151,7 @@ public class MainMenuController extends ProjectController {
     checkboxTailLogs.disableProperty().bind(uiStateService.logsVisibleProperty().not());
 
     itemFabricationMainAction.setAccelerator(computeMainActionButtonAccelerator());
-    itemFabricationMainAction.textProperty().bind(fabricationService.mainActionButtonTextProperty().map(this::addLeadingUnderscore));
+    itemFabricationMainAction.textProperty().bind(fabricationService.mainActionButtonTextProperty());
 
     itemOpenSettings.disableProperty().bind(guiService.isFabricationSettingsDisabledProperty());
     itemOpenSettings.setAccelerator(computeFabricationSettingsAccelerator());

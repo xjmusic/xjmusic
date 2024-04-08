@@ -9,17 +9,19 @@ import io.xj.nexus.persistence.NexusEntityStore;
 import jakarta.annotation.Nullable;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 public interface FabricationManager {
   /**
    Start work.
-   <p>
-   This assigns the work configuration, hub configuration, and hub access.
+   * @param content for fabrication
+   * @param config for fabrication
    */
   void start(
-    FabricationSettings workConfig
+    HubContent content,
+    FabricationSettings config
   );
 
   /**
@@ -71,11 +73,6 @@ public interface FabricationManager {
   FabricationState getWorkState();
 
   /**
-   @return true if the current work is healthy
-   */
-  boolean isHealthy();
-
-  /**
    Set the on progress callback
 
    @param onProgress callback
@@ -97,13 +94,6 @@ public interface FabricationManager {
   void setOnStateChange(Consumer<FabricationState> onStateChange);
 
   /**
-   Set the on finish callback
-
-   @param afterFinished callback
-   */
-  void setAfterFinished(Runnable afterFinished);
-
-  /**
    Go to the given macro program right away
    https://www.pivotaltracker.com/story/show/186003440
 
@@ -112,15 +102,14 @@ public interface FabricationManager {
   void doOverrideMacro(Program macroProgram);
 
   /**
-   Reset the macro program override
-   https://www.pivotaltracker.com/story/show/186003440
-   */
-  void resetOverrideMacro();
-
-  /**
    @return the meme taxonomy from the current template configuration
    */
   Optional<MemeTaxonomy> getMemeTaxonomy();
+
+  /**
+   * @return all macro programs in alphabetical order
+   */
+  List<Program> getAllMacroPrograms();
 
   /**
    Manually go to a specific taxonomy category meme, and force until reset
@@ -129,12 +118,6 @@ public interface FabricationManager {
    @param memes specific (assumed allowably) set of taxonomy category memes
    */
   void doOverrideMemes(Collection<String> memes);
-
-  /**
-   Reset the taxonomy category memes
-   https://www.pivotaltracker.com/story/show/186714075
-   */
-  void resetOverrideMemes();
 
   /**
    Get whether an override happened, and reset its state after getting

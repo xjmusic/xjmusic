@@ -39,9 +39,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -49,7 +47,6 @@ public class FabricationControlsController extends ProjectController {
   private static final PseudoClass ENGAGED_PSEUDO_CLASS = PseudoClass.getPseudoClass("engaged");
   private final FabricationService fabricationService;
   private final ObservableMap<String, String> taxonomyCategoryToggleSelections = FXCollections.observableHashMap();
-  private final Set<ToggleGroup> taxonomyToggleGroups = new HashSet<>();
   private final String sliderTrackColorActive;
   private final String sliderTrackColorDefault;
 
@@ -60,14 +57,14 @@ public class FabricationControlsController extends ProjectController {
   VBox controlsContainer;
 
   public FabricationControlsController(
-      @Value("classpath:/views/main-pane-right.fxml") Resource fxml,
-      @Value("${slider.track.color.active}") String sliderTrackColorActive,
-      @Value("${slider.track.color.default}") String sliderTrackColorDefault,
-      ApplicationContext ac,
-      ThemeService themeService,
-      FabricationService fabricationService,
-      UIStateService uiStateService,
-      ProjectService projectService
+    @Value("classpath:/views/main-pane-right.fxml") Resource fxml,
+    @Value("${slider.track.color.active}") String sliderTrackColorActive,
+    @Value("${slider.track.color.default}") String sliderTrackColorDefault,
+    ApplicationContext ac,
+    ThemeService themeService,
+    FabricationService fabricationService,
+    UIStateService uiStateService,
+    ProjectService projectService
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.sliderTrackColorActive = sliderTrackColorActive;
@@ -166,24 +163,15 @@ public class FabricationControlsController extends ProjectController {
 
     // Engage Macro Override
     addEngageButton(
-        event -> fabricationService.doOverrideMacro(macroPrograms.stream()
-            .filter(macroProgram -> macroProgram.getId().equals(UUID.fromString(((ToggleButton) group.getSelectedToggle()).getId())))
-            .findFirst()
-            .orElseThrow()),
-        Bindings.createBooleanBinding(
-            () -> Objects.isNull(group.selectedToggleProperty().get()) ||
-                Objects.equals(fabricationService.overrideMacroProgramIdProperty().get(), UUID.fromString(((ToggleButton) group.getSelectedToggle()).getId())),
-            group.selectedToggleProperty(), fabricationService.overrideMacroProgramIdProperty()
-        )
-    );
-
-    // Release Macro Override
-    addReleaseButton(
-        event -> {
-          fabricationService.resetOverrideMacro();
-          group.selectToggle(null);
-        },
-        fabricationService.overrideMacroProgramIdProperty().isNull()
+      event -> fabricationService.doOverrideMacro(macroPrograms.stream()
+        .filter(macroProgram -> macroProgram.getId().equals(UUID.fromString(((ToggleButton) group.getSelectedToggle()).getId())))
+        .findFirst()
+        .orElseThrow()),
+      Bindings.createBooleanBinding(
+        () -> Objects.isNull(group.selectedToggleProperty().get()) ||
+          Objects.equals(fabricationService.overrideMacroProgramIdProperty().get(), UUID.fromString(((ToggleButton) group.getSelectedToggle()).getId())),
+        group.selectedToggleProperty(), fabricationService.overrideMacroProgramIdProperty()
+      )
     );
 
     // Label
@@ -192,8 +180,9 @@ public class FabricationControlsController extends ProjectController {
     // for each macro program, create a toggle button in a toggle group
     macroPrograms.forEach(macroProgram -> {
       var button = addToggleButton(group, macroProgram.getName(), macroProgram.getId().toString());
-      fabricationService.overrideMacroProgramIdProperty().addListener((ChangeListener<? super UUID>) (o, ov, value) ->
-          updateButtonEngaged(button, Objects.equals(fabricationService.overrideMacroProgramIdProperty().get(), macroProgram.getId())));
+      Runnable onOverrideChange = () -> updateButtonEngaged(button, Objects.equals(fabricationService.overrideMacroProgramIdProperty().get(), macroProgram.getId()));
+      fabricationService.overrideMacroProgramIdProperty().addListener((ChangeListener<? super UUID>) (o, ov, value) -> onOverrideChange.run());
+      onOverrideChange.run(); // show initial state
     });
   }
 
@@ -201,36 +190,23 @@ public class FabricationControlsController extends ProjectController {
    Create a button for each taxonomy program in the source material
    */
   private void initTaxonomySelections() {
-    taxonomyToggleGroups.clear();
     taxonomyCategoryToggleSelections.clear();
     var taxonomy = fabricationService.getMemeTaxonomy();
     if (taxonomy.isEmpty()) return;
 
     // Engage Meme Override
     addEngageButton(
-        event -> fabricationService.doOverrideMemes(taxonomyCategoryToggleSelections.values()),
-        Bindings.createBooleanBinding(
-            () -> taxonomyCategoryToggleSelections.isEmpty() ||
-                fabricationService.overrideMemesProperty().containsAll(taxonomyCategoryToggleSelections.values()),
-            taxonomyCategoryToggleSelections, fabricationService.overrideMemesProperty()
-        )
-    );
-
-    // Release Meme Override
-    addReleaseButton(
-        event -> {
-          fabricationService.resetOverrideMemes();
-          taxonomyToggleGroups.forEach((toggleGroup -> toggleGroup.selectToggle(null)));
-        },
-        Bindings.createBooleanBinding(() ->
-                Objects.isNull(fabricationService.overrideMemesProperty()) || fabricationService.overrideMemesProperty().isEmpty(),
-            fabricationService.overrideMemesProperty())
+      event -> fabricationService.doOverrideMemes(taxonomyCategoryToggleSelections.values()),
+      Bindings.createBooleanBinding(
+        () -> taxonomyCategoryToggleSelections.isEmpty() ||
+          fabricationService.overrideMemesProperty().containsAll(taxonomyCategoryToggleSelections.values()),
+        taxonomyCategoryToggleSelections, fabricationService.overrideMemesProperty()
+      )
     );
 
     // Each taxonomy category is in a labeled toggle group
     taxonomy.get().getCategories().forEach(category -> {
       ToggleGroup group = new ToggleGroup();
-      taxonomyToggleGroups.add(group);
       group.selectedToggleProperty().addListener((ChangeListener<? super Toggle>) (o, ov, value) -> {
         if (Objects.isNull(value)) {
           taxonomyCategoryToggleSelections.remove(category.getName());
@@ -240,11 +216,15 @@ public class FabricationControlsController extends ProjectController {
       });
       addGroupLabel(category.getName());
 
+      // Select the first meme in each category
+      taxonomyCategoryToggleSelections.put(category.getName(), category.getMemes().get(0));
+
       // Each meme in the category is a toggle button
       category.getMemes().forEach(meme -> {
         var button = addToggleButton(group, meme, meme);
-        fabricationService.overrideMemesProperty().addListener((SetChangeListener.Change<? extends String> ignored) ->
-            updateButtonEngaged(button, fabricationService.overrideMemesProperty().contains(meme)));
+        Runnable onOverrideChange = () -> updateButtonEngaged(button, fabricationService.overrideMemesProperty().contains(meme));
+        fabricationService.overrideMemesProperty().addListener((SetChangeListener.Change<? extends String> ignored) -> onOverrideChange.run());
+        onOverrideChange.run(); // show initial state
       });
     });
   }
@@ -261,22 +241,6 @@ public class FabricationControlsController extends ProjectController {
     btn.getStyleClass().add("engage-button");
     btn.setOnAction(actionHandler);
     btn.disableProperty().bind(disabledBinding);
-    controlsContainer.getChildren().add(btn);
-  }
-
-  /**
-   Create the reset button and add it to the container
-
-   @param actionHandler   handle press
-   @param disabledBinding binding to disable the button
-   */
-  private void addReleaseButton(EventHandler<ActionEvent> actionHandler, BooleanBinding disabledBinding) {
-    var btn = new Button("Release");
-    btn.getStyleClass().add("button");
-    btn.getStyleClass().add("release-button");
-    btn.setOnAction(actionHandler);
-    btn.disableProperty().bind(disabledBinding);
-    btn.opacityProperty().bind(Bindings.when(disabledBinding).then(0.3).otherwise(0.8));
     controlsContainer.getChildren().add(btn);
   }
 
@@ -329,7 +293,7 @@ public class FabricationControlsController extends ProjectController {
     StackPane trackPane = (StackPane) slider.lookup(".track");
     if (Objects.nonNull(trackPane))
       trackPane.setStyle(active ?
-          String.format("-fx-background-color: linear-gradient(to right, %s %d%%, %s %d%%);", sliderTrackColorActive, (int) slider.getValue(), sliderTrackColorDefault, (int) slider.getValue())
-          : "");
+        String.format("-fx-background-color: linear-gradient(to right, %s %d%%, %s %d%%);", sliderTrackColorActive, (int) slider.getValue(), sliderTrackColorDefault, (int) slider.getValue())
+        : "");
   }
 }
