@@ -130,15 +130,15 @@ public class ProjectServiceImpl implements ProjectService {
   private final ThemeService themeService;
   private final ProjectManager projectManager;
   private final JsonProvider jsonProvider;
-  private final String audioBaseUrl;
+  private final String demoBaseUrl;
 
   public ProjectServiceImpl(
-    @Value("${audio.base.url}") String audioBaseUrl,
-    @Value("${gui.recent.projects.max}") int maxRecentProjects,
+    @Value("${demo.baseUrl}") String demoBaseUrl,
+    @Value("${view.recentProjectsMax}") int maxRecentProjects,
     ThemeService themeService,
     ProjectManager projectManager
   ) {
-    this.audioBaseUrl = audioBaseUrl;
+    this.demoBaseUrl = demoBaseUrl;
     this.maxRecentProjects = maxRecentProjects;
     this.themeService = themeService;
     this.projectManager = projectManager;
@@ -220,9 +220,8 @@ public class ProjectServiceImpl implements ProjectService {
         executeInBackground("Clone Project", () -> {
           try {
             if (projectManager.cloneProjectFromDemoTemplate(
-              audioBaseUrl,
-              parentPathPrefix,
-              templateShipKey,
+              demoBaseUrl,
+              templateShipKey, parentPathPrefix,
               projectName
             )) {
               projectManager.getProject().ifPresent(project -> {

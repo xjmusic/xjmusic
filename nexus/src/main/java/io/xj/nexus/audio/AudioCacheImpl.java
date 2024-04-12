@@ -4,7 +4,6 @@ package io.xj.nexus.audio;
 import io.xj.hub.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.mixer.ActiveAudio;
 import io.xj.nexus.mixer.FFmpegUtils;
 import io.xj.nexus.project.ProjectManager;
 import org.slf4j.Logger;
@@ -73,8 +72,8 @@ public class AudioCacheImpl implements AudioCache {
   @Override
   public AudioPreparedOnDisk prepare(InstrumentAudio audio) throws AudioCacheException {
     if (StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
-      LOG.error("Can't load null or empty audio key! (audioRenderPathPrefix={}, audioBaseUrl={}, instrumentId={}, waveformKey={}, targetFrameRate={}, targetSampleBits={}, targetChannels={})",
-        getAudioRenderPathPrefix(), projectManager.getAudioBaseUrl(), audio.getInstrumentId(), audio.getWaveformKey(), targetFrameRate, targetSampleBits, targetChannels);
+      LOG.error("Can't load null or empty audio key! (audioRenderPathPrefix={}, demoBaseUrl={}, instrumentId={}, waveformKey={}, targetFrameRate={}, targetSampleBits={}, targetChannels={})",
+        getAudioRenderPathPrefix(), projectManager.getDemoBaseUrl(), audio.getInstrumentId(), audio.getWaveformKey(), targetFrameRate, targetSampleBits, targetChannels);
       throw new AudioCacheException("Can't load null or empty audio key!");
     }
 

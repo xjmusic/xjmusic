@@ -50,8 +50,8 @@ public class HubClientFactoryImpl implements HubClientFactory {
   }
 
   @Override
-  public HubContent loadApiV1(CloseableHttpClient httpClient, String shipKey, String audioBaseUrl) throws HubClientException {
-    var url = String.format("%s%s.json", audioBaseUrl, shipKey);
+  public HubContent loadApiV1(CloseableHttpClient httpClient, String baseUrl, String templateKey) throws HubClientException {
+    var url = String.format("%s%s.json", baseUrl, templateKey);
     LOG.info("Will load content from {}", url);
     //noinspection deprecation
     try (

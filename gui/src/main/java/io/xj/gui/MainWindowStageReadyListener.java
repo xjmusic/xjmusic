@@ -38,7 +38,7 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
 
   public MainWindowStageReadyListener(
     @Value("classpath:/views/main.fxml") Resource mainWindowFxml,
-    @Value("${gui.debug}") String debug,
+    @Value("${debug}") String debug,
     EulaModalController eulaModalController,
     MainController mainController,
     ApplicationContext ac,

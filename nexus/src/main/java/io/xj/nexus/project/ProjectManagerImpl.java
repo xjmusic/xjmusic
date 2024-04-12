@@ -94,7 +94,7 @@ public class ProjectManagerImpl implements ProjectManager {
   private final AtomicReference<Project> project = new AtomicReference<>();
   private final AtomicReference<String> projectPathPrefix = new AtomicReference<>(File.separator);
   private final AtomicReference<String> projectName = new AtomicReference<>("Project");
-  private final AtomicReference<String> audioBaseUrl = new AtomicReference<>("https://audio.xj.io/");
+  private final AtomicReference<String> demoBaseUrl = new AtomicReference<>("https://audio.xj.io/");
   private final AtomicReference<HubContent> content = new AtomicReference<>();
   private final JsonProvider jsonProvider;
   private final EntityFactory entityFactory;
@@ -136,14 +136,14 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public String getAudioBaseUrl() {
-    return this.audioBaseUrl.get();
+  public String getDemoBaseUrl() {
+    return this.demoBaseUrl.get();
   }
 
   @Override
-  public boolean cloneProjectFromDemoTemplate(String audioBaseUrl, String parentPathPrefix, String templateShipKey, String projectName) {
-    this.audioBaseUrl.set(audioBaseUrl);
-    LOG.info("Cloning from demo template \"{}\" in parent folder {}", templateShipKey, parentPathPrefix);
+  public boolean cloneProjectFromDemoTemplate(String baseUrl, String templateKey, String parentPathPrefix, String projectName) {
+    this.demoBaseUrl.set(baseUrl);
+    LOG.info("Cloning from demo template \"{}\" in parent folder {}", templateKey, parentPathPrefix);
     CloseableHttpClient httpClient = httpClientProvider.getClient();
     try {
       createProjectFolder(parentPathPrefix, projectName);
@@ -151,7 +151,7 @@ public class ProjectManagerImpl implements ProjectManager {
       LOG.info("Will load content");
       updateProgress(0.0);
       updateState(ProjectState.LoadingContent);
-      content.set(hubClientFactory.loadApiV1(httpClient, templateShipKey, this.audioBaseUrl.get()));
+      content.set(hubClientFactory.loadApiV1(httpClient, this.demoBaseUrl.get(), templateKey));
       project.set(content.get().getProject());
       updateState(ProjectState.LoadedContent);
       LOG.info("Did load content");
@@ -183,7 +183,7 @@ public class ProjectManagerImpl implements ProjectManager {
               audio.getWaveformKey()
             );
 
-            var remoteUrl = String.format("%s%s", this.audioBaseUrl, audio.getWaveformKey());
+            var remoteUrl = String.format("%s%s", this.demoBaseUrl, audio.getWaveformKey());
             var remoteFileSize = hubClientFactory.getRemoteFileSize(httpClient, remoteUrl);
             if (remoteFileSize == FILE_SIZE_NOT_FOUND) {
               LOG.warn("File not found for audio \"{}\" of instrument \"{}\" in library \"{}\" at {}", instrument.getName(), audio.getName(), content.get().getLibrary(instrument.getLibraryId()).map(Library::getName).orElse("Unknown"), remoteUrl);

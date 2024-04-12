@@ -64,7 +64,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.prefs.Preferences;
 
 @Service
 public class UIStateServiceImpl implements UIStateService {
@@ -123,7 +122,7 @@ public class UIStateServiceImpl implements UIStateService {
     @Value("${programEditor.gridChoiceDefault}") Double programEditorGridChoiceDefault,
     @Value("#{'${programEditor.zoomChoices}'.split(',')}") List<Double> programEditorZoomChoices,
     @Value("${programEditor.zoomChoiceDefault}") Double programEditorZoomChoiceDefault,
-    @Value("${navHistory.maxSize}") int navHistoryMaxSize,
+    @Value("${view.navHistory}") int navHistoryMaxSize,
     ApplicationContext ac,
     ThemeService themeService,
     FabricationService fabricationService,

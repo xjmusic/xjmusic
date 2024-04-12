@@ -45,7 +45,7 @@ public class MainPaneBottomController extends ProjectController {
 
   public MainPaneBottomController(
     @Value("classpath:/views/main-pane-bottom.fxml") Resource fxml,
-    @Value("${gui.logs.refresh.seconds}") Integer refreshRateSeconds,
+    @Value("${view.logsRefreshSeconds}") Integer refreshRateSeconds,
     ApplicationContext ac,
     ThemeService themeService,
     UIStateService uiStateService,

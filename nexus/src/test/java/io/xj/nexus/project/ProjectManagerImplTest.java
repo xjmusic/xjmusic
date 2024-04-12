@@ -112,13 +112,13 @@ class ProjectManagerImplTest {
   }
 
   @Test
-  void getAudioBaseUrl() {
+  void getDemoBaseUrl() {
     subject.getContent().clear();
     String tempPath = System.getProperty("java.io.tmpdir");
 
-    subject.cloneProjectFromDemoTemplate("https://audio.test.xj.io/", tempPath + "test", "test", "test");
+    subject.cloneProjectFromDemoTemplate("https://audio.test.xj.io/", "test", tempPath + "test", "test");
 
-    assertEquals("https://audio.test.xj.io/", subject.getAudioBaseUrl());
+    assertEquals("https://audio.test.xj.io/", subject.getDemoBaseUrl());
   }
 
   @Test

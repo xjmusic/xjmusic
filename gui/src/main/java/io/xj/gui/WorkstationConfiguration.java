@@ -63,7 +63,7 @@ public class WorkstationConfiguration {
       HttpClientProvider httpClientProvider,
       JsonProvider jsonProvider,
       JsonapiPayloadFactory jsonapiPayloadFactory,
-      @Value("${audio.download.retries}") int audioDownloadRetries
+      @Value("${demo.audioDownloadRetries}") int audioDownloadRetries
   ) {
     return new HubClientFactoryImpl(
         httpClientProvider,

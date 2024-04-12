@@ -34,8 +34,8 @@ public class ThemeServiceImpl implements ThemeService {
   private Scene scene;
 
   public ThemeServiceImpl(
-    @Value("${gui.theme.default}") String defaultThemePath,
-    @Value("${gui.resources.font.path.pattern}") String fontPathPattern,
+    @Value("${view.defaultThemeResource}") String defaultThemePath,
+    @Value("${view.fontResources}") String fontPathPattern,
     ResourceLoader resourceLoader
   ) {
     this.defaultThemePath = defaultThemePath;

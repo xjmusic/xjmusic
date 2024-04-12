@@ -121,11 +121,11 @@ public class FabricationTimelineController extends ProjectController {
 
   public FabricationTimelineController(
     @Value("classpath:/views/fabrication/fabrication-timeline.fxml") Resource fxml,
-    @Value("${gui.timeline.refresh.millis}") Integer refreshTimelineMillis,
-    @Value("${gui.timeline.segment.hash.recheck.limit}") Integer segmentDisplayChoiceHashRecheckLimit,
-    @Value("${gui.timeline.segment.spacing.horizontal}") Integer segmentSpacingHorizontal,
-    @Value("${gui.timeline.segment.width.min}") Integer segmentWidthMin,
-    @Value("${gui.timeline.display.segments.before.now}") int displaySegmentsBeforeNow,
+    @Value("${view.timelineRefreshMillis}") Integer refreshTimelineMillis,
+    @Value("${view.timelineSegmentHashRecheckLimit}") Integer segmentDisplayChoiceHashRecheckLimit,
+    @Value("${view.timelineSegmentSpacingHorizontal}") Integer segmentSpacingHorizontal,
+    @Value("${view.timelineSegmentWidth}") Integer segmentWidthMin,
+    @Value("${view.timelineDisplaySegmentsBeforeNow}") int displaySegmentsBeforeNow,
     ApplicationContext ac,
     ThemeService themeService,
     FabricationService fabricationService,

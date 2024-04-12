@@ -17,10 +17,10 @@ public class SupportServiceImpl implements SupportService {
 
   public SupportServiceImpl(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
-    @Value("${gui.launch.guide.url}") String launchGuideUrl,
-    @Value("${gui.launch.discord.url}") String launchDiscordUrl,
-    @Value("${gui.launch.tutorial.url}") String launchTutorialUrl,
-    @Value("${gui.launch.website.url}") String launchWebsiteUrl
+    @Value("${help.guideUrl}") String launchGuideUrl,
+    @Value("${help.discordUrl}") String launchDiscordUrl,
+    @Value("${help.tutorialUrl}") String launchTutorialUrl,
+    @Value("${help.websiteUrl}") String launchWebsiteUrl
   ) {
     this.hostServices = hostServices;
     this.launchGuideUrl = launchGuideUrl;

@@ -28,7 +28,7 @@ public interface ProjectManager {
 
    @return the audio base URL
    */
-  String getAudioBaseUrl();
+  String getDemoBaseUrl();
 
   /**
    Close the current project
@@ -38,13 +38,13 @@ public interface ProjectManager {
   /**
    Clone from a demo template
 
-   @param audioBaseUrl     of the demo
+   @param baseUrl          of the demo
+   @param templateKey      of the demo
    @param parentPathPrefix parent folder to the project folder
-   @param templateShipKey  of the demo
    @param projectName      of the project folder and the project
    @return true if successful
    */
-  boolean cloneProjectFromDemoTemplate(String audioBaseUrl, String parentPathPrefix, String templateShipKey, String projectName);
+  boolean cloneProjectFromDemoTemplate(String baseUrl, String templateKey, String parentPathPrefix, String projectName);
 
   /**
    Export a template as JSON with all its audio (original or prepared)
@@ -345,7 +345,9 @@ public interface ProjectManager {
   Instrument moveInstrument(UUID id, UUID libraryId) throws Exception;
 
   /**
-   Copy the instrument audio waveform from one audio to another@param instrumentAudioId new instrument audio
+   Copy the instrument audio waveform from one audio to another
+
+   @param instrumentAudioId new instrument audio
    */
   void renameWaveformIfNecessary(UUID instrumentAudioId) throws Exception;
 
