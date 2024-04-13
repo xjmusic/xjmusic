@@ -21,10 +21,10 @@ import java.util.UUID;
  Digest segments of the previous main program
  <p>
  NextMain/NextMacro-type: Retrospective of the previous main choice, primary choices only
- REF https://www.pivotaltracker.com/story/show/178442889
+ REF https://github.com/xjmusic/workstation/issues/242
  <p>
  Continue-type: Retrospective of all segments in this main program
- REF https://www.pivotaltracker.com/story/show/178442889
+ REF https://github.com/xjmusic/workstation/issues/242
  */
 public interface SegmentRetrospective {
 

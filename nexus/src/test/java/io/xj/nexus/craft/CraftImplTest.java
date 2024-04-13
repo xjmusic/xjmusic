@@ -193,7 +193,7 @@ public class CraftImplTest {
   }
 
   /**
-   XJ Should choose the correct chord audio per Main Program chord https://www.pivotaltracker.com/story/show/183434438
+   XJ Should choose the correct chord audio per Main Program chord https://github.com/xjmusic/workstation/issues/237
    */
   @Test
   public void selectNewChordPartInstrumentAudio_stripSpaces() throws Exception {
@@ -216,7 +216,7 @@ public class CraftImplTest {
   }
 
   /**
-   Enhanced Synonymous Chord recognition https://www.pivotaltracker.com/story/show/182811126
+   Enhanced Synonymous Chord recognition https://github.com/xjmusic/workstation/issues/236
    */
   @Test
   public void selectNewChordPartInstrumentAudio_chordSynonyms() throws Exception {

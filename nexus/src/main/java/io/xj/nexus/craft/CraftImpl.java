@@ -113,7 +113,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
   /**
    Segments have intensity arcs; automate mixer layers in and out of each main program
-   https://www.pivotaltracker.com/story/show/178240332
+   https://github.com/xjmusic/workstation/issues/233
 
    @param tempo              of main program
    @param sequence           for which to craft choices
@@ -162,7 +162,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
   /**
    Chord instrument mode
-   https://www.pivotaltracker.com/story/show/181631275
+   https://github.com/xjmusic/workstation/issues/235
 
    @param tempo      of main program
    @param instrument for which to craft choices
@@ -199,7 +199,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
   /**
    Chord instrument mode
-   https://www.pivotaltracker.com/story/show/181631275
+   https://github.com/xjmusic/workstation/issues/235
 
    @param tempo      of main program
    @param instrument chosen
@@ -220,7 +220,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     for (var section : computeSections()) {
       var audio = selectChordPartInstrumentAudio(instrument, Chord.of(section.chord.getName()));
 
-      // Should gracefully skip audio in unfulfilled by instrument https://www.pivotaltracker.com/story/show/176373977
+      // Should gracefully skip audio in unfulfilled by instrument https://github.com/xjmusic/workstation/issues/240
       if (audio.isEmpty()) continue;
 
       // Pick attributes are expressed "rendered" as actual seconds
@@ -259,7 +259,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    */
   protected void craftEventParts(double tempo, Instrument instrument, Program program) throws NexusException {
     // Event detail sequence is selected at random of the current instrument
-    // FUTURE: Detail Instrument with multiple Sequences https://www.pivotaltracker.com/story/show/166855956
+    // FUTURE: Detail Instrument with multiple Sequences https://github.com/xjmusic/workstation/issues/241
     var sequence = fabricator.getRandomlySelectedSequence(program);
 
     // Event voice arrangements
@@ -294,7 +294,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    Craft the arrangement for a given voice
    <p>
    Choice inertia
-   https://www.pivotaltracker.com/story/show/178442889
+   https://github.com/xjmusic/workstation/issues/242
    Perform the inertia analysis, and determine whether they actually use the new choice or not
    IMPORTANT** If the previously chosen instruments are for the previous main program as the current segment,
    the inertia scores are not actually added to the regular scores or used to make choices--
@@ -304,7 +304,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    but we aren't actually using them yet until we hit the next main program in full, N segments later.
    <p>
    Ends with a final pass to set the actual length of one-shot audio picks
-   One-shot instruments cut off when other notes played with same instrument, or at end of segment https://www.pivotaltracker.com/story/show/180245315
+   One-shot instruments cut off when other notes played with same instrument, or at end of segment https://github.com/xjmusic/workstation/issues/243
 
    @param tempo         of main program
    @param choice        to craft arrangements for
@@ -337,7 +337,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    Don't have anything in this class that's proprietary to beat or detail-- abstract that out into provider interfaces
    <p>
    Segments have intensity arcs; automate mixer layers in and out of each main program
-   https://www.pivotaltracker.com/story/show/178240332
+   https://github.com/xjmusic/workstation/issues/233
    <p>
    Shift deltas so 2x more time is spent on construction than deconstruction
    https://www.pivotaltracker.com/story/show/179138295
@@ -540,7 +540,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
   /**
    Ends with a final pass to set the actual length of one-shot audio picks
-   One-shot instruments cut off when other notes played with same instrument, or at end of segment https://www.pivotaltracker.com/story/show/180245315
+   One-shot instruments cut off when other notes played with same instrument, or at end of segment https://github.com/xjmusic/workstation/issues/243
 
    @param choice for which to finalize length of one-shot audio picks
    */
@@ -723,7 +723,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   ) throws NexusException {
     var audio = fabricator.getInstrumentConfig(instrument).isMultiphonic() ? selectMultiphonicInstrumentAudio(instrument, event, note) : selectMonophonicInstrumentAudio(instrument, event);
 
-    // Should gracefully skip audio if unfulfilled by instrument https://www.pivotaltracker.com/story/show/176373977
+    // Should gracefully skip audio if unfulfilled by instrument https://github.com/xjmusic/workstation/issues/240
     if (audio.isEmpty()) return;
 
     // of pick
@@ -872,7 +872,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
   /**
    Chord instrument mode
-   https://www.pivotaltracker.com/story/show/181631275
+   https://github.com/xjmusic/workstation/issues/235
    <p>
    If never encountered, default to new selection and cache that.
 

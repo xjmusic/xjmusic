@@ -45,7 +45,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
   @Override
   public void doWork() throws NexusException {
-    // Segments have delta arcs; automate mixer layers in and out of each main program https://www.pivotaltracker.com/story/show/178240332
+    // Segments have delta arcs; automate mixer layers in and out of each main program https://github.com/xjmusic/workstation/issues/233
     ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) -> StringUtils.stringOrDefault(choice.getInstrumentType(), choice.getId().toString());
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Objects.equals(ProgramType.Detail, choice.getProgramType());
     precomputeDeltas(choiceFilter, choiceIndexProvider, fabricator.getTemplateConfig().getDetailLayerOrder().stream().map(InstrumentType::toString).collect(Collectors.toList()), List.of(), fabricator.getTemplateConfig().getDeltaArcBeatLayersIncoming());
@@ -56,10 +56,10 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
       // Instrument is from prior choice, else freshly chosen
       Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(instrumentType);
 
-      // Instruments may be chosen without programs https://www.pivotaltracker.com/story/show/181290857
+      // Instruments may be chosen without programs https://github.com/xjmusic/workstation/issues/234
       Optional<Instrument> instrument = priorChoice.isPresent() ? fabricator.sourceMaterial().getInstrument(priorChoice.get().getInstrumentId()) : chooseFreshInstrument(instrumentType, Set.of());
 
-      // Should gracefully skip voicing type if unfulfilled by detail instrument https://www.pivotaltracker.com/story/show/176373977
+      // Should gracefully skip voicing type if unfulfilled by detail instrument https://github.com/xjmusic/workstation/issues/240
       if (instrument.isEmpty()) {
         continue;
       }
@@ -67,19 +67,19 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
       // Instruments have InstrumentMode https://www.pivotaltracker.com/story/show/181134085
       switch (instrument.get().getMode()) {
 
-        // Event instrument mode takes over legacy behavior https://www.pivotaltracker.com/story/show/181736854
+        // Event instrument mode takes over legacy behavior https://github.com/xjmusic/workstation/issues/234
         case Event -> {
           // Event Use prior chosen program or find a new one
           Optional<Program> program = priorChoice.isPresent() ? fabricator.sourceMaterial().getProgram(priorChoice.get().getProgramId()) : chooseFreshProgram(ProgramType.Detail, instrumentType);
 
-          // Event Should gracefully skip voicing type if unfulfilled by detail program https://www.pivotaltracker.com/story/show/176373977
+          // Event Should gracefully skip voicing type if unfulfilled by detail program https://github.com/xjmusic/workstation/issues/240
           if (program.isEmpty()) {
             continue;
           }
           craftEventParts(fabricator.getTempo(), instrument.get(), program.get());
         }
 
-        // Chord instrument mode https://www.pivotaltracker.com/story/show/181631275
+        // Chord instrument mode https://github.com/xjmusic/workstation/issues/235
         case Chord -> craftChordParts(fabricator.getTempo(), instrument.get());
 
         case Loop -> {

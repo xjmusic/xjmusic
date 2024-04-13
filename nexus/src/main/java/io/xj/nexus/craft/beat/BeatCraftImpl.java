@@ -39,12 +39,12 @@ public class BeatCraftImpl extends CraftImpl implements BeatCraft {
       fabricator.sourceMaterial().getProgram(priorBeatChoice.get().getProgramId()) :
       chooseFreshProgram(ProgramType.Beat, InstrumentType.Drum);
 
-    // Should gracefully skip voicing type if unfulfilled by detail program https://www.pivotaltracker.com/story/show/176373977
+    // Should gracefully skip voicing type if unfulfilled by detail program https://github.com/xjmusic/workstation/issues/240
     if (program.isEmpty()) {
       return;
     }
 
-    // Segments have intensity arcs; automate mixer layers in and out of each main program https://www.pivotaltracker.com/story/show/178240332
+    // Segments have intensity arcs; automate mixer layers in and out of each main program https://github.com/xjmusic/workstation/issues/233
     ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) ->
       fabricator.sourceMaterial().getProgramVoice(choice.getProgramVoiceId())
         .map(ProgramVoice::getName)
@@ -62,7 +62,7 @@ public class BeatCraftImpl extends CraftImpl implements BeatCraft {
     );
 
     // beat sequence is selected at random of the current program
-    // FUTURE: Beat Program with multiple Sequences https://www.pivotaltracker.com/story/show/166855956
+    // FUTURE: Beat Program with multiple Sequences https://github.com/xjmusic/workstation/issues/241
     var sequence = fabricator.getRandomlySelectedSequence(program.get());
 
     // voice arrangements

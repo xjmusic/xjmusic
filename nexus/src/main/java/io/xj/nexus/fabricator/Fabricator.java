@@ -527,7 +527,7 @@ public interface Fabricator {
    - Rendering a pattern X voicing considers the sticky bun values
    --- the random seed for rendering the pattern will always come from the associated sticky bun
    <p>
-   Sticky buns v2 persisted for each randomly selected note in the series for any given pattern https://www.pivotaltracker.com/story/show/179153822
+   Sticky buns v2 persisted for each randomly selected note in the series for any given pattern https://github.com/xjmusic/workstation/issues/231
    - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
    - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern
    <p>

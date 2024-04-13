@@ -285,7 +285,7 @@ public class FabricatorImplTest {
   }
 
   /**
-   Sticky buns v2 use slash root when available https://www.pivotaltracker.com/story/show/179153822
+   Sticky buns v2 use slash root when available https://github.com/xjmusic/workstation/issues/231
    */
   @Test
   public void getRootNote() {

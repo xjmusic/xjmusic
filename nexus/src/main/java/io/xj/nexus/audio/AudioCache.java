@@ -11,7 +11,7 @@ import java.util.List;
 public interface AudioCache {
   /**
    Workstation caches all audio as float array in memory
-   https://www.pivotaltracker.com/story/show/186440598
+   https://github.com/xjmusic/workstation/issues/232
 
    @param audio to retrieve
    @return stream if cached; null if not

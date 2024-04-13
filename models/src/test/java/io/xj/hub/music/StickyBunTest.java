@@ -12,7 +12,7 @@ import static io.xj.hub.music.NoteTest.assertNote;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- Sticky buns v2 persisted for each randomly selected note in the series for any given event https://www.pivotaltracker.com/story/show/179153822
+ Sticky buns v2 persisted for each randomly selected note in the series for any given event https://github.com/xjmusic/workstation/issues/231
  */
 public class StickyBunTest {
   final UUID eventId = UUID.randomUUID();
