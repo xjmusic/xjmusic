@@ -629,7 +629,6 @@ public class HubContentTest extends ContentTest {
 
   /**
    HubContent has proper method to delete any entity of id
-   https://www.pivotaltracker.com/story/show/186986806
    */
   @Test
   void delete() {

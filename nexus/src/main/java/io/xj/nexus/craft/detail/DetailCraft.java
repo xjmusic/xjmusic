@@ -14,7 +14,7 @@ public interface DetailCraft {
    Perform Detail craft for the current segment
    <p>
    Workstation fabrication Layering/Intensity
-   https://www.pivotaltracker.com/story/show/186950076
+   https://github.com/xjmusic/workstation/issues/196
    */
   void doWork() throws NexusException;
 

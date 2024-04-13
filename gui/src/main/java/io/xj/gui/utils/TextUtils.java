@@ -11,7 +11,6 @@ public enum TextUtils {
 
   /**
    Add slash to end of file path prefix of text field
-   https://www.pivotaltracker.com/story/show/186555998
 
    @param textField in which to add a trailing slash
    */
@@ -24,7 +23,6 @@ public enum TextUtils {
 
   /**
    Add slash to end of file path prefix of string
-   https://www.pivotaltracker.com/story/show/186555998
 
    @param text in which to add a trailing slash
    */

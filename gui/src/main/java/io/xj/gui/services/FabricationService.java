@@ -173,7 +173,7 @@ public interface FabricationService {
 
   /**
    Manually go to a specific macro program, and force until reset
-   https://www.pivotaltracker.com/story/show/186003440
+   https://github.com/xjmusic/workstation/issues/197
 
    @param macroProgram the macro program to go to
    */
@@ -186,7 +186,7 @@ public interface FabricationService {
 
   /**
    Manually go to a specific taxonomy category meme, and force until reset
-   https://www.pivotaltracker.com/story/show/186714075
+   https://github.com/xjmusic/workstation/issues/199
 
    @param memes specific (assumed allowably) set of taxonomy category memes
    */

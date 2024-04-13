@@ -413,7 +413,7 @@ public interface Fabricator {
   Optional<ProgramSequence> getRandomlySelectedSequence(Program program);
 
   /**
-   Selects one (at random) of all available patterns of a given type within a sequence. https://www.pivotaltracker.com/story/show/165954619
+   Selects one (at random) of all available patterns of a given type within a sequence. https://github.com/xjmusic/workstation/issues/204
    <p>
    Caches the selection, so it will always return the same output for any given input.
    <p>
@@ -489,7 +489,7 @@ public interface Fabricator {
   Collection<SegmentMeme> getSegmentMemes();
 
   /**
-   Get the sequence for a Choice either directly (beat- and detail-type sequences), or by sequence-pattern (macro- or main-type sequences) https://www.pivotaltracker.com/story/show/165954619
+   Get the sequence for a Choice either directly (beat- and detail-type sequences), or by sequence-pattern (macro- or main-type sequences) https://github.com/xjmusic/workstation/issues/204
    <p>
    Program model handles all of its own entities https://www.pivotaltracker.com/story/show/166690830
    Beat and Detail programs are allowed to have only one (default) sequence.
@@ -662,7 +662,7 @@ public interface Fabricator {
    Put a new Entity by type and id
    <p>
    If it's a SegmentChoice...
-   Should add meme from ALL program and instrument types! https://www.pivotaltracker.com/story/show/181336704
+   Should add meme from ALL program and instrument types! https://github.com/xjmusic/workstation/issues/210
    - Add memes of choices to segment in order to affect further choices.
    - Add all memes of this choice, from target program, program sequence binding, or instrument if present
    - Enhances: Straightforward meme logic https://www.pivotaltracker.com/story/show/179078533

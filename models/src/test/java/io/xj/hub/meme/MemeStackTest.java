@@ -131,7 +131,7 @@ public class MemeStackTest {
 
   /**
    TemplateConfig has Meme categories
-   https://www.pivotaltracker.com/story/show/181801646
+   https://github.com/xjmusic/workstation/issues/209
    <p>
    A template configuration has a field called `memeTaxonomy` which defines the taxonomy of memes.
    <p>
@@ -162,7 +162,7 @@ public class MemeStackTest {
   }
 
   /**
-   Refuse to make a choice that violates the meme stack https://www.pivotaltracker.com/story/show/181466514
+   Refuse to make a choice that violates the meme stack https://github.com/xjmusic/workstation/issues/211
    */
   @Test
   public void isValid() {

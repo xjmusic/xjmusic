@@ -81,7 +81,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
     // 3. Chords and voicings
     for (ProgramSequenceChord sequenceChord : fabricator.getProgramSequenceChords(mainSequence)) {
-      // don't of chord past end of Segment https://www.pivotaltracker.com/story/show/154090557
+      // don't of chord past end of Segment 
       String name;
       if (sequenceChord.getPosition() < mainSequence.getTotal()) {
         // delta the chord name

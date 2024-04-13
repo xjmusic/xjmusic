@@ -44,7 +44,7 @@ import java.util.stream.Stream;
  https://www.pivotaltracker.com/story/show/175880468
  <p>
  XJ Lab Distributed Architecture
- https://www.pivotaltracker.com/story/show/171553408
+ https://github.com/xjmusic/workstation/issues/207
  Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in JSON:API record stored keyed by chain or segment id in memory
  */
 public class NexusEntityStoreImpl implements NexusEntityStore {

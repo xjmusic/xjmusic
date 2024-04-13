@@ -593,7 +593,7 @@ public class FabricationTimelineController extends ProjectController {
     col.getChildren().add(computeChoicesListNode(segment, "Macro", segmentChoices.stream().filter((choice) -> ProgramType.Macro == choice.getProgramType()).toList(), false, false));
     col.getChildren().add(computeChoicesListNode(segment, "Main", segmentChoices.stream().filter((choice) -> ProgramType.Main == choice.getProgramType()).toList(), false, false));
 
-    // Add beat choices if present https://www.pivotaltracker.com/story/show/187409578
+    // Add beat choices if present
     var beatChoices = segmentChoices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList();
     if (!beatChoices.isEmpty())
       col.getChildren().add(computeChoicesListNode(segment, "Beat", beatChoices, true, true));

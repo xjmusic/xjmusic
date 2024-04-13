@@ -91,7 +91,7 @@ public interface ProjectService {
 
   /**
    Project Cleanup option to delete unused audio files from project folder
-   https://www.pivotaltracker.com/story/show/186930458
+   https://github.com/xjmusic/workstation/issues/200
    */
   void cleanupProject();
 
@@ -528,8 +528,6 @@ public interface ProjectService {
 
   /**
    Whether the project is a demo project
-   <p>
-   Project duplicated from demo should NOT be allowed to Push project https://www.pivotaltracker.com/story/show/187242588
 
    @return observable boolean property
    */

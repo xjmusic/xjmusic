@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
+ Integration tests use shared scenario fixtures as much as possible https://github.com/xjmusic/workstation/issues/202
  <p>
  Testing the hypothesis that, while unit tests are all independent,
  integration tests ought to be as much about testing all features around a consensus model of the platform
@@ -53,8 +53,6 @@ public class GuiHubIntegrationTestingFixtures {
   public Program program3;
   public Program program4;
   public Template template1;
-  //
-  public GuiHubContentFixtures content;
 
   public static Collection<Object> buildInstrumentWithAudios(Instrument instrument, String notes) {
     List<Object> result = new ArrayList<>(List.of(instrument));

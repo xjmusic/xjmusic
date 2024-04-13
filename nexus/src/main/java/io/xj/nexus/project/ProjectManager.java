@@ -92,7 +92,7 @@ public interface ProjectManager {
 
   /**
    Project Cleanup option to delete unused audio files from project folder
-   https://www.pivotaltracker.com/story/show/186930458
+   https://github.com/xjmusic/workstation/issues/200
 
    @return results
    */
