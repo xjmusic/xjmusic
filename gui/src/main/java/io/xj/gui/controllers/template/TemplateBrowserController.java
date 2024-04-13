@@ -65,7 +65,7 @@ public class TemplateBrowserController extends BrowserController {
     addActionsColumn(Template.class, table,
       template -> uiStateService.editTemplate(template.getId()),
       null,
-      cmdModalController::cloneTemplate,
+      cmdModalController::duplicateTemplate,
       cmdModalController::deleteTemplate,
       templateExportModalController::launchModal
     );

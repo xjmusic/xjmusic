@@ -55,7 +55,7 @@ public interface ProjectService {
   void createProject(String parentPathPrefix, String projectName);
 
   /**
-   Clone from a demo template
+   Duplicate from a demo template
 
    @param parentPathPrefix on disk, parent of the project folder
    @param templateShipKey  of the demo
@@ -388,57 +388,57 @@ public interface ProjectService {
   Instrument moveInstrument(UUID id, Library library) throws Exception;
 
   /**
-   Clone the given template with a new nam
+   Duplicate the given template with a new nam
 
-   @param fromId clone from template
+   @param fromId duplicate from template
    @param name   the new name
    */
-  Template cloneTemplate(UUID fromId, String name) throws Exception;
+  Template duplicateTemplate(UUID fromId, String name) throws Exception;
 
   /**
-   Clone the given library with a new name
+   Duplicate the given library with a new name
 
-   @param fromId clone from library
+   @param fromId duplicate from library
    @param name   the new name
    @return the new library
    */
-  Library cloneLibrary(UUID fromId, String name) throws Exception;
+  Library duplicateLibrary(UUID fromId, String name) throws Exception;
 
   /**
-   Clone the given program with a new name
+   Duplicate the given program with a new name
 
-   @param fromId    clone from program
+   @param fromId    duplicate from program
    @param libraryId the new library id
    @param name      the new name
    @return the new program
    */
-  Program cloneProgram(UUID fromId, UUID libraryId, String name) throws Exception;
+  Program duplicateProgram(UUID fromId, UUID libraryId, String name) throws Exception;
 
   /**
-   Clone the given program sequence with a new name
+   Duplicate the given program sequence with a new name
 
-   @param fromId clone from program sequence
+   @param fromId duplicate from program sequence
    @return the new program
    */
-  ProgramSequence cloneProgramSequence(UUID fromId) throws Exception;
+  ProgramSequence duplicateProgramSequence(UUID fromId) throws Exception;
 
   /**
-   Clone the given program sequence pattern with a new name
+   Duplicate the given program sequence pattern with a new name
 
-   @param fromId clone from program sequence pattern
+   @param fromId duplicate from program sequence pattern
    @return the new program sequence pattern
    */
-  ProgramSequencePattern cloneProgramSequencePattern(UUID fromId) throws Exception;
+  ProgramSequencePattern duplicateProgramSequencePattern(UUID fromId) throws Exception;
 
   /**
-   Clone the given instrument with a new name
+   Duplicate the given instrument with a new name
 
-   @param fromId    clone from instrument
+   @param fromId    duplicate from instrument
    @param libraryId the new library id
    @param name      the new name
    @return the new instrument
    */
-  Instrument cloneInstrument(UUID fromId, UUID libraryId, String name) throws Exception;
+  Instrument duplicateInstrument(UUID fromId, UUID libraryId, String name) throws Exception;
 
   /**
    Update an entity
@@ -529,7 +529,7 @@ public interface ProjectService {
   /**
    Whether the project is a demo project
    <p>
-   Project cloned from demo should NOT be allowed to Push project https://www.pivotaltracker.com/story/show/187242588
+   Project duplicated from demo should NOT be allowed to Push project https://www.pivotaltracker.com/story/show/187242588
 
    @return observable boolean property
    */

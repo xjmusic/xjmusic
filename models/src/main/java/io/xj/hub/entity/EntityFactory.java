@@ -110,32 +110,32 @@ public interface EntityFactory {
   <N> void setAllEmptyAttributes(N source, N target) throws EntityException;
 
   /**
-   Clone an entity: make a copy with a new id, but the same attributes and relationships
+   Duplicate an entity: make a copy with a new id, but the same attributes and relationships
 
-   @param entity to clone
+   @param entity to duplicate
    @param <N>    type of entity
-   @return clone of original entity
+   @return duplicate of original entity
    */
-  <N> N clone(N entity) throws EntityException;
+  <N> N duplicate(N entity) throws EntityException;
 
   /**
-   Clone a collection of entities: make copies with new ids, but the same attributes and relationships
+   Duplicate a collection of entities: make copies with new ids, but the same attributes and relationships
 
-   @param entities to clone
+   @param entities to duplicate
    @param <N>      type of entities
-   @return map of original entity UUIDs to their new cloned entities
+   @return map of original entity UUIDs to their new duplicated entities
    */
-  <N> Map<UUID, N> cloneAll(Collection<N> entities) throws EntityException;
+  <N> Map<UUID, N> duplicateAll(Collection<N> entities) throws EntityException;
 
   /**
-   Clone a collection of entities: make copies with new ids, but the same attributes and relationships,
+   Duplicate a collection of entities: make copies with new ids, but the same attributes and relationships,
 
-   @param entities         to clone
+   @param entities         to duplicate
    @param newRelationships to overwrite relationships with, e.g. an entity Superwidget will overwrite attributes superwidgetId with the id of the Superwidget
    @param <N>              type of entities
-   @return map of original entity UUIDs to their new cloned entities
+   @return map of original entity UUIDs to their new duplicated entities
    */
-  <N> Map<UUID, N> cloneAll(Collection<N> entities, Collection<?> newRelationships) throws EntityException;
+  <N> Map<UUID, N> duplicateAll(Collection<N> entities, Collection<?> newRelationships) throws EntityException;
 
   /**
    Copy an entity: its id, know attributes, and relationships,

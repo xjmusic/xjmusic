@@ -14,5 +14,5 @@
   </padding>
   <Button fx:id="createButton" styleClass="popup-menu-button" text="Create" onAction="#handlePressedCreate"/>
   <Button fx:id="deleteButton" styleClass="popup-menu-button" text="Delete" onAction="#handlePressedDelete"/>
-  <Button fx:id="cloneButton" styleClass="popup-menu-button" text="Clone" onAction="#handlePressedClone"/>
+  <Button fx:id="duplicateButton" styleClass="popup-menu-button" text="Duplicate" onAction="#handlePressedDuplicate"/>
 </HBox>

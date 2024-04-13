@@ -72,7 +72,7 @@
       <Insets bottom="15" left="15" right="15" top="15"/>
     </padding>
     <VBox fx:id="demoContainer" spacing="10" styleClass="demo-container">
-      <Label text="Select demo project to clone:"/>
+      <Label text="Select demo project:"/>
       <HBox spacing="10">
         <fx:define>
           <ToggleGroup fx:id="demoSelection"/>

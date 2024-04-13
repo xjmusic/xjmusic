@@ -142,34 +142,34 @@ public class EntityFactoryImpl implements EntityFactory {
   }
 
   @Override
-  public <N> N clone(N from) throws EntityException {
-    var clone = copy(from);
-    EntityUtils.setId(clone, UUID.randomUUID());
-    return clone;
+  public <N> N duplicate(N from) throws EntityException {
+    var duplicate = copy(from);
+    EntityUtils.setId(duplicate, UUID.randomUUID());
+    return duplicate;
   }
 
   @Override
-  public <N> Map<UUID, N> cloneAll(Collection<N> entities) throws EntityException {
+  public <N> Map<UUID, N> duplicateAll(Collection<N> entities) throws EntityException {
     try {
-      Map<UUID, N> clones = new HashMap<>();
-      for (N entity : entities) clones.put(EntityUtils.getId(entity), clone(entity));
-      return clones;
+      Map<UUID, N> duplicates = new HashMap<>();
+      for (N entity : entities) duplicates.put(EntityUtils.getId(entity), duplicate(entity));
+      return duplicates;
     } catch (Exception e) {
       throw new EntityException(e);
     }
   }
 
   @Override
-  public <N> Map<UUID, N> cloneAll(Collection<N> entities, Collection<?> newRelationships) throws EntityException {
+  public <N> Map<UUID, N> duplicateAll(Collection<N> entities, Collection<?> newRelationships) throws EntityException {
     try {
-      Map<UUID, N> clones = new HashMap<>();
+      Map<UUID, N> duplicates = new HashMap<>();
       for (N entity : entities) {
-        var clone = clone(entity);
+        var duplicate = duplicate(entity);
         for (Object newRelationship : newRelationships)
-          EntityUtils.set(clone, EntityUtils.toIdAttribute(newRelationship.getClass().getSimpleName()), EntityUtils.getId(newRelationship));
-        clones.put(EntityUtils.getId(entity), clone);
+          EntityUtils.set(duplicate, EntityUtils.toIdAttribute(newRelationship.getClass().getSimpleName()), EntityUtils.getId(newRelationship));
+        duplicates.put(EntityUtils.getId(entity), duplicate);
       }
-      return clones;
+      return duplicates;
     } catch (Exception e) {
       throw new EntityException(e);
     }
@@ -276,16 +276,16 @@ public class EntityFactoryImpl implements EntityFactory {
   }
 
   /**
-   Put a clone of the given entity into the content
+   Put a duplicate of the given entity into the content
 
-   @param content to put the clone into
-   @param entity  to clone
+   @param content to put the duplicate into
+   @param entity  to duplicate
    */
   private void putCopy(HubContent content, Object entity) {
     try {
       content.put(copy(entity));
     } catch (EntityException e) {
-      LOG.error("Failed to clone entity", e);
+      LOG.error("Failed to duplicate entity", e);
     }
   }
 

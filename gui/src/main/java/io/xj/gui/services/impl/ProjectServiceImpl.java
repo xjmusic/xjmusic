@@ -217,9 +217,9 @@ public class ProjectServiceImpl implements ProjectService {
   public void fetchDemoTemplate(String parentPathPrefix, String templateShipKey, String projectName) {
     closeProject(() -> {
       if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName, "Project"))
-        executeInBackground("Clone Project", () -> {
+        executeInBackground("Duplicate Project", () -> {
           try {
-            if (projectManager.cloneProjectFromDemoTemplate(
+            if (projectManager.createProjectFromDemoTemplate(
               demoBaseUrl,
               templateShipKey, parentPathPrefix,
               projectName
@@ -233,7 +233,7 @@ public class ProjectServiceImpl implements ProjectService {
               Platform.runLater(this::cancelProjectLoading);
             }
           } catch (Exception e) {
-            LOG.warn("Failed to clone project! {}\n{}", e, StringUtils.formatStackTrace(e));
+            LOG.warn("Failed to duplicate project! {}\n{}", e, StringUtils.formatStackTrace(e));
             Platform.runLater(this::cancelProjectLoading);
           }
         });
@@ -265,7 +265,7 @@ public class ProjectServiceImpl implements ProjectService {
             Platform.runLater(this::cancelProjectLoading);
           }
         } catch (Exception e) {
-          LOG.warn("Failed to clone project! {}\n{}", e, StringUtils.formatStackTrace(e));
+          LOG.warn("Failed to duplicate project! {}\n{}", e, StringUtils.formatStackTrace(e));
           Platform.runLater(this::cancelProjectLoading);
         }
       });
@@ -619,50 +619,50 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public Template cloneTemplate(UUID fromId, String name) throws Exception {
-    var template = projectManager.cloneTemplate(fromId, name);
+  public Template duplicateTemplate(UUID fromId, String name) throws Exception {
+    var template = projectManager.duplicateTemplate(fromId, name);
     didUpdate(Template.class, true);
-    LOG.info("Cloned template to \"{}\"", name);
+    LOG.info("Duplicated template to \"{}\"", name);
     return template;
   }
 
   @Override
-  public Library cloneLibrary(UUID fromId, String name) throws Exception {
-    var library = projectManager.cloneLibrary(fromId, name);
+  public Library duplicateLibrary(UUID fromId, String name) throws Exception {
+    var library = projectManager.duplicateLibrary(fromId, name);
     didUpdate(Library.class, true);
-    LOG.info("Cloned library to \"{}\"", name);
+    LOG.info("Duplicated library to \"{}\"", name);
     return library;
   }
 
   @Override
-  public Program cloneProgram(UUID fromId, UUID libraryId, String name) throws Exception {
-    var program = projectManager.cloneProgram(fromId, libraryId, name);
+  public Program duplicateProgram(UUID fromId, UUID libraryId, String name) throws Exception {
+    var program = projectManager.duplicateProgram(fromId, libraryId, name);
     didUpdate(Program.class, true);
-    LOG.info("Cloned program to \"{}\"", name);
+    LOG.info("Duplicated program to \"{}\"", name);
     return program;
   }
 
   @Override
-  public ProgramSequence cloneProgramSequence(UUID fromId) throws Exception {
-    var sequence = projectManager.cloneProgramSequence(fromId);
+  public ProgramSequence duplicateProgramSequence(UUID fromId) throws Exception {
+    var sequence = projectManager.duplicateProgramSequence(fromId);
     didUpdate(ProgramSequence.class, true);
-    LOG.info("Cloned program sequence to \"{}\"", sequence.getName());
+    LOG.info("Duplicated program sequence to \"{}\"", sequence.getName());
     return sequence;
   }
 
   @Override
-  public ProgramSequencePattern cloneProgramSequencePattern(UUID fromId) throws Exception {
-    var pattern = projectManager.cloneProgramSequencePattern(fromId);
+  public ProgramSequencePattern duplicateProgramSequencePattern(UUID fromId) throws Exception {
+    var pattern = projectManager.duplicateProgramSequencePattern(fromId);
     didUpdate(ProgramSequence.class, true);
-    LOG.info("Cloned program sequence pattern to \"{}\"", pattern.getName());
+    LOG.info("Duplicated program sequence pattern to \"{}\"", pattern.getName());
     return pattern;
   }
 
   @Override
-  public Instrument cloneInstrument(UUID fromId, UUID libraryId, String name) throws Exception {
-    var instrument = projectManager.cloneInstrument(fromId, libraryId, name);
+  public Instrument duplicateInstrument(UUID fromId, UUID libraryId, String name) throws Exception {
+    var instrument = projectManager.duplicateInstrument(fromId, libraryId, name);
     didUpdate(Instrument.class, true);
-    LOG.info("Cloned instrument to \"{}\"", name);
+    LOG.info("Duplicated instrument to \"{}\"", name);
     return instrument;
   }
 
@@ -1043,11 +1043,11 @@ public class ProjectServiceImpl implements ProjectService {
   /**
    Execute a runnable in a background thread. Use JavaFX Platform.runLater(...) as well as spawning an additional thread.
 
-   @param threadName           the name of the thread
-   @param failedToCloneProject the runnable
+   @param threadName the name of the thread
+   @param run        the runnable
    */
-  private void executeInBackground(String threadName, Runnable failedToCloneProject) {
-    var thread = new Thread(failedToCloneProject);
+  private void executeInBackground(String threadName, Runnable run) {
+    var thread = new Thread(run);
     thread.setName(threadName);
     Platform.runLater(thread::start);
   }

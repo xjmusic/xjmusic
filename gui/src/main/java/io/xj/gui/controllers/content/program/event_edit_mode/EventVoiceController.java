@@ -255,7 +255,7 @@ public class EventVoiceController {
         "New Pattern",
         this::handleCreatePattern,
         patternId.isNotNull().get() ? this::handleDeletePattern : null,
-        patternId.isNotNull().get() ? this::handleClonePattern : null
+        patternId.isNotNull().get() ? this::handleDuplicatePattern : null
       )
     );
   }
@@ -334,14 +334,14 @@ public class EventVoiceController {
   }
 
   /**
-   Clone a new pattern and select it
+   Duplicate a new pattern and select it
    */
-  private void handleClonePattern() {
+  private void handleDuplicatePattern() {
     try {
-      var pattern = projectService.cloneProgramSequencePattern(patternId.get());
+      var pattern = projectService.duplicateProgramSequencePattern(patternId.get());
       handleSelectPattern(pattern.getId());
     } catch (Exception e) {
-      LOG.error("Could not clone Pattern", e);
+      LOG.error("Could not duplicate Pattern", e);
     }
   }
 

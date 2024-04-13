@@ -34,7 +34,7 @@ This project is built with Gradle. To run the XJ music workstation, run:
 
 You should then see the JavaFX GUI open the main window.
 
-Click the Project menu on the top left-hand side and choose Clone to bring up a selection of four demo projects. Click OK to begin cloning the chosen project onto your machine. Once done, the main window will display all of the libraries included in your select project in the Content tab. Click the Fabrication tab in the top right-hand corner to switch to the Fabrication tab, there you can click Start to begin playing the project. 
+Click the Project menu on the top left-hand side and choose Demos to bring up a selection of four demo projects. Click OK to begin cloning the chosen project onto your machine. Once done, the main window will display all of the libraries included in your select project in the Content tab. Click the Fabrication tab in the top right-hand corner to switch to the Fabrication tab, there you can click Start to begin playing the project. 
 
 Click here for a video walkthrough! https://youtu.be/z5i8ZD8AyWE
 
