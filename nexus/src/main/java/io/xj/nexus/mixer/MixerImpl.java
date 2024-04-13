@@ -118,7 +118,7 @@ class MixerImpl implements Mixer {
 
     // Start with original sources summed up verbatim
     // Initial mix steps are done on individual bus
-    // Multi-bus output with individual normalization REF https://www.pivotaltracker.com/story/show/179081795
+    // Multi-bus output with individual normalization REF https://github.com/xjmusic/workstation/issues/275
     for (var a : active) addToMix(a);
 /*
   FUTURE: apply compression to each bus
@@ -134,7 +134,7 @@ class MixerImpl implements Mixer {
     // Compression is more predictable within the logarithmic range
     applyFinalOutputCompressor();
 
-    // NO NORMALIZATION! See https://www.pivotaltracker.com/story/show/179257872
+    // NO NORMALIZATION! See https://github.com/xjmusic/workstation/issues/275
     // applyNormalization(outBuf);
 
     //
@@ -285,7 +285,7 @@ class MixerImpl implements Mixer {
   /**
    apply compressor to mixing buffer
    <p>
-   lookahead-attack compressor compresses entire buffer towards target amplitude https://www.pivotaltracker.com/story/show/154112129
+   lookahead-attack compressor compresses entire buffer towards target amplitude https://github.com/xjmusic/workstation/issues/274
    <p>
    only each major cycle, compute the new target compression ratio,
    but modify the compression ratio *every* frame for max smoothness
@@ -315,7 +315,7 @@ class MixerImpl implements Mixer {
   /*
    FUTURE: apply compressor to individual bus buffers
    <p>
-   lookahead-attack compressor compresses entire buffer towards target amplitude https://www.pivotaltracker.com/story/show/154112129
+   lookahead-attack compressor compresses entire buffer towards target amplitude https://github.com/xjmusic/workstation/issues/274
    <p>
    only each major cycle, compute the new target compression ratio,
    but modify the compression ratio *every* frame for max smoothness
@@ -344,16 +344,6 @@ class MixerImpl implements Mixer {
    */
 
 
-  /*
-   FUTURE Engineer wants high-pass and low-pass filters with gradual thresholds, in order to be optimally heard but not listened to. https://www.pivotaltracker.com/story/show/161670248
-   The lowpass filter ensures there are no screeching extra-high tones in the mix.
-   The highpass filter ensures there are no distorting ultra-low tones in the mix.
-   *
-  void applyBandpass(float[][] buf) throws MixerException {
-    FrequencyRangeLimiter.filter(buf, outputFrameRate, dspBufferSize, (float) highpassThresholdHz, (float) lowpassThresholdHz);
-  }
-   */
-
   /**
    apply logarithmic dynamic range to mixing buffer
    */
@@ -363,10 +353,10 @@ class MixerImpl implements Mixer {
   }
 
   /**
-   NO NORMALIZATION! See https://www.pivotaltracker.com/story/show/179257872
+   NO NORMALIZATION! See https://github.com/xjmusic/workstation/issues/275
    <p>
    Previously: apply normalization to mixing buffer
-   normalize final buffer to normalization threshold https://www.pivotaltracker.com/story/show/154112129
+   normalize final buffer to normalization threshold https://github.com/xjmusic/workstation/issues/274
    */
   @SuppressWarnings("unused")
   void applyNormalization() {
@@ -377,7 +367,7 @@ class MixerImpl implements Mixer {
   }
 
   /**
-   lookahead-attack compressor compresses entire buffer towards target amplitude https://www.pivotaltracker.com/story/show/154112129
+   lookahead-attack compressor compresses entire buffer towards target amplitude https://github.com/xjmusic/workstation/issues/274
 
    @return target amplitude
    */

@@ -827,7 +827,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Select audio from a multiphonic instrument
    <p>
-   Sampler obeys isMultiphonic from Instrument config https://www.pivotaltracker.com/story/show/176649593
+   Sampler obeys isMultiphonic from Instrument config https://github.com/xjmusic/workstation/issues/252
 
    @param instrument of which to score available audios, and make a selection
    @param event      for caching reference
@@ -945,7 +945,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Select a new random instrument audio based on a pattern event
    <p>
-   Sampler obeys isMultiphonic from Instrument config https://www.pivotaltracker.com/story/show/176649593
+   Sampler obeys isMultiphonic from Instrument config https://github.com/xjmusic/workstation/issues/252
 
    @param instrument of which to score available audios, and make a selection
    @param note       to match
@@ -1011,10 +1011,10 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Choose instrument
    <p>
-   Choose drum instrument to fulfill beat program event names https://www.pivotaltracker.com/story/show/180803311
+   Choose drum instrument to fulfill beat program event names https://github.com/xjmusic/workstation/issues/253
 
    @param type              of instrument to choose from
-   @param requireEventNames instrument candidates are required to have event names https://www.pivotaltracker.com/story/show/180803311
+   @param requireEventNames instrument candidates are required to have event names https://github.com/xjmusic/workstation/issues/253
    @return Instrument
    */
   protected Optional<Instrument> chooseFreshInstrument(InstrumentType type, Collection<String> requireEventNames) {
@@ -1049,14 +1049,14 @@ public class CraftImpl extends FabricationWrapperImpl {
 
   /**
    Percussion-type Loop-mode instrument audios are chosen in order of priority
-   https://www.pivotaltracker.com/story/show/181262545
+   https://github.com/xjmusic/workstation/issues/255
    <p>
-   Choose drum instrument to fulfill beat program event names https://www.pivotaltracker.com/story/show/180803311
+   Choose drum instrument to fulfill beat program event names https://github.com/xjmusic/workstation/issues/253
 
    @param types           of instrument to choose from
    @param modes           of instrument to choose from
    @param avoidIds        to avoid, or empty list
-   @param preferredEvents instrument candidates are required to have event names https://www.pivotaltracker.com/story/show/180803311
+   @param preferredEvents instrument candidates are required to have event names https://github.com/xjmusic/workstation/issues/253
    @return Instrument
    */
   @SuppressWarnings("SameParameterValue")
@@ -1165,7 +1165,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Test if an instrument contains audios named like N
    <p>
-   Choose drum instrument to fulfill beat program event names https://www.pivotaltracker.com/story/show/180803311
+   Choose drum instrument to fulfill beat program event names https://github.com/xjmusic/workstation/issues/253
 
    @param instrument    to test
    @param requireEvents N

@@ -64,7 +64,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
         continue;
       }
 
-      // Instruments have InstrumentMode https://www.pivotaltracker.com/story/show/181134085
+      // Instruments have InstrumentMode https://github.com/xjmusic/workstation/issues/260
       switch (instrument.get().getMode()) {
 
         // Event instrument mode takes over legacy behavior https://github.com/xjmusic/workstation/issues/234

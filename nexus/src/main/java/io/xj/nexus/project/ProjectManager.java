@@ -204,7 +204,7 @@ public interface ProjectManager {
    1. Program in the same library
    2. any Programs in the project
    3. defaults
-   https://www.pivotaltracker.com/story/show/187042551
+   https://github.com/xjmusic/workstation/issues/277
 
    @param library parent containing program
    @param name    of the program
@@ -291,7 +291,7 @@ public interface ProjectManager {
    1. Instrument in the same library
    2. any Instruments in the project
    3. defaults
-   https://www.pivotaltracker.com/story/show/187042551
+   https://github.com/xjmusic/workstation/issues/277
 
    @param library parent containing instrument
    @param name    of the instrument
@@ -318,7 +318,7 @@ public interface ProjectManager {
    4. any Instrument Audios in the project
    5. any Programs in the project
    6. defaults
-   https://www.pivotaltracker.com/story/show/187042551
+   https://github.com/xjmusic/workstation/issues/277
 
    @param instrument    in which to create an audio
    @param audioFilePath to import audio from disk

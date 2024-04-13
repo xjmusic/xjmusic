@@ -150,7 +150,7 @@ public class SegmentRetrospectiveImplTest {
   }
 
   /**
-   Failure requiring a chain restart https://www.pivotaltracker.com/story/show/182131722
+   Failure requiring a chain restart https://github.com/xjmusic/workstation/issues/263
    */
   @Test
   public void failureToReadMainChoiceIsFatal() throws NexusException {

@@ -41,7 +41,7 @@ import java.util.stream.Stream;
 
 /**
  NexusEntityStore segments and child entities partitioned by segment id for rapid addressing
- https://www.pivotaltracker.com/story/show/175880468
+ https://github.com/xjmusic/workstation/issues/276
  <p>
  XJ Lab Distributed Architecture
  https://github.com/xjmusic/workstation/issues/207

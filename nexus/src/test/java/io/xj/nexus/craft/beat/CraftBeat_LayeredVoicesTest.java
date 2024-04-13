@@ -65,7 +65,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
- Beat fabrication composited of layered Patterns https://www.pivotaltracker.com/story/show/166481918
+ Beat fabrication composited of layered Patterns https://github.com/xjmusic/workstation/issues/267
  */
 @ExtendWith(MockitoExtension.class)
 public class CraftBeat_LayeredVoicesTest {

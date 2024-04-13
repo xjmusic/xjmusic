@@ -47,7 +47,7 @@ import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 
 /**
- Background fabrication composited of layered Patterns https://www.pivotaltracker.com/story/show/166481918
+ Background fabrication composited of layered Patterns https://github.com/xjmusic/workstation/issues/267
  */
 @ExtendWith(MockitoExtension.class)
 public class CraftBackground_LayeredVoicesTest {

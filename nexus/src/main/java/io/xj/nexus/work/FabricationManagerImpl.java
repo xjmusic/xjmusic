@@ -409,7 +409,7 @@ public class FabricationManagerImpl implements FabricationManager {
           .sorted(Comparator.comparing(InstrumentAudio::getName))
           .toList()) {
           if (!Objects.equals(state.get(), FabricationState.PreparingAudio)) {
-            // Workstation canceling preloading should cease resampling audio files https://www.pivotaltracker.com/story/show/186209135
+            // Workstation canceling preloading should cease resampling audio files https://github.com/xjmusic/workstation/issues/278
             return;
           }
           if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
