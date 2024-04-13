@@ -227,7 +227,7 @@ public class CraftBeat_LayeredVoicesTest {
 
     Segment result = store.readSegment(segment4.getId()).orElseThrow();
     assertFalse(store.readAll(result.getId(), SegmentChoice.class).isEmpty());
-    // test vector for persist Audio pick in memory https://www.pivotaltracker.com/story/show/154014731
+    
     int pickedKick = 0;
     int pickedSnare = 0;
     int pickedHihat = 0;
