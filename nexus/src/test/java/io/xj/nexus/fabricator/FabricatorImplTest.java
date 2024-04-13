@@ -317,7 +317,7 @@ public class FabricatorImplTest {
   /**
    Unit test behavior of choosing an event for a note in a detail program
    <p>
-   Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
+   Sticky bun note choices should persist into following segments https://github.com/xjmusic/workstation/issues/281
    */
   @Test
   public void getStickyBun_readMetaFromCurrentSegment() throws JsonProcessingException, NexusException {
@@ -335,7 +335,7 @@ public class FabricatorImplTest {
   /**
    Unit test behavior of choosing an event for a note in a detail program
    <p>
-   Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
+   Sticky bun note choices should persist into following segments https://github.com/xjmusic/workstation/issues/281
    */
   @Test
   public void getStickyBun_readMetaFromPreviousSegment() throws JsonProcessingException {
@@ -354,7 +354,7 @@ public class FabricatorImplTest {
   /**
    Unit test behavior of choosing a different events for a series of X notes in a detail program
    <p>
-   Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
+   Sticky bun note choices should persist into following segments https://github.com/xjmusic/workstation/issues/281
    */
   @Test
   public void getStickyBun_createForEvent() {
@@ -366,7 +366,7 @@ public class FabricatorImplTest {
   /**
    Unit test behavior of choosing an event for a note in a detail program
    <p>
-   Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
+   Sticky bun note choices should persist into following segments https://github.com/xjmusic/workstation/issues/281
    */
   @Test
   public void getStickyBun_multipleEventsPickedSeparately() throws JsonProcessingException, NexusException {
