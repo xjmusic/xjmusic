@@ -62,7 +62,7 @@ public interface SegmentRetrospective {
   /**
    Get the meta from the previous segment with the given key
    <p>
-   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
+   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/workstation/issues/222
 
    @param key to search for meta
    @return meta if found

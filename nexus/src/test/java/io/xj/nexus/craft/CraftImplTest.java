@@ -204,7 +204,7 @@ public class CraftImplTest {
 
   /**
    Chord-mode Instrument: Slash Chord Fluency
-   https://www.pivotaltracker.com/story/show/182885209
+   https://github.com/xjmusic/workstation/issues/227
    When the exact match is not present for an entire slash chord name, choose a chord matching the pre-slash name
    */
   @Test

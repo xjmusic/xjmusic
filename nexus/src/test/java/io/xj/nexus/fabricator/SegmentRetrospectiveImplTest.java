@@ -164,7 +164,7 @@ public class SegmentRetrospectiveImplTest {
   }
 
   /**
-   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
+   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/workstation/issues/222
    */
   @Test
   public void getPreviousMeta() throws NexusException, FabricationFatalException, JsonProcessingException {

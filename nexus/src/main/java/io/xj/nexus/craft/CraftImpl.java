@@ -550,7 +550,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     // skip instruments that are not one-shot
     if (!fabricator.isOneShot(instrument)) return;
 
-    // skip instruments that are do not have one-shot cutoff enabled https://www.pivotaltracker.com/story/show/181211927
+    // skip instruments that are do not have one-shot cutoff enabled https://github.com/xjmusic/workstation/issues/225
     if (!fabricator.isOneShotCutoffEnabled(instrument)) return;
 
     // skip instruments that are not on the list

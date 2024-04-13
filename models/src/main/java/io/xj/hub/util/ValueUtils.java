@@ -180,7 +180,7 @@ public interface ValueUtils {
 
   /**
    Round a value to N decimal places.
-   Architect wants to limit the floating point precision of chord and event position, in order to limit obsession over the position of things. https://www.pivotaltracker.com/story/show/154976066
+   Limit the floating point precision of chord and event position, in order to limit obsession over the position of things. https://github.com/xjmusic/workstation/issues/223
 
    @param value to round
    @return rounded position

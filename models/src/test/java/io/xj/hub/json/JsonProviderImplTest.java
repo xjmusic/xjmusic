@@ -18,7 +18,6 @@ class JsonProviderImplTest {
 
   /**
    JSON deserialization should not fail when encountering attribute in JSON not found in class - for backwards compatibility
-   https://www.pivotaltracker.com/story/show/187065191
    */
   @Test
   void deserialize_doesnt_fail_on_unknown_fields() throws JsonProcessingException {

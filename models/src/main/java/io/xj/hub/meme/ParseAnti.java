@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  <p>
  Parse any meme to test if it's valid, and extract its features
  <p>
- Artist can add !MEME values into Programs https://www.pivotaltracker.com/story/show/176474073
+ Artist can add !MEME values into Programs https://github.com/xjmusic/workstation/issues/214
  */
 class ParseAnti {
   static final Pattern rgx = Pattern.compile("^!(.+)$");

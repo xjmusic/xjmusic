@@ -80,7 +80,7 @@ public class JsonapiPayloadSerializerTest {
   }
 
   /**
-   JSON:API serializer must not include relationship payload where there is none https://www.pivotaltracker.com/story/show/175792528
+   JSON:API serializer must not include relationship payload where there is none
    */
   @Test
   public void serializeOne_withBelongsTo_empty() throws JsonapiException {

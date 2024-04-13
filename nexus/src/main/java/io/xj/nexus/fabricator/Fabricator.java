@@ -518,7 +518,7 @@ public interface Fabricator {
   void putStickyBun(StickyBun bun) throws JsonProcessingException, NexusException;
 
   /**
-   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
+   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/workstation/issues/222
    - Sticky bun is a simple coded key-value in segment meta
    --- key by pattern ID
    --- value is a comma-separated list of integers, one integer for each note in the pattern, where
@@ -666,7 +666,7 @@ public interface Fabricator {
    - Add memes of choices to segment in order to affect further choices.
    - Add all memes of this choice, from target program, program sequence binding, or instrument if present
    - Enhances: Straightforward meme logic https://www.pivotaltracker.com/story/show/179078533
-   - Enhances: XJ should not add memes to Segment for program/instrument that was not successfully chosen https://www.pivotaltracker.com/story/show/180468224
+   - Enhances: XJ should not add memes to Segment for program/instrument that was not successfully chosen https://github.com/xjmusic/workstation/issues/216
    <p>
 
    @param entity to put

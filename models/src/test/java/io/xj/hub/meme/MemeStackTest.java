@@ -27,7 +27,7 @@ public class MemeStackTest {
   /**
    Anti-Memes
    <p>
-   Artist can add !MEME values into Programs https://www.pivotaltracker.com/story/show/176474073
+   Artist can add !MEME values into Programs https://github.com/xjmusic/workstation/issues/214
    */
   @Test
   public void antiMemes() {
@@ -44,7 +44,7 @@ public class MemeStackTest {
   /**
    Unique Memes
    <p>
-   Artist can add `$MEME` so only one is chosen https://www.pivotaltracker.com/story/show/179078760
+   Artist can add `$MEME` so only one is chosen https://github.com/xjmusic/workstation/issues/219
    */
   @Test
   public void uniqueMemes() {
@@ -55,7 +55,7 @@ public class MemeStackTest {
   }
 
   /**
-   Numeric memes with common letters and different integer prefix (e.g. 2STEP vs 4STEP) are known to be exclusive https://www.pivotaltracker.com/story/show/180125852
+   Numeric memes with common letters and different integer prefix (e.g. 2STEP vs 4STEP) are known to be exclusive https://github.com/xjmusic/workstation/issues/217
    */
   @Test
   public void numericMemes() {
@@ -72,7 +72,7 @@ public class MemeStackTest {
   }
 
   /**
-   Strong-meme like LEMONS! should always favor LEMONS https://www.pivotaltracker.com/story/show/180468772
+   Strong-meme like LEMONS! should always favor LEMONS https://github.com/xjmusic/workstation/issues/218
    */
   @Test
   public void strongMemes() {
@@ -85,7 +85,7 @@ public class MemeStackTest {
   }
 
   /**
-   Strong-meme like LEMONS! should always favor LEMONS https://www.pivotaltracker.com/story/show/180468772
+   Strong-meme like LEMONS! should always favor LEMONS https://github.com/xjmusic/workstation/issues/218
    */
   @Test
   public void strongMemes_okayToAddBothStrongAndRegular_butNotOnlyStrong() {
