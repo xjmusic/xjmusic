@@ -140,9 +140,6 @@ public class CraftFoundationContinueTest {
     ));
   }
 
-  /**
-   persist Segment basis as JSON, then read basis JSON during fabrication of any segment that continues a main sequence https://www.pivotaltracker.com/story/show/162361525
-   */
   @Test
   public void craftFoundationContinue() throws Exception {
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);

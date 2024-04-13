@@ -859,7 +859,7 @@ public class NexusIntegrationTestingFixtures {
 
     // Instrument "808"
     instrument8 = NexusHubIntegrationTestingFixtures.buildInstrument(library2, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "808 Drums");
-    instrument8.setVolume(0.76f); // For testing: Instrument has overall volume parameter https://www.pivotaltracker.com/story/show/179215413
+    instrument8.setVolume(0.76f); // For testing: Instrument has overall volume parameter https://github.com/xjmusic/workstation/issues/300
     instrument8_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(instrument8, "heavy");
     instrument8_audio8kick = NexusHubIntegrationTestingFixtures.buildAudio(instrument8, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb", 1.0f);
     instrument8_audio8snare = NexusHubIntegrationTestingFixtures.buildAudio(instrument8, "Snare", "975898198017350afghjkjhaskjdfjhk.wav", 0.01f, 1.5f, 120.0f, 0.62f, "SNARE", "Ab", 0.8f);

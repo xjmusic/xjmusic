@@ -162,7 +162,7 @@ public class NexusEntityStoreImplTest {
   }
 
   /**
-   Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation https://www.pivotaltracker.com/story/show/162361712
+   Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation https://github.com/xjmusic/workstation/issues/301
    */
   @Test
   public void create() throws Exception {
@@ -443,7 +443,7 @@ public class NexusEntityStoreImplTest {
   }
 
   /**
-   List of Segments returned should not be more than a dozen or so https://www.pivotaltracker.com/story/show/173806948
+   List of Segments returned should not be more than a dozen or so https://github.com/xjmusic/workstation/issues/302
    */
   @Test
   public void readAll_hasNoLimit() throws NexusException {
@@ -496,7 +496,7 @@ public class NexusEntityStoreImplTest {
   }
 
   /**
-   persist Segment content as JSON, then read prior Segment JSON https://www.pivotaltracker.com/story/show/162361525
+   persist Segment content, then read prior Segment content
    */
   @Test
   public void updateSegment_persistPriorSegmentContent() throws Exception {

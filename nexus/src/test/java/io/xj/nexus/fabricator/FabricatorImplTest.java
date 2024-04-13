@@ -154,7 +154,7 @@ public class FabricatorImplTest {
 
 
   /**
-   Choose next Macro program based on the memes of the last sequence from the previous Macro program https://www.pivotaltracker.com/story/show/176728582
+   Choose next Macro program based on the memes of the last sequence from the previous Macro program https://github.com/xjmusic/workstation/issues/299
    */
   @Test
   public void getType() throws NexusException, ManagerFatalException, FabricationFatalException, ValueException, HubClientException {
