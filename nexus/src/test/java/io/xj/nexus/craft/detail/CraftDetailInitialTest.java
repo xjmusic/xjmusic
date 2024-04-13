@@ -140,7 +140,7 @@ public class CraftDetailInitialTest {
     Collection<SegmentChoice> choices = store.readAll(segment6.getId(), SegmentChoice.class);
     assertNotNull(SegmentUtils.findFirstOfType(choices, ProgramType.Detail));
 
-    // Detail Craft v1 -- segment chords voicings belong to chords and segments https://www.pivotaltracker.com/story/show/154464276
+    // Detail Craft v1 -- segment chords voicings belong to chords and segments https://github.com/xjmusic/workstation/issues/284
     Collection<SegmentChordVoicing> voicings = store.readAll(segment6.getId(), SegmentChordVoicing.class);
     assertEquals(2, voicings.size());
   }
