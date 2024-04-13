@@ -114,7 +114,7 @@ public class ContentBrowserController extends BrowserController {
     addActionsColumn(Library.class, librariesTable,
       library -> uiStateService.editLibrary(library.getId()),
       null,
-      cmdModalController::cloneLibrary,
+      cmdModalController::duplicateLibrary,
       cmdModalController::deleteLibrary, null);
     setupData(
       librariesTable,
@@ -150,7 +150,7 @@ public class ContentBrowserController extends BrowserController {
     addActionsColumn(Program.class, programsTable,
       program -> uiStateService.editProgram(program.getId()),
       cmdModalController::moveProgram,
-      cmdModalController::cloneProgram,
+      cmdModalController::duplicateProgram,
       cmdModalController::deleteProgram, null);
     setupData(
       programsTable,
@@ -188,7 +188,7 @@ public class ContentBrowserController extends BrowserController {
     addActionsColumn(Instrument.class, instrumentsTable,
       instrument -> uiStateService.editInstrument(instrument.getId()),
       cmdModalController::moveInstrument,
-      cmdModalController::cloneInstrument,
+      cmdModalController::duplicateInstrument,
       cmdModalController::deleteInstrument, null);
     setupData(
       instrumentsTable,

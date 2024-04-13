@@ -314,16 +314,16 @@ public class ProgramEditorController extends ProjectController {
         "New Sequence",
         this::handleCreateSequence,
         programHasSequences.get() ? this::handleDeleteSequence : null,
-        programHasSequences.get() ? this::handleCloneSequence : null
+        programHasSequences.get() ? this::handleDuplicateSequence : null
       )
     );
   }
 
   @FXML
-  void openCloneDialog() {
+  void openDuplicateDialog() {
     var program = projectService.getContent().getProgram(programId.get())
       .orElseThrow(() -> new RuntimeException("Could not find Program"));
-    cmdModalController.cloneProgram(program);
+    cmdModalController.duplicateProgram(program);
   }
 
   @Override
@@ -458,16 +458,16 @@ public class ProgramEditorController extends ProjectController {
   }
 
   /**
-   Clone the current sequence
+   Duplicate the current sequence
    */
-  private void handleCloneSequence() {
+  private void handleDuplicateSequence() {
     var currentSequence = uiStateService.currentProgramSequenceProperty().get();
     if (Objects.isNull(currentSequence)) return;
     try {
-      ProgramSequence clonedProgramSequence = projectService.cloneProgramSequence(currentSequence.getId());
-      uiStateService.currentProgramSequenceProperty().set(clonedProgramSequence);
+      ProgramSequence duplicateProgramSequence = projectService.duplicateProgramSequence(currentSequence.getId());
+      uiStateService.currentProgramSequenceProperty().set(duplicateProgramSequence);
     } catch (Exception e) {
-      LOG.info("Failed to clone sequence ");
+      LOG.info("Failed to duplicate sequence ");
     }
   }
 }

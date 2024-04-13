@@ -57,7 +57,7 @@ public abstract class BrowserController extends ProjectController {
    @param table    for which to add column
    @param onEdit   action to perform when editing an item
    @param onMove   action to perform when moving an item
-   @param onClone  action to perform when cloning an item
+   @param onDuplicate  action to perform when cloning an item
    @param onDelete action to perform when deleting an item
    @param onExport action to perform when exporting an item
    */
@@ -66,13 +66,13 @@ public abstract class BrowserController extends ProjectController {
     TableView<N> table,
     @Nullable Consumer<N> onEdit,
     @Nullable Consumer<N> onMove,
-    @Nullable Consumer<N> onClone,
+    @Nullable Consumer<N> onDuplicate,
     @Nullable Consumer<N> onDelete,
     @Nullable Consumer<N> onExport
   ) {
     TableColumn<N, N> buttonsColumn = new TableColumn<>();
-    buttonsColumn.setCellFactory(param -> new ButtonCell<>(type, onEdit, onMove, onClone, onDelete, onExport));
-    buttonsColumn.setPrefWidth(Stream.of(onEdit, onMove, onClone, onDelete).filter(Objects::nonNull).count() * 25 + 5);
+    buttonsColumn.setCellFactory(param -> new ButtonCell<>(type, onEdit, onMove, onDuplicate, onDelete, onExport));
+    buttonsColumn.setPrefWidth(Stream.of(onEdit, onMove, onDuplicate, onDelete).filter(Objects::nonNull).count() * 25 + 5);
     table.getColumns().add(buttonsColumn);
   }
 
@@ -108,7 +108,7 @@ public abstract class BrowserController extends ProjectController {
      @param type of entity in table
      @param onEdit   action
      @param onMove   action
-     @param onClone  action
+     @param onDuplicate  action
      @param onDelete action
      @param onExport action
      */
@@ -116,7 +116,7 @@ public abstract class BrowserController extends ProjectController {
       Class<N> type,
       @Nullable Consumer<N> onEdit,
       @Nullable Consumer<N> onMove,
-      @Nullable Consumer<N> onClone,
+      @Nullable Consumer<N> onDuplicate,
       @Nullable Consumer<N> onDelete,
       @Nullable Consumer<N> onExport
     ) {
@@ -125,8 +125,8 @@ public abstract class BrowserController extends ProjectController {
         buttons.getChildren().add(buildButton(String.format("Edit %s", type.getSimpleName()), "icons/pen-to-square.png", onEdit));
       if (Objects.nonNull(onMove))
         buttons.getChildren().add(buildButton(String.format("Move %s", type.getSimpleName()), "icons/move.png", onMove));
-      if (Objects.nonNull(onClone))
-        buttons.getChildren().add(buildButton(String.format("Clone %s", type.getSimpleName()), "icons/copy.png", onClone));
+      if (Objects.nonNull(onDuplicate))
+        buttons.getChildren().add(buildButton(String.format("Duplicate %s", type.getSimpleName()), "icons/copy.png", onDuplicate));
       if (Objects.nonNull(onDelete))
         buttons.getChildren().add(buildButton(String.format("Delete %s", type.getSimpleName()), "icons/document-xmark.png", onDelete));
       if (Objects.nonNull(onExport))

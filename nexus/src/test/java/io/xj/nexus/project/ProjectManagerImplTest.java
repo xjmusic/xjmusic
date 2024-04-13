@@ -116,7 +116,7 @@ class ProjectManagerImplTest {
     subject.getContent().clear();
     String tempPath = System.getProperty("java.io.tmpdir");
 
-    subject.cloneProjectFromDemoTemplate("https://audio.test.xj.io/", "test", tempPath + "test", "test");
+    subject.createProjectFromDemoTemplate("https://audio.test.xj.io/", "test", tempPath + "test", "test");
 
     assertEquals("https://audio.test.xj.io/", subject.getDemoBaseUrl());
   }
@@ -457,20 +457,20 @@ class ProjectManagerImplTest {
   }
 
   @Test
-  void cloneTemplate() throws Exception {
-    var clone = subject.cloneTemplate(UUID.fromString("6cfd24de-dc92-436e-9a7e-def8c9e2d351"), "Cloned Template");
+  void duplicateTemplate() throws Exception {
+    var duplicate = subject.duplicateTemplate(UUID.fromString("6cfd24de-dc92-436e-9a7e-def8c9e2d351"), "Duplicated Template");
 
-    assertEquals(1, subject.getContent().getBindingsOfTemplate(clone.getId()).size());
+    assertEquals(1, subject.getContent().getBindingsOfTemplate(duplicate.getId()).size());
   }
 
   @Test
-  void cloneLibrary() throws Exception {
-    var clone = subject.cloneLibrary(UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"), "Cloned Library");
+  void duplicateLibrary() throws Exception {
+    var duplicate = subject.duplicateLibrary(UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"), "Duplicated Library");
 
-    assertEquals("Cloned Library", subject.getContent().getLibrary(clone.getId()).orElseThrow().getName());
+    assertEquals("Duplicated Library", subject.getContent().getLibrary(duplicate.getId()).orElseThrow().getName());
     // 2 programs
-    assertEquals(2, subject.getContent().getProgramsOfLibrary(clone.getId()).size());
-    var programs = subject.getContent().getProgramsOfLibrary(clone.getId()).stream().sorted(Comparator.comparing(Program::getName)).toList();
+    assertEquals(2, subject.getContent().getProgramsOfLibrary(duplicate.getId()).size());
+    var programs = subject.getContent().getProgramsOfLibrary(duplicate.getId()).stream().sorted(Comparator.comparing(Program::getName)).toList();
     var program1 = programs.get(0);
     assertEquals("Copy of coconuts", program1.getName());
     var program2 = programs.get(1);
@@ -560,8 +560,8 @@ class ProjectManagerImplTest {
     var program2_sequence_chord2_voicing2 = program2_sequence_chord2_voicings.get(1);
     assertEquals("G", program2_sequence_chord2_voicing2.getNotes());
     // 2 instruments
-    assertEquals(2, subject.getContent().getInstrumentsOfLibrary(clone.getId()).size());
-    var instruments = subject.getContent().getInstrumentsOfLibrary(clone.getId()).stream().sorted(Comparator.comparing(Instrument::getName)).toList();
+    assertEquals(2, subject.getContent().getInstrumentsOfLibrary(duplicate.getId()).size());
+    var instruments = subject.getContent().getInstrumentsOfLibrary(duplicate.getId()).stream().sorted(Comparator.comparing(Instrument::getName)).toList();
     var instrument1 = instruments.get(0);
     assertEquals("Copy of 808 Drums", instrument1.getName());
     var instrument2 = instruments.get(1);
@@ -583,15 +583,15 @@ class ProjectManagerImplTest {
   }
 
   @Test
-  void cloneProgram() throws Exception {
-    var clone1 = subject.cloneProgram(UUID.fromString("7ad65895-27b8-453d-84f1-ef2a2a2f09eb"), UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"), "Cloned Program 1");
-    var clone2 = subject.cloneProgram(UUID.fromString("28d2208b-0a5f-44d5-9096-cc4157c36fb3"), UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"), "Cloned Program 2");
+  void duplicateProgram() throws Exception {
+    var duplicate1 = subject.duplicateProgram(UUID.fromString("7ad65895-27b8-453d-84f1-ef2a2a2f09eb"), UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"), "Duplicated Program 1");
+    var duplicate2 = subject.duplicateProgram(UUID.fromString("28d2208b-0a5f-44d5-9096-cc4157c36fb3"), UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"), "Duplicated Program 2");
 
     // 2 programs
-    var program1 = subject.getContent().getProgram(clone1.getId()).orElseThrow();
-    assertEquals("Cloned Program 1", program1.getName());
-    var program2 = subject.getContent().getProgram(clone2.getId()).orElseThrow();
-    assertEquals("Cloned Program 2", program2.getName());
+    var program1 = subject.getContent().getProgram(duplicate1.getId()).orElseThrow();
+    assertEquals("Duplicated Program 1", program1.getName());
+    var program2 = subject.getContent().getProgram(duplicate2.getId()).orElseThrow();
+    assertEquals("Duplicated Program 2", program2.getName());
     // 1 meme per program
     assertEquals(1, subject.getContent().getMemesOfProgram(program1.getId()).size());
     var program1_meme = subject.getContent().getMemesOfProgram(program1.getId()).stream().findFirst().orElseThrow();
@@ -679,13 +679,13 @@ class ProjectManagerImplTest {
   }
 
   @Test
-  void cloneProgramSequence() throws Exception {
-    var clone1 = subject.cloneProgramSequence(UUID.fromString("2ff1c4e0-0f45-4457-900d-c7efef699e86"));
-    var clone2 = subject.cloneProgramSequence(UUID.fromString("d1be946c-ea2c-4f74-a9df-18a659b99fc8"));
+  void duplicateProgramSequence() throws Exception {
+    var duplicate1 = subject.duplicateProgramSequence(UUID.fromString("2ff1c4e0-0f45-4457-900d-c7efef699e86"));
+    var duplicate2 = subject.duplicateProgramSequence(UUID.fromString("d1be946c-ea2c-4f74-a9df-18a659b99fc8"));
 
     // 1 sequence per program
-    var program1_sequence = subject.getContent().getProgramSequence(clone1.getId()).stream().findFirst().orElseThrow();
-    var program2_sequence = subject.getContent().getProgramSequence(clone2.getId()).stream().findFirst().orElseThrow();
+    var program1_sequence = subject.getContent().getProgramSequence(duplicate1.getId()).stream().findFirst().orElseThrow();
+    var program2_sequence = subject.getContent().getProgramSequence(duplicate2.getId()).stream().findFirst().orElseThrow();
     // 2 patterns in first sequence, 0 in the second
     var program1_sequence_patterns = subject.getContent().getPatternsOfSequence(program1_sequence.getId()).stream().sorted(Comparator.comparing(ProgramSequencePattern::getName)).toList();
     assertEquals(2, program1_sequence_patterns.size());
@@ -711,7 +711,7 @@ class ProjectManagerImplTest {
     assertEquals(0.5f, program1_sequence_pattern2_event2.getPosition());
     assertEquals("D", program1_sequence_pattern2_event2.getTones());
     assertEquals(program1_voice_track2.getId(), program1_sequence_pattern2_event2.getProgramVoiceTrackId());
-    // 0 bindings -- we don't clone the bindings because this would cause duplicate bindings at all the same offsets
+    // 0 bindings -- we don't duplicate the bindings because this would cause duplicate bindings at all the same offsets
     assertEquals(0, subject.getContent().getBindingsOfSequence(program2_sequence.getId()).size());
     assertEquals(0, subject.getContent().getBindingsOfSequence(program1_sequence.getId()).size());
     // 0 chords in first sequence, 2 in the second
@@ -734,14 +734,14 @@ class ProjectManagerImplTest {
   }
 
   @Test
-  void cloneProgramSequencePattern() throws Exception {
-    var clone1 = subject.cloneProgramSequencePattern(UUID.fromString("0457d46f-5d6c-495e-a3e8-8bb9740cee18"));
-    var clone2 = subject.cloneProgramSequencePattern(UUID.fromString("9ed7fbaa-540e-4539-b886-8788caf3dbff"));
+  void duplicateProgramSequencePattern() throws Exception {
+    var duplicate1 = subject.duplicateProgramSequencePattern(UUID.fromString("0457d46f-5d6c-495e-a3e8-8bb9740cee18"));
+    var duplicate2 = subject.duplicateProgramSequencePattern(UUID.fromString("9ed7fbaa-540e-4539-b886-8788caf3dbff"));
 
-    var program1_sequence_pattern1 = subject.getContent().getProgramSequencePattern(clone1.getId()).orElseThrow();
-    var program1_sequence_pattern2 = subject.getContent().getProgramSequencePattern(clone2.getId()).orElseThrow();
-    assertEquals("Clone of decay", program1_sequence_pattern1.getName());
-    assertEquals("Clone of growth", program1_sequence_pattern2.getName());
+    var program1_sequence_pattern1 = subject.getContent().getProgramSequencePattern(duplicate1.getId()).orElseThrow();
+    var program1_sequence_pattern2 = subject.getContent().getProgramSequencePattern(duplicate2.getId()).orElseThrow();
+    assertEquals("Duplicate of decay", program1_sequence_pattern1.getName());
+    assertEquals("Duplicate of growth", program1_sequence_pattern2.getName());
     // Tracks same as original program 1 (none in program 2)
     var program1_voice_tracks = subject.getContent().getTracksOfProgram(UUID.fromString("7ad65895-27b8-453d-84f1-ef2a2a2f09eb")).stream().sorted(Comparator.comparing(ProgramVoiceTrack::getName)).toList();
     var program1_voice_track1 = program1_voice_tracks.get(0);
@@ -761,15 +761,15 @@ class ProjectManagerImplTest {
   }
 
   @Test
-  void cloneInstrument() throws Exception {
-    var clone1 = subject.cloneInstrument(UUID.fromString("9097d757-ae8f-4d68-b449-8ec96602ca83"), UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"), "Cloned Instrument 1");
-    var clone2 = subject.cloneInstrument(UUID.fromString("5cd9560b-e577-4f71-b263-ccf604b3bb30"), UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"), "Cloned Instrument 2");
+  void duplicateInstrument() throws Exception {
+    var duplicate1 = subject.duplicateInstrument(UUID.fromString("9097d757-ae8f-4d68-b449-8ec96602ca83"), UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"), "Duplicated Instrument 1");
+    var duplicate2 = subject.duplicateInstrument(UUID.fromString("5cd9560b-e577-4f71-b263-ccf604b3bb30"), UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"), "Duplicated Instrument 2");
 
     // 2 instruments
-    var instrument1 = subject.getContent().getInstrument(clone1.getId()).orElseThrow();
-    assertEquals("Cloned Instrument 1", instrument1.getName());
-    var instrument2 = subject.getContent().getInstrument(clone2.getId()).orElseThrow();
-    assertEquals("Cloned Instrument 2", instrument2.getName());
+    var instrument1 = subject.getContent().getInstrument(duplicate1.getId()).orElseThrow();
+    assertEquals("Duplicated Instrument 1", instrument1.getName());
+    var instrument2 = subject.getContent().getInstrument(duplicate2.getId()).orElseThrow();
+    assertEquals("Duplicated Instrument 2", instrument2.getName());
     // 1 meme per instrument
     assertEquals(1, subject.getContent().getMemesOfInstrument(instrument1.getId()).size());
     var instrument1_meme = subject.getContent().getMemesOfInstrument(instrument1.getId()).stream().findFirst().orElseThrow();

@@ -32,7 +32,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- Modal to Create/Clone/Move/Delete (CcMD) an Entity.
+ Modal to Create/Duplicate/Move/Delete (CdMD) an Entity.
  */
 @Service
 public class TemplateAddBindingModalController extends ProjectModalController {

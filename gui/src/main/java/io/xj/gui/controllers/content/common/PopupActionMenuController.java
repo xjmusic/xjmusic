@@ -22,7 +22,7 @@ public class PopupActionMenuController {
   private Runnable onDelete;
 
   @Nullable
-  private Runnable onClone;
+  private Runnable onDuplicate;
 
   @FXML
   HBox container;
@@ -34,33 +34,33 @@ public class PopupActionMenuController {
   Button deleteButton;
 
   @FXML
-  Button cloneButton;
+  Button duplicateButton;
 
 
   /**
    Set up the popup menu
 
-   @param onCreate callback to create track
-   @param onDelete callback to delete track
-   @param onClone  callback to clone track
+   @param onCreate    callback to create track
+   @param onDelete    callback to delete track
+   @param onDuplicate callback to duplicate track
    */
   public void setup(
     @Nullable String createText,
     @Nullable Runnable onCreate,
     @Nullable Runnable onDelete,
-    @Nullable Runnable onClone
+    @Nullable Runnable onDuplicate
   ) {
     this.onCreated = onCreate;
     this.onDelete = onDelete;
-    this.onClone = onClone;
+    this.onDuplicate = onDuplicate;
 
     if (Objects.nonNull(createText)) createButton.setText(createText);
     createButton.setVisible(Objects.nonNull(onCreate));
     createButton.setManaged(Objects.nonNull(onCreate));
     deleteButton.setVisible(Objects.nonNull(onDelete));
     deleteButton.setManaged(Objects.nonNull(onDelete));
-    cloneButton.setVisible(Objects.nonNull(onClone));
-    cloneButton.setManaged(Objects.nonNull(onClone));
+    duplicateButton.setVisible(Objects.nonNull(onDuplicate));
+    duplicateButton.setManaged(Objects.nonNull(onDuplicate));
   }
 
   /**
@@ -86,9 +86,9 @@ public class PopupActionMenuController {
   }
 
   @FXML
-  void handlePressedClone() {
-    Objects.requireNonNull(onClone);
-    onClone.run();
+  void handlePressedDuplicate() {
+    Objects.requireNonNull(onDuplicate);
+    onDuplicate.run();
     teardown();
   }
 }

@@ -47,7 +47,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- Modal to Create/Clone/Move/Delete (CcMD) an Entity.
+ Modal to Create/Duplicate/Move/Delete (CdMD) an Entity.
  */
 @Service
 public class CmdModalController extends ProjectModalController {
@@ -171,22 +171,22 @@ public class CmdModalController extends ProjectModalController {
             }
           }
         }
-        case Clone -> {
+        case Duplicate -> {
           switch (type.get()) {
             case Template -> {
-              var template = projectService.cloneTemplate(currentId.get(), name.getValue());
+              var template = projectService.duplicateTemplate(currentId.get(), name.getValue());
               uiStateService.editTemplate(template.getId());
             }
             case Library -> {
-              var library = projectService.cloneLibrary(currentId.get(), name.getValue());
+              var library = projectService.duplicateLibrary(currentId.get(), name.getValue());
               uiStateService.viewLibrary(library.getId());
             }
             case Program -> {
-              var program = projectService.cloneProgram(currentId.get(), parentLibrary.get().getId(), name.getValue());
+              var program = projectService.duplicateProgram(currentId.get(), parentLibrary.get().getId(), name.getValue());
               uiStateService.viewLibrary(program.getLibraryId());
             }
             case Instrument -> {
-              var instrument = projectService.cloneInstrument(currentId.get(), parentLibrary.get().getId(), name.getValue());
+              var instrument = projectService.duplicateInstrument(currentId.get(), parentLibrary.get().getId(), name.getValue());
               uiStateService.viewLibrary(instrument.getLibraryId());
             }
           }
@@ -283,12 +283,12 @@ public class CmdModalController extends ProjectModalController {
   }
 
   /**
-   Clone a library
+   Duplicate a library
 
-   @param library to clone
+   @param library to duplicate
    */
-  public void cloneLibrary(Library library) {
-    setup(CmdMode.Clone, CmdType.Library);
+  public void duplicateLibrary(Library library) {
+    setup(CmdMode.Duplicate, CmdType.Library);
     currentId.set(library.getId());
     name.set(String.format("Copy of %s", library.getName()));
     launchModal();
@@ -308,12 +308,12 @@ public class CmdModalController extends ProjectModalController {
   }
 
   /**
-   Clone a program
+   Duplicate a program
 
-   @param program to clone
+   @param program to duplicate
    */
-  public void cloneProgram(Program program) {
-    setup(CmdMode.Clone, CmdType.Program);
+  public void duplicateProgram(Program program) {
+    setup(CmdMode.Duplicate, CmdType.Program);
     currentId.set(program.getId());
     name.set(String.format("Copy of %s", program.getName()));
     parentLibrary.set(projectService.getContent().getLibrary(program.getLibraryId()).orElseThrow(() -> new RuntimeException("Could not find Library")));
@@ -358,12 +358,12 @@ public class CmdModalController extends ProjectModalController {
   }
 
   /**
-   Clone an instrument
+   Duplicate an instrument
 
-   @param instrument to clone
+   @param instrument to duplicate
    */
-  public void cloneInstrument(Instrument instrument) {
-    setup(CmdMode.Clone, CmdType.Instrument);
+  public void duplicateInstrument(Instrument instrument) {
+    setup(CmdMode.Duplicate, CmdType.Instrument);
     currentId.set(instrument.getId());
     name.set(String.format("Copy of %s", instrument.getName()));
     parentLibrary.set(projectService.getContent().getLibrary(instrument.getLibraryId()).orElseThrow(() -> new RuntimeException("Could not find Library")));
@@ -395,12 +395,12 @@ public class CmdModalController extends ProjectModalController {
   }
 
   /**
-   Clone a template
+   Duplicate a template
 
-   @param template to clone
+   @param template to duplicate
    */
-  public void cloneTemplate(Template template) {
-    setup(CmdMode.Clone, CmdType.Template);
+  public void duplicateTemplate(Template template) {
+    setup(CmdMode.Duplicate, CmdType.Template);
     currentId.set(template.getId());
     name.set(String.format("Copy of %s", template.getName()));
     launchModal();

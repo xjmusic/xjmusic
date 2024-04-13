@@ -378,7 +378,7 @@ public class EntityFactoryImplTest extends ContentTest {
 
 
   @Test
-  public void testClone() throws EntityException {
+  public void testDuplicate() throws EntityException {
     subject.register("Widget")
       .withAttributes("name")
       .belongsTo("superwidget")
@@ -387,7 +387,7 @@ public class EntityFactoryImplTest extends ContentTest {
       .setId(UUID.randomUUID())
       .setSuperwidgetId(UUID.randomUUID());
 
-    Widget result = subject.clone(from);
+    Widget result = subject.duplicate(from);
 
     assertEquals("Flight", result.getName());
     assertEquals(from.getSuperwidgetId(), result.getSuperwidgetId());
@@ -396,7 +396,7 @@ public class EntityFactoryImplTest extends ContentTest {
   }
 
   @Test
-  public void testClone_withState() throws EntityException {
+  public void testDuplicate_withState() throws EntityException {
     subject.register("Widget")
       .withAttributes("name", "state")
       .belongsTo("superwidget")
@@ -406,7 +406,7 @@ public class EntityFactoryImplTest extends ContentTest {
       .setName("Flight")
       .setState(WidgetState.Published);
 
-    Widget result = subject.clone(from);
+    Widget result = subject.duplicate(from);
 
     assertEquals("Flight", result.getName());
     assertEquals(from.getState(), result.getState());
@@ -422,7 +422,7 @@ public class EntityFactoryImplTest extends ContentTest {
    @throws EntityException on failure
    */
   @Test
-  public void internal_entityFactoryClonesWidgetTypeOK() throws EntityException {
+  public void internal_entityFactoryDuplicatesWidgetTypeOK() throws EntityException {
     // Some topology
     subject.register("Widget");
     subject.register("Widget")
@@ -433,19 +433,19 @@ public class EntityFactoryImplTest extends ContentTest {
       .setId(UUID.fromString("ac5eba0a-f725-4831-9ff2-a8d92a73a09d"))
       .setState(WidgetState.Published);
 
-    Widget result = subject.clone(widget);
+    Widget result = subject.duplicate(widget);
 
     assertEquals(WidgetState.Published, result.getState());
   }
 
   @Test
-  public void testClone_withNullBelongsToId() throws EntityException {
+  public void testDuplicate_withNullBelongsToId() throws EntityException {
     subject.register("Widget").withAttribute("name").belongsTo("superwidget").createdBy(Widget::new);
     Widget from = new Widget()
       .setId(UUID.randomUUID())
       .setName("Flight");
 
-    Widget result = subject.clone(from);
+    Widget result = subject.duplicate(from);
 
     assertEquals("Flight", result.getName());
     assertNotEquals(from.getId(), result.getId());
@@ -453,7 +453,7 @@ public class EntityFactoryImplTest extends ContentTest {
   }
 
   @Test
-  public void testCloneAll() throws EntityException {
+  public void testDuplicateAll() throws EntityException {
     subject.register("Widget")
       .withAttribute("name")
       .belongsTo("superwidget")
@@ -467,7 +467,7 @@ public class EntityFactoryImplTest extends ContentTest {
       .setName("Ground")
       .setSuperwidgetId(UUID.randomUUID());
 
-    var result = subject.cloneAll(Set.of(fromA, fromB));
+    var result = subject.duplicateAll(Set.of(fromA, fromB));
 
     assertEquals(2, result.size());
     //
@@ -487,7 +487,7 @@ public class EntityFactoryImplTest extends ContentTest {
   }
 
   @Test
-  public void testCloneAll_toNewRelationships() throws EntityException {
+  public void testDuplicateAll_toNewRelationships() throws EntityException {
     subject.register("Widget")
       .withAttribute("name")
       .belongsTo("superwidget")
@@ -507,7 +507,7 @@ public class EntityFactoryImplTest extends ContentTest {
       .setName("Ground")
       .setSuperwidgetId(fromSuper.getId());
 
-    var result = subject.cloneAll(Set.of(fromA, fromB), Set.of(toSuper));
+    var result = subject.duplicateAll(Set.of(fromA, fromB), Set.of(toSuper));
 
     assertEquals(2, result.size());
     //

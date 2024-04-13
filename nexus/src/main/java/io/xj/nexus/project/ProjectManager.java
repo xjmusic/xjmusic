@@ -36,7 +36,7 @@ public interface ProjectManager {
   void closeProject();
 
   /**
-   Clone from a demo template
+   Create project from a demo template
 
    @param baseUrl          of the demo
    @param templateKey      of the demo
@@ -44,7 +44,7 @@ public interface ProjectManager {
    @param projectName      of the project folder and the project
    @return true if successful
    */
-  boolean cloneProjectFromDemoTemplate(String baseUrl, String templateKey, String parentPathPrefix, String projectName);
+  boolean createProjectFromDemoTemplate(String baseUrl, String templateKey, String parentPathPrefix, String projectName);
 
   /**
    Export a template as JSON with all its audio (original or prepared)
@@ -352,58 +352,58 @@ public interface ProjectManager {
   void renameWaveformIfNecessary(UUID instrumentAudioId) throws Exception;
 
   /**
-   Clone a Template from a source template by id
+   Duplicate a Template from a source template by id
 
    @param fromId source template id
    @param name   name of the new template
    @return the new template
    */
-  Template cloneTemplate(UUID fromId, String name) throws Exception;
+  Template duplicateTemplate(UUID fromId, String name) throws Exception;
 
   /**
-   Clone a Library from a source library by id
+   Duplicate a Library from a source library by id
 
    @param fromId source library id
    @param name   name of the new library
    @return the new library
    */
-  Library cloneLibrary(UUID fromId, String name) throws Exception;
+  Library duplicateLibrary(UUID fromId, String name) throws Exception;
 
   /**
-   Clone a Program from a source program by id
+   Duplicate a Program from a source program by id
 
    @param fromId    source program id
    @param libraryId new library id
    @param name      name of the new program
    @return the new program
    */
-  Program cloneProgram(UUID fromId, UUID libraryId, String name) throws Exception;
+  Program duplicateProgram(UUID fromId, UUID libraryId, String name) throws Exception;
 
   /**
-   Clone a Program Sequence from a source program sequence by id
-   Note: Does not clone the program sequence bindings (that would cause duplicate bindings at all the same offsets)
+   Duplicate a Program Sequence from a source program sequence by id
+   Note: Does not duplicate the program sequence bindings (that would cause duplicate bindings at all the same offsets)
 
    @param fromId source program sequence id
    @return the new program sequence
    */
-  ProgramSequence cloneProgramSequence(UUID fromId) throws Exception;
+  ProgramSequence duplicateProgramSequence(UUID fromId) throws Exception;
 
   /**
-   Clone a Program Sequence Pattern from a source program sequence pattern by id
+   Duplicate a Program Sequence Pattern from a source program sequence pattern by id
 
    @param fromId source program sequence pattern id
    @return the new program sequence pattern
    */
-  ProgramSequencePattern cloneProgramSequencePattern(UUID fromId) throws Exception;
+  ProgramSequencePattern duplicateProgramSequencePattern(UUID fromId) throws Exception;
 
   /**
-   Clone a Instrument from a source instrument by id
+   Duplicate a Instrument from a source instrument by id
 
    @param fromId    source instrument id
    @param libraryId new library id
    @param name      name of the new instrument
    @return the new instrument
    */
-  Instrument cloneInstrument(UUID fromId, UUID libraryId, String name) throws Exception;
+  Instrument duplicateInstrument(UUID fromId, UUID libraryId, String name) throws Exception;
 }
 

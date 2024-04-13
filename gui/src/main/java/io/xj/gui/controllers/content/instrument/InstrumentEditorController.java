@@ -221,10 +221,10 @@ public class InstrumentEditorController extends BrowserController {
   }
 
   @FXML
-  void openCloneDialog() {
+  void openDuplicateDialog() {
     var instrument = projectService.getContent().getInstrument(instrumentId.get())
       .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
-    cmdModalController.cloneInstrument(instrument);
+    cmdModalController.duplicateInstrument(instrument);
   }
 
   @Override
