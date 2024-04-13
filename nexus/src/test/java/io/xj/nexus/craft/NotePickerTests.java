@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
+ XJ has a serviceable voicing algorithm https://github.com/xjmusic/workstation/issues/221
  */
 @ExtendWith(MockitoExtension.class)
 public class NotePickerTests extends YamlTest {

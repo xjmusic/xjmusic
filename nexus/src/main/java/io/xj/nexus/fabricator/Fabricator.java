@@ -221,7 +221,7 @@ public interface Fabricator {
   /**
    Get the Key for any given Choice, preferring its Sequence Key (bound), defaulting to the Program Key.
    <p>
-   If Sequence has no key/tempo/intensity inherit from Program https://www.pivotaltracker.com/story/show/176474164
+   If Sequence has no key/tempo/intensity inherit from Program https://github.com/xjmusic/workstation/issues/246
 
    @param choice to get key for
    @return key of specified sequence/program via choice
@@ -330,7 +330,7 @@ public interface Fabricator {
 
   /**
    Get the complete set of program sequence chords,
-   ignoring ghost chords* REF by choosing the voicings with largest # of notes at that position https://www.pivotaltracker.com/story/show/178420030
+   ignoring ghost chords* REF by choosing the voicings with largest # of notes at that position https://github.com/xjmusic/workstation/issues/248
    (caches results)
 
    @param programSequence for which to get complete do-ghosted set of chords
@@ -348,7 +348,7 @@ public interface Fabricator {
   NoteRange getProgramRange(UUID programId, InstrumentType instrumentType) throws NexusException;
 
   /**
-   Detail craft shifts source program events into the target range https://www.pivotaltracker.com/story/show/176696738
+   Detail craft shifts source program events into the target range https://github.com/xjmusic/workstation/issues/221
    <p>
    via average of delta from source low to target low, and from source high to target high, rounded to octave
 

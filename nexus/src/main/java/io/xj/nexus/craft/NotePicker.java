@@ -126,7 +126,7 @@ public class NotePicker {
   /**
    Pick a random instrument note from the available notes in the voicing
    <p>
-   Artist writing detail program expects 'X' note value to result in random selection from available Voicings https://www.pivotaltracker.com/story/show/175947230
+   Artist writing detail program expects 'X' note value to result in random selection from available Voicings https://github.com/xjmusic/workstation/issues/251
 
    @param voicingNotes to pick from
    @return a random note from the voicing
