@@ -5,7 +5,7 @@ package io.xj.nexus.fabricator;
  When this occurs during fabrication, the chain must be restarted.
  This differentiates from retry-able network or service failures.
  <p>
- Fabrication should recover from having no main choice https://www.pivotaltracker.com/story/show/182131722
+ Fabrication should recover from having no main choice https://github.com/xjmusic/workstation/issues/263
  */
 public class FabricationFatalException extends Exception {
 

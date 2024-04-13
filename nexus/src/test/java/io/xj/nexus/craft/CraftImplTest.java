@@ -170,7 +170,7 @@ public class CraftImplTest {
 
   /**
    PercLoops are not adhering to "__BPM" memes
-   https://www.pivotaltracker.com/story/show/181975131
+   https://github.com/xjmusic/workstation/issues/296
    */
   @Test
   public void chooseFreshInstrumentAudio() throws Exception {
@@ -193,7 +193,7 @@ public class CraftImplTest {
   }
 
   /**
-   XJ Should choose the correct chord audio per Main Program chord https://www.pivotaltracker.com/story/show/183434438
+   XJ Should choose the correct chord audio per Main Program chord https://github.com/xjmusic/workstation/issues/237
    */
   @Test
   public void selectNewChordPartInstrumentAudio_stripSpaces() throws Exception {
@@ -204,7 +204,7 @@ public class CraftImplTest {
 
   /**
    Chord-mode Instrument: Slash Chord Fluency
-   https://www.pivotaltracker.com/story/show/182885209
+   https://github.com/xjmusic/workstation/issues/227
    When the exact match is not present for an entire slash chord name, choose a chord matching the pre-slash name
    */
   @Test
@@ -216,7 +216,7 @@ public class CraftImplTest {
   }
 
   /**
-   Enhanced Synonymous Chord recognition https://www.pivotaltracker.com/story/show/182811126
+   Enhanced Synonymous Chord recognition https://github.com/xjmusic/workstation/issues/236
    */
   @Test
   public void selectNewChordPartInstrumentAudio_chordSynonyms() throws Exception {

@@ -165,19 +165,6 @@ public class CraftHookProgramVoiceNextMainTest {
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
 
     craftFactory.detail(fabricator).doWork();
-
-//    // test vector for persist Audio pick in memory https://www.pivotaltracker.com/story/show/154014731
-//    int pickedKick = 0;
-//    int pickedSnare = 0;
-//    Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();
-//    for (SegmentChoiceArrangementPick pick : picks) {
-//      if (pick.getInstrumentAudioId().equals(audioKick.getId()))
-//        pickedKick++;
-//      if (pick.getInstrumentAudioId().equals(audioSnare.getId()))
-//        pickedSnare++;
-//    }
-//    assertEquals(8, pickedKick);
-//    assertEquals(8, pickedSnare);
   }
 
   /**

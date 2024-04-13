@@ -14,7 +14,7 @@ public interface HubClientFactory {
   /**
    Load shipped content from a static file in API v1 (HubContentPayload a.k.a. JSONAPI)
    <p>
-   Nexus production fabrication from static source (without Hub) https://www.pivotaltracker.com/story/show/177020318
+   Nexus production fabrication from static source (without Hub) https://github.com/xjmusic/workstation/issues/271
 
    @param httpClient  to use
    @param baseUrl     to use for audio

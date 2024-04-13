@@ -118,7 +118,7 @@ public class CraftDetailProgramVoiceNextMainTest {
 
     assertNotNull(fabricator.getArrangements(fabricator.getCurrentDetailChoices()));
 
-    // test vector for persist Audio pick in memory https://www.pivotaltracker.com/story/show/154014731
+    
     int pickedBloop = 0;
     Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();
     for (SegmentChoiceArrangementPick pick : picks) {

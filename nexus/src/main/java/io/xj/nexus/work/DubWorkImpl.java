@@ -111,7 +111,7 @@ public class DubWorkImpl implements DubWork {
     if (!running.get()) return;
 
     // Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub
-    // live performance modulation https://www.pivotaltracker.com/story/show/186003440
+    // live performance modulation https://github.com/xjmusic/workstation/issues/197
     if (!craftWork.isReady()) {
       LOG.debug("Waiting for Craft readiness...");
       return;

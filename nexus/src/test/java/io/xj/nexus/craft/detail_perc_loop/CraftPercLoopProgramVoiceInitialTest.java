@@ -98,7 +98,7 @@ public class CraftPercLoopProgramVoiceInitialTest {
 
 //    Segment result = store.getSegment(segment0.getId()).orElseThrow();
 //    assertFalse(store.getAll(result.getId(), SegmentChoice.class).isEmpty());
-//    // test vector for persist Audio pick in memory https://www.pivotaltracker.com/story/show/154014731
+//    
 //    int pickedKick = 0;
 //    int pickedSnare = 0;
 //    int pickedBleep = 0;

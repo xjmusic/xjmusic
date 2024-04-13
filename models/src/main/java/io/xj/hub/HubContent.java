@@ -47,9 +47,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
- to ingest any combination of Programs, Instruments, or Libraries (with their Programs and Instruments) https://www.pivotaltracker.com/story/show/154350346
+ to ingest any combination of Programs, Instruments, or Libraries (with their Programs and Instruments)
  <p>
- Refactoring this class ala `HubContent` extends common `EntityStore` implementation https://www.pivotaltracker.com/story/show/173803936
+ Refactoring this class ala `HubContent` extends common `EntityStore`
  */
 public class HubContent {
   final Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>> store = new ConcurrentHashMap<>();
@@ -504,7 +504,7 @@ public class HubContent {
   /**
    Get all template bindings
    <p>
-   Templates: enhanced preview chain creation for artists in Lab UI https://www.pivotaltracker.com/story/show/178457569
+   Templates: enhanced preview chain creation for artists in Lab UI https://github.com/xjmusic/workstation/issues/205
 
    @return all template bindings
    */
@@ -619,7 +619,7 @@ public class HubContent {
    If the target offset is not found in the chosen Main Program,
    we'll find the nearest matching offset, and return all bindings at that offset.
    <p>
-   Chain should always be able to determine main sequence binding offset https://www.pivotaltracker.com/story/show/177052278
+   Chain should always be able to determine main sequence binding offset
 
    @param program        for which to get sequence bindings
    @param offset         to get sequence bindings at
@@ -635,7 +635,7 @@ public class HubContent {
    If the target offset is not found in the chosen Main Program,
    we'll find the nearest matching offset, and return all bindings at that offset.
    <p>
-   Chain should always be able to determine main sequence binding offset https://www.pivotaltracker.com/story/show/177052278
+   Chain should always be able to determine main sequence binding offset
 
    @param programId      for which to get sequence bindings
    @param offset         to get sequence bindings at
@@ -1463,7 +1463,6 @@ public class HubContent {
    Delete a Hub Content entity from the store
    <p>
    HubContent has proper method to delete any entity of id
-   https://www.pivotaltracker.com/story/show/186986806
 
    @param type of entity to delete
    @param uuid of entity to delete

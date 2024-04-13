@@ -164,7 +164,7 @@ class ProjectManagerImplTest {
    1. Program in the same library
    <p>
    Workstation creating new program/instrument, populates with defaults
-   https://www.pivotaltracker.com/story/show/187042551
+   https://github.com/xjmusic/workstation/issues/277
    */
   @Test
   void createProgram_attributesFromProgramInSameLibrary() throws Exception {
@@ -191,7 +191,7 @@ class ProjectManagerImplTest {
    1. Program in the same library
    <p>
    Workstation creating new program/instrument, populates with defaults
-   https://www.pivotaltracker.com/story/show/187042551
+   https://github.com/xjmusic/workstation/issues/277
    */
   @Test
   void createProgram_attributesFromProgramInProject() throws Exception {
@@ -230,7 +230,7 @@ class ProjectManagerImplTest {
    1. Instrument in the same library
    <p>
    Workstation creating new instrument/instrument, populates with defaults
-   https://www.pivotaltracker.com/story/show/187042551
+   https://github.com/xjmusic/workstation/issues/277
    */
   @Test
   void createInstrument_attributesFromInstrumentInSameLibrary() throws Exception {
@@ -256,7 +256,7 @@ class ProjectManagerImplTest {
    1. Instrument in the same library
    <p>
    Workstation creating new instrument/instrument, populates with defaults
-   https://www.pivotaltracker.com/story/show/187042551
+   https://github.com/xjmusic/workstation/issues/277
    */
   @Test
   void createInstrument_attributesFromInstrumentInProject() throws Exception {
@@ -294,7 +294,7 @@ class ProjectManagerImplTest {
    6. defaults
    <p>
    Workstation creating new instrument/instrument, populates with defaults
-   https://www.pivotaltracker.com/story/show/187042551
+   https://github.com/xjmusic/workstation/issues/277
    */
   @Test
   void createInstrumentAudio_attributesFromAudioInSameInstrument() throws Exception {
@@ -325,7 +325,7 @@ class ProjectManagerImplTest {
    1. Instrument Audios in the same instrument
    <p>
    Workstation creating new instrument/instrument, populates with defaults
-   https://www.pivotaltracker.com/story/show/187042551
+   https://github.com/xjmusic/workstation/issues/277
    */
   @Test
   void createInstrumentAudio_attributesFromAudioInSameLibrary() throws Exception {
@@ -358,7 +358,7 @@ class ProjectManagerImplTest {
    1. Instrument Audios in the same instrument
    <p>
    Workstation creating new instrument/instrument, populates with defaults
-   https://www.pivotaltracker.com/story/show/187042551
+   https://github.com/xjmusic/workstation/issues/277
    */
   @Test
   void createInstrumentAudio_tempoFromProgramInSameLibrary() throws Exception {
@@ -386,7 +386,7 @@ class ProjectManagerImplTest {
    1. Instrument Audios in the same instrument
    <p>
    Workstation creating new instrument/instrument, populates with defaults
-   https://www.pivotaltracker.com/story/show/187042551
+   https://github.com/xjmusic/workstation/issues/277
    */
   @Test
   void createInstrumentAudio_attributesFromAnyAudio() throws Exception {
@@ -419,7 +419,7 @@ class ProjectManagerImplTest {
    1. Instrument Audios in the same instrument
    <p>
    Workstation creating new instrument/instrument, populates with defaults
-   https://www.pivotaltracker.com/story/show/187042551
+   https://github.com/xjmusic/workstation/issues/277
    */
   @Test
   void createInstrumentAudio_attributesFromAnyProgram() throws Exception {

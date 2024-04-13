@@ -173,7 +173,7 @@ public class CraftBeatProgramVoiceNextMainTest {
 
     assertNotNull(fabricator.getArrangements(List.of(fabricator.getCurrentBeatChoice().orElseThrow())));
 
-    // test vector for persist Audio pick in memory https://www.pivotaltracker.com/story/show/154014731
+    
     int pickedKick = 0;
     int pickedSnare = 0;
     Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();

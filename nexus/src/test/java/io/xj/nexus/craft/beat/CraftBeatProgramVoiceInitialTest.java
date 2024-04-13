@@ -100,7 +100,7 @@ public class CraftBeatProgramVoiceInitialTest {
 
     Segment result = store.readSegment(segment0.getId()).orElseThrow();
     assertFalse(store.readAll(result.getId(), SegmentChoice.class).isEmpty());
-    // test vector for persist Audio pick in memory https://www.pivotaltracker.com/story/show/154014731
+    
   }
 
   @Test

@@ -86,7 +86,7 @@ public class Isometry {
    Compute normalized string representation of an unordered set of memes
    for the purpose of identifying unique constellations.
    <p>
-   for each unique sequence-pattern-meme constellation within the main sequence https://www.pivotaltracker.com/story/show/161736024
+   for each unique sequence-pattern-meme constellation within the main sequence https://github.com/xjmusic/workstation/issues/208
 
    @return unique constellation for this set of strings.
    */

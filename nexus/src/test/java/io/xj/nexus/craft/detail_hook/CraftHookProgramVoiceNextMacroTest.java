@@ -147,7 +147,7 @@ public class CraftHookProgramVoiceNextMacroTest {
 //      .filter(c -> c.getInstrumentType().equals(InstrumentType.Hook)).findFirst().orElseThrow();
 //    assertTrue(fabricator.getArrangements()
 //      .stream().anyMatch(a -> a.getSegmentChoiceId().equals(hookChoice.getId())));
-//    // test vector for persist Audio pick in memory https://www.pivotaltracker.com/story/show/154014731
+//    
 //    int pickedKick = 0;
 //    int pickedSnare = 0;
 //    Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();

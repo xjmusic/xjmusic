@@ -19,7 +19,7 @@ import java.util.UUID;
 /**
  Background craft for the current segment
  <p>
- Background-type Instrument https://www.pivotaltracker.com/story/show/180121388
+ Background-type Instrument https://github.com/xjmusic/workstation/issues/256
  */
 public class BackgroundCraftImpl extends CraftImpl implements BackgroundCraft {
 

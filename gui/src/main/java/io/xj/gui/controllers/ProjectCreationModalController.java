@@ -110,8 +110,7 @@ public class ProjectCreationModalController extends ProjectModalController {
 
   @Override
   public void onStageReady() {
-    // Add slash to end of "file output projectFilePath prefix"
-    // https://www.pivotaltracker.com/story/show/186555998
+    // Add slash to end of file output projectFilePath prefix
     fieldPathPrefix.textProperty().bindBidirectional(projectService.projectsPathPrefixProperty());
     fieldPathPrefix.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
       if (!isNowFocused) {

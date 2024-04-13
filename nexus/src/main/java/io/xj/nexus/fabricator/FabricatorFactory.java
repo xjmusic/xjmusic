@@ -14,7 +14,7 @@ import jakarta.annotation.Nullable;
  ... do things with this content, like craft or dub ...
  content.putReport();
  <p>
- Unify factory with explicit methods to construct components from Fabricator https://www.pivotaltracker.com/story/show/176625033
+ Unify factory with explicit methods to construct components from Fabricator
  */
 public interface FabricatorFactory {
   /**
@@ -27,7 +27,7 @@ public interface FabricatorFactory {
    @param overrideSegmentType override segment type
    @return Fabricator
    @throws NexusException            on retry-able network or service failure
-   @throws FabricationFatalException on failure requiring a chain restart https://www.pivotaltracker.com/story/show/182131722
+   @throws FabricationFatalException on failure requiring a chain restart https://github.com/xjmusic/workstation/issues/263
    */
   Fabricator fabricate(
     HubContent sourceMaterial,
@@ -47,7 +47,7 @@ public interface FabricatorFactory {
    @param segmentId Segment that's currently on the workbench
    @return SegmentRetrospective
    @throws NexusException            on retry-able network or service failure
-   @throws FabricationFatalException on failure requiring a chain restart https://www.pivotaltracker.com/story/show/182131722
+   @throws FabricationFatalException on failure requiring a chain restart https://github.com/xjmusic/workstation/issues/263
    */
   SegmentRetrospective loadRetrospective(
     Integer segmentId

@@ -110,7 +110,7 @@ public class FabricationControlsController extends ProjectController {
 
   /**
    Create the intensity control slider
-   Slider to control intensity https://www.pivotaltracker.com/story/show/186950076
+   Slider to control intensity https://github.com/xjmusic/workstation/issues/196
    */
   private void initIntensitySlider() {
     // Slider to set intensity override value

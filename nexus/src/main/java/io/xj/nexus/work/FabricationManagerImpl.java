@@ -409,7 +409,7 @@ public class FabricationManagerImpl implements FabricationManager {
           .sorted(Comparator.comparing(InstrumentAudio::getName))
           .toList()) {
           if (!Objects.equals(state.get(), FabricationState.PreparingAudio)) {
-            // Workstation canceling preloading should cease resampling audio files https://www.pivotaltracker.com/story/show/186209135
+            // Workstation canceling preloading should cease resampling audio files https://github.com/xjmusic/workstation/issues/278
             return;
           }
           if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
@@ -476,7 +476,7 @@ public class FabricationManagerImpl implements FabricationManager {
     );
 
     // If memes/macro already engaged at fabrication start (which is always true in a manual control mode),
-    // the first segment should be governed by that selection https://www.pivotaltracker.com/story/show/187381427
+    // the first segment should be governed by that selection https://github.com/xjmusic/workstation/issues/201
     switch (config.getMacroMode()) {
       case MACRO -> getAllMacroPrograms().stream()
         .min(Comparator.comparing(Program::getName))

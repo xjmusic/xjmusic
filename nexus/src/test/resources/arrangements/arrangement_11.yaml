@@ -1,4 +1,4 @@
-#  This test aims to identify the root of the bug described in https://www.pivotaltracker.com/story/show/184343503.
+#  This test aims to identify the root of the bug described in https://github.com/xjmusic/workstation/issues/292
 #  As it stands, XJ is choosing notes outside of the Main Program Voicing List in certain segments
 #
 #

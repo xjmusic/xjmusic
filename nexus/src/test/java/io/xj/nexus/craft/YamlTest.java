@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
+ XJ has a serviceable voicing algorithm https://github.com/xjmusic/workstation/issues/221
  */
 @ExtendWith(MockitoExtension.class)
 public abstract class YamlTest {

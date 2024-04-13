@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- Artist saves Template config, validate & combine with defaults. https://www.pivotaltracker.com/story/show/177355683
+ Artist saves Template config, validate & combine with defaults. https://github.com/xjmusic/workstation/issues/206
  */
 public class TemplateConfigTest {
 

@@ -17,9 +17,9 @@ import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
  <p>
  SEE: https://developer.apple.com/documentation/http_live_streaming/hls_authoring_specification_for_apple_devices
  <p>
- Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
+ Ship broadcast via HTTP Live Streaming https://github.com/xjmusic/workstation/issues/279
  <p>
- Nexus timing is entirely in chain/segment microseconds https://www.pivotaltracker.com/story/show/185515194
+ Nexus timing is entirely in chain/segment microseconds https://github.com/xjmusic/workstation/issues/280
  */
 public class Chunk {
   final Long fromChainMicros;

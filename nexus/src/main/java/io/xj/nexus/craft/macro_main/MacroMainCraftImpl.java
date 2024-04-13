@@ -81,7 +81,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
     // 3. Chords and voicings
     for (ProgramSequenceChord sequenceChord : fabricator.getProgramSequenceChords(mainSequence)) {
-      // don't of chord past end of Segment https://www.pivotaltracker.com/story/show/154090557
+      // don't of chord past end of Segment 
       String name;
       if (sequenceChord.getPosition() < mainSequence.getTotal()) {
         // delta the chord name
@@ -204,7 +204,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    future: Segment Intensity = average of macro and main-sequence patterns
    <p>
    Segment is assigned a intensity during macro-main craft. It's going to be used to determine a target # of perc loops
-   Percussion Loops Alpha https://www.pivotaltracker.com/story/show/179534065
+   Percussion Loops Alpha https://github.com/xjmusic/workstation/issues/261
 
    @param macroSequence of which to compute segment tempo
    @param mainSequence  of which to compute segment tempo

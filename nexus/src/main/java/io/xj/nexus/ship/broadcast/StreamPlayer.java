@@ -3,7 +3,7 @@
 package io.xj.nexus.ship.broadcast;
 
 /**
- Ship competent HTTP Live Stream https://www.pivotaltracker.com/story/show/180419462
+ Ship competent HTTP Live Stream https://github.com/xjmusic/workstation/issues/279
  */
 public interface StreamPlayer {
 
