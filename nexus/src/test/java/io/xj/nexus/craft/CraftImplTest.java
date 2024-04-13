@@ -170,7 +170,7 @@ public class CraftImplTest {
 
   /**
    PercLoops are not adhering to "__BPM" memes
-   https://www.pivotaltracker.com/story/show/181975131
+   https://github.com/xjmusic/workstation/issues/296
    */
   @Test
   public void chooseFreshInstrumentAudio() throws Exception {

@@ -1,6 +1,6 @@
 #  This test aims to identify the bug:
 #  Detail craft sticky bun should not result in single note choice
-#  https://www.pivotaltracker.com/story/show/184559044
+#  https://github.com/xjmusic/workstation/issues/294
 #
 #  What we are currently hearing is, any given sticky bun choice will pick a
 #  random note for the first `X` and then repeat that choice for all the rest of the notes.

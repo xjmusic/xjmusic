@@ -529,10 +529,10 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
-   Engineer wants platform heartbeat to check for any stale production chains in fabricate state, https://www.pivotaltracker.com/story/show/158897383
+   Engineer wants platform heartbeat to check for any stale production chains in fabricate state
    and if found, send back a failure health check it in order to ensure the Chain remains in an operable state.
    <p>
-   Medic relies on precomputed  telemetry of fabrication latency https://www.pivotaltracker.com/story/show/177021797
+   Medic relies on precomputed telemetry of fabrication latency
    */
   void doAudioCacheMaintenance(long minChainMicros, long maxChainMicros) throws NexusException {
     // Poke the audio cache to load all known-to-be-upcoming audio to cache; this is a no-op for already-cache audio

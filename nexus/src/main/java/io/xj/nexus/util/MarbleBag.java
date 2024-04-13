@@ -16,14 +16,14 @@ import java.util.stream.Collectors;
 /**
  * Bag of Marbles
  * <p>
- * Choices should be random https://www.pivotaltracker.com/story/show/180669293
+ * Choices should be random https://github.com/xjmusic/workstation/issues/291
  * <p>
  * The current implementation literally places one of each object in a bag in memory. However, this is inefficient compared to:
  * - a new bag accepts the addition of N number of T type of marbles
  * - each T type of marbles represents a block of integers theoretically. E.g. if there are 4 of Ta, 7 of Tb, and 12 of Tc, then we have a theoretical block of integers from 0-3 (Ta), 4-10 (Tb), and 11-22 (Tc).
  * - choose a random number within the available blocks, like a needle of a roulette wheel, choosing the block it lands on. E.g. choose an integer from 0-22
  * <p>
- * Marble bag has phases https://www.pivotaltracker.com/story/show/180832650
+ * Marble bag has phases https://github.com/xjmusic/workstation/issues/291
  * <p>
  * This will consolidate the logic around "choose this if available, else that, else that"
  * XJ’s marble bag is actually divided into phases. When a marble is put into the bag, it is assigned a phase.
