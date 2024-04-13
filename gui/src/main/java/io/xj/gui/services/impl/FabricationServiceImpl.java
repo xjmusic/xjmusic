@@ -128,14 +128,14 @@ public class FabricationServiceImpl implements FabricationService {
     }, state);
 
   public FabricationServiceImpl(
-    @Value("${craft.ahead.seconds}") int defaultCraftAheadSeconds,
-    @Value("${dub.ahead.seconds}") int defaultDubAheadSeconds,
-    @Value("${mixer.length.seconds}") int defaultMixerLengthSeconds,
-    @Value("${gui.timeline.max.segments}") int defaultTimelineSegmentViewLimit,
-    @Value("${output.channels}") int defaultOutputChannels,
-    @Value("${output.frame.rate}") int defaultOutputFrameRate,
-    @Value("${macro.mode}") String defaultMacroMode,
-    @Value("${intensity.default.value}") double defaultIntensityOverride,
+    @Value("${fabrication.defaultCraftAheadSeconds}") int defaultCraftAheadSeconds,
+    @Value("${fabrication.defaultDubAheadSeconds}") int defaultDubAheadSeconds,
+    @Value("${fabrication.defaultMixerLengthSeconds}") int defaultMixerLengthSeconds,
+    @Value("${view.timelineMaxSegments}") int defaultTimelineSegmentViewLimit,
+    @Value("${fabrication.defaultOutputChannels}") int defaultOutputChannels,
+    @Value("${fabrication.defaultOutputFrameRate}") int defaultOutputFrameRate,
+    @Value("${fabrication.defaultMacroMode}") String defaultMacroMode,
+    @Value("${fabrication.baseIntensity}") double defaultIntensityOverride,
     ProjectService projectService,
     FabricationManager fabricationManager
   ) {

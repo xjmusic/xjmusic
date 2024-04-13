@@ -58,8 +58,8 @@ public class FabricationControlsController extends ProjectController {
 
   public FabricationControlsController(
     @Value("classpath:/views/main-pane-right.fxml") Resource fxml,
-    @Value("${slider.track.color.active}") String sliderTrackColorActive,
-    @Value("${slider.track.color.default}") String sliderTrackColorDefault,
+    @Value("${view.sliderTrackColorActive}") String sliderTrackColorActive,
+    @Value("${view.sliderTrackColorDefault}") String sliderTrackColorDefault,
     ApplicationContext ac,
     ThemeService themeService,
     FabricationService fabricationService,

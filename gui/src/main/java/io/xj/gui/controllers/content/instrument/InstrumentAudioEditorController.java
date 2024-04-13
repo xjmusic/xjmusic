@@ -78,19 +78,19 @@ public class InstrumentAudioEditorController extends BrowserController {
   private final Color waveformZeroColor;
   private final Color waveformGridColor;
 
-  @Value("${gui.instrument.audio.waveform.maxWidthPixels}")
+  @Value("${instrumentAudioEditor.maxWidthPixels}")
   private int waveformMaxWidth;
 
-  @Value("${gui.instrument.audio.waveform.heightPixels}")
+  @Value("${instrumentAudioEditor.heightPixels}")
   private int waveformHeight;
 
-  @Value("${gui.instrument.audio.waveform.normalizeMaxValue}")
+  @Value("${instrumentAudioEditor.normalizeMaxValue}")
   private float waveformNormalizeMaxValue;
 
-  @Value("${gui.instrument.audio.waveform.minSamplesPerPixel}")
+  @Value("${instrumentAudioEditor.minSamplesPerPixel}")
   private int waveformMinSamplesPerPixel;
 
-  @Value("${gui.instrument.audio.waveform.transientDashPixels}")
+  @Value("${instrumentAudioEditor.transientDashPixels}")
   private int waveformTransientDashPixels;
 
   @FXML
@@ -155,10 +155,10 @@ public class InstrumentAudioEditorController extends BrowserController {
 
   public InstrumentAudioEditorController(
     @Value("classpath:/views/content/instrument/instrument-audio-editor.fxml") Resource fxml,
-    @Value("${gui.instrument.audio.waveform.gridColor}") String waveformGridColor,
-    @Value("${gui.instrument.audio.waveform.sampleColor}") String waveformSampleColor,
-    @Value("${gui.instrument.audio.waveform.transientColor}") String waveformTransientColor,
-    @Value("${gui.instrument.audio.waveform.zeroColor}") String waveformZeroColor,
+    @Value("${instrumentAudioEditor.gridColor}") String waveformGridColor,
+    @Value("${instrumentAudioEditor.sampleColor}") String waveformSampleColor,
+    @Value("${instrumentAudioEditor.transientColor}") String waveformTransientColor,
+    @Value("${instrumentAudioEditor.zeroColor}") String waveformZeroColor,
     ApplicationContext ac,
     ThemeService themeService,
     ProjectService projectService,
