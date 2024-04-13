@@ -592,7 +592,13 @@ public class FabricationTimelineController extends ProjectController {
     var segmentChoices = fabricationService.getSegmentChoices(segment);
     col.getChildren().add(computeChoicesListNode(segment, "Macro", segmentChoices.stream().filter((choice) -> ProgramType.Macro == choice.getProgramType()).toList(), false, false));
     col.getChildren().add(computeChoicesListNode(segment, "Main", segmentChoices.stream().filter((choice) -> ProgramType.Main == choice.getProgramType()).toList(), false, false));
-    col.getChildren().add(computeChoicesListNode(segment, "Beat", segmentChoices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList(), true, true));
+
+    // Add beat choices if present https://www.pivotaltracker.com/story/show/187409578
+    var beatChoices = segmentChoices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList();
+    if (!beatChoices.isEmpty())
+      col.getChildren().add(computeChoicesListNode(segment, "Beat", beatChoices, true, true));
+
+    // Add choice of each instrument type if present
     for (var instrumentType : Arrays.stream(InstrumentType.values()).filter((type) -> type != InstrumentType.Drum).toList()) {
       var choices = segmentChoices.stream().filter((choice) -> instrumentType == choice.getInstrumentType()).toList();
       if (choices.isEmpty()) continue;
