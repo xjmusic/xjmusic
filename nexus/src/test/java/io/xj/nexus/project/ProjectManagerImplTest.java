@@ -456,11 +456,25 @@ class ProjectManagerImplTest {
     assertEquals(otherLibrary.getId(), result.orElseThrow().getLibraryId());
   }
 
+  /**
+   Duplicating a Template, should use provided name https://github.com/xjmusic/workstation/issues/342
+   */
   @Test
   void duplicateTemplate() throws Exception {
     var duplicate = subject.duplicateTemplate(UUID.fromString("6cfd24de-dc92-436e-9a7e-def8c9e2d351"), "Duplicated Template");
 
+    assertEquals("Duplicated Template", duplicate.getName());
     assertEquals(1, subject.getContent().getBindingsOfTemplate(duplicate.getId()).size());
+  }
+
+  /**
+   Duplicating a Template, should enumerate to next available unique name https://github.com/xjmusic/workstation/issues/342
+   */
+  @Test
+  void duplicateTemplate_enumeratesToNextUniqueName() throws Exception {
+    var duplicate = subject.duplicateTemplate(UUID.fromString("6cfd24de-dc92-436e-9a7e-def8c9e2d351"), "test1");
+
+    assertEquals("test1 2", subject.getContent().getTemplate(duplicate.getId()).orElseThrow().getName());
   }
 
   @Test
@@ -582,6 +596,16 @@ class ProjectManagerImplTest {
     assertEquals("Chord Fm", instrument2_audio.getName());
   }
 
+  /**
+   Duplicating a Library, should enumerate to next available unique name https://github.com/xjmusic/workstation/issues/342
+   */
+  @Test
+  void duplicateLibrary_enumeratesToNextUniqueName() throws Exception {
+    var duplicate = subject.duplicateLibrary(UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"), "leaves");
+
+    assertEquals("leaves 2", subject.getContent().getLibrary(duplicate.getId()).orElseThrow().getName());
+  }
+
   @Test
   void duplicateProgram() throws Exception {
     var duplicate1 = subject.duplicateProgram(UUID.fromString("7ad65895-27b8-453d-84f1-ef2a2a2f09eb"), UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"), "Duplicated Program 1");
@@ -676,6 +700,16 @@ class ProjectManagerImplTest {
     assertEquals("Bb", program2_sequence_chord2_voicing1.getNotes());
     var program2_sequence_chord2_voicing2 = program2_sequence_chord2_voicings.get(1);
     assertEquals("G", program2_sequence_chord2_voicing2.getNotes());
+  }
+
+  /**
+   Duplicating a Program, should enumerate to next available unique name https://github.com/xjmusic/workstation/issues/342
+   */
+  @Test
+  void duplicateProgram_enumeratesToNextUniqueName() throws Exception {
+    var duplicate = subject.duplicateProgram(UUID.fromString("7ad65895-27b8-453d-84f1-ef2a2a2f09eb"), UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"), "coconuts");
+
+    assertEquals("coconuts 2", subject.getContent().getProgram(duplicate.getId()).orElseThrow().getName());
   }
 
   @Test
@@ -784,5 +818,15 @@ class ProjectManagerImplTest {
     assertEquals(1, subject.getContent().getAudiosOfInstrument(instrument2.getId()).size());
     var instrument2_audio = subject.getContent().getAudiosOfInstrument(instrument2.getId()).stream().findFirst().orElseThrow();
     assertEquals("Chord Fm", instrument2_audio.getName());
+  }
+
+  /**
+   Duplicating an Instrument, should enumerate to next available unique name https://github.com/xjmusic/workstation/issues/342
+   */
+  @Test
+  void duplicateInstrument_enumeratesToNextUniqueName() throws Exception {
+    var duplicate = subject.duplicateInstrument(UUID.fromString("9097d757-ae8f-4d68-b449-8ec96602ca83"), UUID.fromString("aa613771-358d-4960-b5de-690ff6fd3a55"), "808 Drums");
+
+    assertEquals("808 Drums 2", subject.getContent().getInstrument(duplicate.getId()).orElseThrow().getName());
   }
 }

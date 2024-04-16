@@ -901,9 +901,15 @@ public class ProjectManagerImpl implements ProjectManager {
   public Template duplicateTemplate(UUID fromId, String name) throws Exception {
     var source = content.get().getTemplate(fromId).orElseThrow(() -> new NexusException("Template not found"));
 
+    // New Create a template, increment a numerical suffix to make each sequence unique, e.g. "New Template 2" then "New Template 3"
+    var existingTemplates = content.get().getTemplates();
+    var existingNames = existingTemplates.stream().map(Template::getName).collect(Collectors.toSet());
+    var actualName = FormatUtils.iterateNumericalSuffixFromExisting(existingNames, name);
+
     // Duplicate the Template
     var duplicate = new Template();
     duplicate.setId(UUID.randomUUID());
+    duplicate.setName(actualName);
     entityFactory.setAllEmptyAttributes(source, duplicate);
     content.get().put(duplicate);
 
@@ -918,9 +924,14 @@ public class ProjectManagerImpl implements ProjectManager {
   public Library duplicateLibrary(UUID fromId, String name) throws Exception {
     var source = content.get().getLibrary(fromId).orElseThrow(() -> new NexusException("Library not found"));
 
+    // New Create a library, increment a numerical suffix to make each sequence unique, e.g. "New Library 2" then "New Library 3"
+    var existingLibraries = content.get().getLibraries();
+    var existingNames = existingLibraries.stream().map(Library::getName).collect(Collectors.toSet());
+    var actualName = FormatUtils.iterateNumericalSuffixFromExisting(existingNames, name);
+
     // Duplicate the Library and put it in the store
     var library = entityFactory.duplicate(source);
-    library.setName(name);
+    library.setName(actualName);
     content.get().put(library);
 
     // Duplicate the Library's Programs
@@ -940,12 +951,17 @@ public class ProjectManagerImpl implements ProjectManager {
   @SuppressWarnings("CollectionAddAllCanBeReplacedWithConstructor")
   @Override
   public Program duplicateProgram(UUID fromId, UUID libraryId, String name) throws Exception {
-    var program = content.get().getProgram(fromId).orElseThrow(() -> new NexusException("Program not found"));
+    var source = content.get().getProgram(fromId).orElseThrow(() -> new NexusException("Program not found"));
+
+    // New Create a program, increment a numerical suffix to make each sequence unique, e.g. "New Program 2" then "New Program 3"
+    var existingProgramsOfLibrary = content.get().getProgramsOfLibrary(source.getLibraryId());
+    var existingNames = existingProgramsOfLibrary.stream().map(Program::getName).collect(Collectors.toSet());
+    var actualName = FormatUtils.iterateNumericalSuffixFromExisting(existingNames, name);
 
     // Duplicate Program
-    var duplicateProgram = entityFactory.duplicate(program);
+    var duplicateProgram = entityFactory.duplicate(source);
     duplicateProgram.setLibraryId(libraryId);
-    duplicateProgram.setName(name);
+    duplicateProgram.setName(actualName);
 
     // Prepare all maps of duplicated sub-entities to avoid putting more than once to store
     Map<UUID, ProgramMeme> duplicatedProgramMemes = new HashMap<>();
@@ -1115,10 +1131,15 @@ public class ProjectManagerImpl implements ProjectManager {
   public Instrument duplicateInstrument(UUID fromId, UUID libraryId, String name) throws Exception {
     var source = content.get().getInstrument(fromId).orElseThrow(() -> new NexusException("Instrument not found"));
 
+    // New Create a instrument, increment a numerical suffix to make each sequence unique, e.g. "New Instrument 2" then "New Instrument 3"
+    var existingInstrumentsOfLibrary = content.get().getInstrumentsOfLibrary(source.getLibraryId());
+    var existingNames = existingInstrumentsOfLibrary.stream().map(Instrument::getName).collect(Collectors.toSet());
+    var actualName = FormatUtils.iterateNumericalSuffixFromExisting(existingNames, name);
+
     // Duplicate the Instrument
     var instrument = entityFactory.duplicate(source);
     instrument.setLibraryId(libraryId);
-    instrument.setName(name);
+    instrument.setName(actualName);
 
     // Duplicate the Instrument's Audios
     var duplicatedAudios = entityFactory.duplicateAll(content.get().getAudiosOfInstrument(fromId), Set.of(instrument));
