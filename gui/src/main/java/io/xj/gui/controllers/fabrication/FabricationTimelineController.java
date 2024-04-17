@@ -99,6 +99,9 @@ public class FabricationTimelineController extends ProjectController {
   ScrollPane scrollPane;
 
   @FXML
+  AnchorPane timelineContainer;
+
+  @FXML
   HBox segmentPositionRow;
 
   @FXML
@@ -161,6 +164,8 @@ public class FabricationTimelineController extends ProjectController {
     scrollPane.hbarPolicyProperty().bind(fabricationService.followPlaybackProperty().map(followPlayback -> followPlayback ? ScrollPane.ScrollBarPolicy.NEVER : ScrollPane.ScrollBarPolicy.AS_NEEDED));
 
     fabricationService.stateProperty().addListener((o, ov, value) -> handleUpdateFabricationStatus(value));
+
+    timelineContainer.minHeightProperty().bind(scrollPane.heightProperty().subtract(6));
 
     resetTimeline();
   }

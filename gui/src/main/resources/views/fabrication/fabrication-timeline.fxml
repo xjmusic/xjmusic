@@ -21,21 +21,10 @@
         fx:id="scrollPane"
         xmlns="http://javafx.com/javafx/20.0.1"
         xmlns:fx="http://javafx.com/fxml/1"
-        VBox.vgrow="ALWAYS"
-        HBox.hgrow="ALWAYS"
-        maxHeight="Infinity"
-        maxWidth="Infinity">
-      <StackPane
-          VBox.vgrow="ALWAYS"
-          HBox.hgrow="ALWAYS"
-          maxHeight="Infinity"
-          maxWidth="Infinity">
+        styleClass="timeline-container">
+      <StackPane>
         <AnchorPane
-            VBox.vgrow="ALWAYS"
-            HBox.hgrow="ALWAYS"
-            maxHeight="Infinity"
-            maxWidth="Infinity"
-            style="-fx-background-color: red;">
+            fx:id="timelineContainer">
           <HBox fx:id="segmentPositionRow" maxHeight="8" minHeight="8" styleClass="timeline-position-indicator"
                 AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
             <Rectangle fx:id="timelineRegion1Past" fill="#17EF1720" height="8"/>
