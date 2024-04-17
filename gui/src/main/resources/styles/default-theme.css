@@ -142,8 +142,8 @@
   -fx-text-fill: red;
 }
 
-.main-timeline,
-.timeline-position-spacer {
+.timeline-container,
+.timeline-container .viewport {
   -fx-background-color: #202020;
 }
 

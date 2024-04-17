@@ -99,6 +99,9 @@ public class FabricationTimelineController extends ProjectController {
   ScrollPane scrollPane;
 
   @FXML
+  AnchorPane timelineContainer;
+
+  @FXML
   HBox segmentPositionRow;
 
   @FXML
@@ -161,6 +164,8 @@ public class FabricationTimelineController extends ProjectController {
     scrollPane.hbarPolicyProperty().bind(fabricationService.followPlaybackProperty().map(followPlayback -> followPlayback ? ScrollPane.ScrollBarPolicy.NEVER : ScrollPane.ScrollBarPolicy.AS_NEEDED));
 
     fabricationService.stateProperty().addListener((o, ov, value) -> handleUpdateFabricationStatus(value));
+
+    timelineContainer.minHeightProperty().bind(scrollPane.heightProperty().subtract(6));
 
     resetTimeline();
   }
@@ -492,7 +497,6 @@ public class FabricationTimelineController extends ProjectController {
    */
   private Node computeSegmentSectionMessageListNode(Segment segment, int width) {
     var messages = fabricationService.getSegmentMessages(segment);
-    if (messages.isEmpty()) return new Pane();
     var col = new VBox();
     col.setPadding(new Insets(0, 0, 0, 10));
     // info
@@ -511,6 +515,7 @@ public class FabricationTimelineController extends ProjectController {
       .map(m -> computeSegmentSectionMessageNode(m, width))
       .toList());
     //
+    if (col.getChildren().isEmpty()) return new Pane();
     var pane = new VBox();
     pane.getChildren().add(computeLabeledPropertyNode("Messages", col, width, SEGMENT_SECTION_VERTICAL_MARGIN * 2));
     return pane;

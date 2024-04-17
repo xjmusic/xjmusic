@@ -3,12 +3,12 @@
 <!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
 
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Rectangle?>
-<?import javafx.scene.layout.BorderPane?>
 <BorderPane
     maxWidth="Infinity"
     maxHeight="Infinity"
@@ -21,25 +21,22 @@
         fx:id="scrollPane"
         xmlns="http://javafx.com/javafx/20.0.1"
         xmlns:fx="http://javafx.com/fxml/1"
-        maxHeight="Infinity"
-        maxWidth="Infinity">
-      <HBox.hgrow>
-        <Priority fx:constant="ALWAYS"/>
-      </HBox.hgrow>
-      <VBox>
-        <HBox fx:id="segmentPositionRow" maxHeight="8" minHeight="8" styleClass="timeline-position-indicator">
-          <Rectangle fx:id="timelineRegion1Past" fill="#17EF1720" height="8"/>
-          <Rectangle fx:id="timelineRegion2Ship" fill="#17EF17FF" height="8"/>
-          <Rectangle fx:id="timelineRegion3Dub" fill="#17EF1766" height="8"/>
-          <Rectangle fx:id="timelineRegion4Craft" fill="#00588066" height="8"/>
-        </HBox>
-        <Pane maxHeight="4" minHeight="4" styleClass="timeline-position-spacer"/>
-        <HBox fx:id="segmentListView" styleClass="main-timeline">
-          <VBox.vgrow>
-            <Priority fx:constant="ALWAYS"/>
-          </VBox.vgrow>
-        </HBox>
-      </VBox>
+        styleClass="timeline-container">
+      <StackPane>
+        <AnchorPane
+            fx:id="timelineContainer">
+          <HBox fx:id="segmentPositionRow" maxHeight="8" minHeight="8" styleClass="timeline-position-indicator"
+                AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+            <Rectangle fx:id="timelineRegion1Past" fill="#17EF1720" height="8"/>
+            <Rectangle fx:id="timelineRegion2Ship" fill="#17EF17FF" height="8"/>
+            <Rectangle fx:id="timelineRegion3Dub" fill="#17EF1766" height="8"/>
+            <Rectangle fx:id="timelineRegion4Craft" fill="#00588066" height="8"/>
+          </HBox>
+          <HBox
+              AnchorPane.topAnchor="12" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0"
+              VBox.vgrow="ALWAYS" maxHeight="Infinity" fx:id="segmentListView" styleClass="main-timeline"/>
+        </AnchorPane>
+      </StackPane>
     </ScrollPane>
   </center>
   <right>
