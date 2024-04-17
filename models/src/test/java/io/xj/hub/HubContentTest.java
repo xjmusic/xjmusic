@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -759,8 +760,13 @@ public class HubContentTest extends ContentTest {
   }
 
   @Test
-  void getAll() {
+  void getAll_byClass() {
     assertEquals(2, subject.getAll(Program.class).size());
+  }
+
+  @Test
+  void getAll() {
+    assertEquals(35, subject.getAll().size());
   }
 
   @Test
@@ -1108,4 +1114,41 @@ public class HubContentTest extends ContentTest {
     subject.setDemo(true);
     assertTrue(subject.getDemo());
   }
+
+  /**
+   Combine multiple payloads into a single HubContent
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   */
+  @Test
+  void combine() {
+    var content1 = new HubContent(Set.of(
+      project1
+    ));
+    var content2 = new HubContent(Set.of(
+      program1, program2,
+      program1_meme, program2_meme,
+      program2_sequence, program1_sequence,
+      program1_sequence_binding1, program1_sequence_binding2,
+      program1_sequence_binding1_meme1, program1_sequence_binding1_meme2,
+      program1_sequence_chord0, program1_sequence_chord1,
+      program1_sequence_chord0_voicing0, program1_sequence_chord1_voicing1,
+      program2_sequence_pattern1, program2_sequence_pattern2,
+      program2_sequence_pattern1_event1, program2_sequence_pattern1_event2,
+      program1_voice, program2_voice,
+      program2_voice_track1, program2_voice_track2
+    ));
+    var content3 = new HubContent(Set.of(
+      instrument1, instrument2,
+      instrument1_audio, instrument2_audio,
+      instrument1_meme, instrument2_meme,
+      library1,
+      template1, template2,
+      template1_binding
+    ));
+
+    var result = HubContent.combine(Set.of(content1, content2, content3));
+
+    assertEquals(33, result.size());
+  }
+
 }

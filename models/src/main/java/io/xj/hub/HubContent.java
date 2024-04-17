@@ -1,12 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.xj.hub.entity.EntityUtils;
 import io.xj.hub.enums.InstrumentMode;
-import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.music.Note;
 import io.xj.hub.pojos.Instrument;
@@ -104,6 +103,22 @@ public class HubContent {
    */
   public static HubContent from(HubContentPayload payload) throws RuntimeException {
     return new HubContent(payload.getAllEntities(), payload.getDemo());
+  }
+
+
+  /**
+   Combine multiple hub contents into one
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+
+   @param contents to combine
+   @return combined hub content
+   */
+  public static HubContent combine(Set<HubContent> contents) {
+    HubContent combined = new HubContent();
+    for (HubContent content : contents) {
+      combined.putAll(content.getAll());
+    }
+    return combined;
   }
 
   /**
@@ -1570,6 +1585,18 @@ public class HubContent {
       //noinspection unchecked
       return (Collection<E>) store.get(type).values();
     return List.of();
+  }
+
+  /**
+   Get all entities in the store
+
+   @return all entities in the store
+   */
+  @JsonIgnore
+  public Collection<Object> getAll() {
+    return store.values().stream()
+      .flatMap(map -> map.values().stream())
+      .toList();
   }
 
   /**
