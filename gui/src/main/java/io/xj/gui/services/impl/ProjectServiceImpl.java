@@ -284,6 +284,16 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
+  public void saveAsProject(String parentPathPrefix, String projectName) {
+    LOG.info("Will save as new project");
+    executeInBackground("Save As New Project", () -> {
+      projectManager.saveAsProject(parentPathPrefix, projectName);
+      addToRecentProjects(projectManager.getProject().orElse(null), projectName + ".xj", projectManager.getPathToProjectFile());
+      Platform.runLater(() -> isModified.set(false));
+    });
+  }
+
+  @Override
   public void cleanupProject() {
     if (promptForConfirmation("Cleanup Project", "Cleanup Project", "This operation will remove any unused audio files and optimize the project. Do you want to proceed?")) {
       executeInBackground("Cleanup Project", () -> {

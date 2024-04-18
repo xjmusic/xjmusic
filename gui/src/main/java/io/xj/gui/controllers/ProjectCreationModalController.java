@@ -38,6 +38,7 @@ import java.util.Objects;
 public class ProjectCreationModalController extends ProjectModalController {
   static final Map<ProjectCreationMode, String> WINDOW_TITLE = Map.of(
     ProjectCreationMode.NEW_PROJECT, "Create New Project",
+    ProjectCreationMode.SAVE_AS_PROJECT, "Save As New Project",
     ProjectCreationMode.DEMO_PROJECT, "Demo Projects"
   );
   private final SimpleDoubleProperty demoImageSize = new SimpleDoubleProperty(120);
@@ -188,7 +189,10 @@ public class ProjectCreationModalController extends ProjectModalController {
       switch (mode.get()) {
         case DEMO_PROJECT ->
           projectService.fetchDemoTemplate(fieldPathPrefix.getText(), ((ToggleButton) demoSelection.getSelectedToggle()).getId(), projectName);
-        case NEW_PROJECT -> projectService.createProject(fieldPathPrefix.getText(), projectName);
+        case NEW_PROJECT ->
+          projectService.createProject(fieldPathPrefix.getText(), projectName);
+        case SAVE_AS_PROJECT ->
+          projectService.saveAsProject(fieldPathPrefix.getText(), projectName);
       }
 
       Stage stage = (Stage) buttonOK.getScene().getWindow();

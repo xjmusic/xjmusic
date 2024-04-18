@@ -30,6 +30,7 @@ import io.xj.hub.pojos.ProgramVoiceTrack;
 import io.xj.hub.pojos.Project;
 import io.xj.hub.pojos.Template;
 import io.xj.hub.pojos.TemplateBinding;
+import io.xj.hub.util.LocalFileUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.http.HttpClientProvider;
@@ -66,7 +67,6 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
-import static io.xj.hub.util.FileUtils.computeWaveformKey;
 import static io.xj.nexus.hub_client.HubClientFactory.FILE_SIZE_NOT_FOUND;
 
 public class ProjectManagerImpl implements ProjectManager {
@@ -229,7 +229,7 @@ public class ProjectManagerImpl implements ProjectManager {
       updateProgressLabel(String.format("Downloaded %d audios for %d instruments", loadedAudios, loadedInstruments));
       updateState(ProjectState.LoadedAudio);
 
-      saveProjectContent();
+      saveProjectContent(null);
       return true;
 
     } catch (HubClientException e) {
@@ -304,7 +304,7 @@ public class ProjectManagerImpl implements ProjectManager {
           var sourceSize = getFileSizeIfExistsOnDisk(sourcePath);
           if (sourceSize.isPresent()) {
             var extension = ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
-            var waveformKey = computeWaveformKey(project.get().getName(), library.getName(), instrument.getName(), audio, extension);
+            var waveformKey = LocalFileUtils.computeWaveformKey(project.get().getName(), library.getName(), instrument.getName(), audio, extension);
             audio.setWaveformKey(waveformKey);
             templateContent.put(audio);
             var destinationPath = exportFolderPrefix + waveformKey;
@@ -388,8 +388,20 @@ public class ProjectManagerImpl implements ProjectManager {
       LOG.info("Will load project \"{}\" from {}", projectName.get(), projectFilePath);
       updateProgress(0.0);
       updateState(ProjectState.LoadingContent);
-      var json = Files.readString(Path.of(projectFilePath));
-      content.set(jsonProvider.getMapper().readValue(json, HubContent.class));
+
+      // Path to project file and all .json files in project folder
+      Collection<Path> contentPaths = new HashSet<>();
+      contentPaths.add(Path.of(projectFilePath));
+      contentPaths.addAll(LocalFileUtils.findJsonFiles(projectPathPrefix.get()));
+
+      // HubContent deserialized from all content json files
+      Collection<HubContent> contents = new HashSet<>();
+      for (Path contentPath : contentPaths) {
+        contents.add(jsonProvider.getMapper().readValue(Files.readString(contentPath), HubContent.class));
+      }
+
+      // Combine all found content
+      content.set(HubContent.combine(contents));
       project.set(content.get().getProject());
       updateState(ProjectState.LoadedContent);
       LOG.info("Did load content for project \"{}\" from {}", projectName.get(), projectFilePath);
@@ -421,7 +433,7 @@ public class ProjectManagerImpl implements ProjectManager {
       content.set(new HubContent());
       content.get().setProjects(List.of(project.get()));
 
-      saveProjectContent();
+      saveProjectContent(null);
       return true;
 
     } catch (Exception e) {
@@ -436,10 +448,32 @@ public class ProjectManagerImpl implements ProjectManager {
   @Override
   public void saveProject() {
     try {
-      saveProjectContent();
+      saveProjectContent(null);
 
     } catch (IOException e) {
       LOG.error("Failed to save project! {}\n{}", e, StringUtils.formatStackTrace(e));
+      updateState(ProjectState.Ready);
+    }
+  }
+
+  @Override
+  public void saveAsProject(String parentPathPrefix, String projectName) {
+    try {
+      LOG.info("Save project as \"{}\" in parent folder {}", projectName, parentPathPrefix);
+      var legacyProjectPathPrefix = projectPathPrefix.get();
+      this.projectPathPrefix.set(parentPathPrefix);
+      this.projectName.set(projectName);
+
+      var project = this.project.get();
+      project.setName(projectName);
+      this.project.set(project);
+      this.content.get().put(project);
+
+      createProjectFolder(parentPathPrefix, projectName);
+      saveProjectContent(legacyProjectPathPrefix);
+
+    } catch (IOException e) {
+      LOG.error("Failed to save as new project! {}\n{}", e, StringUtils.formatStackTrace(e));
       updateState(ProjectState.Ready);
     }
   }
@@ -503,7 +537,7 @@ public class ProjectManagerImpl implements ProjectManager {
     }
 
     try {
-      saveProjectContent();
+      saveProjectContent(null);
     } catch (IOException e) {
       LOG.error("Failed to save project after cleanup! {}\n{}", e, StringUtils.formatStackTrace(e));
       updateState(ProjectState.Ready);
@@ -855,7 +889,7 @@ public class ProjectManagerImpl implements ProjectManager {
     audio.setTransientSeconds(0.0f);
     audio.setVolume(existingAudio.map(InstrumentAudio::getVolume).orElse(DEFAULT_VOLUME));
     audio.setInstrumentId(instrument.getId());
-    audio.setWaveformKey(computeWaveformKey(project.getName(), library.getName(), instrument.getName(), audio, matcher.group(3)));
+    audio.setWaveformKey(LocalFileUtils.computeWaveformKey(project.getName(), library.getName(), instrument.getName(), audio, matcher.group(3)));
 
     // Import the audio waveform
     importAudio(audio, audioFilePath);
@@ -887,7 +921,7 @@ public class ProjectManagerImpl implements ProjectManager {
     var library = content.get().getInstrument(audio.getInstrumentId()).orElseThrow(() -> new NexusException("Instrument not found"));
     var project = content.get().getProject();
     var extension = ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
-    var toWaveformKey = computeWaveformKey(project.getName(), library.getName(), library.getName(), audio, extension);
+    var toWaveformKey = LocalFileUtils.computeWaveformKey(project.getName(), library.getName(), library.getName(), audio, extension);
     var toPath = getPathToInstrumentAudio(library.getId(), toWaveformKey);
 
     if (!Objects.equals(audio.getWaveformKey(), toWaveformKey)) {
@@ -1266,15 +1300,21 @@ public class ProjectManagerImpl implements ProjectManager {
   /**
    Save the project content to disk
 
+   @param legacyProjectPathPrefix (optional) the legacy project path prefix, e.g. during a Save As operation
    @throws IOException if the project content could not be saved
    */
-  private void saveProjectContent() throws IOException {
+  private void saveProjectContent(@Nullable String legacyProjectPathPrefix) throws IOException {
     updateState(ProjectState.Saving);
     cleanupOrphans(content.get());
     LOG.info("Will save project \"{}\" to {}", projectName.get(), getPathToProjectFile());
     var json = jsonProvider.getMapper().writeValueAsString(content);
     var jsonPath = getPathToProjectFile();
     Files.writeString(Path.of(jsonPath), json);
+
+    // TODO copy all audio files to the project folder
+    // TODO update progress % indicator and label while copying
+    // TODO ability to copy all audio files from the previous folder to the new project folder (during a Save As operation)
+
     LOG.info("Did write {} bytes of content to {}", json.length(), jsonPath);
     updateState(ProjectState.Ready);
   }

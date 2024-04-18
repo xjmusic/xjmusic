@@ -63,6 +63,9 @@ public class MainMenuController extends ProjectController {
   MenuItem itemProjectSave;
 
   @FXML
+  MenuItem itemProjectSaveAs;
+
+  @FXML
   MenuItem itemProjectCleanup;
 
   @FXML
@@ -163,6 +166,7 @@ public class MainMenuController extends ProjectController {
     var hasNoProject = uiStateService.hasCurrentProjectProperty().not();
     itemProjectClose.disableProperty().bind(hasNoProject);
     itemProjectSave.disableProperty().bind(hasNoProject.or(projectService.isModifiedProperty().not()));
+    itemProjectSaveAs.disableProperty().bind(hasNoProject);
     itemProjectCleanup.disableProperty().bind(hasNoProject);
 
     projectService.recentProjectsProperty().addListener((ChangeListener<? super ObservableList<ProjectDescriptor>>) (o, ov, value) -> updateRecentProjectsMenu());
@@ -259,6 +263,12 @@ public class MainMenuController extends ProjectController {
   @FXML
   void handleProjectSave() {
     projectService.saveProject(null);
+  }
+
+  @FXML
+  void handleProjectSaveAs() {
+    projectCreationModalController.setMode(ProjectCreationMode.SAVE_AS_PROJECT);
+    projectCreationModalController.launchModal();
   }
 
   @FXML

@@ -11,13 +11,18 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  Get a temp file
  */
-public interface FileUtils {
+public interface LocalFileUtils {
   /**
    Assert size of two different files is within a tolerated threshold
 
@@ -101,5 +106,21 @@ public interface FileUtils {
         ).filter(StringUtils::isNotNullOrEmpty)
         .collect(Collectors.joining("-")),
       extension);
+  }
+
+  /**
+   Find all json files in a directory
+
+   @param projectPathPrefix the directory to search
+   @return a list of paths to the json files
+   @throws IOException if the directory cannot be read
+   */
+  static Collection<Path> findJsonFiles(String projectPathPrefix) throws IOException {
+    try (Stream<Path> paths = Files.walk(Paths.get(projectPathPrefix))) {
+      return paths
+        .filter(Files::isRegularFile)
+        .filter(path -> path.toString().endsWith(".json"))
+        .collect(Collectors.toSet());
+    }
   }
 }

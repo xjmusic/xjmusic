@@ -113,7 +113,7 @@ public class HubContent {
    @param contents to combine
    @return combined hub content
    */
-  public static HubContent combine(Set<HubContent> contents) {
+  public static HubContent combine(Collection<HubContent> contents) {
     HubContent combined = new HubContent();
     for (HubContent content : contents) {
       combined.putAll(content.getAll());

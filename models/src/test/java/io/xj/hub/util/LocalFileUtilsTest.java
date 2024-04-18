@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FileUtilsTest {
+class LocalFileUtilsTest {
 
   @Test
   void computeWaveformKey() {
@@ -13,7 +13,7 @@ class FileUtilsTest {
     audio.setName("Wubby Bass C♭4");
     audio.setTones("C♭4");
 
-    var waveformKey = FileUtils.computeWaveformKey(
+    var waveformKey = LocalFileUtils.computeWaveformKey(
       "Slaps",
       "LoFi Bass Instruments",
       "Wubby 5",
@@ -30,7 +30,7 @@ class FileUtilsTest {
     audio.setName("Wubby Bass C♭4");
     audio.setTones("");
 
-    var waveformKey = FileUtils.computeWaveformKey(
+    var waveformKey = LocalFileUtils.computeWaveformKey(
       "Slaps",
       "LoFi Bass Instruments",
       "Wubby 5",

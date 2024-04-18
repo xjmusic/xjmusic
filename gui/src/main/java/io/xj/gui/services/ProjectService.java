@@ -90,6 +90,14 @@ public interface ProjectService {
   void saveProject(Runnable onComplete);
 
   /**
+   Save the project as a new project
+
+   @param parentPathPrefix on disk
+   @param projectName      of the project
+   */
+  void saveAsProject(String parentPathPrefix, String projectName);
+
+  /**
    Project Cleanup option to delete unused audio files from project folder
    https://github.com/xjmusic/workstation/issues/200
    */
