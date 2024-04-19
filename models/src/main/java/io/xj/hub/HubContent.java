@@ -1453,7 +1453,7 @@ public class HubContent {
    */
   public <N> boolean update(Class<N> type, UUID id, String attribute, Object value) throws Exception {
     var entity = get(type, id).orElseThrow(() -> new RuntimeException(String.format("%s[%s] not found", type.getSimpleName(), id)));
-    var ov = EntityUtils.get(entity, attribute).orElseThrow(() -> new RuntimeException(String.format("%s[%s] does not have attribute %s", type.getSimpleName(), id, attribute)));
+    var ov = EntityUtils.get(entity, attribute).orElse(null);
     EntityUtils.set(entity, attribute, value);
     put(entity);
     return !Objects.equals(ov, value);

@@ -78,6 +78,7 @@ public interface ProjectManager {
 
   /**
    Create a project on the local disk
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
 
    @param parentPathPrefix the path prefix of the project
    @param projectName      the name of the project
@@ -87,11 +88,13 @@ public interface ProjectManager {
 
   /**
    Save the project
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
    */
   void saveProject();
 
   /**
-   Save the project as a new project
+   Save the project as a new project https://github.com/xjmusic/workstation/issues/362
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
 
    @param parentPathPrefix the path prefix of the project
    @param projectName      the name of the project
@@ -99,8 +102,7 @@ public interface ProjectManager {
   void saveAsProject(String parentPathPrefix, String projectName);
 
   /**
-   Project Cleanup option to delete unused audio files from project folder
-   https://github.com/xjmusic/workstation/issues/200
+   Project Cleanup option to delete unused audio files from project folder https://github.com/xjmusic/workstation/issues/200
 
    @return results
    */
