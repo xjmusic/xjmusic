@@ -1151,4 +1151,20 @@ public class HubContentTest extends ContentTest {
     assertEquals(33, result.size());
   }
 
+  /**
+   Combine multiple payloads into a single HubContent - if any of them are a demo, the final one is a demo
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   */
+  @Test
+  void combine_preserveDemo() {
+    var content1 = new HubContent();
+    content1.setDemo(true);
+    var content2 = new HubContent();
+    var content3 = new HubContent();
+
+    var result = HubContent.combine(Set.of(content1, content2, content3));
+
+    assertTrue(result.getDemo());
+  }
+
 }

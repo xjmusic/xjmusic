@@ -8,8 +8,9 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.ProjectUtils;
-import io.xj.gui.utils.TextUtils;
+import io.xj.gui.utils.UiUtils;
 import io.xj.hub.pojos.Template;
+import io.xj.hub.util.LocalFileUtils;
 import io.xj.hub.util.StringUtils;
 import jakarta.annotation.Nullable;
 import javafx.beans.property.ObjectProperty;
@@ -81,7 +82,7 @@ public class TemplateExportModalController extends ProjectModalController {
     fieldPathPrefix.textProperty().bindBidirectional(projectService.exportPathPrefixProperty());
     fieldPathPrefix.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
       if (!isNowFocused) {
-        TextUtils.addTrailingSlash(fieldPathPrefix);
+        UiUtils.addTrailingSlash(fieldPathPrefix);
       }
     });
 
@@ -128,7 +129,7 @@ public class TemplateExportModalController extends ProjectModalController {
       buttonSelectDirectory.getScene().getWindow(), "Choose destination folder", fieldPathPrefix.getText()
     );
     if (Objects.nonNull(path)) {
-      fieldPathPrefix.setText(TextUtils.addTrailingSlash(path));
+      fieldPathPrefix.setText(LocalFileUtils.addTrailingSlash(path));
     }
   }
 

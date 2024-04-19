@@ -459,17 +459,17 @@ public class ProjectManagerImpl implements ProjectManager {
   @Override
   public void saveAsProject(String parentPathPrefix, String projectName) {
     try {
-      LOG.info("Save project as \"{}\" in parent folder {}", projectName, parentPathPrefix);
       var legacyProjectPathPrefix = projectPathPrefix.get();
-      this.projectPathPrefix.set(parentPathPrefix);
+      this.projectPathPrefix.set(LocalFileUtils.addTrailingSlash(parentPathPrefix));
       this.projectName.set(projectName);
+      LOG.info("Will save project as \"{}\" in parent folder {}", projectName, projectPathPrefix.get());
 
       var project = this.project.get();
       project.setName(projectName);
       this.project.set(project);
       this.content.get().put(project);
 
-      createProjectFolder(parentPathPrefix, projectName);
+      createProjectFolder(projectPathPrefix.get(), projectName);
       saveProjectContent(legacyProjectPathPrefix);
 
     } catch (IOException e) {
@@ -1307,12 +1307,24 @@ public class ProjectManagerImpl implements ProjectManager {
     updateState(ProjectState.Saving);
     cleanupOrphans(content.get());
     LOG.info("Will save project \"{}\" to {}", projectName.get(), getPathToProjectFile());
-    var json = jsonProvider.getMapper().writeValueAsString(content);
+
+    // TODO walk the entire project folder and identify existing .json files, store these paths
+    // TODO any .json file in the project path not overwritten should be deleted
+
+    // .xj file is only the Project and whether it's a demo
+    HubContent projectContent = new HubContent();
+    projectContent.setDemo(content.get().getDemo());
+    projectContent.put(content.get().getProject());
+    var json = jsonProvider.getMapper().writeValueAsString(projectContent);
     var jsonPath = getPathToProjectFile();
     Files.writeString(Path.of(jsonPath), json);
 
-    // TODO copy all audio files to the project folder
-    // TODO update progress % indicator and label while copying
+    // TODO iterate through all libraries, make a folder, and write the library.json file
+    // TODO iterate through all instruments, make a folder, and write the instrument.json file
+    // TODO iterate through all programs, make a folder, and write the program.json file
+
+    // TODO iterate through all audios, determine expected path, and if the audio is not in that path, copy it from where it would be expected in the legacy project format, or from the legacy project path prefix
+    // TODO update progress % indicator and label while copying audio files
     // TODO ability to copy all audio files from the previous folder to the new project folder (during a Save As operation)
 
     LOG.info("Did write {} bytes of content to {}", json.length(), jsonPath);

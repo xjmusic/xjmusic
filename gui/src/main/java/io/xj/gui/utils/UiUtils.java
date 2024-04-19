@@ -9,6 +9,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.effect.ColorAdjust;
@@ -23,6 +26,7 @@ import org.springframework.core.io.Resource;
 
 import java.awt.Taskbar;
 import java.awt.Toolkit;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -216,5 +220,33 @@ public interface UiUtils {
     ChangeListener<V> listener = (o, ov, value) -> action.run();
     property.addListener(listener);
     return () -> property.removeListener(listener);
+  }
+
+  /**
+   Add slash to end of file path prefix of text field
+
+   @param textField in which to add a trailing slash
+   */
+  static void addTrailingSlash(TextField textField) {
+    String text = textField.getText();
+    if (!text.endsWith(File.separator)) {
+      textField.setText(text + File.separator);
+    }
+  }
+
+  static double getVvalue(TextArea textArea) {
+    ScrollPane sp = (ScrollPane) textArea.lookup(".scroll-pane");
+    if (sp != null) {
+      return sp.getVvalue();
+    }
+    return 0;
+  }
+
+  static double getVmax(TextArea textArea) {
+    ScrollPane sp = (ScrollPane) textArea.lookup(".scroll-pane");
+    if (sp != null) {
+      return sp.getVmax();
+    }
+    return 0;
   }
 }

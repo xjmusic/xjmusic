@@ -11,11 +11,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -122,5 +124,40 @@ public interface LocalFileUtils {
         .filter(path -> path.toString().endsWith(".json"))
         .collect(Collectors.toSet());
     }
+  }
+
+  /**
+   Copy a directory from source to destination
+
+   @param source from directory
+   @param dest   to directory
+   */
+  static void copyRecursively(Path source, Path dest) {
+    try {
+      Files.walkFileTree(source, new SimpleFileVisitor<>() {
+        @Override
+        public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
+          Files.createDirectories(dest.resolve(source.relativize(dir)));
+          return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+          Files.copy(file, dest.resolve(source.relativize(file)));
+          return FileVisitResult.CONTINUE;
+        }
+      });
+    } catch (IOException e) {
+      System.err.println("Failed to copy directory: " + e.getMessage());
+    }
+  }
+
+  /**
+   Add slash to end of file path prefix of string
+
+   @param text in which to add a trailing slash
+   */
+  static String addTrailingSlash(String text) {
+    return text.endsWith(File.separator) ? text : text + File.separator;
   }
 }

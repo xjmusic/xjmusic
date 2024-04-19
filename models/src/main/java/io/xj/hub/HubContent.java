@@ -117,6 +117,7 @@ public class HubContent {
     HubContent combined = new HubContent();
     for (HubContent content : contents) {
       combined.putAll(content.getAll());
+      if (content.getDemo()) combined.setDemo(true);
     }
     return combined;
   }
