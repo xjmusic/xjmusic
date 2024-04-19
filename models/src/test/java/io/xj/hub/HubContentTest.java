@@ -1167,4 +1167,56 @@ public class HubContentTest extends ContentTest {
     assertTrue(result.getDemo());
   }
 
+  /**
+   Get a subset of the content just for the given Instrument ID
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   */
+  @Test
+  void subsetForInstrumentId() {
+    var result = subject.subsetForInstrumentId(instrument1.getId());
+
+    assertEquals(1, result.getInstruments().size());
+    assertEquals(1, result.getInstrumentMemes().size());
+    assertEquals(1, result.getInstrumentAudios().size());
+  }
+
+  /**
+   Get a subset of the content just for the given Program ID
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   */
+  @Test
+  void subsetForProgramId() {
+    var result1 = subject.subsetForProgramId(program1.getId());
+    var result2 = subject.subsetForProgramId(program2.getId());
+
+    assertEquals(1, result1.getPrograms().size());
+    assertEquals(1, result1.getProgramMemes().size());
+    assertEquals(1, result1.getProgramVoices().size());
+    assertEquals(1, result1.getProgramSequences().size());
+    assertEquals(2, result1.getProgramSequenceChords().size());
+    assertEquals(2, result1.getProgramSequenceChordVoicings().size());
+    assertEquals(2, result1.getProgramSequenceBindings().size());
+    assertEquals(2, result1.getProgramSequenceBindingMemes().size());
+
+    assertEquals(1, result2.getPrograms().size());
+    assertEquals(1, result2.getProgramMemes().size());
+    assertEquals(1, result2.getProgramSequences().size());
+    assertEquals(1, result2.getProgramVoices().size());
+    assertEquals(2, result2.getProgramVoiceTracks().size());
+    assertEquals(2, result2.getProgramSequencePatterns().size());
+    assertEquals(2, result2.getProgramSequencePatternEvents().size());
+  }
+
+  /**
+   Get a subset of the content just for the given Template ID
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   */
+  @Test
+  void subsetForTemplateId() {
+    var result = subject.subsetForTemplateId(template1.getId());
+
+    assertEquals(1, result.getTemplates().size());
+    assertEquals(1, result.getTemplateBindings().size());
+  }
+
 }

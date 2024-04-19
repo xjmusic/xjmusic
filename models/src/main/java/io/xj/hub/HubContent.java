@@ -123,6 +123,58 @@ public class HubContent {
   }
 
   /**
+   Get a subset of only the content for the given instrument id
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+
+   @param instrumentId for which to get subset content
+   @return subset of content
+   */
+  public HubContent subsetForInstrumentId(UUID instrumentId) {
+    var subset = new HubContent();
+    subset.put(getInstrument(instrumentId).orElseThrow(() -> new RuntimeException("Instrument[" + instrumentId.toString() + "] not in content!")));
+    subset.putAll(getAudiosOfInstrument(instrumentId));
+    subset.putAll(getMemesOfInstrument(instrumentId));
+    return subset;
+  }
+
+  /**
+   Get a subset of only the content for the given program id
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+
+   @param programId for which to get subset content
+   @return subset of content
+   */
+  public HubContent subsetForProgramId(UUID programId) {
+    var subset = new HubContent();
+    subset.put(getProgram(programId).orElseThrow(() -> new RuntimeException("Program[" + programId.toString() + "] not in content!")));
+    subset.putAll(getMemesOfProgram(programId));
+    subset.putAll(getSequenceBindingMemesOfProgram(programId));
+    subset.putAll(getSequenceBindingsOfProgram(programId));
+    subset.putAll(getSequenceChordVoicingsOfProgram(programId));
+    subset.putAll(getSequenceChordsOfProgram(programId));
+    subset.putAll(getSequencePatternEventsOfProgram(programId));
+    subset.putAll(getSequencePatternsOfProgram(programId));
+    subset.putAll(getSequencesOfProgram(programId));
+    subset.putAll(getTracksOfProgram(programId));
+    subset.putAll(getVoicesOfProgram(programId));
+    return subset;
+  }
+
+  /**
+   Get a subset of only the content for the given template id
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+
+   @param templateId for which to get subset content
+   @return subset of content
+   */
+  public HubContent subsetForTemplateId(UUID templateId) {
+    var subset = new HubContent();
+    subset.put(getTemplate(templateId).orElseThrow(() -> new RuntimeException("Template[" + templateId.toString() + "] not in content!")));
+    subset.putAll(getBindingsOfTemplate(templateId));
+    return subset;
+  }
+
+  /**
    Get all errors
 
    @return all errors

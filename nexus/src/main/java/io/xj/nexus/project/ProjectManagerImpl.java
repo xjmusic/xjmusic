@@ -1318,17 +1318,37 @@ public class ProjectManagerImpl implements ProjectManager {
     projectContent.put(content.get().getProject());
     writeContentToJsonFile(projectContent, getPathToProjectFile());
 
+    // TODO update progress % indicator and label to indicate saving is at 0%
+
     // Iterate through all libraries, make a folder, and write the library.json file
     for (Library library : content.get().getLibraries()) {
       var libraryPathPrefix = projectPathPrefix.get() + StringUtils.toAlphanumericHyphenated(library.getName()) + File.separator;
       Files.createDirectory(Path.of(libraryPathPrefix));
-      writeContentToJsonFile(new HubContent(Set.of(library)), libraryPathPrefix + "library.json");
+      currentJsonFiles.add(writeContentToJsonFile(new HubContent(Set.of(library)), libraryPathPrefix + "library.json"));
+
+      for (Program program : content.get().getProgramsOfLibrary(library)) {
+        var programPathPrefix = libraryPathPrefix + StringUtils.toAlphanumericHyphenated(program.getName()) + File.separator;
+        Files.createDirectory(Path.of(programPathPrefix));
+        currentJsonFiles.add(writeContentToJsonFile(content.get().subsetForProgramId(program.getId()), programPathPrefix + "program.json"));
+      }
+
+      for (Template template : content.get().getTemplates()) {
+        var templatePathPrefix = libraryPathPrefix + StringUtils.toAlphanumericHyphenated(template.getName()) + File.separator;
+        Files.createDirectory(Path.of(templatePathPrefix));
+        currentJsonFiles.add(writeContentToJsonFile(content.get().subsetForTemplateId(template.getId()), templatePathPrefix + "template.json"));
+      }
+
+      for (Instrument instrument : content.get().getInstrumentsOfLibrary(library)) {
+        var instrumentPathPrefix = libraryPathPrefix + StringUtils.toAlphanumericHyphenated(instrument.getName()) + File.separator;
+        Files.createDirectory(Path.of(instrumentPathPrefix));
+        currentJsonFiles.add(writeContentToJsonFile(content.get().subsetForInstrumentId(instrument.getId()), instrumentPathPrefix + "instrument.json"));
+        // TODO iterate through all audios, determine expected path, and if the audio is not in that path, copy it from where it would be expected in the legacy project format, or from the legacy project path prefix
+        // TODO update progress % indicator and label while copying audio files
+      }
 
       // TODO iterate through all instruments, make a folder, and write the instrument.json file
       // TODO iterate through all programs, make a folder, and write the program.json file
 
-      // TODO iterate through all audios, determine expected path, and if the audio is not in that path, copy it from where it would be expected in the legacy project format, or from the legacy project path prefix
-      // TODO update progress % indicator and label while copying audio files
       // TODO ability to copy all audio files from the previous folder to the new project folder (during a Save As operation)
     }
     // Iterate through all templates, make a folder, and write the template.json file
@@ -1343,12 +1363,14 @@ public class ProjectManagerImpl implements ProjectManager {
 
    @param content to write
    @param path    to write the content to
+   @return path for chaining use of method
    @throws IOException if the content could not be written to the file
    */
-  private void writeContentToJsonFile(HubContent content, String path) throws IOException {
+  private String writeContentToJsonFile(HubContent content, String path) throws IOException {
     var json = jsonProvider.getMapper().writeValueAsString(content);
     Files.writeString(Path.of(path), json);
     LOG.info("Did write {} bytes of content to {}", json.length(), path);
+    return path;
   }
 
   /**

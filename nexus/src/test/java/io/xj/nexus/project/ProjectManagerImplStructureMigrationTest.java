@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectManagerImplStructureMigrationTest {
@@ -34,6 +36,9 @@ class ProjectManagerImplStructureMigrationTest {
 
   @Mock
   HttpClientProvider httpClientProvider;
+
+  @Spy
+  Consumer<Double> onProgress;
 
   @BeforeEach
   void setUp() throws URISyntaxException, IOException {
@@ -58,6 +63,7 @@ class ProjectManagerImplStructureMigrationTest {
    */
   @Test
   void saveAsProjectAndMigrateStructure() throws IOException {
+    subject.setOnProgress(onProgress);
     String dest = Files.createTempDirectory("LegacyExampleProject").toAbsolutePath().toString();
     LOG.info("Save project as {}", dest);
 
@@ -72,17 +78,19 @@ class ProjectManagerImplStructureMigrationTest {
    */
   @Test
   void saveProjectAndMigrateStructure() {
+    subject.setOnProgress(onProgress);
     subject.saveProject();
 
     // TODO assert all .json files and audio files exist as expected in current location
   }
 
   /**
+   Create an additional JSON file in the project directory, and ensure it is deleted when saving the project.
    Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
    */
   @Test
   void saveProjectCleansUpUnusedJson() throws IOException {
-    // TODO create an additional JSON file in the project directory
+    subject.setOnProgress(onProgress);
     var json = jsonProvider.getMapper().writeValueAsString(subject.getContent());
     var jsonPath = subject.getProjectPathPrefix() + "unused.json";
     Files.writeString(Path.of(jsonPath), json);
