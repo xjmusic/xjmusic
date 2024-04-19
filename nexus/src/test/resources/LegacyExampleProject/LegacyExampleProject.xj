@@ -1,9 +1,129 @@
 {
   "demo": false,
-  "project": {
-    "id": "096366db-3f7a-446c-a3e6-0811a9a66e23",
-    "name": "LegacyExampleProject"
-  },
+  "libraries": [
+    {
+      "id": "a4ca1f91-9f5d-4b91-ab97-b23525f5e520",
+      "name": "Legacy Programs",
+      "projectId": "096366db-3f7a-446c-a3e6-0811a9a66e23",
+      "isDeleted": false
+    },
+    {
+      "id": "5c8f6d1a-c751-4af1-999f-db43bd3cf368",
+      "name": "Legacy Instruments",
+      "projectId": "096366db-3f7a-446c-a3e6-0811a9a66e23",
+      "isDeleted": false
+    }
+  ],
+  "programs": [
+    {
+      "id": "5754c39f-93d0-4ce6-a50a-a99e7acc16a7",
+      "libraryId": "a4ca1f91-9f5d-4b91-ab97-b23525f5e520",
+      "state": "Published",
+      "key": "C",
+      "tempo": 120.0,
+      "type": "Main",
+      "name": "Legacy Main",
+      "config": "barBeats = 4\ncutoffMinimumBars = 2\ndoPatternRestartOnChord = false\n",
+      "isDeleted": false
+    },
+    {
+      "id": "21d82651-1eef-4e30-8753-834f7c891c84",
+      "libraryId": "a4ca1f91-9f5d-4b91-ab97-b23525f5e520",
+      "state": "Published",
+      "key": "C",
+      "tempo": 120.0,
+      "type": "Beat",
+      "name": "Legacy Beat",
+      "config": "barBeats = 4\ncutoffMinimumBars = 2\ndoPatternRestartOnChord = false\n",
+      "isDeleted": false
+    },
+    {
+      "id": "7fa24565-8fe7-424f-9616-1a09f591c83a",
+      "libraryId": "a4ca1f91-9f5d-4b91-ab97-b23525f5e520",
+      "state": "Published",
+      "key": "C",
+      "tempo": 120.0,
+      "type": "Macro",
+      "name": "Legacy Macro",
+      "config": "barBeats = 4\ncutoffMinimumBars = 2\ndoPatternRestartOnChord = false\n",
+      "isDeleted": false
+    },
+    {
+      "id": "5dbe0c28-b425-4dc3-8679-e3eb7f21839c",
+      "libraryId": "a4ca1f91-9f5d-4b91-ab97-b23525f5e520",
+      "state": "Published",
+      "key": "C",
+      "tempo": 120.0,
+      "type": "Detail",
+      "name": "Legacy Detail",
+      "config": "barBeats = 4\ncutoffMinimumBars = 2\ndoPatternRestartOnChord = false\n",
+      "isDeleted": false
+    }
+  ],
+  "instruments": [
+    {
+      "id": "64c80096-804f-4dc8-a5f9-8d0ec0555043",
+      "libraryId": "5c8f6d1a-c751-4af1-999f-db43bd3cf368",
+      "type": "Percussion",
+      "state": "Published",
+      "name": "Test Instrument",
+      "config": "isAudioSelectionPersistent = true\nisMultiphonic = false\nisOneShot = false\nisOneShotCutoffEnabled = true\nisTonal = false\noneShotObserveLengthOfEvents = []\nreleaseMillis = 5\n",
+      "isDeleted": false,
+      "volume": 1.0,
+      "mode": "Loop"
+    }
+  ],
+  "templateBindings": [
+    {
+      "id": "aa286454-d983-4b18-a8d6-a00aa2f9e950",
+      "type": "Library",
+      "templateId": "2b8ca2f5-fff2-44bc-abdc-1165a5daf9e3",
+      "targetId": "5c8f6d1a-c751-4af1-999f-db43bd3cf368"
+    },
+    {
+      "id": "ac576976-7a42-44dd-85a7-07648eb0bd29",
+      "type": "Program",
+      "templateId": "2b8ca2f5-fff2-44bc-abdc-1165a5daf9e3",
+      "targetId": "5dbe0c28-b425-4dc3-8679-e3eb7f21839c"
+    }
+  ],
+  "templates": [
+    {
+      "id": "2b8ca2f5-fff2-44bc-abdc-1165a5daf9e3",
+      "projectId": "096366db-3f7a-446c-a3e6-0811a9a66e23",
+      "name": "Legacy Template",
+      "config": "choiceMuteProbability = {\n    Background = 0.0\n    Bass = 0.0\n    Drum = 0.0\n    Hook = 0.0\n    Pad = 0.0\n    Percussion = 0.0\n    Stab = 0.0\n    Sticky = 0.0\n    Stripe = 0.0\n    Transition = 0.0\n  }\ndeltaArcBeatLayersIncoming = 1\ndeltaArcBeatLayersToPrioritize = [\"kick\"]\ndeltaArcEnabled = false\ndetailLayerOrder = [\"Bass\",\"Stripe\",\"Pad\",\"Sticky\",\"Stab\"]\ndubMasterVolume = {\n    Background = 1.0\n    Bass = 1.0\n    Drum = 1.0\n    Hook = 1.0\n    Pad = 1.0\n    Percussion = 1.0\n    Stab = 1.0\n    Sticky = 1.0\n    Stripe = 1.0\n    Transition = 1.0\n  }\neventNamesLarge = [\"LARGE\",\"BIG\",\"HIGH\",\"PRIMARY\"]\neventNamesMedium = [\"MEDIUM\",\"REGULAR\",\"MIDDLE\",\"SECONDARY\"]\neventNamesSmall = [\"SMALL\",\"LITTLE\",\"LOW\"]\ninstrumentTypesForAudioLengthFinalization = [\"Bass\",\"Pad\",\"Stab\",\"Sticky\",\"Stripe\"]\ninstrumentTypesForInversionSeeking = [\"Pad\",\"Stab\",\"Sticky\",\"Stripe\"]\nintensityAutoCrescendoEnabled = true\nintensityAutoCrescendoMaximum = 0.8\nintensityAutoCrescendoMinimum = 0.2\nintensityLayers = {\n    Background = 3\n    Bass = 1\n    Drum = 1\n    Hook = 3\n    Pad = 3\n    Percussion = 3\n    Stab = 2\n    Sticky = 2\n    Stripe = 2\n    Transition = 3\n  }\nintensityThreshold = {\n    Background = 0.5\n    Bass = 0.5\n    Drum = 0.5\n    Hook = 0.5\n    Pad = 0.5\n    Percussion = 0.5\n    Stab = 0.5\n    Sticky = 0.5\n    Stripe = 0.5\n    Transition = 0.5\n  }\nmainProgramLengthMaxDelta = 280\nmemeTaxonomy = [\n    {\n      memes = [\"RED\",\"GREEN\",\"BLUE\"]\n      name = \"COLOR\"\n    },\n    {\n      memes = [\"WINTER\",\"SPRING\",\"SUMMER\",\"FALL\"]\n      name = \"SEASON\"\n    }\n  ]\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\nstickyBunEnabled = true\n",
+      "isDeleted": false
+    }
+  ],
+  "instrumentAudios": [
+    {
+      "id": "1e6e1f31-40c0-4ae4-bb62-faebfdda25b5",
+      "instrumentId": "64c80096-804f-4dc8-a5f9-8d0ec0555043",
+      "name": "Test-Instrument-Cleanup-Test-Test-Instrument-Space-Video-Game-Demo-Instrument-Percussion-Loop-Embark-Combat-Perc-Loops-Embark-Perc-Loop-Kick-X-X-123",
+      "waveformKey": "LegacyExampleProject-Legacy-Instruments-Test-Instrument-Test-Instrument-Cleanup-Test-Test-Instrument-Space-Video-Game-Demo-Instrument-Percussion-Loop-Embark-Combat-Perc-Loops-Embark-Perc-Loop-Kick-X-X-123-X.wav",
+      "transientSeconds": 0.0,
+      "loopBeats": 4.0,
+      "tempo": 120.0,
+      "intensity": 1.0,
+      "event": "X",
+      "volume": 1.0,
+      "tones": "X"
+    },
+    {
+      "id": "ded34218-788b-408a-8f8a-3f9cd3eab5eb",
+      "instrumentId": "64c80096-804f-4dc8-a5f9-8d0ec0555043",
+      "name": "Test-Instrument-Cleanup-Test-Test-Instrument-48000-16-2-Slaps-Lofi-Instrument-Ambience-Loop-OSS-VV-Wrap-This-Scratch-OSS-VV-Wrap-This-Scratch-X-X",
+      "waveformKey": "LegacyExampleProject-Legacy-Instruments-Test-Instrument-Test-Instrument-Cleanup-Test-Test-Instrument-48000-16-2-Slaps-Lofi-Instrument-Ambience-Loop-OSS-VV-Wrap-This-Scratch-OSS-VV-Wrap-This-Scratch-X-X-X.wav",
+      "transientSeconds": 0.0,
+      "loopBeats": 4.0,
+      "tempo": 120.0,
+      "intensity": 1.0,
+      "event": "X",
+      "volume": 1.0,
+      "tones": "X"
+    }
+  ],
   "programSequencePatterns": [
     {
       "id": "a4fc5ec8-25f6-4af2-b0b2-90bf31f4901a",
@@ -79,93 +199,6 @@
       "type": "Stripe",
       "name": "New Voice",
       "order": 1.0
-    }
-  ],
-  "instruments": [
-    {
-      "id": "64c80096-804f-4dc8-a5f9-8d0ec0555043",
-      "libraryId": "5c8f6d1a-c751-4af1-999f-db43bd3cf368",
-      "type": "Percussion",
-      "state": "Published",
-      "name": "Test Instrument",
-      "config": "isAudioSelectionPersistent = true\nisMultiphonic = false\nisOneShot = false\nisOneShotCutoffEnabled = true\nisTonal = false\noneShotObserveLengthOfEvents = []\nreleaseMillis = 5\n",
-      "isDeleted": false,
-      "volume": 1.0,
-      "mode": "Loop"
-    }
-  ],
-  "instrumentAudios": [
-    {
-      "id": "1e6e1f31-40c0-4ae4-bb62-faebfdda25b5",
-      "instrumentId": "64c80096-804f-4dc8-a5f9-8d0ec0555043",
-      "name": "Test-Instrument-Cleanup-Test-Test-Instrument-Space-Video-Game-Demo-Instrument-Percussion-Loop-Embark-Combat-Perc-Loops-Embark-Perc-Loop-Kick-X-X-123",
-      "waveformKey": "LegacyExampleProject-Legacy-Instruments-Test-Instrument-Test-Instrument-Cleanup-Test-Test-Instrument-Space-Video-Game-Demo-Instrument-Percussion-Loop-Embark-Combat-Perc-Loops-Embark-Perc-Loop-Kick-X-X-123-X.wav",
-      "transientSeconds": 0.0,
-      "loopBeats": 4.0,
-      "tempo": 120.0,
-      "intensity": 1.0,
-      "event": "X",
-      "volume": 1.0,
-      "tones": "X"
-    },
-    {
-      "id": "ded34218-788b-408a-8f8a-3f9cd3eab5eb",
-      "instrumentId": "64c80096-804f-4dc8-a5f9-8d0ec0555043",
-      "name": "Test-Instrument-Cleanup-Test-Test-Instrument-48000-16-2-Slaps-Lofi-Instrument-Ambience-Loop-OSS-VV-Wrap-This-Scratch-OSS-VV-Wrap-This-Scratch-X-X",
-      "waveformKey": "LegacyExampleProject-Legacy-Instruments-Test-Instrument-Test-Instrument-Cleanup-Test-Test-Instrument-48000-16-2-Slaps-Lofi-Instrument-Ambience-Loop-OSS-VV-Wrap-This-Scratch-OSS-VV-Wrap-This-Scratch-X-X-X.wav",
-      "transientSeconds": 0.0,
-      "loopBeats": 4.0,
-      "tempo": 120.0,
-      "intensity": 1.0,
-      "event": "X",
-      "volume": 1.0,
-      "tones": "X"
-    }
-  ],
-  "programs": [
-    {
-      "id": "5754c39f-93d0-4ce6-a50a-a99e7acc16a7",
-      "libraryId": "a4ca1f91-9f5d-4b91-ab97-b23525f5e520",
-      "state": "Published",
-      "key": "C",
-      "tempo": 120.0,
-      "type": "Main",
-      "name": "Legacy Main",
-      "config": "barBeats = 4\ncutoffMinimumBars = 2\ndoPatternRestartOnChord = false\n",
-      "isDeleted": false
-    },
-    {
-      "id": "21d82651-1eef-4e30-8753-834f7c891c84",
-      "libraryId": "a4ca1f91-9f5d-4b91-ab97-b23525f5e520",
-      "state": "Published",
-      "key": "C",
-      "tempo": 120.0,
-      "type": "Beat",
-      "name": "Legacy Beat",
-      "config": "barBeats = 4\ncutoffMinimumBars = 2\ndoPatternRestartOnChord = false\n",
-      "isDeleted": false
-    },
-    {
-      "id": "7fa24565-8fe7-424f-9616-1a09f591c83a",
-      "libraryId": "a4ca1f91-9f5d-4b91-ab97-b23525f5e520",
-      "state": "Published",
-      "key": "C",
-      "tempo": 120.0,
-      "type": "Macro",
-      "name": "Legacy Macro",
-      "config": "barBeats = 4\ncutoffMinimumBars = 2\ndoPatternRestartOnChord = false\n",
-      "isDeleted": false
-    },
-    {
-      "id": "5dbe0c28-b425-4dc3-8679-e3eb7f21839c",
-      "libraryId": "a4ca1f91-9f5d-4b91-ab97-b23525f5e520",
-      "state": "Published",
-      "key": "C",
-      "tempo": 120.0,
-      "type": "Detail",
-      "name": "Legacy Detail",
-      "config": "barBeats = 4\ncutoffMinimumBars = 2\ndoPatternRestartOnChord = false\n",
-      "isDeleted": false
     }
   ],
   "programMemes": [
@@ -250,20 +283,10 @@
       "order": 2.0
     }
   ],
-  "libraries": [
-    {
-      "id": "a4ca1f91-9f5d-4b91-ab97-b23525f5e520",
-      "name": "Legacy Programs",
-      "projectId": "096366db-3f7a-446c-a3e6-0811a9a66e23",
-      "isDeleted": false
-    },
-    {
-      "id": "5c8f6d1a-c751-4af1-999f-db43bd3cf368",
-      "name": "Legacy Instruments",
-      "projectId": "096366db-3f7a-446c-a3e6-0811a9a66e23",
-      "isDeleted": false
-    }
-  ],
+  "project": {
+    "id": "096366db-3f7a-446c-a3e6-0811a9a66e23",
+    "name": "LegacyExampleProject"
+  },
   "programSequencePatternEvents": [
     {
       "id": "857820cd-f728-4bf4-9c57-0dfe4c1eda7e",
