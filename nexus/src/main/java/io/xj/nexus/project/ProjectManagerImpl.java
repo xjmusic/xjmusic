@@ -1322,7 +1322,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
     // Iterate through all libraries, make a folder, and write the library.json file
     for (Library library : content.get().getLibraries()) {
-      var libraryPathPrefix = projectPathPrefix.get() + StringUtils.toAlphanumericHyphenated(library.getName()) + File.separator;
+      var libraryPathPrefix = projectPathPrefix.get() + "libraries" + File.separator + StringUtils.toAlphanumericHyphenated(library.getName()) + File.separator;
       Files.createDirectory(Path.of(libraryPathPrefix));
       currentJsonFiles.add(writeContentToJsonFile(new HubContent(Set.of(library)), libraryPathPrefix + "library.json"));
 
