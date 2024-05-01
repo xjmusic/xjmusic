@@ -299,7 +299,7 @@ public class ProjectManagerImpl implements ProjectManager {
           var sourceSize = getFileSizeIfExistsOnDisk(sourcePath);
           if (sourceSize.isPresent()) {
             var extension = ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
-            var waveformKey = audio.getId().toString() + "." + extension;
+            var waveformKey = template.getShipKey() + "-" + audio.getId().toString() + "." + extension;
             audio.setWaveformKey(waveformKey);
             templateContent.put(audio);
             var destinationPath = exportFolderPrefix + waveformKey;
@@ -332,6 +332,7 @@ public class ProjectManagerImpl implements ProjectManager {
             }
 
           } else {
+            LOG.warn("File not found for audio \"{}\" of instrument \"{}\" in library \"{}\" at {}", audio.getName(), instrument.getName(), templateContent.getLibrary(instrument.getLibraryId()).map(Library::getName).orElse("Unknown"), sourcePath);
             audioFileNotFoundIds.add(audio.getId());
           }
 
@@ -342,7 +343,7 @@ public class ProjectManagerImpl implements ProjectManager {
       }
 
       if (!audioFileNotFoundIds.isEmpty()) {
-        LOG.warn("File not found for {} audios; will remove these audio records from exported template", audioFileNotFoundIds.size());
+        LOG.error("File not found for {} audios; will remove these audio records from exported template. See logs for exact file names.", audioFileNotFoundIds.size());
         for (UUID audioId : audioFileNotFoundIds) {
           templateContent.delete(InstrumentAudio.class, audioId);
         }
@@ -1301,14 +1302,12 @@ public class ProjectManagerImpl implements ProjectManager {
       for (Instrument instrument : content.get().getInstrumentsOfLibrary(library)) {
         var instrumentPathPrefix = libraryPathPrefix + StringUtils.toAlphanumericHyphenated(instrument.getName()) + File.separator;
         foldersInProject.add(ensureDirectoryExists(instrumentPathPrefix));
-        filesInProject.add(writeContentToJsonFile(content.get().subsetForInstrumentId(instrument.getId()), instrumentPathPrefix + StringUtils.toAlphanumericHyphenated(instrument.getName()) + ".json"));
-        updateProgress((double) ++savedItems / totalItems);
 
         // Iterate through all audios, determine expected path, and if the audio is not in that path, copy it from where it would be expected in the legacy project format, or from the legacy project path prefix
         for (InstrumentAudio audio : content.get().getAudiosOfInstrument(instrument.getId())) {
           var extension = ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
-          var toWaveformKey = LocalFileUtils.computeWaveformKey(instrument.getName(), audio, extension);
-          var idealAudioPath = getPathToInstrumentAudio(instrument, toWaveformKey, null);
+          var idealWaveformKey = LocalFileUtils.computeWaveformKey(instrument.getName(), audio, extension);
+          var idealAudioPath = getPathToInstrumentAudio(instrument, idealWaveformKey, null);
           // Copy all audio files to the new project folder from the prior folder (during a Save As operation) or the legacy folder (during a migration operation)
           if (!Files.exists(Path.of(idealAudioPath))) {
             var currentPath = getPathToInstrumentAudio(audio, null); // the current (not necessarily ideal) path
@@ -1322,19 +1321,24 @@ public class ProjectManagerImpl implements ProjectManager {
             } else if (Files.exists(Path.of(legacyAudioPath))) {
               FileUtils.moveFile(new File(legacyAudioPath), new File(idealAudioPath));
             } else if (!Objects.equals(currentPath, idealAudioPath) && Files.exists(Path.of(currentPath))) {
-              try {
-                content.get().update(InstrumentAudio.class, audio.getId(), "waveformKey", toWaveformKey);
-                FileUtils.moveFile(new File(currentPath), new File(idealAudioPath));
-              } catch (Exception e) {
-                LOG.error("Failed to move audio file from {} to {}! {}\n{}", currentPath, idealAudioPath, e, StringUtils.formatStackTrace(e));
-              }
+              FileUtils.moveFile(new File(currentPath), new File(idealAudioPath));
             } else {
               LOG.error("Could not find audio file at any of the following paths: {}, {}, {}, {}", priorAudioPath, priorLegacyAudioPath, legacyAudioPath, currentPath);
             }
+            if (!Objects.equals(idealWaveformKey, audio.getWaveformKey()))
+              try {
+                content.get().update(InstrumentAudio.class, audio.getId(), "waveformKey", idealWaveformKey);
+              } catch (Exception e) {
+                LOG.error("Failed to update audio waveform to \"{}\"! {}\n{}", idealWaveformKey, e, StringUtils.formatStackTrace(e));
+              }
           }
           filesInProject.add(idealAudioPath);
           updateProgress((double) ++savedItems / totalItems);
         }
+
+        // Write the instrument audio content after the audio, in order to include updates to audio waveform keys
+        filesInProject.add(writeContentToJsonFile(content.get().subsetForInstrumentId(instrument.getId()), instrumentPathPrefix + StringUtils.toAlphanumericHyphenated(instrument.getName()) + ".json"));
+        updateProgress((double) ++savedItems / totalItems);
       }
     }
 

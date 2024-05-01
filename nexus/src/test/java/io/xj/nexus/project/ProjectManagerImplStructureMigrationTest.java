@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -87,6 +88,11 @@ class ProjectManagerImplStructureMigrationTest {
     assertContent(3, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "Test-Instrument.json");
     assertAudio(1084246, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "Test-Instrument-Test-Ambience-Loop-X.wav");
     assertAudio(4119604, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "Test-Instrument-Test-Percussion-Loop-X.wav");
+    assertEquals("Test-Instrument-Test-Ambience-Loop-X.wav", subject.getContent().getInstrumentAudio(UUID.fromString("ded34218-788b-408a-8f8a-3f9cd3eab5eb")).orElseThrow().getWaveformKey());
+    assertEquals("Test-Instrument-Test-Percussion-Loop-X.wav", subject.getContent().getInstrumentAudio(UUID.fromString("1e6e1f31-40c0-4ae4-bb62-faebfdda25b5")).orElseThrow().getWaveformKey());
+    HubContent instrumentOnDisk = jsonProvider.getMapper().readValue(Files.readString(Path.of(subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "Test-Instrument.json")), HubContent.class);
+    assertEquals("Test-Instrument-Test-Ambience-Loop-X.wav", instrumentOnDisk.getInstrumentAudio(UUID.fromString("ded34218-788b-408a-8f8a-3f9cd3eab5eb")).orElseThrow().getWaveformKey());
+    assertEquals("Test-Instrument-Test-Percussion-Loop-X.wav", instrumentOnDisk.getInstrumentAudio(UUID.fromString("1e6e1f31-40c0-4ae4-bb62-faebfdda25b5")).orElseThrow().getWaveformKey());
   }
 
   /**
@@ -110,6 +116,11 @@ class ProjectManagerImplStructureMigrationTest {
     assertContent(3, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "Test-Instrument.json");
     assertAudio(1084246, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "Test-Instrument-Test-Ambience-Loop-X.wav");
     assertAudio(4119604, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "Test-Instrument-Test-Percussion-Loop-X.wav");
+    assertEquals("Test-Instrument-Test-Ambience-Loop-X.wav", subject.getContent().getInstrumentAudio(UUID.fromString("ded34218-788b-408a-8f8a-3f9cd3eab5eb")).orElseThrow().getWaveformKey());
+    assertEquals("Test-Instrument-Test-Percussion-Loop-X.wav", subject.getContent().getInstrumentAudio(UUID.fromString("1e6e1f31-40c0-4ae4-bb62-faebfdda25b5")).orElseThrow().getWaveformKey());
+    HubContent instrumentOnDisk = jsonProvider.getMapper().readValue(Files.readString(Path.of(subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "Test-Instrument.json")), HubContent.class);
+    assertEquals("Test-Instrument-Test-Ambience-Loop-X.wav", instrumentOnDisk.getInstrumentAudio(UUID.fromString("ded34218-788b-408a-8f8a-3f9cd3eab5eb")).orElseThrow().getWaveformKey());
+    assertEquals("Test-Instrument-Test-Percussion-Loop-X.wav", instrumentOnDisk.getInstrumentAudio(UUID.fromString("1e6e1f31-40c0-4ae4-bb62-faebfdda25b5")).orElseThrow().getWaveformKey());
   }
 
   /**
