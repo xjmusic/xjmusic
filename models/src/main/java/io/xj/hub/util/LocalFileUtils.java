@@ -2,6 +2,7 @@
 package io.xj.hub.util;
 
 import io.xj.hub.music.Accidental;
+import io.xj.hub.pojos.Instrument;
 import io.xj.hub.pojos.InstrumentAudio;
 
 import java.io.BufferedInputStream;
@@ -95,10 +96,10 @@ public interface LocalFileUtils {
    @param extension      of the audio file
    @return the waveform key
    */
-  static String computeWaveformKey(String instrumentName, InstrumentAudio audio, String extension) {
+  static String computeWaveformKey(Instrument instrument, InstrumentAudio audio, String extension) {
     return String.format("%s.%s",
       Stream.of(
-          StringUtils.toAlphanumericHyphenated(instrumentName),
+          StringUtils.toAlphanumericHyphenated(instrument.getName()),
           StringUtils.toAlphanumericHyphenated(Accidental.replaceWithExplicit(audio.getName())),
           StringUtils.toAlphanumericHyphenated(Accidental.replaceWithExplicit(audio.getTones()))
         ).filter(StringUtils::isNotNullOrEmpty)

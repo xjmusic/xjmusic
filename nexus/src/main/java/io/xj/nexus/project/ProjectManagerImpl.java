@@ -180,7 +180,9 @@ public class ProjectManagerImpl implements ProjectManager {
           if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
             LOG.debug("Will download audio for instrument \"{}\" with waveform key \"{}\"", instrument.getName(), audio.getWaveformKey());
             // Fetch via HTTP if original does not exist
-            var originalCachePath = getPathToInstrumentAudio(instrument, audio.getWaveformKey(), null);
+            var extension = ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
+            var idealWaveformKey = LocalFileUtils.computeWaveformKey(instrument, audio, extension);
+            var idealAudioPath = getPathToInstrumentAudio(instrument, idealWaveformKey, null);
 
             var remoteUrl = String.format("%s%s", this.demoBaseUrl, audio.getWaveformKey());
             var remoteFileSize = hubClientFactory.getRemoteFileSize(httpClient, remoteUrl);
@@ -190,24 +192,28 @@ public class ProjectManagerImpl implements ProjectManager {
               audioFileNotFoundIds.add(audio.getId());
               continue;
             }
-            var localFileSize = getFileSizeIfExistsOnDisk(originalCachePath);
+            var localFileSize = getFileSizeIfExistsOnDisk(idealAudioPath);
 
             boolean shouldDownload = false;
 
             if (localFileSize.isEmpty()) {
               shouldDownload = true;
             } else if (localFileSize.get() != remoteFileSize) {
-              LOG.info("File size of {} does not match remote {} - Will download {} bytes from {}", originalCachePath, remoteFileSize, remoteFileSize, remoteUrl);
+              LOG.info("File size of {} does not match remote {} - Will download {} bytes from {}", idealAudioPath, remoteFileSize, remoteFileSize, remoteUrl);
               shouldDownload = true;
             }
 
             if (shouldDownload) {
-              if (!hubClientFactory.downloadRemoteFileWithRetry(httpClient, remoteUrl, originalCachePath, remoteFileSize)) {
+              if (!hubClientFactory.downloadRemoteFileWithRetry(httpClient, remoteUrl, idealAudioPath, remoteFileSize)) {
                 updateState(ProjectState.Failed);
                 project.set(null);
                 return false;
               }
             }
+
+            // After loading audio, save new ideal waveform key
+            audio.setWaveformKey(idealWaveformKey);
+            content.get().put(audio);
 
             LOG.debug("Did preload audio OK");
             updateProgress((float) loadedAudios / audios.size());
@@ -837,7 +843,7 @@ public class ProjectManagerImpl implements ProjectManager {
     audio.setTransientSeconds(0.0f);
     audio.setVolume(existingAudio.map(InstrumentAudio::getVolume).orElse(DEFAULT_VOLUME));
     audio.setInstrumentId(instrument.getId());
-    audio.setWaveformKey(LocalFileUtils.computeWaveformKey(instrument.getName(), audio, matcher.group(3)));
+    audio.setWaveformKey(LocalFileUtils.computeWaveformKey(instrument, audio, matcher.group(3)));
 
     // Import the audio waveform
     importAudio(audio, audioFilePath);
@@ -1306,7 +1312,7 @@ public class ProjectManagerImpl implements ProjectManager {
         // Iterate through all audios, determine expected path, and if the audio is not in that path, copy it from where it would be expected in the legacy project format, or from the legacy project path prefix
         for (InstrumentAudio audio : content.get().getAudiosOfInstrument(instrument.getId())) {
           var extension = ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
-          var idealWaveformKey = LocalFileUtils.computeWaveformKey(instrument.getName(), audio, extension);
+          var idealWaveformKey = LocalFileUtils.computeWaveformKey(instrument, audio, extension);
           var idealAudioPath = getPathToInstrumentAudio(instrument, idealWaveformKey, null);
           // Copy all audio files to the new project folder from the prior folder (during a Save As operation) or the legacy folder (during a migration operation)
           if (!Files.exists(Path.of(idealAudioPath))) {
