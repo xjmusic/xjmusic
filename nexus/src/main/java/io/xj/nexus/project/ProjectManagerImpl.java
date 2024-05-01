@@ -1253,7 +1253,7 @@ public class ProjectManagerImpl implements ProjectManager {
       try (var paths = Files.walk(prefixPath)) {
         paths.forEach(path -> {
           var subPath = path.toString().substring(getProjectPathPrefix().length() - 1);
-          if (subPath.startsWith(File.separator + "libraries") || subPath.startsWith(File.separator + "templates") || subPath.endsWith(".xj"))
+          if (subPath.startsWith(File.separator + "instrument") || subPath.startsWith(File.separator + "libraries") || subPath.startsWith(File.separator + "templates") || subPath.endsWith(".xj"))
             if (Files.isRegularFile(path)) {
               filesOnDisk.add(path.toString());
             } else if (Files.isDirectory(path)) {

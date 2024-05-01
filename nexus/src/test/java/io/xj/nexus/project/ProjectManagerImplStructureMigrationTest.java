@@ -144,6 +144,9 @@ class ProjectManagerImplStructureMigrationTest {
     Files.createDirectory(Path.of(subject.getProjectPathPrefix() + "libraries", "Legacy-Instruments", "Test-Instrument"));
     var unusedInstrumentAudioFile = Path.of(subject.getProjectPathPrefix() + "libraries", "Legacy-Instruments", "Test-Instrument", "unused.wav");
     Files.writeString(unusedInstrumentAudioFile, "test");
+    // Should cleanup this legacy folder name
+    var legacyInstrumentFolder = Path.of(subject.getProjectPathPrefix() + "instrument");
+    Files.createDirectory(legacyInstrumentFolder);
     // Should not cleanup any of the following files or folders
     var ignoredRenderFolder = Path.of(subject.getProjectPathPrefix() + "render");
     Files.createDirectory(ignoredRenderFolder);
@@ -154,6 +157,7 @@ class ProjectManagerImplStructureMigrationTest {
 
     subject.saveProject("1.2.3");
 
+    assertFalse(Files.exists(legacyInstrumentFolder));
     assertFalse(Files.exists(unusedProjectFile));
     assertFalse(Files.exists(unusedProgramsFile));
     assertFalse(Files.exists(unusedTemplateFile));
