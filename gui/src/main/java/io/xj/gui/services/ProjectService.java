@@ -133,6 +133,11 @@ public interface ProjectService {
   BooleanBinding isStateLoadingProperty();
 
   /**
+   @return Observable property for whether the project is in a saving state
+   */
+  BooleanBinding isStateSavingProperty();
+
+  /**
    @return Observable property for whether the project is in a ready state
    */
   BooleanBinding isStateReadyProperty();

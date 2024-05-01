@@ -162,13 +162,15 @@ public class UIStateServiceImpl implements UIStateService {
 
     // Is the progress bar visible?
     isProgressBarVisible =
-      projectService.isStateLoadingProperty().or(fabricationService.isStateLoadingProperty());
+      projectService.isStateLoadingProperty()
+        .or(projectService.isStateSavingProperty())
+        .or(fabricationService.isStateLoadingProperty());
 
     // Progress
     progress =
       Bindings.createDoubleBinding(
         () ->
-          projectService.isStateLoadingProperty().get() ?
+          projectService.isStateLoadingProperty().or(projectService.isStateSavingProperty()).get() ?
             projectService.progressProperty().get() :
             fabricationService.isStateLoadingProperty().get() ?
               fabricationService.progressProperty().get() :

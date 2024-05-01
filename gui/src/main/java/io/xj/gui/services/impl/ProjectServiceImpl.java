@@ -127,6 +127,7 @@ public class ProjectServiceImpl implements ProjectService {
     () -> PROJECT_LOADING_STATES.contains(state.get()),
     state);
   private final BooleanBinding isStateReady = state.isEqualTo(ProjectState.Ready);
+  private final BooleanBinding isStateSaving = state.isEqualTo(ProjectState.Saving);
   private final BooleanBinding isStateStandby = state.isEqualTo(ProjectState.Standby);
   private final int maxRecentProjects;
   private final ThemeService themeService;
@@ -345,6 +346,11 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public BooleanBinding isStateLoadingProperty() {
     return isStateLoading;
+  }
+
+  @Override
+  public BooleanBinding isStateSavingProperty() {
+    return isStateSaving;
   }
 
   @Override
