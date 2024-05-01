@@ -4,21 +4,21 @@ import io.xj.nexus.util.FormatUtils;
 
 import java.util.Map;
 
-public class ProjectCleanupResults {
+public class ProjectMigrationResults {
   int folders;
   int files;
 
-  public ProjectCleanupResults() {
+  public ProjectMigrationResults() {
     this.folders = 0;
     this.files = 0;
   }
 
-  public ProjectCleanupResults addFolders(int count) {
+  public ProjectMigrationResults addFolders(int count) {
     this.folders += count;
     return this;
   }
 
-  public ProjectCleanupResults addFiles(int count) {
+  public ProjectMigrationResults addFiles(int count) {
     this.files += count;
     return this;
   }
@@ -42,9 +42,9 @@ public class ProjectCleanupResults {
   @Override
   public String toString() {
     if (folders == 0 && files == 0) {
-      return "Nothing was removed";
+      return "Nothing was moved";
     } else {
-      return "Removed " + FormatUtils.describeCounts(Map.of(
+      return "Moved " + FormatUtils.describeCounts(Map.of(
         "files", files,
         "folders", folders
       ));

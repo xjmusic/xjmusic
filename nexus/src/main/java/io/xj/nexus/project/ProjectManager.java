@@ -102,11 +102,12 @@ public interface ProjectManager {
   void saveAsProject(String parentPathPrefix, String projectName);
 
   /**
-   Project Cleanup option to delete unused audio files from project folder https://github.com/xjmusic/workstation/issues/200
+   Migrate a project to the latest structure
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
 
    @return results
    */
-  ProjectCleanupResults cleanupProject();
+  ProjectMigrationResults migrateProject();
 
   /**
    Cancel the project loading
@@ -156,19 +157,42 @@ public interface ProjectManager {
   /**
    Get the path to some instrument audio in the project
 
-   @param instrumentId of the instrument
-   @param waveformKey  of the audio
+   @param audio for which to get path prefix
    @return the path to the audio
    */
-  String getPathToInstrumentAudio(UUID instrumentId, String waveformKey);
+  String getPathToInstrumentAudio(InstrumentAudio audio);
 
   /**
-   Get the path prefix to the audio folder for an instrument
+   Get the path prefix to the program
 
-   @param instrumentId of the instrument
+   @param program for which to get path prefix
+   @return the path prefix to the program
+   */
+  String getPathPrefixToProgram(Program program);
+
+  /**
+   Get the path prefix to the folder for an instrument
+
+   @param instrument to get
    @return the path prefix to the audio
    */
-  String getPathPrefixToInstrumentAudio(UUID instrumentId);
+  String getPathPrefixToInstrument(Instrument instrument);
+
+  /**
+   Get the path prefix to a given library
+
+   @param library for which to get path prefix
+   */
+  String getPathPrefixToLibrary(Library library);
+
+  /**
+   Get the legacy path to the audio folder for an instrument -- for migrating a project from the legacy format
+
+   @param instrumentId for which to get path
+   @param waveformKey  for which to get path
+   @return the path to the audio
+   */
+  String getLegacyPathToInstrumentAudio(UUID instrumentId, String waveformKey);
 
   /**
    Set the callback to be invoked when the progress changes

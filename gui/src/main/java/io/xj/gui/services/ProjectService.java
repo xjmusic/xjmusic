@@ -98,10 +98,10 @@ public interface ProjectService {
   void saveAsProject(String parentPathPrefix, String projectName);
 
   /**
-   Project Cleanup option to delete unused audio files from project folder
-   https://github.com/xjmusic/workstation/issues/200
+   Migrate a project to the latest structure
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
    */
-  void cleanupProject();
+  void migrateLegacyProject();
 
   /**
    Cancel the project loading
@@ -514,10 +514,10 @@ public interface ProjectService {
   /**
    Get the path prefix to the audio folder for an instrument
 
-   @param instrumentId of the instrument
+   @param instrument to get
    @return the path prefix to the audio
    */
-  String getPathPrefixToInstrumentAudio(UUID instrumentId);
+  String getPathPrefixToInstrument(Instrument instrument);
 
   /**
    Get path to an instrument audio waveform

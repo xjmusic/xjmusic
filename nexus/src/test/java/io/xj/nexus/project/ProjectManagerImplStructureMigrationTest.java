@@ -28,6 +28,8 @@ import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 @ExtendWith(MockitoExtension.class)
 class ProjectManagerImplStructureMigrationTest {
   static final Logger LOG = LoggerFactory.getLogger(ProjectManagerImplStructureMigrationTest.class);
@@ -92,12 +94,13 @@ class ProjectManagerImplStructureMigrationTest {
   void saveProjectCleansUpUnusedJson() throws IOException {
     subject.setOnProgress(onProgress);
     var json = jsonProvider.getMapper().writeValueAsString(subject.getContent());
-    var jsonPath = subject.getProjectPathPrefix() + "unused.json";
-    Files.writeString(Path.of(jsonPath), json);
-
+    var jsonPath = Path.of(subject.getProjectPathPrefix() + "unused.json");
+    Files.writeString(jsonPath, json);
 
     subject.saveProject();
 
-    // TODO assert the unused JSON file is deleted from the project directory
+    assertFalse(Files.exists(jsonPath));
   }
+
+  // TODO test of projectManager.migrateProject() method
 }

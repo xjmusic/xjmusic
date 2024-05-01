@@ -243,12 +243,12 @@ public class InstrumentEditorController extends BrowserController {
   }
 
   @FXML
-  private void handlePressOpenAudioFolder() {
+  private void handlePressOpenInstrumentFolder() {
     var instrument = projectService.getContent().getInstrument(instrumentId.get())
       .orElseThrow(() -> new RuntimeException("Could not find Instrument"));
-    var audioFolder = projectService.getPathPrefixToInstrumentAudio(instrument.getId());
-    if (Objects.isNull(audioFolder)) return;
-    ProjectUtils.openDesktopPath(audioFolder);
+    var instrumentFolder = projectService.getPathPrefixToInstrument(instrument);
+    if (Objects.isNull(instrumentFolder)) return;
+    ProjectUtils.openDesktopPath(instrumentFolder);
   }
 
   @FXML

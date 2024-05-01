@@ -12,7 +12,6 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.UUID;
 
 public class AudioLoaderImpl implements AudioLoader {
 
@@ -28,7 +27,7 @@ public class AudioLoaderImpl implements AudioLoader {
 
   @Override
   public AudioInMemory load(InstrumentAudio audio) throws IOException, UnsupportedAudioFileException {
-    String path = projectManager.getPathToInstrumentAudio(audio.getInstrumentId(), audio.getWaveformKey());
+    String path = projectManager.getPathToInstrumentAudio(audio.getInstrumentId());
     AudioFormat format = AudioSystem.getAudioFileFormat(new File(path)).getFormat();
     return load(audio, path, format);
   }
