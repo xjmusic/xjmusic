@@ -52,7 +52,7 @@
         </graphic>
       </Button>
       <Label minWidth="40.0" text="NAME" styleClass="editor-field-label"/>
-      <TextField minWidth="160" fx:id="programNameField"/>
+      <TextField minWidth="160" prefWidth="320" fx:id="programNameField"/>
       <Label minWidth="40.0" text="TYPE" styleClass="editor-field-label"/>
       <ComboBox minWidth="102.0" fx:id="programTypeChooser"/>
       <Label minWidth="50.0" text="STATE" styleClass="editor-field-label"/>

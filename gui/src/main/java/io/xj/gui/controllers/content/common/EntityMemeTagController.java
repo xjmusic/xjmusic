@@ -5,6 +5,7 @@ import io.xj.hub.entity.EntityException;
 import io.xj.hub.entity.EntityUtils;
 import io.xj.hub.util.StringUtils;
 import jakarta.annotation.Nullable;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -30,7 +31,7 @@ import java.util.function.Consumer;
 public class EntityMemeTagController {
   static final Logger LOG = LoggerFactory.getLogger(EntityMemeTagController.class);
   private final Collection<Runnable> unsubscriptions = new HashSet<>();
-  private static final int MEME_NAME_PADDING = 20;
+  private static final int MEME_NAME_PADDING = 30;
   private final SimpleStringProperty name = new SimpleStringProperty("");
   private Object currentMeme;
 
@@ -87,7 +88,11 @@ public class EntityMemeTagController {
       name.set(StringUtils.toMeme(nameField.getText()));
       EntityUtils.set(currentMeme, "name", name.get());
       doUpdate.accept(currentMeme);
+      updateTextWidth();
       nameField.getParent().requestFocus();
+      if (name.get().isEmpty()) {
+        deleteMeme();
+      }
 
     } catch (Exception e) {
       LOG.error("Failed to update meme! {}\n{}", e, StringUtils.formatStackTrace(e));
@@ -136,6 +141,15 @@ public class EntityMemeTagController {
 
     } else {
       updateTextWidth();
+      if (!nameField.getText().isEmpty() && nameField.getText().length() == nameField.getCaretPosition()) {
+        Platform.runLater(() -> {
+          nameField.getParent().requestFocus();
+          Platform.runLater(() -> {
+            nameField.requestFocus();
+            nameField.positionCaret(nameField.getText().length());
+          });
+        });
+      }
     }
   }
 }
