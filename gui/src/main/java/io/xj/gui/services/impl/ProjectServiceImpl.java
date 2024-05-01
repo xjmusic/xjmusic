@@ -294,16 +294,6 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public void migrateLegacyProject() {
-    if (promptForConfirmation("Migrate Project", "Migrate Project from Legacy Format", "This project was saved with a previous version of the workstation. This process will migrate the project to the current format. Do you want to proceed?")) {
-      executeInBackground("Migrate Project", () -> {
-        var migrated = projectManager.migrateProject();
-        Platform.runLater(() -> showAlert(Alert.AlertType.INFORMATION, "Migrated Project", "Project has been migrated", migrated.toString()));
-      });
-    }
-  }
-
-  @Override
   public void cancelProjectLoading() {
     projectManager.cancelOperation();
   }
@@ -786,12 +776,12 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public String getPathPrefixToInstrument(Instrument instrument) {
-    return projectManager.getPathPrefixToInstrument(instrument);
+    return projectManager.getPathPrefixToInstrument(instrument, null);
   }
 
   @Override
   public String getPathToInstrumentAudioWaveform(InstrumentAudio audio) {
-    return projectManager.getPathToInstrumentAudio(audio);
+    return projectManager.getPathToInstrumentAudio(audio, null);
   }
 
   @Override

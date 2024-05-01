@@ -98,12 +98,6 @@ public interface ProjectService {
   void saveAsProject(String parentPathPrefix, String projectName);
 
   /**
-   Migrate a project to the latest structure
-   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
-   */
-  void migrateLegacyProject();
-
-  /**
    Cancel the project loading
    */
   void cancelProjectLoading();

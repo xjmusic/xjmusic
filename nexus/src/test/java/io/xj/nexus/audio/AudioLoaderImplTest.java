@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.when;
 
@@ -44,7 +45,7 @@ class AudioLoaderImplTest {
     audio.setInstrumentId(UUID.randomUUID());
     audio.setWaveformKey("test-audio.wav");
     subject = new AudioLoaderImpl(projectManager);
-    when(projectManager.getPathToInstrumentAudio(same(audio))).thenReturn(pathToAudioFile);
+    when(projectManager.getPathToInstrumentAudio(same(audio), isNull())).thenReturn(pathToAudioFile);
   }
 
   @Test

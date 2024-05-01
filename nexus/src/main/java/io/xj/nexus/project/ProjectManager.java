@@ -102,14 +102,6 @@ public interface ProjectManager {
   void saveAsProject(String parentPathPrefix, String projectName);
 
   /**
-   Migrate a project to the latest structure
-   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
-
-   @return results
-   */
-  ProjectMigrationResults migrateProject();
-
-  /**
    Cancel the project loading
    */
   void cancelOperation();
@@ -165,9 +157,10 @@ public interface ProjectManager {
   /**
    Get the path prefix to a given library
 
-   @param library for which to get path prefix
+   @param library                   for which to get path prefix
+   @param overrideProjectPathPrefix to use instead of the project path prefix
    */
-  String getPathPrefixToLibrary(Library library);
+  String getPathPrefixToLibrary(Library library, @Nullable String overrideProjectPathPrefix);
 
   /**
    Get the path prefix to the program
@@ -180,36 +173,30 @@ public interface ProjectManager {
   /**
    Get the path prefix to the folder for an instrument
 
-   @param instrument to get
+   @param instrument                to get
+   @param overrideProjectPathPrefix to use instead of the project path prefix
    @return the path prefix to the audio
    */
-  String getPathPrefixToInstrument(Instrument instrument);
+  String getPathPrefixToInstrument(Instrument instrument, @Nullable String overrideProjectPathPrefix);
 
   /**
    Get the path to some instrument audio in the project
 
-   @param audio for which to get path prefix
+   @param audio                     for which to get path prefix
+   @param overrideProjectPathPrefix to use instead of the project path prefix
    @return the path to the audio
    */
-  String getPathToInstrumentAudio(InstrumentAudio audio);
+  String getPathToInstrumentAudio(InstrumentAudio audio, @Nullable String overrideProjectPathPrefix);
 
   /**
    Get the path to some instrument audio in the project
 
-   @param instrument  for which to get path prefix
-   @param waveformKey for which to get path
+   @param instrument                for which to get path prefix
+   @param waveformKey               for which to get path
+   @param overrideProjectPathPrefix to use instead of the project path prefix
    @return the path to the audio
    */
-  String getPathToInstrumentAudio(Instrument instrument, String waveformKey);
-
-  /**
-   Get the legacy path to the audio folder for an instrument -- for migrating a project from the legacy format
-
-   @param instrumentId for which to get path
-   @param waveformKey  for which to get path
-   @return the path to the audio
-   */
-  String getLegacyPathToInstrumentAudio(UUID instrumentId, String waveformKey);
+  String getPathToInstrumentAudio(Instrument instrument, String waveformKey, @Nullable String overrideProjectPathPrefix);
 
   /**
    Set the callback to be invoked when the progress changes
@@ -394,13 +381,6 @@ public interface ProjectManager {
    @return the moved instrument
    */
   Instrument moveInstrument(UUID id, UUID libraryId) throws Exception;
-
-  /**
-   Copy the instrument audio waveform from one audio to another
-
-   @param instrumentAudioId new instrument audio
-   */
-  void renameWaveformIfNecessary(UUID instrumentAudioId) throws Exception;
 
   /**
    Duplicate a Template from a source template by id

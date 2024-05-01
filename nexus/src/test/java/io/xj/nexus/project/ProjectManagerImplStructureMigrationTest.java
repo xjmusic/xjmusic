@@ -1,5 +1,6 @@
 package io.xj.nexus.project;
 
+import io.xj.hub.HubContent;
 import io.xj.hub.HubTopology;
 import io.xj.hub.entity.EntityFactory;
 import io.xj.hub.entity.EntityFactoryImpl;
@@ -28,6 +29,7 @@ import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @ExtendWith(MockitoExtension.class)
@@ -66,12 +68,23 @@ class ProjectManagerImplStructureMigrationTest {
   @Test
   void saveAsProjectAndMigrateStructure() throws IOException {
     subject.setOnProgress(onProgress);
-    String dest = Files.createTempDirectory("LegacyExampleProject").toAbsolutePath().toString();
+    String dest = Files.createTempDirectory("test").toAbsolutePath().toString();
     LOG.info("Save project as {}", dest);
 
     subject.saveAsProject(dest, "NewExampleProject");
 
-    // TODO assert all .json files and audio files exist as expected in new location
+    assertEquals(dest + File.separator + "NewExampleProject" + File.separator, subject.getProjectPathPrefix());
+    assertContent(1, subject.getProjectPathPrefix(), "NewExampleProject.xj");
+    assertContent(3, subject.getProjectPathPrefix(), "templates", "Legacy-Template", "template.json");
+    assertContent(1, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "library.json");
+    assertContent(10, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Beat", "program.json");
+    assertContent(9, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Detail", "program.json");
+    assertContent(7, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Macro", "program.json");
+    assertContent(9, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Main", "program.json");
+    assertContent(1, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "library.json");
+    assertContent(3, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "instrument.json");
+    assertAudio(1084246, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "NewExampleProject-Legacy-Instruments-Test-Instrument-Test-Instrument-Cleanup-Test-Test-Instrument-48000-16-2-Slaps-Lofi-Instrument-Ambience-Loop-OSS-VV-Wrap-This-Scratch-OSS-VV-Wrap-This-Scratch-X-X-X.wav");
+    assertAudio(4119604, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "NewExampleProject-Legacy-Instruments-Test-Instrument-Test-Instrument-Cleanup-Test-Test-Instrument-Space-Video-Game-Demo-Instrument-Percussion-Loop-Embark-Combat-Perc-Loops-Embark-Perc-Loop-Kick-X-X-123-X.wav");
   }
 
   /**
@@ -79,11 +92,21 @@ class ProjectManagerImplStructureMigrationTest {
    Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
    */
   @Test
-  void saveProjectAndMigrateStructure() {
+  void saveProjectAndMigrateStructure() throws IOException {
     subject.setOnProgress(onProgress);
     subject.saveProject();
 
-    // TODO assert all .json files and audio files exist as expected in current location
+    assertContent(1, subject.getProjectPathPrefix(), "LegacyExampleProject.xj");
+    assertContent(3, subject.getProjectPathPrefix(), "templates", "Legacy-Template", "template.json");
+    assertContent(1, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "library.json");
+    assertContent(10, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Beat", "program.json");
+    assertContent(9, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Detail", "program.json");
+    assertContent(7, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Macro", "program.json");
+    assertContent(9, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Main", "program.json");
+    assertContent(1, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "library.json");
+    assertContent(3, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "instrument.json");
+    assertAudio(1084246, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "LegacyExampleProject-Legacy-Instruments-Test-Instrument-Test-Instrument-Cleanup-Test-Test-Instrument-48000-16-2-Slaps-Lofi-Instrument-Ambience-Loop-OSS-VV-Wrap-This-Scratch-OSS-VV-Wrap-This-Scratch-X-X-X.wav");
+    assertAudio(4119604, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "LegacyExampleProject-Legacy-Instruments-Test-Instrument-Test-Instrument-Cleanup-Test-Test-Instrument-Space-Video-Game-Demo-Instrument-Percussion-Loop-Embark-Combat-Perc-Loops-Embark-Perc-Loop-Kick-X-X-123-X.wav");
   }
 
   /**
@@ -102,5 +125,27 @@ class ProjectManagerImplStructureMigrationTest {
     assertFalse(Files.exists(jsonPath));
   }
 
-  // TODO test of projectManager.migrateProject() method
+  /**
+   Asserts the size of the content in the file at the given path.
+
+   @param size      to assert
+   @param firstPath to the file
+   @param morePath  to the file
+   */
+  private void assertContent(int size, String firstPath, String... morePath) throws IOException {
+    var json = Files.readString(Path.of(firstPath, morePath));
+    var content = jsonProvider.getMapper().readValue(json, HubContent.class);
+    assertEquals(size, content.size());
+  }
+
+  /**
+   Asserts the size of the audio file at the given path.
+
+   @param size      to assert
+   @param firstPath to the file
+   @param morePath  to the file
+   */
+  private void assertAudio(int size, String firstPath, String... morePath) throws IOException {
+    assertEquals(size, Files.size(Path.of(firstPath, morePath)));
+  }
 }

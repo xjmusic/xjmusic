@@ -27,7 +27,7 @@ public class AudioLoaderImpl implements AudioLoader {
 
   @Override
   public AudioInMemory load(InstrumentAudio audio) throws IOException, UnsupportedAudioFileException {
-    String path = projectManager.getPathToInstrumentAudio(audio);
+    String path = projectManager.getPathToInstrumentAudio(audio, null);
     AudioFormat format = AudioSystem.getAudioFileFormat(new File(path)).getFormat();
     return load(audio, path, format);
   }
