@@ -66,9 +66,6 @@ public class MainMenuController extends ProjectController {
   MenuItem itemProjectSaveAs;
 
   @FXML
-  MenuItem itemProjectCleanup;
-
-  @FXML
   MenuItem itemFabricationMainAction;
 
   @FXML
@@ -167,7 +164,6 @@ public class MainMenuController extends ProjectController {
     itemProjectClose.disableProperty().bind(hasNoProject);
     itemProjectSave.disableProperty().bind(hasNoProject.or(projectService.isModifiedProperty().not()));
     itemProjectSaveAs.disableProperty().bind(hasNoProject);
-    itemProjectCleanup.disableProperty().bind(hasNoProject);
 
     projectService.recentProjectsProperty().addListener((ChangeListener<? super ObservableList<ProjectDescriptor>>) (o, ov, value) -> updateRecentProjectsMenu());
     updateRecentProjectsMenu();

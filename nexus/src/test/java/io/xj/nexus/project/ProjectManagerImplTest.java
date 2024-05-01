@@ -116,7 +116,7 @@ class ProjectManagerImplTest {
     subject.getContent().clear();
     String tempPath = System.getProperty("java.io.tmpdir");
 
-    subject.createProjectFromDemoTemplate("https://audio.test.xj.io/", "test", tempPath + "test", "test");
+    subject.createProjectFromDemoTemplate("https://audio.test.xj.io/", "test", tempPath + "test", "test", "1.0.0");
 
     assertEquals("https://audio.test.xj.io/", subject.getDemoBaseUrl());
   }

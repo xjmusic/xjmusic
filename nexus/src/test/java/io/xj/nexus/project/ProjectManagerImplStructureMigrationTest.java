@@ -71,18 +71,19 @@ class ProjectManagerImplStructureMigrationTest {
     String dest = Files.createTempDirectory("test").toAbsolutePath().toString();
     LOG.info("Save project as {}", dest);
 
-    subject.saveAsProject(dest, "NewExampleProject");
+    subject.saveAsProject(dest, "NewExampleProject", "1.2.3");
 
+    assertEquals("1.2.3", subject.getProject().orElseThrow().getPlatformVersion());
     assertEquals(dest + File.separator + "NewExampleProject" + File.separator, subject.getProjectPathPrefix());
     assertContent(1, subject.getProjectPathPrefix(), "NewExampleProject.xj");
-    assertContent(3, subject.getProjectPathPrefix(), "templates", "Legacy-Template", "template.json");
-    assertContent(1, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "library.json");
-    assertContent(10, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Beat", "program.json");
-    assertContent(9, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Detail", "program.json");
-    assertContent(7, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Macro", "program.json");
-    assertContent(9, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Main", "program.json");
-    assertContent(1, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "library.json");
-    assertContent(3, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "instrument.json");
+    assertContent(3, subject.getProjectPathPrefix(), "templates", "Legacy-Template", "Legacy-Template.json");
+    assertContent(1, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Programs.json");
+    assertContent(10, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Beat", "Legacy-Beat.json");
+    assertContent(9, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Detail", "Legacy-Detail.json");
+    assertContent(7, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Macro", "Legacy-Macro.json");
+    assertContent(9, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Main", "Legacy-Main.json");
+    assertContent(1, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Legacy-Instruments.json");
+    assertContent(3, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "Test-Instrument.json");
     assertAudio(1084246, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "NewExampleProject-Legacy-Instruments-Test-Instrument-Test-Instrument-Cleanup-Test-Test-Instrument-48000-16-2-Slaps-Lofi-Instrument-Ambience-Loop-OSS-VV-Wrap-This-Scratch-OSS-VV-Wrap-This-Scratch-X-X-X.wav");
     assertAudio(4119604, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "NewExampleProject-Legacy-Instruments-Test-Instrument-Test-Instrument-Cleanup-Test-Test-Instrument-Space-Video-Game-Demo-Instrument-Percussion-Loop-Embark-Combat-Perc-Loops-Embark-Perc-Loop-Kick-X-X-123-X.wav");
   }
@@ -94,17 +95,18 @@ class ProjectManagerImplStructureMigrationTest {
   @Test
   void saveProjectAndMigrateStructure() throws IOException {
     subject.setOnProgress(onProgress);
-    subject.saveProject();
+    subject.saveProject("1.2.3");
 
+    assertEquals("1.2.3", subject.getProject().orElseThrow().getPlatformVersion());
     assertContent(1, subject.getProjectPathPrefix(), "LegacyExampleProject.xj");
-    assertContent(3, subject.getProjectPathPrefix(), "templates", "Legacy-Template", "template.json");
-    assertContent(1, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "library.json");
-    assertContent(10, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Beat", "program.json");
-    assertContent(9, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Detail", "program.json");
-    assertContent(7, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Macro", "program.json");
-    assertContent(9, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Main", "program.json");
-    assertContent(1, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "library.json");
-    assertContent(3, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "instrument.json");
+    assertContent(3, subject.getProjectPathPrefix(), "templates", "Legacy-Template", "Legacy-Template.json");
+    assertContent(1, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Programs.json");
+    assertContent(10, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Beat", "Legacy-Beat.json");
+    assertContent(9, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Detail", "Legacy-Detail.json");
+    assertContent(7, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Macro", "Legacy-Macro.json");
+    assertContent(9, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Main", "Legacy-Main.json");
+    assertContent(1, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Legacy-Instruments.json");
+    assertContent(3, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "Test-Instrument.json");
     assertAudio(1084246, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "LegacyExampleProject-Legacy-Instruments-Test-Instrument-Test-Instrument-Cleanup-Test-Test-Instrument-48000-16-2-Slaps-Lofi-Instrument-Ambience-Loop-OSS-VV-Wrap-This-Scratch-OSS-VV-Wrap-This-Scratch-X-X-X.wav");
     assertAudio(4119604, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "LegacyExampleProject-Legacy-Instruments-Test-Instrument-Test-Instrument-Cleanup-Test-Test-Instrument-Space-Video-Game-Demo-Instrument-Percussion-Loop-Embark-Combat-Perc-Loops-Embark-Perc-Loop-Kick-X-X-123-X.wav");
   }
@@ -120,9 +122,10 @@ class ProjectManagerImplStructureMigrationTest {
     var jsonPath = Path.of(subject.getProjectPathPrefix() + "unused.json");
     Files.writeString(jsonPath, json);
 
-    subject.saveProject();
+    subject.saveProject("1.2.3");
 
     assertFalse(Files.exists(jsonPath));
+    assertEquals("1.2.3", subject.getProject().orElseThrow().getPlatformVersion());
   }
 
   /**

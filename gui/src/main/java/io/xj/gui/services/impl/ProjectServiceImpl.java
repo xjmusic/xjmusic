@@ -3,6 +3,7 @@ package io.xj.gui.services.impl;
 import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
+import io.xj.gui.services.VersionService;
 import io.xj.hub.HubContent;
 import io.xj.hub.entity.EntityUtils;
 import io.xj.hub.enums.ContentBindingType;
@@ -28,6 +29,7 @@ import io.xj.hub.pojos.Project;
 import io.xj.hub.pojos.Template;
 import io.xj.hub.pojos.TemplateBinding;
 import io.xj.hub.util.StringUtils;
+import io.xj.hub.util.ValueUtils;
 import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.util.FormatUtils;
@@ -129,6 +131,7 @@ public class ProjectServiceImpl implements ProjectService {
   private final int maxRecentProjects;
   private final ThemeService themeService;
   private final ProjectManager projectManager;
+  private final VersionService versionService;
   private final JsonProvider jsonProvider;
   private final String demoBaseUrl;
 
@@ -136,12 +139,14 @@ public class ProjectServiceImpl implements ProjectService {
     @Value("${demo.baseUrl}") String demoBaseUrl,
     @Value("${view.recentProjectsMax}") int maxRecentProjects,
     ThemeService themeService,
-    ProjectManager projectManager
+    ProjectManager projectManager,
+    VersionService versionService
   ) {
     this.demoBaseUrl = demoBaseUrl;
     this.maxRecentProjects = maxRecentProjects;
     this.themeService = themeService;
     this.projectManager = projectManager;
+    this.versionService = versionService;
     this.jsonProvider = new JsonProviderImpl();
     attachPreferenceListeners();
     setAllFromPreferencesOrDefaults();
@@ -191,6 +196,19 @@ public class ProjectServiceImpl implements ProjectService {
         projectManager.getProject().ifPresent(project -> {
           isModified.set(false);
           addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
+          Platform.runLater(() -> {
+            if (Objects.isNull(project.getPlatformVersion()) || ValueUtils.compareMonotonicVersion(project.getPlatformVersion(), versionService.getVersion()) < 0) {
+              var migrate = showConfirmationDialog("Legacy Project Version", "Project created with previous workstation version", "The project was created with a previous version of the software. It's necessary to migrate and save the project before using it. Do you want to continue?");
+              if (migrate) {
+                saveProject(() -> isModified.set(false));
+              } else {
+                closeProject(null);
+              }
+            } else if (ValueUtils.compareMonotonicVersion(project.getPlatformVersion(), versionService.getVersion()) > 0) {
+              showWarningAlert("Project Version", "Project created with newer workstation version", "The project was created with a newer version of the software. Please update the software to open the project.");
+              closeProject(null);
+            }
+          });
         });
       } else {
         removeFromRecentProjects(projectFilePath);
@@ -203,7 +221,7 @@ public class ProjectServiceImpl implements ProjectService {
     closeProject(() -> {
       if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName, "Project"))
         executeInBackground("Create Project", () -> {
-          if (projectManager.createProject(parentPathPrefix, projectName)) {
+          if (projectManager.createProject(parentPathPrefix, projectName, versionService.getVersion())) {
             projectManager.getProject().ifPresent(project -> {
               isModified.set(false);
               addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
@@ -222,7 +240,8 @@ public class ProjectServiceImpl implements ProjectService {
             if (projectManager.createProjectFromDemoTemplate(
               demoBaseUrl,
               templateShipKey, parentPathPrefix,
-              projectName
+              projectName,
+              versionService.getVersion()
             )) {
               projectManager.getProject().ifPresent(project -> {
                 isModified.set(false);
@@ -275,7 +294,7 @@ public class ProjectServiceImpl implements ProjectService {
   public void saveProject(@Nullable Runnable onComplete) {
     LOG.info("Will save project");
     executeInBackground("Save Project", () -> {
-      projectManager.saveProject();
+      projectManager.saveProject(versionService.getVersion());
       Platform.runLater(() -> {
         isModified.set(false);
         if (Objects.nonNull(onComplete)) Platform.runLater(onComplete);
@@ -287,7 +306,7 @@ public class ProjectServiceImpl implements ProjectService {
   public void saveAsProject(String parentPathPrefix, String projectName) {
     LOG.info("Will save as new project");
     executeInBackground("Save As New Project", () -> {
-      projectManager.saveAsProject(parentPathPrefix, projectName);
+      projectManager.saveAsProject(parentPathPrefix, projectName, versionService.getVersion());
       addToRecentProjects(projectManager.getProject().orElse(null), projectName + ".xj", projectManager.getPathToProjectFile());
       Platform.runLater(() -> isModified.set(false));
     });

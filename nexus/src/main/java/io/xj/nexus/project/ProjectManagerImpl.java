@@ -142,7 +142,7 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public boolean createProjectFromDemoTemplate(String baseUrl, String templateKey, String parentPathPrefix, String projectName) {
+  public boolean createProjectFromDemoTemplate(String baseUrl, String templateKey, String parentPathPrefix, String projectName, String platformVersion) {
     this.demoBaseUrl.set(baseUrl);
     LOG.info("Cloning from demo template \"{}\" in parent folder {}", templateKey, parentPathPrefix);
     CloseableHttpClient httpClient = httpClientProvider.getClient();
@@ -153,6 +153,7 @@ public class ProjectManagerImpl implements ProjectManager {
       updateProgress(0.0);
       updateState(ProjectState.LoadingContent);
       content.set(hubClientFactory.loadApiV1(httpClient, this.demoBaseUrl.get(), templateKey));
+      content.get().getProject().setPlatformVersion(platformVersion);
       project.set(content.get().getProject());
       updateState(ProjectState.LoadedContent);
       LOG.info("Did load content");
@@ -227,7 +228,7 @@ public class ProjectManagerImpl implements ProjectManager {
       updateProgressLabel(String.format("Downloaded %d audios for %d instruments", loadedAudios, loadedInstruments));
       updateState(ProjectState.LoadedAudio);
 
-      saveProjectContent(null);
+      saveProjectContent(platformVersion, null);
       return true;
 
     } catch (HubClientException e) {
@@ -413,7 +414,7 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public boolean createProject(String parentPathPrefix, String projectName) {
+  public boolean createProject(String parentPathPrefix, String projectName, String platformVersion) {
     LOG.info("Create new project \"{}\" in parent folder {}", projectName, parentPathPrefix);
 
     try {
@@ -423,12 +424,13 @@ public class ProjectManagerImpl implements ProjectManager {
       project.set(new Project());
       project.get().setId(UUID.randomUUID());
       project.get().setName(projectName);
+      project.get().setPlatformVersion(platformVersion);
 
       // Create the new content
       content.set(new HubContent());
       content.get().setProjects(List.of(project.get()));
 
-      saveProjectContent(null);
+      saveProjectContent(platformVersion, null);
       return true;
 
     } catch (Exception e) {
@@ -441,9 +443,9 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public void saveProject() {
+  public void saveProject(String platformVersion) {
     try {
-      saveProjectContent(null);
+      saveProjectContent(platformVersion, null);
 
     } catch (IOException e) {
       LOG.error("Failed to save project! {}\n{}", e, StringUtils.formatStackTrace(e));
@@ -452,7 +454,7 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public void saveAsProject(String parentPathPrefix, String projectName) {
+  public void saveAsProject(String parentPathPrefix, String projectName, String platformVersion) {
     try {
       LOG.info("Will save project as \"{}\" in parent folder {}", projectName, parentPathPrefix);
 
@@ -463,7 +465,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
       var legacyProjectPathPrefix = projectPathPrefix.get();
       createProjectFolder(LocalFileUtils.addTrailingSlash(parentPathPrefix), projectName);
-      saveProjectContent(legacyProjectPathPrefix);
+      saveProjectContent(platformVersion, legacyProjectPathPrefix);
 
     } catch (IOException e) {
       LOG.error("Failed to save as new project! {}\n{}", e, StringUtils.formatStackTrace(e));
@@ -1220,13 +1222,16 @@ public class ProjectManagerImpl implements ProjectManager {
   /**
    Save the project content to disk
 
+   @param platformVersion        the platform version
    @param priorProjectPathPrefix (optional) the prior project path prefix, e.g. during a Save As operation
    @throws IOException if the project content could not be saved
    */
-  private void saveProjectContent(@Nullable String priorProjectPathPrefix) throws IOException {
+  private void saveProjectContent(String platformVersion, @Nullable String priorProjectPathPrefix) throws IOException {
     updateState(ProjectState.Saving);
     cleanupOrphans(content.get());
-    LOG.info("Will save project \"{}\" to {}", projectName.get(), getPathToProjectFile());
+    project.get().setPlatformVersion(platformVersion);
+    content.get().setProject(project.get());
+    LOG.info("Will save project \"{}\" with platform version {} to {}", projectName.get(), platformVersion, getPathToProjectFile());
 
     // Report progress based on templates, libraries, programs, instruments, and audios
     int totalItems = content.get().getTemplates().size() + content.get().getLibraries().size() + content.get().getPrograms().size() + content.get().getInstruments().size() + content.get().getInstrumentAudios().size();
@@ -1268,7 +1273,7 @@ public class ProjectManagerImpl implements ProjectManager {
     for (Template template : content.get().getTemplates()) {
       var templatePathPrefix = getPathPrefixToTemplate(template);
       foldersInProject.add(ensureDirectoryExists(templatePathPrefix));
-      filesInProject.add(writeContentToJsonFile(content.get().subsetForTemplateId(template.getId()), templatePathPrefix + "template.json"));
+      filesInProject.add(writeContentToJsonFile(content.get().subsetForTemplateId(template.getId()), templatePathPrefix + StringUtils.toAlphanumericHyphenated(template.getName()) + ".json"));
       updateProgress((double) ++savedItems / totalItems);
     }
 
@@ -1277,14 +1282,14 @@ public class ProjectManagerImpl implements ProjectManager {
     for (Library library : content.get().getLibraries()) {
       var libraryPathPrefix = getPathPrefixToLibrary(library, null);
       foldersInProject.add(ensureDirectoryExists(libraryPathPrefix));
-      filesInProject.add(writeContentToJsonFile(new HubContent(Set.of(library)), libraryPathPrefix + "library.json"));
+      filesInProject.add(writeContentToJsonFile(new HubContent(Set.of(library)), libraryPathPrefix + StringUtils.toAlphanumericHyphenated(library.getName()) + ".json"));
       updateProgress((double) ++savedItems / totalItems);
 
       // Iterate through all programs, make a folder, and write the program.json file
       for (Program program : content.get().getProgramsOfLibrary(library)) {
         var programPathPrefix = getPathPrefixToProgram(program);
         foldersInProject.add(ensureDirectoryExists(programPathPrefix));
-        filesInProject.add(writeContentToJsonFile(content.get().subsetForProgramId(program.getId()), programPathPrefix + "program.json"));
+        filesInProject.add(writeContentToJsonFile(content.get().subsetForProgramId(program.getId()), programPathPrefix + StringUtils.toAlphanumericHyphenated(program.getName()) + ".json"));
         updateProgress((double) ++savedItems / totalItems);
       }
 
@@ -1292,7 +1297,7 @@ public class ProjectManagerImpl implements ProjectManager {
       for (Instrument instrument : content.get().getInstrumentsOfLibrary(library)) {
         var instrumentPathPrefix = libraryPathPrefix + StringUtils.toAlphanumericHyphenated(instrument.getName()) + File.separator;
         foldersInProject.add(ensureDirectoryExists(instrumentPathPrefix));
-        filesInProject.add(writeContentToJsonFile(content.get().subsetForInstrumentId(instrument.getId()), instrumentPathPrefix + "instrument.json"));
+        filesInProject.add(writeContentToJsonFile(content.get().subsetForInstrumentId(instrument.getId()), instrumentPathPrefix + StringUtils.toAlphanumericHyphenated(instrument.getName()) + ".json"));
         updateProgress((double) ++savedItems / totalItems);
 
         // Iterate through all audios, determine expected path, and if the audio is not in that path, copy it from where it would be expected in the legacy project format, or from the legacy project path prefix

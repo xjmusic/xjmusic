@@ -42,9 +42,10 @@ public interface ProjectManager {
    @param templateKey      of the demo
    @param parentPathPrefix parent folder to the project folder
    @param projectName      of the project folder and the project
+   @param platformVersion  the platform version
    @return true if successful
    */
-  boolean createProjectFromDemoTemplate(String baseUrl, String templateKey, String parentPathPrefix, String projectName);
+  boolean createProjectFromDemoTemplate(String baseUrl, String templateKey, String parentPathPrefix, String projectName, String platformVersion);
 
   /**
    Export a template as JSON with all its audio (original or prepared)
@@ -82,15 +83,18 @@ public interface ProjectManager {
 
    @param parentPathPrefix the path prefix of the project
    @param projectName      the name of the project
+   @param platformVersion  the platform version
    @return true if successful
    */
-  boolean createProject(String parentPathPrefix, String projectName);
+  boolean createProject(String parentPathPrefix, String projectName, String platformVersion);
 
   /**
    Save the project
    Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+
+   @param platformVersion the platform version
    */
-  void saveProject();
+  void saveProject(String platformVersion);
 
   /**
    Save the project as a new project https://github.com/xjmusic/workstation/issues/362
@@ -98,8 +102,9 @@ public interface ProjectManager {
 
    @param parentPathPrefix the path prefix of the project
    @param projectName      the name of the project
+   @param platformVersion  the platform version
    */
-  void saveAsProject(String parentPathPrefix, String projectName);
+  void saveAsProject(String parentPathPrefix, String projectName, String platformVersion);
 
   /**
    Cancel the project loading

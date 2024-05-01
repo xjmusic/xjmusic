@@ -285,7 +285,7 @@ public class HubContentTest extends ContentTest {
   }
 
   @Test
-  void getProjectUsers() {
+  void getProjectgetProjectUsers() {
     var result = subject.getProjectUsers();
 
     assertEquals(1, result.size());
@@ -626,6 +626,13 @@ public class HubContentTest extends ContentTest {
     var result = subject.getProject();
 
     assertEquals(project1, result);
+  }
+
+  @Test
+  void getProject_changePlatformVersion() {
+    subject.getProject().setPlatformVersion("1.2.3");
+
+    assertEquals("1.2.3", subject.getProject().getPlatformVersion());
   }
 
   /**
