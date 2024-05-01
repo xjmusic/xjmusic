@@ -6,7 +6,6 @@ import io.xj.hub.entity.EntityUtils;
 import io.xj.hub.util.StringUtils;
 import jakarta.annotation.Nullable;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -91,6 +90,9 @@ public class EntityMemeTagController {
       doUpdate.accept(currentMeme);
       updateTextWidth();
       nameField.getParent().requestFocus();
+      if (name.get().isEmpty()) {
+        deleteMeme();
+      }
 
     } catch (Exception e) {
       LOG.error("Failed to update meme! {}\n{}", e, StringUtils.formatStackTrace(e));
