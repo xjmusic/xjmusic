@@ -76,7 +76,7 @@
           <Label styleClass="bold">Audios</Label>
           <Button
               fx:id="buttonOpenAudioFolder"
-              onAction="#handlePressOpenAudioFolder">
+              onAction="#handlePressOpenInstrumentFolder">
             <graphic>
               <ImageView fitWidth="18" fitHeight="18">
                 <Image url="@/icons/folder-open.png"/>

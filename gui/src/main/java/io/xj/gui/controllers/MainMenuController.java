@@ -272,11 +272,6 @@ public class MainMenuController extends ProjectController {
   }
 
   @FXML
-  void handleProjectCleanup() {
-    projectService.cleanupProject();
-  }
-
-  @FXML
   void handleOpenSettings() {
     settingsModalController.launchModal();
   }

@@ -294,11 +294,11 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public void cleanupProject() {
-    if (promptForConfirmation("Cleanup Project", "Cleanup Project", "This operation will remove any unused audio files and optimize the project. Do you want to proceed?")) {
-      executeInBackground("Cleanup Project", () -> {
-        var deleted = projectManager.cleanupProject();
-        Platform.runLater(() -> showAlert(Alert.AlertType.INFORMATION, "Cleanup Project", "Clean up unused project files", deleted.toString()));
+  public void migrateLegacyProject() {
+    if (promptForConfirmation("Migrate Project", "Migrate Project from Legacy Format", "This project was saved with a previous version of the workstation. This process will migrate the project to the current format. Do you want to proceed?")) {
+      executeInBackground("Migrate Project", () -> {
+        var migrated = projectManager.migrateProject();
+        Platform.runLater(() -> showAlert(Alert.AlertType.INFORMATION, "Migrated Project", "Project has been migrated", migrated.toString()));
       });
     }
   }
@@ -785,13 +785,13 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public String getPathPrefixToInstrumentAudio(UUID instrumentId) {
-    return projectManager.getPathPrefixToInstrumentAudio(instrumentId);
+  public String getPathPrefixToInstrument(Instrument instrument) {
+    return projectManager.getPathPrefixToInstrument(instrument);
   }
 
   @Override
   public String getPathToInstrumentAudioWaveform(InstrumentAudio audio) {
-    return projectManager.getPathToInstrumentAudio(audio.getInstrumentId(), audio.getWaveformKey());
+    return projectManager.getPathToInstrumentAudio(audio.getInstrumentId());
   }
 
   @Override

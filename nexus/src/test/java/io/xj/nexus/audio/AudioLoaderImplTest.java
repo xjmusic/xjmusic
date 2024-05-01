@@ -45,7 +45,7 @@ class AudioLoaderImplTest {
     audio.setInstrumentId(UUID.randomUUID());
     audio.setWaveformKey("test-audio.wav");
     subject = new AudioLoaderImpl(projectManager);
-    when(projectManager.getPathToInstrumentAudio(eq(audio.getInstrumentId()), eq(audio.getWaveformKey()))).thenReturn(pathToAudioFile);
+    when(projectManager.getPathToInstrumentAudio(eq(audio.getInstrumentId()))).thenReturn(pathToAudioFile);
   }
 
   @Test

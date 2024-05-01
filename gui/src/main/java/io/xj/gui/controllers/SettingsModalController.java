@@ -8,8 +8,8 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.ProjectUtils;
-import io.xj.gui.utils.TextUtils;
 import io.xj.gui.utils.UiUtils;
+import io.xj.hub.util.LocalFileUtils;
 import io.xj.nexus.ControlMode;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -143,7 +143,7 @@ public class SettingsModalController extends ProjectModalController {
       buttonSelectProjectsPathDirectory.getScene().getWindow(), "Choose projects folder", fieldProjectsPathPrefix.getText()
     );
     if (Objects.nonNull(path)) {
-      fieldProjectsPathPrefix.setText(TextUtils.addTrailingSlash(path));
+      fieldProjectsPathPrefix.setText(LocalFileUtils.addTrailingSlash(path));
     }
   }
 
@@ -153,7 +153,7 @@ public class SettingsModalController extends ProjectModalController {
       buttonSelectExportPathDirectory.getScene().getWindow(), "Choose export folder", fieldExportPathPrefix.getText()
     );
     if (Objects.nonNull(path)) {
-      fieldExportPathPrefix.setText(TextUtils.addTrailingSlash(path));
+      fieldExportPathPrefix.setText(LocalFileUtils.addTrailingSlash(path));
     }
   }
 
