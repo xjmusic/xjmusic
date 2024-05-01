@@ -178,9 +178,7 @@ public class ProjectManagerImpl implements ProjectManager {
           if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
             LOG.debug("Will download audio for instrument \"{}\" with waveform key \"{}\"", instrument.getName(), audio.getWaveformKey());
             // Fetch via HTTP if original does not exist
-            var originalCachePath = getPathToInstrumentAudio(
-              instrument.getId()
-            );
+            var originalCachePath = getPathToInstrumentAudio(instrument, audio.getWaveformKey());
 
             var remoteUrl = String.format("%s%s", this.demoBaseUrl, audio.getWaveformKey());
             var remoteFileSize = hubClientFactory.getRemoteFileSize(httpClient, remoteUrl);
@@ -296,9 +294,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
           // Export audio file
           // If source audio file not found, add to audioFileNotFoundIds
-          var sourcePath = getPathToInstrumentAudio(
-            instrument.getId()
-          );
+          var sourcePath = getPathToInstrumentAudio(instrument, audio.getWaveformKey());
           var sourceSize = getFileSizeIfExistsOnDisk(sourcePath);
           if (sourceSize.isPresent()) {
             var extension = ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
@@ -579,9 +575,13 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public String getPathToInstrumentAudio(InstrumentAudio audio) {
-    var instrument = content.get().getInstrument(audio.getInstrumentId()).orElseThrow(() -> new RuntimeException("Instrument not found"));
-    return getPathPrefixToInstrument(instrument) + audio.getWaveformKey();
+  public String getPathPrefixToTemplate(Template template) {
+    return getPathPrefixToTemplates() + StringUtils.toAlphanumericHyphenated(template.getName()) + File.separator;
+  }
+
+  @Override
+  public String getPathPrefixToLibrary(Library library) {
+    return getPathPrefixToLibraries() + StringUtils.toAlphanumericHyphenated(library.getName()) + File.separator;
   }
 
   @Override
@@ -595,12 +595,18 @@ public class ProjectManagerImpl implements ProjectManager {
     var library = content.get().getLibrary(instrument.getLibraryId()).orElseThrow(() -> new RuntimeException("Library not found"));
     return getPathPrefixToLibrary(library) + StringUtils.toAlphanumericHyphenated(instrument.getName()) + File.separator;
   }
-  
+
   @Override
-  public String getPathPrefixToLibrary(Library library) {
-    return getPathPrefixToLibraries() + StringUtils.toAlphanumericHyphenated(library.getName()) + File.separator;
+  public String getPathToInstrumentAudio(InstrumentAudio audio) {
+    var instrument = content.get().getInstrument(audio.getInstrumentId()).orElseThrow(() -> new RuntimeException("Instrument not found"));
+    return getPathToInstrumentAudio(instrument, audio.getWaveformKey());
   }
-  
+
+  @Override
+  public String getPathToInstrumentAudio(Instrument instrument, String waveformKey) {
+    return getPathPrefixToInstrument(instrument) + waveformKey;
+  }
+
   @Override
   public String getLegacyPathToInstrumentAudio(UUID instrumentId, String waveformKey) {
     return projectPathPrefix.get() + "instrument" + File.separator + instrumentId.toString() + File.separator + waveformKey;
@@ -866,7 +872,7 @@ public class ProjectManagerImpl implements ProjectManager {
     instrument.setState(existingInstrument.map(Instrument::getState).orElse(DEFAULT_INSTRUMENT_STATE));
     instrument.setVolume(existingInstrument.map(Instrument::getVolume).orElse(DEFAULT_VOLUME));
     instrument.setIsDeleted(false);
-    var instrumentPath = getPathPrefixToInstrument(instrument.getId());
+    var instrumentPath = getPathPrefixToInstrument(instrument);
     FileUtils.createParentDirectories(new File(instrumentPath));
     content.get().put(instrument);
     return instrument;
@@ -936,14 +942,15 @@ public class ProjectManagerImpl implements ProjectManager {
   public void renameWaveformIfNecessary(UUID instrumentAudioId) throws Exception {
     var audio = content.get().getInstrumentAudio(instrumentAudioId)
       .orElseThrow(() -> new RuntimeException("Could not find Instrument Audio"));
-    var library = content.get().getInstrument(audio.getInstrumentId()).orElseThrow(() -> new NexusException("Instrument not found"));
+    var instrument = content.get().getInstrument(audio.getInstrumentId()).orElseThrow(() -> new RuntimeException("Instrument not found"));
+    var library = content.get().getLibrary(instrument.getLibraryId()).orElseThrow(() -> new NexusException("Library not found"));
     var project = content.get().getProject();
     var extension = ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
-    var toWaveformKey = LocalFileUtils.computeWaveformKey(project.getName(), library.getName(), library.getName(), audio, extension);
-    var toPath = getPathToInstrumentAudio(library.getId());
+    var toWaveformKey = LocalFileUtils.computeWaveformKey(project.getName(), library.getName(), instrument.getName(), audio, extension);
+    var toPath = getPathToInstrumentAudio(instrument, toWaveformKey);
 
     if (!Objects.equals(audio.getWaveformKey(), toWaveformKey)) {
-      var fromPath = getPathToInstrumentAudio(library.getId());
+      var fromPath = getPathToInstrumentAudio(instrument, audio.getWaveformKey());
       FileUtils.copyFile(new File(fromPath), new File(toPath));
       content.get().update(InstrumentAudio.class, instrumentAudioId, "waveformKey", toWaveformKey);
     }
@@ -1206,8 +1213,8 @@ public class ProjectManagerImpl implements ProjectManager {
 
     // Copy all the instrument's audio to the new folder
     for (InstrumentAudio audio : duplicatedAudios.values()) {
-      var fromPath = getPathToInstrumentAudio(fromId);
-      var toPath = getPathToInstrumentAudio(instrument.getId());
+      var fromPath = getPathToInstrumentAudio(source, audio.getWaveformKey());
+      var toPath = getPathToInstrumentAudio(instrument, audio.getWaveformKey());
       if (new File(fromPath).exists())
         FileUtils.copyFile(new File(fromPath), new File(toPath));
     }
@@ -1283,7 +1290,7 @@ public class ProjectManagerImpl implements ProjectManager {
    @throws IOException if the audio file could not be imported
    */
   private void importAudio(InstrumentAudio audio, String audioFilePath) throws IOException {
-    var targetPath = getPathToInstrumentAudio(audio.getInstrumentId());
+    var targetPath = getPathToInstrumentAudio(audio);
     FileUtils.createParentDirectories(new File(targetPath));
     FileUtils.copyFile(new File(audioFilePath), new File(targetPath));
   }
@@ -1355,7 +1362,7 @@ public class ProjectManagerImpl implements ProjectManager {
         currentJsonFiles.add(writeContentToJsonFile(content.get().subsetForInstrumentId(instrument.getId()), Path.of(instrumentPathPrefix + "instrument.json")));
         // TODO iterate through all audios, determine expected path, and if the audio is not in that path, copy it from where it would be expected in the legacy project format, or from the legacy project path prefix
         for (InstrumentAudio audio : content.get().getAudiosOfInstrument(instrument.getId())) {
-          var audioPath = getPathToInstrumentAudio(instrument.getId());
+          var audioPath = getPathToInstrumentAudio(audio);
           if (!Files.exists(Path.of(audioPath))) {
             var legacyAudioPath = priorProjectPathPrefix + "instrument" + File.separator + StringUtils.toAlphanumericHyphenated(instrument.getName()) + File.separator + audio.getWaveformKey();
             if (Files.exists(Path.of(legacyAudioPath))) {
@@ -1389,6 +1396,13 @@ public class ProjectManagerImpl implements ProjectManager {
    */
   private String getPathPrefixToLibraries() {
     return projectPathPrefix.get() + "libraries" + File.separator;
+  }
+
+  /**
+   @return path prefix to the project's templates
+   */
+  private String getPathPrefixToTemplates() {
+    return projectPathPrefix.get() + "templates" + File.separator;
   }
 
   /**

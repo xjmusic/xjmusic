@@ -78,7 +78,7 @@ public class AudioCacheImpl implements AudioCache {
     }
 
     // compute a key based on the target frame rate, sample bits, channels, and waveform key.
-    String originalCachePath = projectManager.getPathToInstrumentAudio(audio.getInstrumentId());
+    String originalCachePath = projectManager.getPathToInstrumentAudio(audio);
     String resampledCachePrefix = computeResampledCachePrefix(audio.getInstrumentId(), targetFrameRate, targetSampleBits, targetChannels);
     String finalCachePath = computeResampledCachePath(resampledCachePrefix, targetFrameRate, targetSampleBits, targetChannels, audio.getWaveformKey());
     if (existsOnDisk(finalCachePath)) {

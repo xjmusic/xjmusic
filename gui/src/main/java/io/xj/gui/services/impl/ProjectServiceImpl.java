@@ -791,7 +791,7 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public String getPathToInstrumentAudioWaveform(InstrumentAudio audio) {
-    return projectManager.getPathToInstrumentAudio(audio.getInstrumentId());
+    return projectManager.getPathToInstrumentAudio(audio);
   }
 
   @Override

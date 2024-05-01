@@ -155,12 +155,19 @@ public interface ProjectManager {
   HubContent getContent(Template template);
 
   /**
-   Get the path to some instrument audio in the project
+   Get the path prefix to the template
 
-   @param audio for which to get path prefix
-   @return the path to the audio
+   @param template for which to get path prefix
+   @return the path prefix to the template
    */
-  String getPathToInstrumentAudio(InstrumentAudio audio);
+  String getPathPrefixToTemplate(Template template);
+
+  /**
+   Get the path prefix to a given library
+
+   @param library for which to get path prefix
+   */
+  String getPathPrefixToLibrary(Library library);
 
   /**
    Get the path prefix to the program
@@ -179,11 +186,21 @@ public interface ProjectManager {
   String getPathPrefixToInstrument(Instrument instrument);
 
   /**
-   Get the path prefix to a given library
+   Get the path to some instrument audio in the project
 
-   @param library for which to get path prefix
+   @param audio for which to get path prefix
+   @return the path to the audio
    */
-  String getPathPrefixToLibrary(Library library);
+  String getPathToInstrumentAudio(InstrumentAudio audio);
+
+  /**
+   Get the path to some instrument audio in the project
+
+   @param instrument  for which to get path prefix
+   @param waveformKey for which to get path
+   @return the path to the audio
+   */
+  String getPathToInstrumentAudio(Instrument instrument, String waveformKey);
 
   /**
    Get the legacy path to the audio folder for an instrument -- for migrating a project from the legacy format
