@@ -45,7 +45,7 @@
         </graphic>
       </Button>
       <Label minWidth="40.0" text="NAME" styleClass="editor-field-label"/>
-      <TextField minWidth="160" fx:id="instrumentNameField"/>
+      <TextField minWidth="160" prefWidth="320" fx:id="instrumentNameField"/>
       <Label minWidth="40.0" text="TYPE" styleClass="editor-field-label"/>
       <ComboBox minWidth="102.0" fx:id="instrumentTypeChooser"/>
       <Label minWidth="50.0" text="MODE" styleClass="editor-field-label"/>
