@@ -14,14 +14,12 @@ class LocalFileUtilsTest {
     audio.setTones("C♭4");
 
     var waveformKey = LocalFileUtils.computeWaveformKey(
-      "Slaps",
-      "LoFi Bass Instruments",
       "Wubby 5",
       audio,
       "wav"
     );
 
-    assertEquals("Slaps-LoFi-Bass-Instruments-Wubby-5-Wubby-Bass-Cb4-Cb4.wav", waveformKey);
+    assertEquals("Wubby-5-Wubby-Bass-Cb4-Cb4.wav", waveformKey);
   }
 
   @Test
@@ -31,13 +29,11 @@ class LocalFileUtilsTest {
     audio.setTones("");
 
     var waveformKey = LocalFileUtils.computeWaveformKey(
-      "Slaps",
-      "LoFi Bass Instruments",
       "Wubby 5",
       audio,
       "wav"
     );
 
-    assertEquals("Slaps-LoFi-Bass-Instruments-Wubby-5-Wubby-Bass-Cb4.wav", waveformKey);
+    assertEquals("Wubby-5-Wubby-Bass-Cb4.wav", waveformKey);
   }
 }

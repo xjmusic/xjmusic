@@ -90,18 +90,14 @@ public interface LocalFileUtils {
   /**
    Compute the waveform key for an instrument audio
 
-   @param projectName    to which the library belongs
-   @param libraryName    to which the instrument belongs
    @param instrumentName to which the audio belongs
    @param audio          for which to compute the key
    @param extension      of the audio file
    @return the waveform key
    */
-  static String computeWaveformKey(String projectName, String libraryName, String instrumentName, InstrumentAudio audio, String extension) {
+  static String computeWaveformKey(String instrumentName, InstrumentAudio audio, String extension) {
     return String.format("%s.%s",
       Stream.of(
-          StringUtils.toAlphanumericHyphenated(projectName),
-          StringUtils.toAlphanumericHyphenated(libraryName),
           StringUtils.toAlphanumericHyphenated(instrumentName),
           StringUtils.toAlphanumericHyphenated(Accidental.replaceWithExplicit(audio.getName())),
           StringUtils.toAlphanumericHyphenated(Accidental.replaceWithExplicit(audio.getTones()))

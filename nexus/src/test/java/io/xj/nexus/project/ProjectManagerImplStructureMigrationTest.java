@@ -31,6 +31,7 @@ import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectManagerImplStructureMigrationTest {
@@ -84,8 +85,8 @@ class ProjectManagerImplStructureMigrationTest {
     assertContent(9, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Main", "Legacy-Main.json");
     assertContent(1, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Legacy-Instruments.json");
     assertContent(3, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "Test-Instrument.json");
-    assertAudio(1084246, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "NewExampleProject-Legacy-Instruments-Test-Instrument-Test-Instrument-Cleanup-Test-Test-Instrument-48000-16-2-Slaps-Lofi-Instrument-Ambience-Loop-OSS-VV-Wrap-This-Scratch-OSS-VV-Wrap-This-Scratch-X-X-X.wav");
-    assertAudio(4119604, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "NewExampleProject-Legacy-Instruments-Test-Instrument-Test-Instrument-Cleanup-Test-Test-Instrument-Space-Video-Game-Demo-Instrument-Percussion-Loop-Embark-Combat-Perc-Loops-Embark-Perc-Loop-Kick-X-X-123-X.wav");
+    assertAudio(1084246, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "Test-Instrument-Test-Ambience-Loop-X.wav");
+    assertAudio(4119604, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "Test-Instrument-Test-Percussion-Loop-X.wav");
   }
 
   /**
@@ -107,25 +108,48 @@ class ProjectManagerImplStructureMigrationTest {
     assertContent(9, subject.getProjectPathPrefix(), "libraries", "Legacy-Programs", "Legacy-Main", "Legacy-Main.json");
     assertContent(1, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Legacy-Instruments.json");
     assertContent(3, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "Test-Instrument.json");
-    assertAudio(1084246, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "LegacyExampleProject-Legacy-Instruments-Test-Instrument-Test-Instrument-Cleanup-Test-Test-Instrument-48000-16-2-Slaps-Lofi-Instrument-Ambience-Loop-OSS-VV-Wrap-This-Scratch-OSS-VV-Wrap-This-Scratch-X-X-X.wav");
-    assertAudio(4119604, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "LegacyExampleProject-Legacy-Instruments-Test-Instrument-Test-Instrument-Cleanup-Test-Test-Instrument-Space-Video-Game-Demo-Instrument-Percussion-Loop-Embark-Combat-Perc-Loops-Embark-Perc-Loop-Kick-X-X-123-X.wav");
+    assertAudio(1084246, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "Test-Instrument-Test-Ambience-Loop-X.wav");
+    assertAudio(4119604, subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "Test-Instrument-Test-Percussion-Loop-X.wav");
   }
 
   /**
-   Create an additional JSON file in the project directory, and ensure it is deleted when saving the project.
+   Only cleanup unused .xj files in the root of the project, and all unused files inside the "libraries" and "templates" folders.
+   E.g. this should ignore the "render" folder in the root of the project and any other files or folders the developers want to create in their project
    Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
    */
   @Test
   void saveProjectCleansUpUnusedJson() throws IOException {
     subject.setOnProgress(onProgress);
-    var json = jsonProvider.getMapper().writeValueAsString(subject.getContent());
-    var jsonPath = Path.of(subject.getProjectPathPrefix() + "unused.json");
-    Files.writeString(jsonPath, json);
+    // Should cleanup these unused project content files
+    var unusedProjectFile = Path.of(subject.getProjectPathPrefix() + "unused.xj");
+    Files.writeString(unusedProjectFile, "test");
+    Files.createDirectory(Path.of(subject.getProjectPathPrefix() + "libraries"));
+    var unusedProgramsFile = Path.of(subject.getProjectPathPrefix() + "libraries", "unused.json");
+    Files.writeString(unusedProgramsFile, "test");
+    Files.createDirectory(Path.of(subject.getProjectPathPrefix() + "templates"));
+    var unusedTemplateFile = Path.of(subject.getProjectPathPrefix() + "templates", "unused.json");
+    Files.writeString(unusedTemplateFile, "test");
+    Files.createDirectory(Path.of(subject.getProjectPathPrefix() + "libraries", "Legacy-Instruments"));
+    Files.createDirectory(Path.of(subject.getProjectPathPrefix() + "libraries", "Legacy-Instruments", "Test-Instrument"));
+    var unusedInstrumentAudioFile = Path.of(subject.getProjectPathPrefix() + "libraries", "Legacy-Instruments", "Test-Instrument", "unused.wav");
+    Files.writeString(unusedInstrumentAudioFile, "test");
+    // Should not cleanup any of the following files or folders
+    var ignoredRenderFolder = Path.of(subject.getProjectPathPrefix() + "render");
+    Files.createDirectory(ignoredRenderFolder);
+    var ignoredRenderFile = Path.of(subject.getProjectPathPrefix() + "file.wav");
+    Files.writeString(ignoredRenderFile, "test");
+    var ignoredReadmeFile = Path.of(subject.getProjectPathPrefix() + "README.md");
+    Files.writeString(ignoredReadmeFile, "test");
 
     subject.saveProject("1.2.3");
 
-    assertFalse(Files.exists(jsonPath));
-    assertEquals("1.2.3", subject.getProject().orElseThrow().getPlatformVersion());
+    assertFalse(Files.exists(unusedProjectFile));
+    assertFalse(Files.exists(unusedProgramsFile));
+    assertFalse(Files.exists(unusedTemplateFile));
+    assertFalse(Files.exists(unusedInstrumentAudioFile));
+    assertTrue(Files.exists(ignoredRenderFolder));
+    assertTrue(Files.exists(ignoredRenderFile));
+    assertTrue(Files.exists(ignoredReadmeFile));
   }
 
   /**

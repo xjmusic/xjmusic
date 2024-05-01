@@ -283,7 +283,6 @@ public class ProjectManagerImpl implements ProjectManager {
       var instruments = templateContent.getInstruments();
       var audios = templateContent.getInstrumentAudios();
       for (Instrument instrument : instruments) {
-        var library = templateContent.getLibrary(instrument.getLibraryId()).orElseThrow(() -> new NexusException("Library not found"));
         for (InstrumentAudio audio : audios.stream()
           .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
           .sorted(Comparator.comparing(InstrumentAudio::getName))
@@ -300,7 +299,7 @@ public class ProjectManagerImpl implements ProjectManager {
           var sourceSize = getFileSizeIfExistsOnDisk(sourcePath);
           if (sourceSize.isPresent()) {
             var extension = ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
-            var waveformKey = LocalFileUtils.computeWaveformKey(project.get().getName(), library.getName(), instrument.getName(), audio, extension);
+            var waveformKey = audio.getId().toString() + "." + extension;
             audio.setWaveformKey(waveformKey);
             templateContent.put(audio);
             var destinationPath = exportFolderPrefix + waveformKey;
@@ -837,7 +836,7 @@ public class ProjectManagerImpl implements ProjectManager {
     audio.setTransientSeconds(0.0f);
     audio.setVolume(existingAudio.map(InstrumentAudio::getVolume).orElse(DEFAULT_VOLUME));
     audio.setInstrumentId(instrument.getId());
-    audio.setWaveformKey(LocalFileUtils.computeWaveformKey(project.getName(), library.getName(), instrument.getName(), audio, matcher.group(3)));
+    audio.setWaveformKey(LocalFileUtils.computeWaveformKey(instrument.getName(), audio, matcher.group(3)));
 
     // Import the audio waveform
     importAudio(audio, audioFilePath);
@@ -1221,6 +1220,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
   /**
    Save the project content to disk
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
 
    @param platformVersion        the platform version
    @param priorProjectPathPrefix (optional) the prior project path prefix, e.g. during a Save As operation
@@ -1241,6 +1241,8 @@ public class ProjectManagerImpl implements ProjectManager {
 
     // Walk the entire project folder and identify existing files and folders, store these paths
     // After saving the project we will delete any unknown files and folders
+    // Only cleanup unused .xj files in the root of the project, and all unused files inside the "libraries" and "templates" folders.
+    // E.g. this should ignore the "render" folder in the root of the project and any other files or folders the developers want to create in their project
     Set<String> filesOnDisk = new HashSet<>();
     Set<String> foldersOnDisk = new HashSet<>();
     Set<String> filesInProject = new HashSet<>();
@@ -1249,11 +1251,13 @@ public class ProjectManagerImpl implements ProjectManager {
     if (Files.exists(prefixPath))
       try (var paths = Files.walk(prefixPath)) {
         paths.forEach(path -> {
-          if (Files.isRegularFile(path)) {
-            filesOnDisk.add(path.toString());
-          } else if (Files.isDirectory(path)) {
-            foldersOnDisk.add(path + File.separator);
-          }
+          var subPath = path.toString().substring(getProjectPathPrefix().length() - 1);
+          if (subPath.startsWith(File.separator + "libraries") || subPath.startsWith(File.separator + "templates") || subPath.endsWith(".xj"))
+            if (Files.isRegularFile(path)) {
+              filesOnDisk.add(path.toString());
+            } else if (Files.isDirectory(path)) {
+              foldersOnDisk.add(path + File.separator);
+            }
         });
       } catch (IOException e) {
         LOG.error("Failed to walk project folder! {}\n{}", e, StringUtils.formatStackTrace(e));
@@ -1302,9 +1306,8 @@ public class ProjectManagerImpl implements ProjectManager {
 
         // Iterate through all audios, determine expected path, and if the audio is not in that path, copy it from where it would be expected in the legacy project format, or from the legacy project path prefix
         for (InstrumentAudio audio : content.get().getAudiosOfInstrument(instrument.getId())) {
-          var project = content.get().getProject();
           var extension = ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
-          var toWaveformKey = LocalFileUtils.computeWaveformKey(project.getName(), library.getName(), instrument.getName(), audio, extension);
+          var toWaveformKey = LocalFileUtils.computeWaveformKey(instrument.getName(), audio, extension);
           var idealAudioPath = getPathToInstrumentAudio(instrument, toWaveformKey, null);
           // Copy all audio files to the new project folder from the prior folder (during a Save As operation) or the legacy folder (during a migration operation)
           if (!Files.exists(Path.of(idealAudioPath))) {
