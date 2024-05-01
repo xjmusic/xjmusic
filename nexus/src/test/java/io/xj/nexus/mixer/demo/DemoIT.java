@@ -13,6 +13,7 @@ import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.hub.pojos.Instrument;
 import io.xj.hub.pojos.InstrumentAudio;
+import io.xj.hub.pojos.Library;
 import io.xj.hub.pojos.Program;
 import io.xj.hub.pojos.ProgramSequence;
 import io.xj.hub.pojos.ProgramSequencePattern;
@@ -98,7 +99,8 @@ public class DemoIT {
   static final Segment segment = buildSegment(chain, 0, "C", 4, 1, TEMPO);
   static final SegmentChoice choice = buildSegmentChoice(segment, program);
   static final SegmentChoiceArrangement arrangement = buildSegmentChoiceArrangement(choice);
-  static final Instrument instrument = buildInstrument();
+  static final Library library = buildLibrary(project);
+  static final Instrument instrument = buildInstrument(library);
   static final InstrumentAudio kick1 = buildAudio(instrument, "kick1", "kick1" + SOURCE_FILE_SUFFIX, 0, .701f, 120, 1.0f, "X", "C5", 1.0f);
   static final InstrumentAudio kick2 = buildAudio(instrument, "kick2", "kick2" + SOURCE_FILE_SUFFIX, 0, .865f, 120, 1.0f, "X", "C5", 1.0f);
   static final InstrumentAudio marac = buildAudio(instrument, "marac", "maracas" + SOURCE_FILE_SUFFIX, 0, .025f, 120, 1.0f, "X", "C5", 1.0f);
@@ -107,31 +109,31 @@ public class DemoIT {
   static final InstrumentAudio clhat = buildAudio(instrument, "clhat", "cl_hihat" + SOURCE_FILE_SUFFIX, 0, .052f, 120, 1.0f, "X", "C5", 1.0f);
   static final InstrumentAudio ding = buildAudio(instrument, "ding", "ding" + SOURCE_FILE_SUFFIX, 0, 3.733f, 120, 1.0f, "X", "C5", 1.0f);
   static final Map<UUID, InstrumentAudio> audioById = Stream.of(
-      kick1,
-      kick2,
-      marac,
-      snare,
-      lotom,
-      clhat,
-      ding
+    kick1,
+    kick2,
+    marac,
+    snare,
+    lotom,
+    clhat,
+    ding
   ).collect(Collectors.toMap(InstrumentAudio::getId, instrumentAudio -> instrumentAudio));
   static final InstrumentAudio[] demoSequence = {
-      kick2,
-      marac,
-      clhat,
-      marac,
-      snare,
-      marac,
-      clhat,
-      kick2,
-      clhat,
-      marac,
-      kick1,
-      marac,
-      snare,
-      lotom,
-      clhat,
-      marac
+    kick2,
+    marac,
+    clhat,
+    marac,
+    snare,
+    marac,
+    clhat,
+    kick2,
+    clhat,
+    marac,
+    kick1,
+    marac,
+    snare,
+    lotom,
+    clhat,
+    marac
   };
   private final String instrumentPathPrefix;
   private final ProjectManager projectManager;
@@ -143,14 +145,17 @@ public class DemoIT {
 
   public DemoIT() throws IOException {
     String contentStoragePathPrefix = Files.createTempDirectory("xj_demo").toFile().getAbsolutePath() + File.separator;
-    Files.createDirectory(Paths.get(contentStoragePathPrefix, "instrument"));
+    Files.createDirectory(Paths.get(contentStoragePathPrefix, "libraries"));
+    Files.createDirectory(Paths.get(contentStoragePathPrefix, "libraries", "Demo-Library"));
     JsonProvider jsonProvider = new JsonProviderImpl();
     EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     HubClientFactory hubClientFactory = new HubClientFactoryImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory, 3);
     projectManager = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory);
     projectManager.setProjectPathPrefix(contentStoragePathPrefix);
-    instrumentPathPrefix = Files.createDirectory(Paths.get(contentStoragePathPrefix, "instrument", instrument.getId().toString())).toAbsolutePath().toString();
+    projectManager.getContent().put(instrument);
+    projectManager.getContent().put(library);
+    instrumentPathPrefix = Files.createDirectory(Paths.get(contentStoragePathPrefix, "libraries", "Demo-Library", "Test-Drums")).toAbsolutePath().toString();
     audioById.values().forEach(audio -> {
       try {
         var from = new InternalResource(INTERNAL_RESOURCE_INSTRUMENT_AUDIO_PREFIX + audio.getWaveformKey()).getFile().toPath();
@@ -215,12 +220,12 @@ public class DemoIT {
    */
   void mixAndWriteOutput(AudioFormat.Encoding outputEncoding, int outputFrameRate, int outputSampleBits, int outputChannels, float outputSeconds, String outputFilePath) throws Exception {
     audioCache.initialize(
-        outputFrameRate,
-        outputSampleBits,
-        outputChannels
+      outputFrameRate,
+      outputSampleBits,
+      outputChannels
     );
     AudioFormat audioFormat = new AudioFormat(outputEncoding, outputFrameRate, outputSampleBits, outputChannels,
-        (outputChannels * outputSampleBits / 8), outputFrameRate, false);
+      (outputChannels * outputSampleBits / 8), outputFrameRate, false);
     AudioFileWriter audioFileWriter = new AudioFileWriterImpl(audioFormat);
     MixerConfig mixerConfig = new MixerConfig(audioFormat);
     mixerConfig.setTotalSeconds(outputSeconds);
@@ -236,15 +241,15 @@ public class DemoIT {
 
     // mix it -- for the demo, 1 segment = the mixer buffer length
     mixer.mix(picks.stream()
-        .map((SegmentChoiceArrangementPick pick) ->
-            new ActiveAudio(
-                pick,
-                instrument,
-                audioById.get(pick.getInstrumentAudioId()),
-                pick.getStartAtSegmentMicros(),
-                pick.getStartAtSegmentMicros() + pick.getLengthMicros(),
-                1.0f, 1.0f))
-        .toList(), 1.0);
+      .map((SegmentChoiceArrangementPick pick) ->
+        new ActiveAudio(
+          pick,
+          instrument,
+          audioById.get(pick.getInstrumentAudioId()),
+          pick.getStartAtSegmentMicros(),
+          pick.getStartAtSegmentMicros() + pick.getLengthMicros(),
+          1.0f, 1.0f))
+      .toList(), 1.0);
 
     // Write the demo file output
     audioFileWriter.open(outputFilePath);
@@ -252,11 +257,21 @@ public class DemoIT {
     audioFileWriter.finish();
   }
 
-  private static Instrument buildInstrument() {
+  @SuppressWarnings("SameParameterValue")
+  private static Library buildLibrary(Project project) {
+    var library = new Library();
+    library.setId(UUID.randomUUID());
+    library.setName("Demo Library");
+    library.setProjectId(project.getId());
+    return library;
+  }
+
+  @SuppressWarnings("SameParameterValue")
+  private static Instrument buildInstrument(Library library) {
     var instrument = new Instrument();
     instrument.setId(UUID.randomUUID());
     instrument.setVolume(1.0f);
-    instrument.setLibraryId(UUID.randomUUID());
+    instrument.setLibraryId(library.getId());
     instrument.setType(InstrumentType.Drum);
     instrument.setMode(InstrumentMode.Event);
     instrument.setState(InstrumentState.Published);
@@ -284,12 +299,12 @@ public class DemoIT {
    */
   private SegmentChoiceArrangementPick buildPick(InstrumentAudio audio, float position, float duration) {
     ProgramSequencePatternEvent event = buildProgramSequencePatternEvent(
-        pattern,
-        track,
-        position,
-        duration,
-        "X",
-        1.0f
+      pattern,
+      track,
+      position,
+      duration,
+      "X",
+      1.0f
     );
 
     var microsPerBeat = ValueUtils.MICROS_PER_SECOND * ValueUtils.SECONDS_PER_MINUTE / segment.getTempo();

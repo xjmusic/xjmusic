@@ -283,4 +283,16 @@ public class ValueUtilsTest {
   public void microsPerMinutes() {
     assertEquals(60000000, MICROS_PER_MINUTE);
   }
+
+  @Test
+  void compareMonotonicVersion() {
+    assertEquals(0, ValueUtils.compareMonotonicVersion("1.2.3", "1.2.3"));
+    assertTrue(ValueUtils.compareMonotonicVersion("1.2.3", "1.2.4") < 0);
+    assertTrue(ValueUtils.compareMonotonicVersion("1.2.3", "1.2.2") > 0);
+    assertTrue(ValueUtils.compareMonotonicVersion("1.2.3", "1.3.3") < 0);
+    assertTrue(ValueUtils.compareMonotonicVersion("1.2.3", "1.1.3") > 0);
+    assertTrue(ValueUtils.compareMonotonicVersion("1.2.3", "2.2.3") < 0);
+    assertTrue(ValueUtils.compareMonotonicVersion("1.2.3", "1.12.3") < 0);
+    assertTrue(ValueUtils.compareMonotonicVersion("1.2.3", "1.2") > 0);
+  }
 }

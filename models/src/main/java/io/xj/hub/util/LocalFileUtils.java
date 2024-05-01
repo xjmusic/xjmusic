@@ -2,6 +2,7 @@
 package io.xj.hub.util;
 
 import io.xj.hub.music.Accidental;
+import io.xj.hub.pojos.Instrument;
 import io.xj.hub.pojos.InstrumentAudio;
 
 import java.io.BufferedInputStream;
@@ -11,13 +12,20 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  Get a temp file
  */
-public interface FileUtils {
+public interface LocalFileUtils {
   /**
    Assert size of two different files is within a tolerated threshold
 
@@ -83,23 +91,70 @@ public interface FileUtils {
   /**
    Compute the waveform key for an instrument audio
 
-   @param projectName    to which the library belongs
-   @param libraryName    to which the instrument belongs
    @param instrumentName to which the audio belongs
    @param audio          for which to compute the key
    @param extension      of the audio file
    @return the waveform key
    */
-  static String computeWaveformKey(String projectName, String libraryName, String instrumentName, InstrumentAudio audio, String extension) {
+  static String computeWaveformKey(Instrument instrument, InstrumentAudio audio, String extension) {
     return String.format("%s.%s",
       Stream.of(
-          StringUtils.toAlphanumericHyphenated(projectName),
-          StringUtils.toAlphanumericHyphenated(libraryName),
-          StringUtils.toAlphanumericHyphenated(instrumentName),
+          StringUtils.toAlphanumericHyphenated(instrument.getName()),
           StringUtils.toAlphanumericHyphenated(Accidental.replaceWithExplicit(audio.getName())),
           StringUtils.toAlphanumericHyphenated(Accidental.replaceWithExplicit(audio.getTones()))
         ).filter(StringUtils::isNotNullOrEmpty)
         .collect(Collectors.joining("-")),
       extension);
+  }
+
+  /**
+   Find all json files in a directory
+
+   @param projectPathPrefix the directory to search
+   @return a list of paths to the json files
+   @throws IOException if the directory cannot be read
+   */
+  static Collection<Path> findJsonFiles(String projectPathPrefix) throws IOException {
+    try (Stream<Path> paths = Files.walk(Paths.get(projectPathPrefix))) {
+      return paths
+        .filter(Files::isRegularFile)
+        .filter(path -> path.toString().endsWith(".json"))
+        .collect(Collectors.toSet());
+    }
+  }
+
+  /**
+   Copy a directory from source to destination
+
+   @param source from directory
+   @param dest   to directory
+   */
+  static void copyRecursively(Path source, Path dest) {
+    try {
+      Files.walkFileTree(source, new SimpleFileVisitor<>() {
+        @Override
+        public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
+          Files.createDirectories(dest.resolve(source.relativize(dir)));
+          return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+          Files.copy(file, dest.resolve(source.relativize(file)));
+          return FileVisitResult.CONTINUE;
+        }
+      });
+    } catch (IOException e) {
+      System.err.println("Failed to copy directory: " + e.getMessage());
+    }
+  }
+
+  /**
+   Add slash to end of file path prefix of string
+
+   @param text in which to add a trailing slash
+   */
+  static String addTrailingSlash(String text) {
+    return text.endsWith(File.separator) ? text : text + File.separator;
   }
 }

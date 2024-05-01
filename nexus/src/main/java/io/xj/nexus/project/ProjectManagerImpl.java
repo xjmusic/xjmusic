@@ -30,6 +30,7 @@ import io.xj.hub.pojos.ProgramVoiceTrack;
 import io.xj.hub.pojos.Project;
 import io.xj.hub.pojos.Template;
 import io.xj.hub.pojos.TemplateBinding;
+import io.xj.hub.util.LocalFileUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.http.HttpClientProvider;
@@ -66,7 +67,6 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
-import static io.xj.hub.util.FileUtils.computeWaveformKey;
 import static io.xj.nexus.hub_client.HubClientFactory.FILE_SIZE_NOT_FOUND;
 
 public class ProjectManagerImpl implements ProjectManager {
@@ -123,6 +123,7 @@ public class ProjectManagerImpl implements ProjectManager {
     this.jsonProvider = jsonProvider;
     this.entityFactory = entityFactory;
     this.hubClientFactory = hubClientFactory;
+    this.content.set(new HubContent());
   }
 
   @Override
@@ -141,7 +142,7 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public boolean createProjectFromDemoTemplate(String baseUrl, String templateKey, String parentPathPrefix, String projectName) {
+  public boolean createProjectFromDemoTemplate(String baseUrl, String templateKey, String parentPathPrefix, String projectName, String platformVersion) {
     this.demoBaseUrl.set(baseUrl);
     LOG.info("Cloning from demo template \"{}\" in parent folder {}", templateKey, parentPathPrefix);
     CloseableHttpClient httpClient = httpClientProvider.getClient();
@@ -152,6 +153,7 @@ public class ProjectManagerImpl implements ProjectManager {
       updateProgress(0.0);
       updateState(ProjectState.LoadingContent);
       content.set(hubClientFactory.loadApiV1(httpClient, this.demoBaseUrl.get(), templateKey));
+      content.get().getProject().setPlatformVersion(platformVersion);
       project.set(content.get().getProject());
       updateState(ProjectState.LoadedContent);
       LOG.info("Did load content");
@@ -178,10 +180,9 @@ public class ProjectManagerImpl implements ProjectManager {
           if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
             LOG.debug("Will download audio for instrument \"{}\" with waveform key \"{}\"", instrument.getName(), audio.getWaveformKey());
             // Fetch via HTTP if original does not exist
-            var originalCachePath = getPathToInstrumentAudio(
-              instrument.getId(),
-              audio.getWaveformKey()
-            );
+            var extension = ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
+            var idealWaveformKey = LocalFileUtils.computeWaveformKey(instrument, audio, extension);
+            var idealAudioPath = getPathToInstrumentAudio(instrument, idealWaveformKey, null);
 
             var remoteUrl = String.format("%s%s", this.demoBaseUrl, audio.getWaveformKey());
             var remoteFileSize = hubClientFactory.getRemoteFileSize(httpClient, remoteUrl);
@@ -191,24 +192,28 @@ public class ProjectManagerImpl implements ProjectManager {
               audioFileNotFoundIds.add(audio.getId());
               continue;
             }
-            var localFileSize = getFileSizeIfExistsOnDisk(originalCachePath);
+            var localFileSize = getFileSizeIfExistsOnDisk(idealAudioPath);
 
             boolean shouldDownload = false;
 
             if (localFileSize.isEmpty()) {
               shouldDownload = true;
             } else if (localFileSize.get() != remoteFileSize) {
-              LOG.info("File size of {} does not match remote {} - Will download {} bytes from {}", originalCachePath, remoteFileSize, remoteFileSize, remoteUrl);
+              LOG.info("File size of {} does not match remote {} - Will download {} bytes from {}", idealAudioPath, remoteFileSize, remoteFileSize, remoteUrl);
               shouldDownload = true;
             }
 
             if (shouldDownload) {
-              if (!hubClientFactory.downloadRemoteFileWithRetry(httpClient, remoteUrl, originalCachePath, remoteFileSize)) {
+              if (!hubClientFactory.downloadRemoteFileWithRetry(httpClient, remoteUrl, idealAudioPath, remoteFileSize)) {
                 updateState(ProjectState.Failed);
                 project.set(null);
                 return false;
               }
             }
+
+            // After loading audio, save new ideal waveform key
+            audio.setWaveformKey(idealWaveformKey);
+            content.get().put(audio);
 
             LOG.debug("Did preload audio OK");
             updateProgress((float) loadedAudios / audios.size());
@@ -229,7 +234,7 @@ public class ProjectManagerImpl implements ProjectManager {
       updateProgressLabel(String.format("Downloaded %d audios for %d instruments", loadedAudios, loadedInstruments));
       updateState(ProjectState.LoadedAudio);
 
-      saveProjectContent();
+      saveProjectContent(platformVersion, null);
       return true;
 
     } catch (HubClientException e) {
@@ -284,7 +289,6 @@ public class ProjectManagerImpl implements ProjectManager {
       var instruments = templateContent.getInstruments();
       var audios = templateContent.getInstrumentAudios();
       for (Instrument instrument : instruments) {
-        var library = templateContent.getLibrary(instrument.getLibraryId()).orElseThrow(() -> new NexusException("Library not found"));
         for (InstrumentAudio audio : audios.stream()
           .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
           .sorted(Comparator.comparing(InstrumentAudio::getName))
@@ -297,14 +301,11 @@ public class ProjectManagerImpl implements ProjectManager {
 
           // Export audio file
           // If source audio file not found, add to audioFileNotFoundIds
-          var sourcePath = getPathToInstrumentAudio(
-            instrument.getId(),
-            audio.getWaveformKey()
-          );
+          var sourcePath = getPathToInstrumentAudio(instrument, audio.getWaveformKey(), null);
           var sourceSize = getFileSizeIfExistsOnDisk(sourcePath);
           if (sourceSize.isPresent()) {
             var extension = ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
-            var waveformKey = computeWaveformKey(project.get().getName(), library.getName(), instrument.getName(), audio, extension);
+            var waveformKey = template.getShipKey() + "-" + audio.getId().toString() + "." + extension;
             audio.setWaveformKey(waveformKey);
             templateContent.put(audio);
             var destinationPath = exportFolderPrefix + waveformKey;
@@ -337,6 +338,7 @@ public class ProjectManagerImpl implements ProjectManager {
             }
 
           } else {
+            LOG.warn("File not found for audio \"{}\" of instrument \"{}\" in library \"{}\" at {}", audio.getName(), instrument.getName(), templateContent.getLibrary(instrument.getLibraryId()).map(Library::getName).orElse("Unknown"), sourcePath);
             audioFileNotFoundIds.add(audio.getId());
           }
 
@@ -347,7 +349,7 @@ public class ProjectManagerImpl implements ProjectManager {
       }
 
       if (!audioFileNotFoundIds.isEmpty()) {
-        LOG.warn("File not found for {} audios; will remove these audio records from exported template", audioFileNotFoundIds.size());
+        LOG.error("File not found for {} audios; will remove these audio records from exported template. See logs for exact file names.", audioFileNotFoundIds.size());
         for (UUID audioId : audioFileNotFoundIds) {
           templateContent.delete(InstrumentAudio.class, audioId);
         }
@@ -388,8 +390,20 @@ public class ProjectManagerImpl implements ProjectManager {
       LOG.info("Will load project \"{}\" from {}", projectName.get(), projectFilePath);
       updateProgress(0.0);
       updateState(ProjectState.LoadingContent);
-      var json = Files.readString(Path.of(projectFilePath));
-      content.set(jsonProvider.getMapper().readValue(json, HubContent.class));
+
+      // Path to project file and all .json files in project folder
+      Collection<Path> contentPaths = new HashSet<>();
+      contentPaths.add(Path.of(projectFilePath));
+      contentPaths.addAll(LocalFileUtils.findJsonFiles(projectPathPrefix.get()));
+
+      // HubContent deserialized from all content json files
+      Collection<HubContent> contents = new HashSet<>();
+      for (Path contentPath : contentPaths) {
+        contents.add(jsonProvider.getMapper().readValue(Files.readString(contentPath), HubContent.class));
+      }
+
+      // Combine all found content
+      content.set(HubContent.combine(contents));
       project.set(content.get().getProject());
       updateState(ProjectState.LoadedContent);
       LOG.info("Did load content for project \"{}\" from {}", projectName.get(), projectFilePath);
@@ -406,7 +420,7 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public boolean createProject(String parentPathPrefix, String projectName) {
+  public boolean createProject(String parentPathPrefix, String projectName, String platformVersion) {
     LOG.info("Create new project \"{}\" in parent folder {}", projectName, parentPathPrefix);
 
     try {
@@ -416,12 +430,13 @@ public class ProjectManagerImpl implements ProjectManager {
       project.set(new Project());
       project.get().setId(UUID.randomUUID());
       project.get().setName(projectName);
+      project.get().setPlatformVersion(platformVersion);
 
       // Create the new content
       content.set(new HubContent());
       content.get().setProjects(List.of(project.get()));
 
-      saveProjectContent();
+      saveProjectContent(platformVersion, null);
       return true;
 
     } catch (Exception e) {
@@ -434,9 +449,9 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public void saveProject() {
+  public void saveProject(String platformVersion) {
     try {
-      saveProjectContent();
+      saveProjectContent(platformVersion, null);
 
     } catch (IOException e) {
       LOG.error("Failed to save project! {}\n{}", e, StringUtils.formatStackTrace(e));
@@ -445,73 +460,23 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public ProjectCleanupResults cleanupProject() {
-    updateState(ProjectState.Saving);
-    var results = new ProjectCleanupResults();
-    var prefix = getInstrumentPathPrefix();
-    LOG.info("Cleaning up project audio folder {}", prefix);
-    Set<String> filesOnDisk = new HashSet<>();
-    Set<String> foldersOnDisk = new HashSet<>();
-    Set<String> filesInProject = new HashSet<>();
-    Set<String> foldersInProject = new HashSet<>();
-    Path prefixPath = Paths.get(prefix);
-    if (Files.exists(prefixPath))
-      try (var paths = Files.walk(prefixPath)) {
-        paths.forEach(path -> {
-          if (Files.isRegularFile(path)) {
-            filesOnDisk.add(path.toString());
-          } else if (Files.isDirectory(path)) {
-            foldersOnDisk.add(path + File.separator);
-          }
-        });
-      } catch (IOException e) {
-        LOG.error("Failed to walk project audio folder! {}\n{}", e, StringUtils.formatStackTrace(e));
-        updateState(ProjectState.Ready);
-        return results;
-      }
-    foldersInProject.add(prefix);
-    content.get().getInstruments().forEach(instrument -> {
-      var instrumentPath = getPathPrefixToInstrumentAudio(instrument.getId());
-      foldersInProject.add(instrumentPath);
-      content.get().getAudiosOfInstrument(instrument.getId()).forEach(audio ->
-        filesInProject.add(String.format("%s%s", instrumentPath, audio.getWaveformKey())));
-    });
-    LOG.info("Found {} instrument folders on disk containing a total of {} audio files.", foldersOnDisk.size(), filesOnDisk.size());
-    LOG.info("The project has {} instruments containing a total of {} audios.", foldersInProject.size(), filesInProject.size());
-    foldersOnDisk.removeAll(foldersInProject);
-    filesOnDisk.removeAll(filesInProject);
-    LOG.info("Will delete {} instrument folders and {} audio files.", foldersOnDisk.size(), filesOnDisk.size());
-    for (String s : filesOnDisk) {
-      try {
-        Files.deleteIfExists(Paths.get(s));
-        results.incrementFiles();
-      } catch (IOException e) {
-        LOG.error("Failed to delete audio file \"{}\"! {}\n{}", s, e, StringUtils.formatStackTrace(e));
-        updateState(ProjectState.Ready);
-        return results;
-      }
-    }
-    for (String path : foldersOnDisk) {
-      try {
-        FileUtils.deleteDirectory(new File(path));
-        results.incrementFolders();
-      } catch (IOException e) {
-        LOG.error("Failed to delete instrument folder {}! {}\n{}", path, e, StringUtils.formatStackTrace(e));
-        updateState(ProjectState.Ready);
-        return results;
-      }
-    }
-
+  public void saveAsProject(String parentPathPrefix, String projectName, String platformVersion) {
     try {
-      saveProjectContent();
-    } catch (IOException e) {
-      LOG.error("Failed to save project after cleanup! {}\n{}", e, StringUtils.formatStackTrace(e));
-      updateState(ProjectState.Ready);
-      return results;
-    }
+      LOG.info("Will save project as \"{}\" in parent folder {}", projectName, parentPathPrefix);
 
-    updateState(ProjectState.Ready);
-    return results;
+      var project = this.project.get();
+      project.setName(projectName);
+      this.project.set(project);
+      this.content.get().put(project);
+
+      var legacyProjectPathPrefix = projectPathPrefix.get();
+      createProjectFolder(LocalFileUtils.addTrailingSlash(parentPathPrefix), projectName);
+      saveProjectContent(platformVersion, legacyProjectPathPrefix);
+
+    } catch (IOException e) {
+      LOG.error("Failed to save as new project! {}\n{}", e, StringUtils.formatStackTrace(e));
+      updateState(ProjectState.Ready);
+    }
   }
 
   @Override
@@ -545,13 +510,36 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   @Override
-  public String getPathToInstrumentAudio(UUID instrumentId, String waveformKey) {
-    return getPathPrefixToInstrumentAudio(instrumentId) + waveformKey;
+  public String getPathPrefixToTemplate(Template template) {
+    return getPathPrefixToTemplates() + StringUtils.toAlphanumericHyphenated(template.getName()) + File.separator;
   }
 
   @Override
-  public String getPathPrefixToInstrumentAudio(UUID instrumentId) {
-    return getInstrumentPathPrefix() + instrumentId.toString() + File.separator;
+  public String getPathPrefixToLibrary(Library library, @Nullable String overrideProjectPathPrefix) {
+    return getPathPrefixToLibraries(overrideProjectPathPrefix) + StringUtils.toAlphanumericHyphenated(library.getName()) + File.separator;
+  }
+
+  @Override
+  public String getPathPrefixToProgram(Program program) {
+    var library = content.get().getLibrary(program.getLibraryId()).orElseThrow(() -> new RuntimeException("Library not found"));
+    return getPathPrefixToLibrary(library, null) + StringUtils.toAlphanumericHyphenated(program.getName()) + File.separator;
+  }
+
+  @Override
+  public String getPathPrefixToInstrument(Instrument instrument, @Nullable String overrideProjectPathPrefix) {
+    var library = content.get().getLibrary(instrument.getLibraryId()).orElseThrow(() -> new RuntimeException("Library not found"));
+    return getPathPrefixToLibrary(library, overrideProjectPathPrefix) + StringUtils.toAlphanumericHyphenated(instrument.getName()) + File.separator;
+  }
+
+  @Override
+  public String getPathToInstrumentAudio(InstrumentAudio audio, @Nullable String overrideProjectPathPrefix) {
+    var instrument = content.get().getInstrument(audio.getInstrumentId()).orElseThrow(() -> new RuntimeException("Instrument not found"));
+    return getPathToInstrumentAudio(instrument, audio.getWaveformKey(), overrideProjectPathPrefix);
+  }
+
+  @Override
+  public String getPathToInstrumentAudio(Instrument instrument, String waveformKey, @Nullable String overrideProjectPathPrefix) {
+    return getPathPrefixToInstrument(instrument, overrideProjectPathPrefix) + waveformKey;
   }
 
   @Override
@@ -814,7 +802,7 @@ public class ProjectManagerImpl implements ProjectManager {
     instrument.setState(existingInstrument.map(Instrument::getState).orElse(DEFAULT_INSTRUMENT_STATE));
     instrument.setVolume(existingInstrument.map(Instrument::getVolume).orElse(DEFAULT_VOLUME));
     instrument.setIsDeleted(false);
-    var instrumentPath = getPathPrefixToInstrumentAudio(instrument.getId());
+    var instrumentPath = getPathPrefixToInstrument(instrument, null);
     FileUtils.createParentDirectories(new File(instrumentPath));
     content.get().put(instrument);
     return instrument;
@@ -855,7 +843,7 @@ public class ProjectManagerImpl implements ProjectManager {
     audio.setTransientSeconds(0.0f);
     audio.setVolume(existingAudio.map(InstrumentAudio::getVolume).orElse(DEFAULT_VOLUME));
     audio.setInstrumentId(instrument.getId());
-    audio.setWaveformKey(computeWaveformKey(project.getName(), library.getName(), instrument.getName(), audio, matcher.group(3)));
+    audio.setWaveformKey(LocalFileUtils.computeWaveformKey(instrument, audio, matcher.group(3)));
 
     // Import the audio waveform
     importAudio(audio, audioFilePath);
@@ -878,23 +866,6 @@ public class ProjectManagerImpl implements ProjectManager {
     instrument.setLibraryId(libraryId);
     content.get().put(instrument);
     return instrument;
-  }
-
-  @Override
-  public void renameWaveformIfNecessary(UUID instrumentAudioId) throws Exception {
-    var audio = content.get().getInstrumentAudio(instrumentAudioId)
-      .orElseThrow(() -> new RuntimeException("Could not find Instrument Audio"));
-    var library = content.get().getInstrument(audio.getInstrumentId()).orElseThrow(() -> new NexusException("Instrument not found"));
-    var project = content.get().getProject();
-    var extension = ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
-    var toWaveformKey = computeWaveformKey(project.getName(), library.getName(), library.getName(), audio, extension);
-    var toPath = getPathToInstrumentAudio(library.getId(), toWaveformKey);
-
-    if (!Objects.equals(audio.getWaveformKey(), toWaveformKey)) {
-      var fromPath = getPathToInstrumentAudio(library.getId(), audio.getWaveformKey());
-      FileUtils.copyFile(new File(fromPath), new File(toPath));
-      content.get().update(InstrumentAudio.class, instrumentAudioId, "waveformKey", toWaveformKey);
-    }
   }
 
   @Override
@@ -1154,8 +1125,8 @@ public class ProjectManagerImpl implements ProjectManager {
 
     // Copy all the instrument's audio to the new folder
     for (InstrumentAudio audio : duplicatedAudios.values()) {
-      var fromPath = getPathToInstrumentAudio(fromId, audio.getWaveformKey());
-      var toPath = getPathToInstrumentAudio(instrument.getId(), audio.getWaveformKey());
+      var fromPath = getPathToInstrumentAudio(source, audio.getWaveformKey(), null);
+      var toPath = getPathToInstrumentAudio(instrument, audio.getWaveformKey(), null);
       if (new File(fromPath).exists())
         FileUtils.copyFile(new File(fromPath), new File(toPath));
     }
@@ -1224,15 +1195,6 @@ public class ProjectManagerImpl implements ProjectManager {
   }
 
   /**
-   Get the instrument path prefix
-
-   @return the instrument path prefix
-   */
-  private String getInstrumentPathPrefix() {
-    return projectPathPrefix.get() + "instrument" + File.separator;
-  }
-
-  /**
    Import an audio waveform file into the project from somewhere else on disk
 
    @param audio         for which to import the waveform
@@ -1240,7 +1202,7 @@ public class ProjectManagerImpl implements ProjectManager {
    @throws IOException if the audio file could not be imported
    */
   private void importAudio(InstrumentAudio audio, String audioFilePath) throws IOException {
-    var targetPath = getPathToInstrumentAudio(audio.getInstrumentId(), audio.getWaveformKey());
+    var targetPath = getPathToInstrumentAudio(audio, null);
     FileUtils.createParentDirectories(new File(targetPath));
     FileUtils.copyFile(new File(audioFilePath), new File(targetPath));
   }
@@ -1265,18 +1227,206 @@ public class ProjectManagerImpl implements ProjectManager {
 
   /**
    Save the project content to disk
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
 
+   @param platformVersion        the platform version
+   @param priorProjectPathPrefix (optional) the prior project path prefix, e.g. during a Save As operation
    @throws IOException if the project content could not be saved
    */
-  private void saveProjectContent() throws IOException {
+  private void saveProjectContent(String platformVersion, @Nullable String priorProjectPathPrefix) throws IOException {
     updateState(ProjectState.Saving);
     cleanupOrphans(content.get());
-    LOG.info("Will save project \"{}\" to {}", projectName.get(), getPathToProjectFile());
-    var json = jsonProvider.getMapper().writeValueAsString(content);
-    var jsonPath = getPathToProjectFile();
-    Files.writeString(Path.of(jsonPath), json);
-    LOG.info("Did write {} bytes of content to {}", json.length(), jsonPath);
+    project.get().setPlatformVersion(platformVersion);
+    content.get().setProject(project.get());
+    LOG.info("Will save project \"{}\" with platform version {} to {}", projectName.get(), platformVersion, getPathToProjectFile());
+
+    // Report progress based on templates, libraries, programs, instruments, and audios
+    int totalItems = content.get().getTemplates().size() + content.get().getLibraries().size() + content.get().getPrograms().size() + content.get().getInstruments().size() + content.get().getInstrumentAudios().size();
+    int savedItems = 0;
+    updateProgress(0);
+    updateProgressLabel("Saving project...");
+
+    // Walk the entire project folder and identify existing files and folders, store these paths
+    // After saving the project we will delete any unknown files and folders
+    // Only cleanup unused .xj files in the root of the project, and all unused files inside the "libraries" and "templates" folders.
+    // E.g. this should ignore the "render" folder in the root of the project and any other files or folders the developers want to create in their project
+    Set<String> filesOnDisk = new HashSet<>();
+    Set<String> foldersOnDisk = new HashSet<>();
+    Set<String> filesInProject = new HashSet<>();
+    Set<String> foldersInProject = new HashSet<>();
+    Path prefixPath = Paths.get(getProjectPathPrefix());
+    if (Files.exists(prefixPath))
+      try (var paths = Files.walk(prefixPath)) {
+        paths.forEach(path -> {
+          var subPath = path.toString().substring(getProjectPathPrefix().length() - 1);
+          if (subPath.startsWith(File.separator + "instrument") || subPath.startsWith(File.separator + "libraries") || subPath.startsWith(File.separator + "templates") || subPath.endsWith(".xj"))
+            if (Files.isRegularFile(path)) {
+              filesOnDisk.add(path.toString());
+            } else if (Files.isDirectory(path)) {
+              foldersOnDisk.add(path + File.separator);
+            }
+        });
+      } catch (IOException e) {
+        LOG.error("Failed to walk project folder! {}\n{}", e, StringUtils.formatStackTrace(e));
+        updateState(ProjectState.Ready);
+        return;
+      }
+    foldersInProject.add(ensureDirectoryExists(getProjectPathPrefix()));
+
+    // .xj file is only the Project and whether it's a demo
+    HubContent projectContent = new HubContent();
+    projectContent.setDemo(content.get().getDemo());
+    projectContent.put(content.get().getProject());
+    filesInProject.add(writeContentToJsonFile(projectContent, getPathToProjectFile()));
+
+    // Iterate through all templates, make a folder, and write the template.json file
+    foldersInProject.add(ensureDirectoryExists(getPathPrefixToTemplates()));
+    for (Template template : content.get().getTemplates()) {
+      var templatePathPrefix = getPathPrefixToTemplate(template);
+      foldersInProject.add(ensureDirectoryExists(templatePathPrefix));
+      filesInProject.add(writeContentToJsonFile(content.get().subsetForTemplateId(template.getId()), templatePathPrefix + StringUtils.toAlphanumericHyphenated(template.getName()) + ".json"));
+      updateProgress((double) ++savedItems / totalItems);
+    }
+
+    // Iterate through all libraries, make a folder, and write the library.json file
+    foldersInProject.add(ensureDirectoryExists(getPathPrefixToLibraries(null)));
+    for (Library library : content.get().getLibraries()) {
+      var libraryPathPrefix = getPathPrefixToLibrary(library, null);
+      foldersInProject.add(ensureDirectoryExists(libraryPathPrefix));
+      filesInProject.add(writeContentToJsonFile(new HubContent(Set.of(library)), libraryPathPrefix + StringUtils.toAlphanumericHyphenated(library.getName()) + ".json"));
+      updateProgress((double) ++savedItems / totalItems);
+
+      // Iterate through all programs, make a folder, and write the program.json file
+      for (Program program : content.get().getProgramsOfLibrary(library)) {
+        var programPathPrefix = getPathPrefixToProgram(program);
+        foldersInProject.add(ensureDirectoryExists(programPathPrefix));
+        filesInProject.add(writeContentToJsonFile(content.get().subsetForProgramId(program.getId()), programPathPrefix + StringUtils.toAlphanumericHyphenated(program.getName()) + ".json"));
+        updateProgress((double) ++savedItems / totalItems);
+      }
+
+      // Iterate through all instruments, make a folder, and write the instrument.json file
+      for (Instrument instrument : content.get().getInstrumentsOfLibrary(library)) {
+        var instrumentPathPrefix = libraryPathPrefix + StringUtils.toAlphanumericHyphenated(instrument.getName()) + File.separator;
+        foldersInProject.add(ensureDirectoryExists(instrumentPathPrefix));
+
+        // Iterate through all audios, determine expected path, and if the audio is not in that path, copy it from where it would be expected in the legacy project format, or from the legacy project path prefix
+        for (InstrumentAudio audio : content.get().getAudiosOfInstrument(instrument.getId())) {
+          var extension = ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
+          var idealWaveformKey = LocalFileUtils.computeWaveformKey(instrument, audio, extension);
+          var idealAudioPath = getPathToInstrumentAudio(instrument, idealWaveformKey, null);
+          // Copy all audio files to the new project folder from the prior folder (during a Save As operation) or the legacy folder (during a migration operation)
+          if (!Files.exists(Path.of(idealAudioPath))) {
+            var currentPath = getPathToInstrumentAudio(audio, null); // the current (not necessarily ideal) path
+            var priorAudioPath = getPathToInstrumentAudio(audio, priorProjectPathPrefix); // the prior path (during save-as)
+            var legacyAudioPath = getLegacyPathToInstrumentAudio(audio, null); // the legacy path (during migration)
+            var priorLegacyAudioPath = getLegacyPathToInstrumentAudio(audio, priorProjectPathPrefix); // the prior legacy path (during save-as migration)
+            if (Objects.nonNull(priorAudioPath) && Files.exists(Path.of(priorAudioPath))) {
+              FileUtils.copyFile(new File(priorAudioPath), new File(idealAudioPath));
+            } else if (Objects.nonNull(priorAudioPath) && Files.exists(Path.of(priorLegacyAudioPath))) {
+              FileUtils.copyFile(new File(priorLegacyAudioPath), new File(idealAudioPath));
+            } else if (Files.exists(Path.of(legacyAudioPath))) {
+              FileUtils.moveFile(new File(legacyAudioPath), new File(idealAudioPath));
+            } else if (!Objects.equals(currentPath, idealAudioPath) && Files.exists(Path.of(currentPath))) {
+              FileUtils.moveFile(new File(currentPath), new File(idealAudioPath));
+            } else {
+              LOG.error("Could not find audio file at any of the following paths: {}, {}, {}, {}", priorAudioPath, priorLegacyAudioPath, legacyAudioPath, currentPath);
+            }
+            if (!Objects.equals(idealWaveformKey, audio.getWaveformKey()))
+              try {
+                content.get().update(InstrumentAudio.class, audio.getId(), "waveformKey", idealWaveformKey);
+              } catch (Exception e) {
+                LOG.error("Failed to update audio waveform to \"{}\"! {}\n{}", idealWaveformKey, e, StringUtils.formatStackTrace(e));
+              }
+          }
+          filesInProject.add(idealAudioPath);
+          updateProgress((double) ++savedItems / totalItems);
+        }
+
+        // Write the instrument audio content after the audio, in order to include updates to audio waveform keys
+        filesInProject.add(writeContentToJsonFile(content.get().subsetForInstrumentId(instrument.getId()), instrumentPathPrefix + StringUtils.toAlphanumericHyphenated(instrument.getName()) + ".json"));
+        updateProgress((double) ++savedItems / totalItems);
+      }
+    }
+
+    // Any unused files and folders in the project path should be deleted
+    LOG.info("Saved {} folders on disk containing a total of {} files.", foldersOnDisk.size(), filesOnDisk.size());
+    LOG.info("The project has {} instruments containing a total of {} audios.", foldersInProject.size(), filesInProject.size());
+    foldersOnDisk.removeAll(foldersInProject);
+    filesOnDisk.removeAll(filesInProject);
+    LOG.info("Will delete {} folders and {} files.", foldersOnDisk.size(), filesOnDisk.size());
+    for (String s : filesOnDisk) {
+      try {
+        Files.deleteIfExists(Paths.get(s));
+      } catch (IOException e) {
+        LOG.error("Failed to delete audio file \"{}\"! {}\n{}", s, e, StringUtils.formatStackTrace(e));
+      }
+    }
+    for (String path : foldersOnDisk) {
+      try {
+        FileUtils.deleteDirectory(new File(path));
+      } catch (IOException e) {
+        LOG.error("Failed to delete instrument folder {}! {}\n{}", path, e, StringUtils.formatStackTrace(e));
+      }
+    }
+
+    updateProgress(1.0);
     updateState(ProjectState.Ready);
+  }
+
+  /**
+   Ensure a directory exists, creating it if it does not, and return the path
+
+   @param dir to ensure exists
+   @return the path
+   @throws IOException if the directory could not be created
+   */
+  private String ensureDirectoryExists(String dir) throws IOException {
+    Path path = Path.of(dir);
+    if (!Files.exists(path)) {
+      Files.createDirectory(path);
+    }
+    return dir;
+  }
+
+  /**
+   Get the legacy path to the audio folder for an instrument -- for migrating a project from the legacy format
+
+   @param audio                     for which to get path
+   @param overrideProjectPathPrefix (optional) override the project path prefix
+   @return the path to the audio
+   */
+  public String getLegacyPathToInstrumentAudio(InstrumentAudio audio, @Nullable String overrideProjectPathPrefix) {
+    return Optional.ofNullable(overrideProjectPathPrefix).orElse(projectPathPrefix.get()) + "instrument" + File.separator + audio.getInstrumentId().toString() + File.separator + audio.getWaveformKey();
+  }
+
+  /**
+   @return path prefix to the project's libraries
+   */
+  private String getPathPrefixToLibraries(@Nullable String overrideProjectPathPrefix) {
+    return Optional.ofNullable(overrideProjectPathPrefix).orElse(projectPathPrefix.get()) + "libraries" + File.separator;
+  }
+
+  /**
+   @return path prefix to the project's templates
+   */
+  private String getPathPrefixToTemplates() {
+    return projectPathPrefix.get() + "templates" + File.separator;
+  }
+
+  /**
+   Write a HubContent object to a JSON file
+
+   @param content   to write
+   @param writePath to write the content to
+   @return path for chaining use of method
+   @throws IOException if the content could not be written to the file
+   */
+  private String writeContentToJsonFile(HubContent content, String writePath) throws IOException {
+    var json = jsonProvider.getMapper().writeValueAsString(content);
+    Path path = Path.of(writePath);
+    Files.writeString(path, json);
+    LOG.info("Did write {} bytes of content to {}", json.length(), path);
+    return writePath;
   }
 
   /**

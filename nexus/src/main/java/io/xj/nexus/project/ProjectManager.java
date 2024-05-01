@@ -42,9 +42,10 @@ public interface ProjectManager {
    @param templateKey      of the demo
    @param parentPathPrefix parent folder to the project folder
    @param projectName      of the project folder and the project
+   @param platformVersion  the platform version
    @return true if successful
    */
-  boolean createProjectFromDemoTemplate(String baseUrl, String templateKey, String parentPathPrefix, String projectName);
+  boolean createProjectFromDemoTemplate(String baseUrl, String templateKey, String parentPathPrefix, String projectName, String platformVersion);
 
   /**
    Export a template as JSON with all its audio (original or prepared)
@@ -78,25 +79,32 @@ public interface ProjectManager {
 
   /**
    Create a project on the local disk
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
 
    @param parentPathPrefix the path prefix of the project
    @param projectName      the name of the project
+   @param platformVersion  the platform version
    @return true if successful
    */
-  boolean createProject(String parentPathPrefix, String projectName);
+  boolean createProject(String parentPathPrefix, String projectName, String platformVersion);
 
   /**
    Save the project
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+
+   @param platformVersion the platform version
    */
-  void saveProject();
+  void saveProject(String platformVersion);
 
   /**
-   Project Cleanup option to delete unused audio files from project folder
-   https://github.com/xjmusic/workstation/issues/200
+   Save the project as a new project https://github.com/xjmusic/workstation/issues/362
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
 
-   @return results
+   @param parentPathPrefix the path prefix of the project
+   @param projectName      the name of the project
+   @param platformVersion  the platform version
    */
-  ProjectCleanupResults cleanupProject();
+  void saveAsProject(String parentPathPrefix, String projectName, String platformVersion);
 
   /**
    Cancel the project loading
@@ -144,21 +152,56 @@ public interface ProjectManager {
   HubContent getContent(Template template);
 
   /**
-   Get the path to some instrument audio in the project
+   Get the path prefix to the template
 
-   @param instrumentId of the instrument
-   @param waveformKey  of the audio
-   @return the path to the audio
+   @param template for which to get path prefix
+   @return the path prefix to the template
    */
-  String getPathToInstrumentAudio(UUID instrumentId, String waveformKey);
+  String getPathPrefixToTemplate(Template template);
 
   /**
-   Get the path prefix to the audio folder for an instrument
+   Get the path prefix to a given library
 
-   @param instrumentId of the instrument
+   @param library                   for which to get path prefix
+   @param overrideProjectPathPrefix to use instead of the project path prefix
+   */
+  String getPathPrefixToLibrary(Library library, @Nullable String overrideProjectPathPrefix);
+
+  /**
+   Get the path prefix to the program
+
+   @param program for which to get path prefix
+   @return the path prefix to the program
+   */
+  String getPathPrefixToProgram(Program program);
+
+  /**
+   Get the path prefix to the folder for an instrument
+
+   @param instrument                to get
+   @param overrideProjectPathPrefix to use instead of the project path prefix
    @return the path prefix to the audio
    */
-  String getPathPrefixToInstrumentAudio(UUID instrumentId);
+  String getPathPrefixToInstrument(Instrument instrument, @Nullable String overrideProjectPathPrefix);
+
+  /**
+   Get the path to some instrument audio in the project
+
+   @param audio                     for which to get path prefix
+   @param overrideProjectPathPrefix to use instead of the project path prefix
+   @return the path to the audio
+   */
+  String getPathToInstrumentAudio(InstrumentAudio audio, @Nullable String overrideProjectPathPrefix);
+
+  /**
+   Get the path to some instrument audio in the project
+
+   @param instrument                for which to get path prefix
+   @param waveformKey               for which to get path
+   @param overrideProjectPathPrefix to use instead of the project path prefix
+   @return the path to the audio
+   */
+  String getPathToInstrumentAudio(Instrument instrument, String waveformKey, @Nullable String overrideProjectPathPrefix);
 
   /**
    Set the callback to be invoked when the progress changes
@@ -343,13 +386,6 @@ public interface ProjectManager {
    @return the moved instrument
    */
   Instrument moveInstrument(UUID id, UUID libraryId) throws Exception;
-
-  /**
-   Copy the instrument audio waveform from one audio to another
-
-   @param instrumentAudioId new instrument audio
-   */
-  void renameWaveformIfNecessary(UUID instrumentAudioId) throws Exception;
 
   /**
    Duplicate a Template from a source template by id

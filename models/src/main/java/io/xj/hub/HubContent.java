@@ -1,12 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.xj.hub.entity.EntityUtils;
 import io.xj.hub.enums.InstrumentMode;
-import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.music.Note;
 import io.xj.hub.pojos.Instrument;
@@ -104,6 +103,75 @@ public class HubContent {
    */
   public static HubContent from(HubContentPayload payload) throws RuntimeException {
     return new HubContent(payload.getAllEntities(), payload.getDemo());
+  }
+
+
+  /**
+   Combine multiple hub contents into one
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+
+   @param contents to combine
+   @return combined hub content
+   */
+  public static HubContent combine(Collection<HubContent> contents) {
+    HubContent combined = new HubContent();
+    for (HubContent content : contents) {
+      combined.putAll(content.getAll());
+      if (content.getDemo()) combined.setDemo(true);
+    }
+    return combined;
+  }
+
+  /**
+   Get a subset of only the content for the given instrument id
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+
+   @param instrumentId for which to get subset content
+   @return subset of content
+   */
+  public HubContent subsetForInstrumentId(UUID instrumentId) {
+    var subset = new HubContent();
+    subset.put(getInstrument(instrumentId).orElseThrow(() -> new RuntimeException("Instrument[" + instrumentId.toString() + "] not in content!")));
+    subset.putAll(getAudiosOfInstrument(instrumentId));
+    subset.putAll(getMemesOfInstrument(instrumentId));
+    return subset;
+  }
+
+  /**
+   Get a subset of only the content for the given program id
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+
+   @param programId for which to get subset content
+   @return subset of content
+   */
+  public HubContent subsetForProgramId(UUID programId) {
+    var subset = new HubContent();
+    subset.put(getProgram(programId).orElseThrow(() -> new RuntimeException("Program[" + programId.toString() + "] not in content!")));
+    subset.putAll(getMemesOfProgram(programId));
+    subset.putAll(getSequenceBindingMemesOfProgram(programId));
+    subset.putAll(getSequenceBindingsOfProgram(programId));
+    subset.putAll(getSequenceChordVoicingsOfProgram(programId));
+    subset.putAll(getSequenceChordsOfProgram(programId));
+    subset.putAll(getSequencePatternEventsOfProgram(programId));
+    subset.putAll(getSequencePatternsOfProgram(programId));
+    subset.putAll(getSequencesOfProgram(programId));
+    subset.putAll(getTracksOfProgram(programId));
+    subset.putAll(getVoicesOfProgram(programId));
+    return subset;
+  }
+
+  /**
+   Get a subset of only the content for the given template id
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+
+   @param templateId for which to get subset content
+   @return subset of content
+   */
+  public HubContent subsetForTemplateId(UUID templateId) {
+    var subset = new HubContent();
+    subset.put(getTemplate(templateId).orElseThrow(() -> new RuntimeException("Template[" + templateId.toString() + "] not in content!")));
+    subset.putAll(getBindingsOfTemplate(templateId));
+    return subset;
   }
 
   /**
@@ -1437,7 +1505,7 @@ public class HubContent {
    */
   public <N> boolean update(Class<N> type, UUID id, String attribute, Object value) throws Exception {
     var entity = get(type, id).orElseThrow(() -> new RuntimeException(String.format("%s[%s] not found", type.getSimpleName(), id)));
-    var ov = EntityUtils.get(entity, attribute).orElseThrow(() -> new RuntimeException(String.format("%s[%s] does not have attribute %s", type.getSimpleName(), id, attribute)));
+    var ov = EntityUtils.get(entity, attribute).orElse(null);
     EntityUtils.set(entity, attribute, value);
     put(entity);
     return !Objects.equals(ov, value);
@@ -1570,6 +1638,18 @@ public class HubContent {
       //noinspection unchecked
       return (Collection<E>) store.get(type).values();
     return List.of();
+  }
+
+  /**
+   Get all entities in the store
+
+   @return all entities in the store
+   */
+  @JsonIgnore
+  public Collection<Object> getAll() {
+    return store.values().stream()
+      .flatMap(map -> map.values().stream())
+      .toList();
   }
 
   /**

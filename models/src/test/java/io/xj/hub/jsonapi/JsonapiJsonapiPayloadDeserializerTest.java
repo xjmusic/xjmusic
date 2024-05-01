@@ -3,10 +3,12 @@ package io.xj.hub.jsonapi;
 
 import io.xj.hub.entity.EntityFactoryImpl;
 import io.xj.hub.json.JsonProviderImpl;
-import io.xj.hub.util.FileUtils;
+import io.xj.hub.util.LocalFileUtils;
 import io.xj.hub.util.Widget;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,6 +22,7 @@ import static io.xj.hub.jsonapi.AssertPayload.assertPayload;
  Created by Charney Kaye on 2020/03/09
  */
 public class JsonapiJsonapiPayloadDeserializerTest {
+  private static final Logger LOG = LoggerFactory.getLogger(JsonapiJsonapiPayloadDeserializerTest.class);
   JsonapiPayloadFactory jsonapiPayloadFactory;
 
   @BeforeEach
@@ -31,7 +34,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
 
   @Test
   public void deserializeOneIncludingEmbeddedEntities() throws IOException, JsonapiException {
-    JsonapiPayload result = jsonapiPayloadFactory.deserialize(FileUtils.readResourceFileAsString("payload/deserializeOneIncludingEmbeddedEntities.json"));
+    JsonapiPayload result = jsonapiPayloadFactory.deserialize(LocalFileUtils.readResourceFileAsString("payload/deserializeOneIncludingEmbeddedEntities.json"));
 
     assertPayload(result)
       .hasDataOne("widgets", "805cf759-4e94-4275-a82d-5255c9e69347")
@@ -43,9 +46,9 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   public void deserializeOneWithRelationship() throws IOException, JsonapiException {
     JsonapiPayload result = null;
     try {
-      result = jsonapiPayloadFactory.deserialize(FileUtils.readResourceFileAsString("payload/deserializeOneWithRelationship.json"));
+      result = jsonapiPayloadFactory.deserialize(LocalFileUtils.readResourceFileAsString("payload/deserializeOneWithRelationship.json"));
     } catch (JsonapiException e) {
-      e.printStackTrace();
+      LOG.error("Failed!", e);
     }
 
     assertPayload(result)
@@ -57,9 +60,9 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   public void deserializeOne() throws IOException, JsonapiException {
     JsonapiPayload result = null;
     try {
-      result = jsonapiPayloadFactory.deserialize(FileUtils.readResourceFileAsString("payload/deserializeOne.json"));
+      result = jsonapiPayloadFactory.deserialize(LocalFileUtils.readResourceFileAsString("payload/deserializeOne.json"));
     } catch (JsonapiException e) {
-      e.printStackTrace();
+      LOG.error("Failed!", e);
     }
 
     assertPayload(result)
@@ -70,9 +73,9 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   public void deserializeErrors() throws IOException, JsonapiException {
     JsonapiPayload result = null;
     try {
-      result = jsonapiPayloadFactory.deserialize(FileUtils.readResourceFileAsString("payload/deserializeErrors.json"));
+      result = jsonapiPayloadFactory.deserialize(LocalFileUtils.readResourceFileAsString("payload/deserializeErrors.json"));
     } catch (JsonapiException e) {
-      e.printStackTrace();
+      LOG.error("Failed!", e);
     }
 
     assertPayload(result)
@@ -83,9 +86,9 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   public void deserializeOneWithNullAttributeValue() throws IOException, JsonapiException {
     JsonapiPayload result = null;
     try {
-      result = jsonapiPayloadFactory.deserialize(FileUtils.readResourceFileAsString("payload/deserializeOneWithNullAttributeValue.json"));
+      result = jsonapiPayloadFactory.deserialize(LocalFileUtils.readResourceFileAsString("payload/deserializeOneWithNullAttributeValue.json"));
     } catch (JsonapiException e) {
-      e.printStackTrace();
+      LOG.error("Failed!", e);
     }
 
     assertPayload(result)
@@ -96,9 +99,9 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   public void deserializeMany() throws IOException, JsonapiException {
     JsonapiPayload result = null;
     try {
-      result = jsonapiPayloadFactory.deserialize(FileUtils.readResourceFileAsString("payload/deserializeMany.json"));
+      result = jsonapiPayloadFactory.deserialize(LocalFileUtils.readResourceFileAsString("payload/deserializeMany.json"));
     } catch (JsonapiException e) {
-      e.printStackTrace();
+      LOG.error("Failed!", e);
     }
 
     assertPayload(result)
@@ -113,7 +116,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
     try {
       result = jsonapiPayloadFactory.deserialize(json);
     } catch (JsonapiException e) {
-      e.printStackTrace();
+      LOG.error("Failed!", e);
     }
 
     assertPayload(result)
@@ -128,7 +131,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
     try {
       result = jsonapiPayloadFactory.deserialize(json);
     } catch (JsonapiException e) {
-      e.printStackTrace();
+      LOG.error("Failed!", e);
     }
 
     assertPayload(result)

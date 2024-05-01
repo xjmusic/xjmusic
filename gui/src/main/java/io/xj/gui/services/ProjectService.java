@@ -90,10 +90,12 @@ public interface ProjectService {
   void saveProject(Runnable onComplete);
 
   /**
-   Project Cleanup option to delete unused audio files from project folder
-   https://github.com/xjmusic/workstation/issues/200
+   Save the project as a new project
+
+   @param parentPathPrefix on disk
+   @param projectName      of the project
    */
-  void cleanupProject();
+  void saveAsProject(String parentPathPrefix, String projectName);
 
   /**
    Cancel the project loading
@@ -129,6 +131,11 @@ public interface ProjectService {
    @return Observable property for whether the project is in a loading state
    */
   BooleanBinding isStateLoadingProperty();
+
+  /**
+   @return Observable property for whether the project is in a saving state
+   */
+  BooleanBinding isStateSavingProperty();
 
   /**
    @return Observable property for whether the project is in a ready state
@@ -506,10 +513,10 @@ public interface ProjectService {
   /**
    Get the path prefix to the audio folder for an instrument
 
-   @param instrumentId of the instrument
+   @param instrument to get
    @return the path prefix to the audio
    */
-  String getPathPrefixToInstrumentAudio(UUID instrumentId);
+  String getPathPrefixToInstrument(Instrument instrument);
 
   /**
    Get path to an instrument audio waveform

@@ -482,4 +482,22 @@ public interface ValueUtils {
   static List<String> last(int num, List<String> list) {
     return list.subList(Math.min(list.size(), Math.max(0, list.size() - num)), list.size());
   }
+
+  /**
+   Compare two monotonic version strings
+
+   @param a to compare
+   @param b to compare
+   @return comparison result
+   */
+  static int compareMonotonicVersion(String a, String b) {
+    var aParts = a.split("\\.");
+    var bParts = b.split("\\.");
+    for (int i = 0; i < Math.min(aParts.length, bParts.length); i++) {
+      var aPart = Integer.parseInt(aParts[i]);
+      var bPart = Integer.parseInt(bParts[i]);
+      if (aPart != bPart) return aPart - bPart;
+    }
+    return aParts.length - bParts.length;
+  }
 }

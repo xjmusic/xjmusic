@@ -162,13 +162,15 @@ public class UIStateServiceImpl implements UIStateService {
 
     // Is the progress bar visible?
     isProgressBarVisible =
-      projectService.isStateLoadingProperty().or(fabricationService.isStateLoadingProperty());
+      projectService.isStateLoadingProperty()
+        .or(projectService.isStateSavingProperty())
+        .or(fabricationService.isStateLoadingProperty());
 
     // Progress
     progress =
       Bindings.createDoubleBinding(
         () ->
-          projectService.isStateLoadingProperty().get() ?
+          projectService.isStateLoadingProperty().or(projectService.isStateSavingProperty()).get() ?
             projectService.progressProperty().get() :
             fabricationService.isStateLoadingProperty().get() ?
               fabricationService.progressProperty().get() :
@@ -257,7 +259,11 @@ public class UIStateServiceImpl implements UIStateService {
 
     // Refresh the current program property when the program type is modified
     projectService.addProjectUpdateListener(Program.class, () -> {
-      if (currentProgram.isNull().get()) return;
+      if (Objects.isNull(currentProgram.get())) return;
+      if (Objects.isNull(projectService.getContent())) {
+        currentProgram.set(null);
+        return;
+      }
       var program = projectService.getContent().getProgram(currentProgram.get().getId());
       if (program.isEmpty()) {
         // program was deleted; this listener was latent

@@ -19,12 +19,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AudioLoaderImplTest {
-  private final String baseDir;
   private final String pathToAudioFile;
   private InstrumentAudio audio;
   private AudioLoaderImpl subject;
@@ -34,7 +34,7 @@ class AudioLoaderImplTest {
   private ProjectManager projectManager;
 
   public AudioLoaderImplTest() throws URISyntaxException {
-    baseDir = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("project")).toURI()).getAbsolutePath();
+    String baseDir = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("project")).toURI()).getAbsolutePath();
     pathToAudioFile = baseDir + File.separator + "test-audio.wav";
   }
 
@@ -45,7 +45,7 @@ class AudioLoaderImplTest {
     audio.setInstrumentId(UUID.randomUUID());
     audio.setWaveformKey("test-audio.wav");
     subject = new AudioLoaderImpl(projectManager);
-    when(projectManager.getPathToInstrumentAudio(eq(audio.getInstrumentId()), eq(audio.getWaveformKey()))).thenReturn(pathToAudioFile);
+    when(projectManager.getPathToInstrumentAudio(same(audio), isNull())).thenReturn(pathToAudioFile);
   }
 
   @Test

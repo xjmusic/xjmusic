@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -284,7 +285,7 @@ public class HubContentTest extends ContentTest {
   }
 
   @Test
-  void getProjectUsers() {
+  void getProjectgetProjectUsers() {
     var result = subject.getProjectUsers();
 
     assertEquals(1, result.size());
@@ -627,6 +628,13 @@ public class HubContentTest extends ContentTest {
     assertEquals(project1, result);
   }
 
+  @Test
+  void getProject_changePlatformVersion() {
+    subject.getProject().setPlatformVersion("1.2.3");
+
+    assertEquals("1.2.3", subject.getProject().getPlatformVersion());
+  }
+
   /**
    HubContent has proper method to delete any entity of id
    */
@@ -759,8 +767,13 @@ public class HubContentTest extends ContentTest {
   }
 
   @Test
-  void getAll() {
+  void getAll_byClass() {
     assertEquals(2, subject.getAll(Program.class).size());
+  }
+
+  @Test
+  void getAll() {
+    assertEquals(35, subject.getAll().size());
   }
 
   @Test
@@ -1108,4 +1121,109 @@ public class HubContentTest extends ContentTest {
     subject.setDemo(true);
     assertTrue(subject.getDemo());
   }
+
+  /**
+   Combine multiple payloads into a single HubContent
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   */
+  @Test
+  void combine() {
+    var content1 = new HubContent(Set.of(
+      project1
+    ));
+    var content2 = new HubContent(Set.of(
+      program1, program2,
+      program1_meme, program2_meme,
+      program2_sequence, program1_sequence,
+      program1_sequence_binding1, program1_sequence_binding2,
+      program1_sequence_binding1_meme1, program1_sequence_binding1_meme2,
+      program1_sequence_chord0, program1_sequence_chord1,
+      program1_sequence_chord0_voicing0, program1_sequence_chord1_voicing1,
+      program2_sequence_pattern1, program2_sequence_pattern2,
+      program2_sequence_pattern1_event1, program2_sequence_pattern1_event2,
+      program1_voice, program2_voice,
+      program2_voice_track1, program2_voice_track2
+    ));
+    var content3 = new HubContent(Set.of(
+      instrument1, instrument2,
+      instrument1_audio, instrument2_audio,
+      instrument1_meme, instrument2_meme,
+      library1,
+      template1, template2,
+      template1_binding
+    ));
+
+    var result = HubContent.combine(Set.of(content1, content2, content3));
+
+    assertEquals(33, result.size());
+  }
+
+  /**
+   Combine multiple payloads into a single HubContent - if any of them are a demo, the final one is a demo
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   */
+  @Test
+  void combine_preserveDemo() {
+    var content1 = new HubContent();
+    content1.setDemo(true);
+    var content2 = new HubContent();
+    var content3 = new HubContent();
+
+    var result = HubContent.combine(Set.of(content1, content2, content3));
+
+    assertTrue(result.getDemo());
+  }
+
+  /**
+   Get a subset of the content just for the given Instrument ID
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   */
+  @Test
+  void subsetForInstrumentId() {
+    var result = subject.subsetForInstrumentId(instrument1.getId());
+
+    assertEquals(1, result.getInstruments().size());
+    assertEquals(1, result.getInstrumentMemes().size());
+    assertEquals(1, result.getInstrumentAudios().size());
+  }
+
+  /**
+   Get a subset of the content just for the given Program ID
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   */
+  @Test
+  void subsetForProgramId() {
+    var result1 = subject.subsetForProgramId(program1.getId());
+    var result2 = subject.subsetForProgramId(program2.getId());
+
+    assertEquals(1, result1.getPrograms().size());
+    assertEquals(1, result1.getProgramMemes().size());
+    assertEquals(1, result1.getProgramVoices().size());
+    assertEquals(1, result1.getProgramSequences().size());
+    assertEquals(2, result1.getProgramSequenceChords().size());
+    assertEquals(2, result1.getProgramSequenceChordVoicings().size());
+    assertEquals(2, result1.getProgramSequenceBindings().size());
+    assertEquals(2, result1.getProgramSequenceBindingMemes().size());
+
+    assertEquals(1, result2.getPrograms().size());
+    assertEquals(1, result2.getProgramMemes().size());
+    assertEquals(1, result2.getProgramSequences().size());
+    assertEquals(1, result2.getProgramVoices().size());
+    assertEquals(2, result2.getProgramVoiceTracks().size());
+    assertEquals(2, result2.getProgramSequencePatterns().size());
+    assertEquals(2, result2.getProgramSequencePatternEvents().size());
+  }
+
+  /**
+   Get a subset of the content just for the given Template ID
+   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   */
+  @Test
+  void subsetForTemplateId() {
+    var result = subject.subsetForTemplateId(template1.getId());
+
+    assertEquals(1, result.getTemplates().size());
+    assertEquals(1, result.getTemplateBindings().size());
+  }
+
 }

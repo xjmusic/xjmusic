@@ -8,8 +8,9 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.ProjectUtils;
-import io.xj.gui.utils.TextUtils;
+import io.xj.gui.utils.UiUtils;
 import io.xj.hub.pojos.Project;
+import io.xj.hub.util.LocalFileUtils;
 import io.xj.hub.util.StringUtils;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -38,6 +39,7 @@ import java.util.Objects;
 public class ProjectCreationModalController extends ProjectModalController {
   static final Map<ProjectCreationMode, String> WINDOW_TITLE = Map.of(
     ProjectCreationMode.NEW_PROJECT, "Create New Project",
+    ProjectCreationMode.SAVE_AS_PROJECT, "Save As New Project",
     ProjectCreationMode.DEMO_PROJECT, "Demo Projects"
   );
   private final SimpleDoubleProperty demoImageSize = new SimpleDoubleProperty(120);
@@ -114,7 +116,7 @@ public class ProjectCreationModalController extends ProjectModalController {
     fieldPathPrefix.textProperty().bindBidirectional(projectService.projectsPathPrefixProperty());
     fieldPathPrefix.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
       if (!isNowFocused) {
-        TextUtils.addTrailingSlash(fieldPathPrefix);
+        UiUtils.addTrailingSlash(fieldPathPrefix);
       }
     });
 
@@ -155,7 +157,7 @@ public class ProjectCreationModalController extends ProjectModalController {
       buttonSelectDirectory.getScene().getWindow(), "Choose destination folder", fieldPathPrefix.getText()
     );
     if (Objects.nonNull(path)) {
-      fieldPathPrefix.setText(TextUtils.addTrailingSlash(path));
+      fieldPathPrefix.setText(LocalFileUtils.addTrailingSlash(path));
     }
   }
 
@@ -188,7 +190,10 @@ public class ProjectCreationModalController extends ProjectModalController {
       switch (mode.get()) {
         case DEMO_PROJECT ->
           projectService.fetchDemoTemplate(fieldPathPrefix.getText(), ((ToggleButton) demoSelection.getSelectedToggle()).getId(), projectName);
-        case NEW_PROJECT -> projectService.createProject(fieldPathPrefix.getText(), projectName);
+        case NEW_PROJECT ->
+          projectService.createProject(fieldPathPrefix.getText(), projectName);
+        case SAVE_AS_PROJECT ->
+          projectService.saveAsProject(fieldPathPrefix.getText(), projectName);
       }
 
       Stage stage = (Stage) buttonOK.getScene().getWindow();

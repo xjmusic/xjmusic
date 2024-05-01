@@ -72,7 +72,7 @@ public abstract class BrowserController extends ProjectController {
   ) {
     TableColumn<N, N> buttonsColumn = new TableColumn<>();
     buttonsColumn.setCellFactory(param -> new ButtonCell<>(type, onEdit, onMove, onDuplicate, onDelete, onExport));
-    buttonsColumn.setPrefWidth(Stream.of(onEdit, onMove, onDuplicate, onDelete).filter(Objects::nonNull).count() * 25 + 5);
+    buttonsColumn.setPrefWidth(Stream.of(onEdit, onMove, onDuplicate, onDelete).filter(Objects::nonNull).count() * 28 + 5);
     table.getColumns().add(buttonsColumn);
   }
 

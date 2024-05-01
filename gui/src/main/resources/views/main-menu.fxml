@@ -54,8 +54,12 @@
                     <KeyCodeCombination alt="UP" code="S" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
                 </accelerator>
             </MenuItem>
-            <MenuItem fx:id="itemProjectCleanup" onAction="#handleProjectCleanup" text="Cleanup"
-                      mnemonicParsing="false"/>
+            <MenuItem fx:id="itemProjectSaveAs" onAction="#handleProjectSaveAs" text="Save As..."
+                      mnemonicParsing="false">
+                <accelerator>
+                    <KeyCodeCombination alt="UP" code="S" control="UP" meta="UP" shift="DOWN" shortcut="DOWN"/>
+                </accelerator>
+            </MenuItem>
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem fx:id="itemOpenSettings" onAction="#handleOpenSettings" text="Settings" mnemonicParsing="false">
                 <accelerator>

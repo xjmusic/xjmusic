@@ -116,7 +116,7 @@ class ProjectManagerImplTest {
     subject.getContent().clear();
     String tempPath = System.getProperty("java.io.tmpdir");
 
-    subject.createProjectFromDemoTemplate("https://audio.test.xj.io/", "test", tempPath + "test", "test");
+    subject.createProjectFromDemoTemplate("https://audio.test.xj.io/", "test", tempPath + "test", "test", "1.0.0");
 
     assertEquals("https://audio.test.xj.io/", subject.getDemoBaseUrl());
   }
@@ -281,7 +281,7 @@ class ProjectManagerImplTest {
     var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
 
     assertEquals("test-audio", subject.getContent().getInstrumentAudio(result.getId()).orElseThrow().getName());
-    assertEquals("testing-leaves-Pad-test-audio-F-A-C.wav", subject.getContent().getInstrumentAudio(result.getId()).orElseThrow().getWaveformKey());
+    assertEquals("Pad-test-audio-F-A-C.wav", subject.getContent().getInstrumentAudio(result.getId()).orElseThrow().getWaveformKey());
   }
 
   /**

@@ -1,4 +1,4 @@
-package io.xj.gui.utils;
+package io.xj.hub.util;
 
 import org.junit.jupiter.api.Test;
 
@@ -9,6 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class TextUtilsTest {
   @Test
   void addTrailingSlash_String() {
-    assertEquals("test" + File.separator, TextUtils.addTrailingSlash("test"));
+    assertEquals("test" + File.separator, LocalFileUtils.addTrailingSlash("test"));
   }
 }
