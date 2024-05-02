@@ -7,6 +7,7 @@ import io.xj.hub.util.StringUtils;
 import jakarta.annotation.Nullable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.binding.StringBinding;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -29,6 +30,7 @@ public class SequenceChordPropertiesController {
   private @Nullable UUID chordId;
   private UUID programId;
   private UUID sequenceId;
+  private StringBinding invalidPositionText;
   private BooleanBinding invalidPosition;
 
   @FXML
@@ -82,17 +84,32 @@ public class SequenceChordPropertiesController {
    Set up the chord properties modal for either editing or creating a new chord
    */
   private void setup(String name, Double position) {
+    var sequence = projectService.getContent().getProgramSequence(sequenceId)
+      .orElseThrow(() -> new RuntimeException("Unable to find program sequence for chord properties modal"));
+
     // Set up the invalid position binding
-    invalidPosition = Bindings.createBooleanBinding(
+    invalidPositionText = Bindings.createStringBinding(
       () -> {
         var newPosition = parsePosition(positionField.getText());
-        if (Objects.isNull(newPosition)) return false;
-        return projectService.getContent().getChordsOfSequence(sequenceId).stream()
-          .anyMatch(chord -> chord.getPosition().equals(newPosition) && !Objects.equals(chordId, chord.getId()));
+        if (Objects.isNull(newPosition)) return "";
+        if (newPosition < 0) {
+          return "Must be >= 1";
+        } else if (newPosition >= sequence.getTotal()) {
+          return "Must be < " + sequence.getTotal() + 1;
+        } else if (projectService.getContent().getChordsOfSequence(sequenceId).stream()
+          .anyMatch(chord -> chord.getPosition().equals(newPosition) && !Objects.equals(chordId, chord.getId()))) {
+          return "Duplicate position";
+        }
+        return "";
       },
       positionField.textProperty()
     );
+    invalidPosition = Bindings.createBooleanBinding(
+      () -> !StringUtils.isNullOrEmpty(invalidPositionText.get()),
+      invalidPositionText
+    );
     invalidPosition.addListener((o, ov, invalid) -> positionField.pseudoClassStateChanged(INVALID_PSEUDO_CLASS, invalid));
+    positionWarning.textProperty().bind(invalidPositionText);
     positionWarning.visibleProperty().bind(invalidPosition);
 
     // Set up the fields

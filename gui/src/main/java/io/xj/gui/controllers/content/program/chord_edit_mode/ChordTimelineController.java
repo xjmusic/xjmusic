@@ -158,7 +158,9 @@ public class ChordTimelineController extends ProjectController {
       Parent root = loader.load();
       SequenceChordController controller = loader.getController();
       sequenceChordControllers.add(controller);
-      controller.setup(chord.getId(), duration,
+      controller.setup(
+        chord.getId(),
+        duration,
         this::setupTimelineChords,
         () -> {
           controller.teardown();
