@@ -1,14 +1,17 @@
 [![Workstation CI](https://github.com/xjmusic/workstation/actions/workflows/workstation_ci.yml/badge.svg)](https://github.com/xjmusic/workstation/actions/workflows/workstation_ci.yml)
 [![Workstation Distro](https://github.com/xjmusic/workstation/actions/workflows/workstation_distro.yml/badge.svg)](https://github.com/xjmusic/workstation/actions/workflows/workstation_distro.yml)
+[![Engine CI](https://github.com/xjmusic/nexus/actions/workflows/engine_ci.yaml/badge.svg)](https://github.com/xjmusic/nexus/actions/workflows/engine_ci¸.yaml)
 
-# XJ music workstation
+# XJ music
 
-XJ music pioneers the evolution of background audio with our innovative music engine enabling artists to compose new
-possibilities for streams, games, and spaces.
+XJ music enables composers to realize new possibilities in dynamic music for video games.
 
-![Opening Demo Flagship Masthead - XJ music workstation](art/xjmusic-workstation-screenshot-demo.png)
+The platform comprises the [XJ music workstation](workstation/README.md) for music composition and the 
+[XJ music engine](engine/README.md) for implementing music in your game.
 
-![Live Fabrication Timeline - XJ music workstation](art/xjmusic-workstation-screenshot-fabrication.png)
+![Opening Demo Flagship Masthead - XJ music workstation](.art/xjmusic-workstation-screenshot-demo.png)
+
+![Live Fabrication Timeline - XJ music workstation](.art/xjmusic-workstation-screenshot-fabrication.png)
 
 *Copyright (c) XJ Music Inc. All Rights Reserved.*
 
@@ -16,48 +19,6 @@ possibilities for streams, games, and spaces.
 
 [xjmusic.com](https://xjmusic.com)
 
-## Setup
-
-### Dependencies
-
-* Java 17
-* Gradle 8
-
-
-### Running the application
-
-This project is built with Gradle. To run the XJ music workstation, run:
-
-```shell
-./gradlew :gui:bootRun
-```
-
-You should then see the JavaFX GUI open the main window.
-
-Click the Project menu on the top left-hand side and choose Demos to bring up a selection of four demo projects. Click OK to begin cloning the chosen project onto your machine. Once done, the main window will display all of the libraries included in your select project in the Content tab. Click the Fabrication tab in the top right-hand corner to switch to the Fabrication tab, there you can click Start to begin playing the project. 
-
-Click here for a video walkthrough! https://youtu.be/z5i8ZD8AyWE
-
-## Architecture
-
-The command above (`gradle :gui:bootRun`) invokes the `bootRun` task in the `gui` subproject. The `bootRun` task is a
-Gradle task provided by the Spring Boot Gradle plugin. It runs the application in the current JVM.
-
-All the business logic for the application is contained in the `nexus` subproject. The `gui` and `service` sub-projects
-provide two different ways of running the business logic, either as a GUI application or as a service.
-
-The `nexus` subproject business logic primarily comprises these packages:
-
-* the `io.xj.nexus.craft` package is the most esoteric. It contains all the logic about fabricating music basic on the
-  input content.
-* the `io.xj.nexus.dub` package is an audio mixer-- it consumes the output of the craft package above and uses the
-  musical choices as an edit decision list to read the source audio files, use ffmpeg via javacpp to do audio
-  resampling, add up the audio files, and send the output back as bytes
-* the `io.xj.nexus.ship` package consumes the output of the dub package above and sends it either to local system
-  output, file output, or HLS stream e.g. youtube output
-
-We recommend starting by ignoring the craft package (very esoteric) and focusing on the dub package (lots of
-straightforward algorithms for mixing audio)
 
 ## Art
 
