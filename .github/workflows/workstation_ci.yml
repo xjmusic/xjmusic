@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - workstation/
+      - workstation/**
 
 jobs:
   CI:
