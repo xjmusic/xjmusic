@@ -2,9 +2,8 @@ name: "Pull Request"
 
 on:
   pull_request:
-    # Ignore branches having their own workflows
-    branches-ignore:
-      - 'prod'
+    paths:
+      - workstation/
 
 jobs:
   PullRequest:
@@ -32,6 +31,7 @@ jobs:
 
       - name: Build & Run Tests
         id: test
+        working-directory: workstation/
         run: "./gradlew --info --no-daemon build test"
         continue-on-error: false
 
