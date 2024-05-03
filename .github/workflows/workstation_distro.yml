@@ -1,4 +1,4 @@
-name: "Distribution"
+name: Workstation Distro
 
 on:
   push:

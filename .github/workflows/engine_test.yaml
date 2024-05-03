@@ -1,0 +1,41 @@
+name: Engine PR
+
+on:
+  pull_request:
+    paths:
+      - engine/**
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        working-directory: engine/
+        run: |
+          python -m pip install --upgrade pip
+          pip install cmake
+          sudo apt-get install -y doxygen
+
+      - name: Build
+        working-directory: engine/
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          make
+          make doc
+
+      - name: Test
+        working-directory: engine/
+        run: |
+          cd build
+          ctest --verbose

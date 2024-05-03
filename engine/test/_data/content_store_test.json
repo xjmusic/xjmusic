@@ -1,0 +1,311 @@
+{
+  "instruments": [
+    {
+      "id": "ded4b5c4-8208-4e5c-85a0-b6861795de47",
+      "libraryId": "407180d0-6ace-4b8d-8535-9bbd57d363b9",
+      "type": "Drum",
+      "state": "Published",
+      "name": "808 Drums",
+      "config": null,
+      "isDeleted": null,
+      "volume": null,
+      "mode": "Event",
+      "updatedAt": 1711573099068
+    },
+    {
+      "id": "bd035675-3906-45c1-b05d-c411cf3080d5",
+      "libraryId": "407180d0-6ace-4b8d-8535-9bbd57d363b9",
+      "type": "Pad",
+      "state": "Published",
+      "name": "Pad",
+      "config": null,
+      "isDeleted": null,
+      "volume": null,
+      "mode": "Chord",
+      "updatedAt": 1711573099069
+    }
+  ],
+  "instrumentAudios": [
+    {
+      "id": "6554c750-5683-43d1-a3cc-0d396aaa708c",
+      "instrumentId": "ded4b5c4-8208-4e5c-85a0-b6861795de47",
+      "name": "Chords Cm to D",
+      "waveformKey": "a0b9f74kf9b4h8d9e0g73k107s09f7-g0e73982.wav",
+      "transientSeconds": 0.01,
+      "loopBeats": 2.123,
+      "tempo": 120.0,
+      "intensity": 0.62,
+      "event": "KICK",
+      "volume": 1.0,
+      "tones": "Eb"
+    },
+    {
+      "id": "1efb2706-9872-496e-a573-ee6ff5181cdf",
+      "instrumentId": "bd035675-3906-45c1-b05d-c411cf3080d5",
+      "name": "Chord Fm",
+      "waveformKey": "a0b9fg73k107s74kf9b4h8d9e009f7-g0e73982.wav",
+      "transientSeconds": 0.02,
+      "loopBeats": 1.123,
+      "tempo": 140.0,
+      "intensity": 0.52,
+      "event": "BING",
+      "volume": 0.9,
+      "tones": "F,A,C"
+    }
+  ],
+  "instrumentMemes": [
+    {
+      "id": "3f1eadb9-afbc-403a-88a5-a5de95529d0d",
+      "instrumentId": "ded4b5c4-8208-4e5c-85a0-b6861795de47",
+      "name": "Ants"
+    },
+    {
+      "id": "d7b7549a-bd19-4cf9-8631-a24e5c0b42b6",
+      "instrumentId": "bd035675-3906-45c1-b05d-c411cf3080d5",
+      "name": "Peanuts"
+    }
+  ],
+  "libraries": [
+    {
+      "id": "407180d0-6ace-4b8d-8535-9bbd57d363b9",
+      "name": "leaves",
+      "projectId": "7d05a8d1-07fe-4eda-a81f-b08987ecdc0c",
+      "isDeleted": null,
+      "updatedAt": null
+    }
+  ],
+  "programs": [
+    {
+      "id": "f26ea850-237e-4832-86f5-b5089bfc6207",
+      "libraryId": "407180d0-6ace-4b8d-8535-9bbd57d363b9",
+      "state": "Published",
+      "key": "F#",
+      "tempo": 110.3,
+      "type": "Beat",
+      "name": "coconuts",
+      "config": null,
+      "isDeleted": null,
+      "updatedAt": 1711573099072
+    },
+    {
+      "id": "7c5b78f5-7646-4146-95c3-1a24ef56b001",
+      "libraryId": "407180d0-6ace-4b8d-8535-9bbd57d363b9",
+      "state": "Published",
+      "key": "C#",
+      "tempo": 120.4,
+      "type": "Main",
+      "name": "leaves",
+      "config": null,
+      "isDeleted": null,
+      "updatedAt": 1711573099070
+    }
+  ],
+  "programMemes": [
+    {
+      "id": "11616e41-c3e8-4cbc-8ac7-de2ebe99d876",
+      "name": "Ants",
+      "programId": "7c5b78f5-7646-4146-95c3-1a24ef56b001"
+    },
+    {
+      "id": "6f9320f1-3017-490e-87d7-6522fc59128f",
+      "name": "Bells",
+      "programId": "f26ea850-237e-4832-86f5-b5089bfc6207"
+    }
+  ],
+  "programSequences": [
+    {
+      "id": "a1c67264-ddec-472c-86e7-19d036ba545c",
+      "programId": "7c5b78f5-7646-4146-95c3-1a24ef56b001",
+      "name": "decay",
+      "key": "F#",
+      "intensity": 0.25,
+      "total": 8
+    },
+    {
+      "id": "b74fbf16-8499-4329-aa10-708cebc68506",
+      "programId": "f26ea850-237e-4832-86f5-b5089bfc6207",
+      "name": "Base",
+      "key": "C",
+      "intensity": 0.5,
+      "total": 16
+    }
+  ],
+  "programSequenceBindings": [
+    {
+      "id": "7b6b86c3-0110-4180-8c16-25e627fdf558",
+      "programId": "7c5b78f5-7646-4146-95c3-1a24ef56b001",
+      "programSequenceId": "a1c67264-ddec-472c-86e7-19d036ba545c",
+      "offset": 0
+    },
+    {
+      "id": "8cd34c95-2dc6-473e-8c7f-4aebfb5680e2",
+      "programId": "7c5b78f5-7646-4146-95c3-1a24ef56b001",
+      "programSequenceId": "a1c67264-ddec-472c-86e7-19d036ba545c",
+      "offset": 5
+    }
+  ],
+  "programSequenceBindingMemes": [
+    {
+      "id": "76f6b9a7-1d0c-429a-a0c4-3f5d9a03a5bf",
+      "programId": "7c5b78f5-7646-4146-95c3-1a24ef56b001",
+      "programSequenceBindingId": "7b6b86c3-0110-4180-8c16-25e627fdf558",
+      "name": "Gravel"
+    },
+    {
+      "id": "f26229db-37fb-444c-b5cf-bd3e91f1e9c9",
+      "programId": "7c5b78f5-7646-4146-95c3-1a24ef56b001",
+      "programSequenceBindingId": "7b6b86c3-0110-4180-8c16-25e627fdf558",
+      "name": "Road"
+    }
+  ],
+  "programSequenceChords": [
+    {
+      "id": "e0c6a2cd-c860-48fb-8a19-60146c47d26c",
+      "programId": "7c5b78f5-7646-4146-95c3-1a24ef56b001",
+      "programSequenceId": "a1c67264-ddec-472c-86e7-19d036ba545c",
+      "name": "A minor",
+      "position": 2.0
+    },
+    {
+      "id": "f226c25d-3c62-4c64-bbe0-7bb72c9a2a5f",
+      "programId": "7c5b78f5-7646-4146-95c3-1a24ef56b001",
+      "programSequenceId": "a1c67264-ddec-472c-86e7-19d036ba545c",
+      "name": "G minor",
+      "position": 0.0
+    }
+  ],
+  "programSequenceChordVoicings": [
+    {
+      "id": "28e2078a-c9b3-4feb-9668-aecb6bcc3c8c",
+      "programId": "7c5b78f5-7646-4146-95c3-1a24ef56b001",
+      "programSequenceChordId": "e0c6a2cd-c860-48fb-8a19-60146c47d26c",
+      "notes": "Bb",
+      "programVoiceId": "51ca96a9-5f74-4489-9fc7-ad876c177cd1"
+    },
+    {
+      "id": "6a149e98-5653-4599-ab64-074b4f85d546",
+      "programId": "7c5b78f5-7646-4146-95c3-1a24ef56b001",
+      "programSequenceChordId": "f226c25d-3c62-4c64-bbe0-7bb72c9a2a5f",
+      "notes": "G",
+      "programVoiceId": "51ca96a9-5f74-4489-9fc7-ad876c177cd1"
+    }
+  ],
+  "programSequencePatterns": [
+    {
+      "id": "30b70ed5-64d0-4598-ad24-624d1566b302",
+      "programId": "f26ea850-237e-4832-86f5-b5089bfc6207",
+      "programSequenceId": "b74fbf16-8499-4329-aa10-708cebc68506",
+      "programVoiceId": "ac601519-ee3d-4cf5-926b-89c8acebe558",
+      "name": "decay",
+      "total": 12
+    },
+    {
+      "id": "b861ea54-4a15-4f14-a488-f70e1f2517bd",
+      "programId": "f26ea850-237e-4832-86f5-b5089bfc6207",
+      "programSequenceId": "b74fbf16-8499-4329-aa10-708cebc68506",
+      "programVoiceId": "ac601519-ee3d-4cf5-926b-89c8acebe558",
+      "name": "growth",
+      "total": 16
+    }
+  ],
+  "programSequencePatternEvents": [
+    {
+      "id": "cde8d77e-ee35-4199-8e8a-3e85c9bbb20c",
+      "programId": "f26ea850-237e-4832-86f5-b5089bfc6207",
+      "programSequencePatternId": "b861ea54-4a15-4f14-a488-f70e1f2517bd",
+      "programVoiceTrackId": "d099f9f3-f191-461e-9e2d-689d3b326730",
+      "velocity": 1.0,
+      "position": 0.0,
+      "duration": 1.0,
+      "tones": "C"
+    },
+    {
+      "id": "16a445ca-71ca-4825-bbba-85004087db64",
+      "programId": "f26ea850-237e-4832-86f5-b5089bfc6207",
+      "programSequencePatternId": "b861ea54-4a15-4f14-a488-f70e1f2517bd",
+      "programVoiceTrackId": "c80f2daf-6085-401e-aeaf-97ea67f1930d",
+      "velocity": 0.9,
+      "position": 0.5,
+      "duration": 1.1,
+      "tones": "D"
+    }
+  ],
+  "programVoices": [
+    {
+      "id": "ac601519-ee3d-4cf5-926b-89c8acebe558",
+      "programId": "f26ea850-237e-4832-86f5-b5089bfc6207",
+      "type": "Drum",
+      "name": "Drums",
+      "order": null
+    },
+    {
+      "id": "51ca96a9-5f74-4489-9fc7-ad876c177cd1",
+      "programId": "7c5b78f5-7646-4146-95c3-1a24ef56b001",
+      "type": "Stripe",
+      "name": "Birds",
+      "order": null
+    }
+  ],
+  "programVoiceTracks": [
+    {
+      "id": "c80f2daf-6085-401e-aeaf-97ea67f1930d",
+      "programId": "f26ea850-237e-4832-86f5-b5089bfc6207",
+      "programVoiceId": "ac601519-ee3d-4cf5-926b-89c8acebe558",
+      "name": "SMACK",
+      "order": null
+    },
+    {
+      "id": "d099f9f3-f191-461e-9e2d-689d3b326730",
+      "programId": "f26ea850-237e-4832-86f5-b5089bfc6207",
+      "programVoiceId": "ac601519-ee3d-4cf5-926b-89c8acebe558",
+      "name": "BOOM",
+      "order": null
+    }
+  ],
+  "project": {
+    "id": "7d05a8d1-07fe-4eda-a81f-b08987ecdc0c",
+    "name": "testing",
+    "updatedAt": 1711573099063,
+    "platformVersion": null
+  },
+  "templates": [
+    {
+      "id": "dd80b00f-d9aa-4e01-a9e9-4031e34d5930",
+      "projectId": "7d05a8d1-07fe-4eda-a81f-b08987ecdc0c",
+      "name": "test2",
+      "config": "deltaArcEnabled = false\n",
+      "shipKey": "4c323ab0-173f-4f38-8b66-a590910761a7",
+      "isDeleted": null,
+      "updatedAt": 1711573099066
+    },
+    {
+      "id": "50f76ace-4444-420b-832f-62b9b78efe95",
+      "projectId": "7d05a8d1-07fe-4eda-a81f-b08987ecdc0c",
+      "name": "test1",
+      "config": "deltaArcEnabled = false\n",
+      "shipKey": "7ce39f1f-7a66-453d-96bb-81adb4235330",
+      "isDeleted": null,
+      "updatedAt": 1711573099064
+    }
+  ],
+  "templateBindings": [
+    {
+      "id": "b185d440-4224-4b0a-91cd-86ba7c795a7b",
+      "type": "Library",
+      "templateId": "50f76ace-4444-420b-832f-62b9b78efe95",
+      "targetId": "407180d0-6ace-4b8d-8535-9bbd57d363b9"
+    },
+    {
+      "id": "13c6d7be-5be8-49d9-9508-e176f431a832",
+      "type": "Program",
+      "templateId": "50f76ace-4444-420b-832f-62b9b78efe95",
+      "targetId": "7c5b78f5-7646-4146-95c3-1a24ef56b001"
+    },
+    {
+      "id": "665de57f-bd92-4216-9d82-9a505030b616",
+      "type": "Instrument",
+      "templateId": "50f76ace-4444-420b-832f-62b9b78efe95",
+      "targetId": "bd035675-3906-45c1-b05d-c411cf3080d5"
+    }
+  ]
+}
