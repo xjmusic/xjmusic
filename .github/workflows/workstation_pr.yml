@@ -1,4 +1,4 @@
-name: "Pull Request"
+name: Workstation PR
 
 on:
   pull_request:
