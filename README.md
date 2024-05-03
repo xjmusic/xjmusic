@@ -1,6 +1,6 @@
 [![Workstation CI](https://github.com/xjmusic/workstation/actions/workflows/workstation_ci.yml/badge.svg)](https://github.com/xjmusic/workstation/actions/workflows/workstation_ci.yml)
 [![Workstation Distro](https://github.com/xjmusic/workstation/actions/workflows/workstation_distro.yml/badge.svg)](https://github.com/xjmusic/workstation/actions/workflows/workstation_distro.yml)
-[![Engine CI](https://github.com/xjmusic/nexus/actions/workflows/engine_ci.yaml/badge.svg)](https://github.com/xjmusic/nexus/actions/workflows/engine_ci¸.yaml)
+[![Engine CI](https://github.com/xjmusic/nexus/actions/workflows/engine_ci.yaml/badge.svg)](https://github.com/xjmusic/nexus/actions/workflows/engine_ci.yaml)
 
 # XJ music
 
@@ -8,10 +8,6 @@ XJ music enables composers to realize new possibilities in dynamic music for vid
 
 The platform comprises the [XJ music workstation](workstation/README.md) for music composition and the 
 [XJ music engine](engine/README.md) for implementing music in your game.
-
-![Opening Demo Flagship Masthead - XJ music workstation](.art/xjmusic-workstation-screenshot-demo.png)
-
-![Live Fabrication Timeline - XJ music workstation](.art/xjmusic-workstation-screenshot-fabrication.png)
 
 *Copyright (c) XJ Music Inc. All Rights Reserved.*
 
@@ -22,7 +18,7 @@ The platform comprises the [XJ music workstation](workstation/README.md) for mus
 
 ## Art
 
-See the **art/** folder. By Accessing the contents of that folder, you agree to these terms:
+See the **[.art](.art/)** folder. By Accessing the contents of that folder, you agree to these terms:
 
 > Please only read these files on your machine and then delete. Please do Not email that file anywhere, or upload it to
 > any other servers. These files are confidential property of XJ Music Inc.
