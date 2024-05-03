@@ -1,4 +1,4 @@
-name: Engine Pull Request
+name: Engine PR
 
 on:
   pull_request:
