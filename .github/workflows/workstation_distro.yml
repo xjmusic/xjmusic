@@ -42,6 +42,7 @@ jobs:
 
       - name: Get version from gradle.properties
         id: get-version
+        working-directory: workstation/
         run: |
           VERSION=$(grep "version=" gradle.properties | sed -n -e 's/^.*version=//p')
           if [ -z "$VERSION" ]; then
@@ -51,7 +52,6 @@ jobs:
           echo "Version is $VERSION"
           echo "version=$VERSION" >> $GITHUB_ENV
           echo "::set-output name=version::$VERSION"
-        working-directory: workstation/
 
       - name: Version number must match tag name
         run: |
