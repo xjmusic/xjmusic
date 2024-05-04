@@ -10,6 +10,8 @@ XJ music enables composers to realize new possibilities in dynamic music for vid
 The platform comprises the [XJ music workstation](workstation/README.md) for music composition and the 
 [XJ music engine](engine/README.md) for implementing music in your game.
 
+Documentation published to [docs.xjmusic.com](https://docs.xjmusic.com) from [xjmusic-docs](https://github.com/xjmusic/xjmusic-docs)
+
 *Copyright (c) XJ Music Inc. All Rights Reserved.*
 
 [U.S. Patent 10,446,126](https://patents.google.com/patent/US10446126B1/)
