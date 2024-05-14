@@ -35,7 +35,7 @@ All official binaries for the XJ music engine and workstation can be found [in t
 
 ## Community and contributing
 
-Godot is not only an engine but an ever-growing community of users and engine developers.
+XJ music is an ever-growing community of users and developers.
 
 The best way to get in touch with the core engine developers is to join the
 [XJ music Discord](https://discord.xj.io).
