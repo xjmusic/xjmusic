@@ -33,11 +33,6 @@ The latest version of the XJ music workstation can be downloaded from [xjmusic.c
 
 All official binaries for the XJ music engine and workstation can be found [in the releases section](https://github.com/xjmusic/xjmusic/releases)
 
-### Compiling from source
-
-[See the official docs](https://docs.godotengine.org/en/latest/contributing/development/compiling)
-for compilation instructions for every supported platform.
-
 ## Community and contributing
 
 Godot is not only an engine but an ever-growing community of users and engine developers.
