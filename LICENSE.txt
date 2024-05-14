@@ -1,0 +1,47 @@
+Software License for the XJ music system
+
+© Copyright 2017 - 2024 XJ Music Inc. All rights reserved.
+
+1. INTRODUCTION
+
+The XJ music workstation and XJ music playback engine are software that implements the patented XJ music system ("XJ") for generating musical audio compositions, protected by US Patent Grant 10,446,126. This music software is intended for creating musical compositions for playback on a wide variety of devices.
+
+XJ is founded on the core principle that music is human, enabling composers to realize new possibilities in dynamic music for video games. We seek to innovate what’s possible. XJ is a new algorithmic medium. We are building a new school of cutting-edge musicians who will put this system to work.
+
+A commercial license for using the XJ music system to generate musical audio compositions in commercially distributed software (e.g., video games) and patent licenses for necessary patent claims for the XJ music system may be obtained through XJ Music Inc. (www.xjmusic.com).
+
+2. COPYRIGHT LICENSE
+
+Redistribution and use in source and binary forms, with or without modification, are permitted without payment of copyright license fees, provided that you satisfy the following conditions:
+
+You must retain the complete text of this software license when redistributing the XJ music system or your modifications in source code form.
+
+You must retain the complete text of this software license in the documentation and other materials provided with redistributions of the XJ music system or your modifications thereto in binary form. You must make available free-of-charge copies of the complete source code of the XJ music system and your modifications thereto to recipients of copies in binary form.
+
+“XJ music” is a registered trademark of XJ Music Inc. The name of XJ music may not be used to endorse or promote products derived from this software without prior written permission.
+
+You may not charge copyright license fees for anyone using, copying, or distributing the XJ music system software or your modifications thereto.
+
+Your modified versions of the XJ music workstation or XJ music playback engine must carry prominent notices stating that you changed the software and the date of any change. For modified versions of the XJ music system, the term "XJ music" must be replaced by the term "Third-Party Modified Version of XJ music."
+
+3. NO PATENT LICENSE
+
+NO EXPRESS OR IMPLIED LICENSES TO ANY PATENT CLAIMS, including without limitation the patents of XJ Music Inc., ARE GRANTED BY THIS SOFTWARE LICENSE. XJ Music Inc. provides no warranty of patent non-infringement concerning this software.
+
+You may use this XJ music system software or modifications thereto only for purposes authorized by appropriate patent licenses.
+
+4. DISCLAIMER
+
+XJ Music Inc provides this XJ music system software on behalf of the copyright holders and contributors "AS IS" and WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, including but not limited to the implied warranties of merchantability and fitness for a particular purpose. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE for any direct, indirect, incidental, special, exemplary, or consequential damages, including but not limited to procurement of substitute goods or services; loss of use, data, or profits, or business interruption, however caused and on any theory of liability, whether in contract, strict liability, or tort (including negligence), arising in any way out of the use of this software, even if advised of the possibility of such damage.
+
+5. CONTACT INFORMATION
+
+XJ Music Inc
+Attention: Commercial Licensing
+7190 W Sunset Blvd. #72
+Los Angeles, CA 90046
+
+www.xjmusic.com/license
+licensing@xjmusic.com
+
+

@@ -1,58 +1,54 @@
+[![Engine CI](https://github.com/xjmusic/xjmusic/actions/workflows/engine_ci.yaml/badge.svg)](https://github.com/xjmusic/xjmusic/actions/workflows/engine_ci.yaml)
 [![Workstation CI](https://github.com/xjmusic/workstation/actions/workflows/workstation_ci.yml/badge.svg)](https://github.com/xjmusic/workstation/actions/workflows/workstation_ci.yml)
 [![Workstation Distro](https://github.com/xjmusic/workstation/actions/workflows/workstation_distro.yml/badge.svg)](https://github.com/xjmusic/workstation/actions/workflows/workstation_distro.yml)
 
-[![Engine CI](https://github.com/xjmusic/xjmusic/actions/workflows/engine_ci.yaml/badge.svg)](https://github.com/xjmusic/xjmusic/actions/workflows/engine_ci.yaml)
+<p align="center">
+  <a href="https://xjmusic.com">
+    <img width="320" height="320" src="design/xj-music-logo.png" alt="XJ music logo" />
+  </a>
+</p>
 
-# XJ music
+
+# Dynamic music engine
 
 XJ music enables composers to realize new possibilities in dynamic music for video games.
 
 The platform comprises the [XJ music workstation](workstation/README.md) for music composition and the 
 [XJ music engine](engine/README.md) for implementing music in your game.
 
-Documentation published to [docs.xjmusic.com](https://docs.xjmusic.com) from [xjmusic-docs](https://github.com/xjmusic/xjmusic-docs)
+  
+## Patented technology, open source codebase
 
-*Copyright (c) XJ Music Inc. All Rights Reserved.*
+The underlying technology is protected by [U.S. Patent 10,446,126](https://patents.google.com/patent/US10446126B1/)
+You may use the XJ music engine completely free for projects with a budget under $250K.
+For larger projects, contact licensing@xjmusic.com for a license.
 
-[U.S. Patent 10,446,126](https://patents.google.com/patent/US10446126B1/)
+![XJ music workstation in action](workstation/design/xjmusic-workstation-screenshot-fabrication.png)
 
-[xjmusic.com](https://xjmusic.com)
+## Getting XJ music
 
+### Binary downloads
 
-## Art
+The latest version of the XJ music workstation can be downloaded from [xjmusic.com/download](https://xjmusic.com/download).
 
-See the **[.art](.art/)** folder. By Accessing the contents of that folder, you agree to these terms:
+All official binaries for the XJ music engine and workstation can be found [in the releases section](https://github.com/xjmusic/xjmusic/releases)
 
-> Please only read these files on your machine and then delete. Please do Not email that file anywhere, or upload it to
-> any other servers. These files are confidential property of XJ Music Inc.
+### Compiling from source
 
-See specifically,
-the [XJ music User Guide](https://docs.google.com/document/d/1Jp1DT7jJ3Xn1pR5495Yh4TeStTGanvuCF1du0uEUy1A/)
+[See the official docs](https://docs.godotengine.org/en/latest/contributing/development/compiling)
+for compilation instructions for every supported platform.
 
-## Workflow Standards
+## Community and contributing
 
-### Axioms
+Godot is not only an engine but an ever-growing community of users and engine developers.
 
-* Any network connection can and will fail.
-* There are no launches, pertaining instead only to the spanning of time, and the availability of said platform and its
-  components.
-* The platform does not implement passwords; it relies on OAuth.
-* The platform does not send or receive email; it relies on vendors for all external communications.
+The best way to get in touch with the core engine developers is to join the
+[XJ music Discord](https://discord.xj.io).
 
-### Writing
+To get started contributing to the project, see the [contributing guide](CONTRIBUTING.md).
+This document also includes guidelines for reporting bugs.
 
-* Describe features as the desire of a person to take an action for a particular reason, e.g. "Artist wants Sequence and
-  Pattern to be named according to musical norms, in order to make the most sense of XJ as a musical instrument."
-* Describe bugs as expectation versus actual, e.g. "Artist expects to be able to list Audios after deleting an Audio
-  from an Instrument," then:
-  - DESCRIBE LIKE THIS: "I clicked the button labeled 'Turn;' I expected the Earth to turn; actually, it stood still."
-  - NOT LIKE THIS: "I click the button and nothing happened."
-* Commits reference issues by id #.
-* Time is tracked against issues by id #.
-* Branches are named according to `git-flow` including issue id #, e.g.:
-  - Features are `feature/123-do-new-thing`
-  - Bug Fixes are `bugfix/4567-should-do-this`
-  - Hot Fixes are `hotfix/890-should-do-that`
-* `TODO` comments are used only in working branches. Upon completion of branch shipWork, any remaining `TODO` should be
-  a new tracker issue.
+## Documentation
 
+The official documentation is published at [docs.xjmusic.com](https://docs.xjmusic.com).
+It is maintained by the XJ music community in its own [GitHub repository](https://github.com/xjmusic/xjmusic-docs).
