@@ -21,7 +21,7 @@ Documentation published to [docs.xjmusic.com](https://docs.xjmusic.com) from [xj
 
 ## Art
 
-See the **[.art](.art/)** folder. By Accessing the contents of that folder, you agree to these terms:
+See the **[design](design/)** folder. By Accessing the contents of that folder, you agree to these terms:
 
 > Please only read these files on your machine and then delete. Please do Not email that file anywhere, or upload it to
 > any other servers. These files are confidential property of XJ Music Inc.
