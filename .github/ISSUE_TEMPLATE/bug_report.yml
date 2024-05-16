@@ -20,7 +20,6 @@ body:
         - If you can, **please test earlier XJ versions** (previous stable branch, and development snapshots of the current feature release) and, if applicable, newer versions (development snapshots for the next feature release). Mention whether the bug is reproducible or not in the versions you tested. You can find all XJ releases in our [release archive](https://github.com/xjmusic/xjmusic/releases).
         - The aim is for us to identify whether a bug is a **regression**, i.e. an issue that didn't exist in a previous version, but was introduced later on, breaking existing functionality. For example, if a bug is reproducible in 1.7.25 but not in 1.7.23, we would like you to test intermediate 1.7.24 to find which snapshot is the first one where the issue can be reproduced.
       placeholder: |
-        
         - Reproducible in: 1.7.25 [abc251928], 1.7.24, and 1.7.23.
         - Not reproducible in: 1.7.22 and earlier releases.
     validations:
@@ -66,4 +65,4 @@ body:
         - If the reproduction steps are not project dependent (e.g. the bug is visible in a brand new project), you can write "N/A" in the field.
         - Drag and drop a ZIP archive to upload it (max 10 MB). **Do not select another field until the project is done uploading.**
     validations:
-      required: true
+      required: false
