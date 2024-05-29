@@ -16,22 +16,17 @@ XJ music enables composers to realize new possibilities in dynamic music for vid
 XJ includes the [XJ music workstation](workstation/README.md), a DAW dedicated to preparing dynamic video game music, and the 
 [XJ music engine](engine/README.md) to integrate the product within your game audio system.
 
+Download and install the XJ music workstation on your computer to start creating dynamic music for video games. The latest version of the XJ music workstation can be downloaded from [xjmusic.com/download](https://xjmusic.com/download).
+
+![XJ music workstation in action](workstation/design/xjmusic-workstation-screenshot-fabrication.png)
   
+
 ## Patented technology, open source codebase
 
 The underlying technology is protected by [U.S. Patent 10,446,126](https://patents.google.com/patent/US10446126B1/)
 You may use the XJ music engine completely free for projects with a budget under $250K.
 For larger projects, contact licensing@xjmusic.com for a license.
 
-![XJ music workstation in action](workstation/design/xjmusic-workstation-screenshot-fabrication.png)
-
-## Getting XJ music
-
-### Binary downloads
-
-The latest version of the XJ music workstation can be downloaded from [xjmusic.com/download](https://xjmusic.com/download).
-
-All official binaries for the XJ music engine and workstation can be found [in the releases section](https://github.com/xjmusic/xjmusic/releases)
 
 ## Community and contributing
 
@@ -42,6 +37,7 @@ The best way to get in touch with the core engine developers is to join the
 
 To get started contributing to the project, see the [contributing guide](CONTRIBUTING.md).
 This document also includes guidelines for reporting bugs.
+
 
 ## Documentation
 
