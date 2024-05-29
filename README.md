@@ -13,8 +13,8 @@
 
 XJ music enables composers to realize new possibilities in dynamic music for video games.
 
-The platform comprises the [XJ music workstation](workstation/README.md) for music composition and the 
-[XJ music engine](engine/README.md) for implementing music in your game.
+XJ includes the [XJ music workstation](workstation/README.md), a DAW dedicated to preparing dynamic video game music, and the 
+[XJ music engine](engine/README.md) to integrate the product within your game audio system.
 
   
 ## Patented technology, open source codebase
