@@ -3,7 +3,7 @@
 package io.xj.nexus.work;
 
 import io.xj.hub.pojos.Template;
-import io.xj.nexus.ControlMode;
+import io.xj.nexus.fabricator.ControlMode;
 
 public class FabricationSettings {
   private ControlMode controlMode;

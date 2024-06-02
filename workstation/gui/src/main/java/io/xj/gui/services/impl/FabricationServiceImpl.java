@@ -17,7 +17,7 @@ import io.xj.hub.pojos.ProgramVoice;
 import io.xj.hub.pojos.Template;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
-import io.xj.nexus.ControlMode;
+import io.xj.nexus.fabricator.ControlMode;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;

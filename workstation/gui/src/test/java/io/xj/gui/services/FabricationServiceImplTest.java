@@ -7,7 +7,7 @@ import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.pojos.Project;
 import io.xj.hub.pojos.Template;
-import io.xj.nexus.ControlMode;
+import io.xj.nexus.fabricator.ControlMode;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;

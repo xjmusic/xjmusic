@@ -11,7 +11,7 @@ import io.xj.hub.pojos.ProgramSequence;
 import io.xj.hub.pojos.ProgramSequenceBinding;
 import io.xj.hub.pojos.ProgramVoice;
 import io.xj.hub.pojos.Template;
-import io.xj.nexus.ControlMode;
+import io.xj.nexus.fabricator.ControlMode;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;

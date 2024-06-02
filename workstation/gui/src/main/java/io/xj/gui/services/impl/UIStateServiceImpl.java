@@ -22,7 +22,7 @@ import io.xj.hub.pojos.ProgramSequence;
 import io.xj.hub.pojos.ProgramSequencePattern;
 import io.xj.hub.pojos.Template;
 import io.xj.hub.util.StringUtils;
-import io.xj.nexus.ControlMode;
+import io.xj.nexus.fabricator.ControlMode;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.work.FabricationState;
 import jakarta.annotation.Nullable;
