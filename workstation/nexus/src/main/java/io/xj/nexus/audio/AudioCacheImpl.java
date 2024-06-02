@@ -3,7 +3,7 @@ package io.xj.nexus.audio;
 
 import io.xj.hub.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.mixer.FFmpegUtils;
 import io.xj.nexus.project.ProjectManager;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class AudioCacheImpl implements AudioCache {
   }
 
   @Override
-  public AudioInMemory load(InstrumentAudio audio) throws AudioCacheException, IOException, NexusException {
+  public AudioInMemory load(InstrumentAudio audio) throws AudioCacheException, IOException, FabricationException {
     if (!cache.containsKey(audio.getId().toString())) {
       cache.put(audio.getId().toString(), compute(audio));
     }

@@ -13,10 +13,8 @@ import io.xj.hub.pojos.Library;
 import io.xj.hub.pojos.Project;
 import io.xj.hub.pojos.Template;
 import io.xj.hub.pojos.TemplateBinding;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.fabricator.FabricationEntityStore;
-import io.xj.nexus.fabricator.FabricationEntityStoreImpl;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -200,7 +198,7 @@ public class FabricationEntityStoreImplTest {
   }
 
   @Test
-  public void create_get_Segment() throws NexusException {
+  public void create_get_Segment() throws FabricationException {
     UUID chainId = UUID.randomUUID();
     Segment segment = new Segment();
     segment.setChainId(chainId);
@@ -233,7 +231,7 @@ public class FabricationEntityStoreImplTest {
   }
 
   @Test
-  public void create_get_Chain() throws NexusException {
+  public void create_get_Chain() throws FabricationException {
     UUID projectId = UUID.randomUUID();
     var chain = new Chain();
     chain.setId(UUID.randomUUID());
@@ -253,7 +251,7 @@ public class FabricationEntityStoreImplTest {
   }
 
   @Test
-  public void create_passThroughIfNotNexusEntity() throws NexusException {
+  public void create_passThroughIfNotNexusEntity() throws FabricationException {
     var library = new Library();
     library.setId(UUID.randomUUID());
     library.setProjectId(UUID.randomUUID());
@@ -273,7 +271,7 @@ public class FabricationEntityStoreImplTest {
     choice.setProgramSequenceBindingId(UUID.randomUUID());
     choice.setProgramType(ProgramType.Macro);
 
-    var failure = assertThrows(NexusException.class,
+    var failure = assertThrows(FabricationException.class,
       () -> subject.put(choice));
 
     assertEquals("Can't store SegmentChoice with null id", failure.getMessage());
@@ -289,14 +287,14 @@ public class FabricationEntityStoreImplTest {
     choice.setProgramSequenceBindingId(UUID.randomUUID());
     choice.setProgramType(ProgramType.Macro);
 
-    var failure = assertThrows(NexusException.class,
+    var failure = assertThrows(FabricationException.class,
       () -> subject.put(choice));
 
     assertEquals("Can't store SegmentChoice without Segment ID!", failure.getMessage());
   }
 
   @Test
-  public void createAll_readAll() throws NexusException {
+  public void createAll_readAll() throws FabricationException {
     subject.clear();
     var project1 = buildProject("fish");
     var template = buildTemplate(project1, "fishy");
@@ -338,7 +336,7 @@ public class FabricationEntityStoreImplTest {
   }
 
   @Test
-  public void create_nonSegmentEntity() throws NexusException {
+  public void create_nonSegmentEntity() throws FabricationException {
     Project project1 = buildProject("testing");
     Library library1 = buildLibrary(project1, "leaves");
     Template template = buildTemplate(buildProject("Test"), "Test", "key123");
@@ -366,7 +364,7 @@ public class FabricationEntityStoreImplTest {
   }
 
   @Test
-  public void readLastSegmentId() throws NexusException {
+  public void readLastSegmentId() throws FabricationException {
     subject.put(buildSegment(fakeChain,
       4,
       SegmentState.CRAFTED,
@@ -421,7 +419,7 @@ public class FabricationEntityStoreImplTest {
   }
 
   @Test
-  public void readAllSegments() throws NexusException {
+  public void readAllSegments() throws FabricationException {
     Collection<Segment> result = subject.readAllSegments();
 
     assertNotNull(result);
@@ -448,7 +446,7 @@ public class FabricationEntityStoreImplTest {
    List of Segments returned should not be more than a dozen or so https://github.com/xjmusic/workstation/issues/302
    */
   @Test
-  public void readAll_hasNoLimit() throws NexusException {
+  public void readAll_hasNoLimit() throws FabricationException {
     Chain chain5 = subject.put(buildChain(project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, "barnacles"));
     for (int i = 0; i < 20; i++)
       subject.put(new Segment()
@@ -537,7 +535,7 @@ public class FabricationEntityStoreImplTest {
       .key("C# minor 7 b9")
       .tempo(120.0);
 
-    Exception thrown = assertThrows(NexusException.class, () ->
+    Exception thrown = assertThrows(FabricationException.class, () ->
       subject.updateSegment(inputData));
 
     assertTrue(thrown.getMessage().contains("transition to Crafted not in allowed"));
@@ -558,7 +556,7 @@ public class FabricationEntityStoreImplTest {
       .key("C# minor 7 b9")
       .tempo(120.0);
 
-    Exception thrown = assertThrows(NexusException.class, () ->
+    Exception thrown = assertThrows(FabricationException.class, () ->
       subject.updateSegment(inputData));
 
     assertTrue(thrown.getMessage().contains("cannot change chainId create a segment"));
@@ -576,7 +574,7 @@ public class FabricationEntityStoreImplTest {
   }
 
   @Test
-  public void isSegmentsEmpty() throws NexusException {
+  public void isSegmentsEmpty() throws FabricationException {
     subject.clear();
     assertTrue(subject.isEmpty());
 
@@ -594,7 +592,7 @@ public class FabricationEntityStoreImplTest {
   }
 
   @Test
-  public void deleteSegment() throws NexusException {
+  public void deleteSegment() throws FabricationException {
     for (int i = 0; i < 10; i++)
       subject.put(buildSegment(fakeChain,
         i,
@@ -613,7 +611,7 @@ public class FabricationEntityStoreImplTest {
   }
 
   @Test
-  public void deleteSegmentsAfter() throws NexusException {
+  public void deleteSegmentsAfter() throws FabricationException {
     for (int i = 0; i < 10; i++)
       subject.put(buildSegment(fakeChain,
         i,
@@ -641,7 +639,7 @@ public class FabricationEntityStoreImplTest {
   }
 
   @Test
-  public void deleteSegmentsBefore() throws NexusException {
+  public void deleteSegmentsBefore() throws FabricationException {
     for (int i = 0; i < 10; i++)
       subject.put(buildSegment(fakeChain,
         i,

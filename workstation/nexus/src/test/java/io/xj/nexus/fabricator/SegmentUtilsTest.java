@@ -5,7 +5,7 @@ package io.xj.nexus.fabricator;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.pojos.Project;
 import io.xj.hub.pojos.Template;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -20,7 +20,6 @@ import io.xj.nexus.model.SegmentMessage;
 import io.xj.nexus.model.SegmentMeta;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.fabricator.SegmentUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
@@ -91,7 +90,7 @@ public class SegmentUtilsTest {
   Collection<Segment> segments = List.of(seg0, seg1, seg2, seg3);
 
   @Test
-  public void testFindFirstOfType() throws NexusException {
+  public void testFindFirstOfType() throws FabricationException {
     var ch0 = new SegmentChoice();
     ch0.setDeltaIn(Segment.DELTA_UNLIMITED);
     ch0.setDeltaOut(Segment.DELTA_UNLIMITED);

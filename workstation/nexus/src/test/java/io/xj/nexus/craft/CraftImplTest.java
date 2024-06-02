@@ -19,7 +19,7 @@ import io.xj.hub.pojos.Library;
 import io.xj.hub.pojos.Program;
 import io.xj.hub.pojos.Project;
 import io.xj.hub.pojos.Template;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
 import io.xj.nexus.fabricator.SegmentRetrospective;
@@ -95,7 +95,7 @@ public class CraftImplTest {
   }
 
   @Test
-  public void precomputeDeltas() throws NexusException {
+  public void precomputeDeltas() throws FabricationException {
     CraftImpl.ChoiceIndexProvider choiceIndexProvider = choice -> choice.getInstrumentType().toString();
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.Detail.equals(choice.getProgramType());
     subject.precomputeDeltas(choiceFilter, choiceIndexProvider, fabricator.getTemplateConfig().getDetailLayerOrder().stream().map(InstrumentType::toString).collect(Collectors.toList()), List.of(), 1);

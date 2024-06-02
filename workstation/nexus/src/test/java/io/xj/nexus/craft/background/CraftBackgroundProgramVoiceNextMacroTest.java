@@ -13,7 +13,7 @@ import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.hub.pojos.Instrument;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
@@ -161,7 +161,7 @@ public class CraftBackgroundProgramVoiceNextMacroTest {
   /**
    Insert fixture segments 3 and 4, including the background choice for segment 3 only if specified
    */
-  void insertSegments3and4() throws NexusException {
+  void insertSegments3and4() throws FabricationException {
     // Chain "Test Print #1" has this segment that was just crafted
     Segment segment3 = store.put(buildSegment(
       chain1,

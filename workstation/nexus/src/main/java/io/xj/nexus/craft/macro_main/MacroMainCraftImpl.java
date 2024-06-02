@@ -8,7 +8,7 @@ import io.xj.hub.pojos.Program;
 import io.xj.hub.pojos.ProgramSequence;
 import io.xj.hub.pojos.ProgramSequenceChord;
 import io.xj.hub.util.ValueUtils;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
@@ -50,7 +50,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   @Override
-  public void doWork() throws NexusException {
+  public void doWork() throws FabricationException {
     var segment = fabricator.getSegment();
 
     // Prepare variables to hold result of macro and main choice
@@ -77,7 +77,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
       mainSequence = doMainChoiceWork(segment);
     }
     mainProgram = fabricator.sourceMaterial().getProgram(mainSequence.getProgramId())
-      .orElseThrow(() -> new NexusException(String.format("Unable to determine main program for Segment[%d]", segment.getId())));
+      .orElseThrow(() -> new FabricationException(String.format("Unable to determine main program for Segment[%d]", segment.getId())));
 
     // 3. Chords and voicings
     for (ProgramSequenceChord sequenceChord : fabricator.getProgramSequenceChords(mainSequence)) {
@@ -131,13 +131,13 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    @param segment of which to compute main choice
    @return the macro sequence
    */
-  private ProgramSequence doMacroChoiceWork(Segment segment) throws NexusException {
+  private ProgramSequence doMacroChoiceWork(Segment segment) throws FabricationException {
     var macroProgram = chooseMacroProgram();
     Integer macroSequenceBindingOffset = computeMacroSequenceBindingOffset();
     var macroSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
-      .orElseThrow(() -> new NexusException(String.format("Unable to determine macro sequence binding for Segment[%d]", segment.getId())));
+      .orElseThrow(() -> new FabricationException(String.format("Unable to determine macro sequence binding for Segment[%d]", segment.getId())));
     var macroSequence = fabricator.sourceMaterial().getSequenceOfBinding(macroSequenceBinding)
-      .orElseThrow(() -> new NexusException(String.format("Unable to determine macro sequence for Segment[%d]", segment.getId())));
+      .orElseThrow(() -> new FabricationException(String.format("Unable to determine macro sequence for Segment[%d]", segment.getId())));
     //
     var macroChoice = new SegmentChoice();
     macroChoice.setId(UUID.randomUUID());
@@ -159,13 +159,13 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    @param segment of which to compute main choice
    @return the main sequence
    */
-  private ProgramSequence doMainChoiceWork(Segment segment) throws NexusException {
+  private ProgramSequence doMainChoiceWork(Segment segment) throws FabricationException {
     var mainProgram = chooseMainProgram();
     Integer mainSequenceBindingOffset = computeMainProgramSequenceBindingOffset();
     var mainSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset)
-      .orElseThrow(() -> new NexusException(String.format("Unable to determine main sequence binding for Segment[%d]", segment.getId())));
+      .orElseThrow(() -> new FabricationException(String.format("Unable to determine main sequence binding for Segment[%d]", segment.getId())));
     var mainSequence = fabricator.sourceMaterial().getSequenceOfBinding(mainSequenceBinding)
-      .orElseThrow(() -> new NexusException(String.format("Unable to determine main sequence for Segment[%d]", segment.getId())));
+      .orElseThrow(() -> new FabricationException(String.format("Unable to determine main sequence for Segment[%d]", segment.getId())));
     //
     var mainChoice = new SegmentChoice();
     mainChoice.setId(UUID.randomUUID());
@@ -186,11 +186,11 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    @param mainSequence of which to compute key
    @return key
    */
-  private String computeSegmentKey(ProgramSequence mainSequence) throws NexusException {
+  private String computeSegmentKey(ProgramSequence mainSequence) throws FabricationException {
     String mainKey = mainSequence.getKey();
     if (null == mainKey || mainKey.isEmpty())
       mainKey = fabricator.sourceMaterial().getProgram(mainSequence.getProgramId())
-        .orElseThrow(() -> new NexusException(String.format(
+        .orElseThrow(() -> new FabricationException(String.format(
           "Unable to determine key for Main-Program[%s] %s",
           mainSequence.getName(),
           mainSequence.getProgramId())
@@ -210,7 +210,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    @param mainSequence  of which to compute segment tempo
    @return intensity
    */
-  private double computeSegmentIntensity(Integer delta, @Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
+  private double computeSegmentIntensity(Integer delta, @Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws FabricationException {
     return fabricator.getTemplateConfig().isIntensityAutoCrescendoEnabled()
       ?
       ValueUtils.limitDecimalPrecision(ValueUtils.interpolate(
@@ -230,7 +230,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    @param mainSequence  of which to compute segment tempo
    @return intensity
    */
-  private float computeIntensity(@Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
+  private float computeIntensity(@Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws FabricationException {
     @Nullable Float macroIntensity = Objects.nonNull(macroSequence) ? macroSequence.getIntensity() : null;
     @Nullable Float mainIntensity = Objects.nonNull(mainSequence) ? mainSequence.getIntensity() : null;
     if (Objects.nonNull(macroIntensity) && Objects.nonNull(mainIntensity))
@@ -239,7 +239,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
       return macroIntensity;
     if (Objects.nonNull(mainIntensity))
       return mainIntensity;
-    throw new NexusException("Failed to compute Intensity!");
+    throw new FabricationException("Failed to compute Intensity!");
   }
 
   /**
@@ -247,7 +247,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
    @return macroSequenceBindingOffset
    */
-  private Integer computeMacroSequenceBindingOffset() throws NexusException {
+  private Integer computeMacroSequenceBindingOffset() throws FabricationException {
     if (List.of(SegmentType.INITIAL, SegmentType.NEXT_MACRO).contains(fabricator.getType()))
       return Objects.nonNull(overrideMacroProgram)
         ? fabricator.getSecondMacroSequenceBindingOffset(overrideMacroProgram)
@@ -263,7 +263,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     if (SegmentType.NEXT_MAIN == fabricator.getType())
       return fabricator.getNextSequenceBindingOffset(previousMacroChoice.get());
 
-    throw new NexusException(String.format("Cannot get Macro-type sequence for known fabricator type=%s", fabricator.getType()));
+    throw new FabricationException(String.format("Cannot get Macro-type sequence for known fabricator type=%s", fabricator.getType()));
   }
 
   /**
@@ -271,7 +271,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
    @return mainSequenceBindingOffset
    */
-  private int computeMainProgramSequenceBindingOffset() throws NexusException {
+  private int computeMainProgramSequenceBindingOffset() throws FabricationException {
     switch (fabricator.getType()) {
       case INITIAL, NEXT_MAIN, NEXT_MACRO -> {
         return 0;
@@ -279,11 +279,11 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
       case CONTINUE -> {
         var previousMainChoice = fabricator.getPreviousMainChoice();
         if (previousMainChoice.isEmpty())
-          throw new NexusException("Cannot get retrieve previous main choice");
+          throw new FabricationException("Cannot get retrieve previous main choice");
         return fabricator.getNextSequenceBindingOffset(previousMainChoice.get());
       }
       default ->
-        throw new NexusException(String.format("Cannot get Macro-type sequence for known fabricator type=%s", fabricator.getType()));
+        throw new FabricationException(String.format("Cannot get Macro-type sequence for known fabricator type=%s", fabricator.getType()));
     }
   }
 
@@ -294,7 +294,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    @param avoid    to avoid
    @return program
    */
-  protected Program chooseRandomProgram(Collection<Program> programs, List<UUID> avoid) throws NexusException {
+  protected Program chooseRandomProgram(Collection<Program> programs, List<UUID> avoid) throws FabricationException {
     var bag = MarbleBag.empty();
 
     // Phase 1: Directly Bound Programs, besides those we should avoid
@@ -319,7 +319,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
     // if the bag is empty, problems
     if (bag.isEmpty())
-      throw new NexusException("Failed to choose any random program. No candidates available!");
+      throw new FabricationException("Failed to choose any random program. No candidates available!");
 
     var program = fabricator.sourceMaterial().getProgram(bag.pick());
     if (program.isEmpty()) {
@@ -329,7 +329,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
       );
       fabricator.addErrorMessage(message);
       LOG.error(message);
-      throw new NexusException(message);
+      throw new FabricationException(message);
     }
     return program.get();
   }
@@ -339,7 +339,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
    @return macro-type program
    */
-  protected Program chooseMacroProgram() throws NexusException {
+  protected Program chooseMacroProgram() throws FabricationException {
     if (Objects.nonNull(overrideMacroProgram))
       return overrideMacroProgram;
 
@@ -360,7 +360,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
         );
         fabricator.addErrorMessage(message);
         LOG.error(message);
-        throw new NexusException(message);
+        throw new FabricationException(message);
       }
       return previousProgram.get();
     }
@@ -404,7 +404,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
     // if the bag is empty, problems
     if (bag.isEmpty())
-      throw new NexusException("Failed to choose any next macro program. No candidates available!");
+      throw new FabricationException("Failed to choose any next macro program. No candidates available!");
 
     // report and pick
     fabricator.putReport("macroChoice", bag.toString());
@@ -416,7 +416,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
       );
       fabricator.addErrorMessage(message);
       LOG.error(message);
-      throw new NexusException(message);
+      throw new FabricationException(message);
     }
     return program.get();
   }
@@ -428,7 +428,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
    @return main-type Program
    */
-  protected Program chooseMainProgram() throws NexusException {
+  protected Program chooseMainProgram() throws FabricationException {
     var bag = MarbleBag.empty();
     var candidates = fabricator.sourceMaterial().getProgramsOfType(ProgramType.Main);
 
@@ -443,7 +443,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
         );
         fabricator.addErrorMessage(message);
         LOG.error(message);
-        throw new NexusException(message);
+        throw new FabricationException(message);
       }
       return previousProgram.get();
     }
@@ -483,7 +483,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
     // if the bag is empty, problems
     if (bag.isEmpty()) {
-      throw new NexusException("Failed to choose any next main program. No candidates available!");
+      throw new FabricationException("Failed to choose any next main program. No candidates available!");
     }
 
     // report and pick
@@ -496,7 +496,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
       );
       fabricator.addErrorMessage(message);
       LOG.error(message);
-      throw new NexusException(message);
+      throw new FabricationException(message);
     }
     return program.get();
   }

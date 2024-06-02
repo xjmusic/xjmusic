@@ -3,7 +3,7 @@ package io.xj.nexus.craft;
 
 
 import io.xj.hub.pojos.Program;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.craft.background.BackgroundCraft;
 import io.xj.nexus.craft.beat.BeatCraft;
 import io.xj.nexus.craft.detail.DetailCraft;
@@ -36,55 +36,55 @@ public interface CraftFactory {
    @param overrideMacroProgram already selected to use for craft
    @param overrideMemes        already selected to use for craft
    @return MacroMainCraft
-   @throws NexusException on failure
+   @throws FabricationException on failure
    */
   MacroMainCraft macroMain(
       Fabricator fabricator,
       @Nullable Program overrideMacroProgram,
       @Nullable Collection<String> overrideMemes
-  ) throws NexusException;
+  ) throws FabricationException;
 
   /**
    Create Beat Craft instance for a particular segment
 
    @param fabricator of craft
    @return BeatCraft
-   @throws NexusException on failure
+   @throws FabricationException on failure
    */
   BeatCraft beat(
       Fabricator fabricator
-  ) throws NexusException;
+  ) throws FabricationException;
 
   /**
    Create Detail Craft instance for a particular segment
 
    @param fabricator of craft
    @return DetailCraft
-   @throws NexusException on failure
+   @throws FabricationException on failure
    */
   DetailCraft detail(
       Fabricator fabricator
-  ) throws NexusException;
+  ) throws FabricationException;
 
   /**
    Create Background Craft instance for a particular segment
 
    @param fabricator of craft
    @return BackgroundCraft
-   @throws NexusException on failure
+   @throws FabricationException on failure
    */
   BackgroundCraft background(
     Fabricator fabricator
-  ) throws NexusException;
+  ) throws FabricationException;
 
   /**
    Create Transition Craft instance for a particular segment
 
    @param fabricator of craft
    @return TransitionCraft
-   @throws NexusException on failure
+   @throws FabricationException on failure
    */
   TransitionCraft transition(
       Fabricator fabricator
-  ) throws NexusException;
+  ) throws FabricationException;
 }

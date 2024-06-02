@@ -24,7 +24,7 @@ import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.TremendouslyRandom;
 import io.xj.hub.util.ValueUtils;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
@@ -119,16 +119,16 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param sequence           for which to craft choices
    @param voices             for which to craft choices
    @param instrumentProvider from which to get instruments
-   @throws NexusException on failure
+   @throws FabricationException on failure
    */
-  protected void craftNoteEvents(double tempo, ProgramSequence sequence, Collection<ProgramVoice> voices, InstrumentProvider instrumentProvider) throws NexusException {
+  protected void craftNoteEvents(double tempo, ProgramSequence sequence, Collection<ProgramVoice> voices, InstrumentProvider instrumentProvider) throws FabricationException {
     // Craft each voice into choice
     for (ProgramVoice voice : voices) {
       var choice = new SegmentChoice();
       choice.setId(UUID.randomUUID());
       choice.setSegmentId(fabricator.getSegment().getId());
       choice.setMute(computeMute(voice.getType()));
-      choice.setProgramType(fabricator.sourceMaterial().getProgram(voice.getProgramId()).orElseThrow(() -> new NexusException("Can't get program for voice")).getType());
+      choice.setProgramType(fabricator.sourceMaterial().getProgram(voice.getProgramId()).orElseThrow(() -> new FabricationException("Can't get program for voice")).getType());
       choice.setInstrumentType(voice.getType());
       choice.setProgramId(voice.getProgramId());
       choice.setProgramSequenceId(sequence.getId());
@@ -166,9 +166,9 @@ public class CraftImpl extends FabricationWrapperImpl {
 
    @param tempo      of main program
    @param instrument for which to craft choices
-   @throws NexusException on failure
+   @throws FabricationException on failure
    */
-  protected void craftChordParts(double tempo, Instrument instrument) throws NexusException {
+  protected void craftChordParts(double tempo, Instrument instrument) throws FabricationException {
     // Craft each voice into choice
     var choice = new SegmentChoice();
 
@@ -204,9 +204,9 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param tempo      of main program
    @param instrument chosen
    @param choice     for which to craft chord parts
-   @throws NexusException on failure
+   @throws FabricationException on failure
    */
-  protected void craftChordParts(double tempo, Instrument instrument, SegmentChoice choice) throws NexusException {
+  protected void craftChordParts(double tempo, Instrument instrument, SegmentChoice choice) throws FabricationException {
     if (fabricator.getSegmentChords().isEmpty()) return;
 
     // Arrangement
@@ -255,9 +255,9 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param tempo      of main program
    @param instrument for which to craft choices
    @param program    for which to craft choices
-   @throws NexusException on failure
+   @throws FabricationException on failure
    */
-  protected void craftEventParts(double tempo, Instrument instrument, Program program) throws NexusException {
+  protected void craftEventParts(double tempo, Instrument instrument, Program program) throws FabricationException {
     // Event detail sequence is selected at random of the current instrument
     // FUTURE: Detail Instrument with multiple Sequences https://github.com/xjmusic/workstation/issues/241
     var sequence = fabricator.getRandomlySelectedSequence(program);
@@ -309,14 +309,14 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param tempo         of main program
    @param choice        to craft arrangements for
    @param defaultAtonal whether to default to a single atonal note, if no voicings are available
-   @throws NexusException on failure
+   @throws FabricationException on failure
    */
-  protected void craftNoteEventArrangements(double tempo, SegmentChoice choice, boolean defaultAtonal) throws NexusException {
+  protected void craftNoteEventArrangements(double tempo, SegmentChoice choice, boolean defaultAtonal) throws FabricationException {
     // this is used to invert voicings into the tightest possible range
     // passed to each iteration of note voicing arrangement in order to move as little as possible from the previous
     NoteRange range = NoteRange.empty();
 
-    var programConfig = fabricator.getProgramConfig(fabricator.getProgram(choice).orElseThrow(() -> new NexusException("Can't get program config")));
+    var programConfig = fabricator.getProgramConfig(fabricator.getProgram(choice).orElseThrow(() -> new FabricationException("Can't get program config")));
 
     if (fabricator.getSegmentChords().isEmpty())
       craftNoteEventSection(tempo, choice, 0, fabricator.getSegment().getTotal(), range, defaultAtonal);
@@ -343,9 +343,9 @@ public class CraftImpl extends FabricationWrapperImpl {
    <p>
    Vary the high plateau between delta in and out across layers
 
-   @throws NexusException on failure
+   @throws FabricationException on failure
    */
-  protected void precomputeDeltas(Predicate<SegmentChoice> choiceFilter, ChoiceIndexProvider choiceIndexProvider, Collection<String> layers, Collection<String> layerPrioritizationSearches, int numLayersIncoming) throws NexusException {
+  protected void precomputeDeltas(Predicate<SegmentChoice> choiceFilter, ChoiceIndexProvider choiceIndexProvider, Collection<String> layers, Collection<String> layerPrioritizationSearches, int numLayersIncoming) throws FabricationException {
     this.choiceIndexProvider = choiceIndexProvider;
     deltaIns.clear();
     deltaOuts.clear();
@@ -414,9 +414,9 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param choice        from which to craft events
    @param range         used to keep voicing in the tightest range possible
    @param defaultAtonal whether to default to a single atonal note, if no voicings are available
-   @throws NexusException on failure
+   @throws FabricationException on failure
    */
-  void craftNoteEventSectionRestartingEachChord(double tempo, SegmentChoice choice, NoteRange range, boolean defaultAtonal) throws NexusException {
+  void craftNoteEventSectionRestartingEachChord(double tempo, SegmentChoice choice, NoteRange range, boolean defaultAtonal) throws FabricationException {
     for (var section : computeSections())
       craftNoteEventSection(tempo, choice, section.fromPos, section.toPos, range, defaultAtonal);
   }
@@ -453,9 +453,9 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param maxPos        position (in beats)
    @param range         used to keep voicing in the tightest range possible
    @param defaultAtonal whether to default to a single atonal note, if no voicings are available
-   @throws NexusException on failure
+   @throws FabricationException on failure
    */
-  void craftNoteEventSection(double tempo, SegmentChoice choice, double fromPos, double maxPos, NoteRange range, boolean defaultAtonal) throws NexusException {
+  void craftNoteEventSection(double tempo, SegmentChoice choice, double fromPos, double maxPos, NoteRange range, boolean defaultAtonal) throws FabricationException {
 
     // begin at the beginning and fabricate events for the segment of beginning to end
     double curPos = fromPos;
@@ -481,8 +481,8 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param defaultAtonal whether to default to a single atonal note, if no voicings are available
    @return deltaPos of start, after crafting this batch of pattern events
    */
-  double craftPatternEvents(double tempo, SegmentChoice choice, ProgramSequencePattern pattern, double fromPosition, double toPosition, NoteRange range, boolean defaultAtonal) throws NexusException {
-    if (Objects.isNull(pattern)) throw new NexusException("Cannot craft create null pattern");
+  double craftPatternEvents(double tempo, SegmentChoice choice, ProgramSequencePattern pattern, double fromPosition, double toPosition, NoteRange range, boolean defaultAtonal) throws FabricationException {
+    if (Objects.isNull(pattern)) throw new FabricationException("Cannot craft create null pattern");
     double loopBeats = toPosition - fromPosition;
     List<ProgramSequencePatternEvent> events = fabricator.sourceMaterial().getEventsOfPattern(pattern);
 
@@ -493,7 +493,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     arrangement.setProgramSequencePatternId(pattern.getId());
     fabricator.put(arrangement, false);
 
-    var instrument = fabricator.sourceMaterial().getInstrument(choice.getInstrumentId()).orElseThrow(() -> new NexusException("Failed to retrieve instrument"));
+    var instrument = fabricator.sourceMaterial().getInstrument(choice.getInstrumentId()).orElseThrow(() -> new FabricationException("Failed to retrieve instrument"));
     for (ProgramSequencePatternEvent event : events)
       pickNotesAndInstrumentAudioForEvent(tempo, instrument, choice, arrangement, fromPosition, toPosition, event, range, defaultAtonal);
     return Math.min(loopBeats, pattern.getTotal());
@@ -510,7 +510,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param range         used to keep voicing in the tightest range possible
    @param defaultAtonal whether to default to a single atonal note, if no voicings are available
    */
-  void pickNotesAndInstrumentAudioForEvent(double tempo, Instrument instrument, SegmentChoice choice, SegmentChoiceArrangement arrangement, double fromPosition, double toPosition, ProgramSequencePatternEvent event, NoteRange range, boolean defaultAtonal) throws NexusException {
+  void pickNotesAndInstrumentAudioForEvent(double tempo, Instrument instrument, SegmentChoice choice, SegmentChoiceArrangement arrangement, double fromPosition, double toPosition, ProgramSequencePatternEvent event, NoteRange range, boolean defaultAtonal) throws FabricationException {
     // Segment position is expressed in beats
     double segmentPosition = fromPosition + event.getPosition();
 
@@ -542,8 +542,8 @@ public class CraftImpl extends FabricationWrapperImpl {
 
    @param choice for which to finalize length of one-shot audio picks
    */
-  void finalizeNoteEventCutoffsOfOneShotInstrumentAudioPicks(SegmentChoice choice) throws NexusException {
-    var instrument = fabricator.sourceMaterial().getInstrument(choice.getInstrumentId()).orElseThrow(() -> new NexusException("Failed to get instrument from source material for segment choice!"));
+  void finalizeNoteEventCutoffsOfOneShotInstrumentAudioPicks(SegmentChoice choice) throws FabricationException {
+    var instrument = fabricator.sourceMaterial().getInstrument(choice.getInstrumentId()).orElseThrow(() -> new FabricationException("Failed to get instrument from source material for segment choice!"));
 
     // skip instruments that are not one-shot
     if (!fabricator.isOneShot(instrument)) return;
@@ -650,7 +650,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param optimalRange    used to keep voicing in the tightest range possible
    @return note picked from the available voicing
    */
-  Set<String> pickNotesForEvent(InstrumentType instrumentType, SegmentChoice choice, ProgramSequencePatternEvent event, SegmentChord rawSegmentChord, SegmentChordVoicing voicing, NoteRange optimalRange) throws NexusException {
+  Set<String> pickNotesForEvent(InstrumentType instrumentType, SegmentChoice choice, ProgramSequencePatternEvent event, SegmentChord rawSegmentChord, SegmentChordVoicing voicing, NoteRange optimalRange) throws FabricationException {
     // Various computations to prepare for picking
     var segChord = Chord.of(rawSegmentChord.getName());
     var dpKey = fabricator.getKeyForChoice(choice);
@@ -707,7 +707,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param startAtSegmentMicros     of audio
    @param lengthMicros             of audio
    @param volRatio                 ratio of volume
-   @throws NexusException on failure
+   @throws FabricationException on failure
    */
   void pickInstrumentAudio(
     String note,
@@ -718,7 +718,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     @Nullable Long lengthMicros,
     @Nullable UUID segmentChordVoicingId,
     float volRatio
-  ) throws NexusException {
+  ) throws FabricationException {
     var audio = fabricator.getInstrumentConfig(instrument).isMultiphonic() ? selectMultiphonicInstrumentAudio(instrument, event, note) : selectMonophonicInstrumentAudio(instrument, event);
 
     // Should gracefully skip audio if unfulfilled by instrument https://github.com/xjmusic/workstation/issues/240
@@ -748,7 +748,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param startAtSegmentMicros to pick
    @param lengthMicros         to pick
    @param event                to pick
-   @throws NexusException on failure
+   @throws FabricationException on failure
    */
   protected void pickInstrumentAudio(
     SegmentChoiceArrangement arrangement,
@@ -756,7 +756,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     long startAtSegmentMicros,
     long lengthMicros,
     String event
-  ) throws NexusException {
+  ) throws FabricationException {
     var pick = new SegmentChoiceArrangementPick();
     pick.setId(UUID.randomUUID());
     pick.setSegmentId(fabricator.getSegment().getId());
@@ -855,12 +855,12 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param instrument of which to score available audios, and make a selection
    @param event      to match selection
    @return matched new audio
-   @throws NexusException on failure
+   @throws FabricationException on failure
    */
-  Optional<InstrumentAudio> selectMonophonicInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event) throws NexusException {
+  Optional<InstrumentAudio> selectMonophonicInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event) throws FabricationException {
     if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent()) {
       if (fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones()).isEmpty())
-        fabricator.putPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones(), selectNewNoteEventInstrumentAudio(instrument, event).orElseThrow(() -> new NexusException("Unable to select note event instrument audio!")));
+        fabricator.putPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones(), selectNewNoteEventInstrumentAudio(instrument, event).orElseThrow(() -> new FabricationException("Unable to select note event instrument audio!")));
       return fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones());
 
     } else {
@@ -898,7 +898,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param event      to match
    @return matched new audio
    */
-  Optional<InstrumentAudio> selectNewNoteEventInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event) throws NexusException {
+  Optional<InstrumentAudio> selectNewNoteEventInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event) throws FabricationException {
     Map<UUID, Integer> score = new HashMap<>();
 
     // add all audio to chooser
@@ -1184,7 +1184,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    */
   public interface InstrumentProvider {
 
-    Optional<Instrument> get(ProgramVoice voice) throws NexusException;
+    Optional<Instrument> get(ProgramVoice voice) throws FabricationException;
   }
 
   /**

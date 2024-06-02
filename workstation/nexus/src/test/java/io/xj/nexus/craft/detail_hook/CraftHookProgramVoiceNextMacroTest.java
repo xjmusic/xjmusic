@@ -14,7 +14,7 @@ import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.hub.pojos.Instrument;
 import io.xj.hub.pojos.InstrumentAudio;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
@@ -166,7 +166,7 @@ public class CraftHookProgramVoiceNextMacroTest {
 
    @param excludeHookChoiceForSegment3 if desired for the purpose of this test
    */
-  void insertSegments3and4(boolean excludeHookChoiceForSegment3) throws NexusException {
+  void insertSegments3and4(boolean excludeHookChoiceForSegment3) throws FabricationException {
     // Chain "Test Print #1" has this segment that was just crafted
     Segment segment3 = store.put(buildSegment(
       chain1,

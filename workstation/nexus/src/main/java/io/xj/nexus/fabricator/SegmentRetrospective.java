@@ -4,7 +4,7 @@ package io.xj.nexus.fabricator;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
@@ -33,9 +33,9 @@ public interface SegmentRetrospective {
 
    @param pick for which to get arrangement
    @return arrangement
-   @throws NexusException on failure to retrieve
+   @throws FabricationException on failure to retrieve
    */
-  SegmentChoiceArrangement getArrangement(SegmentChoiceArrangementPick pick) throws NexusException;
+  SegmentChoiceArrangement getArrangement(SegmentChoiceArrangementPick pick) throws FabricationException;
 
   /**
    @return all choices
@@ -47,9 +47,9 @@ public interface SegmentRetrospective {
 
    @param arrangement for which to get choice
    @return choice
-   @throws NexusException on failure to retrieve
+   @throws FabricationException on failure to retrieve
    */
-  SegmentChoice getChoice(SegmentChoiceArrangement arrangement) throws NexusException;
+  SegmentChoice getChoice(SegmentChoiceArrangement arrangement) throws FabricationException;
 
   /**
    Get the instrument type for a given pick
@@ -57,7 +57,7 @@ public interface SegmentRetrospective {
    @param pick for which to get instrument type
    @return instrument type of pick
    */
-  InstrumentType getInstrumentType(SegmentChoiceArrangementPick pick) throws NexusException;
+  InstrumentType getInstrumentType(SegmentChoiceArrangementPick pick) throws FabricationException;
 
   /**
    Get the meta from the previous segment with the given key

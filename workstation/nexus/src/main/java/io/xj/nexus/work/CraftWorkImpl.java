@@ -11,7 +11,7 @@ import io.xj.hub.pojos.Program;
 import io.xj.hub.pojos.Template;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.audio.AudioCache;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.FabricationFatalException;
@@ -184,7 +184,7 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   @Override
-  public List<SegmentChoiceArrangementPick> getPicks(List<Segment> segments) throws NexusException {
+  public List<SegmentChoiceArrangementPick> getPicks(List<Segment> segments) throws FabricationException {
     return store.readPicks(segments);
   }
 
@@ -204,7 +204,7 @@ public class CraftWorkImpl implements CraftWork {
   public boolean isMuted(SegmentChoiceArrangementPick pick) {
     try {
       var segment = store.readSegment(pick.getSegmentId())
-        .orElseThrow(() -> new NexusException("Failed to get Segment[" + pick.getSegmentId() + "]"));
+        .orElseThrow(() -> new FabricationException("Failed to get Segment[" + pick.getSegmentId() + "]"));
       var arrangement = store.read(segment.getId(), SegmentChoiceArrangement.class, pick.getSegmentChoiceArrangementId());
       if (arrangement.isEmpty()) {
         return false;
@@ -212,7 +212,7 @@ public class CraftWorkImpl implements CraftWork {
       var choice = store.read(segment.getId(), SegmentChoice.class, arrangement.get().getSegmentChoiceId());
       return choice.isPresent() ? choice.get().getMute() : false;
 
-    } catch (NexusException e) {
+    } catch (FabricationException e) {
       LOG.warn("Unable to determine if SegmentChoiceArrangementPick[{}] is muted because {}", pick.getId(), e.getMessage());
       return false;
     }
@@ -259,7 +259,7 @@ public class CraftWorkImpl implements CraftWork {
   public Optional<Long> getCraftedToChainMicros() {
     try {
       return store.readAllSegments().stream().filter(segment -> SegmentState.CRAFTED.equals(segment.getState())).max(Comparator.comparing(Segment::getId)).map(SegmentUtils::getEndAtChainMicros);
-    } catch (NexusException e) {
+    } catch (FabricationException e) {
       LOG.warn("Unable to get crafted-to chain micros because {}", e.getMessage());
       return Optional.empty();
     }
@@ -377,7 +377,7 @@ public class CraftWorkImpl implements CraftWork {
       segment = store.put(segment);
       doFabricationWork(segment, null, overrideMacroProgram, overrideMemes);
 
-    } catch (NexusException e) {
+    } catch (FabricationException e) {
       didFailWhile("fabricating", e);
     }
   }
@@ -419,7 +419,7 @@ public class CraftWorkImpl implements CraftWork {
       try {
         mainProgramConfig = new ProgramConfig(currentMainProgram.get().getConfig());
       } catch (ValueException e) {
-        throw new NexusException("Failed to get main program config");
+        throw new FabricationException("Failed to get main program config");
       }
       var subBeats = mainProgramConfig.getBarBeats() * mainProgramConfig.getCutoffMinimumBars();
       var dubbedToSegmentMicros = dubbedToChainMicros - lastSegment.get().getBeginAtChainMicros();
@@ -447,7 +447,7 @@ public class CraftWorkImpl implements CraftWork {
       didOverride.set(true);
 
     } catch (
-      NexusException e
+      FabricationException e
     ) {
       didFailWhile("fabricating", e);
     }
@@ -459,7 +459,7 @@ public class CraftWorkImpl implements CraftWork {
    @param segment          to cut short
    @param cutoffAfterBeats number of beats to cut short after
    */
-  private void doCutoffLastSegment(Segment segment, double cutoffAfterBeats) throws NexusException {
+  private void doCutoffLastSegment(Segment segment, double cutoffAfterBeats) throws FabricationException {
     try {
       var durationMicros = cutoffAfterBeats * MICROS_PER_MINUTE / segment.getTempo();
       LOG.info("Will cut current segment short after {} beats.", cutoffAfterBeats);
@@ -473,13 +473,13 @@ public class CraftWorkImpl implements CraftWork {
               store.delete(segment.getId(), SegmentChoiceArrangementPick.class, pick.getId());
             else if (Objects.nonNull(pick.getLengthMicros()) && pick.getStartAtSegmentMicros() + pick.getLengthMicros() > durationMicros)
               store.put(pick.lengthMicros((long) (durationMicros - pick.getStartAtSegmentMicros())));
-          } catch (NexusException e) {
+          } catch (FabricationException e) {
             LOG.error("Failed to cut SegmentChoiceArrangementPick[{}] short to {} beats because {}", pick.getId(), cutoffAfterBeats, e.getMessage());
           }
         });
 
     } catch (Exception e) {
-      throw new NexusException(String.format("Failed to cut Segment[%d] short to %f beats", segment.getId(), cutoffAfterBeats), e);
+      throw new FabricationException(String.format("Failed to cut Segment[%d] short to %f beats", segment.getId(), cutoffAfterBeats), e);
     }
   }
 
@@ -490,15 +490,15 @@ public class CraftWorkImpl implements CraftWork {
    @param overrideSegmentType  to use for crafting
    @param overrideMacroProgram to override fabrication
    @param overrideMemes        to override fabrication
-   @throws NexusException on configuration failure
-   @throws NexusException on craft failure
+   @throws FabricationException on configuration failure
+   @throws FabricationException on craft failure
    */
   private void doFabricationWork(
     Segment segment,
     @Nullable SegmentType overrideSegmentType,
     @Nullable Program overrideMacroProgram,
     @Nullable Collection<String> overrideMemes
-  ) throws NexusException, FabricationFatalException {
+  ) throws FabricationException, FabricationFatalException {
     LOG.debug("[segId={}] will prepare fabricator", segment.getId());
     Fabricator fabricator = fabricatorFactory.fabricate(content, segment.getId(), outputFrameRate, outputChannels, overrideSegmentType);
 
@@ -531,7 +531,7 @@ public class CraftWorkImpl implements CraftWork {
    <p>
    Medic relies on precomputed telemetry of fabrication latency
    */
-  void doAudioCacheMaintenance(long minChainMicros, long maxChainMicros) throws NexusException {
+  void doAudioCacheMaintenance(long minChainMicros, long maxChainMicros) throws FabricationException {
     // Poke the audio cache to load all known-to-be-upcoming audio to cache; this is a no-op for already-cache audio
     var segments = getSegmentsIfReady(minChainMicros, maxChainMicros);
     Set<UUID> seen = new HashSet<>();
@@ -601,11 +601,11 @@ public class CraftWorkImpl implements CraftWork {
    @param fabricator to update
    @param fromState  of existing segment
    @param toState    of new segment
-   @throws NexusException if record is invalid
+   @throws FabricationException if record is invalid
    */
-  void updateSegmentState(Fabricator fabricator, Segment segment, SegmentState fromState, SegmentState toState) throws NexusException {
+  void updateSegmentState(Fabricator fabricator, Segment segment, SegmentState fromState, SegmentState toState) throws FabricationException {
     if (fromState != segment.getState())
-      throw new NexusException(String.format("Segment[%s] %s requires Segment must be in %s state.", segment.getId(), toState, fromState));
+      throw new FabricationException(String.format("Segment[%s] %s requires Segment must be in %s state.", segment.getId(), toState, fromState));
     var seg = fabricator.getSegment();
     seg.setState(toState);
     fabricator.updateSegment(seg);
@@ -623,7 +623,7 @@ public class CraftWorkImpl implements CraftWork {
       entity.setId(UUID.randomUUID());
       return Optional.ofNullable(store.put(entity));
 
-    } catch (NexusException e) {
+    } catch (FabricationException e) {
       LOG.warn("Failed to bootstrap Template[{}] because {}", TemplateUtils.getIdentifier(template), e.getMessage());
       return Optional.empty();
     }

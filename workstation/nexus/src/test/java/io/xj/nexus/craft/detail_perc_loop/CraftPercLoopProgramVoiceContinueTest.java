@@ -14,7 +14,7 @@ import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.hub.pojos.Instrument;
 import io.xj.hub.pojos.InstrumentAudio;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
@@ -150,7 +150,7 @@ public class CraftPercLoopProgramVoiceContinueTest {
   /**
    Insert fixture segments 3 and 4, including the percLoop choice for segment 3 only if specified
    */
-  void insertSegments3and4() throws NexusException {
+  void insertSegments3and4() throws FabricationException {
     // segment just crafted
     // Testing entities for reference
     Segment segment3 = store.put(buildSegment(

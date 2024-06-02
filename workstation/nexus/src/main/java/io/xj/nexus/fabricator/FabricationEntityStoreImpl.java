@@ -10,7 +10,7 @@ import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
 import io.xj.hub.util.ValueUtils;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
@@ -61,7 +61,7 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
   }
 
   @Override
-  public <N> N put(N entity) throws NexusException {
+  public <N> N put(N entity) throws FabricationException {
     validate(entity);
 
     if (entity instanceof Chain) {
@@ -79,13 +79,13 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
     try {
       id = EntityUtils.getId(entity);
     } catch (EntityException e) {
-      throw new NexusException(String.format("Can't get id of %s-type entity",
+      throw new FabricationException(String.format("Can't get id of %s-type entity",
         entity.getClass().getSimpleName()));
     }
 
     // fail to store entity with unset id
     if (!ValueUtils.isSet(id))
-      throw new NexusException(String.format("Can't store %s with null id",
+      throw new FabricationException(String.format("Can't store %s with null id",
         entity.getClass().getSimpleName()));
 
     else if (entity instanceof SegmentMeme ||
@@ -98,7 +98,7 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
       entity instanceof SegmentChoiceArrangementPick)
       try {
         var segmentIdValue = EntityUtils.get(entity, SEGMENT_ID_ATTRIBUTE)
-          .orElseThrow(() -> new NexusException(String.format("Can't store %s without Segment ID!",
+          .orElseThrow(() -> new FabricationException(String.format("Can't store %s without Segment ID!",
             entity.getClass().getSimpleName())));
         int segmentId = Integer.parseInt(String.valueOf(segmentIdValue));
         if (!entities.containsKey(segmentId))
@@ -106,7 +106,7 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
         entities.get(segmentId).putIfAbsent(entity.getClass(), new ConcurrentHashMap<>());
         entities.get(segmentId).get(entity.getClass()).put(id, entity);
       } catch (EntityException e) {
-        throw new NexusException(e);
+        throw new FabricationException(e);
       }
     else return entity;
 
@@ -141,7 +141,7 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
   }
 
   @Override
-  public <N> Optional<N> read(int segmentId, Class<N> type, UUID id) throws NexusException {
+  public <N> Optional<N> read(int segmentId, Class<N> type, UUID id) throws FabricationException {
     try {
       if (!entities.containsKey(segmentId)
         || !entities.get(segmentId).containsKey(type)
@@ -150,7 +150,7 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
       return (Optional<N>) Optional.ofNullable(entities.get(segmentId).get(type).get(id));
 
     } catch (Exception e) {
-      throw new NexusException(e);
+      throw new FabricationException(e);
     }
   }
 
@@ -270,15 +270,15 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
   }
 
   @Override
-  public void updateSegment(Segment segment) throws NexusException {
+  public void updateSegment(Segment segment) throws FabricationException {
     // validate and cache to-state
     validate(segment);
     SegmentState toState = segment.getState();
 
     // fetch existing segment; further logic is based on its current state
     Segment existing = readSegment(segment.getId())
-      .orElseThrow(() -> new NexusException("Segment #" + segment.getId() + " does not exist"));
-    if (Objects.isNull(existing)) throw new NexusException("Segment #" + segment.getId() + " does not exist");
+      .orElseThrow(() -> new FabricationException("Segment #" + segment.getId() + " does not exist"));
+    if (Objects.isNull(existing)) throw new FabricationException("Segment #" + segment.getId() + " does not exist");
 
     // logic based on existing Segment State
     protectSegmentStateTransition(existing.getState(), toState);
@@ -286,7 +286,7 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
     // fail if attempt to [#128] change chainId of a segment
     Object updateChainId = segment.getChainId();
     if (ValueUtils.isSet(updateChainId) && !Objects.equals(updateChainId, existing.getChainId()))
-      throw new NexusException("cannot change chainId create a segment");
+      throw new FabricationException("cannot change chainId create a segment");
 
     // Never change id
     segment.setId(segment.getId());
@@ -363,9 +363,9 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
 
    @param fromState to protect transition of
    @param toState   to test transition to
-   @throws NexusException on prohibited transition
+   @throws FabricationException on prohibited transition
    */
-  public static void protectSegmentStateTransition(SegmentState fromState, SegmentState toState) throws NexusException {
+  public static void protectSegmentStateTransition(SegmentState fromState, SegmentState toState) throws FabricationException {
     switch (fromState) {
       case PLANNED -> onlyAllowSegmentStateTransitions(toState, SegmentState.PLANNED, SegmentState.CRAFTING);
       case CRAFTING ->
@@ -381,9 +381,9 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
 
    @param toState       to check
    @param allowedStates required to be in
-   @throws NexusException if not in required states
+   @throws FabricationException if not in required states
    */
-  public static void onlyAllowSegmentStateTransitions(SegmentState toState, SegmentState... allowedStates) throws NexusException {
+  public static void onlyAllowSegmentStateTransitions(SegmentState toState, SegmentState... allowedStates) throws FabricationException {
     List<String> allowedStateNames = new ArrayList<>();
     for (SegmentState search : allowedStates) {
       allowedStateNames.add(search.toString());
@@ -391,7 +391,7 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
         return;
       }
     }
-    throw new NexusException(String.format("transition to %s not in allowed (%s)",
+    throw new FabricationException(String.format("transition to %s not in allowed (%s)",
       toState, CsvUtils.join(allowedStateNames)));
   }
 
@@ -399,9 +399,9 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
    Validate a segment or child entity
 
    @param entity to validate
-   @throws NexusException if invalid
+   @throws FabricationException if invalid
    */
-  private void validate(Object entity) throws NexusException {
+  private void validate(Object entity) throws FabricationException {
     try {
       if (entity instanceof Segment)
         validateSegment((Segment) entity);
@@ -411,7 +411,7 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
         validateSegmentMeme((SegmentMeme) entity);
 
     } catch (ValueException e) {
-      throw new NexusException(e);
+      throw new FabricationException(e);
     }
   }
 

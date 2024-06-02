@@ -4,7 +4,7 @@ package io.xj.nexus.fabricator;
 
 import io.xj.hub.pojos.InstrumentAudio;
 import io.xj.hub.util.CsvUtils;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,24 +27,24 @@ public abstract class FabricationWrapperImpl {
   }
 
   /**
-   Create a new NexusException prefixed with a segment id
+   Create a new FabricationException prefixed with a segment id
 
    @param message to include in exception
-   @return NexusException to throw
+   @return FabricationException to throw
    */
-  public NexusException exception(String message) {
-    return new NexusException(formatLog(message));
+  public FabricationException exception(String message) {
+    return new FabricationException(formatLog(message));
   }
 
   /**
-   Create a new NexusException prefixed with a segment id, including sub-exception
+   Create a new FabricationException prefixed with a segment id, including sub-exception
 
    @param message to include in exception
    @param e       Exception to include in exception
-   @return NexusException to throw
+   @return FabricationException to throw
    */
-  public NexusException exception(String message, Exception e) {
-    return new NexusException(formatLog(message), e);
+  public FabricationException exception(String message, Exception e) {
+    return new FabricationException(formatLog(message), e);
   }
 
   /**

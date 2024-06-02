@@ -3,7 +3,7 @@
 package io.xj.nexus.fabricator;
 
 import io.xj.hub.enums.ProgramType;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
@@ -29,9 +29,9 @@ public interface FabricationEntityStore {
    @param <N>    types of entities
    @param entity to store
    @return payload that was stored, for chaining methods
-   @throws NexusException on failure to persist the specified payload
+   @throws FabricationException on failure to persist the specified payload
    */
-  <N> N put(N entity) throws NexusException;
+  <N> N put(N entity) throws FabricationException;
 
   /**
    Get an entity by partition (segment id), type, and id from the record store
@@ -39,9 +39,9 @@ public interface FabricationEntityStore {
    @param <N>       type of entity
    @param segmentId partition (segment id) of entity
    @return N of given type and id
-   @throws NexusException on failure to retrieve the requested key
+   @throws FabricationException on failure to retrieve the requested key
    */
-  <N> Optional<N> read(int segmentId, Class<N> type, UUID id) throws NexusException;
+  <N> Optional<N> read(int segmentId, Class<N> type, UUID id) throws FabricationException;
 
   /**
    Get all entities by partition (segment id) and type from the record store
@@ -66,14 +66,14 @@ public interface FabricationEntityStore {
    @param belongsToType type of belongs-to entity
    @param belongsToIds  ids of belongs-to entity
    @return collection of given type
-   @throws NexusException on failure to retrieve the requested key
+   @throws FabricationException on failure to retrieve the requested key
    */
   <N, B> Collection<N> readAll(
     int segmentId,
     Class<N> type,
     Class<B> belongsToType,
     Collection<UUID> belongsToIds
-  ) throws NexusException;
+  ) throws FabricationException;
 
   /**
    Get all picks for the given segments
@@ -81,7 +81,7 @@ public interface FabricationEntityStore {
    @param segments for which to get picks
    @return picks
    */
-  List<SegmentChoiceArrangementPick> readPicks(List<Segment> segments) throws NexusException;
+  List<SegmentChoiceArrangementPick> readPicks(List<Segment> segments) throws FabricationException;
 
   /**
    Get the last known segment id
@@ -133,9 +133,9 @@ public interface FabricationEntityStore {
    Get all segments for a chain id
 
    @return collection of segments
-   @throws NexusException on failure to retrieve the requested key
+   @throws FabricationException on failure to retrieve the requested key
    */
-  List<Segment> readAllSegments() throws NexusException;
+  List<Segment> readAllSegments() throws FabricationException;
 
   /**
    Read all Segments that are accessible, by Chain ID, starting and ending at particular offsets
@@ -194,9 +194,9 @@ public interface FabricationEntityStore {
    Update a specified Entity
 
    @param segment for the updated Entity.
-   @throws NexusException on failure
+   @throws FabricationException on failure
    */
-  void updateSegment(Segment segment) throws NexusException;
+  void updateSegment(Segment segment) throws FabricationException;
 
   /**
    Delete a Segment entity specified by partition (segment id), class and id
@@ -215,12 +215,12 @@ public interface FabricationEntityStore {
    @param segmentId partition (segment id) of entity
    @param type      of class to delete
    */
-  <N> void clear(Integer segmentId, Class<N> type) throws NexusException;
+  <N> void clear(Integer segmentId, Class<N> type) throws FabricationException;
 
   /**
    Delete all records in the store (e.g. during integration testing)
    */
-  void clear() throws NexusException;
+  void clear() throws FabricationException;
 
   /**
    Delete all segments before the given segment id

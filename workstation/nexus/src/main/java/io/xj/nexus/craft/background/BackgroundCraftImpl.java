@@ -5,7 +5,7 @@ package io.xj.nexus.craft.background;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.pojos.Instrument;
 import io.xj.hub.pojos.InstrumentAudio;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.model.SegmentChoice;
@@ -30,7 +30,7 @@ public class BackgroundCraftImpl extends CraftImpl implements BackgroundCraft {
   }
 
   @Override
-  public void doWork() throws NexusException {
+  public void doWork() throws FabricationException {
     Optional<SegmentChoice> previousChoice = fabricator.retrospective().getPreviousChoiceOfType(InstrumentType.Background);
 
     var instrument = previousChoice.isPresent() ?
@@ -50,7 +50,7 @@ public class BackgroundCraftImpl extends CraftImpl implements BackgroundCraft {
    @param instrument for which to craft
    */
   @SuppressWarnings("DuplicatedCode")
-  void craftBackground(Instrument instrument) throws NexusException {
+  void craftBackground(Instrument instrument) throws FabricationException {
     var choice = new SegmentChoice();
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());

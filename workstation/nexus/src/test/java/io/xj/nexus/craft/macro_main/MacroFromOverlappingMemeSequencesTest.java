@@ -18,7 +18,7 @@ import io.xj.hub.pojos.Project;
 import io.xj.hub.pojos.ProjectUser;
 import io.xj.hub.pojos.TemplateBinding;
 import io.xj.hub.pojos.User;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.model.Chain;
@@ -178,7 +178,7 @@ public class MacroFromOverlappingMemeSequencesTest {
   }
 
   @Test
-  public void chooseNextMacroProgram_alwaysBasedOnOverlappingMemes() throws NexusException {
+  public void chooseNextMacroProgram_alwaysBasedOnOverlappingMemes() throws FabricationException {
     // This test is repeated many times to ensure the correct function of macro choice
     // At 100 repetitions, false positive is 2^100:1 against
     for (int i = 0; i < REPEAT_TIMES; i++) {

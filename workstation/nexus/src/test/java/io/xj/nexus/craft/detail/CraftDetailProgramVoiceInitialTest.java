@@ -10,7 +10,7 @@ import io.xj.hub.json.JsonProvider;
 import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
@@ -131,7 +131,7 @@ public class CraftDetailProgramVoiceInitialTest {
   /**
    Insert fixture segment 6, including the detail choice only if specified
    */
-  void insertSegments() throws NexusException {
+  void insertSegments() throws FabricationException {
     // segment crafted
     Segment segment0 = store.put(buildSegment(
       chain2,

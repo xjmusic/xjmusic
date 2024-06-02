@@ -14,7 +14,7 @@ import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.hub.music.StickyBun;
 import io.xj.hub.pojos.Program;
 import io.xj.hub.pojos.ProgramSequenceBinding;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.model.Chain;
@@ -87,7 +87,7 @@ public class SegmentRetrospectiveImplTest {
     segment4 = constructSegmentAndChoices(chain1, SegmentType.NEXT_MACRO, 14, 0, fake.program3, fake.program3_sequence0_binding0, fake.program15, fake.program15_sequence0_binding0);
   }
 
-  Segment constructSegmentAndChoices(Chain chain, SegmentType type, int offset, int delta, Program macro, ProgramSequenceBinding macroSB, Program main, ProgramSequenceBinding mainSB) throws NexusException {
+  Segment constructSegmentAndChoices(Chain chain, SegmentType type, int offset, int delta, Program macro, ProgramSequenceBinding macroSB, Program main, ProgramSequenceBinding mainSB) throws FabricationException {
     var segment = store.put(buildSegment(
       chain,
       type,
@@ -117,7 +117,7 @@ public class SegmentRetrospectiveImplTest {
   }
 
   @Test
-  public void getPreviousChoiceOfType() throws NexusException, FabricationFatalException {
+  public void getPreviousChoiceOfType() throws FabricationException, FabricationFatalException {
     var subject = fabricatorFactory.loadRetrospective(segment3.getId());
 
     var result = subject.getPreviousChoiceOfType(ProgramType.Main);
@@ -127,7 +127,7 @@ public class SegmentRetrospectiveImplTest {
   }
 
   @Test
-  public void getPreviousChoiceOfType_forNextMacroSegment() throws NexusException, FabricationFatalException {
+  public void getPreviousChoiceOfType_forNextMacroSegment() throws FabricationException, FabricationFatalException {
     var subject = fabricatorFactory.loadRetrospective(segment4.getId());
 
     var result = subject.getPreviousChoiceOfType(ProgramType.Main);
@@ -137,7 +137,7 @@ public class SegmentRetrospectiveImplTest {
   }
 
   @Test
-  public void getPreviousChoiceOfType_forNextMainSegment() throws NexusException, FabricationFatalException {
+  public void getPreviousChoiceOfType_forNextMainSegment() throws FabricationException, FabricationFatalException {
     var subject = fabricatorFactory.loadRetrospective(segment1.getId());
 
     var result = subject.getPreviousChoiceOfType(ProgramType.Main);
@@ -150,7 +150,7 @@ public class SegmentRetrospectiveImplTest {
    Failure requiring a chain restart https://github.com/xjmusic/workstation/issues/263
    */
   @Test
-  public void failureToReadMainChoiceIsFatal() throws NexusException {
+  public void failureToReadMainChoiceIsFatal() throws FabricationException {
     for (SegmentChoice c : store.readAll(segment0.getId(), SegmentChoice.class))
       if (c.getProgramType().equals(ProgramType.Main))
         store.delete(segment0.getId(), SegmentChoice.class, c.getId());
@@ -164,7 +164,7 @@ public class SegmentRetrospectiveImplTest {
    Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/workstation/issues/222
    */
   @Test
-  public void getPreviousMeta() throws NexusException, FabricationFatalException, JsonProcessingException {
+  public void getPreviousMeta() throws FabricationException, FabricationFatalException, JsonProcessingException {
     var bun = new StickyBun(patternId, 1);
     var json = jsonProvider.getMapper().writeValueAsString(bun);
     store.put(buildSegmentMeta(segment3, "StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e", json));

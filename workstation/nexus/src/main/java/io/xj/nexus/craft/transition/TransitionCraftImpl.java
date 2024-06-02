@@ -7,7 +7,7 @@ import io.xj.hub.music.Bar;
 import io.xj.hub.pojos.Instrument;
 import io.xj.hub.pojos.InstrumentAudio;
 import io.xj.hub.util.StringUtils;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.model.SegmentChoice;
@@ -42,7 +42,7 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
   }
 
   @Override
-  public void doWork() throws NexusException {
+  public void doWork() throws FabricationException {
     Optional<SegmentChoice> previousChoice = fabricator.retrospective().getPreviousChoiceOfType(InstrumentType.Transition);
 
     var instrument = previousChoice.isPresent() ?
@@ -61,7 +61,7 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
 
    @return true if it is a big transition segment
    */
-  boolean isBigTransitionSegment() throws NexusException {
+  boolean isBigTransitionSegment() throws FabricationException {
     return switch (fabricator.getType()) {
       case PENDING, CONTINUE -> false;
       case INITIAL, NEXT_MAIN, NEXT_MACRO -> true;
@@ -75,14 +75,14 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
 
    @return true if it is a medium transition segment
    */
-  boolean isMediumTransitionSegment() throws NexusException {
+  boolean isMediumTransitionSegment() throws FabricationException {
     return switch (fabricator.getType()) {
       case PENDING, INITIAL, NEXT_MAIN, NEXT_MACRO -> false;
       case CONTINUE -> !fabricator.getCurrentMainSequence()
-        .orElseThrow(() -> new NexusException("Can't get current main sequence"))
+        .orElseThrow(() -> new FabricationException("Can't get current main sequence"))
         .getId()
         .equals(fabricator.getPreviousMainSequence().orElseThrow(() ->
-          new NexusException("Can't get previous main sequence")).getId());
+          new FabricationException("Can't get previous main sequence")).getId());
     };
   }
 
@@ -93,7 +93,7 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
    @param instrument of percussion loop instrument to craft
    */
   @SuppressWarnings("DuplicatedCode")
-  void craftTransition(double tempo, Instrument instrument) throws NexusException {
+  void craftTransition(double tempo, Instrument instrument) throws FabricationException {
     var choice = new SegmentChoice();
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());

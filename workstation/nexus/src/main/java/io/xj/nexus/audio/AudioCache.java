@@ -2,8 +2,7 @@
 package io.xj.nexus.audio;
 
 import io.xj.hub.pojos.InstrumentAudio;
-import io.xj.nexus.NexusException;
-import io.xj.nexus.mixer.ActiveAudio;
+import io.xj.nexus.FabricationException;
 
 import java.io.IOException;
 import java.util.List;
@@ -16,7 +15,7 @@ public interface AudioCache {
    @param audio to retrieve
    @return stream if cached; null if not
    */
-  AudioInMemory load(InstrumentAudio audio) throws AudioCacheException, IOException, NexusException;
+  AudioInMemory load(InstrumentAudio audio) throws AudioCacheException, IOException, FabricationException;
 
   /**
    Load all the given audios into memory and forget the rest
@@ -30,7 +29,7 @@ public interface AudioCache {
 
    @param audio to prepare
    */
-  AudioCacheImpl.AudioPreparedOnDisk prepare(InstrumentAudio audio) throws AudioCacheException, IOException, NexusException;
+  AudioCacheImpl.AudioPreparedOnDisk prepare(InstrumentAudio audio) throws AudioCacheException, IOException, FabricationException;
 
   /**
    Initialize the audio cache with the given parameters@param targetFrameRate          to resample if necessary

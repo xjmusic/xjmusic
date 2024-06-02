@@ -8,7 +8,7 @@ import io.xj.hub.json.JsonProvider;
 import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
@@ -115,7 +115,7 @@ public class CraftHookNextMainTest {
   /**
    Insert fixture segments 3 and 4, including the hook choice for segment 3 only if specified
    */
-  void insertSegments3and4() throws NexusException {
+  void insertSegments3and4() throws FabricationException {
     // segment just crafted
     // Testing entities for reference
     Segment segment3 = store.put(buildSegment(

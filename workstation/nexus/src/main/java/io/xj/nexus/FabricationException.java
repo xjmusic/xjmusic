@@ -4,22 +4,22 @@ package io.xj.nexus;
 import io.xj.hub.util.StringUtils;
 import jakarta.annotation.Nullable;
 
-public class NexusException extends Exception {
+public class FabricationException extends Exception {
 
-  public NexusException(String msg) {
+  public FabricationException(String msg) {
     super(msg);
   }
 
-  public NexusException(@Nullable String msg, Exception e) {
+  public FabricationException(@Nullable String msg, Exception e) {
     super(String.format("%s%s\n%s", StringUtils.isNullOrEmpty(msg) ? "" : msg + " ", e.getMessage(), e));
     setStackTrace(e.getStackTrace());
   }
 
-  public NexusException(Throwable e) {
+  public FabricationException(Throwable e) {
     super(null, e);
   }
 
-  public NexusException() {
+  public FabricationException() {
     super();
   }
 }

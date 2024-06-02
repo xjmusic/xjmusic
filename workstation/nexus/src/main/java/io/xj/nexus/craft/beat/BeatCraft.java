@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.craft.beat;
 
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 
 /**
  Structure craft for the current segment beat
@@ -14,5 +14,5 @@ public interface BeatCraft {
    Artist wants Pattern to have type Macro or Main (for Macro- or Main-type sequences), or Intro, Loop, or Outro (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment. https://github.com/xjmusic/workstation/issues/257
    Artist wants dynamic randomness over the selection of various audio events to fulfill particular pattern events, in order to establish repetition within any given segment. https://github.com/xjmusic/workstation/issues/258
    */
-  void doWork() throws NexusException;
+  void doWork() throws FabricationException;
 }

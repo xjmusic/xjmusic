@@ -3,7 +3,7 @@ package io.xj.nexus.fabricator;
 
 
 import io.xj.hub.HubContent;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.model.SegmentType;
 import jakarta.annotation.Nullable;
 
@@ -24,7 +24,7 @@ public interface FabricatorFactory {
    @param outputChannels      output channels
    @param overrideSegmentType override segment type
    @return Fabricator
-   @throws NexusException            on retry-able network or service failure
+   @throws FabricationException            on retry-able network or service failure
    @throws FabricationFatalException on failure requiring a chain restart https://github.com/xjmusic/workstation/issues/263
    */
   Fabricator fabricate(
@@ -33,7 +33,7 @@ public interface FabricatorFactory {
     double outputFrameRate,
     int outputChannels,
     @Nullable SegmentType overrideSegmentType
-  ) throws NexusException, FabricationFatalException;
+  ) throws FabricationException, FabricationFatalException;
 
   /**
    Create a retrospective to fabricate a particular segment
@@ -44,10 +44,10 @@ public interface FabricatorFactory {
 
    @param segmentId Segment that's currently on the workbench
    @return SegmentRetrospective
-   @throws NexusException            on retry-able network or service failure
+   @throws FabricationException            on retry-able network or service failure
    @throws FabricationFatalException on failure requiring a chain restart https://github.com/xjmusic/workstation/issues/263
    */
   SegmentRetrospective loadRetrospective(
     Integer segmentId
-  ) throws NexusException, FabricationFatalException;
+  ) throws FabricationException, FabricationFatalException;
 }

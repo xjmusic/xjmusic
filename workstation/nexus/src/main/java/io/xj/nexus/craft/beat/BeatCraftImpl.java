@@ -6,7 +6,7 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.pojos.Program;
 import io.xj.hub.pojos.ProgramVoice;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.model.SegmentChoice;
@@ -31,7 +31,7 @@ public class BeatCraftImpl extends CraftImpl implements BeatCraft {
   }
 
   @Override
-  public void doWork() throws NexusException {
+  public void doWork() throws FabricationException {
     Optional<SegmentChoice> priorBeatChoice = fabricator.getChoicesIfContinued(ProgramType.Beat).stream().findFirst();
 
     // Program is from prior choice, or freshly chosen
@@ -72,7 +72,7 @@ public class BeatCraftImpl extends CraftImpl implements BeatCraft {
         choice.setId(UUID.randomUUID());
         choice.setSegmentId(fabricator.getSegment().getId());
         choice.setMute(computeMute(voice.getType()));
-        choice.setProgramType(fabricator.sourceMaterial().getProgram(voice.getProgramId()).orElseThrow(() -> new NexusException("Can't get program for voice")).getType());
+        choice.setProgramType(fabricator.sourceMaterial().getProgram(voice.getProgramId()).orElseThrow(() -> new FabricationException("Can't get program for voice")).getType());
         choice.setInstrumentType(voice.getType());
         choice.setProgramId(voice.getProgramId());
         choice.setProgramSequenceId(sequence.get().getId());

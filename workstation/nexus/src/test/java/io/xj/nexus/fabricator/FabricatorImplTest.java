@@ -17,7 +17,7 @@ import io.xj.hub.music.PitchClass;
 import io.xj.hub.music.StickyBun;
 import io.xj.hub.pojos.Template;
 import io.xj.hub.util.ValueException;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.model.ChainState;
@@ -152,7 +152,7 @@ public class FabricatorImplTest {
    Choose next Macro program based on the memes of the last sequence from the previous Macro program https://github.com/xjmusic/workstation/issues/299
    */
   @Test
-  public void getType() throws NexusException, FabricationFatalException {
+  public void getType() throws FabricationException, FabricationFatalException {
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE));
     Segment previousSegment = store.put(buildSegment(chain, 1, SegmentState.CRAFTED, "F major", 8, 0.6f, 120.0f, "seg123"));
     var previousMacroChoice = // second-to-last sequence of macro program
@@ -173,7 +173,7 @@ public class FabricatorImplTest {
   // FUTURE: test getChoicesOfPreviousSegments
 
   @Test
-  public void getMemeIsometryOfNextSequenceInPreviousMacro() throws NexusException, FabricationFatalException {
+  public void getMemeIsometryOfNextSequenceInPreviousMacro() throws FabricationException, FabricationFatalException {
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE));
     Segment previousSegment = store.put(buildSegment(chain, 1, SegmentState.CRAFTED, "F major", 8, 0.6f, 120.0f, "seg123"));
     var previousMacroChoice = // second-to-last sequence of macro program
@@ -190,7 +190,7 @@ public class FabricatorImplTest {
   }
 
   @Test
-  public void getChordAt() throws NexusException, FabricationFatalException, ValueException {
+  public void getChordAt() throws FabricationException, FabricationFatalException, ValueException {
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE));
     segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
@@ -210,7 +210,7 @@ public class FabricatorImplTest {
   }
 
   @Test
-  public void computeProgramRange() throws NexusException, FabricationFatalException, ValueException {
+  public void computeProgramRange() throws FabricationException, FabricationFatalException, ValueException {
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE));
     segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
@@ -229,7 +229,7 @@ public class FabricatorImplTest {
   }
 
   @Test
-  public void computeProgramRange_ignoresAtonalNotes() throws NexusException, FabricationFatalException, ValueException {
+  public void computeProgramRange_ignoresAtonalNotes() throws FabricationException, FabricationFatalException, ValueException {
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE));
     segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
@@ -248,7 +248,7 @@ public class FabricatorImplTest {
   }
 
   @Test
-  public void getProgramSequence_fromSequence() throws NexusException, FabricationFatalException, ValueException {
+  public void getProgramSequence_fromSequence() throws FabricationException, FabricationFatalException, ValueException {
     var project1 = buildProject("fish");
     Template template1 = buildTemplate(project1, "Test Template 1", "test1");
     var chain = store.put(NexusIntegrationTestingFixtures.buildChain(template1));
@@ -264,7 +264,7 @@ public class FabricatorImplTest {
   }
 
   @Test
-  public void getProgramSequence_fromSequenceBinding() throws NexusException, FabricationFatalException, ValueException {
+  public void getProgramSequence_fromSequenceBinding() throws FabricationException, FabricationFatalException, ValueException {
     var project1 = buildProject("fish");
     Template template1 = buildTemplate(project1, "Test Template 1", "test1");
     var chain = store.put(NexusIntegrationTestingFixtures.buildChain(template1));
@@ -293,7 +293,7 @@ public class FabricatorImplTest {
    Should add meme from ALL program and instrument types! https://github.com/xjmusic/workstation/issues/210
    */
   @Test
-  public void put_addsMemesForChoice() throws NexusException {
+  public void put_addsMemesForChoice() throws FabricationException {
     subject.put(buildSegmentChoice(segment, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, fake.program9, fake.program9_voice0, fake.instrument8), false);
     subject.put(buildSegmentChoice(segment, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, fake.program4, fake.program4_sequence1_binding0), false);
 
@@ -315,7 +315,7 @@ public class FabricatorImplTest {
    Sticky bun note choices should persist into following segments https://github.com/xjmusic/workstation/issues/281
    */
   @Test
-  public void getStickyBun_readMetaFromCurrentSegment() throws JsonProcessingException, NexusException {
+  public void getStickyBun_readMetaFromCurrentSegment() throws JsonProcessingException, FabricationException {
     var bun = new StickyBun(fake.program9_sequence0_pattern0_event0.getId(), 3);
     var bunJson = jsonProvider.getMapper().writeValueAsString(bun);
     var bunKey = StickyBun.computeMetaKey(fake.program9_sequence0_pattern0_event0.getId());
@@ -364,7 +364,7 @@ public class FabricatorImplTest {
    Sticky bun note choices should persist into following segments https://github.com/xjmusic/workstation/issues/281
    */
   @Test
-  public void getStickyBun_multipleEventsPickedSeparately() throws JsonProcessingException, NexusException {
+  public void getStickyBun_multipleEventsPickedSeparately() throws JsonProcessingException, FabricationException {
     var bun0 = new StickyBun(fake.program9_sequence0_pattern0_event0.getId(), 3);
     var bunJson0 = jsonProvider.getMapper().writeValueAsString(bun0);
     var bunKey0 = StickyBun.computeMetaKey(fake.program9_sequence0_pattern0_event0.getId());

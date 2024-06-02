@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.craft.detail;
 
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 
 /**
  Structure craft for the current segment includes all kinds of Detail
@@ -16,6 +16,6 @@ public interface DetailCraft {
    Workstation fabrication Layering/Intensity
    https://github.com/xjmusic/workstation/issues/196
    */
-  void doWork() throws NexusException;
+  void doWork() throws FabricationException;
 
 }

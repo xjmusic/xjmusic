@@ -3,7 +3,7 @@
 package io.xj.nexus.craft;
 
 import io.xj.hub.pojos.Program;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.craft.background.BackgroundCraft;
 import io.xj.nexus.craft.background.BackgroundCraftImpl;
 import io.xj.nexus.craft.beat.BeatCraft;
@@ -30,22 +30,22 @@ public class CraftFactoryImpl implements CraftFactory {
   }
 
   @Override
-  public BeatCraft beat(Fabricator fabricator) throws NexusException {
+  public BeatCraft beat(Fabricator fabricator) throws FabricationException {
     return new BeatCraftImpl(fabricator);
   }
 
   @Override
-  public DetailCraft detail(Fabricator fabricator) throws NexusException {
+  public DetailCraft detail(Fabricator fabricator) throws FabricationException {
     return new DetailCraftImpl(fabricator);
   }
 
   @Override
-  public TransitionCraft transition(Fabricator fabricator) throws NexusException {
+  public TransitionCraft transition(Fabricator fabricator) throws FabricationException {
     return new TransitionCraftImpl(fabricator);
   }
 
   @Override
-  public BackgroundCraft background(Fabricator fabricator) throws NexusException {
+  public BackgroundCraft background(Fabricator fabricator) throws FabricationException {
     return new BackgroundCraftImpl(fabricator);
   }
 }

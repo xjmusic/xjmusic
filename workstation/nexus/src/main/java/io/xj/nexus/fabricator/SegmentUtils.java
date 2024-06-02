@@ -7,7 +7,7 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.hub.music.Note;
 import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.StringUtils;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
@@ -41,9 +41,9 @@ public enum SegmentUtils {
    @param type           to find one of
    @return segment choice of given type
    */
-  public static SegmentChoice findFirstOfType(Collection<SegmentChoice> segmentChoices, ProgramType type) throws NexusException {
+  public static SegmentChoice findFirstOfType(Collection<SegmentChoice> segmentChoices, ProgramType type) throws FabricationException {
     Optional<SegmentChoice> found = segmentChoices.stream().filter(c -> c.getProgramType().equals(type)).findFirst();
-    if (found.isEmpty()) throw new NexusException(String.format("No %s-type choice found", type));
+    if (found.isEmpty()) throw new FabricationException(String.format("No %s-type choice found", type));
     return found.get();
   }
 
@@ -54,9 +54,9 @@ public enum SegmentUtils {
    @param type           to find one of
    @return segment choice of given type
    */
-  public static SegmentChoice findFirstOfType(Collection<SegmentChoice> segmentChoices, InstrumentType type) throws NexusException {
+  public static SegmentChoice findFirstOfType(Collection<SegmentChoice> segmentChoices, InstrumentType type) throws FabricationException {
     Optional<SegmentChoice> found = segmentChoices.stream().filter(c -> c.getInstrumentType().equals(type)).findFirst();
-    if (found.isEmpty()) throw new NexusException(String.format("No %s-type choice found", type));
+    if (found.isEmpty()) throw new FabricationException(String.format("No %s-type choice found", type));
     return found.get();
   }
 

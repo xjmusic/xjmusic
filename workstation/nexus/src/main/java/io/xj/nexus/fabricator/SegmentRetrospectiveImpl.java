@@ -4,7 +4,7 @@ package io.xj.nexus.fabricator;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
@@ -37,7 +37,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   public SegmentRetrospectiveImpl(
     FabricationEntityStore entityStore,
     Integer segmentId
-  ) throws NexusException, FabricationFatalException {
+  ) throws FabricationException, FabricationFatalException {
     this.entityStore = entityStore;
 
     // NOTE: the segment retrospective is empty for segments of type Initial, NextMain, and NextMacro--
@@ -164,7 +164,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public InstrumentType getInstrumentType(SegmentChoiceArrangementPick pick) throws NexusException {
+  public InstrumentType getInstrumentType(SegmentChoiceArrangementPick pick) throws FabricationException {
     return getChoice(getArrangement(pick)).getInstrumentType();
   }
 
@@ -176,21 +176,21 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public SegmentChoiceArrangement getArrangement(SegmentChoiceArrangementPick pick) throws NexusException {
+  public SegmentChoiceArrangement getArrangement(SegmentChoiceArrangementPick pick) throws FabricationException {
     return entityStore.readManySubEntitiesOfType(pick.getSegmentId(), SegmentChoiceArrangement.class)
       .stream()
       .filter(arrangement -> Objects.equals(arrangement.getId(), pick.getSegmentChoiceArrangementId()))
       .findFirst()
-      .orElseThrow(() -> new NexusException(String.format("Failed to get arrangement for SegmentChoiceArrangementPick[%s]", pick.getId())));
+      .orElseThrow(() -> new FabricationException(String.format("Failed to get arrangement for SegmentChoiceArrangementPick[%s]", pick.getId())));
   }
 
   @Override
-  public SegmentChoice getChoice(SegmentChoiceArrangement arrangement) throws NexusException {
+  public SegmentChoice getChoice(SegmentChoiceArrangement arrangement) throws FabricationException {
     return entityStore.readManySubEntitiesOfType(arrangement.getSegmentId(), SegmentChoice.class)
       .stream()
       .filter(choice -> Objects.equals(arrangement.getSegmentChoiceId(), choice.getId()))
       .findFirst()
-      .orElseThrow(() -> new NexusException(String.format("Failed to get arrangement for SegmentChoiceArrangement[%s]", arrangement.getId())));
+      .orElseThrow(() -> new FabricationException(String.format("Failed to get arrangement for SegmentChoiceArrangement[%s]", arrangement.getId())));
   }
 
   @Override

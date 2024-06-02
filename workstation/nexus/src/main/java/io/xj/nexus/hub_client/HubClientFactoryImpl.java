@@ -6,7 +6,7 @@ import io.xj.hub.HubContent;
 import io.xj.hub.HubContentPayload;
 import io.xj.hub.json.JsonProvider;
 import io.xj.hub.jsonapi.JsonapiPayloadFactory;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.http.HttpClientProvider;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -99,13 +99,13 @@ public class HubClientFactoryImpl implements HubClientFactory {
    @param url        url
    @param outputPath output path
    */
-  private void downloadRemoteFile(CloseableHttpClient httpClient, String url, String outputPath) throws IOException, NexusException {
+  private void downloadRemoteFile(CloseableHttpClient httpClient, String url, String outputPath) throws IOException, FabricationException {
     //noinspection deprecation
     try (
       CloseableHttpResponse response = httpClient.execute(new HttpGet(url))
     ) {
       if (Objects.isNull(response.getEntity().getContent()))
-        throw new NexusException(String.format("Unable to write bytes to disk: %s", outputPath));
+        throw new FabricationException(String.format("Unable to write bytes to disk: %s", outputPath));
 
       try (OutputStream toFile = FileUtils.openOutputStream(new File(outputPath))) {
         var size = IOUtils.copy(response.getEntity().getContent(), toFile); // stores number of bytes copied
@@ -125,11 +125,11 @@ public class HubClientFactoryImpl implements HubClientFactory {
       }
       var contentLengthHeader = response.getFirstHeader("Content-Length");
       if (Objects.isNull(contentLengthHeader)) {
-        throw new NexusException(String.format("No Content-Length header found: %s", url));
+        throw new FabricationException(String.format("No Content-Length header found: %s", url));
       }
       return Long.parseLong(contentLengthHeader.getValue());
     } catch (Exception e) {
-      throw new NexusException(String.format("Unable to get %s", url), e);
+      throw new FabricationException(String.format("Unable to get %s", url), e);
     }
   }
 

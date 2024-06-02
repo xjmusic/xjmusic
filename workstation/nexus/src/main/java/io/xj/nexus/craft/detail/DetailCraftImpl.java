@@ -8,7 +8,7 @@ import io.xj.hub.pojos.Instrument;
 import io.xj.hub.pojos.InstrumentAudio;
 import io.xj.hub.pojos.Program;
 import io.xj.hub.util.StringUtils;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.model.SegmentChoice;
@@ -44,7 +44,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
   }
 
   @Override
-  public void doWork() throws NexusException {
+  public void doWork() throws FabricationException {
     // Segments have delta arcs; automate mixer layers in and out of each main program https://github.com/xjmusic/workstation/issues/233
     ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) -> StringUtils.stringOrDefault(choice.getInstrumentType(), choice.getId().toString());
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Objects.equals(ProgramType.Detail, choice.getProgramType());
@@ -101,7 +101,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
    @param instrument for which to craft
    */
   @SuppressWarnings("DuplicatedCode")
-  void craftLoopParts(double tempo, Instrument instrument) throws NexusException {
+  void craftLoopParts(double tempo, Instrument instrument) throws FabricationException {
     var choice = new SegmentChoice();
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());

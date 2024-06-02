@@ -6,7 +6,7 @@ import io.xj.hub.TemplateConfig;
 import io.xj.hub.pojos.Instrument;
 import io.xj.hub.pojos.InstrumentAudio;
 import io.xj.hub.pojos.Program;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
@@ -79,7 +79,7 @@ public interface CraftWork extends Work {
    @param segments the segments for which to get picks
    @return the picks for the given segments
    */
-  List<SegmentChoiceArrangementPick> getPicks(List<Segment> segments) throws NexusException;
+  List<SegmentChoiceArrangementPick> getPicks(List<Segment> segments) throws FabricationException;
 
   /**
    Get the instrument for the given pick

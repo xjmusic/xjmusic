@@ -21,7 +21,7 @@ import io.xj.hub.pojos.ProgramVoice;
 import io.xj.hub.pojos.Template;
 import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.StringUtils;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.fabricator.Fabricator;
@@ -338,7 +338,7 @@ FUTURE goal
    @param data YAML file wrapper
    */
   @SuppressWarnings("unchecked")
-  void loadSegment(Map<?, ?> data) throws NexusException {
+  void loadSegment(Map<?, ?> data) throws FabricationException {
     Map<?, ?> obj = (Map<?, ?>) data.get("segment");
 
     segment = store.put(NexusIntegrationTestingFixtures.buildSegment(chain,
@@ -355,7 +355,7 @@ FUTURE goal
         var event = detailProgramSequencePatternEvents.get(sbType).stream()
           .filter(e -> e.getPosition().equals(sbPosition))
           .findAny()
-          .orElseThrow(() -> new NexusException(String.format("Failed to locate event type %s position %f", sbType, sbPosition)));
+          .orElseThrow(() -> new FabricationException(String.format("Failed to locate event type %s position %f", sbType, sbPosition)));
         stickyBuns.add(new StickyBun(event.getId(), List.of(Objects.requireNonNull(sbSeed))));
       }
     }

@@ -32,7 +32,7 @@ import io.xj.hub.pojos.Template;
 import io.xj.hub.pojos.TemplateBinding;
 import io.xj.hub.util.LocalFileUtils;
 import io.xj.hub.util.StringUtils;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.http.HttpClientProvider;
 import io.xj.nexus.hub_client.HubClientException;
 import io.xj.nexus.hub_client.HubClientFactory;
@@ -624,10 +624,10 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public ProgramSequence createProgramSequence(UUID programId) throws Exception {
-    var program = content.get().getProgram(programId).orElseThrow(() -> new NexusException("Program not found"));
-    var library = content.get().getLibrary(program.getLibraryId()).orElseThrow(() -> new NexusException("Library not found"));
+    var program = content.get().getProgram(programId).orElseThrow(() -> new FabricationException("Program not found"));
+    var library = content.get().getLibrary(program.getLibraryId()).orElseThrow(() -> new FabricationException("Library not found"));
     var project = content.get().getProject();
-    if (Objects.isNull(project)) throw new NexusException("Project not found");
+    if (Objects.isNull(project)) throw new FabricationException("Project not found");
     var existingSequencesOfProgram = content.get().getSequencesOfProgram(program.getId());
     var existingSequenceOfProgram = existingSequencesOfProgram.stream().findFirst();
     var existingSequenceOfLibrary = existingSequenceOfProgram.isPresent() ? existingSequenceOfProgram : content.get().getProgramsOfLibrary(library).stream().flatMap(i -> content.get().getSequencesOfProgram(i.getId()).stream()).findFirst();
@@ -657,9 +657,9 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public ProgramSequencePattern createProgramSequencePattern(UUID programId, UUID programSequenceId, UUID programVoiceId) throws Exception {
-    var program = content.get().getProgram(programId).orElseThrow(() -> new NexusException("Program not found"));
-    var sequence = content.get().getProgramSequence(programSequenceId).orElseThrow(() -> new NexusException("Sequence not found"));
-    var voice = content.get().getProgramVoice(programVoiceId).orElseThrow(() -> new NexusException("Voice not found"));
+    var program = content.get().getProgram(programId).orElseThrow(() -> new FabricationException("Program not found"));
+    var sequence = content.get().getProgramSequence(programSequenceId).orElseThrow(() -> new FabricationException("Sequence not found"));
+    var voice = content.get().getProgramVoice(programVoiceId).orElseThrow(() -> new FabricationException("Voice not found"));
     var existingPatternsOfSequence = content.get().getPatternsOfSequence(sequence.getId());
     var existingPatternOfSequence = existingPatternsOfSequence.stream().findFirst();
     var existingPattern = existingPatternOfSequence.isPresent() ? existingPatternOfSequence : content.get().getProgramSequencePatterns().stream().findFirst();
@@ -683,8 +683,8 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public ProgramSequencePatternEvent createProgramSequencePatternEvent(UUID trackId, UUID patternId, double position, double duration) throws Exception {
-    var track = content.get().getProgramVoiceTrack(trackId).orElseThrow(() -> new NexusException("Track not found"));
-    var pattern = content.get().getProgramSequencePattern(patternId).orElseThrow(() -> new NexusException("Pattern not found"));
+    var track = content.get().getProgramVoiceTrack(trackId).orElseThrow(() -> new FabricationException("Track not found"));
+    var pattern = content.get().getProgramSequencePattern(patternId).orElseThrow(() -> new FabricationException("Pattern not found"));
 
     // Prepare the event record
     var event = new ProgramSequencePatternEvent();
@@ -704,9 +704,9 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public ProgramVoice createProgramVoice(UUID programId) throws Exception {
-    var program = content.get().getProgram(programId).orElseThrow(() -> new NexusException("Program not found"));
+    var program = content.get().getProgram(programId).orElseThrow(() -> new FabricationException("Program not found"));
     var project = content.get().getProject();
-    if (Objects.isNull(project)) throw new NexusException("Project not found");
+    if (Objects.isNull(project)) throw new FabricationException("Project not found");
     var existingVoicesOfProgram = content.get().getVoicesOfProgram(program.getId());
 
     // New Create a voice, increment a numerical suffix to make each voice unique, e.g. "New Voice 2" then "New Voice 3"
@@ -732,7 +732,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public ProgramVoiceTrack createProgramVoiceTrack(UUID voiceId) throws Exception {
-    var voice = content.get().getProgramVoice(voiceId).orElseThrow(() -> new NexusException("Voice not found"));
+    var voice = content.get().getProgramVoice(voiceId).orElseThrow(() -> new FabricationException("Voice not found"));
     var existingTracksOfVoice = content.get().getTracksOfVoice(voice.getId());
 
     // New Create a track, increment a numerical suffix to make each track unique, e.g. "New Track 2" then "New Track 3"
@@ -810,9 +810,9 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public InstrumentAudio createInstrumentAudio(Instrument instrument, String audioFilePath) throws Exception {
-    var library = content.get().getLibrary(instrument.getLibraryId()).orElseThrow(() -> new NexusException("Library not found"));
+    var library = content.get().getLibrary(instrument.getLibraryId()).orElseThrow(() -> new FabricationException("Library not found"));
     var project = content.get().getProject();
-    if (Objects.isNull(project)) throw new NexusException("Project not found");
+    if (Objects.isNull(project)) throw new FabricationException("Project not found");
     var existingAudioOfInstrument = content.get().getAudiosOfInstrument(instrument.getId()).stream().findFirst();
     var existingAudioOfLibrary = existingAudioOfInstrument.isPresent() ? existingAudioOfInstrument : content.get().getInstrumentsOfLibrary(library).stream().flatMap(i -> content.get().getAudiosOfInstrument(i.getId()).stream()).findFirst();
     var existingAudio = existingAudioOfLibrary.isPresent() ? existingAudioOfLibrary : content.get().getInstrumentAudios().stream().findFirst();
@@ -854,7 +854,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public Program moveProgram(UUID id, UUID libraryId) throws Exception {
-    var program = content.get().getProgram(id).orElseThrow(() -> new NexusException("Program not found"));
+    var program = content.get().getProgram(id).orElseThrow(() -> new FabricationException("Program not found"));
     program.setLibraryId(libraryId);
     content.get().put(program);
     return program;
@@ -862,7 +862,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public Instrument moveInstrument(UUID id, UUID libraryId) throws Exception {
-    var instrument = content.get().getInstrument(id).orElseThrow(() -> new NexusException("Instrument not found"));
+    var instrument = content.get().getInstrument(id).orElseThrow(() -> new FabricationException("Instrument not found"));
     instrument.setLibraryId(libraryId);
     content.get().put(instrument);
     return instrument;
@@ -870,7 +870,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public Template duplicateTemplate(UUID fromId, String name) throws Exception {
-    var source = content.get().getTemplate(fromId).orElseThrow(() -> new NexusException("Template not found"));
+    var source = content.get().getTemplate(fromId).orElseThrow(() -> new FabricationException("Template not found"));
 
     // New Create a template, increment a numerical suffix to make each sequence unique, e.g. "New Template 2" then "New Template 3"
     var existingTemplates = content.get().getTemplates();
@@ -893,7 +893,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public Library duplicateLibrary(UUID fromId, String name) throws Exception {
-    var source = content.get().getLibrary(fromId).orElseThrow(() -> new NexusException("Library not found"));
+    var source = content.get().getLibrary(fromId).orElseThrow(() -> new FabricationException("Library not found"));
 
     // New Create a library, increment a numerical suffix to make each sequence unique, e.g. "New Library 2" then "New Library 3"
     var existingLibraries = content.get().getLibraries();
@@ -922,7 +922,7 @@ public class ProjectManagerImpl implements ProjectManager {
   @SuppressWarnings("CollectionAddAllCanBeReplacedWithConstructor")
   @Override
   public Program duplicateProgram(UUID fromId, UUID libraryId, String name) throws Exception {
-    var source = content.get().getProgram(fromId).orElseThrow(() -> new NexusException("Program not found"));
+    var source = content.get().getProgram(fromId).orElseThrow(() -> new FabricationException("Program not found"));
 
     // New Create a program, increment a numerical suffix to make each sequence unique, e.g. "New Program 2" then "New Program 3"
     var existingProgramsOfLibrary = content.get().getProgramsOfLibrary(source.getLibraryId());
@@ -1028,7 +1028,7 @@ public class ProjectManagerImpl implements ProjectManager {
   @SuppressWarnings("CollectionAddAllCanBeReplacedWithConstructor")
   @Override
   public ProgramSequence duplicateProgramSequence(UUID fromId) throws Exception {
-    var source = content.get().getProgramSequence(fromId).orElseThrow(() -> new NexusException("Program Sequence not found"));
+    var source = content.get().getProgramSequence(fromId).orElseThrow(() -> new FabricationException("Program Sequence not found"));
 
     // Duplicate Program
     var duplicatedSequence = entityFactory.duplicate(source);
@@ -1082,7 +1082,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public ProgramSequencePattern duplicateProgramSequencePattern(UUID fromId) throws Exception {
-    var source = content.get().getProgramSequencePattern(fromId).orElseThrow(() -> new NexusException("Program Sequence Pattern not found"));
+    var source = content.get().getProgramSequencePattern(fromId).orElseThrow(() -> new FabricationException("Program Sequence Pattern not found"));
 
     // Duplicate Program
     var duplicatedPattern = entityFactory.duplicate(source);
@@ -1100,7 +1100,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public Instrument duplicateInstrument(UUID fromId, UUID libraryId, String name) throws Exception {
-    var source = content.get().getInstrument(fromId).orElseThrow(() -> new NexusException("Instrument not found"));
+    var source = content.get().getInstrument(fromId).orElseThrow(() -> new FabricationException("Instrument not found"));
 
     // New Create a instrument, increment a numerical suffix to make each sequence unique, e.g. "New Instrument 2" then "New Instrument 3"
     var existingInstrumentsOfLibrary = content.get().getInstrumentsOfLibrary(source.getLibraryId());

@@ -7,7 +7,7 @@ import io.xj.hub.entity.EntityFactoryImpl;
 import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.FabricationException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.audio.AudioCache;
@@ -126,7 +126,7 @@ public class ComplexLibraryTest {
 
    @return true if it has at least N segments
    */
-  boolean hasSegmentsDubbedPastMinimumOffset() throws NexusException {
+  boolean hasSegmentsDubbedPastMinimumOffset() throws FabricationException {
     var chain = work.getChain();
     if (chain.isEmpty())
       return false;
