@@ -26,7 +26,7 @@ TODO remove Java imports
   import io.xj.hub.pojos.ProgramSequencePattern;
   import io.xj.hub.pojos.ProgramSequencePatternEvent;
   import io.xj.hub.pojos.ProgramVoice;
-  import io.xj.nexus.NexusException;
+  import io.xj.nexus.EngineException;
   import io.xj.nexus.model.Chain;
   import io.xj.nexus.model.Segment;
   import io.xj.nexus.model.SegmentChoice;
@@ -82,7 +82,7 @@ public interface Fabricator {
    @param type      of class to delete
    @param id        to delete
    */
-  <N> void delete(int segmentId, Class<N> type, UUID id) throws NexusException;
+  <N> void delete(int segmentId, Class<N> type, UUID id) throws EngineException;
 
   /**
    Get arrangements for segment
@@ -197,7 +197,7 @@ public interface Fabricator {
 
    @return set of voicing (instrument) types
    */
-  Set<InstrumentType> getDistinctChordVoicingTypes() throws NexusException;
+  Set<InstrumentType> getDistinctChordVoicingTypes() throws EngineException;
 
   /**
    @return Seconds elapsed since fabricator was instantiated
@@ -218,7 +218,7 @@ public interface Fabricator {
    @param pick to get key of
    @return unique key for pattern event
    */
-  String computeCacheKeyForVoiceTrack(SegmentChoiceArrangementPick pick) throws NexusException;
+  String computeCacheKeyForVoiceTrack(SegmentChoiceArrangementPick pick) throws EngineException;
 
   /**
    Get the Key for any given Choice, preferring its Sequence Key (bound), defaulting to the Program Key.
@@ -227,9 +227,9 @@ public interface Fabricator {
 
    @param choice to get key for
    @return key of specified sequence/program via choice
-   @throws NexusException if unable to determine key of choice
+   @throws EngineException if unable to determine key of choice
    */
-  Chord getKeyForChoice(SegmentChoice choice) throws NexusException;
+  Chord getKeyForChoice(SegmentChoice choice) throws EngineException;
 
   /**
    fetch the macro-type choice for the previous segment in the chain
@@ -250,7 +250,7 @@ public interface Fabricator {
 
    @return main-program configuration
    */
-  ProgramConfig getCurrentMainProgramConfig() throws NexusException;
+  ProgramConfig getCurrentMainProgramConfig() throws EngineException;
 
   /**
    Get the sequence targeted by the previous main choice
@@ -288,9 +288,9 @@ public interface Fabricator {
 
    @param voicing to get notes of
    @return notes from voicing
-   @throws NexusException on failure
+   @throws EngineException on failure
    */
-  Collection<String> getNotes(SegmentChordVoicing voicing) throws NexusException;
+  Collection<String> getNotes(SegmentChordVoicing voicing) throws EngineException;
 
   /**
    Get arrangement picks for segment
@@ -328,7 +328,7 @@ public interface Fabricator {
    @param program to get config of
    @return ProgramConfig from a given program, with fallback values
    */
-  ProgramConfig getProgramConfig(Program program) throws NexusException;
+  ProgramConfig getProgramConfig(Program program) throws EngineException;
 
   /**
    Get the complete set of program sequence chords,
@@ -347,7 +347,7 @@ public interface Fabricator {
    @param instrumentType to get range of
    @return Note range of arrangement
    */
-  NoteRange getProgramRange(UUID programId, InstrumentType instrumentType) throws NexusException;
+  NoteRange getProgramRange(UUID programId, InstrumentType instrumentType) throws EngineException;
 
   /**
    Detail craft shifts source program events into the target range https://github.com/xjmusic/workstation/issues/221
@@ -359,7 +359,7 @@ public interface Fabricator {
    @param targetRange to compute required # of octaves to shift into
    @return +/- octaves required to shift from source to target range
    */
-  int getProgramRangeShiftOctaves(InstrumentType type, NoteRange sourceRange, NoteRange targetRange) throws NexusException;
+  int getProgramRangeShiftOctaves(InstrumentType type, NoteRange sourceRange, NoteRange targetRange) throws EngineException;
 
   /**
    Get the sequence for a given choice
@@ -385,7 +385,7 @@ public interface Fabricator {
    @param voice for which to get program type
    @return program type
    */
-  ProgramType getProgramType(ProgramVoice voice) throws NexusException;
+  ProgramType getProgramType(ProgramVoice voice) throws EngineException;
 
 
   /**
@@ -397,7 +397,7 @@ public interface Fabricator {
    @param voicing for which to get voice type
    @return type of voice for voicing
    */
-  InstrumentType getProgramVoiceType(ProgramSequenceChordVoicing voicing) throws NexusException;
+  InstrumentType getProgramVoiceType(ProgramSequenceChordVoicing voicing) throws EngineException;
 
   /**
    Get the lowest note present in any voicing of all the segment chord voicings for this segment and instrument type
@@ -405,7 +405,7 @@ public interface Fabricator {
    @param type to get voicing threshold low of
    @return low voicing threshold
    */
-  NoteRange getProgramVoicingNoteRange(InstrumentType type) throws NexusException;
+  NoteRange getProgramVoicingNoteRange(InstrumentType type) throws EngineException;
 
   /**
    Randomly select any sequence
@@ -422,9 +422,9 @@ public interface Fabricator {
    Beat fabrication composited of layered Patterns https://github.com/xjmusic/workstation/issues/267
 
    @return Pattern model, or null if no pattern of this type is found
-   @throws NexusException on failure
+   @throws EngineException on failure
    */
-  Optional<ProgramSequencePattern> getRandomlySelectedPatternOfSequenceByVoiceAndType(SegmentChoice choice) throws NexusException;
+  Optional<ProgramSequencePattern> getRandomlySelectedPatternOfSequenceByVoiceAndType(SegmentChoice choice) throws EngineException;
 
   /**
    Randomly select any sequence binding at the given offset
@@ -497,9 +497,9 @@ public interface Fabricator {
 
    @param choice to get sequence for
    @return Sequence for choice
-   @throws NexusException on failure
+   @throws EngineException on failure
    */
-  Optional<ProgramSequence> getSequence(SegmentChoice choice) throws NexusException;
+  Optional<ProgramSequence> getSequence(SegmentChoice choice) throws EngineException;
 
   /**
    Get the sequence pattern offset of a given Choice
@@ -514,9 +514,9 @@ public interface Fabricator {
 
    @param bun to store
    @throws JsonProcessingException on failure
-   @throws NexusException          on failure
+   @throws EngineException          on failure
    */
-  void putStickyBun(StickyBun bun) throws JsonProcessingException, NexusException;
+  void putStickyBun(StickyBun bun) throws JsonProcessingException, EngineException;
 
   /**
    Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/workstation/issues/222
@@ -546,14 +546,14 @@ public interface Fabricator {
    @param event for which to get track name
    @return Track name
    */
-  String getTrackName(ProgramSequencePatternEvent event) throws NexusException;
+  String getTrackName(ProgramSequencePatternEvent event) throws EngineException;
 
   /**
    Determine type of content, e.g. initial segment in chain, or next macro-sequence
 
    @return macro-craft type
    */
-  SegmentType getType() throws NexusException;
+  SegmentType getType() throws EngineException;
 
   /**
    Get segment chord voicing for a given chord
@@ -595,7 +595,7 @@ public interface Fabricator {
 
    @return true if this segment continues the same macro-program
    */
-  boolean isContinuationOfMacroProgram() throws NexusException;
+  boolean isContinuationOfMacroProgram() throws EngineException;
 
   /**
    Whether a given Instrument is directly bound to the Chain,
@@ -630,27 +630,27 @@ public interface Fabricator {
    @param instrument to test
    @param trackName  to test
    @return true if this is a one-shot instrument and track name
-   @throws NexusException on failure
+   @throws EngineException on failure
    */
-  boolean isOneShot(Instrument instrument, String trackName) throws NexusException;
+  boolean isOneShot(Instrument instrument, String trackName) throws EngineException;
 
   /**
    Test if a given instrument is one-shot
 
    @param instrument to test
    @return true if this is a one-shot instrument
-   @throws NexusException on failure
+   @throws EngineException on failure
    */
-  boolean isOneShot(Instrument instrument) throws NexusException;
+  boolean isOneShot(Instrument instrument) throws EngineException;
 
   /**
    Test if a given one-shot instrument has its cutoffs enable
 
    @param instrument to test
    @return true if a given one-shot instrument has its cutoffs enable
-   @throws NexusException on failure
+   @throws EngineException on failure
    */
-  boolean isOneShotCutoffEnabled(Instrument instrument) throws NexusException;
+  boolean isOneShotCutoffEnabled(Instrument instrument) throws EngineException;
 
   /**
    is initial segment?
@@ -674,7 +674,7 @@ public interface Fabricator {
    @param force overriding safeguards (e.g. choices must not violate meme stack, memes must be unique)
    @return entity successfully put
    */
-  <N> N put(N entity, boolean force) throws NexusException;
+  <N> N put(N entity, boolean force) throws EngineException;
 
   /**
    Set the preferred audio for a key
@@ -701,7 +701,7 @@ public interface Fabricator {
 
    @param segment to set
    */
-  void updateSegment(Segment segment) throws NexusException;
+  void updateSegment(Segment segment) throws EngineException;
 
   /**
    Get the Segment Retrospective
@@ -722,7 +722,7 @@ public interface Fabricator {
 
    @return micros per beat
    */
-  Double getMicrosPerBeat(double tempo) throws NexusException;
+  Double getMicrosPerBeat(double tempo) throws EngineException;
 
   /**
    Get the second macro sequence binding offset of a given macro program
@@ -735,7 +735,7 @@ public interface Fabricator {
   /**
    @return the tempo of the current main program
    */
-  double getTempo() throws NexusException;
+  double getTempo() throws EngineException;
 
   /**
    @return the meme taxonomy for the source material

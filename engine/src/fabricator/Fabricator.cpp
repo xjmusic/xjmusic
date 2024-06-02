@@ -43,7 +43,7 @@ TODO remove Java imports
   import io.xj.hub.util.StringUtils;
   import io.xj.hub.util.ValueException;
   import io.xj.hub.util.ValueUtils;
-  import io.xj.nexus.NexusException;
+  import io.xj.nexus.EngineException;
   import io.xj.nexus.model.Chain;
   import io.xj.nexus.model.Segment;
   import io.xj.nexus.model.SegmentChoice;
@@ -141,7 +141,7 @@ public class FabricatorImpl implements Fabricator {
     double outputFrameRate,
     int outputChannels,
     @Nullable SegmentType overrideSegmentType
-  ) throws NexusException, FabricationFatalException, ValueException {
+  ) throws EngineException, FabricationFatalException, ValueException {
     this.store = store;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.jsonProvider = jsonProvider;
@@ -202,7 +202,7 @@ public class FabricatorImpl implements Fabricator {
       msg.setType(messageType);
       msg.setBody(body);
       put(msg, false);
-    } catch (NexusException e) {
+    } catch (EngineException e) {
       LOG.warn("Failed to add message!", e);
     }
   }
@@ -297,7 +297,7 @@ public class FabricatorImpl implements Fabricator {
       distinctChordVoicingTypes = voicings.stream().flatMap(voicing -> {
         try {
           return Stream.of(getProgramVoiceType(voicing));
-        } catch (NexusException e) {
+        } catch (EngineException e) {
           LOG.warn("Failed to get distinct chord voicing type!", e);
           return Stream.empty();
         }
@@ -378,7 +378,7 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Chord getKeyForChoice(SegmentChoice choice) throws NexusException {
+  public Chord getKeyForChoice(SegmentChoice choice) throws EngineException {
     Optional<Program> program = getProgram(choice);
     if (ValueUtils.isSet(choice.getProgramSequenceBindingId())) {
       var sequence = getSequence(choice);
@@ -386,7 +386,7 @@ public class FabricatorImpl implements Fabricator {
         return Chord.of(sequence.get().getKey());
     }
 
-    return Chord.of(program.orElseThrow(() -> new NexusException("Cannot get key for nonexistent choice!")).getKey());
+    return Chord.of(program.orElseThrow(() -> new EngineException("Cannot get key for nonexistent choice!")).getKey());
   }
 
   @Override
@@ -414,15 +414,15 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public ProgramConfig getCurrentMainProgramConfig() throws NexusException {
+  public ProgramConfig getCurrentMainProgramConfig() throws EngineException {
     try {
       return new ProgramConfig(
         sourceMaterial.getProgram(getCurrentMainChoice()
-            .orElseThrow(() -> new NexusException("No current main choice!")).getProgramId())
-          .orElseThrow(() -> new NexusException("Failed to retrieve current main program config!")));
+            .orElseThrow(() -> new EngineException("No current main choice!")).getProgramId())
+          .orElseThrow(() -> new EngineException("Failed to retrieve current main program config!")));
 
     } catch (ValueException e) {
-      throw new NexusException(e);
+      throw new EngineException(e);
     }
   }
 
@@ -519,11 +519,11 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public ProgramConfig getProgramConfig(Program program) throws NexusException {
+  public ProgramConfig getProgramConfig(Program program) throws EngineException {
     try {
       return new ProgramConfig(program);
     } catch (ValueException e) {
-      throw new NexusException(e);
+      throw new EngineException(e);
     }
   }
 
@@ -566,7 +566,7 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public int getProgramRangeShiftOctaves(InstrumentType type, NoteRange sourceRange, NoteRange targetRange) throws NexusException {
+  public int getProgramRangeShiftOctaves(InstrumentType type, NoteRange sourceRange, NoteRange targetRange) throws EngineException {
     var cacheKey = String.format("%s__%s__%s", type, sourceRange.toString(Accidental.None), targetRange.toString(Accidental.None));
 
     if (!rangeShiftOctave.containsKey(cacheKey)) switch (type) {
@@ -597,13 +597,13 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public ProgramType getProgramType(ProgramVoice voice) throws NexusException {
-    return sourceMaterial.getProgram(voice.getProgramId()).orElseThrow(() -> new NexusException("Could not get program!")).getType();
+  public ProgramType getProgramType(ProgramVoice voice) throws EngineException {
+    return sourceMaterial.getProgram(voice.getProgramId()).orElseThrow(() -> new EngineException("Could not get program!")).getType();
   }
 
   @Override
-  public InstrumentType getProgramVoiceType(ProgramSequenceChordVoicing voicing) throws NexusException {
-    return sourceMaterial.getProgramVoice(voicing.getProgramVoiceId()).orElseThrow(() -> new NexusException("Could not get voice!")).getType();
+  public InstrumentType getProgramVoiceType(ProgramSequenceChordVoicing voicing) throws EngineException {
+    return sourceMaterial.getProgramVoice(voicing.getProgramVoiceId()).orElseThrow(() -> new EngineException("Could not get voice!")).getType();
   }
 
   @Override
@@ -647,7 +647,7 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public void putStickyBun(StickyBun bun) throws JsonProcessingException, NexusException {
+  public void putStickyBun(StickyBun bun) throws JsonProcessingException, EngineException {
     store.put(new SegmentMeta()
       .id(UUID.randomUUID())
       .segmentId(getSegment().getId())
@@ -684,7 +684,7 @@ public class FabricatorImpl implements Fabricator {
     var bun = new StickyBun(eventId, CsvUtils.split(event.get().getTones()).size());
     try {
       putStickyBun(bun);
-    } catch (NexusException e) {
+    } catch (EngineException e) {
       addErrorMessage(String.format("Failed to put StickyBun for Event[%s] because %s", eventId, e.getMessage()));
     } catch (JsonProcessingException e) {
       addErrorMessage(String.format("Failed to serialize segment meta value StickyBun JSON for Event[%s]", eventId));
@@ -759,7 +759,7 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public SegmentType getType() throws NexusException {
+  public SegmentType getType() throws EngineException {
     if (ValueUtils.isEmpty(type)) type = computeType();
     return type;
   }
@@ -800,7 +800,7 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public boolean isContinuationOfMacroProgram() throws NexusException {
+  public boolean isContinuationOfMacroProgram() throws EngineException {
     return SegmentType.CONTINUE.equals(getType()) || SegmentType.NEXT_MAIN.equals(getType());
   }
 
@@ -840,7 +840,7 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public <N> N put(N entity, boolean force) throws NexusException {
+  public <N> N put(N entity, boolean force) throws EngineException {
     var memeStack = MemeStack.from(templateConfig.getMemeTaxonomy(),
       getSegmentMemes().stream().map(SegmentMeme::getName).toList());
 
@@ -913,7 +913,7 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public double getTempo() throws NexusException {
+  public double getTempo() throws EngineException {
     return getSegment().getTempo();
   }
 
@@ -943,11 +943,11 @@ public class FabricatorImpl implements Fabricator {
    @param targetRange to
    @return lowest optimal range shift octaves
    */
-  private int computeLowestOptimalRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange) throws NexusException {
+  private int computeLowestOptimalRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange) throws EngineException {
     var shiftOctave = 0; // search for optimal value
     var baselineDelta = 100; // optimal is the lowest possible integer zero or above
     for (var o = 10; o >= -10; o--) {
-      int d = targetRange.getLow().orElseThrow(() -> new NexusException("can't get low end of target range")).delta(sourceRange.getLow().orElse(Note.atonal()).shiftOctave(o));
+      int d = targetRange.getLow().orElseThrow(() -> new EngineException("can't get low end of target range")).delta(sourceRange.getLow().orElse(Note.atonal()).shiftOctave(o));
       if (0 <= d && d < baselineDelta) {
         baselineDelta = d;
         shiftOctave = o;
@@ -982,10 +982,10 @@ public class FabricatorImpl implements Fabricator {
   /**
    Ensure the current segment has a storage key; if not, add a storage key to this Segment
    */
-  private void ensureShipKey() throws NexusException {
+  private void ensureShipKey() throws EngineException {
     if (ValueUtils.isEmpty(getSegment().getStorageKey()) || getSegment().getStorageKey().isEmpty()) {
       var seg = getSegment();
-      seg.setStorageKey(computeShipKey(store.readChain().orElseThrow(() -> new NexusException("No chain")), getSegment()));
+      seg.setStorageKey(computeShipKey(store.readChain().orElseThrow(() -> new EngineException("No chain")), getSegment()));
       LOG.debug("[segId={}] Generated ship key {}", getSegment().getId(), getSegment().getStorageKey());
     }
   }
@@ -1050,7 +1050,7 @@ public class FabricatorImpl implements Fabricator {
    @param force     whether to force the addition of this choice
    @return true if valid and adding memes was successful
    */
-  private boolean isValidChoiceAndMemesHaveBeenAdded(SegmentChoice choice, MemeStack memeStack, boolean force) throws NexusException {
+  private boolean isValidChoiceAndMemesHaveBeenAdded(SegmentChoice choice, MemeStack memeStack, boolean force) throws EngineException {
     Set<String> names = new HashSet<>();
 
     if (Objects.nonNull(choice.getProgramId()))

@@ -216,7 +216,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   }
 
   @Override
-  public <N> Collection<N> readManySubEntities(Collection<Integer> segmentIds, Boolean includePicks) throws ManagerFatalException {
+  public <N> Collection<N> readManySubEntities(Collection<Integer> segmentIds, Boolean includePicks) {
     Collection<Object> entities = new ArrayList<>();
     for (Integer sId : segmentIds) {
       entities.addAll(readAll(sId, SegmentChoice.class));
@@ -231,7 +231,6 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
     }
     //noinspection unchecked
     return (Collection<N>) entities;
-
   }
 
   @Override
@@ -254,62 +253,50 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
 
   @Override
   public String readChoiceHash(Segment segment) {
-    try {
-      return
-        readManySubEntities(Set.of(segment.getId()), false)
-          .stream()
-          .flatMap((entity) -> {
-            try {
-              return Stream.of(EntityUtils.getId(entity));
-            } catch (EntityException e) {
-              return Stream.empty();
-            }
-          })
-          .map(UUID::toString)
-          .sorted()
-          .collect(Collectors.joining("_"));
+    return
+      readManySubEntities(Set.of(segment.getId()), false)
+        .stream()
+        .flatMap((entity) -> {
+          try {
+            return Stream.of(EntityUtils.getId(entity));
+          } catch (EntityException e) {
+            return Stream.empty();
+          }
+        })
+        .map(UUID::toString)
+        .sorted()
+        .collect(Collectors.joining("_"));
 
-    } catch (ManagerFatalException e) {
-      LOG.warn("Failed to get choice hash for Segment #" + segment.getId(), e);
-      return String.format("%s_%d", segment.getChainId(), segment.getId());
-    }
   }
 
   @Override
-  public void updateSegment(Segment segment) throws ManagerFatalException, ManagerExistenceException, ManagerValidationException {
-    try {
-      // validate and cache to-state
-      validate(segment);
-      SegmentState toState = segment.getState();
+  public void updateSegment(Segment segment) throws NexusException {
+    // validate and cache to-state
+    validate(segment);
+    SegmentState toState = segment.getState();
 
-      // fetch existing segment; further logic is based on its current state
-      Segment existing = readSegment(segment.getId())
-        .orElseThrow(() -> new ManagerExistenceException(Segment.class, Integer.toString(segment.getId())));
-      requireExists("Segment #" + segment.getId(), existing);
+    // fetch existing segment; further logic is based on its current state
+    Segment existing = readSegment(segment.getId())
+      .orElseThrow(() -> new NexusException("Segment #" + segment.getId() + " does not exist"));
+    if (Objects.isNull(existing)) throw new NexusException("Segment #" + segment.getId() + " does not exist");
 
-      // logic based on existing Segment State
-      protectSegmentStateTransition(existing.getState(), toState);
+    // logic based on existing Segment State
+    protectSegmentStateTransition(existing.getState(), toState);
 
-      // fail if attempt to [#128] change chainId of a segment
-      Object updateChainId = segment.getChainId();
-      if (ValueUtils.isSet(updateChainId) && !Objects.equals(updateChainId, existing.getChainId()))
-        throw new ManagerValidationException("cannot change chainId create a segment");
+    // fail if attempt to [#128] change chainId of a segment
+    Object updateChainId = segment.getChainId();
+    if (ValueUtils.isSet(updateChainId) && !Objects.equals(updateChainId, existing.getChainId()))
+      throw new NexusException("cannot change chainId create a segment");
 
-      // Never change id
-      segment.setId(segment.getId());
+    // Never change id
+    segment.setId(segment.getId());
 
-      // Updated at is always now
-      segment.setUpdatedNow();
+    // Updated at is always now
+    segment.setUpdatedNow();
 
-      // save segment
-      put(segment);
+    // save segment
+    put(segment);
 
-    } catch (NexusException e) {
-      throw new ManagerFatalException(e);
-
-    } catch (ValueException e) {
-      throw new ManagerValidationException(e);
-    }
   }
 
   @Override
@@ -376,9 +363,9 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
 
    @param fromState to protect transition of
    @param toState   to test transition to
-   @throws ValueException on prohibited transition
+   @throws NexusException on prohibited transition
    */
-  public static void protectSegmentStateTransition(SegmentState fromState, SegmentState toState) throws ValueException {
+  public static void protectSegmentStateTransition(SegmentState fromState, SegmentState toState) throws NexusException {
     switch (fromState) {
       case PLANNED -> onlyAllowSegmentStateTransitions(toState, SegmentState.PLANNED, SegmentState.CRAFTING);
       case CRAFTING ->
@@ -394,9 +381,9 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
 
    @param toState       to check
    @param allowedStates required to be in
-   @throws ValueException if not in required states
+   @throws NexusException if not in required states
    */
-  public static void onlyAllowSegmentStateTransitions(SegmentState toState, SegmentState... allowedStates) throws ValueException {
+  public static void onlyAllowSegmentStateTransitions(SegmentState toState, SegmentState... allowedStates) throws NexusException {
     List<String> allowedStateNames = new ArrayList<>();
     for (SegmentState search : allowedStates) {
       allowedStateNames.add(search.toString());
@@ -404,19 +391,8 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
         return;
       }
     }
-    throw new ValueException(String.format("transition to %s not in allowed (%s)",
+    throw new NexusException(String.format("transition to %s not in allowed (%s)",
       toState, CsvUtils.join(allowedStateNames)));
-  }
-
-  /**
-   Require that an entity is non-null
-
-   @param name   name of entity (for error message)
-   @param entity to require existence of
-   @throws ManagerExistenceException if not isNonNull
-   */
-  protected <E> void requireExists(String name, E entity) throws ManagerExistenceException {
-    if (!ValueUtils.isNonNull(entity)) throw new ManagerExistenceException(String.format("%s does not exist!", name));
   }
 
   /**

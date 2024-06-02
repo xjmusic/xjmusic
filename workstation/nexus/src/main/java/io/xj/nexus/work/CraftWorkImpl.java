@@ -26,10 +26,6 @@ import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.ChainUtils;
-import io.xj.nexus.persistence.ManagerExistenceException;
-import io.xj.nexus.persistence.ManagerFatalException;
-import io.xj.nexus.persistence.ManagerPrivilegeException;
-import io.xj.nexus.persistence.ManagerValidationException;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.SegmentUtils;
 import io.xj.nexus.persistence.TemplateUtils;
@@ -381,10 +377,7 @@ public class CraftWorkImpl implements CraftWork {
       segment = store.put(segment);
       doFabricationWork(segment, null, overrideMacroProgram, overrideMemes);
 
-    } catch (
-      ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException |
-      NexusException | ValueException e
-    ) {
+    } catch (NexusException e) {
       didFailWhile("fabricating", e);
     }
   }
@@ -422,7 +415,12 @@ public class CraftWorkImpl implements CraftWork {
         LOG.warn("Will not delete any segments because current segment has no main program.");
         return;
       }
-      var mainProgramConfig = new ProgramConfig(currentMainProgram.get().getConfig());
+      ProgramConfig mainProgramConfig;
+      try {
+        mainProgramConfig = new ProgramConfig(currentMainProgram.get().getConfig());
+      } catch (ValueException e) {
+        throw new NexusException("Failed to get main program config");
+      }
       var subBeats = mainProgramConfig.getBarBeats() * mainProgramConfig.getCutoffMinimumBars();
       var dubbedToSegmentMicros = dubbedToChainMicros - lastSegment.get().getBeginAtChainMicros();
       var microsPerBeat = (long) (MICROS_PER_MINUTE / currentMainProgram.get().getTempo());
@@ -449,8 +447,7 @@ public class CraftWorkImpl implements CraftWork {
       didOverride.set(true);
 
     } catch (
-      ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException |
-      NexusException | ValueException e
+      NexusException e
     ) {
       didFailWhile("fabricating", e);
     }
@@ -501,7 +498,7 @@ public class CraftWorkImpl implements CraftWork {
     @Nullable SegmentType overrideSegmentType,
     @Nullable Program overrideMacroProgram,
     @Nullable Collection<String> overrideMemes
-  ) throws NexusException, ManagerFatalException, ValueException, FabricationFatalException {
+  ) throws NexusException, FabricationFatalException {
     LOG.debug("[segId={}] will prepare fabricator", segment.getId());
     Fabricator fabricator = fabricatorFactory.fabricate(content, segment.getId(), outputFrameRate, outputChannels, overrideSegmentType);
 
@@ -574,12 +571,8 @@ public class CraftWorkImpl implements CraftWork {
 
    @param last segment
    @return next segment
-   @throws ManagerFatalException      on a fatal error
-   @throws ManagerValidationException on a validation error
-   @throws ManagerExistenceException  if the segment does not exist
-   @throws ManagerPrivilegeException  if access is prohibited
    */
-  private Segment buildSegmentFollowing(Segment last) throws ManagerFatalException, ManagerValidationException, ManagerExistenceException, ManagerPrivilegeException {
+  private Segment buildSegmentFollowing(Segment last) {
     Segment segment = new Segment();
     segment.setId(last.getId() + 1);
     segment.setChainId(chain.getId());

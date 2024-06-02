@@ -20,7 +20,6 @@ import io.xj.hub.util.ValueException;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.hub_client.HubClientException;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
@@ -31,7 +30,6 @@ import io.xj.nexus.model.SegmentMeme;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.ChainUtils;
-import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -157,7 +155,7 @@ public class FabricatorImplTest {
    Choose next Macro program based on the memes of the last sequence from the previous Macro program https://github.com/xjmusic/workstation/issues/299
    */
   @Test
-  public void getType() throws NexusException, ManagerFatalException, FabricationFatalException, ValueException, HubClientException {
+  public void getType() throws NexusException, FabricationFatalException {
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE));
     Segment previousSegment = store.put(buildSegment(chain, 1, SegmentState.CRAFTED, "F major", 8, 0.6f, 120.0f, "seg123"));
     var previousMacroChoice = // second-to-last sequence of macro program
@@ -178,7 +176,7 @@ public class FabricatorImplTest {
   // FUTURE: test getChoicesOfPreviousSegments
 
   @Test
-  public void getMemeIsometryOfNextSequenceInPreviousMacro() throws NexusException, FabricationFatalException, ValueException {
+  public void getMemeIsometryOfNextSequenceInPreviousMacro() throws NexusException, FabricationFatalException {
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE));
     Segment previousSegment = store.put(buildSegment(chain, 1, SegmentState.CRAFTED, "F major", 8, 0.6f, 120.0f, "seg123"));
     var previousMacroChoice = // second-to-last sequence of macro program

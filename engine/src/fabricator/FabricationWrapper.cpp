@@ -9,9 +9,9 @@
 #include <stdexcept>
 #include <string>
 
-class NexusException : public std::runtime_error {
+class EngineException : public std::runtime_error {
 public:
-  NexusException(const std::string &message) : std::runtime_error(message) {}
+  EngineException(const std::string &message) : std::runtime_error(message) {}
 };
 
 class Fabricator {
@@ -27,12 +27,12 @@ protected:
 public:
   FabricationWrapperImpl(Fabricator *fabricator) : fabricator(fabricator) {}
 
-  NexusException exception(const std::string &message) {
-    return NexusException(formatLog(message));
+  EngineException exception(const std::string &message) {
+    return EngineException(formatLog(message));
   }
 
-  NexusException exception(const std::string &message, const std::exception &e) {
-    return NexusException(formatLog(message) + ", " + e.what());
+  EngineException exception(const std::string &message, const std::exception &e) {
+    return EngineException(formatLog(message) + ", " + e.what());
   }
 
   std::string formatLog(const std::string &message) {
@@ -60,7 +60,7 @@ TODO remove Java imports
   package io.xj.nexus.fabricator;
   import io.xj.hub.pojos.InstrumentAudio;
   import io.xj.hub.util.CsvUtils;
-  import io.xj.nexus.NexusException;
+  import io.xj.nexus.EngineException;
   import org.slf4j.Logger;
   import org.slf4j.LoggerFactory;
   import java.util.Map;
@@ -86,26 +86,26 @@ public
   }
 
   /**
-   Create a new NexusException prefixed with a segment id
+   Create a new EngineException prefixed with a segment id
 
    @param message to include in exception
-   @return NexusException to throw
+   @return EngineException to throw
    */
 public
-  NexusException exception(String message) {
-    return new NexusException(formatLog(message));
+  EngineException exception(String message) {
+    return new EngineException(formatLog(message));
   }
 
   /**
-   Create a new NexusException prefixed with a segment id, including sub-exception
+   Create a new EngineException prefixed with a segment id, including sub-exception
 
    @param message to include in exception
    @param e       Exception to include in exception
-   @return NexusException to throw
+   @return EngineException to throw
    */
 public
-  NexusException exception(String message, Exception e) {
-    return new NexusException(formatLog(message), e);
+  EngineException exception(String message, Exception e) {
+    return new EngineException(formatLog(message), e);
   }
 
   /**

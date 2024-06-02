@@ -152,11 +152,8 @@ public interface NexusEntityStore {
    @param segmentIds   to fetch records for.
    @param includePicks whether to include the segment choice arrangement picks
    @return collection of all sub entities of these parent segments, different classes that extend Entity
-   @throws ManagerFatalException     on failure
-   @throws ManagerFatalException     if the entity does not exist
-   @throws ManagerPrivilegeException if access is prohibited
    */
-  <N> Collection<N> readManySubEntities(Collection<Integer> segmentIds, Boolean includePicks) throws ManagerPrivilegeException, ManagerFatalException;
+  <N> Collection<N> readManySubEntities(Collection<Integer> segmentIds, Boolean includePicks);
 
   /**
    Fetch all sub-entities records for a parent segments by id
@@ -197,11 +194,9 @@ public interface NexusEntityStore {
    Update a specified Entity
 
    @param segment for the updated Entity.
-   @throws ManagerFatalException     on failure
-   @throws ManagerExistenceException if the entity does not exist
-   @throws ManagerPrivilegeException if access is prohibited
+   @throws NexusException on failure
    */
-  void updateSegment(Segment segment) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, ManagerValidationException;
+  void updateSegment(Segment segment) throws NexusException;
 
   /**
    Delete a Segment entity specified by partition (segment id), class and id

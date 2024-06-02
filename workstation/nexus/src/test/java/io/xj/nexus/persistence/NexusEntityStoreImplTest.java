@@ -535,7 +535,7 @@ public class NexusEntityStoreImplTest {
       .key("C# minor 7 b9")
       .tempo(120.0);
 
-    Exception thrown = assertThrows(ManagerValidationException.class, () ->
+    Exception thrown = assertThrows(NexusException.class, () ->
       subject.updateSegment(inputData));
 
     assertTrue(thrown.getMessage().contains("transition to Crafted not in allowed"));
@@ -556,7 +556,7 @@ public class NexusEntityStoreImplTest {
       .key("C# minor 7 b9")
       .tempo(120.0);
 
-    Exception thrown = assertThrows(ManagerValidationException.class, () ->
+    Exception thrown = assertThrows(NexusException.class, () ->
       subject.updateSegment(inputData));
 
     assertTrue(thrown.getMessage().contains("cannot change chainId create a segment"));

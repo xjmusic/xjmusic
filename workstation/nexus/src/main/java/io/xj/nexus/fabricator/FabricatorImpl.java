@@ -53,10 +53,6 @@ import io.xj.nexus.model.SegmentMessageType;
 import io.xj.nexus.model.SegmentMeta;
 import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.ChainUtils;
-import io.xj.nexus.persistence.ManagerExistenceException;
-import io.xj.nexus.persistence.ManagerFatalException;
-import io.xj.nexus.persistence.ManagerPrivilegeException;
-import io.xj.nexus.persistence.ManagerValidationException;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.SegmentUtils;
 import io.xj.nexus.util.MarbleBag;
@@ -138,7 +134,7 @@ public class FabricatorImpl implements Fabricator {
     double outputFrameRate,
     int outputChannels,
     @Nullable SegmentType overrideSegmentType
-  ) throws NexusException, FabricationFatalException, ValueException {
+  ) throws NexusException, FabricationFatalException {
     this.store = store;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.jsonProvider = jsonProvider;
@@ -165,7 +161,11 @@ public class FabricatorImpl implements Fabricator {
     // read the chain, configs, and bindings
     chain = store.readChain()
       .orElseThrow(() -> new FabricationFatalException("No chain found"));
-    templateConfig = new TemplateConfig(chain.getTemplateConfig());
+    try {
+      templateConfig = new TemplateConfig(chain.getTemplateConfig());
+    } catch (ValueException e) {
+      throw new FabricationFatalException("Failed to read template config!");
+    }
     templateBindings = sourceMaterial.getTemplateBindings();
     boundProgramIds = ChainUtils.targetIdsOfType(templateBindings, ContentBindingType.Program);
     boundInstrumentIds = ChainUtils.targetIdsOfType(templateBindings, ContentBindingType.Instrument);
@@ -873,9 +873,8 @@ public class FabricatorImpl implements Fabricator {
     try {
       store.updateSegment(segment);
 
-    } catch (ManagerFatalException | ManagerExistenceException | ManagerPrivilegeException |
-             ManagerValidationException e) {
-      LOG.warn("Failed to update Segment", e);
+    } catch (NexusException e) {
+      LOG.error("Failed to update Segment", e);
     }
   }
 

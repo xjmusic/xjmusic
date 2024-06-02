@@ -9,7 +9,7 @@ TODO remove Java imports
   import io.xj.hub.json.JsonProvider;
   import io.xj.hub.jsonapi.JsonapiPayloadFactory;
   import io.xj.hub.util.ValueException;
-  import io.xj.nexus.NexusException;
+  import io.xj.nexus.EngineException;
   import io.xj.nexus.model.SegmentType;
   import io.xj.nexus.persistence.ManagerFatalException;
   import io.xj.nexus.persistence.NexusEntityStore;
@@ -32,12 +32,12 @@ public class FabricatorFactoryImpl implements FabricatorFactory {
   }
 
   @Override
-  public Fabricator fabricate(HubContent sourceMaterial, Integer segmentId, double outputFrameRate, int outputChannels, @Nullable SegmentType overrideSegmentType) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException {
+  public Fabricator fabricate(HubContent sourceMaterial, Integer segmentId, double outputFrameRate, int outputChannels, @Nullable SegmentType overrideSegmentType) throws EngineException, FabricationFatalException, ManagerFatalException, ValueException {
     return new FabricatorImpl(this, entityStore, sourceMaterial, segmentId, jsonapiPayloadFactory, jsonProvider, outputFrameRate, outputChannels, overrideSegmentType);
   }
 
   @Override
-  public SegmentRetrospective loadRetrospective(Integer segmentId) throws NexusException, FabricationFatalException {
+  public SegmentRetrospective loadRetrospective(Integer segmentId) throws EngineException, FabricationFatalException {
     return new SegmentRetrospectiveImpl(entityStore, segmentId);
   }
 }

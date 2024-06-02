@@ -3,10 +3,8 @@ package io.xj.nexus.fabricator;
 
 
 import io.xj.hub.HubContent;
-import io.xj.hub.util.ValueException;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.ManagerFatalException;
 import jakarta.annotation.Nullable;
 
 /**
@@ -35,7 +33,7 @@ public interface FabricatorFactory {
     double outputFrameRate,
     int outputChannels,
     @Nullable SegmentType overrideSegmentType
-  ) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException;
+  ) throws NexusException, FabricationFatalException;
 
   /**
    Create a retrospective to fabricate a particular segment
