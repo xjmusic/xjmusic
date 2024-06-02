@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "xjnexus/music/NoteRange.h"
+#include "xjmusic/music/NoteRange.h"
 
 #include "../_helper/AssertionHelpers.h"
 

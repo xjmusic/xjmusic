@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "xjnexus/content/Template.h"
+#include "xjmusic/content/Template.h"
 
 using namespace Content;
 

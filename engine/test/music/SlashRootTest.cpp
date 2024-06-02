@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "xjnexus/music/SlashRoot.h"
+#include "xjmusic/music/SlashRoot.h"
 
 using namespace Music;
 

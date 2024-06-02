@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include <string>
 
-#include "xjnexus/content/Program.h"
+#include "xjmusic/content/Program.h"
 
 using namespace Content;
 

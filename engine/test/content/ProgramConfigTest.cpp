@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include "xjnexus/content/ProgramConfig.h"
-#include "xjnexus/util/StringUtils.h"
+#include "xjmusic/content/ProgramConfig.h"
+#include "xjmusic/util/StringUtils.h"
 #include <gtest/gtest.h>
 
 using namespace Content;

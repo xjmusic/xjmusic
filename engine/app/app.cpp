@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "xjnexus/xjnexus.h"
+#include "xjmusic/xjmusic.h"
 
 int main() {
   std::cout << hello() << std::endl;

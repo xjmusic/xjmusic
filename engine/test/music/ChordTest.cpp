@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 #include <yaml-cpp/yaml.h>
 
-#include "xjnexus/music/Chord.h"
+#include "xjmusic/music/Chord.h"
 
 using namespace Music;
 

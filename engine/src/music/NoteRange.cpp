@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-#include "xjnexus/music/NoteRange.h"
+#include "xjmusic/music/NoteRange.h"
 
 namespace Music {
 

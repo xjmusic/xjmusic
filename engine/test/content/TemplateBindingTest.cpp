@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include <string>
 
-#include "xjnexus/content/TemplateBinding.h"
+#include "xjmusic/content/TemplateBinding.h"
 
 using namespace Content;
 

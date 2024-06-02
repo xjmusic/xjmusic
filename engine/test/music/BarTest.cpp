@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "xjnexus/music/Bar.h"
+#include "xjmusic/music/Bar.h"
 
 using namespace Music;
 

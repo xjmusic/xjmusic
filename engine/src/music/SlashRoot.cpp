@@ -2,8 +2,8 @@
 
 #include <sstream>
 
-#include "xjnexus/music/SlashRoot.h"
-#include "xjnexus/util/StringUtils.h"
+#include "xjmusic/music/SlashRoot.h"
+#include "xjmusic/util/StringUtils.h"
 
 namespace Music {
 

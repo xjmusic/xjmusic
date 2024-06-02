@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include "xjnexus/xjnexus.h"
+#include "xjmusic/xjmusic.h"
 
 std::string hello() {
   return "Hello, World!";

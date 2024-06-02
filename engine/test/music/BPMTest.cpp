@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "xjnexus/music/BPM.h"
+#include "xjmusic/music/BPM.h"
 
 using namespace Music;
 

@@ -4,7 +4,7 @@
 #ifndef XJMUSIC_PROGRAM_CONFIG_H
 #define XJMUSIC_PROGRAM_CONFIG_H
 
-#include "xjnexus/util/ConfigParser.h"
+#include "xjmusic/util/ConfigParser.h"
 
 #include "Program.h"
 

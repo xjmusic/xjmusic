@@ -1,4 +1,4 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include "xjnexus/content/ProgramSequenceChord.h"
+#include "xjmusic/content/ProgramSequenceChord.h"
 

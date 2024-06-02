@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 #include <string>
 
-#include "xjnexus/content/ContentStore.h"
+#include "xjmusic/content/ContentStore.h"
 
 #include "../_helper/ContentTestHelper.h"
 

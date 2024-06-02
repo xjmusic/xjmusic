@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.25)
 
 # Project name and a few useful settings. Other commands can pick up the results
 project(
-        xjnexus
+        xjmusic
         VERSION 0.1
-        DESCRIPTION "The XJ music nexus"
+        DESCRIPTION "The XJ music engine"
         LANGUAGES CXX)
 
 # C++ 17

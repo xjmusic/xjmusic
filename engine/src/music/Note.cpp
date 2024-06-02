@@ -2,9 +2,9 @@
 
 #include <cmath>
 
-#include "xjnexus/music/Note.h"
-#include "xjnexus/music/Octave.h"
-#include "xjnexus/util/StringUtils.h"
+#include "xjmusic/music/Note.h"
+#include "xjmusic/music/Octave.h"
+#include "xjmusic/util/StringUtils.h"
 
 namespace Music {
 

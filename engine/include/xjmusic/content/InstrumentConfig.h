@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "xjnexus/util/ConfigParser.h"
+#include "xjmusic/util/ConfigParser.h"
 
 #include "Instrument.h"
 

@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-#ifndef XJNEXUS_MUSIC_BAR_H
-#define XJNEXUS_MUSIC_BAR_H
+#ifndef XJMUSIC_MUSIC_BAR_H
+#define XJMUSIC_MUSIC_BAR_H
 
 #include <vector>
 
@@ -36,4 +36,4 @@ namespace Music {
 
 }// namespace Music
 
-#endif// XJNEXUS_MUSIC_BAR_H
+#endif// XJMUSIC_MUSIC_BAR_H

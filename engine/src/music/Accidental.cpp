@@ -4,8 +4,8 @@
 #include <locale>
 #include <regex>
 
-#include "xjnexus/music/Accidental.h"
-#include "xjnexus/util/StringUtils.h"
+#include "xjmusic/music/Accidental.h"
+#include "xjmusic/util/StringUtils.h"
 
 namespace Music {
   static std::regex accidentalSharpishIn("(M|maj|Major|major|aug)");

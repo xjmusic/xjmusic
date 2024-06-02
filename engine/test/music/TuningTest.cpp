@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "xjnexus/music/Tuning.h"
+#include "xjmusic/music/Tuning.h"
 
 #include "../_helper/AssertionHelpers.h"
 

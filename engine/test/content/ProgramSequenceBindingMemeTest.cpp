@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include <string>
 
-#include "xjnexus/content/ProgramSequenceBindingMeme.h"
+#include "xjmusic/content/ProgramSequenceBindingMeme.h"
 
 using namespace Content;
 

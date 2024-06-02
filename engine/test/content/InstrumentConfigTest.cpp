@@ -2,8 +2,8 @@
 
 #include <gtest/gtest.h>
 
-#include "xjnexus/content/InstrumentConfig.h"
-#include "xjnexus/util/StringUtils.h"
+#include "xjmusic/content/InstrumentConfig.h"
+#include "xjmusic/util/StringUtils.h"
 
 using namespace Content;
 

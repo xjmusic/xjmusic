@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-#ifndef XJNEXUS_MUSIC_SLASH_ROOT_H
-#define XJNEXUS_MUSIC_SLASH_ROOT_H
+#ifndef XJMUSIC_MUSIC_SLASH_ROOT_H
+#define XJMUSIC_MUSIC_SLASH_ROOT_H
 
 #include <optional>
 #include <regex>
@@ -90,4 +90,4 @@ namespace Music {
 
 }// namespace Music
 
-#endif// XJNEXUS_MUSIC_SLASH_ROOT_H
+#endif// XJMUSIC_MUSIC_SLASH_ROOT_H

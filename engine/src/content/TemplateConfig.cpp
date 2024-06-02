@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "xjnexus/content/TemplateConfig.h"
+#include "xjmusic/content/TemplateConfig.h"
 
 namespace Content {
 
