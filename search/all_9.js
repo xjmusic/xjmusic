@@ -17,7 +17,7 @@ var searchData=
   ['hasinstrumentsoftype_384',['hasInstrumentsOfType',['../d1/dcc/classContent_1_1ContentStore.html#a04615d14af6b3b199229ddc7d6a89e2b',1,'Content::ContentStore']]],
   ['hasinstrumentsoftypeandmode_385',['hasInstrumentsOfTypeAndMode',['../d1/dcc/classContent_1_1ContentStore.html#a3765f65633be036a9b73f5aff09946fc',1,'Content::ContentStore']]],
   ['hasmemes_386',['hasMemes',['../dc/de1/classContent_1_1MemeCategory.html#a89177b76d9f33bf2d49dd81fd5fe11d1',1,'Content::MemeCategory']]],
-  ['hello_387',['hello',['../df/db2/xjnexus_8h.html#ad0902766c3251c06f4b32a6696796f29',1,'hello():&#160;xjnexus.cpp'],['../d9/daf/xjnexus_8cpp.html#ad0902766c3251c06f4b32a6696796f29',1,'hello():&#160;xjnexus.cpp']]],
+  ['hello_387',['hello',['../db/de9/xjmusic_8h.html#ad0902766c3251c06f4b32a6696796f29',1,'hello():&#160;xjmusic.cpp'],['../da/d0c/xjmusic_8cpp.html#ad0902766c3251c06f4b32a6696796f29',1,'hello():&#160;xjmusic.cpp']]],
   ['high_388',['high',['../df/d72/classMusic_1_1NoteRange.html#ac6b7a6d896c0494d79a786d52e5ead77',1,'Music::NoteRange']]],
   ['hook_389',['Hook',['../d7/d56/classContent_1_1Instrument.html#ab395ed49c1cfb59ca46c02ce5babe751ad7c549087c8e42fcbcaed4bff7924b19',1,'Content::Instrument']]],
   ['hours_5fper_5fday_390',['HOURS_PER_DAY',['../d5/df7/classUtil_1_1ValueUtils.html#a99c446cded9aec3934a78f55754314d8',1,'Util::ValueUtils']]]

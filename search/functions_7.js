@@ -8,5 +8,5 @@ var searchData=
   ['hasinstrumentsoftype_1795',['hasInstrumentsOfType',['../d1/dcc/classContent_1_1ContentStore.html#a04615d14af6b3b199229ddc7d6a89e2b',1,'Content::ContentStore']]],
   ['hasinstrumentsoftypeandmode_1796',['hasInstrumentsOfTypeAndMode',['../d1/dcc/classContent_1_1ContentStore.html#a3765f65633be036a9b73f5aff09946fc',1,'Content::ContentStore']]],
   ['hasmemes_1797',['hasMemes',['../dc/de1/classContent_1_1MemeCategory.html#a89177b76d9f33bf2d49dd81fd5fe11d1',1,'Content::MemeCategory']]],
-  ['hello_1798',['hello',['../df/db2/xjnexus_8h.html#ad0902766c3251c06f4b32a6696796f29',1,'hello():&#160;xjnexus.cpp'],['../d9/daf/xjnexus_8cpp.html#ad0902766c3251c06f4b32a6696796f29',1,'hello():&#160;xjnexus.cpp']]]
+  ['hello_1798',['hello',['../db/de9/xjmusic_8h.html#ad0902766c3251c06f4b32a6696796f29',1,'hello():&#160;xjmusic.cpp'],['../da/d0c/xjmusic_8cpp.html#ad0902766c3251c06f4b32a6696796f29',1,'hello():&#160;xjmusic.cpp']]]
 ];
