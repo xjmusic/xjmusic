@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "xjnexus/music/Accidental.h"
+#include "xjmusic/music/Accidental.h"
 
 using namespace Music;
 

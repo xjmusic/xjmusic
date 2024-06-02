@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "xjnexus/util/StringUtils.h"
+#include "xjmusic/util/StringUtils.h"
 
 using namespace Util;
 

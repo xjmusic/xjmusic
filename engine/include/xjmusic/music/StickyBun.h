@@ -1,13 +1,13 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-#ifndef XJNEXUS_MUSIC_STICKY_BUN_H
-#define XJNEXUS_MUSIC_STICKY_BUN_H
+#ifndef XJMUSIC_MUSIC_STICKY_BUN_H
+#define XJMUSIC_MUSIC_STICKY_BUN_H
 
 #include <string>
 #include <vector>
 #include <random>
 
-#include "xjnexus/content/Entity.h"
+#include "xjmusic/content/Entity.h"
 #include "Note.h"
 
 using namespace Content;
@@ -80,4 +80,4 @@ namespace Music {
 
 }// namespace Music
 
-#endif// XJNEXUS_MUSIC_STICKY_BUN_H
+#endif// XJMUSIC_MUSIC_STICKY_BUN_H

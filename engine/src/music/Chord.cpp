@@ -2,9 +2,9 @@
 
 #include <sstream>
 
-#include "xjnexus/util/StringUtils.h"
-#include "xjnexus/music/Chord.h"
-#include "xjnexus/music/Step.h"
+#include "xjmusic/util/StringUtils.h"
+#include "xjmusic/music/Chord.h"
+#include "xjmusic/music/Step.h"
 
 namespace Music {
 

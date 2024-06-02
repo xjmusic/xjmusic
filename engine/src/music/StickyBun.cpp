@@ -4,7 +4,7 @@
 #include <sstream>
 #include <utility>
 
-#include "xjnexus/music/StickyBun.h"
+#include "xjmusic/music/StickyBun.h"
 
 namespace Music {
 

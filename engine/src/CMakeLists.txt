@@ -2,7 +2,7 @@
 include(FetchContent)
 
 # show up in IDEs unless they are listed in add_library.
-add_library(xjnexus
+add_library(xjmusic
         content/ContentStore.cpp
         content/Entity.cpp
         content/Instrument.cpp
@@ -43,19 +43,19 @@ add_library(xjnexus
         util/ConfigParser.cpp
         util/StringUtils.cpp
         util/ValueUtils.cpp
-        xjnexus.cpp
+        xjmusic.cpp
 )
 
 # We need this directory, and users of our library will need it too
-target_include_directories(xjnexus PUBLIC ../include)
+target_include_directories(xjmusic PUBLIC ../include)
 
 # All users of this library will need at least C++17
-target_compile_features(xjnexus PUBLIC cxx_std_17)
+target_compile_features(xjmusic PUBLIC cxx_std_17)
 
 # Fast C++ logging library (gabime/spdlog)
 FetchContent_Declare(spdlog URL https://github.com/gabime/spdlog/archive/v1.13.0.tar.gz)
 FetchContent_MakeAvailable(spdlog)
-target_link_libraries(xjnexus PRIVATE spdlog::spdlog)
+target_link_libraries(xjmusic PRIVATE spdlog::spdlog)
 
 # IDEs should put the headers in a nice place
 source_group(

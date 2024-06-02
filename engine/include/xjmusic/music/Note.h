@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-#ifndef XJNEXUS_MUSIC_NOTE_H
-#define XJNEXUS_MUSIC_NOTE_H
+#ifndef XJMUSIC_MUSIC_NOTE_H
+#define XJMUSIC_MUSIC_NOTE_H
 
 #include <optional>
 #include <regex>
@@ -234,4 +234,4 @@ namespace Music {
 
 }// namespace Music
 
-#endif// XJNEXUS_MUSIC_NOTE_H
+#endif// XJMUSIC_MUSIC_NOTE_H

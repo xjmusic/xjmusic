@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "xjnexus/music/PitchClass.h"
+#include "xjmusic/music/PitchClass.h"
 
 using namespace Music;
 

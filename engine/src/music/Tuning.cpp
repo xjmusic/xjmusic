@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-#include "xjnexus/music/Tuning.h"
+#include "xjmusic/music/Tuning.h"
 
 namespace Music {
 

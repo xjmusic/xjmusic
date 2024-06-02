@@ -8,7 +8,7 @@
 #include <string>
 #include <variant>
 
-#include "xjnexus/util/StringUtils.h"
+#include "xjmusic/util/StringUtils.h"
 
 namespace Content {
 

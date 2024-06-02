@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#ifndef XJNEXUS_VALUE_UTILS_H
-#define XJNEXUS_VALUE_UTILS_H
+#ifndef XJMUSIC_VALUE_UTILS_H
+#define XJMUSIC_VALUE_UTILS_H
 
 #include <optional>
 #include <random>
@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include "xjnexus/content/Entity.h"
+#include "xjmusic/content/Entity.h"
 
 using namespace Content;
 
@@ -203,4 +203,4 @@ namespace Util {
 
 }
 
-#endif //XJNEXUS_VALUE_UTILS_H
+#endif //XJMUSIC_VALUE_UTILS_H

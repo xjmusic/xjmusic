@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "xjnexus/music/StickyBun.h"
+#include "xjmusic/music/StickyBun.h"
 
 #include "../_helper/AssertionHelpers.h"
 

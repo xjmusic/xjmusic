@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "xjnexus/music/Octave.h"
+#include "xjmusic/music/Octave.h"
 
 using namespace Music;
 

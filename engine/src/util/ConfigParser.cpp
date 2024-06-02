@@ -7,8 +7,8 @@
 #include <vector>
 #include <cmath>
 
-#include "xjnexus/util/ConfigParser.h"
-#include "xjnexus/util/StringUtils.h"
+#include "xjmusic/util/ConfigParser.h"
+#include "xjmusic/util/StringUtils.h"
 
 namespace Util {
 

@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include "xjnexus/content/Instrument.h"
+#include "xjmusic/content/Instrument.h"
 
 namespace Content {
 

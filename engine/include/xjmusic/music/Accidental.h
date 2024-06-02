@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#ifndef XJNEXUS_MUSIC_ACCIDENTAL_H
-#define XJNEXUS_MUSIC_ACCIDENTAL_H
+#ifndef XJMUSIC_MUSIC_ACCIDENTAL_H
+#define XJMUSIC_MUSIC_ACCIDENTAL_H
 
 namespace Music {
 
@@ -37,4 +37,4 @@ namespace Music {
 
 } // namespace Music
 
-#endif //XJNEXUS_MUSIC_ACCIDENTAL_H
+#endif //XJMUSIC_MUSIC_ACCIDENTAL_H

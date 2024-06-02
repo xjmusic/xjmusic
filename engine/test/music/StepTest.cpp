@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "xjnexus/music/Step.h"
+#include "xjmusic/music/Step.h"
 
 using namespace Music;
 

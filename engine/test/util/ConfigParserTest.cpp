@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "xjnexus/util/ConfigParser.h"
+#include "xjmusic/util/ConfigParser.h"
 
 using namespace Util;
 

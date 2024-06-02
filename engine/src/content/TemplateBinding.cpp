@@ -2,7 +2,7 @@
 
 #include "nlohmann/json.hpp"
 
-#include "xjnexus/content/TemplateBinding.h"
+#include "xjmusic/content/TemplateBinding.h"
 
 using json = nlohmann::json;
 

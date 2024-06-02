@@ -2,8 +2,8 @@
 
 #include <regex>
 
-#include "xjnexus/music/PitchClass.h"
-#include "xjnexus/util/StringUtils.h"
+#include "xjmusic/music/PitchClass.h"
+#include "xjmusic/util/StringUtils.h"
 
 namespace Music {
 

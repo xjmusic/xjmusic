@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-#ifndef XJNEXUS_MUSIC_STEP_H
-#define XJNEXUS_MUSIC_STEP_H
+#ifndef XJMUSIC_MUSIC_STEP_H
+#define XJMUSIC_MUSIC_STEP_H
 
 #include <map>
 
@@ -88,4 +88,4 @@ namespace Music {
 
 }//namespace Music
 
-#endif //XJNEXUS_MUSIC_STEP_H
+#endif //XJMUSIC_MUSIC_STEP_H

@@ -1,13 +1,13 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#ifndef XJNEXUS_TEST_HELPER_ASSERTION_HELPERS_H
-#define XJNEXUS_TEST_HELPER_ASSERTION_HELPERS_H
+#ifndef XJMUSIC_TEST_HELPER_ASSERTION_HELPERS_H
+#define XJMUSIC_TEST_HELPER_ASSERTION_HELPERS_H
 
 #include "gtest/gtest.h"
 
-#include "xjnexus/music/Note.h"
-#include "xjnexus/music/PitchClass.h"
-#include "xjnexus/music/Root.h"
+#include "xjmusic/music/Note.h"
+#include "xjmusic/music/PitchClass.h"
+#include "xjmusic/music/Root.h"
 
 /**
  * Expect a runtime error with a specific message
@@ -31,4 +31,4 @@
  */
 void assertNote(const std::string &expect, const Music::Note &actual);
 
-#endif //XJNEXUS_TEST_HELPER_ASSERTION_HELPERS_H
+#endif //XJMUSIC_TEST_HELPER_ASSERTION_HELPERS_H

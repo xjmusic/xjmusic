@@ -1,14 +1,14 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#ifndef XJNEXUS_CONTENT_TEST_HELPER_H
-#define XJNEXUS_CONTENT_TEST_HELPER_H
+#ifndef XJMUSIC_CONTENT_TEST_HELPER_H
+#define XJMUSIC_CONTENT_TEST_HELPER_H
 
 #include <chrono>
 #include <iomanip>
 #include <random>
 #include <sstream>
 
-#include "xjnexus/content/ContentStore.h"
+#include "xjmusic/content/ContentStore.h"
 
 using namespace Content;
 
@@ -101,4 +101,4 @@ public:
   ProgramSequencePatternEvent buildProgramSequencePatternEvent(const ProgramSequencePattern& programSequencePattern, const ProgramVoiceTrack& programVoiceTrack, float position, float duration, std::string tones, float velocity);
 };
 
-#endif//XJNEXUS_CONTENT_TEST_HELPER_H
+#endif//XJMUSIC_CONTENT_TEST_HELPER_H

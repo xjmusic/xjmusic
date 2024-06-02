@@ -2,8 +2,8 @@
 
 #include <gtest/gtest.h>
 
-#include "xjnexus/music/Note.h"
-#include "xjnexus/util/StringUtils.h"
+#include "xjmusic/music/Note.h"
+#include "xjmusic/util/StringUtils.h"
 
 #include "../_helper/AssertionHelpers.h"
 

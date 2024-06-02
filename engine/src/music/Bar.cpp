@@ -2,8 +2,8 @@
 
 #include <stdexcept>
 
-#include "xjnexus/music/Bar.h"
-#include "xjnexus/util/ValueUtils.h"
+#include "xjmusic/music/Bar.h"
+#include "xjmusic/util/ValueUtils.h"
 
 using namespace Util;
 

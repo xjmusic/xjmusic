@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include "xjnexus/music/BPM.h"
+#include "xjmusic/music/BPM.h"
 
 namespace Music {
 

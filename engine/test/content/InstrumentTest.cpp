@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include <string>
 
-#include "xjnexus/content/Instrument.h"
+#include "xjmusic/content/Instrument.h"
 
 using namespace Content;
 

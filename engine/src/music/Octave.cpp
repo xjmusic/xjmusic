@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include "xjnexus/util/StringUtils.h"
-#include "xjnexus/music/Octave.h"
+#include "xjmusic/util/StringUtils.h"
+#include "xjmusic/music/Octave.h"
 
 namespace Music {
 

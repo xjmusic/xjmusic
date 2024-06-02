@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-#ifndef XJNEXUS_MUSIC_PITCH_CLASS_H
-#define XJNEXUS_MUSIC_PITCH_CLASS_H
+#ifndef XJMUSIC_MUSIC_PITCH_CLASS_H
+#define XJMUSIC_MUSIC_PITCH_CLASS_H
 
 #include <map>
 #include <string>
@@ -49,4 +49,4 @@ namespace Music {
 
 }// namespace Music
 
-#endif//XJNEXUS_MUSIC_PITCH_CLASS_H
+#endif//XJMUSIC_MUSIC_PITCH_CLASS_H
