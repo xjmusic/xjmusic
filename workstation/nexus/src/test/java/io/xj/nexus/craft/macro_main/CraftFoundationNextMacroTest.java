@@ -24,8 +24,8 @@ import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentMeme;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.NexusEntityStoreImpl;
-import io.xj.nexus.persistence.SegmentUtils;
+import io.xj.nexus.fabricator.FabricationEntityStoreImpl;
+import io.xj.nexus.fabricator.SegmentUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -60,7 +60,7 @@ public class CraftFoundationNextMacroTest {
       HubTopology.buildHubApiTopology(entityFactory);
       NexusTopology.buildNexusApiTopology(entityFactory);
       JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-      var store = new NexusEntityStoreImpl(entityFactory);
+      var store = new FabricationEntityStoreImpl(entityFactory);
       var fabricatorFactory = new FabricatorFactoryImpl(
         store,
         jsonapiPayloadFactory,

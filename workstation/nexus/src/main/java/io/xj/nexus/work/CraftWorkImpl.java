@@ -25,10 +25,10 @@ import io.xj.nexus.model.SegmentChoiceArrangement;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.ChainUtils;
-import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.persistence.SegmentUtils;
-import io.xj.nexus.persistence.TemplateUtils;
+import io.xj.nexus.fabricator.ChainUtils;
+import io.xj.nexus.fabricator.FabricationEntityStore;
+import io.xj.nexus.fabricator.SegmentUtils;
+import io.xj.nexus.fabricator.TemplateUtils;
 import io.xj.nexus.telemetry.Telemetry;
 import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
@@ -58,7 +58,7 @@ public class CraftWorkImpl implements CraftWork {
   private final Telemetry telemetry;
   private final CraftFactory craftFactory;
   private final FabricatorFactory fabricatorFactory;
-  private final NexusEntityStore store;
+  private final FabricationEntityStore store;
   private final AudioCache audioCache;
   private final AtomicBoolean running = new AtomicBoolean(true);
   private final double outputFrameRate;
@@ -79,7 +79,7 @@ public class CraftWorkImpl implements CraftWork {
     Telemetry telemetry,
     CraftFactory craftFactory,
     FabricatorFactory fabricatorFactory,
-    NexusEntityStore store,
+    FabricationEntityStore store,
     AudioCache audioCache,
     long persistenceWindowSeconds,
     long craftAheadSeconds,

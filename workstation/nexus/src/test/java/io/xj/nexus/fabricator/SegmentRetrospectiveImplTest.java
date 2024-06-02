@@ -24,9 +24,6 @@ import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.ChainUtils;
-import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,7 +47,7 @@ public class SegmentRetrospectiveImplTest {
   JsonProvider jsonProvider;
   FabricatorFactory fabricatorFactory;
   HubContent sourceMaterial;
-  NexusEntityStore store;
+  FabricationEntityStore store;
   NexusIntegrationTestingFixtures fake;
   Segment segment0;
   Segment segment1;
@@ -60,7 +57,7 @@ public class SegmentRetrospectiveImplTest {
   @BeforeEach
   public void setUp() throws Exception {
     var entityFactory = new EntityFactoryImpl(jsonProvider);
-    store = new NexusEntityStoreImpl(entityFactory);
+    store = new FabricationEntityStoreImpl(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     jsonProvider = new JsonProviderImpl();
     fabricatorFactory = new FabricatorFactoryImpl(

@@ -7,16 +7,15 @@ import io.xj.hub.json.JsonProvider;
 import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.NexusEntityStore;
 import jakarta.annotation.Nullable;
 
 public class FabricatorFactoryImpl implements FabricatorFactory {
   final JsonapiPayloadFactory jsonapiPayloadFactory;
-  private final NexusEntityStore entityStore;
+  private final FabricationEntityStore entityStore;
   final JsonProvider jsonProvider;
 
   public FabricatorFactoryImpl(
-    NexusEntityStore entityStore,
+    FabricationEntityStore entityStore,
     JsonapiPayloadFactory jsonapiPayloadFactory,
     JsonProvider jsonProvider
   ) {

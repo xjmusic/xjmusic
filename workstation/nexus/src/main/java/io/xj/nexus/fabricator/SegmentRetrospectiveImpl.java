@@ -11,7 +11,6 @@ import io.xj.nexus.model.SegmentChoiceArrangement;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentMeta;
-import io.xj.nexus.persistence.NexusEntityStore;
 import jakarta.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -28,7 +27,7 @@ import java.util.stream.Collectors;
  */
 class SegmentRetrospectiveImpl implements SegmentRetrospective {
   final List<List<SegmentChord>> segmentChords = new ArrayList<>();
-  private final NexusEntityStore entityStore;
+  private final FabricationEntityStore entityStore;
   final List<Segment> retroSegments;
   final List<Integer> previousSegmentIds;
 
@@ -36,7 +35,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   final Segment previousSegment;
 
   public SegmentRetrospectiveImpl(
-    NexusEntityStore entityStore,
+    FabricationEntityStore entityStore,
     Integer segmentId
   ) throws NexusException, FabricationFatalException {
     this.entityStore = entityStore;

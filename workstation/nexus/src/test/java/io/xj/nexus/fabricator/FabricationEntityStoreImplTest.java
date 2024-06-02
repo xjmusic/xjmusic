@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.nexus.persistence;
+package io.xj.nexus.fabricator;
 
 
 import io.xj.hub.HubTopology;
@@ -15,6 +15,8 @@ import io.xj.hub.pojos.Template;
 import io.xj.hub.pojos.TemplateBinding;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusTopology;
+import io.xj.nexus.fabricator.FabricationEntityStore;
+import io.xj.nexus.fabricator.FabricationEntityStoreImpl;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -50,8 +52,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
-public class NexusEntityStoreImplTest {
-  NexusEntityStore subject;
+public class FabricationEntityStoreImplTest {
+  FabricationEntityStore subject;
   EntityFactory entityFactory;
   private Chain fakeChain;
 
@@ -71,7 +73,7 @@ public class NexusEntityStoreImplTest {
     NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Instantiate the test subject and put the payload
-    subject = new NexusEntityStoreImpl(entityFactory);
+    subject = new FabricationEntityStoreImpl(entityFactory);
 
     // add base fixtures
     Project fakeProject = buildProject("fake");

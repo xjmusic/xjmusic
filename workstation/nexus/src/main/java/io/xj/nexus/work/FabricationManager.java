@@ -5,7 +5,7 @@ package io.xj.nexus.work;
 import io.xj.hub.HubContent;
 import io.xj.hub.meme.MemeTaxonomy;
 import io.xj.hub.pojos.Program;
-import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.fabricator.FabricationEntityStore;
 import jakarta.annotation.Nullable;
 
 import java.util.Collection;
@@ -32,7 +32,7 @@ public interface FabricationManager {
   /**
    Get the entity store
    */
-  NexusEntityStore getEntityStore();
+  FabricationEntityStore getEntityStore();
 
   /**
    Reset the factory including the segment manager and its store

@@ -14,9 +14,9 @@ import io.xj.nexus.audio.AudioCache;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.persistence.NexusEntityStoreImpl;
-import io.xj.nexus.persistence.SegmentUtils;
+import io.xj.nexus.fabricator.FabricationEntityStore;
+import io.xj.nexus.fabricator.FabricationEntityStoreImpl;
+import io.xj.nexus.fabricator.SegmentUtils;
 import io.xj.nexus.telemetry.Telemetry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ public class ComplexLibraryTest {
   private static final int GENERATED_FIXTURE_COMPLEXITY = 3;
   private static final long WORK_CYCLE_MILLIS = 120;
   long startTime = System.currentTimeMillis();
-  NexusEntityStore entityStore;
+  FabricationEntityStore entityStore;
   CraftWork work;
 
   @Mock
@@ -66,7 +66,7 @@ public class ComplexLibraryTest {
 
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
-    entityStore = new NexusEntityStoreImpl(entityFactory);
+    entityStore = new FabricationEntityStoreImpl(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     var fabricatorFactory = new FabricatorFactoryImpl(
       entityStore,
@@ -76,7 +76,7 @@ public class ComplexLibraryTest {
     NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
-    NexusEntityStore test = new NexusEntityStoreImpl(entityFactory);
+    FabricationEntityStore test = new FabricationEntityStoreImpl(entityFactory);
     test.clear();
 
     // Dependencies

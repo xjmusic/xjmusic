@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.nexus.persistence;
+package io.xj.nexus.fabricator;
 
 import io.xj.hub.pojos.Template;
 import io.xj.hub.util.StringUtils;

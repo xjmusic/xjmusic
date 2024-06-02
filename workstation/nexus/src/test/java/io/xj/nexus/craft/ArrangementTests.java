@@ -31,8 +31,8 @@ import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
-import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.fabricator.FabricationEntityStore;
+import io.xj.nexus.fabricator.FabricationEntityStoreImpl;
 import jakarta.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -87,7 +87,7 @@ public class ArrangementTests extends YamlTest {
   final Logger LOG = LoggerFactory.getLogger(YamlTest.class);
   // this is how we provide content for fabrication
   FabricatorFactory fabrication;
-  NexusEntityStore store;
+  FabricationEntityStore store;
   Fabricator fabricator;
   // list of all entities to return from Hub
   List<Object> content;
@@ -232,7 +232,7 @@ FUTURE goal
   void reset() throws Exception {
     JsonProvider jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
-    store = new NexusEntityStoreImpl(entityFactory);
+    store = new FabricationEntityStoreImpl(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     fabrication = new FabricatorFactoryImpl(
       store,

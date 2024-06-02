@@ -20,7 +20,7 @@ import io.xj.nexus.model.SegmentMeme;
 import io.xj.nexus.model.SegmentMessage;
 import io.xj.nexus.model.SegmentMessageType;
 import io.xj.nexus.model.SegmentMeta;
-import io.xj.nexus.persistence.SegmentUtils;
+import io.xj.nexus.fabricator.SegmentUtils;
 import io.xj.nexus.util.FormatUtils;
 import io.xj.nexus.work.FabricationState;
 import jakarta.annotation.Nullable;

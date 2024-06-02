@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.nexus.manager;
+package io.xj.nexus.fabricator;
 
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.pojos.Project;
@@ -20,7 +20,7 @@ import io.xj.nexus.model.SegmentMessage;
 import io.xj.nexus.model.SegmentMeta;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.SegmentUtils;
+import io.xj.nexus.fabricator.SegmentUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;

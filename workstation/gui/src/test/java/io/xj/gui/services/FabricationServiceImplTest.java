@@ -13,7 +13,7 @@ import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentState;
-import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.fabricator.FabricationEntityStore;
 import io.xj.nexus.project.ProjectState;
 import io.xj.nexus.work.FabricationManager;
 import javafx.beans.property.SimpleObjectProperty;
@@ -49,7 +49,7 @@ class FabricationServiceImplTest {
   int defaultOutputFrameRate = 48000;
 
   @Mock
-  private NexusEntityStore entityStore;
+  private FabricationEntityStore entityStore;
 
   @Mock
   ProjectService projectService;

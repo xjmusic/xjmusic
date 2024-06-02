@@ -22,7 +22,7 @@ import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentMeme;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.fabricator.FabricationEntityStoreImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -59,7 +59,7 @@ public class CraftSegmentPatternMemeTest {
       CraftFactory craftFactory = new CraftFactoryImpl();
       var jsonProvider = new JsonProviderImpl();
       var entityFactory = new EntityFactoryImpl(jsonProvider);
-      var store = new NexusEntityStoreImpl(entityFactory);
+      var store = new FabricationEntityStoreImpl(entityFactory);
       JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
       FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
         store,

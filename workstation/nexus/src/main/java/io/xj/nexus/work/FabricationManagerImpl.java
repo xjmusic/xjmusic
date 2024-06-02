@@ -14,7 +14,7 @@ import io.xj.nexus.audio.AudioCache;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.mixer.MixerFactory;
-import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.fabricator.FabricationEntityStore;
 import io.xj.nexus.ship.broadcast.BroadcastFactory;
 import io.xj.nexus.telemetry.Telemetry;
 import jakarta.annotation.Nullable;
@@ -45,7 +45,7 @@ public class FabricationManagerImpl implements FabricationManager {
   private final AudioCache audioCache;
   private final FabricatorFactory fabricatorFactory;
   private final MixerFactory mixerFactory;
-  private final NexusEntityStore entityStore;
+  private final FabricationEntityStore entityStore;
   private final Telemetry telemetry;
   private final AtomicReference<FabricationState> state = new AtomicReference<>(FabricationState.Standby);
   private final AtomicBoolean isAudioLoaded = new AtomicBoolean(false);
@@ -83,7 +83,7 @@ public class FabricationManagerImpl implements FabricationManager {
     AudioCache audioCache,
     FabricatorFactory fabricatorFactory,
     MixerFactory mixerFactory,
-    NexusEntityStore store
+    FabricationEntityStore store
   ) {
     this.broadcastFactory = broadcastFactory;
     this.craftFactory = craftFactory;
@@ -226,7 +226,7 @@ public class FabricationManagerImpl implements FabricationManager {
   }
 
   @Override
-  public NexusEntityStore getEntityStore() {
+  public FabricationEntityStore getEntityStore() {
     return entityStore;
   }
 

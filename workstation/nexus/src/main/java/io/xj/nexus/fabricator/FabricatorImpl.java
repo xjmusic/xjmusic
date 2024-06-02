@@ -52,9 +52,6 @@ import io.xj.nexus.model.SegmentMessage;
 import io.xj.nexus.model.SegmentMessageType;
 import io.xj.nexus.model.SegmentMeta;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.ChainUtils;
-import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.persistence.SegmentUtils;
 import io.xj.nexus.util.MarbleBag;
 import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
@@ -106,7 +103,7 @@ public class FabricatorImpl implements Fabricator {
   final Map<String, Optional<Note>> rootNotesByVoicingAndChord;
   final Map<UUID, Collection<ProgramSequenceChord>> completeChordsForProgramSequence;
   final Map<UUID, List<SegmentChoiceArrangementPick>> picksForChoice;
-  private final NexusEntityStore store;
+  private final FabricationEntityStore store;
   final SegmentRetrospective retrospective;
   final Set<UUID> boundInstrumentIds;
   final Set<UUID> boundProgramIds;
@@ -126,7 +123,7 @@ public class FabricatorImpl implements Fabricator {
 
   public FabricatorImpl(
     FabricatorFactory fabricatorFactory,
-    NexusEntityStore store,
+    FabricationEntityStore store,
     HubContent sourceMaterial,
     Integer segmentId,
     JsonapiPayloadFactory jsonapiPayloadFactory,

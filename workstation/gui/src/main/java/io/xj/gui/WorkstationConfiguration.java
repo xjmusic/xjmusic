@@ -24,8 +24,8 @@ import io.xj.nexus.mixer.EnvelopeProvider;
 import io.xj.nexus.mixer.EnvelopeProviderImpl;
 import io.xj.nexus.mixer.MixerFactory;
 import io.xj.nexus.mixer.MixerFactoryImpl;
-import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.fabricator.FabricationEntityStore;
+import io.xj.nexus.fabricator.FabricationEntityStoreImpl;
 import io.xj.nexus.project.ProjectManager;
 import io.xj.nexus.project.ProjectManagerImpl;
 import io.xj.nexus.ship.broadcast.BroadcastFactory;
@@ -111,10 +111,10 @@ public class WorkstationConfiguration {
     Telemetry telemetry = new TelemetryImpl();
     CraftFactory craftFactory = new CraftFactoryImpl();
     AudioCache audioCache = new AudioCacheImpl(projectManager, audioLoader);
-    NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
+    FabricationEntityStore fabricationEntityStore = new FabricationEntityStoreImpl(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
-        nexusEntityStore,
+      fabricationEntityStore,
         jsonapiPayloadFactory,
         jsonProvider
     );
@@ -127,7 +127,7 @@ public class WorkstationConfiguration {
         audioCache,
         fabricatorFactory,
         mixerFactory,
-        nexusEntityStore
+      fabricationEntityStore
     );
   }
 }

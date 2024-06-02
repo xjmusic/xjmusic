@@ -33,8 +33,8 @@ import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.fabricator.FabricationEntityStore;
+import io.xj.nexus.fabricator.FabricationEntityStoreImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,7 +75,7 @@ public class CraftBeat_LayeredVoicesTest {
   InstrumentAudio audioHihat;
   InstrumentAudio audioKick;
   InstrumentAudio audioSnare;
-  NexusEntityStore store;
+  FabricationEntityStore store;
   NexusIntegrationTestingFixtures fake;
   Program program42;
   Segment segment4;
@@ -88,7 +88,7 @@ public class CraftBeat_LayeredVoicesTest {
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    store = new NexusEntityStoreImpl(entityFactory);
+    store = new FabricationEntityStoreImpl(entityFactory);
     fabricatorFactory = new FabricatorFactoryImpl(
       store,
       jsonapiPayloadFactory,

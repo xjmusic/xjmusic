@@ -29,9 +29,6 @@ import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.model.SegmentMeme;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.ChainUtils;
-import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -83,7 +80,7 @@ public class FabricatorImplTest {
   public JsonProvider jsonProvider;
   FabricatorImpl subject;
   HubContent sourceMaterial;
-  NexusEntityStore store;
+  FabricationEntityStore store;
   NexusIntegrationTestingFixtures fake;
   Segment segment;
 
@@ -93,7 +90,7 @@ public class FabricatorImplTest {
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
-    store = new NexusEntityStoreImpl(entityFactory);
+    store = new FabricationEntityStoreImpl(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
     store.clear();

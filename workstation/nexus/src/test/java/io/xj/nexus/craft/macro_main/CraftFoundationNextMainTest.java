@@ -26,9 +26,9 @@ import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentMeme;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.persistence.NexusEntityStoreImpl;
-import io.xj.nexus.persistence.SegmentUtils;
+import io.xj.nexus.fabricator.FabricationEntityStore;
+import io.xj.nexus.fabricator.FabricationEntityStoreImpl;
+import io.xj.nexus.fabricator.SegmentUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,14 +54,14 @@ public class CraftFoundationNextMainTest {
   NexusIntegrationTestingFixtures fake;
   Chain chain1;
   Segment segment4;
-  NexusEntityStore store;
+  FabricationEntityStore store;
   HubContent sourceMaterial;
 
   @BeforeEach
   public void setUp() throws Exception {
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
-    store = new NexusEntityStoreImpl(entityFactory);
+    store = new FabricationEntityStoreImpl(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     fabricatorFactory = new FabricatorFactoryImpl(
       store,

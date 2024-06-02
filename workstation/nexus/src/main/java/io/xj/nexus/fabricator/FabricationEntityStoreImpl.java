@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.nexus.persistence;
+package io.xj.nexus.fabricator;
 
 import io.xj.hub.entity.EntityException;
 import io.xj.hub.entity.EntityFactory;
@@ -40,15 +40,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- NexusEntityStore segments and child entities partitioned by segment id for rapid addressing
+ FabricationEntityStore segments and child entities partitioned by segment id for rapid addressing
  https://github.com/xjmusic/workstation/issues/276
  <p>
  XJ Lab Distributed Architecture
  https://github.com/xjmusic/workstation/issues/207
  Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in JSON:API record stored keyed by chain or segment id in memory
  */
-public class NexusEntityStoreImpl implements NexusEntityStore {
-  static final Logger LOG = LoggerFactory.getLogger(NexusEntityStoreImpl.class);
+public class FabricationEntityStoreImpl implements FabricationEntityStore {
+  static final Logger LOG = LoggerFactory.getLogger(FabricationEntityStoreImpl.class);
   static final String SEGMENT_ID_ATTRIBUTE = EntityUtils.toIdAttribute(EntityUtils.toBelongsTo(Segment.class));
   final Map<Integer, Segment> segments = new ConcurrentHashMap<>();
   final Map<Integer, Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>>> entities = new ConcurrentHashMap<>();
@@ -56,7 +56,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
 
   Chain chain;
 
-  public NexusEntityStoreImpl(EntityFactory entityFactory) {
+  public FabricationEntityStoreImpl(EntityFactory entityFactory) {
     this.entityFactory = entityFactory;
   }
 
