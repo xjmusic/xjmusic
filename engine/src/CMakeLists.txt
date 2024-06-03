@@ -27,12 +27,6 @@ add_library(xjmusic
         content/Template.cpp
         content/TemplateBinding.cpp
         content/TemplateConfig.cpp
-        fabricator/FabricationWrapper.cpp
-        fabricator/Fabricator.cpp
-        fabricator/FabricatorFactory.cpp
-        fabricator/MemeIsometry.cpp
-        fabricator/NameIsometry.cpp
-        fabricator/SegmentRetrospective.cpp
         music/Accidental.cpp
         music/BPM.cpp
         music/Bar.cpp
