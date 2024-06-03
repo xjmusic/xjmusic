@@ -7,7 +7,7 @@ import io.xj.hub.json.JsonProvider;
 import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.engine.NexusTopology;
+import io.xj.engine.FabricationTopology;
 import io.xj.engine.audio.AudioCache;
 import io.xj.engine.audio.AudioCacheImpl;
 import io.xj.engine.audio.AudioLoader;
@@ -79,7 +79,7 @@ public class WorkstationConfiguration {
   ) {
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
-    NexusTopology.buildNexusApiTopology(entityFactory);
+    FabricationTopology.buildFabricationTopology(entityFactory);
     return entityFactory;
   }
 

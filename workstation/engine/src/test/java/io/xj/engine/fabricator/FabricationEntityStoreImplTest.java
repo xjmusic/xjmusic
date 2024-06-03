@@ -14,7 +14,7 @@ import io.xj.hub.pojos.Project;
 import io.xj.hub.pojos.Template;
 import io.xj.hub.pojos.TemplateBinding;
 import io.xj.engine.FabricationException;
-import io.xj.engine.NexusTopology;
+import io.xj.engine.FabricationTopology;
 import io.xj.engine.model.Chain;
 import io.xj.engine.model.ChainState;
 import io.xj.engine.model.ChainType;
@@ -33,16 +33,16 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildLibrary;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProgram;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProgramSequence;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProgramSequenceBinding;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProject;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildTemplate;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildTemplateBinding;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.engine.FabricationContentOneFixtures.buildLibrary;
+import static io.xj.engine.FabricationContentOneFixtures.buildProgram;
+import static io.xj.engine.FabricationContentOneFixtures.buildProgramSequence;
+import static io.xj.engine.FabricationContentOneFixtures.buildProgramSequenceBinding;
+import static io.xj.engine.FabricationContentOneFixtures.buildProject;
+import static io.xj.engine.FabricationContentOneFixtures.buildTemplate;
+import static io.xj.engine.FabricationContentOneFixtures.buildTemplateBinding;
+import static io.xj.engine.FabricationContentTwoFixtures.buildChain;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -68,7 +68,7 @@ public class FabricationEntityStoreImplTest {
     JsonProvider jsonProvider = new JsonProviderImpl();
     entityFactory = new EntityFactoryImpl(jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
-    NexusTopology.buildNexusApiTopology(entityFactory);
+    FabricationTopology.buildFabricationTopology(entityFactory);
 
     // Instantiate the test subject and put the payload
     subject = new FabricationEntityStoreImpl(entityFactory);
@@ -251,7 +251,7 @@ public class FabricationEntityStoreImplTest {
   }
 
   @Test
-  public void create_passThroughIfNotNexusEntity() throws FabricationException {
+  public void create_passThroughIfNotFabricationEntity() throws FabricationException {
     var library = new Library();
     library.setId(UUID.randomUUID());
     library.setProjectId(UUID.randomUUID());

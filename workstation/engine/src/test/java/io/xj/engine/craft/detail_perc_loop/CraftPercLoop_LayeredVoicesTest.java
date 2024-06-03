@@ -14,8 +14,8 @@ import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.hub.pojos.Instrument;
-import io.xj.engine.NexusIntegrationTestingFixtures;
-import io.xj.engine.NexusTopology;
+import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
 import io.xj.engine.fabricator.Fabricator;
@@ -40,11 +40,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildAudio;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildInstrument;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildMeme;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.engine.FabricationContentOneFixtures.buildAudio;
+import static io.xj.engine.FabricationContentOneFixtures.buildInstrument;
+import static io.xj.engine.FabricationContentOneFixtures.buildMeme;
+import static io.xj.engine.FabricationContentTwoFixtures.buildChain;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
 
 /**
  Percussion-type Loop-mode fabrication composited of layered Patterns https://github.com/xjmusic/workstation/issues/267
@@ -54,7 +54,7 @@ public class CraftPercLoop_LayeredVoicesTest {
   CraftFactory craftFactory;
   FabricatorFactory fabricatorFactory;
   HubContent sourceMaterial;
-  NexusIntegrationTestingFixtures fake;
+  FabricationContentTwoFixtures fake;
   Segment segment4;
 
   @BeforeEach
@@ -63,7 +63,7 @@ public class CraftPercLoop_LayeredVoicesTest {
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     craftFactory = new CraftFactoryImpl();
     HubTopology.buildHubApiTopology(entityFactory);
-    NexusTopology.buildNexusApiTopology(entityFactory);
+    FabricationTopology.buildFabricationTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     var store = new FabricationEntityStoreImpl(entityFactory);
     fabricatorFactory = new FabricatorFactoryImpl(
@@ -76,7 +76,7 @@ public class CraftPercLoop_LayeredVoicesTest {
     store.clear();
 
     // Mock request via HubClientFactory returns fake generated library of hub content
-    fake = new NexusIntegrationTestingFixtures();
+    fake = new FabricationContentTwoFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       fake.setupFixtureB1().stream().filter(entity -> !EntityUtils.isSame(entity, fake.program35) && !EntityUtils.isChild(entity, fake.program35)),
       customFixtures().stream()
@@ -123,8 +123,8 @@ public class CraftPercLoop_LayeredVoicesTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892.wav",
       true));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, ProgramType.Macro, fake.program4_sequence0_binding0));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, ProgramType.Main, fake.program5_sequence0_binding0));
+    store.put(FabricationContentTwoFixtures.buildSegmentChoice(segment3, ProgramType.Macro, fake.program4_sequence0_binding0));
+    store.put(FabricationContentTwoFixtures.buildSegmentChoice(segment3, ProgramType.Main, fake.program5_sequence0_binding0));
 
     // segment crafting
     segment4 = store.put(buildSegment(
@@ -139,14 +139,14 @@ public class CraftPercLoop_LayeredVoicesTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892.wav",
       true));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment4, ProgramType.Macro, fake.program4_sequence0_binding0));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment4, ProgramType.Main, fake.program5_sequence1_binding0));
+    store.put(FabricationContentTwoFixtures.buildSegmentChoice(segment4, ProgramType.Macro, fake.program4_sequence0_binding0));
+    store.put(FabricationContentTwoFixtures.buildSegmentChoice(segment4, ProgramType.Main, fake.program5_sequence1_binding0));
 
     for (String memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
-      store.put(NexusIntegrationTestingFixtures.buildSegmentMeme(segment4, memeName));
+      store.put(FabricationContentTwoFixtures.buildSegmentMeme(segment4, memeName));
 
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment4, 0.0f, "A minor"));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment4, 8.0f, "D Major"));
+    store.put(FabricationContentTwoFixtures.buildSegmentChord(segment4, 0.0f, "A minor"));
+    store.put(FabricationContentTwoFixtures.buildSegmentChord(segment4, 8.0f, "D Major"));
   }
 
 

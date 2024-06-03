@@ -16,8 +16,8 @@ import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.hub.pojos.Instrument;
 import io.xj.hub.pojos.InstrumentAudio;
 import io.xj.engine.FabricationException;
-import io.xj.engine.NexusIntegrationTestingFixtures;
-import io.xj.engine.NexusTopology;
+import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
 import io.xj.engine.fabricator.Fabricator;
@@ -44,13 +44,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildAudio;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildInstrument;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildMeme;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentChord;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentMeme;
+import static io.xj.engine.FabricationContentOneFixtures.buildAudio;
+import static io.xj.engine.FabricationContentOneFixtures.buildInstrument;
+import static io.xj.engine.FabricationContentOneFixtures.buildMeme;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChord;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentMeme;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -63,7 +63,7 @@ public class CraftBeatProgramVoiceNextMacroTest {
   InstrumentAudio audioKick;
   InstrumentAudio audioSnare;
   FabricationEntityStore store;
-  NexusIntegrationTestingFixtures fake;
+  FabricationContentTwoFixtures fake;
   Segment segment4;
 
   @BeforeEach
@@ -72,7 +72,7 @@ public class CraftBeatProgramVoiceNextMacroTest {
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     craftFactory = new CraftFactoryImpl();
     HubTopology.buildHubApiTopology(entityFactory);
-    NexusTopology.buildNexusApiTopology(entityFactory);
+    FabricationTopology.buildFabricationTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     store = new FabricationEntityStoreImpl(entityFactory);
     fabricatorFactory = new FabricatorFactoryImpl(
@@ -85,7 +85,7 @@ public class CraftBeatProgramVoiceNextMacroTest {
     store.clear();
 
     // Mock request via HubClientFactory returns fake generated library of hub content
-    fake = new NexusIntegrationTestingFixtures();
+    fake = new FabricationContentTwoFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       Stream.concat(fake.setupFixtureB1().stream(),
         fake.setupFixtureB2().stream()),
@@ -93,7 +93,7 @@ public class CraftBeatProgramVoiceNextMacroTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(NexusIntegrationTestingFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
+    chain1 = store.put(FabricationContentTwoFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
     store.put(buildSegment(
       chain1,
       SegmentType.INITIAL,

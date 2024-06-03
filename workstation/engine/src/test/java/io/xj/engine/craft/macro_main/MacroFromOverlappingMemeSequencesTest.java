@@ -19,7 +19,7 @@ import io.xj.hub.pojos.ProjectUser;
 import io.xj.hub.pojos.TemplateBinding;
 import io.xj.hub.pojos.User;
 import io.xj.engine.FabricationException;
-import io.xj.engine.NexusTopology;
+import io.xj.engine.FabricationTopology;
 import io.xj.engine.fabricator.FabricatorFactoryImpl;
 import io.xj.engine.model.Chain;
 import io.xj.engine.model.ChainState;
@@ -34,19 +34,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildBinding;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildLibrary;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildMeme;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProgram;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProject;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProjectUser;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildSequence;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildTemplate;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildTemplateBinding;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildUser;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.engine.FabricationContentOneFixtures.buildBinding;
+import static io.xj.engine.FabricationContentOneFixtures.buildLibrary;
+import static io.xj.engine.FabricationContentOneFixtures.buildMeme;
+import static io.xj.engine.FabricationContentOneFixtures.buildProgram;
+import static io.xj.engine.FabricationContentOneFixtures.buildProject;
+import static io.xj.engine.FabricationContentOneFixtures.buildProjectUser;
+import static io.xj.engine.FabricationContentOneFixtures.buildSequence;
+import static io.xj.engine.FabricationContentOneFixtures.buildTemplate;
+import static io.xj.engine.FabricationContentOneFixtures.buildTemplateBinding;
+import static io.xj.engine.FabricationContentOneFixtures.buildUser;
+import static io.xj.engine.FabricationContentTwoFixtures.buildChain;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -71,7 +71,7 @@ public class MacroFromOverlappingMemeSequencesTest {
       jsonProvider
     );
     HubTopology.buildHubApiTopology(entityFactory);
-    NexusTopology.buildNexusApiTopology(entityFactory);
+    FabricationTopology.buildFabricationTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
     store.clear();

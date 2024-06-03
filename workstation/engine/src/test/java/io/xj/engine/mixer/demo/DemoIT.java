@@ -67,19 +67,19 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildAudio;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProgram;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProgramSequence;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProgramSequencePattern;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProgramSequencePatternEvent;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProgramVoice;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProgramVoiceTrack;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProject;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildTemplate;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentChoiceArrangement;
+import static io.xj.engine.FabricationContentOneFixtures.buildAudio;
+import static io.xj.engine.FabricationContentOneFixtures.buildProgram;
+import static io.xj.engine.FabricationContentOneFixtures.buildProgramSequence;
+import static io.xj.engine.FabricationContentOneFixtures.buildProgramSequencePattern;
+import static io.xj.engine.FabricationContentOneFixtures.buildProgramSequencePatternEvent;
+import static io.xj.engine.FabricationContentOneFixtures.buildProgramVoice;
+import static io.xj.engine.FabricationContentOneFixtures.buildProgramVoiceTrack;
+import static io.xj.engine.FabricationContentOneFixtures.buildProject;
+import static io.xj.engine.FabricationContentOneFixtures.buildTemplate;
+import static io.xj.engine.FabricationContentTwoFixtures.buildChain;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoiceArrangement;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 @ExtendWith(MockitoExtension.class)

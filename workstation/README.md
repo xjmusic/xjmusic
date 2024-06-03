@@ -38,11 +38,6 @@ Click here for a video walkthrough! https://youtu.be/z5i8ZD8AyWE
 The command above (`gradle :gui:bootRun`) invokes the `bootRun` task in the `gui` subproject. The `bootRun` task is a
 Gradle task provided by the Spring Boot Gradle plugin. It runs the application in the current JVM.
 
-All the business logic for the application is contained in the `nexus` subproject. The `gui` and `service` sub-projects
-provide two different ways of running the business logic, either as a GUI application or as a service.
-
-The `nexus` subproject business logic primarily comprises these packages:
-
 * the `io.xj.engine.craft` package is the most esoteric. It contains all the logic about fabricating music basic on the
   input content.
 * the `io.xj.engine.dub` package is an audio mixer-- it consumes the output of the craft package above and uses the

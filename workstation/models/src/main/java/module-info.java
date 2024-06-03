@@ -1,4 +1,4 @@
-module hub.models.main {
+module models.main {
   requires com.fasterxml.jackson.annotation;
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;

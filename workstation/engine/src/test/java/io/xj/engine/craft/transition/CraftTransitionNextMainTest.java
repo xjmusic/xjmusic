@@ -9,8 +9,8 @@ import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.engine.FabricationException;
-import io.xj.engine.NexusIntegrationTestingFixtures;
-import io.xj.engine.NexusTopology;
+import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
 import io.xj.engine.fabricator.Fabricator;
@@ -34,10 +34,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentChord;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentMeme;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChord;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentMeme;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftTransitionNextMainTest {
@@ -46,7 +46,7 @@ public class CraftTransitionNextMainTest {
   FabricatorFactory fabricatorFactory;
   HubContent sourceMaterial;
   FabricationEntityStore store;
-  NexusIntegrationTestingFixtures fake;
+  FabricationContentTwoFixtures fake;
   Segment segment4;
 
   @BeforeEach
@@ -55,7 +55,7 @@ public class CraftTransitionNextMainTest {
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     craftFactory = new CraftFactoryImpl();
     HubTopology.buildHubApiTopology(entityFactory);
-    NexusTopology.buildNexusApiTopology(entityFactory);
+    FabricationTopology.buildFabricationTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     store = new FabricationEntityStoreImpl(entityFactory);
     fabricatorFactory = new FabricatorFactoryImpl(
@@ -68,7 +68,7 @@ public class CraftTransitionNextMainTest {
     store.clear();
 
     // Mock request via HubClientFactory returns fake generated library of hub content
-    fake = new NexusIntegrationTestingFixtures();
+    fake = new FabricationContentTwoFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       Stream.concat(fake.setupFixtureB1().stream(),
         fake.setupFixtureB2().stream()),
@@ -76,7 +76,7 @@ public class CraftTransitionNextMainTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(NexusIntegrationTestingFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
+    chain1 = store.put(FabricationContentTwoFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
     store.put(buildSegment(
       chain1,
       0,

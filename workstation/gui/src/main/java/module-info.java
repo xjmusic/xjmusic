@@ -27,8 +27,8 @@ module workstation.gui.main {
   requires spring.webflux;
 
   // private
-  requires transitive hub.models.main;
-  requires transitive workstation.nexus.main;
+  requires transitive models.main;
+  requires transitive engine.main;
   requires component.inspector.fx;
   requires java.prefs;
   requires reactor.netty.http;

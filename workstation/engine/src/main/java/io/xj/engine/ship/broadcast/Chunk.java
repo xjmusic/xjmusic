@@ -19,7 +19,7 @@ import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
  <p>
  Ship broadcast via HTTP Live Streaming https://github.com/xjmusic/workstation/issues/279
  <p>
- Nexus timing is entirely in chain/segment microseconds https://github.com/xjmusic/workstation/issues/280
+ Fabrication timing is entirely in chain/segment microseconds https://github.com/xjmusic/workstation/issues/280
  */
 public class Chunk {
   final Long fromChainMicros;

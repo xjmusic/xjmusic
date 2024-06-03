@@ -40,11 +40,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildInstrument;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildInstrumentAudio;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildLibrary;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProgram;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProject;
+import static io.xj.engine.FabricationContentOneFixtures.buildInstrument;
+import static io.xj.engine.FabricationContentOneFixtures.buildInstrumentAudio;
+import static io.xj.engine.FabricationContentOneFixtures.buildLibrary;
+import static io.xj.engine.FabricationContentOneFixtures.buildProgram;
+import static io.xj.engine.FabricationContentOneFixtures.buildProject;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;

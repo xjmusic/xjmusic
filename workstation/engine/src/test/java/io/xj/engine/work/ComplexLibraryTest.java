@@ -8,8 +8,8 @@ import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.engine.FabricationException;
-import io.xj.engine.NexusIntegrationTestingFixtures;
-import io.xj.engine.NexusTopology;
+import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.FabricationTopology;
 import io.xj.engine.audio.AudioCache;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildLibrary;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProject;
+import static io.xj.engine.FabricationContentOneFixtures.buildLibrary;
+import static io.xj.engine.FabricationContentOneFixtures.buildProject;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,7 +53,7 @@ public class ComplexLibraryTest {
 
   @BeforeEach
   public void setUp() throws Exception {
-    NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
+    FabricationContentTwoFixtures fake = new FabricationContentTwoFixtures();
     fake.project1 = buildProject("fish");
     fake.library1 = buildLibrary(fake.project1, "test");
     var generatedFixtures = fake.generatedFixture(GENERATED_FIXTURE_COMPLEXITY);
@@ -73,7 +73,7 @@ public class ComplexLibraryTest {
       jsonapiPayloadFactory,
       jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
-    NexusTopology.buildNexusApiTopology(entityFactory);
+    FabricationTopology.buildFabricationTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
     FabricationEntityStore test = new FabricationEntityStoreImpl(entityFactory);

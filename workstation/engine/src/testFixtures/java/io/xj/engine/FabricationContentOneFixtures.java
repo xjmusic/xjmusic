@@ -43,7 +43,7 @@ import java.util.UUID;
  integration tests ought to be as much about testing all features around a consensus model of the platform
  as they are about testing all resources.
  */
-public class NexusHubIntegrationTestingFixtures {
+public class FabricationContentOneFixtures {
   public static final String TEST_TEMPLATE_CONFIG = "outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n";
 
   // These are fully exposed (no getters/setters) for ease of use in testing
@@ -54,8 +54,6 @@ public class NexusHubIntegrationTestingFixtures {
   public Program program3;
   public Program program4;
   public Template template1;
-  //
-  public NexusHubContentFixtures content;
 
   public static Collection<Object> buildInstrumentWithAudios(Instrument instrument, String notes) {
     List<Object> result = new ArrayList<>(List.of(instrument));

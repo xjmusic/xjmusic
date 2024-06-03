@@ -1,4 +1,4 @@
-module workstation.nexus.main {
+module engine.main {
   // vendor deps
   requires ch.qos.logback.classic;
   requires com.fasterxml.jackson.annotation;
@@ -26,7 +26,7 @@ module workstation.nexus.main {
   requires typesafe.config;
 
   // deps
-  requires transitive hub.models.main;
+  requires transitive models.main;
 
   // export
   exports io.xj.engine.audio;

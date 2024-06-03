@@ -15,8 +15,8 @@ import io.xj.hub.music.StickyBun;
 import io.xj.hub.pojos.Program;
 import io.xj.hub.pojos.ProgramSequenceBinding;
 import io.xj.engine.FabricationException;
-import io.xj.engine.NexusIntegrationTestingFixtures;
-import io.xj.engine.NexusTopology;
+import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.FabricationTopology;
 import io.xj.engine.model.Chain;
 import io.xj.engine.model.ChainState;
 import io.xj.engine.model.ChainType;
@@ -33,9 +33,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentMeta;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentMeta;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -48,7 +48,7 @@ public class SegmentRetrospectiveImplTest {
   FabricatorFactory fabricatorFactory;
   HubContent sourceMaterial;
   FabricationEntityStore store;
-  NexusIntegrationTestingFixtures fake;
+  FabricationContentTwoFixtures fake;
   Segment segment0;
   Segment segment1;
   Segment segment3;
@@ -66,20 +66,20 @@ public class SegmentRetrospectiveImplTest {
       jsonProvider
     );
     HubTopology.buildHubApiTopology(entityFactory);
-    NexusTopology.buildNexusApiTopology(entityFactory);
+    FabricationTopology.buildFabricationTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
     store.clear();
 
     // Mock request via HubClientFactory returns fake generated library of hub content
-    fake = new NexusIntegrationTestingFixtures();
+    fake = new FabricationContentTwoFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       fake.setupFixtureB1().stream(),
       fake.setupFixtureB2().stream()
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(NexusIntegrationTestingFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
+    Chain chain1 = store.put(FabricationContentTwoFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
     segment0 = constructSegmentAndChoices(chain1, SegmentType.CONTINUE, 10, 4, fake.program4, fake.program4_sequence1_binding0, fake.program15, fake.program15_sequence1_binding0);
     segment1 = constructSegmentAndChoices(chain1, SegmentType.NEXT_MAIN, 11, 0, fake.program4, fake.program4_sequence1_binding0, fake.program5, fake.program5_sequence0_binding0);
     constructSegmentAndChoices(chain1, SegmentType.CONTINUE, 12, 1, fake.program4, fake.program4_sequence1_binding0, fake.program5, fake.program5_sequence1_binding0);

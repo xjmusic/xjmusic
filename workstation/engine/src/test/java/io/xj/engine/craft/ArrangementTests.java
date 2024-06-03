@@ -22,8 +22,8 @@ import io.xj.hub.pojos.Template;
 import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.engine.FabricationException;
-import io.xj.engine.NexusIntegrationTestingFixtures;
-import io.xj.engine.NexusTopology;
+import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.FabricationTopology;
 import io.xj.engine.fabricator.Fabricator;
 import io.xj.engine.fabricator.FabricatorFactory;
 import io.xj.engine.fabricator.FabricatorFactoryImpl;
@@ -53,19 +53,19 @@ import java.util.Set;
 import java.util.UUID;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildDetailProgram;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildEvent;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildInstrument;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildInstrumentWithAudios;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildLibrary;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildPattern;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProgram;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProject;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildSequence;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildTemplate;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildTrack;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildVoice;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.engine.FabricationContentOneFixtures.buildDetailProgram;
+import static io.xj.engine.FabricationContentOneFixtures.buildEvent;
+import static io.xj.engine.FabricationContentOneFixtures.buildInstrument;
+import static io.xj.engine.FabricationContentOneFixtures.buildInstrumentWithAudios;
+import static io.xj.engine.FabricationContentOneFixtures.buildLibrary;
+import static io.xj.engine.FabricationContentOneFixtures.buildPattern;
+import static io.xj.engine.FabricationContentOneFixtures.buildProgram;
+import static io.xj.engine.FabricationContentOneFixtures.buildProject;
+import static io.xj.engine.FabricationContentOneFixtures.buildSequence;
+import static io.xj.engine.FabricationContentOneFixtures.buildTemplate;
+import static io.xj.engine.FabricationContentOneFixtures.buildTrack;
+import static io.xj.engine.FabricationContentOneFixtures.buildVoice;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -240,7 +240,7 @@ FUTURE goal
       jsonProvider
     );
     HubTopology.buildHubApiTopology(entityFactory);
-    NexusTopology.buildNexusApiTopology(entityFactory);
+    FabricationTopology.buildFabricationTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
     store.clear();
@@ -249,7 +249,7 @@ FUTURE goal
     Template template1 = buildTemplate(project1, "Test Template 1", "test1");
     var library1 = buildLibrary(project1, "palm tree");
     mainProgram1 = buildProgram(library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 60.0f); // 60 BPM such that 1 beat = 1 second
-    chain = store.put(NexusIntegrationTestingFixtures.buildChain(template1));
+    chain = store.put(FabricationContentTwoFixtures.buildChain(template1));
 
     // prepare list of all entities to return from Hub
     content = new ArrayList<>(List.of(template1, library1, mainProgram1));
@@ -341,7 +341,7 @@ FUTURE goal
   void loadSegment(Map<?, ?> data) throws FabricationException {
     Map<?, ?> obj = (Map<?, ?>) data.get("segment");
 
-    segment = store.put(NexusIntegrationTestingFixtures.buildSegment(chain,
+    segment = store.put(FabricationContentTwoFixtures.buildSegment(chain,
       Objects.requireNonNull(getStr(obj, "key")),
       Objects.requireNonNull(getInt(obj, "total")),
       Objects.requireNonNull(getFloat(obj, "intensity")),
@@ -361,14 +361,14 @@ FUTURE goal
     }
 
     for (Map<?, ?> cObj : (List<Map<?, ?>>) obj.get("chords")) {
-      var chord = store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment,
+      var chord = store.put(FabricationContentTwoFixtures.buildSegmentChord(segment,
         Objects.requireNonNull(getFloat(cObj)),
         getStr(cObj, "name")));
       Map<?, ?> vObj = (Map<?, ?>) cObj.get("voicings");
       for (var instrumentType : instruments.keySet()) {
         var notes = getStr(vObj, instrumentType.toString().toLowerCase(Locale.ROOT));
         if (Objects.nonNull(notes))
-          store.put(NexusIntegrationTestingFixtures.buildSegmentChordVoicing(chord, instrumentType, notes));
+          store.put(FabricationContentTwoFixtures.buildSegmentChordVoicing(chord, instrumentType, notes));
       }
     }
 

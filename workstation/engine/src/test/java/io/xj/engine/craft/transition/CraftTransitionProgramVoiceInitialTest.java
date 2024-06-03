@@ -11,8 +11,8 @@ import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.engine.FabricationException;
-import io.xj.engine.NexusIntegrationTestingFixtures;
-import io.xj.engine.NexusTopology;
+import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
 import io.xj.engine.fabricator.Fabricator;
@@ -35,10 +35,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentChord;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentMeme;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChord;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentMeme;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftTransitionProgramVoiceInitialTest {
@@ -47,7 +47,7 @@ public class CraftTransitionProgramVoiceInitialTest {
   FabricatorFactory fabricatorFactory;
   HubContent sourceMaterial;
   FabricationEntityStore store;
-  NexusIntegrationTestingFixtures fake;
+  FabricationContentTwoFixtures fake;
   Segment segment0;
 
   @BeforeEach
@@ -56,7 +56,7 @@ public class CraftTransitionProgramVoiceInitialTest {
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     craftFactory = new CraftFactoryImpl();
     HubTopology.buildHubApiTopology(entityFactory);
-    NexusTopology.buildNexusApiTopology(entityFactory);
+    FabricationTopology.buildFabricationTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     store = new FabricationEntityStoreImpl(entityFactory);
     fabricatorFactory = new FabricatorFactoryImpl(
@@ -70,7 +70,7 @@ public class CraftTransitionProgramVoiceInitialTest {
 
     // force known transition selection by destroying program 35
     // Mock request via HubClientFactory returns fake generated library of hub content
-    fake = new NexusIntegrationTestingFixtures();
+    fake = new FabricationContentTwoFixtures();
     sourceMaterial = new HubContent(Stream.concat(
         fake.setupFixtureB1().stream(),
         fake.setupFixtureB3().stream())

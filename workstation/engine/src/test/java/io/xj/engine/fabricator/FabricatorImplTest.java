@@ -18,8 +18,8 @@ import io.xj.hub.music.StickyBun;
 import io.xj.hub.pojos.Template;
 import io.xj.hub.util.ValueException;
 import io.xj.engine.FabricationException;
-import io.xj.engine.NexusIntegrationTestingFixtures;
-import io.xj.engine.NexusTopology;
+import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.FabricationTopology;
 import io.xj.engine.model.ChainState;
 import io.xj.engine.model.ChainType;
 import io.xj.engine.model.Segment;
@@ -45,22 +45,22 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildEvent;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildPattern;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProgram;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProject;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildSequence;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildTemplate;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildTemplateBinding;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildTrack;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildVoice;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildVoicing;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentChoiceArrangement;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentChord;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentMeta;
+import static io.xj.engine.FabricationContentOneFixtures.buildEvent;
+import static io.xj.engine.FabricationContentOneFixtures.buildPattern;
+import static io.xj.engine.FabricationContentOneFixtures.buildProgram;
+import static io.xj.engine.FabricationContentOneFixtures.buildProject;
+import static io.xj.engine.FabricationContentOneFixtures.buildSequence;
+import static io.xj.engine.FabricationContentOneFixtures.buildTemplate;
+import static io.xj.engine.FabricationContentOneFixtures.buildTemplateBinding;
+import static io.xj.engine.FabricationContentOneFixtures.buildTrack;
+import static io.xj.engine.FabricationContentOneFixtures.buildVoice;
+import static io.xj.engine.FabricationContentOneFixtures.buildVoicing;
+import static io.xj.engine.FabricationContentTwoFixtures.buildChain;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoiceArrangement;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChord;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentMeta;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -81,7 +81,7 @@ public class FabricatorImplTest {
   FabricatorImpl subject;
   HubContent sourceMaterial;
   FabricationEntityStore store;
-  NexusIntegrationTestingFixtures fake;
+  FabricationContentTwoFixtures fake;
   Segment segment;
 
   @BeforeEach
@@ -89,14 +89,14 @@ public class FabricatorImplTest {
     jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
-    NexusTopology.buildNexusApiTopology(entityFactory);
+    FabricationTopology.buildFabricationTopology(entityFactory);
     store = new FabricationEntityStoreImpl(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
     store.clear();
 
     // Mock request via HubClientFactory returns fake generated library of hub content
-    fake = new NexusIntegrationTestingFixtures();
+    fake = new FabricationContentTwoFixtures();
     sourceMaterial = new HubContent(Stream.concat(Stream.concat(Stream.concat(fake.setupFixtureB1().stream(), fake.setupFixtureB2().stream()), fake.setupFixtureB3().stream()), Stream.of(fake.template1, fake.templateBinding1)).collect(Collectors.toList()));
 
     // Here's a basic setup that can be replaced for complex tests
@@ -251,7 +251,7 @@ public class FabricatorImplTest {
   public void getProgramSequence_fromSequence() throws FabricationException, FabricationFatalException, ValueException {
     var project1 = buildProject("fish");
     Template template1 = buildTemplate(project1, "Test Template 1", "test1");
-    var chain = store.put(NexusIntegrationTestingFixtures.buildChain(template1));
+    var chain = store.put(FabricationContentTwoFixtures.buildChain(template1));
     segment = store.put(buildSegment(chain, SegmentType.CONTINUE, 17, 4, SegmentState.CRAFTED, "D major", SEQUENCE_TOTAL_BEATS, 0.73f, 120.0f, String.format("chains-%s-segments-%s", ChainUtils.getIdentifier(chain), 17), true));
     SegmentChoice choice = store.put(buildSegmentChoice(segment, ProgramType.Main, fake.program5_sequence0));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
@@ -267,7 +267,7 @@ public class FabricatorImplTest {
   public void getProgramSequence_fromSequenceBinding() throws FabricationException, FabricationFatalException, ValueException {
     var project1 = buildProject("fish");
     Template template1 = buildTemplate(project1, "Test Template 1", "test1");
-    var chain = store.put(NexusIntegrationTestingFixtures.buildChain(template1));
+    var chain = store.put(FabricationContentTwoFixtures.buildChain(template1));
     segment = store.put(buildSegment(chain, SegmentType.CONTINUE, 17, 4, SegmentState.CRAFTED, "D major", SEQUENCE_TOTAL_BEATS, 0.73f, 120.0f, String.format("chains-%s-segments-%s", ChainUtils.getIdentifier(chain), 17), true));
     SegmentChoice choice = store.put(buildSegmentChoice(segment, ProgramType.Main, fake.program5_sequence0_binding0));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);

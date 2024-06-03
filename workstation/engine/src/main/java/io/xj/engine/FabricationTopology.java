@@ -28,7 +28,7 @@ import io.xj.engine.model.SegmentMeta;
  deprecating this complex abstraction of JSON:API
  in favor of plain POJO
  */
-public enum NexusTopology {
+public enum FabricationTopology {
   ;
 
   /**
@@ -36,7 +36,7 @@ public enum NexusTopology {
 
    @param entityFactory to build topology on
    */
-  public static void buildNexusApiTopology(EntityFactory entityFactory) {
+  public static void buildFabricationTopology(EntityFactory entityFactory) {
     // Chain
     entityFactory.register(Chain.class)
       .createdBy(Chain::new)

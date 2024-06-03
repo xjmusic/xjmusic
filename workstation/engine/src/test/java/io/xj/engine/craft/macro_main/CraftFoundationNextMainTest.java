@@ -9,8 +9,8 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.hub.json.JsonProviderImpl;
 import io.xj.hub.jsonapi.JsonapiPayloadFactory;
 import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.engine.NexusIntegrationTestingFixtures;
-import io.xj.engine.NexusTopology;
+import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
 import io.xj.engine.fabricator.FabricationFatalException;
@@ -43,7 +43,7 @@ import java.util.stream.Stream;
 
 import static io.xj.hub.util.Assertion.assertSameItems;
 import static io.xj.hub.util.ValueUtils.MICROS_PER_MINUTE;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -51,7 +51,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class CraftFoundationNextMainTest {
   CraftFactory craftFactory;
   FabricatorFactory fabricatorFactory;
-  NexusIntegrationTestingFixtures fake;
+  FabricationContentTwoFixtures fake;
   Chain chain1;
   Segment segment4;
   FabricationEntityStore store;
@@ -70,20 +70,20 @@ public class CraftFoundationNextMainTest {
     );
     craftFactory = new CraftFactoryImpl();
     HubTopology.buildHubApiTopology(entityFactory);
-    NexusTopology.buildNexusApiTopology(entityFactory);
+    FabricationTopology.buildFabricationTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
     store.clear();
 
     // Mock request via HubClientFactory returns fake generated library of hub content
-    fake = new NexusIntegrationTestingFixtures();
+    fake = new FabricationContentTwoFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       fake.setupFixtureB1().stream(),
       fake.setupFixtureB2().stream()
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(NexusIntegrationTestingFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
+    chain1 = store.put(FabricationContentTwoFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
     store.put(buildSegment(
       chain1,
       0,
@@ -116,8 +116,8 @@ public class CraftFoundationNextMainTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892.wav"
     ));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, ProgramType.Macro, fake.program4_sequence0_binding0));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, ProgramType.Main, fake.program5_sequence1_binding0));
+    store.put(FabricationContentTwoFixtures.buildSegmentChoice(segment3, ProgramType.Macro, fake.program4_sequence0_binding0));
+    store.put(FabricationContentTwoFixtures.buildSegmentChoice(segment3, ProgramType.Main, fake.program5_sequence1_binding0));
 
     // Chain "Test Print #1" has a planned segment
     segment4 = store.put(buildSegment(chain1, 3, SegmentState.PLANNED, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));

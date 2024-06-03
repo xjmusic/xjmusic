@@ -18,8 +18,8 @@ import io.xj.hub.pojos.Instrument;
 import io.xj.hub.pojos.InstrumentAudio;
 import io.xj.hub.pojos.Program;
 import io.xj.hub.pojos.ProgramVoice;
-import io.xj.engine.NexusIntegrationTestingFixtures;
-import io.xj.engine.NexusTopology;
+import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
 import io.xj.engine.fabricator.Fabricator;
@@ -47,20 +47,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildAudio;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildEvent;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildInstrument;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildMeme;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildPattern;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildProgram;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildSequence;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildTrack;
-import static io.xj.engine.NexusHubIntegrationTestingFixtures.buildVoice;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentChord;
-import static io.xj.engine.NexusIntegrationTestingFixtures.buildSegmentMeme;
+import static io.xj.engine.FabricationContentOneFixtures.buildAudio;
+import static io.xj.engine.FabricationContentOneFixtures.buildEvent;
+import static io.xj.engine.FabricationContentOneFixtures.buildInstrument;
+import static io.xj.engine.FabricationContentOneFixtures.buildMeme;
+import static io.xj.engine.FabricationContentOneFixtures.buildPattern;
+import static io.xj.engine.FabricationContentOneFixtures.buildProgram;
+import static io.xj.engine.FabricationContentOneFixtures.buildSequence;
+import static io.xj.engine.FabricationContentOneFixtures.buildTrack;
+import static io.xj.engine.FabricationContentOneFixtures.buildVoice;
+import static io.xj.engine.FabricationContentTwoFixtures.buildChain;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChord;
+import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentMeme;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -76,7 +76,7 @@ public class CraftBeat_LayeredVoicesTest {
   InstrumentAudio audioKick;
   InstrumentAudio audioSnare;
   FabricationEntityStore store;
-  NexusIntegrationTestingFixtures fake;
+  FabricationContentTwoFixtures fake;
   Program program42;
   Segment segment4;
 
@@ -86,7 +86,7 @@ public class CraftBeat_LayeredVoicesTest {
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     craftFactory = new CraftFactoryImpl();
     HubTopology.buildHubApiTopology(entityFactory);
-    NexusTopology.buildNexusApiTopology(entityFactory);
+    FabricationTopology.buildFabricationTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     store = new FabricationEntityStoreImpl(entityFactory);
     fabricatorFactory = new FabricatorFactoryImpl(
@@ -99,7 +99,7 @@ public class CraftBeat_LayeredVoicesTest {
     store.clear();
 
     // Mock request via HubClientFactory returns fake generated library of hub content
-    fake = new NexusIntegrationTestingFixtures();
+    fake = new FabricationContentTwoFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       fake.setupFixtureB1().stream().filter(entity -> !EntityUtils.isSame(entity, fake.program35) && !EntityUtils.isChild(entity, fake.program35)),
       customFixtures().stream()
