@@ -1,17 +1,13 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.craft.detail_perc_loop;
 
-import io.xj.model.HubContent;
-import io.xj.model.HubTopology;
-import io.xj.model.entity.EntityFactoryImpl;
-import io.xj.model.json.JsonProvider;
-import io.xj.model.json.JsonProviderImpl;
-import io.xj.model.jsonapi.JsonapiPayloadFactory;
-import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.engine.FabricationContentOneFixtures;
 import io.xj.engine.FabricationContentTwoFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
+import io.xj.engine.fabricator.FabricationEntityStore;
+import io.xj.engine.fabricator.FabricationEntityStoreImpl;
 import io.xj.engine.fabricator.Fabricator;
 import io.xj.engine.fabricator.FabricatorFactory;
 import io.xj.engine.fabricator.FabricatorFactoryImpl;
@@ -20,8 +16,13 @@ import io.xj.engine.model.ChainType;
 import io.xj.engine.model.Segment;
 import io.xj.engine.model.SegmentState;
 import io.xj.engine.model.SegmentType;
-import io.xj.engine.fabricator.FabricationEntityStore;
-import io.xj.engine.fabricator.FabricationEntityStoreImpl;
+import io.xj.model.HubContent;
+import io.xj.model.HubTopology;
+import io.xj.model.entity.EntityFactoryImpl;
+import io.xj.model.json.JsonProvider;
+import io.xj.model.json.JsonProviderImpl;
+import io.xj.model.jsonapi.JsonapiPayloadFactory;
+import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,9 +33,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.FabricationContentOneFixtures.buildTemplate;
 import static io.xj.engine.FabricationContentTwoFixtures.buildChain;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
 import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
 
 @ExtendWith(MockitoExtension.class)

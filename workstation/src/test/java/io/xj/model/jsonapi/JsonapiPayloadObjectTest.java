@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  <p>
  Created by Charney Kaye on 2020/03/09
  */
-public class JsonapiJsonapiPayloadObjectTest {
+public class JsonapiPayloadObjectTest {
   JsonapiPayloadFactory jsonapiPayloadFactory;
   EntityFactory entityFactory;
   JsonapiPayloadObject subject;

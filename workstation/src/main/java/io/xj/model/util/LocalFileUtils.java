@@ -6,12 +6,9 @@ import io.xj.model.pojos.Instrument;
 import io.xj.model.pojos.InstrumentAudio;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -71,29 +68,10 @@ public interface LocalFileUtils {
   }
 
   /**
-   Reads given resource file as a string.
-
-   @param fileName path to the resource file
-   @return the file's contents
-   @throws IOException if read fails for any reason
-   */
-  static String readResourceFileAsString(String fileName) throws IOException {
-    ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-    try (InputStream is = classLoader.getResourceAsStream(fileName)) {
-      if (is == null) return null;
-      try (InputStreamReader isr = new InputStreamReader(is);
-           BufferedReader reader = new BufferedReader(isr)) {
-        return reader.lines().collect(Collectors.joining(System.lineSeparator()));
-      }
-    }
-  }
-
-  /**
    Compute the waveform key for an instrument audio
 
-   @param instrumentName to which the audio belongs
-   @param audio          for which to compute the key
-   @param extension      of the audio file
+   @param audio     for which to compute the key
+   @param extension of the audio file
    @return the waveform key
    */
   static String computeWaveformKey(Instrument instrument, InstrumentAudio audio, String extension) {

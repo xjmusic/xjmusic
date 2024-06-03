@@ -2,9 +2,8 @@
 
 package io.xj.engine.fabricator;
 
-import io.xj.model.enums.ProgramType;
-import io.xj.model.pojos.Project;
-import io.xj.model.pojos.Template;
+import io.xj.engine.FabricationContentOneFixtures;
+import io.xj.engine.FabricationContentTwoFixtures;
 import io.xj.engine.FabricationException;
 import io.xj.engine.model.Chain;
 import io.xj.engine.model.ChainState;
@@ -20,16 +19,16 @@ import io.xj.engine.model.SegmentMessage;
 import io.xj.engine.model.SegmentMeta;
 import io.xj.engine.model.SegmentState;
 import io.xj.engine.model.SegmentType;
+import io.xj.model.enums.ProgramType;
+import io.xj.model.pojos.Project;
+import io.xj.model.pojos.Template;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.List;
 
-import static io.xj.model.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.engine.FabricationContentOneFixtures.buildProject;
-import static io.xj.engine.FabricationContentOneFixtures.buildTemplate;
 import static io.xj.engine.FabricationContentTwoFixtures.buildChain;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
+import static io.xj.model.util.ValueUtils.MICROS_PER_SECOND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;

@@ -1,5 +1,6 @@
 package io.xj.engine.project;
 
+import io.xj.engine.FabricationContentOneFixtures;
 import io.xj.model.HubTopology;
 import io.xj.model.InstrumentConfig;
 import io.xj.model.ProgramConfig;

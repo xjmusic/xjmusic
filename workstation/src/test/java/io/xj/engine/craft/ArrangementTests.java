@@ -1,6 +1,19 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.craft;
 
+import io.xj.engine.FabricationContentOneFixtures;
+import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.FabricationException;
+import io.xj.engine.FabricationTopology;
+import io.xj.engine.fabricator.FabricationEntityStore;
+import io.xj.engine.fabricator.FabricationEntityStoreImpl;
+import io.xj.engine.fabricator.Fabricator;
+import io.xj.engine.fabricator.FabricatorFactory;
+import io.xj.engine.fabricator.FabricatorFactoryImpl;
+import io.xj.engine.model.Chain;
+import io.xj.engine.model.Segment;
+import io.xj.engine.model.SegmentChoice;
+import io.xj.engine.model.SegmentChoiceArrangementPick;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
@@ -21,18 +34,6 @@ import io.xj.model.pojos.ProgramVoice;
 import io.xj.model.pojos.Template;
 import io.xj.model.util.CsvUtils;
 import io.xj.model.util.StringUtils;
-import io.xj.engine.FabricationException;
-import io.xj.engine.FabricationContentTwoFixtures;
-import io.xj.engine.FabricationTopology;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.FabricatorFactory;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
-import io.xj.engine.model.Chain;
-import io.xj.engine.model.Segment;
-import io.xj.engine.model.SegmentChoice;
-import io.xj.engine.model.SegmentChoiceArrangementPick;
-import io.xj.engine.fabricator.FabricationEntityStore;
-import io.xj.engine.fabricator.FabricationEntityStoreImpl;
 import jakarta.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,19 +54,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import static io.xj.model.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.engine.FabricationContentOneFixtures.buildDetailProgram;
-import static io.xj.engine.FabricationContentOneFixtures.buildEvent;
-import static io.xj.engine.FabricationContentOneFixtures.buildInstrument;
-import static io.xj.engine.FabricationContentOneFixtures.buildInstrumentWithAudios;
-import static io.xj.engine.FabricationContentOneFixtures.buildLibrary;
-import static io.xj.engine.FabricationContentOneFixtures.buildPattern;
-import static io.xj.engine.FabricationContentOneFixtures.buildProgram;
-import static io.xj.engine.FabricationContentOneFixtures.buildProject;
-import static io.xj.engine.FabricationContentOneFixtures.buildSequence;
-import static io.xj.engine.FabricationContentOneFixtures.buildTemplate;
-import static io.xj.engine.FabricationContentOneFixtures.buildTrack;
-import static io.xj.engine.FabricationContentOneFixtures.buildVoice;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
