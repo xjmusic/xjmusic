@@ -10,7 +10,7 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(
   basePackages = {
     "io.xj.hub",
-    "io.xj.nexus",
+    "io.xj.engine",
     "io.xj.gui",
   })
 public class WorkstationGuiApplication {

@@ -5,7 +5,7 @@ rootProject.name = 'workstation'
 String[] modules = [
         'gui',
         'models',
-        'nexus',
+        'engine',
 ]
 
 include modules

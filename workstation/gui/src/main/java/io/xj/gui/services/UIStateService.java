@@ -14,7 +14,7 @@ import io.xj.hub.pojos.Program;
 import io.xj.hub.pojos.ProgramSequence;
 import io.xj.hub.pojos.ProgramSequencePattern;
 import io.xj.hub.pojos.Template;
-import io.xj.nexus.work.FabricationState;
+import io.xj.engine.work.FabricationState;
 import jakarta.annotation.Nullable;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;

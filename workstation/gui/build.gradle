@@ -15,9 +15,9 @@ plugins {
 
 dependencies {
   // peers
-  implementation project(":nexus")
-  testImplementation project(path: ':nexus')
-  testImplementation(project(':nexus').sourceSets.test.output)
+  implementation project(":engine")
+  testImplementation project(path: ':engine')
+  testImplementation(project(':engine').sourceSets.test.output)
   // peers
   implementation project(":models")
   testImplementation project(path: ':models')

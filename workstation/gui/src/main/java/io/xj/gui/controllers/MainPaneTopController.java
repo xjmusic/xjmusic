@@ -9,7 +9,7 @@ import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.types.Route;
 import io.xj.hub.pojos.Template;
-import io.xj.nexus.work.FabricationState;
+import io.xj.engine.work.FabricationState;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.StringBinding;

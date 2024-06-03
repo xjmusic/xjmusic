@@ -13,7 +13,7 @@ import io.xj.gui.services.UIStateService;
 import io.xj.gui.types.Route;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.gui.utils.UiUtils;
-import io.xj.nexus.work.FabricationState;
+import io.xj.engine.work.FabricationState;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;

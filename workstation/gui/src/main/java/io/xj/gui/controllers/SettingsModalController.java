@@ -10,7 +10,7 @@ import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.gui.utils.UiUtils;
 import io.xj.hub.util.LocalFileUtils;
-import io.xj.nexus.fabricator.ControlMode;
+import io.xj.engine.fabricator.ControlMode;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

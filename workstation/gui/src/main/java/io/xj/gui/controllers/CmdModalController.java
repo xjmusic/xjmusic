@@ -14,7 +14,7 @@ import io.xj.hub.pojos.Library;
 import io.xj.hub.pojos.Program;
 import io.xj.hub.pojos.Template;
 import io.xj.hub.util.StringUtils;
-import io.xj.nexus.util.FormatUtils;
+import io.xj.engine.util.FormatUtils;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;

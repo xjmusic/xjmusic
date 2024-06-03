@@ -12,17 +12,17 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.hub.pojos.Program;
 import io.xj.hub.pojos.ProgramSequence;
 import io.xj.hub.pojos.ProgramSequenceBinding;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChoiceArrangementPick;
-import io.xj.nexus.model.SegmentChord;
-import io.xj.nexus.model.SegmentMeme;
-import io.xj.nexus.model.SegmentMessage;
-import io.xj.nexus.model.SegmentMessageType;
-import io.xj.nexus.model.SegmentMeta;
-import io.xj.nexus.fabricator.SegmentUtils;
-import io.xj.nexus.util.FormatUtils;
-import io.xj.nexus.work.FabricationState;
+import io.xj.engine.model.Segment;
+import io.xj.engine.model.SegmentChoice;
+import io.xj.engine.model.SegmentChoiceArrangementPick;
+import io.xj.engine.model.SegmentChord;
+import io.xj.engine.model.SegmentMeme;
+import io.xj.engine.model.SegmentMessage;
+import io.xj.engine.model.SegmentMessageType;
+import io.xj.engine.model.SegmentMeta;
+import io.xj.engine.fabricator.SegmentUtils;
+import io.xj.engine.util.FormatUtils;
+import io.xj.engine.work.FabricationState;
 import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -67,7 +67,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.hub.util.StringUtils.formatStackTrace;
-import static io.xj.nexus.model.Segment.DELTA_UNLIMITED;
+import static io.xj.engine.model.Segment.DELTA_UNLIMITED;
 
 @Service
 public class FabricationTimelineController extends ProjectController {

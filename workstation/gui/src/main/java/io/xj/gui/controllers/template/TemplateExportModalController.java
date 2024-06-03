@@ -31,7 +31,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 
-import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
+import static io.xj.engine.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 @Service
 public class TemplateExportModalController extends ProjectModalController {
