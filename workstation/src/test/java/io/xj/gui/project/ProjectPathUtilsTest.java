@@ -1,5 +1,6 @@
-package io.xj.engine.project;
+package io.xj.gui.project;
 
+import io.xj.gui.project.ProjectPathUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;

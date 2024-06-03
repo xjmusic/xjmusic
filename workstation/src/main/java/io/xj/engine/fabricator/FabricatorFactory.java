@@ -4,7 +4,7 @@ package io.xj.engine.fabricator;
 
 import io.xj.model.HubContent;
 import io.xj.engine.FabricationException;
-import io.xj.engine.model.SegmentType;
+import io.xj.model.enums.SegmentType;
 import jakarta.annotation.Nullable;
 
 /**

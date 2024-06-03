@@ -6,8 +6,8 @@ import io.xj.model.enums.ContentBindingType;
 import io.xj.model.pojos.Template;
 import io.xj.model.pojos.TemplateBinding;
 import io.xj.model.util.StringUtils;
-import io.xj.engine.model.Chain;
-import io.xj.engine.model.Segment;
+import io.xj.model.pojos.Chain;
+import io.xj.model.pojos.Segment;
 import jakarta.annotation.Nullable;
 
 import java.util.Collection;

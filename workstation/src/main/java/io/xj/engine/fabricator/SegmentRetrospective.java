@@ -5,12 +5,12 @@ import io.xj.model.enums.InstrumentMode;
 import io.xj.model.enums.InstrumentType;
 import io.xj.model.enums.ProgramType;
 import io.xj.engine.FabricationException;
-import io.xj.engine.model.Segment;
-import io.xj.engine.model.SegmentChoice;
-import io.xj.engine.model.SegmentChoiceArrangement;
-import io.xj.engine.model.SegmentChoiceArrangementPick;
-import io.xj.engine.model.SegmentChord;
-import io.xj.engine.model.SegmentMeta;
+import io.xj.model.pojos.Segment;
+import io.xj.model.pojos.SegmentChoice;
+import io.xj.model.pojos.SegmentChoiceArrangement;
+import io.xj.model.pojos.SegmentChoiceArrangementPick;
+import io.xj.model.pojos.SegmentChord;
+import io.xj.model.pojos.SegmentMeta;
 
 import java.util.Collection;
 import java.util.List;

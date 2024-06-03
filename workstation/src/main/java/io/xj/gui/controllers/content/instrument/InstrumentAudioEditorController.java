@@ -12,7 +12,7 @@ import io.xj.model.pojos.InstrumentAudio;
 import io.xj.model.util.StringUtils;
 import io.xj.engine.audio.AudioInMemory;
 import io.xj.engine.audio.AudioLoader;
-import io.xj.engine.project.ProjectPathUtils;
+import io.xj.gui.project.ProjectPathUtils;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.FloatProperty;

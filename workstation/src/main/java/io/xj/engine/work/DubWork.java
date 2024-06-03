@@ -3,8 +3,8 @@ package io.xj.engine.work;
 
 import io.xj.model.pojos.Program;
 import io.xj.engine.mixer.BytePipeline;
-import io.xj.engine.model.Chain;
-import io.xj.engine.model.Segment;
+import io.xj.model.pojos.Chain;
+import io.xj.model.pojos.Segment;
 import jakarta.annotation.Nullable;
 
 import javax.sound.sampled.AudioFormat;

@@ -1,4 +1,4 @@
-package io.xj.engine.project;
+package io.xj.gui.project;
 
 import io.xj.model.HubContent;
 import io.xj.model.InstrumentConfig;

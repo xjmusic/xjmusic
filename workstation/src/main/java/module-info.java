@@ -66,7 +66,7 @@ module workstation.main {
   exports io.xj.engine.hub_client;
   exports io.xj.engine.mixer;
   exports io.xj.engine.model;
-  exports io.xj.engine.project;
+  exports io.xj.gui.project;
   exports io.xj.engine.ship.broadcast;
   exports io.xj.engine.ship;
   exports io.xj.engine.telemetry;

@@ -23,7 +23,7 @@ import io.xj.model.pojos.ProgramSequencePattern;
 import io.xj.model.pojos.Template;
 import io.xj.model.util.StringUtils;
 import io.xj.engine.fabricator.ControlMode;
-import io.xj.engine.project.ProjectState;
+import io.xj.gui.project.ProjectState;
 import io.xj.engine.work.FabricationState;
 import jakarta.annotation.Nullable;
 import javafx.beans.binding.Bindings;

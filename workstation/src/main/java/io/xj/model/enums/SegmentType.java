@@ -1,26 +1,28 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.engine.model;
+package io.xj.model.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- Gets or Sets SegmentMessageType
+ Gets or Sets SegmentType
  */
-public enum SegmentMessageType {
+public enum SegmentType {
 
-  DEBUG("Debug"),
+  PENDING("Pending"),
 
-  INFO("Info"),
+  INITIAL("Initial"),
 
-  WARNING("Warning"),
+  CONTINUE("Continue"),
 
-  ERROR("Error");
+  NEXT_MAIN("NextMain"),
+
+  NEXT_MACRO("NextMacro");
 
   String value;
 
-  SegmentMessageType(String value) {
+  SegmentType(String value) {
     this.value = value;
   }
 
@@ -31,8 +33,8 @@ public enum SegmentMessageType {
   }
 
   @JsonCreator
-  public static SegmentMessageType fromValue(String value) {
-    for (SegmentMessageType b : SegmentMessageType.values()) {
+  public static SegmentType fromValue(String value) {
+    for (SegmentType b : SegmentType.values()) {
       if (b.value.equals(value)) {
         return b;
       }

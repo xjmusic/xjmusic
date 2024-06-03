@@ -1,4 +1,4 @@
-package io.xj.engine.project;
+package io.xj.gui.project;
 
 public enum ProjectState {
   Standby,

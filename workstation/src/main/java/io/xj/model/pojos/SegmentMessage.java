@@ -1,24 +1,24 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.engine.model;
+package io.xj.model.pojos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.xj.model.enums.SegmentMessageType;
 
 import java.util.Objects;
 import java.util.UUID;
 
 
-public class SegmentChordVoicing {
+public class SegmentMessage {
 
   UUID id;
   Integer segmentId;
-  UUID segmentChordId;
-  String type;
-  String notes;
+  SegmentMessageType type;
+  String body;
 
   /**
    **/
-  public SegmentChordVoicing id(UUID id) {
+  public SegmentMessage id(UUID id) {
     this.id = id;
     return this;
   }
@@ -35,7 +35,7 @@ public class SegmentChordVoicing {
 
   /**
    **/
-  public SegmentChordVoicing segmentId(Integer segmentId) {
+  public SegmentMessage segmentId(Integer segmentId) {
     this.segmentId = segmentId;
     return this;
   }
@@ -52,53 +52,36 @@ public class SegmentChordVoicing {
 
   /**
    **/
-  public SegmentChordVoicing segmentChordId(UUID segmentChordId) {
-    this.segmentChordId = segmentChordId;
-    return this;
-  }
-
-
-  @JsonProperty("segmentChordId")
-  public UUID getSegmentChordId() {
-    return segmentChordId;
-  }
-
-  public void setSegmentChordId(UUID segmentChordId) {
-    this.segmentChordId = segmentChordId;
-  }
-
-  /**
-   **/
-  public SegmentChordVoicing type(String type) {
+  public SegmentMessage type(SegmentMessageType type) {
     this.type = type;
     return this;
   }
 
 
   @JsonProperty("type")
-  public String getType() {
+  public SegmentMessageType getType() {
     return type;
   }
 
-  public void setType(String type) {
+  public void setType(SegmentMessageType type) {
     this.type = type;
   }
 
   /**
    **/
-  public SegmentChordVoicing notes(String notes) {
-    this.notes = notes;
+  public SegmentMessage body(String body) {
+    this.body = body;
     return this;
   }
 
 
-  @JsonProperty("notes")
-  public String getNotes() {
-    return notes;
+  @JsonProperty("body")
+  public String getBody() {
+    return body;
   }
 
-  public void setNotes(String notes) {
-    this.notes = notes;
+  public void setBody(String body) {
+    this.body = body;
   }
 
 
@@ -110,29 +93,27 @@ public class SegmentChordVoicing {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SegmentChordVoicing segmentChordVoicing = (SegmentChordVoicing) o;
-    return Objects.equals(this.id, segmentChordVoicing.id) &&
-      Objects.equals(this.segmentId, segmentChordVoicing.segmentId) &&
-      Objects.equals(this.segmentChordId, segmentChordVoicing.segmentChordId) &&
-      Objects.equals(this.type, segmentChordVoicing.type) &&
-      Objects.equals(this.notes, segmentChordVoicing.notes);
+    SegmentMessage segmentMessage = (SegmentMessage) o;
+    return Objects.equals(this.id, segmentMessage.id) &&
+      Objects.equals(this.segmentId, segmentMessage.segmentId) &&
+      Objects.equals(this.type, segmentMessage.type) &&
+      Objects.equals(this.body, segmentMessage.body);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, segmentId, segmentChordId, type, notes);
+    return Objects.hash(id, segmentId, type, body);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class SegmentChordVoicing {\n");
+    sb.append("class SegmentMessage {\n");
 
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    segmentId: ").append(toIndentedString(segmentId)).append("\n");
-    sb.append("    segmentChordId: ").append(toIndentedString(segmentChordId)).append("\n");
     sb.append("    type: ").append(toIndentedString(type)).append("\n");
-    sb.append("    notes: ").append(toIndentedString(notes)).append("\n");
+    sb.append("    body: ").append(toIndentedString(body)).append("\n");
     sb.append("}");
     return sb.toString();
   }

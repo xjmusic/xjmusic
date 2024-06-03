@@ -12,16 +12,16 @@ import io.xj.model.pojos.ProgramSequencePatternEvent;
 import io.xj.model.pojos.ProgramVoice;
 import io.xj.model.pojos.Project;
 import io.xj.model.pojos.Template;
-import io.xj.engine.model.Chain;
-import io.xj.engine.model.Segment;
-import io.xj.engine.model.SegmentChoice;
-import io.xj.engine.model.SegmentChoiceArrangement;
-import io.xj.engine.model.SegmentChoiceArrangementPick;
-import io.xj.engine.model.SegmentChord;
-import io.xj.engine.model.SegmentChordVoicing;
-import io.xj.engine.model.SegmentMeme;
-import io.xj.engine.model.SegmentMessage;
-import io.xj.engine.model.SegmentMeta;
+import io.xj.model.pojos.Chain;
+import io.xj.model.pojos.Segment;
+import io.xj.model.pojos.SegmentChoice;
+import io.xj.model.pojos.SegmentChoiceArrangement;
+import io.xj.model.pojos.SegmentChoiceArrangementPick;
+import io.xj.model.pojos.SegmentChord;
+import io.xj.model.pojos.SegmentChordVoicing;
+import io.xj.model.pojos.SegmentMeme;
+import io.xj.model.pojos.SegmentMessage;
+import io.xj.model.pojos.SegmentMeta;
 
 /**
  In the future, we will simplify JSON payload

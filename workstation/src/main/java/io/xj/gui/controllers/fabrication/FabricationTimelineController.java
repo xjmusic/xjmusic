@@ -12,14 +12,14 @@ import io.xj.model.enums.ProgramType;
 import io.xj.model.pojos.Program;
 import io.xj.model.pojos.ProgramSequence;
 import io.xj.model.pojos.ProgramSequenceBinding;
-import io.xj.engine.model.Segment;
-import io.xj.engine.model.SegmentChoice;
-import io.xj.engine.model.SegmentChoiceArrangementPick;
-import io.xj.engine.model.SegmentChord;
-import io.xj.engine.model.SegmentMeme;
-import io.xj.engine.model.SegmentMessage;
-import io.xj.engine.model.SegmentMessageType;
-import io.xj.engine.model.SegmentMeta;
+import io.xj.model.pojos.Segment;
+import io.xj.model.pojos.SegmentChoice;
+import io.xj.model.pojos.SegmentChoiceArrangementPick;
+import io.xj.model.pojos.SegmentChord;
+import io.xj.model.pojos.SegmentMeme;
+import io.xj.model.pojos.SegmentMessage;
+import io.xj.model.enums.SegmentMessageType;
+import io.xj.model.pojos.SegmentMeta;
 import io.xj.engine.fabricator.SegmentUtils;
 import io.xj.engine.util.FormatUtils;
 import io.xj.engine.work.FabricationState;
@@ -67,7 +67,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.model.util.StringUtils.formatStackTrace;
-import static io.xj.engine.model.Segment.DELTA_UNLIMITED;
+import static io.xj.model.pojos.Segment.DELTA_UNLIMITED;
 
 @Service
 public class FabricationTimelineController extends ProjectController {

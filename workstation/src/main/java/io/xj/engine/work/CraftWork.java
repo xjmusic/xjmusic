@@ -7,9 +7,9 @@ import io.xj.model.pojos.Instrument;
 import io.xj.model.pojos.InstrumentAudio;
 import io.xj.model.pojos.Program;
 import io.xj.engine.FabricationException;
-import io.xj.engine.model.Chain;
-import io.xj.engine.model.Segment;
-import io.xj.engine.model.SegmentChoiceArrangementPick;
+import io.xj.model.pojos.Chain;
+import io.xj.model.pojos.Segment;
+import io.xj.model.pojos.SegmentChoiceArrangementPick;
 
 import java.util.Collection;
 import java.util.List;

@@ -18,7 +18,7 @@ import io.xj.model.enums.InstrumentType;
 import io.xj.model.pojos.Instrument;
 import io.xj.model.pojos.InstrumentAudio;
 import io.xj.model.util.StringUtils;
-import io.xj.engine.project.ProjectPathUtils;
+import io.xj.gui.project.ProjectPathUtils;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;

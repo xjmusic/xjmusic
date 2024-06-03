@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.engine.model;
+package io.xj.model.pojos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -8,16 +8,15 @@ import java.util.Objects;
 import java.util.UUID;
 
 
-public class SegmentMessage {
+public class SegmentMeme {
 
   UUID id;
   Integer segmentId;
-  SegmentMessageType type;
-  String body;
+  String name;
 
   /**
    **/
-  public SegmentMessage id(UUID id) {
+  public SegmentMeme id(UUID id) {
     this.id = id;
     return this;
   }
@@ -34,7 +33,7 @@ public class SegmentMessage {
 
   /**
    **/
-  public SegmentMessage segmentId(Integer segmentId) {
+  public SegmentMeme segmentId(Integer segmentId) {
     this.segmentId = segmentId;
     return this;
   }
@@ -51,36 +50,19 @@ public class SegmentMessage {
 
   /**
    **/
-  public SegmentMessage type(SegmentMessageType type) {
-    this.type = type;
+  public SegmentMeme name(String name) {
+    this.name = name;
     return this;
   }
 
 
-  @JsonProperty("type")
-  public SegmentMessageType getType() {
-    return type;
+  @JsonProperty("name")
+  public String getName() {
+    return name;
   }
 
-  public void setType(SegmentMessageType type) {
-    this.type = type;
-  }
-
-  /**
-   **/
-  public SegmentMessage body(String body) {
-    this.body = body;
-    return this;
-  }
-
-
-  @JsonProperty("body")
-  public String getBody() {
-    return body;
-  }
-
-  public void setBody(String body) {
-    this.body = body;
+  public void setName(String name) {
+    this.name = name;
   }
 
 
@@ -92,27 +74,25 @@ public class SegmentMessage {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SegmentMessage segmentMessage = (SegmentMessage) o;
-    return Objects.equals(this.id, segmentMessage.id) &&
-      Objects.equals(this.segmentId, segmentMessage.segmentId) &&
-      Objects.equals(this.type, segmentMessage.type) &&
-      Objects.equals(this.body, segmentMessage.body);
+    SegmentMeme segmentMeme = (SegmentMeme) o;
+    return Objects.equals(this.id, segmentMeme.id) &&
+      Objects.equals(this.segmentId, segmentMeme.segmentId) &&
+      Objects.equals(this.name, segmentMeme.name);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, segmentId, type, body);
+    return Objects.hash(id, segmentId, name);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class SegmentMessage {\n");
+    sb.append("class SegmentMeme {\n");
 
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    segmentId: ").append(toIndentedString(segmentId)).append("\n");
-    sb.append("    type: ").append(toIndentedString(type)).append("\n");
-    sb.append("    body: ").append(toIndentedString(body)).append("\n");
+    sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("}");
     return sb.toString();
   }

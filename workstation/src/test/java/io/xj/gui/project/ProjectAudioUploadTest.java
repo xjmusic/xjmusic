@@ -1,5 +1,6 @@
-package io.xj.engine.project;
+package io.xj.gui.project;
 
+import io.xj.gui.project.ProjectAudioUpload;
 import io.xj.model.HubUploadAuthorization;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -4,10 +4,10 @@ package io.xj.engine.fabricator;
 
 import io.xj.model.enums.ProgramType;
 import io.xj.engine.FabricationException;
-import io.xj.engine.model.Chain;
-import io.xj.engine.model.Segment;
-import io.xj.engine.model.SegmentChoice;
-import io.xj.engine.model.SegmentChoiceArrangementPick;
+import io.xj.model.pojos.Chain;
+import io.xj.model.pojos.Segment;
+import io.xj.model.pojos.SegmentChoice;
+import io.xj.model.pojos.SegmentChoiceArrangementPick;
 
 import java.util.Collection;
 import java.util.List;

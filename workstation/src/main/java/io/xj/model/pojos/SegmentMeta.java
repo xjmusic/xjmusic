@@ -1,22 +1,25 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.engine.model;
+package io.xj.model.pojos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 import java.util.UUID;
 
-
-public class SegmentMeme {
+/**
+ Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/workstation/issues/222
+ */
+public class SegmentMeta {
 
   UUID id;
   Integer segmentId;
-  String name;
+  String key;
+  String value;
 
   /**
    **/
-  public SegmentMeme id(UUID id) {
+  public SegmentMeta id(UUID id) {
     this.id = id;
     return this;
   }
@@ -33,7 +36,7 @@ public class SegmentMeme {
 
   /**
    **/
-  public SegmentMeme segmentId(Integer segmentId) {
+  public SegmentMeta segmentId(Integer segmentId) {
     this.segmentId = segmentId;
     return this;
   }
@@ -50,19 +53,36 @@ public class SegmentMeme {
 
   /**
    **/
-  public SegmentMeme name(String name) {
-    this.name = name;
+  public SegmentMeta key(String key) {
+    this.key = key;
     return this;
   }
 
 
-  @JsonProperty("name")
-  public String getName() {
-    return name;
+  @JsonProperty("key")
+  public String getKey() {
+    return key;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setKey(String key) {
+    this.key = key;
+  }
+
+  /**
+   **/
+  public SegmentMeta value(String value) {
+    this.value = value;
+    return this;
+  }
+
+
+  @JsonProperty("value")
+  public String getValue() {
+    return value;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
   }
 
 
@@ -74,25 +94,26 @@ public class SegmentMeme {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SegmentMeme segmentMeme = (SegmentMeme) o;
-    return Objects.equals(this.id, segmentMeme.id) &&
-      Objects.equals(this.segmentId, segmentMeme.segmentId) &&
-      Objects.equals(this.name, segmentMeme.name);
+    SegmentMeta segmentMeta = (SegmentMeta) o;
+    return Objects.equals(this.id, segmentMeta.id) &&
+      Objects.equals(this.segmentId, segmentMeta.segmentId) &&
+      Objects.equals(this.key, segmentMeta.key) &&
+      Objects.equals(this.value, segmentMeta.value);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, segmentId, name);
+    return Objects.hash(id, segmentId, key, value);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class SegmentMeme {\n");
-
+    sb.append("class SegmentMeta {\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    segmentId: ").append(toIndentedString(segmentId)).append("\n");
-    sb.append("    name: ").append(toIndentedString(name)).append("\n");
+    sb.append("    key: ").append(toIndentedString(key)).append("\n");
+    sb.append("    value: ").append(toIndentedString(value)).append("\n");
     sb.append("}");
     return sb.toString();
   }

@@ -11,9 +11,9 @@ import io.xj.model.util.StringUtils;
 import io.xj.engine.FabricationException;
 import io.xj.engine.craft.CraftImpl;
 import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.model.SegmentChoice;
-import io.xj.engine.model.SegmentChoiceArrangement;
-import io.xj.engine.model.SegmentChoiceArrangementPick;
+import io.xj.model.pojos.SegmentChoice;
+import io.xj.model.pojos.SegmentChoiceArrangement;
+import io.xj.model.pojos.SegmentChoiceArrangementPick;
 
 import java.util.Collection;
 import java.util.List;

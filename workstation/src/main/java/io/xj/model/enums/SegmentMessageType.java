@@ -1,26 +1,26 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.engine.model;
+package io.xj.model.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- Gets or Sets ChainState
+ Gets or Sets SegmentMessageType
  */
-public enum ChainState {
+public enum SegmentMessageType {
 
-  DRAFT("Draft"),
+  DEBUG("Debug"),
 
-  READY("Ready"),
+  INFO("Info"),
 
-  FABRICATE("Fabricate"),
+  WARNING("Warning"),
 
-  FAILED("Failed");
+  ERROR("Error");
 
-  final String value;
+  String value;
 
-  ChainState(String value) {
+  SegmentMessageType(String value) {
     this.value = value;
   }
 
@@ -31,8 +31,8 @@ public enum ChainState {
   }
 
   @JsonCreator
-  public static ChainState fromValue(String value) {
-    for (ChainState b : ChainState.values()) {
+  public static SegmentMessageType fromValue(String value) {
+    for (SegmentMessageType b : SegmentMessageType.values()) {
       if (b.value.equals(value)) {
         return b;
       }

@@ -6,7 +6,7 @@ import io.xj.engine.audio.AudioCache;
 import io.xj.engine.audio.AudioCacheImpl;
 import io.xj.engine.audio.AudioLoader;
 import io.xj.engine.audio.AudioLoaderImpl;
-import io.xj.engine.project.ProjectManager;
+import io.xj.gui.project.ProjectManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

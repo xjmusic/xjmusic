@@ -5,7 +5,7 @@ import io.xj.model.pojos.InstrumentAudio;
 import io.xj.model.util.StringUtils;
 import io.xj.engine.FabricationException;
 import io.xj.engine.mixer.FFmpegUtils;
-import io.xj.engine.project.ProjectManager;
+import io.xj.gui.project.ProjectManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

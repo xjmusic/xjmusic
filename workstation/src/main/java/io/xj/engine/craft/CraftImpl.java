@@ -29,11 +29,11 @@ import io.xj.engine.fabricator.FabricationWrapperImpl;
 import io.xj.engine.fabricator.Fabricator;
 import io.xj.engine.fabricator.MemeIsometry;
 import io.xj.engine.fabricator.NameIsometry;
-import io.xj.engine.model.SegmentChoice;
-import io.xj.engine.model.SegmentChoiceArrangement;
-import io.xj.engine.model.SegmentChoiceArrangementPick;
-import io.xj.engine.model.SegmentChord;
-import io.xj.engine.model.SegmentChordVoicing;
+import io.xj.model.pojos.SegmentChoice;
+import io.xj.model.pojos.SegmentChoiceArrangement;
+import io.xj.model.pojos.SegmentChoiceArrangementPick;
+import io.xj.model.pojos.SegmentChord;
+import io.xj.model.pojos.SegmentChordVoicing;
 import io.xj.engine.util.MarbleBag;
 import jakarta.annotation.Nullable;
 
@@ -54,7 +54,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.model.Segment.DELTA_UNLIMITED;
+import static io.xj.model.pojos.Segment.DELTA_UNLIMITED;
 
 /**
  Arrangement of Segment Events is a common foundation for all craft

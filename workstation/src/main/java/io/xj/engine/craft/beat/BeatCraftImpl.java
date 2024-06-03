@@ -9,7 +9,7 @@ import io.xj.model.pojos.ProgramVoice;
 import io.xj.engine.FabricationException;
 import io.xj.engine.craft.CraftImpl;
 import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.model.SegmentChoice;
+import io.xj.model.pojos.SegmentChoice;
 
 import java.util.Optional;
 import java.util.UUID;

@@ -1,9 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.engine.model;
+package io.xj.model.pojos;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.xj.model.enums.SegmentState;
+import io.xj.model.enums.SegmentType;
 import io.xj.model.util.ValueUtils;
 import jakarta.annotation.Nullable;
 

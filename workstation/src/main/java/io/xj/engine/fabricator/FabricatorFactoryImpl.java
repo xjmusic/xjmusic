@@ -6,7 +6,7 @@ import io.xj.model.HubContent;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.engine.FabricationException;
-import io.xj.engine.model.SegmentType;
+import io.xj.model.enums.SegmentType;
 import jakarta.annotation.Nullable;
 
 public class FabricatorFactoryImpl implements FabricatorFactory {

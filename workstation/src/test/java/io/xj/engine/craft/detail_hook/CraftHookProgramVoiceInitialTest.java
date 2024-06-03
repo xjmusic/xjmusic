@@ -18,11 +18,11 @@ import io.xj.engine.craft.CraftFactoryImpl;
 import io.xj.engine.fabricator.Fabricator;
 import io.xj.engine.fabricator.FabricatorFactory;
 import io.xj.engine.fabricator.FabricatorFactoryImpl;
-import io.xj.engine.model.Chain;
-import io.xj.engine.model.ChainState;
-import io.xj.engine.model.ChainType;
-import io.xj.engine.model.Segment;
-import io.xj.engine.model.SegmentState;
+import io.xj.model.pojos.Chain;
+import io.xj.model.enums.ChainState;
+import io.xj.model.enums.ChainType;
+import io.xj.model.pojos.Segment;
+import io.xj.model.enums.SegmentState;
 import io.xj.engine.fabricator.FabricationEntityStore;
 import io.xj.engine.fabricator.FabricationEntityStoreImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,8 +37,6 @@ import java.util.stream.Stream;
 
 import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
 import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChord;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentMeme;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftHookProgramVoiceInitialTest {

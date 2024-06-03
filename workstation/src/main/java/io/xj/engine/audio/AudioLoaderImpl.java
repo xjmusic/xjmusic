@@ -3,7 +3,7 @@ package io.xj.engine.audio;
 import io.xj.model.pojos.InstrumentAudio;
 import io.xj.engine.mixer.AudioSampleFormat;
 import io.xj.engine.mixer.FormatException;
-import io.xj.engine.project.ProjectManager;
+import io.xj.gui.project.ProjectManager;
 import org.apache.commons.io.FileUtils;
 
 import javax.sound.sampled.AudioFormat;

@@ -17,7 +17,7 @@ import io.xj.model.pojos.ProgramVoice;
 import io.xj.model.pojos.ProgramVoiceTrack;
 import io.xj.model.pojos.Project;
 import io.xj.model.pojos.Template;
-import io.xj.engine.project.ProjectState;
+import io.xj.gui.project.ProjectState;
 import jakarta.annotation.Nullable;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;

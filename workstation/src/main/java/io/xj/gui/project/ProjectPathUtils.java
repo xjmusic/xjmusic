@@ -1,4 +1,4 @@
-package io.xj.engine.project;
+package io.xj.gui.project;
 
 import java.io.File;
 import java.util.regex.Matcher;
