@@ -5,9 +5,11 @@
 
 #include "gtest/gtest.h"
 
-#include "xjmusic/music/Note.h"
-#include "xjmusic/music/PitchClass.h"
-#include "xjmusic/music/Root.h"
+#include "xjmusic/entities/music/Note.h"
+#include "xjmusic/entities/music/PitchClass.h"
+#include "xjmusic/entities/music/Root.h"
+
+using namespace XJ;
 
 /**
  * Expect a runtime error with a specific message
@@ -29,6 +31,6 @@
  * @param expect  expected note
  * @param actual  actual note
  */
-void assertNote(const std::string &expect, const Music::Note &actual);
+void assertNote(const std::string &expect, const Note &actual);
 
 #endif //XJMUSIC_TEST_HELPER_ASSERTION_HELPERS_H

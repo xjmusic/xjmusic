@@ -4,7 +4,7 @@
 
 #include <utility>
 
-using namespace Content;
+using namespace XJ;
 
 ContentTestHelper::ContentTestHelper() : counter(0) {
   std::random_device rd;

@@ -4,7 +4,7 @@
 
 #include "AssertionHelpers.h"
 
-void assertNote(const std::string &expect, const Music::Note &actual) {
-  ASSERT_EQ(Music::Note::of(expect).pitchClass, actual.pitchClass);
-  ASSERT_EQ(Music::Note::of(expect).octave, actual.octave);
+void assertNote(const std::string &expect, const Note &actual) {
+  ASSERT_EQ(Note::of(expect).pitchClass, actual.pitchClass);
+  ASSERT_EQ(Note::of(expect).octave, actual.octave);
 }

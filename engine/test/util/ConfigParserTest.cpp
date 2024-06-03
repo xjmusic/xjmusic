@@ -4,7 +4,7 @@
 
 #include "xjmusic/util/ConfigParser.h"
 
-using namespace Util;
+using namespace XJ;
 
 TEST(HoconLiteTest, ParseConfig) {
   std::string input = R"(

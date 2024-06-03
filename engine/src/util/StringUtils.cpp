@@ -5,7 +5,7 @@
 
 #include "xjmusic/util/StringUtils.h"
 
-namespace Util {
+namespace XJ {
 
   std::regex StringUtils::nonMeme("[^a-zA-Z0-9!$]");
   std::regex StringUtils::nonAlphabetical("[^a-zA-Z]");
@@ -127,4 +127,4 @@ namespace Util {
     return std::count(basicString.begin(), basicString.end(), match);
   }
 
-}// namespace Util
+}// namespace XJ

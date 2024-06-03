@@ -11,7 +11,7 @@
 #include <variant>
 #include <vector>
 
-namespace Util {
+namespace XJ {
 
   /**
  * Base class for the different types of values in a HOCON configuration
@@ -252,6 +252,6 @@ namespace Util {
     static std::string format(const std::vector<std::string> &values);
   };
 
-}// namespace Content
+}// namespace XJ
 
 #endif//XJMUSIC_CONFIG_PARSER_H

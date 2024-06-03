@@ -10,7 +10,7 @@
 #include "xjmusic/util/ConfigParser.h"
 #include "xjmusic/util/StringUtils.h"
 
-namespace Util {
+namespace XJ {
 
   /**
    * Parse a float value
@@ -71,7 +71,7 @@ namespace Util {
     std::istringstream iss(s);
     std::string value;
     while (getline(iss, value, ',')) {
-      value = Util::StringUtils::trim(value);
+      value = StringUtils::trim(value);
       list.emplace_back(parseSingleValue(value));
     }
     return list;
@@ -87,14 +87,14 @@ namespace Util {
 
     // Read one piece at a time from the input string, and add it to the members vector.
     // If the next piece does not have an "=" sign, then it is a piece of the previous piece
-    std::istringstream iss(Util::StringUtils::trim(input));
+    std::istringstream iss(StringUtils::trim(input));
     std::vector<std::string> members;
     std::string piece;
     std::string key;
     int inObject = 0;// depth inside an object
     int inList = 0;  // depth inside a list
     while (std::getline(iss, piece)) {
-      piece = Util::StringUtils::trim(piece);
+      piece = StringUtils::trim(piece);
       if (0 == inObject && 0 == inList && piece.find('=') != std::string::npos) {
         members.push_back(piece);
       } else if (!members.empty()) {
@@ -112,8 +112,8 @@ namespace Util {
     for (const auto &member: members) {
       auto pos = member.find('=');
       if (pos != std::string::npos) {
-        key = Util::StringUtils::trim(member.substr(0, pos));
-        value = Util::StringUtils::trim(member.substr(pos + 1));
+        key = StringUtils::trim(member.substr(0, pos));
+        value = StringUtils::trim(member.substr(pos + 1));
         if (value.front() == '[' && value.back() == ']') {// Array
           obj.set(key, parseSimpleListValue(value.substr(1, value.size() - 2)));
         } else {
@@ -131,14 +131,14 @@ namespace Util {
    */
   ConfigListValue parseListValue(const std::string &s) {
     ConfigListValue list;
-    std::istringstream iss(Util::StringUtils::trim(s));
+    std::istringstream iss(StringUtils::trim(s));
 
     std::vector<std::string> members;
     std::string piece;
     int inObject = 0;// depth inside an object
     int inList = 0;  // depth inside a list
     while (std::getline(iss, piece, ',')) {
-      piece = Util::StringUtils::trim(piece);
+      piece = StringUtils::trim(piece);
       if (0 == inObject && 0 == inList) {
         members.push_back(piece);
       } else if (!members.empty()) {
@@ -181,14 +181,14 @@ namespace Util {
   ConfigParser::ConfigParser(const std::string &input) {
     // Read one piece at a time from the input string, and add it to the members vector.
     // If the next piece does not have an "=" sign, then it is a piece of the previous piece
-    std::istringstream iss(Util::StringUtils::trim(input));
+    std::istringstream iss(StringUtils::trim(input));
     std::vector<std::string> members;
     std::string piece;
     std::string key;
     int inObject = 0;// depth inside an object
     int inList = 0;  // depth inside a list
     while (std::getline(iss, piece)) {
-      piece = Util::StringUtils::trim(piece);
+      piece = StringUtils::trim(piece);
       if (0 == inObject && 0 == inList && piece.find('=') != std::string::npos) {
         members.push_back(piece);
       } else if (!members.empty()) {
@@ -206,8 +206,8 @@ namespace Util {
     for (const auto &member: members) {
       auto pos = member.find('=');
       if (pos != std::string::npos) {
-        key = Util::StringUtils::trim(member.substr(0, pos));
-        value = Util::StringUtils::trim(member.substr(pos + 1));
+        key = StringUtils::trim(member.substr(0, pos));
+        value = StringUtils::trim(member.substr(pos + 1));
         config[key] = parseValue(value);
       }
     }
@@ -290,7 +290,7 @@ namespace Util {
   }
 
   std::string ConfigParser::format(const float &value) {
-    return Util::StringUtils::formatFloat(value);
+    return StringUtils::formatFloat(value);
   }
 
   std::string ConfigParser::format(const std::string &value) {
@@ -303,7 +303,7 @@ namespace Util {
     for (const auto &value: values) {
       quotedValues.push_back("\"" + value + "\"");
     }
-    return "[" + Util::StringUtils::join(quotedValues, ",") + "]";
+    return "[" + StringUtils::join(quotedValues, ",") + "]";
   }
 
   unsigned long ConfigObjectValue::size() {
@@ -384,4 +384,4 @@ namespace Util {
     return maps;
   }
 
-}// namespace Content
+}// namespace XJ

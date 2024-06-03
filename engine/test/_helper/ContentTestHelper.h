@@ -8,9 +8,9 @@
 #include <random>
 #include <sstream>
 
-#include "xjmusic/content/ContentStore.h"
+#include "xjmusic/entities/content/ContentStore.h"
 
-using namespace Content;
+using namespace XJ;
 
 class ContentTestHelper {
 private:

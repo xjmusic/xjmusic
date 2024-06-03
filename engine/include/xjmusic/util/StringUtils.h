@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace Util {
+namespace XJ {
   class StringUtils {
   private:
     static std::regex nonMeme;
@@ -132,6 +132,6 @@ namespace Util {
   };
 
 
-}// namespace Util
+}// namespace XJ
 
 #endif//XJMUSIC_STRING_UTILS_H

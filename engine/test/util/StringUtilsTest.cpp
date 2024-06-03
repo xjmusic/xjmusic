@@ -4,7 +4,7 @@
 
 #include "xjmusic/util/StringUtils.h"
 
-using namespace Util;
+using namespace XJ;
 
 TEST(StringUtilsTest, Split) {
   std::string s = "\n  one,     two,\nthree";
