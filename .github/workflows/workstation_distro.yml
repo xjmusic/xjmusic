@@ -67,9 +67,9 @@ jobs:
         working-directory: workstation/
         continue-on-error: false
 
-  distribute_gui_installer:
+  distribute_workstation_installer:
     needs: verify
-    name: GUI Installer [${{ matrix.os }}-JDK${{ matrix.java }}]
+    name: Workstation Installer [${{ matrix.os }}-JDK${{ matrix.java }}]
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
@@ -134,17 +134,17 @@ jobs:
 
       - name: Execute build
         working-directory: workstation/
-        run: ./gradlew --info --stacktrace :gui:build
+        run: ./gradlew --info --stacktrace :build
 
       - name: Execute jpackage
         working-directory: workstation/
-        run: ./gradlew --info --stacktrace :gui:jpackage
+        run: ./gradlew --info --stacktrace :jpackage
 
       - name: Rename DMG for macOS
         if: runner.os == 'macOS'
         working-directory: workstation/
         run: |
-          cd gui/build/jpackage/
+          cd build/jpackage/
           mv XJ\ music\ workstation-${{ needs.verify.outputs.version }}.dmg xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
 
       - name: Notarize app bundle (macOS)
@@ -158,12 +158,12 @@ jobs:
           echo "----- Create keychain profile -----"
           xcrun notarytool store-credentials "notarytool-profile" --apple-id "$MACOS_NOTARIZATION_APPLE_ID" --team-id "$MACOS_NOTARIZATION_TEAM_ID" --password "$MACOS_NOTARIZATION_PWD"          
           echo "----- Notarize app -----"
-          xcrun notarytool submit gui/build/jpackage/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg --keychain-profile "notarytool-profile" --wait
+          xcrun notarytool submit build/jpackage/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg --keychain-profile "notarytool-profile" --wait
 
       - name: Compress DMG (macOS/Intel)
         if: runner.os == 'macOS' && runner.arch == 'X64'
         run: |
-          cd workstation/gui/build/jpackage/
+          cd workstation/build/jpackage/
           zip -r ../../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
 
       - name: Upload DMG to release (macOS/Intel)
@@ -184,7 +184,7 @@ jobs:
       - name: Compress DMG (macOS/Silicon)
         if: runner.os == 'macOS' && runner.arch == 'ARM64'
         run: |
-          cd workstation/gui/build/jpackage/
+          cd workstation/build/jpackage/
           zip -r ../../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Silicon.dmg.zip xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
 
       - name: Upload DMG to release (macOS/Silicon)
@@ -205,7 +205,7 @@ jobs:
       - name: Compress EXE for Windows
         if: runner.os == 'Windows'
         run: |
-          cd workstation/gui/build/jpackage/
+          cd workstation/build/jpackage/
           Compress-Archive -Path xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.exe -DestinationPath ../../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.exe.zip
 
       - name: Upload EXE to release (Windows)
@@ -226,7 +226,7 @@ jobs:
       - name: Compress DEB for Linux
         if: runner.os == 'Linux'
         run: |
-          cd workstation/gui/build/jpackage/
+          cd workstation/build/jpackage/
           tar -czvf ../../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.deb.tar.gz xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.deb
 
       - name: Upload DEB to release (Linux)

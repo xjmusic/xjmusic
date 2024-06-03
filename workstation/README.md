@@ -24,7 +24,7 @@ possibilities for streams, games, and spaces.
 This project is built with Gradle. To run the XJ music workstation, run:
 
 ```shell
-./gradlew :gui:bootRun
+./gradlew :bootRun
 ```
 
 You should then see the JavaFX GUI open the main window.
@@ -35,20 +35,15 @@ Click here for a video walkthrough! https://youtu.be/z5i8ZD8AyWE
 
 ## Architecture
 
-The command above (`gradle :gui:bootRun`) invokes the `bootRun` task in the `gui` subproject. The `bootRun` task is a
+The command above (`gradle :bootRun`) invokes the `bootRun` task. The `bootRun` task is a
 Gradle task provided by the Spring Boot Gradle plugin. It runs the application in the current JVM.
 
-All the business logic for the application is contained in the `nexus` subproject. The `gui` and `service` sub-projects
-provide two different ways of running the business logic, either as a GUI application or as a service.
-
-The `nexus` subproject business logic primarily comprises these packages:
-
-* the `io.xj.nexus.craft` package is the most esoteric. It contains all the logic about fabricating music basic on the
+* the `io.xj.engine.craft` package is the most esoteric. It contains all the logic about fabricating music basic on the
   input content.
-* the `io.xj.nexus.dub` package is an audio mixer-- it consumes the output of the craft package above and uses the
+* the `io.xj.engine.dub` package is an audio mixer-- it consumes the output of the craft package above and uses the
   musical choices as an edit decision list to read the source audio files, use ffmpeg via javacpp to do audio
   resampling, add up the audio files, and send the output back as bytes
-* the `io.xj.nexus.ship` package consumes the output of the dub package above and sends it either to local system
+* the `io.xj.engine.ship` package consumes the output of the dub package above and sends it either to local system
   output, file output, or HLS stream e.g. youtube output
 
 We recommend starting by ignoring the craft package (very esoteric) and focusing on the dub package (lots of
