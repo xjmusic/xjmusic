@@ -164,7 +164,7 @@ jobs:
         if: runner.os == 'macOS' && runner.arch == 'X64'
         run: |
           cd workstation/build/jpackage/
-          zip -r ../../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
+          zip -r ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
 
       - name: Upload DMG to release (macOS/Intel)
         if: runner.os == 'macOS' && runner.arch == 'X64'
@@ -185,7 +185,7 @@ jobs:
         if: runner.os == 'macOS' && runner.arch == 'ARM64'
         run: |
           cd workstation/build/jpackage/
-          zip -r ../../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Silicon.dmg.zip xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
+          zip -r ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Silicon.dmg.zip xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
 
       - name: Upload DMG to release (macOS/Silicon)
         if: runner.os == 'macOS' && runner.arch == 'ARM64'
@@ -206,7 +206,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           cd workstation/build/jpackage/
-          Compress-Archive -Path xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.exe -DestinationPath ../../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.exe.zip
+          Compress-Archive -Path xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.exe -DestinationPath ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.exe.zip
 
       - name: Upload EXE to release (Windows)
         if: runner.os == 'Windows'
@@ -227,7 +227,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           cd workstation/build/jpackage/
-          tar -czvf ../../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.deb.tar.gz xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.deb
+          tar -czvf ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.deb.tar.gz xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.deb
 
       - name: Upload DEB to release (Linux)
         if: runner.os == 'Linux'
