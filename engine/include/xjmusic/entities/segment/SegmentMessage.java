@@ -12,9 +12,9 @@ import java.util.UUID;
 public class SegmentMessage {
 
   UUID id;
-  Integer segmentId;
+  int segmentId;
   SegmentMessageType type;
-  String body;
+  std::string body;
 
   /**
    **/
@@ -35,18 +35,18 @@ public class SegmentMessage {
 
   /**
    **/
-  public SegmentMessage segmentId(Integer segmentId) {
+  public SegmentMessage segmentId(int segmentId) {
     this.segmentId = segmentId;
     return this;
   }
 
 
   @JsonProperty("segmentId")
-  public Integer getSegmentId() {
+  public int getSegmentId() {
     return segmentId;
   }
 
-  public void setSegmentId(Integer segmentId) {
+  public void setSegmentId(int segmentId) {
     this.segmentId = segmentId;
   }
 
@@ -69,18 +69,18 @@ public class SegmentMessage {
 
   /**
    **/
-  public SegmentMessage body(String body) {
+  public SegmentMessage body(std::string body) {
     this.body = body;
     return this;
   }
 
 
   @JsonProperty("body")
-  public String getBody() {
+  public std::string getBody() {
     return body;
   }
 
-  public void setBody(String body) {
+  public void setBody(std::string body) {
     this.body = body;
   }
 
@@ -106,7 +106,7 @@ public class SegmentMessage {
   }
 
   @Override
-  public String toString() {
+  public std::string toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class SegmentMessage {\n");
 
@@ -122,7 +122,7 @@ public class SegmentMessage {
    Convert the given object to string with each line indented by 4 spaces
    (except the first line).
    */
-  String toIndentedString(Object o) {
+  std::string toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

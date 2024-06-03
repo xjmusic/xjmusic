@@ -18,20 +18,20 @@ public enum SegmentMessageType {
 
   ERROR("Error");
 
-  String value;
+  std::string value;
 
-  SegmentMessageType(String value) {
+  SegmentMessageType(std::string value) {
     this.value = value;
   }
 
   @Override
   @JsonValue
-  public String toString() {
-    return String.valueOf(value);
+  public std::string toString() {
+    return std::string.valueOf(value);
   }
 
   @JsonCreator
-  public static SegmentMessageType fromValue(String value) {
+  public static SegmentMessageType fromValue(std::string value) {
     for (SegmentMessageType b : SegmentMessageType.values()) {
       if (b.value.equals(value)) {
         return b;

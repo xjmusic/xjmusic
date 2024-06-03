@@ -11,8 +11,8 @@ import java.util.UUID;
 public class SegmentMeme {
 
   UUID id;
-  Integer segmentId;
-  String name;
+  int segmentId;
+  std::string name;
 
   /**
    **/
@@ -33,35 +33,35 @@ public class SegmentMeme {
 
   /**
    **/
-  public SegmentMeme segmentId(Integer segmentId) {
+  public SegmentMeme segmentId(int segmentId) {
     this.segmentId = segmentId;
     return this;
   }
 
 
   @JsonProperty("segmentId")
-  public Integer getSegmentId() {
+  public int getSegmentId() {
     return segmentId;
   }
 
-  public void setSegmentId(Integer segmentId) {
+  public void setSegmentId(int segmentId) {
     this.segmentId = segmentId;
   }
 
   /**
    **/
-  public SegmentMeme name(String name) {
+  public SegmentMeme name(std::string name) {
     this.name = name;
     return this;
   }
 
 
   @JsonProperty("name")
-  public String getName() {
+  public std::string getName() {
     return name;
   }
 
-  public void setName(String name) {
+  public void setName(std::string name) {
     this.name = name;
   }
 
@@ -86,7 +86,7 @@ public class SegmentMeme {
   }
 
   @Override
-  public String toString() {
+  public std::string toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class SegmentMeme {\n");
 
@@ -101,7 +101,7 @@ public class SegmentMeme {
    Convert the given object to string with each line indented by 4 spaces
    (except the first line).
    */
-  String toIndentedString(Object o) {
+  std::string toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

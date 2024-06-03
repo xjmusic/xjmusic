@@ -50,7 +50,7 @@ namespace XJ {
     std::string config{};
     float volume{0};
     bool isDeleted{false};
-    long long updatedAt{0};
+    long long updatedAt{currentTimeMillis()};
 
     /**
      * Parse the Instrument Type enum value from a string

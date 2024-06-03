@@ -7,7 +7,7 @@
 
 #include "nlohmann/json.hpp"
 
-#include "Entity.h"
+#include "xjmusic/entities/Entity.h"
 
 using json = nlohmann::json;
 
@@ -17,40 +17,26 @@ namespace XJ {
   public:
 
     enum Type {
-      Drum,
-      Bass,
-      Pad,
-      Sticky,
-      Stripe,
-      Stab,
-      Hook,
-      Percussion,
-      Transition,
-      Background
-    };
-
-    enum Mode {
-      Event,
-      Chord,
-      Loop
+      Preview,
+      Production,
     };
 
     enum State {
       Draft,
-      Published
+      Ready,
+      Fabricate,
+      Failed,
     };
 
     Chain() = default;
 
-    UUID libraryId{};
-    Chain::State state{};
+    UUID templateId{};
     Chain::Type type{};
-    Chain::Mode mode{};
+    Chain::State state{};
+    std::string shipKey{};
+    std::string templateConfig{};
     std::string name{};
-    std::string config{};
-    float volume{0};
-    bool isDeleted{false};
-    long long updatedAt{0};
+    long long updatedAt{currentTimeMillis()};
 
     /**
      * Parse the Chain Type enum value from a string
@@ -58,13 +44,6 @@ namespace XJ {
      * @return      The Chain Type enum value
      */
     static Chain::Type parseType(const std::string &value);
-
-    /**
-     * Parse the Chain Mode enum value from a string
-     * @param value  The string to parse
-     * @return      The Chain Mode enum value
-     */
-    static Chain::Mode parseMode(const std::string &value);
 
     /**
      * Parse the Chain State enum value from a string
@@ -81,18 +60,25 @@ namespace XJ {
     static std::string toString(const Chain::Type &type);
 
     /**
-     * Convert an Chain Mode enum value to a string
-     * @param mode  The Chain Mode enum value
-     * @return      The string representation of the Chain Mode
-     */
-    static std::string toString(const Chain::Mode &mode);
-
-    /**
      * Convert an Chain State enum value to a string
      * @param state  The Chain State enum value
      * @return      The string representation of the Chain State
      */
     static std::string toString(const Chain::State &state);
+
+    /**
+     * Convert the Chain to a JSON object
+     * @param chain  The Chain to convert
+     * @return       The JSON object
+     */
+    bool equals(const Chain& chain);
+
+    /**
+     * Convert the Chain to a JSON object
+     * @param chain  The Chain to convert
+     * @return       The JSON object
+     */
+    unsigned long long hashCode();
   };
 
 }// namespace XJ

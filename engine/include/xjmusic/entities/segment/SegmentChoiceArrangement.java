@@ -11,7 +11,7 @@ import java.util.UUID;
 public class SegmentChoiceArrangement {
 
   UUID id;
-  Integer segmentId;
+  int segmentId;
   UUID segmentChoiceId;
   UUID programSequencePatternId;
 
@@ -34,18 +34,18 @@ public class SegmentChoiceArrangement {
 
   /**
    **/
-  public SegmentChoiceArrangement segmentId(Integer segmentId) {
+  public SegmentChoiceArrangement segmentId(int segmentId) {
     this.segmentId = segmentId;
     return this;
   }
 
 
   @JsonProperty("segmentId")
-  public Integer getSegmentId() {
+  public int getSegmentId() {
     return segmentId;
   }
 
-  public void setSegmentId(Integer segmentId) {
+  public void setSegmentId(int segmentId) {
     this.segmentId = segmentId;
   }
 
@@ -105,7 +105,7 @@ public class SegmentChoiceArrangement {
   }
 
   @Override
-  public String toString() {
+  public std::string toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class SegmentChoiceArrangement {\n");
 
@@ -121,7 +121,7 @@ public class SegmentChoiceArrangement {
    Convert the given object to string with each line indented by 4 spaces
    (except the first line).
    */
-  String toIndentedString(Object o) {
+  std::string toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

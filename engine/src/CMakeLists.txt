@@ -40,6 +40,8 @@ add_library(xjmusic
         entities/music/Step.cpp
         entities/music/StickyBun.cpp
         entities/music/Tuning.cpp
+        entities/segment/Chain.cpp
+        entities/segment/Segment.cpp
         util/ConfigParser.cpp
         util/StringUtils.cpp
         util/ValueUtils.cpp

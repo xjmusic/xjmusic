@@ -11,16 +11,16 @@ import java.util.UUID;
 public class SegmentChoiceArrangementPick {
 
   UUID id;
-  Integer segmentId;
+  int segmentId;
   UUID segmentChoiceArrangementId;
   UUID segmentChordVoicingId;
   UUID instrumentAudioId;
   UUID programSequencePatternEventId;
-  Long startAtSegmentMicros;
-  Long lengthMicros;
+  long startAtSegmentMicros;
+  long lengthMicros;
   float amplitude;
-  String tones;
-  String event;
+  std::string tones;
+  std::string event;
 
   /**
    **/
@@ -41,18 +41,18 @@ public class SegmentChoiceArrangementPick {
 
   /**
    **/
-  public SegmentChoiceArrangementPick segmentId(Integer segmentId) {
+  public SegmentChoiceArrangementPick segmentId(int segmentId) {
     this.segmentId = segmentId;
     return this;
   }
 
 
   @JsonProperty("segmentId")
-  public Integer getSegmentId() {
+  public int getSegmentId() {
     return segmentId;
   }
 
-  public void setSegmentId(Integer segmentId) {
+  public void setSegmentId(int segmentId) {
     this.segmentId = segmentId;
   }
 
@@ -126,35 +126,35 @@ public class SegmentChoiceArrangementPick {
 
   /**
    **/
-  public SegmentChoiceArrangementPick startAtSegmentMicros(Long segmentMicros) {
+  public SegmentChoiceArrangementPick startAtSegmentMicros(long segmentMicros) {
     this.startAtSegmentMicros = segmentMicros;
     return this;
   }
 
 
   @JsonProperty("startAtSegmentMicros")
-  public Long getStartAtSegmentMicros() {
+  public long getStartAtSegmentMicros() {
     return startAtSegmentMicros;
   }
 
-  public void setStartAtSegmentMicros(Long segmentMicros) {
+  public void setStartAtSegmentMicros(long segmentMicros) {
     this.startAtSegmentMicros = segmentMicros;
   }
 
   /**
    **/
-  public SegmentChoiceArrangementPick lengthMicros(Long micros) {
+  public SegmentChoiceArrangementPick lengthMicros(long micros) {
     this.lengthMicros = micros;
     return this;
   }
 
 
   @JsonProperty("lengthMicros")
-  public Long getLengthMicros() {
+  public long getLengthMicros() {
     return lengthMicros;
   }
 
-  public void setLengthMicros(Long micros) {
+  public void setLengthMicros(long micros) {
     this.lengthMicros = micros;
   }
 
@@ -177,35 +177,35 @@ public class SegmentChoiceArrangementPick {
 
   /**
    **/
-  public SegmentChoiceArrangementPick tones(String tones) {
+  public SegmentChoiceArrangementPick tones(std::string tones) {
     this.tones = tones;
     return this;
   }
 
 
   @JsonProperty("tones")
-  public String getTones() {
+  public std::string getTones() {
     return tones;
   }
 
-  public void setTones(String tones) {
+  public void setTones(std::string tones) {
     this.tones = tones;
   }
 
   /**
    **/
-  public SegmentChoiceArrangementPick event(String event) {
+  public SegmentChoiceArrangementPick event(std::string event) {
     this.event = event;
     return this;
   }
 
 
   @JsonProperty("event")
-  public String getEvent() {
+  public std::string getEvent() {
     return event;
   }
 
-  public void setEvent(String event) {
+  public void setEvent(std::string event) {
     this.event = event;
   }
 
@@ -238,7 +238,7 @@ public class SegmentChoiceArrangementPick {
   }
 
   @Override
-  public String toString() {
+  public std::string toString() {
 
     return "class SegmentChoiceArrangementPick {\n" +
       "    id: " + toIndentedString(id) + "\n" +
@@ -259,7 +259,7 @@ public class SegmentChoiceArrangementPick {
    Convert the given object to string with each line indented by 4 spaces
    (except the first line).
    */
-  String toIndentedString(Object o) {
+  std::string toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

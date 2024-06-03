@@ -14,14 +14,14 @@ import java.util.UUID;
 public class SegmentChoice {
 
   UUID id;
-  Integer segmentId;
+  int segmentId;
   UUID programId;
   UUID programSequenceId;
   UUID programSequenceBindingId;
   UUID programVoiceId;
   UUID instrumentId;
-  Integer deltaIn;
-  Integer deltaOut;
+  int deltaIn;
+  int deltaOut;
   Boolean mute;
   InstrumentType instrumentType;
   InstrumentMode instrumentMode;
@@ -46,18 +46,18 @@ public class SegmentChoice {
 
   /**
    **/
-  public SegmentChoice segmentId(Integer segmentId) {
+  public SegmentChoice segmentId(int segmentId) {
     this.segmentId = segmentId;
     return this;
   }
 
 
   @JsonProperty("segmentId")
-  public Integer getSegmentId() {
+  public int getSegmentId() {
     return segmentId;
   }
 
-  public void setSegmentId(Integer segmentId) {
+  public void setSegmentId(int segmentId) {
     this.segmentId = segmentId;
   }
 
@@ -148,35 +148,35 @@ public class SegmentChoice {
 
   /**
    **/
-  public SegmentChoice deltaIn(Integer deltaIn) {
+  public SegmentChoice deltaIn(int deltaIn) {
     this.deltaIn = deltaIn;
     return this;
   }
 
 
   @JsonProperty("deltaIn")
-  public Integer getDeltaIn() {
+  public int getDeltaIn() {
     return deltaIn;
   }
 
-  public void setDeltaIn(Integer deltaIn) {
+  public void setDeltaIn(int deltaIn) {
     this.deltaIn = deltaIn;
   }
 
   /**
    **/
-  public SegmentChoice deltaOut(Integer deltaOut) {
+  public SegmentChoice deltaOut(int deltaOut) {
     this.deltaOut = deltaOut;
     return this;
   }
 
 
   @JsonProperty("deltaOut")
-  public Integer getDeltaOut() {
+  public int getDeltaOut() {
     return deltaOut;
   }
 
-  public void setDeltaOut(Integer deltaOut) {
+  public void setDeltaOut(int deltaOut) {
     this.deltaOut = deltaOut;
   }
 
@@ -279,7 +279,7 @@ public class SegmentChoice {
   }
 
   @Override
-  public String toString() {
+  public std::string toString() {
 
     return "class SegmentChoice {\n" +
       "    id: " + toIndentedString(id) + "\n" +
@@ -302,7 +302,7 @@ public class SegmentChoice {
    Convert the given object to string with each line indented by 4 spaces
    (except the first line).
    */
-  String toIndentedString(Object o) {
+  std::string toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

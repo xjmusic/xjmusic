@@ -17,7 +17,7 @@ namespace XJ {
     std::string config;
     std::string shipKey;
     bool isDeleted{false};
-    long long updatedAt{};
+    long long updatedAt{currentTimeMillis()};
   };
 
 }// namespace XJ

@@ -13,9 +13,9 @@ import java.util.UUID;
 public class SegmentMeta {
 
   UUID id;
-  Integer segmentId;
-  String key;
-  String value;
+  int segmentId;
+  std::string key;
+  std::string value;
 
   /**
    **/
@@ -36,52 +36,52 @@ public class SegmentMeta {
 
   /**
    **/
-  public SegmentMeta segmentId(Integer segmentId) {
+  public SegmentMeta segmentId(int segmentId) {
     this.segmentId = segmentId;
     return this;
   }
 
 
   @JsonProperty("segmentId")
-  public Integer getSegmentId() {
+  public int getSegmentId() {
     return segmentId;
   }
 
-  public void setSegmentId(Integer segmentId) {
+  public void setSegmentId(int segmentId) {
     this.segmentId = segmentId;
   }
 
   /**
    **/
-  public SegmentMeta key(String key) {
+  public SegmentMeta key(std::string key) {
     this.key = key;
     return this;
   }
 
 
   @JsonProperty("key")
-  public String getKey() {
+  public std::string getKey() {
     return key;
   }
 
-  public void setKey(String key) {
+  public void setKey(std::string key) {
     this.key = key;
   }
 
   /**
    **/
-  public SegmentMeta value(String value) {
+  public SegmentMeta value(std::string value) {
     this.value = value;
     return this;
   }
 
 
   @JsonProperty("value")
-  public String getValue() {
+  public std::string getValue() {
     return value;
   }
 
-  public void setValue(String value) {
+  public void setValue(std::string value) {
     this.value = value;
   }
 
@@ -107,7 +107,7 @@ public class SegmentMeta {
   }
 
   @Override
-  public String toString() {
+  public std::string toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class SegmentMeta {\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
@@ -122,7 +122,7 @@ public class SegmentMeta {
    Convert the given object to string with each line indented by 4 spaces
    (except the first line).
    */
-  String toIndentedString(Object o) {
+  std::string toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

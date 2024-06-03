@@ -11,10 +11,10 @@ import java.util.UUID;
 public class SegmentChordVoicing {
 
   UUID id;
-  Integer segmentId;
+  int segmentId;
   UUID segmentChordId;
-  String type;
-  String notes;
+  std::string type;
+  std::string notes;
 
   /**
    **/
@@ -35,18 +35,18 @@ public class SegmentChordVoicing {
 
   /**
    **/
-  public SegmentChordVoicing segmentId(Integer segmentId) {
+  public SegmentChordVoicing segmentId(int segmentId) {
     this.segmentId = segmentId;
     return this;
   }
 
 
   @JsonProperty("segmentId")
-  public Integer getSegmentId() {
+  public int getSegmentId() {
     return segmentId;
   }
 
-  public void setSegmentId(Integer segmentId) {
+  public void setSegmentId(int segmentId) {
     this.segmentId = segmentId;
   }
 
@@ -69,35 +69,35 @@ public class SegmentChordVoicing {
 
   /**
    **/
-  public SegmentChordVoicing type(String type) {
+  public SegmentChordVoicing type(std::string type) {
     this.type = type;
     return this;
   }
 
 
   @JsonProperty("type")
-  public String getType() {
+  public std::string getType() {
     return type;
   }
 
-  public void setType(String type) {
+  public void setType(std::string type) {
     this.type = type;
   }
 
   /**
    **/
-  public SegmentChordVoicing notes(String notes) {
+  public SegmentChordVoicing notes(std::string notes) {
     this.notes = notes;
     return this;
   }
 
 
   @JsonProperty("notes")
-  public String getNotes() {
+  public std::string getNotes() {
     return notes;
   }
 
-  public void setNotes(String notes) {
+  public void setNotes(std::string notes) {
     this.notes = notes;
   }
 
@@ -124,7 +124,7 @@ public class SegmentChordVoicing {
   }
 
   @Override
-  public String toString() {
+  public std::string toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class SegmentChordVoicing {\n");
 
@@ -141,7 +141,7 @@ public class SegmentChordVoicing {
    Convert the given object to string with each line indented by 4 spaces
    (except the first line).
    */
-  String toIndentedString(Object o) {
+  std::string toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

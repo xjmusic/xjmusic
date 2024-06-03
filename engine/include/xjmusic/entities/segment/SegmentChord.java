@@ -11,9 +11,9 @@ import java.util.UUID;
 public class SegmentChord {
 
   UUID id;
-  Integer segmentId;
-  Double position;
-  String name;
+  int segmentId;
+  float position;
+  std::string name;
 
   /**
    **/
@@ -34,52 +34,52 @@ public class SegmentChord {
 
   /**
    **/
-  public SegmentChord segmentId(Integer segmentId) {
+  public SegmentChord segmentId(int segmentId) {
     this.segmentId = segmentId;
     return this;
   }
 
 
   @JsonProperty("segmentId")
-  public Integer getSegmentId() {
+  public int getSegmentId() {
     return segmentId;
   }
 
-  public void setSegmentId(Integer segmentId) {
+  public void setSegmentId(int segmentId) {
     this.segmentId = segmentId;
   }
 
   /**
    **/
-  public SegmentChord position(Double position) {
+  public SegmentChord position(float position) {
     this.position = position;
     return this;
   }
 
 
   @JsonProperty("position")
-  public Double getPosition() {
+  public float getPosition() {
     return position;
   }
 
-  public void setPosition(Double position) {
+  public void setPosition(float position) {
     this.position = position;
   }
 
   /**
    **/
-  public SegmentChord name(String name) {
+  public SegmentChord name(std::string name) {
     this.name = name;
     return this;
   }
 
 
   @JsonProperty("name")
-  public String getName() {
+  public std::string getName() {
     return name;
   }
 
-  public void setName(String name) {
+  public void setName(std::string name) {
     this.name = name;
   }
 
@@ -105,7 +105,7 @@ public class SegmentChord {
   }
 
   @Override
-  public String toString() {
+  public std::string toString() {
     return "class SegmentChord {\n" +
       "    id: " + toIndentedString(id) + "\n" +
       "    segmentId: " + toIndentedString(segmentId) + "\n" +
@@ -118,7 +118,7 @@ public class SegmentChord {
    Convert the given object to string with each line indented by 4 spaces
    (except the first line).
    */
-  String toIndentedString(Object o) {
+  std::string toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

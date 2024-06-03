@@ -32,7 +32,7 @@ namespace XJ {
     std::string name;
     std::string config;
     bool isDeleted{};
-    long long updatedAt{};
+    long long updatedAt{currentTimeMillis()};
 
     /**
      * Parse the Program Type enum value from a string
