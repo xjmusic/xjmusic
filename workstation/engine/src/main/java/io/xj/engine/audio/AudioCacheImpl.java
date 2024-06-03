@@ -1,8 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.audio;
 
-import io.xj.hub.pojos.InstrumentAudio;
-import io.xj.hub.util.StringUtils;
+import io.xj.model.pojos.InstrumentAudio;
+import io.xj.model.util.StringUtils;
 import io.xj.engine.FabricationException;
 import io.xj.engine.mixer.FFmpegUtils;
 import io.xj.engine.project.ProjectManager;

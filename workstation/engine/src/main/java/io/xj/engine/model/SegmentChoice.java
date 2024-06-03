@@ -3,9 +3,9 @@
 package io.xj.engine.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.xj.hub.enums.InstrumentMode;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramType;
+import io.xj.model.enums.InstrumentMode;
+import io.xj.model.enums.InstrumentType;
+import io.xj.model.enums.ProgramType;
 
 import java.util.Objects;
 import java.util.UUID;

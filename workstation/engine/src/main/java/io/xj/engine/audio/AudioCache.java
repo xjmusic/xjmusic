@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.audio;
 
-import io.xj.hub.pojos.InstrumentAudio;
+import io.xj.model.pojos.InstrumentAudio;
 import io.xj.engine.FabricationException;
 
 import java.io.IOException;

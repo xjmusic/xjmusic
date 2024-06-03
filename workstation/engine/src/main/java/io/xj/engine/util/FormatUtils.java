@@ -2,7 +2,7 @@
 
 package io.xj.engine.util;
 
-import io.xj.hub.util.StringUtils;
+import io.xj.model.util.StringUtils;
 import jakarta.annotation.Nullable;
 
 import java.util.Map;

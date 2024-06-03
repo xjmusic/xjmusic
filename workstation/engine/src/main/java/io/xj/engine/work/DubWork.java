@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.work;
 
-import io.xj.hub.pojos.Program;
+import io.xj.model.pojos.Program;
 import io.xj.engine.mixer.BytePipeline;
 import io.xj.engine.model.Chain;
 import io.xj.engine.model.Segment;

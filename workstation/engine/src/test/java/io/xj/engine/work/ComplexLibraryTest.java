@@ -1,12 +1,12 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.work;
 
-import io.xj.hub.HubContent;
-import io.xj.hub.HubTopology;
-import io.xj.hub.entity.EntityFactoryImpl;
-import io.xj.hub.json.JsonProviderImpl;
-import io.xj.hub.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.model.HubContent;
+import io.xj.model.HubTopology;
+import io.xj.model.entity.EntityFactoryImpl;
+import io.xj.model.json.JsonProviderImpl;
+import io.xj.model.jsonapi.JsonapiPayloadFactory;
+import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.engine.FabricationException;
 import io.xj.engine.FabricationContentTwoFixtures;
 import io.xj.engine.FabricationTopology;
@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
-import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.model.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.engine.FabricationContentOneFixtures.buildLibrary;
 import static io.xj.engine.FabricationContentOneFixtures.buildProject;
 import static org.junit.jupiter.api.Assertions.assertTrue;

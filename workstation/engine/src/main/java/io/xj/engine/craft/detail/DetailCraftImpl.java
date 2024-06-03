@@ -2,12 +2,12 @@
 package io.xj.engine.craft.detail;
 
 
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.pojos.Instrument;
-import io.xj.hub.pojos.InstrumentAudio;
-import io.xj.hub.pojos.Program;
-import io.xj.hub.util.StringUtils;
+import io.xj.model.enums.InstrumentType;
+import io.xj.model.enums.ProgramType;
+import io.xj.model.pojos.Instrument;
+import io.xj.model.pojos.InstrumentAudio;
+import io.xj.model.pojos.Program;
+import io.xj.model.util.StringUtils;
 import io.xj.engine.FabricationException;
 import io.xj.engine.craft.CraftImpl;
 import io.xj.engine.fabricator.Fabricator;

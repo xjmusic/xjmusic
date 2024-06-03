@@ -2,10 +2,10 @@
 
 package io.xj.engine.fabricator;
 
-import io.xj.hub.enums.ContentBindingType;
-import io.xj.hub.pojos.Template;
-import io.xj.hub.pojos.TemplateBinding;
-import io.xj.hub.util.StringUtils;
+import io.xj.model.enums.ContentBindingType;
+import io.xj.model.pojos.Template;
+import io.xj.model.pojos.TemplateBinding;
+import io.xj.model.util.StringUtils;
 import io.xj.engine.model.Chain;
 import io.xj.engine.model.Segment;
 import jakarta.annotation.Nullable;

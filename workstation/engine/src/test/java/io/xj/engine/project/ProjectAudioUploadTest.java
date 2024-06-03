@@ -1,6 +1,6 @@
 package io.xj.engine.project;
 
-import io.xj.hub.HubUploadAuthorization;
+import io.xj.model.HubUploadAuthorization;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

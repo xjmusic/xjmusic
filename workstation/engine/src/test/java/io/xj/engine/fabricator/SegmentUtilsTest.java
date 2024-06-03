@@ -2,9 +2,9 @@
 
 package io.xj.engine.fabricator;
 
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.pojos.Project;
-import io.xj.hub.pojos.Template;
+import io.xj.model.enums.ProgramType;
+import io.xj.model.pojos.Project;
+import io.xj.model.pojos.Template;
 import io.xj.engine.FabricationException;
 import io.xj.engine.model.Chain;
 import io.xj.engine.model.ChainState;
@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 import java.util.List;
 
-import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.model.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.engine.FabricationContentOneFixtures.buildProject;
 import static io.xj.engine.FabricationContentOneFixtures.buildTemplate;
 import static io.xj.engine.FabricationContentTwoFixtures.buildChain;

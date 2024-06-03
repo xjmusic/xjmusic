@@ -1,9 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.fabricator;
 
-import io.xj.hub.enums.InstrumentMode;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramType;
+import io.xj.model.enums.InstrumentMode;
+import io.xj.model.enums.InstrumentType;
+import io.xj.model.enums.ProgramType;
 import io.xj.engine.FabricationException;
 import io.xj.engine.model.Segment;
 import io.xj.engine.model.SegmentChoice;

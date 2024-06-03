@@ -1,13 +1,13 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.craft;
 
-import io.xj.hub.TemplateConfig;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.music.Accidental;
-import io.xj.hub.music.Note;
-import io.xj.hub.music.NoteRange;
-import io.xj.hub.util.CsvUtils;
-import io.xj.hub.util.ValueException;
+import io.xj.model.TemplateConfig;
+import io.xj.model.enums.InstrumentType;
+import io.xj.model.music.Accidental;
+import io.xj.model.music.Note;
+import io.xj.model.music.NoteRange;
+import io.xj.model.util.CsvUtils;
+import io.xj.model.util.ValueException;
 import jakarta.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

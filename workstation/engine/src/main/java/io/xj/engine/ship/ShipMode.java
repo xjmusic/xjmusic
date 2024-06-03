@@ -2,7 +2,7 @@
 
 package io.xj.engine.ship;
 
-import io.xj.hub.util.StringUtils;
+import io.xj.model.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.Locale;

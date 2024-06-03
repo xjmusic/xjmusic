@@ -1,12 +1,12 @@
 package io.xj.gui;
 
-import io.xj.hub.HubTopology;
-import io.xj.hub.entity.EntityFactory;
-import io.xj.hub.entity.EntityFactoryImpl;
-import io.xj.hub.json.JsonProvider;
-import io.xj.hub.json.JsonProviderImpl;
-import io.xj.hub.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.model.HubTopology;
+import io.xj.model.entity.EntityFactory;
+import io.xj.model.entity.EntityFactoryImpl;
+import io.xj.model.json.JsonProvider;
+import io.xj.model.json.JsonProviderImpl;
+import io.xj.model.jsonapi.JsonapiPayloadFactory;
+import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.audio.AudioCache;
 import io.xj.engine.audio.AudioCacheImpl;

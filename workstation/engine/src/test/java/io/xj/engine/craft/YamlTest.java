@@ -1,8 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.craft;
 
-import io.xj.hub.music.Accidental;
-import io.xj.hub.music.Note;
+import io.xj.model.music.Accidental;
+import io.xj.model.music.Note;
 import jakarta.annotation.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

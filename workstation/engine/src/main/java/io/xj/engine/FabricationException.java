@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine;
 
-import io.xj.hub.util.StringUtils;
+import io.xj.model.util.StringUtils;
 import jakarta.annotation.Nullable;
 
 public class FabricationException extends Exception {

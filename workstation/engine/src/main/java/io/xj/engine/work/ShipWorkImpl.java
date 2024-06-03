@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.work;
 
-import io.xj.hub.util.StringUtils;
+import io.xj.model.util.StringUtils;
 import io.xj.engine.mixer.AudioFileWriter;
 import io.xj.engine.ship.broadcast.BroadcastFactory;
 import io.xj.engine.ship.broadcast.StreamPlayer;

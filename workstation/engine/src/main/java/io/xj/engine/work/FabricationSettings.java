@@ -2,7 +2,7 @@
 
 package io.xj.engine.work;
 
-import io.xj.hub.pojos.Template;
+import io.xj.model.pojos.Template;
 import io.xj.engine.fabricator.ControlMode;
 
 public class FabricationSettings {

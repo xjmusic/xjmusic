@@ -1,15 +1,15 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.work;
 
-import io.xj.hub.HubContent;
-import io.xj.hub.TemplateConfig;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.meme.MemeTaxonomy;
-import io.xj.hub.pojos.Instrument;
-import io.xj.hub.pojos.InstrumentAudio;
-import io.xj.hub.pojos.Program;
-import io.xj.hub.util.StringUtils;
-import io.xj.hub.util.ValueException;
+import io.xj.model.HubContent;
+import io.xj.model.TemplateConfig;
+import io.xj.model.enums.ProgramType;
+import io.xj.model.meme.MemeTaxonomy;
+import io.xj.model.pojos.Instrument;
+import io.xj.model.pojos.InstrumentAudio;
+import io.xj.model.pojos.Program;
+import io.xj.model.util.StringUtils;
+import io.xj.model.util.ValueException;
 import io.xj.engine.audio.AudioCache;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.fabricator.FabricatorFactory;
@@ -34,8 +34,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static io.xj.hub.util.StringUtils.formatStackTrace;
-import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.model.util.StringUtils.formatStackTrace;
+import static io.xj.model.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.engine.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 public class FabricationManagerImpl implements FabricationManager {
@@ -103,7 +103,7 @@ public class FabricationManagerImpl implements FabricationManager {
     this.config = config;
     LOG.debug("Did set work configuration: {}", config);
 
-    LOG.debug("Did set hub content: {}", this.content);
+    LOG.debug("Did set model content: {}", this.content);
 
     audioCache.initialize(
       config.getOutputFrameRate(),

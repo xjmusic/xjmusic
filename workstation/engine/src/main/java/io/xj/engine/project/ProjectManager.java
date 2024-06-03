@@ -1,20 +1,20 @@
 package io.xj.engine.project;
 
-import io.xj.hub.HubContent;
-import io.xj.hub.pojos.Instrument;
-import io.xj.hub.pojos.InstrumentAudio;
-import io.xj.hub.pojos.InstrumentMeme;
-import io.xj.hub.pojos.Library;
-import io.xj.hub.pojos.Program;
-import io.xj.hub.pojos.ProgramMeme;
-import io.xj.hub.pojos.ProgramSequence;
-import io.xj.hub.pojos.ProgramSequenceBindingMeme;
-import io.xj.hub.pojos.ProgramSequencePattern;
-import io.xj.hub.pojos.ProgramSequencePatternEvent;
-import io.xj.hub.pojos.ProgramVoice;
-import io.xj.hub.pojos.ProgramVoiceTrack;
-import io.xj.hub.pojos.Project;
-import io.xj.hub.pojos.Template;
+import io.xj.model.HubContent;
+import io.xj.model.pojos.Instrument;
+import io.xj.model.pojos.InstrumentAudio;
+import io.xj.model.pojos.InstrumentMeme;
+import io.xj.model.pojos.Library;
+import io.xj.model.pojos.Program;
+import io.xj.model.pojos.ProgramMeme;
+import io.xj.model.pojos.ProgramSequence;
+import io.xj.model.pojos.ProgramSequenceBindingMeme;
+import io.xj.model.pojos.ProgramSequencePattern;
+import io.xj.model.pojos.ProgramSequencePatternEvent;
+import io.xj.model.pojos.ProgramVoice;
+import io.xj.model.pojos.ProgramVoiceTrack;
+import io.xj.model.pojos.Project;
+import io.xj.model.pojos.Template;
 import jakarta.annotation.Nullable;
 
 import java.util.Optional;

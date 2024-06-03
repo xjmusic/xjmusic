@@ -1,8 +1,8 @@
 package io.xj.gui.controllers.content.common;
 
-import io.xj.hub.entity.EntityException;
-import io.xj.hub.entity.EntityUtils;
-import io.xj.hub.util.StringUtils;
+import io.xj.model.entity.EntityException;
+import io.xj.model.entity.EntityUtils;
+import io.xj.model.util.StringUtils;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;

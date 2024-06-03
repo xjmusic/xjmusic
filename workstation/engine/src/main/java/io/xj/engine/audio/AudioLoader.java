@@ -1,6 +1,6 @@
 package io.xj.engine.audio;
 
-import io.xj.hub.pojos.InstrumentAudio;
+import io.xj.model.pojos.InstrumentAudio;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.UnsupportedAudioFileException;

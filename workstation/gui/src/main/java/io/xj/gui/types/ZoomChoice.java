@@ -1,6 +1,6 @@
 package io.xj.gui.types;
 
-import io.xj.hub.util.StringUtils;
+import io.xj.model.util.StringUtils;
 
 /**
  Choice of Zoom

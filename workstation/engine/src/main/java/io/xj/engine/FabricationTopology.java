@@ -1,17 +1,17 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine;
 
-import io.xj.hub.entity.EntityFactory;
-import io.xj.hub.pojos.Instrument;
-import io.xj.hub.pojos.InstrumentAudio;
-import io.xj.hub.pojos.Program;
-import io.xj.hub.pojos.ProgramSequenceBinding;
-import io.xj.hub.pojos.ProgramSequenceChord;
-import io.xj.hub.pojos.ProgramSequencePattern;
-import io.xj.hub.pojos.ProgramSequencePatternEvent;
-import io.xj.hub.pojos.ProgramVoice;
-import io.xj.hub.pojos.Project;
-import io.xj.hub.pojos.Template;
+import io.xj.model.entity.EntityFactory;
+import io.xj.model.pojos.Instrument;
+import io.xj.model.pojos.InstrumentAudio;
+import io.xj.model.pojos.Program;
+import io.xj.model.pojos.ProgramSequenceBinding;
+import io.xj.model.pojos.ProgramSequenceChord;
+import io.xj.model.pojos.ProgramSequencePattern;
+import io.xj.model.pojos.ProgramSequencePatternEvent;
+import io.xj.model.pojos.ProgramVoice;
+import io.xj.model.pojos.Project;
+import io.xj.model.pojos.Template;
 import io.xj.engine.model.Chain;
 import io.xj.engine.model.Segment;
 import io.xj.engine.model.SegmentChoice;

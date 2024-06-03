@@ -1,6 +1,6 @@
 package io.xj.engine.audio;
 
-import io.xj.hub.pojos.InstrumentAudio;
+import io.xj.model.pojos.InstrumentAudio;
 import io.xj.engine.project.ProjectManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

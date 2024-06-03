@@ -2,10 +2,10 @@
 
 package io.xj.engine.hub_client;
 
-import io.xj.hub.HubContent;
-import io.xj.hub.HubContentPayload;
-import io.xj.hub.json.JsonProvider;
-import io.xj.hub.jsonapi.JsonapiPayloadFactory;
+import io.xj.model.HubContent;
+import io.xj.model.HubContentPayload;
+import io.xj.model.json.JsonProvider;
+import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.engine.FabricationException;
 import io.xj.engine.http.HttpClientProvider;
 import org.apache.commons.io.FileUtils;

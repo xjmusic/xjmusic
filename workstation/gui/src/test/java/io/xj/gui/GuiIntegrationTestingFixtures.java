@@ -2,18 +2,18 @@
 
 package io.xj.gui;
 
-import io.xj.hub.enums.InstrumentMode;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.pojos.Instrument;
-import io.xj.hub.pojos.Program;
-import io.xj.hub.pojos.ProgramSequence;
-import io.xj.hub.pojos.ProgramSequenceBinding;
-import io.xj.hub.pojos.ProgramVoice;
-import io.xj.hub.pojos.Project;
-import io.xj.hub.pojos.Template;
-import io.xj.hub.util.StringUtils;
-import io.xj.hub.util.ValueUtils;
+import io.xj.model.enums.InstrumentMode;
+import io.xj.model.enums.InstrumentType;
+import io.xj.model.enums.ProgramType;
+import io.xj.model.pojos.Instrument;
+import io.xj.model.pojos.Program;
+import io.xj.model.pojos.ProgramSequence;
+import io.xj.model.pojos.ProgramSequenceBinding;
+import io.xj.model.pojos.ProgramVoice;
+import io.xj.model.pojos.Project;
+import io.xj.model.pojos.Template;
+import io.xj.model.util.StringUtils;
+import io.xj.model.util.ValueUtils;
 import io.xj.engine.model.Chain;
 import io.xj.engine.model.ChainState;
 import io.xj.engine.model.ChainType;

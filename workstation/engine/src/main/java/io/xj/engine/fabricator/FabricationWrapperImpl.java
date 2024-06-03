@@ -2,8 +2,8 @@
 
 package io.xj.engine.fabricator;
 
-import io.xj.hub.pojos.InstrumentAudio;
-import io.xj.hub.util.CsvUtils;
+import io.xj.model.pojos.InstrumentAudio;
+import io.xj.model.util.CsvUtils;
 import io.xj.engine.FabricationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

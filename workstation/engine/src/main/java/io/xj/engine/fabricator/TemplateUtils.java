@@ -2,8 +2,8 @@
 
 package io.xj.engine.fabricator;
 
-import io.xj.hub.pojos.Template;
-import io.xj.hub.util.StringUtils;
+import io.xj.model.pojos.Template;
+import io.xj.model.util.StringUtils;
 import jakarta.annotation.Nullable;
 
 import java.util.Objects;

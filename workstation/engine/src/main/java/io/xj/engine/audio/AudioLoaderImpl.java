@@ -1,6 +1,6 @@
 package io.xj.engine.audio;
 
-import io.xj.hub.pojos.InstrumentAudio;
+import io.xj.model.pojos.InstrumentAudio;
 import io.xj.engine.mixer.AudioSampleFormat;
 import io.xj.engine.mixer.FormatException;
 import io.xj.engine.project.ProjectManager;

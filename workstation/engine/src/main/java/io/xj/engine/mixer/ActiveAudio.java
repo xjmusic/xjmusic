@@ -2,9 +2,9 @@
 
 package io.xj.engine.mixer;
 
-import io.xj.hub.InstrumentConfig;
-import io.xj.hub.pojos.Instrument;
-import io.xj.hub.pojos.InstrumentAudio;
+import io.xj.model.InstrumentConfig;
+import io.xj.model.pojos.Instrument;
+import io.xj.model.pojos.InstrumentAudio;
 import io.xj.engine.model.SegmentChoiceArrangementPick;
 import jakarta.annotation.Nullable;
 

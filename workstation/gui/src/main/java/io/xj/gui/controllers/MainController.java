@@ -14,7 +14,7 @@ import io.xj.gui.controllers.template.TemplateEditorController;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.hub.util.StringUtils;
+import io.xj.model.util.StringUtils;
 import javafx.fxml.FXML;
 import javafx.scene.image.ImageView;
 import org.slf4j.Logger;

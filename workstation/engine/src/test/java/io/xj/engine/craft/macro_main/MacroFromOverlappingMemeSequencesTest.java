@@ -2,22 +2,22 @@
 
 package io.xj.engine.craft.macro_main;
 
-import io.xj.hub.HubContent;
-import io.xj.hub.HubTopology;
-import io.xj.hub.entity.EntityFactoryImpl;
-import io.xj.hub.enums.ProgramState;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.json.JsonProviderImpl;
-import io.xj.hub.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.hub.pojos.Library;
-import io.xj.hub.pojos.Program;
-import io.xj.hub.pojos.ProgramSequence;
-import io.xj.hub.pojos.ProgramSequenceBinding;
-import io.xj.hub.pojos.Project;
-import io.xj.hub.pojos.ProjectUser;
-import io.xj.hub.pojos.TemplateBinding;
-import io.xj.hub.pojos.User;
+import io.xj.model.HubContent;
+import io.xj.model.HubTopology;
+import io.xj.model.entity.EntityFactoryImpl;
+import io.xj.model.enums.ProgramState;
+import io.xj.model.enums.ProgramType;
+import io.xj.model.json.JsonProviderImpl;
+import io.xj.model.jsonapi.JsonapiPayloadFactory;
+import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.model.pojos.Library;
+import io.xj.model.pojos.Program;
+import io.xj.model.pojos.ProgramSequence;
+import io.xj.model.pojos.ProgramSequenceBinding;
+import io.xj.model.pojos.Project;
+import io.xj.model.pojos.ProjectUser;
+import io.xj.model.pojos.TemplateBinding;
+import io.xj.model.pojos.User;
 import io.xj.engine.FabricationException;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.fabricator.FabricatorFactoryImpl;
@@ -76,7 +76,7 @@ public class MacroFromOverlappingMemeSequencesTest {
     // Manipulate the underlying entity store; reset before each test
     store.clear();
 
-    // Mock request via HubClientFactory returns fake generated library of hub content
+    // Mock request via HubClientFactory returns fake generated library of model content
     // Project "bananas"
     Project project1 = buildProject("bananas");
     Library library2 = buildLibrary(project1, "house");

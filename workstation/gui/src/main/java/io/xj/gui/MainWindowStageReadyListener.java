@@ -9,7 +9,7 @@ import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.utils.UiUtils;
-import io.xj.hub.util.StringUtils;
+import io.xj.model.util.StringUtils;
 import jakarta.annotation.Nonnull;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;

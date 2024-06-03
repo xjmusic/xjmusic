@@ -1,16 +1,16 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.work;
 
-import io.xj.hub.HubContent;
-import io.xj.hub.ProgramConfig;
-import io.xj.hub.TemplateConfig;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.pojos.Instrument;
-import io.xj.hub.pojos.InstrumentAudio;
-import io.xj.hub.pojos.Program;
-import io.xj.hub.pojos.Template;
-import io.xj.hub.util.StringUtils;
-import io.xj.hub.util.ValueException;
+import io.xj.model.HubContent;
+import io.xj.model.ProgramConfig;
+import io.xj.model.TemplateConfig;
+import io.xj.model.enums.ProgramType;
+import io.xj.model.pojos.Instrument;
+import io.xj.model.pojos.InstrumentAudio;
+import io.xj.model.pojos.Program;
+import io.xj.model.pojos.Template;
+import io.xj.model.util.StringUtils;
+import io.xj.model.util.ValueException;
 import io.xj.engine.FabricationException;
 import io.xj.engine.audio.AudioCache;
 import io.xj.engine.craft.CraftFactory;
@@ -47,8 +47,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
-import static io.xj.hub.util.ValueUtils.MICROS_PER_MINUTE;
-import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.model.util.ValueUtils.MICROS_PER_MINUTE;
+import static io.xj.model.util.ValueUtils.MICROS_PER_SECOND;
 
 public class CraftWorkImpl implements CraftWork {
   private static final Logger LOG = LoggerFactory.getLogger(CraftWorkImpl.class);

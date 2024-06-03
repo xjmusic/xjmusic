@@ -2,10 +2,10 @@
 package io.xj.engine.craft.beat;
 
 
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.pojos.Program;
-import io.xj.hub.pojos.ProgramVoice;
+import io.xj.model.enums.InstrumentType;
+import io.xj.model.enums.ProgramType;
+import io.xj.model.pojos.Program;
+import io.xj.model.pojos.ProgramVoice;
 import io.xj.engine.FabricationException;
 import io.xj.engine.craft.CraftImpl;
 import io.xj.engine.fabricator.Fabricator;

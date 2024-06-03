@@ -1,6 +1,6 @@
 package io.xj.engine.audio;
 
-import io.xj.hub.pojos.InstrumentAudio;
+import io.xj.model.pojos.InstrumentAudio;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

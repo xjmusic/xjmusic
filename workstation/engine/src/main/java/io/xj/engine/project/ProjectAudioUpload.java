@@ -1,7 +1,7 @@
 package io.xj.engine.project;
 
-import io.xj.hub.HubUploadAuthorization;
-import io.xj.hub.util.StringUtils;
+import io.xj.model.HubUploadAuthorization;
+import io.xj.model.util.StringUtils;
 import jakarta.annotation.Nullable;
 
 import java.io.IOException;

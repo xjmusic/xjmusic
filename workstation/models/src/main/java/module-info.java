@@ -12,13 +12,13 @@ module models.main {
   requires org.slf4j;
   requires typesafe.config;
 
-  exports io.xj.hub.entity;
-  exports io.xj.hub.enums;
-  exports io.xj.hub.json;
-  exports io.xj.hub.jsonapi;
-  exports io.xj.hub.meme;
-  exports io.xj.hub.music;
-  exports io.xj.hub.pojos;
-  exports io.xj.hub.util;
-  exports io.xj.hub;
+  exports io.xj.model.entity;
+  exports io.xj.model.enums;
+  exports io.xj.model.json;
+  exports io.xj.model.jsonapi;
+  exports io.xj.model.meme;
+  exports io.xj.model.music;
+  exports io.xj.model.pojos;
+  exports io.xj.model.util;
+  exports io.xj.model;
 }

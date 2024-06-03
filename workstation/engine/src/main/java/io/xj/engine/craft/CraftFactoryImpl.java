@@ -2,7 +2,7 @@
 
 package io.xj.engine.craft;
 
-import io.xj.hub.pojos.Program;
+import io.xj.model.pojos.Program;
 import io.xj.engine.FabricationException;
 import io.xj.engine.craft.background.BackgroundCraft;
 import io.xj.engine.craft.background.BackgroundCraftImpl;

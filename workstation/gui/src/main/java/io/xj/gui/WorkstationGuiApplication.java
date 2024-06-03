@@ -9,7 +9,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @ComponentScan(
   basePackages = {
-    "io.xj.hub",
+    "io.xj.model",
     "io.xj.engine",
     "io.xj.gui",
   })

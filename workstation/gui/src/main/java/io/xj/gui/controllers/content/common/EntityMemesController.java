@@ -1,8 +1,8 @@
 package io.xj.gui.controllers.content.common;
 
 import io.xj.gui.services.ProjectService;
-import io.xj.hub.entity.EntityException;
-import io.xj.hub.util.StringUtils;
+import io.xj.model.entity.EntityException;
+import io.xj.model.util.StringUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

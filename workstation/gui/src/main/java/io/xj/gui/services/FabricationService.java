@@ -2,15 +2,15 @@
 
 package io.xj.gui.services;
 
-import io.xj.hub.TemplateConfig;
-import io.xj.hub.meme.MemeTaxonomy;
-import io.xj.hub.pojos.Instrument;
-import io.xj.hub.pojos.InstrumentAudio;
-import io.xj.hub.pojos.Program;
-import io.xj.hub.pojos.ProgramSequence;
-import io.xj.hub.pojos.ProgramSequenceBinding;
-import io.xj.hub.pojos.ProgramVoice;
-import io.xj.hub.pojos.Template;
+import io.xj.model.TemplateConfig;
+import io.xj.model.meme.MemeTaxonomy;
+import io.xj.model.pojos.Instrument;
+import io.xj.model.pojos.InstrumentAudio;
+import io.xj.model.pojos.Program;
+import io.xj.model.pojos.ProgramSequence;
+import io.xj.model.pojos.ProgramSequenceBinding;
+import io.xj.model.pojos.ProgramVoice;
+import io.xj.model.pojos.Template;
 import io.xj.engine.fabricator.ControlMode;
 import io.xj.engine.model.Segment;
 import io.xj.engine.model.SegmentChoice;

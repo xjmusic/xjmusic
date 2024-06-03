@@ -1,8 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.mixer;
 
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.util.StringUtils;
+import io.xj.model.enums.InstrumentType;
+import io.xj.model.util.StringUtils;
 import io.xj.engine.FabricationException;
 import io.xj.engine.audio.AudioCache;
 import io.xj.engine.audio.AudioCacheException;
@@ -18,8 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.hub.util.ValueUtils.NANOS_PER_SECOND;
+import static io.xj.model.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.model.util.ValueUtils.NANOS_PER_SECOND;
 
 class MixerImpl implements Mixer {
   static final Logger LOG = LoggerFactory.getLogger(MixerImpl.class);

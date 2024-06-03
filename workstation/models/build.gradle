@@ -9,7 +9,7 @@ plugins {
 
 group = 'io.xj'
 sourceCompatibility = '17'
-description = 'XJ music hub models'
+description = 'XJ music model models'
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'

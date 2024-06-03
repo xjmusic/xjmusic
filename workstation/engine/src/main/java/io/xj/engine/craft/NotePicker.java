@@ -2,9 +2,9 @@
 
 package io.xj.engine.craft;
 
-import io.xj.hub.music.Note;
-import io.xj.hub.music.NoteRange;
-import io.xj.hub.music.PitchClass;
+import io.xj.model.music.Note;
+import io.xj.model.music.NoteRange;
+import io.xj.model.music.PitchClass;
 import io.xj.engine.util.MarbleBag;
 
 import java.nio.charset.StandardCharsets;

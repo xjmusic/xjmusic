@@ -2,12 +2,12 @@
 package io.xj.engine.craft.macro_main;
 
 
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.music.Chord;
-import io.xj.hub.pojos.Program;
-import io.xj.hub.pojos.ProgramSequence;
-import io.xj.hub.pojos.ProgramSequenceChord;
-import io.xj.hub.util.ValueUtils;
+import io.xj.model.enums.ProgramType;
+import io.xj.model.music.Chord;
+import io.xj.model.pojos.Program;
+import io.xj.model.pojos.ProgramSequence;
+import io.xj.model.pojos.ProgramSequenceChord;
+import io.xj.model.util.ValueUtils;
 import io.xj.engine.FabricationException;
 import io.xj.engine.craft.CraftImpl;
 import io.xj.engine.fabricator.Fabricator;

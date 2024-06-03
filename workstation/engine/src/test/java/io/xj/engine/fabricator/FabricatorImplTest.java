@@ -3,20 +3,20 @@
 package io.xj.engine.fabricator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.xj.hub.HubContent;
-import io.xj.hub.HubTopology;
-import io.xj.hub.entity.EntityFactoryImpl;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.json.JsonProvider;
-import io.xj.hub.json.JsonProviderImpl;
-import io.xj.hub.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.music.Chord;
-import io.xj.hub.music.Note;
-import io.xj.hub.music.PitchClass;
-import io.xj.hub.music.StickyBun;
-import io.xj.hub.pojos.Template;
-import io.xj.hub.util.ValueException;
+import io.xj.model.HubContent;
+import io.xj.model.HubTopology;
+import io.xj.model.entity.EntityFactoryImpl;
+import io.xj.model.enums.InstrumentType;
+import io.xj.model.enums.ProgramType;
+import io.xj.model.json.JsonProvider;
+import io.xj.model.json.JsonProviderImpl;
+import io.xj.model.jsonapi.JsonapiPayloadFactory;
+import io.xj.model.music.Chord;
+import io.xj.model.music.Note;
+import io.xj.model.music.PitchClass;
+import io.xj.model.music.StickyBun;
+import io.xj.model.pojos.Template;
+import io.xj.model.util.ValueException;
 import io.xj.engine.FabricationException;
 import io.xj.engine.FabricationContentTwoFixtures;
 import io.xj.engine.FabricationTopology;
@@ -44,7 +44,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.model.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.engine.FabricationContentOneFixtures.buildEvent;
 import static io.xj.engine.FabricationContentOneFixtures.buildPattern;
 import static io.xj.engine.FabricationContentOneFixtures.buildProgram;
@@ -95,7 +95,7 @@ public class FabricatorImplTest {
     // Manipulate the underlying entity store; reset before each test
     store.clear();
 
-    // Mock request via HubClientFactory returns fake generated library of hub content
+    // Mock request via HubClientFactory returns fake generated library of model content
     fake = new FabricationContentTwoFixtures();
     sourceMaterial = new HubContent(Stream.concat(Stream.concat(Stream.concat(fake.setupFixtureB1().stream(), fake.setupFixtureB2().stream()), fake.setupFixtureB3().stream()), Stream.of(fake.template1, fake.templateBinding1)).collect(Collectors.toList()));
 

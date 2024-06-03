@@ -1,6 +1,6 @@
 package io.xj.gui.services;
 
-import io.xj.hub.pojos.Project;
+import io.xj.model.pojos.Project;
 
 /**
  Store a recent project

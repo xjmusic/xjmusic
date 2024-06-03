@@ -1,11 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.work;
 
-import io.xj.hub.HubContent;
-import io.xj.hub.TemplateConfig;
-import io.xj.hub.pojos.Instrument;
-import io.xj.hub.pojos.InstrumentAudio;
-import io.xj.hub.pojos.Program;
+import io.xj.model.HubContent;
+import io.xj.model.TemplateConfig;
+import io.xj.model.pojos.Instrument;
+import io.xj.model.pojos.InstrumentAudio;
+import io.xj.model.pojos.Program;
 import io.xj.engine.FabricationException;
 import io.xj.engine.model.Chain;
 import io.xj.engine.model.Segment;

@@ -2,7 +2,7 @@
 
 package io.xj.gui;
 
-import io.xj.hub.util.StringUtils;
+import io.xj.model.util.StringUtils;
 import jakarta.annotation.Nullable;
 import javafx.application.Application;
 import javafx.application.HostServices;

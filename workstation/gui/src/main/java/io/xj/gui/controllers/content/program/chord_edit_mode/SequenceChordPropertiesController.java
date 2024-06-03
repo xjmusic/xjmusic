@@ -2,8 +2,8 @@ package io.xj.gui.controllers.content.program.chord_edit_mode;
 
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.utils.UiUtils;
-import io.xj.hub.pojos.ProgramSequenceChord;
-import io.xj.hub.util.StringUtils;
+import io.xj.model.pojos.ProgramSequenceChord;
+import io.xj.model.util.StringUtils;
 import jakarta.annotation.Nullable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;

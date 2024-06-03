@@ -4,7 +4,7 @@ package io.xj.engine.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.xj.hub.util.ValueUtils;
+import io.xj.model.util.ValueUtils;
 import jakarta.annotation.Nullable;
 
 import java.time.Instant;

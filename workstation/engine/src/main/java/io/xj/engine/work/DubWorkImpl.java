@@ -1,11 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.work;
 
-import io.xj.hub.TemplateConfig;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.pojos.InstrumentAudio;
-import io.xj.hub.pojos.Program;
-import io.xj.hub.util.StringUtils;
+import io.xj.model.TemplateConfig;
+import io.xj.model.enums.InstrumentType;
+import io.xj.model.pojos.InstrumentAudio;
+import io.xj.model.pojos.Program;
+import io.xj.model.util.StringUtils;
 import io.xj.engine.audio.AudioMathUtils;
 import io.xj.engine.mixer.ActiveAudio;
 import io.xj.engine.mixer.BytePipeline;
@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.model.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.engine.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 public class DubWorkImpl implements DubWork {

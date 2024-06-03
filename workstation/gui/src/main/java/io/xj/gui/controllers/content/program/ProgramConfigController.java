@@ -2,8 +2,8 @@ package io.xj.gui.controllers.content.program;
 
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.utils.UiUtils;
-import io.xj.hub.ProgramConfig;
-import io.xj.hub.pojos.Program;
+import io.xj.model.ProgramConfig;
+import io.xj.model.pojos.Program;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;

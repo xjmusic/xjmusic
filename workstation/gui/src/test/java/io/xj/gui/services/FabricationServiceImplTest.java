@@ -3,10 +3,10 @@
 package io.xj.gui.services;
 
 import io.xj.gui.services.impl.FabricationServiceImpl;
-import io.xj.hub.HubContent;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.pojos.Project;
-import io.xj.hub.pojos.Template;
+import io.xj.model.HubContent;
+import io.xj.model.enums.ProgramType;
+import io.xj.model.pojos.Project;
+import io.xj.model.pojos.Template;
 import io.xj.engine.fabricator.ControlMode;
 import io.xj.engine.model.Chain;
 import io.xj.engine.model.ChainState;

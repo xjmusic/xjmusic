@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.mixer;
 
-import io.xj.hub.enums.InstrumentType;
+import io.xj.model.enums.InstrumentType;
 
 import javax.sound.sampled.AudioFormat;
 import java.io.IOException;

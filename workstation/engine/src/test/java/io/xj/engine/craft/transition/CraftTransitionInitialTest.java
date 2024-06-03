@@ -1,13 +1,13 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.craft.transition;
 
-import io.xj.hub.HubContent;
-import io.xj.hub.HubTopology;
-import io.xj.hub.entity.EntityFactoryImpl;
-import io.xj.hub.json.JsonProvider;
-import io.xj.hub.json.JsonProviderImpl;
-import io.xj.hub.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.model.HubContent;
+import io.xj.model.HubTopology;
+import io.xj.model.entity.EntityFactoryImpl;
+import io.xj.model.json.JsonProvider;
+import io.xj.model.json.JsonProviderImpl;
+import io.xj.model.jsonapi.JsonapiPayloadFactory;
+import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.engine.FabricationContentTwoFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
@@ -63,7 +63,7 @@ public class CraftTransitionInitialTest {
     // Manipulate the underlying entity store; reset before each test
     store.clear();
 
-    // Mock request via HubClientFactory returns fake generated library of hub content
+    // Mock request via HubClientFactory returns fake generated library of model content
     FabricationContentTwoFixtures fake = new FabricationContentTwoFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       Stream.concat(fake.setupFixtureB1().stream(),

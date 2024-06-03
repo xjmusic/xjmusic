@@ -3,12 +3,12 @@
 package io.xj.engine.ship.broadcast;
 
 
-import io.xj.hub.util.ValueUtils;
+import io.xj.model.util.ValueUtils;
 import jakarta.annotation.Nullable;
 
 import java.util.Objects;
 
-import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.model.util.ValueUtils.MICROS_PER_SECOND;
 
 /**
  An HTTP Live Streaming Media Chunk

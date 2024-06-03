@@ -2,7 +2,7 @@
 
 package io.xj.engine.hub_client;
 
-import io.xj.hub.HubContent;
+import io.xj.model.HubContent;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 /**
@@ -19,7 +19,7 @@ public interface HubClientFactory {
    @param httpClient  to use
    @param baseUrl     to use for audio
    @param templateKey to load
-   @return hub content
+   @return model content
    */
   HubContent loadApiV1(CloseableHttpClient httpClient, String baseUrl, String templateKey) throws HubClientException;
 

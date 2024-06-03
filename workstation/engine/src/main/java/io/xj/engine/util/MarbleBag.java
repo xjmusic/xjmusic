@@ -2,7 +2,7 @@
 
 package io.xj.engine.util;
 
-import io.xj.hub.util.TremendouslyRandom;
+import io.xj.model.util.TremendouslyRandom;
 
 import java.util.ArrayList;
 import java.util.Comparator;

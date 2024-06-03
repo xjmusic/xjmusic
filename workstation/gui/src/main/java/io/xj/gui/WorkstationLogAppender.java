@@ -5,7 +5,7 @@ package io.xj.gui;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
-import io.xj.hub.util.StringUtils;
+import io.xj.model.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.Locale;

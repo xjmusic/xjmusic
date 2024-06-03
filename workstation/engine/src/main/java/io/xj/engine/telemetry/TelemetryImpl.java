@@ -1,6 +1,6 @@
 package io.xj.engine.telemetry;
 
-import io.xj.hub.util.ValueUtils;
+import io.xj.model.util.ValueUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static io.xj.hub.util.ValueUtils.MILLIS_PER_SECOND;
+import static io.xj.model.util.ValueUtils.MILLIS_PER_SECOND;
 
 public class TelemetryImpl implements Telemetry {
   private final static Logger LOG = LoggerFactory.getLogger(TelemetryImpl.class);

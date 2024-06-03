@@ -2,9 +2,9 @@
 
 package io.xj.engine.work;
 
-import io.xj.hub.HubContent;
-import io.xj.hub.meme.MemeTaxonomy;
-import io.xj.hub.pojos.Program;
+import io.xj.model.HubContent;
+import io.xj.model.meme.MemeTaxonomy;
+import io.xj.model.pojos.Program;
 import io.xj.engine.fabricator.FabricationEntityStore;
 import jakarta.annotation.Nullable;
 

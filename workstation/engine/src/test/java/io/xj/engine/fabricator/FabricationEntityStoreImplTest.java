@@ -3,16 +3,16 @@
 package io.xj.engine.fabricator;
 
 
-import io.xj.hub.HubTopology;
-import io.xj.hub.entity.EntityFactory;
-import io.xj.hub.entity.EntityFactoryImpl;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.json.JsonProvider;
-import io.xj.hub.json.JsonProviderImpl;
-import io.xj.hub.pojos.Library;
-import io.xj.hub.pojos.Project;
-import io.xj.hub.pojos.Template;
-import io.xj.hub.pojos.TemplateBinding;
+import io.xj.model.HubTopology;
+import io.xj.model.entity.EntityFactory;
+import io.xj.model.entity.EntityFactoryImpl;
+import io.xj.model.enums.ProgramType;
+import io.xj.model.json.JsonProvider;
+import io.xj.model.json.JsonProviderImpl;
+import io.xj.model.pojos.Library;
+import io.xj.model.pojos.Project;
+import io.xj.model.pojos.Template;
+import io.xj.model.pojos.TemplateBinding;
 import io.xj.engine.FabricationException;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.model.Chain;
@@ -32,7 +32,7 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.UUID;
 
-import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.model.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.engine.FabricationContentOneFixtures.buildLibrary;
 import static io.xj.engine.FabricationContentOneFixtures.buildProgram;
 import static io.xj.engine.FabricationContentOneFixtures.buildProgramSequence;

@@ -2,14 +2,14 @@
 
 package io.xj.engine.fabricator;
 
-import io.xj.hub.entity.EntityException;
-import io.xj.hub.entity.EntityFactory;
-import io.xj.hub.entity.EntityUtils;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.util.CsvUtils;
-import io.xj.hub.util.StringUtils;
-import io.xj.hub.util.ValueException;
-import io.xj.hub.util.ValueUtils;
+import io.xj.model.entity.EntityException;
+import io.xj.model.entity.EntityFactory;
+import io.xj.model.entity.EntityUtils;
+import io.xj.model.enums.ProgramType;
+import io.xj.model.util.CsvUtils;
+import io.xj.model.util.StringUtils;
+import io.xj.model.util.ValueException;
+import io.xj.model.util.ValueUtils;
 import io.xj.engine.FabricationException;
 import io.xj.engine.model.Chain;
 import io.xj.engine.model.Segment;

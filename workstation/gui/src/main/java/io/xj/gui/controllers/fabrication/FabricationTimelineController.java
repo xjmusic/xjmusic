@@ -7,11 +7,11 @@ import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.pojos.Program;
-import io.xj.hub.pojos.ProgramSequence;
-import io.xj.hub.pojos.ProgramSequenceBinding;
+import io.xj.model.enums.InstrumentType;
+import io.xj.model.enums.ProgramType;
+import io.xj.model.pojos.Program;
+import io.xj.model.pojos.ProgramSequence;
+import io.xj.model.pojos.ProgramSequenceBinding;
 import io.xj.engine.model.Segment;
 import io.xj.engine.model.SegmentChoice;
 import io.xj.engine.model.SegmentChoiceArrangementPick;
@@ -66,7 +66,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.hub.util.StringUtils.formatStackTrace;
+import static io.xj.model.util.StringUtils.formatStackTrace;
 import static io.xj.engine.model.Segment.DELTA_UNLIMITED;
 
 @Service

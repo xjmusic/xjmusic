@@ -2,9 +2,9 @@ package io.xj.gui.controllers.content.program.bind_mode;
 
 import io.xj.gui.controllers.content.common.EntityMemesController;
 import io.xj.gui.services.ProjectService;
-import io.xj.hub.pojos.ProgramSequence;
-import io.xj.hub.pojos.ProgramSequenceBinding;
-import io.xj.hub.util.StringUtils;
+import io.xj.model.pojos.ProgramSequence;
+import io.xj.model.pojos.ProgramSequenceBinding;
+import io.xj.model.util.StringUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

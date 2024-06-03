@@ -2,7 +2,7 @@ package io.xj.gui.controllers.content.program.event_edit_mode;
 
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.utils.UiUtils;
-import io.xj.hub.pojos.ProgramSequencePatternEvent;
+import io.xj.model.pojos.ProgramSequencePatternEvent;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;

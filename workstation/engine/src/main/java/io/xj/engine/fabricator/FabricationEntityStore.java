@@ -2,7 +2,7 @@
 
 package io.xj.engine.fabricator;
 
-import io.xj.hub.enums.ProgramType;
+import io.xj.model.enums.ProgramType;
 import io.xj.engine.FabricationException;
 import io.xj.engine.model.Chain;
 import io.xj.engine.model.Segment;

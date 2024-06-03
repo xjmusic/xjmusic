@@ -1,15 +1,15 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.craft.macro_main;
 
-import io.xj.hub.HubContent;
-import io.xj.hub.HubTopology;
-import io.xj.hub.entity.EntityFactoryImpl;
-import io.xj.hub.entity.EntityUtils;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.json.JsonProvider;
-import io.xj.hub.json.JsonProviderImpl;
-import io.xj.hub.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.model.HubContent;
+import io.xj.model.HubTopology;
+import io.xj.model.entity.EntityFactoryImpl;
+import io.xj.model.entity.EntityUtils;
+import io.xj.model.enums.ProgramType;
+import io.xj.model.json.JsonProvider;
+import io.xj.model.json.JsonProviderImpl;
+import io.xj.model.jsonapi.JsonapiPayloadFactory;
+import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.engine.FabricationContentTwoFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
@@ -40,8 +40,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.hub.util.Assertion.assertSameItems;
-import static io.xj.hub.util.ValueUtils.MICROS_PER_MINUTE;
+import static io.xj.model.util.Assertion.assertSameItems;
+import static io.xj.model.util.ValueUtils.MICROS_PER_MINUTE;
 import static io.xj.engine.FabricationContentTwoFixtures.buildChain;
 import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
 import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
@@ -74,7 +74,7 @@ public class CraftFoundationContinueTest {
     // Manipulate the underlying entity store; reset before each test
     store.clear();
 
-    // Mock request via HubClientFactory returns fake generated library of hub content
+    // Mock request via HubClientFactory returns fake generated library of model content
     fake = new FabricationContentTwoFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       fake.setupFixtureB1().stream(),

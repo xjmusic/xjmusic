@@ -2,11 +2,11 @@
 
 package io.xj.engine.fabricator;
 
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.music.Note;
-import io.xj.hub.util.CsvUtils;
-import io.xj.hub.util.StringUtils;
+import io.xj.model.enums.InstrumentType;
+import io.xj.model.enums.ProgramType;
+import io.xj.model.music.Note;
+import io.xj.model.util.CsvUtils;
+import io.xj.model.util.StringUtils;
 import io.xj.engine.FabricationException;
 import io.xj.engine.model.Segment;
 import io.xj.engine.model.SegmentChoice;

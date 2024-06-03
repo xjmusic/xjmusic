@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.telemetry;
 
-import static io.xj.hub.util.StringUtils.formatStackTrace;
+import static io.xj.model.util.StringUtils.formatStackTrace;
 
 public class TelemetryException extends Exception {
 

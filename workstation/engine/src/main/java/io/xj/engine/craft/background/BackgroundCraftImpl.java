@@ -2,9 +2,9 @@
 package io.xj.engine.craft.background;
 
 
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.pojos.Instrument;
-import io.xj.hub.pojos.InstrumentAudio;
+import io.xj.model.enums.InstrumentType;
+import io.xj.model.pojos.Instrument;
+import io.xj.model.pojos.InstrumentAudio;
 import io.xj.engine.FabricationException;
 import io.xj.engine.craft.CraftImpl;
 import io.xj.engine.fabricator.Fabricator;
