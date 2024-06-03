@@ -83,8 +83,8 @@ def currentOs = org.gradle.internal.os.OperatingSystem.current()
 task 'bootJarZip'(type: Zip) {
     dependsOn('bootJar')
     from "build/libs/"
-    archiveBaseName = 'xjmusic-workstation-gui'
-    include "xjmusic-workstation-gui-${rootProject.version}.jar"
+    archiveBaseName = 'xjmusic-workstation'
+    include "xjmusic-workstation-${rootProject.version}.jar"
     destinationDirectory = file("$buildDir/dist")
 }
 
@@ -112,7 +112,7 @@ compileTestJava.dependsOn generateVersionFile
 
 bootJar {
     launchScript()
-    archiveBaseName = 'xjmusic-workstation-gui'
+    archiveBaseName = 'xjmusic-workstation'
 }
 
 test {
