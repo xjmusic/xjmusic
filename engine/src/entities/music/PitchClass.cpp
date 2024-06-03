@@ -104,6 +104,7 @@ namespace XJ {
             }
         }
     }
+    return "X";
   }
 
 }// namespace XJ
