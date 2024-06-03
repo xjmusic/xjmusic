@@ -12,7 +12,10 @@ namespace XJ {
 
   class ProgramSequenceBinding : public Entity {
   public:
+
     ProgramSequenceBinding() = default;
+
+    UUID id;
     UUID programId;
     std::string programSequenceId;
     int offset{};

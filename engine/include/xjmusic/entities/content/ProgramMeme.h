@@ -12,7 +12,10 @@ namespace XJ {
 
   class ProgramMeme : public Entity {
   public:
+
     ProgramMeme() = default;
+
+    UUID id;
     UUID programId;
     std::string name;
   };

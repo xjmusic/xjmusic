@@ -20,7 +20,7 @@ namespace XJ {
      * @param beats total length
      * @param bpm   beats per minute
      */
-    static long beatsNanos(long beats, float bpm);
+    static long long beatsNanos(float beats, float bpm);
 
     /**
      * Velocity in seconds-ber-beat for any BPM

@@ -12,7 +12,10 @@ namespace XJ {
 
   class ProgramSequence : public Entity {
   public:
+
     ProgramSequence() = default;
+
+    UUID id;
     UUID programId;
     std::string name;
     std::string key;

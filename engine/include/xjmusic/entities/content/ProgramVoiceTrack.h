@@ -12,7 +12,10 @@ namespace XJ {
 
   class ProgramVoiceTrack : public Entity {
   public:
+
     ProgramVoiceTrack() = default;
+
+    UUID id;
     UUID programId;
     std::string programVoiceId;
     std::string name;

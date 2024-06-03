@@ -11,7 +11,10 @@ namespace XJ {
 
   class Project : public Entity {
   public:
+
     Project() = default;
+
+    UUID id;
     std::string name;
     std::string platformVersion;
     bool isDeleted{false};

@@ -50,11 +50,6 @@ namespace XJ {
   class Entity {
   public:
     virtual ~Entity() = default;
-
-    /**
-     * UUID of the entity
-     */
-    UUID id;
   };
 
 }// namespace XJ

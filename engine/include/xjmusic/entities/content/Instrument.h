@@ -42,6 +42,7 @@ namespace XJ {
 
     Instrument() = default;
 
+    UUID id;
     UUID libraryId{};
     Instrument::State state{};
     Instrument::Type type{};

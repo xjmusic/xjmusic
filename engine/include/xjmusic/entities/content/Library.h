@@ -11,7 +11,10 @@ namespace XJ {
 
   class Library : public Entity {
   public:
+
     Library() = default;
+
+    UUID id;
     UUID projectId;
     std::string name;
     bool isDeleted{false};

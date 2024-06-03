@@ -12,7 +12,10 @@ namespace XJ {
 
   class InstrumentAudio : public Entity {
   public:
+
     InstrumentAudio() = default;
+
+    UUID id;
     UUID instrumentId;
     std::string name;
     std::string waveformKey;

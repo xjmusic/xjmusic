@@ -11,7 +11,10 @@ namespace XJ {
 
   class Template : public Entity {
   public:
+
     Template() = default;
+
+    UUID id;
     UUID projectId;
     std::string name;
     std::string config;

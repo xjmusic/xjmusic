@@ -42,7 +42,7 @@ namespace XJ {
     return stateValueNames.at(state);
   }
 
-  bool Chain::equals(const Chain &chain) {
+  bool Chain::equals(const Chain &chain) const {
     return id == chain.id &&
            templateId == chain.templateId &&
            type == chain.type &&
@@ -52,7 +52,7 @@ namespace XJ {
            name == chain.name;
   }
 
-  unsigned long long Chain::hashCode() {
+  unsigned long long Chain::hashCode() const {
     return std::hash<std::string>{}(id) ^
            std::hash<std::string>{}(templateId) ^
            std::hash<int>{}(type) ^

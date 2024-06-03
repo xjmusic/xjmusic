@@ -42,6 +42,14 @@ add_library(xjmusic
         entities/music/Tuning.cpp
         entities/segment/Chain.cpp
         entities/segment/Segment.cpp
+        entities/segment/SegmentChoice.cpp
+        entities/segment/SegmentChoiceArrangement.cpp
+        entities/segment/SegmentChoiceArrangementPick.cpp
+        entities/segment/SegmentChord.cpp
+        entities/segment/SegmentChordVoicing.cpp
+        entities/segment/SegmentMeme.cpp
+        entities/segment/SegmentMessage.cpp
+        entities/segment/SegmentMeta.cpp
         util/ConfigParser.cpp
         util/StringUtils.cpp
         util/ValueUtils.cpp

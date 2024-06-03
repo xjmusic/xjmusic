@@ -12,7 +12,10 @@ namespace XJ {
 
   class ProgramSequenceChordVoicing : public Entity {
   public:
+
     ProgramSequenceChordVoicing() = default;
+
+    UUID id;
     UUID programId;
     std::string programSequenceChordId;
     std::string programVoiceId;

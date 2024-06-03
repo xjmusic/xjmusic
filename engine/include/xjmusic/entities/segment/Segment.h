@@ -82,16 +82,15 @@ namespace XJ {
     static std::string toString(const Segment::State &state);
 
     /**
-     * Convert the Segment to a JSON object
-     * @param segment  The Segment to convert
-     * @return       The JSON object
+     * Assert equality with another Segment
+     * @param segment  The Segment to compare
+     * @return       true if equal
      */
     [[nodiscard]] bool equals(const Segment &segment) const;
 
     /**
-     * Convert the Segment to a JSON object
-     * @param segment  The Segment to convert
-     * @return       The JSON object
+     * Determine a unique hash code for the Segment
+     * @return       hash code
      */
     [[nodiscard]] unsigned long long hashCode() const;
   };

@@ -12,7 +12,10 @@ namespace XJ {
 
   class ProgramSequencePatternEvent : public Entity {
   public:
+
     ProgramSequencePatternEvent() = default;
+
+    UUID id;
     UUID programId;
     std::string programSequencePatternId;
     std::string programVoiceTrackId;

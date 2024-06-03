@@ -12,7 +12,10 @@ namespace XJ {
 
   class InstrumentMeme : public Entity {
   public:
+
     InstrumentMeme() = default;
+
+    UUID id;
     UUID instrumentId;
     std::string name;
   };

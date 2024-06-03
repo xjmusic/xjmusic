@@ -11,6 +11,7 @@ namespace XJ {
 
   class TemplateBinding : public Entity {
   public:
+
     enum Type {
       Library,
       Program,
@@ -18,6 +19,8 @@ namespace XJ {
     };
 
     TemplateBinding() = default;
+
+    UUID id;
     UUID templateId;
     TemplateBinding::Type type{};
     UUID targetId;

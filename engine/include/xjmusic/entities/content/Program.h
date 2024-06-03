@@ -24,6 +24,8 @@ namespace XJ {
     };
 
     Program() = default;
+
+    UUID id;
     UUID libraryId;
     Program::State state{};
     Program::Type type{};

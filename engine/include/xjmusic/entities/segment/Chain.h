@@ -30,6 +30,7 @@ namespace XJ {
 
     Chain() = default;
 
+    UUID id;
     UUID templateId{};
     Chain::Type type{};
     Chain::State state{};
@@ -67,18 +68,17 @@ namespace XJ {
     static std::string toString(const Chain::State &state);
 
     /**
-     * Convert the Chain to a JSON object
-     * @param chain  The Chain to convert
-     * @return       The JSON object
+     * Assert equality with another Chain
+     * @param chain  The Chain to compare
+     * @return       true if equal
      */
-    bool equals(const Chain& chain);
+    [[nodiscard]] bool equals(const Chain& chain) const;
 
     /**
-     * Convert the Chain to a JSON object
-     * @param chain  The Chain to convert
-     * @return       The JSON object
+     * Determine a unique hash code for the Chain
+     * @return       hash code
      */
-    unsigned long long hashCode();
+    unsigned long long hashCode() const;
   };
 
 }// namespace XJ
