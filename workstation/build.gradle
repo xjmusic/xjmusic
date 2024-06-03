@@ -1,83 +1,278 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
+import org.panteleyev.jpackage.ImageType
+
 plugins {
-  id 'java'
-  id 'application'
-  id 'distribution'
-  id 'com.google.cloud.tools.jib' version '3.3.2' apply false
-  id 'io.spring.dependency-management' version '1.0.15.RELEASE' apply false
-  id 'org.openjfx.javafxplugin' version '0.0.14' apply false
-  id 'org.panteleyev.jpackageplugin' version '1.6.0' apply false
-  id 'org.bytedeco.gradle-javacpp-platform' version '1.5.9' apply false
-  id 'org.springframework.boot' version '3.1.2' apply false // must match springBootVersion below
+    id 'java'
+    id 'java-test-fixtures'
+    id 'application'
+    id 'distribution'
+    id 'maven-publish'
+    //
+    id 'com.google.cloud.tools.jib' version '3.3.2'
+    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+    id 'org.openjfx.javafxplugin' version '0.0.14'
+    id 'org.panteleyev.jpackageplugin' version '1.6.0'
+    id 'org.bytedeco.gradle-javacpp-platform' version '1.5.9'
+    id 'org.springframework.boot' version '3.1.2' // must match springBootVersion below
 }
 
-ext {
-  jacksonAnnotationsVersion = '2.15.2'
-  javaFxVersion = '20.0.2'
-  junitVersion = '5.9.2'
-  jupiterMockitoVersion = '5.5.0'
-  jupiterVersion = '5.8.1'
-  logbackVersion = '1.4.11'
-  springBootVersion = '3.1.2'
-  springTestVersion = '6.0.11'
+dependencies {
+    // vendor
+    implementation "ch.qos.logback:logback-classic:${project.logbackVersion}"
+    implementation "ch.qos.logback:logback-core:${project.logbackVersion}"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:${project.jacksonAnnotationsVersion}"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${project.jacksonAnnotationsVersion}"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${project.jacksonAnnotationsVersion}"
+    implementation "org.openjfx:javafx-base:${project.javaFxVersion}"
+    implementation "org.openjfx:javafx-controls:${project.javaFxVersion}"
+    implementation "org.openjfx:javafx-fxml:${project.javaFxVersion}"
+    implementation "org.openjfx:javafx-graphics:${project.javaFxVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-logging:${project.springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-webflux:${project.springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter:${project.springBootVersion}"
+    implementation 'com.github.rholder:snowball-stemmer:1.3.0.581.1'
+    implementation 'com.tangorabox:component-inspector-fx:1.1.0'
+    implementation 'com.typesafe:config:1.4.2'
+    implementation 'commons-codec:commons-codec:1.15'
+    implementation 'commons-io:commons-io:2.11.0'
+    implementation 'io.projectreactor.tools:blockhound:1.0.6.RELEASE'
+    implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
+    implementation 'me.xdrop:fuzzywuzzy:1.4.0'
+    implementation 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
+    implementation 'org.apache.logging.log4j:log4j-api:3.0.0-alpha1'
+    implementation 'org.reflections:reflections:0.10.2'
+    implementation 'org.slf4j:slf4j-api:1.7.32'
+    implementation 'org.yaml:snakeyaml:2.2'
+    implementation group: 'org.controlsfx', name: 'controlsfx', version: '11.2.0'
+    implementation group: 'org.panteleyev.jpackageplugin', name: 'org.panteleyev.jpackageplugin.gradle.plugin', version: '1.6.0'
+    testFixturesImplementation "ch.qos.logback:logback-classic:${project.logbackVersion}"
+    testFixturesImplementation "ch.qos.logback:logback-core:${project.logbackVersion}"
+    testImplementation "ch.qos.logback:logback-classic:${project.logbackVersion}"
+    testImplementation "ch.qos.logback:logback-core:${project.logbackVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${project.junitVersion}"
+    testImplementation "org.mockito:mockito-junit-jupiter:${project.jupiterMockitoVersion}"
+    testImplementation 'commons-logging:commons-logging:1.2'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.assertj:assertj-core:3.21.0'
+    testImplementation 'org.hamcrest:hamcrest-library:2.2'
+    testImplementation 'org.mockito:mockito-core:5.7.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.3.1'
+    testImplementation 'org.yaml:snakeyaml:1.33'
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project.junitVersion}"
 }
 
+javafx {
+    version = javaFxVersion
+    modules = ['javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.graphics']
+}
+
+application {
+    mainModule = 'workstation.main'
+    mainClass = 'io.xj.gui.WorkstationApplication'
+}
+
+bootRun {
+    mainClass = 'io.xj.gui.WorkstationApplication' // Specify the correct main class
+}
+
+//noinspection GroovyAssignabilityCheck
+def currentOs = org.gradle.internal.os.OperatingSystem.current()
+
+//noinspection ConfigurationAvoidance
+task 'bootJarZip'(type: Zip) {
+    dependsOn('bootJar')
+    from "build/libs/"
+    archiveBaseName = 'xjmusic-workstation-gui'
+    include "xjmusic-workstation-gui-${rootProject.version}.jar"
+    destinationDirectory = file("$buildDir/dist")
+}
+
+/*
+task generateVersionFile(type: Copy) {
+  from "src/main/resources"
+  into "$buildDir/classes/java/main"
+  include "version.template.properties"
+  rename('version.template.properties', 'version.properties')
+  expand(version: rootProject.version)
+}
+compileJava.dependsOn generateVersionFile
+compileTestJava.dependsOn generateVersionFile
+ */
+
+tasks.register('generateVersionFile') {
+    doLast {
+        project.mkdir project.buildDir.path + '/resources/main'
+        def file = new File(project.buildDir.path + '/resources/main/version.properties')
+        file.text = "version=${rootProject.version}"
+    }
+}
+compileJava.dependsOn generateVersionFile
+compileTestJava.dependsOn generateVersionFile
+
+bootJar {
+    launchScript()
+    archiveBaseName = 'xjmusic-workstation-gui'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+//set the working directory
+def buildPath = "build/jpackage"
+def workingDir = file("${buildPath}/")
+def projectDir = file("./")
+
+//copies the needed jar (complete fat jar) while skipping the gui-plain minimal jar file
+//and copies the icon resources for the needed platform
+tasks.register('copyResources', Copy) {
+    dependsOn("build")
+    //clean the previous generated installer output files?
+    delete(buildPath)
+    // Create the directory if it doesn't exist
+    file(buildPath).mkdirs()
+
+    if (currentOs.isWindows()) {
+        from "$buildDir/libs"
+        exclude "*-plain.jar"
+        from "icons/windows"
+        into buildPath
+    } else if (currentOs.isMacOsX()) {
+        from "$buildDir/libs"
+        from "icons/mac"
+        exclude "*-plain.jar"
+        into buildPath
+    } else if (currentOs.isLinux()) {
+        from "$buildDir/libs"
+        from "icons/linux"
+        exclude "*-plain.jar"
+        into buildPath
+    }
+}
+
+jpackage {
+    dependsOn("copyResources")
+    appName = "XJ music workstation"
+    appVersion = version.toString()
+    vendor = "XJ Music Inc"
+    copyright = "Copyright (c) 2023 " + vendor
+    //take our input files from our working directory
+    input = workingDir.toString()
+    //set our main application jar
+    mainJar = tasks.bootJar.archiveFileName.get()
+    //output the installer in the working directory
+    destination = workingDir.toString()
+    // future: resourceDir = workingDir.toString()
+    temp = "$buildDir/jpackage-temp"
+    //for the jlink options these are passed as default , so no need to add them :
+    // [--strip-native-commands --strip-debug --no-man-pages --no-header-files]
+    mac {
+        type = ImageType.DMG
+        icon = "$workingDir/xjmusicapp.icns"
+        macAppStore = false
+        macSign = true
+        macAppCategory = "public.app-category.music"
+        macPackageName = "XJ music workstation"
+        macPackageIdentifier = "io.xj.music.workstation"
+        macSigningKeyUserName = "XJ Music Inc"
+    }
+    linux {
+        linuxShortcut = true
+        //use this if you prefer a different runtime from the system default
+        //runtimeImage = "/path/to/preferred/jdk/"  example:: /usr/lib/jvm/jdk-17-oracle-x64"
+        linuxAppCategory = "Audio"
+        type = ImageType.DEB
+        icon = "$workingDir/xjmusicapp.png"
+    }
+    windows {
+        type = ImageType.EXE
+        icon = "$workingDir/xjmusicapp.ico"
+        //add the app to start menu
+        winMenu = true
+        //allow the user to choose where to install our app
+        winDirChooser = true
+        //add our app to the desktop via a shortcut
+        winShortcut = true
+    }
+
+    //rename the final installer package
+    def newPackageName = "xjmusic-workstation-v${rootProject.version}-installer"
+    doLast {
+        def osToExtensionMap = [
+                'windows' : 'exe',
+                'mac os x': 'pkg',
+                'linux'   : 'deb'
+        ]
+        def extension = osToExtensionMap[currentOs.name.toLowerCase()]
+        if (currentOs.name.toLowerCase().contains("win")) {
+            extension =
+                    "exe"
+        }
+        if (extension) {
+            def newFileName = "${newPackageName}.${extension}"
+            def debFile = workingDir.listFiles().find { it.name.endsWith(".${extension}") }
+
+            if (debFile) {
+                debFile.renameTo(new File(debFile.parent, newFileName))
+            }
+        }
+    }
+}
 
 allprojects {
-  group = 'io.xj'
+    group = 'io.xj'
 
-  sourceCompatibility = JavaVersion.VERSION_17
-  targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 
-  tasks.withType(JavaCompile).tap {
-    configureEach {
-      options.encoding = 'UTF-8'
+    tasks.withType(JavaCompile).tap {
+        configureEach {
+            options.encoding = 'UTF-8'
+        }
     }
-  }
 }
 
-subprojects {
-  apply plugin: 'java'
-  configurations {
+apply plugin: 'java'
+configurations {
     implementation.exclude group: "commons-logging", module: "commons-logging"
     implementation.exclude group: 'com.google.code.findbugs', module: 'jsr305'
-  }
+}
 
-  dependencies {
+dependencies {
     implementation 'org.bytedeco:ffmpeg-platform-gpl:6.0-1.5.9' // Optional GPL builds with (almost) everything enabled
     implementation 'org.bytedeco:flandmark-platform:1.07-1.5.8' // Required by org.bytedeco.javacv
     implementation 'org.bytedeco:javacv-platform:1.5.9'
-  }
+}
 
-  repositories {
+repositories {
     mavenCentral()
     mavenLocal()
     maven {
-      name = 'ajoberstar-backup'
-      url = 'https://ajoberstar.org/bintray-backup/'
+        name = 'ajoberstar-backup'
+        url = 'https://ajoberstar.org/bintray-backup/'
     }
     maven {
-      url = 'https://repo.maven.apache.org/maven2'
+        url = 'https://repo.maven.apache.org/maven2'
     }
     maven {
-      url = 'https://packages.confluent.io/maven/'
+        url = 'https://packages.confluent.io/maven/'
     }
     maven {
-      url = 'https://oss.sonatype.org/content/repositories/releases'
+        url = 'https://oss.sonatype.org/content/repositories/releases'
     }
     //org.pantelev mvn repo link
     maven {
-      url = uri("https://plugins.gradle.org/m2/")
+        url = uri("https://plugins.gradle.org/m2/")
     }
-  }
 }
 
 if (!project.hasProperty("jibFromImage")) {
-  ext.jibFromImage = "localhost/base:latest"
+    ext.jibFromImage = "localhost/base:latest"
 }
 
 if (!project.hasProperty("jibToImageRegistry")) {
-  ext.jibToImageRegistry = "localhost"
+    ext.jibToImageRegistry = "localhost"
 }
 

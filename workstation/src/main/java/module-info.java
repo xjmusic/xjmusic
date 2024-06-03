@@ -1,0 +1,87 @@
+module workstation.main {
+  // vendor
+  requires ch.qos.logback.classic;
+  requires ch.qos.logback.core;
+  requires com.fasterxml.jackson.annotation;
+  requires com.fasterxml.jackson.core;
+  requires com.fasterxml.jackson.databind;
+  requires com.fasterxml.jackson.datatype.jsr310;
+  requires component.inspector.fx;
+  requires io.netty.resolver;
+  requires jakarta.annotation;
+  requires java.annotation;
+  requires java.desktop;
+  requires java.prefs;
+  requires java.sql;
+  requires javafx.base;
+  requires javafx.controls;
+  requires javafx.fxml;
+  requires javafx.graphics;
+  requires me.xdrop.fuzzywuzzy;
+  requires org.apache.commons.codec;
+  requires org.apache.commons.io;
+  requires org.apache.httpcomponents.client5.httpclient5;
+  requires org.apache.httpcomponents.core5.httpcore5;
+  requires org.bytedeco.ffmpeg;
+  requires org.bytedeco.flandmark.platform;
+  requires org.bytedeco.flandmark;
+  requires org.bytedeco.javacv.platform;
+  requires org.bytedeco.javacv;
+  requires org.controlsfx.controls;
+  requires org.reflections;
+  requires org.slf4j;
+  requires org.yaml.snakeyaml;
+  requires reactor.core;
+  requires reactor.netty.http;
+  requires spring.beans;
+  requires spring.boot.autoconfigure;
+  requires spring.boot.starter.reactor.netty;
+  requires spring.boot;
+  requires spring.context;
+  requires spring.core;
+  requires spring.jcl;
+  requires spring.web;
+  requires spring.webflux;
+  requires typesafe.config;
+
+  // export
+  exports io.xj.model.entity;
+  exports io.xj.model.enums;
+  exports io.xj.model.json;
+  exports io.xj.model.jsonapi;
+  exports io.xj.model.meme;
+  exports io.xj.model.music;
+  exports io.xj.model.pojos;
+  exports io.xj.model.util;
+  exports io.xj.model;
+  exports io.xj.engine.audio;
+  exports io.xj.engine.craft.background;
+  exports io.xj.engine.craft.beat;
+  exports io.xj.engine.craft.detail;
+  exports io.xj.engine.craft.macro_main;
+  exports io.xj.engine.craft.transition;
+  exports io.xj.engine.craft;
+  exports io.xj.engine.fabricator;
+  exports io.xj.engine.http;
+  exports io.xj.engine.hub_client;
+  exports io.xj.engine.mixer;
+  exports io.xj.engine.model;
+  exports io.xj.engine.project;
+  exports io.xj.engine.ship.broadcast;
+  exports io.xj.engine.ship;
+  exports io.xj.engine.telemetry;
+  exports io.xj.engine.util;
+  exports io.xj.engine.work;
+  exports io.xj.engine;
+
+  // open
+  opens io.xj.gui to ch.qos.logback.core, javafx.base, javafx.controls, javafx.fxml, javafx.graphics, spring.beans, spring.context, spring.core;
+  opens io.xj.gui.services to ch.qos.logback.core, javafx.base, javafx.controls, javafx.fxml, javafx.graphics, spring.beans, spring.context, spring.core;
+  opens io.xj.gui.controllers to javafx.graphics, javafx.base, javafx.fxml, javafx.controls, spring.beans, spring.core;
+  opens io.xj.gui.types to javafx.base, javafx.controls, javafx.fxml, javafx.graphics, spring.beans, spring.context, spring.core, ch.qos.logback.core;
+  opens io.xj.gui.services.impl to ch.qos.logback.core, javafx.base, javafx.controls, javafx.fxml, javafx.graphics, spring.beans, spring.context, spring.core;
+  opens io.xj.gui.controllers.content to javafx.base, javafx.controls, javafx.fxml, javafx.graphics, spring.beans, spring.core;
+  opens io.xj.gui.controllers.template to javafx.base, javafx.controls, javafx.fxml, javafx.graphics, spring.beans, spring.core;
+  opens io.xj.gui.controllers.fabrication to javafx.base, javafx.controls, javafx.fxml, javafx.graphics, spring.beans, spring.core;
+  opens io.xj.gui.utils to ch.qos.logback.core, javafx.base, javafx.controls, javafx.fxml, javafx.graphics, spring.beans, spring.context, spring.core;
+}

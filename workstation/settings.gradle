@@ -1,11 +1,3 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 rootProject.name = 'workstation'
-
-String[] modules = [
-        'gui',
-        'models',
-        'engine',
-]
-
-include modules
