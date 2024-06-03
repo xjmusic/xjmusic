@@ -24,7 +24,7 @@ possibilities for streams, games, and spaces.
 This project is built with Gradle. To run the XJ music workstation, run:
 
 ```shell
-./gradlew :gui:bootRun
+./gradlew :bootRun
 ```
 
 You should then see the JavaFX GUI open the main window.
@@ -35,7 +35,7 @@ Click here for a video walkthrough! https://youtu.be/z5i8ZD8AyWE
 
 ## Architecture
 
-The command above (`gradle :gui:bootRun`) invokes the `bootRun` task in the `gui` subproject. The `bootRun` task is a
+The command above (`gradle :bootRun`) invokes the `bootRun` task. The `bootRun` task is a
 Gradle task provided by the Spring Boot Gradle plugin. It runs the application in the current JVM.
 
 * the `io.xj.engine.craft` package is the most esoteric. It contains all the logic about fabricating music basic on the
