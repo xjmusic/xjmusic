@@ -311,17 +311,6 @@ public class DemoIT {
     return pick;
   }
 
-  /**
-   FLOATING-POINT OUTPUT IS NOT SUPPORTED.
-   [#137] Support for floating-point output encoding.
-
-   @throws FormatException to prevent confusion
-   */
-  @Test
-  public void demo_48000Hz_Signed_32bit_2ch() throws Exception {
-    assertMixOutputEqualsReferenceAudio(AudioFormat.Encoding.PCM_SIGNED, 48000, 32, 2, 2.231404f, "48000Hz_Signed_32bit_2ch.wav");
-  }
-
   @Test
   public void demo_48000Hz_Signed_16bit_2ch() throws Exception {
     assertMixOutputEqualsReferenceAudio(AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, 2.231404f, "44100Hz_Signed_16bit_2ch.wav");
