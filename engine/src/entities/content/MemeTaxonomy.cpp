@@ -146,7 +146,7 @@ namespace XJ {
     std::vector<std::string> strings;
     strings.reserve(categories.size());
     for (const auto &category: categories) {
-      strings.push_back(category.toString());
+      strings.push_back(category);
     }
     return StringUtils::join(strings, std::string(1, CATEGORY_SEPARATOR));
   }

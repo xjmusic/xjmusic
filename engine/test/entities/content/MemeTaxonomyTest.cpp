@@ -30,7 +30,7 @@ TEST(MemeTaxonomyTest, CategoryHasMemes) {
 TEST(MemeTaxonomyTest, FromString_toString) {
   MemeTaxonomy subject("COLOR[RED,GREEN,BLUE];SIZE[LARGE,MEDIUM,SMALL]");
 
-  ASSERT_EQ("COLOR[RED,GREEN,BLUE];SIZE[LARGE,MEDIUM,SMALL]", subject.toString());
+  ASSERT_EQ("COLOR[RED,GREEN,BLUE];SIZE[LARGE,MEDIUM,SMALL]", subject);
 }
 
 TEST(MemeTaxonomyTest, FromListOfMaps_toListOfMaps) {
@@ -51,7 +51,7 @@ TEST(MemeTaxonomyTest, FromListOfMaps_toListOfMaps) {
 TEST(MemeTaxonomyTest, TestStripNonAlphabetical) {
   MemeTaxonomy subject("COLOR [RED, GREEN, BLUE];    SIZE [LARGE, MEDIUM, SMALL ]");
 
-  ASSERT_EQ("COLOR[RED,GREEN,BLUE];SIZE[LARGE,MEDIUM,SMALL]", subject.toString());
+  ASSERT_EQ("COLOR[RED,GREEN,BLUE];SIZE[LARGE,MEDIUM,SMALL]", subject);
 }
 
 TEST(MemeTaxonomyTest, GetCategories) {

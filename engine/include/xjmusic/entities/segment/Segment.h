@@ -32,16 +32,12 @@ namespace XJ {
 
     Segment() = default;
 
-    const int DELTA_UNLIMITED = -1;
-    const std::string EXTENSION_SEPARATOR = ".";
-    const std::string WAV_EXTENSION = "wav";
-
     int id{};
     UUID chainId{};
     Segment::Type type{};
     Segment::State state{};
     long beginAtChainMicros{}; // Segment begin-at time in microseconds since beginning of chain
-    long durationMicros{}; // @Nullable
+    std::optional<long> durationMicros{}; // @Nullable
     std::string key{};
     int total{};
     float intensity{};

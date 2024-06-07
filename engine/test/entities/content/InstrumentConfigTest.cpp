@@ -35,7 +35,7 @@ TEST(InstrumentConfigTest, DefaultsToString) {
   InstrumentConfig subject;
 
   std::vector<std::string> defaultLines = StringUtils::split(InstrumentConfig::getDefaultString(), '\n');
-  std::vector<std::string> subjectLines = StringUtils::split(subject.toString(), '\n');
+  std::vector<std::string> subjectLines = StringUtils::split(subject, '\n');
 
   ASSERT_EQ(defaultLines, subjectLines);
 }

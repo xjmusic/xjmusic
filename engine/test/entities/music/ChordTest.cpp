@@ -24,7 +24,7 @@ TEST(Music_Chord, TestChordExpectations) {
     auto input = it->first.as<std::string>();
     auto expect = it->second.as<std::string>();
     try {
-      actual = Chord::of(input).toString();// Assuming Chord::of() is a function that takes a string and returns a Chord object
+      actual = Chord::of(input);// Assuming Chord::of() is a function that takes a string and returns a Chord object
 
       if (actual != expect) {
         std::cerr << "Expected \"" << input << "\" to yield \"" << expect << "\" but actually was \"" << actual << "\"\n";

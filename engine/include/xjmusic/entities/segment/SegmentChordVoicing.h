@@ -19,7 +19,7 @@ namespace XJ {
     int segmentId;
     UUID segmentChordId;
     std::string type;
-    std::string name;
+    std::string notes;
 
     /**
      * Assert equality with another Segment Chord Voicing

@@ -50,6 +50,8 @@ add_library(xjmusic
         entities/segment/SegmentMeme.cpp
         entities/segment/SegmentMessage.cpp
         entities/segment/SegmentMeta.cpp
+        fabricator/ChainUtils.cpp
+        fabricator/SegmentUtils.cpp
         util/ConfigParser.cpp
         util/StringUtils.cpp
         util/ValueUtils.cpp
