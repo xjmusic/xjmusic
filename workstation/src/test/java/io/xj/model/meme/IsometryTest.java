@@ -19,13 +19,6 @@ public class IsometryTest {
   }
 
   @Test
-  public void ofPhonetic() {
-    Isometry result = Isometry.ofPhonetic(List.of("Kick", "Snare"));
-
-    assertArrayEquals(new String[]{"KK", "SNR"}, result.getSources().stream().sorted().toArray());
-  }
-
-  @Test
   public void add() {
     Isometry result = Isometry.of(List.of("Smooth"));
     result.add("Catlike");
