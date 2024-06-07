@@ -1312,7 +1312,7 @@ public class ProjectManagerImpl implements ProjectManager {
         // Iterate through all audios, determine expected path, and if the audio is not in that path, copy it from where it would be expected in the legacy project format, or from the legacy project path prefix
         for (InstrumentAudio audio : content.get().getAudiosOfInstrument(instrument.getId())) {
           if (StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
-            LOG.warn("Audio \"{}\" has no waveform data!", audio.getName());
+            LOG.warn("Instrument \"{}\" Audio \"{}\" has no waveform data!", instrument.getName(), audio.getName());
             content.get().delete(InstrumentAudio.class, audio.getId());
             continue;
           }
