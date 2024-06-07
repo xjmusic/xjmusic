@@ -640,10 +640,10 @@ public class FabricationContentTwoFixtures {
     program35 = FabricationContentOneFixtures.buildProgram(library2, ProgramType.Beat, ProgramState.Published, "Basic Beat", "C", 121);
     program35_meme0 = FabricationContentOneFixtures.buildMeme(program35, "Basic");
     program35_voice0 = FabricationContentOneFixtures.buildVoice(program35, InstrumentType.Drum, "Drums");
-    program35_voice0_track0 = FabricationContentOneFixtures.buildTrack(program35_voice0, "CLOCK");
-    program35_voice0_track1 = FabricationContentOneFixtures.buildTrack(program35_voice0, "SNORT");
+    program35_voice0_track0 = FabricationContentOneFixtures.buildTrack(program35_voice0, "KICK");
+    program35_voice0_track1 = FabricationContentOneFixtures.buildTrack(program35_voice0, "SNARE");
     program35_voice0_track2 = FabricationContentOneFixtures.buildTrack(program35_voice0, "KICK");
-    program35_voice0_track3 = FabricationContentOneFixtures.buildTrack(program35_voice0, "SNARL");
+    program35_voice0_track3 = FabricationContentOneFixtures.buildTrack(program35_voice0, "SNARE");
     //
     program35_sequence0 = FabricationContentOneFixtures.buildSequence(program35, 16, "Base", 0.5f, "C");
     program35_sequence0_pattern0 = FabricationContentOneFixtures.buildPattern(program35_sequence0, program35_voice0, 4, "Drop");
@@ -815,21 +815,21 @@ public class FabricationContentTwoFixtures {
     //
     program9_voice0 = FabricationContentOneFixtures.buildVoice(program9, InstrumentType.Drum, "Drums");
     program9_voice0_track0 = FabricationContentOneFixtures.buildTrack(program9_voice0, "BLEEP");
-    program9_voice0_track1 = FabricationContentOneFixtures.buildTrack(program9_voice0, "BLEIP");
-    program9_voice0_track2 = FabricationContentOneFixtures.buildTrack(program9_voice0, "BLEAP");
-    program9_voice0_track3 = FabricationContentOneFixtures.buildTrack(program9_voice0, "BLEEEP");
-    program9_voice0_track4 = FabricationContentOneFixtures.buildTrack(program9_voice0, "CLOCK");
-    program9_voice0_track5 = FabricationContentOneFixtures.buildTrack(program9_voice0, "SNORT");
+    program9_voice0_track1 = FabricationContentOneFixtures.buildTrack(program9_voice0, "BLEEP");
+    program9_voice0_track2 = FabricationContentOneFixtures.buildTrack(program9_voice0, "BLEEP");
+    program9_voice0_track3 = FabricationContentOneFixtures.buildTrack(program9_voice0, "BLEEP");
+    program9_voice0_track4 = FabricationContentOneFixtures.buildTrack(program9_voice0, "KICK");
+    program9_voice0_track5 = FabricationContentOneFixtures.buildTrack(program9_voice0, "SNARE");
     program9_voice0_track6 = FabricationContentOneFixtures.buildTrack(program9_voice0, "KICK");
-    program9_voice0_track7 = FabricationContentOneFixtures.buildTrack(program9_voice0, "SNARL");
-    program9_voice0_track8 = FabricationContentOneFixtures.buildTrack(program9_voice0, "KIICK");
-    program9_voice0_track9 = FabricationContentOneFixtures.buildTrack(program9_voice0, "SNARR");
-    program9_voice0_track10 = FabricationContentOneFixtures.buildTrack(program9_voice0, "KEICK");
-    program9_voice0_track11 = FabricationContentOneFixtures.buildTrack(program9_voice0, "SNAER");
+    program9_voice0_track7 = FabricationContentOneFixtures.buildTrack(program9_voice0, "SNARE");
+    program9_voice0_track8 = FabricationContentOneFixtures.buildTrack(program9_voice0, "KICK");
+    program9_voice0_track9 = FabricationContentOneFixtures.buildTrack(program9_voice0, "SNARE");
+    program9_voice0_track10 = FabricationContentOneFixtures.buildTrack(program9_voice0, "KICK");
+    program9_voice0_track11 = FabricationContentOneFixtures.buildTrack(program9_voice0, "SNARE");
     program9_voice0_track12 = FabricationContentOneFixtures.buildTrack(program9_voice0, "TOOT");
-    program9_voice0_track13 = FabricationContentOneFixtures.buildTrack(program9_voice0, "TOOOT");
-    program9_voice0_track14 = FabricationContentOneFixtures.buildTrack(program9_voice0, "TOOTE");
-    program9_voice0_track15 = FabricationContentOneFixtures.buildTrack(program9_voice0, "TOUT");
+    program9_voice0_track13 = FabricationContentOneFixtures.buildTrack(program9_voice0, "TOOT");
+    program9_voice0_track14 = FabricationContentOneFixtures.buildTrack(program9_voice0, "TOOT");
+    program9_voice0_track15 = FabricationContentOneFixtures.buildTrack(program9_voice0, "TOOT");
     //
     program9_sequence0 = FabricationContentOneFixtures.buildSequence(program9, 16, "Base", 0.5f, "C");
     //

@@ -1,5 +1,11 @@
 package io.xj.gui.project;
 
+import io.xj.engine.FabricationException;
+import io.xj.engine.http.HttpClientProvider;
+import io.xj.engine.hub_client.HubClientException;
+import io.xj.engine.hub_client.HubClientFactory;
+import io.xj.engine.mixer.FFmpegUtils;
+import io.xj.engine.util.FormatUtils;
 import io.xj.model.HubContent;
 import io.xj.model.InstrumentConfig;
 import io.xj.model.ProgramConfig;
@@ -32,12 +38,6 @@ import io.xj.model.pojos.Template;
 import io.xj.model.pojos.TemplateBinding;
 import io.xj.model.util.LocalFileUtils;
 import io.xj.model.util.StringUtils;
-import io.xj.engine.FabricationException;
-import io.xj.engine.http.HttpClientProvider;
-import io.xj.engine.hub_client.HubClientException;
-import io.xj.engine.hub_client.HubClientFactory;
-import io.xj.engine.mixer.FFmpegUtils;
-import io.xj.engine.util.FormatUtils;
 import jakarta.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -1311,6 +1311,11 @@ public class ProjectManagerImpl implements ProjectManager {
 
         // Iterate through all audios, determine expected path, and if the audio is not in that path, copy it from where it would be expected in the legacy project format, or from the legacy project path prefix
         for (InstrumentAudio audio : content.get().getAudiosOfInstrument(instrument.getId())) {
+          if (StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
+            LOG.warn("Instrument \"{}\" Audio \"{}\" has no waveform data!", instrument.getName(), audio.getName());
+            content.get().delete(InstrumentAudio.class, audio.getId());
+            continue;
+          }
           var extension = ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
           var idealWaveformKey = LocalFileUtils.computeWaveformKey(instrument, audio, extension);
           var idealAudioPath = getPathToInstrumentAudio(instrument, idealWaveformKey, null);
