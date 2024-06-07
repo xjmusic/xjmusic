@@ -2,6 +2,11 @@
 
 package io.xj.engine.craft;
 
+import io.xj.engine.FabricationException;
+import io.xj.engine.fabricator.FabricationWrapperImpl;
+import io.xj.engine.fabricator.Fabricator;
+import io.xj.engine.fabricator.MemeIsometry;
+import io.xj.engine.util.MarbleBag;
 import io.xj.model.entity.EntityUtils;
 import io.xj.model.enums.InstrumentMode;
 import io.xj.model.enums.InstrumentState;
@@ -20,21 +25,15 @@ import io.xj.model.pojos.ProgramSequence;
 import io.xj.model.pojos.ProgramSequencePattern;
 import io.xj.model.pojos.ProgramSequencePatternEvent;
 import io.xj.model.pojos.ProgramVoice;
-import io.xj.model.util.CsvUtils;
-import io.xj.model.util.StringUtils;
-import io.xj.model.util.TremendouslyRandom;
-import io.xj.model.util.ValueUtils;
-import io.xj.engine.FabricationException;
-import io.xj.engine.fabricator.FabricationWrapperImpl;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.MemeIsometry;
-import io.xj.engine.fabricator.NameIsometry;
 import io.xj.model.pojos.SegmentChoice;
 import io.xj.model.pojos.SegmentChoiceArrangement;
 import io.xj.model.pojos.SegmentChoiceArrangementPick;
 import io.xj.model.pojos.SegmentChord;
 import io.xj.model.pojos.SegmentChordVoicing;
-import io.xj.engine.util.MarbleBag;
+import io.xj.model.util.CsvUtils;
+import io.xj.model.util.StringUtils;
+import io.xj.model.util.TremendouslyRandom;
+import io.xj.model.util.ValueUtils;
 import jakarta.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -907,7 +906,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     // score each audio against the current voice event, with some variability
     for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosOfInstrument(instrument))
       if (instrument.getType() == InstrumentType.Drum)
-        score.put(audio.getId(), NameIsometry.similarity(fabricator.getTrackName(event), audio.getEvent()));
+        score.put(audio.getId(), Objects.equals(fabricator.getTrackName(event), audio.getEvent()) ? 300 : 0);
       else if (Note.of(audio.getTones()).sameAs(Note.of(event.getTones())))
         score.put(audio.getId(), 100);
 
@@ -1174,7 +1173,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   boolean instrumentContainsAudioEventsLike(Instrument instrument, Collection<String> requireEvents) {
     if (requireEvents.isEmpty()) return true;
     for (var event : requireEvents)
-      if (fabricator.sourceMaterial().getAudiosOfInstrument(instrument.getId()).stream().noneMatch(a -> 100 < NameIsometry.similarity(event, a.getEvent())))
+      if (fabricator.sourceMaterial().getAudiosOfInstrument(instrument.getId()).stream().noneMatch(a -> Objects.equals(event, a.getEvent())))
         return false;
     return true;
   }

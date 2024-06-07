@@ -1,8 +1,6 @@
 // Copyright (c) 1999-2022, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.model.meme;
 
-import org.apache.commons.codec.language.Metaphone;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,44 +31,12 @@ public class Isometry {
   }
 
   /**
-   Instantiate a new Isometry of a group of source strings which will be phonetically reduced
-
-   @param sources to compare of
-   @return Isometry ready for comparison to targets
-   */
-  public static Isometry ofPhonetic(Iterable<String> sources) {
-    Isometry result = new Isometry();
-    sources.forEach(result::addPhonetic);
-    return result;
-  }
-
-  /**
-   Double metaphone phonetic of a particular word
-
-   @param raw text to get phonetic of
-   @return phonetic
-   */
-  protected static String phonetic(String raw) {
-    Metaphone metaphone = new Metaphone();
-    return metaphone.metaphone(raw);
-  }
-
-  /**
    Add a String for isometry comparison
 
    @param input to add
    */
   public void add(String input) {
     sources.add(input);
-  }
-
-  /**
-   Add the phonetic reduction of a String for isometry comparison
-
-   @param input to add
-   */
-  public void addPhonetic(String input) {
-    sources.add(phonetic(input));
   }
 
   /**

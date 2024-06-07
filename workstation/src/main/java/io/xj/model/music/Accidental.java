@@ -1,6 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.model.music;
 
+import io.xj.model.util.StringUtils;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -84,6 +86,7 @@ public enum Accidental {
    @param name within which to replace text
    */
   public static String replaceWithExplicit(String name) {
+    if (StringUtils.isNullOrEmpty(name)) return "";
     return rgxSharp.matcher(rgxFlat.matcher(name).replaceAll(EXPLICIT_FLAT)).replaceAll(EXPLICIT_SHARP);
   }
 

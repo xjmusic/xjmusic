@@ -17,8 +17,6 @@ module workstation.main {
   requires javafx.controls;
   requires javafx.fxml;
   requires javafx.graphics;
-  requires me.xdrop.fuzzywuzzy;
-  requires org.apache.commons.codec;
   requires org.apache.commons.io;
   requires org.apache.httpcomponents.client5.httpclient5;
   requires org.apache.httpcomponents.core5.httpcore5;

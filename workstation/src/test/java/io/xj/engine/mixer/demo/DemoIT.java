@@ -15,19 +15,13 @@ import io.xj.engine.mixer.AudioFileWriter;
 import io.xj.engine.mixer.AudioFileWriterImpl;
 import io.xj.engine.mixer.EnvelopeProvider;
 import io.xj.engine.mixer.EnvelopeProviderImpl;
-import io.xj.engine.mixer.FormatException;
 import io.xj.engine.mixer.Mixer;
 import io.xj.engine.mixer.MixerConfig;
 import io.xj.engine.mixer.MixerFactory;
 import io.xj.engine.mixer.MixerFactoryImpl;
-import io.xj.model.pojos.Chain;
-import io.xj.model.pojos.Segment;
-import io.xj.model.pojos.SegmentChoice;
-import io.xj.model.pojos.SegmentChoiceArrangement;
-import io.xj.model.pojos.SegmentChoiceArrangementPick;
+import io.xj.engine.util.InternalResource;
 import io.xj.gui.project.ProjectManager;
 import io.xj.gui.project.ProjectManagerImpl;
-import io.xj.engine.util.InternalResource;
 import io.xj.model.entity.EntityFactory;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.enums.InstrumentMode;
@@ -38,6 +32,7 @@ import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.model.pojos.Chain;
 import io.xj.model.pojos.Instrument;
 import io.xj.model.pojos.InstrumentAudio;
 import io.xj.model.pojos.Library;
@@ -48,6 +43,10 @@ import io.xj.model.pojos.ProgramSequencePatternEvent;
 import io.xj.model.pojos.ProgramVoice;
 import io.xj.model.pojos.ProgramVoiceTrack;
 import io.xj.model.pojos.Project;
+import io.xj.model.pojos.Segment;
+import io.xj.model.pojos.SegmentChoice;
+import io.xj.model.pojos.SegmentChoiceArrangement;
+import io.xj.model.pojos.SegmentChoiceArrangementPick;
 import io.xj.model.pojos.Template;
 import io.xj.model.util.ValueUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -309,17 +308,6 @@ public class DemoIT {
     pick.setTones(event.getTones());
     pick.setEvent("X");
     return pick;
-  }
-
-  /**
-   FLOATING-POINT OUTPUT IS NOT SUPPORTED.
-   [#137] Support for floating-point output encoding.
-
-   @throws FormatException to prevent confusion
-   */
-  @Test
-  public void demo_48000Hz_Signed_32bit_2ch() throws Exception {
-    assertMixOutputEqualsReferenceAudio(AudioFormat.Encoding.PCM_SIGNED, 48000, 32, 2, 2.231404f, "48000Hz_Signed_32bit_2ch.wav");
   }
 
   @Test
