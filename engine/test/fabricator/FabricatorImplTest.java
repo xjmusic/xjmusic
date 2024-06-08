@@ -103,7 +103,7 @@ public class FabricatorImplTest {
     store.put(FabricationContentTwoFixtures.buildSegmentChoice(segment, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, fake.program5));
     SegmentChoice beatChoice = store.put(buildSegmentChoice(segment, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, fake.program35, fake.program35_voice0, fake.instrument8));
     SegmentChoiceArrangement beatArrangement = store.put(FabricationContentTwoFixtures.buildSegmentChoiceArrangement(beatChoice));
-    store.put(new SegmentChoiceArrangementPick().id(UUID.randomUUID()).segmentId(beatArrangement.segmentId).segmentChoiceArrangementId(beatArrangement.id).programSequencePatternEventId(fake.program35_sequence0_pattern0_event0.id).instrumentAudioId(fake.instrument8_audio8kick.id).event("CLANG").startAtSegmentMicros((long) (0.273 * MICROS_PER_SECOND)).lengthMicros((long) (1.571 * MICROS_PER_SECOND)).amplitude(0.8f).tones("A4"));
+    store.put(new SegmentChoiceArrangementPick().id(ContentTestHelper::randomUUID()).segmentId(beatArrangement.segmentId).segmentChoiceArrangementId(beatArrangement.id).programSequencePatternEventId(fake.program35_sequence0_pattern0_event0.id).instrumentAudioId(fake.instrument8_audio8kick.id).event("CLANG").startAtSegmentMicros((long) (0.273 * MICROS_PER_SECOND)).lengthMicros((long) (1.571 * MICROS_PER_SECOND)).amplitude(0.8f).tones("A4"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
     subject = new FabricatorImpl(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory, jsonProvider, 48000.0f, 2, null);
 
@@ -186,14 +186,14 @@ public class FabricatorImplTest {
     subject.put(FabricationContentTwoFixtures.buildSegmentChord(segment, 2.0f, "F"), false);
     subject.put(FabricationContentTwoFixtures.buildSegmentChord(segment, 5.5f, "Gm"), false);
 
-    assertEquals("C", subject.getChordAt(0.0).orElseThrow().getName());
-    assertEquals("C", subject.getChordAt(1.0).orElseThrow().getName());
-    assertEquals("F", subject.getChordAt(2.0).orElseThrow().getName());
-    assertEquals("F", subject.getChordAt(3.0).orElseThrow().getName());
-    assertEquals("F", subject.getChordAt(5.0).orElseThrow().getName());
-    assertEquals("Gm", subject.getChordAt(5.5).orElseThrow().getName());
-    assertEquals("Gm", subject.getChordAt(6.0).orElseThrow().getName());
-    assertEquals("Gm", subject.getChordAt(7.5).orElseThrow().getName());
+    assertEquals("C", subject.getChordAt(0.0).orElseThrow().name);
+    assertEquals("C", subject.getChordAt(1.0).orElseThrow().name);
+    assertEquals("F", subject.getChordAt(2.0).orElseThrow().name);
+    assertEquals("F", subject.getChordAt(3.0).orElseThrow().name);
+    assertEquals("F", subject.getChordAt(5.0).orElseThrow().name);
+    assertEquals("Gm", subject.getChordAt(5.5).orElseThrow().name);
+    assertEquals("Gm", subject.getChordAt(6.0).orElseThrow().name);
+    assertEquals("Gm", subject.getChordAt(7.5).orElseThrow().name);
   }
 
   @Test
@@ -285,11 +285,11 @@ public class FabricatorImplTest {
     subject.put(buildSegmentChoice(segment, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, fake.program4, fake.program4_sequence1_binding0), false);
 
     var resultMemes = store.readAll(segment.id, SegmentMeme.class).stream().sorted(Comparator.comparing(SegmentMeme::getName)).toList();
-    assertEquals("BASIC", (resultMemes.get(0)).getName());
-    assertEquals("COZY", (resultMemes.get(1)).getName());
-    assertEquals("HEAVY", (resultMemes.get(2)).getName());
-    assertEquals("TROPICAL", (resultMemes.get(3)).getName());
-    assertEquals("WILD", (resultMemes.get(4)).getName());
+    assertEquals("BASIC", (resultMemes.get(0)).name);
+    assertEquals("COZY", (resultMemes.get(1)).name);
+    assertEquals("HEAVY", (resultMemes.get(2)).name);
+    assertEquals("TROPICAL", (resultMemes.get(3)).name);
+    assertEquals("WILD", (resultMemes.get(4)).name);
     var resultChoices = store.readAll(segment.id, SegmentChoice.class).stream().sorted(Comparator.comparing(SegmentChoice::getProgramType)).toList();
     assertEquals(fake.program4.id, (resultChoices.get(0)).programId);
     assertEquals(fake.program4_sequence1_binding0.id, (resultChoices.get(0)).programSequenceBindingId);
@@ -375,7 +375,7 @@ public class FabricatorImplTest {
     var result = subject.getMemeTaxonomy();
 
     assertEquals(2, result.getCategories().size());
-    assertEquals("COLOR", result.getCategories().get(0).getName());
-    assertEquals("SEASON", result.getCategories().get(1).getName());
+    assertEquals("COLOR", result.getCategories().get(0).name);
+    assertEquals("SEASON", result.getCategories().get(1).name);
   }
 }

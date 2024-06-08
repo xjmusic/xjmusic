@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.fabricator;
 
-import io.xj.model.enums.InstrumentMode;
+import io.xj.model.enums.Instrument::Mode;
 import io.xj.model.enums.Instrument::Type;
 import io.xj.model.enums.Program::Type;
 import io.xj.engine.FabricationException;
@@ -117,7 +117,7 @@ public interface SegmentRetrospective {
    @param instrumentMode for which to get previous-segment choices
    @return choices
    */
-  List<SegmentChoice> getPreviousChoicesOfMode(InstrumentMode instrumentMode);
+  List<SegmentChoice> getPreviousChoicesOfMode(Instrument::Mode instrumentMode);
 
   /**
    Get the previous-segment choices of a given instrument type and mode
@@ -126,7 +126,7 @@ public interface SegmentRetrospective {
    @param instrumentModes for which to get previous-segment choices
    @return choices
    */
-  List<SegmentChoice> getPreviousChoicesOfTypeMode(Instrument::Type instrumentType, InstrumentMode instrumentModes);
+  List<SegmentChoice> getPreviousChoicesOfTypeMode(Instrument::Type instrumentType, Instrument::Mode instrumentModes);
 
   /**
    Get the previous-segment choices of a given instrument type

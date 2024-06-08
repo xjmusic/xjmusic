@@ -81,7 +81,7 @@ namespace XJ {
     memes = parseMemeList(data);
   }
 
-  std::string MemeCategory::getName() {
+  std::string MemeCategory::name {
     return name;
   }
 

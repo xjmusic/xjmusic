@@ -311,7 +311,7 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
       try {
         delete(segmentId, type, EntityUtils.getId(entity));
       } catch (EntityException e) {
-        LOG.error("Failed to delete {} in Segment[{}]", type.getName(), segmentId, e);
+        LOG.error("Failed to delete {} in Segment[{}]", type.name, segmentId, e);
       }
     }
   }
@@ -416,7 +416,7 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
   }
 
   private void validateSegmentMeme(SegmentMeme entity) throws ValueException {
-    entity.setName(StringUtils.toMeme(entity.getName()));
+    entity.setName(StringUtils.toMeme(entity.name));
   }
 
 

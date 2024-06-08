@@ -6,7 +6,7 @@ import io.xj.model.HubContent;
 import io.xj.model.InstrumentConfig;
 import io.xj.model.ProgramConfig;
 import io.xj.model.TemplateConfig;
-import io.xj.model.enums.InstrumentMode;
+import io.xj.model.enums.Instrument::Mode;
 import io.xj.model.enums.Instrument::Type;
 import io.xj.model.enums.Program::Type;
 import io.xj.model.meme.MemeTaxonomy;
@@ -151,7 +151,7 @@ public interface Fabricator {
 
    @return choice if previously made, or null if none is found
    */
-  Optional<SegmentChoice> getChoiceIfContinued(Instrument::Type instrumentType, InstrumentMode instrumentMode);
+  Optional<SegmentChoice> getChoiceIfContinued(Instrument::Type instrumentType, Instrument::Mode instrumentMode);
 
   /**
    Get current ChordEntity for any position in Segment.

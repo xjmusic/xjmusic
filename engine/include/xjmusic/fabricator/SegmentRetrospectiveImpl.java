@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.fabricator;
 
-import io.xj.model.enums.InstrumentMode;
+import io.xj.model.enums.Instrument::Mode;
 import io.xj.model.enums.Instrument::Type;
 import io.xj.model.enums.Program::Type;
 import io.xj.engine.FabricationException;
@@ -99,7 +99,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public List<SegmentChoice> getPreviousChoicesOfMode(InstrumentMode instrumentMode) {
+  public List<SegmentChoice> getPreviousChoicesOfMode(Instrument::Mode instrumentMode) {
     if (Objects.isNull(previousSegment)) return List.of();
     return entityStore.readManySubEntitiesOfType(previousSegment.id, SegmentChoice.class).stream()
       .filter(c -> Objects.nonNull(c.getInstrumentMode())
@@ -108,7 +108,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public List<SegmentChoice> getPreviousChoicesOfTypeMode(Instrument::Type instrumentType, InstrumentMode instrumentMode) {
+  public List<SegmentChoice> getPreviousChoicesOfTypeMode(Instrument::Type instrumentType, Instrument::Mode instrumentMode) {
     if (Objects.isNull(previousSegment)) return List.of();
     return entityStore.readManySubEntitiesOfType(previousSegment.id, SegmentChoice.class).stream()
       .filter(c -> Objects.nonNull(c.instrumentType)

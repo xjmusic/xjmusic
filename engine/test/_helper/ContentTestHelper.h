@@ -58,7 +58,7 @@ namespace XJ {
 
     static long long currentTimeMillis();
 
-    std::string randomUUID();
+    static const std::string randomUUID();
 
     Project buildProject();
 

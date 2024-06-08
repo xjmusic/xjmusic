@@ -248,10 +248,10 @@ public class FabricationContentTwoFixtures {
   }
 
   public static Chain buildChain(Template template, ChainState state) {
-    var chain = new Chain();
-    chain.setId(UUID.randomUUID());
-    chain.setProjectId(UUID.randomUUID());
-    chain.setTemplateId(template.getId());
+    Chain chain;
+    chain.setId(ContentTestHelper::randomUUID());
+    chain.setProjectId(ContentTestHelper::randomUUID());
+    chain.setTemplateId(template.id);
     chain.setName("Test Chain");
     chain.setType(ChainType.PRODUCTION);
     chain.setTemplateConfig(template.getConfig());
@@ -268,10 +268,10 @@ public class FabricationContentTwoFixtures {
   }
 
   public static Chain buildChain(Project project, String name, ChainType type, ChainState state, Template template, /*@Nullable*/ String shipKey) {
-    var chain = new Chain();
-    chain.setId(UUID.randomUUID());
-    chain.setTemplateId(template.getId());
-    chain.setProjectId(project.getId());
+    Chain chain;
+    chain.setId(ContentTestHelper::randomUUID());
+    chain.setTemplateId(template.id);
+    chain.setProjectId(project.id);
     chain.setName(name);
     chain.setType(type);
     chain.setState(state);
@@ -282,7 +282,7 @@ public class FabricationContentTwoFixtures {
   }
 
   public static Segment buildSegment() {
-    var seg = new Segment();
+    Segment seg;
     seg.setId(123);
     return seg;
   }
@@ -295,8 +295,8 @@ public class FabricationContentTwoFixtures {
 
 
   public static Segment buildSegment(Chain chain, SegmentType type, int id, int delta, SegmentState state, String key, int total, float intensity, float tempo, String storageKey, boolean hasEndSet) {
-    var segment = new Segment();
-    segment.setChainId(chain.getId());
+    Segment segment;
+    segment.setChainId(chain.id);
     segment.setType(type);
     segment.setId(id);
     segment.setDelta(delta);
@@ -333,37 +333,37 @@ public class FabricationContentTwoFixtures {
       key, total, intensity, tempo, "segment123");
   }
 
-  public static SegmentChoice buildSegmentChoice(Segment segment, ProgramType programType, ProgramSequenceBinding programSequenceBinding) {
-    var segmentChoice = new SegmentChoice();
-    segmentChoice.setId(UUID.randomUUID());
-    segmentChoice.setSegmentId(segment.getId());
+  public static SegmentChoice buildSegmentChoice(Segment segment, Program::Type programType, ProgramSequenceBinding programSequenceBinding) {
+    SegmentChoice segmentChoice;
+    segmentChoice.setId(ContentTestHelper::randomUUID());
+    segmentChoice.setSegmentId(segment.id);
     segmentChoice.setDeltaIn(Segment.DELTA_UNLIMITED);
     segmentChoice.setDeltaOut(Segment.DELTA_UNLIMITED);
-    segmentChoice.setProgramId(programSequenceBinding.getProgramId());
-    segmentChoice.setProgramSequenceBindingId(programSequenceBinding.getId());
+    segmentChoice.setProgramId(programSequenceBinding.programId);
+    segmentChoice.setProgramSequenceBindingId(programSequenceBinding.id);
     segmentChoice.setProgramType(programType);
     return segmentChoice;
   }
 
-  public static SegmentChoice buildSegmentChoice(Segment segment, ProgramType programType, ProgramSequence programSequence) {
-    var segmentChoice = new SegmentChoice();
-    segmentChoice.setId(UUID.randomUUID());
-    segmentChoice.setSegmentId(segment.getId());
+  public static SegmentChoice buildSegmentChoice(Segment segment, Program::Type programType, ProgramSequence programSequence) {
+    SegmentChoice segmentChoice;
+    segmentChoice.setId(ContentTestHelper::randomUUID());
+    segmentChoice.setSegmentId(segment.id);
     segmentChoice.setDeltaIn(Segment.DELTA_UNLIMITED);
     segmentChoice.setDeltaOut(Segment.DELTA_UNLIMITED);
-    segmentChoice.setProgramId(programSequence.getProgramId());
-    segmentChoice.setProgramSequenceId(programSequence.getId());
+    segmentChoice.setProgramId(programSequence.programId);
+    segmentChoice.setProgramSequenceId(programSequence.id);
     segmentChoice.setProgramType(programType);
     return segmentChoice;
   }
 
-  public static SegmentChoice buildSegmentChoice(Segment segment, int deltaIn, int deltaOut, Program program, InstrumentType instrumentType, InstrumentMode instrumentMode) {
-    var segmentChoice = new SegmentChoice();
-    segmentChoice.setId(UUID.randomUUID());
-    segmentChoice.setSegmentId(segment.getId());
+  public static SegmentChoice buildSegmentChoice(Segment segment, int deltaIn, int deltaOut, Program program, Instrument::Type instrumentType, Instrument::Mode instrumentMode) {
+    SegmentChoice segmentChoice;
+    segmentChoice.setId(ContentTestHelper::randomUUID());
+    segmentChoice.setSegmentId(segment.id);
     segmentChoice.setDeltaIn(deltaIn);
     segmentChoice.setDeltaOut(deltaOut);
-    segmentChoice.setProgramId(program.getId());
+    segmentChoice.setProgramId(program.id);
     segmentChoice.setProgramType(program.getType());
     segmentChoice.setMute(false);
     segmentChoice.setInstrumentType(instrumentType);
@@ -372,63 +372,63 @@ public class FabricationContentTwoFixtures {
   }
 
   public static SegmentChoice buildSegmentChoice(Segment segment, Program program) {
-    var segmentChoice = new SegmentChoice();
-    segmentChoice.setId(UUID.randomUUID());
-    segmentChoice.setSegmentId(segment.getId());
+    SegmentChoice segmentChoice;
+    segmentChoice.setId(ContentTestHelper::randomUUID());
+    segmentChoice.setSegmentId(segment.id);
     segmentChoice.setDeltaIn(Segment.DELTA_UNLIMITED);
     segmentChoice.setDeltaOut(Segment.DELTA_UNLIMITED);
-    segmentChoice.setProgramId(program.getId());
+    segmentChoice.setProgramId(program.id);
     segmentChoice.setProgramType(program.getType());
     return segmentChoice;
   }
 
   public static SegmentChoice buildSegmentChoice(Segment segment, Instrument instrument) {
-    var segmentChoice = new SegmentChoice();
-    segmentChoice.setId(UUID.randomUUID());
-    segmentChoice.setSegmentId(segment.getId());
+    SegmentChoice segmentChoice;
+    segmentChoice.setId(ContentTestHelper::randomUUID());
+    segmentChoice.setSegmentId(segment.id);
     segmentChoice.setDeltaIn(Segment.DELTA_UNLIMITED);
     segmentChoice.setDeltaOut(Segment.DELTA_UNLIMITED);
-    segmentChoice.setInstrumentId(instrument.getId());
+    segmentChoice.setInstrumentId(instrument.id);
     segmentChoice.setInstrumentType(instrument.getType());
     return segmentChoice;
   }
 
   public static SegmentMeta buildSegmentMeta(Segment segment, String key, String value) {
-    var segmentMeta = new SegmentMeta();
-    segmentMeta.setId(UUID.randomUUID());
-    segmentMeta.setSegmentId(segment.getId());
+    SegmentMeta segmentMeta;
+    segmentMeta.setId(ContentTestHelper::randomUUID());
+    segmentMeta.setSegmentId(segment.id);
     segmentMeta.setKey(key);
     segmentMeta.setValue(value);
     return segmentMeta;
   }
 
   public static SegmentChoice buildSegmentChoice(Segment segment, Program program, ProgramSequence programSequence, ProgramVoice voice, Instrument instrument) {
-    var segmentChoice = new SegmentChoice();
-    segmentChoice.setId(UUID.randomUUID());
-    segmentChoice.setProgramVoiceId(voice.getId());
-    segmentChoice.setInstrumentId(instrument.getId());
+    SegmentChoice segmentChoice;
+    segmentChoice.setId(ContentTestHelper::randomUUID());
+    segmentChoice.setProgramVoiceId(voice.id);
+    segmentChoice.setInstrumentId(instrument.id);
     segmentChoice.setInstrumentType(instrument.getType());
     segmentChoice.setMute(false);
     segmentChoice.setInstrumentMode(instrument.getMode());
     segmentChoice.setDeltaIn(Segment.DELTA_UNLIMITED);
     segmentChoice.setDeltaOut(Segment.DELTA_UNLIMITED);
-    segmentChoice.setSegmentId(segment.getId());
-    segmentChoice.setProgramId(program.getId());
-    segmentChoice.setProgramSequenceId(programSequence.getId());
+    segmentChoice.setSegmentId(segment.id);
+    segmentChoice.setProgramId(program.id);
+    segmentChoice.setProgramSequenceId(programSequence.id);
     segmentChoice.setProgramType(program.getType());
     return segmentChoice;
   }
 
   public static SegmentChoice buildSegmentChoice(Segment segment, int deltaIn, int deltaOut, Program program, ProgramSequenceBinding programSequenceBinding) {
     var choice = buildSegmentChoice(segment, deltaIn, deltaOut, program);
-    choice.setProgramSequenceBindingId(programSequenceBinding.getId());
+    choice.setProgramSequenceBindingId(programSequenceBinding.id);
     return choice;
   }
 
   public static SegmentChoice buildSegmentChoice(Segment segment, int deltaIn, int deltaOut, Program program, ProgramVoice voice, Instrument instrument) {
     var choice = buildSegmentChoice(segment, deltaIn, deltaOut, program);
-    choice.setProgramVoiceId(voice.getId());
-    choice.setInstrumentId(instrument.getId());
+    choice.setProgramVoiceId(voice.id);
+    choice.setInstrumentId(instrument.id);
     choice.setInstrumentType(instrument.getType());
     choice.setMute(false);
     choice.setInstrumentMode(instrument.getMode());
@@ -436,58 +436,58 @@ public class FabricationContentTwoFixtures {
   }
 
   public static SegmentChoice buildSegmentChoice(Segment segment, int deltaIn, int deltaOut, Program program) {
-    var choice = new SegmentChoice();
-    choice.setId(UUID.randomUUID());
-    choice.setSegmentId(segment.getId());
+    SegmentChoice choice;
+    choice.setId(ContentTestHelper::randomUUID());
+    choice.setSegmentId(segment.id);
     choice.setDeltaIn(deltaIn);
     choice.setDeltaOut(deltaOut);
-    choice.setProgramId(program.getId());
+    choice.setProgramId(program.id);
     choice.setProgramType(program.getType());
     return choice;
   }
 
   public static SegmentMeme buildSegmentMeme(Segment segment, String name) {
-    var segmentMeme = new SegmentMeme();
-    segmentMeme.setId(UUID.randomUUID());
-    segmentMeme.setSegmentId(segment.getId());
+    SegmentMeme segmentMeme;
+    segmentMeme.setId(ContentTestHelper::randomUUID());
+    segmentMeme.setSegmentId(segment.id);
     segmentMeme.setName(name);
     return segmentMeme;
   }
 
   public static SegmentChord buildSegmentChord(Segment segment, double atPosition, String name) {
-    var segmentChord = new SegmentChord();
-    segmentChord.setId(UUID.randomUUID());
-    segmentChord.setSegmentId(segment.getId());
+    SegmentChord segmentChord;
+    segmentChord.setId(ContentTestHelper::randomUUID());
+    segmentChord.setSegmentId(segment.id);
     segmentChord.setPosition(atPosition);
     segmentChord.setName(name);
     return segmentChord;
   }
 
-  public static SegmentChordVoicing buildSegmentChordVoicing(SegmentChord chord, InstrumentType type, String notes) {
-    var segmentChordVoicing = new SegmentChordVoicing();
-    segmentChordVoicing.setId(UUID.randomUUID());
+  public static SegmentChordVoicing buildSegmentChordVoicing(SegmentChord chord, Instrument::Type type, String notes) {
+    SegmentChordVoicing segmentChordVoicing;
+    segmentChordVoicing.setId(ContentTestHelper::randomUUID());
     segmentChordVoicing.setSegmentId(chord.getSegmentId());
-    segmentChordVoicing.segmentChordId(chord.getId());
+    segmentChordVoicing.segmentChordId(chord.id);
     segmentChordVoicing.setType(type.toString());
     segmentChordVoicing.setNotes(notes);
     return segmentChordVoicing;
   }
 
   public static SegmentChoiceArrangement buildSegmentChoiceArrangement(SegmentChoice segmentChoice) {
-    var segmentChoiceArrangement = new SegmentChoiceArrangement();
-    segmentChoiceArrangement.setId(UUID.randomUUID());
+    SegmentChoiceArrangement segmentChoiceArrangement;
+    segmentChoiceArrangement.setId(ContentTestHelper::randomUUID());
     segmentChoiceArrangement.setSegmentId(segmentChoice.getSegmentId());
-    segmentChoiceArrangement.segmentChoiceId(segmentChoice.getId());
+    segmentChoiceArrangement.segmentChoiceId(segmentChoice.id);
     return segmentChoiceArrangement;
   }
 
   public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(Segment segment, SegmentChoiceArrangement segmentChoiceArrangement, InstrumentAudio instrumentAudio, String pickEvent) {
     var microsPerBeat = ValueUtils.MICROS_PER_SECOND * ValueUtils.SECONDS_PER_MINUTE / segment.getTempo();
-    var pick = new SegmentChoiceArrangementPick();
-    pick.setId(UUID.randomUUID());
+    SegmentChoiceArrangementPick pick;
+    pick.setId(ContentTestHelper::randomUUID());
     pick.setSegmentId(segmentChoiceArrangement.getSegmentId());
-    pick.setSegmentChoiceArrangementId(segmentChoiceArrangement.getId());
-    pick.setInstrumentAudioId(instrumentAudio.getId());
+    pick.setSegmentChoiceArrangementId(segmentChoiceArrangement.id);
+    pick.setInstrumentAudioId(instrumentAudio.id);
     pick.setStartAtSegmentMicros((long) (0));
     pick.setLengthMicros((long) (instrumentAudio.getLoopBeats() * microsPerBeat));
     pick.setAmplitude(1);
@@ -498,12 +498,12 @@ public class FabricationContentTwoFixtures {
 
   public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(Segment segment, SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent event, InstrumentAudio instrumentAudio, String pickEvent) {
     var microsPerBeat = ValueUtils.MICROS_PER_SECOND * ValueUtils.SECONDS_PER_MINUTE / segment.getTempo();
-    var pick = new SegmentChoiceArrangementPick();
-    pick.setId(UUID.randomUUID());
+    SegmentChoiceArrangementPick pick;
+    pick.setId(ContentTestHelper::randomUUID());
     pick.setSegmentId(segmentChoiceArrangement.getSegmentId());
-    pick.setSegmentChoiceArrangementId(segmentChoiceArrangement.getId());
-    pick.setProgramSequencePatternEventId(event.getId());
-    pick.setInstrumentAudioId(instrumentAudio.getId());
+    pick.setSegmentChoiceArrangementId(segmentChoiceArrangement.id);
+    pick.setProgramSequencePatternEventId(event.id);
+    pick.setInstrumentAudioId(instrumentAudio.id);
     pick.setStartAtSegmentMicros((long) (event.getPosition() * microsPerBeat));
     pick.setLengthMicros((long) (event.getDuration() * microsPerBeat));
     pick.setAmplitude(event.getVelocity());
@@ -537,7 +537,7 @@ public class FabricationContentTwoFixtures {
     projectUser1a = FabricationContentOneFixtures.buildProjectUser(project1, user3);
 
     // "Tropical, Wild to Cozy" macro-program in house library
-    program4 = FabricationContentOneFixtures.buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Tropical, Wild to Cozy", "C", 120.0f);
+    program4 = FabricationContentOneFixtures.buildProgram(library2, Program::Type.Macro, Program::State.Published, "Tropical, Wild to Cozy", "C", 120.0f);
     program4_meme0 = FabricationContentOneFixtures.buildMeme(program4, "Tropical");
     //
     program4_sequence0 = FabricationContentOneFixtures.buildSequence(program4, 0, "Start Wild", 0.6f, "C");
@@ -554,11 +554,11 @@ public class FabricationContentTwoFixtures {
     program4_sequence2_binding0_meme0 = FabricationContentOneFixtures.buildMeme(program4_sequence2_binding0, "Cozy");
 
     // Main program
-    program5 = FabricationContentOneFixtures.buildProgram(library2, ProgramType.Main, ProgramState.Published, "Main Jam", "C minor", 140);
-    program5_voiceBass = FabricationContentOneFixtures.buildVoice(program5, InstrumentType.Bass, "Bass");
-    program5_voiceSticky = FabricationContentOneFixtures.buildVoice(program5, InstrumentType.Sticky, "Sticky");
-    program5_voiceStripe = FabricationContentOneFixtures.buildVoice(program5, InstrumentType.Stripe, "Stripe");
-    program5_voicePad = FabricationContentOneFixtures.buildVoice(program5, InstrumentType.Pad, "Pad");
+    program5 = FabricationContentOneFixtures.buildProgram(library2, Program::Type.Main, Program::State.Published, "Main Jam", "C minor", 140);
+    program5_voiceBass = FabricationContentOneFixtures.buildVoice(program5, Instrument::Type.Bass, "Bass");
+    program5_voiceSticky = FabricationContentOneFixtures.buildVoice(program5, Instrument::Type.Sticky, "Sticky");
+    program5_voiceStripe = FabricationContentOneFixtures.buildVoice(program5, Instrument::Type.Stripe, "Stripe");
+    program5_voicePad = FabricationContentOneFixtures.buildVoice(program5, Instrument::Type.Pad, "Pad");
     program5_meme0 = FabricationContentOneFixtures.buildMeme(program5, "Outlook");
     //
     program5_sequence0 = FabricationContentOneFixtures.buildSequence(program5, 16, "Intro", 0.5f, "G major");
@@ -584,9 +584,9 @@ public class FabricationContentTwoFixtures {
     program5_sequence1_binding1_meme0 = FabricationContentOneFixtures.buildMeme(program5_sequence1_binding0, "Pessimism");
 
     // A basic beat
-    program35 = FabricationContentOneFixtures.buildProgram(library2, ProgramType.Beat, ProgramState.Published, "Basic Beat", "C", 121);
+    program35 = FabricationContentOneFixtures.buildProgram(library2, Program::Type.Beat, Program::State.Published, "Basic Beat", "C", 121);
     program35_meme0 = FabricationContentOneFixtures.buildMeme(program35, "Basic");
-    program35_voice0 = FabricationContentOneFixtures.buildVoice(program35, InstrumentType.Drum, "Drums");
+    program35_voice0 = FabricationContentOneFixtures.buildVoice(program35, Instrument::Type.Drum, "Drums");
     program35_voice0_track0 = FabricationContentOneFixtures.buildTrack(program35_voice0, "KICK");
     program35_voice0_track1 = FabricationContentOneFixtures.buildTrack(program35_voice0, "SNARE");
     program35_voice0_track2 = FabricationContentOneFixtures.buildTrack(program35_voice0, "KICK");
@@ -677,7 +677,7 @@ public class FabricationContentTwoFixtures {
    */
   public Collection<Object> setupFixtureB2() {
     // "Tangy, Chunky to Smooth" macro-program in house library
-    program3 = FabricationContentOneFixtures.buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Tangy, Chunky to Smooth", "G minor", 120.0f);
+    program3 = FabricationContentOneFixtures.buildProgram(library2, Program::Type.Macro, Program::State.Published, "Tangy, Chunky to Smooth", "G minor", 120.0f);
     program3_meme0 = FabricationContentOneFixtures.buildMeme(program3, "Tangy");
     //
     program3_sequence0 = FabricationContentOneFixtures.buildSequence(program3, 0, "Start Chunky", 0.4f, "G minor");
@@ -689,8 +689,8 @@ public class FabricationContentTwoFixtures {
     program3_sequence1_binding0_meme0 = FabricationContentOneFixtures.buildMeme(program3_sequence1_binding0, "Smooth");
 
     // Main program
-    program15 = FabricationContentOneFixtures.buildProgram(library2, ProgramType.Main, ProgramState.Published, "Next Jam", "Db minor", 140);
-    program15_voiceBass = FabricationContentOneFixtures.buildVoice(program5, InstrumentType.Bass, "Bass");
+    program15 = FabricationContentOneFixtures.buildProgram(library2, Program::Type.Main, Program::State.Published, "Next Jam", "Db minor", 140);
+    program15_voiceBass = FabricationContentOneFixtures.buildVoice(program5, Instrument::Type.Bass, "Bass");
     program15_meme0 = FabricationContentOneFixtures.buildMeme(program15, "Hindsight");
     //
     program15_sequence0 = FabricationContentOneFixtures.buildSequence(program15, 16, "Intro", 0.5f, "G minor");
@@ -757,10 +757,10 @@ public class FabricationContentTwoFixtures {
    */
   public Collection<Object> setupFixtureB3() {
     // A basic beat
-    program9 = FabricationContentOneFixtures.buildProgram(library2, ProgramType.Beat, ProgramState.Published, "Basic Beat", "C", 121);
+    program9 = FabricationContentOneFixtures.buildProgram(library2, Program::Type.Beat, Program::State.Published, "Basic Beat", "C", 121);
     program9_meme0 = FabricationContentOneFixtures.buildMeme(program9, "Basic");
     //
-    program9_voice0 = FabricationContentOneFixtures.buildVoice(program9, InstrumentType.Drum, "Drums");
+    program9_voice0 = FabricationContentOneFixtures.buildVoice(program9, Instrument::Type.Drum, "Drums");
     program9_voice0_track0 = FabricationContentOneFixtures.buildTrack(program9_voice0, "BLEEP");
     program9_voice0_track1 = FabricationContentOneFixtures.buildTrack(program9_voice0, "BLEEP");
     program9_voice0_track2 = FabricationContentOneFixtures.buildTrack(program9_voice0, "BLEEP");
@@ -805,7 +805,7 @@ public class FabricationContentTwoFixtures {
     program9_sequence0_pattern3_event3 = FabricationContentOneFixtures.buildEvent(program9_sequence0_pattern3, program9_voice0_track15, 3, 1, "G5", 0.9f);
 
     // Instrument "808"
-    instrument8 = FabricationContentOneFixtures.buildInstrument(library2, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "808 Drums");
+    instrument8 = FabricationContentOneFixtures.buildInstrument(library2, Instrument::Type.Drum, Instrument::Mode.Event, Instrument::State.Published, "808 Drums");
     instrument8.setVolume(0.76f); // For testing: Instrument has overall volume parameter https://github.com/xjmusic/workstation/issues/300
     instrument8_meme0 = FabricationContentOneFixtures.buildMeme(instrument8, "heavy");
     instrument8_audio8kick = FabricationContentOneFixtures.buildAudio(instrument8, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb", 1.0f);
@@ -871,10 +871,10 @@ public class FabricationContentTwoFixtures {
    */
   public Collection<Object> setupFixtureB4_DetailBass() {
     // A basic bass pattern
-    program10 = FabricationContentOneFixtures.buildProgram(library2, ProgramType.Detail, ProgramState.Published, "Earth Bass Detail Pattern", "C", 121);
+    program10 = FabricationContentOneFixtures.buildProgram(library2, Program::Type.Detail, Program::State.Published, "Earth Bass Detail Pattern", "C", 121);
     program10_meme0 = FabricationContentOneFixtures.buildMeme(program10, "EARTH");
     //
-    program10_voice0 = FabricationContentOneFixtures.buildVoice(program10, InstrumentType.Bass, "Dirty Bass");
+    program10_voice0 = FabricationContentOneFixtures.buildVoice(program10, Instrument::Type.Bass, "Dirty Bass");
     program10_voice0_track0 = FabricationContentOneFixtures.buildTrack(program10_voice0, "BUM");
     //
     program10_sequence0 = FabricationContentOneFixtures.buildSequence(program10, 16, "Simple Walk", 0.5f, "C");
@@ -904,7 +904,7 @@ public class FabricationContentTwoFixtures {
     program10_sequence0_pattern3_event3 = FabricationContentOneFixtures.buildEvent(program10_sequence0_pattern3, program10_voice0_track0, 3, 1, "G5", 0.9f);
 
     // Instrument "Bass"
-    instrument9 = FabricationContentOneFixtures.buildInstrument(library2, InstrumentType.Bass, InstrumentMode.Event, InstrumentState.Published, "Bass");
+    instrument9 = FabricationContentOneFixtures.buildInstrument(library2, Instrument::Type.Bass, Instrument::Mode.Event, Instrument::State.Published, "Bass");
     instrument9_meme0 = FabricationContentOneFixtures.buildMeme(instrument9, "heavy");
     instrument9_audio8 = FabricationContentOneFixtures.buildAudio(instrument9, "bass", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.62f, "BLOOP", "Eb", 1.0f);
 
@@ -968,20 +968,20 @@ public class FabricationContentTwoFixtures {
       String majorMemeName = majorMemeNames[i];
       String minorMemeName = random(minorMemeNames);
       //
-      Instrument instrument = add(entities, FabricationContentOneFixtures.buildInstrument(library1, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, String.format("%s Drums", majorMemeName)));
+      Instrument instrument = add(entities, FabricationContentOneFixtures.buildInstrument(library1, Instrument::Type.Drum, Instrument::Mode.Event, Instrument::State.Published, String.format("%s Drums", majorMemeName)));
       add(entities, FabricationContentOneFixtures.buildInstrumentMeme(instrument, majorMemeName));
       add(entities, FabricationContentOneFixtures.buildInstrumentMeme(instrument, minorMemeName));
       // audios of instrument
       for (int k = 0; k < N; k++)
         add(entities, FabricationContentOneFixtures.buildAudio(instrument, StringUtils.toProper(percussiveNames[k]), String.format("%s.wav", StringUtils.toLowerSlug(percussiveNames[k])), random(0, 0.05f), random(0.25f, 2), random(80, 120), 0.62f, percussiveNames[k], "X", random(0.8f, 1)));
       //
-      LOG.debug("Generated Drum-type Instrument id={}, minorMeme={}, majorMeme={}", instrument.getId(), minorMemeName, majorMemeName);
+      LOG.debug("Generated Drum-type Instrument id={}, minorMeme={}, majorMeme={}", instrument.id, minorMemeName, majorMemeName);
     }
 
     // Generate Perc Loop Instruments
     for (int i = 0; i < N; i++) {
-      Instrument instrument = add(entities, FabricationContentOneFixtures.buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Loop, InstrumentState.Published, "Perc Loop"));
-      LOG.debug("Generated PercLoop-type Instrument id={}", instrument.getId());
+      Instrument instrument = add(entities, FabricationContentOneFixtures.buildInstrument(library1, Instrument::Type.Percussion, Instrument::Mode.Loop, Instrument::State.Published, "Perc Loop"));
+      LOG.debug("Generated PercLoop-type Instrument id={}", instrument.id);
     }
 
     // Generate N*2 total Macro-type programs, each transitioning of one MemeEntity to another
@@ -996,7 +996,7 @@ public class FabricationContentTwoFixtures {
       float intensityFrom = random(0.3f, 0.9f);
       float tempoFrom = random(80, 120);
       //
-      Program program = add(entities, FabricationContentOneFixtures.buildProgram(library1, ProgramType.Macro, ProgramState.Published, String.format("%s, create %s to %s", minorMemeName, majorMemeFromName, majorMemeToName), keyFrom, tempoFrom));
+      Program program = add(entities, FabricationContentOneFixtures.buildProgram(library1, Program::Type.Macro, Program::State.Published, String.format("%s, create %s to %s", minorMemeName, majorMemeFromName, majorMemeToName), keyFrom, tempoFrom));
       add(entities, FabricationContentOneFixtures.buildProgramMeme(program, minorMemeName));
       // of offset 0
       var sequence0 = add(entities, FabricationContentOneFixtures.buildSequence(program, 0, String.format("Start %s", majorMemeFromName), intensityFrom, keyFrom));
@@ -1008,7 +1008,7 @@ public class FabricationContentTwoFixtures {
       var binding1 = add(entities, FabricationContentOneFixtures.buildProgramSequenceBinding(sequence1, 1));
       add(entities, FabricationContentOneFixtures.buildProgramSequenceBindingMeme(binding1, majorMemeToName));
       //
-      LOG.debug("Generated Macro-type Program id={}, minorMeme={}, majorMemeFrom={}, majorMemeTo={}", program.getId(), minorMemeName, majorMemeFromName, majorMemeToName);
+      LOG.debug("Generated Macro-type Program id={}, minorMeme={}, majorMemeFrom={}, majorMemeTo={}", program.id, minorMemeName, majorMemeFromName, majorMemeToName);
     }
 
     // Generate N*4 total Main-type Programs, each having N patterns comprised of ~N*2 chords, bound to N*4 sequence patterns
@@ -1020,7 +1020,7 @@ public class FabricationContentTwoFixtures {
       Float[] subDensities = listOfRandomValues(N);
       float tempo = random(80, 120);
       //
-      Program program = add(entities, FabricationContentOneFixtures.buildProgram(library1, ProgramType.Main, ProgramState.Published, String.format("%s: %s", majorMemeName, String.join(",", sequenceNames)), subKeys[0], tempo));
+      Program program = add(entities, FabricationContentOneFixtures.buildProgram(library1, Program::Type.Main, Program::State.Published, String.format("%s: %s", majorMemeName, String.join(",", sequenceNames)), subKeys[0], tempo));
       add(entities, FabricationContentOneFixtures.buildProgramMeme(program, majorMemeName));
       // sequences of program
       for (int iP = 0; iP < N; iP++) {
@@ -1039,7 +1039,7 @@ public class FabricationContentTwoFixtures {
         var binding = add(entities, FabricationContentOneFixtures.buildProgramSequenceBinding(sequences[num], offset));
         add(entities, FabricationContentOneFixtures.buildMeme(binding, random(minorMemeNames)));
       }
-      LOG.debug("Generated Main-type Program id={}, majorMeme={} with {} sequences bound {} times", program.getId(), majorMemeName, N, N << 2);
+      LOG.debug("Generated Main-type Program id={}, majorMeme={} with {} sequences bound {} times", program.id, majorMemeName, N, N << 2);
     }
 
     // Generate N total Beat-type Sequences, each having N voices, and N*2 patterns comprised of N*8 events
@@ -1051,12 +1051,12 @@ public class FabricationContentTwoFixtures {
       String key = random(LoremIpsum.MUSICAL_KEYS);
       float intensity = random(0.4f, 0.9f);
       //
-      Program program = add(entities, FabricationContentOneFixtures.buildProgram(library1, ProgramType.Beat, ProgramState.Published, String.format("%s Beat", majorMemeName), key, tempo));
+      Program program = add(entities, FabricationContentOneFixtures.buildProgram(library1, Program::Type.Beat, Program::State.Published, String.format("%s Beat", majorMemeName), key, tempo));
       trackMap.clear();
       add(entities, FabricationContentOneFixtures.buildProgramMeme(program, majorMemeName));
       // voices of program
       for (int iV = 0; iV < N; iV++) {
-        voices[iV] = add(entities, FabricationContentOneFixtures.buildVoice(program, InstrumentType.Drum, String.format("%s %s", majorMemeName, percussiveNames[iV])));
+        voices[iV] = add(entities, FabricationContentOneFixtures.buildVoice(program, Instrument::Type.Drum, String.format("%s %s", majorMemeName, percussiveNames[iV])));
       }
       var sequenceBase = add(entities, FabricationContentOneFixtures.buildSequence(program, random(LoremIpsum.SEQUENCE_TOTALS), "Base", intensity, key));
       // patterns of program
@@ -1076,7 +1076,7 @@ public class FabricationContentTwoFixtures {
           }
         }
       }
-      LOG.debug("Generated Beat-type Program id={}, majorMeme={} with {} patterns", program.getId(), majorMemeName, N);
+      LOG.debug("Generated Beat-type Program id={}, majorMeme={} with {} patterns", program.id, majorMemeName, N);
     }
 
     return entities;

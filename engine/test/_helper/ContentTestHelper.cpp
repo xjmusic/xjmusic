@@ -84,7 +84,7 @@ long long ContentTestHelper::currentTimeMillis() {
   return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 }
 
-std::string ContentTestHelper::randomUUID() {
+const std::string ContentTestHelper::randomUUID() {
   std::stringstream ss;
   ss << std::hex << std::setw(16) << std::setfill('0') << currentTimeMillis();
   ss << "-";

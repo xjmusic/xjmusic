@@ -30,8 +30,8 @@ public class MemeIsometryTest {
     subject = MemeIsometry.of(MemeTaxonomy.empty(), List.of(
       "Smooth"
     ));
-    var meme = new ProgramMeme();
-    meme.setProgramId(UUID.randomUUID());
+    ProgramMeme meme;
+    meme.setProgramId(ContentTestHelper::randomUUID());
     meme.setName("Catlike");
     subject.add(meme);
 

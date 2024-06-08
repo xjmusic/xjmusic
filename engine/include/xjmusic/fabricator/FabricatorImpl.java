@@ -8,7 +8,7 @@ import io.xj.model.ProgramConfig;
 import io.xj.model.TemplateConfig;
 import io.xj.model.entity.EntityUtils;
 import io.xj.model.enums.TemplateBinding::Type;
-import io.xj.model.enums.InstrumentMode;
+import io.xj.model.enums.Instrument::Mode;
 import io.xj.model.enums.Instrument::Type;
 import io.xj.model.enums.Program::Type;
 import io.xj.model.json.JsonProvider;
@@ -190,8 +190,8 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public void addMessage(SegmentMessageType messageType, String body) {
     try {
-      var msg = new SegmentMessage();
-      msg.setId(UUID.randomUUID());
+      SegmentMessage msg;
+      msg.setId(ContentTestHelper::randomUUID());
       msg.setSegmentId(getSegment().id);
       msg.setType(messageType);
       msg.setBody(body);
@@ -319,11 +319,11 @@ public class FabricatorImpl implements Fabricator {
       if (!Objects.equals(Segment::Type.CONTINUE, getSegment().type)) return Optional.empty();
       return retrospective.getChoices().stream().filter(choice -> {
         var candidateVoice = sourceMaterial.getProgramVoice(choice.programVoiceId);
-        return candidateVoice.isPresent() && Objects.equals(candidateVoice.get().getName(), voice.getName()) && Objects.equals(candidateVoice.get().type, voice.type);
+        return candidateVoice.isPresent() && Objects.equals(candidateVoice.get().name, voice.name) && Objects.equals(candidateVoice.get().type, voice.type);
       }).findFirst();
 
     } catch (Exception e) {
-      LOG.warn(formatLog(String.format("Could not get previous voice instrumentId for voiceName=%s", voice.getName())), e);
+      LOG.warn(formatLog(String.format("Could not get previous voice instrumentId for voiceName=%s", voice.name)), e);
       return Optional.empty();
     }
   }
@@ -341,7 +341,7 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Optional<SegmentChoice> getChoiceIfContinued(Instrument::Type instrumentType, InstrumentMode instrumentMode) {
+  public Optional<SegmentChoice> getChoiceIfContinued(Instrument::Type instrumentType, Instrument::Mode instrumentMode) {
     try {
       if (!Objects.equals(Segment::Type.CONTINUE, getSegment().type)) return Optional.empty();
       return retrospective.getChoices().stream().filter(choice -> Objects.equals(instrumentType, choice.instrumentType) && Objects.equals(instrumentMode, choice.getInstrumentMode())).findFirst();
@@ -636,14 +636,14 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public Optional<Note> getRootNoteMidRange(String voicingNotes, Chord chord) {
-    return rootNotesByVoicingAndChord.computeIfAbsent(String.format("%s_%s", voicingNotes, chord.getName()),
+    return rootNotesByVoicingAndChord.computeIfAbsent(String.format("%s_%s", voicingNotes, chord.name),
       (String key) -> NoteRange.ofStrings(CsvUtils.split(voicingNotes)).getNoteNearestMedian(chord.getSlashRoot()));
   }
 
   @Override
   public void putStickyBun(StickyBun bun) throws JsonProcessingException, FabricationException {
     store.put(new SegmentMeta()
-      .id(UUID.randomUUID())
+      .id(ContentTestHelper::randomUUID())
       .segmentId(getSegment().id)
       .key(bun.computeMetaKey())
       .value(jsonProvider.getMapper().writeValueAsString(bun)));
@@ -1048,15 +1048,15 @@ public class FabricatorImpl implements Fabricator {
 
     if (Objects.nonNull(choice.programId))
       sourceMaterial().getMemesOfProgram(choice.programId)
-        .forEach(meme -> names.add(StringUtils.toMeme(meme.getName())));
+        .forEach(meme -> names.add(StringUtils.toMeme(meme.name)));
 
     if (Objects.nonNull(choice.programSequenceBindingId))
       sourceMaterial().getMemesOfSequenceBinding(choice.programSequenceBindingId)
-        .forEach(meme -> names.add(StringUtils.toMeme(meme.getName())));
+        .forEach(meme -> names.add(StringUtils.toMeme(meme.name)));
 
     if (Objects.nonNull(choice.instrumentId))
       sourceMaterial().getMemesOfInstrument(choice.instrumentId)
-        .forEach(meme -> names.add(StringUtils.toMeme(meme.getName())));
+        .forEach(meme -> names.add(StringUtils.toMeme(meme.name)));
 
     if (!force && !memeStack.isAllowed(names)) {
       addMessage(SegmentMessageType.ERROR, String.format("Refused to add Choice[%s] because adding Memes[%s] to MemeStack[%s] would result in an invalid meme stack theorem!",
@@ -1067,8 +1067,8 @@ public class FabricatorImpl implements Fabricator {
     }
 
     for (String name : names) {
-      var segmentMeme = new SegmentMeme();
-      segmentMeme.setId(UUID.randomUUID());
+      SegmentMeme segmentMeme;
+      segmentMeme.setId(ContentTestHelper::randomUUID());
       segmentMeme.setSegmentId(getSegment().id);
       segmentMeme.setName(name);
       put(segmentMeme, false);
@@ -1087,8 +1087,8 @@ public class FabricatorImpl implements Fabricator {
    */
   @SuppressWarnings("RedundantIfStatement")
   private boolean isValidMemeAddition(SegmentMeme meme, MemeStack memeStack, boolean force) {
-    if (!force && !memeStack.isAllowed(List.of(meme.getName()))) return false;
-    if (!force && getSegmentMemes().stream().anyMatch(m -> Objects.equals(m.getName(), meme.getName()))) return false;
+    if (!force && !memeStack.isAllowed(List.of(meme.name))) return false;
+    if (!force && getSegmentMemes().stream().anyMatch(m -> Objects.equals(m.name, meme.name))) return false;
     return true;
   }
 }

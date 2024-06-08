@@ -19,8 +19,8 @@ protected:
   // This function runs before each test
   void SetUp() override {
     Project project = FabricationContentOneFixtures::buildProject("Test");
-    Template templ = FabricationContentOneFixtures::buildTemplate(project, "Test");
-    Chain chain = buildChain(project, "Test", Chain::Type::Production, Chain::State::Fabricate, templ);
+    Template tmpl = FabricationContentOneFixtures::buildTemplate(project, "Test");
+    Chain chain = buildChain(project, "Test", Chain::Type::Production, Chain::State::Fabricate, tmpl);
     Segment seg0 = FabricationContentTwoFixtures::buildSegment(
         chain,
         Segment::Type::Initial,

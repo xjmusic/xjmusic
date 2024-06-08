@@ -13,7 +13,7 @@ TEST(MemeTaxonomyTest, DefaultCategoryName) {
   };
   MemeTaxonomy subject(input);
 
-  ASSERT_EQ("CATEGORY", subject.getCategories()[0].getName());
+  ASSERT_EQ("CATEGORY", subject.getCategories()[0].name);
 }
 
 TEST(MemeTaxonomyTest, CategoryHasMemes) {
@@ -58,11 +58,11 @@ TEST(MemeTaxonomyTest, GetCategories) {
   MemeTaxonomy subject("COLOR[RED,GREEN,BLUE];SIZE[LARGE,MEDIUM,SMALL]");
 
   ASSERT_EQ(2, subject.getCategories().size());
-  ASSERT_EQ("COLOR", subject.getCategories()[0].getName());
+  ASSERT_EQ("COLOR", subject.getCategories()[0].name);
   ASSERT_EQ("RED", subject.getCategories()[0].getMemes()[0]);
   ASSERT_EQ("GREEN", subject.getCategories()[0].getMemes()[1]);
   ASSERT_EQ("BLUE", subject.getCategories()[0].getMemes()[2]);
-  ASSERT_EQ("SIZE", subject.getCategories()[1].getName());
+  ASSERT_EQ("SIZE", subject.getCategories()[1].name);
   ASSERT_EQ("LARGE", subject.getCategories()[1].getMemes()[0]);
   ASSERT_EQ("MEDIUM", subject.getCategories()[1].getMemes()[1]);
   ASSERT_EQ("SMALL", subject.getCategories()[1].getMemes()[2]);

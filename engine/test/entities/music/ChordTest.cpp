@@ -40,15 +40,15 @@ TEST(Music_Chord, TestChordExpectations) {
 }
 
 TEST(Music_Chord, of) {
-  ASSERT_EQ("C 6/9", Chord::of("CM6add9").getName());
-  ASSERT_EQ("C 7b9/13", Chord::of("C dom7b9/13").getName());
-  ASSERT_EQ("C aug maj7", Chord::of("C+∆").getName());
-  ASSERT_EQ("C -7b5/11", Chord::of("C Ø11").getName());
-  ASSERT_EQ("C aug maj7", Chord::of("C+M7").getName());
-  ASSERT_EQ("C aug maj7", Chord::of("C+∆").getName());
-  ASSERT_EQ("C aug maj7", Chord::of("C∆#5").getName());
-  ASSERT_EQ("C aug maj7", Chord::of("C+♮7").getName());
-  ASSERT_EQ("C dim", Chord::of("C°").getName());
+  ASSERT_EQ("C 6/9", Chord::of("CM6add9").name);
+  ASSERT_EQ("C 7b9/13", Chord::of("C dom7b9/13").name);
+  ASSERT_EQ("C aug maj7", Chord::of("C+∆").name);
+  ASSERT_EQ("C -7b5/11", Chord::of("C Ø11").name);
+  ASSERT_EQ("C aug maj7", Chord::of("C+M7").name);
+  ASSERT_EQ("C aug maj7", Chord::of("C+∆").name);
+  ASSERT_EQ("C aug maj7", Chord::of("C∆#5").name);
+  ASSERT_EQ("C aug maj7", Chord::of("C+♮7").name);
+  ASSERT_EQ("C dim", Chord::of("C°").name);
 }
 
 TEST(Music_Chord, TestOf_Invalid) {
@@ -85,7 +85,7 @@ TEST(Music_Chord, getDescription_dontConfuseTensionWithSlash) {
 }
 
 TEST(Music_Chord, stripExtraSpacesFromName) {
-  ASSERT_EQ("G", Chord::of("  G      ").getName());
+  ASSERT_EQ("G", Chord::of("  G      ").name);
 }
 
 TEST(Music_Chord, isSame) {
@@ -158,13 +158,13 @@ TEST(Music_Chord, compareTo) {
 
   // Sort the source vector
   std::sort(source.begin(), source.end(), [](const Chord &a, const Chord &b) {
-    return a.getName() < b.getName();
+    return a.name < b.name;
   });
 
   // Map the sorted chords to their names
   std::vector<std::string> sorted;
   std::transform(source.begin(), source.end(), std::back_inserter(sorted), [](const Chord &chord) {
-    return chord.getName();
+    return chord.name;
   });
 
   // Join the chord names into a single string
