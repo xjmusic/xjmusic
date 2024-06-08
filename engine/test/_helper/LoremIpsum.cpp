@@ -1,11 +1,10 @@
-package io.xj.engine;
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-public enum LoremIpsum {
-  ;
-  /**
-   List of colors
-   */
-  public static final String[] COLORS = {
+#include "LoremIpsum.h"
+
+using namespace XJ;
+
+const std::vector<std::string> LoremIpsum::COLORS = {
     "Amber",
     "Amethyst",
     "Apricot",
@@ -85,11 +84,9 @@ public enum LoremIpsum {
     "Viridian",
     "White",
     "Yellow"
-  };
-  /**
-   List of variants
-   */
-  public static final String[] VARIANTS = {
+};
+
+const std::vector<std::string> LoremIpsum::VARIANTS = {
     "Light",
     "Dark",
     "Saturated",
@@ -111,11 +108,9 @@ public enum LoremIpsum {
     "Excellent",
     "Fantastic",
     "Tremendous"
-  };
-  /**
-   List of variants
-   */
-  public static final String[] PERCUSSIVE_NAMES = {
+};
+
+const std::vector<std::string> LoremIpsum::PERCUSSIVE_NAMES = {
     "AGOGOHIGH",
     "AGOGOLOW",
     "BELLRIDE",
@@ -163,11 +158,9 @@ public enum LoremIpsum {
     "VIBRASLAP",
     "WHISTLELONG",
     "WHISTLESHORT"
-  };
-  /**
-   List of musical keys
-   */
-  public static final String[] MUSICAL_CHORDS = {
+};
+
+const std::vector<std::string> LoremIpsum::MUSICAL_CHORDS = {
     "A",
     "Am",
     "A#",
@@ -312,11 +305,9 @@ public enum LoremIpsum {
     "Gm/Bb",
     "G#/B",
     "Abm/B"
-  };
-  /**
-   List of musical keys
-   */
-  public static final String[] MUSICAL_KEYS = {
+};
+
+const std::vector<std::string> LoremIpsum::MUSICAL_KEYS = {
     "A Major",
     "A minor",
     "A# Major",
@@ -341,27 +332,21 @@ public enum LoremIpsum {
     "G minor",
     "G# Major",
     "Ab minor"
-  };
-  /**
-   List of possible Sequence totals
-   */
-  public static final Integer[] SEQUENCE_TOTALS = {
+};
+
+const std::vector<int> LoremIpsum::SEQUENCE_TOTALS = {
     8,
     12,
     16
-  };
-  /**
-   List of possible Pattern totals
-   */
-  public static final Integer[] PATTERN_TOTALS = {
+};
+
+const std::vector<int> LoremIpsum::PATTERN_TOTALS = {
     1,
     2,
     4
-  };
-  /**
-   List of elements
-   */
-  public static final String[] ELEMENTS = {
+};
+
+const std::vector<std::string> LoremIpsum::ELEMENTS = {
     "Actinium",
     "Aluminum",
     "Americium",
@@ -471,5 +456,4 @@ public enum LoremIpsum {
     "Yttrium",
     "Zinc",
     "Zirconium"
-  };
-}
+};

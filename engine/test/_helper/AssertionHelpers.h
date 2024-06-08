@@ -9,7 +9,7 @@
 #include "xjmusic/entities/music/PitchClass.h"
 #include "xjmusic/entities/music/Root.h"
 
-using namespace XJ;
+namespace XJ {
 
 /**
  * Expect a runtime error with a specific message
@@ -31,6 +31,8 @@ using namespace XJ;
  * @param expect  expected note
  * @param actual  actual note
  */
-void assertNote(const std::string &expect, const Note &actual);
+  void assertNote(const std::string &expect, const Note &actual);
+
+} // namespace XJ
 
 #endif //XJMUSIC_TEST_HELPER_ASSERTION_HELPERS_H

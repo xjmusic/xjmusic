@@ -5,6 +5,7 @@ include(FetchContent)
 add_executable(xjmusic_test
         _helper/AssertionHelpers.cpp
         _helper/ContentTestHelper.cpp
+        _helper/LoremIpsum.cpp
         entities/content/ContentStoreTest.cpp
         entities/content/InstrumentAudioTest.cpp
         entities/content/InstrumentConfigTest.cpp
