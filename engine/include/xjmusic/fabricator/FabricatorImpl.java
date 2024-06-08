@@ -269,7 +269,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public Optional<SegmentChoice> getCurrentMainChoice() {
-    return getChoiceOfType(Program::Type.Main);
+    return getChoiceOfType(Program::Type::Main);
   }
 
   @Override
@@ -279,7 +279,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public Optional<SegmentChoice> getCurrentBeatChoice() {
-    return getChoiceOfType(Program::Type.Beat);
+    return getChoiceOfType(Program::Type::Beat);
   }
 
   @Override
@@ -396,14 +396,14 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public Optional<SegmentChoice> getMacroChoiceOfPreviousSegment() {
     if (Objects.isNull(macroChoiceOfPreviousSegment))
-      macroChoiceOfPreviousSegment = retrospective.getPreviousChoiceOfType(Program::Type.Macro);
+      macroChoiceOfPreviousSegment = retrospective.getPreviousChoiceOfType(Program::Type::Macro);
     return macroChoiceOfPreviousSegment;
   }
 
   @Override
   public Optional<SegmentChoice> getPreviousMainChoice() {
     if (Objects.isNull(mainChoiceOfPreviousSegment))
-      mainChoiceOfPreviousSegment = retrospective.getPreviousChoiceOfType(Program::Type.Main);
+      mainChoiceOfPreviousSegment = retrospective.getPreviousChoiceOfType(Program::Type::Main);
     return mainChoiceOfPreviousSegment;
   }
 
@@ -580,7 +580,7 @@ public class FabricatorImpl implements Fabricator {
     if (!fromChord.isPresent()) return 0;
     var cacheKey = String.format("%s__%s__%s", instrumentType, fromChord, toChord);
     if (!targetShift.containsKey(cacheKey)) {
-      if (instrumentType.equals(Instrument::Type.Bass)) {
+      if (instrumentType.equals(Instrument::Type::Bass)) {
         targetShift.put(cacheKey, fromChord.getRoot().delta(toChord.getSlashRoot()));
       } else {
         targetShift.put(cacheKey, fromChord.getRoot().delta(toChord.getRoot()));
@@ -926,7 +926,7 @@ public class FabricatorImpl implements Fabricator {
    @return choices of the current segment of the given type
    */
   private List<SegmentChoice> getBeatChoices() {
-    return getChoices().stream().filter(c -> Objects.equals(c.programType, Program::Type.Beat)).toList();
+    return getChoices().stream().filter(c -> Objects.equals(c.programType, Program::Type::Beat)).toList();
   }
 
   /**

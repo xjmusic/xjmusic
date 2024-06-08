@@ -15,6 +15,8 @@ namespace XJ {
 
   class Segment : public Entity {
   public:
+    static constexpr int DELTA_UNLIMITED = -1;
+
     enum Type {
       Pending,
       Initial,

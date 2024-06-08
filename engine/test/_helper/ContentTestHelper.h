@@ -12,6 +12,27 @@
 
 namespace XJ {
 
+  using AnyContentEntity = std::variant<
+      Project,
+      Library,
+      Template,
+      TemplateBinding,
+      Program,
+      ProgramMeme,
+      ProgramSequence,
+      ProgramSequenceBinding,
+      ProgramSequenceBindingMeme,
+      ProgramVoice,
+      ProgramVoiceTrack,
+      ProgramSequenceChord,
+      ProgramSequenceChordVoicing,
+      ProgramSequencePattern,
+      ProgramSequencePatternEvent,
+      Instrument,
+      InstrumentMeme,
+      InstrumentAudio
+  >;
+
   class ContentTestHelper {
   private:
     unsigned long long counter;

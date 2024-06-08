@@ -47,6 +47,7 @@ add_executable(xjmusic_test
         util/StringUtilsTest.cpp
         util/ValueUtilsTest.cpp
         _helper/FabricationContentOneFixtures.cpp
+        _helper/FabricationContentTwoFixtures.cpp
 )
 
 # I'm using C++17 in the test

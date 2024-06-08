@@ -260,10 +260,10 @@ public class FabricationEntityStoreImplTest {
   public void create_failsWithoutId() {
     SegmentChoice choice;
     choice.setProgramId(ContentTestHelper::randomUUID());
-    choice.setDeltaIn(Segment.DELTA_UNLIMITED);
-    choice.setDeltaOut(Segment.DELTA_UNLIMITED);
+    choice.setDeltaIn(Segment::DELTA_UNLIMITED);
+    choice.setDeltaOut(Segment::DELTA_UNLIMITED);
     choice.setProgramSequenceBindingId(ContentTestHelper::randomUUID());
-    choice.setProgramType(Program::Type.Macro);
+    choice.setProgramType(Program::Type::Macro);
 
     var failure = assertThrows(FabricationException.class,
       () -> subject.put(choice));
@@ -276,10 +276,10 @@ public class FabricationEntityStoreImplTest {
     SegmentChoice choice;
     choice.setId(ContentTestHelper::randomUUID());
     choice.setProgramId(ContentTestHelper::randomUUID());
-    choice.setDeltaIn(Segment.DELTA_UNLIMITED);
-    choice.setDeltaOut(Segment.DELTA_UNLIMITED);
+    choice.setDeltaIn(Segment::DELTA_UNLIMITED);
+    choice.setDeltaOut(Segment::DELTA_UNLIMITED);
     choice.setProgramSequenceBindingId(ContentTestHelper::randomUUID());
-    choice.setProgramType(Program::Type.Macro);
+    choice.setProgramType(Program::Type::Macro);
 
     var failure = assertThrows(FabricationException.class,
       () -> subject.put(choice));
@@ -299,7 +299,7 @@ public class FabricationEntityStoreImplTest {
       Chain::State.FABRICATE,
       template,
       "key123"));
-    var program = FabricationContentOneFixtures.buildProgram(Program::Type.Macro, "C", 120.0f);
+    var program = FabricationContentOneFixtures.buildProgram(Program::Type::Macro, "C", 120.0f);
     var programSequence = FabricationContentOneFixtures.buildProgramSequence(program, 8, "Hay", 0.6f, "G");
     var programSequenceBinding = FabricationContentOneFixtures.buildProgramSequenceBinding(programSequence, 0);
     Segment chain3_segment0 = subject.put(FabricationContentTwoFixtures.buildSegment(chain3,
@@ -311,7 +311,7 @@ public class FabricationEntityStoreImplTest {
       120.0f,
       "chains-3-segments-9f7s89d8a7892.wav"
     ));
-    subject.put(buildSegmentChoice(chain3_segment0, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, program, programSequenceBinding));
+    subject.put(buildSegmentChoice(chain3_segment0, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, program, programSequenceBinding));
     // not in the above chain, won't be retrieved with it
     subject.put(FabricationContentTwoFixtures.buildSegment(chain3,
       1,

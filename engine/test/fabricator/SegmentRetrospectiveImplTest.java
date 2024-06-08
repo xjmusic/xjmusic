@@ -101,14 +101,14 @@ public class SegmentRetrospectiveImplTest {
       true));
     store.put(buildSegmentChoice(
       segment,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
+      Segment::DELTA_UNLIMITED,
+      Segment::DELTA_UNLIMITED,
       macro,
       macroSB));
     store.put(buildSegmentChoice(
       segment,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
+      Segment::DELTA_UNLIMITED,
+      Segment::DELTA_UNLIMITED,
       main,
       mainSB));
 
@@ -119,7 +119,7 @@ public class SegmentRetrospectiveImplTest {
   public void getPreviousChoiceOfType() throws FabricationException, FabricationFatalException {
     var subject = fabricatorFactory.loadRetrospective(segment3.id);
 
-    var result = subject.getPreviousChoiceOfType(Program::Type.Main);
+    var result = subject.getPreviousChoiceOfType(Program::Type::Main);
 
     assertTrue(result.isPresent());
     assertEquals(result.get().programId, fake.program5.id);
@@ -129,7 +129,7 @@ public class SegmentRetrospectiveImplTest {
   public void getPreviousChoiceOfType_forNextMacroSegment() throws FabricationException, FabricationFatalException {
     var subject = fabricatorFactory.loadRetrospective(segment4.id);
 
-    var result = subject.getPreviousChoiceOfType(Program::Type.Main);
+    var result = subject.getPreviousChoiceOfType(Program::Type::Main);
 
     assertTrue(result.isPresent());
     assertEquals(result.get().programId, fake.program5.id);
@@ -139,7 +139,7 @@ public class SegmentRetrospectiveImplTest {
   public void getPreviousChoiceOfType_forNextMainSegment() throws FabricationException, FabricationFatalException {
     var subject = fabricatorFactory.loadRetrospective(segment1.id);
 
-    var result = subject.getPreviousChoiceOfType(Program::Type.Main);
+    var result = subject.getPreviousChoiceOfType(Program::Type::Main);
 
     assertTrue(result.isPresent());
     assertEquals(result.get().programId, fake.program15.id);
@@ -151,7 +151,7 @@ public class SegmentRetrospectiveImplTest {
   @Test
   public void failureToReadMainChoiceIsFatal() throws FabricationException {
     for (SegmentChoice c : store.readAll(segment0.id, SegmentChoice.class))
-      if (c.programType.equals(Program::Type.Main))
+      if (c.programType.equals(Program::Type::Main))
         store.delete(segment0.id, SegmentChoice.class, c.id);
 
     var e = assertThrows(FabricationFatalException.class, () -> fabricatorFactory.loadRetrospective(segment1.id));

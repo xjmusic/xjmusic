@@ -58,13 +58,13 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
       .orElseThrow(() -> new FabricationFatalException("Retrospective sees no previous segment!"));
 
     // previous segment must have a main choice to continue past here.
-    SegmentChoice previousSegmentMainChoice = entityStore.readChoice(previousSegment.id, Program::Type.Main).stream()
-      .filter(segmentChoice -> Program::Type.Main.equals(segmentChoice.programType))
+    SegmentChoice previousSegmentMainChoice = entityStore.readChoice(previousSegment.id, Program::Type::Main).stream()
+      .filter(segmentChoice -> Program::Type::Main.equals(segmentChoice.programType))
       .findFirst()
       .orElseThrow(() -> new FabricationFatalException("Retrospective sees no main choice!"));
 
     retroSegments = entityStore.readAllSegments().stream()
-      .filter(s -> entityStore.readChoice(s.id, Program::Type.Main)
+      .filter(s -> entityStore.readChoice(s.id, Program::Type::Main)
         .map(c -> previousSegmentMainChoice.programId.equals(c.programId))
         .orElse(false))
       .collect(Collectors.toList());

@@ -421,8 +421,8 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
 
 
   private void validateSegmentChoice(SegmentChoice entity) throws ValueException {
-    if (ValueUtils.isUnset(entity.getDeltaIn())) entity.setDeltaIn(Segment.DELTA_UNLIMITED);
-    if (ValueUtils.isUnset(entity.getDeltaOut())) entity.setDeltaOut(Segment.DELTA_UNLIMITED);
+    if (ValueUtils.isUnset(entity.getDeltaIn())) entity.setDeltaIn(Segment::DELTA_UNLIMITED);
+    if (ValueUtils.isUnset(entity.getDeltaOut())) entity.setDeltaOut(Segment::DELTA_UNLIMITED);
   }
 
   private void validateSegment(Segment entity) throws ValueException {

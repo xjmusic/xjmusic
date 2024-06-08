@@ -114,14 +114,14 @@ public class SegmentUtilsTest {
   @Test
   public void testFindFirstOfType() throws FabricationException {
     var ch0 = new SegmentChoice();
-    ch0.setDeltaIn(Segment.DELTA_UNLIMITED);
-    ch0.setDeltaOut(Segment.DELTA_UNLIMITED);
-    ch0.setProgramType(Program::Type.Main);
+    ch0.setDeltaIn(Segment::DELTA_UNLIMITED);
+    ch0.setDeltaOut(Segment::DELTA_UNLIMITED);
+    ch0.setProgramType(Program::Type::Main);
     var ch1 = new SegmentChoice();
-    ch1.setDeltaIn(Segment.DELTA_UNLIMITED);
-    ch1.setDeltaOut(Segment.DELTA_UNLIMITED);
-    ch1.setProgramType(Program::Type.Macro);
-    assertEquals(ch0, SegmentUtils.findFirstOfType(List.of(ch0, ch1), Program::Type.Main));
+    ch1.setDeltaIn(Segment::DELTA_UNLIMITED);
+    ch1.setDeltaOut(Segment::DELTA_UNLIMITED);
+    ch1.setProgramType(Program::Type::Macro);
+    assertEquals(ch0, SegmentUtils.findFirstOfType(List.of(ch0, ch1), Program::Type::Main));
   }
 
   @Test
