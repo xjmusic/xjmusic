@@ -15,7 +15,7 @@ import io.xj.model.music.StickyBun;
 import io.xj.model.pojos.Program;
 import io.xj.model.pojos.ProgramSequenceBinding;
 import io.xj.engine.FabricationException;
-import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.model.pojos.Chain;
 import io.xj.model.enums.ChainState;
@@ -33,8 +33,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures.buildSegment;
+import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -47,7 +47,7 @@ public class SegmentRetrospectiveImplTest {
   FabricatorFactory fabricatorFactory;
   HubContent sourceMaterial;
   FabricationEntityStore store;
-  FabricationContentTwoFixtures fake;
+  SegmentFixtures fake;
   Segment segment0;
   Segment segment1;
   Segment segment3;
@@ -71,14 +71,14 @@ public class SegmentRetrospectiveImplTest {
     store.clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new FabricationContentTwoFixtures();
+    fake = new SegmentFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       fake.setupFixtureB1().stream(),
       fake.setupFixtureB2().stream()
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(FabricationContentTwoFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
+    Chain chain1 = store.put(SegmentFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
     segment0 = constructSegmentAndChoices(chain1, SegmentType.CONTINUE, 10, 4, fake.program4, fake.program4_sequence1_binding0, fake.program15, fake.program15_sequence1_binding0);
     segment1 = constructSegmentAndChoices(chain1, SegmentType.NEXT_MAIN, 11, 0, fake.program4, fake.program4_sequence1_binding0, fake.program5, fake.program5_sequence0_binding0);
     constructSegmentAndChoices(chain1, SegmentType.CONTINUE, 12, 1, fake.program4, fake.program4_sequence1_binding0, fake.program5, fake.program5_sequence1_binding0);
@@ -87,7 +87,7 @@ public class SegmentRetrospectiveImplTest {
   }
 
   Segment constructSegmentAndChoices(Chain chain, SegmentType type, int offset, int delta, Program macro, ProgramSequenceBinding macroSB, Program main, ProgramSequenceBinding mainSB) throws FabricationException {
-    var segment = store.put(FabricationContentTwoFixtures.buildSegment(
+    var segment = store.put(SegmentFixtures.buildSegment(
       chain,
       type,
       offset,
@@ -166,7 +166,7 @@ public class SegmentRetrospectiveImplTest {
   public void getPreviousMeta() throws FabricationException, FabricationFatalException, JsonProcessingException {
     var bun = new StickyBun(patternId, 1);
     var json = jsonProvider.getMapper().writeValueAsString(bun);
-    store.put(FabricationContentTwoFixtures.buildSegmentMeta(segment3, "StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e", json));
+    store.put(SegmentFixtures.buildSegmentMeta(segment3, "StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e", json));
     var subject = fabricatorFactory.loadRetrospective(segment4.getId());
 
     var result = subject.getPreviousMeta("StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e");

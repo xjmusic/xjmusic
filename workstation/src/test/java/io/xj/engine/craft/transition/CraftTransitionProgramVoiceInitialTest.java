@@ -11,7 +11,7 @@ import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.engine.FabricationException;
-import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
@@ -35,8 +35,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures.buildSegment;
+import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftTransitionProgramVoiceInitialTest {
@@ -45,7 +45,7 @@ public class CraftTransitionProgramVoiceInitialTest {
   FabricatorFactory fabricatorFactory;
   HubContent sourceMaterial;
   FabricationEntityStore store;
-  FabricationContentTwoFixtures fake;
+  SegmentFixtures fake;
   Segment segment0;
 
   @BeforeEach
@@ -68,7 +68,7 @@ public class CraftTransitionProgramVoiceInitialTest {
 
     // force known transition selection by destroying program 35
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new FabricationContentTwoFixtures();
+    fake = new SegmentFixtures();
     sourceMaterial = new HubContent(Stream.concat(
         fake.setupFixtureB1().stream(),
         fake.setupFixtureB3().stream())
@@ -130,7 +130,7 @@ public class CraftTransitionProgramVoiceInitialTest {
    Insert fixture segment 6, including the transition choice only if specified
    */
   void insertSegment() throws FabricationException {
-    segment0 = store.put(FabricationContentTwoFixtures.buildSegment(
+    segment0 = store.put(SegmentFixtures.buildSegment(
       chain2,
       0,
       SegmentState.CRAFTING,
@@ -143,10 +143,10 @@ public class CraftTransitionProgramVoiceInitialTest {
     store.put(buildSegmentChoice(segment0, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, fake.program4, fake.program4_sequence0_binding0));
     store.put(buildSegmentChoice(segment0, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, fake.program5, fake.program5_sequence0_binding0));
     for (String memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
-      store.put(FabricationContentTwoFixtures.buildSegmentMeme(segment0, memeName));
+      store.put(SegmentFixtures.buildSegmentMeme(segment0, memeName));
 
-    store.put(FabricationContentTwoFixtures.buildSegmentChord(segment0, 0.0f, "C minor"));
-    store.put(FabricationContentTwoFixtures.buildSegmentChord(segment0, 8.0f, "Db minor"));
+    store.put(SegmentFixtures.buildSegmentChord(segment0, 0.0f, "C minor"));
+    store.put(SegmentFixtures.buildSegmentChord(segment0, 8.0f, "Db minor"));
   }
 
 }

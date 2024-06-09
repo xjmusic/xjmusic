@@ -1,8 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.craft.beat;
 
-import io.xj.engine.FabricationContentOneFixtures;
-import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.ContentFixtures;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationException;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
@@ -36,8 +36,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.FabricationContentTwoFixtures.buildChain;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures.buildChain;
+import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,7 +47,7 @@ public class CraftBeatProgramVoiceInitialTest {
   FabricatorFactory fabricatorFactory;
   HubContent sourceMaterial;
   FabricationEntityStore store;
-  FabricationContentTwoFixtures fake;
+  SegmentFixtures fake;
   Segment segment0;
 
   @BeforeEach
@@ -70,7 +70,7 @@ public class CraftBeatProgramVoiceInitialTest {
 
     // force known beat selection by destroying program 35
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new FabricationContentTwoFixtures();
+    fake = new SegmentFixtures();
     sourceMaterial = new HubContent(Stream.concat(
         fake.setupFixtureB1().stream(),
         fake.setupFixtureB3().stream())
@@ -83,7 +83,7 @@ public class CraftBeatProgramVoiceInitialTest {
       "Print #2",
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
-      FabricationContentOneFixtures.buildTemplate(fake.project1, "Tests")
+      ContentFixtures.buildTemplate(fake.project1, "Tests")
     ));
   }
 
@@ -112,7 +112,7 @@ public class CraftBeatProgramVoiceInitialTest {
    Insert fixture segment 6, including the beat choice only if specified
    */
   void insertSegment() throws FabricationException {
-    segment0 = store.put(FabricationContentTwoFixtures.buildSegment(
+    segment0 = store.put(SegmentFixtures.buildSegment(
       chain2,
       SegmentType.INITIAL,
       0,
@@ -136,10 +136,10 @@ public class CraftBeatProgramVoiceInitialTest {
       fake.program5,
       fake.program5_sequence0_binding0));
     for (String memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
-      store.put(FabricationContentTwoFixtures.buildSegmentMeme(segment0, memeName));
+      store.put(SegmentFixtures.buildSegmentMeme(segment0, memeName));
 
-    store.put(FabricationContentTwoFixtures.buildSegmentChord(segment0, 0.0f, "C minor"));
-    store.put(FabricationContentTwoFixtures.buildSegmentChord(segment0, 8.0f, "Db minor"));
+    store.put(SegmentFixtures.buildSegmentChord(segment0, 0.0f, "C minor"));
+    store.put(SegmentFixtures.buildSegmentChord(segment0, 8.0f, "Db minor"));
   }
 
 }

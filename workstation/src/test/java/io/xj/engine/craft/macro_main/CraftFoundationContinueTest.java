@@ -10,7 +10,7 @@ import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
@@ -42,9 +42,9 @@ import java.util.stream.Stream;
 
 import static io.xj.model.util.Assertion.assertSameItems;
 import static io.xj.model.util.ValueUtils.MICROS_PER_MINUTE;
-import static io.xj.engine.FabricationContentTwoFixtures.buildChain;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures.buildChain;
+import static io.xj.engine.SegmentFixtures.buildSegment;
+import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,7 +53,7 @@ public class CraftFoundationContinueTest {
   FabricatorFactory fabricatorFactory;
   HubContent sourceMaterial;
   FabricationEntityStore store;
-  FabricationContentTwoFixtures fake;
+  SegmentFixtures fake;
   Segment segment4;
 
   @BeforeEach
@@ -75,15 +75,15 @@ public class CraftFoundationContinueTest {
     store.clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new FabricationContentTwoFixtures();
+    fake = new SegmentFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       fake.setupFixtureB1().stream(),
       fake.setupFixtureB2().stream()
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(FabricationContentTwoFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
-    store.put(FabricationContentTwoFixtures.buildSegment(
+    Chain chain1 = store.put(SegmentFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
+    store.put(SegmentFixtures.buildSegment(
       chain1,
       0,
       SegmentState.CRAFTED,
@@ -93,7 +93,7 @@ public class CraftFoundationContinueTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892"
     ));
-    store.put(FabricationContentTwoFixtures.buildSegment(
+    store.put(SegmentFixtures.buildSegment(
       chain1,
       1,
       SegmentState.CRAFTING,
@@ -104,7 +104,7 @@ public class CraftFoundationContinueTest {
       "chains-1-segments-9f7s89d8a7892"
     ));
     // Chain "Test Print #1" has this segment that was just crafted
-    Segment segment3 = store.put(FabricationContentTwoFixtures.buildSegment(
+    Segment segment3 = store.put(SegmentFixtures.buildSegment(
       chain1,
       2,
       SegmentState.CRAFTED,
@@ -128,7 +128,7 @@ public class CraftFoundationContinueTest {
       fake.program5_sequence0_binding0));
 
     // Chain "Test Print #1" has a planned segment
-    segment4 = store.put(FabricationContentTwoFixtures.buildSegment(
+    segment4 = store.put(SegmentFixtures.buildSegment(
       chain1,
       3,
       SegmentState.PLANNED,
