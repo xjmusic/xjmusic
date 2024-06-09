@@ -10,7 +10,7 @@ import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
@@ -39,9 +39,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.FabricationContentTwoFixtures.buildChain;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures.buildChain;
+import static io.xj.engine.SegmentFixtures.buildSegment;
+import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,7 +51,7 @@ public class CraftDetailContinueTest {
   FabricatorFactory fabricatorFactory;
   HubContent sourceMaterial;
   FabricationEntityStore store;
-  FabricationContentTwoFixtures fake;
+  SegmentFixtures fake;
   Segment segment4;
 
   @BeforeEach
@@ -73,7 +73,7 @@ public class CraftDetailContinueTest {
     store.clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new FabricationContentTwoFixtures();
+    fake = new SegmentFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       Stream.concat(fake.setupFixtureB1().stream(),
         fake.setupFixtureB2().stream()),
@@ -88,7 +88,7 @@ public class CraftDetailContinueTest {
       ChainType.PRODUCTION,
       ChainState.FABRICATE
     ));
-    store.put(FabricationContentTwoFixtures.buildSegment(
+    store.put(SegmentFixtures.buildSegment(
       chain1,
       SegmentType.INITIAL,
       0,
@@ -100,7 +100,7 @@ public class CraftDetailContinueTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892",
       true));
-    store.put(FabricationContentTwoFixtures.buildSegment(
+    store.put(SegmentFixtures.buildSegment(
       chain1,
       SegmentType.CONTINUE,
       1,
@@ -149,7 +149,7 @@ public class CraftDetailContinueTest {
    */
   void insertSegments3and4(boolean excludeDetailChoiceForSegment3) throws Exception {
     // segment just crafted
-    Segment segment3 = store.put(FabricationContentTwoFixtures.buildSegment(chain1,
+    Segment segment3 = store.put(SegmentFixtures.buildSegment(chain1,
       SegmentType.CONTINUE,
       2,
       0,
@@ -173,14 +173,14 @@ public class CraftDetailContinueTest {
       fake.program5,
       fake.program5_sequence0_binding0));
     if (!excludeDetailChoiceForSegment3)
-      store.put(FabricationContentTwoFixtures.buildSegmentChoice(
+      store.put(SegmentFixtures.buildSegmentChoice(
         segment3,
         Segment.DELTA_UNLIMITED,
         Segment.DELTA_UNLIMITED,
         fake.program10));
 
     // segment crafting
-    segment4 = store.put(FabricationContentTwoFixtures.buildSegment(
+    segment4 = store.put(SegmentFixtures.buildSegment(
       chain1,
       SegmentType.CONTINUE,
       3,
@@ -205,10 +205,10 @@ public class CraftDetailContinueTest {
       fake.program5,
       fake.program5_sequence1_binding0));
     for (String memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
-      store.put(FabricationContentTwoFixtures.buildSegmentMeme(segment4, memeName));
-    SegmentChord chord0 = store.put(FabricationContentTwoFixtures.buildSegmentChord(segment4, 0.0f, "A minor"));
-    store.put(FabricationContentTwoFixtures.buildSegmentChordVoicing(chord0, InstrumentType.Bass, "A2, C3, E3"));
-    SegmentChord chord1 = store.put(FabricationContentTwoFixtures.buildSegmentChord(segment4, 8.0f, "D major"));
-    store.put(FabricationContentTwoFixtures.buildSegmentChordVoicing(chord1, InstrumentType.Bass, "D2, F#2, A2"));
+      store.put(SegmentFixtures.buildSegmentMeme(segment4, memeName));
+    SegmentChord chord0 = store.put(SegmentFixtures.buildSegmentChord(segment4, 0.0f, "A minor"));
+    store.put(SegmentFixtures.buildSegmentChordVoicing(chord0, InstrumentType.Bass, "A2, C3, E3"));
+    SegmentChord chord1 = store.put(SegmentFixtures.buildSegmentChord(segment4, 8.0f, "D major"));
+    store.put(SegmentFixtures.buildSegmentChordVoicing(chord1, InstrumentType.Bass, "D2, F#2, A2"));
   }
 }

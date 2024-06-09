@@ -1,8 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.craft;
 
-import io.xj.engine.FabricationContentOneFixtures;
-import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.ContentFixtures;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationException;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.fabricator.FabricationEntityStore;
@@ -201,7 +201,7 @@ FUTURE goal
         for (StickyBun bun : stickyBuns) {
           fabricator.putStickyBun(bun);
         }
-        fabricator.put(FabricationContentTwoFixtures.buildSegmentChoice(segment, mainProgram1), false);
+        fabricator.put(SegmentFixtures.buildSegmentChoice(segment, mainProgram1), false);
         CraftImpl subject = new CraftImpl(fabricator);
         for (var choice : segmentChoices.values())
           subject.craftNoteEventArrangements(TEMPO, choice, false);
@@ -233,11 +233,11 @@ FUTURE goal
     // Manipulate the underlying entity store; reset before each test
     store.clear();
 
-    var project1 = FabricationContentOneFixtures.buildProject("fish");
-    Template template1 = FabricationContentOneFixtures.buildTemplate(project1, "Test Template 1", "test1");
-    var library1 = FabricationContentOneFixtures.buildLibrary(project1, "palm tree");
-    mainProgram1 = FabricationContentOneFixtures.buildProgram(library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 60.0f); // 60 BPM such that 1 beat = 1 second
-    chain = store.put(FabricationContentTwoFixtures.buildChain(template1));
+    var project1 = ContentFixtures.buildProject("fish");
+    Template template1 = ContentFixtures.buildTemplate(project1, "Test Template 1", "test1");
+    var library1 = ContentFixtures.buildLibrary(project1, "palm tree");
+    mainProgram1 = ContentFixtures.buildProgram(library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 60.0f); // 60 BPM such that 1 beat = 1 second
+    chain = store.put(SegmentFixtures.buildChain(template1));
 
     // prepare list of all entities to return from Hub
     content = new ArrayList<>(List.of(template1, library1, mainProgram1));
@@ -261,14 +261,14 @@ FUTURE goal
     Map<?, ?> obj = (Map<?, ?>) data.get(String.format("%sInstrument", type.toString().toLowerCase(Locale.ROOT)));
     if (Objects.isNull(obj)) return;
 
-    var instrument = FabricationContentOneFixtures.buildInstrument(
+    var instrument = ContentFixtures.buildInstrument(
       type,
       InstrumentMode.Event,
       getBool(obj, "isTonal"),
       getBool(obj, "isMultiphonic"));
     instruments.put(type, instrument);
 
-    content.addAll(FabricationContentOneFixtures.buildInstrumentWithAudios(
+    content.addAll(ContentFixtures.buildInstrumentWithAudios(
       instrument,
       getStr(obj, "notes")));
   }
@@ -284,31 +284,31 @@ FUTURE goal
     Map<?, ?> obj = (Map<?, ?>) data.get(String.format("%sDetailProgram", type.toString().toLowerCase(Locale.ROOT)));
     if (Objects.isNull(obj)) return;
 
-    var program = FabricationContentOneFixtures.buildDetailProgram(
+    var program = ContentFixtures.buildDetailProgram(
       getStr(obj, "key"),
       getBool(obj, "doPatternRestartOnChord"),
       String.format("%s Test", type));
     detailPrograms.put(type, program);
     content.add(program);
 
-    var voice = FabricationContentOneFixtures.buildVoice(program, type);
+    var voice = ContentFixtures.buildVoice(program, type);
     detailProgramVoices.put(type, voice);
     content.add(voice);
 
-    var track = FabricationContentOneFixtures.buildTrack(voice);
+    var track = ContentFixtures.buildTrack(voice);
     content.add(track);
 
     Map<?, ?> sObj = (Map<?, ?>) obj.get("sequence");
-    var sequence = FabricationContentOneFixtures.buildSequence(program, Objects.requireNonNull(getInt(sObj, "total")));
+    var sequence = ContentFixtures.buildSequence(program, Objects.requireNonNull(getInt(sObj, "total")));
     detailProgramSequences.put(type, sequence);
     content.add(sequence);
 
     Map<?, ?> pObj = (Map<?, ?>) sObj.get("pattern");
-    var pattern = FabricationContentOneFixtures.buildPattern(sequence, voice,
+    var pattern = ContentFixtures.buildPattern(sequence, voice,
       Objects.requireNonNull(getInt(pObj, "total")));
     content.add(pattern);
     for (Map<?, ?> eObj : (List<Map<?, ?>>) pObj.get("events")) {
-      var event = FabricationContentOneFixtures.buildEvent(pattern, track,
+      var event = ContentFixtures.buildEvent(pattern, track,
         Objects.requireNonNull(getFloat(eObj, "position")),
         Objects.requireNonNull(getFloat(eObj, "duration")),
         getStr(eObj, "tones"));
@@ -329,7 +329,7 @@ FUTURE goal
   void loadSegment(Map<?, ?> data) throws FabricationException {
     Map<?, ?> obj = (Map<?, ?>) data.get("segment");
 
-    segment = store.put(FabricationContentTwoFixtures.buildSegment(chain,
+    segment = store.put(SegmentFixtures.buildSegment(chain,
       Objects.requireNonNull(getStr(obj, "key")),
       Objects.requireNonNull(getInt(obj, "total")),
       Objects.requireNonNull(getFloat(obj, "intensity")),
@@ -349,14 +349,14 @@ FUTURE goal
     }
 
     for (Map<?, ?> cObj : (List<Map<?, ?>>) obj.get("chords")) {
-      var chord = store.put(FabricationContentTwoFixtures.buildSegmentChord(segment,
+      var chord = store.put(SegmentFixtures.buildSegmentChord(segment,
         Objects.requireNonNull(getFloat(cObj)),
         getStr(cObj, "name")));
       Map<?, ?> vObj = (Map<?, ?>) cObj.get("voicings");
       for (var instrumentType : instruments.keySet()) {
         var notes = getStr(vObj, instrumentType.toString().toLowerCase(Locale.ROOT));
         if (Objects.nonNull(notes))
-          store.put(FabricationContentTwoFixtures.buildSegmentChordVoicing(chord, instrumentType, notes));
+          store.put(SegmentFixtures.buildSegmentChordVoicing(chord, instrumentType, notes));
       }
     }
 
@@ -365,7 +365,7 @@ FUTURE goal
         detailProgramSequences.containsKey(instrument.getType()) &&
         detailProgramVoices.containsKey(instrument.getType()))
         segmentChoices.put(instrument.getType(),
-          store.put(FabricationContentTwoFixtures.buildSegmentChoice(segment,
+          store.put(SegmentFixtures.buildSegmentChoice(segment,
             detailPrograms.get(instrument.getType()),
             detailProgramSequences.get(instrument.getType()),
             detailProgramVoices.get(instrument.getType()),

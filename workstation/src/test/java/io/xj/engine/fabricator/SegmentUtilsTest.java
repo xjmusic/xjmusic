@@ -2,8 +2,8 @@
 
 package io.xj.engine.fabricator;
 
-import io.xj.engine.FabricationContentOneFixtures;
-import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.ContentFixtures;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationException;
 import io.xj.model.pojos.Chain;
 import io.xj.model.enums.ChainState;
@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 import java.util.List;
 
-import static io.xj.engine.FabricationContentTwoFixtures.buildChain;
+import static io.xj.engine.SegmentFixtures.buildChain;
 import static io.xj.model.util.ValueUtils.MICROS_PER_SECOND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -35,10 +35,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SegmentUtilsTest {
-  final Project project = FabricationContentOneFixtures.buildProject("Test");
-  final Template template = FabricationContentOneFixtures.buildTemplate(project, "Test");
+  final Project project = ContentFixtures.buildProject("Test");
+  final Template template = ContentFixtures.buildTemplate(project, "Test");
   final Chain chain = buildChain(project, "Test", ChainType.PRODUCTION, ChainState.FABRICATE, template);
-  final Segment seg0 = FabricationContentTwoFixtures.buildSegment(
+  final Segment seg0 = SegmentFixtures.buildSegment(
     chain,
     SegmentType.INITIAL,
     0,
@@ -50,7 +50,7 @@ public class SegmentUtilsTest {
     120.0f,
     "chains-1-segments-9f7s89d8a7892",
     true);
-  final Segment seg1 = FabricationContentTwoFixtures.buildSegment(
+  final Segment seg1 = SegmentFixtures.buildSegment(
     chain,
     SegmentType.CONTINUE,
     1,
@@ -62,7 +62,7 @@ public class SegmentUtilsTest {
     120.0f,
     "chains-1-segments-078aw34tiu5hga",
     true);
-  final Segment seg2 = FabricationContentTwoFixtures.buildSegment(
+  final Segment seg2 = SegmentFixtures.buildSegment(
     chain,
     SegmentType.NEXT_MAIN,
     2,
@@ -74,7 +74,7 @@ public class SegmentUtilsTest {
     120.0f,
     "chains-1-segments-jhz5sd4fgi786q",
     true);
-  final Segment seg3 = FabricationContentTwoFixtures.buildSegment(
+  final Segment seg3 = SegmentFixtures.buildSegment(
     chain,
     SegmentType.NEXT_MAIN,
     3,
@@ -164,7 +164,7 @@ public class SegmentUtilsTest {
   }
 
   Segment createSameSegment(String updatedAt, SegmentState state) {
-    final Segment s = FabricationContentTwoFixtures.buildSegment(
+    final Segment s = SegmentFixtures.buildSegment(
       chain,
       SegmentType.CONTINUE,
       1,

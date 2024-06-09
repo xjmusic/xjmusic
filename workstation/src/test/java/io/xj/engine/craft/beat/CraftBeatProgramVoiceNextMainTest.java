@@ -1,8 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.craft.beat;
 
-import io.xj.engine.FabricationContentOneFixtures;
-import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.ContentFixtures;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationException;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
@@ -43,8 +43,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.FabricationContentTwoFixtures.buildChain;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures.buildChain;
+import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -52,7 +52,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class CraftBeatProgramVoiceNextMainTest {
   CraftFactory craftFactory;
   FabricatorFactory fabricatorFactory;
-  FabricationContentTwoFixtures fake;
+  SegmentFixtures fake;
   Chain chain1;
   Segment segment4;
   FabricationEntityStore store;
@@ -79,7 +79,7 @@ public class CraftBeatProgramVoiceNextMainTest {
     store.clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new FabricationContentTwoFixtures();
+    fake = new SegmentFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       Stream.concat(fake.setupFixtureB1().stream(),
         fake.setupFixtureB2().stream()),
@@ -94,7 +94,7 @@ public class CraftBeatProgramVoiceNextMainTest {
       ChainType.PRODUCTION,
       ChainState.FABRICATE
     ));
-    store.put(FabricationContentTwoFixtures.buildSegment(
+    store.put(SegmentFixtures.buildSegment(
       chain1,
       0,
       SegmentState.CRAFTED,
@@ -104,7 +104,7 @@ public class CraftBeatProgramVoiceNextMainTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892"
     ));
-    store.put(FabricationContentTwoFixtures.buildSegment(
+    store.put(SegmentFixtures.buildSegment(
       chain1,
       1,
       SegmentState.CRAFTING,
@@ -125,14 +125,14 @@ public class CraftBeatProgramVoiceNextMainTest {
     Collection<Object> entities = new ArrayList<>();
 
     // Instrument "808"
-    Instrument instrument1 = EntityUtils.add(entities, FabricationContentOneFixtures.buildInstrument(
+    Instrument instrument1 = EntityUtils.add(entities, ContentFixtures.buildInstrument(
       fake.library2,
       InstrumentType.Drum,
       InstrumentMode.Event, InstrumentState.Published,
       "808 Drums"));
-    EntityUtils.add(entities, FabricationContentOneFixtures.buildInstrumentMeme(instrument1, "heavy"));
+    EntityUtils.add(entities, ContentFixtures.buildInstrumentMeme(instrument1, "heavy"));
     //
-    audioKick = EntityUtils.add(entities, FabricationContentOneFixtures.buildInstrumentAudio(
+    audioKick = EntityUtils.add(entities, ContentFixtures.buildInstrumentAudio(
       instrument1,
       "Kick",
       "19801735098q47895897895782138975898.wav",
@@ -144,7 +144,7 @@ public class CraftBeatProgramVoiceNextMainTest {
       "Eb",
       1.0f));
     //
-    audioSnare = EntityUtils.add(entities, FabricationContentOneFixtures.buildInstrumentAudio(
+    audioSnare = EntityUtils.add(entities, ContentFixtures.buildInstrumentAudio(
       instrument1,
       "Snare",
       "a1g9f8u0k1v7f3e59o7j5e8s98.wav",
@@ -198,7 +198,7 @@ public class CraftBeatProgramVoiceNextMainTest {
   void insertSegments3and4(boolean excludeBeatChoiceForSegment3) throws FabricationException {
     // segment just crafted
     // Testing entities for reference
-    Segment segment3 = store.put(FabricationContentTwoFixtures.buildSegment(
+    Segment segment3 = store.put(SegmentFixtures.buildSegment(
       chain1,
       SegmentType.CONTINUE,
       2,
@@ -223,14 +223,14 @@ public class CraftBeatProgramVoiceNextMainTest {
       fake.program15,
       fake.program15_sequence1_binding0));
     if (!excludeBeatChoiceForSegment3)
-      store.put(FabricationContentTwoFixtures.buildSegmentChoice(
+      store.put(SegmentFixtures.buildSegmentChoice(
         segment3,
         Segment.DELTA_UNLIMITED,
         Segment.DELTA_UNLIMITED,
         fake.program35));
 
     // segment crafting
-    segment4 = store.put(FabricationContentTwoFixtures.buildSegment(
+    segment4 = store.put(SegmentFixtures.buildSegment(
       chain1,
       SegmentType.NEXT_MAIN,
       0,
@@ -254,10 +254,10 @@ public class CraftBeatProgramVoiceNextMainTest {
       fake.program15,
       fake.program15_sequence0_binding0));
     for (String memeName : List.of("Regret", "Sky", "Hindsight", "Tropical"))
-      store.put(FabricationContentTwoFixtures.buildSegmentMeme(segment4, memeName));
+      store.put(SegmentFixtures.buildSegmentMeme(segment4, memeName));
 
-    store.put(FabricationContentTwoFixtures.buildSegmentChord(segment4, 0.0f, "G minor"));
-    store.put(FabricationContentTwoFixtures.buildSegmentChord(segment4, 8.0f, "Ab minor"));
+    store.put(SegmentFixtures.buildSegmentChord(segment4, 0.0f, "G minor"));
+    store.put(SegmentFixtures.buildSegmentChord(segment4, 8.0f, "Ab minor"));
   }
 
 }

@@ -1,8 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.craft.background;
 
-import io.xj.engine.FabricationContentOneFixtures;
-import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.ContentFixtures;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationException;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
@@ -42,14 +42,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.FabricationContentTwoFixtures.buildChain;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures.buildChain;
+import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftBackgroundProgramVoiceNextMainTest {
   CraftFactory craftFactory;
   FabricatorFactory fabricatorFactory;
-  FabricationContentTwoFixtures fake;
+  SegmentFixtures fake;
   Chain chain1;
   Segment segment4;
   FabricationEntityStore store;
@@ -76,7 +76,7 @@ public class CraftBackgroundProgramVoiceNextMainTest {
     store.clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new FabricationContentTwoFixtures();
+    fake = new SegmentFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       Stream.concat(fake.setupFixtureB1().stream(),
         fake.setupFixtureB2().stream()),
@@ -91,7 +91,7 @@ public class CraftBackgroundProgramVoiceNextMainTest {
       ChainType.PRODUCTION,
       ChainState.FABRICATE
     ));
-    store.put(FabricationContentTwoFixtures.buildSegment(
+    store.put(SegmentFixtures.buildSegment(
       chain1,
       0,
       SegmentState.CRAFTED,
@@ -101,7 +101,7 @@ public class CraftBackgroundProgramVoiceNextMainTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892"
     ));
-    store.put(FabricationContentTwoFixtures.buildSegment(
+    store.put(SegmentFixtures.buildSegment(
       chain1,
       SegmentType.CONTINUE,
       1,
@@ -124,10 +124,10 @@ public class CraftBackgroundProgramVoiceNextMainTest {
 
     // Instrument "808"
     Instrument instrument1 = EntityUtils.add(entities,
-      FabricationContentOneFixtures.buildInstrument(fake.library2, InstrumentType.Background, InstrumentMode.Loop, InstrumentState.Published, "Bongo Loop"));
-    EntityUtils.add(entities, FabricationContentOneFixtures.buildInstrumentMeme(instrument1, "heavy"));
+      ContentFixtures.buildInstrument(fake.library2, InstrumentType.Background, InstrumentMode.Loop, InstrumentState.Published, "Bongo Loop"));
+    EntityUtils.add(entities, ContentFixtures.buildInstrumentMeme(instrument1, "heavy"));
     //
-    audioKick = EntityUtils.add(entities, FabricationContentOneFixtures.buildInstrumentAudio(
+    audioKick = EntityUtils.add(entities, ContentFixtures.buildInstrumentAudio(
       instrument1,
       "Kick",
       "19801735098q47895897895782138975898.wav",
@@ -139,7 +139,7 @@ public class CraftBackgroundProgramVoiceNextMainTest {
       "Eb",
       1.0f));
     //
-    audioSnare = EntityUtils.add(entities, FabricationContentOneFixtures.buildInstrumentAudio(
+    audioSnare = EntityUtils.add(entities, ContentFixtures.buildInstrumentAudio(
       instrument1,
       "Snare",
       "a1g9f8u0k1v7f3e59o7j5e8s98.wav",
@@ -181,7 +181,7 @@ public class CraftBackgroundProgramVoiceNextMainTest {
   void insertSegments3and4() throws FabricationException {
     // segment just crafted
     // Testing entities for reference
-    Segment segment3 = store.put(FabricationContentTwoFixtures.buildSegment(
+    Segment segment3 = store.put(SegmentFixtures.buildSegment(
       chain1,
       SegmentType.CONTINUE,
       2,
@@ -207,7 +207,7 @@ public class CraftBackgroundProgramVoiceNextMainTest {
       fake.program15_sequence1_binding0));
 
     // segment crafting
-    segment4 = store.put(FabricationContentTwoFixtures.buildSegment(
+    segment4 = store.put(SegmentFixtures.buildSegment(
       chain1,
       SegmentType.NEXT_MAIN,
       0,
@@ -231,10 +231,10 @@ public class CraftBackgroundProgramVoiceNextMainTest {
       fake.program15,
       fake.program15_sequence0_binding0));
     for (String memeName : List.of("Regret", "Sky", "Hindsight", "Tropical"))
-      store.put(FabricationContentTwoFixtures.buildSegmentMeme(segment4, memeName));
+      store.put(SegmentFixtures.buildSegmentMeme(segment4, memeName));
 
-    store.put(FabricationContentTwoFixtures.buildSegmentChord(segment4, 0.0f, "G minor"));
-    store.put(FabricationContentTwoFixtures.buildSegmentChord(segment4, 8.0f, "Ab minor"));
+    store.put(SegmentFixtures.buildSegmentChord(segment4, 0.0f, "G minor"));
+    store.put(SegmentFixtures.buildSegmentChord(segment4, 8.0f, "Ab minor"));
   }
 
 }

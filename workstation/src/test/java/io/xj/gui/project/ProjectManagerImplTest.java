@@ -1,8 +1,6 @@
 package io.xj.gui.project;
 
-import io.xj.engine.FabricationContentOneFixtures;
-import io.xj.gui.project.ProjectManager;
-import io.xj.gui.project.ProjectManagerImpl;
+import io.xj.engine.ContentFixtures;
 import io.xj.model.HubTopology;
 import io.xj.model.InstrumentConfig;
 import io.xj.model.ProgramConfig;
@@ -43,9 +41,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import static io.xj.engine.FabricationContentOneFixtures.buildInstrument;
-import static io.xj.engine.FabricationContentOneFixtures.buildProgram;
-import static io.xj.engine.FabricationContentOneFixtures.buildProject;
+import static io.xj.engine.ContentFixtures.buildInstrument;
+import static io.xj.engine.ContentFixtures.buildProgram;
+import static io.xj.engine.ContentFixtures.buildProject;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -170,11 +168,11 @@ class ProjectManagerImplTest {
   @Test
   void createProgram_attributesFromProgramInSameLibrary() throws Exception {
     subject.getContent().clear();
-    var project = FabricationContentOneFixtures.buildProject("Testing");
-    var library = FabricationContentOneFixtures.buildLibrary(project, "Test Library");
-    var program = FabricationContentOneFixtures.buildProgram(library, ProgramType.Beat, ProgramState.Published, "Lorem Ipsum Program", "C", 120);
-    var otherLibrary = FabricationContentOneFixtures.buildLibrary(project, "Other Library");
-    var otherProgram = FabricationContentOneFixtures.buildProgram(otherLibrary, ProgramType.Macro, ProgramState.Draft, "Other Program", "D", 130);
+    var project = ContentFixtures.buildProject("Testing");
+    var library = ContentFixtures.buildLibrary(project, "Test Library");
+    var program = ContentFixtures.buildProgram(library, ProgramType.Beat, ProgramState.Published, "Lorem Ipsum Program", "C", 120);
+    var otherLibrary = ContentFixtures.buildLibrary(project, "Other Library");
+    var otherProgram = ContentFixtures.buildProgram(otherLibrary, ProgramType.Macro, ProgramState.Draft, "Other Program", "D", 130);
     subject.getContent().putAll(List.of(project, library, program, otherLibrary, otherProgram));
 
     var result = subject.createProgram(library, "Test Program");
@@ -197,10 +195,10 @@ class ProjectManagerImplTest {
   @Test
   void createProgram_attributesFromProgramInProject() throws Exception {
     subject.getContent().clear();
-    var project = FabricationContentOneFixtures.buildProject("Testing");
-    var library = FabricationContentOneFixtures.buildLibrary(project, "Test Library");
-    var otherLibrary = FabricationContentOneFixtures.buildLibrary(project, "Other Library");
-    var otherProgram = FabricationContentOneFixtures.buildProgram(otherLibrary, ProgramType.Macro, ProgramState.Draft, "Other Program", "D", 130);
+    var project = ContentFixtures.buildProject("Testing");
+    var library = ContentFixtures.buildLibrary(project, "Test Library");
+    var otherLibrary = ContentFixtures.buildLibrary(project, "Other Library");
+    var otherProgram = ContentFixtures.buildProgram(otherLibrary, ProgramType.Macro, ProgramState.Draft, "Other Program", "D", 130);
     subject.getContent().putAll(List.of(project, library, otherLibrary, otherProgram));
 
     var result = subject.createProgram(library, "Test Program");
@@ -236,11 +234,11 @@ class ProjectManagerImplTest {
   @Test
   void createInstrument_attributesFromInstrumentInSameLibrary() throws Exception {
     subject.getContent().clear();
-    var project = FabricationContentOneFixtures.buildProject("Testing");
-    var library = FabricationContentOneFixtures.buildLibrary(project, "Test Library");
-    var instrument = FabricationContentOneFixtures.buildInstrument(library, InstrumentType.Bass, InstrumentMode.Chord, InstrumentState.Published, "Lorem Ipsum Instrument");
-    var otherLibrary = FabricationContentOneFixtures.buildLibrary(project, "Other Library");
-    var otherInstrument = FabricationContentOneFixtures.buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
+    var project = ContentFixtures.buildProject("Testing");
+    var library = ContentFixtures.buildLibrary(project, "Test Library");
+    var instrument = ContentFixtures.buildInstrument(library, InstrumentType.Bass, InstrumentMode.Chord, InstrumentState.Published, "Lorem Ipsum Instrument");
+    var otherLibrary = ContentFixtures.buildLibrary(project, "Other Library");
+    var otherInstrument = ContentFixtures.buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
     subject.getContent().putAll(List.of(project, library, instrument, otherLibrary, otherInstrument));
 
     var result = subject.createInstrument(library, "Test Instrument");
@@ -262,10 +260,10 @@ class ProjectManagerImplTest {
   @Test
   void createInstrument_attributesFromInstrumentInProject() throws Exception {
     subject.getContent().clear();
-    var project = FabricationContentOneFixtures.buildProject("Testing");
-    var library = FabricationContentOneFixtures.buildLibrary(project, "Test Library");
-    var otherLibrary = FabricationContentOneFixtures.buildLibrary(project, "Other Library");
-    var otherInstrument = FabricationContentOneFixtures.buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
+    var project = ContentFixtures.buildProject("Testing");
+    var library = ContentFixtures.buildLibrary(project, "Test Library");
+    var otherLibrary = ContentFixtures.buildLibrary(project, "Other Library");
+    var otherInstrument = ContentFixtures.buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
     subject.getContent().putAll(List.of(project, library, otherLibrary, otherInstrument));
 
     var result = subject.createInstrument(library, "Test Instrument");
@@ -300,13 +298,13 @@ class ProjectManagerImplTest {
   @Test
   void createInstrumentAudio_attributesFromAudioInSameInstrument() throws Exception {
     subject.getContent().clear();
-    var project = FabricationContentOneFixtures.buildProject("Testing");
-    var library = FabricationContentOneFixtures.buildLibrary(project, "Test Library");
-    var instrument = FabricationContentOneFixtures.buildInstrument(library, InstrumentType.Bass, InstrumentMode.Chord, InstrumentState.Published, "Lorem Ipsum Instrument");
-    var audio = FabricationContentOneFixtures.buildInstrumentAudio(instrument, "Lorem Ipsum Audio", "lorem-ipsum.wav", 0, 4, 120, 1, "X", "C4", 1);
-    var otherLibrary = FabricationContentOneFixtures.buildLibrary(project, "Other Library");
-    var otherInstrument = FabricationContentOneFixtures.buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
-    var otherAudio = FabricationContentOneFixtures.buildInstrumentAudio(otherInstrument, "Other Audio", "other-audio.wav", 0.1f, 4.2f, 130.0f, 0.9f, "HIT", "D3", 0.9f);
+    var project = ContentFixtures.buildProject("Testing");
+    var library = ContentFixtures.buildLibrary(project, "Test Library");
+    var instrument = ContentFixtures.buildInstrument(library, InstrumentType.Bass, InstrumentMode.Chord, InstrumentState.Published, "Lorem Ipsum Instrument");
+    var audio = ContentFixtures.buildInstrumentAudio(instrument, "Lorem Ipsum Audio", "lorem-ipsum.wav", 0, 4, 120, 1, "X", "C4", 1);
+    var otherLibrary = ContentFixtures.buildLibrary(project, "Other Library");
+    var otherInstrument = ContentFixtures.buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
+    var otherAudio = ContentFixtures.buildInstrumentAudio(otherInstrument, "Other Audio", "other-audio.wav", 0.1f, 4.2f, 130.0f, 0.9f, "HIT", "D3", 0.9f);
     subject.getContent().putAll(List.of(project, library, instrument, audio, otherLibrary, otherInstrument, otherAudio));
 
     var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
@@ -331,14 +329,14 @@ class ProjectManagerImplTest {
   @Test
   void createInstrumentAudio_attributesFromAudioInSameLibrary() throws Exception {
     subject.getContent().clear();
-    var project = FabricationContentOneFixtures.buildProject("Testing");
-    var library = FabricationContentOneFixtures.buildLibrary(project, "Test Library");
-    var instrument = FabricationContentOneFixtures.buildInstrument(library, InstrumentType.Bass, InstrumentMode.Chord, InstrumentState.Published, "Lorem Ipsum Instrument");
-    var instrument2 = FabricationContentOneFixtures.buildInstrument(library, InstrumentType.Bass, InstrumentMode.Chord, InstrumentState.Published, "Lorem Ipsum Instrument");
-    var audio = FabricationContentOneFixtures.buildInstrumentAudio(instrument2, "Lorem Ipsum Audio", "lorem-ipsum.wav", 0, 4, 120, 1, "X", "C4", 1);
-    var otherLibrary = FabricationContentOneFixtures.buildLibrary(project, "Other Library");
-    var otherInstrument = FabricationContentOneFixtures.buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
-    var otherAudio = FabricationContentOneFixtures.buildInstrumentAudio(otherInstrument, "Other Audio", "other-audio.wav", 0.1f, 4.2f, 130.0f, 0.9f, "HIT", "D3", 0.9f);
+    var project = ContentFixtures.buildProject("Testing");
+    var library = ContentFixtures.buildLibrary(project, "Test Library");
+    var instrument = ContentFixtures.buildInstrument(library, InstrumentType.Bass, InstrumentMode.Chord, InstrumentState.Published, "Lorem Ipsum Instrument");
+    var instrument2 = ContentFixtures.buildInstrument(library, InstrumentType.Bass, InstrumentMode.Chord, InstrumentState.Published, "Lorem Ipsum Instrument");
+    var audio = ContentFixtures.buildInstrumentAudio(instrument2, "Lorem Ipsum Audio", "lorem-ipsum.wav", 0, 4, 120, 1, "X", "C4", 1);
+    var otherLibrary = ContentFixtures.buildLibrary(project, "Other Library");
+    var otherInstrument = ContentFixtures.buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
+    var otherAudio = ContentFixtures.buildInstrumentAudio(otherInstrument, "Other Audio", "other-audio.wav", 0.1f, 4.2f, 130.0f, 0.9f, "HIT", "D3", 0.9f);
     subject.getContent().putAll(List.of(project, library, instrument, instrument2, audio, otherLibrary, otherInstrument, otherAudio));
 
     var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
@@ -364,13 +362,13 @@ class ProjectManagerImplTest {
   @Test
   void createInstrumentAudio_tempoFromProgramInSameLibrary() throws Exception {
     subject.getContent().clear();
-    var project = FabricationContentOneFixtures.buildProject("Testing");
-    var library = FabricationContentOneFixtures.buildLibrary(project, "Test Library");
-    var instrument = FabricationContentOneFixtures.buildInstrument(library, InstrumentType.Bass, InstrumentMode.Chord, InstrumentState.Published, "Lorem Ipsum Instrument");
-    var program = FabricationContentOneFixtures.buildProgram(library, ProgramType.Beat, ProgramState.Published, "Lorem Ipsum Program", "C", 150);
-    var otherLibrary = FabricationContentOneFixtures.buildLibrary(project, "Other Library");
-    var otherInstrument = FabricationContentOneFixtures.buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
-    var otherAudio = FabricationContentOneFixtures.buildInstrumentAudio(otherInstrument, "Other Audio", "other-audio.wav", 0.1f, 4.2f, 130.0f, 0.9f, "HIT", "D3", 0.9f);
+    var project = ContentFixtures.buildProject("Testing");
+    var library = ContentFixtures.buildLibrary(project, "Test Library");
+    var instrument = ContentFixtures.buildInstrument(library, InstrumentType.Bass, InstrumentMode.Chord, InstrumentState.Published, "Lorem Ipsum Instrument");
+    var program = ContentFixtures.buildProgram(library, ProgramType.Beat, ProgramState.Published, "Lorem Ipsum Program", "C", 150);
+    var otherLibrary = ContentFixtures.buildLibrary(project, "Other Library");
+    var otherInstrument = ContentFixtures.buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
+    var otherAudio = ContentFixtures.buildInstrumentAudio(otherInstrument, "Other Audio", "other-audio.wav", 0.1f, 4.2f, 130.0f, 0.9f, "HIT", "D3", 0.9f);
     subject.getContent().putAll(List.of(project, library, instrument, program, otherLibrary, otherInstrument, otherAudio));
 
     var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
@@ -392,12 +390,12 @@ class ProjectManagerImplTest {
   @Test
   void createInstrumentAudio_attributesFromAnyAudio() throws Exception {
     subject.getContent().clear();
-    var project = FabricationContentOneFixtures.buildProject("Testing");
-    var library = FabricationContentOneFixtures.buildLibrary(project, "Test Library");
-    var instrument = FabricationContentOneFixtures.buildInstrument(library, InstrumentType.Bass, InstrumentMode.Chord, InstrumentState.Published, "Lorem Ipsum Instrument");
-    var otherLibrary = FabricationContentOneFixtures.buildLibrary(project, "Other Library");
-    var otherInstrument = FabricationContentOneFixtures.buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
-    var otherAudio = FabricationContentOneFixtures.buildInstrumentAudio(otherInstrument, "Other Audio", "other-audio.wav", 0.1f, 4.2f, 130.0f, 0.9f, "HIT", "D3", 0.9f);
+    var project = ContentFixtures.buildProject("Testing");
+    var library = ContentFixtures.buildLibrary(project, "Test Library");
+    var instrument = ContentFixtures.buildInstrument(library, InstrumentType.Bass, InstrumentMode.Chord, InstrumentState.Published, "Lorem Ipsum Instrument");
+    var otherLibrary = ContentFixtures.buildLibrary(project, "Other Library");
+    var otherInstrument = ContentFixtures.buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
+    var otherAudio = ContentFixtures.buildInstrumentAudio(otherInstrument, "Other Audio", "other-audio.wav", 0.1f, 4.2f, 130.0f, 0.9f, "HIT", "D3", 0.9f);
     subject.getContent().putAll(List.of(project, library, instrument, otherLibrary, otherInstrument, otherAudio));
 
     var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
@@ -425,11 +423,11 @@ class ProjectManagerImplTest {
   @Test
   void createInstrumentAudio_attributesFromAnyProgram() throws Exception {
     subject.getContent().clear();
-    var project = FabricationContentOneFixtures.buildProject("Testing");
-    var library = FabricationContentOneFixtures.buildLibrary(project, "Test Library");
-    var instrument = FabricationContentOneFixtures.buildInstrument(library, InstrumentType.Bass, InstrumentMode.Chord, InstrumentState.Published, "Lorem Ipsum Instrument");
-    var otherLibrary = FabricationContentOneFixtures.buildLibrary(project, "Other Library");
-    var otherProgram = FabricationContentOneFixtures.buildProgram(otherLibrary, ProgramType.Beat, ProgramState.Published, "Lorem Ipsum Program", "C", 150);
+    var project = ContentFixtures.buildProject("Testing");
+    var library = ContentFixtures.buildLibrary(project, "Test Library");
+    var instrument = ContentFixtures.buildInstrument(library, InstrumentType.Bass, InstrumentMode.Chord, InstrumentState.Published, "Lorem Ipsum Instrument");
+    var otherLibrary = ContentFixtures.buildLibrary(project, "Other Library");
+    var otherProgram = ContentFixtures.buildProgram(otherLibrary, ProgramType.Beat, ProgramState.Published, "Lorem Ipsum Program", "C", 150);
     subject.getContent().putAll(List.of(project, library, instrument, otherProgram, otherLibrary));
 
     var result = subject.createInstrumentAudio(instrument, pathToAudioFile);

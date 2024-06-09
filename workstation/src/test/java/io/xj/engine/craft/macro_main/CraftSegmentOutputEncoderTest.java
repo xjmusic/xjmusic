@@ -8,7 +8,7 @@ import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
@@ -28,8 +28,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static io.xj.engine.FabricationContentTwoFixtures.buildChain;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
+import static io.xj.engine.SegmentFixtures.buildChain;
+import static io.xj.engine.SegmentFixtures.buildSegment;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,7 +59,7 @@ public class CraftSegmentOutputEncoderTest {
     store.clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    FabricationContentTwoFixtures fake = new FabricationContentTwoFixtures();
+    SegmentFixtures fake = new SegmentFixtures();
     sourceMaterial = new HubContent(fake.setupFixtureB1());
 
     // Chain "Print #2" has 1 initial planned segment
@@ -70,7 +70,7 @@ public class CraftSegmentOutputEncoderTest {
       ChainState.FABRICATE,
       fake.template1
     ));
-    segment6 = store.put(FabricationContentTwoFixtures.buildSegment(
+    segment6 = store.put(SegmentFixtures.buildSegment(
       chain2,
       0,
       SegmentState.PLANNED,

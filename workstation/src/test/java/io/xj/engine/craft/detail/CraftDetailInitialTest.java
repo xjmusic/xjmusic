@@ -10,7 +10,7 @@ import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
@@ -39,9 +39,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.FabricationContentTwoFixtures.buildChain;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures.buildChain;
+import static io.xj.engine.SegmentFixtures.buildSegment;
+import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -72,7 +72,7 @@ public class CraftDetailInitialTest {
     store.clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    FabricationContentTwoFixtures fake = new FabricationContentTwoFixtures();
+    SegmentFixtures fake = new SegmentFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       Stream.concat(
         Stream.concat(fake.setupFixtureB1().stream(),
@@ -91,7 +91,7 @@ public class CraftDetailInitialTest {
     ));
 
     // segment crafting
-    segment6 = store.put(FabricationContentTwoFixtures.buildSegment(
+    segment6 = store.put(SegmentFixtures.buildSegment(
       chain2,
       SegmentType.INITIAL,
       0,
@@ -115,11 +115,11 @@ public class CraftDetailInitialTest {
       fake.program5,
       fake.program5_sequence0_binding0));
     for (String memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
-      store.put(FabricationContentTwoFixtures.buildSegmentMeme(segment6, memeName));
-    SegmentChord chord0 = store.put(FabricationContentTwoFixtures.buildSegmentChord(segment6, 0.0f, "C minor"));
-    store.put(FabricationContentTwoFixtures.buildSegmentChordVoicing(chord0, InstrumentType.Bass, "C2, Eb2, G2"));
-    SegmentChord chord1 = store.put(FabricationContentTwoFixtures.buildSegmentChord(segment6, 8.0f, "Db minor"));
-    store.put(FabricationContentTwoFixtures.buildSegmentChordVoicing(chord1, InstrumentType.Bass, "Db2, E2, Ab2"));
+      store.put(SegmentFixtures.buildSegmentMeme(segment6, memeName));
+    SegmentChord chord0 = store.put(SegmentFixtures.buildSegmentChord(segment6, 0.0f, "C minor"));
+    store.put(SegmentFixtures.buildSegmentChordVoicing(chord0, InstrumentType.Bass, "C2, Eb2, G2"));
+    SegmentChord chord1 = store.put(SegmentFixtures.buildSegmentChord(segment6, 8.0f, "Db minor"));
+    store.put(SegmentFixtures.buildSegmentChordVoicing(chord1, InstrumentType.Bass, "Db2, E2, Ab2"));
   }
 
   @AfterEach

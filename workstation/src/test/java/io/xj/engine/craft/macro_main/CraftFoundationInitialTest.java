@@ -10,7 +10,7 @@ import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
@@ -40,8 +40,8 @@ import java.util.Objects;
 
 import static io.xj.model.util.Assertion.assertSameItems;
 import static io.xj.model.util.ValueUtils.MICROS_PER_MINUTE;
-import static io.xj.engine.FabricationContentTwoFixtures.buildChain;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
+import static io.xj.engine.SegmentFixtures.buildChain;
+import static io.xj.engine.SegmentFixtures.buildSegment;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,7 +50,7 @@ public class CraftFoundationInitialTest {
   FabricatorFactory fabricatorFactory;
   HubContent sourceMaterial;
   FabricationEntityStore store;
-  FabricationContentTwoFixtures fake;
+  SegmentFixtures fake;
   Segment segment6;
 
   @BeforeEach
@@ -72,7 +72,7 @@ public class CraftFoundationInitialTest {
     store.clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new FabricationContentTwoFixtures();
+    fake = new SegmentFixtures();
     sourceMaterial = new HubContent(fake.setupFixtureB1());
 
     // Chain "Print #2" has 1 initial planned segment
@@ -83,7 +83,7 @@ public class CraftFoundationInitialTest {
       ChainType.PRODUCTION,
       ChainState.FABRICATE
     ));
-    segment6 = store.put(FabricationContentTwoFixtures.buildSegment(
+    segment6 = store.put(SegmentFixtures.buildSegment(
       chain2,
       0,
       SegmentState.PLANNED,
