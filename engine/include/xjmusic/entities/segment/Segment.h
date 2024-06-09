@@ -4,6 +4,7 @@
 #define SEGMENT_H
 
 #include <string>
+#include <optional>
 
 #include "nlohmann/json.hpp"
 

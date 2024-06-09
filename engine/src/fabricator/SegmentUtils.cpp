@@ -61,8 +61,8 @@ namespace XJ {
 
 
   bool SegmentUtils::isSpanning(Segment &segment, long long fromChainMicros, long long toChainMicros) {
-    if (segment.durationMicros) {
-      return segment.beginAtChainMicros + segment.durationMicros > fromChainMicros &&
+    if (segment.durationMicros.has_value()) {
+      return segment.beginAtChainMicros + segment.durationMicros.value() > fromChainMicros &&
              segment.beginAtChainMicros <= toChainMicros;
     }
     return false;
@@ -70,8 +70,8 @@ namespace XJ {
 
 
   bool SegmentUtils::isIntersecting(Segment &segment, long long atChainMicros, long long thresholdMicros) {
-    if (segment.durationMicros && atChainMicros) {
-      return segment.beginAtChainMicros + segment.durationMicros + thresholdMicros > atChainMicros &&
+    if (segment.durationMicros.has_value() && atChainMicros) {
+      return segment.beginAtChainMicros + segment.durationMicros.value() + thresholdMicros > atChainMicros &&
              segment.beginAtChainMicros - thresholdMicros <= atChainMicros;
     }
     return false;
@@ -104,7 +104,7 @@ namespace XJ {
   }
 
   long SegmentUtils::getEndAtChainMicros(Segment &segment) {
-    return segment.durationMicros ? segment.beginAtChainMicros + segment.durationMicros
+    return segment.durationMicros.has_value() ? segment.beginAtChainMicros + segment.durationMicros.value()
                                   : segment.beginAtChainMicros;
   }
 
@@ -123,8 +123,8 @@ namespace XJ {
   long SegmentUtils::getDurationMinMicros(std::vector<Segment> &segments) {
     long micros = 0;
     for (Segment &s: segments)
-      if (s.durationMicros && (micros == 0 || s.durationMicros < micros))
-        micros = s.durationMicros;
+      if (s.durationMicros.has_value() && (micros == 0 || s.durationMicros.value() < micros))
+        micros = s.durationMicros.value();
     return micros;
   }
 

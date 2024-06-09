@@ -175,7 +175,7 @@ namespace XJ {
     for (int i = 0; i < taxonomy.getCategories().size(); i++) {
       oss << "    {\n";
       oss << "      memes = " << format(taxonomy.getCategories().at(i).getMemes()) << "\n";
-      oss << "      name = " << format(taxonomy.getCategories().at(i).name) << "\n";
+      oss << "      name = " << format(taxonomy.getCategories().at(i).getName()) << "\n";
       oss << ((i < taxonomy.getCategories().size() - 1) ? "    },\n" : "    }\n");
     }
     oss << "  ]";

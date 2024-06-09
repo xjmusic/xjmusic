@@ -198,7 +198,7 @@ namespace XJ {
     return Step::delta(root, target.root);
   }
 
-  std::string Chord::name const {
+  std::string Chord::getName() const {
     std::stringstream ss;
     ss << stringOf(root, accidental);
     if (!description.empty()) {
@@ -209,7 +209,7 @@ namespace XJ {
   }
 
   std::string Chord::toString() const {
-    return name;
+    return getName();
   }
 
   PitchClass Chord::slashRootPitchClass() {

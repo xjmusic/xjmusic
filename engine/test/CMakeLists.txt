@@ -5,6 +5,8 @@ include(FetchContent)
 add_executable(xjmusic_test
         _helper/AssertionHelpers.cpp
         _helper/ContentTestHelper.cpp
+        _helper/ContentFixtures.cpp
+        _helper/SegmentFixtures.cpp
         _helper/LoremIpsum.cpp
         entities/content/ContentStoreTest.cpp
         entities/content/InstrumentAudioTest.cpp
@@ -46,8 +48,6 @@ add_executable(xjmusic_test
         util/ConfigParserTest.cpp
         util/StringUtilsTest.cpp
         util/ValueUtilsTest.cpp
-        _helper/FabricationContentOneFixtures.cpp
-        _helper/FabricationContentTwoFixtures.cpp
 )
 
 # I'm using C++17 in the test

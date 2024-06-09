@@ -9,7 +9,7 @@ namespace XJ {
            segmentId == segmentChordVoicing.segmentId &&
            segmentChordId == segmentChordVoicing.segmentChordId &&
            type == segmentChordVoicing.type &&
-           name == segmentChordVoicing.name;
+           notes == segmentChordVoicing.notes;
   }
 
   unsigned long long SegmentChordVoicing::hashCode() const {
@@ -17,7 +17,7 @@ namespace XJ {
            std::hash<int>{}(segmentId) ^
            std::hash<std::string>{}(segmentChordId) ^
            std::hash<std::string>{}(type) ^
-           std::hash<std::string>{}(name);
+           std::hash<std::string>{}(notes);
   }
 
 }// namespace XJ

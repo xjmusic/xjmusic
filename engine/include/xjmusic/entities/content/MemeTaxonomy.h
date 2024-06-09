@@ -47,7 +47,7 @@ namespace XJ {
      * Get the name of the category
      * @return  The name of the category
      */
-    std::string name;
+    std::string getName();
 
     /**
      * Get the list of memes

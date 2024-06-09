@@ -6,20 +6,20 @@ namespace XJ {
 
   // Map and reverse-map of Segment::Type enum values to their string representations
   static const std::map<Segment::Type, std::string> typeValueNames = {
-      {Segment::Pending, "Pending"},
-      {Segment::Initial, "Initial"},
-      {Segment::Continue, "Continue"},
-      {Segment::NextMain, "NextMain"},
+      {Segment::Pending,   "Pending"},
+      {Segment::Initial,   "Initial"},
+      {Segment::Continue,  "Continue"},
+      {Segment::NextMain,  "NextMain"},
       {Segment::NextMacro, "NextMacro"},
   };
   static const std::map<std::string, Segment::Type> typeNameValues = reverseMap(typeValueNames);
 
   // Map and reverse-map of Segment::State enum values to their string representations
   static const std::map<Segment::State, std::string> stateValueNames = {
-      {Segment::Planned, "Planned"},
+      {Segment::Planned,  "Planned"},
       {Segment::Crafting, "Crafting"},
-      {Segment::Crafted, "Crafted"},
-      {Segment::Failed, "Failed"},
+      {Segment::Crafted,  "Crafted"},
+      {Segment::Failed,   "Failed"},
   };
   static const std::map<std::string, Segment::State> stateNameValues = reverseMap(stateValueNames);
 
@@ -70,7 +70,7 @@ namespace XJ {
            std::hash<int>{}(type) ^
            std::hash<int>{}(state) ^
            std::hash<long>{}(beginAtChainMicros) ^
-           std::hash<long>{}(durationMicros) ^
+           (durationMicros.has_value() ? std::hash<long>{}(durationMicros.value()) : 0) ^
            std::hash<std::string>{}(key) ^
            std::hash<int>{}(total) ^
            std::hash<float>{}(intensity) ^

@@ -7,10 +7,13 @@
 #include <iomanip>
 #include <random>
 #include <sstream>
+#include <variant>
 
 #include "xjmusic/entities/content/ContentStore.h"
 
 namespace XJ {
+
+  static unsigned long long RANDOM_UUID_COUNTER = 0;
 
   using AnyContentEntity = std::variant<
       Project,
@@ -34,10 +37,6 @@ namespace XJ {
   >;
 
   class ContentTestHelper {
-  private:
-    unsigned long long counter;
-    unsigned long long session;
-
   public:
     ContentTestHelper();
 
@@ -79,57 +78,57 @@ namespace XJ {
 
     static long long currentTimeMillis();
 
-    static const std::string randomUUID();
+    static std::string randomUUID();
 
-    Project buildProject();
+    static Project buildProject();
 
-    Library buildLibrary(const Project &project);
+    static Library buildLibrary(const Project &project);
 
-    Template buildTemplate(const Project &project, std::string name, std::string shipKey);
+    static Template buildTemplate(const Project &project, std::string name, std::string shipKey);
 
-    TemplateBinding buildTemplateBinding(const Template &tmpl, const Library &library);
+    static TemplateBinding buildTemplateBinding(const Template &tmpl, const Library &library);
 
-    TemplateBinding buildTemplateBinding(const Template &tmpl, const Program &program);
+    static TemplateBinding buildTemplateBinding(const Template &tmpl, const Program &program);
 
-    TemplateBinding buildTemplateBinding(const Template &tmpl, const Instrument &instrument);
+    static TemplateBinding buildTemplateBinding(const Template &tmpl, const Instrument &instrument);
 
-    Instrument buildInstrument(const Library &library, Instrument::Type type, Instrument::Mode mode, std::string name);
+    static Instrument buildInstrument(const Library &library, Instrument::Type type, Instrument::Mode mode, std::string name);
 
-    InstrumentMeme buildInstrumentMeme(const Instrument &instrument, std::string name);
+    static InstrumentMeme buildInstrumentMeme(const Instrument &instrument, std::string name);
 
-    InstrumentAudio
+    static InstrumentAudio
     buildInstrumentAudio(const Instrument &instrument, std::string name, std::string waveformKey, float start,
                          float length, float tempo, float intensity, std::string event, std::string tones,
                          float volume);
 
-    Program buildProgram(const Library &library, Program::Type type, std::string name, std::string key, float tempo);
+    static Program buildProgram(const Library &library, Program::Type type, std::string name, std::string key, float tempo);
 
-    ProgramMeme buildProgramMeme(const Program &program, std::string name);
+    static ProgramMeme buildProgramMeme(const Program &program, std::string name);
 
-    ProgramSequence
+    static ProgramSequence
     buildProgramSequence(const Program &program, int total, std::string name, float intensity, std::string key);
 
-    ProgramSequenceBinding buildProgramSequenceBinding(const ProgramSequence &programSequence, int offset);
+    static ProgramSequenceBinding buildProgramSequenceBinding(const ProgramSequence &programSequence, int offset);
 
-    ProgramSequenceBindingMeme
+    static ProgramSequenceBindingMeme
     buildProgramSequenceBindingMeme(const ProgramSequenceBinding &programSequenceBinding, std::string name);
 
-    ProgramSequenceChord
+    static ProgramSequenceChord
     buildProgramSequenceChord(const ProgramSequence &programSequence, float position, std::string name);
 
-    ProgramSequenceChordVoicing
+    static ProgramSequenceChordVoicing
     buildProgramSequenceChordVoicing(const ProgramSequenceChord &programSequenceChord, const ProgramVoice &voice,
                                      std::string notes);
 
-    ProgramVoice buildProgramVoice(const Program &program, Instrument::Type type, std::string name);
+    static ProgramVoice buildProgramVoice(const Program &program, Instrument::Type type, std::string name);
 
-    ProgramVoiceTrack buildProgramVoiceTrack(const ProgramVoice &programVoice, std::string name);
+    static ProgramVoiceTrack buildProgramVoiceTrack(const ProgramVoice &programVoice, std::string name);
 
-    ProgramSequencePattern
+    static ProgramSequencePattern
     buildProgramSequencePattern(const ProgramSequence &programSequence, const ProgramVoice &programVoice, int total,
                                 std::string name);
 
-    ProgramSequencePatternEvent buildProgramSequencePatternEvent(const ProgramSequencePattern &programSequencePattern,
+    static ProgramSequencePatternEvent buildProgramSequencePatternEvent(const ProgramSequencePattern &programSequencePattern,
                                                                  const ProgramVoiceTrack &programVoiceTrack,
                                                                  float position, float duration, std::string tones,
                                                                  float velocity);

@@ -81,7 +81,7 @@ namespace XJ {
     memes = parseMemeList(data);
   }
 
-  std::string MemeCategory::name {
+  std::string MemeCategory::getName() {
     return name;
   }
 
@@ -146,7 +146,7 @@ namespace XJ {
     std::vector<std::string> strings;
     strings.reserve(categories.size());
     for (const auto &category: categories) {
-      strings.push_back(category);
+      strings.push_back(category.toString());
     }
     return StringUtils::join(strings, std::string(1, CATEGORY_SEPARATOR));
   }

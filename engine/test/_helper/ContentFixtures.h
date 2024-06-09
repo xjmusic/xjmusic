@@ -40,7 +40,7 @@ while unit tests are all independent,
  integration tests ought to be as much about testing all features around a consensus model of the platform
  as they are about testing all resources.
  */
-  class FabricationContentOneFixtures {
+  class ContentFixtures {
   public:
 
     static const std::string TEST_TEMPLATE_CONFIG;

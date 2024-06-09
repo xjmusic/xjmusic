@@ -3,8 +3,8 @@
 package io.xj.engine.fabricator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.xj.engine.FabricationContentOneFixtures;
-import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.ContentFixtures;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationException;
 import io.xj.engine.FabricationTopology;
 import io.xj.model.enums.Chain::State;
@@ -45,8 +45,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.FabricationContentTwoFixtures.buildChain;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures.buildChain;
+import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
 import static io.xj.model.util.ValueUtils.MICROS_PER_SECOND;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -68,7 +68,7 @@ public class FabricatorImplTest {
   FabricatorImpl subject;
   HubContent sourceMaterial;
   FabricationEntityStore store;
-  FabricationContentTwoFixtures fake;
+  SegmentFixtures fake;
   Segment segment;
 
   @BeforeEach
@@ -83,26 +83,26 @@ public class FabricatorImplTest {
     store.clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new FabricationContentTwoFixtures();
+    fake = new SegmentFixtures();
     sourceMaterial = new HubContent(Stream.concat(Stream.concat(Stream.concat(fake.setupFixtureB1().stream(), fake.setupFixtureB2().stream()), fake.setupFixtureB3().stream()), Stream.of(fake.template1, fake.templateBinding1)).collect(Collectors.toList()));
 
     // Here's a basic setup that can be replaced for complex tests
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type.PRODUCTION, Chain::State.FABRICATE));
-    segment = store.put(FabricationContentTwoFixtures.buildSegment(chain, 2, Segment::State.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
+    segment = store.put(SegmentFixtures.buildSegment(chain, 2, Segment::State.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
     subject = new FabricatorImpl(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory, jsonProvider, 48000.0f, 2, null);
   }
 
   @Test
   public void pick_returned_by_picks() throws Exception {
-    FabricationContentOneFixtures.buildTemplateBinding(fake.template1, fake.library2);
+    ContentFixtures.buildTemplateBinding(fake.template1, fake.library2);
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type.PRODUCTION, Chain::State.FABRICATE));
-    store.put(FabricationContentTwoFixtures.buildSegment(chain, 1, Segment::State.CRAFTED, "F major", 8, 0.6f, 120.0f, "seg123"));
-    segment = store.put(FabricationContentTwoFixtures.buildSegment(chain, 2, Segment::State.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
-    store.put(FabricationContentTwoFixtures.buildSegmentChord(segment, 0.0f, "A"));
-    store.put(FabricationContentTwoFixtures.buildSegmentChoice(segment, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, fake.program5));
+    store.put(SegmentFixtures.buildSegment(chain, 1, Segment::State.CRAFTED, "F major", 8, 0.6f, 120.0f, "seg123"));
+    segment = store.put(SegmentFixtures.buildSegment(chain, 2, Segment::State.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
+    store.put(SegmentFixtures.buildSegmentChord(segment, 0.0f, "A"));
+    store.put(SegmentFixtures.buildSegmentChoice(segment, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, fake.program5));
     SegmentChoice beatChoice = store.put(buildSegmentChoice(segment, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, fake.program35, fake.program35_voice0, fake.instrument8));
-    SegmentChoiceArrangement beatArrangement = store.put(FabricationContentTwoFixtures.buildSegmentChoiceArrangement(beatChoice));
+    SegmentChoiceArrangement beatArrangement = store.put(SegmentFixtures.buildSegmentChoiceArrangement(beatChoice));
     store.put(new SegmentChoiceArrangementPick().id(ContentTestHelper::randomUUID()).segmentId(beatArrangement.segmentId).segmentChoiceArrangementId(beatArrangement.id).programSequencePatternEventId(fake.program35_sequence0_pattern0_event0.id).instrumentAudioId(fake.instrument8_audio8kick.id).event("CLANG").startAtSegmentMicros((long) (0.273 * MICROS_PER_SECOND)).lengthMicros((long) (1.571 * MICROS_PER_SECOND)).amplitude(0.8f).tones("A4"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
     subject = new FabricatorImpl(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory, jsonProvider, 48000.0f, 2, null);
@@ -121,11 +121,11 @@ public class FabricatorImplTest {
 
   @Test
   public void getDistinctChordVoicingTypes() throws Exception {
-    sourceMaterial = new HubContent(Stream.concat(Stream.concat(Stream.concat(fake.setupFixtureB1().stream(), fake.setupFixtureB2().stream()), fake.setupFixtureB3().stream()), Stream.of(FabricationContentOneFixtures.buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceSticky, "G4, B4, D4"), FabricationContentOneFixtures.buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceStripe, "F5"), FabricationContentOneFixtures.buildVoicing(fake.program5_sequence0_chord0, fake.program5_voicePad, "(None)") // No voicing notes- doesn't count!
+    sourceMaterial = new HubContent(Stream.concat(Stream.concat(Stream.concat(fake.setupFixtureB1().stream(), fake.setupFixtureB2().stream()), fake.setupFixtureB3().stream()), Stream.of(ContentFixtures.buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceSticky, "G4, B4, D4"), ContentFixtures.buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceStripe, "F5"), ContentFixtures.buildVoicing(fake.program5_sequence0_chord0, fake.program5_voicePad, "(None)") // No voicing notes- doesn't count!
     )).collect(Collectors.toList()));
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type.PRODUCTION, Chain::State.FABRICATE));
-    segment = store.put(FabricationContentTwoFixtures.buildSegment(chain, 0, Segment::State.CRAFTING, "F major", 8, 0.6f, 120.0f, "seg123"));
-    store.put(FabricationContentTwoFixtures.buildSegmentChoice(segment, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, fake.program5));
+    segment = store.put(SegmentFixtures.buildSegment(chain, 0, Segment::State.CRAFTING, "F major", 8, 0.6f, 120.0f, "seg123"));
+    store.put(SegmentFixtures.buildSegmentChoice(segment, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, fake.program5));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
     subject = new FabricatorImpl(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory, jsonProvider, 48000.0f, 2, null);
 
@@ -141,12 +141,12 @@ public class FabricatorImplTest {
   @Test
   public void type throws FabricationException, FabricationFatalException {
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type.PRODUCTION, Chain::State.FABRICATE));
-    Segment previousSegment = store.put(FabricationContentTwoFixtures.buildSegment(chain, 1, Segment::State.CRAFTED, "F major", 8, 0.6f, 120.0f, "seg123"));
+    Segment previousSegment = store.put(SegmentFixtures.buildSegment(chain, 1, Segment::State.CRAFTED, "F major", 8, 0.6f, 120.0f, "seg123"));
     var previousMacroChoice = // second-to-last sequence of macro program
       store.put(buildSegmentChoice(previousSegment, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, fake.program4, fake.program4_sequence1_binding0));
     var previousMainChoice = // last sequence of main program
       store.put(buildSegmentChoice(previousSegment, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, fake.program5, fake.program5_sequence1_binding0));
-    segment = store.put(FabricationContentTwoFixtures.buildSegment(chain, 2, Segment::State.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
+    segment = store.put(SegmentFixtures.buildSegment(chain, 2, Segment::State.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
     when(mockRetrospective.getPreviousChoiceOfType(Program::Type::Main)).thenReturn(Optional.of(previousMainChoice));
     when(mockRetrospective.getPreviousChoiceOfType(Program::Type::Macro)).thenReturn(Optional.of(previousMacroChoice));
@@ -162,11 +162,11 @@ public class FabricatorImplTest {
   @Test
   public void getMemeIsometryOfNextSequenceInPreviousMacro() throws FabricationException, FabricationFatalException {
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type.PRODUCTION, Chain::State.FABRICATE));
-    Segment previousSegment = store.put(FabricationContentTwoFixtures.buildSegment(chain, 1, Segment::State.CRAFTED, "F major", 8, 0.6f, 120.0f, "seg123"));
+    Segment previousSegment = store.put(SegmentFixtures.buildSegment(chain, 1, Segment::State.CRAFTED, "F major", 8, 0.6f, 120.0f, "seg123"));
     var previousMacroChoice = // second-to-last sequence of macro program
       store.put(buildSegmentChoice(previousSegment, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, fake.program4, fake.program4_sequence1_binding0));
     store.put(buildSegmentChoice(previousSegment, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, fake.program5, fake.program5_sequence1_binding0));
-    segment = store.put(FabricationContentTwoFixtures.buildSegment(chain, 2, Segment::State.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
+    segment = store.put(SegmentFixtures.buildSegment(chain, 2, Segment::State.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
     when(mockRetrospective.getPreviousChoiceOfType(Program::Type::Macro)).thenReturn(Optional.of(previousMacroChoice));
     subject = new FabricatorImpl(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory, jsonProvider, 48000.0f, 2, null);
@@ -179,12 +179,12 @@ public class FabricatorImplTest {
   @Test
   public void getChordAt() throws FabricationException, FabricationFatalException, ValueException {
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type.PRODUCTION, Chain::State.FABRICATE));
-    segment = store.put(FabricationContentTwoFixtures.buildSegment(chain, 2, Segment::State.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
+    segment = store.put(SegmentFixtures.buildSegment(chain, 2, Segment::State.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
     subject = new FabricatorImpl(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory, jsonProvider, 48000.0f, 2, null);
-    subject.put(FabricationContentTwoFixtures.buildSegmentChord(segment, 0.0f, "C"), false);
-    subject.put(FabricationContentTwoFixtures.buildSegmentChord(segment, 2.0f, "F"), false);
-    subject.put(FabricationContentTwoFixtures.buildSegmentChord(segment, 5.5f, "Gm"), false);
+    subject.put(SegmentFixtures.buildSegmentChord(segment, 0.0f, "C"), false);
+    subject.put(SegmentFixtures.buildSegmentChord(segment, 2.0f, "F"), false);
+    subject.put(SegmentFixtures.buildSegmentChord(segment, 5.5f, "Gm"), false);
 
     assertEquals("C", subject.getChordAt(0.0).orElseThrow().name);
     assertEquals("C", subject.getChordAt(1.0).orElseThrow().name);
@@ -199,14 +199,14 @@ public class FabricatorImplTest {
   @Test
   public void computeProgramRange() throws FabricationException, FabricationFatalException, ValueException {
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type.PRODUCTION, Chain::State.FABRICATE));
-    segment = store.put(FabricationContentTwoFixtures.buildSegment(chain, 2, Segment::State.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
+    segment = store.put(SegmentFixtures.buildSegment(chain, 2, Segment::State.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
-    var program = FabricationContentOneFixtures.buildProgram(Program::Type::Detail, "C", 120.0f);
-    var voice = FabricationContentOneFixtures.buildVoice(program, Instrument::Type::Bass);
-    var track = FabricationContentOneFixtures.buildTrack(voice);
-    var sequence = FabricationContentOneFixtures.buildSequence(program, 4);
-    var pattern = FabricationContentOneFixtures.buildPattern(sequence, voice, 4);
-    sourceMaterial = new HubContent(List.of(program, voice, track, sequence, pattern, fake.template1, fake.templateBinding1, FabricationContentOneFixtures.buildEvent(pattern, track, 0.0f, 1.0f, "C1"), FabricationContentOneFixtures.buildEvent(pattern, track, 1.0f, 1.0f, "D2")));
+    var program = ContentFixtures.buildProgram(Program::Type::Detail, "C", 120.0f);
+    var voice = ContentFixtures.buildVoice(program, Instrument::Type::Bass);
+    var track = ContentFixtures.buildTrack(voice);
+    var sequence = ContentFixtures.buildSequence(program, 4);
+    var pattern = ContentFixtures.buildPattern(sequence, voice, 4);
+    sourceMaterial = new HubContent(List.of(program, voice, track, sequence, pattern, fake.template1, fake.templateBinding1, ContentFixtures.buildEvent(pattern, track, 0.0f, 1.0f, "C1"), ContentFixtures.buildEvent(pattern, track, 1.0f, 1.0f, "D2")));
     subject = new FabricatorImpl(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory, jsonProvider, 48000.0f, 2, null);
 
     var result = subject.getProgramRange(program.id, Instrument::Type::Bass);
@@ -218,14 +218,14 @@ public class FabricatorImplTest {
   @Test
   public void computeProgramRange_ignoresAtonalNotes() throws FabricationException, FabricationFatalException, ValueException {
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type.PRODUCTION, Chain::State.FABRICATE));
-    segment = store.put(FabricationContentTwoFixtures.buildSegment(chain, 2, Segment::State.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
+    segment = store.put(SegmentFixtures.buildSegment(chain, 2, Segment::State.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
-    var program = FabricationContentOneFixtures.buildProgram(Program::Type::Detail, "C", 120.0f);
-    var voice = FabricationContentOneFixtures.buildVoice(program, Instrument::Type::Bass);
-    var track = FabricationContentOneFixtures.buildTrack(voice);
-    var sequence = FabricationContentOneFixtures.buildSequence(program, 4);
-    var pattern = FabricationContentOneFixtures.buildPattern(sequence, voice, 4);
-    sourceMaterial = new HubContent(List.of(program, voice, track, sequence, pattern, FabricationContentOneFixtures.buildEvent(pattern, track, 0.0f, 1.0f, "C1"), FabricationContentOneFixtures.buildEvent(pattern, track, 1.0f, 1.0f, "X"), FabricationContentOneFixtures.buildEvent(pattern, track, 2.0f, 1.0f, "D2"), fake.template1, fake.templateBinding1));
+    var program = ContentFixtures.buildProgram(Program::Type::Detail, "C", 120.0f);
+    var voice = ContentFixtures.buildVoice(program, Instrument::Type::Bass);
+    var track = ContentFixtures.buildTrack(voice);
+    var sequence = ContentFixtures.buildSequence(program, 4);
+    var pattern = ContentFixtures.buildPattern(sequence, voice, 4);
+    sourceMaterial = new HubContent(List.of(program, voice, track, sequence, pattern, ContentFixtures.buildEvent(pattern, track, 0.0f, 1.0f, "C1"), ContentFixtures.buildEvent(pattern, track, 1.0f, 1.0f, "X"), ContentFixtures.buildEvent(pattern, track, 2.0f, 1.0f, "D2"), fake.template1, fake.templateBinding1));
     subject = new FabricatorImpl(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory, jsonProvider, 48000.0f, 2, null);
 
     var result = subject.getProgramRange(program.id, Instrument::Type::Bass);
@@ -236,10 +236,10 @@ public class FabricatorImplTest {
 
   @Test
   public void getProgramSequence_fromSequence() throws FabricationException, FabricationFatalException, ValueException {
-    var project1 = FabricationContentOneFixtures.buildProject("fish");
-    Template template1 = FabricationContentOneFixtures.buildTemplate(project1, "Test Template 1", "test1");
-    var chain = store.put(FabricationContentTwoFixtures.buildChain(template1));
-    segment = store.put(FabricationContentTwoFixtures.buildSegment(chain, Segment::Type.CONTINUE, 17, 4, Segment::State.CRAFTED, "D major", SEQUENCE_TOTAL_BEATS, 0.73f, 120.0f, String.format("chains-%s-segments-%s", ChainUtils.getIdentifier(chain), 17), true));
+    var project1 = ContentFixtures.buildProject("fish");
+    Template template1 = ContentFixtures.buildTemplate(project1, "Test Template 1", "test1");
+    var chain = store.put(SegmentFixtures.buildChain(template1));
+    segment = store.put(SegmentFixtures.buildSegment(chain, Segment::Type.CONTINUE, 17, 4, Segment::State.CRAFTED, "D major", SEQUENCE_TOTAL_BEATS, 0.73f, 120.0f, String.format("chains-%s-segments-%s", ChainUtils.getIdentifier(chain), 17), true));
     SegmentChoice choice = store.put(buildSegmentChoice(segment, Program::Type::Main, fake.program5_sequence0));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
     sourceMaterial = new HubContent(List.of(fake.program5_sequence0, fake.template1, fake.templateBinding1));
@@ -252,10 +252,10 @@ public class FabricatorImplTest {
 
   @Test
   public void getProgramSequence_fromSequenceBinding() throws FabricationException, FabricationFatalException, ValueException {
-    var project1 = FabricationContentOneFixtures.buildProject("fish");
-    Template template1 = FabricationContentOneFixtures.buildTemplate(project1, "Test Template 1", "test1");
-    var chain = store.put(FabricationContentTwoFixtures.buildChain(template1));
-    segment = store.put(FabricationContentTwoFixtures.buildSegment(chain, Segment::Type.CONTINUE, 17, 4, Segment::State.CRAFTED, "D major", SEQUENCE_TOTAL_BEATS, 0.73f, 120.0f, String.format("chains-%s-segments-%s", ChainUtils.getIdentifier(chain), 17), true));
+    var project1 = ContentFixtures.buildProject("fish");
+    Template template1 = ContentFixtures.buildTemplate(project1, "Test Template 1", "test1");
+    var chain = store.put(SegmentFixtures.buildChain(template1));
+    segment = store.put(SegmentFixtures.buildSegment(chain, Segment::Type.CONTINUE, 17, 4, Segment::State.CRAFTED, "D major", SEQUENCE_TOTAL_BEATS, 0.73f, 120.0f, String.format("chains-%s-segments-%s", ChainUtils.getIdentifier(chain), 17), true));
     SegmentChoice choice = store.put(buildSegmentChoice(segment, Program::Type::Main, fake.program5_sequence0_binding0));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
     sourceMaterial = new HubContent(List.of(fake.program5_sequence0, fake.program5_sequence0_binding0, fake.template1, fake.templateBinding1));
@@ -306,7 +306,7 @@ public class FabricatorImplTest {
     var bun = new StickyBun(fake.program9_sequence0_pattern0_event0.id, 3);
     var bunJson = jsonProvider.getMapper().writeValueAsString(bun);
     var bunKey = StickyBun.computeMetaKey(fake.program9_sequence0_pattern0_event0.id);
-    store.put(FabricationContentTwoFixtures.buildSegmentMeta(segment, bunKey, bunJson));
+    store.put(SegmentFixtures.buildSegmentMeta(segment, bunKey, bunJson));
 
     var result = subject.getStickyBun(fake.program9_sequence0_pattern0_event0.id).orElseThrow();
 
@@ -324,7 +324,7 @@ public class FabricatorImplTest {
     var bun = new StickyBun(fake.program9_sequence0_pattern0_event0.id, 3);
     var bunJson = jsonProvider.getMapper().writeValueAsString(bun);
     var bunKey = StickyBun.computeMetaKey(fake.program9_sequence0_pattern0_event0.id);
-    var bunMeta = FabricationContentTwoFixtures.buildSegmentMeta(segment, bunKey, bunJson);
+    var bunMeta = SegmentFixtures.buildSegmentMeta(segment, bunKey, bunJson);
     when(mockRetrospective.getPreviousMeta(eq(bunKey))).thenReturn(Optional.of(bunMeta));
 
     var result = subject.getStickyBun(fake.program9_sequence0_pattern0_event0.id).orElseThrow();
@@ -355,11 +355,11 @@ public class FabricatorImplTest {
     var bun0 = new StickyBun(fake.program9_sequence0_pattern0_event0.id, 3);
     var bunJson0 = jsonProvider.getMapper().writeValueAsString(bun0);
     var bunKey0 = StickyBun.computeMetaKey(fake.program9_sequence0_pattern0_event0.id);
-    store.put(FabricationContentTwoFixtures.buildSegmentMeta(segment, bunKey0, bunJson0));
+    store.put(SegmentFixtures.buildSegmentMeta(segment, bunKey0, bunJson0));
     var bun1 = new StickyBun(fake.program9_sequence0_pattern0_event1.id, 3);
     var bunJson1 = jsonProvider.getMapper().writeValueAsString(bun1);
     var bunKey1 = StickyBun.computeMetaKey(fake.program9_sequence0_pattern0_event1.id);
-    store.put(FabricationContentTwoFixtures.buildSegmentMeta(segment, bunKey1, bunJson1));
+    store.put(SegmentFixtures.buildSegmentMeta(segment, bunKey1, bunJson1));
 
     var result0 = subject.getStickyBun(fake.program9_sequence0_pattern0_event0.id).orElseThrow();
     var result1 = subject.getStickyBun(fake.program9_sequence0_pattern0_event1.id).orElseThrow();

@@ -26,11 +26,11 @@ namespace XJ {
     }, std::runtime_error)                                     \
 
 
-/**
- * Assert the pitch class and octave of a Note object
- * @param expect  expected note
- * @param actual  actual note
- */
+  /**
+   * Assert the pitch class and octave of a Note object
+   * @param expect  expected note
+   * @param actual  actual note
+   */
   void assertNote(const std::string &expect, const Note &actual);
 
 } // namespace XJ

@@ -3,8 +3,8 @@
 package io.xj.engine.fabricator;
 
 
-import io.xj.engine.FabricationContentOneFixtures;
-import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.ContentFixtures;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationException;
 import io.xj.engine.FabricationTopology;
 import io.xj.model.pojos.Chain;
@@ -34,8 +34,8 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.UUID;
 
-import static io.xj.engine.FabricationContentTwoFixtures.buildChain;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures.buildChain;
+import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
 import static io.xj.model.util.ValueUtils.MICROS_PER_SECOND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -68,17 +68,17 @@ public class FabricationEntityStoreImplTest {
     subject = new FabricationEntityStoreImpl(entityFactory);
 
     // add base fixtures
-    Project fakeProject = FabricationContentOneFixtures.buildProject("fake");
+    Project fakeProject = ContentFixtures.buildProject("fake");
     fakeChain = buildChain(
       fakeProject,
       "Print #2",
       Chain::Type.PRODUCTION,
       Chain::State.FABRICATE,
-      FabricationContentOneFixtures.buildTemplate(fakeProject, "Test")
+      ContentFixtures.buildTemplate(fakeProject, "Test")
     );
     subject.put(fakeChain);
-    project1 = FabricationContentOneFixtures.buildProject("Testing");
-    template1 = FabricationContentOneFixtures.buildTemplate(project1, "Test Template 1", "test1");
+    project1 = ContentFixtures.buildProject("Testing");
+    template1 = ContentFixtures.buildTemplate(project1, "Test Template 1", "test1");
 
     chain3 = subject.put(new Chain()
       .id(ContentTestHelper::randomUUID())
@@ -290,19 +290,19 @@ public class FabricationEntityStoreImplTest {
   @Test
   public void createAll_readAll() throws FabricationException {
     subject.clear();
-    var project1 = FabricationContentOneFixtures.buildProject("fish");
-    var template = FabricationContentOneFixtures.buildTemplate(project1, "fishy");
-    var chain3 = subject.put(FabricationContentTwoFixtures.buildChain(
+    var project1 = ContentFixtures.buildProject("fish");
+    var template = ContentFixtures.buildTemplate(project1, "fishy");
+    var chain3 = subject.put(SegmentFixtures.buildChain(
       project1,
       "Test Print #3",
       Chain::Type.PRODUCTION,
       Chain::State.FABRICATE,
       template,
       "key123"));
-    var program = FabricationContentOneFixtures.buildProgram(Program::Type::Macro, "C", 120.0f);
-    var programSequence = FabricationContentOneFixtures.buildProgramSequence(program, 8, "Hay", 0.6f, "G");
-    var programSequenceBinding = FabricationContentOneFixtures.buildProgramSequenceBinding(programSequence, 0);
-    Segment chain3_segment0 = subject.put(FabricationContentTwoFixtures.buildSegment(chain3,
+    var program = ContentFixtures.buildProgram(Program::Type::Macro, "C", 120.0f);
+    var programSequence = ContentFixtures.buildProgramSequence(program, 8, "Hay", 0.6f, "G");
+    var programSequenceBinding = ContentFixtures.buildProgramSequenceBinding(programSequence, 0);
+    Segment chain3_segment0 = subject.put(SegmentFixtures.buildSegment(chain3,
       0,
       Segment::State.CRAFTED,
       "D Major",
@@ -313,7 +313,7 @@ public class FabricationEntityStoreImplTest {
     ));
     subject.put(buildSegmentChoice(chain3_segment0, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, program, programSequenceBinding));
     // not in the above chain, won't be retrieved with it
-    subject.put(FabricationContentTwoFixtures.buildSegment(chain3,
+    subject.put(SegmentFixtures.buildSegment(chain3,
       1,
       Segment::State.CRAFTED,
       "D Major",
@@ -331,10 +331,10 @@ public class FabricationEntityStoreImplTest {
 
   @Test
   public void create_nonSegmentEntity() throws FabricationException {
-    Project project1 = FabricationContentOneFixtures.buildProject("testing");
-    Library library1 = FabricationContentOneFixtures.buildLibrary(project1, "leaves");
-    Template template = FabricationContentOneFixtures.buildTemplate(FabricationContentOneFixtures.buildProject("Test"), "Test", "key123");
-    TemplateBinding templateBinding = FabricationContentOneFixtures.buildTemplateBinding(template, library1);
+    Project project1 = ContentFixtures.buildProject("testing");
+    Library library1 = ContentFixtures.buildLibrary(project1, "leaves");
+    Template template = ContentFixtures.buildTemplate(ContentFixtures.buildProject("Test"), "Test", "key123");
+    TemplateBinding templateBinding = ContentFixtures.buildTemplateBinding(template, library1);
 
     subject.put(templateBinding);
   }
@@ -359,7 +359,7 @@ public class FabricationEntityStoreImplTest {
 
   @Test
   public void readLastSegmentId() throws FabricationException {
-    subject.put(FabricationContentTwoFixtures.buildSegment(fakeChain,
+    subject.put(SegmentFixtures.buildSegment(fakeChain,
       4,
       Segment::State.CRAFTED,
       "D Major",
@@ -441,7 +441,7 @@ public class FabricationEntityStoreImplTest {
    */
   @Test
   public void readAll_hasNoLimit() throws FabricationException {
-    Chain chain5 = subject.put(FabricationContentTwoFixtures.buildChain(project1, "Test Print #1", Chain::Type.PRODUCTION, Chain::State.FABRICATE, template1, "barnacles"));
+    Chain chain5 = subject.put(SegmentFixtures.buildChain(project1, "Test Print #1", Chain::Type.PRODUCTION, Chain::State.FABRICATE, template1, "barnacles"));
     for (int i = 0; i < 20; i++)
       subject.put(new Segment()
         .chainId(chain5.id)
@@ -572,7 +572,7 @@ public class FabricationEntityStoreImplTest {
     subject.clear();
     assertTrue(subject.isEmpty());
 
-    subject.put(FabricationContentTwoFixtures.buildSegment(fakeChain,
+    subject.put(SegmentFixtures.buildSegment(fakeChain,
       0,
       Segment::State.CRAFTED,
       "D Major",
@@ -588,7 +588,7 @@ public class FabricationEntityStoreImplTest {
   @Test
   public void deleteSegment() throws FabricationException {
     for (int i = 0; i < 10; i++)
-      subject.put(FabricationContentTwoFixtures.buildSegment(fakeChain,
+      subject.put(SegmentFixtures.buildSegment(fakeChain,
         i,
         Segment::State.CRAFTED,
         "D Major",
@@ -607,7 +607,7 @@ public class FabricationEntityStoreImplTest {
   @Test
   public void deleteSegmentsAfter() throws FabricationException {
     for (int i = 0; i < 10; i++)
-      subject.put(FabricationContentTwoFixtures.buildSegment(fakeChain,
+      subject.put(SegmentFixtures.buildSegment(fakeChain,
         i,
         Segment::State.CRAFTED,
         "D Major",
@@ -635,7 +635,7 @@ public class FabricationEntityStoreImplTest {
   @Test
   public void deleteSegmentsBefore() throws FabricationException {
     for (int i = 0; i < 10; i++)
-      subject.put(FabricationContentTwoFixtures.buildSegment(fakeChain,
+      subject.put(SegmentFixtures.buildSegment(fakeChain,
         i,
         Segment::State.CRAFTED,
         "D Major",

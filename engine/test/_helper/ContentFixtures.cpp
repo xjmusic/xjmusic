@@ -1,15 +1,15 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include "FabricationContentOneFixtures.h"
+#include "ContentFixtures.h"
 
 #include <utility>
 
 using namespace XJ;
 
-const std::string FabricationContentOneFixtures::TEST_TEMPLATE_CONFIG = "outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n";
+const std::string ContentFixtures::TEST_TEMPLATE_CONFIG = "outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n";
 
 std::vector<std::variant<Instrument, InstrumentAudio>>
-FabricationContentOneFixtures::buildInstrumentWithAudios(
+ContentFixtures::buildInstrumentWithAudios(
     Instrument instrument,
     const std::string &notes
 ) {
@@ -24,7 +24,7 @@ FabricationContentOneFixtures::buildInstrumentWithAudios(
   return result;
 }
 
-InstrumentAudio FabricationContentOneFixtures::buildAudio(
+InstrumentAudio ContentFixtures::buildAudio(
     const Instrument &instrument,
     std::string name,
     std::string waveformKey,
@@ -51,7 +51,7 @@ InstrumentAudio FabricationContentOneFixtures::buildAudio(
   return instrumentAudio;
 }
 
-InstrumentAudio FabricationContentOneFixtures::buildAudio(
+InstrumentAudio ContentFixtures::buildAudio(
     const Instrument &instrument,
     std::string name,
     std::string note
@@ -71,13 +71,13 @@ InstrumentAudio FabricationContentOneFixtures::buildAudio(
   return instrumentAudio;
 }
 
-Project FabricationContentOneFixtures::buildProject() {
+Project ContentFixtures::buildProject() {
   Project project;
   project.id = ContentTestHelper::randomUUID();
   return project;
 }
 
-Program FabricationContentOneFixtures::buildProgram(
+Program ContentFixtures::buildProgram(
     const Library &library,
     Program::Type type,
     Program::State state,
@@ -96,7 +96,7 @@ Program FabricationContentOneFixtures::buildProgram(
   return program;
 }
 
-Program FabricationContentOneFixtures::buildProgram(
+Program ContentFixtures::buildProgram(
     Program::Type type,
     std::string key,
     float tempo
@@ -112,7 +112,7 @@ Program FabricationContentOneFixtures::buildProgram(
   return program;
 }
 
-Program FabricationContentOneFixtures::buildDetailProgram(
+Program ContentFixtures::buildDetailProgram(
     std::string key,
     bool doPatternRestartOnChord,
     std::string name
@@ -128,7 +128,7 @@ Program FabricationContentOneFixtures::buildDetailProgram(
   return program;
 }
 
-ProgramMeme FabricationContentOneFixtures::buildMeme(
+ProgramMeme ContentFixtures::buildMeme(
     const Program& program,
     std::string name
 ) {
@@ -139,7 +139,7 @@ ProgramMeme FabricationContentOneFixtures::buildMeme(
   return meme;
 }
 
-ProgramSequence FabricationContentOneFixtures::buildSequence(
+ProgramSequence ContentFixtures::buildSequence(
     const Program& program,
     int total,
     std::string name,
@@ -156,7 +156,7 @@ ProgramSequence FabricationContentOneFixtures::buildSequence(
   return sequence;
 }
 
-ProgramSequence FabricationContentOneFixtures::buildSequence(
+ProgramSequence ContentFixtures::buildSequence(
     const Program& program,
     int total
 ) {
@@ -168,7 +168,7 @@ ProgramSequence FabricationContentOneFixtures::buildSequence(
   return sequence;
 }
 
-ProgramSequenceBinding FabricationContentOneFixtures::buildBinding(
+ProgramSequenceBinding ContentFixtures::buildBinding(
     const ProgramSequence& programSequence,
     int offset
 ) {
@@ -180,7 +180,7 @@ ProgramSequenceBinding FabricationContentOneFixtures::buildBinding(
   return binding;
 }
 
-ProgramSequenceBindingMeme FabricationContentOneFixtures::buildMeme(
+ProgramSequenceBindingMeme ContentFixtures::buildMeme(
     const ProgramSequenceBinding& programSequenceBinding,
     std::string name
 ) {
@@ -192,7 +192,7 @@ ProgramSequenceBindingMeme FabricationContentOneFixtures::buildMeme(
   return meme;
 }
 
-ProgramSequenceChord FabricationContentOneFixtures::buildChord(
+ProgramSequenceChord ContentFixtures::buildChord(
     const ProgramSequence& programSequence,
     float position,
     std::string name
@@ -206,7 +206,7 @@ ProgramSequenceChord FabricationContentOneFixtures::buildChord(
   return chord;
 }
 
-ProgramSequenceChordVoicing FabricationContentOneFixtures::buildVoicing(
+ProgramSequenceChordVoicing ContentFixtures::buildVoicing(
     const ProgramSequenceChord& programSequenceChord,
     const ProgramVoice& voice,
     std::string notes
@@ -220,7 +220,7 @@ ProgramSequenceChordVoicing FabricationContentOneFixtures::buildVoicing(
   return voicing;
 }
 
-ProgramVoice FabricationContentOneFixtures::buildVoice(
+ProgramVoice ContentFixtures::buildVoice(
     const Program& program,
     Instrument::Type type,
     std::string name
@@ -233,14 +233,14 @@ ProgramVoice FabricationContentOneFixtures::buildVoice(
   return voice;
 }
 
-ProgramVoice FabricationContentOneFixtures::buildVoice(
+ProgramVoice ContentFixtures::buildVoice(
     const Program& program,
     Instrument::Type type
 ) {
   return buildVoice(program, type, Instrument::toString(type));
 }
 
-ProgramVoiceTrack FabricationContentOneFixtures::buildTrack(
+ProgramVoiceTrack ContentFixtures::buildTrack(
     const ProgramVoice& programVoice,
     std::string name
 ) {
@@ -252,13 +252,13 @@ ProgramVoiceTrack FabricationContentOneFixtures::buildTrack(
   return track;
 }
 
-ProgramVoiceTrack FabricationContentOneFixtures::buildTrack(
+ProgramVoiceTrack ContentFixtures::buildTrack(
     const ProgramVoice& programVoice
 ) {
   return buildTrack(programVoice, Instrument::toString(programVoice.type));
 }
 
-ProgramSequencePattern FabricationContentOneFixtures::buildPattern(
+ProgramSequencePattern ContentFixtures::buildPattern(
     const ProgramSequence& programSequence,
     const ProgramVoice& programVoice,
     int total,
@@ -274,7 +274,7 @@ ProgramSequencePattern FabricationContentOneFixtures::buildPattern(
   return pattern;
 }
 
-ProgramSequencePattern FabricationContentOneFixtures::buildPattern(
+ProgramSequencePattern ContentFixtures::buildPattern(
     const ProgramSequence& sequence,
     const ProgramVoice& voice,
     int total
@@ -282,7 +282,7 @@ ProgramSequencePattern FabricationContentOneFixtures::buildPattern(
   return buildPattern(sequence, voice, total, sequence.name + " pattern");
 }
 
-ProgramSequencePatternEvent FabricationContentOneFixtures::buildEvent(
+ProgramSequencePatternEvent ContentFixtures::buildEvent(
     const ProgramSequencePattern& pattern,
     const ProgramVoiceTrack& track,
     float position,
@@ -302,7 +302,7 @@ ProgramSequencePatternEvent FabricationContentOneFixtures::buildEvent(
   return event;
 }
 
-ProgramSequencePatternEvent FabricationContentOneFixtures::buildEvent(
+ProgramSequencePatternEvent ContentFixtures::buildEvent(
     ProgramSequencePattern pattern,
     ProgramVoiceTrack track,
     float position,
@@ -312,7 +312,7 @@ ProgramSequencePatternEvent FabricationContentOneFixtures::buildEvent(
   return buildEvent(std::move(pattern), std::move(track), position, duration, std::move(note), 1.0f);
 }
 
-Instrument FabricationContentOneFixtures::buildInstrument(
+Instrument ContentFixtures::buildInstrument(
     Instrument::Type type,
     Instrument::Mode mode,
     bool isTonal,
@@ -330,7 +330,7 @@ Instrument FabricationContentOneFixtures::buildInstrument(
   return instrument;
 }
 
-InstrumentMeme FabricationContentOneFixtures::buildMeme(
+InstrumentMeme ContentFixtures::buildMeme(
     const Instrument& instrument,
     std::string name
 ) {
@@ -341,7 +341,7 @@ InstrumentMeme FabricationContentOneFixtures::buildMeme(
   return instrumentMeme;
 }
 
-InstrumentAudio FabricationContentOneFixtures::buildInstrumentAudio(
+InstrumentAudio ContentFixtures::buildInstrumentAudio(
     const Instrument& instrument,
     std::string name,
     std::string waveformKey,
@@ -368,7 +368,7 @@ InstrumentAudio FabricationContentOneFixtures::buildInstrumentAudio(
   return instrumentAudio;
 }
 
-Library FabricationContentOneFixtures::buildLibrary(
+Library ContentFixtures::buildLibrary(
     const Project& project,
     std::string name
 ) {
@@ -379,7 +379,7 @@ Library FabricationContentOneFixtures::buildLibrary(
   return library;
 }
 
-Project FabricationContentOneFixtures::buildProject(
+Project ContentFixtures::buildProject(
     std::string name
 ) {
   Project project;
@@ -388,7 +388,7 @@ Project FabricationContentOneFixtures::buildProject(
   return project;
 }
 
-Template FabricationContentOneFixtures::buildTemplate(
+Template ContentFixtures::buildTemplate(
     const Project& project1,
     std::string name,
     std::string shipKey
@@ -396,13 +396,13 @@ Template FabricationContentOneFixtures::buildTemplate(
   Template tmpl;
   tmpl.id = ContentTestHelper::randomUUID();
   tmpl.shipKey = std::move(shipKey);
-  tmpl.config = FabricationContentOneFixtures::TEST_TEMPLATE_CONFIG;
+  tmpl.config = ContentFixtures::TEST_TEMPLATE_CONFIG;
   tmpl.projectId = project1.id;
   tmpl.name = std::move(name);
   return tmpl;
 }
 
-Template FabricationContentOneFixtures::buildTemplate(
+Template ContentFixtures::buildTemplate(
     Project project1,
     std::string name,
     std::string shipKey,
@@ -413,14 +413,14 @@ Template FabricationContentOneFixtures::buildTemplate(
   return tmpl;
 }
 
-Template FabricationContentOneFixtures::buildTemplate(
+Template ContentFixtures::buildTemplate(
     Project project1,
     const std::string& name
 ) {
   return buildTemplate(std::move(project1), name, name + "123");
 }
 
-TemplateBinding FabricationContentOneFixtures::buildTemplateBinding(
+TemplateBinding ContentFixtures::buildTemplateBinding(
     const Template& tmpl,
     const Library& library
 ) {
@@ -432,7 +432,7 @@ TemplateBinding FabricationContentOneFixtures::buildTemplateBinding(
   return templateBinding;
 }
 
-ProgramMeme FabricationContentOneFixtures::buildProgramMeme(
+ProgramMeme ContentFixtures::buildProgramMeme(
     const Program& program,
     std::string name
 ) {
@@ -443,7 +443,7 @@ ProgramMeme FabricationContentOneFixtures::buildProgramMeme(
   return programMeme;
 }
 
-ProgramSequence FabricationContentOneFixtures::buildProgramSequence(
+ProgramSequence ContentFixtures::buildProgramSequence(
     const Program& program,
     int total,
     std::string name,
@@ -460,7 +460,7 @@ ProgramSequence FabricationContentOneFixtures::buildProgramSequence(
   return programSequence;
 }
 
-ProgramSequenceBinding FabricationContentOneFixtures::buildProgramSequenceBinding(
+ProgramSequenceBinding ContentFixtures::buildProgramSequenceBinding(
     const ProgramSequence& programSequence,
     int offset
 ) {
@@ -472,7 +472,7 @@ ProgramSequenceBinding FabricationContentOneFixtures::buildProgramSequenceBindin
   return programSequenceBinding;
 }
 
-ProgramSequenceBindingMeme FabricationContentOneFixtures::buildProgramSequenceBindingMeme(
+ProgramSequenceBindingMeme ContentFixtures::buildProgramSequenceBindingMeme(
     const ProgramSequenceBinding& programSequenceBinding,
     std::string name
 ) {
@@ -484,7 +484,7 @@ ProgramSequenceBindingMeme FabricationContentOneFixtures::buildProgramSequenceBi
   return programSequenceBindingMeme;
 }
 
-ProgramSequenceChord FabricationContentOneFixtures::buildProgramSequenceChord(
+ProgramSequenceChord ContentFixtures::buildProgramSequenceChord(
     const ProgramSequence& programSequence,
     float position,
     std::string name
@@ -498,7 +498,7 @@ ProgramSequenceChord FabricationContentOneFixtures::buildProgramSequenceChord(
   return programSequenceChord;
 }
 
-ProgramSequenceChordVoicing FabricationContentOneFixtures::buildProgramSequenceChordVoicing(
+ProgramSequenceChordVoicing ContentFixtures::buildProgramSequenceChordVoicing(
     const ProgramSequenceChord& programSequenceChord,
     const ProgramVoice& voice,
     std::string notes
@@ -512,7 +512,7 @@ ProgramSequenceChordVoicing FabricationContentOneFixtures::buildProgramSequenceC
   return programSequenceChordVoicing;
 }
 
-ProgramVoice FabricationContentOneFixtures::buildProgramVoice(
+ProgramVoice ContentFixtures::buildProgramVoice(
     const Program& program,
     Instrument::Type type,
     std::string name
@@ -525,7 +525,7 @@ ProgramVoice FabricationContentOneFixtures::buildProgramVoice(
   return programVoice;
 }
 
-ProgramVoiceTrack FabricationContentOneFixtures::buildProgramVoiceTrack(
+ProgramVoiceTrack ContentFixtures::buildProgramVoiceTrack(
     const ProgramVoice& programVoice,
     std::string name
 ) {
@@ -537,7 +537,7 @@ ProgramVoiceTrack FabricationContentOneFixtures::buildProgramVoiceTrack(
   return programVoiceTrack;
 }
 
-ProgramSequencePattern FabricationContentOneFixtures::buildProgramSequencePattern(
+ProgramSequencePattern ContentFixtures::buildProgramSequencePattern(
     const ProgramSequence& programSequence,
     const ProgramVoice& programVoice,
     int total,
@@ -553,7 +553,7 @@ ProgramSequencePattern FabricationContentOneFixtures::buildProgramSequencePatter
   return programSequencePattern;
 }
 
-ProgramSequencePatternEvent FabricationContentOneFixtures::buildProgramSequencePatternEvent(
+ProgramSequencePatternEvent ContentFixtures::buildProgramSequencePatternEvent(
     const ProgramSequencePattern& programSequencePattern,
     const ProgramVoiceTrack& programVoiceTrack,
     float position,
@@ -573,7 +573,7 @@ ProgramSequencePatternEvent FabricationContentOneFixtures::buildProgramSequenceP
   return programSequencePatternEvent;
 }
 
-Instrument FabricationContentOneFixtures::buildInstrument(
+Instrument ContentFixtures::buildInstrument(
     const Library& library,
     Instrument::Type type,
     Instrument::Mode mode,
@@ -591,7 +591,7 @@ Instrument FabricationContentOneFixtures::buildInstrument(
   return instrument;
 }
 
-InstrumentMeme FabricationContentOneFixtures::buildInstrumentMeme(
+InstrumentMeme ContentFixtures::buildInstrumentMeme(
     const Instrument& instrument,
     std::string name
 ) {

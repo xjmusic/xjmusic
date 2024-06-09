@@ -97,7 +97,7 @@ namespace XJ {
      *
      * @return chord name
      */
-    [[nodiscard]] std::string name const;
+    [[nodiscard]] std::string getName() const;
 
     /**
      * XJ understands the root of a slash chord https://www.pivotaltracker.com/story/show/176728338

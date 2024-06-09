@@ -141,8 +141,6 @@ TEST(StringUtilsTest, ToUpperScored) {
   EXPECT_EQ("JAMMY_BUNS", StringUtils::toUpperCase(StringUtils::toScored("  jaMMy    b#!uns   ")));
   EXPECT_EQ("JAMMY", StringUtils::toUpperCase(StringUtils::toScored("jaMMy")));
   EXPECT_EQ("JMMY", StringUtils::toUpperCase(StringUtils::toScored("j#MMy")));
-  EXPECT_EQ("NEUF", StringUtils::toUpperCase(StringUtils::toScored("")));
-  EXPECT_EQ("NEUF", StringUtils::toUpperCase(StringUtils::toScored("%&(#")));
   EXPECT_EQ("P", StringUtils::toUpperCase(StringUtils::toScored("%&(#p")));
   EXPECT_EQ("", StringUtils::toUpperCase(StringUtils::toScored("%&(#")));
 }
@@ -158,7 +156,6 @@ TEST(StringUtilsTest, ToProperSlug) {
   EXPECT_EQ("Jammybiscuit", StringUtils::toProperSlug("jammy biscuit"));
   EXPECT_EQ("Jammy", StringUtils::toProperSlug("jammy"));
   EXPECT_EQ("Jmmy", StringUtils::toProperSlug("j#mmy"));
-  EXPECT_EQ("Neuf", StringUtils::toProperSlug("%&(#"));
   EXPECT_EQ("P", StringUtils::toProperSlug("%&(#p"));
   EXPECT_EQ("", StringUtils::toProperSlug("%&(#"));
   EXPECT_EQ("NextMain", StringUtils::toProperSlug("NextMain"));
@@ -175,8 +172,6 @@ TEST(StringUtilsTest, ToLowerSlug) {
   EXPECT_EQ("h4mmyjammy", StringUtils::toLowerSlug("H4MMY jaMMy"));
   EXPECT_EQ("jammy", StringUtils::toLowerSlug("jaMMy"));
   EXPECT_EQ("jmmy", StringUtils::toLowerSlug("j#MMy"));
-  EXPECT_EQ("neuf", StringUtils::toLowerSlug(""));
-  EXPECT_EQ("neuf", StringUtils::toLowerSlug("%&(#"));
   EXPECT_EQ("p", StringUtils::toLowerSlug("%&(#p"));
   EXPECT_EQ("", StringUtils::toLowerSlug("%&(#"));
 }
@@ -185,8 +180,6 @@ TEST(StringUtilsTest, ToUpperSlug) {
   EXPECT_EQ("H4MMYJAMMY", StringUtils::toUpperSlug("H4MMY jaMMy"));
   EXPECT_EQ("JAMMY", StringUtils::toUpperSlug("jaMMy"));
   EXPECT_EQ("JMMY", StringUtils::toUpperSlug("j#MMy"));
-  EXPECT_EQ("NEUF", StringUtils::toUpperSlug(""));
-  EXPECT_EQ("NEUF", StringUtils::toUpperSlug("%&(#"));
   EXPECT_EQ("P", StringUtils::toUpperSlug("%&(#p"));
   EXPECT_EQ("", StringUtils::toUpperSlug("%&(#"));
 }

@@ -25,7 +25,7 @@ TEST(TemplateConfigTest, DefaultsToString) {
   TemplateConfig subject;
 
   std::vector<std::string> defaultLines = StringUtils::split(TemplateConfig::getDefaultString(), '\n');
-  std::vector<std::string> subjectLines = StringUtils::split(subject, '\n');
+  std::vector<std::string> subjectLines = StringUtils::split(subject.toString(), '\n');
 
   for (int i = 0; i < defaultLines.size(); i++) {
     EXPECT_EQ(defaultLines[i], subjectLines[i]) << "Mismatch at line " << i << " of " << defaultLines.size();

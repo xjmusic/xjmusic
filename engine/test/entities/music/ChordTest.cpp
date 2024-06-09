@@ -24,7 +24,7 @@ TEST(Music_Chord, TestChordExpectations) {
     auto input = it->first.as<std::string>();
     auto expect = it->second.as<std::string>();
     try {
-      actual = Chord::of(input);// Assuming Chord::of() is a function that takes a string and returns a Chord object
+      actual = Chord::of(input).toString();// Assuming Chord::of() is a function that takes a string and returns a Chord object
 
       if (actual != expect) {
         std::cerr << "Expected \"" << input << "\" to yield \"" << expect << "\" but actually was \"" << actual << "\"\n";
@@ -40,15 +40,15 @@ TEST(Music_Chord, TestChordExpectations) {
 }
 
 TEST(Music_Chord, of) {
-  ASSERT_EQ("C 6/9", Chord::of("CM6add9").name);
-  ASSERT_EQ("C 7b9/13", Chord::of("C dom7b9/13").name);
-  ASSERT_EQ("C aug maj7", Chord::of("C+∆").name);
-  ASSERT_EQ("C -7b5/11", Chord::of("C Ø11").name);
-  ASSERT_EQ("C aug maj7", Chord::of("C+M7").name);
-  ASSERT_EQ("C aug maj7", Chord::of("C+∆").name);
-  ASSERT_EQ("C aug maj7", Chord::of("C∆#5").name);
-  ASSERT_EQ("C aug maj7", Chord::of("C+♮7").name);
-  ASSERT_EQ("C dim", Chord::of("C°").name);
+  ASSERT_EQ("C 6/9", Chord::of("CM6add9").getName());
+  ASSERT_EQ("C 7b9/13", Chord::of("C dom7b9/13").getName());
+  ASSERT_EQ("C aug maj7", Chord::of("C+∆").getName());
+  ASSERT_EQ("C -7b5/11", Chord::of("C Ø11").getName());
+  ASSERT_EQ("C aug maj7", Chord::of("C+M7").getName());
+  ASSERT_EQ("C aug maj7", Chord::of("C+∆").getName());
+  ASSERT_EQ("C aug maj7", Chord::of("C∆#5").getName());
+  ASSERT_EQ("C aug maj7", Chord::of("C+♮7").getName());
+  ASSERT_EQ("C dim", Chord::of("C°").getName());
 }
 
 TEST(Music_Chord, TestOf_Invalid) {
@@ -85,7 +85,7 @@ TEST(Music_Chord, getDescription_dontConfuseTensionWithSlash) {
 }
 
 TEST(Music_Chord, stripExtraSpacesFromName) {
-  ASSERT_EQ("G", Chord::of("  G      ").name);
+  ASSERT_EQ("G", Chord::of("  G      ").getName());
 }
 
 TEST(Music_Chord, isSame) {
@@ -158,13 +158,13 @@ TEST(Music_Chord, compareTo) {
 
   // Sort the source vector
   std::sort(source.begin(), source.end(), [](const Chord &a, const Chord &b) {
-    return a.name < b.name;
+    return a.getName() < b.getName();
   });
 
   // Map the sorted chords to their names
   std::vector<std::string> sorted;
   std::transform(source.begin(), source.end(), std::back_inserter(sorted), [](const Chord &chord) {
-    return chord.name;
+    return chord.getName();
   });
 
   // Join the chord names into a single string

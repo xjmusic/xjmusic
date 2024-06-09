@@ -10,8 +10,8 @@
 #include <utility>
 
 #include "ContentTestHelper.h"
+#include "ContentFixtures.h"
 #include "LoremIpsum.h"
-#include "FabricationContentOneFixtures.h"
 #include "xjmusic/entities/content/Instrument.h"
 #include "xjmusic/entities/content/InstrumentAudio.h"
 #include "xjmusic/entities/content/InstrumentMeme.h"
@@ -32,32 +32,31 @@
 #include "xjmusic/entities/content/TemplateBinding.h"
 #include "xjmusic/entities/content/TemplateConfig.h"
 #include "xjmusic/entities/segment/Chain.h"
-#include "xjmusic/util/StringUtils.h"
 #include "xjmusic/entities/segment/Segment.h"
-#include "xjmusic/util/ValueUtils.h"
 #include "xjmusic/entities/segment/SegmentChoice.h"
-#include "xjmusic/entities/segment/SegmentMeta.h"
-#include "xjmusic/entities/segment/SegmentMeme.h"
-#include "xjmusic/entities/segment/SegmentChord.h"
-#include "xjmusic/entities/segment/SegmentChordVoicing.h"
 #include "xjmusic/entities/segment/SegmentChoiceArrangement.h"
 #include "xjmusic/entities/segment/SegmentChoiceArrangementPick.h"
+#include "xjmusic/entities/segment/SegmentChord.h"
+#include "xjmusic/entities/segment/SegmentChordVoicing.h"
+#include "xjmusic/entities/segment/SegmentMeme.h"
+#include "xjmusic/entities/segment/SegmentMeta.h"
+#include "xjmusic/util/StringUtils.h"
+#include "xjmusic/util/ValueUtils.h"
 
 namespace XJ {
 
-/**
+  /**
  Integration tests use shared scenario fixtures as much as possible https://github.com/xjmusic/workstation/issues/202
  <p>
  Testing the hypothesis that, while unit tests are all independent,
  integration tests ought to be as much about testing all features around a consensus model of the platform
  as they are about testing all resources.
  */
-  class FabricationContentTwoFixtures {
+  class SegmentFixtures {
     static constexpr float RANDOM_VALUE_FROM = 0.3f;
     static constexpr float RANDOM_VALUE_TO = 0.8f;
 
   protected:
-
     /**
      List of N random values
   
@@ -73,7 +72,7 @@ namespace XJ {
      @param sourceItems source Strings
      @return array of unique random Strings
      */
-    static std::vector<std::string> listOfUniqueRandom(long N, std::vector<std::string> sourceItems);
+    static std::vector<std::string> listOfUniqueRandom(long N, const std::vector<std::string>& sourceItems);
 
     /**
      Random value between A and B
@@ -101,7 +100,6 @@ namespace XJ {
     static int random(std::vector<int> array);
 
   public:
-
     // Test data
     Project project1;
     Instrument instrument8;
@@ -267,16 +265,14 @@ namespace XJ {
      * Build a chain from a template
      */
     static Chain buildChain(
-        const Template &tmpl
-    );
+        const Template &tmpl);
 
     /**
      * Build a chain from a template
      */
     static Chain buildChain(
         const Template &tmpl,
-        Chain::State state
-    );
+        Chain::State state);
 
     /**
      * Build a chain from a template
@@ -286,8 +282,7 @@ namespace XJ {
         const std::string &name,
         Chain::Type type,
         Chain::State state,
-        const Template &tmpl
-    );
+        const Template &tmpl);
 
     /**
      * Build a chain from a template
@@ -297,8 +292,7 @@ namespace XJ {
         const Template &tmpl,
         const std::string &name,
         Chain::Type type,
-        Chain::State state
-    );
+        Chain::State state);
 
     /**
      * Build a chain from a template
@@ -309,8 +303,7 @@ namespace XJ {
         Chain::Type type,
         Chain::State state,
         const Template &tmpl,
-        const std::string &shipKey
-    );
+        const std::string &shipKey);
 
     /**
      * Build a Segment
@@ -321,15 +314,14 @@ namespace XJ {
      * Build a Segment for a chain
      */
     static Segment buildSegment(
-        Chain chain,
+        const Chain& chain,
         int id,
         Segment::State state,
         std::string key,
         int total,
         float intensity,
         float tempo,
-        std::string storageKey
-    );
+        std::string storageKey);
 
     /**
      * Build a Segment for a chain
@@ -345,97 +337,87 @@ namespace XJ {
         float intensity,
         float tempo,
         std::string storageKey,
-        bool hasEndSet
-    );
+        bool hasEndSet);
 
     /**
      * Build a Segment for a chain
      */
     static Segment buildSegment(
-        Chain chain,
+        const Chain& chain,
         std::string key,
         int total,
         float intensity,
-        float tempo
-    );
+        float tempo);
 
     /**
      * Build a Segment for a chain
      */
     static Segment buildSegment(
-        Chain chain,
+        const Chain& chain,
         int offset,
         std::string key,
         int total,
         float intensity,
-        float tempo
-    );
+        float tempo);
 
     /**
      * Build a choice for a segment
      */
     static SegmentChoice buildSegmentChoice(
-        Segment segment,
+        const Segment& segment,
         Program::Type programType,
-        ProgramSequenceBinding programSequenceBinding
-    );
+        const ProgramSequenceBinding& programSequenceBinding);
 
     /**
      * Build a choice for a segment
      */
     static SegmentChoice buildSegmentChoice(
-        Segment segment,
+        const Segment& segment,
         Program::Type programType,
-        ProgramSequence programSequence
-    );
+        const ProgramSequence& programSequence);
 
     /**
      * Build a choice for a segment
      */
     static SegmentChoice buildSegmentChoice(
-        Segment segment,
+        const Segment& segment,
         int deltaIn,
         int deltaOut,
-        Program program,
+        const Program& program,
         Instrument::Type instrumentType,
-        Instrument::Mode instrumentMode
-    );
+        Instrument::Mode instrumentMode);
 
     /**
      * Build a choice for a segment
      */
     static SegmentChoice buildSegmentChoice(
-        Segment segment,
-        Program program
-    );
+        const Segment& segment,
+        const Program& program);
 
     /**
      * Build a choice for a segment
      */
     static SegmentChoice buildSegmentChoice(
-        Segment segment,
-        Instrument instrument
-    );
+        const Segment& segment,
+        const Instrument& instrument);
 
     /**
      * Build a meta for a segment
      */
     static SegmentMeta buildSegmentMeta(
-        Segment segment,
+        const Segment& segment,
         std::string key,
-        std::string value
-    );
+        std::string value);
 
     /**
      * Build a choice for a segment
      */
     static SegmentChoice buildSegmentChoice(
-        Segment segment,
-        Program program,
-        ProgramSequence programSequence,
-        ProgramVoice voice,
-        Instrument instrument
-    );
+        const Segment& segment,
+        const Program& program,
+        const ProgramSequence& programSequence,
+        const ProgramVoice& voice,
+        const Instrument& instrument);
 
     /**
      * Build a choice of program and binding for a segment
@@ -445,8 +427,7 @@ namespace XJ {
         int deltaIn,
         int deltaOut,
         Program program,
-        ProgramSequenceBinding programSequenceBinding
-    );
+        const ProgramSequenceBinding& programSequenceBinding);
 
     /**
      * Build a choice of program, voice, and instrument for a segment
@@ -456,73 +437,65 @@ namespace XJ {
         int deltaIn,
         int deltaOut,
         Program program,
-        ProgramVoice voice,
-        Instrument instrument
-    );
+        const ProgramVoice& voice,
+        const Instrument& instrument);
 
     /**
      * Build a choice of program for a segment
      */
     static SegmentChoice buildSegmentChoice(
-        Segment segment,
+        const Segment& segment,
         int deltaIn,
         int deltaOut,
-        Program program
-    );
+        const Program& program);
 
     /**
      * Build a meme for a segment
      */
     static SegmentMeme buildSegmentMeme(
-        Segment segment,
-        std::string name
-    );
+        const Segment& segment,
+        std::string name);
 
     /**
      * Build a chord for a segment
      */
     static SegmentChord buildSegmentChord(
-        Segment segment,
+        const Segment& segment,
         double atPosition,
-        std::string name
-    );
+        std::string name);
 
     /**
      * Build a voicing for a segment chord
      */
     static SegmentChordVoicing buildSegmentChordVoicing(
-        SegmentChord chord,
+        const SegmentChord& chord,
         Instrument::Type type,
-        std::string notes
-    );
+        std::string notes);
 
     /**
      * Build an arrangement for a segment choice
      */
     static SegmentChoiceArrangement buildSegmentChoiceArrangement(
-        SegmentChoice segmentChoice
-    );
+        const SegmentChoice& segmentChoice);
 
     /**
      * Build a pick for a segment choice arrangement
      */
     static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(
-        Segment segment,
-        SegmentChoiceArrangement segmentChoiceArrangement,
-        InstrumentAudio instrumentAudio,
-        std::string pickEvent
-    );
+        const Segment& segment,
+        const SegmentChoiceArrangement& segmentChoiceArrangement,
+        const InstrumentAudio& instrumentAudio,
+        std::string pickEvent);
 
     /**
      * Build a pick for a segment choice arrangement
      */
     static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(
-        Segment segment,
-        SegmentChoiceArrangement segmentChoiceArrangement,
-        ProgramSequencePatternEvent event,
-        InstrumentAudio instrumentAudio,
-        std::string pickEvent
-    );
+        const Segment& segment,
+        const SegmentChoiceArrangement& segmentChoiceArrangement,
+        const ProgramSequencePatternEvent& event,
+        const InstrumentAudio& instrumentAudio,
+        std::string pickEvent);
 
     /**
      A whole library of mock content
@@ -567,239 +540,9 @@ namespace XJ {
      @param N magnitude of library to generate
      @return entities
      */
-    std::vector<AnyContentEntity> generatedFixture(int N) {
-      std::vector<AnyContentEntity> entities;
-
-      project1 = FabricationContentOneFixtures::buildProject("Generated");
-      entities.emplace_back(project1);
-      library1 = FabricationContentOneFixtures::buildLibrary(project1, "generated");
-      entities.emplace_back(library1);
-
-      template1 = FabricationContentOneFixtures::buildTemplate(project1, "Complex Library Test", "complex");
-      entities.emplace_back(template1);
-      entities.emplace_back(FabricationContentOneFixtures::buildTemplateBinding(template1, library1));
-
-      // Create a N-magnitude set of unique major memes
-      std::vector<std::string>
-          majorMemeNames = listOfUniqueRandom(N, LoremIpsum::COLORS);
-      std::vector<std::string>
-          minorMemeNames = listOfUniqueRandom((long) (double) (N >> 1), LoremIpsum::VARIANTS);
-      std::vector<std::string>
-          percussiveNames = listOfUniqueRandom(N, LoremIpsum::PERCUSSIVE_NAMES);
-
-      // Generate a Drum Instrument for each meme
-      for (int i = 0; i < N; i++) {
-        std::string majorMemeName = majorMemeNames[i];
-        std::string minorMemeName = random(minorMemeNames);
-        //
-        Instrument instrument = FabricationContentOneFixtures::buildInstrument(library1, Instrument::Type::Drum,
-                                                                               Instrument::Mode::Event,
-                                                                               Instrument::State::Published,
-                                                                               majorMemeName + " Drums");
-        entities.emplace_back(instrument);
-        entities.emplace_back(FabricationContentOneFixtures::buildInstrumentMeme(instrument, majorMemeName));
-        entities.emplace_back(FabricationContentOneFixtures::buildInstrumentMeme(instrument, minorMemeName));
-        // audios of instrument
-        for (int k = 0; k < N; k++)
-          entities.emplace_back(
-              FabricationContentOneFixtures::buildAudio(
-                  instrument, StringUtils::toProper(percussiveNames[k]),
-                  StringUtils::toLowerSlug(percussiveNames[k]) + ".wav",
-                  random(0, 0.05f),
-                  random(0.25f, 2),
-                  random(80, 120), 0.62f,
-                  percussiveNames[k],
-                  "X",
-                  random(0.8f, 1))
-          );
-        //
-        std::cout << "Generated Drum-type Instrument id=" << instrument.id << ", minorMeme=" << minorMemeName
-                  << ", majorMeme=" << majorMemeName << std::endl;
-      }
-
-      // Generate Perc Loop Instruments
-      for (int i = 0; i < N; i++) {
-        Instrument instrument = FabricationContentOneFixtures::buildInstrument(
-            library1,
-            Instrument::Type::Percussion,
-            Instrument::Mode::Loop,
-            Instrument::State::Published,
-            "Perc Loop"
-        );
-        entities.emplace_back(instrument);
-        std::cout << "Generated PercLoop-type Instrument id=" << instrument.id << std::endl;
-      }
-
-      // Generate N*2 total Macro-type programs, each transitioning of one MemeEntity to another
-      for (int i = 0; i < N << 1; i++) {
-        std::vector<std::string>
-            twoMemeNames = listOfUniqueRandom(2, majorMemeNames);
-        std::string majorMemeFromName = twoMemeNames[0];
-        std::string majorMemeToName = twoMemeNames[1];
-        std::string minorMemeName = random(minorMemeNames);
-        std::vector<std::string>
-            twoKeys = listOfUniqueRandom(2, LoremIpsum::MUSICAL_KEYS);
-        std::string keyFrom = twoKeys[0];
-        std::string keyTo = twoKeys[1];
-        float intensityFrom = random(0.3f, 0.9f);
-        float tempoFrom = random(80, 120);
-        //
-        Program program = FabricationContentOneFixtures::buildProgram(
-            library1,
-            Program::Type::Macro,
-            Program::State::Published,
-            minorMemeName + ", create " + majorMemeFromName + " to " + majorMemeToName,
-            keyFrom,
-            tempoFrom
-        );
-        entities.emplace_back(program);
-        entities.emplace_back(FabricationContentOneFixtures::buildProgramMeme(program, minorMemeName));
-        // of offset 0
-        ProgramSequence sequence0 = FabricationContentOneFixtures::buildSequence(
-            program,
-            0,
-            "Start " + majorMemeFromName,
-            intensityFrom,
-            keyFrom
-        );
-        entities.emplace_back(sequence0);
-        ProgramSequenceBinding binding0 = FabricationContentOneFixtures::buildProgramSequenceBinding(sequence0, 0);
-        entities.emplace_back(binding0);
-        entities.emplace_back(
-            FabricationContentOneFixtures::buildProgramSequenceBindingMeme(
-                binding0,
-                majorMemeFromName
-            )
-        );
-        // to offset 1
-        float intensityTo = random(0.3f, 0.9f);
-        ProgramSequence sequence1 = FabricationContentOneFixtures::buildSequence(program, 0,
-                                                                                 std::string.format("Finish %s",
-                                                                                                    majorMemeToName),
-                                                                                 intensityTo, keyTo);
-        entities.emplace_back(sequence1);
-        ProgramSequenceBinding binding1 = FabricationContentOneFixtures::buildProgramSequenceBinding(sequence1, 1);
-        entities.emplace_back(binding1);
-        entities.emplace_back(
-            FabricationContentOneFixtures::buildProgramSequenceBindingMeme(binding1, majorMemeToName));
-        //
-        std::cout << "Generated Macro-type Program id=" << program.id << ", minorMeme=" << minorMemeName
-                  << ", majorMemeFrom=" << majorMemeFromName << ", majorMemeTo=" << majorMemeToName << std::endl;
-      }
-
-      // Generate N*4 total Main-type Programs, each having N patterns comprised of ~N*2 chords, bound to N*4 sequence patterns
-      ProgramSequence[]
-      sequences = new ProgramSequence[N];
-      for (int i = 0; i < N << 2; i++) {
-        std::string majorMemeName = random(majorMemeNames);
-        std::vector<std::string>
-            sequenceNames = listOfUniqueRandom(N, LoremIpsum::ELEMENTS);
-        std::vector<std::string>
-            subKeys = listOfUniqueRandom(N, LoremIpsum::MUSICAL_KEYS);
-        float []
-        subDensities = listOfRandomValues(N);
-        float tempo = random(80, 120);
-        //
-        Program program = add(entities, FabricationContentOneFixtures::buildProgram(library1, Program::Type::Main,
-                                                                                    Program::State::Published,
-                                                                                    std::string.format("%s: %s",
-                                                                                                       majorMemeName,
-                                                                                                       std::string.join(
-                                                                                                           ",",
-                                                                                                           sequenceNames)),
-                                                                                    subKeys[0], tempo));
-        add(entities, FabricationContentOneFixtures::buildProgramMeme(program, majorMemeName));
-        // sequences of program
-        for (int iP = 0; iP < N; iP++) {
-          Integer total = random(LoremIpsum::SEQUENCE_TOTALS);
-          sequences[iP] = add(entities, FabricationContentOneFixtures::buildSequence(program, total,
-                                                                                     std::string.format("%s in %s",
-                                                                                                        majorMemeName,
-                                                                                                        sequenceNames[iP]),
-                                                                                     subDensities[iP], subKeys[iP]));
-          for (int iPC = 0; iPC < N << 2; iPC++) {
-            // always use first chord, then use more chords with more intensity
-            if (0 == iPC || StrictMath.random() < subDensities[iP]) {
-              add(entities,
-                  FabricationContentOneFixtures::buildChord(sequences[iP],
-                                                            StrictMath.floor((float) iPC * total * 4 / N),
-                                                            random(LoremIpsum::MUSICAL_CHORDS)));
-            }
-          }
-        }
-        // sequence sequence binding
-        for (int offset = 0; offset < N << 2; offset++) {
-          int num = (int) StrictMath.floor(StrictMath.random() * N);
-          var binding = add(entities,
-                            FabricationContentOneFixtures::buildProgramSequenceBinding(sequences[num], offset));
-          add(entities, FabricationContentOneFixtures::buildMeme(binding, random(minorMemeNames)));
-        }
-        LOG.debug("Generated Main-type Program id={}, majorMeme={} with {} sequences bound {} times", program.id,
-                  majorMemeName, N, N << 2);
-      }
-
-      // Generate N total Beat-type Sequences, each having N voices, and N*2 patterns comprised of N*8 events
-      ProgramVoice[]
-      voices = new ProgramVoice[N];
-      Map <std::string, ProgramVoiceTrack> trackMap = new HashMap<>();
-      for (int i = 0; i < N; i++) {
-        std::string majorMemeName = majorMemeNames[i];
-        float tempo = random(80, 120);
-        std::string key = random(LoremIpsum::MUSICAL_KEYS);
-        float intensity = random(0.4f, 0.9f);
-        //
-        Program program = add(entities, FabricationContentOneFixtures::buildProgram(library1, Program::Type::Beat,
-                                                                                    Program::State::Published,
-                                                                                    std::string.format("%s Beat",
-                                                                                                       majorMemeName),
-                                                                                    key,
-                                                                                    tempo));
-        trackMap.clear();
-        add(entities, FabricationContentOneFixtures::buildProgramMeme(program, majorMemeName));
-        // voices of program
-        for (int iV = 0; iV < N; iV++) {
-          voices[iV] = add(entities, FabricationContentOneFixtures::buildVoice(program, Instrument::Type::Drum,
-                                                                               std::string.format("%s %s",
-                                                                                                  majorMemeName,
-                                                                                                  percussiveNames[iV])));
-        }
-        var sequenceBase = add(entities,
-                               FabricationContentOneFixtures::buildSequence(program,
-                                                                            random(LoremIpsum::SEQUENCE_TOTALS),
-                                                                            "Base", intensity, key));
-        // patterns of program
-        for (int iP = 0; iP < N << 1; iP++) {
-          Integer total = random(LoremIpsum::PATTERN_TOTALS);
-          int num = (int) StrictMath.floor(StrictMath.random() * N);
-
-          // first pattern is always a Loop (because that's required) then the rest at random
-          var pattern = add(entities, FabricationContentOneFixtures::buildPattern(sequenceBase, voices[num], total,
-                                                                                  std::string.format("%s %s %s",
-                                                                                                     majorMemeName,
-                                                                                                     majorMemeName +
-                                                                                                     " pattern", random(
-                                                                                          LoremIpsum::ELEMENTS))));
-          for (int iPE = 0; iPE < N << 2; iPE++) {
-            // always use first chord, then use more chords with more intensity
-            if (0 == iPE || StrictMath.random() < intensity) {
-              std::string name = percussiveNames[num];
-              if (!trackMap.containsKey(name))
-                trackMap.put(name, add(entities, FabricationContentOneFixtures::buildTrack(voices[num], name)));
-              add(entities, FabricationContentOneFixtures::buildEvent(pattern, trackMap.get(name),
-                                                                      (float) StrictMath.floor(
-                                                                          (float) iPE * total * 4 / N),
-                                                                      random(0.25f, 1.0f), "X", random(0.4f, 0.9f)));
-            }
-          }
-        }
-        LOG.debug("Generated Beat-type Program id={}, majorMeme={} with {} patterns", program.id, majorMemeName, N);
-      }
-
-      return entities;
-    }
-
+    std::vector<AnyContentEntity> generatedFixture(int N);
   };
 
-} // namespace XJ
+}// namespace XJ
 
-#endif //XJMUSIC_FABRICATION_CONTENT_TWO_FIXTURES_H
+#endif//XJMUSIC_FABRICATION_CONTENT_TWO_FIXTURES_H

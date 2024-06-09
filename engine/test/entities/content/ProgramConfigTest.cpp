@@ -37,7 +37,7 @@ TEST(ProgramConfigTest, DefaultsToString) {
   ProgramConfig subject;
 
   std::vector<std::string> defaultLines = StringUtils::split(ProgramConfig::getDefaultString(), '\n');
-  std::vector<std::string> subjectLines = StringUtils::split(subject, '\n');
+  std::vector<std::string> subjectLines = StringUtils::split(subject.toString(), '\n');
 
   ASSERT_EQ(defaultLines, subjectLines);
 }

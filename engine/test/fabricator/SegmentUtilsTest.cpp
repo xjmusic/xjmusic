@@ -9,6 +9,8 @@
 #include "../_helper/ContentTestHelper.h"
 #include "xjmusic/entities/segment/Segment.h"
 #include "xjmusic/entities/segment/Chain.h"
+#include "../_helper/ContentFixtures.h"
+#include "../_helper/SegmentFixtures.h"
 
 static std::string CONTENT_STORE_TEST_JSON_PATH = "_data/content_store_test.json";
 
@@ -18,10 +20,10 @@ class SegmentUtilsTest : public ::testing::Test {
 protected:
   // This function runs before each test
   void SetUp() override {
-    Project project = FabricationContentOneFixtures::buildProject("Test");
-    Template tmpl = FabricationContentOneFixtures::buildTemplate(project, "Test");
-    Chain chain = buildChain(project, "Test", Chain::Type::Production, Chain::State::Fabricate, tmpl);
-    Segment seg0 = FabricationContentTwoFixtures::buildSegment(
+    Project project = ContentFixtures::buildProject("Test");
+    Template tmpl = ContentFixtures::buildTemplate(project, "Test");
+    Chain chain = SegmentFixtures::buildChain(project, "Test", Chain::Type::Production, Chain::State::Fabricate, tmpl);
+    Segment seg0 = SegmentFixtures::buildSegment(
         chain,
         Segment::Type::Initial,
         0,
@@ -33,7 +35,7 @@ protected:
         120.0f,
         "chains-1-segments-9f7s89d8a7892",
         true);
-    Segment seg1 = FabricationContentTwoFixtures::buildSegment(
+    Segment seg1 = SegmentFixtures::buildSegment(
         chain,
         Segment::Type::Continue,
         1,
@@ -45,7 +47,7 @@ protected:
         120.0f,
         "chains-1-segments-078aw34tiu5hga",
         true);
-    Segment seg2 = FabricationContentTwoFixtures::buildSegment(
+    Segment seg2 = SegmentFixtures::buildSegment(
         chain,
         Segment::Type::NextMain,
         2,
@@ -57,7 +59,7 @@ protected:
         120.0f,
         "chains-1-segments-jhz5sd4fgi786q",
         true);
-    Segment seg3 = FabricationContentTwoFixtures::buildSegment(
+    Segment seg3 = SegmentFixtures::buildSegment(
         chain,
         Segment::Type::NextMain,
         3,
@@ -187,7 +189,7 @@ public class SegmentUtilsTest {
   }
 
   Segment createSameSegment(String updatedAt, Segment::State state) {
-    final Segment s = FabricationContentTwoFixtures.buildSegment(
+    final Segment s = SegmentFixtures.buildSegment(
       chain,
       Segment::Type.CONTINUE,
       1,
