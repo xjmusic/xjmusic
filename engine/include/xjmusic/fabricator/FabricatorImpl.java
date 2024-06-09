@@ -191,7 +191,7 @@ public class FabricatorImpl implements Fabricator {
   public void addMessage(SegmentMessageType messageType, String body) {
     try {
       SegmentMessage msg;
-      msg.setId(ContentTestHelper::randomUUID());
+      msg.setId(randomUUID());
       msg.setSegmentId(getSegment().id);
       msg.setType(messageType);
       msg.setBody(body);
@@ -643,7 +643,7 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public void putStickyBun(StickyBun bun) throws JsonProcessingException, FabricationException {
     store.put(new SegmentMeta()
-      .id(ContentTestHelper::randomUUID())
+      .id(randomUUID())
       .segmentId(getSegment().id)
       .key(bun.computeMetaKey())
       .value(jsonProvider.getMapper().writeValueAsString(bun)));
@@ -1068,7 +1068,7 @@ public class FabricatorImpl implements Fabricator {
 
     for (String name : names) {
       SegmentMeme segmentMeme;
-      segmentMeme.setId(ContentTestHelper::randomUUID());
+      segmentMeme.setId(randomUUID());
       segmentMeme.setSegmentId(getSegment().id);
       segmentMeme.setName(name);
       put(segmentMeme, false);

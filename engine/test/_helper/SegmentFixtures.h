@@ -9,7 +9,6 @@
 #include <sstream>
 #include <utility>
 
-#include "ContentTestHelper.h"
 #include "ContentFixtures.h"
 #include "LoremIpsum.h"
 #include "xjmusic/entities/content/Instrument.h"

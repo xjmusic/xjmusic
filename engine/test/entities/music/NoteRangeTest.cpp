@@ -4,7 +4,7 @@
 
 #include "xjmusic/entities/music/NoteRange.h"
 
-#include "../../_helper/AssertionHelpers.h"
+#include "../../_helper/TestHelpers.h"
 
 using namespace XJ;
 
@@ -121,17 +121,17 @@ TEST(Music_NoteRange, Median) {
   ASSERT_FALSE(fromNulls.high.has_value());
 
   auto emptyHigh = NoteRange::median(NoteRange::ofStrings(std::vector<std::string>{"C5"}), NoteRange::ofStrings({}));
-  assertNote("C5", emptyHigh.low.value());
-  assertNote("C5", emptyHigh.high.value());
+  TestHelpers::assertNote("C5", emptyHigh.low.value());
+  TestHelpers::assertNote("C5", emptyHigh.high.value());
 
   auto emptyLow = NoteRange::median(NoteRange::ofStrings(std::vector<std::string>{}), NoteRange::ofStrings({"G#5"}));
-  assertNote("G#5", emptyLow.low.value());
-  assertNote("G#5", emptyLow.high.value());
+  TestHelpers::assertNote("G#5", emptyLow.low.value());
+  TestHelpers::assertNote("G#5", emptyLow.high.value());
 
   auto normal = NoteRange::median(NoteRange::ofStrings(std::vector<std::string>{"C5", "G5"}),
                                   NoteRange::ofStrings({"G#5", "B5"}));
-  assertNote("E5", normal.low.value());
-  assertNote("A5", normal.high.value());
+  TestHelpers::assertNote("E5", normal.low.value());
+  TestHelpers::assertNote("A5", normal.high.value());
 }
 
 TEST(Music_NoteRange, DeltaSemitones) {
@@ -144,16 +144,16 @@ TEST(Music_NoteRange, DeltaSemitones) {
 }
 
 TEST(Music_NoteRange, NoteNearestMedian) {
-  assertNote("C5", NoteRange::from("C3", "G6").getNoteNearestMedian(PitchClass::C).value());
-  assertNote("C5", NoteRange::from("C3", "G7").getNoteNearestMedian(PitchClass::C).value());
-  assertNote("C4", NoteRange::from("C2", "G6").getNoteNearestMedian(PitchClass::C).value());
+  TestHelpers::assertNote("C5", NoteRange::from("C3", "G6").getNoteNearestMedian(PitchClass::C).value());
+  TestHelpers::assertNote("C5", NoteRange::from("C3", "G7").getNoteNearestMedian(PitchClass::C).value());
+  TestHelpers::assertNote("C4", NoteRange::from("C2", "G6").getNoteNearestMedian(PitchClass::C).value());
   ASSERT_FALSE(NoteRange::from("C3", "G6").getNoteNearestMedian(PitchClass::Atonal).has_value());
 }
 
 TEST(Music_NoteRange, MedianNote) {
-  assertNote("D#5", NoteRange::from("C5", "G5").getMedianNote().value());
-  assertNote("G5", NoteRange::from("X", "G5").getMedianNote().value());
-  assertNote("C5", NoteRange::from("C5", "X").getMedianNote().value());
+  TestHelpers::assertNote("D#5", NoteRange::from("C5", "G5").getMedianNote().value());
+  TestHelpers::assertNote("G5", NoteRange::from("X", "G5").getMedianNote().value());
+  TestHelpers::assertNote("C5", NoteRange::from("C5", "X").getMedianNote().value());
   ASSERT_FALSE(NoteRange::empty().getMedianNote().has_value());
 }
 
@@ -162,11 +162,11 @@ TEST(Music_NoteRange, Shifted) {
 
   auto result = input.shifted(2);
 
-  assertNote("D5", result.low.value());
-  assertNote("A5", result.high.value());
+  TestHelpers::assertNote("D5", result.low.value());
+  TestHelpers::assertNote("A5", result.high.value());
   // input not modified
-  assertNote("C5", input.low.value());
-  assertNote("G5", input.high.value());
+  TestHelpers::assertNote("C5", input.low.value());
+  TestHelpers::assertNote("G5", input.high.value());
 }
 
 TEST(Music_NoteRange, IsEmpty) {
@@ -189,18 +189,18 @@ TEST(Music_NoteRange, Includes) {
 }
 
 TEST(Music_NoteRange, ToAvailableOctave) {
-  assertNote("C4", NoteRange::from(Note::of("C4"), Note::of("C6")).toAvailableOctave(Note::of("C4")));
-  assertNote("C5", NoteRange::from(Note::of("C4"), Note::of("C6")).toAvailableOctave(Note::of("C5")));
-  assertNote("C6", NoteRange::from(Note::of("C4"), Note::of("C6")).toAvailableOctave(Note::of("C6")));
-  assertNote("D5", NoteRange::from(Note::of("C4"), Note::of("C6")).toAvailableOctave(Note::of("D6")));
-  assertNote("D4", NoteRange::from(Note::of("C4"), Note::of("C6")).toAvailableOctave(Note::of("D3")));
-  assertNote("C4", NoteRange::from(Note::of("C4"), Note::atonal()).toAvailableOctave(Note::of("C4")));
-  assertNote("B3", NoteRange::from(Note::of("C4"), Note::atonal()).toAvailableOctave(Note::of("B3")));
-  assertNote("D4", NoteRange::from(Note::of("C4"), Note::atonal()).toAvailableOctave(Note::of("D4")));
-  assertNote("C4", NoteRange::from(Note::atonal(), Note::of("C4")).toAvailableOctave(Note::of("C4")));
-  assertNote("B3", NoteRange::from(Note::atonal(), Note::of("C4")).toAvailableOctave(Note::of("B3")));
-  assertNote("D4", NoteRange::from(Note::atonal(), Note::of("C4")).toAvailableOctave(Note::of("D4")));
-  assertNote("C4", NoteRange::empty().toAvailableOctave(Note::of("C4")));
+  TestHelpers::assertNote("C4", NoteRange::from(Note::of("C4"), Note::of("C6")).toAvailableOctave(Note::of("C4")));
+  TestHelpers::assertNote("C5", NoteRange::from(Note::of("C4"), Note::of("C6")).toAvailableOctave(Note::of("C5")));
+  TestHelpers::assertNote("C6", NoteRange::from(Note::of("C4"), Note::of("C6")).toAvailableOctave(Note::of("C6")));
+  TestHelpers::assertNote("D5", NoteRange::from(Note::of("C4"), Note::of("C6")).toAvailableOctave(Note::of("D6")));
+  TestHelpers::assertNote("D4", NoteRange::from(Note::of("C4"), Note::of("C6")).toAvailableOctave(Note::of("D3")));
+  TestHelpers::assertNote("C4", NoteRange::from(Note::of("C4"), Note::atonal()).toAvailableOctave(Note::of("C4")));
+  TestHelpers::assertNote("B3", NoteRange::from(Note::of("C4"), Note::atonal()).toAvailableOctave(Note::of("B3")));
+  TestHelpers::assertNote("D4", NoteRange::from(Note::of("C4"), Note::atonal()).toAvailableOctave(Note::of("D4")));
+  TestHelpers::assertNote("C4", NoteRange::from(Note::atonal(), Note::of("C4")).toAvailableOctave(Note::of("C4")));
+  TestHelpers::assertNote("B3", NoteRange::from(Note::atonal(), Note::of("C4")).toAvailableOctave(Note::of("B3")));
+  TestHelpers::assertNote("D4", NoteRange::from(Note::atonal(), Note::of("C4")).toAvailableOctave(Note::of("D4")));
+  TestHelpers::assertNote("C4", NoteRange::empty().toAvailableOctave(Note::of("C4")));
 }
 
 TEST(Music_NoteRange, ComputeMedianOptimalRangeShiftOctaves) {

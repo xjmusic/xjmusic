@@ -4,7 +4,7 @@
 
 #include "xjmusic/entities/music/StickyBun.h"
 
-#include "../../_helper/AssertionHelpers.h"
+#include "../../_helper/TestHelpers.h"
 
 using namespace XJ;
 
@@ -47,10 +47,10 @@ TEST(Music_StickyBun, replaceAtonal) {
 
   auto result = bun.replaceAtonal(source, voicingNotes);
 
-  assertNote("Bb7", result.at(0));
-  assertNote("G6", result.at(1));
-  assertNote("Bb7", result.at(2));
-  assertNote("C4", result.at(3));
+  TestHelpers::assertNote("Bb7", result.at(0));
+  TestHelpers::assertNote("G6", result.at(1));
+  TestHelpers::assertNote("Bb7", result.at(2));
+  TestHelpers::assertNote("C4", result.at(3));
 }
 
 /**
@@ -60,8 +60,8 @@ TEST(Music_StickyBun, compute) {
   auto voicingNotes = std::vector{Note::of("C4"), Note::of("E5"), Note::of("G6"), Note::of("Bb7")};
   auto bun = StickyBun(eventId, std::vector{42, 67, 100, 0});
 
-  assertNote("E5", bun.compute(voicingNotes, 0));
-  assertNote("G6", bun.compute(voicingNotes, 1));
-  assertNote("Bb7", bun.compute(voicingNotes, 2));
-  assertNote("C4", bun.compute(voicingNotes, 3));
+  TestHelpers::assertNote("E5", bun.compute(voicingNotes, 0));
+  TestHelpers::assertNote("G6", bun.compute(voicingNotes, 1));
+  TestHelpers::assertNote("Bb7", bun.compute(voicingNotes, 2));
+  TestHelpers::assertNote("C4", bun.compute(voicingNotes, 3));
 }

@@ -4,7 +4,7 @@
 
 #include "xjmusic/entities/music/Root.h"
 
-#include "../../_helper/AssertionHelpers.h"
+#include "../../_helper/TestHelpers.h"
 
 using namespace XJ;
 

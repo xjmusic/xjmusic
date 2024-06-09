@@ -81,7 +81,7 @@ public class FabricationEntityStoreImplTest {
     template1 = ContentFixtures.buildTemplate(project1, "Test Template 1", "test1");
 
     chain3 = subject.put(new Chain()
-      .id(ContentTestHelper::randomUUID())
+      .id(randomUUID())
       .projectId(project1.id)
       .name("Test Print #1")
       .type(Chain::Type.PRODUCTION)
@@ -193,7 +193,7 @@ public class FabricationEntityStoreImplTest {
 
   @Test
   public void create_get_Segment() throws FabricationException {
-    UUID chainId = ContentTestHelper::randomUUID();
+    UUID chainId = TestHelpers::randomUUID();
     Segment segment = new Segment();
     segment.setChainId(chainId);
     segment.setId(0);
@@ -226,9 +226,9 @@ public class FabricationEntityStoreImplTest {
 
   @Test
   public void create_get_Chain() throws FabricationException {
-    UUID projectId = ContentTestHelper::randomUUID();
+    UUID projectId = TestHelpers::randomUUID();
     Chain chain;
-    chain.setId(ContentTestHelper::randomUUID());
+    chain.setId(randomUUID());
     chain.setProjectId(projectId);
     chain.setType(Chain::Type.PREVIEW);
     chain.setState(Chain::State.FABRICATE);
@@ -247,8 +247,8 @@ public class FabricationEntityStoreImplTest {
   @Test
   public void create_passThroughIfNotFabricationEntity() throws FabricationException {
     Library library;
-    library.setId(ContentTestHelper::randomUUID());
-    library.setProjectId(ContentTestHelper::randomUUID());
+    library.setId(randomUUID());
+    library.setProjectId(randomUUID());
     library.setName("helm");
 
     var result = subject.put(library);
@@ -259,10 +259,10 @@ public class FabricationEntityStoreImplTest {
   @Test
   public void create_failsWithoutId() {
     SegmentChoice choice;
-    choice.setProgramId(ContentTestHelper::randomUUID());
+    choice.setProgramId(randomUUID());
     choice.setDeltaIn(Segment::DELTA_UNLIMITED);
     choice.setDeltaOut(Segment::DELTA_UNLIMITED);
-    choice.setProgramSequenceBindingId(ContentTestHelper::randomUUID());
+    choice.setProgramSequenceBindingId(randomUUID());
     choice.setProgramType(Program::Type::Macro);
 
     var failure = assertThrows(FabricationException.class,
@@ -274,11 +274,11 @@ public class FabricationEntityStoreImplTest {
   @Test
   public void create_subEntityFailsWithoutSegmentId() {
     SegmentChoice choice;
-    choice.setId(ContentTestHelper::randomUUID());
-    choice.setProgramId(ContentTestHelper::randomUUID());
+    choice.setId(randomUUID());
+    choice.setProgramId(randomUUID());
     choice.setDeltaIn(Segment::DELTA_UNLIMITED);
     choice.setDeltaOut(Segment::DELTA_UNLIMITED);
-    choice.setProgramSequenceBindingId(ContentTestHelper::randomUUID());
+    choice.setProgramSequenceBindingId(randomUUID());
     choice.setProgramType(Program::Type::Macro);
 
     var failure = assertThrows(FabricationException.class,
@@ -539,7 +539,7 @@ public class FabricationEntityStoreImplTest {
   public void updateSegment_FailsToChangeChain() {
     Segment inputData = new Segment()
       .id(4)
-      .chainId(ContentTestHelper::randomUUID())
+      .chainId(randomUUID())
       .delta(0)
       .type(Segment::Type.CONTINUE)
       .state(Segment::State.CRAFTING)

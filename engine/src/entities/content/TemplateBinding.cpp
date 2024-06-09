@@ -14,7 +14,7 @@ namespace XJ {
       {TemplateBinding::Program,    "Program"},
       {TemplateBinding::Instrument, "Instrument"},
   };
-  static const std::map<std::string, TemplateBinding::Type> typeNameValues = reverseMap(typeValueNames);
+  static const std::map<std::string, TemplateBinding::Type> typeNameValues = Entity::reverseMap(typeValueNames);
 
   TemplateBinding::Type TemplateBinding::parseType(const std::string &value) {
     if (typeNameValues.count(value) == 0) {

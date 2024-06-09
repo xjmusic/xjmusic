@@ -28,11 +28,31 @@
 #include "xjmusic/entities/content/TemplateConfig.h"
 #include "xjmusic/entities/content/TemplateBinding.h"
 #include "xjmusic/util/StringUtils.h"
-#include "ContentTestHelper.h"
 
 namespace XJ {
 
-/**
+  using AnyContentEntity = std::variant<
+      Project,
+      Library,
+      Template,
+      TemplateBinding,
+      Program,
+      ProgramMeme,
+      ProgramSequence,
+      ProgramSequenceBinding,
+      ProgramSequenceBindingMeme,
+      ProgramVoice,
+      ProgramVoiceTrack,
+      ProgramSequenceChord,
+      ProgramSequenceChordVoicing,
+      ProgramSequencePattern,
+      ProgramSequencePatternEvent,
+      Instrument,
+      InstrumentMeme,
+      InstrumentAudio
+  >;
+
+  /**
  Integration tests use shared scenario fixtures as much as possible https://github.com/xjmusic/workstation/issues/202
  <p>
  Testing the hypothesis that,
@@ -339,11 +359,27 @@ while unit tests are all independent,
     );
 
     /**
-     * Build a template binding
+     * Build a template binding for a library
      */
     static TemplateBinding buildTemplateBinding(
         const Template& tmpl,
         const Library& library
+    );
+
+    /**
+     * Build a template binding for a program
+     */
+    static TemplateBinding buildTemplateBinding(
+        const Template& tmpl,
+        const Program& program
+    );
+
+    /**
+     * Build a template binding for a instrument
+     */
+    static TemplateBinding buildTemplateBinding(
+        const Template& tmpl,
+        const Instrument& instrument
     );
 
     /**

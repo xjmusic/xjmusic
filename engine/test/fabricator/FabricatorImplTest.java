@@ -103,7 +103,7 @@ public class FabricatorImplTest {
     store.put(SegmentFixtures.buildSegmentChoice(segment, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, fake.program5));
     SegmentChoice beatChoice = store.put(buildSegmentChoice(segment, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, fake.program35, fake.program35_voice0, fake.instrument8));
     SegmentChoiceArrangement beatArrangement = store.put(SegmentFixtures.buildSegmentChoiceArrangement(beatChoice));
-    store.put(new SegmentChoiceArrangementPick().id(ContentTestHelper::randomUUID()).segmentId(beatArrangement.segmentId).segmentChoiceArrangementId(beatArrangement.id).programSequencePatternEventId(fake.program35_sequence0_pattern0_event0.id).instrumentAudioId(fake.instrument8_audio8kick.id).event("CLANG").startAtSegmentMicros((long) (0.273 * MICROS_PER_SECOND)).lengthMicros((long) (1.571 * MICROS_PER_SECOND)).amplitude(0.8f).tones("A4"));
+    store.put(new SegmentChoiceArrangementPick().id(randomUUID()).segmentId(beatArrangement.segmentId).segmentChoiceArrangementId(beatArrangement.id).programSequencePatternEventId(fake.program35_sequence0_pattern0_event0.id).instrumentAudioId(fake.instrument8_audio8kick.id).event("CLANG").startAtSegmentMicros((long) (0.273 * MICROS_PER_SECOND)).lengthMicros((long) (1.571 * MICROS_PER_SECOND)).amplitude(0.8f).tones("A4"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
     subject = new FabricatorImpl(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory, jsonProvider, 48000.0f, 2, null);
 

@@ -11,7 +11,7 @@ namespace XJ {
       {SegmentMessage::Warning, "Warning"},
       {SegmentMessage::Error, "Error"},
   };
-  static const std::map<std::string, SegmentMessage::Type> typeNameValues = reverseMap(typeValueNames);
+  static const std::map<std::string, SegmentMessage::Type> typeNameValues = Entity::reverseMap(typeValueNames);
 
   SegmentMessage::Type SegmentMessage::parseType(const std::string &value) {
     if (typeNameValues.count(value) == 0) {

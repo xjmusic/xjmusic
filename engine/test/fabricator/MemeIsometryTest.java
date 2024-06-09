@@ -31,7 +31,7 @@ public class MemeIsometryTest {
       "Smooth"
     ));
     ProgramMeme meme;
-    meme.setProgramId(ContentTestHelper::randomUUID());
+    meme.setProgramId(randomUUID());
     meme.setName("Catlike");
     subject.add(meme);
 

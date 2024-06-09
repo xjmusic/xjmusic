@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 #include "SegmentFixtures.h"
+#include "TestHelpers.h"
 
 #include <cmath>
 #include <utility>
@@ -58,7 +59,7 @@ Chain SegmentFixtures::buildChain(
     const Template &tmpl,
     Chain::State state) {
   Chain chain;
-  chain.id = ContentTestHelper::randomUUID();
+  chain.id = TestHelpers::randomUUID();
   chain.templateId = tmpl.id;
   chain.name = "Test Chain";
   chain.type = Chain::Type::Production;
@@ -93,7 +94,7 @@ Chain SegmentFixtures::buildChain(
     const Template &tmpl,
     const std::string &shipKey) {
   Chain chain;
-  chain.id = ContentTestHelper::randomUUID();
+  chain.id = TestHelpers::randomUUID();
   chain.templateId = tmpl.id;
   chain.name = std::move(name);
   chain.type = type;
@@ -182,7 +183,7 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
     Program::Type programType,
     const ProgramSequenceBinding &programSequenceBinding) {
   SegmentChoice segmentChoice;
-  segmentChoice.id = ContentTestHelper::randomUUID();
+  segmentChoice.id = TestHelpers::randomUUID();
   segmentChoice.segmentId = segment.id;
   segmentChoice.deltaIn = Segment::DELTA_UNLIMITED;
   segmentChoice.deltaOut = Segment::DELTA_UNLIMITED;
@@ -197,7 +198,7 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
     Program::Type programType,
     const ProgramSequence &programSequence) {
   SegmentChoice segmentChoice;
-  segmentChoice.id = ContentTestHelper::randomUUID();
+  segmentChoice.id = TestHelpers::randomUUID();
   segmentChoice.segmentId = segment.id;
   segmentChoice.deltaIn = Segment::DELTA_UNLIMITED;
   segmentChoice.deltaOut = Segment::DELTA_UNLIMITED;
@@ -215,7 +216,7 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
     Instrument::Type instrumentType,
     Instrument::Mode instrumentMode) {
   SegmentChoice segmentChoice;
-  segmentChoice.id = ContentTestHelper::randomUUID();
+  segmentChoice.id = TestHelpers::randomUUID();
   segmentChoice.segmentId = segment.id;
   segmentChoice.deltaIn = deltaIn;
   segmentChoice.deltaOut = deltaOut;
@@ -231,7 +232,7 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
     const Segment& segment,
     const Program& program) {
   SegmentChoice segmentChoice;
-  segmentChoice.id = ContentTestHelper::randomUUID();
+  segmentChoice.id = TestHelpers::randomUUID();
   segmentChoice.segmentId = segment.id;
   segmentChoice.deltaIn = Segment::DELTA_UNLIMITED;
   segmentChoice.deltaOut = Segment::DELTA_UNLIMITED;
@@ -244,7 +245,7 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
     const Segment& segment,
     const Instrument& instrument) {
   SegmentChoice segmentChoice;
-  segmentChoice.id = ContentTestHelper::randomUUID();
+  segmentChoice.id = TestHelpers::randomUUID();
   segmentChoice.segmentId = segment.id;
   segmentChoice.deltaIn = Segment::DELTA_UNLIMITED;
   segmentChoice.deltaOut = Segment::DELTA_UNLIMITED;
@@ -259,7 +260,7 @@ SegmentMeta SegmentFixtures::buildSegmentMeta(
     std::string value
     ) {
   SegmentMeta segmentMeta;
-  segmentMeta.id = ContentTestHelper::randomUUID();
+  segmentMeta.id = TestHelpers::randomUUID();
   segmentMeta.segmentId = segment.id;
   segmentMeta.key = std::move(key);
   segmentMeta.value = std::move(value);
@@ -273,7 +274,7 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
     const ProgramVoice& voice,
     const Instrument& instrument) {
   SegmentChoice segmentChoice;
-  segmentChoice.id = ContentTestHelper::randomUUID();
+  segmentChoice.id = TestHelpers::randomUUID();
   segmentChoice.programVoiceId = voice.id;
   segmentChoice.instrumentId = instrument.id;
   segmentChoice.instrumentType = instrument.type;
@@ -321,7 +322,7 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
     int deltaOut,
     const Program& program) {
   SegmentChoice choice;
-  choice.id = ContentTestHelper::randomUUID();
+  choice.id = TestHelpers::randomUUID();
   choice.segmentId = segment.id;
   choice.deltaIn = deltaIn;
   choice.deltaOut = deltaOut;
@@ -334,7 +335,7 @@ SegmentMeme SegmentFixtures::buildSegmentMeme(
     const Segment& segment,
     std::string name) {
   SegmentMeme segmentMeme;
-  segmentMeme.id = ContentTestHelper::randomUUID();
+  segmentMeme.id = TestHelpers::randomUUID();
   segmentMeme.segmentId = segment.id;
   segmentMeme.name = std::move(name);
   return segmentMeme;
@@ -345,7 +346,7 @@ SegmentChord SegmentFixtures::buildSegmentChord(
     double atPosition,
     std::string name) {
   SegmentChord segmentChord;
-  segmentChord.id = ContentTestHelper::randomUUID();
+  segmentChord.id = TestHelpers::randomUUID();
   segmentChord.segmentId = segment.id;
   segmentChord.position = atPosition;
   segmentChord.name = std::move(name);
@@ -357,7 +358,7 @@ SegmentChordVoicing SegmentFixtures::buildSegmentChordVoicing(
     Instrument::Type type,
     std::string notes) {
   SegmentChordVoicing segmentChordVoicing;
-  segmentChordVoicing.id = ContentTestHelper::randomUUID();
+  segmentChordVoicing.id = TestHelpers::randomUUID();
   segmentChordVoicing.segmentId = chord.segmentId;
   segmentChordVoicing.segmentChordId = chord.id;
   segmentChordVoicing.type = Instrument::toString(type);
@@ -368,7 +369,7 @@ SegmentChordVoicing SegmentFixtures::buildSegmentChordVoicing(
 SegmentChoiceArrangement SegmentFixtures::buildSegmentChoiceArrangement(
     const SegmentChoice& segmentChoice) {
   SegmentChoiceArrangement segmentChoiceArrangement;
-  segmentChoiceArrangement.id = ContentTestHelper::randomUUID();
+  segmentChoiceArrangement.id = TestHelpers::randomUUID();
   segmentChoiceArrangement.segmentId = segmentChoice.segmentId;
   segmentChoiceArrangement.segmentChoiceId = segmentChoice.id;
   return segmentChoiceArrangement;
@@ -381,7 +382,7 @@ SegmentChoiceArrangementPick SegmentFixtures::buildSegmentChoiceArrangementPick(
     std::string pickEvent) {
   float microsPerBeat = ValueUtils::MICROS_PER_SECOND * ValueUtils::SECONDS_PER_MINUTE / segment.tempo;
   SegmentChoiceArrangementPick pick;
-  pick.id = ContentTestHelper::randomUUID();
+  pick.id = TestHelpers::randomUUID();
   pick.segmentId = segmentChoiceArrangement.segmentId;
   pick.segmentChoiceArrangementId = segmentChoiceArrangement.id;
   pick.instrumentAudioId = instrumentAudio.id;
@@ -401,7 +402,7 @@ SegmentChoiceArrangementPick SegmentFixtures::buildSegmentChoiceArrangementPick(
     std::string pickEvent) {
   float microsPerBeat = ValueUtils::MICROS_PER_SECOND * ValueUtils::SECONDS_PER_MINUTE / segment.tempo;
   SegmentChoiceArrangementPick pick;
-  pick.id = ContentTestHelper::randomUUID();
+  pick.id = TestHelpers::randomUUID();
   pick.segmentId = segmentChoiceArrangement.segmentId;
   pick.segmentChoiceArrangementId = segmentChoiceArrangement.id;
   pick.programSequencePatternEventId = event.id;

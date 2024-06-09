@@ -25,13 +25,29 @@ namespace XJ {
         }                                                      \
     }, std::runtime_error)                                     \
 
+  static unsigned long long RANDOM_UUID_COUNTER = 0;
 
-  /**
-   * Assert the pitch class and octave of a Note object
-   * @param expect  expected note
-   * @param actual  actual note
-   */
-  void assertNote(const std::string &expect, const Note &actual);
+  class TestHelpers {
+  public:
+
+    /**
+     * Assert the pitch class and octave of a Note object
+     * @param expect  expected note
+     * @param actual  actual note
+     */
+    static void assertNote(const std::string &expect, const Note &actual);
+
+    /**
+     * Get the current time in milliseconds
+     */
+    static long long currentTimeMillis();
+
+    /**
+     * Generate a random UUID
+     */
+    static std::string randomUUID();
+
+  };
 
 } // namespace XJ
 

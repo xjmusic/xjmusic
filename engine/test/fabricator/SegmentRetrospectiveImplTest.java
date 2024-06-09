@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(MockitoExtension.class)
 public class SegmentRetrospectiveImplTest {
   static int SEQUENCE_TOTAL_BEATS = 64;
-  final UUID patternId = ContentTestHelper::randomUUID();
+  final UUID patternId = TestHelpers::randomUUID();
   JsonProvider jsonProvider;
   FabricatorFactory fabricatorFactory;
   HubContent sourceMaterial;

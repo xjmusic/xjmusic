@@ -15,14 +15,14 @@ namespace XJ {
       {Program::Beat,   "Beat"},
       {Program::Detail, "Detail"},
   };
-  static const std::map<std::string, Program::Type> typeNameValues = reverseMap(typeValueNames);
+  static const std::map<std::string, Program::Type> typeNameValues = Entity::reverseMap(typeValueNames);
 
   // Map and reverse-map of Program::State enum values to their string representations
   static const std::map<Program::State, std::string> stateValueNames = {
       {Program::Draft,     "Draft"},
       {Program::Published, "Published"},
   };
-  static const std::map<std::string, Program::State> stateNameValues = reverseMap(stateValueNames);
+  static const std::map<std::string, Program::State> stateNameValues = Entity::reverseMap(stateValueNames);
 
   Program::Type Program::parseType(const std::string &value) {
     if (typeNameValues.count(value) == 0) {

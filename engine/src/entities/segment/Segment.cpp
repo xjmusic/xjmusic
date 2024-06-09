@@ -12,7 +12,7 @@ namespace XJ {
       {Segment::NextMain,  "NextMain"},
       {Segment::NextMacro, "NextMacro"},
   };
-  static const std::map<std::string, Segment::Type> typeNameValues = reverseMap(typeValueNames);
+  static const std::map<std::string, Segment::Type> typeNameValues = Entity::reverseMap(typeValueNames);
 
   // Map and reverse-map of Segment::State enum values to their string representations
   static const std::map<Segment::State, std::string> stateValueNames = {
@@ -21,7 +21,7 @@ namespace XJ {
       {Segment::Crafted,  "Crafted"},
       {Segment::Failed,   "Failed"},
   };
-  static const std::map<std::string, Segment::State> stateNameValues = reverseMap(stateValueNames);
+  static const std::map<std::string, Segment::State> stateNameValues = Entity::reverseMap(stateValueNames);
 
   Segment::Type Segment::parseType(const std::string &value) {
     if (typeNameValues.count(value) == 0) {

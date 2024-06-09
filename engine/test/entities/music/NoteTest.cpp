@@ -5,7 +5,7 @@
 #include "xjmusic/entities/music/Note.h"
 #include "xjmusic/util/StringUtils.h"
 
-#include "../../_helper/AssertionHelpers.h"
+#include "../../_helper/TestHelpers.h"
 
 using namespace XJ;
 
@@ -178,17 +178,17 @@ TEST(Music_Note, containsAnyValidNotes) {
 
 TEST(Music_Note, median) {
   ASSERT_FALSE(Note::median(std::nullopt, std::nullopt).has_value());
-  assertNote("C5", Note::median(Note::of("C5"), std::nullopt).value());
-  assertNote("G#5", Note::median(std::nullopt, Note::of("G#5")).value());
-  assertNote("E5", Note::median(Note::of("C5"), Note::of("G#5")).value());
+  TestHelpers::assertNote("C5", Note::median(Note::of("C5"), std::nullopt).value());
+  TestHelpers::assertNote("G#5", Note::median(std::nullopt, Note::of("G#5")).value());
+  TestHelpers::assertNote("E5", Note::median(Note::of("C5"), Note::of("G#5")).value());
 }
 
 TEST(Music_Note, nextUp) {
   ASSERT_EQ(PitchClass::Atonal, Note::of("X").nextUp(PitchClass::C).pitchClass);
-  assertNote("C4", Note::of("B3").nextUp(PitchClass::C));
+  TestHelpers::assertNote("C4", Note::of("B3").nextUp(PitchClass::C));
 }
 
 TEST(Music_Note, nextDown) {
   ASSERT_EQ(PitchClass::Atonal, Note::of("X").nextDown(PitchClass::C).pitchClass);
-  assertNote("C4", Note::of("D4").nextDown(PitchClass::C));
+  TestHelpers::assertNote("C4", Note::of("D4").nextDown(PitchClass::C));
 }

@@ -9,7 +9,7 @@ namespace XJ {
       {Chain::Preview, "Preview"},
       {Chain::Production, "Production"},
   };
-  static const std::map<std::string, Chain::Type> typeNameValues = reverseMap(typeValueNames);
+  static const std::map<std::string, Chain::Type> typeNameValues = Entity::reverseMap(typeValueNames);
 
   // Map and reverse-map of Chain::State enum values to their string representations
   static const std::map<Chain::State, std::string> stateValueNames = {
@@ -18,7 +18,7 @@ namespace XJ {
       {Chain::Fabricate, "Fabricate"},
       {Chain::Failed, "Failed"},
   };
-  static const std::map<std::string, Chain::State> stateNameValues = reverseMap(stateValueNames);
+  static const std::map<std::string, Chain::State> stateNameValues = Entity::reverseMap(stateValueNames);
 
   Chain::Type Chain::parseType(const std::string &value) {
     if (typeNameValues.count(value) == 0) {

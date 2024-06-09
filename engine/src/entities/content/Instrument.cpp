@@ -17,7 +17,7 @@ namespace XJ {
       {Instrument::Transition, "Transition"},
       {Instrument::Background, "Background"},
   };
-  static const std::map<std::string, Instrument::Type> typeNameValues = reverseMap(typeValueNames);
+  static const std::map<std::string, Instrument::Type> typeNameValues = Entity::reverseMap(typeValueNames);
 
   // Map and reverse-map of Instrument::Mode enum values to their string representations
   static const std::map<Instrument::Mode, std::string> modeValueNames = {
@@ -25,14 +25,14 @@ namespace XJ {
       {Instrument::Chord, "Chord"},
       {Instrument::Loop,  "Loop"},
   };
-  static const std::map<std::string, Instrument::Mode> modeNameValues = reverseMap(modeValueNames);
+  static const std::map<std::string, Instrument::Mode> modeNameValues = Entity::reverseMap(modeValueNames);
 
   // Map and reverse-map of Instrument::State enum values to their string representations
   static const std::map<Instrument::State, std::string> stateValueNames = {
       {Instrument::Draft,     "Draft"},
       {Instrument::Published, "Published"},
   };
-  static const std::map<std::string, Instrument::State> stateNameValues = reverseMap(stateValueNames);
+  static const std::map<std::string, Instrument::State> stateNameValues = Entity::reverseMap(stateValueNames);
 
   Instrument::Type Instrument::parseType(const std::string &value) {
     if (typeNameValues.count(value) == 0) {

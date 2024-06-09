@@ -4,11 +4,6 @@
 #include <gtest/gtest.h>
 #include <string>
 
-#include "xjmusic/entities/content/ContentStore.h"
-
-#include "../_helper/ContentTestHelper.h"
-#include "xjmusic/entities/segment/Segment.h"
-#include "xjmusic/entities/segment/Chain.h"
 #include "../_helper/ContentFixtures.h"
 #include "../_helper/SegmentFixtures.h"
 
@@ -18,6 +13,8 @@ using namespace XJ;
 
 class SegmentUtilsTest : public ::testing::Test {
 protected:
+  std::vector<Segment> segments;
+
   // This function runs before each test
   void SetUp() override {
     Project project = ContentFixtures::buildProject("Test");
@@ -71,7 +68,7 @@ protected:
         120.0f,
         "chains-1-segments-j1hsk3dgu2yu2gyy",
         true);
-    std::vector<Segment> segments = {seg0, seg1, seg2, seg3};
+    segments = {seg0, seg1, seg2, seg3};
   }
 
   // You can also define a TearDown() function that runs after each test
@@ -80,37 +77,9 @@ protected:
   }
 };
 
-TEST(SegmentUtilsTest, FromJsonFile) {
-  // Load the JSON file
-  std::ifstream file(CONTENT_STORE_TEST_JSON_PATH);
-  ASSERT_TRUE(file.is_open());
-
-  // Deserialize a content store from a JSON file stream
-  ContentStore subject = ContentStore::fromJson(file);
-
-  // Assert the correct count of entities in the content store
-  ASSERT_EQ(2, subject.getInstruments().size());
-  ASSERT_EQ(2, subject.getInstrumentAudios().size());
-  ASSERT_EQ(2, subject.getInstrumentMemes().size());
-  ASSERT_EQ(1, subject.getLibraries().size());
-  ASSERT_EQ(2, subject.getPrograms().size());
-  ASSERT_EQ(2, subject.getProgramMemes().size());
-  ASSERT_EQ(2, subject.getProgramSequences().size());
-  ASSERT_EQ(2, subject.getProgramSequenceBindings().size());
-  ASSERT_EQ(2, subject.getProgramSequenceBindingMemes().size());
-  ASSERT_EQ(2, subject.getProgramSequenceChords().size());
-  ASSERT_EQ(2, subject.getProgramSequenceChordVoicings().size());
-  ASSERT_EQ(2, subject.getProgramSequencePatterns().size());
-  ASSERT_EQ(2, subject.getProgramSequencePatternEvents().size());
-  ASSERT_EQ(2, subject.getProgramVoices().size());
-  ASSERT_EQ(2, subject.getProgramVoiceTracks().size());
-  ASSERT_EQ(1, subject.getProjects().size());
-  ASSERT_EQ(2, subject.getTemplates().size());
-  ASSERT_EQ(3, subject.getTemplateBindings().size());
-}
-
-
 /*
+TODO implement all these tests
+
 public class SegmentUtilsTest {
 
   @Test
