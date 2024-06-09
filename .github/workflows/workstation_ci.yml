@@ -12,13 +12,12 @@ jobs:
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
-    name: Workstation Tests [${{ matrix.os }}-JDK${{ matrix.java }}]
+    name: Workstation Tests [${{ matrix.os }}]
     runs-on: ${{ matrix.os }}
     permissions: write-all
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-13, macos-14, windows-latest ]
-        java: [ '17' ]
       fail-fast: false
     steps:
       - name: Checkout
@@ -27,22 +26,13 @@ jobs:
       - uses: burrunan/gradle-cache-action@v1
         name: Cache Gradle
         with:
-          job-id: jdk17
+          job-id: workstation-tests-${{ matrix.os }}
 
-      - name: Set up JDK ${{ matrix.java }}
+      - name: Set up JDK17
         uses: actions/setup-java@v1
         with:
-          java-version: ${{ matrix.java }}
+          java-version: 17
           java-package: jdk
-
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle8-java17-${{ hashFiles('**/*.gradle*') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle8-java17-
 
       - name: Build & Run Tests
         working-directory: workstation/
