@@ -9,7 +9,7 @@ import io.xj.model.enums.ProgramType;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
@@ -43,7 +43,7 @@ import java.util.stream.Stream;
 
 import static io.xj.model.util.Assertion.assertSameItems;
 import static io.xj.model.util.ValueUtils.MICROS_PER_MINUTE;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegment;
+import static io.xj.engine.SegmentFixtures.buildSegment;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -51,7 +51,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class CraftFoundationNextMainTest {
   CraftFactory craftFactory;
   FabricatorFactory fabricatorFactory;
-  FabricationContentTwoFixtures fake;
+  SegmentFixtures fake;
   Chain chain1;
   Segment segment4;
   FabricationEntityStore store;
@@ -76,15 +76,15 @@ public class CraftFoundationNextMainTest {
     store.clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new FabricationContentTwoFixtures();
+    fake = new SegmentFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       fake.setupFixtureB1().stream(),
       fake.setupFixtureB2().stream()
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(FabricationContentTwoFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
-    store.put(FabricationContentTwoFixtures.buildSegment(
+    chain1 = store.put(SegmentFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
+    store.put(SegmentFixtures.buildSegment(
       chain1,
       0,
       SegmentState.CRAFTED,
@@ -94,7 +94,7 @@ public class CraftFoundationNextMainTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892"
     ));
-    store.put(FabricationContentTwoFixtures.buildSegment(
+    store.put(SegmentFixtures.buildSegment(
       chain1,
       1,
       SegmentState.CRAFTING,
@@ -106,7 +106,7 @@ public class CraftFoundationNextMainTest {
     ));
 
     // Chain "Test Print #1" has this segment that was just crafted
-    Segment segment3 = store.put(FabricationContentTwoFixtures.buildSegment(
+    Segment segment3 = store.put(SegmentFixtures.buildSegment(
       chain1,
       2,
       SegmentState.CRAFTED,
@@ -116,11 +116,11 @@ public class CraftFoundationNextMainTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892.wav"
     ));
-    store.put(FabricationContentTwoFixtures.buildSegmentChoice(segment3, ProgramType.Macro, fake.program4_sequence0_binding0));
-    store.put(FabricationContentTwoFixtures.buildSegmentChoice(segment3, ProgramType.Main, fake.program5_sequence1_binding0));
+    store.put(SegmentFixtures.buildSegmentChoice(segment3, ProgramType.Macro, fake.program4_sequence0_binding0));
+    store.put(SegmentFixtures.buildSegmentChoice(segment3, ProgramType.Main, fake.program5_sequence1_binding0));
 
     // Chain "Test Print #1" has a planned segment
-    segment4 = store.put(FabricationContentTwoFixtures.buildSegment(chain1, 3, SegmentState.PLANNED, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
+    segment4 = store.put(SegmentFixtures.buildSegment(chain1, 3, SegmentState.PLANNED, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
   }
 
   @AfterEach
@@ -166,7 +166,7 @@ public class CraftFoundationNextMainTest {
   @Test
   public void craftFoundationNextMain_revertsAndRequeueOnFailure() throws Exception {
     // Chain "Test Print #1" has a dangling (preceded by another planned segment) planned segment
-    Segment segment5 = store.put(FabricationContentTwoFixtures.buildSegment(
+    Segment segment5 = store.put(SegmentFixtures.buildSegment(
       chain1,
       4,
       SegmentState.PLANNED,

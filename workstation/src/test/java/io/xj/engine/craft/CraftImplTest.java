@@ -2,8 +2,8 @@
 
 package io.xj.engine.craft;
 
-import io.xj.engine.FabricationContentOneFixtures;
-import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.ContentFixtures;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationException;
 import io.xj.engine.fabricator.Fabricator;
 import io.xj.engine.fabricator.MemeIsometry;
@@ -67,14 +67,14 @@ public class CraftImplTest {
 
   @BeforeEach
   public void setUp() throws Exception {
-    Project project1 = FabricationContentOneFixtures.buildProject("fish");
-    Library library1 = FabricationContentOneFixtures.buildLibrary(project1, "sea");
-    program1 = FabricationContentOneFixtures.buildProgram(library1, ProgramType.Detail, ProgramState.Published, "swimming", "C", 120.0f);
-    Template template1 = FabricationContentOneFixtures.buildTemplate(project1, "Test Template 1", "test1");
+    Project project1 = ContentFixtures.buildProject("fish");
+    Library library1 = ContentFixtures.buildLibrary(project1, "sea");
+    program1 = ContentFixtures.buildProgram(library1, ProgramType.Detail, ProgramState.Published, "swimming", "C", 120.0f);
+    Template template1 = ContentFixtures.buildTemplate(project1, "Test Template 1", "test1");
     // Chain "Test Print #1" is fabricating segments
-    Chain chain1 = FabricationContentTwoFixtures.buildChain(project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, null);
+    Chain chain1 = SegmentFixtures.buildChain(project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, null);
 
-    segment0 = FabricationContentTwoFixtures.buildSegment(chain1, SegmentType.INITIAL, 2, 128, SegmentState.CRAFTED, "D major", 64, 0.73f, 120.0f, "chains-1-segments-9f7s89d8a7892", true);
+    segment0 = SegmentFixtures.buildSegment(chain1, SegmentType.INITIAL, 2, 128, SegmentState.CRAFTED, "D major", 64, 0.73f, 120.0f, "chains-1-segments-9f7s89d8a7892", true);
 
     var templateConfig = new TemplateConfig(template1);
     when(fabricator.getTemplateConfig()).thenReturn(templateConfig);
@@ -95,9 +95,9 @@ public class CraftImplTest {
   public void isIntroSegment() {
     when(fabricator.getSegment()).thenReturn(segment0);
 
-    assertTrue(subject.isIntroSegment(FabricationContentTwoFixtures.buildSegmentChoice(segment0, 132, 200, program1)));
-    assertFalse(subject.isIntroSegment(FabricationContentTwoFixtures.buildSegmentChoice(segment0, 110, 200, program1)));
-    assertFalse(subject.isIntroSegment(FabricationContentTwoFixtures.buildSegmentChoice(segment0, 200, 250, program1)));
+    assertTrue(subject.isIntroSegment(SegmentFixtures.buildSegmentChoice(segment0, 132, 200, program1)));
+    assertFalse(subject.isIntroSegment(SegmentFixtures.buildSegmentChoice(segment0, 110, 200, program1)));
+    assertFalse(subject.isIntroSegment(SegmentFixtures.buildSegmentChoice(segment0, 200, 250, program1)));
   }
 
   @Test
@@ -118,44 +118,44 @@ public class CraftImplTest {
   public void isOutroSegment() {
     when(fabricator.getSegment()).thenReturn(segment0);
 
-    assertTrue(subject.isOutroSegment(FabricationContentTwoFixtures.buildSegmentChoice(segment0, 20, 130, program1)));
-    assertFalse(subject.isOutroSegment(FabricationContentTwoFixtures.buildSegmentChoice(segment0, 20, 100, program1)));
-    assertFalse(subject.isOutroSegment(FabricationContentTwoFixtures.buildSegmentChoice(segment0, 20, 250, program1)));
+    assertTrue(subject.isOutroSegment(SegmentFixtures.buildSegmentChoice(segment0, 20, 130, program1)));
+    assertFalse(subject.isOutroSegment(SegmentFixtures.buildSegmentChoice(segment0, 20, 100, program1)));
+    assertFalse(subject.isOutroSegment(SegmentFixtures.buildSegmentChoice(segment0, 20, 250, program1)));
   }
 
   @Test
   public void isSilentEntireSegment() {
     when(fabricator.getSegment()).thenReturn(segment0);
 
-    assertTrue(subject.isSilentEntireSegment(FabricationContentTwoFixtures.buildSegmentChoice(segment0, 12, 25, program1)));
-    assertTrue(subject.isSilentEntireSegment(FabricationContentTwoFixtures.buildSegmentChoice(segment0, 200, 225, program1)));
-    assertFalse(subject.isSilentEntireSegment(FabricationContentTwoFixtures.buildSegmentChoice(segment0, 50, 136, program1)));
-    assertFalse(subject.isSilentEntireSegment(FabricationContentTwoFixtures.buildSegmentChoice(segment0, 150, 200, program1)));
-    assertFalse(subject.isSilentEntireSegment(FabricationContentTwoFixtures.buildSegmentChoice(segment0, 130, 150, program1)));
+    assertTrue(subject.isSilentEntireSegment(SegmentFixtures.buildSegmentChoice(segment0, 12, 25, program1)));
+    assertTrue(subject.isSilentEntireSegment(SegmentFixtures.buildSegmentChoice(segment0, 200, 225, program1)));
+    assertFalse(subject.isSilentEntireSegment(SegmentFixtures.buildSegmentChoice(segment0, 50, 136, program1)));
+    assertFalse(subject.isSilentEntireSegment(SegmentFixtures.buildSegmentChoice(segment0, 150, 200, program1)));
+    assertFalse(subject.isSilentEntireSegment(SegmentFixtures.buildSegmentChoice(segment0, 130, 150, program1)));
   }
 
   @Test
   public void isActiveEntireSegment() {
     when(fabricator.getSegment()).thenReturn(segment0);
 
-    assertFalse(subject.isActiveEntireSegment(FabricationContentTwoFixtures.buildSegmentChoice(segment0, 12, 25, program1)));
-    assertFalse(subject.isActiveEntireSegment(FabricationContentTwoFixtures.buildSegmentChoice(segment0, 200, 225, program1)));
-    assertFalse(subject.isActiveEntireSegment(FabricationContentTwoFixtures.buildSegmentChoice(segment0, 50, 136, program1)));
-    assertFalse(subject.isActiveEntireSegment(FabricationContentTwoFixtures.buildSegmentChoice(segment0, 150, 200, program1)));
-    assertFalse(subject.isActiveEntireSegment(FabricationContentTwoFixtures.buildSegmentChoice(segment0, 130, 150, program1)));
-    assertTrue(subject.isActiveEntireSegment(FabricationContentTwoFixtures.buildSegmentChoice(segment0, 126, 195, program1)));
+    assertFalse(subject.isActiveEntireSegment(SegmentFixtures.buildSegmentChoice(segment0, 12, 25, program1)));
+    assertFalse(subject.isActiveEntireSegment(SegmentFixtures.buildSegmentChoice(segment0, 200, 225, program1)));
+    assertFalse(subject.isActiveEntireSegment(SegmentFixtures.buildSegmentChoice(segment0, 50, 136, program1)));
+    assertFalse(subject.isActiveEntireSegment(SegmentFixtures.buildSegmentChoice(segment0, 150, 200, program1)));
+    assertFalse(subject.isActiveEntireSegment(SegmentFixtures.buildSegmentChoice(segment0, 130, 150, program1)));
+    assertTrue(subject.isActiveEntireSegment(SegmentFixtures.buildSegmentChoice(segment0, 126, 195, program1)));
   }
 
   @Test
   public void isUnlimitedIn() {
-    assertTrue(CraftImpl.isUnlimitedIn(FabricationContentTwoFixtures.buildSegmentChoice(segment0, DELTA_UNLIMITED, 25, program1)));
-    assertFalse(CraftImpl.isUnlimitedIn(FabricationContentTwoFixtures.buildSegmentChoice(segment0, 25, DELTA_UNLIMITED, program1)));
+    assertTrue(CraftImpl.isUnlimitedIn(SegmentFixtures.buildSegmentChoice(segment0, DELTA_UNLIMITED, 25, program1)));
+    assertFalse(CraftImpl.isUnlimitedIn(SegmentFixtures.buildSegmentChoice(segment0, 25, DELTA_UNLIMITED, program1)));
   }
 
   @Test
   public void isUnlimitedOut() {
-    assertFalse(CraftImpl.isUnlimitedOut(FabricationContentTwoFixtures.buildSegmentChoice(segment0, DELTA_UNLIMITED, 25, program1)));
-    assertTrue(CraftImpl.isUnlimitedOut(FabricationContentTwoFixtures.buildSegmentChoice(segment0, 25, DELTA_UNLIMITED, program1)));
+    assertFalse(CraftImpl.isUnlimitedOut(SegmentFixtures.buildSegmentChoice(segment0, DELTA_UNLIMITED, 25, program1)));
+    assertTrue(CraftImpl.isUnlimitedOut(SegmentFixtures.buildSegmentChoice(segment0, 25, DELTA_UNLIMITED, program1)));
   }
 
   /**
@@ -164,14 +164,14 @@ public class CraftImplTest {
    */
   @Test
   public void chooseFreshInstrumentAudio() throws Exception {
-    Project project1 = FabricationContentOneFixtures.buildProject("testing");
-    Library library1 = FabricationContentOneFixtures.buildLibrary(project1, "leaves");
-    Instrument instrument1 = FabricationContentOneFixtures.buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Event, InstrumentState.Published, "Loop 75 beats per minute");
-    InstrumentMeme instrument1meme = FabricationContentOneFixtures.buildInstrumentMeme(instrument1, "70BPM");
-    InstrumentAudio instrument1audio = FabricationContentOneFixtures.buildInstrumentAudio(instrument1, "slow loop", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", "X", 1.0f);
-    Instrument instrument2 = FabricationContentOneFixtures.buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Event, InstrumentState.Published, "Loop 85 beats per minute");
-    InstrumentMeme instrument2meme = FabricationContentOneFixtures.buildInstrumentMeme(instrument2, "90BPM");
-    InstrumentAudio instrument2audio = FabricationContentOneFixtures.buildInstrumentAudio(instrument2, "fast loop", "90bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "SECONDARY", "X", 1.0f);
+    Project project1 = ContentFixtures.buildProject("testing");
+    Library library1 = ContentFixtures.buildLibrary(project1, "leaves");
+    Instrument instrument1 = ContentFixtures.buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Event, InstrumentState.Published, "Loop 75 beats per minute");
+    InstrumentMeme instrument1meme = ContentFixtures.buildInstrumentMeme(instrument1, "70BPM");
+    InstrumentAudio instrument1audio = ContentFixtures.buildInstrumentAudio(instrument1, "slow loop", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", "X", 1.0f);
+    Instrument instrument2 = ContentFixtures.buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Event, InstrumentState.Published, "Loop 85 beats per minute");
+    InstrumentMeme instrument2meme = ContentFixtures.buildInstrumentMeme(instrument2, "90BPM");
+    InstrumentAudio instrument2audio = ContentFixtures.buildInstrumentAudio(instrument2, "fast loop", "90bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "SECONDARY", "X", 1.0f);
     //
     sourceMaterial.putAll(Set.of(project1, library1, instrument1, instrument2, instrument1audio, instrument2audio, instrument1meme, instrument2meme));
     when(fabricator.getMemeIsometryOfSegment()).thenReturn(MemeIsometry.of(MemeTaxonomy.empty(), List.of("70BPM")));
@@ -217,17 +217,17 @@ public class CraftImplTest {
 
   @Test
   public void selectGeneralAudioIntensityLayers_threeLayers() throws Exception {
-    Project project1 = FabricationContentOneFixtures.buildProject("testing");
-    Library library1 = FabricationContentOneFixtures.buildLibrary(project1, "leaves");
-    Instrument instrument1 = FabricationContentOneFixtures.buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Loop, InstrumentState.Published, "Test loop audio");
+    Project project1 = ContentFixtures.buildProject("testing");
+    Library library1 = ContentFixtures.buildLibrary(project1, "leaves");
+    Instrument instrument1 = ContentFixtures.buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Loop, InstrumentState.Published, "Test loop audio");
     instrument1.setConfig("isAudioSelectionPersistent=true");
     InstrumentConfig instrumentConfig = new InstrumentConfig(instrument1);
-    InstrumentAudio instrument1audio1a = FabricationContentOneFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X", 1.0f);
-    InstrumentAudio instrument1audio1b = FabricationContentOneFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X", 1.0f);
-    InstrumentAudio instrument1audio2a = FabricationContentOneFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X", 1.0f);
-    InstrumentAudio instrument1audio2b = FabricationContentOneFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X", 1.0f);
-    InstrumentAudio instrument1audio3a = FabricationContentOneFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X", 1.0f);
-    InstrumentAudio instrument1audio3b = FabricationContentOneFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio1a = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio1b = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio2a = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio2b = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio3a = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio3b = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X", 1.0f);
     sourceMaterial.putAll(Set.of(instrument1, instrument1audio1a, instrument1audio1b, instrument1audio2a, instrument1audio2b, instrument1audio3a, instrument1audio3b));
     when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
     when(fabricator.retrospective()).thenReturn(segmentRetrospective);
@@ -245,23 +245,23 @@ public class CraftImplTest {
 
   @Test
   public void selectGeneralAudioIntensityLayers_continueSegment() throws Exception {
-    Project project1 = FabricationContentOneFixtures.buildProject("testing");
-    Library library1 = FabricationContentOneFixtures.buildLibrary(project1, "leaves");
-    Instrument instrument1 = FabricationContentOneFixtures.buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Loop, InstrumentState.Published, "Test loop audio");
+    Project project1 = ContentFixtures.buildProject("testing");
+    Library library1 = ContentFixtures.buildLibrary(project1, "leaves");
+    Instrument instrument1 = ContentFixtures.buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Loop, InstrumentState.Published, "Test loop audio");
     instrument1.setConfig("isAudioSelectionPersistent=true");
     InstrumentConfig instrumentConfig = new InstrumentConfig(instrument1);
-    InstrumentAudio instrument1audio1a = FabricationContentOneFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X", 1.0f);
-    InstrumentAudio instrument1audio1b = FabricationContentOneFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X", 1.0f);
-    InstrumentAudio instrument1audio2a = FabricationContentOneFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X", 1.0f);
-    InstrumentAudio instrument1audio2b = FabricationContentOneFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X", 1.0f);
-    InstrumentAudio instrument1audio3a = FabricationContentOneFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X", 1.0f);
-    InstrumentAudio instrument1audio3b = FabricationContentOneFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio1a = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio1b = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio2a = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio2b = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio3a = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X", 1.0f);
+    InstrumentAudio instrument1audio3b = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X", 1.0f);
     sourceMaterial.putAll(Set.of(instrument1, instrument1audio1a, instrument1audio1b, instrument1audio2a, instrument1audio2b, instrument1audio3a, instrument1audio3b));
-    SegmentChoice choice = FabricationContentTwoFixtures.buildSegmentChoice(segment0, instrument1);
-    SegmentChoiceArrangement arrangement = FabricationContentTwoFixtures.buildSegmentChoiceArrangement(choice);
-    SegmentChoiceArrangementPick pick1 = FabricationContentTwoFixtures.buildSegmentChoiceArrangementPick(segment0, arrangement, instrument1audio1a, instrument1audio1a.getEvent());
-    SegmentChoiceArrangementPick pick2 = FabricationContentTwoFixtures.buildSegmentChoiceArrangementPick(segment0, arrangement, instrument1audio2a, instrument1audio2a.getEvent());
-    SegmentChoiceArrangementPick pick3 = FabricationContentTwoFixtures.buildSegmentChoiceArrangementPick(segment0, arrangement, instrument1audio3a, instrument1audio3a.getEvent());
+    SegmentChoice choice = SegmentFixtures.buildSegmentChoice(segment0, instrument1);
+    SegmentChoiceArrangement arrangement = SegmentFixtures.buildSegmentChoiceArrangement(choice);
+    SegmentChoiceArrangementPick pick1 = SegmentFixtures.buildSegmentChoiceArrangementPick(segment0, arrangement, instrument1audio1a, instrument1audio1a.getEvent());
+    SegmentChoiceArrangementPick pick2 = SegmentFixtures.buildSegmentChoiceArrangementPick(segment0, arrangement, instrument1audio2a, instrument1audio2a.getEvent());
+    SegmentChoiceArrangementPick pick3 = SegmentFixtures.buildSegmentChoiceArrangementPick(segment0, arrangement, instrument1audio3a, instrument1audio3a.getEvent());
     when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
     when(fabricator.retrospective()).thenReturn(segmentRetrospective);
     when(segmentRetrospective.getPreviousPicksForInstrument(same(instrument1.getId()))).thenReturn(Set.of(pick1, pick2, pick3));
@@ -286,11 +286,11 @@ public class CraftImplTest {
    @param match      chord name
    */
   void selectNewChordPartInstrumentAudio(String expectThis, String notThat, String match) throws Exception {
-    Project project1 = FabricationContentOneFixtures.buildProject("testing");
-    Library library1 = FabricationContentOneFixtures.buildLibrary(project1, "leaves");
-    Instrument instrument1 = FabricationContentOneFixtures.buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Chord, InstrumentState.Published, "Test chord audio");
-    InstrumentAudio instrument1audio1 = FabricationContentOneFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", expectThis, 1.0f);
-    InstrumentAudio instrument1audio2 = FabricationContentOneFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", notThat, 1.0f);
+    Project project1 = ContentFixtures.buildProject("testing");
+    Library library1 = ContentFixtures.buildLibrary(project1, "leaves");
+    Instrument instrument1 = ContentFixtures.buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Chord, InstrumentState.Published, "Test chord audio");
+    InstrumentAudio instrument1audio1 = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", expectThis, 1.0f);
+    InstrumentAudio instrument1audio2 = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", notThat, 1.0f);
     //
     sourceMaterial.putAll(Set.of(instrument1, instrument1audio1, instrument1audio2));
 

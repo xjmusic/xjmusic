@@ -1,8 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.craft.detail_perc_loop;
 
-import io.xj.engine.FabricationContentOneFixtures;
-import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.ContentFixtures;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationException;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftPercLoopProgramVoiceNextMacroTest {
@@ -53,7 +53,7 @@ public class CraftPercLoopProgramVoiceNextMacroTest {
   InstrumentAudio audioKick;
   InstrumentAudio audioSnare;
   FabricationEntityStore store;
-  FabricationContentTwoFixtures fake;
+  SegmentFixtures fake;
   Segment segment4;
 
   @BeforeEach
@@ -75,7 +75,7 @@ public class CraftPercLoopProgramVoiceNextMacroTest {
     store.clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new FabricationContentTwoFixtures();
+    fake = new SegmentFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       Stream.concat(fake.setupFixtureB1().stream(),
         fake.setupFixtureB2().stream()),
@@ -83,8 +83,8 @@ public class CraftPercLoopProgramVoiceNextMacroTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(FabricationContentTwoFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
-    store.put(FabricationContentTwoFixtures.buildSegment(
+    chain1 = store.put(SegmentFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
+    store.put(SegmentFixtures.buildSegment(
       chain1,
       SegmentType.INITIAL,
       0,
@@ -96,7 +96,7 @@ public class CraftPercLoopProgramVoiceNextMacroTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892",
       true));
-    store.put(FabricationContentTwoFixtures.buildSegment(
+    store.put(SegmentFixtures.buildSegment(
       chain1,
       SegmentType.CONTINUE,
       1,
@@ -118,12 +118,12 @@ public class CraftPercLoopProgramVoiceNextMacroTest {
     Collection<Object> entities = new ArrayList<>();
 
     // Instrument "808"
-    Instrument instrument1 = EntityUtils.add(entities, FabricationContentOneFixtures.buildInstrument(fake.library2, InstrumentType.Percussion, InstrumentMode.Event, InstrumentState.Published, "Bongo Loop"));
-    EntityUtils.add(entities, FabricationContentOneFixtures.buildMeme(instrument1, "heavy"));
+    Instrument instrument1 = EntityUtils.add(entities, ContentFixtures.buildInstrument(fake.library2, InstrumentType.Percussion, InstrumentMode.Event, InstrumentState.Published, "Bongo Loop"));
+    EntityUtils.add(entities, ContentFixtures.buildMeme(instrument1, "heavy"));
     //
-    audioKick = EntityUtils.add(entities, FabricationContentOneFixtures.buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
+    audioKick = EntityUtils.add(entities, ContentFixtures.buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
     //
-    audioSnare = EntityUtils.add(entities, FabricationContentOneFixtures.buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
+    audioSnare = EntityUtils.add(entities, ContentFixtures.buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
 
     return entities;
   }
@@ -163,7 +163,7 @@ public class CraftPercLoopProgramVoiceNextMacroTest {
    */
   void insertSegments3and4(boolean excludePercLoopChoiceForSegment3) throws FabricationException {
     // Chain "Test Print #1" has this segment that was just crafted
-    Segment segment3 = store.put(FabricationContentTwoFixtures.buildSegment(
+    Segment segment3 = store.put(SegmentFixtures.buildSegment(
       chain1,
       SegmentType.CONTINUE,
       2,
@@ -196,7 +196,7 @@ public class CraftPercLoopProgramVoiceNextMacroTest {
         InstrumentMode.Loop));
 
     // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
-    segment4 = store.put(FabricationContentTwoFixtures.buildSegment(
+    segment4 = store.put(SegmentFixtures.buildSegment(
       chain1,
       SegmentType.NEXT_MACRO,
       3,
@@ -220,9 +220,9 @@ public class CraftPercLoopProgramVoiceNextMacroTest {
       fake.program15,
       fake.program15_sequence0_binding0));
     for (String memeName : List.of("Hindsight", "Chunky", "Regret", "Tangy"))
-      store.put(FabricationContentTwoFixtures.buildSegmentMeme(segment4, memeName));
-    store.put(FabricationContentTwoFixtures.buildSegmentChord(segment4, 0.0f, "F minor"));
-    store.put(FabricationContentTwoFixtures.buildSegmentChord(segment4, 8.0f, "Gb minor"));
+      store.put(SegmentFixtures.buildSegmentMeme(segment4, memeName));
+    store.put(SegmentFixtures.buildSegmentChord(segment4, 0.0f, "F minor"));
+    store.put(SegmentFixtures.buildSegmentChord(segment4, 8.0f, "Gb minor"));
   }
 
 }

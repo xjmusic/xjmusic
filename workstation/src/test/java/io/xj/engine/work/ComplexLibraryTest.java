@@ -1,8 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.work;
 
-import io.xj.engine.FabricationContentOneFixtures;
-import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.ContentFixtures;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationException;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.audio.AudioCache;
@@ -52,9 +52,9 @@ public class ComplexLibraryTest {
 
   @BeforeEach
   public void setUp() throws Exception {
-    FabricationContentTwoFixtures fake = new FabricationContentTwoFixtures();
-    fake.project1 = FabricationContentOneFixtures.buildProject("fish");
-    fake.library1 = FabricationContentOneFixtures.buildLibrary(fake.project1, "test");
+    SegmentFixtures fake = new SegmentFixtures();
+    fake.project1 = ContentFixtures.buildProject("fish");
+    fake.library1 = ContentFixtures.buildLibrary(fake.project1, "test");
     var generatedFixtures = fake.generatedFixture(GENERATED_FIXTURE_COMPLEXITY);
     HubContent content = new HubContent(generatedFixtures.stream().filter(Objects::nonNull).toList());
 

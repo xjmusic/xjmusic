@@ -1,8 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.mixer.demo;
 
-import io.xj.engine.FabricationContentOneFixtures;
-import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.ContentFixtures;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.audio.AudioCache;
 import io.xj.engine.audio.AudioCacheImpl;
 import io.xj.engine.audio.AudioLoader;
@@ -76,26 +76,26 @@ public class DemoIT {
   static final String INTERNAL_RESOURCE_REFERENCE_AUDIO_FILE_PREFIX = "/demo_reference_outputs/";
   static final String INTERNAL_RESOURCE_INSTRUMENT_AUDIO_PREFIX = "/demo_source_audio/";
   static final String SOURCE_FILE_SUFFIX = ".wav";
-  static final Project project = FabricationContentOneFixtures.buildProject();
-  static final Template template = FabricationContentOneFixtures.buildTemplate(project, "Demo");
-  static final Chain chain = FabricationContentTwoFixtures.buildChain(template);
-  static final Program program = FabricationContentOneFixtures.buildProgram(ProgramType.Beat, "C", TEMPO);
-  static final ProgramSequence sequence = FabricationContentOneFixtures.buildProgramSequence(program, 4, "Demo", 1.0f, "C");
-  static final ProgramVoice voice = FabricationContentOneFixtures.buildProgramVoice(program, InstrumentType.Drum, "Demo Beat");
-  static final ProgramVoiceTrack track = FabricationContentOneFixtures.buildProgramVoiceTrack(voice, "Demo Beat");
-  static final ProgramSequencePattern pattern = FabricationContentOneFixtures.buildProgramSequencePattern(sequence, voice, 4, "Demo Beat");
-  static final Segment segment = FabricationContentTwoFixtures.buildSegment(chain, 0, "C", 4, 1, TEMPO);
-  static final SegmentChoice choice = FabricationContentTwoFixtures.buildSegmentChoice(segment, program);
-  static final SegmentChoiceArrangement arrangement = FabricationContentTwoFixtures.buildSegmentChoiceArrangement(choice);
+  static final Project project = ContentFixtures.buildProject();
+  static final Template template = ContentFixtures.buildTemplate(project, "Demo");
+  static final Chain chain = SegmentFixtures.buildChain(template);
+  static final Program program = ContentFixtures.buildProgram(ProgramType.Beat, "C", TEMPO);
+  static final ProgramSequence sequence = ContentFixtures.buildProgramSequence(program, 4, "Demo", 1.0f, "C");
+  static final ProgramVoice voice = ContentFixtures.buildProgramVoice(program, InstrumentType.Drum, "Demo Beat");
+  static final ProgramVoiceTrack track = ContentFixtures.buildProgramVoiceTrack(voice, "Demo Beat");
+  static final ProgramSequencePattern pattern = ContentFixtures.buildProgramSequencePattern(sequence, voice, 4, "Demo Beat");
+  static final Segment segment = SegmentFixtures.buildSegment(chain, 0, "C", 4, 1, TEMPO);
+  static final SegmentChoice choice = SegmentFixtures.buildSegmentChoice(segment, program);
+  static final SegmentChoiceArrangement arrangement = SegmentFixtures.buildSegmentChoiceArrangement(choice);
   static final Library library = buildLibrary(project);
   static final Instrument instrument = buildInstrument(library);
-  static final InstrumentAudio kick1 = FabricationContentOneFixtures.buildAudio(instrument, "kick1", "kick1" + SOURCE_FILE_SUFFIX, 0, .701f, 120, 1.0f, "X", "C5", 1.0f);
-  static final InstrumentAudio kick2 = FabricationContentOneFixtures.buildAudio(instrument, "kick2", "kick2" + SOURCE_FILE_SUFFIX, 0, .865f, 120, 1.0f, "X", "C5", 1.0f);
-  static final InstrumentAudio marac = FabricationContentOneFixtures.buildAudio(instrument, "marac", "maracas" + SOURCE_FILE_SUFFIX, 0, .025f, 120, 1.0f, "X", "C5", 1.0f);
-  static final InstrumentAudio snare = FabricationContentOneFixtures.buildAudio(instrument, "snare", "snare" + SOURCE_FILE_SUFFIX, 0, .092f, 120, 1.0f, "X", "C5", 1.0f);
-  static final InstrumentAudio lotom = FabricationContentOneFixtures.buildAudio(instrument, "lotom", "tom1" + SOURCE_FILE_SUFFIX, 0, .360f, 120, 1.0f, "X", "C5", 1.0f);
-  static final InstrumentAudio clhat = FabricationContentOneFixtures.buildAudio(instrument, "clhat", "cl_hihat" + SOURCE_FILE_SUFFIX, 0, .052f, 120, 1.0f, "X", "C5", 1.0f);
-  static final InstrumentAudio ding = FabricationContentOneFixtures.buildAudio(instrument, "ding", "ding" + SOURCE_FILE_SUFFIX, 0, 3.733f, 120, 1.0f, "X", "C5", 1.0f);
+  static final InstrumentAudio kick1 = ContentFixtures.buildAudio(instrument, "kick1", "kick1" + SOURCE_FILE_SUFFIX, 0, .701f, 120, 1.0f, "X", "C5", 1.0f);
+  static final InstrumentAudio kick2 = ContentFixtures.buildAudio(instrument, "kick2", "kick2" + SOURCE_FILE_SUFFIX, 0, .865f, 120, 1.0f, "X", "C5", 1.0f);
+  static final InstrumentAudio marac = ContentFixtures.buildAudio(instrument, "marac", "maracas" + SOURCE_FILE_SUFFIX, 0, .025f, 120, 1.0f, "X", "C5", 1.0f);
+  static final InstrumentAudio snare = ContentFixtures.buildAudio(instrument, "snare", "snare" + SOURCE_FILE_SUFFIX, 0, .092f, 120, 1.0f, "X", "C5", 1.0f);
+  static final InstrumentAudio lotom = ContentFixtures.buildAudio(instrument, "lotom", "tom1" + SOURCE_FILE_SUFFIX, 0, .360f, 120, 1.0f, "X", "C5", 1.0f);
+  static final InstrumentAudio clhat = ContentFixtures.buildAudio(instrument, "clhat", "cl_hihat" + SOURCE_FILE_SUFFIX, 0, .052f, 120, 1.0f, "X", "C5", 1.0f);
+  static final InstrumentAudio ding = ContentFixtures.buildAudio(instrument, "ding", "ding" + SOURCE_FILE_SUFFIX, 0, 3.733f, 120, 1.0f, "X", "C5", 1.0f);
   static final Map<UUID, InstrumentAudio> audioById = Stream.of(
     kick1,
     kick2,
@@ -286,7 +286,7 @@ public class DemoIT {
    @return pick
    */
   private SegmentChoiceArrangementPick buildPick(InstrumentAudio audio, float position, float duration) {
-    ProgramSequencePatternEvent event = FabricationContentOneFixtures.buildProgramSequencePatternEvent(
+    ProgramSequencePatternEvent event = ContentFixtures.buildProgramSequencePatternEvent(
       pattern,
       track,
       position,

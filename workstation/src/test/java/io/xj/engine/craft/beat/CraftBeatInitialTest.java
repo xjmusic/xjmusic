@@ -1,8 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.craft.beat;
 
-import io.xj.engine.FabricationContentOneFixtures;
-import io.xj.engine.FabricationContentTwoFixtures;
+import io.xj.engine.ContentFixtures;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
@@ -37,8 +37,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.FabricationContentTwoFixtures.buildChain;
-import static io.xj.engine.FabricationContentTwoFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures.buildChain;
+import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
@@ -68,7 +68,7 @@ public class CraftBeatInitialTest {
     store.clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    FabricationContentTwoFixtures fake = new FabricationContentTwoFixtures();
+    SegmentFixtures fake = new SegmentFixtures();
     sourceMaterial = new HubContent(Stream.concat(
       Stream.concat(fake.setupFixtureB1().stream(),
         fake.setupFixtureB2().stream()),
@@ -81,11 +81,11 @@ public class CraftBeatInitialTest {
       "Print #2",
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
-      FabricationContentOneFixtures.buildTemplate(fake.project1, "Test")
+      ContentFixtures.buildTemplate(fake.project1, "Test")
     ));
 
     // segment crafting
-    segment6 = store.put(FabricationContentTwoFixtures.buildSegment(
+    segment6 = store.put(SegmentFixtures.buildSegment(
       chain2,
       SegmentType.INITIAL,
       0,
@@ -109,10 +109,10 @@ public class CraftBeatInitialTest {
       fake.program5,
       fake.program5_sequence0_binding0));
     for (String memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
-      store.put(FabricationContentTwoFixtures.buildSegmentMeme(segment6, memeName));
+      store.put(SegmentFixtures.buildSegmentMeme(segment6, memeName));
 
-    store.put(FabricationContentTwoFixtures.buildSegmentChord(segment6, 0.0f, "C minor"));
-    store.put(FabricationContentTwoFixtures.buildSegmentChord(segment6, 8.0f, "Db minor"));
+    store.put(SegmentFixtures.buildSegmentChord(segment6, 0.0f, "C minor"));
+    store.put(SegmentFixtures.buildSegmentChord(segment6, 8.0f, "Db minor"));
   }
 
   @AfterEach
