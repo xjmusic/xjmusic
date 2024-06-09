@@ -218,16 +218,16 @@ jpackage {
     }
 }
 
-allprojects {
-    group = 'io.xj'
-
+java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+}
 
-    tasks.withType(JavaCompile).tap {
-        configureEach {
-            options.encoding = 'UTF-8'
-        }
+group = 'io.xj'
+
+tasks.withType(JavaCompile).tap {
+    configureEach {
+        options.encoding = 'UTF-8'
     }
 }
 

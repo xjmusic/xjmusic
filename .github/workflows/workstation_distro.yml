@@ -6,13 +6,18 @@ on:
 
 jobs:
   verify:
-    name: Verify
+    name: Workstation Tests [${{ matrix.os }}-JDK${{ matrix.java }}]
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get-version.outputs.version }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-13, macos-14, windows-latest ]
+        java: [ '17' ]
+      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -96,10 +101,11 @@ jobs:
       - name: Git checkout
         uses: actions/checkout@v2
 
-      - name: Set up JDK
+      - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java }}
+          java-package: jdk
 
       - name: Echo JAVA_HOME
         run: echo $JAVA_HOME

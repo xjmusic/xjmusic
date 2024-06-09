@@ -12,10 +12,14 @@ jobs:
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
-    name: Workstation CI
-    runs-on: ubuntu-22.04
+    name: Workstation Tests [${{ matrix.os }}-JDK${{ matrix.java }}]
+    runs-on: ${{ matrix.os }}
     permissions: write-all
-
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-13, macos-14, windows-latest ]
+        java: [ '17' ]
+      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -25,10 +29,10 @@ jobs:
         with:
           job-id: jdk17
 
-      - name: Setup JDK 17
+      - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v1
         with:
-          java-version: 17
+          java-version: ${{ matrix.java }}
           java-package: jdk
 
       - uses: actions/cache@v2
