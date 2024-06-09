@@ -13,7 +13,11 @@ jobs:
     name: Gradle
     runs-on: ubuntu-latest
     permissions: read-all
-
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-13, macos-14, windows-latest ]
+        java: [ '17' ]
+      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v2
