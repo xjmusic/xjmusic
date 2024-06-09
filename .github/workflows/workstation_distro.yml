@@ -6,7 +6,7 @@ on:
 
 jobs:
   verify:
-    name: Verify
+    name: Workstation Tests
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}

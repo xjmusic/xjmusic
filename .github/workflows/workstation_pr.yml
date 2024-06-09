@@ -10,7 +10,7 @@ jobs:
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
-    name: Gradle
+    name: Workstation Tests
     runs-on: ubuntu-latest
     permissions: read-all
     strategy:
