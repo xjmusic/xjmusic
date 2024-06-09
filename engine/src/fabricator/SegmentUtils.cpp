@@ -33,16 +33,16 @@ namespace XJ {
     return segment->storageKey.empty() ? std::to_string(segment->id) : segment->storageKey;
   }
 
-  std::optional<Segment *> SegmentUtils::getLastCrafted(const std::vector<Segment> &segments) {
+  std::optional<Segment> SegmentUtils::getLastCrafted(const std::vector<Segment> &segments) {
     auto craftedSegments = getCrafted(segments);
     return getLast(craftedSegments);
   }
 
-  std::optional<Segment *> SegmentUtils::getLast(std::vector<Segment> &segments) {
+  std::optional<Segment> SegmentUtils::getLast(std::vector<Segment> &segments) {
     if (segments.empty()) {
-      return nullptr;
+      return std::nullopt;
     }
-    return &*std::max_element(segments.begin(), segments.end(), [](const Segment &a, const Segment &b) {
+    return *std::max_element(segments.begin(), segments.end(), [](const Segment &a, const Segment &b) {
       return a.id < b.id;
     });
   }
@@ -105,7 +105,7 @@ namespace XJ {
 
   long SegmentUtils::getEndAtChainMicros(Segment &segment) {
     return segment.durationMicros.has_value() ? segment.beginAtChainMicros + segment.durationMicros.value()
-                                  : segment.beginAtChainMicros;
+                                              : segment.beginAtChainMicros;
   }
 
   bool SegmentUtils::isSameButUpdated(Segment &s1, Segment &s2) {

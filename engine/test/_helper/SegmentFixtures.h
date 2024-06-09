@@ -422,20 +422,20 @@ namespace XJ {
      * Build a choice of program and binding for a segment
      */
     static SegmentChoice buildSegmentChoice(
-        Segment segment,
+        const Segment& segment,
         int deltaIn,
         int deltaOut,
-        Program program,
+        const Program& program,
         const ProgramSequenceBinding& programSequenceBinding);
 
     /**
      * Build a choice of program, voice, and instrument for a segment
      */
     static SegmentChoice buildSegmentChoice(
-        Segment segment,
+        const Segment& segment,
         int deltaIn,
         int deltaOut,
-        Program program,
+        const Program& program,
         const ProgramVoice& voice,
         const Instrument& instrument);
 

@@ -1,10 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 #include "xjmusic/fabricator/ChainUtils.h"
-#include "xjmusic/entities/segment/Chain.h"
-#include "xjmusic/entities/content/TemplateBinding.h"
-#include "xjmusic/entities/segment/Segment.h"
-#include "xjmusic/entities/content/Template.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 
 namespace XJ {
@@ -20,7 +16,7 @@ namespace XJ {
 
   std::set<UUID>
   ChainUtils::targetIdsOfType(const std::vector<TemplateBinding> &chainBindings, TemplateBinding::Type type) {
-    std::set < UUID > result;
+    std::set<UUID> result;
     for (const auto &binding: chainBindings) {
       if (binding.type == type) {
         result.insert(binding.targetId);
@@ -36,9 +32,9 @@ namespace XJ {
   long ChainUtils::computeFabricatedToChainMicros(const std::vector<Segment> &segments) {
     auto lastDubbedSegment = SegmentUtils::getLastCrafted(segments);
     if (lastDubbedSegment.has_value()) {
-      return lastDubbedSegment.value()->durationMicros.has_value() ? lastDubbedSegment.value()->beginAtChainMicros +
-                                                                     lastDubbedSegment.value()->durationMicros.value()
-                                                                   : lastDubbedSegment.value()->beginAtChainMicros;
+      return lastDubbedSegment.value().durationMicros.has_value() ? lastDubbedSegment.value().beginAtChainMicros +
+                                                                    lastDubbedSegment.value().durationMicros.value()
+                                                                  : lastDubbedSegment.value().beginAtChainMicros;
     }
     return 0;
   }

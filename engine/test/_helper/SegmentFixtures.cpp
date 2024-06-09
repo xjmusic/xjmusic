@@ -143,7 +143,7 @@ Segment SegmentFixtures::buildSegment(
   segment.delta = delta;
   segment.state = state;
   segment.beginAtChainMicros =
-      (long) (id * ValueUtils::MICROS_PER_SECOND * total * ValueUtils::SECONDS_PER_MINUTE / tempo);
+      (long) (id * ValueUtils::MICROS_PER_SECOND * static_cast<float>(total * ValueUtils::SECONDS_PER_MINUTE / tempo));
   segment.key = std::move(key);
   segment.total = total;
   segment.intensity = intensity;
@@ -154,7 +154,7 @@ Segment SegmentFixtures::buildSegment(
 
   if (hasEndSet)
     segment.durationMicros =
-        (long) (ValueUtils::MICROS_PER_SECOND * total * ValueUtils::SECONDS_PER_MINUTE / tempo);
+        (long) (ValueUtils::MICROS_PER_SECOND * static_cast<float>(total * ValueUtils::SECONDS_PER_MINUTE / tempo));
 
   return segment;
 }
@@ -290,24 +290,24 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
 }
 
 SegmentChoice SegmentFixtures::buildSegmentChoice(
-    Segment segment,
+    const Segment& segment,
     int deltaIn,
     int deltaOut,
-    Program program,
+    const Program& program,
     const ProgramSequenceBinding& programSequenceBinding) {
-  SegmentChoice choice = buildSegmentChoice(std::move(segment), deltaIn, deltaOut, std::move(program));
+  SegmentChoice choice = buildSegmentChoice(segment, deltaIn, deltaOut, program);
   choice.programSequenceBindingId = programSequenceBinding.id;
   return choice;
 }
 
 SegmentChoice SegmentFixtures::buildSegmentChoice(
-    Segment segment,
+    const Segment& segment,
     int deltaIn,
     int deltaOut,
-    Program program,
+    const Program& program,
     const ProgramVoice& voice,
     const Instrument& instrument) {
-  SegmentChoice choice = buildSegmentChoice(std::move(segment), deltaIn, deltaOut, std::move(program));
+  SegmentChoice choice = buildSegmentChoice(segment, deltaIn, deltaOut, program);
   choice.programVoiceId = voice.id;
   choice.instrumentId = instrument.id;
   choice.instrumentType = instrument.type;

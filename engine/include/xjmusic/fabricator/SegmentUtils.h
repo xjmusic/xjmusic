@@ -68,7 +68,7 @@ namespace XJ {
      @param segments to get last dubbed from
      @return last dubbed segment from collection
      */
-    static std::optional<Segment *> getLastCrafted(const std::vector<Segment> &segments);
+    static std::optional<Segment> getLastCrafted(const std::vector<Segment> &segments);
 
     /**
      Get the last from any collection of Segments
@@ -76,7 +76,7 @@ namespace XJ {
      @param segments to get last from
      @return last segment from collection
      */
-    static std::optional<Segment *> getLast(std::vector<Segment> &segments);
+    static std::optional<Segment> getLast(std::vector<Segment> &segments);
 
     /**
      Get only the dubbed from any collection of Segments

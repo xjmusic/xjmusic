@@ -128,18 +128,18 @@ TEST_F(SegmentUtilsTest, GetIdentifier) {
 
 // Test for getLastDubbed
 TEST_F(SegmentUtilsTest, GetLastDubbed) {
-  std::optional<Segment *> lastCrafted = SegmentUtils::getLastCrafted(segments);
+  std::optional<Segment> lastCrafted = SegmentUtils::getLastCrafted(segments);
 
   ASSERT_TRUE(lastCrafted.has_value());
-  ASSERT_EQ(seg2.id, lastCrafted.value()->id);
+  ASSERT_EQ(seg2.id, lastCrafted.value().id);
 }
 
 // Test for getLast
 TEST_F(SegmentUtilsTest, GetLast) {
-  std::optional<Segment *> last = SegmentUtils::getLast(segments);
+  std::optional<Segment> last = SegmentUtils::getLast(segments);
 
   ASSERT_TRUE(last.has_value());
-  ASSERT_EQ(seg3.id, last.value()->id);
+  ASSERT_EQ(seg3.id, last.value().id);
 }
 
 
