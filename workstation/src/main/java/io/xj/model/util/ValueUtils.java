@@ -34,6 +34,7 @@ public interface ValueUtils {
   long HOURS_PER_DAY = 24;
   long SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
   long SECONDS_PER_DAY = SECONDS_PER_HOUR * HOURS_PER_DAY;
+  String[] VERSION_ZERO = {"0", "0", "0"};
 
   /**
    Return the first value if it's non-null, else the second
@@ -197,7 +198,7 @@ public interface ValueUtils {
    */
   static boolean isNonNull(Object obj) {
     return Objects.nonNull(obj) &&
-      !Objects.equals("null", String.valueOf(obj));
+        !Objects.equals("null", String.valueOf(obj));
   }
 
   /**
@@ -229,7 +230,7 @@ public interface ValueUtils {
    */
   static String formatIso8601UTC(Instant instant) {
     return ZonedDateTime.ofInstant(instant, ZoneOffset.UTC)
-      .format(DateTimeFormatter.ISO_DATE_TIME);
+        .format(DateTimeFormatter.ISO_DATE_TIME);
   }
 
   /**
@@ -240,7 +241,7 @@ public interface ValueUtils {
    */
   static String formatRfc1123UTC(Instant instant) {
     return ZonedDateTime.ofInstant(instant, ZoneOffset.UTC)
-      .format(DateTimeFormatter.RFC_1123_DATE_TIME);
+        .format(DateTimeFormatter.RFC_1123_DATE_TIME);
   }
 
   /**
@@ -276,8 +277,8 @@ public interface ValueUtils {
   static <O> O[] without(O removed, O[] values) {
     //noinspection unchecked
     return (O[]) Stream.of(values)
-      .filter(v -> !Objects.equals(v, removed))
-      .toArray();
+        .filter(v -> !Objects.equals(v, removed))
+        .toArray();
   }
 
   /**
@@ -367,8 +368,8 @@ public interface ValueUtils {
    */
   static int[] factors(long target, int[] testFactors) {
     return Arrays.stream(testFactors)
-      .filter(tf -> target % tf == 0)
-      .toArray();
+        .filter(tf -> target % tf == 0)
+        .toArray();
   }
 
   /**
@@ -491,8 +492,8 @@ public interface ValueUtils {
    @return comparison result
    */
   static int compareMonotonicVersion(String a, String b) {
-    var aParts = a.split("\\.");
-    var bParts = b.split("\\.");
+    var aParts = StringUtils.isNullOrEmpty(a) ? VERSION_ZERO : a.split("\\.");
+    var bParts = StringUtils.isNullOrEmpty(b) ? VERSION_ZERO : b.split("\\.");
     for (int i = 0; i < Math.min(aParts.length, bParts.length); i++) {
       var aPart = Integer.parseInt(aParts[i]);
       var bPart = Integer.parseInt(bParts[i]);
