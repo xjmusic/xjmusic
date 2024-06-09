@@ -15,6 +15,7 @@ plugins {
     id 'org.panteleyev.jpackageplugin' version '1.6.0'
     id 'org.bytedeco.gradle-javacpp-platform' version '1.5.9'
     id 'org.springframework.boot' version '3.1.2' // must match springBootVersion below
+    id 'com.virgo47.ClasspathJar' version "1.0.0"
 }
 
 dependencies {
@@ -43,6 +44,7 @@ dependencies {
     implementation 'org.reflections:reflections:0.10.2'
     implementation 'org.yaml:snakeyaml:2.2'
     implementation group: 'org.controlsfx', name: 'controlsfx', version: '11.2.0'
+    implementation 'gradle.plugin.com.virgo47.gradle:ClasspathJar:1.0.0'
     implementation group: 'org.panteleyev.jpackageplugin', name: 'org.panteleyev.jpackageplugin.gradle.plugin', version: '1.6.0'
     testFixturesImplementation "ch.qos.logback:logback-classic:${project.logbackVersion}"
     testFixturesImplementation "ch.qos.logback:logback-core:${project.logbackVersion}"
@@ -57,6 +59,7 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:5.7.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.3.1'
     testImplementation 'org.yaml:snakeyaml:1.33'
+    testImplementation 'gradle.plugin.com.virgo47.gradle:ClasspathJar:1.0.0'
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project.junitVersion}"
 }
 
@@ -232,6 +235,7 @@ allprojects {
 }
 
 apply plugin: 'java'
+apply plugin: 'com.virgo47.ClasspathJar'
 configurations {
     implementation.exclude group: "commons-logging", module: "commons-logging"
     implementation.exclude group: 'com.google.code.findbugs', module: 'jsr305'
