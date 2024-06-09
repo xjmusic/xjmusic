@@ -8,7 +8,7 @@
 #include "../../_helper/TestHelpers.h"
 #include "../../_helper/ContentFixtures.h"
 
-static std::string CONTENT_STORE_TEST_JSON_PATH = "_data/content_store_json";
+static std::string CONTENT_STORE_TEST_JSON_PATH = "_data/content_store_test.json";
 
 using namespace XJ;
 
@@ -50,11 +50,6 @@ protected:
   ProgramVoiceTrack program2_voice_track2;
   ProgramSequencePatternEvent program2_sequence_pattern1_event1;
   ProgramSequencePatternEvent program2_sequence_pattern1_event2;
-
-  ContentStoreTest() {
-  }
-
-  virtual ~ContentStoreTest() = default;
 
   // This function runs before each test
   void SetUp() override {

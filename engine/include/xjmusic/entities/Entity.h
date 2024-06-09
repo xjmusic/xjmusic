@@ -37,13 +37,23 @@ namespace XJ {
      * @return             The reversed map
      */
     template<typename A, typename B>
-    static std::map<B, A> reverseMap(const std::map<A, B> &originalMap);
+    static std::map<B, A> reverseMap(const std::map<A, B> &originalMap) {
+      std::map<B, A> reverseMap;
+      for (const auto &pair: originalMap) {
+        reverseMap[pair.second] = pair.first;
+      }
+      return reverseMap;
+    }
 
     /**
      * Get the current time in milliseconds
      * @return  The current time in milliseconds
      */
-    static long long currentTimeMillis();
+    static long long currentTimeMillis() {
+      return std::chrono::duration_cast<std::chrono::milliseconds>(
+          std::chrono::system_clock::now().time_since_epoch()
+      ).count();
+    }
 
   };
 
