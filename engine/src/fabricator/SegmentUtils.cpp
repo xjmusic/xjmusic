@@ -128,19 +128,4 @@ namespace XJ {
     return micros;
   }
 
-  template<typename N>
-  int SegmentUtils::getSegmentId(N &entity) {
-    if (dynamic_cast<Segment *>(&entity)) return dynamic_cast<Segment *>(&entity)->id;
-    if (dynamic_cast<SegmentChoice *>(&entity)) return dynamic_cast<SegmentChoice *>(&entity)->segmentId;
-    if (dynamic_cast<SegmentChoiceArrangement *>(&entity)) return dynamic_cast<SegmentChoiceArrangement *>(&entity)->segmentId;
-    if (dynamic_cast<SegmentChoiceArrangementPick *>(&entity)) return dynamic_cast<SegmentChoiceArrangementPick *>(&entity)->segmentId;
-    if (dynamic_cast<SegmentChord *>(&entity)) return dynamic_cast<SegmentChord *>(&entity)->segmentId;
-    if (dynamic_cast<SegmentChordVoicing *>(&entity)) return dynamic_cast<SegmentChordVoicing *>(&entity)->segmentId;
-    if (dynamic_cast<SegmentMeme *>(&entity)) return dynamic_cast<SegmentMeme *>(&entity)->segmentId;
-    if (dynamic_cast<SegmentMessage *>(&entity)) return dynamic_cast<SegmentMessage *>(&entity)->segmentId;
-    if (dynamic_cast<SegmentMeta *>(&entity)) return dynamic_cast<SegmentMeta *>(&entity)->segmentId;
-    throw std::invalid_argument(std::string("Can't get segment id for ") + typeid(entity).name());
-  }
-
-
 } // namespace XJ

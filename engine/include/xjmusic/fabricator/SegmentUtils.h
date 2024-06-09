@@ -62,7 +62,6 @@ namespace XJ {
      */
     static std::string getIdentifier(Segment *segment);
 
-
     /**
      Get the last dubbed from any collection of Segments
 
@@ -142,14 +141,47 @@ namespace XJ {
      */
     static std::string describe(SegmentChoice &choice);
 
+    /**
+     * Get the end-at time of a segment in chain micros
+     * @param segment  for which to get time
+     * @return       end-at time in chain micros
+     */
     static long getEndAtChainMicros(Segment &segment);
 
+    /**
+     * Whether two segments are the same but updated
+     * @param s1   segment one
+     * @param s2   segment two
+     * @return   true if same but updated
+     */
     static bool isSameButUpdated(Segment &s1, Segment &s2);
 
+    /**
+     * Get the duration of a collection of segments in microseconds
+     * @param segments  collection of segments
+     * @return        duration in microseconds
+     */
     static long getDurationMinMicros(std::vector<Segment> &segments);
 
+    /**
+     * Get the segment id for any segment entity
+     * @tparam N type of segment entity
+     * @param entity  segment entity
+     * @return segment id
+     */
     template<typename N>
-    static int getSegmentId(N &entity);
+    static int getSegmentId(N &entity) {
+      if (dynamic_cast<Segment *>(&entity)) return dynamic_cast<Segment *>(&entity)->id;
+      if (dynamic_cast<SegmentChoice *>(&entity)) return dynamic_cast<SegmentChoice *>(&entity)->segmentId;
+      if (dynamic_cast<SegmentChoiceArrangement *>(&entity)) return dynamic_cast<SegmentChoiceArrangement *>(&entity)->segmentId;
+      if (dynamic_cast<SegmentChoiceArrangementPick *>(&entity)) return dynamic_cast<SegmentChoiceArrangementPick *>(&entity)->segmentId;
+      if (dynamic_cast<SegmentChord *>(&entity)) return dynamic_cast<SegmentChord *>(&entity)->segmentId;
+      if (dynamic_cast<SegmentChordVoicing *>(&entity)) return dynamic_cast<SegmentChordVoicing *>(&entity)->segmentId;
+      if (dynamic_cast<SegmentMeme *>(&entity)) return dynamic_cast<SegmentMeme *>(&entity)->segmentId;
+      if (dynamic_cast<SegmentMessage *>(&entity)) return dynamic_cast<SegmentMessage *>(&entity)->segmentId;
+      if (dynamic_cast<SegmentMeta *>(&entity)) return dynamic_cast<SegmentMeta *>(&entity)->segmentId;
+      throw std::invalid_argument(std::string("Can't get segment id for ") + typeid(entity).name());
+    }
 
   };
 
