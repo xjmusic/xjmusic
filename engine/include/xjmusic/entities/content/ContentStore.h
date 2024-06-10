@@ -597,7 +597,7 @@ namespace XJ {
     std::vector<const ProgramVoice *> getVoicesOfProgram(const UUID &programId);
 
     /**
-     * Get a new HubContent object for a specific template
+     * Get a new ContentStore object for a specific template
      * - Only include entities bound to the template
      * - Only include entities in a published state (for entities with a state)
      */

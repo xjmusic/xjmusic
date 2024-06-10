@@ -2,7 +2,7 @@
 
 package io.xj.engine.fabricator;
 
-import io.xj.model.HubContent;
+import io.xj.model.ContentStore;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.engine.FabricationException;
@@ -25,7 +25,7 @@ public class FabricatorFactoryImpl implements FabricatorFactory {
   }
 
   @Override
-  public Fabricator fabricate(HubContent sourceMaterial, Integer segmentId, double outputFrameRate, int outputChannels, @Nullable Segment::Type overrideSegmentType) throws FabricationException, FabricationFatalException {
+  public Fabricator fabricate(ContentStore sourceMaterial, Integer segmentId, double outputFrameRate, int outputChannels, @Nullable Segment::Type overrideSegmentType) throws FabricationException, FabricationFatalException {
     return new FabricatorImpl(this, entityStore, sourceMaterial, segmentId, jsonapiPayloadFactory, jsonProvider, outputFrameRate, outputChannels, overrideSegmentType);
   }
 

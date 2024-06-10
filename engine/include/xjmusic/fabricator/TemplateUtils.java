@@ -15,7 +15,7 @@ public class TemplateUtils {
    @param template to get identifier of
    @return ship key if available, else ID
    */
-  public static String getIdentifier(@Nullable Template template) {
+  public static std::string getIdentifier(@Nullable Template template) {
     if (Objects.isNull(template)) return "N/A";
     return StringUtils.isNullOrEmpty(template.shipKey) ? template.id : template.shipKey;
   }

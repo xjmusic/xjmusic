@@ -9,7 +9,7 @@
 
 #include "xjmusic/util/ConfigParser.h"
 #include "Instrument.h"
-#include "MemeTaxonomy.h"
+#include "xjmusic/entities/meme/MemeTaxonomy.h"
 #include "Template.h"
 
 namespace XJ {

@@ -32,7 +32,7 @@ public abstract class FabricationWrapperImpl {
    @param message to include in exception
    @return FabricationException to throw
    */
-  public FabricationException exception(String message) {
+  public FabricationException exception(std::string message) {
     return new FabricationException(formatLog(message));
   }
 
@@ -43,7 +43,7 @@ public abstract class FabricationWrapperImpl {
    @param e       Exception to include in exception
    @return FabricationException to throw
    */
-  public FabricationException exception(String message, Exception e) {
+  public FabricationException exception(std::string message, Exception e) {
     return new FabricationException(formatLog(message), e);
   }
 
@@ -53,16 +53,16 @@ public abstract class FabricationWrapperImpl {
    @param message to format
    @return formatted message with segmentId as prefix
    */
-  public String formatLog(String message) {
-    return String.format("[segId=%s] %s", fabricator.getSegment().id, message);
+  public std::string formatLog(std::string message) {
+    return std::string.format("[segId=%s] %s", fabricator.getSegment().id, message);
   }
 
   /**
    Report a missing entity as a segment message@param traces of how missing entity was searched for
    */
-  protected void reportMissing(Map<String, String> traces) {
+  protected void reportMissing(Map<std::string, std::string> traces) {
     try {
-      fabricator.addWarningMessage(String.format("%s not found! %s", InstrumentAudio.class.getSimpleName(), CsvUtils.from(traces)));
+      fabricator.addWarningMessage(std::string.format("%s not found! %s", InstrumentAudio.class.getSimpleName(), CsvUtils.from(traces)));
 
     } catch (Exception e) {
       LOG.warn("Failed to create SegmentMessage", e);

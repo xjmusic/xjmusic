@@ -10,7 +10,7 @@ add_library(xjmusic
         entities/content/InstrumentConfig.cpp
         entities/content/InstrumentMeme.cpp
         entities/content/Library.cpp
-        entities/content/MemeTaxonomy.cpp
+        entities/meme/MemeTaxonomy.cpp
         entities/content/Program.cpp
         entities/content/ProgramConfig.cpp
         entities/content/ProgramMeme.cpp
@@ -56,6 +56,7 @@ add_library(xjmusic
         util/StringUtils.cpp
         util/ValueUtils.cpp
         xjmusic.cpp
+        entities/meme/MemeStack.cpp
 )
 
 # We need this directory, and users of our library will need it too

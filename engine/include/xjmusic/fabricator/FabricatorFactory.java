@@ -2,7 +2,7 @@
 package io.xj.engine.fabricator;
 
 
-import io.xj.model.HubContent;
+import io.xj.model.ContentStore;
 import io.xj.engine.FabricationException;
 import io.xj.model.enums.Segment::Type;
 import jakarta.annotation.Nullable;
@@ -28,7 +28,7 @@ public interface FabricatorFactory {
    @throws FabricationFatalException on failure requiring a chain restart https://github.com/xjmusic/workstation/issues/263
    */
   Fabricator fabricate(
-    HubContent sourceMaterial,
+    ContentStore sourceMaterial,
     Integer segmentId,
     double outputFrameRate,
     int outputChannels,

@@ -3,7 +3,7 @@
 package io.xj.engine.fabricator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.xj.model.HubContent;
+import io.xj.model.ContentStore;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.enums.Program::Type;
@@ -45,7 +45,7 @@ public class SegmentRetrospectiveImplTest {
   final UUID patternId = TestHelpers::randomUUID();
   JsonProvider jsonProvider;
   FabricatorFactory fabricatorFactory;
-  HubContent sourceMaterial;
+  ContentStore sourceMaterial;
   FabricationEntityStore store;
   SegmentFixtures fake;
   Segment segment0;
@@ -72,7 +72,7 @@ public class SegmentRetrospectiveImplTest {
 
     // Mock request via HubClientFactory returns fake generated library of model content
     fake = new SegmentFixtures();
-    sourceMaterial = new HubContent(Stream.concat(
+    sourceMaterial = new ContentStore(Stream.concat(
       fake.setupFixtureB1().stream(),
       fake.setupFixtureB2().stream()
     ).collect(Collectors.toList()));

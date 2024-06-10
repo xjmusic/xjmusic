@@ -12,9 +12,9 @@ import io.xj.model.pojos.SegmentChoiceArrangementPick;
 import io.xj.model.pojos.SegmentChord;
 import io.xj.model.pojos.SegmentMeta;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.std::vector;
+import java.util.std::vector;
+import java.util.std::optional;
 import java.util.UUID;
 
 /**
@@ -40,7 +40,7 @@ public interface SegmentRetrospective {
   /**
    @return all choices
    */
-  Collection<SegmentChoice> getChoices();
+  std::vector<SegmentChoice> getChoices();
 
   /**
    Get the choice for the given arrangement
@@ -67,7 +67,7 @@ public interface SegmentRetrospective {
    @param key to search for meta
    @return meta if found
    */
-  Optional<SegmentMeta> getPreviousMeta(String key);
+  std::optional<SegmentMeta> getPreviousMeta(std::string key);
 
   /**
    Get the previous segment choices for the given instrument
@@ -76,7 +76,7 @@ public interface SegmentRetrospective {
    @param instrumentId for which to get choice
    @return previous segment choice
    */
-  Collection<SegmentChoice> getPreviousChoicesForInstrument(UUID instrumentId);
+  std::vector<SegmentChoice> getPreviousChoicesForInstrument(UUID instrumentId);
 
   /**
    Get the previous arrangements for the given instrument id
@@ -84,7 +84,7 @@ public interface SegmentRetrospective {
    @param instrumentId for which to get arrangements
    @return segment choice arrangements
    */
-  Collection<SegmentChoiceArrangement> getPreviousArrangementsForInstrument(UUID instrumentId);
+  std::vector<SegmentChoiceArrangement> getPreviousArrangementsForInstrument(UUID instrumentId);
 
   /**
    Get the picks of any previous segments which selected the same main sequence
@@ -93,7 +93,7 @@ public interface SegmentRetrospective {
 
    @return map of all previous segment meme constellations (as keys) to a collection of choices made
    */
-  Collection<SegmentChoiceArrangementPick> getPicks();
+  std::vector<SegmentChoiceArrangementPick> getPicks();
 
   /**
    Get the choice of a given type
@@ -101,7 +101,7 @@ public interface SegmentRetrospective {
    @param type of choice to get
    @return choice of given type
    */
-  Optional<SegmentChoice> getPreviousChoiceOfType(Segment segment, Program::Type type);
+  std::optional<SegmentChoice> getPreviousChoiceOfType(Segment segment, Program::Type type);
 
   /**
    Get the previous-segment choice of a given type
@@ -109,7 +109,7 @@ public interface SegmentRetrospective {
    @param type of choice to get
    @return choice of given type
    */
-  Optional<SegmentChoice> getPreviousChoiceOfType(Program::Type type);
+  std::optional<SegmentChoice> getPreviousChoiceOfType(Program::Type type);
 
   /**
    Get the previous-segment choices of a given instrument mode
@@ -117,7 +117,7 @@ public interface SegmentRetrospective {
    @param instrumentMode for which to get previous-segment choices
    @return choices
    */
-  List<SegmentChoice> getPreviousChoicesOfMode(Instrument::Mode instrumentMode);
+  std::vector<SegmentChoice> getPreviousChoicesOfMode(Instrument::Mode instrumentMode);
 
   /**
    Get the previous-segment choices of a given instrument type and mode
@@ -126,7 +126,7 @@ public interface SegmentRetrospective {
    @param instrumentModes for which to get previous-segment choices
    @return choices
    */
-  List<SegmentChoice> getPreviousChoicesOfTypeMode(Instrument::Type instrumentType, Instrument::Mode instrumentModes);
+  std::vector<SegmentChoice> getPreviousChoicesOfTypeMode(Instrument::Type instrumentType, Instrument::Mode instrumentModes);
 
   /**
    Get the previous-segment choices of a given instrument type
@@ -134,7 +134,7 @@ public interface SegmentRetrospective {
    @param instrumentType for which to get previous-segment choices
    @return choices
    */
-  Optional<SegmentChoice> getPreviousChoiceOfType(Instrument::Type instrumentType);
+  std::optional<SegmentChoice> getPreviousChoiceOfType(Instrument::Type instrumentType);
 
   /**
    Get the previous picks for the given instrument id
@@ -142,14 +142,14 @@ public interface SegmentRetrospective {
    @param instrumentId for which to get picks
    @return segment choice picks
    */
-  Collection<SegmentChoiceArrangementPick> getPreviousPicksForInstrument(UUID instrumentId);
+  std::vector<SegmentChoiceArrangementPick> getPreviousPicksForInstrument(UUID instrumentId);
 
   /**
    Get the segment immediately previous to the current segment
 
    @return previous segment
    */
-  Optional<Segment> getPreviousSegment();
+  std::optional<Segment> getPreviousSegment();
 
   /**
    @return all cached segments
@@ -159,7 +159,7 @@ public interface SegmentRetrospective {
    whether this retrospective is looking back on the current main program (Continue segment),
    or the previous one (NextMain/NextMacro segments)
    */
-  Collection<Segment> getSegments();
+  std::vector<Segment> getSegments();
 
   /**
    Get all segment chords for the given segment id
@@ -167,6 +167,6 @@ public interface SegmentRetrospective {
    @param segmentId for which to get chords
    @return chords
    */
-  List<SegmentChord> getSegmentChords(int segmentId);
+  std::vector<SegmentChord> getSegmentChords(int segmentId);
 
 }

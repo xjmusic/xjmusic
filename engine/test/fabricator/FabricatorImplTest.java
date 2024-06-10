@@ -16,7 +16,7 @@ import io.xj.model.pojos.SegmentChoiceArrangementPick;
 import io.xj.model.pojos.SegmentMeme;
 import io.xj.model.enums.Segment::State;
 import io.xj.model.enums.Segment::Type;
-import io.xj.model.HubContent;
+import io.xj.model.ContentStore;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.enums.Instrument::Type;
@@ -66,7 +66,7 @@ public class FabricatorImplTest {
   public JsonapiPayloadFactory mockJsonapiPayloadFactory;
   public JsonProvider jsonProvider;
   FabricatorImpl subject;
-  HubContent sourceMaterial;
+  ContentStore sourceMaterial;
   FabricationEntityStore store;
   SegmentFixtures fake;
   Segment segment;
@@ -84,7 +84,7 @@ public class FabricatorImplTest {
 
     // Mock request via HubClientFactory returns fake generated library of model content
     fake = new SegmentFixtures();
-    sourceMaterial = new HubContent(Stream.concat(Stream.concat(Stream.concat(fake.setupFixtureB1().stream(), fake.setupFixtureB2().stream()), fake.setupFixtureB3().stream()), Stream.of(fake.template1, fake.templateBinding1)).collect(Collectors.toList()));
+    sourceMaterial = new ContentStore(Stream.concat(Stream.concat(Stream.concat(fake.setupFixtureB1().stream(), fake.setupFixtureB2().stream()), fake.setupFixtureB3().stream()), Stream.of(fake.template1, fake.templateBinding1)).collect(Collectors.toList()));
 
     // Here's a basic setup that can be replaced for complex tests
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type.PRODUCTION, Chain::State.FABRICATE));
@@ -121,7 +121,7 @@ public class FabricatorImplTest {
 
   @Test
   public void getDistinctChordVoicingTypes() throws Exception {
-    sourceMaterial = new HubContent(Stream.concat(Stream.concat(Stream.concat(fake.setupFixtureB1().stream(), fake.setupFixtureB2().stream()), fake.setupFixtureB3().stream()), Stream.of(ContentFixtures.buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceSticky, "G4, B4, D4"), ContentFixtures.buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceStripe, "F5"), ContentFixtures.buildVoicing(fake.program5_sequence0_chord0, fake.program5_voicePad, "(None)") // No voicing notes- doesn't count!
+    sourceMaterial = new ContentStore(Stream.concat(Stream.concat(Stream.concat(fake.setupFixtureB1().stream(), fake.setupFixtureB2().stream()), fake.setupFixtureB3().stream()), Stream.of(ContentFixtures.buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceSticky, "G4, B4, D4"), ContentFixtures.buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceStripe, "F5"), ContentFixtures.buildVoicing(fake.program5_sequence0_chord0, fake.program5_voicePad, "(None)") // No voicing notes- doesn't count!
     )).collect(Collectors.toList()));
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type.PRODUCTION, Chain::State.FABRICATE));
     segment = store.put(SegmentFixtures.buildSegment(chain, 0, Segment::State.CRAFTING, "F major", 8, 0.6f, 120.0f, "seg123"));
@@ -206,7 +206,7 @@ public class FabricatorImplTest {
     var track = ContentFixtures.buildTrack(voice);
     var sequence = ContentFixtures.buildSequence(program, 4);
     var pattern = ContentFixtures.buildPattern(sequence, voice, 4);
-    sourceMaterial = new HubContent(List.of(program, voice, track, sequence, pattern, fake.template1, fake.templateBinding1, ContentFixtures.buildEvent(pattern, track, 0.0f, 1.0f, "C1"), ContentFixtures.buildEvent(pattern, track, 1.0f, 1.0f, "D2")));
+    sourceMaterial = new ContentStore(List.of(program, voice, track, sequence, pattern, fake.template1, fake.templateBinding1, ContentFixtures.buildEvent(pattern, track, 0.0f, 1.0f, "C1"), ContentFixtures.buildEvent(pattern, track, 1.0f, 1.0f, "D2")));
     subject = new FabricatorImpl(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory, jsonProvider, 48000.0f, 2, null);
 
     var result = subject.getProgramRange(program.id, Instrument::Type::Bass);
@@ -225,7 +225,7 @@ public class FabricatorImplTest {
     var track = ContentFixtures.buildTrack(voice);
     var sequence = ContentFixtures.buildSequence(program, 4);
     var pattern = ContentFixtures.buildPattern(sequence, voice, 4);
-    sourceMaterial = new HubContent(List.of(program, voice, track, sequence, pattern, ContentFixtures.buildEvent(pattern, track, 0.0f, 1.0f, "C1"), ContentFixtures.buildEvent(pattern, track, 1.0f, 1.0f, "X"), ContentFixtures.buildEvent(pattern, track, 2.0f, 1.0f, "D2"), fake.template1, fake.templateBinding1));
+    sourceMaterial = new ContentStore(List.of(program, voice, track, sequence, pattern, ContentFixtures.buildEvent(pattern, track, 0.0f, 1.0f, "C1"), ContentFixtures.buildEvent(pattern, track, 1.0f, 1.0f, "X"), ContentFixtures.buildEvent(pattern, track, 2.0f, 1.0f, "D2"), fake.template1, fake.templateBinding1));
     subject = new FabricatorImpl(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory, jsonProvider, 48000.0f, 2, null);
 
     var result = subject.getProgramRange(program.id, Instrument::Type::Bass);
@@ -242,7 +242,7 @@ public class FabricatorImplTest {
     segment = store.put(SegmentFixtures.buildSegment(chain, Segment::Type.CONTINUE, 17, 4, Segment::State.CRAFTED, "D major", SEQUENCE_TOTAL_BEATS, 0.73f, 120.0f, String.format("chains-%s-segments-%s", ChainUtils.getIdentifier(chain), 17), true));
     SegmentChoice choice = store.put(buildSegmentChoice(segment, Program::Type::Main, fake.program5_sequence0));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
-    sourceMaterial = new HubContent(List.of(fake.program5_sequence0, fake.template1, fake.templateBinding1));
+    sourceMaterial = new ContentStore(List.of(fake.program5_sequence0, fake.template1, fake.templateBinding1));
     subject = new FabricatorImpl(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory, jsonProvider, 48000.0f, 2, null);
 
     var result = subject.getProgramSequence(choice);
@@ -258,7 +258,7 @@ public class FabricatorImplTest {
     segment = store.put(SegmentFixtures.buildSegment(chain, Segment::Type.CONTINUE, 17, 4, Segment::State.CRAFTED, "D major", SEQUENCE_TOTAL_BEATS, 0.73f, 120.0f, String.format("chains-%s-segments-%s", ChainUtils.getIdentifier(chain), 17), true));
     SegmentChoice choice = store.put(buildSegmentChoice(segment, Program::Type::Main, fake.program5_sequence0_binding0));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
-    sourceMaterial = new HubContent(List.of(fake.program5_sequence0, fake.program5_sequence0_binding0, fake.template1, fake.templateBinding1));
+    sourceMaterial = new ContentStore(List.of(fake.program5_sequence0, fake.program5_sequence0_binding0, fake.template1, fake.templateBinding1));
     subject = new FabricatorImpl(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory, jsonProvider, 48000.0f, 2, null);
 
     var result = subject.getProgramSequence(choice);

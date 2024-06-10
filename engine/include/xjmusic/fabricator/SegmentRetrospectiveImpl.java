@@ -14,11 +14,11 @@ import io.xj.model.pojos.SegmentMeta;
 import jakarta.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.std::vector;
 import java.util.Comparator;
-import java.util.List;
+import java.util.std::vector;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.std::optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -26,10 +26,10 @@ import java.util.stream.Collectors;
  The SegmentRetrospective is a delegate to look back on previous segments, read-only
  */
 class SegmentRetrospectiveImpl implements SegmentRetrospective {
-  final List<List<SegmentChord>> segmentChords = new ArrayList<>();
+  final std::vector<std::vector<SegmentChord>> segmentChords = new ArrayList<>();
   private final FabricationEntityStore entityStore;
-  final List<Segment> retroSegments;
-  final List<Integer> previousSegmentIds;
+  final std::vector<Segment> retroSegments;
+  final std::vector<Integer> previousSegmentIds;
 
   @Nullable
   final Segment previousSegment;
@@ -47,8 +47,8 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     // only can build retrospective if there is at least one previous segment
     // the previous segment is the first one cached here. we may cache even further back segments below if found
     if (segmentId <= 0) {
-      retroSegments = List.of();
-      previousSegmentIds = List.of();
+      retroSegments = std::vector.of();
+      previousSegmentIds = std::vector.of();
       previousSegment = null;
       return;
     }
@@ -73,7 +73,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public Optional<SegmentChoice> getPreviousChoiceOfType(Segment segment, Program::Type programType) {
+  public std::optional<SegmentChoice> getPreviousChoiceOfType(Segment segment, Program::Type programType) {
     return
       entityStore.readChoice(segment.id, programType).stream()
         .filter(c -> programType.equals(c.programType))
@@ -81,26 +81,26 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public Collection<SegmentChoiceArrangementPick> getPicks() {
+  public std::vector<SegmentChoiceArrangementPick> getPicks() {
     // return new ArrayList<>(retroStore.getAll(SegmentChoiceArrangementPick.class));
     return entityStore.readManySubEntitiesOfType(previousSegmentIds, SegmentChoiceArrangementPick.class);
   }
 
   @Override
-  public Optional<Segment> getPreviousSegment() {
-    return Optional.ofNullable(previousSegment);
+  public std::optional<Segment> getPreviousSegment() {
+    return std::optional.ofNullable(previousSegment);
   }
 
   @Override
-  public Optional<SegmentChoice> getPreviousChoiceOfType(Program::Type programType) {
-    Optional<Segment> seg = getPreviousSegment();
-    if (seg.isEmpty()) return Optional.empty();
+  public std::optional<SegmentChoice> getPreviousChoiceOfType(Program::Type programType) {
+    std::optional<Segment> seg = getPreviousSegment();
+    if (seg.isEmpty()) return std::optional.empty();
     return getPreviousChoiceOfType(seg.get(), programType);
   }
 
   @Override
-  public List<SegmentChoice> getPreviousChoicesOfMode(Instrument::Mode instrumentMode) {
-    if (Objects.isNull(previousSegment)) return List.of();
+  public std::vector<SegmentChoice> getPreviousChoicesOfMode(Instrument::Mode instrumentMode) {
+    if (Objects.isNull(previousSegment)) return std::vector.of();
     return entityStore.readManySubEntitiesOfType(previousSegment.id, SegmentChoice.class).stream()
       .filter(c -> Objects.nonNull(c.getInstrumentMode())
         && c.getInstrumentMode().equals(instrumentMode))
@@ -108,8 +108,8 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public List<SegmentChoice> getPreviousChoicesOfTypeMode(Instrument::Type instrumentType, Instrument::Mode instrumentMode) {
-    if (Objects.isNull(previousSegment)) return List.of();
+  public std::vector<SegmentChoice> getPreviousChoicesOfTypeMode(Instrument::Type instrumentType, Instrument::Mode instrumentMode) {
+    if (Objects.isNull(previousSegment)) return std::vector.of();
     return entityStore.readManySubEntitiesOfType(previousSegment.id, SegmentChoice.class).stream()
       .filter(c -> Objects.nonNull(c.instrumentType)
         && c.instrumentType.equals(instrumentType)
@@ -119,8 +119,8 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public Optional<SegmentChoice> getPreviousChoiceOfType(Instrument::Type instrumentType) {
-    if (Objects.isNull(previousSegment)) return Optional.empty();
+  public std::optional<SegmentChoice> getPreviousChoiceOfType(Instrument::Type instrumentType) {
+    if (Objects.isNull(previousSegment)) return std::optional.empty();
     return entityStore.readManySubEntitiesOfType(previousSegment.id, SegmentChoice.class).stream()
       .filter(c -> Objects.nonNull(c.instrumentType)
         && c.instrumentType.equals(instrumentType))
@@ -128,17 +128,17 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public Collection<Segment> getSegments() {
+  public std::vector<Segment> getSegments() {
     return retroSegments;
   }
 
   @Override
-  public Collection<SegmentChoice> getChoices() {
+  public std::vector<SegmentChoice> getChoices() {
     return entityStore.readManySubEntitiesOfType(previousSegmentIds, SegmentChoice.class);
   }
 
   @Override
-  public Collection<SegmentChoice> getPreviousChoicesForInstrument(UUID instrumentId) {
+  public std::vector<SegmentChoice> getPreviousChoicesForInstrument(UUID instrumentId) {
     return getChoices().stream()
       .filter(c -> Objects.nonNull(c.instrumentId)
         && instrumentId.equals(c.instrumentId))
@@ -146,7 +146,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public Collection<SegmentChoiceArrangement> getPreviousArrangementsForInstrument(UUID instrumentId) {
+  public std::vector<SegmentChoiceArrangement> getPreviousArrangementsForInstrument(UUID instrumentId) {
     return getPreviousChoicesForInstrument(instrumentId).stream().flatMap(
       segmentChoice ->
         entityStore.readManySubEntitiesOfType(previousSegmentIds, SegmentChoiceArrangement.class).stream()
@@ -155,7 +155,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public Collection<SegmentChoiceArrangementPick> getPreviousPicksForInstrument(UUID instrumentId) {
+  public std::vector<SegmentChoiceArrangementPick> getPreviousPicksForInstrument(UUID instrumentId) {
     return getPreviousArrangementsForInstrument(instrumentId).stream().flatMap(
       segmentChoiceArrangement ->
         entityStore.readManySubEntitiesOfType(previousSegmentIds, SegmentChoiceArrangementPick.class).stream()
@@ -169,7 +169,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public Optional<SegmentMeta> getPreviousMeta(String key) {
+  public std::optional<SegmentMeta> getPreviousMeta(std::string key) {
     return entityStore.readManySubEntitiesOfType(previousSegmentIds, SegmentMeta.class).stream()
       .filter(m -> Objects.equals(key, m.getKey()))
       .findAny();
@@ -181,7 +181,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
       .stream()
       .filter(arrangement -> Objects.equals(arrangement.id, pick.getSegmentChoiceArrangementId()))
       .findFirst()
-      .orElseThrow(() -> new FabricationException(String.format("Failed to get arrangement for SegmentChoiceArrangementPick[%s]", pick.id)));
+      .orElseThrow(() -> new FabricationException(std::string.format("Failed to get arrangement for SegmentChoiceArrangementPick[%s]", pick.id)));
   }
 
   @Override
@@ -190,11 +190,11 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
       .stream()
       .filter(choice -> Objects.equals(arrangement.getSegmentChoiceId(), choice.id))
       .findFirst()
-      .orElseThrow(() -> new FabricationException(String.format("Failed to get arrangement for SegmentChoiceArrangement[%s]", arrangement.id)));
+      .orElseThrow(() -> new FabricationException(std::string.format("Failed to get arrangement for SegmentChoiceArrangement[%s]", arrangement.id)));
   }
 
   @Override
-  public List<SegmentChord> getSegmentChords(int segmentId) {
+  public std::vector<SegmentChord> getSegmentChords(int segmentId) {
     if (segmentChords.size() <= segmentId) {
       segmentChords.set(segmentId,
         entityStore.readManySubEntitiesOfType(segmentId, SegmentChord.class)

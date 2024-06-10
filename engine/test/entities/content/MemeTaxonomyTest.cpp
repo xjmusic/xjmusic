@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include "xjmusic/entities/content/MemeTaxonomy.h"
+#include "xjmusic/entities/meme/MemeTaxonomy.h"
 #include <gtest/gtest.h>
 
 using namespace XJ;

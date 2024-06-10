@@ -9,7 +9,7 @@ package io.xj.engine.fabricator;
  */
 public class FabricationFatalException extends Exception {
 
-  public FabricationFatalException(String msg) {
+  public FabricationFatalException(std::string msg) {
     super(msg);
   }
 }

@@ -27,12 +27,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.std::vector;
 import java.util.Comparator;
-import java.util.List;
+import java.util.std::vector;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.std::optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,7 +49,7 @@ import java.util.stream.Stream;
  */
 public class FabricationEntityStoreImpl implements FabricationEntityStore {
   static final Logger LOG = LoggerFactory.getLogger(FabricationEntityStoreImpl.class);
-  static final String SEGMENT_ID_ATTRIBUTE = EntityUtils.toIdAttribute(EntityUtils.toBelongsTo(Segment.class));
+  static final std::string SEGMENT_ID_ATTRIBUTE = EntityUtils.toIdAttribute(EntityUtils.toBelongsTo(Segment.class));
   final Map<Integer, Segment> segments = new ConcurrentHashMap<>();
   final Map<Integer, Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>>> entities = new ConcurrentHashMap<>();
   final EntityFactory entityFactory;
@@ -79,13 +79,13 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
     try {
       id = EntityUtils.getId(entity);
     } catch (EntityException e) {
-      throw new FabricationException(String.format("Can't get id of %s-type entity",
+      throw new FabricationException(std::string.format("Can't get id of %s-type entity",
         entity.getClass().getSimpleName()));
     }
 
     // fail to store entity with unset id
     if (!ValueUtils.isSet(id))
-      throw new FabricationException(String.format("Can't store %s with null id",
+      throw new FabricationException(std::string.format("Can't store %s with null id",
         entity.getClass().getSimpleName()));
 
     else if (entity instanceof SegmentMeme ||
@@ -98,9 +98,9 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
       entity instanceof SegmentChoiceArrangementPick)
       try {
         var segmentIdValue = EntityUtils.get(entity, SEGMENT_ID_ATTRIBUTE)
-          .orElseThrow(() -> new FabricationException(String.format("Can't store %s without Segment ID!",
+          .orElseThrow(() -> new FabricationException(std::string.format("Can't store %s without Segment ID!",
             entity.getClass().getSimpleName())));
-        int segmentId = Integer.parseInt(String.valueOf(segmentIdValue));
+        int segmentId = Integer.parseInt(std::string.valueOf(segmentIdValue));
         if (!entities.containsKey(segmentId))
           entities.put(segmentId, new ConcurrentHashMap<>());
         entities.get(segmentId).putIfAbsent(entity.getClass(), new ConcurrentHashMap<>());
@@ -114,40 +114,40 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
   }
 
   @Override
-  public Optional<Chain> readChain() {
-    return Optional.ofNullable(chain);
+  public std::optional<Chain> readChain() {
+    return std::optional.ofNullable(chain);
   }
 
   @Override
-  public Optional<Segment> readSegment(int id) {
-    return segments.containsKey(id) ? Optional.of(segments.get(id)) : Optional.empty();
+  public std::optional<Segment> readSegment(int id) {
+    return segments.containsKey(id) ? std::optional.of(segments.get(id)) : std::optional.empty();
   }
 
   @Override
-  public Optional<Segment> readSegmentLast() {
+  public std::optional<Segment> readSegmentLast() {
     return readAllSegments()
       .stream()
       .max(Comparator.comparing(Segment::getId));
   }
 
   @Override
-  public Optional<Segment> readSegmentAtChainMicros(long chainMicros) {
+  public std::optional<Segment> readSegmentAtChainMicros(long chainMicros) {
     var segments = readAllSegments()
       .stream()
       .filter(s -> SegmentUtils.isSpanning(s, chainMicros, chainMicros))
       .sorted(Comparator.comparing(Segment::getId))
       .toList();
-    return segments.isEmpty() ? Optional.empty() : Optional.of(segments.get(segments.size() - 1));
+    return segments.isEmpty() ? std::optional.empty() : std::optional.of(segments.get(segments.size() - 1));
   }
 
   @Override
-  public <N> Optional<N> read(int segmentId, Class<N> type, UUID id) throws FabricationException {
+  public <N> std::optional<N> read(int segmentId, Class<N> type, UUID id) throws FabricationException {
     try {
       if (!entities.containsKey(segmentId)
         || !entities.get(segmentId).containsKey(type)
-        || !entities.get(segmentId).get(type).containsKey(id)) return Optional.empty();
+        || !entities.get(segmentId).get(type).containsKey(id)) return std::optional.empty();
       //noinspection unchecked
-      return (Optional<N>) Optional.ofNullable(entities.get(segmentId).get(type).get(id));
+      return (std::optional<N>) std::optional.ofNullable(entities.get(segmentId).get(type).get(id));
 
     } catch (Exception e) {
       throw new FabricationException(e);
@@ -155,36 +155,36 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
   }
 
   @Override
-  public <N> Collection<N> readAll(int segmentId, Class<N> type) {
+  public <N> std::vector<N> readAll(int segmentId, Class<N> type) {
     if (!entities.containsKey(segmentId)
       || !entities.get(segmentId).containsKey(type))
-      return List.of();
+      return std::vector.of();
     //noinspection unchecked
-    return (Collection<N>) entities.get(segmentId).get(type).values().stream()
+    return (std::vector<N>) entities.get(segmentId).get(type).values().stream()
       .filter(entity -> type.equals(entity.getClass()))
       .collect(Collectors.toList());
   }
 
   @Override
-  public <N, B> Collection<N> readAll(int segmentId, Class<N> type, Class<B> belongsToType, Collection<UUID> belongsToIds) {
+  public <N, B> std::vector<N> readAll(int segmentId, Class<N> type, Class<B> belongsToType, std::vector<UUID> belongsToIds) {
     if (!entities.containsKey(segmentId)
       || !entities.get(segmentId).containsKey(type))
-      return List.of();
+      return std::vector.of();
     //noinspection unchecked
-    return (Collection<N>) entities.get(segmentId).get(type).values().stream()
+    return (std::vector<N>) entities.get(segmentId).get(type).values().stream()
       .filter(entity -> EntityUtils.isChild(entity, belongsToType, belongsToIds))
       .collect(Collectors.toList());
   }
 
   @Override
-  public List<Segment> readAllSegments() {
+  public std::vector<Segment> readAllSegments() {
     return segments.values().stream()
       .sorted(Comparator.comparingInt(Segment::getId))
       .collect(Collectors.toList());
   }
 
   @Override
-  public List<Segment> readSegmentsFromToOffset(int fromOffset, int toOffset) {
+  public std::vector<Segment> readSegmentsFromToOffset(int fromOffset, int toOffset) {
     return readAllSegments()
       .stream()
       .filter(s -> s.id >= fromOffset && s.id <= toOffset)
@@ -192,7 +192,7 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
   }
 
   @Override
-  public List<Segment> readAllSegmentsSpanning(Long fromChainMicros, Long toChainMicros) {
+  public std::vector<Segment> readAllSegmentsSpanning(Long fromChainMicros, Long toChainMicros) {
     return readAllSegments()
       .stream()
       .filter(s -> SegmentUtils.isSpanning(s, fromChainMicros, toChainMicros))
@@ -207,8 +207,8 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
   }
 
   @Override
-  public List<SegmentChoiceArrangementPick> readPicks(List<Segment> segments) {
-    List<SegmentChoiceArrangementPick> picks = new ArrayList<>();
+  public std::vector<SegmentChoiceArrangementPick> readPicks(std::vector<Segment> segments) {
+    std::vector<SegmentChoiceArrangementPick> picks = new ArrayList<>();
     for (Segment segment : segments) {
       picks.addAll(readAll(segment.id, SegmentChoiceArrangementPick.class));
     }
@@ -216,8 +216,8 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
   }
 
   @Override
-  public <N> Collection<N> readManySubEntities(Collection<Integer> segmentIds, Boolean includePicks) {
-    Collection<Object> entities = new ArrayList<>();
+  public <N> std::vector<N> readManySubEntities(std::vector<Integer> segmentIds, Boolean includePicks) {
+    std::vector<Object> entities = new ArrayList<>();
     for (Integer sId : segmentIds) {
       entities.addAll(readAll(sId, SegmentChoice.class));
       entities.addAll(readAll(sId, SegmentChoiceArrangement.class));
@@ -230,21 +230,21 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
         entities.addAll(readAll(sId, SegmentChoiceArrangementPick.class));
     }
     //noinspection unchecked
-    return (Collection<N>) entities;
+    return (std::vector<N>) entities;
   }
 
   @Override
-  public <N> Collection<N> readManySubEntitiesOfType(int segmentId, Class<N> type) {
+  public <N> std::vector<N> readManySubEntitiesOfType(int segmentId, Class<N> type) {
     return readAll(segmentId, type);
   }
 
   @Override
-  public <N> Collection<N> readManySubEntitiesOfType(Collection<Integer> segmentIds, Class<N> type) {
+  public <N> std::vector<N> readManySubEntitiesOfType(std::vector<Integer> segmentIds, Class<N> type) {
     return segmentIds.stream().flatMap(segmentId -> readManySubEntitiesOfType(segmentId, type).stream()).toList();
   }
 
   @Override
-  public Optional<SegmentChoice> readChoice(int segmentId, Program::Type programType) {
+  public std::optional<SegmentChoice> readChoice(int segmentId, Program::Type programType) {
     return readAll(segmentId, SegmentChoice.class)
       .stream()
       .filter(sc -> programType.equals(sc.programType))
@@ -252,7 +252,7 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
   }
 
   @Override
-  public String readChoiceHash(Segment segment) {
+  public std::string readChoiceHash(Segment segment) {
     return
       readManySubEntities(Set.of(segment.id), false)
         .stream()
@@ -384,14 +384,14 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
    @throws FabricationException if not in required states
    */
   public static void onlyAllowSegmentStateTransitions(Segment::State toState, Segment::State... allowedStates) throws FabricationException {
-    List<String> allowedStateNames = new ArrayList<>();
+    std::vector<std::string> allowedStateNames = new ArrayList<>();
     for (Segment::State search : allowedStates) {
       allowedStateNames.add(search);
       if (Objects.equals(search, toState)) {
         return;
       }
     }
-    throw new FabricationException(String.format("transition to %s not in allowed (%s)",
+    throw new FabricationException(std::string.format("transition to %s not in allowed (%s)",
       toState, CsvUtils.join(allowedStateNames)));
   }
 

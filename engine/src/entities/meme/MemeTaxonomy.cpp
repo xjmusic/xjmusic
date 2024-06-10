@@ -6,7 +6,7 @@
 
 #include "spdlog/spdlog.h"
 
-#include "xjmusic/entities/content/MemeTaxonomy.h"
+#include "xjmusic/entities/meme/MemeTaxonomy.h"
 
 namespace XJ {
 
