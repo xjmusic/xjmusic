@@ -13,6 +13,8 @@ check() {
   fi
 }
 
-check hub/src
-check nexus/src
-check ship/src
+check workstation/src
+check engine/include
+check engine/src
+check engine/test
+
