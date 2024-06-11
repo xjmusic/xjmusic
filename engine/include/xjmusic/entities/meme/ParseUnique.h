@@ -6,6 +6,7 @@
 #include <regex>
 #include <vector>
 #include <string>
+#include <set>
 
 
 namespace XJ {
@@ -18,21 +19,15 @@ namespace XJ {
    Artist can add `$MEME` so only one is chosen https://github.com/xjmusic/workstation/issues/219
    */
   class ParseUnique {
+  public:
     static const std::regex rgx;
     std::string body;
-    bool isValid;
-
-  public:
+    bool valid;
     explicit ParseUnique(const std::string &raw);
-
     static ParseUnique fromString(const std::string &raw);
-
-    bool isViolatedBy(const ParseUnique &target);
-
+    [[nodiscard]] bool isViolatedBy(const ParseUnique &target) const;
     bool isAllowed(const std::vector<ParseUnique> &memes);
   };
-
-  const std::regex ParseUnique::rgx("^\\$(.+)$");
 
 }//namespace XJ
 

@@ -3,6 +3,7 @@
 #include <sstream>
 #include <regex>
 #include <unordered_set>
+#include <set>
 
 #include "spdlog/spdlog.h"
 
@@ -16,19 +17,18 @@ namespace XJ {
   std::string MemeCategory::DEFAULT_CATEGORY_NAME = "CATEGORY";
   std::regex MemeCategory::rgx("^([a-zA-Z ]+)\\[([a-zA-Z, ]+)\\]$");
 
-  static std::string sanitize(std::string &raw) {
+  static std::string sanitize(const std::string &raw) {
     return StringUtils::toUpperCase(StringUtils::toAlphabetical(StringUtils::trim(raw)));
   }
 
-  std::vector<std::string>
-  MemeCategory::parseMemeList(std::map<std::string, std::variant<std::string, std::vector<std::string>>> &data) {
+  std::set<std::string>
+  MemeCategory::parseMemeList(const MapStringToOneOrManyString &data) {
     auto it = data.find(KEY_MEMES);
-    if (it != data.end() && std::holds_alternative<std::vector<std::string>>(it->second)) {
-      std::vector<std::string> rawList = std::get<std::vector<std::string>>(it->second);
-      std::vector<std::string> sanitizedList;
-      sanitizedList.reserve(rawList.size());
-      for (auto &raw: rawList) {
-        sanitizedList.push_back(sanitize(raw));
+    if (it != data.end() && std::holds_alternative<std::set<std::string>>(it->second)) {
+      std::set<std::string> rawList = std::get<std::set<std::string>>(it->second);
+      std::set<std::string> sanitizedList;
+      for (const auto &raw: rawList) {
+        sanitizedList.insert(sanitize(raw));
       }
       return sanitizedList;
     }
@@ -38,7 +38,7 @@ namespace XJ {
   MemeCategory::MemeCategory(const std::string *raw) {
     if (StringUtils::isNullOrEmpty(raw)) {
       name = DEFAULT_CATEGORY_NAME;
-      memes = std::vector<std::string>();
+      memes = std::set<std::string>();
       return;
     }
 
@@ -47,14 +47,14 @@ namespace XJ {
 
     if (matcher.empty()) {
       name = DEFAULT_CATEGORY_NAME;
-      memes = std::vector<std::string>();
+      memes = std::set<std::string>();
       return;
     }
 
     std::string pfx = matcher[1].str();
     if (pfx.empty()) {
       name = DEFAULT_CATEGORY_NAME;
-      memes = std::vector<std::string>();
+      memes = std::set<std::string>();
       return;
     }
     std::string alphabetical = StringUtils::toAlphabetical(pfx);
@@ -62,54 +62,54 @@ namespace XJ {
 
     std::string body = matcher[2].str();
     if (body.empty())
-      memes = std::vector<std::string>();
+      memes = std::set<std::string>();
     else {
       memes.clear();
       std::istringstream iss(body);
       for (std::string s; std::getline(iss, s, ',');)
-        memes.push_back(sanitize(s));
+        memes.insert(sanitize(s));
     }
   }
 
-  MemeCategory::MemeCategory(
-      std::map<std::string, std::variant<std::string, std::vector<std::string>>> &data) {
+  MemeCategory::MemeCategory(const MapStringToOneOrManyString &data) {
     auto it = data.find(KEY_NAME);
-    name = (it != data.end() && std::holds_alternative<std::string>(it->second)) ? sanitize(
-        std::get<std::string>(it->second))
-                                                                                 : DEFAULT_CATEGORY_NAME;
+    name = (it != data.end() && std::holds_alternative<std::string>(it->second))
+           ? sanitize(std::get<std::string>(it->second))
+           : DEFAULT_CATEGORY_NAME;
 
     memes = parseMemeList(data);
   }
 
-  std::string MemeCategory::getName() {
+  std::string MemeCategory::getName() const {
     return name;
   }
 
-  std::vector<std::string> MemeCategory::getMemes() {
+  std::set<std::string> MemeCategory::getMemes() {
     return memes;
   }
 
-  bool MemeCategory::isAllowed(std::vector<std::string> &targets) const {
-    std::unordered_set<std::string> targetSet(targets.begin(), targets.end());
+  bool MemeCategory::isAllowed(std::set<std::string> &targets) const {
     int count = 0;
     for (const auto &meme: memes) {
-      if (targetSet.find(meme) != targetSet.end()) {
+      if (targets.find(meme) != targets.end()) {
         count++;
       }
     }
     return count <= 1;
   }
 
-  bool MemeCategory::hasMemes() {
+  bool MemeCategory::hasMemes() const {
     return !memes.empty();
   }
 
   std::string MemeCategory::toString() const {
-    return name + "[" + StringUtils::join(memes, MEME_SEPARATOR) + "]";
+    std::vector<std::string> sortedMemes(memes.begin(), memes.end());
+    std::sort(sortedMemes.begin(), sortedMemes.end());
+    return name + "[" + StringUtils::join(sortedMemes, MEME_SEPARATOR) + "]";
   }
 
-  std::map<std::string, std::variant<std::string, std::vector<std::string>>> MemeCategory::toMap() const {
-    return std::map<std::string, std::variant<std::string, std::vector<std::string>>>{
+  MapStringToOneOrManyString MemeCategory::toMap() const {
+    return MapStringToOneOrManyString{
         {KEY_NAME,  name},
         {KEY_MEMES, memes}};
   }
@@ -118,24 +118,19 @@ namespace XJ {
 
   MemeTaxonomy::MemeTaxonomy(const std::string &raw) : MemeTaxonomy() {
     if (StringUtils::isNullOrEmpty(&raw)) {
-      categories = std::vector<MemeCategory>();
       return;
     }
-
-    categories.clear();
     std::istringstream iss(raw);
     for (std::string s; std::getline(iss, s, CATEGORY_SEPARATOR);) {
-      categories.emplace_back(&s);
+      categories.insert(MemeCategory(&s));
     }
   }
 
-  MemeTaxonomy::MemeTaxonomy(
-      std::vector<std::map<std::string, std::variant<std::string, std::vector<std::string>>>> &data) {
+  MemeTaxonomy::MemeTaxonomy(std::set<MapStringToOneOrManyString> &data) {
     categories.clear();
-    categories.reserve(data.size());
     for (auto &d: data) {
       try {
-        categories.emplace_back(d);
+        categories.insert(MemeCategory(d));
       } catch (...) {
         spdlog::error("Failed to add map data!");
       }
@@ -148,30 +143,60 @@ namespace XJ {
     for (const auto &category: categories) {
       strings.push_back(category.toString());
     }
+    std::sort(strings.begin(), strings.end());
     return StringUtils::join(strings, std::string(1, CATEGORY_SEPARATOR));
   }
 
-  std::vector<std::map<std::string, std::variant<std::string, std::vector<std::string>>>> MemeTaxonomy::toList() {
-    std::vector<std::map<std::string, std::variant<std::string, std::vector<std::string>>>> data;
-    data.reserve(categories.size());
+  std::set<MapStringToOneOrManyString> MemeTaxonomy::toList() {
+    std::set<MapStringToOneOrManyString> data;
     for (const auto &category: categories) {
       auto map = category.toMap();
-      data.emplace_back(map);
+      data.insert(map);
     }
     return data;
   }
 
-  std::vector<MemeCategory> MemeTaxonomy::getCategories() {
+  std::set<MemeCategory> MemeTaxonomy::getCategories() {
     return categories;
   }
 
-  bool MemeTaxonomy::isAllowed(std::vector<std::string> memes) {
+  bool MemeTaxonomy::isAllowed(std::set<std::string> memes) {
     for (const auto &memeCategory: categories) {
       if (!memeCategory.isAllowed(memes)) {
         return false;
       }
     }
     return true;
+  }
+
+  MemeTaxonomy MemeTaxonomy::empty() {
+    return {};
+  }
+
+  MemeTaxonomy MemeTaxonomy::fromSet(std::set<MapStringToOneOrManyString> &data) {
+    return MemeTaxonomy(data);
+  }
+
+  MemeTaxonomy MemeTaxonomy::fromString(const std::string &raw) {
+    return MemeTaxonomy(raw);
+  }
+
+  MemeTaxonomy MemeTaxonomy::fromList(
+      const std::vector<std::map<std::string, std::variant<std::string, std::vector<std::string>>>> &list) {
+    std::set<MapStringToOneOrManyString> set;
+    for (const auto &map: list) {
+      MapStringToOneOrManyString m;
+      for (const auto &[key, value]: map) {
+        if (std::holds_alternative<std::vector<std::string>>(value)) {
+          auto v = std::get<std::vector<std::string>>(value);
+          m[key] = std::set<std::string>(v.begin(), v.end());
+        } else {
+          m[key] = std::get<std::string>(value);
+        }
+      }
+      set.insert(m);
+    }
+    return MemeTaxonomy(set);
   }
 
 }// namespace XJ

@@ -31,13 +31,21 @@ namespace XJ {
     explicit MemeIsometry(MemeTaxonomy taxonomy, const std::set<std::string>& sourceMemes);
 
     /**
-     Instantiate a new MemeIsometry of a group of source Memes
+     Instantiate a new MemeIsometry of a Taxonomy and group of source Memes
 
      @param taxonomy    context within which to measure isometry
      @param sourceMemes to compare of
      @return MemeIsometry ready for comparison to target Memes
      */
     static MemeIsometry of(MemeTaxonomy taxonomy, const std::set<std::string>& sourceMemes);
+
+    /**
+     Instantiate a new MemeIsometry of a group of source Memes
+
+     @param sourceMemes to compare of
+     @return MemeIsometry ready for comparison to target Memes
+     */
+    static MemeIsometry of(const std::set<std::string> &sourceMemes);
 
     /**
      Instantiate a new MemeIsometry representing having no memes
@@ -107,7 +115,6 @@ namespace XJ {
     static const std::string KEY_NAME;
     MemeStack stack;
     std::set<std::string> sources;
-
   };
 
 } // namespace XJ

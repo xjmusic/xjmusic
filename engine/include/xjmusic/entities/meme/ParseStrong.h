@@ -6,6 +6,7 @@
 #include <regex>
 #include <vector>
 #include <string>
+#include <set>
 
 namespace XJ {
 
@@ -17,19 +18,15 @@ namespace XJ {
    Strong-meme like LEMONS! should always favor LEMONS https://github.com/xjmusic/workstation/issues/218
    */
   class ParseStrong {
+  public:
     static const std::regex rgx;
     std::string body;
-    bool isValid;
-
-  public:
+    bool valid;
     explicit ParseStrong(const std::string &raw);
-
     static ParseStrong fromString(const std::string &raw);
-
     bool isAllowed(const std::vector<ParseStrong> &memes);
   };
 
-  const std::regex ParseStrong::rgx("^(.+)!$");
 }
 
 #endif//XJ_MUSIC_ENTITIES_MEME_PARSE_STRONG_H

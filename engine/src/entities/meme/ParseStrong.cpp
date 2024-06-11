@@ -6,21 +6,21 @@ using namespace XJ;
 
 ParseStrong::ParseStrong(const std::string &raw) {
   std::smatch matcher;
-  isValid = std::regex_search(raw, matcher, rgx);
+  valid = std::regex_search(raw, matcher, rgx);
 
-  if (!isValid) {
+  if (!valid) {
     body = raw;
-    isValid = false;
+    valid = false;
     return;
   }
 
   body = matcher[1].str();
   if (body.empty()) {
-    isValid = false;
+    valid = false;
     return;
   }
 
-  isValid = true;
+  valid = true;
 }
 
 ParseStrong ParseStrong::fromString(const std::string &raw) {
@@ -28,8 +28,10 @@ ParseStrong ParseStrong::fromString(const std::string &raw) {
 }
 
 bool ParseStrong::isAllowed(const std::vector<ParseStrong> &memes) {
-  if (!isValid) return true;
+  if (!valid) return true;
   return !std::all_of(memes.begin(), memes.end(), [this](const ParseStrong &meme) {
     return body != meme.body;
   });
 }
+
+const std::regex ParseStrong::rgx("^(.+)!$");

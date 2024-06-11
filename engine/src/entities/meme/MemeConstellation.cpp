@@ -16,7 +16,7 @@ std::string MemeConstellation::fromNames(const std::set<std::string> &names) {
   return join(CONSTELLATION_DELIMITER, pieces);
 }
 
-std::vector<std::string> MemeConstellation::toNames(const std::string &constellation)  {
+std::set<std::string> MemeConstellation::toNames(const std::string &constellation)  {
   return split(constellation, CONSTELLATION_DELIMITER);
 }
 
@@ -27,13 +27,15 @@ std::string MemeConstellation::join(const std::string &delimiter, const std::set
   return result.substr(0, result.size() - delimiter.size()); // remove the last delimiter
 }
 
-std::vector<std::string> MemeConstellation::split(const std::string &str, const std::string &delimiter)  {
-  std::vector<std::string> tokens;
+std::set<std::string> MemeConstellation::split(const std::string &str, const std::string &delimiter)  {
+  std::set<std::string> tokens;
   size_t start = 0, end;
   while ((end = str.find(delimiter, start)) != std::string::npos) {
-    tokens.push_back(str.substr(start, end - start));
+    tokens.insert(str.substr(start, end - start));
     start = end + delimiter.size();
   }
-  tokens.push_back(str.substr(start));
+  tokens.insert(str.substr(start));
   return tokens;
 }
+
+const std::string MemeConstellation::CONSTELLATION_DELIMITER = "_";

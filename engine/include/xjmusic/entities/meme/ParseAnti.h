@@ -17,21 +17,15 @@ namespace XJ {
    Artist can add !MEME values into Programs https://github.com/xjmusic/workstation/issues/214
    */
   class ParseAnti {
+  public:
     static const std::regex rgx;
     std::string body;
-    bool isValid;
-
-  public:
+    bool valid;
     explicit ParseAnti(const std::string& raw);
-
     static ParseAnti fromString(const std::string& raw);
-
-    bool isViolatedBy(const ParseAnti &target);
-
+    [[nodiscard]] bool isViolatedBy(const ParseAnti &target) const;
     bool isAllowed(const std::vector<ParseAnti> &memes);
   };
-
-  const std::regex ParseAnti::rgx("^!(.+)$");
 }
 
 #endif//XJMUSIC_ENTITIES_MEME_PARSE_ANTI_H

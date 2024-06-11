@@ -16,6 +16,10 @@ MemeIsometry MemeIsometry::of(MemeTaxonomy taxonomy, const std::set<std::string>
   return MemeIsometry(std::move(taxonomy), sourceMemes);
 }
 
+MemeIsometry MemeIsometry::of(const std::set<std::string> &sourceMemes) {
+  return MemeIsometry(MemeTaxonomy::empty(), sourceMemes);
+}
+
 MemeIsometry MemeIsometry::none() {
   return MemeIsometry(MemeTaxonomy(), std::set<std::string>());
 }

@@ -1,17 +1,18 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
+#include <set>
 #include "xjmusic/entities/meme/ParseNumeric.h"
 
 using namespace XJ;
 
 ParseNumeric::ParseNumeric(const std::string& raw) {
   std::smatch matcher;
-  isValid = std::regex_search(raw, matcher, rgx);
+  valid = std::regex_search(raw, matcher, rgx);
 
-  if (!isValid) {
+  if (!valid) {
     prefix = 0;
     body = "";
-    isValid = false;
+    valid = false;
     return;
   }
 
@@ -19,26 +20,26 @@ ParseNumeric::ParseNumeric(const std::string& raw) {
   if (pfx.empty()) {
     prefix = 0;
     body = "";
-    isValid = false;
+    valid = false;
     return;
   }
   prefix = std::stoi(pfx);
 
   body = matcher[2].str();
   if (body.empty()) {
-    isValid = false;
+    valid = false;
     return;
   }
 
-  isValid = true;
+  valid = true;
 }
 
 ParseNumeric ParseNumeric::fromString(const std::string& raw) {
   return ParseNumeric(raw);
 }
 
-bool ParseNumeric::isViolatedBy(const ParseNumeric &target) {
-  return isValid && target.isValid && body == target.body && prefix != target.prefix;
+bool ParseNumeric::isViolatedBy(const ParseNumeric &target) const {
+  return valid && target.valid && body == target.body && prefix != target.prefix;
 }
 
 bool ParseNumeric::isAllowed(const std::vector<ParseNumeric> &memes) {
@@ -46,3 +47,5 @@ bool ParseNumeric::isAllowed(const std::vector<ParseNumeric> &memes) {
     return !isViolatedBy(meme);
   });
 }
+
+const std::regex ParseNumeric::rgx("^([0-9]+)(.+)$");

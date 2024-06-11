@@ -17,22 +17,17 @@ namespace XJ {
    Numeric memes with common letters and different integer prefix (e.g. 2STEP vs 4STEP) are known to be exclusive https://github.com/xjmusic/workstation/issues/217
    */
   class ParseNumeric {
+  public:
     static const std::regex rgx;
     std::string body;
     int prefix;
-    bool isValid;
-
-  public:
+    bool valid;
     explicit ParseNumeric(const std::string &raw);
-
     static ParseNumeric fromString(const std::string &raw);
-
-    bool isViolatedBy(const ParseNumeric &target);
-
+    [[nodiscard]] bool isViolatedBy(const ParseNumeric &target) const;
     bool isAllowed(const std::vector<ParseNumeric> &memes);
   };
 
-  const std::regex ParseNumeric::rgx("^([0-9]+)(.+)$");
 
 }
 

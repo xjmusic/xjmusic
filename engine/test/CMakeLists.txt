@@ -3,17 +3,16 @@ include(FetchContent)
 
 # Tests need to be added as executables first
 add_executable(xjmusic_test
-        _helper/TestHelpers.cpp
         _helper/ContentFixtures.cpp
-        _helper/SegmentFixtures.cpp
         _helper/LoremIpsum.cpp
+        _helper/SegmentFixtures.cpp
+        _helper/TestHelpers.cpp
         entities/content/ContentStoreTest.cpp
         entities/content/InstrumentAudioTest.cpp
         entities/content/InstrumentConfigTest.cpp
         entities/content/InstrumentMemeTest.cpp
         entities/content/InstrumentTest.cpp
         entities/content/LibraryTest.cpp
-        entities/content/MemeTaxonomyTest.cpp
         entities/content/ProgramConfigTest.cpp
         entities/content/ProgramMemeTest.cpp
         entities/content/ProgramSequenceBindingMemeTest.cpp
@@ -30,6 +29,9 @@ add_executable(xjmusic_test
         entities/content/TemplateBindingTest.cpp
         entities/content/TemplateConfigTest.cpp
         entities/content/TemplateTest.cpp
+        entities/meme/MemeIsometryTest.cpp
+        entities/meme/MemeStackTest.cpp
+        entities/meme/MemeTaxonomyTest.cpp
         entities/music/AccidentalTest.cpp
         entities/music/BPMTest.cpp
         entities/music/BarTest.cpp

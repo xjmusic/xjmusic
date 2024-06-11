@@ -9,8 +9,11 @@
 #include <variant>
 
 #include "xjmusic/util/StringUtils.h"
+#include "MemeConstellation.h"
 
 namespace XJ {
+
+  using MapStringToOneOrManyString = std::map<std::string, std::variant<std::string, std::set<std::string>>>;
 
   /**
    * One category of memes in the taxonomy
@@ -18,15 +21,15 @@ namespace XJ {
   class MemeCategory {
   private:
     std::string name;
-    std::vector<std::string> memes;
+    std::set<std::string> memes;
     static std::regex rgx;
     static std::string MEME_SEPARATOR;
     static std::string KEY_NAME;
     static std::string KEY_MEMES;
     static std::string DEFAULT_CATEGORY_NAME;
 
-    static std::vector<std::string>
-    parseMemeList(std::map<std::string, std::variant<std::string, std::vector<std::string>>> &data);
+    static std::set<std::string>
+    parseMemeList(const MapStringToOneOrManyString &data);
 
   public:
     MemeCategory() = default;
@@ -41,38 +44,48 @@ namespace XJ {
      * Construct a category from a map like {name: "CATEGORY", memes: ["MEME1", "MEME2"]}
      * @param data  The map
      */
-    explicit MemeCategory(std::map<std::string, std::variant<std::string, std::vector<std::string>>> &data);
+    explicit MemeCategory(const MapStringToOneOrManyString &data);
+
+    /**
+     * Compare two categories by name
+     * @param lhs  The left-hand side category
+     * @param rhs  The right-hand side category
+     * @return   True if the left-hand side category is less than the right-hand side category
+     */
+    friend bool operator<(const MemeCategory& lhs, const MemeCategory& rhs) {
+      return lhs.name < rhs.name;
+    }
 
     /**
      * Get the name of the category
      * @return  The name of the category
      */
-    std::string getName();
+    [[nodiscard]] std::string getName() const;
 
     /**
      * Get the list of memes
      * @return  The list of memes
      */
-    std::vector<std::string> getMemes();
+    std::set<std::string> getMemes();
 
     /**
      * Whether a list of memes is allowed because no more than one matches the category's memes
      * @param targets  The list of memes to check
      * @return         True if the list is allowed
      */
-    bool isAllowed(std::vector<std::string> &targets) const;
+    bool isAllowed(std::set<std::string> &targets) const;
 
     /**
      * Whether the category has memes
      * @return  True if the category has memes
      */
-    bool hasMemes();
+    [[nodiscard]] bool hasMemes() const;
 
     /**
      * Convert the category to a map like {name: "CATEGORY", memes: ["MEME1", "MEME2"]}
      * @return  The map
      */
-    [[nodiscard]] std::map<std::string, std::variant<std::string, std::vector<std::string>>> toMap() const;
+    [[nodiscard]] MapStringToOneOrManyString toMap() const;
 
     /**
      * Convert the category to a string like "CATEGORY[MEME1, MEME2]"
@@ -98,7 +111,7 @@ namespace XJ {
    */
   class MemeTaxonomy {
   private:
-    std::vector<MemeCategory> categories;
+    std::set<MemeCategory> categories;
     static char CATEGORY_SEPARATOR;
 
   public:
@@ -114,8 +127,29 @@ namespace XJ {
      * Construct a taxonomy from a list of maps like [{name: "CATEGORY1", memes: ["MEME1", "MEME2"]}, {name: "CATEGORY2", memes: ["MEME3", "MEME4"]}]
      * @param data  The list of maps
      */
-    explicit MemeTaxonomy(
-        std::vector<std::map<std::string, std::variant<std::string, std::vector<std::string>>>> &data);
+    explicit MemeTaxonomy(std::set<MapStringToOneOrManyString> &data);
+
+    /**
+     * Construct an empty taxonomy
+     */
+    static MemeTaxonomy empty();
+
+    /**
+     * Construct a taxonomy from a set of maps like [{name: "CATEGORY1", memes: ["MEME1", "MEME2"]}, {name: "CATEGORY2", memes: ["MEME3", "MEME4"]}]
+     * @param data  The set of maps
+     */
+    static MemeTaxonomy fromSet(std::set<MapStringToOneOrManyString> &data);
+
+    /**
+     * Construct a taxonomy from a list of maps like [{name: "CATEGORY1", memes: ["MEME1", "MEME2"]}, {name: "CATEGORY2", memes: ["MEME3", "MEME4"]}]
+     * @param list  The list of maps
+     */
+    static MemeTaxonomy fromList(const std::vector<std::map<std::string, std::variant<std::string, std::vector<std::string>>>>& list);
+
+    /**
+     * Construct an empty taxonomy
+     */
+    static MemeTaxonomy fromString(const std::string &raw);
 
     /**
      * Convert the taxonomy to a string like "CATEGORY1[MEME1, MEME2],CATEGORY2[MEME3, MEME4]"
@@ -127,20 +161,20 @@ namespace XJ {
      * Convert the taxonomy to a list of maps like [{name: "CATEGORY1", memes: ["MEME1", "MEME2"]}, {name: "CATEGORY2", memes: ["MEME3", "MEME4"]}]
      * @return  The list of maps
      */
-    std::vector<std::map<std::string, std::variant<std::string, std::vector<std::string>>>> toList();
+    std::set<MapStringToOneOrManyString> toList();
 
     /**
      * Get the categories
      * @return  The categories
      */
-    std::vector<MemeCategory> getCategories();
+    std::set<MemeCategory> getCategories();
 
     /**
      * Whether a list of memes is allowed because they are allowed by all taxonomy categories
      * @param memes  The list of memes to check
      * @return       True if the list is allowed
      */
-    bool isAllowed(std::vector<std::string> memes);
+    bool isAllowed(std::set<std::string> memes);
   };
 
 }// namespace XJ

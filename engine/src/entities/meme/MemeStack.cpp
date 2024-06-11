@@ -55,10 +55,9 @@ bool MemeStack::isAllowed(const std::set<std::string> &sources, const std::set<s
   }
 
   // meme categories
-  std::vector<std::string> allMemes;
-  allMemes.reserve(sources.size() + targets.size());
-  allMemes.insert(allMemes.end(), sources.begin(), sources.end());
-  allMemes.insert(allMemes.end(), targets.begin(), targets.end());
+  std::set<std::string> allMemes;
+  allMemes.insert(sources.begin(), sources.end());
+  allMemes.insert(targets.begin(), targets.end());
   return taxonomy.isAllowed(allMemes);
 }
 
@@ -78,7 +77,8 @@ bool MemeStack::isValid() {
   }
 
   // meme categories https://github.com/xjmusic/workstation/issues/209
-  return taxonomy.isAllowed(targets);
+  std::set<std::string> targetSet(memes.begin(), memes.end());
+  return taxonomy.isAllowed(targetSet);
 }
 
 std::string MemeStack::getConstellation() {

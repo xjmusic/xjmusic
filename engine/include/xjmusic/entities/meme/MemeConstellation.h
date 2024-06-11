@@ -3,14 +3,16 @@
 #ifndef XJ_MUSIC_ENTITIES_MEME_CONSTELLATION_H
 #define XJ_MUSIC_ENTITIES_MEME_CONSTELLATION_H
 
-#include <string>
-#include <vector>
-#include <unordered_map>
+#include <algorithm>
+#include <iterator>
+#include <map>
+#include <ostream>
 #include <set>
 #include <sstream>
-#include <algorithm>
-#include <ostream>
-#include <iterator>
+#include <string>
+#include <unordered_map>
+#include <variant>
+#include <vector>
 
 namespace XJ {
 
@@ -26,15 +28,13 @@ namespace XJ {
 
     static std::string fromNames(const std::set<std::string> &names);
 
-    static std::vector<std::string> toNames(const std::string& constellation);
+    static std::set<std::string> toNames(const std::string& constellation);
 
   private:
     static std::string join(const std::string &delimiter, const std::set<std::string> &pieces);
 
-    static std::vector<std::string> split(const std::string &str, const std::string &delimiter);
+    static std::set<std::string> split(const std::string &str, const std::string &delimiter);
   };
-
-  const std::string MemeConstellation::CONSTELLATION_DELIMITER = "_";
 }
 
 #endif//XJ_MUSIC_ENTITIES_MEME_CONSTELLATION_H

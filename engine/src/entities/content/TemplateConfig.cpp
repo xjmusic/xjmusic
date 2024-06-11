@@ -73,11 +73,11 @@ namespace XJ {
               mainProgramLengthMaxDelta = 280
               memeTaxonomy = [
                   {
-                    memes = ["RED","GREEN","BLUE"]
+                    memes = ["BLUE","GREEN","RED"]
                     name = "COLOR"
                   },
                   {
-                    memes = ["WINTER","SPRING","SUMMER","FALL"]
+                    memes = ["FALL","SPRING","SUMMER","WINTER"]
                     name = "SEASON"
                   }
                 ]
@@ -171,12 +171,24 @@ namespace XJ {
 
   std::string TemplateConfig::formatMemeTaxonomy(MemeTaxonomy taxonomy) {
     std::ostringstream oss;
+    std::vector<MemeCategory> sortedCategories;
+    sortedCategories.reserve(taxonomy.getCategories().size());
+    for (auto& category : taxonomy.getCategories()) {
+      sortedCategories.push_back(category);
+    }
+    std::sort(sortedCategories.begin(), sortedCategories.end());
     oss << "[\n";
-    for (int i = 0; i < taxonomy.getCategories().size(); i++) {
+    for (int i = 0; i < sortedCategories.size(); i++) {
+      std::vector<std::string> sortedMemes;
+      sortedMemes.reserve(sortedCategories.at(i).getMemes().size());
+      for (const auto &meme: sortedCategories.at(i).getMemes()) {
+        sortedMemes.push_back(meme);
+      }
+      std::sort(sortedMemes.begin(), sortedMemes.end());
       oss << "    {\n";
-      oss << "      memes = " << format(taxonomy.getCategories().at(i).getMemes()) << "\n";
-      oss << "      name = " << format(taxonomy.getCategories().at(i).getName()) << "\n";
-      oss << ((i < taxonomy.getCategories().size() - 1) ? "    },\n" : "    }\n");
+      oss << "      memes = " << format(sortedMemes) << "\n";
+      oss << "      name = " << format(sortedCategories.at(i).getName()) << "\n";
+      oss << ((i < sortedCategories.size() - 1) ? "    },\n" : "    }\n");
     }
     oss << "  ]";
     return oss.str();
@@ -212,8 +224,8 @@ namespace XJ {
     intensityLayers = parseInstrumentTypeIntMap(getObjectValue("intensityLayers"));
     intensityThreshold = parseInstrumentTypeFloatMap(getObjectValue("intensityThreshold"));
     mainProgramLengthMaxDelta = getSingleValue("mainProgramLengthMaxDelta").getInt();
-    auto listOfMapsOfStrings = getListValue("memeTaxonomy").asListOfMapsOfStrings();
-    memeTaxonomy = MemeTaxonomy(listOfMapsOfStrings);
+    auto setOfMapsOfStrings = getListValue("memeTaxonomy").asListOfMapsOfStrings();
+    memeTaxonomy = MemeTaxonomy::fromList(setOfMapsOfStrings);
     mixerCompressAheadSeconds = getSingleValue("mixerCompressAheadSeconds").getFloat();
     mixerCompressDecaySeconds = getSingleValue("mixerCompressDecaySeconds").getFloat();
     mixerCompressRatioMax = getSingleValue("mixerCompressRatioMax").getFloat();

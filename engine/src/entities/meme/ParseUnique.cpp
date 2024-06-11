@@ -6,29 +6,29 @@ using namespace XJ;
 
 ParseUnique::ParseUnique(const std::string &raw) {
   std::smatch matcher;
-  isValid = std::regex_search(raw, matcher, rgx);
+  valid = std::regex_search(raw, matcher, rgx);
 
-  if (!isValid) {
+  if (!valid) {
     body = "";
-    isValid = false;
+    valid = false;
     return;
   }
 
   body = matcher[1].str();
   if (body.empty()) {
-    isValid = false;
+    valid = false;
     return;
   }
 
-  isValid = true;
+  valid = true;
 }
 
 ParseUnique ParseUnique::fromString(const std::string &raw) {
   return ParseUnique(raw);
 }
 
-bool ParseUnique::isViolatedBy(const ParseUnique &target) {
-  return isValid && target.isValid && body == target.body;
+bool ParseUnique::isViolatedBy(const ParseUnique &target) const {
+  return valid && target.valid && body == target.body;
 }
 
 bool ParseUnique::isAllowed(const std::vector<ParseUnique> &memes) {
@@ -36,3 +36,5 @@ bool ParseUnique::isAllowed(const std::vector<ParseUnique> &memes) {
     return !isViolatedBy(meme);
   });
 }
+
+const std::regex ParseUnique::rgx("^\\$(.+)$");
