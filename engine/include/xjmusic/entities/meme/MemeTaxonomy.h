@@ -1,8 +1,8 @@
 
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#ifndef XJMUSIC_MEME_TAXONOMY_H
-#define XJMUSIC_MEME_TAXONOMY_H
+#ifndef XJMUSIC_ENTITIES_MEME_TAXONOMY_H
+#define XJMUSIC_ENTITIES_MEME_TAXONOMY_H
 
 #include <map>
 #include <string>
@@ -145,4 +145,4 @@ namespace XJ {
 
 }// namespace XJ
 
-#endif//XJMUSIC_MEME_TAXONOMY_H
+#endif//XJMUSIC_ENTITIES_MEME_TAXONOMY_H

@@ -1,13 +1,73 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 #include <sstream>
-#include <regex>
 #include <unordered_set>
 
 #include "xjmusic/entities/meme/MemeIsometry.h"
 
-namespace XJ {
+using namespace XJ;
 
-  const std::string MemeIsometry::KEY_NAME = "name";
+MemeIsometry::MemeIsometry(MemeTaxonomy taxonomy, const std::set<std::string> &sourceMemes)
+    : stack(std::move(taxonomy), sourceMemes) {
+  for (const std::string &meme: sourceMemes) add(StringUtils::toMeme(meme));
+}
 
-}// namespace XJ
+MemeIsometry MemeIsometry::of(MemeTaxonomy taxonomy, const std::set<std::string> &sourceMemes) {
+  return MemeIsometry(std::move(taxonomy), sourceMemes);
+}
+
+MemeIsometry MemeIsometry::none() {
+  return MemeIsometry(MemeTaxonomy(), std::set<std::string>());
+}
+
+int MemeIsometry::score(const std::set<std::string> &targets) {
+  if (!isAllowed(targets)) return 0;
+
+  int sum = 0;
+  for (const auto &target: targets) {
+    std::string targetMeme = StringUtils::toMeme(target);
+    for (const auto &source: sources) {
+      if (source == targetMeme) {
+        sum += 1;
+      }
+    }
+  }
+
+  return sum;
+}
+
+void MemeIsometry::add(const std::string &meme) {
+  sources.insert(StringUtils::toMeme(meme));
+}
+
+void MemeIsometry::add(const ProgramMeme &meme) {
+  add(meme.name);
+}
+
+void MemeIsometry::add(const ProgramSequenceBindingMeme &meme) {
+  add(meme.name);
+}
+
+void MemeIsometry::add(const InstrumentMeme &meme) {
+  add(meme.name);
+}
+
+void MemeIsometry::add(const SegmentMeme &meme) {
+  add(meme.name);
+}
+
+bool MemeIsometry::isAllowed(const std::set<std::string> &memes) {
+  return stack.isAllowed(memes);
+}
+
+std::set<std::string> MemeIsometry::getSources() {
+  return sources;
+}
+
+std::string MemeIsometry::getConstellation() {
+  return MemeConstellation::fromNames(sources);
+}
+
+
+const std::string MemeIsometry::KEY_NAME = "name";
+
