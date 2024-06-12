@@ -16,7 +16,7 @@ namespace XJ {
     SegmentChoiceArrangement() = default;
 
     UUID id;
-    int segmentId;
+    int segmentId{};
     UUID segmentChoiceId;
     UUID programSequencePatternId;
 
@@ -32,6 +32,17 @@ namespace XJ {
      * @return       hash code
      */
     [[nodiscard]] unsigned long long hashCode() const;
+
+    /**
+     * Compare two Segment Choice Arrangements
+     * @param lhs segment choice arrangement
+     * @param rhs segment choice arrangement
+     * @return true if lhs < rhs
+     */
+    friend bool operator<(const SegmentChoiceArrangement &lhs, const SegmentChoiceArrangement &rhs) {
+      return lhs.id < rhs.id;
+    }
+
   };
 
 }// namespace XJ

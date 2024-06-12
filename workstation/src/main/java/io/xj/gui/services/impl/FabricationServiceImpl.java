@@ -374,17 +374,17 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public Collection<SegmentMeme> getSegmentMemes(Segment segment) {
-    return fabricationManager.getEntityStore().readManySubEntitiesOfType(segment.getId(), SegmentMeme.class);
+    return fabricationManager.getEntityStore().readAll(segment.getId(), SegmentMeme.class);
   }
 
   @Override
   public Collection<SegmentChord> getSegmentChords(Segment segment) {
-    return fabricationManager.getEntityStore().readManySubEntitiesOfType(segment.getId(), SegmentChord.class);
+    return fabricationManager.getEntityStore().readAll(segment.getId(), SegmentChord.class);
   }
 
   @Override
   public Collection<SegmentChoice> getSegmentChoices(Segment segment) {
-    return fabricationManager.getEntityStore().readManySubEntitiesOfType(segment.getId(), SegmentChoice.class);
+    return fabricationManager.getEntityStore().readAll(segment.getId(), SegmentChoice.class);
   }
 
   @Override
@@ -419,24 +419,24 @@ public class FabricationServiceImpl implements FabricationService {
 
   @Override
   public Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice choice) {
-    return fabricationManager.getEntityStore().readManySubEntitiesOfType(choice.getSegmentId(), SegmentChoiceArrangement.class)
+    return fabricationManager.getEntityStore().readAll(choice.getSegmentId(), SegmentChoiceArrangement.class)
       .stream().filter(arrangement -> arrangement.getSegmentChoiceId().equals(choice.getId())).toList();
   }
 
   @Override
   public Collection<SegmentChoiceArrangementPick> getPicks(SegmentChoiceArrangement arrangement) {
-    return fabricationManager.getEntityStore().readManySubEntitiesOfType(arrangement.getSegmentId(), SegmentChoiceArrangementPick.class)
+    return fabricationManager.getEntityStore().readAll(arrangement.getSegmentId(), SegmentChoiceArrangementPick.class)
       .stream().filter(pick -> pick.getSegmentChoiceArrangementId().equals(arrangement.getId())).toList();
   }
 
   @Override
   public Collection<SegmentMessage> getSegmentMessages(Segment segment) {
-    return fabricationManager.getEntityStore().readManySubEntitiesOfType(segment.getId(), SegmentMessage.class);
+    return fabricationManager.getEntityStore().readAll(segment.getId(), SegmentMessage.class);
   }
 
   @Override
   public Collection<SegmentMeta> getSegmentMetas(Segment segment) {
-    return fabricationManager.getEntityStore().readManySubEntitiesOfType(segment.getId(), SegmentMeta.class);
+    return fabricationManager.getEntityStore().readAll(segment.getId(), SegmentMeta.class);
   }
 
   @Override

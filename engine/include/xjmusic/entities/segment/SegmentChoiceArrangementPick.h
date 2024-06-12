@@ -15,14 +15,14 @@ namespace XJ {
     SegmentChoiceArrangementPick() = default;
 
     UUID id;
-    int segmentId;
+    int segmentId{};
     UUID segmentChoiceArrangementId;
     UUID segmentChordVoicingId;
     UUID instrumentAudioId;
     UUID programSequencePatternEventId;
-    long startAtSegmentMicros;
-    long lengthMicros;
-    float amplitude;
+    long startAtSegmentMicros{};
+    long lengthMicros{};
+    float amplitude{};
     std::string tones;
     std::string event;
 
@@ -38,6 +38,17 @@ namespace XJ {
      * @return       hash code
      */
     [[nodiscard]] unsigned long long hashCode() const;
+
+    /**
+     * Compare two Segment Choice Arrangement Picks
+     * @param lhs segment choice arrangement pick
+     * @param rhs segment choice arrangement pick
+     * @return true if lhs < rhs
+     */
+    friend bool operator<(const SegmentChoiceArrangementPick &lhs, const SegmentChoiceArrangementPick &rhs) {
+      return lhs.id < rhs.id;
+    }
+
   };
 
 }// namespace XJ

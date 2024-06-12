@@ -185,8 +185,8 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
   SegmentChoice segmentChoice;
   segmentChoice.id = TestHelpers::randomUUID();
   segmentChoice.segmentId = segment.id;
-  segmentChoice.deltaIn = Segment::DELTA_UNLIMITED;
-  segmentChoice.deltaOut = Segment::DELTA_UNLIMITED;
+  segmentChoice.deltaIn = SegmentChoice::DELTA_UNLIMITED;
+  segmentChoice.deltaOut = SegmentChoice::DELTA_UNLIMITED;
   segmentChoice.programId = programSequenceBinding.programId;
   segmentChoice.programSequenceBindingId = programSequenceBinding.id;
   segmentChoice.programType = programType;
@@ -200,8 +200,8 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
   SegmentChoice segmentChoice;
   segmentChoice.id = TestHelpers::randomUUID();
   segmentChoice.segmentId = segment.id;
-  segmentChoice.deltaIn = Segment::DELTA_UNLIMITED;
-  segmentChoice.deltaOut = Segment::DELTA_UNLIMITED;
+  segmentChoice.deltaIn = SegmentChoice::DELTA_UNLIMITED;
+  segmentChoice.deltaOut = SegmentChoice::DELTA_UNLIMITED;
   segmentChoice.programId = programSequence.programId;
   segmentChoice.programSequenceId = programSequence.id;
   segmentChoice.programType = programType;
@@ -234,8 +234,8 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
   SegmentChoice segmentChoice;
   segmentChoice.id = TestHelpers::randomUUID();
   segmentChoice.segmentId = segment.id;
-  segmentChoice.deltaIn = Segment::DELTA_UNLIMITED;
-  segmentChoice.deltaOut = Segment::DELTA_UNLIMITED;
+  segmentChoice.deltaIn = SegmentChoice::DELTA_UNLIMITED;
+  segmentChoice.deltaOut = SegmentChoice::DELTA_UNLIMITED;
   segmentChoice.programId = program.id;
   segmentChoice.programType = program.type;
   return segmentChoice;
@@ -247,8 +247,8 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
   SegmentChoice segmentChoice;
   segmentChoice.id = TestHelpers::randomUUID();
   segmentChoice.segmentId = segment.id;
-  segmentChoice.deltaIn = Segment::DELTA_UNLIMITED;
-  segmentChoice.deltaOut = Segment::DELTA_UNLIMITED;
+  segmentChoice.deltaIn = SegmentChoice::DELTA_UNLIMITED;
+  segmentChoice.deltaOut = SegmentChoice::DELTA_UNLIMITED;
   segmentChoice.instrumentId = instrument.id;
   segmentChoice.instrumentType = instrument.type;
   return segmentChoice;
@@ -280,8 +280,8 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
   segmentChoice.instrumentType = instrument.type;
   segmentChoice.mute = false;
   segmentChoice.instrumentMode = instrument.mode;
-  segmentChoice.deltaIn = Segment::DELTA_UNLIMITED;
-  segmentChoice.deltaOut = Segment::DELTA_UNLIMITED;
+  segmentChoice.deltaIn = SegmentChoice::DELTA_UNLIMITED;
+  segmentChoice.deltaOut = SegmentChoice::DELTA_UNLIMITED;
   segmentChoice.segmentId = segment.id;
   segmentChoice.programId = program.id;
   segmentChoice.programSequenceId = programSequence.id;

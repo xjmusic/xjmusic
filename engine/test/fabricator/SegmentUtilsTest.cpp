@@ -107,14 +107,14 @@ protected:
 TEST_F(SegmentUtilsTest, FindFirstOfType) {
   SegmentChoice ch0;
   ch0.id = TestHelpers::randomUUID();
-  ch0.deltaIn = Segment::DELTA_UNLIMITED;
-  ch0.deltaOut = Segment::DELTA_UNLIMITED;
+  ch0.deltaIn = SegmentChoice::DELTA_UNLIMITED;
+  ch0.deltaOut = SegmentChoice::DELTA_UNLIMITED;
   ch0.programType = Program::Type::Main;
 
   SegmentChoice ch1;
   ch1.id = TestHelpers::randomUUID();
-  ch1.deltaIn = Segment::DELTA_UNLIMITED;
-  ch1.deltaOut = Segment::DELTA_UNLIMITED;
+  ch1.deltaIn = SegmentChoice::DELTA_UNLIMITED;
+  ch1.deltaOut = SegmentChoice::DELTA_UNLIMITED;
   ch1.programType = Program::Type::Macro;
 
   std::vector<SegmentChoice> choices = {ch0, ch1};

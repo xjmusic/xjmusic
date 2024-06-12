@@ -100,8 +100,8 @@ public class FabricatorImplTest {
     store.put(SegmentFixtures.buildSegment(chain, 1, Segment::State.CRAFTED, "F major", 8, 0.6f, 120.0f, "seg123"));
     segment = store.put(SegmentFixtures.buildSegment(chain, 2, Segment::State.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
     store.put(SegmentFixtures.buildSegmentChord(segment, 0.0f, "A"));
-    store.put(SegmentFixtures.buildSegmentChoice(segment, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, fake.program5));
-    SegmentChoice beatChoice = store.put(buildSegmentChoice(segment, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, fake.program35, fake.program35_voice0, fake.instrument8));
+    store.put(SegmentFixtures.buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program5));
+    SegmentChoice beatChoice = store.put(buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program35, fake.program35_voice0, fake.instrument8));
     SegmentChoiceArrangement beatArrangement = store.put(SegmentFixtures.buildSegmentChoiceArrangement(beatChoice));
     store.put(new SegmentChoiceArrangementPick().id(randomUUID()).segmentId(beatArrangement.segmentId).segmentChoiceArrangementId(beatArrangement.id).programSequencePatternEventId(fake.program35_sequence0_pattern0_event0.id).instrumentAudioId(fake.instrument8_audio8kick.id).event("CLANG").startAtSegmentMicros((long) (0.273 * MICROS_PER_SECOND)).lengthMicros((long) (1.571 * MICROS_PER_SECOND)).amplitude(0.8f).tones("A4"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
@@ -125,7 +125,7 @@ public class FabricatorImplTest {
     )).collect(Collectors.toList()));
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type.PRODUCTION, Chain::State.FABRICATE));
     segment = store.put(SegmentFixtures.buildSegment(chain, 0, Segment::State.CRAFTING, "F major", 8, 0.6f, 120.0f, "seg123"));
-    store.put(SegmentFixtures.buildSegmentChoice(segment, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, fake.program5));
+    store.put(SegmentFixtures.buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program5));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
     subject = new FabricatorImpl(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory, jsonProvider, 48000.0f, 2, null);
 
@@ -143,9 +143,9 @@ public class FabricatorImplTest {
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type.PRODUCTION, Chain::State.FABRICATE));
     Segment previousSegment = store.put(SegmentFixtures.buildSegment(chain, 1, Segment::State.CRAFTED, "F major", 8, 0.6f, 120.0f, "seg123"));
     var previousMacroChoice = // second-to-last sequence of macro program
-      store.put(buildSegmentChoice(previousSegment, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, fake.program4, fake.program4_sequence1_binding0));
+      store.put(buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program4, fake.program4_sequence1_binding0));
     var previousMainChoice = // last sequence of main program
-      store.put(buildSegmentChoice(previousSegment, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, fake.program5, fake.program5_sequence1_binding0));
+      store.put(buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program5, fake.program5_sequence1_binding0));
     segment = store.put(SegmentFixtures.buildSegment(chain, 2, Segment::State.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
     when(mockRetrospective.getPreviousChoiceOfType(Program::Type::Main)).thenReturn(Optional.of(previousMainChoice));
@@ -164,8 +164,8 @@ public class FabricatorImplTest {
     var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type.PRODUCTION, Chain::State.FABRICATE));
     Segment previousSegment = store.put(SegmentFixtures.buildSegment(chain, 1, Segment::State.CRAFTED, "F major", 8, 0.6f, 120.0f, "seg123"));
     var previousMacroChoice = // second-to-last sequence of macro program
-      store.put(buildSegmentChoice(previousSegment, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, fake.program4, fake.program4_sequence1_binding0));
-    store.put(buildSegmentChoice(previousSegment, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, fake.program5, fake.program5_sequence1_binding0));
+      store.put(buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program4, fake.program4_sequence1_binding0));
+    store.put(buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program5, fake.program5_sequence1_binding0));
     segment = store.put(SegmentFixtures.buildSegment(chain, 2, Segment::State.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
     when(mockRetrospective.getPreviousChoiceOfType(Program::Type::Macro)).thenReturn(Optional.of(previousMacroChoice));
@@ -281,8 +281,8 @@ public class FabricatorImplTest {
    */
   @Test
   public void put_addsMemesForChoice() throws FabricationException {
-    subject.put(buildSegmentChoice(segment, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, fake.program9, fake.program9_voice0, fake.instrument8), false);
-    subject.put(buildSegmentChoice(segment, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, fake.program4, fake.program4_sequence1_binding0), false);
+    subject.put(buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program9, fake.program9_voice0, fake.instrument8), false);
+    subject.put(buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program4, fake.program4_sequence1_binding0), false);
 
     var resultMemes = store.readAll(segment.id, SegmentMeme.class).stream().sorted(Comparator.comparing(SegmentMeme::getName)).toList();
     assertEquals("BASIC", (resultMemes.get(0)).name);

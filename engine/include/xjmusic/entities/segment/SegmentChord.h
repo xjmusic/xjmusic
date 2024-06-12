@@ -16,8 +16,8 @@ namespace XJ {
     SegmentChord() = default;
 
     UUID id;
-    int segmentId;
-    float position;
+    int segmentId{};
+    float position{};
     std::string name;
 
     /**
@@ -32,6 +32,16 @@ namespace XJ {
      * @return       hash code
      */
     [[nodiscard]] unsigned long long hashCode() const;
+
+    /**
+     * Compare two Segment Chords
+     * @param lhs segment chord
+     * @param rhs segment chord
+     * @return true if lhs < rhs
+     */
+    friend bool operator<(const SegmentChord &lhs, const SegmentChord &rhs) {
+      return lhs.id < rhs.id;
+    }
   };
 
 }// namespace XJ

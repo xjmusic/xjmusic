@@ -16,7 +16,7 @@ namespace XJ {
     SegmentMeme() = default;
 
     UUID id;
-    int segmentId;
+    int segmentId{};
     std::string name;
 
     /**
@@ -31,6 +31,16 @@ namespace XJ {
      * @return       hash code
      */
     [[nodiscard]] unsigned long long hashCode() const;
+
+    /**
+     * Compare two Segment Memes
+     * @param lhs segment meme
+     * @param rhs segment meme
+     * @return true if lhs < rhs
+     */
+    friend bool operator<(const SegmentMeme &lhs, const SegmentMeme &rhs) {
+      return lhs.id < rhs.id;
+    }
   };
 
 }// namespace XJ

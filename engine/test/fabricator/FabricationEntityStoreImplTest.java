@@ -260,8 +260,8 @@ public class FabricationEntityStoreImplTest {
   public void create_failsWithoutId() {
     SegmentChoice choice;
     choice.setProgramId(randomUUID());
-    choice.setDeltaIn(Segment::DELTA_UNLIMITED);
-    choice.setDeltaOut(Segment::DELTA_UNLIMITED);
+    choice.setDeltaIn(SegmentChoice::DELTA_UNLIMITED);
+    choice.setDeltaOut(SegmentChoice::DELTA_UNLIMITED);
     choice.setProgramSequenceBindingId(randomUUID());
     choice.setProgramType(Program::Type::Macro);
 
@@ -276,8 +276,8 @@ public class FabricationEntityStoreImplTest {
     SegmentChoice choice;
     choice.setId(randomUUID());
     choice.setProgramId(randomUUID());
-    choice.setDeltaIn(Segment::DELTA_UNLIMITED);
-    choice.setDeltaOut(Segment::DELTA_UNLIMITED);
+    choice.setDeltaIn(SegmentChoice::DELTA_UNLIMITED);
+    choice.setDeltaOut(SegmentChoice::DELTA_UNLIMITED);
     choice.setProgramSequenceBindingId(randomUUID());
     choice.setProgramType(Program::Type::Macro);
 
@@ -311,7 +311,7 @@ public class FabricationEntityStoreImplTest {
       120.0f,
       "chains-3-segments-9f7s89d8a7892.wav"
     ));
-    subject.put(buildSegmentChoice(chain3_segment0, Segment::DELTA_UNLIMITED, Segment::DELTA_UNLIMITED, program, programSequenceBinding));
+    subject.put(buildSegmentChoice(chain3_segment0, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, program, programSequenceBinding));
     // not in the above chain, won't be retrieved with it
     subject.put(SegmentFixtures.buildSegment(chain3,
       1,

@@ -16,7 +16,7 @@ namespace XJ {
     SegmentChordVoicing() = default;
 
     UUID id;
-    int segmentId;
+    int segmentId{};
     UUID segmentChordId;
     std::string type;
     std::string notes;
@@ -33,6 +33,17 @@ namespace XJ {
      * @return       hash code
      */
     [[nodiscard]] unsigned long long hashCode() const;
+
+    /**
+     * Compare two Segment Chord Voicings
+     * @param lhs segment chord voicing
+     * @param rhs segment chord voicing
+     * @return true if lhs < rhs
+     */
+    friend bool operator<(const SegmentChordVoicing &lhs, const SegmentChordVoicing &rhs) {
+      return lhs.id < rhs.id;
+    }
+
   };
 
 }// namespace XJ

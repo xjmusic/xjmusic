@@ -5,10 +5,19 @@
 
 #include <string>
 #include <optional>
+#include <variant>
 
 #include "nlohmann/json.hpp"
 
 #include "xjmusic/entities/Entity.h"
+#include "xjmusic/entities/segment/SegmentChoice.h"
+#include "xjmusic/entities/segment/SegmentChoiceArrangement.h"
+#include "xjmusic/entities/segment/SegmentChoiceArrangementPick.h"
+#include "xjmusic/entities/segment/SegmentChord.h"
+#include "xjmusic/entities/segment/SegmentChordVoicing.h"
+#include "xjmusic/entities/segment/SegmentMeme.h"
+#include "xjmusic/entities/segment/SegmentMessage.h"
+#include "xjmusic/entities/segment/SegmentMeta.h"
 
 using json = nlohmann::json;
 
@@ -16,7 +25,27 @@ namespace XJ {
 
   class Segment : public Entity {
   public:
-    static constexpr int DELTA_UNLIMITED = -1;
+    using SegmentEntity = std::variant<
+        SegmentChoice,
+        SegmentChoiceArrangement,
+        SegmentChoiceArrangementPick,
+        SegmentChord,
+        SegmentChordVoicing,
+        SegmentMeme,
+        SegmentMessage,
+        SegmentMeta
+    >;
+
+    enum SegmentEntityType {
+      SegmentChoice,
+      SegmentChoiceArrangement,
+      SegmentChoiceArrangementPick,
+      SegmentChord,
+      SegmentChordVoicing,
+      SegmentMeme,
+      SegmentMessage,
+      SegmentMeta,
+    };
 
     enum Type {
       Pending,
@@ -92,6 +121,17 @@ namespace XJ {
      * @return       hash code
      */
     [[nodiscard]] unsigned long long hashCode() const;
+
+    /**
+     * Compare two Segments
+     * @param lhs segment
+     * @param rhs segment
+     * @return true if lhs < rhs
+     */
+    friend bool operator<(const Segment &lhs, const Segment &rhs) {
+      return lhs.id < rhs.id;
+    }
+
   };
 
 }// namespace XJ

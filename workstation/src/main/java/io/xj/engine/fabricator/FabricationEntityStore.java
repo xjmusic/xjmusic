@@ -130,20 +130,10 @@ public interface FabricationEntityStore {
   /**
    Fetch all sub-entities records for many parent segments by id
 
-   @param segmentIds   to fetch records for.
-   @param includePicks whether to include the segment choice arrangement picks
+   @param segmentIds to fetch records for.
    @return collection of all sub entities of these parent segments, different classes that extend Entity
    */
-  <N> Collection<N> readManySubEntities(Collection<Integer> segmentIds, Boolean includePicks);
-
-  /**
-   Fetch all sub-entities records for a parent segments by id
-
-   @param segmentId for which to fetch records
-   @param <N>       type of sub-entity
-   @return collection of all sub entities of these parent segments, of the given type
-   */
-  <N> Collection<N> readManySubEntitiesOfType(int segmentId, Class<N> type);
+  <N> Collection<N> readManySubEntities(Collection<Integer> segmentIds);
 
   /**
    Fetch all sub-entities records for many parent segments by ids
@@ -152,7 +142,7 @@ public interface FabricationEntityStore {
    @param <N>        type of sub-entity
    @return collection of all sub entities of these parent segments, of the given type
    */
-  <N> Collection<N> readManySubEntitiesOfType(Collection<Integer> segmentIds, Class<N> type);
+  <N> Collection<N> readAll(Collection<Integer> segmentIds, Class<N> type);
 
   /**
    Read a choice for a given segment id and program type
@@ -188,15 +178,6 @@ public interface FabricationEntityStore {
    @param id        to delete
    */
   <N> void delete(int segmentId, Class<N> type, UUID id);
-
-  /**
-   Delete all entities for a Segment of a given type
-
-   @param <N>       type of entities
-   @param segmentId partition (segment id) of entity
-   @param type      of class to delete
-   */
-  <N> void clear(Integer segmentId, Class<N> type) throws FabricationException;
 
   /**
    Delete all records in the store (e.g. during integration testing)

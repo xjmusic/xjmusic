@@ -16,7 +16,7 @@ namespace XJ {
     SegmentMeta() = default;
 
     UUID id;
-    int segmentId;
+    int segmentId{};
     std::string key;
     std::string value;
 
@@ -32,6 +32,17 @@ namespace XJ {
      * @return       hash code
      */
     [[nodiscard]] unsigned long long hashCode() const;
+
+    /**
+     * Compare two Segment Metas
+     * @param lhs segment meta
+     * @param rhs segment meta
+     * @return true if lhs < rhs
+     */
+    friend bool operator<(const SegmentMeta &lhs, const SegmentMeta &rhs) {
+      return lhs.id < rhs.id;
+    }
+    
   };
 
 }// namespace XJ

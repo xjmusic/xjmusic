@@ -23,8 +23,8 @@ namespace XJ {
     SegmentMessage() = default;
     
     UUID id;
-    int segmentId;
-    SegmentMessage::Type type;
+    int segmentId{};
+    SegmentMessage::Type type{};
     std::string body;
     
     /**
@@ -53,6 +53,16 @@ namespace XJ {
      * @return       hash code
      */
     [[nodiscard]] unsigned long long hashCode() const;
+
+    /**
+     * Compare two Segment Messages
+     * @param lhs segment message
+     * @param rhs segment message
+     * @return true if lhs < rhs
+     */
+    friend bool operator<(const SegmentMessage &lhs, const SegmentMessage &rhs) {
+      return lhs.id < rhs.id;
+    }
   };
 
 }// namespace XJ

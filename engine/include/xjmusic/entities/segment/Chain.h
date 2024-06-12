@@ -72,13 +72,23 @@ namespace XJ {
      * @param chain  The Chain to compare
      * @return       true if equal
      */
-    [[nodiscard]] bool equals(const Chain& chain) const;
+    [[nodiscard]] bool equals(const Chain &chain) const;
 
     /**
      * Determine a unique hash code for the Chain
      * @return       hash code
      */
-    unsigned long long hashCode() const;
+    [[nodiscard]] unsigned long long hashCode() const;
+
+    /**
+     * Compare two Chains
+     * @param lhs chain
+     * @param rhs chain
+     * @return true if lhs < rhs
+     */
+    friend bool operator<(const Chain &lhs, const Chain &rhs) {
+      return lhs.id < rhs.id;
+    }
   };
 
 }// namespace XJ

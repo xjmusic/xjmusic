@@ -16,21 +16,23 @@ namespace XJ {
   public:
     SegmentChoice() = default;
 
+    static constexpr int DELTA_UNLIMITED = -1;
+
     UUID id;
-    int segmentId;
-    float position;
+    int segmentId{};
+    float position{};
     std::string name;
     UUID programId;
     UUID programSequenceId;
     UUID programSequenceBindingId;
     UUID programVoiceId;
     UUID instrumentId;
-    int deltaIn;
-    int deltaOut;
-    bool mute;
-    Instrument::Type instrumentType;
-    Instrument::Mode instrumentMode;
-    Program::Type programType;
+    int deltaIn{DELTA_UNLIMITED};
+    int deltaOut{DELTA_UNLIMITED};
+    bool mute{};
+    Instrument::Type instrumentType{};
+    Instrument::Mode instrumentMode{};
+    Program::Type programType{};
 
     /**
      * Assert equality with another Segment Choice
@@ -44,6 +46,17 @@ namespace XJ {
      * @return       hash code
      */
     [[nodiscard]] unsigned long long hashCode() const;
+
+    /**
+     * Compare two Segment Choices
+     * @param lhs segment choice
+     * @param rhs segment choice
+     * @return true if lhs < rhs
+     */
+    friend bool operator<(const SegmentChoice &lhs, const SegmentChoice &rhs) {
+      return lhs.id < rhs.id;
+    }
+
   };
 
 }// namespace XJ

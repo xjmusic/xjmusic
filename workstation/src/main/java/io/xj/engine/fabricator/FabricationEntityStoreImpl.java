@@ -2,15 +2,13 @@
 
 package io.xj.engine.fabricator;
 
+import io.xj.engine.FabricationException;
 import io.xj.model.entity.EntityException;
 import io.xj.model.entity.EntityFactory;
 import io.xj.model.entity.EntityUtils;
 import io.xj.model.enums.ProgramType;
-import io.xj.model.util.CsvUtils;
-import io.xj.model.util.StringUtils;
-import io.xj.model.util.ValueException;
-import io.xj.model.util.ValueUtils;
-import io.xj.engine.FabricationException;
+import io.xj.model.enums.SegmentState;
+import io.xj.model.enums.SegmentType;
 import io.xj.model.pojos.Chain;
 import io.xj.model.pojos.Segment;
 import io.xj.model.pojos.SegmentChoice;
@@ -21,8 +19,10 @@ import io.xj.model.pojos.SegmentChordVoicing;
 import io.xj.model.pojos.SegmentMeme;
 import io.xj.model.pojos.SegmentMessage;
 import io.xj.model.pojos.SegmentMeta;
-import io.xj.model.enums.SegmentState;
-import io.xj.model.enums.SegmentType;
+import io.xj.model.util.CsvUtils;
+import io.xj.model.util.StringUtils;
+import io.xj.model.util.ValueException;
+import io.xj.model.util.ValueUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,26 +80,26 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
       id = EntityUtils.getId(entity);
     } catch (EntityException e) {
       throw new FabricationException(String.format("Can't get id of %s-type entity",
-        entity.getClass().getSimpleName()));
+          entity.getClass().getSimpleName()));
     }
 
     // fail to store entity with unset id
     if (!ValueUtils.isSet(id))
       throw new FabricationException(String.format("Can't store %s with null id",
-        entity.getClass().getSimpleName()));
+          entity.getClass().getSimpleName()));
 
     else if (entity instanceof SegmentMeme ||
-      entity instanceof SegmentChord ||
-      entity instanceof SegmentChordVoicing ||
-      entity instanceof SegmentChoice ||
-      entity instanceof SegmentMessage ||
-      entity instanceof SegmentMeta ||
-      entity instanceof SegmentChoiceArrangement ||
-      entity instanceof SegmentChoiceArrangementPick)
+        entity instanceof SegmentChord ||
+        entity instanceof SegmentChordVoicing ||
+        entity instanceof SegmentChoice ||
+        entity instanceof SegmentMessage ||
+        entity instanceof SegmentMeta ||
+        entity instanceof SegmentChoiceArrangement ||
+        entity instanceof SegmentChoiceArrangementPick)
       try {
         var segmentIdValue = EntityUtils.get(entity, SEGMENT_ID_ATTRIBUTE)
-          .orElseThrow(() -> new FabricationException(String.format("Can't store %s without Segment ID!",
-            entity.getClass().getSimpleName())));
+            .orElseThrow(() -> new FabricationException(String.format("Can't store %s without Segment ID!",
+                entity.getClass().getSimpleName())));
         int segmentId = Integer.parseInt(String.valueOf(segmentIdValue));
         if (!entities.containsKey(segmentId))
           entities.put(segmentId, new ConcurrentHashMap<>());
@@ -126,17 +126,17 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
   @Override
   public Optional<Segment> readSegmentLast() {
     return readAllSegments()
-      .stream()
-      .max(Comparator.comparing(Segment::getId));
+        .stream()
+        .max(Comparator.comparing(Segment::getId));
   }
 
   @Override
   public Optional<Segment> readSegmentAtChainMicros(long chainMicros) {
     var segments = readAllSegments()
-      .stream()
-      .filter(s -> SegmentUtils.isSpanning(s, chainMicros, chainMicros))
-      .sorted(Comparator.comparing(Segment::getId))
-      .toList();
+        .stream()
+        .filter(s -> SegmentUtils.isSpanning(s, chainMicros, chainMicros))
+        .sorted(Comparator.comparing(Segment::getId))
+        .toList();
     return segments.isEmpty() ? Optional.empty() : Optional.of(segments.get(segments.size() - 1));
   }
 
@@ -144,8 +144,8 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
   public <N> Optional<N> read(int segmentId, Class<N> type, UUID id) throws FabricationException {
     try {
       if (!entities.containsKey(segmentId)
-        || !entities.get(segmentId).containsKey(type)
-        || !entities.get(segmentId).get(type).containsKey(id)) return Optional.empty();
+          || !entities.get(segmentId).containsKey(type)
+          || !entities.get(segmentId).get(type).containsKey(id)) return Optional.empty();
       //noinspection unchecked
       return (Optional<N>) Optional.ofNullable(entities.get(segmentId).get(type).get(id));
 
@@ -157,42 +157,42 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
   @Override
   public <N> Collection<N> readAll(int segmentId, Class<N> type) {
     if (!entities.containsKey(segmentId)
-      || !entities.get(segmentId).containsKey(type))
+        || !entities.get(segmentId).containsKey(type))
       return List.of();
     //noinspection unchecked
     return (Collection<N>) entities.get(segmentId).get(type).values().stream()
-      .filter(entity -> type.equals(entity.getClass()))
-      .collect(Collectors.toList());
+        .filter(entity -> type.equals(entity.getClass()))
+        .collect(Collectors.toList());
   }
 
   @Override
   public List<Segment> readAllSegments() {
     return segments.values().stream()
-      .sorted(Comparator.comparingInt(Segment::getId))
-      .collect(Collectors.toList());
+        .sorted(Comparator.comparingInt(Segment::getId))
+        .collect(Collectors.toList());
   }
 
   @Override
   public List<Segment> readSegmentsFromToOffset(int fromOffset, int toOffset) {
     return readAllSegments()
-      .stream()
-      .filter(s -> s.getId() >= fromOffset && s.getId() <= toOffset)
-      .toList();
+        .stream()
+        .filter(s -> s.getId() >= fromOffset && s.getId() <= toOffset)
+        .toList();
   }
 
   @Override
   public List<Segment> readAllSegmentsSpanning(Long fromChainMicros, Long toChainMicros) {
     return readAllSegments()
-      .stream()
-      .filter(s -> SegmentUtils.isSpanning(s, fromChainMicros, toChainMicros))
-      .toList();
+        .stream()
+        .filter(s -> SegmentUtils.isSpanning(s, fromChainMicros, toChainMicros))
+        .toList();
   }
 
   @Override
   public int readLastSegmentId() {
     return segments.keySet().stream()
-      .max(Integer::compareTo)
-      .orElse(0);
+        .max(Integer::compareTo)
+        .orElse(0);
   }
 
   @Override
@@ -205,7 +205,7 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
   }
 
   @Override
-  public <N> Collection<N> readManySubEntities(Collection<Integer> segmentIds, Boolean includePicks) {
+  public <N> Collection<N> readManySubEntities(Collection<Integer> segmentIds) {
     Collection<Object> entities = new ArrayList<>();
     for (Integer sId : segmentIds) {
       entities.addAll(readAll(sId, SegmentChoice.class));
@@ -215,46 +215,39 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
       entities.addAll(readAll(sId, SegmentMeme.class));
       entities.addAll(readAll(sId, SegmentMessage.class));
       entities.addAll(readAll(sId, SegmentMeta.class));
-      if (includePicks)
-        entities.addAll(readAll(sId, SegmentChoiceArrangementPick.class));
     }
     //noinspection unchecked
     return (Collection<N>) entities;
   }
 
   @Override
-  public <N> Collection<N> readManySubEntitiesOfType(int segmentId, Class<N> type) {
-    return readAll(segmentId, type);
-  }
-
-  @Override
-  public <N> Collection<N> readManySubEntitiesOfType(Collection<Integer> segmentIds, Class<N> type) {
-    return segmentIds.stream().flatMap(segmentId -> readManySubEntitiesOfType(segmentId, type).stream()).toList();
+  public <N> Collection<N> readAll(Collection<Integer> segmentIds, Class<N> type) {
+    return segmentIds.stream().flatMap(segmentId -> this.readAll(segmentId, type).stream()).toList();
   }
 
   @Override
   public Optional<SegmentChoice> readChoice(int segmentId, ProgramType programType) {
     return readAll(segmentId, SegmentChoice.class)
-      .stream()
-      .filter(sc -> programType.equals(sc.getProgramType()))
-      .findAny();
+        .stream()
+        .filter(sc -> programType.equals(sc.getProgramType()))
+        .findAny();
   }
 
   @Override
   public String readChoiceHash(Segment segment) {
     return
-      readManySubEntities(Set.of(segment.getId()), false)
-        .stream()
-        .flatMap((entity) -> {
-          try {
-            return Stream.of(EntityUtils.getId(entity));
-          } catch (EntityException e) {
-            return Stream.empty();
-          }
-        })
-        .map(UUID::toString)
-        .sorted()
-        .collect(Collectors.joining("_"));
+        readManySubEntities(Set.of(segment.getId()))
+            .stream()
+            .flatMap((entity) -> {
+              try {
+                return Stream.of(EntityUtils.getId(entity));
+              } catch (EntityException e) {
+                return Stream.empty();
+              }
+            })
+            .map(UUID::toString)
+            .sorted()
+            .collect(Collectors.joining("_"));
 
   }
 
@@ -266,7 +259,7 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
 
     // fetch existing segment; further logic is based on its current state
     Segment existing = readSegment(segment.getId())
-      .orElseThrow(() -> new FabricationException("Segment #" + segment.getId() + " does not exist"));
+        .orElseThrow(() -> new FabricationException("Segment #" + segment.getId() + " does not exist"));
     if (Objects.isNull(existing)) throw new FabricationException("Segment #" + segment.getId() + " does not exist");
 
     // logic based on existing Segment State
@@ -295,17 +288,6 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
   }
 
   @Override
-  public <N> void clear(Integer segmentId, Class<N> type) {
-    for (N entity : readAll(segmentId, type)) {
-      try {
-        delete(segmentId, type, EntityUtils.getId(entity));
-      } catch (EntityException e) {
-        LOG.error("Failed to delete {} in Segment[{}]", type.getName(), segmentId, e);
-      }
-    }
-  }
-
-  @Override
   public void clear() {
     entities.clear();
     segments.clear();
@@ -316,8 +298,8 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
   @Override
   public void deleteSegmentsBefore(int lastSegmentId) {
     for (var segmentId : segments.keySet().stream()
-      .filter(segmentId -> segmentId < lastSegmentId)
-      .toList()) {
+        .filter(segmentId -> segmentId < lastSegmentId)
+        .toList()) {
       segments.remove(segmentId);
       entities.remove(segmentId);
     }
@@ -332,8 +314,8 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
   @Override
   public void deleteSegmentsAfter(int lastSegmentId) {
     for (var segmentId : segments.keySet().stream()
-      .filter(segmentId -> segmentId > lastSegmentId)
-      .toList())
+        .filter(segmentId -> segmentId > lastSegmentId)
+        .toList())
       deleteSegment(segmentId);
   }
 
@@ -358,7 +340,7 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
     switch (fromState) {
       case PLANNED -> onlyAllowSegmentStateTransitions(toState, SegmentState.PLANNED, SegmentState.CRAFTING);
       case CRAFTING ->
-        onlyAllowSegmentStateTransitions(toState, SegmentState.CRAFTING, SegmentState.CRAFTED, SegmentState.CRAFTING, SegmentState.FAILED, SegmentState.PLANNED);
+          onlyAllowSegmentStateTransitions(toState, SegmentState.CRAFTING, SegmentState.CRAFTED, SegmentState.CRAFTING, SegmentState.FAILED, SegmentState.PLANNED);
       case CRAFTED -> onlyAllowSegmentStateTransitions(toState, SegmentState.CRAFTED, SegmentState.CRAFTING);
       case FAILED -> onlyAllowSegmentStateTransitions(toState, SegmentState.FAILED);
       default -> onlyAllowSegmentStateTransitions(toState, SegmentState.PLANNED);
@@ -381,7 +363,7 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
       }
     }
     throw new FabricationException(String.format("transition to %s not in allowed (%s)",
-      toState, CsvUtils.join(allowedStateNames)));
+        toState, CsvUtils.join(allowedStateNames)));
   }
 
   /**

@@ -104,3 +104,4 @@ TEST(MemeTaxonomyTest, IsAllowed) {
 TEST(MemeTaxonomyTest, IsAllowed_alreadyPresentFromTaxonomy) {
   ASSERT_TRUE(MemeTaxonomy("CITY[ABERDEEN,NAGOYA]").isAllowed({"ABERDEEN", "ABERDEEN"}));
 }
+
