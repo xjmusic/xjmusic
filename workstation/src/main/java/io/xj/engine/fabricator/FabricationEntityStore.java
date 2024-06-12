@@ -57,25 +57,6 @@ public interface FabricationEntityStore {
   );
 
   /**
-   Get all entities by partition (segment id), type, and a belongs-to relationship from the record store
-
-   @param <N>           types of entities
-   @param <B>           types of belongs-to entities
-   @param segmentId     partition (segment id) of entity
-   @param type          of entity
-   @param belongsToType type of belongs-to entity
-   @param belongsToIds  ids of belongs-to entity
-   @return collection of given type
-   @throws FabricationException on failure to retrieve the requested key
-   */
-  <N, B> Collection<N> readAll(
-    int segmentId,
-    Class<N> type,
-    Class<B> belongsToType,
-    Collection<UUID> belongsToIds
-  ) throws FabricationException;
-
-  /**
    Get all picks for the given segments
 
    @param segments for which to get picks

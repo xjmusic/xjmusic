@@ -166,17 +166,6 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
   }
 
   @Override
-  public <N, B> Collection<N> readAll(int segmentId, Class<N> type, Class<B> belongsToType, Collection<UUID> belongsToIds) {
-    if (!entities.containsKey(segmentId)
-      || !entities.get(segmentId).containsKey(type))
-      return List.of();
-    //noinspection unchecked
-    return (Collection<N>) entities.get(segmentId).get(type).values().stream()
-      .filter(entity -> EntityUtils.isChild(entity, belongsToType, belongsToIds))
-      .collect(Collectors.toList());
-  }
-
-  @Override
   public List<Segment> readAllSegments() {
     return segments.values().stream()
       .sorted(Comparator.comparingInt(Segment::getId))
