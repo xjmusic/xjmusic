@@ -84,7 +84,7 @@ std::optional<Segment> FabricationEntityStore::readSegment(int id) {
   return std::nullopt;
 }
 
-std::optional<SegmentChoice> FabricationEntityStore::readSegmentChoice(int segmentId, const UUID& id) {
+std::optional<SegmentChoice> FabricationEntityStore::readSegmentChoice(int segmentId, const UUID &id) {
   if (segmentChoices.find(segmentId) == segmentChoices.end()) {
     return std::nullopt;
   }
@@ -94,7 +94,8 @@ std::optional<SegmentChoice> FabricationEntityStore::readSegmentChoice(int segme
   return {segmentChoices[segmentId][id]};
 }
 
-std::optional<SegmentChoiceArrangement> FabricationEntityStore::readSegmentChoiceArrangement(int segmentId, const UUID& id) {
+std::optional<SegmentChoiceArrangement>
+FabricationEntityStore::readSegmentChoiceArrangement(int segmentId, const UUID &id) {
   if (segmentChoiceArrangements.find(segmentId) == segmentChoiceArrangements.end()) {
     return std::nullopt;
   }
@@ -104,7 +105,8 @@ std::optional<SegmentChoiceArrangement> FabricationEntityStore::readSegmentChoic
   return {segmentChoiceArrangements[segmentId][id]};
 }
 
-std::optional<SegmentChoiceArrangementPick> FabricationEntityStore::readSegmentChoiceArrangementPick(int segmentId, const UUID& id) {
+std::optional<SegmentChoiceArrangementPick>
+FabricationEntityStore::readSegmentChoiceArrangementPick(int segmentId, const UUID &id) {
   if (segmentChoiceArrangementPicks.find(segmentId) == segmentChoiceArrangementPicks.end()) {
     return std::nullopt;
   }
@@ -114,7 +116,7 @@ std::optional<SegmentChoiceArrangementPick> FabricationEntityStore::readSegmentC
   return {segmentChoiceArrangementPicks[segmentId][id]};
 }
 
-std::optional<SegmentChord> FabricationEntityStore::readSegmentChord(int segmentId, const UUID& id) {
+std::optional<SegmentChord> FabricationEntityStore::readSegmentChord(int segmentId, const UUID &id) {
   if (segmentChords.find(segmentId) == segmentChords.end()) {
     return std::nullopt;
   }
@@ -124,7 +126,7 @@ std::optional<SegmentChord> FabricationEntityStore::readSegmentChord(int segment
   return {segmentChords[segmentId][id]};
 }
 
-std::optional<SegmentChordVoicing> FabricationEntityStore::readSegmentChordVoicing(int segmentId, const UUID& id) {
+std::optional<SegmentChordVoicing> FabricationEntityStore::readSegmentChordVoicing(int segmentId, const UUID &id) {
   if (segmentChordVoicings.find(segmentId) == segmentChordVoicings.end()) {
     return std::nullopt;
   }
@@ -134,7 +136,7 @@ std::optional<SegmentChordVoicing> FabricationEntityStore::readSegmentChordVoici
   return {segmentChordVoicings[segmentId][id]};
 }
 
-std::optional<SegmentMeme> FabricationEntityStore::readSegmentMeme(int segmentId, const UUID& id) {
+std::optional<SegmentMeme> FabricationEntityStore::readSegmentMeme(int segmentId, const UUID &id) {
   if (segmentMemes.find(segmentId) == segmentMemes.end()) {
     return std::nullopt;
   }
@@ -144,7 +146,7 @@ std::optional<SegmentMeme> FabricationEntityStore::readSegmentMeme(int segmentId
   return {segmentMemes[segmentId][id]};
 }
 
-std::optional<SegmentMessage> FabricationEntityStore::readSegmentMessage(int segmentId, const UUID& id) {
+std::optional<SegmentMessage> FabricationEntityStore::readSegmentMessage(int segmentId, const UUID &id) {
   if (segmentMessages.find(segmentId) == segmentMessages.end()) {
     return std::nullopt;
   }
@@ -154,7 +156,7 @@ std::optional<SegmentMessage> FabricationEntityStore::readSegmentMessage(int seg
   return {segmentMessages[segmentId][id]};
 }
 
-std::optional<SegmentMeta> FabricationEntityStore::readSegmentMeta(int segmentId, const UUID& id) {
+std::optional<SegmentMeta> FabricationEntityStore::readSegmentMeta(int segmentId, const UUID &id) {
   if (segmentMetas.find(segmentId) == segmentMetas.end()) {
     return std::nullopt;
   }
@@ -252,7 +254,7 @@ std::set<SegmentMeta> FabricationEntityStore::readAllSegmentMetas(int segmentId)
   return result;
 }
 
-std::set<SegmentChoice> FabricationEntityStore::readAllSegmentChoices(const std::set<int>& segmentIds) {
+std::set<SegmentChoice> FabricationEntityStore::readAllSegmentChoices(const std::set<int> &segmentIds) {
   std::set<SegmentChoice> result;
   for (auto &segmentId: segmentIds) {
     if (segmentChoices.find(segmentId) == segmentChoices.end()) {
@@ -265,7 +267,8 @@ std::set<SegmentChoice> FabricationEntityStore::readAllSegmentChoices(const std:
   return result;
 }
 
-std::set<SegmentChoiceArrangement> FabricationEntityStore::readAllSegmentChoiceArrangements(const std::set<int>& segmentIds) {
+std::set<SegmentChoiceArrangement>
+FabricationEntityStore::readAllSegmentChoiceArrangements(const std::set<int> &segmentIds) {
   std::set<SegmentChoiceArrangement> result;
   for (auto &segmentId: segmentIds) {
     if (segmentChoiceArrangements.find(segmentId) == segmentChoiceArrangements.end()) {
@@ -278,7 +281,8 @@ std::set<SegmentChoiceArrangement> FabricationEntityStore::readAllSegmentChoiceA
   return result;
 }
 
-std::set<SegmentChoiceArrangementPick> FabricationEntityStore::readAllSegmentChoiceArrangementPicks(const std::set<int>& segmentIds) {
+std::set<SegmentChoiceArrangementPick>
+FabricationEntityStore::readAllSegmentChoiceArrangementPicks(const std::set<int> &segmentIds) {
   std::set<SegmentChoiceArrangementPick> result;
   for (auto &segmentId: segmentIds) {
     if (segmentChoiceArrangementPicks.find(segmentId) == segmentChoiceArrangementPicks.end()) {
@@ -291,7 +295,7 @@ std::set<SegmentChoiceArrangementPick> FabricationEntityStore::readAllSegmentCho
   return result;
 }
 
-std::set<SegmentChord> FabricationEntityStore::readAllSegmentChords(const std::set<int>& segmentIds) {
+std::set<SegmentChord> FabricationEntityStore::readAllSegmentChords(const std::set<int> &segmentIds) {
   std::set<SegmentChord> result;
   for (auto &segmentId: segmentIds) {
     if (segmentChords.find(segmentId) == segmentChords.end()) {
@@ -304,7 +308,7 @@ std::set<SegmentChord> FabricationEntityStore::readAllSegmentChords(const std::s
   return result;
 }
 
-std::set<SegmentChordVoicing> FabricationEntityStore::readAllSegmentChordVoicings(const std::set<int>& segmentIds) {
+std::set<SegmentChordVoicing> FabricationEntityStore::readAllSegmentChordVoicings(const std::set<int> &segmentIds) {
   std::set<SegmentChordVoicing> result;
   for (auto &segmentId: segmentIds) {
     if (segmentChordVoicings.find(segmentId) == segmentChordVoicings.end()) {
@@ -317,7 +321,7 @@ std::set<SegmentChordVoicing> FabricationEntityStore::readAllSegmentChordVoicing
   return result;
 }
 
-std::set<SegmentMeme> FabricationEntityStore::readAllSegmentMemes(const std::set<int>& segmentIds) {
+std::set<SegmentMeme> FabricationEntityStore::readAllSegmentMemes(const std::set<int> &segmentIds) {
   std::set<SegmentMeme> result;
   for (auto &segmentId: segmentIds) {
     if (segmentMemes.find(segmentId) == segmentMemes.end()) {
@@ -330,7 +334,7 @@ std::set<SegmentMeme> FabricationEntityStore::readAllSegmentMemes(const std::set
   return result;
 }
 
-std::set<SegmentMessage> FabricationEntityStore::readAllSegmentMessages(const std::set<int>& segmentIds) {
+std::set<SegmentMessage> FabricationEntityStore::readAllSegmentMessages(const std::set<int> &segmentIds) {
   std::set<SegmentMessage> result;
   for (auto &segmentId: segmentIds) {
     if (segmentMessages.find(segmentId) == segmentMessages.end()) {
@@ -343,7 +347,7 @@ std::set<SegmentMessage> FabricationEntityStore::readAllSegmentMessages(const st
   return result;
 }
 
-std::set<SegmentMeta> FabricationEntityStore::readAllSegmentMetas(const std::set<int>& segmentIds) {
+std::set<SegmentMeta> FabricationEntityStore::readAllSegmentMetas(const std::set<int> &segmentIds) {
   std::set<SegmentMeta> result;
   for (auto &segmentId: segmentIds) {
     if (segmentMetas.find(segmentId) == segmentMetas.end()) {
@@ -420,64 +424,113 @@ std::optional<SegmentChoice> FabricationEntityStore::readChoice(int segmentId, P
   return std::nullopt;
 }
 
+std::string FabricationEntityStore::readChoiceHash(XJ::Segment segment) {
+  std::vector<Entity> entities = readManySubEntities({segment.id}, false);
+  std::vector<std::string> ids;
+
+  for (const auto& entity : entities) {
+    try {
+      ids.push_back(EntityUtils::getId(entity).toString());
+    } catch (const EntityException& e) {
+      // Ignore the exception and continue with the next entity
+    }
+  }
+
+  std::sort(ids.begin(), ids.end());
+
+  std::string result;
+  for (const auto& id : ids) {
+    if (!result.empty()) {
+      result += "_";
+    }
+    result += id;
+  }
+
+  return result;
+}
+
+
+int FabricationEntityStore::getSegmentCount() {
+  return segments.size();
+}
+
+bool FabricationEntityStore::isEmpty() {
+  return segments.empty();
+}
+
+void FabricationEntityStore::updateSegment(const Segment &segment) {
+  if (segments.find(segment.id) == segments.end()) {
+    return;
+  }
+  segments[segment.id] = segment;
+}
+
 void FabricationEntityStore::deleteChain() {
   chain = std::nullopt;
 }
 
 void FabricationEntityStore::deleteSegment(int id) {
   segments.erase(id);
+  segmentChoices.erase(id);
+  segmentChoiceArrangements.erase(id);
+  segmentChoiceArrangementPicks.erase(id);
+  segmentChords.erase(id);
+  segmentChordVoicings.erase(id);
+  segmentMemes.erase(id);
+  segmentMessages.erase(id);
+  segmentMetas.erase(id);
 }
 
-void FabricationEntityStore::deleteSegmentChoice(int segmentId, UUID id) {
+void FabricationEntityStore::deleteSegmentChoice(int segmentId, const UUID &id) {
   if (segmentChoices.find(segmentId) == segmentChoices.end()) {
     return;
   }
   segmentChoices[segmentId].erase(id);
 }
 
-void FabricationEntityStore::deleteSegmentChoiceArrangement(int segmentId, UUID id) {
+void FabricationEntityStore::deleteSegmentChoiceArrangement(int segmentId, const UUID &id) {
   if (segmentChoiceArrangements.find(segmentId) == segmentChoiceArrangements.end()) {
     return;
   }
   segmentChoiceArrangements[segmentId].erase(id);
 }
 
-void FabricationEntityStore::deleteSegmentChoiceArrangementPick(int segmentId, UUID id) {
+void FabricationEntityStore::deleteSegmentChoiceArrangementPick(int segmentId, const UUID &id) {
   if (segmentChoiceArrangementPicks.find(segmentId) == segmentChoiceArrangementPicks.end()) {
     return;
   }
   segmentChoiceArrangementPicks[segmentId].erase(id);
 }
 
-void FabricationEntityStore::deleteSegmentChord(int segmentId, UUID id) {
+void FabricationEntityStore::deleteSegmentChord(int segmentId, const UUID &id) {
   if (segmentChords.find(segmentId) == segmentChords.end()) {
     return;
   }
   segmentChords[segmentId].erase(id);
 }
 
-void FabricationEntityStore::deleteSegmentChordVoicing(int segmentId, UUID id) {
+void FabricationEntityStore::deleteSegmentChordVoicing(int segmentId, const UUID &id) {
   if (segmentChordVoicings.find(segmentId) == segmentChordVoicings.end()) {
     return;
   }
   segmentChordVoicings[segmentId].erase(id);
 }
 
-void FabricationEntityStore::deleteSegmentMeme(int segmentId, UUID id) {
+void FabricationEntityStore::deleteSegmentMeme(int segmentId, const UUID &id) {
   if (segmentMemes.find(segmentId) == segmentMemes.end()) {
     return;
   }
   segmentMemes[segmentId].erase(id);
 }
 
-void FabricationEntityStore::deleteSegmentMessage(int segmentId, UUID id) {
+void FabricationEntityStore::deleteSegmentMessage(int segmentId, const UUID &id) {
   if (segmentMessages.find(segmentId) == segmentMessages.end()) {
     return;
   }
   segmentMessages[segmentId].erase(id);
 }
 
-void FabricationEntityStore::deleteSegmentMeta(int segmentId, UUID id) {
+void FabricationEntityStore::deleteSegmentMeta(int segmentId, const UUID &id) {
   if (segmentMetas.find(segmentId) == segmentMetas.end()) {
     return;
   }
@@ -695,7 +748,6 @@ void FabricationEntityStore::deleteSegmentMeta(int segmentId, UUID id) {
         .map(UUID::toString)
         .sorted()
         .collect(Collectors.joining("_"));
-
   }
 
   @Override
@@ -841,4 +893,36 @@ void FabricationEntityStore::validate(SegmentMeme entity) {
 void FabricationEntityStore::validate(Segment entity) {
   entity.updatedAt = Entity::currentTimeMillis();
 }
+
+void FabricationEntityStore::deleteSegmentsBefore(int lastSegmentId) {
+  for (auto &segment: segments) {
+    if (segment.first < lastSegmentId) {
+      deleteSegment(segment.first);
+    }
+  }
+}
+
+void FabricationEntityStore::deleteSegmentsAfter(int lastSegmentId) {
+  for (auto &segment: segments) {
+    if (segment.first > lastSegmentId) {
+      deleteSegment(segment.first);
+    }
+  }
+}
+
+void FabricationEntityStore::clear() {
+  segments.clear();
+  segmentChoices.clear();
+  segmentChoiceArrangements.clear();
+  segmentChoiceArrangementPicks.clear();
+  segmentChords.clear();
+  segmentChordVoicings.clear();
+  segmentMemes.clear();
+  segmentMessages.clear();
+  segmentMetas.clear();
+  chain = std::nullopt;
+}
+
+
+
 

@@ -309,14 +309,13 @@ namespace XJ {
      */
     bool isEmpty();
 
-
     /**
      Update a specified Entity
 
      @param segment for the updated Entity.
      @throws FabricationException on failure
      */
-    void updateSegment(Segment segment);
+    void updateSegment(const Segment& segment);
 
     /**
      * Read a Chain by #
@@ -334,49 +333,49 @@ namespace XJ {
      * Read a SegmentChoice by UUID in the given Segment #
      * @returns requested SegmentChoice
      */
-    void deleteSegmentChoice(int segmentId, UUID id);
+    void deleteSegmentChoice(int segmentId, const UUID& id);
 
     /**
      * Read a SegmentChoiceArrangement by UUID in the given Segment #
      * @returns requested SegmentChoiceArrangement
      */
-    void deleteSegmentChoiceArrangement(int segmentId, UUID id);
+    void deleteSegmentChoiceArrangement(int segmentId, const UUID& id);
 
     /**
      * Read a SegmentChoiceArrangementPick by UUID in the given Segment #
      * @returns requested SegmentChoiceArrangementPick
      */
-    void deleteSegmentChoiceArrangementPick(int segmentId, UUID id);
+    void deleteSegmentChoiceArrangementPick(int segmentId, const UUID& id);
 
     /**
      * Read a SegmentChord by UUID in the given Segment #
      * @returns requested SegmentChord
      */
-    void deleteSegmentChord(int segmentId, UUID id);
+    void deleteSegmentChord(int segmentId, const UUID& id);
 
     /**
      * Read a SegmentChordVoicing by UUID in the given Segment #
      * @returns requested SegmentChordVoicing
      */
-    void deleteSegmentChordVoicing(int segmentId, UUID id);
+    void deleteSegmentChordVoicing(int segmentId, const UUID& id);
 
     /**
      * Read a SegmentMeme by UUID in the given Segment #
      * @returns requested SegmentMeme
      */
-    void deleteSegmentMeme(int segmentId, UUID id);
+    void deleteSegmentMeme(int segmentId, const UUID& id);
 
     /**
      * Read a SegmentMessage by UUID in the given Segment #
      * @returns requested SegmentMessage
      */
-    void deleteSegmentMessage(int segmentId, UUID id);
+    void deleteSegmentMessage(int segmentId, const UUID& id);
 
     /**
      * Read a SegmentMeta by UUID in the given Segment #
      * @returns requested SegmentMeta
      */
-    void deleteSegmentMeta(int segmentId, UUID id);
+    void deleteSegmentMeta(int segmentId, const UUID& id);
 
     /**
      Delete all segments before the given segment id
@@ -418,9 +417,9 @@ namespace XJ {
 
   private:
 
-    void validate(SegmentMeme entity);
+    static void validate(SegmentMeme entity);
 
-    void validate(Segment entity);
+    static void validate(Segment entity);
 
     std::optional<Chain> chain;
 
