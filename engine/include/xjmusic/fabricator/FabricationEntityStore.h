@@ -301,7 +301,7 @@ namespace XJ {
      @param segment for which to get the choice hash
      @return hash of all the ids of the choices for the given segment
      */
-    std::string readChoiceHash(Segment segment);
+    std::string readChoiceHash(const Segment& segment);
 
     /**
      Get the total number of segments in the store
@@ -323,7 +323,7 @@ namespace XJ {
      @param segment for the updated Entity.
      @throws FabricationException on failure
      */
-    void updateSegment(const Segment& segment);
+    void updateSegment(Segment &segment);
 
     /**
      * Read a Chain by #

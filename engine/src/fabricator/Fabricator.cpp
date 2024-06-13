@@ -183,7 +183,7 @@ Fabricator::Fabricator(
   
   std::optional<SegmentChoice> getChoiceIfContinued(ProgramVoice voice) {
     try {
-      if (!Objects.equals(Segment::Type.CONTINUE, getSegment().type)) return std::optional.empty();
+      if (!Objects.equals(Segment::Type::Continue, getSegment().type)) return std::optional.empty();
       return retrospective.getChoices().stream().filter(choice -> {
         var candidateVoice = sourceMaterial.getProgramVoice(choice.programVoiceId);
         return candidateVoice.isPresent() && Objects.equals(candidateVoice.get().name, voice.name) && Objects.equals(candidateVoice.get().type, voice.type);
@@ -198,7 +198,7 @@ Fabricator::Fabricator(
   
   std::optional<SegmentChoice> getChoiceIfContinued(Instrument::Type instrumentType) {
     try {
-      if (!Objects.equals(Segment::Type.CONTINUE, getSegment().type)) return std::optional.empty();
+      if (!Objects.equals(Segment::Type::Continue, getSegment().type)) return std::optional.empty();
       return retrospective.getChoices().stream().filter(choice -> Objects.equals(instrumentType, choice.instrumentType)).findFirst();
 
     } catch (Exception e) {
@@ -210,7 +210,7 @@ Fabricator::Fabricator(
   
   std::optional<SegmentChoice> getChoiceIfContinued(Instrument::Type instrumentType, Instrument::Mode instrumentMode) {
     try {
-      if (!Objects.equals(Segment::Type.CONTINUE, getSegment().type)) return std::optional.empty();
+      if (!Objects.equals(Segment::Type::Continue, getSegment().type)) return std::optional.empty();
       return retrospective.getChoices().stream().filter(choice -> Objects.equals(instrumentType, choice.instrumentType) && Objects.equals(instrumentMode, choice.getInstrumentMode())).findFirst();
 
     } catch (Exception e) {
@@ -222,7 +222,7 @@ Fabricator::Fabricator(
   
   std::vector<SegmentChoice> getChoicesIfContinued(Program::Type programType) {
     try {
-      if (!Objects.equals(Segment::Type.CONTINUE, getSegment().type)) return Set.of();
+      if (!Objects.equals(Segment::Type::Continue, getSegment().type)) return Set.of();
       return retrospective.getChoices().stream().filter(choice -> Objects.equals(programType, choice.programType)).collect(Collectors.toSet());
 
     } catch (Exception e) {
@@ -662,7 +662,7 @@ Fabricator::Fabricator(
 
   
   boolean isContinuationOfMacroProgram() throws FabricationException {
-    return Segment::Type.CONTINUE.equals(type) || Segment::Type.NEXT_MAIN.equals(type);
+    return Segment::Type::Continue.equals(type) || Segment::Type.NEXT_MAIN.equals(type);
   }
 
   
@@ -857,14 +857,14 @@ Fabricator::Fabricator(
    */
   private Segment::Type computeType() {
     if (isInitialSegment())
-      return Segment::Type.INITIAL;
+      return Segment::Type::Initial;
 
     // previous main choice having at least one more pattern?
     var previousMainChoice = getPreviousMainChoice();
 
     if (previousMainChoice.isPresent() && hasOneMoreSequenceBindingOffset(previousMainChoice.get())
       && getTemplateConfig().getMainProgramLengthMaxDelta() > getPreviousSegmentDelta())
-      return Segment::Type.CONTINUE;
+      return Segment::Type::Continue;
 
     // previous macro choice having at least two more patterns?
     var previousMacroChoice = getMacroChoiceOfPreviousSegment();
@@ -872,7 +872,7 @@ Fabricator::Fabricator(
     if (previousMacroChoice.isPresent() && hasTwoMoreSequenceBindingOffsets(previousMacroChoice.get()))
       return Segment::Type.NEXT_MAIN;
 
-    return Segment::Type.NEXT_MACRO;
+    return Segment::Type::NextMacro;
   }
 
   /**

@@ -78,12 +78,12 @@ public class SegmentRetrospectiveImplTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(SegmentFixtures.buildChain(fake.project1, "Test Print #1", Chain::Type.PRODUCTION, Chain::State.FABRICATE, fake.template1, null));
-    segment0 = constructSegmentAndChoices(chain1, Segment::Type.CONTINUE, 10, 4, fake.program4, fake.program4_sequence1_binding0, fake.program15, fake.program15_sequence1_binding0);
+    Chain chain1 = store.put(SegmentFixtures.buildChain(fake.project1, "Test Print #1", Chain::Type.PRODUCTION, Chain::State::Fabricate, fake.template1, null));
+    segment0 = constructSegmentAndChoices(chain1, Segment::Type::Continue, 10, 4, fake.program4, fake.program4_sequence1_binding0, fake.program15, fake.program15_sequence1_binding0);
     segment1 = constructSegmentAndChoices(chain1, Segment::Type.NEXT_MAIN, 11, 0, fake.program4, fake.program4_sequence1_binding0, fake.program5, fake.program5_sequence0_binding0);
-    constructSegmentAndChoices(chain1, Segment::Type.CONTINUE, 12, 1, fake.program4, fake.program4_sequence1_binding0, fake.program5, fake.program5_sequence1_binding0);
-    segment3 = constructSegmentAndChoices(chain1, Segment::Type.CONTINUE, 13, 2, fake.program4, fake.program4_sequence1_binding0, fake.program5, fake.program5_sequence1_binding0);
-    segment4 = constructSegmentAndChoices(chain1, Segment::Type.NEXT_MACRO, 14, 0, fake.program3, fake.program3_sequence0_binding0, fake.program15, fake.program15_sequence0_binding0);
+    constructSegmentAndChoices(chain1, Segment::Type::Continue, 12, 1, fake.program4, fake.program4_sequence1_binding0, fake.program5, fake.program5_sequence1_binding0);
+    segment3 = constructSegmentAndChoices(chain1, Segment::Type::Continue, 13, 2, fake.program4, fake.program4_sequence1_binding0, fake.program5, fake.program5_sequence1_binding0);
+    segment4 = constructSegmentAndChoices(chain1, Segment::Type::NextMacro, 14, 0, fake.program3, fake.program3_sequence0_binding0, fake.program15, fake.program15_sequence0_binding0);
   }
 
   Segment constructSegmentAndChoices(Chain chain, Segment::Type type, int offset, int delta, Program macro, ProgramSequenceBinding macroSB, Program main, ProgramSequenceBinding mainSB) throws FabricationException {
@@ -92,7 +92,7 @@ public class SegmentRetrospectiveImplTest {
       type,
       offset,
       delta,
-      Segment::State.CRAFTED,
+      Segment::State::Crafted,
       "D major",
       SEQUENCE_TOTAL_BEATS,
       0.73f,

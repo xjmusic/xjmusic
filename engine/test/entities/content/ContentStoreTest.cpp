@@ -51,7 +51,6 @@ protected:
   ProgramSequencePatternEvent program2_sequence_pattern1_event1;
   ProgramSequencePatternEvent program2_sequence_pattern1_event2;
 
-  // This function runs before each test
   void SetUp() override {
     // project
     project1 = ContentFixtures::buildProject();
@@ -140,7 +139,6 @@ protected:
     subject.setProgramSequencePatternEvents({program2_sequence_pattern1_event1, program2_sequence_pattern1_event2});
   }
 
-  // You can also define a TearDown() function that runs after each test
   void TearDown() override {
     // Cleanup code here...
   }

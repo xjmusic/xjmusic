@@ -45,6 +45,7 @@ add_executable(xjmusic_test
         entities/music/StepTest.cpp
         entities/music/StickyBunTest.cpp
         entities/music/TuningTest.cpp
+        fabricator/FabricationEntityStoreTest.cpp
         fabricator/SegmentUtilsTest.cpp
         util/ConfigParserTest.cpp
         util/StringUtilsTest.cpp
@@ -56,6 +57,7 @@ target_compile_features(xjmusic_test PRIVATE cxx_std_17)
 
 # Turn off the optimizer for faster build and easier debugging
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 
 # Link the libraries from the main project
 target_link_libraries(xjmusic_test PRIVATE xjmusic)

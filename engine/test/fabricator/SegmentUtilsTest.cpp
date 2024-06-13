@@ -22,7 +22,6 @@ protected:
   Segment seg2;
   Segment seg3;
 
-  // This function runs before each test
   void SetUp() override {
     project = ContentFixtures::buildProject("Test");
     tmpl = ContentFixtures::buildTemplate(project, "Test");
@@ -76,11 +75,6 @@ protected:
         "chains-1-segments-j1hsk3dgu2yu2gyy",
         true);
     segments = {seg0, seg1, seg2, seg3};
-  }
-
-  // You can also define a TearDown() function that runs after each test
-  void TearDown() override {
-    // Cleanup code here...
   }
 
   Segment createSameSegment(long long updatedAt, Segment::State state) {

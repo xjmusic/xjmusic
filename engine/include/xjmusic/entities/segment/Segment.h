@@ -25,27 +25,6 @@ namespace XJ {
 
   class Segment : public Entity {
   public:
-    using SegmentEntity = std::variant<
-        SegmentChoice,
-        SegmentChoiceArrangement,
-        SegmentChoiceArrangementPick,
-        SegmentChord,
-        SegmentChordVoicing,
-        SegmentMeme,
-        SegmentMessage,
-        SegmentMeta
-    >;
-
-    enum SegmentEntityType {
-      SegmentChoice,
-      SegmentChoiceArrangement,
-      SegmentChoiceArrangementPick,
-      SegmentChord,
-      SegmentChordVoicing,
-      SegmentMeme,
-      SegmentMessage,
-      SegmentMeta,
-    };
 
     enum Type {
       Pending,

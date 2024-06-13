@@ -25,6 +25,7 @@ SegmentChoice FabricationEntityStore::put(const SegmentChoice &choice) {
     segmentChoices[choice.segmentId] = std::map<UUID, SegmentChoice>();
   }
   segmentChoices[choice.segmentId][choice.id] = choice;
+  return choice;
 }
 
 SegmentChoiceArrangement FabricationEntityStore::put(const SegmentChoiceArrangement &arrangement) {
@@ -32,6 +33,7 @@ SegmentChoiceArrangement FabricationEntityStore::put(const SegmentChoiceArrangem
     segmentChoiceArrangements[arrangement.segmentId] = std::map<UUID, SegmentChoiceArrangement>();
   }
   segmentChoiceArrangements[arrangement.segmentId][arrangement.id] = arrangement;
+  return arrangement;
 }
 
 SegmentChoiceArrangementPick FabricationEntityStore::put(const SegmentChoiceArrangementPick &pick) {
@@ -39,6 +41,7 @@ SegmentChoiceArrangementPick FabricationEntityStore::put(const SegmentChoiceArra
     segmentChoiceArrangementPicks[pick.segmentId] = std::map<UUID, SegmentChoiceArrangementPick>();
   }
   segmentChoiceArrangementPicks[pick.segmentId][pick.id] = pick;
+  return pick;
 }
 
 SegmentChord FabricationEntityStore::put(const SegmentChord &chord) {
@@ -46,6 +49,7 @@ SegmentChord FabricationEntityStore::put(const SegmentChord &chord) {
     segmentChords[chord.segmentId] = std::map<UUID, SegmentChord>();
   }
   segmentChords[chord.segmentId][chord.id] = chord;
+  return chord;
 }
 
 SegmentChordVoicing FabricationEntityStore::put(const SegmentChordVoicing &voicing) {
@@ -53,6 +57,7 @@ SegmentChordVoicing FabricationEntityStore::put(const SegmentChordVoicing &voici
     segmentChordVoicings[voicing.segmentId] = std::map<UUID, SegmentChordVoicing>();
   }
   segmentChordVoicings[voicing.segmentId][voicing.id] = voicing;
+  return voicing;
 }
 
 SegmentMeme FabricationEntityStore::put(const SegmentMeme &meme) {
@@ -61,6 +66,7 @@ SegmentMeme FabricationEntityStore::put(const SegmentMeme &meme) {
     segmentMemes[meme.segmentId] = std::map<UUID, SegmentMeme>();
   }
   segmentMemes[meme.segmentId][meme.id] = meme;
+  return meme;
 }
 
 SegmentMessage FabricationEntityStore::put(const SegmentMessage &message) {
@@ -68,6 +74,7 @@ SegmentMessage FabricationEntityStore::put(const SegmentMessage &message) {
     segmentMessages[message.segmentId] = std::map<UUID, SegmentMessage>();
   }
   segmentMessages[message.segmentId][message.id] = message;
+  return message;
 }
 
 SegmentMeta FabricationEntityStore::put(const SegmentMeta &meta) {
@@ -75,6 +82,7 @@ SegmentMeta FabricationEntityStore::put(const SegmentMeta &meta) {
     segmentMetas[meta.segmentId] = std::map<UUID, SegmentMeta>();
   }
   segmentMetas[meta.segmentId][meta.id] = meta;
+  return meta;
 }
 
 std::optional<Chain> FabricationEntityStore::readChain() {
@@ -457,7 +465,7 @@ std::optional<SegmentChoice> FabricationEntityStore::readChoice(int segmentId, P
   return std::nullopt;
 }
 
-std::string FabricationEntityStore::readChoiceHash(XJ::Segment segment) {
+std::string FabricationEntityStore::readChoiceHash(const XJ::Segment& segment) {
   std::set<SegmentEntity> entities = readAllSegmentEntities({segment.id});
   std::vector<std::string> ids;
 
@@ -478,11 +486,35 @@ bool FabricationEntityStore::isEmpty() {
   return segments.empty();
 }
 
-void FabricationEntityStore::updateSegment(const Segment &segment) {
-  if (segments.find(segment.id) == segments.end()) {
-    return;
+void FabricationEntityStore::updateSegment(Segment &segment) {
+// validate and cache to-state
+  validate(segment);
+  Segment::State toState = segment.state;
+
+  // fetch existing segment; further logic is based on its current state
+  std::optional<Segment> existingOpt = readSegment(segment.id);
+  if (!existingOpt.has_value()) {
+    throw FabricationException("Segment #" + std::to_string(segment.id) + " does not exist");
   }
-  segments[segment.id] = segment;
+  Segment existing = existingOpt.value();
+
+  // logic based on existing Segment State
+  protectSegmentStateTransition(existing.state, toState);
+
+  // fail if attempt to [#128] change chainId of a segment
+  std::optional<UUID> updateChainId = segment.chainId;
+  if (updateChainId.has_value() && updateChainId.value() != existing.chainId) {
+    throw FabricationException("cannot modify chainId of a Segment");
+  }
+
+  // Never change id
+  segment.id = existing.id;
+
+  // Updated at is always now
+  segment.updatedAt = Entity::currentTimeMillis();
+
+  // save segment
+  put(segment);
 }
 
 void FabricationEntityStore::deleteChain() {
@@ -559,36 +591,43 @@ void FabricationEntityStore::deleteSegmentMeta(int segmentId, const UUID &id) {
 
 void FabricationEntityStore::protectSegmentStateTransition(Segment::State fromState, Segment::State toState) {
   switch (fromState) {
-    case Segment::Planned:
+    case Segment::State::Planned:
       onlyAllowSegmentStateTransitions(toState, {
           Segment::State::Planned,
           Segment::State::Crafting,
       });
-    case Segment::Crafting:
+      break;
+    case Segment::State::Crafting:
       onlyAllowSegmentStateTransitions(toState, {
           Segment::State::Crafting,
           Segment::State::Crafted,
           Segment::State::Failed,
           Segment::State::Planned,
       });
-    case Segment::Crafted:
+      break;
+    case Segment::State::Crafted:
       onlyAllowSegmentStateTransitions(toState, {
           Segment::State::Crafted,
           Segment::State::Crafting,
       });
-    case Segment::Failed:
+      break;
+    case Segment::State::Failed:
       onlyAllowSegmentStateTransitions(toState, {
           Segment::State::Failed,
       });
+      break;
     default:
       onlyAllowSegmentStateTransitions(toState, {
           Segment::State::Planned
       });
+      break;
   }
 }
 
-void FabricationEntityStore::onlyAllowSegmentStateTransitions(Segment::State toState,
-                                                              const std::set<Segment::State> &allowedStates) {
+void FabricationEntityStore::onlyAllowSegmentStateTransitions(
+    Segment::State toState,
+    const std::set<Segment::State> &allowedStates
+) {
   std::vector<std::string> allowedStateNames;
   allowedStateNames.reserve(allowedStates.size());
   for (Segment::State search: allowedStates) {
@@ -612,18 +651,26 @@ void FabricationEntityStore::validate(Segment entity) {
 }
 
 void FabricationEntityStore::deleteSegmentsBefore(int lastSegmentId) {
+  std::set<int> idsToDelete;
   for (auto &segment: segments) {
     if (segment.first < lastSegmentId) {
-      deleteSegment(segment.first);
+      idsToDelete.insert(segment.first);
     }
+  }
+  for (auto &id: idsToDelete) {
+    deleteSegment(id);
   }
 }
 
 void FabricationEntityStore::deleteSegmentsAfter(int lastSegmentId) {
+  std::set<int> idsToDelete;
   for (auto &segment: segments) {
     if (segment.first > lastSegmentId) {
-      deleteSegment(segment.first);
+      idsToDelete.insert(segment.first);
     }
+  }
+  for (auto &id: idsToDelete) {
+    deleteSegment(id);
   }
 }
 
