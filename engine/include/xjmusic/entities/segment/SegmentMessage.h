@@ -7,12 +7,13 @@
 #include <utility>
 
 #include "xjmusic/entities/Entity.h"
+#include "SegmentEntity.h"
 
 namespace XJ {
 
-  class SegmentMessage : public Entity {
+  class SegmentMessage : public SegmentEntity {
   public:
-    
+
     enum Type {
       Debug,
       Info,
@@ -21,19 +22,17 @@ namespace XJ {
     };
 
     SegmentMessage() = default;
-    
-    UUID id;
-    int segmentId{};
+
     SegmentMessage::Type type{};
     std::string body;
-    
+
     /**
      * Parse the Segment Message Type enum value from a string
      * @param value  The string to parse
      * @return      The Segment Message Type enum value
      */
     static SegmentMessage::Type parseType(const std::string &value);
-    
+
     /**
      * Convert an Segment Message Type enum value to a string
      * @param type  The Segment Message Type enum value
@@ -47,22 +46,13 @@ namespace XJ {
      * @return       true if equal
      */
     [[nodiscard]] bool equals(const SegmentMessage &segmentMessage) const;
-    
+
     /**
      * Determine a unique hash code for the Segment Message
      * @return       hash code
      */
     [[nodiscard]] unsigned long long hashCode() const;
 
-    /**
-     * Compare two Segment Messages
-     * @param lhs segment message
-     * @param rhs segment message
-     * @return true if lhs < rhs
-     */
-    friend bool operator<(const SegmentMessage &lhs, const SegmentMessage &rhs) {
-      return lhs.id < rhs.id;
-    }
   };
 
 }// namespace XJ

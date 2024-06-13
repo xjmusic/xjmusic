@@ -7,15 +7,14 @@
 #include <utility>
 
 #include "xjmusic/entities/Entity.h"
+#include "SegmentEntity.h"
 
 namespace XJ {
 
-  class SegmentChoiceArrangementPick : public Entity {
+  class SegmentChoiceArrangementPick : public SegmentEntity {
   public:
     SegmentChoiceArrangementPick() = default;
 
-    UUID id;
-    int segmentId{};
     UUID segmentChoiceArrangementId;
     UUID segmentChordVoicingId;
     UUID instrumentAudioId;
@@ -38,16 +37,6 @@ namespace XJ {
      * @return       hash code
      */
     [[nodiscard]] unsigned long long hashCode() const;
-
-    /**
-     * Compare two Segment Choice Arrangement Picks
-     * @param lhs segment choice arrangement pick
-     * @param rhs segment choice arrangement pick
-     * @return true if lhs < rhs
-     */
-    friend bool operator<(const SegmentChoiceArrangementPick &lhs, const SegmentChoiceArrangementPick &rhs) {
-      return lhs.id < rhs.id;
-    }
 
   };
 

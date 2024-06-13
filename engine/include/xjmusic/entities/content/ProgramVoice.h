@@ -10,12 +10,11 @@
 
 namespace XJ {
 
-  class ProgramVoice : public Entity {
+  class ProgramVoice : public ContentEntity {
   public:
 
     ProgramVoice() = default;
 
-    UUID id;
     UUID programId;
     Instrument::Type type{Instrument::Type::Drum};
     std::string name;

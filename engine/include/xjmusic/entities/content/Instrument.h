@@ -8,12 +8,13 @@
 #include "nlohmann/json.hpp"
 
 #include "xjmusic/entities/Entity.h"
+#include "ContentEntity.h"
 
 using json = nlohmann::json;
 
 namespace XJ {
 
-  class Instrument : public Entity {
+  class Instrument : public ContentEntity {
   public:
 
     enum Type {
@@ -42,7 +43,6 @@ namespace XJ {
 
     Instrument() = default;
 
-    UUID id;
     UUID libraryId{};
     Instrument::State state{};
     Instrument::Type type{};

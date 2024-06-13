@@ -7,15 +7,15 @@
 #include <utility>
 
 #include "xjmusic/entities/Entity.h"
+#include "ContentEntity.h"
 
 namespace XJ {
 
-  class ProgramSequencePattern : public Entity {
+  class ProgramSequencePattern : public ContentEntity {
   public:
 
     ProgramSequencePattern() = default;
 
-    UUID id;
     UUID programId;
     std::string programSequenceId;
     std::string programVoiceId;

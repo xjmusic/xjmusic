@@ -9,17 +9,16 @@
 #include "xjmusic/entities/Entity.h"
 #include "xjmusic/entities/content/Instrument.h"
 #include "xjmusic/entities/content/Program.h"
+#include "SegmentEntity.h"
 
 namespace XJ {
 
-  class SegmentChoice : public Entity {
+  class SegmentChoice : public SegmentEntity {
   public:
     SegmentChoice() = default;
 
     static constexpr int DELTA_UNLIMITED = -1;
 
-    UUID id;
-    int segmentId{};
     float position{};
     std::string name;
     UUID programId;
@@ -46,16 +45,6 @@ namespace XJ {
      * @return       hash code
      */
     [[nodiscard]] unsigned long long hashCode() const;
-
-    /**
-     * Compare two Segment Choices
-     * @param lhs segment choice
-     * @param rhs segment choice
-     * @return true if lhs < rhs
-     */
-    friend bool operator<(const SegmentChoice &lhs, const SegmentChoice &rhs) {
-      return lhs.id < rhs.id;
-    }
 
   };
 

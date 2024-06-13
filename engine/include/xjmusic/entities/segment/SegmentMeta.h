@@ -7,16 +7,15 @@
 #include <utility>
 
 #include "xjmusic/entities/Entity.h"
+#include "SegmentEntity.h"
 
 namespace XJ {
 
-  class SegmentMeta : public Entity {
+  class SegmentMeta : public SegmentEntity {
   public:
 
     SegmentMeta() = default;
 
-    UUID id;
-    int segmentId{};
     std::string key;
     std::string value;
 
@@ -26,23 +25,13 @@ namespace XJ {
      * @return       true if equal
      */
     [[nodiscard]] bool equals(const SegmentMeta &segmentMeta) const;
-    
+
     /**
      * Determine a unique hash code for the Segment Meta
      * @return       hash code
      */
     [[nodiscard]] unsigned long long hashCode() const;
 
-    /**
-     * Compare two Segment Metas
-     * @param lhs segment meta
-     * @param rhs segment meta
-     * @return true if lhs < rhs
-     */
-    friend bool operator<(const SegmentMeta &lhs, const SegmentMeta &rhs) {
-      return lhs.id < rhs.id;
-    }
-    
   };
 
 }// namespace XJ

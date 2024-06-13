@@ -6,10 +6,11 @@
 #include <string>
 
 #include "xjmusic/entities/Entity.h"
+#include "ContentEntity.h"
 
 namespace XJ {
 
-  class Program : public Entity {
+  class Program : public ContentEntity {
   public:
     enum Type {
       Macro,
@@ -25,7 +26,6 @@ namespace XJ {
 
     Program() = default;
 
-    UUID id;
     UUID libraryId;
     Program::State state{};
     Program::Type type{};

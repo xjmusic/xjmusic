@@ -7,15 +7,15 @@
 #include <utility>
 
 #include "xjmusic/entities/Entity.h"
+#include "ContentEntity.h"
 
 namespace XJ {
 
-  class InstrumentAudio : public Entity {
+  class InstrumentAudio : public ContentEntity {
   public:
 
     InstrumentAudio() = default;
 
-    UUID id;
     UUID instrumentId;
     std::string name;
     std::string waveformKey;

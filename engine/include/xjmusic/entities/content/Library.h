@@ -6,15 +6,15 @@
 #include <string>
 
 #include "xjmusic/entities/Entity.h"
+#include "ContentEntity.h"
 
 namespace XJ {
 
-  class Library : public Entity {
+  class Library : public ContentEntity {
   public:
 
     Library() = default;
 
-    UUID id;
     UUID projectId;
     std::string name;
     bool isDeleted{false};

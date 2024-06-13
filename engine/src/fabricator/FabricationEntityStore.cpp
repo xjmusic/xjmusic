@@ -15,6 +15,7 @@ Chain FabricationEntityStore::put(Chain c) {
 }
 
 Segment FabricationEntityStore::put(Segment segment) {
+  validate(segment);
   this->segments[segment.id] = segment;
   return segment;
 }
@@ -55,6 +56,7 @@ SegmentChordVoicing FabricationEntityStore::put(const SegmentChordVoicing &voici
 }
 
 SegmentMeme FabricationEntityStore::put(const SegmentMeme &meme) {
+  validate(meme);
   if (segmentMemes.find(meme.segmentId) == segmentMemes.end()) {
     segmentMemes[meme.segmentId] = std::map<UUID, SegmentMeme>();
   }
@@ -387,6 +389,37 @@ std::vector<Segment> FabricationEntityStore::readSegmentsFromToOffset(int fromOf
   return result;
 }
 
+std::set<SegmentEntity> FabricationEntityStore::readAllSegmentEntities(const std::set<int> &segmentIds) {
+  std::set<SegmentEntity> result;
+  for (auto &segmentId: segmentIds) {
+    for (auto &choice: readAllSegmentChoices(segmentId)) {
+      result.emplace(choice);
+    }
+    for (auto &arrangement: readAllSegmentChoiceArrangements(segmentId)) {
+      result.emplace(arrangement);
+    }
+    for (auto &pick: readAllSegmentChoiceArrangementPicks(segmentId)) {
+      result.emplace(pick);
+    }
+    for (auto &chord: readAllSegmentChords(segmentId)) {
+      result.emplace(chord);
+    }
+    for (auto &voicing: readAllSegmentChordVoicings(segmentId)) {
+      result.emplace(voicing);
+    }
+    for (auto &meme: readAllSegmentMemes(segmentId)) {
+      result.emplace(meme);
+    }
+    for (auto &message: readAllSegmentMessages(segmentId)) {
+      result.emplace(message);
+    }
+    for (auto &meta: readAllSegmentMetas(segmentId)) {
+      result.emplace(meta);
+    }
+  }
+  return result;
+}
+
 std::vector<Segment> FabricationEntityStore::readAllSegmentsSpanning(long fromChainMicros, long toChainMicros) {
   std::vector<Segment> result;
   for (auto &segment: segments) {
@@ -425,33 +458,20 @@ std::optional<SegmentChoice> FabricationEntityStore::readChoice(int segmentId, P
 }
 
 std::string FabricationEntityStore::readChoiceHash(XJ::Segment segment) {
-  std::vector<Entity> entities = readManySubEntities({segment.id}, false);
+  std::set<SegmentEntity> entities = readAllSegmentEntities({segment.id});
   std::vector<std::string> ids;
 
-  for (const auto& entity : entities) {
-    try {
-      ids.push_back(EntityUtils::getId(entity).toString());
-    } catch (const EntityException& e) {
-      // Ignore the exception and continue with the next entity
-    }
+  for (const auto &entity: entities) {
+    ids.push_back(entity.id);
   }
 
   std::sort(ids.begin(), ids.end());
-
-  std::string result;
-  for (const auto& id : ids) {
-    if (!result.empty()) {
-      result += "_";
-    }
-    result += id;
-  }
-
-  return result;
+  return StringUtils::join(ids, "_");
 }
 
 
 int FabricationEntityStore::getSegmentCount() {
-  return segments.size();
+  return static_cast<int>(segments.size());
 }
 
 bool FabricationEntityStore::isEmpty() {
@@ -536,309 +556,6 @@ void FabricationEntityStore::deleteSegmentMeta(int segmentId, const UUID &id) {
   }
   segmentMetas[segmentId].erase(id);
 }
-
-/*
-  public FabricationEntityStoreImpl(EntityFactory entityFactory) {
-    this.entityFactory = entityFactory;
-  }
-
-  @Override
-  public <N> N put(N entity) throws FabricationException {
-    validate(entity);
-
-    if (entity instanceof Chain) {
-      chain = (Chain) entity;
-      return entity;
-    }
-
-    if (entity instanceof Segment) {
-      segments.put(((Segment) entity).id, (Segment) entity);
-      return entity;
-    }
-
-    // fail to store entity without id
-    UUID id;
-    try {
-      id = EntityUtils.getId(entity);
-    } catch (EntityException e) {
-      throw new FabricationException(std::string.format("Can't get id of %s-type entity",
-        entity.getClass().getSimpleName()));
-    }
-
-    // fail to store entity with unset id
-    if (!ValueUtils::isSet(id))
-      throw new FabricationException(std::string.format("Can't store %s with null id",
-        entity.getClass().getSimpleName()));
-
-    else if (entity instanceof SegmentMeme ||
-      entity instanceof SegmentChord ||
-      entity instanceof SegmentChordVoicing ||
-      entity instanceof SegmentChoice ||
-      entity instanceof SegmentMessage ||
-      entity instanceof SegmentMeta ||
-      entity instanceof SegmentChoiceArrangement ||
-      entity instanceof SegmentChoiceArrangementPick)
-      try {
-        var segmentIdValue = EntityUtils.get(entity, SEGMENT_ID_ATTRIBUTE)
-          .orElseThrow(() -> new FabricationException(std::string.format("Can't store %s without Segment ID!",
-            entity.getClass().getSimpleName())));
-        int segmentId = Integer.parseInt(std::string.valueOf(segmentIdValue));
-        if (!entities.containsKey(segmentId))
-          entities.put(segmentId, new ConcurrentHashMap<>());
-        entities.get(segmentId).putIfAbsent(entity.getClass(), new ConcurrentHashMap<>());
-        entities.get(segmentId).get(entity.getClass()).put(id, entity);
-      } catch (EntityException e) {
-        throw new FabricationException(e);
-      }
-    else return entity;
-
-    return entity;
-  }
-
-  @Override
-  public std::optional<Chain> readChain() {
-    return std::optional.ofNullable(chain);
-  }
-
-  @Override
-  public std::optional<Segment> readSegment(int id) {
-    return segments.containsKey(id) ? std::optional.of(segments.get(id)) : std::optional.empty();
-  }
-
-  @Override
-  public std::optional<Segment> readSegmentLast() {
-    return readAllSegments()
-      .stream()
-      .max(Comparator.comparing(Segment::getId));
-  }
-
-  @Override
-  public std::optional<Segment> readSegmentAtChainMicros(long chainMicros) {
-    var segments = readAllSegments()
-      .stream()
-      .filter(s -> SegmentUtils.isSpanning(s, chainMicros, chainMicros))
-      .sorted(Comparator.comparing(Segment::getId))
-      .toList();
-    return segments.isEmpty() ? std::optional.empty() : std::optional.of(segments.get(segments.size() - 1));
-  }
-
-  @Override
-  public <N> std::optional<N> read(int segmentId, Class<N> type, UUID id) throws FabricationException {
-    try {
-      if (!entities.containsKey(segmentId)
-        || !entities.get(segmentId).containsKey(type)
-        || !entities.get(segmentId).get(type).containsKey(id)) return std::optional.empty();
-      //noinspection unchecked
-      return (std::optional<N>) std::optional.ofNullable(entities.get(segmentId).get(type).get(id));
-
-    } catch (Exception e) {
-      throw new FabricationException(e);
-    }
-  }
-
-  @Override
-  public <N> std::vector<N> readAll(int segmentId, Class<N> type) {
-    if (!entities.containsKey(segmentId)
-      || !entities.get(segmentId).containsKey(type))
-      return std::vector.of();
-    //noinspection unchecked
-    return (std::vector<N>) entities.get(segmentId).get(type).values().stream()
-      .filter(entity -> type.equals(entity.getClass()))
-      .collect(Collectors.toList());
-  }
-
-  @Override
-  public <N, B> std::vector<N> readAll(int segmentId, Class<N> type, Class<B> belongsToType, std::vector<UUID> belongsToIds) {
-    if (!entities.containsKey(segmentId)
-      || !entities.get(segmentId).containsKey(type))
-      return std::vector.of();
-    //noinspection unchecked
-    return (std::vector<N>) entities.get(segmentId).get(type).values().stream()
-      .filter(entity -> EntityUtils.isChild(entity, belongsToType, belongsToIds))
-      .collect(Collectors.toList());
-  }
-
-  @Override
-  public std::vector<Segment> readAllSegments() {
-    return segments.values().stream()
-      .sorted(Comparator.comparingInt(Segment::getId))
-      .collect(Collectors.toList());
-  }
-
-  @Override
-  public std::vector<Segment> readSegmentsFromToOffset(int fromOffset, int toOffset) {
-    return readAllSegments()
-      .stream()
-      .filter(s -> s.id >= fromOffset && s.id <= toOffset)
-      .toList();
-  }
-
-  @Override
-  public std::vector<Segment> readAllSegmentsSpanning(Long fromChainMicros, Long toChainMicros) {
-    return readAllSegments()
-      .stream()
-      .filter(s -> SegmentUtils.isSpanning(s, fromChainMicros, toChainMicros))
-      .toList();
-  }
-
-  @Override
-  public int readLastSegmentId() {
-    return segments.keySet().stream()
-      .max(Integer::compareTo)
-      .orElse(0);
-  }
-
-  @Override
-  public std::vector<SegmentChoiceArrangementPick> readPicks(std::vector<Segment> segments) {
-    std::vector<SegmentChoiceArrangementPick> picks = new ArrayList<>();
-    for (Segment segment : segments) {
-      picks.addAll(readAll(segment.id, SegmentChoiceArrangementPick.class));
-    }
-    return picks;
-  }
-
-  @Override
-  public <N> std::vector<N> readManySubEntities(std::vector<Integer> segmentIds, Boolean includePicks) {
-    std::vector<Object> entities = new ArrayList<>();
-    for (Integer sId : segmentIds) {
-      entities.addAll(readAll(sId, SegmentChoice.class));
-      entities.addAll(readAll(sId, SegmentChoiceArrangement.class));
-      entities.addAll(readAll(sId, SegmentChord.class));
-      entities.addAll(readAll(sId, SegmentChordVoicing.class));
-      entities.addAll(readAll(sId, SegmentMeme.class));
-      entities.addAll(readAll(sId, SegmentMessage.class));
-      entities.addAll(readAll(sId, SegmentMeta.class));
-      if (includePicks)
-        entities.addAll(readAll(sId, SegmentChoiceArrangementPick.class));
-    }
-    //noinspection unchecked
-    return (std::vector<N>) entities;
-  }
-
-  @Override
-  public <N> std::vector<N> readManySubEntitiesOfType(int segmentId, Class<N> type) {
-    return readAll(segmentId, type);
-  }
-
-  @Override
-  public <N> std::vector<N> readManySubEntitiesOfType(std::vector<Integer> segmentIds, Class<N> type) {
-    return segmentIds.stream().flatMap(segmentId -> readManySubEntitiesOfType(segmentId, type).stream()).toList();
-  }
-
-  @Override
-  public std::optional<SegmentChoice> readChoice(int segmentId, Program::Type programType) {
-    return readAll(segmentId, SegmentChoice.class)
-      .stream()
-      .filter(sc -> programType.equals(sc.programType))
-      .findAny();
-  }
-
-  @Override
-  public std::string readChoiceHash(Segment segment) {
-    return
-      readManySubEntities(Set.of(segment.id), false)
-        .stream()
-        .flatMap((entity) -> {
-          try {
-            return Stream.of(EntityUtils.getId(entity));
-          } catch (EntityException e) {
-            return Stream.empty();
-          }
-        })
-        .map(UUID::toString)
-        .sorted()
-        .collect(Collectors.joining("_"));
-  }
-
-  @Override
-  public void updateSegment(Segment segment) throws FabricationException {
-    // validate and cache to-state
-    validate(segment);
-    Segment::State toState = segment.state;
-
-    // fetch existing segment; further logic is based on its current state
-    Segment existing = readSegment(segment.id)
-      .orElseThrow(() -> new FabricationException("Segment #" + segment.id + " does not exist"));
-    if (Objects.isNull(existing)) throw new FabricationException("Segment #" + segment.id + " does not exist");
-
-    // logic based on existing Segment State
-    protectSegmentStateTransition(existing.state, toState);
-
-    // fail if attempt to [#128] change chainId of a segment
-    Object updateChainId = segment.getChainId();
-    if (ValueUtils::isSet(updateChainId) && !Objects.equals(updateChainId, existing.getChainId()))
-      throw new FabricationException("cannot change chainId create a segment");
-
-    // Never change id
-    segment.setId(segment.id);
-
-    // Updated at is always now
-    segment.setUpdatedNow();
-
-    // save segment
-    put(segment);
-
-  }
-
-  @Override
-  public <N> void delete(int segmentId, Class<N> type, UUID id) {
-    if (entities.containsKey(segmentId) && entities.get(segmentId).containsKey(type))
-      entities.get(segmentId).get(type).remove(id);
-  }
-
-  @Override
-  public <N> void clear(Integer segmentId, Class<N> type) {
-    for (N entity : readAll(segmentId, type)) {
-      try {
-        delete(segmentId, type, EntityUtils.getId(entity));
-      } catch (EntityException e) {
-        LOG.error("Failed to delete {} in Segment[{}]", type.name, segmentId, e);
-      }
-    }
-  }
-
-  @Override
-  public void clear() {
-    entities.clear();
-    segments.clear();
-    chain = null;
-    LOG.debug("Did delete all records in store");
-  }
-
-  @Override
-  public void deleteSegmentsBefore(int lastSegmentId) {
-    for (var segmentId : segments.keySet().stream()
-      .filter(segmentId -> segmentId < lastSegmentId)
-      .toList()) {
-      segments.remove(segmentId);
-      entities.remove(segmentId);
-    }
-  }
-
-  @Override
-  public void deleteSegment(int segmentId) {
-    segments.remove(segmentId);
-    entities.remove(segmentId);
-  }
-
-  @Override
-  public void deleteSegmentsAfter(int lastSegmentId) {
-    for (var segmentId : segments.keySet().stream()
-      .filter(segmentId -> segmentId > lastSegmentId)
-      .toList())
-      deleteSegment(segmentId);
-  }
-
-  @Override
-  public Integer getSegmentCount() {
-    return segments.size();
-  }
-
-  @Override
-  public Boolean isEmpty() {
-    return segments.isEmpty();
-  }
-*/
 
 void FabricationEntityStore::protectSegmentStateTransition(Segment::State fromState, Segment::State toState) {
   switch (fromState) {

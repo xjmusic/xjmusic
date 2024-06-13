@@ -7,9 +7,11 @@
 #include <utility>
 
 #include "xjmusic/entities/Entity.h"
+#include "ContentEntity.h"
+
 namespace XJ {
 
-  class TemplateBinding : public Entity {
+  class TemplateBinding : public ContentEntity {
   public:
 
     enum Type {
@@ -20,7 +22,6 @@ namespace XJ {
 
     TemplateBinding() = default;
 
-    UUID id;
     UUID templateId;
     TemplateBinding::Type type{};
     UUID targetId;
@@ -31,7 +32,7 @@ namespace XJ {
      * @return      The TemplateBinding Type enum value
      */
     static TemplateBinding::Type parseType(const std::string &value);
-    
+
     /**
      * Convert a TemplateBinding Type enum value to a string
      * @param type  The TemplateBinding Type enum value
