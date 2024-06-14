@@ -103,13 +103,10 @@ namespace XJ {
     std::optional<UUID> pickPhase(int phase);
 
     /**
-     * Quick pick from a set of items
-     * @tparam N  The type of items
-     * @param items  The set of items
-     * @return  The picked item
+     * Quick pick an integer from 0 to total - 1
+     * @return  The picked integer
      */
-    template<typename N>
-    static std::optional<N> quickPick(std::set<N> items);
+    static int quickPick(int total);
 
     /**
      * Group of marbles with a given id

@@ -393,7 +393,7 @@ MemeIsometry Fabricator::getMemeIsometryOfSegment() {
 }
 
 
-int Fabricator::getNextSequenceBindingOffset(const SegmentChoice& choice) {
+int Fabricator::getNextSequenceBindingOffset(const SegmentChoice &choice) {
   if (choice.programSequenceBindingId.empty()) return 0;
 
   auto sequenceBinding = sourceMaterial.getProgramSequenceBinding(choice.programSequenceBindingId);
@@ -410,7 +410,7 @@ int Fabricator::getNextSequenceBindingOffset(const SegmentChoice& choice) {
 }
 
 
-std::vector<std::string> Fabricator::getNotes(const SegmentChordVoicing& voicing) {
+std::vector<std::string> Fabricator::getNotes(const SegmentChordVoicing &voicing) {
   return CsvUtils::split(voicing.notes);
 }
 
@@ -420,26 +420,28 @@ std::set<SegmentChoiceArrangementPick> Fabricator::getPicks() {
 }
 
 
-std::vector<SegmentChoiceArrangementPick> Fabricator::getPicks(const SegmentChoice& choice) {
+std::vector<SegmentChoiceArrangementPick> Fabricator::getPicks(const SegmentChoice &choice) {
   if (picksForChoice.find(choice.id) == picksForChoice.end()) {
     std::vector<UUID> arrangementIds;
     auto arrangements = getArrangements();
-    for (const auto& arrangement : arrangements) {
+    for (const auto &arrangement: arrangements) {
       if (arrangement.segmentChoiceId == choice.id) {
         arrangementIds.push_back(arrangement.id);
       }
     }
     std::vector<SegmentChoiceArrangementPick> picks;
     auto allPicks = getPicks();
-    for (const auto& pick : allPicks) {
-      if (std::find(arrangementIds.begin(), arrangementIds.end(), pick.segmentChoiceArrangementId) != arrangementIds.end()) {
+    for (const auto &pick: allPicks) {
+      if (std::find(arrangementIds.begin(), arrangementIds.end(), pick.segmentChoiceArrangementId) !=
+          arrangementIds.end()) {
         picks.push_back(pick);
       }
     }
     // Sort the picks by startAtSegmentMicros
-    std::sort(picks.begin(), picks.end(), [](const SegmentChoiceArrangementPick& a, const SegmentChoiceArrangementPick& b) {
-      return a.startAtSegmentMicros < b.startAtSegmentMicros;
-    });
+    std::sort(picks.begin(), picks.end(),
+              [](const SegmentChoiceArrangementPick &a, const SegmentChoiceArrangementPick &b) {
+                return a.startAtSegmentMicros < b.startAtSegmentMicros;
+              });
     picksForChoice[choice.id] = picks;
   }
   return picksForChoice[choice.id];
@@ -457,25 +459,25 @@ std::optional<InstrumentAudio> Fabricator::getPreferredAudio(const std::string &
 }
 
 
-std::optional<const Program *> Fabricator::getProgram(const SegmentChoice& choice) {
+std::optional<const Program *> Fabricator::getProgram(const SegmentChoice &choice) {
   return sourceMaterial.getProgram(choice.programId);
 }
 
 
-ProgramConfig Fabricator::getProgramConfig(const Program& program) {
-    return ProgramConfig(program);
+ProgramConfig Fabricator::getProgramConfig(const Program &program) {
+  return ProgramConfig(program);
 }
 
 
-std::vector<ProgramSequenceChord> Fabricator::getProgramSequenceChords(const ProgramSequence& programSequence) {
+std::vector<ProgramSequenceChord> Fabricator::getProgramSequenceChords(const ProgramSequence &programSequence) {
   if (completeChordsForProgramSequence.find(programSequence.id) == completeChordsForProgramSequence.end()) {
     std::map<float, ProgramSequenceChord> chordForPosition;
     std::map<float, int> validVoicingsForPosition;
     auto chords = sourceMaterial.getChordsOfSequence(programSequence);
-    for (const auto& chord: chords) {
+    for (const auto &chord: chords) {
       int validVoicings = 0;
       auto voicings = sourceMaterial.getVoicingsOfChord(*chord);
-      for (const auto& voicing : voicings) {
+      for (const auto &voicing: voicings) {
         validVoicings += static_cast<int>(CsvUtils::split(voicing->notes).size());
       }
       if (validVoicingsForPosition.find(chord->position) == validVoicingsForPosition.end() ||
@@ -485,12 +487,13 @@ std::vector<ProgramSequenceChord> Fabricator::getProgramSequenceChords(const Pro
       }
     }
     std::vector<ProgramSequenceChord> sortedChords;
-    for (const auto& [position, chord] : chordForPosition) {
+    for (const auto &[position, chord]: chordForPosition) {
       sortedChords.emplace_back(chord);
     }
-    std::sort(sortedChords.begin(), sortedChords.end(), [](const ProgramSequenceChord& a, const ProgramSequenceChord& b) {
-      return a.position < b.position;
-    });
+    std::sort(sortedChords.begin(), sortedChords.end(),
+              [](const ProgramSequenceChord &a, const ProgramSequenceChord &b) {
+                return a.position < b.position;
+              });
     completeChordsForProgramSequence[programSequence.id] = sortedChords;
   }
 
@@ -498,7 +501,7 @@ std::vector<ProgramSequenceChord> Fabricator::getProgramSequenceChords(const Pro
 }
 
 
-NoteRange Fabricator::getProgramRange(const UUID& programId, Instrument::Type instrumentType) {
+NoteRange Fabricator::getProgramRange(const UUID &programId, Instrument::Type instrumentType) {
   std::string cacheKey = programId + "__" + std::to_string(static_cast<int>(instrumentType));
 
   if (rangeForChoice.find(cacheKey) == rangeForChoice.end()) {
@@ -509,9 +512,11 @@ NoteRange Fabricator::getProgramRange(const UUID& programId, Instrument::Type in
 }
 
 
-int Fabricator::getProgramRangeShiftOctaves(Instrument::Type instrumentType, NoteRange sourceRange, NoteRange targetRange) {
-  std::string cacheKey = std::to_string(static_cast<int>(instrumentType)) + "__" + sourceRange.toString(Accidental::Natural) +
-                         "__" + targetRange.toString(Accidental::Natural);
+int
+Fabricator::getProgramRangeShiftOctaves(Instrument::Type instrumentType, NoteRange sourceRange, NoteRange targetRange) {
+  std::string cacheKey =
+      std::to_string(static_cast<int>(instrumentType)) + "__" + sourceRange.toString(Accidental::Natural) +
+      "__" + targetRange.toString(Accidental::Natural);
 
   if (rangeShiftOctave.find(cacheKey) == rangeShiftOctave.end()) {
     switch (instrumentType) {
@@ -534,9 +539,10 @@ int Fabricator::getProgramRangeShiftOctaves(Instrument::Type instrumentType, Not
 }
 
 
-int Fabricator::getProgramTargetShift(Instrument::Type instrumentType, const Chord& fromChord, const Chord& toChord) {
+int Fabricator::getProgramTargetShift(Instrument::Type instrumentType, const Chord &fromChord, const Chord &toChord) {
   if (!fromChord.has_value()) return 0;
-  std::string cacheKey = std::to_string(static_cast<int>(instrumentType)) + "__" + fromChord.toString() + "__" + toChord.toString();
+  std::string cacheKey =
+      std::to_string(static_cast<int>(instrumentType)) + "__" + fromChord.toString() + "__" + toChord.toString();
   if (targetShift.find(cacheKey) == targetShift.end()) {
     if (instrumentType == Instrument::Type::Bass) {
       targetShift[cacheKey] = Step::delta(fromChord.root, toChord.slashRoot.pitchClass.value_or(Atonal));
@@ -549,7 +555,7 @@ int Fabricator::getProgramTargetShift(Instrument::Type instrumentType, const Cho
 }
 
 
-Program::Type Fabricator::getProgramType(const ProgramVoice& voice) {
+Program::Type Fabricator::getProgramType(const ProgramVoice &voice) {
   auto programOpt = sourceMaterial.getProgram(voice.programId);
   if (!programOpt.has_value()) {
     throw FabricationException("Could not get program!");
@@ -569,7 +575,7 @@ NoteRange Fabricator::getProgramVoicingNoteRange(Instrument::Type instrumentType
   if (voicingNoteRange.find(instrumentType) == voicingNoteRange.end()) {
     std::vector<std::string> notes;
     auto voicings = getChordVoicings();
-    for (const auto& voicing : voicings) {
+    for (const auto &voicing: voicings) {
       if (SegmentUtils::containsAnyValidNotes(voicing) && voicing.type == Instrument::toString(instrumentType)) {
         auto voicingNotes = getNotes(voicing);
         notes.insert(notes.end(), voicingNotes.begin(), voicingNotes.end());
@@ -582,35 +588,37 @@ NoteRange Fabricator::getProgramVoicingNoteRange(Instrument::Type instrumentType
 }
 
 
-std::optional<ProgramSequence> Fabricator::getRandomlySelectedSequence(const Program& program) {
-  std::set<ProgramSequence> sequences;
-  for (const auto& sequence : sourceMaterial.getProgramSequences()) {
+std::optional<ProgramSequence> Fabricator::getRandomlySelectedSequence(const Program &program) {
+  std::vector<ProgramSequence> sequences;
+  for (const auto &sequence: sourceMaterial.getProgramSequences()) {
     if (sequence->programId == program.id) {
-      sequences.emplace(*sequence);
+      sequences.emplace_back(*sequence);
     }
   }
-  return MarbleBag::quickPick(sequences);
+  if (sequences.empty())
+    return std::nullopt;
+  return {sequences[MarbleBag::quickPick((int) sequences.size())]};
 }
 
 
-std::optional<ProgramSequenceBinding> Fabricator::getRandomlySelectedSequenceBindingAtOffset(const Program& program, int offset) {
-  std::set<ProgramSequenceBinding> sequenceBindings;
-  for (const auto& sequenceBinding : sourceMaterial.getBindingsAtOffsetOfProgram(program, offset, true)) {
-    sequenceBindings.emplace(*sequenceBinding);
+std::optional<ProgramSequenceBinding>
+Fabricator::getRandomlySelectedSequenceBindingAtOffset(const Program &program, int offset) {
+  std::vector<ProgramSequenceBinding> sequenceBindings;
+  for (const auto &sequenceBinding: sourceMaterial.getBindingsAtOffsetOfProgram(program, offset, true)) {
+    sequenceBindings.emplace_back(*sequenceBinding);
   }
-  if (sequenceBindings.empty()) {
+  if (sequenceBindings.empty())
     return std::nullopt;
-  }
-  return MarbleBag::quickPick(sequenceBindings);
+  return {sequenceBindings[MarbleBag::quickPick((int) sequenceBindings.size())]};
 }
 
 
 std::optional<const ProgramSequencePattern *>
-Fabricator::getRandomlySelectedPatternOfSequenceByVoiceAndType(const SegmentChoice& choice) {
+Fabricator::getRandomlySelectedPatternOfSequenceByVoiceAndType(const SegmentChoice &choice) {
   MarbleBag bag;
   std::set<const ProgramSequencePattern *> patterns = sourceMaterial.getProgramSequencePatterns();
 
-  for (const auto& pattern : patterns) {
+  for (const auto &pattern: patterns) {
     if (pattern->programSequenceId == choice.programSequenceId && pattern->programVoiceId == choice.programVoiceId) {
       bag.add(1, pattern->id);
     }
@@ -624,7 +632,7 @@ Fabricator::getRandomlySelectedPatternOfSequenceByVoiceAndType(const SegmentChoi
 }
 
 
-std::optional<Note> Fabricator::getRootNoteMidRange(const std::string& voicingNotes, const Chord& chord) {
+std::optional<Note> Fabricator::getRootNoteMidRange(const std::string &voicingNotes, const Chord &chord) {
   std::string key = voicingNotes + "_" + chord.toString();
   auto it = rootNotesByVoicingAndChord.find(key);
   if (it == rootNotesByVoicingAndChord.end()) {
@@ -649,7 +657,7 @@ void Fabricator::putStickyBun(StickyBun bun) {
 }
 
 
-std::optional<StickyBun> Fabricator::getStickyBun(const UUID& eventId) {
+std::optional<StickyBun> Fabricator::getStickyBun(const UUID &eventId) {
   if (!templateConfig.stickyBunEnabled) return std::nullopt;
 
   auto currentMeta = getSegmentMeta(StickyBun::computeMetaKey(eventId));
@@ -1167,12 +1175,13 @@ std::string Fabricator::computeCacheKeyForPreferredAudio(const std::string &pare
 }
 
 
-NoteRange Fabricator::computeProgramRange(const UUID& programId, Instrument::Type instrumentType) {
+NoteRange Fabricator::computeProgramRange(const UUID &programId, Instrument::Type instrumentType) {
   std::vector<std::string> notes;
   auto events = sourceMaterial.getSequencePatternEventsOfProgram(programId);
-  for (const auto& event : events) {
+  for (const auto &event: events) {
     auto voiceOpt = sourceMaterial.getVoiceOfEvent(*event);
-    if (voiceOpt.has_value() && voiceOpt.value()->type == instrumentType && Note::of(event->tones).pitchClass != PitchClass::Atonal) {
+    if (voiceOpt.has_value() && voiceOpt.value()->type == instrumentType &&
+        Note::of(event->tones).pitchClass != PitchClass::Atonal) {
       auto tones = CsvUtils::split(event->tones);
       notes.insert(notes.end(), tones.begin(), tones.end());
     }

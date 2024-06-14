@@ -43,7 +43,7 @@ UUID MarbleBag::pick() {
  * @param phase of selection
  * @param toAdd map of marble id to quantity
  */
-void MarbleBag::addAll(int phase, const std::map<UUID, int>& toAdd) {
+void MarbleBag::addAll(int phase, const std::map<UUID, int> &toAdd) {
   for (const auto &entry: toAdd)
     add(phase, entry.first, entry.second);
 }
@@ -54,7 +54,7 @@ void MarbleBag::addAll(int phase, const std::map<UUID, int>& toAdd) {
  * @param phase of selection
  * @param id    of the marble to add
  */
-void MarbleBag::add(int phase, const UUID& id) {
+void MarbleBag::add(int phase, const UUID &id) {
   add(phase, id, 1);
 }
 
@@ -65,7 +65,7 @@ void MarbleBag::add(int phase, const UUID& id) {
  * @param id    of the marble to add
  * @param qty   quantity of this marble to add
  */
-void MarbleBag::add(int phase, const UUID& id, int qty) {
+void MarbleBag::add(int phase, const UUID &id, int qty) {
   if (marbles.find(phase) == marbles.end())
     marbles[phase] = std::map<UUID, int>();
   if (marbles[phase].find(id) != marbles[phase].end())
@@ -167,15 +167,13 @@ MarbleBag::Group::Group(UUID id, int from, int to) {
   this->to = to;
 }
 
-template<typename N>
-std::optional<N> MarbleBag::quickPick(std::set<N> items) {
-  if (items.empty()) {
-    return std::nullopt;
-  } else {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distrib(0, items.size() - 1);
-    int randomIndex = distrib(gen);
-    return items[randomIndex];
-  }
+int MarbleBag::quickPick(int total) {
+  if (1 == total)
+    return 0;
+  if (0 == total)
+    throw FabricationException("Cannot pick from empty set");
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> distrib(0, total - 1);
+  return distrib(gen);
 }

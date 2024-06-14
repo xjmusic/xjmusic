@@ -4,6 +4,7 @@
 #include <spdlog/spdlog.h>
 
 #include "xjmusic/fabricator/MarbleBag.h"
+#include "xjmusic/fabricator/FabricationException.h"
 
 using namespace XJ;
 
@@ -114,8 +115,11 @@ TEST_F(MarbleBagTest, isEmpty_notIfAnyPhasesHaveMarbles) {
 }
 
 TEST_F(MarbleBagTest, quickPick) {
-  auto pick = MarbleBag::quickPick(std::set<UUID>{frogId, bearId, zebraId});
-  auto expected = std::set<UUID>{frogId, bearId, zebraId};
-  ASSERT_FALSE(expected.find(pick.value()) == expected.end());
-  ASSERT_FALSE(MarbleBag::quickPick(std::set<UUID>{}).has_value());
+  int pick = MarbleBag::quickPick(100);
+  ASSERT_TRUE(pick);
+  ASSERT_TRUE(0 <= pick && pick < 100);
+}
+
+TEST_F(MarbleBagTest, quickPick_exceptionIfZero) {
+  ASSERT_THROW(MarbleBag::quickPick(0), FabricationException);
 }
