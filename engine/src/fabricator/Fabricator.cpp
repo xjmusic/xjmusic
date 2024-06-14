@@ -186,7 +186,7 @@ Fabricator::Fabricator(
       if (!Objects.equals(Segment::Type::Continue, getSegment().type)) return std::optional.empty();
       return retrospective.getChoices().stream().filter(choice -> {
         var candidateVoice = sourceMaterial.getProgramVoice(choice.programVoiceId);
-        return candidateVoice.isPresent() && Objects.equals(candidateVoice.get().name, voice.name) && Objects.equals(candidateVoice.get().type, voice.type);
+        return candidateVoice.has_value() && Objects.equals(candidateVoice.get().name, voice.name) && Objects.equals(candidateVoice.get().type, voice.type);
       }).findFirst();
 
     } catch (Exception e) {
@@ -243,7 +243,7 @@ Fabricator::Fabricator(
     std::optional<Program> program = getProgram(choice);
     if (ValueUtils.isSet(choice.programSequenceBindingId)) {
       var sequence = getSequence(choice);
-      if (sequence.isPresent() && !StringUtils.isNullOrEmpty(sequence.get().getKey()))
+      if (sequence.has_value() && !StringUtils.isNullOrEmpty(sequence.get().getKey()))
         return Chord.of(sequence.get().getKey());
     }
 
@@ -444,7 +444,7 @@ Fabricator::Fabricator(
 
   
   int getProgramTargetShift(Instrument::Type instrumentType, Chord fromChord, Chord toChord) {
-    if (!fromChord.isPresent()) return 0;
+    if (!fromChord.has_value()) return 0;
     var cacheKey = std::string.format("%s__%s__%s", instrumentType, fromChord, toChord);
     if (!targetShift.containsKey(cacheKey)) {
       if (instrumentType.equals(Instrument::Type::Bass)) {
@@ -521,7 +521,7 @@ Fabricator::Fabricator(
     if (!templateConfig.isStickyBunEnabled()) return std::optional.empty();
     //
     var currentMeta = getSegmentMeta(StickyBun.computeMetaKey(eventId));
-    if (currentMeta.isPresent()) {
+    if (currentMeta.has_value()) {
       try {
         return std::optional.of(jsonProvider.getMapper().readValue(currentMeta.get().getValue(), StickyBun.class));
       } catch (JsonProcessingException e) {
@@ -530,7 +530,7 @@ Fabricator::Fabricator(
     }
     //
     var previousMeta = retrospective.getPreviousMeta(StickyBun.computeMetaKey(eventId));
-    if (previousMeta.isPresent()) {
+    if (previousMeta.has_value()) {
       try {
         return std::optional.of(jsonProvider.getMapper().readValue(previousMeta.get().getValue(), StickyBun.class));
       } catch (JsonProcessingException e) {
@@ -597,7 +597,7 @@ Fabricator::Fabricator(
     if (program.isEmpty()) return std::optional.empty();
     if (ValueUtils.isSet(choice.programSequenceBindingId)) {
       var sequenceBinding = sourceMaterial.getProgramSequenceBinding(choice.programSequenceBindingId);
-      if (sequenceBinding.isPresent())
+      if (sequenceBinding.has_value())
         return sourceMaterial.getProgramSequence(sequenceBinding.get().programSequenceId);
     }
 
@@ -662,7 +662,7 @@ Fabricator::Fabricator(
 
   
   boolean isContinuationOfMacroProgram() throws FabricationException {
-    return Segment::Type::Continue.equals(type) || Segment::Type.NEXT_MAIN.equals(type);
+    return Segment::Type::Continue.equals(type) || Segment::Type::NextMain.equals(type);
   }
 
   
@@ -862,15 +862,15 @@ Fabricator::Fabricator(
     // previous main choice having at least one more pattern?
     var previousMainChoice = getPreviousMainChoice();
 
-    if (previousMainChoice.isPresent() && hasOneMoreSequenceBindingOffset(previousMainChoice.get())
+    if (previousMainChoice.has_value() && hasOneMoreSequenceBindingOffset(previousMainChoice.get())
       && getTemplateConfig().getMainProgramLengthMaxDelta() > getPreviousSegmentDelta())
       return Segment::Type::Continue;
 
     // previous macro choice having at least two more patterns?
     var previousMacroChoice = getMacroChoiceOfPreviousSegment();
 
-    if (previousMacroChoice.isPresent() && hasTwoMoreSequenceBindingOffsets(previousMacroChoice.get()))
-      return Segment::Type.NEXT_MAIN;
+    if (previousMacroChoice.has_value() && hasTwoMoreSequenceBindingOffsets(previousMacroChoice.get()))
+      return Segment::Type::NextMain;
 
     return Segment::Type::NextMacro;
   }

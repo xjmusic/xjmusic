@@ -26,7 +26,9 @@ namespace XJ {
      * @return true if lhs < rhs
      */
     friend bool operator<(const SegmentEntity &lhs, const SegmentEntity &rhs) {
-      return lhs.id < rhs.id;
+      if (lhs.segmentId == rhs.segmentId)
+        return lhs.id < rhs.id;
+      return lhs.segmentId < rhs.segmentId;
     }
 
   };

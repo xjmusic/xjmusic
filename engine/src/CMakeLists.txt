@@ -61,6 +61,8 @@ add_library(xjmusic
         fabricator/FabricationEntityStore.cpp
         fabricator/FabricationException.cpp
         fabricator/FabricationFatalException.cpp
+        fabricator/FabricatorFactory.cpp
+        fabricator/SegmentRetrospective.cpp
         fabricator/SegmentUtils.cpp
         fabricator/TemplateUtils.cpp
         util/ConfigParser.cpp

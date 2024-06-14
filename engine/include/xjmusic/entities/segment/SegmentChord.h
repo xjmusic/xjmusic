@@ -31,6 +31,7 @@ namespace XJ {
      * @return       hash code
      */
     [[nodiscard]] unsigned long long hashCode() const;
+
   };
 
 }// namespace XJ

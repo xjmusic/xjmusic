@@ -87,7 +87,7 @@ public class FabricatorImplTest {
     sourceMaterial = new ContentStore(Stream.concat(Stream.concat(Stream.concat(fake.setupFixtureB1().stream(), fake.setupFixtureB2().stream()), fake.setupFixtureB3().stream()), Stream.of(fake.template1, fake.templateBinding1)).collect(Collectors.toList()));
 
     // Here's a basic setup that can be replaced for complex tests
-    var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type.PRODUCTION, Chain::State::Fabricate));
+    var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type::Production, Chain::State::Fabricate));
     segment = store.put(SegmentFixtures.buildSegment(chain, 2, Segment::State::Crafting, "G major", 8, 0.6f, 240.0f, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
     subject = new FabricatorImpl(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory, jsonProvider, 48000.0f, 2, null);
@@ -96,7 +96,7 @@ public class FabricatorImplTest {
   @Test
   public void pick_returned_by_picks() throws Exception {
     ContentFixtures.buildTemplateBinding(fake.template1, fake.library2);
-    var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type.PRODUCTION, Chain::State::Fabricate));
+    var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type::Production, Chain::State::Fabricate));
     store.put(SegmentFixtures.buildSegment(chain, 1, Segment::State::Crafted, "F major", 8, 0.6f, 120.0f, "seg123"));
     segment = store.put(SegmentFixtures.buildSegment(chain, 2, Segment::State::Crafting, "G major", 8, 0.6f, 240.0f, "seg123"));
     store.put(SegmentFixtures.buildSegmentChord(segment, 0.0f, "A"));
@@ -123,7 +123,7 @@ public class FabricatorImplTest {
   public void getDistinctChordVoicingTypes() throws Exception {
     sourceMaterial = new ContentStore(Stream.concat(Stream.concat(Stream.concat(fake.setupFixtureB1().stream(), fake.setupFixtureB2().stream()), fake.setupFixtureB3().stream()), Stream.of(ContentFixtures.buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceSticky, "G4, B4, D4"), ContentFixtures.buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceStripe, "F5"), ContentFixtures.buildVoicing(fake.program5_sequence0_chord0, fake.program5_voicePad, "(None)") // No voicing notes- doesn't count!
     )).collect(Collectors.toList()));
-    var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type.PRODUCTION, Chain::State::Fabricate));
+    var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type::Production, Chain::State::Fabricate));
     segment = store.put(SegmentFixtures.buildSegment(chain, 0, Segment::State::Crafting, "F major", 8, 0.6f, 120.0f, "seg123"));
     store.put(SegmentFixtures.buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program5));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
@@ -140,7 +140,7 @@ public class FabricatorImplTest {
    */
   @Test
   public void type throws FabricationException, FabricationFatalException {
-    var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type.PRODUCTION, Chain::State::Fabricate));
+    var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type::Production, Chain::State::Fabricate));
     Segment previousSegment = store.put(SegmentFixtures.buildSegment(chain, 1, Segment::State::Crafted, "F major", 8, 0.6f, 120.0f, "seg123"));
     var previousMacroChoice = // second-to-last sequence of macro program
       store.put(buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program4, fake.program4_sequence1_binding0));
@@ -161,7 +161,7 @@ public class FabricatorImplTest {
 
   @Test
   public void getMemeIsometryOfNextSequenceInPreviousMacro() throws FabricationException, FabricationFatalException {
-    var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type.PRODUCTION, Chain::State::Fabricate));
+    var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type::Production, Chain::State::Fabricate));
     Segment previousSegment = store.put(SegmentFixtures.buildSegment(chain, 1, Segment::State::Crafted, "F major", 8, 0.6f, 120.0f, "seg123"));
     var previousMacroChoice = // second-to-last sequence of macro program
       store.put(buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program4, fake.program4_sequence1_binding0));
@@ -178,7 +178,7 @@ public class FabricatorImplTest {
 
   @Test
   public void getChordAt() throws FabricationException, FabricationFatalException, ValueException {
-    var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type.PRODUCTION, Chain::State::Fabricate));
+    var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type::Production, Chain::State::Fabricate));
     segment = store.put(SegmentFixtures.buildSegment(chain, 2, Segment::State::Crafting, "G major", 8, 0.6f, 240.0f, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
     subject = new FabricatorImpl(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory, jsonProvider, 48000.0f, 2, null);
@@ -198,7 +198,7 @@ public class FabricatorImplTest {
 
   @Test
   public void computeProgramRange() throws FabricationException, FabricationFatalException, ValueException {
-    var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type.PRODUCTION, Chain::State::Fabricate));
+    var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type::Production, Chain::State::Fabricate));
     segment = store.put(SegmentFixtures.buildSegment(chain, 2, Segment::State::Crafting, "G major", 8, 0.6f, 240.0f, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
     var program = ContentFixtures.buildProgram(Program::Type::Detail, "C", 120.0f);
@@ -217,7 +217,7 @@ public class FabricatorImplTest {
 
   @Test
   public void computeProgramRange_ignoresAtonalNotes() throws FabricationException, FabricationFatalException, ValueException {
-    var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type.PRODUCTION, Chain::State::Fabricate));
+    var chain = store.put(buildChain(fake.project1, fake.template1, "test", Chain::Type::Production, Chain::State::Fabricate));
     segment = store.put(SegmentFixtures.buildSegment(chain, 2, Segment::State::Crafting, "G major", 8, 0.6f, 240.0f, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
     var program = ContentFixtures.buildProgram(Program::Type::Detail, "C", 120.0f);

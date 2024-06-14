@@ -46,6 +46,7 @@ add_executable(xjmusic_test
         entities/music/StickyBunTest.cpp
         entities/music/TuningTest.cpp
         fabricator/FabricationEntityStoreTest.cpp
+        fabricator/SegmentRetrospectiveTest.cpp
         fabricator/SegmentUtilsTest.cpp
         util/ConfigParserTest.cpp
         util/StringUtilsTest.cpp

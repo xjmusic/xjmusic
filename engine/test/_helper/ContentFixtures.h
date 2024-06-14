@@ -28,38 +28,18 @@
 #include "xjmusic/entities/content/TemplateConfig.h"
 #include "xjmusic/entities/content/TemplateBinding.h"
 #include "xjmusic/util/StringUtils.h"
+#include "xjmusic/entities/content/ContentStore.h"
 
 namespace XJ {
 
-  using AnyContentEntity = std::variant<
-      Project,
-      Library,
-      Template,
-      TemplateBinding,
-      Program,
-      ProgramMeme,
-      ProgramSequence,
-      ProgramSequenceBinding,
-      ProgramSequenceBindingMeme,
-      ProgramVoice,
-      ProgramVoiceTrack,
-      ProgramSequenceChord,
-      ProgramSequenceChordVoicing,
-      ProgramSequencePattern,
-      ProgramSequencePatternEvent,
-      Instrument,
-      InstrumentMeme,
-      InstrumentAudio
-  >;
-
   /**
- Integration tests use shared scenario fixtures as much as possible https://github.com/xjmusic/workstation/issues/202
- <p>
- Testing the hypothesis that,
-while unit tests are all independent,
- integration tests ought to be as much about testing all features around a consensus model of the platform
- as they are about testing all resources.
- */
+   Integration tests use shared scenario fixtures as much as possible https://github.com/xjmusic/workstation/issues/202
+   <p>
+   Testing the hypothesis that,
+  while unit tests are all independent,
+   integration tests ought to be as much about testing all features around a consensus model of the platform
+   as they are about testing all resources.
+   */
   class ContentFixtures {
   public:
 
@@ -67,12 +47,164 @@ while unit tests are all independent,
 
     // Test data
     Project project1;
+    Instrument instrument8;
+    Instrument instrument9;
+    InstrumentAudio instrument8_audio8bleep;
+    InstrumentAudio instrument8_audio8kick;
+    InstrumentAudio instrument8_audio8snare;
+    InstrumentAudio instrument8_audio8toot;
+    InstrumentAudio instrument9_audio8;
+    InstrumentMeme instrument8_meme0;
+    InstrumentMeme instrument9_meme0;
+    Library library1;
     Library library2;
+    Program program10;
     Program program15;
     Program program35;
     Program program3;
     Program program4;
+    Program program5;
+    Program program9;
+    ProgramMeme program10_meme0;
+    ProgramMeme program15_meme0;
+    ProgramMeme program35_meme0;
+    ProgramMeme program3_meme0;
+    ProgramMeme program4_meme0;
+    ProgramMeme program5_meme0;
+    ProgramMeme program9_meme0;
+    ProgramSequence program10_sequence0;
+    ProgramSequence program15_sequence0;
+    ProgramSequence program15_sequence1;
+    ProgramSequence program35_sequence0;
+    ProgramSequence program3_sequence0;
+    ProgramSequence program3_sequence1;
+    ProgramSequence program4_sequence0;
+    ProgramSequence program4_sequence1;
+    ProgramSequence program4_sequence2;
+    ProgramSequence program5_sequence0;
+    ProgramSequence program5_sequence1;
+    ProgramSequence program9_sequence0;
+    ProgramSequenceBinding program15_sequence0_binding0;
+    ProgramSequenceBinding program15_sequence1_binding0;
+    ProgramSequenceBinding program3_sequence0_binding0;
+    ProgramSequenceBinding program3_sequence1_binding0;
+    ProgramSequenceBinding program4_sequence0_binding0;
+    ProgramSequenceBinding program4_sequence1_binding0;
+    ProgramSequenceBinding program4_sequence2_binding0;
+    ProgramSequenceBinding program5_sequence0_binding0;
+    ProgramSequenceBinding program5_sequence1_binding0;
+    ProgramSequenceBinding program5_sequence1_binding1;
+    ProgramSequenceBindingMeme program15_sequence0_binding0_meme0;
+    ProgramSequenceBindingMeme program15_sequence1_binding0_meme0;
+    ProgramSequenceBindingMeme program15_sequence1_binding0_meme1;
+    ProgramSequenceBindingMeme program3_sequence0_binding0_meme0;
+    ProgramSequenceBindingMeme program3_sequence1_binding0_meme0;
+    ProgramSequenceBindingMeme program4_sequence0_binding0_meme0;
+    ProgramSequenceBindingMeme program4_sequence1_binding0_meme0;
+    ProgramSequenceBindingMeme program4_sequence1_binding0_meme1;
+    ProgramSequenceBindingMeme program4_sequence2_binding0_meme0;
+    ProgramSequenceBindingMeme program5_sequence0_binding0_meme0;
+    ProgramSequenceBindingMeme program5_sequence1_binding0_meme0;
+    ProgramSequenceBindingMeme program5_sequence1_binding1_meme0;
+    ProgramSequenceChord program15_sequence0_chord0;
+    ProgramSequenceChord program15_sequence0_chord1;
+    ProgramSequenceChord program15_sequence1_chord0;
+    ProgramSequenceChord program15_sequence1_chord1;
+    ProgramSequenceChord program5_sequence0_chord0;
+    ProgramSequenceChord program5_sequence0_chord1;
+    ProgramSequenceChord program5_sequence0_chord2;
+    ProgramSequenceChord program5_sequence1_chord0;
+    ProgramSequenceChord program5_sequence1_chord1;
+    ProgramSequenceChordVoicing program15_sequence0_chord0_voicing;
+    ProgramSequenceChordVoicing program15_sequence0_chord1_voicing;
+    ProgramSequenceChordVoicing program15_sequence1_chord0_voicing;
+    ProgramSequenceChordVoicing program15_sequence1_chord1_voicing;
+    ProgramSequenceChordVoicing program5_sequence0_chord0_voicing;
+    ProgramSequenceChordVoicing program5_sequence0_chord1_voicing;
+    ProgramSequenceChordVoicing program5_sequence0_chord2_voicing;
+    ProgramSequenceChordVoicing program5_sequence1_chord0_voicing;
+    ProgramSequenceChordVoicing program5_sequence1_chord1_voicing;
+    ProgramSequencePattern program10_sequence0_pattern0;
+    ProgramSequencePattern program10_sequence0_pattern1;
+    ProgramSequencePattern program10_sequence0_pattern2;
+    ProgramSequencePattern program10_sequence0_pattern3;
+    ProgramSequencePattern program35_sequence0_pattern0;
+    ProgramSequencePattern program35_sequence0_pattern1;
+    ProgramSequencePattern program9_sequence0_pattern0;
+    ProgramSequencePattern program9_sequence0_pattern1;
+    ProgramSequencePattern program9_sequence0_pattern2;
+    ProgramSequencePattern program9_sequence0_pattern3;
+    ProgramSequencePatternEvent program10_sequence0_pattern0_event0;
+    ProgramSequencePatternEvent program10_sequence0_pattern0_event1;
+    ProgramSequencePatternEvent program10_sequence0_pattern0_event2;
+    ProgramSequencePatternEvent program10_sequence0_pattern0_event3;
+    ProgramSequencePatternEvent program10_sequence0_pattern1_event0;
+    ProgramSequencePatternEvent program10_sequence0_pattern1_event1;
+    ProgramSequencePatternEvent program10_sequence0_pattern1_event2;
+    ProgramSequencePatternEvent program10_sequence0_pattern1_event3;
+    ProgramSequencePatternEvent program10_sequence0_pattern2_event0;
+    ProgramSequencePatternEvent program10_sequence0_pattern2_event1;
+    ProgramSequencePatternEvent program10_sequence0_pattern2_event2;
+    ProgramSequencePatternEvent program10_sequence0_pattern2_event3;
+    ProgramSequencePatternEvent program10_sequence0_pattern3_event0;
+    ProgramSequencePatternEvent program10_sequence0_pattern3_event1;
+    ProgramSequencePatternEvent program10_sequence0_pattern3_event2;
+    ProgramSequencePatternEvent program10_sequence0_pattern3_event3;
+    ProgramSequencePatternEvent program35_sequence0_pattern0_event0;
+    ProgramSequencePatternEvent program35_sequence0_pattern0_event1;
+    ProgramSequencePatternEvent program35_sequence0_pattern0_event2;
+    ProgramSequencePatternEvent program35_sequence0_pattern0_event3;
+    ProgramSequencePatternEvent program35_sequence0_pattern1_event0;
+    ProgramSequencePatternEvent program35_sequence0_pattern1_event1;
+    ProgramSequencePatternEvent program35_sequence0_pattern1_event2;
+    ProgramSequencePatternEvent program35_sequence0_pattern1_event3;
+    ProgramSequencePatternEvent program9_sequence0_pattern0_event0;
+    ProgramSequencePatternEvent program9_sequence0_pattern0_event1;
+    ProgramSequencePatternEvent program9_sequence0_pattern0_event2;
+    ProgramSequencePatternEvent program9_sequence0_pattern0_event3;
+    ProgramSequencePatternEvent program9_sequence0_pattern1_event0;
+    ProgramSequencePatternEvent program9_sequence0_pattern1_event1;
+    ProgramSequencePatternEvent program9_sequence0_pattern1_event2;
+    ProgramSequencePatternEvent program9_sequence0_pattern1_event3;
+    ProgramSequencePatternEvent program9_sequence0_pattern2_event0;
+    ProgramSequencePatternEvent program9_sequence0_pattern2_event1;
+    ProgramSequencePatternEvent program9_sequence0_pattern2_event2;
+    ProgramSequencePatternEvent program9_sequence0_pattern2_event3;
+    ProgramSequencePatternEvent program9_sequence0_pattern3_event0;
+    ProgramSequencePatternEvent program9_sequence0_pattern3_event1;
+    ProgramSequencePatternEvent program9_sequence0_pattern3_event2;
+    ProgramSequencePatternEvent program9_sequence0_pattern3_event3;
+    ProgramVoice program10_voice0;
+    ProgramVoice program15_voiceBass;
+    ProgramVoice program35_voice0;
+    ProgramVoice program5_voiceBass;
+    ProgramVoice program5_voicePad;
+    ProgramVoice program5_voiceSticky;
+    ProgramVoice program5_voiceStripe;
+    ProgramVoice program9_voice0;
+    ProgramVoiceTrack program10_voice0_track0;
+    ProgramVoiceTrack program35_voice0_track0;
+    ProgramVoiceTrack program35_voice0_track1;
+    ProgramVoiceTrack program35_voice0_track2;
+    ProgramVoiceTrack program35_voice0_track3;
+    ProgramVoiceTrack program9_voice0_track0;
+    ProgramVoiceTrack program9_voice0_track10;
+    ProgramVoiceTrack program9_voice0_track11;
+    ProgramVoiceTrack program9_voice0_track12;
+    ProgramVoiceTrack program9_voice0_track13;
+    ProgramVoiceTrack program9_voice0_track14;
+    ProgramVoiceTrack program9_voice0_track15;
+    ProgramVoiceTrack program9_voice0_track1;
+    ProgramVoiceTrack program9_voice0_track2;
+    ProgramVoiceTrack program9_voice0_track3;
+    ProgramVoiceTrack program9_voice0_track4;
+    ProgramVoiceTrack program9_voice0_track5;
+    ProgramVoiceTrack program9_voice0_track6;
+    ProgramVoiceTrack program9_voice0_track7;
+    ProgramVoiceTrack program9_voice0_track8;
+    ProgramVoiceTrack program9_voice0_track9;
     Template template1;
+    TemplateBinding templateBinding1;
 
     /**
      * Build an instrument with audios
@@ -492,6 +624,51 @@ while unit tests are all independent,
         const Instrument& instrument,
         std::string name
     );
+
+    /**
+     A whole library of mock content
+
+     @return collection of entities
+     */
+    void setupFixtureB1(ContentStore &store);
+
+    /**
+     Library of Content B-2 (shared test fixture)
+     <p>
+     Integration tests use shared scenario fixtures as much as possible https://github.com/xjmusic/workstation/issues/202
+     */
+    void setupFixtureB2(ContentStore &store);
+
+    /**
+     Library of Content B-3 (shared test fixture)
+     <p>
+     Integration tests use shared scenario fixtures as much as possible https://github.com/xjmusic/workstation/issues/202
+     <p>
+     memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes. https://github.com/xjmusic/workstation/issues/203
+     <p>
+     Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences) https://github.com/xjmusic/workstation/issues/204
+     <p>
+     Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment. https://github.com/xjmusic/workstation/issues/257
+     + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
+     <p>
+     Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset. https://github.com/xjmusic/workstation/issues/283
+     */
+    void setupFixtureB3(ContentStore &store);
+
+    /**
+     Library of Content B-4 (shared test fixture)
+     <p>
+     Detail Craft v1 https://github.com/xjmusic/workstation/issues/284
+     */
+    void setupFixtureB4_DetailBass(ContentStore &store);
+
+    /**
+     Generate a Library comprising many related entities
+
+     @param N magnitude of library to generate
+     @return entities
+     */
+    void generatedFixture(ContentStore &store, int N);
 
   };
 

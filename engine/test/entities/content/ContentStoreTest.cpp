@@ -1097,3 +1097,27 @@ TEST_F(ContentStoreTest, ForTemplate_BoundToInstrument) {
   ASSERT_EQ(1, result.getTemplates().size());
   ASSERT_EQ(1, result.getTemplateBindings().size());
 }
+
+TEST_F(ContentStoreTest, Clear) {
+  subject.clear();
+
+  // Assert the correct count of entities in the content store
+  ASSERT_EQ(0, subject.getInstruments().size());
+  ASSERT_EQ(0, subject.getInstrumentAudios().size());
+  ASSERT_EQ(0, subject.getInstrumentMemes().size());
+  ASSERT_EQ(0, subject.getLibraries().size());
+  ASSERT_EQ(0, subject.getPrograms().size());
+  ASSERT_EQ(0, subject.getProgramMemes().size());
+  ASSERT_EQ(0, subject.getProgramSequences().size());
+  ASSERT_EQ(0, subject.getProgramSequenceBindings().size());
+  ASSERT_EQ(0, subject.getProgramSequenceBindingMemes().size());
+  ASSERT_EQ(0, subject.getProgramSequenceChords().size());
+  ASSERT_EQ(0, subject.getProgramSequenceChordVoicings().size());
+  ASSERT_EQ(0, subject.getProgramSequencePatterns().size());
+  ASSERT_EQ(0, subject.getProgramSequencePatternEvents().size());
+  ASSERT_EQ(0, subject.getProgramVoices().size());
+  ASSERT_EQ(0, subject.getProgramVoiceTracks().size());
+  ASSERT_EQ(0, subject.getProjects().size());
+  ASSERT_EQ(0, subject.getTemplates().size());
+  ASSERT_EQ(0, subject.getTemplateBindings().size());
+}
