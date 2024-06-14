@@ -51,4 +51,6 @@ namespace XJ {
     return DEFAULT;
   }
 
+  ProgramConfig::ProgramConfig(const Program *pProgram) : ProgramConfig(pProgram->config) {}
+
 }// namespace XJ

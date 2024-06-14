@@ -33,15 +33,22 @@ namespace XJ {
     std::vector<std::string> oneShotObserveLengthOfEvents;
 
     /**
-   * Format the InstrumentConfig as a HOCON string
-   * @return  The HOCON string
-   */
+     * Format the InstrumentConfig as a HOCON string
+     * @return  The HOCON string
+     */
     [[nodiscard]] std::string toString() const;
 
     /**
-   * Get the default InstrumentConfig as a HOCON string
-   */
+     * Get the default InstrumentConfig as a HOCON string
+     */
     [[nodiscard]] static std::string getDefaultString();
+
+    /**
+     * Check if the one-shot observe length of events contains a given event name
+     * @param eventName  The event name
+     * @return      True if the one-shot observe length of events contains the event name
+     */
+    [[nodiscard]] bool oneShotObserveLengthOfEventsContains(const std::string &eventName) const;
   };
 
 }// namespace XJ

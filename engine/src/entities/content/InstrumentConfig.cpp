@@ -68,4 +68,9 @@ namespace XJ {
     return DEFAULT;
   }
 
+  bool InstrumentConfig::oneShotObserveLengthOfEventsContains(const std::string &eventName) const {
+    return std::find(oneShotObserveLengthOfEvents.begin(), oneShotObserveLengthOfEvents.end(), eventName) !=
+           oneShotObserveLengthOfEvents.end();
+  }
+
 }// namespace XJ

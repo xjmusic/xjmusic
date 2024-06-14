@@ -64,3 +64,18 @@ TEST(InstrumentConfigTest, ReleaseMillis) {
 
   ASSERT_EQ(5, subject.releaseMillis);
 }
+
+TEST(InstrumentConfigTest, IsTonal) {
+  InstrumentConfig subject("isTonal=true");
+
+  ASSERT_TRUE(subject.isTonal);
+}
+
+TEST(InstrumentConfigTest, OneShotObserveLengthOfEventsContains) {
+  InstrumentConfig subject("oneShotObserveLengthOfEvents=[   bada ,     bIng, b    ooM ]");
+
+  ASSERT_TRUE(subject.oneShotObserveLengthOfEventsContains("BADA"));
+  ASSERT_TRUE(subject.oneShotObserveLengthOfEventsContains("BING"));
+  ASSERT_TRUE(subject.oneShotObserveLengthOfEventsContains("BOOM"));
+  ASSERT_FALSE(subject.oneShotObserveLengthOfEventsContains("BEEP"));
+}

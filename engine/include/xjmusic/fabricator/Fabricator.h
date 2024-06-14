@@ -212,7 +212,7 @@ namespace XJ {
 
      @return current main sequence
      */
-    std::optional<ProgramSequence> getCurrentMainSequence();
+    std::optional<const ProgramSequence *> getCurrentMainSequence();
 
     /**
      fetch the detail-type choice for the current segment in the chain
@@ -255,7 +255,7 @@ namespace XJ {
      @return unique key for pattern event
      @throws FabricationException if unable to compute cache key
      */
-    std::string computeCacheKeyForVoiceTrack(SegmentChoiceArrangementPick pick);
+    std::string computeCacheKeyForVoiceTrack(const SegmentChoiceArrangementPick& pick);
 
     /**
      Get the Key for any given Choice, preferring its Sequence Key (bound), defaulting to the Program Key.
@@ -266,7 +266,7 @@ namespace XJ {
      @return key of specified sequence/program via choice
      @throws FabricationException if unable to determine key of choice
      */
-    Chord getKeyForChoice(SegmentChoice choice);
+    Chord getKeyForChoice(const SegmentChoice& choice);
 
     /**
      fetch the macro-type choice for the previous segment in the chain
@@ -295,7 +295,7 @@ namespace XJ {
 
      @return previous main sequence
      */
-    std::optional<ProgramSequence> getPreviousMainSequence();
+    std::optional<const ProgramSequence *> getPreviousMainSequence();
 
     /**
      Get meme isometry for the next offset in the previous segment's macro-choice
@@ -350,7 +350,7 @@ namespace XJ {
 
      @return preferred audios
      */
-    std::optional<InstrumentAudio> getPreferredAudio(std::string parentIdent, std::string ident);
+    std::optional<InstrumentAudio> getPreferredAudio(const std::string& parentIdent, const std::string& ident);
 
     /**
      Get Program for any given choice
@@ -408,7 +408,7 @@ namespace XJ {
      @param choice for which to get sequence
      @return sequence of choice
      */
-    std::optional<ProgramSequence> getProgramSequence(SegmentChoice choice);
+    std::optional<const ProgramSequence *> getProgramSequence(const SegmentChoice& choice);
 
     /**
      Compute the target shift from a key toward a chord
@@ -440,7 +440,7 @@ namespace XJ {
      @return type of voice for voicing
      @throws FabricationException on failure
      */
-    Instrument::Type getProgramVoiceType(ProgramSequenceChordVoicing voicing);
+    Instrument::Type getProgramVoiceType(const ProgramSequenceChordVoicing * voicing);
 
     /**
      Get the lowest note present in any voicing of all the segment chord voicings for this segment and instrument type
@@ -525,14 +525,14 @@ namespace XJ {
 
      @return segment chord voicings
      */
-    std::vector<SegmentChordVoicing> getChordVoicings();
+    std::set<SegmentChordVoicing> getChordVoicings();
 
     /**
      Get all segment memes
 
      @return segment memes
      */
-    std::vector<SegmentMeme> getSegmentMemes();
+    std::set<SegmentMeme> getSegmentMemes();
 
     /**
      Get the sequence for a Choice either directly (beat- and detail-type sequences), or by sequence-pattern (macro- or main-type sequences) https://github.com/xjmusic/xjmusic/issues/204
@@ -707,23 +707,83 @@ namespace XJ {
     bool isInitialSegment();
 
     /**
-     Put a new Entity by type and id
+     Put a SegmentChoice in the store
      <p>
-     If it's a SegmentChoice...
-     Should add meme from ALL program and instrument types! https://github.com/xjmusic/xjmusic/issues/210
+     Should add memes from ALL program and instrument types! https://github.com/xjmusic/xjmusic/issues/210
      - Add memes of choices to segment in order to affect further choices.
      - Add all memes of this choice, from target program, program sequence binding, or instrument if present
      - Enhances: Straightforward meme logic https://github.com/xjmusic/xjmusic/issues/270
      - Enhances: XJ should not add memes to Segment for program/instrument that was not successfully chosen https://github.com/xjmusic/xjmusic/issues/216
      <p>
 
-     @param entity to put
-     @param force overriding safeguards (e.g. choices must not violate meme stack, memes must be unique)
-     @return entity successfully put
+     @param entity Choice to put
+     @return Choice successfully put
      @throws FabricationException on failure
      */
-    template <typename N>
-    N put(N entity, bool force);
+    SegmentChoice put(SegmentChoice entity, bool force);
+
+    /**
+     Put a SegmentChoiceArrangement in the store
+
+     @param entity Arrangement to put
+     @return Arrangement successfully put
+     @throws FabricationException on failure
+     */
+    SegmentChoiceArrangement put(SegmentChoiceArrangement entity);
+
+    /**
+     Put a SegmentChoiceArrangementPick in the store
+
+     @param entity ChoiceArrangementPick to put
+     @return ChoiceArrangementPick successfully put
+     @throws FabricationException on failure
+     */
+    SegmentChoiceArrangementPick put(SegmentChoiceArrangementPick entity);
+
+    /**
+     Put a SegmentChord in the store
+
+     @param entity Chord to put
+     @return Chord successfully put
+     @throws FabricationException on failure
+     */
+    SegmentChord put(SegmentChord entity);
+
+    /**
+     Put a SegmentChordVoicing in the store
+
+     @param entity ChordVoicing to put
+     @return ChordVoicing successfully put
+     @throws FabricationException on failure
+     */
+    SegmentChordVoicing put(SegmentChordVoicing entity);
+
+    /**
+     Put a SegmentMeme in the store
+
+     @param entity Meme to put
+     @return Meme successfully put
+     @throws FabricationException on failure
+     */
+    SegmentMeme put(SegmentMeme entity, bool force);
+
+    /**
+     Put a SegmentMessage in the store
+
+     @param entity Message to put
+     @return Message successfully put
+     @throws FabricationException on failure
+     */
+    SegmentMessage put(SegmentMessage entity);
+
+    /**
+     Put a SegmentMeta in the store
+
+     @param entity Meta to put
+     @return Meta successfully put
+     @throws FabricationException on failure
+     */
+    SegmentMeta put(SegmentMeta entity);
 
     /**
      Set the preferred audio for a key
@@ -732,7 +792,7 @@ namespace XJ {
      @param ident           for which to set
      @param instrumentAudio value to set
      */
-    void putPreferredAudio(std::string parentIdent, std::string ident, InstrumentAudio instrumentAudio);
+    void putPreferredAudio(const std::string& parentIdent, const std::string& ident, const InstrumentAudio *instrumentAudio);
 
     /**
      Put a key-value pair into the report
@@ -741,7 +801,7 @@ namespace XJ {
      @param key   to put
      @param value to put
      */
-    void putReport(std::string key, std::map<std::string, std::string> value);
+    void putReport(const std::string& key, const std::map<std::string, std::string>& value);
 
     /**
      Set the Segment.
@@ -773,7 +833,7 @@ namespace XJ {
      @return micros per beat
      @throws FabricationException on failure
      */
-    float getMicrosPerBeat(double tempo);
+    float getMicrosPerBeat(float tempo);
 
     /**
      Get the second macro sequence binding offset of a given macro program
@@ -781,7 +841,7 @@ namespace XJ {
      @param macroProgram for which to get second macro sequence binding offset
      @return second macro sequence binding offset
      */
-    int getSecondMacroSequenceBindingOffset(Program macroProgram);
+    int getSecondMacroSequenceBindingOffset(const Program& macroProgram);
 
     /**
      @return the tempo of the current main program
@@ -792,10 +852,9 @@ namespace XJ {
     /**
      @return the meme taxonomy for the source material
      */
-    MemeTaxonomy getMemeTaxonomy();
+    MemeTaxonomy getMemeTaxonomy() const;
 
   private:
-    static const std::string KEY_VOICE_NOTE_TEMPLATE;
     static const std::string KEY_VOICE_TRACK_TEMPLATE;
     static const std::string NAME_SEPARATOR;
     static const std::string UNKNOWN_KEY;
@@ -808,7 +867,7 @@ namespace XJ {
     std::map<double, std::optional<SegmentChord>> chordAtPosition;
     std::map<Instrument::Type, NoteRange> voicingNoteRange;
     std::map<SegmentChoice, ProgramSequence> sequenceForChoice;
-    std::map<std::string, InstrumentAudio> preferredAudios;
+    std::map<std::string, const InstrumentAudio *> preferredAudios;
     std::map<std::string, InstrumentConfig> instrumentConfigs;
     std::map<std::string, InstrumentConfig> pickInstrumentConfigs;
     std::map<std::string, int> rangeShiftOctave;
@@ -828,9 +887,16 @@ namespace XJ {
     std::optional<SegmentChoice> macroChoiceOfPreviousSegment;
     std::optional<SegmentChoice> mainChoiceOfPreviousSegment;
 
-    double *microsPerBeat = nullptr;
+    float microsPerBeat;
 
-    std::set<Instrument::Type> *distinctChordVoicingTypes = nullptr;
+    std::set<Instrument::Type> *distinctChordVoicingTypes;
+
+    /**
+     * Get the segment meta for a given key
+     * @param key  to get meta for
+     * @return     meta for key
+     */
+    std::optional<SegmentMeta> getSegmentMeta(const std::string& key);
 
     /**
      Get the choices of the current segment of the given type
@@ -854,7 +920,7 @@ namespace XJ {
      @param targetRange to
      @return lowest optimal range shift octaves
      */
-    int computeLowestOptimalRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange);
+    static int computeLowestOptimalRangeShiftOctaves(const NoteRange& sourceRange, NoteRange targetRange);
 
     /**
      Compute a Segment ship key: the chain ship key concatenated with the begin-at time in chain microseconds
@@ -863,7 +929,7 @@ namespace XJ {
      @param segment for which to compute segment ship key
      @return Segment ship key computed for the given chain and Segment
      */
-    std::string computeShipKey(Chain chain, Segment segment);
+    static std::string computeShipKey(const Chain& chain, const Segment& segment);
 
     /**
      Format a message with the segmentId as prefix
@@ -871,7 +937,7 @@ namespace XJ {
      @param message to format
      @return formatted message with segmentId as prefix
      */
-    std::string formatLog(std::string message);
+    std::string formatLog(const std::string& message);
 
     /**
      Ensure the current segment has a storage key; if not, add a storage key to this Segment
@@ -897,7 +963,7 @@ namespace XJ {
 
      @return preferred instrument audio
      */
-    std::map<std::string, InstrumentAudio> computePreferredInstrumentAudio();
+    std::map<std::string, const InstrumentAudio *> computePreferredInstrumentAudio();
 
     /**
      For a SegmentChoice, add memes from program, program sequence binding, and instrument if present https://github.com/xjmusic/xjmusic/issues/210
@@ -918,6 +984,14 @@ namespace XJ {
      @return true if okay to add
      */
     bool isValidMemeAddition(SegmentMeme meme, MemeStack memeStack, bool force);
+
+    /**
+     * Compute the cache key for preferred audio
+     * @param parentIdent  parent identifier
+     * @param ident      identifier
+     * @return         cache key for preferred audio
+     */
+    static std::string computeCacheKeyForPreferredAudio(const std::string &parentIdent, const std::string &ident);
 
   };
 

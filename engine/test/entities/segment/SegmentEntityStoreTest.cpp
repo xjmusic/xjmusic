@@ -5,10 +5,8 @@
 
 #include "../../_helper/ContentFixtures.h"
 #include "../../_helper/SegmentFixtures.h"
-#include "../../_helper/TestHelpers.h"
 #include "xjmusic/entities/segment/SegmentEntityStore.h"
 #include "xjmusic/fabricator/FabricationException.h"
-#include "Entity.h"
 
 using namespace XJ;
 

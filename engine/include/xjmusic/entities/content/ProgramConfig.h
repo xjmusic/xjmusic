@@ -35,6 +35,8 @@ namespace XJ {
      * Get the default ProgramConfig as a HOCON string
      */
     [[nodiscard]] static std::string getDefaultString();
+
+    ProgramConfig(const Program *pProgram);
   };
 
 }// namespace XJ

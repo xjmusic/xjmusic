@@ -16,4 +16,12 @@ namespace XJ {
            std::hash<std::string>{}(name);
   }
 
+  std::set<std::string> SegmentMeme::getNames(const std::set<SegmentMeme> &segmentMemes) {
+    std::set<std::string> names;
+    for (const auto &segmentMeme : segmentMemes) {
+      names.insert(segmentMeme.name);
+    }
+    return names;
+  }
+
 }// namespace XJ

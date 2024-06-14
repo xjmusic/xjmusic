@@ -5,6 +5,7 @@
 
 #include <string>
 #include <utility>
+#include <set>
 
 #include "xjmusic/entities/Entity.h"
 #include "SegmentEntity.h"
@@ -30,6 +31,13 @@ namespace XJ {
      * @return       hash code
      */
     [[nodiscard]] unsigned long long hashCode() const;
+
+    /**
+     * Get the names of a set of Segment Memes
+     * @param segmentMemes  The set of Segment Memes
+     * @return       The names
+     */
+    static std::set<std::string> getNames(const std::set<SegmentMeme> &segmentMemes);
 
   };
 
