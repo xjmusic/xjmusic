@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- Artist saves Program config, validate & combine with defaults. https://github.com/xjmusic/workstation/issues/206
+ Artist saves Program config, validate & combine with defaults. https://github.com/xjmusic/xjmusic/issues/206
  */
 public class ProgramConfigTest {
 

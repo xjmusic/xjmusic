@@ -15,9 +15,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- SegmentEntityStore segments and child entities partitioned by segment id for rapid addressing https://github.com/xjmusic/workstation/issues/276
+ SegmentEntityStore segments and child entities partitioned by segment id for rapid addressing https://github.com/xjmusic/xjmusic/issues/276
  <p>
- XJ Lab Distributed Architecture https://github.com/xjmusic/workstation/issues/207
+ XJ Lab Distributed Architecture https://github.com/xjmusic/xjmusic/issues/207
  Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in memory
  */
 public interface SegmentEntityStore {

@@ -146,7 +146,7 @@ public class SegmentRetrospectiveImplTest {
   }
 
   /**
-   Failure requiring a chain restart https://github.com/xjmusic/workstation/issues/263
+   Failure requiring a chain restart https://github.com/xjmusic/xjmusic/issues/263
    */
   @Test
   public void failureToReadMainChoiceIsFatal() throws FabricationException {
@@ -160,7 +160,7 @@ public class SegmentRetrospectiveImplTest {
   }
 
   /**
-   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/workstation/issues/222
+   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/xjmusic/issues/222
    */
   @Test
   public void getPreviousMeta() throws FabricationException, FabricationFatalException, JsonProcessingException {

@@ -5,7 +5,7 @@ package io.xj.engine.mixer;
 import java.io.IOException;
 
 /**
- Ship service can be used to write N seconds to local .WAV file https://github.com/xjmusic/workstation/issues/272
+ Ship service can be used to write N seconds to local .WAV file https://github.com/xjmusic/xjmusic/issues/272
  */
 public interface AudioFileWriter {
   /**

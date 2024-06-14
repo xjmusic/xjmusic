@@ -156,7 +156,7 @@ public class FabricationContentEntityStoreImplTest {
   }
 
   /**
-   Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation https://github.com/xjmusic/workstation/issues/301
+   Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation https://github.com/xjmusic/xjmusic/issues/301
    */
   @Test
   public void create() throws Exception {
@@ -437,7 +437,7 @@ public class FabricationContentEntityStoreImplTest {
   }
 
   /**
-   List of Segments returned should not be more than a dozen or so https://github.com/xjmusic/workstation/issues/302
+   List of Segments returned should not be more than a dozen or so https://github.com/xjmusic/xjmusic/issues/302
    */
   @Test
   public void readAll_hasNoLimit() throws FabricationException {

@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- Artist saves Instrument config, validate & combine with defaults. https://github.com/xjmusic/workstation/issues/206
+ Artist saves Instrument config, validate & combine with defaults. https://github.com/xjmusic/xjmusic/issues/206
  */
 public class InstrumentConfigTest {
 
@@ -53,7 +53,7 @@ public class InstrumentConfigTest {
   }
 
   /**
-   Instruments have a config to play back as one-shots (ignore note-event lengths) https://github.com/xjmusic/workstation/issues/224
+   Instruments have a config to play back as one-shots (ignore note-event lengths) https://github.com/xjmusic/xjmusic/issues/224
    */
   @Test
   public void isOneShot() throws ValueException {
@@ -63,7 +63,7 @@ public class InstrumentConfigTest {
   }
 
   /**
-   Instruments have a config to play back as one-shots (ignore note-event lengths) https://github.com/xjmusic/workstation/issues/224
+   Instruments have a config to play back as one-shots (ignore note-event lengths) https://github.com/xjmusic/xjmusic/issues/224
    */
   @Test
   public void oneShotObserveLengthOfEvents() throws ValueException {
@@ -73,7 +73,7 @@ public class InstrumentConfigTest {
   }
 
   /**
-   InstrumentConfig to disable note cutoffs for one-shot instruments https://github.com/xjmusic/workstation/issues/225
+   InstrumentConfig to disable note cutoffs for one-shot instruments https://github.com/xjmusic/xjmusic/issues/225
    */
   @Test
   public void isOneShotCutoffEnabled() throws ValueException {
@@ -83,7 +83,7 @@ public class InstrumentConfigTest {
   }
 
   /**
-   One-shot fadeout mode https://github.com/xjmusic/workstation/issues/226
+   One-shot fadeout mode https://github.com/xjmusic/xjmusic/issues/226
    */
   @Test
   public void releaseMillis() throws ValueException {

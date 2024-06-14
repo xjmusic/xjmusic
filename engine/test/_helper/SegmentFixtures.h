@@ -45,59 +45,13 @@
 namespace XJ {
 
   /**
- Integration tests use shared scenario fixtures as much as possible https://github.com/xjmusic/workstation/issues/202
+ Integration tests use shared scenario fixtures as much as possible https://github.com/xjmusic/xjmusic/issues/202
  <p>
  Testing the hypothesis that, while unit tests are all independent,
  integration tests ought to be as much about testing all features around a consensus model of the platform
  as they are about testing all resources.
  */
   class SegmentFixtures {
-    static constexpr float RANDOM_VALUE_FROM = 0.3f;
-    static constexpr float RANDOM_VALUE_TO = 0.8f;
-
-  protected:
-    /**
-     List of N random values
-  
-     @param N number of values
-     @return array of values
-     */
-    static std::vector<float> listOfRandomValues(int N);
-
-    /**
-     Create an N-magnitude list of unique Strings at random of a source list of Strings
-  
-     @param N           size of list
-     @param sourceItems source Strings
-     @return array of unique random Strings
-     */
-    static std::vector<std::string> listOfUniqueRandom(long N, const std::vector<std::string>& sourceItems);
-
-    /**
-     Random value between A and B
-  
-     @param A floor
-     @param B ceiling
-     @return A <= value <= B
-     */
-    static float random(float A, float B);
-
-    /**
-     Get random std::string of array
-  
-     @param array to get std::string of
-     @return random std::string
-     */
-    static std::string random(std::vector<std::string> array);
-
-    /**
-     Get random long of array
-  
-     @param array to get long of
-     @return random long
-     */
-    static int random(std::vector<int> array);
-
   public:
     /**
      * Build a chain from a template

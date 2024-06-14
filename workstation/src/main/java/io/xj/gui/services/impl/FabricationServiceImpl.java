@@ -219,7 +219,7 @@ public class FabricationServiceImpl implements FabricationService {
       var content = projectService.getContent(inputTemplate.get());
 
       // If memes/macro already engaged at fabrication start (which is always true in a manual control mode),
-      // the first segment should be governed by that selection https://github.com/xjmusic/workstation/issues/201
+      // the first segment should be governed by that selection https://github.com/xjmusic/xjmusic/issues/201
       switch (controlMode.get()) {
         case MACRO -> content.getProgramsOfType(ProgramType.Macro).stream()
           .min(Comparator.comparing(Program::getName))

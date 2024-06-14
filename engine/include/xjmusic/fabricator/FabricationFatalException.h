@@ -13,7 +13,7 @@ namespace XJ {
  When this occurs during fabrication, the chain must be restarted.
  This differentiates from retry-able network or service failures.
  <p>
- Fabrication should recover from having no main choice https://github.com/xjmusic/workstation/issues/263
+ Fabrication should recover from having no main choice https://github.com/xjmusic/xjmusic/issues/263
  */
   class FabricationFatalException : public std::exception {
   public:

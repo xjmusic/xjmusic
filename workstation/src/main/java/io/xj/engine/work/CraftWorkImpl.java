@@ -319,7 +319,7 @@ public class CraftWorkImpl implements CraftWork {
   /**
    If memes/macro already engaged at fabrication start (which is always true in a manual control mode),
    the first segment should be governed by that selection
-   https://github.com/xjmusic/workstation/issues/201
+   https://github.com/xjmusic/xjmusic/issues/201
    */
   private void doNextCycleRewriteUnlessInitialSegment() {
     if (0 < store.getSegmentCount())
@@ -329,7 +329,7 @@ public class CraftWorkImpl implements CraftWork {
   /**
    Fabricate the chain based on craft state
    <p>
-   Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub live performance modulation https://github.com/xjmusic/workstation/issues/197
+   Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub live performance modulation https://github.com/xjmusic/xjmusic/issues/197
 
    @param dubbedToChainMicros already dubbed to here
    @param craftToChainMicros  target to craft until
@@ -386,10 +386,10 @@ public class CraftWorkImpl implements CraftWork {
    Override behavior deletes all future segments and re-fabricates starting with the given parameters
    <p>
    Macro program override
-   https://github.com/xjmusic/workstation/issues/197
+   https://github.com/xjmusic/xjmusic/issues/197
    <p>
    Memes override
-   https://github.com/xjmusic/workstation/issues/199
+   https://github.com/xjmusic/xjmusic/issues/199
 
    @param dubbedToChainMicros  already dubbed to here
    @param overrideMacroProgram to override fabrication

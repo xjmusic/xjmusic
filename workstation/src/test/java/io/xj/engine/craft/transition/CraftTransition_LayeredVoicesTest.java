@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- Transition fabrication composited of layered Patterns https://github.com/xjmusic/workstation/issues/267
+ Transition fabrication composited of layered Patterns https://github.com/xjmusic/xjmusic/issues/267
  */
 @ExtendWith(MockitoExtension.class)
 public class CraftTransition_LayeredVoicesTest {

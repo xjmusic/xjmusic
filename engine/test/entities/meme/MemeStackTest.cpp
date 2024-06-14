@@ -20,7 +20,7 @@ TEST(MemeStackTest, IsAllowed) {
 /**
  Anti-Memes
  <p>
- Artist can add !MEME values into Programs https://github.com/xjmusic/workstation/issues/214
+ Artist can add !MEME values into Programs https://github.com/xjmusic/xjmusic/issues/214
  */
 TEST(MemeStackTest, AntiMemes) {
   ASSERT_TRUE(MemeStack::from(MemeTaxonomy::empty(), {"!APPLES", "ORANGES"}).isAllowed({"!APPLES"}));
@@ -37,7 +37,7 @@ TEST(MemeStackTest, AntiMemes) {
 /**
  Unique Memes
  <p>
- Artist can add `$MEME` so only one is chosen https://github.com/xjmusic/workstation/issues/219
+ Artist can add `$MEME` so only one is chosen https://github.com/xjmusic/xjmusic/issues/219
  */
 TEST(MemeStackTest, UniqueMemes) {
   ASSERT_TRUE(MemeStack::from(MemeTaxonomy::empty(), {"APPLES", "ORANGES"}).isAllowed({"$PELICANS"}));
@@ -47,7 +47,7 @@ TEST(MemeStackTest, UniqueMemes) {
 }
 
 /**
- Numeric memes with common letters and different integer prefix (e.g. 2STEP vs 4STEP) are known to be exclusive https://github.com/xjmusic/workstation/issues/217
+ Numeric memes with common letters and different integer prefix (e.g. 2STEP vs 4STEP) are known to be exclusive https://github.com/xjmusic/xjmusic/issues/217
  */
 TEST(MemeStackTest, NumericMemes) {
   ASSERT_EQ(5, ParseNumeric::fromString("5BEAT").prefix);
@@ -63,7 +63,7 @@ TEST(MemeStackTest, NumericMemes) {
 }
 
 /**
- Strong-meme like LEMONS! should always favor LEMONS https://github.com/xjmusic/workstation/issues/218
+ Strong-meme like LEMONS! should always favor LEMONS https://github.com/xjmusic/xjmusic/issues/218
  */
 TEST(MemeStackTest, StrongMemes) {
   ASSERT_EQ("LEMONS", ParseStrong::fromString("LEMONS!").body);
@@ -74,7 +74,7 @@ TEST(MemeStackTest, StrongMemes) {
   ASSERT_TRUE(MemeStack::from(MemeTaxonomy::empty(), {"JAMS", "LEMONS!"}).isAllowed({"4NOTE", "ORANGES"}));
 }
 /**
- Strong-meme like LEMONS! should always favor LEMONS https://github.com/xjmusic/workstation/issues/218
+ Strong-meme like LEMONS! should always favor LEMONS https://github.com/xjmusic/xjmusic/issues/218
  */
 TEST(MemeStackTest, StrongMemes_OkayToAddBothStrongAndRegular_ButNotOnlyStrong) {
   ASSERT_TRUE(MemeStack::from(MemeTaxonomy::empty(), {"LEMONS", "LEMONS!"}).isValid());
@@ -120,7 +120,7 @@ TEST(MemeStackTest, StrongMemes_WithTaxonomy) {
 
 /**
  TemplateConfig has Meme categories
- https://github.com/xjmusic/workstation/issues/209
+ https://github.com/xjmusic/xjmusic/issues/209
  <p>
  A template configuration has a field called `memeTaxonomy` which defines the taxonomy of memes.
  <p>
@@ -149,7 +149,7 @@ TEST(MemeStackTest, MemeCategories_AllowAlreadyPresentFromTaxonomy) {
 }
 
 /**
- Refuse to make a choice that violates the meme stack https://github.com/xjmusic/workstation/issues/211
+ Refuse to make a choice that violates the meme stack https://github.com/xjmusic/xjmusic/issues/211
  */
 TEST(MemeStackTest, IsValid) {
   ASSERT_TRUE(MemeStack::from(MemeTaxonomy::empty(),

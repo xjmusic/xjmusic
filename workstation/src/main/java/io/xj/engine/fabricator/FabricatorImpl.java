@@ -178,7 +178,7 @@ public class FabricatorImpl implements Fabricator {
     this.segmentId = segmentId;
 
     // Override the segment type by passing the fabricator a segment type on creation
-    // live performance modulation https://github.com/xjmusic/workstation/issues/197
+    // live performance modulation https://github.com/xjmusic/xjmusic/issues/197
     if (Objects.nonNull(overrideSegmentType)) {
       type = overrideSegmentType;
     }
@@ -1036,7 +1036,7 @@ public class FabricatorImpl implements Fabricator {
   }
 
   /**
-   For a SegmentChoice, add memes from program, program sequence binding, and instrument if present https://github.com/xjmusic/workstation/issues/210
+   For a SegmentChoice, add memes from program, program sequence binding, and instrument if present https://github.com/xjmusic/xjmusic/issues/210
 
    @param choice    to test for validity, and add its memes
    @param memeStack to use for validation

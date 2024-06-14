@@ -54,11 +54,11 @@ add_library(xjmusic
         entities/segment/SegmentChoiceArrangementPick.cpp
         entities/segment/SegmentChord.cpp
         entities/segment/SegmentChordVoicing.cpp
+        entities/segment/SegmentEntityStore.cpp
         entities/segment/SegmentMeme.cpp
         entities/segment/SegmentMessage.cpp
         entities/segment/SegmentMeta.cpp
         fabricator/ChainUtils.cpp
-        fabricator/SegmentEntityStore.cpp
         fabricator/FabricationException.cpp
         fabricator/FabricationFatalException.cpp
         fabricator/FabricatorFactory.cpp

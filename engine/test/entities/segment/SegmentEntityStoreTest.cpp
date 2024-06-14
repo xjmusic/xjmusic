@@ -116,7 +116,7 @@ protected:
 
 
 /**
- Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation https://github.com/xjmusic/workstation/issues/301
+ Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation https://github.com/xjmusic/xjmusic/issues/301
  */
 TEST_F(FabricationEntityStoreTest, Create) {
   Segment inputData;
@@ -346,7 +346,7 @@ TEST_F(FabricationEntityStoreTest, ReadAllSegments) {
 }
 
 /**
- List of Segments returned should not be more than a dozen or so https://github.com/xjmusic/workstation/issues/302
+ List of Segments returned should not be more than a dozen or so https://github.com/xjmusic/xjmusic/issues/302
  */
 TEST_F(FabricationEntityStoreTest, ReadAll_hasNoLimit) {
   Chain chain5 = subject.put(

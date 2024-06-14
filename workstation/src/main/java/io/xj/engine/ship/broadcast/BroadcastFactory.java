@@ -7,7 +7,7 @@ import io.xj.engine.mixer.AudioFileWriter;
 import javax.sound.sampled.AudioFormat;
 
 /**
- Ship broadcast via HTTP Live Streaming https://github.com/xjmusic/workstation/issues/279
+ Ship broadcast via HTTP Live Streaming https://github.com/xjmusic/xjmusic/issues/279
  */
 public interface BroadcastFactory {
 
@@ -26,7 +26,7 @@ public interface BroadcastFactory {
   /**
    Write the stream to a local .WAV file
    <p>
-   Ship service can be used to write N seconds to local .WAV file https://github.com/xjmusic/workstation/issues/272
+   Ship service can be used to write N seconds to local .WAV file https://github.com/xjmusic/xjmusic/issues/272
 
    @param format of audio
    @return stream writer

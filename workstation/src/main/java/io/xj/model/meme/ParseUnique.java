@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  <p>
  Parse any meme to test if it's valid, and extract its features
  <p>
- Artist can add `$MEME` so only one is chosen https://github.com/xjmusic/workstation/issues/219
+ Artist can add `$MEME` so only one is chosen https://github.com/xjmusic/xjmusic/issues/219
  */
 class ParseUnique {
   static final Pattern rgx = Pattern.compile("^\\$(.+)$");

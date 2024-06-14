@@ -17,9 +17,9 @@ import static io.xj.model.util.ValueUtils.MICROS_PER_SECOND;
  <p>
  SEE: https://developer.apple.com/documentation/http_live_streaming/hls_authoring_specification_for_apple_devices
  <p>
- Ship broadcast via HTTP Live Streaming https://github.com/xjmusic/workstation/issues/279
+ Ship broadcast via HTTP Live Streaming https://github.com/xjmusic/xjmusic/issues/279
  <p>
- Fabrication timing is entirely in chain/segment microseconds https://github.com/xjmusic/workstation/issues/280
+ Fabrication timing is entirely in chain/segment microseconds https://github.com/xjmusic/xjmusic/issues/280
  */
 public class Chunk {
   final Long fromChainMicros;

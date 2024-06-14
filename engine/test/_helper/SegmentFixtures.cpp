@@ -8,48 +8,6 @@
 
 using namespace XJ;
 
-std::vector<float> SegmentFixtures::listOfRandomValues(int N) {
-  std::vector<float> result(N);
-  for (int i = 0; i < N; i++) {
-    result[i] = random(RANDOM_VALUE_FROM, RANDOM_VALUE_TO);
-  }
-  return result;
-}
-
-std::vector<std::string> SegmentFixtures::listOfUniqueRandom(long N, const std::vector<std::string> &sourceItems) {
-  int count = 0;
-  std::vector<std::string> items;
-  while (count < N) {
-    std::string p = random(sourceItems);
-    if (std::find(items.begin(), items.end(), p) == items.end()) {
-      items.push_back(p);
-      count++;
-    }
-  }
-  return items;
-}
-
-float SegmentFixtures::random(float A, float B) {
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_real_distribution<> dis(A, B);
-  return dis(gen);
-}
-
-std::string SegmentFixtures::random(std::vector<std::string> array) {
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<> dis(0, array.size() - 1);
-  return array[dis(gen)];
-}
-
-int SegmentFixtures::random(std::vector<int> array) {
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<> dis(0, array.size() - 1);
-  return array[dis(gen)];
-}
-
 Chain SegmentFixtures::buildChain(
     const Template &tmpl
 ) {

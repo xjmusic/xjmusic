@@ -40,7 +40,7 @@ import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- Choose next Macro program based on the memes of the last sequence from the previous Macro program https://github.com/xjmusic/workstation/issues/299
+ Choose next Macro program based on the memes of the last sequence from the previous Macro program https://github.com/xjmusic/xjmusic/issues/299
  */
 @SuppressWarnings("ALL")
 @ExtendWith(MockitoExtension.class)

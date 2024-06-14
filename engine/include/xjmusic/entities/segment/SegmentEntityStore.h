@@ -1,5 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
+#ifndef XJMUSIC_SEGMENT_ENTITY_STORE_H
+#define XJMUSIC_SEGMENT_ENTITY_STORE_H
+
 #include <optional>
 #include <typeindex>
 #include <vector>
@@ -13,19 +16,45 @@
 #include "xjmusic/entities/segment/SegmentChoiceArrangementPick.h"
 #include "xjmusic/entities/segment/SegmentChoice.h"
 
+using namespace XJ;
+
+#define SEGMENT_STORE_CORE_HEADERS(ENTITY, ENTITIES)                    \
+  ENTITY put(const ENTITY& choice);                                     \
+  std::optional<ENTITY> read##ENTITY(int segmentId, const UUID& id);    \
+  std::set<ENTITY> readAll##ENTITIES(int segmentId);                    \
+  std::set<ENTITY> readAll##ENTITIES(const std::set<int>& segmentIds);  \
+
+
 namespace XJ {
 
   /**
    SegmentEntityStore segments and child entities partitioned by segment id for rapid addressing
-   https://github.com/xjmusic/workstation/issues/276
+   https://github.com/xjmusic/xjmusic/issues/276
    <p>
    XJ Lab Distributed Architecture
-   https://github.com/xjmusic/workstation/issues/207
+   https://github.com/xjmusic/xjmusic/issues/207
    Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in JSON:API record stored keyed by chain or segment id in memory
    */
   class SegmentEntityStore {
 
   public:
+    SegmentEntityStore() = default;
+
+    SEGMENT_STORE_CORE_HEADERS(SegmentChoice, SegmentChoices)
+
+    SEGMENT_STORE_CORE_HEADERS(SegmentChoiceArrangement, SegmentChoiceArrangements)
+
+    SEGMENT_STORE_CORE_HEADERS(SegmentChoiceArrangementPick, SegmentChoiceArrangementPicks)
+
+    SEGMENT_STORE_CORE_HEADERS(SegmentChord, SegmentChords)
+
+    SEGMENT_STORE_CORE_HEADERS(SegmentChordVoicing, SegmentChordVoicings)
+
+    SEGMENT_STORE_CORE_HEADERS(SegmentMeme, SegmentMemes)
+
+    SEGMENT_STORE_CORE_HEADERS(SegmentMessage, SegmentMessages)
+
+    SEGMENT_STORE_CORE_HEADERS(SegmentMeta, SegmentMetas)
 
     /**
      * Put the Chain in the entity store
@@ -40,54 +69,6 @@ namespace XJ {
     Segment put(Segment segment);
 
     /**
-     * Put a SegmentChoice in the entity store
-     * @returns stored SegmentChoice
-     */
-    SegmentChoice put(const SegmentChoice& choice);
-
-    /**
-     * Put a SegmentChoiceArrangement in the entity store
-     * @returns stored SegmentChoiceArrangement
-     */
-    SegmentChoiceArrangement put(const SegmentChoiceArrangement& arrangement);
-
-    /**
-     * Put a SegmentChoiceArrangementPick in the entity store
-     * @returns stored SegmentChoiceArrangementPick
-     */
-    SegmentChoiceArrangementPick put(const SegmentChoiceArrangementPick& pick);
-
-    /**
-     * Put a SegmentChord in the entity store
-     * @returns stored SegmentChord
-     */
-    SegmentChord put(const SegmentChord& chord);
-
-    /**
-     * Put a SegmentChordVoicing in the entity store
-     * @returns stored SegmentChordVoicing
-     */
-    SegmentChordVoicing put(const SegmentChordVoicing& voicing);
-
-    /**
-     * Put a SegmentMeme in the entity store
-     * @returns stored SegmentMeme
-     */
-    SegmentMeme put(const SegmentMeme& meme);
-
-    /**
-     * Put a SegmentMessage in the entity store
-     * @returns stored SegmentMessage
-     */
-    SegmentMessage put(const SegmentMessage& message);
-
-    /**
-     * Put a SegmentMeta in the entity store
-     * @returns stored SegmentMeta
-     */
-    SegmentMeta put(const SegmentMeta& meta);
-
-    /**
      * Read a Chain by #
      * @returns requested Chain
      */
@@ -98,134 +79,6 @@ namespace XJ {
      * @returns requested Segment
      */
     std::optional<Segment> readSegment(int segmentId);
-
-    /**
-     * Read a SegmentChoice by UUID in the given Segment #
-     * @returns requested SegmentChoice
-     */
-    std::optional<SegmentChoice> readSegmentChoice(int segmentId, const UUID& id);
-
-    /**
-     * Read a SegmentChoiceArrangement by UUID in the given Segment #
-     * @returns requested SegmentChoiceArrangement
-     */
-    std::optional<SegmentChoiceArrangement> readSegmentChoiceArrangement(int segmentId, const UUID& id);
-
-    /**
-     * Read a SegmentChoiceArrangementPick by UUID in the given Segment #
-     * @returns requested SegmentChoiceArrangementPick
-     */
-    std::optional<SegmentChoiceArrangementPick> readSegmentChoiceArrangementPick(int segmentId, const UUID& id);
-
-    /**
-     * Read a SegmentChord by UUID in the given Segment #
-     * @returns requested SegmentChord
-     */
-    std::optional<SegmentChord> readSegmentChord(int segmentId, const UUID& id);
-
-    /**
-     * Read a SegmentChordVoicing by UUID in the given Segment #
-     * @returns requested SegmentChordVoicing
-     */
-    std::optional<SegmentChordVoicing> readSegmentChordVoicing(int segmentId, const UUID& id);
-
-    /**
-     * Read a SegmentMeme by UUID in the given Segment #
-     * @returns requested SegmentMeme
-     */
-    std::optional<SegmentMeme> readSegmentMeme(int segmentId, const UUID& id);
-
-    /**
-     * Read a SegmentMessage by UUID in the given Segment #
-     * @returns requested SegmentMessage
-     */
-    std::optional<SegmentMessage> readSegmentMessage(int segmentId, const UUID& id);
-
-    /**
-     * Read a SegmentMeta by UUID in the given Segment #
-     * @returns requested SegmentMeta
-     */
-    std::optional<SegmentMeta> readSegmentMeta(int segmentId, const UUID& id);
-
-    /**
-     * Read all SegmentChoices in the given Segment #
-     */
-    std::set<SegmentChoice> readAllSegmentChoices(int segmentId);
-
-    /**
-     * Read all SegmentChoiceArrangements in the given Segment #
-     */
-    std::set<SegmentChoiceArrangement> readAllSegmentChoiceArrangements(int segmentId);
-
-    /**
-     * Read all SegmentChoiceArrangementPicks in the given Segment #
-     */
-    std::set<SegmentChoiceArrangementPick> readAllSegmentChoiceArrangementPicks(int segmentId);
-
-    /**
-     * Read all SegmentChords in the given Segment #
-     */
-    std::set<SegmentChord> readAllSegmentChords(int segmentId);
-
-    /**
-     * Read all SegmentChordVoicings in the given Segment #
-     */
-    std::set<SegmentChordVoicing> readAllSegmentChordVoicings(int segmentId);
-
-    /**
-     * Read all SegmentMemes in the given Segment #
-     */
-    std::set<SegmentMeme> readAllSegmentMemes(int segmentId);
-
-    /**
-     * Read all SegmentMessages in the given Segment #
-     */
-    std::set<SegmentMessage> readAllSegmentMessages(int segmentId);
-
-    /**
-     * Read all SegmentMetas in the given Segment #
-     */
-    std::set<SegmentMeta> readAllSegmentMetas(int segmentId);
-
-    /**
-     * Read all SegmentChoices in the given Segments by #s
-     */
-    std::set<SegmentChoice> readAllSegmentChoices(const std::set<int>& segmentIds);
-
-    /**
-     * Read all SegmentChoiceArrangements in the given Segments by #s
-     */
-    std::set<SegmentChoiceArrangement> readAllSegmentChoiceArrangements(const std::set<int>& segmentIds);
-
-    /**
-     * Read all SegmentChoiceArrangementPicks in the given Segments by #s
-     */
-    std::set<SegmentChoiceArrangementPick> readAllSegmentChoiceArrangementPicks(const std::set<int>& segmentIds);
-
-    /**
-     * Read all SegmentChords in the given Segments by #s
-     */
-    std::set<SegmentChord> readAllSegmentChords(const std::set<int>& segmentIds);
-
-    /**
-     * Read all SegmentChordVoicings in the given Segments by #s
-     */
-    std::set<SegmentChordVoicing> readAllSegmentChordVoicings(const std::set<int>& segmentIds);
-
-    /**
-     * Read all SegmentMemes in the given Segments by #s
-     */
-    std::set<SegmentMeme> readAllSegmentMemes(const std::set<int>& segmentIds);
-
-    /**
-     * Read all SegmentMessages in the given Segments by #s
-     */
-    std::set<SegmentMessage> readAllSegmentMessages(const std::set<int>& segmentIds);
-
-    /**
-     * Read all SegmentMetas in the given Segments by #s
-     */
-    std::set<SegmentMeta> readAllSegmentMetas(const std::set<int>& segmentIds);
 
     /**
      Get the segment at the given chain microseconds, if it is ready
@@ -451,3 +304,5 @@ namespace XJ {
   };
 
 }
+
+#endif //XJMUSIC_SEGMENT_ENTITY_STORE_H

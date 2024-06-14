@@ -9,17 +9,7 @@
 
 using namespace XJ;
 
-namespace nlohmann {
-  void to_json(json &j, const StickyBun &bun) {
-    j = json({{"eventId", bun.eventId},
-              {"values",  bun.values}});
-  }
-
-  void from_json(const json &j, StickyBun &bun) {
-    j.at("eventId").get_to(bun.eventId);
-    j.at("values").get_to(bun.values);
-  }
-}
+using json = nlohmann::json;
 
 std::random_device StickyBun::rd;
 std::mt19937 StickyBun::gen(rd());
@@ -71,3 +61,17 @@ std::string StickyBun::computeMetaKey() const {
   return computeMetaKey(eventId);
 }
 
+std::string StickyBun::to_json() {
+  return json({
+                  {"eventId", eventId},
+                  {"values",  values}
+              }).dump();
+}
+
+StickyBun StickyBun::from_json(const std::string& str) {
+  StickyBun bun;
+  auto json = json::parse(str);
+  json.at("eventId").get_to(bun.eventId);
+  json.at("values").get_to(bun.values);
+  return bun;
+}

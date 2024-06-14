@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  e.g.
  if the `config` value contains only `previewLengthMaxHours = 8`
  <p>
- Artist saves Template config, validate & combine with defaults. https://github.com/xjmusic/workstation/issues/206
+ Artist saves Template config, validate & combine with defaults. https://github.com/xjmusic/xjmusic/issues/206
  */
 public class TemplateConfig {
   public static final String DEFAULT = """

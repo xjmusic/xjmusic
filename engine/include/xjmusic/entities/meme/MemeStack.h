@@ -58,14 +58,14 @@ namespace XJ {
     /**
      Test whether all of our own memes are allowed, while avoiding testing any meme against itself
      <p>
-     Refuse to make a choice that violates the meme stack https://github.com/xjmusic/workstation/issues/211
+     Refuse to make a choice that violates the meme stack https://github.com/xjmusic/xjmusic/issues/211
 
      @return true if the theorem is valid
      */
     bool isValid();
 
     /**
-     Constellations report https://github.com/xjmusic/workstation/issues/212
+     Constellations report https://github.com/xjmusic/xjmusic/issues/212
 
      @return normalized string representation of an unordered set of memes
      */

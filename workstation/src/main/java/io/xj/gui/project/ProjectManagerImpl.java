@@ -173,7 +173,7 @@ public class ProjectManagerImpl implements ProjectManager {
           .sorted(Comparator.comparing(InstrumentAudio::getName))
           .toList()) {
           if (!Objects.equals(state.get(), ProjectState.LoadingAudio)) {
-            // Workstation canceling preloading should cease resampling audio files https://github.com/xjmusic/workstation/issues/278
+            // Workstation canceling preloading should cease resampling audio files https://github.com/xjmusic/xjmusic/issues/278
             project.set(null);
             return false;
           }
@@ -294,7 +294,7 @@ public class ProjectManagerImpl implements ProjectManager {
           .sorted(Comparator.comparing(InstrumentAudio::getName))
           .toList()) {
           if (!Objects.equals(state.get(), ProjectState.ExportingTemplate)) {
-            // Workstation canceling preloading should cease resampling audio files https://github.com/xjmusic/workstation/issues/278
+            // Workstation canceling preloading should cease resampling audio files https://github.com/xjmusic/xjmusic/issues/278
             project.set(null);
             return false;
           }
@@ -1227,7 +1227,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
   /**
    Save the project content to disk
-   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   Project file structure is conducive to version control https://github.com/xjmusic/xjmusic/issues/335
 
    @param platformVersion        the platform version
    @param priorProjectPathPrefix (optional) the prior project path prefix, e.g. during a Save As operation

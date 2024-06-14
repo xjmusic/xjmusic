@@ -295,47 +295,47 @@ namespace nlohmann {
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "bugprone-macro-parentheses"
 
-#define CONTENT_STORE_CORE_METHODS(ENTITY, ENTITIES, STORE)                       \
-  std::optional<const ENTITY *> ContentEntityStore::get##ENTITY(const UUID &id) {       \
-    try {                                                                         \
-      if (STORE.count(id) == 0) {                                                 \
-        return std::nullopt;                                                      \
-      }                                                                           \
-      return &STORE.at(id);                                                       \
-    } catch (...) {                                                               \
-      return std::nullopt;                                                        \
-    }                                                                             \
-  }                                                                               \
-  std::set<const ENTITY *> ContentEntityStore::get##ENTITIES() {                        \
-    try {                                                                         \
-      std::set<const ENTITY *> result;                                            \
-      for (const auto &entry: STORE) {                                            \
-        result.emplace(&entry.second);                                            \
-      }                                                                           \
-      return result;                                                              \
-    } catch (...) {                                                               \
-      return {};                                                                  \
-    }                                                                             \
-  }                                                                               \
+#define CONTENT_STORE_CORE_METHODS(ENTITY, ENTITIES, STORE)                                   \
+  std::optional<const ENTITY *> ContentEntityStore::get##ENTITY(const UUID &id) {             \
+    try {                                                                                     \
+      if (STORE.count(id) == 0) {                                                             \
+        return std::nullopt;                                                                  \
+      }                                                                                       \
+      return &STORE.at(id);                                                                   \
+    } catch (...) {                                                                           \
+      return std::nullopt;                                                                    \
+    }                                                                                         \
+  }                                                                                           \
+  std::set<const ENTITY *> ContentEntityStore::get##ENTITIES() {                              \
+    try {                                                                                     \
+      std::set<const ENTITY *> result;                                                        \
+      for (const auto &entry: STORE) {                                                        \
+        result.emplace(&entry.second);                                                        \
+      }                                                                                       \
+      return result;                                                                          \
+    } catch (...) {                                                                           \
+      return {};                                                                              \
+    }                                                                                         \
+  }                                                                                           \
   ContentEntityStore ContentEntityStore::set##ENTITIES(const std::set<ENTITY> &entities) {    \
-    try {                                                                         \
-      STORE.clear();                                                              \
-      for (const auto &entity: entities) {                                        \
-        STORE[entity.id] = std::move(entity);                                     \
-      }                                                                           \
-    } catch (const std::exception &e) {                                           \
-      spdlog::error("Error putting all {}: {}", #ENTITY, e.what());               \
-    }                                                                             \
-    return *this;                                                                 \
-  }                                                                               \
-  ENTITY ContentEntityStore::put(const ENTITY &entity) {                                \
-    try {                                                                         \
-      STORE[entity.id] = std::move(entity);                                       \
-    } catch (const std::exception &e) {                                           \
-      spdlog::error("Error putting {}: {}", #ENTITY, e.what());                   \
-    }                                                                             \
-    return entity;                                                                \
-  }                                                                               \
+    try {                                                                                     \
+      STORE.clear();                                                                          \
+      for (const auto &entity: entities) {                                                    \
+        STORE[entity.id] = std::move(entity);                                                 \
+      }                                                                                       \
+    } catch (const std::exception &e) {                                                       \
+      spdlog::error("Error putting all {}: {}", #ENTITY, e.what());                           \
+    }                                                                                         \
+    return *this;                                                                             \
+  }                                                                                           \
+  ENTITY ContentEntityStore::put(const ENTITY &entity) {                                      \
+    try {                                                                                     \
+      STORE[entity.id] = std::move(entity);                                                   \
+    } catch (const std::exception &e) {                                                       \
+      spdlog::error("Error putting {}: {}", #ENTITY, e.what());                               \
+    }                                                                                         \
+    return entity;                                                                            \
+  }                                                                                           \
 
 
 CONTENT_STORE_CORE_METHODS(Instrument, Instruments, instruments)

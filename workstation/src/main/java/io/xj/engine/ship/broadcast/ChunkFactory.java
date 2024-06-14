@@ -5,7 +5,7 @@ package io.xj.engine.ship.broadcast;
 import jakarta.annotation.Nullable;
 
 /**
- Ship broadcast via HTTP Live Streaming https://github.com/xjmusic/workstation/issues/279
+ Ship broadcast via HTTP Live Streaming https://github.com/xjmusic/xjmusic/issues/279
  */
 public interface ChunkFactory {
 

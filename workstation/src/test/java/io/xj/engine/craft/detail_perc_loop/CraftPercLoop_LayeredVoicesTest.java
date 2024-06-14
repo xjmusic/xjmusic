@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- Percussion-type Loop-mode fabrication composited of layered Patterns https://github.com/xjmusic/workstation/issues/267
+ Percussion-type Loop-mode fabrication composited of layered Patterns https://github.com/xjmusic/xjmusic/issues/267
  */
 @ExtendWith(MockitoExtension.class)
 public class CraftPercLoop_LayeredVoicesTest {

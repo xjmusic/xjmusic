@@ -13,7 +13,7 @@ import java.util.TreeSet;
  Compute normalized string representation of an unordered set of memes
  for the purpose of identifying unique constellations.
  <p>
- for each unique sequence-pattern-meme constellation within the main sequence https://github.com/xjmusic/workstation/issues/208
+ for each unique sequence-pattern-meme constellation within the main sequence https://github.com/xjmusic/xjmusic/issues/208
  */
 public enum MemeConstellation {
   ;

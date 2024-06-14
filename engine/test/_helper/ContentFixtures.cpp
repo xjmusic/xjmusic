@@ -2,12 +2,55 @@
 
 #include "ContentFixtures.h"
 #include "TestHelpers.h"
+#include "LoremIpsum.h"
 
 #include <utility>
 
 using namespace XJ;
 
 const std::string ContentFixtures::TEST_TEMPLATE_CONFIG = "outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n";
+
+std::vector<float> ContentFixtures::listOfRandomValues(int N) {
+  std::vector<float> result(N);
+  for (int i = 0; i < N; i++) {
+    result[i] = random(RANDOM_VALUE_FROM, RANDOM_VALUE_TO);
+  }
+  return result;
+}
+
+std::vector<std::string> ContentFixtures::listOfUniqueRandom(long N, const std::vector<std::string> &sourceItems) {
+  int count = 0;
+  std::vector<std::string> items;
+  while (count < N) {
+    std::string p = random(sourceItems);
+    if (std::find(items.begin(), items.end(), p) == items.end()) {
+      items.push_back(p);
+      count++;
+    }
+  }
+  return items;
+}
+
+float ContentFixtures::random(float A, float B) {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<> dis(A, B);
+  return dis(gen);
+}
+
+std::string ContentFixtures::random(std::vector<std::string> array) {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> dis(0, array.size() - 1);
+  return array[dis(gen)];
+}
+
+int ContentFixtures::random(std::vector<int> array) {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> dis(0, array.size() - 1);
+  return array[dis(gen)];
+}
 
 std::vector<std::variant<Instrument, InstrumentAudio>>
 ContentFixtures::buildInstrumentWithAudios(
@@ -974,7 +1017,7 @@ void ContentFixtures::setupFixtureB3(ContentEntityStore &store) {
   instrument8 = ContentFixtures::buildInstrument(library2, Instrument::Type::Drum,
                                                  Instrument::Mode::Event, Instrument::State::Published,
                                                  "808 Drums");
-  instrument8.volume = 0.76f;// For testing: Instrument has overall volume parameter https://github.com/xjmusic/workstation/issues/300
+  instrument8.volume = 0.76f;// For testing: Instrument has overall volume parameter https://github.com/xjmusic/xjmusic/issues/300
   instrument8_meme0 = ContentFixtures::buildMeme(instrument8, "heavy");
   instrument8_audio8kick = ContentFixtures::buildAudio(instrument8, "Kick",
                                                        "19801735098q47895897895782138975898.wav",

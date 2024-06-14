@@ -65,3 +65,17 @@ TEST(Music_StickyBun, compute) {
   TestHelpers::assertNote("Bb7", bun.compute(voicingNotes, 2));
   TestHelpers::assertNote("C4", bun.compute(voicingNotes, 3));
 }
+
+/**
+ * Serialize to JSON and deserialize
+ */
+TEST(Music_StickyBun, Serialize_Deserialize) {
+  auto bun = StickyBun(eventId, std::vector{42, 67, 100, 0});
+
+  auto json = bun.to_json();
+
+  auto result = StickyBun::from_json(json);
+
+  ASSERT_EQ(bun.eventId, result.eventId);
+  ASSERT_EQ(bun.values, result.values);
+}

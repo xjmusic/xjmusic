@@ -15,7 +15,7 @@ namespace XJ {
    <p>
    Parse any meme to test if it's valid, and extract its features
    <p>
-   Strong-meme like LEMONS! should always favor LEMONS https://github.com/xjmusic/workstation/issues/218
+   Strong-meme like LEMONS! should always favor LEMONS https://github.com/xjmusic/xjmusic/issues/218
    */
   class ParseStrong {
   public:

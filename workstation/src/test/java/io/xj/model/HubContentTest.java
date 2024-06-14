@@ -1124,7 +1124,7 @@ public class HubContentTest extends ContentTest {
 
   /**
    Combine multiple payloads into a single HubContent
-   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   Project file structure is conducive to version control https://github.com/xjmusic/xjmusic/issues/335
    */
   @Test
   void combine() {
@@ -1160,7 +1160,7 @@ public class HubContentTest extends ContentTest {
 
   /**
    Combine multiple payloads into a single HubContent - if any of them are a demo, the final one is a demo
-   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   Project file structure is conducive to version control https://github.com/xjmusic/xjmusic/issues/335
    */
   @Test
   void combine_preserveDemo() {
@@ -1176,7 +1176,7 @@ public class HubContentTest extends ContentTest {
 
   /**
    Get a subset of the content just for the given Instrument ID
-   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   Project file structure is conducive to version control https://github.com/xjmusic/xjmusic/issues/335
    */
   @Test
   void subsetForInstrumentId() {
@@ -1189,7 +1189,7 @@ public class HubContentTest extends ContentTest {
 
   /**
    Get a subset of the content just for the given Program ID
-   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   Project file structure is conducive to version control https://github.com/xjmusic/xjmusic/issues/335
    */
   @Test
   void subsetForProgramId() {
@@ -1216,7 +1216,7 @@ public class HubContentTest extends ContentTest {
 
   /**
    Get a subset of the content just for the given Template ID
-   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   Project file structure is conducive to version control https://github.com/xjmusic/xjmusic/issues/335
    */
   @Test
   void subsetForTemplateId() {

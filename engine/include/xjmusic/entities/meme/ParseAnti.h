@@ -14,7 +14,7 @@ namespace XJ {
    <p>
    Parse any meme to test if it's valid, and extract its features
    <p>
-   Artist can add !MEME values into Programs https://github.com/xjmusic/workstation/issues/214
+   Artist can add !MEME values into Programs https://github.com/xjmusic/xjmusic/issues/214
    */
   class ParseAnti {
   public:

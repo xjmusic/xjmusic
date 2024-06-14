@@ -19,10 +19,11 @@ SegmentRetrospective::SegmentRetrospective(SegmentEntityStore entityStore, int s
   // the previous segment is the first one cached here. we may cache even further back segments below if found
   if (segmentId <= 0) {
     retroSegments = std::vector<Segment>();
-    previousSegmentIds = std::set < int > ();
+    previousSegmentIds = std::set<int>();
     previousSegment = std::nullopt;
     return;
   }
+
   // begin by getting the previous segment
   // the previous segment is the first one cached here. we may cache even further back segments below if found
   previousSegment = entityStore.readSegment(segmentId - 1);
@@ -32,8 +33,8 @@ SegmentRetrospective::SegmentRetrospective(SegmentEntityStore entityStore, int s
   }
 
   // previous segment must have a main choice to continue past here.
-  std::optional<SegmentChoice> previousSegmentMainChoice = entityStore.readChoice(previousSegment->id,
-                                                                                  Program::Type::Main);
+  std::optional<SegmentChoice> previousSegmentMainChoice =
+      entityStore.readChoice(previousSegment->id, Program::Type::Main);
 
   if (!previousSegmentMainChoice.has_value()
       || previousSegmentMainChoice.value().programType != Program::Type::Main) {
@@ -71,7 +72,7 @@ std::optional<SegmentChoice> SegmentRetrospective::getPreviousChoiceOfType(Progr
 }
 
 std::set<SegmentChoice> SegmentRetrospective::getPreviousChoicesOfMode(Instrument::Mode instrumentMode) {
-  std::set < SegmentChoice > result;
+  std::set<SegmentChoice> result;
   if (!previousSegment.has_value()) return result;
   auto choices = entityStore.readAllSegmentChoices(previousSegment->id);
   for (const auto &choice: choices) {
@@ -84,7 +85,7 @@ std::set<SegmentChoice> SegmentRetrospective::getPreviousChoicesOfMode(Instrumen
 
 std::set<SegmentChoice>
 SegmentRetrospective::getPreviousChoicesOfTypeMode(Instrument::Type instrumentType, Instrument::Mode instrumentMode) {
-  std::set < SegmentChoice > result;
+  std::set<SegmentChoice> result;
   if (!previousSegment.has_value()) return result;
   auto choices = entityStore.readAllSegmentChoices(previousSegment->id);
   for (const auto &choice: choices) {
@@ -114,8 +115,8 @@ std::set<SegmentChoice> SegmentRetrospective::getChoices() {
   return entityStore.readAllSegmentChoices(previousSegmentIds);
 }
 
-std::set<SegmentChoice> SegmentRetrospective::getPreviousChoicesForInstrument(const UUID& instrumentId) {
-  std::set < SegmentChoice > result;
+std::set<SegmentChoice> SegmentRetrospective::getPreviousChoicesForInstrument(const UUID &instrumentId) {
+  std::set<SegmentChoice> result;
   auto choices = entityStore.readAllSegmentChoices(previousSegment->id);
   for (const auto &choice: choices) {
     if (choice.instrumentId == instrumentId) {
@@ -126,7 +127,7 @@ std::set<SegmentChoice> SegmentRetrospective::getPreviousChoicesForInstrument(co
 }
 
 std::set<SegmentChoiceArrangement> SegmentRetrospective::getPreviousArrangementsForInstrument(UUID instrumentId) {
-  std::set < SegmentChoiceArrangement > result;
+  std::set<SegmentChoiceArrangement> result;
   auto choices = getPreviousChoicesForInstrument(std::move(instrumentId));
   auto arrangements = entityStore.readAllSegmentChoiceArrangements(previousSegmentIds);
   for (const auto &choice: choices) {
@@ -140,7 +141,7 @@ std::set<SegmentChoiceArrangement> SegmentRetrospective::getPreviousArrangements
 }
 
 std::set<SegmentChoiceArrangementPick> SegmentRetrospective::getPreviousPicksForInstrument(UUID instrumentId) {
-  std::set < SegmentChoiceArrangementPick > result;
+  std::set<SegmentChoiceArrangementPick> result;
   if (!previousSegment.has_value()) return result;
   auto arrangements = getPreviousArrangementsForInstrument(std::move(instrumentId));
   auto picks = entityStore.readAllSegmentChoiceArrangementPicks(
@@ -159,7 +160,7 @@ Instrument::Type SegmentRetrospective::getInstrumentType(SegmentChoiceArrangemen
   return getChoice(getArrangement(std::move(pick))).instrumentType;
 }
 
-std::optional<SegmentMeta> SegmentRetrospective::getPreviousMeta(const std::string& key) {
+std::optional<SegmentMeta> SegmentRetrospective::getPreviousMeta(const std::string &key) {
   auto metas = entityStore.readAllSegmentMetas(previousSegmentIds);
   for (const auto &meta: metas) {
     if (meta.key == key) {
@@ -169,7 +170,7 @@ std::optional<SegmentMeta> SegmentRetrospective::getPreviousMeta(const std::stri
   return std::nullopt;
 }
 
-SegmentChoiceArrangement SegmentRetrospective::getArrangement(const SegmentChoiceArrangementPick& pick) {
+SegmentChoiceArrangement SegmentRetrospective::getArrangement(const SegmentChoiceArrangementPick &pick) {
   auto arrangements = entityStore.readAllSegmentChoiceArrangements(pick.segmentId);
   for (const auto &arrangement: arrangements) {
     if (arrangement.id == pick.segmentChoiceArrangementId) {
@@ -179,7 +180,7 @@ SegmentChoiceArrangement SegmentRetrospective::getArrangement(const SegmentChoic
   throw FabricationException("Failed to get arrangement for SegmentChoiceArrangementPick[" + pick.id + "]");
 }
 
-SegmentChoice SegmentRetrospective::getChoice(const SegmentChoiceArrangement& arrangement) {
+SegmentChoice SegmentRetrospective::getChoice(const SegmentChoiceArrangement &arrangement) {
   auto choices = entityStore.readAllSegmentChoices(arrangement.segmentId);
   for (const auto &choice: choices) {
     if (choice.id == arrangement.segmentChoiceId) {

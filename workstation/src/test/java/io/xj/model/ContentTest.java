@@ -297,7 +297,7 @@ abstract public class ContentTest {
     // Library content all created at this known time
     library1 = buildLibrary(project1);
 
-    // Templates: enhanced preview chain creation for artists in Lab UI https://github.com/xjmusic/workstation/issues/205
+    // Templates: enhanced preview chain creation for artists in Lab UI https://github.com/xjmusic/xjmusic/issues/205
     template1 = buildTemplate(project1, "test1", UUID.randomUUID().toString());
     template1_binding = buildTemplateBinding(template1, library1);
     template2 = buildTemplate(project1, "test2", UUID.randomUUID().toString());

@@ -8,7 +8,7 @@ import java.util.UUID;
 /**
  Entity store interface
  <p>
- XJ Lab Distributed Architecture https://github.com/xjmusic/workstation/issues/207
+ XJ Lab Distributed Architecture https://github.com/xjmusic/xjmusic/issues/207
  Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in memory
  */
 public interface ContentEntityStore {

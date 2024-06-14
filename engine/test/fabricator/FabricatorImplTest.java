@@ -136,7 +136,7 @@ public class FabricatorImplTest {
 
 
   /**
-   Choose next Macro program based on the memes of the last sequence from the previous Macro program https://github.com/xjmusic/workstation/issues/299
+   Choose next Macro program based on the memes of the last sequence from the previous Macro program https://github.com/xjmusic/xjmusic/issues/299
    */
   @Test
   public void type throws FabricationException, FabricationFatalException {
@@ -267,7 +267,7 @@ public class FabricatorImplTest {
   }
 
   /**
-   Sticky buns v2 use slash root when available https://github.com/xjmusic/workstation/issues/231
+   Sticky buns v2 use slash root when available https://github.com/xjmusic/xjmusic/issues/231
    */
   @Test
   public void getRootNote() {
@@ -277,7 +277,7 @@ public class FabricatorImplTest {
   }
 
   /**
-   Should add meme from ALL program and instrument types! https://github.com/xjmusic/workstation/issues/210
+   Should add meme from ALL program and instrument types! https://github.com/xjmusic/xjmusic/issues/210
    */
   @Test
   public void put_addsMemesForChoice() throws FabricationException {
@@ -299,7 +299,7 @@ public class FabricatorImplTest {
   /**
    Unit test behavior of choosing an event for a note in a detail program
    <p>
-   Sticky bun note choices should persist into following segments https://github.com/xjmusic/workstation/issues/281
+   Sticky bun note choices should persist into following segments https://github.com/xjmusic/xjmusic/issues/281
    */
   @Test
   public void getStickyBun_readMetaFromCurrentSegment() throws JsonProcessingException, FabricationException {
@@ -317,7 +317,7 @@ public class FabricatorImplTest {
   /**
    Unit test behavior of choosing an event for a note in a detail program
    <p>
-   Sticky bun note choices should persist into following segments https://github.com/xjmusic/workstation/issues/281
+   Sticky bun note choices should persist into following segments https://github.com/xjmusic/xjmusic/issues/281
    */
   @Test
   public void getStickyBun_readMetaFromPreviousSegment() throws JsonProcessingException {
@@ -336,7 +336,7 @@ public class FabricatorImplTest {
   /**
    Unit test behavior of choosing a different events for a series of X notes in a detail program
    <p>
-   Sticky bun note choices should persist into following segments https://github.com/xjmusic/workstation/issues/281
+   Sticky bun note choices should persist into following segments https://github.com/xjmusic/xjmusic/issues/281
    */
   @Test
   public void getStickyBun_createForEvent() {
@@ -348,7 +348,7 @@ public class FabricatorImplTest {
   /**
    Unit test behavior of choosing an event for a note in a detail program
    <p>
-   Sticky bun note choices should persist into following segments https://github.com/xjmusic/workstation/issues/281
+   Sticky bun note choices should persist into following segments https://github.com/xjmusic/xjmusic/issues/281
    */
   @Test
   public void getStickyBun_multipleEventsPickedSeparately() throws JsonProcessingException, FabricationException {

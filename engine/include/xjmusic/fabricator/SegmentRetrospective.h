@@ -22,10 +22,10 @@ namespace XJ {
    Digest segments of the previous main program
    <p>
    NextMain/NextMacro-type: Retrospective of the previous main choice, primary choices only
-   REF https://github.com/xjmusic/workstation/issues/242
+   REF https://github.com/xjmusic/xjmusic/issues/242
    <p>
    Continue-type: Retrospective of all segments in this main program
-   REF https://github.com/xjmusic/workstation/issues/242
+   REF https://github.com/xjmusic/xjmusic/issues/242
    */
   class SegmentRetrospective {
   public:
@@ -71,7 +71,7 @@ namespace XJ {
     /**
      Get the meta from the previous segment with the given key
      <p>
-     Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/workstation/issues/222
+     Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/xjmusic/issues/222
 
      @param key to search for meta
      @return meta if found
@@ -98,7 +98,7 @@ namespace XJ {
     /**
      Get the picks of any previous segments which selected the same main sequence
      <p>
-     Artist writing detail program expects 'X' note value to result in random part creation from available Voicings https://github.com/xjmusic/workstation/issues/251
+     Artist writing detail program expects 'X' note value to result in random part creation from available Voicings https://github.com/xjmusic/xjmusic/issues/251
 
      @return map of all previous segment meme constellations (as keys) to a collection of choices made
      */

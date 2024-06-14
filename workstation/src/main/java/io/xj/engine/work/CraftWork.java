@@ -142,7 +142,7 @@ public interface CraftWork extends Work {
 
   /**
    Go to the given macro program right now
-   https://github.com/xjmusic/workstation/issues/197
+   https://github.com/xjmusic/xjmusic/issues/197
 
    @param macroProgram the macro program to go to
    */
@@ -150,7 +150,7 @@ public interface CraftWork extends Work {
 
   /**
    Manually go to a specific taxonomy category meme, and force until reset
-   https://github.com/xjmusic/workstation/issues/199
+   https://github.com/xjmusic/xjmusic/issues/199
 
    @param memes specific (assumed allowably) set of taxonomy category memes
    */

@@ -57,7 +57,7 @@ import static io.xj.model.util.ValueUtils.MICROS_PER_SECOND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- XJ has a serviceable voicing algorithm https://github.com/xjmusic/workstation/issues/221
+ XJ has a serviceable voicing algorithm https://github.com/xjmusic/xjmusic/issues/221
  */
 @ExtendWith(MockitoExtension.class)
 public class ArrangementTests extends YamlTest {

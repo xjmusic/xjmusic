@@ -76,7 +76,7 @@ bool MemeStack::isValid() {
     }
   }
 
-  // meme categories https://github.com/xjmusic/workstation/issues/209
+  // meme categories https://github.com/xjmusic/xjmusic/issues/209
   std::set<std::string> targetSet(memes.begin(), memes.end());
   return taxonomy.isAllowed(targetSet);
 }

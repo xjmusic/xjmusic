@@ -63,8 +63,8 @@ public class ChordTest {
   }
 
   /**
-   XJ understands the root of a slash chord https://github.com/xjmusic/workstation/issues/220
-   Slash Chord Fluency https://github.com/xjmusic/workstation/issues/227
+   XJ understands the root of a slash chord https://github.com/xjmusic/xjmusic/issues/220
+   Slash Chord Fluency https://github.com/xjmusic/xjmusic/issues/227
    */
   @Test
   public void getSlashRoot() {
@@ -78,7 +78,7 @@ public class ChordTest {
 
   /**
    XJ should correctly choose chords with tensions notated via slash and not confuse them with slash chords
-   https://github.com/xjmusic/workstation/issues/228
+   https://github.com/xjmusic/xjmusic/issues/228
    */
   @Test
   public void getDescription_dontConfuseTensionWithSlash() {
@@ -101,7 +101,7 @@ public class ChordTest {
 
 
   /**
-   Chord mode Instruments should recognize enharmonic equivalents https://github.com/xjmusic/workstation/issues/229
+   Chord mode Instruments should recognize enharmonic equivalents https://github.com/xjmusic/xjmusic/issues/229
    */
   @Test
   public void isSame_eharmonicEquivalent() {
@@ -122,7 +122,7 @@ public class ChordTest {
 
   /**
    XJ should correctly choose chords with tensions notated via slash and not confuse them with slash chords
-   https://github.com/xjmusic/workstation/issues/228
+   https://github.com/xjmusic/xjmusic/issues/228
    */
   @Test
   public void isAcceptable_dontConfuseTensionWithSlash() {
@@ -130,7 +130,7 @@ public class ChordTest {
   }
 
   /**
-   Synonym of base chord should be accepted for slash chord https://github.com/xjmusic/workstation/issues/230
+   Synonym of base chord should be accepted for slash chord https://github.com/xjmusic/xjmusic/issues/230
    */
   @Test
   public void isAcceptable_sameBaseDifferentSlash() {
@@ -146,7 +146,7 @@ public class ChordTest {
   }
 
   /**
-   Chord mode Instruments should recognize enharmonic equivalents https://github.com/xjmusic/workstation/issues/229
+   Chord mode Instruments should recognize enharmonic equivalents https://github.com/xjmusic/xjmusic/issues/229
    */
   @Test
   public void isAcceptable_eharmonicEquivalent() {

@@ -48,8 +48,8 @@ public class CraftSegmentPatternMemeTest {
    Test to ensure that the following Macro-Program is based on its first sequence-binding meme
    matching the last sequence-binding meme of the preceding Macro-Program
    <p>
-   Segment memes expected to be taken directly of sequence_pattern binding https://github.com/xjmusic/workstation/issues/298
-   Macro program sequence should advance after each main program https://github.com/xjmusic/workstation/issues/299
+   Segment memes expected to be taken directly of sequence_pattern binding https://github.com/xjmusic/xjmusic/issues/298
+   Macro program sequence should advance after each main program https://github.com/xjmusic/xjmusic/issues/299
    */
   @Test
   public void craftSegment() throws Exception {

@@ -1,16 +1,10 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include <utility>
-
 #include "xjmusic/fabricator/FabricatorFactory.h"
 
 using namespace XJ;
 
-FabricatorFactory::FabricatorFactory(
-    SegmentEntityStore entityStore
-) {
-  this->entityStore = std::move(entityStore);
-}
+FabricatorFactory::FabricatorFactory(SegmentEntityStore &entityStore) : entityStore(entityStore) {}
 
 /*
  * TODO: Implement FabricatorFactory::fabricate
@@ -23,5 +17,5 @@ throws FabricationException, FabricationFatalException{
 */
 
 SegmentRetrospective FabricatorFactory::loadRetrospective(int segmentId) {
-    return SegmentRetrospective(entityStore, segmentId);
+  return SegmentRetrospective(entityStore, segmentId);
 }

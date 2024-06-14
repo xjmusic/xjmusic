@@ -123,7 +123,7 @@ public interface Fabricator {
    Determine if a choice has been previously crafted
    in one of the previous segments of the current main sequence
    <p>
-   Beat and Detail choices are kept for an entire Main Program https://github.com/xjmusic/workstation/issues/265
+   Beat and Detail choices are kept for an entire Main Program https://github.com/xjmusic/xjmusic/issues/265
 
    @return choice if previously made, or null if none is found
    */
@@ -221,7 +221,7 @@ public interface Fabricator {
   /**
    Get the Key for any given Choice, preferring its Sequence Key (bound), defaulting to the Program Key.
    <p>
-   If Sequence has no key/tempo/intensity inherit from Program https://github.com/xjmusic/workstation/issues/246
+   If Sequence has no key/tempo/intensity inherit from Program https://github.com/xjmusic/xjmusic/issues/246
 
    @param choice to get key for
    @return key of specified sequence/program via choice
@@ -330,7 +330,7 @@ public interface Fabricator {
 
   /**
    Get the complete set of program sequence chords,
-   ignoring ghost chords* REF by choosing the voicings with largest # of notes at that position https://github.com/xjmusic/workstation/issues/248
+   ignoring ghost chords* REF by choosing the voicings with largest # of notes at that position https://github.com/xjmusic/xjmusic/issues/248
    (caches results)
 
    @param programSequence for which to get complete do-ghosted set of chords
@@ -348,7 +348,7 @@ public interface Fabricator {
   NoteRange getProgramRange(UUID programId, InstrumentType instrumentType) throws FabricationException;
 
   /**
-   Detail craft shifts source program events into the target range https://github.com/xjmusic/workstation/issues/221
+   Detail craft shifts source program events into the target range https://github.com/xjmusic/xjmusic/issues/221
    <p>
    via average of delta from source low to target low, and from source high to target high, rounded to octave
 
@@ -390,7 +390,7 @@ public interface Fabricator {
    Get the voice type for the given voicing
    <p>
    Programs persist main chord/voicing structure sensibly
-   https://github.com/xjmusic/workstation/issues/266
+   https://github.com/xjmusic/xjmusic/issues/266
 
    @param voicing for which to get voice type
    @return type of voice for voicing
@@ -413,11 +413,11 @@ public interface Fabricator {
   Optional<ProgramSequence> getRandomlySelectedSequence(Program program);
 
   /**
-   Selects one (at random) of all available patterns of a given type within a sequence. https://github.com/xjmusic/workstation/issues/204
+   Selects one (at random) of all available patterns of a given type within a sequence. https://github.com/xjmusic/xjmusic/issues/204
    <p>
    Caches the selection, so it will always return the same output for any given input.
    <p>
-   Beat fabrication composited of layered Patterns https://github.com/xjmusic/workstation/issues/267
+   Beat fabrication composited of layered Patterns https://github.com/xjmusic/xjmusic/issues/267
 
    @return Pattern model, or null if no pattern of this type is found
    @throws FabricationException on failure
@@ -446,8 +446,8 @@ public interface Fabricator {
    the seconds of start for any given position in beats
    Velocity of Segment meter (beats per minute) increases linearly of the beginning of the Segment (at the previous Segment's tempo) to the end of the Segment (arriving at the current Segment's tempo, only at its end)
    <p>
-   Segment should *never* be fabricated longer than its loop beats. https://github.com/xjmusic/workstation/issues/268
-   Segment wherein tempo changes expect perfectly smooth sound of previous segment through to following segment https://github.com/xjmusic/workstation/issues/269
+   Segment should *never* be fabricated longer than its loop beats. https://github.com/xjmusic/xjmusic/issues/268
+   Segment wherein tempo changes expect perfectly smooth sound of previous segment through to following segment https://github.com/xjmusic/xjmusic/issues/269
 
    @param tempo    in beats per minute
    @param position in beats
@@ -489,7 +489,7 @@ public interface Fabricator {
   Collection<SegmentMeme> getSegmentMemes();
 
   /**
-   Get the sequence for a Choice either directly (beat- and detail-type sequences), or by sequence-pattern (macro- or main-type sequences) https://github.com/xjmusic/workstation/issues/204
+   Get the sequence for a Choice either directly (beat- and detail-type sequences), or by sequence-pattern (macro- or main-type sequences) https://github.com/xjmusic/xjmusic/issues/204
    <p>
    Beat and Detail programs are allowed to have only one (default) sequence.
 
@@ -517,7 +517,7 @@ public interface Fabricator {
   void putStickyBun(StickyBun bun) throws JsonProcessingException, FabricationException;
 
   /**
-   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/workstation/issues/222
+   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/xjmusic/issues/222
    - Sticky bun is a simple coded key-value in segment meta
    --- key by pattern ID
    --- value is a comma-separated list of integers, one integer for each note in the pattern, where
@@ -526,12 +526,12 @@ public interface Fabricator {
    - Rendering a pattern X voicing considers the sticky bun values
    --- the random seed for rendering the pattern will always come from the associated sticky bun
    <p>
-   Sticky buns v2 persisted for each randomly selected note in the series for any given pattern https://github.com/xjmusic/workstation/issues/231
+   Sticky buns v2 persisted for each randomly selected note in the series for any given pattern https://github.com/xjmusic/xjmusic/issues/231
    - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
    - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern
    <p>
    TemplateConfig parameter stickyBunEnabled
-   https://github.com/xjmusic/workstation/issues/251
+   https://github.com/xjmusic/xjmusic/issues/251
 
    @param eventId for super-key
    @return sticky bun if present
@@ -661,11 +661,11 @@ public interface Fabricator {
    Put a new Entity by type and id
    <p>
    If it's a SegmentChoice...
-   Should add meme from ALL program and instrument types! https://github.com/xjmusic/workstation/issues/210
+   Should add meme from ALL program and instrument types! https://github.com/xjmusic/xjmusic/issues/210
    - Add memes of choices to segment in order to affect further choices.
    - Add all memes of this choice, from target program, program sequence binding, or instrument if present
-   - Enhances: Straightforward meme logic https://github.com/xjmusic/workstation/issues/270
-   - Enhances: XJ should not add memes to Segment for program/instrument that was not successfully chosen https://github.com/xjmusic/workstation/issues/216
+   - Enhances: Straightforward meme logic https://github.com/xjmusic/xjmusic/issues/270
+   - Enhances: XJ should not add memes to Segment for program/instrument that was not successfully chosen https://github.com/xjmusic/xjmusic/issues/216
    <p>
 
    @param entity to put

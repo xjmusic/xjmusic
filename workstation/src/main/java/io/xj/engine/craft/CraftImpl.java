@@ -112,7 +112,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
   /**
    Segments have intensity arcs; automate mixer layers in and out of each main program
-   https://github.com/xjmusic/workstation/issues/233
+   https://github.com/xjmusic/xjmusic/issues/233
 
    @param tempo              of main program
    @param sequence           for which to craft choices
@@ -161,7 +161,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
   /**
    Chord instrument mode
-   https://github.com/xjmusic/workstation/issues/235
+   https://github.com/xjmusic/xjmusic/issues/235
 
    @param tempo      of main program
    @param instrument for which to craft choices
@@ -198,7 +198,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
   /**
    Chord instrument mode
-   https://github.com/xjmusic/workstation/issues/235
+   https://github.com/xjmusic/xjmusic/issues/235
 
    @param tempo      of main program
    @param instrument chosen
@@ -219,7 +219,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     for (var section : computeSections()) {
       var audio = selectChordPartInstrumentAudio(instrument, Chord.of(section.chord.getName()));
 
-      // Should gracefully skip audio in unfulfilled by instrument https://github.com/xjmusic/workstation/issues/240
+      // Should gracefully skip audio in unfulfilled by instrument https://github.com/xjmusic/xjmusic/issues/240
       if (audio.isEmpty()) continue;
 
       // Pick attributes are expressed "rendered" as actual seconds
@@ -258,7 +258,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    */
   protected void craftEventParts(double tempo, Instrument instrument, Program program) throws FabricationException {
     // Event detail sequence is selected at random of the current instrument
-    // FUTURE: Detail Instrument with multiple Sequences https://github.com/xjmusic/workstation/issues/241
+    // FUTURE: Detail Instrument with multiple Sequences https://github.com/xjmusic/xjmusic/issues/241
     var sequence = fabricator.getRandomlySelectedSequence(program);
 
     // Event voice arrangements
@@ -293,7 +293,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    Craft the arrangement for a given voice
    <p>
    Choice inertia
-   https://github.com/xjmusic/workstation/issues/242
+   https://github.com/xjmusic/xjmusic/issues/242
    Perform the inertia analysis, and determine whether they actually use the new choice or not
    IMPORTANT** If the previously chosen instruments are for the previous main program as the current segment,
    the inertia scores are not actually added to the regular scores or used to make choices--
@@ -303,7 +303,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    but we aren't actually using them yet until we hit the next main program in full, N segments later.
    <p>
    Ends with a final pass to set the actual length of one-shot audio picks
-   One-shot instruments cut off when other notes played with same instrument, or at end of segment https://github.com/xjmusic/workstation/issues/243
+   One-shot instruments cut off when other notes played with same instrument, or at end of segment https://github.com/xjmusic/xjmusic/issues/243
 
    @param tempo         of main program
    @param choice        to craft arrangements for
@@ -336,7 +336,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    Don't have anything in this class that's proprietary to beat or detail-- abstract that out into provider interfaces
    <p>
    Segments have intensity arcs; automate mixer layers in and out of each main program
-   https://github.com/xjmusic/workstation/issues/233
+   https://github.com/xjmusic/xjmusic/issues/233
    <p>
    Shift deltas so 2x more time is spent on construction than deconstruction
    <p>
@@ -407,7 +407,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Iterate through all the chords of a sequence and arrange events per each chord
    <p>
-   Detail programs can be made to repeat every chord change https://github.com/xjmusic/workstation/issues/244
+   Detail programs can be made to repeat every chord change https://github.com/xjmusic/xjmusic/issues/244
 
    @param tempo         of main program
    @param choice        from which to craft events
@@ -537,7 +537,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
   /**
    Ends with a final pass to set the actual length of one-shot audio picks
-   One-shot instruments cut off when other notes played with same instrument, or at end of segment https://github.com/xjmusic/workstation/issues/243
+   One-shot instruments cut off when other notes played with same instrument, or at end of segment https://github.com/xjmusic/xjmusic/issues/243
 
    @param choice for which to finalize length of one-shot audio picks
    */
@@ -547,7 +547,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     // skip instruments that are not one-shot
     if (!fabricator.isOneShot(instrument)) return;
 
-    // skip instruments that are do not have one-shot cutoff enabled https://github.com/xjmusic/workstation/issues/225
+    // skip instruments that are do not have one-shot cutoff enabled https://github.com/xjmusic/xjmusic/issues/225
     if (!fabricator.isOneShotCutoffEnabled(instrument)) return;
 
     // skip instruments that are not on the list
@@ -656,7 +656,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     var dpRange = fabricator.getProgramRange(choice.getProgramId(), instrumentType);
     var voicingListRange = fabricator.getProgramVoicingNoteRange(instrumentType);
 
-    // take semitone shift into project before computing octave shift! https://github.com/xjmusic/workstation/issues/245
+    // take semitone shift into project before computing octave shift! https://github.com/xjmusic/xjmusic/issues/245
     var dpTransposeSemitones = fabricator.getProgramTargetShift(instrumentType, dpKey, segChord);
     var dpTransposeOctaveSemitones = 12 * fabricator.getProgramRangeShiftOctaves(instrumentType, dpRange.shifted(dpTransposeSemitones), voicingListRange);
 
@@ -692,9 +692,9 @@ public class CraftImpl extends FabricationWrapperImpl {
   }
 
   /**
-   XJ has a serviceable voicing algorithm https://github.com/xjmusic/workstation/issues/221
+   XJ has a serviceable voicing algorithm https://github.com/xjmusic/xjmusic/issues/221
    <p>
-   Artist can edit comma-separated notes into detail program events https://github.com/xjmusic/workstation/issues/246
+   Artist can edit comma-separated notes into detail program events https://github.com/xjmusic/xjmusic/issues/246
    <p>
    of a pick of instrument-audio for each event, where events are conformed to entities/scales based on the master segment entities
    pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement
@@ -720,7 +720,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   ) throws FabricationException {
     var audio = fabricator.getInstrumentConfig(instrument).isMultiphonic() ? selectMultiphonicInstrumentAudio(instrument, event, note) : selectMonophonicInstrumentAudio(instrument, event);
 
-    // Should gracefully skip audio if unfulfilled by instrument https://github.com/xjmusic/workstation/issues/240
+    // Should gracefully skip audio if unfulfilled by instrument https://github.com/xjmusic/xjmusic/issues/240
     if (audio.isEmpty()) return;
 
     // of pick
@@ -826,7 +826,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Select audio from a multiphonic instrument
    <p>
-   Sampler obeys isMultiphonic from Instrument config https://github.com/xjmusic/workstation/issues/252
+   Sampler obeys isMultiphonic from Instrument config https://github.com/xjmusic/xjmusic/issues/252
 
    @param instrument of which to score available audios, and make a selection
    @param event      for caching reference
@@ -869,7 +869,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
   /**
    Chord instrument mode
-   https://github.com/xjmusic/workstation/issues/235
+   https://github.com/xjmusic/xjmusic/issues/235
    <p>
    If never encountered, default to new selection and cache that.
 
@@ -944,7 +944,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Select a new random instrument audio based on a pattern event
    <p>
-   Sampler obeys isMultiphonic from Instrument config https://github.com/xjmusic/workstation/issues/252
+   Sampler obeys isMultiphonic from Instrument config https://github.com/xjmusic/xjmusic/issues/252
 
    @param instrument of which to score available audios, and make a selection
    @param note       to match
@@ -1010,10 +1010,10 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Choose instrument
    <p>
-   Choose drum instrument to fulfill beat program event names https://github.com/xjmusic/workstation/issues/253
+   Choose drum instrument to fulfill beat program event names https://github.com/xjmusic/xjmusic/issues/253
 
    @param type              of instrument to choose from
-   @param requireEventNames instrument candidates are required to have event names https://github.com/xjmusic/workstation/issues/253
+   @param requireEventNames instrument candidates are required to have event names https://github.com/xjmusic/xjmusic/issues/253
    @return Instrument
    */
   protected Optional<Instrument> chooseFreshInstrument(InstrumentType type, Collection<String> requireEventNames) {
@@ -1048,14 +1048,14 @@ public class CraftImpl extends FabricationWrapperImpl {
 
   /**
    Percussion-type Loop-mode instrument audios are chosen in order of priority
-   https://github.com/xjmusic/workstation/issues/255
+   https://github.com/xjmusic/xjmusic/issues/255
    <p>
-   Choose drum instrument to fulfill beat program event names https://github.com/xjmusic/workstation/issues/253
+   Choose drum instrument to fulfill beat program event names https://github.com/xjmusic/xjmusic/issues/253
 
    @param types           of instrument to choose from
    @param modes           of instrument to choose from
    @param avoidIds        to avoid, or empty list
-   @param preferredEvents instrument candidates are required to have event names https://github.com/xjmusic/workstation/issues/253
+   @param preferredEvents instrument candidates are required to have event names https://github.com/xjmusic/xjmusic/issues/253
    @return Instrument
    */
   @SuppressWarnings("SameParameterValue")
@@ -1164,7 +1164,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Test if an instrument contains audios named like N
    <p>
-   Choose drum instrument to fulfill beat program event names https://github.com/xjmusic/workstation/issues/253
+   Choose drum instrument to fulfill beat program event names https://github.com/xjmusic/xjmusic/issues/253
 
    @param instrument    to test
    @param requireEvents N

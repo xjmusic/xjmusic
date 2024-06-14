@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  Beat craft for the current segment
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  <p>
- BeatCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements https://github.com/xjmusic/workstation/issues/259
+ BeatCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements https://github.com/xjmusic/xjmusic/issues/259
  */
 public class BeatCraftImpl extends CraftImpl implements BeatCraft {
 
@@ -39,12 +39,12 @@ public class BeatCraftImpl extends CraftImpl implements BeatCraft {
       fabricator.sourceMaterial().getProgram(priorBeatChoice.get().getProgramId()) :
       chooseFreshProgram(ProgramType.Beat, InstrumentType.Drum);
 
-    // Should gracefully skip voicing type if unfulfilled by detail program https://github.com/xjmusic/workstation/issues/240
+    // Should gracefully skip voicing type if unfulfilled by detail program https://github.com/xjmusic/xjmusic/issues/240
     if (program.isEmpty()) {
       return;
     }
 
-    // Segments have intensity arcs; automate mixer layers in and out of each main program https://github.com/xjmusic/workstation/issues/233
+    // Segments have intensity arcs; automate mixer layers in and out of each main program https://github.com/xjmusic/xjmusic/issues/233
     ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) ->
       fabricator.sourceMaterial().getProgramVoice(choice.getProgramVoiceId())
         .map(ProgramVoice::getName)
@@ -62,7 +62,7 @@ public class BeatCraftImpl extends CraftImpl implements BeatCraft {
     );
 
     // beat sequence is selected at random of the current program
-    // FUTURE: Beat Program with multiple Sequences https://github.com/xjmusic/workstation/issues/241
+    // FUTURE: Beat Program with multiple Sequences https://github.com/xjmusic/xjmusic/issues/241
     var sequence = fabricator.getRandomlySelectedSequence(program.get());
 
     // voice arrangements

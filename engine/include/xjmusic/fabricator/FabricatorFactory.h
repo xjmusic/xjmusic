@@ -22,7 +22,7 @@ namespace XJ {
      * Constructor from entity store
      * @param entityStore  for factory
      */
-    explicit FabricatorFactory(SegmentEntityStore entityStore);
+    explicit FabricatorFactory(SegmentEntityStore &entityStore);
 
     /**
      Create a fabricator to fabricate a segment
@@ -34,7 +34,7 @@ namespace XJ {
      @param overrideSegmentType override segment type
      @return Fabricator
      @throws FabricationException            on retry-able network or service failure
-     @throws FabricationFatalException on failure requiring a chain restart https://github.com/xjmusic/workstation/issues/263
+     @throws FabricationFatalException on failure requiring a chain restart https://github.com/xjmusic/xjmusic/issues/263
      */
 /*
  * TODO: Implement FabricatorFactory::fabricate
@@ -57,16 +57,16 @@ namespace XJ {
      @param segmentId Segment that's currently on the workbench
      @return SegmentRetrospective
      @throws FabricationException            on retry-able network or service failure
-     @throws FabricationFatalException on failure requiring a chain restart https://github.com/xjmusic/workstation/issues/263
+     @throws FabricationFatalException on failure requiring a chain restart https://github.com/xjmusic/xjmusic/issues/263
      */
     SegmentRetrospective loadRetrospective(
         int segmentId
     );
 
   private:
-    SegmentEntityStore entityStore;
+    SegmentEntityStore &entityStore;
 
-  }
+  };
 
 }// namespace XJ
 

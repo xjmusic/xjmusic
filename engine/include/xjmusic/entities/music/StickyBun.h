@@ -30,6 +30,11 @@ namespace XJ {
     UUID eventId;
 
     /**
+     * Construct a sticky bun
+     */
+    StickyBun() = default;
+
+    /**
      * Prepare a sticky bun with event id and values
      *
      * @param eventId to persist
@@ -76,6 +81,19 @@ namespace XJ {
      * @return  meta key
      */
     [[nodiscard]] std::string computeMetaKey() const;
+
+    /**
+     * Serialize to JSON
+     * @return  JSON representation
+     */
+    std::string to_json();
+
+    /**
+     * Deserialize from JSON
+     * @param str  JSON representation
+     * @return   StickyBun
+     */
+    static StickyBun from_json(const std::string& str);
   };
 
 }// namespace XJ

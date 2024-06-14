@@ -33,14 +33,59 @@
 namespace XJ {
 
   /**
-   Integration tests use shared scenario fixtures as much as possible https://github.com/xjmusic/workstation/issues/202
+   Integration tests use shared scenario fixtures as much as possible https://github.com/xjmusic/xjmusic/issues/202
    <p>
-   Testing the hypothesis that,
-  while unit tests are all independent,
+   Testing the hypothesis that, while unit tests are all independent,
    integration tests ought to be as much about testing all features around a consensus model of the platform
    as they are about testing all resources.
    */
   class ContentFixtures {
+  protected:
+    static constexpr float RANDOM_VALUE_FROM = 0.3f;
+    static constexpr float RANDOM_VALUE_TO = 0.8f;
+
+    /**
+     List of N random values
+
+     @param N number of values
+     @return array of values
+     */
+    static std::vector<float> listOfRandomValues(int N);
+
+    /**
+     Create an N-magnitude list of unique Strings at random of a source list of Strings
+
+     @param N           size of list
+     @param sourceItems source Strings
+     @return array of unique random Strings
+     */
+    static std::vector<std::string> listOfUniqueRandom(long N, const std::vector<std::string>& sourceItems);
+
+    /**
+     Random value between A and B
+
+     @param A floor
+     @param B ceiling
+     @return A <= value <= B
+     */
+    static float random(float A, float B);
+
+    /**
+     Get random std::string of array
+
+     @param array to get std::string of
+     @return random std::string
+     */
+    static std::string random(std::vector<std::string> array);
+
+    /**
+     Get random long of array
+
+     @param array to get long of
+     @return random long
+     */
+    static int random(std::vector<int> array);
+
   public:
 
     static const std::string TEST_TEMPLATE_CONFIG;
@@ -635,30 +680,30 @@ namespace XJ {
     /**
      Library of Content B-2 (shared test fixture)
      <p>
-     Integration tests use shared scenario fixtures as much as possible https://github.com/xjmusic/workstation/issues/202
+     Integration tests use shared scenario fixtures as much as possible https://github.com/xjmusic/xjmusic/issues/202
      */
     void setupFixtureB2(ContentEntityStore &store);
 
     /**
      Library of Content B-3 (shared test fixture)
      <p>
-     Integration tests use shared scenario fixtures as much as possible https://github.com/xjmusic/workstation/issues/202
+     Integration tests use shared scenario fixtures as much as possible https://github.com/xjmusic/xjmusic/issues/202
      <p>
-     memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes. https://github.com/xjmusic/workstation/issues/203
+     memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes. https://github.com/xjmusic/xjmusic/issues/203
      <p>
-     Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences) https://github.com/xjmusic/workstation/issues/204
+     Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences) https://github.com/xjmusic/xjmusic/issues/204
      <p>
-     Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment. https://github.com/xjmusic/workstation/issues/257
+     Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment. https://github.com/xjmusic/xjmusic/issues/257
      + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
      <p>
-     Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset. https://github.com/xjmusic/workstation/issues/283
+     Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset. https://github.com/xjmusic/xjmusic/issues/283
      */
     void setupFixtureB3(ContentEntityStore &store);
 
     /**
      Library of Content B-4 (shared test fixture)
      <p>
-     Detail Craft v1 https://github.com/xjmusic/workstation/issues/284
+     Detail Craft v1 https://github.com/xjmusic/xjmusic/issues/284
      */
     void setupFixtureB4_DetailBass(ContentEntityStore &store);
 

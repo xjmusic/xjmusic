@@ -30,11 +30,11 @@
 
 using namespace XJ;
 
-#define CONTENT_STORE_CORE_HEADERS(ENTITY, ENTITIES)                  \
-  std::optional<const ENTITY *> get##ENTITY(const UUID &id);          \
-  std::set<const ENTITY *> get##ENTITIES();                           \
-  ContentEntityStore set##ENTITIES(const std::set<ENTITY> &entities);       \
-  ENTITY put(const ENTITY &entity);                                   \
+#define CONTENT_STORE_CORE_HEADERS(ENTITY, ENTITIES)                     \
+  std::optional<const ENTITY *> get##ENTITY(const UUID &id);             \
+  std::set<const ENTITY *> get##ENTITIES();                              \
+  ContentEntityStore set##ENTITIES(const std::set<ENTITY> &entities);    \
+  ENTITY put(const ENTITY &entity);                                      \
 
 namespace XJ {
 

@@ -64,8 +64,8 @@ class ProjectManagerImplStructureMigrationTest {
   }
 
   /**
-   Project has a Save As menu option https://github.com/xjmusic/workstation/issues/362
-   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   Project has a Save As menu option https://github.com/xjmusic/xjmusic/issues/362
+   Project file structure is conducive to version control https://github.com/xjmusic/xjmusic/issues/335
    */
   @Test
   void saveAsProjectAndMigrateStructure() throws IOException {
@@ -97,7 +97,7 @@ class ProjectManagerImplStructureMigrationTest {
 
   /**
    Still able to open the legacy project format, and automatically moves and renames content into the new format when saving.
-   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   Project file structure is conducive to version control https://github.com/xjmusic/xjmusic/issues/335
    */
   @Test
   void saveProjectAndMigrateStructure() throws IOException {
@@ -126,7 +126,7 @@ class ProjectManagerImplStructureMigrationTest {
   /**
    Only cleanup unused .xj files in the root of the project, and all unused files inside the "libraries" and "templates" folders.
    E.g. this should ignore the "render" folder in the root of the project and any other files or folders the developers want to create in their project
-   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   Project file structure is conducive to version control https://github.com/xjmusic/xjmusic/issues/335
    */
   @Test
   void saveProjectCleansUpUnusedJson() throws IOException {

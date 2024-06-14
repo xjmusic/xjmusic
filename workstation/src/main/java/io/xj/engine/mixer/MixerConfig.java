@@ -6,7 +6,7 @@ import javax.sound.sampled.AudioFormat;
 /**
  Configuration for mixer
  <p>
- Engineer wants final Segment audio mastered with a lookahead-attack compressor https://github.com/xjmusic/workstation/issues/274
+ Engineer wants final Segment audio mastered with a lookahead-attack compressor https://github.com/xjmusic/xjmusic/issues/274
  */
 public class MixerConfig {
   int totalBuses = 8;

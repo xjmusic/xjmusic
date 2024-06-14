@@ -1,4 +1,4 @@
-#  Attempt to reproduce https://github.com/xjmusic/workstation/issues/221
+#  Attempt to reproduce https://github.com/xjmusic/xjmusic/issues/221
 #  Should never hear instrumentation for non-existent chord voicings, e.g. NC or deliberately not voicing one or more layers
 #
 #  This test is to demonstrate that no notes will be chosen for instruments with no voicings, e.g. an NC section.

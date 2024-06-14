@@ -4,7 +4,7 @@ package io.xj.engine.craft.background;
 import io.xj.engine.FabricationException;
 
 /**
- Background-type Instrument https://github.com/xjmusic/workstation/issues/256
+ Background-type Instrument https://github.com/xjmusic/xjmusic/issues/256
  */
 public interface BackgroundCraft {
 

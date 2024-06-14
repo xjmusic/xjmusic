@@ -6,11 +6,10 @@
 #include "../_helper/ContentFixtures.h"
 #include "../_helper/SegmentFixtures.h"
 #include "../_helper/TestHelpers.h"
-#include "xjmusic/fabricator/ChainUtils.h"
-#include "xjmusic/entities/segment/SegmentEntityStore.h"
-#include "xjmusic/fabricator/FabricationException.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/entities/music/StickyBun.h"
+#include "xjmusic/fabricator/ChainUtils.h"
+#include "xjmusic/fabricator/FabricatorFactory.h"
+#include "xjmusic/fabricator/FabricationFatalException.h"
 
 using namespace XJ;
 
@@ -28,8 +27,6 @@ protected:
   Segment segment4;
 
   void SetUp() override {
-    store.clear();
-
     // Manipulate the underlying entity store; reset before each test
     store.clear();
     sourceMaterial.clear();
@@ -58,8 +55,16 @@ protected:
                                           fake.program15_sequence0_binding0);
   }
 
-  Segment constructSegmentAndChoices(Chain chain, Segment::Type type, int offset, int delta, Program macro,
-                                     ProgramSequenceBinding macroSB, Program main, ProgramSequenceBinding mainSB) {
+  Segment constructSegmentAndChoices(
+      Chain chain,
+      Segment::Type type,
+      int offset,
+      int delta,
+      const Program& macro,
+      const ProgramSequenceBinding& macroSB,
+      const Program& main,
+      const ProgramSequenceBinding& mainSB
+  ) {
     auto segment = store.put(SegmentFixtures::buildSegment(
         chain,
         type,
@@ -117,33 +122,44 @@ TEST_F(SegmentRetrospectiveTest, GetPreviousChoiceOfType_forNextMainSegment) {
 }
 
 /**
- Failure requiring a chain restart https://github.com/xjmusic/workstation/issues/263
+ Failure requiring a chain restart https://github.com/xjmusic/xjmusic/issues/263
  */
 TEST_F(SegmentRetrospectiveTest, FailureToReadMainChoiceIsFatal) {
-  for (SegmentChoice c: store.readAllSegmentChoices(segment0.id))
+  for (const SegmentChoice& c: store.readAllSegmentChoices(segment0.id))
     if (c.programType == Program::Type::Main)
       store.deleteSegmentChoice(segment0.id, c.id);
 
   try {
     fabricatorFactory.loadRetrospective(segment1.id);
-    FAIL() << "Expected FabricationException";
-  } catch (const FabricationException &e) {
+    FAIL() << "Expected FabricationFatalException";
+  } catch (const FabricationFatalException &e) {
     EXPECT_TRUE(std::string(e.what()).find("Retrospective sees no main choice!") != std::string::npos);
   }
 }
 
 /**
- Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/workstation/issues/222
+ Failure to load first chain in segment for retrospective https://github.com/xjmusic/xjmusic/issues/263
+ */
+TEST_F(SegmentRetrospectiveTest, FailureToReadFirstSegmentIsFatal) {
+  try {
+    fabricatorFactory.loadRetrospective(segment0.id);
+    FAIL() << "Expected FabricationFatalException";
+  } catch (const FabricationFatalException &e) {
+    EXPECT_TRUE(std::string(e.what()).find("Retrospective sees no previous segment!") != std::string::npos);
+  }
+}
+
+/**
+ Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/xjmusic/issues/222
  */
 TEST_F(SegmentRetrospectiveTest, GetPreviousMeta) {
   auto bun = StickyBun(patternId, 1);
-  nlohmann::json j = bun;
-  std::string json_string = j.dump();
-  store.put(SegmentFixtures::buildSegmentMeta(segment3, "StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e", json_string));
+  std::string json = bun.to_json();
+  store.put(SegmentFixtures::buildSegmentMeta(segment3, "StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e", json));
   auto subject = fabricatorFactory.loadRetrospective(segment4.id);
 
   auto result = subject.getPreviousMeta("StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e");
 
   ASSERT_TRUE(result.has_value());
-  ASSERT_EQ(json_string, result.value().value);
+  ASSERT_EQ(json, result.value().value);
 }
