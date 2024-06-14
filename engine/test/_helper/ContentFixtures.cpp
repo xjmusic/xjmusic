@@ -627,7 +627,7 @@ InstrumentMeme ContentFixtures::buildInstrumentMeme(
   return instrumentMeme;
 }
 
-void ContentFixtures::setupFixtureB1(ContentStore &store) {
+void ContentFixtures::setupFixtureB1(ContentEntityStore &store) {
 
   // Project "bananas"
   project1 = ContentFixtures::buildProject("bananas");
@@ -801,7 +801,7 @@ void ContentFixtures::setupFixtureB1(ContentStore &store) {
   store.put(templateBinding1);
 }
 
-void ContentFixtures::setupFixtureB2(ContentStore &store) {
+void ContentFixtures::setupFixtureB2(ContentEntityStore &store) {
   // "Tangy, Chunky to Smooth" macro-program in house library
   program3 = ContentFixtures::buildProgram(library2, Program::Type::Macro, Program::State::Published,
                                            "Tangy, Chunky to Smooth", "G minor", 120.0f);
@@ -880,7 +880,7 @@ void ContentFixtures::setupFixtureB2(ContentStore &store) {
   store.put(program15_sequence1_binding0_meme1);
 }
 
-void ContentFixtures::setupFixtureB3(ContentStore &store) {
+void ContentFixtures::setupFixtureB3(ContentEntityStore &store) {
   // A basic beat
   program9 = ContentFixtures::buildProgram(library2, Program::Type::Beat, Program::State::Published,
                                            "Basic Beat", "C", 121);
@@ -1039,7 +1039,7 @@ void ContentFixtures::setupFixtureB3(ContentStore &store) {
   store.put(instrument8_audio8toot);
 }
 
-void ContentFixtures::setupFixtureB4_DetailBass(ContentStore &store) {
+void ContentFixtures::setupFixtureB4_DetailBass(ContentEntityStore &store) {
   // A basic bass pattern
   program10 = ContentFixtures::buildProgram(library2, Program::Type::Detail,
                                             Program::State::Published,
@@ -1151,7 +1151,7 @@ void ContentFixtures::setupFixtureB4_DetailBass(ContentStore &store) {
   store.put(instrument9_audio8);
 }
 
-void ContentFixtures::generatedFixture(ContentStore &store, int N) {
+void ContentFixtures::generatedFixture(ContentEntityStore &store, int N) {
 
   project1 = ContentFixtures::buildProject("Generated");
   store.put(project1);

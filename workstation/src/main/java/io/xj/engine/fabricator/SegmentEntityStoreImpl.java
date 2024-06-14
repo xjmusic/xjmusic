@@ -40,15 +40,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- FabricationEntityStore segments and child entities partitioned by segment id for rapid addressing
+ SegmentEntityStore segments and child entities partitioned by segment id for rapid addressing
  https://github.com/xjmusic/workstation/issues/276
  <p>
  XJ Lab Distributed Architecture
  https://github.com/xjmusic/workstation/issues/207
  Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in JSON:API record stored keyed by chain or segment id in memory
  */
-public class FabricationEntityStoreImpl implements FabricationEntityStore {
-  static final Logger LOG = LoggerFactory.getLogger(FabricationEntityStoreImpl.class);
+public class SegmentEntityStoreImpl implements SegmentEntityStore {
+  static final Logger LOG = LoggerFactory.getLogger(SegmentEntityStoreImpl.class);
   static final String SEGMENT_ID_ATTRIBUTE = EntityUtils.toIdAttribute(EntityUtils.toBelongsTo(Segment.class));
   final Map<Integer, Segment> segments = new ConcurrentHashMap<>();
   final Map<Integer, Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>>> entities = new ConcurrentHashMap<>();
@@ -56,7 +56,7 @@ public class FabricationEntityStoreImpl implements FabricationEntityStore {
 
   Chain chain;
 
-  public FabricationEntityStoreImpl(EntityFactory entityFactory) {
+  public SegmentEntityStoreImpl(EntityFactory entityFactory) {
     this.entityFactory = entityFactory;
   }
 

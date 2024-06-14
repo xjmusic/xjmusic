@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.craft.macro_main;
 
+import io.xj.engine.fabricator.SegmentEntityStoreImpl;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
@@ -22,7 +23,6 @@ import io.xj.model.pojos.Segment;
 import io.xj.model.pojos.SegmentMeme;
 import io.xj.model.enums.SegmentState;
 import io.xj.model.enums.SegmentType;
-import io.xj.engine.fabricator.FabricationEntityStoreImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -59,7 +59,7 @@ public class CraftSegmentPatternMemeTest {
       CraftFactory craftFactory = new CraftFactoryImpl();
       var jsonProvider = new JsonProviderImpl();
       var entityFactory = new EntityFactoryImpl(jsonProvider);
-      var store = new FabricationEntityStoreImpl(entityFactory);
+      var store = new SegmentEntityStoreImpl(entityFactory);
       JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
       FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
         store,

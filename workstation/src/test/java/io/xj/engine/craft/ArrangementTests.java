@@ -5,8 +5,8 @@ import io.xj.engine.ContentFixtures;
 import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationException;
 import io.xj.engine.FabricationTopology;
-import io.xj.engine.fabricator.FabricationEntityStore;
-import io.xj.engine.fabricator.FabricationEntityStoreImpl;
+import io.xj.engine.fabricator.SegmentEntityStore;
+import io.xj.engine.fabricator.SegmentEntityStoreImpl;
 import io.xj.engine.fabricator.Fabricator;
 import io.xj.engine.fabricator.FabricatorFactory;
 import io.xj.engine.fabricator.FabricatorFactoryImpl;
@@ -75,7 +75,7 @@ public class ArrangementTests extends YamlTest {
   final Logger LOG = LoggerFactory.getLogger(YamlTest.class);
   // this is how we provide content for fabrication
   FabricatorFactory fabrication;
-  FabricationEntityStore store;
+  SegmentEntityStore store;
   Fabricator fabricator;
   // list of all entities to return from Hub
   List<Object> content;
@@ -220,7 +220,7 @@ FUTURE goal
   void reset() throws Exception {
     JsonProvider jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
-    store = new FabricationEntityStoreImpl(entityFactory);
+    store = new SegmentEntityStoreImpl(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     fabrication = new FabricatorFactoryImpl(
       store,

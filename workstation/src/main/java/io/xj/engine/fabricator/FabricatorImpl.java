@@ -103,7 +103,7 @@ public class FabricatorImpl implements Fabricator {
   final Map<String, Optional<Note>> rootNotesByVoicingAndChord;
   final Map<UUID, Collection<ProgramSequenceChord>> completeChordsForProgramSequence;
   final Map<UUID, List<SegmentChoiceArrangementPick>> picksForChoice;
-  private final FabricationEntityStore store;
+  private final SegmentEntityStore store;
   final SegmentRetrospective retrospective;
   final Set<UUID> boundInstrumentIds;
   final Set<UUID> boundProgramIds;
@@ -123,7 +123,7 @@ public class FabricatorImpl implements Fabricator {
 
   public FabricatorImpl(
     FabricatorFactory fabricatorFactory,
-    FabricationEntityStore store,
+    SegmentEntityStore store,
     HubContent sourceMaterial,
     Integer segmentId,
     JsonapiPayloadFactory jsonapiPayloadFactory,

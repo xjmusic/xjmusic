@@ -33,12 +33,12 @@ using namespace XJ;
 #define CONTENT_STORE_CORE_HEADERS(ENTITY, ENTITIES)                  \
   std::optional<const ENTITY *> get##ENTITY(const UUID &id);          \
   std::set<const ENTITY *> get##ENTITIES();                           \
-  ContentStore set##ENTITIES(const std::set<ENTITY> &entities);       \
+  ContentEntityStore set##ENTITIES(const std::set<ENTITY> &entities);       \
   ENTITY put(const ENTITY &entity);                                   \
 
 namespace XJ {
 
-  class ContentStore {
+  class ContentEntityStore {
   private:
     std::map<UUID, Instrument> instruments{};
     std::map<UUID, InstrumentAudio> instrumentAudios{};
@@ -60,7 +60,7 @@ namespace XJ {
     std::map<UUID, TemplateBinding> templateBindings{};
 
   public:
-    ContentStore() = default;
+    ContentEntityStore() = default;
 
     CONTENT_STORE_CORE_HEADERS(Instrument, Instruments)
 
@@ -99,18 +99,18 @@ namespace XJ {
     CONTENT_STORE_CORE_HEADERS(TemplateBinding, TemplateBindings)
 
     /**
-     * Deserialize a ContentStore object from a JSON file
+     * Deserialize a ContentEntityStore object from a JSON file
      * @param file  The JSON file to deserialize
-     * @return      The deserialized ContentStore object
+     * @return      The deserialized ContentEntityStore object
      */
-    static ContentStore fromJson(std::ifstream &file);
+    static ContentEntityStore fromJson(std::ifstream &file);
 
     /**
-     * Deserialize a ContentStore object from a JSON string
+     * Deserialize a ContentEntityStore object from a JSON string
      * @param input  The JSON string to deserialize
-     * @return       The deserialized ContentStore object
+     * @return       The deserialized ContentEntityStore object
      */
-    static ContentStore fromJson(std::string &input);
+    static ContentEntityStore fromJson(std::string &input);
 
     /**
      * Get the Project (there should be only one)
@@ -599,11 +599,11 @@ namespace XJ {
     std::set<const ProgramVoice *> getVoicesOfProgram(const UUID &programId);
 
     /**
-     * Get a new ContentStore object for a specific template
+     * Get a new ContentEntityStore object for a specific template
      * - Only include entities bound to the template
      * - Only include entities in a published state (for entities with a state)
      */
-    ContentStore forTemplate(const Template &tmpl);
+    ContentEntityStore forTemplate(const Template &tmpl);
 
     /**
      * Clear the content store

@@ -13,7 +13,7 @@ import io.xj.model.enums.ChainState;
 import io.xj.model.enums.ChainType;
 import io.xj.model.pojos.Segment;
 import io.xj.model.enums.SegmentState;
-import io.xj.engine.fabricator.FabricationEntityStore;
+import io.xj.engine.fabricator.SegmentEntityStore;
 import io.xj.gui.project.ProjectState;
 import io.xj.engine.work.FabricationManager;
 import javafx.beans.property.SimpleObjectProperty;
@@ -49,7 +49,7 @@ class FabricationServiceImplTest {
   int defaultOutputFrameRate = 48000;
 
   @Mock
-  private FabricationEntityStore entityStore;
+  private SegmentEntityStore entityStore;
 
   @Mock
   ProjectService projectService;

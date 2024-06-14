@@ -46,7 +46,7 @@ public class SegmentRetrospectiveImplTest {
   JsonProvider jsonProvider;
   FabricatorFactory fabricatorFactory;
   HubContent sourceMaterial;
-  FabricationEntityStore store;
+  SegmentEntityStore store;
   SegmentFixtures fake;
   Segment segment0;
   Segment segment1;
@@ -56,7 +56,7 @@ public class SegmentRetrospectiveImplTest {
   @BeforeEach
   public void setUp() throws Exception {
     var entityFactory = new EntityFactoryImpl(jsonProvider);
-    store = new FabricationEntityStoreImpl(entityFactory);
+    store = new SegmentEntityStoreImpl(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     jsonProvider = new JsonProviderImpl();
     fabricatorFactory = new FabricatorFactoryImpl(

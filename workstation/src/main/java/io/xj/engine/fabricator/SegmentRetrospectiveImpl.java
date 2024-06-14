@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  */
 class SegmentRetrospectiveImpl implements SegmentRetrospective {
   final List<List<SegmentChord>> segmentChords = new ArrayList<>();
-  private final FabricationEntityStore entityStore;
+  private final SegmentEntityStore entityStore;
   final List<Segment> retroSegments;
   final List<Integer> previousSegmentIds;
 
@@ -35,7 +35,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   final Segment previousSegment;
 
   public SegmentRetrospectiveImpl(
-    FabricationEntityStore entityStore,
+    SegmentEntityStore entityStore,
     Integer segmentId
   ) throws FabricationException, FabricationFatalException {
     this.entityStore = entityStore;

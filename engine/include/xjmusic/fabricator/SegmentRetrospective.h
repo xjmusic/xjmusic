@@ -7,7 +7,7 @@
 #include <optional>
 #include <set>
 
-#include "FabricationEntityStore.h"
+#include "xjmusic/entities/segment/SegmentEntityStore.h"
 #include "xjmusic/entities/content/Instrument.h"
 #include "xjmusic/entities/segment/Segment.h"
 #include "xjmusic/entities/segment/SegmentChoice.h"
@@ -35,7 +35,7 @@ namespace XJ {
      * @param entityStore  for retrospective
      * @param segmentId    from which to create retrospective
      */
-    explicit SegmentRetrospective(FabricationEntityStore entityStore, int segmentId);
+    explicit SegmentRetrospective(SegmentEntityStore entityStore, int segmentId);
 
     /**
      Get the arrangement for the given pick
@@ -181,7 +181,7 @@ namespace XJ {
 
   private:
     std::map<int, std::vector<SegmentChord>> segmentChords{}; // indexed by id, vector of chords ordered by position
-    FabricationEntityStore entityStore{};
+    SegmentEntityStore entityStore{};
     std::vector<Segment> retroSegments{};
     std::set<int> previousSegmentIds{};
     std::optional<Segment> previousSegment;

@@ -26,7 +26,7 @@ import io.xj.model.pojos.SegmentChoiceArrangementPick;
 import io.xj.model.enums.SegmentState;
 import io.xj.model.enums.SegmentType;
 import io.xj.engine.fabricator.ChainUtils;
-import io.xj.engine.fabricator.FabricationEntityStore;
+import io.xj.engine.fabricator.SegmentEntityStore;
 import io.xj.engine.fabricator.SegmentUtils;
 import io.xj.engine.fabricator.TemplateUtils;
 import io.xj.engine.telemetry.Telemetry;
@@ -58,7 +58,7 @@ public class CraftWorkImpl implements CraftWork {
   private final Telemetry telemetry;
   private final CraftFactory craftFactory;
   private final FabricatorFactory fabricatorFactory;
-  private final FabricationEntityStore store;
+  private final SegmentEntityStore store;
   private final AudioCache audioCache;
   private final AtomicBoolean running = new AtomicBoolean(true);
   private final double outputFrameRate;
@@ -79,7 +79,7 @@ public class CraftWorkImpl implements CraftWork {
     Telemetry telemetry,
     CraftFactory craftFactory,
     FabricatorFactory fabricatorFactory,
-    FabricationEntityStore store,
+    SegmentEntityStore store,
     AudioCache audioCache,
     long persistenceWindowSeconds,
     long craftAheadSeconds,

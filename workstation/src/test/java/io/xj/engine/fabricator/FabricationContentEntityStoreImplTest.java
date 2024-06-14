@@ -44,8 +44,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
-public class FabricationEntityStoreImplTest {
-  FabricationEntityStore subject;
+public class FabricationContentEntityStoreImplTest {
+  SegmentEntityStore subject;
   EntityFactory entityFactory;
   private Chain fakeChain;
 
@@ -65,7 +65,7 @@ public class FabricationEntityStoreImplTest {
     FabricationTopology.buildFabricationTopology(entityFactory);
 
     // Instantiate the test subject and put the payload
-    subject = new FabricationEntityStoreImpl(entityFactory);
+    subject = new SegmentEntityStoreImpl(entityFactory);
 
     // add base fixtures
     Project fakeProject = ContentFixtures.buildProject("fake");

@@ -7,14 +7,14 @@
 using namespace XJ;
 
 FabricatorFactory::FabricatorFactory(
-    FabricationEntityStore entityStore
+    SegmentEntityStore entityStore
 ) {
   this->entityStore = std::move(entityStore);
 }
 
 /*
  * TODO: Implement FabricatorFactory::fabricate
-Fabricator fabricate(ContentStore sourceMaterial, Integer segmentId, double outputFrameRate, int outputChannels,
+Fabricator fabricate(ContentEntityStore sourceMaterial, Integer segmentId, double outputFrameRate, int outputChannels,
 std::optional<Segment::Type>
 overrideSegmentType)
 throws FabricationException, FabricationFatalException{

@@ -14,8 +14,8 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class EntityStoreImplTest {
-  EntityStore subject;
+public class ContentEntityStoreImplTest {
+  ContentEntityStore subject;
 
   @BeforeEach
   public void setUp() {
@@ -28,7 +28,7 @@ public class EntityStoreImplTest {
       .belongsTo(Superwidget.class)
       .createdBy(Widget::new);
 
-    subject = new EntityStoreImpl();
+    subject = new ContentEntityStoreImpl();
   }
 
   @Test

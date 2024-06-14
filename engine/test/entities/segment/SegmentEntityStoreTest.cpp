@@ -3,17 +3,17 @@
 #include <gtest/gtest.h>
 #include <string>
 
-#include "../_helper/ContentFixtures.h"
-#include "../_helper/SegmentFixtures.h"
-#include "../_helper/TestHelpers.h"
-#include "xjmusic/fabricator/FabricationEntityStore.h"
+#include "../../_helper/ContentFixtures.h"
+#include "../../_helper/SegmentFixtures.h"
+#include "../../_helper/TestHelpers.h"
+#include "xjmusic/entities/segment/SegmentEntityStore.h"
 #include "xjmusic/fabricator/FabricationException.h"
 
 using namespace XJ;
 
 class FabricationEntityStoreTest : public ::testing::Test {
 protected:
-  FabricationEntityStore subject;
+  SegmentEntityStore subject;
   Chain fakeChain;
   Chain chain3;
   Project project1;

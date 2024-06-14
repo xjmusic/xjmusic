@@ -8,7 +8,7 @@
 
 using namespace XJ;
 
-SegmentRetrospective::SegmentRetrospective(FabricationEntityStore entityStore, int segmentId) {
+SegmentRetrospective::SegmentRetrospective(SegmentEntityStore entityStore, int segmentId) {
   this->entityStore = entityStore;
 
   // NOTE: the segment retrospective is empty for segments of type Initial, NextMain, and NextMacro--

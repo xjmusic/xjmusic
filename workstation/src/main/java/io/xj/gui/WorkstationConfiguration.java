@@ -1,5 +1,6 @@
 package io.xj.gui;
 
+import io.xj.engine.fabricator.SegmentEntityStoreImpl;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactory;
 import io.xj.model.entity.EntityFactoryImpl;
@@ -24,8 +25,7 @@ import io.xj.engine.mixer.EnvelopeProvider;
 import io.xj.engine.mixer.EnvelopeProviderImpl;
 import io.xj.engine.mixer.MixerFactory;
 import io.xj.engine.mixer.MixerFactoryImpl;
-import io.xj.engine.fabricator.FabricationEntityStore;
-import io.xj.engine.fabricator.FabricationEntityStoreImpl;
+import io.xj.engine.fabricator.SegmentEntityStore;
 import io.xj.gui.project.ProjectManager;
 import io.xj.gui.project.ProjectManagerImpl;
 import io.xj.engine.ship.broadcast.BroadcastFactory;
@@ -111,10 +111,10 @@ public class WorkstationConfiguration {
     Telemetry telemetry = new TelemetryImpl();
     CraftFactory craftFactory = new CraftFactoryImpl();
     AudioCache audioCache = new AudioCacheImpl(projectManager, audioLoader);
-    FabricationEntityStore fabricationEntityStore = new FabricationEntityStoreImpl(entityFactory);
+    SegmentEntityStore segmentEntityStore = new SegmentEntityStoreImpl(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
-      fabricationEntityStore,
+        segmentEntityStore,
         jsonapiPayloadFactory,
         jsonProvider
     );
@@ -127,7 +127,7 @@ public class WorkstationConfiguration {
         audioCache,
         fabricatorFactory,
         mixerFactory,
-      fabricationEntityStore
+        segmentEntityStore
     );
   }
 }

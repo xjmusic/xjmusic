@@ -7,7 +7,7 @@
 #include "../_helper/SegmentFixtures.h"
 #include "../_helper/TestHelpers.h"
 #include "xjmusic/fabricator/ChainUtils.h"
-#include "xjmusic/fabricator/FabricationEntityStore.h"
+#include "xjmusic/entities/segment/SegmentEntityStore.h"
 #include "xjmusic/fabricator/FabricationException.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/entities/music/StickyBun.h"
@@ -18,8 +18,8 @@ class SegmentRetrospectiveTest : public ::testing::Test {
 protected:
   int SEQUENCE_TOTAL_BEATS = 64;
   UUID patternId = TestHelpers::randomUUID();
-  ContentStore sourceMaterial;
-  FabricationEntityStore store;
+  ContentEntityStore sourceMaterial;
+  SegmentEntityStore store;
   FabricatorFactory fabricatorFactory = FabricatorFactory(store);
   ContentFixtures fake;
   Segment segment0;

@@ -3,7 +3,7 @@ include(FetchContent)
 
 # show up in IDEs unless they are listed in add_library.
 add_library(xjmusic
-        entities/content/ContentStore.cpp
+        entities/content/ContentEntityStore.cpp
         entities/content/Entity.cpp
         entities/content/Instrument.cpp
         entities/content/InstrumentAudio.cpp
@@ -58,7 +58,7 @@ add_library(xjmusic
         entities/segment/SegmentMessage.cpp
         entities/segment/SegmentMeta.cpp
         fabricator/ChainUtils.cpp
-        fabricator/FabricationEntityStore.cpp
+        fabricator/SegmentEntityStore.cpp
         fabricator/FabricationException.cpp
         fabricator/FabricationFatalException.cpp
         fabricator/FabricatorFactory.cpp

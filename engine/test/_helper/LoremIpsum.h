@@ -8,7 +8,7 @@
 #include <random>
 #include <sstream>
 
-#include "xjmusic/entities/content/ContentStore.h"
+#include "xjmusic/entities/content/ContentEntityStore.h"
 
 namespace XJ {
 

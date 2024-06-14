@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
  XJ Lab Distributed Architecture https://github.com/xjmusic/workstation/issues/207
  Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in JSON:API record stored keyed by chain or segment id in memory
  */
-public class EntityStoreImpl implements EntityStore {
-  static final Logger LOG = LoggerFactory.getLogger(EntityStoreImpl.class);
+public class ContentEntityStoreImpl implements ContentEntityStore {
+  static final Logger LOG = LoggerFactory.getLogger(ContentEntityStoreImpl.class);
   final Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>> store = new ConcurrentHashMap<>();
 
   @Override

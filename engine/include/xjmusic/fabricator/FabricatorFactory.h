@@ -3,7 +3,7 @@
 #ifndef XJMUSIC_FABRICATOR_FABRICATOR_FACTORY_H
 #define XJMUSIC_FABRICATOR_FABRICATOR_FACTORY_H
 
-#include "FabricationEntityStore.h"
+#include "xjmusic/entities/segment/SegmentEntityStore.h"
 #include "SegmentRetrospective.h"
 
 namespace XJ {
@@ -22,7 +22,7 @@ namespace XJ {
      * Constructor from entity store
      * @param entityStore  for factory
      */
-    explicit FabricatorFactory(FabricationEntityStore entityStore);
+    explicit FabricatorFactory(SegmentEntityStore entityStore);
 
     /**
      Create a fabricator to fabricate a segment
@@ -39,7 +39,7 @@ namespace XJ {
 /*
  * TODO: Implement FabricatorFactory::fabricate
     Fabricator fabricate(
-        ContentStore sourceMaterial,
+        ContentEntityStore sourceMaterial,
         int segmentId,
         double outputFrameRate,
         int outputChannels,
@@ -64,7 +64,7 @@ namespace XJ {
     );
 
   private:
-    FabricationEntityStore entityStore;
+    SegmentEntityStore entityStore;
 
   }
 

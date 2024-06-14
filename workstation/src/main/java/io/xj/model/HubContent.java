@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 /**
  to ingest any combination of Programs, Instruments, or Libraries (with their Programs and Instruments)
  <p>
- Refactoring this class ala `HubContent` extends common `EntityStore`
+ Refactoring this class ala `HubContent` extends common `ContentEntityStore`
  */
 public class HubContent {
   final Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>> store = new ConcurrentHashMap<>();

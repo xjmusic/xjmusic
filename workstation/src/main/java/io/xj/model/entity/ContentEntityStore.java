@@ -11,7 +11,7 @@ import java.util.UUID;
  XJ Lab Distributed Architecture https://github.com/xjmusic/workstation/issues/207
  Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in memory
  */
-public interface EntityStore {
+public interface ContentEntityStore {
 
   /**
    Put an entity into the store.

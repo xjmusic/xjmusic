@@ -3,7 +3,7 @@
 #include <fstream>
 #include <string>
 
-#include "xjmusic/entities/content/ContentStore.h"
+#include "xjmusic/entities/content/ContentEntityStore.h"
 
 #include "../../_helper/TestHelpers.h"
 #include "../../_helper/ContentFixtures.h"
@@ -15,7 +15,7 @@ using namespace XJ;
 class ContentStoreTest : public ::testing::Test {
 
 protected:
-  ContentStore subject;
+  ContentEntityStore subject;
 
   Project project1;
   Library library1;
@@ -150,7 +150,7 @@ TEST_F(ContentStoreTest, FromJsonFile) {
   ASSERT_TRUE(file.is_open());
 
   // Deserialize a content store from a JSON file stream
-  subject = ContentStore::fromJson(file);
+  subject = ContentEntityStore::fromJson(file);
 
   // Assert the correct count of entities in the content store
   ASSERT_EQ(2, subject.getInstruments().size());
@@ -180,7 +180,7 @@ TEST_F(ContentStoreTest, FromJsonString) {
   std::string jsonString((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
   // Deserialize a content store from a JSON file stream
-  ContentStore subject = ContentStore::fromJson(jsonString);
+  ContentEntityStore subject = ContentEntityStore::fromJson(jsonString);
 
   // Assert the correct count of entities in the content store
   ASSERT_EQ(2, subject.getInstruments().size());
@@ -204,7 +204,7 @@ TEST_F(ContentStoreTest, FromJsonString) {
 }
 
 TEST_F(ContentStoreTest, SetProgramGetProgram) {
-  ContentStore subject;
+  ContentEntityStore subject;
 
   // Create an Entity object
   Program program;
@@ -219,10 +219,10 @@ TEST_F(ContentStoreTest, SetProgramGetProgram) {
   program.isDeleted = false;
   program.updatedAt = 1711089919558;
 
-  // Put the Entity object into the ContentStore
+  // Put the Entity object into the ContentEntityStore
   subject.setPrograms({program});
 
-  // Retrieve the Entity object from the ContentStore
+  // Retrieve the Entity object from the ContentEntityStore
   auto retrievedEntity = subject.getProgram("fd472031-dd6e-47ae-b0b7-ae4f02b94726");
 
   // Assert that the retrieved Entity object is equal to the original Entity object

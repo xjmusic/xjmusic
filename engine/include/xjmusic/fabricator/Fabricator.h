@@ -14,7 +14,7 @@
 #include "xjmusic/entities/segment/SegmentMeme.h"
 #include "xjmusic/entities/segment/SegmentMessage.h"
 #include "xjmusic/entities/segment/SegmentMeta.h"
-#include "xjmusic/entities/content/ContentStore.h"
+#include "xjmusic/entities/content/ContentEntityStore.h"
 #include "xjmusic/entities/content/Instrument.h"
 #include "xjmusic/entities/content/InstrumentAudio.h"
 #include "xjmusic/entities/content/InstrumentConfig.h"

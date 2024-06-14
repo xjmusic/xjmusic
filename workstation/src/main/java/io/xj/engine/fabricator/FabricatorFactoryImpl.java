@@ -11,11 +11,11 @@ import jakarta.annotation.Nullable;
 
 public class FabricatorFactoryImpl implements FabricatorFactory {
   final JsonapiPayloadFactory jsonapiPayloadFactory;
-  private final FabricationEntityStore entityStore;
+  private final SegmentEntityStore entityStore;
   final JsonProvider jsonProvider;
 
   public FabricatorFactoryImpl(
-    FabricationEntityStore entityStore,
+    SegmentEntityStore entityStore,
     JsonapiPayloadFactory jsonapiPayloadFactory,
     JsonProvider jsonProvider
   ) {

@@ -24,7 +24,7 @@ import io.xj.model.pojos.SegmentChord;
 import io.xj.model.pojos.SegmentMeme;
 import io.xj.model.enums.SegmentState;
 import io.xj.model.enums.SegmentType;
-import io.xj.engine.fabricator.FabricationEntityStoreImpl;
+import io.xj.engine.fabricator.SegmentEntityStoreImpl;
 import io.xj.engine.fabricator.SegmentUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,7 +60,7 @@ public class CraftFoundationNextMacroTest {
       HubTopology.buildHubApiTopology(entityFactory);
       FabricationTopology.buildFabricationTopology(entityFactory);
       JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-      var store = new FabricationEntityStoreImpl(entityFactory);
+      var store = new SegmentEntityStoreImpl(entityFactory);
       var fabricatorFactory = new FabricatorFactoryImpl(
         store,
         jsonapiPayloadFactory,
