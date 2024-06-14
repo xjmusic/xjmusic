@@ -1,0 +1,28 @@
+name: Workstation PR
+
+on:
+  pull_request:
+    paths:
+      - workstation/**
+      - engine/**
+  push:
+    branches:
+      - main
+    paths:
+      - workstation/**
+      - engine/**
+
+jobs:
+  NothingLeftTodo:
+    env:
+      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+    name: Nothing Left TODO
+    runs-on: ubuntu-latest
+    permissions: read-all
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Nothing left TODO
+        run: .github/nothing_left_todo.sh
