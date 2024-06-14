@@ -3,6 +3,10 @@
 #ifndef XJMUSIC_ENTITY_H
 #define XJMUSIC_ENTITY_H
 
+#include "xjmusic/entities/music/Root.h"
+#include "xjmusic/entities/music/PitchClass.h"
+#include "xjmusic/entities/music/Note.h"
+#include "gtest/gtest.h"
 #include <map>
 #include <string>
 #include <typeinfo>
@@ -55,6 +59,10 @@ namespace XJ {
       ).count();
     }
 
+    /**
+       * Generate a random UUID
+       */
+    static std::string randomUUID();
   };
 
 }// namespace XJ

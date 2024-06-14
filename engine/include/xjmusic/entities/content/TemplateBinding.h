@@ -5,6 +5,7 @@
 
 #include <string>
 #include <utility>
+#include <set>
 
 #include "xjmusic/entities/Entity.h"
 #include "ContentEntity.h"
@@ -27,6 +28,12 @@ namespace XJ {
     UUID targetId;
 
     /**
+     * Represent a TemplateBinding as a string
+     * @return  The string representation of the TemplateBinding
+     */
+    std::string toString() const;
+
+    /**
      * Parse the TemplateBinding Type enum value from a string
      * @param value  The string to parse
      * @return      The TemplateBinding Type enum value
@@ -39,6 +46,13 @@ namespace XJ {
      * @return      The string representation of the TemplateBinding Type
      */
     static std::string toString(const TemplateBinding::Type &type);
+
+    /**
+     * Convert a set of TemplateBinding pointers to a string
+     * @param templateBindings  The set of TemplateBinding pointers
+     * @return                The string representation of the set of TemplateBinding pointers
+     */
+    static std::string toPrettyCsv(const std::set<const TemplateBinding *>& templateBindings);
   };
 
 }// namespace XJ

@@ -70,6 +70,7 @@ add_library(xjmusic
         util/StringUtils.cpp
         util/ValueUtils.cpp
         xjmusic.cpp
+        util/CsvUtils.cpp
 )
 
 # We need this directory, and users of our library will need it too

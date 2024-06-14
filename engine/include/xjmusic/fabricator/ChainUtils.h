@@ -22,7 +22,7 @@ namespace XJ {
 
     static std::string getIdentifier(const std::optional<Chain> &chain);
 
-    static std::set<UUID> targetIdsOfType(const std::vector<TemplateBinding> &chainBindings, TemplateBinding::Type type);
+    static std::set<UUID> targetIdsOfType(const std::set<const TemplateBinding *>& chainBindings, TemplateBinding::Type type);
 
     static std::string getShipKey(const std::string &chainKey, const std::string &extension);
 

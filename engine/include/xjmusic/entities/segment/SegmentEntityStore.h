@@ -23,6 +23,7 @@ using namespace XJ;
   std::optional<ENTITY> read##ENTITY(int segmentId, const UUID& id);    \
   std::set<ENTITY> readAll##ENTITIES(int segmentId);                    \
   std::set<ENTITY> readAll##ENTITIES(const std::set<int>& segmentIds);  \
+  void delete##ENTITY(int segmentId, const UUID& id);
 
 
 namespace XJ {
@@ -189,54 +190,6 @@ namespace XJ {
      * @returns requested Segment
      */
     void deleteSegment(int id);
-
-    /**
-     * Read a SegmentChoice by UUID in the given Segment #
-     * @returns requested SegmentChoice
-     */
-    void deleteSegmentChoice(int segmentId, const UUID& id);
-
-    /**
-     * Read a SegmentChoiceArrangement by UUID in the given Segment #
-     * @returns requested SegmentChoiceArrangement
-     */
-    void deleteSegmentChoiceArrangement(int segmentId, const UUID& id);
-
-    /**
-     * Read a SegmentChoiceArrangementPick by UUID in the given Segment #
-     * @returns requested SegmentChoiceArrangementPick
-     */
-    void deleteSegmentChoiceArrangementPick(int segmentId, const UUID& id);
-
-    /**
-     * Read a SegmentChord by UUID in the given Segment #
-     * @returns requested SegmentChord
-     */
-    void deleteSegmentChord(int segmentId, const UUID& id);
-
-    /**
-     * Read a SegmentChordVoicing by UUID in the given Segment #
-     * @returns requested SegmentChordVoicing
-     */
-    void deleteSegmentChordVoicing(int segmentId, const UUID& id);
-
-    /**
-     * Read a SegmentMeme by UUID in the given Segment #
-     * @returns requested SegmentMeme
-     */
-    void deleteSegmentMeme(int segmentId, const UUID& id);
-
-    /**
-     * Read a SegmentMessage by UUID in the given Segment #
-     * @returns requested SegmentMessage
-     */
-    void deleteSegmentMessage(int segmentId, const UUID& id);
-
-    /**
-     * Read a SegmentMeta by UUID in the given Segment #
-     * @returns requested SegmentMeta
-     */
-    void deleteSegmentMeta(int segmentId, const UUID& id);
 
     /**
      Delete all segments before the given segment id

@@ -50,6 +50,7 @@ add_executable(xjmusic_test
         fabricator/SegmentRetrospectiveTest.cpp
         fabricator/SegmentUtilsTest.cpp
         util/ConfigParserTest.cpp
+        util/CsvUtilsTest.cpp
         util/StringUtilsTest.cpp
         util/ValueUtilsTest.cpp
 )

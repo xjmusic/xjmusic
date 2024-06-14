@@ -10,13 +10,14 @@
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/FabricationFatalException.h"
+#include "Entity.h"
 
 using namespace XJ;
 
 class SegmentRetrospectiveTest : public ::testing::Test {
 protected:
   int SEQUENCE_TOTAL_BEATS = 64;
-  UUID patternId = TestHelpers::randomUUID();
+  UUID patternId = Entity::randomUUID();
   ContentEntityStore sourceMaterial;
   SegmentEntityStore store;
   FabricatorFactory fabricatorFactory = FabricatorFactory(store);

@@ -15,11 +15,11 @@ namespace XJ {
   }
 
   std::set<UUID>
-  ChainUtils::targetIdsOfType(const std::vector<TemplateBinding> &chainBindings, TemplateBinding::Type type) {
+  ChainUtils::targetIdsOfType(const std::set<const TemplateBinding *> &chainBindings, TemplateBinding::Type type) {
     std::set<UUID> result;
     for (const auto &binding: chainBindings) {
-      if (binding.type == type) {
-        result.insert(binding.targetId);
+      if (binding->type == type) {
+        result.insert(binding->targetId);
       }
     }
     return result;

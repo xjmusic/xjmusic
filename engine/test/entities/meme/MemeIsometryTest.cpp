@@ -5,6 +5,7 @@
 
 #include "xjmusic/entities/meme/MemeIsometry.h"
 #include "../../_helper/TestHelpers.h"
+#include "Entity.h"
 
 using namespace XJ;
 
@@ -52,7 +53,7 @@ TEST(MemeIsometryTest, AddMore) {
   auto subject = MemeIsometry::of(MemeTaxonomy::empty(), {"Smooth"});
 
   ProgramMeme meme;
-  meme.id = TestHelpers::randomUUID();
+  meme.id = Entity::randomUUID();
   meme.name = "Catlike";
 
   subject.add(meme);

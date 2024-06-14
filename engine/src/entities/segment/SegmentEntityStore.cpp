@@ -48,6 +48,12 @@ using namespace XJ;
     }                                                                                                   \
     return result;                                                                                      \
   }                                                                                                     \
+  void SegmentEntityStore::delete##ENTITY(int segmentId, const UUID &id) {                              \
+    if (STORE.find(segmentId) == STORE.end()) {                                                         \
+      return;                                                                                           \
+    }                                                                                                   \
+    STORE[segmentId].erase(id);                                                                         \
+  }                                                                                                     \
 
 SEGMENT_STORE_CORE_METHODS(SegmentChoice, SegmentChoices, segmentChoices)
 
@@ -246,62 +252,6 @@ void SegmentEntityStore::deleteSegment(int id) {
   segmentMemes.erase(id);
   segmentMessages.erase(id);
   segmentMetas.erase(id);
-}
-
-void SegmentEntityStore::deleteSegmentChoice(int segmentId, const UUID &id) {
-  if (segmentChoices.find(segmentId) == segmentChoices.end()) {
-    return;
-  }
-  segmentChoices[segmentId].erase(id);
-}
-
-void SegmentEntityStore::deleteSegmentChoiceArrangement(int segmentId, const UUID &id) {
-  if (segmentChoiceArrangements.find(segmentId) == segmentChoiceArrangements.end()) {
-    return;
-  }
-  segmentChoiceArrangements[segmentId].erase(id);
-}
-
-void SegmentEntityStore::deleteSegmentChoiceArrangementPick(int segmentId, const UUID &id) {
-  if (segmentChoiceArrangementPicks.find(segmentId) == segmentChoiceArrangementPicks.end()) {
-    return;
-  }
-  segmentChoiceArrangementPicks[segmentId].erase(id);
-}
-
-void SegmentEntityStore::deleteSegmentChord(int segmentId, const UUID &id) {
-  if (segmentChords.find(segmentId) == segmentChords.end()) {
-    return;
-  }
-  segmentChords[segmentId].erase(id);
-}
-
-void SegmentEntityStore::deleteSegmentChordVoicing(int segmentId, const UUID &id) {
-  if (segmentChordVoicings.find(segmentId) == segmentChordVoicings.end()) {
-    return;
-  }
-  segmentChordVoicings[segmentId].erase(id);
-}
-
-void SegmentEntityStore::deleteSegmentMeme(int segmentId, const UUID &id) {
-  if (segmentMemes.find(segmentId) == segmentMemes.end()) {
-    return;
-  }
-  segmentMemes[segmentId].erase(id);
-}
-
-void SegmentEntityStore::deleteSegmentMessage(int segmentId, const UUID &id) {
-  if (segmentMessages.find(segmentId) == segmentMessages.end()) {
-    return;
-  }
-  segmentMessages[segmentId].erase(id);
-}
-
-void SegmentEntityStore::deleteSegmentMeta(int segmentId, const UUID &id) {
-  if (segmentMetas.find(segmentId) == segmentMetas.end()) {
-    return;
-  }
-  segmentMetas[segmentId].erase(id);
 }
 
 void SegmentEntityStore::protectSegmentStateTransition(Segment::State fromState, Segment::State toState) {

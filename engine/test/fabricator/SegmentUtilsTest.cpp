@@ -8,6 +8,7 @@
 #include "../_helper/SegmentFixtures.h"
 #include "../_helper/TestHelpers.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
+#include "Entity.h"
 
 using namespace XJ;
 
@@ -100,13 +101,13 @@ protected:
 // Test for findFirstOfType
 TEST_F(SegmentUtilsTest, FindFirstOfType) {
   SegmentChoice ch0;
-  ch0.id = TestHelpers::randomUUID();
+  ch0.id = Entity::randomUUID();
   ch0.deltaIn = SegmentChoice::DELTA_UNLIMITED;
   ch0.deltaOut = SegmentChoice::DELTA_UNLIMITED;
   ch0.programType = Program::Type::Main;
 
   SegmentChoice ch1;
-  ch1.id = TestHelpers::randomUUID();
+  ch1.id = Entity::randomUUID();
   ch1.deltaIn = SegmentChoice::DELTA_UNLIMITED;
   ch1.deltaOut = SegmentChoice::DELTA_UNLIMITED;
   ch1.programType = Program::Type::Macro;

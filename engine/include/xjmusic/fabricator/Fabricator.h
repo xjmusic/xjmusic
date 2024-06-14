@@ -3,6 +3,7 @@
 #ifndef XJMUSIC_FABRICATOR_H
 #define XJMUSIC_FABRICATOR_H
 
+#include "FabricatorFactory.h"
 #include "xjmusic/entities/Entity.h"
 #include "xjmusic/entities/content/ContentEntityStore.h"
 #include "xjmusic/entities/content/Instrument.h"
@@ -26,6 +27,7 @@
 #include "xjmusic/entities/content/Template.h"
 #include "xjmusic/entities/content/TemplateBinding.h"
 #include "xjmusic/entities/content/TemplateConfig.h"
+#include "xjmusic/entities/meme/MemeIsometry.h"
 #include "xjmusic/entities/meme/MemeTaxonomy.h"
 #include "xjmusic/entities/music/Accidental.h"
 #include "xjmusic/entities/music/BPM.h"
@@ -52,50 +54,10 @@
 #include "xjmusic/entities/segment/SegmentMessage.h"
 #include "xjmusic/entities/segment/SegmentMeta.h"
 #include "xjmusic/fabricator/SegmentRetrospective.h"
-#include "FabricatorFactory.h"
-#include "xjmusic/entities/meme/MemeIsometry.h"
 
 namespace XJ {
 
   class Fabricator {
-  private:
-    static const std::string KEY_VOICE_NOTE_TEMPLATE;
-    static const std::string KEY_VOICE_TRACK_TEMPLATE;
-    static const std::string NAME_SEPARATOR;
-    static const std::string UNKNOWN_KEY;
-    Chain chain;
-    TemplateConfig templateConfig;
-    std::vector<TemplateBinding> templateBindings;
-    ContentEntityStore sourceMaterial;
-    double outputFrameRate;
-    int outputChannels;
-    std::map<double, std::optional<SegmentChord>> chordAtPosition;
-    std::map<Instrument::Type, NoteRange> voicingNoteRange;
-    std::map<SegmentChoice, ProgramSequence> sequenceForChoice;
-    std::map<std::string, InstrumentAudio> preferredAudios;
-    std::map<std::string, InstrumentConfig> instrumentConfigs;
-    std::map<std::string, InstrumentConfig> pickInstrumentConfigs;
-    std::map<std::string, int> rangeShiftOctave;
-    std::map<std::string, int> targetShift;
-    std::map<std::string, NoteRange> rangeForChoice;
-    std::map<std::string, std::optional<Note>> rootNotesByVoicingAndChord;
-    std::map<UUID, std::vector<ProgramSequenceChord>> completeChordsForProgramSequence;
-    std::map<UUID, std::vector<SegmentChoiceArrangementPick>> picksForChoice;
-    SegmentEntityStore store;
-    SegmentRetrospective retrospective;
-    std::set<UUID> boundInstrumentIds;
-    std::set<UUID> boundProgramIds;
-    unsigned long long startAtSystemNanoTime;
-    int segmentId;
-    Segment::Type type; // You need to define Segment::Type class
-
-    std::optional<SegmentChoice> macroChoiceOfPreviousSegment;
-    std::optional<SegmentChoice> mainChoiceOfPreviousSegment;
-
-    double *microsPerBeat = nullptr;
-
-    std::set<Instrument::Type> *distinctChordVoicingTypes = nullptr;
-
   public:
 
     /**
@@ -111,9 +73,9 @@ namespace XJ {
      * Construct a Fabricator
      */
     explicit Fabricator(
-        FabricatorFactory fabricatorFactory,
-        SegmentEntityStore store,
-        ContentEntityStore sourceMaterial,
+        FabricatorFactory &fabricatorFactory,
+        SegmentEntityStore &store,
+        ContentEntityStore &sourceMaterial,
         int segmentId,
         double outputFrameRate,
         int outputChannels,
@@ -149,21 +111,21 @@ namespace XJ {
     void addInfoMessage(std::string body);
 
     /**
-     Delete an entity specified by Segment id, class and id
+     Delete a pick from the current segment specified by Segment id and id
 
      @param <N>       type of entity
      @param segmentId partition (segment id) of entity
      @param type      of class to delete
      @param id        to delete
      */
-    void deleteEntity(int segmentId, std::string type, UUID id);
+    void deletePick(const UUID& id);
 
     /**
      Get arrangements for segment
 
      @return arrangements for segment
      */
-    std::vector<SegmentChoiceArrangement> getArrangements();
+    std::set<SegmentChoiceArrangement> getArrangements();
 
     /**
      Get segment arrangements for a given choice
@@ -171,7 +133,7 @@ namespace XJ {
      @param choices to get segment arrangements for
      @return segments arrangements for the given segment choice
      */
-    std::vector<SegmentChoiceArrangement> getArrangements(std::vector<SegmentChoice> choices);
+    std::set<SegmentChoiceArrangement> getArrangements(const std::set<SegmentChoice>& choices);
 
     /**
      Get the Chain
@@ -193,7 +155,7 @@ namespace XJ {
 
      @return choices for segment
      */
-    std::vector<SegmentChoice> getChoices();
+    std::set<SegmentChoice> getChoices();
 
     /**
      Determine if a choice has been previously crafted
@@ -831,6 +793,132 @@ namespace XJ {
      @return the meme taxonomy for the source material
      */
     MemeTaxonomy getMemeTaxonomy();
+
+  private:
+    static const std::string KEY_VOICE_NOTE_TEMPLATE;
+    static const std::string KEY_VOICE_TRACK_TEMPLATE;
+    static const std::string NAME_SEPARATOR;
+    static const std::string UNKNOWN_KEY;
+    Chain chain;
+    TemplateConfig templateConfig;
+    std::set<const TemplateBinding *> templateBindings;
+    ContentEntityStore &sourceMaterial;
+    double outputFrameRate;
+    int outputChannels;
+    std::map<double, std::optional<SegmentChord>> chordAtPosition;
+    std::map<Instrument::Type, NoteRange> voicingNoteRange;
+    std::map<SegmentChoice, ProgramSequence> sequenceForChoice;
+    std::map<std::string, InstrumentAudio> preferredAudios;
+    std::map<std::string, InstrumentConfig> instrumentConfigs;
+    std::map<std::string, InstrumentConfig> pickInstrumentConfigs;
+    std::map<std::string, int> rangeShiftOctave;
+    std::map<std::string, int> targetShift;
+    std::map<std::string, NoteRange> rangeForChoice;
+    std::map<std::string, std::optional<Note>> rootNotesByVoicingAndChord;
+    std::map<UUID, std::vector<ProgramSequenceChord>> completeChordsForProgramSequence;
+    std::map<UUID, std::set<SegmentChoiceArrangementPick>> picksForChoice;
+    SegmentEntityStore &store;
+    SegmentRetrospective retrospective;
+    std::set<UUID> boundInstrumentIds;
+    std::set<UUID> boundProgramIds;
+    std::chrono::system_clock::time_point startAtSystemNanoTime;
+    int segmentId;
+    std::optional<Segment::Type> type;
+
+    std::optional<SegmentChoice> macroChoiceOfPreviousSegment;
+    std::optional<SegmentChoice> mainChoiceOfPreviousSegment;
+
+    double *microsPerBeat = nullptr;
+
+    std::set<Instrument::Type> *distinctChordVoicingTypes = nullptr;
+
+    /**
+     Get the choices of the current segment of the given type
+
+     @param programType of choices to get
+     @return choices of the current segment of the given type
+     */
+    std::optional<SegmentChoice> getChoiceOfType(Program::Type programType);
+
+    /**
+     Get the choices of the current segment of the given type
+
+     @return choices of the current segment of the given type
+     */
+    std::vector<SegmentChoice> getBeatChoices();
+
+    /**
+     Compute the lowest optimal range shift octaves
+
+     @param sourceRange from
+     @param targetRange to
+     @return lowest optimal range shift octaves
+     */
+    int computeLowestOptimalRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange);
+
+    /**
+     Compute a Segment ship key: the chain ship key concatenated with the begin-at time in chain microseconds
+
+     @param chain   for which to compute segment ship key
+     @param segment for which to compute segment ship key
+     @return Segment ship key computed for the given chain and Segment
+     */
+    std::string computeShipKey(Chain chain, Segment segment);
+
+    /**
+     Format a message with the segmentId as prefix
+
+     @param message to format
+     @return formatted message with segmentId as prefix
+     */
+    std::string formatLog(std::string message);
+
+    /**
+     Ensure the current segment has a storage key; if not, add a storage key to this Segment
+     */
+    void ensureShipKey();
+
+    /**
+     Compute the type of the current segment
+
+     @return type of the current segment
+     */
+    Segment::Type computeType();
+
+    /**
+     Get the delta of the previous segment
+
+     @return delta from previous segment
+     */
+    int getPreviousSegmentDelta();
+
+    /**
+     Compute the preferred instrument audio
+
+     @return preferred instrument audio
+     */
+    std::map<std::string, InstrumentAudio> computePreferredInstrumentAudio();
+
+    /**
+     For a SegmentChoice, add memes from program, program sequence binding, and instrument if present https://github.com/xjmusic/xjmusic/issues/210
+
+     @param choice    to test for validity, and add its memes
+     @param memeStack to use for validation
+     @param force     whether to force the addition of this choice
+     @return true if valid and adding memes was successful
+     */
+    bool isValidChoiceAndMemesHaveBeenAdded(SegmentChoice choice, MemeStack memeStack, bool force);
+
+    /**
+     For a SegmentMeme, don't put a duplicate of an existing meme
+
+     @param meme      to test for validity
+     @param memeStack to use for validation
+     @param force     whether to force the addition of this meme
+     @return true if okay to add
+     */
+    bool isValidMemeAddition(SegmentMeme meme, MemeStack memeStack, bool force);
+
   };
 
 } // namespace XJ

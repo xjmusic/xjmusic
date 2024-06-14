@@ -8,6 +8,7 @@
 #include "../../_helper/TestHelpers.h"
 #include "xjmusic/entities/segment/SegmentEntityStore.h"
 #include "xjmusic/fabricator/FabricationException.h"
+#include "Entity.h"
 
 using namespace XJ;
 
@@ -151,7 +152,7 @@ TEST_F(SegmentEntityStoreTest, Create) {
 
 
 TEST_F(SegmentEntityStoreTest, Create_Get_Segment) {
-  UUID chainId = TestHelpers::randomUUID();
+  UUID chainId = Entity::randomUUID();
   Segment segment;
   segment.chainId = chainId;
   segment.id = 0;
@@ -184,9 +185,9 @@ TEST_F(SegmentEntityStoreTest, Create_Get_Segment) {
 
 
 TEST_F(SegmentEntityStoreTest, Create_Get_Chain) {
-  UUID projectId = TestHelpers::randomUUID();
+  UUID projectId = Entity::randomUUID();
   Chain chain;
-  chain.id = TestHelpers::randomUUID();
+  chain.id = Entity::randomUUID();
   chain.type = Chain::Type::Preview;
   chain.state = Chain::State::Fabricate;
   chain.shipKey = "super";
@@ -452,7 +453,7 @@ TEST_F(SegmentEntityStoreTest, UpdateSegment_FailsToTransitionFromPlannedToCraft
 TEST_F(SegmentEntityStoreTest, UpdateSegment_FailsToChangeChain) {
   Segment inputData;
   inputData.id = 4;
-  inputData.chainId = TestHelpers::randomUUID();
+  inputData.chainId = Entity::randomUUID();
   inputData.delta = 0;
   inputData.type = Segment::Type::Continue;
   inputData.state = Segment::State::Crafting;

@@ -37,16 +37,6 @@ namespace XJ {
      */
     static void assertNote(const std::string &expect, const Note &actual);
 
-    /**
-     * Get the current time in milliseconds
-     */
-    static long long currentTimeMillis();
-
-    /**
-     * Generate a random UUID
-     */
-    static std::string randomUUID();
-
   };
 
 } // namespace XJ

@@ -3,6 +3,7 @@
 #include "ContentFixtures.h"
 #include "TestHelpers.h"
 #include "LoremIpsum.h"
+#include "Entity.h"
 
 #include <utility>
 
@@ -81,7 +82,7 @@ InstrumentAudio ContentFixtures::buildAudio(
     float volume
 ) {
   InstrumentAudio instrumentAudio;
-  instrumentAudio.id = TestHelpers::randomUUID();
+  instrumentAudio.id = Entity::randomUUID();
   instrumentAudio.instrumentId = instrument.id;
   instrumentAudio.name = std::move(name);
   instrumentAudio.waveformKey = std::move(waveformKey);
@@ -101,7 +102,7 @@ InstrumentAudio ContentFixtures::buildAudio(
     std::string note
 ) {
   InstrumentAudio instrumentAudio;
-  instrumentAudio.id = TestHelpers::randomUUID();
+  instrumentAudio.id = Entity::randomUUID();
   instrumentAudio.instrumentId = instrument.id;
   instrumentAudio.name = std::move(name);
   instrumentAudio.waveformKey = "test123";
@@ -117,7 +118,7 @@ InstrumentAudio ContentFixtures::buildAudio(
 
 Project ContentFixtures::buildProject() {
   Project project;
-  project.id = TestHelpers::randomUUID();
+  project.id = Entity::randomUUID();
   return project;
 }
 
@@ -130,7 +131,7 @@ Program ContentFixtures::buildProgram(
     float tempo
 ) {
   Program program;
-  program.id = TestHelpers::randomUUID();
+  program.id = Entity::randomUUID();
   program.libraryId = library.id;
   program.type = type;
   program.state = state;
@@ -146,8 +147,8 @@ Program ContentFixtures::buildProgram(
     float tempo
 ) {
   Program program;
-  program.id = TestHelpers::randomUUID();
-  program.libraryId = TestHelpers::randomUUID();
+  program.id = Entity::randomUUID();
+  program.libraryId = Entity::randomUUID();
   program.type = type;
   program.state = Program::State::Published;
   program.name = "Test " + Program::toString(type) + "-Program";
@@ -162,8 +163,8 @@ Program ContentFixtures::buildDetailProgram(
     std::string name
 ) {
   Program program;
-  program.id = TestHelpers::randomUUID();
-  program.libraryId = TestHelpers::randomUUID();
+  program.id = Entity::randomUUID();
+  program.libraryId = Entity::randomUUID();
   program.type = Program::Type::Detail;
   program.state = Program::State::Published;
   program.name = std::move(name);
@@ -177,7 +178,7 @@ ProgramMeme ContentFixtures::buildMeme(
     std::string name
 ) {
   ProgramMeme meme;
-  meme.id = TestHelpers::randomUUID();
+  meme.id = Entity::randomUUID();
   meme.programId = program.id;
   meme.name = std::move(name);
   return meme;
@@ -191,7 +192,7 @@ ProgramSequence ContentFixtures::buildSequence(
     std::string key
 ) {
   ProgramSequence sequence;
-  sequence.id = TestHelpers::randomUUID();
+  sequence.id = Entity::randomUUID();
   sequence.programId = program.id;
   sequence.total = (short) total;
   sequence.name = std::move(name);
@@ -205,7 +206,7 @@ ProgramSequence ContentFixtures::buildSequence(
     int total
 ) {
   ProgramSequence sequence;
-  sequence.id = TestHelpers::randomUUID();
+  sequence.id = Entity::randomUUID();
   sequence.programId = program.id;
   sequence.total = (short) total;
   sequence.name = "Test " + std::to_string(total) + "-beat Sequence";
@@ -217,7 +218,7 @@ ProgramSequenceBinding ContentFixtures::buildBinding(
     int offset
 ) {
   ProgramSequenceBinding binding;
-  binding.id = TestHelpers::randomUUID();
+  binding.id = Entity::randomUUID();
   binding.programId = programSequence.programId;
   binding.programSequenceId = programSequence.id;
   binding.offset = offset;
@@ -229,7 +230,7 @@ ProgramSequenceBindingMeme ContentFixtures::buildMeme(
     std::string name
 ) {
   ProgramSequenceBindingMeme meme;
-  meme.id = TestHelpers::randomUUID();
+  meme.id = Entity::randomUUID();
   meme.programId = programSequenceBinding.programId;
   meme.programSequenceBindingId = programSequenceBinding.id;
   meme.name = std::move(name);
@@ -242,7 +243,7 @@ ProgramSequenceChord ContentFixtures::buildChord(
     std::string name
 ) {
   ProgramSequenceChord chord;
-  chord.id = TestHelpers::randomUUID();
+  chord.id = Entity::randomUUID();
   chord.programSequenceId = programSequence.id;
   chord.programId = programSequence.programId;
   chord.position = position;
@@ -256,7 +257,7 @@ ProgramSequenceChordVoicing ContentFixtures::buildVoicing(
     std::string notes
 ) {
   ProgramSequenceChordVoicing voicing;
-  voicing.id = TestHelpers::randomUUID();
+  voicing.id = Entity::randomUUID();
   voicing.programId = programSequenceChord.programId;
   voicing.programSequenceChordId = programSequenceChord.id;
   voicing.programVoiceId = voice.id;
@@ -270,7 +271,7 @@ ProgramVoice ContentFixtures::buildVoice(
     std::string name
 ) {
   ProgramVoice voice;
-  voice.id = TestHelpers::randomUUID();
+  voice.id = Entity::randomUUID();
   voice.programId = program.id;
   voice.type = type;
   voice.name = std::move(name);
@@ -289,7 +290,7 @@ ProgramVoiceTrack ContentFixtures::buildTrack(
     std::string name
 ) {
   ProgramVoiceTrack track;
-  track.id = TestHelpers::randomUUID();
+  track.id = Entity::randomUUID();
   track.programId = programVoice.programId;
   track.programVoiceId = programVoice.id;
   track.name = std::move(name);
@@ -309,7 +310,7 @@ ProgramSequencePattern ContentFixtures::buildPattern(
     std::string name
 ) {
   ProgramSequencePattern pattern;
-  pattern.id = TestHelpers::randomUUID();
+  pattern.id = Entity::randomUUID();
   pattern.programId = programSequence.programId;
   pattern.programSequenceId = programSequence.id;
   pattern.programVoiceId = programVoice.id;
@@ -335,7 +336,7 @@ ProgramSequencePatternEvent ContentFixtures::buildEvent(
     float velocity
 ) {
   ProgramSequencePatternEvent event;
-  event.id = TestHelpers::randomUUID();
+  event.id = Entity::randomUUID();
   event.programId = pattern.programId;
   event.programSequencePatternId = pattern.id;
   event.programVoiceTrackId = track.id;
@@ -363,8 +364,8 @@ Instrument ContentFixtures::buildInstrument(
     bool isMultiphonic
 ) {
   Instrument instrument;
-  instrument.id = TestHelpers::randomUUID();
-  instrument.libraryId = TestHelpers::randomUUID();
+  instrument.id = Entity::randomUUID();
+  instrument.libraryId = Entity::randomUUID();
   instrument.type = type;
   instrument.mode = mode;
   instrument.state = Instrument::State::Published;
@@ -379,7 +380,7 @@ InstrumentMeme ContentFixtures::buildMeme(
     std::string name
 ) {
   InstrumentMeme instrumentMeme;
-  instrumentMeme.id = TestHelpers::randomUUID();
+  instrumentMeme.id = Entity::randomUUID();
   instrumentMeme.instrumentId = instrument.id;
   instrumentMeme.name = std::move(name);
   return instrumentMeme;
@@ -398,7 +399,7 @@ InstrumentAudio ContentFixtures::buildInstrumentAudio(
     float volume
 ) {
   InstrumentAudio instrumentAudio;
-  instrumentAudio.id = TestHelpers::randomUUID();
+  instrumentAudio.id = Entity::randomUUID();
   instrumentAudio.instrumentId = instrument.id;
   instrumentAudio.name = std::move(name);
   instrumentAudio.waveformKey = std::move(waveformKey);
@@ -417,7 +418,7 @@ Library ContentFixtures::buildLibrary(
     std::string name
 ) {
   Library library;
-  library.id = TestHelpers::randomUUID();
+  library.id = Entity::randomUUID();
   library.projectId = project.id;
   library.name = std::move(name);
   return library;
@@ -427,7 +428,7 @@ Project ContentFixtures::buildProject(
     std::string name
 ) {
   Project project;
-  project.id = TestHelpers::randomUUID();
+  project.id = Entity::randomUUID();
   project.name = std::move(name);
   return project;
 }
@@ -438,7 +439,7 @@ Template ContentFixtures::buildTemplate(
     std::string shipKey
 ) {
   Template tmpl;
-  tmpl.id = TestHelpers::randomUUID();
+  tmpl.id = Entity::randomUUID();
   tmpl.shipKey = std::move(shipKey);
   tmpl.config = ContentFixtures::TEST_TEMPLATE_CONFIG;
   tmpl.projectId = project1.id;
@@ -469,7 +470,7 @@ TemplateBinding ContentFixtures::buildTemplateBinding(
     const Library& library
 ) {
   TemplateBinding templateBinding;
-  templateBinding.id = TestHelpers::randomUUID();
+  templateBinding.id = Entity::randomUUID();
   templateBinding.type = TemplateBinding::Type::Library;
   templateBinding.targetId = library.id;
   templateBinding.templateId = tmpl.id;
@@ -481,7 +482,7 @@ TemplateBinding ContentFixtures::buildTemplateBinding(
     const Program& program
 ) {
   TemplateBinding templateBinding;
-  templateBinding.id = TestHelpers::randomUUID();
+  templateBinding.id = Entity::randomUUID();
   templateBinding.type = TemplateBinding::Type::Program;
   templateBinding.targetId = program.id;
   templateBinding.templateId = tmpl.id;
@@ -493,7 +494,7 @@ TemplateBinding ContentFixtures::buildTemplateBinding(
     const Instrument& instrument
 ) {
   TemplateBinding templateBinding;
-  templateBinding.id = TestHelpers::randomUUID();
+  templateBinding.id = Entity::randomUUID();
   templateBinding.type = TemplateBinding::Type::Instrument;
   templateBinding.targetId = instrument.id;
   templateBinding.templateId = tmpl.id;
@@ -505,7 +506,7 @@ ProgramMeme ContentFixtures::buildProgramMeme(
     std::string name
 ) {
   ProgramMeme programMeme;
-  programMeme.id = TestHelpers::randomUUID();
+  programMeme.id = Entity::randomUUID();
   programMeme.programId = program.id;
   programMeme.name = std::move(name);
   return programMeme;
@@ -519,7 +520,7 @@ ProgramSequence ContentFixtures::buildProgramSequence(
     std::string key
 ) {
   ProgramSequence programSequence;
-  programSequence.id = TestHelpers::randomUUID();
+  programSequence.id = Entity::randomUUID();
   programSequence.programId = program.id;
   programSequence.total = (short) total;
   programSequence.name = std::move(name);
@@ -533,7 +534,7 @@ ProgramSequenceBinding ContentFixtures::buildProgramSequenceBinding(
     int offset
 ) {
   ProgramSequenceBinding programSequenceBinding;
-  programSequenceBinding.id = TestHelpers::randomUUID();
+  programSequenceBinding.id = Entity::randomUUID();
   programSequenceBinding.programId = programSequence.programId;
   programSequenceBinding.programSequenceId = programSequence.id;
   programSequenceBinding.offset = offset;
@@ -545,7 +546,7 @@ ProgramSequenceBindingMeme ContentFixtures::buildProgramSequenceBindingMeme(
     std::string name
 ) {
   ProgramSequenceBindingMeme programSequenceBindingMeme;
-  programSequenceBindingMeme.id = TestHelpers::randomUUID();
+  programSequenceBindingMeme.id = Entity::randomUUID();
   programSequenceBindingMeme.programId = programSequenceBinding.programId;
   programSequenceBindingMeme.programSequenceBindingId = programSequenceBinding.id;
   programSequenceBindingMeme.name = std::move(name);
@@ -558,7 +559,7 @@ ProgramSequenceChord ContentFixtures::buildProgramSequenceChord(
     std::string name
 ) {
   ProgramSequenceChord programSequenceChord;
-  programSequenceChord.id = TestHelpers::randomUUID();
+  programSequenceChord.id = Entity::randomUUID();
   programSequenceChord.programSequenceId = programSequence.id;
   programSequenceChord.programId = programSequence.programId;
   programSequenceChord.position = position;
@@ -572,7 +573,7 @@ ProgramSequenceChordVoicing ContentFixtures::buildProgramSequenceChordVoicing(
     std::string notes
 ) {
   ProgramSequenceChordVoicing programSequenceChordVoicing;
-  programSequenceChordVoicing.id = TestHelpers::randomUUID();
+  programSequenceChordVoicing.id = Entity::randomUUID();
   programSequenceChordVoicing.programId = programSequenceChord.programId;
   programSequenceChordVoicing.programSequenceChordId = programSequenceChord.id;
   programSequenceChordVoicing.programVoiceId = voice.id;
@@ -586,7 +587,7 @@ ProgramVoice ContentFixtures::buildProgramVoice(
     std::string name
 ) {
   ProgramVoice programVoice;
-  programVoice.id = TestHelpers::randomUUID();
+  programVoice.id = Entity::randomUUID();
   programVoice.programId = program.id;
   programVoice.type = type;
   programVoice.name = std::move(name);
@@ -598,7 +599,7 @@ ProgramVoiceTrack ContentFixtures::buildProgramVoiceTrack(
     std::string name
 ) {
   ProgramVoiceTrack programVoiceTrack;
-  programVoiceTrack.id = TestHelpers::randomUUID();
+  programVoiceTrack.id = Entity::randomUUID();
   programVoiceTrack.programId = programVoice.programId;
   programVoiceTrack.programVoiceId = programVoice.id;
   programVoiceTrack.name = std::move(name);
@@ -612,7 +613,7 @@ ProgramSequencePattern ContentFixtures::buildProgramSequencePattern(
     std::string name
 ) {
   ProgramSequencePattern programSequencePattern;
-  programSequencePattern.id = TestHelpers::randomUUID();
+  programSequencePattern.id = Entity::randomUUID();
   programSequencePattern.programId = programSequence.programId;
   programSequencePattern.programSequenceId = programSequence.id;
   programSequencePattern.programVoiceId = programVoice.id;
@@ -630,7 +631,7 @@ ProgramSequencePatternEvent ContentFixtures::buildProgramSequencePatternEvent(
     float velocity
 ) {
   ProgramSequencePatternEvent programSequencePatternEvent;
-  programSequencePatternEvent.id = TestHelpers::randomUUID();
+  programSequencePatternEvent.id = Entity::randomUUID();
   programSequencePatternEvent.programId = programSequencePattern.programId;
   programSequencePatternEvent.programSequencePatternId = programSequencePattern.id;
   programSequencePatternEvent.programVoiceTrackId = programVoiceTrack.id;
@@ -650,7 +651,7 @@ Instrument ContentFixtures::buildInstrument(
 ) {
   Instrument instrument;
   instrument.config = (new TemplateConfig())->toString();
-  instrument.id = TestHelpers::randomUUID();
+  instrument.id = Entity::randomUUID();
   instrument.libraryId = library.id;
   instrument.type = type;
   instrument.mode = mode;
@@ -664,7 +665,7 @@ InstrumentMeme ContentFixtures::buildInstrumentMeme(
     std::string name
 ) {
   InstrumentMeme instrumentMeme;
-  instrumentMeme.id = TestHelpers::randomUUID();
+  instrumentMeme.id = Entity::randomUUID();
   instrumentMeme.instrumentId = instrument.id;
   instrumentMeme.name = std::move(name);
   return instrumentMeme;

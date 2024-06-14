@@ -7,6 +7,7 @@
 
 #include "../../_helper/TestHelpers.h"
 #include "../../_helper/ContentFixtures.h"
+#include "Entity.h"
 
 static std::string CONTENT_STORE_TEST_JSON_PATH = "_data/content_store_test.json";
 
@@ -59,9 +60,9 @@ protected:
     library1 = ContentFixtures::buildLibrary(project1, "test");
 
     // Templates: enhanced preview chain creation for artists in Lab UI https://www.pivotaltracker.com/story/show/178457569
-    template1 = ContentFixtures::buildTemplate(project1, "test1", TestHelpers::randomUUID());
+    template1 = ContentFixtures::buildTemplate(project1, "test1", Entity::randomUUID());
     template1_binding = ContentFixtures::buildTemplateBinding(template1, library1);
-    template2 = ContentFixtures::buildTemplate(project1, "test2", TestHelpers::randomUUID());
+    template2 = ContentFixtures::buildTemplate(project1, "test2", Entity::randomUUID());
 
     // Instrument 1
     instrument1 = ContentFixtures::buildInstrument(library1, Instrument::Type::Drum, Instrument::Mode::Event,
@@ -1018,8 +1019,8 @@ TEST_F(ContentStoreTest, getProgramSequenceChordVoicing) {
 
 TEST_F(ContentStoreTest, getPatternsOfSequenceAndVoice) {
   ASSERT_EQ(2, subject.getPatternsOfSequenceAndVoice(program2_sequence.id, program2_voice.id).size());
-  ASSERT_EQ(0, subject.getPatternsOfSequenceAndVoice(TestHelpers::randomUUID(), program2_voice.id).size());
-  ASSERT_EQ(0, subject.getPatternsOfSequenceAndVoice(program2_sequence.id, TestHelpers::randomUUID()).size());
+  ASSERT_EQ(0, subject.getPatternsOfSequenceAndVoice(Entity::randomUUID(), program2_voice.id).size());
+  ASSERT_EQ(0, subject.getPatternsOfSequenceAndVoice(program2_sequence.id, Entity::randomUUID()).size());
 }
 
 TEST_F(ContentStoreTest, ForTemplate_BoundToLibrary) {
