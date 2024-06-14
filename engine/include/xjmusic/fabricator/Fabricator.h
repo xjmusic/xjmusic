@@ -52,6 +52,8 @@
 #include "xjmusic/entities/segment/SegmentMessage.h"
 #include "xjmusic/entities/segment/SegmentMeta.h"
 #include "xjmusic/fabricator/SegmentRetrospective.h"
+#include "FabricatorFactory.h"
+#include "xjmusic/entities/meme/MemeIsometry.h"
 
 namespace XJ {
 
@@ -110,8 +112,8 @@ namespace XJ {
      */
     explicit Fabricator(
         FabricatorFactory fabricatorFactory,
-        FabricationEntityStore store,
-        ContentStore sourceMaterial,
+        SegmentEntityStore store,
+        ContentEntityStore sourceMaterial,
         int segmentId,
         double outputFrameRate,
         int outputChannels,
@@ -794,14 +796,14 @@ namespace XJ {
 
      @return retrospective
      */
-    SegmentRetrospective retrospective();
+    SegmentRetrospective getRetrospective();
 
     /**
      Get the ingested source material for fabrication
 
      @return source material
      */
-    ContentStore sourceMaterial();
+    ContentEntityStore getSourceMaterial();
 
     /**
      Get the number of micros per beat for the current segment

@@ -6,8 +6,8 @@ using namespace XJ;
 
 Fabricator::Fabricator(
     FabricatorFactory fabricatorFactory,
-    FabricationEntityStore store,
-    ContentStore sourceMaterial,
+    SegmentEntityStore store,
+    ContentEntityStore sourceMaterial,
     int segmentId,
     double outputFrameRate,
     int outputChannels,
@@ -748,7 +748,7 @@ Fabricator::Fabricator(
   }
 
   
-  ContentStore sourceMaterial() {
+  ContentEntityStore sourceMaterial() {
     return sourceMaterial;
   }
 

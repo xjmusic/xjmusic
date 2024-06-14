@@ -67,7 +67,7 @@ public class FabricatorImplTest {
   public JsonProvider jsonProvider;
   FabricatorImpl subject;
   ContentEntityStore sourceMaterial;
-  FabricationEntityStore store;
+  SegmentEntityStore store;
   SegmentFixtures fake;
   Segment segment;
 
@@ -77,7 +77,7 @@ public class FabricatorImplTest {
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
     FabricationTopology.buildFabricationTopology(entityFactory);
-    store = new FabricationEntityStoreImpl(entityFactory);
+    store = new SegmentEntityStoreImpl(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
     store.clear();

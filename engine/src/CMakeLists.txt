@@ -61,6 +61,7 @@ add_library(xjmusic
         fabricator/ChainUtils.cpp
         fabricator/FabricationException.cpp
         fabricator/FabricationFatalException.cpp
+        fabricator/Fabricator.cpp
         fabricator/FabricatorFactory.cpp
         fabricator/SegmentRetrospective.cpp
         fabricator/SegmentUtils.cpp

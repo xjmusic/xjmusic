@@ -11,7 +11,7 @@
 
 using namespace XJ;
 
-class FabricationEntityStoreTest : public ::testing::Test {
+class SegmentEntityStoreTest : public ::testing::Test {
 protected:
   SegmentEntityStore subject;
   Chain fakeChain;
@@ -118,7 +118,7 @@ protected:
 /**
  Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation https://github.com/xjmusic/xjmusic/issues/301
  */
-TEST_F(FabricationEntityStoreTest, Create) {
+TEST_F(SegmentEntityStoreTest, Create) {
   Segment inputData;
   inputData.id = 5;
   inputData.chainId = chain3.id;
@@ -150,7 +150,7 @@ TEST_F(FabricationEntityStoreTest, Create) {
 }
 
 
-TEST_F(FabricationEntityStoreTest, Create_Get_Segment) {
+TEST_F(SegmentEntityStoreTest, Create_Get_Segment) {
   UUID chainId = TestHelpers::randomUUID();
   Segment segment;
   segment.chainId = chainId;
@@ -183,7 +183,7 @@ TEST_F(FabricationEntityStoreTest, Create_Get_Segment) {
 }
 
 
-TEST_F(FabricationEntityStoreTest, Create_Get_Chain) {
+TEST_F(SegmentEntityStoreTest, Create_Get_Chain) {
   UUID projectId = TestHelpers::randomUUID();
   Chain chain;
   chain.id = TestHelpers::randomUUID();
@@ -201,7 +201,7 @@ TEST_F(FabricationEntityStoreTest, Create_Get_Chain) {
 }
 
 
-TEST_F(FabricationEntityStoreTest, CreateAll_ReadAll) {
+TEST_F(SegmentEntityStoreTest, CreateAll_ReadAll) {
   subject.clear();
   auto project1 = ContentFixtures::buildProject("fish");
   auto tmpl = ContentFixtures::buildTemplate(project1, "fishy");
@@ -245,7 +245,7 @@ TEST_F(FabricationEntityStoreTest, CreateAll_ReadAll) {
   ASSERT_EQ(1, resultChoices.size());
 }
 
-TEST_F(FabricationEntityStoreTest, ReadSegment) {
+TEST_F(SegmentEntityStoreTest, ReadSegment) {
   Segment result = subject.readSegment(segment2.id).value();
 
   ASSERT_EQ(segment2.id, result.id);
@@ -263,7 +263,7 @@ TEST_F(FabricationEntityStoreTest, ReadSegment) {
 }
 
 
-TEST_F(FabricationEntityStoreTest, ReadLastSegmentId) {
+TEST_F(SegmentEntityStoreTest, ReadLastSegmentId) {
   subject.put(SegmentFixtures::buildSegment(fakeChain,
                                             4,
                                             Segment::State::Crafted,
@@ -278,7 +278,7 @@ TEST_F(FabricationEntityStoreTest, ReadLastSegmentId) {
 }
 
 
-TEST_F(FabricationEntityStoreTest, ReadSegmentsFromToOffset) {
+TEST_F(SegmentEntityStoreTest, ReadSegmentsFromToOffset) {
   auto result = subject.readSegmentsFromToOffset(2, 3);
 
   ASSERT_EQ(2, result.size());
@@ -291,35 +291,35 @@ TEST_F(FabricationEntityStoreTest, ReadSegmentsFromToOffset) {
 }
 
 
-TEST_F(FabricationEntityStoreTest, ReadSegmentsFromToOffset_AcceptsNegativeOffsets_returnsEmptyCollection) {
+TEST_F(SegmentEntityStoreTest, ReadSegmentsFromToOffset_AcceptsNegativeOffsets_returnsEmptyCollection) {
   auto result = subject.readSegmentsFromToOffset(-1, -1);
 
   ASSERT_EQ(0L, result.size());
 }
 
 
-TEST_F(FabricationEntityStoreTest, ReadSegmentsFromToOffset_TrimsIfEndOffsetOutOfBounds) {
+TEST_F(SegmentEntityStoreTest, ReadSegmentsFromToOffset_TrimsIfEndOffsetOutOfBounds) {
   auto result = subject.readSegmentsFromToOffset(2, 12);
 
   ASSERT_EQ(3L, result.size());
 }
 
 
-TEST_F(FabricationEntityStoreTest, ReadSegmentsFromToOffset_OnlyOneIfEndOffsetSameAsStart) {
+TEST_F(SegmentEntityStoreTest, ReadSegmentsFromToOffset_OnlyOneIfEndOffsetSameAsStart) {
   auto result = subject.readSegmentsFromToOffset(2, 2);
 
   ASSERT_EQ(1L, result.size());
 }
 
 
-TEST_F(FabricationEntityStoreTest, ReadSegmentsFromToOffset_EmptyIfStartOffsetOutOfBounds) {
+TEST_F(SegmentEntityStoreTest, ReadSegmentsFromToOffset_EmptyIfStartOffsetOutOfBounds) {
   auto result = subject.readSegmentsFromToOffset(14, 17);
 
   ASSERT_EQ(0, result.size());
 }
 
 
-TEST_F(FabricationEntityStoreTest, ReadAllSegments) {
+TEST_F(SegmentEntityStoreTest, ReadAllSegments) {
   auto result = subject.readAllSegments();
 
   ASSERT_EQ(5L, result.size());
@@ -348,7 +348,7 @@ TEST_F(FabricationEntityStoreTest, ReadAllSegments) {
 /**
  List of Segments returned should not be more than a dozen or so https://github.com/xjmusic/xjmusic/issues/302
  */
-TEST_F(FabricationEntityStoreTest, ReadAll_hasNoLimit) {
+TEST_F(SegmentEntityStoreTest, ReadAll_hasNoLimit) {
   Chain chain5 = subject.put(
       SegmentFixtures::buildChain(project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate,
                                   template1, "barnacles"));
@@ -372,7 +372,7 @@ TEST_F(FabricationEntityStoreTest, ReadAll_hasNoLimit) {
 }
 
 
-TEST_F(FabricationEntityStoreTest, UpdateSegment) {
+TEST_F(SegmentEntityStoreTest, UpdateSegment) {
   Segment inputData;
   inputData.id = 1;
   inputData.chainId = chain3.id;
@@ -403,7 +403,7 @@ TEST_F(FabricationEntityStoreTest, UpdateSegment) {
 /**
  persist Segment content, then read prior Segment content
  */
-TEST_F(FabricationEntityStoreTest, UpdateSegment_PersistPriorSegmentContent) {
+TEST_F(SegmentEntityStoreTest, UpdateSegment_PersistPriorSegmentContent) {
   Segment segmentX;
   segmentX.id = 3;
   segmentX.type = Segment::Type::Continue;
@@ -426,7 +426,7 @@ TEST_F(FabricationEntityStoreTest, UpdateSegment_PersistPriorSegmentContent) {
 }
 
 
-TEST_F(FabricationEntityStoreTest, UpdateSegment_FailsToTransitionFromPlannedToCrafted) {
+TEST_F(SegmentEntityStoreTest, UpdateSegment_FailsToTransitionFromPlannedToCrafted) {
   Segment inputData;
   inputData.id = 4;
   inputData.chainId = segment5.chainId;
@@ -449,7 +449,7 @@ TEST_F(FabricationEntityStoreTest, UpdateSegment_FailsToTransitionFromPlannedToC
 }
 
 
-TEST_F(FabricationEntityStoreTest, UpdateSegment_FailsToChangeChain) {
+TEST_F(SegmentEntityStoreTest, UpdateSegment_FailsToChangeChain) {
   Segment inputData;
   inputData.id = 4;
   inputData.chainId = TestHelpers::randomUUID();
@@ -475,14 +475,14 @@ TEST_F(FabricationEntityStoreTest, UpdateSegment_FailsToChangeChain) {
 }
 
 
-TEST_F(FabricationEntityStoreTest, GetSegmentCount) {
+TEST_F(SegmentEntityStoreTest, GetSegmentCount) {
   int result = subject.getSegmentCount();
 
   ASSERT_EQ(5, result);
 }
 
 
-TEST_F(FabricationEntityStoreTest, IsSegmentsEmpty) {
+TEST_F(SegmentEntityStoreTest, IsSegmentsEmpty) {
   subject.clear();
   ASSERT_TRUE(subject.isEmpty());
 
@@ -500,7 +500,7 @@ TEST_F(FabricationEntityStoreTest, IsSegmentsEmpty) {
 }
 
 
-TEST_F(FabricationEntityStoreTest, DeleteSegment) {
+TEST_F(SegmentEntityStoreTest, DeleteSegment) {
   for (int i = 0; i < 10; i++)
     subject.put(SegmentFixtures::buildSegment(fakeChain,
                                               i,
@@ -519,7 +519,7 @@ TEST_F(FabricationEntityStoreTest, DeleteSegment) {
 }
 
 
-TEST_F(FabricationEntityStoreTest, DeleteSegmentsAfter) {
+TEST_F(SegmentEntityStoreTest, DeleteSegmentsAfter) {
   for (int i = 0; i < 10; i++)
     subject.put(SegmentFixtures::buildSegment(fakeChain,
                                               i,
@@ -547,7 +547,7 @@ TEST_F(FabricationEntityStoreTest, DeleteSegmentsAfter) {
 }
 
 
-TEST_F(FabricationEntityStoreTest, DeleteSegmentsBefore) {
+TEST_F(SegmentEntityStoreTest, DeleteSegmentsBefore) {
   for (int i = 0; i < 10; i++)
     subject.put(SegmentFixtures::buildSegment(fakeChain,
                                               i,
