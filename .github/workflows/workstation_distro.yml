@@ -20,7 +20,7 @@ jobs:
 
   verify:
     needs: nothing_left_todo
-    name: Workstation Tests [${{ matrix.os }}]
+    name: Build & Test [${{ matrix.os }}]
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}

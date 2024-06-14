@@ -8,10 +8,9 @@ on:
       - engine/**
 
 jobs:
-  build:
-
+  build_and_test:
+    name: Build and Test
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
 
@@ -47,3 +46,19 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./engine/build/doc/html
+
+
+  nothing_left_todo:
+    needs: build_and_test
+    env:
+      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+    name: Nothing Left TODO
+    runs-on: ubuntu-latest
+    permissions: read-all
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Nothing left TODO
+        run: .github/nothing_left_todo.sh
