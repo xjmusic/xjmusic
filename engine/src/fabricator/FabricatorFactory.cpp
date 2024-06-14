@@ -16,6 +16,6 @@ throws FabricationException, FabricationFatalException{
 }
 */
 
-SegmentRetrospective FabricatorFactory::loadRetrospective(int segmentId) {
-  return SegmentRetrospective(entityStore, segmentId);
+SegmentRetrospective * FabricatorFactory::loadRetrospective(int segmentId) {
+  return new SegmentRetrospective(entityStore, segmentId);
 }

@@ -5,7 +5,6 @@
 
 #include "xjmusic/entities/meme/MemeIsometry.h"
 #include "../../_helper/TestHelpers.h"
-#include "Entity.h"
 
 using namespace XJ;
 

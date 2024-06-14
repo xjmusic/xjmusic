@@ -8,13 +8,13 @@
 
 namespace XJ {
 
-/**
- Fabricator content = contentFactory.fabricate(segment);
- ... do things with this content, like craft or dub ...
- content.putReport();
- <p>
- Unify factory with explicit methods to construct components from Fabricator
- */
+  /**
+   Fabricator content = contentFactory.fabricate(segment);
+   ... do things with this content, like craft or dub ...
+   content.putReport();
+   <p>
+   Unify factory with explicit methods to construct components from Fabricator
+   */
   class FabricatorFactory {
   public:
 
@@ -59,7 +59,7 @@ namespace XJ {
      @throws FabricationException            on retry-able network or service failure
      @throws FabricationFatalException on failure requiring a chain restart https://github.com/xjmusic/xjmusic/issues/263
      */
-    SegmentRetrospective loadRetrospective(
+    SegmentRetrospective * loadRetrospective(
         int segmentId
     );
 

@@ -68,9 +68,10 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 target_link_libraries(xjmusic_test PRIVATE xjmusic)
 
 # Google Test (googletest)
-FetchContent_Declare(googletest URL https://github.com/google/googletest/archive/5376968f6948923e2411081fd9372e71a59d8e77.zip)
+FetchContent_Declare(googletest URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip)
 FetchContent_MakeAvailable(googletest)
 target_link_libraries(xjmusic_test PRIVATE gtest_main)
+target_link_libraries(xjmusic_test PRIVATE gmock_main)
 
 # yaml-cpp (jbeder/yaml-cpp)
 FetchContent_Declare(yaml-cpp URL https://github.com/jbeder/yaml-cpp/archive/refs/tags/0.8.0.tar.gz)

@@ -25,8 +25,6 @@ namespace XJ {
         }                                                      \
     }, std::runtime_error)                                     \
 
-  static unsigned long long RANDOM_UUID_COUNTER = 0;
-
   class TestHelpers {
   public:
 

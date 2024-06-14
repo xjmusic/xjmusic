@@ -1,22 +1,29 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
 #include "xjmusic/fabricator/FabricatorFactory.h"
-#include "xjmusic/fabricator/SegmentRetrospective.h"
 #include "xjmusic/fabricator/Fabricator.h"
-#include "xjmusic/entities/content/ContentEntityStore.h"
 #include "../_helper/SegmentFixtures.h"
+#include "../_mock/MockFabricatorFactory.h"
+#include "../_mock/MockSegmentRetrospective.h"
+
+// NOLINTNEXTLINE
+using ::testing::_;
+using ::testing::Return;
+using ::testing::ReturnRef;
 
 using namespace XJ;
 
 class FabricatorTest : public ::testing::Test {
 protected:
   int SEQUENCE_TOTAL_BEATS = 64;
-  FabricatorFactory mockFabricatorFactory; // TODO mock this
-  SegmentRetrospective mockRetrospective; // TODO mock this
-  Fabricator subject = Fabricator(mockFabricatorFactory, store, sourceMaterial, segment.id, 48000.0f, 2, std::nullopt);
   ContentEntityStore sourceMaterial;
   SegmentEntityStore store;
+  MockFabricatorFactory* mockFabricatorFactory = new MockFabricatorFactory(store);
+  MockSegmentRetrospective* mockRetrospective = new MockSegmentRetrospective(store, 2);
+  Fabricator subject = Fabricator(*mockFabricatorFactory, store, sourceMaterial, 2, 48000.0f, 2, std::nullopt);
   ContentFixtures fake;
   Segment segment;
 
@@ -47,7 +54,7 @@ protected:
         240.0f,
         "seg123"
     ));
-    // TODO mock when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
+    EXPECT_CALL(*mockFabricatorFactory, loadRetrospective(_)).WillOnce(Return(mockRetrospective));
   }
 };
 
@@ -78,11 +85,11 @@ TEST_F(FabricatorTest, pick_returned_by_picks) {
   pick.amplitude = 0.8f;
   pick.tones = "A4";
   store.put(pick);
-  when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective); // todo mock
+  EXPECT_CALL(*mockFabricatorFactory, loadRetrospective(_)).WillOnce(Return(mockRetrospective));
 
   std::set<SegmentChoiceArrangementPick> result = subject.getPicks();
 
-  SegmentChoiceArrangementPick resultPick = result.iterator().next();
+  SegmentChoiceArrangementPick resultPick = *result.begin();
   ASSERT_EQ(beatArrangement.id, resultPick.segmentChoiceArrangementId);
   ASSERT_EQ(fake.instrument8_audio8kick.id, resultPick.instrumentAudioId);
   ASSERT_NEAR(0.273 * ValueUtils::MICROS_PER_SECOND, resultPick.startAtSegmentMicros, 0.001);
@@ -92,6 +99,10 @@ TEST_F(FabricatorTest, pick_returned_by_picks) {
 }
 
 
+/*
+ * TODO - finish converting these Java/mockito tests to C++/Google Mock
+ *
+ *
 TEST_F(FabricatorTest, getDistinctChordVoicingTypes) {
   sourceMaterial = ContentEntityStore(Stream.concat(
       Stream.concat(Stream.concat(fake.setupFixtureB1().stream(), fake.setupFixtureB2().stream()),
@@ -117,9 +128,11 @@ TEST_F(FabricatorTest, getDistinctChordVoicingTypes) {
 }
 
 
+*/
 /**
  Choose next Macro program based on the memes of the last sequence from the previous Macro program https://github.com/xjmusic/xjmusic/issues/299
- */
+ *//*
+
 TEST_F(FabricatorTest, Type) {
   auto chain = store.put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
                                                      Chain::State::Fabricate));
@@ -287,18 +300,22 @@ TEST_F(FabricatorTest, getProgramSequence_fromSequenceBinding) {
   ASSERT_EQ(fake.program5_sequence0.id, result.orElseThrow().id);
 }
 
+*/
 /**
  Sticky buns v2 use slash root when available https://github.com/xjmusic/xjmusic/issues/231
- */
+ *//*
+
 TEST_F(FabricatorTest, getRootNote) {
   auto result = subject.getRootNoteMidRange("C3,E3,G3,A#3,C4,E4,G4", Chord.of("Cm")).orElseThrow();
   ASSERT_EQ(PitchClass.C, result.getPitchClass());
   ASSERT_EQ(4, result.getOctave().intValue());
 }
 
+*/
 /**
  Should add meme from ALL program and instrument types! https://github.com/xjmusic/xjmusic/issues/210
- */
+ *//*
+
 TEST_F(FabricatorTest, put_addsMemesForChoice) {
   subject.put(
       buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program9,
@@ -320,11 +337,13 @@ TEST_F(FabricatorTest, put_addsMemesForChoice) {
   ASSERT_EQ(fake.instrument8.id, (resultChoices.get(1)).instrumentId);
 }
 
+*/
 /**
  Unit test behavior of choosing an event for a note in a detail program
  <p>
  Sticky bun note choices should persist into following segments https://github.com/xjmusic/xjmusic/issues/281
- */
+ *//*
+
 TEST_F(FabricatorTest, getStickyBun_readMetaFromCurrentSegment) {
   auto bun = StickyBun(fake.program9_sequence0_pattern0_event0.id, 3);
   auto bunJson = jsonProvider.getMapper().writeValueAsString(bun);
@@ -337,11 +356,13 @@ TEST_F(FabricatorTest, getStickyBun_readMetaFromCurrentSegment) {
   assertArrayEquals(bun.getValues().toArray(), result.getValues().toArray());
 }
 
+*/
 /**
  Unit test behavior of choosing an event for a note in a detail program
  <p>
  Sticky bun note choices should persist into following segments https://github.com/xjmusic/xjmusic/issues/281
- */
+ *//*
+
 TEST_F(FabricatorTest, getStickyBun_readMetaFromPreviousSegment) {
   auto bun = StickyBun(fake.program9_sequence0_pattern0_event0.id, 3);
   auto bunJson = jsonProvider.getMapper().writeValueAsString(bun);
@@ -355,22 +376,26 @@ TEST_F(FabricatorTest, getStickyBun_readMetaFromPreviousSegment) {
   assertArrayEquals(bun.getValues().toArray(), result.getValues().toArray());
 }
 
+*/
 /**
  Unit test behavior of choosing a different events for a series of X notes in a detail program
  <p>
  Sticky bun note choices should persist into following segments https://github.com/xjmusic/xjmusic/issues/281
- */
+ *//*
+
 TEST_F(FabricatorTest, getStickyBun_createForEvent) {
   auto result = subject.getStickyBun(fake.program9_sequence0_pattern0_event0.id).orElseThrow();
 
   ASSERT_EQ(fake.program9_sequence0_pattern0_event0.id, result.getEventId());
 }
 
+*/
 /**
  Unit test behavior of choosing an event for a note in a detail program
  <p>
  Sticky bun note choices should persist into following segments https://github.com/xjmusic/xjmusic/issues/281
- */
+ *//*
+
 TEST_F(FabricatorTest, getStickyBun_multipleEventsPickedSeparately) {
   auto bun0 = StickyBun(fake.program9_sequence0_pattern0_event0.id, 3);
   auto bunJson0 = jsonProvider.getMapper().writeValueAsString(bun0);
@@ -399,3 +424,4 @@ TEST_F(FabricatorTest, getMemeTaxonomy) {
   ASSERT_EQ("SEASON", result.getCategories().get(1).name);
 }
 
+*/

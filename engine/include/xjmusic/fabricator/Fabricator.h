@@ -3,7 +3,14 @@
 #ifndef XJMUSIC_FABRICATOR_H
 #define XJMUSIC_FABRICATOR_H
 
-#include "FabricatorFactory.h"
+#include <optional>
+#include <set>
+#include <string>
+#include <vector>
+#include <utility>
+#include <vector>
+#include <algorithm>
+
 #include "xjmusic/entities/Entity.h"
 #include "xjmusic/entities/content/ContentEntityStore.h"
 #include "xjmusic/entities/content/Instrument.h"
@@ -54,6 +61,9 @@
 #include "xjmusic/entities/segment/SegmentMessage.h"
 #include "xjmusic/entities/segment/SegmentMeta.h"
 #include "xjmusic/fabricator/SegmentRetrospective.h"
+
+#include "FabricatorFactory.h"
+
 
 namespace XJ {
 
@@ -877,7 +887,7 @@ namespace XJ {
     std::map<UUID, std::vector<ProgramSequenceChord>> completeChordsForProgramSequence;
     std::map<UUID, std::vector<SegmentChoiceArrangementPick>> picksForChoice;
     SegmentEntityStore &store;
-    SegmentRetrospective retrospective;
+    SegmentRetrospective &retrospective;
     std::set<UUID> boundInstrumentIds;
     std::set<UUID> boundProgramIds;
     std::chrono::system_clock::time_point startAtSystemNanoTime;
@@ -930,14 +940,6 @@ namespace XJ {
      @return Segment ship key computed for the given chain and Segment
      */
     static std::string computeShipKey(const Chain& chain, const Segment& segment);
-
-    /**
-     Format a message with the segmentId as prefix
-
-     @param message to format
-     @return formatted message with segmentId as prefix
-     */
-    std::string formatLog(const std::string& message);
 
     /**
      Ensure the current segment has a storage key; if not, add a storage key to this Segment

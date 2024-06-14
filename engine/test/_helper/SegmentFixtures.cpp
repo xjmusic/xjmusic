@@ -1,10 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 #include "SegmentFixtures.h"
-#include "TestHelpers.h"
-#include "Entity.h"
 
-#include <cmath>
 #include <utility>
 
 using namespace XJ;

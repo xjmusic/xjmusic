@@ -5,12 +5,10 @@
 
 #include "../_helper/ContentFixtures.h"
 #include "../_helper/SegmentFixtures.h"
-#include "../_helper/TestHelpers.h"
 #include "xjmusic/entities/music/StickyBun.h"
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/FabricationFatalException.h"
-#include "Entity.h"
 
 using namespace XJ;
 
@@ -98,7 +96,7 @@ protected:
 TEST_F(SegmentRetrospectiveTest, GetPreviousChoiceOfType) {
   auto subject = fabricatorFactory.loadRetrospective(segment3.id);
 
-  auto result = subject.getPreviousChoiceOfType(Program::Type::Main);
+  auto result = subject->getPreviousChoiceOfType(Program::Type::Main);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(result.value().programId, fake.program5.id);
@@ -107,7 +105,7 @@ TEST_F(SegmentRetrospectiveTest, GetPreviousChoiceOfType) {
 TEST_F(SegmentRetrospectiveTest, getPreviousChoiceOfType_forNextMacroSegment) {
   auto subject = fabricatorFactory.loadRetrospective(segment4.id);
 
-  auto result = subject.getPreviousChoiceOfType(Program::Type::Main);
+  auto result = subject->getPreviousChoiceOfType(Program::Type::Main);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(result.value().programId, fake.program5.id);
@@ -116,7 +114,7 @@ TEST_F(SegmentRetrospectiveTest, getPreviousChoiceOfType_forNextMacroSegment) {
 TEST_F(SegmentRetrospectiveTest, GetPreviousChoiceOfType_forNextMainSegment) {
   auto subject = fabricatorFactory.loadRetrospective(segment1.id);
 
-  auto result = subject.getPreviousChoiceOfType(Program::Type::Main);
+  auto result = subject->getPreviousChoiceOfType(Program::Type::Main);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(result.value().programId, fake.program15.id);
@@ -159,7 +157,7 @@ TEST_F(SegmentRetrospectiveTest, GetPreviousMeta) {
   store.put(SegmentFixtures::buildSegmentMeta(segment3, "StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e", json));
   auto subject = fabricatorFactory.loadRetrospective(segment4.id);
 
-  auto result = subject.getPreviousMeta("StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e");
+  auto result = subject->getPreviousMeta("StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e");
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(json, result.value().value);

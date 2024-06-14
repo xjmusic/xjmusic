@@ -4,7 +4,6 @@
 
 #include "xjmusic/entities/music/Note.h"
 #include "xjmusic/entities/music/Octave.h"
-#include "xjmusic/util/StringUtils.h"
 
 namespace XJ {
 
@@ -41,8 +40,8 @@ namespace XJ {
 
   Note Note::of(const std::string &name) {
     return name.empty()
-               ? Note::atonal()
-               : Note(name);
+           ? Note::atonal()
+           : Note(name);
   }
 
   Note Note::of(PitchClass pitchClass, int octave) {
@@ -55,8 +54,8 @@ namespace XJ {
 
   std::optional<Note> Note::ifValid(const std::string &name) {
     return isValid(name)
-               ? std::optional<Note>(Note(name))
-               : std::nullopt;
+           ? std::optional<Note>(Note(name))
+           : std::nullopt;
   }
 
   std::optional<Note> Note::ifTonal(const std::string &name) {
@@ -151,7 +150,8 @@ namespace XJ {
       if (n.pitchClass == target)
         return n;
     }
-    throw std::runtime_error("Unable to determine first occurrence of " + stringOf(target) + "from here!");
+    throw std::runtime_error(
+        "Unable to determine first occurrence of " + stringOf(target, Accidental::Natural) + "from here!");
   }
 
 }// namespace XJ

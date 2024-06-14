@@ -449,8 +449,8 @@ namespace XJ {
      * Build a program sequence pattern event
      */
     static ProgramSequencePatternEvent buildEvent(
-        ProgramSequencePattern pattern,
-        ProgramVoiceTrack track,
+        const ProgramSequencePattern& pattern,
+        const ProgramVoiceTrack& track,
         float position,
         float duration,
         std::string note
@@ -521,7 +521,7 @@ namespace XJ {
      * Build a template
      */
     static Template buildTemplate(
-        Project project1,
+        const Project& project1,
         std::string name,
         std::string shipKey,
         std::string config
@@ -531,7 +531,7 @@ namespace XJ {
      * Build a template
      */
     static Template buildTemplate(
-        Project project1,
+        const Project& project1,
         const std::string& name
     );
 

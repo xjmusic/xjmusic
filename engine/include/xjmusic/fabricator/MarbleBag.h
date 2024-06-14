@@ -6,6 +6,7 @@
 #include <map>
 #include <set>
 #include <random>
+#include <optional>
 
 #include "xjmusic/entities/content/ContentEntity.h"
 

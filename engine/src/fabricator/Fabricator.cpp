@@ -1,9 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include <utility>
-#include <vector>
-#include <algorithm>
-
 #include <spdlog/spdlog.h>
 
 #include "xjmusic/fabricator/FabricationFatalException.h"
@@ -25,7 +21,7 @@ Fabricator::Fabricator(
     int outputChannels,
     std::optional<Segment::Type> overrideSegmentType
 ) :
-    retrospective(fabricatorFactory.loadRetrospective(segmentId)),
+    retrospective(*fabricatorFactory.loadRetrospective(segmentId)),
     sourceMaterial(sourceMaterial),
     store(store) {
   this->outputFrameRate = outputFrameRate;
@@ -179,7 +175,7 @@ std::set<Instrument::Type> Fabricator::getDistinctChordVoicingTypes() {
       try {
         distinctChordVoicingTypes->insert(getProgramVoiceType(voicing));
       } catch (FabricationException &e) {
-        spdlog::warn(formatLog("Failed to get distinct chord voicing type! {}"), e.what());
+        spdlog::warn("[seg-{}] Failed to get distinct chord voicing type! {}", segmentId, e.what());
       }
     }
   }
@@ -215,7 +211,7 @@ std::optional<SegmentChoice> Fabricator::getChoiceIfContinued(ProgramVoice voice
   if (it != choices.end()) {
     return *it;
   } else {
-    spdlog::warn(formatLog("Could not get previous voice instrumentId for voiceName={}"), voice.name);
+    spdlog::warn("[seg-{}] Could not get previous voice instrumentId for voiceName={}", segmentId, voice.name);
     return std::nullopt;
   }
 }
@@ -232,7 +228,7 @@ std::optional<SegmentChoice> Fabricator::getChoiceIfContinued(Instrument::Type i
   if (it != choices.end()) {
     return *it;
   } else {
-    spdlog::warn(formatLog("Could not get previous choice for instrumentType={}"), instrumentType);
+    spdlog::warn("[seg-{}] Could not get previous choice for instrumentType={}", segmentId, instrumentType);
     return std::nullopt;
   }
 }
@@ -250,7 +246,7 @@ Fabricator::getChoiceIfContinued(Instrument::Type instrumentType, Instrument::Mo
   if (it != choices.end()) {
     return *it;
   } else {
-    spdlog::warn(formatLog("Could not get previous choice for instrumentType={}"), instrumentType);
+    spdlog::warn("[seg-{}] Could not get previous choice for instrumentType={}", segmentId, instrumentType);
     return std::nullopt;
   }
 }
@@ -267,7 +263,7 @@ std::vector<SegmentChoice> Fabricator::getChoicesIfContinued(Program::Type progr
   });
 
   if (filteredChoices.empty()) {
-    spdlog::warn(formatLog("Could not get previous choice for programType={}"), programType);
+    spdlog::warn("[seg-{}] Could not get previous choice for programType={}", segmentId, programType);
   }
 
   return filteredChoices;
@@ -1065,11 +1061,6 @@ std::string Fabricator::computeShipKey(const Chain &chain, const Segment &segmen
 }
 
 
-std::string Fabricator::formatLog(const std::string &message) {
-  return "[segId=" + std::to_string(getSegment().id) + "] " + message;
-}
-
-
 void Fabricator::ensureShipKey() {
   if (getSegment().storageKey.empty() || getSegment().storageKey.empty()) {
     auto seg = getSegment();
@@ -1080,7 +1071,7 @@ void Fabricator::ensureShipKey() {
     seg.storageKey = computeShipKey(chainOpt.value(), getSegment());
     updateSegment(seg);
 
-    spdlog::debug(formatLog("[segId={}] Generated ship key {}"), getSegment().id, getSegment().storageKey);
+    spdlog::debug("[seg-{}] Generated ship key {}", segmentId, getSegment().storageKey);
   }
 }
 

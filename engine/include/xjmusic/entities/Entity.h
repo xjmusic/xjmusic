@@ -3,24 +3,28 @@
 #ifndef XJMUSIC_ENTITY_H
 #define XJMUSIC_ENTITY_H
 
-#include "xjmusic/entities/music/Root.h"
-#include "xjmusic/entities/music/PitchClass.h"
-#include "xjmusic/entities/music/Note.h"
-#include "gtest/gtest.h"
 #include <map>
 #include <string>
 #include <typeinfo>
+#include <random>
 
 #include "nlohmann/json.hpp"
-
 using json = nlohmann::json;
+
+#include "xjmusic/entities/music/Root.h"
+#include "xjmusic/entities/music/PitchClass.h"
+#include "xjmusic/entities/music/Note.h"
 
 namespace XJ {
 
   /**
-   * Universally Unique Identifier (UUID)
+   * This is in fact not a UUID at all, not even random.
+   * But since the domain of this application is entirely local, we do not require globally-unique randomness.
+   * Instead, for performance reasons, we use a simple counter, which provides guaranteed locally unique identifiers
+   * @return locally unique identifier
    */
   using UUID = std::string;
+  static unsigned long long UNIQUE_ID_COUNTER = 0;
 
   /**
    * Base class for all models

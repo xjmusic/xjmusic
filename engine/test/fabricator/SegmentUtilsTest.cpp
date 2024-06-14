@@ -6,9 +6,7 @@
 
 #include "../_helper/ContentFixtures.h"
 #include "../_helper/SegmentFixtures.h"
-#include "../_helper/TestHelpers.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
-#include "Entity.h"
 
 using namespace XJ;
 

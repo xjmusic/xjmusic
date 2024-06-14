@@ -3,7 +3,6 @@
 #include "ContentFixtures.h"
 #include "TestHelpers.h"
 #include "LoremIpsum.h"
-#include "Entity.h"
 
 #include <utility>
 
@@ -36,20 +35,20 @@ float ContentFixtures::random(float A, float B) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> dis(A, B);
-  return dis(gen);
+  return static_cast<float>(dis(gen));
 }
 
 std::string ContentFixtures::random(std::vector<std::string> array) {
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_int_distribution<> dis(0, array.size() - 1);
+  std::uniform_int_distribution<> dis(0, static_cast<int>(array.size()) - 1);
   return array[dis(gen)];
 }
 
 int ContentFixtures::random(std::vector<int> array) {
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_int_distribution<> dis(0, array.size() - 1);
+  std::uniform_int_distribution<> dis(0, static_cast<int>(array.size()) - 1);
   return array[dis(gen)];
 }
 
@@ -61,7 +60,7 @@ ContentFixtures::buildInstrumentWithAudios(
   std::vector<std::variant<Instrument, InstrumentAudio>> result;
   result.emplace_back(instrument);
   std::vector<std::string> splitNotes = StringUtils::split(notes, ',');
-  for (const std::string& note: splitNotes) {
+  for (const std::string &note: splitNotes) {
     std::string name = Instrument::toString(instrument.type) + "-" + note;
     auto audio = buildAudio(instrument, name, note);
     result.emplace_back(audio);
@@ -174,7 +173,7 @@ Program ContentFixtures::buildDetailProgram(
 }
 
 ProgramMeme ContentFixtures::buildMeme(
-    const Program& program,
+    const Program &program,
     std::string name
 ) {
   ProgramMeme meme;
@@ -185,7 +184,7 @@ ProgramMeme ContentFixtures::buildMeme(
 }
 
 ProgramSequence ContentFixtures::buildSequence(
-    const Program& program,
+    const Program &program,
     int total,
     std::string name,
     float intensity,
@@ -202,7 +201,7 @@ ProgramSequence ContentFixtures::buildSequence(
 }
 
 ProgramSequence ContentFixtures::buildSequence(
-    const Program& program,
+    const Program &program,
     int total
 ) {
   ProgramSequence sequence;
@@ -214,7 +213,7 @@ ProgramSequence ContentFixtures::buildSequence(
 }
 
 ProgramSequenceBinding ContentFixtures::buildBinding(
-    const ProgramSequence& programSequence,
+    const ProgramSequence &programSequence,
     int offset
 ) {
   ProgramSequenceBinding binding;
@@ -226,7 +225,7 @@ ProgramSequenceBinding ContentFixtures::buildBinding(
 }
 
 ProgramSequenceBindingMeme ContentFixtures::buildMeme(
-    const ProgramSequenceBinding& programSequenceBinding,
+    const ProgramSequenceBinding &programSequenceBinding,
     std::string name
 ) {
   ProgramSequenceBindingMeme meme;
@@ -238,7 +237,7 @@ ProgramSequenceBindingMeme ContentFixtures::buildMeme(
 }
 
 ProgramSequenceChord ContentFixtures::buildChord(
-    const ProgramSequence& programSequence,
+    const ProgramSequence &programSequence,
     float position,
     std::string name
 ) {
@@ -252,8 +251,8 @@ ProgramSequenceChord ContentFixtures::buildChord(
 }
 
 ProgramSequenceChordVoicing ContentFixtures::buildVoicing(
-    const ProgramSequenceChord& programSequenceChord,
-    const ProgramVoice& voice,
+    const ProgramSequenceChord &programSequenceChord,
+    const ProgramVoice &voice,
     std::string notes
 ) {
   ProgramSequenceChordVoicing voicing;
@@ -266,7 +265,7 @@ ProgramSequenceChordVoicing ContentFixtures::buildVoicing(
 }
 
 ProgramVoice ContentFixtures::buildVoice(
-    const Program& program,
+    const Program &program,
     Instrument::Type type,
     std::string name
 ) {
@@ -279,14 +278,14 @@ ProgramVoice ContentFixtures::buildVoice(
 }
 
 ProgramVoice ContentFixtures::buildVoice(
-    const Program& program,
+    const Program &program,
     Instrument::Type type
 ) {
   return buildVoice(program, type, Instrument::toString(type));
 }
 
 ProgramVoiceTrack ContentFixtures::buildTrack(
-    const ProgramVoice& programVoice,
+    const ProgramVoice &programVoice,
     std::string name
 ) {
   ProgramVoiceTrack track;
@@ -298,14 +297,14 @@ ProgramVoiceTrack ContentFixtures::buildTrack(
 }
 
 ProgramVoiceTrack ContentFixtures::buildTrack(
-    const ProgramVoice& programVoice
+    const ProgramVoice &programVoice
 ) {
   return buildTrack(programVoice, Instrument::toString(programVoice.type));
 }
 
 ProgramSequencePattern ContentFixtures::buildPattern(
-    const ProgramSequence& programSequence,
-    const ProgramVoice& programVoice,
+    const ProgramSequence &programSequence,
+    const ProgramVoice &programVoice,
     int total,
     std::string name
 ) {
@@ -320,16 +319,16 @@ ProgramSequencePattern ContentFixtures::buildPattern(
 }
 
 ProgramSequencePattern ContentFixtures::buildPattern(
-    const ProgramSequence& sequence,
-    const ProgramVoice& voice,
+    const ProgramSequence &sequence,
+    const ProgramVoice &voice,
     int total
 ) {
   return buildPattern(sequence, voice, total, sequence.name + " pattern");
 }
 
 ProgramSequencePatternEvent ContentFixtures::buildEvent(
-    const ProgramSequencePattern& pattern,
-    const ProgramVoiceTrack& track,
+    const ProgramSequencePattern &pattern,
+    const ProgramVoiceTrack &track,
     float position,
     float duration,
     std::string note,
@@ -348,13 +347,13 @@ ProgramSequencePatternEvent ContentFixtures::buildEvent(
 }
 
 ProgramSequencePatternEvent ContentFixtures::buildEvent(
-    ProgramSequencePattern pattern,
-    ProgramVoiceTrack track,
+    const ProgramSequencePattern &pattern,
+    const ProgramVoiceTrack &track,
     float position,
     float duration,
     std::string note
 ) {
-  return buildEvent(std::move(pattern), std::move(track), position, duration, std::move(note), 1.0f);
+  return buildEvent(pattern, track, position, duration, std::move(note), 1.0f);
 }
 
 Instrument ContentFixtures::buildInstrument(
@@ -376,7 +375,7 @@ Instrument ContentFixtures::buildInstrument(
 }
 
 InstrumentMeme ContentFixtures::buildMeme(
-    const Instrument& instrument,
+    const Instrument &instrument,
     std::string name
 ) {
   InstrumentMeme instrumentMeme;
@@ -387,7 +386,7 @@ InstrumentMeme ContentFixtures::buildMeme(
 }
 
 InstrumentAudio ContentFixtures::buildInstrumentAudio(
-    const Instrument& instrument,
+    const Instrument &instrument,
     std::string name,
     std::string waveformKey,
     float start,
@@ -414,7 +413,7 @@ InstrumentAudio ContentFixtures::buildInstrumentAudio(
 }
 
 Library ContentFixtures::buildLibrary(
-    const Project& project,
+    const Project &project,
     std::string name
 ) {
   Library library;
@@ -434,7 +433,7 @@ Project ContentFixtures::buildProject(
 }
 
 Template ContentFixtures::buildTemplate(
-    const Project& project1,
+    const Project &project1,
     std::string name,
     std::string shipKey
 ) {
@@ -448,26 +447,26 @@ Template ContentFixtures::buildTemplate(
 }
 
 Template ContentFixtures::buildTemplate(
-    Project project1,
+    const Project &project1,
     std::string name,
     std::string shipKey,
     std::string config
 ) {
-  Template tmpl = buildTemplate(std::move(project1), std::move(name), std::move(shipKey));
+  Template tmpl = buildTemplate(project1, std::move(name), std::move(shipKey));
   tmpl.config = std::move(config);
   return tmpl;
 }
 
 Template ContentFixtures::buildTemplate(
-    Project project1,
-    const std::string& name
+    const Project &project1,
+    const std::string &name
 ) {
-  return buildTemplate(std::move(project1), name, name + "123");
+  return buildTemplate(project1, name, name + "123");
 }
 
 TemplateBinding ContentFixtures::buildTemplateBinding(
-    const Template& tmpl,
-    const Library& library
+    const Template &tmpl,
+    const Library &library
 ) {
   TemplateBinding templateBinding;
   templateBinding.id = Entity::randomUUID();
@@ -478,8 +477,8 @@ TemplateBinding ContentFixtures::buildTemplateBinding(
 }
 
 TemplateBinding ContentFixtures::buildTemplateBinding(
-    const Template& tmpl,
-    const Program& program
+    const Template &tmpl,
+    const Program &program
 ) {
   TemplateBinding templateBinding;
   templateBinding.id = Entity::randomUUID();
@@ -490,8 +489,8 @@ TemplateBinding ContentFixtures::buildTemplateBinding(
 }
 
 TemplateBinding ContentFixtures::buildTemplateBinding(
-    const Template& tmpl,
-    const Instrument& instrument
+    const Template &tmpl,
+    const Instrument &instrument
 ) {
   TemplateBinding templateBinding;
   templateBinding.id = Entity::randomUUID();
@@ -502,7 +501,7 @@ TemplateBinding ContentFixtures::buildTemplateBinding(
 }
 
 ProgramMeme ContentFixtures::buildProgramMeme(
-    const Program& program,
+    const Program &program,
     std::string name
 ) {
   ProgramMeme programMeme;
@@ -513,7 +512,7 @@ ProgramMeme ContentFixtures::buildProgramMeme(
 }
 
 ProgramSequence ContentFixtures::buildProgramSequence(
-    const Program& program,
+    const Program &program,
     int total,
     std::string name,
     float intensity,
@@ -530,7 +529,7 @@ ProgramSequence ContentFixtures::buildProgramSequence(
 }
 
 ProgramSequenceBinding ContentFixtures::buildProgramSequenceBinding(
-    const ProgramSequence& programSequence,
+    const ProgramSequence &programSequence,
     int offset
 ) {
   ProgramSequenceBinding programSequenceBinding;
@@ -542,7 +541,7 @@ ProgramSequenceBinding ContentFixtures::buildProgramSequenceBinding(
 }
 
 ProgramSequenceBindingMeme ContentFixtures::buildProgramSequenceBindingMeme(
-    const ProgramSequenceBinding& programSequenceBinding,
+    const ProgramSequenceBinding &programSequenceBinding,
     std::string name
 ) {
   ProgramSequenceBindingMeme programSequenceBindingMeme;
@@ -554,7 +553,7 @@ ProgramSequenceBindingMeme ContentFixtures::buildProgramSequenceBindingMeme(
 }
 
 ProgramSequenceChord ContentFixtures::buildProgramSequenceChord(
-    const ProgramSequence& programSequence,
+    const ProgramSequence &programSequence,
     float position,
     std::string name
 ) {
@@ -568,8 +567,8 @@ ProgramSequenceChord ContentFixtures::buildProgramSequenceChord(
 }
 
 ProgramSequenceChordVoicing ContentFixtures::buildProgramSequenceChordVoicing(
-    const ProgramSequenceChord& programSequenceChord,
-    const ProgramVoice& voice,
+    const ProgramSequenceChord &programSequenceChord,
+    const ProgramVoice &voice,
     std::string notes
 ) {
   ProgramSequenceChordVoicing programSequenceChordVoicing;
@@ -582,7 +581,7 @@ ProgramSequenceChordVoicing ContentFixtures::buildProgramSequenceChordVoicing(
 }
 
 ProgramVoice ContentFixtures::buildProgramVoice(
-    const Program& program,
+    const Program &program,
     Instrument::Type type,
     std::string name
 ) {
@@ -595,7 +594,7 @@ ProgramVoice ContentFixtures::buildProgramVoice(
 }
 
 ProgramVoiceTrack ContentFixtures::buildProgramVoiceTrack(
-    const ProgramVoice& programVoice,
+    const ProgramVoice &programVoice,
     std::string name
 ) {
   ProgramVoiceTrack programVoiceTrack;
@@ -607,8 +606,8 @@ ProgramVoiceTrack ContentFixtures::buildProgramVoiceTrack(
 }
 
 ProgramSequencePattern ContentFixtures::buildProgramSequencePattern(
-    const ProgramSequence& programSequence,
-    const ProgramVoice& programVoice,
+    const ProgramSequence &programSequence,
+    const ProgramVoice &programVoice,
     int total,
     std::string name
 ) {
@@ -623,8 +622,8 @@ ProgramSequencePattern ContentFixtures::buildProgramSequencePattern(
 }
 
 ProgramSequencePatternEvent ContentFixtures::buildProgramSequencePatternEvent(
-    const ProgramSequencePattern& programSequencePattern,
-    const ProgramVoiceTrack& programVoiceTrack,
+    const ProgramSequencePattern &programSequencePattern,
+    const ProgramVoiceTrack &programVoiceTrack,
     float position,
     float duration,
     std::string tones,
@@ -643,7 +642,7 @@ ProgramSequencePatternEvent ContentFixtures::buildProgramSequencePatternEvent(
 }
 
 Instrument ContentFixtures::buildInstrument(
-    const Library& library,
+    const Library &library,
     Instrument::Type type,
     Instrument::Mode mode,
     Instrument::State state,
@@ -661,7 +660,7 @@ Instrument ContentFixtures::buildInstrument(
 }
 
 InstrumentMeme ContentFixtures::buildInstrumentMeme(
-    const Instrument& instrument,
+    const Instrument &instrument,
     std::string name
 ) {
   InstrumentMeme instrumentMeme;
@@ -1269,11 +1268,16 @@ void ContentFixtures::generatedFixture(ContentEntityStore &store, int N) {
     float intensityFrom = random(0.3f, 0.9f);
     float tempoFrom = random(80, 120);
     //
+    std::string programName = minorMemeName;
+    programName += ", create ";
+    programName += majorMemeFromName;
+    programName += " to ";
+    programName += majorMemeToName;
     Program program = ContentFixtures::buildProgram(
         library1,
         Program::Type::Macro,
         Program::State::Published,
-        minorMemeName + ", create " + majorMemeFromName + " to " + majorMemeToName,
+        programName,
         keyFrom,
         tempoFrom);
     store.put(program);
@@ -1333,17 +1337,17 @@ void ContentFixtures::generatedFixture(ContentEntityStore &store, int N) {
       store.put(sequences[iP]);
       for (int iPC = 0; iPC < N << 2; iPC++) {
         // always use first chord, then use more chords with more intensity
-        if (0 == iPC || ((float) std::rand() / RAND_MAX) < subDensities[iP]) {
+        if (0 == iPC || random(0, 1) < subDensities[iP]) {
           store.put(
               ContentFixtures::buildChord(sequences[iP],
-                                          std::floor((float) iPC * total * 4 / N),
+                                          std::floor((float) iPC * (float) total * 4 / (float) N),
                                           random(LoremIpsum::MUSICAL_CHORDS)));
         }
       }
     }
     // sequence sequence binding
     for (int offset = 0; offset < (N << 2); offset++) {
-      int num = static_cast<int>(std::floor(std::rand() * N / static_cast<float>(RAND_MAX)));
+      int num = static_cast<int>(std::floor(random(0, (float) N)));
       ProgramSequenceBinding binding = ContentFixtures::buildProgramSequenceBinding(sequences[num], offset);
       store.put(binding);
       store.put(ContentFixtures::buildMeme(binding, random(minorMemeNames)));
@@ -1354,7 +1358,7 @@ void ContentFixtures::generatedFixture(ContentEntityStore &store, int N) {
 
   // Generate N total Beat-type Sequences, each having N voices, and N*2 patterns comprised of N*8 events
   std::vector<ProgramVoice> voices = std::vector<ProgramVoice>(N);
-  std::unordered_map < std::string, ProgramVoiceTrack > trackMap;
+  std::unordered_map<std::string, ProgramVoiceTrack> trackMap;
   for (int i = 0; i < N; i++) {
     std::string majorMemeName = majorMemeNames[i];
     float tempo = random(80, 120);
@@ -1382,28 +1386,36 @@ void ContentFixtures::generatedFixture(ContentEntityStore &store, int N) {
     // patterns of program
     for (int iP = 0; iP < N << 1; iP++) {
       int total = random(LoremIpsum::PATTERN_TOTALS);
-      int num = static_cast<int>(std::floor(std::rand() * N / static_cast<float>(RAND_MAX)));
+      int num = static_cast<int>(std::floor(random(0, (float) N)));
 
       // first pattern is always a Loop (because that's required) then the rest at random
-      ProgramSequencePattern pattern = ContentFixtures::buildPattern(sequenceBase, voices[num], total,
-
-                                                                     majorMemeName + " " +
-                                                                     majorMemeName +
-                                                                     " pattern" + " " +
-                                                                     random(
-                                                                         LoremIpsum::ELEMENTS));
+      std::string patternName = majorMemeName;
+      patternName += " ";
+      patternName += majorMemeName;
+      patternName += " pattern ";
+      patternName += random(LoremIpsum::ELEMENTS);
+      ProgramSequencePattern pattern = ContentFixtures::buildPattern(
+          sequenceBase,
+          voices[num],
+          total,
+          patternName
+      );
       store.put(pattern);
       for (int iPE = 0; iPE < N << 2; iPE++) {
         // always use first chord, then use more chords with more intensity
-        if (0 == iPE || std::rand() < intensity) {
+        if (0 == iPE || random(0, 1) < intensity) {
           std::string name = percussiveNames[num];
           if (trackMap.find(name) == trackMap.end())
             trackMap[name] = ContentFixtures::buildTrack(voices[num], name);
           store.put(trackMap[name]);
-          store.put(ContentFixtures::buildEvent(pattern, trackMap[name],
-                                                static_cast<float>(std::floor(
-                                                    static_cast<float>(iPE) * total * 4 / N)),
-                                                random(0.25f, 1.0f), "X", random(0.4f, 0.9f)));
+          store.put(ContentFixtures::buildEvent(
+              pattern,
+              trackMap[name],
+              static_cast<float>(std::floor(static_cast<float>(iPE) * (float) total * 4 / (float) N)),
+              random(0.25f, 1.0f),
+              "X",
+              random(0.4f, 0.9f)
+          ));
         }
       }
     }

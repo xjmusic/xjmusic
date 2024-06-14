@@ -46,5 +46,5 @@ TEST(SegmentMemeTest, testGetNames) {
   std::set<std::string> names = SegmentMeme::getNames(segmentMemes);
   ASSERT_EQ(2, names.size());
   ASSERT_TRUE(names.find("name1") != names.end());
-  ASSERT_TRUE(names.find("name2") != names.end();
+  ASSERT_TRUE(names.find("name2") != names.end());
 }

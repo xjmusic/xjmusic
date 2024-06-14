@@ -41,7 +41,6 @@ add_library(xjmusic
         entities/music/Note.cpp
         entities/music/NoteRange.cpp
         entities/music/Octave.cpp
-        entities/music/PitchClass.cpp
         entities/music/Root.cpp
         entities/music/SlashRoot.cpp
         entities/music/Step.cpp
@@ -63,15 +62,15 @@ add_library(xjmusic
         fabricator/FabricationFatalException.cpp
         fabricator/Fabricator.cpp
         fabricator/FabricatorFactory.cpp
+        fabricator/MarbleBag.cpp
         fabricator/SegmentRetrospective.cpp
         fabricator/SegmentUtils.cpp
         fabricator/TemplateUtils.cpp
         util/ConfigParser.cpp
+        util/CsvUtils.cpp
         util/StringUtils.cpp
         util/ValueUtils.cpp
         xjmusic.cpp
-        util/CsvUtils.cpp
-        fabricator/MarbleBag.cpp
 )
 
 # We need this directory, and users of our library will need it too
