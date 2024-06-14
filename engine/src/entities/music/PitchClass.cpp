@@ -34,7 +34,7 @@ namespace XJ {
       {"Bb", As},
   };
 
-  PitchClass pitchClassOf(const std::string &name) {
+  PitchClass pitchClassOf(const std::string name) {
     if (name.empty())
       return Atonal;
     std::string normalized = accidentalNormalized(name);

@@ -92,7 +92,7 @@ namespace XJ {
      @param voicing to test
      @return true if contains any valid notes
      */
-    static bool containsAnyValidNotes(SegmentChordVoicing &voicing);
+    static bool containsAnyValidNotes(const SegmentChordVoicing &voicing);
 
     /**
      Whether the segment is spanning a given time frame.

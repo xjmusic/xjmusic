@@ -4,7 +4,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "spdlog/spdlog.h"
+#include <spdlog/spdlog.h>
 
 #include "xjmusic/fabricator/FabricationFatalException.h"
 #include "xjmusic/fabricator/FabricationException.h"
@@ -12,14 +12,12 @@
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/util/CsvUtils.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
+#include "xjmusic/fabricator/MarbleBag.h"
 
 using namespace XJ;
 
 Fabricator::Fabricator(
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "UnusedParameter"
     FabricatorFactory &fabricatorFactory,
-#pragma clang diagnostic pop
     SegmentEntityStore &store,
     ContentEntityStore &sourceMaterial,
     int segmentId,
@@ -223,9 +221,6 @@ std::optional<SegmentChoice> Fabricator::getChoiceIfContinued(ProgramVoice voice
 }
 
 
-#include <optional>
-#include <algorithm>
-
 std::optional<SegmentChoice> Fabricator::getChoiceIfContinued(Instrument::Type instrumentType) {
   if (getSegment().type != Segment::Type::Continue) return std::nullopt;
 
@@ -300,7 +295,7 @@ std::string Fabricator::computeCacheKeyForVoiceTrack(const SegmentChoiceArrangem
 
 
 Chord Fabricator::getKeyForChoice(const SegmentChoice &choice) {
-  std::optional<Program> program = getProgram(choice);
+  std::optional<const Program *> program = getProgram(choice);
   if (!choice.programSequenceBindingId.empty()) {
     auto sequence = getSequence(choice);
     if (sequence.has_value() && !sequence.value().key.empty())
@@ -311,7 +306,7 @@ Chord Fabricator::getKeyForChoice(const SegmentChoice &choice) {
     throw FabricationException("Cannot get key for nonexistent choice!");
   }
 
-  return Chord::of(program->key);
+  return Chord::of(program.value()->key);
 }
 
 std::optional<const ProgramSequence *> Fabricator::getProgramSequence(const SegmentChoice &choice) {
@@ -382,13 +377,13 @@ MemeIsometry Fabricator::getMemeIsometryOfNextSequenceInPreviousMacro() {
 
   std::set<std::string> memes;
   auto programMemes = sourceMaterial.getMemesOfProgram(previousMacroChoice.value().programId);
-  for (const auto& meme : programMemes) {
+  for (const auto &meme: programMemes) {
     memes.emplace(meme->name);
   }
 
-  for (const auto& binding : nextSequenceBinding) {
+  for (const auto &binding: nextSequenceBinding) {
     auto sequenceBindingMemes = sourceMaterial.getMemesOfSequenceBinding(binding->id);
-    for (const auto& meme : sequenceBindingMemes) {
+    for (const auto &meme: sequenceBindingMemes) {
       memes.emplace(meme->name);
     }
   }
@@ -402,43 +397,56 @@ MemeIsometry Fabricator::getMemeIsometryOfSegment() {
 }
 
 
-int Fabricator::getNextSequenceBindingOffset(SegmentChoice choice) {
-  if (ValueUtils.isEmpty(choice.programSequenceBindingId)) return 0;
+int Fabricator::getNextSequenceBindingOffset(const SegmentChoice& choice) {
+  if (choice.programSequenceBindingId.empty()) return 0;
 
-  var sequenceBinding = sourceMaterial.getProgramSequenceBinding(choice.programSequenceBindingId);
+  auto sequenceBinding = sourceMaterial.getProgramSequenceBinding(choice.programSequenceBindingId);
   int sequenceBindingOffset = getSequenceBindingOffsetForChoice(choice);
-  int offset = null;
-  if (sequenceBinding.isEmpty()) return 0;
-  for (int availableOffset: sourceMaterial.getAvailableOffsets(sequenceBinding.get()))
-    if (0 < availableOffset.compareTo(sequenceBindingOffset))
-      if (Objects.isNull(offset) || 0 > availableOffset.compareTo(offset)) offset = availableOffset;
+  int offset = -1;
+  if (!sequenceBinding.has_value()) return 0;
+  auto availableOffsets = sourceMaterial.getAvailableOffsets(*sequenceBinding.value());
+  for (int availableOffset: availableOffsets)
+    if (0 < availableOffset - sequenceBindingOffset)
+      if (offset == -1 || 0 > availableOffset - offset) offset = availableOffset;
 
   // if none found, loop back around to zero
-  return Objects.nonNull(offset) ? offset : 0;
-
+  return offset != -1 ? offset : 0;
 }
 
 
-std::vector<std::string> Fabricator::getNotes(SegmentChordVoicing voicing) {
-  return new ArrayList<>(CsvUtils.split(voicing.notes));
+std::vector<std::string> Fabricator::getNotes(const SegmentChordVoicing& voicing) {
+  return CsvUtils::split(voicing.notes);
 }
 
 
-std::vector<SegmentChoiceArrangementPick> Fabricator::getPicks() {
-  return store.readAll(segmentId, SegmentChoiceArrangementPick.
-  class);
+std::set<SegmentChoiceArrangementPick> Fabricator::getPicks() {
+  return store.readAllSegmentChoiceArrangementPicks(segmentId);
 }
 
 
-std::vector<SegmentChoiceArrangementPick> Fabricator::getPicks(SegmentChoice choice) {
-  if (!picksForChoice.containsKey(choice.id)) {
-    var arrangementIds = getArrangements().stream().filter(a->a.getSegmentChoiceId().equals(choice.id)).map(
-        SegmentChoiceArrangement::getId).toList();
-    picksForChoice.put(choice.id, getPicks().stream()
-        .filter(p->arrangementIds.contains(p.getSegmentChoiceArrangementId()))
-        .sorted(Comparator.comparing(SegmentChoiceArrangementPick::getStartAtSegmentMicros)).toList());
+std::vector<SegmentChoiceArrangementPick> Fabricator::getPicks(const SegmentChoice& choice) {
+  if (picksForChoice.find(choice.id) == picksForChoice.end()) {
+    std::vector<UUID> arrangementIds;
+    auto arrangements = getArrangements();
+    for (const auto& arrangement : arrangements) {
+      if (arrangement.segmentChoiceId == choice.id) {
+        arrangementIds.push_back(arrangement.id);
+      }
+    }
+    std::vector<SegmentChoiceArrangementPick> picks;
+    auto allPicks = getPicks();
+    for (const auto& pick : allPicks) {
+      if (std::find(arrangementIds.begin(), arrangementIds.end(), pick.segmentChoiceArrangementId) != arrangementIds.end()) {
+        picks.push_back(pick);
+      }
+    }
+    // Sort the picks by startAtSegmentMicros
+    std::sort(picks.begin(), picks.end(), [](const SegmentChoiceArrangementPick& a, const SegmentChoiceArrangementPick& b) {
+      return a.startAtSegmentMicros < b.startAtSegmentMicros;
+    });
+    picksForChoice[choice.id] = picks;
   }
-  return picksForChoice.get(choice.id);
+  return picksForChoice[choice.id];
 }
 
 
@@ -446,105 +454,111 @@ std::optional<InstrumentAudio> Fabricator::getPreferredAudio(const std::string &
   std::string cacheKey = computeCacheKeyForPreferredAudio(parentIdent, ident);
 
   if (preferredAudios.find(cacheKey) != preferredAudios.end()) {
-    return {preferredAudios.at(cacheKey)};
+    return {*preferredAudios.at(cacheKey)};
   }
 
   return std::nullopt;
 }
 
 
-std::optional<Program> Fabricator::getProgram(SegmentChoice choice) {
+std::optional<const Program *> Fabricator::getProgram(const SegmentChoice& choice) {
   return sourceMaterial.getProgram(choice.programId);
 }
 
 
-ProgramConfig Fabricator::getProgramConfig(Program program) {
-  try {
-    return new ProgramConfig(program);
-  } catch (ValueException e) {
-    throw new FabricationException(e);
-  }
+ProgramConfig Fabricator::getProgramConfig(const Program& program) {
+    return ProgramConfig(program);
 }
 
 
-std::vector<ProgramSequenceChord> Fabricator::getProgramSequenceChords(ProgramSequence programSequence) {
-  if (!completeChordsForProgramSequence.containsKey(programSequence.id)) {
-    Map<float, ProgramSequenceChord> chordForPosition = new HashMap<>();
-    Map<float, int> validVoicingsForPosition = new HashMap<>();
-    for (ProgramSequenceChord chord: sourceMaterial.getChordsOfSequence(programSequence)) {
-      int validVoicings = sourceMaterial.getVoicingsOfChord(chord).stream().map(
-          V->CsvUtils.split(V.notes).size()).reduce(0, int
-      ::sum);
-      if (!validVoicingsForPosition.containsKey(chord.position) ||
-          validVoicingsForPosition.get(chord.position) < validVoicings) {
-        validVoicingsForPosition.put(chord.position, validVoicings);
-        chordForPosition.put(chord.position, chord);
+std::vector<ProgramSequenceChord> Fabricator::getProgramSequenceChords(const ProgramSequence& programSequence) {
+  if (completeChordsForProgramSequence.find(programSequence.id) == completeChordsForProgramSequence.end()) {
+    std::map<float, ProgramSequenceChord> chordForPosition;
+    std::map<float, int> validVoicingsForPosition;
+    auto chords = sourceMaterial.getChordsOfSequence(programSequence);
+    for (const auto& chord: chords) {
+      int validVoicings = 0;
+      auto voicings = sourceMaterial.getVoicingsOfChord(*chord);
+      for (const auto& voicing : voicings) {
+        validVoicings += static_cast<int>(CsvUtils::split(voicing->notes).size());
+      }
+      if (validVoicingsForPosition.find(chord->position) == validVoicingsForPosition.end() ||
+          validVoicingsForPosition[chord->position] < validVoicings) {
+        validVoicingsForPosition[chord->position] = validVoicings;
+        chordForPosition[chord->position] = *chord;
       }
     }
-    completeChordsForProgramSequence.put(programSequence.id, chordForPosition.values());
+    std::vector<ProgramSequenceChord> sortedChords;
+    for (const auto& [position, chord] : chordForPosition) {
+      sortedChords.emplace_back(chord);
+    }
+    std::sort(sortedChords.begin(), sortedChords.end(), [](const ProgramSequenceChord& a, const ProgramSequenceChord& b) {
+      return a.position < b.position;
+    });
+    completeChordsForProgramSequence[programSequence.id] = sortedChords;
   }
 
-  return completeChordsForProgramSequence.get(programSequence.id);
+  return completeChordsForProgramSequence[programSequence.id];
 }
 
 
-NoteRange Fabricator::getProgramRange(UUID programId, Instrument::Type instrumentType) {
-  var cacheKey = std::string.format("%s__%s", programId, instrumentType);
+NoteRange Fabricator::getProgramRange(const UUID& programId, Instrument::Type instrumentType) {
+  std::string cacheKey = programId + "__" + std::to_string(static_cast<int>(instrumentType));
 
-  if (!rangeForChoice.containsKey(cacheKey)) {
-    rangeForChoice.put(cacheKey, computeProgramRange(programId, instrumentType));
+  if (rangeForChoice.find(cacheKey) == rangeForChoice.end()) {
+    rangeForChoice[cacheKey] = computeProgramRange(programId, instrumentType);
   }
 
-  return rangeForChoice.get(cacheKey);
-}
-
-NoteRange Fabricator::computeProgramRange(UUID programId, Instrument::Type instrumentType) {
-  return NoteRange.ofStrings(
-      sourceMaterial.getSequencePatternEventsOfProgram(programId).stream()
-          .filter(event->sourceMaterial.getVoiceOfEvent(event).map(
-              voice->Objects.equals(voice.type, instrumentType)).orElse(false)
-                  && !Objects.equals(Note.of(event.getTones()).getPitchClass(), PitchClass.None))
-          .flatMap(programSequencePatternEvent->CsvUtils.split(programSequencePatternEvent.getTones()).stream())
-          .collect(Collectors.toList()));
+  return rangeForChoice[cacheKey];
 }
 
 
-int Fabricator::getProgramRangeShiftOctaves(Instrument::Type type, NoteRange sourceRange, NoteRange targetRange) {
-  var cacheKey = std::string.format("%s__%s__%s", type, sourceRange.toString(Accidental.None),
-                                    targetRange.toString(Accidental.None));
+int Fabricator::getProgramRangeShiftOctaves(Instrument::Type instrumentType, NoteRange sourceRange, NoteRange targetRange) {
+  std::string cacheKey = std::to_string(static_cast<int>(instrumentType)) + "__" + sourceRange.toString(Accidental::Natural) +
+                         "__" + targetRange.toString(Accidental::Natural);
 
-  if (!rangeShiftOctave.containsKey(cacheKey))
-    switch (type) {
-      case Bass->rangeShiftOctave.put(cacheKey, computeLowestOptimalRangeShiftOctaves(sourceRange, targetRange));
-      case Drum->{
+  if (rangeShiftOctave.find(cacheKey) == rangeShiftOctave.end()) {
+    switch (instrumentType) {
+      case Instrument::Type::Bass:
+        rangeShiftOctave[cacheKey] = computeLowestOptimalRangeShiftOctaves(sourceRange, targetRange);
+        break;
+      default:
+      case Instrument::Type::Drum:
         return 0;
-      }
-      case Pad, Stab, Sticky, Stripe->
-        rangeShiftOctave.put(cacheKey, NoteRange.computeMedianOptimalRangeShiftOctaves(sourceRange, targetRange));
-    }
-
-  return rangeShiftOctave.get(cacheKey);
-}
-
-
-int Fabricator::getProgramTargetShift(Instrument::Type instrumentType, Chord fromChord, Chord toChord) {
-  if (!fromChord.has_value()) return 0;
-  var cacheKey = std::string.format("%s__%s__%s", instrumentType, fromChord, toChord);
-  if (!targetShift.containsKey(cacheKey)) {
-    if (instrumentType.equals(Instrument::Type::Bass)) {
-      targetShift.put(cacheKey, fromChord.getRoot().delta(toChord.getSlashRoot()));
-    } else {
-      targetShift.put(cacheKey, fromChord.getRoot().delta(toChord.getRoot()));
+      case Instrument::Type::Pad:
+      case Instrument::Type::Stab:
+      case Instrument::Type::Sticky:
+      case Instrument::Type::Stripe:
+        rangeShiftOctave[cacheKey] = NoteRange::computeMedianOptimalRangeShiftOctaves(sourceRange, targetRange);
+        break;
     }
   }
 
-  return targetShift.get(cacheKey);
+  return rangeShiftOctave[cacheKey];
 }
 
 
-Program::Type Fabricator::getProgramType(ProgramVoice voice) {
-  return sourceMaterial.getProgram(voice.programId).orElseThrow(()->
-  new FabricationException("Could not get program!")).type;
+int Fabricator::getProgramTargetShift(Instrument::Type instrumentType, const Chord& fromChord, const Chord& toChord) {
+  if (!fromChord.has_value()) return 0;
+  std::string cacheKey = std::to_string(static_cast<int>(instrumentType)) + "__" + fromChord.toString() + "__" + toChord.toString();
+  if (targetShift.find(cacheKey) == targetShift.end()) {
+    if (instrumentType == Instrument::Type::Bass) {
+      targetShift[cacheKey] = Step::delta(fromChord.root, toChord.slashRoot.pitchClass.value_or(Atonal));
+    } else {
+      targetShift[cacheKey] = Step::delta(fromChord.root, toChord.root);
+    }
+  }
+
+  return targetShift[cacheKey];
+}
+
+
+Program::Type Fabricator::getProgramType(const ProgramVoice& voice) {
+  auto programOpt = sourceMaterial.getProgram(voice.programId);
+  if (!programOpt.has_value()) {
+    throw FabricationException("Could not get program!");
+  }
+  return programOpt.value()->type;
 }
 
 
@@ -555,113 +569,141 @@ Instrument::Type Fabricator::getProgramVoiceType(const ProgramSequenceChordVoici
 }
 
 
-NoteRange Fabricator::getProgramVoicingNoteRange(Instrument::Type type) {
-  if (!voicingNoteRange.containsKey(type)) {
-    voicingNoteRange.put(type, NoteRange.ofStrings(
-        getChordVoicings().stream().filter(SegmentUtils::containsAnyValidNotes).filter(
-            segmentChordVoicing->Objects.equals(segmentChordVoicing.type, type)).flatMap(
-            segmentChordVoicing->getNotes(segmentChordVoicing).stream()).collect(Collectors.toList())));
+NoteRange Fabricator::getProgramVoicingNoteRange(Instrument::Type instrumentType) {
+  if (voicingNoteRange.find(instrumentType) == voicingNoteRange.end()) {
+    std::vector<std::string> notes;
+    auto voicings = getChordVoicings();
+    for (const auto& voicing : voicings) {
+      if (SegmentUtils::containsAnyValidNotes(voicing) && voicing.type == Instrument::toString(instrumentType)) {
+        auto voicingNotes = getNotes(voicing);
+        notes.insert(notes.end(), voicingNotes.begin(), voicingNotes.end());
+      }
+    }
+    voicingNoteRange[instrumentType] = NoteRange::ofStrings(notes);
   }
 
-  return voicingNoteRange.get(type);
+  return voicingNoteRange[instrumentType];
 }
 
 
-std::optional<ProgramSequence> Fabricator::getRandomlySelectedSequence(Program program) {
-  var bag = MarbleBag.empty();
-  sourceMaterial.getProgramSequences().stream().filter(s->Objects.equals(s.programId, program.id)).forEach(
-      sequence->bag.add(1, sequence.id));
-  if (bag.isEmpty()) return std::nullopt;
-  return sourceMaterial.getProgramSequence(bag.pick());
+std::optional<ProgramSequence> Fabricator::getRandomlySelectedSequence(const Program& program) {
+  std::set<ProgramSequence> sequences;
+  for (const auto& sequence : sourceMaterial.getProgramSequences()) {
+    if (sequence->programId == program.id) {
+      sequences.emplace(*sequence);
+    }
+  }
+  return MarbleBag::quickPick(sequences);
 }
 
 
-std::optional<ProgramSequenceBinding>
-Fabricator::getRandomlySelectedSequenceBindingAtOffset(Program program, int offset) {
-  var bag = MarbleBag.empty();
-  for (ProgramSequenceBinding sequenceBinding: sourceMaterial.getBindingsAtOffsetOfProgram(program, offset, true))
-    bag.add(1, sequenceBinding.id);
-  if (bag.isEmpty()) return std::nullopt;
-  return sourceMaterial.getProgramSequenceBinding(bag.pick());
+std::optional<ProgramSequenceBinding> Fabricator::getRandomlySelectedSequenceBindingAtOffset(const Program& program, int offset) {
+  std::set<ProgramSequenceBinding> sequenceBindings;
+  for (const auto& sequenceBinding : sourceMaterial.getBindingsAtOffsetOfProgram(program, offset, true)) {
+    sequenceBindings.emplace(*sequenceBinding);
+  }
+  if (sequenceBindings.empty()) {
+    return std::nullopt;
+  }
+  return MarbleBag::quickPick(sequenceBindings);
 }
 
 
-std::optional<ProgramSequencePattern>
-Fabricator::getRandomlySelectedPatternOfSequenceByVoiceAndType(SegmentChoice choice) {
-  var bag = MarbleBag.empty();
-  sourceMaterial.getProgramSequencePatterns().stream().filter(
-      pattern->Objects.equals(pattern.programSequenceId, choice.programSequenceId)).filter(
-      pattern->Objects.equals(pattern.programVoiceId, choice.programVoiceId)).forEach(pattern->bag.add(1, pattern.id));
-  if (bag.isEmpty()) return std::nullopt;
+std::optional<const ProgramSequencePattern *>
+Fabricator::getRandomlySelectedPatternOfSequenceByVoiceAndType(const SegmentChoice& choice) {
+  MarbleBag bag;
+  std::set<const ProgramSequencePattern *> patterns = sourceMaterial.getProgramSequencePatterns();
+
+  for (const auto& pattern : patterns) {
+    if (pattern->programSequenceId == choice.programSequenceId && pattern->programVoiceId == choice.programVoiceId) {
+      bag.add(1, pattern->id);
+    }
+  }
+
+  if (bag.isEmpty()) {
+    return std::nullopt;
+  }
+
   return sourceMaterial.getProgramSequencePattern(bag.pick());
 }
 
 
-std::optional<Note> Fabricator::getRootNoteMidRange(std::string voicingNotes, Chord chord) {
-  return rootNotesByVoicingAndChord.computeIfAbsent(std::string.format("%s_%s", voicingNotes, chord.name),
-                                                    (std::string
-  key) -> NoteRange.ofStrings(CsvUtils.split(voicingNotes)).getNoteNearestMedian(chord.getSlashRoot()));
+std::optional<Note> Fabricator::getRootNoteMidRange(const std::string& voicingNotes, const Chord& chord) {
+  std::string key = voicingNotes + "_" + chord.toString();
+  auto it = rootNotesByVoicingAndChord.find(key);
+  if (it == rootNotesByVoicingAndChord.end()) {
+    NoteRange noteRange = NoteRange::ofStrings(CsvUtils::split(voicingNotes));
+    Note note = noteRange.getNoteNearestMedian(chord.slashRoot.pitchClass.value_or(Atonal)).value();
+    rootNotesByVoicingAndChord[key] = note;
+    return note;
+  } else {
+    return it->second;
+  }
 }
 
 
 void Fabricator::putStickyBun(StickyBun bun) {
-  store.put(new SegmentMeta()
-      .id(randomUUID())
-      .segmentId(getSegment().id)
-      .key(bun.computeMetaKey())
-      .value(jsonProvider.getMapper().writeValueAsString(bun)));
+  SegmentMeta meta;
+  meta.id = Entity::randomUUID();
+  meta.segmentId = getSegment().id;
+  meta.key = bun.computeMetaKey();
+  meta.value = bun.to_json();
+
+  store.put(meta);
 }
 
 
-std::optional<StickyBun> Fabricator::getStickyBun(UUID eventId) {
-  if (!templateConfig.isStickyBunEnabled()) return std::nullopt;
-  //
-  var currentMeta = getSegmentMeta(StickyBun.computeMetaKey(eventId));
+std::optional<StickyBun> Fabricator::getStickyBun(const UUID& eventId) {
+  if (!templateConfig.stickyBunEnabled) return std::nullopt;
+
+  auto currentMeta = getSegmentMeta(StickyBun::computeMetaKey(eventId));
   if (currentMeta.has_value()) {
     try {
-      return std::optional.of(jsonProvider.getMapper().readValue(currentMeta.get().getValue(), StickyBun.
-      class));
-    } catch (JsonProcessingException e) {
-      addErrorMessage(
-          std::string.format("Failed to deserialize current segment meta value StickyBun JSON for Event[%s]", eventId));
+      return {StickyBun::from_json(currentMeta->value)};
+    } catch (const std::exception &e) {
+      addErrorMessage("Failed to deserialize current segment meta value StickyBun JSON for Event[" + eventId + "]");
     }
   }
-  //
-  var previousMeta = retrospective.getPreviousMeta(StickyBun.computeMetaKey(eventId));
+
+  auto previousMeta = retrospective.getPreviousMeta(StickyBun::computeMetaKey(eventId));
   if (previousMeta.has_value()) {
     try {
-      return std::optional.of(jsonProvider.getMapper().readValue(previousMeta.get().getValue(), StickyBun.
-      class));
-    } catch (JsonProcessingException e) {
-      addErrorMessage(
-          std::string.format("Failed to deserialize previous segment meta value StickyBun JSON for Event[%s]",
-                             eventId));
+      return {StickyBun::from_json(previousMeta->value)};
+    } catch (const std::exception &e) {
+      addErrorMessage("Failed to deserialize previous segment meta value StickyBun JSON for Event[" + eventId + "]");
     }
   }
-  var event = sourceMaterial.getProgramSequencePatternEvent(eventId);
-  if (event.isEmpty()) {
-    addErrorMessage(std::string.format("Failed to get StickyBun for Event[%s] because it does not exist", eventId));
+
+  auto eventOpt = sourceMaterial.getProgramSequencePatternEvent(eventId);
+  if (!eventOpt.has_value()) {
+    addErrorMessage("Failed to get StickyBun for Event[" + eventId + "] because it does not exist");
     return std::nullopt;
   }
-  var bun = new StickyBun(eventId, CsvUtils.split(event.get().getTones()).size());
+
+  auto event = eventOpt.value();
+  StickyBun bun(eventId, static_cast<int>(CsvUtils::split(event->tones).size()));
   try {
     putStickyBun(bun);
-  } catch (FabricationException e) {
-    addErrorMessage(std::string.format("Failed to put StickyBun for Event[%s] because %s", eventId, e.getMessage()));
-  } catch (JsonProcessingException e) {
-    addErrorMessage(std::string.format("Failed to serialize segment meta value StickyBun JSON for Event[%s]", eventId));
+  } catch (const FabricationException &e) {
+    addErrorMessage("Failed to put StickyBun for Event[" + eventId + "] because " + e.what());
+  } catch (const std::exception &e) {
+    addErrorMessage("Failed to serialize segment meta value StickyBun JSON for Event[" + eventId + "]");
   }
-  return std::optional.of(bun);
+  return {bun};
 }
 
 
-long Fabricator::getSegmentMicrosAtPosition(double tempo, double position) {
+long Fabricator::getSegmentMicrosAtPosition(float tempo, float position) {
   return (long) (getMicrosPerBeat(tempo) * position);
 }
 
 
 long Fabricator::getTotalSegmentMicros() {
-  return Objects.requireNonNull(getSegment().durationMicros);
+  auto segment = getSegment();
+  if (!segment.durationMicros.has_value()) {
+    throw FabricationFatalException("Segment has no duration");
+  }
+  return *segment.durationMicros;
 }
 
 
@@ -693,32 +735,50 @@ std::set<SegmentMeme> Fabricator::getSegmentMemes() {
 }
 
 
-std::optional<ProgramSequence> Fabricator::getSequence(SegmentChoice choice) {
-  std::optional<Program> program = getProgram(choice);
-  if (program.isEmpty()) return std::nullopt;
-  if (ValueUtils.isSet(choice.programSequenceBindingId)) {
-    var sequenceBinding = sourceMaterial.getProgramSequenceBinding(choice.programSequenceBindingId);
+std::optional<ProgramSequence> Fabricator::getSequence(const SegmentChoice &choice) {
+  std::optional<const Program *> program = getProgram(choice);
+  if (!program.has_value()) return std::nullopt;
+  if (!choice.programSequenceBindingId.empty()) {
+    auto sequenceBinding = sourceMaterial.getProgramSequenceBinding(choice.programSequenceBindingId);
     if (sequenceBinding.has_value())
-      return sourceMaterial.getProgramSequence(sequenceBinding.get().programSequenceId);
+      return {*sourceMaterial.getProgramSequence(sequenceBinding.value()->programSequenceId).value()};
   }
 
-  if (!sequenceForChoice.containsKey(choice))
-    getRandomlySelectedSequence(program.get()).ifPresent(
-        programSequence->sequenceForChoice.put(choice, programSequence));
+  auto it = sequenceForChoice.find(choice);
+  if (it == sequenceForChoice.end()) {
+    auto randomSequence = getRandomlySelectedSequence(*program.value());
+    if (randomSequence.has_value()) {
+      sequenceForChoice[choice] = randomSequence.value();
+    }
+  }
 
-  return std::optional.of(sequenceForChoice.get(choice));
+  it = sequenceForChoice.find(choice);
+  if (it != sequenceForChoice.end()) {
+    return {it->second};
+  } else {
+    return std::nullopt;
+  }
 }
 
 
-int Fabricator::getSequenceBindingOffsetForChoice(SegmentChoice choice) {
-  if (ValueUtils.isEmpty(choice.programSequenceBindingId)) return 0;
-  var sequenceBinding = sourceMaterial.getProgramSequenceBinding(choice.programSequenceBindingId);
-  return sequenceBinding.map(ProgramSequenceBinding::getOffset).orElse(0);
+int Fabricator::getSequenceBindingOffsetForChoice(const SegmentChoice &choice) {
+  if (choice.programSequenceBindingId.empty()) return 0;
+  auto sequenceBindingOpt = sourceMaterial.getProgramSequenceBinding(choice.programSequenceBindingId);
+  if (sequenceBindingOpt.has_value()) {
+    return sequenceBindingOpt.value()->offset;
+  } else {
+    return 0;
+  }
 }
 
 
-std::string Fabricator::getTrackName(ProgramSequencePatternEvent event) {
-  return sourceMaterial.getTrackOfEvent(event).map(ProgramVoiceTrack::getName).orElse(UNKNOWN_KEY);
+std::string Fabricator::getTrackName(const ProgramSequencePatternEvent &event) {
+  auto trackOpt = sourceMaterial.getTrackOfEvent(event);
+  if (trackOpt.has_value()) {
+    return trackOpt.value()->name;
+  } else {
+    return UNKNOWN_KEY;
+  }
 }
 
 
@@ -728,39 +788,55 @@ Segment::Type Fabricator::getType() {
 }
 
 
-std::optional<SegmentChordVoicing> Fabricator::chooseVoicing(SegmentChord chord, Instrument::Type type) {
-  std::vector<SegmentChordVoicing>
-  voicings = store.readAll(segmentId, SegmentChordVoicing.
-  class);
-  return MarbleBag.quickPick(voicings.stream()
-                                 .filter(SegmentUtils::containsAnyValidNotes)
-                                 .filter(voicing->Objects.equals(type, voicing.type))
-                                 .filter(voicing->Objects.equals(chord.id, voicing.getSegmentChordId()))
-                                 .collect(Collectors.toList()));
+std::optional<SegmentChordVoicing>
+Fabricator::chooseVoicing(const SegmentChord &chord, Instrument::Type instrumentType) {
+  std::set<SegmentChordVoicing> voicings = store.readAllSegmentChordVoicings(segmentId);
+
+  std::vector<SegmentChordVoicing> validVoicings;
+  for (const auto &voicing: voicings) {
+    if (SegmentUtils::containsAnyValidNotes(voicing) && voicing.type == Instrument::toString(instrumentType) &&
+        voicing.segmentChordId == chord.id) {
+      validVoicings.push_back(voicing);
+    }
+  }
+
+  if (validVoicings.empty()) {
+    return std::nullopt;
+  }
+
+  // Use a random generator to select a voicing
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<std::vector<SegmentChordVoicing>::size_type> distrib(0, validVoicings.size() - 1);
+
+  return validVoicings[distrib(gen)];
 }
 
 
-bool Fabricator::hasMoreSequenceBindingOffsets(SegmentChoice choice, int N) {
-  if (ValueUtils.isEmpty(choice.programSequenceBindingId)) return false;
-  var sequenceBinding = sourceMaterial.getProgramSequenceBinding(choice.programSequenceBindingId);
+bool Fabricator::hasMoreSequenceBindingOffsets(const SegmentChoice &choice, int N) {
+  if (choice.programSequenceBindingId.empty()) return false;
 
-  if (sequenceBinding.isEmpty()) return false;
-  std::vector<int> avlOfs = std::vector.copyOf(sourceMaterial.getAvailableOffsets(sequenceBinding.get()));
+  auto sequenceBindingOpt = sourceMaterial.getProgramSequenceBinding(choice.programSequenceBindingId);
+
+  if (!sequenceBindingOpt.has_value()) return false;
+  auto sequenceBinding = sequenceBindingOpt.value();
+
+  std::vector<int> avlOfs = sourceMaterial.getAvailableOffsets(*sequenceBinding);
 
   // if we locate the target and still have two offsets remaining, result is true
   for (int i = 0; i < avlOfs.size(); i++)
-    if (Objects.equals(avlOfs.get(i), sequenceBinding.get().offset) && i < avlOfs.size() - N) return true;
+    if (avlOfs[i] == sequenceBinding->offset && i < avlOfs.size() - N) return true;
 
   return false;
 }
 
 
-bool Fabricator::hasOneMoreSequenceBindingOffset(SegmentChoice choice) {
+bool Fabricator::hasOneMoreSequenceBindingOffset(const SegmentChoice &choice) {
   return hasMoreSequenceBindingOffsets(choice, 1);
 }
 
 
-bool Fabricator::hasTwoMoreSequenceBindingOffsets(SegmentChoice choice) {
+bool Fabricator::hasTwoMoreSequenceBindingOffsets(const SegmentChoice &choice) {
   return hasMoreSequenceBindingOffsets(choice, 2);
 }
 
@@ -770,33 +846,33 @@ bool Fabricator::isContinuationOfMacroProgram() {
 }
 
 
-bool Fabricator::isDirectlyBound(Program program) {
+bool Fabricator::isDirectlyBound(const Program &program) {
   return boundProgramIds.find(program.id) != boundProgramIds.end();
 }
 
 
-bool Fabricator::isOneShot(Instrument instrument, std::string trackName) {
+bool Fabricator::isOneShot(const Instrument &instrument, const std::string &trackName) {
   return isOneShot(instrument) &&
          !getInstrumentConfig(instrument).oneShotObserveLengthOfEventsContains(trackName);
 }
 
 
 bool Fabricator::isOneShot(Instrument instrument) {
-  return getInstrumentConfig(instrument).isOneShot();
+  return getInstrumentConfig(std::move(instrument)).isOneShot;
 }
 
 
 bool Fabricator::isOneShotCutoffEnabled(Instrument instrument) {
-  return getInstrumentConfig(instrument).isOneShotCutoffEnabled();
+  return getInstrumentConfig(std::move(instrument)).isOneShotCutoffEnabled;
 }
 
 
-bool Fabricator::isDirectlyBound(Instrument instrument) {
+bool Fabricator::isDirectlyBound(const Instrument &instrument) {
   return boundInstrumentIds.find(instrument.id) != boundInstrumentIds.end();
 }
 
 
-bool Fabricator::isDirectlyBound(InstrumentAudio instrumentAudio) {
+bool Fabricator::isDirectlyBound(const InstrumentAudio &instrumentAudio) {
   return boundInstrumentIds.find(instrumentAudio.instrumentId) != boundInstrumentIds.end();
 }
 
@@ -1094,6 +1170,23 @@ bool Fabricator::isValidMemeAddition(SegmentMeme meme, MemeStack memeStack, bool
   return true;
 }
 
+
 std::string Fabricator::computeCacheKeyForPreferredAudio(const std::string &parentIdent, const std::string &ident) {
   return "voice-" + parentIdent + "_note-" + ident;
 }
+
+
+NoteRange Fabricator::computeProgramRange(const UUID& programId, Instrument::Type instrumentType) {
+  std::vector<std::string> notes;
+  auto events = sourceMaterial.getSequencePatternEventsOfProgram(programId);
+  for (const auto& event : events) {
+    auto voiceOpt = sourceMaterial.getVoiceOfEvent(*event);
+    if (voiceOpt.has_value() && voiceOpt.value()->type == instrumentType && Note::of(event->tones).pitchClass != PitchClass::Atonal) {
+      auto tones = CsvUtils::split(event->tones);
+      notes.insert(notes.end(), tones.begin(), tones.end());
+    }
+  }
+  return NoteRange::ofStrings(notes);
+}
+
+

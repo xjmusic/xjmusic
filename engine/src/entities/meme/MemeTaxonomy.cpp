@@ -5,7 +5,7 @@
 #include <unordered_set>
 #include <set>
 
-#include "spdlog/spdlog.h"
+#include <spdlog/spdlog.h>
 
 #include "xjmusic/entities/meme/MemeTaxonomy.h"
 

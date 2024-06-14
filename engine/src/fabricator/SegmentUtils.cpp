@@ -55,7 +55,7 @@ namespace XJ {
     return result;
   }
 
-  bool SegmentUtils::containsAnyValidNotes(SegmentChordVoicing &voicing) {
+  bool SegmentUtils::containsAnyValidNotes(const SegmentChordVoicing &voicing) {
     return Note::containsAnyValidNotes(voicing.notes);
   }
 

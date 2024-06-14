@@ -5,7 +5,7 @@
 #include <set>
 
 #include "nlohmann/json.hpp"
-#include "spdlog/spdlog.h"
+#include <spdlog/spdlog.h>
 
 #include "xjmusic/entities/content/ContentEntityStore.h"
 

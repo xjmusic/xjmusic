@@ -71,6 +71,7 @@ add_library(xjmusic
         util/ValueUtils.cpp
         xjmusic.cpp
         util/CsvUtils.cpp
+        fabricator/MarbleBag.cpp
 )
 
 # We need this directory, and users of our library will need it too

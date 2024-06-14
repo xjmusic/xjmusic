@@ -46,14 +46,15 @@ add_executable(xjmusic_test
         entities/music/StickyBunTest.cpp
         entities/music/TuningTest.cpp
         entities/segment/SegmentEntityStoreTest.cpp
+        entities/segment/SegmentMemeTest.cpp
         fabricator/FabricatorTest.cpp
+        fabricator/MarbleBagTest.cpp
         fabricator/SegmentRetrospectiveTest.cpp
         fabricator/SegmentUtilsTest.cpp
         util/ConfigParserTest.cpp
         util/CsvUtilsTest.cpp
         util/StringUtilsTest.cpp
         util/ValueUtilsTest.cpp
-        entities/segment/SegmentMemeTest.cpp
 )
 
 # I'm using C++17 in the test
@@ -80,6 +81,11 @@ if(NOT yaml-cpp_POPULATED)
     add_subdirectory(${yaml-cpp_SOURCE_DIR} ${yaml-cpp_BINARY_DIR})
 endif()
 target_link_libraries(xjmusic_test PUBLIC yaml-cpp::yaml-cpp)
+
+# Fast C++ logging library (gabime/spdlog)
+FetchContent_Declare(spdlog URL https://github.com/gabime/spdlog/archive/v1.13.0.tar.gz)
+FetchContent_MakeAvailable(spdlog)
+target_link_libraries(xjmusic_test PRIVATE spdlog::spdlog)
 
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
