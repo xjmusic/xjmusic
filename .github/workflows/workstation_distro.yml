@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Nothing left TODO
-        run: .github/nothing_left_todo.sh
+        run: .github/nothing_left_todo.sh workstation
 
   verify:
     needs: nothing_left_todo
