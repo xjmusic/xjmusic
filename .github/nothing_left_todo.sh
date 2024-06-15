@@ -20,3 +20,5 @@ if [[ $1 == "workstation" || $1 == "engine" ]]; then
   check $1/test
 else
   echo "Invalid argument. Please specify either 'workstation' or 'engine'."
+  exit 1
+fi
