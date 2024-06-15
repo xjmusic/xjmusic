@@ -21,8 +21,8 @@ protected:
   int SEQUENCE_TOTAL_BEATS = 64;
   ContentEntityStore sourceMaterial;
   SegmentEntityStore store;
-  MockFabricatorFactory* mockFabricatorFactory = new MockFabricatorFactory(store);
-  MockSegmentRetrospective* mockRetrospective = new MockSegmentRetrospective(store, 2);
+  MockFabricatorFactory *mockFabricatorFactory = new MockFabricatorFactory(store);
+  MockSegmentRetrospective *mockRetrospective = new MockSegmentRetrospective(store, 2);
   Fabricator subject = Fabricator(*mockFabricatorFactory, store, sourceMaterial, 2, 48000.0f, 2, std::nullopt);
   ContentFixtures fake;
   Segment segment;
@@ -425,3 +425,32 @@ TEST_F(FabricatorTest, getMemeTaxonomy) {
 }
 
 */
+
+// Test for getSegmentId
+TEST_F(FabricatorTest, GetSegmentId) {
+  SegmentChoice segmentChoice;
+  segmentChoice.segmentId = segment.id;
+  SegmentChoiceArrangement segmentChoiceArrangement;
+  segmentChoiceArrangement.segmentId = segment.id;
+  SegmentChoiceArrangementPick segmentChoiceArrangementPick;
+  segmentChoiceArrangementPick.segmentId = segment.id;
+  SegmentChord segmentChord;
+  segmentChord.segmentId = segment.id;
+  SegmentChordVoicing segmentChordVoicing;
+  segmentChordVoicing.segmentId = segment.id;
+  SegmentMeme segmentMeme;
+  segmentMeme.segmentId = segment.id;
+  SegmentMessage segmentMessage;
+  segmentMessage.segmentId = segment.id;
+  SegmentMeta segmentMeta;
+  segmentMeta.segmentId = segment.id;
+
+  ASSERT_EQ(segment.id, Fabricator::getSegmentId(segmentChoice));
+  ASSERT_EQ(segment.id, Fabricator::getSegmentId(segmentChoiceArrangement));
+  ASSERT_EQ(segment.id, Fabricator::getSegmentId(segmentChoiceArrangementPick));
+  ASSERT_EQ(segment.id, Fabricator::getSegmentId(segmentChord));
+  ASSERT_EQ(segment.id, Fabricator::getSegmentId(segmentChordVoicing));
+  ASSERT_EQ(segment.id, Fabricator::getSegmentId(segmentMeme));
+  ASSERT_EQ(segment.id, Fabricator::getSegmentId(segmentMessage));
+  ASSERT_EQ(segment.id, Fabricator::getSegmentId(segmentMeta));
+}

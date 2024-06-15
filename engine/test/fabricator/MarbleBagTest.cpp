@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 #include <gtest/gtest.h>
-#include <spdlog/spdlog.h>
+#include "spdlog/spdlog.h"
 
 #include "xjmusic/fabricator/MarbleBag.h"
 #include "xjmusic/fabricator/FabricationException.h"

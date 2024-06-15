@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include <spdlog/spdlog.h>
+#include "spdlog/spdlog.h"
 
 #include "xjmusic/fabricator/FabricationFatalException.h"
 #include "xjmusic/fabricator/FabricationException.h"
@@ -12,10 +12,11 @@
 
 using namespace XJ;
 
-
 const std::string Fabricator::NAME_SEPARATOR = "-";
 
+
 const std::string Fabricator::UNKNOWN_KEY = "unknown";
+
 
 Fabricator::Fabricator(
     FabricatorFactory &fabricatorFactory,
@@ -233,7 +234,7 @@ std::optional<SegmentChoice> Fabricator::getChoiceIfContinued(Instrument::Type i
   if (it != choices.end()) {
     return *it;
   } else {
-    spdlog::warn("[seg-{}] Could not get previous choice for instrumentType={}", segmentId, instrumentType);
+    spdlog::warn("[seg-{}] Could not get previous choice for instrumentType={}", segmentId, Instrument::toString(instrumentType));
     return std::nullopt;
   }
 }
@@ -251,7 +252,7 @@ Fabricator::getChoiceIfContinued(Instrument::Type instrumentType, Instrument::Mo
   if (it != choices.end()) {
     return *it;
   } else {
-    spdlog::warn("[seg-{}] Could not get previous choice for instrumentType={}", segmentId, instrumentType);
+    spdlog::warn("[seg-{}] Could not get previous choice for instrumentType={}", segmentId, Instrument::toString(instrumentType));
     return std::nullopt;
   }
 }
@@ -268,7 +269,7 @@ std::vector<SegmentChoice> Fabricator::getChoicesIfContinued(Program::Type progr
   });
 
   if (filteredChoices.empty()) {
-    spdlog::warn("[seg-{}] Could not get previous choice for programType={}", segmentId, programType);
+    spdlog::warn("[seg-{}] Could not get previous choice for programType={}", segmentId, Program::toString(programType));
   }
 
   return filteredChoices;
@@ -1192,4 +1193,36 @@ NoteRange Fabricator::computeProgramRange(const UUID &programId, Instrument::Typ
     }
   }
   return NoteRange::ofStrings(notes);
+}
+
+int Fabricator::getSegmentId(XJ::SegmentChoice& segmentChoice) {
+  return segmentChoice.segmentId;
+}
+
+int Fabricator::getSegmentId(XJ::SegmentChoiceArrangement& segmentChoiceArrangement) {
+  return segmentChoiceArrangement.segmentId;
+}
+
+int Fabricator::getSegmentId(XJ::SegmentChoiceArrangementPick& segmentChoiceArrangementPick) {
+  return segmentChoiceArrangementPick.segmentId;
+}
+
+int Fabricator::getSegmentId(XJ::SegmentChord& segmentChord) {
+  return segmentChord.segmentId;
+}
+
+int Fabricator::getSegmentId(XJ::SegmentChordVoicing& segmentChordVoicing) {
+  return segmentChordVoicing.segmentId;
+}
+
+int Fabricator::getSegmentId(XJ::SegmentMeme& segmentMeme) {
+  return segmentMeme.segmentId;
+}
+
+int Fabricator::getSegmentId(XJ::SegmentMessage& segmentMessage) {
+  return segmentMessage.segmentId;
+}
+
+int Fabricator::getSegmentId(XJ::SegmentMeta& segmentMeta) {
+  return segmentMeta.segmentId;
 }

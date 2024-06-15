@@ -39,8 +39,6 @@ namespace XJ {
   class SegmentEntityStore {
 
   public:
-    SegmentEntityStore() = default;
-
     SEGMENT_STORE_CORE_HEADERS(SegmentChoice, SegmentChoices)
 
     SEGMENT_STORE_CORE_HEADERS(SegmentChoiceArrangement, SegmentChoiceArrangements)
@@ -56,6 +54,8 @@ namespace XJ {
     SEGMENT_STORE_CORE_HEADERS(SegmentMessage, SegmentMessages)
 
     SEGMENT_STORE_CORE_HEADERS(SegmentMeta, SegmentMetas)
+
+    SegmentEntityStore() = default;
 
     /**
      * Put the Chain in the entity store

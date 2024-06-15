@@ -80,7 +80,7 @@ target_include_directories(xjmusic PUBLIC ../include)
 target_compile_features(xjmusic PUBLIC cxx_std_17)
 
 # Fast C++ logging library (gabime/spdlog)
-FetchContent_Declare(spdlog URL https://github.com/gabime/spdlog/archive/v1.13.0.tar.gz)
+FetchContent_Declare(spdlog URL https://github.com/gabime/spdlog/archive/refs/tags/v1.14.1.zip)
 FetchContent_MakeAvailable(spdlog)
 target_link_libraries(xjmusic PRIVATE spdlog::spdlog)
 

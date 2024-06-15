@@ -64,6 +64,7 @@
 
 #include "FabricatorFactory.h"
 
+using namespace XJ;
 
 namespace XJ {
 
@@ -128,7 +129,7 @@ namespace XJ {
      @param type      of class to delete
      @param id        to delete
      */
-    void deletePick(const UUID& id);
+    void deletePick(const UUID &id);
 
     /**
      Get arrangements for segment
@@ -143,7 +144,7 @@ namespace XJ {
      @param choices to get segment arrangements for
      @return segments arrangements for the given segment choice
      */
-    std::set<SegmentChoiceArrangement> getArrangements(const std::set<SegmentChoice>& choices);
+    std::set<SegmentChoiceArrangement> getArrangements(const std::set<SegmentChoice> &choices);
 
     /**
      Get the Chain
@@ -265,7 +266,7 @@ namespace XJ {
      @return unique key for pattern event
      @throws FabricationException if unable to compute cache key
      */
-    std::string computeCacheKeyForVoiceTrack(const SegmentChoiceArrangementPick& pick);
+    std::string computeCacheKeyForVoiceTrack(const SegmentChoiceArrangementPick &pick);
 
     /**
      Get the Key for any given Choice, preferring its Sequence Key (bound), defaulting to the Program Key.
@@ -276,7 +277,7 @@ namespace XJ {
      @return key of specified sequence/program via choice
      @throws FabricationException if unable to determine key of choice
      */
-    Chord getKeyForChoice(const SegmentChoice& choice);
+    Chord getKeyForChoice(const SegmentChoice &choice);
 
     /**
      fetch the macro-type choice for the previous segment in the chain
@@ -329,7 +330,7 @@ namespace XJ {
      @param choice having a SequenceBinding
      @return next available SequenceBinding offset of the chosen sequence, or zero (if past the end of the available SequenceBinding offsets)
      */
-    int getNextSequenceBindingOffset(const SegmentChoice& choice);
+    int getNextSequenceBindingOffset(const SegmentChoice &choice);
 
     /**
      Get the Notes from a Voicing
@@ -338,7 +339,7 @@ namespace XJ {
      @return notes from voicing
      @throws FabricationException on failure
      */
-    static std::vector<std::string> getNotes(const SegmentChordVoicing& voicing);
+    static std::vector<std::string> getNotes(const SegmentChordVoicing &voicing);
 
     /**
      Get arrangement picks for segment
@@ -353,14 +354,14 @@ namespace XJ {
      @param choice for which to get picks
      @return picks
      */
-    std::vector<SegmentChoiceArrangementPick> getPicks(const SegmentChoice& choice);
+    std::vector<SegmentChoiceArrangementPick> getPicks(const SegmentChoice &choice);
 
     /**
      Get preferred (previously chosen) instrument audios
 
      @return preferred audios
      */
-    std::optional<InstrumentAudio> getPreferredAudio(const std::string& parentIdent, const std::string& ident);
+    std::optional<InstrumentAudio> getPreferredAudio(const std::string &parentIdent, const std::string &ident);
 
     /**
      Get Program for any given choice
@@ -368,7 +369,7 @@ namespace XJ {
      @param choice to get program for
      @return Program for the specified choice
      */
-    std::optional<const Program *> getProgram(const SegmentChoice& choice);
+    std::optional<const Program *> getProgram(const SegmentChoice &choice);
 
     /**
      Get the ProgramConfig from a given program, with fallback to program section of injected config values
@@ -377,7 +378,7 @@ namespace XJ {
      @return ProgramConfig from a given program, with fallback values
      @throws FabricationException on failure
      */
-    static ProgramConfig getProgramConfig(const Program& program);
+    static ProgramConfig getProgramConfig(const Program &program);
 
     /**
      Get the complete set of program sequence chords,
@@ -387,7 +388,7 @@ namespace XJ {
      @param programSequence for which to get complete do-ghosted set of chords
      @return get complete do-ghosted set of chords for program sequence
      */
-    std::vector<ProgramSequenceChord> getProgramSequenceChords(const ProgramSequence& programSequence);
+    std::vector<ProgramSequenceChord> getProgramSequenceChords(const ProgramSequence &programSequence);
 
     /**
      Get the note range for an arrangement based on all the events in its program
@@ -397,7 +398,7 @@ namespace XJ {
      @return Note range of arrangement
      @throws FabricationException on failure
      */
-    NoteRange getProgramRange(const UUID& programId, Instrument::Type instrumentType);
+    NoteRange getProgramRange(const UUID &programId, Instrument::Type instrumentType);
 
     /**
      Detail craft shifts source program events into the target range https://github.com/xjmusic/xjmusic/issues/221
@@ -418,7 +419,7 @@ namespace XJ {
      @param choice for which to get sequence
      @return sequence of choice
      */
-    std::optional<const ProgramSequence *> getProgramSequence(const SegmentChoice& choice);
+    std::optional<const ProgramSequence *> getProgramSequence(const SegmentChoice &choice);
 
     /**
      Compute the target shift from a key toward a chord
@@ -428,7 +429,7 @@ namespace XJ {
      @param toChord        to compute shift toward
      @return computed target shift
      */
-    int getProgramTargetShift(Instrument::Type instrumentType, const Chord& fromChord, const Chord& toChord);
+    int getProgramTargetShift(Instrument::Type instrumentType, const Chord &fromChord, const Chord &toChord);
 
     /**
      Get the program type of given voice
@@ -437,7 +438,7 @@ namespace XJ {
      @return program type
      @throws FabricationException on failure
      */
-    Program::Type getProgramType(const ProgramVoice& voice);
+    Program::Type getProgramType(const ProgramVoice &voice);
 
 
     /**
@@ -450,7 +451,7 @@ namespace XJ {
      @return type of voice for voicing
      @throws FabricationException on failure
      */
-    Instrument::Type getProgramVoiceType(const ProgramSequenceChordVoicing * voicing);
+    Instrument::Type getProgramVoiceType(const ProgramSequenceChordVoicing *voicing);
 
     /**
      Get the lowest note present in any voicing of all the segment chord voicings for this segment and instrument instrumentType
@@ -466,7 +467,7 @@ namespace XJ {
 
      @return randomly selected sequence
      */
-    std::optional<ProgramSequence> getRandomlySelectedSequence(const Program& program);
+    std::optional<ProgramSequence> getRandomlySelectedSequence(const Program &program);
 
     /**
      Selects one (at random) of all available patterns of a given type within a sequence. https://github.com/xjmusic/xjmusic/issues/204
@@ -478,7 +479,8 @@ namespace XJ {
      @return Pattern model, or null if no pattern of this type is found
      @throws FabricationException on failure
      */
-    std::optional<const ProgramSequencePattern *> getRandomlySelectedPatternOfSequenceByVoiceAndType(const SegmentChoice& choice);
+    std::optional<const ProgramSequencePattern *>
+    getRandomlySelectedPatternOfSequenceByVoiceAndType(const SegmentChoice &choice);
 
     /**
      Randomly select any sequence binding at the given offset
@@ -486,7 +488,8 @@ namespace XJ {
      @param offset to get sequence binding at
      @return randomly selected sequence binding
      */
-    std::optional<ProgramSequenceBinding> getRandomlySelectedSequenceBindingAtOffset(const Program& program, int offset);
+    std::optional<ProgramSequenceBinding>
+    getRandomlySelectedSequenceBindingAtOffset(const Program &program, int offset);
 
     /**
      Get the root note from an available set of voicings and a given chord
@@ -495,7 +498,7 @@ namespace XJ {
      @param chord        for which to seek root note among available voicings
      @return root note
      */
-    std::optional<Note> getRootNoteMidRange(const std::string& voicingNotes, const Chord& chord);
+    std::optional<Note> getRootNoteMidRange(const std::string &voicingNotes, const Chord &chord);
 
     /**
      Compute using an integral
@@ -553,7 +556,7 @@ namespace XJ {
      @return Sequence for choice
      @throws FabricationException on failure
      */
-    std::optional<ProgramSequence> getSequence(const SegmentChoice& choice);
+    std::optional<ProgramSequence> getSequence(const SegmentChoice &choice);
 
     /**
      Get the sequence pattern offset of a given Choice
@@ -561,7 +564,7 @@ namespace XJ {
      @param choice having a SequenceBinding
      @return sequence pattern offset
      */
-    int getSequenceBindingOffsetForChoice(const SegmentChoice& choice);
+    int getSequenceBindingOffsetForChoice(const SegmentChoice &choice);
 
     /**
      Store a sticky bun in the fabricator
@@ -592,7 +595,7 @@ namespace XJ {
      @param eventId for super-key
      @return sticky bun if present
      */
-    std::optional<StickyBun> getStickyBun(const UUID& eventId);
+    std::optional<StickyBun> getStickyBun(const UUID &eventId);
 
     /**
      Get the track name for a give program sequence pattern event
@@ -601,7 +604,7 @@ namespace XJ {
      @return Track name
      @throws FabricationException on failure
      */
-    std::string getTrackName(const ProgramSequencePatternEvent& event);
+    std::string getTrackName(const ProgramSequencePatternEvent &event);
 
     /**
      Determine type of content, e.g. initial segment in chain, or next macro-sequence
@@ -617,7 +620,7 @@ namespace XJ {
      @param chord to get voicing for
      @return chord voicing for chord
      */
-    std::optional<SegmentChordVoicing> chooseVoicing(const SegmentChord& chord, Instrument::Type instrumentType);
+    std::optional<SegmentChordVoicing> chooseVoicing(const SegmentChord &chord, Instrument::Type instrumentType);
 
     /**
      Does the program of the specified Choice have at least N more sequence binding offsets available?
@@ -626,7 +629,7 @@ namespace XJ {
      @param N      more sequence offsets to check for
      @return true if N more sequence binding offsets are available
      */
-    bool hasMoreSequenceBindingOffsets(const SegmentChoice& choice, int N);
+    bool hasMoreSequenceBindingOffsets(const SegmentChoice &choice, int N);
 
     /**
      Whether the current Segment Choice has one or more sequence pattern offsets
@@ -635,7 +638,7 @@ namespace XJ {
      @param choice for which to check
      @return true if it has at least one more sequence pattern offset
      */
-    bool hasOneMoreSequenceBindingOffset(const SegmentChoice& choice);
+    bool hasOneMoreSequenceBindingOffset(const SegmentChoice &choice);
 
     /**
      Whether the current Segment Choice has two or more sequence pattern offsets
@@ -644,7 +647,7 @@ namespace XJ {
      @param choice for which to check
      @return true if it has at least two more sequence pattern offsets
      */
-    bool hasTwoMoreSequenceBindingOffsets(const SegmentChoice& choice);
+    bool hasTwoMoreSequenceBindingOffsets(const SegmentChoice &choice);
 
     /**
      Whether this type of segment continues the same macro-program from the previous segment
@@ -661,7 +664,7 @@ namespace XJ {
      @param instrument to test for direct binding
      @return true if Instrument is directly bound to chain
      */
-    bool isDirectlyBound(const Instrument& instrument);
+    bool isDirectlyBound(const Instrument &instrument);
 
     /**
      Whether a given InstrumentAudio is directly bound to the Chain,
@@ -670,7 +673,7 @@ namespace XJ {
      @param instrumentAudio to test for direct binding
      @return true if InstrumentAudio is directly bound to chain
      */
-    bool isDirectlyBound(const InstrumentAudio& instrumentAudio);
+    bool isDirectlyBound(const InstrumentAudio &instrumentAudio);
 
     /**
      Whether a given Program is directly bound to the Chain,
@@ -679,7 +682,7 @@ namespace XJ {
      @param program to test for direct binding
      @return true if Program is directly bound to chain
      */
-    bool isDirectlyBound(const Program& program);
+    bool isDirectlyBound(const Program &program);
 
     /**
      Test if a given instrument and track name is a one-shot sample hit
@@ -689,7 +692,7 @@ namespace XJ {
      @return true if this is a one-shot instrument and track name
      @throws FabricationException on failure
      */
-    bool isOneShot(const Instrument& instrument, const std::string& trackName);
+    bool isOneShot(const Instrument &instrument, const std::string &trackName);
 
     /**
      Test if a given instrument is one-shot
@@ -802,7 +805,8 @@ namespace XJ {
      @param ident           for which to set
      @param instrumentAudio value to set
      */
-    void putPreferredAudio(const std::string& parentIdent, const std::string& ident, const InstrumentAudio *instrumentAudio);
+    void
+    putPreferredAudio(const std::string &parentIdent, const std::string &ident, const InstrumentAudio *instrumentAudio);
 
     /**
      Put a key-value pair into the report
@@ -811,7 +815,7 @@ namespace XJ {
      @param key   to put
      @param value to put
      */
-    void putReport(const std::string& key, const std::map<std::string, std::string>& value);
+    void putReport(const std::string &key, const std::map<std::string, std::string> &value);
 
     /**
      Set the Segment.
@@ -851,7 +855,7 @@ namespace XJ {
      @param macroProgram for which to get second macro sequence binding offset
      @return second macro sequence binding offset
      */
-    int getSecondMacroSequenceBindingOffset(const Program& macroProgram);
+    int getSecondMacroSequenceBindingOffset(const Program &macroProgram);
 
     /**
      @return the tempo of the current main program
@@ -863,6 +867,48 @@ namespace XJ {
      @return the meme taxonomy for the source material
      */
     [[nodiscard]] MemeTaxonomy getMemeTaxonomy() const;
+
+    /**
+     * Get Segment ID of Segment Choice
+     * @param segmentChoice
+     * @return
+     */
+    static int getSegmentId(XJ::SegmentChoice &segmentChoice);
+
+    /**
+     * Get Segment ID of Segment Choice Arrangement
+     */
+    static int getSegmentId(XJ::SegmentChoiceArrangement &segmentChoiceArrangement);
+
+    /**
+     * Get Segment ID of Segment Choice Arrangement Pick
+     */
+    static int getSegmentId(XJ::SegmentChoiceArrangementPick &segmentChoiceArrangementPick);
+
+    /**
+     * Get Segment ID of Segment Chord
+     */
+    static int getSegmentId(XJ::SegmentChord &segmentChord);
+
+    /**
+     * Get Segment ID of Segment Chord Voicing
+     */
+    static int getSegmentId(XJ::SegmentChordVoicing &segmentChordVoicing);
+
+    /**
+     * Get Segment ID of Segment Meme
+     */
+    static int getSegmentId(XJ::SegmentMeme &segmentMeme);
+
+    /**
+     * Get Segment ID of Segment Message
+     */
+    static int getSegmentId(XJ::SegmentMessage &segmentMessage);
+
+    /**
+     * Get Segment ID of Segment Meta
+     */
+    static int getSegmentId(XJ::SegmentMeta &segmentMeta);
 
   private:
     static const std::string KEY_VOICE_TRACK_TEMPLATE;
@@ -906,7 +952,7 @@ namespace XJ {
      * @param key  to get meta for
      * @return     meta for key
      */
-    std::optional<SegmentMeta> getSegmentMeta(const std::string& key);
+    std::optional<SegmentMeta> getSegmentMeta(const std::string &key);
 
     /**
      Get the choices of the current segment of the given type
@@ -930,7 +976,7 @@ namespace XJ {
      @param targetRange to
      @return lowest optimal range shift octaves
      */
-    static int computeLowestOptimalRangeShiftOctaves(const NoteRange& sourceRange, NoteRange targetRange);
+    static int computeLowestOptimalRangeShiftOctaves(const NoteRange &sourceRange, NoteRange targetRange);
 
     /**
      Compute a Segment ship key: the chain ship key concatenated with the begin-at time in chain microseconds
@@ -939,7 +985,7 @@ namespace XJ {
      @param segment for which to compute segment ship key
      @return Segment ship key computed for the given chain and Segment
      */
-    static std::string computeShipKey(const Chain& chain, const Segment& segment);
+    static std::string computeShipKey(const Chain &chain, const Segment &segment);
 
     /**
      Ensure the current segment has a storage key; if not, add a storage key to this Segment
@@ -1001,7 +1047,7 @@ namespace XJ {
      * @param instrumentType to get range of
      * @return
      */
-    NoteRange computeProgramRange(const UUID& programId, Instrument::Type instrumentType);
+    NoteRange computeProgramRange(const UUID &programId, Instrument::Type instrumentType);
   };
 
 } // namespace XJ
