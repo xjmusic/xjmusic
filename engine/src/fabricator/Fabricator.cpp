@@ -12,6 +12,11 @@
 
 using namespace XJ;
 
+
+const std::string Fabricator::NAME_SEPARATOR = "-";
+
+const std::string Fabricator::UNKNOWN_KEY = "unknown";
+
 Fabricator::Fabricator(
     FabricatorFactory &fabricatorFactory,
     SegmentEntityStore &store,
@@ -1188,5 +1193,3 @@ NoteRange Fabricator::computeProgramRange(const UUID &programId, Instrument::Typ
   }
   return NoteRange::ofStrings(notes);
 }
-
-
