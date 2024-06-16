@@ -21,9 +21,9 @@ protected:
   int SEQUENCE_TOTAL_BEATS = 64;
   ContentEntityStore sourceMaterial;
   SegmentEntityStore store;
-  MockFabricatorFactory *mockFabricatorFactory = new MockFabricatorFactory(store);
-  MockSegmentRetrospective *mockRetrospective = new MockSegmentRetrospective(store, 2);
-  Fabricator subject = Fabricator(*mockFabricatorFactory, store, sourceMaterial, 2, 48000.0f, 2, std::nullopt);
+  MockFabricatorFactory *mockFabricatorFactory;
+  MockSegmentRetrospective *mockRetrospective;
+  Fabricator *subject;
   ContentFixtures fake;
   Segment segment;
 
@@ -54,6 +54,7 @@ protected:
         240.0f,
         "seg123"
     ));
+    mockFabricatorFactory = new MockFabricatorFactory(store);
     EXPECT_CALL(*mockFabricatorFactory, loadRetrospective(_)).WillOnce(Return(mockRetrospective));
   }
 };
@@ -80,14 +81,15 @@ TEST_F(FabricatorTest, pick_returned_by_picks) {
   pick.programSequencePatternEventId = fake.program35_sequence0_pattern0_event0.id;
   pick.instrumentAudioId = fake.instrument8_audio8kick.id;
   pick.event = "CLANG";
-  pick.startAtSegmentMicros = (long) (0.273 * ValueUtils::MICROS_PER_SECOND);
-  pick.lengthMicros = (long) (1.571 * ValueUtils::MICROS_PER_SECOND);
+  pick.startAtSegmentMicros =  static_cast<long>(0.273 * (double) ValueUtils::MICROS_PER_SECOND);
+  pick.lengthMicros =  static_cast<long>(1.571 * (double) ValueUtils::MICROS_PER_SECOND);
   pick.amplitude = 0.8f;
   pick.tones = "A4";
   store.put(pick);
   EXPECT_CALL(*mockFabricatorFactory, loadRetrospective(_)).WillOnce(Return(mockRetrospective));
+  subject = new Fabricator(*mockFabricatorFactory, store, sourceMaterial, 2, 48000.0f, 2, std::nullopt);
 
-  std::set<SegmentChoiceArrangementPick> result = subject.getPicks();
+  std::set<SegmentChoiceArrangementPick> result = subject->getPicks();
 
   SegmentChoiceArrangementPick resultPick = *result.begin();
   ASSERT_EQ(beatArrangement.id, resultPick.segmentChoiceArrangementId);

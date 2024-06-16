@@ -25,7 +25,7 @@ TEST(SegmentMemeTest, testHashCode) {
   segmentMeme.segmentId = 1;
   segmentMeme.name = "name";
 
-  ASSERT_EQ(1235, segmentMeme.hashCode());
+  ASSERT_EQ(1841017567112742695, segmentMeme.hashCode());
 }
 
 TEST(SegmentMemeTest, testGetNames) {

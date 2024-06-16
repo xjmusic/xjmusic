@@ -48,7 +48,7 @@ std::vector<std::string> CsvUtils::splitProperSlug(const std::string &csv) {
  * @return 
  */
 std::string CsvUtils::join(const std::vector<std::string> &parts) {
-  return StringUtils::join(parts, ",");
+  return StringUtils::join(parts, ", ");
 }
 
 /**

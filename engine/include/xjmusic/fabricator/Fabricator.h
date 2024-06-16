@@ -936,7 +936,7 @@ namespace XJ {
     SegmentRetrospective &retrospective;
     std::set<UUID> boundInstrumentIds;
     std::set<UUID> boundProgramIds;
-    std::chrono::system_clock::time_point startAtSystemNanoTime;
+    std::chrono::high_resolution_clock::time_point startAtSystemNanoTime;
     int segmentId;
     std::optional<Segment::Type> type;
 
