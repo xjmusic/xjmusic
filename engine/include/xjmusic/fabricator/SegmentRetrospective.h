@@ -35,7 +35,7 @@ namespace XJ {
      * @param entityStore  for retrospective
      * @param segmentId    from which to create retrospective
      */
-    explicit SegmentRetrospective(SegmentEntityStore entityStore, int segmentId);
+    explicit SegmentRetrospective(SegmentEntityStore *entityStore, int segmentId);
 
     /**
      Get the arrangement for the given pick
@@ -181,7 +181,7 @@ namespace XJ {
 
   private:
     std::map<int, std::vector<SegmentChord>> segmentChords{}; // indexed by id, vector of chords ordered by position
-    SegmentEntityStore entityStore{};
+    SegmentEntityStore* entityStore{};
     std::vector<Segment> retroSegments{};
     std::set<int> previousSegmentIds{};
     std::optional<Segment> previousSegment;

@@ -11,7 +11,7 @@ namespace XJ {
   class MockFabricatorFactory : public FabricatorFactory {
   public:
     // Constructor
-    explicit MockFabricatorFactory(SegmentEntityStore &entityStore) : FabricatorFactory(entityStore) {}
+    explicit MockFabricatorFactory(SegmentEntityStore *entityStore) : FabricatorFactory(entityStore) {}
 
     // Mock the loadRetrospective method
     MOCK_METHOD(SegmentRetrospective*, loadRetrospective, (int segmentId));

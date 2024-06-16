@@ -16,9 +16,9 @@ class SegmentRetrospectiveTest : public ::testing::Test {
 protected:
   int SEQUENCE_TOTAL_BEATS = 64;
   UUID patternId = Entity::randomUUID();
-  ContentEntityStore sourceMaterial;
-  SegmentEntityStore store;
-  FabricatorFactory fabricatorFactory = FabricatorFactory(store);
+  ContentEntityStore* sourceMaterial;
+  SegmentEntityStore* store;
+  FabricatorFactory* fabricatorFactory = new FabricatorFactory(store);
   ContentFixtures fake;
   Segment segment0;
   Segment segment1;
@@ -27,15 +27,15 @@ protected:
 
   void SetUp() override {
     // Manipulate the underlying entity store; reset before each test
-    store.clear();
-    sourceMaterial.clear();
+    store->clear();
+    sourceMaterial->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
     fake.setupFixtureB1(sourceMaterial);
     fake.setupFixtureB2(sourceMaterial);
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(
+    Chain chain1 = store->put(
         SegmentFixtures::buildChain(fake.project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate,
                                     fake.template1));
     segment0 = constructSegmentAndChoices(chain1, Segment::Type::Continue, 10, 4, fake.program4,
@@ -64,7 +64,7 @@ protected:
       const Program& main,
       const ProgramSequenceBinding& mainSB
   ) {
-    auto segment = store.put(SegmentFixtures::buildSegment(
+    auto segment = store->put(SegmentFixtures::buildSegment(
         chain,
         type,
         offset,
@@ -76,13 +76,13 @@ protected:
         120.0f,
         "chains-" + ChainUtils::getIdentifier(chain) + "-segments-" + std::to_string(offset),
         true));
-    store.put(SegmentFixtures::buildSegmentChoice(
+    store->put(SegmentFixtures::buildSegmentChoice(
         segment,
         SegmentChoice::DELTA_UNLIMITED,
         SegmentChoice::DELTA_UNLIMITED,
         macro,
         macroSB));
-    store.put(SegmentFixtures::buildSegmentChoice(
+    store->put(SegmentFixtures::buildSegmentChoice(
         segment,
         SegmentChoice::DELTA_UNLIMITED,
         SegmentChoice::DELTA_UNLIMITED,
@@ -94,7 +94,7 @@ protected:
 };
 
 TEST_F(SegmentRetrospectiveTest, GetPreviousChoiceOfType) {
-  auto subject = fabricatorFactory.loadRetrospective(segment3.id);
+  auto subject = fabricatorFactory->loadRetrospective(segment3.id);
 
   auto result = subject->getPreviousChoiceOfType(Program::Type::Main);
 
@@ -103,7 +103,7 @@ TEST_F(SegmentRetrospectiveTest, GetPreviousChoiceOfType) {
 }
 
 TEST_F(SegmentRetrospectiveTest, getPreviousChoiceOfType_forNextMacroSegment) {
-  auto subject = fabricatorFactory.loadRetrospective(segment4.id);
+  auto subject = fabricatorFactory->loadRetrospective(segment4.id);
 
   auto result = subject->getPreviousChoiceOfType(Program::Type::Main);
 
@@ -112,7 +112,7 @@ TEST_F(SegmentRetrospectiveTest, getPreviousChoiceOfType_forNextMacroSegment) {
 }
 
 TEST_F(SegmentRetrospectiveTest, GetPreviousChoiceOfType_forNextMainSegment) {
-  auto subject = fabricatorFactory.loadRetrospective(segment1.id);
+  auto subject = fabricatorFactory->loadRetrospective(segment1.id);
 
   auto result = subject->getPreviousChoiceOfType(Program::Type::Main);
 
@@ -124,12 +124,12 @@ TEST_F(SegmentRetrospectiveTest, GetPreviousChoiceOfType_forNextMainSegment) {
  Failure requiring a chain restart https://github.com/xjmusic/xjmusic/issues/263
  */
 TEST_F(SegmentRetrospectiveTest, FailureToReadMainChoiceIsFatal) {
-  for (const SegmentChoice& c: store.readAllSegmentChoices(segment0.id))
+  for (const SegmentChoice& c: store->readAllSegmentChoices(segment0.id))
     if (c.programType == Program::Type::Main)
-      store.deleteSegmentChoice(segment0.id, c.id);
+      store->deleteSegmentChoice(segment0.id, c.id);
 
   try {
-    fabricatorFactory.loadRetrospective(segment1.id);
+    fabricatorFactory->loadRetrospective(segment1.id);
     FAIL() << "Expected FabricationFatalException";
   } catch (const FabricationFatalException &e) {
     EXPECT_TRUE(std::string(e.what()).find("Retrospective sees no main choice!") != std::string::npos);
@@ -141,7 +141,7 @@ TEST_F(SegmentRetrospectiveTest, FailureToReadMainChoiceIsFatal) {
  */
 TEST_F(SegmentRetrospectiveTest, FailureToReadFirstSegmentIsFatal) {
   try {
-    fabricatorFactory.loadRetrospective(segment0.id);
+    fabricatorFactory->loadRetrospective(segment0.id);
     FAIL() << "Expected FabricationFatalException";
   } catch (const FabricationFatalException &e) {
     EXPECT_TRUE(std::string(e.what()).find("Retrospective sees no previous segment!") != std::string::npos);
@@ -154,8 +154,8 @@ TEST_F(SegmentRetrospectiveTest, FailureToReadFirstSegmentIsFatal) {
 TEST_F(SegmentRetrospectiveTest, GetPreviousMeta) {
   auto bun = StickyBun(patternId, 1);
   std::string json = bun.to_json();
-  store.put(SegmentFixtures::buildSegmentMeta(segment3, "StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e", json));
-  auto subject = fabricatorFactory.loadRetrospective(segment4.id);
+  store->put(SegmentFixtures::buildSegmentMeta(segment3, "StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e", json));
+  auto subject = fabricatorFactory->loadRetrospective(segment4.id);
 
   auto result = subject->getPreviousMeta("StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e");
 

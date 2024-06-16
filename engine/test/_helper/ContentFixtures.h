@@ -675,14 +675,14 @@ namespace XJ {
 
      @return collection of entities
      */
-    void setupFixtureB1(ContentEntityStore &store);
+    void setupFixtureB1(ContentEntityStore *store);
 
     /**
      Library of Content B-2 (shared test fixture)
      <p>
      Integration tests use shared scenario fixtures as much as possible https://github.com/xjmusic/xjmusic/issues/202
      */
-    void setupFixtureB2(ContentEntityStore &store);
+    void setupFixtureB2(ContentEntityStore *store);
 
     /**
      Library of Content B-3 (shared test fixture)
@@ -698,14 +698,14 @@ namespace XJ {
      <p>
      Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset. https://github.com/xjmusic/xjmusic/issues/283
      */
-    void setupFixtureB3(ContentEntityStore &store);
+    void setupFixtureB3(ContentEntityStore *store);
 
     /**
      Library of Content B-4 (shared test fixture)
      <p>
      Detail Craft v1 https://github.com/xjmusic/xjmusic/issues/284
      */
-    void setupFixtureB4_DetailBass(ContentEntityStore &store);
+    void setupFixtureB4_DetailBass(ContentEntityStore *store);
 
     /**
      Generate a Library comprising many related entities
@@ -713,7 +713,7 @@ namespace XJ {
      @param N magnitude of library to generate
      @return entities
      */
-    void generatedFixture(ContentEntityStore &store, int N);
+    void generatedFixture(ContentEntityStore *store, int N);
 
   };
 

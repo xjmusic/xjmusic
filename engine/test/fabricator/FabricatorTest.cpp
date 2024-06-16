@@ -19,8 +19,8 @@ using namespace XJ;
 class FabricatorTest : public ::testing::Test {
 protected:
   int SEQUENCE_TOTAL_BEATS = 64;
-  ContentEntityStore sourceMaterial;
-  SegmentEntityStore store;
+  ContentEntityStore* sourceMaterial;
+  SegmentEntityStore* store = new SegmentEntityStore();
   MockFabricatorFactory *mockFabricatorFactory;
   MockSegmentRetrospective *mockRetrospective;
   Fabricator *subject;
@@ -29,7 +29,7 @@ protected:
 
   void SetUp() override {
     // Manipulate the underlying entity store; reset before each test
-    store.clear();
+    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
     fake.setupFixtureB1(sourceMaterial);
@@ -37,14 +37,14 @@ protected:
     fake.setupFixtureB3(sourceMaterial);
 
     // Here's a basic setup that can be replaced for complex tests
-    auto chain = store.put(SegmentFixtures::buildChain(
+    auto chain = store->put(SegmentFixtures::buildChain(
         fake.project1,
         fake.template1,
         "test",
         Chain::Type::Production,
         Chain::State::Fabricate
     ));
-    segment = store.put(SegmentFixtures::buildSegment(
+    segment = store->put(SegmentFixtures::buildSegment(
         chain,
         2,
         Segment::State::Crafting,
@@ -61,19 +61,19 @@ protected:
 
 
 TEST_F(FabricatorTest, pick_returned_by_picks) {
-  sourceMaterial.put(ContentFixtures::buildTemplateBinding(fake.template1, fake.library2));
-  auto chain = store.put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
+  sourceMaterial->put(ContentFixtures::buildTemplateBinding(fake.template1, fake.library2));
+  auto chain = store->put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
                                                      Chain::State::Fabricate));
-  store.put(SegmentFixtures::buildSegment(chain, 1, Segment::State::Crafted, "F major", 8, 0.6f, 120.0f, "seg123"));
-  segment = store.put(
+  store->put(SegmentFixtures::buildSegment(chain, 1, Segment::State::Crafted, "F major", 8, 0.6f, 120.0f, "seg123"));
+  segment = store->put(
       SegmentFixtures::buildSegment(chain, 2, Segment::State::Crafting, "G major", 8, 0.6f, 240.0f, "seg123"));
-  store.put(SegmentFixtures::buildSegmentChord(segment, 0.0f, "A"));
-  store.put(SegmentFixtures::buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED,
+  store->put(SegmentFixtures::buildSegmentChord(segment, 0.0f, "A"));
+  store->put(SegmentFixtures::buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED,
                                                 fake.program5));
-  SegmentChoice beatChoice = store.put(
+  SegmentChoice beatChoice = store->put(
       SegmentFixtures::buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED,
                                           fake.program35, fake.program35_voice0, fake.instrument8));
-  SegmentChoiceArrangement beatArrangement = store.put(SegmentFixtures::buildSegmentChoiceArrangement(beatChoice));
+  SegmentChoiceArrangement beatArrangement = store->put(SegmentFixtures::buildSegmentChoiceArrangement(beatChoice));
   SegmentChoiceArrangementPick pick;
   pick.id = ContentEntity::randomUUID();
   pick.segmentId = beatArrangement.segmentId;
@@ -85,9 +85,9 @@ TEST_F(FabricatorTest, pick_returned_by_picks) {
   pick.lengthMicros =  static_cast<long>(1.571 * (double) ValueUtils::MICROS_PER_SECOND);
   pick.amplitude = 0.8f;
   pick.tones = "A4";
-  store.put(pick);
+  store->put(pick);
   EXPECT_CALL(*mockFabricatorFactory, loadRetrospective(_)).WillOnce(Return(mockRetrospective));
-  subject = new Fabricator(*mockFabricatorFactory, store, sourceMaterial, 2, 48000.0f, 2, std::nullopt);
+  subject = new Fabricator(mockFabricatorFactory, store, sourceMaterial, 2, 48000.0f, 2, std::nullopt);
 
   std::set<SegmentChoiceArrangementPick> result = subject->getPicks();
 
@@ -114,11 +114,11 @@ TEST_F(FabricatorTest, getDistinctChordVoicingTypes) {
                 ContentFixtures::buildVoicing(fake.program5_sequence0_chord0, fake.program5_voicePad,
                                               "(None)") // No voicing notes- doesn't count!
       )).collect(Collectors.toList()));
-  auto chain = store.put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
+  auto chain = store->put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
                                                      Chain::State::Fabricate));
-  segment = store.put(
+  segment = store->put(
       SegmentFixtures::buildSegment(chain, 0, Segment::State::Crafting, "F major", 8, 0.6f, 120.0f, "seg123"));
-  store.put(SegmentFixtures::buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED,
+  store->put(SegmentFixtures::buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED,
                                                 fake.program5));
   when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
   subject = Fabricator(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory,
@@ -136,19 +136,19 @@ TEST_F(FabricatorTest, getDistinctChordVoicingTypes) {
  *//*
 
 TEST_F(FabricatorTest, Type) {
-  auto chain = store.put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
+  auto chain = store->put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
                                                      Chain::State::Fabricate));
-  Segment previousSegment = store.put(
+  Segment previousSegment = store->put(
       SegmentFixtures::buildSegment(chain, 1, Segment::State::Crafted, "F major", 8, 0.6f, 120.0f, "seg123"));
   auto previousMacroChoice = // second-to-last sequence of macro program
-      store.put(SegmentFixtures::buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED,
+      store->put(SegmentFixtures::buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED,
                                                     SegmentChoice::DELTA_UNLIMITED, fake.program4,
                                                     fake.program4_sequence1_binding0));
   auto previousMainChoice = // last sequence of main program
-      store.put(SegmentFixtures::buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED,
+      store->put(SegmentFixtures::buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED,
                                                     SegmentChoice::DELTA_UNLIMITED, fake.program5,
                                                     fake.program5_sequence1_binding0));
-  segment = store.put(
+  segment = store->put(
       SegmentFixtures::buildSegment(chain, 2, Segment::State::Crafting, "G major", 8, 0.6f, 240.0f, "seg123"));
   when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
   when(mockRetrospective.getPreviousChoiceOfType(Program::Type::Main)).thenReturn(Optional.of(previousMainChoice));
@@ -164,18 +164,18 @@ TEST_F(FabricatorTest, Type) {
 // FUTURE: test getChoicesOfPreviousSegments
 
 TEST_F(FabricatorTest, getMemeIsometryOfNextSequenceInPreviousMacro) {
-  auto chain = store.put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
+  auto chain = store->put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
                                                      Chain::State::Fabricate));
-  Segment previousSegment = store.put(
+  Segment previousSegment = store->put(
       SegmentFixtures::buildSegment(chain, 1, Segment::State::Crafted, "F major", 8, 0.6f, 120.0f, "seg123"));
   auto previousMacroChoice = // second-to-last sequence of macro program
-      store.put(SegmentFixtures::buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED,
+      store->put(SegmentFixtures::buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED,
                                                     SegmentChoice::DELTA_UNLIMITED, fake.program4,
                                                     fake.program4_sequence1_binding0));
-  store.put(SegmentFixtures::buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED,
+  store->put(SegmentFixtures::buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED,
                                                 SegmentChoice::DELTA_UNLIMITED, fake.program5,
                                                 fake.program5_sequence1_binding0));
-  segment = store.put(
+  segment = store->put(
       SegmentFixtures::buildSegment(chain, 2, Segment::State::Crafting, "G major", 8, 0.6f, 240.0f, "seg123"));
   when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
   when(mockRetrospective.getPreviousChoiceOfType(Program::Type::Macro)).thenReturn(Optional.of(previousMacroChoice));
@@ -190,9 +190,9 @@ TEST_F(FabricatorTest, getMemeIsometryOfNextSequenceInPreviousMacro) {
 
 
 TEST_F(FabricatorTest, getChordAt) {
-  auto chain = store.put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
+  auto chain = store->put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
                                                      Chain::State::Fabricate));
-  segment = store.put(
+  segment = store->put(
       SegmentFixtures::buildSegment(chain, 2, Segment::State::Crafting, "G major", 8, 0.6f, 240.0f, "seg123"));
   when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
   subject = Fabricator(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory,
@@ -213,9 +213,9 @@ TEST_F(FabricatorTest, getChordAt) {
 
 
 TEST_F(FabricatorTest, computeProgramRange) {
-  auto chain = store.put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
+  auto chain = store->put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
                                                      Chain::State::Fabricate));
-  segment = store.put(
+  segment = store->put(
       SegmentFixtures::buildSegment(chain, 2, Segment::State::Crafting, "G major", 8, 0.6f, 240.0f, "seg123"));
   when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
   auto program = ContentFixtures::buildProgram(Program::Type::Detail, "C", 120.0f);
@@ -238,9 +238,9 @@ TEST_F(FabricatorTest, computeProgramRange) {
 
 
 TEST_F(FabricatorTest, computeProgramRange_ignoresAtonalNotes) {
-  auto chain = store.put(
+  auto chain = store->put(
       buildChain(fake.project1, fake.template1, "test", Chain::Type::Production, Chain::State::Fabricate));
-  segment = store.put(
+  segment = store->put(
       SegmentFixtures::buildSegment(chain, 2, Segment::State::Crafting, "G major", 8, 0.6f, 240.0f, "seg123"));
   when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
   auto program = ContentFixtures::buildProgram(Program::Type::Detail, "C", 120.0f);
@@ -265,12 +265,12 @@ TEST_F(FabricatorTest, computeProgramRange_ignoresAtonalNotes) {
 TEST_F(FabricatorTest, getProgramSequence_fromSequence) {
   auto project1 = ContentFixtures::buildProject("fish");
   Template template1 = ContentFixtures::buildTemplate(project1, "Test Template 1", "test1");
-  auto chain = store.put(SegmentFixtures::buildChain(template1));
-  segment = store.put(
+  auto chain = store->put(SegmentFixtures::buildChain(template1));
+  segment = store->put(
       SegmentFixtures::buildSegment(chain, Segment::Type::Continue, 17, 4, Segment::State::Crafted, "D major",
                                     SEQUENCE_TOTAL_BEATS, 0.73f, 120.0f,
                                     String.format("chains-%s-segments-%s", ChainUtils.getIdentifier(chain), 17), true));
-  SegmentChoice choice = store.put(buildSegmentChoice(segment, Program::Type::Main, fake.program5_sequence0));
+  SegmentChoice choice = store->put(buildSegmentChoice(segment, Program::Type::Main, fake.program5_sequence0));
   when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
   sourceMaterial = ContentEntityStore(List.of(fake.program5_sequence0, fake.template1, fake.templateBinding1));
   subject = Fabricator(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory,
@@ -285,12 +285,12 @@ TEST_F(FabricatorTest, getProgramSequence_fromSequence) {
 TEST_F(FabricatorTest, getProgramSequence_fromSequenceBinding) {
   auto project1 = ContentFixtures::buildProject("fish");
   Template template1 = ContentFixtures::buildTemplate(project1, "Test Template 1", "test1");
-  auto chain = store.put(SegmentFixtures::buildChain(template1));
-  segment = store.put(
+  auto chain = store->put(SegmentFixtures::buildChain(template1));
+  segment = store->put(
       SegmentFixtures::buildSegment(chain, Segment::Type::Continue, 17, 4, Segment::State::Crafted, "D major",
                                     SEQUENCE_TOTAL_BEATS, 0.73f, 120.0f,
                                     String.format("chains-%s-segments-%s", ChainUtils.getIdentifier(chain), 17), true));
-  SegmentChoice choice = store.put(buildSegmentChoice(segment, Program::Type::Main, fake.program5_sequence0_binding0));
+  SegmentChoice choice = store->put(buildSegmentChoice(segment, Program::Type::Main, fake.program5_sequence0_binding0));
   when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
   sourceMaterial = ContentEntityStore(
       List.of(fake.program5_sequence0, fake.program5_sequence0_binding0, fake.template1, fake.templateBinding1));
@@ -325,14 +325,14 @@ TEST_F(FabricatorTest, put_addsMemesForChoice) {
   subject.put(buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program4,
                                  fake.program4_sequence1_binding0), false);
 
-  auto resultMemes = store.readAll(segment.id, SegmentMeme.
+  auto resultMemes = store->readAll(segment.id, SegmentMeme.
   class).stream().sorted(Comparator.comparing(SegmentMeme::getName)).toList();
   ASSERT_EQ("BASIC", (resultMemes.get(0)).name);
   ASSERT_EQ("COZY", (resultMemes.get(1)).name);
   ASSERT_EQ("HEAVY", (resultMemes.get(2)).name);
   ASSERT_EQ("TROPICAL", (resultMemes.get(3)).name);
   ASSERT_EQ("WILD", (resultMemes.get(4)).name);
-  auto resultChoices = store.readAll(segment.id, SegmentChoice.
+  auto resultChoices = store->readAll(segment.id, SegmentChoice.
   class).stream().sorted(Comparator.comparing(SegmentChoice::getProgramType)).toList();
   ASSERT_EQ(fake.program4.id, (resultChoices.get(0)).programId);
   ASSERT_EQ(fake.program4_sequence1_binding0.id, (resultChoices.get(0)).programSequenceBindingId);
@@ -350,7 +350,7 @@ TEST_F(FabricatorTest, getStickyBun_readMetaFromCurrentSegment) {
   auto bun = StickyBun(fake.program9_sequence0_pattern0_event0.id, 3);
   auto bunJson = jsonProvider.getMapper().writeValueAsString(bun);
   auto bunKey = StickyBun.computeMetaKey(fake.program9_sequence0_pattern0_event0.id);
-  store.put(SegmentFixtures::buildSegmentMeta(segment, bunKey, bunJson));
+  store->put(SegmentFixtures::buildSegmentMeta(segment, bunKey, bunJson));
 
   auto result = subject.getStickyBun(fake.program9_sequence0_pattern0_event0.id).orElseThrow();
 
@@ -402,11 +402,11 @@ TEST_F(FabricatorTest, getStickyBun_multipleEventsPickedSeparately) {
   auto bun0 = StickyBun(fake.program9_sequence0_pattern0_event0.id, 3);
   auto bunJson0 = jsonProvider.getMapper().writeValueAsString(bun0);
   auto bunKey0 = StickyBun.computeMetaKey(fake.program9_sequence0_pattern0_event0.id);
-  store.put(SegmentFixtures::buildSegmentMeta(segment, bunKey0, bunJson0));
+  store->put(SegmentFixtures::buildSegmentMeta(segment, bunKey0, bunJson0));
   auto bun1 = StickyBun(fake.program9_sequence0_pattern0_event1.id, 3);
   auto bunJson1 = jsonProvider.getMapper().writeValueAsString(bun1);
   auto bunKey1 = StickyBun.computeMetaKey(fake.program9_sequence0_pattern0_event1.id);
-  store.put(SegmentFixtures::buildSegmentMeta(segment, bunKey1, bunJson1));
+  store->put(SegmentFixtures::buildSegmentMeta(segment, bunKey1, bunJson1));
 
   auto result0 = subject.getStickyBun(fake.program9_sequence0_pattern0_event0.id).orElseThrow();
   auto result1 = subject.getStickyBun(fake.program9_sequence0_pattern0_event1.id).orElseThrow();

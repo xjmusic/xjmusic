@@ -4,7 +4,7 @@
 
 using namespace XJ;
 
-FabricatorFactory::FabricatorFactory(SegmentEntityStore &entityStore) : entityStore(entityStore) {}
+FabricatorFactory::FabricatorFactory(SegmentEntityStore *entityStore) : entityStore(entityStore) {}
 
 /*
  * TODO: Implement FabricatorFactory::fabricate

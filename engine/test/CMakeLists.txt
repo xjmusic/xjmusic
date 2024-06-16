@@ -7,7 +7,7 @@ add_executable(xjmusic_test
         _helper/LoremIpsum.cpp
         _helper/SegmentFixtures.cpp
         _helper/TestHelpers.cpp
-        entities/content/ContentStoreTest.cpp
+        entities/content/ContentEntityStoreTest.cpp
         entities/content/InstrumentAudioTest.cpp
         entities/content/InstrumentConfigTest.cpp
         entities/content/InstrumentMemeTest.cpp

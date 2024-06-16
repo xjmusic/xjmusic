@@ -13,8 +13,8 @@ namespace XJ {
   class MockSegmentRetrospective : public SegmentRetrospective {
   public:
     // Constructor
-    MockSegmentRetrospective(SegmentEntityStore entityStore, int segmentId)
-        : SegmentRetrospective(std::move(entityStore), segmentId) {}
+    MockSegmentRetrospective(SegmentEntityStore* entityStore, int segmentId)
+        : SegmentRetrospective(entityStore, segmentId) {}
 
     MOCK_METHOD(SegmentChoiceArrangement, getArrangement, (const SegmentChoiceArrangementPick& pick));
     MOCK_METHOD(std::set<SegmentChoice>, getChoices, ());

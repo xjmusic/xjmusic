@@ -670,7 +670,7 @@ InstrumentMeme ContentFixtures::buildInstrumentMeme(
   return instrumentMeme;
 }
 
-void ContentFixtures::setupFixtureB1(ContentEntityStore &store) {
+void ContentFixtures::setupFixtureB1(ContentEntityStore *store) {
 
   // Project "bananas"
   project1 = ContentFixtures::buildProject("bananas");
@@ -786,65 +786,65 @@ void ContentFixtures::setupFixtureB1(ContentEntityStore &store) {
                                                                     1.0f, "c3", 0.5f);
 
   // Put all entities into the given content store
-  store.put(project1);
-  store.put(library2);
-  store.put(program35);
-  store.put(program35_voice0);
-  store.put(program35_voice0_track0);
-  store.put(program35_voice0_track1);
-  store.put(program35_voice0_track2);
-  store.put(program35_voice0_track3);
-  store.put(program35_meme0);
-  store.put(program35_sequence0);
-  store.put(program35_sequence0_pattern0);
-  store.put(program35_sequence0_pattern0_event0);
-  store.put(program35_sequence0_pattern0_event1);
-  store.put(program35_sequence0_pattern0_event2);
-  store.put(program35_sequence0_pattern0_event3);
-  store.put(program35_sequence0_pattern1);
-  store.put(program35_sequence0_pattern1_event0);
-  store.put(program35_sequence0_pattern1_event1);
-  store.put(program35_sequence0_pattern1_event2);
-  store.put(program35_sequence0_pattern1_event3);
-  store.put(program4);
-  store.put(program4_meme0);
-  store.put(program4_sequence0);
-  store.put(program4_sequence0_binding0);
-  store.put(program4_sequence0_binding0_meme0);
-  store.put(program4_sequence1);
-  store.put(program4_sequence1_binding0);
-  store.put(program4_sequence1_binding0_meme0);
-  store.put(program4_sequence1_binding0_meme1);
-  store.put(program4_sequence2);
-  store.put(program4_sequence2_binding0);
-  store.put(program4_sequence2_binding0_meme0);
-  store.put(program5);
-  store.put(program5_voiceBass);
-  store.put(program5_voiceSticky);
-  store.put(program5_voiceStripe);
-  store.put(program5_voicePad);
-  store.put(program5_meme0);
-  store.put(program5_sequence0);
-  store.put(program5_sequence0_binding0);
-  store.put(program5_sequence0_binding0_meme0);
-  store.put(program5_sequence0_chord0);
-  store.put(program5_sequence0_chord0_voicing);
-  store.put(program5_sequence0_chord1);
-  store.put(program5_sequence0_chord1_voicing);
-  store.put(program5_sequence0_chord2);
-  store.put(program5_sequence0_chord2_voicing);
-  store.put(program5_sequence1);
-  store.put(program5_sequence1_binding0);
-  store.put(program5_sequence1_binding0_meme0);
-  store.put(program5_sequence1_chord0);
-  store.put(program5_sequence1_chord0_voicing);
-  store.put(program5_sequence1_chord1);
-  store.put(program5_sequence1_chord1_voicing);
-  store.put(template1);
-  store.put(templateBinding1);
+  store->put(project1);
+  store->put(library2);
+  store->put(program35);
+  store->put(program35_voice0);
+  store->put(program35_voice0_track0);
+  store->put(program35_voice0_track1);
+  store->put(program35_voice0_track2);
+  store->put(program35_voice0_track3);
+  store->put(program35_meme0);
+  store->put(program35_sequence0);
+  store->put(program35_sequence0_pattern0);
+  store->put(program35_sequence0_pattern0_event0);
+  store->put(program35_sequence0_pattern0_event1);
+  store->put(program35_sequence0_pattern0_event2);
+  store->put(program35_sequence0_pattern0_event3);
+  store->put(program35_sequence0_pattern1);
+  store->put(program35_sequence0_pattern1_event0);
+  store->put(program35_sequence0_pattern1_event1);
+  store->put(program35_sequence0_pattern1_event2);
+  store->put(program35_sequence0_pattern1_event3);
+  store->put(program4);
+  store->put(program4_meme0);
+  store->put(program4_sequence0);
+  store->put(program4_sequence0_binding0);
+  store->put(program4_sequence0_binding0_meme0);
+  store->put(program4_sequence1);
+  store->put(program4_sequence1_binding0);
+  store->put(program4_sequence1_binding0_meme0);
+  store->put(program4_sequence1_binding0_meme1);
+  store->put(program4_sequence2);
+  store->put(program4_sequence2_binding0);
+  store->put(program4_sequence2_binding0_meme0);
+  store->put(program5);
+  store->put(program5_voiceBass);
+  store->put(program5_voiceSticky);
+  store->put(program5_voiceStripe);
+  store->put(program5_voicePad);
+  store->put(program5_meme0);
+  store->put(program5_sequence0);
+  store->put(program5_sequence0_binding0);
+  store->put(program5_sequence0_binding0_meme0);
+  store->put(program5_sequence0_chord0);
+  store->put(program5_sequence0_chord0_voicing);
+  store->put(program5_sequence0_chord1);
+  store->put(program5_sequence0_chord1_voicing);
+  store->put(program5_sequence0_chord2);
+  store->put(program5_sequence0_chord2_voicing);
+  store->put(program5_sequence1);
+  store->put(program5_sequence1_binding0);
+  store->put(program5_sequence1_binding0_meme0);
+  store->put(program5_sequence1_chord0);
+  store->put(program5_sequence1_chord0_voicing);
+  store->put(program5_sequence1_chord1);
+  store->put(program5_sequence1_chord1_voicing);
+  store->put(template1);
+  store->put(templateBinding1);
 }
 
-void ContentFixtures::setupFixtureB2(ContentEntityStore &store) {
+void ContentFixtures::setupFixtureB2(ContentEntityStore *store) {
   // "Tangy, Chunky to Smooth" macro-program in house library
   program3 = ContentFixtures::buildProgram(library2, Program::Type::Macro, Program::State::Published,
                                            "Tangy, Chunky to Smooth", "G minor", 120.0f);
@@ -895,35 +895,35 @@ void ContentFixtures::setupFixtureB2(ContentEntityStore &store) {
                                                                   "Shame");
 
   // put the entities in the store
-  store.put(program3);
-  store.put(program3_meme0);
-  store.put(program3_sequence0);
-  store.put(program3_sequence0_binding0);
-  store.put(program3_sequence0_binding0_meme0);
-  store.put(program3_sequence1);
-  store.put(program3_sequence1_binding0);
-  store.put(program3_sequence1_binding0_meme0);
-  store.put(program15);
-  store.put(program15_voiceBass);
-  store.put(program15_meme0);
-  store.put(program15_sequence0);
-  store.put(program15_sequence0_chord0);
-  store.put(program15_sequence0_chord0_voicing);
-  store.put(program15_sequence0_chord1);
-  store.put(program15_sequence0_chord1_voicing);
-  store.put(program15_sequence0_binding0);
-  store.put(program15_sequence0_binding0_meme0);
-  store.put(program15_sequence1);
-  store.put(program15_sequence1_chord0);
-  store.put(program15_sequence1_chord0_voicing);
-  store.put(program15_sequence1_chord1);
-  store.put(program15_sequence1_chord1_voicing);
-  store.put(program15_sequence1_binding0);
-  store.put(program15_sequence1_binding0_meme0);
-  store.put(program15_sequence1_binding0_meme1);
+  store->put(program3);
+  store->put(program3_meme0);
+  store->put(program3_sequence0);
+  store->put(program3_sequence0_binding0);
+  store->put(program3_sequence0_binding0_meme0);
+  store->put(program3_sequence1);
+  store->put(program3_sequence1_binding0);
+  store->put(program3_sequence1_binding0_meme0);
+  store->put(program15);
+  store->put(program15_voiceBass);
+  store->put(program15_meme0);
+  store->put(program15_sequence0);
+  store->put(program15_sequence0_chord0);
+  store->put(program15_sequence0_chord0_voicing);
+  store->put(program15_sequence0_chord1);
+  store->put(program15_sequence0_chord1_voicing);
+  store->put(program15_sequence0_binding0);
+  store->put(program15_sequence0_binding0_meme0);
+  store->put(program15_sequence1);
+  store->put(program15_sequence1_chord0);
+  store->put(program15_sequence1_chord0_voicing);
+  store->put(program15_sequence1_chord1);
+  store->put(program15_sequence1_chord1_voicing);
+  store->put(program15_sequence1_binding0);
+  store->put(program15_sequence1_binding0_meme0);
+  store->put(program15_sequence1_binding0_meme1);
 }
 
-void ContentFixtures::setupFixtureB3(ContentEntityStore &store) {
+void ContentFixtures::setupFixtureB3(ContentEntityStore *store) {
   // A basic beat
   program9 = ContentFixtures::buildProgram(library2, Program::Type::Beat, Program::State::Published,
                                            "Basic Beat", "C", 121);
@@ -1034,55 +1034,55 @@ void ContentFixtures::setupFixtureB3(ContentEntityStore &store) {
                                                        1.5f, 120.0f, 0.62f, "TOOT", "Ab", 0.8f);
 
   // put the entities in the store
-  store.put(program9);
-  store.put(program9_meme0);
-  store.put(program9_voice0);
-  store.put(program9_voice0_track0);
-  store.put(program9_voice0_track1);
-  store.put(program9_voice0_track2);
-  store.put(program9_voice0_track3);
-  store.put(program9_voice0_track4);
-  store.put(program9_voice0_track5);
-  store.put(program9_voice0_track6);
-  store.put(program9_voice0_track7);
-  store.put(program9_voice0_track8);
-  store.put(program9_voice0_track9);
-  store.put(program9_voice0_track10);
-  store.put(program9_voice0_track11);
-  store.put(program9_voice0_track12);
-  store.put(program9_voice0_track13);
-  store.put(program9_voice0_track14);
-  store.put(program9_voice0_track15);
-  store.put(program9_sequence0);
-  store.put(program9_sequence0_pattern0);
-  store.put(program9_sequence0_pattern0_event0);
-  store.put(program9_sequence0_pattern0_event1);
-  store.put(program9_sequence0_pattern0_event2);
-  store.put(program9_sequence0_pattern0_event3);
-  store.put(program9_sequence0_pattern1);
-  store.put(program9_sequence0_pattern1_event0);
-  store.put(program9_sequence0_pattern1_event1);
-  store.put(program9_sequence0_pattern1_event2);
-  store.put(program9_sequence0_pattern1_event3);
-  store.put(program9_sequence0_pattern2);
-  store.put(program9_sequence0_pattern2_event0);
-  store.put(program9_sequence0_pattern2_event1);
-  store.put(program9_sequence0_pattern2_event2);
-  store.put(program9_sequence0_pattern2_event3);
-  store.put(program9_sequence0_pattern3);
-  store.put(program9_sequence0_pattern3_event0);
-  store.put(program9_sequence0_pattern3_event1);
-  store.put(program9_sequence0_pattern3_event2);
-  store.put(program9_sequence0_pattern3_event3);
-  store.put(instrument8);
-  store.put(instrument8_meme0);
-  store.put(instrument8_audio8kick);
-  store.put(instrument8_audio8snare);
-  store.put(instrument8_audio8bleep);
-  store.put(instrument8_audio8toot);
+  store->put(program9);
+  store->put(program9_meme0);
+  store->put(program9_voice0);
+  store->put(program9_voice0_track0);
+  store->put(program9_voice0_track1);
+  store->put(program9_voice0_track2);
+  store->put(program9_voice0_track3);
+  store->put(program9_voice0_track4);
+  store->put(program9_voice0_track5);
+  store->put(program9_voice0_track6);
+  store->put(program9_voice0_track7);
+  store->put(program9_voice0_track8);
+  store->put(program9_voice0_track9);
+  store->put(program9_voice0_track10);
+  store->put(program9_voice0_track11);
+  store->put(program9_voice0_track12);
+  store->put(program9_voice0_track13);
+  store->put(program9_voice0_track14);
+  store->put(program9_voice0_track15);
+  store->put(program9_sequence0);
+  store->put(program9_sequence0_pattern0);
+  store->put(program9_sequence0_pattern0_event0);
+  store->put(program9_sequence0_pattern0_event1);
+  store->put(program9_sequence0_pattern0_event2);
+  store->put(program9_sequence0_pattern0_event3);
+  store->put(program9_sequence0_pattern1);
+  store->put(program9_sequence0_pattern1_event0);
+  store->put(program9_sequence0_pattern1_event1);
+  store->put(program9_sequence0_pattern1_event2);
+  store->put(program9_sequence0_pattern1_event3);
+  store->put(program9_sequence0_pattern2);
+  store->put(program9_sequence0_pattern2_event0);
+  store->put(program9_sequence0_pattern2_event1);
+  store->put(program9_sequence0_pattern2_event2);
+  store->put(program9_sequence0_pattern2_event3);
+  store->put(program9_sequence0_pattern3);
+  store->put(program9_sequence0_pattern3_event0);
+  store->put(program9_sequence0_pattern3_event1);
+  store->put(program9_sequence0_pattern3_event2);
+  store->put(program9_sequence0_pattern3_event3);
+  store->put(instrument8);
+  store->put(instrument8_meme0);
+  store->put(instrument8_audio8kick);
+  store->put(instrument8_audio8snare);
+  store->put(instrument8_audio8bleep);
+  store->put(instrument8_audio8toot);
 }
 
-void ContentFixtures::setupFixtureB4_DetailBass(ContentEntityStore &store) {
+void ContentFixtures::setupFixtureB4_DetailBass(ContentEntityStore *store) {
   // A basic bass pattern
   program10 = ContentFixtures::buildProgram(library2, Program::Type::Detail,
                                             Program::State::Published,
@@ -1164,46 +1164,46 @@ void ContentFixtures::setupFixtureB4_DetailBass(ContentEntityStore &store) {
                                                    2.123f, 120.0f, 0.62f, "BLOOP", "Eb", 1.0f);
 
   // put them all in the store
-  store.put(program10);
-  store.put(program10_meme0);
-  store.put(program10_voice0);
-  store.put(program10_voice0_track0);
-  store.put(program10_sequence0);
-  store.put(program10_sequence0_pattern0);
-  store.put(program10_sequence0_pattern0_event0);
-  store.put(program10_sequence0_pattern0_event1);
-  store.put(program10_sequence0_pattern0_event2);
-  store.put(program10_sequence0_pattern0_event3);
-  store.put(program10_sequence0_pattern1);
-  store.put(program10_sequence0_pattern1_event0);
-  store.put(program10_sequence0_pattern1_event1);
-  store.put(program10_sequence0_pattern1_event2);
-  store.put(program10_sequence0_pattern1_event3);
-  store.put(program10_sequence0_pattern2);
-  store.put(program10_sequence0_pattern2_event0);
-  store.put(program10_sequence0_pattern2_event1);
-  store.put(program10_sequence0_pattern2_event2);
-  store.put(program10_sequence0_pattern2_event3);
-  store.put(program10_sequence0_pattern3);
-  store.put(program10_sequence0_pattern3_event0);
-  store.put(program10_sequence0_pattern3_event1);
-  store.put(program10_sequence0_pattern3_event2);
-  store.put(program10_sequence0_pattern3_event3);
-  store.put(instrument9);
-  store.put(instrument9_meme0);
-  store.put(instrument9_audio8);
+  store->put(program10);
+  store->put(program10_meme0);
+  store->put(program10_voice0);
+  store->put(program10_voice0_track0);
+  store->put(program10_sequence0);
+  store->put(program10_sequence0_pattern0);
+  store->put(program10_sequence0_pattern0_event0);
+  store->put(program10_sequence0_pattern0_event1);
+  store->put(program10_sequence0_pattern0_event2);
+  store->put(program10_sequence0_pattern0_event3);
+  store->put(program10_sequence0_pattern1);
+  store->put(program10_sequence0_pattern1_event0);
+  store->put(program10_sequence0_pattern1_event1);
+  store->put(program10_sequence0_pattern1_event2);
+  store->put(program10_sequence0_pattern1_event3);
+  store->put(program10_sequence0_pattern2);
+  store->put(program10_sequence0_pattern2_event0);
+  store->put(program10_sequence0_pattern2_event1);
+  store->put(program10_sequence0_pattern2_event2);
+  store->put(program10_sequence0_pattern2_event3);
+  store->put(program10_sequence0_pattern3);
+  store->put(program10_sequence0_pattern3_event0);
+  store->put(program10_sequence0_pattern3_event1);
+  store->put(program10_sequence0_pattern3_event2);
+  store->put(program10_sequence0_pattern3_event3);
+  store->put(instrument9);
+  store->put(instrument9_meme0);
+  store->put(instrument9_audio8);
 }
 
-void ContentFixtures::generatedFixture(ContentEntityStore &store, int N) {
+void ContentFixtures::generatedFixture(ContentEntityStore *store, int N) {
 
   project1 = ContentFixtures::buildProject("Generated");
-  store.put(project1);
+  store->put(project1);
   library1 = ContentFixtures::buildLibrary(project1, "generated");
-  store.put(library1);
+  store->put(library1);
 
   template1 = ContentFixtures::buildTemplate(project1, "Complex Library Test", "complex");
-  store.put(template1);
-  store.put(ContentFixtures::buildTemplateBinding(template1, library1));
+  store->put(template1);
+  store->put(ContentFixtures::buildTemplateBinding(template1, library1));
 
   // Create a N-magnitude set of unique major memes
   std::vector<std::string>
@@ -1222,12 +1222,12 @@ void ContentFixtures::generatedFixture(ContentEntityStore &store, int N) {
                                                              Instrument::Mode::Event,
                                                              Instrument::State::Published,
                                                              majorMemeName + " Drums");
-    store.put(instrument);
-    store.put(ContentFixtures::buildInstrumentMeme(instrument, majorMemeName));
-    store.put(ContentFixtures::buildInstrumentMeme(instrument, minorMemeName));
+    store->put(instrument);
+    store->put(ContentFixtures::buildInstrumentMeme(instrument, majorMemeName));
+    store->put(ContentFixtures::buildInstrumentMeme(instrument, minorMemeName));
     // audios of instrument
     for (int k = 0; k < N; k++)
-      store.put(
+      store->put(
           ContentFixtures::buildAudio(
               instrument, StringUtils::toProper(percussiveNames[k]),
               StringUtils::toLowerSlug(percussiveNames[k]) + ".wav",
@@ -1250,7 +1250,7 @@ void ContentFixtures::generatedFixture(ContentEntityStore &store, int N) {
         Instrument::Mode::Loop,
         Instrument::State::Published,
         "Perc Loop");
-    store.put(instrument);
+    store->put(instrument);
     std::cout << "Generated PercLoop-type Instrument id=" << instrument.id << std::endl;
   }
 
@@ -1280,8 +1280,8 @@ void ContentFixtures::generatedFixture(ContentEntityStore &store, int N) {
         programName,
         keyFrom,
         tempoFrom);
-    store.put(program);
-    store.put(ContentFixtures::buildProgramMeme(program, minorMemeName));
+    store->put(program);
+    store->put(ContentFixtures::buildProgramMeme(program, minorMemeName));
     // of offset 0
     ProgramSequence sequence0 = ContentFixtures::buildSequence(
         program,
@@ -1289,10 +1289,10 @@ void ContentFixtures::generatedFixture(ContentEntityStore &store, int N) {
         "Start " + majorMemeFromName,
         intensityFrom,
         keyFrom);
-    store.put(sequence0);
+    store->put(sequence0);
     ProgramSequenceBinding binding0 = ContentFixtures::buildProgramSequenceBinding(sequence0, 0);
-    store.put(binding0);
-    store.put(
+    store->put(binding0);
+    store->put(
         ContentFixtures::buildProgramSequenceBindingMeme(
             binding0,
             majorMemeFromName));
@@ -1301,10 +1301,10 @@ void ContentFixtures::generatedFixture(ContentEntityStore &store, int N) {
     ProgramSequence sequence1 = ContentFixtures::buildSequence(program, 0,
                                                                "Finish " + majorMemeToName,
                                                                intensityTo, keyTo);
-    store.put(sequence1);
+    store->put(sequence1);
     ProgramSequenceBinding binding1 = ContentFixtures::buildProgramSequenceBinding(sequence1, 1);
-    store.put(binding1);
-    store.put(
+    store->put(binding1);
+    store->put(
         ContentFixtures::buildProgramSequenceBindingMeme(binding1, majorMemeToName));
     //
     std::cout << "Generated Macro-type Program id=" << program.id << ", minorMeme=" << minorMemeName
@@ -1326,19 +1326,19 @@ void ContentFixtures::generatedFixture(ContentEntityStore &store, int N) {
                                                     Program::State::Published,
                                                     majorMemeName + ": " + StringUtils::join(sequenceNames, ", "),
                                                     subKeys[0], tempo);
-    store.put(program);
-    store.put(ContentFixtures::buildProgramMeme(program, majorMemeName));
+    store->put(program);
+    store->put(ContentFixtures::buildProgramMeme(program, majorMemeName));
     // sequences of program
     for (int iP = 0; iP < N; iP++) {
       int total = random(LoremIpsum::SEQUENCE_TOTALS);
       sequences[iP] = ContentFixtures::buildSequence(program, total,
                                                      majorMemeName + " in " + sequenceNames[iP],
                                                      subDensities[iP], subKeys[iP]);
-      store.put(sequences[iP]);
+      store->put(sequences[iP]);
       for (int iPC = 0; iPC < N << 2; iPC++) {
         // always use first chord, then use more chords with more intensity
         if (0 == iPC || random(0, 1) < subDensities[iP]) {
-          store.put(
+          store->put(
               ContentFixtures::buildChord(sequences[iP],
                                           std::floor((float) iPC * (float) total * 4 / (float) N),
                                           random(LoremIpsum::MUSICAL_CHORDS)));
@@ -1349,8 +1349,8 @@ void ContentFixtures::generatedFixture(ContentEntityStore &store, int N) {
     for (int offset = 0; offset < (N << 2); offset++) {
       int num = static_cast<int>(std::floor(random(0, (float) N)));
       ProgramSequenceBinding binding = ContentFixtures::buildProgramSequenceBinding(sequences[num], offset);
-      store.put(binding);
-      store.put(ContentFixtures::buildMeme(binding, random(minorMemeNames)));
+      store->put(binding);
+      store->put(ContentFixtures::buildMeme(binding, random(minorMemeNames)));
     }
     std::cout << "Generated Main-type Program id=" << program.id << ", majorMeme=" << majorMemeName << " with " << N
               << " sequences bound " << (N << 2) << " times" << std::endl;
@@ -1370,19 +1370,19 @@ void ContentFixtures::generatedFixture(ContentEntityStore &store, int N) {
                                                     majorMemeName + " Beat",
                                                     key,
                                                     tempo);
-    store.put(program);
+    store->put(program);
     trackMap.clear();
-    store.put(ContentFixtures::buildProgramMeme(program, majorMemeName));
+    store->put(ContentFixtures::buildProgramMeme(program, majorMemeName));
     // voices of program
     for (int iV = 0; iV < N; iV++) {
       voices[iV] = ContentFixtures::buildVoice(program, Instrument::Type::Drum,
                                                majorMemeName + " " + percussiveNames[iV]);
-      store.put(voices[iV]);
+      store->put(voices[iV]);
     }
     ProgramSequence sequenceBase = ContentFixtures::buildSequence(program,
                                                                   random(LoremIpsum::SEQUENCE_TOTALS),
                                                                   "Base", intensity, key);
-    store.put(sequenceBase);
+    store->put(sequenceBase);
     // patterns of program
     for (int iP = 0; iP < N << 1; iP++) {
       int total = random(LoremIpsum::PATTERN_TOTALS);
@@ -1400,15 +1400,15 @@ void ContentFixtures::generatedFixture(ContentEntityStore &store, int N) {
           total,
           patternName
       );
-      store.put(pattern);
+      store->put(pattern);
       for (int iPE = 0; iPE < N << 2; iPE++) {
         // always use first chord, then use more chords with more intensity
         if (0 == iPE || random(0, 1) < intensity) {
           std::string name = percussiveNames[num];
           if (trackMap.find(name) == trackMap.end())
             trackMap[name] = ContentFixtures::buildTrack(voices[num], name);
-          store.put(trackMap[name]);
-          store.put(ContentFixtures::buildEvent(
+          store->put(trackMap[name]);
+          store->put(ContentFixtures::buildEvent(
               pattern,
               trackMap[name],
               static_cast<float>(std::floor(static_cast<float>(iPE) * (float) total * 4 / (float) N)),

@@ -84,9 +84,9 @@ namespace XJ {
      * Construct a Fabricator
      */
     explicit Fabricator(
-        FabricatorFactory &fabricatorFactory,
-        SegmentEntityStore &store,
-        ContentEntityStore &sourceMaterial,
+        FabricatorFactory* fabricatorFactory,
+        SegmentEntityStore* store,
+        ContentEntityStore* sourceMaterial,
         int segmentId,
         double outputFrameRate,
         int outputChannels,
@@ -832,14 +832,14 @@ namespace XJ {
 
      @return retrospective
      */
-    SegmentRetrospective getRetrospective();
+    SegmentRetrospective * getRetrospective();
 
     /**
      Get the ingested source material for fabrication
 
      @return source material
      */
-    ContentEntityStore getSourceMaterial();
+    ContentEntityStore * getSourceMaterial();
 
     /**
      Get the number of micros per beat for the current segment
@@ -917,7 +917,7 @@ namespace XJ {
     Chain chain;
     TemplateConfig templateConfig;
     std::set<const TemplateBinding *> templateBindings;
-    ContentEntityStore &sourceMaterial;
+    ContentEntityStore* sourceMaterial;
     double outputFrameRate;
     int outputChannels;
     std::map<double, std::optional<SegmentChord>> chordAtPosition;
@@ -932,8 +932,8 @@ namespace XJ {
     std::map<std::string, std::optional<Note>> rootNotesByVoicingAndChord;
     std::map<UUID, std::vector<ProgramSequenceChord>> completeChordsForProgramSequence;
     std::map<UUID, std::vector<SegmentChoiceArrangementPick>> picksForChoice;
-    SegmentEntityStore &store;
-    SegmentRetrospective &retrospective;
+    SegmentEntityStore* store;
+    SegmentRetrospective* retrospective;
     std::set<UUID> boundInstrumentIds;
     std::set<UUID> boundProgramIds;
     std::chrono::high_resolution_clock::time_point startAtSystemNanoTime;

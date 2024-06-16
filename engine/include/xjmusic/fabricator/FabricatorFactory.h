@@ -22,7 +22,7 @@ namespace XJ {
      * Constructor from entity store
      * @param entityStore  for factory
      */
-    explicit FabricatorFactory(SegmentEntityStore &entityStore);
+    explicit FabricatorFactory(SegmentEntityStore *entityStore);
 
     /**
      Create a fabricator to fabricate a segment
@@ -64,7 +64,7 @@ namespace XJ {
     );
 
   private:
-    SegmentEntityStore &entityStore;
+    SegmentEntityStore* entityStore;
 
   };
 
