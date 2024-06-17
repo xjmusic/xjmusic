@@ -30,19 +30,19 @@ jobs:
         if: runner.os == 'Windows'
         working-directory: engine/
         run: |
-          choco install cmake doxygen
+          choco install cmake
 
       - name: Install dependencies (Linux)
         if: runner.os == 'Windows'
         working-directory: engine/
         run: |
-          sudo apt-get install -y cmake doxygen
+          sudo apt-get install -y cmake
 
       - name: Install dependencies (macOS)
         if: runner.os == 'Windows'
         working-directory: engine/
         run: |
-          brew install cmake doxygen
+          brew install cmake
 
       - name: Build
         working-directory: engine/
