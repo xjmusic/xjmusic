@@ -93,7 +93,7 @@ namespace XJ {
      * @param str  JSON representation
      * @return   StickyBun
      */
-    static StickyBun from_json(const std::string& str);
+    static StickyBun deserializeFrom(const std::string& str);
   };
 
 }// namespace XJ

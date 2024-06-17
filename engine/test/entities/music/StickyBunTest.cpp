@@ -74,7 +74,7 @@ TEST(Music_StickyBun, Serialize_Deserialize) {
 
   auto json = bun.to_json();
 
-  auto result = StickyBun::from_json(json);
+  auto result = StickyBun::deserializeFrom(json);
 
   ASSERT_EQ(bun.eventId, result.eventId);
   ASSERT_EQ(bun.values, result.values);

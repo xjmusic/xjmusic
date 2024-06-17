@@ -68,7 +68,7 @@ std::string StickyBun::to_json() {
               }).dump();
 }
 
-StickyBun StickyBun::from_json(const std::string& str) {
+StickyBun StickyBun::deserializeFrom(const std::string& str) {
   StickyBun bun;
   auto json = json::parse(str);
   json.at("eventId").get_to(bun.eventId);

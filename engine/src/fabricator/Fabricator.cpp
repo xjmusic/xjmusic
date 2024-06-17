@@ -669,7 +669,7 @@ std::optional<StickyBun> Fabricator::getStickyBun(const UUID &eventId) {
   auto currentMeta = getSegmentMeta(StickyBun::computeMetaKey(eventId));
   if (currentMeta.has_value()) {
     try {
-      return {StickyBun::from_json(currentMeta->value)};
+      return {StickyBun::deserializeFrom(currentMeta->value)};
     } catch (const std::exception &e) {
       addErrorMessage("Failed to deserialize current segment meta value StickyBun JSON for Event[" + eventId + "]");
     }
@@ -678,7 +678,7 @@ std::optional<StickyBun> Fabricator::getStickyBun(const UUID &eventId) {
   auto previousMeta = retrospective->getPreviousMeta(StickyBun::computeMetaKey(eventId));
   if (previousMeta.has_value()) {
     try {
-      return {StickyBun::from_json(previousMeta->value)};
+      return {StickyBun::deserializeFrom(previousMeta->value)};
     } catch (const std::exception &e) {
       addErrorMessage("Failed to deserialize previous segment meta value StickyBun JSON for Event[" + eventId + "]");
     }

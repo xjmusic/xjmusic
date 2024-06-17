@@ -20,12 +20,35 @@ TEST(SegmentMemeTest, testEquals) {
 }
 
 TEST(SegmentMemeTest, testHashCode) {
-  SegmentMeme segmentMeme;
-  segmentMeme.id = "id";
-  segmentMeme.segmentId = 1;
-  segmentMeme.name = "name";
+  SegmentMeme baselineInput;
+  baselineInput.id = "id";
+  baselineInput.segmentId = 1;
+  baselineInput.name = "name";
+  unsigned long long baselineOutput = baselineInput.hashCode();
 
-  ASSERT_EQ(1841017567112742695, segmentMeme.hashCode());
+  SegmentMeme testInputSame;
+  testInputSame.id = "id";
+  testInputSame.segmentId = 1;
+  testInputSame.name = "name";
+  ASSERT_EQ(baselineOutput, testInputSame.hashCode());
+
+  SegmentMeme testInputDifferentId;
+  testInputDifferentId.id = "id2";
+  testInputDifferentId.segmentId = 1;
+  testInputDifferentId.name = "name";
+  ASSERT_NE(baselineOutput, testInputDifferentId.hashCode());
+
+  SegmentMeme testInputDifferentSegmentId;
+  testInputDifferentSegmentId.id = "id";
+  testInputDifferentSegmentId.segmentId = 2;
+  testInputDifferentSegmentId.name = "name";
+  ASSERT_NE(baselineOutput, testInputDifferentSegmentId.hashCode());
+
+  SegmentMeme testInputDifferentName;
+  testInputDifferentName.id = "id";
+  testInputDifferentName.segmentId = 1;
+  testInputDifferentName.name = "name2";
+  ASSERT_NE(baselineOutput, testInputDifferentName.hashCode());
 }
 
 TEST(SegmentMemeTest, testGetNames) {
