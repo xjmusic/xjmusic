@@ -4,7 +4,6 @@
 #include <gmock/gmock.h>
 
 #include "xjmusic/fabricator/FabricatorFactory.h"
-#include "xjmusic/fabricator/Fabricator.h"
 #include "../_helper/SegmentFixtures.h"
 #include "../_mock/MockFabricatorFactory.h"
 #include "../_mock/MockSegmentRetrospective.h"
@@ -19,8 +18,8 @@ using namespace XJ;
 class FabricatorTest : public ::testing::Test {
 protected:
   int SEQUENCE_TOTAL_BEATS = 64;
-  ContentEntityStore* sourceMaterial;
-  SegmentEntityStore* store;
+  ContentEntityStore *sourceMaterial;
+  SegmentEntityStore *store;
   MockFabricatorFactory *mockFabricatorFactory;
   MockSegmentRetrospective *mockRetrospective;
   Fabricator *subject;
@@ -56,8 +55,7 @@ protected:
     ));
     mockFabricatorFactory = new MockFabricatorFactory(store);
     mockRetrospective = new MockSegmentRetrospective(store, 2);
-    ON_CALL(*mockFabricatorFactory, loadRetrospective(_)).WillByDefault(Return(mockRetrospective));
-    subject = new Fabricator(mockFabricatorFactory, store, sourceMaterial, 2, 48000.0f, 2, std::nullopt);
+    subject = new Fabricator(sourceMaterial, store, mockRetrospective, 2, 48000.0f, 2, std::nullopt);
   }
 
   void TearDown() override {
@@ -72,13 +70,14 @@ protected:
 TEST_F(FabricatorTest, pick_returned_by_picks) {
   sourceMaterial->put(ContentFixtures::buildTemplateBinding(fake.template1, fake.library2));
   auto chain = store->put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
-                                                     Chain::State::Fabricate));
+                                                      Chain::State::Fabricate));
   store->put(SegmentFixtures::buildSegment(chain, 1, Segment::State::Crafted, "F major", 8, 0.6f, 120.0f, "seg123"));
   segment = store->put(
       SegmentFixtures::buildSegment(chain, 2, Segment::State::Crafting, "G major", 8, 0.6f, 240.0f, "seg123"));
   store->put(SegmentFixtures::buildSegmentChord(segment, 0.0f, "A"));
-  store->put(SegmentFixtures::buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED,
-                                                fake.program5));
+  store->put(
+      SegmentFixtures::buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED,
+                                          fake.program5));
   SegmentChoice beatChoice = store->put(
       SegmentFixtures::buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED,
                                           fake.program35, fake.program35_voice0, fake.instrument8));
@@ -90,8 +89,8 @@ TEST_F(FabricatorTest, pick_returned_by_picks) {
   pick.programSequencePatternEventId = fake.program35_sequence0_pattern0_event0.id;
   pick.instrumentAudioId = fake.instrument8_audio8kick.id;
   pick.event = "CLANG";
-  pick.startAtSegmentMicros =  static_cast<long>(0.273 * (double) ValueUtils::MICROS_PER_SECOND);
-  pick.lengthMicros =  static_cast<long>(1.571 * (double) ValueUtils::MICROS_PER_SECOND);
+  pick.startAtSegmentMicros = static_cast<long>(0.273 * (double) ValueUtils::MICROS_PER_SECOND);
+  pick.lengthMicros = static_cast<long>(1.571 * (double) ValueUtils::MICROS_PER_SECOND);
   pick.amplitude = 0.8f;
   pick.tones = "A4";
   store->put(pick);

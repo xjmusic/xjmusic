@@ -62,8 +62,6 @@
 #include "xjmusic/entities/segment/SegmentMeta.h"
 #include "xjmusic/fabricator/SegmentRetrospective.h"
 
-#include "FabricatorFactory.h"
-
 using namespace XJ;
 
 namespace XJ {
@@ -72,6 +70,26 @@ namespace XJ {
   public:
 
     /**
+     * Construct new fabricator
+     * @param fabricatorFactory  from which to load a segment retrospective
+     * @param segmentEntityStore            to use for segment entities
+     * @param contentEntityStore  contentEntityStore from which to fabricate
+     * @param segmentId  current segment to fabricate
+     * @param outputFrameRate  output frame rate
+     * @param outputChannels  output channels
+     * @param overrideSegmentType  override segment type
+     */
+    explicit Fabricator(
+        ContentEntityStore *contentEntityStore,
+        SegmentEntityStore *segmentEntityStore,
+        SegmentRetrospective *segmentRetrospective,
+        int segmentId,
+        float outputFrameRate,
+        int outputChannels,
+        std::optional<Segment::Type> overrideSegmentType
+    );
+
+/**
      * Fabrication control mode
      */
     enum class ControlMode {
@@ -79,19 +97,6 @@ namespace XJ {
       MACRO,
       TAXONOMY
     };
-
-    /**
-     * Construct a Fabricator
-     */
-    explicit Fabricator(
-        FabricatorFactory* fabricatorFactory,
-        SegmentEntityStore* store,
-        ContentEntityStore* sourceMaterial,
-        int segmentId,
-        double outputFrameRate,
-        int outputChannels,
-        std::optional<Segment::Type> overrideSegmentType
-    );
 
     /**
      Add a message of the given type to the segment, with the given body
@@ -832,14 +837,14 @@ namespace XJ {
 
      @return retrospective
      */
-    SegmentRetrospective * getRetrospective();
+    SegmentRetrospective *getRetrospective();
 
     /**
      Get the ingested source material for fabrication
 
      @return source material
      */
-    ContentEntityStore * getSourceMaterial();
+    ContentEntityStore *getSourceMaterial();
 
     /**
      Get the number of micros per beat for the current segment
@@ -917,7 +922,7 @@ namespace XJ {
     Chain chain;
     TemplateConfig templateConfig;
     std::set<const TemplateBinding *> templateBindings;
-    ContentEntityStore* sourceMaterial;
+    ContentEntityStore *sourceMaterial;
     double outputFrameRate;
     int outputChannels;
     std::map<double, std::optional<SegmentChord>> chordAtPosition;
@@ -932,8 +937,8 @@ namespace XJ {
     std::map<std::string, std::optional<Note>> rootNotesByVoicingAndChord;
     std::map<UUID, std::vector<ProgramSequenceChord>> completeChordsForProgramSequence;
     std::map<UUID, std::vector<SegmentChoiceArrangementPick>> picksForChoice;
-    SegmentEntityStore* store;
-    SegmentRetrospective* retrospective;
+    SegmentEntityStore *store;
+    SegmentRetrospective *retrospective;
     std::set<UUID> boundInstrumentIds;
     std::set<UUID> boundProgramIds;
     std::chrono::high_resolution_clock::time_point startAtSystemNanoTime;

@@ -1,10 +1,13 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#ifndef XJMUSIC_FABRICATOR_FABRICATOR_FACTORY_H
-#define XJMUSIC_FABRICATOR_FABRICATOR_FACTORY_H
+#ifndef XJMUSIC_FABRICATOR_FACTORY_H
+#define XJMUSIC_FABRICATOR_FACTORY_H
 
 #include "xjmusic/entities/segment/SegmentEntityStore.h"
+#include "xjmusic/entities/content/ContentEntityStore.h"
+
 #include "SegmentRetrospective.h"
+#include "Fabricator.h"
 
 namespace XJ {
 
@@ -20,14 +23,14 @@ namespace XJ {
 
     /**
      * Constructor from entity store
-     * @param entityStore  for factory
+     * @param segmentEntityStore  for factory
      */
-    explicit FabricatorFactory(SegmentEntityStore *entityStore);
+    explicit FabricatorFactory(SegmentEntityStore *segmentEntityStore);
 
     /**
      Create a fabricator to fabricate a segment
 
-     @param sourceMaterial      from which to fabricate
+     @param contentEntityStore      from which to fabricate
      @param segmentId           segment to be fabricated
      @param outputFrameRate     output frame rate
      @param outputChannels      output channels
@@ -36,16 +39,13 @@ namespace XJ {
      @throws FabricationException            on retry-able network or service failure
      @throws FabricationFatalException on failure requiring a chain restart https://github.com/xjmusic/xjmusic/issues/263
      */
-/*
- * TODO: Implement FabricatorFactory::fabricate
-    Fabricator fabricate(
-        ContentEntityStore sourceMaterial,
+    virtual Fabricator * fabricate(
+        ContentEntityStore* contentEntityStore,
         int segmentId,
-        double outputFrameRate,
+        float outputFrameRate,
         int outputChannels,
-        std::optional <Segment::Type> overrideSegmentType
+        std::optional<Segment::Type> overrideSegmentType
     );
-*/
 
     /**
      Create a retrospective to fabricate a particular segment
@@ -64,10 +64,10 @@ namespace XJ {
     );
 
   private:
-    SegmentEntityStore* entityStore;
+    SegmentEntityStore* segmentEntityStore;
 
   };
 
 }// namespace XJ
 
-#endif//XJMUSIC_FABRICATOR_FABRICATOR_FACTORY_H
+#endif//XJMUSIC_FABRICATOR_FACTORY_H
