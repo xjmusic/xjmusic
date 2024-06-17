@@ -60,6 +60,7 @@ add_library(xjmusic
         fabricator/ChainUtils.cpp
         fabricator/FabricationException.cpp
         fabricator/FabricationFatalException.cpp
+        fabricator/FabricationWrapper.cpp
         fabricator/Fabricator.cpp
         fabricator/FabricatorFactory.cpp
         fabricator/MarbleBag.cpp
