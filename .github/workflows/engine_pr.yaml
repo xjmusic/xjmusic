@@ -31,6 +31,8 @@ jobs:
         working-directory: engine/
         run: |
           choco install cmake
+          choco install mingw
+          choco install ninja
 
       - name: Install dependencies (Linux)
         if: runner.os == 'Linux'
@@ -44,7 +46,17 @@ jobs:
         run: |
           brew install cmake
 
-      - name: Build
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        working-directory: engine/
+        run: |
+          mkdir build
+          cd build
+          cmake -G "MinGW Makefiles" -G "Ninja" ..
+          cmake --build .
+
+      - name: Build (macOS/Linux)
+        if: runner.os == 'Linux' || runner.os == 'macOS'
         working-directory: engine/
         run: |
           mkdir build
