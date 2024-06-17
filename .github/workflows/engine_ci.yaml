@@ -8,9 +8,18 @@ on:
       - engine/**
 
 jobs:
+
   build_and_test:
-    name: Build and Test
-    runs-on: ubuntu-latest
+    env:
+      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+    name: Build & Test [${{ matrix.os }}]
+    runs-on: ${{ matrix.os }}
+    permissions: write-all
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-13, macos-14, windows-latest ]
+      fail-fast: false
     steps:
       - uses: actions/checkout@v2
 
@@ -23,8 +32,16 @@ jobs:
         working-directory: engine/
         run: |
           python -m pip install --upgrade pip
-          pip install cmake
-          sudo apt-get install -y doxygen
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            choco install cmake doxygen
+          elif [[ "${{ runner.os }}" == "Linux" ]]; then
+            sudo apt-get install -y cmake doxygen
+          elif [[ "${{ runner.os }}" == "macOS" ]]; then
+            brew install cmake doxygen
+          else
+            echo "Unsupported OS"
+            exit 1
+          fi
 
       - name: Build
         working-directory: engine/
