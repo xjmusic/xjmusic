@@ -40,7 +40,7 @@ public class SlashRootTest {
 
   /**
    XJ should correctly choose chords with tensions notated via slash and not confuse them with slash chords
-   https://github.com/xjmusic/workstation/issues/228
+   https://github.com/xjmusic/xjmusic/issues/228
    */
   @Test
   public void onlyNotes() {
@@ -64,7 +64,7 @@ public class SlashRootTest {
 
   /**
    XJ should correctly choose chords with tensions notated via slash and not confuse them with slash chords
-   https://github.com/xjmusic/workstation/issues/228
+   https://github.com/xjmusic/xjmusic/issues/228
    */
   @Test
   public void constructor_dontConfuseTensionWithSlash() {
@@ -77,7 +77,7 @@ public class SlashRootTest {
 
   /**
    XJ should correctly choose chords with tensions notated via slash and not confuse them with slash chords
-   https://github.com/xjmusic/workstation/issues/228
+   https://github.com/xjmusic/xjmusic/issues/228
    */
   @Test
   public void isPresent_dontConfuseTensionWithSlash() {

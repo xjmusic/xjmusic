@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.craft.beat;
 
+import io.xj.engine.fabricator.SegmentEntityStoreImpl;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
@@ -24,8 +25,7 @@ import io.xj.model.pojos.Segment;
 import io.xj.model.pojos.SegmentChoice;
 import io.xj.model.enums.SegmentState;
 import io.xj.model.enums.SegmentType;
-import io.xj.engine.fabricator.FabricationEntityStore;
-import io.xj.engine.fabricator.FabricationEntityStoreImpl;
+import io.xj.engine.fabricator.SegmentEntityStore;
 import io.xj.engine.fabricator.SegmentUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +49,7 @@ public class CraftBeatNextMacroTest {
   SegmentFixtures fake;
   Chain chain1;
   Segment segment4;
-  FabricationEntityStore store;
+  SegmentEntityStore store;
   HubContent sourceMaterial;
 
   @BeforeEach
@@ -60,7 +60,7 @@ public class CraftBeatNextMacroTest {
     HubTopology.buildHubApiTopology(entityFactory);
     FabricationTopology.buildFabricationTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    store = new FabricationEntityStoreImpl(entityFactory);
+    store = new SegmentEntityStoreImpl(entityFactory);
     fabricatorFactory = new FabricatorFactoryImpl(
       store,
       jsonapiPayloadFactory,

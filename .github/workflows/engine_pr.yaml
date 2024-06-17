@@ -6,10 +6,18 @@ on:
       - engine/**
 
 jobs:
-  build:
 
-    runs-on: ubuntu-latest
-
+  build_and_test:
+    env:
+      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+    name: Build & Test [${{ matrix.os }}]
+    runs-on: ${{ matrix.os }}
+    permissions: write-all
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-13, macos-14, windows-latest ]
+      fail-fast: false
     steps:
       - uses: actions/checkout@v2
 
@@ -18,24 +26,61 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Install dependencies
+      - name: Install dependencies (Windows)
+        if: runner.os == 'Windows'
         working-directory: engine/
         run: |
-          python -m pip install --upgrade pip
-          pip install cmake
-          sudo apt-get install -y doxygen
+          choco install cmake
+          choco install mingw
+          choco install ninja
 
-      - name: Build
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        working-directory: engine/
+        run: |
+          sudo apt-get install -y cmake
+
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        working-directory: engine/
+        run: |
+          brew install cmake
+
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        working-directory: engine/
+        run: |
+          mkdir build
+          cd build
+          cmake -G "MinGW Makefiles" -G "Ninja" ..
+          cmake --build .
+
+      - name: Build (macOS/Linux)
+        if: runner.os == 'Linux' || runner.os == 'macOS'
         working-directory: engine/
         run: |
           mkdir build
           cd build
           cmake ..
-          make
-          make doc
+          cmake --build .
 
       - name: Test
         working-directory: engine/
         run: |
           cd build
           ctest --verbose
+
+  nothing_left_todo:
+    needs: build_and_test
+    env:
+      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+    name: Nothing Left TODO
+    runs-on: ubuntu-latest
+    permissions: read-all
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Nothing left TODO
+        run: .github/nothing_left_todo.sh engine

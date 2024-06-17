@@ -8,8 +8,8 @@ import io.xj.engine.FabricationTopology;
 import io.xj.engine.audio.AudioCache;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.FabricationEntityStore;
-import io.xj.engine.fabricator.FabricationEntityStoreImpl;
+import io.xj.engine.fabricator.SegmentEntityStore;
+import io.xj.engine.fabricator.SegmentEntityStoreImpl;
 import io.xj.engine.fabricator.FabricatorFactoryImpl;
 import io.xj.engine.fabricator.SegmentUtils;
 import io.xj.engine.telemetry.Telemetry;
@@ -41,7 +41,7 @@ public class ComplexLibraryTest {
   private static final int GENERATED_FIXTURE_COMPLEXITY = 3;
   private static final long WORK_CYCLE_MILLIS = 120;
   long startTime = System.currentTimeMillis();
-  FabricationEntityStore entityStore;
+  SegmentEntityStore entityStore;
   CraftWork work;
 
   @Mock
@@ -65,7 +65,7 @@ public class ComplexLibraryTest {
 
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
-    entityStore = new FabricationEntityStoreImpl(entityFactory);
+    entityStore = new SegmentEntityStoreImpl(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     var fabricatorFactory = new FabricatorFactoryImpl(
       entityStore,
@@ -75,7 +75,7 @@ public class ComplexLibraryTest {
     FabricationTopology.buildFabricationTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
-    FabricationEntityStore test = new FabricationEntityStoreImpl(entityFactory);
+    SegmentEntityStore test = new SegmentEntityStoreImpl(entityFactory);
     test.clear();
 
     // Dependencies

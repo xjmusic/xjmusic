@@ -5,12 +5,26 @@ on:
     tags: [ '*' ]
 
 jobs:
-  verify:
-    name: Workstation Tests [${{ matrix.os }}]
+  nothing_left_todo:
+    name: Nothing Left TODO
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Nothing left TODO
+        run: .github/nothing_left_todo.sh workstation
+
+  verify:
+    needs: nothing_left_todo
+    name: Build & Test [${{ matrix.os }}]
+    env:
+      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+    runs-on: ${{ matrix.os }}
     outputs:
       version: ${{ steps.get-version.outputs.version }}
     strategy:
@@ -31,9 +45,6 @@ jobs:
         with:
           java-version: 17
           java-package: jdk
-
-      - name: Nothing left TODO
-        run: .github/nothing_left_todo.sh
 
       - name: Get version from gradle.properties
         id: get-version

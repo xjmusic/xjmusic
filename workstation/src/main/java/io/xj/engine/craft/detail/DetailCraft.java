@@ -14,7 +14,7 @@ public interface DetailCraft {
    Perform Detail craft for the current segment
    <p>
    Workstation fabrication Layering/Intensity
-   https://github.com/xjmusic/workstation/issues/196
+   https://github.com/xjmusic/xjmusic/issues/196
    */
   void doWork() throws FabricationException;
 

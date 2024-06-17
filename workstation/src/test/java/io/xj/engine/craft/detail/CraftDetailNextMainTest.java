@@ -1,6 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.craft.detail;
 
+import io.xj.engine.fabricator.SegmentEntityStore;
+import io.xj.engine.fabricator.SegmentEntityStoreImpl;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
@@ -26,8 +28,6 @@ import io.xj.model.pojos.SegmentChoice;
 import io.xj.model.pojos.SegmentChord;
 import io.xj.model.enums.SegmentState;
 import io.xj.model.enums.SegmentType;
-import io.xj.engine.fabricator.FabricationEntityStore;
-import io.xj.engine.fabricator.FabricationEntityStoreImpl;
 import io.xj.engine.fabricator.SegmentUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +50,7 @@ public class CraftDetailNextMainTest {
   CraftFactory craftFactory;
   FabricatorFactory fabricatorFactory;
   HubContent sourceMaterial;
-  FabricationEntityStore store;
+  SegmentEntityStore store;
   SegmentFixtures fake;
   Segment segment4;
 
@@ -62,7 +62,7 @@ public class CraftDetailNextMainTest {
     HubTopology.buildHubApiTopology(entityFactory);
     FabricationTopology.buildFabricationTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    store = new FabricationEntityStoreImpl(entityFactory);
+    store = new SegmentEntityStoreImpl(entityFactory);
     fabricatorFactory = new FabricatorFactoryImpl(
       store,
       jsonapiPayloadFactory,

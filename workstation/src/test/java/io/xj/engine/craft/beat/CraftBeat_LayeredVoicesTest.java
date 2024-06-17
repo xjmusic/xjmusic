@@ -6,8 +6,8 @@ import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.FabricationEntityStore;
-import io.xj.engine.fabricator.FabricationEntityStoreImpl;
+import io.xj.engine.fabricator.SegmentEntityStore;
+import io.xj.engine.fabricator.SegmentEntityStoreImpl;
 import io.xj.engine.fabricator.Fabricator;
 import io.xj.engine.fabricator.FabricatorFactory;
 import io.xj.engine.fabricator.FabricatorFactoryImpl;
@@ -53,7 +53,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
- Beat fabrication composited of layered Patterns https://github.com/xjmusic/workstation/issues/267
+ Beat fabrication composited of layered Patterns https://github.com/xjmusic/xjmusic/issues/267
  */
 @ExtendWith(MockitoExtension.class)
 public class CraftBeat_LayeredVoicesTest {
@@ -63,7 +63,7 @@ public class CraftBeat_LayeredVoicesTest {
   InstrumentAudio audioHihat;
   InstrumentAudio audioKick;
   InstrumentAudio audioSnare;
-  FabricationEntityStore store;
+  SegmentEntityStore store;
   SegmentFixtures fake;
   Program program42;
   Segment segment4;
@@ -76,7 +76,7 @@ public class CraftBeat_LayeredVoicesTest {
     HubTopology.buildHubApiTopology(entityFactory);
     FabricationTopology.buildFabricationTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    store = new FabricationEntityStoreImpl(entityFactory);
+    store = new SegmentEntityStoreImpl(entityFactory);
     fabricatorFactory = new FabricatorFactoryImpl(
       store,
       jsonapiPayloadFactory,

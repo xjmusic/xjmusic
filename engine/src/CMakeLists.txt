@@ -3,44 +3,72 @@ include(FetchContent)
 
 # show up in IDEs unless they are listed in add_library.
 add_library(xjmusic
-        content/ContentStore.cpp
-        content/Entity.cpp
-        content/Instrument.cpp
-        content/InstrumentAudio.cpp
-        content/InstrumentConfig.cpp
-        content/InstrumentMeme.cpp
-        content/Library.cpp
-        content/MemeTaxonomy.cpp
-        content/Program.cpp
-        content/ProgramConfig.cpp
-        content/ProgramMeme.cpp
-        content/ProgramSequence.cpp
-        content/ProgramSequenceBinding.cpp
-        content/ProgramSequenceBindingMeme.cpp
-        content/ProgramSequenceChord.cpp
-        content/ProgramSequenceChordVoicing.cpp
-        content/ProgramSequencePattern.cpp
-        content/ProgramSequencePatternEvent.cpp
-        content/ProgramVoice.cpp
-        content/ProgramVoiceTrack.cpp
-        content/Project.cpp
-        content/Template.cpp
-        content/TemplateBinding.cpp
-        content/TemplateConfig.cpp
-        music/Accidental.cpp
-        music/BPM.cpp
-        music/Bar.cpp
-        music/Chord.cpp
-        music/Note.cpp
-        music/NoteRange.cpp
-        music/Octave.cpp
-        music/PitchClass.cpp
-        music/Root.cpp
-        music/SlashRoot.cpp
-        music/Step.cpp
-        music/StickyBun.cpp
-        music/Tuning.cpp
+        entities/content/ContentEntityStore.cpp
+        entities/content/Entity.cpp
+        entities/content/Instrument.cpp
+        entities/content/InstrumentAudio.cpp
+        entities/content/InstrumentConfig.cpp
+        entities/content/InstrumentMeme.cpp
+        entities/content/Library.cpp
+        entities/content/Program.cpp
+        entities/content/ProgramConfig.cpp
+        entities/content/ProgramMeme.cpp
+        entities/content/ProgramSequence.cpp
+        entities/content/ProgramSequenceBinding.cpp
+        entities/content/ProgramSequenceBindingMeme.cpp
+        entities/content/ProgramSequenceChord.cpp
+        entities/content/ProgramSequenceChordVoicing.cpp
+        entities/content/ProgramSequencePattern.cpp
+        entities/content/ProgramSequencePatternEvent.cpp
+        entities/content/ProgramVoice.cpp
+        entities/content/ProgramVoiceTrack.cpp
+        entities/content/Project.cpp
+        entities/content/Template.cpp
+        entities/content/TemplateBinding.cpp
+        entities/content/TemplateConfig.cpp
+        entities/meme/MemeConstellation.cpp
+        entities/meme/MemeIsometry.cpp
+        entities/meme/MemeStack.cpp
+        entities/meme/MemeTaxonomy.cpp
+        entities/meme/ParseAnti.cpp
+        entities/meme/ParseNumeric.cpp
+        entities/meme/ParseStrong.cpp
+        entities/meme/ParseUnique.cpp
+        entities/music/Accidental.cpp
+        entities/music/BPM.cpp
+        entities/music/Bar.cpp
+        entities/music/Chord.cpp
+        entities/music/Note.cpp
+        entities/music/NoteRange.cpp
+        entities/music/Octave.cpp
+        entities/music/Root.cpp
+        entities/music/SlashRoot.cpp
+        entities/music/Step.cpp
+        entities/music/StickyBun.cpp
+        entities/music/Tuning.cpp
+        entities/segment/Chain.cpp
+        entities/segment/Segment.cpp
+        entities/segment/SegmentChoice.cpp
+        entities/segment/SegmentChoiceArrangement.cpp
+        entities/segment/SegmentChoiceArrangementPick.cpp
+        entities/segment/SegmentChord.cpp
+        entities/segment/SegmentChordVoicing.cpp
+        entities/segment/SegmentEntityStore.cpp
+        entities/segment/SegmentMeme.cpp
+        entities/segment/SegmentMessage.cpp
+        entities/segment/SegmentMeta.cpp
+        fabricator/ChainUtils.cpp
+        fabricator/FabricationException.cpp
+        fabricator/FabricationFatalException.cpp
+        fabricator/FabricationWrapper.cpp
+        fabricator/Fabricator.cpp
+        fabricator/FabricatorFactory.cpp
+        fabricator/MarbleBag.cpp
+        fabricator/SegmentRetrospective.cpp
+        fabricator/SegmentUtils.cpp
+        fabricator/TemplateUtils.cpp
         util/ConfigParser.cpp
+        util/CsvUtils.cpp
         util/StringUtils.cpp
         util/ValueUtils.cpp
         xjmusic.cpp
@@ -53,7 +81,7 @@ target_include_directories(xjmusic PUBLIC ../include)
 target_compile_features(xjmusic PUBLIC cxx_std_17)
 
 # Fast C++ logging library (gabime/spdlog)
-FetchContent_Declare(spdlog URL https://github.com/gabime/spdlog/archive/v1.13.0.tar.gz)
+FetchContent_Declare(spdlog URL https://github.com/gabime/spdlog/archive/refs/tags/v1.14.1.zip)
 FetchContent_MakeAvailable(spdlog)
 target_link_libraries(xjmusic PRIVATE spdlog::spdlog)
 

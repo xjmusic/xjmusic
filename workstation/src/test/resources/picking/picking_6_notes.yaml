@@ -3,10 +3,10 @@
 #
 #  Even when some of the detail program is X notes
 #  Bass always prefers the lowest end of the available voicings
-#  https://github.com/xjmusic/workstation/issues/247
+#  https://github.com/xjmusic/xjmusic/issues/247
 #
 #  X notes in basslines don't affect the lowest-range finding algorithm
-#  https://github.com/xjmusic/workstation/issues/295
+#  https://github.com/xjmusic/xjmusic/issues/295
 ---
 input:
   instrumentType: Bass

@@ -14,7 +14,7 @@ import io.xj.engine.audio.AudioCache;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.fabricator.FabricatorFactory;
 import io.xj.engine.mixer.MixerFactory;
-import io.xj.engine.fabricator.FabricationEntityStore;
+import io.xj.engine.fabricator.SegmentEntityStore;
 import io.xj.engine.ship.broadcast.BroadcastFactory;
 import io.xj.engine.telemetry.Telemetry;
 import jakarta.annotation.Nullable;
@@ -45,7 +45,7 @@ public class FabricationManagerImpl implements FabricationManager {
   private final AudioCache audioCache;
   private final FabricatorFactory fabricatorFactory;
   private final MixerFactory mixerFactory;
-  private final FabricationEntityStore entityStore;
+  private final SegmentEntityStore entityStore;
   private final Telemetry telemetry;
   private final AtomicReference<FabricationState> state = new AtomicReference<>(FabricationState.Standby);
   private final AtomicBoolean isAudioLoaded = new AtomicBoolean(false);
@@ -83,7 +83,7 @@ public class FabricationManagerImpl implements FabricationManager {
     AudioCache audioCache,
     FabricatorFactory fabricatorFactory,
     MixerFactory mixerFactory,
-    FabricationEntityStore store
+    SegmentEntityStore store
   ) {
     this.broadcastFactory = broadcastFactory;
     this.craftFactory = craftFactory;
@@ -226,7 +226,7 @@ public class FabricationManagerImpl implements FabricationManager {
   }
 
   @Override
-  public FabricationEntityStore getEntityStore() {
+  public SegmentEntityStore getEntityStore() {
     return entityStore;
   }
 
@@ -409,7 +409,7 @@ public class FabricationManagerImpl implements FabricationManager {
           .sorted(Comparator.comparing(InstrumentAudio::getName))
           .toList()) {
           if (!Objects.equals(state.get(), FabricationState.PreparingAudio)) {
-            // Workstation canceling preloading should cease resampling audio files https://github.com/xjmusic/workstation/issues/278
+            // Workstation canceling preloading should cease resampling audio files https://github.com/xjmusic/xjmusic/issues/278
             return;
           }
           if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
@@ -476,7 +476,7 @@ public class FabricationManagerImpl implements FabricationManager {
     );
 
     // If memes/macro already engaged at fabrication start (which is always true in a manual control mode),
-    // the first segment should be governed by that selection https://github.com/xjmusic/workstation/issues/201
+    // the first segment should be governed by that selection https://github.com/xjmusic/xjmusic/issues/201
     switch (config.getMacroMode()) {
       case MACRO -> getAllMacroPrograms().stream()
         .min(Comparator.comparing(Program::getName))

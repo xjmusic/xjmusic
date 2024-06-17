@@ -7,8 +7,8 @@ import io.xj.engine.FabricationException;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.FabricationEntityStore;
-import io.xj.engine.fabricator.FabricationEntityStoreImpl;
+import io.xj.engine.fabricator.SegmentEntityStore;
+import io.xj.engine.fabricator.SegmentEntityStoreImpl;
 import io.xj.engine.fabricator.Fabricator;
 import io.xj.engine.fabricator.FabricatorFactory;
 import io.xj.engine.fabricator.FabricatorFactoryImpl;
@@ -53,7 +53,7 @@ public class CraftHookProgramVoiceContinueTest {
   HubContent sourceMaterial;
   InstrumentAudio audioKick;
   InstrumentAudio audioSnare;
-  FabricationEntityStore store;
+  SegmentEntityStore store;
   SegmentFixtures fake;
   Segment segment4;
 
@@ -65,7 +65,7 @@ public class CraftHookProgramVoiceContinueTest {
     HubTopology.buildHubApiTopology(entityFactory);
     FabricationTopology.buildFabricationTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    store = new FabricationEntityStoreImpl(entityFactory);
+    store = new SegmentEntityStoreImpl(entityFactory);
     fabricatorFactory = new FabricatorFactoryImpl(
       store,
       jsonapiPayloadFactory,

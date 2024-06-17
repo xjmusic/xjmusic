@@ -46,7 +46,7 @@ public class SegmentRetrospectiveImplTest {
   JsonProvider jsonProvider;
   FabricatorFactory fabricatorFactory;
   HubContent sourceMaterial;
-  FabricationEntityStore store;
+  SegmentEntityStore store;
   SegmentFixtures fake;
   Segment segment0;
   Segment segment1;
@@ -56,7 +56,7 @@ public class SegmentRetrospectiveImplTest {
   @BeforeEach
   public void setUp() throws Exception {
     var entityFactory = new EntityFactoryImpl(jsonProvider);
-    store = new FabricationEntityStoreImpl(entityFactory);
+    store = new SegmentEntityStoreImpl(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     jsonProvider = new JsonProviderImpl();
     fabricatorFactory = new FabricatorFactoryImpl(
@@ -146,7 +146,7 @@ public class SegmentRetrospectiveImplTest {
   }
 
   /**
-   Failure requiring a chain restart https://github.com/xjmusic/workstation/issues/263
+   Failure requiring a chain restart https://github.com/xjmusic/xjmusic/issues/263
    */
   @Test
   public void failureToReadMainChoiceIsFatal() throws FabricationException {
@@ -160,7 +160,7 @@ public class SegmentRetrospectiveImplTest {
   }
 
   /**
-   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/workstation/issues/222
+   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/xjmusic/issues/222
    */
   @Test
   public void getPreviousMeta() throws FabricationException, FabricationFatalException, JsonProcessingException {

@@ -102,7 +102,7 @@ public class Chord implements Comparable<Chord> {
   }
 
   /**
-   XJ understands the root of a slash chord https://github.com/xjmusic/workstation/issues/220
+   XJ understands the root of a slash chord https://github.com/xjmusic/xjmusic/issues/220
    */
   public PitchClass getSlashRoot() {
     return PitchClass.None != slashRoot.getPitchClass() ? slashRoot.getPitchClass() : root;

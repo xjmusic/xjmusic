@@ -6,7 +6,7 @@ import io.xj.engine.ContentFixtures;
 import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationException;
 import io.xj.engine.FabricationTopology;
-import io.xj.engine.fabricator.FabricationEntityStoreImpl;
+import io.xj.engine.fabricator.SegmentEntityStoreImpl;
 import io.xj.engine.fabricator.FabricatorFactoryImpl;
 import io.xj.model.pojos.Chain;
 import io.xj.model.enums.ChainState;
@@ -40,7 +40,7 @@ import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- Choose next Macro program based on the memes of the last sequence from the previous Macro program https://github.com/xjmusic/workstation/issues/299
+ Choose next Macro program based on the memes of the last sequence from the previous Macro program https://github.com/xjmusic/xjmusic/issues/299
  */
 @SuppressWarnings("ALL")
 @ExtendWith(MockitoExtension.class)
@@ -53,7 +53,7 @@ public class MacroFromOverlappingMemeSequencesTest {
   public void setUp() throws Exception {
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
-    var store = new FabricationEntityStoreImpl(entityFactory);
+    var store = new SegmentEntityStoreImpl(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     var fabricatorFactory = new FabricatorFactoryImpl(
       store,

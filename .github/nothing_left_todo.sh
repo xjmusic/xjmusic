@@ -13,6 +13,12 @@ check() {
   fi
 }
 
-check hub/src
-check nexus/src
-check ship/src
+# Check if the first argument is "workstation" or "engine"
+if [[ $1 == "workstation" || $1 == "engine" ]]; then
+  check $1/src
+  check $1/include
+  check $1/test
+else
+  echo "Invalid argument. Please specify either 'workstation' or 'engine'."
+  exit 1
+fi

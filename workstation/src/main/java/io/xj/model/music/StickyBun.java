@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/workstation/issues/222
+ Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/xjmusic/issues/222
  */
 public class StickyBun {
   static final String META_KEY_TEMPLATE = "StickyBun_%s";
@@ -54,7 +54,7 @@ public class StickyBun {
   /**
    Compute a meta key based on the given event id
    <p>
-   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/workstation/issues/222
+   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/xjmusic/issues/222
 
    @return compute meta key
    */

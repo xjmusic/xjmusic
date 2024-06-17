@@ -8,12 +8,18 @@
 #include <string>
 #include <vector>
 
-namespace Util {
+namespace XJ {
   class StringUtils {
   private:
-    static std::regex nonMeme;
+    static std::regex leadingScores;
     static std::regex nonAlphabetical;
     static std::regex nonAlphanumeric;
+    static std::regex nonMeme;
+    static std::regex nonScored;
+    static std::regex nonSlug;
+    static std::regex spaces;
+    static std::regex tailingScores;
+    static std::regex underscores;
 
   public:
     /**
@@ -112,7 +118,7 @@ namespace Util {
      * @param text    to search
      * @return match if found
      */
-    static std::optional<std::string> match(const std::regex& pattern, const std::string& text);
+    static std::optional<std::string> match(const std::regex &pattern, const std::string &text);
 
     /**
      * Count the matches of a regex in a string
@@ -120,7 +126,7 @@ namespace Util {
      * @param basicString  to search
      * @return number of matches
      */
-    static int countMatches(const std::regex& regex, const std::string &basicString);
+    static int countMatches(const std::regex &regex, const std::string &basicString);
 
     /**
      * Count the matches of a character in a string
@@ -129,9 +135,80 @@ namespace Util {
      * @return number of matches
      */
     static int countMatches(const char match, const std::string &basicString);
+
+    /**
+     * Convert a string to a ship key
+     * @param name  The name to convert
+     * @return    The ship key
+     */
+    static std::string toShipKey(const std::string& name);
+
+    /**
+     * Conform to Lower-scored (e.g. "buns_and_jams")
+     * @param raw input
+     * @return purified
+     */
+    static std::string toLowerScored(const std::string& raw);
+
+    /**
+     * Conform to Upper-scored (e.g. "BUNS_AND_JAMS")
+     * @param raw input
+     * @return purified
+     */
+    static std::string toUpperScored(const std::string& raw);
+
+    /**
+     * Conform to toScored (e.g. "mush_bun")
+     * @param raw input
+     * @return purified
+     */
+    static std::string toScored(const std::string& raw);
+
+    /**
+     Conform to Proper (e.g. "Jam")
+    
+     @param raw input
+     @return purified
+     */
+    static std::string toProper(std::string raw);
+
+    /**
+     Conform to Proper-slug (e.g. "Jam")
+
+     @param raw input
+     @return purified
+     */
+    static std::string toProperSlug(std::string raw);
+    
+
+    /**
+     Conform to Slug (e.g. "jim")
+    
+     @param raw input
+     @return purified
+     */
+    static std::string toSlug(std::string raw);
+
+
+    /**
+     Conform to Lowercase slug (e.g. "mush")
+  
+     @param raw input
+     @return purified
+     */
+    static std::string toLowerSlug(std::string raw);
+
+    /**
+     Conform to Uppercase slug (e.g. "MUSH")
+  
+     @param raw input
+     @return purified
+     */
+    static std::string toUpperSlug(std::string raw);
+
   };
 
 
-}// namespace Util
+}// namespace XJ
 
 #endif//XJMUSIC_STRING_UTILS_H

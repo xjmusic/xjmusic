@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  TemplateConfig has Meme categories
- https://github.com/xjmusic/workstation/issues/209
+ https://github.com/xjmusic/xjmusic/issues/209
  <p>
  A template configuration has a field called `memeTaxonomy` which defines the taxonomy of memes.
  <p>

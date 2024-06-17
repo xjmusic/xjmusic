@@ -25,7 +25,7 @@ public interface FabricatorFactory {
    @param overrideSegmentType override segment type
    @return Fabricator
    @throws FabricationException            on retry-able network or service failure
-   @throws FabricationFatalException on failure requiring a chain restart https://github.com/xjmusic/workstation/issues/263
+   @throws FabricationFatalException on failure requiring a chain restart https://github.com/xjmusic/xjmusic/issues/263
    */
   Fabricator fabricate(
     HubContent sourceMaterial,
@@ -45,7 +45,7 @@ public interface FabricatorFactory {
    @param segmentId Segment that's currently on the workbench
    @return SegmentRetrospective
    @throws FabricationException            on retry-able network or service failure
-   @throws FabricationFatalException on failure requiring a chain restart https://github.com/xjmusic/workstation/issues/263
+   @throws FabricationFatalException on failure requiring a chain restart https://github.com/xjmusic/xjmusic/issues/263
    */
   SegmentRetrospective loadRetrospective(
     Integer segmentId

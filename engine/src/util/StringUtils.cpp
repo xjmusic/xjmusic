@@ -2,14 +2,21 @@
 
 #include <algorithm>
 #include <sstream>
+#include <utility>
 
 #include "xjmusic/util/StringUtils.h"
 
-namespace Util {
+namespace XJ {
 
-  std::regex StringUtils::nonMeme("[^a-zA-Z0-9!$]");
+  std::regex StringUtils::leadingScores("^_+");
   std::regex StringUtils::nonAlphabetical("[^a-zA-Z]");
   std::regex StringUtils::nonAlphanumeric("[^a-zA-Z0-9.\\-]");// include decimal and sign
+  std::regex StringUtils::nonMeme("[^a-zA-Z0-9!$]");
+  std::regex StringUtils::nonScored("[^a-zA-Z0-9_]");
+  std::regex StringUtils::nonSlug("[^a-zA-Z0-9]");
+  std::regex StringUtils::spaces(" +");
+  std::regex StringUtils::tailingScores("_+$");
+  std::regex StringUtils::underscores("_+");
 
   std::vector<std::string> StringUtils::split(const std::string &input, char delimiter) {
     std::vector<std::string> tokens;
@@ -103,7 +110,7 @@ namespace Util {
     return trim(result);
   }
 
-  std::optional<std::string> StringUtils::match(const std::regex& pattern, const std::string& text) {
+  std::optional<std::string> StringUtils::match(const std::regex &pattern, const std::string &text) {
     std::smatch matcher;
     std::regex_search(text, matcher, pattern);
 
@@ -117,14 +124,68 @@ namespace Util {
     return match;
   }
 
-  int StringUtils::countMatches(const std::regex& regex, const std::string &basicString) {
+  int StringUtils::countMatches(const std::regex &regex, const std::string &basicString) {
     std::sregex_iterator it(basicString.begin(), basicString.end(), regex);
     std::sregex_iterator itEnd;
     return static_cast<int>(std::distance(it, itEnd));
   }
 
   int StringUtils::countMatches(const char match, const std::string &basicString) {
-    return std::count(basicString.begin(), basicString.end(), match);
+    return static_cast<int>( std::count(basicString.begin(), basicString.end(), match));
   }
 
-}// namespace Util
+  std::string StringUtils::toShipKey(const std::string& name) {
+    return toLowerScored(name);
+  }
+
+  std::string StringUtils::toLowerScored(const std::string &raw) {
+    std::string scored = toScored(raw);
+    std::transform(scored.begin(), scored.end(), scored.begin(), ::tolower);
+    return scored;
+  }
+
+  std::string StringUtils::toUpperScored(const std::string &raw) {
+    std::string scored = toScored(raw);
+    std::transform(scored.begin(), scored.end(), scored.begin(), ::toupper);
+    return scored;
+  }
+
+  std::string StringUtils::toScored(const std::string &raw) {
+    if (raw.empty()) return "";
+    std::string result = raw;
+    result = std::regex_replace(result, spaces, "_");
+    result = std::regex_replace(result, nonScored, "");
+    result = std::regex_replace(result, underscores, "_");
+    result = std::regex_replace(result, tailingScores, "");
+    result = std::regex_replace(result, leadingScores, "");
+    return result;
+  }
+
+  std::string StringUtils::toProper(std::string raw) {
+    if (1 < raw.length()) {
+      raw[0] = std::toupper(raw[0]);
+      return raw;
+    } else if (!raw.empty())
+      return toUpperCase(raw);
+
+    return "";
+  }
+
+  std::string StringUtils::toProperSlug(std::string raw) {
+    return toProper(toSlug(raw));
+  }
+
+  std::string StringUtils::toSlug(std::string raw) {
+    raw = std::regex_replace(raw, nonSlug, "");
+    return raw;
+  }
+
+  std::string StringUtils::toLowerSlug(std::string raw) {
+    return toLowerCase(toSlug(raw));
+  }
+
+  std::string StringUtils::toUpperSlug(std::string raw) {
+    return toUpperCase(toSlug(raw));
+  }
+
+}// namespace XJ

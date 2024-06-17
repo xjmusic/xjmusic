@@ -225,7 +225,7 @@ public class AudioCacheImpl implements AudioCache {
       && currentFormat.getSampleSizeInBits() == targetSampleBits
 
       // Mono source audio should be resampled and cached as mono
-      // https://github.com/xjmusic/workstation/issues/232
+      // https://github.com/xjmusic/xjmusic/issues/232
       && currentFormat.getChannels() <= targetChannels;
   }
 

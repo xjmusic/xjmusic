@@ -10,11 +10,9 @@
 #include <string>
 #include <vector>
 
-#include "xjmusic/content/Entity.h"
+#include "xjmusic/entities/Entity.h"
 
-using namespace Content;
-
-namespace Util {
+namespace XJ {
 
   class ValueUtils {
   private:

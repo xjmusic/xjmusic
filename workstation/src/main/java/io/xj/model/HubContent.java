@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 /**
  to ingest any combination of Programs, Instruments, or Libraries (with their Programs and Instruments)
  <p>
- Refactoring this class ala `HubContent` extends common `EntityStore`
+ Refactoring this class ala `HubContent` extends common `ContentEntityStore`
  */
 public class HubContent {
   final Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>> store = new ConcurrentHashMap<>();
@@ -108,7 +108,7 @@ public class HubContent {
 
   /**
    Combine multiple model contents into one
-   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   Project file structure is conducive to version control https://github.com/xjmusic/xjmusic/issues/335
 
    @param contents to combine
    @return combined model content
@@ -124,7 +124,7 @@ public class HubContent {
 
   /**
    Get a subset of only the content for the given instrument id
-   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   Project file structure is conducive to version control https://github.com/xjmusic/xjmusic/issues/335
 
    @param instrumentId for which to get subset content
    @return subset of content
@@ -139,7 +139,7 @@ public class HubContent {
 
   /**
    Get a subset of only the content for the given program id
-   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   Project file structure is conducive to version control https://github.com/xjmusic/xjmusic/issues/335
 
    @param programId for which to get subset content
    @return subset of content
@@ -162,7 +162,7 @@ public class HubContent {
 
   /**
    Get a subset of only the content for the given template id
-   Project file structure is conducive to version control https://github.com/xjmusic/workstation/issues/335
+   Project file structure is conducive to version control https://github.com/xjmusic/xjmusic/issues/335
 
    @param templateId for which to get subset content
    @return subset of content
@@ -572,7 +572,7 @@ public class HubContent {
   /**
    Get all template bindings
    <p>
-   Templates: enhanced preview chain creation for artists in Lab UI https://github.com/xjmusic/workstation/issues/205
+   Templates: enhanced preview chain creation for artists in Lab UI https://github.com/xjmusic/xjmusic/issues/205
 
    @return all template bindings
    */

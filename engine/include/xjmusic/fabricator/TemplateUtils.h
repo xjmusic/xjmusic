@@ -1,0 +1,15 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
+#include <string>
+#include <optional>
+
+#include "xjmusic/entities/content/Template.h"
+
+namespace XJ {
+
+  class TemplateUtils {
+  public:
+    static std::string getIdentifier(const std::optional<Template> &templateObj);
+  };
+
+}

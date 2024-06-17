@@ -10,7 +10,7 @@
 
 #include "xjmusic/util/ValueUtils.h"
 
-namespace Util {
+namespace XJ {
 
   std::regex ValueUtils::isIntegerRgx("[0-9]+");
   float ValueUtils::entityPositionDecimalPlaces = 2.0;

@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Choices should be random https://github.com/xjmusic/workstation/issues/291
+ * Choices should be random https://github.com/xjmusic/xjmusic/issues/291
  */
 public class MarbleBagTest {
   static final Logger LOG = LoggerFactory.getLogger(MarbleBagTest.class);
@@ -65,7 +65,7 @@ public class MarbleBagTest {
   /**
    * adds marbles to bag in multiple phases, picks 100 times and asserts allowed results
    * <p>
-   * Marble bag has phases https://github.com/xjmusic/workstation/issues/291
+   * Marble bag has phases https://github.com/xjmusic/xjmusic/issues/291
    * <p>
    * This will consolidate the logic around "choose this if available, else that, else that"
    * XJ’s marble bag is actually divided into phases. When a marble is put into the bag, it is assigned a phase.

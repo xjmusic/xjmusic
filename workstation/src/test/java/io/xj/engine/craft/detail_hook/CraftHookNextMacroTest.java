@@ -22,8 +22,8 @@ import io.xj.model.enums.ChainType;
 import io.xj.model.pojos.Segment;
 import io.xj.model.enums.SegmentState;
 import io.xj.model.enums.SegmentType;
-import io.xj.engine.fabricator.FabricationEntityStore;
-import io.xj.engine.fabricator.FabricationEntityStoreImpl;
+import io.xj.engine.fabricator.SegmentEntityStore;
+import io.xj.engine.fabricator.SegmentEntityStoreImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +44,7 @@ public class CraftHookNextMacroTest {
   SegmentFixtures fake;
   Chain chain1;
   Segment segment4;
-  FabricationEntityStore store;
+  SegmentEntityStore store;
   HubContent sourceMaterial;
 
   @BeforeEach
@@ -55,7 +55,7 @@ public class CraftHookNextMacroTest {
     HubTopology.buildHubApiTopology(entityFactory);
     FabricationTopology.buildFabricationTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    store = new FabricationEntityStoreImpl(entityFactory);
+    store = new SegmentEntityStoreImpl(entityFactory);
     fabricatorFactory = new FabricatorFactoryImpl(
       store,
       jsonapiPayloadFactory,

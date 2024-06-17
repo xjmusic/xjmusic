@@ -5,7 +5,7 @@ package io.xj.engine.work;
 import io.xj.model.HubContent;
 import io.xj.model.meme.MemeTaxonomy;
 import io.xj.model.pojos.Program;
-import io.xj.engine.fabricator.FabricationEntityStore;
+import io.xj.engine.fabricator.SegmentEntityStore;
 import jakarta.annotation.Nullable;
 
 import java.util.Collection;
@@ -32,7 +32,7 @@ public interface FabricationManager {
   /**
    Get the entity store
    */
-  FabricationEntityStore getEntityStore();
+  SegmentEntityStore getEntityStore();
 
   /**
    Reset the factory including the segment manager and its store
@@ -95,7 +95,7 @@ public interface FabricationManager {
 
   /**
    Go to the given macro program right away
-   https://github.com/xjmusic/workstation/issues/197
+   https://github.com/xjmusic/xjmusic/issues/197
 
    @param macroProgram to go to
    */
@@ -113,7 +113,7 @@ public interface FabricationManager {
 
   /**
    Manually go to a specific taxonomy category meme, and force until reset
-   https://github.com/xjmusic/workstation/issues/199
+   https://github.com/xjmusic/xjmusic/issues/199
 
    @param memes specific (assumed allowably) set of taxonomy category memes
    */

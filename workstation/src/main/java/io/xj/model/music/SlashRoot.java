@@ -39,7 +39,7 @@ public class SlashRoot {
   /**
    Instantiate a Root by name
    <p>
-   XJ understands the root of a slash chord https://github.com/xjmusic/workstation/issues/220
+   XJ understands the root of a slash chord https://github.com/xjmusic/xjmusic/issues/220
 
    @param name of root
    @return root

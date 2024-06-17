@@ -3,7 +3,7 @@
 package io.xj.engine.ship.broadcast;
 
 /**
- Ship competent HTTP Live Stream https://github.com/xjmusic/workstation/issues/279
+ Ship competent HTTP Live Stream https://github.com/xjmusic/xjmusic/issues/279
  */
 public interface StreamPlayer {
 

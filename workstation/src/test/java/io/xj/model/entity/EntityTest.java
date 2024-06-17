@@ -15,9 +15,9 @@ public class EntityTest {
   }
 
   /**
-   EventEntity Position persists exact floating point https://github.com/xjmusic/workstation/issues/223
+   EventEntity Position persists exact floating point https://github.com/xjmusic/xjmusic/issues/223
    <p>
-   Limit the floating point precision of chord and event position, in order to limit obsession over the position of things. https://github.com/xjmusic/workstation/issues/223
+   Limit the floating point precision of chord and event position, in order to limit obsession over the position of things. https://github.com/xjmusic/xjmusic/issues/223
    */
   @Test
   public void exactPosition() {

@@ -12,7 +12,7 @@ import static io.xj.model.music.NoteTest.assertNote;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- Sticky buns v2 persisted for each randomly selected note in the series for any given event https://github.com/xjmusic/workstation/issues/231
+ Sticky buns v2 persisted for each randomly selected note in the series for any given event https://github.com/xjmusic/xjmusic/issues/231
  */
 public class StickyBunTest {
   final UUID eventId = UUID.randomUUID();
@@ -40,7 +40,7 @@ public class StickyBunTest {
   }
 
   /**
-   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/workstation/issues/222
+   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/xjmusic/issues/222
    */
   @Test
   public void computeMetaKey() {

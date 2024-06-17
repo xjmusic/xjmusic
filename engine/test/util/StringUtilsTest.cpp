@@ -4,7 +4,7 @@
 
 #include "xjmusic/util/StringUtils.h"
 
-using namespace Util;
+using namespace XJ;
 
 TEST(StringUtilsTest, Split) {
   std::string s = "\n  one,     two,\nthree";
@@ -111,4 +111,75 @@ TEST(StringUtilsTest, CountMatches) {
   ASSERT_EQ(1, StringUtils::countMatches(accidentalFlat, "C#/Eb"));
   ASSERT_EQ(2, StringUtils::countMatches(accidentalFlat, "Gb/Ab"));
   ASSERT_EQ(2, StringUtils::countMatches(accidentalSharp, "F#/A#"));
+}
+
+TEST(StringUtilsTest, ToLowerScored) {
+  EXPECT_EQ("hammy_jammy", StringUtils::toLowerScored("HAMMY jaMMy"));
+  EXPECT_EQ("jammy", StringUtils::toLowerScored("jaMMy"));
+  EXPECT_EQ("jam_42", StringUtils::toLowerScored("jaM &&$ 42"));
+  EXPECT_EQ("jam_42", StringUtils::toLowerScored("  ## jaM &&$ 42"));
+  EXPECT_EQ("jam_42", StringUtils::toLowerScored("jaM &&$ 42 !!!!"));
+  EXPECT_EQ("hammy_jammy_bunbuns", StringUtils::toLowerScored("HAMMY $%& jaMMy bun%buns"));
+  EXPECT_EQ("p", StringUtils::toLowerScored("%&(#p"));
+  EXPECT_EQ("", StringUtils::toLowerScored("%&(#"));
+}
+
+TEST(StringUtilsTest, ToScored) {
+  EXPECT_EQ("", StringUtils::toScored(""));
+  EXPECT_EQ("HAMMY_jaMMy", StringUtils::toScored("HAMMY jaMMy"));
+  EXPECT_EQ("jaMMy", StringUtils::toScored("jaMMy"));
+  EXPECT_EQ("jaM_42", StringUtils::toScored("jaM &&$ 42"));
+  EXPECT_EQ("jaM_42", StringUtils::toScored("  ## jaM &&$ 42"));
+  EXPECT_EQ("jaM_42", StringUtils::toScored("jaM &&$ 42 !!!!"));
+  EXPECT_EQ("HAMMY_jaMMy_bunbuns", StringUtils::toScored("HAMMY $%& jaMMy bun%buns"));
+  EXPECT_EQ("p", StringUtils::toScored("%&(#p"));
+  EXPECT_EQ("", StringUtils::toScored("%&(#"));
+}
+
+TEST(StringUtilsTest, ToUpperScored) {
+  EXPECT_EQ("JAMMY_BUNS", StringUtils::toUpperCase(StringUtils::toScored("jaMMy b#!uns")));
+  EXPECT_EQ("JAMMY_BUNS", StringUtils::toUpperCase(StringUtils::toScored("  jaMMy    b#!uns   ")));
+  EXPECT_EQ("JAMMY", StringUtils::toUpperCase(StringUtils::toScored("jaMMy")));
+  EXPECT_EQ("JMMY", StringUtils::toUpperCase(StringUtils::toScored("j#MMy")));
+  EXPECT_EQ("P", StringUtils::toUpperCase(StringUtils::toScored("%&(#p")));
+  EXPECT_EQ("", StringUtils::toUpperCase(StringUtils::toScored("%&(#")));
+}
+
+TEST(StringUtilsTest, ToProper) {
+  EXPECT_EQ("Jammy biscuit", StringUtils::toProper("jammy biscuit"));
+  EXPECT_EQ("Jammy", StringUtils::toProper("jammy"));
+  EXPECT_EQ("J#mmy", StringUtils::toProper("j#mmy"));
+  EXPECT_EQ("%&(#", StringUtils::toProper("%&(#"));
+}
+
+TEST(StringUtilsTest, ToProperSlug) {
+  EXPECT_EQ("Jammybiscuit", StringUtils::toProperSlug("jammy biscuit"));
+  EXPECT_EQ("Jammy", StringUtils::toProperSlug("jammy"));
+  EXPECT_EQ("Jmmy", StringUtils::toProperSlug("j#mmy"));
+  EXPECT_EQ("P", StringUtils::toProperSlug("%&(#p"));
+  EXPECT_EQ("", StringUtils::toProperSlug("%&(#"));
+  EXPECT_EQ("NextMain", StringUtils::toProperSlug("NextMain"));
+}
+
+TEST(StringUtilsTest, ToSlug) {
+  EXPECT_EQ("jim", StringUtils::toSlug("jim"));
+  EXPECT_EQ("jim251", StringUtils::toSlug("jim-251"));
+  EXPECT_EQ("jim251", StringUtils::toSlug("j i m - 2 5 1"));
+  EXPECT_EQ("jm251", StringUtils::toSlug("j!$m%-^2%5*1"));
+}
+
+TEST(StringUtilsTest, ToLowerSlug) {
+  EXPECT_EQ("h4mmyjammy", StringUtils::toLowerSlug("H4MMY jaMMy"));
+  EXPECT_EQ("jammy", StringUtils::toLowerSlug("jaMMy"));
+  EXPECT_EQ("jmmy", StringUtils::toLowerSlug("j#MMy"));
+  EXPECT_EQ("p", StringUtils::toLowerSlug("%&(#p"));
+  EXPECT_EQ("", StringUtils::toLowerSlug("%&(#"));
+}
+
+TEST(StringUtilsTest, ToUpperSlug) {
+  EXPECT_EQ("H4MMYJAMMY", StringUtils::toUpperSlug("H4MMY jaMMy"));
+  EXPECT_EQ("JAMMY", StringUtils::toUpperSlug("jaMMy"));
+  EXPECT_EQ("JMMY", StringUtils::toUpperSlug("j#MMy"));
+  EXPECT_EQ("P", StringUtils::toUpperSlug("%&(#p"));
+  EXPECT_EQ("", StringUtils::toUpperSlug("%&(#"));
 }

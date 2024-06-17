@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/workstation/issues/222
+ Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/xjmusic/issues/222
  */
 public class SegmentMeta {
 

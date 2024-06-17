@@ -3,45 +3,56 @@ include(FetchContent)
 
 # Tests need to be added as executables first
 add_executable(xjmusic_test
-        _helper/AssertionHelpers.cpp
-        _helper/ContentTestHelper.cpp
-        content/ContentStoreTest.cpp
-        content/InstrumentAudioTest.cpp
-        content/InstrumentConfigTest.cpp
-        content/InstrumentMemeTest.cpp
-        content/InstrumentTest.cpp
-        content/LibraryTest.cpp
-        content/MemeTaxonomyTest.cpp
-        content/ProgramConfigTest.cpp
-        content/ProgramMemeTest.cpp
-        content/ProgramSequenceBindingMemeTest.cpp
-        content/ProgramSequenceBindingTest.cpp
-        content/ProgramSequenceChordTest.cpp
-        content/ProgramSequenceChordVoicingTest.cpp
-        content/ProgramSequencePatternEventTest.cpp
-        content/ProgramSequencePatternTest.cpp
-        content/ProgramSequenceTest.cpp
-        content/ProgramTest.cpp
-        content/ProgramVoiceTest.cpp
-        content/ProgramVoiceTrackTest.cpp
-        content/ProjectTest.cpp
-        content/TemplateBindingTest.cpp
-        content/TemplateConfigTest.cpp
-        content/TemplateTest.cpp
-        music/AccidentalTest.cpp
-        music/BPMTest.cpp
-        music/BarTest.cpp
-        music/ChordTest.cpp
-        music/NoteRangeTest.cpp
-        music/NoteTest.cpp
-        music/OctaveTest.cpp
-        music/PitchClassTest.cpp
-        music/RootTest.cpp
-        music/SlashRootTest.cpp
-        music/StepTest.cpp
-        music/StickyBunTest.cpp
-        music/TuningTest.cpp
+        _helper/ContentFixtures.cpp
+        _helper/LoremIpsum.cpp
+        _helper/SegmentFixtures.cpp
+        _helper/TestHelpers.cpp
+        entities/content/ContentEntityStoreTest.cpp
+        entities/content/InstrumentAudioTest.cpp
+        entities/content/InstrumentConfigTest.cpp
+        entities/content/InstrumentMemeTest.cpp
+        entities/content/InstrumentTest.cpp
+        entities/content/LibraryTest.cpp
+        entities/content/ProgramConfigTest.cpp
+        entities/content/ProgramMemeTest.cpp
+        entities/content/ProgramSequenceBindingMemeTest.cpp
+        entities/content/ProgramSequenceBindingTest.cpp
+        entities/content/ProgramSequenceChordTest.cpp
+        entities/content/ProgramSequenceChordVoicingTest.cpp
+        entities/content/ProgramSequencePatternEventTest.cpp
+        entities/content/ProgramSequencePatternTest.cpp
+        entities/content/ProgramSequenceTest.cpp
+        entities/content/ProgramTest.cpp
+        entities/content/ProgramVoiceTest.cpp
+        entities/content/ProgramVoiceTrackTest.cpp
+        entities/content/ProjectTest.cpp
+        entities/content/TemplateBindingTest.cpp
+        entities/content/TemplateConfigTest.cpp
+        entities/content/TemplateTest.cpp
+        entities/meme/MemeIsometryTest.cpp
+        entities/meme/MemeStackTest.cpp
+        entities/meme/MemeTaxonomyTest.cpp
+        entities/music/AccidentalTest.cpp
+        entities/music/BPMTest.cpp
+        entities/music/BarTest.cpp
+        entities/music/ChordTest.cpp
+        entities/music/NoteRangeTest.cpp
+        entities/music/NoteTest.cpp
+        entities/music/OctaveTest.cpp
+        entities/music/PitchClassTest.cpp
+        entities/music/RootTest.cpp
+        entities/music/SlashRootTest.cpp
+        entities/music/StepTest.cpp
+        entities/music/StickyBunTest.cpp
+        entities/music/TuningTest.cpp
+        entities/segment/SegmentEntityStoreTest.cpp
+        entities/segment/SegmentMemeTest.cpp
+        fabricator/FabricatorTest.cpp
+        fabricator/MarbleBagTest.cpp
+        fabricator/SegmentRetrospectiveTest.cpp
+        fabricator/SegmentUtilsTest.cpp
         util/ConfigParserTest.cpp
+        util/CsvUtilsTest.cpp
         util/StringUtilsTest.cpp
         util/ValueUtilsTest.cpp
 )
@@ -51,14 +62,16 @@ target_compile_features(xjmusic_test PRIVATE cxx_std_17)
 
 # Turn off the optimizer for faster build and easier debugging
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 
 # Link the libraries from the main project
 target_link_libraries(xjmusic_test PRIVATE xjmusic)
 
 # Google Test (googletest)
-FetchContent_Declare(googletest URL https://github.com/google/googletest/archive/5376968f6948923e2411081fd9372e71a59d8e77.zip)
+FetchContent_Declare(googletest URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip)
 FetchContent_MakeAvailable(googletest)
 target_link_libraries(xjmusic_test PRIVATE gtest_main)
+target_link_libraries(xjmusic_test PRIVATE gmock_main)
 
 # yaml-cpp (jbeder/yaml-cpp)
 FetchContent_Declare(yaml-cpp URL https://github.com/jbeder/yaml-cpp/archive/refs/tags/0.8.0.tar.gz)
@@ -69,6 +82,11 @@ if(NOT yaml-cpp_POPULATED)
     add_subdirectory(${yaml-cpp_SOURCE_DIR} ${yaml-cpp_BINARY_DIR})
 endif()
 target_link_libraries(xjmusic_test PUBLIC yaml-cpp::yaml-cpp)
+
+# Fast C++ logging library (gabime/spdlog)
+FetchContent_Declare(spdlog URL https://github.com/gabime/spdlog/archive/v1.13.0.tar.gz)
+FetchContent_MakeAvailable(spdlog)
+target_link_libraries(xjmusic_test PRIVATE spdlog::spdlog)
 
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)

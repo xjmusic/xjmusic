@@ -1,6 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.craft.macro_main;
 
+import io.xj.engine.fabricator.SegmentEntityStore;
+import io.xj.engine.fabricator.SegmentEntityStoreImpl;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
@@ -26,8 +28,6 @@ import io.xj.model.pojos.SegmentChord;
 import io.xj.model.pojos.SegmentMeme;
 import io.xj.model.enums.SegmentState;
 import io.xj.model.enums.SegmentType;
-import io.xj.engine.fabricator.FabricationEntityStore;
-import io.xj.engine.fabricator.FabricationEntityStoreImpl;
 import io.xj.engine.fabricator.SegmentUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,14 +54,14 @@ public class CraftFoundationNextMainTest {
   SegmentFixtures fake;
   Chain chain1;
   Segment segment4;
-  FabricationEntityStore store;
+  SegmentEntityStore store;
   HubContent sourceMaterial;
 
   @BeforeEach
   public void setUp() throws Exception {
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
-    store = new FabricationEntityStoreImpl(entityFactory);
+    store = new SegmentEntityStoreImpl(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     fabricatorFactory = new FabricatorFactoryImpl(
       store,
@@ -161,7 +161,7 @@ public class CraftFoundationNextMainTest {
   }
 
   /**
-   Engineer wants a Segment to be reverted, and re-queued for Craft, in the event that such a Segment has just failed its Craft process, in order to ensure Chain fabrication fault tolerance https://github.com/xjmusic/workstation/issues/297
+   Engineer wants a Segment to be reverted, and re-queued for Craft, in the event that such a Segment has just failed its Craft process, in order to ensure Chain fabrication fault tolerance https://github.com/xjmusic/xjmusic/issues/297
    */
   @Test
   public void craftFoundationNextMain_revertsAndRequeueOnFailure() throws Exception {
