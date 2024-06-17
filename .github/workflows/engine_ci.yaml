@@ -52,7 +52,7 @@ jobs:
           mkdir build
           cd build
           cmake ..
-          make
+          cmake --build .
 
       - name: Test
         working-directory: engine/
