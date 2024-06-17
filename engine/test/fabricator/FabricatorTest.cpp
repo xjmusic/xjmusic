@@ -20,7 +20,7 @@ class FabricatorTest : public ::testing::Test {
 protected:
   int SEQUENCE_TOTAL_BEATS = 64;
   ContentEntityStore* sourceMaterial;
-  SegmentEntityStore* store = new SegmentEntityStore();
+  SegmentEntityStore* store;
   MockFabricatorFactory *mockFabricatorFactory;
   MockSegmentRetrospective *mockRetrospective;
   Fabricator *subject;
@@ -28,8 +28,8 @@ protected:
   Segment segment;
 
   void SetUp() override {
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
+    sourceMaterial = new ContentEntityStore();
+    store = new SegmentEntityStore();
 
     // Mock request via HubClientFactory returns fake generated library of model content
     fake.setupFixtureB1(sourceMaterial);
@@ -55,7 +55,16 @@ protected:
         "seg123"
     ));
     mockFabricatorFactory = new MockFabricatorFactory(store);
-    EXPECT_CALL(*mockFabricatorFactory, loadRetrospective(_)).WillOnce(Return(mockRetrospective));
+    mockRetrospective = new MockSegmentRetrospective(store, 2);
+    ON_CALL(*mockFabricatorFactory, loadRetrospective(_)).WillByDefault(Return(mockRetrospective));
+    subject = new Fabricator(mockFabricatorFactory, store, sourceMaterial, 2, 48000.0f, 2, std::nullopt);
+  }
+
+  void TearDown() override {
+    delete store;
+    delete mockFabricatorFactory;
+    delete mockRetrospective;
+    delete subject;
   }
 };
 
@@ -86,8 +95,6 @@ TEST_F(FabricatorTest, pick_returned_by_picks) {
   pick.amplitude = 0.8f;
   pick.tones = "A4";
   store->put(pick);
-  EXPECT_CALL(*mockFabricatorFactory, loadRetrospective(_)).WillOnce(Return(mockRetrospective));
-  subject = new Fabricator(mockFabricatorFactory, store, sourceMaterial, 2, 48000.0f, 2, std::nullopt);
 
   std::set<SegmentChoiceArrangementPick> result = subject->getPicks();
 

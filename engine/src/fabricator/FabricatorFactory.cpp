@@ -17,5 +17,7 @@ throws FabricationException, FabricationFatalException{
 */
 
 SegmentRetrospective * FabricatorFactory::loadRetrospective(int segmentId) {
-  return new SegmentRetrospective(entityStore, segmentId);
+  auto retro = new SegmentRetrospective(entityStore, segmentId);
+  retro->load();
+  return retro;
 }

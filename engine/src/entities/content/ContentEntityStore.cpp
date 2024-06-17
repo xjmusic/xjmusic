@@ -238,55 +238,55 @@ namespace nlohmann {
   void from_json(const json &json, ContentEntityStore &store) {
     if (json.contains("instruments"))
       store.setInstruments(
-          json.at("instruments").get < std::set < Instrument >> ());
+          json.at("instruments").get<std::set<Instrument >>());
     if (json.contains("instrumentAudios"))
       store.setInstrumentAudios(
-          json.at("instrumentAudios").get < std::set < InstrumentAudio >> ());
+          json.at("instrumentAudios").get<std::set<InstrumentAudio >>());
     if (json.contains("instrumentMemes"))
       store.setInstrumentMemes(
-          json.at("instrumentMemes").get < std::set < InstrumentMeme >> ());
+          json.at("instrumentMemes").get<std::set<InstrumentMeme >>());
     if (json.contains("libraries"))
       store.setLibraries(
-          json.at("libraries").get < std::set < Library >> ());
+          json.at("libraries").get<std::set<Library >>());
     if (json.contains("programs"))
       store.setPrograms(
-          json.at("programs").get < std::set < Program >> ());
+          json.at("programs").get<std::set<Program >>());
     if (json.contains("programMemes"))
       store.setProgramMemes(
-          json.at("programMemes").get < std::set < ProgramMeme >> ());
+          json.at("programMemes").get<std::set<ProgramMeme >>());
     if (json.contains("programSequences"))
       store.setProgramSequences(
-          json.at("programSequences").get < std::set < ProgramSequence >> ());
+          json.at("programSequences").get<std::set<ProgramSequence >>());
     if (json.contains("programSequenceBindings"))
       store.setProgramSequenceBindings(
-          json.at("programSequenceBindings").get < std::set < ProgramSequenceBinding >> ());
+          json.at("programSequenceBindings").get<std::set<ProgramSequenceBinding >>());
     if (json.contains("programSequenceBindingMemes"))
       store.setProgramSequenceBindingMemes(
-          json.at("programSequenceBindingMemes").get < std::set < ProgramSequenceBindingMeme >> ());
+          json.at("programSequenceBindingMemes").get<std::set<ProgramSequenceBindingMeme >>());
     if (json.contains("programSequenceChords"))
       store.setProgramSequenceChords(
-          json.at("programSequenceChords").get < std::set < ProgramSequenceChord >> ());
+          json.at("programSequenceChords").get<std::set<ProgramSequenceChord >>());
     if (json.contains("programSequenceChordVoicings"))
       store.setProgramSequenceChordVoicings(
-          json.at("programSequenceChordVoicings").get < std::set < ProgramSequenceChordVoicing >> ());
+          json.at("programSequenceChordVoicings").get<std::set<ProgramSequenceChordVoicing >>());
     if (json.contains("programSequencePatterns"))
       store.setProgramSequencePatterns(
-          json.at("programSequencePatterns").get < std::set < ProgramSequencePattern >> ());
+          json.at("programSequencePatterns").get<std::set<ProgramSequencePattern >>());
     if (json.contains("programSequencePatternEvents"))
       store.setProgramSequencePatternEvents(
-          json.at("programSequencePatternEvents").get < std::set < ProgramSequencePatternEvent >> ());
+          json.at("programSequencePatternEvents").get<std::set<ProgramSequencePatternEvent >>());
     if (json.contains("programVoices"))
       store.setProgramVoices(
-          json.at("programVoices").get < std::set < ProgramVoice >> ());
+          json.at("programVoices").get<std::set<ProgramVoice >>());
     if (json.contains("programVoiceTracks"))
       store.setProgramVoiceTracks(
-          json.at("programVoiceTracks").get < std::set < ProgramVoiceTrack >> ());
+          json.at("programVoiceTracks").get<std::set<ProgramVoiceTrack >>());
     if (json.contains("templates"))
       store.setTemplates(
-          json.at("templates").get < std::set < Template >> ());
+          json.at("templates").get<std::set<Template >>());
     if (json.contains("templateBindings"))
       store.setTemplateBindings(
-          json.at("templateBindings").get < std::set < TemplateBinding >> ());
+          json.at("templateBindings").get<std::set<TemplateBinding >>());
     if (json.contains("project"))
       store.setProjects({json.at("project").get<Project>()});
   }
@@ -321,7 +321,7 @@ namespace nlohmann {
     try {                                                                                     \
       STORE.clear();                                                                          \
       for (const auto &entity: entities) {                                                    \
-        STORE[entity.id] = std::move(entity);                                                 \
+        STORE[entity.id] = entity;                                                            \
       }                                                                                       \
     } catch (const std::exception &e) {                                                       \
       spdlog::error("Error putting all {}: {}", #ENTITY, e.what());                           \
@@ -330,7 +330,7 @@ namespace nlohmann {
   }                                                                                           \
   ENTITY ContentEntityStore::put(const ENTITY &entity) {                                      \
     try {                                                                                     \
-      STORE[entity.id] = std::move(entity);                                                   \
+      STORE[entity.id] = entity;                                                              \
     } catch (const std::exception &e) {                                                       \
       spdlog::error("Error putting {}: {}", #ENTITY, e.what());                               \
     }                                                                                         \
@@ -373,16 +373,6 @@ CONTENT_STORE_CORE_METHODS(Project, Projects, projects)
 CONTENT_STORE_CORE_METHODS(Template, Templates, templates)
 
 CONTENT_STORE_CORE_METHODS(TemplateBinding, TemplateBindings, templateBindings)
-
-ContentEntityStore ContentEntityStore::fromJson(std::ifstream &input) {
-  json j;
-  input >> j;
-  return j.get<ContentEntityStore>();
-}
-
-ContentEntityStore ContentEntityStore::fromJson(std::string &input) {
-  return json::parse(input).get<ContentEntityStore>();
-}
 
 std::optional<Project *> ContentEntityStore::getProject() {
   if (projects.empty()) return std::nullopt;
@@ -945,7 +935,7 @@ std::set<const ProgramVoiceTrack *> ContentEntityStore::getTracksOfVoice(const U
 }
 
 std::set<std::string> ContentEntityStore::getTrackNamesOfVoice(const ProgramVoice &voice) {
-  std::set < std::string > result;
+  std::set<std::string> result;
   for (const auto &pair: programVoiceTracks) {
     if (pair.second.programVoiceId == voice.id) {
       result.emplace(pair.second.name);
@@ -954,7 +944,8 @@ std::set<std::string> ContentEntityStore::getTrackNamesOfVoice(const ProgramVoic
   return result;
 }
 
-std::set<const ProgramSequenceChordVoicing *> ContentEntityStore::getVoicingsOfChord(const ProgramSequenceChord &chord) {
+std::set<const ProgramSequenceChordVoicing *>
+ContentEntityStore::getVoicingsOfChord(const ProgramSequenceChord &chord) {
   return getVoicingsOfChord(chord.id);
 }
 
@@ -1110,5 +1101,18 @@ void ContentEntityStore::clear() {
   templateBindings.clear();
   projects.clear();
 }
+
+ContentEntityStore::ContentEntityStore() = default;
+
+ContentEntityStore::ContentEntityStore(std::ifstream &input) {
+  json j;
+  input >> j;
+  *this = j.get<ContentEntityStore>();
+}
+
+ContentEntityStore::ContentEntityStore(std::string &input) {
+  *this = json::parse(input).get<ContentEntityStore>();
+}
+
 
 #pragma clang diagnostic pop

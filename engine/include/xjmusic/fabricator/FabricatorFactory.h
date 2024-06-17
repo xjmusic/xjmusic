@@ -59,7 +59,7 @@ namespace XJ {
      @throws FabricationException            on retry-able network or service failure
      @throws FabricationFatalException on failure requiring a chain restart https://github.com/xjmusic/xjmusic/issues/263
      */
-    SegmentRetrospective * loadRetrospective(
+    virtual SegmentRetrospective * loadRetrospective(
         int segmentId
     );
 

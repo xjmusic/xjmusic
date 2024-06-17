@@ -16,8 +16,8 @@ class SegmentRetrospectiveTest : public ::testing::Test {
 protected:
   int SEQUENCE_TOTAL_BEATS = 64;
   UUID patternId = Entity::randomUUID();
-  ContentEntityStore* sourceMaterial;
-  SegmentEntityStore* store;
+  ContentEntityStore* sourceMaterial = new ContentEntityStore();
+  SegmentEntityStore* store = new SegmentEntityStore();
   FabricatorFactory* fabricatorFactory = new FabricatorFactory(store);
   ContentFixtures fake;
   Segment segment0;

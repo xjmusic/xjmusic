@@ -38,6 +38,20 @@ namespace XJ {
     explicit SegmentRetrospective(SegmentEntityStore *entityStore, int segmentId);
 
     /**
+     * Compute the retrospective
+     * <p>
+     * NOTE: the segment retrospective is empty for segments of type Initial, NextMain, and NextMacro--
+     * Only Continue-type segments have a retrospective
+     * <p>
+     * Begin by getting the previous segment
+     * Only can build retrospective if there is at least one previous segment
+     * The previous segment is the first one cached here. We may cache even further back segments below if found
+     * @throws FabricationFatalException on failure to retrieve
+     * @throws FabricationException on failure to compute
+     */
+    void load();
+
+    /**
      Get the arrangement for the given pick
 
      @param pick for which to get arrangement
@@ -180,12 +194,12 @@ namespace XJ {
     std::vector<SegmentChord> getSegmentChords(int segmentId);
 
   private:
-    std::map<int, std::vector<SegmentChord>> segmentChords{}; // indexed by id, vector of chords ordered by position
+    int segmentId;
     SegmentEntityStore* entityStore{};
     std::vector<Segment> retroSegments{};
     std::set<int> previousSegmentIds{};
     std::optional<Segment> previousSegment;
-
+    std::map<int, std::vector<SegmentChord>> segmentChords{}; // indexed by id, vector of chords ordered by position
   };
 
 }// namespace XJ

@@ -10,7 +10,10 @@ using namespace XJ;
 
 SegmentRetrospective::SegmentRetrospective(SegmentEntityStore *entityStore, int segmentId) {
   this->entityStore = entityStore;
+  this->segmentId = segmentId;
+}
 
+void SegmentRetrospective::load() {
   // NOTE: the segment retrospective is empty for segments of type Initial, NextMain, and NextMacro--
   // Only Continue-type segments have a retrospective
 

@@ -60,8 +60,6 @@ namespace XJ {
     std::map<UUID, TemplateBinding> templateBindings{};
 
   public:
-    ContentEntityStore() = default;
-
     CONTENT_STORE_CORE_HEADERS(Instrument, Instruments)
 
     CONTENT_STORE_CORE_HEADERS(InstrumentAudio, InstrumentAudios)
@@ -98,19 +96,22 @@ namespace XJ {
 
     CONTENT_STORE_CORE_HEADERS(TemplateBinding, TemplateBindings)
 
+    /** Default constructor */
+    explicit ContentEntityStore();
+
     /**
      * Deserialize a ContentEntityStore object from a JSON file
      * @param file  The JSON file to deserialize
      * @return      The deserialized ContentEntityStore object
      */
-    static ContentEntityStore fromJson(std::ifstream &file);
+    explicit ContentEntityStore(std::ifstream &file);
 
     /**
      * Deserialize a ContentEntityStore object from a JSON string
      * @param input  The JSON string to deserialize
      * @return       The deserialized ContentEntityStore object
      */
-    static ContentEntityStore fromJson(std::string &input);
+    explicit ContentEntityStore(std::string &input);
 
     /**
      * Get the Project (there should be only one)
