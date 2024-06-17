@@ -51,7 +51,6 @@ jobs:
           cd build
           cmake ..
           make
-          make doc
 
       - name: Test
         working-directory: engine/
