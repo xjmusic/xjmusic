@@ -72,7 +72,7 @@ TEST(Music_StickyBun, compute) {
 TEST(Music_StickyBun, Serialize_Deserialize) {
   auto bun = StickyBun(eventId, std::vector{42, 67, 100, 0});
 
-  auto json = bun.to_json();
+  auto json = bun.serialize();
 
   auto result = StickyBun::deserializeFrom(json);
 

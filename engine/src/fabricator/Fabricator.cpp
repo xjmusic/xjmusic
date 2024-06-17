@@ -662,7 +662,7 @@ void Fabricator::putStickyBun(StickyBun bun) {
   meta.id = Entity::randomUUID();
   meta.segmentId = getSegment().id;
   meta.key = bun.computeMetaKey();
-  meta.value = bun.to_json();
+  meta.value = bun.serialize();
 
   store->put(meta);
 }

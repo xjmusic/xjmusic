@@ -2,11 +2,13 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <vector>
 
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "../_helper/SegmentFixtures.h"
 #include "../_mock/MockFabricatorFactory.h"
 #include "../_mock/MockSegmentRetrospective.h"
+#include "xjmusic/fabricator/ChainUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -15,7 +17,7 @@ using ::testing::ReturnRef;
 
 using namespace XJ;
 
-class FabricatorTest : public ::testing::Test {
+class FabricatorTest : public ::testing::Test { // NOLINT(*-pro-type-member-init)
 protected:
   int SEQUENCE_TOTAL_BEATS = 64;
   ContentEntityStore *sourceMaterial;
@@ -107,332 +109,426 @@ TEST_F(FabricatorTest, pick_returned_by_picks) {
 }
 
 
-/*
- * TODO - finish converting these Java/mockito tests to C++/Google Mock
- *
- *
 TEST_F(FabricatorTest, getDistinctChordVoicingTypes) {
-  sourceMaterial = ContentEntityStore(Stream.concat(
-      Stream.concat(Stream.concat(fake.setupFixtureB1().stream(), fake.setupFixtureB2().stream()),
-                    fake.setupFixtureB3().stream()),
-      Stream.of(ContentFixtures::buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceSticky, "G4, B4, D4"),
-                ContentFixtures::buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceStripe, "F5"),
-                ContentFixtures::buildVoicing(fake.program5_sequence0_chord0, fake.program5_voicePad,
-                                              "(None)") // No voicing notes- doesn't count!
-      )).collect(Collectors.toList()));
-  auto chain = store->put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
-                                                     Chain::State::Fabricate));
-  segment = store->put(
-      SegmentFixtures::buildSegment(chain, 0, Segment::State::Crafting, "F major", 8, 0.6f, 120.0f, "seg123"));
-  store->put(SegmentFixtures::buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED,
-                                                fake.program5));
-  when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
-  subject = Fabricator(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory,
-                       jsonProvider, 48000.0f, 2, null);
+  sourceMaterial->put(ContentFixtures::buildVoicing(
+      fake.program5_sequence0_chord0, fake.program5_voiceSticky, "G4, B4, D4"));
+  sourceMaterial->put(ContentFixtures::buildVoicing(
+      fake.program5_sequence0_chord0, fake.program5_voiceStripe, "F5"));
+  sourceMaterial->put(ContentFixtures::buildVoicing(
+      fake.program5_sequence0_chord0, fake.program5_voicePad, "(None)")); // No voicing notes- doesn't count!
 
-  Set <Instrument::Type> result = subject.getDistinctChordVoicingTypes();
+  // Create a chain
+  auto chain = store->put(SegmentFixtures::buildChain(
+      fake.project1, fake.template1, "test", Chain::Type::Production, Chain::State::Fabricate));
 
-  ASSERT_EQ(Set.of(Instrument::Type::Bass, Instrument::Type::Sticky, Instrument::Type::Stripe), result);
+  // Create a segment choice
+  store->put(SegmentFixtures::buildSegmentChoice(
+      segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program5));
+
+  // Get the result
+  std::set<Instrument::Type> result = subject->getDistinctChordVoicingTypes();
+
+  // Check the result
+  std::set<Instrument::Type> expected = {Instrument::Type::Bass, Instrument::Type::Sticky, Instrument::Type::Stripe};
+  ASSERT_EQ(expected, result);
 }
 
-
-*/
 /**
  Choose next Macro program based on the memes of the last sequence from the previous Macro program https://github.com/xjmusic/xjmusic/issues/299
- *//*
-
+ */
 TEST_F(FabricatorTest, Type) {
+  // Create a chain
   auto chain = store->put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
-                                                     Chain::State::Fabricate));
+                                                      Chain::State::Fabricate));
+
+  // Create previous segments with different choices
   Segment previousSegment = store->put(
       SegmentFixtures::buildSegment(chain, 1, Segment::State::Crafted, "F major", 8, 0.6f, 120.0f, "seg123"));
-  auto previousMacroChoice = // second-to-last sequence of macro program
-      store->put(SegmentFixtures::buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED,
-                                                    SegmentChoice::DELTA_UNLIMITED, fake.program4,
-                                                    fake.program4_sequence1_binding0));
-  auto previousMainChoice = // last sequence of main program
-      store->put(SegmentFixtures::buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED,
-                                                    SegmentChoice::DELTA_UNLIMITED, fake.program5,
-                                                    fake.program5_sequence1_binding0));
+  auto previousMacroChoice = store->put(SegmentFixtures::buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED,
+                                                                            SegmentChoice::DELTA_UNLIMITED, fake.program4,
+                                                                            fake.program4_sequence1_binding0));
+  auto previousMainChoice = store->put(SegmentFixtures::buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED,
+                                                                           SegmentChoice::DELTA_UNLIMITED, fake.program5,
+                                                                           fake.program5_sequence1_binding0));
+
+  // Create the current segment
   segment = store->put(
       SegmentFixtures::buildSegment(chain, 2, Segment::State::Crafting, "G major", 8, 0.6f, 240.0f, "seg123"));
-  when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
-  when(mockRetrospective.getPreviousChoiceOfType(Program::Type::Main)).thenReturn(Optional.of(previousMainChoice));
-  when(mockRetrospective.getPreviousChoiceOfType(Program::Type::Macro)).thenReturn(Optional.of(previousMacroChoice));
-  subject = Fabricator(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory,
-                       jsonProvider, 48000.0f, 2, null);
 
-  auto result = subject.type;
+  // Get the result
+  auto result = subject->getType();
 
+  // Check the result
   ASSERT_EQ(Segment::Type::NextMacro, result);
 }
 
+
 // FUTURE: test getChoicesOfPreviousSegments
 
-TEST_F(FabricatorTest, getMemeIsometryOfNextSequenceInPreviousMacro) {
+
+TEST_F(FabricatorTest, GetMemeIsometryOfNextSequenceInPreviousMacro) {
+  // Create a chain
   auto chain = store->put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
-                                                     Chain::State::Fabricate));
+                                                      Chain::State::Fabricate));
+
+  // Create previous segments with different choices
   Segment previousSegment = store->put(
       SegmentFixtures::buildSegment(chain, 1, Segment::State::Crafted, "F major", 8, 0.6f, 120.0f, "seg123"));
-  auto previousMacroChoice = // second-to-last sequence of macro program
-      store->put(SegmentFixtures::buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED,
-                                                    SegmentChoice::DELTA_UNLIMITED, fake.program4,
-                                                    fake.program4_sequence1_binding0));
+  auto previousMacroChoice = store->put(SegmentFixtures::buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED,
+                                                                            SegmentChoice::DELTA_UNLIMITED, fake.program4,
+                                                                            fake.program4_sequence1_binding0));
   store->put(SegmentFixtures::buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED,
-                                                SegmentChoice::DELTA_UNLIMITED, fake.program5,
-                                                fake.program5_sequence1_binding0));
+                                                 SegmentChoice::DELTA_UNLIMITED, fake.program5,
+                                                 fake.program5_sequence1_binding0));
+
+  // Create the current segment
   segment = store->put(
       SegmentFixtures::buildSegment(chain, 2, Segment::State::Crafting, "G major", 8, 0.6f, 240.0f, "seg123"));
-  when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
-  when(mockRetrospective.getPreviousChoiceOfType(Program::Type::Macro)).thenReturn(Optional.of(previousMacroChoice));
-  subject = Fabricator(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory,
-                       jsonProvider, 48000.0f, 2, null);
 
-  auto result = subject.getMemeIsometryOfNextSequenceInPreviousMacro();
+  // Set up the mock Retrospective to return the previous choices
+  EXPECT_CALL(*mockRetrospective, getPreviousChoiceOfType(Program::Type::Macro)).WillOnce(Return(previousMacroChoice));
 
-  assertArrayEquals(String[]
-  { "COZY", "TROPICAL" }, result.getSources().stream().sorted().toArray());
+  // Get the result
+  auto result = subject->getMemeIsometryOfNextSequenceInPreviousMacro();
+
+  // Check the result
+  ASSERT_EQ("COZY_TROPICAL", result.getConstellation());
 }
 
 
-TEST_F(FabricatorTest, getChordAt) {
+TEST_F(FabricatorTest, GetChordAt) {
+  // Create a chain
   auto chain = store->put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
-                                                     Chain::State::Fabricate));
+                                                      Chain::State::Fabricate));
+
+  // Create a segment
   segment = store->put(
       SegmentFixtures::buildSegment(chain, 2, Segment::State::Crafting, "G major", 8, 0.6f, 240.0f, "seg123"));
-  when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
-  subject = Fabricator(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory,
-                       jsonProvider, 48000.0f, 2, null);
-  subject.put(SegmentFixtures::buildSegmentChord(segment, 0.0f, "C"), false);
-  subject.put(SegmentFixtures::buildSegmentChord(segment, 2.0f, "F"), false);
-  subject.put(SegmentFixtures::buildSegmentChord(segment, 5.5f, "Gm"), false);
 
-  ASSERT_EQ("C", subject.getChordAt(0.0).orElseThrow().name);
-  ASSERT_EQ("C", subject.getChordAt(1.0).orElseThrow().name);
-  ASSERT_EQ("F", subject.getChordAt(2.0).orElseThrow().name);
-  ASSERT_EQ("F", subject.getChordAt(3.0).orElseThrow().name);
-  ASSERT_EQ("F", subject.getChordAt(5.0).orElseThrow().name);
-  ASSERT_EQ("Gm", subject.getChordAt(5.5).orElseThrow().name);
-  ASSERT_EQ("Gm", subject.getChordAt(6.0).orElseThrow().name);
-  ASSERT_EQ("Gm", subject.getChordAt(7.5).orElseThrow().name);
+  // Add chords to the subject
+  subject->put(SegmentFixtures::buildSegmentChord(segment, 0.0f, "C"));
+  subject->put(SegmentFixtures::buildSegmentChord(segment, 2.0f, "F"));
+  subject->put(SegmentFixtures::buildSegmentChord(segment, 5.5f, "Gm"));
+
+  // Check the chords at different times
+  ASSERT_EQ("C", subject->getChordAt(0.0)->name);
+  ASSERT_EQ("C", subject->getChordAt(1.0)->name);
+  ASSERT_EQ("F", subject->getChordAt(2.0)->name);
+  ASSERT_EQ("F", subject->getChordAt(3.0)->name);
+  ASSERT_EQ("F", subject->getChordAt(5.0)->name);
+  ASSERT_EQ("Gm", subject->getChordAt(5.5)->name);
+  ASSERT_EQ("Gm", subject->getChordAt(6.0)->name);
+  ASSERT_EQ("Gm", subject->getChordAt(7.5)->name);
 }
 
 
-TEST_F(FabricatorTest, computeProgramRange) {
+TEST_F(FabricatorTest, ComputeProgramRange) {
+  // Create a chain
   auto chain = store->put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
-                                                     Chain::State::Fabricate));
+                                                      Chain::State::Fabricate));
+
+  // Create a segment
   segment = store->put(
       SegmentFixtures::buildSegment(chain, 2, Segment::State::Crafting, "G major", 8, 0.6f, 240.0f, "seg123"));
-  when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
+
+  // Create a program
   auto program = ContentFixtures::buildProgram(Program::Type::Detail, "C", 120.0f);
+
+  // Create a voice
   auto voice = ContentFixtures::buildVoice(program, Instrument::Type::Bass);
+
+  // Create a track
   auto track = ContentFixtures::buildTrack(voice);
+
+  // Create a sequence
   auto sequence = ContentFixtures::buildSequence(program, 4);
+
+  // Create a pattern
   auto pattern = ContentFixtures::buildPattern(sequence, voice, 4);
-  sourceMaterial = ContentEntityStore(
-      List.of(program, voice, track, sequence, pattern, fake.template1, fake.templateBinding1,
-              ContentFixtures::buildEvent(pattern, track, 0.0f, 1.0f, "C1"),
-              ContentFixtures::buildEvent(pattern, track, 1.0f, 1.0f, "D2")));
-  subject = Fabricator(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory,
-                       jsonProvider, 48000.0f, 2, null);
 
-  auto result = subject.getProgramRange(program.id, Instrument::Type::Bass);
+  // Add entities to sourceMaterial
+  sourceMaterial->put(program);
+  sourceMaterial->put(voice);
+  sourceMaterial->put(track);
+  sourceMaterial->put(sequence);
+  sourceMaterial->put(pattern);
+  sourceMaterial->put(fake.template1);
+  sourceMaterial->put(fake.templateBinding1);
+  sourceMaterial->put(ContentFixtures::buildEvent(pattern, track, 0.0f, 1.0f, "C1"));
+  sourceMaterial->put(ContentFixtures::buildEvent(pattern, track, 1.0f, 1.0f, "D2"));
 
-  assertTrue(Note.of("C1").sameAs(result.getLow().orElseThrow()));
-  assertTrue(Note.of("D2").sameAs(result.getHigh().orElseThrow()));
+  // Get the result
+  auto result = subject->getProgramRange(program.id, Instrument::Type::Bass);
+
+  // Check the result
+  ASSERT_EQ(Note::of("C1"), result.low.value());
+  ASSERT_EQ(Note::of("D2"), result.high.value());
 }
 
 
-TEST_F(FabricatorTest, computeProgramRange_ignoresAtonalNotes) {
-  auto chain = store->put(
-      buildChain(fake.project1, fake.template1, "test", Chain::Type::Production, Chain::State::Fabricate));
+TEST_F(FabricatorTest, ComputeProgramRange_IgnoresAtonalNotes) {
+  // Create a chain
+  auto chain = store->put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
+                                                      Chain::State::Fabricate));
+
+  // Create a segment
   segment = store->put(
       SegmentFixtures::buildSegment(chain, 2, Segment::State::Crafting, "G major", 8, 0.6f, 240.0f, "seg123"));
-  when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
+
+  // Create a program
   auto program = ContentFixtures::buildProgram(Program::Type::Detail, "C", 120.0f);
+
+  // Create a voice
   auto voice = ContentFixtures::buildVoice(program, Instrument::Type::Bass);
+
+  // Create a track
   auto track = ContentFixtures::buildTrack(voice);
+
+  // Create a sequence
   auto sequence = ContentFixtures::buildSequence(program, 4);
+
+  // Create a pattern
   auto pattern = ContentFixtures::buildPattern(sequence, voice, 4);
-  sourceMaterial = ContentEntityStore(
-      List.of(program, voice, track, sequence, pattern, ContentFixtures::buildEvent(pattern, track, 0.0f, 1.0f, "C1"),
-              ContentFixtures::buildEvent(pattern, track, 1.0f, 1.0f, "X"),
-              ContentFixtures::buildEvent(pattern, track, 2.0f, 1.0f, "D2"), fake.template1, fake.templateBinding1));
-  subject = Fabricator(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory,
-                       jsonProvider, 48000.0f, 2, null);
 
-  auto result = subject.getProgramRange(program.id, Instrument::Type::Bass);
+  // Add entities to sourceMaterial
+  sourceMaterial->put(program);
+  sourceMaterial->put(voice);
+  sourceMaterial->put(track);
+  sourceMaterial->put(sequence);
+  sourceMaterial->put(pattern);
+  sourceMaterial->put(fake.template1);
+  sourceMaterial->put(fake.templateBinding1);
+  sourceMaterial->put(ContentFixtures::buildEvent(pattern, track, 0.0f, 1.0f, "C1"));
+  sourceMaterial->put(ContentFixtures::buildEvent(pattern, track, 1.0f, 1.0f, "X"));
+  sourceMaterial->put(ContentFixtures::buildEvent(pattern, track, 2.0f, 1.0f, "D2"));
 
-  assertTrue(Note.of("C1").sameAs(result.getLow().orElseThrow()));
-  assertTrue(Note.of("D2").sameAs(result.getHigh().orElseThrow()));
+  // Get the result
+  auto result = subject->getProgramRange(program.id, Instrument::Type::Bass);
+
+  // Check the result
+  ASSERT_EQ(Note::of("C1"), result.low.value());
+  ASSERT_EQ(Note::of("D2"), result.high.value());
 }
 
 
-TEST_F(FabricatorTest, getProgramSequence_fromSequence) {
+TEST_F(FabricatorTest, GetProgramSequence_FromSequence) {
+  // Create a project
   auto project1 = ContentFixtures::buildProject("fish");
+
+  // Create a template
   Template template1 = ContentFixtures::buildTemplate(project1, "Test Template 1", "test1");
+
+  // Create a chain
   auto chain = store->put(SegmentFixtures::buildChain(template1));
+
+  // Create a segment
   segment = store->put(
       SegmentFixtures::buildSegment(chain, Segment::Type::Continue, 17, 4, Segment::State::Crafted, "D major",
                                     SEQUENCE_TOTAL_BEATS, 0.73f, 120.0f,
-                                    String.format("chains-%s-segments-%s", ChainUtils.getIdentifier(chain), 17), true));
-  SegmentChoice choice = store->put(buildSegmentChoice(segment, Program::Type::Main, fake.program5_sequence0));
-  when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
-  sourceMaterial = ContentEntityStore(List.of(fake.program5_sequence0, fake.template1, fake.templateBinding1));
-  subject = Fabricator(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory,
-                       jsonProvider, 48000.0f, 2, null);
+                                    "chains-" + ChainUtils::getIdentifier(chain) + "-segments-" + std::to_string(17), true));
 
-  auto result = subject.getProgramSequence(choice);
+  // Create a segment choice
+  SegmentChoice choice = store->put(SegmentFixtures::buildSegmentChoice(segment, Program::Type::Main, fake.program5_sequence0));
 
-  ASSERT_EQ(fake.program5_sequence0.id, result.orElseThrow().id);
+  // Get the result
+  auto result = subject->getProgramSequence(choice);
+
+  // Check the result
+  ASSERT_EQ(fake.program5_sequence0.id, result.value()->id);
 }
 
 
-TEST_F(FabricatorTest, getProgramSequence_fromSequenceBinding) {
+TEST_F(FabricatorTest, GetProgramSequence_FromSequenceBinding) {
+  // Create a project
   auto project1 = ContentFixtures::buildProject("fish");
+
+  // Create a template
   Template template1 = ContentFixtures::buildTemplate(project1, "Test Template 1", "test1");
+
+  // Create a chain
   auto chain = store->put(SegmentFixtures::buildChain(template1));
+
+  // Create a segment
   segment = store->put(
       SegmentFixtures::buildSegment(chain, Segment::Type::Continue, 17, 4, Segment::State::Crafted, "D major",
                                     SEQUENCE_TOTAL_BEATS, 0.73f, 120.0f,
-                                    String.format("chains-%s-segments-%s", ChainUtils.getIdentifier(chain), 17), true));
-  SegmentChoice choice = store->put(buildSegmentChoice(segment, Program::Type::Main, fake.program5_sequence0_binding0));
-  when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
-  sourceMaterial = ContentEntityStore(
-      List.of(fake.program5_sequence0, fake.program5_sequence0_binding0, fake.template1, fake.templateBinding1));
-  subject = Fabricator(mockFabricatorFactory, store, sourceMaterial, segment.id, mockJsonapiPayloadFactory,
-                       jsonProvider, 48000.0f, 2, null);
+                                    "chains-" + ChainUtils::getIdentifier(chain) + "-segments-" + std::to_string(17), true));
 
-  auto result = subject.getProgramSequence(choice);
+  // Create a segment choice
+  SegmentChoice choice = store->put(SegmentFixtures::buildSegmentChoice(segment, Program::Type::Main, fake.program5_sequence0_binding0));
 
-  ASSERT_EQ(fake.program5_sequence0.id, result.orElseThrow().id);
+  // Get the result
+  auto result = subject->getProgramSequence(choice);
+
+  // Check the result
+  ASSERT_EQ(fake.program5_sequence0.id, result.value()->id);
 }
 
-*/
 /**
  Sticky buns v2 use slash root when available https://github.com/xjmusic/xjmusic/issues/231
- *//*
+ */
+TEST_F(FabricatorTest, GetRootNote) {
+  // Call the method and get the result
+  std::optional<Note> result = subject->getRootNoteMidRange("C3,E3,G3,A#3,C4,E4,G4", Chord::of("Cm"));
 
-TEST_F(FabricatorTest, getRootNote) {
-  auto result = subject.getRootNoteMidRange("C3,E3,G3,A#3,C4,E4,G4", Chord.of("Cm")).orElseThrow();
-  ASSERT_EQ(PitchClass.C, result.getPitchClass());
-  ASSERT_EQ(4, result.getOctave().intValue());
+  // Check the result
+  ASSERT_TRUE(result.has_value());
+  ASSERT_EQ(PitchClass::C, result.value().pitchClass);
+  ASSERT_EQ(4, result.value().octave);
 }
 
-*/
 /**
  Should add meme from ALL program and instrument types! https://github.com/xjmusic/xjmusic/issues/210
- *//*
-
-TEST_F(FabricatorTest, put_addsMemesForChoice) {
-  subject.put(
-      buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program9,
+ */
+ /*
+  * TODO
+TEST_F(FabricatorTest, PutAddsMemesForChoice) {
+  // Call the method and get the result
+  subject->put(
+      SegmentFixtures::buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program9,
                          fake.program9_voice0, fake.instrument8), false);
-  subject.put(buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program4,
+  subject->put(SegmentFixtures::buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program4,
                                  fake.program4_sequence1_binding0), false);
 
-  auto resultMemes = store->readAll(segment.id, SegmentMeme.
-  class).stream().sorted(Comparator.comparing(SegmentMeme::getName)).toList();
-  ASSERT_EQ("BASIC", (resultMemes.get(0)).name);
-  ASSERT_EQ("COZY", (resultMemes.get(1)).name);
-  ASSERT_EQ("HEAVY", (resultMemes.get(2)).name);
-  ASSERT_EQ("TROPICAL", (resultMemes.get(3)).name);
-  ASSERT_EQ("WILD", (resultMemes.get(4)).name);
-  auto resultChoices = store->readAll(segment.id, SegmentChoice.
-  class).stream().sorted(Comparator.comparing(SegmentChoice::getProgramType)).toList();
-  ASSERT_EQ(fake.program4.id, (resultChoices.get(0)).programId);
-  ASSERT_EQ(fake.program4_sequence1_binding0.id, (resultChoices.get(0)).programSequenceBindingId);
-  ASSERT_EQ(fake.instrument8.id, (resultChoices.get(1)).instrumentId);
-}
+  // Get the result
+  auto resultMemes = store->readAllSegmentMemes(segment.id);
+  std::vector<SegmentMeme> sortedResultMemes = std::vector<SegmentMeme>(resultMemes.begin(), resultMemes.end());
+  std::sort(sortedResultMemes.begin(), sortedResultMemes.end(), [](const SegmentMeme& a, const SegmentMeme& b) {
+    return a.name < b.name;
+  });
 
-*/
-/**
+  // Check the result
+  ASSERT_EQ("BASIC", sortedResultMemes[0].name);
+  ASSERT_EQ("COZY", sortedResultMemes[1].name);
+  ASSERT_EQ("HEAVY", sortedResultMemes[2].name);
+  ASSERT_EQ("TROPICAL", sortedResultMemes[3].name);
+  ASSERT_EQ("WILD", sortedResultMemes[4].name);
+
+  auto resultChoices = store->readAllSegmentChoices(segment.id);
+  std::vector<SegmentChoice> sortedResultChoices = std::vector<SegmentChoice>(resultChoices.begin(), resultChoices.end());
+  std::sort(sortedResultChoices.begin(), sortedResultChoices.end(), [](const SegmentChoice& a, const SegmentChoice& b) {
+    return a.programType < b.programType;
+  });
+
+  ASSERT_EQ(fake.program4.id, sortedResultChoices[0].programId);
+  ASSERT_EQ(fake.program4_sequence1_binding0.id, sortedResultChoices[0].programSequenceBindingId);
+  ASSERT_EQ(fake.instrument8.id, sortedResultChoices[1].instrumentId);
+}
+  */
+
+/*
  Unit test behavior of choosing an event for a note in a detail program
  <p>
  Sticky bun note choices should persist into following segments https://github.com/xjmusic/xjmusic/issues/281
- *//*
-
+*/
 TEST_F(FabricatorTest, getStickyBun_readMetaFromCurrentSegment) {
   auto bun = StickyBun(fake.program9_sequence0_pattern0_event0.id, 3);
-  auto bunJson = jsonProvider.getMapper().writeValueAsString(bun);
-  auto bunKey = StickyBun.computeMetaKey(fake.program9_sequence0_pattern0_event0.id);
+  auto bunJson = bun.serialize();
+  auto bunKey = StickyBun::computeMetaKey(fake.program9_sequence0_pattern0_event0.id);
   store->put(SegmentFixtures::buildSegmentMeta(segment, bunKey, bunJson));
 
-  auto result = subject.getStickyBun(fake.program9_sequence0_pattern0_event0.id).orElseThrow();
+  auto result = subject->getStickyBun(fake.program9_sequence0_pattern0_event0.id);
 
-  ASSERT_EQ(fake.program9_sequence0_pattern0_event0.id, result.getEventId());
-  assertArrayEquals(bun.getValues().toArray(), result.getValues().toArray());
+  // Check the result
+  ASSERT_TRUE(result.has_value());
+  ASSERT_EQ(fake.program9_sequence0_pattern0_event0.id, result->eventId);
+  ASSERT_EQ(bun.values, result->values);
 }
 
-*/
-/**
+/*
  Unit test behavior of choosing an event for a note in a detail program
  <p>
  Sticky bun note choices should persist into following segments https://github.com/xjmusic/xjmusic/issues/281
- *//*
-
-TEST_F(FabricatorTest, getStickyBun_readMetaFromPreviousSegment) {
+*/
+TEST_F(FabricatorTest, GetStickyBun_ReadMetaFromPreviousSegment) {
+  // Create a StickyBun
   auto bun = StickyBun(fake.program9_sequence0_pattern0_event0.id, 3);
-  auto bunJson = jsonProvider.getMapper().writeValueAsString(bun);
-  auto bunKey = StickyBun.computeMetaKey(fake.program9_sequence0_pattern0_event0.id);
-  auto bunMeta = SegmentFixtures::buildSegmentMeta(segment, bunKey, bunJson);
-  when(mockRetrospective.getPreviousMeta(eq(bunKey))).thenReturn(Optional.of(bunMeta));
 
-  auto result = subject.getStickyBun(fake.program9_sequence0_pattern0_event0.id).orElseThrow();
+  // Convert the StickyBun to a JSON string
+  auto bunJson = bun.serialize();
 
-  ASSERT_EQ(fake.program9_sequence0_pattern0_event0.id, result.getEventId());
-  assertArrayEquals(bun.getValues().toArray(), result.getValues().toArray());
+  // Compute the meta key for the StickyBun
+  auto bunKey = StickyBun::computeMetaKey(fake.program9_sequence0_pattern0_event0.id);
+
+  // Store the StickyBun in the SegmentEntityStore
+  auto bunMeta = store->put(SegmentFixtures::buildSegmentMeta(segment, bunKey, bunJson));
+
+  // Set up the mock Retrospective to return the previous meta
+  EXPECT_CALL(*mockRetrospective, getPreviousMeta(bunKey)).WillOnce(Return(bunMeta));
+
+  // Call the method and get the result
+  auto result = subject->getStickyBun(fake.program9_sequence0_pattern0_event0.id);
+
+  // Check the result
+  ASSERT_TRUE(result.has_value());
+  ASSERT_EQ(fake.program9_sequence0_pattern0_event0.id, result->eventId);
+  ASSERT_EQ(bun.values, result->values);
 }
 
-*/
-/**
+/*
  Unit test behavior of choosing a different events for a series of X notes in a detail program
  <p>
  Sticky bun note choices should persist into following segments https://github.com/xjmusic/xjmusic/issues/281
- *//*
-
+*/
 TEST_F(FabricatorTest, getStickyBun_createForEvent) {
-  auto result = subject.getStickyBun(fake.program9_sequence0_pattern0_event0.id).orElseThrow();
+  auto result = subject->getStickyBun(fake.program9_sequence0_pattern0_event0.id);
 
-  ASSERT_EQ(fake.program9_sequence0_pattern0_event0.id, result.getEventId());
+  ASSERT_TRUE(result.has_value());
+  ASSERT_EQ(fake.program9_sequence0_pattern0_event0.id, result.value().eventId);
 }
 
-*/
-/**
+/*
  Unit test behavior of choosing an event for a note in a detail program
  <p>
  Sticky bun note choices should persist into following segments https://github.com/xjmusic/xjmusic/issues/281
- *//*
-
-TEST_F(FabricatorTest, getStickyBun_multipleEventsPickedSeparately) {
+*/
+TEST_F(FabricatorTest, GetStickyBun_MultipleEventsPickedSeparately) {
+  // Create StickyBuns
   auto bun0 = StickyBun(fake.program9_sequence0_pattern0_event0.id, 3);
-  auto bunJson0 = jsonProvider.getMapper().writeValueAsString(bun0);
-  auto bunKey0 = StickyBun.computeMetaKey(fake.program9_sequence0_pattern0_event0.id);
-  store->put(SegmentFixtures::buildSegmentMeta(segment, bunKey0, bunJson0));
   auto bun1 = StickyBun(fake.program9_sequence0_pattern0_event1.id, 3);
-  auto bunJson1 = jsonProvider.getMapper().writeValueAsString(bun1);
-  auto bunKey1 = StickyBun.computeMetaKey(fake.program9_sequence0_pattern0_event1.id);
+
+  // Convert the StickyBuns to JSON strings
+  auto bunJson0 = bun0.serialize();
+  auto bunJson1 = bun1.serialize();
+
+  // Compute the meta keys for the StickyBuns
+  auto bunKey0 = StickyBun::computeMetaKey(fake.program9_sequence0_pattern0_event0.id);
+  auto bunKey1 = StickyBun::computeMetaKey(fake.program9_sequence0_pattern0_event1.id);
+
+  // Store the StickyBuns in the SegmentEntityStore
+  store->put(SegmentFixtures::buildSegmentMeta(segment, bunKey0, bunJson0));
   store->put(SegmentFixtures::buildSegmentMeta(segment, bunKey1, bunJson1));
 
-  auto result0 = subject.getStickyBun(fake.program9_sequence0_pattern0_event0.id).orElseThrow();
-  auto result1 = subject.getStickyBun(fake.program9_sequence0_pattern0_event1.id).orElseThrow();
+  // Call the method and get the results
+  auto result0 = subject->getStickyBun(fake.program9_sequence0_pattern0_event0.id);
+  auto result1 = subject->getStickyBun(fake.program9_sequence0_pattern0_event1.id);
 
-  ASSERT_EQ(fake.program9_sequence0_pattern0_event0.id, result0.getEventId());
-  assertArrayEquals(bun0.getValues().toArray(), result0.getValues().toArray());
-  ASSERT_EQ(fake.program9_sequence0_pattern0_event1.id, result1.getEventId());
-  assertArrayEquals(bun1.getValues().toArray(), result1.getValues().toArray());
+  // Check the results
+  ASSERT_TRUE(result0.has_value());
+  ASSERT_EQ(fake.program9_sequence0_pattern0_event0.id, result0->eventId);
+  ASSERT_EQ(bun0.values, result0->values);
+
+  ASSERT_TRUE(result1.has_value());
+  ASSERT_EQ(fake.program9_sequence0_pattern0_event1.id, result1->eventId);
+  ASSERT_EQ(bun1.values, result1->values);
 }
 
 
+/*
+ * TODO
 TEST_F(FabricatorTest, getMemeTaxonomy) {
-  auto result = subject.getMemeTaxonomy();
+  auto result = subject->getMemeTaxonomy();
+  auto sortedCategories = std::vector<MemeCategory>(result.getCategories().begin(), result.getCategories().end());
+  std::sort(sortedCategories.begin(), sortedCategories.end(), [](const MemeCategory& a, const MemeCategory& b) {
+    return a.getName() < b.getName();
+  });
 
-  ASSERT_EQ(2, result.getCategories().size());
-  ASSERT_EQ("COLOR", result.getCategories().get(0).name);
-  ASSERT_EQ("SEASON", result.getCategories().get(1).name);
+  ASSERT_EQ(2, sortedCategories.size());
+  ASSERT_EQ("COLOR", sortedCategories[0].getName());
+  ASSERT_EQ("SEASON", sortedCategories[1].getName());
 }
-
 */
+
 
 // Test for getSegmentId
 TEST_F(FabricatorTest, GetSegmentId) {

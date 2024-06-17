@@ -153,7 +153,7 @@ TEST_F(SegmentRetrospectiveTest, FailureToReadFirstSegmentIsFatal) {
  */
 TEST_F(SegmentRetrospectiveTest, GetPreviousMeta) {
   auto bun = StickyBun(patternId, 1);
-  std::string json = bun.to_json();
+  std::string json = bun.serialize();
   store->put(SegmentFixtures::buildSegmentMeta(segment3, "StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e", json));
   auto subject = fabricatorFactory->loadRetrospective(segment4.id);
 

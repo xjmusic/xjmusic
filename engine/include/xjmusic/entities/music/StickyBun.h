@@ -86,7 +86,7 @@ namespace XJ {
      * Serialize to JSON
      * @return  JSON representation
      */
-    std::string to_json();
+    std::string serialize();
 
     /**
      * Deserialize from JSON

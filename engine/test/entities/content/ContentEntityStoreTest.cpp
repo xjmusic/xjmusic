@@ -739,7 +739,10 @@ TEST_F(ContentStoreTest, getVoicingsOfChordId) {
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getSequenceChordVoicingsOfProgram) {
+TEST_F(ContentStoreTest, getSequenceChordVoicingsOfProgram_dontCountInvalidVoicings) {
+  auto program1_voice2 = ContentFixtures::buildProgramVoice(program1, Instrument::Type::Pad, "Birds");
+  subject->put(ContentFixtures::buildVoicing(
+      program1_sequence_chord0, program1_voice2, "(None)")); // No voicing notes- doesn't count!
   auto result = subject->getSequenceChordVoicingsOfProgram(program1.id);
 
   ASSERT_EQ(2, result.size());

@@ -61,7 +61,7 @@ std::string StickyBun::computeMetaKey() const {
   return computeMetaKey(eventId);
 }
 
-std::string StickyBun::to_json() {
+std::string StickyBun::serialize() {
   return json({
                   {"eventId", eventId},
                   {"values",  values}

@@ -893,7 +893,7 @@ std::set<const ProgramSequenceChordVoicing *>
 ContentEntityStore::getSequenceChordVoicingsOfProgram(const UUID &programId) {
   std::set<const ProgramSequenceChordVoicing *> result;
   for (const auto &pair: programSequenceChordVoicings) {
-    if (pair.second.programId == programId) {
+    if (pair.second.programId == programId && Note::containsAnyValidNotes(pair.second.notes)) {
       result.emplace(&pair.second);
     }
   }
