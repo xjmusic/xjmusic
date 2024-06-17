@@ -15,7 +15,7 @@ using namespace XJ;
 class SegmentRetrospectiveTest : public ::testing::Test {
 protected:
   int SEQUENCE_TOTAL_BEATS = 64;
-  UUID patternId = Entity::randomUUID();
+  UUID patternId = Entity::computeUniqueId();
   ContentEntityStore* sourceMaterial = new ContentEntityStore();
   SegmentEntityStore* store = new SegmentEntityStore();
   FabricatorFactory* fabricatorFactory = new FabricatorFactory(store);

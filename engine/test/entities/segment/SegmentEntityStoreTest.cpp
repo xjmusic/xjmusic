@@ -150,7 +150,7 @@ TEST_F(SegmentEntityStoreTest, Create) {
 
 
 TEST_F(SegmentEntityStoreTest, Create_Get_Segment) {
-  UUID chainId = Entity::randomUUID();
+  UUID chainId = Entity::computeUniqueId();
   Segment segment;
   segment.chainId = chainId;
   segment.id = 0;
@@ -183,9 +183,9 @@ TEST_F(SegmentEntityStoreTest, Create_Get_Segment) {
 
 
 TEST_F(SegmentEntityStoreTest, Create_Get_Chain) {
-  UUID projectId = Entity::randomUUID();
+  UUID projectId = Entity::computeUniqueId();
   Chain chain;
-  chain.id = Entity::randomUUID();
+  chain.id = Entity::computeUniqueId();
   chain.type = Chain::Type::Preview;
   chain.state = Chain::State::Fabricate;
   chain.shipKey = "super";
@@ -451,7 +451,7 @@ TEST_F(SegmentEntityStoreTest, UpdateSegment_FailsToTransitionFromPlannedToCraft
 TEST_F(SegmentEntityStoreTest, UpdateSegment_FailsToChangeChain) {
   Segment inputData;
   inputData.id = 4;
-  inputData.chainId = Entity::randomUUID();
+  inputData.chainId = Entity::computeUniqueId();
   inputData.delta = 0;
   inputData.type = Segment::Type::Continue;
   inputData.state = Segment::State::Crafting;

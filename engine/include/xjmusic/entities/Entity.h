@@ -18,9 +18,13 @@ using json = nlohmann::json;
 namespace XJ {
 
   /**
-   * This is in fact not a UUID at all, not even random.
-   * But since the domain of this application is entirely local, we do not require globally-unique randomness.
-   * Instead, for performance reasons, we use a simple counter, which provides guaranteed locally unique identifiers
+ * XJ legacy application used UUIDs because networked data was a possibility.
+ * But since the domain of this application is now entirely local, we do not require globally-unique randomness.
+ * Instead, we use a simple counter, which provides guaranteed locally unique identifiers
+   * <p>
+   * In the future, all entity IDs should be simple integers-- but that's a massive refactoring job
+   * See: https://github.com/xjmusic/xjmusic/issues/400
+   * <p>
    * @return locally unique identifier
    */
   using UUID = std::string;
@@ -66,7 +70,7 @@ namespace XJ {
     /**
        * Generate a random UUID
        */
-    static std::string randomUUID();
+    static std::string computeUniqueId();
   };
 
 }// namespace XJ

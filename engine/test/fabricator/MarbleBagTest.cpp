@@ -15,9 +15,9 @@ using namespace XJ;
 
 class MarbleBagTest : public ::testing::Test {
 protected:
-  UUID frogId = ContentEntity::randomUUID();
-  UUID bearId = ContentEntity::randomUUID();
-  UUID zebraId = ContentEntity::randomUUID();
+  UUID frogId = ContentEntity::computeUniqueId();
+  UUID bearId = ContentEntity::computeUniqueId();
+  UUID zebraId = ContentEntity::computeUniqueId();
 };
 
 /**

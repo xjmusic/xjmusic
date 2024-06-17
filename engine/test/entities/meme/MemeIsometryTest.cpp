@@ -52,7 +52,7 @@ TEST(MemeIsometryTest, AddMore) {
   auto subject = MemeIsometry::of(MemeTaxonomy::empty(), {"Smooth"});
 
   ProgramMeme meme;
-  meme.id = Entity::randomUUID();
+  meme.id = Entity::computeUniqueId();
   meme.name = "Catlike";
 
   subject.add(meme);

@@ -6,7 +6,6 @@
 
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "../_helper/SegmentFixtures.h"
-#include "../_mock/MockFabricatorFactory.h"
 #include "../_mock/MockSegmentRetrospective.h"
 #include "xjmusic/fabricator/ChainUtils.h"
 
@@ -22,7 +21,6 @@ protected:
   int SEQUENCE_TOTAL_BEATS = 64;
   ContentEntityStore *sourceMaterial;
   SegmentEntityStore *store;
-  MockFabricatorFactory *mockFabricatorFactory;
   MockSegmentRetrospective *mockRetrospective;
   Fabricator *subject;
   ContentFixtures fake;
@@ -55,21 +53,19 @@ protected:
         240.0f,
         "seg123"
     ));
-    mockFabricatorFactory = new MockFabricatorFactory(store);
     mockRetrospective = new MockSegmentRetrospective(store, 2);
     subject = new Fabricator(sourceMaterial, store, mockRetrospective, 2, 48000.0f, 2, std::nullopt);
   }
 
   void TearDown() override {
     delete store;
-    delete mockFabricatorFactory;
     delete mockRetrospective;
     delete subject;
   }
 };
 
 
-TEST_F(FabricatorTest, pick_returned_by_picks) {
+TEST_F(FabricatorTest, PickReturnedByPicks) {
   sourceMaterial->put(ContentFixtures::buildTemplateBinding(fake.template1, fake.library2));
   auto chain = store->put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
                                                       Chain::State::Fabricate));
@@ -85,7 +81,7 @@ TEST_F(FabricatorTest, pick_returned_by_picks) {
                                           fake.program35, fake.program35_voice0, fake.instrument8));
   SegmentChoiceArrangement beatArrangement = store->put(SegmentFixtures::buildSegmentChoiceArrangement(beatChoice));
   SegmentChoiceArrangementPick pick;
-  pick.id = ContentEntity::randomUUID();
+  pick.id = ContentEntity::computeUniqueId();
   pick.segmentId = beatArrangement.segmentId;
   pick.segmentChoiceArrangementId = beatArrangement.id;
   pick.programSequencePatternEventId = fake.program35_sequence0_pattern0_event0.id;
@@ -109,7 +105,7 @@ TEST_F(FabricatorTest, pick_returned_by_picks) {
 }
 
 
-TEST_F(FabricatorTest, getDistinctChordVoicingTypes) {
+TEST_F(FabricatorTest, GetDistinctChordVoicingTypes) {
   sourceMaterial->put(ContentFixtures::buildVoicing(
       fake.program5_sequence0_chord0, fake.program5_voiceSticky, "G4, B4, D4"));
   sourceMaterial->put(ContentFixtures::buildVoicing(
@@ -136,7 +132,7 @@ TEST_F(FabricatorTest, getDistinctChordVoicingTypes) {
 /**
  Choose next Macro program based on the memes of the last sequence from the previous Macro program https://github.com/xjmusic/xjmusic/issues/299
  */
-TEST_F(FabricatorTest, Type) {
+TEST_F(FabricatorTest, GetType) {
   // Create a chain
   auto chain = store->put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
                                                       Chain::State::Fabricate));
@@ -190,9 +186,9 @@ TEST_F(FabricatorTest, GetMemeIsometryOfNextSequenceInPreviousMacro) {
 
   // Get the result
   auto result = subject->getMemeIsometryOfNextSequenceInPreviousMacro();
-
-  // Check the result
-  ASSERT_EQ("COZY_TROPICAL", result.getConstellation());
+  ASSERT_EQ(2, result.getSources().size());
+  ASSERT_FALSE(result.getSources().find("COZY") == result.getSources().end());
+  ASSERT_FALSE(result.getSources().find("TROPICAL") == result.getSources().end());
 }
 
 
@@ -380,8 +376,6 @@ TEST_F(FabricatorTest, GetRootNote) {
 /**
  Should add meme from ALL program and instrument types! https://github.com/xjmusic/xjmusic/issues/210
  */
- /*
-  * TODO
 TEST_F(FabricatorTest, PutAddsMemesForChoice) {
   // Call the method and get the result
   subject->put(
@@ -414,14 +408,14 @@ TEST_F(FabricatorTest, PutAddsMemesForChoice) {
   ASSERT_EQ(fake.program4_sequence1_binding0.id, sortedResultChoices[0].programSequenceBindingId);
   ASSERT_EQ(fake.instrument8.id, sortedResultChoices[1].instrumentId);
 }
-  */
+
 
 /*
  Unit test behavior of choosing an event for a note in a detail program
  <p>
  Sticky bun note choices should persist into following segments https://github.com/xjmusic/xjmusic/issues/281
 */
-TEST_F(FabricatorTest, getStickyBun_readMetaFromCurrentSegment) {
+TEST_F(FabricatorTest, GetStickyBun_ReadMetaFromCurrentSegment) {
   auto bun = StickyBun(fake.program9_sequence0_pattern0_event0.id, 3);
   auto bunJson = bun.serialize();
   auto bunKey = StickyBun::computeMetaKey(fake.program9_sequence0_pattern0_event0.id);
@@ -450,8 +444,8 @@ TEST_F(FabricatorTest, GetStickyBun_ReadMetaFromPreviousSegment) {
   // Compute the meta key for the StickyBun
   auto bunKey = StickyBun::computeMetaKey(fake.program9_sequence0_pattern0_event0.id);
 
-  // Store the StickyBun in the SegmentEntityStore
-  auto bunMeta = store->put(SegmentFixtures::buildSegmentMeta(segment, bunKey, bunJson));
+  // Compute a StickyBun but don't put it in the SegmentEntityStore-- we'll inject it through the mock retrospective
+  auto bunMeta = SegmentFixtures::buildSegmentMeta(segment, bunKey, bunJson);
 
   // Set up the mock Retrospective to return the previous meta
   EXPECT_CALL(*mockRetrospective, getPreviousMeta(bunKey)).WillOnce(Return(bunMeta));
@@ -514,11 +508,12 @@ TEST_F(FabricatorTest, GetStickyBun_MultipleEventsPickedSeparately) {
 }
 
 
-/*
- * TODO
 TEST_F(FabricatorTest, getMemeTaxonomy) {
   auto result = subject->getMemeTaxonomy();
-  auto sortedCategories = std::vector<MemeCategory>(result.getCategories().begin(), result.getCategories().end());
+  std::vector<MemeCategory> sortedCategories;
+  for (const auto& category : result.getCategories()) {
+    sortedCategories.emplace_back(category);
+  }
   std::sort(sortedCategories.begin(), sortedCategories.end(), [](const MemeCategory& a, const MemeCategory& b) {
     return a.getName() < b.getName();
   });
@@ -527,7 +522,6 @@ TEST_F(FabricatorTest, getMemeTaxonomy) {
   ASSERT_EQ("COLOR", sortedCategories[0].getName());
   ASSERT_EQ("SEASON", sortedCategories[1].getName());
 }
-*/
 
 
 // Test for getSegmentId

@@ -71,7 +71,7 @@ Fabricator::Fabricator(
 void Fabricator::addMessage(SegmentMessage::Type messageType, std::string body) {
   try {
     SegmentMessage msg;
-    msg.id = Entity::randomUUID();
+    msg.id = Entity::computeUniqueId();
     msg.segmentId = getSegment().id;
     msg.type = messageType;
     msg.body = std::move(body);
@@ -199,7 +199,7 @@ long Fabricator::getElapsedMicros() {
 }
 
 
-InstrumentConfig Fabricator::getInstrumentConfig(Instrument instrument) {
+InstrumentConfig Fabricator::getInstrumentConfig(const Instrument& instrument) {
   auto [it, inserted] = instrumentConfigs.emplace(instrument.id, InstrumentConfig(instrument));
   return it->second;
 }
@@ -648,7 +648,7 @@ std::optional<Note> Fabricator::getRootNoteMidRange(const std::string &voicingNo
   auto it = rootNotesByVoicingAndChord.find(key);
   if (it == rootNotesByVoicingAndChord.end()) {
     NoteRange noteRange = NoteRange::ofStrings(CsvUtils::split(voicingNotes));
-    Note note = noteRange.getNoteNearestMedian(chord.slashRoot.pitchClass.value_or(Atonal)).value();
+    std::optional<Note> note = noteRange.getNoteNearestMedian(chord.slashRoot.pitchClass.value_or(chord.root));
     rootNotesByVoicingAndChord[key] = note;
     return note;
   } else {
@@ -659,7 +659,7 @@ std::optional<Note> Fabricator::getRootNoteMidRange(const std::string &voicingNo
 
 void Fabricator::putStickyBun(StickyBun bun) {
   SegmentMeta meta;
-  meta.id = Entity::randomUUID();
+  meta.id = Entity::computeUniqueId();
   meta.segmentId = getSegment().id;
   meta.key = bun.computeMetaKey();
   meta.value = bun.serialize();
@@ -1024,7 +1024,13 @@ double Fabricator::getTempo() {
 
 
 std::optional<SegmentMeta> Fabricator::getSegmentMeta(const std::string &key) {
-  return store->readSegmentMeta(segmentId, key);
+  std::set<SegmentMeta> allMetas = store->readAllSegmentMetas(segmentId);
+  for (const auto &meta: allMetas) {
+    if (meta.key == key) {
+      return meta;
+    }
+  }
+  return std::nullopt;
 }
 
 
@@ -1137,18 +1143,18 @@ std::map<std::string, const InstrumentAudio *> Fabricator::computePreferredInstr
 }
 
 
-bool Fabricator::isValidChoiceAndMemesHaveBeenAdded(SegmentChoice choice, MemeStack memeStack, bool force) {
+bool Fabricator:: isValidChoiceAndMemesHaveBeenAdded(SegmentChoice choice, MemeStack memeStack, bool force) {
   std::set<std::string> names;
 
   if (!choice.programId.empty())
     for (auto meme: sourceMaterial->getMemesOfProgram(choice.programId))
       names.emplace(StringUtils::toMeme(meme->name));
 
-  if (choice.programSequenceBindingId.empty())
+  if (!choice.programSequenceBindingId.empty())
     for (auto meme: sourceMaterial->getMemesOfSequenceBinding(choice.programSequenceBindingId))
       names.emplace(StringUtils::toMeme(meme->name));
 
-  if (choice.instrumentId.empty())
+  if (!choice.instrumentId.empty())
     for (auto meme: sourceMaterial->getMemesOfInstrument(choice.instrumentId))
       names.emplace(StringUtils::toMeme(meme->name));
 
@@ -1162,7 +1168,7 @@ bool Fabricator::isValidChoiceAndMemesHaveBeenAdded(SegmentChoice choice, MemeSt
 
   for (const std::string &name: names) {
     SegmentMeme segmentMeme;
-    segmentMeme.id = Entity::randomUUID();
+    segmentMeme.id = Entity::computeUniqueId();
     segmentMeme.segmentId = getSegment().id;
     segmentMeme.name = name;
     put(segmentMeme, false);
@@ -1173,10 +1179,11 @@ bool Fabricator::isValidChoiceAndMemesHaveBeenAdded(SegmentChoice choice, MemeSt
 
 
 bool Fabricator::isValidMemeAddition(SegmentMeme meme, MemeStack memeStack, bool force) {
-  if (!force && !memeStack.isAllowed({meme.name})) return false;
-  if (!force && std::any_of(getSegmentMemes().begin(), getSegmentMemes().end(),
-                            [&meme](const SegmentMeme &m) { return m.name == meme.name; }))
-    return false;
+  if (force) return true;
+  if (!memeStack.isAllowed({meme.name})) return false;
+  for (const auto &m: getSegmentMemes()) {
+    if (m.name == meme.name) return false;
+  }
   return true;
 }
 

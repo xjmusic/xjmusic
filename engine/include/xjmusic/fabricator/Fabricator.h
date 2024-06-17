@@ -262,7 +262,7 @@ namespace XJ {
      @param instrument to get config of
      @return InstrumentConfig from a given instrument, with fallback values
      */
-    InstrumentConfig getInstrumentConfig(Instrument instrument);
+    InstrumentConfig getInstrumentConfig(const Instrument& instrument);
 
     /**
      Key for any pick designed to collide at same voice id + name

@@ -58,12 +58,12 @@ namespace XJ {
      @return arrangement
      @throws FabricationException on failure to retrieve
      */
-    SegmentChoiceArrangement getArrangement(const SegmentChoiceArrangementPick& pick);
+    virtual SegmentChoiceArrangement getArrangement(const SegmentChoiceArrangementPick& pick);
 
     /**
      @return all choices
      */
-    std::set<SegmentChoice> getChoices();
+    virtual std::set<SegmentChoice> getChoices();
 
     /**
      Get the choice for the given arrangement
@@ -72,7 +72,7 @@ namespace XJ {
      @return choice
      @throws FabricationException on failure to retrieve
      */
-    SegmentChoice getChoice(const SegmentChoiceArrangement& arrangement);
+    virtual SegmentChoice getChoice(const SegmentChoiceArrangement& arrangement);
 
     /**
      Get the instrument type for a given pick
@@ -80,7 +80,7 @@ namespace XJ {
      @param pick for which to get instrument type
      @return instrument type of pick
      */
-    Instrument::Type getInstrumentType(SegmentChoiceArrangementPick pick);
+    virtual Instrument::Type getInstrumentType(SegmentChoiceArrangementPick pick);
 
     /**
      Get the meta from the previous segment with the given key
@@ -90,7 +90,7 @@ namespace XJ {
      @param key to search for meta
      @return meta if found
      */
-    std::optional<SegmentMeta> getPreviousMeta(const std::string& key);
+    virtual std::optional<SegmentMeta> getPreviousMeta(const std::string& key);
 
     /**
      Get the previous segment choices for the given instrument
@@ -99,7 +99,7 @@ namespace XJ {
      @param instrumentId for which to get choice
      @return previous segment choice
      */
-    std::set<SegmentChoice> getPreviousChoicesForInstrument(const UUID& instrumentId);
+    virtual std::set<SegmentChoice> getPreviousChoicesForInstrument(const UUID& instrumentId);
 
     /**
      Get the previous arrangements for the given instrument id
@@ -107,7 +107,7 @@ namespace XJ {
      @param instrumentId for which to get arrangements
      @return segment choice arrangements
      */
-    std::set<SegmentChoiceArrangement> getPreviousArrangementsForInstrument(UUID instrumentId);
+    virtual std::set<SegmentChoiceArrangement> getPreviousArrangementsForInstrument(UUID instrumentId);
 
     /**
      Get the picks of any previous segments which selected the same main sequence
@@ -116,7 +116,7 @@ namespace XJ {
 
      @return map of all previous segment meme constellations (as keys) to a collection of choices made
      */
-    std::set<SegmentChoiceArrangementPick> getPicks();
+    virtual std::set<SegmentChoiceArrangementPick> getPicks();
 
     /**
      Get the choice of a given type
@@ -124,7 +124,7 @@ namespace XJ {
      @param type of choice to get
      @return choice of given type
      */
-    std::optional<SegmentChoice> getPreviousChoiceOfType(const Segment &segment, Program::Type type);
+    virtual std::optional<SegmentChoice> getPreviousChoiceOfType(const Segment &segment, Program::Type type);
 
     /**
      Get the previous-segment choice of a given type
@@ -132,7 +132,7 @@ namespace XJ {
      @param type of choice to get
      @return choice of given type
      */
-    std::optional<SegmentChoice> getPreviousChoiceOfType(Program::Type type);
+    virtual std::optional<SegmentChoice> getPreviousChoiceOfType(Program::Type type);
 
     /**
      Get the previous-segment choices of a given instrument mode
@@ -140,7 +140,7 @@ namespace XJ {
      @param instrumentMode for which to get previous-segment choices
      @return choices
      */
-    std::set<SegmentChoice> getPreviousChoicesOfMode(Instrument::Mode instrumentMode);
+    virtual std::set<SegmentChoice> getPreviousChoicesOfMode(Instrument::Mode instrumentMode);
 
     /**
      Get the previous-segment choices of a given instrument type and mode
@@ -149,7 +149,7 @@ namespace XJ {
      @param instrumentModes for which to get previous-segment choices
      @return choices
      */
-    std::set<SegmentChoice>
+    virtual std::set<SegmentChoice>
     getPreviousChoicesOfTypeMode(Instrument::Type instrumentType, Instrument::Mode instrumentModes);
 
     /**
@@ -158,7 +158,7 @@ namespace XJ {
      @param instrumentType for which to get previous-segment choices
      @return choices
      */
-    std::optional<SegmentChoice> getPreviousChoiceOfType(Instrument::Type instrumentType);
+    virtual std::optional<SegmentChoice> getPreviousChoiceOfType(Instrument::Type instrumentType);
 
     /**
      Get the previous picks for the given instrument id
@@ -166,14 +166,14 @@ namespace XJ {
      @param instrumentId for which to get picks
      @return segment choice picks
      */
-    std::set<SegmentChoiceArrangementPick> getPreviousPicksForInstrument(UUID instrumentId);
+    virtual std::set<SegmentChoiceArrangementPick> getPreviousPicksForInstrument(UUID instrumentId);
 
     /**
      Get the segment immediately previous to the current segment
 
      @return previous segment
      */
-    std::optional<Segment> getPreviousSegment();
+    virtual std::optional<Segment> getPreviousSegment();
 
     /**
      @return all cached segments, ordered by id
@@ -183,7 +183,7 @@ namespace XJ {
      whether this retrospective is looking back on the current main program (Continue segment),
      or the previous one (NextMain/NextMacro segments)
      */
-    std::vector<Segment> getSegments();
+    virtual std::vector<Segment> getSegments();
 
     /**
      Get all segment chords for the given segment id, ordered by position
@@ -191,7 +191,7 @@ namespace XJ {
      @param segmentId for which to get chords
      @return chords
      */
-    std::vector<SegmentChord> getSegmentChords(int segmentId);
+    virtual std::vector<SegmentChord> getSegmentChords(int segmentId);
 
   private:
     int segmentId;
