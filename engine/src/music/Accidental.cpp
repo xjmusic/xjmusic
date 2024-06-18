@@ -38,7 +38,7 @@ Accidental XJ::accidentalOfBeginning(const std::string &name) {
 
 
 std::string XJ::accidentalNormalized(const std::string &name) {
-  std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
   std::wstring wide = converter.from_bytes(name);
   std::replace(wide.begin(), wide.end(), L'♯', L'#');
   std::replace(wide.begin(), wide.end(), L'♭', L'b');
