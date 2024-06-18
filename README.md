@@ -3,11 +3,9 @@
 [![Workstation CI](https://github.com/xjmusic/xjmusic/actions/workflows/workstation_ci.yml/badge.svg)](https://github.com/xjmusic/xjmusic/actions/workflows/workstation_ci.yml)
 [![Workstation Distro](https://github.com/xjmusic/xjmusic/actions/workflows/workstation_distro.yml/badge.svg)](https://github.com/xjmusic/xjmusic/actions/workflows/workstation_distro.yml)
 
-<p align="center">
-  <a href="https://xjmusic.com">
-    <img width="320" height="320" src="design/xj-music-logo.png" alt="XJ music logo" />
-  </a>
-</p>
+<a href="https://xjmusic.com">
+  <img width="320" height="320" src="design/xj-music-logo.png" alt="XJ music logo" />
+</a>
 
 
 # Dynamic music engine
