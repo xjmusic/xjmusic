@@ -6,6 +6,7 @@
 
 using namespace XJ;
 
+
 void ASSERT_ARRAY_EQ(std::vector<int> vector1, std::vector<int> vector2) {
   ASSERT_EQ(vector1.size(), vector2.size());
   for (int i = 0; i < vector1.size(); i++) {

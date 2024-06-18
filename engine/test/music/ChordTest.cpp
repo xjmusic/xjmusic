@@ -9,7 +9,10 @@
 
 using namespace XJ;
 
+
+
 static std::string EXPECTED_CHORDS_YAML = "_data/music_chord_test.yaml";
+
 
 TEST(Music_Chord, TestChordExpectations) {
   YAML::Node chords = YAML::LoadFile(EXPECTED_CHORDS_YAML);
@@ -39,6 +42,7 @@ TEST(Music_Chord, TestChordExpectations) {
   assert(fails == 0);
 }
 
+
 TEST(Music_Chord, of) {
   ASSERT_EQ("C 6/9", Chord::of("CM6add9").getName());
   ASSERT_EQ("C 7b9/13", Chord::of("C dom7b9/13").getName());
@@ -51,15 +55,18 @@ TEST(Music_Chord, of) {
   ASSERT_EQ("C dim", Chord::of("C°").getName());
 }
 
+
 TEST(Music_Chord, TestOf_Invalid) {
   Chord chord = Chord::of("P-funk");
   ASSERT_EQ(Atonal, chord.root);
 }
 
+
 TEST(Music_Chord, isNull) {
   ASSERT_FALSE(Chord::of("C#m7").isNoChord());
   ASSERT_TRUE(Chord::of("NC").isNoChord());
 }
+
 
 /**
  * XJ understands the root of a slash chord https://www.pivotaltracker.com/story/show/176728338
@@ -74,6 +81,7 @@ TEST(Music_Chord, SlashRootPitchClass) {
   ASSERT_EQ(PitchClass::A, Chord::of("G/A").slashRootPitchClass());
 }
 
+
 /**
  * XJ should correctly choose chords with tensions notated via slash and not confuse them with slash chords
  * https://www.pivotaltracker.com/story/show/183738228
@@ -84,9 +92,11 @@ TEST(Music_Chord, getDescription_dontConfuseTensionWithSlash) {
   ASSERT_EQ("maj7", Chord::of("Gmaj7/E").description);
 }
 
+
 TEST(Music_Chord, stripExtraSpacesFromName) {
   ASSERT_EQ("G", Chord::of("  G      ").getName());
 }
+
 
 TEST(Music_Chord, isSame) {
   ASSERT_TRUE(Chord::of("  G major     ") == Chord::of(" G     major "));
@@ -103,6 +113,7 @@ TEST(Music_Chord, isSame_eharmonicEquivalent) {
   ASSERT_TRUE(Chord::of("G#") == Chord::of("Ab"));
   ASSERT_FALSE(Chord::of("G#") == Chord::of("Bb"));
 }
+
 
 TEST(Music_Chord, isAcceptable) {
   ASSERT_TRUE(Chord::of("  G major     ").isAcceptable(Chord::of(" G     major ")));
@@ -121,6 +132,7 @@ TEST(Music_Chord, isAcceptable_dontConfuseTensionWithSlash) {
   ASSERT_FALSE(Chord::of("Fmaj7/9").isAcceptable(Chord::of("Fmaj7/G")));
 }
 
+
 /**
  * Synonym of base chord should be accepted for slash chord https://www.pivotaltracker.com/story/show/183553280
  */
@@ -136,6 +148,7 @@ TEST(Music_Chord, isAcceptable_sameBaseDifferentSlash) {
   ASSERT_TRUE(Chord::of("C/G").isAcceptable(Chord::of("C/E")));
 }
 
+
 /**
  * Chord mode Instruments should recognize enharmonic equivalents https://www.pivotaltracker.com/story/show/183558424
  */
@@ -147,6 +160,7 @@ TEST(Music_Chord, isAcceptable_eharmonicEquivalent) {
   ASSERT_TRUE(Chord::of("G#m/C").isAcceptable(Chord::of("Abm")));
   ASSERT_FALSE(Chord::of("G#m/C").isAcceptable(Chord::of("Bbm")));
 }
+
 
 TEST(Music_Chord, compareTo) {
   auto source = std::vector<Chord>{
@@ -178,6 +192,7 @@ TEST(Music_Chord, compareTo) {
   // Now you can use `result` in your assertion
   ASSERT_EQ("C, C, C -, C s major, Db -", result);
 }
+
 
 TEST(Music_ChordForm, normalize) {
   ASSERT_EQ("", Chord::normalize("major"));

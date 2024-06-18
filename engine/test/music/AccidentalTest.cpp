@@ -6,6 +6,7 @@
 
 using namespace XJ;
 
+
 TEST(Music_Accidental, TestAdjSymbolOf) {
   ASSERT_EQ(Accidental::Sharp, accidentalOf("C"));
   ASSERT_EQ(Accidental::Flat, accidentalOf("CMb5b7"));
@@ -20,6 +21,7 @@ TEST(Music_Accidental, TestAdjSymbolOf) {
   ASSERT_EQ(Accidental::Flat, accidentalOf("Cm m9 M7"));  // More Flattish than Sharpish
   ASSERT_EQ(Accidental::Sharp, accidentalOf("C major"));
 }
+
 
 TEST(Music_Accidental, TestAdjSymbolBegin) {
   ASSERT_EQ(Accidental::Natural, accidentalOfBeginning(""));

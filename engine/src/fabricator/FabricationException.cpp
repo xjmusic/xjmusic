@@ -2,9 +2,13 @@
 
 #include "xjmusic/fabricator/FabricationException.h"
 
-XJ::FabricationException::FabricationException(std::string msg) : msg_(std::move(msg)) {}
+using namespace XJ;
 
-const char *XJ::FabricationException::what() const noexcept {
+
+FabricationException::FabricationException(std::string msg) : msg_(std::move(msg)) {}
+
+
+const char *FabricationException::what() const noexcept {
   return msg_.c_str();
 }
 

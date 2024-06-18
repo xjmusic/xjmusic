@@ -11,7 +11,6 @@
 #include <vector>
 #include <algorithm>
 
-#include "xjmusic/util/EntityUtils.h"
 #include "xjmusic/content/ContentEntityStore.h"
 #include "xjmusic/content/Instrument.h"
 #include "xjmusic/content/InstrumentAudio.h"
@@ -34,6 +33,7 @@
 #include "xjmusic/content/Template.h"
 #include "xjmusic/content/TemplateBinding.h"
 #include "xjmusic/content/TemplateConfig.h"
+#include "xjmusic/fabricator/SegmentRetrospective.h"
 #include "xjmusic/meme/MemeIsometry.h"
 #include "xjmusic/meme/MemeTaxonomy.h"
 #include "xjmusic/music/Accidental.h"
@@ -60,9 +60,7 @@
 #include "xjmusic/segment/SegmentMeme.h"
 #include "xjmusic/segment/SegmentMessage.h"
 #include "xjmusic/segment/SegmentMeta.h"
-#include "xjmusic/fabricator/SegmentRetrospective.h"
-
-using namespace XJ;
+#include "xjmusic/util/EntityUtils.h"
 
 namespace XJ {
 
@@ -878,42 +876,42 @@ namespace XJ {
      * @param segmentChoice
      * @return
      */
-    static int getSegmentId(XJ::SegmentChoice &segmentChoice);
+    static int getSegmentId(SegmentChoice &segmentChoice);
 
     /**
      * Get Segment ID of Segment Choice Arrangement
      */
-    static int getSegmentId(XJ::SegmentChoiceArrangement &segmentChoiceArrangement);
+    static int getSegmentId(SegmentChoiceArrangement &segmentChoiceArrangement);
 
     /**
      * Get Segment ID of Segment Choice Arrangement Pick
      */
-    static int getSegmentId(XJ::SegmentChoiceArrangementPick &segmentChoiceArrangementPick);
+    static int getSegmentId(SegmentChoiceArrangementPick &segmentChoiceArrangementPick);
 
     /**
      * Get Segment ID of Segment Chord
      */
-    static int getSegmentId(XJ::SegmentChord &segmentChord);
+    static int getSegmentId(SegmentChord &segmentChord);
 
     /**
      * Get Segment ID of Segment Chord Voicing
      */
-    static int getSegmentId(XJ::SegmentChordVoicing &segmentChordVoicing);
+    static int getSegmentId(SegmentChordVoicing &segmentChordVoicing);
 
     /**
      * Get Segment ID of Segment Meme
      */
-    static int getSegmentId(XJ::SegmentMeme &segmentMeme);
+    static int getSegmentId(SegmentMeme &segmentMeme);
 
     /**
      * Get Segment ID of Segment Message
      */
-    static int getSegmentId(XJ::SegmentMessage &segmentMessage);
+    static int getSegmentId(SegmentMessage &segmentMessage);
 
     /**
      * Get Segment ID of Segment Meta
      */
-    static int getSegmentId(XJ::SegmentMeta &segmentMeta);
+    static int getSegmentId(SegmentMeta &segmentMeta);
 
   private:
     static const std::string KEY_VOICE_TRACK_TEMPLATE;
