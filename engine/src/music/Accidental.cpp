@@ -13,7 +13,8 @@ using namespace XJ;
 static std::regex accidentalSharpishIn("(M|maj|Major|major|aug)");
 static std::regex accidentalFlattishIn("([^a-z]|^)(m|min|Minor|minor|dim)");
 
-Accidental accidentalOf(const std::string &name) {
+
+Accidental XJ::accidentalOf(const std::string &name) {
   std::string normalized = accidentalNormalized(name);
   int numSharps = StringUtils::countMatches('#', normalized);
   int numFlats = StringUtils::countMatches('b', normalized);
@@ -25,7 +26,7 @@ Accidental accidentalOf(const std::string &name) {
 }
 
 
-Accidental accidentalOfBeginning(const std::string &name) {
+Accidental XJ::accidentalOfBeginning(const std::string &name) {
   std::string normalized = accidentalNormalized(name);
   if (normalized[0] == '#')
     return Accidental::Sharp;
@@ -36,7 +37,7 @@ Accidental accidentalOfBeginning(const std::string &name) {
 }
 
 
-std::string accidentalNormalized(const std::string &name) {
+std::string XJ::accidentalNormalized(const std::string &name) {
   std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
   std::wstring wide = converter.from_bytes(name);
   std::replace(wide.begin(), wide.end(), L'♯', L'#');
