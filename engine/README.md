@@ -7,4 +7,3 @@ It's written in C++ as a shared library, and can be used in any language that ca
 
 The engine is designed to be as simple as possible, and to be able to run on any platform.
 
-
