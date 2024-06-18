@@ -1,0 +1,147 @@
+name: Engine Distro
+
+on:
+  push:
+    tags: [ '*' ]
+
+jobs:
+  nothing_left_todo:
+    name: Nothing Left TODO
+    env:
+      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Nothing left TODO
+        run: .github/nothing_left_todo.sh engine
+
+  verify_version_number:
+    needs: nothing_left_todo
+    name: Verify Version Number
+    env:
+      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+    runs-on: ubuntu-latest
+    outputs:
+      workstation-version: ${{ steps.get-workstation-version.outputs.version }}
+      engine-version: ${{ steps.get-engine-version.outputs.version }}
+      engine-docs-version: ${{ steps.get-engine-docs-version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get workstation version
+        id: get-workstation-version
+        working-directory: workstation/
+        run: |
+          VERSION=$(grep "version=" gradle.properties | sed -n -e 's/^.*version=//p')
+          if [ -z "$VERSION" ]; then
+            echo "Version number not found!"
+            exit 1
+          fi
+          echo "Version is $VERSION"
+          echo "version=$VERSION" >> $GITHUB_ENV
+          echo "::set-output name=version::$VERSION"
+
+      - name: Check workstation version vs tag name
+        run: |
+          TAG_NAME=${{ github.ref_name }}
+          VERSION=${{ steps.get-workstation-version.outputs.version }}
+          if [ "$TAG_NAME" != "v$VERSION" ]; then
+            echo "gradle.properties version number '$VERSION' implies tag name 'v$VERSION' but instead found '$TAG_NAME'!"
+            exit 1
+          fi
+
+      - name: Get engine version
+        id: get-engine-version
+        working-directory: engine/
+        run: |
+          VERSION=$(grep " VERSION " CMakeLists.txt | sed -n -e 's/^.*VERSION //p')
+          if [ -z "$VERSION" ]; then
+            echo "Version number not found!"
+            exit 1
+          fi
+          echo "Version is $VERSION"
+          echo "version=$VERSION" >> $GITHUB_ENV
+          echo "::set-output name=version::$VERSION"
+
+      - name: Check workstation version vs engine version
+        run: |
+          WORKSTATION_VERSION=${{ steps.get-workstation-version.outputs.version }}
+          ENGINE_VERSION=${{ steps.get-engine-version.outputs.version }}
+          if [ "$WORKSTATION_VERSION" != "$ENGINE_VERSION" ]; then
+            echo "Workstation version '$WORKSTATION_VERSION' does not match engine version '$ENGINE_VERSION'!"
+            exit 1
+          fi
+
+      - name: Get engine docs version
+        id: get-engine-docs-version
+        working-directory: engine/doc
+        run: |
+          VERSION=$(grep "DOXYGEN_PROJECT_NUMBER" CMakeLists.txt | sed -n -e 's/^.*DOXYGEN_PROJECT_NUMBER //p' | sed -e 's/[^\.0-9]//g')
+          if [ -z "$VERSION" ]; then
+            echo "Version number not found!"
+            exit 1
+          fi
+          echo "Version is $VERSION"
+          echo "version=$VERSION" >> $GITHUB_ENV
+          echo "::set-output name=version::$VERSION"
+
+      - name: Check engine version vs engine doc version
+        run: |
+          ENGINE_VERSION=${{ steps.get-engine-version.outputs.version }}
+          ENGINE_DOCS_VERSION=${{ steps.get-engine-docs-version.outputs.version }}
+          if [ "$ENGINE_VERSION" != "$ENGINE_DOCS_VERSION" ]; then
+            echo "Engine version '$ENGINE_VERSION' does not match engine docs version '$ENGINE_DOCS_VERSION'!"
+            exit 1
+          fi
+
+  deploy_docs:
+    needs: verify_version_number
+    name: Build & Deploy Documentation
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        working-directory: engine/
+        run: |
+          sudo apt-get install -y cmake doxygen
+
+      - name: Build
+        working-directory: engine/
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          make doc
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./engine/build/doc/html
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

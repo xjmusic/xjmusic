@@ -1,4 +1,5 @@
 [![Engine CI](https://github.com/xjmusic/xjmusic/actions/workflows/engine_ci.yaml/badge.svg)](https://github.com/xjmusic/xjmusic/actions/workflows/engine_ci.yaml)
+[![Engine Distro](https://github.com/xjmusic/engine/actions/workflows/engine_distro.yml/badge.svg)](https://github.com/xjmusic/engine/actions/workflows/engine_distro.yml)<br/>
 [![Workstation CI](https://github.com/xjmusic/workstation/actions/workflows/workstation_ci.yml/badge.svg)](https://github.com/xjmusic/workstation/actions/workflows/workstation_ci.yml)
 [![Workstation Distro](https://github.com/xjmusic/workstation/actions/workflows/workstation_distro.yml/badge.svg)](https://github.com/xjmusic/workstation/actions/workflows/workstation_distro.yml)
 
