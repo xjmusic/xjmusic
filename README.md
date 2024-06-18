@@ -42,4 +42,5 @@ This document also includes guidelines for reporting bugs.
 
 The official documentation is published at [docs.xjmusic.com](https://docs.xjmusic.com).
 It is maintained by the XJ music community in its own [GitHub repository](https://github.com/xjmusic/xjmusic-docs).
+
 C++ class documentation for the in-game runtime engine is available at [engine-docs.xjmusic.com](https://engine-docs.xjmusic.com).
