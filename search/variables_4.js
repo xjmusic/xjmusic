@@ -1,14 +1,19 @@
 var searchData=
 [
-  ['decimal_5fpoint_2076',['decimal_point',['../d1/d62/classdetail_1_1serializer.html#a5f01fcbf64cb1e5f36d8853ebcd96412',1,'detail::serializer']]],
-  ['deltaarcbeatlayersincoming_2077',['deltaArcBeatLayersIncoming',['../d3/d43/classContent_1_1TemplateConfig.html#a1027217b310f5096f221476630f44181',1,'Content::TemplateConfig']]],
-  ['deltaarcbeatlayerstoprioritize_2078',['deltaArcBeatLayersToPrioritize',['../d3/d43/classContent_1_1TemplateConfig.html#a0f7889d111e26c455e49c9d16087f894',1,'Content::TemplateConfig']]],
-  ['deltaarcdetaillayersincoming_2079',['deltaArcDetailLayersIncoming',['../d3/d43/classContent_1_1TemplateConfig.html#a2dc532150853454b49ef56f5a51773ab',1,'Content::TemplateConfig']]],
-  ['deltaarcenabled_2080',['deltaArcEnabled',['../d3/d43/classContent_1_1TemplateConfig.html#a6c1a0ae38eb0ed559e39ab7850e24fda',1,'Content::TemplateConfig']]],
-  ['deltaoctave_2081',['deltaOctave',['../dc/d38/classMusic_1_1Step.html#a26aa243066b7a2a5e94541b74fbce4ad',1,'Music::Step']]],
-  ['description_2082',['description',['../dd/db8/classMusic_1_1ChordForm.html#abc036a8e9b4b24f327bcc4e8f9321b71',1,'Music::ChordForm::description()'],['../d7/d6b/classMusic_1_1Chord.html#a255dc657243e0735d7d62a158c960fa9',1,'Music::Chord::description()']]],
-  ['detaillayerorder_2083',['detailLayerOrder',['../d3/d43/classContent_1_1TemplateConfig.html#a1c7ded858262495315216bef65cfe4a5',1,'Content::TemplateConfig']]],
-  ['dopatternrestartonchord_2084',['doPatternRestartOnChord',['../d5/d1e/classContent_1_1ProgramConfig.html#adc1bb735ad6c7df47e58f0809d9eba81',1,'Content::ProgramConfig']]],
-  ['dubmastervolume_2085',['dubMasterVolume',['../d3/d43/classContent_1_1TemplateConfig.html#a3be553f60ece05d2c6bc7f5ccc652505',1,'Content::TemplateConfig']]],
-  ['duration_2086',['duration',['../df/d72/classContent_1_1ProgramSequencePatternEvent.html#a4419b93a2308983cf4c28c593418d7cb',1,'Content::ProgramSequencePatternEvent']]]
+  ['decimal_5fpoint_2665',['decimal_point',['../d1/d62/classdetail_1_1serializer.html#a5f01fcbf64cb1e5f36d8853ebcd96412',1,'detail::serializer']]],
+  ['delta_2666',['delta',['../dc/ddb/classXJ_1_1Segment.html#a2c31d936f7731f2b5a95d192f06587bb',1,'XJ::Segment']]],
+  ['delta_5funlimited_2667',['DELTA_UNLIMITED',['../d3/d50/classXJ_1_1SegmentChoice.html#a8732b214847204cc42c4b88ca3b0adf9',1,'XJ::SegmentChoice']]],
+  ['deltaarcbeatlayersincoming_2668',['deltaArcBeatLayersIncoming',['../df/dc6/classXJ_1_1TemplateConfig.html#a18b59d08199ae6dbf4dc4ff7c5c19b4a',1,'XJ::TemplateConfig']]],
+  ['deltaarcbeatlayerstoprioritize_2669',['deltaArcBeatLayersToPrioritize',['../df/dc6/classXJ_1_1TemplateConfig.html#aa84699a830dd8cb14b340207a71bfe27',1,'XJ::TemplateConfig']]],
+  ['deltaarcdetaillayersincoming_2670',['deltaArcDetailLayersIncoming',['../df/dc6/classXJ_1_1TemplateConfig.html#a725bdf0dcf4e6700f89dd773ceb505a9',1,'XJ::TemplateConfig']]],
+  ['deltaarcenabled_2671',['deltaArcEnabled',['../df/dc6/classXJ_1_1TemplateConfig.html#adb3ed44593820f97b6d9ae4214bb9582',1,'XJ::TemplateConfig']]],
+  ['deltain_2672',['deltaIn',['../d3/d50/classXJ_1_1SegmentChoice.html#a8ded191947818af8564828e8b9b3f372',1,'XJ::SegmentChoice']]],
+  ['deltaoctave_2673',['deltaOctave',['../db/d48/classXJ_1_1Step.html#a9d20f631b1299453d63125f838d9ebd6',1,'XJ::Step']]],
+  ['deltaout_2674',['deltaOut',['../d3/d50/classXJ_1_1SegmentChoice.html#a78385b57d0055eb5f3e98d35a2d13d43',1,'XJ::SegmentChoice']]],
+  ['description_2675',['description',['../d4/daa/classXJ_1_1ChordForm.html#a01904903102e098ee16a13446cacf028',1,'XJ::ChordForm::description()'],['../dd/dc6/classXJ_1_1Chord.html#a0359131ea5a282d6f807ad68f60dbb0a',1,'XJ::Chord::description()']]],
+  ['detaillayerorder_2676',['detailLayerOrder',['../df/dc6/classXJ_1_1TemplateConfig.html#add2207223e4e362ca888a6e858003218',1,'XJ::TemplateConfig']]],
+  ['dopatternrestartonchord_2677',['doPatternRestartOnChord',['../d3/da0/classXJ_1_1ProgramConfig.html#a78de4cada941fda63db3c46fcd04cfb8',1,'XJ::ProgramConfig']]],
+  ['dubmastervolume_2678',['dubMasterVolume',['../df/dc6/classXJ_1_1TemplateConfig.html#abc1adec2a99d6665de69f99bfdc8cba4',1,'XJ::TemplateConfig']]],
+  ['duration_2679',['duration',['../d1/d37/classXJ_1_1ProgramSequencePatternEvent.html#a72680bc45e0faf8834becee90b0349ed',1,'XJ::ProgramSequencePatternEvent']]],
+  ['durationmicros_2680',['durationMicros',['../dc/ddb/classXJ_1_1Segment.html#a7df34503d299f7841fc56f8441dded21',1,'XJ::Segment']]]
 ];

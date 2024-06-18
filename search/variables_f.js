@@ -1,9 +1,10 @@
 var searchData=
 [
-  ['releasemillis_2176',['releaseMillis',['../db/dac/classContent_1_1InstrumentConfig.html#a3bbe4b9bd9ec6027e816394ce66ee8a5',1,'Content::InstrumentConfig']]],
-  ['remainingtext_2177',['remainingText',['../da/d53/classMusic_1_1Root.html#ae230f420598b0cf16922c7532277efa6',1,'Music::Root']]],
-  ['rhs_2178',['rhs',['../d1/d72/classbasic__json.html#a3a549b97cc690cd390145249335d3768',1,'basic_json']]],
-  ['root_2179',['root',['../d7/d6b/classMusic_1_1Chord.html#a1fe4aa4167342789e71709ea87c24831',1,'Music::Chord']]],
-  ['rootnote_2180',['rootNote',['../de/dd3/classMusic_1_1Tuning.html#a25bc3a71ca6ab5aa857f384b53fee372',1,'Music::Tuning']]],
-  ['rootpitch_2181',['rootPitch',['../de/dd3/classMusic_1_1Tuning.html#ac673e2dd9304a88864c0e5dcf55b7ab6',1,'Music::Tuning']]]
+  ['releasemillis_2780',['releaseMillis',['../d4/dae/classXJ_1_1InstrumentConfig.html#a0dbfcb16d0b819628677f25f58a39467',1,'XJ::InstrumentConfig']]],
+  ['remainingtext_2781',['remainingText',['../d3/d2b/classXJ_1_1Root.html#a7c3124dd37ef3210c68b161287049216',1,'XJ::Root']]],
+  ['rgx_2782',['rgx',['../d1/d0d/classXJ_1_1ParseAnti.html#abd6cbdf2fbec529a97e6c6933565c4ec',1,'XJ::ParseAnti::rgx()'],['../df/db7/classXJ_1_1ParseNumeric.html#a30823b5c97a512667b648b5d7fff0480',1,'XJ::ParseNumeric::rgx()'],['../d3/dc3/classXJ_1_1ParseStrong.html#a2ce0283993191ae2aee0be615ae70329',1,'XJ::ParseStrong::rgx()'],['../d1/d85/classXJ_1_1ParseUnique.html#aaea6979bf018f3ff58e8f137a1e4f5a3',1,'XJ::ParseUnique::rgx()']]],
+  ['rhs_2783',['rhs',['../d1/d72/classbasic__json.html#a3a549b97cc690cd390145249335d3768',1,'basic_json']]],
+  ['root_2784',['root',['../dd/dc6/classXJ_1_1Chord.html#a1d7fc65959db2bba8b9548e3fe648ccc',1,'XJ::Chord']]],
+  ['rootnote_2785',['rootNote',['../d1/d26/classXJ_1_1Tuning.html#a0790746f171d7d65f27d91144cec4e37',1,'XJ::Tuning']]],
+  ['rootpitch_2786',['rootPitch',['../d1/d26/classXJ_1_1Tuning.html#ac9f7ce624814e82a0d079590053b9fee',1,'XJ::Tuning']]]
 ];

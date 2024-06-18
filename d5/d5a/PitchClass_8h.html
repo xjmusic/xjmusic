@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>XJ music nexus: /home/runner/work/xjmusic/xjmusic/engine/include/xjmusic/music/PitchClass.h File Reference</title>
+<title>XJ music engine: /home/runner/work/xjmusic/xjmusic/engine/include/xjmusic/entities/music/PitchClass.h File Reference</title>
 <link href="../../tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="../../jquery.js"></script>
 <script type="text/javascript" src="../../dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">XJ music nexus
+   <div id="projectname">XJ music engine
    &#160;<span id="projectnumber">0.1</span>
    </div>
    <div id="projectbrief">This is the playback engine for XJ music.</div>
@@ -63,58 +63,51 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="../../dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="../../dir_423b9d3680e84088c8b3d609cb192895.html">xjmusic</a></li><li class="navelem"><a class="el" href="../../dir_8b6371ce373427b49bf3b593c3f7ea9f.html">music</a></li>  </ul>
+<li class="navelem"><a class="el" href="../../dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="../../dir_423b9d3680e84088c8b3d609cb192895.html">xjmusic</a></li><li class="navelem"><a class="el" href="../../dir_9dfc5f2cf03090bba74e2cc99d1571b7.html">entities</a></li><li class="navelem"><a class="el" href="../../dir_8492b708043fa984c94bd5730b5066b0.html">music</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#namespaces">Namespaces</a> &#124;
-<a href="#enum-members">Enumerations</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#enum-members">Enumerations</a>  </div>
   <div class="headertitle">
 <div class="title">PitchClass.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;map&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
+<code>#include &quot;<a class="el" href="../../d4/d8f/StringUtils_8h_source.html">xjmusic/util/StringUtils.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="../../d3/d24/Accidental_8h_source.html">Accidental.h</a>&quot;</code><br />
 </div>
 <p><a href="../../d5/d5a/PitchClass_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
 Namespaces</h2></td></tr>
-<tr class="memitem:de/d59/namespaceMusic"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d59/namespaceMusic.html">Music</a></td></tr>
+<tr class="memitem:d1/d13/namespaceXJ"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d13/namespaceXJ.html">XJ</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr class="memitem:a8d616eadb5aaa1ba73e8f48ef090eb77"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d59/namespaceMusic.html#a8d616eadb5aaa1ba73e8f48ef090eb77">Music::PitchClass</a> { <br />
-&#160;&#160;<a class="el" href="../../de/d59/namespaceMusic.html#a8d616eadb5aaa1ba73e8f48ef090eb77ae1a2c142bcf0d0e26ac3b525891e0eff">Music::Atonal</a>
-, <a class="el" href="../../de/d59/namespaceMusic.html#a8d616eadb5aaa1ba73e8f48ef090eb77afa7821331327f8969b5e169bb7a1bb28">Music::C</a>
-, <a class="el" href="../../de/d59/namespaceMusic.html#a8d616eadb5aaa1ba73e8f48ef090eb77a362dbdaca21ebc2d2f6e65d4d0649424">Music::Cs</a>
-, <a class="el" href="../../de/d59/namespaceMusic.html#a8d616eadb5aaa1ba73e8f48ef090eb77a8f49a0a31bd3d2e5b633ce0d8e9e6a76">Music::D</a>
+<tr class="memitem:af7c4dede54840fb23d6dd5c1a5eb2362"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d13/namespaceXJ.html#af7c4dede54840fb23d6dd5c1a5eb2362">XJ::PitchClass</a> { <br />
+&#160;&#160;<a class="el" href="../../d1/d13/namespaceXJ.html#af7c4dede54840fb23d6dd5c1a5eb2362afb3bdfc50c1a8e3ac097697f308293f0">XJ::Atonal</a>
+, <a class="el" href="../../d1/d13/namespaceXJ.html#af7c4dede54840fb23d6dd5c1a5eb2362a5c8df90ecaae182c804270b7ae2dba9b">XJ::C</a>
+, <a class="el" href="../../d1/d13/namespaceXJ.html#af7c4dede54840fb23d6dd5c1a5eb2362a21f51d1ab17803ecf858cafa00d95058">XJ::Cs</a>
+, <a class="el" href="../../d1/d13/namespaceXJ.html#af7c4dede54840fb23d6dd5c1a5eb2362a56fe820d91a5f84e7f943efa15f9e02d">XJ::D</a>
 , <br />
-&#160;&#160;<a class="el" href="../../de/d59/namespaceMusic.html#a8d616eadb5aaa1ba73e8f48ef090eb77a9ed891f8b75dcddc81a9ce89753675c2">Music::Ds</a>
-, <a class="el" href="../../de/d59/namespaceMusic.html#a8d616eadb5aaa1ba73e8f48ef090eb77a8b9fa46cf9ac6043c4ccaf50350b8731">Music::E</a>
-, <a class="el" href="../../de/d59/namespaceMusic.html#a8d616eadb5aaa1ba73e8f48ef090eb77a31db63a05419b2802b9fb8a72cec133b">Music::F</a>
-, <a class="el" href="../../de/d59/namespaceMusic.html#a8d616eadb5aaa1ba73e8f48ef090eb77a0ca5f4579445fa3c50fbc2d04ced846f">Music::Fs</a>
+&#160;&#160;<a class="el" href="../../d1/d13/namespaceXJ.html#af7c4dede54840fb23d6dd5c1a5eb2362afbdae9656730c035bdac9500f7adc93b">XJ::Ds</a>
+, <a class="el" href="../../d1/d13/namespaceXJ.html#af7c4dede54840fb23d6dd5c1a5eb2362a892f0cce3917a339b93a6f152542caf0">XJ::E</a>
+, <a class="el" href="../../d1/d13/namespaceXJ.html#af7c4dede54840fb23d6dd5c1a5eb2362ad89933dde0066638e0d12e7b7b863528">XJ::F</a>
+, <a class="el" href="../../d1/d13/namespaceXJ.html#af7c4dede54840fb23d6dd5c1a5eb2362a91e3d7db38d09ce0f8a082bb97e40aa0">XJ::Fs</a>
 , <br />
-&#160;&#160;<a class="el" href="../../de/d59/namespaceMusic.html#a8d616eadb5aaa1ba73e8f48ef090eb77a65e34c24f9d3b98e6d0ff827c0af79f4">Music::G</a>
-, <a class="el" href="../../de/d59/namespaceMusic.html#a8d616eadb5aaa1ba73e8f48ef090eb77a06650f3578b78b65fb224fde6b37822b">Music::Gs</a>
-, <a class="el" href="../../de/d59/namespaceMusic.html#a8d616eadb5aaa1ba73e8f48ef090eb77a0c070df6996d090e412aebb7dbe93fae">Music::A</a>
-, <a class="el" href="../../de/d59/namespaceMusic.html#a8d616eadb5aaa1ba73e8f48ef090eb77afb43254e9ffcea9c043cd13efff90f72">Music::As</a>
+&#160;&#160;<a class="el" href="../../d1/d13/namespaceXJ.html#af7c4dede54840fb23d6dd5c1a5eb2362a6225a9a7b1329a8230afbf5ab2e1a1e5">XJ::G</a>
+, <a class="el" href="../../d1/d13/namespaceXJ.html#af7c4dede54840fb23d6dd5c1a5eb2362a96a941c915664333735107752abbfb14">XJ::Gs</a>
+, <a class="el" href="../../d1/d13/namespaceXJ.html#af7c4dede54840fb23d6dd5c1a5eb2362a2e7eab55a527077ac0a60eb96fa16bb4">XJ::A</a>
+, <a class="el" href="../../d1/d13/namespaceXJ.html#af7c4dede54840fb23d6dd5c1a5eb2362ac706f5cef457a65c67a27ac1b1de9345">XJ::As</a>
 , <br />
-&#160;&#160;<a class="el" href="../../de/d59/namespaceMusic.html#a8d616eadb5aaa1ba73e8f48ef090eb77a0909a4d3b8ec48c93c423bfc93be74e3">Music::B</a>
+&#160;&#160;<a class="el" href="../../d1/d13/namespaceXJ.html#af7c4dede54840fb23d6dd5c1a5eb2362acd689d679865015e86a19d4111a363b4">XJ::B</a>
 <br />
  }</td></tr>
-<tr class="separator:a8d616eadb5aaa1ba73e8f48ef090eb77"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:ae45da4309ea3a4a97d5f59af31138d37"><td class="memItemLeft" align="right" valign="top">PitchClass&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d59/namespaceMusic.html#ae45da4309ea3a4a97d5f59af31138d37">Music::pitchClassOf</a> (const std::string &amp;name)</td></tr>
-<tr class="separator:ae45da4309ea3a4a97d5f59af31138d37"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af84b0463c984b729c908ead00c01d1c8"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d59/namespaceMusic.html#af84b0463c984b729c908ead00c01d1c8">Music::stringOf</a> (PitchClass from, Accidental with=Sharp)</td></tr>
-<tr class="separator:af84b0463c984b729c908ead00c01d1c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:af7c4dede54840fb23d6dd5c1a5eb2362"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 <!-- start footer part -->

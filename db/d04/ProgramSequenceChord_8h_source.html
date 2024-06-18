@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>XJ music nexus: /home/runner/work/xjmusic/xjmusic/engine/include/xjmusic/content/ProgramSequenceChord.h Source File</title>
+<title>XJ music engine: /home/runner/work/xjmusic/xjmusic/engine/include/xjmusic/entities/content/ProgramSequenceChord.h Source File</title>
 <link href="../../tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="../../jquery.js"></script>
 <script type="text/javascript" src="../../dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">XJ music nexus
+   <div id="projectname">XJ music engine
    &#160;<span id="projectnumber">0.1</span>
    </div>
    <div id="projectbrief">This is the playback engine for XJ music.</div>
@@ -63,7 +63,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="../../dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="../../dir_423b9d3680e84088c8b3d609cb192895.html">xjmusic</a></li><li class="navelem"><a class="el" href="../../dir_291006a3e064f13dca9ac01158de3303.html">content</a></li>  </ul>
+<li class="navelem"><a class="el" href="../../dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="../../dir_423b9d3680e84088c8b3d609cb192895.html">xjmusic</a></li><li class="navelem"><a class="el" href="../../dir_9dfc5f2cf03090bba74e2cc99d1571b7.html">entities</a></li><li class="navelem"><a class="el" href="../../dir_503f22bf885df075ccbdafbb705a5954.html">content</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -79,32 +79,36 @@ $(function() {
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &lt;string&gt;</span></div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &lt;utility&gt;</span></div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160; </div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="../../d4/da0/Entity_8h.html">Entity.h</a>&quot;</span></div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="keyword">namespace </span><a class="code" href="../../d1/d4a/namespaceContent.html">Content</a> {</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
-<div class="line"><a name="l00013"></a><span class="lineno"><a class="line" href="../../d2/d6d/classContent_1_1ProgramSequenceChord.html">   13</a></span>&#160;  <span class="keyword">class </span><a class="code" href="../../d2/d6d/classContent_1_1ProgramSequenceChord.html">ProgramSequenceChord</a> : <span class="keyword">public</span> <a class="code" href="../../d2/d78/classContent_1_1Entity.html">Entity</a> {</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="../../d2/d6d/classContent_1_1ProgramSequenceChord.html#aeb2c04af01cf1a0c34fd6cbf7c4c46c4">   15</a></span>&#160;    <a class="code" href="../../d2/d6d/classContent_1_1ProgramSequenceChord.html#aeb2c04af01cf1a0c34fd6cbf7c4c46c4">ProgramSequenceChord</a>() = <span class="keywordflow">default</span>;</div>
-<div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="../../d2/d6d/classContent_1_1ProgramSequenceChord.html#ad0cb5621429f0e108d7fb947814d7837">   16</a></span>&#160;    <a class="code" href="../../d1/d4a/namespaceContent.html#a92666364ac187cf5756cc2af87814012">UUID</a> <a class="code" href="../../d2/d6d/classContent_1_1ProgramSequenceChord.html#ad0cb5621429f0e108d7fb947814d7837">programId</a>;</div>
-<div class="line"><a name="l00017"></a><span class="lineno"><a class="line" href="../../d2/d6d/classContent_1_1ProgramSequenceChord.html#a324522142c402f4054e2f7cb847f664b">   17</a></span>&#160;    std::string <a class="code" href="../../d2/d6d/classContent_1_1ProgramSequenceChord.html#a324522142c402f4054e2f7cb847f664b">programSequenceId</a>;</div>
-<div class="line"><a name="l00018"></a><span class="lineno"><a class="line" href="../../d2/d6d/classContent_1_1ProgramSequenceChord.html#a49eeef2139957d85a82bdab7561a1553">   18</a></span>&#160;    std::string <a class="code" href="../../d2/d6d/classContent_1_1ProgramSequenceChord.html#a49eeef2139957d85a82bdab7561a1553">name</a>;</div>
-<div class="line"><a name="l00019"></a><span class="lineno"><a class="line" href="../../d2/d6d/classContent_1_1ProgramSequenceChord.html#a31f5dd0951d82b3e1afc0b11ce62e369">   19</a></span>&#160;    <span class="keywordtype">float</span> <a class="code" href="../../d2/d6d/classContent_1_1ProgramSequenceChord.html#a31f5dd0951d82b3e1afc0b11ce62e369">position</a>{};</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  };</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;}<span class="comment">// namespace Content</span></div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor">#endif</span><span class="comment">//PROGRAM_SEQUENCE_CHORD_H</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="../../d4/da0/Entity_8h.html">xjmusic/entities/Entity.h</a>&quot;</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="../../d2/d5c/ContentEntity_8h.html">ContentEntity.h</a>&quot;</span></div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160; </div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">namespace </span><a class="code" href="../../d1/d13/namespaceXJ.html">XJ</a> {</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
+<div class="line"><a name="l00014"></a><span class="lineno"><a class="line" href="../../db/d1b/classXJ_1_1ProgramSequenceChord.html">   14</a></span>&#160;  <span class="keyword">class </span><a class="code" href="../../db/d1b/classXJ_1_1ProgramSequenceChord.html">ProgramSequenceChord</a> : <span class="keyword">public</span> <a class="code" href="../../db/d67/classXJ_1_1ContentEntity.html">ContentEntity</a> {</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
+<div class="line"><a name="l00017"></a><span class="lineno"><a class="line" href="../../db/d1b/classXJ_1_1ProgramSequenceChord.html#a5f03cf77594313b61aef3491b7e47bbd">   17</a></span>&#160;    <a class="code" href="../../db/d1b/classXJ_1_1ProgramSequenceChord.html#a5f03cf77594313b61aef3491b7e47bbd">ProgramSequenceChord</a>() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160; </div>
+<div class="line"><a name="l00019"></a><span class="lineno"><a class="line" href="../../db/d1b/classXJ_1_1ProgramSequenceChord.html#ae6a9edf155723f27ab213976b8f65ad2">   19</a></span>&#160;    <a class="code" href="../../d1/d13/namespaceXJ.html#a4df5cec60ce56eebfc581fb04e6715ea">UUID</a> <a class="code" href="../../db/d1b/classXJ_1_1ProgramSequenceChord.html#ae6a9edf155723f27ab213976b8f65ad2">programId</a>;</div>
+<div class="line"><a name="l00020"></a><span class="lineno"><a class="line" href="../../db/d1b/classXJ_1_1ProgramSequenceChord.html#a3ed642c5867c75766c2baf4a0056f5ec">   20</a></span>&#160;    std::string <a class="code" href="../../db/d1b/classXJ_1_1ProgramSequenceChord.html#a3ed642c5867c75766c2baf4a0056f5ec">programSequenceId</a>;</div>
+<div class="line"><a name="l00021"></a><span class="lineno"><a class="line" href="../../db/d1b/classXJ_1_1ProgramSequenceChord.html#a3feba38d35f0204af90d001d5487a82f">   21</a></span>&#160;    std::string <a class="code" href="../../db/d1b/classXJ_1_1ProgramSequenceChord.html#a3feba38d35f0204af90d001d5487a82f">name</a>;</div>
+<div class="line"><a name="l00022"></a><span class="lineno"><a class="line" href="../../db/d1b/classXJ_1_1ProgramSequenceChord.html#a7f9c7356ea6af2e4eef93949406534ec">   22</a></span>&#160;    <span class="keywordtype">float</span> <a class="code" href="../../db/d1b/classXJ_1_1ProgramSequenceChord.html#a7f9c7356ea6af2e4eef93949406534ec">position</a>{};</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  };</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; </div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;}<span class="comment">// namespace XJ</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160; </div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">#endif</span><span class="comment">//PROGRAM_SEQUENCE_CHORD_H</span></div>
+<div class="ttc" id="aContentEntity_8h_html"><div class="ttname"><a href="../../d2/d5c/ContentEntity_8h.html">ContentEntity.h</a></div></div>
 <div class="ttc" id="aEntity_8h_html"><div class="ttname"><a href="../../d4/da0/Entity_8h.html">Entity.h</a></div></div>
-<div class="ttc" id="aclassContent_1_1Entity_html"><div class="ttname"><a href="../../d2/d78/classContent_1_1Entity.html">Content::Entity</a></div><div class="ttdef"><b>Definition:</b> Entity.h:40</div></div>
-<div class="ttc" id="aclassContent_1_1ProgramSequenceChord_html"><div class="ttname"><a href="../../d2/d6d/classContent_1_1ProgramSequenceChord.html">Content::ProgramSequenceChord</a></div><div class="ttdef"><b>Definition:</b> ProgramSequenceChord.h:13</div></div>
-<div class="ttc" id="aclassContent_1_1ProgramSequenceChord_html_a31f5dd0951d82b3e1afc0b11ce62e369"><div class="ttname"><a href="../../d2/d6d/classContent_1_1ProgramSequenceChord.html#a31f5dd0951d82b3e1afc0b11ce62e369">Content::ProgramSequenceChord::position</a></div><div class="ttdeci">float position</div><div class="ttdef"><b>Definition:</b> ProgramSequenceChord.h:19</div></div>
-<div class="ttc" id="aclassContent_1_1ProgramSequenceChord_html_a324522142c402f4054e2f7cb847f664b"><div class="ttname"><a href="../../d2/d6d/classContent_1_1ProgramSequenceChord.html#a324522142c402f4054e2f7cb847f664b">Content::ProgramSequenceChord::programSequenceId</a></div><div class="ttdeci">std::string programSequenceId</div><div class="ttdef"><b>Definition:</b> ProgramSequenceChord.h:17</div></div>
-<div class="ttc" id="aclassContent_1_1ProgramSequenceChord_html_a49eeef2139957d85a82bdab7561a1553"><div class="ttname"><a href="../../d2/d6d/classContent_1_1ProgramSequenceChord.html#a49eeef2139957d85a82bdab7561a1553">Content::ProgramSequenceChord::name</a></div><div class="ttdeci">std::string name</div><div class="ttdef"><b>Definition:</b> ProgramSequenceChord.h:18</div></div>
-<div class="ttc" id="aclassContent_1_1ProgramSequenceChord_html_ad0cb5621429f0e108d7fb947814d7837"><div class="ttname"><a href="../../d2/d6d/classContent_1_1ProgramSequenceChord.html#ad0cb5621429f0e108d7fb947814d7837">Content::ProgramSequenceChord::programId</a></div><div class="ttdeci">UUID programId</div><div class="ttdef"><b>Definition:</b> ProgramSequenceChord.h:16</div></div>
-<div class="ttc" id="aclassContent_1_1ProgramSequenceChord_html_aeb2c04af01cf1a0c34fd6cbf7c4c46c4"><div class="ttname"><a href="../../d2/d6d/classContent_1_1ProgramSequenceChord.html#aeb2c04af01cf1a0c34fd6cbf7c4c46c4">Content::ProgramSequenceChord::ProgramSequenceChord</a></div><div class="ttdeci">ProgramSequenceChord()=default</div></div>
-<div class="ttc" id="anamespaceContent_html"><div class="ttname"><a href="../../d1/d4a/namespaceContent.html">Content</a></div><div class="ttdef"><b>Definition:</b> ContentStore.h:37</div></div>
-<div class="ttc" id="anamespaceContent_html_a92666364ac187cf5756cc2af87814012"><div class="ttname"><a href="../../d1/d4a/namespaceContent.html#a92666364ac187cf5756cc2af87814012">Content::UUID</a></div><div class="ttdeci">std::string UUID</div><div class="ttdef"><b>Definition:</b> Entity.h:19</div></div>
+<div class="ttc" id="aclassXJ_1_1ContentEntity_html"><div class="ttname"><a href="../../db/d67/classXJ_1_1ContentEntity.html">XJ::ContentEntity</a></div><div class="ttdef"><b>Definition:</b> ContentEntity.h:16</div></div>
+<div class="ttc" id="aclassXJ_1_1ProgramSequenceChord_html"><div class="ttname"><a href="../../db/d1b/classXJ_1_1ProgramSequenceChord.html">XJ::ProgramSequenceChord</a></div><div class="ttdef"><b>Definition:</b> ProgramSequenceChord.h:14</div></div>
+<div class="ttc" id="aclassXJ_1_1ProgramSequenceChord_html_a3ed642c5867c75766c2baf4a0056f5ec"><div class="ttname"><a href="../../db/d1b/classXJ_1_1ProgramSequenceChord.html#a3ed642c5867c75766c2baf4a0056f5ec">XJ::ProgramSequenceChord::programSequenceId</a></div><div class="ttdeci">std::string programSequenceId</div><div class="ttdef"><b>Definition:</b> ProgramSequenceChord.h:20</div></div>
+<div class="ttc" id="aclassXJ_1_1ProgramSequenceChord_html_a3feba38d35f0204af90d001d5487a82f"><div class="ttname"><a href="../../db/d1b/classXJ_1_1ProgramSequenceChord.html#a3feba38d35f0204af90d001d5487a82f">XJ::ProgramSequenceChord::name</a></div><div class="ttdeci">std::string name</div><div class="ttdef"><b>Definition:</b> ProgramSequenceChord.h:21</div></div>
+<div class="ttc" id="aclassXJ_1_1ProgramSequenceChord_html_a5f03cf77594313b61aef3491b7e47bbd"><div class="ttname"><a href="../../db/d1b/classXJ_1_1ProgramSequenceChord.html#a5f03cf77594313b61aef3491b7e47bbd">XJ::ProgramSequenceChord::ProgramSequenceChord</a></div><div class="ttdeci">ProgramSequenceChord()=default</div></div>
+<div class="ttc" id="aclassXJ_1_1ProgramSequenceChord_html_a7f9c7356ea6af2e4eef93949406534ec"><div class="ttname"><a href="../../db/d1b/classXJ_1_1ProgramSequenceChord.html#a7f9c7356ea6af2e4eef93949406534ec">XJ::ProgramSequenceChord::position</a></div><div class="ttdeci">float position</div><div class="ttdef"><b>Definition:</b> ProgramSequenceChord.h:22</div></div>
+<div class="ttc" id="aclassXJ_1_1ProgramSequenceChord_html_ae6a9edf155723f27ab213976b8f65ad2"><div class="ttname"><a href="../../db/d1b/classXJ_1_1ProgramSequenceChord.html#ae6a9edf155723f27ab213976b8f65ad2">XJ::ProgramSequenceChord::programId</a></div><div class="ttdeci">UUID programId</div><div class="ttdef"><b>Definition:</b> ProgramSequenceChord.h:19</div></div>
+<div class="ttc" id="anamespaceXJ_html"><div class="ttname"><a href="../../d1/d13/namespaceXJ.html">XJ</a></div><div class="ttdef"><b>Definition:</b> ContentEntity.h:14</div></div>
+<div class="ttc" id="anamespaceXJ_html_a4df5cec60ce56eebfc581fb04e6715ea"><div class="ttname"><a href="../../d1/d13/namespaceXJ.html#a4df5cec60ce56eebfc581fb04e6715ea">XJ::UUID</a></div><div class="ttdeci">std::string UUID</div><div class="ttdef"><b>Definition:</b> Entity.h:30</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

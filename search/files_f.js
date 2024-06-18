@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['xj_2dmusic_2dlogo_2epng_1602',['xj-music-logo.png',['../d3/d61/xj-music-logo_8png.html',1,'']]],
-  ['xjmusic_2ecpp_1603',['xjmusic.cpp',['../da/d0c/xjmusic_8cpp.html',1,'']]],
-  ['xjmusic_2eh_1604',['xjmusic.h',['../db/de9/xjmusic_8h.html',1,'']]]
+  ['valueutils_2ecpp_1994',['ValueUtils.cpp',['../dc/d56/ValueUtils_8cpp.html',1,'']]],
+  ['valueutils_2eh_1995',['ValueUtils.h',['../d4/d56/ValueUtils_8h.html',1,'']]]
 ];

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>XJ music nexus: /home/runner/work/xjmusic/xjmusic/engine/include/xjmusic/content/MemeTaxonomy.h File Reference</title>
+<title>XJ music engine: /home/runner/work/xjmusic/xjmusic/engine/include/xjmusic/entities/meme/MemeTaxonomy.h File Reference</title>
 <link href="../../tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="../../jquery.js"></script>
 <script type="text/javascript" src="../../dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">XJ music nexus
+   <div id="projectname">XJ music engine
    &#160;<span id="projectnumber">0.1</span>
    </div>
    <div id="projectbrief">This is the playback engine for XJ music.</div>
@@ -63,13 +63,14 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="../../dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="../../dir_423b9d3680e84088c8b3d609cb192895.html">xjmusic</a></li><li class="navelem"><a class="el" href="../../dir_291006a3e064f13dca9ac01158de3303.html">content</a></li>  </ul>
+<li class="navelem"><a class="el" href="../../dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="../../dir_423b9d3680e84088c8b3d609cb192895.html">xjmusic</a></li><li class="navelem"><a class="el" href="../../dir_9dfc5f2cf03090bba74e2cc99d1571b7.html">entities</a></li><li class="navelem"><a class="el" href="../../dir_c007d2a08972f8f3bd5a85c9b6863ea4.html">meme</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#namespaces">Namespaces</a>  </div>
+<a href="#namespaces">Namespaces</a> &#124;
+<a href="#typedef-members">Typedefs</a>  </div>
   <div class="headertitle">
 <div class="title">MemeTaxonomy.h File Reference</div>  </div>
 </div><!--header-->
@@ -78,20 +79,26 @@ $(function() {
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;variant&gt;</code><br />
 <code>#include &quot;<a class="el" href="../../d4/d8f/StringUtils_8h_source.html">xjmusic/util/StringUtils.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="../../de/d45/MemeConstellation_8h_source.html">MemeConstellation.h</a>&quot;</code><br />
 </div>
 <p><a href="../../da/da2/MemeTaxonomy_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/de1/classContent_1_1MemeCategory.html">Content::MemeCategory</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d1e/classXJ_1_1MemeCategory.html">XJ::MemeCategory</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/daf/classContent_1_1MemeTaxonomy.html">Content::MemeTaxonomy</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html">XJ::MemeTaxonomy</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
 Namespaces</h2></td></tr>
-<tr class="memitem:d1/d4a/namespaceContent"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d4a/namespaceContent.html">Content</a></td></tr>
+<tr class="memitem:d1/d13/namespaceXJ"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d13/namespaceXJ.html">XJ</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:af8097d6d3a8e7edf0a5e427abd428722"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d13/namespaceXJ.html#af8097d6d3a8e7edf0a5e427abd428722">XJ::MapStringToOneOrManyString</a> = std::map&lt; std::string, std::variant&lt; std::string, std::set&lt; std::string &gt; &gt;&gt;</td></tr>
+<tr class="separator:af8097d6d3a8e7edf0a5e427abd428722"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 <!-- start footer part -->

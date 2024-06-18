@@ -1,12 +1,19 @@
 var searchData=
 [
-  ['seconds_5fper_5fday_2182',['SECONDS_PER_DAY',['../d5/df7/classUtil_1_1ValueUtils.html#a767d46c226ee41635407110a16ba0aab',1,'Util::ValueUtils']]],
-  ['seconds_5fper_5fhour_2183',['SECONDS_PER_HOUR',['../d5/df7/classUtil_1_1ValueUtils.html#a7c1d1659a8f9a7e5b1b624702655f0b0',1,'Util::ValueUtils']]],
-  ['seconds_5fper_5fminute_2184',['SECONDS_PER_MINUTE',['../d5/df7/classUtil_1_1ValueUtils.html#af55800714689672ff6940f05d5004e57',1,'Util::ValueUtils']]],
-  ['shipkey_2185',['shipKey',['../df/d12/classContent_1_1Template.html#ab0f8114072fe676029e253d185098009',1,'Content::Template']]],
-  ['slashroot_2186',['slashRoot',['../d7/d6b/classMusic_1_1Chord.html#a894fea38bade889fb6e9c6768d749952',1,'Music::Chord']]],
-  ['state_2187',['state',['../d1/d62/classdetail_1_1serializer.html#a2db3d61cfc616f83763b6d4a03d0d772',1,'detail::serializer::state()'],['../d7/d56/classContent_1_1Instrument.html#af6cd828e0776062b581e49745c7fcf88',1,'Content::Instrument::state()'],['../d6/dc1/classContent_1_1Program.html#ae31dd1cf51a40f444948dbcebb359fb4',1,'Content::Program::state()']]],
-  ['stickybunenabled_2188',['stickyBunEnabled',['../d3/d43/classContent_1_1TemplateConfig.html#a580e7c43d491d488b33e4ffef5250172',1,'Content::TemplateConfig']]],
-  ['string_5fbuffer_2189',['string_buffer',['../d1/d62/classdetail_1_1serializer.html#a27a61728ed0fbc65de009286531a6e70',1,'detail::serializer']]],
-  ['synonyms_2190',['synonyms',['../dd/db8/classMusic_1_1ChordForm.html#ad057a92f47853250da4ab3512e7bca15',1,'Music::ChordForm']]]
+  ['seconds_5fper_5fday_2787',['SECONDS_PER_DAY',['../d3/de1/classXJ_1_1ValueUtils.html#a4ed8018177710e5068662ebeddf1f68f',1,'XJ::ValueUtils']]],
+  ['seconds_5fper_5fhour_2788',['SECONDS_PER_HOUR',['../d3/de1/classXJ_1_1ValueUtils.html#a4d1fb2ddf78dad48384756ae2283864d',1,'XJ::ValueUtils']]],
+  ['seconds_5fper_5fminute_2789',['SECONDS_PER_MINUTE',['../d3/de1/classXJ_1_1ValueUtils.html#a5d925fc537c117eba8620847a0be0177',1,'XJ::ValueUtils']]],
+  ['segmentchoicearrangementid_2790',['segmentChoiceArrangementId',['../d9/d19/classXJ_1_1SegmentChoiceArrangementPick.html#a135e922c2d419fbc49b45410f61becd3',1,'XJ::SegmentChoiceArrangementPick']]],
+  ['segmentchoiceid_2791',['segmentChoiceId',['../dc/dae/classXJ_1_1SegmentChoiceArrangement.html#a64e52df75111dbaf27b673bf7991cea5',1,'XJ::SegmentChoiceArrangement']]],
+  ['segmentchordid_2792',['segmentChordId',['../dd/d7e/classXJ_1_1SegmentChordVoicing.html#ae6dbe4ee77f87cbd53fdae54bf004ea3',1,'XJ::SegmentChordVoicing']]],
+  ['segmentchordvoicingid_2793',['segmentChordVoicingId',['../d9/d19/classXJ_1_1SegmentChoiceArrangementPick.html#ac98313e8374b17758691ce37688e4d45',1,'XJ::SegmentChoiceArrangementPick']]],
+  ['segmentid_2794',['segmentId',['../db/de3/classXJ_1_1SegmentEntity.html#aa00168d57178b871b5edfbb0d916d90d',1,'XJ::SegmentEntity']]],
+  ['shipkey_2795',['shipKey',['../de/d80/classXJ_1_1Template.html#a742de392e6f0f7994eaaabb494089fc0',1,'XJ::Template::shipKey()'],['../de/d9f/classXJ_1_1Chain.html#a29eacb35dfd90e4a3c90a9d645b6b6a1',1,'XJ::Chain::shipKey()']]],
+  ['slashroot_2796',['slashRoot',['../dd/dc6/classXJ_1_1Chord.html#a7a9e9cdf88d016bcafac292c9ab2b46a',1,'XJ::Chord']]],
+  ['startatsegmentmicros_2797',['startAtSegmentMicros',['../d9/d19/classXJ_1_1SegmentChoiceArrangementPick.html#ac953b4515688774f21a8e12ca8b7eb39',1,'XJ::SegmentChoiceArrangementPick']]],
+  ['state_2798',['state',['../d1/d62/classdetail_1_1serializer.html#a2db3d61cfc616f83763b6d4a03d0d772',1,'detail::serializer::state()'],['../d5/d0b/classXJ_1_1Instrument.html#a32b05e293644ad1f49ac1fd716a36440',1,'XJ::Instrument::state()'],['../da/d20/classXJ_1_1Program.html#a9716b81ff8011357abbe6555137204e9',1,'XJ::Program::state()'],['../de/d9f/classXJ_1_1Chain.html#afdbe425b716b4e042912fa6aed95609d',1,'XJ::Chain::state()'],['../dc/ddb/classXJ_1_1Segment.html#ad823e2331d5255a7e92518765c9dd430',1,'XJ::Segment::state()']]],
+  ['stickybunenabled_2799',['stickyBunEnabled',['../df/dc6/classXJ_1_1TemplateConfig.html#abacda47c93ec19a235cd2053c2714836',1,'XJ::TemplateConfig']]],
+  ['storagekey_2800',['storageKey',['../dc/ddb/classXJ_1_1Segment.html#abe68e0126dee8f1efc62f1e29ac55301',1,'XJ::Segment']]],
+  ['string_5fbuffer_2801',['string_buffer',['../d1/d62/classdetail_1_1serializer.html#a27a61728ed0fbc65de009286531a6e70',1,'detail::serializer']]],
+  ['synonyms_2802',['synonyms',['../d4/daa/classXJ_1_1ChordForm.html#aba81ccbefdf791008cde0de5cfe06c26',1,'XJ::ChordForm']]]
 ];

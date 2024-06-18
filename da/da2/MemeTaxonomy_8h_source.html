@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>XJ music nexus: /home/runner/work/xjmusic/xjmusic/engine/include/xjmusic/content/MemeTaxonomy.h Source File</title>
+<title>XJ music engine: /home/runner/work/xjmusic/xjmusic/engine/include/xjmusic/entities/meme/MemeTaxonomy.h Source File</title>
 <link href="../../tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="../../jquery.js"></script>
 <script type="text/javascript" src="../../dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">XJ music nexus
+   <div id="projectname">XJ music engine
    &#160;<span id="projectnumber">0.1</span>
    </div>
    <div id="projectbrief">This is the playback engine for XJ music.</div>
@@ -63,7 +63,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="../../dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="../../dir_423b9d3680e84088c8b3d609cb192895.html">xjmusic</a></li><li class="navelem"><a class="el" href="../../dir_291006a3e064f13dca9ac01158de3303.html">content</a></li>  </ul>
+<li class="navelem"><a class="el" href="../../dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="../../dir_423b9d3680e84088c8b3d609cb192895.html">xjmusic</a></li><li class="navelem"><a class="el" href="../../dir_9dfc5f2cf03090bba74e2cc99d1571b7.html">entities</a></li><li class="navelem"><a class="el" href="../../dir_c007d2a08972f8f3bd5a85c9b6863ea4.html">meme</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -74,91 +74,112 @@ $(function() {
 <a href="../../da/da2/MemeTaxonomy_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160; </div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment">// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160; </div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#ifndef XJMUSIC_MEME_TAXONOMY_H</span></div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#define XJMUSIC_MEME_TAXONOMY_H</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#ifndef XJMUSIC_ENTITIES_MEME_TAXONOMY_H</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#define XJMUSIC_ENTITIES_MEME_TAXONOMY_H</span></div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &lt;map&gt;</span></div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#include &lt;string&gt;</span></div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#include &lt;variant&gt;</span></div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="../../d4/d8f/StringUtils_8h.html">xjmusic/util/StringUtils.h</a>&quot;</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">namespace </span><a class="code" href="../../d1/d4a/namespaceContent.html">Content</a> {</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
-<div class="line"><a name="l00018"></a><span class="lineno"><a class="line" href="../../dc/de1/classContent_1_1MemeCategory.html">   18</a></span>&#160;  <span class="keyword">class </span><a class="code" href="../../dc/de1/classContent_1_1MemeCategory.html">MemeCategory</a> {</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;  <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    std::string name;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    std::vector&lt;std::string&gt; memes;</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <span class="keyword">static</span> std::regex rgx;</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="keyword">static</span> std::string MEME_SEPARATOR;</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <span class="keyword">static</span> std::string KEY_NAME;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keyword">static</span> std::string KEY_MEMES;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="keyword">static</span> std::string DEFAULT_CATEGORY_NAME;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; </div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keyword">static</span> std::vector&lt;std::string&gt;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    parseMemeList(std::map&lt;std::string, std::variant&lt;std::string, std::vector&lt;std::string&gt;&gt;&gt; &amp;data);</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="../../de/d45/MemeConstellation_8h.html">MemeConstellation.h</a>&quot;</span></div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">namespace </span><a class="code" href="../../d1/d13/namespaceXJ.html">XJ</a> {</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160; </div>
+<div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="../../d1/d13/namespaceXJ.html#af8097d6d3a8e7edf0a5e427abd428722">   16</a></span>&#160;  <span class="keyword">using</span> <a class="code" href="../../d1/d13/namespaceXJ.html#af8097d6d3a8e7edf0a5e427abd428722">MapStringToOneOrManyString</a> = std::map&lt;std::string, std::variant&lt;std::string, std::set&lt;std::string&gt;&gt;&gt;;</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160; </div>
+<div class="line"><a name="l00021"></a><span class="lineno"><a class="line" href="../../d6/d1e/classXJ_1_1MemeCategory.html">   21</a></span>&#160;  <span class="keyword">class </span><a class="code" href="../../d6/d1e/classXJ_1_1MemeCategory.html">MemeCategory</a> {</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;  <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    std::string name;</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    std::set&lt;std::string&gt; memes;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keyword">static</span> std::regex rgx;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="keyword">static</span> std::string MEME_SEPARATOR;</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keyword">static</span> std::string KEY_NAME;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keyword">static</span> std::string KEY_MEMES;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <span class="keyword">static</span> std::string DEFAULT_CATEGORY_NAME;</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00032"></a><span class="lineno"><a class="line" href="../../dc/de1/classContent_1_1MemeCategory.html#afee71b1064bf2b4f27273b1e28feec13">   32</a></span>&#160;    <a class="code" href="../../dc/de1/classContent_1_1MemeCategory.html#afee71b1064bf2b4f27273b1e28feec13">MemeCategory</a>() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="keyword">static</span> std::set&lt;std::string&gt;</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    parseMemeList(<span class="keyword">const</span> <a class="code" href="../../d1/d13/namespaceXJ.html#af8097d6d3a8e7edf0a5e427abd428722">MapStringToOneOrManyString</a> &amp;data);</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; </div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="../../dc/de1/classContent_1_1MemeCategory.html#afee71b1064bf2b4f27273b1e28feec13">MemeCategory</a>(<span class="keyword">const</span> std::string *raw);</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160; </div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="../../dc/de1/classContent_1_1MemeCategory.html#afee71b1064bf2b4f27273b1e28feec13">MemeCategory</a>(std::map&lt;std::string, std::variant&lt;std::string, std::vector&lt;std::string&gt;&gt;&gt; &amp;data);</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160; </div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    std::string <a class="code" href="../../dc/de1/classContent_1_1MemeCategory.html#a55bc700f32c68a5f0e081ff1484c1a9d">getName</a>();</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    std::vector&lt;std::string&gt; <a class="code" href="../../dc/de1/classContent_1_1MemeCategory.html#aa687ad965a08bcf176cb6b36bb0b21f5">getMemes</a>();</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160; </div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="../../dc/de1/classContent_1_1MemeCategory.html#a956504ce667b0a5728c4309f59cfad3a">isAllowed</a>(std::vector&lt;std::string&gt; &amp;targets) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00035"></a><span class="lineno"><a class="line" href="../../d6/d1e/classXJ_1_1MemeCategory.html#a1654bb068731141a77e811a8f3c401d6">   35</a></span>&#160;    <a class="code" href="../../d6/d1e/classXJ_1_1MemeCategory.html#a1654bb068731141a77e811a8f3c401d6">MemeCategory</a>() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160; </div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="../../d6/d1e/classXJ_1_1MemeCategory.html#a1654bb068731141a77e811a8f3c401d6">MemeCategory</a>(<span class="keyword">const</span> std::string *raw);</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="../../d6/d1e/classXJ_1_1MemeCategory.html#a1654bb068731141a77e811a8f3c401d6">MemeCategory</a>(<span class="keyword">const</span> <a class="code" href="../../d1/d13/namespaceXJ.html#af8097d6d3a8e7edf0a5e427abd428722">MapStringToOneOrManyString</a> &amp;data);</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160; </div>
+<div class="line"><a name="l00055"></a><span class="lineno"><a class="line" href="../../d6/d1e/classXJ_1_1MemeCategory.html#a001c5fce777f3f2478753eac4521b762">   55</a></span>&#160;    <span class="keyword">friend</span> <span class="keywordtype">bool</span> <a class="code" href="../../d6/d1e/classXJ_1_1MemeCategory.html#a001c5fce777f3f2478753eac4521b762">operator&lt;</a>(<span class="keyword">const</span> <a class="code" href="../../d6/d1e/classXJ_1_1MemeCategory.html">MemeCategory</a>&amp; lhs, <span class="keyword">const</span> <a class="code" href="../../d6/d1e/classXJ_1_1MemeCategory.html">MemeCategory</a>&amp; rhs) {</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;      <span class="keywordflow">return</span> lhs.name &lt; rhs.name;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    }</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160; </div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    [[nodiscard]] std::string <a class="code" href="../../d6/d1e/classXJ_1_1MemeCategory.html#ac4fe18fa18fff6096b236ed4aed7570e">getName</a>() <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160; </div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="../../dc/de1/classContent_1_1MemeCategory.html#a89177b76d9f33bf2d49dd81fd5fe11d1">hasMemes</a>();</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    std::set&lt;std::string&gt; <a class="code" href="../../d6/d1e/classXJ_1_1MemeCategory.html#a8f80cb42d02cc9c7e568e4d383f3f6ad">getMemes</a>();</div>
 <div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    [[nodiscard]] std::map&lt;std::string, std::variant&lt;std::string, std::vector&lt;std::string&gt;&gt;&gt; <a class="code" href="../../dc/de1/classContent_1_1MemeCategory.html#aee7723a5d1a1c7c98fcdc16c125364ac">toMap</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160; </div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    [[nodiscard]] std::string <a class="code" href="../../dc/de1/classContent_1_1MemeCategory.html#a355dd97aa0c8feb19b2460f04d2af88c">toString</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;  };</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="../../d6/d1e/classXJ_1_1MemeCategory.html#a9538cbb26fdd689ad3ba805d9fc343d7">isAllowed</a>(std::set&lt;std::string&gt; &amp;targets) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    [[nodiscard]] <span class="keywordtype">bool</span> <a class="code" href="../../d6/d1e/classXJ_1_1MemeCategory.html#ae838c07c6eef4dad7561490c7f9978f6">hasMemes</a>() <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160; </div>
-<div class="line"><a name="l00099"></a><span class="lineno"><a class="line" href="../../d5/daf/classContent_1_1MemeTaxonomy.html">   99</a></span>&#160;  <span class="keyword">class </span><a class="code" href="../../d5/daf/classContent_1_1MemeTaxonomy.html">MemeTaxonomy</a> {</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;  <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    std::vector&lt;MemeCategory&gt; categories;</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">char</span> CATEGORY_SEPARATOR;</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160; </div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;  <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00105"></a><span class="lineno"><a class="line" href="../../d5/daf/classContent_1_1MemeTaxonomy.html#a6dba7b9bbf0c7ce508ef669b9ff2f84e">  105</a></span>&#160;    <a class="code" href="../../d5/daf/classContent_1_1MemeTaxonomy.html#a6dba7b9bbf0c7ce508ef669b9ff2f84e">MemeTaxonomy</a>() = <span class="keywordflow">default</span>;</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160; </div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="../../d5/daf/classContent_1_1MemeTaxonomy.html#a6dba7b9bbf0c7ce508ef669b9ff2f84e">MemeTaxonomy</a>(<span class="keyword">const</span> std::string &amp;raw);</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160; </div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="../../d5/daf/classContent_1_1MemeTaxonomy.html#a6dba7b9bbf0c7ce508ef669b9ff2f84e">MemeTaxonomy</a>(</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;        std::vector&lt;std::map&lt;std::string, std::variant&lt;std::string, std::vector&lt;std::string&gt;&gt;&gt;&gt; &amp;data);</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    [[nodiscard]] <a class="code" href="../../d1/d13/namespaceXJ.html#af8097d6d3a8e7edf0a5e427abd428722">MapStringToOneOrManyString</a> <a class="code" href="../../d6/d1e/classXJ_1_1MemeCategory.html#a1905bfd3418dd948132032338fded479">toMap</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160; </div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    [[nodiscard]] std::string <a class="code" href="../../d6/d1e/classXJ_1_1MemeCategory.html#ac2dc3d3737ac0f4126e59f09905ccab5">toString</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;  };</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160; </div>
+<div class="line"><a name="l00112"></a><span class="lineno"><a class="line" href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html">  112</a></span>&#160;  <span class="keyword">class </span><a class="code" href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html">MemeTaxonomy</a> {</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;  <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    std::set&lt;MemeCategory&gt; categories;</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">char</span> CATEGORY_SEPARATOR;</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160; </div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;  <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00118"></a><span class="lineno"><a class="line" href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html#a6905e7aa29acbe9c4e3439709cb1ad16">  118</a></span>&#160;    <a class="code" href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html#a6905e7aa29acbe9c4e3439709cb1ad16">MemeTaxonomy</a>() = <span class="keywordflow">default</span>;</div>
 <div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160; </div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    [[nodiscard]] std::string <a class="code" href="../../d5/daf/classContent_1_1MemeTaxonomy.html#a8eb4e029c0491585e907da9ce87e1c57">toString</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html#a6905e7aa29acbe9c4e3439709cb1ad16">MemeTaxonomy</a>(<span class="keyword">const</span> std::string &amp;raw);</div>
 <div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160; </div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    std::vector&lt;std::map&lt;std::string, std::variant&lt;std::string, std::vector&lt;std::string&gt;&gt;&gt;&gt; <a class="code" href="../../d5/daf/classContent_1_1MemeTaxonomy.html#ac86b20a65d6028dab010b76ce15235f4">toList</a>();</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html#a6905e7aa29acbe9c4e3439709cb1ad16">MemeTaxonomy</a>(std::set&lt;MapStringToOneOrManyString&gt; &amp;data);</div>
 <div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160; </div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;    std::vector&lt;MemeCategory&gt; <a class="code" href="../../d5/daf/classContent_1_1MemeTaxonomy.html#ab4e87deefc4031ff9f9760c8eb5cf71b">getCategories</a>();</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160; </div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="../../d5/daf/classContent_1_1MemeTaxonomy.html#a7e018ab78b213fd91eee9a2fdcfc4bd6">isAllowed</a>(std::vector&lt;std::string&gt; memes);</div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;  };</div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160; </div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;}<span class="comment">// namespace Content</span></div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160; </div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;<span class="preprocessor">#endif</span><span class="comment">//XJMUSIC_MEME_TAXONOMY_H</span></div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;    <span class="keyword">static</span> <a class="code" href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html">MemeTaxonomy</a> <a class="code" href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html#ac956ed509e4a11ea1dd115262c22c198">empty</a>();</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160; </div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;    <span class="keyword">static</span> <a class="code" href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html">MemeTaxonomy</a> <a class="code" href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html#a051843d0640570962603e3e27664697e">fromSet</a>(std::set&lt;MapStringToOneOrManyString&gt; &amp;data);</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160; </div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;    <span class="keyword">static</span> <a class="code" href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html">MemeTaxonomy</a> <a class="code" href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html#ae910ea69a162947f57c959ad6d5e3b58">fromList</a>(<span class="keyword">const</span> std::vector&lt;std::map&lt;std::string, std::variant&lt;std::string, std::vector&lt;std::string&gt;&gt;&gt;&gt;&amp; list);</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160; </div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    <span class="keyword">static</span> <a class="code" href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html">MemeTaxonomy</a> <a class="code" href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html#ac4c25c4e6b48971d842560bbf9766593">fromString</a>(<span class="keyword">const</span> std::string &amp;raw);</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160; </div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    [[nodiscard]] std::string <a class="code" href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html#abad22b9c81f651511d920f06b9c8d794">toString</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160; </div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    std::set&lt;MapStringToOneOrManyString&gt; <a class="code" href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html#ac3be2fa522a5e8bb05b6d35db2724123">toList</a>();</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160; </div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    std::set&lt;MemeCategory&gt; <a class="code" href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html#a0e9e933e8f9fb2985ea0e77f8650efb4">getCategories</a>();</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160; </div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html#a0f3e8fc5c32616e9e7324cb0c8f55fc4">isAllowed</a>(std::set&lt;std::string&gt; memes);</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;  };</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160; </div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;}<span class="comment">// namespace XJ</span></div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160; </div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;<span class="preprocessor">#endif</span><span class="comment">//XJMUSIC_ENTITIES_MEME_TAXONOMY_H</span></div>
+<div class="ttc" id="aMemeConstellation_8h_html"><div class="ttname"><a href="../../de/d45/MemeConstellation_8h.html">MemeConstellation.h</a></div></div>
 <div class="ttc" id="aStringUtils_8h_html"><div class="ttname"><a href="../../d4/d8f/StringUtils_8h.html">StringUtils.h</a></div></div>
-<div class="ttc" id="aclassContent_1_1MemeCategory_html"><div class="ttname"><a href="../../dc/de1/classContent_1_1MemeCategory.html">Content::MemeCategory</a></div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.h:18</div></div>
-<div class="ttc" id="aclassContent_1_1MemeCategory_html_a355dd97aa0c8feb19b2460f04d2af88c"><div class="ttname"><a href="../../dc/de1/classContent_1_1MemeCategory.html#a355dd97aa0c8feb19b2460f04d2af88c">Content::MemeCategory::toString</a></div><div class="ttdeci">std::string toString() const</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:107</div></div>
-<div class="ttc" id="aclassContent_1_1MemeCategory_html_a55bc700f32c68a5f0e081ff1484c1a9d"><div class="ttname"><a href="../../dc/de1/classContent_1_1MemeCategory.html#a55bc700f32c68a5f0e081ff1484c1a9d">Content::MemeCategory::getName</a></div><div class="ttdeci">std::string getName()</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:84</div></div>
-<div class="ttc" id="aclassContent_1_1MemeCategory_html_a89177b76d9f33bf2d49dd81fd5fe11d1"><div class="ttname"><a href="../../dc/de1/classContent_1_1MemeCategory.html#a89177b76d9f33bf2d49dd81fd5fe11d1">Content::MemeCategory::hasMemes</a></div><div class="ttdeci">bool hasMemes()</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:103</div></div>
-<div class="ttc" id="aclassContent_1_1MemeCategory_html_a956504ce667b0a5728c4309f59cfad3a"><div class="ttname"><a href="../../dc/de1/classContent_1_1MemeCategory.html#a956504ce667b0a5728c4309f59cfad3a">Content::MemeCategory::isAllowed</a></div><div class="ttdeci">bool isAllowed(std::vector&lt; std::string &gt; &amp;targets) const</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:92</div></div>
-<div class="ttc" id="aclassContent_1_1MemeCategory_html_aa687ad965a08bcf176cb6b36bb0b21f5"><div class="ttname"><a href="../../dc/de1/classContent_1_1MemeCategory.html#aa687ad965a08bcf176cb6b36bb0b21f5">Content::MemeCategory::getMemes</a></div><div class="ttdeci">std::vector&lt; std::string &gt; getMemes()</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:88</div></div>
-<div class="ttc" id="aclassContent_1_1MemeCategory_html_aee7723a5d1a1c7c98fcdc16c125364ac"><div class="ttname"><a href="../../dc/de1/classContent_1_1MemeCategory.html#aee7723a5d1a1c7c98fcdc16c125364ac">Content::MemeCategory::toMap</a></div><div class="ttdeci">std::map&lt; std::string, std::variant&lt; std::string, std::vector&lt; std::string &gt; &gt; &gt; toMap() const</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:111</div></div>
-<div class="ttc" id="aclassContent_1_1MemeCategory_html_afee71b1064bf2b4f27273b1e28feec13"><div class="ttname"><a href="../../dc/de1/classContent_1_1MemeCategory.html#afee71b1064bf2b4f27273b1e28feec13">Content::MemeCategory::MemeCategory</a></div><div class="ttdeci">MemeCategory()=default</div></div>
-<div class="ttc" id="aclassContent_1_1MemeTaxonomy_html"><div class="ttname"><a href="../../d5/daf/classContent_1_1MemeTaxonomy.html">Content::MemeTaxonomy</a></div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.h:99</div></div>
-<div class="ttc" id="aclassContent_1_1MemeTaxonomy_html_a6dba7b9bbf0c7ce508ef669b9ff2f84e"><div class="ttname"><a href="../../d5/daf/classContent_1_1MemeTaxonomy.html#a6dba7b9bbf0c7ce508ef669b9ff2f84e">Content::MemeTaxonomy::MemeTaxonomy</a></div><div class="ttdeci">MemeTaxonomy()=default</div></div>
-<div class="ttc" id="aclassContent_1_1MemeTaxonomy_html_a7e018ab78b213fd91eee9a2fdcfc4bd6"><div class="ttname"><a href="../../d5/daf/classContent_1_1MemeTaxonomy.html#a7e018ab78b213fd91eee9a2fdcfc4bd6">Content::MemeTaxonomy::isAllowed</a></div><div class="ttdeci">bool isAllowed(std::vector&lt; std::string &gt; memes)</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:168</div></div>
-<div class="ttc" id="aclassContent_1_1MemeTaxonomy_html_a8eb4e029c0491585e907da9ce87e1c57"><div class="ttname"><a href="../../d5/daf/classContent_1_1MemeTaxonomy.html#a8eb4e029c0491585e907da9ce87e1c57">Content::MemeTaxonomy::toString</a></div><div class="ttdeci">std::string toString() const</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:145</div></div>
-<div class="ttc" id="aclassContent_1_1MemeTaxonomy_html_ab4e87deefc4031ff9f9760c8eb5cf71b"><div class="ttname"><a href="../../d5/daf/classContent_1_1MemeTaxonomy.html#ab4e87deefc4031ff9f9760c8eb5cf71b">Content::MemeTaxonomy::getCategories</a></div><div class="ttdeci">std::vector&lt; MemeCategory &gt; getCategories()</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:164</div></div>
-<div class="ttc" id="aclassContent_1_1MemeTaxonomy_html_ac86b20a65d6028dab010b76ce15235f4"><div class="ttname"><a href="../../d5/daf/classContent_1_1MemeTaxonomy.html#ac86b20a65d6028dab010b76ce15235f4">Content::MemeTaxonomy::toList</a></div><div class="ttdeci">std::vector&lt; std::map&lt; std::string, std::variant&lt; std::string, std::vector&lt; std::string &gt; &gt; &gt; &gt; toList()</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:154</div></div>
-<div class="ttc" id="anamespaceContent_html"><div class="ttname"><a href="../../d1/d4a/namespaceContent.html">Content</a></div><div class="ttdef"><b>Definition:</b> ContentStore.h:37</div></div>
+<div class="ttc" id="aclassXJ_1_1MemeCategory_html"><div class="ttname"><a href="../../d6/d1e/classXJ_1_1MemeCategory.html">XJ::MemeCategory</a></div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.h:21</div></div>
+<div class="ttc" id="aclassXJ_1_1MemeCategory_html_a001c5fce777f3f2478753eac4521b762"><div class="ttname"><a href="../../d6/d1e/classXJ_1_1MemeCategory.html#a001c5fce777f3f2478753eac4521b762">XJ::MemeCategory::operator&lt;</a></div><div class="ttdeci">friend bool operator&lt;(const MemeCategory &amp;lhs, const MemeCategory &amp;rhs)</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.h:55</div></div>
+<div class="ttc" id="aclassXJ_1_1MemeCategory_html_a1654bb068731141a77e811a8f3c401d6"><div class="ttname"><a href="../../d6/d1e/classXJ_1_1MemeCategory.html#a1654bb068731141a77e811a8f3c401d6">XJ::MemeCategory::MemeCategory</a></div><div class="ttdeci">MemeCategory()=default</div></div>
+<div class="ttc" id="aclassXJ_1_1MemeCategory_html_a1905bfd3418dd948132032338fded479"><div class="ttname"><a href="../../d6/d1e/classXJ_1_1MemeCategory.html#a1905bfd3418dd948132032338fded479">XJ::MemeCategory::toMap</a></div><div class="ttdeci">MapStringToOneOrManyString toMap() const</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:111</div></div>
+<div class="ttc" id="aclassXJ_1_1MemeCategory_html_a8f80cb42d02cc9c7e568e4d383f3f6ad"><div class="ttname"><a href="../../d6/d1e/classXJ_1_1MemeCategory.html#a8f80cb42d02cc9c7e568e4d383f3f6ad">XJ::MemeCategory::getMemes</a></div><div class="ttdeci">std::set&lt; std::string &gt; getMemes()</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:87</div></div>
+<div class="ttc" id="aclassXJ_1_1MemeCategory_html_a9538cbb26fdd689ad3ba805d9fc343d7"><div class="ttname"><a href="../../d6/d1e/classXJ_1_1MemeCategory.html#a9538cbb26fdd689ad3ba805d9fc343d7">XJ::MemeCategory::isAllowed</a></div><div class="ttdeci">bool isAllowed(std::set&lt; std::string &gt; &amp;targets) const</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:91</div></div>
+<div class="ttc" id="aclassXJ_1_1MemeCategory_html_ac2dc3d3737ac0f4126e59f09905ccab5"><div class="ttname"><a href="../../d6/d1e/classXJ_1_1MemeCategory.html#ac2dc3d3737ac0f4126e59f09905ccab5">XJ::MemeCategory::toString</a></div><div class="ttdeci">std::string toString() const</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:105</div></div>
+<div class="ttc" id="aclassXJ_1_1MemeCategory_html_ac4fe18fa18fff6096b236ed4aed7570e"><div class="ttname"><a href="../../d6/d1e/classXJ_1_1MemeCategory.html#ac4fe18fa18fff6096b236ed4aed7570e">XJ::MemeCategory::getName</a></div><div class="ttdeci">std::string getName() const</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:83</div></div>
+<div class="ttc" id="aclassXJ_1_1MemeCategory_html_ae838c07c6eef4dad7561490c7f9978f6"><div class="ttname"><a href="../../d6/d1e/classXJ_1_1MemeCategory.html#ae838c07c6eef4dad7561490c7f9978f6">XJ::MemeCategory::hasMemes</a></div><div class="ttdeci">bool hasMemes() const</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:101</div></div>
+<div class="ttc" id="aclassXJ_1_1MemeTaxonomy_html"><div class="ttname"><a href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html">XJ::MemeTaxonomy</a></div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.h:112</div></div>
+<div class="ttc" id="aclassXJ_1_1MemeTaxonomy_html_a051843d0640570962603e3e27664697e"><div class="ttname"><a href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html#a051843d0640570962603e3e27664697e">XJ::MemeTaxonomy::fromSet</a></div><div class="ttdeci">static MemeTaxonomy fromSet(std::set&lt; MapStringToOneOrManyString &gt; &amp;data)</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:176</div></div>
+<div class="ttc" id="aclassXJ_1_1MemeTaxonomy_html_a0e9e933e8f9fb2985ea0e77f8650efb4"><div class="ttname"><a href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html#a0e9e933e8f9fb2985ea0e77f8650efb4">XJ::MemeTaxonomy::getCategories</a></div><div class="ttdeci">std::set&lt; MemeCategory &gt; getCategories()</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:159</div></div>
+<div class="ttc" id="aclassXJ_1_1MemeTaxonomy_html_a0f3e8fc5c32616e9e7324cb0c8f55fc4"><div class="ttname"><a href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html#a0f3e8fc5c32616e9e7324cb0c8f55fc4">XJ::MemeTaxonomy::isAllowed</a></div><div class="ttdeci">bool isAllowed(std::set&lt; std::string &gt; memes)</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:163</div></div>
+<div class="ttc" id="aclassXJ_1_1MemeTaxonomy_html_a6905e7aa29acbe9c4e3439709cb1ad16"><div class="ttname"><a href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html#a6905e7aa29acbe9c4e3439709cb1ad16">XJ::MemeTaxonomy::MemeTaxonomy</a></div><div class="ttdeci">MemeTaxonomy()=default</div></div>
+<div class="ttc" id="aclassXJ_1_1MemeTaxonomy_html_abad22b9c81f651511d920f06b9c8d794"><div class="ttname"><a href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html#abad22b9c81f651511d920f06b9c8d794">XJ::MemeTaxonomy::toString</a></div><div class="ttdeci">std::string toString() const</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:140</div></div>
+<div class="ttc" id="aclassXJ_1_1MemeTaxonomy_html_ac3be2fa522a5e8bb05b6d35db2724123"><div class="ttname"><a href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html#ac3be2fa522a5e8bb05b6d35db2724123">XJ::MemeTaxonomy::toList</a></div><div class="ttdeci">std::set&lt; MapStringToOneOrManyString &gt; toList()</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:150</div></div>
+<div class="ttc" id="aclassXJ_1_1MemeTaxonomy_html_ac4c25c4e6b48971d842560bbf9766593"><div class="ttname"><a href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html#ac4c25c4e6b48971d842560bbf9766593">XJ::MemeTaxonomy::fromString</a></div><div class="ttdeci">static MemeTaxonomy fromString(const std::string &amp;raw)</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:180</div></div>
+<div class="ttc" id="aclassXJ_1_1MemeTaxonomy_html_ac956ed509e4a11ea1dd115262c22c198"><div class="ttname"><a href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html#ac956ed509e4a11ea1dd115262c22c198">XJ::MemeTaxonomy::empty</a></div><div class="ttdeci">static MemeTaxonomy empty()</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:172</div></div>
+<div class="ttc" id="aclassXJ_1_1MemeTaxonomy_html_ae910ea69a162947f57c959ad6d5e3b58"><div class="ttname"><a href="../../d3/d2f/classXJ_1_1MemeTaxonomy.html#ae910ea69a162947f57c959ad6d5e3b58">XJ::MemeTaxonomy::fromList</a></div><div class="ttdeci">static MemeTaxonomy fromList(const std::vector&lt; std::map&lt; std::string, std::variant&lt; std::string, std::vector&lt; std::string &gt;&gt;&gt;&gt; &amp;list)</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.cpp:184</div></div>
+<div class="ttc" id="anamespaceXJ_html"><div class="ttname"><a href="../../d1/d13/namespaceXJ.html">XJ</a></div><div class="ttdef"><b>Definition:</b> ContentEntity.h:14</div></div>
+<div class="ttc" id="anamespaceXJ_html_af8097d6d3a8e7edf0a5e427abd428722"><div class="ttname"><a href="../../d1/d13/namespaceXJ.html#af8097d6d3a8e7edf0a5e427abd428722">XJ::MapStringToOneOrManyString</a></div><div class="ttdeci">std::map&lt; std::string, std::variant&lt; std::string, std::set&lt; std::string &gt; &gt;&gt; MapStringToOneOrManyString</div><div class="ttdef"><b>Definition:</b> MemeTaxonomy.h:16</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

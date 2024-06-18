@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>XJ music nexus: /home/runner/work/xjmusic/xjmusic/engine/include/xjmusic/content/ProgramConfig.h Source File</title>
+<title>XJ music engine: /home/runner/work/xjmusic/xjmusic/engine/include/xjmusic/entities/content/ProgramConfig.h Source File</title>
 <link href="../../tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="../../jquery.js"></script>
 <script type="text/javascript" src="../../dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">XJ music nexus
+   <div id="projectname">XJ music engine
    &#160;<span id="projectnumber">0.1</span>
    </div>
    <div id="projectbrief">This is the playback engine for XJ music.</div>
@@ -63,7 +63,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="../../dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="../../dir_423b9d3680e84088c8b3d609cb192895.html">xjmusic</a></li><li class="navelem"><a class="el" href="../../dir_291006a3e064f13dca9ac01158de3303.html">content</a></li>  </ul>
+<li class="navelem"><a class="el" href="../../dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="../../dir_423b9d3680e84088c8b3d609cb192895.html">xjmusic</a></li><li class="navelem"><a class="el" href="../../dir_9dfc5f2cf03090bba74e2cc99d1571b7.html">entities</a></li><li class="navelem"><a class="el" href="../../dir_503f22bf885df075ccbdafbb705a5954.html">content</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -81,43 +81,45 @@ $(function() {
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160; </div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="../../d2/d66/Program_8h.html">Program.h</a>&quot;</span></div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="keyword">namespace </span><a class="code" href="../../d1/d4a/namespaceContent.html">Content</a> {</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="keyword">namespace </span><a class="code" href="../../d1/d13/namespaceXJ.html">XJ</a> {</div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
-<div class="line"><a name="l00013"></a><span class="lineno"><a class="line" href="../../d5/d1e/classContent_1_1ProgramConfig.html">   13</a></span>&#160;  <span class="keyword">class </span><a class="code" href="../../d5/d1e/classContent_1_1ProgramConfig.html">ProgramConfig</a> : <span class="keyword">public</span> <a class="code" href="../../d0/dfc/classUtil_1_1ConfigParser.html">Util::ConfigParser</a> {</div>
+<div class="line"><a name="l00013"></a><span class="lineno"><a class="line" href="../../d3/da0/classXJ_1_1ProgramConfig.html">   13</a></span>&#160;  <span class="keyword">class </span><a class="code" href="../../d3/da0/classXJ_1_1ProgramConfig.html">ProgramConfig</a> : <span class="keyword">public</span> <a class="code" href="../../d9/d02/classXJ_1_1ConfigParser.html">ConfigParser</a> {</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  <span class="keyword">private</span>:</div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    <span class="keyword">static</span> <span class="keyword">const</span> std::string DEFAULT;</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;  <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="../../d5/d1e/classContent_1_1ProgramConfig.html#a211f154c38aca8e3d9f67dd440eb2ad8">ProgramConfig</a>();</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="../../d3/da0/classXJ_1_1ProgramConfig.html#a87220f83e16b328f94eea08e291c02b7">ProgramConfig</a>();</div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="../../d5/d1e/classContent_1_1ProgramConfig.html#a211f154c38aca8e3d9f67dd440eb2ad8">ProgramConfig</a>(<span class="keyword">const</span> <a class="code" href="../../d6/dc1/classContent_1_1Program.html">Program</a> &amp;source);</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="../../d3/da0/classXJ_1_1ProgramConfig.html#a87220f83e16b328f94eea08e291c02b7">ProgramConfig</a>(<span class="keyword">const</span> <a class="code" href="../../da/d20/classXJ_1_1Program.html">Program</a> &amp;source);</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="../../d5/d1e/classContent_1_1ProgramConfig.html#a211f154c38aca8e3d9f67dd440eb2ad8">ProgramConfig</a>(<span class="keyword">const</span> std::string &amp;input);</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="../../d3/da0/classXJ_1_1ProgramConfig.html#a87220f83e16b328f94eea08e291c02b7">ProgramConfig</a>(<span class="keyword">const</span> std::string &amp;input);</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
-<div class="line"><a name="l00024"></a><span class="lineno"><a class="line" href="../../d5/d1e/classContent_1_1ProgramConfig.html#adc1bb735ad6c7df47e58f0809d9eba81">   24</a></span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="../../d5/d1e/classContent_1_1ProgramConfig.html#adc1bb735ad6c7df47e58f0809d9eba81">doPatternRestartOnChord</a>;</div>
-<div class="line"><a name="l00025"></a><span class="lineno"><a class="line" href="../../d5/d1e/classContent_1_1ProgramConfig.html#abd78b12d0a7f81d4ce2630bc982debb8">   25</a></span>&#160;    <span class="keywordtype">int</span> <a class="code" href="../../d5/d1e/classContent_1_1ProgramConfig.html#abd78b12d0a7f81d4ce2630bc982debb8">barBeats</a>;</div>
-<div class="line"><a name="l00026"></a><span class="lineno"><a class="line" href="../../d5/d1e/classContent_1_1ProgramConfig.html#a11c250056b688a5280ab55fd810ffc89">   26</a></span>&#160;    <span class="keywordtype">int</span> <a class="code" href="../../d5/d1e/classContent_1_1ProgramConfig.html#a11c250056b688a5280ab55fd810ffc89">cutoffMinimumBars</a>;</div>
+<div class="line"><a name="l00024"></a><span class="lineno"><a class="line" href="../../d3/da0/classXJ_1_1ProgramConfig.html#a78de4cada941fda63db3c46fcd04cfb8">   24</a></span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="../../d3/da0/classXJ_1_1ProgramConfig.html#a78de4cada941fda63db3c46fcd04cfb8">doPatternRestartOnChord</a>;</div>
+<div class="line"><a name="l00025"></a><span class="lineno"><a class="line" href="../../d3/da0/classXJ_1_1ProgramConfig.html#a4896390e1c45032183a6a66552e46d1e">   25</a></span>&#160;    <span class="keywordtype">int</span> <a class="code" href="../../d3/da0/classXJ_1_1ProgramConfig.html#a4896390e1c45032183a6a66552e46d1e">barBeats</a>;</div>
+<div class="line"><a name="l00026"></a><span class="lineno"><a class="line" href="../../d3/da0/classXJ_1_1ProgramConfig.html#a6e61c294ecce6f278a2b58466808e938">   26</a></span>&#160;    <span class="keywordtype">int</span> <a class="code" href="../../d3/da0/classXJ_1_1ProgramConfig.html#a6e61c294ecce6f278a2b58466808e938">cutoffMinimumBars</a>;</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; </div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    [[nodiscard]] std::string <a class="code" href="../../d5/d1e/classContent_1_1ProgramConfig.html#ac70806564209eac7e039129e5d7973d3">toString</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    [[nodiscard]] std::string <a class="code" href="../../d3/da0/classXJ_1_1ProgramConfig.html#a7ec3c63b440a5c36f7278fac9e630956">toString</a>() <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; </div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    [[nodiscard]] <span class="keyword">static</span> std::string <a class="code" href="../../d5/d1e/classContent_1_1ProgramConfig.html#a0849b1aff969bfe156297c409e70ca77">getDefaultString</a>();</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  };</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160; </div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;}<span class="comment">// namespace Content</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    [[nodiscard]] <span class="keyword">static</span> std::string <a class="code" href="../../d3/da0/classXJ_1_1ProgramConfig.html#ab7a8a27c0d831c30752124e0ca940ca7">getDefaultString</a>();</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <a class="code" href="../../d3/da0/classXJ_1_1ProgramConfig.html#a87220f83e16b328f94eea08e291c02b7">ProgramConfig</a>(<span class="keyword">const</span> <a class="code" href="../../da/d20/classXJ_1_1Program.html">Program</a> *pProgram);</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  };</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160; </div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">#endif</span><span class="comment">//XJMUSIC_PROGRAM_CONFIG_H</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;}<span class="comment">// namespace XJ</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor">#endif</span><span class="comment">//XJMUSIC_PROGRAM_CONFIG_H</span></div>
 <div class="ttc" id="aConfigParser_8h_html"><div class="ttname"><a href="../../d8/d3b/ConfigParser_8h.html">ConfigParser.h</a></div></div>
 <div class="ttc" id="aProgram_8h_html"><div class="ttname"><a href="../../d2/d66/Program_8h.html">Program.h</a></div></div>
-<div class="ttc" id="aclassContent_1_1ProgramConfig_html"><div class="ttname"><a href="../../d5/d1e/classContent_1_1ProgramConfig.html">Content::ProgramConfig</a></div><div class="ttdef"><b>Definition:</b> ProgramConfig.h:13</div></div>
-<div class="ttc" id="aclassContent_1_1ProgramConfig_html_a0849b1aff969bfe156297c409e70ca77"><div class="ttname"><a href="../../d5/d1e/classContent_1_1ProgramConfig.html#a0849b1aff969bfe156297c409e70ca77">Content::ProgramConfig::getDefaultString</a></div><div class="ttdeci">static std::string getDefaultString()</div><div class="ttdef"><b>Definition:</b> ProgramConfig.cpp:50</div></div>
-<div class="ttc" id="aclassContent_1_1ProgramConfig_html_a11c250056b688a5280ab55fd810ffc89"><div class="ttname"><a href="../../d5/d1e/classContent_1_1ProgramConfig.html#a11c250056b688a5280ab55fd810ffc89">Content::ProgramConfig::cutoffMinimumBars</a></div><div class="ttdeci">int cutoffMinimumBars</div><div class="ttdef"><b>Definition:</b> ProgramConfig.h:26</div></div>
-<div class="ttc" id="aclassContent_1_1ProgramConfig_html_a211f154c38aca8e3d9f67dd440eb2ad8"><div class="ttname"><a href="../../d5/d1e/classContent_1_1ProgramConfig.html#a211f154c38aca8e3d9f67dd440eb2ad8">Content::ProgramConfig::ProgramConfig</a></div><div class="ttdeci">ProgramConfig()</div><div class="ttdef"><b>Definition:</b> ProgramConfig.cpp:20</div></div>
-<div class="ttc" id="aclassContent_1_1ProgramConfig_html_abd78b12d0a7f81d4ce2630bc982debb8"><div class="ttname"><a href="../../d5/d1e/classContent_1_1ProgramConfig.html#abd78b12d0a7f81d4ce2630bc982debb8">Content::ProgramConfig::barBeats</a></div><div class="ttdeci">int barBeats</div><div class="ttdef"><b>Definition:</b> ProgramConfig.h:25</div></div>
-<div class="ttc" id="aclassContent_1_1ProgramConfig_html_ac70806564209eac7e039129e5d7973d3"><div class="ttname"><a href="../../d5/d1e/classContent_1_1ProgramConfig.html#ac70806564209eac7e039129e5d7973d3">Content::ProgramConfig::toString</a></div><div class="ttdeci">std::string toString() const</div><div class="ttdef"><b>Definition:</b> ProgramConfig.cpp:30</div></div>
-<div class="ttc" id="aclassContent_1_1ProgramConfig_html_adc1bb735ad6c7df47e58f0809d9eba81"><div class="ttname"><a href="../../d5/d1e/classContent_1_1ProgramConfig.html#adc1bb735ad6c7df47e58f0809d9eba81">Content::ProgramConfig::doPatternRestartOnChord</a></div><div class="ttdeci">bool doPatternRestartOnChord</div><div class="ttdef"><b>Definition:</b> ProgramConfig.h:24</div></div>
-<div class="ttc" id="aclassContent_1_1Program_html"><div class="ttname"><a href="../../d6/dc1/classContent_1_1Program.html">Content::Program</a></div><div class="ttdef"><b>Definition:</b> Program.h:12</div></div>
-<div class="ttc" id="aclassUtil_1_1ConfigParser_html"><div class="ttname"><a href="../../d0/dfc/classUtil_1_1ConfigParser.html">Util::ConfigParser</a></div><div class="ttdef"><b>Definition:</b> ConfigParser.h:178</div></div>
-<div class="ttc" id="anamespaceContent_html"><div class="ttname"><a href="../../d1/d4a/namespaceContent.html">Content</a></div><div class="ttdef"><b>Definition:</b> ContentStore.h:37</div></div>
+<div class="ttc" id="aclassXJ_1_1ConfigParser_html"><div class="ttname"><a href="../../d9/d02/classXJ_1_1ConfigParser.html">XJ::ConfigParser</a></div><div class="ttdef"><b>Definition:</b> ConfigParser.h:178</div></div>
+<div class="ttc" id="aclassXJ_1_1ProgramConfig_html"><div class="ttname"><a href="../../d3/da0/classXJ_1_1ProgramConfig.html">XJ::ProgramConfig</a></div><div class="ttdef"><b>Definition:</b> ProgramConfig.h:13</div></div>
+<div class="ttc" id="aclassXJ_1_1ProgramConfig_html_a4896390e1c45032183a6a66552e46d1e"><div class="ttname"><a href="../../d3/da0/classXJ_1_1ProgramConfig.html#a4896390e1c45032183a6a66552e46d1e">XJ::ProgramConfig::barBeats</a></div><div class="ttdeci">int barBeats</div><div class="ttdef"><b>Definition:</b> ProgramConfig.h:25</div></div>
+<div class="ttc" id="aclassXJ_1_1ProgramConfig_html_a6e61c294ecce6f278a2b58466808e938"><div class="ttname"><a href="../../d3/da0/classXJ_1_1ProgramConfig.html#a6e61c294ecce6f278a2b58466808e938">XJ::ProgramConfig::cutoffMinimumBars</a></div><div class="ttdeci">int cutoffMinimumBars</div><div class="ttdef"><b>Definition:</b> ProgramConfig.h:26</div></div>
+<div class="ttc" id="aclassXJ_1_1ProgramConfig_html_a78de4cada941fda63db3c46fcd04cfb8"><div class="ttname"><a href="../../d3/da0/classXJ_1_1ProgramConfig.html#a78de4cada941fda63db3c46fcd04cfb8">XJ::ProgramConfig::doPatternRestartOnChord</a></div><div class="ttdeci">bool doPatternRestartOnChord</div><div class="ttdef"><b>Definition:</b> ProgramConfig.h:24</div></div>
+<div class="ttc" id="aclassXJ_1_1ProgramConfig_html_a7ec3c63b440a5c36f7278fac9e630956"><div class="ttname"><a href="../../d3/da0/classXJ_1_1ProgramConfig.html#a7ec3c63b440a5c36f7278fac9e630956">XJ::ProgramConfig::toString</a></div><div class="ttdeci">std::string toString() const</div><div class="ttdef"><b>Definition:</b> ProgramConfig.cpp:30</div></div>
+<div class="ttc" id="aclassXJ_1_1ProgramConfig_html_a87220f83e16b328f94eea08e291c02b7"><div class="ttname"><a href="../../d3/da0/classXJ_1_1ProgramConfig.html#a87220f83e16b328f94eea08e291c02b7">XJ::ProgramConfig::ProgramConfig</a></div><div class="ttdeci">ProgramConfig()</div><div class="ttdef"><b>Definition:</b> ProgramConfig.cpp:20</div></div>
+<div class="ttc" id="aclassXJ_1_1ProgramConfig_html_ab7a8a27c0d831c30752124e0ca940ca7"><div class="ttname"><a href="../../d3/da0/classXJ_1_1ProgramConfig.html#ab7a8a27c0d831c30752124e0ca940ca7">XJ::ProgramConfig::getDefaultString</a></div><div class="ttdeci">static std::string getDefaultString()</div><div class="ttdef"><b>Definition:</b> ProgramConfig.cpp:50</div></div>
+<div class="ttc" id="aclassXJ_1_1Program_html"><div class="ttname"><a href="../../da/d20/classXJ_1_1Program.html">XJ::Program</a></div><div class="ttdef"><b>Definition:</b> Program.h:13</div></div>
+<div class="ttc" id="anamespaceXJ_html"><div class="ttname"><a href="../../d1/d13/namespaceXJ.html">XJ</a></div><div class="ttdef"><b>Definition:</b> ContentEntity.h:14</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

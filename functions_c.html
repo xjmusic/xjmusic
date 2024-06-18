@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>XJ music nexus: Class Members</title>
+<title>XJ music engine: Class Members</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">XJ music nexus
+   <div id="projectname">XJ music engine
    &#160;<span id="projectnumber">0.1</span>
    </div>
    <div id="projectbrief">This is the playback engine for XJ music.</div>
@@ -67,10 +67,16 @@ $(function() {
 
 <h3><a id="index_c"></a>- c -</h3><ul>
 <li>caseSensitive
-: <a class="el" href="d3/d9b/classMusic_1_1ChordSynonym.html#ae5824dba3fcb06d70ef04be869521bbb">Music::ChordSynonym</a>
+: <a class="el" href="d8/d2d/classXJ_1_1ChordSynonym.html#ace9900daeefe7732638562a56d4c8a7d">XJ::ChordSynonym</a>
 </li>
 <li>cbor_tag_handler_t
 : <a class="el" href="d1/d72/classbasic__json.html#a067b4f0e63e55055272fec0a26b5b991">basic_json&lt; ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType, JSONSerializer, BinaryType, CustomBaseClass &gt;</a>
+</li>
+<li>Chain()
+: <a class="el" href="de/d9f/classXJ_1_1Chain.html#a74b2b12f51e163589a87f74dbed591c7">XJ::Chain</a>
+</li>
+<li>chainId
+: <a class="el" href="dc/ddb/classXJ_1_1Segment.html#a866a7f013ea59d0d1b01285f224aee9e">XJ::Segment</a>
 </li>
 <li>char_type
 : <a class="el" href="db/d87/structdetail_1_1char__traits_3_01signed_01char_01_4.html#aa6d4a2a7b2febc87ef876ec9323f1130">detail::char_traits&lt; signed char &gt;</a>
@@ -89,17 +95,24 @@ $(function() {
 : <a class="el" href="df/dbb/structdetail_1_1position__t.html#ac4d220d61ce61eeffbea40985727a3b0">detail::position_t</a>
 </li>
 <li>choiceMuteProbability
-: <a class="el" href="d3/d43/classContent_1_1TemplateConfig.html#a2da5e7cec3c5324d57100155ace38ed1">Content::TemplateConfig</a>
+: <a class="el" href="df/dc6/classXJ_1_1TemplateConfig.html#a58db375c5b7a9562d5d8175a2ba02764">XJ::TemplateConfig</a>
 </li>
-<li>Chord
-: <a class="el" href="d7/d56/classContent_1_1Instrument.html#af7ee6e812ace31f2eaec373d5ab5d77aa244ac2d361408c9dcefa3f9ad538546f">Content::Instrument</a>
-, <a class="el" href="d7/d6b/classMusic_1_1Chord.html#a281861c02bb4374105a0d27a1836bf2b">Music::Chord</a>
+<li>chooseVoicing()
+: <a class="el" href="d6/dec/classXJ_1_1Fabricator.html#a56ad1a87a17d13e4cd7d1681b52ba3a0">XJ::Fabricator</a>
+</li>
+<li>Chord()
+: <a class="el" href="dd/dc6/classXJ_1_1Chord.html#a0d5056eaf5796e436fb14773eb2966ee">XJ::Chord</a>
+, <a class="el" href="d5/d0b/classXJ_1_1Instrument.html#a039266dcbb8c6153861157d8ea8993c6ad7fcc29829076b73640200ef6e7150d8">XJ::Instrument</a>
 </li>
 <li>ChordForm()
-: <a class="el" href="dd/db8/classMusic_1_1ChordForm.html#a9ed4721e7ff79bf67ae7b44dc690bb5d">Music::ChordForm</a>
+: <a class="el" href="d4/daa/classXJ_1_1ChordForm.html#a08d6747464d36793274e76979d379e9c">XJ::ChordForm</a>
 </li>
 <li>ChordSynonym()
-: <a class="el" href="d3/d9b/classMusic_1_1ChordSynonym.html#a117cf35ca3a0da6804dba2837ee5108c">Music::ChordSynonym</a>
+: <a class="el" href="d8/d2d/classXJ_1_1ChordSynonym.html#a91c73bb901d29d3364a0c744e9400c3e">XJ::ChordSynonym</a>
+</li>
+<li>clear()
+: <a class="el" href="d0/def/classXJ_1_1ContentEntityStore.html#abae51aec2dde4803b6e93259f9fb2e39">XJ::ContentEntityStore</a>
+, <a class="el" href="de/d30/classXJ_1_1SegmentEntityStore.html#a3dd7c77e55e30f0e270632a59b080156">XJ::SegmentEntityStore</a>
 </li>
 <li>clear_subtype()
 : <a class="el" href="d7/dbb/classbyte__container__with__subtype.html#ad18f6a7557a2bfce28f1ed8d4d10607c">byte_container_with_subtype&lt; BinaryType &gt;</a>
@@ -108,33 +121,45 @@ $(function() {
 : <a class="el" href="d1/d64/structdetail_1_1is__compatible__integer__type__impl_3_01RealIntegerType_00_01CompatibleNumberInt5b484fcfc2d1ae63b1211da72eabe33b.html#a9a9e09e41a061d0ede6046201339e2e8">detail::is_compatible_integer_type_impl&lt; RealIntegerType, CompatibleNumberIntegerType, enable_if_t&lt; std::is_integral&lt; RealIntegerType &gt;::value &amp;&amp;std::is_integral&lt; CompatibleNumberIntegerType &gt;::value &amp;&amp;!std::is_same&lt; bool, CompatibleNumberIntegerType &gt;::value &gt; &gt;</a>
 </li>
 <li>compute()
-: <a class="el" href="d4/d5b/classMusic_1_1StickyBun.html#af3f913d26bad59fd333c2af84990451d">Music::StickyBun</a>
+: <a class="el" href="df/d2c/classXJ_1_1StickyBun.html#a43e30072d68dd76e4adf8488912ff8ea">XJ::StickyBun</a>
+</li>
+<li>computeBaseKey()
+: <a class="el" href="d2/d44/classXJ_1_1ChainUtils.html#abf6761ca017e86181fbf08e7534e2d3b">XJ::ChainUtils</a>
+</li>
+<li>computeCacheKeyForVoiceTrack()
+: <a class="el" href="d6/dec/classXJ_1_1Fabricator.html#a0c68f4cda2fc121a3f0cc87f7dc59772">XJ::Fabricator</a>
+</li>
+<li>computeFabricatedToChainMicros()
+: <a class="el" href="d2/d44/classXJ_1_1ChainUtils.html#afe6ab9dd5f5bcaf6c58cb2f9bf3d756b">XJ::ChainUtils</a>
 </li>
 <li>computeMedianOptimalRangeShiftOctaves()
-: <a class="el" href="df/d72/classMusic_1_1NoteRange.html#a81d0b858b1f049f0d61a81d008817756">Music::NoteRange</a>
+: <a class="el" href="dc/dcd/classXJ_1_1NoteRange.html#a1485d9b47bcc84a352552dfba522cba0">XJ::NoteRange</a>
 </li>
 <li>computeMetaKey()
-: <a class="el" href="d4/d5b/classMusic_1_1StickyBun.html#ad831d241b21dfe6b6d150af95385c12a">Music::StickyBun</a>
+: <a class="el" href="df/d2c/classXJ_1_1StickyBun.html#a6baba1062e2e348654fe748e669c3703">XJ::StickyBun</a>
 </li>
 <li>computePre()
-: <a class="el" href="db/d97/classMusic_1_1SlashRoot.html#a4f62d9653c07b03f50e05283f5905ddd">Music::SlashRoot</a>
+: <a class="el" href="dc/d5d/classXJ_1_1SlashRoot.html#a93293a572e21de5d5c75cad9034a75b8">XJ::SlashRoot</a>
 </li>
 <li>computeSubsectionBeats()
-: <a class="el" href="d0/dfe/classMusic_1_1Bar.html#aa709a99a705e3679dd640ad7da75032d">Music::Bar</a>
+: <a class="el" href="d2/df0/classXJ_1_1Bar.html#a3521520b8186ece8ff6deed63640dbd5">XJ::Bar</a>
+</li>
+<li>computeUniqueId()
+: <a class="el" href="d7/de0/classXJ_1_1Entity.html#a08916ecec929430143db5e12b6177023">XJ::Entity</a>
 </li>
 <li>config
-: <a class="el" href="d7/d56/classContent_1_1Instrument.html#adc631cc076caecee26d964d86cdd7cc5">Content::Instrument</a>
-, <a class="el" href="d6/dc1/classContent_1_1Program.html#ac6a86608c7eb90dddaedb2f8f2870ab1">Content::Program</a>
-, <a class="el" href="df/d12/classContent_1_1Template.html#adc1658065c8a050a2f8b88e7d9b0571e">Content::Template</a>
+: <a class="el" href="d5/d0b/classXJ_1_1Instrument.html#afbd830dd03ad3d1fefe304a253901bc6">XJ::Instrument</a>
+, <a class="el" href="da/d20/classXJ_1_1Program.html#a371a69f008a1a364852622f23cf309ec">XJ::Program</a>
+, <a class="el" href="de/d80/classXJ_1_1Template.html#a085aaeadcbe96c954e1d1a59c3ff778f">XJ::Template</a>
 </li>
 <li>ConfigException()
-: <a class="el" href="dc/d15/classUtil_1_1ConfigException.html#ad712821effcc21b0e7a0cc1925009667">Util::ConfigException</a>
+: <a class="el" href="d9/d78/classXJ_1_1ConfigException.html#a45838d1abf1d7f3e6f77367c4c66f90d">XJ::ConfigException</a>
 </li>
 <li>ConfigParser()
-: <a class="el" href="d0/dfc/classUtil_1_1ConfigParser.html#a49c7a4699c676fce257d0f6fe13aece1">Util::ConfigParser</a>
+: <a class="el" href="d9/d02/classXJ_1_1ConfigParser.html#a64e8e415ab9e5b137bd2b34386527eb0">XJ::ConfigParser</a>
 </li>
 <li>ConfigSingleValue()
-: <a class="el" href="df/d3f/classUtil_1_1ConfigSingleValue.html#a8e52bdd48cdcedb37bd55c6f43ec3305">Util::ConfigSingleValue</a>
+: <a class="el" href="d6/d73/classXJ_1_1ConfigSingleValue.html#a59cdf638b24fea19e6cc1e23a5bde608">XJ::ConfigSingleValue</a>
 </li>
 <li>const_iterator
 : <a class="el" href="d1/d72/classbasic__json.html#a1f5af3d9d06d43b91fefe1767794b1e8">basic_json&lt; ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType, JSONSerializer, BinaryType, CustomBaseClass &gt;</a>
@@ -149,14 +174,17 @@ $(function() {
 <li>const_reverse_iterator
 : <a class="el" href="d1/d72/classbasic__json.html#a240f61567d8acffe831532f4f9b379cb">basic_json&lt; ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType, JSONSerializer, BinaryType, CustomBaseClass &gt;</a>
 </li>
+<li>CONSTELLATION_DELIMITER
+: <a class="el" href="d5/dc0/classXJ_1_1MemeConstellation.html#ac48a4a020b309d37a99b6e416a44ec89">XJ::MemeConstellation</a>
+</li>
 <li>construct()
-: <a class="el" href="dc/d90/structdetail_1_1external__constructor_3_01value__t_1_1array_01_4.html#ae399adc0d10013a567e8646807d650b5">detail::external_constructor&lt; value_t::array &gt;</a>
+: <a class="el" href="dc/d90/structdetail_1_1external__constructor_3_01value__t_1_1array_01_4.html#ab4ee01b86545c25823e95f06bfb8cec3">detail::external_constructor&lt; value_t::array &gt;</a>
 , <a class="el" href="d7/db2/structdetail_1_1external__constructor_3_01value__t_1_1binary_01_4.html#a296ae85130e50ee47b95c721b0a34618">detail::external_constructor&lt; value_t::binary &gt;</a>
 , <a class="el" href="d1/d22/structdetail_1_1external__constructor_3_01value__t_1_1boolean_01_4.html#aa30a4100f03832963c72c64cb02b3eb5">detail::external_constructor&lt; value_t::boolean &gt;</a>
 , <a class="el" href="d3/d5a/structdetail_1_1external__constructor_3_01value__t_1_1number__float_01_4.html#abcbcc013be63052753fa88dfd78a1a41">detail::external_constructor&lt; value_t::number_float &gt;</a>
 , <a class="el" href="dd/da4/structdetail_1_1external__constructor_3_01value__t_1_1number__integer_01_4.html#a1f695d898af799e2e86cf862e95b8b71">detail::external_constructor&lt; value_t::number_integer &gt;</a>
 , <a class="el" href="de/dde/structdetail_1_1external__constructor_3_01value__t_1_1number__unsigned_01_4.html#a37425f144a89bf790816b8717b3b68b7">detail::external_constructor&lt; value_t::number_unsigned &gt;</a>
-, <a class="el" href="db/dcf/structdetail_1_1external__constructor_3_01value__t_1_1object_01_4.html#a771012da86c322e238b83baf11689f8e">detail::external_constructor&lt; value_t::object &gt;</a>
+, <a class="el" href="db/dcf/structdetail_1_1external__constructor_3_01value__t_1_1object_01_4.html#a96a727d374af438440e4f9fe6f273e3f">detail::external_constructor&lt; value_t::object &gt;</a>
 , <a class="el" href="de/d72/structdetail_1_1external__constructor_3_01value__t_1_1string_01_4.html#a317d01f7a4dd1dc217ae99e819df5f63">detail::external_constructor&lt; value_t::string &gt;</a>
 </li>
 <li>Container
@@ -169,23 +197,39 @@ $(function() {
 : <a class="el" href="d1/d72/classbasic__json.html#afd5ea67fe1a4778be5189423e2545d7a">basic_json&lt; ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType, JSONSerializer, BinaryType, CustomBaseClass &gt;</a>
 </li>
 <li>containsAnyValidNotes()
-: <a class="el" href="d2/dc8/classMusic_1_1Note.html#a908ff9c0cccc56b2354f93ad8d16b3d8">Music::Note</a>
+: <a class="el" href="d2/d11/classXJ_1_1Note.html#a4ad13619a272f42edf4a6b1fec6fcd72">XJ::Note</a>
+, <a class="el" href="d4/d70/classXJ_1_1SegmentUtils.html#ab1b328dfe986558f709ed442cb335147">XJ::SegmentUtils</a>
 </li>
-<li>ContentStore()
-: <a class="el" href="d1/dcc/classContent_1_1ContentStore.html#a769ce9edcbc8fdb8255c24a330286606">Content::ContentStore</a>
+<li>ContentEntity()
+: <a class="el" href="db/d67/classXJ_1_1ContentEntity.html#a511c852a9d1a5469bc371b82a358299e">XJ::ContentEntity</a>
+</li>
+<li>ContentEntityStore()
+: <a class="el" href="d0/def/classXJ_1_1ContentEntityStore.html#ae3d145fac793c3da910c7b03635a3588">XJ::ContentEntityStore</a>
+</li>
+<li>Continue
+: <a class="el" href="dc/ddb/classXJ_1_1Segment.html#a2a0b674e7353755349dace972ae714e7a0d8fd4ab46a8a5da5cdca351a8efa293">XJ::Segment</a>
+</li>
+<li>ControlMode
+: <a class="el" href="d6/dec/classXJ_1_1Fabricator.html#aecb3ccf52656fd6b47cd6d510643f306">XJ::Fabricator</a>
 </li>
 <li>copy()
-: <a class="el" href="d2/dc8/classMusic_1_1Note.html#ad0c3bac2db9a7639b06f4062c89fcd80">Music::Note</a>
+: <a class="el" href="d2/d11/classXJ_1_1Note.html#ae4731a93c6d12e24702fe24eaeb38375">XJ::Note</a>
 </li>
 <li>copyOf()
-: <a class="el" href="df/d72/classMusic_1_1NoteRange.html#ad7217bb54059d466d969f379495a2105">Music::NoteRange</a>
+: <a class="el" href="dc/dcd/classXJ_1_1NoteRange.html#a1c9cdeedc6b29ce7bf0642d9438ca648">XJ::NoteRange</a>
 </li>
 <li>count()
-: <a class="el" href="d1/d72/classbasic__json.html#ad1e1eff03a320299e6a8639a7579ca46">basic_json&lt; ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType, JSONSerializer, BinaryType, CustomBaseClass &gt;</a>
+: <a class="el" href="d1/d72/classbasic__json.html#a1ba1cd73d36a2cd58a9da7021b0f7317">basic_json&lt; ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType, JSONSerializer, BinaryType, CustomBaseClass &gt;</a>
 , <a class="el" href="de/d00/structordered__map.html#abd35ff8bb3cfe4b8951f382fdfb617e5">ordered_map&lt; Key, T, IgnoredLess, Allocator &gt;</a>
 </li>
 <li>countMatches()
-: <a class="el" href="d5/db8/classUtil_1_1StringUtils.html#aac4b729a866622289d72c51d61484994">Util::StringUtils</a>
+: <a class="el" href="d5/d90/classXJ_1_1StringUtils.html#ad78c069b53ef4f94661b93ba166b5619">XJ::StringUtils</a>
+</li>
+<li>Crafted
+: <a class="el" href="dc/ddb/classXJ_1_1Segment.html#a15aa2270d40ce675806a705e0ece7ad4afcb74ac4630a3519935f484844aa9895">XJ::Segment</a>
+</li>
+<li>Crafting
+: <a class="el" href="dc/ddb/classXJ_1_1Segment.html#a15aa2270d40ce675806a705e0ece7ad4a710ae01f5e8c17703b30d6d13da0ee02">XJ::Segment</a>
 </li>
 <li>create()
 : <a class="el" href="d0/dcd/structdetail_1_1container__input__adapter__factory__impl_1_1container__input__adapter__factory_3983614ac0e8828aa386ca24b1ddc2bd1.html#a6b9ccb1f4f7503123e553956abde9b85">detail::container_input_adapter_factory_impl::container_input_adapter_factory&lt; ContainerType, void_t&lt; decltype(begin(std::declval&lt; ContainerType &gt;()), end(std::declval&lt; ContainerType &gt;()))&gt; &gt;</a>
@@ -197,8 +241,14 @@ $(function() {
 , <a class="el" href="d8/d11/classdetail_1_1parse__error.html#a07046ea9f33d28f120af188ed674d6df">detail::parse_error</a>
 , <a class="el" href="d5/d30/classdetail_1_1type__error.html#a2d25372628cf1e09ec67718f4bc42762">detail::type_error</a>
 </li>
+<li>createdAt
+: <a class="el" href="dc/ddb/classXJ_1_1Segment.html#a2bd6bcd2b3d6cf9cbfec60bb3a3d3caa">XJ::Segment</a>
+</li>
+<li>currentTimeMillis()
+: <a class="el" href="d7/de0/classXJ_1_1Entity.html#aafd20f8ddeb9aac7f37a82fb2bc558f2">XJ::Entity</a>
+</li>
 <li>cutoffMinimumBars
-: <a class="el" href="d5/d1e/classContent_1_1ProgramConfig.html#a11c250056b688a5280ab55fd810ffc89">Content::ProgramConfig</a>
+: <a class="el" href="d3/da0/classXJ_1_1ProgramConfig.html#a6e61c294ecce6f278a2b58466808e938">XJ::ProgramConfig</a>
 </li>
 </ul>
 </div><!-- contents -->

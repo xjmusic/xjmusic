@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>XJ music nexus: /home/runner/work/xjmusic/xjmusic/engine/include/xjmusic/music/StickyBun.h Source File</title>
+<title>XJ music engine: /home/runner/work/xjmusic/xjmusic/engine/include/xjmusic/entities/music/StickyBun.h Source File</title>
 <link href="../../tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="../../jquery.js"></script>
 <script type="text/javascript" src="../../dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">XJ music nexus
+   <div id="projectname">XJ music engine
    &#160;<span id="projectnumber">0.1</span>
    </div>
    <div id="projectbrief">This is the playback engine for XJ music.</div>
@@ -63,7 +63,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="../../dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="../../dir_423b9d3680e84088c8b3d609cb192895.html">xjmusic</a></li><li class="navelem"><a class="el" href="../../dir_8b6371ce373427b49bf3b593c3f7ea9f.html">music</a></li>  </ul>
+<li class="navelem"><a class="el" href="../../dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="../../dir_423b9d3680e84088c8b3d609cb192895.html">xjmusic</a></li><li class="navelem"><a class="el" href="../../dir_9dfc5f2cf03090bba74e2cc99d1571b7.html">entities</a></li><li class="navelem"><a class="el" href="../../dir_8492b708043fa984c94bd5730b5066b0.html">music</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -80,14 +80,14 @@ $(function() {
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &lt;vector&gt;</span></div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#include &lt;random&gt;</span></div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160; </div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="../../d4/da0/Entity_8h.html">xjmusic/content/Entity.h</a>&quot;</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="../../d4/da0/Entity_8h.html">xjmusic/entities/Entity.h</a>&quot;</span></div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="../../dd/d75/Note_8h.html">Note.h</a>&quot;</span></div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">using namespace </span><a class="code" href="../../d1/d4a/namespaceContent.html">Content</a>;</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">using namespace </span><a class="code" href="../../d1/d13/namespaceXJ.html">XJ</a>;</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="keyword">namespace </span><a class="code" href="../../de/d59/namespaceMusic.html">Music</a> {</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="keyword">namespace </span><a class="code" href="../../d1/d13/namespaceXJ.html">XJ</a> {</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
-<div class="line"><a name="l00020"></a><span class="lineno"><a class="line" href="../../d4/d5b/classMusic_1_1StickyBun.html">   20</a></span>&#160;  <span class="keyword">class </span><a class="code" href="../../d4/d5b/classMusic_1_1StickyBun.html">StickyBun</a> {</div>
+<div class="line"><a name="l00020"></a><span class="lineno"><a class="line" href="../../df/d2c/classXJ_1_1StickyBun.html">   20</a></span>&#160;  <span class="keyword">class </span><a class="code" href="../../df/d2c/classXJ_1_1StickyBun.html">StickyBun</a> {</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  <span class="keyword">private</span>:</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <span class="keyword">static</span> std::random_device rd;</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="keyword">static</span> std::mt19937 gen;</div>
@@ -96,34 +96,45 @@ $(function() {
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="keyword">static</span> std::string META_KEY_TEMPLATE;</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; </div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;  <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="../../d4/d5b/classMusic_1_1StickyBun.html#a07041534ca3bf0fa20ed4d27faf3dc10">   29</a></span>&#160;    std::vector&lt;int&gt; <a class="code" href="../../d4/d5b/classMusic_1_1StickyBun.html#a07041534ca3bf0fa20ed4d27faf3dc10">values</a>;</div>
-<div class="line"><a name="l00030"></a><span class="lineno"><a class="line" href="../../d4/d5b/classMusic_1_1StickyBun.html#a7c8618d634d2b80f8102ec1978b08a26">   30</a></span>&#160;    <a class="code" href="../../d1/d4a/namespaceContent.html#a92666364ac187cf5756cc2af87814012">UUID</a> <a class="code" href="../../d4/d5b/classMusic_1_1StickyBun.html#a7c8618d634d2b80f8102ec1978b08a26">eventId</a>;</div>
+<div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="../../df/d2c/classXJ_1_1StickyBun.html#a3de36eb94503d16e7a190387a5d4f7a2">   29</a></span>&#160;    std::vector&lt;int&gt; <a class="code" href="../../df/d2c/classXJ_1_1StickyBun.html#a3de36eb94503d16e7a190387a5d4f7a2">values</a>;</div>
+<div class="line"><a name="l00030"></a><span class="lineno"><a class="line" href="../../df/d2c/classXJ_1_1StickyBun.html#aa4e002e833a2c07fe031c93cd6d5c1cf">   30</a></span>&#160;    <a class="code" href="../../d1/d13/namespaceXJ.html#a4df5cec60ce56eebfc581fb04e6715ea">UUID</a> <a class="code" href="../../df/d2c/classXJ_1_1StickyBun.html#aa4e002e833a2c07fe031c93cd6d5c1cf">eventId</a>;</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160; </div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <a class="code" href="../../d4/d5b/classMusic_1_1StickyBun.html">StickyBun</a>(<a class="code" href="../../d1/d4a/namespaceContent.html#a92666364ac187cf5756cc2af87814012">UUID</a> eventId, <span class="keywordtype">int</span> size);</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160; </div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <a class="code" href="../../d4/d5b/classMusic_1_1StickyBun.html">StickyBun</a>(<a class="code" href="../../d1/d4a/namespaceContent.html#a92666364ac187cf5756cc2af87814012">UUID</a> eventId, std::vector&lt;int&gt; values);</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160; </div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keyword">static</span> std::string computeMetaKey(<span class="keyword">const</span> <a class="code" href="../../d1/d4a/namespaceContent.html#a92666364ac187cf5756cc2af87814012">UUID</a>&amp; <span class="keywordtype">id</span>);</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    [[nodiscard]] std::vector&lt;Note&gt; replaceAtonal(std::vector&lt;Note&gt; source, <span class="keyword">const</span> std::vector&lt;Note&gt;&amp; voicingNotes) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160; </div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    [[nodiscard]] <a class="code" href="../../d2/dc8/classMusic_1_1Note.html">Note</a> compute(std::vector&lt;Note&gt; voicingNotes, <span class="keywordtype">int</span> index) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160; </div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    [[nodiscard]] std::string computeMetaKey() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  };</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160; </div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;}<span class="comment">// namespace Music</span></div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160; </div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="preprocessor">#endif</span><span class="comment">// XJMUSIC_MUSIC_STICKY_BUN_H</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno"><a class="line" href="../../df/d2c/classXJ_1_1StickyBun.html#a32cac4d9e1644f7c6aae25f1b107e529">   35</a></span>&#160;    <a class="code" href="../../df/d2c/classXJ_1_1StickyBun.html#a32cac4d9e1644f7c6aae25f1b107e529">StickyBun</a>() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160; </div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <a class="code" href="../../df/d2c/classXJ_1_1StickyBun.html#a32cac4d9e1644f7c6aae25f1b107e529">StickyBun</a>(<a class="code" href="../../d1/d13/namespaceXJ.html#a4df5cec60ce56eebfc581fb04e6715ea">UUID</a> <a class="code" href="../../df/d2c/classXJ_1_1StickyBun.html#aa4e002e833a2c07fe031c93cd6d5c1cf">eventId</a>, <span class="keywordtype">int</span> size);</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <a class="code" href="../../df/d2c/classXJ_1_1StickyBun.html#a32cac4d9e1644f7c6aae25f1b107e529">StickyBun</a>(<a class="code" href="../../d1/d13/namespaceXJ.html#a4df5cec60ce56eebfc581fb04e6715ea">UUID</a> <a class="code" href="../../df/d2c/classXJ_1_1StickyBun.html#aa4e002e833a2c07fe031c93cd6d5c1cf">eventId</a>, std::vector&lt;int&gt; <a class="code" href="../../df/d2c/classXJ_1_1StickyBun.html#a3de36eb94503d16e7a190387a5d4f7a2">values</a>);</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160; </div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keyword">static</span> std::string <a class="code" href="../../df/d2c/classXJ_1_1StickyBun.html#a066b3e620863e77d7abaeb731af6ebd7">computeMetaKey</a>(<span class="keyword">const</span> <a class="code" href="../../d1/d13/namespaceXJ.html#a4df5cec60ce56eebfc581fb04e6715ea">UUID</a>&amp; <span class="keywordtype">id</span>);</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160; </div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    [[nodiscard]] std::vector&lt;Note&gt; <a class="code" href="../../df/d2c/classXJ_1_1StickyBun.html#adf4a94c35515aa4c49c4e44098679848">replaceAtonal</a>(std::vector&lt;Note&gt; source, <span class="keyword">const</span> std::vector&lt;Note&gt;&amp; voicingNotes) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    [[nodiscard]] <a class="code" href="../../d2/d11/classXJ_1_1Note.html">Note</a> <a class="code" href="../../df/d2c/classXJ_1_1StickyBun.html#a43e30072d68dd76e4adf8488912ff8ea">compute</a>(std::vector&lt;Note&gt; voicingNotes, <span class="keywordtype">int</span> index) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160; </div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    [[nodiscard]] std::string <a class="code" href="../../df/d2c/classXJ_1_1StickyBun.html#a066b3e620863e77d7abaeb731af6ebd7">computeMetaKey</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160; </div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    std::string <a class="code" href="../../df/d2c/classXJ_1_1StickyBun.html#aa495d0bcc972bdd8c61d7a474fe5a19b">serialize</a>();</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160; </div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    <span class="keyword">static</span> <a class="code" href="../../df/d2c/classXJ_1_1StickyBun.html">StickyBun</a> <a class="code" href="../../df/d2c/classXJ_1_1StickyBun.html#a25e4014137077dc48b12b2e782715d04">deserializeFrom</a>(<span class="keyword">const</span> std::string&amp; str);</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  };</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160; </div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;}<span class="comment">// namespace XJ</span></div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160; </div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="preprocessor">#endif</span><span class="comment">// XJMUSIC_MUSIC_STICKY_BUN_H</span></div>
 <div class="ttc" id="aEntity_8h_html"><div class="ttname"><a href="../../d4/da0/Entity_8h.html">Entity.h</a></div></div>
 <div class="ttc" id="aNote_8h_html"><div class="ttname"><a href="../../dd/d75/Note_8h.html">Note.h</a></div></div>
-<div class="ttc" id="aclassMusic_1_1Note_html"><div class="ttname"><a href="../../d2/dc8/classMusic_1_1Note.html">Music::Note</a></div><div class="ttdef"><b>Definition:</b> Note.h:20</div></div>
-<div class="ttc" id="aclassMusic_1_1StickyBun_html"><div class="ttname"><a href="../../d4/d5b/classMusic_1_1StickyBun.html">Music::StickyBun</a></div><div class="ttdef"><b>Definition:</b> StickyBun.h:20</div></div>
-<div class="ttc" id="aclassMusic_1_1StickyBun_html_a07041534ca3bf0fa20ed4d27faf3dc10"><div class="ttname"><a href="../../d4/d5b/classMusic_1_1StickyBun.html#a07041534ca3bf0fa20ed4d27faf3dc10">Music::StickyBun::values</a></div><div class="ttdeci">std::vector&lt; int &gt; values</div><div class="ttdef"><b>Definition:</b> StickyBun.h:29</div></div>
-<div class="ttc" id="aclassMusic_1_1StickyBun_html_a7c8618d634d2b80f8102ec1978b08a26"><div class="ttname"><a href="../../d4/d5b/classMusic_1_1StickyBun.html#a7c8618d634d2b80f8102ec1978b08a26">Music::StickyBun::eventId</a></div><div class="ttdeci">UUID eventId</div><div class="ttdef"><b>Definition:</b> StickyBun.h:30</div></div>
-<div class="ttc" id="anamespaceContent_html"><div class="ttname"><a href="../../d1/d4a/namespaceContent.html">Content</a></div><div class="ttdef"><b>Definition:</b> ContentStore.h:37</div></div>
-<div class="ttc" id="anamespaceContent_html_a92666364ac187cf5756cc2af87814012"><div class="ttname"><a href="../../d1/d4a/namespaceContent.html#a92666364ac187cf5756cc2af87814012">Content::UUID</a></div><div class="ttdeci">std::string UUID</div><div class="ttdef"><b>Definition:</b> Entity.h:19</div></div>
-<div class="ttc" id="anamespaceMusic_html"><div class="ttname"><a href="../../de/d59/namespaceMusic.html">Music</a></div><div class="ttdef"><b>Definition:</b> Accidental.h:6</div></div>
+<div class="ttc" id="aclassXJ_1_1Note_html"><div class="ttname"><a href="../../d2/d11/classXJ_1_1Note.html">XJ::Note</a></div><div class="ttdef"><b>Definition:</b> Note.h:20</div></div>
+<div class="ttc" id="aclassXJ_1_1StickyBun_html"><div class="ttname"><a href="../../df/d2c/classXJ_1_1StickyBun.html">XJ::StickyBun</a></div><div class="ttdef"><b>Definition:</b> StickyBun.h:20</div></div>
+<div class="ttc" id="aclassXJ_1_1StickyBun_html_a066b3e620863e77d7abaeb731af6ebd7"><div class="ttname"><a href="../../df/d2c/classXJ_1_1StickyBun.html#a066b3e620863e77d7abaeb731af6ebd7">XJ::StickyBun::computeMetaKey</a></div><div class="ttdeci">std::string computeMetaKey() const</div><div class="ttdef"><b>Definition:</b> StickyBun.cpp:60</div></div>
+<div class="ttc" id="aclassXJ_1_1StickyBun_html_a25e4014137077dc48b12b2e782715d04"><div class="ttname"><a href="../../df/d2c/classXJ_1_1StickyBun.html#a25e4014137077dc48b12b2e782715d04">XJ::StickyBun::deserializeFrom</a></div><div class="ttdeci">static StickyBun deserializeFrom(const std::string &amp;str)</div><div class="ttdef"><b>Definition:</b> StickyBun.cpp:71</div></div>
+<div class="ttc" id="aclassXJ_1_1StickyBun_html_a32cac4d9e1644f7c6aae25f1b107e529"><div class="ttname"><a href="../../df/d2c/classXJ_1_1StickyBun.html#a32cac4d9e1644f7c6aae25f1b107e529">XJ::StickyBun::StickyBun</a></div><div class="ttdeci">StickyBun()=default</div></div>
+<div class="ttc" id="aclassXJ_1_1StickyBun_html_a3de36eb94503d16e7a190387a5d4f7a2"><div class="ttname"><a href="../../df/d2c/classXJ_1_1StickyBun.html#a3de36eb94503d16e7a190387a5d4f7a2">XJ::StickyBun::values</a></div><div class="ttdeci">std::vector&lt; int &gt; values</div><div class="ttdef"><b>Definition:</b> StickyBun.h:29</div></div>
+<div class="ttc" id="aclassXJ_1_1StickyBun_html_a43e30072d68dd76e4adf8488912ff8ea"><div class="ttname"><a href="../../df/d2c/classXJ_1_1StickyBun.html#a43e30072d68dd76e4adf8488912ff8ea">XJ::StickyBun::compute</a></div><div class="ttdeci">Note compute(std::vector&lt; Note &gt; voicingNotes, int index) const</div><div class="ttdef"><b>Definition:</b> StickyBun.cpp:49</div></div>
+<div class="ttc" id="aclassXJ_1_1StickyBun_html_aa495d0bcc972bdd8c61d7a474fe5a19b"><div class="ttname"><a href="../../df/d2c/classXJ_1_1StickyBun.html#aa495d0bcc972bdd8c61d7a474fe5a19b">XJ::StickyBun::serialize</a></div><div class="ttdeci">std::string serialize()</div><div class="ttdef"><b>Definition:</b> StickyBun.cpp:64</div></div>
+<div class="ttc" id="aclassXJ_1_1StickyBun_html_aa4e002e833a2c07fe031c93cd6d5c1cf"><div class="ttname"><a href="../../df/d2c/classXJ_1_1StickyBun.html#aa4e002e833a2c07fe031c93cd6d5c1cf">XJ::StickyBun::eventId</a></div><div class="ttdeci">UUID eventId</div><div class="ttdef"><b>Definition:</b> StickyBun.h:30</div></div>
+<div class="ttc" id="aclassXJ_1_1StickyBun_html_adf4a94c35515aa4c49c4e44098679848"><div class="ttname"><a href="../../df/d2c/classXJ_1_1StickyBun.html#adf4a94c35515aa4c49c4e44098679848">XJ::StickyBun::replaceAtonal</a></div><div class="ttdeci">std::vector&lt; Note &gt; replaceAtonal(std::vector&lt; Note &gt; source, const std::vector&lt; Note &gt; &amp;voicingNotes) const</div><div class="ttdef"><b>Definition:</b> StickyBun.cpp:36</div></div>
+<div class="ttc" id="anamespaceXJ_html"><div class="ttname"><a href="../../d1/d13/namespaceXJ.html">XJ</a></div><div class="ttdef"><b>Definition:</b> ContentEntity.h:14</div></div>
+<div class="ttc" id="anamespaceXJ_html_a4df5cec60ce56eebfc581fb04e6715ea"><div class="ttname"><a href="../../d1/d13/namespaceXJ.html#a4df5cec60ce56eebfc581fb04e6715ea">XJ::UUID</a></div><div class="ttdeci">std::string UUID</div><div class="ttdef"><b>Definition:</b> Entity.h:30</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

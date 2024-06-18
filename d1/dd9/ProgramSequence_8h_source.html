@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>XJ music nexus: /home/runner/work/xjmusic/xjmusic/engine/include/xjmusic/content/ProgramSequence.h Source File</title>
+<title>XJ music engine: /home/runner/work/xjmusic/xjmusic/engine/include/xjmusic/entities/content/ProgramSequence.h Source File</title>
 <link href="../../tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="../../jquery.js"></script>
 <script type="text/javascript" src="../../dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">XJ music nexus
+   <div id="projectname">XJ music engine
    &#160;<span id="projectnumber">0.1</span>
    </div>
    <div id="projectbrief">This is the playback engine for XJ music.</div>
@@ -63,7 +63,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="../../dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="../../dir_423b9d3680e84088c8b3d609cb192895.html">xjmusic</a></li><li class="navelem"><a class="el" href="../../dir_291006a3e064f13dca9ac01158de3303.html">content</a></li>  </ul>
+<li class="navelem"><a class="el" href="../../dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="../../dir_423b9d3680e84088c8b3d609cb192895.html">xjmusic</a></li><li class="navelem"><a class="el" href="../../dir_9dfc5f2cf03090bba74e2cc99d1571b7.html">entities</a></li><li class="navelem"><a class="el" href="../../dir_503f22bf885df075ccbdafbb705a5954.html">content</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -79,34 +79,38 @@ $(function() {
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &lt;string&gt;</span></div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &lt;utility&gt;</span></div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160; </div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="../../d4/da0/Entity_8h.html">Entity.h</a>&quot;</span></div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="keyword">namespace </span><a class="code" href="../../d1/d4a/namespaceContent.html">Content</a> {</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
-<div class="line"><a name="l00013"></a><span class="lineno"><a class="line" href="../../d0/d9a/classContent_1_1ProgramSequence.html">   13</a></span>&#160;  <span class="keyword">class </span><a class="code" href="../../d0/d9a/classContent_1_1ProgramSequence.html">ProgramSequence</a> : <span class="keyword">public</span> <a class="code" href="../../d2/d78/classContent_1_1Entity.html">Entity</a> {</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="../../d0/d9a/classContent_1_1ProgramSequence.html#af88344bc82a991ebe880ff326d858a34">   15</a></span>&#160;    <a class="code" href="../../d0/d9a/classContent_1_1ProgramSequence.html#af88344bc82a991ebe880ff326d858a34">ProgramSequence</a>() = <span class="keywordflow">default</span>;</div>
-<div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="../../d0/d9a/classContent_1_1ProgramSequence.html#ad14642be05ed82681e0d648c2257a6cd">   16</a></span>&#160;    <a class="code" href="../../d1/d4a/namespaceContent.html#a92666364ac187cf5756cc2af87814012">UUID</a> <a class="code" href="../../d0/d9a/classContent_1_1ProgramSequence.html#ad14642be05ed82681e0d648c2257a6cd">programId</a>;</div>
-<div class="line"><a name="l00017"></a><span class="lineno"><a class="line" href="../../d0/d9a/classContent_1_1ProgramSequence.html#ae9b7b49bfcff67a030bd3ae2683231d5">   17</a></span>&#160;    std::string <a class="code" href="../../d0/d9a/classContent_1_1ProgramSequence.html#ae9b7b49bfcff67a030bd3ae2683231d5">name</a>;</div>
-<div class="line"><a name="l00018"></a><span class="lineno"><a class="line" href="../../d0/d9a/classContent_1_1ProgramSequence.html#aeece88c93e3a355125a9fa89495ec13d">   18</a></span>&#160;    std::string <a class="code" href="../../d0/d9a/classContent_1_1ProgramSequence.html#aeece88c93e3a355125a9fa89495ec13d">key</a>;</div>
-<div class="line"><a name="l00019"></a><span class="lineno"><a class="line" href="../../d0/d9a/classContent_1_1ProgramSequence.html#aa8e215b18a28cc4291ab496478c6ac3a">   19</a></span>&#160;    <span class="keywordtype">float</span> <a class="code" href="../../d0/d9a/classContent_1_1ProgramSequence.html#aa8e215b18a28cc4291ab496478c6ac3a">intensity</a>{};</div>
-<div class="line"><a name="l00020"></a><span class="lineno"><a class="line" href="../../d0/d9a/classContent_1_1ProgramSequence.html#adf9c4a7f8b2141cfbf40f6a033ec0187">   20</a></span>&#160;    <span class="keywordtype">int</span> <a class="code" href="../../d0/d9a/classContent_1_1ProgramSequence.html#adf9c4a7f8b2141cfbf40f6a033ec0187">total</a>{};</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  };</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;}<span class="comment">// namespace Content</span></div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; </div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#endif</span><span class="comment">//PROGRAM_SEQUENCE_H</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="../../d4/da0/Entity_8h.html">xjmusic/entities/Entity.h</a>&quot;</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="../../d2/d5c/ContentEntity_8h.html">ContentEntity.h</a>&quot;</span></div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160; </div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">namespace </span><a class="code" href="../../d1/d13/namespaceXJ.html">XJ</a> {</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
+<div class="line"><a name="l00014"></a><span class="lineno"><a class="line" href="../../df/d65/classXJ_1_1ProgramSequence.html">   14</a></span>&#160;  <span class="keyword">class </span><a class="code" href="../../df/d65/classXJ_1_1ProgramSequence.html">ProgramSequence</a> : <span class="keyword">public</span> <a class="code" href="../../db/d67/classXJ_1_1ContentEntity.html">ContentEntity</a> {</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
+<div class="line"><a name="l00017"></a><span class="lineno"><a class="line" href="../../df/d65/classXJ_1_1ProgramSequence.html#ac8ac0c2f864d7161776eb8c6aa0fd40b">   17</a></span>&#160;    <a class="code" href="../../df/d65/classXJ_1_1ProgramSequence.html#ac8ac0c2f864d7161776eb8c6aa0fd40b">ProgramSequence</a>() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160; </div>
+<div class="line"><a name="l00019"></a><span class="lineno"><a class="line" href="../../df/d65/classXJ_1_1ProgramSequence.html#a92b0a48bd84dd67f69dc688570e2ccd1">   19</a></span>&#160;    <a class="code" href="../../d1/d13/namespaceXJ.html#a4df5cec60ce56eebfc581fb04e6715ea">UUID</a> <a class="code" href="../../df/d65/classXJ_1_1ProgramSequence.html#a92b0a48bd84dd67f69dc688570e2ccd1">programId</a>;</div>
+<div class="line"><a name="l00020"></a><span class="lineno"><a class="line" href="../../df/d65/classXJ_1_1ProgramSequence.html#afd67f4ae36884596323c5c605def778e">   20</a></span>&#160;    std::string <a class="code" href="../../df/d65/classXJ_1_1ProgramSequence.html#afd67f4ae36884596323c5c605def778e">name</a>;</div>
+<div class="line"><a name="l00021"></a><span class="lineno"><a class="line" href="../../df/d65/classXJ_1_1ProgramSequence.html#aef7a81dd27da39ccb1dc9a08f0a431ac">   21</a></span>&#160;    std::string <a class="code" href="../../df/d65/classXJ_1_1ProgramSequence.html#aef7a81dd27da39ccb1dc9a08f0a431ac">key</a>;</div>
+<div class="line"><a name="l00022"></a><span class="lineno"><a class="line" href="../../df/d65/classXJ_1_1ProgramSequence.html#a61736ae4dcb62bd79acb4012ab7b7c0b">   22</a></span>&#160;    <span class="keywordtype">float</span> <a class="code" href="../../df/d65/classXJ_1_1ProgramSequence.html#a61736ae4dcb62bd79acb4012ab7b7c0b">intensity</a>{};</div>
+<div class="line"><a name="l00023"></a><span class="lineno"><a class="line" href="../../df/d65/classXJ_1_1ProgramSequence.html#a0744c7348fc67a5376bb28e2f7082fab">   23</a></span>&#160;    <span class="keywordtype">int</span> <a class="code" href="../../df/d65/classXJ_1_1ProgramSequence.html#a0744c7348fc67a5376bb28e2f7082fab">total</a>{};</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;  };</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160; </div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;}<span class="comment">// namespace XJ</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; </div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">#endif</span><span class="comment">//PROGRAM_SEQUENCE_H</span></div>
+<div class="ttc" id="aContentEntity_8h_html"><div class="ttname"><a href="../../d2/d5c/ContentEntity_8h.html">ContentEntity.h</a></div></div>
 <div class="ttc" id="aEntity_8h_html"><div class="ttname"><a href="../../d4/da0/Entity_8h.html">Entity.h</a></div></div>
-<div class="ttc" id="aclassContent_1_1Entity_html"><div class="ttname"><a href="../../d2/d78/classContent_1_1Entity.html">Content::Entity</a></div><div class="ttdef"><b>Definition:</b> Entity.h:40</div></div>
-<div class="ttc" id="aclassContent_1_1ProgramSequence_html"><div class="ttname"><a href="../../d0/d9a/classContent_1_1ProgramSequence.html">Content::ProgramSequence</a></div><div class="ttdef"><b>Definition:</b> ProgramSequence.h:13</div></div>
-<div class="ttc" id="aclassContent_1_1ProgramSequence_html_aa8e215b18a28cc4291ab496478c6ac3a"><div class="ttname"><a href="../../d0/d9a/classContent_1_1ProgramSequence.html#aa8e215b18a28cc4291ab496478c6ac3a">Content::ProgramSequence::intensity</a></div><div class="ttdeci">float intensity</div><div class="ttdef"><b>Definition:</b> ProgramSequence.h:19</div></div>
-<div class="ttc" id="aclassContent_1_1ProgramSequence_html_ad14642be05ed82681e0d648c2257a6cd"><div class="ttname"><a href="../../d0/d9a/classContent_1_1ProgramSequence.html#ad14642be05ed82681e0d648c2257a6cd">Content::ProgramSequence::programId</a></div><div class="ttdeci">UUID programId</div><div class="ttdef"><b>Definition:</b> ProgramSequence.h:16</div></div>
-<div class="ttc" id="aclassContent_1_1ProgramSequence_html_adf9c4a7f8b2141cfbf40f6a033ec0187"><div class="ttname"><a href="../../d0/d9a/classContent_1_1ProgramSequence.html#adf9c4a7f8b2141cfbf40f6a033ec0187">Content::ProgramSequence::total</a></div><div class="ttdeci">int total</div><div class="ttdef"><b>Definition:</b> ProgramSequence.h:20</div></div>
-<div class="ttc" id="aclassContent_1_1ProgramSequence_html_ae9b7b49bfcff67a030bd3ae2683231d5"><div class="ttname"><a href="../../d0/d9a/classContent_1_1ProgramSequence.html#ae9b7b49bfcff67a030bd3ae2683231d5">Content::ProgramSequence::name</a></div><div class="ttdeci">std::string name</div><div class="ttdef"><b>Definition:</b> ProgramSequence.h:17</div></div>
-<div class="ttc" id="aclassContent_1_1ProgramSequence_html_aeece88c93e3a355125a9fa89495ec13d"><div class="ttname"><a href="../../d0/d9a/classContent_1_1ProgramSequence.html#aeece88c93e3a355125a9fa89495ec13d">Content::ProgramSequence::key</a></div><div class="ttdeci">std::string key</div><div class="ttdef"><b>Definition:</b> ProgramSequence.h:18</div></div>
-<div class="ttc" id="aclassContent_1_1ProgramSequence_html_af88344bc82a991ebe880ff326d858a34"><div class="ttname"><a href="../../d0/d9a/classContent_1_1ProgramSequence.html#af88344bc82a991ebe880ff326d858a34">Content::ProgramSequence::ProgramSequence</a></div><div class="ttdeci">ProgramSequence()=default</div></div>
-<div class="ttc" id="anamespaceContent_html"><div class="ttname"><a href="../../d1/d4a/namespaceContent.html">Content</a></div><div class="ttdef"><b>Definition:</b> ContentStore.h:37</div></div>
-<div class="ttc" id="anamespaceContent_html_a92666364ac187cf5756cc2af87814012"><div class="ttname"><a href="../../d1/d4a/namespaceContent.html#a92666364ac187cf5756cc2af87814012">Content::UUID</a></div><div class="ttdeci">std::string UUID</div><div class="ttdef"><b>Definition:</b> Entity.h:19</div></div>
+<div class="ttc" id="aclassXJ_1_1ContentEntity_html"><div class="ttname"><a href="../../db/d67/classXJ_1_1ContentEntity.html">XJ::ContentEntity</a></div><div class="ttdef"><b>Definition:</b> ContentEntity.h:16</div></div>
+<div class="ttc" id="aclassXJ_1_1ProgramSequence_html"><div class="ttname"><a href="../../df/d65/classXJ_1_1ProgramSequence.html">XJ::ProgramSequence</a></div><div class="ttdef"><b>Definition:</b> ProgramSequence.h:14</div></div>
+<div class="ttc" id="aclassXJ_1_1ProgramSequence_html_a0744c7348fc67a5376bb28e2f7082fab"><div class="ttname"><a href="../../df/d65/classXJ_1_1ProgramSequence.html#a0744c7348fc67a5376bb28e2f7082fab">XJ::ProgramSequence::total</a></div><div class="ttdeci">int total</div><div class="ttdef"><b>Definition:</b> ProgramSequence.h:23</div></div>
+<div class="ttc" id="aclassXJ_1_1ProgramSequence_html_a61736ae4dcb62bd79acb4012ab7b7c0b"><div class="ttname"><a href="../../df/d65/classXJ_1_1ProgramSequence.html#a61736ae4dcb62bd79acb4012ab7b7c0b">XJ::ProgramSequence::intensity</a></div><div class="ttdeci">float intensity</div><div class="ttdef"><b>Definition:</b> ProgramSequence.h:22</div></div>
+<div class="ttc" id="aclassXJ_1_1ProgramSequence_html_a92b0a48bd84dd67f69dc688570e2ccd1"><div class="ttname"><a href="../../df/d65/classXJ_1_1ProgramSequence.html#a92b0a48bd84dd67f69dc688570e2ccd1">XJ::ProgramSequence::programId</a></div><div class="ttdeci">UUID programId</div><div class="ttdef"><b>Definition:</b> ProgramSequence.h:19</div></div>
+<div class="ttc" id="aclassXJ_1_1ProgramSequence_html_ac8ac0c2f864d7161776eb8c6aa0fd40b"><div class="ttname"><a href="../../df/d65/classXJ_1_1ProgramSequence.html#ac8ac0c2f864d7161776eb8c6aa0fd40b">XJ::ProgramSequence::ProgramSequence</a></div><div class="ttdeci">ProgramSequence()=default</div></div>
+<div class="ttc" id="aclassXJ_1_1ProgramSequence_html_aef7a81dd27da39ccb1dc9a08f0a431ac"><div class="ttname"><a href="../../df/d65/classXJ_1_1ProgramSequence.html#aef7a81dd27da39ccb1dc9a08f0a431ac">XJ::ProgramSequence::key</a></div><div class="ttdeci">std::string key</div><div class="ttdef"><b>Definition:</b> ProgramSequence.h:21</div></div>
+<div class="ttc" id="aclassXJ_1_1ProgramSequence_html_afd67f4ae36884596323c5c605def778e"><div class="ttname"><a href="../../df/d65/classXJ_1_1ProgramSequence.html#afd67f4ae36884596323c5c605def778e">XJ::ProgramSequence::name</a></div><div class="ttdeci">std::string name</div><div class="ttdef"><b>Definition:</b> ProgramSequence.h:20</div></div>
+<div class="ttc" id="anamespaceXJ_html"><div class="ttname"><a href="../../d1/d13/namespaceXJ.html">XJ</a></div><div class="ttdef"><b>Definition:</b> ContentEntity.h:14</div></div>
+<div class="ttc" id="anamespaceXJ_html_a4df5cec60ce56eebfc581fb04e6715ea"><div class="ttname"><a href="../../d1/d13/namespaceXJ.html#a4df5cec60ce56eebfc581fb04e6715ea">XJ::UUID</a></div><div class="ttdeci">std::string UUID</div><div class="ttdef"><b>Definition:</b> Entity.h:30</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

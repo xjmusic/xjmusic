@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>XJ music nexus: Class Members - Variables</title>
+<title>XJ music engine: Class Members - Variables</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">XJ music nexus
+   <div id="projectname">XJ music engine
    &#160;<span id="projectnumber">0.1</span>
    </div>
    <div id="projectbrief">This is the playback engine for XJ music.</div>
@@ -67,8 +67,12 @@ $(function() {
 
 <h3><a id="index_i"></a>- i -</h3><ul>
 <li>id
-: <a class="el" href="d2/d78/classContent_1_1Entity.html#af2b37b54b11c269dfa9c3deff2ede07d">Content::Entity</a>
-, <a class="el" href="d0/d84/classdetail_1_1exception.html#a63b819fbb2ef34df9dad1e309207fa24">detail::exception</a>
+: <a class="el" href="d0/d84/classdetail_1_1exception.html#a63b819fbb2ef34df9dad1e309207fa24">detail::exception</a>
+, <a class="el" href="de/d9f/classXJ_1_1Chain.html#a5137bdcf33f642a7af7c6cc0b950d498">XJ::Chain</a>
+, <a class="el" href="db/d67/classXJ_1_1ContentEntity.html#a22871813baeab719ed3140ffcaeeef19">XJ::ContentEntity</a>
+, <a class="el" href="d7/dea/classXJ_1_1MarbleBag_1_1Group.html#af027d9fb989584e0fa990424e57b361a">XJ::MarbleBag::Group</a>
+, <a class="el" href="dc/ddb/classXJ_1_1Segment.html#a5fd97a64ee2b950d1ce6c2f664253094">XJ::Segment</a>
+, <a class="el" href="db/de3/classXJ_1_1SegmentEntity.html#a7a9ea196ecc92100c540c0067f0ffadd">XJ::SegmentEntity</a>
 </li>
 <li>indent_char
 : <a class="el" href="d1/d62/classdetail_1_1serializer.html#acf6f783e3299d8b18ce4b5d9746f39f6">detail::serializer&lt; BasicJsonType &gt;</a>
@@ -76,59 +80,70 @@ $(function() {
 <li>indent_string
 : <a class="el" href="d1/d62/classdetail_1_1serializer.html#a7f6f1d36859514ab42984deb28d2521e">detail::serializer&lt; BasicJsonType &gt;</a>
 </li>
+<li>instrumentAudioId
+: <a class="el" href="d9/d19/classXJ_1_1SegmentChoiceArrangementPick.html#acf3c2390d0ebde1ab6a584e2e7b13ba9">XJ::SegmentChoiceArrangementPick</a>
+</li>
 <li>instrumentId
-: <a class="el" href="d8/d9a/classContent_1_1InstrumentAudio.html#a8a88885721e0e5dc5521430bbe990754">Content::InstrumentAudio</a>
-, <a class="el" href="d0/d2a/classContent_1_1InstrumentMeme.html#a459688275e6b18d77baee42d29bc6d89">Content::InstrumentMeme</a>
+: <a class="el" href="dc/d08/classXJ_1_1InstrumentAudio.html#a31311b7ea5570fa0d82b3e8ec151f81a">XJ::InstrumentAudio</a>
+, <a class="el" href="d5/d93/classXJ_1_1InstrumentMeme.html#a01f7a3206ca1ae022fb4f3c7224daa44">XJ::InstrumentMeme</a>
+, <a class="el" href="d3/d50/classXJ_1_1SegmentChoice.html#a2aa4da525d91a59d04f6440f866732a3">XJ::SegmentChoice</a>
+</li>
+<li>instrumentMode
+: <a class="el" href="d3/d50/classXJ_1_1SegmentChoice.html#a3a6876f3fc71249ed9d0119372c6a2f8">XJ::SegmentChoice</a>
+</li>
+<li>instrumentType
+: <a class="el" href="d3/d50/classXJ_1_1SegmentChoice.html#a60e7d7a0688b4f70a6ad2280786426ae">XJ::SegmentChoice</a>
 </li>
 <li>instrumentTypesForAudioLengthFinalization
-: <a class="el" href="d3/d43/classContent_1_1TemplateConfig.html#a2342a78c65576d2ada15704efcb50b12">Content::TemplateConfig</a>
+: <a class="el" href="df/dc6/classXJ_1_1TemplateConfig.html#aef7e46b666e75cb2f94925ffc1cf7533">XJ::TemplateConfig</a>
 </li>
 <li>instrumentTypesForInversionSeeking
-: <a class="el" href="d3/d43/classContent_1_1TemplateConfig.html#a918a25f47895811bd653f459591a2265">Content::TemplateConfig</a>
+: <a class="el" href="df/dc6/classXJ_1_1TemplateConfig.html#a932b073fdf92cbdea9886c8880994cc4">XJ::TemplateConfig</a>
 </li>
 <li>intensity
-: <a class="el" href="d8/d9a/classContent_1_1InstrumentAudio.html#a95094c34ac4a28ba9a83b317be36ad19">Content::InstrumentAudio</a>
-, <a class="el" href="d0/d9a/classContent_1_1ProgramSequence.html#aa8e215b18a28cc4291ab496478c6ac3a">Content::ProgramSequence</a>
+: <a class="el" href="dc/d08/classXJ_1_1InstrumentAudio.html#a49cc76bb3e3e89fa0069bdb91c7d8f2a">XJ::InstrumentAudio</a>
+, <a class="el" href="df/d65/classXJ_1_1ProgramSequence.html#a61736ae4dcb62bd79acb4012ab7b7c0b">XJ::ProgramSequence</a>
+, <a class="el" href="dc/ddb/classXJ_1_1Segment.html#a8e9026cc4dc48ff3ddb7c4e46fcf0b2c">XJ::Segment</a>
 </li>
 <li>intensityAutoCrescendoEnabled
-: <a class="el" href="d3/d43/classContent_1_1TemplateConfig.html#a092b19f7efbf5a1f3d118b1989cc5e46">Content::TemplateConfig</a>
+: <a class="el" href="df/dc6/classXJ_1_1TemplateConfig.html#ac27130213747212c8861ad97265dd5ab">XJ::TemplateConfig</a>
 </li>
 <li>intensityAutoCrescendoMaximum
-: <a class="el" href="d3/d43/classContent_1_1TemplateConfig.html#ac87b5f92612b204cffcb877df558c5a1">Content::TemplateConfig</a>
+: <a class="el" href="df/dc6/classXJ_1_1TemplateConfig.html#a8f742d35a16b0521083d9c92401a3e5a">XJ::TemplateConfig</a>
 </li>
 <li>intensityAutoCrescendoMinimum
-: <a class="el" href="d3/d43/classContent_1_1TemplateConfig.html#ad4f2e09f0cff0629d4fc2d0183035c36">Content::TemplateConfig</a>
+: <a class="el" href="df/dc6/classXJ_1_1TemplateConfig.html#a364fcf79e17103436639e5ab51a34930">XJ::TemplateConfig</a>
 </li>
 <li>intensityLayers
-: <a class="el" href="d3/d43/classContent_1_1TemplateConfig.html#a4e6d6cc9b1b9ebcad0e4ec020684a972">Content::TemplateConfig</a>
+: <a class="el" href="df/dc6/classXJ_1_1TemplateConfig.html#ad4665fba0aed2913118f5aa3b6f4930c">XJ::TemplateConfig</a>
 </li>
 <li>intensityThreshold
-: <a class="el" href="d3/d43/classContent_1_1TemplateConfig.html#a508de515c3edde1941dddc9fc44a551e">Content::TemplateConfig</a>
+: <a class="el" href="df/dc6/classXJ_1_1TemplateConfig.html#a256e53bd5d50845f2eb862d0f677c2f8">XJ::TemplateConfig</a>
 </li>
 <li>inverse
 : <a class="el" href="d1/d72/classbasic__json.html#a54aba2f4314135e3ccf511fb17ca45a5">basic_json&lt; ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType, JSONSerializer, BinaryType, CustomBaseClass &gt;</a>
 </li>
 <li>isAudioSelectionPersistent
-: <a class="el" href="db/dac/classContent_1_1InstrumentConfig.html#ad8a7eafdca8592d4d1dab151334bf6b5">Content::InstrumentConfig</a>
+: <a class="el" href="d4/dae/classXJ_1_1InstrumentConfig.html#a0bba961250566ca06e032a26cfea3f32">XJ::InstrumentConfig</a>
 </li>
 <li>isDeleted
-: <a class="el" href="d7/d56/classContent_1_1Instrument.html#ac8d93a5ddeb4afeda60345213381b4ba">Content::Instrument</a>
-, <a class="el" href="d5/df0/classContent_1_1Library.html#a7cb8699918bc6832523315d82b9dda33">Content::Library</a>
-, <a class="el" href="d6/dc1/classContent_1_1Program.html#a8357de1741100c30ef4e23b3ec5d4443">Content::Program</a>
-, <a class="el" href="da/d21/classContent_1_1Project.html#a15a2a7502431d50e098526b7720715a7">Content::Project</a>
-, <a class="el" href="df/d12/classContent_1_1Template.html#ac8d2d7cbec13435bdef39639c55d29b5">Content::Template</a>
+: <a class="el" href="d5/d0b/classXJ_1_1Instrument.html#a60cb93f1dc44c486f98f032436c7e0de">XJ::Instrument</a>
+, <a class="el" href="d4/d0c/classXJ_1_1Library.html#a29aaca1c0b73a28c6f84422b719c63db">XJ::Library</a>
+, <a class="el" href="da/d20/classXJ_1_1Program.html#a7510ff4fbb5d27180df00c12c2f8fd63">XJ::Program</a>
+, <a class="el" href="d0/dac/classXJ_1_1Project.html#afff0e36451b6fa4bbcfec40f4143a05e">XJ::Project</a>
+, <a class="el" href="de/d80/classXJ_1_1Template.html#af427338c68596dfcea466787212c982d">XJ::Template</a>
 </li>
 <li>isMultiphonic
-: <a class="el" href="db/dac/classContent_1_1InstrumentConfig.html#ac4b9c37a3ee5d9c6280004afe6476e37">Content::InstrumentConfig</a>
+: <a class="el" href="d4/dae/classXJ_1_1InstrumentConfig.html#af1e4b2bb3d70c2279f7a7a3c2b210cee">XJ::InstrumentConfig</a>
 </li>
 <li>isOneShot
-: <a class="el" href="db/dac/classContent_1_1InstrumentConfig.html#af2228afc1b5f3427b8f47a75f0ce4229">Content::InstrumentConfig</a>
+: <a class="el" href="d4/dae/classXJ_1_1InstrumentConfig.html#a1670cb126785877834dded95a817fdde">XJ::InstrumentConfig</a>
 </li>
 <li>isOneShotCutoffEnabled
-: <a class="el" href="db/dac/classContent_1_1InstrumentConfig.html#ad10fcaecb27b2287c94ecc9bdf0fab2b">Content::InstrumentConfig</a>
+: <a class="el" href="d4/dae/classXJ_1_1InstrumentConfig.html#a80617c00d9c91ff5ebe2cc66370902e8">XJ::InstrumentConfig</a>
 </li>
 <li>isTonal
-: <a class="el" href="db/dac/classContent_1_1InstrumentConfig.html#a7c9e91741c9f3609ffdce939e7a6da0c">Content::InstrumentConfig</a>
+: <a class="el" href="d4/dae/classXJ_1_1InstrumentConfig.html#a48c447aa7eee5bf0eb3705fd4a914197">XJ::InstrumentConfig</a>
 </li>
 </ul>
 </div><!-- contents -->

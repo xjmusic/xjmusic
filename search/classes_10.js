@@ -1,10 +1,23 @@
 var searchData=
 [
-  ['serializer_1479',['serializer',['../d1/d62/classdetail_1_1serializer.html',1,'detail']]],
-  ['slashroot_1480',['SlashRoot',['../db/d97/classMusic_1_1SlashRoot.html',1,'Music']]],
-  ['span_5finput_5fadapter_1481',['span_input_adapter',['../d3/d02/classdetail_1_1span__input__adapter.html',1,'detail']]],
-  ['static_5fconst_1482',['static_const',['../de/dad/structdetail_1_1static__const.html',1,'detail']]],
-  ['step_1483',['Step',['../dc/d38/classMusic_1_1Step.html',1,'Music']]],
-  ['stickybun_1484',['StickyBun',['../d4/d5b/classMusic_1_1StickyBun.html',1,'Music']]],
-  ['stringutils_1485',['StringUtils',['../d5/db8/classUtil_1_1StringUtils.html',1,'Util']]]
+  ['segment_1802',['Segment',['../dc/ddb/classXJ_1_1Segment.html',1,'XJ']]],
+  ['segmentchoice_1803',['SegmentChoice',['../d3/d50/classXJ_1_1SegmentChoice.html',1,'XJ']]],
+  ['segmentchoicearrangement_1804',['SegmentChoiceArrangement',['../dc/dae/classXJ_1_1SegmentChoiceArrangement.html',1,'XJ']]],
+  ['segmentchoicearrangementpick_1805',['SegmentChoiceArrangementPick',['../d9/d19/classXJ_1_1SegmentChoiceArrangementPick.html',1,'XJ']]],
+  ['segmentchord_1806',['SegmentChord',['../d8/d3e/classXJ_1_1SegmentChord.html',1,'XJ']]],
+  ['segmentchordvoicing_1807',['SegmentChordVoicing',['../dd/d7e/classXJ_1_1SegmentChordVoicing.html',1,'XJ']]],
+  ['segmententity_1808',['SegmentEntity',['../db/de3/classXJ_1_1SegmentEntity.html',1,'XJ']]],
+  ['segmententitystore_1809',['SegmentEntityStore',['../de/d30/classXJ_1_1SegmentEntityStore.html',1,'XJ']]],
+  ['segmentmeme_1810',['SegmentMeme',['../d0/d62/classXJ_1_1SegmentMeme.html',1,'XJ']]],
+  ['segmentmessage_1811',['SegmentMessage',['../d4/d89/classXJ_1_1SegmentMessage.html',1,'XJ']]],
+  ['segmentmeta_1812',['SegmentMeta',['../d2/d4f/classXJ_1_1SegmentMeta.html',1,'XJ']]],
+  ['segmentretrospective_1813',['SegmentRetrospective',['../d5/d32/classXJ_1_1SegmentRetrospective.html',1,'XJ']]],
+  ['segmentutils_1814',['SegmentUtils',['../d4/d70/classXJ_1_1SegmentUtils.html',1,'XJ']]],
+  ['serializer_1815',['serializer',['../d1/d62/classdetail_1_1serializer.html',1,'detail']]],
+  ['slashroot_1816',['SlashRoot',['../dc/d5d/classXJ_1_1SlashRoot.html',1,'XJ']]],
+  ['span_5finput_5fadapter_1817',['span_input_adapter',['../d3/d02/classdetail_1_1span__input__adapter.html',1,'detail']]],
+  ['static_5fconst_1818',['static_const',['../de/dad/structdetail_1_1static__const.html',1,'detail']]],
+  ['step_1819',['Step',['../db/d48/classXJ_1_1Step.html',1,'XJ']]],
+  ['stickybun_1820',['StickyBun',['../df/d2c/classXJ_1_1StickyBun.html',1,'XJ']]],
+  ['stringutils_1821',['StringUtils',['../d5/d90/classXJ_1_1StringUtils.html',1,'XJ']]]
 ];

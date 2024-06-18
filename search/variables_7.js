@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['high_2097',['high',['../df/d72/classMusic_1_1NoteRange.html#ac6b7a6d896c0494d79a786d52e5ead77',1,'Music::NoteRange']]],
-  ['hours_5fper_5fday_2098',['HOURS_PER_DAY',['../d5/df7/classUtil_1_1ValueUtils.html#a99c446cded9aec3934a78f55754314d8',1,'Util::ValueUtils']]]
+  ['high_2693',['high',['../dc/dcd/classXJ_1_1NoteRange.html#a5cbcfedf233d29f2427be57f2ec3a3ce',1,'XJ::NoteRange']]],
+  ['hours_5fper_5fday_2694',['HOURS_PER_DAY',['../d3/de1/classXJ_1_1ValueUtils.html#ac4e0de31d8b91386006cabd7fbc2afa4',1,'XJ::ValueUtils']]]
 ];

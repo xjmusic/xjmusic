@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['octave_2ecpp_1551',['Octave.cpp',['../da/dbb/Octave_8cpp.html',1,'']]],
-  ['octave_2eh_1552',['Octave.h',['../d7/d15/Octave_8h.html',1,'']]]
+  ['note_2ecpp_1907',['Note.cpp',['../d2/d65/Note_8cpp.html',1,'']]],
+  ['note_2eh_1908',['Note.h',['../dd/d75/Note_8h.html',1,'']]],
+  ['noterange_2ecpp_1909',['NoteRange.cpp',['../db/d44/NoteRange_8cpp.html',1,'']]],
+  ['noterange_2eh_1910',['NoteRange.h',['../d7/d71/NoteRange_8h.html',1,'']]]
 ];

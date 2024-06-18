@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>XJ music nexus: Class Members - Functions</title>
+<title>XJ music engine: Class Members - Functions</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">XJ music nexus
+   <div id="projectname">XJ music engine
    &#160;<span id="projectnumber">0.1</span>
    </div>
    <div id="projectbrief">This is the playback engine for XJ music.</div>
@@ -70,17 +70,24 @@ $(function() {
 : <a class="el" href="d1/d72/classbasic__json.html#a50a0e8dacc0f4aa12162da666595e6fd">basic_json&lt; ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType, JSONSerializer, BinaryType, CustomBaseClass &gt;</a>
 </li>
 <li>of()
-: <a class="el" href="d0/dfe/classMusic_1_1Bar.html#a8ac87a79f4c5cb1f036b0776c24ae684">Music::Bar</a>
-, <a class="el" href="d7/d6b/classMusic_1_1Chord.html#ac3ead867382771e226b9720b62bb0d37">Music::Chord</a>
-, <a class="el" href="d2/dc8/classMusic_1_1Note.html#abdbfef2ba1bac31368e53319f7c42c04">Music::Note</a>
-, <a class="el" href="da/d53/classMusic_1_1Root.html#ae437656dde3351ca5a4ad0289255a9c6">Music::Root</a>
-, <a class="el" href="db/d97/classMusic_1_1SlashRoot.html#a5591f466bebc969be602f29449408814">Music::SlashRoot</a>
+: <a class="el" href="d2/df0/classXJ_1_1Bar.html#ad97a6671cfb34d1c26cce5fb3f5dabf6">XJ::Bar</a>
+, <a class="el" href="dd/dc6/classXJ_1_1Chord.html#a943665a88b88e000508d9b9be7f0db8f">XJ::Chord</a>
+, <a class="el" href="d7/d74/classXJ_1_1MemeIsometry.html#a66d0f94abbfa2bfd73a0542b083ec428">XJ::MemeIsometry</a>
+, <a class="el" href="d2/d11/classXJ_1_1Note.html#ac74ce31ea7285acad536c7052b0de681">XJ::Note</a>
+, <a class="el" href="d3/d2b/classXJ_1_1Root.html#aca2db72a54976321908d2fbcbd621e24">XJ::Root</a>
+, <a class="el" href="dc/d5d/classXJ_1_1SlashRoot.html#a3ef352fe0c2f5dbd486f7068d4894e79">XJ::SlashRoot</a>
 </li>
 <li>ofNotes()
-: <a class="el" href="df/d72/classMusic_1_1NoteRange.html#aa8ae50f58c9c08a4b0b67cabccf0fc34">Music::NoteRange</a>
+: <a class="el" href="dc/dcd/classXJ_1_1NoteRange.html#a57d08f2a6eea770d40189d5cb81ea03c">XJ::NoteRange</a>
 </li>
 <li>ofStrings()
-: <a class="el" href="df/d72/classMusic_1_1NoteRange.html#a7db132584a4742339696f9669887873e">Music::NoteRange</a>
+: <a class="el" href="dc/dcd/classXJ_1_1NoteRange.html#acc85941e9f2d4774d165eb1fe8a2f6fc">XJ::NoteRange</a>
+</li>
+<li>oneShotObserveLengthOfEventsContains()
+: <a class="el" href="d4/dae/classXJ_1_1InstrumentConfig.html#aff7ae3962952cfffb64c10ac9dbf5ea7">XJ::InstrumentConfig</a>
+</li>
+<li>onlyAllowSegmentStateTransitions()
+: <a class="el" href="de/d30/classXJ_1_1SegmentEntityStore.html#a8f8d117699f80c8b7391ef5b0c988a05">XJ::SegmentEntityStore</a>
 </li>
 <li>operator output_adapter_t&lt; CharType &gt;()
 : <a class="el" href="d3/d92/classdetail_1_1output__adapter.html#a183a145d2132c892f658fb7978e829d0">detail::output_adapter&lt; CharType, StringType &gt;</a>
@@ -122,10 +129,10 @@ $(function() {
 : <a class="el" href="d7/d0e/classdetail_1_1iter__impl.html#a5a1af6b2cd3611778b697bb7d7107f0d">detail::iter_impl&lt; BasicJsonType &gt;</a>
 , <a class="el" href="d3/d79/classdetail_1_1iteration__proxy__value.html#ac893e777429222afd4fad3530340f98f">detail::iteration_proxy_value&lt; IteratorType &gt;</a>
 , <a class="el" href="df/d8f/classdetail_1_1json__reverse__iterator.html#a05c6be3b2139e3157a1b2cb7f458d54f">detail::json_reverse_iterator&lt; Base &gt;</a>
-, <a class="el" href="d8/d63/classdetail_1_1primitive__iterator__t.html#a6b3042d67ccceba681386de3a64b0747">detail::primitive_iterator_t</a>
+, <a class="el" href="d8/d63/classdetail_1_1primitive__iterator__t.html#aa2898a585da8dc77207b15ac9e703863">detail::primitive_iterator_t</a>
 </li>
 <li>operator+=()
-: <a class="el" href="d1/d72/classbasic__json.html#ac444a656905e3f207ad9fc19275faf25">basic_json&lt; ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType, JSONSerializer, BinaryType, CustomBaseClass &gt;</a>
+: <a class="el" href="d1/d72/classbasic__json.html#a3af74b651da5642cd8b77a3ecc635331">basic_json&lt; ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType, JSONSerializer, BinaryType, CustomBaseClass &gt;</a>
 , <a class="el" href="d7/d0e/classdetail_1_1iter__impl.html#a19cbeb46def9cb872402a97927a5817d">detail::iter_impl&lt; BasicJsonType &gt;</a>
 , <a class="el" href="df/d8f/classdetail_1_1json__reverse__iterator.html#a7c3ca93942eef0b6ceb54df4c7b295d4">detail::json_reverse_iterator&lt; Base &gt;</a>
 , <a class="el" href="d8/d63/classdetail_1_1primitive__iterator__t.html#a2f49c731f7f5a8c174e0f44bc63dccc7">detail::primitive_iterator_t</a>
@@ -148,16 +155,16 @@ $(function() {
 , <a class="el" href="db/d51/classdetail_1_1json__ref.html#af5bb1dbecb35df7220211451760586e1">detail::json_ref&lt; BasicJsonType &gt;</a>
 </li>
 <li>operator/=()
-: <a class="el" href="d2/de9/classjson__pointer.html#afe333c4b304159cd623a0259a4881284">json_pointer&lt; RefStringType &gt;</a>
+: <a class="el" href="d2/de9/classjson__pointer.html#a415d14999d771d028ba689752969ce06">json_pointer&lt; RefStringType &gt;</a>
 </li>
 <li>operator&lt;()
 : <a class="el" href="d7/d0e/classdetail_1_1iter__impl.html#a339df296df7f5d014d5c7cedf40497da">detail::iter_impl&lt; BasicJsonType &gt;</a>
-, <a class="el" href="d7/d6b/classMusic_1_1Chord.html#a99a2c2463c564f8b25e54bd6d229aa2a">Music::Chord</a>
-, <a class="el" href="d2/dc8/classMusic_1_1Note.html#a352c58d4c7b641e89316fec747d9e63c">Music::Note</a>
+, <a class="el" href="dd/dc6/classXJ_1_1Chord.html#ad11f79cb4735f4d46fc2390f9589b33b">XJ::Chord</a>
+, <a class="el" href="d2/d11/classXJ_1_1Note.html#a924f08dc654c28ed47f311879d942688">XJ::Note</a>
 </li>
 <li>operator&lt;=()
 : <a class="el" href="d7/d0e/classdetail_1_1iter__impl.html#a343806ffb02d7ce5266492128dfd5f9b">detail::iter_impl&lt; BasicJsonType &gt;</a>
-, <a class="el" href="d2/dc8/classMusic_1_1Note.html#a2843fa627ed259cfbde90ef449fa5102">Music::Note</a>
+, <a class="el" href="d2/d11/classXJ_1_1Note.html#a6628781943d7f33932d98e4edbdcf367">XJ::Note</a>
 </li>
 <li>operator=()
 : <a class="el" href="d1/d72/classbasic__json.html#a345d693c6d7e58a3e486a4436d60956a">basic_json&lt; ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType, JSONSerializer, BinaryType, CustomBaseClass &gt;</a>
@@ -166,45 +173,45 @@ $(function() {
 , <a class="el" href="db/d4c/classdetail_1_1input__stream__adapter.html#a862eed33901df51f697be5c204992bea">detail::input_stream_adapter</a>
 , <a class="el" href="d7/d0e/classdetail_1_1iter__impl.html#a725736089c0a4f8e71551be825d2d22c">detail::iter_impl&lt; BasicJsonType &gt;</a>
 , <a class="el" href="d0/d64/classdetail_1_1iteration__proxy.html#aa98e1a8ddb9256d8b5ecd5c5a3a32df6">detail::iteration_proxy&lt; IteratorType &gt;</a>
-, <a class="el" href="d3/d79/classdetail_1_1iteration__proxy__value.html#ad52d2225613c5c64e560b211303bad69">detail::iteration_proxy_value&lt; IteratorType &gt;</a>
-, <a class="el" href="db/d51/classdetail_1_1json__ref.html#a485ea6f8806953a542db06f1ba22efdf">detail::json_ref&lt; BasicJsonType &gt;</a>
+, <a class="el" href="d3/d79/classdetail_1_1iteration__proxy__value.html#a3af07dcdad6dffb19de51c9e90471495">detail::iteration_proxy_value&lt; IteratorType &gt;</a>
+, <a class="el" href="db/d51/classdetail_1_1json__ref.html#ae61a494e81c438ffc78c4e3b6fc1574b">detail::json_ref&lt; BasicJsonType &gt;</a>
 , <a class="el" href="d1/d58/classdetail_1_1json__sax__dom__callback__parser.html#a928963a8c41be7f14cadcfd8a36e6099">detail::json_sax_dom_callback_parser&lt; BasicJsonType &gt;</a>
 , <a class="el" href="d5/d0c/classdetail_1_1json__sax__dom__parser.html#a08a5b8d751cdba508179d2a56c6215d2">detail::json_sax_dom_parser&lt; BasicJsonType &gt;</a>
-, <a class="el" href="d0/d02/classdetail_1_1lexer.html#a24ab89fc73e9571861440271643ab0c7">detail::lexer&lt; BasicJsonType, InputAdapterType &gt;</a>
-, <a class="el" href="da/dc4/structdetail_1_1nonesuch.html#a862d5984131f27c50c6dc78cb0349d28">detail::nonesuch</a>
-, <a class="el" href="dc/dae/structdetail_1_1output__adapter__protocol.html#ae2684c414aaa72a693d0810766e70083">detail::output_adapter_protocol&lt; CharType &gt;</a>
+, <a class="el" href="d0/d02/classdetail_1_1lexer.html#a882616b9ed02035e01870af139ee8030">detail::lexer&lt; BasicJsonType, InputAdapterType &gt;</a>
+, <a class="el" href="da/dc4/structdetail_1_1nonesuch.html#a92143f4de1976c007305eb56b63e4eea">detail::nonesuch</a>
+, <a class="el" href="dc/dae/structdetail_1_1output__adapter__protocol.html#a0674a6aa1a081351c90b0646a20dc4be">detail::output_adapter_protocol&lt; CharType &gt;</a>
 , <a class="el" href="d1/d62/classdetail_1_1serializer.html#a8e880742faf02f6a513239c6441cb5af">detail::serializer&lt; BasicJsonType &gt;</a>
-, <a class="el" href="d0/d2d/structjson__sax.html#acd554bf068d498dccf90854f24888b8e">json_sax&lt; BasicJsonType &gt;</a>
+, <a class="el" href="d0/d2d/structjson__sax.html#a09ee025eef62b4297faf70ab964d557e">json_sax&lt; BasicJsonType &gt;</a>
 </li>
 <li>operator==()
 : <a class="el" href="d7/dbb/classbyte__container__with__subtype.html#a263d63d0a518cfe9a6b6e508f9a22e85">byte_container_with_subtype&lt; BinaryType &gt;</a>
 , <a class="el" href="d7/d0e/classdetail_1_1iter__impl.html#a57b4e1eee4a3cdb3c0683cf64979da8d">detail::iter_impl&lt; BasicJsonType &gt;</a>
 , <a class="el" href="d3/d79/classdetail_1_1iteration__proxy__value.html#a139d22be442a277268cfb78bb4eef95d">detail::iteration_proxy_value&lt; IteratorType &gt;</a>
-, <a class="el" href="d7/d6b/classMusic_1_1Chord.html#a3876a14e381956b07d3f56c892ae646a">Music::Chord</a>
-, <a class="el" href="dd/db8/classMusic_1_1ChordForm.html#adb012687d32835b27315944499e95128">Music::ChordForm</a>
-, <a class="el" href="d3/d9b/classMusic_1_1ChordSynonym.html#a9889f47190e2f7acddfaa01ae31b3481">Music::ChordSynonym</a>
-, <a class="el" href="d2/dc8/classMusic_1_1Note.html#a95e90b0d57c300948f6ffe72ba3515a1">Music::Note</a>
-, <a class="el" href="db/d97/classMusic_1_1SlashRoot.html#a94e5eea7728e01983863abdf8265454b">Music::SlashRoot</a>
+, <a class="el" href="dd/dc6/classXJ_1_1Chord.html#a98b9bf2a5f683e614ddab957aebf003e">XJ::Chord</a>
+, <a class="el" href="d4/daa/classXJ_1_1ChordForm.html#a8367f6053389b1b264f665ddf7fd53fe">XJ::ChordForm</a>
+, <a class="el" href="d8/d2d/classXJ_1_1ChordSynonym.html#a14301416f91323a34c1c7eb248f86b4a">XJ::ChordSynonym</a>
+, <a class="el" href="d2/d11/classXJ_1_1Note.html#a2ee0edaeef6870dbb4de56817edfd1cb">XJ::Note</a>
+, <a class="el" href="dc/d5d/classXJ_1_1SlashRoot.html#aad4cffc2b08590ab450f4321f994448d">XJ::SlashRoot</a>
 </li>
 <li>operator&gt;()
 : <a class="el" href="d7/d0e/classdetail_1_1iter__impl.html#a9b066d888f2f0ad0cd601594661a8e8b">detail::iter_impl&lt; BasicJsonType &gt;</a>
-, <a class="el" href="d2/dc8/classMusic_1_1Note.html#a284862f2d4a77a7d18da5ddb9d2b9ec9">Music::Note</a>
+, <a class="el" href="d2/d11/classXJ_1_1Note.html#a18cc7524e60239ab15260d7a0d3e22d5">XJ::Note</a>
 </li>
 <li>operator&gt;=()
 : <a class="el" href="d7/d0e/classdetail_1_1iter__impl.html#a25a3a8e85eb37727487f210f5304a48e">detail::iter_impl&lt; BasicJsonType &gt;</a>
-, <a class="el" href="d2/dc8/classMusic_1_1Note.html#a7e654923ed69fce63fa0e8e0ca0a9f05">Music::Note</a>
+, <a class="el" href="d2/d11/classXJ_1_1Note.html#abeaf8103c281733a124dfd01c4031578">XJ::Note</a>
 </li>
 <li>operator[]()
-: <a class="el" href="d1/d72/classbasic__json.html#a6aedef6230f66b1271d71a6f77e7fed3">basic_json&lt; ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType, JSONSerializer, BinaryType, CustomBaseClass &gt;</a>
+: <a class="el" href="d1/d72/classbasic__json.html#a87cae3810ae0a9c56b17842b06fc405e">basic_json&lt; ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType, JSONSerializer, BinaryType, CustomBaseClass &gt;</a>
 , <a class="el" href="d7/d0e/classdetail_1_1iter__impl.html#a5e557e30103e2af36cd8173c88eb586c">detail::iter_impl&lt; BasicJsonType &gt;</a>
 , <a class="el" href="df/d8f/classdetail_1_1json__reverse__iterator.html#a50a57718a9d49039b7592bf34f5819a2">detail::json_reverse_iterator&lt; Base &gt;</a>
 , <a class="el" href="de/d00/structordered__map.html#a1b0345845b86b6addcbc674632cff015">ordered_map&lt; Key, T, IgnoredLess, Allocator &gt;</a>
 </li>
 <li>orDefault()
-: <a class="el" href="db/d97/classMusic_1_1SlashRoot.html#ab530151c75df240595d43d65ee0ef131">Music::SlashRoot</a>
+: <a class="el" href="dc/d5d/classXJ_1_1SlashRoot.html#aae78bbdbb9cf40a318709ac0bfc8a118">XJ::SlashRoot</a>
 </li>
 <li>ordered_map()
-: <a class="el" href="de/d00/structordered__map.html#a8c8eed38b72bca336d07eac3a9ffbd1f">ordered_map&lt; Key, T, IgnoredLess, Allocator &gt;</a>
+: <a class="el" href="de/d00/structordered__map.html#ab57d658b6e341a80a7a882c0d5cf38e0">ordered_map&lt; Key, T, IgnoredLess, Allocator &gt;</a>
 </li>
 <li>output_adapter()
 : <a class="el" href="d3/d92/classdetail_1_1output__adapter.html#a52a0eb67117c3b53e3540c0a1d46195c">detail::output_adapter&lt; CharType, StringType &gt;</a>

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>XJ music nexus: /home/runner/work/xjmusic/xjmusic/engine/include/xjmusic/content/Entity.h Source File</title>
+<title>XJ music engine: /home/runner/work/xjmusic/xjmusic/engine/include/xjmusic/entities/Entity.h Source File</title>
 <link href="../../tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="../../jquery.js"></script>
 <script type="text/javascript" src="../../dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">XJ music nexus
+   <div id="projectname">XJ music engine
    &#160;<span id="projectnumber">0.1</span>
    </div>
    <div id="projectbrief">This is the playback engine for XJ music.</div>
@@ -63,7 +63,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="../../dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="../../dir_423b9d3680e84088c8b3d609cb192895.html">xjmusic</a></li><li class="navelem"><a class="el" href="../../dir_291006a3e064f13dca9ac01158de3303.html">content</a></li>  </ul>
+<li class="navelem"><a class="el" href="../../dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="../../dir_423b9d3680e84088c8b3d609cb192895.html">xjmusic</a></li><li class="navelem"><a class="el" href="../../dir_9dfc5f2cf03090bba74e2cc99d1571b7.html">entities</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -79,41 +79,58 @@ $(function() {
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &lt;map&gt;</span></div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &lt;string&gt;</span></div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#include &lt;typeinfo&gt;</span></div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160; </div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="../../d5/db8/json_8hpp.html">nlohmann/json.hpp</a>&quot;</span></div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160; </div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#include &lt;random&gt;</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="../../d5/db8/json_8hpp.html">nlohmann/json.hpp</a>&quot;</span></div>
 <div class="line"><a name="l00012"></a><span class="lineno"><a class="line" href="../../d4/da0/Entity_8h.html#ab701e3ac61a85b337ec5c1abaad6742d">   12</a></span>&#160;<span class="keyword">using</span> <a class="code" href="../../d1/d72/classbasic__json.html">json</a> = nlohmann::json;</div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">namespace </span><a class="code" href="../../d1/d4a/namespaceContent.html">Content</a> {</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160; </div>
-<div class="line"><a name="l00019"></a><span class="lineno"><a class="line" href="../../d1/d4a/namespaceContent.html#a92666364ac187cf5756cc2af87814012">   19</a></span>&#160;  <span class="keyword">using</span> <a class="code" href="../../d1/d4a/namespaceContent.html#a92666364ac187cf5756cc2af87814012">UUID</a> = std::string;</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;  <span class="keyword">template</span>&lt;<span class="keyword">typename</span> A, <span class="keyword">typename</span> B&gt;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  <span class="keyword">static</span> std::map&lt;B, A&gt; reverseMap(<span class="keyword">const</span> std::map&lt;A, B&gt; &amp;originalMap) {</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    std::map&lt;B, A&gt; reverseMap;</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;pair: originalMap) {</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;      reverseMap[pair.second] = pair.first;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    }</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <span class="keywordflow">return</span> reverseMap;</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  }</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160; </div>
-<div class="line"><a name="l00040"></a><span class="lineno"><a class="line" href="../../d2/d78/classContent_1_1Entity.html">   40</a></span>&#160;  <span class="keyword">class </span><a class="code" href="../../d2/d78/classContent_1_1Entity.html">Entity</a> {</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00042"></a><span class="lineno"><a class="line" href="../../d2/d78/classContent_1_1Entity.html#af0f893d3e923f2cc418bb069d9d48a1a">   42</a></span>&#160;    <span class="keyword">virtual</span> <a class="code" href="../../d2/d78/classContent_1_1Entity.html#af0f893d3e923f2cc418bb069d9d48a1a">~Entity</a>() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="../../d9/d62/Root_8h.html">xjmusic/entities/music/Root.h</a>&quot;</span></div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="../../d5/d5a/PitchClass_8h.html">xjmusic/entities/music/PitchClass.h</a>&quot;</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="../../dd/d75/Note_8h.html">xjmusic/entities/music/Note.h</a>&quot;</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160; </div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="keyword">namespace </span><a class="code" href="../../d1/d13/namespaceXJ.html">XJ</a> {</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
+<div class="line"><a name="l00030"></a><span class="lineno"><a class="line" href="../../d1/d13/namespaceXJ.html#a4df5cec60ce56eebfc581fb04e6715ea">   30</a></span>&#160;  <span class="keyword">using</span> <a class="code" href="../../d1/d13/namespaceXJ.html#a4df5cec60ce56eebfc581fb04e6715ea">UUID</a> = std::string;</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span> UNIQUE_ID_COUNTER = 0;</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160; </div>
+<div class="line"><a name="l00036"></a><span class="lineno"><a class="line" href="../../d7/de0/classXJ_1_1Entity.html">   36</a></span>&#160;  <span class="keyword">class </span><a class="code" href="../../d7/de0/classXJ_1_1Entity.html">Entity</a> {</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
+<div class="line"><a name="l00042"></a><span class="lineno"><a class="line" href="../../d7/de0/classXJ_1_1Entity.html#ac86794f724d1798a962b057da8bb4671">   42</a></span>&#160;    <span class="keyword">virtual</span> <a class="code" href="../../d7/de0/classXJ_1_1Entity.html#ac86794f724d1798a962b057da8bb4671">~Entity</a>() = <span class="keywordflow">default</span>;</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
-<div class="line"><a name="l00047"></a><span class="lineno"><a class="line" href="../../d2/d78/classContent_1_1Entity.html#af2b37b54b11c269dfa9c3deff2ede07d">   47</a></span>&#160;    <a class="code" href="../../d1/d4a/namespaceContent.html#a92666364ac187cf5756cc2af87814012">UUID</a> <a class="code" href="../../d2/d78/classContent_1_1Entity.html#af2b37b54b11c269dfa9c3deff2ede07d">id</a>;</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  };</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160; </div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;}<span class="comment">// namespace Content</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="preprocessor">#endif</span><span class="comment">//XJMUSIC_ENTITY_H</span></div>
-<div class="ttc" id="aclassContent_1_1Entity_html"><div class="ttname"><a href="../../d2/d78/classContent_1_1Entity.html">Content::Entity</a></div><div class="ttdef"><b>Definition:</b> Entity.h:40</div></div>
-<div class="ttc" id="aclassContent_1_1Entity_html_af0f893d3e923f2cc418bb069d9d48a1a"><div class="ttname"><a href="../../d2/d78/classContent_1_1Entity.html#af0f893d3e923f2cc418bb069d9d48a1a">Content::Entity::~Entity</a></div><div class="ttdeci">virtual ~Entity()=default</div></div>
-<div class="ttc" id="aclassContent_1_1Entity_html_af2b37b54b11c269dfa9c3deff2ede07d"><div class="ttname"><a href="../../d2/d78/classContent_1_1Entity.html#af2b37b54b11c269dfa9c3deff2ede07d">Content::Entity::id</a></div><div class="ttdeci">UUID id</div><div class="ttdef"><b>Definition:</b> Entity.h:47</div></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> A, <span class="keyword">typename</span> B&gt;</div>
+<div class="line"><a name="l00052"></a><span class="lineno"><a class="line" href="../../d7/de0/classXJ_1_1Entity.html#a23f4bbf54744412b67b85586a3fdc60b">   52</a></span>&#160;    <span class="keyword">static</span> std::map&lt;B, A&gt; <a class="code" href="../../d7/de0/classXJ_1_1Entity.html#a23f4bbf54744412b67b85586a3fdc60b">reverseMap</a>(<span class="keyword">const</span> std::map&lt;A, B&gt; &amp;originalMap) {</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;      std::map&lt;B, A&gt; <a class="code" href="../../d7/de0/classXJ_1_1Entity.html#a23f4bbf54744412b67b85586a3fdc60b">reverseMap</a>;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;      <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;pair: originalMap) {</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        <a class="code" href="../../d7/de0/classXJ_1_1Entity.html#a23f4bbf54744412b67b85586a3fdc60b">reverseMap</a>[pair.second] = pair.first;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;      }</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;      <span class="keywordflow">return</span> <a class="code" href="../../d7/de0/classXJ_1_1Entity.html#a23f4bbf54744412b67b85586a3fdc60b">reverseMap</a>;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    }</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
+<div class="line"><a name="l00064"></a><span class="lineno"><a class="line" href="../../d7/de0/classXJ_1_1Entity.html#aafd20f8ddeb9aac7f37a82fb2bc558f2">   64</a></span>&#160;    <span class="keyword">static</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span> <a class="code" href="../../d7/de0/classXJ_1_1Entity.html#aafd20f8ddeb9aac7f37a82fb2bc558f2">currentTimeMillis</a>() {</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;      <span class="keywordflow">return</span> std::chrono::duration_cast&lt;std::chrono::milliseconds&gt;(</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;          std::chrono::system_clock::now().time_since_epoch()</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;      ).count();</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    }</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160; </div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keyword">static</span> std::string <a class="code" href="../../d7/de0/classXJ_1_1Entity.html#a08916ecec929430143db5e12b6177023">computeUniqueId</a>();</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;  };</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160; </div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;}<span class="comment">// namespace XJ</span></div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="preprocessor">#endif</span><span class="comment">//XJMUSIC_ENTITY_H</span></div>
+<div class="ttc" id="aNote_8h_html"><div class="ttname"><a href="../../dd/d75/Note_8h.html">Note.h</a></div></div>
+<div class="ttc" id="aPitchClass_8h_html"><div class="ttname"><a href="../../d5/d5a/PitchClass_8h.html">PitchClass.h</a></div></div>
+<div class="ttc" id="aRoot_8h_html"><div class="ttname"><a href="../../d9/d62/Root_8h.html">Root.h</a></div></div>
+<div class="ttc" id="aclassXJ_1_1Entity_html"><div class="ttname"><a href="../../d7/de0/classXJ_1_1Entity.html">XJ::Entity</a></div><div class="ttdef"><b>Definition:</b> Entity.h:36</div></div>
+<div class="ttc" id="aclassXJ_1_1Entity_html_a08916ecec929430143db5e12b6177023"><div class="ttname"><a href="../../d7/de0/classXJ_1_1Entity.html#a08916ecec929430143db5e12b6177023">XJ::Entity::computeUniqueId</a></div><div class="ttdeci">static std::string computeUniqueId()</div><div class="ttdef"><b>Definition:</b> Entity.cpp:19</div></div>
+<div class="ttc" id="aclassXJ_1_1Entity_html_a23f4bbf54744412b67b85586a3fdc60b"><div class="ttname"><a href="../../d7/de0/classXJ_1_1Entity.html#a23f4bbf54744412b67b85586a3fdc60b">XJ::Entity::reverseMap</a></div><div class="ttdeci">static std::map&lt; B, A &gt; reverseMap(const std::map&lt; A, B &gt; &amp;originalMap)</div><div class="ttdef"><b>Definition:</b> Entity.h:52</div></div>
+<div class="ttc" id="aclassXJ_1_1Entity_html_aafd20f8ddeb9aac7f37a82fb2bc558f2"><div class="ttname"><a href="../../d7/de0/classXJ_1_1Entity.html#aafd20f8ddeb9aac7f37a82fb2bc558f2">XJ::Entity::currentTimeMillis</a></div><div class="ttdeci">static long long currentTimeMillis()</div><div class="ttdef"><b>Definition:</b> Entity.h:64</div></div>
+<div class="ttc" id="aclassXJ_1_1Entity_html_ac86794f724d1798a962b057da8bb4671"><div class="ttname"><a href="../../d7/de0/classXJ_1_1Entity.html#ac86794f724d1798a962b057da8bb4671">XJ::Entity::~Entity</a></div><div class="ttdeci">virtual ~Entity()=default</div></div>
 <div class="ttc" id="aclassbasic__json_html"><div class="ttname"><a href="../../d1/d72/classbasic__json.html">basic_json</a></div><div class="ttdoc">namespace for Niels Lohmann</div><div class="ttdef"><b>Definition:</b> json.hpp:19401</div></div>
 <div class="ttc" id="ajson_8hpp_html"><div class="ttname"><a href="../../d5/db8/json_8hpp.html">json.hpp</a></div></div>
-<div class="ttc" id="anamespaceContent_html"><div class="ttname"><a href="../../d1/d4a/namespaceContent.html">Content</a></div><div class="ttdef"><b>Definition:</b> ContentStore.h:37</div></div>
-<div class="ttc" id="anamespaceContent_html_a92666364ac187cf5756cc2af87814012"><div class="ttname"><a href="../../d1/d4a/namespaceContent.html#a92666364ac187cf5756cc2af87814012">Content::UUID</a></div><div class="ttdeci">std::string UUID</div><div class="ttdef"><b>Definition:</b> Entity.h:19</div></div>
+<div class="ttc" id="anamespaceXJ_html"><div class="ttname"><a href="../../d1/d13/namespaceXJ.html">XJ</a></div><div class="ttdef"><b>Definition:</b> ContentEntity.h:14</div></div>
+<div class="ttc" id="anamespaceXJ_html_a4df5cec60ce56eebfc581fb04e6715ea"><div class="ttname"><a href="../../d1/d13/namespaceXJ.html#a4df5cec60ce56eebfc581fb04e6715ea">XJ::UUID</a></div><div class="ttdeci">std::string UUID</div><div class="ttdef"><b>Definition:</b> Entity.h:30</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

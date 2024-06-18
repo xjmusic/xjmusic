@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['mode_2339',['Mode',['../d7/d56/classContent_1_1Instrument.html#af7ee6e812ace31f2eaec373d5ab5d77a',1,'Content::Instrument']]]
+  ['mode_2958',['Mode',['../d5/d0b/classXJ_1_1Instrument.html#a039266dcbb8c6153861157d8ea8993c6',1,'XJ::Instrument']]]
 ];

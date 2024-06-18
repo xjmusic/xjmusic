@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['negation_1447',['negation',['../d4/d08/structdetail_1_1negation.html',1,'detail']]],
-  ['nonesuch_1448',['nonesuch',['../da/dc4/structdetail_1_1nonesuch.html',1,'detail']]],
-  ['note_1449',['Note',['../d2/dc8/classMusic_1_1Note.html',1,'Music']]],
-  ['noterange_1450',['NoteRange',['../df/d72/classMusic_1_1NoteRange.html',1,'Music']]]
+  ['negation_1766',['negation',['../d4/d08/structdetail_1_1negation.html',1,'detail']]],
+  ['nonesuch_1767',['nonesuch',['../da/dc4/structdetail_1_1nonesuch.html',1,'detail']]],
+  ['note_1768',['Note',['../d2/d11/classXJ_1_1Note.html',1,'XJ']]],
+  ['noterange_1769',['NoteRange',['../dc/dcd/classXJ_1_1NoteRange.html',1,'XJ']]]
 ];

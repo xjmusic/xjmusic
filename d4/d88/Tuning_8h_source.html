@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>XJ music nexus: /home/runner/work/xjmusic/xjmusic/engine/include/xjmusic/music/Tuning.h Source File</title>
+<title>XJ music engine: /home/runner/work/xjmusic/xjmusic/engine/include/xjmusic/entities/music/Tuning.h Source File</title>
 <link href="../../tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="../../jquery.js"></script>
 <script type="text/javascript" src="../../dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">XJ music nexus
+   <div id="projectname">XJ music engine
    &#160;<span id="projectnumber">0.1</span>
    </div>
    <div id="projectbrief">This is the playback engine for XJ music.</div>
@@ -63,7 +63,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="../../dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="../../dir_423b9d3680e84088c8b3d609cb192895.html">xjmusic</a></li><li class="navelem"><a class="el" href="../../dir_8b6371ce373427b49bf3b593c3f7ea9f.html">music</a></li>  </ul>
+<li class="navelem"><a class="el" href="../../dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="../../dir_423b9d3680e84088c8b3d609cb192895.html">xjmusic</a></li><li class="navelem"><a class="el" href="../../dir_9dfc5f2cf03090bba74e2cc99d1571b7.html">entities</a></li><li class="navelem"><a class="el" href="../../dir_8492b708043fa984c94bd5730b5066b0.html">music</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -82,9 +82,9 @@ $(function() {
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160; </div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="../../dd/d75/Note_8h.html">Note.h</a>&quot;</span></div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160; </div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">namespace </span><a class="code" href="../../de/d59/namespaceMusic.html">Music</a> {</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">namespace </span><a class="code" href="../../d1/d13/namespaceXJ.html">XJ</a> {</div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
-<div class="line"><a name="l00023"></a><span class="lineno"><a class="line" href="../../de/dd3/classMusic_1_1Tuning.html">   23</a></span>&#160;  <span class="keyword">class </span><a class="code" href="../../de/dd3/classMusic_1_1Tuning.html">Tuning</a> {</div>
+<div class="line"><a name="l00023"></a><span class="lineno"><a class="line" href="../../d1/d26/classXJ_1_1Tuning.html">   23</a></span>&#160;  <span class="keyword">class </span><a class="code" href="../../d1/d26/classXJ_1_1Tuning.html">Tuning</a> {</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;  <span class="keyword">private</span>:</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keywordtype">double</span> TWELFTH_ROOT_OF_TWO = std::pow(2.0, 1.0 / 12.0);</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="keywordtype">double</span> NATURAL_LOGARITHM_OF_TWELFTH_ROOT_OF_TWO = std::log(TWELFTH_ROOT_OF_TWO);</div>
@@ -97,45 +97,45 @@ $(function() {
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    std::map &lt;float, Note&gt; _pitchNotes;</div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160; </div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00036"></a><span class="lineno"><a class="line" href="../../de/dd3/classMusic_1_1Tuning.html#a25bc3a71ca6ab5aa857f384b53fee372">   36</a></span>&#160;    <a class="code" href="../../d2/dc8/classMusic_1_1Note.html">Note</a> <a class="code" href="../../de/dd3/classMusic_1_1Tuning.html#a25bc3a71ca6ab5aa857f384b53fee372">rootNote</a>;</div>
-<div class="line"><a name="l00037"></a><span class="lineno"><a class="line" href="../../de/dd3/classMusic_1_1Tuning.html#ac673e2dd9304a88864c0e5dcf55b7ab6">   37</a></span>&#160;    <span class="keywordtype">float</span> <a class="code" href="../../de/dd3/classMusic_1_1Tuning.html#ac673e2dd9304a88864c0e5dcf55b7ab6">rootPitch</a>;</div>
+<div class="line"><a name="l00036"></a><span class="lineno"><a class="line" href="../../d1/d26/classXJ_1_1Tuning.html#a0790746f171d7d65f27d91144cec4e37">   36</a></span>&#160;    <a class="code" href="../../d2/d11/classXJ_1_1Note.html">Note</a> <a class="code" href="../../d1/d26/classXJ_1_1Tuning.html#a0790746f171d7d65f27d91144cec4e37">rootNote</a>;</div>
+<div class="line"><a name="l00037"></a><span class="lineno"><a class="line" href="../../d1/d26/classXJ_1_1Tuning.html#ac9f7ce624814e82a0d079590053b9fee">   37</a></span>&#160;    <span class="keywordtype">float</span> <a class="code" href="../../d1/d26/classXJ_1_1Tuning.html#ac9f7ce624814e82a0d079590053b9fee">rootPitch</a>;</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <a class="code" href="../../de/dd3/classMusic_1_1Tuning.html#aa37f8ae445f7043360595d80bb6edfe3">Tuning</a>();</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <a class="code" href="../../d1/d26/classXJ_1_1Tuning.html#afe09037e7bfe188759c5bda3f6bb9b19">Tuning</a>();</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <a class="code" href="../../de/dd3/classMusic_1_1Tuning.html#aa37f8ae445f7043360595d80bb6edfe3">Tuning</a>(<span class="keyword">const</span> <a class="code" href="../../d2/dc8/classMusic_1_1Note.html">Note</a> &amp;<a class="code" href="../../de/dd3/classMusic_1_1Tuning.html#a25bc3a71ca6ab5aa857f384b53fee372">rootNote</a>, <span class="keyword">const</span> <span class="keywordtype">float</span> &amp;<a class="code" href="../../de/dd3/classMusic_1_1Tuning.html#ac673e2dd9304a88864c0e5dcf55b7ab6">rootPitch</a>);</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <a class="code" href="../../d1/d26/classXJ_1_1Tuning.html#afe09037e7bfe188759c5bda3f6bb9b19">Tuning</a>(<span class="keyword">const</span> <a class="code" href="../../d2/d11/classXJ_1_1Note.html">Note</a> &amp;<a class="code" href="../../d1/d26/classXJ_1_1Tuning.html#a0790746f171d7d65f27d91144cec4e37">rootNote</a>, <span class="keyword">const</span> <span class="keywordtype">float</span> &amp;<a class="code" href="../../d1/d26/classXJ_1_1Tuning.html#ac9f7ce624814e82a0d079590053b9fee">rootPitch</a>);</div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160; </div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keyword">static</span> <a class="code" href="../../de/dd3/classMusic_1_1Tuning.html">Tuning</a> <a class="code" href="../../de/dd3/classMusic_1_1Tuning.html#a0c7cdc19ad5a517a3ebc7158e9254725">atA4</a>(<span class="keywordtype">float</span> a4);</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keyword">static</span> <a class="code" href="../../d1/d26/classXJ_1_1Tuning.html">Tuning</a> <a class="code" href="../../d1/d26/classXJ_1_1Tuning.html#a58fba9bdfe97e566bf8bd22fc7310d26">atA4</a>(<span class="keywordtype">float</span> a4);</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keyword">static</span> <a class="code" href="../../de/dd3/classMusic_1_1Tuning.html">Tuning</a> <a class="code" href="../../de/dd3/classMusic_1_1Tuning.html#a0f47b5519356166e2ac20757706f66f2">at</a>(<a class="code" href="../../d2/dc8/classMusic_1_1Note.html">Note</a> note, <span class="keywordtype">float</span> <a class="code" href="../../de/dd3/classMusic_1_1Tuning.html#a0c48bbdd36fdbb54020a15782282c8b1">pitch</a>);</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keyword">static</span> <a class="code" href="../../d1/d26/classXJ_1_1Tuning.html">Tuning</a> <a class="code" href="../../d1/d26/classXJ_1_1Tuning.html#a91913ed149880daa4386b84ea57f8191">at</a>(<a class="code" href="../../d2/d11/classXJ_1_1Note.html">Note</a> note, <span class="keywordtype">float</span> <a class="code" href="../../d1/d26/classXJ_1_1Tuning.html#aee7b8a55db1d4f28cc5ac3a4ded36032">pitch</a>);</div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160; </div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keywordtype">float</span> <a class="code" href="../../de/dd3/classMusic_1_1Tuning.html#a0c48bbdd36fdbb54020a15782282c8b1">pitch</a>(<a class="code" href="../../d2/dc8/classMusic_1_1Note.html">Note</a> note);</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keywordtype">float</span> <a class="code" href="../../d1/d26/classXJ_1_1Tuning.html#aee7b8a55db1d4f28cc5ac3a4ded36032">pitch</a>(<a class="code" href="../../d2/d11/classXJ_1_1Note.html">Note</a> note);</div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160; </div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <a class="code" href="../../d2/dc8/classMusic_1_1Note.html">Note</a> <a class="code" href="../../de/dd3/classMusic_1_1Tuning.html#a9adf4f8e9f461c20b0539221d5ffa011">getTones</a>(<span class="keywordtype">float</span> <a class="code" href="../../de/dd3/classMusic_1_1Tuning.html#a0c48bbdd36fdbb54020a15782282c8b1">pitch</a>);</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <a class="code" href="../../d2/d11/classXJ_1_1Note.html">Note</a> <a class="code" href="../../d1/d26/classXJ_1_1Tuning.html#acdf9d9733fcb2155a07e1841dad8ab1b">getTones</a>(<span class="keywordtype">float</span> <a class="code" href="../../d1/d26/classXJ_1_1Tuning.html#aee7b8a55db1d4f28cc5ac3a4ded36032">pitch</a>);</div>
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160; </div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keywordtype">int</span> <a class="code" href="../../de/dd3/classMusic_1_1Tuning.html#a7ae159ba9661e5aa826733de0682cdfa">deltaFromRootPitch</a>(<span class="keywordtype">float</span> <a class="code" href="../../de/dd3/classMusic_1_1Tuning.html#a0c48bbdd36fdbb54020a15782282c8b1">pitch</a>);</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keywordtype">int</span> <a class="code" href="../../d1/d26/classXJ_1_1Tuning.html#a69a70a5e15ba2af2a9099627e1f60f14">deltaFromRootPitch</a>(<span class="keywordtype">float</span> <a class="code" href="../../d1/d26/classXJ_1_1Tuning.html#aee7b8a55db1d4f28cc5ac3a4ded36032">pitch</a>);</div>
 <div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160; </div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    [[nodiscard]] <span class="keywordtype">float</span> <a class="code" href="../../de/dd3/classMusic_1_1Tuning.html#a1f4e2c038f2d21d93cdf52498733f5d1">pitchAtDelta</a>(<span class="keywordtype">int</span> delta) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    [[nodiscard]] <span class="keywordtype">float</span> <a class="code" href="../../d1/d26/classXJ_1_1Tuning.html#a9eb10094365d87600aa8b60820782c65">pitchAtDelta</a>(<span class="keywordtype">int</span> delta) <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160; </div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="../../de/dd3/classMusic_1_1Tuning.html#a25d8a2b629681c36e418c57141d1b120">validate</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="../../d1/d26/classXJ_1_1Tuning.html#ac680386f17a29e95d717537999084f55">validate</a>() <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;  };</div>
 <div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160; </div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;}<span class="comment">// namespace Music</span></div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;}<span class="comment">// namespace XJ</span></div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160; </div>
 <div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="preprocessor">#endif </span><span class="comment">//XJMUSIC_MUSIC_TUNING_H</span></div>
 <div class="ttc" id="aNote_8h_html"><div class="ttname"><a href="../../dd/d75/Note_8h.html">Note.h</a></div></div>
-<div class="ttc" id="aclassMusic_1_1Note_html"><div class="ttname"><a href="../../d2/dc8/classMusic_1_1Note.html">Music::Note</a></div><div class="ttdef"><b>Definition:</b> Note.h:20</div></div>
-<div class="ttc" id="aclassMusic_1_1Tuning_html"><div class="ttname"><a href="../../de/dd3/classMusic_1_1Tuning.html">Music::Tuning</a></div><div class="ttdef"><b>Definition:</b> Tuning.h:23</div></div>
-<div class="ttc" id="aclassMusic_1_1Tuning_html_a0c48bbdd36fdbb54020a15782282c8b1"><div class="ttname"><a href="../../de/dd3/classMusic_1_1Tuning.html#a0c48bbdd36fdbb54020a15782282c8b1">Music::Tuning::pitch</a></div><div class="ttdeci">float pitch(Note note)</div><div class="ttdef"><b>Definition:</b> Tuning.cpp:25</div></div>
-<div class="ttc" id="aclassMusic_1_1Tuning_html_a0c7cdc19ad5a517a3ebc7158e9254725"><div class="ttname"><a href="../../de/dd3/classMusic_1_1Tuning.html#a0c7cdc19ad5a517a3ebc7158e9254725">Music::Tuning::atA4</a></div><div class="ttdeci">static Tuning atA4(float a4)</div><div class="ttdef"><b>Definition:</b> Tuning.cpp:17</div></div>
-<div class="ttc" id="aclassMusic_1_1Tuning_html_a0f47b5519356166e2ac20757706f66f2"><div class="ttname"><a href="../../de/dd3/classMusic_1_1Tuning.html#a0f47b5519356166e2ac20757706f66f2">Music::Tuning::at</a></div><div class="ttdeci">static Tuning at(Note note, float pitch)</div><div class="ttdef"><b>Definition:</b> Tuning.cpp:21</div></div>
-<div class="ttc" id="aclassMusic_1_1Tuning_html_a1f4e2c038f2d21d93cdf52498733f5d1"><div class="ttname"><a href="../../de/dd3/classMusic_1_1Tuning.html#a1f4e2c038f2d21d93cdf52498733f5d1">Music::Tuning::pitchAtDelta</a></div><div class="ttdeci">float pitchAtDelta(int delta) const</div><div class="ttdef"><b>Definition:</b> Tuning.cpp:53</div></div>
-<div class="ttc" id="aclassMusic_1_1Tuning_html_a25bc3a71ca6ab5aa857f384b53fee372"><div class="ttname"><a href="../../de/dd3/classMusic_1_1Tuning.html#a25bc3a71ca6ab5aa857f384b53fee372">Music::Tuning::rootNote</a></div><div class="ttdeci">Note rootNote</div><div class="ttdef"><b>Definition:</b> Tuning.h:36</div></div>
-<div class="ttc" id="aclassMusic_1_1Tuning_html_a25d8a2b629681c36e418c57141d1b120"><div class="ttname"><a href="../../de/dd3/classMusic_1_1Tuning.html#a25d8a2b629681c36e418c57141d1b120">Music::Tuning::validate</a></div><div class="ttdeci">void validate() const</div><div class="ttdef"><b>Definition:</b> Tuning.cpp:57</div></div>
-<div class="ttc" id="aclassMusic_1_1Tuning_html_a7ae159ba9661e5aa826733de0682cdfa"><div class="ttname"><a href="../../de/dd3/classMusic_1_1Tuning.html#a7ae159ba9661e5aa826733de0682cdfa">Music::Tuning::deltaFromRootPitch</a></div><div class="ttdeci">int deltaFromRootPitch(float pitch)</div><div class="ttdef"><b>Definition:</b> Tuning.cpp:45</div></div>
-<div class="ttc" id="aclassMusic_1_1Tuning_html_a9adf4f8e9f461c20b0539221d5ffa011"><div class="ttname"><a href="../../de/dd3/classMusic_1_1Tuning.html#a9adf4f8e9f461c20b0539221d5ffa011">Music::Tuning::getTones</a></div><div class="ttdeci">Note getTones(float pitch)</div><div class="ttdef"><b>Definition:</b> Tuning.cpp:38</div></div>
-<div class="ttc" id="aclassMusic_1_1Tuning_html_aa37f8ae445f7043360595d80bb6edfe3"><div class="ttname"><a href="../../de/dd3/classMusic_1_1Tuning.html#aa37f8ae445f7043360595d80bb6edfe3">Music::Tuning::Tuning</a></div><div class="ttdeci">Tuning()</div><div class="ttdef"><b>Definition:</b> Tuning.cpp:9</div></div>
-<div class="ttc" id="aclassMusic_1_1Tuning_html_ac673e2dd9304a88864c0e5dcf55b7ab6"><div class="ttname"><a href="../../de/dd3/classMusic_1_1Tuning.html#ac673e2dd9304a88864c0e5dcf55b7ab6">Music::Tuning::rootPitch</a></div><div class="ttdeci">float rootPitch</div><div class="ttdef"><b>Definition:</b> Tuning.h:37</div></div>
-<div class="ttc" id="anamespaceMusic_html"><div class="ttname"><a href="../../de/d59/namespaceMusic.html">Music</a></div><div class="ttdef"><b>Definition:</b> Accidental.h:6</div></div>
+<div class="ttc" id="aclassXJ_1_1Note_html"><div class="ttname"><a href="../../d2/d11/classXJ_1_1Note.html">XJ::Note</a></div><div class="ttdef"><b>Definition:</b> Note.h:20</div></div>
+<div class="ttc" id="aclassXJ_1_1Tuning_html"><div class="ttname"><a href="../../d1/d26/classXJ_1_1Tuning.html">XJ::Tuning</a></div><div class="ttdef"><b>Definition:</b> Tuning.h:23</div></div>
+<div class="ttc" id="aclassXJ_1_1Tuning_html_a0790746f171d7d65f27d91144cec4e37"><div class="ttname"><a href="../../d1/d26/classXJ_1_1Tuning.html#a0790746f171d7d65f27d91144cec4e37">XJ::Tuning::rootNote</a></div><div class="ttdeci">Note rootNote</div><div class="ttdef"><b>Definition:</b> Tuning.h:36</div></div>
+<div class="ttc" id="aclassXJ_1_1Tuning_html_a58fba9bdfe97e566bf8bd22fc7310d26"><div class="ttname"><a href="../../d1/d26/classXJ_1_1Tuning.html#a58fba9bdfe97e566bf8bd22fc7310d26">XJ::Tuning::atA4</a></div><div class="ttdeci">static Tuning atA4(float a4)</div><div class="ttdef"><b>Definition:</b> Tuning.cpp:17</div></div>
+<div class="ttc" id="aclassXJ_1_1Tuning_html_a69a70a5e15ba2af2a9099627e1f60f14"><div class="ttname"><a href="../../d1/d26/classXJ_1_1Tuning.html#a69a70a5e15ba2af2a9099627e1f60f14">XJ::Tuning::deltaFromRootPitch</a></div><div class="ttdeci">int deltaFromRootPitch(float pitch)</div><div class="ttdef"><b>Definition:</b> Tuning.cpp:45</div></div>
+<div class="ttc" id="aclassXJ_1_1Tuning_html_a91913ed149880daa4386b84ea57f8191"><div class="ttname"><a href="../../d1/d26/classXJ_1_1Tuning.html#a91913ed149880daa4386b84ea57f8191">XJ::Tuning::at</a></div><div class="ttdeci">static Tuning at(Note note, float pitch)</div><div class="ttdef"><b>Definition:</b> Tuning.cpp:21</div></div>
+<div class="ttc" id="aclassXJ_1_1Tuning_html_a9eb10094365d87600aa8b60820782c65"><div class="ttname"><a href="../../d1/d26/classXJ_1_1Tuning.html#a9eb10094365d87600aa8b60820782c65">XJ::Tuning::pitchAtDelta</a></div><div class="ttdeci">float pitchAtDelta(int delta) const</div><div class="ttdef"><b>Definition:</b> Tuning.cpp:53</div></div>
+<div class="ttc" id="aclassXJ_1_1Tuning_html_ac680386f17a29e95d717537999084f55"><div class="ttname"><a href="../../d1/d26/classXJ_1_1Tuning.html#ac680386f17a29e95d717537999084f55">XJ::Tuning::validate</a></div><div class="ttdeci">void validate() const</div><div class="ttdef"><b>Definition:</b> Tuning.cpp:57</div></div>
+<div class="ttc" id="aclassXJ_1_1Tuning_html_ac9f7ce624814e82a0d079590053b9fee"><div class="ttname"><a href="../../d1/d26/classXJ_1_1Tuning.html#ac9f7ce624814e82a0d079590053b9fee">XJ::Tuning::rootPitch</a></div><div class="ttdeci">float rootPitch</div><div class="ttdef"><b>Definition:</b> Tuning.h:37</div></div>
+<div class="ttc" id="aclassXJ_1_1Tuning_html_acdf9d9733fcb2155a07e1841dad8ab1b"><div class="ttname"><a href="../../d1/d26/classXJ_1_1Tuning.html#acdf9d9733fcb2155a07e1841dad8ab1b">XJ::Tuning::getTones</a></div><div class="ttdeci">Note getTones(float pitch)</div><div class="ttdef"><b>Definition:</b> Tuning.cpp:38</div></div>
+<div class="ttc" id="aclassXJ_1_1Tuning_html_aee7b8a55db1d4f28cc5ac3a4ded36032"><div class="ttname"><a href="../../d1/d26/classXJ_1_1Tuning.html#aee7b8a55db1d4f28cc5ac3a4ded36032">XJ::Tuning::pitch</a></div><div class="ttdeci">float pitch(Note note)</div><div class="ttdef"><b>Definition:</b> Tuning.cpp:25</div></div>
+<div class="ttc" id="aclassXJ_1_1Tuning_html_afe09037e7bfe188759c5bda3f6bb9b19"><div class="ttname"><a href="../../d1/d26/classXJ_1_1Tuning.html#afe09037e7bfe188759c5bda3f6bb9b19">XJ::Tuning::Tuning</a></div><div class="ttdeci">Tuning()</div><div class="ttdef"><b>Definition:</b> Tuning.cpp:9</div></div>
+<div class="ttc" id="anamespaceXJ_html"><div class="ttname"><a href="../../d1/d13/namespaceXJ.html">XJ</a></div><div class="ttdef"><b>Definition:</b> ContentEntity.h:14</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

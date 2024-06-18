@@ -1,8 +1,20 @@
 var searchData=
 [
-  ['x_1268',['x',['../d1/d7d/structdetail_1_1is__ordered__map_1_1two.html#a762e0d409e9c4f003df0638c04dfa3c8',1,'detail::is_ordered_map::two']]],
-  ['xj_20music_20engine_1269',['XJ music engine',['../df/d70/md__home_runner_work_xjmusic_xjmusic_engine_README.html',1,'']]],
-  ['xj_2dmusic_2dlogo_2epng_1270',['xj-music-logo.png',['../d3/d61/xj-music-logo_8png.html',1,'']]],
-  ['xjmusic_2ecpp_1271',['xjmusic.cpp',['../da/d0c/xjmusic_8cpp.html',1,'']]],
-  ['xjmusic_2eh_1272',['xjmusic.h',['../db/de9/xjmusic_8h.html',1,'']]]
+  ['w_1555',['w',['../d6/dfd/structdetail_1_1dtoa__impl_1_1boundaries.html#a4ca4291f3ebf758a4708698688dda485',1,'detail::dtoa_impl::boundaries']]],
+  ['warning_1556',['Warning',['../d4/d89/classXJ_1_1SegmentMessage.html#af9086c9cf35cd919430a25e9d6627ecba4e9500cc92062d61fb7f3eb8696deb11',1,'XJ::SegmentMessage']]],
+  ['waveformkey_1557',['waveformKey',['../dc/d08/classXJ_1_1InstrumentAudio.html#a9a490f9d5984ba61d3619dd97b6f0854',1,'XJ::InstrumentAudio']]],
+  ['waveformpostroll_1558',['waveformPostroll',['../dc/ddb/classXJ_1_1Segment.html#a9af16e6b2b0ba20dade364b718321d4b',1,'XJ::Segment']]],
+  ['waveformpreroll_1559',['waveformPreroll',['../dc/ddb/classXJ_1_1Segment.html#a838c83a89dcc22ab4c508fef2f026fa2',1,'XJ::Segment']]],
+  ['what_1560',['what',['../d0/d84/classdetail_1_1exception.html#a7a50109c734c69d4521730a898be08f9',1,'detail::exception::what()'],['../d3/dc5/classXJ_1_1FabricationException.html#aafc4e33a2d9d4659d9dc17e9ce9bf6df',1,'XJ::FabricationException::what()'],['../d8/d0b/classXJ_1_1FabricationFatalException.html#a43becf48074c0d0ed9189fc85b712e62',1,'XJ::FabricationFatalException::what()'],['../d9/d78/classXJ_1_1ConfigException.html#ac7a29b85463641cc892a8b944f7a0a13',1,'XJ::ConfigException::what()']]],
+  ['wide_5fstring_5finput_5fadapter_1561',['wide_string_input_adapter',['../dd/dc0/classdetail_1_1wide__string__input__adapter.html',1,'detail::wide_string_input_adapter&lt; BaseInputAdapter, WideCharType &gt;'],['../dd/dc0/classdetail_1_1wide__string__input__adapter.html#a5deb0bdbced96a021ab968967a815773',1,'detail::wide_string_input_adapter::wide_string_input_adapter()']]],
+  ['wide_5fstring_5finput_5fhelper_1562',['wide_string_input_helper',['../d5/d0b/structdetail_1_1wide__string__input__helper.html',1,'detail::wide_string_input_helper&lt; BaseInputAdapter, T &gt;'],['../d0/ded/classdetail_1_1iterator__input__adapter.html#ab86106ba230f1542b94dcd96e6ab3221',1,'detail::iterator_input_adapter::wide_string_input_helper()']]],
+  ['wide_5fstring_5finput_5fhelper_3c_20baseinputadapter_2c_202_20_3e_1563',['wide_string_input_helper&lt; BaseInputAdapter, 2 &gt;',['../df/daf/structdetail_1_1wide__string__input__helper_3_01BaseInputAdapter_00_012_01_4.html',1,'detail']]],
+  ['wide_5fstring_5finput_5fhelper_3c_20baseinputadapter_2c_204_20_3e_1564',['wide_string_input_helper&lt; BaseInputAdapter, 4 &gt;',['../df/d17/structdetail_1_1wide__string__input__helper_3_01BaseInputAdapter_00_014_01_4.html',1,'detail']]],
+  ['withidsremoved_1565',['withIdsRemoved',['../d3/de1/classXJ_1_1ValueUtils.html#ab772a968dd71283b17c54f182cffda78',1,'XJ::ValueUtils']]],
+  ['write_5fbson_1566',['write_bson',['../dc/d9f/classdetail_1_1binary__writer.html#a1aae361b7492825979cbb80245b9c0d6',1,'detail::binary_writer']]],
+  ['write_5fcbor_1567',['write_cbor',['../dc/d9f/classdetail_1_1binary__writer.html#ae6ab36b61e8ad346e75d9f9abc983d4c',1,'detail::binary_writer']]],
+  ['write_5fcharacter_1568',['write_character',['../dc/dae/structdetail_1_1output__adapter__protocol.html#a57fbeab6c9e6dac2def4f0a7708b807a',1,'detail::output_adapter_protocol::write_character()'],['../d6/d4e/classdetail_1_1output__vector__adapter.html#ab2f37bf696c716ddb6c0b88b30304da5',1,'detail::output_vector_adapter::write_character()'],['../d2/de7/classdetail_1_1output__stream__adapter.html#a4267cde53202637ff7d7b877fb9ac859',1,'detail::output_stream_adapter::write_character()'],['../dd/de3/classdetail_1_1output__string__adapter.html#a15ef2742beddbc80d2468755ecf0a21e',1,'detail::output_string_adapter::write_character()']]],
+  ['write_5fcharacters_1569',['write_characters',['../dc/dae/structdetail_1_1output__adapter__protocol.html#afefb88bb4c134a02e136aaf69d0ecee9',1,'detail::output_adapter_protocol::write_characters()'],['../d6/d4e/classdetail_1_1output__vector__adapter.html#a6744f381ec104be129327caadcede1f7',1,'detail::output_vector_adapter::write_characters()'],['../d2/de7/classdetail_1_1output__stream__adapter.html#a19fd5667f311a1dcd86469c25c21d13d',1,'detail::output_stream_adapter::write_characters()'],['../dd/de3/classdetail_1_1output__string__adapter.html#aae38554067dbef5006db25256a702416',1,'detail::output_string_adapter::write_characters()']]],
+  ['write_5fmsgpack_1570',['write_msgpack',['../dc/d9f/classdetail_1_1binary__writer.html#adc3dbefa80134d3530a1b3f1c9629586',1,'detail::binary_writer']]],
+  ['write_5fubjson_1571',['write_ubjson',['../dc/d9f/classdetail_1_1binary__writer.html#a972bec9688cbc5673bb482bbe9543e2a',1,'detail::binary_writer']]]
 ];
