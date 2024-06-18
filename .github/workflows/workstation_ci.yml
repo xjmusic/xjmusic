@@ -8,7 +8,23 @@ on:
       - workstation/**
 
 jobs:
+
+  nothing_left_todo:
+    env:
+      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+    name: Nothing Left TODO
+    runs-on: ubuntu-latest
+    permissions: read-all
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Nothing left TODO
+        run: .github/nothing_left_todo.sh workstation
+
   build_and_test:
+    needs: nothing_left_todo
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
@@ -39,18 +55,3 @@ jobs:
         run: "./gradlew --info --no-daemon build test"
         continue-on-error: false
 
-
-  nothing_left_todo:
-    needs: build_and_test
-    env:
-      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
-      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
-    name: Nothing Left TODO
-    runs-on: ubuntu-latest
-    permissions: read-all
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Nothing left TODO
-        run: .github/nothing_left_todo.sh workstation

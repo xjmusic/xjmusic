@@ -9,7 +9,22 @@ on:
 
 jobs:
 
+  nothing_left_todo:
+    env:
+      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+    name: Nothing Left TODO
+    runs-on: ubuntu-latest
+    permissions: read-all
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Nothing left TODO
+        run: .github/nothing_left_todo.sh engine
+
   build_and_test:
+    needs: nothing_left_todo
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
@@ -75,12 +90,18 @@ jobs:
 
   deploy_docs:
     needs: build_and_test
-    env:
-      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
-      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
     name: Build & Deploy Documentation
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    permissions: write-all
     steps:
       - uses: actions/checkout@v2
 
@@ -102,24 +123,14 @@ jobs:
           cmake ..
           make doc
 
-      - name: Deploy documentation to Github Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./engine/build/doc/html
+          path: ./engine/build/doc/html
 
-
-  nothing_left_todo:
-    needs: deploy_docs
-    env:
-      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
-      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
-    name: Nothing Left TODO
-    runs-on: ubuntu-latest
-    permissions: read-all
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Nothing left TODO
-        run: .github/nothing_left_todo.sh engine
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
