@@ -42,7 +42,7 @@ jobs:
           fi
           echo "Version is $VERSION"
           echo "version=$VERSION" >> $GITHUB_ENV
-          echo "::set-output name=version::$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Version number must match tag name
         run: |
