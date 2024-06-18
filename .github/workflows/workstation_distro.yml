@@ -40,7 +40,7 @@ jobs:
             echo "Version number not found!"
             exit 1
           fi
-          echo "Version is $VERSION"
+          echo "Workstation Version is $VERSION"
           echo "version=$VERSION" >> $GITHUB_ENV
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
