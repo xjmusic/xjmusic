@@ -8,11 +8,11 @@
 #include <vector>
 #include <optional>
 #include <algorithm>
-#include "xjmusic/entities/segment/Chain.h"
-#include "xjmusic/entities/content/TemplateBinding.h"
-#include "xjmusic/entities/content/Template.h"
-#include "xjmusic/entities/Entity.h"
-#include "xjmusic/entities/segment/Segment.h"
+#include "xjmusic/segment/Chain.h"
+#include "xjmusic/content/TemplateBinding.h"
+#include "xjmusic/content/Template.h"
+#include "xjmusic/util/EntityUtils.h"
+#include "xjmusic/segment/Segment.h"
 
 namespace XJ {
 

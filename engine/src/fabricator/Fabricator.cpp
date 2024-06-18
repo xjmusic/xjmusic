@@ -71,7 +71,7 @@ Fabricator::Fabricator(
 void Fabricator::addMessage(SegmentMessage::Type messageType, std::string body) {
   try {
     SegmentMessage msg;
-    msg.id = Entity::computeUniqueId();
+    msg.id = EntityUtils::computeUniqueId();
     msg.segmentId = getSegment().id;
     msg.type = messageType;
     msg.body = std::move(body);
@@ -659,7 +659,7 @@ std::optional<Note> Fabricator::getRootNoteMidRange(const std::string &voicingNo
 
 void Fabricator::putStickyBun(StickyBun bun) {
   SegmentMeta meta;
-  meta.id = Entity::computeUniqueId();
+  meta.id = EntityUtils::computeUniqueId();
   meta.segmentId = getSegment().id;
   meta.key = bun.computeMetaKey();
   meta.value = bun.serialize();
@@ -1168,7 +1168,7 @@ bool Fabricator:: isValidChoiceAndMemesHaveBeenAdded(SegmentChoice choice, MemeS
 
   for (const std::string &name: names) {
     SegmentMeme segmentMeme;
-    segmentMeme.id = Entity::computeUniqueId();
+    segmentMeme.id = EntityUtils::computeUniqueId();
     segmentMeme.segmentId = getSegment().id;
     segmentMeme.name = name;
     put(segmentMeme, false);

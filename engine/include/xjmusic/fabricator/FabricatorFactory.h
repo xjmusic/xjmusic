@@ -3,8 +3,8 @@
 #ifndef XJMUSIC_FABRICATOR_FACTORY_H
 #define XJMUSIC_FABRICATOR_FACTORY_H
 
-#include "xjmusic/entities/segment/SegmentEntityStore.h"
-#include "xjmusic/entities/content/ContentEntityStore.h"
+#include "xjmusic/segment/SegmentEntityStore.h"
+#include "xjmusic/content/ContentEntityStore.h"
 
 #include "SegmentRetrospective.h"
 #include "Fabricator.h"

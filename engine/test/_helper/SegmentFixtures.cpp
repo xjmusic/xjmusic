@@ -17,7 +17,7 @@ Chain SegmentFixtures::buildChain(
     Chain::State state
 ) {
   Chain chain;
-  chain.id = Entity::computeUniqueId();
+  chain.id = EntityUtils::computeUniqueId();
   chain.templateId = tmpl.id;
   chain.name = "Test Chain";
   chain.type = Chain::Type::Production;
@@ -55,7 +55,7 @@ Chain SegmentFixtures::buildChain(
     const std::string &shipKey
 ) {
   Chain chain;
-  chain.id = Entity::computeUniqueId();
+  chain.id = EntityUtils::computeUniqueId();
   chain.templateId = tmpl.id;
   chain.name = std::move(name);
   chain.type = type;
@@ -150,7 +150,7 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
     const ProgramSequenceBinding &programSequenceBinding
 ) {
   SegmentChoice segmentChoice;
-  segmentChoice.id = Entity::computeUniqueId();
+  segmentChoice.id = EntityUtils::computeUniqueId();
   segmentChoice.segmentId = segment.id;
   segmentChoice.deltaIn = SegmentChoice::DELTA_UNLIMITED;
   segmentChoice.deltaOut = SegmentChoice::DELTA_UNLIMITED;
@@ -166,7 +166,7 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
     const ProgramSequence &programSequence
 ) {
   SegmentChoice segmentChoice;
-  segmentChoice.id = Entity::computeUniqueId();
+  segmentChoice.id = EntityUtils::computeUniqueId();
   segmentChoice.segmentId = segment.id;
   segmentChoice.deltaIn = SegmentChoice::DELTA_UNLIMITED;
   segmentChoice.deltaOut = SegmentChoice::DELTA_UNLIMITED;
@@ -185,7 +185,7 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
     Instrument::Mode instrumentMode
 ) {
   SegmentChoice segmentChoice;
-  segmentChoice.id = Entity::computeUniqueId();
+  segmentChoice.id = EntityUtils::computeUniqueId();
   segmentChoice.segmentId = segment.id;
   segmentChoice.deltaIn = deltaIn;
   segmentChoice.deltaOut = deltaOut;
@@ -202,7 +202,7 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
     const Program &program
 ) {
   SegmentChoice segmentChoice;
-  segmentChoice.id = Entity::computeUniqueId();
+  segmentChoice.id = EntityUtils::computeUniqueId();
   segmentChoice.segmentId = segment.id;
   segmentChoice.deltaIn = SegmentChoice::DELTA_UNLIMITED;
   segmentChoice.deltaOut = SegmentChoice::DELTA_UNLIMITED;
@@ -216,7 +216,7 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
     const Instrument &instrument
 ) {
   SegmentChoice segmentChoice;
-  segmentChoice.id = Entity::computeUniqueId();
+  segmentChoice.id = EntityUtils::computeUniqueId();
   segmentChoice.segmentId = segment.id;
   segmentChoice.deltaIn = SegmentChoice::DELTA_UNLIMITED;
   segmentChoice.deltaOut = SegmentChoice::DELTA_UNLIMITED;
@@ -231,7 +231,7 @@ SegmentMeta SegmentFixtures::buildSegmentMeta(
     std::string value
 ) {
   SegmentMeta segmentMeta;
-  segmentMeta.id = Entity::computeUniqueId();
+  segmentMeta.id = EntityUtils::computeUniqueId();
   segmentMeta.segmentId = segment.id;
   segmentMeta.key = std::move(key);
   segmentMeta.value = std::move(value);
@@ -246,7 +246,7 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
     const Instrument &instrument
 ) {
   SegmentChoice segmentChoice;
-  segmentChoice.id = Entity::computeUniqueId();
+  segmentChoice.id = EntityUtils::computeUniqueId();
   segmentChoice.programVoiceId = voice.id;
   segmentChoice.instrumentId = instrument.id;
   segmentChoice.instrumentType = instrument.type;
@@ -297,7 +297,7 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
     const Program &program
 ) {
   SegmentChoice choice;
-  choice.id = Entity::computeUniqueId();
+  choice.id = EntityUtils::computeUniqueId();
   choice.segmentId = segment.id;
   choice.deltaIn = deltaIn;
   choice.deltaOut = deltaOut;
@@ -311,7 +311,7 @@ SegmentMeme SegmentFixtures::buildSegmentMeme(
     std::string name
 ) {
   SegmentMeme segmentMeme;
-  segmentMeme.id = Entity::computeUniqueId();
+  segmentMeme.id = EntityUtils::computeUniqueId();
   segmentMeme.segmentId = segment.id;
   segmentMeme.name = std::move(name);
   return segmentMeme;
@@ -323,7 +323,7 @@ SegmentChord SegmentFixtures::buildSegmentChord(
     std::string name
 ) {
   SegmentChord segmentChord;
-  segmentChord.id = Entity::computeUniqueId();
+  segmentChord.id = EntityUtils::computeUniqueId();
   segmentChord.segmentId = segment.id;
   segmentChord.position = atPosition;
   segmentChord.name = std::move(name);
@@ -336,7 +336,7 @@ SegmentChordVoicing SegmentFixtures::buildSegmentChordVoicing(
     std::string notes
 ) {
   SegmentChordVoicing segmentChordVoicing;
-  segmentChordVoicing.id = Entity::computeUniqueId();
+  segmentChordVoicing.id = EntityUtils::computeUniqueId();
   segmentChordVoicing.segmentId = chord.segmentId;
   segmentChordVoicing.segmentChordId = chord.id;
   segmentChordVoicing.type = Instrument::toString(type);
@@ -348,7 +348,7 @@ SegmentChoiceArrangement SegmentFixtures::buildSegmentChoiceArrangement(
     const SegmentChoice &segmentChoice
 ) {
   SegmentChoiceArrangement segmentChoiceArrangement;
-  segmentChoiceArrangement.id = Entity::computeUniqueId();
+  segmentChoiceArrangement.id = EntityUtils::computeUniqueId();
   segmentChoiceArrangement.segmentId = segmentChoice.segmentId;
   segmentChoiceArrangement.segmentChoiceId = segmentChoice.id;
   return segmentChoiceArrangement;
@@ -362,7 +362,7 @@ SegmentChoiceArrangementPick SegmentFixtures::buildSegmentChoiceArrangementPick(
 ) {
   float microsPerBeat = ValueUtils::MICROS_PER_SECOND * ValueUtils::SECONDS_PER_MINUTE / segment.tempo;
   SegmentChoiceArrangementPick pick;
-  pick.id = Entity::computeUniqueId();
+  pick.id = EntityUtils::computeUniqueId();
   pick.segmentId = segmentChoiceArrangement.segmentId;
   pick.segmentChoiceArrangementId = segmentChoiceArrangement.id;
   pick.instrumentAudioId = instrumentAudio.id;
@@ -383,7 +383,7 @@ SegmentChoiceArrangementPick SegmentFixtures::buildSegmentChoiceArrangementPick(
 ) {
   float microsPerBeat = ValueUtils::MICROS_PER_SECOND * ValueUtils::SECONDS_PER_MINUTE / segment.tempo;
   SegmentChoiceArrangementPick pick;
-  pick.id = Entity::computeUniqueId();
+  pick.id = EntityUtils::computeUniqueId();
   pick.segmentId = segmentChoiceArrangement.segmentId;
   pick.segmentChoiceArrangementId = segmentChoiceArrangement.id;
   pick.programSequencePatternEventId = event.id;

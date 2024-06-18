@@ -3,7 +3,7 @@
 #include <string>
 #include <optional>
 
-#include "xjmusic/entities/content/Template.h"
+#include "xjmusic/content/Template.h"
 
 namespace XJ {
 

@@ -23,6 +23,7 @@ jobs:
       - name: Nothing left TODO
         run: .github/nothing_left_todo.sh engine
 
+
   build_and_test:
     needs: nothing_left_todo
     env:
@@ -86,3 +87,51 @@ jobs:
         run: |
           cd build
           ctest --verbose
+
+
+  deploy_docs:
+    needs: build_and_test
+    name: Build & Deploy Documentation
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        working-directory: engine/
+        run: |
+          sudo apt-get install -y cmake doxygen
+
+      - name: Build
+        working-directory: engine/
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          make doc
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./engine/build/doc/html
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
