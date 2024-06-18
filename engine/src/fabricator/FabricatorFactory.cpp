@@ -2,7 +2,7 @@
 
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/Fabricator.h"
-#include "xjmusic/entities/content/ContentEntityStore.h"
+#include "xjmusic/content/ContentEntityStore.h"
 
 using namespace XJ;
 

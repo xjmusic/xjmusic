@@ -3,60 +3,29 @@ include(FetchContent)
 
 # show up in IDEs unless they are listed in add_library.
 add_library(xjmusic
-        entities/content/ContentEntityStore.cpp
-        entities/content/Entity.cpp
-        entities/content/Instrument.cpp
-        entities/content/InstrumentAudio.cpp
-        entities/content/InstrumentConfig.cpp
-        entities/content/InstrumentMeme.cpp
-        entities/content/Library.cpp
-        entities/content/Program.cpp
-        entities/content/ProgramConfig.cpp
-        entities/content/ProgramMeme.cpp
-        entities/content/ProgramSequence.cpp
-        entities/content/ProgramSequenceBinding.cpp
-        entities/content/ProgramSequenceBindingMeme.cpp
-        entities/content/ProgramSequenceChord.cpp
-        entities/content/ProgramSequenceChordVoicing.cpp
-        entities/content/ProgramSequencePattern.cpp
-        entities/content/ProgramSequencePatternEvent.cpp
-        entities/content/ProgramVoice.cpp
-        entities/content/ProgramVoiceTrack.cpp
-        entities/content/Project.cpp
-        entities/content/Template.cpp
-        entities/content/TemplateBinding.cpp
-        entities/content/TemplateConfig.cpp
-        entities/meme/MemeConstellation.cpp
-        entities/meme/MemeIsometry.cpp
-        entities/meme/MemeStack.cpp
-        entities/meme/MemeTaxonomy.cpp
-        entities/meme/ParseAnti.cpp
-        entities/meme/ParseNumeric.cpp
-        entities/meme/ParseStrong.cpp
-        entities/meme/ParseUnique.cpp
-        entities/music/Accidental.cpp
-        entities/music/BPM.cpp
-        entities/music/Bar.cpp
-        entities/music/Chord.cpp
-        entities/music/Note.cpp
-        entities/music/NoteRange.cpp
-        entities/music/Octave.cpp
-        entities/music/Root.cpp
-        entities/music/SlashRoot.cpp
-        entities/music/Step.cpp
-        entities/music/StickyBun.cpp
-        entities/music/Tuning.cpp
-        entities/segment/Chain.cpp
-        entities/segment/Segment.cpp
-        entities/segment/SegmentChoice.cpp
-        entities/segment/SegmentChoiceArrangement.cpp
-        entities/segment/SegmentChoiceArrangementPick.cpp
-        entities/segment/SegmentChord.cpp
-        entities/segment/SegmentChordVoicing.cpp
-        entities/segment/SegmentEntityStore.cpp
-        entities/segment/SegmentMeme.cpp
-        entities/segment/SegmentMessage.cpp
-        entities/segment/SegmentMeta.cpp
+        content/ContentEntityStore.cpp
+        content/EntityUtils.cpp
+        content/Instrument.cpp
+        content/InstrumentAudio.cpp
+        content/InstrumentConfig.cpp
+        content/InstrumentMeme.cpp
+        content/Library.cpp
+        content/Program.cpp
+        content/ProgramConfig.cpp
+        content/ProgramMeme.cpp
+        content/ProgramSequence.cpp
+        content/ProgramSequenceBinding.cpp
+        content/ProgramSequenceBindingMeme.cpp
+        content/ProgramSequenceChord.cpp
+        content/ProgramSequenceChordVoicing.cpp
+        content/ProgramSequencePattern.cpp
+        content/ProgramSequencePatternEvent.cpp
+        content/ProgramVoice.cpp
+        content/ProgramVoiceTrack.cpp
+        content/Project.cpp
+        content/Template.cpp
+        content/TemplateBinding.cpp
+        content/TemplateConfig.cpp
         fabricator/ChainUtils.cpp
         fabricator/FabricationException.cpp
         fabricator/FabricationFatalException.cpp
@@ -67,6 +36,37 @@ add_library(xjmusic
         fabricator/SegmentRetrospective.cpp
         fabricator/SegmentUtils.cpp
         fabricator/TemplateUtils.cpp
+        meme/MemeConstellation.cpp
+        meme/MemeIsometry.cpp
+        meme/MemeStack.cpp
+        meme/MemeTaxonomy.cpp
+        meme/ParseAnti.cpp
+        meme/ParseNumeric.cpp
+        meme/ParseStrong.cpp
+        meme/ParseUnique.cpp
+        music/Accidental.cpp
+        music/BPM.cpp
+        music/Bar.cpp
+        music/Chord.cpp
+        music/Note.cpp
+        music/NoteRange.cpp
+        music/Octave.cpp
+        music/Root.cpp
+        music/SlashRoot.cpp
+        music/Step.cpp
+        music/StickyBun.cpp
+        music/Tuning.cpp
+        segment/Chain.cpp
+        segment/Segment.cpp
+        segment/SegmentChoice.cpp
+        segment/SegmentChoiceArrangement.cpp
+        segment/SegmentChoiceArrangementPick.cpp
+        segment/SegmentChord.cpp
+        segment/SegmentChordVoicing.cpp
+        segment/SegmentEntityStore.cpp
+        segment/SegmentMeme.cpp
+        segment/SegmentMessage.cpp
+        segment/SegmentMeta.cpp
         util/ConfigParser.cpp
         util/CsvUtils.cpp
         util/StringUtils.cpp

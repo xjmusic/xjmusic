@@ -5,7 +5,7 @@
 
 #include "../_helper/ContentFixtures.h"
 #include "../_helper/SegmentFixtures.h"
-#include "xjmusic/entities/music/StickyBun.h"
+#include "xjmusic/music/StickyBun.h"
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/FabricationFatalException.h"
@@ -15,7 +15,7 @@ using namespace XJ;
 class SegmentRetrospectiveTest : public ::testing::Test {
 protected:
   int SEQUENCE_TOTAL_BEATS = 64;
-  UUID patternId = Entity::computeUniqueId();
+  UUID patternId = EntityUtils::computeUniqueId();
   ContentEntityStore* sourceMaterial = new ContentEntityStore();
   SegmentEntityStore* store = new SegmentEntityStore();
   FabricatorFactory* fabricatorFactory = new FabricatorFactory(store);

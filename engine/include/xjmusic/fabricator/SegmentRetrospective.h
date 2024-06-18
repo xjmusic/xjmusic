@@ -7,14 +7,14 @@
 #include <optional>
 #include <set>
 
-#include "xjmusic/entities/segment/SegmentEntityStore.h"
-#include "xjmusic/entities/content/Instrument.h"
-#include "xjmusic/entities/segment/Segment.h"
-#include "xjmusic/entities/segment/SegmentChoice.h"
-#include "xjmusic/entities/segment/SegmentChoiceArrangement.h"
-#include "xjmusic/entities/segment/SegmentChoiceArrangementPick.h"
-#include "xjmusic/entities/segment/SegmentChord.h"
-#include "xjmusic/entities/segment/SegmentMeta.h"
+#include "xjmusic/segment/SegmentEntityStore.h"
+#include "xjmusic/content/Instrument.h"
+#include "xjmusic/segment/Segment.h"
+#include "xjmusic/segment/SegmentChoice.h"
+#include "xjmusic/segment/SegmentChoiceArrangement.h"
+#include "xjmusic/segment/SegmentChoiceArrangementPick.h"
+#include "xjmusic/segment/SegmentChord.h"
+#include "xjmusic/segment/SegmentMeta.h"
 
 namespace XJ {
 

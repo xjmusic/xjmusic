@@ -5,9 +5,9 @@
 
 #include "gtest/gtest.h"
 
-#include "xjmusic/entities/music/Note.h"
-#include "xjmusic/entities/music/PitchClass.h"
-#include "xjmusic/entities/music/Root.h"
+#include "xjmusic/music/Note.h"
+#include "xjmusic/music/PitchClass.h"
+#include "xjmusic/music/Root.h"
 
 namespace XJ {
 

@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include "xjmusic/entities/Entity.h"
+#include "EntityUtils.h"
 
 namespace XJ {
 
