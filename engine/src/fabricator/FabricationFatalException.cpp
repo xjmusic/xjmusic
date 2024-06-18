@@ -2,9 +2,13 @@
 
 #include "xjmusic/fabricator/FabricationFatalException.h"
 
-XJ::FabricationFatalException::FabricationFatalException(std::string msg) : msg_(std::move(msg)) {}
+using namespace XJ;
 
-const char *XJ::FabricationFatalException::what() const noexcept {
+
+FabricationFatalException::FabricationFatalException(std::string msg) : msg_(std::move(msg)) {}
+
+
+const char *FabricationFatalException::what() const noexcept {
   return msg_.c_str();
 }
 

@@ -2,12 +2,12 @@
 
 
 #include "xjmusic/util/ValueUtils.h"
-#include "xjmusic/util/StringUtils.h"
 #include "xjmusic/segment/SegmentEntityStore.h"
 #include "xjmusic/fabricator/FabricationException.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 
 using namespace XJ;
+
 
 #define SEGMENT_STORE_CORE_METHODS(ENTITY, ENTITIES, STORE)                                             \
   ENTITY SegmentEntityStore::put(const ENTITY &entity) {                                                \
@@ -71,16 +71,19 @@ SEGMENT_STORE_CORE_METHODS(SegmentMessage, SegmentMessages, segmentMessages)
 
 SEGMENT_STORE_CORE_METHODS(SegmentMeta, SegmentMetas, segmentMetas)
 
+
 Chain SegmentEntityStore::put(Chain c) {
   this->chain = c;
   return c;
 }
+
 
 Segment SegmentEntityStore::put(Segment segment) {
   validate(segment);
   this->segments[segment.id] = segment;
   return segment;
 }
+
 
 std::optional<Chain> SegmentEntityStore::readChain() {
   return chain;
@@ -91,6 +94,7 @@ std::optional<Segment> SegmentEntityStore::readSegment(int id) {
   return std::nullopt;
 }
 
+
 std::optional<Segment> SegmentEntityStore::readSegmentAtChainMicros(long chainMicros) {
   for (auto &segment: segments) {
     if (SegmentUtils::isSpanning(segment.second, chainMicros, chainMicros)) {
@@ -100,6 +104,7 @@ std::optional<Segment> SegmentEntityStore::readSegmentAtChainMicros(long chainMi
   return std::nullopt;
 }
 
+
 std::vector<Segment> SegmentEntityStore::readAllSegments() {
   std::vector<Segment> result;
   for (auto &segment: segments) {
@@ -107,6 +112,7 @@ std::vector<Segment> SegmentEntityStore::readAllSegments() {
   }
   return result;
 }
+
 
 std::vector<Segment> SegmentEntityStore::readSegmentsFromToOffset(int fromOffset, int toOffset) {
   std::vector<Segment> result;
@@ -117,6 +123,7 @@ std::vector<Segment> SegmentEntityStore::readSegmentsFromToOffset(int fromOffset
   }
   return result;
 }
+
 
 std::set<SegmentEntity> SegmentEntityStore::readAllSegmentEntities(const std::set<int> &segmentIds) {
   std::set<SegmentEntity> result;
@@ -149,6 +156,7 @@ std::set<SegmentEntity> SegmentEntityStore::readAllSegmentEntities(const std::se
   return result;
 }
 
+
 std::vector<Segment> SegmentEntityStore::readAllSegmentsSpanning(long fromChainMicros, long toChainMicros) {
   std::vector<Segment> result;
   for (auto &segment: segments) {
@@ -159,12 +167,14 @@ std::vector<Segment> SegmentEntityStore::readAllSegmentsSpanning(long fromChainM
   return result;
 }
 
+
 int SegmentEntityStore::readLastSegmentId() {
   if (segments.empty()) {
     return 0;
   }
   return segments.rbegin()->first;
 }
+
 
 std::optional<Segment> SegmentEntityStore::readSegmentLast() {
   if (segments.empty()) {
@@ -186,7 +196,8 @@ std::optional<SegmentChoice> SegmentEntityStore::readChoice(int segmentId, Progr
   return std::nullopt;
 }
 
-std::string SegmentEntityStore::readChoiceHash(const XJ::Segment &segment) {
+
+std::string SegmentEntityStore::readChoiceHash(const Segment &segment) {
   std::set<SegmentEntity> entities = readAllSegmentEntities({segment.id});
   std::vector<std::string> ids;
 
@@ -203,9 +214,11 @@ int SegmentEntityStore::getSegmentCount() {
   return static_cast<int>(segments.size());
 }
 
+
 bool SegmentEntityStore::isEmpty() {
   return segments.empty();
 }
+
 
 void SegmentEntityStore::updateSegment(Segment &segment) {
 // validate and cache to-state
@@ -238,9 +251,11 @@ void SegmentEntityStore::updateSegment(Segment &segment) {
   put(segment);
 }
 
+
 void SegmentEntityStore::deleteChain() {
   chain = std::nullopt;
 }
+
 
 void SegmentEntityStore::deleteSegment(int id) {
   segments.erase(id);
@@ -253,6 +268,7 @@ void SegmentEntityStore::deleteSegment(int id) {
   segmentMessages.erase(id);
   segmentMetas.erase(id);
 }
+
 
 void SegmentEntityStore::protectSegmentStateTransition(Segment::State fromState, Segment::State toState) {
   switch (fromState) {
@@ -289,6 +305,7 @@ void SegmentEntityStore::protectSegmentStateTransition(Segment::State fromState,
   }
 }
 
+
 void SegmentEntityStore::onlyAllowSegmentStateTransitions(
     Segment::State toState,
     const std::set<Segment::State> &allowedStates
@@ -306,6 +323,7 @@ void SegmentEntityStore::onlyAllowSegmentStateTransitions(
       ")");
 }
 
+
 void SegmentEntityStore::validate(SegmentMeme entity) {
   entity.name = StringUtils::toMeme(entity.name);
 }
@@ -314,6 +332,7 @@ void SegmentEntityStore::validate(SegmentMeme entity) {
 void SegmentEntityStore::validate(Segment entity) {
   entity.updatedAt = EntityUtils::currentTimeMillis();
 }
+
 
 void SegmentEntityStore::deleteSegmentsBefore(int lastSegmentId) {
   std::set<int> idsToDelete;
@@ -327,6 +346,7 @@ void SegmentEntityStore::deleteSegmentsBefore(int lastSegmentId) {
   }
 }
 
+
 void SegmentEntityStore::deleteSegmentsAfter(int lastSegmentId) {
   std::set<int> idsToDelete;
   for (auto &segment: segments) {
@@ -338,6 +358,7 @@ void SegmentEntityStore::deleteSegmentsAfter(int lastSegmentId) {
     deleteSegment(id);
   }
 }
+
 
 void SegmentEntityStore::clear() {
   segments.clear();

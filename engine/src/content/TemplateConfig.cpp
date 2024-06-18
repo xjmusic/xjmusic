@@ -6,9 +6,10 @@
 
 #include "xjmusic/content/TemplateConfig.h"
 
-namespace XJ {
+using namespace XJ;
 
-  const std::string TemplateConfig::DEFAULT = R"(
+
+const std::string TemplateConfig::DEFAULT = R"(
               choiceMuteProbability = {
                   Background = 0.0
                   Bass = 0.0
@@ -94,201 +95,212 @@ namespace XJ {
               stickyBunEnabled = true
   )";
 
-  TemplateConfig::TemplateConfig() : TemplateConfig(DEFAULT) {}
 
-  TemplateConfig::TemplateConfig(const Template &source) : TemplateConfig(source.config) {}
+TemplateConfig::TemplateConfig() : TemplateConfig(DEFAULT) {}
 
-  std::map<Instrument::Type, int> parseInstrumentTypeIntMap(ConfigObjectValue objectValue) {
-    std::map<Instrument::Type, int> resultMap;
-    for (const auto &entry: objectValue.asMapOfSingleOrList()) {
-      Instrument::Type instrumentTypeKey = Instrument::parseType(entry.first);
-      if (std::holds_alternative<ConfigSingleValue>(entry.second)) {
-        resultMap[instrumentTypeKey] = std::get<ConfigSingleValue>(entry.second).getInt();
-      }
+
+TemplateConfig::TemplateConfig(const Template &source) : TemplateConfig(source.config) {}
+
+
+std::map<Instrument::Type, int> parseInstrumentTypeIntMap(ConfigObjectValue objectValue) {
+  std::map<Instrument::Type, int> resultMap;
+  for (const auto &entry: objectValue.asMapOfSingleOrList()) {
+    Instrument::Type instrumentTypeKey = Instrument::parseType(entry.first);
+    if (std::holds_alternative<ConfigSingleValue>(entry.second)) {
+      resultMap[instrumentTypeKey] = std::get<ConfigSingleValue>(entry.second).getInt();
     }
-    return resultMap;
+  }
+  return resultMap;
+}
+
+
+std::map<Instrument::Type, float> parseInstrumentTypeFloatMap(ConfigObjectValue objectValue) {
+  std::map<Instrument::Type, float> resultMap;
+  for (const auto &entry: objectValue.asMapOfSingleOrList()) {
+    Instrument::Type instrumentTypeKey = Instrument::parseType(entry.first);
+    if (std::holds_alternative<ConfigSingleValue>(entry.second)) {
+      resultMap[instrumentTypeKey] = std::get<ConfigSingleValue>(entry.second).getFloat();
+    }
+  }
+  return resultMap;
+}
+
+
+std::vector<Instrument::Type> parseInstrumentTypeList(ConfigListValue listValue) {
+  std::vector<Instrument::Type> result;
+  result.reserve(listValue.size());
+  for (const auto &value: listValue.asListOfStrings()) {
+    result.push_back(Instrument::parseType(value));
+  }
+  return result;
+}
+
+
+std::string formatInstrumentTypeIntMap(const std::map<Instrument::Type, int> &values) {
+  // Convert the map to a vector of pairs for sorting
+  std::vector<std::pair<std::string, int>> valuesVec;
+  valuesVec.reserve(values.size());
+  for (const auto &entry: values) {
+    valuesVec.emplace_back(Instrument::toString(entry.first), entry.second);
   }
 
-  std::map<Instrument::Type, float> parseInstrumentTypeFloatMap(ConfigObjectValue objectValue) {
-    std::map<Instrument::Type, float> resultMap;
-    for (const auto &entry: objectValue.asMapOfSingleOrList()) {
-      Instrument::Type instrumentTypeKey = Instrument::parseType(entry.first);
-      if (std::holds_alternative<ConfigSingleValue>(entry.second)) {
-        resultMap[instrumentTypeKey] = std::get<ConfigSingleValue>(entry.second).getFloat();
-      }
-    }
-    return resultMap;
+  // Sort the vector by key
+  std::sort(valuesVec.begin(), valuesVec.end());
+
+  std::ostringstream oss;
+  oss << "{\n";
+  for (const auto &entry: valuesVec) {
+    oss << "    " << entry.first << " = " << std::to_string(entry.second) << "\n";
+  }
+  oss << "  }";
+  return oss.str();
+}
+
+
+std::string formatInstrumentTypeFloatMap(const std::map<Instrument::Type, float> &values) {
+  // Convert the map to a vector of pairs for sorting
+  std::vector<std::pair<std::string, float>> valuesVec;
+  valuesVec.reserve(values.size());
+  for (const auto &entry: values) {
+    valuesVec.emplace_back(Instrument::toString(entry.first), entry.second);
   }
 
-  std::vector<Instrument::Type> parseInstrumentTypeList(ConfigListValue listValue) {
-    std::vector<Instrument::Type> result;
-    result.reserve(listValue.size());
-    for (const auto &value: listValue.asListOfStrings()) {
-      result.push_back(Instrument::parseType(value));
+  // Sort the vector by key
+  std::sort(valuesVec.begin(), valuesVec.end());
+
+  std::ostringstream oss;
+  oss << "{\n";
+  for (const auto &entry: valuesVec) {
+    oss << "    " << entry.first << " = " << StringUtils::formatFloat(entry.second) << "\n";
+  }
+  oss << "  }";
+  return oss.str();
+}
+
+
+std::string TemplateConfig::formatMemeTaxonomy(MemeTaxonomy taxonomy) {
+  std::ostringstream oss;
+  std::vector<MemeCategory> sortedCategories;
+  sortedCategories.reserve(taxonomy.getCategories().size());
+  for (auto &category: taxonomy.getCategories()) {
+    sortedCategories.push_back(category);
+  }
+  std::sort(sortedCategories.begin(), sortedCategories.end());
+  oss << "[\n";
+  for (int i = 0; i < sortedCategories.size(); i++) {
+    std::vector<std::string> sortedMemes;
+    sortedMemes.reserve(sortedCategories.at(i).getMemes().size());
+    for (const auto &meme: sortedCategories.at(i).getMemes()) {
+      sortedMemes.push_back(meme);
     }
-    return result;
+    std::sort(sortedMemes.begin(), sortedMemes.end());
+    oss << "    {\n";
+    oss << "      memes = " << format(sortedMemes) << "\n";
+    oss << "      name = " << format(sortedCategories.at(i).getName()) << "\n";
+    oss << ((i < sortedCategories.size() - 1) ? "    },\n" : "    }\n");
+  }
+  oss << "  ]";
+  return oss.str();
+}
+
+
+std::string TemplateConfig::formatInstrumentTypeList(const std::vector<Instrument::Type> &input) {
+  std::vector<std::string> result;
+  result.reserve(input.size());
+  for (const auto &value: input) {
+    result.push_back(Instrument::toString(value));
+  }
+  return format(result);
+}
+
+
+TemplateConfig::TemplateConfig(const std::string &input) : ConfigParser(input, ConfigParser(DEFAULT)) {
+  choiceMuteProbability = parseInstrumentTypeFloatMap(getObjectValue("choiceMuteProbability"));
+  deltaArcBeatLayersIncoming = getSingleValue("deltaArcBeatLayersIncoming").getInt();
+  deltaArcBeatLayersToPrioritize = getListValue("deltaArcBeatLayersToPrioritize").asListOfStrings();
+  deltaArcDetailLayersIncoming = getSingleValue("deltaArcDetailLayersIncoming").getInt();
+  deltaArcEnabled = getSingleValue("deltaArcEnabled").getBool();
+  detailLayerOrder = parseInstrumentTypeList(getListValue("detailLayerOrder"));
+  dubMasterVolume = parseInstrumentTypeFloatMap(getObjectValue("dubMasterVolume"));
+  eventNamesLarge = getListValue("eventNamesLarge").asListOfStrings();
+  eventNamesMedium = getListValue("eventNamesMedium").asListOfStrings();
+  eventNamesSmall = getListValue("eventNamesSmall").asListOfStrings();
+  instrumentTypesForAudioLengthFinalization = parseInstrumentTypeList(
+      getListValue("instrumentTypesForAudioLengthFinalization"));
+  instrumentTypesForInversionSeeking = parseInstrumentTypeList(
+      getListValue("instrumentTypesForInversionSeeking"));
+  intensityAutoCrescendoEnabled = getSingleValue("intensityAutoCrescendoEnabled").getBool();
+  intensityAutoCrescendoMaximum = getSingleValue("intensityAutoCrescendoMaximum").getFloat();
+  intensityAutoCrescendoMinimum = getSingleValue("intensityAutoCrescendoMinimum").getFloat();
+  intensityLayers = parseInstrumentTypeIntMap(getObjectValue("intensityLayers"));
+  intensityThreshold = parseInstrumentTypeFloatMap(getObjectValue("intensityThreshold"));
+  mainProgramLengthMaxDelta = getSingleValue("mainProgramLengthMaxDelta").getInt();
+  auto setOfMapsOfStrings = getListValue("memeTaxonomy").asListOfMapsOfStrings();
+  memeTaxonomy = MemeTaxonomy::fromList(setOfMapsOfStrings);
+  mixerCompressAheadSeconds = getSingleValue("mixerCompressAheadSeconds").getFloat();
+  mixerCompressDecaySeconds = getSingleValue("mixerCompressDecaySeconds").getFloat();
+  mixerCompressRatioMax = getSingleValue("mixerCompressRatioMax").getFloat();
+  mixerCompressRatioMin = getSingleValue("mixerCompressRatioMin").getFloat();
+  mixerCompressToAmplitude = getSingleValue("mixerCompressToAmplitude").getFloat();
+  mixerDspBufferSize = getSingleValue("mixerDspBufferSize").getInt();
+  mixerHighpassThresholdHz = getSingleValue("mixerHighpassThresholdHz").getInt();
+  mixerLowpassThresholdHz = getSingleValue("mixerLowpassThresholdHz").getInt();
+  mixerNormalizationBoostThreshold = getSingleValue("mixerNormalizationBoostThreshold").getFloat();
+  mixerNormalizationCeiling = getSingleValue("mixerNormalizationCeiling").getFloat();
+  stickyBunEnabled = getSingleValue("stickyBunEnabled").getBool();
+}
+
+
+std::string TemplateConfig::toString() const {
+  std::map<std::string, std::string> config;
+  config["choiceMuteProbability"] = formatInstrumentTypeFloatMap(choiceMuteProbability);
+  config["deltaArcBeatLayersIncoming"] = format(deltaArcBeatLayersIncoming);
+  config["deltaArcBeatLayersToPrioritize"] = format(deltaArcBeatLayersToPrioritize);
+  config["deltaArcDetailLayersIncoming"] = format(deltaArcDetailLayersIncoming);
+  config["deltaArcEnabled"] = format(deltaArcEnabled);
+  config["detailLayerOrder"] = formatInstrumentTypeList(detailLayerOrder);
+  config["dubMasterVolume"] = formatInstrumentTypeFloatMap(dubMasterVolume);
+  config["eventNamesLarge"] = format(eventNamesLarge);
+  config["eventNamesMedium"] = format(eventNamesMedium);
+  config["eventNamesSmall"] = format(eventNamesSmall);
+  config["instrumentTypesForAudioLengthFinalization"] = formatInstrumentTypeList(
+      instrumentTypesForAudioLengthFinalization);
+  config["instrumentTypesForInversionSeeking"] = formatInstrumentTypeList(instrumentTypesForInversionSeeking);
+  config["intensityAutoCrescendoEnabled"] = format(intensityAutoCrescendoEnabled);
+  config["intensityAutoCrescendoMaximum"] = format(intensityAutoCrescendoMaximum);
+  config["intensityAutoCrescendoMinimum"] = format(intensityAutoCrescendoMinimum);
+  config["intensityLayers"] = formatInstrumentTypeIntMap(intensityLayers);
+  config["intensityThreshold"] = formatInstrumentTypeFloatMap(intensityThreshold);
+  config["mainProgramLengthMaxDelta"] = format(mainProgramLengthMaxDelta);
+  config["memeTaxonomy"] = formatMemeTaxonomy(memeTaxonomy);
+  config["mixerCompressAheadSeconds"] = format(mixerCompressAheadSeconds);
+  config["mixerCompressDecaySeconds"] = format(mixerCompressDecaySeconds);
+  config["mixerCompressRatioMax"] = format(mixerCompressRatioMax);
+  config["mixerCompressRatioMin"] = format(mixerCompressRatioMin);
+  config["mixerCompressToAmplitude"] = format(mixerCompressToAmplitude);
+  config["mixerDspBufferSize"] = format(mixerDspBufferSize);
+  config["mixerHighpassThresholdHz"] = format(mixerHighpassThresholdHz);
+  config["mixerLowpassThresholdHz"] = format(mixerLowpassThresholdHz);
+  config["mixerNormalizationBoostThreshold"] = format(mixerNormalizationBoostThreshold);
+  config["mixerNormalizationCeiling"] = format(mixerNormalizationCeiling);
+  config["stickyBunEnabled"] = format(stickyBunEnabled);
+
+  // Convert the map to a vector of pairs for sorting
+  std::vector<std::pair<std::string, std::string>> configVec(config.begin(), config.end());
+
+  // Sort the vector by key
+  std::sort(configVec.begin(), configVec.end());
+
+  std::ostringstream oss;
+  for (const auto &pair: configVec) {
+    oss << pair.first << " = " << pair.second << "\n";
   }
 
-  std::string formatInstrumentTypeIntMap(const std::map<Instrument::Type, int> &values) {
-    // Convert the map to a vector of pairs for sorting
-    std::vector<std::pair<std::string, int>> valuesVec;
-    valuesVec.reserve(values.size());
-    for (const auto &entry: values) {
-      valuesVec.emplace_back(Instrument::toString(entry.first), entry.second);
-    }
+  return oss.str();
+}
 
-    // Sort the vector by key
-    std::sort(valuesVec.begin(), valuesVec.end());
 
-    std::ostringstream oss;
-    oss << "{\n";
-    for (const auto &entry: valuesVec) {
-      oss << "    " << entry.first << " = " << std::to_string(entry.second) << "\n";
-    }
-    oss << "  }";
-    return oss.str();
-  }
+std::string TemplateConfig::getDefaultString() {
+  return DEFAULT;
+}
 
-  std::string formatInstrumentTypeFloatMap(const std::map<Instrument::Type, float> &values) {
-    // Convert the map to a vector of pairs for sorting
-    std::vector<std::pair<std::string, float>> valuesVec;
-    valuesVec.reserve(values.size());
-    for (const auto &entry: values) {
-      valuesVec.emplace_back(Instrument::toString(entry.first), entry.second);
-    }
-
-    // Sort the vector by key
-    std::sort(valuesVec.begin(), valuesVec.end());
-
-    std::ostringstream oss;
-    oss << "{\n";
-    for (const auto &entry: valuesVec) {
-      oss << "    " << entry.first << " = " << StringUtils::formatFloat(entry.second) << "\n";
-    }
-    oss << "  }";
-    return oss.str();
-  }
-
-  std::string TemplateConfig::formatMemeTaxonomy(MemeTaxonomy taxonomy) {
-    std::ostringstream oss;
-    std::vector<MemeCategory> sortedCategories;
-    sortedCategories.reserve(taxonomy.getCategories().size());
-    for (auto& category : taxonomy.getCategories()) {
-      sortedCategories.push_back(category);
-    }
-    std::sort(sortedCategories.begin(), sortedCategories.end());
-    oss << "[\n";
-    for (int i = 0; i < sortedCategories.size(); i++) {
-      std::vector<std::string> sortedMemes;
-      sortedMemes.reserve(sortedCategories.at(i).getMemes().size());
-      for (const auto &meme: sortedCategories.at(i).getMemes()) {
-        sortedMemes.push_back(meme);
-      }
-      std::sort(sortedMemes.begin(), sortedMemes.end());
-      oss << "    {\n";
-      oss << "      memes = " << format(sortedMemes) << "\n";
-      oss << "      name = " << format(sortedCategories.at(i).getName()) << "\n";
-      oss << ((i < sortedCategories.size() - 1) ? "    },\n" : "    }\n");
-    }
-    oss << "  ]";
-    return oss.str();
-  }
-
-  std::string TemplateConfig::formatInstrumentTypeList(const std::vector<Instrument::Type> &input) {
-    std::vector<std::string> result;
-    result.reserve(input.size());
-    for (const auto &value: input) {
-      result.push_back(Instrument::toString(value));
-    }
-    return format(result);
-  }
-
-  TemplateConfig::TemplateConfig(const std::string &input) : ConfigParser(input, ConfigParser(DEFAULT)) {
-    choiceMuteProbability = parseInstrumentTypeFloatMap(getObjectValue("choiceMuteProbability"));
-    deltaArcBeatLayersIncoming = getSingleValue("deltaArcBeatLayersIncoming").getInt();
-    deltaArcBeatLayersToPrioritize = getListValue("deltaArcBeatLayersToPrioritize").asListOfStrings();
-    deltaArcDetailLayersIncoming = getSingleValue("deltaArcDetailLayersIncoming").getInt();
-    deltaArcEnabled = getSingleValue("deltaArcEnabled").getBool();
-    detailLayerOrder = parseInstrumentTypeList(getListValue("detailLayerOrder"));
-    dubMasterVolume = parseInstrumentTypeFloatMap(getObjectValue("dubMasterVolume"));
-    eventNamesLarge = getListValue("eventNamesLarge").asListOfStrings();
-    eventNamesMedium = getListValue("eventNamesMedium").asListOfStrings();
-    eventNamesSmall = getListValue("eventNamesSmall").asListOfStrings();
-    instrumentTypesForAudioLengthFinalization = parseInstrumentTypeList(
-        getListValue("instrumentTypesForAudioLengthFinalization"));
-    instrumentTypesForInversionSeeking = parseInstrumentTypeList(
-        getListValue("instrumentTypesForInversionSeeking"));
-    intensityAutoCrescendoEnabled = getSingleValue("intensityAutoCrescendoEnabled").getBool();
-    intensityAutoCrescendoMaximum = getSingleValue("intensityAutoCrescendoMaximum").getFloat();
-    intensityAutoCrescendoMinimum = getSingleValue("intensityAutoCrescendoMinimum").getFloat();
-    intensityLayers = parseInstrumentTypeIntMap(getObjectValue("intensityLayers"));
-    intensityThreshold = parseInstrumentTypeFloatMap(getObjectValue("intensityThreshold"));
-    mainProgramLengthMaxDelta = getSingleValue("mainProgramLengthMaxDelta").getInt();
-    auto setOfMapsOfStrings = getListValue("memeTaxonomy").asListOfMapsOfStrings();
-    memeTaxonomy = MemeTaxonomy::fromList(setOfMapsOfStrings);
-    mixerCompressAheadSeconds = getSingleValue("mixerCompressAheadSeconds").getFloat();
-    mixerCompressDecaySeconds = getSingleValue("mixerCompressDecaySeconds").getFloat();
-    mixerCompressRatioMax = getSingleValue("mixerCompressRatioMax").getFloat();
-    mixerCompressRatioMin = getSingleValue("mixerCompressRatioMin").getFloat();
-    mixerCompressToAmplitude = getSingleValue("mixerCompressToAmplitude").getFloat();
-    mixerDspBufferSize = getSingleValue("mixerDspBufferSize").getInt();
-    mixerHighpassThresholdHz = getSingleValue("mixerHighpassThresholdHz").getInt();
-    mixerLowpassThresholdHz = getSingleValue("mixerLowpassThresholdHz").getInt();
-    mixerNormalizationBoostThreshold = getSingleValue("mixerNormalizationBoostThreshold").getFloat();
-    mixerNormalizationCeiling = getSingleValue("mixerNormalizationCeiling").getFloat();
-    stickyBunEnabled = getSingleValue("stickyBunEnabled").getBool();
-  }
-
-  std::string TemplateConfig::toString() const {
-    std::map<std::string, std::string> config;
-    config["choiceMuteProbability"] = formatInstrumentTypeFloatMap(choiceMuteProbability);
-    config["deltaArcBeatLayersIncoming"] = format(deltaArcBeatLayersIncoming);
-    config["deltaArcBeatLayersToPrioritize"] = format(deltaArcBeatLayersToPrioritize);
-    config["deltaArcDetailLayersIncoming"] = format(deltaArcDetailLayersIncoming);
-    config["deltaArcEnabled"] = format(deltaArcEnabled);
-    config["detailLayerOrder"] = formatInstrumentTypeList(detailLayerOrder);
-    config["dubMasterVolume"] = formatInstrumentTypeFloatMap(dubMasterVolume);
-    config["eventNamesLarge"] = format(eventNamesLarge);
-    config["eventNamesMedium"] = format(eventNamesMedium);
-    config["eventNamesSmall"] = format(eventNamesSmall);
-    config["instrumentTypesForAudioLengthFinalization"] = formatInstrumentTypeList(
-        instrumentTypesForAudioLengthFinalization);
-    config["instrumentTypesForInversionSeeking"] = formatInstrumentTypeList(instrumentTypesForInversionSeeking);
-    config["intensityAutoCrescendoEnabled"] = format(intensityAutoCrescendoEnabled);
-    config["intensityAutoCrescendoMaximum"] = format(intensityAutoCrescendoMaximum);
-    config["intensityAutoCrescendoMinimum"] = format(intensityAutoCrescendoMinimum);
-    config["intensityLayers"] = formatInstrumentTypeIntMap(intensityLayers);
-    config["intensityThreshold"] = formatInstrumentTypeFloatMap(intensityThreshold);
-    config["mainProgramLengthMaxDelta"] = format(mainProgramLengthMaxDelta);
-    config["memeTaxonomy"] = formatMemeTaxonomy(memeTaxonomy);
-    config["mixerCompressAheadSeconds"] = format(mixerCompressAheadSeconds);
-    config["mixerCompressDecaySeconds"] = format(mixerCompressDecaySeconds);
-    config["mixerCompressRatioMax"] = format(mixerCompressRatioMax);
-    config["mixerCompressRatioMin"] = format(mixerCompressRatioMin);
-    config["mixerCompressToAmplitude"] = format(mixerCompressToAmplitude);
-    config["mixerDspBufferSize"] = format(mixerDspBufferSize);
-    config["mixerHighpassThresholdHz"] = format(mixerHighpassThresholdHz);
-    config["mixerLowpassThresholdHz"] = format(mixerLowpassThresholdHz);
-    config["mixerNormalizationBoostThreshold"] = format(mixerNormalizationBoostThreshold);
-    config["mixerNormalizationCeiling"] = format(mixerNormalizationCeiling);
-    config["stickyBunEnabled"] = format(stickyBunEnabled);
-
-    // Convert the map to a vector of pairs for sorting
-    std::vector<std::pair<std::string, std::string>> configVec(config.begin(), config.end());
-
-    // Sort the vector by key
-    std::sort(configVec.begin(), configVec.end());
-
-    std::ostringstream oss;
-    for (const auto &pair: configVec) {
-      oss << pair.first << " = " << pair.second << "\n";
-    }
-
-    return oss.str();
-  }
-
-  std::string TemplateConfig::getDefaultString() {
-    return DEFAULT;
-  }
-
-}// namespace XJ

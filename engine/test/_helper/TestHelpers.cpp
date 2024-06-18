@@ -4,11 +4,10 @@
 
 #include "TestHelpers.h"
 
-namespace XJ {
+using namespace XJ;
 
-  void TestHelpers::assertNote(const std::string &expect, const Note &actual) {
-    ASSERT_EQ(Note::of(expect).pitchClass, actual.pitchClass);
-    ASSERT_EQ(Note::of(expect).octave, actual.octave);
-  }
 
+void TestHelpers::assertNote(const std::string &expect, const Note &actual) {
+  ASSERT_EQ(Note::of(expect).pitchClass, actual.pitchClass);
+  ASSERT_EQ(Note::of(expect).octave, actual.octave);
 }

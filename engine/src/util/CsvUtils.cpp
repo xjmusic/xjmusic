@@ -4,11 +4,7 @@
 
 using namespace XJ;
 
-/**
- * Split a CSV string into a vector of strings
- * @param csv  CSV string
- * @return     vector of strings
- */
+
 std::vector<std::string> CsvUtils::split(const std::string &csv) {
   if (csv.empty()) return {};
   std::vector<std::string> result;
@@ -26,11 +22,7 @@ std::vector<std::string> CsvUtils::split(const std::string &csv) {
   return result;
 }
 
-/**
- * Split a CSV string into a vector of proper slugs
- * @param csv  CSV string
- * @return     vector of proper slugs
- */
+
 std::vector<std::string> CsvUtils::splitProperSlug(const std::string &csv) {
   std::vector<std::string> items = split(csv);
   std::vector<std::string> slugs;
@@ -42,22 +34,12 @@ std::vector<std::string> CsvUtils::splitProperSlug(const std::string &csv) {
   return slugs;
 }
 
-/**
- * Join a set of items' toPrettyCsv() values properly, e.g. "One, Two, Three, and Four"
- * @param parts 
- * @return 
- */
+
 std::string CsvUtils::join(const std::vector<std::string> &parts) {
   return StringUtils::join(parts, ", ");
 }
 
-/**
- Join a set of items properly, e.g. "One, Two, Three, and Four"
 
- @param ids             to write
- @param beforeFinalItem text after last comma
- @return CSV of ids
- */
 std::string CsvUtils::prettyFrom(const std::vector<std::string> &ids, const std::string &beforeFinalItem) {
   if (ids.empty()) {
     return "";
@@ -75,12 +57,7 @@ std::string CsvUtils::prettyFrom(const std::vector<std::string> &ids, const std:
   return result.str();
 }
 
-/**
- Get a CSV string of key=value properties
 
- @param properties key=value
- @return CSV string
- */
 std::string CsvUtils::from(const std::map<std::string, std::string> &properties) {
   int i = 0;
   std::string result;

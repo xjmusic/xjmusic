@@ -6,6 +6,7 @@
 
 using namespace XJ;
 
+
 /**
  * XJ legacy application used UUIDs because networked data was a possibility.
  * But since the domain of this application is now entirely local, we do not require globally-unique randomness.
@@ -16,7 +17,7 @@ using namespace XJ;
  * <p>
  * @return locally unique identifier
  */
-std::string XJ::EntityUtils::computeUniqueId() {
+std::string EntityUtils::computeUniqueId() {
   std::stringstream ss;
   ss << std::hex << std::setw(12) << std::setfill('0') << UNIQUE_ID_COUNTER++;
   return ss.str();

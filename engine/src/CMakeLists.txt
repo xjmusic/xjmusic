@@ -51,6 +51,7 @@ add_library(xjmusic
         music/Note.cpp
         music/NoteRange.cpp
         music/Octave.cpp
+        music/PitchClass.cpp
         music/Root.cpp
         music/SlashRoot.cpp
         music/Step.cpp

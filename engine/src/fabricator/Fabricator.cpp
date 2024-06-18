@@ -12,6 +12,7 @@
 
 using namespace XJ;
 
+
 const std::string Fabricator::NAME_SEPARATOR = "-";
 
 
@@ -1207,34 +1208,34 @@ NoteRange Fabricator::computeProgramRange(const UUID &programId, Instrument::Typ
   return NoteRange::ofStrings(notes);
 }
 
-int Fabricator::getSegmentId(XJ::SegmentChoice &segmentChoice) {
+int Fabricator::getSegmentId(SegmentChoice &segmentChoice) {
   return segmentChoice.segmentId;
 }
 
-int Fabricator::getSegmentId(XJ::SegmentChoiceArrangement &segmentChoiceArrangement) {
+int Fabricator::getSegmentId(SegmentChoiceArrangement &segmentChoiceArrangement) {
   return segmentChoiceArrangement.segmentId;
 }
 
-int Fabricator::getSegmentId(XJ::SegmentChoiceArrangementPick &segmentChoiceArrangementPick) {
+int Fabricator::getSegmentId(SegmentChoiceArrangementPick &segmentChoiceArrangementPick) {
   return segmentChoiceArrangementPick.segmentId;
 }
 
-int Fabricator::getSegmentId(XJ::SegmentChord &segmentChord) {
+int Fabricator::getSegmentId(SegmentChord &segmentChord) {
   return segmentChord.segmentId;
 }
 
-int Fabricator::getSegmentId(XJ::SegmentChordVoicing &segmentChordVoicing) {
+int Fabricator::getSegmentId(SegmentChordVoicing &segmentChordVoicing) {
   return segmentChordVoicing.segmentId;
 }
 
-int Fabricator::getSegmentId(XJ::SegmentMeme &segmentMeme) {
+int Fabricator::getSegmentId(SegmentMeme &segmentMeme) {
   return segmentMeme.segmentId;
 }
 
-int Fabricator::getSegmentId(XJ::SegmentMessage &segmentMessage) {
+int Fabricator::getSegmentId(SegmentMessage &segmentMessage) {
   return segmentMessage.segmentId;
 }
 
-int Fabricator::getSegmentId(XJ::SegmentMeta &segmentMeta) {
+int Fabricator::getSegmentId(SegmentMeta &segmentMeta) {
   return segmentMeta.segmentId;
 }

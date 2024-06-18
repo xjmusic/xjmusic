@@ -6,9 +6,11 @@
 
 using namespace XJ;
 
+
 TEST(Music_Bar, Instance_getBeats_setBeats) {
   ASSERT_EQ(4, Bar::of(4).beats);
 }
+
 
 TEST(Music_Bar, Instance_failsFromNull) {
   EXPECT_THROW({
