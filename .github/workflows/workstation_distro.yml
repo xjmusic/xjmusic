@@ -18,33 +18,18 @@ jobs:
       - name: Nothing left TODO
         run: .github/nothing_left_todo.sh workstation
 
-  verify:
+  verify_version_number:
     needs: nothing_left_todo
-    name: Build & Test [${{ matrix.os }}]
+    name: Check Version Number
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get-version.outputs.version }}
-    strategy:
-      matrix:
-        os: [ ubuntu-latest, macos-13, macos-14, windows-latest ]
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
-      - uses: burrunan/gradle-cache-action@v1
-        name: Cache Gradle
-        with:
-          job-id: workstation-tests-${{ matrix.os }}
-
-      - name: Set up JDK17
-        uses: actions/setup-java@v1
-        with:
-          java-version: 17
-          java-package: jdk
 
       - name: Get version from gradle.properties
         id: get-version
@@ -67,6 +52,32 @@ jobs:
             echo "gradle.properties version number '$VERSION' implies tag name 'v$VERSION' but instead found '$TAG_NAME'!"
             exit 1
           fi
+
+  verify:
+    needs: verify_version_number
+    name: Build & Test [${{ matrix.os }}]
+    env:
+      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-13, macos-14, windows-latest ]
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: burrunan/gradle-cache-action@v1
+        name: Cache Gradle
+        with:
+          job-id: workstation-tests-${{ matrix.os }}
+
+      - name: Set up JDK17
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17
+          java-package: jdk
 
       - name: Build & Run Tests
         run: "./gradlew --info --no-daemon build test"
@@ -157,7 +168,7 @@ jobs:
         working-directory: workstation/
         run: |
           cd build/jpackage/
-          mv XJ\ music\ workstation-${{ needs.verify.outputs.version }}.dmg xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
+          mv XJ\ music\ workstation-${{ needs.verify_version_number.outputs.version }}.dmg xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer.dmg
 
       - name: Notarize app bundle (macOS)
         if: runner.os == 'macOS'
@@ -170,88 +181,88 @@ jobs:
           echo "----- Create keychain profile -----"
           xcrun notarytool store-credentials "notarytool-profile" --apple-id "$MACOS_NOTARIZATION_APPLE_ID" --team-id "$MACOS_NOTARIZATION_TEAM_ID" --password "$MACOS_NOTARIZATION_PWD"          
           echo "----- Notarize app -----"
-          xcrun notarytool submit build/jpackage/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg --keychain-profile "notarytool-profile" --wait
+          xcrun notarytool submit build/jpackage/xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer.dmg --keychain-profile "notarytool-profile" --wait
 
       - name: Compress DMG (macOS/Intel)
         if: runner.os == 'macOS' && runner.arch == 'X64'
         run: |
           cd workstation/build/jpackage/
-          zip -r ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
+          zip -r ../../../xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer.dmg
 
       - name: Upload DMG to release (macOS/Intel)
         if: runner.os == 'macOS' && runner.arch == 'X64'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip
-          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip
+          file: xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip
+          asset_name: xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip
           tag: ${{ github.ref }}
           overwrite: true
 
       - name: Upload DMG to Amazon S3 (macOS/Intel)
         if: runner.os == 'macOS' && runner.arch == 'X64'
         run:
-          aws s3 cp xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip s3://${{ secrets.AWS_S3_BUCKET }}/
+          aws s3 cp xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer-${{ runner.os }}-Intel.dmg.zip s3://${{ secrets.AWS_S3_BUCKET }}/
       
       - name: Compress DMG (macOS/Silicon)
         if: runner.os == 'macOS' && runner.arch == 'ARM64'
         run: |
           cd workstation/build/jpackage/
-          zip -r ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Silicon.dmg.zip xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
+          zip -r ../../../xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer-${{ runner.os }}-Silicon.dmg.zip xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer.dmg
 
       - name: Upload DMG to release (macOS/Silicon)
         if: runner.os == 'macOS' && runner.arch == 'ARM64'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Silicon.dmg.zip
-          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Silicon.dmg.zip
+          file: xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer-${{ runner.os }}-Silicon.dmg.zip
+          asset_name: xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer-${{ runner.os }}-Silicon.dmg.zip
           tag: ${{ github.ref }}
           overwrite: true
 
       - name: Upload DMG to Amazon S3 (macOS/Silicon)
         if: runner.os == 'macOS' && runner.arch == 'ARM64'
         run:
-          aws s3 cp xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}-Silicon.dmg.zip s3://${{ secrets.AWS_S3_BUCKET }}/
+          aws s3 cp xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer-${{ runner.os }}-Silicon.dmg.zip s3://${{ secrets.AWS_S3_BUCKET }}/
           
       - name: Compress EXE for Windows
         if: runner.os == 'Windows'
         run: |
           cd workstation/build/jpackage/
-          Compress-Archive -Path xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.exe -DestinationPath ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.exe.zip
+          Compress-Archive -Path xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer.exe -DestinationPath ../../../xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer-${{ runner.os }}.exe.zip
 
       - name: Upload EXE to release (Windows)
         if: runner.os == 'Windows'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.exe.zip
-          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.exe.zip
+          file: xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer-${{ runner.os }}.exe.zip
+          asset_name: xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer-${{ runner.os }}.exe.zip
           tag: ${{ github.ref }}
           overwrite: true
 
       - name: Upload EXE to Amazon S3 (Windows)
         if: runner.os == 'Windows'
         run:
-          aws s3 cp xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.exe.zip s3://${{ secrets.AWS_S3_BUCKET }}/
+          aws s3 cp xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer-${{ runner.os }}.exe.zip s3://${{ secrets.AWS_S3_BUCKET }}/
 
       - name: Compress DEB for Linux
         if: runner.os == 'Linux'
         run: |
           cd workstation/build/jpackage/
-          tar -czvf ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.deb.tar.gz xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.deb
+          tar -czvf ../../../xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer-${{ runner.os }}.deb.tar.gz xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer.deb
 
       - name: Upload DEB to release (Linux)
         if: runner.os == 'Linux'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.deb.tar.gz
-          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.deb.tar.gz
+          file: xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer-${{ runner.os }}.deb.tar.gz
+          asset_name: xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer-${{ runner.os }}.deb.tar.gz
           tag: ${{ github.ref }}
           overwrite: true
 
       - name: Upload DEB to Amazon S3 (Linux)
         if: runner.os == 'Linux'
         run:
-          aws s3 cp xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.deb.tar.gz s3://${{ secrets.AWS_S3_BUCKET }}/
+          aws s3 cp xjmusic-workstation-v${{ needs.verify_version_number.outputs.version }}-installer-${{ runner.os }}.deb.tar.gz s3://${{ secrets.AWS_S3_BUCKET }}/
