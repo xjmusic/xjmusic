@@ -116,8 +116,12 @@ TEST_F(MarbleBagTest, isEmpty_notIfAnyPhasesHaveMarbles) {
 
 TEST_F(MarbleBagTest, quickPick) {
   int pick = MarbleBag::quickPick(100);
-  ASSERT_TRUE(pick);
   ASSERT_TRUE(0 <= pick && pick < 100);
+}
+
+TEST_F(MarbleBagTest, quickPickOne) {
+  int pick = MarbleBag::quickPick(1);
+  ASSERT_TRUE(0 == pick);
 }
 
 TEST_F(MarbleBagTest, quickPick_exceptionIfZero) {

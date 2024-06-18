@@ -7,6 +7,7 @@ set(DOXYGEN_PROJECT_BRIEF "In-game runtime engine for XJ music.")
 set(DOXYGEN_PROJECT_ICON "${CMAKE_SOURCE_DIR}/doc/xj-music-logo.png")
 set(DOXYGEN_CREATE_SUBDIRS "YES")
 set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "${CMAKE_SOURCE_DIR}/README.md")
+set(DOXYGEN_EXCLUDE_SYMBOLS "detail::*,*::detail::*,std::*,*::std::*,adl_serializer::*,*::adl_serializer::*,basic_json::*,*::basic_json::*,byte_container_with_subtype::*,*::byte_container_with_subtype::*,json_pointer::*,*::json_pointer::*,json_sax::*,*::json_sax::*,ordered_map::*,*::ordered_map::*,")
 
 doxygen_add_docs(doc
         "${CMAKE_SOURCE_DIR}/include"
