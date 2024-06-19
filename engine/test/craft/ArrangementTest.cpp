@@ -14,6 +14,7 @@
 #include "xjmusic/fabricator/FabricationException.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/util/CsvUtils.h"
+#include "xjmusic/craft/Craft.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -21,9 +22,6 @@ using ::testing::Return;
 using ::testing::ReturnRef;
 
 using namespace XJ;
-
-// TODO convert this test to C++
-
 
 /**
  XJ has a serviceable voicing algorithm https://github.com/xjmusic/xjmusic/issues/221
@@ -43,10 +41,10 @@ protected:
       Instrument::Type::Sticky
   };
   // this is how we provide content for fabrication
-  FabricatorFactory *fabrication;
-  SegmentEntityStore *store;
-  ContentEntityStore *content;
-  Fabricator *fabricator;
+  FabricatorFactory *fabrication{};
+  SegmentEntityStore *store{};
+  ContentEntityStore *content{};
+  Fabricator *fabricator{};
   // list of all entities to return from Hub
   // maps with specific entities that will reference each other
   std::map<Instrument::Type, Instrument> instruments;
@@ -296,7 +294,7 @@ protected:
 
  @param filename of test YAML file
  */
-  void loadAndRunTest(std::string filename) {
+  void loadAndRunTest(const std::string& filename) {
     for (int i = 0; i < REPEAT_EACH_TEST_TIMES; i++)
       try {
         reset();

@@ -10,6 +10,7 @@
 #include <utility>
 #include <variant>
 #include <vector>
+#include <set>
 
 namespace XJ {
 
@@ -130,6 +131,12 @@ namespace XJ {
    */
     [[nodiscard]] std::vector<std::string> asListOfStrings() const;
 
+    /**
+   * Get the list as a vector of strings
+   * @return  The list as a vector of strings
+   */
+    [[nodiscard]] std::set<std::string> asSetOfStrings() const;
+
     /*
    * Get the list as a vector of maps of strings to strings
    * @return  The list as a vector of maps of strings to strings
@@ -217,39 +224,46 @@ namespace XJ {
     ConfigObjectValue getObjectValue(const std::string &key);
 
     /**
-   * Format a bool value as a string
-   * @param value  The bool value
-   * @return       The string representation of the bool value
-   */
+     * Format a bool value as a string
+     * @param value  The bool value
+     * @return       The string representation of the bool value
+     */
     static std::string format(const bool &value);
 
     /**
-   * Format an integer value as a string
-   * @param value  The integer value
-   * @return       The string representation of the integer value
-   */
+     * Format an integer value as a string
+     * @param value  The integer value
+     * @return       The string representation of the integer value
+     */
     static std::string format(const int &value);
 
     /**
-   * Format a float value as a string
-   * @param value  The float value
-   * @return       The string representation of the float value
-   */
+     * Format a float value as a string
+     * @param value  The float value
+     * @return       The string representation of the float value
+     */
     static std::string format(const float &value);
 
     /**
-   * Format a string value as a (quoted) string
-   * @param value  The string value
-   * @return       The string representation of the quoted string value
-   */
+     * Format a string value as a (quoted) string
+     * @param value  The string value
+     * @return       The string representation of the quoted string value
+     */
     static std::string format(const std::string &value);
 
     /**
-   * Format a list of strings as a comma-separated list of quoted strings in square brackets
-   * @param values
-   * @return
-   */
+     * Format a list of strings as a comma-separated list of quoted strings in square brackets
+     * @param values
+     * @return
+     */
     static std::string format(const std::vector<std::string> &values);
+
+    /**
+     * Format a list of strings as a comma-separated list of quoted strings in square brackets
+     * @param values
+     * @return
+     */
+    static std::string format(const std::set<std::string> &values);
   };
 
 }// namespace XJ

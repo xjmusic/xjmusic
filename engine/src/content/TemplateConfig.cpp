@@ -136,6 +136,15 @@ std::vector<Instrument::Type> parseInstrumentTypeList(ConfigListValue listValue)
 }
 
 
+std::set<Instrument::Type> parseInstrumentTypeSet(const ConfigListValue &listValue) {
+  std::set<Instrument::Type> result;
+  for (const auto &value: listValue.asListOfStrings()) {
+    result.emplace(Instrument::parseType(value));
+  }
+  return result;
+}
+
+
 std::string formatInstrumentTypeIntMap(const std::map<Instrument::Type, int> &values) {
   // Convert the map to a vector of pairs for sorting
   std::vector<std::pair<std::string, int>> valuesVec;
@@ -214,20 +223,27 @@ std::string TemplateConfig::formatInstrumentTypeList(const std::vector<Instrumen
 }
 
 
+std::string TemplateConfig::formatInstrumentTypeList(const std::set<Instrument::Type> &input) {
+  std::vector<Instrument::Type> sorted(input.begin(), input.end());
+  std::sort(sorted.begin(), sorted.end());
+  return formatInstrumentTypeList(sorted);
+}
+
+
 TemplateConfig::TemplateConfig(const std::string &input) : ConfigParser(input, ConfigParser(DEFAULT)) {
   choiceMuteProbability = parseInstrumentTypeFloatMap(getObjectValue("choiceMuteProbability"));
   deltaArcBeatLayersIncoming = getSingleValue("deltaArcBeatLayersIncoming").getInt();
-  deltaArcBeatLayersToPrioritize = getListValue("deltaArcBeatLayersToPrioritize").asListOfStrings();
+  deltaArcBeatLayersToPrioritize = getListValue("deltaArcBeatLayersToPrioritize").asSetOfStrings();
   deltaArcDetailLayersIncoming = getSingleValue("deltaArcDetailLayersIncoming").getInt();
   deltaArcEnabled = getSingleValue("deltaArcEnabled").getBool();
   detailLayerOrder = parseInstrumentTypeList(getListValue("detailLayerOrder"));
   dubMasterVolume = parseInstrumentTypeFloatMap(getObjectValue("dubMasterVolume"));
-  eventNamesLarge = getListValue("eventNamesLarge").asListOfStrings();
-  eventNamesMedium = getListValue("eventNamesMedium").asListOfStrings();
-  eventNamesSmall = getListValue("eventNamesSmall").asListOfStrings();
-  instrumentTypesForAudioLengthFinalization = parseInstrumentTypeList(
+  eventNamesLarge = getListValue("eventNamesLarge").asSetOfStrings();
+  eventNamesMedium = getListValue("eventNamesMedium").asSetOfStrings();
+  eventNamesSmall = getListValue("eventNamesSmall").asSetOfStrings();
+  instrumentTypesForAudioLengthFinalization = parseInstrumentTypeSet(
       getListValue("instrumentTypesForAudioLengthFinalization"));
-  instrumentTypesForInversionSeeking = parseInstrumentTypeList(
+  instrumentTypesForInversionSeeking = parseInstrumentTypeSet(
       getListValue("instrumentTypesForInversionSeeking"));
   intensityAutoCrescendoEnabled = getSingleValue("intensityAutoCrescendoEnabled").getBool();
   intensityAutoCrescendoMaximum = getSingleValue("intensityAutoCrescendoMaximum").getFloat();
@@ -305,8 +321,40 @@ std::string TemplateConfig::getDefaultString() {
 }
 
 
-bool TemplateConfig::instrumentTypesForInversionSeekingContains(Instrument::Type type) {
+bool TemplateConfig::instrumentTypesForInversionSeekingContains(Instrument::Type type) const {
   return std::find(instrumentTypesForInversionSeeking.begin(), instrumentTypesForInversionSeeking.end(), type) !=
          instrumentTypesForInversionSeeking.end();
+}
+
+float TemplateConfig::getChoiceMuteProbability(Instrument::Type type) {
+  if (choiceMuteProbability.find(type) != choiceMuteProbability.end()) {
+    return choiceMuteProbability[type];
+  } else {
+    return 0.0f;
+  }
+}
+
+float TemplateConfig::getDubMasterVolume(Instrument::Type type) {
+  if (dubMasterVolume.find(type) != dubMasterVolume.end()) {
+    return dubMasterVolume[type];
+  } else {
+    return 0.0f;
+  }
+}
+
+float TemplateConfig::getIntensityThreshold(Instrument::Type type) {
+  if (intensityThreshold.find(type) != intensityThreshold.end()) {
+    return intensityThreshold[type];
+  } else {
+    return 0.0f;
+  }
+}
+
+int TemplateConfig::getIntensityLayers(Instrument::Type type) {
+  if (intensityLayers.find(type) != intensityLayers.end()) {
+    return intensityLayers[type];
+  } else {
+    return 0;
+  }
 }
 

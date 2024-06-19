@@ -329,6 +329,13 @@ std::string ConfigParser::format(const std::vector<std::string> &values) {
 }
 
 
+std::string ConfigParser::format(const std::set<std::string> &values) {
+  std::vector<std::string> sortedValues(values.begin(), values.end());
+  std::sort(sortedValues.begin(), sortedValues.end());
+  return "[" + StringUtils::join(sortedValues, ",") + "]";
+}
+
+
 unsigned long ConfigObjectValue::size() {
   return data.size();
 }
@@ -400,6 +407,18 @@ std::vector<std::string> ConfigListValue::asListOfStrings() const {
     if (std::holds_alternative<ConfigSingleValue>(value)) {
       ConfigSingleValue single = std::get<ConfigSingleValue>(value);
       values.push_back(single.getString());
+    }
+  }
+  return values;
+}
+
+
+std::set<std::string> ConfigListValue::asSetOfStrings() const {
+  std::set<std::string> values;
+  for (const auto &value: data) {
+    if (std::holds_alternative<ConfigSingleValue>(value)) {
+      ConfigSingleValue single = std::get<ConfigSingleValue>(value);
+      values.emplace(single.getString());
     }
   }
   return values;

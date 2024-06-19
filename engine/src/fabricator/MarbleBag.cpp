@@ -177,3 +177,17 @@ int MarbleBag::quickPick(int total) {
   std::uniform_int_distribution<> distrib(0, total - 1);
   return distrib(gen);
 }
+
+bool MarbleBag::quickBooleanChanceOf(float probability) {
+  if (probability < 0 || probability >= 1)
+    throw FabricationException("Probability must be 0 <= n < 1");
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<> distrib(0, 1);
+  return distrib(gen) < probability;
+}
+
+MarbleBag::MarbleBag(const MarbleBag &other) {
+  marbles = other.marbles;
+}
+

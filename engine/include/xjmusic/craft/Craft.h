@@ -1,78 +1,506 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.engine.craft;
+#include <set>
+#include <string>
+#include <optional>
+#include <utility>
 
-import io.xj.engine.FabricationException;
-import io.xj.engine.fabricator.FabricationWrapperImpl;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.MemeIsometry;
-import io.xj.engine.util.MarbleBag;
-import io.xj.model.entity.EntityUtils;
-import io.xj.model.enums.Instrument::Mode;
-import io.xj.model.enums.Instrument::State;
-import io.xj.model.enums.Instrument::Type;
-import io.xj.model.enums.Program::State;
-import io.xj.model.enums.Program::Type;
-import io.xj.model.music.Accidental;
-import io.xj.model.music.Bar;
-import io.xj.model.music.Chord;
-import io.xj.model.music.Note;
-import io.xj.model.music.NoteRange;
-import io.xj.model.pojos.Instrument;
-import io.xj.model.pojos.InstrumentAudio;
-import io.xj.model.pojos.Program;
-import io.xj.model.pojos.ProgramSequence;
-import io.xj.model.pojos.ProgramSequencePattern;
-import io.xj.model.pojos.ProgramSequencePatternEvent;
-import io.xj.model.pojos.ProgramVoice;
-import io.xj.model.pojos.SegmentChoice;
-import io.xj.model.pojos.SegmentChoiceArrangement;
-import io.xj.model.pojos.SegmentChoiceArrangementPick;
-import io.xj.model.pojos.SegmentChord;
-import io.xj.model.pojos.SegmentChordVoicing;
-import io.xj.model.util.CsvUtils;
-import io.xj.model.util.StringUtils;
-import io.xj.model.util.TremendouslyRandom;
-import io.xj.model.util.ValueUtils;
-import jakarta.annotation.Nullable;
+#include "xjmusic/fabricator/Fabricator.h"
+#include "xjmusic/fabricator/FabricationWrapper.h"
+#include "xjmusic/fabricator/MarbleBag.h"
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+/**
+ Instrument provider to make some code more portable
+ */
+class InstrumentProvider {
+public:
+  virtual std::optional<Instrument> get(ProgramVoice voice);
+};
 
-import static io.xj.model.pojos.Segment.DELTA_UNLIMITED;
+/**
+ Class to get a comparable string index based on any given choice, e.g. it's voice name or instrument type
+ */
+class ChoiceIndexProvider {
+public:
+  virtual std::string get(SegmentChoice choice);
+};
+
+/**
+ Representation of a section of an arrangement, having a chord, beginning position and end position
+ */
+class Section {
+public:
+  SegmentChord chord;
+  double fromPos;
+  double toPos;
+};
+
+/**
+ Default choice index provider
+ */
+std::string ChoiceIndexProvider::get(SegmentChoice choice) {
+  return choice.id;
+}
 
 /**
  Arrangement of Segment Events is a common foundation for all craft
  */
-public class CraftImpl extends FabricationWrapperImpl {
-  Map<std::string, Integer> deltaIns = new HashMap<>();
-  Map<std::string, Integer> deltaOuts = new HashMap<>();
-  List<Instrument::Type> finalizeAudioLengthsForInstrumentTypes;
-  ChoiceIndexProvider choiceIndexProvider = new DefaultChoiceIndexProvider();
+class Craft : FabricationWrapper {
+  std::map<std::string, int> deltaIns;
+  std::map<std::string, int> deltaOuts;
+  std::set<Instrument::Type> finalizeAudioLengthsForInstrumentTypes;
+  ChoiceIndexProvider choiceIndexProvider = ChoiceIndexProvider();
+
+public:
 
   /**
    Must extend this class and inject
 
    @param fabricator internal
    */
-  public CraftImpl(Fabricator fabricator) {
-    super(fabricator);
+  explicit Craft(Fabricator *fabricator) : FabricationWrapper(fabricator) {
+    finalizeAudioLengthsForInstrumentTypes = fabricator->getTemplateConfig().instrumentTypesForAudioLengthFinalization;
+  }
 
-    finalizeAudioLengthsForInstrumentTypes = fabricator.getTemplateConfig().getInstrumentTypesForAudioLengthFinalization();
+  /**
+   Whether the current segment contains the delta in for the given choice
+  
+   @param choice to test whether the current segment contains this choice delta in
+   @return true if the current segment contains the given choice's delta in
+   */
+  bool isIntroSegment(const SegmentChoice &choice) {
+    return !isUnlimitedIn(choice) && choice.deltaIn >= fabricator->getSegment().delta &&
+           choice.deltaIn < fabricator->getSegment().delta + fabricator->getSegment().total;
+  }
+
+  /**
+   Whether the current segment contains the delta out for the given choice
+
+   @param choice to test whether the current segment contains this choice delta out
+   @return true if the current segment contains the given choice's delta out
+   */
+  bool isOutroSegment(const SegmentChoice &choice) {
+    return !isUnlimitedOut(choice) &&
+           choice.deltaOut <= fabricator->getSegment().delta + fabricator->getSegment().total &&
+           choice.deltaOut > fabricator->getSegment().delta;
+  }
+
+  /**
+   Whether the given choice is silent during the entire segment
+
+   @param choice to test for silence
+   @return true if choice is silent the entire segment
+   */
+  bool isSilentEntireSegment(const SegmentChoice &choice) {
+    return (choice.deltaOut < fabricator->getSegment().delta) ||
+           (choice.deltaIn >= fabricator->getSegment().delta + fabricator->getSegment().total);
+  }
+
+  /**
+   Whether the given choice is fully active during the current segment
+
+   @param choice to test for activation
+   @return true if this choice is active the entire time
+   */
+  bool isActiveEntireSegment(const SegmentChoice &choice) {
+    return (choice.deltaIn <= fabricator->getSegment().delta) &&
+           (choice.deltaOut >= fabricator->getSegment().delta + fabricator->getSegment().total);
+  }
+
+protected:
+
+  /**
+   Choose a fresh program based on a set of memes
+
+   @param programType to choose
+   @param voicingType (optional) for which to choose a program for-- and the program is required to have this type of voice
+   @return Program
+   */
+  std::optional<const Program *>
+  chooseFreshProgram(Program::Type programType, std::optional<Instrument::Type> voicingType) {
+    auto bag = MarbleBag::empty();
+
+    // Retrieve programs bound to chain having a voice of the specified type
+    std::map<UUID, Program> programMap;
+    for (auto program: fabricator->getSourceMaterial()->getProgramsOfType(programType)) {
+      programMap[program->id] = *program;
+    }
+
+    std::set<Program> candidates;
+    for (const auto &programVoice: fabricator->getSourceMaterial()->getProgramVoices()) {
+      if (voicingType.has_value() && voicingType.value() == programVoice->type &&
+          programMap.count(programVoice->programId)) {
+        candidates.insert(programMap[programVoice->programId]);
+      }
+    }
+
+    // (3) score each source program based on meme isometry
+    MemeIsometry iso = fabricator->getMemeIsometryOfSegment();
+    std::set<std::string> memes;
+
+    // Phase 1: Directly Bound Programs
+    for (const Program &program: programsDirectlyBound(candidates)) {
+      memes = ProgramMeme::getNames(fabricator->getSourceMaterial()->getMemesOfProgram(program.id));
+      // FUTURE consider meme isometry, but for now, just use the meme stack
+      if (iso.isAllowed(memes)) bag.add(1, program.id, 1 + iso.score(memes));
+    }
+
+    // Phase 2: All Published Programs
+    for (const Program &program: programsPublished(candidates)) {
+      memes = ProgramMeme::getNames(fabricator->getSourceMaterial()->getMemesOfProgram(program.id));
+      // FUTURE consider meme isometry, but for now, just use the meme stack
+      if (iso.isAllowed(memes)) bag.add(2, program.id, 1 + iso.score(memes));
+    }
+
+    // report
+    fabricator->putReport("choiceOf" + (voicingType.has_value() ? Instrument::toString(voicingType.value()) : "") +
+                          Program::toString(programType) + "Program", bag.toString());
+
+    // (4) return the top choice
+    if (bag.isEmpty()) return std::nullopt;
+    return fabricator->getSourceMaterial()->getProgram(bag.pick());
+  }
+
+  /**
+   Choose instrument
+   <p>
+   Choose drum instrument to fulfill beat program event names https://github.com/xjmusic/xjmusic/issues/253
+
+   @param type              of instrument to choose from
+   @param requireEventNames instrument candidates are required to have event names https://github.com/xjmusic/xjmusic/issues/253
+   @return Instrument
+   */
+  std::optional<const Instrument *>
+  chooseFreshInstrument(Instrument::Type type, const std::set<std::string> &requireEventNames) {
+    auto bag = MarbleBag::empty();
+
+    // Retrieve instruments bound to chain
+    std::set<const Instrument *> candidates;
+    for (const auto &instrument: fabricator->getSourceMaterial()->getInstrumentsOfType(type)) {
+      if (instrumentContainsAudioEventsLike(instrument, requireEventNames)) {
+        candidates.insert(instrument);
+      }
+    }
+
+    // Retrieve meme isometry of segment
+    MemeIsometry iso = fabricator->getMemeIsometryOfSegment();
+    std::set<std::string> memes;
+
+    // Phase 1: Directly Bound Instruments
+    for (const Instrument &instrument: instrumentsDirectlyBound(candidates)) {
+      memes = InstrumentMeme::getNames(fabricator->getSourceMaterial()->getMemesOfInstrument(instrument.id));
+      if (iso.isAllowed(memes)) bag.add(1, instrument.id, 1 + iso.score(memes));
+    }
+
+    // Phase 2: All Published Instruments
+    for (const Instrument &instrument: instrumentsPublished(candidates)) {
+      memes = InstrumentMeme::getNames(fabricator->getSourceMaterial()->getMemesOfInstrument(instrument.id));
+      if (iso.isAllowed(memes)) bag.add(2, instrument.id, 1 + iso.score(memes));
+    }
+
+    // report
+    fabricator->putReport("choiceOf" + Instrument::toString(type) + "Instrument", bag.toString());
+
+    // (4) return the top choice
+    if (bag.isEmpty()) return std::nullopt;
+    return fabricator->getSourceMaterial()->getInstrument(bag.pick());
+  }
+
+  /**
+   Percussion-type Loop-mode instrument audios are chosen in order of priority
+   https://github.com/xjmusic/xjmusic/issues/255
+   <p>
+   Choose drum instrument to fulfill beat program event names https://github.com/xjmusic/xjmusic/issues/253
+
+   @param types           of instrument to choose from
+   @param modes           of instrument to choose from
+   @param avoidIds        to avoid, or empty list
+   @param preferredEvents instrument candidates are required to have event names https://github.com/xjmusic/xjmusic/issues/253
+   @return Instrument
+   */
+  std::optional<const InstrumentAudio *>
+  chooseFreshInstrumentAudio(
+      const std::set<Instrument::Type>& types,
+      const std::set<Instrument::Mode>& modes,
+      const std::set<UUID>& avoidIds,
+      const std::set<std::string>& preferredEvents
+  ) {
+    auto bag = MarbleBag::empty();
+
+    // (2) retrieve instruments bound to chain
+    std::set<InstrumentAudio> candidates;
+    for (const auto& audio : fabricator->getSourceMaterial()->getAudiosOfInstrumentTypesAndModes(types, modes)) {
+      if (avoidIds.find(audio->id) == avoidIds.end()) {
+        candidates.insert(*audio);
+      }
+    }
+
+    // (3) score each source instrument based on meme isometry
+    MemeIsometry iso = fabricator->getMemeIsometryOfSegment();
+    std::set<std::string> memes;
+
+    // Phase 1: Directly Bound Audios (Preferred)
+    for (const InstrumentAudio& audio: audiosDirectlyBound(candidates)) {
+      memes = InstrumentMeme::getNames(fabricator->getSourceMaterial()->getMemesOfInstrument(audio.instrumentId));
+      if (iso.isAllowed(memes)) {
+        bag.add(preferredEvents.find(audio.event) != preferredEvents.end() ? 1 : 3, audio.id, 1 + iso.score(memes));
+      }
+    }
+
+    // Phase 2: All Published Audios (Preferred)
+    for (const InstrumentAudio& audio: audiosPublished(candidates)) {
+      memes = InstrumentMeme::getNames(fabricator->getSourceMaterial()->getMemesOfInstrument(audio.instrumentId));
+      if (iso.isAllowed(memes)) {
+        bag.add(preferredEvents.find(audio.event) != preferredEvents.end() ? 2 : 4, audio.id, 1 + iso.score(memes));
+      }
+    }
+
+    // report
+    std::string typeNames;
+    for (const auto& type : types) {
+      if (!typeNames.empty()) {
+        typeNames += ",";
+      }
+      typeNames += Instrument::toString(type);
+    }
+    std::string modeNames;
+    for (const auto& mode : modes) {
+      if (!modeNames.empty()) {
+        modeNames += ",";
+      }
+      modeNames += Instrument::toString(mode);
+    }
+    fabricator->putReport("choice" + typeNames + modeNames, bag.toString());
+
+    // (4) return the top choice
+    if (bag.isEmpty()) return std::nullopt;
+    return fabricator->getSourceMaterial()->getInstrumentAudio(bag.pick());
+  }
+
+  /**
+   Filter only the directly bound programs
+
+   @param programs to filter
+   @return filtered programs
+   */
+  std::set<Program> programsDirectlyBound(const std::set<Program>& programs) {
+    std::set<Program> result;
+    for (const auto& program : programs) {
+      if (fabricator->isDirectlyBound(program)) {
+        result.insert(program);
+      }
+    }
+    return result;
+  }
+
+  /**
+   Filter only the published programs
+
+   @param programs to filter
+   @return filtered programs
+   */
+  std::set<Program> programsPublished(const std::set<Program>& programs) {
+    std::set<Program> result;
+    for (const auto& program : programs) {
+      if (program.state == Program::State::Published) {
+        result.insert(program);
+      }
+    }
+    return result;
+  }
+
+  /**
+   Filter only the directly bound instruments
+
+   @param instruments to filter
+   @return filtered instruments
+   */
+  std::set<Instrument> instrumentsDirectlyBound(const std::set<const Instrument *>& instruments) {
+    std::set<Instrument> result;
+    for (const auto& instrument : instruments) {
+      if (fabricator->isDirectlyBound(*instrument)) {
+        result.insert(*instrument);
+      }
+    }
+    return result;
+  }
+
+  /**
+   Filter only the published instruments
+
+   @param instruments to filter
+   @return filtered instruments
+   */
+  std::set<Instrument> instrumentsPublished(const std::set<const Instrument *>& instruments) {
+    std::set<Instrument> result;
+    for (const auto& instrument : instruments) {
+      if (instrument->state == Instrument::State::Published) {
+        result.insert(*instrument);
+      }
+    }
+    return result;
+  }
+
+  /**
+   Filter only the directly bound instrumentAudios
+
+   @param instrumentAudios to filter
+   @return filtered instrumentAudios
+   */
+  std::set<InstrumentAudio> audiosDirectlyBound(const std::set<InstrumentAudio>& instrumentAudios) {
+    std::set<InstrumentAudio> result;
+    for (const auto& audio : instrumentAudios) {
+      if (fabricator->isDirectlyBound(audio)) {
+        result.insert(audio);
+      }
+    }
+    return result;
+  }
+
+  /**
+   Filter only the published instrumentAudios
+
+   @param instrumentAudios to filter
+   @return filtered instrumentAudios
+   */
+  std::set<InstrumentAudio> audiosPublished(const std::set<InstrumentAudio>& instrumentAudios) {
+    std::set<InstrumentAudio> result;
+    for (const auto& audio : instrumentAudios) {
+      auto instrument = fabricator->getSourceMaterial()->getInstrument(audio.instrumentId);
+      if (instrument.has_value() && instrument.value()->state == Instrument::State::Published) {
+        result.insert(audio);
+      }
+    }
+    return result;
+  }
+
+  /**
+   Compute a mute value, based on the template config
+
+   @param instrumentType of instrument for which to compute mute
+   @return true if muted
+   */
+  bool computeMute(Instrument::Type instrumentType) {
+    return MarbleBag::quickBooleanChanceOf(fabricator->getTemplateConfig().getChoiceMuteProbability(instrumentType));
+  }
+
+
+  /**
+   Select a new random instrument audio based on a pattern event
+  
+   @param instrument of which to score available audios, and make a selection
+   @param chord      to match
+   @return matched new audio
+   */
+  std::optional<const InstrumentAudio *> selectNewChordPartInstrumentAudio(const Instrument& instrument, const Chord& chord) {
+    auto bag = MarbleBag::empty();
+
+    for (auto a: fabricator->getSourceMaterial()->getAudiosOfInstrument(instrument)) {
+      Chord audioChord = Chord::of(a->tones);
+      if (audioChord == chord) {
+        bag.add(0, a->id);
+      } else if (audioChord.isAcceptable(chord)) {
+        bag.add(1, a->id);
+      }
+    }
+
+    if (bag.isEmpty()) return std::nullopt;
+
+    return fabricator->getSourceMaterial()->getInstrumentAudio(bag.pick());
+  }
+
+  /**
+   Pick the transition
+  
+   @param arrangement          to pick
+   @param audio                to pick
+   @param startAtSegmentMicros to pick
+   @param lengthMicros         to pick
+   @param event                to pick
+   @on failure
+   */
+  void pickInstrumentAudio(
+      const SegmentChoiceArrangement& arrangement,
+      const InstrumentAudio& audio,
+      long startAtSegmentMicros,
+      long lengthMicros,
+      std::string event
+  ) {
+    auto pick = new SegmentChoiceArrangementPick();
+    pick->id = EntityUtils::computeUniqueId();
+    pick->segmentId = fabricator->getSegment().id;
+    pick->segmentChoiceArrangementId = arrangement.id;
+    pick->startAtSegmentMicros = startAtSegmentMicros;
+    pick->lengthMicros = lengthMicros;
+    pick->event = std::move(event);
+    pick->amplitude = (float) 1.0;
+    pick->instrumentAudioId = audio.id;
+    fabricator->put(*pick);
+  }
+
+  /**
+   Select audios for the given instrument
+
+   @param instrument for which to pick audio
+   @return drum-type Instrument
+   */
+  std::set<InstrumentAudio> selectGeneralAudioIntensityLayers(Instrument instrument) {
+    auto previous = fabricator->getRetrospective()->getPreviousPicksForInstrument(instrument.id);
+    if (fabricator->getInstrumentConfig(instrument).isAudioSelectionPersistent && !previous.empty()) {
+      std::set<InstrumentAudio> result;
+      for (const auto& pick : previous) {
+        auto audio = fabricator->getSourceMaterial()->getInstrumentAudio(pick.instrumentAudioId);
+        if (audio.has_value()) {
+          result.insert(*audio.value());
+        }
+      }
+      return result;
+    }
+
+    return selectAudioIntensityLayers(
+        fabricator->getSourceMaterial()->getAudiosOfInstrument(instrument.id),
+        fabricator->getTemplateConfig().getIntensityLayers(instrument.type)
+    );
+  }
+
+  /**
+   Pick one audio for each desired intensity level, by layering the audios by intensity and picking one from each layer.
+   Divide the audios into layers (ergo grouping them by intensity ascending) and pick one audio per layer.
+
+   @param audios from which to pick layers
+   @param layers number of layers to pick
+   @return picked audios
+   */
+  std::set<InstrumentAudio> selectAudioIntensityLayers(std::set<const InstrumentAudio *> audios, int layers) {
+    // Sort audios by intensity
+    std::vector<const InstrumentAudio*> sorted(audios.begin(), audios.end());
+    std::sort(sorted.begin(), sorted.end(), [](const InstrumentAudio* a, const InstrumentAudio* b) {
+      return a->intensity < b->intensity;
+    });
+
+    if (sorted.empty()) return {};
+
+    // Create a vector of bags, one for each layer
+    std::vector<MarbleBag> bags(layers, MarbleBag::empty());
+
+    // Iterate through the available audios, and add them to the bags, divided into the number of layers
+    int marblesPerLayer = static_cast<int>(std::ceil(static_cast<double>(sorted.size()) / layers));
+    if (marblesPerLayer == 0) return {};
+    for (int i = 0; i < sorted.size(); i++) {
+      bags[i / marblesPerLayer].add(1, sorted[i]->id);
+    }
+
+    std::set<InstrumentAudio> result;
+    for (auto& bag : bags) {
+      if (!bag.isEmpty()) {
+        auto audio = fabricator->getSourceMaterial()->getInstrumentAudio(bag.pick());
+        if (audio.has_value()) {
+          result.insert(*audio.value());
+        }
+      }
+    }
+
+    return result;
   }
 
   /**
@@ -81,8 +509,8 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param choice to test
    @return true if deltaIn is unlimited
    */
-  protected static boolean isUnlimitedIn(SegmentChoice choice) {
-    return Objects.nonNull(choice.getDeltaIn()) && DELTA_UNLIMITED == choice.getDeltaIn();
+  static bool isUnlimitedIn(SegmentChoice choice) {
+    return SegmentChoice::DELTA_UNLIMITED == choice.deltaIn;
   }
 
   /**
@@ -91,8 +519,8 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param choice to test
    @return true if deltaOut is unlimited
    */
-  protected static boolean isUnlimitedOut(SegmentChoice choice) {
-    return Objects.nonNull(choice.getDeltaOut()) && DELTA_UNLIMITED == choice.getDeltaOut();
+  static bool isUnlimitedOut(SegmentChoice choice) {
+    return SegmentChoice::DELTA_UNLIMITED == choice.deltaOut;
   }
 
   /**
@@ -103,10 +531,10 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param value   to test for within bounds
    @return true if value is within bounds (inclusive)
    */
-  static boolean inBounds(Integer floor, Integer ceiling, double value) {
-    if (DELTA_UNLIMITED == floor && DELTA_UNLIMITED == ceiling) return true;
-    if (DELTA_UNLIMITED == floor && value <= ceiling) return true;
-    if (DELTA_UNLIMITED == ceiling && value >= floor) return true;
+  static bool inBounds(int floor, int ceiling, double value) {
+    if (SegmentChoice::DELTA_UNLIMITED == floor && SegmentChoice::DELTA_UNLIMITED == ceiling) return true;
+    if (SegmentChoice::DELTA_UNLIMITED == floor && value <= ceiling) return true;
+    if (SegmentChoice::DELTA_UNLIMITED == ceiling && value >= floor) return true;
     return value >= floor && value <= ceiling;
   }
 
@@ -118,44 +546,53 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param sequence           for which to craft choices
    @param voices             for which to craft choices
    @param instrumentProvider from which to get instruments
-   @throws FabricationException on failure
+   @on failure
    */
-  protected void craftNoteEvents(double tempo, ProgramSequence sequence, Collection<ProgramVoice> voices, InstrumentProvider instrumentProvider) throws FabricationException {
+  void craftNoteEvents(
+      double tempo,
+      ProgramSequence sequence,
+      std::set<ProgramVoice> voices,
+                       InstrumentProvider instrumentProvider
+                       ) {
     // Craft each voice into choice
-    for (ProgramVoice voice : voices) {
-      var choice = new SegmentChoice();
-      choice.setId(EntityUtils::computeUniqueId());
-      choice.setSegmentId(fabricator.getSegment().getId());
-      choice.setMute(computeMute(voice.getType()));
-      choice.setProgramType(fabricator.sourceMaterial().getProgram(voice.getProgramId()).orElseThrow(() -> new FabricationException("Can't get program for voice")).getType());
-      choice.setInstrumentType(voice.getType());
-      choice.setProgramId(voice.getProgramId());
-      choice.setProgramSequenceId(sequence.getId());
-      choice.setProgramVoiceId(voice.getId());
+    for (ProgramVoice voice: voices) {
+      auto choice = new SegmentChoice();
+      choice->id = EntityUtils::computeUniqueId();
+      choice->segmentId = fabricator->getSegment().id;
+      choice->mute = computeMute(voice.type);
+      auto p = fabricator->getSourceMaterial()->getProgram(voice.programId);
+      if (!p.has_value()) {
+        throw FabricationException("Can't get program for voice");
+      }
+      choice->programType = p.value()->type;
+      choice->instrumentType = voice.type;
+      choice->programId = voice.programId;
+      choice->programSequenceId = sequence.id;
+      choice->programVoiceId = voice.id;
 
       // Whether there is a prior choice for this voice
-      Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(voice);
+      std::optional<SegmentChoice> priorChoice = fabricator->getChoiceIfContinued(voice);
 
-      if (priorChoice.isPresent()) {
-        choice.setDeltaIn(priorChoice.get().getDeltaIn());
-        choice.setDeltaOut(priorChoice.get().getDeltaOut());
-        choice.setInstrumentId(priorChoice.get().getInstrumentId());
-        choice.setInstrumentMode(priorChoice.get().getInstrumentMode());
-        this.craftNoteEventArrangements(tempo, fabricator.put(choice, false), false);
+      if (priorChoice.has_value()) {
+        choice->deltaIn = priorChoice.value().deltaIn;
+        choice->deltaOut = priorChoice.value().deltaOut;
+        choice->instrumentId = priorChoice.value().instrumentId;
+        choice->instrumentMode = priorChoice.value().instrumentMode;
+        this->craftNoteEventArrangements(tempo, fabricator->put(*choice, false), false);
         continue;
       }
 
-      var instrument = instrumentProvider.get(voice);
-      if (instrument.isEmpty()) {
+      auto instrument = instrumentProvider.get(voice);
+      if (!instrument.has_value()) {
         continue;
       }
 
       // make new choices
-      choice.setDeltaIn(computeDeltaIn(choice));
-      choice.setDeltaOut(computeDeltaOut(choice));
-      choice.setInstrumentId(instrument.get().getId());
-      choice.setInstrumentMode(instrument.get().getMode());
-      this.craftNoteEventArrangements(tempo, fabricator.put(choice, false), false);
+      choice->deltaIn = computeDeltaIn(choice);
+      choice->deltaOut = computeDeltaOut(choice);
+      choice->instrumentId = instrument.value().id;
+      choice->instrumentMode = instrument.value().mode;
+      this->craftNoteEventArrangements(tempo, fabricator->put(*choice, false), false);
     }
   }
 
@@ -165,35 +602,35 @@ public class CraftImpl extends FabricationWrapperImpl {
 
    @param tempo      of main program
    @param instrument for which to craft choices
-   @throws FabricationException on failure
+   @on failure
    */
-  protected void craftChordParts(double tempo, Instrument instrument) throws FabricationException {
+  void craftChordParts(double tempo, Instrument instrument) {
     // Craft each voice into choice
-    var choice = new SegmentChoice();
+    auto choice = new SegmentChoice();
 
     choice.setId(EntityUtils::computeUniqueId());
-    choice.setSegmentId(fabricator.getSegment().getId());
+    choice.setSegmentId(fabricator->getSegment().id);
     choice.setMute(computeMute(instrument.getType()));
     choice.setInstrumentType(instrument.getType());
     choice.setInstrumentMode(instrument.getMode());
-    choice.setInstrumentId(instrument.getId());
+    choice.setInstrumentId(instrument.id);
 
     // Whether there is a prior choice for this voice
-    Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(instrument.getType());
+    std::optional<SegmentChoice> priorChoice = fabricator->getChoiceIfContinued(instrument.getType());
 
     if (priorChoice.isPresent()) {
-      choice.setDeltaIn(priorChoice.get().getDeltaIn());
-      choice.setDeltaOut(priorChoice.get().getDeltaOut());
-      choice.setInstrumentId(priorChoice.get().getInstrumentId());
-      this.craftChordParts(tempo, instrument, fabricator.put(choice, false));
+      choice.setDeltaIn(priorChoice.get().deltaIn);
+      choice.setDeltaOut(priorChoice.get().deltaOut);
+      choice.setInstrumentId(priorChoice.get().instrumentId);
+      this.craftChordParts(tempo, instrument, fabricator->put(choice, false));
       return;
     }
 
     // make new choices
     choice.setDeltaIn(computeDeltaIn(choice));
     choice.setDeltaOut(computeDeltaOut(choice));
-    choice.setInstrumentId(instrument.getId());
-    this.craftChordParts(tempo, instrument, fabricator.put(choice, false));
+    choice.setInstrumentId(instrument.id);
+    this.craftChordParts(tempo, instrument, fabricator->put(choice, false));
   }
 
   /**
@@ -203,45 +640,46 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param tempo      of main program
    @param instrument chosen
    @param choice     for which to craft chord parts
-   @throws FabricationException on failure
+   @on failure
    */
-  protected void craftChordParts(double tempo, Instrument instrument, SegmentChoice choice) throws FabricationException {
-    if (fabricator.getSegmentChords().isEmpty()) return;
+  void craftChordParts(double tempo, Instrument instrument, SegmentChoice choice) {
+    if (fabricator->getSegmentChords().isEmpty()) return;
 
     // Arrangement
-    var arrangement = new SegmentChoiceArrangement();
+    auto arrangement = new SegmentChoiceArrangement();
     arrangement.setId(EntityUtils::computeUniqueId());
-    arrangement.setSegmentId(choice.getSegmentId());
-    arrangement.segmentChoiceId(choice.getId());
-    fabricator.put(arrangement, false);
+    arrangement.setSegmentId(choice.segmentId);
+    arrangement.segmentChoiceId(choice.id);
+    fabricator->put(arrangement, false);
 
     // Pick for each section
-    for (var section : computeSections()) {
-      var audio = selectChordPartInstrumentAudio(instrument, Chord.of(section.chord.getName()));
+    for (auto section: computeSections()) {
+      auto audio = selectChordPartInstrumentAudio(instrument, Chord.of(section.chord.getName()));
 
       // Should gracefully skip audio in unfulfilled by instrument https://github.com/xjmusic/xjmusic/issues/240
       if (audio.isEmpty()) continue;
 
       // Pick attributes are expressed "rendered" as actual seconds
-      long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(tempo, section.fromPos);
-      @Nullable Long lengthMicros = fabricator.isOneShot(instrument) ? null : fabricator.getSegmentMicrosAtPosition(tempo, section.toPos) - startAtSegmentMicros;
+      long startAtSegmentMicros = fabricator->getSegmentMicrosAtPosition(tempo, section.fromPos);
+      @Nullable long lengthMicros = fabricator->isOneShot(instrument) ? null :
+                                    fabricator->getSegmentMicrosAtPosition(tempo, section.toPos) - startAtSegmentMicros;
 
       // Volume ratio
-      var volRatio = computeVolumeRatioForPickedNote(choice, section.fromPos);
+      auto volRatio = computeVolumeRatioForPickedNote(choice, section.fromPos);
       if (0 >= volRatio) continue;
 
       // Pick
-      var pick = new SegmentChoiceArrangementPick();
+      auto pick = new SegmentChoiceArrangementPick();
       pick.setId(EntityUtils::computeUniqueId());
-      pick.setSegmentId(choice.getSegmentId());
-      pick.setSegmentChoiceArrangementId(arrangement.getId());
-      pick.setInstrumentAudioId(audio.get().getId());
+      pick.setSegmentId(choice.segmentId);
+      pick.setSegmentChoiceArrangementId(arrangement.id);
+      pick.setInstrumentAudioId(audio.get().id);
       pick.setStartAtSegmentMicros(startAtSegmentMicros);
       pick.setTones(section.chord.getName());
-      pick.setEvent(StringUtils.toEvent(instrument.getType().toString()));
+      pick.setEvent(StringUtils.toEvent(instrument.type.toString()));
       pick.setLengthMicros(lengthMicros);
       pick.setAmplitude(volRatio);
-      fabricator.put(pick, false);
+      fabricator->put(pick, false);
     }
 
     // Final pass to set the actual length of one-shot audio picks
@@ -254,18 +692,18 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param tempo      of main program
    @param instrument for which to craft choices
    @param program    for which to craft choices
-   @throws FabricationException on failure
+   @on failure
    */
-  protected void craftEventParts(double tempo, Instrument instrument, Program program) throws FabricationException {
+  void craftEventParts(double tempo, Instrument instrument, Program program) {
     // Event detail sequence is selected at random of the current instrument
     // FUTURE: Detail Instrument with multiple Sequences https://github.com/xjmusic/xjmusic/issues/241
-    var sequence = fabricator.getRandomlySelectedSequence(program);
+    auto sequence = fabricator->getRandomlySelectedSequence(program);
 
     // Event voice arrangements
     if (sequence.isPresent()) {
-      var voices = fabricator.sourceMaterial().getVoicesOfProgram(program);
+      auto voices = fabricator->getSourceMaterial()->getVoicesOfProgram(program);
       if (voices.isEmpty()) return;
-      craftNoteEvents(tempo, sequence.get(), voices, ignored -> Optional.of(instrument));
+      craftNoteEvents(tempo, sequence.get(), voices, ignored->std::optional.of(instrument));
     }
   }
 
@@ -275,8 +713,8 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param choice for which to get delta in
    @return delta in for given voice
    */
-  protected int computeDeltaIn(SegmentChoice choice) {
-    return deltaIns.getOrDefault(choiceIndexProvider.get(choice), DELTA_UNLIMITED);
+  int computeDeltaIn(SegmentChoice *choice) {
+    return deltaIns.getOrDefault(choiceIndexProvider.get(choice), SegmentChoice::DELTA_UNLIMITED);
   }
 
   /**
@@ -285,8 +723,8 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param choice for which to get delta out
    @return delta out for given voice
    */
-  protected int computeDeltaOut(SegmentChoice choice) {
-    return deltaOuts.getOrDefault(choiceIndexProvider.get(choice), DELTA_UNLIMITED);
+  int computeDeltaOut(SegmentChoice *choice) {
+    return deltaOuts.getOrDefault(choiceIndexProvider.get(choice), SegmentChoice::DELTA_UNLIMITED);
   }
 
   /**
@@ -308,22 +746,23 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param tempo         of main program
    @param choice        to craft arrangements for
    @param defaultAtonal whether to default to a single atonal note, if no voicings are available
-   @throws FabricationException on failure
+   @on failure
    */
-  protected void craftNoteEventArrangements(double tempo, SegmentChoice choice, boolean defaultAtonal) throws FabricationException {
+  void craftNoteEventArrangements(double tempo, SegmentChoice choice, bool defaultAtonal) {
     // this is used to invert voicings into the tightest possible range
     // passed to each iteration of note voicing arrangement in order to move as little as possible from the previous
     NoteRange range = NoteRange.empty();
 
-    var programConfig = fabricator.getProgramConfig(fabricator.getProgram(choice).orElseThrow(() -> new FabricationException("Can't get program config")));
+    auto programConfig = fabricator->getProgramConfig(fabricator->getProgram(choice).orElseThrow(()->
+    new FabricationException("Can't get program config")));
 
-    if (fabricator.getSegmentChords().isEmpty())
-      craftNoteEventSection(tempo, choice, 0, fabricator.getSegment().getTotal(), range, defaultAtonal);
+    if (fabricator->getSegmentChords().isEmpty())
+      craftNoteEventSection(tempo, choice, 0, fabricator->getSegment().total, range, defaultAtonal);
 
     else if (programConfig.doPatternRestartOnChord())
       craftNoteEventSectionRestartingEachChord(tempo, choice, range, defaultAtonal);
 
-    else craftNoteEventSection(tempo, choice, 0, fabricator.getSegment().getTotal(), range, defaultAtonal);
+    else craftNoteEventSection(tempo, choice, 0, fabricator->getSegment().total, range, defaultAtonal);
 
     // Final pass to set the actual length of one-shot audio picks
     finalizeNoteEventCutoffsOfOneShotInstrumentAudioPicks(choice);
@@ -342,67 +781,76 @@ public class CraftImpl extends FabricationWrapperImpl {
    <p>
    Vary the high plateau between delta in and out across layers
 
-   @throws FabricationException on failure
+   @on failure
    */
-  protected void precomputeDeltas(Predicate<SegmentChoice> choiceFilter, ChoiceIndexProvider choiceIndexProvider, Collection<std::string> layers, Collection<std::string> layerPrioritizationSearches, int numLayersIncoming) throws FabricationException {
+  void precomputeDeltas(Predicate <SegmentChoice> choiceFilter, ChoiceIndexProvider choiceIndexProvider,
+                        std::set<std::string> layers, std::set<std::string> layerPrioritizationSearches,
+                        int numLayersIncoming) {
     this.choiceIndexProvider = choiceIndexProvider;
     deltaIns.clear();
     deltaOuts.clear();
 
     // Ensure that we can bypass delta arcs using the template config
-    if (!fabricator.getTemplateConfig().isDeltaArcEnabled()) {
-      layers.forEach(layer -> {
-        deltaIns.put(layer, DELTA_UNLIMITED);
-        deltaOuts.put(layer, DELTA_UNLIMITED);
+    if (!fabricator->getTemplateConfig().isDeltaArcEnabled()) {
+      layers.forEach(layer->
+      {
+        deltaIns.put(layer, SegmentChoice::DELTA_UNLIMITED);
+        deltaOuts.put(layer, SegmentChoice::DELTA_UNLIMITED);
       });
       return;
     }
 
     // then we overwrite the wall-to-wall random values with more specific values depending on the situation
-    switch (fabricator.getType()) {
-      case PENDING -> {
+    switch (fabricator->getType()) {
+      case PENDING->{
         // No Op
       }
 
-      case INITIAL, NEXT_MAIN, NEXT_MACRO -> {
-        // randomly override N incoming (deltaIn unlimited) and N outgoing (deltaOut unlimited)
-        // shuffle the layers into a random order, then step through them, assigning delta ins and then outs
-        // random order in
-        var barBeats = fabricator.getCurrentMainProgramConfig().getBarBeats();
-        var deltaUnits = Bar.of(barBeats).computeSubsectionBeats(fabricator.getSegment().getTotal());
+      case INITIAL, NEXT_MAIN, NEXT_MACRO->
+        {
+          // randomly override N incoming (deltaIn unlimited) and N outgoing (deltaOut unlimited)
+          // shuffle the layers into a random order, then step through them, assigning delta ins and then outs
+          // random order in
+          auto barBeats = fabricator->getCurrentMainProgramConfig().getBarBeats();
+          auto deltaUnits = Bar.of(barBeats).computeSubsectionBeats(fabricator->getSegment().total);
 
-        // Delta arcs can prioritize the presence of a layer by name, e.g. containing "kick"
-        // separate layers into primary and secondary, shuffle them separately, then concatenate
-        List<std::string> priLayers = new ArrayList<>();
-        List<std::string> secLayers = new ArrayList<>();
-        layers.forEach(layer -> {
-          var layerName = layer.toLowerCase(Locale.ROOT);
-          if (layerPrioritizationSearches.stream().anyMatch(m -> layerName.contains(m.toLowerCase(Locale.ROOT))))
-            priLayers.add(layer);
-          else secLayers.add(layer);
-        });
-        Collections.shuffle(priLayers);
-        if (!priLayers.isEmpty()) fabricator.addInfoMessage(std::string.format("Prioritized %s", CsvUtils.join(priLayers)));
-        Collections.shuffle(secLayers);
-        var orderedLayers = Stream.concat(priLayers.stream(), secLayers.stream()).toList();
-        var delta = ValueUtils.roundToNearest(deltaUnits, TremendouslyRandom.zeroToLimit(deltaUnits * 4) - deltaUnits * 2 * numLayersIncoming);
-        for (std::string orderedLayer : orderedLayers) {
-          deltaIns.put(orderedLayer, delta > 0 ? delta : DELTA_UNLIMITED);
-          deltaOuts.put(orderedLayer, DELTA_UNLIMITED); // all layers get delta out unlimited
-          delta += ValueUtils.roundToNearest(deltaUnits, TremendouslyRandom.zeroToLimit(deltaUnits * 5));
+          // Delta arcs can prioritize the presence of a layer by name, e.g. containing "kick"
+          // separate layers into primary and secondary, shuffle them separately, then concatenate
+          List <std::string> priLayers = new ArrayList<>();
+          List <std::string> secLayers = new ArrayList<>();
+          layers.forEach(layer->
+          {
+            auto layerName = layer.toLowerCase(Locale.ROOT);
+            if (layerPrioritizationSearches.stream().anyMatch(m->layerName.contains(m.toLowerCase(Locale.ROOT))))
+              priLayers.add(layer);
+            else secLayers.add(layer);
+          });
+          Collections.shuffle(priLayers);
+          if (!priLayers.isEmpty())
+            fabricator->addInfoMessage(std::string.format("Prioritized %s", CsvUtils.join(priLayers)));
+          Collections.shuffle(secLayers);
+          auto orderedLayers = Stream.concat(priLayers.stream(), secLayers.stream()).toList();
+          auto delta = ValueUtils.roundToNearest(deltaUnits, TremendouslyRandom.zeroToLimit(deltaUnits * 4) -
+                                                             deltaUnits * 2 * numLayersIncoming);
+          for (std::string orderedLayer: orderedLayers) {
+            deltaIns.put(orderedLayer, delta > 0 ? delta : SegmentChoice::DELTA_UNLIMITED);
+            deltaOuts.put(orderedLayer, SegmentChoice::DELTA_UNLIMITED); // all layers get delta out unlimited
+            delta += ValueUtils.roundToNearest(deltaUnits, TremendouslyRandom.zeroToLimit(deltaUnits * 5));
+          }
         }
-      }
 
-      case CONTINUE -> {
-        for (std::string index : layers)
-          fabricator.retrospective().getChoices().stream()
-            .filter(choiceFilter)
-            .filter(choice -> Objects.equals(index, choiceIndexProvider.get(choice)))
-            .findAny()
-            .ifPresent(choice -> deltaIns.put(choiceIndexProvider.get(choice), choice.getDeltaIn()));
+      case CONTINUE->{
+        for (std::string index: layers)
+          fabricator->retrospective().getChoices().stream()
+              .filter(choiceFilter)
+              .filter(choice->Objects.equals(index, choiceIndexProvider.get(choice)))
+              .findAny()
+              .ifPresent(choice->deltaIns.put(choiceIndexProvider.get(choice), choice.deltaIn));
       }
     }
   }
+
+private:
 
   /**
    Iterate through all the chords of a sequence and arrange events per each chord
@@ -413,10 +861,11 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param choice        from which to craft events
    @param range         used to keep voicing in the tightest range possible
    @param defaultAtonal whether to default to a single atonal note, if no voicings are available
-   @throws FabricationException on failure
+   @on failure
    */
-  void craftNoteEventSectionRestartingEachChord(double tempo, SegmentChoice choice, NoteRange range, boolean defaultAtonal) throws FabricationException {
-    for (var section : computeSections())
+  void
+  craftNoteEventSectionRestartingEachChord(double tempo, SegmentChoice choice, NoteRange range, bool defaultAtonal) {
+    for (auto section: computeSections())
       craftNoteEventSection(tempo, choice, section.fromPos, section.toPos, range, defaultAtonal);
   }
 
@@ -425,20 +874,22 @@ public class CraftImpl extends FabricationWrapperImpl {
 
    @return sections in order of position ascending
    */
-  List<Section> computeSections() {
+  std::vector<Section> computeSections() {
     // guaranteed to be in order of position ascending
-    SegmentChord[] chords = new SegmentChord[fabricator.getSegmentChords().size()];
-    var i = 0;
-    for (var chord : fabricator.getSegmentChords()) {
+    SegmentChord[]
+    chords = new SegmentChord[fabricator->getSegmentChords().size()];
+    auto i = 0;
+    for (auto chord: fabricator->getSegmentChords()) {
       chords[i] = chord;
       i++;
     }
-    Section[] sections = new Section[chords.length];
+    Section[]
+    sections = new Section[chords.length];
     for (i = 0; i < chords.length; i++) {
       sections[i] = new Section();
       sections[i].chord = chords[i];
       sections[i].fromPos = chords[i].getPosition();
-      sections[i].toPos = i < chords.length - 1 ? chords[i + 1].getPosition() : fabricator.getSegment().getTotal();
+      sections[i].toPos = i < chords.length - 1 ? chords[i + 1].getPosition() : fabricator->getSegment().total;
     }
     return Arrays.stream(sections).toList();
   }
@@ -452,16 +903,18 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param maxPos        position (in beats)
    @param range         used to keep voicing in the tightest range possible
    @param defaultAtonal whether to default to a single atonal note, if no voicings are available
-   @throws FabricationException on failure
+   @on failure
    */
-  void craftNoteEventSection(double tempo, SegmentChoice choice, double fromPos, double maxPos, NoteRange range, boolean defaultAtonal) throws FabricationException {
+  void craftNoteEventSection(double tempo, SegmentChoice choice, double fromPos, double maxPos, NoteRange range,
+                             bool defaultAtonal) {
 
     // begin at the beginning and fabricate events for the segment of beginning to end
     double curPos = fromPos;
 
     // choose loop patterns until arrive at the out point or end of segment
     while (curPos < maxPos) {
-      Optional<ProgramSequencePattern> loopPattern = fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice);
+      std::optional<ProgramSequencePattern> loopPattern = fabricator->getRandomlySelectedPatternOfSequenceByVoiceAndType(
+          choice);
       if (loopPattern.isPresent())
         curPos += craftPatternEvents(tempo, choice, loopPattern.get(), curPos, maxPos, range, defaultAtonal);
       else curPos = maxPos;
@@ -480,22 +933,25 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param defaultAtonal whether to default to a single atonal note, if no voicings are available
    @return deltaPos of start, after crafting this batch of pattern events
    */
-  double craftPatternEvents(double tempo, SegmentChoice choice, ProgramSequencePattern pattern, double fromPosition, double toPosition, NoteRange range, boolean defaultAtonal) throws FabricationException {
+  double craftPatternEvents(double tempo, SegmentChoice choice, ProgramSequencePattern pattern, double fromPosition,
+                            double toPosition, NoteRange range, bool defaultAtonal) {
     if (Objects.isNull(pattern)) throw new FabricationException("Cannot craft create null pattern");
     double loopBeats = toPosition - fromPosition;
-    List<ProgramSequencePatternEvent> events = fabricator.sourceMaterial().getEventsOfPattern(pattern);
+    List <ProgramSequencePatternEvent> events = fabricator->getSourceMaterial()->getEventsOfPattern(pattern);
 
-    var arrangement = new SegmentChoiceArrangement();
+    auto arrangement = new SegmentChoiceArrangement();
     arrangement.setId(EntityUtils::computeUniqueId());
-    arrangement.setSegmentId(choice.getSegmentId());
-    arrangement.segmentChoiceId(choice.getId());
-    arrangement.setProgramSequencePatternId(pattern.getId());
-    fabricator.put(arrangement, false);
+    arrangement.setSegmentId(choice.segmentId);
+    arrangement.segmentChoiceId(choice.id);
+    arrangement.setProgramSequencePatternId(pattern.id);
+    fabricator->put(arrangement, false);
 
-    var instrument = fabricator.sourceMaterial().getInstrument(choice.getInstrumentId()).orElseThrow(() -> new FabricationException("Failed to retrieve instrument"));
-    for (ProgramSequencePatternEvent event : events)
-      pickNotesAndInstrumentAudioForEvent(tempo, instrument, choice, arrangement, fromPosition, toPosition, event, range, defaultAtonal);
-    return Math.min(loopBeats, pattern.getTotal());
+    auto instrument = fabricator->getSourceMaterial()->getInstrument(choice.instrumentId).orElseThrow(()->
+    new FabricationException("Failed to retrieve instrument"));
+    for (ProgramSequencePatternEvent event: events)
+      pickNotesAndInstrumentAudioForEvent(tempo, instrument, choice, arrangement, fromPosition, toPosition, event,
+                                          range, defaultAtonal);
+    return Math.min(loopBeats, pattern.total);
   }
 
   /**
@@ -509,30 +965,39 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param range         used to keep voicing in the tightest range possible
    @param defaultAtonal whether to default to a single atonal note, if no voicings are available
    */
-  void pickNotesAndInstrumentAudioForEvent(double tempo, Instrument instrument, SegmentChoice choice, SegmentChoiceArrangement arrangement, double fromPosition, double toPosition, ProgramSequencePatternEvent event, NoteRange range, boolean defaultAtonal) throws FabricationException {
+  void pickNotesAndInstrumentAudioForEvent(double tempo, Instrument instrument, SegmentChoice choice,
+                                           SegmentChoiceArrangement arrangement, double fromPosition, double toPosition,
+                                           ProgramSequencePatternEvent event, NoteRange range, bool defaultAtonal) {
     // Segment position is expressed in beats
     double segmentPosition = fromPosition + event.getPosition();
 
     // Should never place segment events outside of segment time range
-    if (segmentPosition < 0 || segmentPosition >= fabricator.getSegment().getTotal()) return;
+    if (segmentPosition < 0 || segmentPosition >= fabricator->getSegment().total) return;
 
     double duration = Math.min(event.getDuration(), toPosition - segmentPosition);
-    var chord = fabricator.getChordAt(segmentPosition);
-    Optional<SegmentChordVoicing> voicing = chord.isPresent() ? fabricator.chooseVoicing(chord.get(), instrument.getType()) : Optional.empty();
+    auto chord = fabricator->getChordAt(segmentPosition);
+    std::optional<SegmentChordVoicing> voicing = chord.isPresent() ? fabricator->chooseVoicing(chord.get(),
+                                                                                               instrument.getType())
+                                                                   : std::nullopt;
 
-    var volRatio = computeVolumeRatioForPickedNote(choice, segmentPosition);
+    auto volRatio = computeVolumeRatioForPickedNote(choice, segmentPosition);
     if (0 >= volRatio) return;
 
     // The note is voiced from the chord voicing (if found) or else the default is used
-    Set<std::string> notes = voicing.isPresent() ? pickNotesForEvent(instrument.getType(), choice, event, chord.get(), voicing.get(), range) : (defaultAtonal ? Set.of(Note.ATONAL) : Set.of());
+    Set <std::string> notes = voicing.isPresent() ? pickNotesForEvent(instrument.type, choice, event, chord.get(),
+                                                                      voicing.get(), range) : (defaultAtonal ? Set.of(
+        Note.ATONAL) : Set.of());
 
     // Pick attributes are expressed "rendered" as actual seconds
-    long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(tempo, segmentPosition);
-    @Nullable Long lengthMicros = fabricator.isOneShot(instrument, fabricator.getTrackName(event)) ? null : fabricator.getSegmentMicrosAtPosition(tempo, segmentPosition + duration) - startAtSegmentMicros;
+    long startAtSegmentMicros = fabricator->getSegmentMicrosAtPosition(tempo, segmentPosition);
+    @Nullable long lengthMicros = fabricator->isOneShot(instrument, fabricator->getTrackName(event)) ? null :
+                                  fabricator->getSegmentMicrosAtPosition(tempo, segmentPosition + duration) -
+                                  startAtSegmentMicros;
 
     // pick an audio for each note
-    for (var note : notes)
-      pickInstrumentAudio(note, instrument, event, arrangement, startAtSegmentMicros, lengthMicros, voicing.map(SegmentChordVoicing::getId).orElse(null), volRatio);
+    for (auto note: notes)
+      pickInstrumentAudio(note, instrument, event, arrangement, startAtSegmentMicros, lengthMicros,
+                          voicing.map(SegmentChordVoicing::getId).orElse(null), volRatio);
   }
 
   /**
@@ -541,46 +1006,51 @@ public class CraftImpl extends FabricationWrapperImpl {
 
    @param choice for which to finalize length of one-shot audio picks
    */
-  void finalizeNoteEventCutoffsOfOneShotInstrumentAudioPicks(SegmentChoice choice) throws FabricationException {
-    var instrument = fabricator.sourceMaterial().getInstrument(choice.getInstrumentId()).orElseThrow(() -> new FabricationException("Failed to get instrument from source material for segment choice!"));
+  void finalizeNoteEventCutoffsOfOneShotInstrumentAudioPicks(SegmentChoice choice) {
+    auto instrument = fabricator->getSourceMaterial()->getInstrument(choice.instrumentId).orElseThrow(()->
+    new FabricationException("Failed to get instrument from source material for segment choice!"));
 
     // skip instruments that are not one-shot
-    if (!fabricator.isOneShot(instrument)) return;
+    if (!fabricator->isOneShot(instrument)) return;
 
     // skip instruments that are do not have one-shot cutoff enabled https://github.com/xjmusic/xjmusic/issues/225
-    if (!fabricator.isOneShotCutoffEnabled(instrument)) return;
+    if (!fabricator->isOneShotCutoffEnabled(instrument)) return;
 
     // skip instruments that are not on the list
     if (!finalizeAudioLengthsForInstrumentTypes.contains(instrument.getType())) return;
 
     // get all the picks, ordered chronologically, and skip the rest of this process if there are none
-    List<SegmentChoiceArrangementPick> picks = fabricator.getPicks(choice);
+    List <SegmentChoiceArrangementPick> picks = fabricator->getPicks(choice);
     if (picks.isEmpty()) return;
 
     // build an ordered unique list of the moments in time when the one-shot will be cut off
-    List<Long> cutoffAtSegmentMicros = picks.stream().map(SegmentChoiceArrangementPick::getStartAtSegmentMicros).collect(Collectors.toSet()).stream().sorted().toList();
+    List<long> cutoffAtSegmentMicros = picks.stream().map(
+        SegmentChoiceArrangementPick::getStartAtSegmentMicros).collect(Collectors.toSet()).stream().sorted().toList();
 
     // iterate and set lengths of all picks in series
-    for (SegmentChoiceArrangementPick pick : picks) {
+    for (SegmentChoiceArrangementPick pick: picks) {
 
       // Skip picks that already have their end length set
       if (Objects.nonNull(pick.getLengthMicros())) continue;
 
-      var nextCutoffAtSegmentMicros = cutoffAtSegmentMicros.stream().filter(c -> c > pick.getStartAtSegmentMicros()).findFirst();
+      auto nextCutoffAtSegmentMicros = cutoffAtSegmentMicros.stream().filter(
+          c->c > pick.getStartAtSegmentMicros()).findFirst();
 
       if (nextCutoffAtSegmentMicros.isPresent()) {
         pick.setLengthMicros(nextCutoffAtSegmentMicros.get() - pick.getStartAtSegmentMicros());
-        fabricator.put(pick, false);
+        fabricator->put(pick, false);
         continue;
       }
 
-      if (pick.getStartAtSegmentMicros() < fabricator.getTotalSegmentMicros()) {
-        pick.setLengthMicros(fabricator.getTotalSegmentMicros() - pick.getStartAtSegmentMicros());
-        fabricator.put(pick, false);
+      if (pick.getStartAtSegmentMicros() < fabricator->getTotalSegmentMicros()) {
+        pick.setLengthMicros(fabricator->getTotalSegmentMicros() - pick.getStartAtSegmentMicros());
+        fabricator->put(pick, false);
         continue;
       }
 
-      fabricator.delete(pick.getSegmentId(), SegmentChoiceArrangementPick.class, pick.getId());
+      fabricator->
+      delete (pick.segmentId, SegmentChoiceArrangementPick.
+      class, pick.id);
     }
   }
 
@@ -592,48 +1062,9 @@ public class CraftImpl extends FabricationWrapperImpl {
    @return volume ratio
    */
   float computeVolumeRatioForPickedNote(SegmentChoice choice, double segmentPosition) {
-    if (!fabricator.getTemplateConfig().isDeltaArcEnabled()) return 1.0f;
-    return (float) (inBounds(choice.getDeltaIn(), choice.getDeltaOut(), fabricator.getSegment().getDelta() + segmentPosition) ? 1.0 : 0.0);
-  }
-
-  /**
-   Whether the current segment contains the delta in for the given choice
-
-   @param choice to test whether the current segment contains this choice delta in
-   @return true if the current segment contains the given choice's delta in
-   */
-  public boolean isIntroSegment(SegmentChoice choice) {
-    return !isUnlimitedIn(choice) && choice.getDeltaIn() >= fabricator.getSegment().getDelta() && choice.getDeltaIn() < fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal();
-  }
-
-  /**
-   Whether the current segment contains the delta out for the given choice
-
-   @param choice to test whether the current segment contains this choice delta out
-   @return true if the current segment contains the given choice's delta out
-   */
-  public boolean isOutroSegment(SegmentChoice choice) {
-    return !isUnlimitedOut(choice) && choice.getDeltaOut() <= fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal() && choice.getDeltaOut() > fabricator.getSegment().getDelta();
-  }
-
-  /**
-   Whether the given choice is silent during the entire segment
-
-   @param choice to test for silence
-   @return true if choice is silent the entire segment
-   */
-  public boolean isSilentEntireSegment(SegmentChoice choice) {
-    return (choice.getDeltaOut() < fabricator.getSegment().getDelta()) || (choice.getDeltaIn() >= fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal());
-  }
-
-  /**
-   Whether the given choice is fully active during the current segment
-
-   @param choice to test for activation
-   @return true if this choice is active the entire time
-   */
-  public boolean isActiveEntireSegment(SegmentChoice choice) {
-    return (choice.getDeltaIn() <= fabricator.getSegment().getDelta()) && (choice.getDeltaOut() >= fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal());
+    if (!fabricator->getTemplateConfig().isDeltaArcEnabled()) return 1.0f;
+    return (float) (inBounds(choice.deltaIn, choice.deltaOut, fabricator->getSegment().delta + segmentPosition) ? 1.0
+                                                                                                                : 0.0);
   }
 
   /**
@@ -649,40 +1080,50 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param optimalRange    used to keep voicing in the tightest range possible
    @return note picked from the available voicing
    */
-  Set<std::string> pickNotesForEvent(Instrument::Type instrumentType, SegmentChoice choice, ProgramSequencePatternEvent event, SegmentChord rawSegmentChord, SegmentChordVoicing voicing, NoteRange optimalRange) throws FabricationException {
+  Set <std::string>
+  pickNotesForEvent(Instrument::Type instrumentType, SegmentChoice choice, ProgramSequencePatternEvent event,
+                    SegmentChord rawSegmentChord, SegmentChordVoicing voicing, NoteRange optimalRange) {
     // Various computations to prepare for picking
-    var segChord = Chord.of(rawSegmentChord.getName());
-    var dpKey = fabricator.getKeyForChoice(choice);
-    var dpRange = fabricator.getProgramRange(choice.getProgramId(), instrumentType);
-    var voicingListRange = fabricator.getProgramVoicingNoteRange(instrumentType);
+    auto segChord = Chord.of(rawSegmentChord.getName());
+    auto dpKey = fabricator->getKeyForChoice(choice);
+    auto dpRange = fabricator->getProgramRange(choice.programId, instrumentType);
+    auto voicingListRange = fabricator->getProgramVoicingNoteRange(instrumentType);
 
     // take semitone shift into project before computing octave shift! https://github.com/xjmusic/xjmusic/issues/245
-    var dpTransposeSemitones = fabricator.getProgramTargetShift(instrumentType, dpKey, segChord);
-    var dpTransposeOctaveSemitones = 12 * fabricator.getProgramRangeShiftOctaves(instrumentType, dpRange.shifted(dpTransposeSemitones), voicingListRange);
+    auto dpTransposeSemitones = fabricator->getProgramTargetShift(instrumentType, dpKey, segChord);
+    auto dpTransposeOctaveSemitones = 12 * fabricator->getProgramRangeShiftOctaves(instrumentType, dpRange.shifted(
+        dpTransposeSemitones), voicingListRange);
 
     // Event notes are either interpreted from specific notes in dp, or via sticky bun from X notes in dp
-    List<Note> eventNotes = CsvUtils.split(event.getTones()).stream().map(n -> Note.of(n).shift(dpTransposeSemitones + dpTransposeOctaveSemitones)).sorted().collect(Collectors.toList());
-    var dpEventRelativeOffsetWithinRangeSemitones = dpRange.shifted(dpTransposeSemitones + dpTransposeOctaveSemitones).getDeltaSemitones(NoteRange.ofNotes(eventNotes));
-    var dpEventRangeWithinWholeDP = NoteRange.ofNotes(eventNotes).shifted(dpEventRelativeOffsetWithinRangeSemitones);
+    List <Note> eventNotes = CsvUtils.split(event.getTones()).stream().map(
+        n->Note.of(n).shift(dpTransposeSemitones + dpTransposeOctaveSemitones)).sorted().collect(Collectors.toList());
+    auto dpEventRelativeOffsetWithinRangeSemitones = dpRange.shifted(
+        dpTransposeSemitones + dpTransposeOctaveSemitones).getDeltaSemitones(NoteRange.ofNotes(eventNotes));
+    auto dpEventRangeWithinWholeDP = NoteRange.ofNotes(eventNotes).shifted(dpEventRelativeOffsetWithinRangeSemitones);
 
     if (optimalRange.isEmpty() && !dpEventRangeWithinWholeDP.isEmpty())
       optimalRange.expand(dpEventRangeWithinWholeDP);
 
     // Leverage segment meta to look up a sticky bun if it exists
-    var bun = fabricator.getStickyBun(event.getId());
+    auto bun = fabricator->getStickyBun(event.id);
 
     // Prepare voicing notes and note picker
-    var voicingNotes = fabricator.getNotes(voicing).stream().flatMap(Note::ofValid).collect(Collectors.toList());
-    var notePicker = new NotePicker(optimalRange.shifted(dpEventRelativeOffsetWithinRangeSemitones), voicingNotes, fabricator.getTemplateConfig().getInstrumentTypesForInversionSeeking().contains(instrumentType));
+    auto voicingNotes = fabricator->getNotes(voicing).stream().flatMap(Note::ofValid).collect(Collectors.toList());
+    auto notePicker = new NotePicker(optimalRange.shifted(dpEventRelativeOffsetWithinRangeSemitones), voicingNotes,
+                                     fabricator->getTemplateConfig().getInstrumentTypesForInversionSeeking().contains(
+                                         instrumentType));
 
     // Go through the notes in the event and pick a note from the voicing, either by note picker or by sticky bun
-    List<Note> pickedNotes = new ArrayList<>();
-    for (var i = 0; i < eventNotes.size(); i++) {
-      var pickedNote = eventNotes.get(i).isAtonal() && bun.isPresent() ? bun.get().compute(voicingNotes, i) : notePicker.pick(eventNotes.get(i));
+    List <Note> pickedNotes = new ArrayList<>();
+    for (auto i = 0; i < eventNotes.size(); i++) {
+      auto pickedNote =
+          eventNotes.get(i).isAtonal() && bun.isPresent() ? bun.get().compute(voicingNotes, i) : notePicker.pick(
+              eventNotes.get(i));
       pickedNotes.add(pickedNote);
     }
 
-    var pickedNoteStrings = pickedNotes.stream().map(n -> n.toString(segChord.getAdjSymbol())).collect(Collectors.toSet());
+    auto pickedNoteStrings = pickedNotes.stream().map(n->n.toString(segChord.getAdjSymbol())).collect(
+        Collectors.toSet());
 
     // expand the optimal range for voice leading by the notes that were just picked
     optimalRange.expand(pickedNotes);
@@ -706,121 +1147,38 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param startAtSegmentMicros     of audio
    @param lengthMicros             of audio
    @param volRatio                 ratio of volume
-   @throws FabricationException on failure
+   @on failure
    */
   void pickInstrumentAudio(
-    std::string note,
-    Instrument instrument,
-    ProgramSequencePatternEvent event,
-    SegmentChoiceArrangement segmentChoiceArrangement,
-    Long startAtSegmentMicros,
-    @Nullable Long lengthMicros,
-    @Nullable UUID segmentChordVoicingId,
-    float volRatio
-  ) throws FabricationException {
-    var audio = fabricator.getInstrumentConfig(instrument).isMultiphonic() ? selectMultiphonicInstrumentAudio(instrument, event, note) : selectMonophonicInstrumentAudio(instrument, event);
+      std::string note,
+      Instrument instrument,
+      ProgramSequencePatternEvent event,
+      SegmentChoiceArrangement segmentChoiceArrangement,
+      long startAtSegmentMicros,
+      std::optional<long> lengthMicros,
+      std::optional<UUID> segmentChordVoicingId,
+      float volRatio
+  ) {
+    auto audio = fabricator->getInstrumentConfig(instrument).isMultiphonic ? selectMultiphonicInstrumentAudio(
+        instrument, event, note) : selectMonophonicInstrumentAudio(instrument, event);
 
     // Should gracefully skip audio if unfulfilled by instrument https://github.com/xjmusic/xjmusic/issues/240
-    if (audio.isEmpty()) return;
+    if (!audio.has_value()) return;
 
     // of pick
-    var pick = new SegmentChoiceArrangementPick();
-    pick.setId(EntityUtils::computeUniqueId());
-    pick.setSegmentId(segmentChoiceArrangement.getSegmentId());
-    pick.setSegmentChoiceArrangementId(segmentChoiceArrangement.getId());
-    pick.setInstrumentAudioId(audio.get().getId());
-    pick.setProgramSequencePatternEventId(event.getId());
-    pick.setEvent(fabricator.getTrackName(event));
-    pick.setStartAtSegmentMicros(startAtSegmentMicros);
-    pick.setLengthMicros(lengthMicros);
-    pick.setAmplitude(event.getVelocity() * volRatio);
-    pick.setTones(fabricator.getInstrumentConfig(instrument).isTonal() ? note : Note.ATONAL);
-    if (Objects.nonNull(segmentChordVoicingId)) pick.setSegmentChordVoicingId(segmentChordVoicingId);
-    fabricator.put(pick, false);
-  }
-
-  /**
-   Pick the transition
-
-   @param arrangement          to pick
-   @param audio                to pick
-   @param startAtSegmentMicros to pick
-   @param lengthMicros         to pick
-   @param event                to pick
-   @throws FabricationException on failure
-   */
-  protected void pickInstrumentAudio(
-    SegmentChoiceArrangement arrangement,
-    InstrumentAudio audio,
-    long startAtSegmentMicros,
-    long lengthMicros,
-    std::string event
-  ) throws FabricationException {
-    var pick = new SegmentChoiceArrangementPick();
-    pick.setId(EntityUtils::computeUniqueId());
-    pick.setSegmentId(fabricator.getSegment().getId());
-    pick.setSegmentChoiceArrangementId(arrangement.getId());
-    pick.setStartAtSegmentMicros(startAtSegmentMicros);
-    pick.setLengthMicros(lengthMicros);
-    pick.setEvent(event);
-    pick.setAmplitude((float) 1.0);
-    pick.setInstrumentAudioId(audio.getId());
-    fabricator.put(pick, false);
-  }
-
-  /**
-   Select audios for the given instrument
-
-   @param instrument for which to pick audio
-   @return drum-type Instrument
-   */
-  protected Collection<InstrumentAudio> selectGeneralAudioIntensityLayers(Instrument instrument) {
-    var previous = fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId());
-    if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && !previous.isEmpty()) {
-      return previous.stream()
-        .map(SegmentChoiceArrangementPick::getInstrumentAudioId)
-        .collect(Collectors.toSet()) // unique audio ids
-        .stream()
-        .map(audioId -> fabricator.sourceMaterial().getInstrumentAudio(audioId))
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .collect(Collectors.toSet());
-    }
-
-    return selectAudioIntensityLayers(
-      fabricator.sourceMaterial().getAudiosOfInstrument(instrument.getId()),
-      fabricator.getTemplateConfig().getIntensityLayers(instrument.getType())
-    );
-  }
-
-  /**
-   Pick one audio for each desired intensity level, by layering the audios by intensity and picking one from each layer.
-   Divide the audios into layers (ergo grouping them by intensity ascending) and pick one audio per layer.
-
-   @param audios from which to pick layers
-   @param layers number of layers to pick
-   @return picked audios
-   */
-  protected Collection<InstrumentAudio> selectAudioIntensityLayers(Collection<InstrumentAudio> audios, int layers) {
-    List<InstrumentAudio> sorted = audios.stream()
-      .sorted(Comparator.comparing(InstrumentAudio::getIntensity))
-      .toList();
-    if (sorted.isEmpty()) return Set.of();
-
-    // Create a list of bags, one for each layer
-    List<MarbleBag> bags = Stream.iterate(0, i -> i < layers, i -> i + 1).map(i -> MarbleBag.empty()).toList();
-
-    // Iterate through the available audios, and add them to the bags, divided into the number of layers
-    int marblesPerLayer = (int) Math.ceil((double) sorted.size() / layers);
-    if (marblesPerLayer == 0) return Set.of();
-    for (int i = 0; i < sorted.size(); i++) {
-      bags.get(i / marblesPerLayer).add(1, sorted.get(i).getId());
-    }
-
-    return bags.stream().flatMap((bag) -> {
-      if (bag.isEmpty()) return Stream.empty();
-      return fabricator.sourceMaterial().getInstrumentAudio(bag.pick()).stream();
-    }).collect(Collectors.toSet());
+    auto pick = new SegmentChoiceArrangementPick();
+    pick->id = EntityUtils::computeUniqueId();
+    pick->segmentId = segmentChoiceArrangement.segmentId;
+    pick->segmentChoiceArrangementId = segmentChoiceArrangement.id;
+    pick->instrumentAudioId = audio.value().id;
+    pick->programSequencePatternEventId = event.id;
+    pick->event = fabricator->getTrackName(event);
+    pick->startAtSegmentMicros = startAtSegmentMicros;
+    if (lengthMicros.has_value()) pick->lengthMicros = lengthMicros.value();
+    pick->amplitude = event.velocity * volRatio;
+    pick->tones = fabricator->getInstrumentConfig(instrument).isTonal ? note : Note::ATONAL;
+    if (segmentChordVoicingId.has_value()) pick->segmentChordVoicingId = segmentChordVoicingId.value();
+    fabricator->put(*pick);
   }
 
   /**
@@ -833,13 +1191,15 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param note       to match selection
    @return matched new audio
    */
-  Optional<InstrumentAudio> selectMultiphonicInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event, std::string note) {
-    if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent()) {
-      if (fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), note).isEmpty()) {
-        var audio = selectNewMultiphonicInstrumentAudio(instrument, note);
-        audio.ifPresent(instrumentAudio -> fabricator.putPreferredAudio(event.getProgramVoiceTrackId().toString(), note, instrumentAudio));
+  std::optional<InstrumentAudio>
+  selectMultiphonicInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event, std::string note) {
+    if (fabricator->getInstrumentConfig(instrument).isAudioSelectionPersistent()) {
+      if (fabricator->getPreferredAudio(event.getProgramVoiceTrackId().toString(), note).isEmpty()) {
+        auto audio = selectNewMultiphonicInstrumentAudio(instrument, note);
+        audio.ifPresent(instrumentAudio->fabricator->putPreferredAudio(event.getProgramVoiceTrackId().toString(), note,
+                                                                       instrumentAudio));
       }
-      return fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), note);
+      return fabricator->getPreferredAudio(event.getProgramVoiceTrackId().toString(), note);
 
     } else {
       return selectNewMultiphonicInstrumentAudio(instrument, note);
@@ -854,13 +1214,16 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param instrument of which to score available audios, and make a selection
    @param event      to match selection
    @return matched new audio
-   @throws FabricationException on failure
+   @on failure
    */
-  Optional<InstrumentAudio> selectMonophonicInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event) throws FabricationException {
-    if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent()) {
-      if (fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones()).isEmpty())
-        fabricator.putPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones(), selectNewNoteEventInstrumentAudio(instrument, event).orElseThrow(() -> new FabricationException("Unable to select note event instrument audio!")));
-      return fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones());
+  std::optional<InstrumentAudio>
+  selectMonophonicInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event) {
+    if (fabricator->getInstrumentConfig(instrument).isAudioSelectionPersistent()) {
+      if (fabricator->getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones()).isEmpty())
+        fabricator->putPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones(),
+                                      selectNewNoteEventInstrumentAudio(instrument, event).orElseThrow(()->
+      new FabricationException("Unable to select note event instrument audio!")));
+      return fabricator->getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones());
 
     } else {
       return selectNewNoteEventInstrumentAudio(instrument, event);
@@ -877,13 +1240,14 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param chord      to match selection
    @return matched new audio
    */
-  Optional<InstrumentAudio> selectChordPartInstrumentAudio(Instrument instrument, Chord chord) {
-    if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent()) {
-      if (fabricator.getPreferredAudio(instrument.getId().toString(), chord.getName()).isEmpty()) {
-        var audio = selectNewChordPartInstrumentAudio(instrument, chord);
-        audio.ifPresent(instrumentAudio -> fabricator.putPreferredAudio(instrument.getId().toString(), chord.getName(), instrumentAudio));
+  std::optional<InstrumentAudio> selectChordPartInstrumentAudio(Instrument instrument, Chord chord) {
+    if (fabricator->getInstrumentConfig(instrument).isAudioSelectionPersistent()) {
+      if (fabricator->getPreferredAudio(instrument.id.toString(), chord.getName()).isEmpty()) {
+        auto audio = selectNewChordPartInstrumentAudio(instrument, chord);
+        audio.ifPresent(
+            instrumentAudio->fabricator->putPreferredAudio(instrument.id.toString(), chord.getName(), instrumentAudio));
       }
-      return fabricator.getPreferredAudio(instrument.getId().toString(), chord.getName());
+      return fabricator->getPreferredAudio(instrument.id.toString(), chord.getName());
 
     } else {
       return selectNewChordPartInstrumentAudio(instrument, chord);
@@ -897,49 +1261,26 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param event      to match
    @return matched new audio
    */
-  Optional<InstrumentAudio> selectNewNoteEventInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event) throws FabricationException {
-    Map<UUID, Integer> score = new HashMap<>();
+  std::optional<InstrumentAudio>
+  selectNewNoteEventInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event) {
+    std::map<UUID, int> score = new HashMap<>();
 
     // add all audio to chooser
-    fabricator.sourceMaterial().getAudiosOfInstrument(instrument).forEach(a -> score.put(a.getId(), 0));
+    fabricator->getSourceMaterial()->getAudiosOfInstrument(instrument).forEach(a->score.put(a.id, 0));
 
     // score each audio against the current voice event, with some variability
-    for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosOfInstrument(instrument))
-      if (instrument.getType() == Instrument::Type::Drum)
-        score.put(audio.getId(), Objects.equals(fabricator.getTrackName(event), audio.getEvent()) ? 300 : 0);
+    for (InstrumentAudio audio: fabricator->getSourceMaterial()->getAudiosOfInstrument(instrument))
+      if (instrument.type == Instrument::Type::Drum)
+        score.put(audio.id, Objects.equals(fabricator->getTrackName(event), audio.getEvent()) ? 300 : 0);
       else if (Note.of(audio.getTones()).sameAs(Note.of(event.getTones())))
-        score.put(audio.getId(), 100);
+        score.put(audio.id, 100);
 
     // chosen audio event
-    var pickId = ValueUtils.getKeyOfHighestValue(score);
-    return pickId.isPresent() ? fabricator.sourceMaterial().getInstrumentAudio(pickId.get()) : Optional.empty();
+    auto pickId = ValueUtils.getKeyOfHighestValue(score);
+    return pickId.isPresent() ? fabricator->getSourceMaterial()->getInstrumentAudio(pickId.get())
+                              : std::nullopt;
   }
 
-
-  /**
-   Select a new random instrument audio based on a pattern event
-
-   @param instrument of which to score available audios, and make a selection
-   @param chord      to match
-   @return matched new audio
-   */
-  protected Optional<InstrumentAudio> selectNewChordPartInstrumentAudio(Instrument instrument, Chord chord) {
-    var bag = MarbleBag.empty();
-
-    Chord audioChord;
-    for (var a : fabricator.sourceMaterial().getAudiosOfInstrument(instrument)) {
-      audioChord = Chord.of(a.getTones());
-      if (audioChord.isSame(chord)) {
-        bag.add(0, a.getId());
-      } else if (audioChord.isAcceptable(chord)) {
-        bag.add(1, a.getId());
-      }
-    }
-
-    if (bag.isEmpty()) return Optional.empty();
-
-    return fabricator.sourceMaterial().getInstrumentAudio(bag.pick());
-  }
 
   /**
    Select a new random instrument audio based on a pattern event
@@ -950,215 +1291,25 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param note       to match
    @return matched new audio
    */
-  Optional<InstrumentAudio> selectNewMultiphonicInstrumentAudio(Instrument instrument, std::string note) {
-    var instrumentAudios = fabricator.sourceMaterial().getAudiosOfInstrument(instrument);
-    var a = Note.of(note);
-    var audio = MarbleBag.quickPick(instrumentAudios.stream().filter(candidate -> {
+  std::optional<InstrumentAudio> selectNewMultiphonicInstrumentAudio(Instrument instrument, std::string note) {
+    auto instrumentAudios = fabricator->getSourceMaterial()->getAudiosOfInstrument(instrument);
+    auto a = Note.of(note);
+    auto audio = MarbleBag.quickPick(instrumentAudios.stream().filter(candidate-> {
       if (Objects.isNull(candidate) || StringUtils.isNullOrEmpty(candidate.getTones())) return false;
-      var b = Note.of(candidate.getTones());
+      auto b = Note.of(candidate.getTones());
       return a.isAtonal() || b.isAtonal() || a.sameAs(b);
     }).toList());
 
     if (audio.isEmpty()) {
-      reportMissing(Map.of("instrumentId", instrument.getId().toString(), "searchForNote", note, "availableNotes", CsvUtils.from(instrumentAudios.stream().map(InstrumentAudio::getTones).map(Note::of).sorted(Note::compareTo).map(N -> N.toString(Accidental.Sharp)).collect(Collectors.toList()))));
-      return Optional.empty();
+      reportMissing(std::map.of("instrumentId", instrument.id.toString(), "searchForNote", note, "availableNotes",
+                                CsvUtils.from(
+                                    instrumentAudios.stream().map(InstrumentAudio::getTones).map(Note::of).sorted(
+                                        Note::compareTo).map(N->N.toString(Accidental.Sharp)).collect(
+                                        Collectors.toList()))));
+      return std::nullopt;
     }
 
-    return fabricator.sourceMaterial().getInstrumentAudio(audio.get().getId());
-  }
-
-  /**
-   Choose a fresh program based on a set of memes
-
-   @param programType to choose
-   @param voicingType (optional) for which to choose a program for-- and the program is required to have this type of voice
-   @return Program
-   */
-  protected Optional<Program> chooseFreshProgram(Program::Type programType, @Nullable Instrument::Type voicingType) {
-    var bag = MarbleBag.empty();
-
-    // Retrieve programs bound to chain having a voice of the specified type
-    Map<UUID/*ID*/, Program> programMap = fabricator.sourceMaterial().getProgramsOfType(programType).stream().collect(Collectors.toMap(Program::getId, program -> program));
-    Collection<Program> candidates = fabricator.sourceMaterial().getProgramVoices().stream().filter(programVoice -> Objects.nonNull(voicingType) && voicingType.equals(programVoice.getType()) && programMap.containsKey(programVoice.getProgramId())).map(ProgramVoice::getProgramId).distinct().map(programMap::get).toList();
-
-    // (3) score each source program based on meme isometry
-    MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
-    Collection<std::string> memes;
-
-    // Phase 1: Directly Bound Programs
-    for (Program program : programsDirectlyBound(candidates)) {
-      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfProgram(program.getId()));
-      // FUTURE consider meme isometry, but for now, just use the meme stack
-      if (iso.isAllowed(memes)) bag.add(1, program.getId(), 1 + iso.score(memes));
-    }
-
-    // Phase 2: All Published Programs
-    for (Program program : programsPublished(candidates)) {
-      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfProgram(program.getId()));
-      // FUTURE consider meme isometry, but for now, just use the meme stack
-      if (iso.isAllowed(memes)) bag.add(2, program.getId(), 1 + iso.score(memes));
-    }
-
-    // report
-    fabricator.putReport(std::string.format("choiceOf%s%sProgram", voicingType, programType), bag.toString());
-
-    // (4) return the top choice
-    if (bag.isEmpty()) return Optional.empty();
-    return fabricator.sourceMaterial().getProgram(bag.pick());
-  }
-
-  /**
-   Choose instrument
-   <p>
-   Choose drum instrument to fulfill beat program event names https://github.com/xjmusic/xjmusic/issues/253
-
-   @param type              of instrument to choose from
-   @param requireEventNames instrument candidates are required to have event names https://github.com/xjmusic/xjmusic/issues/253
-   @return Instrument
-   */
-  protected Optional<Instrument> chooseFreshInstrument(Instrument::Type type, Collection<std::string> requireEventNames) {
-    var bag = MarbleBag.empty();
-
-    // Retrieve instruments bound to chain
-    Collection<Instrument> candidates = fabricator.sourceMaterial().getInstrumentsOfType(type).stream().filter(i -> instrumentContainsAudioEventsLike(i, requireEventNames)).toList();
-
-    // Retrieve meme isometry of segment
-    MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
-    Collection<std::string> memes;
-
-    // Phase 1: Directly Bound Instruments
-    for (Instrument instrument : instrumentsDirectlyBound(candidates)) {
-      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfInstrument(instrument.getId()));
-      if (iso.isAllowed(memes)) bag.add(1, instrument.getId(), 1 + iso.score(memes));
-    }
-
-    // Phase 2: All Published Instruments
-    for (Instrument instrument : instrumentsPublished(candidates)) {
-      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfInstrument(instrument.getId()));
-      if (iso.isAllowed(memes)) bag.add(2, instrument.getId(), 1 + iso.score(memes));
-    }
-
-    // report
-    fabricator.putReport(std::string.format("choiceOf%sInstrument", type), bag.toString());
-
-    // (4) return the top choice
-    if (bag.isEmpty()) return Optional.empty();
-    return fabricator.sourceMaterial().getInstrument(bag.pick());
-  }
-
-  /**
-   Percussion-type Loop-mode instrument audios are chosen in order of priority
-   https://github.com/xjmusic/xjmusic/issues/255
-   <p>
-   Choose drum instrument to fulfill beat program event names https://github.com/xjmusic/xjmusic/issues/253
-
-   @param types           of instrument to choose from
-   @param modes           of instrument to choose from
-   @param avoidIds        to avoid, or empty list
-   @param preferredEvents instrument candidates are required to have event names https://github.com/xjmusic/xjmusic/issues/253
-   @return Instrument
-   */
-  @SuppressWarnings("SameParameterValue")
-  protected Optional<InstrumentAudio> chooseFreshInstrumentAudio(Collection<Instrument::Type> types, Collection<Instrument::Mode> modes, Collection<UUID> avoidIds, Collection<std::string> preferredEvents) {
-    var bag = MarbleBag.empty();
-
-    // (2) retrieve instruments bound to chain
-    Collection<InstrumentAudio> candidates = fabricator.sourceMaterial().getAudiosOfInstrumentTypesAndModes(types, modes).stream().filter(a -> !avoidIds.contains(a.getId())).toList();
-
-    // (3) score each source instrument based on meme isometry
-    MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
-    Collection<std::string> memes;
-
-    // Phase 1: Directly Bound Audios (Preferred)
-    for (InstrumentAudio audio : audiosDirectlyBound(candidates)) {
-      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfInstrument(audio.getInstrumentId()));
-      if (iso.isAllowed(memes))
-        bag.add(preferredEvents.contains(audio.getEvent()) ? 1 : 3, audio.getId(), 1 + iso.score(memes));
-    }
-
-    // Phase 2: All Published Audios (Preferred)
-    for (InstrumentAudio audio : audiosPublished(candidates)) {
-      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesOfInstrument(audio.getInstrumentId()));
-      if (iso.isAllowed(memes))
-        bag.add(preferredEvents.contains(audio.getEvent()) ? 2 : 4, audio.getId(), 1 + iso.score(memes));
-    }
-
-    // report
-    fabricator.putReport(std::string.format("choice%s%s", types.stream().map(Instrument::Type::toString).collect(Collectors.joining()), modes.stream().map(Instrument::Mode::toString).collect(Collectors.joining())), bag.toString());
-
-    // (4) return the top choice
-    if (bag.isEmpty()) return Optional.empty();
-    return fabricator.sourceMaterial().getInstrumentAudio(bag.pick());
-  }
-
-  /**
-   Filter only the directly bound programs
-
-   @param programs to filter
-   @return filtered programs
-   */
-  protected Collection<Program> programsDirectlyBound(Collection<Program> programs) {
-    return programs.stream().filter(fabricator::isDirectlyBound).toList();
-  }
-
-  /**
-   Filter only the published programs
-
-   @param programs to filter
-   @return filtered programs
-   */
-  protected Collection<Program> programsPublished(Collection<Program> programs) {
-    return programs.stream().filter(p -> Program::State::Published.equals(p.getState())).toList();
-  }
-
-  /**
-   Filter only the directly bound instruments
-
-   @param instruments to filter
-   @return filtered instruments
-   */
-  protected Collection<Instrument> instrumentsDirectlyBound(Collection<Instrument> instruments) {
-    return instruments.stream().filter(fabricator::isDirectlyBound).toList();
-  }
-
-  /**
-   Filter only the published instruments
-
-   @param instruments to filter
-   @return filtered instruments
-   */
-  protected Collection<Instrument> instrumentsPublished(Collection<Instrument> instruments) {
-    return instruments.stream().filter(p -> Instrument::State::Published.equals(p.getState())).toList();
-  }
-
-  /**
-   Filter only the directly bound instrumentAudios
-
-   @param instrumentAudios to filter
-   @return filtered instrumentAudios
-   */
-  protected Collection<InstrumentAudio> audiosDirectlyBound(Collection<InstrumentAudio> instrumentAudios) {
-    return instrumentAudios.stream().filter(fabricator::isDirectlyBound).toList();
-  }
-
-  /**
-   Filter only the published instrumentAudios
-
-   @param instrumentAudios to filter
-   @return filtered instrumentAudios
-   */
-  protected Collection<InstrumentAudio> audiosPublished(Collection<InstrumentAudio> instrumentAudios) {
-    return instrumentAudios.stream().filter(a -> fabricator.sourceMaterial().getInstrument(a.getInstrumentId()).map(i -> Instrument::State::Published.equals(i.getState())).orElse(false)).toList();
-  }
-
-  /**
-   Compute a mute value, based on the template config
-
-   @param instrumentType of instrument for which to compute mute
-   @return true if muted
-   */
-  protected boolean computeMute(Instrument::Type instrumentType) {
-    return TremendouslyRandom.booleanChanceOf(fabricator.getTemplateConfig().getChoiceMuteProbability(instrumentType));
+    return fabricator->getSourceMaterial()->getInstrumentAudio(audio.get().id);
   }
 
   /**
@@ -1170,47 +1321,14 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param requireEvents N
    @return true if instrument contains audios named like N or required event names list is empty
    */
-  boolean instrumentContainsAudioEventsLike(Instrument instrument, Collection<std::string> requireEvents) {
+  bool instrumentContainsAudioEventsLike(const Instrument *instrument, std::set<std::string> requireEvents) {
     if (requireEvents.isEmpty()) return true;
-    for (var event : requireEvents)
-      if (fabricator.sourceMaterial().getAudiosOfInstrument(instrument.getId()).stream().noneMatch(a -> Objects.equals(event, a.getEvent())))
+    for (auto event: requireEvents)
+      if (fabricator->getSourceMaterial()->getAudiosOfInstrument(instrument.id).stream().noneMatch(
+          a->Objects.equals(event, a.getEvent())))
         return false;
     return true;
   }
 
-  /**
-   Instrument provider to make some code more portable
-   */
-  public interface InstrumentProvider {
 
-    Optional<Instrument> get(ProgramVoice voice) throws FabricationException;
-  }
-
-  /**
-   Class to get a comparable string index based on any given choice, e.g. it's voice name or instrument type
-   */
-  public interface ChoiceIndexProvider {
-    std::string get(SegmentChoice choice);
-  }
-
-  /**
-   Representation of a section of an arrangement, having a chord, beginning position and end position
-   */
-  static class Section {
-
-    public SegmentChord chord;
-    public Double fromPos;
-    public Double toPos;
-  }
-
-  /**
-   Default choice index provider
-   */
-  public static class DefaultChoiceIndexProvider implements ChoiceIndexProvider {
-
-    @Override
-    public std::string get(SegmentChoice choice) {
-      return choice.getId().toString();
-    }
-  }
-}
+};

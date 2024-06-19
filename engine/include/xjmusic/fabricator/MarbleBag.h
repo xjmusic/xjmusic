@@ -38,6 +38,11 @@ namespace XJ {
     MarbleBag() = default;
 
     /**
+     * Construct a new Marble Bag from a copy of another Marble Bag
+     */
+    MarbleBag(const MarbleBag& other);
+
+    /**
      * Construct an empty marble bag
      */
     static MarbleBag empty();
@@ -107,6 +112,14 @@ namespace XJ {
      * @return  The picked integer
      */
     static int quickPick(int total);
+
+    /**
+     Make a tremendously random boolean selection based on probability
+
+     @param probability 0 <= n < limit
+     @return random integer n, where 0 <= n < limit
+     */
+    static bool quickBooleanChanceOf(float probability);
 
     /**
      * Group of marbles with a given id

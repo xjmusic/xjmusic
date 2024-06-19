@@ -26,6 +26,7 @@ add_library(xjmusic
         content/Template.cpp
         content/TemplateBinding.cpp
         content/TemplateConfig.cpp
+        craft/Craft.cpp
         fabricator/ChainUtils.cpp
         fabricator/FabricationException.cpp
         fabricator/FabricationFatalException.cpp

@@ -812,13 +812,22 @@ namespace XJ {
     putPreferredAudio(const std::string &parentIdent, const std::string &ident, const InstrumentAudio *instrumentAudio);
 
     /**
-     Put a key-value pair into the report
+     Put a key-value pair containing a string-string map value into the report
      only exports data as a sub-field of the standard content JSON
 
-     @param key   to put
-     @param value to put
+     @param key   to report
+     @param value to report
      */
     void putReport(const std::string &key, const std::map<std::string, std::string> &value);
+
+
+    /**
+     * Put a key-value pair into the report
+     * @param key  to report
+     * @param value  to report
+     */
+    void putReport(const std::string &key, const std::string &value);
+
 
     /**
      Set the Segment.

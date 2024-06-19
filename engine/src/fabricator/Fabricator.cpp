@@ -973,6 +973,11 @@ void Fabricator::putReport(const std::string &key, const std::map<std::string, s
 }
 
 
+void Fabricator::putReport(const std::string &key, const std::string &value) {
+  addMessage(SegmentMessage::Type::Debug, "Report[" + key + "]:" + value);
+}
+
+
 void Fabricator::updateSegment(Segment segment) {
   try {
     store->updateSegment(segment);

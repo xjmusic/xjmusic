@@ -57,3 +57,27 @@ TEST(TemplateConfigTest, InstrumentTypesForInversionSeekingContains) {
   EXPECT_TRUE(subject.instrumentTypesForInversionSeekingContains(Instrument::Type::Pad));
   EXPECT_FALSE(subject.instrumentTypesForInversionSeekingContains(Instrument::Type::Bass));
 }
+
+TEST(TemplateConfigTest, getChoiceMuteProbability) {
+  TemplateConfig subject;
+
+  EXPECT_EQ(0, subject.getChoiceMuteProbability(Instrument::Type::Pad));
+}
+
+TEST(TemplateConfigTest, getDubMasterVolume) {
+  TemplateConfig subject;
+
+  EXPECT_EQ(1.0, subject.getDubMasterVolume(Instrument::Type::Pad));
+}
+
+TEST(TemplateConfigTest, getIntensityThreshold) {
+  TemplateConfig subject;
+
+  EXPECT_EQ(0.5, subject.getIntensityThreshold(Instrument::Type::Pad));
+}
+
+TEST(TemplateConfigTest, getIntensityLayers) {
+  TemplateConfig subject;
+
+  EXPECT_EQ(3.0, subject.getIntensityLayers(Instrument::Type::Percussion));
+}
