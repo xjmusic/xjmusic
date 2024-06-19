@@ -18,7 +18,7 @@ namespace XJ {
     UUID projectId;
     std::string name;
     bool isDeleted{false};
-    long long updatedAt{currentTimeMillis()};
+    long long updatedAt{EntityUtils::currentTimeMillis()};
   };
 
 }// namespace XJ

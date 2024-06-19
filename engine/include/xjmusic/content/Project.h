@@ -18,7 +18,7 @@ namespace XJ {
     std::string name;
     std::string platformVersion;
     bool isDeleted{false};
-    long long updatedAt{currentTimeMillis()};
+    long long updatedAt{EntityUtils::currentTimeMillis()};
   };
 
 }// namespace XJ

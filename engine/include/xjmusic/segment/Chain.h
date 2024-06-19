@@ -13,7 +13,7 @@ using json = nlohmann::json;
 
 namespace XJ {
 
-  class Chain : public EntityUtils {
+  class Chain {
   public:
 
     enum Type {
@@ -37,7 +37,7 @@ namespace XJ {
     std::string shipKey{};
     std::string templateConfig{};
     std::string name{};
-    long long updatedAt{currentTimeMillis()};
+    long long updatedAt{EntityUtils::currentTimeMillis()};
 
     /**
      * Parse the Chain Type enum value from a string

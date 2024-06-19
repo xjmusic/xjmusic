@@ -23,7 +23,7 @@ using json = nlohmann::json;
 
 namespace XJ {
 
-  class Segment : public EntityUtils {
+  class Segment {
   public:
 
     enum Type {
@@ -57,8 +57,8 @@ namespace XJ {
     float waveformPreroll{};
     float waveformPostroll{};
     int delta{};
-    long long createdAt{currentTimeMillis()};
-    long long updatedAt{currentTimeMillis()};
+    long long createdAt{EntityUtils::currentTimeMillis()};
+    long long updatedAt{EntityUtils::currentTimeMillis()};
 
     /**
      * Parse the Segment Type enum value from a string
