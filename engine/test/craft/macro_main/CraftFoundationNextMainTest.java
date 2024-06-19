@@ -10,7 +10,7 @@ import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.entity.EntityUtils;
-import io.xj.model.enums.ProgramType;
+import io.xj.model.enums.Program::Type;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
@@ -46,7 +46,7 @@ import java.util.stream.Stream;
 
 import static io.xj.model.util.Assertion.assertSameItems;
 import static io.xj.model.util.ValueUtils.MICROS_PER_MINUTE;
-import static io.xj.engine.SegmentFixtures.buildSegment;
+import static io.xj.engine.SegmentFixtures::buildSegment;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -86,8 +86,8 @@ public class CraftFoundationNextMainTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(SegmentFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
-    store.put(SegmentFixtures.buildSegment(
+    chain1 = store.put(SegmentFixtures::buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
+    store.put(SegmentFixtures::buildSegment(
       chain1,
       0,
       SegmentState.CRAFTED,
@@ -97,7 +97,7 @@ public class CraftFoundationNextMainTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892"
     ));
-    store.put(SegmentFixtures.buildSegment(
+    store.put(SegmentFixtures::buildSegment(
       chain1,
       1,
       SegmentState.CRAFTING,
@@ -109,7 +109,7 @@ public class CraftFoundationNextMainTest {
     ));
 
     // Chain "Test Print #1" has this segment that was just crafted
-    Segment segment3 = store.put(SegmentFixtures.buildSegment(
+    Segment segment3 = store.put(SegmentFixtures::buildSegment(
       chain1,
       2,
       SegmentState.CRAFTED,
@@ -119,11 +119,11 @@ public class CraftFoundationNextMainTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892.wav"
     ));
-    store.put(SegmentFixtures.buildSegmentChoice(segment3, ProgramType.Macro, fake.program4_sequence0_binding0));
-    store.put(SegmentFixtures.buildSegmentChoice(segment3, ProgramType.Main, fake.program5_sequence1_binding0));
+    store.put(SegmentFixtures::buildSegmentChoice(segment3, Program::Type::Macro, fake.program4_sequence0_binding0));
+    store.put(SegmentFixtures::buildSegmentChoice(segment3, Program::Type::Main, fake.program5_sequence1_binding0));
 
     // Chain "Test Print #1" has a planned segment
-    segment4 = store.put(SegmentFixtures.buildSegment(chain1, 3, SegmentState.PLANNED, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
+    segment4 = store.put(SegmentFixtures::buildSegment(chain1, 3, SegmentState.PLANNED, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
   }
 
   @AfterEach
@@ -154,11 +154,11 @@ public class CraftFoundationNextMainTest {
     Collection<SegmentChoice> segmentChoices =
       store.readAll(result.getId(), SegmentChoice.class);
     // assert macro choice
-    SegmentChoice macroChoice = SegmentUtils.findFirstOfType(segmentChoices, ProgramType.Macro);
+    SegmentChoice macroChoice = SegmentUtils.findFirstOfType(segmentChoices, Program::Type::Macro);
     assertEquals(fake.program4_sequence1_binding0.getId(), macroChoice.getProgramSequenceBindingId());
     assertEquals(Integer.valueOf(1), fabricator.getSequenceBindingOffsetForChoice(macroChoice));
     // assert main choice
-    SegmentChoice mainChoice = SegmentUtils.findFirstOfType(segmentChoices, ProgramType.Main);
+    SegmentChoice mainChoice = SegmentUtils.findFirstOfType(segmentChoices, Program::Type::Main);
     assertEquals(fake.program15_sequence0_binding0.getId(), mainChoice.getProgramSequenceBindingId());
     assertEquals(Integer.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(mainChoice));
   }
@@ -169,7 +169,7 @@ public class CraftFoundationNextMainTest {
   @Test
   public void craftFoundationNextMain_revertsAndRequeueOnFailure() throws Exception {
     // Chain "Test Print #1" has a dangling (preceded by another planned segment) planned segment
-    Segment segment5 = store.put(SegmentFixtures.buildSegment(
+    Segment segment5 = store.put(SegmentFixtures::buildSegment(
       chain1,
       4,
       SegmentState.PLANNED,

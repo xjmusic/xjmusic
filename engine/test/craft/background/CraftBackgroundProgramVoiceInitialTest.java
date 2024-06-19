@@ -38,8 +38,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.SegmentFixtures.buildSegment;
-import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures::buildSegment;
+import static io.xj.engine.SegmentFixtures::buildSegmentChoice;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftBackgroundProgramVoiceInitialTest {
@@ -80,7 +80,7 @@ public class CraftBackgroundProgramVoiceInitialTest {
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
     chain2 = new Chain();
-    chain2.setId(UUID.randomUUID());
+    chain2.setId(EntityUtils::computeUniqueId());
     chain2.setProjectId(fake.project1.getId());
     chain2.name("Print #2");
     chain2.setTemplateConfig(TemplateConfig.DEFAULT);
@@ -133,7 +133,7 @@ public class CraftBackgroundProgramVoiceInitialTest {
    Insert fixture segment 6, including the background choice only if specified
    */
   void insertSegment() throws FabricationException {
-    segment0 = store.put(SegmentFixtures.buildSegment(
+    segment0 = store.put(SegmentFixtures::buildSegment(
       chain2,
       0,
       SegmentState.CRAFTING,
@@ -145,11 +145,11 @@ public class CraftBackgroundProgramVoiceInitialTest {
     ));
     store.put(buildSegmentChoice(segment0, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, fake.program4, fake.program4_sequence0_binding0));
     store.put(buildSegmentChoice(segment0, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, fake.program5, fake.program5_sequence0_binding0));
-    for (String memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
-      store.put(SegmentFixtures.buildSegmentMeme(segment0, memeName));
+    for (std::string memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
+      store.put(SegmentFixtures::buildSegmentMeme(segment0, memeName));
 
-    store.put(SegmentFixtures.buildSegmentChord(segment0, 0.0f, "C minor"));
-    store.put(SegmentFixtures.buildSegmentChord(segment0, 8.0f, "Db minor"));
+    store.put(SegmentFixtures::buildSegmentChord(segment0, 0.0f, "C minor"));
+    store.put(SegmentFixtures::buildSegmentChord(segment0, 8.0f, "Db minor"));
   }
 
 }

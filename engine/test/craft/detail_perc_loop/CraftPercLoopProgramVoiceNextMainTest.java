@@ -25,9 +25,9 @@ import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.entity.EntityUtils;
-import io.xj.model.enums.InstrumentMode;
-import io.xj.model.enums.InstrumentState;
-import io.xj.model.enums.InstrumentType;
+import io.xj.model.enums.Instrument::Mode;
+import io.xj.model.enums.Instrument::State;
+import io.xj.model.enums.Instrument::Type;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
@@ -45,8 +45,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.SegmentFixtures.buildChain;
-import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures::buildChain;
+import static io.xj.engine.SegmentFixtures::buildSegmentChoice;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftPercLoopProgramVoiceNextMainTest {
@@ -94,7 +94,7 @@ public class CraftPercLoopProgramVoiceNextMainTest {
       ChainType.PRODUCTION,
       ChainState.FABRICATE
     ));
-    store.put(SegmentFixtures.buildSegment(
+    store.put(SegmentFixtures::buildSegment(
       chain1,
       0,
       SegmentState.CRAFTED,
@@ -104,7 +104,7 @@ public class CraftPercLoopProgramVoiceNextMainTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892"
     ));
-    store.put(SegmentFixtures.buildSegment(
+    store.put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.CONTINUE,
       1,
@@ -127,10 +127,10 @@ public class CraftPercLoopProgramVoiceNextMainTest {
 
     // Instrument "808"
     Instrument instrument1 = EntityUtils.add(entities,
-      ContentFixtures.buildInstrument(fake.library2, InstrumentType.Percussion, InstrumentMode.Event, InstrumentState.Published, "Bongo Loop"));
-    EntityUtils.add(entities, ContentFixtures.buildInstrumentMeme(instrument1, "heavy"));
+      ContentFixtures::buildInstrument(fake.library2, Instrument::Type::Percussion, Instrument::Mode::Event, Instrument::State::Published, "Bongo Loop"));
+    EntityUtils.add(entities, ContentFixtures::buildInstrumentMeme(instrument1, "heavy"));
     //
-    audioKick = EntityUtils.add(entities, ContentFixtures.buildInstrumentAudio(
+    audioKick = EntityUtils.add(entities, ContentFixtures::buildInstrumentAudio(
       instrument1,
       "Kick",
       "19801735098q47895897895782138975898.wav",
@@ -142,7 +142,7 @@ public class CraftPercLoopProgramVoiceNextMainTest {
       "Eb",
       1.0f));
     //
-    audioSnare = EntityUtils.add(entities, ContentFixtures.buildInstrumentAudio(
+    audioSnare = EntityUtils.add(entities, ContentFixtures::buildInstrumentAudio(
       instrument1,
       "Snare",
       "a1g9f8u0k1v7f3e59o7j5e8s98.wav",
@@ -184,7 +184,7 @@ public class CraftPercLoopProgramVoiceNextMainTest {
   void insertSegments3and4() throws FabricationException {
     // segment just crafted
     // Testing entities for reference
-    Segment segment3 = store.put(SegmentFixtures.buildSegment(
+    Segment segment3 = store.put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.CONTINUE,
       2,
@@ -210,7 +210,7 @@ public class CraftPercLoopProgramVoiceNextMainTest {
       fake.program15_sequence1_binding0));
 
     // segment crafting
-    segment4 = store.put(SegmentFixtures.buildSegment(
+    segment4 = store.put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.NEXT_MAIN,
       0,
@@ -233,11 +233,11 @@ public class CraftPercLoopProgramVoiceNextMainTest {
       Segment.DELTA_UNLIMITED,
       fake.program15,
       fake.program15_sequence0_binding0));
-    for (String memeName : List.of("Regret", "Sky", "Hindsight", "Tropical"))
-      store.put(SegmentFixtures.buildSegmentMeme(segment4, memeName));
+    for (std::string memeName : List.of("Regret", "Sky", "Hindsight", "Tropical"))
+      store.put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
 
-    store.put(SegmentFixtures.buildSegmentChord(segment4, 0.0f, "G minor"));
-    store.put(SegmentFixtures.buildSegmentChord(segment4, 8.0f, "Ab minor"));
+    store.put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "G minor"));
+    store.put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "Ab minor"));
   }
 
 }

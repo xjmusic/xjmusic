@@ -43,7 +43,7 @@ namespace XJ {
     static MarbleBag empty();
 
     /**
-     * @return {String} marble picked at random from bag
+     * @return {std::string} marble picked at random from bag
      */
     UUID pick();
 

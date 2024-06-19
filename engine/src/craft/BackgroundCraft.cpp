@@ -11,11 +11,11 @@ BackgroundCraft::BackgroundCraft(
 
   @Override
   public void doWork() throws FabricationException {
-    Optional<SegmentChoice> previousChoice = fabricator.retrospective().getPreviousChoiceOfType(InstrumentType.Background);
+    Optional<SegmentChoice> previousChoice = fabricator.retrospective().getPreviousChoiceOfType(Instrument::Type::Background);
 
     var instrument = previousChoice.isPresent() ?
         fabricator.sourceMaterial().getInstrument(previousChoice.get().getInstrumentId()) :
-        chooseFreshInstrument(InstrumentType.Background, List.of());
+        chooseFreshInstrument(Instrument::Type::Background, List.of());
 
     if (instrument.isEmpty()) {
       return;
@@ -32,7 +32,7 @@ BackgroundCraft::BackgroundCraft(
   @SuppressWarnings("DuplicatedCode")
   void craftBackground(Instrument instrument) throws FabricationException {
     var choice = new SegmentChoice();
-    choice.setId(UUID.randomUUID());
+    choice.setId(EntityUtils::computeUniqueId());
     choice.setSegmentId(fabricator.getSegment().getId());
     choice.setMute(computeMute(instrument.getType()));
     choice.setInstrumentType(instrument.getType());
@@ -40,14 +40,14 @@ BackgroundCraft::BackgroundCraft(
     choice.setInstrumentId(instrument.getId());
     fabricator.put(choice, false);
     var arrangement = new SegmentChoiceArrangement();
-    arrangement.setId(UUID.randomUUID());
+    arrangement.setId(EntityUtils::computeUniqueId());
     arrangement.setSegmentId(fabricator.getSegment().getId());
     arrangement.segmentChoiceId(choice.getId());
     fabricator.put(arrangement, false);
 
     for (InstrumentAudio audio : selectGeneralAudioIntensityLayers(instrument)) {
       var pick = new SegmentChoiceArrangementPick();
-      pick.setId(UUID.randomUUID());
+      pick.setId(EntityUtils::computeUniqueId());
       pick.setSegmentId(fabricator.getSegment().getId());
       pick.setSegmentChoiceArrangementId(arrangement.getId());
       pick.setStartAtSegmentMicros(0L);

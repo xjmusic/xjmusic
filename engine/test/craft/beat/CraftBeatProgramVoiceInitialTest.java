@@ -39,8 +39,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.SegmentFixtures.buildChain;
-import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures::buildChain;
+import static io.xj.engine.SegmentFixtures::buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @ExtendWith(MockitoExtension.class)
@@ -86,7 +86,7 @@ public class CraftBeatProgramVoiceInitialTest {
       "Print #2",
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
-      ContentFixtures.buildTemplate(fake.project1, "Tests")
+      ContentFixtures::buildTemplate(fake.project1, "Tests")
     ));
   }
 
@@ -115,7 +115,7 @@ public class CraftBeatProgramVoiceInitialTest {
    Insert fixture segment 6, including the beat choice only if specified
    */
   void insertSegment() throws FabricationException {
-    segment0 = store.put(SegmentFixtures.buildSegment(
+    segment0 = store.put(SegmentFixtures::buildSegment(
       chain2,
       SegmentType.INITIAL,
       0,
@@ -138,11 +138,11 @@ public class CraftBeatProgramVoiceInitialTest {
       Segment.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence0_binding0));
-    for (String memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
-      store.put(SegmentFixtures.buildSegmentMeme(segment0, memeName));
+    for (std::string memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
+      store.put(SegmentFixtures::buildSegmentMeme(segment0, memeName));
 
-    store.put(SegmentFixtures.buildSegmentChord(segment0, 0.0f, "C minor"));
-    store.put(SegmentFixtures.buildSegmentChord(segment0, 8.0f, "Db minor"));
+    store.put(SegmentFixtures::buildSegmentChord(segment0, 0.0f, "C minor"));
+    store.put(SegmentFixtures::buildSegmentChord(segment0, 8.0f, "Db minor"));
   }
 
 }

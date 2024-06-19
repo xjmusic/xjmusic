@@ -6,7 +6,7 @@
 #include "xjmusic/content/ContentEntityStore.h"
 
 #include "../_helper/TestHelpers.h"
-#include "../_helper/ContentFixtures.h"
+#include "../_helper/ContentFixtures::h"
 
 static std::string CONTENT_STORE_TEST_JSON_PATH = "_data/content_store_test.json";
 

@@ -36,8 +36,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.SegmentFixtures.buildChain;
-import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures::buildChain;
+import static io.xj.engine.SegmentFixtures::buildSegmentChoice;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftTransitionInitialTest {
@@ -79,11 +79,11 @@ public class CraftTransitionInitialTest {
       "Print #2",
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
-      ContentFixtures.buildTemplate(fake.project1, "Test")
+      ContentFixtures::buildTemplate(fake.project1, "Test")
     ));
 
     // segment crafting
-    segment6 = store.put(SegmentFixtures.buildSegment(
+    segment6 = store.put(SegmentFixtures::buildSegment(
       chain2,
       SegmentType.INITIAL,
       0,
@@ -107,11 +107,11 @@ public class CraftTransitionInitialTest {
       Segment.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence0_binding0));
-    for (String memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
-      store.put(SegmentFixtures.buildSegmentMeme(segment6, memeName));
+    for (std::string memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
+      store.put(SegmentFixtures::buildSegmentMeme(segment6, memeName));
 
-    store.put(SegmentFixtures.buildSegmentChord(segment6, 0.0f, "C minor"));
-    store.put(SegmentFixtures.buildSegmentChord(segment6, 8.0f, "Db minor"));
+    store.put(SegmentFixtures::buildSegmentChord(segment6, 0.0f, "C minor"));
+    store.put(SegmentFixtures::buildSegmentChord(segment6, 8.0f, "Db minor"));
   }
 
   @AfterEach
@@ -128,6 +128,6 @@ public class CraftTransitionInitialTest {
 //    // assert choice of transition-type sequence
 //    Collection<SegmentChoice> segmentChoices =
 //      store.getAll(segment6.getId(), SegmentChoice.class);
-//    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Transition, InstrumentMode.Event));
+//    assertNotNull(Segments.findFirstOfType(segmentChoices, Instrument::Type::Transition, Instrument::Mode::Event));
   }
 }

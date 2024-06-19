@@ -8,7 +8,7 @@ import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.entity.EntityUtils;
-import io.xj.model.enums.ProgramType;
+import io.xj.model.enums.Program::Type;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
@@ -41,13 +41,13 @@ import java.util.stream.Stream;
 
 import static io.xj.model.util.Assertion.assertSameItems;
 import static io.xj.model.util.ValueUtils.MICROS_PER_MINUTE;
-import static io.xj.engine.SegmentFixtures.buildChain;
-import static io.xj.engine.SegmentFixtures.buildSegment;
+import static io.xj.engine.SegmentFixtures::buildChain;
+import static io.xj.engine.SegmentFixtures::buildSegment;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftFoundationNextMacroTest {
-  static final int TEST_REPEAT_ITERATIONS = 14;
+  static int TEST_REPEAT_ITERATIONS = 14;
 
 
   /**
@@ -81,8 +81,8 @@ public class CraftFoundationNextMacroTest {
       ).collect(Collectors.toList()));
 
       // Chain "Test Print #1" has 5 total segments
-      Chain chain1 = store.put(SegmentFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
-      store.put(SegmentFixtures.buildSegment(
+      Chain chain1 = store.put(SegmentFixtures::buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
+      store.put(SegmentFixtures::buildSegment(
         chain1,
         0,
         SegmentState.CRAFTED,
@@ -92,7 +92,7 @@ public class CraftFoundationNextMacroTest {
         120.0f,
         "chains-1-segments-9f7s89d8a7892"
       ));
-      store.put(SegmentFixtures.buildSegment(
+      store.put(SegmentFixtures::buildSegment(
         chain1,
         1,
         SegmentState.CRAFTING,
@@ -104,7 +104,7 @@ public class CraftFoundationNextMacroTest {
       ));
 
       // Chain "Test Print #1" has this segment that was just crafted
-      Segment segment3 = store.put(SegmentFixtures.buildSegment(
+      Segment segment3 = store.put(SegmentFixtures::buildSegment(
         chain1,
         2,
         SegmentState.CRAFTED,
@@ -114,11 +114,11 @@ public class CraftFoundationNextMacroTest {
         120.0f,
         "chains-1-segments-9f7s89d8a7892.wav"
       ));
-      store.put(SegmentFixtures.buildSegmentChoice(segment3, ProgramType.Macro, fake.program4_sequence2_binding0));
-      store.put(SegmentFixtures.buildSegmentChoice(segment3, ProgramType.Main, fake.program5_sequence1_binding0));
+      store.put(SegmentFixtures::buildSegmentChoice(segment3, Program::Type::Macro, fake.program4_sequence2_binding0));
+      store.put(SegmentFixtures::buildSegmentChoice(segment3, Program::Type::Main, fake.program5_sequence1_binding0));
 
       // Chain "Test Print #1" has a planned segment
-      Segment segment4 = store.put(SegmentFixtures.buildSegment(chain1, 3, SegmentState.PLANNED, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
+      Segment segment4 = store.put(SegmentFixtures::buildSegment(chain1, 3, SegmentState.PLANNED, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
 
       Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
 
@@ -142,11 +142,11 @@ public class CraftFoundationNextMacroTest {
       Collection<SegmentChoice> segmentChoices =
         store.readAll(result.getId(), SegmentChoice.class);
       // assert macro choice
-      SegmentChoice macroChoice = SegmentUtils.findFirstOfType(segmentChoices, ProgramType.Macro);
+      SegmentChoice macroChoice = SegmentUtils.findFirstOfType(segmentChoices, Program::Type::Macro);
       assertEquals(fake.program3_sequence0_binding0.getId(), macroChoice.getProgramSequenceBindingId());
       assertEquals(Integer.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(macroChoice));
       // assert main choice
-      SegmentChoice mainChoice = SegmentUtils.findFirstOfType(segmentChoices, ProgramType.Main);
+      SegmentChoice mainChoice = SegmentUtils.findFirstOfType(segmentChoices, Program::Type::Main);
       assertEquals(fake.program15_sequence0_binding0.getId(), mainChoice.getProgramSequenceBindingId());
       assertEquals(Integer.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(mainChoice));
     }

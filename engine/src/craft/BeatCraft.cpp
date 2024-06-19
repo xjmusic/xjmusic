@@ -12,12 +12,12 @@ BeatCraft::BeatCraft(
 
   @Override
   public void doWork() throws FabricationException {
-    Optional<SegmentChoice> priorBeatChoice = fabricator.getChoicesIfContinued(ProgramType.Beat).stream().findFirst();
+    Optional<SegmentChoice> priorBeatChoice = fabricator.getChoicesIfContinued(Program::Type::Beat).stream().findFirst();
 
     // Program is from prior choice, or freshly chosen
     Optional<Program> program = priorBeatChoice.isPresent() ?
       fabricator.sourceMaterial().getProgram(priorBeatChoice.get().getProgramId()) :
-      chooseFreshProgram(ProgramType.Beat, InstrumentType.Drum);
+      chooseFreshProgram(Program::Type::Beat, Instrument::Type::Drum);
 
     // Should gracefully skip voicing type if unfulfilled by detail program https://github.com/xjmusic/xjmusic/issues/240
     if (program.isEmpty()) {
@@ -29,7 +29,7 @@ BeatCraft::BeatCraft(
       fabricator.sourceMaterial().getProgramVoice(choice.getProgramVoiceId())
         .map(ProgramVoice::getName)
         .orElse("Unknown");
-    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.Beat.equals(choice.getProgramType());
+    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Program::Type::Beat.equals(choice.getProgramType());
     var programNames = fabricator.sourceMaterial().getVoicesOfProgram(program.get()).stream()
       .map(ProgramVoice::getName)
       .collect(Collectors.toList());
@@ -49,7 +49,7 @@ BeatCraft::BeatCraft(
     if (sequence.isPresent()) {
       for (ProgramVoice voice : fabricator.sourceMaterial().getVoicesOfProgram(program.get())) {
         var choice = new SegmentChoice();
-        choice.setId(UUID.randomUUID());
+        choice.setId(EntityUtils::computeUniqueId());
         choice.setSegmentId(fabricator.getSegment().getId());
         choice.setMute(computeMute(voice.getType()));
         choice.setProgramType(fabricator.sourceMaterial().getProgram(voice.getProgramId()).orElseThrow(() -> new FabricationException("Can't get program for voice")).getType());
@@ -70,7 +70,7 @@ BeatCraft::BeatCraft(
           this.craftNoteEventArrangements(fabricator.getTempo(), fabricator.put(choice, false), true);
         } else {
           // If there is no prior choice, then we should choose a fresh instrument
-          var instrument = chooseFreshInstrument(InstrumentType.Drum, fabricator.sourceMaterial().getTrackNamesOfVoice(voice));
+          var instrument = chooseFreshInstrument(Instrument::Type::Drum, fabricator.sourceMaterial().getTrackNamesOfVoice(voice));
           if (instrument.isEmpty()) {
             continue;
           }

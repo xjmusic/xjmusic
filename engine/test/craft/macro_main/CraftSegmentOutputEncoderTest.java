@@ -31,8 +31,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static io.xj.engine.SegmentFixtures.buildChain;
-import static io.xj.engine.SegmentFixtures.buildSegment;
+import static io.xj.engine.SegmentFixtures::buildChain;
+import static io.xj.engine.SegmentFixtures::buildSegment;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
@@ -73,7 +73,7 @@ public class CraftSegmentOutputEncoderTest {
       ChainState.FABRICATE,
       fake.template1
     ));
-    segment6 = store.put(SegmentFixtures.buildSegment(
+    segment6 = store.put(SegmentFixtures::buildSegment(
       chain2,
       0,
       SegmentState.PLANNED,

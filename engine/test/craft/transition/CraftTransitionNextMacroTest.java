@@ -37,8 +37,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.SegmentFixtures.buildSegment;
-import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures::buildSegment;
+import static io.xj.engine.SegmentFixtures::buildSegmentChoice;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftTransitionNextMacroTest {
@@ -77,8 +77,8 @@ public class CraftTransitionNextMacroTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(SegmentFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
-    store.put(SegmentFixtures.buildSegment(
+    chain1 = store.put(SegmentFixtures::buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
+    store.put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.INITIAL,
       0,
@@ -90,7 +90,7 @@ public class CraftTransitionNextMacroTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892",
       true));
-    store.put(SegmentFixtures.buildSegment(
+    store.put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.CONTINUE,
       1,
@@ -119,7 +119,7 @@ public class CraftTransitionNextMacroTest {
 //    // assert choice of transition-type sequence
 //    Collection<SegmentChoice> segmentChoices =
 //      store.getAll(segment4.getId(), SegmentChoice.class);
-//    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Transition, InstrumentMode.Event));
+//    assertNotNull(Segments.findFirstOfType(segmentChoices, Instrument::Type::Transition, Instrument::Mode::Event));
   }
 
   /**
@@ -127,7 +127,7 @@ public class CraftTransitionNextMacroTest {
    */
   void insertSegments3and4() throws FabricationException {
     // Chain "Test Print #1" has this segment that was just crafted
-    Segment segment3 = store.put(SegmentFixtures.buildSegment(
+    Segment segment3 = store.put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.CONTINUE,
       2,
@@ -152,7 +152,7 @@ public class CraftTransitionNextMacroTest {
       fake.program5_sequence1_binding0));
 
     // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
-    segment4 = store.put(SegmentFixtures.buildSegment(
+    segment4 = store.put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.NEXT_MACRO,
       3,
@@ -175,10 +175,10 @@ public class CraftTransitionNextMacroTest {
       Segment.DELTA_UNLIMITED,
       fake.program15,
       fake.program15_sequence0_binding0));
-    for (String memeName : List.of("Hindsight", "Chunky", "Regret", "Tangy"))
-      store.put(SegmentFixtures.buildSegmentMeme(segment4, memeName));
-    store.put(SegmentFixtures.buildSegmentChord(segment4, 0.0f, "F minor"));
-    store.put(SegmentFixtures.buildSegmentChord(segment4, 8.0f, "Gb minor"));
+    for (std::string memeName : List.of("Hindsight", "Chunky", "Regret", "Tangy"))
+      store.put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
+    store.put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "F minor"));
+    store.put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "Gb minor"));
   }
 
 

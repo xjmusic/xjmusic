@@ -64,7 +64,7 @@ Fabricator::Fabricator(
     type = overrideSegmentType.value();
   }
 
-  // final pre-flight check
+  // pre-flight check
   ensureShipKey();
 }
 

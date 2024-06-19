@@ -24,7 +24,7 @@ import io.xj.model.enums.SegmentType;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
-import io.xj.model.enums.ProgramType;
+import io.xj.model.enums.Program::Type;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
@@ -40,8 +40,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.SegmentFixtures.buildChain;
-import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures::buildChain;
+import static io.xj.engine.SegmentFixtures::buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
@@ -84,11 +84,11 @@ public class CraftBeatInitialTest {
       "Print #2",
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
-      ContentFixtures.buildTemplate(fake.project1, "Test")
+      ContentFixtures::buildTemplate(fake.project1, "Test")
     ));
 
     // segment crafting
-    segment6 = store.put(SegmentFixtures.buildSegment(
+    segment6 = store.put(SegmentFixtures::buildSegment(
       chain2,
       SegmentType.INITIAL,
       0,
@@ -111,11 +111,11 @@ public class CraftBeatInitialTest {
       Segment.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence0_binding0));
-    for (String memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
-      store.put(SegmentFixtures.buildSegmentMeme(segment6, memeName));
+    for (std::string memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
+      store.put(SegmentFixtures::buildSegmentMeme(segment6, memeName));
 
-    store.put(SegmentFixtures.buildSegmentChord(segment6, 0.0f, "C minor"));
-    store.put(SegmentFixtures.buildSegmentChord(segment6, 8.0f, "Db minor"));
+    store.put(SegmentFixtures::buildSegmentChord(segment6, 0.0f, "C minor"));
+    store.put(SegmentFixtures::buildSegmentChord(segment6, 8.0f, "Db minor"));
   }
 
   @AfterEach
@@ -132,6 +132,6 @@ public class CraftBeatInitialTest {
     // assert choice of beat-type sequence
     Collection<SegmentChoice> segmentChoices =
       store.readAll(segment6.getId(), SegmentChoice.class);
-    assertNotNull(SegmentUtils.findFirstOfType(segmentChoices, ProgramType.Beat));
+    assertNotNull(SegmentUtils.findFirstOfType(segmentChoices, Program::Type::Beat));
   }
 }

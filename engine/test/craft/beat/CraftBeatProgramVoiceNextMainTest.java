@@ -26,9 +26,9 @@ import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.entity.EntityUtils;
-import io.xj.model.enums.InstrumentMode;
-import io.xj.model.enums.InstrumentState;
-import io.xj.model.enums.InstrumentType;
+import io.xj.model.enums.Instrument::Mode;
+import io.xj.model.enums.Instrument::State;
+import io.xj.model.enums.Instrument::Type;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
@@ -46,8 +46,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.SegmentFixtures.buildChain;
-import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures::buildChain;
+import static io.xj.engine.SegmentFixtures::buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -97,7 +97,7 @@ public class CraftBeatProgramVoiceNextMainTest {
       ChainType.PRODUCTION,
       ChainState.FABRICATE
     ));
-    store.put(SegmentFixtures.buildSegment(
+    store.put(SegmentFixtures::buildSegment(
       chain1,
       0,
       SegmentState.CRAFTED,
@@ -107,7 +107,7 @@ public class CraftBeatProgramVoiceNextMainTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892"
     ));
-    store.put(SegmentFixtures.buildSegment(
+    store.put(SegmentFixtures::buildSegment(
       chain1,
       1,
       SegmentState.CRAFTING,
@@ -128,14 +128,14 @@ public class CraftBeatProgramVoiceNextMainTest {
     Collection<Object> entities = new ArrayList<>();
 
     // Instrument "808"
-    Instrument instrument1 = EntityUtils.add(entities, ContentFixtures.buildInstrument(
+    Instrument instrument1 = EntityUtils.add(entities, ContentFixtures::buildInstrument(
       fake.library2,
-      InstrumentType.Drum,
-      InstrumentMode.Event, InstrumentState.Published,
+      Instrument::Type::Drum,
+      Instrument::Mode::Event, Instrument::State::Published,
       "808 Drums"));
-    EntityUtils.add(entities, ContentFixtures.buildInstrumentMeme(instrument1, "heavy"));
+    EntityUtils.add(entities, ContentFixtures::buildInstrumentMeme(instrument1, "heavy"));
     //
-    audioKick = EntityUtils.add(entities, ContentFixtures.buildInstrumentAudio(
+    audioKick = EntityUtils.add(entities, ContentFixtures::buildInstrumentAudio(
       instrument1,
       "Kick",
       "19801735098q47895897895782138975898.wav",
@@ -147,7 +147,7 @@ public class CraftBeatProgramVoiceNextMainTest {
       "Eb",
       1.0f));
     //
-    audioSnare = EntityUtils.add(entities, ContentFixtures.buildInstrumentAudio(
+    audioSnare = EntityUtils.add(entities, ContentFixtures::buildInstrumentAudio(
       instrument1,
       "Snare",
       "a1g9f8u0k1v7f3e59o7j5e8s98.wav",
@@ -201,7 +201,7 @@ public class CraftBeatProgramVoiceNextMainTest {
   void insertSegments3and4(boolean excludeBeatChoiceForSegment3) throws FabricationException {
     // segment just crafted
     // Testing entities for reference
-    Segment segment3 = store.put(SegmentFixtures.buildSegment(
+    Segment segment3 = store.put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.CONTINUE,
       2,
@@ -226,14 +226,14 @@ public class CraftBeatProgramVoiceNextMainTest {
       fake.program15,
       fake.program15_sequence1_binding0));
     if (!excludeBeatChoiceForSegment3)
-      store.put(SegmentFixtures.buildSegmentChoice(
+      store.put(SegmentFixtures::buildSegmentChoice(
         segment3,
         Segment.DELTA_UNLIMITED,
         Segment.DELTA_UNLIMITED,
         fake.program35));
 
     // segment crafting
-    segment4 = store.put(SegmentFixtures.buildSegment(
+    segment4 = store.put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.NEXT_MAIN,
       0,
@@ -256,11 +256,11 @@ public class CraftBeatProgramVoiceNextMainTest {
       Segment.DELTA_UNLIMITED,
       fake.program15,
       fake.program15_sequence0_binding0));
-    for (String memeName : List.of("Regret", "Sky", "Hindsight", "Tropical"))
-      store.put(SegmentFixtures.buildSegmentMeme(segment4, memeName));
+    for (std::string memeName : List.of("Regret", "Sky", "Hindsight", "Tropical"))
+      store.put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
 
-    store.put(SegmentFixtures.buildSegmentChord(segment4, 0.0f, "G minor"));
-    store.put(SegmentFixtures.buildSegmentChord(segment4, 8.0f, "Ab minor"));
+    store.put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "G minor"));
+    store.put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "Ab minor"));
   }
 
 }

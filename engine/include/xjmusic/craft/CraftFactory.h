@@ -41,7 +41,7 @@ public interface CraftFactory {
   MacroMainCraft macroMain(
       Fabricator fabricator,
       @Nullable Program overrideMacroProgram,
-      @Nullable Collection<String> overrideMemes
+      @Nullable Collection<std::string> overrideMemes
   ) throws FabricationException;
 
   /**

@@ -9,8 +9,8 @@ import io.xj.engine.fabricator.SegmentEntityStoreImpl;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
-import io.xj.model.enums.InstrumentType;
-import io.xj.model.enums.ProgramType;
+import io.xj.model.enums.Instrument::Type;
+import io.xj.model.enums.Program::Type;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
@@ -42,8 +42,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.SegmentFixtures.buildSegment;
-import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures::buildSegment;
+import static io.xj.engine.SegmentFixtures::buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -84,8 +84,8 @@ public class CraftDetailProgramVoiceNextMacroTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(SegmentFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
-    store.put(SegmentFixtures.buildSegment(
+    chain1 = store.put(SegmentFixtures::buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
+    store.put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.INITIAL,
       0,
@@ -97,7 +97,7 @@ public class CraftDetailProgramVoiceNextMacroTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892",
       true));
-    store.put(SegmentFixtures.buildSegment(
+    store.put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.CONTINUE,
       1,
@@ -120,7 +120,7 @@ public class CraftDetailProgramVoiceNextMacroTest {
     // assert detail choice
     Collection<SegmentChoice> segmentChoices = fabricator.getChoices();
     SegmentChoice beatChoice = segmentChoices.stream()
-      .filter(c -> c.getProgramType().equals(ProgramType.Detail)).findFirst().orElseThrow();
+      .filter(c -> c.getProgramType().equals(Program::Type::Detail)).findFirst().orElseThrow();
     assertTrue(fabricator.getArrangements()
       .stream().anyMatch(a -> a.getSegmentChoiceId().equals(beatChoice.getId())));
     
@@ -148,7 +148,7 @@ public class CraftDetailProgramVoiceNextMacroTest {
    */
   void insertSegments3and4(boolean excludeDetailChoiceForSegment3) throws FabricationException {
     // Chain "Test Print #1" has this segment that was just crafted
-    Segment segment3 = store.put(SegmentFixtures.buildSegment(
+    Segment segment3 = store.put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.CONTINUE,
       2,
@@ -172,14 +172,14 @@ public class CraftDetailProgramVoiceNextMacroTest {
       fake.program5,
       fake.program5_sequence1_binding0));
     if (!excludeDetailChoiceForSegment3)
-      store.put(SegmentFixtures.buildSegmentChoice(
+      store.put(SegmentFixtures::buildSegmentChoice(
         segment3,
         Segment.DELTA_UNLIMITED,
         Segment.DELTA_UNLIMITED,
         fake.program10));
 
     // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
-    segment4 = store.put(SegmentFixtures.buildSegment(
+    segment4 = store.put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.CONTINUE,
       3,
@@ -202,12 +202,12 @@ public class CraftDetailProgramVoiceNextMacroTest {
       Segment.DELTA_UNLIMITED,
       fake.program15,
       fake.program15_sequence0_binding0));
-    for (String memeName : List.of("Hindsight", "Chunky", "Regret", "Tangy"))
-      store.put(SegmentFixtures.buildSegmentMeme(segment4, memeName));
-    SegmentChord chord0 = store.put(SegmentFixtures.buildSegmentChord(segment4, 0.0f, "F minor"));
-    store.put(SegmentFixtures.buildSegmentChordVoicing(chord0, InstrumentType.Bass, "F2, Ab2, B2"));
-    SegmentChord chord1 = store.put(SegmentFixtures.buildSegmentChord(segment4, 8.0f, "Gb minor"));
-    store.put(SegmentFixtures.buildSegmentChordVoicing(chord1, InstrumentType.Bass, "Gb2, A2, Db3"));
+    for (std::string memeName : List.of("Hindsight", "Chunky", "Regret", "Tangy"))
+      store.put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
+    SegmentChord chord0 = store.put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "F minor"));
+    store.put(SegmentFixtures::buildSegmentChordVoicing(chord0, Instrument::Type::Bass, "F2, Ab2, B2"));
+    SegmentChord chord1 = store.put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "Gb minor"));
+    store.put(SegmentFixtures::buildSegmentChordVoicing(chord1, Instrument::Type::Bass, "Gb2, A2, Db3"));
   }
 
 }

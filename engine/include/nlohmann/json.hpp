@@ -9046,13 +9046,13 @@ template<typename T, typename Unsigned>
 using number_unsigned_function_t =
     decltype(std::declval<T&>().number_unsigned(std::declval<Unsigned>()));
 
-template<typename T, typename Float, typename String>
+template<typename T, typename Float, typename std::string>
 using number_float_function_t = decltype(std::declval<T&>().number_float(
-                                    std::declval<Float>(), std::declval<const String&>()));
+                                    std::declval<Float>(), std::declval<const std::string&>()));
 
-template<typename T, typename String>
+template<typename T, typename std::string>
 using string_function_t =
-    decltype(std::declval<T&>().string(std::declval<String&>()));
+    decltype(std::declval<T&>().string(std::declval<std::string&>()));
 
 template<typename T, typename Binary>
 using binary_function_t =
@@ -9062,9 +9062,9 @@ template<typename T>
 using start_object_function_t =
     decltype(std::declval<T&>().start_object(std::declval<std::size_t>()));
 
-template<typename T, typename String>
+template<typename T, typename std::string>
 using key_function_t =
-    decltype(std::declval<T&>().key(std::declval<String&>()));
+    decltype(std::declval<T&>().key(std::declval<std::string&>()));
 
 template<typename T>
 using end_object_function_t = decltype(std::declval<T&>().end_object());

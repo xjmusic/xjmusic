@@ -9,8 +9,6 @@
 #include <sstream>
 #include <utility>
 
-#include "ContentFixtures.h"
-#include "LoremIpsum.h"
 #include "xjmusic/content/Instrument.h"
 #include "xjmusic/content/InstrumentAudio.h"
 #include "xjmusic/content/InstrumentMeme.h"
@@ -41,6 +39,9 @@
 #include "xjmusic/segment/SegmentMeta.h"
 #include "xjmusic/util/StringUtils.h"
 #include "xjmusic/util/ValueUtils.h"
+
+#include "ContentFixtures.h"
+#include "LoremIpsum.h"
 
 namespace XJ {
 

@@ -7,8 +7,8 @@ package io.xj.engine.craft.detail;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
-import io.xj.model.enums.InstrumentType;
-import io.xj.model.enums.ProgramType;
+import io.xj.model.enums.Instrument::Type;
+import io.xj.model.enums.Program::Type;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
@@ -42,9 +42,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.SegmentFixtures.buildChain;
-import static io.xj.engine.SegmentFixtures.buildSegment;
-import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures::buildChain;
+import static io.xj.engine.SegmentFixtures::buildSegment;
+import static io.xj.engine.SegmentFixtures::buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
@@ -91,7 +91,7 @@ public class CraftDetailContinueTest {
       ChainType.PRODUCTION,
       ChainState.FABRICATE
     ));
-    store.put(SegmentFixtures.buildSegment(
+    store.put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.INITIAL,
       0,
@@ -103,7 +103,7 @@ public class CraftDetailContinueTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892",
       true));
-    store.put(SegmentFixtures.buildSegment(
+    store.put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.CONTINUE,
       1,
@@ -130,7 +130,7 @@ public class CraftDetailContinueTest {
     // assert choice of detail-type sequence
     Collection<SegmentChoice> segmentChoices =
       store.readAll(segment4.getId(), SegmentChoice.class);
-    assertNotNull(SegmentUtils.findFirstOfType(segmentChoices, ProgramType.Detail));
+    assertNotNull(SegmentUtils.findFirstOfType(segmentChoices, Program::Type::Detail));
   }
 
   @Test
@@ -142,7 +142,7 @@ public class CraftDetailContinueTest {
     // assert choice of detail-type sequence
     Collection<SegmentChoice> segmentChoices =
       store.readAll(segment4.getId(), SegmentChoice.class);
-    assertNotNull(SegmentUtils.findFirstOfType(segmentChoices, ProgramType.Detail));
+    assertNotNull(SegmentUtils.findFirstOfType(segmentChoices, Program::Type::Detail));
   }
 
   /**
@@ -152,7 +152,7 @@ public class CraftDetailContinueTest {
    */
   void insertSegments3and4(boolean excludeDetailChoiceForSegment3) throws Exception {
     // segment just crafted
-    Segment segment3 = store.put(SegmentFixtures.buildSegment(chain1,
+    Segment segment3 = store.put(SegmentFixtures::buildSegment(chain1,
       SegmentType.CONTINUE,
       2,
       0,
@@ -176,14 +176,14 @@ public class CraftDetailContinueTest {
       fake.program5,
       fake.program5_sequence0_binding0));
     if (!excludeDetailChoiceForSegment3)
-      store.put(SegmentFixtures.buildSegmentChoice(
+      store.put(SegmentFixtures::buildSegmentChoice(
         segment3,
         Segment.DELTA_UNLIMITED,
         Segment.DELTA_UNLIMITED,
         fake.program10));
 
     // segment crafting
-    segment4 = store.put(SegmentFixtures.buildSegment(
+    segment4 = store.put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.CONTINUE,
       3,
@@ -207,11 +207,11 @@ public class CraftDetailContinueTest {
       Segment.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence1_binding0));
-    for (String memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
-      store.put(SegmentFixtures.buildSegmentMeme(segment4, memeName));
-    SegmentChord chord0 = store.put(SegmentFixtures.buildSegmentChord(segment4, 0.0f, "A minor"));
-    store.put(SegmentFixtures.buildSegmentChordVoicing(chord0, InstrumentType.Bass, "A2, C3, E3"));
-    SegmentChord chord1 = store.put(SegmentFixtures.buildSegmentChord(segment4, 8.0f, "D major"));
-    store.put(SegmentFixtures.buildSegmentChordVoicing(chord1, InstrumentType.Bass, "D2, F#2, A2"));
+    for (std::string memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
+      store.put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
+    SegmentChord chord0 = store.put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "A minor"));
+    store.put(SegmentFixtures::buildSegmentChordVoicing(chord0, Instrument::Type::Bass, "A2, C3, E3"));
+    SegmentChord chord1 = store.put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "D major"));
+    store.put(SegmentFixtures::buildSegmentChordVoicing(chord1, Instrument::Type::Bass, "D2, F#2, A2"));
   }
 }

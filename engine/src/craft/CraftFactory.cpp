@@ -8,7 +8,7 @@ CraftFactory::CraftFactory() {
   }
 
   @Override
-  public MacroMainCraft macroMain(Fabricator fabricator, @Nullable Program overrideMacroProgram, @Nullable Collection<String> overrideMemes) {
+  public MacroMainCraft macroMain(Fabricator fabricator, @Nullable Program overrideMacroProgram, @Nullable Collection<std::string> overrideMemes) {
     return new MacroMainCraftImpl(fabricator, overrideMacroProgram, overrideMemes);
   }
 

@@ -9,7 +9,7 @@ import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.entity.EntityUtils;
-import io.xj.model.enums.ProgramType;
+import io.xj.model.enums.Program::Type;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
@@ -37,14 +37,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.model.util.Assertion.assertSameItems;
-import static io.xj.engine.SegmentFixtures.buildChain;
-import static io.xj.engine.SegmentFixtures.buildSegment;
+import static io.xj.engine.SegmentFixtures::buildChain;
+import static io.xj.engine.SegmentFixtures::buildSegment;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftSegmentPatternMemeTest {
-  final Logger LOG = LoggerFactory.getLogger(CraftSegmentPatternMemeTest.class);
-  static final int TEST_REPEAT_ITERATIONS = 14;
+  Logger LOG = LoggerFactory.getLogger(CraftSegmentPatternMemeTest.class);
+  static int TEST_REPEAT_ITERATIONS = 14;
 
 
   /**
@@ -83,10 +83,10 @@ public class CraftSegmentPatternMemeTest {
       ).collect(Collectors.toList()));
 
       // Chain "Test Print #1" has 5 total segments
-      Chain chain = store.put(SegmentFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
+      Chain chain = store.put(SegmentFixtures::buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
 
       // Preceding Segment
-      Segment previousSegment = store.put(SegmentFixtures.buildSegment(
+      Segment previousSegment = store.put(SegmentFixtures::buildSegment(
         chain,
         1,
         SegmentState.CRAFTING,
@@ -96,11 +96,11 @@ public class CraftSegmentPatternMemeTest {
         120.0f,
         "chains-1-segments-9f7s89d8a7892.wav"
       ));
-      store.put(SegmentFixtures.buildSegmentChoice(previousSegment, ProgramType.Macro, fake.program4_sequence1_binding0));
-      store.put(SegmentFixtures.buildSegmentChoice(previousSegment, ProgramType.Main, fake.program5_sequence1_binding0));
+      store.put(SegmentFixtures::buildSegmentChoice(previousSegment, Program::Type::Macro, fake.program4_sequence1_binding0));
+      store.put(SegmentFixtures::buildSegmentChoice(previousSegment, Program::Type::Main, fake.program5_sequence1_binding0));
 
       // Following Segment
-      Segment segment = store.put(SegmentFixtures.buildSegment(chain, 2, SegmentState.PLANNED, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
+      Segment segment = store.put(SegmentFixtures::buildSegment(chain, 2, SegmentState.PLANNED, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
 
       craftFactory.macroMain(fabricatorFactory.fabricate(sourceMaterial, segment.getId(), 48000.0f, 2, null), null, null).doWork();
 

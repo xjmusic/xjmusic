@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#ifndef XJMUSIC_ENTITYUTILS_H
-#define XJMUSIC_ENTITYUTILS_H
+#ifndef XJMUSIC_ENTITY_UTILS_H
+#define XJMUSIC_ENTITY_UTILS_H
 
 #include <map>
 #include <string>
@@ -43,8 +43,8 @@ namespace XJ {
 
     /**
      * Reverse a map
-     * @tparam A           original key type -> final value type
-     * @tparam B           original value type -> final key type
+     * @tparam A           original key type -> value type
+     * @tparam B           original value type -> key type
      * @param originalMap  The original map
      * @return             The reversed map
      */
@@ -75,4 +75,4 @@ namespace XJ {
 
 }// namespace XJ
 
-#endif//XJMUSIC_ENTITYUTILS_H
+#endif//XJMUSIC_ENTITY_UTILS_H

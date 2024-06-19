@@ -9,7 +9,7 @@ import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.entity.EntityUtils;
-import io.xj.model.enums.ProgramType;
+import io.xj.model.enums.Program::Type;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
@@ -43,8 +43,8 @@ import java.util.Objects;
 
 import static io.xj.model.util.Assertion.assertSameItems;
 import static io.xj.model.util.ValueUtils.MICROS_PER_MINUTE;
-import static io.xj.engine.SegmentFixtures.buildChain;
-import static io.xj.engine.SegmentFixtures.buildSegment;
+import static io.xj.engine.SegmentFixtures::buildChain;
+import static io.xj.engine.SegmentFixtures::buildSegment;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
@@ -86,7 +86,7 @@ public class CraftFoundationInitialTest {
       ChainType.PRODUCTION,
       ChainState.FABRICATE
     ));
-    segment6 = store.put(SegmentFixtures.buildSegment(
+    segment6 = store.put(SegmentFixtures::buildSegment(
       chain2,
       0,
       SegmentState.PLANNED,
@@ -122,10 +122,10 @@ public class CraftFoundationInitialTest {
     // assert choices
     Collection<SegmentChoice> segmentChoices =
       store.readAll(result.getId(), SegmentChoice.class);
-    SegmentChoice macroChoice = SegmentUtils.findFirstOfType(segmentChoices, ProgramType.Macro);
+    SegmentChoice macroChoice = SegmentUtils.findFirstOfType(segmentChoices, Program::Type::Macro);
     assertEquals(fake.program4_sequence0_binding0.getId(), macroChoice.getProgramSequenceBindingId());
     assertEquals(Integer.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(macroChoice));
-    SegmentChoice mainChoice = SegmentUtils.findFirstOfType(segmentChoices, ProgramType.Main);
+    SegmentChoice mainChoice = SegmentUtils.findFirstOfType(segmentChoices, Program::Type::Main);
     assertEquals(fake.program5_sequence0_binding0.getId(), mainChoice.getProgramSequenceBindingId());
     assertEquals(Integer.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(mainChoice));
   }

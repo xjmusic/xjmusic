@@ -8,8 +8,8 @@ import io.xj.engine.fabricator.SegmentEntityStoreImpl;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
-import io.xj.model.enums.InstrumentType;
-import io.xj.model.enums.ProgramType;
+import io.xj.model.enums.Instrument::Type;
+import io.xj.model.enums.Program::Type;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
@@ -42,9 +42,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.SegmentFixtures.buildChain;
-import static io.xj.engine.SegmentFixtures.buildSegment;
-import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
+import static io.xj.engine.SegmentFixtures::buildChain;
+import static io.xj.engine.SegmentFixtures::buildSegment;
+import static io.xj.engine.SegmentFixtures::buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -94,7 +94,7 @@ public class CraftDetailInitialTest {
     ));
 
     // segment crafting
-    segment6 = store.put(SegmentFixtures.buildSegment(
+    segment6 = store.put(SegmentFixtures::buildSegment(
       chain2,
       SegmentType.INITIAL,
       0,
@@ -117,12 +117,12 @@ public class CraftDetailInitialTest {
       Segment.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence0_binding0));
-    for (String memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
-      store.put(SegmentFixtures.buildSegmentMeme(segment6, memeName));
-    SegmentChord chord0 = store.put(SegmentFixtures.buildSegmentChord(segment6, 0.0f, "C minor"));
-    store.put(SegmentFixtures.buildSegmentChordVoicing(chord0, InstrumentType.Bass, "C2, Eb2, G2"));
-    SegmentChord chord1 = store.put(SegmentFixtures.buildSegmentChord(segment6, 8.0f, "Db minor"));
-    store.put(SegmentFixtures.buildSegmentChordVoicing(chord1, InstrumentType.Bass, "Db2, E2, Ab2"));
+    for (std::string memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
+      store.put(SegmentFixtures::buildSegmentMeme(segment6, memeName));
+    SegmentChord chord0 = store.put(SegmentFixtures::buildSegmentChord(segment6, 0.0f, "C minor"));
+    store.put(SegmentFixtures::buildSegmentChordVoicing(chord0, Instrument::Type::Bass, "C2, Eb2, G2"));
+    SegmentChord chord1 = store.put(SegmentFixtures::buildSegmentChord(segment6, 8.0f, "Db minor"));
+    store.put(SegmentFixtures::buildSegmentChordVoicing(chord1, Instrument::Type::Bass, "Db2, E2, Ab2"));
   }
 
   @AfterEach
@@ -138,7 +138,7 @@ public class CraftDetailInitialTest {
 
     // assert choice of detail-type sequence
     Collection<SegmentChoice> choices = store.readAll(segment6.getId(), SegmentChoice.class);
-    assertNotNull(SegmentUtils.findFirstOfType(choices, ProgramType.Detail));
+    assertNotNull(SegmentUtils.findFirstOfType(choices, Program::Type::Detail));
 
     // Detail Craft v1 -- segment chords voicings belong to chords and segments https://github.com/xjmusic/xjmusic/issues/284
     Collection<SegmentChordVoicing> voicings = store.readAll(segment6.getId(), SegmentChordVoicing.class);

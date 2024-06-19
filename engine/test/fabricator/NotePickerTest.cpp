@@ -22,14 +22,14 @@ protected:
   int REPEAT_EACH_TEST_TIMES = 7;
   std::string TEST_PATH_PREFIX = "_data/picking/";
   TemplateConfig templateConfig;
-  NotePicker* subject;
+  NotePicker* subject{};
 
   /**
    Load the specified test YAML file and run it repeatedly.
 
    @param filename of test YAML file
    */
-  void loadAndRunTest(std::string filename) {
+  void loadAndRunTest(const std::string& filename) {
     for (int i = 0; i < REPEAT_EACH_TEST_TIMES; i++)
       try {
         // Load YAML and parse
@@ -44,7 +44,7 @@ protected:
           picked.emplace(subject->pick(note));
         }
 
-        // assert final picks
+        // assert picks
         loadAndPerformAssertions(picked, data);
 
       } catch (std::exception &e) {
@@ -68,7 +68,7 @@ protected:
 
     std::set<Note> voicingNotes;
     std::string voicingNotesCsv = getStr(obj, "voicingNotes").value_or("");
-    for (auto noteStr : CsvUtils::split(voicingNotesCsv)) {
+    for (const auto& noteStr : CsvUtils::split(voicingNotesCsv)) {
       voicingNotes.insert(Note::of(noteStr));
     }
 
@@ -76,7 +76,7 @@ protected:
 
     std::vector<Note> eventNotes;
     std::string eventNotesCsv = getStr(obj, "eventNotes").value_or("");
-    for (auto noteStr : CsvUtils::split(eventNotesCsv)) {
+    for (const auto& noteStr : CsvUtils::split(eventNotesCsv)) {
       eventNotes.emplace_back(Note::of(noteStr));
     }
 

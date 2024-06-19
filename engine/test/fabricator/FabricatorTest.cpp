@@ -4,10 +4,11 @@
 #include <gmock/gmock.h>
 #include <vector>
 
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "../_helper/SegmentFixtures.h"
 #include "../_mock/MockSegmentRetrospective.h"
+
 #include "xjmusic/fabricator/ChainUtils.h"
+#include "xjmusic/fabricator/FabricatorFactory.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;

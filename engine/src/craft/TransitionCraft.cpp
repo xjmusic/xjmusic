@@ -4,9 +4,9 @@
 
 using namespace XJ;
 
-final List<String> smallNames;
-  final List<String> mediumNames;
-  final List<String> largeNames;
+List<std::string> smallNames;
+  List<std::string> mediumNames;
+  List<std::string> largeNames;
 
   public TransitionCraftImpl(
     Fabricator fabricator
@@ -20,11 +20,11 @@ final List<String> smallNames;
 
   @Override
   public void doWork() throws FabricationException {
-    Optional<SegmentChoice> previousChoice = fabricator.retrospective().getPreviousChoiceOfType(InstrumentType.Transition);
+    Optional<SegmentChoice> previousChoice = fabricator.retrospective().getPreviousChoiceOfType(Instrument::Type::Transition);
 
     var instrument = previousChoice.isPresent() ?
       fabricator.sourceMaterial().getInstrument(previousChoice.get().getInstrumentId()) :
-      chooseFreshInstrument(InstrumentType.Transition, List.of());
+      chooseFreshInstrument(Instrument::Type::Transition, List.of());
 
     if (instrument.isEmpty()) {
       return;
@@ -72,7 +72,7 @@ final List<String> smallNames;
   @SuppressWarnings("DuplicatedCode")
   void craftTransition(double tempo, Instrument instrument) throws FabricationException {
     var choice = new SegmentChoice();
-    choice.setId(UUID.randomUUID());
+    choice.setId(EntityUtils::computeUniqueId());
     choice.setSegmentId(fabricator.getSegment().getId());
     choice.setMute(computeMute(instrument.getType()));
     choice.setInstrumentType(instrument.getType());
@@ -80,7 +80,7 @@ final List<String> smallNames;
     choice.setInstrumentId(instrument.getId());
     fabricator.put(choice, false);
     var arrangement = new SegmentChoiceArrangement();
-    arrangement.setId(UUID.randomUUID());
+    arrangement.setId(EntityUtils::computeUniqueId());
     arrangement.setSegmentId(fabricator.getSegment().getId());
     arrangement.segmentChoiceId(choice.getId());
     fabricator.put(arrangement, false);
@@ -116,7 +116,7 @@ final List<String> smallNames;
 
    @return instrument audios
    */
-  private Collection<InstrumentAudio> selectAudiosForInstrument(Instrument instrument, List<String> names) {
+  private Collection<InstrumentAudio> selectAudiosForInstrument(Instrument instrument, List<std::string> names) {
     var previous = fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId()).stream()
       .filter(pick -> names.contains(StringUtils.toMeme(pick.getEvent())))
       .collect(Collectors.toSet());
@@ -134,7 +134,7 @@ final List<String> smallNames;
     return selectAudioIntensityLayers(
       fabricator.sourceMaterial().getAudiosOfInstrument(instrument.getId())
         .stream().filter(instrumentAudio -> names.contains(StringUtils.toMeme(instrumentAudio.getEvent()))).collect(Collectors.toSet()),
-      fabricator.getTemplateConfig().getIntensityLayers(InstrumentType.Background)
+      fabricator.getTemplateConfig().getIntensityLayers(Instrument::Type::Background)
     );
   }
 }

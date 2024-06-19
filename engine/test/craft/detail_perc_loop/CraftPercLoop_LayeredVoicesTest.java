@@ -23,10 +23,10 @@ import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.entity.EntityUtils;
-import io.xj.model.enums.InstrumentMode;
-import io.xj.model.enums.InstrumentState;
-import io.xj.model.enums.InstrumentType;
-import io.xj.model.enums.ProgramType;
+import io.xj.model.enums.Instrument::Mode;
+import io.xj.model.enums.Instrument::State;
+import io.xj.model.enums.Instrument::Type;
+import io.xj.model.enums.Program::Type;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
@@ -81,8 +81,8 @@ public class CraftPercLoop_LayeredVoicesTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(SegmentFixtures.buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
-    store.put(SegmentFixtures.buildSegment(
+    Chain chain1 = store.put(SegmentFixtures::buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
+    store.put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.INITIAL,
       0,
@@ -94,7 +94,7 @@ public class CraftPercLoop_LayeredVoicesTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892",
       true));
-    store.put(SegmentFixtures.buildSegment(
+    store.put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.CONTINUE,
       1,
@@ -109,7 +109,7 @@ public class CraftPercLoop_LayeredVoicesTest {
 
     // segment just crafted
     // Testing entities for reference
-    Segment segment3 = store.put(SegmentFixtures.buildSegment(
+    Segment segment3 = store.put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.CONTINUE,
       2,
@@ -121,11 +121,11 @@ public class CraftPercLoop_LayeredVoicesTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892.wav",
       true));
-    store.put(SegmentFixtures.buildSegmentChoice(segment3, ProgramType.Macro, fake.program4_sequence0_binding0));
-    store.put(SegmentFixtures.buildSegmentChoice(segment3, ProgramType.Main, fake.program5_sequence0_binding0));
+    store.put(SegmentFixtures::buildSegmentChoice(segment3, Program::Type::Macro, fake.program4_sequence0_binding0));
+    store.put(SegmentFixtures::buildSegmentChoice(segment3, Program::Type::Main, fake.program5_sequence0_binding0));
 
     // segment crafting
-    segment4 = store.put(SegmentFixtures.buildSegment(
+    segment4 = store.put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.CONTINUE,
       3,
@@ -137,14 +137,14 @@ public class CraftPercLoop_LayeredVoicesTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892.wav",
       true));
-    store.put(SegmentFixtures.buildSegmentChoice(segment4, ProgramType.Macro, fake.program4_sequence0_binding0));
-    store.put(SegmentFixtures.buildSegmentChoice(segment4, ProgramType.Main, fake.program5_sequence1_binding0));
+    store.put(SegmentFixtures::buildSegmentChoice(segment4, Program::Type::Macro, fake.program4_sequence0_binding0));
+    store.put(SegmentFixtures::buildSegmentChoice(segment4, Program::Type::Main, fake.program5_sequence1_binding0));
 
-    for (String memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
-      store.put(SegmentFixtures.buildSegmentMeme(segment4, memeName));
+    for (std::string memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
+      store.put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
 
-    store.put(SegmentFixtures.buildSegmentChord(segment4, 0.0f, "A minor"));
-    store.put(SegmentFixtures.buildSegmentChord(segment4, 8.0f, "D Major"));
+    store.put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "A minor"));
+    store.put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "D Major"));
   }
 
 
@@ -157,14 +157,14 @@ public class CraftPercLoop_LayeredVoicesTest {
     Collection<Object> entities = new ArrayList<>();
 
     // Instrument "808"
-    Instrument instrument1 = EntityUtils.add(entities, ContentFixtures.buildInstrument(fake.library2, InstrumentType.Percussion, InstrumentMode.Event, InstrumentState.Published, "Bongo Loop"));
-    EntityUtils.add(entities, ContentFixtures.buildMeme(instrument1, "heavy"));
+    Instrument instrument1 = EntityUtils.add(entities, ContentFixtures::buildInstrument(fake.library2, Instrument::Type::Percussion, Instrument::Mode::Event, Instrument::State::Published, "Bongo Loop"));
+    EntityUtils.add(entities, ContentFixtures::buildMeme(instrument1, "heavy"));
     //
-    EntityUtils.add(entities, ContentFixtures.buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
+    EntityUtils.add(entities, ContentFixtures::buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
     //
-    EntityUtils.add(entities, ContentFixtures.buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
+    EntityUtils.add(entities, ContentFixtures::buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
     //
-    EntityUtils.add(entities, ContentFixtures.buildAudio(instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01f, 1.5f, 120.0f, 0.6f, "HIHAT", "Ab", 1.0f));
+    EntityUtils.add(entities, ContentFixtures::buildAudio(instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01f, 1.5f, 120.0f, 0.6f, "HIHAT", "Ab", 1.0f));
 
     return entities;
   }

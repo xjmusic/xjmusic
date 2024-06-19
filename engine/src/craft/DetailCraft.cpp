@@ -4,14 +4,14 @@
 
 using namespace XJ;
 
-  private static final Collection<InstrumentType> DETAIL_INSTRUMENT_TYPES = Set.of(
-    InstrumentType.Bass,
-    InstrumentType.Pad,
-    InstrumentType.Sticky,
-    InstrumentType.Stripe,
-    InstrumentType.Stab,
-    InstrumentType.Hook,
-    InstrumentType.Percussion
+  private static Collection<Instrument::Type> DETAIL_INSTRUMENT_TYPES = Set.of(
+    Instrument::Type::Bass,
+    Instrument::Type::Pad,
+    Instrument::Type::Sticky,
+    Instrument::Type::Stripe,
+    Instrument::Type::Stab,
+    Instrument::Type::Hook,
+    Instrument::Type::Percussion
   );
 
   public DetailCraftImpl(Fabricator fabricator) {
@@ -22,11 +22,11 @@ using namespace XJ;
   public void doWork() throws FabricationException {
     // Segments have delta arcs; automate mixer layers in and out of each main program https://github.com/xjmusic/xjmusic/issues/233
     ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) -> StringUtils.stringOrDefault(choice.getInstrumentType(), choice.getId().toString());
-    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Objects.equals(ProgramType.Detail, choice.getProgramType());
-    precomputeDeltas(choiceFilter, choiceIndexProvider, fabricator.getTemplateConfig().getDetailLayerOrder().stream().map(InstrumentType::toString).collect(Collectors.toList()), List.of(), fabricator.getTemplateConfig().getDeltaArcBeatLayersIncoming());
+    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Objects.equals(Program::Type::Detail, choice.getProgramType());
+    precomputeDeltas(choiceFilter, choiceIndexProvider, fabricator.getTemplateConfig().getDetailLayerOrder().stream().map(Instrument::Type::toString).collect(Collectors.toList()), List.of(), fabricator.getTemplateConfig().getDeltaArcBeatLayersIncoming());
 
     // For each type of detail instrument type, choose instrument, then program if necessary
-    for (InstrumentType instrumentType : DETAIL_INSTRUMENT_TYPES) {
+    for (Instrument::Type instrumentType : DETAIL_INSTRUMENT_TYPES) {
 
       // Instrument is from prior choice, else freshly chosen
       Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(instrumentType);
@@ -39,13 +39,13 @@ using namespace XJ;
         continue;
       }
 
-      // Instruments have InstrumentMode https://github.com/xjmusic/xjmusic/issues/260
+      // Instruments have Instrument::Mode https://github.com/xjmusic/xjmusic/issues/260
       switch (instrument.get().getMode()) {
 
         // Event instrument mode takes over legacy behavior https://github.com/xjmusic/xjmusic/issues/234
         case Event -> {
           // Event Use prior chosen program or find a new one
-          Optional<Program> program = priorChoice.isPresent() ? fabricator.sourceMaterial().getProgram(priorChoice.get().getProgramId()) : chooseFreshProgram(ProgramType.Detail, instrumentType);
+          Optional<Program> program = priorChoice.isPresent() ? fabricator.sourceMaterial().getProgram(priorChoice.get().getProgramId()) : chooseFreshProgram(Program::Type::Detail, instrumentType);
 
           // Event Should gracefully skip voicing type if unfulfilled by detail program https://github.com/xjmusic/xjmusic/issues/240
           if (program.isEmpty()) {
@@ -63,7 +63,7 @@ using namespace XJ;
 
         // As-yet Unsupported Modes
         default ->
-          fabricator.addWarningMessage(String.format("Cannot craft unsupported mode %s for Instrument[%s]", instrument.get().getMode(), instrument.get().getId()));
+          fabricator.addWarningMessage(std::string.format("Cannot craft unsupported mode %s for Instrument[%s]", instrument.get().getMode(), instrument.get().getId()));
       }
     }
 
@@ -78,7 +78,7 @@ using namespace XJ;
   @SuppressWarnings("DuplicatedCode")
   void craftLoopParts(double tempo, Instrument instrument) throws FabricationException {
     var choice = new SegmentChoice();
-    choice.setId(UUID.randomUUID());
+    choice.setId(EntityUtils::computeUniqueId());
     choice.setSegmentId(fabricator.getSegment().getId());
     choice.setMute(computeMute(instrument.getType()));
     choice.setInstrumentType(instrument.getType());
@@ -86,7 +86,7 @@ using namespace XJ;
     choice.setInstrumentId(instrument.getId());
     fabricator.put(choice, false);
     var arrangement = new SegmentChoiceArrangement();
-    arrangement.setId(UUID.randomUUID());
+    arrangement.setId(EntityUtils::computeUniqueId());
     arrangement.setSegmentId(fabricator.getSegment().getId());
     arrangement.segmentChoiceId(choice.getId());
     fabricator.put(arrangement, false);
@@ -106,7 +106,7 @@ using namespace XJ;
 
         // of pick
         var pick = new SegmentChoiceArrangementPick();
-        pick.setId(UUID.randomUUID());
+        pick.setId(EntityUtils::computeUniqueId());
         pick.setSegmentId(fabricator.getSegment().getId());
         pick.setSegmentChoiceArrangementId(arrangement.getId());
         pick.setStartAtSegmentMicros(startAtSegmentMicros);
