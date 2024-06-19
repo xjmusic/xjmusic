@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 #include <gtest/gtest.h>
-#include "spdlog/spdlog.h"
+#include <spdlog/spdlog.h>
 
 #include "xjmusic/fabricator/MarbleBag.h"
 #include "xjmusic/fabricator/FabricationException.h"
@@ -12,7 +12,6 @@ using namespace XJ;
  * The Marble Bag: a bag of marbles
  * Because choices should be random https://github.com/xjmusic/xjmusic/issues/291
  */
-
 class MarbleBagTest : public ::testing::Test {
 protected:
   UUID frogId = ContentEntity::computeUniqueId();

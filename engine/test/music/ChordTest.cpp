@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "yaml-cpp/yaml.h"
+#include <yaml-cpp/yaml.h>
 #include <gtest/gtest.h>
 
 #include "xjmusic/music/Chord.h"

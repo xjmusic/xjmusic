@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include "spdlog/spdlog.h"
+#include <spdlog/spdlog.h>
 
 #include "xjmusic/fabricator/FabricationFatalException.h"
 #include "xjmusic/fabricator/FabricationException.h"

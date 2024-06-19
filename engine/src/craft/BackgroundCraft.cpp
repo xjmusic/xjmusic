@@ -1,0 +1,61 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
+#include "xjmusic/craft/BackgroundCraft.h"
+
+
+BackgroundCraft::BackgroundCraft(
+      Fabricator fabricator
+  ) {
+    super(fabricator);
+  }
+
+  @Override
+  public void doWork() throws FabricationException {
+    Optional<SegmentChoice> previousChoice = fabricator.retrospective().getPreviousChoiceOfType(InstrumentType.Background);
+
+    var instrument = previousChoice.isPresent() ?
+        fabricator.sourceMaterial().getInstrument(previousChoice.get().getInstrumentId()) :
+        chooseFreshInstrument(InstrumentType.Background, List.of());
+
+    if (instrument.isEmpty()) {
+      return;
+    }
+
+    craftBackground(instrument.get());
+  }
+
+  /**
+   Craft percussion loop
+
+   @param instrument for which to craft
+   */
+  @SuppressWarnings("DuplicatedCode")
+  void craftBackground(Instrument instrument) throws FabricationException {
+    var choice = new SegmentChoice();
+    choice.setId(UUID.randomUUID());
+    choice.setSegmentId(fabricator.getSegment().getId());
+    choice.setMute(computeMute(instrument.getType()));
+    choice.setInstrumentType(instrument.getType());
+    choice.setInstrumentMode(instrument.getMode());
+    choice.setInstrumentId(instrument.getId());
+    fabricator.put(choice, false);
+    var arrangement = new SegmentChoiceArrangement();
+    arrangement.setId(UUID.randomUUID());
+    arrangement.setSegmentId(fabricator.getSegment().getId());
+    arrangement.segmentChoiceId(choice.getId());
+    fabricator.put(arrangement, false);
+
+    for (InstrumentAudio audio : selectGeneralAudioIntensityLayers(instrument)) {
+      var pick = new SegmentChoiceArrangementPick();
+      pick.setId(UUID.randomUUID());
+      pick.setSegmentId(fabricator.getSegment().getId());
+      pick.setSegmentChoiceArrangementId(arrangement.getId());
+      pick.setStartAtSegmentMicros(0L);
+      pick.setLengthMicros(fabricator.getTotalSegmentMicros());
+      pick.setAmplitude(1.0f);
+      pick.setEvent("BACKGROUND");
+      pick.setInstrumentAudioId(audio.getId());
+      fabricator.put(pick, false);
+    }
+  }
+

@@ -7,6 +7,7 @@ add_executable(xjmusic_test
         _helper/LoremIpsum.cpp
         _helper/SegmentFixtures.cpp
         _helper/TestHelpers.cpp
+        _helper/YamlTest.cpp
         content/ContentEntityStoreTest.cpp
         content/InstrumentAudioTest.cpp
         content/InstrumentConfigTest.cpp
@@ -31,6 +32,7 @@ add_executable(xjmusic_test
         content/TemplateTest.cpp
         fabricator/FabricatorTest.cpp
         fabricator/MarbleBagTest.cpp
+        fabricator/NotePickerTests.cpp
         fabricator/SegmentRetrospectiveTest.cpp
         fabricator/SegmentUtilsTest.cpp
         meme/MemeIsometryTest.cpp

@@ -1,0 +1,170 @@
+#  This test aims to identify the root of the bug described in https://github.com/xjmusic/xjmusic/issues/292
+#  As it stands, XJ is choosing notes outside of the Main Program Voicing List in certain segments
+#
+#
+#
+---
+
+
+
+stabInstrument:
+  isTonal: true
+  isMultiphonic: true
+  notes: >
+    C4, C#4, D4, D#4, E4, F4, F#4, G4, G#4, A4, A#4, B4,
+    C5, C#5, D5, D#5, E5, F5, F#5, G5, G#5, A5, A#5, B5,
+    C6, C#6, D6, D#6, E6, F6, F#6, G6, G#6, A6, A#6, B6
+
+
+
+stabDetailProgram:
+  key: C
+  doPatternRestartOnChord: false
+  sequence:
+    total: 8
+    pattern:
+      total: 8
+      events:
+        - { position: 0.0, duration: 0.5, tones: "C4" }
+        - { position: 0.5, duration: 0.5, tones: "C#4" }
+        - { position: 1.0, duration: 0.5, tones: "D4" }
+        - { position: 1.5, duration: 0.5, tones: "D#4" }
+        - { position: 2.0, duration: 0.5, tones: "E4" }
+        - { position: 2.5, duration: 0.5, tones: "F4" }
+        - { position: 3.0, duration: 0.5, tones: "F#4" }
+        - { position: 3.5, duration: 0.5, tones: "G4" }
+        - { position: 4.0, duration: 0.5, tones: "G#4" }
+        - { position: 4.5, duration: 0.5, tones: "A4" }
+        - { position: 5.0, duration: 0.5, tones: "A#4" }
+        - { position: 5.5, duration: 0.5, tones: "B4" }
+
+segment:
+  key: C-
+  total: 64
+  intensity: 1.0
+  chords:
+    - position: 0.0
+      name: C-7
+      voicings:
+        stab: C3, Eb3, G3, Bb3, C4, Eb4, G4, Bb4, C5, Eb5, G5, Bb5, C6, Eb6, G6
+    - position: 16.0
+      name: E-7add9
+      voicings:
+        stab: E3, G3, B3, D4, F#4, G4, B4, D5, F#5, G5, B5
+    - position: 32.0
+      name: C-7add9
+      voicings:
+        stab: Eb3, G3, Bb3, C4, Eb4, G4, Bb4, D5, G5, Bb5
+    - position: 48.0
+      name: Eb-7add9
+      voicings:
+        stab: Ab3, Bb3, Db4, F4, Gb4, Ab4, Db5, F5, Ab5, Bb5
+
+
+assertPicks:
+  stab:
+    - { start: 0.0, length: 0.5, count: 1, notes: "C4" }
+    - { start: 0.5, length: 0.5, count: 1, notes: "C4" }
+    - { start: 1.0, length: 0.5, count: 1, notes: "Eb4" }
+    - { start: 1.5, length: 0.5, count: 1, notes: "Eb4" }
+    - { start: 2.0, length: 0.5, count: 1, notes: "Eb4" }
+    - { start: 2.5, length: 0.5, count: 1, notes: "Eb4" }
+    - { start: 3.0, length: 0.5, count: 1, notes: "G4" }
+    - { start: 3.5, length: 0.5, count: 1, notes: "G4" }
+    - { start: 4.0, length: 0.5, count: 1, notes: "G4" }
+    - { start: 4.5, length: 0.5, count: 1, notes: "Bb4" }
+    - { start: 5.0, length: 0.5, count: 1, notes: "Bb4" }
+    - { start: 5.5, length: 0.5, count: 1, notes: "Bb4" }
+
+    - { start: 8.0, length: 0.5, count: 1, notes: "C4" }
+    - { start: 8.5, length: 0.5, count: 1, notes: "C4" }
+    - { start: 9.0, length: 0.5, count: 1, notes: "Eb4" }
+    - { start: 9.5, length: 0.5, count: 1, notes: "Eb4" }
+    - { start: 10.0, length: 0.5, count: 1, notes: "Eb4" }
+    - { start: 10.5, length: 0.5, count: 1, notes: "Eb4" }
+    - { start: 11.0, length: 0.5, count: 1, notes: "G4" }
+    - { start: 11.5, length: 0.5, count: 1, notes: "G4" }
+    - { start: 12.0, length: 0.5, count: 1, notes: "G4" }
+    - { start: 12.5, length: 0.5, count: 1, notes: "Bb4" }
+    - { start: 13.0, length: 0.5, count: 1, notes: "Bb4" }
+    - { start: 13.5, length: 0.5, count: 1, notes: "Bb4" }
+
+    - { start: 16.0, length: 0.5, count: 1, notes: "B3" }
+    - { start: 16.5, length: 0.5, count: 1, notes: "D4" }
+    - { start: 17.0, length: 0.5, count: 1, notes: "D4" }
+    - { start: 17.5, length: 0.5, count: 1, notes: "D4" }
+    - { start: 18.0, length: 0.5, count: 1, notes: "D4" }
+    - { start: 18.5, length: 0.5, count: 1, notes: "F#4" }
+    - { start: 19.0, length: 0.5, count: 1, notes: "F#4" }
+    - { start: 19.5, length: 0.5, count: 1, notes: "G4" }
+    - { start: 20.0, length: 0.5, count: 1, notes: "G4" }
+    - { start: 20.5, length: 0.5, count: 1, notes: "G4" }
+    - { start: 21.0, length: 0.5, count: 1, notes: "B4" }
+    - { start: 21.5, length: 0.5, count: 1, notes: "B4" }
+
+    - { start: 24.0, length: 0.5, count: 1, notes: "B3" }
+    - { start: 24.5, length: 0.5, count: 1, notes: "D4" }
+    - { start: 25.0, length: 0.5, count: 1, notes: "D4" }
+    - { start: 25.5, length: 0.5, count: 1, notes: "D4" }
+    - { start: 26.0, length: 0.5, count: 1, notes: "D4" }
+    - { start: 26.5, length: 0.5, count: 1, notes: "F#4" }
+    - { start: 27.0, length: 0.5, count: 1, notes: "F#4" }
+    - { start: 27.5, length: 0.5, count: 1, notes: "G4" }
+    - { start: 28.0, length: 0.5, count: 1, notes: "G4" }
+    - { start: 28.5, length: 0.5, count: 1, notes: "G4" }
+    - { start: 29.0, length: 0.5, count: 1, notes: "B4" }
+    - { start: 29.5, length: 0.5, count: 1, notes: "B4" }
+
+    - { start: 32.0, length: 0.5, count: 1, notes: "C4" }
+    - { start: 32.5, length: 0.5, count: 1, notes: "C4" }
+    - { start: 33.0, length: 0.5, count: 1, notes: "Eb4" }
+    - { start: 33.5, length: 0.5, count: 1, notes: "Eb4" }
+    - { start: 34.0, length: 0.5, count: 1, notes: "Eb4" }
+    - { start: 34.5, length: 0.5, count: 1, notes: "Eb4" }
+    - { start: 35.0, length: 0.5, count: 1, notes: "G4" }
+    - { start: 35.5, length: 0.5, count: 1, notes: "G4" }
+    - { start: 36.0, length: 0.5, count: 1, notes: "G4" }
+    - { start: 36.5, length: 0.5, count: 1, notes: "Bb4" }
+    - { start: 37.0, length: 0.5, count: 1, notes: "Bb4" }
+    - { start: 37.5, length: 0.5, count: 1, notes: "Bb4" }
+
+    - { start: 40.0, length: 0.5, count: 1, notes: "C4" }
+    - { start: 40.5, length: 0.5, count: 1, notes: "C4" }
+    - { start: 41.0, length: 0.5, count: 1, notes: "Eb4" }
+    - { start: 41.5, length: 0.5, count: 1, notes: "Eb4" }
+    - { start: 42.0, length: 0.5, count: 1, notes: "Eb4" }
+    - { start: 42.5, length: 0.5, count: 1, notes: "Eb4" }
+    - { start: 43.0, length: 0.5, count: 1, notes: "G4" }
+    - { start: 43.5, length: 0.5, count: 1, notes: "G4" }
+    - { start: 44.0, length: 0.5, count: 1, notes: "G4" }
+    - { start: 44.5, length: 0.5, count: 1, notes: "Bb4" }
+    - { start: 45.0, length: 0.5, count: 1, notes: "Bb4" }
+    - { start: 45.5, length: 0.5, count: 1, notes: "Bb4" }
+
+    - { start: 48.0, length: 0.5, count: 1, notes: "Db4" }
+    - { start: 48.5, length: 0.5, count: 1, notes: "Db4" }
+    - { start: 49.0, length: 0.5, count: 1, notes: "Db4" }
+    - { start: 49.5, length: 0.5, count: 1, notes: "Db4" }
+    - { start: 50.0, length: 0.5, count: 1, notes: "F4" }
+    - { start: 50.5, length: 0.5, count: 1, notes: "F4" }
+    - { start: 51.0, length: 0.5, count: 1, notes: "Gb4" }
+    - { start: 51.5, length: 0.5, count: 1, notes: "Gb4" }
+    - { start: 52.0, length: 0.5, count: 1, notes: "Ab4" }
+    - { start: 52.5, length: 0.5, count: 1, notes: "Ab4" }
+    - { start: 53.0, length: 0.5, count: 1, notes: "Ab4" }
+    - { start: 53.5, length: 0.5, count: 1, notes: "Db5" }
+
+    - { start: 56.0, length: 0.5, count: 1, notes: "Db4" }
+    - { start: 56.5, length: 0.5, count: 1, notes: "Db4" }
+    - { start: 57.0, length: 0.5, count: 1, notes: "Db4" }
+    - { start: 57.5, length: 0.5, count: 1, notes: "Db4" }
+    - { start: 58.0, length: 0.5, count: 1, notes: "F4" }
+    - { start: 58.5, length: 0.5, count: 1, notes: "F4" }
+    - { start: 59.0, length: 0.5, count: 1, notes: "Gb4" }
+    - { start: 59.5, length: 0.5, count: 1, notes: "Gb4" }
+    - { start: 60.0, length: 0.5, count: 1, notes: "Ab4" }
+    - { start: 60.5, length: 0.5, count: 1, notes: "Ab4" }
+    - { start: 61.0, length: 0.5, count: 1, notes: "Ab4" }
+    - { start: 61.5, length: 0.5, count: 1, notes: "Db5" }
+
+

@@ -304,3 +304,9 @@ std::string TemplateConfig::getDefaultString() {
   return DEFAULT;
 }
 
+
+bool TemplateConfig::instrumentTypesForInversionSeekingContains(Instrument::Type type) {
+  return std::find(instrumentTypesForInversionSeeking.begin(), instrumentTypesForInversionSeeking.end(), type) !=
+         instrumentTypesForInversionSeeking.end();
+}
+

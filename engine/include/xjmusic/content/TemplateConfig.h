@@ -69,6 +69,13 @@ namespace XJ {
      * Get the default TemplateConfig as a HOCON string
      */
     [[nodiscard]] static std::string getDefaultString();
+
+    /**
+     * Whether the instrument types for inverion seeking contains the given type
+     * @param type  to find
+     * @return  true if found
+     */
+    bool instrumentTypesForInversionSeekingContains(Instrument::Type type);
   };
 
 }// namespace XJ

@@ -3,6 +3,8 @@
 #ifndef XJMUSIC_MUSIC_NOTE_RANGE_H
 #define XJMUSIC_MUSIC_NOTE_RANGE_H
 
+#include <set>
+
 #include "Note.h"
 
 namespace XJ {
@@ -33,7 +35,7 @@ namespace XJ {
 
     static NoteRange copyOf(const NoteRange &range);
 
-    static NoteRange ofNotes(std::vector<Note> notes);
+    static NoteRange ofNotes(std::set<Note> notes);
 
     static NoteRange ofStrings(const std::vector<std::string> &notes);
 

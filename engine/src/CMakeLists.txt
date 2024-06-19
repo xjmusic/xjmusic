@@ -33,6 +33,8 @@ add_library(xjmusic
         fabricator/Fabricator.cpp
         fabricator/FabricatorFactory.cpp
         fabricator/MarbleBag.cpp
+        fabricator/NotePicker.cpp
+        fabricator/RankedNote.cpp
         fabricator/SegmentRetrospective.cpp
         fabricator/SegmentUtils.cpp
         fabricator/TemplateUtils.cpp

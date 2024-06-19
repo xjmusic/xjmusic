@@ -37,7 +37,7 @@ NoteRange NoteRange::copyOf(const NoteRange &range) {
 }
 
 
-NoteRange NoteRange::ofNotes(std::vector<Note> notes) {
+NoteRange NoteRange::ofNotes(std::set<Note> notes) {
   auto minNote = std::min_element(notes.begin(), notes.end());
   auto maxNote = std::max_element(notes.begin(), notes.end());
   std::optional<Note> low = minNote != notes.end() ? std::optional(*minNote) : std::nullopt;
@@ -47,12 +47,12 @@ NoteRange NoteRange::ofNotes(std::vector<Note> notes) {
 
 
 NoteRange NoteRange::ofStrings(const std::vector<std::string> &notes) {
-  std::vector<Note> noteVector;
+  std::set<Note> properNotes;
   for (const auto &note: notes) {
     auto n = Note::ifValid(note);
-    if (n.has_value()) noteVector.push_back(n.value());
+    if (n.has_value()) properNotes.emplace(n.value());
   }
-  return ofNotes(noteVector);
+  return ofNotes(properNotes);
 }
 
 

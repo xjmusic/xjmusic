@@ -33,7 +33,7 @@ TEST(Music_NoteRange, RangeFromNotes) {
 
 
 TEST(Music_NoteRange, RangeOfNoteX_isEmpty) {
-  auto subject = NoteRange::ofNotes(std::vector<Note>{Note::of("X")});
+  auto subject = NoteRange::ofNotes(std::set<Note>{Note::of("X")});
 
   ASSERT_TRUE(subject.isEmpty());
 }

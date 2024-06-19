@@ -50,3 +50,10 @@ TEST(TemplateConfigTest, GetIntensityLayers) {
   EXPECT_EQ(1, subject.intensityLayers.at(Instrument::Type::Bass));
   EXPECT_EQ(3, subject.intensityLayers.at(Instrument::Type::Pad));
 }
+
+TEST(TemplateConfigTest, InstrumentTypesForInversionSeekingContains) {
+  TemplateConfig subject;
+
+  EXPECT_TRUE(subject.instrumentTypesForInversionSeekingContains(Instrument::Type::Pad));
+  EXPECT_FALSE(subject.instrumentTypesForInversionSeekingContains(Instrument::Type::Bass));
+}
