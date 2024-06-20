@@ -14,6 +14,7 @@ namespace XJ {
     static std::regex leadingScores;
     static std::regex nonAlphabetical;
     static std::regex nonAlphanumeric;
+    static std::regex nonEvent;
     static std::regex nonMeme;
     static std::regex nonScored;
     static std::regex nonSlug;
@@ -60,6 +61,15 @@ namespace XJ {
      * @return              purified
      */
     static std::string toMeme(const std::string *raw, const std::string &defaultValue);
+
+    /**
+     Conform to Upper-slug non-numeric and strip special characters, e.g. "BUN"
+
+     @param raw input
+     @return purified
+     */
+    static std::string toEvent(const std::string &raw);
+
 
     /**
      * Check if a string is null or empty

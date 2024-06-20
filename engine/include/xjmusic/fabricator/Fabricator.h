@@ -179,7 +179,7 @@ namespace XJ {
 
      @return choice if previously made, or null if none is found
      */
-    std::optional<SegmentChoice> getChoiceIfContinued(ProgramVoice voice);
+    std::optional<SegmentChoice> getChoiceIfContinued(const ProgramVoice *voice);
 
     /**
      Determine if a choice has been previously crafted
@@ -381,7 +381,7 @@ namespace XJ {
      @return ProgramConfig from a given program, with fallback values
      @throws FabricationException on failure
      */
-    static ProgramConfig getProgramConfig(const Program &program);
+    static ProgramConfig getProgramConfig(const Program *program);
 
     /**
      Get the complete set of program sequence chords,
@@ -704,7 +704,7 @@ namespace XJ {
      @return true if this is a one-shot instrument
      @throws FabricationException on failure
      */
-    bool isOneShot(Instrument instrument);
+    bool isOneShot(const Instrument& instrument);
 
     /**
      Test if a given one-shot instrument has its cutoffs enable
@@ -713,7 +713,7 @@ namespace XJ {
      @return true if a given one-shot instrument has its cutoffs enable
      @throws FabricationException on failure
      */
-    bool isOneShotCutoffEnabled(Instrument instrument);
+    bool isOneShotCutoffEnabled(const Instrument& instrument);
 
     /**
      is initial segment?
@@ -1043,7 +1043,7 @@ namespace XJ {
      @param force     whether to force the addition of this meme
      @return true if okay to add
      */
-    bool isValidMemeAddition(SegmentMeme meme, MemeStack memeStack, bool force);
+    bool isValidMemeAddition(const SegmentMeme& meme, MemeStack memeStack, bool force);
 
     /**
      * Compute the cache key for preferred audio

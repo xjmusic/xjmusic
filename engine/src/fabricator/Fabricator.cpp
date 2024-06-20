@@ -200,27 +200,27 @@ long Fabricator::getElapsedMicros() {
 }
 
 
-InstrumentConfig Fabricator::getInstrumentConfig(const Instrument& instrument) {
+InstrumentConfig Fabricator::getInstrumentConfig(const Instrument &instrument) {
   auto [it, inserted] = instrumentConfigs.emplace(instrument.id, InstrumentConfig(instrument));
   return it->second;
 }
 
 
-std::optional<SegmentChoice> Fabricator::getChoiceIfContinued(ProgramVoice voice) {
+std::optional<SegmentChoice> Fabricator::getChoiceIfContinued(const ProgramVoice *voice) {
   if (getSegment().type != Segment::Type::Continue) return std::nullopt;
 
   auto choices = retrospective->getChoices();
   auto it = std::find_if(choices.begin(), choices.end(), [&](const SegmentChoice &choice) {
     auto candidateVoice = sourceMaterial->getProgramVoice(choice.programVoiceId);
     return candidateVoice.has_value()
-           && candidateVoice.value()->name == voice.name &&
-           candidateVoice.value()->type == voice.type;
+           && candidateVoice.value()->name == voice->name &&
+           candidateVoice.value()->type == voice->type;
   });
 
   if (it != choices.end()) {
     return *it;
   } else {
-    spdlog::warn("[seg-{}] Could not get previous voice instrumentId for voiceName={}", segmentId, voice.name);
+    spdlog::warn("[seg-{}] Could not get previous voice instrumentId for voiceName={}", segmentId, voice->name);
     return std::nullopt;
   }
 }
@@ -476,8 +476,8 @@ std::optional<const Program *> Fabricator::getProgram(const SegmentChoice &choic
 }
 
 
-ProgramConfig Fabricator::getProgramConfig(const Program &program) {
-  return ProgramConfig(program);
+ProgramConfig Fabricator::getProgramConfig(const Program *program) {
+  return {program};
 }
 
 
@@ -873,13 +873,13 @@ bool Fabricator::isOneShot(const Instrument &instrument, const std::string &trac
 }
 
 
-bool Fabricator::isOneShot(Instrument instrument) {
-  return getInstrumentConfig(std::move(instrument)).isOneShot;
+bool Fabricator::isOneShot(const Instrument &instrument) {
+  return getInstrumentConfig(instrument).isOneShot;
 }
 
 
-bool Fabricator::isOneShotCutoffEnabled(Instrument instrument) {
-  return getInstrumentConfig(std::move(instrument)).isOneShotCutoffEnabled;
+bool Fabricator::isOneShotCutoffEnabled(const Instrument &instrument) {
+  return getInstrumentConfig(instrument).isOneShotCutoffEnabled;
 }
 
 
@@ -1149,7 +1149,7 @@ std::map<std::string, const InstrumentAudio *> Fabricator::computePreferredInstr
 }
 
 
-bool Fabricator:: isValidChoiceAndMemesHaveBeenAdded(SegmentChoice choice, MemeStack memeStack, bool force) {
+bool Fabricator::isValidChoiceAndMemesHaveBeenAdded(SegmentChoice choice, MemeStack memeStack, bool force) {
   std::set<std::string> names;
 
   if (!choice.programId.empty())
@@ -1184,13 +1184,12 @@ bool Fabricator:: isValidChoiceAndMemesHaveBeenAdded(SegmentChoice choice, MemeS
 }
 
 
-bool Fabricator::isValidMemeAddition(SegmentMeme meme, MemeStack memeStack, bool force) {
+bool Fabricator::isValidMemeAddition(const SegmentMeme &meme, MemeStack memeStack, bool force) {
   if (force) return true;
   if (!memeStack.isAllowed({meme.name})) return false;
-  for (const auto &m: getSegmentMemes()) {
-    if (m.name == meme.name) return false;
-  }
-  return true;
+  return std::all_of(getSegmentMemes().begin(), getSegmentMemes().end(), [&meme](const SegmentMeme &m) {
+    return m.name != meme.name;
+  });
 }
 
 

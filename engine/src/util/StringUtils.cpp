@@ -12,6 +12,7 @@ using namespace XJ;
 std::regex StringUtils::leadingScores("^_+");
 std::regex StringUtils::nonAlphabetical("[^a-zA-Z]");
 std::regex StringUtils::nonAlphanumeric("[^a-zA-Z0-9.\\-]");// include decimal and sign
+std::regex StringUtils::nonEvent("[^a-zA-Z]");
 std::regex StringUtils::nonMeme("[^a-zA-Z0-9!$]");
 std::regex StringUtils::nonScored("[^a-zA-Z0-9_]");
 std::regex StringUtils::nonSlug("[^a-zA-Z0-9]");
@@ -67,6 +68,13 @@ std::string StringUtils::toMeme(const std::string *raw, const std::string &defau
     return StringUtils::toMeme(defaultValue);
 
   return out;
+}
+
+
+std::string StringUtils::toEvent(const std::string &raw) {
+  std::string result = std::regex_replace(raw, nonEvent, "");
+  std::transform(result.begin(), result.end(), result.begin(), ::toupper);// to uppercase
+  return result;
 }
 
 

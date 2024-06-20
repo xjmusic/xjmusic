@@ -61,7 +61,7 @@ ContentFixtures::buildInstrumentWithAudios(
   result.emplace_back(instrument);
   std::vector<std::string> splitNotes = StringUtils::split(notes, ',');
   for (const std::string &note: splitNotes) {
-    std::string name = Instrument::toString(instrument.type) + "-" + note;
+    std::string name = q + "-" + note;
     auto audio = buildAudio(instrument, name, note);
     result.emplace_back(audio);
   }
