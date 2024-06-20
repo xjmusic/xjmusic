@@ -123,7 +123,7 @@ public class CraftDetailProgramVoiceContinueTest {
     craftFactory.detail(fabricator).doWork();
 
     store.readSegment(segment4.getId()).orElseThrow();
-    assertFalse(fabricator.getChoices().isEmpty());
+    assertFalse(fabricator.getChoices().empty());
     
     int pickedBloop = 0;
     Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();

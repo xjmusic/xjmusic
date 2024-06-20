@@ -263,15 +263,6 @@ namespace XJ {
     InstrumentConfig getInstrumentConfig(const Instrument& instrument);
 
     /**
-     Key for any pick designed to collide at same voice id + name
-
-     @param pick to get key of
-     @return unique key for pattern event
-     @throws FabricationException if unable to compute cache key
-     */
-    std::string computeCacheKeyForVoiceTrack(const SegmentChoiceArrangementPick &pick);
-
-    /**
      Get the Key for any given Choice, preferring its Sequence Key (bound), defaulting to the Program Key.
      <p>
      If Sequence has no key/tempo/intensity inherit from Program https://github.com/xjmusic/xjmusic/issues/246
@@ -809,7 +800,7 @@ namespace XJ {
      @param instrumentAudio value to set
      */
     void
-    putPreferredAudio(const std::string &parentIdent, const std::string &ident, const InstrumentAudio *instrumentAudio);
+    putPreferredAudio(const std::string &parentIdent, const std::string &ident, const InstrumentAudio &instrumentAudio);
 
     /**
      Put a key-value pair containing a string-string map value into the report
@@ -935,7 +926,7 @@ namespace XJ {
     std::map<double, std::optional<SegmentChord>> chordAtPosition;
     std::map<Instrument::Type, NoteRange> voicingNoteRange;
     std::map<SegmentChoice, ProgramSequence> sequenceForChoice;
-    std::map<std::string, const InstrumentAudio *> preferredAudios;
+    std::map<std::string, const InstrumentAudio &> preferredAudios;
     std::map<std::string, InstrumentConfig> instrumentConfigs;
     std::map<std::string, InstrumentConfig> pickInstrumentConfigs;
     std::map<std::string, int> rangeShiftOctave;
@@ -1023,7 +1014,7 @@ namespace XJ {
 
      @return preferred instrument audio
      */
-    std::map<std::string, const InstrumentAudio *> computePreferredInstrumentAudio();
+    std::map<std::string, const InstrumentAudio &> computePreferredInstrumentAudio();
 
     /**
      For a SegmentChoice, add memes from program, program sequence binding, and instrument if present https://github.com/xjmusic/xjmusic/issues/210
@@ -1052,6 +1043,13 @@ namespace XJ {
      * @return         cache key for preferred audio
      */
     static std::string computeCacheKeyForPreferredAudio(const std::string &parentIdent, const std::string &ident);
+
+    /**
+     * Compute the cache key for the given pick by voice and track
+     * @param pick  to get key of
+     * @return   key for pick
+     */
+    std::string computeCacheKeyForVoiceTrack(const SegmentChoiceArrangementPick & pick);
 
     /**
      * Compute the range of a program

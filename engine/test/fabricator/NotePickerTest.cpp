@@ -85,7 +85,7 @@ protected:
 
 
   static NoteRange getOptionalNoteRange(YAML::Node node) {
-    if (!node["range"]) return NoteRange::empty();
+    if (!node["range"]) return NoteRange();
 
     YAML::Node rangeNode = node["range"];
     std::string from = getStr(rangeNode, "from").value_or("");
@@ -102,7 +102,7 @@ protected:
 
     auto range = getOptionalNoteRange(obj);
 
-    if (!range.isEmpty()) {
+    if (!range.empty()) {
       if (range.low.has_value()) {
         assertSameNote("Range Low-end", range.low.value(), subject->getTargetRange().low.value());
       }

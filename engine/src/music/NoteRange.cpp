@@ -37,7 +37,13 @@ NoteRange NoteRange::copyOf(const NoteRange &range) {
 }
 
 
-NoteRange NoteRange::ofNotes(std::set<Note> notes) {
+NoteRange NoteRange::ofNotes(std::vector<Note> notes) {
+  std::set<Note> properNotes(notes.begin(), notes.end());
+  return ofNotes(properNotes);
+}
+
+
+NoteRange NoteRange::ofNotes(const std::set<Note>& notes) {
   auto minNote = std::min_element(notes.begin(), notes.end());
   auto maxNote = std::max_element(notes.begin(), notes.end());
   std::optional<Note> low = minNote != notes.end() ? std::optional(*minNote) : std::nullopt;
@@ -58,11 +64,6 @@ NoteRange NoteRange::ofStrings(const std::vector<std::string> &notes) {
 
 NoteRange NoteRange::median(const NoteRange &r1, const NoteRange &r2) {
   return {Note::median(r1.low, r2.low), Note::median(r1.high, r2.high)};
-}
-
-
-NoteRange NoteRange::empty() {
-  return {};
 }
 
 
@@ -155,7 +156,7 @@ NoteRange NoteRange::shifted(int inc) {
 }
 
 
-bool NoteRange::isEmpty() {
+bool NoteRange::empty() {
   return !low.has_value() || !high.has_value() || PitchClass::Atonal == low->pitchClass ||
          PitchClass::Atonal == high->pitchClass;
 }

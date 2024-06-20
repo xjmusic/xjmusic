@@ -24,13 +24,22 @@ namespace XJ {
   public:
 
     /**
-     Build a NotePicker from the given optimal target range
+     Build a NotePicker from the given optimal target range set
 
      @param targetRange    optimally picks will be within
      @param voicingNotes   to pick from, at most once each
      @param seekInversions whether to seek inversions
      */
-    NotePicker(NoteRange targetRange, std::set<Note> voicingNotes, bool seekInversions);
+    NotePicker(const NoteRange& targetRange, const std::set<Note>& voicingNotes, bool seekInversions);
+
+    /**
+     Build a NotePicker from the given optimal target range vector
+
+     @param targetRange    optimally picks will be within
+     @param voicingNotes   to pick from, at most once each
+     @param seekInversions whether to seek inversions
+     */
+    NotePicker(const NoteRange& targetRange, const std::vector<Note>& voicingNotes, bool seekInversions);
 
     /**
      Pick all voicing notes for event notes

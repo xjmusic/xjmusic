@@ -282,26 +282,6 @@ std::vector<SegmentChoice> Fabricator::getChoicesIfContinued(Program::Type progr
 }
 
 
-std::string Fabricator::computeCacheKeyForVoiceTrack(const SegmentChoiceArrangementPick &pick) {
-  std::string cacheKey;
-  auto eventOpt = sourceMaterial->getProgramSequencePatternEvent(pick.programSequencePatternEventId);
-
-  if (eventOpt.has_value()) {
-    auto trackOpt = sourceMaterial->getTrackOfEvent(*eventOpt.value());
-    if (trackOpt.has_value()) {
-      auto voiceIdOpt = trackOpt.value()->programVoiceId;
-      cacheKey = trackOpt.value()->programVoiceId;
-    } else {
-      cacheKey = UNKNOWN_KEY;
-    }
-  } else {
-    cacheKey = UNKNOWN_KEY;
-  }
-
-  return "voice-" + cacheKey + "_track-" + pick.event;
-}
-
-
 Chord Fabricator::getKeyForChoice(const SegmentChoice &choice) {
   std::optional<const Program *> program = getProgram(choice);
   if (!choice.programSequenceBindingId.empty()) {
@@ -464,7 +444,7 @@ std::optional<InstrumentAudio> Fabricator::getPreferredAudio(const std::string &
   std::string cacheKey = computeCacheKeyForPreferredAudio(parentIdent, ident);
 
   if (preferredAudios.find(cacheKey) != preferredAudios.end()) {
-    return {*preferredAudios.at(cacheKey)};
+    return {preferredAudios.at(cacheKey)};
   }
 
   return std::nullopt;
@@ -636,7 +616,7 @@ Fabricator::getRandomlySelectedPatternOfSequenceByVoiceAndType(const SegmentChoi
     }
   }
 
-  if (bag.isEmpty()) {
+  if (bag.empty()) {
     return std::nullopt;
   }
 
@@ -960,10 +940,12 @@ SegmentMeta Fabricator::put(SegmentMeta entity) {
 }
 
 
-void Fabricator::putPreferredAudio(const std::string &parentIdent, const std::string &ident,
-                                   const InstrumentAudio *instrumentAudio) {
+void Fabricator::putPreferredAudio(
+    const std::string &parentIdent,
+    const std::string &ident,
+    const InstrumentAudio &instrumentAudio
+) {
   std::string cacheKey = computeCacheKeyForPreferredAudio(parentIdent, ident);
-
   preferredAudios.emplace(cacheKey, instrumentAudio);
 }
 
@@ -1134,14 +1116,14 @@ int Fabricator::getPreviousSegmentDelta() {
 }
 
 
-std::map<std::string, const InstrumentAudio *> Fabricator::computePreferredInstrumentAudio() {
-  std::map<std::string, const InstrumentAudio *> audios;
+std::map<std::string, const InstrumentAudio &> Fabricator::computePreferredInstrumentAudio() {
+  std::map<std::string, const InstrumentAudio &> audios = {};
 
   auto picks = retrospective->getPicks();
   for (const auto &pick: picks) {
     auto audioOpt = sourceMaterial->getInstrumentAudio(pick.instrumentAudioId);
     if (audioOpt.has_value()) {
-      audios[computeCacheKeyForVoiceTrack(pick)] = audioOpt.value();
+      audios.emplace(computeCacheKeyForVoiceTrack(pick), *audioOpt.value());
     }
   }
 
@@ -1197,6 +1179,18 @@ std::string Fabricator::computeCacheKeyForPreferredAudio(const std::string &pare
   return "voice-" + parentIdent + "_note-" + ident;
 }
 
+std::string Fabricator::computeCacheKeyForVoiceTrack(const SegmentChoiceArrangementPick &pick) {
+  std::string cacheKey = UNKNOWN_KEY;
+  auto event = getSourceMaterial()->getProgramSequencePatternEvent(pick.programSequencePatternEventId);
+  if (event.has_value()) {
+    auto trackOpt = getSourceMaterial()->getTrackOfEvent(*event.value());
+    if (trackOpt.has_value()) {
+      cacheKey = trackOpt.value()->programVoiceId;
+    }
+  }
+
+  return "voice-" + cacheKey + "_track-" + pick.event;
+}
 
 NoteRange Fabricator::computeProgramRange(const UUID &programId, Instrument::Type instrumentType) {
   std::vector<std::string> notes;

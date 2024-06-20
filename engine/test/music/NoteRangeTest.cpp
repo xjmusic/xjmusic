@@ -32,10 +32,38 @@ TEST(Music_NoteRange, RangeFromNotes) {
 }
 
 
-TEST(Music_NoteRange, RangeOfNoteX_isEmpty) {
+TEST(Music_NoteRange, RangeOfNotes_isEmpty) {
   auto subject = NoteRange::ofNotes(std::set<Note>{Note::of("X")});
 
-  ASSERT_TRUE(subject.isEmpty());
+  ASSERT_TRUE(subject.empty());
+}
+
+
+TEST(Music_NoteRange, RangeOfNotes_FromSet) {
+  auto subject = NoteRange::ofNotes(std::set<Note>{
+      Note::of("C3"),
+      Note::of("E3"),
+      Note::of("D4"),
+      Note::of("E5"),
+      Note::of("F6")
+  });
+
+  ASSERT_TRUE(Note::of("C3") == (subject.low.value()));
+  ASSERT_TRUE(Note::of("F6") == (subject.high.value()));
+}
+
+
+TEST(Music_NoteRange, RangeOfNotes_FromVector) {
+  auto subject = NoteRange::ofNotes(std::vector<Note>{
+      Note::of("C3"),
+      Note::of("E3"),
+      Note::of("D4"),
+      Note::of("E5"),
+      Note::of("F6")
+  });
+
+  ASSERT_TRUE(Note::of("C3") == (subject.low.value()));
+  ASSERT_TRUE(Note::of("F6") == (subject.high.value()));
 }
 
 
@@ -173,7 +201,7 @@ TEST(Music_NoteRange, MedianNote) {
   TestHelpers::assertNote("D#5", NoteRange::from("C5", "G5").getMedianNote().value());
   TestHelpers::assertNote("G5", NoteRange::from("X", "G5").getMedianNote().value());
   TestHelpers::assertNote("C5", NoteRange::from("C5", "X").getMedianNote().value());
-  ASSERT_FALSE(NoteRange::empty().getMedianNote().has_value());
+  ASSERT_FALSE(NoteRange().getMedianNote().has_value());
 }
 
 
@@ -191,8 +219,8 @@ TEST(Music_NoteRange, Shifted) {
 
 
 TEST(Music_NoteRange, IsEmpty) {
-  ASSERT_TRUE(NoteRange::empty().isEmpty());
-  ASSERT_FALSE(NoteRange::from("C5", "G5").isEmpty());
+  ASSERT_TRUE(NoteRange().empty());
+  ASSERT_FALSE(NoteRange::from("C5", "G5").empty());
 }
 
 
@@ -207,7 +235,7 @@ TEST(Music_NoteRange, Includes) {
   ASSERT_TRUE(NoteRange::from(Note::atonal(), Note::of("C4")).includes(Note::of("C4")));
   ASSERT_FALSE(NoteRange::from(Note::atonal(), Note::of("C4")).includes(Note::of("B3")));
   ASSERT_FALSE(NoteRange::from(Note::atonal(), Note::of("C4")).includes(Note::of("D4")));
-  ASSERT_FALSE(NoteRange::empty().includes(Note::of("C4")));
+  ASSERT_FALSE(NoteRange().includes(Note::of("C4")));
 }
 
 
@@ -223,7 +251,7 @@ TEST(Music_NoteRange, ToAvailableOctave) {
   TestHelpers::assertNote("C4", NoteRange::from(Note::atonal(), Note::of("C4")).toAvailableOctave(Note::of("C4")));
   TestHelpers::assertNote("B3", NoteRange::from(Note::atonal(), Note::of("C4")).toAvailableOctave(Note::of("B3")));
   TestHelpers::assertNote("D4", NoteRange::from(Note::atonal(), Note::of("C4")).toAvailableOctave(Note::of("D4")));
-  TestHelpers::assertNote("C4", NoteRange::empty().toAvailableOctave(Note::of("C4")));
+  TestHelpers::assertNote("C4", NoteRange().toAvailableOctave(Note::of("C4")));
 }
 
 

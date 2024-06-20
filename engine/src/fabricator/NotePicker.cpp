@@ -5,9 +5,16 @@
 using namespace XJ;
 
 
-NotePicker::NotePicker(NoteRange targetRange, std::set<Note> voicingNotes, bool seekInversions)  {
+NotePicker::NotePicker(const NoteRange& targetRange, const std::set<Note>& voicingNotes, bool seekInversions)  {
   this->targetRange = NoteRange::copyOf(targetRange);
   this->voicingNotes = std::set<Note>(voicingNotes);
+  this->voicingRange = NoteRange::ofNotes(voicingNotes);
+  this->seekInversions = seekInversions;
+}
+
+NotePicker::NotePicker(const NoteRange& targetRange, const std::vector<Note>& voicingNotes, bool seekInversions)  {
+  this->targetRange = NoteRange::copyOf(targetRange);
+  this->voicingNotes = std::set<Note>(voicingNotes.begin(), voicingNotes.end());
   this->voicingRange = NoteRange::ofNotes(voicingNotes);
   this->seekInversions = seekInversions;
 }

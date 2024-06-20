@@ -23,7 +23,7 @@ protected:
  * adds all marbles from an object containing other marbles
  */
 TEST_F(MarbleBagTest, addAll) {
-  auto bag = MarbleBag::empty();
+  auto bag = new MarbleBag();
   bag.addAll(1, {
       {frogId,  1000},
       {bearId,  30},
@@ -36,12 +36,12 @@ TEST_F(MarbleBagTest, addAll) {
  * adds marbles to bag, picks 100 times and asserts allowed results
  */
 TEST_F(MarbleBagTest, add_pick) {
-  auto bag = MarbleBag::empty();
+  auto bag = new MarbleBag();
   bag.add(1, frogId, 1000);
   bag.add(1, bearId, 30);
   bag.add(1, zebraId, 5);
   spdlog::info("will pick 100 marbles from {}", bag.toString());
-  auto result = MarbleBag::empty();
+  auto result = new MarbleBag();
   auto allowed = std::set<UUID>{frogId, bearId, zebraId};
   for (auto i = 0; i < 100; i++) {
     auto pick = bag.pick();
@@ -62,7 +62,7 @@ TEST_F(MarbleBagTest, add_pick) {
  * This supports functionality such as “XJ always chooses a directly-bound program or instrument when available”
  */
 TEST_F(MarbleBagTest, pick_phaseLowerPreferred) {
-  auto bag = MarbleBag::empty();
+  auto bag = new MarbleBag();
   bag.add(1, frogId, 1000);
   bag.add(1, bearId, 30);
   bag.add(2, zebraId, 5);
@@ -75,7 +75,7 @@ TEST_F(MarbleBagTest, pick_phaseLowerPreferred) {
 }
 
 TEST_F(MarbleBagTest, pick_skipEmptyPhases) {
-  auto bag = MarbleBag::empty();
+  auto bag = new MarbleBag();
   bag.add(4, frogId, 1000);
   bag.add(5, bearId, 30);
   bag.add(6, zebraId, 5);
@@ -91,7 +91,7 @@ TEST_F(MarbleBagTest, pick_skipEmptyPhases) {
  * tells us how many marbles are in the bag
  */
 TEST_F(MarbleBagTest, size) {
-  auto bag = MarbleBag::empty();
+  auto bag = new MarbleBag();
   bag.add(1, frogId, 1000);
   bag.add(1, bearId, 30);
   bag.add(1, zebraId, 5);
@@ -99,14 +99,14 @@ TEST_F(MarbleBagTest, size) {
 }
 
 TEST_F(MarbleBagTest, isEmpty) {
-  auto bag = MarbleBag::empty();
+  auto bag = new MarbleBag();
   ASSERT_TRUE(bag.isEmpty());
   bag.add(1, frogId, 1000);
   ASSERT_FALSE(bag.isEmpty());
 }
 
 TEST_F(MarbleBagTest, isEmpty_notIfAnyPhasesHaveMarbles) {
-  auto bag = MarbleBag::empty();
+  auto bag = new MarbleBag();
   ASSERT_TRUE(bag.isEmpty());
   bag.add(1, bearId, 0);
   bag.add(2, frogId, 1000);

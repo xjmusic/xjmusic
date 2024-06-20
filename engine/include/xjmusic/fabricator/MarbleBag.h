@@ -43,11 +43,6 @@ namespace XJ {
     MarbleBag(const MarbleBag& other);
 
     /**
-     * Construct an empty marble bag
-     */
-    static MarbleBag empty();
-
-    /**
      * @return {std::string} marble picked at random from bag
      */
     UUID pick();
@@ -92,7 +87,7 @@ namespace XJ {
     /**
      * @return true if the marble bag is completely empty
      */
-    bool isEmpty();
+    bool empty();
 
     /**
      * @return true if there are any marbles in the bag

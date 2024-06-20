@@ -109,7 +109,7 @@ public class CraftDetailProgramVoiceInitialTest {
 
     craftFactory.detail(fabricator).doWork();
 
-    assertFalse(fabricator.getChoices().isEmpty());
+    assertFalse(fabricator.getChoices().empty());
     
     int pickedBloop = 0;
     Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();

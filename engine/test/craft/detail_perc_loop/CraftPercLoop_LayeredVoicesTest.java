@@ -181,7 +181,7 @@ public class CraftPercLoop_LayeredVoicesTest {
     craftFactory.detail(fabricator).doWork();
 
 //    Segment result = store.getSegment(segment4.getId()).orElseThrow();
-//    assertFalse(store.getAll(result.getId(), SegmentChoice.class).isEmpty());
+//    assertFalse(store.getAll(result.getId(), SegmentChoice.class).empty());
 //    
 //    int pickedKick = 0;
 //    int pickedSnare = 0;

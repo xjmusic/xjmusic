@@ -35,13 +35,13 @@ namespace XJ {
 
     static NoteRange copyOf(const NoteRange &range);
 
-    static NoteRange ofNotes(std::set<Note> notes);
+    static NoteRange ofNotes(std::vector<Note> notes);
+
+    static NoteRange ofNotes(const std::set<Note>& notes);
 
     static NoteRange ofStrings(const std::vector<std::string> &notes);
 
     static NoteRange median(const NoteRange &r1, const NoteRange &r2);
-
-    static NoteRange empty();
 
     /**
      * Compute the median optimal range shift octaves
@@ -92,7 +92,7 @@ namespace XJ {
      * Whether this range is empty
      * @return  true if empty
      */
-    bool isEmpty();
+    bool empty();
 
     /**
      * Get the note nearest the median of the given root

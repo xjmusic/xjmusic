@@ -98,7 +98,7 @@ public class CraftTransitionProgramVoiceInitialTest {
     craftFactory.transition(fabricator).doWork();
 
 //    Segment result = store.getSegment(segment0.getId()).orElseThrow();
-//    assertFalse(store.getAll(result.getId(), SegmentChoice.class).isEmpty());
+//    assertFalse(store.getAll(result.getId(), SegmentChoice.class).empty());
 //    
 //    int pickedKick = 0;
 //    int pickedSnare = 0;

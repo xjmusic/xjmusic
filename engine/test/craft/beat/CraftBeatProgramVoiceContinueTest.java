@@ -149,7 +149,7 @@ public class CraftBeatProgramVoiceContinueTest {
     craftFactory.beat(fabricator).doWork();
 
     Segment result = store.readSegment(segment4.getId()).orElseThrow();
-    assertFalse(store.readAll(result.getId(), SegmentChoice.class).isEmpty());
+    assertFalse(store.readAll(result.getId(), SegmentChoice.class).empty());
 
     int pickedKick = 0;
     int pickedSnare = 0;
