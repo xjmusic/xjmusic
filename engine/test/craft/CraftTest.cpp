@@ -63,7 +63,10 @@ protected:
         std::nullopt
     );
     subject = new Craft(mockFabricator);
-    EXPECT_CALL(*mockFabricator, getTemplateConfig()).WillOnce(Return(templateConfig));
+    ON_CALL(*mockFabricator, getTemplateConfig()).WillByDefault(Return(templateConfig));
+    ON_CALL(*mockFabricator, getSourceMaterial()).WillByDefault(Return(sourceMaterial));
+    ON_CALL(*mockFabricator, getRetrospective()).WillByDefault(Return(mockSegmentRetrospective));
+    ON_CALL(*mockFabricator, getSegment()).WillByDefault(Return(segment0));
   }
 
   void TearDown() override {
@@ -123,9 +126,6 @@ TEST_F(CraftTest, PrecomputeDeltas) {
 }
 
 TEST_F(CraftTest, IsIntroSegment) {
-  EXPECT_CALL(*mockFabricator, getSegment())
-      .WillOnce(Return(segment0));
-
   EXPECT_TRUE(subject->isIntroSegment(SegmentFixtures::buildSegmentChoice(segment0, 132, 200, program1)));
   EXPECT_FALSE(subject->isIntroSegment(SegmentFixtures::buildSegmentChoice(segment0, 110, 200, program1)));
   EXPECT_FALSE(subject->isIntroSegment(SegmentFixtures::buildSegmentChoice(segment0, 200, 250, program1)));
@@ -145,18 +145,12 @@ TEST_F(CraftTest, InBounds) {
 }
 
 TEST_F(CraftTest, IsOutroSegment) {
-  EXPECT_CALL(*mockFabricator, getSegment())
-      .WillRepeatedly(Return(segment0));
-
   EXPECT_TRUE(subject->isOutroSegment(SegmentFixtures::buildSegmentChoice(segment0, 20, 130, program1)));
   EXPECT_FALSE(subject->isOutroSegment(SegmentFixtures::buildSegmentChoice(segment0, 20, 100, program1)));
   EXPECT_FALSE(subject->isOutroSegment(SegmentFixtures::buildSegmentChoice(segment0, 20, 250, program1)));
 }
 
 TEST_F(CraftTest, IsSilentEntireSegment) {
-  EXPECT_CALL(*mockFabricator, getSegment())
-      .WillRepeatedly(Return(segment0));
-
   EXPECT_TRUE(subject->isSilentEntireSegment(SegmentFixtures::buildSegmentChoice(segment0, 12, 25, program1)));
   EXPECT_TRUE(subject->isSilentEntireSegment(SegmentFixtures::buildSegmentChoice(segment0, 200, 225, program1)));
   EXPECT_FALSE(subject->isSilentEntireSegment(SegmentFixtures::buildSegmentChoice(segment0, 50, 136, program1)));
@@ -165,9 +159,6 @@ TEST_F(CraftTest, IsSilentEntireSegment) {
 }
 
 TEST_F(CraftTest, IsActiveEntireSegment) {
-  EXPECT_CALL(*mockFabricator, getSegment())
-      .WillRepeatedly(Return(segment0));
-
   EXPECT_FALSE(subject->isActiveEntireSegment(SegmentFixtures::buildSegmentChoice(segment0, 12, 25, program1)));
   EXPECT_FALSE(subject->isActiveEntireSegment(SegmentFixtures::buildSegmentChoice(segment0, 200, 225, program1)));
   EXPECT_FALSE(subject->isActiveEntireSegment(SegmentFixtures::buildSegmentChoice(segment0, 50, 136, program1)));
@@ -215,8 +206,6 @@ TEST_F(CraftTest, ChooseFreshInstrumentAudio) {
   // Mock the methods
   EXPECT_CALL(*mockFabricator, getMemeIsometryOfSegment())
       .WillOnce(Return(MemeIsometry::of(MemeTaxonomy::empty(), {"70BPM"})));
-  EXPECT_CALL(*mockFabricator, getSourceMaterial())
-      .WillOnce(Return(sourceMaterial));
 
   // Call the method under test
   auto result = subject->chooseFreshInstrumentAudio({Instrument::Type::Percussion}, {Instrument::Mode::Event},
@@ -230,8 +219,6 @@ TEST_F(CraftTest, ChooseFreshInstrumentAudio) {
  XJ Should choose the correct chord audio per Main Program chord https://github.com/xjmusic/xjmusic/issues/237
  */
 TEST_F(CraftTest, selectNewChordPartInstrumentAudio_stripSpaces) {
-  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillOnce(Return(sourceMaterial));
-
   selectNewChordPartInstrumentAudio(" G   major  ", "G-7", " G    major    ");
 }
 
@@ -241,8 +228,6 @@ TEST_F(CraftTest, selectNewChordPartInstrumentAudio_stripSpaces) {
  When the exact match is not present for an entire slash chord name, choose a chord matching the pre-slash name
  */
 TEST_F(CraftTest, selectNewChordPartInstrumentAudio_slashChordFluency) {
-  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillOnce(Return(sourceMaterial));
-
   selectNewChordPartInstrumentAudio("Ab/C", "Eb/G", "Ab");
   selectNewChordPartInstrumentAudio("Ab", "Eb/G", "Ab/C");
 }
@@ -251,8 +236,6 @@ TEST_F(CraftTest, selectNewChordPartInstrumentAudio_slashChordFluency) {
  Enhanced Synonymous Chord recognition https://github.com/xjmusic/xjmusic/issues/236
  */
 TEST_F(CraftTest, selectNewChordPartInstrumentAudio_chordSynonyms) {
-  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillOnce(Return(sourceMaterial));
-
   selectNewChordPartInstrumentAudio("CMadd9", "Cm6", "C add9");
 }
 
@@ -263,19 +246,22 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ThreeLayers) {
       ContentFixtures::buildInstrument(library1, Instrument::Type::Percussion, Instrument::Mode::Loop,
                                        Instrument::State::Published, "Test loop audio"));
   instrument1.config = "isAudioSelectionPersistent=true";
-  InstrumentConfig instrumentConfig = InstrumentConfig(instrument1);
+  InstrumentConfig instrument1Config = InstrumentConfig(instrument1);
+  //Should pick the first of these two at intensity 0.2
   InstrumentAudio instrument1audio1a = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X",
                                             1.0f));
   InstrumentAudio instrument1audio1b = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X",
                                             1.0f));
+  //Should pick the first of these two at intensity 0.5
   InstrumentAudio instrument1audio2a = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X",
                                             1.0f));
   InstrumentAudio instrument1audio2b = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X",
                                             1.0f));
+  //Should pick the first of these two at intensity 0.8
   InstrumentAudio instrument1audio3a = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X",
                                             1.0f));
@@ -284,9 +270,7 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ThreeLayers) {
                                             1.0f));
 
   // Mock the methods
-  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillOnce(Return(sourceMaterial));
-  EXPECT_CALL(*mockFabricator, getRetrospective()).WillOnce(Return(mockSegmentRetrospective));
-  EXPECT_CALL(*mockFabricator, getInstrumentConfig(_)).WillOnce(Return(instrumentConfig));
+  EXPECT_CALL(*mockFabricator, getInstrumentConfig(_)).WillOnce(Return(instrument1Config));
 
   // Call the method under test
   auto result = subject->selectGeneralAudioIntensityLayers(instrument1);
@@ -298,7 +282,7 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ThreeLayers) {
   });
 
   // Check the result
-  EXPECT_EQ(3, result.size());
+  EXPECT_EQ(3, resultVector.size());
   EXPECT_EQ(instrument1audio1a.id, resultVector[0].id);
   EXPECT_EQ(instrument1audio2a.id, resultVector[1].id);
   EXPECT_EQ(instrument1audio3a.id, resultVector[2].id);
@@ -343,8 +327,6 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ContinueSegment) {
                                                                                           instrument1audio3a.event);
 
   // Mock the methods
-  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillOnce(Return(sourceMaterial));
-  EXPECT_CALL(*mockFabricator, getRetrospective()).WillOnce(Return(mockSegmentRetrospective));
   EXPECT_CALL(*mockSegmentRetrospective, getPreviousPicksForInstrument(instrument1.id)).WillOnce(
       Return(std::set<SegmentChoiceArrangementPick>{pick1, pick2, pick3}));
   EXPECT_CALL(*mockFabricator, getInstrumentConfig(_)).WillOnce(Return(instrumentConfig));

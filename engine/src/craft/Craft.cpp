@@ -405,7 +405,6 @@ Craft::selectAudioIntensityLayers(const std::set<const InstrumentAudio *> &audio
   std::sort(sorted.begin(), sorted.end(), [](const InstrumentAudio *a, const InstrumentAudio *b) {
     return a->intensity < b->intensity;
   });
-
   if (sorted.empty()) return {};
 
   // Create a vector of bags, one for each layer
