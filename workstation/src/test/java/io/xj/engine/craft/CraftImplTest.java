@@ -220,21 +220,18 @@ public class CraftImplTest {
     Project project1 = ContentFixtures.buildProject("testing");
     Library library1 = ContentFixtures.buildLibrary(project1, "leaves");
     Instrument instrument1 = ContentFixtures.buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Loop, InstrumentState.Published, "Test loop audio");
-    instrument1.setConfig("isAudioSelectionPersistent=true");
-    InstrumentConfig instrumentConfig = new InstrumentConfig(instrument1);
-    //Should pick the first of these two at intensity 0.2
+    //Should pick one of these two at intensity 0.2
     InstrumentAudio instrument1audio1a = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X", 1.0f);
     InstrumentAudio instrument1audio1b = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X", 1.0f);
-    //Should pick the first of these two at intensity 0.5
+    //Should pick one of these two at intensity 0.5
     InstrumentAudio instrument1audio2a = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X", 1.0f);
     InstrumentAudio instrument1audio2b = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X", 1.0f);
-    //Should pick the first of these two at intensity 0.8
+    //Should pick one of these two at intensity 0.8
     InstrumentAudio instrument1audio3a = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X", 1.0f);
     InstrumentAudio instrument1audio3b = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X", 1.0f);
     sourceMaterial.putAll(Set.of(instrument1, instrument1audio1a, instrument1audio1b, instrument1audio2a, instrument1audio2b, instrument1audio3a, instrument1audio3b));
     when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
     when(fabricator.retrospective()).thenReturn(segmentRetrospective);
-    when(fabricator.getInstrumentConfig(same(instrument1))).thenReturn(instrumentConfig);
 
     var result = subject.selectGeneralAudioIntensityLayers(instrument1).stream()
       .sorted(Comparator.comparing(InstrumentAudio::getIntensity))

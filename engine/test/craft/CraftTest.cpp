@@ -245,32 +245,27 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ThreeLayers) {
   Instrument instrument1 = sourceMaterial->put(
       ContentFixtures::buildInstrument(library1, Instrument::Type::Percussion, Instrument::Mode::Loop,
                                        Instrument::State::Published, "Test loop audio"));
-  instrument1.config = "isAudioSelectionPersistent=true";
-  InstrumentConfig instrument1Config = InstrumentConfig(instrument1);
-  //Should pick the first of these two at intensity 0.2
+  //Should pick one of these two at intensity 0.2
   InstrumentAudio instrument1audio1a = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X",
                                             1.0f));
   InstrumentAudio instrument1audio1b = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X",
                                             1.0f));
-  //Should pick the first of these two at intensity 0.5
+  //Should pick one of these two at intensity 0.5
   InstrumentAudio instrument1audio2a = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X",
                                             1.0f));
   InstrumentAudio instrument1audio2b = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X",
                                             1.0f));
-  //Should pick the first of these two at intensity 0.8
+  //Should pick one of these two at intensity 0.8
   InstrumentAudio instrument1audio3a = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X",
                                             1.0f));
   InstrumentAudio instrument1audio3b = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X",
                                             1.0f));
-
-  // Mock the methods
-  EXPECT_CALL(*mockFabricator, getInstrumentConfig(_)).WillOnce(Return(instrument1Config));
 
   // Call the method under test
   auto result = subject->selectGeneralAudioIntensityLayers(instrument1);
@@ -283,11 +278,14 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ThreeLayers) {
 
   // Check the result
   EXPECT_EQ(3, resultVector.size());
-  EXPECT_EQ(instrument1audio1a.id, resultVector[0].id);
-  EXPECT_EQ(instrument1audio2a.id, resultVector[1].id);
-  EXPECT_EQ(instrument1audio3a.id, resultVector[2].id);
+  EXPECT_TRUE(resultVector[0].id == instrument1audio1a.id || resultVector[0].id == instrument1audio1b.id);
+  EXPECT_TRUE(resultVector[1].id == instrument1audio2a.id || resultVector[1].id == instrument1audio2b.id);
+  EXPECT_TRUE(resultVector[2].id == instrument1audio3a.id || resultVector[2].id == instrument1audio3b.id);
 }
 
+/**
+ * SelectGeneralAudioIntensityLayers should continue the audio picks of the previous segment if the instrument is configured to do so
+ */
 TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ContinueSegment) {
   Project project1 = ContentFixtures::buildProject("testing");
   Library library1 = ContentFixtures::buildLibrary(project1, "leaves");

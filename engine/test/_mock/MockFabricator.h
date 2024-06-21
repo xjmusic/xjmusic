@@ -39,7 +39,6 @@ namespace XJ {
 
 
 /*
- * TODO remove unused
     MOCK_METHOD(void, addMessage, (SegmentMessage::Type messageType, std::string body), (override));
     MOCK_METHOD(void, addErrorMessage, (std::string body), (override));
     MOCK_METHOD(void, addWarningMessage, (std::string body), (override));

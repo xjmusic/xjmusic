@@ -385,8 +385,6 @@ TEST_F(FabricatorTest, PutAddsMemesForChoice) {
   subject->put(SegmentFixtures::buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program4,
                                  fake.program4_sequence1_binding0), false);
 
-/*
- * TODO
   // Get the result
   auto resultMemes = store->readAllSegmentMemes(segment.id);
   std::vector<SegmentMeme> sortedResultMemes = std::vector<SegmentMeme>(resultMemes.begin(), resultMemes.end());
@@ -410,7 +408,6 @@ TEST_F(FabricatorTest, PutAddsMemesForChoice) {
   ASSERT_EQ(fake.program4.id, sortedResultChoices[0].programId);
   ASSERT_EQ(fake.program4_sequence1_binding0.id, sortedResultChoices[0].programSequenceBindingId);
   ASSERT_EQ(fake.instrument8.id, sortedResultChoices[1].instrumentId);
-*/
 }
 
 

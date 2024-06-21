@@ -302,7 +302,7 @@ Craft::selectNewChordPartInstrumentAudio(const Instrument &instrument, const Cho
 
 std::set<InstrumentAudio> Craft::selectGeneralAudioIntensityLayers(const Instrument &instrument) {
   auto previous = fabricator->getRetrospective()->getPreviousPicksForInstrument(instrument.id);
-  if (fabricator->getInstrumentConfig(instrument).isAudioSelectionPersistent && !previous.empty()) {
+  if (!previous.empty() && fabricator->getInstrumentConfig(instrument).isAudioSelectionPersistent) {
     std::set<InstrumentAudio> result;
     for (const auto &pick: previous) {
       auto audio = fabricator->getSourceMaterial()->getInstrumentAudio(pick.instrumentAudioId);
