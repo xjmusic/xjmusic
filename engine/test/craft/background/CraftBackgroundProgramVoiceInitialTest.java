@@ -54,7 +54,7 @@ public class CraftBackgroundProgramVoiceInitialTest {
   @BeforeEach
   public void setUp() throws Exception {
     JsonProvider jsonProvider = new JsonProviderImpl();
-    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    auto entityFactory = new EntityFactoryImpl(jsonProvider);
     craftFactory = new CraftFactoryImpl();
     HubTopology.buildHubApiTopology(entityFactory);
     FabricationTopology.buildFabricationTopology(entityFactory);
@@ -84,8 +84,8 @@ public class CraftBackgroundProgramVoiceInitialTest {
     chain2.setProjectId(fake.project1.getId());
     chain2.name("Print #2");
     chain2.setTemplateConfig(TemplateConfig.DEFAULT);
-    chain2.setType(ChainType.PRODUCTION);
-    chain2.setState(ChainState.FABRICATE);
+    chain2.setType(Chain::Type::Production);
+    chain2.setState(Chain::State::Fabricate);
     store.put(chain2);
   }
 

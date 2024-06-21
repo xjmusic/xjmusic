@@ -62,8 +62,8 @@ public class CraftFoundationNextMainTest {
 
   @BeforeEach
   public void setUp() throws Exception {
-    var jsonProvider = new JsonProviderImpl();
-    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    auto jsonProvider = new JsonProviderImpl();
+    auto entityFactory = new EntityFactoryImpl(jsonProvider);
     store = new SegmentEntityStoreImpl(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     fabricatorFactory = new FabricatorFactoryImpl(
@@ -86,11 +86,11 @@ public class CraftFoundationNextMainTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(SegmentFixtures::buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
+    chain1 = store.put(SegmentFixtures::buildChain(fake.project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake.template1, null));
     store.put(SegmentFixtures::buildSegment(
       chain1,
       0,
-      SegmentState.CRAFTED,
+      Segment::State::Crafted,
       "D major",
       64,
       0.73f,
@@ -112,7 +112,7 @@ public class CraftFoundationNextMainTest {
     Segment segment3 = store.put(SegmentFixtures::buildSegment(
       chain1,
       2,
-      SegmentState.CRAFTED,
+      Segment::State::Crafted,
       "F Major",
       64,
       0.30f,

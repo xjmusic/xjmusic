@@ -8,7 +8,6 @@
 #include "../_helper/ContentFixtures.h"
 #include "../_helper/SegmentFixtures.h"
 #include "../_helper/YamlTest.h"
-#include "../_mock/MockSegmentRetrospective.h"
 
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricationException.h"

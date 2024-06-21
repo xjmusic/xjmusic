@@ -58,7 +58,7 @@ public class CraftDetailProgramVoiceNextMainTest {
   @BeforeEach
   public void setUp() throws Exception {
     JsonProvider jsonProvider = new JsonProviderImpl();
-    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    auto entityFactory = new EntityFactoryImpl(jsonProvider);
     craftFactory = new CraftFactoryImpl();
     HubTopology.buildHubApiTopology(entityFactory);
     FabricationTopology.buildFabricationTopology(entityFactory);
@@ -82,13 +82,13 @@ public class CraftDetailProgramVoiceNextMainTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(SegmentFixtures::buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
+    chain1 = store.put(SegmentFixtures::buildChain(fake.project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake.template1, null));
     store.put(SegmentFixtures::buildSegment(
       chain1,
-      SegmentType.INITIAL,
+      Segment::Type::Initial,
       0,
       0,
-      SegmentState.CRAFTED,
+      Segment::State::Crafted,
       "D major",
       64,
       0.73f,
@@ -146,10 +146,10 @@ public class CraftDetailProgramVoiceNextMainTest {
     // Testing entities for reference
     Segment segment3 = store.put(SegmentFixtures::buildSegment(
       chain1,
-      SegmentType.INITIAL,
+      Segment::Type::Initial,
       2,
       2,
-      SegmentState.CRAFTED,
+      Segment::State::Crafted,
       "F Major",
       64,
       0.30f,

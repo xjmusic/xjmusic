@@ -59,7 +59,7 @@ public class CraftFoundationInitialTest {
   @BeforeEach
   public void setUp() throws Exception {
     JsonProvider jsonProvider = new JsonProviderImpl();
-    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    auto entityFactory = new EntityFactoryImpl(jsonProvider);
     craftFactory = new CraftFactoryImpl();
     HubTopology.buildHubApiTopology(entityFactory);
     FabricationTopology.buildFabricationTopology(entityFactory);
@@ -83,8 +83,8 @@ public class CraftFoundationInitialTest {
       fake.project1,
       fake.template1,
       "Print #2",
-      ChainType.PRODUCTION,
-      ChainState.FABRICATE
+      Chain::Type::Production,
+      Chain::State::Fabricate
     ));
     segment6 = store.put(SegmentFixtures::buildSegment(
       chain2,
@@ -106,7 +106,7 @@ public class CraftFoundationInitialTest {
 
     Segment result = store.readSegment(segment6.getId()).orElseThrow();
     assertEquals(segment6.getId(), result.getId());
-    assertEquals(SegmentType.INITIAL, result.getType());
+    assertEquals(Segment::Type::Initial, result.getType());
     assertEquals(16 * MICROS_PER_MINUTE / 140, (long) Objects.requireNonNull(result.getDurationMicros()));
     assertEquals(Integer.valueOf(16), result.getTotal());
     assertEquals(0.2, result.getIntensity(), 0.01);

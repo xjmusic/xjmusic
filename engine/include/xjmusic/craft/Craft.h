@@ -25,9 +25,11 @@ namespace XJ {
     std::map<std::string, int> deltaOuts;
     std::set<Instrument::Type> finalizeAudioLengthsForInstrumentTypes;
 
+  public:
+
     /**
-     Instrument provider to make some code more portable
-     */
+ Instrument provider to make some code more portable
+ */
     class InstrumentProvider {
     public:
       virtual std::optional<Instrument> get(const ProgramVoice &voice);
@@ -83,8 +85,6 @@ namespace XJ {
     };
 
     ChoiceIndexProvider *choiceIndexProvider = {};
-
-  public:
 
     /**
      Must extend this class and inject
@@ -148,11 +148,58 @@ namespace XJ {
      */
     void craftNoteEventArrangements(float tempo, const SegmentChoice &choice, bool defaultAtonal);
 
-  protected:
+    /**
+     Precompute all deltas for a given program. This is where deltaIns and deltaOuts values come from.
+     <p>
+     Precompute deltas dynamically based on whatever is extending the arranger--
+     Don't have anything in this class that's proprietary to beat or detail-- abstract that out into provider interfaces
+     <p>
+     Segments have intensity arcs; automate mixer layers in and out of each main program
+     https://github.com/xjmusic/xjmusic/issues/233
+     <p>
+     Shift deltas so 2x more time is spent on construction than deconstruction
+     <p>
+     Vary the high plateau between delta in and out across layers
+
+     @on failure
+     */
+    void precomputeDeltas(
+        const std::function<bool(const SegmentChoice &)> &choiceFilter,
+        Craft::ChoiceIndexProvider *setChoiceIndexProvider,
+        const std::vector<std::string> &layers,
+        const std::set<std::string> &layerPrioritizationSearches,
+        int numLayersIncoming
+    );
+
+    /**
+     Whether a position is in the given bounds
+
+     @param floor   of boundary
+     @param ceiling of boundary
+     @param value   to test for within bounds
+     @return true if value is within bounds (inclusive)
+     */
+    static bool inBounds(int floor, int ceiling, float value);
+
+    /**
+     Whether a given choice has deltaIn unlimited
+
+     @param choice to test
+     @return true if deltaIn is unlimited
+     */
+    static bool isUnlimitedIn(const SegmentChoice& choice);
+
+    /**
+     Whether a given choice has deltaOut unlimited
+
+     @param choice to test
+     @return true if deltaOut is unlimited
+     */
+    static bool isUnlimitedOut(const SegmentChoice& choice);
 
     /**
      Choose a fresh program based on a set of memes
-  
+
      @param programType to choose
      @param voicingType (optional) for which to choose a program for-- and the program is required to have this type of voice
      @return Program
@@ -164,7 +211,7 @@ namespace XJ {
      Choose instrument
      <p>
      Choose drum instrument to fulfill beat program event names https://github.com/xjmusic/xjmusic/issues/253
-  
+
      @param type              of instrument to choose from
      @param requireEventNames instrument candidates are required to have event names https://github.com/xjmusic/xjmusic/issues/253
      @return Instrument
@@ -177,7 +224,7 @@ namespace XJ {
      https://github.com/xjmusic/xjmusic/issues/255
      <p>
      Choose drum instrument to fulfill beat program event names https://github.com/xjmusic/xjmusic/issues/253
-  
+
      @param types           of instrument to choose from
      @param modes           of instrument to choose from
      @param avoidIds        to avoid, or empty list
@@ -193,65 +240,8 @@ namespace XJ {
     );
 
     /**
-     Filter only the directly bound programs
-  
-     @param programs to filter
-     @return filtered programs
-     */
-    std::set<Program> programsDirectlyBound(const std::set<Program> &programs);
-
-    /**
-     Filter only the published programs
-  
-     @param programs to filter
-     @return filtered programs
-     */
-    static std::set<Program> programsPublished(const std::set<Program> &programs);
-
-    /**
-     Filter only the directly bound instruments
-  
-     @param instruments to filter
-     @return filtered instruments
-     */
-    std::set<Instrument> instrumentsDirectlyBound(const std::set<const Instrument *> &instruments);
-
-    /**
-     Filter only the published instruments
-  
-     @param instruments to filter
-     @return filtered instruments
-     */
-    static std::set<Instrument> instrumentsPublished(const std::set<const Instrument *> &instruments);
-
-    /**
-     Filter only the directly bound instrumentAudios
-  
-     @param instrumentAudios to filter
-     @return filtered instrumentAudios
-     */
-    std::set<InstrumentAudio> audiosDirectlyBound(const std::set<InstrumentAudio> &instrumentAudios);
-
-    /**
-     Filter only the published instrumentAudios
-  
-     @param instrumentAudios to filter
-     @return filtered instrumentAudios
-     */
-    std::set<InstrumentAudio> audiosPublished(const std::set<InstrumentAudio> &instrumentAudios);
-
-    /**
-     Compute a mute value, based on the template config
-  
-     @param instrumentType of instrument for which to compute mute
-     @return true if muted
-     */
-    bool computeMute(Instrument::Type instrumentType);
-
-
-    /**
      Select a new random instrument audio based on a pattern event
-  
+
      @param instrument of which to score available audios, and make a selection
      @param chord      to match
      @return matched new audio
@@ -260,8 +250,74 @@ namespace XJ {
     selectNewChordPartInstrumentAudio(const Instrument &instrument, const Chord &chord);
 
     /**
+     Select audios for the given instrument
+
+     @param instrument for which to pick audio
+     @return drum-type Instrument
+     */
+    std::set<InstrumentAudio> selectGeneralAudioIntensityLayers(const Instrument& instrument);
+
+  protected:
+
+    /**
+     Filter only the directly bound programs
+
+     @param programs to filter
+     @return filtered programs
+     */
+    std::set<Program> programsDirectlyBound(const std::set<Program> &programs);
+
+    /**
+     Filter only the published programs
+
+     @param programs to filter
+     @return filtered programs
+     */
+    static std::set<Program> programsPublished(const std::set<Program> &programs);
+
+    /**
+     Filter only the directly bound instruments
+
+     @param instruments to filter
+     @return filtered instruments
+     */
+    std::set<Instrument> instrumentsDirectlyBound(const std::set<const Instrument *> &instruments);
+
+    /**
+     Filter only the published instruments
+
+     @param instruments to filter
+     @return filtered instruments
+     */
+    static std::set<Instrument> instrumentsPublished(const std::set<const Instrument *> &instruments);
+
+    /**
+     Filter only the directly bound instrumentAudios
+
+     @param instrumentAudios to filter
+     @return filtered instrumentAudios
+     */
+    std::set<InstrumentAudio> audiosDirectlyBound(const std::set<InstrumentAudio> &instrumentAudios);
+
+    /**
+     Filter only the published instrumentAudios
+
+     @param instrumentAudios to filter
+     @return filtered instrumentAudios
+     */
+    std::set<InstrumentAudio> audiosPublished(const std::set<InstrumentAudio> &instrumentAudios);
+
+    /**
+     Compute a mute value, based on the template config
+
+     @param instrumentType of instrument for which to compute mute
+     @return true if muted
+     */
+    bool computeMute(Instrument::Type instrumentType);
+
+    /**
      Pick the transition
-  
+
      @param arrangement          to pick
      @param audio                to pick
      @param startAtSegmentMicros to pick
@@ -278,14 +334,6 @@ namespace XJ {
     );
 
     /**
-     Select audios for the given instrument
-  
-     @param instrument for which to pick audio
-     @return drum-type Instrument
-     */
-    std::set<InstrumentAudio> selectGeneralAudioIntensityLayers(const Instrument& instrument);
-
-    /**
      Pick one audio for each desired intensity level, by layering the audios by intensity and picking one from each layer.
      Divide the audios into layers (ergo grouping them by intensity ascending) and pick one audio per layer.
   
@@ -294,32 +342,6 @@ namespace XJ {
      @return picked audios
      */
     std::set<InstrumentAudio> selectAudioIntensityLayers(const std::set<const InstrumentAudio *>& audios, int layers);
-
-    /**
-     Whether a given choice has deltaIn unlimited
-  
-     @param choice to test
-     @return true if deltaIn is unlimited
-     */
-    static bool isUnlimitedIn(const SegmentChoice& choice);
-
-    /**
-     Whether a given choice has deltaOut unlimited
-  
-     @param choice to test
-     @return true if deltaOut is unlimited
-     */
-    static bool isUnlimitedOut(const SegmentChoice& choice);
-
-    /**
-     Whether a position is in the given bounds
-  
-     @param floor   of boundary
-     @param ceiling of boundary
-     @param value   to test for within bounds
-     @return true if value is within bounds (inclusive)
-     */
-    static bool inBounds(int floor, int ceiling, float value);
 
     /**
      Segments have intensity arcs; automate mixer layers in and out of each main program
@@ -384,29 +406,6 @@ namespace XJ {
      @return delta out for given voice
      */
     int computeDeltaOut(const SegmentChoice &choice);
-
-    /**
-     Precompute all deltas for a given program. This is where deltaIns and deltaOuts values come from.
-     <p>
-     Precompute deltas dynamically based on whatever is extending the arranger--
-     Don't have anything in this class that's proprietary to beat or detail-- abstract that out into provider interfaces
-     <p>
-     Segments have intensity arcs; automate mixer layers in and out of each main program
-     https://github.com/xjmusic/xjmusic/issues/233
-     <p>
-     Shift deltas so 2x more time is spent on construction than deconstruction
-     <p>
-     Vary the high plateau between delta in and out across layers
-  
-     @on failure
-     */
-    void precomputeDeltas(
-        const std::function<bool(const SegmentChoice &)> &choiceFilter,
-        ChoiceIndexProvider *setChoiceIndexProvider,
-        const std::set<std::string> &layers,
-        const std::set<std::string> &layerPrioritizationSearches,
-        int numLayersIncoming
-    );
 
   private:
     std::random_device rd;

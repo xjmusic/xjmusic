@@ -56,7 +56,7 @@ public class CraftBeatProgramVoiceInitialTest {
   @BeforeEach
   public void setUp() throws Exception {
     JsonProvider jsonProvider = new JsonProviderImpl();
-    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    auto entityFactory = new EntityFactoryImpl(jsonProvider);
     craftFactory = new CraftFactoryImpl();
     HubTopology.buildHubApiTopology(entityFactory);
     FabricationTopology.buildFabricationTopology(entityFactory);
@@ -84,8 +84,8 @@ public class CraftBeatProgramVoiceInitialTest {
     chain2 = store.put(buildChain(
       fake.project1,
       "Print #2",
-      ChainType.PRODUCTION,
-      ChainState.FABRICATE,
+      Chain::Type::Production,
+      Chain::State::Fabricate,
       ContentFixtures::buildTemplate(fake.project1, "Tests")
     ));
   }
@@ -117,7 +117,7 @@ public class CraftBeatProgramVoiceInitialTest {
   void insertSegment() throws FabricationException {
     segment0 = store.put(SegmentFixtures::buildSegment(
       chain2,
-      SegmentType.INITIAL,
+      Segment::Type::Initial,
       0,
       0,
       SegmentState.CRAFTING,

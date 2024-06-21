@@ -30,7 +30,7 @@ BeatCraft::BeatCraft(
         .map(ProgramVoice::getName)
         .orElse("Unknown");
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Program::Type::Beat.equals(choice.getProgramType());
-    var programNames = fabricator.sourceMaterial().getVoicesOfProgram(program.get()).stream()
+    auto programNames = fabricator.sourceMaterial().getVoicesOfProgram(program.get()).stream()
       .map(ProgramVoice::getName)
       .collect(Collectors.toList());
     precomputeDeltas(
@@ -43,12 +43,12 @@ BeatCraft::BeatCraft(
 
     // beat sequence is selected at random of the current program
     // FUTURE: Beat Program with multiple Sequences https://github.com/xjmusic/xjmusic/issues/241
-    var sequence = fabricator.getRandomlySelectedSequence(program.get());
+    auto sequence = fabricator.getRandomlySelectedSequence(program.get());
 
     // voice arrangements
     if (sequence.isPresent()) {
       for (ProgramVoice voice : fabricator.sourceMaterial().getVoicesOfProgram(program.get())) {
-        var choice = new SegmentChoice();
+        auto choice = new SegmentChoice();
         choice.setId(EntityUtils::computeUniqueId());
         choice.setSegmentId(fabricator.getSegment().getId());
         choice.setMute(computeMute(voice.getType()));
@@ -70,7 +70,7 @@ BeatCraft::BeatCraft(
           this.craftNoteEventArrangements(fabricator.getTempo(), fabricator.put(choice, false), true);
         } else {
           // If there is no prior choice, then we should choose a fresh instrument
-          var instrument = chooseFreshInstrument(Instrument::Type::Drum, fabricator.sourceMaterial().getTrackNamesOfVoice(voice));
+          auto instrument = chooseFreshInstrument(Instrument::Type::Drum, fabricator.sourceMaterial().getTrackNamesOfVoice(voice));
           if (instrument.isEmpty()) {
             continue;
           }

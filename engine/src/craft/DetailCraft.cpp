@@ -77,7 +77,7 @@ using namespace XJ;
    */
   @SuppressWarnings("DuplicatedCode")
   void craftLoopParts(double tempo, Instrument instrument) throws FabricationException {
-    var choice = new SegmentChoice();
+    auto choice = new SegmentChoice();
     choice.setId(EntityUtils::computeUniqueId());
     choice.setSegmentId(fabricator.getSegment().getId());
     choice.setMute(computeMute(instrument.getType()));
@@ -85,7 +85,7 @@ using namespace XJ;
     choice.setInstrumentMode(instrument.getMode());
     choice.setInstrumentId(instrument.getId());
     fabricator.put(choice, false);
-    var arrangement = new SegmentChoiceArrangement();
+    auto arrangement = new SegmentChoiceArrangement();
     arrangement.setId(EntityUtils::computeUniqueId());
     arrangement.setSegmentId(fabricator.getSegment().getId());
     arrangement.segmentChoiceId(choice.getId());
@@ -105,7 +105,7 @@ using namespace XJ;
         );
 
         // of pick
-        var pick = new SegmentChoiceArrangementPick();
+        auto pick = new SegmentChoiceArrangementPick();
         pick.setId(EntityUtils::computeUniqueId());
         pick.setSegmentId(fabricator.getSegment().getId());
         pick.setSegmentChoiceArrangementId(arrangement.getId());

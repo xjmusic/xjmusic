@@ -74,7 +74,7 @@ public class CraftBeat_LayeredVoicesTest {
   @BeforeEach
   public void setUp() throws Exception {
     JsonProvider jsonProvider = new JsonProviderImpl();
-    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    auto entityFactory = new EntityFactoryImpl(jsonProvider);
     craftFactory = new CraftFactoryImpl();
     HubTopology.buildHubApiTopology(entityFactory);
     FabricationTopology.buildFabricationTopology(entityFactory);
@@ -97,13 +97,13 @@ public class CraftBeat_LayeredVoicesTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(SegmentFixtures::buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
+    Chain chain1 = store.put(SegmentFixtures::buildChain(fake.project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake.template1, null));
     store.put(SegmentFixtures::buildSegment(
       chain1,
-      SegmentType.INITIAL,
+      Segment::Type::Initial,
       0,
       0,
-      SegmentState.CRAFTED,
+      Segment::State::Crafted,
       "D major",
       64,
       0.73f,
@@ -129,7 +129,7 @@ public class CraftBeat_LayeredVoicesTest {
       SegmentType.CONTINUE,
       2,
       2,
-      SegmentState.CRAFTED,
+      Segment::State::Crafted,
       "F Major",
       64,
       0.30f,
@@ -185,18 +185,18 @@ public class CraftBeat_LayeredVoicesTest {
     EntityUtils.add(entities, ContentFixtures::buildMeme(program42, "Basic"));
     ProgramVoice program42_locomotion = EntityUtils.add(entities, ContentFixtures::buildVoice(program42, Instrument::Type::Drum, "Locomotion"));
     ProgramVoice program42_kickSnare = EntityUtils.add(entities, ContentFixtures::buildVoice(program42, Instrument::Type::Drum, "BoomBap"));
-    var sequence35a = EntityUtils.add(entities, ContentFixtures::buildSequence(program42, 16, "Base", 0.5f, "C"));
+    auto sequence35a = EntityUtils.add(entities, ContentFixtures::buildSequence(program42, 16, "Base", 0.5f, "C"));
     //
-    var pattern35a1 = EntityUtils.add(entities, ContentFixtures::buildPattern(sequence35a, program42_locomotion, 1, "Hi-hat"));
-    var trackHihat = EntityUtils.add(entities, ContentFixtures::buildTrack(program42_locomotion, "HIHAT"));
+    auto pattern35a1 = EntityUtils.add(entities, ContentFixtures::buildPattern(sequence35a, program42_locomotion, 1, "Hi-hat"));
+    auto trackHihat = EntityUtils.add(entities, ContentFixtures::buildTrack(program42_locomotion, "HIHAT"));
     EntityUtils.add(entities, ContentFixtures::buildEvent(pattern35a1, trackHihat, 0.0f, 1.0f, "C2", 1.0f));
     EntityUtils.add(entities, ContentFixtures::buildEvent(pattern35a1, trackHihat, 0.25f, 1.0f, "G5", 0.4f));
     EntityUtils.add(entities, ContentFixtures::buildEvent(pattern35a1, trackHihat, 0.5f, 1.0f, "C2", 0.6f));
     EntityUtils.add(entities, ContentFixtures::buildEvent(pattern35a1, trackHihat, 0.75f, 1.0f, "C2", 0.3f));
     //
-    var pattern35a2 = EntityUtils.add(entities, ContentFixtures::buildPattern(sequence35a, program42_kickSnare, 4, "Kick/Snare"));
-    var trackKick = EntityUtils.add(entities, ContentFixtures::buildTrack(program42_kickSnare, "KICK"));
-    var trackSnare = EntityUtils.add(entities, ContentFixtures::buildTrack(program42_kickSnare, "SNARE"));
+    auto pattern35a2 = EntityUtils.add(entities, ContentFixtures::buildPattern(sequence35a, program42_kickSnare, 4, "Kick/Snare"));
+    auto trackKick = EntityUtils.add(entities, ContentFixtures::buildTrack(program42_kickSnare, "KICK"));
+    auto trackSnare = EntityUtils.add(entities, ContentFixtures::buildTrack(program42_kickSnare, "SNARE"));
     EntityUtils.add(entities, ContentFixtures::buildEvent(pattern35a2, trackKick, 0.0f, 1.0f, "B5", 0.9f));
     EntityUtils.add(entities, ContentFixtures::buildEvent(pattern35a2, trackSnare, 1.0f, 1.0f, "D2", 1.0f));
     EntityUtils.add(entities, ContentFixtures::buildEvent(pattern35a2, trackKick, 2.5f, 1.0f, "E4", 0.7f));

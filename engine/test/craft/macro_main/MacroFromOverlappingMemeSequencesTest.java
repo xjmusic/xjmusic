@@ -54,11 +54,11 @@ public class MacroFromOverlappingMemeSequencesTest {
 
   @BeforeEach
   public void setUp() throws Exception {
-    var jsonProvider = new JsonProviderImpl();
-    var entityFactory = new EntityFactoryImpl(jsonProvider);
-    var store = new SegmentEntityStoreImpl(entityFactory);
+    auto jsonProvider = new JsonProviderImpl();
+    auto entityFactory = new EntityFactoryImpl(jsonProvider);
+    auto store = new SegmentEntityStoreImpl(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    var fabricatorFactory = new FabricatorFactoryImpl(
+    auto fabricatorFactory = new FabricatorFactoryImpl(
       store,
       jsonapiPayloadFactory,
       jsonProvider
@@ -73,41 +73,41 @@ public class MacroFromOverlappingMemeSequencesTest {
     // Project "bananas"
     Project project1 = ContentFixtures::buildProject("bananas");
     Library library2 = ContentFixtures::buildLibrary(project1, "house");
-    var template1 = ContentFixtures::buildTemplate(project1, "Test Template 1", "test1");
+    auto template1 = ContentFixtures::buildTemplate(project1, "Test Template 1", "test1");
     TemplateBinding templateBinding1 = ContentFixtures::buildTemplateBinding(template1, library2);
     User user2 = ContentFixtures::buildUser("john", "john@email.com", "https://pictures.com/john.gif");
     User user3 = ContentFixtures::buildUser("jenny", "jenny@email.com", "https://pictures.com/jenny.gif");
     ProjectUser projectUser1a = ContentFixtures::buildProjectUser(project1, user3);
 
     // Macro Program already chosen for previous segment
-    var macro1 = ContentFixtures::buildProgram(library2, Program::Type::Macro, Program::State::Published, "Chosen Macro", "C", 120.0f);
-    var macro1_meme = ContentFixtures::buildMeme(macro1, "Tropical");
-    var macro1_sequenceA = ContentFixtures::buildSequence(macro1, 0, "Start Wild", 0.6f, "C");
-    var macro1_sequenceA_binding = ContentFixtures::buildBinding(macro1_sequenceA, 0);
-    var macro1_sequenceA_bindingMeme = ContentFixtures::buildMeme(macro1_sequenceA_binding, "Red");
+    auto macro1 = ContentFixtures::buildProgram(library2, Program::Type::Macro, Program::State::Published, "Chosen Macro", "C", 120.0f);
+    auto macro1_meme = ContentFixtures::buildMeme(macro1, "Tropical");
+    auto macro1_sequenceA = ContentFixtures::buildSequence(macro1, 0, "Start Wild", 0.6f, "C");
+    auto macro1_sequenceA_binding = ContentFixtures::buildBinding(macro1_sequenceA, 0);
+    auto macro1_sequenceA_bindingMeme = ContentFixtures::buildMeme(macro1_sequenceA_binding, "Red");
     ProgramSequence macro1_sequenceB = ContentFixtures::buildSequence(macro1, 0, "Intermediate", 0.4f, "Bb minor");
-    var macro1_sequenceB_binding = ContentFixtures::buildBinding(macro1_sequenceB, 1);
-    var macro1_sequenceB_bindingMeme = ContentFixtures::buildMeme(macro1_sequenceB_binding, "Green");
+    auto macro1_sequenceB_binding = ContentFixtures::buildBinding(macro1_sequenceB, 1);
+    auto macro1_sequenceB_bindingMeme = ContentFixtures::buildMeme(macro1_sequenceB_binding, "Green");
 
     // Main Program already chosen for previous segment
-    var main5 = ContentFixtures::buildProgram(library2, Program::Type::Main, Program::State::Published, "Chosen Main", "C", 120.0f);
-    var main5_meme = ContentFixtures::buildMeme(main5, "Tropical");
-    var main5_sequenceA = ContentFixtures::buildSequence(main5, 0, "Start Wild", 0.6f, "C");
+    auto main5 = ContentFixtures::buildProgram(library2, Program::Type::Main, Program::State::Published, "Chosen Main", "C", 120.0f);
+    auto main5_meme = ContentFixtures::buildMeme(main5, "Tropical");
+    auto main5_sequenceA = ContentFixtures::buildSequence(main5, 0, "Start Wild", 0.6f, "C");
     ProgramSequenceBinding main5_sequenceA_binding = ContentFixtures::buildBinding(main5_sequenceA, 0);
 
     // Macro Program will be chosen because of matching meme
     macro2a = ContentFixtures::buildProgram(library2, Program::Type::Macro, Program::State::Published, "Always Chosen", "C", 120.0f);
-    var macro2a_meme = ContentFixtures::buildMeme(macro2a, "Tropical");
-    var macro2a_sequenceA = ContentFixtures::buildSequence(macro2a, 0, "Start Wild", 0.6f, "C");
-    var macro2a_sequenceA_binding = ContentFixtures::buildBinding(macro2a_sequenceA, 0);
-    var macro2a_sequenceA_bindingMeme = ContentFixtures::buildMeme(macro2a_sequenceA_binding, "Green");
+    auto macro2a_meme = ContentFixtures::buildMeme(macro2a, "Tropical");
+    auto macro2a_sequenceA = ContentFixtures::buildSequence(macro2a, 0, "Start Wild", 0.6f, "C");
+    auto macro2a_sequenceA_binding = ContentFixtures::buildBinding(macro2a_sequenceA, 0);
+    auto macro2a_sequenceA_bindingMeme = ContentFixtures::buildMeme(macro2a_sequenceA_binding, "Green");
 
     // Macro Program will NEVER be chosen because of non-matching meme
-    var macro2b = ContentFixtures::buildProgram(library2, Program::Type::Macro, Program::State::Published, "Never Chosen", "C", 120.0f);
-    var macro2b_meme = ContentFixtures::buildMeme(macro2a, "Tropical");
-    var macro2b_sequenceA = ContentFixtures::buildSequence(macro2a, 0, "Start Wild", 0.6f, "C");
-    var macro2b_sequenceA_binding = ContentFixtures::buildBinding(macro2b_sequenceA, 0);
-    var macro2b_sequenceA_bindingMeme = ContentFixtures::buildMeme(macro2b_sequenceA_binding, "Purple");
+    auto macro2b = ContentFixtures::buildProgram(library2, Program::Type::Macro, Program::State::Published, "Never Chosen", "C", 120.0f);
+    auto macro2b_meme = ContentFixtures::buildMeme(macro2a, "Tropical");
+    auto macro2b_sequenceA = ContentFixtures::buildSequence(macro2a, 0, "Start Wild", 0.6f, "C");
+    auto macro2b_sequenceA_binding = ContentFixtures::buildBinding(macro2b_sequenceA, 0);
+    auto macro2b_sequenceA_bindingMeme = ContentFixtures::buildMeme(macro2b_sequenceA_binding, "Purple");
 
     HubContent sourceMaterial = new HubContent(List.of(
       project1,
@@ -142,11 +142,11 @@ public class MacroFromOverlappingMemeSequencesTest {
     ));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(SegmentFixtures::buildChain(project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, null));
+    Chain chain1 = store.put(SegmentFixtures::buildChain(project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, template1, null));
     Segment segment1 = store.put(SegmentFixtures::buildSegment(
       chain1,
       0,
-      SegmentState.CRAFTED,
+      Segment::State::Crafted,
       "D major",
       64,
       0.73f,
@@ -175,7 +175,7 @@ public class MacroFromOverlappingMemeSequencesTest {
     // This test is repeated many times to ensure the correct function of macro choice
     // At 100 repetitions, false positive is 2^100:1 against
     for (int i = 0; i < REPEAT_TIMES; i++) {
-      var result = subject.chooseMacroProgram();
+      auto result = subject.chooseMacroProgram();
       assertEquals(macro2a.getId(), result.getId());
     }
   }

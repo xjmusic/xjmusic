@@ -50,6 +50,101 @@ void Craft::craftNoteEventArrangements(float tempo, const SegmentChoice &choice,
   finalizeNoteEventCutoffsOfOneShotInstrumentAudioPicks(choice);
 }
 
+void Craft::precomputeDeltas(
+    const std::function<bool(const SegmentChoice &)> &choiceFilter,
+    Craft::ChoiceIndexProvider *setChoiceIndexProvider,
+    const std::vector<std::string> &layers,
+    const std::set<std::string> &layerPrioritizationSearches,
+    int numLayersIncoming
+) {
+  this->choiceIndexProvider = setChoiceIndexProvider;
+  deltaIns.clear();
+  deltaOuts.clear();
+
+  // Ensure that we can bypass delta arcs using the template config
+  if (!fabricator->getTemplateConfig().deltaArcEnabled) {
+    for (const auto &layer: layers) {
+      deltaIns[layer] = SegmentChoice::DELTA_UNLIMITED;
+      deltaOuts[layer] = SegmentChoice::DELTA_UNLIMITED;
+    }
+    return;
+  }
+
+  // then we overwrite the wall-to-wall random values with more specific values depending on the situation
+  switch (fabricator->getType()) {
+    case Segment::Type::Pending: {
+      // No Op
+    }
+
+    case Segment::Type::Initial:
+    case Segment::Type::NextMain:
+    case Segment::Type::NextMacro: {
+      // randomly override N incoming (deltaIn unlimited) and N outgoing (deltaOut unlimited)
+      // shuffle the layers into a random order, then step through them, assigning delta ins and then outs
+      // random order in
+      auto barBeats = fabricator->getCurrentMainProgramConfig().barBeats;
+      auto deltaUnits = Bar::of(barBeats).computeSubsectionBeats(fabricator->getSegment().total);
+
+      // Delta arcs can prioritize the presence of a layer by name, e.g. containing "kick"
+      // separate layers into primary and secondary, shuffle them separately, then concatenate
+      std::vector<std::string> priLayers;
+      std::vector<std::string> secLayers;
+      for (const auto& layer: layers) {
+        auto layerName = StringUtils::toLowerCase(layer);
+        if (std::any_of(layerPrioritizationSearches.begin(), layerPrioritizationSearches.end(),
+                        [&layerName](const std::string &m) { return layerName.find(m) != std::string::npos; }))
+          priLayers.emplace_back(layer);
+        else secLayers.emplace_back();
+      }
+
+      std::shuffle(priLayers.begin(), priLayers.end(), gen);
+      if (!priLayers.empty())
+        fabricator->addInfoMessage("Prioritized " + CsvUtils::join(priLayers));
+      std::shuffle(secLayers.begin(), secLayers.end(), gen);
+
+      std::vector<std::string> orderedLayers;
+      orderedLayers.insert(orderedLayers.end(), priLayers.begin(), priLayers.end());
+      orderedLayers.insert(orderedLayers.end(), secLayers.begin(), secLayers.end());
+
+      std::shuffle(orderedLayers.begin(), orderedLayers.end(), gen);
+
+      auto delta = ValueUtils::roundToNearest(deltaUnits, MarbleBag::quickPick(deltaUnits * 4) -
+                                                          deltaUnits * 2 * numLayersIncoming);
+      for (const std::string &orderedLayer: orderedLayers) {
+        deltaIns[orderedLayer] = (delta > 0) ? delta : SegmentChoice::DELTA_UNLIMITED;
+        deltaOuts[orderedLayer] = SegmentChoice::DELTA_UNLIMITED; // all layers get delta out unlimited
+        delta += ValueUtils::roundToNearest(deltaUnits, MarbleBag::quickPick(deltaUnits * 5));
+      }
+    }
+
+    case Segment::Type::Continue: {
+      for (const std::string &index: layers)
+        for (const auto &choice: fabricator->getRetrospective()->getChoices())
+          if (choiceFilter(choice)) {
+            if (this->choiceIndexProvider->get(choice) == index) {
+              deltaIns[index] = choice.deltaIn;
+              deltaOuts[index] = choice.deltaOut;
+            }
+          }
+    }
+  }
+}
+
+bool Craft::inBounds(int floor, int ceiling, float value) {
+  if (SegmentChoice::DELTA_UNLIMITED == floor && SegmentChoice::DELTA_UNLIMITED == ceiling) return true;
+  if (SegmentChoice::DELTA_UNLIMITED == floor && value <= (float) ceiling) return true;
+  if (SegmentChoice::DELTA_UNLIMITED == ceiling && value >= (float) floor) return true;
+  return value >= (float) floor && value <= (float) ceiling;
+}
+
+bool Craft::isUnlimitedIn(const SegmentChoice &choice) {
+  return SegmentChoice::DELTA_UNLIMITED == choice.deltaIn;
+}
+
+bool Craft::isUnlimitedOut(const SegmentChoice &choice) {
+  return SegmentChoice::DELTA_UNLIMITED == choice.deltaOut;
+}
+
 std::optional<const Program *>
 Craft::chooseFreshProgram(Program::Type programType, std::optional<Instrument::Type> voicingType) {
   auto bag = new MarbleBag();
@@ -186,6 +281,44 @@ Craft::chooseFreshInstrumentAudio(const std::set<Instrument::Type> &types, const
   return fabricator->getSourceMaterial()->getInstrumentAudio(bag->pick());
 }
 
+std::optional<const InstrumentAudio>
+Craft::selectNewChordPartInstrumentAudio(const Instrument &instrument, const Chord &chord) {
+  auto bag = new MarbleBag();
+
+  for (auto a: fabricator->getSourceMaterial()->getAudiosOfInstrument(instrument)) {
+    Chord audioChord = Chord::of(a->tones);
+    if (audioChord == chord) {
+      bag->add(0, a->id);
+    } else if (audioChord.isAcceptable(chord)) {
+      bag->add(1, a->id);
+    }
+  }
+
+  if (bag->empty()) return std::nullopt;
+  auto audio = fabricator->getSourceMaterial()->getInstrumentAudio(bag->pick());
+  if (!audio.has_value()) return std::nullopt;
+  return {*audio.value()};
+}
+
+std::set<InstrumentAudio> Craft::selectGeneralAudioIntensityLayers(const Instrument &instrument) {
+  auto previous = fabricator->getRetrospective()->getPreviousPicksForInstrument(instrument.id);
+  if (fabricator->getInstrumentConfig(instrument).isAudioSelectionPersistent && !previous.empty()) {
+    std::set<InstrumentAudio> result;
+    for (const auto &pick: previous) {
+      auto audio = fabricator->getSourceMaterial()->getInstrumentAudio(pick.instrumentAudioId);
+      if (audio.has_value()) {
+        result.insert(*audio.value());
+      }
+    }
+    return result;
+  }
+
+  return selectAudioIntensityLayers(
+      fabricator->getSourceMaterial()->getAudiosOfInstrument(instrument.id),
+      fabricator->getTemplateConfig().getIntensityLayers(instrument.type)
+  );
+}
+
 std::set<Program> Craft::programsDirectlyBound(const std::set<Program> &programs) {
   std::set<Program> result;
   for (const auto &program: programs) {
@@ -251,25 +384,6 @@ bool Craft::computeMute(Instrument::Type instrumentType) {
   return MarbleBag::quickBooleanChanceOf(fabricator->getTemplateConfig().getChoiceMuteProbability(instrumentType));
 }
 
-std::optional<const InstrumentAudio>
-Craft::selectNewChordPartInstrumentAudio(const Instrument &instrument, const Chord &chord) {
-  auto bag = new MarbleBag();
-
-  for (auto a: fabricator->getSourceMaterial()->getAudiosOfInstrument(instrument)) {
-    Chord audioChord = Chord::of(a->tones);
-    if (audioChord == chord) {
-      bag->add(0, a->id);
-    } else if (audioChord.isAcceptable(chord)) {
-      bag->add(1, a->id);
-    }
-  }
-
-  if (bag->empty()) return std::nullopt;
-  auto audio = fabricator->getSourceMaterial()->getInstrumentAudio(bag->pick());
-  if (!audio.has_value()) return std::nullopt;
-  return {*audio.value()};
-}
-
 void Craft::pickInstrumentAudio(const SegmentChoiceArrangement &arrangement, const InstrumentAudio &audio,
                                 long startAtSegmentMicros, long lengthMicros, std::string event) {
   auto pick = new SegmentChoiceArrangementPick();
@@ -282,25 +396,6 @@ void Craft::pickInstrumentAudio(const SegmentChoiceArrangement &arrangement, con
   pick->amplitude = (float) 1.0;
   pick->instrumentAudioId = audio.id;
   fabricator->put(*pick);
-}
-
-std::set<InstrumentAudio> Craft::selectGeneralAudioIntensityLayers(const Instrument &instrument) {
-  auto previous = fabricator->getRetrospective()->getPreviousPicksForInstrument(instrument.id);
-  if (fabricator->getInstrumentConfig(instrument).isAudioSelectionPersistent && !previous.empty()) {
-    std::set<InstrumentAudio> result;
-    for (const auto &pick: previous) {
-      auto audio = fabricator->getSourceMaterial()->getInstrumentAudio(pick.instrumentAudioId);
-      if (audio.has_value()) {
-        result.insert(*audio.value());
-      }
-    }
-    return result;
-  }
-
-  return selectAudioIntensityLayers(
-      fabricator->getSourceMaterial()->getAudiosOfInstrument(instrument.id),
-      fabricator->getTemplateConfig().getIntensityLayers(instrument.type)
-  );
 }
 
 std::set<InstrumentAudio>
@@ -334,21 +429,6 @@ Craft::selectAudioIntensityLayers(const std::set<const InstrumentAudio *> &audio
   }
 
   return result;
-}
-
-bool Craft::isUnlimitedIn(const SegmentChoice &choice) {
-  return SegmentChoice::DELTA_UNLIMITED == choice.deltaIn;
-}
-
-bool Craft::isUnlimitedOut(const SegmentChoice &choice) {
-  return SegmentChoice::DELTA_UNLIMITED == choice.deltaOut;
-}
-
-bool Craft::inBounds(int floor, int ceiling, float value) {
-  if (SegmentChoice::DELTA_UNLIMITED == floor && SegmentChoice::DELTA_UNLIMITED == ceiling) return true;
-  if (SegmentChoice::DELTA_UNLIMITED == floor && value <= (float) ceiling) return true;
-  if (SegmentChoice::DELTA_UNLIMITED == ceiling && value >= (float) floor) return true;
-  return value >= (float) floor && value <= (float) ceiling;
 }
 
 void Craft::craftNoteEvents(float tempo, const ProgramSequence &sequence, const std::set<const ProgramVoice *> &voices,
@@ -501,86 +581,6 @@ int Craft::computeDeltaIn(const SegmentChoice &choice) {
 int Craft::computeDeltaOut(const SegmentChoice &choice) {
   auto it = deltaOuts.find(choiceIndexProvider->get(choice));
   return (it != deltaOuts.end()) ? it->second : SegmentChoice::DELTA_UNLIMITED;
-}
-
-void Craft::precomputeDeltas(
-    const std::function<bool(const SegmentChoice &)> &choiceFilter,
-    Craft::ChoiceIndexProvider *setChoiceIndexProvider,
-    const std::set<std::string> &layers,
-    const std::set<std::string> &layerPrioritizationSearches,
-    int numLayersIncoming
-) {
-  this->choiceIndexProvider = setChoiceIndexProvider;
-  deltaIns.clear();
-  deltaOuts.clear();
-
-  // Ensure that we can bypass delta arcs using the template config
-  if (!fabricator->getTemplateConfig().deltaArcEnabled) {
-    for (const auto &layer: layers) {
-      deltaIns[layer] = SegmentChoice::DELTA_UNLIMITED;
-      deltaOuts[layer] = SegmentChoice::DELTA_UNLIMITED;
-    }
-    return;
-  }
-
-  // then we overwrite the wall-to-wall random values with more specific values depending on the situation
-  switch (fabricator->getType()) {
-    case Segment::Type::Pending: {
-      // No Op
-    }
-
-    case Segment::Type::Initial:
-    case Segment::Type::NextMain:
-    case Segment::Type::NextMacro: {
-      // randomly override N incoming (deltaIn unlimited) and N outgoing (deltaOut unlimited)
-      // shuffle the layers into a random order, then step through them, assigning delta ins and then outs
-      // random order in
-      auto barBeats = fabricator->getCurrentMainProgramConfig().barBeats;
-      auto deltaUnits = Bar::of(barBeats).computeSubsectionBeats(fabricator->getSegment().total);
-
-      // Delta arcs can prioritize the presence of a layer by name, e.g. containing "kick"
-      // separate layers into primary and secondary, shuffle them separately, then concatenate
-      std::vector<std::string> priLayers;
-      std::vector<std::string> secLayers;
-      for (const auto& layer: layers) {
-        auto layerName = StringUtils::toLowerCase(layer);
-        if (std::any_of(layerPrioritizationSearches.begin(), layerPrioritizationSearches.end(),
-                        [&layerName](const std::string &m) { return layerName.find(m) != std::string::npos; }))
-          priLayers.emplace_back(layer);
-        else secLayers.emplace_back();
-      }
-
-      std::shuffle(priLayers.begin(), priLayers.end(), gen);
-      if (!priLayers.empty())
-        fabricator->addInfoMessage("Prioritized " + CsvUtils::join(priLayers));
-      std::shuffle(secLayers.begin(), secLayers.end(), gen);
-
-      std::vector<std::string> orderedLayers;
-      orderedLayers.insert(orderedLayers.end(), priLayers.begin(), priLayers.end());
-      orderedLayers.insert(orderedLayers.end(), secLayers.begin(), secLayers.end());
-
-      std::shuffle(orderedLayers.begin(), orderedLayers.end(), gen);
-
-      auto delta = ValueUtils::roundToNearest(deltaUnits, MarbleBag::quickPick(deltaUnits * 4) -
-                                                          deltaUnits * 2 * numLayersIncoming);
-      for (const std::string &orderedLayer: orderedLayers) {
-        deltaIns[orderedLayer] = (delta > 0) ? delta : SegmentChoice::DELTA_UNLIMITED;
-        deltaOuts[orderedLayer] = SegmentChoice::DELTA_UNLIMITED; // all layers get delta out unlimited
-        delta += ValueUtils::roundToNearest(deltaUnits, MarbleBag::quickPick(deltaUnits * 5));
-      }
-    }
-
-    case Segment::Type::Continue: {
-      for (const std::string &index: layers)
-        for (const auto &choice: fabricator->getRetrospective()->getChoices())
-          if (choiceFilter(choice)) {
-            if (this->choiceIndexProvider->get(choice) == index) {
-              deltaIns[index] = choice.deltaIn;
-              deltaOuts[index] = choice.deltaOut;
-            }
-          }
-    }
-  }
 }
 
 void Craft::craftNoteEventSectionRestartingEachChord(float tempo, const SegmentChoice &choice, const NoteRange &range,

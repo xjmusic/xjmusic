@@ -22,7 +22,7 @@ List<std::string> smallNames;
   public void doWork() throws FabricationException {
     Optional<SegmentChoice> previousChoice = fabricator.retrospective().getPreviousChoiceOfType(Instrument::Type::Transition);
 
-    var instrument = previousChoice.isPresent() ?
+    auto instrument = previousChoice.isPresent() ?
       fabricator.sourceMaterial().getInstrument(previousChoice.get().getInstrumentId()) :
       chooseFreshInstrument(Instrument::Type::Transition, List.of());
 
@@ -71,7 +71,7 @@ List<std::string> smallNames;
    */
   @SuppressWarnings("DuplicatedCode")
   void craftTransition(double tempo, Instrument instrument) throws FabricationException {
-    var choice = new SegmentChoice();
+    auto choice = new SegmentChoice();
     choice.setId(EntityUtils::computeUniqueId());
     choice.setSegmentId(fabricator.getSegment().getId());
     choice.setMute(computeMute(instrument.getType()));
@@ -79,33 +79,33 @@ List<std::string> smallNames;
     choice.setInstrumentMode(instrument.getMode());
     choice.setInstrumentId(instrument.getId());
     fabricator.put(choice, false);
-    var arrangement = new SegmentChoiceArrangement();
+    auto arrangement = new SegmentChoiceArrangement();
     arrangement.setId(EntityUtils::computeUniqueId());
     arrangement.setSegmentId(fabricator.getSegment().getId());
     arrangement.segmentChoiceId(choice.getId());
     fabricator.put(arrangement, false);
 
-    var small = selectAudiosForInstrument(instrument, smallNames);
-    var medium = selectAudiosForInstrument(instrument, mediumNames);
-    var big = selectAudiosForInstrument(instrument, largeNames);
+    auto small = selectAudiosForInstrument(instrument, smallNames);
+    auto medium = selectAudiosForInstrument(instrument, mediumNames);
+    auto big = selectAudiosForInstrument(instrument, largeNames);
 
     if (isBigTransitionSegment() && !big.isEmpty())
-      for (var bigAudio : big)
+      for (auto bigAudio : big)
         pickInstrumentAudio(arrangement, bigAudio, 0, fabricator.getTotalSegmentMicros(), largeNames.get(0));
 
     else if (isMediumTransitionSegment() && !medium.isEmpty())
-      for (var mediumAudio : medium)
+      for (auto mediumAudio : medium)
         pickInstrumentAudio(arrangement, mediumAudio, 0, fabricator.getTotalSegmentMicros(), mediumNames.get(0));
 
     else if (!small.isEmpty())
-      for (var smallAudio : small)
+      for (auto smallAudio : small)
         pickInstrumentAudio(arrangement, smallAudio, 0, fabricator.getTotalSegmentMicros(), smallNames.get(0));
 
-    var deltaUnits = Bar.of(fabricator.getCurrentMainProgramConfig().getBarBeats()).computeSubsectionBeats(fabricator.getSegment().getTotal());
-    var pos = deltaUnits;
+    auto deltaUnits = Bar.of(fabricator.getCurrentMainProgramConfig().getBarBeats()).computeSubsectionBeats(fabricator.getSegment().getTotal());
+    auto pos = deltaUnits;
     while (pos < fabricator.getSegment().getTotal()) {
       if (!small.isEmpty())
-        for (var smallAudio : small)
+        for (auto smallAudio : small)
           pickInstrumentAudio(arrangement, smallAudio, fabricator.getSegmentMicrosAtPosition(tempo, pos), fabricator.getTotalSegmentMicros(), smallNames.get(0));
       pos += deltaUnits;
     }
@@ -117,7 +117,7 @@ List<std::string> smallNames;
    @return instrument audios
    */
   private Collection<InstrumentAudio> selectAudiosForInstrument(Instrument instrument, List<std::string> names) {
-    var previous = fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId()).stream()
+    auto previous = fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId()).stream()
       .filter(pick -> names.contains(StringUtils.toMeme(pick.getEvent())))
       .collect(Collectors.toSet());
     if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && !previous.isEmpty()) {

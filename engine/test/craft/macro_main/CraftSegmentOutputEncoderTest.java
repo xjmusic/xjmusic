@@ -46,7 +46,7 @@ public class CraftSegmentOutputEncoderTest {
   @BeforeEach
   public void setUp() throws Exception {
     JsonProvider jsonProvider = new JsonProviderImpl();
-    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    auto entityFactory = new EntityFactoryImpl(jsonProvider);
     craftFactory = new CraftFactoryImpl();
     HubTopology.buildHubApiTopology(entityFactory);
     FabricationTopology.buildFabricationTopology(entityFactory);
@@ -69,8 +69,8 @@ public class CraftSegmentOutputEncoderTest {
     Chain chain2 = store.put(buildChain(
       fake.project1,
       "Print #2",
-      ChainType.PRODUCTION,
-      ChainState.FABRICATE,
+      Chain::Type::Production,
+      Chain::State::Fabricate,
       fake.template1
     ));
     segment6 = store.put(SegmentFixtures::buildSegment(
@@ -92,6 +92,6 @@ public class CraftSegmentOutputEncoderTest {
 
     Segment result = store.readSegment(segment6.getId()).orElseThrow();
     assertEquals(segment6.getId(), result.getId());
-    assertEquals(SegmentType.INITIAL, result.getType());
+    assertEquals(Segment::Type::Initial, result.getType());
   }
 }

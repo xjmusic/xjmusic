@@ -60,9 +60,9 @@ public class CraftSegmentPatternMemeTest {
       LOG.info("ATTEMPT NUMBER {}", i);
 
       CraftFactory craftFactory = new CraftFactoryImpl();
-      var jsonProvider = new JsonProviderImpl();
-      var entityFactory = new EntityFactoryImpl(jsonProvider);
-      var store = new SegmentEntityStoreImpl(entityFactory);
+      auto jsonProvider = new JsonProviderImpl();
+      auto entityFactory = new EntityFactoryImpl(jsonProvider);
+      auto store = new SegmentEntityStoreImpl(entityFactory);
       JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
       FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
         store,
@@ -83,7 +83,7 @@ public class CraftSegmentPatternMemeTest {
       ).collect(Collectors.toList()));
 
       // Chain "Test Print #1" has 5 total segments
-      Chain chain = store.put(SegmentFixtures::buildChain(fake.project1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
+      Chain chain = store.put(SegmentFixtures::buildChain(fake.project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake.template1, null));
 
       // Preceding Segment
       Segment previousSegment = store.put(SegmentFixtures::buildSegment(
@@ -104,7 +104,7 @@ public class CraftSegmentPatternMemeTest {
 
       craftFactory.macroMain(fabricatorFactory.fabricate(sourceMaterial, segment.getId(), 48000.0f, 2, null), null, null).doWork();
 
-      var result = store.readSegment(segment.getId()).orElseThrow();
+      auto result = store.readSegment(segment.getId()).orElseThrow();
       assertEquals(SegmentType.NEXT_MACRO, result.getType());
       assertSameItems(List.of("REGRET", "HINDSIGHT", "CHUNKY", "TANGY"),
         EntityUtils.namesOf(store.readAll(result.getId(), SegmentMeme.class)));

@@ -60,7 +60,7 @@ public class CraftDetailContinueTest {
   @BeforeEach
   public void setUp() throws Exception {
     JsonProvider jsonProvider = new JsonProviderImpl();
-    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    auto entityFactory = new EntityFactoryImpl(jsonProvider);
     craftFactory = new CraftFactoryImpl();
     HubTopology.buildHubApiTopology(entityFactory);
     FabricationTopology.buildFabricationTopology(entityFactory);
@@ -88,15 +88,15 @@ public class CraftDetailContinueTest {
       fake.project1,
       fake.template1,
       "Test Print #1",
-      ChainType.PRODUCTION,
-      ChainState.FABRICATE
+      Chain::Type::Production,
+      Chain::State::Fabricate
     ));
     store.put(SegmentFixtures::buildSegment(
       chain1,
-      SegmentType.INITIAL,
+      Segment::Type::Initial,
       0,
       0,
-      SegmentState.CRAFTED,
+      Segment::State::Crafted,
       "D major",
       64,
       0.73f,
@@ -156,7 +156,7 @@ public class CraftDetailContinueTest {
       SegmentType.CONTINUE,
       2,
       0,
-      SegmentState.CRAFTED,
+      Segment::State::Crafted,
       "F Major",
       64,
       0.30f,

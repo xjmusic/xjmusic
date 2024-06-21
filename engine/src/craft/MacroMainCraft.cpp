@@ -23,7 +23,7 @@ private static Logger LOG = LoggerFactory.getLogger(MacroMainCraftImpl.class);
 
   @Override
   public void doWork() throws FabricationException {
-    var segment = fabricator.getSegment();
+    auto segment = fabricator.getSegment();
 
     // Prepare variables to hold result of macro and main choice
     // Depending on whether we have override memes, we may perform main then macro (override), or macro then main (auto)
@@ -34,7 +34,7 @@ private static Logger LOG = LoggerFactory.getLogger(MacroMainCraftImpl.class);
     // If we are overriding memes, start by adding them to the workbench segment, and do main before macro
     if (Objects.nonNull(overrideMemes)) {
       for (std::string meme : overrideMemes) {
-        var segmentMeme = new SegmentMeme();
+        auto segmentMeme = new SegmentMeme();
         segmentMeme.setId(EntityUtils::computeUniqueId());
         segmentMeme.setSegmentId(fabricator.getSegment().getId());
         segmentMeme.setName(meme);
@@ -65,8 +65,8 @@ private static Logger LOG = LoggerFactory.getLogger(MacroMainCraftImpl.class);
         chord.setPosition(sequenceChord.getPosition());
         chord.setName(name);
         fabricator.put(chord, false);
-        for (var voicing : fabricator.sourceMaterial().getVoicingsOfChord(sequenceChord)) {
-          var segmentChordVoicing = new SegmentChordVoicing();
+        for (auto voicing : fabricator.sourceMaterial().getVoicingsOfChord(sequenceChord)) {
+          auto segmentChordVoicing = new SegmentChordVoicing();
           segmentChordVoicing.setId(EntityUtils::computeUniqueId());
           segmentChordVoicing.setSegmentId(segment.getId());
           segmentChordVoicing.segmentChordId(chord.getId());
@@ -104,14 +104,14 @@ private static Logger LOG = LoggerFactory.getLogger(MacroMainCraftImpl.class);
    @return the macro sequence
    */
   private ProgramSequence doMacroChoiceWork(Segment segment) throws FabricationException {
-    var macroProgram = chooseMacroProgram();
+    auto macroProgram = chooseMacroProgram();
     Integer macroSequenceBindingOffset = computeMacroSequenceBindingOffset();
-    var macroSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
+    auto macroSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
       .orElseThrow(() -> new FabricationException(std::string.format("Unable to determine macro sequence binding for Segment[%d]", segment.getId())));
-    var macroSequence = fabricator.sourceMaterial().getSequenceOfBinding(macroSequenceBinding)
+    auto macroSequence = fabricator.sourceMaterial().getSequenceOfBinding(macroSequenceBinding)
       .orElseThrow(() -> new FabricationException(std::string.format("Unable to determine macro sequence for Segment[%d]", segment.getId())));
     //
-    var macroChoice = new SegmentChoice();
+    auto macroChoice = new SegmentChoice();
     macroChoice.setId(EntityUtils::computeUniqueId());
     macroChoice.setSegmentId(segment.getId());
     macroChoice.setProgramSequenceId(macroSequence.getId());
@@ -132,14 +132,14 @@ private static Logger LOG = LoggerFactory.getLogger(MacroMainCraftImpl.class);
    @return the main sequence
    */
   private ProgramSequence doMainChoiceWork(Segment segment) throws FabricationException {
-    var mainProgram = chooseMainProgram();
+    auto mainProgram = chooseMainProgram();
     Integer mainSequenceBindingOffset = computeMainProgramSequenceBindingOffset();
-    var mainSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset)
+    auto mainSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset)
       .orElseThrow(() -> new FabricationException(std::string.format("Unable to determine main sequence binding for Segment[%d]", segment.getId())));
-    var mainSequence = fabricator.sourceMaterial().getSequenceOfBinding(mainSequenceBinding)
+    auto mainSequence = fabricator.sourceMaterial().getSequenceOfBinding(mainSequenceBinding)
       .orElseThrow(() -> new FabricationException(std::string.format("Unable to determine main sequence for Segment[%d]", segment.getId())));
     //
-    var mainChoice = new SegmentChoice();
+    auto mainChoice = new SegmentChoice();
     mainChoice.setId(EntityUtils::computeUniqueId());
     mainChoice.setSegmentId(segment.getId());
     mainChoice.setProgramId(mainProgram.getId());
@@ -220,12 +220,12 @@ private static Logger LOG = LoggerFactory.getLogger(MacroMainCraftImpl.class);
    @return macroSequenceBindingOffset
    */
   private Integer computeMacroSequenceBindingOffset() throws FabricationException {
-    if (List.of(SegmentType.INITIAL, SegmentType.NEXT_MACRO).contains(fabricator.getType()))
+    if (List.of(Segment::Type::Initial, SegmentType.NEXT_MACRO).contains(fabricator.getType()))
       return Objects.nonNull(overrideMacroProgram)
         ? fabricator.getSecondMacroSequenceBindingOffset(overrideMacroProgram)
         : 0;
 
-    var previousMacroChoice = fabricator.getMacroChoiceOfPreviousSegment();
+    auto previousMacroChoice = fabricator.getMacroChoiceOfPreviousSegment();
     if (previousMacroChoice.isEmpty())
       return 0;
 
@@ -249,7 +249,7 @@ private static Logger LOG = LoggerFactory.getLogger(MacroMainCraftImpl.class);
         return 0;
       }
       case CONTINUE -> {
-        var previousMainChoice = fabricator.getPreviousMainChoice();
+        auto previousMainChoice = fabricator.getPreviousMainChoice();
         if (previousMainChoice.isEmpty())
           throw new FabricationException("Cannot get retrieve previous main choice");
         return fabricator.getNextSequenceBindingOffset(previousMainChoice.get());
@@ -267,7 +267,7 @@ private static Logger LOG = LoggerFactory.getLogger(MacroMainCraftImpl.class);
    @return program
    */
   protected Program chooseRandomProgram(Collection<Program> programs, List<UUID> avoid) throws FabricationException {
-    var bag = MarbleBag.empty();
+    auto bag = MarbleBag.empty();
 
     // Phase 1: Directly Bound Programs, besides those we should avoid
     // Phase 2: Any Directly Bound Programs
@@ -293,9 +293,9 @@ private static Logger LOG = LoggerFactory.getLogger(MacroMainCraftImpl.class);
     if (bag.isEmpty())
       throw new FabricationException("Failed to choose any random program. No candidates available!");
 
-    var program = fabricator.sourceMaterial().getProgram(bag.pick());
+    auto program = fabricator.sourceMaterial().getProgram(bag.pick());
     if (program.isEmpty()) {
-      var message = std::string.format(
+      auto message = std::string.format(
         "Unable to choose main program for Segment[%d]",
         fabricator.getSegment().getId()
       );
@@ -315,8 +315,8 @@ private static Logger LOG = LoggerFactory.getLogger(MacroMainCraftImpl.class);
     if (Objects.nonNull(overrideMacroProgram))
       return overrideMacroProgram;
 
-    var bag = MarbleBag.empty();
-    var candidates = fabricator.sourceMaterial().getProgramsOfType(Program::Type::Macro);
+    auto bag = MarbleBag.empty();
+    auto candidates = fabricator.sourceMaterial().getProgramsOfType(Program::Type::Macro);
 
     // initial segment is completely random
     if (fabricator.isInitialSegment()) return chooseRandomProgram(candidates, List.of());
@@ -324,9 +324,9 @@ private static Logger LOG = LoggerFactory.getLogger(MacroMainCraftImpl.class);
     // if continuing the macro program, use the same one
     if (fabricator.isContinuationOfMacroProgram()
       && fabricator.getMacroChoiceOfPreviousSegment().isPresent()) {
-      var previousProgram = fabricator.getProgram(fabricator.getMacroChoiceOfPreviousSegment().get());
+      auto previousProgram = fabricator.getProgram(fabricator.getMacroChoiceOfPreviousSegment().get());
       if (previousProgram.isEmpty()) {
-        var message = std::string.format(
+        auto message = std::string.format(
           "Unable to get previous macro program for Segment[%d]",
           fabricator.getSegment().getId()
         );
@@ -344,7 +344,7 @@ private static Logger LOG = LoggerFactory.getLogger(MacroMainCraftImpl.class);
         : fabricator.getMemeIsometryOfNextSequenceInPreviousMacro();
 
     // Compute any program id to avoid
-    var avoidProgramId = fabricator.getMacroChoiceOfPreviousSegment()
+    auto avoidProgramId = fabricator.getMacroChoiceOfPreviousSegment()
       .map(SegmentChoice::getProgramId);
 
     // Add candidates to the bag
@@ -380,9 +380,9 @@ private static Logger LOG = LoggerFactory.getLogger(MacroMainCraftImpl.class);
 
     // report and pick
     fabricator.putReport("macroChoice", bag.toString());
-    var program = fabricator.sourceMaterial().getProgram(bag.pick());
+    auto program = fabricator.sourceMaterial().getProgram(bag.pick());
     if (program.isEmpty()) {
-      var message = std::string.format(
+      auto message = std::string.format(
         "Unable to choose macro program for Segment[%d]",
         fabricator.getSegment().getId()
       );
@@ -401,15 +401,15 @@ private static Logger LOG = LoggerFactory.getLogger(MacroMainCraftImpl.class);
    @return main-type Program
    */
   protected Program chooseMainProgram() throws FabricationException {
-    var bag = MarbleBag.empty();
-    var candidates = fabricator.sourceMaterial().getProgramsOfType(Program::Type::Main);
+    auto bag = MarbleBag.empty();
+    auto candidates = fabricator.sourceMaterial().getProgramsOfType(Program::Type::Main);
 
     // if continuing the macro program, use the same one
     if (SegmentType.CONTINUE == fabricator.getType()
       && fabricator.getPreviousMainChoice().isPresent()) {
-      var previousProgram = fabricator.getProgram(fabricator.getPreviousMainChoice().get());
+      auto previousProgram = fabricator.getProgram(fabricator.getPreviousMainChoice().get());
       if (previousProgram.isEmpty()) {
-        var message = std::string.format(
+        auto message = std::string.format(
           "Unable to get previous main program for Segment[%d]",
           fabricator.getSegment().getId()
         );
@@ -425,7 +425,7 @@ private static Logger LOG = LoggerFactory.getLogger(MacroMainCraftImpl.class);
     MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
 
     // Compute any program id to avoid
-    var avoidProgramId = fabricator.getPreviousMainChoice().map(SegmentChoice::getProgramId);
+    auto avoidProgramId = fabricator.getPreviousMainChoice().map(SegmentChoice::getProgramId);
 
     // Add candidates to the bag
     // Phase 1: Directly Bound Programs, memes allowed, bonus for meme match, besides any that should be avoided
@@ -437,7 +437,7 @@ private static Logger LOG = LoggerFactory.getLogger(MacroMainCraftImpl.class);
     // Add candidates to the bag
     // Phase 2: All Published Programs, memes allowed, bonus for meme match, besides any that should be avoided
     // Phase 3: Any Published Programs, memes allowed, bonus for meme match
-    var published = programsPublished(candidates);
+    auto published = programsPublished(candidates);
     for (Program program : published) {
       if (!iso.isAllowed(fabricator.sourceMaterial().getMemesAtBeginning(program))) {
         continue;
@@ -460,9 +460,9 @@ private static Logger LOG = LoggerFactory.getLogger(MacroMainCraftImpl.class);
 
     // report and pick
     fabricator.putReport("mainChoice", bag.toString());
-    var program = fabricator.sourceMaterial().getProgram(bag.pick());
+    auto program = fabricator.sourceMaterial().getProgram(bag.pick());
     if (program.isEmpty()) {
-      var message = std::string.format(
+      auto message = std::string.format(
         "Unable to choose main program for Segment[%d]",
         fabricator.getSegment().getId()
       );

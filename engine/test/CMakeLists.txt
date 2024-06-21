@@ -30,6 +30,8 @@ add_executable(xjmusic_test
         content/TemplateBindingTest.cpp
         content/TemplateConfigTest.cpp
         content/TemplateTest.cpp
+        craft/ArrangementTest.cpp
+        craft/CraftTest.cpp
         fabricator/FabricatorTest.cpp
         fabricator/MarbleBagTest.cpp
         fabricator/NotePickerTest.cpp
@@ -57,8 +59,6 @@ add_executable(xjmusic_test
         util/CsvUtilsTest.cpp
         util/StringUtilsTest.cpp
         util/ValueUtilsTest.cpp
-        craft/ArrangementTest.cpp
-        craft/CraftTest.cpp
 )
 
 # I'm using C++17 in the test

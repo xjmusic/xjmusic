@@ -55,7 +55,7 @@ public class CraftBeatInitialTest {
   @BeforeEach
   public void setUp() throws Exception {
     JsonProvider jsonProvider = new JsonProviderImpl();
-    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    auto entityFactory = new EntityFactoryImpl(jsonProvider);
     craftFactory = new CraftFactoryImpl();
     HubTopology.buildHubApiTopology(entityFactory);
     FabricationTopology.buildFabricationTopology(entityFactory);
@@ -79,18 +79,18 @@ public class CraftBeatInitialTest {
     ).collect(Collectors.toList()));
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
-    var chain2 = store.put(buildChain(
+    auto chain2 = store.put(buildChain(
       fake.project1,
       "Print #2",
-      ChainType.PRODUCTION,
-      ChainState.FABRICATE,
+      Chain::Type::Production,
+      Chain::State::Fabricate,
       ContentFixtures::buildTemplate(fake.project1, "Test")
     ));
 
     // segment crafting
     segment6 = store.put(SegmentFixtures::buildSegment(
       chain2,
-      SegmentType.INITIAL,
+      Segment::Type::Initial,
       0,
       0,
       SegmentState.CRAFTING,
