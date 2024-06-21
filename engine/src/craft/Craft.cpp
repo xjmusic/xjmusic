@@ -408,7 +408,10 @@ Craft::selectAudioIntensityLayers(const std::set<const InstrumentAudio *> &audio
   if (sorted.empty()) return {};
 
   // Create a vector of bags, one for each layer
-  std::vector<MarbleBag *> bags(layers, new MarbleBag());
+  std::vector<MarbleBag *> bags(layers);
+  for (int i = 0; i < layers; i++) {
+    bags[i] = new MarbleBag();
+  }
 
   // Iterate through the available audios, and add them to the bags, divided into the number of layers
   int marblesPerLayer = static_cast<int>(std::ceil(static_cast<float>(sorted.size()) / (float) layers));
