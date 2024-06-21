@@ -28,7 +28,7 @@ using namespace XJ;
 class ArrangementTest : public YamlTest {
 protected:
 
-  std::string TEST_PATH_PREFIX = "/arrangements/";
+  std::string TEST_PATH_PREFIX = "_data/arrangements/";
   int REPEAT_EACH_TEST_TIMES = 7;
 
   int TEMPO = 60; // 60 BPM such that 1 beat = 1 second
@@ -244,8 +244,9 @@ protected:
     auto objs = data[StringUtils::toLowerCase(Instrument::toString(type))];
     if (!objs) return;
 
-    std::vector<SegmentChoiceArrangementPick> actualPicks = {fabricator->getPicks().begin(),
-                                                             fabricator->getPicks().end()};
+    std::vector<SegmentChoiceArrangementPick> actualPicks;
+    for (auto pick : fabricator->getPicks())
+      actualPicks.push_back(pick);
     std::sort(actualPicks.begin(), actualPicks.end(), [](const auto &a, const auto &b) {
       return a.startAtSegmentMicros < b.startAtSegmentMicros;
     });

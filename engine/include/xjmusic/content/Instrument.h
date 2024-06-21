@@ -18,21 +18,21 @@ namespace XJ {
   public:
 
     enum Type {
-      Drum,
+      Background,
       Bass,
+      Drum,
+      Hook,
       Pad,
+      Percussion,
+      Stab,
       Sticky,
       Stripe,
-      Stab,
-      Hook,
-      Percussion,
-      Transition,
-      Background
+      Transition
     };
 
     enum Mode {
-      Event,
       Chord,
+      Event,
       Loop
     };
 

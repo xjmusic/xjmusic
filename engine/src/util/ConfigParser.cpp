@@ -332,7 +332,12 @@ std::string ConfigParser::format(const std::vector<std::string> &values) {
 std::string ConfigParser::format(const std::set<std::string> &values) {
   std::vector<std::string> sortedValues(values.begin(), values.end());
   std::sort(sortedValues.begin(), sortedValues.end());
-  return "[" + StringUtils::join(sortedValues, ",") + "]";
+  std::vector<std::string> quotedValues;
+  quotedValues.reserve(sortedValues.size());
+  for (const auto &value: sortedValues) {
+    quotedValues.push_back("\"" + value + "\"");
+  }
+  return "[" + StringUtils::join(quotedValues, ",") + "]";
 }
 
 

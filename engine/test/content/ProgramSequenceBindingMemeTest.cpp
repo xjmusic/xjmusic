@@ -24,11 +24,13 @@ TEST(ProgramSequenceBindingMemeTest, FieldValues) {
 TEST(ProgramSequenceBindingMeme, GetNames) {
   std::set<ProgramSequenceBindingMeme> programSequenceBindingMemes;
   ProgramSequenceBindingMeme programSequenceBindingMeme1;
+  programSequenceBindingMeme1.id = EntityUtils::computeUniqueId();
   programSequenceBindingMeme1.name = "apples";
-  programSequenceBindingMemes.insert(programSequenceBindingMeme1);
+  programSequenceBindingMemes.emplace(programSequenceBindingMeme1);
   ProgramSequenceBindingMeme programSequenceBindingMeme2;
+  programSequenceBindingMeme2.id = EntityUtils::computeUniqueId();
   programSequenceBindingMeme2.name = "bananas";
-  programSequenceBindingMemes.insert(programSequenceBindingMeme2);
+  programSequenceBindingMemes.emplace(programSequenceBindingMeme2);
 
   std::set<std::string> names = ProgramSequenceBindingMeme::getNames(programSequenceBindingMemes);
 
