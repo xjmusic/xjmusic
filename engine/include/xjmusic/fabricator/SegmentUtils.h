@@ -139,7 +139,7 @@ namespace XJ {
      @param choice to describe
      @return description of choice
      */
-    static std::string describe(SegmentChoice &choice);
+    static std::string describe(const SegmentChoice &choice);
 
     /**
      * Get the end-at time of a segment in chain micros

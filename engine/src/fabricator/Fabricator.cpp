@@ -882,7 +882,7 @@ SegmentChoice Fabricator::put(SegmentChoice entity, bool force) {
   auto memeStack = MemeStack::from(templateConfig.memeTaxonomy, SegmentMeme::getNames(getSegmentMemes()));
 
   // For a SegmentChoice, add memes from program, program sequence binding, and instrument if present
-  if (!isValidChoiceAndMemesHaveBeenAdded((SegmentChoice) entity, memeStack, force))
+  if (!isValidChoiceAndMemesHaveBeenAdded(entity, memeStack, force))
     return entity;
 
   store->put(entity);
@@ -1131,7 +1131,8 @@ std::map<std::string, const InstrumentAudio &> Fabricator::computePreferredInstr
 }
 
 
-bool Fabricator::isValidChoiceAndMemesHaveBeenAdded(SegmentChoice choice, MemeStack memeStack, bool force) {
+bool
+Fabricator::isValidChoiceAndMemesHaveBeenAdded(const SegmentChoice &choice, const MemeStack &memeStack, bool force) {
   std::set<std::string> names;
 
   if (!choice.programId.empty())
@@ -1154,19 +1155,22 @@ bool Fabricator::isValidChoiceAndMemesHaveBeenAdded(SegmentChoice choice, MemeSt
     return false;
   }
 
-  for (const std::string &name: names) {
+  std::cout << "Adding Choice[" + SegmentUtils::describe(choice) + "] with Memes[" +
+               CsvUtils::join(std::vector<std::string>(names.begin(), names.end())) + "]";
+
+  for (auto &name: names) {
     SegmentMeme segmentMeme;
     segmentMeme.id = EntityUtils::computeUniqueId();
     segmentMeme.segmentId = getSegment().id;
     segmentMeme.name = name;
-    put(segmentMeme, false);
+    put(segmentMeme, true);
   }
 
   return true;
 }
 
 
-bool Fabricator::isValidMemeAddition(const SegmentMeme &meme, MemeStack memeStack, bool force) {
+bool Fabricator::isValidMemeAddition(const SegmentMeme &meme, const MemeStack &memeStack, bool force) {
   if (force) return true;
   if (!memeStack.isAllowed({meme.name})) return false;
   return std::all_of(getSegmentMemes().begin(), getSegmentMemes().end(), [&meme](const SegmentMeme &m) {

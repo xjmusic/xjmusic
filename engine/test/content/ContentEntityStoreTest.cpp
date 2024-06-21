@@ -6,7 +6,7 @@
 #include "xjmusic/content/ContentEntityStore.h"
 
 #include "../_helper/TestHelpers.h"
-#include "../_helper/ContentFixtures::h"
+#include "../_helper/ContentFixtures.h"
 
 static std::string CONTENT_STORE_TEST_JSON_PATH = "_data/content_store_test.json";
 
@@ -184,7 +184,7 @@ TEST_F(ContentStoreTest, FromJsonString) {
   std::string jsonString((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
   // Deserialize a content store from a JSON file stream
-  ContentEntityStore *subject = new ContentEntityStore(jsonString);
+  auto *subject = new ContentEntityStore(jsonString);
 
   // Assert the correct count of entities in the content store
   ASSERT_EQ(2, subject->getInstruments().size());

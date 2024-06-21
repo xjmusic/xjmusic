@@ -178,7 +178,7 @@ std::set<MemeCategory> MemeTaxonomy::getCategories() {
 }
 
 
-bool MemeTaxonomy::isAllowed(std::set<std::string> memes) {
+bool MemeTaxonomy::isAllowed(std::set<std::string> memes) const {
   for (const auto &memeCategory: categories) {
     if (!memeCategory.isAllowed(memes)) {
       return false;

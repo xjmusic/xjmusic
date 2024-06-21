@@ -1028,7 +1028,7 @@ namespace XJ {
      @param force     whether to force the addition of this choice
      @return true if valid and adding memes was successful
      */
-    bool isValidChoiceAndMemesHaveBeenAdded(SegmentChoice choice, MemeStack memeStack, bool force);
+    bool isValidChoiceAndMemesHaveBeenAdded(const SegmentChoice& choice, const MemeStack &memeStack, bool force);
 
     /**
      For a SegmentMeme, don't put a duplicate of an existing meme
@@ -1038,7 +1038,7 @@ namespace XJ {
      @param force     whether to force the addition of this meme
      @return true if okay to add
      */
-    bool isValidMemeAddition(const SegmentMeme &meme, MemeStack memeStack, bool force);
+    bool isValidMemeAddition(const SegmentMeme &meme, const MemeStack& memeStack, bool force);
 
     /**
      * Compute the cache key for preferred audio

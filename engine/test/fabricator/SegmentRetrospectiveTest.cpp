@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include <string>
 
-#include "../_helper/ContentFixtures::h"
+#include "../_helper/ContentFixtures.h"
 #include "../_helper/SegmentFixtures.h"
 #include "xjmusic/music/StickyBun.h"
 #include "xjmusic/fabricator/ChainUtils.h"

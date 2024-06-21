@@ -11,20 +11,41 @@ namespace XJ {
 
   class MockFabricator : public Fabricator {
   public:
+    // Constructor
+    MockFabricator(
+        ContentEntityStore *contentEntityStore,
+        SegmentEntityStore *segmentEntityStore,
+        SegmentRetrospective *segmentRetrospective,
+        int segmentId,
+        float outputFrameRate,
+        int outputChannels,
+        std::optional<Segment::Type> overrideSegmentType
+    ) : Fabricator(
+        contentEntityStore,
+        segmentEntityStore,
+        segmentRetrospective,
+        segmentId,
+        outputFrameRate,
+        outputChannels,
+        overrideSegmentType
+    ) {}
+
     MOCK_METHOD(void, addMessage, (SegmentMessage::Type messageType, std::string body), (override));
     MOCK_METHOD(void, addErrorMessage, (std::string body), (override));
     MOCK_METHOD(void, addWarningMessage, (std::string body), (override));
     MOCK_METHOD(void, addInfoMessage, (std::string body), (override));
     MOCK_METHOD(void, deletePick, (const UUID &id), (override));
     MOCK_METHOD(std::set<SegmentChoiceArrangement>, getArrangements, (), (override));
-    MOCK_METHOD(std::set<SegmentChoiceArrangement>, getArrangements, (const std::set<SegmentChoice> &choices), (override));
+    MOCK_METHOD(std::set<SegmentChoiceArrangement>, getArrangements, (const std::set<SegmentChoice> &choices),
+                (override));
     MOCK_METHOD(Chain, getChain, (), (override));
     MOCK_METHOD(TemplateConfig, getTemplateConfig, (), (override));
     MOCK_METHOD(std::set<SegmentChoice>, getChoices, (), (override));
     MOCK_METHOD(std::optional<SegmentChoice>, getChoiceIfContinued, (const ProgramVoice *voice), (override));
     MOCK_METHOD(std::vector<SegmentChoice>, getChoicesIfContinued, (Program::Type programType), (override));
     MOCK_METHOD(std::optional<SegmentChoice>, getChoiceIfContinued, (Instrument::Type instrumentType), (override));
-    MOCK_METHOD(std::optional<SegmentChoice>, getChoiceIfContinued, (Instrument::Type instrumentType, Instrument::Mode instrumentMode), (override));
+    MOCK_METHOD(std::optional<SegmentChoice>, getChoiceIfContinued,
+                (Instrument::Type instrumentType, Instrument::Mode instrumentMode), (override));
     MOCK_METHOD(std::optional<SegmentChord>, getChordAt, (float position), (override));
     MOCK_METHOD(std::optional<SegmentChoice>, getCurrentMainChoice, (), (override));
     MOCK_METHOD(std::optional<const ProgramSequence *>, getCurrentMainSequence, (), (override));
@@ -42,9 +63,12 @@ namespace XJ {
     MOCK_METHOD(MemeIsometry, getMemeIsometryOfSegment, (), (override));
     MOCK_METHOD(int, getNextSequenceBindingOffset, (const SegmentChoice &choice), (override));
     MOCK_METHOD(std::optional<ProgramSequence>, getRandomlySelectedSequence, (const Program &program), (override));
-    MOCK_METHOD(std::optional<const ProgramSequencePattern *>, getRandomlySelectedPatternOfSequenceByVoiceAndType, (const SegmentChoice &choice), (override));
-    MOCK_METHOD(std::optional<ProgramSequenceBinding>, getRandomlySelectedSequenceBindingAtOffset, (const Program &program, int offset), (override));
-    MOCK_METHOD(std::optional<Note>, getRootNoteMidRange, (const std::string &voicingNotes, const Chord &chord), (override));
+    MOCK_METHOD(std::optional<const ProgramSequencePattern *>, getRandomlySelectedPatternOfSequenceByVoiceAndType,
+                (const SegmentChoice &choice), (override));
+    MOCK_METHOD(std::optional<ProgramSequenceBinding>, getRandomlySelectedSequenceBindingAtOffset,
+                (const Program &program, int offset), (override));
+    MOCK_METHOD(std::optional<Note>, getRootNoteMidRange, (const std::string &voicingNotes, const Chord &chord),
+                (override));
     MOCK_METHOD(long, getSegmentMicrosAtPosition, (float tempo, float position), (override));
     MOCK_METHOD(long, getTotalSegmentMicros, (), (override));
     MOCK_METHOD(Segment, getSegment, (), (override));

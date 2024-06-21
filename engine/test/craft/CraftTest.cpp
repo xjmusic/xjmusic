@@ -24,36 +24,53 @@ using ::testing::ReturnRef;
 
 using namespace XJ;
 
-class CraftTest : public YamlTest {
+class CraftTest : public YamlTest { // NOLINT(*-pro-type-member-init)
 protected:
 
   int TEST_REPEAT_TIMES = 20;
-  MockFabricator *mockFabricator{};
-  ContentEntityStore *sourceMaterial{};
-  MockSegmentRetrospective *mockSegmentRetrospective{};
-  Craft *subject{};
+  MockFabricator *mockFabricator;
+  SegmentEntityStore *segmentEntityStore;
+  ContentEntityStore *sourceMaterial;
+  MockSegmentRetrospective *mockSegmentRetrospective;
+  Craft *subject;
   Segment segment0;
   Program program1;
 
-  // Before
   void SetUp() override {
-    subject = new Craft(mockFabricator);
-    Project project1 = ContentFixtures::buildProject("fish");
-    Library library1 = ContentFixtures::buildLibrary(project1, "sea");
-    program1 = ContentFixtures::buildProgram(library1, Program::Type::Detail, Program::State::Published, "swimming",
-                                             "C", 120.0f);
-    Template template1 = ContentFixtures::buildTemplate(project1, "Test Template 1", "test1");
+    sourceMaterial = new ContentEntityStore();
+    segmentEntityStore = new SegmentEntityStore();
+    Project project1 = sourceMaterial->put(ContentFixtures::buildProject("fish"));
+    Library library1 = sourceMaterial->put(ContentFixtures::buildLibrary(project1, "sea"));
+    program1 = sourceMaterial->put(ContentFixtures::buildProgram(library1, Program::Type::Detail, Program::State::Published, "swimming",
+                                             "C", 120.0f));
+    Template template1 = sourceMaterial->put(ContentFixtures::buildTemplate(project1, "Test Template 1", "test1"));
     // Chain "Test Print #1" is fabricating segments
-    Chain chain1 = SegmentFixtures::buildChain(project1, "Test Print #1", Chain::Type::Production,
-                                               Chain::State::Fabricate, template1);
+    Chain chain1 = segmentEntityStore->put(SegmentFixtures::buildChain(project1, "Test Print #1", Chain::Type::Production,
+                                               Chain::State::Fabricate, template1));
 
-    segment0 = SegmentFixtures::buildSegment(chain1, Segment::Type::Initial, 2, 128, Segment::State::Crafted, "D major",
-                                             64, 0.73f, 120.0f, "chains-1-segments-9f7s89d8a7892", true);
+    segment0 = segmentEntityStore->put(SegmentFixtures::buildSegment(chain1, Segment::Type::Initial, 2, 128, Segment::State::Crafted, "D major",
+                                             64, 0.73f, 120.0f, "chains-1-segments-9f7s89d8a7892", true));
 
     auto templateConfig = TemplateConfig(template1);
+    mockSegmentRetrospective = new MockSegmentRetrospective(segmentEntityStore, 2);
+    mockFabricator = new MockFabricator(
+        sourceMaterial,
+        segmentEntityStore,
+        mockSegmentRetrospective,
+        2,
+        48000,
+        2,
+        std::nullopt
+    );
+    subject = new Craft(mockFabricator);
     EXPECT_CALL(*mockFabricator, getTemplateConfig()).WillOnce(Return(templateConfig));
+  }
 
-    sourceMaterial->clear();
+  void TearDown() override {
+    delete sourceMaterial;
+    delete segmentEntityStore;
+    delete mockFabricator;
+    delete subject;
   }
 
   /**

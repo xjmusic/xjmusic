@@ -95,7 +95,7 @@ std::string SegmentUtils::getStorageFilename(Segment &segment) {
 }
 
 
-std::string SegmentUtils::describe(SegmentChoice &choice) {
+std::string SegmentUtils::describe(const SegmentChoice &choice) {
   std::vector<std::string> pieces;
   if (!choice.instrumentId.empty())
     pieces.push_back("instrument:" + choice.instrumentId);

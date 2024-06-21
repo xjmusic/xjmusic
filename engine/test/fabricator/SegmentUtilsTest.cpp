@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 #include <string>
 
-#include "../_helper/ContentFixtures::h"
+#include "../_helper/ContentFixtures.h"
 #include "../_helper/SegmentFixtures.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 

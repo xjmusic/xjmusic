@@ -89,7 +89,7 @@ void Craft::precomputeDeltas(
       // separate layers into primary and secondary, shuffle them separately, then concatenate
       std::vector<std::string> priLayers;
       std::vector<std::string> secLayers;
-      for (const auto& layer: layers) {
+      for (const auto &layer: layers) {
         auto layerName = StringUtils::toLowerCase(layer);
         if (std::any_of(layerPrioritizationSearches.begin(), layerPrioritizationSearches.end(),
                         [&layerName](const std::string &m) { return layerName.find(m) != std::string::npos; }))
@@ -431,8 +431,12 @@ Craft::selectAudioIntensityLayers(const std::set<const InstrumentAudio *> &audio
   return result;
 }
 
-void Craft::craftNoteEvents(float tempo, const ProgramSequence &sequence, const std::set<const ProgramVoice *> &voices,
-                            Craft::InstrumentProvider *instrumentProvider) {
+void Craft::craftNoteEvents(
+    float tempo,
+    const ProgramSequence &sequence,
+    const std::set<const ProgramVoice *> &voices,
+    InstrumentProvider *instrumentProvider
+) {
   // Craft each voice into choice
   for (const ProgramVoice *voice: voices) {
     auto choice = SegmentChoice();
@@ -978,4 +982,20 @@ bool Craft::instrumentContainsAudioEventsLike(
       return false;
   }
   return true;
+}
+
+/**
+ * This is the default implementation of the ChoiceIndexProvider interface.
+ * It should be replaced by a custom Lambda implementation when used
+ */
+std::string Craft::ChoiceIndexProvider::get(const SegmentChoice &choice) {
+  return "";
+}
+
+/**
+ * This is the default implementation of the InstrumentProvider interface.
+ * It should be replaced by a custom Lambda implementation when used
+ */
+std::optional<Instrument> Craft::InstrumentProvider::get(const ProgramVoice &voice) {
+  return std::nullopt;
 }

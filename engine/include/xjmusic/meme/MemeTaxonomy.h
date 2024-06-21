@@ -174,7 +174,7 @@ namespace XJ {
      * @param memes  The list of memes to check
      * @return       True if the list is allowed
      */
-    bool isAllowed(std::set<std::string> memes);
+    [[nodiscard]] bool isAllowed(std::set<std::string> memes) const;
   };
 
 }// namespace XJ

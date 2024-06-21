@@ -40,6 +40,9 @@ bool Note::operator>=(const Note &other) const {
 }
 
 
+std::string Note::ATONAL = "X";
+
+
 Note::Note() : pitchClass(PitchClass::Atonal), octave(0) {}// Default constructor
 
 
