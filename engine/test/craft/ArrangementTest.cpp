@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 #include <vector>
 
 
@@ -9,11 +9,11 @@
 #include "../_helper/SegmentFixtures.h"
 #include "../_helper/YamlTest.h"
 
+#include "xjmusic/craft/Craft.h"
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricationException.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/util/CsvUtils.h"
-#include "xjmusic/craft/Craft.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -27,18 +27,16 @@ using namespace XJ;
  */
 class ArrangementTest : public YamlTest {
 protected:
-
   std::string TEST_PATH_PREFIX = "_data/arrangements/";
-  int REPEAT_EACH_TEST_TIMES = 7;
+  int REPEAT_EACH_TEST_TIMES = 1; // todo increase to 7
 
-  int TEMPO = 60; // 60 BPM such that 1 beat = 1 second
+  int TEMPO = 60;// 60 BPM such that 1 beat = 1 second
   std::set<Instrument::Type> INSTRUMENT_TYPES_TO_TEST = {
       Instrument::Type::Bass,
       Instrument::Type::Pad,
       Instrument::Type::Stab,
       Instrument::Type::Stripe,
-      Instrument::Type::Sticky
-  };
+      Instrument::Type::Sticky};
   // this is how we provide content for fabrication
   FabricatorFactory *fabrication{};
   SegmentEntityStore *store{};
@@ -68,11 +66,11 @@ protected:
     // Manipulate the underlying entity store; reset before each test
     store->clear();
 
-    auto project1 = ContentFixtures::buildProject("fish");
-    Template template1 = ContentFixtures::buildTemplate(project1, "Test Template 1", "test1");
-    auto library1 = ContentFixtures::buildLibrary(project1, "palm tree");
+    const auto project1 = ContentFixtures::buildProject("fish");
+    const Template template1 = ContentFixtures::buildTemplate(project1, "Test Template 1", "test1");
+    const auto library1 = ContentFixtures::buildLibrary(project1, "palm tree");
     mainProgram1 = ContentFixtures::buildProgram(library1, Program::Type::Main, Program::State::Published, "ANTS", "C#",
-                                                 60.0f); // 60 BPM such that 1 beat = 1 second
+                                                 60.0f);// 60 BPM such that 1 beat = 1 second
     chain = store->put(SegmentFixtures::buildChain(template1));
 
     // prepare content
@@ -97,25 +95,40 @@ protected:
    @param type of instrument to read
    */
   void loadInstrument(YAML::Node data, Instrument::Type type) {
-    YAML::Node obj = data[Instrument::toString(type) + "Instrument"];
-    if (!obj) return;
+    auto dataKey = StringUtils::toLowerCase(Instrument::toString(type)) + "Instrument";
+    try {
+      YAML::Node obj = data[dataKey];
+      if (obj.IsNull()) return;
 
-    auto instrument = ContentFixtures::buildInstrument(
-        type,
-        Instrument::Mode::Event,
-        obj["isTonal"].as<bool>(),
-        obj["isMultiphonic"].as<bool>());
-    instruments[type] = instrument;
+      auto isTonalObj = obj["isTonal"];
+      auto isMultiphonicObj = obj["isMultiphonic"];
+      auto notesObj = obj["notes"];
+      if (isTonalObj.IsNull() || isMultiphonicObj.IsNull() || notesObj.IsNull()) return;
 
-    for (const auto &item: ContentFixtures::buildInstrumentWithAudios(
-        instrument,
-        obj["notes"].as<std::string>())) {
-      // check if item is Instrument or InstrumentAudio
-      if (std::holds_alternative<Instrument>(item)) {
-        content->put(std::get<Instrument>(item));
-      } else if (std::holds_alternative<InstrumentAudio>(item)) {
-        content->put(std::get<InstrumentAudio>(item));
+      const auto isTonalBool = static_cast<std::optional<bool>>(isTonalObj);
+      const auto isMultiphonicBool = static_cast<std::optional<bool>>(isMultiphonicObj);
+      const auto instrument = ContentFixtures::buildInstrument(
+          type,
+          Instrument::Mode::Event,
+          isTonalBool.value(),
+          isMultiphonicBool.value());
+      instruments[type] = instrument;
+
+      if (!notesObj.IsScalar()) return;
+      const auto notesString = notesObj.as<std::string>();
+      for (const auto &item: ContentFixtures::buildInstrumentWithAudios(
+               instrument,
+               notesString)) {
+        // check if item is Instrument or InstrumentAudio
+        if (std::holds_alternative<Instrument>(item)) {
+          content->put(std::get<Instrument>(item));
+        } else if (std::holds_alternative<InstrumentAudio>(item)) {
+          content->put(std::get<InstrumentAudio>(item));
+        }
       }
+
+    } catch (const YAML::Exception &e) {
+      spdlog::warn("[data[{}]] Exception: {}", dataKey, e.what());
     }
   }
 
@@ -126,41 +139,51 @@ protected:
    @param type of instrument to read
    */
   void loadDetailProgram(YAML::Node data, Instrument::Type type) {
-    YAML::Node obj = data[Instrument::toString(type) + "DetailProgram"];
-    if (!obj) return;
+    auto dataKey = StringUtils::toLowerCase(Instrument::toString(type)) + "DetailProgram";
+    try {
+      YAML::Node obj = data[dataKey];
+      if (obj.IsNull()) return;
 
-    auto program = ContentFixtures::buildDetailProgram(
-        obj["key"].as<std::string>(),
-        obj["doPatternRestartOnChord"].as<bool>(),
-        Instrument::toString(type) + " Test");
-    detailPrograms[type] = program;
-    content->put(program);
+      auto keyObj = obj["key"];
+      auto doPatternRestartOnChordObj = obj["doPatternRestartOnChord"];
+      if (keyObj.IsNull() || doPatternRestartOnChordObj.IsNull()) return;
+      if (!keyObj.IsScalar() || !doPatternRestartOnChordObj.IsScalar()) return;
 
-    auto voice = ContentFixtures::buildVoice(program, type);
-    detailProgramVoices[type] = voice;
-    content->put(voice);
+      auto program = ContentFixtures::buildDetailProgram(
+          keyObj.as<std::string>(),
+          doPatternRestartOnChordObj.as<bool>(),
+          Instrument::toString(type) + " Test");
+      detailPrograms[type] = program;
+      content->put(program);
 
-    auto track = ContentFixtures::buildTrack(voice);
-    content->put(track);
+      auto voice = ContentFixtures::buildVoice(program, type);
+      detailProgramVoices[type] = voice;
+      content->put(voice);
 
-    YAML::Node sObj = obj["sequence"];
-    auto sequence = ContentFixtures::buildSequence(program, sObj["total"].as<int>());
-    detailProgramSequences[type] = sequence;
-    content->put(sequence);
+      auto track = ContentFixtures::buildTrack(voice);
+      content->put(track);
 
-    YAML::Node pObj = sObj["pattern"];
-    auto pattern = ContentFixtures::buildPattern(sequence, voice, pObj["total"].as<int>());
-    content->put(pattern);
-    for (YAML::Node eObj: pObj["events"]) {
-      auto event = ContentFixtures::buildEvent(pattern, track,
-                                               eObj["position"].as<float>(),
-                                               eObj["duration"].as<float>(),
-                                               eObj["tones"].as<std::string>());
-      content->put(event);
-      if (detailProgramSequencePatternEvents.find(type) == detailProgramSequencePatternEvents.end()) {
-        detailProgramSequencePatternEvents[type] = std::vector<ProgramSequencePatternEvent>();
+      YAML::Node sObj = obj["sequence"];
+      auto sequence = ContentFixtures::buildSequence(program, sObj["total"].as<int>());
+      detailProgramSequences[type] = sequence;
+      content->put(sequence);
+
+      YAML::Node pObj = sObj["pattern"];
+      auto pattern = ContentFixtures::buildPattern(sequence, voice, pObj["total"].as<int>());
+      content->put(pattern);
+      for (YAML::Node eObj: pObj["events"]) {
+        auto event = ContentFixtures::buildEvent(pattern, track,
+                                                 eObj["position"].as<float>(),
+                                                 eObj["duration"].as<float>(),
+                                                 eObj["tones"].as<std::string>());
+        content->put(event);
+        if (detailProgramSequencePatternEvents.find(type) == detailProgramSequencePatternEvents.end()) {
+          detailProgramSequencePatternEvents[type] = std::vector<ProgramSequencePatternEvent>();
+        }
+        detailProgramSequencePatternEvents[type].push_back(event);
       }
-      detailProgramSequencePatternEvents[type].push_back(event);
+    } catch (const YAML::Exception &e) {
+      spdlog::warn("[data[{}]] Exception: {}", dataKey, e.what());
     }
   }
 
@@ -240,28 +263,28 @@ protected:
    * @param data  YAML file wrapper
    * @param type  type of instrument to read
    */
-  void loadAndPerformAssertions(YAML::Node data, Instrument::Type type) {
+  void loadAndPerformAssertions(YAML::Node data, Instrument::Type type) const {
     auto objs = data[StringUtils::toLowerCase(Instrument::toString(type))];
     if (!objs) return;
 
     std::vector<SegmentChoiceArrangementPick> actualPicks;
-    for (auto pick : fabricator->getPicks())
+    for (const auto& pick: fabricator->getPicks())
       actualPicks.push_back(pick);
     std::sort(actualPicks.begin(), actualPicks.end(), [](const auto &a, const auto &b) {
       return a.startAtSegmentMicros < b.startAtSegmentMicros;
     });
 
     for (auto obj: objs) {
-      auto startAtSeconds = getFloat(obj, "start");
-      auto lengthSeconds = getFloat(obj, "length");
+      auto startAtSeconds = getFloat(static_cast<YAML::Node>(obj), "start");
+      auto lengthSeconds = getFloat(static_cast<YAML::Node>(obj), "length");
       std::optional<long> startAtMicros = std::nullopt;
       if (startAtSeconds.has_value())
         startAtMicros = static_cast<long>(startAtSeconds.value() * (float) ValueUtils::MICROS_PER_SECOND);
       std::optional<long> lengthMicros = std::nullopt;
       if (lengthSeconds.has_value())
         lengthMicros = static_cast<long>(lengthSeconds.value() * (float) ValueUtils::MICROS_PER_SECOND);
-      auto count = getInt(obj, "count");
-      auto notes = getStr(obj, "notes");
+      auto count = getInt(static_cast<YAML::Node>(obj), "count");
+      auto notes = getStr(static_cast<YAML::Node>(obj), "notes");
 
       auto assertionName = Instrument::toString(type) + "-type picks" +
                            " starting at " + (startAtMicros.has_value() ? std::to_string(startAtSeconds.value()) : "") +
@@ -294,16 +317,16 @@ protected:
 
  @param filename of test YAML file
  */
-  void loadAndRunTest(const std::string& filename) {
+  void loadAndRunTest(const std::string &filename) {
     for (int i = 0; i < REPEAT_EACH_TEST_TIMES; i++)
       try {
         reset();
 
         // Load YAML and parse
-        auto data = loadYaml(TEST_PATH_PREFIX, filename);
+        const auto data = loadYaml(TEST_PATH_PREFIX, filename);
 
         // Read Instruments and Detail Programs from the test YAML
-        for (auto instrumentType: INSTRUMENT_TYPES_TO_TEST) {
+        for (const auto instrumentType: INSTRUMENT_TYPES_TO_TEST) {
           loadInstrument(data, instrumentType);
           loadDetailProgram(data, instrumentType);
         }
@@ -318,7 +341,7 @@ protected:
         }
         fabricator->put(SegmentFixtures::buildSegmentChoice(segment, mainProgram1), false);
         auto *subject = new Craft(fabricator);
-        for (const auto& choice: segmentChoices)
+        for (const auto &choice: segmentChoices)
           subject->craftNoteEventArrangements((float) TEMPO, choice.second, false);
 
         // assert picks

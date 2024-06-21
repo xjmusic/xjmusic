@@ -33,14 +33,14 @@ protected:
     for (int i = 0; i < REPEAT_EACH_TEST_TIMES; i++)
       try {
         // Load YAML and parse
-        auto data = loadYaml(TEST_PATH_PREFIX, filename);
+        const auto data = loadYaml(TEST_PATH_PREFIX, filename);
 
         // Read inputs from the test YAML and instantiate the subject
         auto eventNotes = loadSubject(data);
 
         // Execute note picking
         std::set<Note> picked;
-        for (auto note: eventNotes) {
+        for (const auto note: eventNotes) {
           picked.emplace(subject->pick(note));
         }
 
@@ -60,14 +60,14 @@ protected:
   std::vector<Note> loadSubject(YAML::Node data) {
     if (!data["input"]) throw std::runtime_error("Input is required!");
 
-    YAML::Node obj = data["input"];
+    const YAML::Node obj = data["input"];
 
-    auto range = getOptionalNoteRange(obj);
+    const auto range = getOptionalNoteRange(obj);
 
-    std::string instrumentType = getStr(obj, "instrumentType").value_or("");
+    const std::string instrumentType = getStr(obj, "instrumentType").value_or("");
 
     std::set<Note> voicingNotes;
-    std::string voicingNotesCsv = getStr(obj, "voicingNotes").value_or("");
+    const std::string voicingNotesCsv = getStr(obj, "voicingNotes").value_or("");
     for (const auto& noteStr : CsvUtils::split(voicingNotesCsv)) {
       voicingNotes.insert(Note::of(noteStr));
     }
@@ -75,7 +75,7 @@ protected:
     subject = new NotePicker(range, voicingNotes, templateConfig.instrumentTypesForInversionSeekingContains(Instrument::parseType(instrumentType)));
 
     std::vector<Note> eventNotes;
-    std::string eventNotesCsv = getStr(obj, "eventNotes").value_or("");
+    const std::string eventNotesCsv = getStr(obj, "eventNotes").value_or("");
     for (const auto& noteStr : CsvUtils::split(eventNotesCsv)) {
       eventNotes.emplace_back(Note::of(noteStr));
     }
@@ -85,11 +85,11 @@ protected:
 
 
   static NoteRange getOptionalNoteRange(YAML::Node node) {
-    if (!node["range"]) return NoteRange();
+    if (!node["range"]) return {};
 
-    YAML::Node rangeNode = node["range"];
-    std::string from = getStr(rangeNode, "from").value_or("");
-    std::string to = getStr(rangeNode, "to").value_or("");
+    const YAML::Node rangeNode = node["range"];
+    const std::string from = getStr(rangeNode, "from").value_or("");
+    const std::string to = getStr(rangeNode, "to").value_or("");
 
     return NoteRange::from(from, to);
   }
@@ -100,9 +100,7 @@ protected:
 
     YAML::Node obj = data["assertion"];
 
-    auto range = getOptionalNoteRange(obj);
-
-    if (!range.empty()) {
+    if (auto range = getOptionalNoteRange(obj); !range.empty()) {
       if (range.low.has_value()) {
         assertSameNote("Range Low-end", range.low.value(), subject->getTargetRange().low.value());
       }
@@ -119,7 +117,7 @@ protected:
 
     if (obj["picks"]) {
       std::set<std::string> picks;
-      std::string picksCsv = getStr(obj, "picks").value_or("");
+      const std::string picksCsv = getStr(obj, "picks").value_or("");
       for (const auto& noteStr : CsvUtils::split(picksCsv)) {
         picks.insert(noteStr);
       }
@@ -127,7 +125,7 @@ protected:
     }
 
     if (obj["count"]) {
-      int count = getInt(obj, "count").value_or(0);
+      const int count = getInt(obj, "count").value_or(0);
       ASSERT_EQ(count, picked.size());
     }
   }
