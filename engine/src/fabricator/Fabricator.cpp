@@ -786,7 +786,7 @@ Segment::Type Fabricator::getType() {
 
 std::optional<SegmentChordVoicing>
 Fabricator::chooseVoicing(const SegmentChord &chord, Instrument::Type instrumentType) {
-  std::set<SegmentChordVoicing> voicings = store->readAllSegmentChordVoicings(segmentId);
+  const std::set<SegmentChordVoicing> voicings = store->readAllSegmentChordVoicings(segmentId);
 
   std::vector<SegmentChordVoicing> validVoicings;
   for (const auto &voicing: voicings) {

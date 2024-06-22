@@ -28,7 +28,7 @@ using namespace XJ;
 class ArrangementTest : public YamlTest {
 protected:
   std::string TEST_PATH_PREFIX = "_data/arrangements/";
-  int REPEAT_EACH_TEST_TIMES = 1; // todo increase to 7
+  int REPEAT_EACH_TEST_TIMES = 1;// todo increase to 7
 
   int TEMPO = 60;// 60 BPM such that 1 beat = 1 second
   std::set<Instrument::Type> INSTRUMENT_TYPES_TO_TEST = {
@@ -193,69 +193,72 @@ protected:
    @param data YAML file wrapper
    */
   void loadSegment(YAML::Node data) {
-    YAML::Node obj = data["segment"];
+    try {
+      YAML::Node obj = data["segment"];
 
-    segment = store->put(SegmentFixtures::buildSegment(chain,
-                                                       getStr(obj, "key").value(),
-                                                       getInt(obj, "total").value(),
-                                                       getFloat(obj, "intensity").value(),
-                                                       (float) TEMPO));
+      segment = store->put(SegmentFixtures::buildSegment(chain,
+                                                         getStr(obj, "key").value(),
+                                                         getInt(obj, "total").value(),
+                                                         getFloat(obj, "intensity").value(),
+                                                         static_cast<float>(TEMPO)));
 
-    if (obj["stickyBuns"]) {
-      for (YAML::Node sbObj: obj["stickyBuns"]) {
-        auto sbType = Instrument::parseType(getStr(sbObj, "type").value());
-        auto sbPosition = getFloat(sbObj, "position").value();
-        auto sbSeed = getInt(sbObj, "seed").value();
-        auto it = detailProgramSequencePatternEvents.find(sbType);
-        if (it == detailProgramSequencePatternEvents.end()) {
-          throw FabricationException("Failed to locate event type " + Instrument::toString(sbType));
+      if (obj["stickyBuns"]) {
+        for (YAML::Node sbObj: obj["stickyBuns"]) {
+          auto sbType = Instrument::parseType(getStr(sbObj, "type").value());
+          auto sbPosition = getFloat(sbObj, "position").value();
+          auto sbSeed = getInt(sbObj, "seed").value();
+          auto it = detailProgramSequencePatternEvents.find(sbType);
+          if (it == detailProgramSequencePatternEvents.end()) {
+            throw FabricationException("Failed to locate event type " + Instrument::toString(sbType));
+          }
+
+          auto eventIt = std::find_if(it->second.begin(), it->second.end(), [&](const auto &e) {
+            return e.position == sbPosition;
+          });
+
+          if (eventIt == it->second.end()) {
+            throw FabricationException("Failed to locate event type " + Instrument::toString(sbType) + " position " +
+                                       std::to_string(sbPosition));
+          }
+
+          stickyBuns.emplace_back(eventIt->id, sbSeed);
         }
+      }
 
-        auto eventIt = std::find_if(it->second.begin(), it->second.end(), [&](const auto &e) {
-          return e.position == sbPosition;
-        });
-
-        if (eventIt == it->second.end()) {
-          throw FabricationException("Failed to locate event type " + Instrument::toString(sbType) + " position " +
-                                     std::to_string(sbPosition));
+      for (YAML::Node cObj: obj["chords"]) {
+        auto chord = store->put(SegmentFixtures::buildSegmentChord(segment,
+                                                                   getFloat(cObj).value(),
+                                                                   getStr(cObj, "name").value()));
+        YAML::Node vObj = cObj["voicings"];
+        for (const auto &[fst, snd]: instruments) {
+          if (auto notes = getStr(vObj, StringUtils::toLowerCase(Instrument::toString(snd.type))); notes.has_value())
+            store->put(SegmentFixtures::buildSegmentChordVoicing(chord, snd.type, notes.value()));
         }
-
-        stickyBuns.emplace_back(eventIt->id, sbSeed);
       }
-    }
 
-    for (YAML::Node cObj: obj["chords"]) {
-      auto chord = store->put(SegmentFixtures::buildSegmentChord(segment,
-                                                                 getFloat(cObj).value(),
-                                                                 getStr(cObj, "name").value()));
-      YAML::Node vObj = cObj["voicings"];
-      for (const auto &instrument: instruments) {
-        auto notes = getStr(vObj, Instrument::toString(instrument.second.type));
-        if (notes.has_value())
-          store->put(SegmentFixtures::buildSegmentChordVoicing(chord, instrument.second.type, notes.value()));
-      }
+      for (const auto &[fst, snd]: instruments)
+        if (detailPrograms.count(snd.type) &&
+            detailProgramSequences.count(snd.type) &&
+            detailProgramVoices.count(snd.type))
+          segmentChoices[snd.type] =
+              store->put(SegmentFixtures::buildSegmentChoice(segment,
+                                                             detailPrograms[snd.type],
+                                                             detailProgramSequences[snd.type],
+                                                             detailProgramVoices[snd.type],
+                                                             snd));
+    } catch (const YAML::Exception &e) {
+      spdlog::warn("[segment] Exception: {}", e.what());
     }
-
-    for (const auto &instrument: instruments)
-      if (detailPrograms.count(instrument.second.type) &&
-          detailProgramSequences.count(instrument.second.type) &&
-          detailProgramVoices.count(instrument.second.type))
-        segmentChoices[instrument.second.type] =
-            store->put(SegmentFixtures::buildSegmentChoice(segment,
-                                                           detailPrograms[instrument.second.type],
-                                                           detailProgramSequences[instrument.second.type],
-                                                           detailProgramVoices[instrument.second.type],
-                                                           instrument.second));
   }
 
   /**
    Load the assertions of picks section after a test has run
    Load the instrument section of the test YAML file, for one type of Instrument@param data YAML file wrapper
    */
-  void loadAndPerformAssertions(YAML::Node data) {
-    YAML::Node obj = data["assertPicks"];
+  void loadAndPerformAssertions(YAML::Node data) const {
+    const YAML::Node obj = data["assertPicks"];
     if (!obj) return;
-    for (auto type: INSTRUMENT_TYPES_TO_TEST) loadAndPerformAssertions(obj, type);
+    for (const auto type: INSTRUMENT_TYPES_TO_TEST) loadAndPerformAssertions(obj, type);
   }
 
   /**
@@ -268,7 +271,7 @@ protected:
     if (!objs) return;
 
     std::vector<SegmentChoiceArrangementPick> actualPicks;
-    for (const auto& pick: fabricator->getPicks())
+    for (const auto &pick: fabricator->getPicks())
       actualPicks.push_back(pick);
     std::sort(actualPicks.begin(), actualPicks.end(), [](const auto &a, const auto &b) {
       return a.startAtSegmentMicros < b.startAtSegmentMicros;
@@ -279,10 +282,10 @@ protected:
       auto lengthSeconds = getFloat(static_cast<YAML::Node>(obj), "length");
       std::optional<long> startAtMicros = std::nullopt;
       if (startAtSeconds.has_value())
-        startAtMicros = static_cast<long>(startAtSeconds.value() * (float) ValueUtils::MICROS_PER_SECOND);
+        startAtMicros = static_cast<long>(startAtSeconds.value() * static_cast<float>(ValueUtils::MICROS_PER_SECOND));
       std::optional<long> lengthMicros = std::nullopt;
       if (lengthSeconds.has_value())
-        lengthMicros = static_cast<long>(lengthSeconds.value() * (float) ValueUtils::MICROS_PER_SECOND);
+        lengthMicros = static_cast<long>(lengthSeconds.value() * static_cast<float>(ValueUtils::MICROS_PER_SECOND));
       auto count = getInt(static_cast<YAML::Node>(obj), "count");
       auto notes = getStr(static_cast<YAML::Node>(obj), "notes");
 
@@ -313,10 +316,10 @@ protected:
   }
 
   /**
- Load the specified test YAML file and run it repeatedly.
+   Load the specified test YAML file and run it repeatedly.
 
- @param filename of test YAML file
- */
+   @param filename of test YAML file
+   */
   void loadAndRunTest(const std::string &filename) {
     for (int i = 0; i < REPEAT_EACH_TEST_TIMES; i++)
       try {
@@ -341,8 +344,8 @@ protected:
         }
         fabricator->put(SegmentFixtures::buildSegmentChoice(segment, mainProgram1), false);
         auto *subject = new Craft(fabricator);
-        for (const auto &choice: segmentChoices)
-          subject->craftNoteEventArrangements((float) TEMPO, choice.second, false);
+        for (const auto &[fst, snd]: segmentChoices)
+          subject->craftNoteEventArrangements(static_cast<float>(TEMPO), snd, false);
 
         // assert picks
         loadAndPerformAssertions(data);
