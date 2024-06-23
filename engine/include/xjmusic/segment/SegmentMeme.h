@@ -3,18 +3,15 @@
 #ifndef SEGMENT_MEME_H
 #define SEGMENT_MEME_H
 
-#include <string>
-#include <utility>
 #include <set>
+#include <string>
 
-#include "xjmusic/util/EntityUtils.h"
 #include "SegmentEntity.h"
 
 namespace XJ {
 
   class SegmentMeme : public SegmentEntity {
   public:
-
     SegmentMeme() = default;
 
     std::string name;
@@ -38,7 +35,6 @@ namespace XJ {
      * @return       The names
      */
     static std::set<std::string> getNames(const std::set<SegmentMeme *> &segmentMemes);
-
   };
 
 }// namespace XJ

@@ -34,7 +34,7 @@ using namespace XJ;
   std::optional<const ENTITY *> get##ENTITY(const UUID &id);             \
   std::set<const ENTITY *> get##ENTITIES();                              \
   ContentEntityStore set##ENTITIES(const std::set<ENTITY> &entities);    \
-  ENTITY put(const ENTITY &entity);                                      \
+  ENTITY* put(const ENTITY &entity);                                     \
 
 namespace XJ {
 

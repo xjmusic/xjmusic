@@ -17,7 +17,7 @@ using namespace XJ;
     STORE[entity.segmentId][entity.id] = entity;                                                        \
     return entity;                                                                                      \
   }                                                                                                     \
-  std::optional<ENTITY *> SegmentEntityStore::read##ENTITY(int segmentId, const UUID &id) {             \
+  std::optional<ENTITY *> SegmentEntityStore::read## ENTITY(int segmentId, const UUID &id) {             \
     if (STORE.find(segmentId) == STORE.end()) {                                                         \
       return std::nullopt;                                                                              \
     }                                                                                                   \
@@ -26,7 +26,7 @@ using namespace XJ;
     }                                                                                                   \
     return {&STORE[segmentId][id]};                                                                     \
   }                                                                                                     \
-  std::set<ENTITY *> SegmentEntityStore::readAll##ENTITIES(int segmentId) {                             \
+  std::set<ENTITY *> SegmentEntityStore::readAll## ENTITIES(int segmentId) {                             \
     std::set<ENTITY *> result;                                                                          \
     if (STORE.find(segmentId) == STORE.end()) {                                                         \
       return result;                                                                                    \
@@ -36,7 +36,7 @@ using namespace XJ;
     }                                                                                                   \
     return result;                                                                                      \
   }                                                                                                     \
-  std::set<ENTITY *> SegmentEntityStore::readAll##ENTITIES(const std::set<int> &segmentIds) {           \
+  std::set<ENTITY *> SegmentEntityStore::readAll## ENTITIES(const std::set<int> &segmentIds) {           \
     std::set<ENTITY *> result;                                                                          \
     for (auto &segmentId: segmentIds) {                                                                 \
       if (STORE.find(segmentId) == STORE.end()) {                                                       \
@@ -48,7 +48,7 @@ using namespace XJ;
     }                                                                                                   \
     return result;                                                                                      \
   }                                                                                                     \
-  void SegmentEntityStore::delete##ENTITY(int segmentId, const UUID &id) {                              \
+  void SegmentEntityStore::delete## ENTITY(int segmentId, const UUID &id) {                              \
     if (STORE.find(segmentId) == STORE.end()) {                                                         \
       return;                                                                                           \
     }                                                                                                   \
@@ -72,18 +72,26 @@ SEGMENT_STORE_CORE_METHODS(SegmentMessage, SegmentMessages, segmentMessages)
 SEGMENT_STORE_CORE_METHODS(SegmentMeta, SegmentMetas, segmentMetas)
 
 
-Chain SegmentEntityStore::put(Chain c) {
-  this->chain = c;
-  return c;
+Chain *SegmentEntityStore::put(const Chain &c) {
+  const auto cc = new Chain(c); 
+  this->chain = *cc;
+  return cc;
 }
 
-
-Segment SegmentEntityStore::put(Segment segment) {
-  validate(segment);
-  this->segments[segment.id] = segment;
-  return segment;
+Segment *SegmentEntityStore::put(const Segment &s) {
+  const auto sc = new Segment(s);
+  this->segments[s.id] = *sc;
+  return sc;
 }
 
+std::optional<Segment *> SegmentEntityStore::readSegmentAtChainMicros(const long chainMicros) {
+  for (auto &[_, segment]: segments) {
+    if (SegmentUtils::isSpanning(&segment, chainMicros, chainMicros)) {
+      return {&segment};
+    }
+  }
+  return std::nullopt;
+}
 
 std::optional<Chain *> SegmentEntityStore::readChain() {
   return chain.has_value() ? &chain.value() : nullptr;
@@ -93,17 +101,6 @@ std::optional<Segment *> SegmentEntityStore::readSegment(const int segmentId) {
   if (segments.find(segmentId) != segments.end()) return {&segments[segmentId]};
   return std::nullopt;
 }
-
-
-std::optional<Segment> SegmentEntityStore::readSegmentAtChainMicros(const long chainMicros) {
-  for (auto &[_, segment]: segments) {
-    if (SegmentUtils::isSpanning(&segment, chainMicros, chainMicros)) {
-      return {segment};
-    }
-  }
-  return std::nullopt;
-}
-
 
 std::vector<Segment *> SegmentEntityStore::readAllSegments() {
   std::vector<Segment *> result;

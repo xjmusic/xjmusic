@@ -11,9 +11,9 @@ std::string ChainUtils::getFullKey(const std::string &key) {
 }
 
 
-std::string ChainUtils::getIdentifier(const std::optional<Chain> &chain) {
+std::string ChainUtils::getIdentifier(const std::optional<Chain *> &chain) {
   if (!chain.has_value()) return "N/A";
-  return chain->shipKey.empty() ? chain->id : chain->shipKey;
+  return chain.value()->shipKey.empty() ? chain.value()->id : chain.value()->shipKey;
 }
 
 

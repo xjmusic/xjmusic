@@ -15,6 +15,8 @@
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/util/CsvUtils.h"
 
+#include <xjmusic/util/ValueUtils.h>
+
 // NOLINTNEXTLINE
 using ::testing::_;
 using ::testing::Return;
@@ -50,8 +52,8 @@ protected:
   std::map<Instrument::Type, ProgramSequence> detailProgramSequences;
   std::map<Instrument::Type, std::vector<ProgramSequencePatternEvent>> detailProgramSequencePatternEvents;
   std::vector<StickyBun> stickyBuns;
-  Chain chain;
-  Segment segment;
+  Chain *chain = nullptr;
+  Segment *segment = nullptr;
   std::map<Instrument::Type, SegmentChoice> segmentChoices;
   Program mainProgram1;
 
@@ -67,11 +69,11 @@ protected:
     store->clear();
 
     const auto project1 = ContentFixtures::buildProject("fish");
-    const Template template1 = ContentFixtures::buildTemplate(project1, "Test Template 1", "test1");
-    const auto library1 = ContentFixtures::buildLibrary(project1, "palm tree");
-    mainProgram1 = ContentFixtures::buildProgram(library1, Program::Type::Main, Program::State::Published, "ANTS", "C#",
+    const Template template1 = ContentFixtures::buildTemplate(&project1, "Test Template 1", "test1");
+    const auto library1 = ContentFixtures::buildLibrary(&project1, "palm tree");
+    mainProgram1 = ContentFixtures::buildProgram(&library1, Program::Type::Main, Program::State::Published, "ANTS", "C#",
                                                  60.0f);// 60 BPM such that 1 beat = 1 second
-    chain = store->put(SegmentFixtures::buildChain(template1));
+    chain = store->put(SegmentFixtures::buildChain(&template1));
 
     // prepare content
     content = new ContentEntityStore();
@@ -117,7 +119,7 @@ protected:
       if (!notesObj.IsScalar()) return;
       const auto notesString = notesObj.as<std::string>();
       for (const auto &item: ContentFixtures::buildInstrumentWithAudios(
-               instrument,
+               &instrument,
                notesString)) {
         // check if item is Instrument or InstrumentAudio
         if (std::holds_alternative<Instrument>(item)) {
@@ -156,23 +158,23 @@ protected:
       detailPrograms[type] = program;
       content->put(program);
 
-      auto voice = ContentFixtures::buildVoice(program, type);
+      auto voice = ContentFixtures::buildVoice(&program, type);
       detailProgramVoices[type] = voice;
       content->put(voice);
 
-      auto track = ContentFixtures::buildTrack(voice);
+      auto track = ContentFixtures::buildTrack(&voice);
       content->put(track);
 
       YAML::Node sObj = obj["sequence"];
-      auto sequence = ContentFixtures::buildSequence(program, sObj["total"].as<int>());
+      auto sequence = ContentFixtures::buildSequence(&program, sObj["total"].as<int>());
       detailProgramSequences[type] = sequence;
       content->put(sequence);
 
       YAML::Node pObj = sObj["pattern"];
-      auto pattern = ContentFixtures::buildPattern(sequence, voice, pObj["total"].as<int>());
+      auto pattern = ContentFixtures::buildPattern(&sequence, &voice, pObj["total"].as<int>());
       content->put(pattern);
       for (YAML::Node eObj: pObj["events"]) {
-        auto event = ContentFixtures::buildEvent(pattern, track,
+        auto event = ContentFixtures::buildEvent(&pattern, &track,
                                                  eObj["position"].as<float>(),
                                                  eObj["duration"].as<float>(),
                                                  eObj["tones"].as<std::string>());
@@ -230,22 +232,22 @@ protected:
                                                                    getFloat(cObj).value(),
                                                                    getStr(cObj, "name").value()));
         YAML::Node vObj = cObj["voicings"];
-        for (const auto &[fst, snd]: instruments) {
-          if (auto notes = getStr(vObj, StringUtils::toLowerCase(Instrument::toString(snd.type))); notes.has_value())
-            store->put(SegmentFixtures::buildSegmentChordVoicing(chord, snd.type, notes.value()));
+        for (const auto &[_, instrument]: instruments) {
+          if (auto notes = getStr(vObj, StringUtils::toLowerCase(Instrument::toString(instrument.type))); notes.has_value())
+            store->put(SegmentFixtures::buildSegmentChordVoicing(&chord, instrument.type, notes.value()));
         }
       }
 
-      for (const auto &[fst, snd]: instruments)
-        if (detailPrograms.count(snd.type) &&
-            detailProgramSequences.count(snd.type) &&
-            detailProgramVoices.count(snd.type))
-          segmentChoices[snd.type] =
+      for (const auto &[_, instrument]: instruments)
+        if (detailPrograms.count(instrument.type) &&
+            detailProgramSequences.count(instrument.type) &&
+            detailProgramVoices.count(instrument.type))
+          segmentChoices[instrument.type] =
               store->put(SegmentFixtures::buildSegmentChoice(segment,
-                                                             detailPrograms[snd.type],
-                                                             detailProgramSequences[snd.type],
-                                                             detailProgramVoices[snd.type],
-                                                             snd));
+                                                             &detailPrograms[instrument.type],
+                                                             &detailProgramSequences[instrument.type],
+                                                             &detailProgramVoices[instrument.type],
+                                                             &instrument));
     } catch (const YAML::Exception &e) {
       spdlog::warn("[segment] Exception: {}", e.what());
     }
@@ -273,8 +275,8 @@ protected:
     std::vector<SegmentChoiceArrangementPick *> actualPicks;
     for (const auto &pick: fabricator->getPicks())
       actualPicks.push_back(pick);
-    std::sort(actualPicks.begin(), actualPicks.end(), [](const auto &a, const auto &b) {
-      return a.startAtSegmentMicros < b.startAtSegmentMicros;
+    std::sort(actualPicks.begin(), actualPicks.end(), [](const auto *a, const auto *b) {
+      return a->startAtSegmentMicros < b->startAtSegmentMicros;
     });
 
     for (auto obj: objs) {
@@ -338,14 +340,14 @@ protected:
         loadSegment(data);
 
         // Fabricate: Craft Arrangements for Choices
-        fabricator = fabrication->fabricate(content, segment.id, 48000.0f, 2, std::nullopt);
+        fabricator = fabrication->fabricate(content, segment->id, 48000.0f, 2, std::nullopt);
         for (const StickyBun &bun: stickyBuns) {
           fabricator->putStickyBun(bun);
         }
-        fabricator->put(SegmentFixtures::buildSegmentChoice(segment, mainProgram1), false);
+        fabricator->put(SegmentFixtures::buildSegmentChoice(segment, &mainProgram1), false);
         auto *subject = new Craft(fabricator);
-        for (const auto &[fst, snd]: segmentChoices)
-          subject->craftNoteEventArrangements(static_cast<float>(TEMPO), &snd, false);
+        for (const auto &[_, choice]: segmentChoices)
+          subject->craftNoteEventArrangements(static_cast<float>(TEMPO), &choice, false);
 
         // assert picks
         loadAndPerformAssertions(data);

@@ -21,6 +21,8 @@ namespace XJ {
 
     explicit InstrumentConfig(const Instrument &source);
 
+    explicit InstrumentConfig(const Instrument *source);
+
     explicit InstrumentConfig(const std::string &input);
 
     bool isAudioSelectionPersistent;

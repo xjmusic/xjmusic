@@ -99,7 +99,7 @@ const std::string TemplateConfig::DEFAULT = R"(
 TemplateConfig::TemplateConfig() : TemplateConfig(DEFAULT) {}
 
 
-TemplateConfig::TemplateConfig(const Template &source) : TemplateConfig(source.config) {}
+TemplateConfig::TemplateConfig(const Template *input) : TemplateConfig(input->config) {}
 
 
 std::map<Instrument::Type, int> parseInstrumentTypeIntMap(ConfigObjectValue objectValue) {
@@ -313,11 +313,6 @@ std::string TemplateConfig::toString() const {
   }
 
   return oss.str();
-}
-
-
-std::string TemplateConfig::getDefaultString() {
-  return DEFAULT;
 }
 
 

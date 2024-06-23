@@ -3,21 +3,12 @@
 #ifndef SEGMENT_H
 #define SEGMENT_H
 
-#include <string>
 #include <optional>
-#include <variant>
+#include <string>
 
 #include "nlohmann/json.hpp"
 
 #include "xjmusic/util/EntityUtils.h"
-#include "SegmentChoice.h"
-#include "SegmentChoiceArrangement.h"
-#include "SegmentChoiceArrangementPick.h"
-#include "SegmentChord.h"
-#include "SegmentChordVoicing.h"
-#include "SegmentMeme.h"
-#include "SegmentMessage.h"
-#include "SegmentMeta.h"
 
 using json = nlohmann::json;
 

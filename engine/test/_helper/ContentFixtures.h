@@ -3,11 +3,9 @@
 #ifndef XJMUSIC_FABRICATION_CONTENT_ONE_FIXTURES_H
 #define XJMUSIC_FABRICATION_CONTENT_ONE_FIXTURES_H
 
-#include <chrono>
-#include <iomanip>
 #include <random>
-#include <sstream>
 
+#include "xjmusic/content/ContentEntityStore.h"
 #include "xjmusic/content/Instrument.h"
 #include "xjmusic/content/InstrumentAudio.h"
 #include "xjmusic/content/InstrumentMeme.h"
@@ -25,10 +23,8 @@
 #include "xjmusic/content/ProgramVoiceTrack.h"
 #include "xjmusic/content/Project.h"
 #include "xjmusic/content/Template.h"
-#include "xjmusic/content/TemplateConfig.h"
 #include "xjmusic/content/TemplateBinding.h"
-#include "xjmusic/util/StringUtils.h"
-#include "xjmusic/content/ContentEntityStore.h"
+#include "xjmusic/content/TemplateConfig.h"
 
 namespace XJ {
 
@@ -87,6 +83,8 @@ namespace XJ {
     static int random(std::vector<int> array);
 
   public:
+
+    explicit ContentFixtures() = default;
 
     static const std::string TEST_TEMPLATE_CONFIG;
 
@@ -256,15 +254,14 @@ namespace XJ {
      */
     static std::vector<std::variant<Instrument,
         InstrumentAudio>> buildInstrumentWithAudios(
-        Instrument instrument,
-        const std::string& notes
-    );
+        const Instrument *instrument,
+        const std::string &notes);
 
     /**
      * Build an audio from an instrument
      */
     static InstrumentAudio buildAudio(
-        const Instrument& instrument,
+        const Instrument *instrument,
         std::string name,
         std::string waveformKey,
         float start,
@@ -273,17 +270,15 @@ namespace XJ {
         float intensity,
         std::string event,
         std::string note,
-        float volume
-    );
+        float volume);
 
     /**
      * Build an audio from an instrument
      */
     static InstrumentAudio buildAudio(
-        const Instrument& instrument,
+        const Instrument *instrument,
         std::string name,
-        std::string note
-    );
+        std::string note);
 
 
     /**
@@ -295,13 +290,12 @@ namespace XJ {
      * Build a program from a library
      */
     static Program buildProgram(
-        const Library& library,
+        const Library *library,
         Program::Type type,
         Program::State state,
         std::string name,
         std::string key,
-        float tempo
-    );
+        float tempo);
 
     /**
      * Build a program
@@ -325,136 +319,121 @@ namespace XJ {
      * Build a program meme
      */
     static ProgramMeme buildMeme(
-        const Program& program,
-        std::string name
-    );
+        const Program *program,
+        std::string name);
 
     /**
      * Build a program sequence
      */
     static ProgramSequence buildSequence(
-        const Program& program,
+        const Program *program,
         int total,
         std::string name,
         float intensity,
-        std::string key
-    );
+        std::string key);
 
     /**
      * Build a program sequence binding
      */
     static ProgramSequence buildSequence(
-        const Program& program,
-        int total
-    );
+        const Program *program,
+        int total);
 
     /**
      * Build a program sequence binding
      */
     static ProgramSequenceBinding buildBinding(
-        const ProgramSequence& programSequence,
-        int offset
-    );
+        const ProgramSequence *programSequence,
+        int offset);
 
     /**
      * Build a program sequence binding meme
      */
     static ProgramSequenceBindingMeme buildMeme(
-        const ProgramSequenceBinding& programSequenceBinding,
-        std::string name
-    );
+        const ProgramSequenceBinding *programSequenceBinding,
+        std::string name);
 
     /**
      * Build a program sequence chord
      */
     static ProgramSequenceChord buildChord(
-        const ProgramSequence& programSequence,
+        const ProgramSequence *programSequence,
         float position,
-        std::string name
-    );
+        std::string name);
 
     /**
      * Build a program sequence chord voicing
      */
     static ProgramSequenceChordVoicing buildVoicing(
-        const ProgramSequenceChord& programSequenceChord,
-        const ProgramVoice& voice,
-        std::string notes
-    );
+        const ProgramSequenceChord *programSequenceChord,
+        const ProgramVoice *voice,
+        std::string notes);
 
     /**
      * Build a program voice
      */
     static ProgramVoice buildVoice(
-        const Program& program,
+        const Program *program,
         Instrument::Type type,
-        std::string name
-    );
+        std::string name);
 
     /**
      * Build a program voice
      */
     static ProgramVoice buildVoice(
-        const Program& program,
-        Instrument::Type type
-    );
+        const Program *program,
+        Instrument::Type type);
 
     /**
      * Build a program voice track
      */
     static ProgramVoiceTrack buildTrack(
-        const ProgramVoice& programVoice,
-        std::string name
-    );
+        const ProgramVoice *programVoice,
+        std::string name);
 
     /**
      * Build a program voice track
      */
     static ProgramVoiceTrack buildTrack(
-        const ProgramVoice& programVoice
-    );
+        const ProgramVoice *programVoice);
 
     /**
      * Build a program sequence pattern
      */
     static ProgramSequencePattern buildPattern(
-        const ProgramSequence& programSequence,
-        const ProgramVoice& programVoice,
+        const ProgramSequence *programSequence,
+        const ProgramVoice *programVoice,
         int total,
-        std::string name
-    );
+        std::string name);
 
     /**
      * Build a program sequence pattern
      */
     static ProgramSequencePattern buildPattern(
-        const ProgramSequence& sequence,
-        const ProgramVoice& voice,
-        int total
-    );
+        const ProgramSequence *sequence,
+        const ProgramVoice *voice,
+        int total);
 
     /**
      * Build a program sequence pattern event
      */
     static ProgramSequencePatternEvent buildEvent(
-        const ProgramSequencePattern& pattern,
-        const ProgramVoiceTrack& track,
+        const ProgramSequencePattern *pattern,
+        const ProgramVoiceTrack *track,
         float position,
         float duration,
         std::string note,
-        float velocity
-    );
+        float velocity);
 
     /**
      * Build a program sequence pattern event
      */
     static ProgramSequencePatternEvent buildEvent(
-        const ProgramSequencePattern& pattern,
-        const ProgramVoiceTrack& track,
+        const ProgramSequencePattern *pattern,
+        const ProgramVoiceTrack *track,
         float position,
         float duration,
-        std::string note
-    );
+        std::string note);
 
     /**
      * Build a program sequence pattern event
@@ -470,15 +449,14 @@ namespace XJ {
      * Build a program sequence pattern event
      */
     static InstrumentMeme buildMeme(
-        const Instrument& instrument,
-        std::string name
-    );
+        const Instrument *instrument,
+        std::string name);
 
     /**
      * Build a program sequence pattern event
      */
     static InstrumentAudio buildInstrumentAudio(
-        const Instrument& instrument,
+        const Instrument *instrument,
         std::string name,
         std::string waveformKey,
         float start,
@@ -487,14 +465,13 @@ namespace XJ {
         float intensity,
         std::string event,
         std::string tones,
-        float volume
-    );
+        float volume);
 
     /**
      * Build a program sequence pattern event
      */
     static Library buildLibrary(
-        const Project& project,
+        const Project* project,
         std::string name
     );
 
@@ -512,7 +489,7 @@ namespace XJ {
      * otherwise tests may sporadically fail.
      */
     static Template buildTemplate(
-        const Project& project1,
+        const Project* project1,
         std::string name,
         std::string shipKey
     );
@@ -521,154 +498,137 @@ namespace XJ {
      * Build a template
      */
     static Template buildTemplate(
-        const Project& project1,
+        const Project *project1,
         std::string name,
         std::string shipKey,
-        std::string config
-    );
+        std::string config);
 
     /**
      * Build a template
      */
     static Template buildTemplate(
-        const Project& project1,
-        const std::string& name
-    );
+        const Project *project1,
+        const std::string &name);
 
     /**
      * Build a template binding for a library
      */
     static TemplateBinding buildTemplateBinding(
-        const Template& tmpl,
-        const Library& library
-    );
+        const Template *tmpl,
+        const Library *library);
 
     /**
      * Build a template binding for a program
      */
     static TemplateBinding buildTemplateBinding(
-        const Template& tmpl,
-        const Program& program
-    );
+        const Template *tmpl,
+        const Program *program);
 
     /**
      * Build a template binding for a instrument
      */
     static TemplateBinding buildTemplateBinding(
-        const Template& tmpl,
-        const Instrument& instrument
-    );
+        const Template *tmpl,
+        const Instrument *instrument);
 
     /**
      * Build a template meme
      */
     static ProgramMeme buildProgramMeme(
-        const Program& program,
-        std::string name
-    );
+        const Program *program,
+        std::string name);
 
     /**
      * Build a program sequence
      */
     static ProgramSequence buildProgramSequence(
-        const Program& program,
+        const Program *program,
         int total,
         std::string name,
         float intensity,
-        std::string key
-    );
+        std::string key);
 
     /**
      * Build a program sequence binding
      */
     static ProgramSequenceBinding buildProgramSequenceBinding(
-        const ProgramSequence& programSequence,
-        int offset
-    );
+        const ProgramSequence *programSequence,
+        int offset);
 
     /**
      * Build a program sequence binding meme
      */
     static ProgramSequenceBindingMeme buildProgramSequenceBindingMeme(
-        const ProgramSequenceBinding& programSequenceBinding,
-        std::string name
-    );
+        const ProgramSequenceBinding *programSequenceBinding,
+        std::string name);
 
     /**
      * Build a program sequence chord
      */
     static ProgramSequenceChord buildProgramSequenceChord(
-        const ProgramSequence& programSequence,
+        const ProgramSequence *programSequence,
         float position,
-        std::string name
-    );
+        std::string name);
 
     /**
      * Build a program sequence chord voicing
      */
     static ProgramSequenceChordVoicing buildProgramSequenceChordVoicing(
-        const ProgramSequenceChord& programSequenceChord,
-        const ProgramVoice& voice,
-        std::string notes
-    );
+        const ProgramSequenceChord *programSequenceChord,
+        const ProgramVoice *voice,
+        std::string notes);
 
     /**
      * Build a program voice
      */
     static ProgramVoice buildProgramVoice(
-        const Program& program,
+        const Program *program,
         Instrument::Type type,
-        std::string name
-    );
+        std::string name);
 
     /**
      * Build a program voice
      */
     static ProgramVoiceTrack buildProgramVoiceTrack(
-        const ProgramVoice& programVoice,
-        std::string name
-    );
+        const ProgramVoice *programVoice,
+        std::string name);
 
     /**
      * Build a program sequence pattern
      */
     static ProgramSequencePattern buildProgramSequencePattern(
-        const ProgramSequence& programSequence,
-        const ProgramVoice& programVoice,
+        const ProgramSequence *programSequence,
+        const ProgramVoice *programVoice,
         int total,
-        std::string name
-    );
+        std::string name);
 
     /**
      * Build a program sequence pattern event
      */
     static ProgramSequencePatternEvent buildProgramSequencePatternEvent(
-        const ProgramSequencePattern& programSequencePattern,
-        const ProgramVoiceTrack& programVoiceTrack,
+        const ProgramSequencePattern *programSequencePattern,
+        const ProgramVoiceTrack *programVoiceTrack,
         float position,
         float duration,
         std::string tones,
-        float velocity
-    );
+        float velocity);
 
     /**
      * Build an instrument
      */
     static Instrument buildInstrument(
-        const Library& library,
+        const Library *library,
         Instrument::Type type,
         Instrument::Mode mode,
         Instrument::State state,
-        std::string name
-    );
+        std::string name);
 
     /**
      * Build an instrument
      */
     static InstrumentMeme buildInstrumentMeme(
-        const Instrument& instrument,
-        std::string name
-    );
+        const Instrument *instrument,
+        std::string name);
 
     /**
      A whole library of mock content

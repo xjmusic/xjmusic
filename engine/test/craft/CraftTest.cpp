@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 #include <utility>
 #include <vector>
 
@@ -12,10 +12,10 @@
 #include "../_mock/MockFabricator.h"
 #include "../_mock/MockSegmentRetrospective.h"
 
+#include "xjmusic/craft/Craft.h"
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricationException.h"
 #include "xjmusic/util/CsvUtils.h"
-#include "xjmusic/craft/Craft.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -24,34 +24,34 @@ using ::testing::ReturnRef;
 
 using namespace XJ;
 
-class CraftTest : public YamlTest { // NOLINT(*-pro-type-member-init)
+class CraftTest : public YamlTest {// NOLINT(*-pro-type-member-init)
 protected:
-
   int TEST_REPEAT_TIMES = 20;
-  MockFabricator *mockFabricator;
-  SegmentEntityStore *segmentEntityStore;
-  ContentEntityStore *sourceMaterial;
-  MockSegmentRetrospective *mockSegmentRetrospective;
-  Craft *subject;
-  Segment segment0;
-  Program program1;
+  MockFabricator *mockFabricator = nullptr;
+  SegmentEntityStore *segmentEntityStore = nullptr;
+  ContentEntityStore *sourceMaterial = nullptr;
+  MockSegmentRetrospective *mockSegmentRetrospective = nullptr;
+  Craft *subject = nullptr;
+  Segment *segment0 = nullptr;
+  Program *program1 = nullptr;
 
+protected:
   void SetUp() override {
     sourceMaterial = new ContentEntityStore();
     segmentEntityStore = new SegmentEntityStore();
-    Project project1 = sourceMaterial->put(ContentFixtures::buildProject("fish"));
-    Library library1 = sourceMaterial->put(ContentFixtures::buildLibrary(project1, "sea"));
+    Project *project1 = sourceMaterial->put(ContentFixtures::buildProject("fish"));
+    Library *library1 = sourceMaterial->put(ContentFixtures::buildLibrary(project1, "sea"));
     program1 = sourceMaterial->put(ContentFixtures::buildProgram(library1, Program::Type::Detail, Program::State::Published, "swimming",
-                                             "C", 120.0f));
-    Template template1 = sourceMaterial->put(ContentFixtures::buildTemplate(project1, "Test Template 1", "test1"));
+                                                                 "C", 120.0f));
+    Template *template1 = sourceMaterial->put(ContentFixtures::buildTemplate(project1, "Test Template 1", "test1"));
     // Chain "Test Print #1" is fabricating segments
-    Chain chain1 = segmentEntityStore->put(SegmentFixtures::buildChain(project1, "Test Print #1", Chain::Type::Production,
-                                               Chain::State::Fabricate, template1));
+    Chain *chain1 = segmentEntityStore->put(SegmentFixtures::buildChain(project1, "Test Print #1", Chain::Type::Production,
+                                                                        Chain::State::Fabricate, template1));
 
     segment0 = segmentEntityStore->put(SegmentFixtures::buildSegment(chain1, Segment::Type::Initial, 2, 128, Segment::State::Crafted, "D major",
-                                             64, 0.73f, 120.0f, "chains-1-segments-9f7s89d8a7892", true));
+                                                                     64, 0.73f, 120.0f, "chains-1-segments-9f7s89d8a7892", true));
 
-    auto templateConfig = TemplateConfig(template1);
+    auto templateConfig = new TemplateConfig(template1);
     mockSegmentRetrospective = new MockSegmentRetrospective(segmentEntityStore, 2);
     mockFabricator = new MockFabricator(
         sourceMaterial,
@@ -60,10 +60,9 @@ protected:
         2,
         48000,
         2,
-        std::nullopt
-    );
+        std::nullopt);
     subject = new Craft(mockFabricator);
-    ON_CALL(*mockFabricator, getTemplateConfig()).WillByDefault(Return(templateConfig));
+    ON_CALL(*mockFabricator, getTemplateConfig()).WillByDefault(Return(*templateConfig));
     ON_CALL(*mockFabricator, getSourceMaterial()).WillByDefault(Return(sourceMaterial));
     ON_CALL(*mockFabricator, getRetrospective()).WillByDefault(Return(mockSegmentRetrospective));
     ON_CALL(*mockFabricator, getSegment()).WillByDefault(Return(segment0));
@@ -85,14 +84,14 @@ protected:
    */
   void selectNewChordPartInstrumentAudio(std::string expectThis, std::string notThat, const std::string &match) {
     Project project1 = ContentFixtures::buildProject("testing");
-    Library library1 = ContentFixtures::buildLibrary(project1, "leaves");
-    Instrument instrument1 = ContentFixtures::buildInstrument(library1, Instrument::Type::Percussion,
+    Library library1 = ContentFixtures::buildLibrary(&project1, "leaves");
+    Instrument instrument1 = ContentFixtures::buildInstrument(&library1, Instrument::Type::Percussion,
                                                               Instrument::Mode::Chord, Instrument::State::Published,
                                                               "Test chord audio");
-    InstrumentAudio instrument1audio1 = ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f,
+    InstrumentAudio instrument1audio1 = ContentFixtures::buildInstrumentAudio(&instrument1, "ping", "70bpm.wav", 0.01f,
                                                                               2.123f, 120.0f, 0.62f, "PRIMARY",
                                                                               std::move(expectThis), 1.0f);
-    InstrumentAudio instrument1audio2 = ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f,
+    InstrumentAudio instrument1audio2 = ContentFixtures::buildInstrumentAudio(&instrument1, "ping", "70bpm.wav", 0.01f,
                                                                               2.123f, 120.0f, 0.62f, "PRIMARY",
                                                                               std::move(notThat), 1.0f);
 
@@ -104,7 +103,7 @@ protected:
       auto result = subject->selectNewChordPartInstrumentAudio(&instrument1, Chord::of(match));
 
       EXPECT_TRUE(result.has_value());
-      EXPECT_EQ(instrument1audio1.id, result->id);
+      EXPECT_EQ(instrument1audio1.id, result.value()->id);
     }
   }
 };
@@ -114,8 +113,8 @@ TEST_F(CraftTest, PrecomputeDeltas) {
       [](const SegmentChoice &choice) -> std::string {
         return Instrument::toString(choice.instrumentType);
       });
-  auto choiceFilter = [](const SegmentChoice &choice) {
-    return choice.programType == Program::Type::Detail;
+  auto choiceFilter = [](const SegmentChoice *choice) {
+    return choice->programType == Program::Type::Detail;
   };
   std::vector<std::string> detailLayerOrder;
   for (const auto &type: mockFabricator->getTemplateConfig().detailLayerOrder) {
@@ -126,9 +125,13 @@ TEST_F(CraftTest, PrecomputeDeltas) {
 }
 
 TEST_F(CraftTest, IsIntroSegment) {
-  EXPECT_TRUE(subject->isIntroSegment(SegmentFixtures::buildSegmentChoice(segment0, 132, 200, program1)));
-  EXPECT_FALSE(subject->isIntroSegment(SegmentFixtures::buildSegmentChoice(segment0, 110, 200, program1)));
-  EXPECT_FALSE(subject->isIntroSegment(SegmentFixtures::buildSegmentChoice(segment0, 200, 250, program1)));
+  auto sc0 = SegmentFixtures::buildSegmentChoice(segment0, 132, 200, program1);
+  auto sc1 = SegmentFixtures::buildSegmentChoice(segment0, 110, 200, program1);
+  auto sc2 = SegmentFixtures::buildSegmentChoice(segment0, 200, 250, program1);
+
+  EXPECT_TRUE(subject->isIntroSegment(&sc0));
+  EXPECT_FALSE(subject->isIntroSegment(&sc1));
+  EXPECT_FALSE(subject->isIntroSegment(&sc2));
 }
 
 TEST_F(CraftTest, InBounds) {
@@ -145,26 +148,43 @@ TEST_F(CraftTest, InBounds) {
 }
 
 TEST_F(CraftTest, IsOutroSegment) {
-  EXPECT_TRUE(subject->isOutroSegment(SegmentFixtures::buildSegmentChoice(segment0, 20, 130, program1)));
-  EXPECT_FALSE(subject->isOutroSegment(SegmentFixtures::buildSegmentChoice(segment0, 20, 100, program1)));
-  EXPECT_FALSE(subject->isOutroSegment(SegmentFixtures::buildSegmentChoice(segment0, 20, 250, program1)));
+  SegmentChoice input;
+  input = SegmentFixtures::buildSegmentChoice(segment0, 20, 130, program1);
+  EXPECT_TRUE(subject->isOutroSegment(&input));
+  input = SegmentFixtures::buildSegmentChoice(segment0, 20, 100, program1);
+  EXPECT_FALSE(subject->isOutroSegment(&input));
+  input = SegmentFixtures::buildSegmentChoice(segment0, 20, 250, program1);
+  EXPECT_FALSE(subject->isOutroSegment(&input));
 }
 
 TEST_F(CraftTest, IsSilentEntireSegment) {
-  EXPECT_TRUE(subject->isSilentEntireSegment(SegmentFixtures::buildSegmentChoice(segment0, 12, 25, program1)));
-  EXPECT_TRUE(subject->isSilentEntireSegment(SegmentFixtures::buildSegmentChoice(segment0, 200, 225, program1)));
-  EXPECT_FALSE(subject->isSilentEntireSegment(SegmentFixtures::buildSegmentChoice(segment0, 50, 136, program1)));
-  EXPECT_FALSE(subject->isSilentEntireSegment(SegmentFixtures::buildSegmentChoice(segment0, 150, 200, program1)));
-  EXPECT_FALSE(subject->isSilentEntireSegment(SegmentFixtures::buildSegmentChoice(segment0, 130, 150, program1)));
+  SegmentChoice input;
+  input = SegmentFixtures::buildSegmentChoice(segment0, 12, 25, program1);
+  EXPECT_TRUE(subject->isSilentEntireSegment(&input));
+  input = SegmentFixtures::buildSegmentChoice(segment0, 200, 225, program1);
+  EXPECT_TRUE(subject->isSilentEntireSegment(&input));
+  input = SegmentFixtures::buildSegmentChoice(segment0, 50, 136, program1);
+  EXPECT_FALSE(subject->isSilentEntireSegment(&input));
+  input = SegmentFixtures::buildSegmentChoice(segment0, 150, 200, program1);
+  EXPECT_FALSE(subject->isSilentEntireSegment(&input));
+  input = SegmentFixtures::buildSegmentChoice(segment0, 130, 150, program1);
+  EXPECT_FALSE(subject->isSilentEntireSegment(&input));
 }
 
 TEST_F(CraftTest, IsActiveEntireSegment) {
-  EXPECT_FALSE(subject->isActiveEntireSegment(SegmentFixtures::buildSegmentChoice(segment0, 12, 25, program1)));
-  EXPECT_FALSE(subject->isActiveEntireSegment(SegmentFixtures::buildSegmentChoice(segment0, 200, 225, program1)));
-  EXPECT_FALSE(subject->isActiveEntireSegment(SegmentFixtures::buildSegmentChoice(segment0, 50, 136, program1)));
-  EXPECT_FALSE(subject->isActiveEntireSegment(SegmentFixtures::buildSegmentChoice(segment0, 150, 200, program1)));
-  EXPECT_FALSE(subject->isActiveEntireSegment(SegmentFixtures::buildSegmentChoice(segment0, 130, 150, program1)));
-  EXPECT_TRUE(subject->isActiveEntireSegment(SegmentFixtures::buildSegmentChoice(segment0, 126, 195, program1)));
+  SegmentChoice input;
+  input = SegmentFixtures::buildSegmentChoice(segment0, 12, 25, program1);
+  EXPECT_FALSE(subject->isActiveEntireSegment(&input));
+  input = SegmentFixtures::buildSegmentChoice(segment0, 200, 225, program1);
+  EXPECT_FALSE(subject->isActiveEntireSegment(&input));
+  input = SegmentFixtures::buildSegmentChoice(segment0, 50, 136, program1);
+  EXPECT_FALSE(subject->isActiveEntireSegment(&input));
+  input = SegmentFixtures::buildSegmentChoice(segment0, 150, 200, program1);
+  EXPECT_FALSE(subject->isActiveEntireSegment(&input));
+  input = SegmentFixtures::buildSegmentChoice(segment0, 130, 150, program1);
+  EXPECT_FALSE(subject->isActiveEntireSegment(&input));
+  input = SegmentFixtures::buildSegmentChoice(segment0, 126, 195, program1);
+  EXPECT_TRUE(subject->isActiveEntireSegment(&input));
 }
 
 TEST_F(CraftTest, IsUnlimitedIn) {
@@ -186,20 +206,20 @@ TEST_F(CraftTest, IsUnlimitedOut) {
  https://github.com/xjmusic/xjmusic/issues/296
  */
 TEST_F(CraftTest, ChooseFreshInstrumentAudio) {
-  Project project1 = sourceMaterial->put(ContentFixtures::buildProject("testing"));
-  Library library1 = sourceMaterial->put(ContentFixtures::buildLibrary(project1, "leaves"));
-  Instrument instrument1 = sourceMaterial->put(
+  Project *project1 = sourceMaterial->put(ContentFixtures::buildProject("testing"));
+  Library *library1 = sourceMaterial->put(ContentFixtures::buildLibrary(project1, "leaves"));
+  Instrument *instrument1 = sourceMaterial->put(
       ContentFixtures::buildInstrument(library1, Instrument::Type::Percussion, Instrument::Mode::Event,
                                        Instrument::State::Published, "Loop 75 beats per minute"));
-  InstrumentMeme instrument1meme = sourceMaterial->put(ContentFixtures::buildInstrumentMeme(instrument1, "70BPM"));
-  InstrumentAudio instrument1audio = sourceMaterial->put(
+  InstrumentMeme *instrument1meme = sourceMaterial->put(ContentFixtures::buildInstrumentMeme(instrument1, "70BPM"));
+  InstrumentAudio *instrument1audio = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "slow loop", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f,
                                             "PRIMARY", "X", 1.0f));
-  Instrument instrument2 = sourceMaterial->put(
+  Instrument *instrument2 = sourceMaterial->put(
       ContentFixtures::buildInstrument(library1, Instrument::Type::Percussion, Instrument::Mode::Event,
                                        Instrument::State::Published, "Loop 85 beats per minute"));
-  InstrumentMeme instrument2meme = sourceMaterial->put(ContentFixtures::buildInstrumentMeme(instrument2, "90BPM"));
-  InstrumentAudio instrument2audio = sourceMaterial->put(
+  InstrumentMeme *instrument2meme = sourceMaterial->put(ContentFixtures::buildInstrumentMeme(instrument2, "90BPM"));
+  InstrumentAudio *instrument2audio = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument2, "fast loop", "90bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f,
                                             "SECONDARY", "X", 1.0f));
 
@@ -209,7 +229,7 @@ TEST_F(CraftTest, ChooseFreshInstrumentAudio) {
 
   // Call the method under test
   auto result = subject->chooseFreshInstrumentAudio({Instrument::Type::Percussion}, {Instrument::Mode::Event},
-                                                    {instrument1audio.instrumentId}, {"PRIMARY"});
+                                                    {instrument1audio->instrumentId}, {"PRIMARY"});
 
   // Check the result
   EXPECT_TRUE(result.has_value());
@@ -240,30 +260,30 @@ TEST_F(CraftTest, selectNewChordPartInstrumentAudio_chordSynonyms) {
 }
 
 TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ThreeLayers) {
-  Project project1 = sourceMaterial->put(ContentFixtures::buildProject("testing"));
-  Library library1 = sourceMaterial->put(ContentFixtures::buildLibrary(project1, "leaves"));
-  Instrument instrument1 = sourceMaterial->put(
+  Project *project1 = sourceMaterial->put(ContentFixtures::buildProject("testing"));
+  Library *library1 = sourceMaterial->put(ContentFixtures::buildLibrary(project1, "leaves"));
+  Instrument *instrument1 = sourceMaterial->put(
       ContentFixtures::buildInstrument(library1, Instrument::Type::Percussion, Instrument::Mode::Loop,
                                        Instrument::State::Published, "Test loop audio"));
   //Should pick one of these two at intensity 0.2
-  InstrumentAudio instrument1audio1a = sourceMaterial->put(
+  InstrumentAudio *instrument1audio1a = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X",
                                             1.0f));
-  InstrumentAudio instrument1audio1b = sourceMaterial->put(
+  InstrumentAudio *instrument1audio1b = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X",
                                             1.0f));
   //Should pick one of these two at intensity 0.5
-  InstrumentAudio instrument1audio2a = sourceMaterial->put(
+  InstrumentAudio *instrument1audio2a = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X",
                                             1.0f));
-  InstrumentAudio instrument1audio2b = sourceMaterial->put(
+  InstrumentAudio *instrument1audio2b = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X",
                                             1.0f));
   //Should pick one of these two at intensity 0.8
-  InstrumentAudio instrument1audio3a = sourceMaterial->put(
+  InstrumentAudio *instrument1audio3a = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X",
                                             1.0f));
-  InstrumentAudio instrument1audio3b = sourceMaterial->put(
+  InstrumentAudio *instrument1audio3b = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X",
                                             1.0f));
 
@@ -278,9 +298,9 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ThreeLayers) {
 
   // Check the result
   EXPECT_EQ(3, resultVector.size());
-  EXPECT_TRUE(resultVector[0].id == instrument1audio1a.id || resultVector[0].id == instrument1audio1b.id);
-  EXPECT_TRUE(resultVector[1].id == instrument1audio2a.id || resultVector[1].id == instrument1audio2b.id);
-  EXPECT_TRUE(resultVector[2].id == instrument1audio3a.id || resultVector[2].id == instrument1audio3b.id);
+  EXPECT_TRUE(resultVector[0].id == instrument1audio1a->id || resultVector[0].id == instrument1audio1b->id);
+  EXPECT_TRUE(resultVector[1].id == instrument1audio2a->id || resultVector[1].id == instrument1audio2b->id);
+  EXPECT_TRUE(resultVector[2].id == instrument1audio3a->id || resultVector[2].id == instrument1audio3b->id);
 }
 
 /**
@@ -288,45 +308,44 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ThreeLayers) {
  */
 TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ContinueSegment) {
   Project project1 = ContentFixtures::buildProject("testing");
-  Library library1 = ContentFixtures::buildLibrary(project1, "leaves");
-  Instrument instrument1 = sourceMaterial->put(
-      ContentFixtures::buildInstrument(library1, Instrument::Type::Percussion, Instrument::Mode::Loop,
+  Library library1 = ContentFixtures::buildLibrary(&project1, "leaves");
+  Instrument *instrument1 = sourceMaterial->put(
+      ContentFixtures::buildInstrument(&library1, Instrument::Type::Percussion, Instrument::Mode::Loop,
                                        Instrument::State::Published, "Test loop audio"));
-  instrument1.config = "isAudioSelectionPersistent=true";
+  instrument1->config = "isAudioSelectionPersistent=true";
   InstrumentConfig instrumentConfig = InstrumentConfig(instrument1);
-  InstrumentAudio instrument1audio1a = sourceMaterial->put(
+  InstrumentAudio *instrument1audio1a = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X",
                                             1.0f));
-  InstrumentAudio instrument1audio1b = sourceMaterial->put(
+  InstrumentAudio *instrument1audio1b = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X",
                                             1.0f));
-  InstrumentAudio instrument1audio2a = sourceMaterial->put(
+  InstrumentAudio *instrument1audio2a = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X",
                                             1.0f));
-  InstrumentAudio instrument1audio2b = sourceMaterial->put(
+  InstrumentAudio *instrument1audio2b = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X",
                                             1.0f));
-  InstrumentAudio instrument1audio3a = sourceMaterial->put(
+  InstrumentAudio *instrument1audio3a = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X",
                                             1.0f));
-  InstrumentAudio instrument1audio3b = sourceMaterial->put(
+  InstrumentAudio *instrument1audio3b = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X",
                                             1.0f));
   SegmentChoice choice = SegmentFixtures::buildSegmentChoice(segment0, instrument1);
-  SegmentChoiceArrangement arrangement = SegmentFixtures::buildSegmentChoiceArrangement(choice);
-  SegmentChoiceArrangementPick pick1 = SegmentFixtures::buildSegmentChoiceArrangementPick(segment0, arrangement,
+  SegmentChoiceArrangement arrangement = SegmentFixtures::buildSegmentChoiceArrangement(&choice);
+  SegmentChoiceArrangementPick pick1 = SegmentFixtures::buildSegmentChoiceArrangementPick(segment0, &arrangement,
                                                                                           instrument1audio1a,
-                                                                                          instrument1audio1a.event);
-  SegmentChoiceArrangementPick pick2 = SegmentFixtures::buildSegmentChoiceArrangementPick(segment0, arrangement,
+                                                                                          instrument1audio1a->event);
+  SegmentChoiceArrangementPick pick2 = SegmentFixtures::buildSegmentChoiceArrangementPick(segment0, &arrangement,
                                                                                           instrument1audio2a,
-                                                                                          instrument1audio2a.event);
-  SegmentChoiceArrangementPick pick3 = SegmentFixtures::buildSegmentChoiceArrangementPick(segment0, arrangement,
+                                                                                          instrument1audio2a->event);
+  SegmentChoiceArrangementPick pick3 = SegmentFixtures::buildSegmentChoiceArrangementPick(segment0, &arrangement,
                                                                                           instrument1audio3a,
-                                                                                          instrument1audio3a.event);
+                                                                                          instrument1audio3a->event);
 
   // Mock the methods
-  EXPECT_CALL(*mockSegmentRetrospective, getPreviousPicksForInstrument(instrument1.id)).WillOnce(
-      Return(std::set<SegmentChoiceArrangementPick>{pick1, pick2, pick3}));
+  EXPECT_CALL(*mockSegmentRetrospective, getPreviousPicksForInstrument(instrument1->id)).WillOnce(Return(std::set{&pick1, &pick2, &pick3}));
   EXPECT_CALL(*mockFabricator, getInstrumentConfig(_)).WillOnce(Return(instrumentConfig));
 
   // Call the method under test
@@ -340,7 +359,7 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ContinueSegment) {
 
   // Check the result
   EXPECT_EQ(3, resultVector.size());
-  EXPECT_EQ(instrument1audio1a.id, resultVector[0].id);
-  EXPECT_EQ(instrument1audio2a.id, resultVector[1].id);
-  EXPECT_EQ(instrument1audio3a.id, resultVector[2].id);
+  EXPECT_EQ(instrument1audio1a->id, resultVector[0].id);
+  EXPECT_EQ(instrument1audio2a->id, resultVector[1].id);
+  EXPECT_EQ(instrument1audio3a->id, resultVector[2].id);
 }

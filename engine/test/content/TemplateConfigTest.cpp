@@ -10,7 +10,7 @@ TEST(TemplateConfigTest, SetFromTemplate) {
   Template input;
   input.config = ("mixerCompressToAmplitude = 0.95");
 
-  TemplateConfig subject(input);
+  TemplateConfig subject(&input);
 
   EXPECT_NEAR(0.95, subject.mixerCompressToAmplitude, 0.01);
 }
@@ -24,7 +24,7 @@ TEST(TemplateConfigTest, SetFromDefaults) {
 TEST(TemplateConfigTest, DefaultsToString) {
   TemplateConfig subject;
 
-  std::vector<std::string> defaultLines = StringUtils::split(TemplateConfig::getDefaultString(), '\n');
+  std::vector<std::string> defaultLines = StringUtils::split(TemplateConfig::DEFAULT, '\n');
   std::vector<std::string> subjectLines = StringUtils::split(subject.toString(), '\n');
 
   for (int i = 0; i < defaultLines.size(); i++) {

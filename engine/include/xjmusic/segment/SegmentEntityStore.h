@@ -4,17 +4,21 @@
 #define XJMUSIC_SEGMENT_ENTITY_STORE_H
 
 #include <optional>
-#include <typeindex>
-#include <vector>
-#include <unordered_map>
-#include <string>
 #include <set>
+#include <string>
+#include <vector>
 
-#include "xjmusic/util/EntityUtils.h"
-#include "Segment.h"
 #include "Chain.h"
-#include "SegmentChoiceArrangementPick.h"
+#include "Segment.h"
 #include "SegmentChoice.h"
+#include "SegmentChoiceArrangement.h"
+#include "SegmentChoiceArrangementPick.h"
+#include "SegmentChord.h"
+#include "SegmentChordVoicing.h"
+#include "SegmentMeme.h"
+#include "SegmentMessage.h"
+#include "SegmentMeta.h"
+#include "xjmusic/util/EntityUtils.h"
 
 using namespace XJ;
 
@@ -73,13 +77,13 @@ namespace XJ {
      * Put the Chain in the entity store
      * @returns stored Chain
      */
-    Chain put(Chain c);
+    Chain * put(const Chain &c);
 
     /**
      * Put a Segment in the entity store
      * @returns stored Segment
      */
-    Segment put(Segment segment);
+    Segment * put(const Segment &segment);
 
     /**
      * Read a Chain by #
@@ -102,7 +106,7 @@ namespace XJ {
      @param chainMicros the chain microseconds for which to get the segment
      @return the segment at the given chain microseconds, or an empty optional if the segment is not ready
      */
-    std::optional<Segment> readSegmentAtChainMicros(long chainMicros);
+    std::optional<Segment *> readSegmentAtChainMicros(long chainMicros);
 
     /**
      Get all segments for a chain id

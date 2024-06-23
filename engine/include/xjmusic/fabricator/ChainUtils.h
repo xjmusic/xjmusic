@@ -19,7 +19,7 @@ namespace XJ {
   public:
     static std::string getFullKey(const std::string &key);
 
-    static std::string getIdentifier(const std::optional<Chain> &chain);
+    static std::string getIdentifier(const std::optional<Chain *> &chain);
 
     static std::set<UUID> targetIdsOfType(const std::set<const TemplateBinding *> &chainBindings, TemplateBinding::Type type);
 

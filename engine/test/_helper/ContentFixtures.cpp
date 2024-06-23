@@ -54,14 +54,13 @@ int ContentFixtures::random(std::vector<int> array) {
 
 std::vector<std::variant<Instrument, InstrumentAudio>>
 ContentFixtures::buildInstrumentWithAudios(
-    Instrument instrument,
-    const std::string &notes
-) {
+    const Instrument *instrument,
+    const std::string &notes) {
   std::vector<std::variant<Instrument, InstrumentAudio>> result;
-  result.emplace_back(instrument);
+  result.emplace_back(*instrument);
   std::vector<std::string> splitNotes = StringUtils::split(notes, ',');
   for (const std::string &note: splitNotes) {
-    std::string name = Instrument::toString(instrument.type) + "-" + note;
+    std::string name = Instrument::toString(instrument->type) + "-" + note;
     auto audio = buildAudio(instrument, name, note);
     result.emplace_back(audio);
   }
@@ -69,7 +68,7 @@ ContentFixtures::buildInstrumentWithAudios(
 }
 
 InstrumentAudio ContentFixtures::buildAudio(
-    const Instrument &instrument,
+    const Instrument *instrument,
     std::string name,
     std::string waveformKey,
     float start,
@@ -78,11 +77,10 @@ InstrumentAudio ContentFixtures::buildAudio(
     float intensity,
     std::string event,
     std::string note,
-    float volume
-) {
+    float volume) {
   InstrumentAudio instrumentAudio;
   instrumentAudio.id = EntityUtils::computeUniqueId();
-  instrumentAudio.instrumentId = instrument.id;
+  instrumentAudio.instrumentId = instrument->id;
   instrumentAudio.name = std::move(name);
   instrumentAudio.waveformKey = std::move(waveformKey);
   instrumentAudio.transientSeconds = start;
@@ -96,13 +94,12 @@ InstrumentAudio ContentFixtures::buildAudio(
 }
 
 InstrumentAudio ContentFixtures::buildAudio(
-    const Instrument &instrument,
+    const Instrument *instrument,
     std::string name,
-    std::string note
-) {
+    std::string note) {
   InstrumentAudio instrumentAudio;
   instrumentAudio.id = EntityUtils::computeUniqueId();
-  instrumentAudio.instrumentId = instrument.id;
+  instrumentAudio.instrumentId = instrument->id;
   instrumentAudio.name = std::move(name);
   instrumentAudio.waveformKey = "test123";
   instrumentAudio.transientSeconds = 0.0f;
@@ -122,16 +119,15 @@ Project ContentFixtures::buildProject() {
 }
 
 Program ContentFixtures::buildProgram(
-    const Library &library,
+    const Library *library,
     Program::Type type,
     Program::State state,
     std::string name,
     std::string key,
-    float tempo
-) {
+    float tempo) {
   Program program;
   program.id = EntityUtils::computeUniqueId();
-  program.libraryId = library.id;
+  program.libraryId = library->id;
   program.type = type;
   program.state = state;
   program.name = std::move(name);
@@ -173,26 +169,24 @@ Program ContentFixtures::buildDetailProgram(
 }
 
 ProgramMeme ContentFixtures::buildMeme(
-    const Program &program,
-    std::string name
-) {
+    const Program *program,
+    std::string name) {
   ProgramMeme meme;
   meme.id = EntityUtils::computeUniqueId();
-  meme.programId = program.id;
+  meme.programId = program->id;
   meme.name = std::move(name);
   return meme;
 }
 
 ProgramSequence ContentFixtures::buildSequence(
-    const Program &program,
+    const Program *program,
     int total,
     std::string name,
     float intensity,
-    std::string key
-) {
+    std::string key) {
   ProgramSequence sequence;
   sequence.id = EntityUtils::computeUniqueId();
-  sequence.programId = program.id;
+  sequence.programId = program->id;
   sequence.total = (short) total;
   sequence.name = std::move(name);
   sequence.key = std::move(key);
@@ -201,144 +195,132 @@ ProgramSequence ContentFixtures::buildSequence(
 }
 
 ProgramSequence ContentFixtures::buildSequence(
-    const Program &program,
-    int total
-) {
+    const Program *program,
+    int total) {
   ProgramSequence sequence;
   sequence.id = EntityUtils::computeUniqueId();
-  sequence.programId = program.id;
+  sequence.programId = program->id;
   sequence.total = (short) total;
   sequence.name = "Test " + std::to_string(total) + "-beat Sequence";
   return sequence;
 }
 
 ProgramSequenceBinding ContentFixtures::buildBinding(
-    const ProgramSequence &programSequence,
-    int offset
-) {
+    const ProgramSequence *programSequence,
+    int offset) {
   ProgramSequenceBinding binding;
   binding.id = EntityUtils::computeUniqueId();
-  binding.programId = programSequence.programId;
-  binding.programSequenceId = programSequence.id;
+  binding.programId = programSequence->programId;
+  binding.programSequenceId = programSequence->id;
   binding.offset = offset;
   return binding;
 }
 
 ProgramSequenceBindingMeme ContentFixtures::buildMeme(
-    const ProgramSequenceBinding &programSequenceBinding,
-    std::string name
-) {
+    const ProgramSequenceBinding *programSequenceBinding,
+    std::string name) {
   ProgramSequenceBindingMeme meme;
   meme.id = EntityUtils::computeUniqueId();
-  meme.programId = programSequenceBinding.programId;
-  meme.programSequenceBindingId = programSequenceBinding.id;
+  meme.programId = programSequenceBinding->programId;
+  meme.programSequenceBindingId = programSequenceBinding->id;
   meme.name = std::move(name);
   return meme;
 }
 
 ProgramSequenceChord ContentFixtures::buildChord(
-    const ProgramSequence &programSequence,
+    const ProgramSequence *programSequence,
     float position,
-    std::string name
-) {
+    std::string name) {
   ProgramSequenceChord chord;
   chord.id = EntityUtils::computeUniqueId();
-  chord.programSequenceId = programSequence.id;
-  chord.programId = programSequence.programId;
+  chord.programSequenceId = programSequence->id;
+  chord.programId = programSequence->programId;
   chord.position = position;
   chord.name = std::move(name);
   return chord;
 }
 
 ProgramSequenceChordVoicing ContentFixtures::buildVoicing(
-    const ProgramSequenceChord &programSequenceChord,
-    const ProgramVoice &voice,
-    std::string notes
-) {
+    const ProgramSequenceChord *programSequenceChord,
+    const ProgramVoice *voice,
+    std::string notes) {
   ProgramSequenceChordVoicing voicing;
   voicing.id = EntityUtils::computeUniqueId();
-  voicing.programId = programSequenceChord.programId;
-  voicing.programSequenceChordId = programSequenceChord.id;
-  voicing.programVoiceId = voice.id;
+  voicing.programId = programSequenceChord->programId;
+  voicing.programSequenceChordId = programSequenceChord->id;
+  voicing.programVoiceId = voice->id;
   voicing.notes = std::move(notes);
   return voicing;
 }
 
 ProgramVoice ContentFixtures::buildVoice(
-    const Program &program,
+    const Program *program,
     Instrument::Type type,
-    std::string name
-) {
+    std::string name) {
   ProgramVoice voice;
   voice.id = EntityUtils::computeUniqueId();
-  voice.programId = program.id;
+  voice.programId = program->id;
   voice.type = type;
   voice.name = std::move(name);
   return voice;
 }
 
 ProgramVoice ContentFixtures::buildVoice(
-    const Program &program,
-    Instrument::Type type
-) {
+    const Program *program,
+    Instrument::Type type) {
   return buildVoice(program, type, Instrument::toString(type));
 }
 
 ProgramVoiceTrack ContentFixtures::buildTrack(
-    const ProgramVoice &programVoice,
-    std::string name
-) {
+    const ProgramVoice *programVoice,
+    std::string name) {
   ProgramVoiceTrack track;
   track.id = EntityUtils::computeUniqueId();
-  track.programId = programVoice.programId;
-  track.programVoiceId = programVoice.id;
+  track.programId = programVoice->programId;
+  track.programVoiceId = programVoice->id;
   track.name = std::move(name);
   return track;
 }
 
 ProgramVoiceTrack ContentFixtures::buildTrack(
-    const ProgramVoice &programVoice
-) {
-  return buildTrack(programVoice, Instrument::toString(programVoice.type));
+    const ProgramVoice *programVoice) {
+  return buildTrack(programVoice, Instrument::toString(programVoice->type));
 }
 
 ProgramSequencePattern ContentFixtures::buildPattern(
-    const ProgramSequence &programSequence,
-    const ProgramVoice &programVoice,
+    const ProgramSequence *programSequence,
+    const ProgramVoice *programVoice,
     int total,
-    std::string name
-) {
+    std::string name) {
   ProgramSequencePattern pattern;
   pattern.id = EntityUtils::computeUniqueId();
-  pattern.programId = programSequence.programId;
-  pattern.programSequenceId = programSequence.id;
-  pattern.programVoiceId = programVoice.id;
+  pattern.programId = programSequence->programId;
+  pattern.programSequenceId = programSequence->id;
+  pattern.programVoiceId = programVoice->id;
   pattern.total = (short) total;
   pattern.name = std::move(name);
   return pattern;
 }
 
 ProgramSequencePattern ContentFixtures::buildPattern(
-    const ProgramSequence &sequence,
-    const ProgramVoice &voice,
-    int total
-) {
-  return buildPattern(sequence, voice, total, sequence.name + " pattern");
+    const ProgramSequence *sequence,
+    const ProgramVoice *voice,
+    int total) {
+  return buildPattern(sequence, voice, total, sequence->name + " pattern");
 }
 
 ProgramSequencePatternEvent ContentFixtures::buildEvent(
-    const ProgramSequencePattern &pattern,
-    const ProgramVoiceTrack &track,
+    const ProgramSequencePattern *pattern,
+    const ProgramVoiceTrack *track,
     float position,
     float duration,
     std::string note,
-    float velocity
-) {
+    float velocity) {
   ProgramSequencePatternEvent event;
   event.id = EntityUtils::computeUniqueId();
-  event.programId = pattern.programId;
-  event.programSequencePatternId = pattern.id;
-  event.programVoiceTrackId = track.id;
+  event.programId = pattern->programId;
+  event.programSequencePatternId = pattern->id;
+  event.programVoiceTrackId = track->id;
   event.position = position;
   event.duration = duration;
   event.tones = std::move(note);
@@ -347,12 +329,11 @@ ProgramSequencePatternEvent ContentFixtures::buildEvent(
 }
 
 ProgramSequencePatternEvent ContentFixtures::buildEvent(
-    const ProgramSequencePattern &pattern,
-    const ProgramVoiceTrack &track,
+    const ProgramSequencePattern *pattern,
+    const ProgramVoiceTrack *track,
     float position,
     float duration,
-    std::string note
-) {
+    std::string note) {
   return buildEvent(pattern, track, position, duration, std::move(note), 1.0f);
 }
 
@@ -375,18 +356,17 @@ Instrument ContentFixtures::buildInstrument(
 }
 
 InstrumentMeme ContentFixtures::buildMeme(
-    const Instrument &instrument,
-    std::string name
-) {
+    const Instrument *instrument,
+    std::string name) {
   InstrumentMeme instrumentMeme;
   instrumentMeme.id = EntityUtils::computeUniqueId();
-  instrumentMeme.instrumentId = instrument.id;
+  instrumentMeme.instrumentId = instrument->id;
   instrumentMeme.name = std::move(name);
   return instrumentMeme;
 }
 
 InstrumentAudio ContentFixtures::buildInstrumentAudio(
-    const Instrument &instrument,
+    const Instrument *instrument,
     std::string name,
     std::string waveformKey,
     float start,
@@ -395,11 +375,10 @@ InstrumentAudio ContentFixtures::buildInstrumentAudio(
     float intensity,
     std::string event,
     std::string tones,
-    float volume
-) {
+    float volume) {
   InstrumentAudio instrumentAudio;
   instrumentAudio.id = EntityUtils::computeUniqueId();
-  instrumentAudio.instrumentId = instrument.id;
+  instrumentAudio.instrumentId = instrument->id;
   instrumentAudio.name = std::move(name);
   instrumentAudio.waveformKey = std::move(waveformKey);
   instrumentAudio.transientSeconds = start;
@@ -413,12 +392,11 @@ InstrumentAudio ContentFixtures::buildInstrumentAudio(
 }
 
 Library ContentFixtures::buildLibrary(
-    const Project &project,
-    std::string name
-) {
+    const Project *project,
+    std::string name) {
   Library library;
   library.id = EntityUtils::computeUniqueId();
-  library.projectId = project.id;
+  library.projectId = project->id;
   library.name = std::move(name);
   return library;
 }
@@ -433,94 +411,86 @@ Project ContentFixtures::buildProject(
 }
 
 Template ContentFixtures::buildTemplate(
-    const Project &project1,
+    const Project *project1,
     std::string name,
-    std::string shipKey
-) {
+    std::string shipKey) {
   Template tmpl;
   tmpl.id = EntityUtils::computeUniqueId();
   tmpl.shipKey = std::move(shipKey);
   tmpl.config = ContentFixtures::TEST_TEMPLATE_CONFIG;
-  tmpl.projectId = project1.id;
+  tmpl.projectId = project1->id;
   tmpl.name = std::move(name);
   return tmpl;
 }
 
 Template ContentFixtures::buildTemplate(
-    const Project &project1,
+    const Project *project1,
     std::string name,
     std::string shipKey,
-    std::string config
-) {
+    std::string config) {
   Template tmpl = buildTemplate(project1, std::move(name), std::move(shipKey));
   tmpl.config = std::move(config);
   return tmpl;
 }
 
 Template ContentFixtures::buildTemplate(
-    const Project &project1,
-    const std::string &name
-) {
+    const Project *project1,
+    const std::string &name) {
   return buildTemplate(project1, name, name + "123");
 }
 
 TemplateBinding ContentFixtures::buildTemplateBinding(
-    const Template &tmpl,
-    const Library &library
-) {
+    const Template *tmpl,
+    const Library *library) {
   TemplateBinding templateBinding;
   templateBinding.id = EntityUtils::computeUniqueId();
   templateBinding.type = TemplateBinding::Type::Library;
-  templateBinding.targetId = library.id;
-  templateBinding.templateId = tmpl.id;
+  templateBinding.targetId = library->id;
+  templateBinding.templateId = tmpl->id;
   return templateBinding;
 }
 
 TemplateBinding ContentFixtures::buildTemplateBinding(
-    const Template &tmpl,
-    const Program &program
-) {
+    const Template *tmpl,
+    const Program *program) {
   TemplateBinding templateBinding;
   templateBinding.id = EntityUtils::computeUniqueId();
   templateBinding.type = TemplateBinding::Type::Program;
-  templateBinding.targetId = program.id;
-  templateBinding.templateId = tmpl.id;
+  templateBinding.targetId = program->id;
+  templateBinding.templateId = tmpl->id;
   return templateBinding;
 }
 
 TemplateBinding ContentFixtures::buildTemplateBinding(
-    const Template &tmpl,
-    const Instrument &instrument
-) {
+    const Template *tmpl,
+    const Instrument *instrument) {
   TemplateBinding templateBinding;
   templateBinding.id = EntityUtils::computeUniqueId();
   templateBinding.type = TemplateBinding::Type::Instrument;
-  templateBinding.targetId = instrument.id;
-  templateBinding.templateId = tmpl.id;
+  templateBinding.targetId = instrument->id;
+  templateBinding.templateId = tmpl->id;
   return templateBinding;
 }
 
 ProgramMeme ContentFixtures::buildProgramMeme(
-    const Program &program,
-    std::string name
-) {
+    const Program *program,
+    std::string name) {
   ProgramMeme programMeme;
   programMeme.id = EntityUtils::computeUniqueId();
-  programMeme.programId = program.id;
+  programMeme.programId = program->id;
   programMeme.name = std::move(name);
   return programMeme;
 }
 
 ProgramSequence ContentFixtures::buildProgramSequence(
-    const Program &program,
+    const Program *program,
     int total,
     std::string name,
     float intensity,
-    std::string key
-) {
+    std::string key) {
   ProgramSequence programSequence;
   programSequence.id = EntityUtils::computeUniqueId();
-  programSequence.programId = program.id;
+  programSequence.programId = program->id;
   programSequence.total = (short) total;
   programSequence.name = std::move(name);
   programSequence.key = std::move(key);
@@ -529,111 +499,103 @@ ProgramSequence ContentFixtures::buildProgramSequence(
 }
 
 ProgramSequenceBinding ContentFixtures::buildProgramSequenceBinding(
-    const ProgramSequence &programSequence,
-    int offset
-) {
+    const ProgramSequence *programSequence,
+    int offset) {
   ProgramSequenceBinding programSequenceBinding;
   programSequenceBinding.id = EntityUtils::computeUniqueId();
-  programSequenceBinding.programId = programSequence.programId;
-  programSequenceBinding.programSequenceId = programSequence.id;
+  programSequenceBinding.programId = programSequence->programId;
+  programSequenceBinding.programSequenceId = programSequence->id;
   programSequenceBinding.offset = offset;
   return programSequenceBinding;
 }
 
 ProgramSequenceBindingMeme ContentFixtures::buildProgramSequenceBindingMeme(
-    const ProgramSequenceBinding &programSequenceBinding,
-    std::string name
-) {
+    const ProgramSequenceBinding *programSequenceBinding,
+    std::string name) {
   ProgramSequenceBindingMeme programSequenceBindingMeme;
   programSequenceBindingMeme.id = EntityUtils::computeUniqueId();
-  programSequenceBindingMeme.programId = programSequenceBinding.programId;
-  programSequenceBindingMeme.programSequenceBindingId = programSequenceBinding.id;
+  programSequenceBindingMeme.programId = programSequenceBinding->programId;
+  programSequenceBindingMeme.programSequenceBindingId = programSequenceBinding->id;
   programSequenceBindingMeme.name = std::move(name);
   return programSequenceBindingMeme;
 }
 
 ProgramSequenceChord ContentFixtures::buildProgramSequenceChord(
-    const ProgramSequence &programSequence,
+    const ProgramSequence *programSequence,
     float position,
-    std::string name
-) {
+    std::string name) {
   ProgramSequenceChord programSequenceChord;
   programSequenceChord.id = EntityUtils::computeUniqueId();
-  programSequenceChord.programSequenceId = programSequence.id;
-  programSequenceChord.programId = programSequence.programId;
+  programSequenceChord.programSequenceId = programSequence->id;
+  programSequenceChord.programId = programSequence->programId;
   programSequenceChord.position = position;
   programSequenceChord.name = std::move(name);
   return programSequenceChord;
 }
 
 ProgramSequenceChordVoicing ContentFixtures::buildProgramSequenceChordVoicing(
-    const ProgramSequenceChord &programSequenceChord,
-    const ProgramVoice &voice,
-    std::string notes
-) {
+    const ProgramSequenceChord *programSequenceChord,
+    const ProgramVoice *voice,
+    std::string notes) {
   ProgramSequenceChordVoicing programSequenceChordVoicing;
   programSequenceChordVoicing.id = EntityUtils::computeUniqueId();
-  programSequenceChordVoicing.programId = programSequenceChord.programId;
-  programSequenceChordVoicing.programSequenceChordId = programSequenceChord.id;
-  programSequenceChordVoicing.programVoiceId = voice.id;
+  programSequenceChordVoicing.programId = programSequenceChord->programId;
+  programSequenceChordVoicing.programSequenceChordId = programSequenceChord->id;
+  programSequenceChordVoicing.programVoiceId = voice->id;
   programSequenceChordVoicing.notes = std::move(notes);
   return programSequenceChordVoicing;
 }
 
 ProgramVoice ContentFixtures::buildProgramVoice(
-    const Program &program,
+    const Program *program,
     Instrument::Type type,
-    std::string name
-) {
+    std::string name) {
   ProgramVoice programVoice;
   programVoice.id = EntityUtils::computeUniqueId();
-  programVoice.programId = program.id;
+  programVoice.programId = program->id;
   programVoice.type = type;
   programVoice.name = std::move(name);
   return programVoice;
 }
 
 ProgramVoiceTrack ContentFixtures::buildProgramVoiceTrack(
-    const ProgramVoice &programVoice,
-    std::string name
-) {
+    const ProgramVoice *programVoice,
+    std::string name) {
   ProgramVoiceTrack programVoiceTrack;
   programVoiceTrack.id = EntityUtils::computeUniqueId();
-  programVoiceTrack.programId = programVoice.programId;
-  programVoiceTrack.programVoiceId = programVoice.id;
+  programVoiceTrack.programId = programVoice->programId;
+  programVoiceTrack.programVoiceId = programVoice->id;
   programVoiceTrack.name = std::move(name);
   return programVoiceTrack;
 }
 
 ProgramSequencePattern ContentFixtures::buildProgramSequencePattern(
-    const ProgramSequence &programSequence,
-    const ProgramVoice &programVoice,
+    const ProgramSequence *programSequence,
+    const ProgramVoice *programVoice,
     int total,
-    std::string name
-) {
+    std::string name) {
   ProgramSequencePattern programSequencePattern;
   programSequencePattern.id = EntityUtils::computeUniqueId();
-  programSequencePattern.programId = programSequence.programId;
-  programSequencePattern.programSequenceId = programSequence.id;
-  programSequencePattern.programVoiceId = programVoice.id;
+  programSequencePattern.programId = programSequence->programId;
+  programSequencePattern.programSequenceId = programSequence->id;
+  programSequencePattern.programVoiceId = programVoice->id;
   programSequencePattern.total = (short) total;
   programSequencePattern.name = std::move(name);
   return programSequencePattern;
 }
 
 ProgramSequencePatternEvent ContentFixtures::buildProgramSequencePatternEvent(
-    const ProgramSequencePattern &programSequencePattern,
-    const ProgramVoiceTrack &programVoiceTrack,
+    const ProgramSequencePattern *programSequencePattern,
+    const ProgramVoiceTrack *programVoiceTrack,
     float position,
     float duration,
     std::string tones,
-    float velocity
-) {
+    float velocity) {
   ProgramSequencePatternEvent programSequencePatternEvent;
   programSequencePatternEvent.id = EntityUtils::computeUniqueId();
-  programSequencePatternEvent.programId = programSequencePattern.programId;
-  programSequencePatternEvent.programSequencePatternId = programSequencePattern.id;
-  programSequencePatternEvent.programVoiceTrackId = programVoiceTrack.id;
+  programSequencePatternEvent.programId = programSequencePattern->programId;
+  programSequencePatternEvent.programSequencePatternId = programSequencePattern->id;
+  programSequencePatternEvent.programVoiceTrackId = programVoiceTrack->id;
   programSequencePatternEvent.position = position;
   programSequencePatternEvent.duration = duration;
   programSequencePatternEvent.tones = std::move(tones);
@@ -642,16 +604,15 @@ ProgramSequencePatternEvent ContentFixtures::buildProgramSequencePatternEvent(
 }
 
 Instrument ContentFixtures::buildInstrument(
-    const Library &library,
+    const Library *library,
     Instrument::Type type,
     Instrument::Mode mode,
     Instrument::State state,
-    std::string name
-) {
+    std::string name) {
   Instrument instrument;
   instrument.config = (new TemplateConfig())->toString();
   instrument.id = EntityUtils::computeUniqueId();
-  instrument.libraryId = library.id;
+  instrument.libraryId = library->id;
   instrument.type = type;
   instrument.mode = mode;
   instrument.state = state;
@@ -660,12 +621,11 @@ Instrument ContentFixtures::buildInstrument(
 }
 
 InstrumentMeme ContentFixtures::buildInstrumentMeme(
-    const Instrument &instrument,
-    std::string name
-) {
+    const Instrument *instrument,
+    std::string name) {
   InstrumentMeme instrumentMeme;
   instrumentMeme.id = EntityUtils::computeUniqueId();
-  instrumentMeme.instrumentId = instrument.id;
+  instrumentMeme.instrumentId = instrument->id;
   instrumentMeme.name = std::move(name);
   return instrumentMeme;
 }
@@ -676,113 +636,113 @@ void ContentFixtures::setupFixtureB1(ContentEntityStore *store) {
   project1 = ContentFixtures::buildProject("bananas");
 
   // Library "house"
-  library2 = ContentFixtures::buildLibrary(project1, "house");
+  library2 = ContentFixtures::buildLibrary(&project1, "house");
 
   // Template Binding to library 2
-  template1 = ContentFixtures::buildTemplate(project1, "Test Template 1", "test1");
-  templateBinding1 = ContentFixtures::buildTemplateBinding(template1, library2);
+  template1 = ContentFixtures::buildTemplate(&project1, "Test Template 1", "test1");
+  templateBinding1 = ContentFixtures::buildTemplateBinding(&template1, &library2);
 
   // "Tropical, Wild to Cozy" macro-program in house library
-  program4 = ContentFixtures::buildProgram(library2, Program::Type::Macro, Program::State::Published,
+  program4 = ContentFixtures::buildProgram(&library2, Program::Type::Macro, Program::State::Published,
                                            "Tropical, Wild to Cozy", "C", 120.0f);
-  program4_meme0 = ContentFixtures::buildMeme(program4, "Tropical");
+  program4_meme0 = ContentFixtures::buildMeme(&program4, "Tropical");
   //
-  program4_sequence0 = ContentFixtures::buildSequence(program4, 0, "Start Wild", 0.6f, "C");
-  program4_sequence0_binding0 = ContentFixtures::buildBinding(program4_sequence0, 0);
-  program4_sequence0_binding0_meme0 = ContentFixtures::buildMeme(program4_sequence0_binding0, "Wild");
+  program4_sequence0 = ContentFixtures::buildSequence(&program4, 0, "Start Wild", 0.6f, "C");
+  program4_sequence0_binding0 = ContentFixtures::buildBinding(&program4_sequence0, 0);
+  program4_sequence0_binding0_meme0 = ContentFixtures::buildMeme(&program4_sequence0_binding0, "Wild");
   //
-  program4_sequence1 = ContentFixtures::buildSequence(program4, 0, "Intermediate", 0.4f, "Bb minor");
-  program4_sequence1_binding0 = ContentFixtures::buildBinding(program4_sequence1, 1);
-  program4_sequence1_binding0_meme0 = ContentFixtures::buildMeme(program4_sequence1_binding0, "Cozy");
-  program4_sequence1_binding0_meme1 = ContentFixtures::buildMeme(program4_sequence1_binding0, "Wild");
+  program4_sequence1 = ContentFixtures::buildSequence(&program4, 0, "Intermediate", 0.4f, "Bb minor");
+  program4_sequence1_binding0 = ContentFixtures::buildBinding(&program4_sequence1, 1);
+  program4_sequence1_binding0_meme0 = ContentFixtures::buildMeme(&program4_sequence1_binding0, "Cozy");
+  program4_sequence1_binding0_meme1 = ContentFixtures::buildMeme(&program4_sequence1_binding0, "Wild");
   //
-  program4_sequence2 = ContentFixtures::buildSequence(program4, 0, "Finish Cozy", 0.4f, "Ab minor");
-  program4_sequence2_binding0 = ContentFixtures::buildBinding(program4_sequence2, 2);
-  program4_sequence2_binding0_meme0 = ContentFixtures::buildMeme(program4_sequence2_binding0, "Cozy");
+  program4_sequence2 = ContentFixtures::buildSequence(&program4, 0, "Finish Cozy", 0.4f, "Ab minor");
+  program4_sequence2_binding0 = ContentFixtures::buildBinding(&program4_sequence2, 2);
+  program4_sequence2_binding0_meme0 = ContentFixtures::buildMeme(&program4_sequence2_binding0, "Cozy");
 
   // Main program
-  program5 = ContentFixtures::buildProgram(library2, Program::Type::Main, Program::State::Published,
+  program5 = ContentFixtures::buildProgram(&library2, Program::Type::Main, Program::State::Published,
                                            "Main Jam", "C minor", 140);
-  program5_voiceBass = ContentFixtures::buildVoice(program5, Instrument::Type::Bass, "Bass");
-  program5_voiceSticky = ContentFixtures::buildVoice(program5, Instrument::Type::Sticky, "Sticky");
-  program5_voiceStripe = ContentFixtures::buildVoice(program5, Instrument::Type::Stripe, "Stripe");
-  program5_voicePad = ContentFixtures::buildVoice(program5, Instrument::Type::Pad, "Pad");
-  program5_meme0 = ContentFixtures::buildMeme(program5, "Outlook");
+  program5_voiceBass = ContentFixtures::buildVoice(&program5, Instrument::Type::Bass, "Bass");
+  program5_voiceSticky = ContentFixtures::buildVoice(&program5, Instrument::Type::Sticky, "Sticky");
+  program5_voiceStripe = ContentFixtures::buildVoice(&program5, Instrument::Type::Stripe, "Stripe");
+  program5_voicePad = ContentFixtures::buildVoice(&program5, Instrument::Type::Pad, "Pad");
+  program5_meme0 = ContentFixtures::buildMeme(&program5, "Outlook");
   //
-  program5_sequence0 = ContentFixtures::buildSequence(program5, 16, "Intro", 0.5f, "G major");
-  program5_sequence0_chord0 = ContentFixtures::buildChord(program5_sequence0, 0.0f, "G major");
-  program5_sequence0_chord0_voicing = ContentFixtures::buildVoicing(program5_sequence0_chord0,
-                                                                    program5_voiceBass, "G3, B3, D4");
-  program5_sequence0_chord1 = ContentFixtures::buildChord(program5_sequence0, 8.0f, "Ab minor");
-  program5_sequence0_chord1_voicing = ContentFixtures::buildVoicing(program5_sequence0_chord1,
-                                                                    program5_voiceBass,
+  program5_sequence0 = ContentFixtures::buildSequence(&program5, 16, "Intro", 0.5f, "G major");
+  program5_sequence0_chord0 = ContentFixtures::buildChord(&program5_sequence0, 0.0f, "G major");
+  program5_sequence0_chord0_voicing = ContentFixtures::buildVoicing(&program5_sequence0_chord0,
+                                                                    &program5_voiceBass, "G3, B3, D4");
+  program5_sequence0_chord1 = ContentFixtures::buildChord(&program5_sequence0, 8.0f, "Ab minor");
+  program5_sequence0_chord1_voicing = ContentFixtures::buildVoicing(&program5_sequence0_chord1,
+                                                                    &program5_voiceBass,
                                                                     "Ab3, Db3, F4");
-  program5_sequence0_chord2 = ContentFixtures::buildChord(program5_sequence0, 75.0,
+  program5_sequence0_chord2 = ContentFixtures::buildChord(&program5_sequence0, 75.0,
                                                           "G-9");// this ChordEntity should be ignored, because it's past the end of the main-pattern total
-  program5_sequence0_chord2_voicing = ContentFixtures::buildVoicing(program5_sequence0_chord2,
-                                                                    program5_voiceBass,
+  program5_sequence0_chord2_voicing = ContentFixtures::buildVoicing(&program5_sequence0_chord2,
+                                                                    &program5_voiceBass,
                                                                     "G3, Bb3, D4, A4");
-  program5_sequence0_binding0 = ContentFixtures::buildBinding(program5_sequence0, 0);
-  program5_sequence0_binding0_meme0 = ContentFixtures::buildMeme(program5_sequence0_binding0,
+  program5_sequence0_binding0 = ContentFixtures::buildBinding(&program5_sequence0, 0);
+  program5_sequence0_binding0_meme0 = ContentFixtures::buildMeme(&program5_sequence0_binding0,
                                                                  "Optimism");
   //
-  program5_sequence1 = ContentFixtures::buildSequence(program5, 32, "Drop", 0.5f, "G minor");
-  program5_sequence1_chord0 = ContentFixtures::buildChord(program5_sequence1, 0.0f, "C major");
+  program5_sequence1 = ContentFixtures::buildSequence(&program5, 32, "Drop", 0.5f, "G minor");
+  program5_sequence1_chord0 = ContentFixtures::buildChord(&program5_sequence1, 0.0f, "C major");
   //
-  program5_sequence1_chord0_voicing = ContentFixtures::buildVoicing(program5_sequence1_chord0,
-                                                                    program5_voiceBass,
+  program5_sequence1_chord0_voicing = ContentFixtures::buildVoicing(&program5_sequence1_chord0,
+                                                                    &program5_voiceBass,
                                                                     "Ab3, Db3, F4");
-  program5_sequence1_chord1 = ContentFixtures::buildChord(program5_sequence1, 8.0f, "Bb minor");
+  program5_sequence1_chord1 = ContentFixtures::buildChord(&program5_sequence1, 8.0f, "Bb minor");
   //
-  program5_sequence1_chord1_voicing = ContentFixtures::buildVoicing(program5_sequence1_chord1,
-                                                                    program5_voiceBass,
+  program5_sequence1_chord1_voicing = ContentFixtures::buildVoicing(&program5_sequence1_chord1,
+                                                                    &program5_voiceBass,
                                                                     "Ab3, Db3, F4");
-  program5_sequence1_binding0 = ContentFixtures::buildBinding(program5_sequence1, 1);
-  program5_sequence1_binding0_meme0 = ContentFixtures::buildMeme(program5_sequence1_binding0,
+  program5_sequence1_binding0 = ContentFixtures::buildBinding(&program5_sequence1, 1);
+  program5_sequence1_binding0_meme0 = ContentFixtures::buildMeme(&program5_sequence1_binding0,
                                                                  "Pessimism");
-  program5_sequence1_binding1 = ContentFixtures::buildBinding(program5_sequence1, 1);
-  program5_sequence1_binding1_meme0 = ContentFixtures::buildMeme(program5_sequence1_binding0,
+  program5_sequence1_binding1 = ContentFixtures::buildBinding(&program5_sequence1, 1);
+  program5_sequence1_binding1_meme0 = ContentFixtures::buildMeme(&program5_sequence1_binding0,
                                                                  "Pessimism");
 
   // A basic beat
-  program35 = ContentFixtures::buildProgram(library2, Program::Type::Beat, Program::State::Published,
+  program35 = ContentFixtures::buildProgram(&library2, Program::Type::Beat, Program::State::Published,
                                             "Basic Beat", "C", 121);
-  program35_meme0 = ContentFixtures::buildMeme(program35, "Basic");
-  program35_voice0 = ContentFixtures::buildVoice(program35, Instrument::Type::Drum, "Drums");
-  program35_voice0_track0 = ContentFixtures::buildTrack(program35_voice0, "KICK");
-  program35_voice0_track1 = ContentFixtures::buildTrack(program35_voice0, "SNARE");
-  program35_voice0_track2 = ContentFixtures::buildTrack(program35_voice0, "KICK");
-  program35_voice0_track3 = ContentFixtures::buildTrack(program35_voice0, "SNARE");
+  program35_meme0 = ContentFixtures::buildMeme(&program35, "Basic");
+  program35_voice0 = ContentFixtures::buildVoice(&program35, Instrument::Type::Drum, "Drums");
+  program35_voice0_track0 = ContentFixtures::buildTrack(&program35_voice0, "KICK");
+  program35_voice0_track1 = ContentFixtures::buildTrack(&program35_voice0, "SNARE");
+  program35_voice0_track2 = ContentFixtures::buildTrack(&program35_voice0, "KICK");
+  program35_voice0_track3 = ContentFixtures::buildTrack(&program35_voice0, "SNARE");
   //
-  program35_sequence0 = ContentFixtures::buildSequence(program35, 16, "Base", 0.5f, "C");
-  program35_sequence0_pattern0 = ContentFixtures::buildPattern(program35_sequence0, program35_voice0,
+  program35_sequence0 = ContentFixtures::buildSequence(&program35, 16, "Base", 0.5f, "C");
+  program35_sequence0_pattern0 = ContentFixtures::buildPattern(&program35_sequence0, &program35_voice0,
                                                                4, "Drop");
-  program35_sequence0_pattern0_event0 = ContentFixtures::buildEvent(program35_sequence0_pattern0,
-                                                                    program35_voice0_track0, 0.0f,
+  program35_sequence0_pattern0_event0 = ContentFixtures::buildEvent(&program35_sequence0_pattern0,
+                                                                    &program35_voice0_track0, 0.0f,
                                                                     1.0f, "C2", 1.0f);
-  program35_sequence0_pattern0_event1 = ContentFixtures::buildEvent(program35_sequence0_pattern0,
-                                                                    program35_voice0_track1, 1.0f,
+  program35_sequence0_pattern0_event1 = ContentFixtures::buildEvent(&program35_sequence0_pattern0,
+                                                                    &program35_voice0_track1, 1.0f,
                                                                     1.0f, "G5", 0.8f);
-  program35_sequence0_pattern0_event2 = ContentFixtures::buildEvent(program35_sequence0_pattern0,
-                                                                    program35_voice0_track2, 2.5f,
+  program35_sequence0_pattern0_event2 = ContentFixtures::buildEvent(&program35_sequence0_pattern0,
+                                                                    &program35_voice0_track2, 2.5f,
                                                                     1.0f, "C2", 0.6f);
-  program35_sequence0_pattern0_event3 = ContentFixtures::buildEvent(program35_sequence0_pattern0,
-                                                                    program35_voice0_track3, 3.0f,
+  program35_sequence0_pattern0_event3 = ContentFixtures::buildEvent(&program35_sequence0_pattern0,
+                                                                    &program35_voice0_track3, 3.0f,
                                                                     1.0f, "G5", 0.9f);
   //
-  program35_sequence0_pattern1 = ContentFixtures::buildPattern(program35_sequence0, program35_voice0,
+  program35_sequence0_pattern1 = ContentFixtures::buildPattern(&program35_sequence0, &program35_voice0,
                                                                4, "Drop Alt");
-  program35_sequence0_pattern1_event0 = ContentFixtures::buildEvent(program35_sequence0_pattern1,
-                                                                    program35_voice0_track0, 0.0f,
+  program35_sequence0_pattern1_event0 = ContentFixtures::buildEvent(&program35_sequence0_pattern1,
+                                                                    &program35_voice0_track0, 0.0f,
                                                                     1.0f, "B5", 0.9f);
-  program35_sequence0_pattern1_event1 = ContentFixtures::buildEvent(program35_sequence0_pattern1,
-                                                                    program35_voice0_track1, 1.0f,
+  program35_sequence0_pattern1_event1 = ContentFixtures::buildEvent(&program35_sequence0_pattern1,
+                                                                    &program35_voice0_track1, 1.0f,
                                                                     1.0f, "D2", 1.0f);
-  program35_sequence0_pattern1_event2 = ContentFixtures::buildEvent(program35_sequence0_pattern1,
-                                                                    program35_voice0_track2, 2.5f,
+  program35_sequence0_pattern1_event2 = ContentFixtures::buildEvent(&program35_sequence0_pattern1,
+                                                                    &program35_voice0_track2, 2.5f,
                                                                     1.0f, "E4", 0.7f);
-  program35_sequence0_pattern1_event3 = ContentFixtures::buildEvent(program35_sequence0_pattern1,
-                                                                    program35_voice0_track3, 3.0f,
+  program35_sequence0_pattern1_event3 = ContentFixtures::buildEvent(&program35_sequence0_pattern1,
+                                                                    &program35_voice0_track3, 3.0f,
                                                                     1.0f, "c3", 0.5f);
 
   // Put all entities into the given content store
@@ -846,52 +806,52 @@ void ContentFixtures::setupFixtureB1(ContentEntityStore *store) {
 
 void ContentFixtures::setupFixtureB2(ContentEntityStore *store) {
   // "Tangy, Chunky to Smooth" macro-program in house library
-  program3 = ContentFixtures::buildProgram(library2, Program::Type::Macro, Program::State::Published,
+  program3 = ContentFixtures::buildProgram(&library2, Program::Type::Macro, Program::State::Published,
                                            "Tangy, Chunky to Smooth", "G minor", 120.0f);
-  program3_meme0 = ContentFixtures::buildMeme(program3, "Tangy");
+  program3_meme0 = ContentFixtures::buildMeme(&program3, "Tangy");
   //
-  program3_sequence0 = ContentFixtures::buildSequence(program3, 0, "Start Chunky", 0.4f, "G minor");
-  program3_sequence0_binding0 = ContentFixtures::buildBinding(program3_sequence0, 0);
-  program3_sequence0_binding0_meme0 = ContentFixtures::buildMeme(program3_sequence0_binding0,
+  program3_sequence0 = ContentFixtures::buildSequence(&program3, 0, "Start Chunky", 0.4f, "G minor");
+  program3_sequence0_binding0 = ContentFixtures::buildBinding(&program3_sequence0, 0);
+  program3_sequence0_binding0_meme0 = ContentFixtures::buildMeme(&program3_sequence0_binding0,
                                                                  "Chunky");
   //
-  program3_sequence1 = ContentFixtures::buildSequence(program3, 0, "Finish Smooth", 0.6f, "C");
-  program3_sequence1_binding0 = ContentFixtures::buildBinding(program3_sequence1, 1);
-  program3_sequence1_binding0_meme0 = ContentFixtures::buildMeme(program3_sequence1_binding0,
+  program3_sequence1 = ContentFixtures::buildSequence(&program3, 0, "Finish Smooth", 0.6f, "C");
+  program3_sequence1_binding0 = ContentFixtures::buildBinding(&program3_sequence1, 1);
+  program3_sequence1_binding0_meme0 = ContentFixtures::buildMeme(&program3_sequence1_binding0,
                                                                  "Smooth");
 
   // Main program
-  program15 = ContentFixtures::buildProgram(library2, Program::Type::Main, Program::State::Published,
+  program15 = ContentFixtures::buildProgram(&library2, Program::Type::Main, Program::State::Published,
                                             "Next Jam", "Db minor", 140);
-  program15_voiceBass = ContentFixtures::buildVoice(program5, Instrument::Type::Bass, "Bass");
-  program15_meme0 = ContentFixtures::buildMeme(program15, "Hindsight");
+  program15_voiceBass = ContentFixtures::buildVoice(&program5, Instrument::Type::Bass, "Bass");
+  program15_meme0 = ContentFixtures::buildMeme(&program15, "Hindsight");
   //
-  program15_sequence0 = ContentFixtures::buildSequence(program15, 16, "Intro", 0.5f, "G minor");
-  program15_sequence0_chord0 = ContentFixtures::buildChord(program15_sequence0, 0.0f, "G minor");
-  program15_sequence0_chord0_voicing = ContentFixtures::buildVoicing(program15_sequence0_chord0,
-                                                                     program15_voiceBass,
+  program15_sequence0 = ContentFixtures::buildSequence(&program15, 16, "Intro", 0.5f, "G minor");
+  program15_sequence0_chord0 = ContentFixtures::buildChord(&program15_sequence0, 0.0f, "G minor");
+  program15_sequence0_chord0_voicing = ContentFixtures::buildVoicing(&program15_sequence0_chord0,
+                                                                     &program15_voiceBass,
                                                                      "G3, Bb3, D4");
-  program15_sequence0_chord1 = ContentFixtures::buildChord(program15_sequence0, 8.0f, "Ab minor");
-  program15_sequence0_chord1_voicing = ContentFixtures::buildVoicing(program15_sequence0_chord1,
-                                                                     program15_voiceBass,
+  program15_sequence0_chord1 = ContentFixtures::buildChord(&program15_sequence0, 8.0f, "Ab minor");
+  program15_sequence0_chord1_voicing = ContentFixtures::buildVoicing(&program15_sequence0_chord1,
+                                                                     &program15_voiceBass,
                                                                      "Ab3, C3, Eb4");
-  program15_sequence0_binding0 = ContentFixtures::buildBinding(program15_sequence0, 0);
-  program15_sequence0_binding0_meme0 = ContentFixtures::buildMeme(program15_sequence0_binding0,
+  program15_sequence0_binding0 = ContentFixtures::buildBinding(&program15_sequence0, 0);
+  program15_sequence0_binding0_meme0 = ContentFixtures::buildMeme(&program15_sequence0_binding0,
                                                                   "Regret");
   //
-  program15_sequence1 = ContentFixtures::buildSequence(program15, 32, "Outro", 0.5f, "A major");
-  program15_sequence1_chord0 = ContentFixtures::buildChord(program15_sequence1, 0.0f, "C major");
-  program15_sequence1_chord0_voicing = ContentFixtures::buildVoicing(program15_sequence0_chord0,
-                                                                     program15_voiceBass,
+  program15_sequence1 = ContentFixtures::buildSequence(&program15, 32, "Outro", 0.5f, "A major");
+  program15_sequence1_chord0 = ContentFixtures::buildChord(&program15_sequence1, 0.0f, "C major");
+  program15_sequence1_chord0_voicing = ContentFixtures::buildVoicing(&program15_sequence0_chord0,
+                                                                     &program15_voiceBass,
                                                                      "E3, G3, C4");
-  program15_sequence1_chord1 = ContentFixtures::buildChord(program15_sequence1, 8.0f, "Bb major");
-  program15_sequence1_chord1_voicing = ContentFixtures::buildVoicing(program15_sequence0_chord1,
-                                                                     program15_voiceBass,
+  program15_sequence1_chord1 = ContentFixtures::buildChord(&program15_sequence1, 8.0f, "Bb major");
+  program15_sequence1_chord1_voicing = ContentFixtures::buildVoicing(&program15_sequence0_chord1,
+                                                                     &program15_voiceBass,
                                                                      "F3, Bb3, D4");
-  program15_sequence1_binding0 = ContentFixtures::buildBinding(program15_sequence1, 1);
-  program15_sequence1_binding0_meme0 = ContentFixtures::buildMeme(program15_sequence1_binding0,
+  program15_sequence1_binding0 = ContentFixtures::buildBinding(&program15_sequence1, 1);
+  program15_sequence1_binding0_meme0 = ContentFixtures::buildMeme(&program15_sequence1_binding0,
                                                                   "Pride");
-  program15_sequence1_binding0_meme1 = ContentFixtures::buildMeme(program15_sequence1_binding0,
+  program15_sequence1_binding0_meme1 = ContentFixtures::buildMeme(&program15_sequence1_binding0,
                                                                   "Shame");
 
   // put the entities in the store
@@ -925,111 +885,111 @@ void ContentFixtures::setupFixtureB2(ContentEntityStore *store) {
 
 void ContentFixtures::setupFixtureB3(ContentEntityStore *store) {
   // A basic beat
-  program9 = ContentFixtures::buildProgram(library2, Program::Type::Beat, Program::State::Published,
+  program9 = ContentFixtures::buildProgram(&library2, Program::Type::Beat, Program::State::Published,
                                            "Basic Beat", "C", 121);
-  program9_meme0 = ContentFixtures::buildMeme(program9, "Basic");
+  program9_meme0 = ContentFixtures::buildMeme(&program9, "Basic");
   //
-  program9_voice0 = ContentFixtures::buildVoice(program9, Instrument::Type::Drum, "Drums");
-  program9_voice0_track0 = ContentFixtures::buildTrack(program9_voice0, "BLEEP");
-  program9_voice0_track1 = ContentFixtures::buildTrack(program9_voice0, "BLEEP");
-  program9_voice0_track2 = ContentFixtures::buildTrack(program9_voice0, "BLEEP");
-  program9_voice0_track3 = ContentFixtures::buildTrack(program9_voice0, "BLEEP");
-  program9_voice0_track4 = ContentFixtures::buildTrack(program9_voice0, "KICK");
-  program9_voice0_track5 = ContentFixtures::buildTrack(program9_voice0, "SNARE");
-  program9_voice0_track6 = ContentFixtures::buildTrack(program9_voice0, "KICK");
-  program9_voice0_track7 = ContentFixtures::buildTrack(program9_voice0, "SNARE");
-  program9_voice0_track8 = ContentFixtures::buildTrack(program9_voice0, "KICK");
-  program9_voice0_track9 = ContentFixtures::buildTrack(program9_voice0, "SNARE");
-  program9_voice0_track10 = ContentFixtures::buildTrack(program9_voice0, "KICK");
-  program9_voice0_track11 = ContentFixtures::buildTrack(program9_voice0, "SNARE");
-  program9_voice0_track12 = ContentFixtures::buildTrack(program9_voice0, "TOOT");
-  program9_voice0_track13 = ContentFixtures::buildTrack(program9_voice0, "TOOT");
-  program9_voice0_track14 = ContentFixtures::buildTrack(program9_voice0, "TOOT");
-  program9_voice0_track15 = ContentFixtures::buildTrack(program9_voice0, "TOOT");
+  program9_voice0 = ContentFixtures::buildVoice(&program9, Instrument::Type::Drum, "Drums");
+  program9_voice0_track0 = ContentFixtures::buildTrack(&program9_voice0, "BLEEP");
+  program9_voice0_track1 = ContentFixtures::buildTrack(&program9_voice0, "BLEEP");
+  program9_voice0_track2 = ContentFixtures::buildTrack(&program9_voice0, "BLEEP");
+  program9_voice0_track3 = ContentFixtures::buildTrack(&program9_voice0, "BLEEP");
+  program9_voice0_track4 = ContentFixtures::buildTrack(&program9_voice0, "KICK");
+  program9_voice0_track5 = ContentFixtures::buildTrack(&program9_voice0, "SNARE");
+  program9_voice0_track6 = ContentFixtures::buildTrack(&program9_voice0, "KICK");
+  program9_voice0_track7 = ContentFixtures::buildTrack(&program9_voice0, "SNARE");
+  program9_voice0_track8 = ContentFixtures::buildTrack(&program9_voice0, "KICK");
+  program9_voice0_track9 = ContentFixtures::buildTrack(&program9_voice0, "SNARE");
+  program9_voice0_track10 = ContentFixtures::buildTrack(&program9_voice0, "KICK");
+  program9_voice0_track11 = ContentFixtures::buildTrack(&program9_voice0, "SNARE");
+  program9_voice0_track12 = ContentFixtures::buildTrack(&program9_voice0, "TOOT");
+  program9_voice0_track13 = ContentFixtures::buildTrack(&program9_voice0, "TOOT");
+  program9_voice0_track14 = ContentFixtures::buildTrack(&program9_voice0, "TOOT");
+  program9_voice0_track15 = ContentFixtures::buildTrack(&program9_voice0, "TOOT");
   //
-  program9_sequence0 = ContentFixtures::buildSequence(program9, 16, "Base", 0.5f, "C");
+  program9_sequence0 = ContentFixtures::buildSequence(&program9, 16, "Base", 0.5f, "C");
   //
-  program9_sequence0_pattern0 = ContentFixtures::buildPattern(program9_sequence0, program9_voice0, 4,
+  program9_sequence0_pattern0 = ContentFixtures::buildPattern(&program9_sequence0, &program9_voice0, 4,
                                                               "Intro");
-  program9_sequence0_pattern0_event0 = ContentFixtures::buildEvent(program9_sequence0_pattern0,
-                                                                   program9_voice0_track0, 0, 1, "C2",
+  program9_sequence0_pattern0_event0 = ContentFixtures::buildEvent(&program9_sequence0_pattern0,
+                                                                   &program9_voice0_track0, 0, 1, "C2",
                                                                    1.0f);
-  program9_sequence0_pattern0_event1 = ContentFixtures::buildEvent(program9_sequence0_pattern0,
-                                                                   program9_voice0_track1, 1, 1, "G5",
+  program9_sequence0_pattern0_event1 = ContentFixtures::buildEvent(&program9_sequence0_pattern0,
+                                                                   &program9_voice0_track1, 1, 1, "G5",
                                                                    0.8f);
-  program9_sequence0_pattern0_event2 = ContentFixtures::buildEvent(program9_sequence0_pattern0,
-                                                                   program9_voice0_track2, 2.5f, 1,
+  program9_sequence0_pattern0_event2 = ContentFixtures::buildEvent(&program9_sequence0_pattern0,
+                                                                   &program9_voice0_track2, 2.5f, 1,
                                                                    "C2", 0.6f);
-  program9_sequence0_pattern0_event3 = ContentFixtures::buildEvent(program9_sequence0_pattern0,
-                                                                   program9_voice0_track3, 3, 1, "G5",
+  program9_sequence0_pattern0_event3 = ContentFixtures::buildEvent(&program9_sequence0_pattern0,
+                                                                   &program9_voice0_track3, 3, 1, "G5",
                                                                    0.9f);
   //
-  program9_sequence0_pattern1 = ContentFixtures::buildPattern(program9_sequence0, program9_voice0, 4,
+  program9_sequence0_pattern1 = ContentFixtures::buildPattern(&program9_sequence0, &program9_voice0, 4,
                                                               "Loop A");
-  program9_sequence0_pattern1_event0 = ContentFixtures::buildEvent(program9_sequence0_pattern1,
-                                                                   program9_voice0_track4, 0, 1, "C2",
+  program9_sequence0_pattern1_event0 = ContentFixtures::buildEvent(&program9_sequence0_pattern1,
+                                                                   &program9_voice0_track4, 0, 1, "C2",
                                                                    1.0f);
-  program9_sequence0_pattern1_event1 = ContentFixtures::buildEvent(program9_sequence0_pattern1,
-                                                                   program9_voice0_track5, 1, 1, "G5",
+  program9_sequence0_pattern1_event1 = ContentFixtures::buildEvent(&program9_sequence0_pattern1,
+                                                                   &program9_voice0_track5, 1, 1, "G5",
                                                                    0.8f);
-  program9_sequence0_pattern1_event2 = ContentFixtures::buildEvent(program9_sequence0_pattern1,
-                                                                   program9_voice0_track6, 2.5f, 1,
+  program9_sequence0_pattern1_event2 = ContentFixtures::buildEvent(&program9_sequence0_pattern1,
+                                                                   &program9_voice0_track6, 2.5f, 1,
                                                                    "C2", 0.6f);
-  program9_sequence0_pattern1_event3 = ContentFixtures::buildEvent(program9_sequence0_pattern1,
-                                                                   program9_voice0_track7, 3, 1, "G5",
+  program9_sequence0_pattern1_event3 = ContentFixtures::buildEvent(&program9_sequence0_pattern1,
+                                                                   &program9_voice0_track7, 3, 1, "G5",
                                                                    0.9f);
   //
-  program9_sequence0_pattern2 = ContentFixtures::buildPattern(program9_sequence0, program9_voice0, 4,
+  program9_sequence0_pattern2 = ContentFixtures::buildPattern(&program9_sequence0, &program9_voice0, 4,
                                                               "Loop B");
-  program9_sequence0_pattern2_event0 = ContentFixtures::buildEvent(program9_sequence0_pattern2,
-                                                                   program9_voice0_track8, 0, 1, "B5",
+  program9_sequence0_pattern2_event0 = ContentFixtures::buildEvent(&program9_sequence0_pattern2,
+                                                                   &program9_voice0_track8, 0, 1, "B5",
                                                                    0.9f);
-  program9_sequence0_pattern2_event1 = ContentFixtures::buildEvent(program9_sequence0_pattern2,
-                                                                   program9_voice0_track9, 1, 1, "D2",
+  program9_sequence0_pattern2_event1 = ContentFixtures::buildEvent(&program9_sequence0_pattern2,
+                                                                   &program9_voice0_track9, 1, 1, "D2",
                                                                    1.0f);
-  program9_sequence0_pattern2_event2 = ContentFixtures::buildEvent(program9_sequence0_pattern2,
-                                                                   program9_voice0_track10, 2.5f, 1,
+  program9_sequence0_pattern2_event2 = ContentFixtures::buildEvent(&program9_sequence0_pattern2,
+                                                                   &program9_voice0_track10, 2.5f, 1,
                                                                    "E4", 0.7f);
-  program9_sequence0_pattern2_event3 = ContentFixtures::buildEvent(program9_sequence0_pattern2,
-                                                                   program9_voice0_track11, 3, 1,
+  program9_sequence0_pattern2_event3 = ContentFixtures::buildEvent(&program9_sequence0_pattern2,
+                                                                   &program9_voice0_track11, 3, 1,
                                                                    "C3",
                                                                    0.5f);
   //
-  program9_sequence0_pattern3 = ContentFixtures::buildPattern(program9_sequence0, program9_voice0, 4,
+  program9_sequence0_pattern3 = ContentFixtures::buildPattern(&program9_sequence0, &program9_voice0, 4,
                                                               "Outro");
-  program9_sequence0_pattern3_event0 = ContentFixtures::buildEvent(program9_sequence0_pattern3,
-                                                                   program9_voice0_track12, 0, 1,
+  program9_sequence0_pattern3_event0 = ContentFixtures::buildEvent(&program9_sequence0_pattern3,
+                                                                   &program9_voice0_track12, 0, 1,
                                                                    "C2",
                                                                    1.0f);
-  program9_sequence0_pattern3_event1 = ContentFixtures::buildEvent(program9_sequence0_pattern3,
-                                                                   program9_voice0_track13, 1, 1,
+  program9_sequence0_pattern3_event1 = ContentFixtures::buildEvent(&program9_sequence0_pattern3,
+                                                                   &program9_voice0_track13, 1, 1,
                                                                    "G5",
                                                                    0.8f);
-  program9_sequence0_pattern3_event2 = ContentFixtures::buildEvent(program9_sequence0_pattern3,
-                                                                   program9_voice0_track14, 2.5f, 1,
+  program9_sequence0_pattern3_event2 = ContentFixtures::buildEvent(&program9_sequence0_pattern3,
+                                                                   &program9_voice0_track14, 2.5f, 1,
                                                                    "C2", 0.6f);
-  program9_sequence0_pattern3_event3 = ContentFixtures::buildEvent(program9_sequence0_pattern3,
-                                                                   program9_voice0_track15, 3, 1,
+  program9_sequence0_pattern3_event3 = ContentFixtures::buildEvent(&program9_sequence0_pattern3,
+                                                                   &program9_voice0_track15, 3, 1,
                                                                    "G5",
                                                                    0.9f);
 
   // Instrument "808"
-  instrument8 = ContentFixtures::buildInstrument(library2, Instrument::Type::Drum,
+  instrument8 = ContentFixtures::buildInstrument(&library2, Instrument::Type::Drum,
                                                  Instrument::Mode::Event, Instrument::State::Published,
                                                  "808 Drums");
   instrument8.volume = 0.76f;// For testing: Instrument has overall volume parameter https://github.com/xjmusic/xjmusic/issues/300
-  instrument8_meme0 = ContentFixtures::buildMeme(instrument8, "heavy");
-  instrument8_audio8kick = ContentFixtures::buildAudio(instrument8, "Kick",
+  instrument8_meme0 = ContentFixtures::buildMeme(&instrument8, "heavy");
+  instrument8_audio8kick = ContentFixtures::buildAudio(&instrument8, "Kick",
                                                        "19801735098q47895897895782138975898.wav",
                                                        0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb",
                                                        1.0f);
-  instrument8_audio8snare = ContentFixtures::buildAudio(instrument8, "Snare",
+  instrument8_audio8snare = ContentFixtures::buildAudio(&instrument8, "Snare",
                                                         "975898198017350afghjkjhaskjdfjhk.wav", 0.01f,
                                                         1.5f, 120.0f, 0.62f, "SNARE", "Ab", 0.8f);
-  instrument8_audio8bleep = ContentFixtures::buildAudio(instrument8, "Bleep",
+  instrument8_audio8bleep = ContentFixtures::buildAudio(&instrument8, "Bleep",
                                                         "17350afghjkjhaskjdfjhk9758981980.wav", 0.01f,
                                                         1.5f, 120.0f, 0.62f, "BLEEP", "Ab", 0.8f);
-  instrument8_audio8toot = ContentFixtures::buildAudio(instrument8, "Toot",
+  instrument8_audio8toot = ContentFixtures::buildAudio(&instrument8, "Toot",
                                                        "askjdfjhk975898198017350afghjkjh.wav", 0.01f,
                                                        1.5f, 120.0f, 0.62f, "TOOT", "Ab", 0.8f);
 
@@ -1084,82 +1044,82 @@ void ContentFixtures::setupFixtureB3(ContentEntityStore *store) {
 
 void ContentFixtures::setupFixtureB4_DetailBass(ContentEntityStore *store) {
   // A basic bass pattern
-  program10 = ContentFixtures::buildProgram(library2, Program::Type::Detail,
+  program10 = ContentFixtures::buildProgram(&library2, Program::Type::Detail,
                                             Program::State::Published,
                                             "Earth Bass Detail Pattern", "C", 121);
-  program10_meme0 = ContentFixtures::buildMeme(program10, "EARTH");
+  program10_meme0 = ContentFixtures::buildMeme(&program10, "EARTH");
   //
-  program10_voice0 = ContentFixtures::buildVoice(program10, Instrument::Type::Bass, "Dirty Bass");
-  program10_voice0_track0 = ContentFixtures::buildTrack(program10_voice0, "BUM");
+  program10_voice0 = ContentFixtures::buildVoice(&program10, Instrument::Type::Bass, "Dirty Bass");
+  program10_voice0_track0 = ContentFixtures::buildTrack(&program10_voice0, "BUM");
   //
-  program10_sequence0 = ContentFixtures::buildSequence(program10, 16, "Simple Walk", 0.5f, "C");
+  program10_sequence0 = ContentFixtures::buildSequence(&program10, 16, "Simple Walk", 0.5f, "C");
   //
-  program10_sequence0_pattern0 = ContentFixtures::buildPattern(program10_sequence0, program10_voice0,
+  program10_sequence0_pattern0 = ContentFixtures::buildPattern(&program10_sequence0, &program10_voice0,
                                                                4, "Intro");
-  program10_sequence0_pattern0_event0 = ContentFixtures::buildEvent(program10_sequence0_pattern0,
-                                                                    program10_voice0_track0, 0, 1,
+  program10_sequence0_pattern0_event0 = ContentFixtures::buildEvent(&program10_sequence0_pattern0,
+                                                                    &program10_voice0_track0, 0, 1,
                                                                     "C2", 1.0f);
-  program10_sequence0_pattern0_event1 = ContentFixtures::buildEvent(program10_sequence0_pattern0,
-                                                                    program10_voice0_track0, 1, 1,
+  program10_sequence0_pattern0_event1 = ContentFixtures::buildEvent(&program10_sequence0_pattern0,
+                                                                    &program10_voice0_track0, 1, 1,
                                                                     "G5", 0.8f);
-  program10_sequence0_pattern0_event2 = ContentFixtures::buildEvent(program10_sequence0_pattern0,
-                                                                    program10_voice0_track0, 2, 1,
+  program10_sequence0_pattern0_event2 = ContentFixtures::buildEvent(&program10_sequence0_pattern0,
+                                                                    &program10_voice0_track0, 2, 1,
                                                                     "C2", 0.6f);
-  program10_sequence0_pattern0_event3 = ContentFixtures::buildEvent(program10_sequence0_pattern0,
-                                                                    program10_voice0_track0, 3, 1,
+  program10_sequence0_pattern0_event3 = ContentFixtures::buildEvent(&program10_sequence0_pattern0,
+                                                                    &program10_voice0_track0, 3, 1,
                                                                     "G5", 0.9f);
   //
-  program10_sequence0_pattern1 = ContentFixtures::buildPattern(program10_sequence0, program10_voice0,
+  program10_sequence0_pattern1 = ContentFixtures::buildPattern(&program10_sequence0, &program10_voice0,
                                                                4, "Loop A");
-  program10_sequence0_pattern1_event0 = ContentFixtures::buildEvent(program10_sequence0_pattern1,
-                                                                    program10_voice0_track0, 0, 1,
+  program10_sequence0_pattern1_event0 = ContentFixtures::buildEvent(&program10_sequence0_pattern1,
+                                                                    &program10_voice0_track0, 0, 1,
                                                                     "C2", 1.0f);
-  program10_sequence0_pattern1_event1 = ContentFixtures::buildEvent(program10_sequence0_pattern1,
-                                                                    program10_voice0_track0, 1, 1,
+  program10_sequence0_pattern1_event1 = ContentFixtures::buildEvent(&program10_sequence0_pattern1,
+                                                                    &program10_voice0_track0, 1, 1,
                                                                     "G5", 0.8f);
-  program10_sequence0_pattern1_event2 = ContentFixtures::buildEvent(program10_sequence0_pattern1,
-                                                                    program10_voice0_track0, 2, 1,
+  program10_sequence0_pattern1_event2 = ContentFixtures::buildEvent(&program10_sequence0_pattern1,
+                                                                    &program10_voice0_track0, 2, 1,
                                                                     "C2", 0.6f);
-  program10_sequence0_pattern1_event3 = ContentFixtures::buildEvent(program10_sequence0_pattern1,
-                                                                    program10_voice0_track0, 3, 1,
+  program10_sequence0_pattern1_event3 = ContentFixtures::buildEvent(&program10_sequence0_pattern1,
+                                                                    &program10_voice0_track0, 3, 1,
                                                                     "G5", 0.9f);
   //
-  program10_sequence0_pattern2 = ContentFixtures::buildPattern(program10_sequence0, program10_voice0,
+  program10_sequence0_pattern2 = ContentFixtures::buildPattern(&program10_sequence0, &program10_voice0,
                                                                4, "Loop B");
-  program10_sequence0_pattern2_event0 = ContentFixtures::buildEvent(program10_sequence0_pattern2,
-                                                                    program10_voice0_track0, 0, 1,
+  program10_sequence0_pattern2_event0 = ContentFixtures::buildEvent(&program10_sequence0_pattern2,
+                                                                    &program10_voice0_track0, 0, 1,
                                                                     "B5", 0.9f);
-  program10_sequence0_pattern2_event1 = ContentFixtures::buildEvent(program10_sequence0_pattern2,
-                                                                    program10_voice0_track0, 1, 1,
+  program10_sequence0_pattern2_event1 = ContentFixtures::buildEvent(&program10_sequence0_pattern2,
+                                                                    &program10_voice0_track0, 1, 1,
                                                                     "D2", 1.0f);
-  program10_sequence0_pattern2_event2 = ContentFixtures::buildEvent(program10_sequence0_pattern2,
-                                                                    program10_voice0_track0, 2, 1,
+  program10_sequence0_pattern2_event2 = ContentFixtures::buildEvent(&program10_sequence0_pattern2,
+                                                                    &program10_voice0_track0, 2, 1,
                                                                     "E4", 0.7f);
-  program10_sequence0_pattern2_event3 = ContentFixtures::buildEvent(program10_sequence0_pattern2,
-                                                                    program10_voice0_track0, 3, 1,
+  program10_sequence0_pattern2_event3 = ContentFixtures::buildEvent(&program10_sequence0_pattern2,
+                                                                    &program10_voice0_track0, 3, 1,
                                                                     "C3", 0.5f);
   //
-  program10_sequence0_pattern3 = ContentFixtures::buildPattern(program10_sequence0, program10_voice0,
+  program10_sequence0_pattern3 = ContentFixtures::buildPattern(&program10_sequence0, &program10_voice0,
                                                                4, "Outro");
-  program10_sequence0_pattern3_event0 = ContentFixtures::buildEvent(program10_sequence0_pattern3,
-                                                                    program10_voice0_track0, 0, 1,
+  program10_sequence0_pattern3_event0 = ContentFixtures::buildEvent(&program10_sequence0_pattern3,
+                                                                    &program10_voice0_track0, 0, 1,
                                                                     "C2", 1.0f);
-  program10_sequence0_pattern3_event1 = ContentFixtures::buildEvent(program10_sequence0_pattern3,
-                                                                    program10_voice0_track0, 1, 1,
+  program10_sequence0_pattern3_event1 = ContentFixtures::buildEvent(&program10_sequence0_pattern3,
+                                                                    &program10_voice0_track0, 1, 1,
                                                                     "G5", 0.8f);
-  program10_sequence0_pattern3_event2 = ContentFixtures::buildEvent(program10_sequence0_pattern3,
-                                                                    program10_voice0_track0, 2, 1,
+  program10_sequence0_pattern3_event2 = ContentFixtures::buildEvent(&program10_sequence0_pattern3,
+                                                                    &program10_voice0_track0, 2, 1,
                                                                     "C2", 0.6f);
-  program10_sequence0_pattern3_event3 = ContentFixtures::buildEvent(program10_sequence0_pattern3,
-                                                                    program10_voice0_track0, 3, 1,
+  program10_sequence0_pattern3_event3 = ContentFixtures::buildEvent(&program10_sequence0_pattern3,
+                                                                    &program10_voice0_track0, 3, 1,
                                                                     "G5", 0.9f);
 
   // Instrument "Bass"
-  instrument9 = ContentFixtures::buildInstrument(library2, Instrument::Type::Bass,
+  instrument9 = ContentFixtures::buildInstrument(&library2, Instrument::Type::Bass,
                                                  Instrument::Mode::Event, Instrument::State::Published,
                                                  "Bass");
-  instrument9_meme0 = ContentFixtures::buildMeme(instrument9, "heavy");
-  instrument9_audio8 = ContentFixtures::buildAudio(instrument9, "bass",
+  instrument9_meme0 = ContentFixtures::buildMeme(&instrument9, "heavy");
+  instrument9_audio8 = ContentFixtures::buildAudio(&instrument9, "bass",
                                                    "19801735098q47895897895782138975898.wav", 0.01f,
                                                    2.123f, 120.0f, 0.62f, "BLOOP", "Eb", 1.0f);
 
@@ -1198,12 +1158,12 @@ void ContentFixtures::generatedFixture(ContentEntityStore *store, int N) {
 
   project1 = ContentFixtures::buildProject("Generated");
   store->put(project1);
-  library1 = ContentFixtures::buildLibrary(project1, "generated");
+  library1 = ContentFixtures::buildLibrary(&project1, "generated");
   store->put(library1);
 
-  template1 = ContentFixtures::buildTemplate(project1, "Complex Library Test", "complex");
+  template1 = ContentFixtures::buildTemplate(&project1, "Complex Library Test", "complex");
   store->put(template1);
-  store->put(ContentFixtures::buildTemplateBinding(template1, library1));
+  store->put(ContentFixtures::buildTemplateBinding(&template1, &library1));
 
   // Create a N-magnitude set of unique major memes
   std::vector<std::string>
@@ -1218,18 +1178,18 @@ void ContentFixtures::generatedFixture(ContentEntityStore *store, int N) {
     std::string majorMemeName = majorMemeNames[i];
     std::string minorMemeName = random(minorMemeNames);
     //
-    Instrument instrument = ContentFixtures::buildInstrument(library1, Instrument::Type::Drum,
+    Instrument instrument = ContentFixtures::buildInstrument(&library1, Instrument::Type::Drum,
                                                              Instrument::Mode::Event,
                                                              Instrument::State::Published,
                                                              majorMemeName + " Drums");
     store->put(instrument);
-    store->put(ContentFixtures::buildInstrumentMeme(instrument, majorMemeName));
-    store->put(ContentFixtures::buildInstrumentMeme(instrument, minorMemeName));
+    store->put(ContentFixtures::buildInstrumentMeme(&instrument, majorMemeName));
+    store->put(ContentFixtures::buildInstrumentMeme(&instrument, minorMemeName));
     // audios of instrument
     for (int k = 0; k < N; k++)
       store->put(
           ContentFixtures::buildAudio(
-              instrument, StringUtils::toProper(percussiveNames[k]),
+              &instrument, StringUtils::toProper(percussiveNames[k]),
               StringUtils::toLowerSlug(percussiveNames[k]) + ".wav",
               random(0, 0.05f),
               random(0.25f, 2),
@@ -1245,7 +1205,7 @@ void ContentFixtures::generatedFixture(ContentEntityStore *store, int N) {
   // Generate Perc Loop Instruments
   for (int i = 0; i < N; i++) {
     Instrument instrument = ContentFixtures::buildInstrument(
-        library1,
+        &library1,
         Instrument::Type::Percussion,
         Instrument::Mode::Loop,
         Instrument::State::Published,
@@ -1274,38 +1234,38 @@ void ContentFixtures::generatedFixture(ContentEntityStore *store, int N) {
     programName += " to ";
     programName += majorMemeToName;
     Program program = ContentFixtures::buildProgram(
-        library1,
+        &library1,
         Program::Type::Macro,
         Program::State::Published,
         programName,
         keyFrom,
         tempoFrom);
     store->put(program);
-    store->put(ContentFixtures::buildProgramMeme(program, minorMemeName));
+    store->put(ContentFixtures::buildProgramMeme(&program, minorMemeName));
     // of offset 0
     ProgramSequence sequence0 = ContentFixtures::buildSequence(
-        program,
+        &program,
         0,
         "Start " + majorMemeFromName,
         intensityFrom,
         keyFrom);
     store->put(sequence0);
-    ProgramSequenceBinding binding0 = ContentFixtures::buildProgramSequenceBinding(sequence0, 0);
+    ProgramSequenceBinding binding0 = ContentFixtures::buildProgramSequenceBinding(&sequence0, 0);
     store->put(binding0);
     store->put(
         ContentFixtures::buildProgramSequenceBindingMeme(
-            binding0,
+            &binding0,
             majorMemeFromName));
     // to offset 1
     float intensityTo = random(0.3f, 0.9f);
-    ProgramSequence sequence1 = ContentFixtures::buildSequence(program, 0,
+    ProgramSequence sequence1 = ContentFixtures::buildSequence(&program, 0,
                                                                "Finish " + majorMemeToName,
                                                                intensityTo, keyTo);
     store->put(sequence1);
-    ProgramSequenceBinding binding1 = ContentFixtures::buildProgramSequenceBinding(sequence1, 1);
+    ProgramSequenceBinding binding1 = ContentFixtures::buildProgramSequenceBinding(&sequence1, 1);
     store->put(binding1);
     store->put(
-        ContentFixtures::buildProgramSequenceBindingMeme(binding1, majorMemeToName));
+        ContentFixtures::buildProgramSequenceBindingMeme(&binding1, majorMemeToName));
     //
     std::cout << "Generated Macro-type Program id=" << program.id << ", minorMeme=" << minorMemeName
               << ", majorMemeFrom=" << majorMemeFromName << ", majorMemeTo=" << majorMemeToName << std::endl;
@@ -1322,16 +1282,16 @@ void ContentFixtures::generatedFixture(ContentEntityStore *store, int N) {
     std::vector<float> subDensities = listOfRandomValues(N);
     float tempo = random(80, 120);
     //
-    Program program = ContentFixtures::buildProgram(library1, Program::Type::Main,
+    Program program = ContentFixtures::buildProgram(&library1, Program::Type::Main,
                                                     Program::State::Published,
                                                     majorMemeName + ": " + StringUtils::join(sequenceNames, ", "),
                                                     subKeys[0], tempo);
     store->put(program);
-    store->put(ContentFixtures::buildProgramMeme(program, majorMemeName));
+    store->put(ContentFixtures::buildProgramMeme(&program, majorMemeName));
     // sequences of program
     for (int iP = 0; iP < N; iP++) {
       int total = random(LoremIpsum::SEQUENCE_TOTALS);
-      sequences[iP] = ContentFixtures::buildSequence(program, total,
+      sequences[iP] = ContentFixtures::buildSequence(&program, total,
                                                      majorMemeName + " in " + sequenceNames[iP],
                                                      subDensities[iP], subKeys[iP]);
       store->put(sequences[iP]);
@@ -1339,7 +1299,7 @@ void ContentFixtures::generatedFixture(ContentEntityStore *store, int N) {
         // always use first chord, then use more chords with more intensity
         if (0 == iPC || random(0, 1) < subDensities[iP]) {
           store->put(
-              ContentFixtures::buildChord(sequences[iP],
+              ContentFixtures::buildChord(&sequences[iP],
                                           std::floor((float) iPC * (float) total * 4 / (float) N),
                                           random(LoremIpsum::MUSICAL_CHORDS)));
         }
@@ -1348,9 +1308,9 @@ void ContentFixtures::generatedFixture(ContentEntityStore *store, int N) {
     // sequence sequence binding
     for (int offset = 0; offset < (N << 2); offset++) {
       int num = static_cast<int>(std::floor(random(0, (float) N)));
-      ProgramSequenceBinding binding = ContentFixtures::buildProgramSequenceBinding(sequences[num], offset);
+      ProgramSequenceBinding binding = ContentFixtures::buildProgramSequenceBinding(&sequences[num], offset);
       store->put(binding);
-      store->put(ContentFixtures::buildMeme(binding, random(minorMemeNames)));
+      store->put(ContentFixtures::buildMeme(&binding, random(minorMemeNames)));
     }
     std::cout << "Generated Main-type Program id=" << program.id << ", majorMeme=" << majorMemeName << " with " << N
               << " sequences bound " << (N << 2) << " times" << std::endl;
@@ -1365,21 +1325,21 @@ void ContentFixtures::generatedFixture(ContentEntityStore *store, int N) {
     std::string key = random(LoremIpsum::MUSICAL_KEYS);
     float intensity = random(0.4f, 0.9f);
     //
-    Program program = ContentFixtures::buildProgram(library1, Program::Type::Beat,
+    Program program = ContentFixtures::buildProgram(&library1, Program::Type::Beat,
                                                     Program::State::Published,
                                                     majorMemeName + " Beat",
                                                     key,
                                                     tempo);
     store->put(program);
     trackMap.clear();
-    store->put(ContentFixtures::buildProgramMeme(program, majorMemeName));
+    store->put(ContentFixtures::buildProgramMeme(&program, majorMemeName));
     // voices of program
     for (int iV = 0; iV < N; iV++) {
-      voices[iV] = ContentFixtures::buildVoice(program, Instrument::Type::Drum,
+      voices[iV] = ContentFixtures::buildVoice(&program, Instrument::Type::Drum,
                                                majorMemeName + " " + percussiveNames[iV]);
       store->put(voices[iV]);
     }
-    ProgramSequence sequenceBase = ContentFixtures::buildSequence(program,
+    ProgramSequence sequenceBase = ContentFixtures::buildSequence(&program,
                                                                   random(LoremIpsum::SEQUENCE_TOTALS),
                                                                   "Base", intensity, key);
     store->put(sequenceBase);
@@ -1395,27 +1355,25 @@ void ContentFixtures::generatedFixture(ContentEntityStore *store, int N) {
       patternName += " pattern ";
       patternName += random(LoremIpsum::ELEMENTS);
       ProgramSequencePattern pattern = ContentFixtures::buildPattern(
-          sequenceBase,
-          voices[num],
+          &sequenceBase,
+          &voices[num],
           total,
-          patternName
-      );
+          patternName);
       store->put(pattern);
       for (int iPE = 0; iPE < N << 2; iPE++) {
         // always use first chord, then use more chords with more intensity
         if (0 == iPE || random(0, 1) < intensity) {
           std::string name = percussiveNames[num];
           if (trackMap.find(name) == trackMap.end())
-            trackMap[name] = ContentFixtures::buildTrack(voices[num], name);
+            trackMap[name] = ContentFixtures::buildTrack(&voices[num], name);
           store->put(trackMap[name]);
           store->put(ContentFixtures::buildEvent(
-              pattern,
-              trackMap[name],
+              &pattern,
+              &trackMap[name],
               static_cast<float>(std::floor(static_cast<float>(iPE) * (float) total * 4 / (float) N)),
               random(0.25f, 1.0f),
               "X",
-              random(0.4f, 0.9f)
-          ));
+              random(0.4f, 0.9f)));
         }
       }
     }

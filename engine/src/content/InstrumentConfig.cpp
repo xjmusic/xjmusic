@@ -26,6 +26,8 @@ InstrumentConfig::InstrumentConfig() : InstrumentConfig(DEFAULT) {}
 
 InstrumentConfig::InstrumentConfig(const Instrument &source) : InstrumentConfig(source.config) {}
 
+InstrumentConfig::InstrumentConfig(const Instrument *source) : InstrumentConfig(source->config) {}
+
 
 InstrumentConfig::InstrumentConfig(const std::string &input) : ConfigParser(input, ConfigParser(DEFAULT)) {
   isAudioSelectionPersistent = getSingleValue("isAudioSelectionPersistent").getBool();

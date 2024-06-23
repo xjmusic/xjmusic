@@ -57,66 +57,66 @@ protected:
     project1 = ContentFixtures::buildProject();
 
     // Library content all created at this known time
-    library1 = ContentFixtures::buildLibrary(project1, "test");
+    library1 = ContentFixtures::buildLibrary(&project1, "test");
 
     // Templates: enhanced preview chain creation for artists in Lab UI https://www.pivotaltracker.com/story/show/178457569
-    template1 = ContentFixtures::buildTemplate(project1, "test1", EntityUtils::computeUniqueId());
-    template1_binding = ContentFixtures::buildTemplateBinding(template1, library1);
-    template2 = ContentFixtures::buildTemplate(project1, "test2", EntityUtils::computeUniqueId());
+    template1 = ContentFixtures::buildTemplate(&project1, "test1", EntityUtils::computeUniqueId());
+    template1_binding = ContentFixtures::buildTemplateBinding(&template1, &library1);
+    template2 = ContentFixtures::buildTemplate(&project1, "test2", EntityUtils::computeUniqueId());
 
     // Instrument 1
-    instrument1 = ContentFixtures::buildInstrument(library1, Instrument::Type::Drum, Instrument::Mode::Event,
+    instrument1 = ContentFixtures::buildInstrument(&library1, Instrument::Type::Drum, Instrument::Mode::Event,
                                                    Instrument::State::Published, "808 Drums");
-    instrument1_meme = ContentFixtures::buildInstrumentMeme(instrument1, "Ants");
-    instrument1_audio = ContentFixtures::buildInstrumentAudio(instrument1, "Chords Cm to D",
+    instrument1_meme = ContentFixtures::buildInstrumentMeme(&instrument1, "Ants");
+    instrument1_audio = ContentFixtures::buildInstrumentAudio(&instrument1, "Chords Cm to D",
                                                               "a0b9f74kf9b4h8d9e0g73k107s09f7-g0e73982.wav",
                                                               0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb", 1.0f);
 
     // Instrument 2
-    instrument2 = ContentFixtures::buildInstrument(library1, Instrument::Type::Pad, Instrument::Mode::Chord,
+    instrument2 = ContentFixtures::buildInstrument(&library1, Instrument::Type::Pad, Instrument::Mode::Chord,
                                                    Instrument::State::Published, "Pad");
-    instrument2_meme = ContentFixtures::buildInstrumentMeme(instrument2, "Peanuts");
-    instrument2_audio = ContentFixtures::buildInstrumentAudio(instrument2, "Chord Fm",
+    instrument2_meme = ContentFixtures::buildInstrumentMeme(&instrument2, "Peanuts");
+    instrument2_audio = ContentFixtures::buildInstrumentAudio(&instrument2, "Chord Fm",
                                                               "a0b9fg73k107s74kf9b4h8d9e009f7-g0e73982.wav",
                                                               0.02f, 1.123f, 140.0f, 0.52f, "BING", "F,A,C", 0.9f);
 
     // Program 1, main-type, has sequence with chords, bound to many offsets
-    program1 = ContentFixtures::buildProgram(library1, Program::Type::Main, Program::State::Published, "leaves", "C#",
+    program1 = ContentFixtures::buildProgram(&library1, Program::Type::Main, Program::State::Published, "leaves", "C#",
                                              120.4f);
-    program1_meme = ContentFixtures::buildProgramMeme(program1, "Ants");
-    program1_voice = ContentFixtures::buildProgramVoice(program1, Instrument::Type::Stripe, "Birds");
-    program1_sequence = ContentFixtures::buildProgramSequence(program1, 8, "decay", 0.25f, "F#");
-    program1_sequence_chord0 = ContentFixtures::buildProgramSequenceChord(program1_sequence, 0.0, "G minor");
-    program1_sequence_chord1 = ContentFixtures::buildProgramSequenceChord(program1_sequence, 2.0, "A minor");
-    program1_sequence_chord0_voicing0 = ContentFixtures::buildProgramSequenceChordVoicing(program1_sequence_chord0,
-                                                                                          program1_voice, "G");
-    program1_sequence_chord1_voicing1 = ContentFixtures::buildProgramSequenceChordVoicing(program1_sequence_chord1,
-                                                                                          program1_voice, "Bb");
-    program1_sequence_binding1 = ContentFixtures::buildProgramSequenceBinding(program1_sequence, 0);
-    program1_sequence_binding2 = ContentFixtures::buildProgramSequenceBinding(program1_sequence, 5);
-    program1_sequence_binding1_meme1 = ContentFixtures::buildProgramSequenceBindingMeme(program1_sequence_binding1,
+    program1_meme = ContentFixtures::buildProgramMeme(&program1, "Ants");
+    program1_voice = ContentFixtures::buildProgramVoice(&program1, Instrument::Type::Stripe, "Birds");
+    program1_sequence = ContentFixtures::buildProgramSequence(&program1, 8, "decay", 0.25f, "F#");
+    program1_sequence_chord0 = ContentFixtures::buildProgramSequenceChord(&program1_sequence, 0.0, "G minor");
+    program1_sequence_chord1 = ContentFixtures::buildProgramSequenceChord(&program1_sequence, 2.0, "A minor");
+    program1_sequence_chord0_voicing0 = ContentFixtures::buildProgramSequenceChordVoicing(&program1_sequence_chord0,
+                                                                                          &program1_voice, "G");
+    program1_sequence_chord1_voicing1 = ContentFixtures::buildProgramSequenceChordVoicing(&program1_sequence_chord1,
+                                                                                          &program1_voice, "Bb");
+    program1_sequence_binding1 = ContentFixtures::buildProgramSequenceBinding(&program1_sequence, 0);
+    program1_sequence_binding2 = ContentFixtures::buildProgramSequenceBinding(&program1_sequence, 5);
+    program1_sequence_binding1_meme1 = ContentFixtures::buildProgramSequenceBindingMeme(&program1_sequence_binding1,
                                                                                         "Gravel");
-    program1_sequence_binding1_meme2 = ContentFixtures::buildProgramSequenceBindingMeme(program1_sequence_binding1,
+    program1_sequence_binding1_meme2 = ContentFixtures::buildProgramSequenceBindingMeme(&program1_sequence_binding1,
                                                                                         "Road");
 
     // Program 2, beat-type, has unbound sequence with pattern with events
-    program2 = ContentFixtures::buildProgram(library1, Program::Type::Beat, Program::State::Published, "coconuts",
+    program2 = ContentFixtures::buildProgram(&library1, Program::Type::Beat, Program::State::Published, "coconuts",
                                              "F#",
                                              110.3f);
-    program2_meme = ContentFixtures::buildProgramMeme(program2, "Bells");
-    program2_voice = ContentFixtures::buildProgramVoice(program2, Instrument::Type::Drum, "Drums");
-    program2_sequence = ContentFixtures::buildProgramSequence(program2, 16, "Base", 0.5f, "C");
-    program2_sequence_pattern1 = ContentFixtures::buildProgramSequencePattern(program2_sequence, program2_voice, 16,
+    program2_meme = ContentFixtures::buildProgramMeme(&program2, "Bells");
+    program2_voice = ContentFixtures::buildProgramVoice(&program2, Instrument::Type::Drum, "Drums");
+    program2_sequence = ContentFixtures::buildProgramSequence(&program2, 16, "Base", 0.5f, "C");
+    program2_sequence_pattern1 = ContentFixtures::buildProgramSequencePattern(&program2_sequence, &program2_voice, 16,
                                                                               "growth");
-    program2_sequence_pattern2 = ContentFixtures::buildProgramSequencePattern(program2_sequence, program2_voice, 12,
+    program2_sequence_pattern2 = ContentFixtures::buildProgramSequencePattern(&program2_sequence, &program2_voice, 12,
                                                                               "decay");
-    program2_voice_track1 = ContentFixtures::buildProgramVoiceTrack(program2_voice, "BOOM");
-    program2_voice_track2 = ContentFixtures::buildProgramVoiceTrack(program2_voice, "SMACK");
-    program2_sequence_pattern1_event1 = ContentFixtures::buildProgramSequencePatternEvent(program2_sequence_pattern1,
-                                                                                          program2_voice_track1, 0.0f,
+    program2_voice_track1 = ContentFixtures::buildProgramVoiceTrack(&program2_voice, "BOOM");
+    program2_voice_track2 = ContentFixtures::buildProgramVoiceTrack(&program2_voice, "SMACK");
+    program2_sequence_pattern1_event1 = ContentFixtures::buildProgramSequencePatternEvent(&program2_sequence_pattern1,
+                                                                                          &program2_voice_track1, 0.0f,
                                                                                           1.0f, "C", 1.0f);
-    program2_sequence_pattern1_event2 = ContentFixtures::buildProgramSequencePatternEvent(program2_sequence_pattern1,
-                                                                                          program2_voice_track2, 0.5f,
+    program2_sequence_pattern1_event2 = ContentFixtures::buildProgramSequencePatternEvent(&program2_sequence_pattern1,
+                                                                                          &program2_voice_track2, 0.5f,
                                                                                           1.1f, "D", 0.9f);
 
     // Instantiate subject
@@ -740,9 +740,9 @@ TEST_F(ContentStoreTest, getVoicingsOfChordId) {
 }
 
 TEST_F(ContentStoreTest, getSequenceChordVoicingsOfProgram_dontCountInvalidVoicings) {
-  auto program1_voice2 = ContentFixtures::buildProgramVoice(program1, Instrument::Type::Pad, "Birds");
+  auto program1_voice2 = ContentFixtures::buildProgramVoice(&program1, Instrument::Type::Pad, "Birds");
   subject->put(ContentFixtures::buildVoicing(
-      program1_sequence_chord0, program1_voice2, "(None)")); // No voicing notes- doesn't count!
+      &program1_sequence_chord0, &program1_voice2, "(None)")); // No voicing notes- doesn't count!
   auto result = subject->getSequenceChordVoicingsOfProgram(program1.id);
 
   ASSERT_EQ(2, result.size());
@@ -1054,7 +1054,7 @@ TEST_F(ContentStoreTest, ForTemplate_BoundToLibrary) {
 }
 
 TEST_F(ContentStoreTest, ForTemplate_BoundToProgram) {
-  subject->setTemplateBindings({ContentFixtures::buildTemplateBinding(template2, program1)});
+  subject->setTemplateBindings({ContentFixtures::buildTemplateBinding(&template2, &program1)});
 
   auto result = subject->forTemplate(&template2);
 
@@ -1080,7 +1080,7 @@ TEST_F(ContentStoreTest, ForTemplate_BoundToProgram) {
 }
 
 TEST_F(ContentStoreTest, ForTemplate_BoundToInstrument) {
-  subject->setTemplateBindings({ContentFixtures::buildTemplateBinding(template2, instrument1)});
+  subject->setTemplateBindings({ContentFixtures::buildTemplateBinding(&template2, &instrument1)});
 
   auto result = subject->forTemplate(&template2);
 

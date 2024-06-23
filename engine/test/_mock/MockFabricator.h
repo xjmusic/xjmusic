@@ -16,29 +16,26 @@ namespace XJ {
         ContentEntityStore *contentEntityStore,
         SegmentEntityStore *segmentEntityStore,
         SegmentRetrospective *segmentRetrospective,
-        int segmentId,
-        float outputFrameRate,
-        int outputChannels,
-        std::optional<Segment::Type> overrideSegmentType
-    ) : Fabricator(
-        contentEntityStore,
-        segmentEntityStore,
-        segmentRetrospective,
-        segmentId,
-        outputFrameRate,
-        outputChannels,
-        overrideSegmentType
-    ) {}
+        const int segmentId,
+        const float outputFrameRate,
+        const int outputChannels,
+        const std::optional<Segment::Type> overrideSegmentType) : Fabricator(contentEntityStore,
+                                                                       segmentEntityStore,
+                                                                       segmentRetrospective,
+                                                                       segmentId,
+                                                                       outputFrameRate,
+                                                                       outputChannels,
+                                                                       overrideSegmentType) {}
 
     MOCK_METHOD(SegmentRetrospective *, getRetrospective, (), (override));
     MOCK_METHOD(ContentEntityStore *, getSourceMaterial, (), (override));
     MOCK_METHOD(TemplateConfig, getTemplateConfig, (), (override));
-    MOCK_METHOD(Segment, getSegment, (), (override));
-    MOCK_METHOD(InstrumentConfig, getInstrumentConfig, (const Instrument& instrument), (override));
+    MOCK_METHOD(Segment *, getSegment, (), (override));
+    MOCK_METHOD(InstrumentConfig, getInstrumentConfig, (const Instrument *instrument), (override));
     MOCK_METHOD(MemeIsometry, getMemeIsometryOfSegment, (), (override));
 
 
-/*
+    /*
     MOCK_METHOD(void, addMessage, (SegmentMessage::Type messageType, std::string body), (override));
     MOCK_METHOD(void, addErrorMessage, (std::string body), (override));
     MOCK_METHOD(void, addWarningMessage, (std::string body), (override));
@@ -94,5 +91,5 @@ namespace XJ {
 */
   };
 
-} // namespace XJ
-#endif //XJMUSIC_MOCK_FABRICATOR_H
+}// namespace XJ
+#endif//XJMUSIC_MOCK_FABRICATOR_H

@@ -257,7 +257,7 @@ namespace XJ {
      @param instrument for which to pick audio
      @return drum-type Instrument
      */
-    [[nodiscard]] std::set<InstrumentAudio> selectGeneralAudioIntensityLayers(const Instrument &instrument) const;
+    [[nodiscard]] std::set<InstrumentAudio> selectGeneralAudioIntensityLayers(const Instrument *instrument) const;
 
   protected:
     /**
@@ -266,7 +266,7 @@ namespace XJ {
      @param programs to filter
      @return filtered programs
      */
-    [[nodiscard]] std::set<Program> programsDirectlyBound(const std::set<Program> &programs) const;
+    [[nodiscard]] std::set<const Program *> programsDirectlyBound(const std::set<const Program *> &programs) const;
 
     /**
      Filter only the published programs
@@ -274,7 +274,7 @@ namespace XJ {
      @param programs to filter
      @return filtered programs
      */
-    static std::set<Program> programsPublished(const std::set<Program> &programs);
+    static std::set<const Program *> programsPublished(const std::set<const Program *> &programs);
 
     /**
      Filter only the directly bound instruments
@@ -282,7 +282,7 @@ namespace XJ {
      @param instruments to filter
      @return filtered instruments
      */
-    [[nodiscard]] std::set<Instrument> instrumentsDirectlyBound(const std::set<const Instrument *> &instruments) const;
+    [[nodiscard]] std::set<const Instrument *> instrumentsDirectlyBound(const std::set<const Instrument *> &instruments) const;
 
     /**
      Filter only the published instruments
@@ -290,7 +290,7 @@ namespace XJ {
      @param instruments to filter
      @return filtered instruments
      */
-    static std::set<Instrument> instrumentsPublished(const std::set<const Instrument *> &instruments);
+    [[nodiscard]] static std::set<const Instrument *> instrumentsPublished(const std::set<const Instrument *> &instruments);
 
     /**
      Filter only the directly bound instrumentAudios
@@ -298,7 +298,7 @@ namespace XJ {
      @param instrumentAudios to filter
      @return filtered instrumentAudios
      */
-    [[nodiscard]] std::set<InstrumentAudio> audiosDirectlyBound(const std::set<InstrumentAudio> &instrumentAudios) const;
+    [[nodiscard]] std::set<const InstrumentAudio *> audiosDirectlyBound(const std::set<const InstrumentAudio *> &instrumentAudios) const;
 
     /**
      Filter only the published instrumentAudios
@@ -306,7 +306,7 @@ namespace XJ {
      @param instrumentAudios to filter
      @return filtered instrumentAudios
      */
-    [[nodiscard]] std::set<InstrumentAudio> audiosPublished(const std::set<InstrumentAudio> &instrumentAudios) const;
+    [[nodiscard]] std::set<const InstrumentAudio *> audiosPublished(const std::set<const InstrumentAudio *> &instrumentAudios) const;
 
     /**
      Compute a mute value, based on the template config
@@ -423,7 +423,7 @@ namespace XJ {
      */
     void
     craftNoteEventSectionRestartingEachChord(float tempo, const SegmentChoice *choice, NoteRange *range,
-                                             bool defaultAtonal);
+                                             bool defaultAtonal) const;
 
     /**
      Compute the segment chord sections
@@ -449,7 +449,7 @@ namespace XJ {
         float fromPos,
         float maxPos,
         NoteRange *range,
-        bool defaultAtonal);
+        bool defaultAtonal) const;
 
     /**
      Craft the voice events of a single pattern.
@@ -471,7 +471,7 @@ namespace XJ {
         float fromPosition,
         float toPosition,
         NoteRange *range,
-        bool defaultAtonal);
+        bool defaultAtonal) const;
 
     /**
      of a pick of instrument-audio for each event, where events are conformed to entities/scales based on the master segment entities
@@ -496,7 +496,7 @@ namespace XJ {
         const float toPosition,
         const ProgramSequencePatternEvent *event,
         NoteRange *range,
-        const bool defaultAtonal);
+        const bool defaultAtonal) const;
 
 
     /**
@@ -562,7 +562,7 @@ namespace XJ {
         long startAtSegmentMicros,
         std::optional<long> lengthMicros,
         const std::optional<UUID> &segmentChordVoicingId,
-        float volRatio);
+        float volRatio) const;
 
     /**
      Select audio from a multiphonic instrument
@@ -575,7 +575,7 @@ namespace XJ {
      @return matched new audio
      */
     std::optional<const InstrumentAudio *>
-    selectMultiphonicInstrumentAudio(const Instrument *instrument, const ProgramSequencePatternEvent *event, const std::string &note);
+    selectMultiphonicInstrumentAudio(const Instrument *instrument, const ProgramSequencePatternEvent *event, const std::string &note) const;
 
     /**
      Select audio from a multiphonic instrument
@@ -622,7 +622,7 @@ namespace XJ {
      @param note       to match
      @return matched new audio
      */
-    std::optional<const InstrumentAudio *> selectNewMultiphonicInstrumentAudio(const Instrument *instrument, std::string note);
+    std::optional<const InstrumentAudio *> selectNewMultiphonicInstrumentAudio(const Instrument *instrument, std::string note) const;
 
     /**
      Test if an instrument contains audios named like N

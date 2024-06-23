@@ -865,37 +865,37 @@ namespace XJ {
     /**
      * Get Segment ID of Segment Choice Arrangement
      */
-    static int getSegmentId(const SegmentChoiceArrangement &segmentChoiceArrangement);
+    static int getSegmentId(const SegmentChoiceArrangement *segmentChoiceArrangement);
 
     /**
      * Get Segment ID of Segment Choice Arrangement Pick
      */
-    static int getSegmentId(const SegmentChoiceArrangementPick &segmentChoiceArrangementPick);
+    static int getSegmentId(const SegmentChoiceArrangementPick *segmentChoiceArrangementPick);
 
     /**
      * Get Segment ID of Segment Chord
      */
-    static int getSegmentId(const SegmentChord &segmentChord);
+    static int getSegmentId(const SegmentChord *segmentChord);
 
     /**
      * Get Segment ID of Segment Chord Voicing
      */
-    static int getSegmentId(const SegmentChordVoicing &segmentChordVoicing);
+    static int getSegmentId(const SegmentChordVoicing *segmentChordVoicing);
 
     /**
      * Get Segment ID of Segment Meme
      */
-    static int getSegmentId(const SegmentMeme &segmentMeme);
+    static int getSegmentId(const SegmentMeme *segmentMeme);
 
     /**
      * Get Segment ID of Segment Message
      */
-    static int getSegmentId(const SegmentMessage &segmentMessage);
+    static int getSegmentId(const SegmentMessage *segmentMessage);
 
     /**
      * Get Segment ID of Segment Meta
      */
-    static int getSegmentId(const SegmentMeta &segmentMeta);
+    static int getSegmentId(const SegmentMeta *segmentMeta);
 
   private:
     static const std::string KEY_VOICE_TRACK_TEMPLATE;

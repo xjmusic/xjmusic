@@ -211,8 +211,8 @@ std::optional<const SegmentChoice *> Fabricator::getChoiceIfContinued(const Prog
   if (getSegment()->type != Segment::Type::Continue) return std::nullopt;
 
   auto choices = retrospective->getChoices();
-  auto it = std::find_if(choices.begin(), choices.end(), [&](const SegmentChoice &choice) {
-    const auto candidateVoice = sourceMaterial->getProgramVoice(choice.programVoiceId);
+  auto it = std::find_if(choices.begin(), choices.end(), [&](const SegmentChoice *choice) {
+    const auto candidateVoice = sourceMaterial->getProgramVoice(choice->programVoiceId);
     return candidateVoice.has_value() && candidateVoice.value()->name == voice->name &&
            candidateVoice.value()->type == voice->type;
   });
@@ -230,8 +230,8 @@ std::optional<SegmentChoice *> Fabricator::getChoiceIfContinued(const Instrument
   if (getSegment()->type != Segment::Type::Continue) return std::nullopt;
 
   auto choices = retrospective->getChoices();
-  const auto it = std::find_if(choices.begin(), choices.end(), [&](const SegmentChoice &choice) {
-    return choice.instrumentType == instrumentType;
+  const auto it = std::find_if(choices.begin(), choices.end(), [&](const SegmentChoice *choice) {
+    return choice->instrumentType == instrumentType;
   });
 
   if (it != choices.end()) {
@@ -249,8 +249,8 @@ Fabricator::getChoiceIfContinued(const Instrument::Type instrumentType, const In
   if (getSegment()->type != Segment::Type::Continue) return std::nullopt;
 
   auto choices = retrospective->getChoices();
-  const auto it = std::find_if(choices.begin(), choices.end(), [&](const SegmentChoice &choice) {
-    return choice.instrumentType == instrumentType && choice.instrumentMode == instrumentMode;
+  const auto it = std::find_if(choices.begin(), choices.end(), [&](const SegmentChoice *choice) {
+    return choice->instrumentType == instrumentType && choice->instrumentMode == instrumentMode;
   });
 
   if (it != choices.end()) {
@@ -269,8 +269,8 @@ std::vector<SegmentChoice *> Fabricator::getChoicesIfContinued(const Program::Ty
   auto choices = retrospective->getChoices();
   std::vector<SegmentChoice *> filteredChoices;
 
-  std::copy_if(choices.begin(), choices.end(), std::back_inserter(filteredChoices), [&](const SegmentChoice &choice) {
-    return choice.programType == programType;
+  std::copy_if(choices.begin(), choices.end(), std::back_inserter(filteredChoices), [&](const SegmentChoice *choice) {
+    return choice->programType == programType;
   });
 
   if (filteredChoices.empty()) {
@@ -431,8 +431,8 @@ std::vector<SegmentChoiceArrangementPick *> Fabricator::getPicks(const SegmentCh
     }
     // Sort the picks by startAtSegmentMicros
     std::sort(picks.begin(), picks.end(),
-              [](const SegmentChoiceArrangementPick &a, const SegmentChoiceArrangementPick &b) {
-                return a.startAtSegmentMicros < b.startAtSegmentMicros;
+              [](const SegmentChoiceArrangementPick *a, const SegmentChoiceArrangementPick *b) {
+                return a->startAtSegmentMicros < b->startAtSegmentMicros;
               });
     picksForChoice[choice->id] = picks;
   }
@@ -483,8 +483,8 @@ std::vector<const ProgramSequenceChord *> Fabricator::getProgramSequenceChords(c
       sortedChords.emplace_back(chord);
     }
     std::sort(sortedChords.begin(), sortedChords.end(),
-              [](const ProgramSequenceChord &a, const ProgramSequenceChord &b) {
-                return a.position < b.position;
+              [](const ProgramSequenceChord *a, const ProgramSequenceChord *b) {
+                return a->position < b->position;
               });
     completeChordsForProgramSequence[programSequence->id] = sortedChords;
   }
@@ -493,8 +493,8 @@ std::vector<const ProgramSequenceChord *> Fabricator::getProgramSequenceChords(c
 }
 
 
-NoteRange Fabricator::getProgramRange(const UUID &programId, Instrument::Type instrumentType) {
-  std::string cacheKey = programId + "__" + std::to_string(static_cast<int>(instrumentType));
+NoteRange Fabricator::getProgramRange(const UUID &programId, const Instrument::Type instrumentType) {
+  std::string cacheKey = programId + "__" + std::to_string(instrumentType);
 
   if (rangeForChoice.find(cacheKey) == rangeForChoice.end()) {
     rangeForChoice[cacheKey] = computeProgramRange(programId, instrumentType);
@@ -719,8 +719,8 @@ Segment *Fabricator::getSegment() {
 std::vector<SegmentChord *> Fabricator::getSegmentChords() {
   auto chords = store->readAllSegmentChords(segmentId);
   std::vector<SegmentChord *> sortedChords = std::vector<SegmentChord *>(chords.begin(), chords.end());
-  std::sort(sortedChords.begin(), sortedChords.end(), [](const SegmentChord &a, const SegmentChord &b) {
-    return a.position < b.position;
+  std::sort(sortedChords.begin(), sortedChords.end(), [](const SegmentChord *a, const SegmentChord *b) {
+    return a->position < b->position;
   });
   return sortedChords;
 }
@@ -1025,8 +1025,8 @@ std::optional<const SegmentMeta *> Fabricator::getSegmentMeta(const std::string 
 
 std::optional<const SegmentChoice *> Fabricator::getChoiceOfType(Program::Type programType) const {
   auto allChoices = getChoices();
-  auto it = std::find_if(allChoices.begin(), allChoices.end(), [programType](const SegmentChoice &choice) {
-    return choice.programType == programType;
+  auto it = std::find_if(allChoices.begin(), allChoices.end(), [programType](const SegmentChoice *choice) {
+    return choice->programType == programType;
   });
 
   if (it != allChoices.end()) {
@@ -1041,8 +1041,8 @@ std::vector<const SegmentChoice *> Fabricator::getBeatChoices() const {
   std::set<SegmentChoice *> allChoices = getChoices();
   std::vector<const SegmentChoice *> beatChoices;
 
-  std::copy_if(allChoices.begin(), allChoices.end(), std::back_inserter(beatChoices), [](const SegmentChoice &choice) {
-    return choice.programType == Program::Type::Beat;
+  std::copy_if(allChoices.begin(), allChoices.end(), std::back_inserter(beatChoices), [](const SegmentChoice *choice) {
+    return choice->programType == Program::Type::Beat;
   });
 
   return beatChoices;
@@ -1169,11 +1169,11 @@ bool Fabricator::isValidChoiceAndMemesHaveBeenAdded(const SegmentChoice &choice,
 }
 
 
-bool Fabricator::isValidMemeAddition(const SegmentMeme &meme, const MemeStack &memeStack, bool force) {
+bool Fabricator::isValidMemeAddition(const SegmentMeme &meme, const MemeStack &memeStack, const bool force) {
   if (force) return true;
   if (!memeStack.isAllowed({meme.name})) return false;
-  return std::all_of(getSegmentMemes().begin(), getSegmentMemes().end(), [&meme](const SegmentMeme &m) {
-    return m.name != meme.name;
+  return std::all_of(getSegmentMemes().begin(), getSegmentMemes().end(), [&meme](const SegmentMeme *m) {
+    return m->name != meme.name;
   });
 }
 
@@ -1195,7 +1195,7 @@ std::string Fabricator::computeCacheKeyForVoiceTrack(const SegmentChoiceArrangem
   return "voice-" + cacheKey + "_track-" + pick->event;
 }
 
-NoteRange Fabricator::computeProgramRange(const UUID &programId, Instrument::Type instrumentType) const {
+NoteRange Fabricator::computeProgramRange(const UUID &programId, const Instrument::Type instrumentType) const {
   std::vector<std::string> notes;
   const auto events = sourceMaterial->getSequencePatternEventsOfProgram(programId);
   for (const auto &event: events) {
@@ -1213,30 +1213,30 @@ int Fabricator::getSegmentId(const SegmentChoice *segmentChoice) {
   return segmentChoice->segmentId;
 }
 
-int Fabricator::getSegmentId(const SegmentChoiceArrangement &segmentChoiceArrangement) {
-  return segmentChoiceArrangement.segmentId;
+int Fabricator::getSegmentId(const SegmentChoiceArrangement *segmentChoiceArrangement) {
+  return segmentChoiceArrangement->segmentId;
 }
 
-int Fabricator::getSegmentId(const SegmentChoiceArrangementPick &segmentChoiceArrangementPick) {
-  return segmentChoiceArrangementPick.segmentId;
+int Fabricator::getSegmentId(const SegmentChoiceArrangementPick *segmentChoiceArrangementPick) {
+  return segmentChoiceArrangementPick->segmentId;
 }
 
-int Fabricator::getSegmentId(const SegmentChord &segmentChord) {
-  return segmentChord.segmentId;
+int Fabricator::getSegmentId(const SegmentChord *segmentChord) {
+  return segmentChord->segmentId;
 }
 
-int Fabricator::getSegmentId(const SegmentChordVoicing &segmentChordVoicing) {
-  return segmentChordVoicing.segmentId;
+int Fabricator::getSegmentId(const SegmentChordVoicing *segmentChordVoicing) {
+  return segmentChordVoicing->segmentId;
 }
 
-int Fabricator::getSegmentId(const SegmentMeme &segmentMeme) {
-  return segmentMeme.segmentId;
+int Fabricator::getSegmentId(const SegmentMeme *segmentMeme) {
+  return segmentMeme->segmentId;
 }
 
-int Fabricator::getSegmentId(const SegmentMessage &segmentMessage) {
-  return segmentMessage.segmentId;
+int Fabricator::getSegmentId(const SegmentMessage *segmentMessage) {
+  return segmentMessage->segmentId;
 }
 
-int Fabricator::getSegmentId(const SegmentMeta &segmentMeta) {
-  return segmentMeta.segmentId;
+int Fabricator::getSegmentId(const SegmentMeta *segmentMeta) {
+  return segmentMeta->segmentId;
 }

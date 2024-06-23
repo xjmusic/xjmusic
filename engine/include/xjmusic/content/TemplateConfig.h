@@ -15,16 +15,14 @@
 namespace XJ {
 
   class TemplateConfig : public ConfigParser {
-  private:
+  public:
     static const std::string DEFAULT;
     static std::string formatMemeTaxonomy(MemeTaxonomy taxonomy);
     static std::string formatInstrumentTypeList(const std::vector<Instrument::Type> &input);
     static std::string formatInstrumentTypeList(const std::set<Instrument::Type> &input);
-
-  public:
     explicit TemplateConfig();
 
-    explicit TemplateConfig(const Template &input);
+    explicit TemplateConfig(const Template *input);
 
     explicit TemplateConfig(const std::string &input);
 
@@ -64,12 +62,6 @@ namespace XJ {
      * @return  The HOCON string
      */
     [[nodiscard]] std::string toString() const;
-
-
-    /**
-     * Get the default TemplateConfig as a HOCON string
-     */
-    [[nodiscard]] static std::string getDefaultString();
 
     /**
      * Whether the instrument types for inverion seeking contains the given type

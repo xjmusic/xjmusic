@@ -11,21 +11,21 @@ using namespace XJ;
 
 
 TEST(Music_NoteRange, Low) {
-  auto subject = NoteRange::ofStrings(std::vector<std::string>{"C3", "E3", "D4", "E5", "F6"});
+  const auto subject = NoteRange::ofStrings(std::vector<std::string>{"C3", "E3", "D4", "E5", "F6"});
 
   ASSERT_TRUE(Note::of("C3") == (subject.low.value()));
 }
 
 
 TEST(Music_NoteRange, High) {
-  auto subject = NoteRange::ofStrings(std::vector<std::string>{"C3", "E3", "D4", "E5", "F6"});
+  const auto subject = NoteRange::ofStrings(std::vector<std::string>{"C3", "E3", "D4", "E5", "F6"});
 
   ASSERT_TRUE(Note::of("F6") == (subject.high.value()));
 }
 
 
 TEST(Music_NoteRange, RangeFromNotes) {
-  auto subject = NoteRange::from(Note::of("C3"), Note::of("C4"));
+  const auto subject = NoteRange::from(Note::of("C3"), Note::of("C4"));
 
   ASSERT_TRUE(Note::of("C3") == (subject.low.value()));
   ASSERT_TRUE(Note::of("C4") == (subject.high.value()));
@@ -33,14 +33,14 @@ TEST(Music_NoteRange, RangeFromNotes) {
 
 
 TEST(Music_NoteRange, RangeOfNotes_isEmpty) {
-  auto subject = NoteRange::ofNotes(std::set<Note>{Note::of("X")});
+  const auto subject = NoteRange::ofNotes(std::set<Note>{Note::of("X")});
 
   ASSERT_TRUE(subject.empty());
 }
 
 
 TEST(Music_NoteRange, RangeOfNotes_FromSet) {
-  auto subject = NoteRange::ofNotes(std::set<Note>{
+  const auto subject = NoteRange::ofNotes(std::set<Note>{
       Note::of("C3"),
       Note::of("E3"),
       Note::of("D4"),
@@ -54,7 +54,7 @@ TEST(Music_NoteRange, RangeOfNotes_FromSet) {
 
 
 TEST(Music_NoteRange, RangeOfNotes_FromVector) {
-  auto subject = NoteRange::ofNotes(std::vector<Note>{
+  const auto subject = NoteRange::ofNotes(std::vector<Note>{
       Note::of("C3"),
       Note::of("E3"),
       Note::of("D4"),
@@ -68,7 +68,7 @@ TEST(Music_NoteRange, RangeOfNotes_FromVector) {
 
 
 TEST(Music_NoteRange, RangeFromNotes_LowOptional) {
-  auto subject = NoteRange::from(Note::atonal(), Note::of("C4"));
+  const auto subject = NoteRange::from(Note::atonal(), Note::of("C4"));
 
   ASSERT_FALSE(subject.low.has_value());
   ASSERT_TRUE(Note::of("C4") == (subject.high.value()));
@@ -76,7 +76,7 @@ TEST(Music_NoteRange, RangeFromNotes_LowOptional) {
 
 
 TEST(Music_NoteRange, RangeFromNotes_HighOptional) {
-  auto subject = NoteRange::from(Note::of("C4"), Note::atonal());
+  const auto subject = NoteRange::from(Note::of("C4"), Note::atonal());
 
   ASSERT_TRUE(Note::of("C4") == (subject.low.value()));
   ASSERT_FALSE(subject.high.has_value());
@@ -84,7 +84,7 @@ TEST(Music_NoteRange, RangeFromNotes_HighOptional) {
 
 
 TEST(Music_NoteRange, RangeFromStrings) {
-  auto subject = NoteRange::from("C3", "C4");
+  const auto subject = NoteRange::from("C3", "C4");
 
   ASSERT_TRUE(Note::of("C3") == (subject.low.value()));
   ASSERT_TRUE(Note::of("C4") == (subject.high.value()));
@@ -92,7 +92,7 @@ TEST(Music_NoteRange, RangeFromStrings) {
 
 
 TEST(Music_NoteRange, RangeFromStrings_LowOptional) {
-  auto subject = NoteRange::from("X", "C4");
+  const auto subject = NoteRange::from("X", "C4");
 
   ASSERT_FALSE(subject.low.has_value());
   ASSERT_TRUE(Note::of("C4") == (subject.high.value()));
@@ -100,7 +100,7 @@ TEST(Music_NoteRange, RangeFromStrings_LowOptional) {
 
 
 TEST(Music_NoteRange, RangeFromStrings_HighOptional) {
-  auto subject = NoteRange::from("C4", "X");
+  const auto subject = NoteRange::from("C4", "X");
 
   ASSERT_TRUE(Note::of("C4") == (subject.low.value()));
   ASSERT_FALSE(subject.high.has_value());
@@ -108,8 +108,8 @@ TEST(Music_NoteRange, RangeFromStrings_HighOptional) {
 
 
 TEST(Music_NoteRange, CopyOf) {
-  auto subject = NoteRange::ofStrings(std::vector<std::string>{"C3", "E3", "D4", "E5", "F6"});
-  auto cp = NoteRange::copyOf(subject);
+  const auto subject = NoteRange::ofStrings(std::vector<std::string>{"C3", "E3", "D4", "E5", "F6"});
+  const auto cp = NoteRange::copyOf(subject);
 
   ASSERT_TRUE(Note::of("C3") == (cp.low.value()));
   ASSERT_TRUE(Note::of("F6") == (cp.high.value()));
@@ -148,10 +148,9 @@ TEST(Music_NoteRange, Expand_ByNotes) {
 
 TEST(Music_NoteRange, Expand_ByRange) {
   auto subject = NoteRange::ofStrings(std::vector<std::string>{"C3", "E3", "D4", "E5", "F6"});
+  const auto expansion = NoteRange::ofStrings(std::vector<std::string>{ "G2", "G6"});
 
-  subject.expand(NoteRange::ofStrings(std::vector<std::string>{
-      "G2",
-      "G6"}));
+  subject.expand(&expansion);
 
   ASSERT_TRUE(Note::of("G2") == (subject.low.value()));
   ASSERT_TRUE(Note::of("G6") == (subject.high.value()));
@@ -263,11 +262,11 @@ TEST(Music_NoteRange, ComputeMedianOptimalRangeShiftOctaves) {
   auto rangeC1 = NoteRange::from(Note::of("F3"), Note::of("E4"));
   auto rangeC2 = NoteRange::from(Note::of("D3"), Note::of("C6"));
 
-  ASSERT_EQ(2, NoteRange::computeMedianOptimalRangeShiftOctaves(&rangeA, rangeB));
-  ASSERT_EQ(-2, NoteRange::computeMedianOptimalRangeShiftOctaves(&rangeB, rangeA));
-  ASSERT_EQ(0, NoteRange::computeMedianOptimalRangeShiftOctaves(&rangeB, rangeB_superset));
-  ASSERT_EQ(0, NoteRange::computeMedianOptimalRangeShiftOctaves(&rangeB_superset, rangeB));
-  ASSERT_EQ(1, NoteRange::computeMedianOptimalRangeShiftOctaves(&rangeA, rangeA_overlap));
-  ASSERT_EQ(0, NoteRange::computeMedianOptimalRangeShiftOctaves(&rangeC1, rangeC2));
-  ASSERT_EQ(0, NoteRange::computeMedianOptimalRangeShiftOctaves(&rangeC2, rangeC1));
+  ASSERT_EQ(2, NoteRange::computeMedianOptimalRangeShiftOctaves(&rangeA, &rangeB));
+  ASSERT_EQ(-2, NoteRange::computeMedianOptimalRangeShiftOctaves(&rangeB, &rangeA));
+  ASSERT_EQ(0, NoteRange::computeMedianOptimalRangeShiftOctaves(&rangeB, &rangeB_superset));
+  ASSERT_EQ(0, NoteRange::computeMedianOptimalRangeShiftOctaves(&rangeB_superset, &rangeB));
+  ASSERT_EQ(1, NoteRange::computeMedianOptimalRangeShiftOctaves(&rangeA, &rangeA_overlap));
+  ASSERT_EQ(0, NoteRange::computeMedianOptimalRangeShiftOctaves(&rangeC1, &rangeC2));
+  ASSERT_EQ(0, NoteRange::computeMedianOptimalRangeShiftOctaves(&rangeC2, &rangeC1));
 }

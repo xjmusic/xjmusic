@@ -5,11 +5,17 @@
 #include <vector>
 
 #include "../_helper/SegmentFixtures.h"
+#include "../_helper/ContentFixtures.h"
 #include "../_mock/MockSegmentRetrospective.h"
 
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 
+#include <xjmusic/util/ValueUtils.h>
+
+namespace XJ {
+  class ContentFixtures;
+}
 // NOLINTNEXTLINE
 using ::testing::_;
 using ::testing::Return;
@@ -20,30 +26,34 @@ using namespace XJ;
 class FabricatorTest : public ::testing::Test { // NOLINT(*-pro-type-member-init)
 protected:
   int SEQUENCE_TOTAL_BEATS = 64;
-  ContentEntityStore *sourceMaterial;
-  SegmentEntityStore *store;
-  MockSegmentRetrospective *mockRetrospective;
-  Fabricator *subject;
-  ContentFixtures fake;
-  Segment segment;
+  ContentEntityStore *sourceMaterial = nullptr;
+  SegmentEntityStore *store = nullptr;
+  MockSegmentRetrospective *mockRetrospective = nullptr;
+  Fabricator *subject = nullptr;
+  ContentFixtures *fake = nullptr;
+  Segment *segment = nullptr;
 
+public:
+
+
+protected:
   void SetUp() override {
     sourceMaterial = new ContentEntityStore();
     store = new SegmentEntityStore();
+    fake = new ContentFixtures();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake.setupFixtureB1(sourceMaterial);
-    fake.setupFixtureB2(sourceMaterial);
-    fake.setupFixtureB3(sourceMaterial);
+    fake->setupFixtureB1(sourceMaterial);
+    fake->setupFixtureB2(sourceMaterial);
+    fake->setupFixtureB3(sourceMaterial);
 
     // Here's a basic setup that can be replaced for complex tests
     auto chain = store->put(SegmentFixtures::buildChain(
-        fake.project1,
-        fake.template1,
+        &fake->project1,
+        &fake->template1,
         "test",
         Chain::Type::Production,
-        Chain::State::Fabricate
-    ));
+        Chain::State::Fabricate));
     segment = store->put(SegmentFixtures::buildSegment(
         chain,
         2,
@@ -52,8 +62,7 @@ protected:
         8,
         0.6f,
         240.0f,
-        "seg123"
-    ));
+        "seg123"));
     mockRetrospective = new MockSegmentRetrospective(store, 2);
     subject = new Fabricator(sourceMaterial, store, mockRetrospective, 2, 48000.0f, 2, std::nullopt);
   }
@@ -62,13 +71,15 @@ protected:
     delete store;
     delete mockRetrospective;
     delete subject;
+    delete sourceMaterial;
+    delete fake;
   }
 };
 
 
 TEST_F(FabricatorTest, PickReturnedByPicks) {
-  sourceMaterial->put(ContentFixtures::buildTemplateBinding(fake.template1, fake.library2));
-  auto chain = store->put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
+  sourceMaterial->put(ContentFixtures::buildTemplateBinding(&fake->template1, &fake->library2));
+  auto chain = store->put(SegmentFixtures::buildChain(&fake->project1, &fake->template1, "test", Chain::Type::Production,
                                                       Chain::State::Fabricate));
   store->put(SegmentFixtures::buildSegment(chain, 1, Segment::State::Crafted, "F major", 8, 0.6f, 120.0f, "seg123"));
   segment = store->put(
@@ -76,51 +87,51 @@ TEST_F(FabricatorTest, PickReturnedByPicks) {
   store->put(SegmentFixtures::buildSegmentChord(segment, 0.0f, "A"));
   store->put(
       SegmentFixtures::buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED,
-                                          fake.program5));
+                                          &fake->program5));
   SegmentChoice beatChoice = store->put(
       SegmentFixtures::buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED,
-                                          fake.program35, fake.program35_voice0, fake.instrument8));
-  SegmentChoiceArrangement beatArrangement = store->put(SegmentFixtures::buildSegmentChoiceArrangement(beatChoice));
+                                          &fake->program35, &fake->program35_voice0, &fake->instrument8));
+  SegmentChoiceArrangement beatArrangement = store->put(SegmentFixtures::buildSegmentChoiceArrangement(&beatChoice));
   SegmentChoiceArrangementPick pick;
   pick.id = EntityUtils::computeUniqueId();
   pick.segmentId = beatArrangement.segmentId;
   pick.segmentChoiceArrangementId = beatArrangement.id;
-  pick.programSequencePatternEventId = fake.program35_sequence0_pattern0_event0.id;
-  pick.instrumentAudioId = fake.instrument8_audio8kick.id;
+  pick.programSequencePatternEventId = fake->program35_sequence0_pattern0_event0.id;
+  pick.instrumentAudioId = fake->instrument8_audio8kick.id;
   pick.event = "CLANG";
-  pick.startAtSegmentMicros = static_cast<long>(0.273 * (double) ValueUtils::MICROS_PER_SECOND);
-  pick.lengthMicros = static_cast<long>(1.571 * (double) ValueUtils::MICROS_PER_SECOND);
+  pick.startAtSegmentMicros = static_cast<long>(0.273 * static_cast<double>(ValueUtils::MICROS_PER_SECOND));
+  pick.lengthMicros = static_cast<long>(1.571 * static_cast<double>(ValueUtils::MICROS_PER_SECOND));
   pick.amplitude = 0.8f;
   pick.tones = "A4";
   store->put(pick);
 
-  std::set<SegmentChoiceArrangementPick> result = subject->getPicks();
+  std::set<SegmentChoiceArrangementPick *> result = subject->getPicks();
 
-  SegmentChoiceArrangementPick resultPick = *result.begin();
-  ASSERT_EQ(beatArrangement.id, resultPick.segmentChoiceArrangementId);
-  ASSERT_EQ(fake.instrument8_audio8kick.id, resultPick.instrumentAudioId);
-  ASSERT_NEAR(0.273 * ValueUtils::MICROS_PER_SECOND, resultPick.startAtSegmentMicros, 0.001);
-  ASSERT_NEAR(1.571 * ValueUtils::MICROS_PER_SECOND, resultPick.lengthMicros, 0.001);
-  ASSERT_NEAR(0.8f, resultPick.amplitude, 0.1);
-  ASSERT_EQ("A4", resultPick.tones);
+  SegmentChoiceArrangementPick *resultPick = *result.begin();
+  ASSERT_EQ(beatArrangement.id, resultPick->segmentChoiceArrangementId);
+  ASSERT_EQ(fake->instrument8_audio8kick.id, resultPick->instrumentAudioId);
+  ASSERT_NEAR(0.273 * ValueUtils::MICROS_PER_SECOND, resultPick->startAtSegmentMicros, 0.001);
+  ASSERT_NEAR(1.571 * ValueUtils::MICROS_PER_SECOND, resultPick->lengthMicros, 0.001);
+  ASSERT_NEAR(0.8f, resultPick->amplitude, 0.1);
+  ASSERT_EQ("A4", resultPick->tones);
 }
 
 
 TEST_F(FabricatorTest, GetDistinctChordVoicingTypes) {
   sourceMaterial->put(ContentFixtures::buildVoicing(
-      fake.program5_sequence0_chord0, fake.program5_voiceSticky, "G4, B4, D4"));
+      &fake->program5_sequence0_chord0, &fake->program5_voiceSticky, "G4, B4, D4"));
   sourceMaterial->put(ContentFixtures::buildVoicing(
-      fake.program5_sequence0_chord0, fake.program5_voiceStripe, "F5"));
+      &fake->program5_sequence0_chord0, &fake->program5_voiceStripe, "F5"));
   sourceMaterial->put(ContentFixtures::buildVoicing(
-      fake.program5_sequence0_chord0, fake.program5_voicePad, "(None)")); // No voicing notes- doesn't count!
+      &fake->program5_sequence0_chord0, &fake->program5_voicePad, "(None)")); // No voicing notes- doesn't count!
 
   // Create a chain
   auto chain = store->put(SegmentFixtures::buildChain(
-      fake.project1, fake.template1, "test", Chain::Type::Production, Chain::State::Fabricate));
+      &fake->project1, &fake->template1, "test", Chain::Type::Production, Chain::State::Fabricate));
 
   // Create a segment choice
   store->put(SegmentFixtures::buildSegmentChoice(
-      segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program5));
+      segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, &fake->program5));
 
   // Get the result
   std::set<Instrument::Type> result = subject->getDistinctChordVoicingTypes();
@@ -135,18 +146,18 @@ TEST_F(FabricatorTest, GetDistinctChordVoicingTypes) {
  */
 TEST_F(FabricatorTest, GetType) {
   // Create a chain
-  auto chain = store->put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
+  auto chain = store->put(SegmentFixtures::buildChain(&fake->project1, &fake->template1, "test", Chain::Type::Production,
                                                       Chain::State::Fabricate));
 
   // Create previous segments with different choices
-  Segment previousSegment = store->put(
+  Segment *previousSegment = store->put(
       SegmentFixtures::buildSegment(chain, 1, Segment::State::Crafted, "F major", 8, 0.6f, 120.0f, "seg123"));
   auto previousMacroChoice = store->put(SegmentFixtures::buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED,
-                                                                            SegmentChoice::DELTA_UNLIMITED, fake.program4,
-                                                                            fake.program4_sequence1_binding0));
+                                                                            SegmentChoice::DELTA_UNLIMITED, &fake->program4,
+                                                                            &fake->program4_sequence1_binding0));
   auto previousMainChoice = store->put(SegmentFixtures::buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED,
-                                                                           SegmentChoice::DELTA_UNLIMITED, fake.program5,
-                                                                           fake.program5_sequence1_binding0));
+                                                                           SegmentChoice::DELTA_UNLIMITED, &fake->program5,
+                                                                           &fake->program5_sequence1_binding0));
 
   // Create the current segment
   segment = store->put(
@@ -165,25 +176,26 @@ TEST_F(FabricatorTest, GetType) {
 
 TEST_F(FabricatorTest, GetMemeIsometryOfNextSequenceInPreviousMacro) {
   // Create a chain
-  auto chain = store->put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
+  auto chain = store->put(SegmentFixtures::buildChain(&fake->project1, &fake->template1, "test", Chain::Type::Production,
                                                       Chain::State::Fabricate));
 
   // Create previous segments with different choices
-  Segment previousSegment = store->put(
+  Segment *previousSegment = store->put(
       SegmentFixtures::buildSegment(chain, 1, Segment::State::Crafted, "F major", 8, 0.6f, 120.0f, "seg123"));
   auto previousMacroChoice = store->put(SegmentFixtures::buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED,
-                                                                            SegmentChoice::DELTA_UNLIMITED, fake.program4,
-                                                                            fake.program4_sequence1_binding0));
+                                                                            SegmentChoice::DELTA_UNLIMITED, &fake->program4,
+                                                                            &fake->program4_sequence1_binding0));
   store->put(SegmentFixtures::buildSegmentChoice(previousSegment, SegmentChoice::DELTA_UNLIMITED,
-                                                 SegmentChoice::DELTA_UNLIMITED, fake.program5,
-                                                 fake.program5_sequence1_binding0));
+                                                 SegmentChoice::DELTA_UNLIMITED, &fake->program5,
+                                                 &fake->program5_sequence1_binding0));
 
   // Create the current segment
   segment = store->put(
       SegmentFixtures::buildSegment(chain, 2, Segment::State::Crafting, "G major", 8, 0.6f, 240.0f, "seg123"));
 
   // Set up the mock Retrospective to return the previous choices
-  EXPECT_CALL(*mockRetrospective, getPreviousChoiceOfType(Program::Type::Macro)).WillOnce(Return(previousMacroChoice));
+  SegmentChoice* previousMacroChoicePtr = &previousMacroChoice;
+  EXPECT_CALL(*mockRetrospective, getPreviousChoiceOfType(Program::Type::Macro)).WillOnce(Return(std::optional(previousMacroChoicePtr)));
 
   // Get the result
   auto result = subject->getMemeIsometryOfNextSequenceInPreviousMacro();
@@ -195,7 +207,7 @@ TEST_F(FabricatorTest, GetMemeIsometryOfNextSequenceInPreviousMacro) {
 
 TEST_F(FabricatorTest, GetChordAt) {
   // Create a chain
-  auto chain = store->put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
+  auto chain = store->put(SegmentFixtures::buildChain(&fake->project1, &fake->template1, "test", Chain::Type::Production,
                                                       Chain::State::Fabricate));
 
   // Create a segment
@@ -208,20 +220,20 @@ TEST_F(FabricatorTest, GetChordAt) {
   subject->put(SegmentFixtures::buildSegmentChord(segment, 5.5f, "Gm"));
 
   // Check the chords at different times
-  ASSERT_EQ("C", subject->getChordAt(0.0)->name);
-  ASSERT_EQ("C", subject->getChordAt(1.0)->name);
-  ASSERT_EQ("F", subject->getChordAt(2.0)->name);
-  ASSERT_EQ("F", subject->getChordAt(3.0)->name);
-  ASSERT_EQ("F", subject->getChordAt(5.0)->name);
-  ASSERT_EQ("Gm", subject->getChordAt(5.5)->name);
-  ASSERT_EQ("Gm", subject->getChordAt(6.0)->name);
-  ASSERT_EQ("Gm", subject->getChordAt(7.5)->name);
+  ASSERT_EQ("C", subject->getChordAt(0.0).value()->name);
+  ASSERT_EQ("C", subject->getChordAt(1.0).value()->name);
+  ASSERT_EQ("F", subject->getChordAt(2.0).value()->name);
+  ASSERT_EQ("F", subject->getChordAt(3.0).value()->name);
+  ASSERT_EQ("F", subject->getChordAt(5.0).value()->name);
+  ASSERT_EQ("Gm", subject->getChordAt(5.5).value()->name);
+  ASSERT_EQ("Gm", subject->getChordAt(6.0).value()->name);
+  ASSERT_EQ("Gm", subject->getChordAt(7.5).value()->name);
 }
 
 
 TEST_F(FabricatorTest, ComputeProgramRange) {
   // Create a chain
-  auto chain = store->put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
+  auto chain = store->put(SegmentFixtures::buildChain(&fake->project1, &fake->template1, "test", Chain::Type::Production,
                                                       Chain::State::Fabricate));
 
   // Create a segment
@@ -232,16 +244,16 @@ TEST_F(FabricatorTest, ComputeProgramRange) {
   auto program = ContentFixtures::buildProgram(Program::Type::Detail, "C", 120.0f);
 
   // Create a voice
-  auto voice = ContentFixtures::buildVoice(program, Instrument::Type::Bass);
+  auto voice = ContentFixtures::buildVoice(&program, Instrument::Type::Bass);
 
   // Create a track
-  auto track = ContentFixtures::buildTrack(voice);
+  auto track = ContentFixtures::buildTrack(&voice);
 
   // Create a sequence
-  auto sequence = ContentFixtures::buildSequence(program, 4);
+  auto sequence = ContentFixtures::buildSequence(&program, 4);
 
   // Create a pattern
-  auto pattern = ContentFixtures::buildPattern(sequence, voice, 4);
+  auto pattern = ContentFixtures::buildPattern(&sequence, &voice, 4);
 
   // Add entities to sourceMaterial
   sourceMaterial->put(program);
@@ -249,10 +261,10 @@ TEST_F(FabricatorTest, ComputeProgramRange) {
   sourceMaterial->put(track);
   sourceMaterial->put(sequence);
   sourceMaterial->put(pattern);
-  sourceMaterial->put(fake.template1);
-  sourceMaterial->put(fake.templateBinding1);
-  sourceMaterial->put(ContentFixtures::buildEvent(pattern, track, 0.0f, 1.0f, "C1"));
-  sourceMaterial->put(ContentFixtures::buildEvent(pattern, track, 1.0f, 1.0f, "D2"));
+  sourceMaterial->put(fake->template1);
+  sourceMaterial->put(fake->templateBinding1);
+  sourceMaterial->put(ContentFixtures::buildEvent(&pattern, &track, 0.0f, 1.0f, "C1"));
+  sourceMaterial->put(ContentFixtures::buildEvent(&pattern, &track, 1.0f, 1.0f, "D2"));
 
   // Get the result
   auto result = subject->getProgramRange(program.id, Instrument::Type::Bass);
@@ -265,7 +277,7 @@ TEST_F(FabricatorTest, ComputeProgramRange) {
 
 TEST_F(FabricatorTest, ComputeProgramRange_IgnoresAtonalNotes) {
   // Create a chain
-  auto chain = store->put(SegmentFixtures::buildChain(fake.project1, fake.template1, "test", Chain::Type::Production,
+  auto chain = store->put(SegmentFixtures::buildChain(&fake->project1, &fake->template1, "test", Chain::Type::Production,
                                                       Chain::State::Fabricate));
 
   // Create a segment
@@ -276,16 +288,16 @@ TEST_F(FabricatorTest, ComputeProgramRange_IgnoresAtonalNotes) {
   auto program = ContentFixtures::buildProgram(Program::Type::Detail, "C", 120.0f);
 
   // Create a voice
-  auto voice = ContentFixtures::buildVoice(program, Instrument::Type::Bass);
+  auto voice = ContentFixtures::buildVoice(&program, Instrument::Type::Bass);
 
   // Create a track
-  auto track = ContentFixtures::buildTrack(voice);
+  auto track = ContentFixtures::buildTrack(&voice);
 
   // Create a sequence
-  auto sequence = ContentFixtures::buildSequence(program, 4);
+  auto sequence = ContentFixtures::buildSequence(&program, 4);
 
   // Create a pattern
-  auto pattern = ContentFixtures::buildPattern(sequence, voice, 4);
+  auto pattern = ContentFixtures::buildPattern(&sequence, &voice, 4);
 
   // Add entities to sourceMaterial
   sourceMaterial->put(program);
@@ -293,11 +305,11 @@ TEST_F(FabricatorTest, ComputeProgramRange_IgnoresAtonalNotes) {
   sourceMaterial->put(track);
   sourceMaterial->put(sequence);
   sourceMaterial->put(pattern);
-  sourceMaterial->put(fake.template1);
-  sourceMaterial->put(fake.templateBinding1);
-  sourceMaterial->put(ContentFixtures::buildEvent(pattern, track, 0.0f, 1.0f, "C1"));
-  sourceMaterial->put(ContentFixtures::buildEvent(pattern, track, 1.0f, 1.0f, "X"));
-  sourceMaterial->put(ContentFixtures::buildEvent(pattern, track, 2.0f, 1.0f, "D2"));
+  sourceMaterial->put(fake->template1);
+  sourceMaterial->put(fake->templateBinding1);
+  sourceMaterial->put(ContentFixtures::buildEvent(&pattern, &track, 0.0f, 1.0f, "C1"));
+  sourceMaterial->put(ContentFixtures::buildEvent(&pattern, &track, 1.0f, 1.0f, "X"));
+  sourceMaterial->put(ContentFixtures::buildEvent(&pattern, &track, 2.0f, 1.0f, "D2"));
 
   // Get the result
   auto result = subject->getProgramRange(program.id, Instrument::Type::Bass);
@@ -313,10 +325,10 @@ TEST_F(FabricatorTest, GetProgramSequence_FromSequence) {
   auto project1 = ContentFixtures::buildProject("fish");
 
   // Create a template
-  Template template1 = ContentFixtures::buildTemplate(project1, "Test Template 1", "test1");
+  Template template1 = ContentFixtures::buildTemplate(&project1, "Test Template 1", "test1");
 
   // Create a chain
-  auto chain = store->put(SegmentFixtures::buildChain(template1));
+  auto chain = store->put(SegmentFixtures::buildChain(&template1));
 
   // Create a segment
   segment = store->put(
@@ -325,13 +337,13 @@ TEST_F(FabricatorTest, GetProgramSequence_FromSequence) {
                                     "chains-" + ChainUtils::getIdentifier(chain) + "-segments-" + std::to_string(17), true));
 
   // Create a segment choice
-  SegmentChoice choice = store->put(SegmentFixtures::buildSegmentChoice(segment, Program::Type::Main, fake.program5_sequence0));
+  SegmentChoice choice = store->put(SegmentFixtures::buildSegmentChoice(segment, Program::Type::Main, &fake->program5_sequence0));
 
   // Get the result
   auto result = subject->getProgramSequence(&choice);
 
   // Check the result
-  ASSERT_EQ(fake.program5_sequence0.id, result.value()->id);
+  ASSERT_EQ(fake->program5_sequence0.id, result.value()->id);
 }
 
 
@@ -340,10 +352,10 @@ TEST_F(FabricatorTest, GetProgramSequence_FromSequenceBinding) {
   auto project1 = ContentFixtures::buildProject("fish");
 
   // Create a template
-  Template template1 = ContentFixtures::buildTemplate(project1, "Test Template 1", "test1");
+  Template template1 = ContentFixtures::buildTemplate(&project1, "Test Template 1", "test1");
 
   // Create a chain
-  auto chain = store->put(SegmentFixtures::buildChain(template1));
+  auto chain = store->put(SegmentFixtures::buildChain(&template1));
 
   // Create a segment
   segment = store->put(
@@ -352,13 +364,13 @@ TEST_F(FabricatorTest, GetProgramSequence_FromSequenceBinding) {
                                     "chains-" + ChainUtils::getIdentifier(chain) + "-segments-" + std::to_string(17), true));
 
   // Create a segment choice
-  SegmentChoice choice = store->put(SegmentFixtures::buildSegmentChoice(segment, Program::Type::Main, fake.program5_sequence0_binding0));
+  SegmentChoice choice = store->put(SegmentFixtures::buildSegmentChoice(segment, Program::Type::Main, &fake->program5_sequence0_binding0));
 
   // Get the result
   auto result = subject->getProgramSequence(&choice);
 
   // Check the result
-  ASSERT_EQ(fake.program5_sequence0.id, result.value()->id);
+  ASSERT_EQ(fake->program5_sequence0.id, result.value()->id);
 }
 
 /**
@@ -366,7 +378,8 @@ TEST_F(FabricatorTest, GetProgramSequence_FromSequenceBinding) {
  */
 TEST_F(FabricatorTest, GetRootNote) {
   // Call the method and get the result
-  std::optional<Note> result = subject->getRootNoteMidRange("C3,E3,G3,A#3,C4,E4,G4", Chord::of("Cm"));
+  const auto chord = Chord::of("Cm");
+  const std::optional<Note> result = subject->getRootNoteMidRange("C3,E3,G3,A#3,C4,E4,G4", &chord);
 
   // Check the result
   ASSERT_TRUE(result.has_value());
@@ -380,14 +393,18 @@ TEST_F(FabricatorTest, GetRootNote) {
 TEST_F(FabricatorTest, PutAddsMemesForChoice) {
   // Call the method and get the result
   subject->put(
-      SegmentFixtures::buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program9,
-                         fake.program9_voice0, fake.instrument8), false);
-  subject->put(SegmentFixtures::buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake.program4,
-                                 fake.program4_sequence1_binding0), false);
+      SegmentFixtures::buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, &fake->program9,
+                                          &fake->program9_voice0, &fake->instrument8), false);
+  subject->put(SegmentFixtures::buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, &fake->program4,
+                                                   &fake->program4_sequence1_binding0), false);
 
   // Get the result
-  auto resultMemes = store->readAllSegmentMemes(segment.id);
-  std::vector<SegmentMeme> sortedResultMemes = std::vector<SegmentMeme>(resultMemes.begin(), resultMemes.end());
+  auto resultMemes = store->readAllSegmentMemes(segment->id);
+
+  std::vector<SegmentMeme> sortedResultMemes;
+  for (SegmentMeme* pointer : resultMemes) {
+    sortedResultMemes.push_back(*pointer);
+  }
   std::sort(sortedResultMemes.begin(), sortedResultMemes.end(), [](const SegmentMeme& a, const SegmentMeme& b) {
     return a.name < b.name;
   });
@@ -399,15 +416,18 @@ TEST_F(FabricatorTest, PutAddsMemesForChoice) {
   ASSERT_EQ("TROPICAL", sortedResultMemes[3].name);
   ASSERT_EQ("WILD", sortedResultMemes[4].name);
 
-  auto resultChoices = store->readAllSegmentChoices(segment.id);
-  std::vector<SegmentChoice> sortedResultChoices = std::vector<SegmentChoice>(resultChoices.begin(), resultChoices.end());
-  std::sort(sortedResultChoices.begin(), sortedResultChoices.end(), [](const SegmentChoice& a, const SegmentChoice& b) {
-    return a.programType < b.programType;
+  auto resultChoices = store->readAllSegmentChoices(segment->id);
+  std::vector<SegmentChoice*> sortedResultChoices;
+  for (SegmentChoice* pointer : resultChoices) {
+    sortedResultChoices.push_back(pointer);
+  }
+  std::sort(sortedResultChoices.begin(), sortedResultChoices.end(), [](const SegmentChoice* a, const SegmentChoice* b) {
+    return a->programType < b->programType;
   });
 
-  ASSERT_EQ(fake.program4.id, sortedResultChoices[0].programId);
-  ASSERT_EQ(fake.program4_sequence1_binding0.id, sortedResultChoices[0].programSequenceBindingId);
-  ASSERT_EQ(fake.instrument8.id, sortedResultChoices[1].instrumentId);
+  ASSERT_EQ(fake->program4.id, sortedResultChoices[0]->programId);
+  ASSERT_EQ(fake->program4_sequence1_binding0.id, sortedResultChoices[0]->programSequenceBindingId);
+  ASSERT_EQ(fake->instrument8.id, sortedResultChoices[1]->instrumentId);
 }
 
 
@@ -417,17 +437,17 @@ TEST_F(FabricatorTest, PutAddsMemesForChoice) {
  Sticky bun note choices should persist into following segments https://github.com/xjmusic/xjmusic/issues/281
 */
 TEST_F(FabricatorTest, GetStickyBun_ReadMetaFromCurrentSegment) {
-  auto bun = StickyBun(fake.program9_sequence0_pattern0_event0.id, 3);
-  auto bunJson = bun.serialize();
-  auto bunKey = StickyBun::computeMetaKey(fake.program9_sequence0_pattern0_event0.id);
+  auto bun = StickyBun(fake->program9_sequence0_pattern0_event0.id, 3);
+  const auto bunJson = bun.serialize();
+  const auto bunKey = StickyBun::computeMetaKey(fake->program9_sequence0_pattern0_event0.id);
   store->put(SegmentFixtures::buildSegmentMeta(segment, bunKey, bunJson));
 
-  auto result = subject->getStickyBun(fake.program9_sequence0_pattern0_event0.id);
+  auto const result = subject->getStickyBun(fake->program9_sequence0_pattern0_event0.id);
 
   // Check the result
   ASSERT_TRUE(result.has_value());
-  ASSERT_EQ(fake.program9_sequence0_pattern0_event0.id, result->eventId);
-  ASSERT_EQ(bun.values, result->values);
+  ASSERT_EQ(fake->program9_sequence0_pattern0_event0.id, result.value()->eventId);
+  ASSERT_EQ(bun.values, result.value()->values);
 }
 
 /*
@@ -437,27 +457,28 @@ TEST_F(FabricatorTest, GetStickyBun_ReadMetaFromCurrentSegment) {
 */
 TEST_F(FabricatorTest, GetStickyBun_ReadMetaFromPreviousSegment) {
   // Create a StickyBun
-  auto bun = StickyBun(fake.program9_sequence0_pattern0_event0.id, 3);
+  auto bun = StickyBun(fake->program9_sequence0_pattern0_event0.id, 3);
 
   // Convert the StickyBun to a JSON string
-  auto bunJson = bun.serialize();
+  const auto bunJson = bun.serialize();
 
   // Compute the meta key for the StickyBun
-  auto bunKey = StickyBun::computeMetaKey(fake.program9_sequence0_pattern0_event0.id);
+  const auto bunKey = StickyBun::computeMetaKey(fake->program9_sequence0_pattern0_event0.id);
 
   // Compute a StickyBun but don't put it in the SegmentEntityStore-- we'll inject it through the mock retrospective
   auto bunMeta = SegmentFixtures::buildSegmentMeta(segment, bunKey, bunJson);
 
   // Set up the mock Retrospective to return the previous meta
-  EXPECT_CALL(*mockRetrospective, getPreviousMeta(bunKey)).WillOnce(Return(bunMeta));
+  SegmentMeta* bunMetaPtr = &bunMeta;
+  EXPECT_CALL(*mockRetrospective, getPreviousMeta(bunKey)).WillOnce(Return(std::optional(bunMetaPtr)));
 
   // Call the method and get the result
-  auto result = subject->getStickyBun(fake.program9_sequence0_pattern0_event0.id);
+  auto result = subject->getStickyBun(fake->program9_sequence0_pattern0_event0.id);
 
   // Check the result
   ASSERT_TRUE(result.has_value());
-  ASSERT_EQ(fake.program9_sequence0_pattern0_event0.id, result->eventId);
-  ASSERT_EQ(bun.values, result->values);
+  ASSERT_EQ(fake->program9_sequence0_pattern0_event0.id, result.value()->eventId);
+  ASSERT_EQ(bun.values, result.value()->values);
 }
 
 /*
@@ -466,10 +487,10 @@ TEST_F(FabricatorTest, GetStickyBun_ReadMetaFromPreviousSegment) {
  Sticky bun note choices should persist into following segments https://github.com/xjmusic/xjmusic/issues/281
 */
 TEST_F(FabricatorTest, getStickyBun_createForEvent) {
-  auto result = subject->getStickyBun(fake.program9_sequence0_pattern0_event0.id);
+  auto result = subject->getStickyBun(fake->program9_sequence0_pattern0_event0.id);
 
   ASSERT_TRUE(result.has_value());
-  ASSERT_EQ(fake.program9_sequence0_pattern0_event0.id, result.value().eventId);
+  ASSERT_EQ(fake->program9_sequence0_pattern0_event0.id, result.value()->eventId);
 }
 
 /*
@@ -479,33 +500,33 @@ TEST_F(FabricatorTest, getStickyBun_createForEvent) {
 */
 TEST_F(FabricatorTest, GetStickyBun_MultipleEventsPickedSeparately) {
   // Create StickyBuns
-  auto bun0 = StickyBun(fake.program9_sequence0_pattern0_event0.id, 3);
-  auto bun1 = StickyBun(fake.program9_sequence0_pattern0_event1.id, 3);
+  auto bun0 = StickyBun(fake->program9_sequence0_pattern0_event0.id, 3);
+  auto bun1 = StickyBun(fake->program9_sequence0_pattern0_event1.id, 3);
 
   // Convert the StickyBuns to JSON strings
   auto bunJson0 = bun0.serialize();
   auto bunJson1 = bun1.serialize();
 
   // Compute the meta keys for the StickyBuns
-  auto bunKey0 = StickyBun::computeMetaKey(fake.program9_sequence0_pattern0_event0.id);
-  auto bunKey1 = StickyBun::computeMetaKey(fake.program9_sequence0_pattern0_event1.id);
+  auto bunKey0 = StickyBun::computeMetaKey(fake->program9_sequence0_pattern0_event0.id);
+  auto bunKey1 = StickyBun::computeMetaKey(fake->program9_sequence0_pattern0_event1.id);
 
   // Store the StickyBuns in the SegmentEntityStore
   store->put(SegmentFixtures::buildSegmentMeta(segment, bunKey0, bunJson0));
   store->put(SegmentFixtures::buildSegmentMeta(segment, bunKey1, bunJson1));
 
   // Call the method and get the results
-  auto result0 = subject->getStickyBun(fake.program9_sequence0_pattern0_event0.id);
-  auto result1 = subject->getStickyBun(fake.program9_sequence0_pattern0_event1.id);
+  auto result0 = subject->getStickyBun(fake->program9_sequence0_pattern0_event0.id);
+  auto result1 = subject->getStickyBun(fake->program9_sequence0_pattern0_event1.id);
 
   // Check the results
   ASSERT_TRUE(result0.has_value());
-  ASSERT_EQ(fake.program9_sequence0_pattern0_event0.id, result0->eventId);
-  ASSERT_EQ(bun0.values, result0->values);
+  ASSERT_EQ(fake->program9_sequence0_pattern0_event0.id, result0.value()->eventId);
+  ASSERT_EQ(bun0.values, result0.value()->values);
 
   ASSERT_TRUE(result1.has_value());
-  ASSERT_EQ(fake.program9_sequence0_pattern0_event1.id, result1->eventId);
-  ASSERT_EQ(bun1.values, result1->values);
+  ASSERT_EQ(fake->program9_sequence0_pattern0_event1.id, result1.value()->eventId);
+  ASSERT_EQ(bun1.values, result1.value()->values);
 }
 
 
@@ -528,28 +549,28 @@ TEST_F(FabricatorTest, getMemeTaxonomy) {
 // Test for getSegmentId
 TEST_F(FabricatorTest, GetSegmentId) {
   SegmentChoice segmentChoice;
-  segmentChoice.segmentId = segment.id;
+  segmentChoice.segmentId = segment->id;
   SegmentChoiceArrangement segmentChoiceArrangement;
-  segmentChoiceArrangement.segmentId = segment.id;
+  segmentChoiceArrangement.segmentId = segment->id;
   SegmentChoiceArrangementPick segmentChoiceArrangementPick;
-  segmentChoiceArrangementPick.segmentId = segment.id;
+  segmentChoiceArrangementPick.segmentId = segment->id;
   SegmentChord segmentChord;
-  segmentChord.segmentId = segment.id;
+  segmentChord.segmentId = segment->id;
   SegmentChordVoicing segmentChordVoicing;
-  segmentChordVoicing.segmentId = segment.id;
+  segmentChordVoicing.segmentId = segment->id;
   SegmentMeme segmentMeme;
-  segmentMeme.segmentId = segment.id;
+  segmentMeme.segmentId = segment->id;
   SegmentMessage segmentMessage;
-  segmentMessage.segmentId = segment.id;
+  segmentMessage.segmentId = segment->id;
   SegmentMeta segmentMeta;
-  segmentMeta.segmentId = segment.id;
+  segmentMeta.segmentId = segment->id;
 
-  ASSERT_EQ(segment.id, Fabricator::getSegmentId(segmentChoice));
-  ASSERT_EQ(segment.id, Fabricator::getSegmentId(segmentChoiceArrangement));
-  ASSERT_EQ(segment.id, Fabricator::getSegmentId(segmentChoiceArrangementPick));
-  ASSERT_EQ(segment.id, Fabricator::getSegmentId(segmentChord));
-  ASSERT_EQ(segment.id, Fabricator::getSegmentId(segmentChordVoicing));
-  ASSERT_EQ(segment.id, Fabricator::getSegmentId(segmentMeme));
-  ASSERT_EQ(segment.id, Fabricator::getSegmentId(segmentMessage));
-  ASSERT_EQ(segment.id, Fabricator::getSegmentId(segmentMeta));
+  ASSERT_EQ(segment->id, Fabricator::getSegmentId(&segmentChoice));
+  ASSERT_EQ(segment->id, Fabricator::getSegmentId(&segmentChoiceArrangement));
+  ASSERT_EQ(segment->id, Fabricator::getSegmentId(&segmentChoiceArrangementPick));
+  ASSERT_EQ(segment->id, Fabricator::getSegmentId(&segmentChord));
+  ASSERT_EQ(segment->id, Fabricator::getSegmentId(&segmentChordVoicing));
+  ASSERT_EQ(segment->id, Fabricator::getSegmentId(&segmentMeme));
+  ASSERT_EQ(segment->id, Fabricator::getSegmentId(&segmentMessage));
+  ASSERT_EQ(segment->id, Fabricator::getSegmentId(&segmentMeta));
 }
