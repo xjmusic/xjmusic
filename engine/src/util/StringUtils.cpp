@@ -96,7 +96,7 @@ std::string StringUtils::toAlphanumeric(const std::string &raw) {
 
 std::string StringUtils::toUpperCase(const std::string &input) {
   std::string result = input;
-  std::transform(result.begin(), result.end(), result.begin(), ::toupper);// to uppercase
+  std::transform(result.begin(), result.end(), result.begin(), ::toupper); // to uppercase
   return result;
 }
 
@@ -193,7 +193,8 @@ std::string StringUtils::toProper(std::string raw) {
   if (1 < raw.length()) {
     raw[0] = std::toupper(raw[0]);
     return raw;
-  } else if (!raw.empty())
+  }
+  if (!raw.empty())
     return toUpperCase(raw);
 
   return "";

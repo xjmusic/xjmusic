@@ -14,10 +14,9 @@
 namespace XJ {
 
   class InstrumentConfig : public ConfigParser {
-  private:
+  public:
     static const std::string DEFAULT;
 
-  public:
     explicit InstrumentConfig();
 
     explicit InstrumentConfig(const Instrument &source);
