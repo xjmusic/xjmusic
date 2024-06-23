@@ -13,7 +13,7 @@
 using namespace XJ;
 
 
-static std::regex rgxIsFloat("^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$");
+static std::regex rgxIsFloat("^[-+]?[0-9]*\\.?[0-9]+$");
 
 /**
  * Parse a float value
