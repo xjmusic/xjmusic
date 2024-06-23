@@ -650,14 +650,14 @@ void Fabricator::putStickyBun(StickyBun bun) {
 }
 
 
-std::optional<const StickyBun *> Fabricator::getStickyBun(const UUID &eventId) {
+std::optional<const StickyBun> Fabricator::getStickyBun(const UUID &eventId) {
   if (!templateConfig.stickyBunEnabled) return std::nullopt;
 
   const auto currentMeta = getSegmentMeta(StickyBun::computeMetaKey(eventId));
   if (currentMeta.has_value()) {
     try {
       const StickyBun bun = StickyBun::deserializeFrom(currentMeta.value()->value);
-      return {&bun};
+      return {bun};
     } catch (const std::exception &e) {
       addErrorMessage("Failed to deserialize current segment meta value StickyBun JSON for Event[" + eventId + "]: " +
                       e.what());
@@ -668,7 +668,7 @@ std::optional<const StickyBun *> Fabricator::getStickyBun(const UUID &eventId) {
   if (previousMeta.has_value()) {
     try {
       const StickyBun bun = StickyBun::deserializeFrom(previousMeta.value()->value);
-      return {&bun};
+      return {bun};
     } catch (const std::exception &e) {
       addErrorMessage("Failed to deserialize previous segment meta value StickyBun JSON for Event[" + eventId + "]: " +
                       e.what());
@@ -690,7 +690,7 @@ std::optional<const StickyBun *> Fabricator::getStickyBun(const UUID &eventId) {
   } catch (const std::exception &e) {
     addErrorMessage("Failed to serialize segment meta value StickyBun JSON for Event[" + eventId + "]: " + e.what());
   }
-  return {&bun};
+  return {bun};
 }
 
 

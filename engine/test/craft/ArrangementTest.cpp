@@ -311,7 +311,7 @@ protected:
 
       if (notes.has_value()) {
         std::vector<std::string> expectedNotes = CsvUtils::split(notes.value());
-        std::vector<std::string> actualNotes(picks.begin(), picks.end());
+        std::vector actualNotes(picks.begin(), picks.end());
         ASSERT_EQ(expectedNotes, actualNotes) << "Notes of " + assertionName;
       }
     }

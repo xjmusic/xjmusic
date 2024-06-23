@@ -840,7 +840,7 @@ std::set<std::string> Craft::pickNotesForEvent(
   std::vector<Note> pickedNotes;
   for (size_t i = 0; i < eventNotes.size(); i++) {
     Note pickedNote = eventNotes[i].isAtonal() && bun.has_value()
-                          ? bun.value()->compute(voicingNotes, static_cast<int>(i))
+                          ? bun.value().compute(voicingNotes, static_cast<int>(i))
                           : notePicker.pick(eventNotes[i]);
     pickedNotes.push_back(pickedNote);
   }

@@ -126,7 +126,7 @@ TEST_F(FabricatorTest, GetDistinctChordVoicingTypes) {
       &fake->program5_sequence0_chord0, &fake->program5_voicePad, "(None)")); // No voicing notes- doesn't count!
 
   // Create a chain
-  auto chain = store->put(SegmentFixtures::buildChain(
+  store->put(SegmentFixtures::buildChain(
       &fake->project1, &fake->template1, "test", Chain::Type::Production, Chain::State::Fabricate));
 
   // Create a segment choice
@@ -446,8 +446,8 @@ TEST_F(FabricatorTest, GetStickyBun_ReadMetaFromCurrentSegment) {
 
   // Check the result
   ASSERT_TRUE(result.has_value());
-  ASSERT_EQ(fake->program9_sequence0_pattern0_event0.id, result.value()->eventId);
-  ASSERT_EQ(bun.values, result.value()->values);
+  ASSERT_EQ(fake->program9_sequence0_pattern0_event0.id, result.value().eventId);
+  ASSERT_EQ(bun.values, result.value().values);
 }
 
 /*
@@ -477,8 +477,8 @@ TEST_F(FabricatorTest, GetStickyBun_ReadMetaFromPreviousSegment) {
 
   // Check the result
   ASSERT_TRUE(result.has_value());
-  ASSERT_EQ(fake->program9_sequence0_pattern0_event0.id, result.value()->eventId);
-  ASSERT_EQ(bun.values, result.value()->values);
+  ASSERT_EQ(fake->program9_sequence0_pattern0_event0.id, result.value().eventId);
+  ASSERT_EQ(bun.values, result.value().values);
 }
 
 /*
@@ -490,7 +490,7 @@ TEST_F(FabricatorTest, getStickyBun_createForEvent) {
   auto result = subject->getStickyBun(fake->program9_sequence0_pattern0_event0.id);
 
   ASSERT_TRUE(result.has_value());
-  ASSERT_EQ(fake->program9_sequence0_pattern0_event0.id, result.value()->eventId);
+  ASSERT_EQ(fake->program9_sequence0_pattern0_event0.id, result.value().eventId);
 }
 
 /*
@@ -521,12 +521,12 @@ TEST_F(FabricatorTest, GetStickyBun_MultipleEventsPickedSeparately) {
 
   // Check the results
   ASSERT_TRUE(result0.has_value());
-  ASSERT_EQ(fake->program9_sequence0_pattern0_event0.id, result0.value()->eventId);
-  ASSERT_EQ(bun0.values, result0.value()->values);
+  ASSERT_EQ(fake->program9_sequence0_pattern0_event0.id, result0.value().eventId);
+  ASSERT_EQ(bun0.values, result0.value().values);
 
   ASSERT_TRUE(result1.has_value());
-  ASSERT_EQ(fake->program9_sequence0_pattern0_event1.id, result1.value()->eventId);
-  ASSERT_EQ(bun1.values, result1.value()->values);
+  ASSERT_EQ(fake->program9_sequence0_pattern0_event1.id, result1.value().eventId);
+  ASSERT_EQ(bun1.values, result1.value().values);
 }
 
 

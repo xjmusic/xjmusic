@@ -570,7 +570,7 @@ namespace XJ {
      @param eventId for super-key
      @return sticky bun if present
      */
-    virtual std::optional<const StickyBun *> getStickyBun(const UUID &eventId);
+    virtual std::optional<const StickyBun> getStickyBun(const UUID &eventId);
 
     /**
      Get the track name for a give program sequence pattern event
