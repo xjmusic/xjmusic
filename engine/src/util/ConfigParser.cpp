@@ -13,6 +13,7 @@
 using namespace XJ;
 
 
+// Only accept simple floats with no scientific notation
 static std::regex rgxIsFloat("^[-+]?[0-9]*\\.?[0-9]+$");
 
 /**
