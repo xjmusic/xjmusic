@@ -31,7 +31,6 @@ std::vector<std::string> StringUtils::split(const std::string &input, char delim
   return tokens;
 }
 
-
 std::string StringUtils::join(const std::vector<std::string> &input, const std::string &delimiter) {
   std::stringstream ss;
   for (size_t i = 0; i < input.size(); ++i) {
@@ -44,10 +43,10 @@ std::string StringUtils::join(const std::vector<std::string> &input, const std::
 
 
 std::string StringUtils::trim(const std::string &str) {
-  size_t first = str.find_first_not_of(" \n");
+  const size_t first = str.find_first_not_of(" \n");
   if (first == std::string::npos)
     return "";
-  size_t last = str.find_last_not_of(" \n");
+  const size_t last = str.find_last_not_of(" \n");
   return str.substr(first, (last - first + 1));
 }
 
@@ -148,14 +147,14 @@ std::optional<std::string> StringUtils::match(const std::regex &pattern, const s
 
 
 int StringUtils::countMatches(const std::regex &regex, const std::string &basicString) {
-  std::sregex_iterator it(basicString.begin(), basicString.end(), regex);
-  std::sregex_iterator itEnd;
+  const std::sregex_iterator it(basicString.begin(), basicString.end(), regex);
+  const std::sregex_iterator itEnd;
   return static_cast<int>(std::distance(it, itEnd));
 }
 
 
-int StringUtils::countMatches(const char match, const std::string &basicString) {
-  return static_cast<int>( std::count(basicString.begin(), basicString.end(), match));
+int StringUtils::countMatches(const char regex, const std::string &basicString) {
+  return static_cast<int>( std::count(basicString.begin(), basicString.end(), regex));
 }
 
 
@@ -201,7 +200,7 @@ std::string StringUtils::toProper(std::string raw) {
 }
 
 
-std::string StringUtils::toProperSlug(std::string raw) {
+std::string StringUtils::toProperSlug(const std::string &raw) {
   return toProper(toSlug(raw));
 }
 
@@ -212,11 +211,11 @@ std::string StringUtils::toSlug(std::string raw) {
 }
 
 
-std::string StringUtils::toLowerSlug(std::string raw) {
+std::string StringUtils::toLowerSlug(const std::string &raw) {
   return toLowerCase(toSlug(raw));
 }
 
 
-std::string StringUtils::toUpperSlug(std::string raw) {
+constexpr std::string StringUtils::toUpperSlug(const std::string &raw) {
   return toUpperCase(toSlug(raw));
 }

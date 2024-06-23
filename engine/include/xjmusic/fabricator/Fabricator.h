@@ -29,7 +29,6 @@
 #include "xjmusic/music/Chord.h"
 #include "xjmusic/music/Note.h"
 #include "xjmusic/music/NoteRange.h"
-#include "xjmusic/music/Octave.h"
 #include "xjmusic/music/StickyBun.h"
 #include "xjmusic/segment/Chain.h"
 #include "xjmusic/segment/Segment.h"
@@ -904,7 +903,7 @@ namespace XJ {
     static const std::string UNKNOWN_KEY;
     Chain chain;
     TemplateConfig templateConfig;
-    std::set<const TemplateBinding &> templateBindings;
+    std::set<const TemplateBinding *> templateBindings;
     ContentEntityStore *sourceMaterial;
     double outputFrameRate;
     int outputChannels;

@@ -32,7 +32,7 @@ using namespace XJ;
 
 #define CONTENT_STORE_CORE_HEADERS(ENTITY, ENTITIES)                     \
   std::optional<const ENTITY &> get##ENTITY(const UUID &id);             \
-  std::set<const ENTITY &> get##ENTITIES();                              \
+  std::set<const ENTITY *> get##ENTITIES();                              \
   ContentEntityStore set##ENTITIES(const std::set<ENTITY> &entities);    \
   ENTITY put(const ENTITY &entity);                                      \
 
@@ -173,14 +173,14 @@ namespace XJ {
    * @param id of instrument for which to get audios
    * @return audios of instrument id
    */
-    std::set<const InstrumentAudio &> getAudiosOfInstrument(const UUID &id) const;
+    std::set<const InstrumentAudio *> getAudiosOfInstrument(const UUID &id) const;
 
     /**
     * Get all InstrumentAudios for a given Instrument
     * @param instrument for which to get audios
     * @return audios for instrument
     */
-    std::set<const InstrumentAudio &> getAudiosOfInstrument(const Instrument &instrument) const;
+    std::set<const InstrumentAudio *> getAudiosOfInstrument(const Instrument &instrument) const;
 
     /**
      * Get the sequence bindings for a given sequence
@@ -201,14 +201,14 @@ namespace XJ {
      * @param program for which to get sequence binding memes
      * @return sequence binding memes of program
      */
-    std::set<const ProgramSequenceBindingMeme &> getSequenceBindingMemesOfProgram(const Program &program) const;
+    std::set<const ProgramSequenceBindingMeme *> getSequenceBindingMemesOfProgram(const Program &program) const;
 
     /**
      * Get the sequence binding memes for a given program id
      * @param programId for which to get sequence binding memes
      * @return sequence binding memes of program
      */
-    std::set<const ProgramSequenceBindingMeme &> getSequenceBindingMemesOfProgram(const UUID &programId) const;
+    std::set<const ProgramSequenceBindingMeme *> getSequenceBindingMemesOfProgram(const UUID &programId) const;
 
     /**
      * Get sequence bindings at a specified offset.
@@ -270,28 +270,28 @@ namespace XJ {
      * Get all ProgramSequencePatterns for a given sequence and voice
      * @return ProgramSequencePatterns for sequence and voice
      */
-    std::set<const ProgramSequencePattern &>
+    std::set<const ProgramSequencePattern *>
     getPatternsOfSequenceAndVoice(const UUID &programSequenceId, const UUID &programVoiceId) const;
 
     /**
      * Get all bindings for the given template id
      * @return template bindings
      */
-    std::set<const TemplateBinding &> getBindingsOfTemplate(const UUID &templateId) const;
+    std::set<const TemplateBinding *> getBindingsOfTemplate(const UUID &templateId) const;
 
     /**
      * Get patterns for a given program
      * @param programId for which to get patterns
      * @return patterns for given program
      */
-    std::set<const ProgramSequencePattern &> getSequencePatternsOfProgram(const UUID &programId) const;
+    std::set<const ProgramSequencePattern *> getSequencePatternsOfProgram(const UUID &programId) const;
 
     /**
      * Get patterns for a given program pattern, sorted of position
      * @param program for which to get patterns
      * @return patterns for given program pattern
      */
-    std::set<const ProgramSequencePattern &> getSequencePatternsOfProgram(const Program &program) const;
+    std::set<const ProgramSequencePattern *> getSequencePatternsOfProgram(const Program &program) const;
 
     /**
      * Get events for a given program
@@ -338,7 +338,7 @@ namespace XJ {
      * @param modes of instrument
      * @return all audios for instrument type
      */
-    std::set<const InstrumentAudio &> getAudiosOfInstrumentTypesAndModes(const std::set<Instrument::Type> &types,
+    std::set<const InstrumentAudio *> getAudiosOfInstrumentTypesAndModes(const std::set<Instrument::Type> &types,
                                                                          const std::set<Instrument::Mode> &modes) const;
 
     /**
@@ -346,13 +346,13 @@ namespace XJ {
      * @param types of instrument
      * @return all audios for instrument type
      */
-    std::set<const InstrumentAudio &> getAudiosOfInstrumentTypes(const std::set<Instrument::Type> &types) const;
+    std::set<const InstrumentAudio *> getAudiosOfInstrumentTypes(const std::set<Instrument::Type> &types) const;
 
     /**
      * Get a collection of all instruments of a particular type for ingest
      * @return collection of instruments
      */
-    std::set<const Instrument &> getInstrumentsOfType(const Instrument::Type &type) const;
+    std::set<const Instrument *> getInstrumentsOfType(const Instrument::Type &type) const;
 
     /**
      * Get a collection of all instruments of particular types and modes
@@ -360,7 +360,7 @@ namespace XJ {
      * @param modes of instrument; empty list is a wildcard
      * @return collection of instruments
      */
-    std::set<const Instrument &> getInstrumentsOfTypesAndModes(const std::set<Instrument::Type> &types,
+    std::set<const Instrument *> getInstrumentsOfTypesAndModes(const std::set<Instrument::Type> &types,
                                                                const std::set<Instrument::Mode> &modes) const;
 
     /**
@@ -368,28 +368,28 @@ namespace XJ {
      * @param types of instrument; empty list is a wildcard
      * @return collection of instruments
      */
-    std::set<const Instrument &> getInstrumentsOfTypes(const std::set<Instrument::Type> &types) const;
+    std::set<const Instrument *> getInstrumentsOfTypes(const std::set<Instrument::Type> &types) const;
 
     /**
      * Get memes of instrument
      * @param instrumentId for which to get memes
      * @return memes of instrument
      */
-    std::set<const InstrumentMeme &> getMemesOfInstrument(const UUID &instrumentId) const;
+    std::set<const InstrumentMeme *> getMemesOfInstrument(const UUID &instrumentId) const;
 
     /**
      * Get a collection of all instruments of the given library
      * @param library for which to get instruments
      * @return collection of instruments
      */
-    std::set<const Instrument &> getInstrumentsOfLibrary(const Library &library) const;
+    std::set<const Instrument *> getInstrumentsOfLibrary(const Library &library) const;
 
     /**
      * Get a collection of all instruments of the given library id
      * @param libraryId for which to get instruments
      * @return collection of instruments
      */
-    std::set<const Instrument &> getInstrumentsOfLibrary(const UUID &libraryId) const;
+    std::set<const Instrument *> getInstrumentsOfLibrary(const UUID &libraryId) const;
 
     /**
      * Get the instrument type for the given audio id
@@ -404,7 +404,7 @@ namespace XJ {
      * @param programId for which to get memes
      * @return memes of program
      */
-    std::set<const ProgramMeme &> getMemesOfProgram(const UUID &programId) const;
+    std::set<const ProgramMeme *> getMemesOfProgram(const UUID &programId) const;
 
 
     /**
@@ -418,7 +418,7 @@ namespace XJ {
      * @param programSequenceBinding for which to get memes
      * @return memes
      */
-    std::set<const ProgramSequenceBindingMeme &>
+    std::set<const ProgramSequenceBindingMeme *>
     getMemesOfSequenceBinding(const ProgramSequenceBinding &programSequenceBinding) const;
 
     /**
@@ -426,7 +426,7 @@ namespace XJ {
      * @param programSequenceBindingId for which to get memes
      * @return memes
      */
-    std::set<const ProgramSequenceBindingMeme &> getMemesOfSequenceBinding(const UUID &programSequenceBindingId) const;
+    std::set<const ProgramSequenceBindingMeme *> getMemesOfSequenceBinding(const UUID &programSequenceBindingId) const;
 
     /**
      * Get the pattern id for an event id
@@ -440,48 +440,48 @@ namespace XJ {
      * @param sequence for which to get patterns
      * @return patterns of sequence
      */
-    std::set<const ProgramSequencePattern &> getPatternsOfSequence(const ProgramSequence &sequence);
+    std::set<const ProgramSequencePattern *> getPatternsOfSequence(const ProgramSequence &sequence);
 
     /**
      * Get all patterns for a sequence ID
      * @param sequence for which to get patterns
      * @return patterns of sequence
      */
-    std::set<const ProgramSequencePattern &> getPatternsOfSequence(const UUID &sequence);
+    std::set<const ProgramSequencePattern *> getPatternsOfSequence(const UUID &sequence);
 
     /**
      * Get all patterns for a voice
      * @param voice for which to get patterns
      * @return patterns of voice
      */
-    std::set<const ProgramSequencePattern &> getPatternsOfVoice(const ProgramVoice &voice) const;
+    std::set<const ProgramSequencePattern *> getPatternsOfVoice(const ProgramVoice &voice) const;
 
     /**
      * Get all patterns for a voice ID
      * @param voice for which to get patterns
      * @return patterns of voice
      */
-    std::set<const ProgramSequencePattern &> getPatternsOfVoice(const UUID &voice) const;
+    std::set<const ProgramSequencePattern *> getPatternsOfVoice(const UUID &voice) const;
 
     /**
      * Get a collection of all programs of the given library
      * @param library for which to get programs
      * @return collection of programs
      */
-    std::set<const Program &> getProgramsOfLibrary(const Library &library) const;
+    std::set<const Program *> getProgramsOfLibrary(const Library &library) const;
 
     /**
      * Get a collection of all programs of the given library id
      * @param libraryId for which to get programs
      * @return collection of programs
      */
-    std::set<const Program &> getProgramsOfLibrary(const UUID &libraryId) const;
+    std::set<const Program *> getProgramsOfLibrary(const UUID &libraryId) const;
 
     /**
      * Get a collection of all sequences of a particular type for ingest
      * @return collection of sequences
      */
-    std::set<const Program &> getProgramsOfType(Program::Type type) const;
+    std::set<const Program *> getProgramsOfType(Program::Type type) const;
 
     /**
      * Get the program sequence for a given program sequence binding
@@ -495,7 +495,7 @@ namespace XJ {
      * @param programId to search for sequences
      * @return ProgramSequences
      */
-    std::set<const ProgramSequence &> getSequencesOfProgram(const UUID &programId) const;
+    std::set<const ProgramSequence *> getSequencesOfProgram(const UUID &programId) const;
 
     /**
      * Get all sequence bindings for the given program
@@ -515,35 +515,35 @@ namespace XJ {
      * @param programId to get sequence chord voicings of
      * @return sequence chord voicings for program
      */
-    std::set<const ProgramSequenceChordVoicing &> getSequenceChordVoicingsOfProgram(const UUID &programId) const;
+    std::set<const ProgramSequenceChordVoicing *> getSequenceChordVoicingsOfProgram(const UUID &programId) const;
 
     /**
      * Get all program voice tracks for the given program id
      * @param programId for which to get tracks
      * @return tracks for program
      */
-    std::set<const ProgramVoiceTrack &> getTracksOfProgram(const UUID &programId) const;
+    std::set<const ProgramVoiceTrack *> getTracksOfProgram(const UUID &programId) const;
 
     /**
      * Get all program voice tracks for the given program type
      * @param type of program
      * @return all voice tracks for program type
      */
-    std::set<const ProgramVoiceTrack &> getTracksOfProgramType(Program::Type type) const;
+    std::set<const ProgramVoiceTrack *> getTracksOfProgramType(Program::Type type) const;
 
     /**
      * Get all Program Voice Tracks for the given Voice
      * @param voice for which to get tracks
      * @return tracks for voice
      */
-    std::set<const ProgramVoiceTrack &> getTracksOfVoice(const ProgramVoice &voice) const;
+    std::set<const ProgramVoiceTrack *> getTracksOfVoice(const ProgramVoice &voice) const;
 
     /**
      * Get all Program Voice Tracks for the given Voice ID
      * @param voiceId for which to get tracks
      * @return tracks for voice
      */
-    std::set<const ProgramVoiceTrack &> getTracksOfVoice(const UUID &voiceId) const;
+    std::set<const ProgramVoiceTrack *> getTracksOfVoice(const UUID &voiceId) const;
 
     /**
      * Get all track names for a given program voice
@@ -557,14 +557,14 @@ namespace XJ {
      * @param chord for which to get voicings
      * @return chords of sequence
      */
-    std::set<const ProgramSequenceChordVoicing &> getVoicingsOfChord(const ProgramSequenceChord &chord) const;
+    std::set<const ProgramSequenceChordVoicing *> getVoicingsOfChord(const ProgramSequenceChord &chord) const;
 
     /**
      * Get all ProgramSequenceChordVoicings for a given Sequence Chord ID
      * @param chordId for which to get voicings
      * @return chords of sequence
      */
-    std::set<const ProgramSequenceChordVoicing &> getVoicingsOfChord(const UUID &chordId) const;
+    std::set<const ProgramSequenceChordVoicing *> getVoicingsOfChord(const UUID &chordId) const;
 
     /**
      * Get all ProgramSequenceChordVoicings for a given Sequence Chord ID and Voice ID
@@ -572,7 +572,7 @@ namespace XJ {
      * @param voice for which to get voicings
      * @return chords of sequence
      */
-    std::set<const ProgramSequenceChordVoicing &>
+    std::set<const ProgramSequenceChordVoicing *>
     getVoicingsOfChordAndVoice(const ProgramSequenceChord &chord, const ProgramVoice &voice) const;
 
     /**
@@ -581,7 +581,7 @@ namespace XJ {
      * @param voiceId for which to get voicings
      * @return chords of sequence
      */
-    std::set<const ProgramSequenceChordVoicing &>
+    std::set<const ProgramSequenceChordVoicing *>
     getVoicingsOfChordAndVoice(const UUID &chordId, const UUID &voiceId) const;
 
     /**
@@ -589,14 +589,14 @@ namespace XJ {
      * @param program for which to get program voices
      * @return program voices for the given program
      */
-    std::set<const ProgramVoice &> getVoicesOfProgram(const Program &program) const;
+    std::set<const ProgramVoice *> getVoicesOfProgram(const Program &program) const;
 
     /**
      * Get all program voices for a given program
      * @param programId for which to get program voices
      * @return program voices for the given program
      */
-    std::set<const ProgramVoice &> getVoicesOfProgram(const UUID &programId) const;
+    std::set<const ProgramVoice *> getVoicesOfProgram(const UUID &programId) const;
 
     /**
      * Get a new ContentEntityStore object for a specific template

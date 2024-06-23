@@ -184,7 +184,7 @@ std::set<Instrument::Type> Fabricator::getDistinctChordVoicingTypes() {
     distinctChordVoicingTypes = new std::set<Instrument::Type>();
     for (const auto voicing: voicings) {
       try {
-        distinctChordVoicingTypes->insert(getProgramVoiceType(voicing));
+        distinctChordVoicingTypes->insert(getProgramVoiceType(*voicing));
       } catch (FabricationException &e) {
         spdlog::warn("[seg-{}] Failed to get distinct chord voicing type! {}", segmentId, e.what());
       }
@@ -368,7 +368,7 @@ MemeIsometry Fabricator::getMemeIsometryOfNextSequenceInPreviousMacro() {
   std::set<std::string> memes;
   const auto programMemes = sourceMaterial->getMemesOfProgram(previousMacroChoice.value().programId);
   for (const auto &meme: programMemes) {
-    memes.emplace(meme.name);
+    memes.emplace(meme->name);
   }
 
   for (const auto &binding: nextSequenceBinding) {
@@ -550,7 +550,7 @@ int Fabricator::getProgramTargetShift(Instrument::Type instrumentType, const Cho
 
 
 Program::Type Fabricator::getProgramType(const ProgramVoice &voice) {
-  auto programOpt = sourceMaterial->getProgram(voice.programId);
+  const auto programOpt = sourceMaterial->getProgram(voice.programId);
   if (!programOpt.has_value()) {
     throw FabricationException("Could not get program!");
   }
@@ -559,7 +559,7 @@ Program::Type Fabricator::getProgramType(const ProgramVoice &voice) {
 
 
 Instrument::Type Fabricator::getProgramVoiceType(const ProgramSequenceChordVoicing &voicing) {
-  auto voice = sourceMaterial->getProgramVoice(voicing.programVoiceId);
+  const auto voice = sourceMaterial->getProgramVoice(voicing.programVoiceId);
   if (!voice.has_value()) throw FabricationException("Could not get voice!");
   return voice.value().type;
 }
@@ -585,8 +585,8 @@ NoteRange Fabricator::getProgramVoicingNoteRange(const Instrument::Type instrume
 std::optional<ProgramSequence> Fabricator::getRandomlySelectedSequence(const Program &program) {
   std::vector<ProgramSequence> sequences;
   for (const auto &sequence: sourceMaterial->getProgramSequences()) {
-    if (sequence.programId == program.id) {
-      sequences.emplace_back(sequence);
+    if (sequence->programId == program.id) {
+      sequences.emplace_back(*sequence);
     }
   }
   if (sequences.empty())
@@ -610,11 +610,11 @@ Fabricator::getRandomlySelectedSequenceBindingAtOffset(const Program &program, i
 std::optional<const ProgramSequencePattern &>
 Fabricator::getRandomlySelectedPatternOfSequenceByVoiceAndType(const SegmentChoice &choice) {
   MarbleBag bag;
-  std::set<const ProgramSequencePattern &> patterns = sourceMaterial->getProgramSequencePatterns();
+  std::set<const ProgramSequencePattern *> patterns = sourceMaterial->getProgramSequencePatterns();
 
   for (const auto &pattern: patterns) {
-    if (pattern.programSequenceId == choice.programSequenceId && pattern.programVoiceId == choice.programVoiceId) {
-      bag.add(1, pattern.id);
+    if (pattern->programSequenceId == choice.programSequenceId && pattern->programVoiceId == choice.programVoiceId) {
+      bag.add(1, pattern->id);
     }
   }
 
@@ -1141,15 +1141,15 @@ Fabricator::isValidChoiceAndMemesHaveBeenAdded(const SegmentChoice &choice, cons
 
   if (!choice.programId.empty())
     for (const auto meme: sourceMaterial->getMemesOfProgram(choice.programId))
-      names.emplace(StringUtils::toMeme(meme.name));
+      names.emplace(StringUtils::toMeme(meme->name));
 
   if (!choice.programSequenceBindingId.empty())
     for (const auto meme: sourceMaterial->getMemesOfSequenceBinding(choice.programSequenceBindingId))
-      names.emplace(StringUtils::toMeme(meme.name));
+      names.emplace(StringUtils::toMeme(meme->name));
 
   if (!choice.instrumentId.empty())
     for (const auto meme: sourceMaterial->getMemesOfInstrument(choice.instrumentId))
-      names.emplace(StringUtils::toMeme(meme.name));
+      names.emplace(StringUtils::toMeme(meme->name));
 
   if (!force && !memeStack.isAllowed(names)) {
     addMessage(SegmentMessage::Type::Error,

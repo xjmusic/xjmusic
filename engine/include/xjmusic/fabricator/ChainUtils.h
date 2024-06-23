@@ -7,7 +7,6 @@
 #include <set>
 #include <vector>
 #include <optional>
-#include <algorithm>
 #include "xjmusic/segment/Chain.h"
 #include "xjmusic/content/TemplateBinding.h"
 #include "xjmusic/content/Template.h"
@@ -22,7 +21,7 @@ namespace XJ {
 
     static std::string getIdentifier(const std::optional<Chain> &chain);
 
-    static std::set<UUID> targetIdsOfType(const std::set<const TemplateBinding *>& chainBindings, TemplateBinding::Type type);
+    static std::set<UUID> targetIdsOfType(const std::set<const TemplateBinding *> &chainBindings, TemplateBinding::Type type);
 
     static std::string getShipKey(const std::string &chainKey, const std::string &extension);
 

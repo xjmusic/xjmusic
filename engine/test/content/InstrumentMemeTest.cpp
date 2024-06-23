@@ -21,7 +21,7 @@ TEST(InstrumentMemeTest, FieldValues) {
 
 
 TEST(InstrumentMemeTest, GetNames) {
-  std::set<const InstrumentMeme &> instrumentMemes;
+  std::set<const InstrumentMeme *> instrumentMemes;
   InstrumentMeme instrumentMeme1;
   instrumentMeme1.name = "Test Meme 1";
   instrumentMemes.emplace(instrumentMeme1);
