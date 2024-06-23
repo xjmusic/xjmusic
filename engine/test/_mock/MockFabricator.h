@@ -29,7 +29,7 @@ namespace XJ {
 
     MOCK_METHOD(SegmentRetrospective *, getRetrospective, (), (override));
     MOCK_METHOD(ContentEntityStore *, getSourceMaterial, (), (override));
-    MOCK_METHOD(TemplateConfig, getTemplateConfig, (), (override));
+    // MOCK_METHOD(TemplateConfig, getTemplateConfig, (), (override));
     MOCK_METHOD(Segment *, getSegment, (), (override));
     MOCK_METHOD(InstrumentConfig, getInstrumentConfig, (const Instrument *instrument), (override));
     MOCK_METHOD(MemeIsometry, getMemeIsometryOfSegment, (), (override));

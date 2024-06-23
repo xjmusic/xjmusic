@@ -26,7 +26,6 @@ namespace XJ {
     MOCK_METHOD(std::optional<SegmentMeta*>, getPreviousMeta, (const std::string& key));
     MOCK_METHOD(std::set<SegmentChoice*>, getPreviousChoicesForInstrument, (const UUID& instrumentId));
     MOCK_METHOD(std::set<SegmentChoiceArrangement*>, getPreviousArrangementsForInstrument, (UUID instrumentId));
-    MOCK_METHOD(std::set<SegmentChoiceArrangementPick*>, getPicks, ());
     MOCK_METHOD(std::optional<SegmentChoice*>, getPreviousChoiceOfType, (const Segment &segment, Program::Type type));
     MOCK_METHOD(std::optional<SegmentChoice*>, getPreviousChoiceOfType, (Program::Type type));
     MOCK_METHOD(std::set<SegmentChoice*>, getPreviousChoicesOfMode, (Instrument::Mode instrumentMode));

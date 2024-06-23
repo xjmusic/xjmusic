@@ -31,7 +31,7 @@ StickyBun::StickyBun(UUID eventId, std::vector<int> values) : eventId(std::move(
 
 
 std::string StickyBun::computeMetaKey(const UUID &id) {
-  std::ostringstream oss;
+  std::ostringstream oss; 
   oss << StickyBun::META_KEY_TEMPLATE << id;
   return oss.str();
 }

@@ -163,6 +163,10 @@ TEST_F(FabricatorTest, GetType) {
   segment = store->put(
       SegmentFixtures::buildSegment(chain, 2, Segment::State::Crafting, "G major", 8, 0.6f, 240.0f, "seg123"));
 
+  // Set up the mock Retrospective to return the previous choices
+  EXPECT_CALL(*mockRetrospective, getPreviousChoiceOfType(Program::Type::Main)).WillOnce(Return(std::nullopt));
+  EXPECT_CALL(*mockRetrospective, getPreviousChoiceOfType(Program::Type::Macro)).WillOnce(Return(std::nullopt));
+
   // Get the result
   auto result = subject->getType();
 
@@ -487,6 +491,8 @@ TEST_F(FabricatorTest, GetStickyBun_ReadMetaFromPreviousSegment) {
  Sticky bun note choices should persist into following segments https://github.com/xjmusic/xjmusic/issues/281
 */
 TEST_F(FabricatorTest, getStickyBun_createForEvent) {
+  EXPECT_CALL(*mockRetrospective, getPreviousMeta(_)).WillOnce(Return(std::nullopt));
+
   auto result = subject->getStickyBun(fake->program9_sequence0_pattern0_event0.id);
 
   ASSERT_TRUE(result.has_value());

@@ -34,6 +34,7 @@ protected:
   Craft *subject = nullptr;
   Segment *segment0 = nullptr;
   Program *program1 = nullptr;
+  TemplateConfig * templateConfig = nullptr;
 
 protected:
   void SetUp() override {
@@ -51,7 +52,7 @@ protected:
     segment0 = segmentEntityStore->put(SegmentFixtures::buildSegment(chain1, Segment::Type::Initial, 2, 128, Segment::State::Crafted, "D major",
                                                                      64, 0.73f, 120.0f, "chains-1-segments-9f7s89d8a7892", true));
 
-    auto templateConfig = new TemplateConfig(template1);
+    templateConfig = new TemplateConfig(template1);
     mockSegmentRetrospective = new MockSegmentRetrospective(segmentEntityStore, 2);
     mockFabricator = new MockFabricator(
         sourceMaterial,
@@ -62,17 +63,15 @@ protected:
         2,
         std::nullopt);
     subject = new Craft(mockFabricator);
-    ON_CALL(*mockFabricator, getTemplateConfig()).WillByDefault(Return(*templateConfig));
-    ON_CALL(*mockFabricator, getSourceMaterial()).WillByDefault(Return(sourceMaterial));
-    ON_CALL(*mockFabricator, getRetrospective()).WillByDefault(Return(mockSegmentRetrospective));
-    ON_CALL(*mockFabricator, getSegment()).WillByDefault(Return(segment0));
   }
 
   void TearDown() override {
     delete sourceMaterial;
     delete segmentEntityStore;
     delete mockFabricator;
+    delete mockSegmentRetrospective;
     delete subject;
+    delete templateConfig;
   }
 
   /**
@@ -94,7 +93,6 @@ protected:
     InstrumentAudio instrument1audio2 = ContentFixtures::buildInstrumentAudio(&instrument1, "ping", "70bpm.wav", 0.01f,
                                                                               2.123f, 120.0f, 0.62f, "PRIMARY",
                                                                               std::move(notThat), 1.0f);
-
     sourceMaterial->put(instrument1);
     sourceMaterial->put(instrument1audio1);
     sourceMaterial->put(instrument1audio2);
@@ -117,7 +115,7 @@ TEST_F(CraftTest, PrecomputeDeltas) {
     return choice->programType == Program::Type::Detail;
   };
   std::vector<std::string> detailLayerOrder;
-  for (const auto &type: mockFabricator->getTemplateConfig().detailLayerOrder) {
+  for (const auto &type: templateConfig->detailLayerOrder) {
     detailLayerOrder.push_back(Instrument::toString(type));
   }
 
@@ -125,6 +123,7 @@ TEST_F(CraftTest, PrecomputeDeltas) {
 }
 
 TEST_F(CraftTest, IsIntroSegment) {
+  EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
   auto sc0 = SegmentFixtures::buildSegmentChoice(segment0, 132, 200, program1);
   auto sc1 = SegmentFixtures::buildSegmentChoice(segment0, 110, 200, program1);
   auto sc2 = SegmentFixtures::buildSegmentChoice(segment0, 200, 250, program1);
@@ -148,7 +147,9 @@ TEST_F(CraftTest, InBounds) {
 }
 
 TEST_F(CraftTest, IsOutroSegment) {
+  EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
   SegmentChoice input;
+
   input = SegmentFixtures::buildSegmentChoice(segment0, 20, 130, program1);
   EXPECT_TRUE(subject->isOutroSegment(&input));
   input = SegmentFixtures::buildSegmentChoice(segment0, 20, 100, program1);
@@ -158,7 +159,9 @@ TEST_F(CraftTest, IsOutroSegment) {
 }
 
 TEST_F(CraftTest, IsSilentEntireSegment) {
+  EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
   SegmentChoice input;
+
   input = SegmentFixtures::buildSegmentChoice(segment0, 12, 25, program1);
   EXPECT_TRUE(subject->isSilentEntireSegment(&input));
   input = SegmentFixtures::buildSegmentChoice(segment0, 200, 225, program1);
@@ -172,7 +175,9 @@ TEST_F(CraftTest, IsSilentEntireSegment) {
 }
 
 TEST_F(CraftTest, IsActiveEntireSegment) {
+  EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
   SegmentChoice input;
+
   input = SegmentFixtures::buildSegmentChoice(segment0, 12, 25, program1);
   EXPECT_FALSE(subject->isActiveEntireSegment(&input));
   input = SegmentFixtures::buildSegmentChoice(segment0, 200, 225, program1);
@@ -206,6 +211,9 @@ TEST_F(CraftTest, IsUnlimitedOut) {
  https://github.com/xjmusic/xjmusic/issues/296
  */
 TEST_F(CraftTest, ChooseFreshInstrumentAudio) {
+  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial));
+  EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective));
+  EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
   Project *project1 = sourceMaterial->put(ContentFixtures::buildProject("testing"));
   Library *library1 = sourceMaterial->put(ContentFixtures::buildLibrary(project1, "leaves"));
   Instrument *instrument1 = sourceMaterial->put(
@@ -239,6 +247,9 @@ TEST_F(CraftTest, ChooseFreshInstrumentAudio) {
  XJ Should choose the correct chord audio per Main Program chord https://github.com/xjmusic/xjmusic/issues/237
  */
 TEST_F(CraftTest, selectNewChordPartInstrumentAudio_stripSpaces) {
+  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial));
+  EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective));
+  EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
   selectNewChordPartInstrumentAudio(" G   major  ", "G-7", " G    major    ");
 }
 
@@ -248,6 +259,9 @@ TEST_F(CraftTest, selectNewChordPartInstrumentAudio_stripSpaces) {
  When the exact match is not present for an entire slash chord name, choose a chord matching the pre-slash name
  */
 TEST_F(CraftTest, selectNewChordPartInstrumentAudio_slashChordFluency) {
+  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial));
+  EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective));
+  EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
   selectNewChordPartInstrumentAudio("Ab/C", "Eb/G", "Ab");
   selectNewChordPartInstrumentAudio("Ab", "Eb/G", "Ab/C");
 }
@@ -256,6 +270,9 @@ TEST_F(CraftTest, selectNewChordPartInstrumentAudio_slashChordFluency) {
  Enhanced Synonymous Chord recognition https://github.com/xjmusic/xjmusic/issues/236
  */
 TEST_F(CraftTest, selectNewChordPartInstrumentAudio_chordSynonyms) {
+  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial));
+  EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective));
+  EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
   selectNewChordPartInstrumentAudio("CMadd9", "Cm6", "C add9");
 }
 
@@ -286,6 +303,12 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ThreeLayers) {
   InstrumentAudio *instrument1audio3b = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X",
                                             1.0f));
+
+  // Mocks
+  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial));
+  EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective));
+  EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
+  EXPECT_CALL(*mockSegmentRetrospective, getPreviousPicksForInstrument(instrument1->id)).WillOnce(Return(std::set<SegmentChoiceArrangementPick*>{}));
 
   // Call the method under test
   auto result = subject->selectGeneralAudioIntensityLayers(instrument1);
@@ -345,6 +368,9 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ContinueSegment) {
                                                                                           instrument1audio3a->event);
 
   // Mock the methods
+  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial));
+  EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective));
+  EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
   EXPECT_CALL(*mockSegmentRetrospective, getPreviousPicksForInstrument(instrument1->id)).WillOnce(Return(std::set{&pick1, &pick2, &pick3}));
   EXPECT_CALL(*mockFabricator, getInstrumentConfig(_)).WillOnce(Return(instrumentConfig));
 
