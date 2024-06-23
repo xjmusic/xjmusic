@@ -3,9 +3,9 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <sstream>
 
 #include "xjmusic/content/InstrumentConfig.h"
-#include "xjmusic/util/StringUtils.h"
 
 using namespace XJ;
 
