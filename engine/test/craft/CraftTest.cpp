@@ -81,7 +81,7 @@ protected:
    @param notThat    chord name
    @param match      chord name
    */
-  void selectNewChordPartInstrumentAudio(std::string expectThis, std::string notThat, const std::string &match) {
+  void selectNewChordPartInstrumentAudio(std::string expectThis, std::string notThat, const std::string &match) const {
     Project project1 = ContentFixtures::buildProject("testing");
     Library library1 = ContentFixtures::buildLibrary(&project1, "leaves");
     Instrument instrument1 = ContentFixtures::buildInstrument(&library1, Instrument::Type::Percussion,
@@ -214,20 +214,20 @@ TEST_F(CraftTest, ChooseFreshInstrumentAudio) {
   EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial));
   EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective));
   EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
-  Project *project1 = sourceMaterial->put(ContentFixtures::buildProject("testing"));
-  Library *library1 = sourceMaterial->put(ContentFixtures::buildLibrary(project1, "leaves"));
-  Instrument *instrument1 = sourceMaterial->put(
+  const Project *project1 = sourceMaterial->put(ContentFixtures::buildProject("testing"));
+  const Library *library1 = sourceMaterial->put(ContentFixtures::buildLibrary(project1, "leaves"));
+  const Instrument *instrument1 = sourceMaterial->put(
       ContentFixtures::buildInstrument(library1, Instrument::Type::Percussion, Instrument::Mode::Event,
                                        Instrument::State::Published, "Loop 75 beats per minute"));
-  InstrumentMeme *instrument1meme = sourceMaterial->put(ContentFixtures::buildInstrumentMeme(instrument1, "70BPM"));
+  sourceMaterial->put(ContentFixtures::buildInstrumentMeme(instrument1, "70BPM"));
   InstrumentAudio *instrument1audio = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "slow loop", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f,
                                             "PRIMARY", "X", 1.0f));
-  Instrument *instrument2 = sourceMaterial->put(
+  const Instrument *instrument2 = sourceMaterial->put(
       ContentFixtures::buildInstrument(library1, Instrument::Type::Percussion, Instrument::Mode::Event,
                                        Instrument::State::Published, "Loop 85 beats per minute"));
-  InstrumentMeme *instrument2meme = sourceMaterial->put(ContentFixtures::buildInstrumentMeme(instrument2, "90BPM"));
-  InstrumentAudio *instrument2audio = sourceMaterial->put(
+  sourceMaterial->put(ContentFixtures::buildInstrumentMeme(instrument2, "90BPM"));
+  sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument2, "fast loop", "90bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f,
                                             "SECONDARY", "X", 1.0f));
 
@@ -340,19 +340,19 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ContinueSegment) {
   InstrumentAudio *instrument1audio1a = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X",
                                             1.0f));
-  InstrumentAudio *instrument1audio1b = sourceMaterial->put(
+  sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X",
                                             1.0f));
   InstrumentAudio *instrument1audio2a = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X",
                                             1.0f));
-  InstrumentAudio *instrument1audio2b = sourceMaterial->put(
+  sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X",
                                             1.0f));
   InstrumentAudio *instrument1audio3a = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X",
                                             1.0f));
-  InstrumentAudio *instrument1audio3b = sourceMaterial->put(
+  sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X",
                                             1.0f));
   SegmentChoice choice = SegmentFixtures::buildSegmentChoice(segment0, instrument1);
