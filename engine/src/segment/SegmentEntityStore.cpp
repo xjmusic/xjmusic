@@ -111,7 +111,7 @@ std::vector<Segment *> SegmentEntityStore::readAllSegments() {
 }
 
 
-std::vector<Segment> SegmentEntityStore::readSegmentsFromToOffset(int fromOffset, int toOffset) {
+std::vector<Segment> SegmentEntityStore::readSegmentsFromToOffset(const int fromOffset, const int toOffset) {
   std::vector<Segment> result;
   for (auto &[_, segment]: segments) {
     if (segment.id >= fromOffset && segment.id <= toOffset) {
@@ -154,7 +154,7 @@ std::set<SegmentEntity *> SegmentEntityStore::readAllSegmentEntities(const std::
 }
 
 
-std::vector<Segment> SegmentEntityStore::readAllSegmentsSpanning(long fromChainMicros, long toChainMicros) {
+std::vector<Segment> SegmentEntityStore::readAllSegmentsSpanning(const long fromChainMicros, const long toChainMicros) {
   std::vector<Segment> result;
   for (auto &segment: segments) {
     if (SegmentUtils::isSpanning(&segment.second, fromChainMicros, toChainMicros)) {
@@ -223,9 +223,9 @@ void SegmentEntityStore::updateSegment(Segment &segment) {
   const Segment::State toState = segment.state;
 
   // fetch existing segment; further logic is based on its current state
-  std::optional<Segment *> existingOpt = readSegment(segment.id);
+  const std::optional<Segment *> existingOpt = readSegment(segment.id);
   if (existingOpt.has_value()) {
-    Segment *existing = existingOpt.value();
+    const Segment *existing = existingOpt.value();
 
     // logic based on existing Segment State
     protectSegmentStateTransition(existing->state, toState);
@@ -266,7 +266,7 @@ void SegmentEntityStore::deleteSegment(int id) {
 }
 
 
-void SegmentEntityStore::protectSegmentStateTransition(Segment::State fromState, Segment::State toState) {
+void SegmentEntityStore::protectSegmentStateTransition(const Segment::State fromState, const Segment::State toState) {
   switch (fromState) {
     case Segment::State::Planned:
       onlyAllowSegmentStateTransitions(toState, {
@@ -328,11 +328,11 @@ void SegmentEntityStore::validate(Segment entity) {
 }
 
 
-void SegmentEntityStore::deleteSegmentsBefore(int lastSegmentId) {
+void SegmentEntityStore::deleteSegmentsBefore(const int lastSegmentId) {
   std::set<int> idsToDelete;
-  for (auto &segment: segments) {
-    if (segment.first < lastSegmentId) {
-      idsToDelete.insert(segment.first);
+  for (auto &[segmentId, segment]: segments) {
+    if (segmentId < lastSegmentId) {
+      idsToDelete.insert(segmentId);
     }
   }
   for (auto &id: idsToDelete) {
@@ -341,11 +341,11 @@ void SegmentEntityStore::deleteSegmentsBefore(int lastSegmentId) {
 }
 
 
-void SegmentEntityStore::deleteSegmentsAfter(int lastSegmentId) {
+void SegmentEntityStore::deleteSegmentsAfter(const int lastSegmentId) {
   std::set<int> idsToDelete;
-  for (auto &segment: segments) {
-    if (segment.first > lastSegmentId) {
-      idsToDelete.insert(segment.first);
+  for (auto &[segmentId, segment]: segments) {
+    if (segmentId > lastSegmentId) {
+      idsToDelete.insert(segmentId);
     }
   }
   for (auto &id: idsToDelete) {
