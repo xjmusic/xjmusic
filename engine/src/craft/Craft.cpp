@@ -846,7 +846,6 @@ std::set<std::string> Craft::pickNotesForEvent(
     pickedNotes.push_back(pickedNote);
   }
 
-  // TODO why do we convert back to strings here? we'll probably use notes from the result anyway
   std::set<std::string> pickedNoteStrings;
   for (const auto &note: pickedNotes) {
     pickedNoteStrings.insert(note.toString(segChord.accidental));
