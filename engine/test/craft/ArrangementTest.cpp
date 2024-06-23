@@ -270,7 +270,7 @@ protected:
     auto objs = data[StringUtils::toLowerCase(Instrument::toString(type))];
     if (!objs) return;
 
-    std::vector<SegmentChoiceArrangementPick> actualPicks;
+    std::vector<SegmentChoiceArrangementPick *> actualPicks;
     for (const auto &pick: fabricator->getPicks())
       actualPicks.push_back(pick);
     std::sort(actualPicks.begin(), actualPicks.end(), [](const auto &a, const auto &b) {
@@ -297,10 +297,10 @@ protected:
 
       std::vector<std::string> picks;
       for (const auto &pick: actualPicks) {
-        if (pick.event == Instrument::toString(type) &&
-            (!startAtMicros.has_value() || startAtMicros.value() == pick.startAtSegmentMicros) &&
-            (!lengthMicros.has_value() || lengthMicros.value() == pick.lengthMicros)) {
-          picks.push_back(pick.tones);
+        if (pick->event == Instrument::toString(type) &&
+            (!startAtMicros.has_value() || startAtMicros.value() == pick->startAtSegmentMicros) &&
+            (!lengthMicros.has_value() || lengthMicros.value() == pick->lengthMicros)) {
+          picks.push_back(pick->tones);
         }
       }
 
@@ -345,7 +345,7 @@ protected:
         fabricator->put(SegmentFixtures::buildSegmentChoice(segment, mainProgram1), false);
         auto *subject = new Craft(fabricator);
         for (const auto &[fst, snd]: segmentChoices)
-          subject->craftNoteEventArrangements(static_cast<float>(TEMPO), snd, false);
+          subject->craftNoteEventArrangements(static_cast<float>(TEMPO), &snd, false);
 
         // assert picks
         loadAndPerformAssertions(data);

@@ -50,7 +50,7 @@ namespace XJ {
      * @param targetRange to
      * @return median optimal range shift octaves
      */
-    static int computeMedianOptimalRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange);
+    static int computeMedianOptimalRangeShiftOctaves(const NoteRange *sourceRange, const NoteRange *targetRange);
 
     std::string toString(Accidental accidental);
 
@@ -66,7 +66,7 @@ namespace XJ {
      * Expand the note range to include the given range
      * @param range  to include
      */
-    void expand(const NoteRange &range);
+    void expand(const NoteRange *range);
 
     /**
      * Get the delta semitones between this range and the target
@@ -86,13 +86,13 @@ namespace XJ {
      * @param inc  semitones to shift
      * @return     shifted range
      */
-    NoteRange shifted(int inc);
+    NoteRange shifted(int inc) const;
 
     /**
      * Whether this range is empty
      * @return  true if empty
      */
-    bool empty();
+    bool empty() const;
 
     /**
      * Get the note nearest the median of the given root
@@ -107,7 +107,7 @@ namespace XJ {
      * @param note source
      * @return note moved to available octave
      */
-    Note toAvailableOctave(Note note);
+    Note toAvailableOctave(Note note) const;
 
     /**
      * Whether the given note is within this range
@@ -115,7 +115,7 @@ namespace XJ {
      * @param note to test
      * @return true if note is within this range
      */
-    bool includes(Note note);
+    bool includes(Note note) const;
   };
 
 }// namespace XJ

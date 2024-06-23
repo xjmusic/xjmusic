@@ -53,7 +53,6 @@ namespace XJ {
      */
    static std::string toMeme(const std::string &raw);
 
-
     /**
      * Conform to Upper-slug (e.g. "BUN"), else default value
      * @param raw           input
@@ -69,7 +68,6 @@ namespace XJ {
      @return purified
      */
     static std::string toEvent(const std::string &raw);
-
 
     /**
      * Check if a string is null or empty
@@ -119,7 +117,6 @@ namespace XJ {
      * @return stripped value
      */
     static std::string stripExtraSpaces(const std::string &value);
-
 
     /**
      * First group matching pattern in text, else null
@@ -190,7 +187,6 @@ namespace XJ {
      */
     static std::string toProperSlug(const std::string &raw);
 
-
     /**
      Conform to Slug (e.g. "jim")
 
@@ -198,7 +194,6 @@ namespace XJ {
      @return purified
      */
     static std::string toSlug(std::string raw);
-
 
     /**
      Conform to Lowercase slug (e.g. "mush")

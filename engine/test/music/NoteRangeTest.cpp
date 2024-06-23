@@ -151,8 +151,7 @@ TEST(Music_NoteRange, Expand_ByRange) {
 
   subject.expand(NoteRange::ofStrings(std::vector<std::string>{
       "G2",
-      "G6"
-  }));
+      "G6"}));
 
   ASSERT_TRUE(Note::of("G2") == (subject.low.value()));
   ASSERT_TRUE(Note::of("G6") == (subject.high.value()));
@@ -264,11 +263,11 @@ TEST(Music_NoteRange, ComputeMedianOptimalRangeShiftOctaves) {
   auto rangeC1 = NoteRange::from(Note::of("F3"), Note::of("E4"));
   auto rangeC2 = NoteRange::from(Note::of("D3"), Note::of("C6"));
 
-  ASSERT_EQ(2, NoteRange::computeMedianOptimalRangeShiftOctaves(rangeA, rangeB));
-  ASSERT_EQ(-2, NoteRange::computeMedianOptimalRangeShiftOctaves(rangeB, rangeA));
-  ASSERT_EQ(0, NoteRange::computeMedianOptimalRangeShiftOctaves(rangeB, rangeB_superset));
-  ASSERT_EQ(0, NoteRange::computeMedianOptimalRangeShiftOctaves(rangeB_superset, rangeB));
-  ASSERT_EQ(1, NoteRange::computeMedianOptimalRangeShiftOctaves(rangeA, rangeA_overlap));
-  ASSERT_EQ(0, NoteRange::computeMedianOptimalRangeShiftOctaves(rangeC1, rangeC2));
-  ASSERT_EQ(0, NoteRange::computeMedianOptimalRangeShiftOctaves(rangeC2, rangeC1));
+  ASSERT_EQ(2, NoteRange::computeMedianOptimalRangeShiftOctaves(&rangeA, rangeB));
+  ASSERT_EQ(-2, NoteRange::computeMedianOptimalRangeShiftOctaves(&rangeB, rangeA));
+  ASSERT_EQ(0, NoteRange::computeMedianOptimalRangeShiftOctaves(&rangeB, rangeB_superset));
+  ASSERT_EQ(0, NoteRange::computeMedianOptimalRangeShiftOctaves(&rangeB_superset, rangeB));
+  ASSERT_EQ(1, NoteRange::computeMedianOptimalRangeShiftOctaves(&rangeA, rangeA_overlap));
+  ASSERT_EQ(0, NoteRange::computeMedianOptimalRangeShiftOctaves(&rangeC1, rangeC2));
+  ASSERT_EQ(0, NoteRange::computeMedianOptimalRangeShiftOctaves(&rangeC2, rangeC1));
 }

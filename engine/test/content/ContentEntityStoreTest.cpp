@@ -235,7 +235,7 @@ TEST_F(ContentStoreTest, SetProgramGetProgram) {
 }
 
 TEST_F(ContentStoreTest, GetInstrumentTypeOfEvent) {
-  ASSERT_EQ(Instrument::Type::Drum, subject->getInstrumentTypeOfEvent(program2_sequence_pattern1_event1));
+  ASSERT_EQ(Instrument::Type::Drum, subject->getInstrumentTypeOfEvent(&program2_sequence_pattern1_event1));
 }
 
 TEST_F(ContentStoreTest, HasInstrumentsOfMode) {
@@ -260,7 +260,7 @@ TEST_F(ContentStoreTest, HasInstrumentsOfTypeAndMode) {
 }
 
 TEST_F(ContentStoreTest, GetAvailableOffsets) {
-  auto result = subject->getAvailableOffsets(program1_sequence_binding1);
+  auto result = subject->getAvailableOffsets(&program1_sequence_binding1);
 
   ASSERT_EQ(2, result.size());
 }
@@ -272,13 +272,13 @@ TEST_F(ContentStoreTest, getAudiosOfInstrumentId) {
 }
 
 TEST_F(ContentStoreTest, getAudiosOfInstrument) {
-  auto result = subject->getAudiosOfInstrument(instrument2);
+  auto result = subject->getAudiosOfInstrument(&instrument2);
 
   ASSERT_EQ(1, result.size());
 }
 
 TEST_F(ContentStoreTest, getBindingsOfSequence) {
-  auto result = subject->getBindingsOfSequence(program1_sequence);
+  auto result = subject->getBindingsOfSequence(&program1_sequence);
 
   ASSERT_EQ(2, result.size());
 }
@@ -290,7 +290,7 @@ TEST_F(ContentStoreTest, getBindingsOfSequenceId) {
 }
 
 TEST_F(ContentStoreTest, getSequenceBindingMemesOfProgram) {
-  auto result = subject->getSequenceBindingMemesOfProgram(program1);
+  auto result = subject->getSequenceBindingMemesOfProgram(&program1);
 
   ASSERT_EQ(2, result.size());
 }
@@ -302,11 +302,11 @@ TEST_F(ContentStoreTest, getSequenceBindingMemesOfProgramId) {
 }
 
 TEST_F(ContentStoreTest, getBindingsAtOffsetOfProgram) {
-  ASSERT_EQ(1, subject->getBindingsAtOffsetOfProgram(program1, 0, false).size());
-  ASSERT_EQ(0, subject->getBindingsAtOffsetOfProgram(program1, 1, false).size());
-  ASSERT_EQ(1, subject->getBindingsAtOffsetOfProgram(program1, 0, true).size());
-  ASSERT_EQ(1, subject->getBindingsAtOffsetOfProgram(program1, 1, true).size());
-  ASSERT_EQ(1, subject->getBindingsAtOffsetOfProgram(program1, 2, true).size());
+  ASSERT_EQ(1, subject->getBindingsAtOffsetOfProgram(&program1, 0, false).size());
+  ASSERT_EQ(0, subject->getBindingsAtOffsetOfProgram(&program1, 1, false).size());
+  ASSERT_EQ(1, subject->getBindingsAtOffsetOfProgram(&program1, 0, true).size());
+  ASSERT_EQ(1, subject->getBindingsAtOffsetOfProgram(&program1, 1, true).size());
+  ASSERT_EQ(1, subject->getBindingsAtOffsetOfProgram(&program1, 2, true).size());
 }
 
 TEST_F(ContentStoreTest, getBindingsAtOffsetOfProgramId) {
@@ -318,7 +318,7 @@ TEST_F(ContentStoreTest, getBindingsAtOffsetOfProgramId) {
 }
 
 TEST_F(ContentStoreTest, getChordsOfSequence) {
-  auto result = subject->getChordsOfSequence(program1_sequence);
+  auto result = subject->getChordsOfSequence(&program1_sequence);
 
   ASSERT_EQ(2, result.size());
 }
@@ -330,7 +330,7 @@ TEST_F(ContentStoreTest, getChordsOfSequenceId) {
 }
 
 TEST_F(ContentStoreTest, getEventsOfPattern) {
-  auto result = subject->getEventsOfPattern(program2_sequence_pattern1);
+  auto result = subject->getEventsOfPattern(&program2_sequence_pattern1);
 
   ASSERT_EQ(2, result.size());
 }
@@ -342,7 +342,7 @@ TEST_F(ContentStoreTest, getEventsOfPatternId) {
 }
 
 TEST_F(ContentStoreTest, getEventsOfTrack) {
-  auto result = subject->getEventsOfTrack(program2_voice_track1);
+  auto result = subject->getEventsOfTrack(&program2_voice_track1);
 
   ASSERT_EQ(1, result.size());
 }
@@ -354,7 +354,7 @@ TEST_F(ContentStoreTest, getEventsOfTrackId) {
 }
 
 TEST_F(ContentStoreTest, getEventsOfPatternAndTrack) {
-  auto result = subject->getEventsOfPatternAndTrack(program2_sequence_pattern1, program2_voice_track1);
+  auto result = subject->getEventsOfPatternAndTrack(&program2_sequence_pattern1, &program2_voice_track1);
 
   ASSERT_EQ(1, result.size());
 }
@@ -416,7 +416,7 @@ TEST_F(ContentStoreTest, getInstruments) {
 }
 
 TEST_F(ContentStoreTest, getInstrumentsOfLibrary) {
-  auto result = subject->getInstrumentsOfLibrary(library1);
+  auto result = subject->getInstrumentsOfLibrary(&library1);
 
   ASSERT_EQ(2, result.size());
 }
@@ -446,7 +446,7 @@ TEST_F(ContentStoreTest, getMemesOfProgramId) {
 }
 
 TEST_F(ContentStoreTest, getMemesAtBeginning) {
-  auto result = subject->getMemesAtBeginning(program1);
+  auto result = subject->getMemesAtBeginning(&program1);
 
   ASSERT_EQ(3, result.size());
 }
@@ -458,7 +458,7 @@ TEST_F(ContentStoreTest, getPatternIdOfEventId) {
 }
 
 TEST_F(ContentStoreTest, getPatternsOfSequence) {
-  auto result = subject->getPatternsOfSequence(program2_sequence);
+  auto result = subject->getPatternsOfSequence(&program2_sequence);
 
   ASSERT_EQ(2, result.size());
 }
@@ -470,7 +470,7 @@ TEST_F(ContentStoreTest, getPatternsOfSequenceId) {
 }
 
 TEST_F(ContentStoreTest, getPatternsOfVoice) {
-  auto result = subject->getPatternsOfVoice(program2_voice);
+  auto result = subject->getPatternsOfVoice(&program2_voice);
 
   ASSERT_EQ(2, result.size());
 }
@@ -495,7 +495,7 @@ TEST_F(ContentStoreTest, getPrograms) {
 }
 
 TEST_F(ContentStoreTest, getProgramsOfLibrary) {
-  auto result = subject->getProgramsOfLibrary(library1);
+  auto result = subject->getProgramsOfLibrary(&library1);
 
   ASSERT_EQ(2, result.size());
 }
@@ -520,7 +520,7 @@ TEST_F(ContentStoreTest, getProgramSequence) {
 }
 
 TEST_F(ContentStoreTest, getSequenceOfBinding) {
-  auto result = subject->getSequenceOfBinding(program1_sequence_binding1);
+  auto result = subject->getSequenceOfBinding(&program1_sequence_binding1);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(program1_sequence.id, result.value()->id);
@@ -564,7 +564,7 @@ TEST_F(ContentStoreTest, getProgramSequenceBindingMemes) {
 }
 
 TEST_F(ContentStoreTest, getMemesOfSequenceBinding) {
-  auto result = subject->getMemesOfSequenceBinding(program1_sequence_binding1);
+  auto result = subject->getMemesOfSequenceBinding(&program1_sequence_binding1);
 
   ASSERT_EQ(2, result.size());
 }
@@ -660,7 +660,7 @@ TEST_F(ContentStoreTest, getTracksOfProgramId) {
 }
 
 TEST_F(ContentStoreTest, getTracksOfVoice) {
-  auto result = subject->getTracksOfVoice(program2_voice);
+  auto result = subject->getTracksOfVoice(&program2_voice);
 
   ASSERT_EQ(2, result.size());
 }
@@ -715,20 +715,20 @@ TEST_F(ContentStoreTest, getProject) {
 }
 
 TEST_F(ContentStoreTest, getTrackOfEvent) {
-  auto result = subject->getTrackOfEvent(program2_sequence_pattern1_event1);
+  auto result = subject->getTrackOfEvent(&program2_sequence_pattern1_event1);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(program2_voice_track1.id, result.value()->id);
 }
 
 TEST_F(ContentStoreTest, getTrackNames) {
-  auto result = subject->getTrackNamesOfVoice(program2_voice);
+  auto result = subject->getTrackNamesOfVoice(&program2_voice);
 
   ASSERT_EQ(2, result.size());
 }
 
 TEST_F(ContentStoreTest, getVoicingsOfChord) {
-  auto result = subject->getVoicingsOfChord(program1_sequence_chord0);
+  auto result = subject->getVoicingsOfChord(&program1_sequence_chord0);
 
   ASSERT_EQ(1, result.size());
 }
@@ -749,7 +749,7 @@ TEST_F(ContentStoreTest, getSequenceChordVoicingsOfProgram_dontCountInvalidVoici
 }
 
 TEST_F(ContentStoreTest, getVoicingsOfChordAndVoice) {
-  auto result = subject->getVoicingsOfChordAndVoice(program1_sequence_chord0, program1_voice);
+  auto result = subject->getVoicingsOfChordAndVoice(&program1_sequence_chord0, &program1_voice);
 
   ASSERT_EQ(1, result.size());
 }
@@ -761,14 +761,14 @@ TEST_F(ContentStoreTest, getVoicingsOfChordIdAndVoiceId) {
 }
 
 TEST_F(ContentStoreTest, getVoiceOfEvent) {
-  auto result = subject->getVoiceOfEvent(program2_sequence_pattern1_event1);
+  auto result = subject->getVoiceOfEvent(&program2_sequence_pattern1_event1);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(program2_voice.id, result.value()->id);
 }
 
 TEST_F(ContentStoreTest, getVoicesOfProgram) {
-  auto result = subject->getVoicesOfProgram(program2);
+  auto result = subject->getVoicesOfProgram(&program2);
 
   ASSERT_EQ(1, result.size());
 }
@@ -905,7 +905,7 @@ TEST_F(ContentStoreTest, getEventsOfProgramId) {
 }
 
 TEST_F(ContentStoreTest, getSequencePatternsOfProgram) {
-  auto result = subject->getSequencePatternsOfProgram(program2);
+  auto result = subject->getSequencePatternsOfProgram(&program2);
 
   ASSERT_EQ(2, result.size());
 }
@@ -990,7 +990,7 @@ TEST_F(ContentStoreTest, getTemplateBinding) {
 }
 
 TEST_F(ContentStoreTest, getTrackNamesOfVoice) {
-  auto result = subject->getTrackNamesOfVoice(program2_voice);
+  auto result = subject->getTrackNamesOfVoice(&program2_voice);
 
   ASSERT_EQ(2, result.size());
 }
@@ -1030,7 +1030,7 @@ TEST_F(ContentStoreTest, getPatternsOfSequenceAndVoice) {
 }
 
 TEST_F(ContentStoreTest, ForTemplate_BoundToLibrary) {
-  auto result = subject->forTemplate(template1);
+  auto result = subject->forTemplate(&template1);
 
   // Assert the correct count of entities in the content store
   ASSERT_EQ(2, result.getInstruments().size());
@@ -1056,7 +1056,7 @@ TEST_F(ContentStoreTest, ForTemplate_BoundToLibrary) {
 TEST_F(ContentStoreTest, ForTemplate_BoundToProgram) {
   subject->setTemplateBindings({ContentFixtures::buildTemplateBinding(template2, program1)});
 
-  auto result = subject->forTemplate(template2);
+  auto result = subject->forTemplate(&template2);
 
   // Assert the correct count of entities in the content store
   ASSERT_EQ(0, result.getInstruments().size());
@@ -1082,7 +1082,7 @@ TEST_F(ContentStoreTest, ForTemplate_BoundToProgram) {
 TEST_F(ContentStoreTest, ForTemplate_BoundToInstrument) {
   subject->setTemplateBindings({ContentFixtures::buildTemplateBinding(template2, instrument1)});
 
-  auto result = subject->forTemplate(template2);
+  auto result = subject->forTemplate(&template2);
 
   // Assert the correct count of entities in the content store
   ASSERT_EQ(1, result.getInstruments().size());

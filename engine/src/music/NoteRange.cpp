@@ -67,26 +67,26 @@ NoteRange NoteRange::median(const NoteRange &r1, const NoteRange &r2) {
 }
 
 
-int NoteRange::computeMedianOptimalRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange) {
-  if (!sourceRange.low.has_value() || !sourceRange.high.has_value() ||
-      !targetRange.low.has_value() || !targetRange.high.has_value())
+int NoteRange::computeMedianOptimalRangeShiftOctaves(const NoteRange *sourceRange, const NoteRange *targetRange) {
+  if (!sourceRange->low.has_value() || !sourceRange->high.has_value() ||
+      !targetRange->low.has_value() || !targetRange->high.has_value())
     return 0;
 
   int shiftOctave = 0;    // search for optimal value
   int baselineDelta = 100;// optimal is the lowest possible integer zero or above
 
   for (int o = 10; o >= -10; o--) {
-    if (!targetRange.low.has_value())
+    if (!targetRange->low.has_value())
       throw std::runtime_error("Can't find low end of target range");
-    if (!sourceRange.low.has_value())
+    if (!sourceRange->low.has_value())
       throw std::runtime_error("Can't find low end of source range");
-    int dLow = targetRange.low->delta(sourceRange.low->shiftOctave(o));
+    int dLow = targetRange->low->delta(sourceRange->low->shiftOctave(o));
 
-    if (!targetRange.high.has_value())
+    if (!targetRange->high.has_value())
       throw std::runtime_error("Can't find high end of target range");
-    if (!sourceRange.high.has_value())
+    if (!sourceRange->high.has_value())
       throw std::runtime_error("Can't find high end of source range");
-    int dHigh = targetRange.high->delta(sourceRange.high->shiftOctave(o));
+    int dHigh = targetRange->high->delta(sourceRange->high->shiftOctave(o));
 
     if (0 <= dLow && 0 >= dHigh && std::abs(o) < baselineDelta) {
       baselineDelta = std::abs(o);
@@ -127,9 +127,9 @@ void NoteRange::expand(Note note) {
 }
 
 
-void NoteRange::expand(const NoteRange &range) {
-  if (range.low.has_value()) expand(range.low.value());
-  if (range.high.has_value()) expand(range.high.value());
+void NoteRange::expand(const NoteRange *range) {
+  if (range->low.has_value()) expand(range->low.value());
+  if (range->high.has_value()) expand(range->high.value());
 }
 
 
@@ -149,20 +149,20 @@ std::optional<Note> NoteRange::getMedianNote() {
 }
 
 
-NoteRange NoteRange::shifted(int inc) {
+NoteRange NoteRange::shifted(const int inc) const {
   return {
       low.has_value() ? std::optional(low->shift(inc)) : std::nullopt,
       high.has_value() ? std::optional(high->shift(inc)) : std::nullopt};
 }
 
 
-bool NoteRange::empty() {
+bool NoteRange::empty() const {
   return !low.has_value() || !high.has_value() || PitchClass::Atonal == low->pitchClass ||
          PitchClass::Atonal == high->pitchClass;
 }
 
 
-std::optional<Note> NoteRange::getNoteNearestMedian(PitchClass root) {
+std::optional<Note> NoteRange::getNoteNearestMedian(const PitchClass root) {
   if (PitchClass::Atonal == root) return std::nullopt;
   auto median = getMedianNote();
   if (!median.has_value()) return std::nullopt;
@@ -173,7 +173,7 @@ std::optional<Note> NoteRange::getNoteNearestMedian(PitchClass root) {
 }
 
 
-Note NoteRange::toAvailableOctave(Note note) {
+Note NoteRange::toAvailableOctave(const Note note) const {
   if (!low.has_value() || !high.has_value()) return note;
 
   int d = 0;
@@ -193,7 +193,7 @@ Note NoteRange::toAvailableOctave(Note note) {
 }
 
 
-bool NoteRange::includes(Note note) {
+bool NoteRange::includes(const Note note) const {
   if (!low.has_value() && !high.has_value()) return false;
   if (!low.has_value() && high.value() == note) return true;
   if (!high.has_value() && low.value() == note) return true;

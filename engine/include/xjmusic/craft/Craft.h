@@ -35,7 +35,7 @@ namespace XJ {
     class InstrumentProvider {
     public:
       virtual ~InstrumentProvider() = default;
-      virtual std::optional<Instrument> get(const ProgramVoice &voice);
+      virtual std::optional<Instrument> get(const ProgramVoice *voice);
     };
 
     /**
@@ -46,8 +46,8 @@ namespace XJ {
       explicit LambdaInstrumentProvider(std::function<std::optional<Instrument>(ProgramVoice)> func) : func_(
                                                                                                            std::move(func)) {}
 
-      std::optional<Instrument> get(const ProgramVoice &voice) override {
-        return func_(voice);
+      std::optional<Instrument> get(const ProgramVoice *voice) override {
+        return func_(*voice);
       }
 
     private:
@@ -60,7 +60,7 @@ namespace XJ {
     class ChoiceIndexProvider {
     public:
       virtual ~ChoiceIndexProvider() = default;
-      virtual std::string get(const SegmentChoice &choice);
+      virtual std::string get(const SegmentChoice *choice);
     };
 
     /**
@@ -70,8 +70,8 @@ namespace XJ {
     public:
       explicit LambdaChoiceIndexProvider(std::function<std::string(SegmentChoice)> func) : func_(std::move(func)) {}
 
-      std::string get(const SegmentChoice &choice) override {
-        return func_(choice);
+      std::string get(const SegmentChoice *choice) override {
+        return func_(*choice);
       }
 
     private:
@@ -83,7 +83,7 @@ namespace XJ {
      */
     class Section {
     public:
-      SegmentChord chord;
+      SegmentChord *chord;
       float fromPos{};
       float toPos{};
     };
@@ -103,7 +103,7 @@ namespace XJ {
      @param choice to test whether the current segment contains this choice delta in
      @return true if the current segment contains the given choice's delta in
      */
-    [[nodiscard]] bool isIntroSegment(const SegmentChoice &choice) const;
+    [[nodiscard]] bool isIntroSegment(const SegmentChoice *choice) const;
 
     /**
      Whether the current segment contains the delta out for the given choice
@@ -111,7 +111,7 @@ namespace XJ {
      @param choice to test whether the current segment contains this choice delta out
      @return true if the current segment contains the given choice's delta out
      */
-    [[nodiscard]] bool isOutroSegment(const SegmentChoice &choice) const;
+    [[nodiscard]] bool isOutroSegment(const SegmentChoice *choice) const;
 
     /**
      Whether the given choice is silent during the entire segment
@@ -119,7 +119,7 @@ namespace XJ {
      @param choice to test for silence
      @return true if choice is silent the entire segment
      */
-    [[nodiscard]] bool isSilentEntireSegment(const SegmentChoice &choice) const;
+    [[nodiscard]] bool isSilentEntireSegment(const SegmentChoice *choice) const;
 
     /**
      Whether the given choice is fully active during the current segment
@@ -127,7 +127,7 @@ namespace XJ {
      @param choice to test for activation
      @return true if this choice is active the entire time
      */
-    [[nodiscard]] bool isActiveEntireSegment(const SegmentChoice &choice) const;
+    [[nodiscard]] bool isActiveEntireSegment(const SegmentChoice *choice) const;
 
     /**
      Craft the arrangement for a given voice
@@ -150,7 +150,7 @@ namespace XJ {
      @param defaultAtonal whether to default to a single atonal note, if no voicings are available
      @on failure
      */
-    void craftNoteEventArrangements(float tempo, const SegmentChoice &choice, bool defaultAtonal);
+    void craftNoteEventArrangements(float tempo, const SegmentChoice *choice, bool defaultAtonal);
 
     /**
      Precompute all deltas for a given program. This is where deltaIns and deltaOuts values come from.
@@ -168,7 +168,7 @@ namespace XJ {
      @on failure
      */
     void precomputeDeltas(
-        const std::function<bool(const SegmentChoice &)> &choiceFilter,
+        const std::function<bool(const SegmentChoice *)> &choiceFilter,
         Craft::ChoiceIndexProvider *setChoiceIndexProvider,
         const std::vector<std::string> &layers,
         const std::set<std::string> &layerPrioritizationSearches,
@@ -207,7 +207,7 @@ namespace XJ {
      @param voicingType (optional) for which to choose a program for-- and the program is required to have this type of voice
      @return Program
      */
-    [[nodiscard]] std::optional<const Program &>
+    [[nodiscard]] std::optional<const Program *>
     chooseFreshProgram(Program::Type programType, std::optional<Instrument::Type> voicingType) const;
 
     /**
@@ -219,7 +219,7 @@ namespace XJ {
      @param requireEventNames instrument candidates are required to have event names https://github.com/xjmusic/xjmusic/issues/253
      @return Instrument
      */
-    [[nodiscard]] std::optional<const Instrument &>
+    [[nodiscard]] std::optional<const Instrument *>
     chooseFreshInstrument(Instrument::Type type, const std::set<std::string> &requireEventNames) const;
 
     /**
@@ -234,7 +234,7 @@ namespace XJ {
      @param preferredEvents instrument candidates are required to have event names https://github.com/xjmusic/xjmusic/issues/253
      @return Instrument
      */
-    [[nodiscard]] std::optional<const InstrumentAudio &>
+    [[nodiscard]] std::optional<const InstrumentAudio *>
     chooseFreshInstrumentAudio(
         const std::set<Instrument::Type> &types,
         const std::set<Instrument::Mode> &modes,
@@ -248,8 +248,8 @@ namespace XJ {
      @param chord      to match
      @return matched new audio
      */
-    [[nodiscard]] std::optional<const InstrumentAudio>
-    selectNewChordPartInstrumentAudio(const Instrument &instrument, const Chord &chord) const;
+    [[nodiscard]] std::optional<const InstrumentAudio *>
+    selectNewChordPartInstrumentAudio(const Instrument *instrument, const Chord &chord) const;
 
     /**
      Select audios for the given instrument
@@ -355,7 +355,7 @@ namespace XJ {
      */
     void craftNoteEvents(
         float tempo,
-        const ProgramSequence &sequence,
+        const ProgramSequence *sequence,
         const std::set<const ProgramVoice *> &voices,
         InstrumentProvider *instrumentProvider);
 
@@ -367,7 +367,7 @@ namespace XJ {
      @param instrument for which to craft choices
      @on failure
      */
-    void craftChordParts(float tempo, const Instrument &instrument);
+    void craftChordParts(float tempo, const Instrument *instrument);
 
     /**
      Chord instrument mode
@@ -378,7 +378,7 @@ namespace XJ {
      @param choice     for which to craft chord parts
      @on failure
      */
-    void craftChordParts(float tempo, const Instrument &instrument, const SegmentChoice &choice);
+    void craftChordParts(float tempo, const Instrument *instrument, const SegmentChoice *choice);
 
     /**
      Event instrument mode
@@ -388,7 +388,7 @@ namespace XJ {
      @param program    for which to craft choices
      @on failure
      */
-    void craftEventParts(float tempo, const Instrument &instrument, const Program &program);
+    void craftEventParts(float tempo, const Instrument *instrument, const Program *program);
 
     /**
      Get the delta in for the given voice
@@ -396,7 +396,7 @@ namespace XJ {
      @param choice for which to get delta in
      @return delta in for given voice
      */
-    int computeDeltaIn(const SegmentChoice &choice);
+    int computeDeltaIn(const SegmentChoice *choice);
 
     /**
      Get the delta out for the given voice
@@ -404,7 +404,7 @@ namespace XJ {
      @param choice for which to get delta out
      @return delta out for given voice
      */
-    int computeDeltaOut(const SegmentChoice &choice);
+    int computeDeltaOut(const SegmentChoice *choice);
 
   private:
     std::random_device rd;
@@ -422,7 +422,7 @@ namespace XJ {
      @on failure
      */
     void
-    craftNoteEventSectionRestartingEachChord(float tempo, const SegmentChoice &choice, const NoteRange &range,
+    craftNoteEventSectionRestartingEachChord(float tempo, const SegmentChoice *choice, NoteRange *range,
                                              bool defaultAtonal);
 
     /**
@@ -445,10 +445,10 @@ namespace XJ {
      */
     void craftNoteEventSection(
         float tempo,
-        const SegmentChoice &choice,
+        const SegmentChoice *choice,
         float fromPos,
         float maxPos,
-        const NoteRange &range,
+        NoteRange *range,
         bool defaultAtonal);
 
     /**
@@ -466,11 +466,11 @@ namespace XJ {
      */
     float craftPatternEvents(
         float tempo,
-        const SegmentChoice &choice,
-        const ProgramSequencePattern &pattern,
+        const SegmentChoice *choice,
+        const ProgramSequencePattern *pattern,
         float fromPosition,
         float toPosition,
-        const NoteRange &range,
+        NoteRange *range,
         bool defaultAtonal);
 
     /**
@@ -488,15 +488,15 @@ namespace XJ {
      @param defaultAtonal whether to default to a single atonal note, if no voicings are available
      */
     void pickNotesAndInstrumentAudioForEvent(
-        float tempo,
-        const Instrument &instrument,
-        const SegmentChoice &choice,
-        const SegmentChoiceArrangement &arrangement,
-        float fromPosition,
-        float toPosition,
-        const ProgramSequencePatternEvent &event,
-        const NoteRange &range,
-        bool defaultAtonal);
+        const float tempo,
+        const Instrument *instrument,
+        const SegmentChoice *choice,
+        const SegmentChoiceArrangement *arrangement,
+        const float fromPosition,
+        const float toPosition,
+        const ProgramSequencePatternEvent *event,
+        NoteRange *range,
+        const bool defaultAtonal);
 
 
     /**
@@ -505,7 +505,7 @@ namespace XJ {
   
      @param choice for which to finalize length of one-shot audio picks
      */
-    void finalizeNoteEventCutoffsOfOneShotInstrumentAudioPicks(const SegmentChoice &choice);
+    void finalizeNoteEventCutoffsOfOneShotInstrumentAudioPicks(const SegmentChoice *choice);
 
     /**
      Compute the volume ratio of a picked note
@@ -531,11 +531,11 @@ namespace XJ {
      */
     [[nodiscard]] std::set<std::string> pickNotesForEvent(
         Instrument::Type instrumentType,
-        const SegmentChoice &choice,
-        const ProgramSequencePatternEvent &event,
-        const SegmentChord &rawSegmentChord,
-        const SegmentChordVoicing &voicing,
-        NoteRange optimalRange) const;
+        const SegmentChoice *choice,
+        const ProgramSequencePatternEvent *event,
+        const SegmentChord *rawSegmentChord,
+        const SegmentChordVoicing *voicing,
+        NoteRange *optimalRange) const;
 
     /**
      XJ has a serviceable voicing algorithm https://github.com/xjmusic/xjmusic/issues/221
@@ -574,8 +574,8 @@ namespace XJ {
      @param note       to match selection
      @return matched new audio
      */
-    std::optional<InstrumentAudio>
-    selectMultiphonicInstrumentAudio(const Instrument &instrument, const ProgramSequencePatternEvent &event, const std::string &note);
+    std::optional<const InstrumentAudio *>
+    selectMultiphonicInstrumentAudio(const Instrument *instrument, const ProgramSequencePatternEvent *event, const std::string &note);
 
     /**
      Select audio from a multiphonic instrument
@@ -587,8 +587,8 @@ namespace XJ {
      @return matched new audio
      @on failure
      */
-    [[nodiscard]] std::optional<InstrumentAudio>
-    selectMonophonicInstrumentAudio(const Instrument &instrument, const ProgramSequencePatternEvent &event) const;
+    [[nodiscard]] std::optional<const InstrumentAudio *>
+    selectMonophonicInstrumentAudio(const Instrument *instrument, const ProgramSequencePatternEvent *event) const;
 
     /**
      Chord instrument mode
@@ -600,8 +600,8 @@ namespace XJ {
      @param chord      to match selection
      @return matched new audio
      */
-    [[nodiscard]] std::optional<const InstrumentAudio>
-    selectChordPartInstrumentAudio(const Instrument &instrument, const Chord &chord) const;
+    [[nodiscard]] std::optional<const InstrumentAudio *>
+    selectChordPartInstrumentAudio(const Instrument *instrument, const Chord &chord) const;
 
     /**
      Select a new random instrument audio based on a pattern event
@@ -610,8 +610,8 @@ namespace XJ {
      @param event      to match
      @return matched new audio
      */
-    [[nodiscard]] std::optional<InstrumentAudio>
-    selectNewNoteEventInstrumentAudio(const Instrument &instrument, const ProgramSequencePatternEvent &event) const;
+    [[nodiscard]] std::optional<const InstrumentAudio *>
+    selectNewNoteEventInstrumentAudio(const Instrument *instrument, const ProgramSequencePatternEvent *event) const;
 
     /**
      Select a new random instrument audio based on a pattern event
@@ -622,7 +622,7 @@ namespace XJ {
      @param note       to match
      @return matched new audio
      */
-    std::optional<InstrumentAudio> selectNewMultiphonicInstrumentAudio(Instrument instrument, std::string note);
+    std::optional<const InstrumentAudio *> selectNewMultiphonicInstrumentAudio(const Instrument *instrument, std::string note);
 
     /**
      Test if an instrument contains audios named like N

@@ -6,26 +6,26 @@ using namespace XJ;
 
 
 std::optional<const SegmentChoice *>
-SegmentUtils::findFirstOfType(const std::vector<SegmentChoice> &segmentChoices, Program::Type type) {
-  auto it = std::find_if(segmentChoices.begin(), segmentChoices.end(), [type](const SegmentChoice &choice) {
+SegmentUtils::findFirstOfType(const std::vector<SegmentChoice *> &segmentChoices, Program::Type type) {
+  const auto it = std::find_if(segmentChoices.begin(), segmentChoices.end(), [type](const SegmentChoice &choice) {
     return choice.programType == type;
   });
   if (it == segmentChoices.end()) {
     return std::nullopt;
   }
-  return &*it;
+  return *it;
 }
 
 
 std::optional<const SegmentChoice *>
-SegmentUtils::findFirstOfType(const std::vector<SegmentChoice> &segmentChoices, Instrument::Type type) {
-  auto it = std::find_if(segmentChoices.begin(), segmentChoices.end(), [type](const SegmentChoice &choice) {
+SegmentUtils::findFirstOfType(const std::vector<SegmentChoice *> &segmentChoices, Instrument::Type type) {
+  const auto it = std::find_if(segmentChoices.begin(), segmentChoices.end(), [type](const SegmentChoice &choice) {
     return choice.instrumentType == type;
   });
   if (it == segmentChoices.end()) {
     return std::nullopt;
   }
-  return &*it;
+  return *it;
 }
 
 
@@ -37,13 +37,13 @@ std::string SegmentUtils::getIdentifier(Segment *segment) {
 }
 
 
-std::optional<Segment> SegmentUtils::getLastCrafted(const std::vector<Segment> &segments) {
-  auto craftedSegments = getCrafted(segments);
+std::optional<Segment *> SegmentUtils::getLastCrafted(const std::vector<Segment *> &segments) {
+  const auto craftedSegments = getCrafted(segments);
   return getLast(craftedSegments);
 }
 
 
-std::optional<Segment> SegmentUtils::getLast(std::vector<Segment> &segments) {
+std::optional<Segment *> SegmentUtils::getLast(const std::vector<Segment *> &segments) {
   if (segments.empty()) {
     return std::nullopt;
   }
@@ -53,8 +53,8 @@ std::optional<Segment> SegmentUtils::getLast(std::vector<Segment> &segments) {
 }
 
 
-std::vector<Segment> SegmentUtils::getCrafted(const std::vector<Segment> &segments) {
-  std::vector<Segment> result;
+std::vector<Segment *> SegmentUtils::getCrafted(const std::vector<Segment *> &segments) {
+  std::vector<Segment *> result;
   std::copy_if(segments.begin(), segments.end(), std::back_inserter(result), [](const Segment &segment) {
     return segment.state == Segment::State::Crafted;
   });
@@ -62,35 +62,35 @@ std::vector<Segment> SegmentUtils::getCrafted(const std::vector<Segment> &segmen
 }
 
 
-bool SegmentUtils::containsAnyValidNotes(const SegmentChordVoicing &voicing) {
-  return Note::containsAnyValidNotes(voicing.notes);
+bool SegmentUtils::containsAnyValidNotes(const SegmentChordVoicing *voicing) {
+  return Note::containsAnyValidNotes(voicing->notes);
 }
 
 
-bool SegmentUtils::isSpanning(Segment &segment, long long fromChainMicros, long long toChainMicros) {
-  if (segment.durationMicros.has_value()) {
-    return segment.beginAtChainMicros + segment.durationMicros.value() > fromChainMicros &&
-           segment.beginAtChainMicros <= toChainMicros;
+bool SegmentUtils::isSpanning(const Segment *segment, const long long fromChainMicros, const long long toChainMicros) {
+  if (segment->durationMicros.has_value()) {
+    return segment->beginAtChainMicros + segment->durationMicros.value() > fromChainMicros &&
+           segment->beginAtChainMicros <= toChainMicros;
   }
   return false;
 }
 
 
-bool SegmentUtils::isIntersecting(Segment &segment, long long atChainMicros, long long thresholdMicros) {
-  if (segment.durationMicros.has_value() && atChainMicros) {
-    return segment.beginAtChainMicros + segment.durationMicros.value() + thresholdMicros > atChainMicros &&
-           segment.beginAtChainMicros - thresholdMicros <= atChainMicros;
+bool SegmentUtils::isIntersecting(const Segment *segment, const long long atChainMicros, const long long thresholdMicros) {
+  if (segment->durationMicros.has_value() && atChainMicros) {
+    return segment->beginAtChainMicros + segment->durationMicros.value() + thresholdMicros > atChainMicros &&
+           segment->beginAtChainMicros - thresholdMicros <= atChainMicros;
   }
   return false;
 }
 
 
-std::string SegmentUtils::getStorageFilename(Segment &segment, const std::string &extension) {
-  return segment.storageKey + "." + extension;
+std::string SegmentUtils::getStorageFilename(const Segment * segment, const std::string &extension) {
+  return segment->storageKey + "." + extension;
 }
 
 
-std::string SegmentUtils::getStorageFilename(Segment &segment) {
+std::string SegmentUtils::getStorageFilename(const Segment *segment) {
   return getStorageFilename(segment, "wav");
 }
 
@@ -114,22 +114,22 @@ std::string SegmentUtils::describe(const SegmentChoice &choice) {
 }
 
 
-long SegmentUtils::getEndAtChainMicros(Segment &segment) {
-  return segment.durationMicros.has_value() ? segment.beginAtChainMicros + segment.durationMicros.value()
-                                            : segment.beginAtChainMicros;
+long SegmentUtils::getEndAtChainMicros(const Segment *segment) {
+  return segment->durationMicros.has_value() ? segment->beginAtChainMicros + segment->durationMicros.value()
+                                            : segment->beginAtChainMicros;
 }
 
 
-bool SegmentUtils::isSameButUpdated(Segment &s1, Segment &s2) {
-  if (s1.id != s2.id)
+bool SegmentUtils::isSameButUpdated(const Segment *s1, const Segment *s2) {
+  if (s1->id != s2->id)
     return false;
 
   // true if state has changed
-  if (s1.state != s2.state)
+  if (s1->state != s2->state)
     return true;
 
   // true if updated-at has changed
-  return s1.updatedAt != s2.updatedAt;
+  return s1->updatedAt != s2->updatedAt;
 }
 
 

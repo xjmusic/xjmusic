@@ -4,26 +4,13 @@
 #define XJMUSIC_FABRICATOR_SEGMENT_UTILS_H
 
 #include <string>
-#include <set>
 #include <vector>
 #include <optional>
-#include <algorithm>
 
-#include "xjmusic/util/EntityUtils.h"
-#include "xjmusic/content/Template.h"
-#include "xjmusic/content/TemplateBinding.h"
-#include "xjmusic/music/Note.h"
-#include "xjmusic/segment/Chain.h"
 #include "xjmusic/segment/Segment.h"
 #include "xjmusic/segment/SegmentChoice.h"
 #include "xjmusic/segment/SegmentChoiceArrangement.h"
-#include "xjmusic/segment/SegmentChoiceArrangementPick.h"
-#include "xjmusic/segment/SegmentChord.h"
 #include "xjmusic/segment/SegmentChordVoicing.h"
-#include "xjmusic/segment/SegmentMeme.h"
-#include "xjmusic/segment/SegmentMessage.h"
-#include "xjmusic/segment/SegmentMeta.h"
-#include "xjmusic/util/StringUtils.h"
 
 /**
  Utilities for working with segments
@@ -42,7 +29,7 @@ namespace XJ {
      @return segment choice of given type
      */
     static std::optional<const SegmentChoice *>
-    findFirstOfType(const std::vector<SegmentChoice> &segmentChoices, Program::Type type);
+    findFirstOfType(const std::vector<SegmentChoice *> &segmentChoices, Program::Type type);
 
     /**
      Find first segment choice of a given type in a collection of segment choices
@@ -52,7 +39,7 @@ namespace XJ {
      @return segment choice of given type
      */
     static std::optional<const SegmentChoice *>
-    findFirstOfType(const std::vector<SegmentChoice> &segmentChoices, Instrument::Type type);
+    findFirstOfType(const std::vector<SegmentChoice *> &segmentChoices, Instrument::Type type);
 
     /**
      Get the identifier or a Segment: ship key if available, else ID
@@ -68,7 +55,7 @@ namespace XJ {
      @param segments to get last dubbed from
      @return last dubbed segment from collection
      */
-    static std::optional<Segment> getLastCrafted(const std::vector<Segment> &segments);
+    static std::optional<Segment *> getLastCrafted(const std::vector<Segment *> &segments);
 
     /**
      Get the last from any collection of Segments
@@ -76,7 +63,7 @@ namespace XJ {
      @param segments to get last from
      @return last segment from collection
      */
-    static std::optional<Segment> getLast(std::vector<Segment> &segments);
+    static std::optional<Segment *> getLast(const std::vector<Segment *> &segments);
 
     /**
      Get only the dubbed from any collection of Segments
@@ -84,7 +71,7 @@ namespace XJ {
      @param segments to get dubbed from
      @return dubbed segments from collection
      */
-    static std::vector<Segment> getCrafted(const std::vector<Segment> &segments);
+    static std::vector<Segment *> getCrafted(const std::vector<Segment *> &segments);
 
     /**
      Whether a segment chord voicing contains any valid notes
@@ -92,7 +79,7 @@ namespace XJ {
      @param voicing to test
      @return true if contains any valid notes
      */
-    static bool containsAnyValidNotes(const SegmentChordVoicing &voicing);
+    static bool containsAnyValidNotes(const SegmentChordVoicing * voicing);
 
     /**
      Whether the segment is spanning a given time frame.
@@ -103,7 +90,7 @@ namespace XJ {
      @param toChainMicros   to test frame to
      @return true if segment is spanning time frame
      */
-    static bool isSpanning(Segment &segment, long long fromChainMicros, long long toChainMicros);
+    static bool isSpanning(const Segment *segment, const long long fromChainMicros, const long long toChainMicros);
 
     /**
      Whether the segment is intersecting a given time.
@@ -116,7 +103,7 @@ namespace XJ {
      @param thresholdMicros to test threshold
      @return true if segment is spanning time
      */
-    static bool isIntersecting(Segment &segment, long long atChainMicros, long long thresholdMicros);
+    static bool isIntersecting(const Segment * segment, const long long atChainMicros,const  long long thresholdMicros);
 
     /**
      Get the storage filename for a Segment
@@ -125,7 +112,7 @@ namespace XJ {
      @param extension of key
      @return segment ship key
      */
-    static std::string getStorageFilename(Segment &segment, const std::string &extension);
+    static std::string getStorageFilename(const Segment *segment, const std::string &extension);
 
     /**
      Get the full storage key for a segment audio
@@ -133,7 +120,7 @@ namespace XJ {
      @param segment for which to get storage key
      @return storage key for segment
      */
-    static std::string getStorageFilename(Segment &segment);
+    static std::string getStorageFilename(const Segment *segment);
 
     /**
      @param choice to describe
@@ -146,7 +133,7 @@ namespace XJ {
      * @param segment  for which to get time
      * @return       end-at time in chain micros
      */
-    static long getEndAtChainMicros(Segment &segment);
+    static long getEndAtChainMicros(const Segment *segment);
 
     /**
      * Whether two segments are the same but updated
@@ -154,7 +141,7 @@ namespace XJ {
      * @param s2   segment two
      * @return   true if same but updated
      */
-    static bool isSameButUpdated(Segment &s1, Segment &s2);
+    static bool isSameButUpdated(const Segment *s1, const Segment *s2);
 
     /**
      * Get the duration of a collection of segments in microseconds

@@ -19,10 +19,10 @@ unsigned long long SegmentMeme::hashCode() const {
 }
 
 
-std::set<std::string> SegmentMeme::getNames(const std::set<SegmentMeme> &segmentMemes) {
+std::set<std::string> SegmentMeme::getNames(const std::set<SegmentMeme *> &segmentMemes) {
   std::set<std::string> names;
   for (const auto &segmentMeme: segmentMemes) {
-    names.insert(segmentMeme.name);
+    names.insert(segmentMeme->name);
   }
   return names;
 }

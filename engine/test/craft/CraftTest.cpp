@@ -101,7 +101,7 @@ protected:
     sourceMaterial->put(instrument1audio2);
 
     for (auto i = 0; i < TEST_REPEAT_TIMES; i++) {
-      auto result = subject->selectNewChordPartInstrumentAudio(instrument1, Chord::of(match));
+      auto result = subject->selectNewChordPartInstrumentAudio(&instrument1, Chord::of(match));
 
       EXPECT_TRUE(result.has_value());
       EXPECT_EQ(instrument1audio1.id, result->id);

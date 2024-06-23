@@ -328,7 +328,7 @@ TEST_F(FabricatorTest, GetProgramSequence_FromSequence) {
   SegmentChoice choice = store->put(SegmentFixtures::buildSegmentChoice(segment, Program::Type::Main, fake.program5_sequence0));
 
   // Get the result
-  auto result = subject->getProgramSequence(choice);
+  auto result = subject->getProgramSequence(&choice);
 
   // Check the result
   ASSERT_EQ(fake.program5_sequence0.id, result.value()->id);
@@ -355,7 +355,7 @@ TEST_F(FabricatorTest, GetProgramSequence_FromSequenceBinding) {
   SegmentChoice choice = store->put(SegmentFixtures::buildSegmentChoice(segment, Program::Type::Main, fake.program5_sequence0_binding0));
 
   // Get the result
-  auto result = subject->getProgramSequence(choice);
+  auto result = subject->getProgramSequence(&choice);
 
   // Check the result
   ASSERT_EQ(fake.program5_sequence0.id, result.value()->id);

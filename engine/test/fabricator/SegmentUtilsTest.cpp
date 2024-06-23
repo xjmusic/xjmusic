@@ -155,28 +155,28 @@ TEST_F(SegmentUtilsTest, GetShipKey) {
 
 // Inclusive of segment start time; exclusive of segment end time (different from SegmentUtils::isIntersecting)
 TEST_F(SegmentUtilsTest, IsSpanning) {
-  ASSERT_TRUE(SegmentUtils::isSpanning(seg1, 32 * ValueUtils::MICROS_PER_SECOND,
+  ASSERT_TRUE(SegmentUtils::isSpanning(&seg1, 32 * ValueUtils::MICROS_PER_SECOND,
                                        32 * ValueUtils::MICROS_PER_SECOND)); // true if exactly at beginning of segment
-  ASSERT_FALSE(SegmentUtils::isSpanning(seg1, 64 * ValueUtils::MICROS_PER_SECOND,
+  ASSERT_FALSE(SegmentUtils::isSpanning(&seg1, 64 * ValueUtils::MICROS_PER_SECOND,
                                         64 * ValueUtils::MICROS_PER_SECOND)); // false if exactly at end of segment
-  ASSERT_FALSE(SegmentUtils::isSpanning(seg1, 15 * ValueUtils::MICROS_PER_SECOND, 30 * ValueUtils::MICROS_PER_SECOND));
-  ASSERT_TRUE(SegmentUtils::isSpanning(seg1, 20 * ValueUtils::MICROS_PER_SECOND, 36 * ValueUtils::MICROS_PER_SECOND));
-  ASSERT_TRUE(SegmentUtils::isSpanning(seg1, 35 * ValueUtils::MICROS_PER_SECOND, 52 * ValueUtils::MICROS_PER_SECOND));
-  ASSERT_TRUE(SegmentUtils::isSpanning(seg1, 50 * ValueUtils::MICROS_PER_SECOND, 67 * ValueUtils::MICROS_PER_SECOND));
-  ASSERT_FALSE(SegmentUtils::isSpanning(seg1, 66 * ValueUtils::MICROS_PER_SECOND, 80 * ValueUtils::MICROS_PER_SECOND));
+  ASSERT_FALSE(SegmentUtils::isSpanning(&seg1, 15 * ValueUtils::MICROS_PER_SECOND, 30 * ValueUtils::MICROS_PER_SECOND));
+  ASSERT_TRUE(SegmentUtils::isSpanning(&seg1, 20 * ValueUtils::MICROS_PER_SECOND, 36 * ValueUtils::MICROS_PER_SECOND));
+  ASSERT_TRUE(SegmentUtils::isSpanning(&seg1, 35 * ValueUtils::MICROS_PER_SECOND, 52 * ValueUtils::MICROS_PER_SECOND));
+  ASSERT_TRUE(SegmentUtils::isSpanning(&seg1, 50 * ValueUtils::MICROS_PER_SECOND, 67 * ValueUtils::MICROS_PER_SECOND));
+  ASSERT_FALSE(SegmentUtils::isSpanning(&seg1, 66 * ValueUtils::MICROS_PER_SECOND, 80 * ValueUtils::MICROS_PER_SECOND));
 }
 
 // Exclusive of segment start time; inclusive of segment end time (different from SegmentUtils::isSpanning)
 TEST_F(SegmentUtilsTest, IsIntersecting) {
-  ASSERT_FALSE(SegmentUtils::isIntersecting(seg1, 15 * ValueUtils::MICROS_PER_SECOND, 100L));
-  ASSERT_FALSE(SegmentUtils::isIntersecting(seg1, 20 * ValueUtils::MICROS_PER_SECOND, 100L));
-  ASSERT_TRUE(SegmentUtils::isIntersecting(seg1, 35 * ValueUtils::MICROS_PER_SECOND, 100L));
-  ASSERT_TRUE(SegmentUtils::isIntersecting(seg1, 50 * ValueUtils::MICROS_PER_SECOND, 100L));
-  ASSERT_FALSE(SegmentUtils::isIntersecting(seg1, 65 * ValueUtils::MICROS_PER_SECOND, 100L));
-  ASSERT_TRUE(SegmentUtils::isIntersecting(seg1, 65 * ValueUtils::MICROS_PER_SECOND, 2000000L)); // expanded threshold
-  ASSERT_TRUE(SegmentUtils::isIntersecting(seg1, 32 * ValueUtils::MICROS_PER_SECOND,
+  ASSERT_FALSE(SegmentUtils::isIntersecting(&seg1, 15 * ValueUtils::MICROS_PER_SECOND, 100L));
+  ASSERT_FALSE(SegmentUtils::isIntersecting(&seg1, 20 * ValueUtils::MICROS_PER_SECOND, 100L));
+  ASSERT_TRUE(SegmentUtils::isIntersecting(&seg1, 35 * ValueUtils::MICROS_PER_SECOND, 100L));
+  ASSERT_TRUE(SegmentUtils::isIntersecting(&seg1, 50 * ValueUtils::MICROS_PER_SECOND, 100L));
+  ASSERT_FALSE(SegmentUtils::isIntersecting(&seg1, 65 * ValueUtils::MICROS_PER_SECOND, 100L));
+  ASSERT_TRUE(SegmentUtils::isIntersecting(&seg1, 65 * ValueUtils::MICROS_PER_SECOND, 2000000L)); // expanded threshold
+  ASSERT_TRUE(SegmentUtils::isIntersecting(&seg1, 32 * ValueUtils::MICROS_PER_SECOND,
                                            0L)); // true if exactly at beginning of segment when threshold is 0
-  ASSERT_FALSE(SegmentUtils::isIntersecting(seg1, 64 * ValueUtils::MICROS_PER_SECOND,
+  ASSERT_FALSE(SegmentUtils::isIntersecting(&seg1, 64 * ValueUtils::MICROS_PER_SECOND,
                                             0L)); // false if exactly at end of segment when threshold is 0
 }
 
@@ -185,10 +185,10 @@ TEST_F(SegmentUtilsTest, IsSameButUpdated) {
   Segment s1 = createSameSegment(527142, Segment::State::Crafted);
   Segment s1_failed = createSameSegment(527142, Segment::State::Failed);
   Segment s1_updated = createSameSegment(627142, Segment::State::Crafted);
-  ASSERT_TRUE(SegmentUtils::isSameButUpdated(s1, s1_updated));
-  ASSERT_TRUE(SegmentUtils::isSameButUpdated(s1, s1_failed));
-  ASSERT_FALSE(SegmentUtils::isSameButUpdated(s1, s1));
-  ASSERT_FALSE(SegmentUtils::isSameButUpdated(s1, seg2));
+  ASSERT_TRUE(SegmentUtils::isSameButUpdated(&s1, s1_updated));
+  ASSERT_TRUE(SegmentUtils::isSameButUpdated(&s1, s1_failed));
+  ASSERT_FALSE(SegmentUtils::isSameButUpdated(&s1, s1));
+  ASSERT_FALSE(SegmentUtils::isSameButUpdated(&s1, seg2));
 }
 
 // Test for getDurationMinMicros
