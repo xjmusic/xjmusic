@@ -212,7 +212,7 @@ namespace XJ {
 
      @return detail-type segment choice
      */
-    virtual std::vector<const SegmentChoice &> getCurrentDetailChoices();
+    virtual std::vector<const SegmentChoice *> getCurrentDetailChoices();
 
     /**
      fetch the beat-type choice for the current segment in the chain
@@ -954,7 +954,7 @@ namespace XJ {
 
      @return choices of the current segment of the given type
      */
-    [[nodiscard]] std::vector<const SegmentChoice &> getBeatChoices() const;
+    [[nodiscard]] std::vector<const SegmentChoice *> getBeatChoices() const;
 
     /**
      Compute the lowest optimal range shift octaves

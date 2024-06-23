@@ -166,7 +166,7 @@ std::optional<const SegmentChoice &> Fabricator::getCurrentMainChoice() {
 }
 
 
-std::vector<const SegmentChoice &> Fabricator::getCurrentDetailChoices() {
+std::vector<const SegmentChoice *> Fabricator::getCurrentDetailChoices() {
   return getBeatChoices();
 }
 
@@ -1040,9 +1040,9 @@ std::optional<const SegmentChoice &> Fabricator::getChoiceOfType(Program::Type p
 }
 
 
-std::vector<const SegmentChoice &> Fabricator::getBeatChoices() const {
+std::vector<const SegmentChoice *> Fabricator::getBeatChoices() const {
   std::set<SegmentChoice> allChoices = getChoices();
-  std::vector<const SegmentChoice &> beatChoices;
+  std::vector<const SegmentChoice *> beatChoices;
 
   std::copy_if(allChoices.begin(), allChoices.end(), std::back_inserter(beatChoices), [](const SegmentChoice &choice) {
     return choice.programType == Program::Type::Beat;
@@ -1205,7 +1205,7 @@ NoteRange Fabricator::computeProgramRange(const UUID &programId, Instrument::Typ
   auto events = sourceMaterial->getSequencePatternEventsOfProgram(programId);
   for (const auto &event: events) {
     auto voiceOpt = sourceMaterial->getVoiceOfEvent(*event);
-    if (voiceOpt.has_value() && voiceOpt.value()->type == instrumentType &&
+    if (voiceOpt.has_value() && voiceOpt.value().type == instrumentType &&
         Note::of(event->tones).pitchClass != PitchClass::Atonal) {
       auto tones = CsvUtils::split(event->tones);
       notes.insert(notes.end(), tones.begin(), tones.end());

@@ -310,7 +310,7 @@ namespace nlohmann {
     try {                                                                                     \
       std::set<const ENTITY *> result;                                                        \
       for (const auto &entry: STORE) {                                                        \
-        result.emplace(entry.second);                                                         \
+        result.emplace(&entry.second);                                                        \
       }                                                                                       \
       return result;                                                                          \
     } catch (...) {                                                                           \
@@ -433,7 +433,7 @@ std::set<const InstrumentAudio *> ContentEntityStore::getAudiosOfInstrument(cons
   std::set<const InstrumentAudio *> result;
   for (const auto &[fst, snd]: instrumentAudios) {
     if (snd.instrumentId == id) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
@@ -443,15 +443,15 @@ std::set<const InstrumentAudio *> ContentEntityStore::getAudiosOfInstrument(cons
   return getAudiosOfInstrument(instrument.id);
 }
 
-std::vector<const ProgramSequenceBinding &> ContentEntityStore::getBindingsOfSequence(const ProgramSequence &sequence) const {
+std::vector<const ProgramSequenceBinding *> ContentEntityStore::getBindingsOfSequence(const ProgramSequence &sequence) const {
   return getBindingsOfSequence(sequence.id);
 }
 
-std::vector<const ProgramSequenceBinding &> ContentEntityStore::getBindingsOfSequence(const UUID &sequenceId) const {
-  std::vector<const ProgramSequenceBinding &> result;
+std::vector<const ProgramSequenceBinding *> ContentEntityStore::getBindingsOfSequence(const UUID &sequenceId) const {
+  std::vector<const ProgramSequenceBinding *> result;
   for (const auto &[fst, snd]: programSequenceBindings) {
     if (snd.programSequenceId == sequenceId) {
-      result.emplace_back(snd);
+      result.emplace_back(&snd);
     }
   }
   std::sort(result.begin(), result.end(),
@@ -471,26 +471,26 @@ ContentEntityStore::getSequenceBindingMemesOfProgram(const UUID &programId) cons
   std::set<const ProgramSequenceBindingMeme *> result;
   for (const auto &[fst, snd]: programSequenceBindingMemes) {
     if (snd.programId == programId) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
 }
 
-std::vector<const ProgramSequenceBinding &>
+std::vector<const ProgramSequenceBinding *>
 ContentEntityStore::getBindingsAtOffsetOfProgram(const Program &program, int offset, bool includeNearest) const {
   return getBindingsAtOffsetOfProgram(program.id, offset, includeNearest);
 }
 
-std::vector<const ProgramSequenceBinding &>
+std::vector<const ProgramSequenceBinding *>
 ContentEntityStore::getBindingsAtOffsetOfProgram(const UUID &programId, int offset, bool includeNearest) const {
-  std::vector<const ProgramSequenceBinding &> result;
-  std::vector<const ProgramSequenceBinding &> candidates;
+  std::vector<const ProgramSequenceBinding *> result;
+  std::vector<const ProgramSequenceBinding *> candidates;
 
   // Filter the programSequenceBindings map to get the candidates
   for (const auto &[fst, snd]: programSequenceBindings) {
     if (snd.programId == programId) {
-      candidates.emplace_back(snd);
+      candidates.emplace_back(&snd);
     }
   }
 
@@ -528,15 +528,15 @@ ContentEntityStore::getBindingsAtOffsetOfProgram(const UUID &programId, int offs
   return result;
 }
 
-std::vector<const ProgramSequenceChord &> ContentEntityStore::getChordsOfSequence(const ProgramSequence &sequence) const {
+std::vector<const ProgramSequenceChord *> ContentEntityStore::getChordsOfSequence(const ProgramSequence &sequence) const {
   return getChordsOfSequence(sequence.id);
 }
 
-std::vector<const ProgramSequenceChord &> ContentEntityStore::getChordsOfSequence(const UUID &programSequenceId) const {
-  std::vector<const ProgramSequenceChord &> result;
+std::vector<const ProgramSequenceChord *> ContentEntityStore::getChordsOfSequence(const UUID &programSequenceId) const {
+  std::vector<const ProgramSequenceChord *> result;
   for (const auto &[fst, snd]: programSequenceChords) {
     if (snd.programSequenceId == programSequenceId) {
-      result.emplace_back(snd);
+      result.emplace_back(&snd);
     }
   }
   std::sort(result.begin(), result.end(),
@@ -546,16 +546,16 @@ std::vector<const ProgramSequenceChord &> ContentEntityStore::getChordsOfSequenc
   return result;
 }
 
-std::vector<const ProgramSequencePatternEvent &>
+std::vector<const ProgramSequencePatternEvent *>
 ContentEntityStore::getEventsOfPattern(const ProgramSequencePattern &pattern) const {
   return getEventsOfPattern(pattern.id);
 }
 
-std::vector<const ProgramSequencePatternEvent &> ContentEntityStore::getEventsOfPattern(const UUID &patternId) const {
-  std::vector<const ProgramSequencePatternEvent &> result;
+std::vector<const ProgramSequencePatternEvent *> ContentEntityStore::getEventsOfPattern(const UUID &patternId) const {
+  std::vector<const ProgramSequencePatternEvent *> result;
   for (const auto &[fst, snd]: programSequencePatternEvents) {
     if (snd.programSequencePatternId == patternId) {
-      result.emplace_back(snd);
+      result.emplace_back(&snd);
     }
   }
   // Sort the result set based on the position
@@ -571,7 +571,7 @@ ContentEntityStore::getPatternsOfSequenceAndVoice(const UUID &programSequenceId,
   std::set<const ProgramSequencePattern *> result;
   for (const auto &[fst, snd]: programSequencePatterns) {
     if (snd.programSequenceId == programSequenceId && snd.programVoiceId == programVoiceId) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
@@ -581,7 +581,7 @@ std::set<const TemplateBinding *> ContentEntityStore::getBindingsOfTemplate(cons
   std::set<const TemplateBinding *> result;
   for (const auto &[fst, snd]: templateBindings) {
     if (snd.templateId == templateId) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
@@ -592,7 +592,7 @@ std::set<const ProgramSequencePattern *> ContentEntityStore::getSequencePatterns
   std::set<const ProgramSequencePattern *> result;
   for (const auto &[fst, snd]: programSequencePatterns) {
     if (snd.programId == programId) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
@@ -602,12 +602,12 @@ std::set<const ProgramSequencePattern *> ContentEntityStore::getSequencePatterns
   return getSequencePatternsOfProgram(program.id);
 }
 
-std::vector<const ProgramSequencePatternEvent &>
+std::vector<const ProgramSequencePatternEvent *>
 ContentEntityStore::getSequencePatternEventsOfProgram(const UUID &programId) const {
-  std::vector<const ProgramSequencePatternEvent &> result;
+  std::vector<const ProgramSequencePatternEvent *> result;
   for (const auto &[fst, snd]: programSequencePatternEvents) {
     if (snd.programId == programId) {
-      result.emplace_back(snd);
+      result.emplace_back(&snd);
     }
   }
   std::sort(result.begin(), result.end(),
@@ -617,15 +617,15 @@ ContentEntityStore::getSequencePatternEventsOfProgram(const UUID &programId) con
   return result;
 }
 
-std::vector<const ProgramSequencePatternEvent &> ContentEntityStore::getEventsOfTrack(const ProgramVoiceTrack &track) const {
+std::vector<const ProgramSequencePatternEvent *> ContentEntityStore::getEventsOfTrack(const ProgramVoiceTrack &track) const {
   return getEventsOfTrack(track.id);
 }
 
-std::vector<const ProgramSequencePatternEvent &> ContentEntityStore::getEventsOfTrack(const UUID &trackId) const {
-  std::vector<const ProgramSequencePatternEvent &> result;
+std::vector<const ProgramSequencePatternEvent *> ContentEntityStore::getEventsOfTrack(const UUID &trackId) const {
+  std::vector<const ProgramSequencePatternEvent *> result;
   for (const auto &[fst, snd]: programSequencePatternEvents) {
     if (snd.programVoiceTrackId == trackId) {
-      result.emplace_back(snd);
+      result.emplace_back(&snd);
     }
   }
   std::sort(result.begin(), result.end(),
@@ -635,17 +635,17 @@ std::vector<const ProgramSequencePatternEvent &> ContentEntityStore::getEventsOf
   return result;
 }
 
-std::vector<const ProgramSequencePatternEvent &>
+std::vector<const ProgramSequencePatternEvent *>
 ContentEntityStore::getEventsOfPatternAndTrack(const ProgramSequencePattern &pattern, const ProgramVoiceTrack &track) const {
   return getEventsOfPatternAndTrack(pattern.id, track.id);
 }
 
-std::vector<const ProgramSequencePatternEvent &>
+std::vector<const ProgramSequencePatternEvent *>
 ContentEntityStore::getEventsOfPatternAndTrack(const UUID &patternId, const UUID &trackId) const {
-  std::vector<const ProgramSequencePatternEvent &> result;
+  std::vector<const ProgramSequencePatternEvent *> result;
   for (const auto &[fst, snd]: programSequencePatternEvents) {
     if (snd.programSequencePatternId == patternId && snd.programVoiceTrackId == trackId) {
-      result.emplace_back(snd);
+      result.emplace_back(&snd);
     }
   }
   std::sort(result.begin(), result.end(),
@@ -660,7 +660,7 @@ ContentEntityStore::getAudiosOfInstrumentTypesAndModes(const std::set<Instrument
                                                        const std::set<Instrument::Mode> &modes) const {
   std::set<const InstrumentAudio *> result;
   for (const auto &audio: getInstrumentsOfTypesAndModes(types, modes)) {
-    auto audios = getAudiosOfInstrument(audio.id);
+    auto audios = getAudiosOfInstrument(audio->id);
     result.insert(audios.begin(), audios.end());
   }
   return result;
@@ -670,7 +670,7 @@ std::set<const InstrumentAudio *>
 ContentEntityStore::getAudiosOfInstrumentTypes(const std::set<Instrument::Type> &types) const {
   std::set<const InstrumentAudio *> result;
   for (const auto &audio: getInstrumentsOfTypes(types)) {
-    auto audios = getAudiosOfInstrument(audio.id);
+    auto audios = getAudiosOfInstrument(audio->id);
     result.insert(audios.begin(), audios.end());
   }
   return result;
@@ -680,7 +680,7 @@ std::set<const Instrument *> ContentEntityStore::getInstrumentsOfType(const Inst
   std::set<const Instrument *> result;
   for (const auto &[fst, snd]: instruments) {
     if (snd.type == type) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
@@ -693,7 +693,7 @@ ContentEntityStore::getInstrumentsOfTypesAndModes(const std::set<Instrument::Typ
   for (const auto &[fst, snd]: instruments) {
     if (types.empty() || types.find(snd.type) != types.end()) {
       if (modes.empty() || modes.find(snd.mode) != modes.end()) {
-        result.emplace(snd);
+        result.emplace(&snd);
       }
     }
   }
@@ -704,7 +704,7 @@ std::set<const Instrument *> ContentEntityStore::getInstrumentsOfTypes(const std
   std::set<const Instrument *> result;
   for (const auto &[fst, snd]: instruments) {
     if (types.empty() || types.find(snd.type) != types.end()) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
@@ -714,7 +714,7 @@ std::set<const InstrumentMeme *> ContentEntityStore::getMemesOfInstrument(const 
   std::set<const InstrumentMeme *> result;
   for (const auto &[fst, snd]: instrumentMemes) {
     if (snd.instrumentId == instrumentId) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
@@ -728,7 +728,7 @@ std::set<const Instrument *> ContentEntityStore::getInstrumentsOfLibrary(const U
   std::set<const Instrument *> result;
   for (const auto &[fst, snd]: instruments) {
     if (snd.libraryId == libraryId) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
@@ -745,7 +745,7 @@ std::set<const ProgramMeme *> ContentEntityStore::getMemesOfProgram(const UUID &
   std::set<const ProgramMeme *> result;
   for (const auto &[fst, snd]: programMemes) {
     if (snd.programId == programId) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
@@ -756,12 +756,12 @@ std::set<std::string> ContentEntityStore::getMemesAtBeginning(const Program &pro
 
   // add program memes
   for (const auto meme: getMemesOfProgram(program.id))
-    result.emplace_back(meme.name);
+    result.emplace_back(meme->name);
 
   // add sequence binding memes
   for (const ProgramSequenceBinding *sequenceBinding: getBindingsAtOffsetOfProgram(program, 0, false))
     for (const auto meme: getMemesOfSequenceBinding(sequenceBinding->id))
-      result.emplace_back(meme.name);
+      result.emplace_back(meme->name);
 
   // Remove duplicates
   std::sort(result.begin(), result.end());
@@ -780,7 +780,7 @@ ContentEntityStore::getMemesOfSequenceBinding(const UUID &programSequenceBinding
   std::set<const ProgramSequenceBindingMeme *> result;
   for (const auto &[fst, snd]: programSequenceBindingMemes) {
     if (snd.programSequenceBindingId == programSequenceBindingId) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
@@ -799,7 +799,7 @@ std::set<const ProgramSequencePattern *> ContentEntityStore::getPatternsOfSequen
   std::set<const ProgramSequencePattern *> result;
   for (const auto &[fst, snd]: programSequencePatterns) {
     if (snd.programSequenceId == sequence) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
@@ -813,7 +813,7 @@ std::set<const ProgramSequencePattern *> ContentEntityStore::getPatternsOfVoice(
   std::set<const ProgramSequencePattern *> result;
   for (const auto &[fst, snd]: programSequencePatterns) {
     if (snd.programVoiceId == voice) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
@@ -827,7 +827,7 @@ std::set<const Program *> ContentEntityStore::getProgramsOfLibrary(const UUID &l
   std::set<const Program *> result;
   for (const auto &[fst, snd]: programs) {
     if (snd.libraryId == libraryId) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
@@ -837,7 +837,7 @@ std::set<const Program *> ContentEntityStore::getProgramsOfType(Program::Type ty
   std::set<const Program *> result;
   for (const auto &[fst, snd]: programs) {
     if (snd.type == type) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
@@ -855,17 +855,17 @@ std::set<const ProgramSequence *> ContentEntityStore::getSequencesOfProgram(cons
   std::set<const ProgramSequence *> result;
   for (const auto &[fst, snd]: programSequences) {
     if (snd.programId == programId) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
 }
 
-std::vector<const ProgramSequenceBinding &> ContentEntityStore::getSequenceBindingsOfProgram(const UUID &programId) const {
-  std::vector<const ProgramSequenceBinding &> result;
+std::vector<const ProgramSequenceBinding *> ContentEntityStore::getSequenceBindingsOfProgram(const UUID &programId) const {
+  std::vector<const ProgramSequenceBinding *> result;
   for (const auto &[fst, snd]: programSequenceBindings) {
     if (snd.programId == programId) {
-      result.emplace_back(snd);
+      result.emplace_back(&snd);
     }
   }
   std::sort(result.begin(), result.end(),
@@ -875,11 +875,11 @@ std::vector<const ProgramSequenceBinding &> ContentEntityStore::getSequenceBindi
   return result;
 }
 
-std::vector<const ProgramSequenceChord &> ContentEntityStore::getSequenceChordsOfProgram(const UUID &programId) const {
-  std::vector<const ProgramSequenceChord &> result;
+std::vector<const ProgramSequenceChord *> ContentEntityStore::getSequenceChordsOfProgram(const UUID &programId) const {
+  std::vector<const ProgramSequenceChord *> result;
   for (const auto &[fst, snd]: programSequenceChords) {
     if (snd.programId == programId) {
-      result.emplace_back(snd);
+      result.emplace_back(&snd);
     }
   }
   std::sort(result.begin(), result.end(),
@@ -894,7 +894,7 @@ ContentEntityStore::getSequenceChordVoicingsOfProgram(const UUID &programId) con
   std::set<const ProgramSequenceChordVoicing *> result;
   for (const auto &[fst, snd]: programSequenceChordVoicings) {
     if (snd.programId == programId && Note::containsAnyValidNotes(snd.notes)) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
@@ -904,7 +904,7 @@ std::set<const ProgramVoiceTrack *> ContentEntityStore::getTracksOfProgram(const
   std::set<const ProgramVoiceTrack *> result;
   for (const auto &[fst, snd]: programVoiceTracks) {
     if (snd.programId == programId) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
@@ -914,7 +914,7 @@ std::set<const ProgramVoiceTrack *> ContentEntityStore::getTracksOfProgramType(P
   std::set<const ProgramVoiceTrack *> result;
   for (const auto &[fst, snd]: programVoiceTracks) {
     if (programs.count(snd.programId) && programs.at(snd.programId).type == type) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
@@ -928,7 +928,7 @@ std::set<const ProgramVoiceTrack *> ContentEntityStore::getTracksOfVoice(const U
   std::set<const ProgramVoiceTrack *> result;
   for (const auto &[fst, snd]: programVoiceTracks) {
     if (snd.programVoiceId == voiceId) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
@@ -953,7 +953,7 @@ std::set<const ProgramSequenceChordVoicing *> ContentEntityStore::getVoicingsOfC
   std::set<const ProgramSequenceChordVoicing *> result;
   for (const auto &[fst, snd]: programSequenceChordVoicings) {
     if (snd.programSequenceChordId == chordId) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
@@ -969,7 +969,7 @@ ContentEntityStore::getVoicingsOfChordAndVoice(const UUID &chordId, const UUID &
   std::set<const ProgramSequenceChordVoicing *> result;
   for (const auto &[fst, snd]: programSequenceChordVoicings) {
     if (snd.programSequenceChordId == chordId && snd.programVoiceId == voiceId) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
@@ -983,7 +983,7 @@ std::set<const ProgramVoice *> ContentEntityStore::getVoicesOfProgram(const UUID
   std::set<const ProgramVoice *> result;
   for (const auto &[fst, snd]: programVoices) {
     if (snd.programId == programId) {
-      result.emplace(snd);
+      result.emplace(&snd);
     }
   }
   return result;
@@ -997,19 +997,19 @@ ContentEntityStore ContentEntityStore::forTemplate(const Template &tmpl) {
 
   // For each template binding, add the Library, Program, or Instrument
   for (const auto templateBinding: getBindingsOfTemplate(tmpl.id)) {
-    content.templateBindings[templateBinding.id] = templateBinding;
-    if (templateBinding.type == TemplateBinding::Type::Library) {
-      auto library = getLibrary(templateBinding.targetId);
+    content.templateBindings[templateBinding->id] = *templateBinding;
+    if (templateBinding->type == TemplateBinding::Type::Library) {
+      auto library = getLibrary(templateBinding->targetId);
       if (library.has_value()) {
         content.libraries[library.value().id] = library.value();
       }
-    } else if (templateBinding.type == TemplateBinding::Type::Program) {
-      auto program = getProgram(templateBinding.targetId);
+    } else if (templateBinding->type == TemplateBinding::Type::Program) {
+      auto program = getProgram(templateBinding->targetId);
       if (program.has_value()) {
         content.programs[program.value().id] = program.value();
       }
-    } else if (templateBinding.type == TemplateBinding::Type::Instrument) {
-      auto instrument = getInstrument(templateBinding.targetId);
+    } else if (templateBinding->type == TemplateBinding::Type::Instrument) {
+      auto instrument = getInstrument(templateBinding->targetId);
       if (instrument.has_value()) {
         content.instruments[instrument.value().id] = instrument.value();
       }
@@ -1019,8 +1019,8 @@ ContentEntityStore ContentEntityStore::forTemplate(const Template &tmpl) {
   // For each library, add the Programs that are in a published state
   for (const auto &[fst, snd]: content.libraries) {
     for (const auto program: getProgramsOfLibrary(snd)) {
-      if (program.state == Program::State::Published) {
-        content.programs[program.id] = program;
+      if (program->state == Program::State::Published) {
+        content.programs[program->id] = *program;
       }
     }
   }
@@ -1028,8 +1028,8 @@ ContentEntityStore ContentEntityStore::forTemplate(const Template &tmpl) {
   // For each library, add the Instruments that are in a published state
   for (const auto &[fst, snd]: content.libraries) {
     for (const auto instrument: getInstrumentsOfLibrary(snd)) {
-      if (instrument.state == Instrument::State::Published) {
-        content.instruments[instrument.id] = instrument;
+      if (instrument->state == Instrument::State::Published) {
+        content.instruments[instrument->id] = *instrument;
       }
     }
   }
@@ -1037,31 +1037,31 @@ ContentEntityStore ContentEntityStore::forTemplate(const Template &tmpl) {
   // Add entities of Programs
   for (const auto &program: content.programs) {
     for (const auto meme: getMemesOfProgram(program.second.id)) {
-      content.programMemes[meme.id] = meme;
+      content.programMemes[meme->id] = *meme;
     }
     for (const auto voice: getVoicesOfProgram(program.second.id)) {
-      content.programVoices[voice.id] = voice;
+      content.programVoices[voice->id] = *voice;
     }
     for (const auto track: getTracksOfProgram(program.second.id)) {
-      content.programVoiceTracks[track.id] = track;
+      content.programVoiceTracks[track->id] = *track;
     }
     for (const auto sequence: getSequencesOfProgram(program.second.id)) {
-      content.programSequences[sequence.id] = sequence;
+      content.programSequences[sequence->id] = *sequence;
     }
     for (const ProgramSequenceBinding *binding: getSequenceBindingsOfProgram(program.second.id)) {
       content.programSequenceBindings[binding->id] = *binding;
     }
     for (const auto meme: getSequenceBindingMemesOfProgram(program.second.id)) {
-      content.programSequenceBindingMemes[meme.id] = meme;
+      content.programSequenceBindingMemes[meme->id] = *meme;
     }
     for (const ProgramSequenceChord *chord: getSequenceChordsOfProgram(program.second.id)) {
       content.programSequenceChords[chord->id] = *chord;
     }
     for (const auto voicing: getSequenceChordVoicingsOfProgram(program.second.id)) {
-      content.programSequenceChordVoicings[voicing.id] = voicing;
+      content.programSequenceChordVoicings[voicing->id] = *voicing;
     }
     for (const auto pattern: getSequencePatternsOfProgram(program.second.id)) {
-      content.programSequencePatterns[pattern.id] = pattern;
+      content.programSequencePatterns[pattern->id] = *pattern;
     }
     for (const ProgramSequencePatternEvent *event: getSequencePatternEventsOfProgram(program.second.id)) {
       content.programSequencePatternEvents[event->id] = *event;
@@ -1071,10 +1071,10 @@ ContentEntityStore ContentEntityStore::forTemplate(const Template &tmpl) {
   // Add entities of Instruments
   for (const auto &instrument: content.instruments) {
     for (const auto meme: getMemesOfInstrument(instrument.second.id)) {
-      content.instrumentMemes[meme.id] = meme;
+      content.instrumentMemes[meme->id] = *meme;
     }
     for (const auto audio: getAudiosOfInstrument(instrument.second.id)) {
-      content.instrumentAudios[audio.id] = audio;
+      content.instrumentAudios[audio->id] = *audio;
     }
   }
 

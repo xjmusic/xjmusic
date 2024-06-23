@@ -187,14 +187,14 @@ namespace XJ {
      * @param sequence for which to get bindings
      * @return bindings of sequence
      */
-    std::vector<const ProgramSequenceBinding &> getBindingsOfSequence(const ProgramSequence &sequence) const;
+    std::vector<const ProgramSequenceBinding *> getBindingsOfSequence(const ProgramSequence &sequence) const;
 
     /**
       * Get the sequence bindings for a given sequence id
       * @param sequenceId for which to get bindings
       * @return bindings of sequence
       */
-    std::vector<const ProgramSequenceBinding &> getBindingsOfSequence(const UUID &sequenceId) const;
+    std::vector<const ProgramSequenceBinding *> getBindingsOfSequence(const UUID &sequenceId) const;
 
     /**
      * Get the sequence binding memes for a given program
@@ -221,7 +221,7 @@ namespace XJ {
      * @param includeNearest whether to include the nearest offset if the target offset is not found
      * @return sequence bindings at offset
      */
-    std::vector<const ProgramSequenceBinding &>
+    std::vector<const ProgramSequenceBinding *>
     getBindingsAtOffsetOfProgram(const Program &program, int offset, bool includeNearest) const;
 
     /**
@@ -235,7 +235,7 @@ namespace XJ {
      * @param includeNearest whether to include the nearest offset if the target offset is not found
      * @return sequence bindings at offset
      */
-    std::vector<const ProgramSequenceBinding &>
+    std::vector<const ProgramSequenceBinding *>
     getBindingsAtOffsetOfProgram(const UUID &programId, int offset, bool includeNearest) const;
 
     /**
@@ -243,28 +243,28 @@ namespace XJ {
      * @param sequence for which to get chords
      * @return chords of sequence
      */
-    std::vector<const ProgramSequenceChord &> getChordsOfSequence(const ProgramSequence &sequence) const;
+    std::vector<const ProgramSequenceChord *> getChordsOfSequence(const ProgramSequence &sequence) const;
 
     /**
      * Get all ProgramSequenceChords for a given Sequence
      * @param programSequenceId for which to get chords
      * @return chords of sequence
      */
-    std::vector<const ProgramSequenceChord &> getChordsOfSequence(const UUID &programSequenceId) const;
+    std::vector<const ProgramSequenceChord *> getChordsOfSequence(const UUID &programSequenceId) const;
 
     /**
      * Get events for a given program pattern, sorted of position
      * @param pattern for which to get events
      * @return events for given program pattern
      */
-    std::vector<const ProgramSequencePatternEvent &> getEventsOfPattern(const ProgramSequencePattern &pattern) const;
+    std::vector<const ProgramSequencePatternEvent *> getEventsOfPattern(const ProgramSequencePattern &pattern) const;
 
     /**
      * Get events for a given program sequence pattern id, sorted of position
      * @param patternId for which to get events
      * @return events for given pattern id
      */
-    std::vector<const ProgramSequencePatternEvent &> getEventsOfPattern(const UUID &patternId) const;
+    std::vector<const ProgramSequencePatternEvent *> getEventsOfPattern(const UUID &patternId) const;
 
     /**
      * Get all ProgramSequencePatterns for a given sequence and voice
@@ -298,21 +298,21 @@ namespace XJ {
      * @param programId for which to get events
      * @return events for given program
      */
-    std::vector<const ProgramSequencePatternEvent &> getSequencePatternEventsOfProgram(const UUID &programId) const;
+    std::vector<const ProgramSequencePatternEvent *> getSequencePatternEventsOfProgram(const UUID &programId) const;
 
     /**
      * Get events for a given program track, sorted of position
      * @param track for which to get events
      * @return events for given program track
      */
-    std::vector<const ProgramSequencePatternEvent &> getEventsOfTrack(const ProgramVoiceTrack &track) const;
+    std::vector<const ProgramSequencePatternEvent *> getEventsOfTrack(const ProgramVoiceTrack &track) const;
 
     /**
      * Get events for a given program voice track id, sorted of position
      * @param trackId for which to get events
      * @return events for given track id
      */
-    std::vector<const ProgramSequencePatternEvent &> getEventsOfTrack(const UUID &trackId) const;
+    std::vector<const ProgramSequencePatternEvent *> getEventsOfTrack(const UUID &trackId) const;
 
     /**
      * Get events for a given program pattern and track, sorted of position
@@ -320,7 +320,7 @@ namespace XJ {
      * @param track   for which to get events
      * @return events for given program pattern
      */
-    std::vector<const ProgramSequencePatternEvent &>
+    std::vector<const ProgramSequencePatternEvent *>
     getEventsOfPatternAndTrack(const ProgramSequencePattern &pattern, const ProgramVoiceTrack &track) const;
 
     /**
@@ -329,7 +329,7 @@ namespace XJ {
      * @param trackId   for which to get events
      * @return events for given pattern id
      */
-    std::vector<const ProgramSequencePatternEvent &>
+    std::vector<const ProgramSequencePatternEvent *>
     getEventsOfPatternAndTrack(const UUID &patternId, const UUID &trackId) const;
 
     /**
@@ -502,13 +502,13 @@ namespace XJ {
      * @param programId for which to get bindings
      * @return sequence bindings
      */
-    std::vector<const ProgramSequenceBinding &> getSequenceBindingsOfProgram(const UUID &programId) const;
+    std::vector<const ProgramSequenceBinding *> getSequenceBindingsOfProgram(const UUID &programId) const;
 
     /**
      * Get all ProgramSequenceChords
      * @return ProgramSequenceChords
      */
-    std::vector<const ProgramSequenceChord &> getSequenceChordsOfProgram(const UUID &programId) const;
+    std::vector<const ProgramSequenceChord *> getSequenceChordsOfProgram(const UUID &programId) const;
 
     /**
      * Get program sequence chord voicings
