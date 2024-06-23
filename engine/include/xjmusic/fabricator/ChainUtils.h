@@ -25,7 +25,7 @@ namespace XJ {
 
     static std::string getShipKey(const std::string &chainKey, const std::string &extension);
 
-    static long computeFabricatedToChainMicros(const std::vector<Segment> &segments);
+    static long computeFabricatedToChainMicros(const std::vector<Segment *> &segments);
 
     static Chain fromTemplate(const Template &tmpl);
 

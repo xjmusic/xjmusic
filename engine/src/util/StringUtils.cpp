@@ -217,6 +217,6 @@ std::string StringUtils::toLowerSlug(const std::string &raw) {
 }
 
 
-constexpr std::string StringUtils::toUpperSlug(const std::string &raw) {
+std::string StringUtils::toUpperSlug(const std::string &raw) {
   return toUpperCase(toSlug(raw));
 }

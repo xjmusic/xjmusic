@@ -193,13 +193,13 @@ SegmentChoice *SegmentRetrospective::getChoice(const SegmentChoiceArrangement *a
   throw FabricationException("Failed to get arrangement for SegmentChoiceArrangement[" + arrangement->id + "]");
 }
 
-std::vector<SegmentChord *> SegmentRetrospective::getSegmentChords(int segmentId) {
+std::vector<SegmentChord *> SegmentRetrospective::getSegmentChords(const int segmentId) {
   if (segmentChords.find(segmentId) == segmentChords.end()) {
     auto chords = entityStore->readAllSegmentChords(segmentId);
     auto sortedChords = std::vector(chords.begin(), chords.end());
     std::sort(sortedChords.begin(), sortedChords.end(),
-              [](const SegmentChord &a, const SegmentChord &b) {
-                return a.position < b.position;
+              [](const SegmentChord *a, const SegmentChord *b) {
+                return a->position < b->position;
               });
     segmentChords[segmentId] = sortedChords;
   }

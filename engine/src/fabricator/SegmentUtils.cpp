@@ -7,8 +7,8 @@ using namespace XJ;
 
 std::optional<const SegmentChoice *>
 SegmentUtils::findFirstOfType(const std::vector<SegmentChoice *> &segmentChoices, Program::Type type) {
-  const auto it = std::find_if(segmentChoices.begin(), segmentChoices.end(), [type](const SegmentChoice &choice) {
-    return choice.programType == type;
+  const auto it = std::find_if(segmentChoices.begin(), segmentChoices.end(), [type](const SegmentChoice *choice) {
+    return choice->programType == type;
   });
   if (it == segmentChoices.end()) {
     return std::nullopt;
@@ -19,8 +19,8 @@ SegmentUtils::findFirstOfType(const std::vector<SegmentChoice *> &segmentChoices
 
 std::optional<const SegmentChoice *>
 SegmentUtils::findFirstOfType(const std::vector<SegmentChoice *> &segmentChoices, Instrument::Type type) {
-  const auto it = std::find_if(segmentChoices.begin(), segmentChoices.end(), [type](const SegmentChoice &choice) {
-    return choice.instrumentType == type;
+  const auto it = std::find_if(segmentChoices.begin(), segmentChoices.end(), [type](const SegmentChoice *choice) {
+    return choice->instrumentType == type;
   });
   if (it == segmentChoices.end()) {
     return std::nullopt;
@@ -47,16 +47,16 @@ std::optional<Segment *> SegmentUtils::getLast(const std::vector<Segment *> &seg
   if (segments.empty()) {
     return std::nullopt;
   }
-  return *std::max_element(segments.begin(), segments.end(), [](const Segment &a, const Segment &b) {
-    return a.id < b.id;
+  return *std::max_element(segments.begin(), segments.end(), [](const Segment *a, const Segment *b) {
+    return a->id < b->id;
   });
 }
 
 
 std::vector<Segment *> SegmentUtils::getCrafted(const std::vector<Segment *> &segments) {
   std::vector<Segment *> result;
-  std::copy_if(segments.begin(), segments.end(), std::back_inserter(result), [](const Segment &segment) {
-    return segment.state == Segment::State::Crafted;
+  std::copy_if(segments.begin(), segments.end(), std::back_inserter(result), [](const Segment *segment) {
+    return segment->state == Segment::State::Crafted;
   });
   return result;
 }

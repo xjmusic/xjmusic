@@ -34,12 +34,12 @@ std::string ChainUtils::getShipKey(const std::string &chainKey, const std::strin
 }
 
 
-long ChainUtils::computeFabricatedToChainMicros(const std::vector<Segment> &segments) {
-  auto lastDubbedSegment = SegmentUtils::getLastCrafted(segments);
+long ChainUtils::computeFabricatedToChainMicros(const std::vector<Segment *> &segments) {
+  const auto lastDubbedSegment = SegmentUtils::getLastCrafted(segments);
   if (lastDubbedSegment.has_value()) {
-    return lastDubbedSegment.value().durationMicros.has_value() ? lastDubbedSegment.value().beginAtChainMicros +
-                                                                  lastDubbedSegment.value().durationMicros.value()
-                                                                : lastDubbedSegment.value().beginAtChainMicros;
+    return lastDubbedSegment.value()->durationMicros.has_value() ? lastDubbedSegment.value()->beginAtChainMicros +
+                                                                  lastDubbedSegment.value()->durationMicros.value()
+                                                                : lastDubbedSegment.value()->beginAtChainMicros;
   }
   return 0;
 }
