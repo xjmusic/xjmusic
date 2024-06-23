@@ -5,14 +5,10 @@
 
 #include <map>
 #include <string>
-#include <typeinfo>
-#include <random>
 
 #include "nlohmann/json.hpp"
 using json = nlohmann::json;
 
-#include "xjmusic/music/Root.h"
-#include "xjmusic/music/PitchClass.h"
 #include "xjmusic/music/Note.h"
 
 namespace XJ {

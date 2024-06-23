@@ -3458,7 +3458,7 @@ namespace detail
 // (i.e. those of the form: decltype(T::member_function(std::declval<T>())))
 //
 // In this case, T has to be properly CV-qualified to constraint the function arguments
-// (e.g. to_json(BasicJsonType&, const T&))
+// (e.g. serialize(BasicJsonType&, const T&))
 
 template<typename> struct is_basic_json : std::false_type {};
 
@@ -3561,7 +3561,7 @@ struct has_non_default_from_json < BasicJsonType, T, enable_if_t < !is_basic_jso
         const BasicJsonType&>::value;
 };
 
-// This trait checks if BasicJsonType::json_serializer<T>::to_json exists
+// This trait checks if BasicJsonType::json_serializer<T>::serialize exists
 // Do not evaluate the trait when T is a basic_json type, to avoid template instantiation infinite recursion.
 template<typename BasicJsonType, typename T, typename = void>
 struct has_to_json : std::false_type {};
@@ -5123,7 +5123,7 @@ JSON_INLINE_VARIABLE constexpr const auto& from_json = // NOLINT(misc-definition
 
 NLOHMANN_JSON_NAMESPACE_END
 
-// #include <nlohmann/detail/conversions/to_json.hpp>
+// #include <nlohmann/detail/conversions/serialize.hpp>
 //     __ _____ _____ _____
 //  __|  |   __|     |   | |  JSON for Modern C++
 // |  |  |__   |  |  | | | |  version 3.11.3
@@ -5634,7 +5634,7 @@ struct external_constructor<value_t::object>
 };
 
 /////////////
-// to_json //
+// serialize //
 /////////////
 
 template<typename BasicJsonType, typename T,
@@ -5808,7 +5808,7 @@ struct to_json_fn
 }  // namespace detail
 
 #ifndef JSON_HAS_CPP_17
-/// namespace to hold default `to_json` function
+/// namespace to hold default `serialize` function
 /// to see why this is required:
 /// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4381.html
 namespace // NOLINT(cert-dcl59-cpp,fuchsia-header-anon-namespaces,google-build-namespaces)
@@ -5852,7 +5852,7 @@ struct adl_serializer
     }
 
     /// @brief convert any value type to a JSON value
-    /// @sa https://json.nlohmann.me/api/adl_serializer/to_json/
+    /// @sa https://json.nlohmann.me/api/adl_serializer/serialize/
     template<typename BasicJsonType, typename TargetType = ValueType>
     static auto to_json(BasicJsonType& j, TargetType && val) noexcept(
         noexcept(::nlohmann::to_json(j, std::forward<TargetType>(val))))
@@ -5972,7 +5972,7 @@ NLOHMANN_JSON_NAMESPACE_END
 
 // #include <nlohmann/detail/conversions/from_json.hpp>
 
-// #include <nlohmann/detail/conversions/to_json.hpp>
+// #include <nlohmann/detail/conversions/serialize.hpp>
 
 // #include <nlohmann/detail/exceptions.hpp>
 
