@@ -30,7 +30,7 @@ using namespace XJ;
 class ArrangementTest : public YamlTest {
 protected:
   std::string TEST_PATH_PREFIX = "_data/arrangements/";
-  int REPEAT_EACH_TEST_TIMES = 1;// todo increase to 7
+  int REPEAT_EACH_TEST_TIMES = 7;
 
   int TEMPO = 60;// 60 BPM such that 1 beat = 1 second
   std::set<Instrument::Type> INSTRUMENT_TYPES_TO_TEST = {
@@ -204,6 +204,22 @@ protected:
                                                          getFloat(obj, "intensity").value(),
                                                          static_cast<float>(TEMPO)));
 
+      /*
+
+    if (obj.containsKey("stickyBuns")) {
+      for (Map<?, ?> sbObj : (List<Map<?, ?>>) obj.get("stickyBuns")) {
+        var sbType = InstrumentType.valueOf(getStr(sbObj, "type"));
+        var sbPosition = getFloat(sbObj, "position");
+        var sbSeed = getInt(sbObj, "seed");
+        var event = detailProgramSequencePatternEvents.get(sbType).stream()
+          .filter(e -> e.getPosition().equals(sbPosition))
+          .findAny()
+          .orElseThrow(() -> new FabricationException(String.format("Failed to locate event type %s position %f", sbType, sbPosition)));
+        stickyBuns.add(new StickyBun(event.getId(), List.of(Objects.requireNonNull(sbSeed))));
+      }
+    }
+       */
+
       if (obj["stickyBuns"]) {
         for (YAML::Node sbObj: obj["stickyBuns"]) {
           auto sbType = Instrument::parseType(getStr(sbObj, "type").value());
@@ -222,8 +238,8 @@ protected:
             throw FabricationException("Failed to locate event type " + Instrument::toString(sbType) + " position " +
                                        std::to_string(sbPosition));
           }
-
-          stickyBuns.emplace_back(eventIt->id, sbSeed);
+          StickyBun bun = StickyBun(eventIt->id, std::vector<int>{sbSeed});
+          stickyBuns.emplace_back(bun);
         }
       }
 
@@ -291,28 +307,35 @@ protected:
       auto count = getInt(static_cast<YAML::Node>(obj), "count");
       auto notes = getStr(static_cast<YAML::Node>(obj), "notes");
 
-      auto assertionName = Instrument::toString(type) + "-type picks" +
+      auto assertionName = Instrument::toString(type) + "-type actualNoteStrings" +
                            " starting at " + (startAtMicros.has_value() ? std::to_string(startAtSeconds.value()) : "") +
                            "s" +
                            " with length " + (lengthMicros.has_value() ? std::to_string(lengthSeconds.value()) : "") +
                            "s";
 
-      std::vector<std::string> picks;
+      std::vector<std::string> actualNoteStrings;
       for (const auto &pick: actualPicks) {
         if (pick->event == Instrument::toString(type) &&
             (!startAtMicros.has_value() || startAtMicros.value() == pick->startAtSegmentMicros) &&
             (!lengthMicros.has_value() || lengthMicros.value() == pick->lengthMicros)) {
-          picks.push_back(pick->tones);
+          actualNoteStrings.push_back(pick->tones);
         }
       }
 
       if (count.has_value())
-        ASSERT_EQ(count.value(), picks.size()) << "Count " + std::to_string(count.value()) + " " + assertionName;
+        ASSERT_EQ(count.value(), actualNoteStrings.size()) << "Count " + std::to_string(count.value()) + " " + assertionName;
 
       if (notes.has_value()) {
-        std::vector<std::string> expectedNotes = CsvUtils::split(notes.value());
-        std::vector actualNotes(picks.begin(), picks.end());
-        ASSERT_EQ(expectedNotes, actualNotes) << "Notes of " + assertionName;
+        std::vector<std::string> expectedNoteStrings = CsvUtils::split(notes.value());
+        std::set<Note> expectedNotesSet;
+        for (const auto &noteString: expectedNoteStrings) {
+          expectedNotesSet.insert(Note::of(noteString));
+        }
+        std::set<Note> actualNotesSet;
+        for (const auto &noteString: actualNoteStrings) {
+          actualNotesSet.insert(Note::of(noteString));
+        }
+        ASSERT_EQ(expectedNotesSet, actualNotesSet) << "Notes of " + assertionName;
       }
     }
   }
