@@ -4,7 +4,6 @@
 #define INSTRUMENT_MEME_H
 
 #include <string>
-#include <utility>
 #include <set>
 
 #include "xjmusic/util/EntityUtils.h"
@@ -25,7 +24,7 @@ namespace XJ {
      * @param instrumentMemes  The set of Instrument Memes
      * @return       The names
      */
-    static std::set<std::string> getNames(const std::set<const InstrumentMeme *>& instrumentMemes);
+    static std::set<std::string> getNames(const std::set<const InstrumentMeme &>& instrumentMemes);
     
   };
 

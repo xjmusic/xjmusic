@@ -158,7 +158,7 @@ namespace XJ {
 
      @return choice if previously made, or null if none is found
      */
-    virtual std::optional<SegmentChoice> getChoiceIfContinued(const ProgramVoice *voice);
+    virtual std::optional<const SegmentChoice &> getChoiceIfContinued(const ProgramVoice &voice);
 
     /**
      Determine if a choice has been previously crafted
@@ -199,28 +199,28 @@ namespace XJ {
 
      @return main-type segment choice
      */
-    virtual std::optional<SegmentChoice> getCurrentMainChoice();
+    virtual std::optional<const SegmentChoice &> getCurrentMainChoice();
 
     /**
      Get the sequence targeted by the current main choice
 
      @return current main sequence
      */
-    virtual std::optional<const ProgramSequence *> getCurrentMainSequence();
+    virtual std::optional<const ProgramSequence &> getCurrentMainSequence();
 
     /**
      fetch the detail-type choice for the current segment in the chain
 
      @return detail-type segment choice
      */
-    virtual std::vector<SegmentChoice> getCurrentDetailChoices();
+    virtual std::vector<const SegmentChoice &> getCurrentDetailChoices();
 
     /**
      fetch the beat-type choice for the current segment in the chain
 
      @return beat-type segment choice
      */
-    virtual std::optional<SegmentChoice> getCurrentBeatChoice();
+    virtual std::optional<const SegmentChoice &> getCurrentBeatChoice();
 
     /**
      Get a list of unique voicing (instrument) types present in the voicings of the current main program's chords.
@@ -280,7 +280,7 @@ namespace XJ {
 
      @return previous main sequence
      */
-    virtual std::optional<const ProgramSequence *> getPreviousMainSequence();
+    virtual std::optional<const ProgramSequence &> getPreviousMainSequence();
 
     /**
      Get meme isometry for the next offset in the previous segment's macro-choice
@@ -343,7 +343,7 @@ namespace XJ {
      @param choice to get program for
      @return Program for the specified choice
      */
-    virtual std::optional<const Program *> getProgram(const SegmentChoice &choice);
+    virtual std::optional<const Program &> getProgram(const SegmentChoice &choice);
 
     /**
      Get the ProgramConfig from a given program, with fallback to program section of injected config values
@@ -352,7 +352,7 @@ namespace XJ {
      @return ProgramConfig from a given program, with fallback values
      @throws FabricationException on failure
      */
-    static ProgramConfig getProgramConfig(const Program *program);
+    static ProgramConfig getProgramConfig(const Program &program);
 
     /**
      Get the complete set of program sequence chords,
@@ -394,7 +394,7 @@ namespace XJ {
      @param choice for which to get sequence
      @return sequence of choice
      */
-    virtual std::optional<const ProgramSequence *> getProgramSequence(const SegmentChoice &choice);
+    virtual std::optional<const ProgramSequence &> getProgramSequence(const SegmentChoice &choice);
 
     /**
      Compute the target shift from a key toward a chord
@@ -426,7 +426,7 @@ namespace XJ {
      @return type of voice for voicing
      @throws FabricationException on failure
      */
-    virtual Instrument::Type getProgramVoiceType(const ProgramSequenceChordVoicing *voicing);
+    virtual Instrument::Type getProgramVoiceType(const ProgramSequenceChordVoicing &voicing);
 
     /**
      Get the lowest note present in any voicing of all the segment chord voicings for this segment and instrument instrumentType
@@ -454,7 +454,7 @@ namespace XJ {
      @return Pattern model, or null if no pattern of this type is found
      @throws FabricationException on failure
      */
-    virtual std::optional<const ProgramSequencePattern *>
+    virtual std::optional<const ProgramSequencePattern &>
     getRandomlySelectedPatternOfSequenceByVoiceAndType(const SegmentChoice &choice);
 
     /**
@@ -904,7 +904,7 @@ namespace XJ {
     static const std::string UNKNOWN_KEY;
     Chain chain;
     TemplateConfig templateConfig;
-    std::set<const TemplateBinding *> templateBindings;
+    std::set<const TemplateBinding &> templateBindings;
     ContentEntityStore *sourceMaterial;
     double outputFrameRate;
     int outputChannels;
@@ -940,7 +940,7 @@ namespace XJ {
      * @param key  to get meta for
      * @return     meta for key
      */
-    [[nodiscard]] std::optional<SegmentMeta> getSegmentMeta(const std::string &key) const;
+    [[nodiscard]] std::optional<const SegmentMeta &> getSegmentMeta(const std::string &key) const;
 
     /**
      Get the choices of the current segment of the given type
@@ -948,14 +948,14 @@ namespace XJ {
      @param programType of choices to get
      @return choices of the current segment of the given type
      */
-    [[nodiscard]] std::optional<SegmentChoice> getChoiceOfType(Program::Type programType) const;
+    [[nodiscard]] std::optional<const SegmentChoice &> getChoiceOfType(Program::Type programType) const;
 
     /**
      Get the choices of the current segment of the given type
 
      @return choices of the current segment of the given type
      */
-    [[nodiscard]] std::vector<SegmentChoice> getBeatChoices() const;
+    [[nodiscard]] std::vector<const SegmentChoice &> getBeatChoices() const;
 
     /**
      Compute the lowest optimal range shift octaves

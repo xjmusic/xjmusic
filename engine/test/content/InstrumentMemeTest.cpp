@@ -21,13 +21,13 @@ TEST(InstrumentMemeTest, FieldValues) {
 
 
 TEST(InstrumentMemeTest, GetNames) {
-  std::set<const InstrumentMeme *> instrumentMemes;
+  std::set<const InstrumentMeme &> instrumentMemes;
   InstrumentMeme instrumentMeme1;
   instrumentMeme1.name = "Test Meme 1";
-  instrumentMemes.insert(&instrumentMeme1);
+  instrumentMemes.emplace(instrumentMeme1);
   InstrumentMeme instrumentMeme2;
   instrumentMeme2.name = "Test Meme 2";
-  instrumentMemes.insert(&instrumentMeme2);
+  instrumentMemes.emplace(instrumentMeme2);
 
   std::set<std::string> names = InstrumentMeme::getNames(instrumentMemes);
 

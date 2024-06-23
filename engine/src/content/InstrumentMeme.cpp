@@ -4,10 +4,10 @@
 
 using namespace XJ;
 
-std::set<std::string> InstrumentMeme::getNames(const std::set<const InstrumentMeme *>& instrumentMemes) {
+std::set<std::string> InstrumentMeme::getNames(const std::set<const InstrumentMeme &> &instrumentMemes) {
   std::set<std::string> names;
   for (const auto &instrumentMeme: instrumentMemes) {
-    names.insert(instrumentMeme->name);
+    names.insert(instrumentMeme.name);
   }
   return names;
 }

@@ -37,11 +37,11 @@ std::string TemplateBinding::toString(const TemplateBinding::Type &type) {
 }
 
 
-std::string TemplateBinding::toPrettyCsv(const std::set<const TemplateBinding *> &templateBindings) {
+std::string TemplateBinding::toPrettyCsv(const std::set<const TemplateBinding &> &templateBindings) {
   std::vector<std::string> parts;
   parts.reserve(templateBindings.size());
   for (const auto &templateBinding: templateBindings) {
-    parts.emplace_back(templateBinding->toString());
+    parts.emplace_back(templateBinding.toString());
   }
   return CsvUtils::join(parts);
 }

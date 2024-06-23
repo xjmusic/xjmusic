@@ -146,21 +146,21 @@ bool Craft::isUnlimitedOut(const SegmentChoice &choice) {
   return SegmentChoice::DELTA_UNLIMITED == choice.deltaOut;
 }
 
-std::optional<const Program *>
+std::optional<const Program &>
 Craft::chooseFreshProgram(const Program::Type programType, const std::optional<Instrument::Type> voicingType) const {
   const auto bag = new MarbleBag();
 
   // Retrieve programs bound to chain having a voice of the specified type
   std::map<UUID, Program> programMap;
   for (const auto program: fabricator->getSourceMaterial()->getProgramsOfType(programType)) {
-    programMap[program->id] = *program;
+    programMap[program.id] = program;
   }
 
   std::set<Program> candidates;
   for (const auto &programVoice: fabricator->getSourceMaterial()->getProgramVoices()) {
-    if (voicingType.has_value() && voicingType.value() == programVoice->type &&
-        programMap.count(programVoice->programId)) {
-      candidates.insert(programMap[programVoice->programId]);
+    if (voicingType.has_value() && voicingType.value() == programVoice.type &&
+        programMap.count(programVoice.programId)) {
+      candidates.insert(programMap[programVoice.programId]);
     }
   }
 
@@ -192,15 +192,15 @@ Craft::chooseFreshProgram(const Program::Type programType, const std::optional<I
   return fabricator->getSourceMaterial()->getProgram(bag->pick());
 }
 
-std::optional<const Instrument *>
+std::optional<const Instrument &>
 Craft::chooseFreshInstrument(const Instrument::Type type, const std::set<std::string> &requireEventNames) const {
   const auto bag = new MarbleBag();
 
   // Retrieve instruments bound to chain
-  std::set<const Instrument *> candidates;
+  std::set<const Instrument &> candidates;
   for (const auto &instrument: fabricator->getSourceMaterial()->getInstrumentsOfType(type)) {
     if (instrumentContainsAudioEventsLike(instrument, requireEventNames)) {
-      candidates.insert(instrument);
+      candidates.emplace(instrument);
     }
   }
 
@@ -228,7 +228,7 @@ Craft::chooseFreshInstrument(const Instrument::Type type, const std::set<std::st
   return fabricator->getSourceMaterial()->getInstrument(bag->pick());
 }
 
-std::optional<const InstrumentAudio *>
+std::optional<const InstrumentAudio &>
 Craft::chooseFreshInstrumentAudio(
     const std::set<Instrument::Type> &types,
     const std::set<Instrument::Mode> &modes,
@@ -239,8 +239,8 @@ Craft::chooseFreshInstrumentAudio(
   // (2) retrieve instruments bound to chain
   std::set<InstrumentAudio> candidates;
   for (const auto &audio: fabricator->getSourceMaterial()->getAudiosOfInstrumentTypesAndModes(types, modes)) {
-    if (avoidIds.find(audio->id) == avoidIds.end()) {
-      candidates.insert(*audio);
+    if (avoidIds.find(audio.id) == avoidIds.end()) {
+      candidates.insert(audio);
     }
   }
 
@@ -291,18 +291,18 @@ Craft::selectNewChordPartInstrumentAudio(const Instrument &instrument, const Cho
   const auto bag = new MarbleBag();
 
   for (auto a: fabricator->getSourceMaterial()->getAudiosOfInstrument(instrument)) {
-    Chord audioChord = Chord::of(a->tones);
+    Chord audioChord = Chord::of(a.tones);
     if (audioChord == chord) {
-      bag->add(0, a->id);
+      bag->add(0, a.id);
     } else if (audioChord.isAcceptable(chord)) {
-      bag->add(1, a->id);
+      bag->add(1, a.id);
     }
   }
 
   if (bag->empty()) return std::nullopt;
   auto audio = fabricator->getSourceMaterial()->getInstrumentAudio(bag->pick());
   if (!audio.has_value()) return std::nullopt;
-  return {*audio.value()};
+  return {audio.value()};
 }
 
 std::set<InstrumentAudio> Craft::selectGeneralAudioIntensityLayers(const Instrument &instrument) const {
@@ -312,7 +312,7 @@ std::set<InstrumentAudio> Craft::selectGeneralAudioIntensityLayers(const Instrum
     for (const auto &pick: previous) {
       auto audio = fabricator->getSourceMaterial()->getInstrumentAudio(pick.instrumentAudioId);
       if (audio.has_value()) {
-        result.insert(*audio.value());
+        result.insert(audio.value());
       }
     }
     return result;
@@ -343,21 +343,21 @@ std::set<Program> Craft::programsPublished(const std::set<Program> &programs) {
   return result;
 }
 
-std::set<Instrument> Craft::instrumentsDirectlyBound(const std::set<const Instrument *> &instruments) const {
+std::set<Instrument> Craft::instrumentsDirectlyBound(const std::set<const Instrument &> &instruments) const {
   std::set<Instrument> result;
   for (const auto &instrument: instruments) {
-    if (fabricator->isDirectlyBound(*instrument)) {
-      result.insert(*instrument);
+    if (fabricator->isDirectlyBound(instrument)) {
+      result.emplace(instrument);
     }
   }
   return result;
 }
 
-std::set<Instrument> Craft::instrumentsPublished(const std::set<const Instrument *> &instruments) {
+std::set<Instrument> Craft::instrumentsPublished(const std::set<const Instrument &> &instruments) {
   std::set<Instrument> result;
   for (const auto &instrument: instruments) {
-    if (instrument->state == Instrument::State::Published) {
-      result.insert(*instrument);
+    if (instrument.state == Instrument::State::Published) {
+      result.emplace(instrument);
     }
   }
   return result;
@@ -377,7 +377,7 @@ std::set<InstrumentAudio> Craft::audiosPublished(const std::set<InstrumentAudio>
   std::set<InstrumentAudio> result;
   for (const auto &audio: instrumentAudios) {
     auto instrument = fabricator->getSourceMaterial()->getInstrument(audio.instrumentId);
-    if (instrument.has_value() && instrument.value()->state == Instrument::State::Published) {
+    if (instrument.has_value() && instrument.value().state == Instrument::State::Published) {
       result.insert(audio);
     }
   }
@@ -403,25 +403,27 @@ void Craft::pickInstrumentAudio(const SegmentChoiceArrangement &arrangement, con
 }
 
 std::set<InstrumentAudio>
-Craft::selectAudioIntensityLayers(const std::set<const InstrumentAudio *> &audios, int layers) const {
+Craft::selectAudioIntensityLayers(const std::set<const InstrumentAudio &> &audios, const int layers) const {
   // Sort audios by intensity
-  std::vector<const InstrumentAudio *> sorted(audios.begin(), audios.end());
+  std::vector<const InstrumentAudio &> sorted;
+  std::copy(audios.begin(), audios.end(), std::back_inserter(sorted));
   std::sort(sorted.begin(), sorted.end(), [](const InstrumentAudio *a, const InstrumentAudio *b) {
     return a->intensity < b->intensity;
   });
   if (sorted.empty()) return {};
 
   // Create a vector of bags, one for each layer
-  std::vector<MarbleBag *> bags(layers);
+  std::vector<MarbleBag &> bags(layers);
   for (int i = 0; i < layers; i++) {
-    bags[i] = new MarbleBag();
+    const auto bag = MarbleBag();
+    bags[i] = bag;
   }
 
   // Iterate through the available audios, and add them to the bags, divided into the number of layers
-  int marblesPerLayer = static_cast<int>(std::ceil(static_cast<float>(sorted.size()) / static_cast<float>(layers)));
+  const int marblesPerLayer = static_cast<int>(std::ceil(static_cast<float>(sorted.size()) / static_cast<float>(layers)));
   if (marblesPerLayer == 0) return {};
   for (int i = 0; i < sorted.size(); i++) {
-    bags[i / marblesPerLayer]->add(1, sorted[i]->id);
+    bags[i / marblesPerLayer].add(1, sorted[i].id);
   }
 
   std::set<InstrumentAudio> result;
@@ -440,23 +442,23 @@ Craft::selectAudioIntensityLayers(const std::set<const InstrumentAudio *> &audio
 void Craft::craftNoteEvents(
     float tempo,
     const ProgramSequence &sequence,
-    const std::set<const ProgramVoice *> &voices,
+    const std::set<const ProgramVoice &> &voices,
     InstrumentProvider *instrumentProvider) {
   // Craft each voice into choice
-  for (const ProgramVoice *voice: voices) {
+  for (const auto voice: voices) {
     auto choice = SegmentChoice();
     choice.id = EntityUtils::computeUniqueId();
     choice.segmentId = fabricator->getSegment().id;
-    choice.mute = computeMute(voice->type);
-    auto p = fabricator->getSourceMaterial()->getProgram(voice->programId);
+    choice.mute = computeMute(voice.type);
+    auto p = fabricator->getSourceMaterial()->getProgram(voice.programId);
     if (!p.has_value()) {
       throw FabricationException("Can't get program for voice");
     }
-    choice.programType = p.value()->type;
-    choice.instrumentType = voice->type;
-    choice.programId = voice->programId;
+    choice.programType = p.value().type;
+    choice.instrumentType = voice.type;
+    choice.programId = voice.programId;
     choice.programSequenceId = sequence.id;
-    choice.programVoiceId = voice->id;
+    choice.programVoiceId = voice.id;
 
     // Whether there is a prior choice for this voice
     std::optional<SegmentChoice> priorChoice = fabricator->getChoiceIfContinued(voice);
@@ -471,7 +473,7 @@ void Craft::craftNoteEvents(
       continue;
     }
 
-    auto instrument = instrumentProvider->get(*voice);
+    auto instrument = instrumentProvider->get(voice);
     if (!instrument.has_value()) {
       continue;
     }
@@ -630,7 +632,7 @@ void Craft::craftNoteEventSection(
 
   // choose loop patterns until arrive at the out point or end of segment
   while (curPos < maxPos) {
-    std::optional<const ProgramSequencePattern *> loopPattern =
+    std::optional<const ProgramSequencePattern &> loopPattern =
         fabricator->getRandomlySelectedPatternOfSequenceByVoiceAndType(choice);
     if (loopPattern.has_value())
       curPos += craftPatternEvents(tempo, choice, loopPattern.value(), curPos, maxPos, range, defaultAtonal);
@@ -642,20 +644,20 @@ void Craft::craftNoteEventSection(
 float Craft::craftPatternEvents(
     const float tempo,
     const SegmentChoice &choice,
-    const ProgramSequencePattern *pattern,
+    const ProgramSequencePattern &pattern,
     const float fromPosition,
     const float toPosition,
     const NoteRange &range,
     const bool defaultAtonal) {
   const float loopBeats = toPosition - fromPosition;
-  const std::vector<const ProgramSequencePatternEvent *> events =
-      fabricator->getSourceMaterial()->getEventsOfPattern(*pattern);
+  const std::vector<const ProgramSequencePatternEvent &> events =
+      fabricator->getSourceMaterial()->getEventsOfPattern(pattern);
 
   auto arrangement = SegmentChoiceArrangement();
   arrangement.id = EntityUtils::computeUniqueId();
   arrangement.segmentId = choice.segmentId;
   arrangement.segmentChoiceId = choice.id;
-  arrangement.programSequencePatternId = pattern->id;
+  arrangement.programSequencePatternId = pattern.id;
   fabricator->put(arrangement);
 
   const auto instrument = fabricator->getSourceMaterial()->getInstrument(choice.instrumentId);
@@ -664,7 +666,7 @@ float Craft::craftPatternEvents(
   for (const ProgramSequencePatternEvent *event: events)
     pickNotesAndInstrumentAudioForEvent(
         tempo,
-        *instrument.value(),
+        instrument.value(),
         choice,
         arrangement,
         fromPosition,
@@ -672,7 +674,7 @@ float Craft::craftPatternEvents(
         *event,
         range,
         defaultAtonal);
-  return std::min(loopBeats, static_cast<float>(pattern->total));
+  return std::min(loopBeats, static_cast<float>(pattern.total));
 }
 
 void Craft::pickNotesAndInstrumentAudioForEvent(
@@ -724,8 +726,7 @@ void Craft::finalizeNoteEventCutoffsOfOneShotInstrumentAudioPicks(const SegmentC
   if (!fabricator->getSourceMaterial()->getInstrument(choice.instrumentId).has_value()) {
     throw FabricationException("Failed to get instrument from source material for segment choice!");
   }
-  const auto instrumentPtr = fabricator->getSourceMaterial()->getInstrument(choice.instrumentId).value();
-  auto &instrument = *instrumentPtr;
+  const auto instrument = fabricator->getSourceMaterial()->getInstrument(choice.instrumentId).value();
 
   // skip instruments that are not one-shot
   if (!fabricator->isOneShot(instrument)) return;
@@ -940,21 +941,21 @@ Craft::selectNewNoteEventInstrumentAudio(const Instrument &instrument, const Pro
 
   // add all audio to chooser
   for (auto a: fabricator->getSourceMaterial()->getAudiosOfInstrument(instrument))
-    score.emplace(a->id, 0);
+    score.emplace(a.id, 0);
 
   // score each audio against the current voice event, with some variability
-  for (const InstrumentAudio *audio: fabricator->getSourceMaterial()->getAudiosOfInstrument(instrument))
+  for (const auto audio: fabricator->getSourceMaterial()->getAudiosOfInstrument(instrument))
     if (instrument.type == Instrument::Type::Drum)
-      score.emplace(audio->id, fabricator->getTrackName(event) == audio->event ? 300 : 0);
-    else if (Note::of(audio->tones) == Note::of(event.tones))
-      score.emplace(audio->id, 100);
+      score.emplace(audio.id, fabricator->getTrackName(event) == audio.event ? 300 : 0);
+    else if (Note::of(audio.tones) == Note::of(event.tones))
+      score.emplace(audio.id, 100);
 
   // chosen audio event
   auto pickId = ValueUtils::getKeyOfHighestValue(score);
   if (!pickId.has_value()) return std::nullopt;
   auto audio = fabricator->getSourceMaterial()->getInstrumentAudio(pickId.value());
   if (!audio.has_value()) return std::nullopt;
-  return {*audio.value()};
+  return {audio.value()};
 }
 
 std::optional<InstrumentAudio> Craft::selectNewMultiphonicInstrumentAudio(Instrument instrument, std::string note) {
@@ -962,10 +963,10 @@ std::optional<InstrumentAudio> Craft::selectNewMultiphonicInstrumentAudio(Instru
   auto a = Note::of(note);
   std::vector<InstrumentAudio> filteredAudios;
   for (auto candidate: instrumentAudios) {
-    if (!candidate->tones.empty()) {
-      auto b = Note::of(candidate->tones);
+    if (!candidate.tones.empty()) {
+      auto b = Note::of(candidate.tones);
       if (a.isAtonal() || b.isAtonal() || a == b) {
-        filteredAudios.emplace_back(*candidate);
+        filteredAudios.emplace_back(candidate);
       }
     }
   }
@@ -973,7 +974,7 @@ std::optional<InstrumentAudio> Craft::selectNewMultiphonicInstrumentAudio(Instru
   if (filteredAudios.empty()) {
     std::vector<Note> availableNotes;
     for (auto audio: instrumentAudios) {
-      availableNotes.push_back(Note::of(audio->tones));
+      availableNotes.push_back(Note::of(audio.tones));
     }
     std::sort(availableNotes.begin(), availableNotes.end());
     std::vector<std::string> availableNoteNames;
@@ -993,11 +994,11 @@ std::optional<InstrumentAudio> Craft::selectNewMultiphonicInstrumentAudio(Instru
 }
 
 bool Craft::instrumentContainsAudioEventsLike(
-    const Instrument *instrument,
+    const Instrument &instrument,
     const std::set<std::string> &requireEvents) const {
   if (requireEvents.empty()) return true;
   for (auto event: requireEvents) {
-    auto audios = fabricator->getSourceMaterial()->getAudiosOfInstrument(instrument->id);
+    auto audios = fabricator->getSourceMaterial()->getAudiosOfInstrument(instrument.id);
     if (!std::any_of(audios.begin(), audios.end(), [&event](const InstrumentAudio *a) {
           return event == a->event;
         }))

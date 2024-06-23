@@ -21,13 +21,13 @@ TEST(ProgramMemeTest, FieldValues) {
 
 
 TEST(ProgramMemeTest, GetNames) {
-  std::set<const ProgramMeme *> programMemes;
+  std::set<const ProgramMeme &> programMemes;
   ProgramMeme programMeme1;
   programMeme1.name = "Test Meme 1";
-  programMemes.insert(&programMeme1);
+  programMemes.emplace(programMeme1);
   ProgramMeme programMeme2;
   programMeme2.name = "Test Meme 2";
-  programMemes.insert(&programMeme2);
+  programMemes.emplace(programMeme2);
 
   std::set<std::string> names = ProgramMeme::getNames(programMemes);
 
