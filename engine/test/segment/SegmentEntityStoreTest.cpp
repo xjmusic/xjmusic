@@ -26,7 +26,7 @@ protected:
 
   void SetUp() override {
     // Instantiate the test subject and put the payload
-    subject->clear();
+    subject = new SegmentEntityStore();
 
     // add base fixtures
     const Project fakeProject = ContentFixtures::buildProject("fake");
@@ -110,6 +110,10 @@ protected:
         0.41,
         120.0,
         "chains-1-segments-9f7s89d8a7892", false));
+  }
+
+  void TearDown() override {
+    delete subject;
   }
 };
 

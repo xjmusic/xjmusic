@@ -1,59 +1,59 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 
-#include "xjmusic/util/ValueUtils.h"
 #include "xjmusic/segment/SegmentEntityStore.h"
 #include "xjmusic/fabricator/FabricationException.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
+#include "xjmusic/util/ValueUtils.h"
 
 using namespace XJ;
 
 
-#define SEGMENT_STORE_CORE_METHODS(ENTITY, ENTITIES, STORE)                                             \
-  ENTITY SegmentEntityStore::put(const ENTITY &entity) {                                                \
-    if (STORE.find(entity.segmentId) == STORE.end()) {                                                  \
-      STORE[entity.segmentId] = std::map<UUID, ENTITY>();                                               \
-    }                                                                                                   \
-    STORE[entity.segmentId][entity.id] = entity;                                                        \
-    return entity;                                                                                      \
-  }                                                                                                     \
-  std::optional<ENTITY *> SegmentEntityStore::read## ENTITY(int segmentId, const UUID &id) {             \
-    if (STORE.find(segmentId) == STORE.end()) {                                                         \
-      return std::nullopt;                                                                              \
-    }                                                                                                   \
-    if (STORE[segmentId].find(id) == STORE[segmentId].end()) {                                          \
-      return std::nullopt;                                                                              \
-    }                                                                                                   \
-    return {&STORE[segmentId][id]};                                                                     \
-  }                                                                                                     \
-  std::set<ENTITY *> SegmentEntityStore::readAll## ENTITIES(int segmentId) {                             \
-    std::set<ENTITY *> result;                                                                          \
-    if (STORE.find(segmentId) == STORE.end()) {                                                         \
-      return result;                                                                                    \
-    }                                                                                                   \
-    for (auto &choice: STORE[segmentId]) {                                                              \
-      result.emplace(&choice.second);                                                                   \
-    }                                                                                                   \
-    return result;                                                                                      \
-  }                                                                                                     \
-  std::set<ENTITY *> SegmentEntityStore::readAll## ENTITIES(const std::set<int> &segmentIds) {           \
-    std::set<ENTITY *> result;                                                                          \
-    for (auto &segmentId: segmentIds) {                                                                 \
-      if (STORE.find(segmentId) == STORE.end()) {                                                       \
-        continue;                                                                                       \
-      }                                                                                                 \
-      for (auto &choice: STORE[segmentId]) {                                                            \
-        result.emplace(&choice.second);                                                                 \
-      }                                                                                                 \
-    }                                                                                                   \
-    return result;                                                                                      \
-  }                                                                                                     \
-  void SegmentEntityStore::delete## ENTITY(int segmentId, const UUID &id) {                              \
-    if (STORE.find(segmentId) == STORE.end()) {                                                         \
-      return;                                                                                           \
-    }                                                                                                   \
-    STORE[segmentId].erase(id);                                                                         \
-  }                                                                                                     \
+#define SEGMENT_STORE_CORE_METHODS(ENTITY, ENTITIES, STORE)                                   \
+  ENTITY SegmentEntityStore::put(const ENTITY &entity) {                                      \
+    if (STORE.find(entity.segmentId) == STORE.end()) {                                        \
+      STORE[entity.segmentId] = std::map<UUID, ENTITY>();                                     \
+    }                                                                                         \
+    STORE[entity.segmentId][entity.id] = entity;                                              \
+    return entity;                                                                            \
+  }                                                                                           \
+  std::optional<ENTITY *> SegmentEntityStore::read##ENTITY(int segmentId, const UUID &id) {   \
+    if (STORE.find(segmentId) == STORE.end()) {                                               \
+      return std::nullopt;                                                                    \
+    }                                                                                         \
+    if (STORE[segmentId].find(id) == STORE[segmentId].end()) {                                \
+      return std::nullopt;                                                                    \
+    }                                                                                         \
+    return {&STORE[segmentId][id]};                                                           \
+  }                                                                                           \
+  std::set<ENTITY *> SegmentEntityStore::readAll##ENTITIES(int segmentId) {                   \
+    std::set<ENTITY *> result;                                                                \
+    if (STORE.find(segmentId) == STORE.end()) {                                               \
+      return result;                                                                          \
+    }                                                                                         \
+    for (auto &choice: STORE[segmentId]) {                                                    \
+      result.emplace(&choice.second);                                                         \
+    }                                                                                         \
+    return result;                                                                            \
+  }                                                                                           \
+  std::set<ENTITY *> SegmentEntityStore::readAll##ENTITIES(const std::set<int> &segmentIds) { \
+    std::set<ENTITY *> result;                                                                \
+    for (auto &segmentId: segmentIds) {                                                       \
+      if (STORE.find(segmentId) == STORE.end()) {                                             \
+        continue;                                                                             \
+      }                                                                                       \
+      for (auto &choice: STORE[segmentId]) {                                                  \
+        result.emplace(&choice.second);                                                       \
+      }                                                                                       \
+    }                                                                                         \
+    return result;                                                                            \
+  }                                                                                           \
+  void SegmentEntityStore::delete##ENTITY(int segmentId, const UUID &id) {                    \
+    if (STORE.find(segmentId) == STORE.end()) {                                               \
+      return;                                                                                 \
+    }                                                                                         \
+    STORE[segmentId].erase(id);                                                               \
+  }
 
 SEGMENT_STORE_CORE_METHODS(SegmentChoice, SegmentChoices, segmentChoices)
 
@@ -73,7 +73,7 @@ SEGMENT_STORE_CORE_METHODS(SegmentMeta, SegmentMetas, segmentMetas)
 
 
 Chain *SegmentEntityStore::put(const Chain &c) {
-  const auto cc = new Chain(c); 
+  const auto cc = new Chain(c);
   this->chain = *cc;
   return cc;
 }
@@ -218,9 +218,9 @@ bool SegmentEntityStore::isEmpty() const {
 
 
 void SegmentEntityStore::updateSegment(Segment &segment) {
-// validate and cache to-state
+  // validate and cache to-state
   validate(segment);
-const Segment::State toState = segment.state;
+  const Segment::State toState = segment.state;
 
   // fetch existing segment; further logic is based on its current state
   std::optional<Segment *> existingOpt = readSegment(segment.id);
@@ -231,7 +231,7 @@ const Segment::State toState = segment.state;
     protectSegmentStateTransition(existing->state, toState);
 
     // fail if attempt to [#128] change chainId of a segment
-    std::optional<UUID> updateChainId = segment.chainId;
+    const std::optional updateChainId = segment.chainId;
     if (updateChainId.has_value() && updateChainId.value() != existing->chainId) {
       throw FabricationException("cannot modify chainId of a Segment");
     }
@@ -270,33 +270,31 @@ void SegmentEntityStore::protectSegmentStateTransition(Segment::State fromState,
   switch (fromState) {
     case Segment::State::Planned:
       onlyAllowSegmentStateTransitions(toState, {
-          Segment::State::Planned,
-          Segment::State::Crafting,
-      });
+                                                    Segment::State::Planned,
+                                                    Segment::State::Crafting,
+                                                });
       break;
     case Segment::State::Crafting:
       onlyAllowSegmentStateTransitions(toState, {
-          Segment::State::Crafting,
-          Segment::State::Crafted,
-          Segment::State::Failed,
-          Segment::State::Planned,
-      });
+                                                    Segment::State::Crafting,
+                                                    Segment::State::Crafted,
+                                                    Segment::State::Failed,
+                                                    Segment::State::Planned,
+                                                });
       break;
     case Segment::State::Crafted:
       onlyAllowSegmentStateTransitions(toState, {
-          Segment::State::Crafted,
-          Segment::State::Crafting,
-      });
+                                                    Segment::State::Crafted,
+                                                    Segment::State::Crafting,
+                                                });
       break;
     case Segment::State::Failed:
       onlyAllowSegmentStateTransitions(toState, {
-          Segment::State::Failed,
-      });
+                                                    Segment::State::Failed,
+                                                });
       break;
     default:
-      onlyAllowSegmentStateTransitions(toState, {
-          Segment::State::Planned
-      });
+      onlyAllowSegmentStateTransitions(toState, {Segment::State::Planned});
       break;
   }
 }
@@ -304,8 +302,7 @@ void SegmentEntityStore::protectSegmentStateTransition(Segment::State fromState,
 
 void SegmentEntityStore::onlyAllowSegmentStateTransitions(
     Segment::State toState,
-    const std::set<Segment::State> &allowedStates
-) {
+    const std::set<Segment::State> &allowedStates) {
   std::vector<std::string> allowedStateNames;
   allowedStateNames.reserve(allowedStates.size());
   for (Segment::State search: allowedStates) {
@@ -315,7 +312,8 @@ void SegmentEntityStore::onlyAllowSegmentStateTransitions(
     }
   }
   throw FabricationException(
-      "transition to " + Segment::toString(toState) + " not in allowed (" + StringUtils::join(allowedStateNames, ",") +
+      "transition to " + Segment::toString(toState) +
+      " not in allowed (" + StringUtils::join(allowedStateNames, ",") +
       ")");
 }
 
@@ -368,7 +366,3 @@ void SegmentEntityStore::clear() {
   segmentMetas.clear();
   chain = std::nullopt;
 }
-
-
-
-
