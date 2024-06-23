@@ -3,14 +3,13 @@
 #ifndef XJMUSIC_CONFIG_PARSER_H
 #define XJMUSIC_CONFIG_PARSER_H
 
-#include <iostream>
+#include <regex>
 #include <map>
-#include <sstream>
+#include <set>
 #include <string>
 #include <utility>
 #include <variant>
 #include <vector>
-#include <set>
 
 namespace XJ {
 
@@ -25,7 +24,7 @@ namespace XJ {
   /**
  * A single value in a HOCON configuration
  */
-  class ConfigSingleValue : public ConfigValue {
+  class ConfigSingleValue final : public ConfigValue {
   private:
     std::variant<std::string, int, float, bool> value;
 
@@ -66,7 +65,7 @@ namespace XJ {
   /**
  * An object value in a HOCON configuration
  */
-  class ConfigObjectValue : public ConfigValue {
+  class ConfigObjectValue final : public ConfigValue {
   private:
     std::map<std::string, std::variant<ConfigSingleValue, std::vector<ConfigSingleValue>>> data;
 
@@ -114,7 +113,7 @@ namespace XJ {
   /**
  * A list value in a HOCON configuration
  */
-  class ConfigListValue : public ConfigValue {
+  class ConfigListValue final : public ConfigValue {
   private:
     std::vector<std::variant<ConfigSingleValue, ConfigObjectValue>> data;
 
@@ -167,7 +166,7 @@ namespace XJ {
   /**
  * Configuration exception
  */
-  class ConfigException : public std::exception {
+  class ConfigException final : public std::exception {
   private:
     std::string message;
 
@@ -183,8 +182,7 @@ namespace XJ {
  * A lightweight HOCON parser and formatter
  */
   class ConfigParser {
-  private:
-    std::map<std::string, std::variant<ConfigSingleValue, ConfigObjectValue, ConfigListValue>> config;
+   std::map<std::string, std::variant<ConfigSingleValue, ConfigObjectValue, ConfigListValue>> config;
 
   public:
     /**

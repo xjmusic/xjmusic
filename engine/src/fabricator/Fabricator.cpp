@@ -2,13 +2,15 @@
 
 #include <spdlog/spdlog.h>
 
-#include "xjmusic/fabricator/FabricationFatalException.h"
-#include "xjmusic/fabricator/FabricationException.h"
-#include "xjmusic/fabricator/Fabricator.h"
 #include "xjmusic/fabricator/ChainUtils.h"
-#include "xjmusic/util/CsvUtils.h"
-#include "xjmusic/fabricator/SegmentUtils.h"
+#include "xjmusic/fabricator/FabricationException.h"
+#include "xjmusic/fabricator/FabricationFatalException.h"
+#include "xjmusic/fabricator/Fabricator.h"
 #include "xjmusic/fabricator/MarbleBag.h"
+#include "xjmusic/fabricator/SegmentUtils.h"
+#include "xjmusic/util/CsvUtils.h"
+
+#include <xjmusic/util/ValueUtils.h>
 
 using namespace XJ;
 
@@ -137,7 +139,7 @@ TemplateConfig Fabricator::getTemplateConfig() {
 }
 
 
-std::set<SegmentChoice> Fabricator::getChoices() {
+std::set<SegmentChoice> Fabricator::getChoices() const {
   return store->readAllSegmentChoices(segmentId);
 }
 
@@ -194,8 +196,8 @@ std::set<Instrument::Type> Fabricator::getDistinctChordVoicingTypes() {
 
 
 long Fabricator::getElapsedMicros() {
-  auto now = std::chrono::high_resolution_clock::now();
-  auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(now - startAtSystemNanoTime);
+  const auto now = std::chrono::high_resolution_clock::now();
+  const auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(now - startAtSystemNanoTime);
   return elapsed.count() / ValueUtils::NANOS_PER_MICRO; // NOLINT(*-narrowing-conversions)
 }
 
@@ -440,8 +442,8 @@ std::vector<SegmentChoiceArrangementPick> Fabricator::getPicks(const SegmentChoi
 }
 
 
-std::optional<InstrumentAudio> Fabricator::getPreferredAudio(const std::string &parentIdent, const std::string &ident) {
-  std::string cacheKey = computeCacheKeyForPreferredAudio(parentIdent, ident);
+std::optional<const InstrumentAudio &> Fabricator::getPreferredAudio(const std::string &parentIdent, const std::string &ident) {
+  const std::string cacheKey = computeCacheKeyForPreferredAudio(parentIdent, ident);
 
   if (preferredAudios.find(cacheKey) != preferredAudios.end()) {
     return {preferredAudios.at(cacheKey)};
@@ -589,7 +591,7 @@ std::optional<ProgramSequence> Fabricator::getRandomlySelectedSequence(const Pro
   }
   if (sequences.empty())
     return std::nullopt;
-  return {sequences[MarbleBag::quickPick((int) sequences.size())]};
+  return {sequences[MarbleBag::quickPick(static_cast<int>(sequences.size()))]};
 }
 
 
@@ -601,7 +603,7 @@ Fabricator::getRandomlySelectedSequenceBindingAtOffset(const Program &program, i
   }
   if (sequenceBindings.empty())
     return std::nullopt;
-  return {sequenceBindings[MarbleBag::quickPick((int) sequenceBindings.size())]};
+  return {sequenceBindings[MarbleBag::quickPick(static_cast<int>(sequenceBindings.size()))]};
 }
 
 
@@ -652,45 +654,47 @@ void Fabricator::putStickyBun(StickyBun bun) {
 std::optional<StickyBun> Fabricator::getStickyBun(const UUID &eventId) {
   if (!templateConfig.stickyBunEnabled) return std::nullopt;
 
-  auto currentMeta = getSegmentMeta(StickyBun::computeMetaKey(eventId));
+  const auto currentMeta = getSegmentMeta(StickyBun::computeMetaKey(eventId));
   if (currentMeta.has_value()) {
     try {
       return {StickyBun::deserializeFrom(currentMeta->value)};
     } catch (const std::exception &e) {
-      addErrorMessage("Failed to deserialize current segment meta value StickyBun JSON for Event[" + eventId + "]");
+      addErrorMessage("Failed to deserialize current segment meta value StickyBun JSON for Event[" + eventId + "]: " +
+                      e.what());
     }
   }
 
-  auto previousMeta = retrospective->getPreviousMeta(StickyBun::computeMetaKey(eventId));
+  const auto previousMeta = retrospective->getPreviousMeta(StickyBun::computeMetaKey(eventId));
   if (previousMeta.has_value()) {
     try {
       return {StickyBun::deserializeFrom(previousMeta->value)};
     } catch (const std::exception &e) {
-      addErrorMessage("Failed to deserialize previous segment meta value StickyBun JSON for Event[" + eventId + "]");
+      addErrorMessage("Failed to deserialize previous segment meta value StickyBun JSON for Event[" + eventId + "]: " +
+                      e.what());
     }
   }
 
-  auto eventOpt = sourceMaterial->getProgramSequencePatternEvent(eventId);
+  const auto eventOpt = sourceMaterial->getProgramSequencePatternEvent(eventId);
   if (!eventOpt.has_value()) {
     addErrorMessage("Failed to get StickyBun for Event[" + eventId + "] because it does not exist");
     return std::nullopt;
   }
 
-  auto event = eventOpt.value();
+  const auto event = eventOpt.value();
   StickyBun bun(eventId, static_cast<int>(CsvUtils::split(event->tones).size()));
   try {
     putStickyBun(bun);
   } catch (const FabricationException &e) {
     addErrorMessage("Failed to put StickyBun for Event[" + eventId + "] because " + e.what());
   } catch (const std::exception &e) {
-    addErrorMessage("Failed to serialize segment meta value StickyBun JSON for Event[" + eventId + "]");
+    addErrorMessage("Failed to serialize segment meta value StickyBun JSON for Event[" + eventId + "]: " + e.what() );
   }
   return {bun};
 }
 
 
 long Fabricator::getSegmentMicrosAtPosition(float tempo, float position) {
-  return (long) (getMicrosPerBeat(tempo) * position);
+  return static_cast<long>(getMicrosPerBeat(tempo) * position);
 }
 
 
@@ -982,7 +986,7 @@ ContentEntityStore *Fabricator::getSourceMaterial() {
 
 float Fabricator::getMicrosPerBeat(float tempo) {
   if (0 == microsPerBeat)
-    microsPerBeat = (float) ValueUtils::MICROS_PER_MINUTE / tempo;
+    microsPerBeat = static_cast<float>(ValueUtils::MICROS_PER_MINUTE) / tempo;
   return microsPerBeat;
 }
 
@@ -1011,8 +1015,8 @@ double Fabricator::getTempo() {
 }
 
 
-std::optional<SegmentMeta> Fabricator::getSegmentMeta(const std::string &key) {
-  std::set<SegmentMeta> allMetas = store->readAllSegmentMetas(segmentId);
+std::optional<SegmentMeta> Fabricator::getSegmentMeta(const std::string &key) const {
+  const std::set<SegmentMeta> allMetas = store->readAllSegmentMetas(segmentId);
   for (const auto &meta: allMetas) {
     if (meta.key == key) {
       return meta;
@@ -1022,7 +1026,7 @@ std::optional<SegmentMeta> Fabricator::getSegmentMeta(const std::string &key) {
 }
 
 
-std::optional<SegmentChoice> Fabricator::getChoiceOfType(Program::Type programType) {
+std::optional<SegmentChoice> Fabricator::getChoiceOfType(Program::Type programType) const {
   auto allChoices = getChoices();
   auto it = std::find_if(allChoices.begin(), allChoices.end(), [programType](const SegmentChoice &choice) {
     return choice.programType == programType;
@@ -1036,7 +1040,7 @@ std::optional<SegmentChoice> Fabricator::getChoiceOfType(Program::Type programTy
 }
 
 
-std::vector<SegmentChoice> Fabricator::getBeatChoices() {
+std::vector<SegmentChoice> Fabricator::getBeatChoices() const {
   std::set<SegmentChoice> allChoices = getChoices();
   std::vector<SegmentChoice> beatChoices;
 
@@ -1048,7 +1052,7 @@ std::vector<SegmentChoice> Fabricator::getBeatChoices() {
 }
 
 
-int Fabricator::computeLowestOptimalRangeShiftOctaves(const NoteRange &sourceRange, NoteRange targetRange) {
+int Fabricator::computeLowestOptimalRangeShiftOctaves(const NoteRange &sourceRange, const NoteRange &targetRange) {
   int shiftOctave = 0; // search for optimal value
   int baselineDelta = 100; // optimal is the lowest possible integer zero or above
   for (int o = 10; o >= -10; o--) {
@@ -1075,9 +1079,9 @@ std::string Fabricator::computeShipKey(const Chain &chain, const Segment &segmen
 
 
 void Fabricator::ensureShipKey() {
-  if (getSegment().storageKey.empty() || getSegment().storageKey.empty()) {
+  if (getSegment().storageKey.empty()) {
     auto seg = getSegment();
-    auto chainOpt = store->readChain();
+    const auto chainOpt = store->readChain();
     if (!chainOpt.has_value()) {
       throw FabricationException("No chain");
     }
@@ -1110,7 +1114,7 @@ Segment::Type Fabricator::computeType() {
 }
 
 
-int Fabricator::getPreviousSegmentDelta() {
+int Fabricator::getPreviousSegmentDelta() const {
   auto previousSegment = retrospective->getPreviousSegment();
   return previousSegment.has_value() ? previousSegment.value().delta : 0;
 }
@@ -1136,15 +1140,15 @@ Fabricator::isValidChoiceAndMemesHaveBeenAdded(const SegmentChoice &choice, cons
   std::set<std::string> names;
 
   if (!choice.programId.empty())
-    for (auto meme: sourceMaterial->getMemesOfProgram(choice.programId))
+    for (const auto meme: sourceMaterial->getMemesOfProgram(choice.programId))
       names.emplace(StringUtils::toMeme(meme->name));
 
   if (!choice.programSequenceBindingId.empty())
-    for (auto meme: sourceMaterial->getMemesOfSequenceBinding(choice.programSequenceBindingId))
+    for (const auto meme: sourceMaterial->getMemesOfSequenceBinding(choice.programSequenceBindingId))
       names.emplace(StringUtils::toMeme(meme->name));
 
   if (!choice.instrumentId.empty())
-    for (auto meme: sourceMaterial->getMemesOfInstrument(choice.instrumentId))
+    for (const auto meme: sourceMaterial->getMemesOfInstrument(choice.instrumentId))
       names.emplace(StringUtils::toMeme(meme->name));
 
   if (!force && !memeStack.isAllowed(names)) {
@@ -1155,8 +1159,8 @@ Fabricator::isValidChoiceAndMemesHaveBeenAdded(const SegmentChoice &choice, cons
     return false;
   }
 
-  std::cout << "Adding Choice[" + SegmentUtils::describe(choice) + "] with Memes[" +
-               CsvUtils::join(std::vector<std::string>(names.begin(), names.end())) + "]";
+  spdlog::debug("Adding Choice[{}] with Memes[{}]", SegmentUtils::describe(choice),
+                CsvUtils::join(std::vector(names.begin(), names.end())));
 
   for (auto &name: names) {
     SegmentMeme segmentMeme;
@@ -1196,7 +1200,7 @@ std::string Fabricator::computeCacheKeyForVoiceTrack(const SegmentChoiceArrangem
   return "voice-" + cacheKey + "_track-" + pick.event;
 }
 
-NoteRange Fabricator::computeProgramRange(const UUID &programId, Instrument::Type instrumentType) {
+NoteRange Fabricator::computeProgramRange(const UUID &programId, Instrument::Type instrumentType) const {
   std::vector<std::string> notes;
   auto events = sourceMaterial->getSequencePatternEventsOfProgram(programId);
   for (const auto &event: events) {
@@ -1210,34 +1214,34 @@ NoteRange Fabricator::computeProgramRange(const UUID &programId, Instrument::Typ
   return NoteRange::ofStrings(notes);
 }
 
-int Fabricator::getSegmentId(SegmentChoice &segmentChoice) {
+int Fabricator::getSegmentId(const SegmentChoice &segmentChoice) {
   return segmentChoice.segmentId;
 }
 
-int Fabricator::getSegmentId(SegmentChoiceArrangement &segmentChoiceArrangement) {
+int Fabricator::getSegmentId(const SegmentChoiceArrangement &segmentChoiceArrangement) {
   return segmentChoiceArrangement.segmentId;
 }
 
-int Fabricator::getSegmentId(SegmentChoiceArrangementPick &segmentChoiceArrangementPick) {
+int Fabricator::getSegmentId(const SegmentChoiceArrangementPick &segmentChoiceArrangementPick) {
   return segmentChoiceArrangementPick.segmentId;
 }
 
-int Fabricator::getSegmentId(SegmentChord &segmentChord) {
+int Fabricator::getSegmentId(const SegmentChord &segmentChord) {
   return segmentChord.segmentId;
 }
 
-int Fabricator::getSegmentId(SegmentChordVoicing &segmentChordVoicing) {
+int Fabricator::getSegmentId(const SegmentChordVoicing &segmentChordVoicing) {
   return segmentChordVoicing.segmentId;
 }
 
-int Fabricator::getSegmentId(SegmentMeme &segmentMeme) {
+int Fabricator::getSegmentId(const SegmentMeme &segmentMeme) {
   return segmentMeme.segmentId;
 }
 
-int Fabricator::getSegmentId(SegmentMessage &segmentMessage) {
+int Fabricator::getSegmentId(const SegmentMessage &segmentMessage) {
   return segmentMessage.segmentId;
 }
 
-int Fabricator::getSegmentId(SegmentMeta &segmentMeta) {
+int Fabricator::getSegmentId(const SegmentMeta &segmentMeta) {
   return segmentMeta.segmentId;
 }

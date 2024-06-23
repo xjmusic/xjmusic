@@ -7,48 +7,30 @@
 #include <set>
 #include <string>
 #include <vector>
-#include <utility>
-#include <vector>
-#include <algorithm>
 
 #include "xjmusic/content/ContentEntityStore.h"
 #include "xjmusic/content/Instrument.h"
 #include "xjmusic/content/InstrumentAudio.h"
 #include "xjmusic/content/InstrumentConfig.h"
-#include "xjmusic/content/InstrumentMeme.h"
-#include "xjmusic/content/Library.h"
 #include "xjmusic/content/Program.h"
 #include "xjmusic/content/ProgramConfig.h"
-#include "xjmusic/content/ProgramMeme.h"
 #include "xjmusic/content/ProgramSequence.h"
 #include "xjmusic/content/ProgramSequenceBinding.h"
-#include "xjmusic/content/ProgramSequenceBindingMeme.h"
 #include "xjmusic/content/ProgramSequenceChord.h"
 #include "xjmusic/content/ProgramSequenceChordVoicing.h"
 #include "xjmusic/content/ProgramSequencePattern.h"
 #include "xjmusic/content/ProgramSequencePatternEvent.h"
 #include "xjmusic/content/ProgramVoice.h"
-#include "xjmusic/content/ProgramVoiceTrack.h"
-#include "xjmusic/content/Project.h"
-#include "xjmusic/content/Template.h"
 #include "xjmusic/content/TemplateBinding.h"
 #include "xjmusic/content/TemplateConfig.h"
 #include "xjmusic/fabricator/SegmentRetrospective.h"
 #include "xjmusic/meme/MemeIsometry.h"
 #include "xjmusic/meme/MemeTaxonomy.h"
-#include "xjmusic/music/Accidental.h"
-#include "xjmusic/music/BPM.h"
-#include "xjmusic/music/Bar.h"
 #include "xjmusic/music/Chord.h"
 #include "xjmusic/music/Note.h"
 #include "xjmusic/music/NoteRange.h"
 #include "xjmusic/music/Octave.h"
-#include "xjmusic/music/PitchClass.h"
-#include "xjmusic/music/Root.h"
-#include "xjmusic/music/SlashRoot.h"
-#include "xjmusic/music/Step.h"
 #include "xjmusic/music/StickyBun.h"
-#include "xjmusic/music/Tuning.h"
 #include "xjmusic/segment/Chain.h"
 #include "xjmusic/segment/Segment.h"
 #include "xjmusic/segment/SegmentChoice.h"
@@ -66,11 +48,11 @@ namespace XJ {
 
   class Fabricator {
   public:
-
+    virtual ~Fabricator() = default;
     /**
      * Construct new fabricator
-     * @param fabricatorFactory  from which to load a segment retrospective
      * @param segmentEntityStore            to use for segment entities
+     * @param segmentRetrospective          to look back on previous segmefnt entities
      * @param contentEntityStore  contentEntityStore from which to fabricate
      * @param segmentId  current segment to fabricate
      * @param outputFrameRate  output frame rate
@@ -84,10 +66,9 @@ namespace XJ {
         int segmentId,
         float outputFrameRate,
         int outputChannels,
-        std::optional<Segment::Type> overrideSegmentType
-    );
+        std::optional<Segment::Type> overrideSegmentType);
 
-/**
+    /**
      * Fabrication control mode
      */
     enum class ControlMode {
@@ -99,6 +80,7 @@ namespace XJ {
     /**
      Add a message of the given type to the segment, with the given body
 
+     @param messageType of message to add
      @param body to include in message
      */
     virtual void addMessage(SegmentMessage::Type messageType, std::string body);
@@ -127,9 +109,6 @@ namespace XJ {
     /**
      Delete a pick from the current segment specified by Segment id and id
 
-     @param <N>       type of entity
-     @param segmentId partition (segment id) of entity
-     @param type      of class to delete
      @param id        to delete
      */
     virtual void deletePick(const UUID &id);
@@ -169,7 +148,7 @@ namespace XJ {
 
      @return choices for segment
      */
-    virtual std::set<SegmentChoice> getChoices();
+    [[nodiscard]] virtual std::set<SegmentChoice> getChoices() const;
 
     /**
      Determine if a choice has been previously crafted
@@ -356,7 +335,7 @@ namespace XJ {
 
      @return preferred audios
      */
-    virtual std::optional<InstrumentAudio> getPreferredAudio(const std::string &parentIdent, const std::string &ident);
+    virtual std::optional<const InstrumentAudio &> getPreferredAudio(const std::string &parentIdent, const std::string &ident);
 
     /**
      Get Program for any given choice
@@ -481,6 +460,7 @@ namespace XJ {
     /**
      Randomly select any sequence binding at the given offset
 
+     @param program  from which to get sequence binding
      @param offset to get sequence binding at
      @return randomly selected sequence binding
      */
@@ -614,6 +594,7 @@ namespace XJ {
      Get segment chord voicing for a given chord
 
      @param chord to get voicing for
+     @param instrumentType for which to get voicing
      @return chord voicing for chord
      */
     virtual std::optional<SegmentChordVoicing>
@@ -772,6 +753,7 @@ namespace XJ {
      Put a SegmentMeme in the store
 
      @param entity Meme to put
+     @param force whether to force meme addition without valid theorem checks
      @return Meme successfully put
      @throws FabricationException on failure
      */
@@ -805,8 +787,7 @@ namespace XJ {
     virtual void putPreferredAudio(
         const std::string &parentIdent,
         const std::string &ident,
-        const InstrumentAudio &instrumentAudio
-    );
+        const InstrumentAudio &instrumentAudio);
 
     /**
      Put a key-value pair containing a string-string map value into the report
@@ -880,42 +861,42 @@ namespace XJ {
      * @param segmentChoice
      * @return
      */
-    static int getSegmentId(SegmentChoice &segmentChoice);
+    static int getSegmentId(const SegmentChoice &segmentChoice);
 
     /**
      * Get Segment ID of Segment Choice Arrangement
      */
-    static int getSegmentId(SegmentChoiceArrangement &segmentChoiceArrangement);
+    static int getSegmentId(const SegmentChoiceArrangement &segmentChoiceArrangement);
 
     /**
      * Get Segment ID of Segment Choice Arrangement Pick
      */
-    static int getSegmentId(SegmentChoiceArrangementPick &segmentChoiceArrangementPick);
+    static int getSegmentId(const SegmentChoiceArrangementPick &segmentChoiceArrangementPick);
 
     /**
      * Get Segment ID of Segment Chord
      */
-    static int getSegmentId(SegmentChord &segmentChord);
+    static int getSegmentId(const SegmentChord &segmentChord);
 
     /**
      * Get Segment ID of Segment Chord Voicing
      */
-    static int getSegmentId(SegmentChordVoicing &segmentChordVoicing);
+    static int getSegmentId(const SegmentChordVoicing &segmentChordVoicing);
 
     /**
      * Get Segment ID of Segment Meme
      */
-    static int getSegmentId(SegmentMeme &segmentMeme);
+    static int getSegmentId(const SegmentMeme &segmentMeme);
 
     /**
      * Get Segment ID of Segment Message
      */
-    static int getSegmentId(SegmentMessage &segmentMessage);
+    static int getSegmentId(const SegmentMessage &segmentMessage);
 
     /**
      * Get Segment ID of Segment Meta
      */
-    static int getSegmentId(SegmentMeta &segmentMeta);
+    static int getSegmentId(const SegmentMeta &segmentMeta);
 
   private:
     static const std::string KEY_VOICE_TRACK_TEMPLATE;
@@ -959,7 +940,7 @@ namespace XJ {
      * @param key  to get meta for
      * @return     meta for key
      */
-    std::optional<SegmentMeta> getSegmentMeta(const std::string &key);
+    [[nodiscard]] std::optional<SegmentMeta> getSegmentMeta(const std::string &key) const;
 
     /**
      Get the choices of the current segment of the given type
@@ -967,14 +948,14 @@ namespace XJ {
      @param programType of choices to get
      @return choices of the current segment of the given type
      */
-    std::optional<SegmentChoice> getChoiceOfType(Program::Type programType);
+    [[nodiscard]] std::optional<SegmentChoice> getChoiceOfType(Program::Type programType) const;
 
     /**
      Get the choices of the current segment of the given type
 
      @return choices of the current segment of the given type
      */
-    std::vector<SegmentChoice> getBeatChoices();
+    [[nodiscard]] std::vector<SegmentChoice> getBeatChoices() const;
 
     /**
      Compute the lowest optimal range shift octaves
@@ -983,7 +964,7 @@ namespace XJ {
      @param targetRange to
      @return lowest optimal range shift octaves
      */
-    static int computeLowestOptimalRangeShiftOctaves(const NoteRange &sourceRange, NoteRange targetRange);
+    static int computeLowestOptimalRangeShiftOctaves(const NoteRange &sourceRange, const NoteRange &targetRange);
 
     /**
      Compute a Segment ship key: the chain ship key concatenated with the begin-at time in chain microseconds
@@ -1011,7 +992,7 @@ namespace XJ {
 
      @return delta from previous segment
      */
-    int getPreviousSegmentDelta();
+    [[nodiscard]] int getPreviousSegmentDelta() const;
 
     /**
      Compute the preferred instrument audio
@@ -1028,7 +1009,7 @@ namespace XJ {
      @param force     whether to force the addition of this choice
      @return true if valid and adding memes was successful
      */
-    bool isValidChoiceAndMemesHaveBeenAdded(const SegmentChoice& choice, const MemeStack &memeStack, bool force);
+    bool isValidChoiceAndMemesHaveBeenAdded(const SegmentChoice &choice, const MemeStack &memeStack, bool force);
 
     /**
      For a SegmentMeme, don't put a duplicate of an existing meme
@@ -1038,7 +1019,7 @@ namespace XJ {
      @param force     whether to force the addition of this meme
      @return true if okay to add
      */
-    bool isValidMemeAddition(const SegmentMeme &meme, const MemeStack& memeStack, bool force);
+    bool isValidMemeAddition(const SegmentMeme &meme, const MemeStack &memeStack, bool force);
 
     /**
      * Compute the cache key for preferred audio
@@ -1061,9 +1042,9 @@ namespace XJ {
      * @param instrumentType to get range of
      * @return
      */
-    NoteRange computeProgramRange(const UUID &programId, Instrument::Type instrumentType);
+    [[nodiscard]] NoteRange computeProgramRange(const UUID &programId, Instrument::Type instrumentType) const;
   };
 
-} // namespace XJ
+}// namespace XJ
 
-#endif //XJMUSIC_FABRICATOR_H
+#endif//XJMUSIC_FABRICATOR_H
