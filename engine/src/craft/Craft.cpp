@@ -806,10 +806,11 @@ std::set<std::string> Craft::pickNotesForEvent(
   auto dpTransposeOctaveSemitones = 12 * fabricator->getProgramRangeShiftOctaves(instrumentType, &sourceRange, &voicingListRange);
 
   // Event notes are either interpreted from specific notes in dp, or via sticky bun from X notes in dp
-  std::vector<Note> eventNotes;
   std::vector<std::string> eventTones = CsvUtils::split(event->tones);
+  std::vector<Note> eventNotes;
+  eventNotes.reserve(eventTones.size());
   for (const auto &n: eventTones) {
-    eventNotes.push_back(Note::of(n).shift(dpTransposeSemitones + dpTransposeOctaveSemitones));
+    eventNotes.emplace_back(Note::of(n).shift(dpTransposeSemitones + dpTransposeOctaveSemitones));
   }
   std::sort(eventNotes.begin(), eventNotes.end());
 
@@ -845,6 +846,7 @@ std::set<std::string> Craft::pickNotesForEvent(
     pickedNotes.push_back(pickedNote);
   }
 
+  // TODO why do we convert back to strings here? we'll probably use notes from the result anyway
   std::set<std::string> pickedNoteStrings;
   for (const auto &note: pickedNotes) {
     pickedNoteStrings.insert(note.toString(segChord.accidental));

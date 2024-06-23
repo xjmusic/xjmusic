@@ -536,7 +536,7 @@ int Fabricator::getProgramTargetShift(Instrument::Type instrumentType, const Cho
       std::to_string(static_cast<int>(instrumentType)) + "__" + fromChord->toString() + "__" + toChord->toString();
   if (targetShift.find(cacheKey) == targetShift.end()) {
     if (instrumentType == Instrument::Type::Bass) {
-      targetShift[cacheKey] = Step::delta(fromChord->root, toChord->slashRoot.pitchClass.value_or(Atonal));
+      targetShift[cacheKey] = Step::delta(fromChord->root, toChord->slashRoot.pitchClass.value_or(toChord->root));
     } else {
       targetShift[cacheKey] = Step::delta(fromChord->root, toChord->root);
     }

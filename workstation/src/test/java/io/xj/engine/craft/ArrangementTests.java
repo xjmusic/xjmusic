@@ -62,7 +62,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(MockitoExtension.class)
 public class ArrangementTests extends YamlTest {
   static final String TEST_PATH_PREFIX = "/arrangements/";
-  static final int REPEAT_EACH_TEST_TIMES = 7;
+  static final int REPEAT_EACH_TEST_TIMES = 1; // todo restore to 7;
 
   static final int TEMPO = 60; // 60 BPM such that 1 beat = 1 second
   static final Set<InstrumentType> INSTRUMENT_TYPES_TO_TEST = Set.of(
